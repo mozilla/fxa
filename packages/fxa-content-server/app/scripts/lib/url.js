@@ -59,6 +59,34 @@ function (_) {
         return '';
       }
       return '?' + params.join('&');
+    },
+
+    getOrigin: function (url) {
+      // The URL API is only supported by new browsers, a workaround is used.
+      var anchor = document.createElement('a');
+
+      // Fx 18 (& FxOS 1.*) do not support anchor.origin. Build the origin
+      // out of the protocol and host.
+      // Use setAttibute instead of a direct set or else Fx18 does not
+      // update anchor.protocol & anchor.host.
+      anchor.setAttribute('href', url);
+
+      if (! (anchor.protocol && anchor.host)) {
+        // malformed URL. Return null. This is the same behavior as URL.origin
+        return null;
+      }
+
+      var origin = anchor.protocol + '//' + anchor.host;
+      // if only the domain is specified without a protocol, the anchor
+      // will use the page's origin as the URL's origin. Check that
+      // the created origin matches the first portion of
+      // the passed in URL. If not, then the anchor element
+      // modified the origin.
+      if (url.indexOf(origin) !== 0) {
+        return null;
+      }
+
+      return origin;
     }
   };
 });

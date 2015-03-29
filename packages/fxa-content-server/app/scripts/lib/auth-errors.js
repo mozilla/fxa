@@ -209,6 +209,10 @@ function (_, Errors) {
     DAMAGED_VERIFICATION_LINK: {
       errno: 1026,
       message: t('Verification link damaged')
+    },
+    UNEXPECTED_POSTMESSAGE_ORIGIN: {
+      errno: 1027,
+      message: UNEXPECTED_ERROR_MESSAGE
     }
   };
 

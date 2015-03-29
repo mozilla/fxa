@@ -17,38 +17,15 @@ define([
 ], function (_, $, p, IframeChannel, AuthErrors, OAuthAuthenticationBroker,
         ChannelMixin) {
 
-  function getParentOrigin(context) {
-    return context.send('ping')
-      .then(function (data) {
-        return data.origin;
-      });
-  }
-
-  function getExpectedParentOrigin(relier) {
-    // redirectUri comes from the oauthClient's getClientInfo, which is
-    // populated on app start before the broker.
-    // The URL API is only supported by new browsers, a workaround is used.
-    var anchor = document.createElement('a');
-
-    // Fx 18 (& FxOS 1.*) do not support anchor.origin. Build the origin
-    // out of the protocol and host.
-    // Use setAttibute instead of a direct set or else Fx18 does not
-    // update anchor.protocol & anchor.host.
-    anchor.setAttribute('href', relier.get('redirectUri'));
-    return anchor.protocol + '//' + anchor.host;
-  }
-
-  function checkOriginAllowedToIframe() {
-    /*jshint validthis: true*/
-    var self = this;
-    return p.all([
-      getParentOrigin(self),
-      getExpectedParentOrigin(self.relier)
-    ]).spread(function (parentOrigin, expectedOrigin) {
-      if (parentOrigin !== expectedOrigin) {
-        throw AuthErrors.toError('ILLEGAL_IFRAME_PARENT');
-      }
-    });
+  // A `ping` is sent out to the expected relier. The relier must respond.
+  // No response will be received if the parent is either:
+  // 1. not set up to respond correctly
+  // 2. not the expected origin
+  //
+  // either case is an error
+  function checkIframedByExpectedOrigin(context) {
+    //jshint validthis: true
+    return context.send('ping');
   }
 
   var IframeAuthenticationBroker = OAuthAuthenticationBroker.extend({
@@ -69,14 +46,9 @@ define([
 
     selectStartPage: function () {
       var self = this;
-      return checkOriginAllowedToIframe.call(self)
+      return checkIframedByExpectedOrigin(self)
         .then(function () {
           return OAuthAuthenticationBroker.prototype.selectStartPage.call(self);
-        }, function (err) {
-          if (AuthErrors.is(err, 'ILLEGAL_IFRAME_PARENT')) {
-            return 'illegal_iframe';
-          }
-          throw err;
         });
     },
 

@@ -9,16 +9,21 @@ define([
   'chai',
   'sinon',
   'lib/auth-errors',
+  'lib/metrics',
   'lib/channels/fx-desktop',
   '../../../mocks/window'
 ],
-function (chai, sinon, AuthErrors, FxDesktopChannel, WindowMock) {
+function (chai, sinon, AuthErrors, Metrics, FxDesktopChannel, WindowMock) {
   var assert = chai.assert;
   var channel;
+  // events from Fx Desktop have an origin of the string 'null'
+  var FX_DESKTOP_ORIGIN = 'null';
+  var CONTENT_SERVER_ORIGIN = document.location.origin;
 
   describe('lib/channel/fx-desktop', function () {
     var windowMock;
     var parentMock;
+    var metrics;
 
     function dispatchEvent(status, data) {
       windowMock.dispatchEvent({
@@ -28,7 +33,8 @@ function (chai, sinon, AuthErrors, FxDesktopChannel, WindowMock) {
             status: status,
             data: data
           }
-        }
+        },
+        origin: CONTENT_SERVER_ORIGIN
       });
     }
 
@@ -36,11 +42,14 @@ function (chai, sinon, AuthErrors, FxDesktopChannel, WindowMock) {
       windowMock = new WindowMock();
       parentMock = new WindowMock();
       windowMock.parent = parentMock;
+      metrics = new Metrics();
 
       channel = new FxDesktopChannel();
       channel.init({
         window: windowMock,
-        sendTimeoutLength: 10
+        origin: CONTENT_SERVER_ORIGIN,
+        sendTimeoutLength: 10,
+        metrics: metrics
       });
     });
 
@@ -89,6 +98,57 @@ function (chai, sinon, AuthErrors, FxDesktopChannel, WindowMock) {
 
               dispatchEvent('call-the-callback');
             });
+    });
+
+    describe('receiveMessage', function () {
+      it('ignores and logs messages that come from an unexpected origin', function () {
+        sinon.spy(channel, 'trigger');
+        sinon.spy(metrics, 'logError');
+
+        channel.receiveMessage({
+          origin: 'https://nefarious.domain.org'
+        });
+
+        assert.equal(
+          metrics.logError.args[0][0].context, 'https://nefarious.domain.org');
+        assert.isFalse(channel.trigger.called);
+      });
+
+      it('allows messages that come from the expected domain', function () {
+        sinon.spy(channel, 'trigger');
+        sinon.spy(metrics, 'logError');
+
+        channel.receiveMessage({
+          origin: CONTENT_SERVER_ORIGIN,
+          data: {
+            type: 'message',
+            content: {
+              status: 'can_link_account'
+            }
+          }
+        });
+
+        assert.isFalse(metrics.logError.called);
+        assert.isTrue(channel.trigger.calledWith('can_link_account'));
+      });
+
+      it('allows messages that come from Firefox Desktop', function () {
+        sinon.spy(channel, 'trigger');
+        sinon.spy(metrics, 'logError');
+
+        channel.receiveMessage({
+          origin: FX_DESKTOP_ORIGIN,
+          data: {
+            type: 'message',
+            content: {
+              status: 'can_link_account'
+            }
+          }
+        });
+
+        assert.isFalse(metrics.logError.called);
+        assert.isTrue(channel.trigger.calledWith('can_link_account'));
+      });
     });
   });
 });

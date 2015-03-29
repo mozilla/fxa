@@ -49,7 +49,40 @@ function (chai, sinon, $, IframeAuthenticationBroker, Relier, p, NullChannel,
     });
 
     describe('selectStartPage', function () {
-      it('returns nothing if RP is allowed to use the IFRAME', function () {
+      it('does not continue if channel does not respond to `ping`', function () {
+
+        var deferred = p.defer();
+
+        sinon.stub(broker, 'send', function () {
+          // The timeout length is not really important as long as
+          // resolution occurs after other promises are established.
+          setTimeout(function () {
+            deferred.resolve();
+          }, 10);
+
+          // synthesize a response never being returned.
+          // change the next line to `return p()` or
+          // `return p.reject(<some err>)`
+          // to check the tests catch what they should
+          //return p.defer().promise;
+          return p.defer().promise;
+        });
+
+        broker.selectStartPage()
+          // the promise should not resolve if no response is received.
+          .then(function () {
+            deferred.reject(new Error('selectStartPage success is not supposed to complete'));
+          }, function () {
+            deferred.reject(new Error('selectStartPage failure is not supposed to complete'));
+          });
+
+        return deferred.promise
+          .then(function () {
+            assert.isTrue(broker.send.calledWith('ping'));
+          });
+      });
+
+      it('does not redirect if relier\'s origin matches the origin of the redirect_uri registered for the relier', function () {
         sinon.stub(broker, 'send', function () {
           return p({
             origin: 'https://marketplace.firefox.com'
@@ -64,22 +97,7 @@ function (chai, sinon, $, IframeAuthenticationBroker, Relier, p, NullChannel,
           });
       });
 
-      it('returns `illegal_iframe` if RP is not allowed to use the IFRAME', function () {
-        sinon.stub(broker, 'send', function () {
-          return p({
-            origin: 'https://conartist.com'
-          });
-        });
-
-        relierMock.set('redirectUri', 'https://marketplace.firefox.com/endpoint');
-
-        return broker.selectStartPage()
-          .then(function (page) {
-            assert.equal(page, 'illegal_iframe');
-          });
-      });
-
-      it('re-throws other errors', function () {
+      it('re-throws errors', function () {
         sinon.stub(broker, 'send', function () {
           return p.reject(new Error('uh oh'));
         });

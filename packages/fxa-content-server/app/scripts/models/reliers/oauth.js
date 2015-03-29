@@ -14,8 +14,9 @@ define([
   'lib/resume-token',
   'lib/promise',
   'lib/oauth-errors',
-  'lib/relier-keys'
-], function (_, Relier, ResumeToken, p, OAuthErrors, RelierKeys) {
+  'lib/relier-keys',
+  'lib/url'
+], function (_, Relier, ResumeToken, p, OAuthErrors, RelierKeys, Url) {
   var RELIER_FIELDS_IN_RESUME_TOKEN = ['state'];
 
   var OAuthRelier = Relier.extend({
@@ -158,6 +159,7 @@ define([
           //jshint camelcase: false
           // server version always takes precedent over the search parameter
           self.set('redirectUri', serviceInfo.redirect_uri);
+          self.set('origin', Url.getOrigin(serviceInfo.redirect_uri));
         }, function (err) {
           // the server returns an invalid request signature for an
           // invalid/unknown client_id
@@ -169,7 +171,6 @@ define([
           }
           throw err;
         });
-
     }
   });
 

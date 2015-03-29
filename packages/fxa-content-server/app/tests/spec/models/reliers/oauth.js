@@ -13,10 +13,11 @@ define([
   'lib/oauth-errors',
   'lib/promise',
   'lib/relier-keys',
+  'lib/url',
   '../../../mocks/window',
   '../../../lib/helpers'
 ], function (chai, sinon, OAuthRelier, Session, OAuthClient, OAuthErrors,
-      p, RelierKeys, WindowMock, TestHelpers) {
+      p, RelierKeys, Url, WindowMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('models/reliers/oauth', function () {
@@ -92,7 +93,7 @@ define([
           });
       });
 
-      it('sets serviceName and redirectUri from parameters returned by the server', function () {
+      it('sets serviceName, redirectUri, and origin from parameters returned by the server', function () {
         windowMock.location.search = TestHelpers.toSearchString({
           preVerifyToken: PREVERIFY_TOKEN,
           service: SERVICE,
@@ -108,6 +109,7 @@ define([
           .then(function () {
             assert.equal(relier.get('serviceName'), SERVICE_NAME);
             assert.equal(relier.get('redirectUri'), SERVER_REDIRECT_URI);
+            assert.equal(relier.get('origin'), Url.getOrigin(SERVER_REDIRECT_URI));
           });
       });
 

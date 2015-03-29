@@ -23,10 +23,9 @@
 
 define([
   'underscore',
-  'lib/auth-errors',
   'lib/channels/base',
   'lib/channels/mixins/postmessage_receiver'
-], function (_, AuthErrors, BaseChannel, PostMessageReceiverMixin) {
+], function (_, BaseChannel, PostMessageReceiverMixin) {
   function IFrameChannel() {
     // constructor, nothing to do.
   }
@@ -42,7 +41,7 @@ define([
 
     dispatchCommand: function (command, data) {
       var msg = IFrameChannel.stringify(command, data);
-      this.window.parent.postMessage(msg, '*');
+      this.window.parent.postMessage(msg, this.getOrigin());
     }
   }, PostMessageReceiverMixin);
 
