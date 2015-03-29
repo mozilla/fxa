@@ -14,6 +14,14 @@ module.exports = function (grunt) {
         src: [
           '**/*.po'
         ]
+      }, {
+        // Copy strings from sv_SE to sv
+        expand: true,
+        cwd: '<%= yeoman.strings_src %>/sv_SE',
+        dest: '<%= yeoman.strings_dist %>/sv',
+        src: [
+          '**/*.po'
+        ]
       }]
     },
     error_pages: {
