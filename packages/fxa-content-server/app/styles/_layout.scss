@@ -30,7 +30,7 @@
     max-width: 360px;
     min-height: 300px !important;
     min-width: 300px;
-    padding: 45px 20px 20px 20px;
+    padding: 35px 20px 20px 20px;
     position: relative;
     width: 94%;
   }
@@ -47,6 +47,14 @@
 }
 
 #stage {
+  
+  display: block;
+  opacity: 0;
+
+  .static & {
+    opacity: 1;
+  }
+
   .js & {
     display: none;
   }

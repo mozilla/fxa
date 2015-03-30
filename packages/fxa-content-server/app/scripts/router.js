@@ -204,10 +204,9 @@ function (
             return;
           }
 
-          // Render the new view and explicitly set the `display: block`
-          // using .css. When embedded in about:accounts, the content
-          // is not yet visible and show will not display the element.
-          $('#stage').html(viewToShow.el).css('display', 'block');
+          // Render the new view while stage is invisible then fade it in using css animations
+          // catch problems with an explicit opacity rule after class is added.
+          $('#stage').html(viewToShow.el).addClass('fade-in-forward').css('opacity', 1);
           viewToShow.afterVisible();
 
           viewToShow.logScreen();
@@ -216,14 +215,7 @@ function (
           // on screen transition. Force them to the top of the page.
           self.window.scrollTo(0, 0);
 
-          self.$logo = $('#fox-logo');
-          var name = self.currentView.el.className;
-
-          if (name === 'sign-in' || name === 'sign-up') {
-            self.$logo.addClass('fade-down-logo');
-          }
-
-          self.$logo.css('opacity', 1);
+          $('#fox-logo').addClass('fade-in-forward').css('opacity', 1);
 
           // if the first view errors, the fail branch of the promise will be
           // followed. The view will navigate to `unexpected_error`, which will

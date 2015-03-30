@@ -64,8 +64,8 @@ div + .error {
   animation: fadein $long-transition;
 }
 
-.fade-down-logo {
-  animation: fade-down-logo $long-transition;
+.fade-in-forward {
+  animation: fadein $short-transition forwards;
 }
 
 .fade-down-tt {
