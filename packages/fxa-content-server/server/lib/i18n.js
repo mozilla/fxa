@@ -20,9 +20,18 @@ module.exports = function (config) {
   // registered to render text in the static templates. Without the helper,
   // all {{#t}} surrounded text is empty.
   var handlebars = require('handlebars');
-  handlebars.registerHelper('t', function (msg) {
-    return msg.fn(this);
-  });
+  // This file is used by both the build system and the server.
+  // If part of the build system, `t` is already defined. Do not re-register
+  // or else the static templates are not translated.
+  if (! (handlebars.helpers && handlebars.helpers.t)) {
+    handlebars.registerHelper('t', function (msg) {
+      if (msg.fn) {
+        return this.format(this.gettext(msg.fn(this)), this);
+      }
+
+      return this.format(this.gettext(msg), this);
+    });
+  }
 
 
   var abide = require('i18n-abide');
