@@ -1,3 +1,24 @@
+<a name="0.34.0"></a>
+## 0.34.0 (2015-03-31)
+
+
+#### Bug Fixes
+
+* **client:**
+  * Only send postMessages to and from the expected parent when using the iframe. ([0a453d1c](https://github.com/mozilla/fxa-content-server/commit/0a453d1cb5375390558bd34d0b75b4c3775d4468))
+  * Channel timeouts are informative, they no longer throw errors. ([0b7770c1](https://github.com/mozilla/fxa-content-server/commit/0b7770c1139519965261898750ae281ca4200f76))
+  * Extract the COPPA datepicker logic into its own module. ([a368072d](https://github.com/mozilla/fxa-content-server/commit/a368072d8790cd5dae78fa2af2ea6d580da3d1d4))
+* **l10n:** sv is no longer maintained, copy strings from sv-SE ([7d28bfcd](https://github.com/mozilla/fxa-content-server/commit/7d28bfcdc4a4bd697bedcd5555ea233312cbde81), closes [#1773](https://github.com/mozilla/fxa-content-server/issues/1773))
+* **server:** Translate static pages (in dev mode too!). ([28e5759d](https://github.com/mozilla/fxa-content-server/commit/28e5759dfa71b1476233f200ff68bfee6da993b1))
+* **test:** Fix the account locked tests when run against latest. ([45073cf6](https://github.com/mozilla/fxa-content-server/commit/45073cf66cf69118251c85846f6ce0e330f8bafd))
+
+
+#### Features
+
+* **client:** Add the account locked flows. ([8e405298](https://github.com/mozilla/fxa-content-server/commit/8e405298b8fee3b1e5c4e495a006d42580432c49))
+* **settings:** redirect to avatar change page when query param setting=avatar ([344f9c70](https://github.com/mozilla/fxa-content-server/commit/344f9c70ebd7fc7bae9eb9ab31c8682e42c64b47), closes [#2249](https://github.com/mozilla/fxa-content-server/issues/2249))
+
+
 <a name="0.33.0"></a>
 ## 0.33.0 (2015-03-16)
 
