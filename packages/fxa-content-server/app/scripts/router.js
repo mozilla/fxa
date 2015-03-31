@@ -87,6 +87,7 @@ function (
       'cannot_create_account(/)': showView(CannotCreateAccountView),
       'verify_email(/)': showView(CompleteSignUpView),
       'confirm(/)': showView(ConfirmView),
+      'settings(/)?setting=avatar': showView(AvatarChangeView),
       'settings(/)': showView(SettingsView),
       'settings/avatar(/)': showView(AvatarView),
       'settings/avatar/change(/)': showView(AvatarChangeView),

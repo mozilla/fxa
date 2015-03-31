@@ -191,6 +191,65 @@ define([
         .get(require.toUrl(SETTINGS_URL + '?uid=' + accountData.uid))
         .findById('fxa-settings-header')
         .end();
+    },
+
+    'sign in, go to settings with setting param set to avatar redirects to avatar change page ': function () {
+      return this.get('remote')
+        .get(require.toUrl(SIGNIN_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+
+        .findByCssSelector('form input.email')
+          .click()
+          .type(email)
+        .end()
+
+        .findByCssSelector('form input.password')
+          .click()
+          .type(FIRST_PASSWORD)
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        .findById('fxa-settings-header')
+        .end()
+
+        .get(require.toUrl(SETTINGS_URL + '?setting=avatar'))
+
+        .findById('fxa-avatar-change-header')
+        .end()
+
+        .findByCssSelector('#settings-home a')
+          .click()
+        .end()
+
+        // Should not redirect after clicking the home button
+        .findById('fxa-settings-header')
+        .end();
+    },
+
+    'sign in with setting param set to avatar redirects to avatar change page ': function () {
+      return this.get('remote')
+        .get(require.toUrl(SIGNIN_URL + '?setting=avatar'))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+
+        .findByCssSelector('form input.email')
+          .click()
+          .type(email)
+        .end()
+
+        .findByCssSelector('form input.password')
+          .click()
+          .type(FIRST_PASSWORD)
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        .findById('fxa-avatar-change-header')
+        .end();
     }
 
   });

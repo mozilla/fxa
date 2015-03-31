@@ -14,6 +14,7 @@ define([
   '../../../mocks/router',
   '../../../mocks/file-reader',
   '../../../mocks/profile',
+  '../../../mocks/window',
   'models/user',
   'models/reliers/relier',
   'lib/profile-client',
@@ -21,7 +22,7 @@ define([
   'lib/auth-errors'
 ],
 function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
-            User, Relier, ProfileClient, p, AuthErrors) {
+            WindowMock, User, Relier, ProfileClient, p, AuthErrors) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
@@ -29,6 +30,7 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
     var view;
     var routerMock;
     var profileClientMock;
+    var windowMock;
     var user;
     var account;
     var relier;
@@ -37,12 +39,14 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
       routerMock = new RouterMock();
       user = new User();
       profileClientMock = new ProfileMock();
+      windowMock = new WindowMock();
       relier = new Relier();
 
       view = new View({
         user: user,
         relier: relier,
-        router: routerMock
+        router: routerMock,
+        window: windowMock
       });
     });
 
@@ -69,6 +73,7 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
         view = new View({
           router: routerMock,
           relier: relier,
+          window: windowMock,
           user: user
         });
         view.isUserAuthorized = function () {
@@ -194,6 +199,17 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
         });
       });
 
+      it('clears setting param if set to avatar', function () {
+        windowMock.location.search = '?setting=avatar';
+        view.settingsHome();
+        assert.equal(windowMock.location.search, '');
+      });
+
+      it('clears setting param if set to avatar and has more params', function () {
+        windowMock.location.search = '?setting=avatar&uid=abc123';
+        view.settingsHome();
+        assert.equal(windowMock.location.search, '?uid=abc123');
+      });
     });
 
   });
