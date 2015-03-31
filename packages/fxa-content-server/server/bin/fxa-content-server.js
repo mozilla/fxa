@@ -26,6 +26,9 @@ var logger = require('mozlog')('server.main');
 var helmet = require('helmet');
 var express = require('express');
 var consolidate = require('consolidate');
+var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
+var serveStatic = require('serve-static');
 
 var i18n = require('../lib/i18n')(config.get('i18n'));
 var routes = require('../lib/routes')(config, i18n);
@@ -80,8 +83,8 @@ function makeApp() {
   app.disable('x-powered-by');
 
   app.use(routeLogging());
-  app.use(express.cookieParser());
-  app.use(express.bodyParser());
+  app.use(cookieParser());
+  app.use(bodyParser.json());
 
   var ableOptions = {
     dir: config.get('experiments.dir'),
@@ -94,9 +97,7 @@ function makeApp() {
 
   routes(app);
 
-  // workaround for reserved word bug:
-  // https://github.com/marijnh/acorn/issues/85
-  app.use(express['static'](STATIC_DIRECTORY, {
+  app.use(serveStatic(STATIC_DIRECTORY, {
     maxAge: config.get('static_max_age')
   }));
 

@@ -5,7 +5,7 @@
 // Middleware to log the requests
 
 var logger = require('mozlog')('server.requests');
-var expressLogger = require('express').logger;
+var morgan = require('morgan');
 var config = require('../configuration');
 
 /**
@@ -28,8 +28,7 @@ module.exports = function () {
 
   return config.get('disable_route_logging')
           ? disabled
-          : expressLogger({
-            format: formats[config.get('route_log_format')],
+          : morgan(formats[config.get('route_log_format')], {
             stream: {
               write: function (x) {
                 logger.info(typeof x === 'string' ? x.trim() : x);
