@@ -966,6 +966,16 @@
         }
       }
     },
+    "grunt-bump": {
+      "version": "0.3.0",
+      "resolved": "https://registry.npmjs.org/grunt-bump/-/grunt-bump-0.3.0.tgz",
+      "dependencies": {
+        "semver": {
+          "version": "4.2.2",
+          "resolved": "https://registry.npmjs.org/semver/-/semver-4.2.2.tgz"
+        }
+      }
+    },
     "grunt-contrib-jshint": {
       "version": "0.10.0",
       "from": "grunt-contrib-jshint@0.10.0",

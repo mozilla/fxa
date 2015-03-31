@@ -37,6 +37,7 @@
   "devDependencies": {
     "ass": "git://github.com/jrgm/ass.git#5be99ee",
     "grunt": "0.4.5",
+    "grunt-bump": "0.3.0",
     "grunt-contrib-jshint": "0.10.0",
     "grunt-copyright": "0.1.0",
     "grunt-nsp-shrinkwrap": "0.0.3",
