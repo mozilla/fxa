@@ -87,6 +87,12 @@ function (_) {
       }
 
       return origin;
+    },
+
+    removeParamFromSearchString: function (name, str) {
+      var params = this.searchParams(str);
+      delete params[name];
+      return this.objToSearchString(params);
     }
   };
 });

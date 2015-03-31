@@ -128,6 +128,16 @@ function (chai, _, Url) {
         );
       });
     });
+
+    describe('removeParamFromSearchString', function () {
+      it('removes a param', function () {
+        assert.equal(Url.removeParamFromSearchString('foo', '?foo=one&bar=two'), '?bar=two');
+      });
+
+      it('returns the same string if param is not included', function () {
+        assert.equal(Url.removeParamFromSearchString('foo', '?bar=one&baz=two'), '?bar=one&baz=two');
+      });
+    });
   });
 });
 

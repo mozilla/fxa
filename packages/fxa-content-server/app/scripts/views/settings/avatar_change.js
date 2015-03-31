@@ -14,10 +14,11 @@ define([
   'stache!templates/settings/avatar_change',
   'lib/auth-errors',
   'lib/image-loader',
+  'lib/url',
   'models/cropper-image'
 ],
-function ($, _, Cocktail, FormView, AvatarMixin, SettingsMixin, Template, AuthErrors,
-    ImageLoader, CropperImage) {
+function ($, _, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
+    AuthErrors, ImageLoader, Url, CropperImage) {
 
   var View = FormView.extend({
     template: Template,
@@ -26,7 +27,8 @@ function ($, _, Cocktail, FormView, AvatarMixin, SettingsMixin, Template, AuthEr
     events: {
       'click #file': 'filePicker',
       'click .remove': 'remove',
-      'change #imageLoader': 'fileSet'
+      'change #imageLoader': 'fileSet',
+      'click #settings-home a': 'settingsHome'
     },
 
     initialize: function () {
@@ -134,6 +136,12 @@ function ($, _, Cocktail, FormView, AvatarMixin, SettingsMixin, Template, AuthEr
           error: AuthErrors.toMessage('UNUSABLE_IMAGE')
         });
       }
+    },
+
+    settingsHome: function () {
+      this.window.location.search = Url.removeParamFromSearchString('setting',
+        this.window.location.search);
+      return false;
     }
   });
 

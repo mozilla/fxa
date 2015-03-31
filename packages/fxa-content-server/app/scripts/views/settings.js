@@ -27,13 +27,6 @@ function (Cocktail, Session, FormView, BaseView, AvatarMixin,
       this._able = options.able;
     },
 
-    beforeRender: function () {
-      if (this.relier.get('setting') === 'avatar') {
-        this.navigate('/settings/avatar/change');
-        return false;
-      }
-    },
-
     context: function () {
       var account = this.getSignedInAccount();
       return {
