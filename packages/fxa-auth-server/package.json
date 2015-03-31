@@ -35,7 +35,7 @@
     "bunyan": "1.2.0",
     "compute-cluster": "0.0.9",
     "convict": "0.6.1",
-    "fxa-auth-mailer": "git+https://github.com/mozilla/fxa-auth-mailer.git#a2d00cf6",
+    "fxa-auth-mailer": "git+https://github.com/mozilla/fxa-auth-mailer.git#master",
     "hapi": "8.2.0",
     "hapi-auth-hawk": "2.0.0",
     "hkdf": "0.0.2",
@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "ass": "0.0.4",
-    "fxa-auth-db-mem": "git+https://github.com/mozilla/fxa-auth-db-mem.git#49e33d4a",
+    "fxa-auth-db-mem": "git+https://github.com/mozilla/fxa-auth-db-mem.git#master",
     "grunt": "0.4.5",
     "grunt-bump": "0.3.0",
     "grunt-cli": "0.1.13",
