@@ -45,10 +45,6 @@ function ($, _, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
     beforeRender: function () {
       var self = this;
 
-      if (this.relier.get('setting') === 'avatar') {
-        this.relier.unset('setting');
-      }
-
       return self._fetchProfileImage(self.getSignedInAccount())
         .then(function (result) {
           self.avatarId = result.id;
@@ -139,6 +135,8 @@ function ($, _, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
     },
 
     settingsHome: function () {
+      // the setting query parameter must be removed or else the router will
+      // send the user back to this screen.
       this.window.location.search = Url.removeParamFromSearchString('setting',
         this.window.location.search);
       return false;

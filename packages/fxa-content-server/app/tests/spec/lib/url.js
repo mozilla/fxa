@@ -137,6 +137,10 @@ function (chai, _, Url) {
       it('returns the same string if param is not included', function () {
         assert.equal(Url.removeParamFromSearchString('foo', '?bar=one&baz=two'), '?bar=one&baz=two');
       });
+
+      it('does not explode if no query params exist', function () {
+        assert.equal(Url.removeParamFromSearchString('foo', ''), '');
+      });
     });
   });
 });

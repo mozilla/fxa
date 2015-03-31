@@ -51,7 +51,6 @@ define([
           self.importSearchParam('service');
           self.importSearchParam('preVerifyToken');
           self.importSearchParam('uid');
-          self.importSearchParam('setting');
 
           // A relier can indicate they do not want to allow
           // cached credentials if they set email === 'blank'
