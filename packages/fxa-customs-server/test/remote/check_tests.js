@@ -38,6 +38,7 @@ var client = restify.createJsonClient({
         function (err, req, res, obj) {
           t.notOk(err, 'good request is successful')
           t.equal(res.statusCode, 200, 'good request returns a 200')
+          t.ok(obj, 'got an obj, make jshint happy')
           t.end()
         }
       )

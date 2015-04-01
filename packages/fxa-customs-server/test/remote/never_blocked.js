@@ -83,10 +83,12 @@ test(
     client.post('/failedLoginAttempt', { email: TEST_EMAIL, ip: TEST_IP },
       function (err, req, res, obj) {
         t.equal(res.statusCode, 200, 'first login attempt noted')
+        t.ok(obj, 'got an obj, make jshint happy')
 
         client.post('/failedLoginAttempt', { email: TEST_EMAIL, ip: TEST_IP },
           function (err, req, res, obj) {
             t.equal(res.statusCode, 200, 'second login attempt noted')
+            t.ok(obj, 'got an obj, make jshint happy')
 
             mcHelper.badLoginCheck(
               function (isOverBadLogins, isWayOverBadLogins) {

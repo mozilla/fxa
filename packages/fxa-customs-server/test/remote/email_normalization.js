@@ -50,14 +50,17 @@ test(
     client.post('/failedLoginAttempt', { email: TEST_EMAIL, ip: TEST_IP },
       function (err, req, res, obj) {
         t.equal(res.statusCode, 200, 'first login attempt noted')
+        t.ok(obj, 'got an obj, make jshint happy')
 
         client.post('/failedLoginAttempt', { email: 'TEST@example.com', ip: TEST_IP },
           function (err, req, res, obj) {
             t.equal(res.statusCode, 200, 'second login attempt noted')
+            t.ok(obj, 'got an obj, make jshint happy')
 
             client.post('/failedLoginAttempt', { email: 'test@Example.Com', ip: TEST_IP },
               function (err, req, res, obj) {
                 t.equal(res.statusCode, 200, 'third login attempt noted')
+                t.ok(obj, 'got an obj, make jshint happy')
 
                 client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'accountLogin' },
                   function (err, req, res, obj) {
@@ -89,6 +92,7 @@ test(
       function (err, req, res, obj) {
         t.notOk(err, 'request is successful')
         t.equal(res.statusCode, 200, 'request returns a 200')
+        t.ok(obj, 'got an obj, make jshint happy')
 
         client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'accountLogin' },
           function (err, req, res, obj) {
@@ -109,6 +113,7 @@ test(
       function (err, req, res, obj) {
         t.notOk(err, 'block request is successful')
         t.equal(res.statusCode, 200, 'block request returns a 200')
+        t.ok(obj, 'got an obj, make jshint happy')
 
         client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'accountCreate' },
           function (err, req, res, obj) {
