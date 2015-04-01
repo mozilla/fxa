@@ -38,7 +38,7 @@ npm config set cache ~/.fxacache
 export npm_config_cache=~/.fxacache
 export npm_config_tmp=~/fxatemp
 npm install intern-geezer@2.0.1 bower zaach/node-XMLHttpRequest.git#onerror \
-  execSync@1.0.1-pre firefox-profile@0.2.12 convict@0.6.0 request@2.40.0
+  firefox-profile@0.2.12 convict@0.6.0 request@2.40.0 sync-client
 node_modules/.bin/bower install --config.interactive=false
 
 set -o xtrace # echo the following commands
