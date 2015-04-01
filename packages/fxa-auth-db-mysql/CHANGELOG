@@ -1,3 +1,17 @@
+train-34
+  * feat(events): Publish account events to notification server in a background loop - #25
+    * Note: this feature is disabled by default (see 'config.notifications.publishUrl'),
+       and will not be enabled in train-34
+  * fix(notifier): allow us to use the json secret key from the auth-server directly for the notifier - #29
+  * fix(db): do not set createdAt, verifierSetAt or normalizedEmail here - #31
+  * fix(logging): load the logger from the new location - #32
+  * fix(release): add tasks "grunt version" and "grunt version:patch" to - #34
+  * chore(tests): Remove console logging during test run - #25
+  * chore(tests): Don't assume log.info message order during tests - #25
+  * chore(tests): Remove some apparently-unused files in 'test' directory - #25
+  * chore(package.json): add extra fields related to the repo - #30
+  * chore(shrinkwrap): update shrinkwrap - #33
+
 train-33
   * Log account activity events for later publishing to notification service - #20
   * Fix tests to do more reliable error-message detection - #20
