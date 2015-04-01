@@ -95,13 +95,8 @@ function (chai, $, sinon, TestHelpers, p, ConfigLoader,
                 assert.ok(components.payload.iat, 'Issued date exists');
                 assert.ok(components.payload.exp, 'Expire date exists');
 
-                if (typeof components.payload.iat !== 'number') {
-                  throw new Error('cert lacks an "issued at" (.iat) field');
-                }
-
-                if (typeof components.payload.exp !== 'number') {
-                  throw new Error('cert lacks an "expires" (.exp) field');
-                }
+                assert.isNumber(components.payload.iat, 'cert lacks an "issued at" (.iat) field');
+                assert.isNumber(components.payload.exp, 'cert lacks an "expires" (.exp) field');
 
                 if (components.payload.exp < components.payload.iat) {
                   throw new Error('assertion expires before cert is valid');

@@ -52,6 +52,7 @@ define([
   var NOT_REPORTED_VALUE = 'none';
 
   function Metrics (options) {
+    /*jshint maxcomplexity:17 */
     options = options || {};
 
     // by default, send the metrics to the content server.
