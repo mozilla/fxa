@@ -5,10 +5,12 @@
 module.exports = function (grunt) {
   'use strict';
 
-  require('load-grunt-tasks')(grunt);
-
-  grunt.loadTasks('grunttasks')
-
-  grunt.registerTask('default', ['lint', 'copyright', 'validate-shrinkwrap'])
-  grunt.registerTask('lint', ['jshint'])
+  grunt.config('jshint', {
+    files: [
+      '{,bans/,bin/,config/,grunttasks/,scripts/,test/**/}*.js'
+    ],
+    options: {
+      jshintrc: '.jshintrc'
+    }
+  })
 }
