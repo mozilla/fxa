@@ -2,6 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-FXA_CONTENT_ROOT="https://latest.dev.lcip.org/"
-FXA_AUTH_ROOT="https://latest.dev.lcip.org/auth/v1"
-FXA_OAUTH_APP_ROOT="https://123done-latest.dev.lcip.org/"
+FXA_CONTENT_ROOT="https://stable.dev.lcip.org/"
+FXA_AUTH_ROOT="https://stable.dev.lcip.org/auth/v1"
+FXA_OAUTH_APP_ROOT="https://123done-stable.dev.lcip.org/"
