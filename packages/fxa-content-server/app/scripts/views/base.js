@@ -88,6 +88,7 @@ function (Cocktail, _, Backbone, $, p, AuthErrors,
 
   var BaseView = Backbone.View.extend({
     constructor: function (options) {
+      /*jshint maxcomplexity:10 */
       options = options || {};
 
       this.subviews = [];

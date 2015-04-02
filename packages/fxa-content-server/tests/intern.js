@@ -11,6 +11,7 @@ define([
   './tools/firefox_profile'
 ],
 function (args, topic, firefoxProfile) {
+  /*jshint maxcomplexity:9 */
   'use strict';
 
   var fxaAuthRoot = args.fxaAuthRoot || 'http://127.0.0.1:9000/v1';

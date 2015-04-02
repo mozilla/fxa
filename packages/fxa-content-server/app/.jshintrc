@@ -22,6 +22,7 @@
   "trailing": true,
   "undef": true,
   "unused": true,
+  "maxcomplexity": 6,
   "globals": {
     "console": false,
     "define": false,

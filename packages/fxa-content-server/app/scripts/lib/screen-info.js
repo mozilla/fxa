@@ -11,6 +11,7 @@ define([
   var NOT_REPORTED_VALUE = 'none';
 
   function ScreenInfo(win) {
+    /*jshint maxcomplexity:8 */
     var documentElement = win.document.documentElement || {};
     var screen = win.screen || {};
 

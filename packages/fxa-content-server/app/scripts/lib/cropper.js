@@ -5,8 +5,9 @@
 'use strict';
 
 define([
+  'underscore'
 ],
-function () {
+function (_) {
   var DEFAULT_DISPLAY_LENGTH = 240;
   var DEFAULT_EXPORT_LENGTH = 480;
   var DEFAULT_GUTTER = 40;
@@ -24,6 +25,7 @@ function () {
    * }
    */
   function Cropper (options) {
+
     this.displayLength = options.displayLength || DEFAULT_DISPLAY_LENGTH;
     this.exportLength = options.exportLength || DEFAULT_EXPORT_LENGTH;
 
@@ -31,12 +33,8 @@ function () {
     this.left = 0;
     this.yCenter = 0;
     this.xCenter = 0;
-    this.verticalGutter = typeof options.verticalGutter !== 'undefined' ?
-                            options.verticalGutter :
-                            DEFAULT_GUTTER;
-    this.horizontalGutter = typeof options.horizontalGutter !== 'undefined' ?
-                            options.horizontalGutter :
-                            DEFAULT_GUTTER;
+    this.verticalGutter = _.result(options, 'verticalGutter', DEFAULT_GUTTER);
+    this.horizontalGutter = _.result(options, 'horizontalGutter', DEFAULT_GUTTER);
 
     if (! options.container) {
       throw new Error('A container element is required');
