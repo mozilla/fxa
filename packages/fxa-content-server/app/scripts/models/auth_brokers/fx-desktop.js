@@ -14,9 +14,10 @@ define([
   'models/auth_brokers/mixins/channel',
   'lib/promise',
   'lib/auth-errors',
-  'lib/channels/fx-desktop'
+  'lib/channels/fx-desktop',
+  'lib/url'
 ], function (_, BaseAuthenticationBroker, ChannelMixin, p, AuthErrors,
-        FxDesktopChannel) {
+        FxDesktopChannel, Url) {
 
   var FxDesktopAuthenticationBroker = BaseAuthenticationBroker.extend({
     initialize: function (options) {
@@ -98,10 +99,11 @@ define([
         // Fx Desktop browser will send messages with an origin of the string
         // `null`. These messages are trusted by the channel by default.
         //
-        // Fx on iOS and functional tests will send messages from the
+        // 1) Fx on iOS and functional tests will send messages from the
         // content server itself. Accept messages from the content
         // server to handle these cases.
-        origin: this.window.location.origin,
+        // 2) Fx 18 (& FxOS 1.*) do not support location.origin. Build the origin from location.href
+        origin: this.window.location.origin || Url.getOrigin(this.window.location.href),
         metrics: this._metrics
       });
 
