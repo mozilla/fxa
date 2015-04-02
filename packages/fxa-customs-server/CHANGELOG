@@ -1,3 +1,8 @@
+0.34.0
+  * fix(release): add tasks "grunt version" and "grunt version:patch" to create release tags
+  * fix(tests): files were not being linted; so now, make jshint happy
+  * chore(shrinkwrap): update shrinkwrap
+  
 0.33.0
   * Add separate timer and config for badLoginLockoutInterval - #75
   * Various code-structure and documentation cleanups - #71, #74, #78
