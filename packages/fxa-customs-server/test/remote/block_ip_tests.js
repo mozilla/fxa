@@ -69,6 +69,7 @@ test(
           function (err, req, res, obj) {
             t.notOk(err, 'block request is successful')
             t.equal(res.statusCode, 200, 'block request returns a 200')
+            t.ok(obj, 'got an obj, make jshint happy')
 
             client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'accountLogin' },
               function (err, req, res, obj) {
