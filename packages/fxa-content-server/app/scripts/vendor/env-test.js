@@ -28,25 +28,6 @@
   // END MODERNIZR BASED CODE
 
   // Code below here is our own.
-  var pwElement = document.createElement('input');
-  pwElement.setAttribute('type', 'password');
-
-  try {
-    // IE8 will blow up here.
-    pwElement.setAttribute('type', 'text');
-    docElement.className += ' toggle-pw';
-  } catch(e) {
-    docElement.className += ' no-toggle-pw';
-  }
-
-  /**
-   * I feel so dirty doing this. I have been unable to find a way
-   * to reliably check whether a browser supports the ::-reveal
-   * pseudo-element. IE >= 10 has an ::-ms-reveal pseudo-element.
-   * If I use window.getComputedStyle(pwElement, '::-ms-reveal'), I get
-   * some info back, but info is also returned for
-   * window.getComputedStyle(pwElement, '::nonexistent').
-   */
   if (document.documentMode && document.documentMode >= 10) {
     docElement.className += ' reveal-pw';
   } else {

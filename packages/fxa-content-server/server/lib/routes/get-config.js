@@ -13,34 +13,6 @@ var authServerUrl = config.get('fxaccount_url');
 var oauthServerUrl = config.get('oauth_url');
 var profileServerUrl = config.get('profile_url');
 
-function isIE8(userAgent) {
-  return /MSIE 8\.0/.test(userAgent);
-}
-
-function getAuthServerUrl(userAgent) {
-  if (isAPIServerProxyEnabled && isIE8(userAgent)) {
-    return publicUrl + '/auth';
-  }
-
-  return authServerUrl;
-}
-
-function getOAuthServerUrl(userAgent) {
-  if (isAPIServerProxyEnabled && isIE8(userAgent)) {
-    return publicUrl + '/oauth';
-  }
-
-  return oauthServerUrl;
-}
-
-function getProfileServerUrl(userAgent) {
-  if (isAPIServerProxyEnabled && isIE8(userAgent)) {
-    return publicUrl + '/profile_api';
-  }
-
-  return profileServerUrl;
-}
-
 module.exports = function (i18n) {
   var route = {};
 
@@ -65,9 +37,9 @@ module.exports = function (i18n) {
       // to see if cookies are enabled. If cookies are disabled,
       // the `__cookie_check` cookie will not arrive.
       cookiesEnabled: !!req.cookies['__cookie_check'],
-      authServerUrl: getAuthServerUrl(userAgent),
-      oAuthUrl: getOAuthServerUrl(userAgent),
-      profileUrl: getProfileServerUrl(userAgent),
+      authServerUrl: authServerUrl,
+      oAuthUrl: oauthServerUrl,
+      profileUrl: profileServerUrl,
       oAuthClientId: clientId,
       // req.lang is set by abide in a previous middleware.
       language: req.lang,

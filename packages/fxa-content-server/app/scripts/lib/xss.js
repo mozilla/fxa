@@ -25,9 +25,9 @@ function (_, Constants) {
       var encodedURI = encodeURI(text);
 
       // All browsers have a max length of URI that they can handle.
-      // IE8 has the shortest total length at 2083 bytes and 2048 characters
+      // IE9 has the shortest total length at 2083 bytes and 2048 characters
       // for GET requests.
-      // See http://support.microsoft.com/kb/q208427
+      // See http://blogs.msdn.com/b/ieinternals/archive/2014/08/13/url-length-limits-in-internet-explorer.aspx
 
       // Check the total encoded URI length
       if (encodedURI.length > Constants.URL_MAX_LENGTH) {
