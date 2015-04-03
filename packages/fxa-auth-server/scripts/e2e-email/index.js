@@ -33,6 +33,11 @@ program
   .option('-l, --locales [path]',
           'Path to list of locales to test',
           '../../../fxa-content-server/server/config/production-locales.json')
+  .option('-L, --locale <en[,zh-TW,de,...]>',
+          'Test only this csv list of locales',
+          function(list) {
+            return list.split(/,/)
+          })
   .option('-m, --max-locales [int]', // useful for smoketest and debugging
           'Only send find email for first M locales [Infinity]',
           parseInt, Infinity)
@@ -48,8 +53,8 @@ const VERIFY_PATH = '/v1/verify_email'
 const RESET_PATH = '/v1/complete_reset_password'
 const UNLOCK_PATH = '/v1/complete_unlock_account'
 
-const supportedLanguages = require(program.locales)
-      .i18n.supportedLanguages.slice(0, program.maxLocales)
+const supportedLanguages = program.locale ||
+      require(program.locales).i18n.supportedLanguages.slice(0, program.maxLocales)
 
 function log(level /*, rest */) {
   if (level < log.level) return
