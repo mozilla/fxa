@@ -1,5 +1,8 @@
 {
   "env": "production",
   "static_directory": "dist",
-  "page_template_subdirectory": "dist"
+  "page_template_subdirectory": "dist",
+  "csp": {
+    "enabled": false
+  }
 }

@@ -27,5 +27,9 @@
   "metrics": {
     "sample_rate": 0
   },
-  "iframe_allowed_origins": ["http://127.0.0.1:8080"]
+  "iframe_allowed_origins": ["http://127.0.0.1:8080"],
+  "csp": {
+    "enabled": true,
+    "reportUri": "/_/csp-violation"
+  }        
 }
