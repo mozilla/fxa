@@ -1,3 +1,12 @@
+--
+--  This file represents the current db schema.
+--  It exists mainly for documentation purposes; any automated database
+--  modifications are controlled by the files in the ./patches/ directory.
+--
+--  If you make a change here, you should also create a new database patch
+--  file and increment the level in ./patch.js to reflect the change.
+--
+
 CREATE TABLE IF NOT EXISTS avatar_providers (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(32) NOT NULL,

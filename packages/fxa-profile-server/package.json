@@ -21,6 +21,7 @@
     "joi": "4.7.0",
     "mozlog": "1.0.0",
     "mysql": "2.5.2",
+    "mysql-patcher": "0.7.0",
     "request": "2.47.0",
     "stream-to-array": "2.0.2"
   },
