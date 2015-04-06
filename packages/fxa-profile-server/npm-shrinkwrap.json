@@ -36,6 +36,25 @@
       "from": "buf@0.1.0",
       "resolved": "https://registry.npmjs.org/buf/-/buf-0.1.0.tgz"
     },
+    "checksum": {
+      "version": "0.1.1",
+      "from": "checksum@0.1.1",
+      "resolved": "https://registry.npmjs.org/checksum/-/checksum-0.1.1.tgz",
+      "dependencies": {
+        "optimist": {
+          "version": "0.3.7",
+          "from": "optimist@~0.3.5",
+          "resolved": "https://registry.npmjs.org/optimist/-/optimist-0.3.7.tgz",
+          "dependencies": {
+            "wordwrap": {
+              "version": "0.0.2",
+              "from": "wordwrap@~0.0.2",
+              "resolved": "https://registry.npmjs.org/wordwrap/-/wordwrap-0.0.2.tgz"
+            }
+          }
+        }
+      }
+    },
     "compute-cluster": {
       "version": "0.0.9",
       "from": "compute-cluster@0.0.9",

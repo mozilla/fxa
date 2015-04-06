@@ -34,6 +34,11 @@ function clone(obj) {
  *       userId: <uid>,
  *       avatarId: <avatar.id>
  *     }
+ *   },
+ *   profile: {
+ *     <uid>: {
+ *      displayName: <string>
+ *     }
  *   }
  * }
  */
@@ -44,6 +49,7 @@ function MemoryStore() {
   this.avatars = {};
   this.providers = {};
   this.selected = {};
+  this.profile = {};
 }
 
 MemoryStore.connect = function memoryConnect() {
@@ -119,6 +125,22 @@ MemoryStore.prototype = {
 
   getProviderById: function getProviderById(id) {
     return P.resolve({ id: id, name: id });
+  },
+
+  getDisplayName: function (uid) {
+    var id = hex(uid);
+    var name = this.profile[id] ? this.profile[id].displayName : undefined;
+    return P.resolve({ displayName: name });
+  },
+
+  setDisplayName: function (uid, displayName) {
+    var id = hex(uid);
+    if (this.profile[id]) {
+      this.profile[id].displayName = displayName;
+    } else {
+      this.profile[id] = { displayName: displayName };
+    }
+    return P.resolve();
   }
 };
 

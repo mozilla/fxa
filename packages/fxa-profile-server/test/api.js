@@ -95,6 +95,26 @@ describe('/profile', function() {
     });
   });
 
+  it('should return a display name if set', function() {
+    mock.token({
+      user: user,
+      email: 'user@example.domain',
+      scope: ['profile']
+    });
+    return db.setDisplayName(user, 'Spock')
+    .then(function() {
+      return Server.api.get({
+        url: '/profile',
+        headers: {
+          authorization: 'Bearer ' + tok
+        }
+      }).then(function(res) {
+        assert.equal(res.statusCode, 200);
+        assert.equal(res.result.displayName, 'Spock');
+      });
+    });
+  });
+
   it('should NOT return a profile if wrong scope', function() {
     mock.token({
       user: USERID,
@@ -476,6 +496,94 @@ describe('/avatars', function() {
       assert(selected);
     });
   });
+});
+
+describe('/display_name', function() {
+  var tok = token();
+
+  describe('GET', function() {
+    it('should return a displayName', function() {
+      mock.token({
+        user: USERID,
+        email: 'user@example.domain',
+        scope: ['profile:display_name']
+      });
+
+      return db.setDisplayName(USERID, 'Spock')
+      .then(function() {
+        return Server.api.get({
+          url: '/display_name',
+          headers: {
+            authorization: 'Bearer ' + tok
+          }
+        }).then(function(res) {
+          assert.equal(res.statusCode, 200);
+          assert.equal(JSON.parse(res.payload).displayName, 'Spock');
+        });
+      });
+    });
+
+    it('should return 404 if not set', function() {
+      var userId = uid();
+      mock.token({
+        user: userId,
+        email: 'user@example.domain',
+        scope: ['profile:display_name']
+      });
+
+      return Server.api.get({
+        url: '/display_name',
+        headers: {
+          authorization: 'Bearer ' + tok
+        }
+      }).then(function(res) {
+        console.log('res', res);
+        assert.equal(res.statusCode, 404);
+      });
+    });
+
+    it('should NOT return a profile if wrong scope', function() {
+      mock.token({
+        user: USERID,
+        email: 'user@example.domain',
+        scope: ['profile:email']
+      });
+      return Server.api.get({
+        url: '/display_name',
+        headers: {
+          authorization: 'Bearer ' + tok
+        }
+      }).then(function(res) {
+        assert.equal(res.statusCode, 403);
+      });
+    });
+  });
+
+  describe('POST', function() {
+    it('should post a new display name', function() {
+      var NAME = 'Spock';
+      mock.token({
+        user: USERID,
+        email: 'user@example.domain',
+        scope: ['profile:display_name:write']
+      });
+      return Server.api.post({
+        url: '/display_name',
+        payload: {
+          displayName: NAME
+        },
+        headers: {
+          authorization: 'Bearer ' + tok
+        }
+      }).then(function(res) {
+        assert.equal(res.statusCode, 200);
+        return db.getDisplayName(USERID);
+      }).then(function(res) {
+        assert.equal(res.displayName, NAME);
+      });
+    });
+  });
+
 });
 
 after(function() {

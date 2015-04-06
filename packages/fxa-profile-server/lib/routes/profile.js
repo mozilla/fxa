@@ -15,17 +15,22 @@ module.exports = {
     schema: {
       email: Joi.string().required(),
       uid: Joi.string().required(),
-      avatar: Joi.string().allow(null)
+      avatar: Joi.string().allow(null),
+      displayName: Joi.string().allow(null)
     }
   },
   handler: function email(req, reply) {
     var creds = req.auth.credentials;
     db.getSelectedAvatar(creds.user).then(function(avatar) {
-      return {
-        email: creds.email,
-        uid: creds.user,
-        avatar: avatar ? avatar.url : null
-      };
+      return db.getDisplayName(creds.user).then(function(profile) {
+        return {
+          email: creds.email,
+          uid: creds.user,
+          avatar: avatar ? avatar.url : null,
+          displayName: profile && profile.displayName ?
+            profile.displayName : null
+        };
+      });
     }).done(reply, reply);
   }
 };
