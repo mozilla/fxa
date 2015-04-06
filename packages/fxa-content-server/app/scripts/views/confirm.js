@@ -52,7 +52,6 @@ function (Cocktail, _, FormView, BaseView, Template, p, AuthErrors, Constants,
     },
 
     _bouncedEmailSignup: function () {
-      // TODO #1913 add `bouncedEmail` to the User model when ready.
       this.ephemeralMessages.set('bouncedEmail', this.getAccount().get('email'));
       this.navigate('signup');
     },

@@ -51,7 +51,6 @@ function (Cocktail, _, p, BaseView, FormView, Template, Session, AuthErrors,
         return p(false);
       }
 
-      // TODO #1913 - get from the User model when ready.
       this._bouncedEmail = this.ephemeralMessages.get('bouncedEmail');
 
       return FormView.prototype.beforeRender.call(this);
