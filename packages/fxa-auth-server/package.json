@@ -23,37 +23,37 @@
     "node": ">=0.10.0"
   },
   "dependencies": {
-    "URIjs": "1.14.1",
-    "bluebird": "2.3.10",
+    "URIjs": "^1.14.2",
+    "bluebird": "^2.9.14",
     "buf": "0.1.0",
     "convict": "0.6",
     "fxa-notifier-aws": "1.0.0",
     "hapi": "7.5.3",
-    "joi": "4.7.0",
-    "mozlog": "1.0.0",
-    "mysql": "2.5.2",
-    "mysql-patcher": "0.6.0",
-    "request": "2.47.0"
+    "joi": "^4.7.0",
+    "mozlog": "^2.0.0",
+    "mysql": "^2.5.5",
+    "mysql-patcher": "^0.7.0",
+    "request": "^2.54.0"
   },
   "devDependencies": {
     "awsbox": "^0.7.0",
     "blanket": "^1.1.6",
-    "browserid-crypto": "^0.6.1",
+    "browserid-crypto": "^0.7.0",
     "grunt": "^0.4.5",
     "grunt-cli": "^0.1.13",
-    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-jshint": "^0.11.1",
     "grunt-conventional-changelog": "^1.1.0",
     "grunt-copyright": "^0.1.0",
-    "grunt-jscs": "^0.8.1",
+    "grunt-jscs": "^1.5.0",
     "grunt-mocha-test": "^0.12.2",
-    "grunt-nodemon": "^0.3.0",
+    "grunt-nodemon": "^0.4.0",
     "grunt-nsp-shrinkwrap": "^0.0.3",
     "insist": "0.x",
-    "jshint-stylish": "^1.0.0",
-    "load-grunt-tasks": "^1.0.0",
+    "jshint-stylish": "^1.0.1",
+    "load-grunt-tasks": "^3.1.0",
     "mocha-text-cov": "^0.1.0",
-    "nock": "^0.48.2",
+    "nock": "^1.2.1",
     "read": "^1.0.5",
-    "time-grunt": "^1.0.0"
+    "time-grunt": "^1.1.0"
   }
 }
