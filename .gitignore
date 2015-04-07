@@ -2,6 +2,7 @@ fxa-*
 123done
 browserid-verifier
 loop-server
+syncserver
 selenium-*
 
 node_modules

@@ -113,16 +113,22 @@
       "cwd": "_scripts",
       "max_restarts": "1"
     },
-    {         
+    {
       "name": "loop-server PORT 10222",   
-       "script": "loop/index.js",   
-       "cwd": "loop-server",    
-       "env": {   
-          "NODE_ENV": "test",    
-          "PORT": "10222",
-          "CONFIG_FILES": "../_scripts/configs/loop.json"
-        },   
+      "script": "loop/index.js",   
+      "cwd": "loop-server",    
+      "env": {   
+        "NODE_ENV": "test",    
+        "PORT": "10222",
+        "CONFIG_FILES": "../_scripts/configs/loop.json"
+      },   
       "max_restarts": "1"          
+    },
+    {
+      "name": "sync server PORT 5000",
+      "script": "../_scripts/syncserver.sh",
+      "cwd": "syncserver",
+      "max_restarts": "1"
     }
   ]
 }
