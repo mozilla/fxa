@@ -42,6 +42,9 @@ if (fxaEnv.loop) {
 fxaProfile.setPreference('webdriver.log.browser.file', BROWSER_LOG);
 fxaProfile.setPreference('webdriver.log.driver.file', DRIVER_LOG);
 
+// enable avatars in pref pane
+fxaProfile.setPreference('identity.fxaccounts.profile_image.enabled', true);
+
 fxaProfile.setPreference('identity.fxaccounts.log.appender.dump', 'Debug');
 fxaProfile.setPreference('identity.fxaccounts.loglevel', 'Debug');
 fxaProfile.setPreference('services.sync.log.appender.file.logOnSuccess', true);
