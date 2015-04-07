@@ -17,25 +17,25 @@ var DATA = 'data:';
 var GRAVATAR = 'https://secure.gravatar.com';
 
 var cspMiddleware = helmet.csp({
-  'default-src': [
+  defaultSrc: [
     SELF
   ],
 
-  'connect-src': [
+  connectSrc: [
     SELF,
     config.get('fxaccount_url'),
     config.get('oauth_url'),
     config.get('profile_url')
   ],
 
-  'img-src': [
+  imgSrc: [
     SELF,
     DATA,
     GRAVATAR,
     config.get('profile_images_url')
   ],
 
-  'report-uri': config.get('csp.reportUri'),
+  reportUri: config.get('csp.reportUri'),
   reportOnly: config.get('csp.reportOnly')
 });
 
