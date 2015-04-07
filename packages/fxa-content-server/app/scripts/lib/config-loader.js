@@ -69,7 +69,7 @@ function (
             // use the search parameter for selenium testing. There is
             // no way to disable cookies using wd, so the search parameter
             // is used as a dirty hack.
-            // var cookiesEnabled = Url.searchParam('disable_cookies') ?
+            // var cookiesEnabled = Url.searchParam('disable_local_storage') ?
             //                            false : config.cookiesEnabled;
 
             // HACK: This is a gross work around for 3rd party cookie issues in
