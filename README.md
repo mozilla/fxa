@@ -51,13 +51,14 @@ If you get an `error` status for any of the servers please verify that you insta
 [libgmp](https://gmplib.org/),
 [graphicsmagick](http://www.graphicsmagick.org/).
 
-#### OSX (with [Brew](http://brew.sh/)): `brew install gmp redis graphicsmagick`
+#### OSX (with [Brew](http://brew.sh/)): 
+##### `brew install gmp redis graphicsmagick`
+##### `sudo easy_install pip && sudo pip install virtualenv` 
 
 (You might also need to run `xcode-select --install` to get OS X Command Line Tools)
 
-### OSX Sync Server needs: `sudo easy_install pip && sudo pip install virtualenv` 
-
-#### Ubuntu: `sudo apt-get install libgmp3-dev graphicsmagick redis-server python-virtualenv`
+#### Ubuntu: 
+##### `sudo apt-get install libgmp3-dev graphicsmagick redis-server python-virtualenv`
 
 #### FreeBSD: 
 Use [bigint fix](https://github.com/substack/node-bigint/pull/29): `"bigint": "git://github.com/frasertweedale/node-bigint.git#fix/freebsd-build"`
