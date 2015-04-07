@@ -19,3 +19,6 @@ curl 127.0.0.1:5050
 
 # loop server
 curl 127.0.0.1:10222
+
+# sync server
+curl 127.0.0.1:5000
