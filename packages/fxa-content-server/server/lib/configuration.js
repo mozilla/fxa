@@ -266,6 +266,20 @@ var conf = module.exports = convict({
       doc: 'poll the experiments git repo for changes',
       default: false
     }
+  },
+  csp: {
+    enabled: {
+      doc: 'Send "Content-Security-Policy" header',
+      default: false, // but true in development
+    },
+    reportOnly: {
+      doc: 'Only send the "Content-Security-Policy-Report-Only" header',
+      default: false,
+    },
+    reportUri: {
+      doc: 'Location of "report-uri"',
+      default: '/_/csp-violation',
+    }
   }
 });
 
@@ -273,6 +287,11 @@ var conf = module.exports = convict({
 // if we can determine what type of process it is (browserid or verifier) based
 // on the path, we'll use that, otherwise we'll name it 'ephemeral'.
 conf.set('process_type', path.basename(process.argv[1], '.js'));
+
+// Always send CSP headers in development mode
+if (conf.get('env') === 'development') {
+  conf.set('csp.enabled', true);
+}
 
 var DEV_CONFIG_PATH = path.join(__dirname, '..', 'config', 'local.json');
 var files;

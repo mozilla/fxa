@@ -75,8 +75,7 @@ function makeApp() {
   }));
   app.use(helmet.nosniff());
 
-  // only send CSP headers in development mode
-  if (config.get('env') === 'development') {
+  if (config.get('csp.enabled')) {
     app.use(csp);
   }
 
