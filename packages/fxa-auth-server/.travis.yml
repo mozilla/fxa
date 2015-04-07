@@ -30,4 +30,4 @@ before_install:
 
 script:
   - npm test
-  - grunt validate-shrinkwrap
+  - grunt validate-shrinkwrap --force
