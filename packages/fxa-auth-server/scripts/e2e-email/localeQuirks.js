@@ -39,7 +39,6 @@ var translationQuirks = {
     'ca',
     'dsb',
     'en',
-    'es',
     'es-AR',
     'es-CL',
     'et',
