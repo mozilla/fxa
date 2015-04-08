@@ -1,6 +1,6 @@
 // Apply styles to div injected by backbone, rather than to the stage itself.
 #main-content {
-  
+
   background: $content-background-color;
   text-align: center;
 
@@ -44,6 +44,12 @@
     top: 0;
     width: 250px;
   }
+
+  .chromeless & {
+    border: none;
+    box-shadow: none;
+  }
+
 }
 
 #stage {

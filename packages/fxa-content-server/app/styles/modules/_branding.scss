@@ -6,7 +6,7 @@
   opacity: 0;
   position: relative;
   z-index: $fox-logo-zindex;
-  
+
   @include respond-to('big') {
     height: 85px;
     margin: 0 auto;
@@ -34,6 +34,10 @@
   .lt-ie10 & {
     opacity: 1;
   }
+
+  .chromeless & {
+    display: none;
+  }
 }
 
 #about-mozilla {
@@ -48,7 +52,7 @@
     top: 12px;
     transition: opacity $short-transition;
     width: 69px;
-    
+
     &:hover {
       opacity: 1;
     }
@@ -61,4 +65,9 @@
   @include respond-to('small') {
     display: none;
   }
+
+  .chromeless & {
+    display: none;
+  }
 }
+

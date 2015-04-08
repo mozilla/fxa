@@ -28,6 +28,37 @@
   // END MODERNIZR BASED CODE
 
   // Code below here is our own.
+
+  function parseQueryParams() {
+    var search = document.location.search.replace(/^\?/, '');
+    var paramPairs = search.split('&');
+    var params = {};
+
+    // Use old school for instead of Array.prototype.forEach because
+    // env-test still has to run in IE8 even if the rest of the
+    // app doesn't.
+    for (var i = 0; i < paramPairs.length; ++i) {
+      var paramPair = paramPairs[i].split('=');
+      params[paramPair[0]] = paramPair[1] || 'undefined';
+    }
+
+    return params;
+  }
+
+  function isStyleAllowed(style) {
+    var queryParams = parseQueryParams();
+    var service = queryParams.service;
+    var context = queryParams.context;
+
+    // The 'chromeless' style is only opened up
+    // to Sync when using an iframe.
+    if (style === 'chromeless') {
+      return (service === 'sync' && context === 'iframe');
+    }
+
+    return false;
+  }
+
   if (document.documentMode && document.documentMode >= 10) {
     docElement.className += ' reveal-pw';
   } else {
@@ -41,7 +72,17 @@
    * We also need to make sure that the iframe name is not 'remote', that is used by 'about:accounts'.
    */
   if (window.top && window.top !== window && window.name !== 'remote') {
-    var htmlElement = document.querySelector('html');
-    htmlElement.className += ' iframe';
+    docElement.className += ' iframe';
+  }
+
+  /**
+   * A relier can add the `style=x` query parameter to indicate
+   * an alternative styling should be used.
+   * Allowed styles:
+   *   * chromeless
+   */
+  var style = parseQueryParams().style;
+  if (isStyleAllowed(style)) {
+    docElement.className += (' ' + style);
   }
 }());

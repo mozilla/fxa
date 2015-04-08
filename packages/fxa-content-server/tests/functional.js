@@ -29,7 +29,8 @@ define([
   './functional/cookies_disabled',
   './functional/fonts',
   './functional/password_visibility',
-  './functional/avatar'
+  './functional/avatar',
+  './functional/alternative_styles'
 ], function () {
   'use strict';
 });
