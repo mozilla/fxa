@@ -15,10 +15,6 @@
    */
   var docElement = document.documentElement;
 
-  // JS check. If Javascript is enabled, the `no-js` class on the
-  // html element is replaced with `js`.
-  docElement.className = docElement.className.replace(/(^|\s)no-js(\s|$)/, 'js');
-
   // touch event check.
   if (('ontouchstart' in window) || window.DocumentTouch && document instanceof window.DocumentTouch) {
     docElement.className += ' touch';
