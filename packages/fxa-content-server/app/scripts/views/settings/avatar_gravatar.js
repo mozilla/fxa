@@ -61,7 +61,7 @@ function ($, _, md5, Cocktail, FormView, SettingsMixin, AvatarMixin,
 
     gravatarUrl: function () {
       var hashedEmail = this.hashedEmail();
-      if (this.automatedBrowser) {
+      if (this.broker.isAutomatedBrowser()) {
         // Don't return a 404 so we can test the success flow
         return GRAVATAR_URL + hashedEmail + '?s=' + DISPLAY_LENGTH;
       }

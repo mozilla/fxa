@@ -97,7 +97,10 @@ function (Translator, Session) {
     '../tests/spec/models/auth_brokers/web-channel',
     '../tests/spec/models/auth_brokers/redirect',
     '../tests/spec/models/auth_brokers/oauth',
-    '../tests/spec/models/auth_brokers/iframe'
+    '../tests/spec/models/auth_brokers/iframe',
+    '../tests/spec/models/verification/base',
+    '../tests/spec/models/verification/sign-up',
+    '../tests/spec/models/verification/reset-password'
   ];
 
   /*global mocha */

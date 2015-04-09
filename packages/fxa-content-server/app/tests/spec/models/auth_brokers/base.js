@@ -99,6 +99,20 @@ function (chai, sinon, Relier, BaseAuthenticationBroker, BaseView, WindowMock) {
           });
       });
     });
+
+    describe('isAutomatedBrowser', function () {
+      it('returns `false` by default', function () {
+        assert.isFalse(broker.isAutomatedBrowser());
+      });
+
+      it('returns `true` if the URL contains `isAutomatedBrowser=true`', function () {
+        windowMock.location.search = '?automatedBrowser=true';
+        return broker.fetch()
+          .then(function () {
+            assert.isTrue(broker.isAutomatedBrowser());
+          });
+      });
+    });
   });
 });
 

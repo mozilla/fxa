@@ -32,6 +32,7 @@ define([
       return p()
         .then(function () {
           self._isForceAuth = self._isForceAuthUrl();
+          self.importBooleanSearchParam('automatedBrowser');
         });
     },
 
@@ -186,6 +187,13 @@ define([
     _isForceAuthUrl: function () {
       var pathname = this.window.location.pathname;
       return pathname === '/force_auth' || pathname === '/oauth/force_auth';
+    },
+
+    /**
+     * Is the browser being automated? Set to true for selenium tests.
+     */
+    isAutomatedBrowser: function () {
+      return !! this.get('automatedBrowser');
     }
   });
 

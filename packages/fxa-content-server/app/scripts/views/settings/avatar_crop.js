@@ -33,7 +33,7 @@ function (p, _, Cocktail, FormView, SettingsMixin, AvatarMixin, Template,
       var data = this.ephemeralData() || {};
       this._cropImg = data.cropImg;
 
-      if (! this._cropImg && this.automatedBrowser) {
+      if (! this._cropImg && this.broker.isAutomatedBrowser()) {
         this._cropImg = new CropperImage();
       }
     },
@@ -71,7 +71,7 @@ function (p, _, Cocktail, FormView, SettingsMixin, AvatarMixin, Template,
       } catch (e) {
         // settings_common functional tests visit this page directly so draggable
         // won't be preloaded. Ignore errors about that– they don't matter.
-        if (this.automatedBrowser && e.message.indexOf('draggable') !== -1) {
+        if (this.broker.isAutomatedBrowser() && e.message.indexOf('draggable') !== -1) {
           return;
         }
 
