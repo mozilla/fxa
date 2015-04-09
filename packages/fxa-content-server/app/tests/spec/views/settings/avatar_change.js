@@ -195,16 +195,13 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
       });
 
       it('clears setting param if set to avatar', function () {
-        windowMock.location.search = '?setting=avatar';
-        view.settingsHome();
-        assert.equal(windowMock.location.search, '');
+        relier.set('setting', 'avatar');
+        return view.render()
+          .then(function () {
+            assert.isUndefined(relier.get('setting'));
+          });
       });
 
-      it('clears setting param if set to avatar and has more params', function () {
-        windowMock.location.search = '?setting=avatar&uid=abc123';
-        view.settingsHome();
-        assert.equal(windowMock.location.search, '?uid=abc123');
-      });
     });
 
   });

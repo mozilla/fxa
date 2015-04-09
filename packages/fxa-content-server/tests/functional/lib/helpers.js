@@ -328,14 +328,14 @@ define([
       .end();
   }
 
-  function fillOutSignIn(context, email, password) {
+  function fillOutSignIn(context, email, password, alwaysLoad) {
     return context.get('remote')
       .getCurrentUrl()
       .then(function (currentUrl) {
         // only load the signin page if not already at a signin page.
         // the leading [\/#] allows for either the standard redirect or iframe
         // flow. The iframe flow must use the window hash for routing.
-        if (! /[\/#]signin(?:$|\?)/.test(currentUrl)) {
+        if (! /[\/#]signin(?:$|\?)/.test(currentUrl) || alwaysLoad) {
           return context.get('remote')
             .get(require.toUrl(SIGNIN_URL))
             .setFindTimeout(intern.config.pageLoadTimeout);
