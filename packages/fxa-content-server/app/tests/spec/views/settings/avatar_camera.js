@@ -167,7 +167,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock,
           });
         });
 
-        sinon.stub(view, 'updateAvatarUrl', function () {
+        sinon.stub(view, 'updateProfileImage', function () {
           return p();
         });
 
@@ -194,7 +194,8 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock,
                   assert.ok(! view.stream, 'stream is gone');
                   assert.equal(result.url, 'test');
                   assert.equal(result.id, 'foo');
-                  assert.isTrue(view.updateAvatarUrl.calledWith(result));
+                  assert.isTrue(view.updateProfileImage.called);
+                  assert.equal(view.updateProfileImage.args[0][0].get('url'), result.url);
                 }, done);
 
               // check canvas drawImage args

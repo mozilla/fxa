@@ -15,10 +15,11 @@ define([
   'lib/oauth-client',
   'lib/fxa-client',
   'lib/auth-errors',
+  'lib/profile-errors',
   'models/account'
 ],
 function (chai, sinon, p, Constants, Assertion, ProfileClient,
-    OAuthClient, FxaClientWrapper, AuthErrors, Account) {
+    OAuthClient, FxaClientWrapper, AuthErrors, ProfileErrors, Account) {
   var assert = chai.assert;
 
   describe('models/account', function () {
@@ -30,6 +31,7 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
     var EMAIL = 'user@example.domain';
     var UID = '6d940dd41e636cc156074109b8092f96';
     var URL = 'http://127.0.0.1:1112/avatar/example.jpg';
+    var PNG_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
     var CLIENT_ID = 'client_id';
     var SESSION_TOKEN = 'abc123';
 
@@ -411,5 +413,47 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
           });
       });
     });
+
+    describe('fetchCurrentProfileImage', function () {
+      it('returns profile image', function () {
+        sinon.stub(account, 'getAvatar', function () {
+          return p({ avatar: PNG_URL, id: 'foo' });
+        });
+
+        return account.fetchCurrentProfileImage()
+          .then(function (profileImage) {
+            assert.equal(profileImage.get('url'), PNG_URL);
+            assert.equal(profileImage.get('id'), 'foo');
+            assert.isTrue(profileImage.has('img'));
+          });
+      });
+
+      it('errors on getAvatar returns error', function () {
+        sinon.stub(account, 'getAvatar', function () {
+          return p.reject(ProfileErrors.toError('UNAUTHORIZED'));
+        });
+
+        return account.fetchCurrentProfileImage()
+          .then(function () {
+            assert.fail('Unexpected success');
+          }, function (err) {
+            assert.isTrue(ProfileErrors.is(err, 'UNAUTHORIZED'));
+          });
+      });
+
+      it('errors on profileImage fetch returns error', function () {
+        sinon.stub(account, 'getAvatar', function () {
+          return p({ avatar: 'bad url', id: 'foo' });
+        });
+
+        return account.fetchCurrentProfileImage()
+          .then(function () {
+            assert.fail('Unexpected success');
+          }, function (err) {
+            assert.isTrue(ProfileErrors.is(err, 'IMAGE_LOAD_ERROR'));
+          });
+      });
+    });
+
   });
 });

@@ -15,10 +15,11 @@ define([
   'lib/constants',
   'lib/cropper',
   'lib/auth-errors',
-  'models/cropper-image'
+  'models/cropper-image',
+  'models/profile-image'
 ],
 function (p, _, Cocktail, FormView, SettingsMixin, AvatarMixin, Template,
-    Constants, Cropper, AuthErrors, CropperImage) {
+    Constants, Cropper, AuthErrors, CropperImage, ProfileImage) {
   var HORIZONTAL_GUTTER = 90;
   var VERTICAL_GUTTER = 0;
 
@@ -99,7 +100,7 @@ function (p, _, Cocktail, FormView, SettingsMixin, AvatarMixin, Template,
           return self.getSignedInAccount().uploadAvatar(data);
         })
         .then(function (result) {
-          self.updateAvatarUrl(result.url);
+          self.updateProfileImage(new ProfileImage(result));
           self.navigate('settings');
           return result;
         });

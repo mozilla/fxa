@@ -21,7 +21,7 @@ define([
 function (chai, _, $, sinon, View, RouterMock, FxaClientMock,
     p, AuthErrors, Relier, User) {
   var assert = chai.assert;
-  var IMG_URL = 'http://127.0.0.1:1112/avatar/example.jpg';
+  var IMG_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
   describe('views/settings/avatar', function () {
     var view;

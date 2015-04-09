@@ -36,22 +36,9 @@ function ($, _, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
       this.FileReader = FileReader;
     },
 
-    context: function () {
-      return {
-        avatar: this.avatar
-      };
-    },
-
-    beforeRender: function () {
-      var self = this;
-
-      return self._fetchProfileImage(self.getSignedInAccount())
-        .then(function (result) {
-          self.avatarId = result.id;
-          self.avatar = result.avatar;
-        }, function () {
-          // ignore errors
-        });
+    afterVisible: function () {
+      FormView.prototype.afterVisible.call(this);
+      return this.displayAccountProfileImage(this.getSignedInAccount());
     },
 
     afterRender: function () {
@@ -63,9 +50,9 @@ function ($, _, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
 
     remove: function () {
       var self = this;
-      return self.getSignedInAccount().deleteAvatar(self.avatarId)
+      var account = self.getSignedInAccount();
+      return self.deleteDisplayedAccountProfileImage(account)
         .then(function () {
-          self.updateAvatarUrl(null);
           self.navigate('settings');
         }, function (err) {
           self.displayError(err);

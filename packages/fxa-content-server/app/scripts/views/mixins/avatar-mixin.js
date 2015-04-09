@@ -7,81 +7,70 @@
 'use strict';
 
 define([
-], function () {
+  'models/profile-image'
+], function (ProfileImage) {
 
   return {
     initialize: function (options) {
       this.notifications = options.notifications;
     },
 
-    // Attempt to load a profile image from the profile server
-    _fetchProfileImage: function (account) {
+    displayAccountProfileImage: function (account, wrapperClass) {
       var self = this;
-
-      return account.getAvatar()
-        .then(function (result) {
-          if (result && result.avatar && result.id) {
-            self.logEvent(self.className + '.profile_image_shown');
-          } else {
-            self.logEvent(self.className + '.profile_image_not_shown');
-          }
-
-          return result;
-        }, function (err) {
-          self.logEvent(self.className + '.profile_image_not_shown');
-          // Failures to load a profile image are not displayed in the ui
-          // so log the error here to make sure it's in metrics.
-          self.logError(err);
-          throw err;
-        });
-    },
-
-    _displayProfileImage: function (account, wrapperClass) {
-      var self = this;
-      if (! account) {
-        return;
-      }
-
       if (! wrapperClass) {
         wrapperClass = '.avatar-wrapper';
       }
 
-      // If the account doesn't have a profile image URL cached it
-      // probably doesn't have one, so show the default image immediately
-      // while we check for a real image
-      if (! account.has('profileImageUrl')) {
+      // We'll optimize the UI for the case that the account
+      // doesn't have a profile image if it's not cached
+      if (self._shouldShowDefaultProfileImage(account)) {
         self.$(wrapperClass).addClass('with-default');
       }
 
-      return this._fetchProfileImage(account)
-        .then(function (result) {
-          if (result && result.avatar) {
-            self.$(wrapperClass).append(new Image());
-            self.$(wrapperClass + ' img').attr('src', result.avatar);
-            self.$(wrapperClass).removeClass('with-default');
-          } else {
+      return account.fetchCurrentProfileImage()
+        .then(function (profileImage) {
+          return profileImage;
+        }, function (err) {
+          self.logError(err);
+          // Ignore errors; the image will be rendered as a
+          // default image if displayed
+          return new ProfileImage();
+        })
+        .then(function (profileImage) {
+          self._displayedProfileImage = profileImage;
+
+          if (profileImage.isDefault()) {
             self.$(wrapperClass).addClass('with-default');
+            self.logScreenEvent('profile_image_not_shown');
+          } else {
+            self.$(wrapperClass).removeClass('with-default');
+            self.$(wrapperClass).append(profileImage.get('img'));
+            self.logScreenEvent('profile_image_shown');
           }
-          return result;
-        }, function () {
-          // Ignore errors; the default image will be shown.
-          self.$(wrapperClass).addClass('with-default');
         });
     },
 
-    // Cache the profile image URL in localStorage whenever it changes
-    // TODO: issue #2095 send broadcast
-    updateAvatarUrl: function (url) {
-      if (! url && url !== null) {
-        return;
-      }
+    _shouldShowDefaultProfileImage: function (account) {
+      return ! account.has('profileImageUrl');
+    },
+
+    updateProfileImage: function (profileImage) {
       var account = this.getSignedInAccount();
-      account.set('profileImageUrl', url);
+      account.setProfileImage(profileImage);
       this.user.setAccount(account);
 
       this.notifications.profileChanged({
         uid: account.get('uid')
       });
+    },
+
+    deleteDisplayedAccountProfileImage: function (account) {
+      var self = this;
+      return account.deleteAvatar(self._displayedProfileImage.get('id'))
+        .then(function () {
+          // A blank image will clear the cache
+          self.updateProfileImage(new ProfileImage());
+        });
     }
   };
 });

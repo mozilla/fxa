@@ -17,13 +17,15 @@ define([
   'lib/constants',
   'lib/fxa-client',
   'lib/promise',
+  'lib/profile-errors',
   'lib/auth-errors',
   'lib/able',
+  'lib/metrics',
   'models/reliers/relier',
   'models/user'
 ],
 function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
-      Constants, FxaClient, p, AuthErrors, Able, Relier, User) {
+      Constants, FxaClient, p, ProfileErrors, AuthErrors, Able, Metrics, Relier, User) {
   var assert = chai.assert;
 
   describe('views/settings', function () {
@@ -34,6 +36,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
     var relier;
     var user;
     var account;
+    var metrics;
     var UID = 'uid';
     var able;
 
@@ -43,12 +46,14 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
         fxaClient: fxaClient,
         relier: relier,
         user: user,
+        metrics: metrics,
         able: able
       });
     }
 
     beforeEach(function () {
       routerMock = new RouterMock();
+      metrics = new Metrics();
       windowMock = new WindowMock();
       relier = new Relier();
       fxaClient = new FxaClient();
@@ -197,8 +202,27 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
           });
       });
 
+      it('has avatar but does not load', function () {
+        sinon.stub(account, 'getAvatar', function () {
+          return p({ avatar: 'blah.jpg', id: 'foo' });
+        });
+
+        return view.render()
+          .then(function () {
+            return view.afterVisible();
+          })
+          .then(function () {
+            assert.equal(view.$('.avatar-wrapper img').length, 0);
+            assert.equal(view.$('.avatar-wrapper.with-default').length, 1);
+
+            var err = ProfileErrors.toError('IMAGE_LOAD_ERROR');
+            err.context = 'blah.jpg';
+            assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
+          });
+      });
+
       it('has an avatar set', function () {
-        var url = 'https://example.com/avatar.jpg';
+        var url = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
         var id = 'foo';
 
         sinon.stub(account, 'getAvatar', function () {

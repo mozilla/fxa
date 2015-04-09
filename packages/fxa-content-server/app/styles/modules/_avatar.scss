@@ -103,6 +103,10 @@
     top: -10px;
     width: 50px;
   }
+
+  .with-default + .remove {
+    display: none;
+  }
 }
 
 

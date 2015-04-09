@@ -124,7 +124,7 @@ function (Cocktail, p, BaseView, FormView, SignInView, PasswordMixin,
 
       // Only display the profile image if we have a cached account
       if (account.get('email') === email) {
-        return this._displayProfileImage(account);
+        return this.displayAccountProfileImage(account);
       }
     }
   });

@@ -80,7 +80,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
 
     afterVisible: function () {
       FormView.prototype.afterVisible.call(this);
-      return this._displayProfileImage(this.getAccount());
+      return this.displayAccountProfileImage(this.getAccount());
     },
 
     beforeDestroy: function () {

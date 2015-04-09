@@ -19,7 +19,7 @@ function (_, Cocktail, FormView, Template, AvatarMixin, SettingsMixin) {
 
     afterVisible: function () {
       FormView.prototype.afterVisible.call(this);
-      return this._displayProfileImage(this.getSignedInAccount());
+      return this.displayAccountProfileImage(this.getSignedInAccount());
     }
 
   });

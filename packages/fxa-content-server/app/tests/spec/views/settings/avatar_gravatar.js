@@ -119,7 +119,7 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, User,
           });
           view.automatedBrowser = true;
 
-          sinon.stub(view, 'updateAvatarUrl', function (result) {
+          sinon.stub(view, 'updateProfileImage', function (result) {
             assert.ok(result);
             return p();
           });
@@ -129,6 +129,7 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, User,
               return view.submit();
             })
             .then(function (result) {
+              assert.equal(view.updateProfileImage.args[0][0].get('id'), 'foo');
               assert.equal(result.id, 'foo');
               assert.equal(routerMock.page, 'settings');
               assert.equal(view.ephemeralMessages.get('successUnsafe'), 'Courtesy of <a href="https://www.gravatar.com">Gravatar</a>');

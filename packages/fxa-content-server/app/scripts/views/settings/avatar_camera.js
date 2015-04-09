@@ -15,10 +15,11 @@ define([
   'stache!templates/settings/avatar_camera',
   'lib/constants',
   'lib/promise',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'models/profile-image'
 ],
 function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
-    SettingsMixin, AvatarMixin, Template, Constants, p, AuthErrors) {
+    SettingsMixin, AvatarMixin, Template, Constants, p, AuthErrors, ProfileImage) {
   // a blank 1x1 png
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
@@ -153,7 +154,7 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
           self.stream.stop();
           delete self.stream;
 
-          self.updateAvatarUrl(result.url);
+          self.updateProfileImage(new ProfileImage(result));
           self.navigate('settings');
           return result;
         });
