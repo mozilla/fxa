@@ -67,6 +67,23 @@ define([
     }, dfd.reject.bind(dfd)));
   }
 
+  function testExpectHTMLResponse(url, acceptHeader) {
+    /*jshint validthis: true*/
+    var dfd = this.async(intern.config.asyncTimeout);
+
+    var headers = {};
+
+    if (acceptHeader) {
+      headers.Accept = acceptHeader;
+    }
+
+    request(url, {
+      headers: headers
+    }, dfd.callback(function (err, res) {
+      assert.equal(res.headers['content-type'], 'text/html; charset=utf-8');
+    }, dfd.reject.bind(dfd)));
+  }
+
   suite['#get /config'] = function () {
     var dfd = this.async(intern.config.asyncTimeout);
 
@@ -166,6 +183,15 @@ define([
     }, dfd.reject.bind(dfd)));
   };
 
+  suite['#get terms page with `Accept: */*` (IE8)'] = function () {
+    testExpectHTMLResponse.call(this, serverUrl + '/legal/terms', '*/*');
+  };
+
+  suite['#get terms page no `Accept` header'] = function () {
+    testExpectHTMLResponse.call(this, serverUrl + '/legal/terms', undefined);
+  };
+
+
   suite['#get privacy page using lang in the URL'] = function () {
     var dfd = this.async(intern.config.asyncTimeout);
 
@@ -182,6 +208,14 @@ define([
       assert.ok(res.body.match(/dir="ltr"/));
       assert.ok(res.body.match(/lang="zh-CN"/));
     }, dfd.reject.bind(dfd)));
+  };
+
+  suite['#get privacy page with `Accept: */*` (IE8)'] = function () {
+    testExpectHTMLResponse.call(this, serverUrl + '/legal/privacy', '*/*');
+  };
+
+  suite['#get privacy page with no `Accept` header'] = function () {
+    testExpectHTMLResponse.call(this, serverUrl + '/legal/privacy', undefined);
   };
 
   suite['#get /i18n/client.json with multiple supported languages'] = function () {

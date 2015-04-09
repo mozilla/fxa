@@ -57,9 +57,6 @@ module.exports = function verRoute (i18n) {
         }
 
         res.format({
-          'text/partial': function () {
-            res.send(template);
-          },
           'text/html': function () {
             var context = {};
             context[page] = template;
@@ -67,6 +64,9 @@ module.exports = function verRoute (i18n) {
             // the HTML page removes the header to allow embedding.
             res.removeHeader('X-FRAME-OPTIONS');
             res.render(page, context);
+          },
+          'text/partial': function () {
+            res.send(template);
           }
         });
       }, function (err) {
