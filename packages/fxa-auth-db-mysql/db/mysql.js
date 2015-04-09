@@ -449,7 +449,7 @@ module.exports = function (log, error) {
   // Delete : accountUnlockCodes
   // Where  : uid = $4
   //
-  var FORGOT_PASSWORD_VERIFIED = 'CALL forgotPasswordVerified_3(?, ?, ?, ?, ?)'
+  var FORGOT_PASSWORD_VERIFIED = 'CALL forgotPasswordVerified_4(?, ?, ?, ?, ?)'
 
   MySql.prototype.forgotPasswordVerified = function (tokenId, accountResetToken) {
     return this.write(
@@ -480,7 +480,7 @@ module.exports = function (log, error) {
   // Update : accountUnlockCodes
   // Set    : unlockCode = $3
   // Where  : uid = $1
-  var LOCK_ACCOUNT = 'CALL lockAccount_1(?, ?, ?)'
+  var LOCK_ACCOUNT = 'CALL lockAccount_2(?, ?, ?)'
 
   MySql.prototype.lockAccount = function (uid, data) {
     return this.write(LOCK_ACCOUNT, [uid, data.unlockCode, data.lockedAt])
@@ -491,7 +491,7 @@ module.exports = function (log, error) {
   // Where  : uid = $1
   // Delete : accountUnlockCodes
   // Where  : uid = $1
-  var UNLOCK_ACCOUNT = 'CALL unlockAccount_1(?)'
+  var UNLOCK_ACCOUNT = 'CALL unlockAccount_2(?)'
 
   MySql.prototype.unlockAccount = function (uid) {
     return this.write(UNLOCK_ACCOUNT, [uid])
