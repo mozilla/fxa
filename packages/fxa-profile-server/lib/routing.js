@@ -58,5 +58,15 @@ module.exports = [
     method: 'DELETE',
     path: v('/avatar/{id}'),
     config: require('./routes/avatar/delete')
+  },
+  {
+    method: 'GET',
+    path: v('/display_name'),
+    config: require('./routes/display_name/get')
+  },
+  {
+    method: 'POST',
+    path: v('/display_name'),
+    config: require('./routes/display_name/post')
   }
 ];

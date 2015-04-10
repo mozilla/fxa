@@ -14,6 +14,7 @@
     "aws-sdk": "2.0.23",
     "bluebird": "2.3.10",
     "buf": "0.1.0",
+    "checksum": "0.1.1",
     "compute-cluster": "0.0.9",
     "convict": "0.6.0",
     "gm": "1.17.0",
