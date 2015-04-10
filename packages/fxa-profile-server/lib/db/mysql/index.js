@@ -2,84 +2,102 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const path = require('path');
 const mysql = require('mysql');
 const buf = require('buf').hex;
+const MysqlPatcher = require('mysql-patcher');
 
-const AppError = require('../error');
-const config = require('../config');
-const logger = require('../logging')('db.mysql');
-const P = require('../promise');
+const AppError = require('../../error');
+const config = require('../../config');
+const logger = require('../../logging')('db.mysql');
+const P = require('../../promise');
+const patch = require('./patch');
 
-const SCHEMA = require('fs').readFileSync(__dirname + '/schema.sql').toString();
 
 function MysqlStore(options) {
   if (options.charset && options.charset !== 'UTF8_UNICODE_CI') {
-    logger.warn('createDatabase', { charset:  options.charset });
+    logger.warn('createDatabase', { charset: options.charset });
   } else {
     options.charset = 'UTF8_UNICODE_CI';
   }
+  options.typeCast = function(field, next) {
+    if (field.type === 'TINY' && field.length === 1) {
+      return field.string() === '1';
+    }
+    return next();
+  };
   this._pool = mysql.createPool(options);
 }
 
-function createSchema(client, options) {
-  logger.verbose('createSchema', options);
+// Apply patches up to the current patch level.
+// This will also create the DB if it is missing.
+
+function updateDbSchema(patcher) {
+  logger.verbose('updateDbSchema', patcher.options);
 
   var d = P.defer();
-  var database = options.database;
+  patcher.patch(function(err) {
+    if (err) {
+      logger.error('updateDbSchema', err);
+      return d.reject(err);
+    }
+    d.resolve();
+  });
 
-  logger.verbose('createDatabase', database);
-  client.query('CREATE DATABASE IF NOT EXISTS ' + database
-    + ' CHARACTER SET utf8 COLLATE utf8_unicode_ci', function(err) {
-      if (err) {
-        logger.error('createDatabase', err);
-        return d.reject(err);
+  return d.promise;
+}
+
+// Sanity-check that we're working with a compatible patch level.
+
+function checkDbPatchLevel(patcher) {
+  logger.verbose('checkDbPatchLevel', patcher.options);
+
+  var d = P.defer();
+
+  patcher.readDbPatchLevel(function(err) {
+    if (err) {
+      logger.error('checkDbPatchLevel', err);
+      return d.reject(err);
+    }
+    // We are only guaranteed to run correctly if we're at the current
+    // patch level for this version of the code (the normal state of
+    // affairs) or the one immediately above it (during a deployment).
+    if (patcher.currentPatchLevel !== patch.level) {
+      if (patcher.currentPatchLevel !== patch.level + 1) {
+        err = 'unexpected db patch level: ' + patcher.currentPatchLevel;
+        logger.error('checkDbPatchLevel', err);
+        return d.reject(new Error(err));
       }
+    }
+    d.resolve();
+  });
 
-      logger.verbose('changeUser');
-      client.changeUser({
-        user: options.user,
-        password: options.password,
-        database: database
-      }, function(err) {
-        if (err) {
-          logger.error('changeUser', err);
-          return d.reject(err);
-        }
-        logger.verbose('creatingSchema');
-
-        client.query(SCHEMA, function(err) {
-          if (err) {
-            logger.error('creatingSchema', err);
-            return d.reject(err);
-          }
-          d.resolve();
-        });
-      });
-    });
   return d.promise;
 }
 
 MysqlStore.connect = function mysqlConnect(options) {
-  if (options.createSchema) {
-    // ugly, but you can't connect to a database before the database actually
-    // exists. So remove and restore it later.
-    var database = options.database;
-    delete options.database;
 
-    options.multipleStatements = true;
-    var schemaConn = mysql.createConnection(options);
-    options.database = database;
+  options.createDatabase = options.createSchema;
+  options.dir = path.join(__dirname, 'patches');
+  options.metaTable = 'dbMetadata';
+  options.patchKey = 'schema-patch-level';
+  options.patchLevel = patch.level;
+  options.mysql = mysql;
+  var patcher = new MysqlPatcher(options);
 
-    return createSchema(schemaConn, options).then(function() {
-      schemaConn.end();
-      delete options.multipleStatements;
-      options.database = database;
-      return new MysqlStore(options);
-    });
-  } else {
-    return P.resolve(new MysqlStore(options));
-  }
+  return P.promisify(patcher.connect, patcher)().then(function() {
+    if (options.createSchema) {
+      return updateDbSchema(patcher);
+    }
+  }).then(function() {
+    return checkDbPatchLevel(patcher);
+  }).then(function() {
+    return P.promisify(patcher.end, patcher)();
+  }).then(function() {
+    return new MysqlStore(options);
+  });
 };
+
 
 const Q_AVATAR_INSERT = 'INSERT INTO avatars (id, url, userId, providerId) ' +
   'VALUES (?, ?, ?, ?)';
@@ -97,6 +115,12 @@ const Q_AVATAR_DELETE = 'DELETE FROM avatars WHERE id=?';
 const Q_PROVIDER_INSERT = 'INSERT INTO avatar_providers (name) VALUES (?)';
 const Q_PROVIDER_GET_BY_NAME = 'SELECT * FROM avatar_providers WHERE name=?';
 const Q_PROVIDER_GET_BY_ID = 'SELECT * FROM avatar_providers WHERE id=?';
+
+const Q_PROFILE_DISPLAY_NAME_UPDATE = 'INSERT INTO profile ' +
+  '(userId, displayName) VALUES (?, ?) ON DUPLICATE KEY UPDATE ' +
+  'displayName = VALUES(displayName)';
+const Q_PROFILE_DISPLAY_NAME_GET = 'SELECT displayName FROM profile ' +
+  'WHERE userId=?';
 
 function firstRow(rows) {
   return rows[0];
@@ -171,6 +195,14 @@ MysqlStore.prototype = {
 
   getProviderById: function getProviderById(id) {
     return this._readOne(Q_PROVIDER_GET_BY_ID, [id]);
+  },
+
+  setDisplayName: function setDisplayName(uid, displayName) {
+    return this._write(Q_PROFILE_DISPLAY_NAME_UPDATE, [buf(uid), displayName]);
+  },
+
+  getDisplayName: function getDisplayName(uid) {
+    return this._readOne(Q_PROFILE_DISPLAY_NAME_GET, [buf(uid)]);
   },
 
   _write: function _write(sql, params) {
