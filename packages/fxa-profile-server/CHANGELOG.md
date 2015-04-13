@@ -1,3 +1,21 @@
+<a name"0.35.0"></a>
+## 0.35.0 (2015-04-13)
+
+
+#### Bug Fixes
+
+* **changelog:** set package.json repository correctly so conventional-changelog creates valid UR ([17100542](https://github.com/mozilla/fxa-profile-server/commit/17100542))
+* **test:**
+  * set maxSockets to Infinity for real ([d2795966](https://github.com/mozilla/fxa-profile-server/commit/d2795966))
+  * expect new default size of 200x200 ([18f130f9](https://github.com/mozilla/fxa-profile-server/commit/18f130f9))
+
+
+#### Features
+
+* **displayName:** add a profile table with a displayName field ([ad6488eb](https://github.com/mozilla/fxa-profile-server/commit/ad6488eb))
+* **mysql:** use mysql patcher to allow incremental schema updates ([2fbfbbda](https://github.com/mozilla/fxa-profile-server/commit/2fbfbbda))
+
+
 <a name="0.33.0"></a>
 ## 0.33.0 (2015-03-16)
 
