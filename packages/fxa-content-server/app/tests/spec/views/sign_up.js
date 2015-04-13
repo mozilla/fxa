@@ -655,6 +655,12 @@ function (chai, _, $, moment, sinon, p, View, Coppa, Session, AuthErrors, Metric
         // wait for tooltip
         setTimeout(function () {
           assert.equal($('.tooltip-suggest').text(), 'Did you mean gmail.com?✕');
+          // there is exactly 3 elements with tabindex in the page
+          assert.equal($('[tabindex]').length, 3);
+          // the first element with tabindex is the span containing the website name
+          assert.equal($('.tooltip-suggest span:first').get(0), $('[tabindex="1"]').get(0));
+          // the second element with tabindex is the span containing the dismiss button
+          assert.equal($('.tooltip-suggest .dismiss').get(0), $('[tabindex="2"]').get(0));
           done();
         }, 50);
       });

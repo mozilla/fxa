@@ -36,14 +36,17 @@ function (Tooltip, Url) {
    */
   return function checkMailInput(target, metrics, translator, queryParams) {
     var element = $(target);
+    if (!element.length) {
+      return;
+    }
     var enabled = false;
 
     // Url param flag 'mailcheck' to disable the feature unless the flag is set
     if (Url.searchParam('mailcheck', queryParams) === '1') {
       enabled = true;
     }
-
-    if (element.val().length > MIN_CHARS && enabled) {
+    // check if the text value was changed before showing the tooltip
+    if (element[0].previousValue !==  element.val() && element.val().length > MIN_CHARS && enabled) {
       element.mailcheck({
         domains: DOMAINS,
         secondLevelDomains: SECOND_LEVEL_DOMAINS,
@@ -60,7 +63,7 @@ function (Tooltip, Url) {
           // user got a suggestion to check their email input
           metrics.logEvent('tooltip.mailcheck-suggested');
           var tooltip = new Tooltip({
-            message: t('Did you mean <span>%(domain)s</span>?', suggestion, translator),
+            message: t('Did you mean <span tabindex="1">%(domain)s</span>?', suggestion, translator),
             invalidEl: target,
             type: 'mailcheck',
             extraClassNames: SUGGEST_DIV_CLASS,
@@ -69,14 +72,19 @@ function (Tooltip, Url) {
 
           tooltip.render();
 
-          tooltip.$el.on('click', 'span', function () {
-            element.val(suggestion.full);
-            // the user has used the suggestion
-            metrics.logEvent('tooltip.mailcheck-used');
-            tooltip._destroy();
+          tooltip.$el.on('click keypress', 'span', function (e) {
+            // if a click event is triggered or an enter key is pressed, destroy
+            // the tooltip.
+            if (e.type === 'click' || e.which === 13) {
+              element.val(suggestion.full);
+              // the user has used the suggestion
+              metrics.logEvent('tooltip.mailcheck-used');
+              tooltip._destroy();
+            }
           });
         }
       });
     }
+    element[0].previousValue = element.val();
   };
 });
