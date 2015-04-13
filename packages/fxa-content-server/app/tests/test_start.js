@@ -73,6 +73,7 @@ function (Translator, Session) {
     '../tests/spec/views/unexpected_error',
     '../tests/spec/views/progress_indicator',
     '../tests/spec/views/marketing_snippet',
+    '../tests/spec/views/marketing_snippet_ios',
     '../tests/spec/views/cannot_create_account',
     '../tests/spec/views/close_button',
     '../tests/spec/views/coppa/coppa-date-picker',

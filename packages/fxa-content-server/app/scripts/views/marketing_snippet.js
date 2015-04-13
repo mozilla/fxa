@@ -25,7 +25,6 @@ define([
 
       this._type = options.type;
       this._service = options.service;
-      this._language = options.language;
     },
 
     context: function () {
@@ -43,7 +42,6 @@ define([
     afterRender: function () {
       var marketingType = this.$('[data-marketing-type]').attr('data-marketing-type');
       var marketingLink = this.$('.marketing-link').attr('href');
-
 
       this.metrics.logMarketingImpression(marketingType, marketingLink);
     },
