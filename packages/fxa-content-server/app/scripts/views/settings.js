@@ -41,6 +41,13 @@ function (Cocktail, Session, FormView, BaseView, AvatarMixin,
       'click #signout': BaseView.preventDefaultThen('validateAndSubmit')
     },
 
+    beforeRender: function () {
+      if (this.relier.get('setting') === 'avatar') {
+        this.navigate('/settings/avatar/change');
+        return false;
+      }
+    },
+
     submit: function () {
       var self = this;
       var sessionToken = self.getSignedInAccount().get('sessionToken');

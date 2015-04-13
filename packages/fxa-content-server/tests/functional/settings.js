@@ -137,25 +137,7 @@ define([
     },
 
     'visit settings page with an unknown uid parameter redirects to signin': function () {
-      var self = this;
-
-      return self.get('remote')
-        .get(require.toUrl(SIGNIN_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .findByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(FIRST_PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
-
+      return FunctionalHelpers.fillOutSignIn(this, email, FIRST_PASSWORD, true)
         .findById('fxa-settings-header')
         .end()
 
@@ -166,25 +148,7 @@ define([
     },
 
     'visit settings page with a known uid does not redirect': function () {
-      var self = this;
-
-      return self.get('remote')
-        .get(require.toUrl(SIGNIN_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .findByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(FIRST_PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
-
+      return FunctionalHelpers.fillOutSignIn(this, email, FIRST_PASSWORD, true)
         .findById('fxa-settings-header')
         .end()
 
@@ -194,23 +158,7 @@ define([
     },
 
     'sign in, go to settings with setting param set to avatar redirects to avatar change page ': function () {
-      return this.get('remote')
-        .get(require.toUrl(SIGNIN_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-
-        .findByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(FIRST_PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+      return FunctionalHelpers.fillOutSignIn(this, email, FIRST_PASSWORD, true)
 
         .findById('fxa-settings-header')
         .end()
@@ -229,25 +177,46 @@ define([
         .end();
     },
 
+    'sign in, go to settings with setting param and additional params redirects to avatar change page ': function () {
+      return FunctionalHelpers.fillOutSignIn(this, email, FIRST_PASSWORD, true)
+
+        .findById('fxa-settings-header')
+        .end()
+
+        .get(require.toUrl(SETTINGS_URL + '?setting=avatar&uid=' + accountData.uid + '&email=' + email))
+
+        .findById('fxa-avatar-change-header')
+        .end()
+
+        .findByCssSelector('#settings-home a')
+          .click()
+        .end()
+
+        // Should not redirect after clicking the home button
+        .findById('fxa-settings-header')
+        .end();
+    },
+
     'sign in with setting param set to avatar redirects to avatar change page ': function () {
-      return this.get('remote')
+      var self = this;
+      return self.get('remote')
         .get(require.toUrl(SIGNIN_URL + '?setting=avatar'))
         .setFindTimeout(intern.config.pageLoadTimeout)
+        .then(function () {
+          return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD);
+        })
+        .findById('fxa-avatar-change-header')
+        .end();
+    },
 
-        .findByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(FIRST_PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
-
+    'sign in with setting param and additional params redirects to avatar change page ': function () {
+      var self = this;
+      return self.get('remote')
+        .get(require.toUrl(SIGNIN_URL + '?setting=avatar&uid=' + accountData.uid + '&email=' + email))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .then(function () {
+          return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD);
+        })
         .findById('fxa-avatar-change-header')
         .end();
     }

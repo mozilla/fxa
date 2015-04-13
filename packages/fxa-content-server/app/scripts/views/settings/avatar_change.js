@@ -27,13 +27,18 @@ function ($, _, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
     events: {
       'click #file': 'filePicker',
       'click .remove': 'remove',
-      'change #imageLoader': 'fileSet',
-      'click #settings-home a': 'settingsHome'
+      'change #imageLoader': 'fileSet'
     },
 
     initialize: function () {
       // override in tests
       this.FileReader = FileReader;
+    },
+
+    beforeRender: function () {
+      if (this.relier.get('setting') === 'avatar') {
+        this.relier.unset('setting');
+      }
     },
 
     afterVisible: function () {
@@ -119,15 +124,8 @@ function ($, _, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
           error: AuthErrors.toMessage('UNUSABLE_IMAGE')
         });
       }
-    },
-
-    settingsHome: function () {
-      // the setting query parameter must be removed or else the router will
-      // send the user back to this screen.
-      this.window.location.search = Url.removeParamFromSearchString('setting',
-        this.window.location.search);
-      return false;
     }
+
   });
 
   Cocktail.mixin(View, AvatarMixin, SettingsMixin);

@@ -279,6 +279,18 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
             });
         });
       });
+
+      describe('setting param', function () {
+        it('when setting param is set to avatar, navigates to avatar change view', function () {
+          relier.set('setting', 'avatar');
+
+          return view.render()
+            .then(function () {
+              assert.equal(routerMock.page, '/settings/avatar/change');
+            });
+        });
+      });
+
     });
   });
 });
