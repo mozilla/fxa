@@ -1,3 +1,12 @@
+<a name"0.35.0"></a>
+## 0.35.0 (2015-04-13)
+
+
+#### Bug Fixes
+
+* **clients:** support client/client_id route via the internal server ([ce04da76](https://github.com/mozilla/fxa-oauth-server/commit/ce04da76))
+
+
 <a name="0.33.0"></a>
 ## 0.33.0 (2015-03-16)
 
