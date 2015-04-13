@@ -1,3 +1,33 @@
+<a name="0.35.0"></a>
+## 0.35.0 (2015-04-13)
+
+
+#### Bug Fixes
+
+* **auth-broker:** fixes fx-desktop channel tests for FF18 and FxOS 1.* ([2cadc2bd](https://github.com/mozilla/fxa-content-server/commit/2cadc2bd378aff2d27704e063b19ef7ca61b4cca))
+* **avatars:** show a default avatar if a uploaded avatar does not load ([cbdc5a11](https://github.com/mozilla/fxa-content-server/commit/cbdc5a11a2822738176a0938c4c2290a8eef242b), closes [#1804](https://github.com/mozilla/fxa-content-server/issues/1804))
+* **client:** Replace the `ﬁ` with `fi` (no ligature). ([43a402ef](https://github.com/mozilla/fxa-content-server/commit/43a402ef32086e9abfac2d3d7b2e6a8273e2d98b))
+* **csp:**
+  * use camelCase option keys instead of e.g., "img-src" ([730939aa](https://github.com/mozilla/fxa-content-server/commit/730939aac69145af76a153b29cb4ea6c2be42417))
+  * improve content-security-policy configuration ([bad1e80d](https://github.com/mozilla/fxa-content-server/commit/bad1e80dc5fda0a3f1b432f8b1e596417fc93939))
+* **jscs:** allow the 'other' quote mark to be used, but only to avoid having to escape ([b4fc1fda](https://github.com/mozilla/fxa-content-server/commit/b4fc1fdaef199922ed2518071b7ae7008095b0af))
+* **server:**
+  * Serve HTML templates for TOS/PP if Accept header is not `text/partial` ([3207c1d8](https://github.com/mozilla/fxa-content-server/commit/3207c1d84ca1ac3189a3f82ab4966127db77bf9f))
+  * migrate to Express 4 ([bc008ce4](https://github.com/mozilla/fxa-content-server/commit/bc008ce488e6df56498909418f172422c586b0d9), closes [#2214](https://github.com/mozilla/fxa-content-server/issues/2214))
+* **settings:** allow settings page redirect to work with extra query params ([4f8d64c0](https://github.com/mozilla/fxa-content-server/commit/4f8d64c025fcaffb95f1453b2f39a3b48fec1ef4), closes [#2301](https://github.com/mozilla/fxa-content-server/issues/2301))
+* **teamcity:** replace execSync with sync-exec module ([57cf75a1](https://github.com/mozilla/fxa-content-server/commit/57cf75a1b9c50f71db1f157c052cb68ff1c57640))
+* **test:** add missing "/v1" on FXA_AUTH_ROOT ([09b8ca91](https://github.com/mozilla/fxa-content-server/commit/09b8ca91ab627dd707d277f8804e54ff7fe421c8))
+* **tests:**
+  * tasks for running latest-beta and latest-esr builds in stage ([1c84e7f8](https://github.com/mozilla/fxa-content-server/commit/1c84e7f8203290c6011f4bd60444244ec2a55d90))
+  * create a task to ensure latest release, beta and esr builds are available ([bceb2e22](https://github.com/mozilla/fxa-content-server/commit/bceb2e223ebf8a9867bba14553389f534b962eb5))
+
+
+#### Features
+
+* **client:** Add "Chromeless" styling - remove all the extra stuff. ([b17dc56b](https://github.com/mozilla/fxa-content-server/commit/b17dc56b838d74cf98bfe03a3fce2fb83663a11f))
+* **docs:** Add documentation about the accepted query parameters. ([295fc00e](https://github.com/mozilla/fxa-content-server/commit/295fc00eb839f3026ed833b825b6328696071e28))
+
+
 <a name="0.34.0"></a>
 ## 0.34.0 (2015-03-31)
 
