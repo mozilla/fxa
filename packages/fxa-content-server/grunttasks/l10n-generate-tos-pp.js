@@ -13,7 +13,8 @@ module.exports = function (grunt) {
       grunt.task.run([
         'clean:tos_pp',
         'replace:tos_pp',
-        'marked:tos_pp'
+        'marked:tos_pp',
+        'copy:tos_pp'
       ]);
     });
 };
