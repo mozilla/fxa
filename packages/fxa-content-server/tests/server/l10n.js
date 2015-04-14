@@ -210,6 +210,19 @@ define([
     }, dfd.reject.bind(dfd)));
   };
 
+  suite['#get privacy page with supported lang that has no privacy template should show en'] = function () {
+    var dfd = this.async(intern.config.asyncTimeout);
+
+    request(serverUrl + '/legal/privacy', {
+      headers: {
+        'Accept-Language': 'hsb',
+        'Accept': 'text/html'
+      }
+    }, dfd.callback(function (err, res) {
+      assert.equal(res.request.href, serverUrl + '/en/legal/privacy');
+    }, dfd.reject.bind(dfd)));
+  };
+
   suite['#get privacy page with `Accept: */*` (IE8)'] = function () {
     testExpectHTMLResponse.call(this, serverUrl + '/legal/privacy', '*/*');
   };
