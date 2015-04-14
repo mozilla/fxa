@@ -227,5 +227,57 @@ define([
           });
       });
     });
+
+    describe('afterChangePassword', function () {
+      it('notifies the channel of change_password with the new login info', function () {
+        sinon.spy(channelMock, 'send', function (message, data, done) {
+          done(null);
+        });
+
+        account.set({
+          uid: 'uid',
+          sessionToken: 'session_token',
+          sessionTokenContext: 'sync',
+          unwrapBKey: 'unwrap_b_key',
+          keyFetchToken: 'key_fetch_token',
+          customizeSync: true,
+          verified: true,
+          notSent: 'not_sent'
+        });
+
+        return broker.afterChangePassword(account)
+          .then(function () {
+            var args = channelMock.send.args[0];
+            assert.equal(args[0], 'change_password');
+            assert.equal(args[1].email, 'testuser@testuser.com');
+            assert.equal(args[1].uid, 'uid');
+            assert.equal(args[1].sessionToken, 'session_token');
+            assert.equal(args[1].sessionTokenContext, 'sync');
+            assert.equal(args[1].unwrapBKey, 'unwrap_b_key');
+            assert.equal(args[1].customizeSync, true);
+            assert.equal(args[1].verified, true);
+            assert.isFalse('notSent' in args[1]);
+          });
+      });
+    });
+
+    describe('afterDeleteAccount', function () {
+      it('notifies the channel of delete_account', function () {
+        sinon.spy(channelMock, 'send', function (message, data, done) {
+          done(null);
+        });
+
+        account.set('uid', 'uid');
+
+        return broker.afterDeleteAccount(account)
+          .then(function () {
+            var args = channelMock.send.args[0];
+            assert.equal(args[0], 'delete_account');
+            assert.equal(args[1].email, 'testuser@testuser.com');
+            assert.equal(args[1].uid, 'uid');
+          });
+      });
+    });
+
   });
 });

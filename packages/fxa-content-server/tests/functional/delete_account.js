@@ -24,19 +24,6 @@ define([
   var email;
   var client;
 
-  function fillOutDeleteAccount(context, password) {
-    return context.get('remote')
-      .findByCssSelector('form input.password')
-        .click()
-        .type(password)
-      .end()
-
-      // delete account
-      .findByCssSelector('button[type="submit"]')
-        .click()
-      .end();
-  }
-
   function initiateLockedAccountDeleteAccount(context) {
     return FunctionalHelpers.fillOutSignIn(context, email, PASSWORD)
 
@@ -54,7 +41,7 @@ define([
 
 
       .then(function () {
-        return fillOutDeleteAccount(context, PASSWORD);
+        return FunctionalHelpers.fillOutDeleteAccount(context, PASSWORD);
       })
 
       .then(FunctionalHelpers.visibleByQSA('.error'))
@@ -109,7 +96,7 @@ define([
         .end()
 
         .then(function () {
-          return fillOutDeleteAccount(self, PASSWORD);
+          return FunctionalHelpers.fillOutDeleteAccount(self, PASSWORD);
         })
 
         // success is going to the signup page
@@ -154,7 +141,7 @@ define([
 
         // account is unlocked, re-try the delete account
         .then(function () {
-          return fillOutDeleteAccount(self, PASSWORD);
+          return FunctionalHelpers.fillOutDeleteAccount(self, PASSWORD);
         })
 
         .findByCssSelector('#fxa-signup-header')
@@ -211,7 +198,7 @@ define([
 
         // account is unlocked, re-try the delete account
         .then(function () {
-          return fillOutDeleteAccount(self, PASSWORD);
+          return FunctionalHelpers.fillOutDeleteAccount(self, PASSWORD);
         })
 
         .findByCssSelector('#fxa-signup-header')

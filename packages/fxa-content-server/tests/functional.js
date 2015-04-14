@@ -20,6 +20,7 @@ define([
   './functional/robots_txt',
   './functional/settings',
   './functional/settings_common',
+  './functional/sync_settings',
   './functional/change_password',
   './functional/force_auth',
   './functional/404',

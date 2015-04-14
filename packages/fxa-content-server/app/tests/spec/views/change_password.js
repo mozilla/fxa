@@ -212,6 +212,8 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, Metrics, p,
             return p({});
           });
 
+          sinon.spy(broker, 'afterChangePassword');
+
           return view.submit()
             .then(function () {
               assert.equal(routerMock.page, 'settings');
@@ -222,6 +224,7 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, Metrics, p,
               assert.isTrue(view.fxaClient.signIn.calledWith(
                       EMAIL, newPassword, relier));
               assert.isTrue(user.setSignedInAccount.calledWith(account));
+              assert.isTrue(broker.afterChangePassword.calledWith(account));
             });
         });
 

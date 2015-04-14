@@ -80,6 +80,20 @@ function (chai, sinon, Relier, BaseAuthenticationBroker, BaseView, WindowMock) {
       });
     });
 
+    describe('afterChangePassword', function () {
+      it('returns a promise', function () {
+        return broker.afterChangePassword(view)
+          .then(assert.pass);
+      });
+    });
+
+    describe('afterDeleteAccount', function () {
+      it('returns a promise', function () {
+        return broker.afterDeleteAccount(view)
+          .then(assert.pass);
+      });
+    });
+
     describe('transformLink', function () {
       it('does nothing to the link', function () {
         assert.equal(broker.transformLink('signin'), 'signin');

@@ -170,6 +170,24 @@ define([
     },
 
     /**
+     * Called after a user has changed their password.
+     *
+     * @return {promise}
+     */
+    afterChangePassword: function () {
+      return p();
+    },
+
+    /**
+     * Called after a user has deleted their account.
+     *
+     * @return {promise}
+     */
+    afterDeleteAccount: function () {
+      return p();
+    },
+
+    /**
      * Transform the signin/signup links if necessary
      */
     transformLink: function (link) {

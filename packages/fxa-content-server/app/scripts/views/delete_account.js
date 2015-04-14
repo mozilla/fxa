@@ -43,6 +43,9 @@ function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
           Session.clear();
           self.user.removeAccount(account);
 
+          return self.broker.afterDeleteAccount(account);
+        })
+        .then(function () {
           self.navigate('signup', {
             success: t('Account deleted successfully')
           });
