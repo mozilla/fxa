@@ -79,7 +79,7 @@ module.exports = function verRoute (i18n) {
     // lang at this point may use `_` as the separator. Abide matches
     // URLs with `-`. Use i18n.languageFrom to do any conversions and
     // ensure abide is able to match the language.
-    return i18n.languageFrom(lang) + '/legal/' + page;
+    return '/' + i18n.languageFrom(lang) + '/legal/' + page;
   }
 
   return route;
