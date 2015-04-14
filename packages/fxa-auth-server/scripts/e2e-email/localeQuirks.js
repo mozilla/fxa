@@ -21,7 +21,6 @@ var translationQuirks = {
     'dsb',
     'en',
     'hsb',
-    'sq',
     'uk'
   ],
 
@@ -29,18 +28,17 @@ var translationQuirks = {
     'dsb',
     'en',
     'hsb',
-    'sq',
     'uk'
   ],
 
   // A *lot* have not been translated, but a number of broadly
   // spoken languages (e.g., de, zh-TW, zh-TW, ja, ru, pt-BR)
+  // have been.
   'Re-verify your account': [
     'ca',
     'dsb',
     'en',
     'es-AR',
-    'es-CL',
     'et',
     'eu',
     'ff',
@@ -55,9 +53,6 @@ var translationQuirks = {
     'pa',
     'pl',
     'rm',
-    'sq',
-    'sr',
-    'sr-LATN',
     'sv',
     'uk',
   ]
