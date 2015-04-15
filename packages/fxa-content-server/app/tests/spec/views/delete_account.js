@@ -142,12 +142,15 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics,
           sinon.stub(user, 'removeAccount', function () {
           });
 
+          sinon.spy(broker, 'afterDeleteAccount');
+
           return view.submit()
               .then(function () {
                 assert.equal(routerMock.page, 'signup');
                 assert.isTrue(view.fxaClient.deleteAccount
                   .calledWith(email, password));
                 assert.isTrue(user.removeAccount.calledWith(account));
+                assert.isTrue(broker.afterDeleteAccount.calledWith(account));
               });
         });
 

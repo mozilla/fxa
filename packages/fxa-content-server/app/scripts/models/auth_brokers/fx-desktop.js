@@ -90,6 +90,21 @@ define([
         });
     },
 
+    afterChangePassword: function (account) {
+      // no response is expected, so do not wait for one
+      this.send('change_password', this._getLoginData(account));
+      return p();
+    },
+
+    afterDeleteAccount: function (account) {
+      // no response is expected, so do not wait for one
+      this.send('delete_account', {
+        email: account.get('email'),
+        uid: account.get('uid')
+      });
+      return p();
+    },
+
     // used by the ChannelMixin to get a channel.
     getChannel: function () {
       var channel = this._channel || new FxDesktopChannel();

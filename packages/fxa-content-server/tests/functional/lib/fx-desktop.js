@@ -46,8 +46,13 @@ define([
       element.innerText = JSON.stringify(e.detail.data);
       document.body.appendChild(element);
 
-      // loaded does not respond.
-      if (command !== 'loaded') {
+      var DOES_NOT_RESPOND = [
+        'loaded',
+        'change_password',
+        'delete_account'
+      ];
+
+      if (DOES_NOT_RESPOND.indexOf(command) === -1) {
         sendMessageToFxa({
           status: command
         });
@@ -76,9 +81,16 @@ define([
       .end();
   }
 
+  function testIsBrowserNotifiedOfMessage(context, message) {
+    return context.get('remote')
+      .findByCssSelector('#message-' + message)
+      .end();
+  }
+
   return {
     listenForFxaCommands: listenForFxaCommands,
-    testIsBrowserNotifiedOfLogin: testIsBrowserNotifiedOfLogin
+    testIsBrowserNotifiedOfLogin: testIsBrowserNotifiedOfLogin,
+    testIsBrowserNotifiedOfMessage: testIsBrowserNotifiedOfMessage
   };
 });
 

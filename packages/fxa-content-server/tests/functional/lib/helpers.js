@@ -477,6 +477,40 @@ define([
       .end();
   }
 
+  function fillOutChangePassword(context, oldPassword, newPassword) {
+    return context.get('remote')
+      .setFindTimeout(intern.config.pageLoadTimeout)
+
+      .findByCssSelector('#old_password')
+        .click()
+        .type(oldPassword)
+      .end()
+
+      .findByCssSelector('#new_password')
+        .click()
+        .type(newPassword)
+      .end()
+
+      .findByCssSelector('button[type="submit"]')
+        .click()
+      .end();
+  }
+
+  function fillOutDeleteAccount(context, password) {
+    return context.get('remote')
+      .setFindTimeout(intern.config.pageLoadTimeout)
+
+      .findByCssSelector('form input.password')
+        .click()
+        .type(password)
+      .end()
+
+      // delete account
+      .findByCssSelector('button[type="submit"]')
+        .click()
+      .end();
+  }
+
   function listenForWebChannelMessage() {
     /* global document, addEventListener */
 
@@ -532,6 +566,8 @@ define([
     fillOutSignIn: fillOutSignIn,
     fillOutSignUp: fillOutSignUp,
     fillOutResetPassword: fillOutResetPassword,
-    fillOutCompleteResetPassword: fillOutCompleteResetPassword
+    fillOutCompleteResetPassword: fillOutCompleteResetPassword,
+    fillOutChangePassword: fillOutChangePassword,
+    fillOutDeleteAccount: fillOutDeleteAccount
   };
 });
