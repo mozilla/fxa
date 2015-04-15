@@ -81,4 +81,11 @@
   if (isStyleAllowed(style)) {
     docElement.className += (' ' + style);
   }
+
+  /**
+   * Check if the user is signing in to Sync on Firefox for iOS. User agent sniff. Yuck.
+   */
+  if (/FxiOS/.test(navigator.userAgent) && parseQueryParams().service === 'sync') {
+    docElement.className += ' fx-ios-sync';
+  }
 }());
