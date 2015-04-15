@@ -18,6 +18,14 @@ function () {
   // Should be removed in favor of #992 and #993 when implemented
   t('Subscribe to Firefox news and tips');
 
+  // For the spring Firefox 38.1 marketing drive.
+  // Should be removed when the PR for #2255 is merged.
+  t('Get the full Sync experience.');
+  t('Download Firefox for iOS.');
+  t('Download Firefox for Android.');
+  t('Download Firefox for your mobile devices.');
+
+
   /**
    * Replace instances of %s and %(name)s with their corresponding values in
    * the context
