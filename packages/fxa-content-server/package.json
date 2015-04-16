@@ -55,7 +55,7 @@
     "grunt-usemin": "2.3.0",
     "grunt-z-schema": "0.1.0",
     "handlebars": "1.3.0",
-    "helmet": "0.4.0",
+    "helmet": "0.7.1",
     "http-proxy": "1.2.0",
     "i18n-abide": "0.0.22",
     "jsxgettext-recursive": "0.0.5",
