@@ -18,10 +18,8 @@
  * HTML is returned if `Accepts` is `text/html`
  */
 
-var fs = require('fs');
 var path = require('path');
 var logger = require('mozlog')('route.get-terms-privacy');
-var Promise = require('bluebird');
 var config = require('../configuration');
 
 var PAGE_TEMPLATE_DIRECTORY = path.join(config.get('page_template_root'), 'dist');
@@ -44,9 +42,17 @@ module.exports = function verRoute (i18n) {
   // * /<locale>/legal/privacy
   route.path = /^\/(?:([a-zA-Z-\_]*)\/)?legal\/(terms|privacy)(?:\/)?$/;
 
-  route.process = function (req, res) {
+  route.process = function (req, res, next) {
     var lang = req.params[0] || req.lang;
     var page = req.params[1];
+
+
+    if (isUserRefreshingPage(req)) {
+      // The user refreshed the TOS/PP page. Let the app handle
+      // everything so the user can correctly go "back".
+      req.url = '/';
+      return next();
+    }
 
     getTemplate(page, lang, DEFAULT_LANG, DEFAULT_LEGAL_LANG)
       .then(function (template) {
@@ -80,6 +86,22 @@ module.exports = function verRoute (i18n) {
     // URLs with `-`. Use i18n.languageFrom to do any conversions and
     // ensure abide is able to match the language.
     return '/' + i18n.languageFrom(lang) + '/legal/' + page;
+  }
+
+  function wantsFullPage(acceptHeader) {
+    return /text\/html/.test(acceptHeader);
+  }
+
+  function cameFromApp(cookies) {
+    // the canGoBack cookie is scoped to the /legal path,
+    // so it will not match if the user browses directly to,
+    // e.g., /de/legal/terms
+    return cookies.canGoBack === '1';
+  }
+
+  function isUserRefreshingPage(req) {
+    return wantsFullPage(req.get('Accept')) &&
+           cameFromApp(req.cookies);
   }
 
   return route;

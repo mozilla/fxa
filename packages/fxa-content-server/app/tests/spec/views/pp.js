@@ -8,16 +8,23 @@
 define([
   'chai',
   'sinon',
-  'views/pp'
+  'views/pp',
+  '../../mocks/window'
 ],
-function (chai, sinon, View) {
+function (chai, sinon, View, WindowMock) {
   var assert = chai.assert;
 
   describe('views/pp', function () {
     var view;
+    var windowMock;
 
     beforeEach(function () {
-      view = new View({});
+      windowMock = new WindowMock();
+      windowMock.location.pathname = '/legal/privacy';
+
+      view = new View({
+        window: windowMock
+      });
     });
 
     afterEach(function () {
@@ -34,6 +41,13 @@ function (chai, sinon, View) {
           .then(function () {
             assert.equal(view.$('#fxa-pp-back').length, 1);
           });
+    });
+
+    it('sets a cookie that lets the server correctly handle page refreshes', function () {
+      return view.render()
+        .then(function () {
+          assert.isTrue(/canGoBack=1; path=\/legal\/privacy/.test(windowMock.document.cookie));
+        });
     });
 
     it('Back button is not displayed if there is no page to go back to', function () {

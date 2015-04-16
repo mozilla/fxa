@@ -409,7 +409,27 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
         return router.createAndShowView(SignUpView, { canGoBack: false })
           .then(function () {
             assert.equal($('#fxa-signup-header').length, 1);
+            assert.isTrue(windowMock.sessionStorage.canGoBack);
           });
+      });
+    });
+
+    describe('canGoBack initial value', function () {
+      it('is `false` if sessionStorage.canGoBack is not set', function () {
+        assert.isFalse(router.canGoBack);
+      });
+
+      it('is `true` if sessionStorage.canGoBack is set', function () {
+        windowMock.sessionStorage.canGoBack = true;
+        router = new Router({
+          window: windowMock,
+          metrics: metrics,
+          relier: relier,
+          broker: broker,
+          user: user,
+          formPrefill: formPrefill
+        });
+        assert.isTrue(router.canGoBack);
       });
     });
   });

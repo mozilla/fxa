@@ -180,12 +180,36 @@ define([
         .findByCssSelector('#fxa-settings-header')
         .end()
 
+        .execute(function () {
+          /* global sessionStorage */
+          sessionStorage.clear();
+        })
+
         .get(require.toUrl(PAGE_URL))
 
         .findByCssSelector('#fxa-change-password-header')
         .end()
 
         .then(Test.noElementById(self, 'back'));
+    },
+
+    'refresh the page - back button': function () {
+      return this.get('remote')
+        // check that signin is complete before proceeding
+        .findByCssSelector('#fxa-settings-header')
+        .end()
+
+        .findById('change-password')
+          .click()
+        .end()
+
+        .findByCssSelector('#fxa-change-password-header')
+        .end()
+
+        .refresh()
+
+        .findByCssSelector('#back')
+        .end();
     },
 
     'locked account, verify same browser': function () {

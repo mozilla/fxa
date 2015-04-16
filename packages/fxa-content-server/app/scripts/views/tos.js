@@ -29,6 +29,20 @@ function (Cocktail, xhr, BaseView, Template, AuthErrors, BackMixin) {
       .then(function (template) {
         self.$('#legal-copy').html(template);
         self.$('.hidden').removeClass('hidden');
+
+        // Set a session cookie that informs the server
+        // the user can go back if they refresh the page.
+        // If the user can go back, the browser will not
+        // render the statically generated TOS/PP page,
+        // but will let the app render the page.
+        // The cookie is cleared whenever the user
+        // restarts the browser. See #2044
+        //
+        // The cookie is scoped to the page to avoid sending
+        // it on other requests, and to ensure the server
+        // only sends the user back to the app if the user in fact
+        // came from this page.
+        self.window.document.cookie = 'canGoBack=1; path=' + self.window.location.pathname;
       })
       .fail(function () {
         var err = AuthErrors.toError('COULD_NOT_GET_TOS');
