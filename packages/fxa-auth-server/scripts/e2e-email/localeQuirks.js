@@ -10,25 +10,14 @@ var translationQuirks = {
   // these locales will be expected to have a SMTP
   // 'content-language' header of 'en-US'
   'content-language': [
-    'en',
-    'dsb',
-    'hsb',
-    'uk'
   ],
 
-  // SMTP Subject: 'value' will be 'en-US'
   'Verify your account': [
-    'dsb',
-    'en',
-    'hsb',
-    'uk'
+    'en'
   ],
 
   'Reset your password': [
-    'dsb',
-    'en',
-    'hsb',
-    'uk'
+    'en'
   ],
 
   // A *lot* have not been translated, but a number of broadly
@@ -36,7 +25,6 @@ var translationQuirks = {
   // have been.
   'Re-verify your account': [
     'ca',
-    'dsb',
     'en',
     'es-AR',
     'et',
@@ -45,7 +33,6 @@ var translationQuirks = {
     'fr',
     'fy',
     'he',
-    'hsb',
     'id',
     'ko',
     'lt',
@@ -54,7 +41,6 @@ var translationQuirks = {
     'pl',
     'rm',
     'sv',
-    'uk',
   ]
 }
 
