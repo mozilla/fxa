@@ -11,7 +11,7 @@ define([
   './tools/firefox_profile'
 ],
 function (args, topic, firefoxProfile) {
-  /*jshint maxcomplexity:9 */
+  /*jshint maxcomplexity:10 */
   'use strict';
 
   var fxaAuthRoot = args.fxaAuthRoot || 'http://127.0.0.1:9000/v1';
@@ -21,6 +21,7 @@ function (args, topic, firefoxProfile) {
   var fxaIframeOauthApp = args.fxaIframeOauthApp || 'http://127.0.0.1:8080/iframe';
   var fxaProduction = !!args.fxaProduction;
   var fxaToken = args.fxaToken || 'http://';
+  var asyncTimeout = parseInt(args.asyncTimeout || 5000, 10);
 
   if (topic) {
     topic.subscribe('/suite/start', function (suite) {
@@ -35,7 +36,7 @@ function (args, topic, firefoxProfile) {
     // A fully qualified URL to the Intern proxy
     proxyUrl: 'http://127.0.0.1:9090/',
 
-    asyncTimeout: 5000, // milliseconds
+    asyncTimeout: asyncTimeout, // milliseconds
 
     fxaAuthRoot: fxaAuthRoot,
     fxaContentRoot: fxaContentRoot,
