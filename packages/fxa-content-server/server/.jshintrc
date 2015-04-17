@@ -1,0 +1,7 @@
+{
+  "extends": "../.jshintrc",
+  "globalstrict": true,
+  "globals": {
+    "module": true
+  }
+}

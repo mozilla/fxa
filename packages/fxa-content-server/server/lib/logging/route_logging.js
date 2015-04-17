@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict';
+
 // Middleware to log the requests
 
 var logger = require('mozlog')('server.requests');
@@ -24,11 +26,9 @@ var disabled = function (req, res, next) {
 };
 
 module.exports = function () {
-  'use strict';
-
-  return config.get('disable_route_logging')
-          ? disabled
-          : morgan(formats[config.get('route_log_format')], {
+  return config.get('disable_route_logging') ?
+          disabled :
+          morgan(formats[config.get('route_log_format')], {
             stream: {
               write: function (x) {
                 logger.info(typeof x === 'string' ? x.trim() : x);

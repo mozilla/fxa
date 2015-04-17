@@ -4,6 +4,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict';
+
 var fs = require('fs');
 var https = require('https');
 var path = require('path');
@@ -51,8 +53,6 @@ var PAGE_TEMPLATE_DIRECTORY =
 logger.info('page_template_directory: %s', PAGE_TEMPLATE_DIRECTORY);
 
 function makeApp() {
-  'use strict';
-
   var app = express();
 
   app.engine('html', consolidate.handlebars);
@@ -90,9 +90,9 @@ function makeApp() {
     git: config.get('experiments.git'),
     watch: config.get('experiments.watch'),
     addRoutes: true
-  }
+  };
 
-  app.use(require('express-able')(ableOptions))
+  app.use(require('express-able')(ableOptions));
 
   routes(app);
 
@@ -113,8 +113,6 @@ var app,
     port;
 
 function listen(theApp) {
-  'use strict';
-
   app = theApp || app;
   if (config.get('use_https')) {
     // Development only... Ops runs this behind nginx
@@ -144,8 +142,6 @@ function listen(theApp) {
 }
 
 function makeHttpRedirectApp () {
-  'use strict';
-
   var redirectProtocol = config.get('use_https') ? 'https://' : 'http://';
   var redirectPort = port === 443 ? '' : ':' + port;
 
@@ -160,7 +156,6 @@ function makeHttpRedirectApp () {
 }
 
 function listenHttpRedirectApp(httpApp) {
-  'use strict';
   var httpPort = config.get('use_https') ? config.get('redirect_port') : config.get('http_port');
 
   httpApp.listen(httpPort, '0.0.0.0');

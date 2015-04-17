@@ -61,7 +61,7 @@ function addEvents(loggableEvent, event) {
     loggableEvent.events = [];
     loggableEvent.event_durations = [];
 
-    event.events.forEach(function (event, index) {
+    event.events.forEach(function (event) {
       loggableEvent.events.push(event.type);
       loggableEvent.event_durations.push(event.offset);
     });

@@ -4,9 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var fs = require('fs');
-var https = require('https');
+'use strict';
 
+var fs = require('fs');
 var mozlog = require('mozlog');
 
 var config = require('../lib/configuration');
@@ -18,8 +18,6 @@ var express = require('express');
 var bodyParser = require('body-parser');
 
 function makeApp() {
-  'use strict';
-
   var violations = fs.createWriteStream('violations.txt', {flags: 'a'});
   var app = express();
   app.use(bodyParser.json());
@@ -41,17 +39,12 @@ function makeApp() {
   return app;
 }
 
-var app,
-    port;
-
-function listen(theApp) {
-  'use strict';
-
-  port = 80;
+function listen(app) {
+  var port = 80;
   app.listen(port, '0.0.0.0');
   logger.info('Firefox Account CSP Violation server listening on port', port);
   return true;
 }
 
-app = makeApp();
+var app = makeApp();
 listen(app);

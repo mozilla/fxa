@@ -26,6 +26,9 @@ module.exports = function (grunt) {
     },
     tests: [
       '<%= yeoman.tests %>/**/*.js'
+    ],
+    server: [
+      '<%= yeoman.server %>/**/*.js',
     ]
   });
 };

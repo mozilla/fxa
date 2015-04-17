@@ -6,7 +6,7 @@
 
 var MetricsCollector = require('../metrics-collector-stderr');
 
-module.exports = function (options) {
+module.exports = function () {
   var metricsCollector = new MetricsCollector();
 
   return {

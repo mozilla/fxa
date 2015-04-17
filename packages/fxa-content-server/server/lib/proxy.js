@@ -21,7 +21,21 @@ var fxaProfileServerUrl = config.get('profile_url');
 
 var proxy = httpProxy.createServer({});
 
-module.exports = function (req, res, next) {
+function getTarget (url) {
+  if (/^\/auth\//.test(url)) {
+    return fxaAuthServerUrl;
+  } else if (/^\/oauth\//.test(url)) {
+    return fxaOAuthServerUrl;
+  } else if (/^\/profile_api\//.test(url)) {
+    return fxaProfileServerUrl;
+  }
+}
+
+function getUpdatedUrl (url) {
+  return url.replace(/^\/(oauth|auth|profile_api)\//, '/');
+}
+
+module.exports = function (req, res) {
   // node requests are streams. The proxy expects a readable stream.
   // The request stream is drained by the bodyParser before ever arriving
   // here. restreamer re-establishes the stream for the proxy.
@@ -50,17 +64,3 @@ module.exports = function (req, res, next) {
   });
 };
 
-
-function getTarget (url) {
-  if (/^\/auth\//.test(url)) {
-    return fxaAuthServerUrl;
-  } else if (/^\/oauth\//.test(url)) {
-    return fxaOAuthServerUrl;
-  } else if (/^\/profile_api\//.test(url)) {
-    return fxaProfileServerUrl;
-  }
-}
-
-function getUpdatedUrl (url) {
-  return url.replace(/^\/(oauth|auth|profile_api)\//, '/');
-}
