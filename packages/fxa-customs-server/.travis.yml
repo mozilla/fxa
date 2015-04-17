@@ -27,5 +27,5 @@ before_install:
 
 script:
   - npm run outdated
-  - ./node_modules/.bin/grunt validate-shrinkwrap
+  - ./node_modules/.bin/grunt validate-shrinkwrap --force
   - npm test
