@@ -6,12 +6,16 @@ env:
     - TMPDIR=/tmp
 
 node_js:
- - 0.10
+ - '0.10'
+ - '0.12'
+ - iojs
 
 services:
  - memcached
 
 notifications:
+  email:
+    jrgm@mozilla.com
   irc:
     channels:
       - "irc.mozilla.org#fxa"
@@ -23,5 +27,5 @@ before_install:
 
 script:
   - npm run outdated
-  - ./node_modules/.bin/grunt validate-shrinkwrap
+  - ./node_modules/.bin/grunt validate-shrinkwrap --force
   - npm test
