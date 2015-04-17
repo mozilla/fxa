@@ -77,7 +77,7 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
           user: user
         });
         view.isUserAuthorized = function () {
-          return true;
+          return p(true);
         };
         account = user.initAccount({
           email: 'a@a.com',

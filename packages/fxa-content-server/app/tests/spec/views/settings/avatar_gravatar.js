@@ -80,7 +80,7 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, User,
           return account;
         });
         view.isUserAuthorized = function () {
-          return true;
+          return p(true);
         };
       });
 

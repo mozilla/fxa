@@ -159,10 +159,7 @@ function (Cocktail, _, Backbone, $, p, AuthErrors,
     _checkUserAuthorization: function () {
       var self = this;
 
-      return p()
-        .then(function () {
-          return self.isUserAuthorized();
-        })
+      return self.isUserAuthorized()
         .then(function (isUserAuthorized) {
           if (! isUserAuthorized) {
             // user is not authorized, make them sign in.
@@ -233,13 +230,17 @@ function (Cocktail, _, Backbone, $, p, AuthErrors,
      * authorization as well.
      */
     isUserAuthorized: function () {
+      var self = this;
       var sessionToken;
 
-      if (this.mustAuth || this.mustVerify) {
-        sessionToken = this.getSignedInAccount().get('sessionToken');
-        return !!sessionToken && this.fxaClient.isSignedIn(sessionToken);
-      }
-      return true;
+      return p()
+        .then(function () {
+          if (self.mustAuth || self.mustVerify) {
+            sessionToken = self.getSignedInAccount().get('sessionToken');
+            return !! sessionToken && self.fxaClient.isSignedIn(sessionToken);
+          }
+          return true;
+        });
     },
 
     isUserVerified: function () {

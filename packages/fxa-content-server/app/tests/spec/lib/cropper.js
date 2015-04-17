@@ -49,7 +49,7 @@ function (chai, jquery, RouterMock, CanvasMock, p, Cropper, EphemeralMessages,
       });
 
       view.isUserAuthorized = function () {
-        return true;
+        return p(true);
       };
       view.isUserVerified = function () {
         return p(true);

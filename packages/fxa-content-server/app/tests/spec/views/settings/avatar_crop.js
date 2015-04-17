@@ -77,7 +77,7 @@ function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, User,
     describe('with session', function () {
       beforeEach(function () {
         view.isUserAuthorized = function () {
-          return true;
+          return p(true);
         };
         account = user.initAccount({
           email: 'a@a.com',
@@ -119,7 +119,7 @@ function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, User,
             relier: relier
           });
           view.isUserAuthorized = function () {
-            return true;
+            return p(true);
           };
           sinon.stub(view, 'getSignedInAccount', function () {
             return account;
