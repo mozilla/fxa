@@ -79,7 +79,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock,
     describe('with session', function () {
       beforeEach(function () {
         view.isUserAuthorized = function () {
-          return true;
+          return p(true);
         };
         sinon.stub(view, 'getSignedInAccount', function () {
           return account;
@@ -156,7 +156,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock,
         });
 
         view.isUserAuthorized = function () {
-          return true;
+          return p(true);
         };
 
         sinon.stub(view, 'getSignedInAccount', function () {

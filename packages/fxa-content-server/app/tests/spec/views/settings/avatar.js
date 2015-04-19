@@ -66,7 +66,7 @@ function (chai, _, $, sinon, View, RouterMock, FxaClientMock,
 
       beforeEach(function () {
         view.isUserAuthorized = function () {
-          return true;
+          return p(true);
         };
         account = user.initAccount({
           email: 'a@a.com',
