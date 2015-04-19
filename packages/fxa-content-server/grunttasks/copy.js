@@ -83,6 +83,13 @@ module.exports = function (grunt) {
           cwd: '<%= yeoman.app %>/bower_components/jquery-ui',
           src: ['**/*.js'],
           dest: '<%= yeoman.dist %>/bower_components/jquery-ui'
+        },
+        {
+          // head scripts
+          expand: true,
+          cwd: '<%= yeoman.tmp %>/concat/scripts',
+          src: ['**/*.js'],
+          dest: '<%= yeoman.dist %>/scripts'
         }
       ]
     },
