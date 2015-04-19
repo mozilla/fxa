@@ -16,10 +16,12 @@ define([
   'lib/constants',
   'lib/promise',
   'lib/auth-errors',
+  'lib/environment',
   'models/profile-image'
 ],
 function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
-    SettingsMixin, AvatarMixin, Template, Constants, p, AuthErrors, ProfileImage) {
+    SettingsMixin, AvatarMixin, Template, Constants, p, AuthErrors,
+    Environment, ProfileImage) {
   // a blank 1x1 png
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
@@ -52,7 +54,6 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
         self.streaming = true;
         self._getMedia = function () {
           self.enableSubmitIfValid();
-          return true;
         };
         self.stream = {
           stop: function () {}
@@ -70,11 +71,6 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
                              nav.webkitGetUserMedia ||
                              nav.mozGetUserMedia ||
                              nav.msGetUserMedia;
-
-      if (! getUserMedia) {
-        self.displayError(AuthErrors.toError('NO_CAMERA'));
-        return false;
-      }
 
       var getMedia = _.bind(getUserMedia, nav);
 
@@ -98,14 +94,21 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
           self.displayError(AuthErrors.toError('NO_CAMERA'));
         }
       );
+    },
 
-      return true;
+    beforeRender: function () {
+      var environment = new Environment(this.window);
+      if (! environment.hasGetUserMedia()) {
+        // no camera support, send user back to the change avatar page.
+        this.navigate('settings/avatar/change', {
+          error: AuthErrors.toError('NO_CAMERA')
+        });
+        return false;
+      }
     },
 
     afterRender: function () {
-      if (! this._getMedia()) {
-        return;
-      }
+      this._getMedia();
 
       this._avatarProgressIndicator = new ProgressIndicator();
       this.video = this.$('#video');

@@ -99,7 +99,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock,
         view.render()
           .then(function () {
             windowMock.on('stream', function () {
-              assert.isTrue(view._isErrorVisible);
+              assert.isTrue(view.isErrorVisible());
               done();
             });
           })
@@ -108,9 +108,12 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock,
 
       it('no browser support', function () {
         windowMock.navigator.getUserMedia = null;
+
+        sinon.spy(view, 'navigate');
+
         return view.render()
           .then(function () {
-            assert.isTrue(view._isErrorVisible);
+            assert.isTrue(view.navigate.calledWith('settings/avatar/change'));
           });
       });
 

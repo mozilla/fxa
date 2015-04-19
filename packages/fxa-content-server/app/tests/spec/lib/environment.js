@@ -46,6 +46,42 @@ define([
       });
     });
 
+    describe('hasGetUserMedia', function () {
+      beforeEach(function () {
+        windowMock.navigator.getUserMedia = null;
+        delete windowMock.navigator.getUserMedia;
+      });
+
+
+      it('adds `getusermedia` if UA supports getUserMedia', function () {
+        windowMock.navigator.getUserMedia = sinon.spy();
+
+        assert.isTrue(environment.hasGetUserMedia());
+      });
+
+      it('adds `getusermedia` if UA supports webkitGetUserMedia', function () {
+        windowMock.navigator.webkitGetUserMedia = sinon.spy();
+
+        assert.isTrue(environment.hasGetUserMedia());
+      });
+
+      it('adds `getusermedia` if UA supports mozGetUserMedia', function () {
+        windowMock.navigator.mozGetUserMedia = sinon.spy();
+
+        assert.isTrue(environment.hasGetUserMedia());
+      });
+
+      it('adds `getusermedia` if UA supports msGetUserMedia', function () {
+        windowMock.navigator.msGetUserMedia = sinon.spy();
+
+        assert.isTrue(environment.hasGetUserMedia());
+      });
+
+      it('adds `no-getusermedia` if UA does not support getUserMedia', function () {
+        assert.isFalse(environment.hasGetUserMedia());
+      });
+    });
+
     describe('isFramed', function () {
       it('returns `true` if window is iframed', function () {
         windowMock.top = {};

@@ -29,6 +29,15 @@
   }
 
   Environment.prototype = {
+    hasGetUserMedia: function () {
+      var nav = this.window.navigator;
+
+      return !! (nav.getUserMedia ||
+                 nav.webkitGetUserMedia ||
+                 nav.mozGetUserMedia ||
+                 nav.msGetUserMedia);
+    },
+
     hasPasswordRevealer: function () {
       var document = this.window.document;
 
