@@ -29,7 +29,7 @@ Available options:
 
 ### Workflow
 
-This is an example workflow for **fxa-local-dev**. After installing **fxa-local-dev** the servers should automatically start up. In the **fxa-local-dev** directory, use `./pm2 status` command to check the status of the servers: 
+This is an example workflow for **fxa-local-dev**. After installing **fxa-local-dev** the servers should automatically start up. Use `./pm2 status` command to check the status of the servers: 
 
 ![](http://i.imgur.com/eqL8FiZ.png)
 
@@ -58,7 +58,7 @@ If you get an `error` status for any of the servers please verify that you insta
 (You might also need to run `xcode-select --install` to get OS X Command Line Tools)
 
 #### Ubuntu: 
-##### `sudo apt-get install libgmp3-dev graphicsmagick redis-server python-virtualenv`
+###### `sudo apt-get install libgmp3-dev graphicsmagick redis-server python-virtualenv`
 
 #### FreeBSD: 
 Use [bigint fix](https://github.com/substack/node-bigint/pull/29): `"bigint": "git://github.com/frasertweedale/node-bigint.git#fix/freebsd-build"`
