@@ -14,6 +14,14 @@ module.exports = function (log) {
       secureConnection: config.secure,
       port: config.port
     }
+
+    if (config.user && config.password) {
+      options.auth = {
+        user: config.user,
+        pass: config.password
+      }
+    }
+    
     this.mailer = nodemailer.createTransport('SMTP', options)
     this.sender = config.sender
     this.verificationUrl = config.verificationUrl
