@@ -9,7 +9,7 @@
 -- DROP PROCEDURE `lockAccount_1`;
 
 -- -- drop new table
--- DROP TABLE accountUnlockCodes
+-- DROP TABLE accountUnlockCodes;
 
 -- -- drop new column
 -- ALTER TABLE accounts DROP COLUMN lockedAt;
