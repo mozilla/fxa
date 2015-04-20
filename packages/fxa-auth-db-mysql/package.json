@@ -45,8 +45,7 @@
     "mysql-patcher": "0.5.1",
     "nock": "1.2.0",
     "restify": "2.8.1",
-    "tap": "0.4.13",
-    "uuid": "1.4.1"
+    "tap": "0.4.13"
   },
   "keywords": [ "fxa", "firefox", "firefox-accounts", "backend", "storage", "mysql" ]
 }
