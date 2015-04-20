@@ -126,16 +126,22 @@ module.exports = {
     logger.debug('response_type', req.payload.response_type);
     var start = Date.now();
     var wantsGrant = req.payload.response_type === TOKEN;
+    var exitEarly = false;
     P.all([
       verify(req.payload.assertion).then(function(claims) {
         logger.info('time.browserid_verify', { ms: Date.now() - start });
         if (!claims) {
+          exitEarly = true;
           throw AppError.invalidAssertion();
         }
         return claims;
       }),
       db.getClient(Buffer(req.payload.client_id, 'hex')).then(function(client) {
         logger.info('time.db_get_client', { ms: Date.now() - start });
+        if (exitEarly) {
+          // assertion was invalid, we can just stop here
+          return;
+        }
         if (!client) {
           logger.debug('notFound', { id: req.payload.client_id });
           throw AppError.unknownClient(req.payload.client_id);
