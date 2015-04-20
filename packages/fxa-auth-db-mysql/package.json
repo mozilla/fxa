@@ -42,7 +42,7 @@
     "grunt-copyright": "0.1.0",
     "grunt-nsp-shrinkwrap": "0.0.3",
     "load-grunt-tasks": "0.6.0",
-    "mysql-patcher": "0.5.1",
+    "mysql-patcher": "0.7.0",
     "nock": "1.2.0",
     "restify": "2.8.1",
     "tap": "0.4.13"
