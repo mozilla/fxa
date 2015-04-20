@@ -54,6 +54,26 @@ define([
         .end()
 
         .then(Test.noElementById(self, 'fxa-pp-back'));
+    },
+
+    'refresh, back button is available': function () {
+      return this.get('remote')
+
+        .get(require.toUrl(SIGNUP_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .findByCssSelector('#fxa-pp')
+          .click()
+        .end()
+
+        .refresh()
+
+        .findByCssSelector('#fxa-pp-back')
+          .click()
+        .end()
+
+        // success is going back to the signup
+        .findByCssSelector('#fxa-signup-header')
+        .end();
     }
   });
 });

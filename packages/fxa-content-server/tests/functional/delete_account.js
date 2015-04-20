@@ -110,12 +110,35 @@ define([
         .findById('fxa-settings-header')
         .end()
 
+        .execute(function () {
+          /* global sessionStorage */
+          sessionStorage.clear();
+        })
+
         // Go to delete account screen directly
         .get(require.toUrl(PAGE_URL))
         .findById('fxa-delete-account-header')
         .end()
 
         .then(Test.noElementById(self, 'back'));
+    },
+
+    'refresh the page, back button shown': function () {
+      return FunctionalHelpers.fillOutSignIn(this, email, PASSWORD)
+        .findById('fxa-settings-header')
+        .end()
+
+        .findById('delete-account')
+          .click()
+        .end()
+
+        .findById('fxa-delete-account-header')
+        .end()
+
+        .refresh()
+
+        .findById('back')
+        .end();
     },
 
     'locked account, verify same browser': function () {

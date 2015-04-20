@@ -23,9 +23,9 @@ function isValidRoute(route) {
 module.exports = function (config, i18n) {
 
   var routes = [
+    require('./routes/get-terms-privacy')(i18n),
     require('./routes/get-index')(),
     require('./routes/get-ver.json'),
-    require('./routes/get-terms-privacy')(i18n),
     require('./routes/get-config')(i18n),
     require('./routes/get-client.json')(i18n),
     require('./routes/post-metrics')()

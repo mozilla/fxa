@@ -127,8 +127,9 @@ function (
       this.notifications = options.notifications;
       this.able = options.able;
 
-      // back is only enabled after the first view is rendered.
-      this.canGoBack = false;
+      // back is enabled after the first view is rendered or
+      // if the user is re-starts the app.
+      this.canGoBack = this.window.sessionStorage.canGoBack || false;
 
       this._firstViewHasLoaded = false;
 
@@ -228,8 +229,9 @@ function (
             // is attached and the promise is not returned.
             self.broker.afterLoaded();
 
-            // back is enabled after the first view is rendered.
-            self.canGoBack = true;
+            // back is enabled after the first view is rendered or
+            // if the user is re-starts the app.
+            self.canGoBack = self.window.sessionStorage.canGoBack = true;
             self._firstViewHasLoaded = true;
           }
         })
