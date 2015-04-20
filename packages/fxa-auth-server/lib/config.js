@@ -130,6 +130,10 @@ const conf = convict({
     port: {
       default: '3306',
       env: 'MYSQL_PORT'
+    },
+    connectionLimit: {
+      doc: 'The maximum number of connections that the pool can use at once.',
+      default: 10
     }
   },
   publicUrl: {
