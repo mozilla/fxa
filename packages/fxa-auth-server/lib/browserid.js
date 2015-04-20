@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const request = require('request');
 
 const AppError = require('./error');
 const config = require('./config');
@@ -10,8 +9,14 @@ const logger = require('./logging')('assertion');
 const P = require('./promise');
 
 const HEX_STRING = /^[0-9a-f]+$/;
-const VERIFICATION_URL = config.get('browserid.verificationUrl');
 const AUDIENCE = config.get('publicUrl');
+
+const request = require('request').defaults({
+  url: config.get('browserid.verificationUrl'),
+  pool: {
+    maxSockets: config.get('browserid.maxSockets')
+  }
+});
 
 function unb64(text) {
   return Buffer(text, 'base64').toString('utf8');
@@ -40,7 +45,6 @@ module.exports = function verifyAssertion(assertion) {
   logger.verbose('assertion', new Assertion(assertion));
   var d = P.defer();
   var opts = {
-    url: VERIFICATION_URL,
     json: {
       assertion: assertion,
       audience: AUDIENCE
