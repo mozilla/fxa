@@ -12,7 +12,7 @@ module.exports = function (grunt) {
   grunt.config('yeoman', {
     app: 'app',
     dist: 'dist',
-    server: 'fxa-auth-server',
+    server: 'server',
     page_template_src: TEMPLATE_ROOT + '/pages/src',
     page_template_dist: TEMPLATE_ROOT + '/pages/dist',
     strings_src: 'app/bower_components/fxa-content-server-l10n/locale',

@@ -5,15 +5,13 @@
 'use strict';
 
 var config = require('../configuration');
-var publicUrl = config.get('public_url');
 var clientId = config.get('oauth_client_id');
 
-var isAPIServerProxyEnabled = config.get('api_proxy.enabled');
 var authServerUrl = config.get('fxaccount_url');
 var oauthServerUrl = config.get('oauth_url');
 var profileServerUrl = config.get('profile_url');
 
-module.exports = function (i18n) {
+module.exports = function () {
   var route = {};
 
   route.method = 'get';
@@ -31,7 +29,6 @@ module.exports = function (i18n) {
     // charset must be set on json responses.
     res.charset = 'utf-8';
 
-    var userAgent = req.get('user-agent');
     res.json({
       // The `__cookies_check` cookie is set in client code
       // to see if cookies are enabled. If cookies are disabled,

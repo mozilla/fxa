@@ -18,10 +18,8 @@
  * HTML is returned if `Accepts` is `text/html`
  */
 
-var fs = require('fs');
 var path = require('path');
 var logger = require('mozlog')('route.get-terms-privacy');
-var Promise = require('bluebird');
 var config = require('../configuration');
 
 var PAGE_TEMPLATE_DIRECTORY = path.join(config.get('page_template_root'), 'dist');

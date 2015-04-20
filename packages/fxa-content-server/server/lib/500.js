@@ -8,6 +8,7 @@ var logger = require('mozlog')('route.500');
 
 // It's a 500 server error response.
 
+/*jshint unused: false */
 module.exports = function (err, req, res, next) {
   res.status(500);
 
