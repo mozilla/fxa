@@ -1158,9 +1158,9 @@
       }
     },
     "grunt-copyright": {
-      "version": "0.1.0",
-      "from": "https://registry.npmjs.org/grunt-copyright/-/grunt-copyright-0.1.0.tgz",
-      "resolved": "https://registry.npmjs.org/grunt-copyright/-/grunt-copyright-0.1.0.tgz"
+      "version": "0.2.0",
+      "from": "grunt-copyright@0.2.0",
+      "resolved": "https://registry.npmjs.org/grunt-copyright/-/grunt-copyright-0.2.0.tgz"
     },
     "grunt-nsp-shrinkwrap": {
       "version": "0.0.3",
