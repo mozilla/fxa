@@ -3,7 +3,8 @@ module.exports = require('rc')(
   {
     port: 1810,
     logLevel: 'info',
-    locales: ['en_US', 'de'],
+    locales: ['en', 'de'],
+    defaultLanguage: 'en'
     mail: {
       host: '127.0.0.1',
       port: 9999,

@@ -9,7 +9,7 @@ module.exports = function (log, config) {
   var Mailer = createMailer(log)
   return P.all(
     [
-      require('./translator')(config.locales),
+      require('./translator')(config.locales, config.defaultLanguage),
       require('./templates')()
     ]
   )

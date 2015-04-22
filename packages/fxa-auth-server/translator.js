@@ -7,7 +7,7 @@ var poParseFile = P.promisify(po2json.parseFile)
 
 Jed.prototype.format = i18n.format
 
-module.exports = function (locales) {
+module.exports = function (locales, defaultLanguage) {
   return P.all(
     locales.map(
       function (locale) {
@@ -38,9 +38,10 @@ module.exports = function (locales) {
         translator.language = language
         languageTranslations[language] = translator
       }
+
       return function translator(acceptLanguage) {
         var languages = i18n.parseAcceptLanguage(acceptLanguage)
-        var best = i18n.normalizeLanguage(i18n.bestLanguage(languages, supportedLanguages, 'en-US'))
+        var best = i18n.normalizeLanguage(i18n.bestLanguage(languages, supportedLanguages, defaultLanguage))
         return languageTranslations[best]
       }
     }
