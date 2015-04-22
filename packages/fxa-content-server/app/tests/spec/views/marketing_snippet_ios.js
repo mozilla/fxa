@@ -144,7 +144,8 @@ function (chai, sinon, View, Able, Metrics, WindowMock) {
             })
             .then(function () {
               var filteredData = metrics.getFilteredData();
-              assert.isTrue(filteredData.marketingClicked);
+              var impression = filteredData.marketing[0];
+              assert.isTrue(impression.clicked);
             });
       });
     });

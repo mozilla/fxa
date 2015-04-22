@@ -1,12 +1,12 @@
   {{#showSignUpMarketing}}
-    <aside class="marketing-ios" data-marketing-type="android-ios-sync">
+    <aside class="marketing-ios">
       {{#isIos}}
         <p>
           {{#t}}Get the full Sync experience.{{/t}}
           <br>
           {{#t}}Firefox is coming soon to iOS!{{/t}}
         </p>
-        <a class="marketing-link marketing-link-ios" href="https://www.mozilla.org/newsletter/ios/" target="_blank">{{#t}}Sign up to learn more{{/t}}</a>
+        <a class="marketing-link marketing-link-ios" href="https://www.mozilla.org/newsletter/ios/" data-marketing-id="spring-2015-android-ios-sync">{{#t}}Sign up to learn more{{/t}}</a>
       {{/isIos}}
 
       {{#isAndroid}}
@@ -15,7 +15,7 @@
           <br>
           {{#t}}Download Firefox for Android.{{/t}}
         </p>
-        <a class="marketing-link marketing-link-android" href="market://details?id=org.mozilla.firefox&amp;referrer=utm_source%3Dmozilla%26utm_medium%3DReferral%26utm_campaign%3Dsync-android-snippet" target="_blank"><img width="129" height="45" src="{{ playStoreImage }}" alt="{{#t}}Download Firefox for Android.{{/t}}"></a>
+        <a class="marketing-link marketing-link-android" href="market://details?id=org.mozilla.firefox&amp;referrer=utm_source%3Dmozilla%26utm_medium%3DReferral%26utm_campaign%3Dsync-android-snippet" data-marketing-id="spring-2015-android-ios-sync"><img width="129" height="45" src="{{ playStoreImage }}" alt="{{#t}}Download Firefox for Android.{{/t}}"></a>
       {{/isAndroid}}
 
       {{#isOther}}
@@ -28,12 +28,12 @@
 
           <ul>
             <li>
-                <a class="marketing-link marketing-link-android" href="https://play.google.com/store/apps/details?id=org.mozilla.firefox&amp;referrer=utm_source%3Dmozilla%26utm_medium%3DReferral%26utm_campaign%3Dsync-desktop-snippet" target="_blank"><img width="129" height="45" src="{{ playStoreImage }}" alt="{{#t}}Download Firefox for Android.{{/t}}"></a>
+                <a class="marketing-link marketing-link-android" href="https://play.google.com/store/apps/details?id=org.mozilla.firefox&amp;referrer=utm_source%3Dmozilla%26utm_medium%3DReferral%26utm_campaign%3Dsync-desktop-snippet" data-marketing-id="spring-2015-android-ios-sync"><img width="129" height="45" src="{{ playStoreImage }}" alt="{{#t}}Download Firefox for Android.{{/t}}"></a>
             </li>
             <li>
                 {{#t}}Firefox is coming soon to iOS!{{/t}}
                 <br>
-                <a class="marketing-link marketing-link-ios" href="https://www.mozilla.org/newsletter/ios/" target="_blank">{{#t}}Sign up to learn more{{/t}}</a>
+                <a class="marketing-link marketing-link-ios" href="https://www.mozilla.org/newsletter/ios/" data-marketing-id="spring-2015-android-ios-sync">{{#t}}Sign up to learn more{{/t}}</a>
             </li>
           </ul>
         </div>

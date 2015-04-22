@@ -12,10 +12,12 @@
 'use strict';
 
 define([
+  'cocktail',
   'views/base',
   'lib/constants',
+  'views/mixins/marketing-mixin',
   'stache!templates/marketing_snippet'
-], function (BaseView, Constants, Template) {
+], function (Cocktail, BaseView, Constants, MarketingMixin, Template) {
 
   var View = BaseView.extend({
     template: Template,
@@ -33,17 +35,6 @@ define([
       return {
         showSignUpMarketing: shouldShowMarketing
       };
-    },
-
-    events: {
-      'click .marketing-link': '_logMarketingClick'
-    },
-
-    afterRender: function () {
-      var marketingType = this.$('[data-marketing-type]').attr('data-marketing-type');
-      var marketingLink = this.$('.marketing-link').attr('href');
-
-      this.metrics.logMarketingImpression(marketingType, marketingLink);
     },
 
     _shouldShowSignUpMarketing: function () {
@@ -67,12 +58,13 @@ define([
       var isTabletFirefox = /Tablet/.test(ua) && /Firefox/.test(ua);
 
       return isMobileFirefox || isTabletFirefox;
-    },
-
-    _logMarketingClick: function () {
-      this.metrics.logMarketingClick();
     }
   });
+
+  Cocktail.mixin(
+    View,
+    MarketingMixin
+  );
 
   return View;
 });
