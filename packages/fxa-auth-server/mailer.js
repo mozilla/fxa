@@ -11,7 +11,7 @@ module.exports = function (config, log) {
   return createMailer(
     log,
     {
-      locales: config.i18n.locales,
+      locales: config.i18n.supportedLanguages,
       defaultLanguage: defaultLanguage,
       mail: config.smtp
     }
