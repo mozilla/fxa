@@ -63,8 +63,10 @@
     "mkdirp": "0.5.0",
     "morgan": "1.5.2",
     "mozlog": "1.0.1",
+    "node-statsd": "0.1.1",
     "serve-static": "1.9.2",
-    "time-grunt": "0.4.0"
+    "time-grunt": "0.4.0",
+    "ua-parser": "0.3.5"
   },
   "devDependencies": {
     "awsbox": "0.7.0",

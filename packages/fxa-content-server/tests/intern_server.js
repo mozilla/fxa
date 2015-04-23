@@ -19,7 +19,8 @@ define([
     'tests/server/metrics',
     'tests/server/metrics-collector-stderr',
     'tests/server/configuration',
-    'tests/server/proxy'
+    'tests/server/proxy',
+    'tests/server/statsd-collector'
   ];
 
   return intern;
