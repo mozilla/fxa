@@ -12,6 +12,7 @@ module.exports = function (config, log) {
     log,
     {
       locales: config.i18n.locales,
+      defaultLanguage: defaultLanguage,
       mail: config.smtp
     }
   )
