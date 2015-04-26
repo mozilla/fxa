@@ -19,10 +19,10 @@
   }
 
   @include respond-to('small') {
-    margin: 20px -20px -20px;
     font-size: $base-font;
-    text-align: center;
+    margin: 20px -20px -20px;
     padding: 20px;
+    text-align: center;
   }
 
   @include respond-to('big') {

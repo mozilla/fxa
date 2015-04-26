@@ -12,69 +12,72 @@
 'use strict';
 
 define([
+  'underscore',
   'views/marketing_snippet',
   'lib/constants',
   'stache!templates/marketing_snippet_ios'
-], function (MarketingSnippetView, Constants, Template) {
+], function (_, MarketingSnippetView, Constants, Template) {
+
+  var appStoreImageLanguages = [
+    'da',
+    'de',
+    'en',
+    'es',
+    'et',
+    'fr',
+    'he',
+    'hu',
+    'id',
+    'it',
+    'ja',
+    'ko',
+    'lt',
+    'nb-NO',
+    'nl',
+    'pl',
+    'pt-BR',
+    'pt',
+    'ru',
+    'sk',
+    'sl',
+    'sv-SE',
+    'tr',
+    'zh-CN',
+    'zh-TW'
+  ];
+
+  var playStoreImageLanguages = [
+    'ca',
+    'cs',
+    'da',
+    'de',
+    'en',
+    'es',
+    'et',
+    'fr',
+    'hu',
+    'id',
+    'it',
+    'ja',
+    'ko',
+    'lt',
+    'nb-NO',
+    'nl',
+    'pl',
+    'pt-BR',
+    'pt',
+    'ru',
+    'sk',
+    'sl',
+    'sv',
+    'tr',
+    'uk',
+    'zh-CN',
+    'zh-TW'
+  ];
 
   var View = MarketingSnippetView.extend({
     template: Template,
-    appStoreImageLanguages: [
-      'da',
-      'de',
-      'en',
-      'es',
-      'et',
-      'fr',
-      'he',
-      'hu',
-      'id',
-      'it',
-      'ja',
-      'ko',
-      'lt',
-      'nb-NO',
-      'nl',
-      'pl',
-      'pt-BR',
-      'pt',
-      'ru',
-      'sk',
-      'sl',
-      'sv-SE',
-      'tr',
-      'zh-CN',
-      'zh-TW'
-    ],
-    playStoreImageLanguages: [
-      'ca',
-      'cs',
-      'da',
-      'de',
-      'en',
-      'es',
-      'et',
-      'fr',
-      'hu',
-      'id',
-      'it',
-      'ja',
-      'ko',
-      'lt',
-      'nb-NO',
-      'nl',
-      'pl',
-      'pt-BR',
-      'pt',
-      'ru',
-      'sk',
-      'sl',
-      'sv',
-      'tr',
-      'uk',
-      'zh-CN',
-      'zh-TW'
-    ],
 
     initialize: function (options) {
       options = options || {};
@@ -124,13 +127,18 @@ define([
 
     _appStoreImage: function () {
       // fall back to en image if user's language is not supported
-      var buttonLang = (this.appStoreImageLanguages.indexOf(this._language) > -1) ? this._language : 'en';
+      var buttonLang = _.contains(appStoreImageLanguages, this._language) ?
+                          this._language : 'en';
 
+      // images without cache-busting URLs are used since most users will
+      // only ever see these images one time. This can be updated if
+      // requirements change.
       return '/images/apple_app_store_button/' + buttonLang + '.svg';
     },
 
     _playStoreImage: function () {
-      var buttonPath = (this.playStoreImageLanguages.indexOf(this._language) > -1) ? this._language : 'en';
+      var buttonPath = _.contains(playStoreImageLanguages, this._language) ?
+                          this._language : 'en';
 
       if (this._isHighRes()) {
         buttonPath += '@2x';
