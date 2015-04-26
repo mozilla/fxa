@@ -19,10 +19,11 @@ define([
   'lib/auth-errors',
   'lib/promise',
   'views/mixins/service-mixin',
-  'views/marketing_snippet'
+  'views/marketing_snippet',
+  'views/marketing_snippet_ios'
 ],
 function (Cocktail, BaseView, Template, Session, Xss, Strings,
-      AuthErrors, p, ServiceMixin, MarketingSnippet) {
+      AuthErrors, p, ServiceMixin, MarketingSnippet, MarketingSnippetiOS) {
 
   var View = BaseView.extend({
     template: Template,
@@ -30,6 +31,8 @@ function (Cocktail, BaseView, Template, Session, Xss, Strings,
 
     initialize: function (options) {
       options = options || {};
+
+      this._able = options.able;
 
       this.type = options.type;
       this.language = options.language;
@@ -55,13 +58,26 @@ function (Cocktail, BaseView, Template, Session, Xss, Strings,
     },
 
     _createMarketingSnippet: function () {
-      var marketingSnippet = new MarketingSnippet({
+      var marketingSnippet;
+      var marketingSnippetOpts = {
         type: this.type,
         service: this.relier.get('service'),
         language: this.language,
         el: this.$('.marketing-area'),
-        metrics: this.metrics
-      });
+        metrics: this.metrics,
+        able: this._able
+      };
+
+      // fallback in case experiment has not concluded
+      var fxIos = this._able.choose('fxIos') || {};
+
+      // Fx iOS scheduled to launch 6/2
+      if (fxIos.launched) {
+        marketingSnippet = new MarketingSnippetiOS(marketingSnippetOpts);
+      } else {
+        marketingSnippet = new MarketingSnippet(marketingSnippetOpts);
+      }
+
       this.trackSubview(marketingSnippet);
 
       return marketingSnippet.render();

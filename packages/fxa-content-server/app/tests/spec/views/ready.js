@@ -12,11 +12,12 @@ define([
   'lib/session',
   'lib/fxa-client',
   'lib/promise',
+  'lib/able',
   'models/reliers/fx-desktop',
   'models/auth_brokers/oauth',
   '../../mocks/window'
 ],
-function (chai, sinon, View, Session, FxaClient, p, FxDesktopRelier,
+function (chai, sinon, View, Session, FxaClient, p, Able, FxDesktopRelier,
       OAuthBroker, WindowMock) {
   var assert = chai.assert;
 
@@ -43,7 +44,8 @@ function (chai, sinon, View, Session, FxaClient, p, FxDesktopRelier,
         window: windowMock,
         fxaClient: fxaClient,
         relier: relier,
-        broker: broker
+        broker: broker,
+        able: new Able()
       });
     }
 

@@ -1,0 +1,45 @@
+.marketing-ios {
+  background-color: $html-background-color;
+  border-radius: 0 0 $big-border-radius $big-border-radius;
+  border-top: 1px solid $marketing-border-color;
+  box-shadow: 0 1px 1px $content-background-color inset;
+  font-size: $medium-font;
+  position: relative;
+
+  .os-general {
+    ul {
+      padding: 0;
+    }
+
+    li {
+      list-style-type: none;
+      display: block;
+      margin-bottom: 10px;
+    }
+  }
+
+  @include respond-to('small') {
+    font-size: $base-font;
+    margin: 20px -20px -20px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  @include respond-to('big') {
+    margin: 60px -40px -40px -40px;
+    padding: 20px 20px 30px;
+    text-align: center;
+  }
+
+  @include respond-to('trustedUI') {
+    display: none;
+  }
+
+  a {
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

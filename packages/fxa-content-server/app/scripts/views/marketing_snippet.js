@@ -25,7 +25,6 @@ define([
 
       this._type = options.type;
       this._service = options.service;
-      this._language = options.language;
     },
 
     context: function () {
@@ -44,7 +43,6 @@ define([
       var marketingType = this.$('[data-marketing-type]').attr('data-marketing-type');
       var marketingLink = this.$('.marketing-link').attr('href');
 
-
       this.metrics.logMarketingImpression(marketingType, marketingLink);
     },
 
@@ -53,9 +51,8 @@ define([
       var isSync = this._service === Constants.FX_DESKTOP_SYNC;
       var isFirefoxMobile = this._isFirefoxMobile();
 
-      // user can only be randomly selected for survey if
-      // they speak english. If the user is completing a signup for sync and
-      // does not speak english, ALWAYS show the marketing snippet.
+      // If the user is completing a signup for sync and ALWAYS
+      // show the marketing snippet.
       return isSignUp && isSync && ! isFirefoxMobile;
     },
 
