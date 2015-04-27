@@ -13,11 +13,16 @@ define([
   'lib/constants',
   'lib/promise',
   'lib/url',
+  'lib/oauth-errors',
   'models/auth_brokers/base',
   'models/auth_brokers/fx-desktop',
   'models/auth_brokers/iframe',
   'models/auth_brokers/redirect',
   'models/auth_brokers/web-channel',
+  'models/reliers/base',
+  'models/reliers/fx-desktop',
+  'models/reliers/oauth',
+  'models/reliers/relier',
   'models/user',
   'lib/metrics',
   '../../mocks/window',
@@ -25,10 +30,10 @@ define([
   '../../mocks/history',
   '../../lib/helpers'
 ],
-function (chai, sinon, AppStart, Session, Constants, p, Url,
+function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
       BaseBroker, FxDesktopBroker, IframeBroker, RedirectBroker,
-      WebChannelBroker, User, Metrics, WindowMock, RouterMock, HistoryMock,
-      TestHelpers) {
+      WebChannelBroker, BaseRelier, FxDesktopRelier, OAuthRelier, Relier,
+      User, Metrics, WindowMock, RouterMock, HistoryMock, TestHelpers) {
   /*global describe, beforeEach, it*/
   var assert = chai.assert;
 
@@ -45,12 +50,11 @@ function (chai, sinon, AppStart, Session, Constants, p, Url,
       routerMock = new RouterMock();
       historyMock = new HistoryMock();
       userMock = new User();
-
+      brokerMock = new BaseBroker();
     });
 
     describe('startApp', function () {
       beforeEach(function () {
-        brokerMock = new BaseBroker();
         appStart = new AppStart({
           window: windowMock,
           router: routerMock,
@@ -64,7 +68,7 @@ function (chai, sinon, AppStart, Session, Constants, p, Url,
         return appStart.startApp()
           .then(function () {
             // translator is put on the global object.
-            assert.ok(windowMock.translator);
+            assert.isDefined(windowMock.translator);
           });
       });
 
@@ -77,7 +81,7 @@ function (chai, sinon, AppStart, Session, Constants, p, Url,
         return appStart.startApp()
           .then(function () {
             assert.isTrue(appStart._isIframe());
-            assert.ok(appStart._iframeChannel);
+            assert.isDefined(appStart._iframeChannel);
           });
       });
 
@@ -154,7 +158,7 @@ function (chai, sinon, AppStart, Session, Constants, p, Url,
 
         return appStart.startApp()
                     .then(function () {
-                      assert.ok(userMock.upgradeFromSession.calledOnce);
+                      assert.isTrue(userMock.upgradeFromSession.calledOnce);
                     });
       });
 
@@ -178,8 +182,7 @@ function (chai, sinon, AppStart, Session, Constants, p, Url,
       function testExpectedBrokerCreated(ExpectedBroker) {
         return appStart.initializeAuthenticationBroker()
           .then(function () {
-            assert.isTrue(
-              appStart._authenticationBroker instanceof ExpectedBroker);
+            assert.instanceOf(appStart._authenticationBroker, ExpectedBroker);
           });
       }
 
@@ -296,6 +299,117 @@ function (chai, sinon, AppStart, Session, Constants, p, Url,
 
           return testExpectedBrokerCreated(BaseBroker);
         });
+      });
+    });
+
+    describe('initializeRelier', function () {
+      beforeEach(function () {
+        appStart = new AppStart({
+          window: windowMock,
+          router: routerMock,
+          history: historyMock,
+          user: userMock,
+          broker: brokerMock
+        });
+      });
+
+      it('creates an FxDesktopRelier if Firefox Desktop', function () {
+        sinon.stub(appStart, '_isFxDesktop', function () {
+          return true;
+        });
+
+        appStart.initializeRelier();
+        assert.instanceOf(appStart._relier, FxDesktopRelier);
+      });
+
+      it('creates an OAuthRelier if using the OAuth flow', function () {
+        sinon.stub(appStart, '_isOAuth', function () {
+          return true;
+        });
+
+        appStart.initializeRelier();
+        assert.instanceOf(appStart._relier, OAuthRelier);
+      });
+
+      it('creates a Relier by default', function () {
+        appStart.initializeRelier();
+        assert.instanceOf(appStart._relier, Relier);
+      });
+    });
+
+    describe('initializeCloseButton', function () {
+      beforeEach(function () {
+        appStart = new AppStart({
+          window: windowMock,
+          router: routerMock,
+          history: historyMock,
+          user: userMock,
+          broker: brokerMock
+        });
+      });
+
+      it('creates a close button if the broker reports it can cancel', function () {
+        sinon.stub(brokerMock, 'canCancel', function () {
+          return true;
+        });
+
+        appStart.initializeCloseButton();
+        assert.isDefined(appStart._closeButton);
+      });
+
+      it('does not create a close button by default', function () {
+        appStart.initializeCloseButton();
+        assert.equal(typeof appStart._closeButton, 'undefined');
+      });
+    });
+
+    describe('initializeUser', function () {
+      beforeEach(function () {
+        appStart = new AppStart({
+          window: windowMock,
+          router: routerMock,
+          history: historyMock,
+          broker: brokerMock
+        });
+        appStart.useConfig({});
+      });
+
+      it('creates a user', function () {
+        appStart.initializeUser();
+        assert.isDefined(appStart._user);
+      });
+    });
+
+    describe('initializeRouter', function () {
+      beforeEach(function () {
+        appStart = new AppStart({
+          window: windowMock,
+          history: historyMock,
+          broker: brokerMock
+        });
+        appStart.useConfig({});
+      });
+
+      it('creates a router', function () {
+        appStart.initializeRouter();
+        assert.isDefined(appStart._router);
+      });
+    });
+
+    describe('_getErrorPage', function () {
+      it('returns BAD_REQUEST_PAGE for a missing OAuth parameter', function () {
+        var errorUrl = appStart._getErrorPage(OAuthErrors.toError('MISSING_PARAMETER'));
+        assert.include(errorUrl, Constants.BAD_REQUEST_PAGE);
+      });
+
+      it('returns BAD_REQUEST_PAGE for an unknown OAuth client', function () {
+        var errorUrl = appStart._getErrorPage(OAuthErrors.toError('UNKNOWN_CLIENT'));
+        assert.include(errorUrl, Constants.BAD_REQUEST_PAGE);
+      });
+
+      it('returns INTERNAL_ERROR_PAGE by default', function () {
+        var errorUrl = appStart._getErrorPage(OAuthErrors.toError('INVALID_ASSERTION'));
+        assert.include(errorUrl, Constants.INTERNAL_ERROR_PAGE);
       });
     });
   });
