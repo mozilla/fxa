@@ -11,9 +11,11 @@ function actionToPathname(action) {
     return 'signup';
   } else if (action === 'force_auth') {
     return 'force_auth';
+  } else if (action === 'signin') {
+    return 'signin';
   }
 
-  return 'signin';
+  return '';
 }
 
 module.exports = {
