@@ -7,10 +7,6 @@
   {{view Ember.TextField value=model.redirect_uri id="inputRedirect"}}
 </div>
 <div class="form-group">
-  <label for="inputImage">Image URI</label>
-  {{view Ember.TextField value=model.image_uri id="inputImage"}}
-</div>
-<div class="form-group">
   <label for="whitelisted">Whitelisted Client: {{view Ember.Checkbox name=model.whitelisted checked=model.whitelisted id="whitelisted"}} <strong>(Currently required for all clients)</strong></label>
 </div>
 {{#if id}}
@@ -24,7 +20,7 @@
   <label for="secret" >Client Secret</label>
   <pre id="secret">{{model.secret}}</pre>
   <p style="color:red; font-size: 20px;">Save this secret above, you will never see it again.</p>
-  <h2>Sample Configuration</h2>
+  <h2>Sample Configuration for your application:</h2>
   <pre>
 {
   "client_id": "{{model.id}}",
@@ -32,7 +28,10 @@
   "redirect_uri": "{{model.redirect_uri}}",
   "oauth_uri": "{{oauth_uri}}",
   "profile_uri": "{{profile_uri}}",
-  "scopes": "profile"
+  "scopes": "< ADD OAUTH SCOPES HERE>"
 }
   </pre>
+  <div class="btn-group">
+      <button class="button" {{action 'registerDone' this}}>< Back to Clients</button>
+  </div>
 {{/if}}

@@ -56,6 +56,15 @@ export default DS.RESTAdapter.extend({
 
     delete data.secret;
 
+    // add some defaults, oauth server requires these fields
+    if (! data.redirect_uri) {
+      data.redirect_uri = 'http://';
+    }
+
+    if (! data.image_uri) {
+      data.image_uri = 'http://';
+    }
+
     // post process the resuld of 'find'. Need to add the Model type 'client' into the response
     return this.ajax(this.buildURL(type.typeKey, null, record), "POST", { data: data }).then(function (resp) {
       return { client: resp };
@@ -77,7 +86,7 @@ export default DS.RESTAdapter.extend({
 
     delete data.secret;
     delete data.whitelisted;
-    
+
     // set POST instead of PUT
     return this.ajax(this.buildURL(type.typeKey, id, record), "POST", { data: data }).then(function () {
       data.id = id;

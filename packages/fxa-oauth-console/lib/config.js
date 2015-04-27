@@ -54,7 +54,7 @@ const conf = convict({
   /**
    * FxA OAuth
    */
-   //TODO: update with production settings
+  //TODO: update with production settings
   fxaOAuth: {
     client_id: {
       doc: 'The FxA client_id (8 bytes key encoded as hex)',

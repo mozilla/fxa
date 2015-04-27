@@ -123,7 +123,7 @@ router.get('/redirect', function (req, res) {
             var msg = 'User cannot be validated';
             return res.status(response.status).send(msg);
           }
-        )
+        );
     });
   } else if (req.session.email) {
     // already logged in
@@ -152,7 +152,7 @@ router.get('/redirect', function (req, res) {
 /**
  * Request user profile
  *
- * @param token
+ * @param {String} token
  * @returns {Promise}
  */
 function requestProfile(token) {
@@ -182,7 +182,7 @@ function requestProfile(token) {
 /**
  * Activate the developer
  *
- * @param token
+ * @param {String} token
  * @returns {Promise}
  */
 function activateDeveloper(token) {

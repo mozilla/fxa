@@ -14,6 +14,10 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
     cancel: function() {
       this.transitionTo('clients');
       return true;
+    },
+    registerDone: function () {
+      this.transitionTo('clients');
+      return true;
     }
   },
   setupController: function(controller, model) {
