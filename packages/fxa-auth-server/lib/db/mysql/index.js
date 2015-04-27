@@ -28,7 +28,13 @@ function MysqlStore(options) {
     }
     return next();
   };
-  this._pool = mysql.createPool(options);
+  logger.info('pool.create', { options: options });
+  var pool = this._pool = mysql.createPool(options);
+  pool.on('enqueue', function() {
+    logger.info('pool.enqueue', {
+      queueLength: pool._connectionQueue && pool._connectionQueue.length
+    });
+  });
 }
 
 // Apply patches up to the current patch level.
