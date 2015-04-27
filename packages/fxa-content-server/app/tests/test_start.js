@@ -42,6 +42,8 @@ function (Translator, Session) {
     '../tests/spec/lib/null-storage',
     '../tests/spec/lib/relier-keys',
     '../tests/spec/lib/able',
+    '../tests/spec/lib/environment',
+    '../tests/spec/head/startup-styles',
     '../tests/spec/views/base',
     '../tests/spec/views/tooltip',
     '../tests/spec/views/form',

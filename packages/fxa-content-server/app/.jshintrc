@@ -29,6 +29,7 @@
     "require": false,
     "router": false,
     "translator": true,
+    "FxaHead": true,
 
     // Used in Mocha tests
     "afterEach": false,

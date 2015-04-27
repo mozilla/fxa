@@ -24,7 +24,10 @@ function (_, Backbone, NullStorage) {
     };
 
     this.document = {
-      title: window.document.title
+      title: window.document.title,
+      documentElement: {
+        className: ''
+      }
     };
 
     this.history = {

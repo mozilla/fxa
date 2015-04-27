@@ -310,7 +310,8 @@ function (Cocktail, _, Backbone, $, p, AuthErrors,
     afterVisible: function () {
       // make a huge assumption and say if the device does not have touch,
       // it's a desktop device and autofocus can be applied without
-      // hiding part of the screen. The no-touch class is added by env-test
+      // hiding part of the screen. The no-touch class is added by
+      // startup-styles
       if ($('html').hasClass('no-touch')) {
         var autofocusEl = this.$('[autofocus]');
         if (! autofocusEl.length) {
