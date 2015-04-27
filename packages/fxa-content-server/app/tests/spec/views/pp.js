@@ -15,6 +15,11 @@ define([
 function (chai, sinon, View, p, WindowMock) {
   var assert = chai.assert;
 
+  var TEMPLATE_TEXT =
+    '<span id="fxa-pp-header"></span>' +
+      '<a id="data-visible-url-added" href="https://accounts.firefox.com">Firefox Accounts</a>' +
+      '<a id="data-visible-url-not-added" href="https://mozilla.org">https://mozilla.org</a>';
+
   describe('views/pp', function () {
     var view;
     var xhrMock;
@@ -23,7 +28,7 @@ function (chai, sinon, View, p, WindowMock) {
     beforeEach(function () {
       xhrMock = {
         ajax: function () {
-          return p('<span id="fxa-pp-header"></span>');
+          return p(TEMPLATE_TEXT);
         }
       };
 
@@ -86,6 +91,26 @@ function (chai, sinon, View, p, WindowMock) {
         .then(function () {
           assert.isTrue(xhrMock.ajax.called);
           assert.isTrue(view.isErrorVisible());
+        });
+    });
+
+    it('adds a `data-visible-url` to an anchor if the href and the text differ', function () {
+      return view.render()
+        .then(function () {
+          assert.equal(
+            view.$('#data-visible-url-added').attr('data-visible-url'),
+            'https://accounts.firefox.com'
+          );
+        });
+    });
+
+    it('does not add a `data-visible-url` to an anchor if the href is the same as the text', function () {
+      return view.render()
+        .then(function () {
+          assert.equal(
+            typeof view.$('#data-visible-url-not-added').attr('data-visible-url'),
+            'undefined'
+          );
         });
     });
   });

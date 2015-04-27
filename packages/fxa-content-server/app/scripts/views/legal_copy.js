@@ -33,6 +33,27 @@ function (Cocktail, xhr, BaseView, BackMixin) {
       })
       .then(function (template) {
         self.$('#legal-copy').html(template);
+
+        // data-visible-url is used to display the href in
+        // brackets next to the original text.
+        // Only show the href if the href is different from
+        // the text. See #2225.
+        //
+        // Links are only made visible from the main app. If
+        // the user browses directly to a TOS/PP page, the links
+        // are normal.
+        self.$el.addClass('show-visible-url');
+        self.$('a').each(function (index, element) {
+          element = $(element);
+
+          var href = element.attr('href');
+          var text = element.text();
+          // if the href is the same as the link text, don't convert.
+          if (href && href !== text) {
+            element.attr('data-visible-url', href);
+          }
+        });
+
         self.$('.hidden').removeClass('hidden');
 
         // Set a session cookie that informs the server
