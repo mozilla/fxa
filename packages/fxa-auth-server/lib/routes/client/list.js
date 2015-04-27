@@ -42,7 +42,9 @@ module.exports = {
     }
   },
   handler: function listEndpoint(req, reply) {
-    db.getClients().done(function(clients) {
+    var developerEmail = req.auth.credentials.email;
+
+    db.getClients(developerEmail).done(function(clients) {
       reply({
         clients: clients.map(serialize)
       });

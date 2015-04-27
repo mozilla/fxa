@@ -183,6 +183,10 @@ const conf = convict({
     token: {
       doc: 'Bytes of generated tokens',
       default: 32
+    },
+    developerId: {
+      doc: 'Bytes of generated developer ids',
+      default: 16
     }
   }
 });

@@ -10,7 +10,7 @@ const encrypt = require('../../encrypt');
 const hex = require('buf').to.hex;
 const unique = require('../../unique');
 const validators = require('../../validators');
-
+const AppError = require('../../error');
 
 /*jshint camelcase: false*/
 module.exports = {
@@ -50,16 +50,34 @@ module.exports = {
       canGrant: !!payload.can_grant,
       whitelisted: !!payload.whitelisted
     };
-    db.registerClient(client).then(function() {
-      reply({
-        id: hex(client.id),
-        secret: hex(secret),
-        name: client.name,
-        redirect_uri: client.redirectUri,
-        image_uri: client.imageUri,
-        can_grant: client.canGrant,
-        whitelisted: client.whitelisted
-      }).code(201);
-    }, reply);
+    var developerEmail = req.auth.credentials.email;
+    var developerId = null;
+
+    return db.getDeveloper(developerEmail)
+      .then(function (developer) {
+
+        // must be a developer to register clients
+        if (! developer) {
+          throw AppError.unauthorized('Illegal Developer');
+        }
+
+        developerId = developer.developerId;
+
+        return db.registerClient(client);
+      })
+      .then(function() {
+        return db.registerClientDeveloper(developerId, hex(client.id));
+      })
+      .then(function() {
+        reply({
+          id: hex(client.id),
+          secret: hex(secret),
+          name: client.name,
+          redirect_uri: client.redirectUri,
+          image_uri: client.imageUri,
+          can_grant: client.canGrant,
+          whitelisted: client.whitelisted
+        }).code(201);
+      }, reply);
   }
 };
