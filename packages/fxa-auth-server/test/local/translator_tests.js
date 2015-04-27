@@ -1,6 +1,6 @@
 var test = require('tap').test
 
-require('../../translator')(['en_US','pt_br', 'DE', 'ES_AR', 'ES_cl'])
+require('../../translator')(['en','pt_br', 'DE', 'ES_AR', 'ES_cl'], 'en')
 .done(
   function (translator) {
     test(
@@ -12,6 +12,10 @@ require('../../translator')(['en_US','pt_br', 'DE', 'ES_AR', 'ES_cl'])
         t.equal(x.language, 'es-AR')
         x = translator('es-CL')
         t.equal(x.language, 'es-CL')
+        x = translator('en-US')
+        t.equal(x.language, 'en')
+        x = translator('db-LB') // a locale that does not exist
+        t.equal(x.language, 'en')
         t.end()
       }
     )
