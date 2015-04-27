@@ -1,3 +1,25 @@
+<a name="0.36.0"></a>
+## 0.36.0 (2015-04-27)
+
+
+#### Bug Fixes
+
+* **csp:** use only the origin part of fxaccount_url (with /v1 is a csp violation) ([db55881b](https://github.com/mozilla/fxa-content-server/commit/db55881b596136e4a3d5d39a5b99dac1381f6110))
+* **css:** Show links in TOS/PP text next to the original anchor text. ([5fcb9664](https://github.com/mozilla/fxa-content-server/commit/5fcb9664d9e54a6878c940eaf6dfcd2d6b0c8ea9))
+* **icons:** fixes 404s for iOS icons ([e488c8af](https://github.com/mozilla/fxa-content-server/commit/e488c8af54b432ec9030692c4027c73f7a8425cb), closes [#2062](https://github.com/mozilla/fxa-content-server/issues/2062))
+* **l10n:**
+  * missing legal template redirect should start with "/" ([0498008a](https://github.com/mozilla/fxa-content-server/commit/0498008a2a658de3d58efe0c3f190d76be8cb4b3))
+  * copy es-ES legal templates to es ([76d895a1](https://github.com/mozilla/fxa-content-server/commit/76d895a147e21c48bbf033fe824609dcf6ad5f4c), closes [#2305](https://github.com/mozilla/fxa-content-server/issues/2305))
+* **styles:** Hide the top-right Mozilla link if signing into Sync on Fx for iOS ([a536e557](https://github.com/mozilla/fxa-content-server/commit/a536e5575d94ae9a015ac034e3b60cd80bf5be79))
+* **test:** make asyncTimeout settable from the intern command line ([77ddde9b](https://github.com/mozilla/fxa-content-server/commit/77ddde9bc36888f3320aa020652e092471ce26c0))
+
+
+#### Features
+
+* **client:** Add the `change_password` and `delete_account` messages to the FxDesktop broker. ([56306f10](https://github.com/mozilla/fxa-content-server/commit/56306f10d214df3cb3e7327715a1e3ae8cab60f7))
+* **test:** Add env-test.js unit tests. ([207a84ce](https://github.com/mozilla/fxa-content-server/commit/207a84ceb409fd32889659169d9e5dde27927495))
+
+
 <a name="0.35.0"></a>
 ## 0.35.0 (2015-04-13)
 
