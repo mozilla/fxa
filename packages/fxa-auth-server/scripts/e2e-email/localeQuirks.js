@@ -30,8 +30,6 @@ var translationQuirks = {
     'et',
     'eu',
     'ff',
-    'fr',
-    'fy',
     'he',
     'id',
     'ko',

@@ -54,7 +54,7 @@ const RESET_PATH = '/v1/complete_reset_password'
 const UNLOCK_PATH = '/v1/complete_unlock_account'
 
 const supportedLanguages = program.locale ||
-      require(program.locales).i18n.supportedLanguages.slice(0, program.maxLocales)
+  require(program.locales).slice(0, program.maxLocales)
 
 function log(level /*, rest */) {
   if (level < log.level) return
