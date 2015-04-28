@@ -79,6 +79,7 @@ function (
     routes: {
       '(/)': 'redirectToSignupOrSettings',
       'signin(/)': showView(SignInView),
+      'oauth(/)': 'redirectToBestOAuthChoice',
       'oauth/signin(/)': showView(SignInView),
       'oauth/signup(/)': showView(SignUpView),
       'oauth/force_auth(/)': showView(ForceAuthView),
@@ -154,6 +155,20 @@ function (
       var url = this.user.getSignedInAccount().get('sessionToken') ?
                   '/settings' : '/signup';
       this.navigate(url, { trigger: true, replace: true });
+    },
+
+    /**
+     * Redirect the user to the best suitable OAuth flow
+     */
+    redirectToBestOAuthChoice: function () {
+      var account = this.user.getChooserAccount();
+      var route = '/oauth/signin';
+
+      if (account.isEmpty()) {
+        route = '/oauth/signup';
+      }
+
+      return this.navigate(route, { trigger: true, replace: true });
     },
 
     createAndShowView: function (View, options) {

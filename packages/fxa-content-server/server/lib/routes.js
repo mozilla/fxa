@@ -103,6 +103,7 @@ module.exports = function (config, i18n) {
       '/reset_password_complete',
       '/delete_account',
       '/force_auth',
+      '/oauth',
       '/oauth/signin',
       '/oauth/signup',
       '/oauth/force_auth',
@@ -114,6 +115,7 @@ module.exports = function (config, i18n) {
     ];
 
     var ALLOWED_TO_FRAME = {
+      '/oauth/': true,
       '/oauth/signin': true,
       '/oauth/signup': true,
       '/oauth/force_auth': true
