@@ -1,3 +1,12 @@
+train-36
+  * fix(l10n): pass config.i18n.defaultLanguage to fxa-auth-mailer - #917
+  * fix(mailer): split out the list of supported locales, for easier maintenance - #916
+  * fix(mailer): add a soft check that we are using the same locales as content-server - #916
+  * fix(mailer): add some tests of various supported, unsupported and non-existent locales - #916
+  * chore(shrinkwrap): update shrinkwrap to pick up changes in fxa-auth-mailer, others - #916
+  * fix(tests): a config update now makes uk,hsb,dsb available - #913
+  * fix(tests): update for some locales that have now translated fxa-auth-mailer strings - #911
+
 train-35
   * update to scrypt-hash@1.1.11 to pick up changes needed by new XCode on OS/X - #909, #910
   * chore(shrinkwrap): update shrinkwrap to get latest fxa-content-server-l10n and other updates
