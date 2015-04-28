@@ -1,3 +1,7 @@
+0.36.0
+  * chore(travis): build/test on 0.10, 0.12, and iojs
+  * chore(travis): quiet validate-shrinkwrap failure on security warning on module - #81
+
 0.34.0
   * fix(release): add tasks "grunt version" and "grunt version:patch" to create release tags
   * fix(tests): files were not being linted; so now, make jshint happy
