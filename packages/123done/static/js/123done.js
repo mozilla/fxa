@@ -108,6 +108,10 @@ $(document).ready(function() {
       authenticate('signup', 'signUp');
     });
 
+    $('button.sign-choose').click(function(ev) {
+      authenticate('best_choice', 'bestChoice');
+    });
+
     // upon click of logout link navigator.id.logout()
     $("#logout").click(function(ev) {
       ev.preventDefault();

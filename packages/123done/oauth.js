@@ -23,7 +23,6 @@ function getOAuthInfo(action, nonce, email, preVerifyToken) {
     redirect_uri: config.redirect_uri,
     state: nonce,
     scope: config.scopes,
-    action: action,
     oauth_uri: config.oauth_uri,
     content_uri: config.content_uri
   };
@@ -77,6 +76,17 @@ module.exports = function(app, db) {
   app.get('/api/signup', function(req, res) {
     var nonce = generateAndSaveNonce(req);
     var oauthInfo = getOAuthInfo('signup', nonce);
+    res.format({
+      'application/json': function () {
+        res.json(oauthInfo);
+      }
+    });
+  });
+
+  // let the content server choose the flow
+  app.get('/api/best_choice', function(req, res) {
+    var nonce = generateAndSaveNonce(req);
+    var oauthInfo = getOAuthInfo(null, nonce);
     res.format({
       'application/json': function () {
         res.json(oauthInfo);
