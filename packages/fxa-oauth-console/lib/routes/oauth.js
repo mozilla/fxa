@@ -103,24 +103,27 @@ router.get('/redirect', function (req, res) {
       req.session.scope = body.scope;
       req.session.token_type = body.token_type;
       var token = req.session.token = body.access_token;
+      var profile;
 
       requestProfile(token)
-        .then(function (profile) {
-
-          req.session.email = profile.email;
-          req.session.uid = profile.uid;
-          req.session.token = token;
+        .then(function (profileData) {
+          profile = profileData;
 
           return activateDeveloper(token);
         })
         .done(
           function (developer) {
-            req.session.developerId = developer.developerId;
-
+            // only allow login if developer id is available
+            if (developer && developer.developerId && profile.email) {
+              req.session.email = profile.email;
+              req.session.uid = profile.uid;
+              req.session.token = token;
+              req.session.developerId = developer.developerId;
+            }
             return res.redirect(baseUrl);
           },
           function (response) {
-            var msg = 'User cannot be validated';
+            var msg = 'Error: Developer cannot be validated or activated';
             return res.status(response.status).send(msg);
           }
         );
