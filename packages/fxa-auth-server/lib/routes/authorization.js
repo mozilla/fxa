@@ -4,7 +4,6 @@
 
 const buf = require('buf').hex;
 const hex = require('buf').to.hex;
-const Hapi = require('hapi');
 const Joi = require('joi');
 const URI = require('URIjs');
 
@@ -19,6 +18,12 @@ const verify = require('../browserid');
 const CODE = 'code';
 const TOKEN = 'token';
 
+const UNTRUSTED_CLIENT_ALLOWED_SCOPES = [
+  'profile:uid',
+  'profile:email',
+  'profile:display_name'
+];
+
 /*jshint camelcase: false*/
 
 function set(arr) {
@@ -29,15 +34,30 @@ function set(arr) {
   return Object.keys(obj);
 }
 
-
+function scopeStringToSet(scopes) {
+  return typeof scopes === 'string' ?
+    set(scopes.split(/\s+/g)) :
+    scopes;
+}
 
 function isLocalHost(url) {
   var host = new URI(url).hostname();
   return host === 'localhost' || host === '127.0.0.1';
 }
 
-function generateCode(claims, client, scope, req) {
+function detectInvalidScopes(requestedScopes, validScopes) {
+  var invalidScopes = [];
 
+  requestedScopes.forEach(function(scope) {
+    if (validScopes.indexOf(scope) === -1) {
+      invalidScopes.push(scope);
+    }
+  });
+
+  return invalidScopes;
+}
+
+function generateCode(claims, client, scope, req) {
   return db.generateCode(
     client.id,
     buf(claims.uid),
@@ -127,6 +147,7 @@ module.exports = {
     var start = Date.now();
     var wantsGrant = req.payload.response_type === TOKEN;
     var exitEarly = false;
+    var scope = req.payload.scope ? scopeStringToSet(req.payload.scope) : [];
     P.all([
       verify(req.payload.assertion).then(function(claims) {
         logger.info('time.browserid_verify', { ms: Date.now() - start });
@@ -146,9 +167,12 @@ module.exports = {
           logger.debug('notFound', { id: req.payload.client_id });
           throw AppError.unknownClient(req.payload.client_id);
         } else if (!client.whitelisted) {
-          logger.error('notWhitelisted', { id: req.payload.client_id });
-          // TODO: implement external clients so we can remove this
-          throw Hapi.error.notImplemented();
+          var invalidScopes = detectInvalidScopes(scope,
+                                UNTRUSTED_CLIENT_ALLOWED_SCOPES);
+
+          if (invalidScopes.length) {
+            throw AppError.invalidScopes(invalidScopes);
+          }
         }
 
         var uri = req.payload.redirect_uri || client.redirectUri;
@@ -178,8 +202,7 @@ module.exports = {
 
         return client;
       }),
-      // make scope a set
-      req.payload.scope ? set(req.payload.scope.split(' ')) : [],
+      scope,
       req
     ])
     .spread(wantsGrant ? generateGrant : generateCode)
