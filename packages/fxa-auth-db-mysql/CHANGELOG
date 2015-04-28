@@ -1,3 +1,14 @@
+train-36
+  * refactor(db): Change table access in stored procedures to be consistent - #36
+  * fix(db): Fix reverse patches 8->7 and 9->8 - #38
+  * fix(package): Remove uuid completely since no longer needed - #37
+  * chore(package): Update to mysql-patcher@0.7.0 - #39
+  * chore(copyright): Update to grunt-copyright v0.2.0 - #40
+  * chore(test): Test on node.js v0.10, v0.12 and the latest io.js - #41
+  
+train-35
+  * there was no train-35 for fxa-auth-db-mysql
+
 train-34
   * feat(events): Publish account events to notification server in a background loop - #25
     * Note: this feature is disabled by default (see 'config.notifications.publishUrl'),
