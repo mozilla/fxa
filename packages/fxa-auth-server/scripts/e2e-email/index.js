@@ -32,7 +32,7 @@ program
           'restmail.net')
   .option('-l, --locales [path]',
           'Path to list of locales to test',
-          '../../../fxa-content-server/server/config/production-locales.json')
+          '../../config/supportedLanguages.js')
   .option('-L, --locale <en[,zh-TW,de,...]>',
           'Test only this csv list of locales',
           function(list) {
