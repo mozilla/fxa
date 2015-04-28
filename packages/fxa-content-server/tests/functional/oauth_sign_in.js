@@ -344,7 +344,41 @@ define([
           assert.isTrue(/123done/i.test(text));
         })
         .end();
-    }
+    },
+
+    'oauth endpoint chooses the right auth flows': function () {
+      var self = this;
+
+      return self.get('remote')
+        .get(require.toUrl(OAUTH_APP))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+
+        // use the 'Choose my sign-in flow for me' button
+        .findByCssSelector('#splash .sign-choose')
+        .click()
+        .end()
+
+        .findByCssSelector('#fxa-signup-header')
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+        })
+
+        .findByCssSelector('#fxa-confirm-header')
+        .end()
+
+        // go back to the OAuth app, the /oauth flow should
+        // now suggest a cached login
+        .get(require.toUrl(OAUTH_APP))
+        // again, use the 'Choose my sign-in flow for me' button
+        .findByCssSelector('#splash .sign-choose')
+        .click()
+        .end()
+
+        .findByCssSelector('#fxa-signin-header')
+        .end();
+    },
   });
 
 });
