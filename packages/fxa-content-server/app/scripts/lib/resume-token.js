@@ -26,6 +26,3 @@ define([], function () {
 
   return ResumeToken;
 });
-
-
-

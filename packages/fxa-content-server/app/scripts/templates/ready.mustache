@@ -18,6 +18,11 @@
 
     {{#serviceName}}
       <p class="account-ready-service">{{#t}}You are now ready to use %(serviceName)s{{/t}}</p>
+      {{#showProceedButton}}
+      <div class="button-row">
+        <a class="button" href="{{ redirectUri }}" id="proceedButton" >{{#t}}Proceed{{/t}}</a>
+      </div>
+      {{/showProceedButton}}
     {{/serviceName}}
     {{^serviceName}}
       <p class="account-ready-generic">{{#t}}Your account is ready!{{/t}}</p>

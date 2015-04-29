@@ -11,8 +11,9 @@ define([
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/restmail',
   'tests/lib/helpers',
+  'tests/functional/lib/test',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers, Test, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
@@ -46,7 +47,6 @@ define([
         '123done': true
       });
     },
-
     'with missing client_id': function () {
       return this.get('remote').get(require.toUrl(SIGNUP_ROOT + '?scope=profile'))
         .findByCssSelector('#fxa-400-header')
@@ -225,7 +225,10 @@ define([
           // but cannot redirect
           assert.isTrue(/123done/i.test(text));
         })
-        .end();
+        .end()
+
+        // make sure the relier name is not a link
+        .then(Test.noElementById(self, 'redirectTo'));
     },
 
     'sign up, bounce email, allow user to restart flow but force a different email': function () {
@@ -295,6 +298,7 @@ define([
         .findByCssSelector('#loggedin')
         .end();
     }
+
   });
 
 });

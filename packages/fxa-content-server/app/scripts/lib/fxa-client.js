@@ -395,7 +395,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
 
     // The resume token is eventually for post-verification if the
     // user verifies in a second client, with the goal of allowing
-    // users to continueback to the original RP.
+    // users to continue back to the original RP.
     _createResumeToken: function (relier) {
       return relier.getResumeToken();
     }

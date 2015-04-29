@@ -50,7 +50,7 @@ function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
     beforeRender: function () {
       var self = this;
       var verificationInfo = self._verificationInfo;
-      if (!  verificationInfo.isValid()) {
+      if (! verificationInfo.isValid()) {
         // One or more parameters fails validation. Abort and show an
         // error message before doing any more checks.
         self.logError(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));

@@ -47,7 +47,11 @@ define([], function () {
 
     ONERROR_MESSAGE_LIMIT: 100,
 
-    ACCOUNT_UPDATES_WEBCHANNEL_ID: 'account_updates'
+    ACCOUNT_UPDATES_WEBCHANNEL_ID: 'account_updates',
+
+    VERIFICATION_REDIRECT_SAME_BROWSER: 'samebrowser',
+    VERIFICATION_REDIRECT_ALWAYS: 'always',
+    VERIFICATION_REDIRECT_NO: 'no'
   };
 });
 
