@@ -24,6 +24,8 @@ module.exports = {
       name: Joi.string().max(256),
       image_uri: Joi.string().max(256),
       redirect_uri: Joi.string().max(256),
+      terms_uri: Joi.string().max(256),
+      privacy_uri: Joi.string().max(256),
       can_grant: Joi.boolean()
     }
   },
@@ -40,6 +42,8 @@ module.exports = {
             name: payload.name,
             redirectUri: payload.redirect_uri,
             imageUri: payload.image_uri,
+            termsUri: payload.terms_uri,
+            privacyUri: payload.privacy_uri,
             canGrant: payload.can_grant
           }).done(function() {
             reply({});

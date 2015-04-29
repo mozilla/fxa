@@ -23,6 +23,8 @@ module.exports = {
       name: Joi.string().max(256).required(),
       image_uri: Joi.string().max(256).allow(''),
       redirect_uri: Joi.string().max(256).required(),
+      terms_uri: Joi.string().max(256).allow(''),
+      privacy_uri: Joi.string().max(256).allow(''),
       can_grant: Joi.boolean(),
       // XXX TODO: a future PR will remove legacy "whitelisted" property
       whitelisted: Joi.boolean(),
@@ -36,6 +38,8 @@ module.exports = {
       name: Joi.string().required(),
       image_uri: Joi.string().allow(''),
       redirect_uri: Joi.string().required(),
+      terms_uri: Joi.string().required().allow(''),
+      privacy_uri: Joi.string().required().allow(''),
       can_grant: Joi.boolean().required(),
       // XXX TODO: a future PR will remove legacy "whitelisted" property
       whitelisted: Joi.boolean().required(),
@@ -51,6 +55,8 @@ module.exports = {
       name: payload.name,
       redirectUri: payload.redirect_uri,
       imageUri: payload.image_uri || '',
+      termsUri: payload.terms_uri || '',
+      privacyUri: payload.privacy_uri || '',
       canGrant: !!payload.can_grant,
       // XXX TODO: a future PR will remove legacy "whitelisted" property.
       // Accept both for now for API b/w compat.
@@ -83,6 +89,8 @@ module.exports = {
           name: client.name,
           redirect_uri: client.redirectUri,
           image_uri: client.imageUri,
+          terms_uri: client.termsUri,
+          privacy_uri: client.privacyUri,
           can_grant: client.canGrant,
           // XXX TODO: a future PR will remove legacy "whitelisted" property
           whitelisted: client.trusted,

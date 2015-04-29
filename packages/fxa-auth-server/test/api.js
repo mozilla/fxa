@@ -946,7 +946,9 @@ describe('/v1', function() {
             payload: {
               name: clientName,
               redirect_uri: clientUri,
-              image_uri: clientUri,
+              image_uri: clientUri + '/image',
+              terms_uri: clientUri + '/terms',
+              privacy_uri: clientUri + '/privacy',
               can_grant: true,
               trusted: true
             }
@@ -958,6 +960,13 @@ describe('/v1', function() {
               assert.equal(klient.id.toString('hex'), client.id);
               assert.equal(klient.name, client.name);
               assert.equal(klient.redirectUri, client.redirect_uri);
+              assert.equal(klient.imageUri, client.image_uri);
+              assert.equal(klient.termsUri, client.terms_uri);
+              assert.equal(klient.privacyUri, client.privacy_uri);
+              assert.equal(klient.redirectUri, clientUri);
+              assert.equal(klient.imageUri, clientUri + '/image');
+              assert.equal(klient.termsUri, clientUri + '/terms');
+              assert.equal(klient.privacyUri, clientUri + '/privacy');
               assert.equal(klient.canGrant, true);
               assert.equal(klient.trusted, true);
             });
@@ -1010,6 +1019,8 @@ describe('/v1', function() {
               assert.equal(klient.id.toString('hex'), client.id);
               assert.equal(klient.name, client.name);
               assert.equal(klient.imageUri, '');
+              assert.equal(klient.termsUri, '');
+              assert.equal(klient.privacyUri, '');
               assert.equal(klient.canGrant, false);
               assert.equal(klient.trusted, false);
             });
@@ -1071,6 +1082,8 @@ describe('/v1', function() {
             hashedSecret: encrypt.hash(unique.secret()),
             redirectUri: 'https://example.domain',
             imageUri: 'https://example.com/logo.png',
+            termsUri: 'https://example.com/legal/terms.html',
+            privacyUri: 'https://example.com/legal/privacy.html',
             trusted: true
           };
 
@@ -1112,8 +1125,31 @@ describe('/v1', function() {
               assert.equal(klient.name, 'updated');
               assert.equal(klient.redirectUri, clientUri);
               assert.equal(klient.imageUri, client.imageUri);
+              assert.equal(klient.termsUri, client.termsUri);
+              assert.equal(klient.privacyUri, client.privacyUri);
               assert.equal(klient.trusted, true);
               assert.equal(klient.canGrant, false);
+            }).then(function () {
+              return Server.internal.api.post({
+                url: '/client/' + id.toString('hex'),
+                headers: {
+                  authorization: 'Bearer ' + tok,
+                },
+                payload: {
+                  terms_uri: clientUri + '/terms',
+                  privacy_uri: clientUri + '/privacy',
+                }
+              });
+            }).then(function (res) {
+              assert.equal(res.statusCode, 200);
+              assert.equal(res.payload, '{}');
+              return db.getClient(client.id);
+            }).then(function (klient) {
+              assert.equal(klient.name, 'updated');
+              assert.equal(klient.redirectUri, clientUri);
+              assert.equal(klient.imageUri, client.imageUri);
+              assert.equal(klient.termsUri, clientUri + '/terms');
+              assert.equal(klient.privacyUri, clientUri + '/privacy');
             });
         });
 

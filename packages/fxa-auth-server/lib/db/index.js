@@ -39,6 +39,9 @@ function convertClientToConfigFormat(client) {
       out.hashedSecret = unbuf(client.secret);
     } else if (key === 'trusted' || key === 'canGrant') {
       out[key] = !!client[key]; // db stores booleans as 0 or 1.
+    } else if (key === 'termsUri' || key === 'privacyUri') {
+      // these are optional in the config
+      if (client[key]) { out[key] = client[key]; }
     } else if (typeof client[key] !== 'function') {
       out[key] = unbuf(client[key]);
     }
@@ -62,9 +65,9 @@ function preClients() {
       }
 
       // ensure the required keys are present.
-      var CLIENTS_KEYS = [ 'id', 'hashedSecret', 'name', 'imageUri',
-                           'redirectUri', 'trusted', 'canGrant' ];
-      CLIENTS_KEYS.forEach(function(key) {
+      var REQUIRED_CLIENTS_KEYS = [ 'id', 'hashedSecret', 'name', 'imageUri',
+                                    'redirectUri', 'trusted', 'canGrant' ];
+      REQUIRED_CLIENTS_KEYS.forEach(function(key) {
         if (!(key in c)) {
           var data = { key: key, name: c.name || 'unknown' };
           logger.error('client.missing.keys', data);
