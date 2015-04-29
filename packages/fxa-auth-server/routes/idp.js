@@ -2,10 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var b64 = require('browserid-crypto/lib/utils').base64urlencode
-var bigint = require('bigint')
-
 module.exports = function (log, serverPublicKey) {
+
+  var browseridKey = {
+    'public-key': {
+      algorithm: serverPublicKey.jwk.algorithm,
+      n: serverPublicKey.jwk.n,
+      e: serverPublicKey.jwk.e
+    },
+    'authentication': '/.well-known/browserid/sign_in.html',
+    'provisioning': '/.well-known/browserid/provision.html'
+  }
 
   var routes = [
     {
@@ -19,13 +26,7 @@ module.exports = function (log, serverPublicKey) {
       },
       handler: function browserid(request, reply) {
         log.begin('browserid', request)
-        reply(
-          {
-            'public-key': serverPublicKey,
-            'authentication': '/.well-known/browserid/sign_in.html',
-            'provisioning': '/.well-known/browserid/provision.html'
-          }
-        )
+        reply(browseridKey)
       }
     },
     {
@@ -35,15 +36,7 @@ module.exports = function (log, serverPublicKey) {
         // FOR DEV PURPOSES ONLY
         reply(
           {
-            keys: [
-              {
-                kid: "dev-1",
-                use: "sig",
-                kty: "RSA",
-                n: b64(bigint(serverPublicKey.n).toBuffer()),
-                e: b64(bigint(serverPublicKey.e).toBuffer())
-              }
-            ]
+            keys: [ serverPublicKey ]
           }
         )
       }

@@ -84,31 +84,17 @@ module.exports = function (log, isA, error, signer, db, domain) {
             });
           }
         }
-
-        signer.enqueue(
+        signer.sign(
           {
             email: sessionToken.uid.toString('hex') + '@' + domain,
             publicKey: publicKey,
+            domain: domain,
             duration: duration,
             generation: sessionToken.verifierSetAt,
             lastAuthAt: sessionToken.lastAuthAt(),
             verifiedEmail: sessionToken.email
-          },
-          function (err, result) {
-            if (err) {
-              log.error({ op: 'signer.enqueue', err: err, result: result })
-              reply(error.serviceUnavailable())
-            }
-            else if (result && result.err) {
-              result.err.details = JSON.stringify(request.payload)
-              log.warn({ op: 'signer.enqueue', err: result.err })
-              reply(error.invalidRequestParameter(result.err.message))
-            }
-            else {
-              reply(result)
-            }
           }
-        )
+        ).then(reply, reply)
       }
     }
   ]

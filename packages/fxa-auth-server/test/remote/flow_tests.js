@@ -5,10 +5,11 @@
 var test = require('../ptaptest')
 var Client = require('../client')
 var TestServer = require('../test_server')
-var bidcrypto = require('browserid-crypto')
+var jwtool = require('fxa-jwtool')
 
 
 var config = require('../../config').root()
+var pubSigKey = jwtool.JWK.fromFile(config.publicKeyFile)
 
 TestServer.start(config)
 .then(function main(server) {
@@ -50,7 +51,7 @@ TestServer.start(config)
         .then(
           function (cert) {
             t.equal(typeof(cert), 'string', 'cert exists')
-            var payload = bidcrypto.extractComponents(cert).payload
+            var payload = jwtool.verify(cert, pubSigKey.pem)
             t.equal(payload.principal.email.split('@')[0], client.uid, 'cert has correct uid')
           }
         )

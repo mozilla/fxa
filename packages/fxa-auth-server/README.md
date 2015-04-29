@@ -19,12 +19,6 @@ Services ecosystem.
 
 * node 0.10.x or higher
 * npm
-* pgrep
-  *  Usually available by default on Mac OS X 10.8+ and Linux.
-  *  On older versions of Mac OS X, get it via: `brew install proctools`.
-* libgmp
-  *  On Linux: install libgmp and libgmp-dev packages
-  *  On Mac OS X: `brew install gmp`
 
 ## Install
 

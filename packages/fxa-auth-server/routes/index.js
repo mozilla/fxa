@@ -21,8 +21,7 @@ module.exports = function (
   customs
   ) {
   var isProduction = config.env === 'prod'
-  var jwks = require('../jwks')(error, config)
-  var isPreVerified = require('../preverifier')(jwks, error, config)
+  var isPreVerified = require('../preverifier')(error, config)
   var defaults = require('./defaults')(log, P, db, error)
   var idp = require('./idp')(log, serverPublicKey)
   var checkPassword = require('./utils/password_check')(log, config, Password, customs, db)

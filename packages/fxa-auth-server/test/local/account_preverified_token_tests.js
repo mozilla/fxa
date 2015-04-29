@@ -2,19 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var fs = require('fs')
 var path = require('path')
 var test = require('../ptaptest')
 var TestServer = require('../test_server')
 var Client = require('../client')
-var bidcrypto = require('browserid-crypto')
-require('browserid-crypto/lib/algs/rs')
-var hex2b64urlencode = require('browserid-crypto/lib/utils').hex2b64urlencode
-var b64 = require('browserid-crypto/lib/utils').base64urlencode
+var JWTool = require('fxa-jwtool')
 
 process.env.CONFIG_FILES = path.join(__dirname, '../config/preverify_secret.json')
 var config = require('../../config').root()
-var secretKey = bidcrypto.loadSecretKey(fs.readFileSync(config.secretKeyFile))
+var secretKey = JWTool.JWK.fromFile(
+  config.secretKeyFile,
+  {
+    jku: config.publicUrl + '/.well-known/public-keys',
+    kid: 'dev-1'
+  }
+)
+
 function fail() { throw new Error('call succeeded when it should have failed')}
 
 function nowSeconds() {
@@ -29,22 +32,13 @@ TestServer.start(config)
     function (t) {
       var email = server.uniqueEmail()
       var password = 'ok'
-      var header = b64(JSON.stringify(
-        {
-          alg: 'RS256',
-          jku: config.publicUrl + '/.well-known/public-keys',
-          kid: 'dev-1'
-        }
-      ))
-      var payload = b64(JSON.stringify(
+      var token = secretKey.signSync(
         {
           exp: nowSeconds() + 10,
           aud: config.domain,
           sub: email
         }
-      ))
-      var sig = secretKey.sign(header + '.' + payload)
-      var token = header + '.' + payload + '.' + hex2b64urlencode(sig)
+      )
       return Client.create(config.publicUrl, email, password, { preVerifyToken: token })
         .then(
           function (c) {
@@ -65,22 +59,13 @@ TestServer.start(config)
     function (t) {
       var email = server.uniqueEmail()
       var password = 'ok'
-      var header = b64(JSON.stringify(
-        {
-          alg: 'RS256',
-          jku: config.publicUrl + '/.well-known/public-keys',
-          kid: 'dev-1'
-        }
-      ))
-      var payload = b64(JSON.stringify(
+      var token = secretKey.signSync(
         {
           exp: nowSeconds() + 10,
           aud: config.domain,
           sub: 'wrong@example.com'
         }
-      ))
-      var sig = secretKey.sign(header + '.' + payload)
-      var token = header + '.' + payload + '.' + hex2b64urlencode(sig)
+      )
       return Client.create(config.publicUrl, email, password, { preVerifyToken: token })
         .then(
           fail,
@@ -105,22 +90,13 @@ TestServer.start(config)
         )
         .then(
           function () {
-            var header = b64(JSON.stringify(
-              {
-                alg: 'RS256',
-                jku: config.publicUrl + '/.well-known/public-keys',
-                kid: 'dev-1'
-              }
-            ))
-            var payload = b64(JSON.stringify(
+            var token = secretKey.signSync(
               {
                 exp: nowSeconds() + 10,
                 aud: config.domain,
                 sub: email
               }
-            ))
-            var sig = secretKey.sign(header + '.' + payload)
-            var token = header + '.' + payload + '.' + hex2b64urlencode(sig)
+            )
             return Client.create(config.publicUrl, email, password, { preVerifyToken: token })
           }
         )

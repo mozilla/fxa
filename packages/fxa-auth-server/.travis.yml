@@ -8,8 +8,7 @@ env:
 node_js:
  - "0.10"
 
-services:
- - memcached
+sudo: false
 
 notifications:
   email:
@@ -25,7 +24,6 @@ notifications:
     skip_join: false
 
 before_install:
-  - sudo apt-get install libgmp3-dev
   - npm config set spin false
 
 script:

@@ -20,15 +20,13 @@
    keypair.
 */
 
-const bidcrypto = require("browserid-crypto")
 const fs = require('fs')
+const cp = require('child_process')
 const assert = require("assert")
 const config = require('../config')
 
 const pubKeyFile = config.get('publicKeyFile')
 const secretKeyFile = config.get('secretKeyFile')
-
-require("browserid-crypto/lib/algs/rs")
 
 try {
   var keysExist = fs.existsSync(pubKeyFile) && fs.existsSync(secretKeyFile)
@@ -37,33 +35,25 @@ try {
   process.exit()
 }
 
-console.log("Generating keypair. (install libgmp if this takes more than a second)")
+console.error("Generating keypair")
 
-// wondering about `keysize: 256`?
-// well, 257 = 2048bit key
-// still confused? see: https://github.com/mozilla/browserid-crypto/blob/master/lib/algs/ds.js#L37-L57
-
-function main(cb) {
-  bidcrypto.generateKeypair(
-    { algorithm: 'RS', keysize: 256 },
-    function(err, keypair) {
-
-      var pubKey = keypair.publicKey.serialize()
-      var secretKey = keypair.secretKey.serialize()
-
-
-      fs.writeFileSync(pubKeyFile, pubKey)
-      console.log("Public Key saved:", pubKeyFile)
-
-      fs.writeFileSync(secretKeyFile, secretKey)
-      console.log("Secret Key saved:", secretKeyFile)
-      cb()
+cp.exec(
+  'openssl genrsa 2048 | ../node_modules/pem-jwk/bin/pem-jwk.js',
+  {
+    cwd: __dirname
+  },
+  function (err, stdout, stderr) {
+    var secret = stdout
+    fs.writeFileSync(secretKeyFile, secret)
+    console.error("Secret Key saved:", secretKeyFile)
+    var s = JSON.parse(secret)
+    var pub = {
+      kty: 'RSA',
+      n: s.n,
+      e: s.e
     }
-  )
-}
+    fs.writeFileSync(pubKeyFile, JSON.stringify(pub))
+    console.error("Public Key saved:", pubKeyFile)
+  }
+)
 
-module.exports = main
-
-if (require.main === module) {
-  main(function () {})
-}
