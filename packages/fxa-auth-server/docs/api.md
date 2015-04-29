@@ -88,6 +88,7 @@ A valid 200 response will be a JSON blob with the following properties:
 - `name`: A string name of the client.
 - `image_uri`: A url to a logo or image that represents the client.
 - `redirect_uri`: The url registered to redirect to after successful oauth.
+- `trusted`: Whether the client is a trusted internal application.
 
 **Example:**
 
@@ -95,7 +96,8 @@ A valid 200 response will be a JSON blob with the following properties:
 {
   "name": "Where's My Fox",
   "image_uri": "https://mozilla.org/firefox.png",
-  "redirect_uri": "https://wheres.my.firefox.com/oauth"
+  "redirect_uri": "https://wheres.my.firefox.com/oauth",
+  "trusted": true
 }
 ```
 

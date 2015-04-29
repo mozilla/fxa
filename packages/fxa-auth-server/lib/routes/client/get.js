@@ -21,6 +21,7 @@ module.exports = {
     schema: {
       id: validators.clientId,
       name: Joi.string().required(),
+      trusted: Joi.boolean().required(),
       image_uri: Joi.any(),
       redirect_uri: Joi.string().required().allow('')
     }
@@ -37,6 +38,7 @@ module.exports = {
       reply({
         id: hex(client.id),
         name: client.name,
+        trusted: client.trusted,
         image_uri: client.imageUri,
         redirect_uri: client.redirectUri
       });
