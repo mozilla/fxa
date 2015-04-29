@@ -62,7 +62,7 @@ export default DS.RESTAdapter.extend({
     }
 
     if (! data.image_uri) {
-      data.image_uri = 'http://';
+      data.image_uri = '';
     }
 
     // post process the resuld of 'find'. Need to add the Model type 'client' into the response
