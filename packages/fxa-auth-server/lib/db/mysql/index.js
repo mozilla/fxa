@@ -130,7 +130,7 @@ const QUERY_DEVELOPER_INSERT =
   'VALUES (?, ?);';
 const QUERY_CLIENT_GET = 'SELECT * FROM clients WHERE id=?';
 const QUERY_CLIENT_LIST = 'SELECT id, name, redirectUri, imageUri, canGrant, ' +
-  'whitelisted FROM fxa_oauth.clients, clientDevelopers, developers ' +
+  'whitelisted FROM clients, clientDevelopers, developers ' +
   'WHERE clients.id = clientDevelopers.clientId AND ' +
   'developers.developerId = clientDevelopers.developerId AND ' +
   'developers.email =?;';
