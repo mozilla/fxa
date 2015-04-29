@@ -11,13 +11,15 @@ define([
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/restmail',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/fx-desktop'
 ], function (intern, registerSuite, assert, require, nodeXMLHttpRequest,
-        FxaClient, restmail, TestHelpers, FunctionalHelpers) {
+        FxaClient, restmail, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
   'use strict';
 
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
+  var SYNC_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
 
   var PASSWORD = 'password';
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
@@ -27,23 +29,34 @@ define([
   var client;
   var ANIMATION_DELAY_MS = 1000;
 
+  var listenForSyncCommands = FxDesktopHelpers.listenForFxaCommands;
+  var testIsBrowserNotifiedOfSyncLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
+
+
   /**
    * This suite tests the WebChannel functionality in the OAuth signin and
    * signup cases. It uses a CustomEvent "WebChannelMessageToChrome" to
    * finish OAuth flows
    */
 
-  function testIsBrowserNotifiedOfLogin(context, shouldCloseTab) {
+  function testIsBrowserNotifiedOfLogin(context, shouldCloseTab, wantKeys) {
     return FunctionalHelpers.testIsBrowserNotified(context, 'oauth_complete', function (data) {
       assert.ok(data.redirect);
       assert.ok(data.code);
       assert.ok(data.state);
       assert.equal(data.closeWindow, shouldCloseTab);
+      if (wantKeys) {
+        assert.ok(data.keys);
+      }
     });
   }
 
-  function openFxaFromRp(context, page) {
-    return FunctionalHelpers.openFxaFromRp(context, page, '&webChannelId=test');
+  function openFxaFromRp(context, page, additionalQueryParams) {
+    var queryParams = '&webChannelId=test';
+    for (var key in additionalQueryParams) {
+      queryParams += ('&' + key + '=' + additionalQueryParams[key]);
+    }
+    return FunctionalHelpers.openFxaFromRp(context, page, queryParams);
   }
 
 
@@ -476,6 +489,53 @@ define([
         // this tab's success is seeing the reset password complete header.
         .findByCssSelector('#fxa-reset-password-complete-header')
         .end();
+    },
+
+    'signin a verified account and requesting keys after signing in to sync': function () {
+      var self = this;
+
+      return client.signUp(email, PASSWORD, { preVerified: true })
+        .then(function () {
+          return self.get('remote')
+            .get(require.toUrl(SYNC_URL))
+            .setFindTimeout(intern.config.pageLoadTimeout)
+            .execute(listenForSyncCommands)
+
+            .findByCssSelector('#fxa-signin-header')
+            .end()
+
+            .then(function () {
+              return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
+            })
+
+            .then(function () {
+              return testIsBrowserNotifiedOfSyncLogin(self, email, { checkVerified: true });
+            })
+
+            .then(function () {
+              return openFxaFromRp(self, 'signin', { keys: true });
+            })
+
+            .findByCssSelector('#fxa-signin-header')
+            .end()
+
+            .execute(FunctionalHelpers.listenForWebChannelMessage)
+
+            // user cannot edit their email address,
+            // and must fill in their password so that
+            // keys can be sent to the relier.
+            .findByCssSelector('input[type=password]')
+              .click()
+              .clearValue()
+              .type(PASSWORD)
+            .end()
+
+            .findByCssSelector('button[type="submit"]')
+              .click()
+            .end()
+
+            .then(testIsBrowserNotifiedOfLogin(self, true, true));
+        });
     }
   });
 

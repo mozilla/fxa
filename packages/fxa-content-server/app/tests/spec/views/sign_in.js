@@ -549,6 +549,32 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           });
       });
 
+      it('asks for the password if the relier wants keys', function () {
+        sinon.stub(relier, 'wantsKeys', function () {
+          return true;
+        });
+
+        var account = user.initAccount({
+          sessionToken: 'abc123',
+          email: 'a@a.com',
+          sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
+          verified: true,
+          accessToken: 'foo'
+        });
+
+        sinon.stub(view, 'getAccount', function () {
+          return account;
+        });
+
+        relier.set('service', 'Firefox Hello');
+
+        return view.render()
+          .then(function () {
+            assert.equal($('.email')[0].type, 'hidden', 'should not show email input');
+            assert.ok($('.password').length, 'should show password input');
+          });
+      });
+
       it('does not ask for password right away if service is not sync', function () {
         var account = user.initAccount({
           sessionToken: 'abc123',
