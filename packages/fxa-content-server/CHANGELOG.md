@@ -1,3 +1,12 @@
+<a name="0.36.1"></a>
+### 0.36.1 (2015-04-29)
+
+
+#### Bug Fixes
+
+* **client:** If a relier wants keys, give them keys. ([519ca117](https://github.com/mozilla/fxa-content-server/commit/519ca117ecdbb05211041d352bb0f0b6d99f68e7))
+
+
 <a name="0.36.0"></a>
 ## 0.36.0 (2015-04-27)
 
