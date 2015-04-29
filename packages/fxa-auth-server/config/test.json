@@ -6,7 +6,7 @@
       "name": "Mocha",
       "imageUri": "https://example.domain/logo",
       "redirectUri": "https://example.domain/return?foo=bar",
-      "whitelisted": true,
+      "trusted": true,
       "canGrant": false
     },
     {
@@ -15,7 +15,7 @@
       "name": "Admin",
       "imageUri": "https://example2.domain/logo",
       "redirectUri": "",
-      "whitelisted": true,
+      "trusted": true,
       "canGrant": true
     },
     {
@@ -24,7 +24,7 @@
       "name": "URN",
       "imageUri": "https://example2.domain/logo",
       "redirectUri": "urn:ietf:wg:oauth:2.0:fx:webchannel",
-      "whitelisted": true,
+      "trusted": true,
       "canGrant": false
     },
     {
@@ -33,7 +33,7 @@
       "hashedSecret": "0000000000000000000000000000000000000000000000000000000000000000",
       "imageUri": "",
       "redirectUri": "",
-      "whitelisted": true,
+      "trusted": true,
       "canGrant": false
     },
     {
@@ -42,7 +42,7 @@
       "hashedSecret": "0000000000000000000000000000000000000000000000000000000000000000",
       "imageUri": "",
       "redirectUri": "https://example.domain/return?foo=bar",
-      "whitelisted": false,
+      "trusted": false,
       "canGrant": false
     }
   ],

@@ -50,7 +50,7 @@ describe('db', function() {
           hashedSecret: randomString(32),
           imageUri: 'https://example.domain/logo',
           redirectUri: 'https://example.domain/return?foo=bar',
-          whitelisted: true
+          trusted: true
         };
 
         return db.registerClient(data)
@@ -110,7 +110,7 @@ describe('db', function() {
         hashedSecret: randomString(32),
         imageUri: 'https://example.domain/logo',
         redirectUri: 'https://example.domain/return?foo=bar',
-        whitelisted: true
+        trusted: true
       }).then(function () {
         return db.generateCode(clientId, userId, email, scope, 0);
       }).then(function (c) {
@@ -241,7 +241,7 @@ describe('db', function() {
           hashedSecret: randomString(32),
           imageUri: 'https://example.domain/logo',
           redirectUri: 'https://example.domain/return?foo=bar',
-          whitelisted: true
+          trusted: true
         }).then(function() {
           return db.generateCode(clientId, userId, email, scope, 0);
         }).then(function(c) {

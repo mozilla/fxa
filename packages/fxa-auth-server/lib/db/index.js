@@ -37,7 +37,7 @@ function convertClientToConfigFormat(client) {
       continue;
     } else if (key === 'secret') {
       out.hashedSecret = unbuf(client.secret);
-    } else if (key === 'whitelisted' || key === 'canGrant') {
+    } else if (key === 'trusted' || key === 'canGrant') {
       out[key] = !!client[key]; // db stores booleans as 0 or 1.
     } else if (typeof client[key] !== 'function') {
       out[key] = unbuf(client[key]);
@@ -63,7 +63,7 @@ function preClients() {
 
       // ensure the required keys are present.
       var CLIENTS_KEYS = [ 'id', 'hashedSecret', 'name', 'imageUri',
-                           'redirectUri', 'whitelisted', 'canGrant' ];
+                           'redirectUri', 'trusted', 'canGrant' ];
       CLIENTS_KEYS.forEach(function(key) {
         if (!(key in c)) {
           var data = { key: key, name: c.name || 'unknown' };
@@ -73,7 +73,7 @@ function preClients() {
       });
 
       // ensure booleans are boolean and not undefined
-      c.whitelisted = !!c.whitelisted;
+      c.trusted = !!c.trusted;
       c.canGrant = !!c.canGrant;
 
       return exports.getClient(c.id).then(function(client) {

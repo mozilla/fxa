@@ -91,7 +91,7 @@ r({
 
   var secret = unique.secret();
   client.hashedSecret = hash(secret).toString('hex');
-  client.whitelisted = true;
+  client.trusted = true;
 
   p('About to write to %s:', file);
   p('');

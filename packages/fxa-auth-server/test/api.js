@@ -547,7 +547,7 @@ describe('/v1', function() {
     });
 
     describe('response', function() {
-      describe('with a whitelisted client', function() {
+      describe('with a trusted client', function() {
         it('should redirect to the redirect_uri', function(done) {
           mockAssertion().reply(200, VERIFY_GOOD);
           Server.api.post({
@@ -653,7 +653,7 @@ describe('/v1', function() {
           hashedSecret: encrypt.hash(secret2),
           redirectUri: 'https://example.domain',
           imageUri: 'https://example.foo.domain/logo.png',
-          whitelisted: true
+          trusted: true
         };
         db.registerClient(client2).then(function() {
           mockAssertion().reply(200, VERIFY_GOOD);
@@ -790,7 +790,7 @@ describe('/v1', function() {
         return db.generateToken({
           clientId: buf(clientId),
           userId: unique(16),
-          email: 'user@not.white.list.ed',
+          email: 'user@not.allow.ed',
           scope: [auth.SCOPE_CLIENT_MANAGEMENT]
         });
       }).then(function(token) {
@@ -860,7 +860,7 @@ describe('/v1', function() {
           });
         });
 
-        it('should check the whitelist', function() {
+        it('should check whether the user is allowed', function() {
           return Server.internal.api.get({
             url: '/clients',
             headers: {
@@ -947,7 +947,7 @@ describe('/v1', function() {
               redirect_uri: clientUri,
               image_uri: clientUri,
               can_grant: true,
-              whitelisted: true
+              trusted: true
             }
           }).then(function(res) {
             assert.equal(res.statusCode, 201);
@@ -958,7 +958,7 @@ describe('/v1', function() {
               assert.equal(klient.name, client.name);
               assert.equal(klient.redirectUri, client.redirect_uri);
               assert.equal(klient.canGrant, true);
-              assert.equal(klient.whitelisted, true);
+              assert.equal(klient.trusted, true);
             });
           });
         });
@@ -974,7 +974,7 @@ describe('/v1', function() {
           });
         });
 
-        it('should check the whitelist', function() {
+        it('should check the whether the user is allowed', function() {
           return Server.internal.api.post({
             url: '/client',
             headers: {
@@ -1001,13 +1001,16 @@ describe('/v1', function() {
             assert(client.id);
             assert(client.image_uri === '');
             assert(client.can_grant === false);
+            assert(client.trusted === false);
+            // XXX TODO: future PR will remove legacy "whitelisted" attr,
+            // it's here for now for API b/w compat
             assert(client.whitelisted === false);
             return db.getClient(client.id).then(function(klient) {
               assert.equal(klient.id.toString('hex'), client.id);
               assert.equal(klient.name, client.name);
               assert.equal(klient.imageUri, '');
               assert.equal(klient.canGrant, false);
-              assert.equal(klient.whitelisted, false);
+              assert.equal(klient.trusted, false);
             });
           });
         });
@@ -1025,7 +1028,7 @@ describe('/v1', function() {
             hashedSecret: encrypt.hash(unique.secret()),
             redirectUri: 'https://example.domain',
             imageUri: 'https://example.com/logo.png',
-            whitelisted: true
+            trusted: true
           };
 
           return db.registerClient(client)
@@ -1067,7 +1070,7 @@ describe('/v1', function() {
             hashedSecret: encrypt.hash(unique.secret()),
             redirectUri: 'https://example.domain',
             imageUri: 'https://example.com/logo.png',
-            whitelisted: true
+            trusted: true
           };
 
           return db.registerClient(client)
@@ -1108,7 +1111,7 @@ describe('/v1', function() {
               assert.equal(klient.name, 'updated');
               assert.equal(klient.redirectUri, clientUri);
               assert.equal(klient.imageUri, client.imageUri);
-              assert.equal(klient.whitelisted, true);
+              assert.equal(klient.trusted, true);
               assert.equal(klient.canGrant, false);
             });
         });
@@ -1138,7 +1141,7 @@ describe('/v1', function() {
           });
         });
 
-        it('should check the whitelist', function() {
+        it('should check the whether the user is allowed', function() {
           return Server.internal.api.post({
             url: '/client/' + id.toString('hex'),
             headers: {
@@ -1161,7 +1164,7 @@ describe('/v1', function() {
             hashedSecret: encrypt.hash(unique.secret()),
             redirectUri: 'https://example.domain',
             imageUri: 'https://example.com/logo.png',
-            whitelisted: true
+            trusted: true
           };
 
           return db.registerClient(client)
@@ -1207,7 +1210,7 @@ describe('/v1', function() {
             hashedSecret: encrypt.hash(unique.secret()),
             redirectUri: 'https://example.domain',
             imageUri: 'https://example.com/logo.png',
-            whitelisted: true
+            trusted: true
           };
 
           return db.registerClient(client)
@@ -1252,7 +1255,7 @@ describe('/v1', function() {
           });
         });
 
-        it('should check the whitelist', function() {
+        it('should check the whether the user is allowed', function() {
           var id = unique.id();
 
           return Server.internal.api.delete({

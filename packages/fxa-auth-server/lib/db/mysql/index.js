@@ -108,8 +108,8 @@ MysqlStore.connect = function mysqlConnect(options) {
 
 const QUERY_CLIENT_REGISTER =
   'INSERT INTO clients ' +
-  '(id, name, imageUri, secret, redirectUri, whitelisted, canGrant) ' +
-  'VALUES (?, ?, ?, ?, ?, ?, ?);';
+  '(id, name, imageUri, secret, redirectUri, whitelisted, trusted, canGrant) ' +
+  'VALUES (?, ?, ?, ?, ?, ?, ?, ?);';
 const QUERY_CLIENT_DEVELOPER_INSERT =
   'INSERT INTO clientDevelopers ' +
   '(rowId, developerId, clientId) ' +
@@ -130,14 +130,15 @@ const QUERY_DEVELOPER_INSERT =
   'VALUES (?, ?);';
 const QUERY_CLIENT_GET = 'SELECT * FROM clients WHERE id=?';
 const QUERY_CLIENT_LIST = 'SELECT id, name, redirectUri, imageUri, canGrant, ' +
-  'whitelisted FROM clients, clientDevelopers, developers ' +
+  'whitelisted, trusted FROM clients, clientDevelopers, developers ' +
   'WHERE clients.id = clientDevelopers.clientId AND ' +
   'developers.developerId = clientDevelopers.developerId AND ' +
   'developers.email =?;';
 const QUERY_CLIENT_UPDATE = 'UPDATE clients SET ' +
   'name=COALESCE(?, name), imageUri=COALESCE(?, imageUri), ' +
   'secret=COALESCE(?, secret), redirectUri=COALESCE(?, redirectUri), ' +
-  'whitelisted=COALESCE(?, whitelisted), canGrant=COALESCE(?, canGrant) ' +
+  'whitelisted=COALESCE(?, whitelisted), trusted=COALESCE(?, trusted), ' +
+  'canGrant=COALESCE(?, canGrant) ' +
   'WHERE id=?';
 const QUERY_CLIENT_DELETE = 'DELETE FROM clients WHERE id=?';
 const QUERY_CODE_INSERT =
@@ -198,7 +199,8 @@ MysqlStore.prototype = {
       client.imageUri,
       buf(client.hashedSecret),
       client.redirectUri,
-      !!client.whitelisted,
+      !!client.trusted,  // XXX TODO: we have duplicate columns while we're
+      !!client.trusted,  // in the process of renaming whitelisted=>trusted.
       !!client.canGrant
     ]).then(function() {
       logger.debug('registerClient.success', { id: hex(id) });
@@ -291,7 +293,8 @@ MysqlStore.prototype = {
       client.imageUri,
       secret,
       client.redirectUri,
-      client.whitelisted,
+      client.trusted,  // XXX TODO: we have duplicate columns while we're
+      client.trusted,  // in the process of renaming whitelisted => trusted.
       client.canGrant,
 
       // WHERE

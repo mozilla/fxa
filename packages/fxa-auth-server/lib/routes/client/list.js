@@ -18,7 +18,9 @@ function serialize(client) {
     image_uri: client.imageUri,
     redirect_uri: client.redirectUri,
     can_grant: client.canGrant,
-    whitelisted: client.whitelisted
+    // XXX TODO: a future PR will remove legacy "whitelisted" attr
+    whitelisted: client.trusted,
+    trusted: client.trusted
   };
 }
 
@@ -36,7 +38,9 @@ module.exports = {
           image_uri: Joi.string().allow(''),
           redirect_uri: Joi.string().allow('').required(),
           can_grant: Joi.boolean().required(),
-          whitelisted: Joi.boolean().required()
+          // XXX TODO: a future PR will remove legacy "whitelisted" attr
+          whitelisted: Joi.boolean().required(),
+          trusted: Joi.boolean().required()
         })
       )
     }

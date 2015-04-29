@@ -24,7 +24,9 @@ module.exports = {
       image_uri: Joi.string().max(256).allow(''),
       redirect_uri: Joi.string().max(256).required(),
       can_grant: Joi.boolean(),
-      whitelisted: Joi.boolean()
+      // XXX TODO: a future PR will remove legacy "whitelisted" property
+      whitelisted: Joi.boolean(),
+      trusted: Joi.boolean()
     }
   },
   response: {
@@ -35,7 +37,9 @@ module.exports = {
       image_uri: Joi.string().allow(''),
       redirect_uri: Joi.string().required(),
       can_grant: Joi.boolean().required(),
-      whitelisted: Joi.boolean().required()
+      // XXX TODO: a future PR will remove legacy "whitelisted" property
+      whitelisted: Joi.boolean().required(),
+      trusted: Joi.boolean().required()
     }
   },
   handler: function registerEndpoint(req, reply) {
@@ -48,7 +52,11 @@ module.exports = {
       redirectUri: payload.redirect_uri,
       imageUri: payload.image_uri || '',
       canGrant: !!payload.can_grant,
-      whitelisted: !!payload.whitelisted
+      // XXX TODO: a future PR will remove legacy "whitelisted" property.
+      // Accept both for now for API b/w compat.
+      trusted: !!(typeof payload.trusted !== 'undefined' ?
+                    payload.trusted :
+                    payload.whitelist)
     };
     var developerEmail = req.auth.credentials.email;
     var developerId = null;
@@ -76,7 +84,9 @@ module.exports = {
           redirect_uri: client.redirectUri,
           image_uri: client.imageUri,
           can_grant: client.canGrant,
-          whitelisted: client.whitelisted
+          // XXX TODO: a future PR will remove legacy "whitelisted" property
+          whitelisted: client.trusted,
+          trusted: client.trusted
         }).code(201);
       }, reply);
   }
