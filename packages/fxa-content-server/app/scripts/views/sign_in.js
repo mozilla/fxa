@@ -273,6 +273,12 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
         return true;
       }
 
+      // If the relier wants keys, then the user must authenticate
+      // and the password must be requested.
+      if (this.relier.wantsKeys()) {
+        return true;
+      }
+
       // We need to ask the user again for their password unless the credentials came from Sync.
       // Otherwise they aren't able to "fully" log out. Only Sync has a clear path to disconnect/log out
       // your account that invalidates your sessionToken.
