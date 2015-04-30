@@ -30,6 +30,7 @@ define([
     '/signin': { statusCode: 200 },
     '/signup': { statusCode: 200 },
     '/force_auth': { statusCode: 200 },
+    '/oauth': { statusCode: 200 },
     '/oauth/signin': { statusCode: 200 },
     '/oauth/signup': { statusCode: 200 },
     '/oauth/force_auth': { statusCode: 200 },
@@ -82,6 +83,7 @@ define([
   var iframeAllowedRoutes = [
     '/legal/terms',
     '/legal/privacy',
+    '/oauth/',
     '/oauth/signin',
     '/oauth/signup',
     '/oauth/force_auth',

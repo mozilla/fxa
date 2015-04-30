@@ -121,6 +121,27 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
       });
     });
 
+    describe('redirectToBestOAuthChoice', function () {
+      it('replaces current page with the signup page if there is no current account', function () {
+        windowMock.location.search = '';
+        router.redirectToBestOAuthChoice();
+        assert.equal(navigateUrl, '/oauth/signup');
+        assert.deepEqual(navigateOptions, { trigger: true, replace: true });
+      });
+
+      it('replaces the current page with the signin page', function () {
+        windowMock.location.search = '';
+        sinon.stub(user, 'getChooserAccount', function () {
+          return user.initAccount({
+            sessionToken: 'abc123'
+          });
+        });
+        router.redirectToBestOAuthChoice();
+        assert.equal(navigateUrl, '/oauth/signin');
+        assert.deepEqual(navigateOptions, { trigger: true, replace: true });
+      });
+    });
+
     describe('showView, then another showView', function () {
       var signInView, signUpView;
 
