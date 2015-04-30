@@ -1,6 +1,6 @@
 {
   "name": "fxa-content-server",
-  "version": "0.36.1",
+  "version": "0.36.2",
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "start": "grunt server",

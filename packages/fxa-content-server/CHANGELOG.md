@@ -1,3 +1,12 @@
+<a name="0.36.2"></a>
+### 0.36.2 (2015-04-30)
+
+
+#### Features
+
+* **oauth:** suggest account to use during sign up if possible ([186b2d74](https://github.com/mozilla/fxa-content-server/commit/186b2d742d3d628dc4f79a3d94d1a44029f2a5ba))
+
+
 <a name="0.36.1"></a>
 ### 0.36.1 (2015-04-29)
 
