@@ -199,6 +199,8 @@ TestServer.start(config)
       .then(
         function (doc) {
           t.ok(doc.hasOwnProperty('public-key'), 'doc has public key')
+          t.ok(/^[0-9]+$/.test(doc['public-key'].n), 'n is base 10')
+          t.ok(/^[0-9]+$/.test(doc['public-key'].e), 'e is base 10')
           t.ok(doc.hasOwnProperty('authentication'), 'doc has auth page')
           t.ok(doc.hasOwnProperty('provisioning'), 'doc has provisioning page')
           return doc
