@@ -53,7 +53,7 @@ define([
       this.setPosition();
 
       if (this.dismissible) {
-        this.$el.append('<span class="dismiss">&#10005;</span>');
+        this.$el.append('<span class="dismiss" tabindex="2">&#10005;</span>');
       }
 
       this.bindDOMEvents();
@@ -96,15 +96,29 @@ define([
       // interacts with the invalid element.
       this._destroy = _.bind(this.destroy, this, true);
       // keyboard input for input/select elements.
-      invalidEl.one('keydown change', this._destroy);
+      invalidEl.one('change', this._destroy);
+      // destroy the tooltip if a key different than tab is pressed
+      var destroyIfNotTab = function (e) {
+        if (e.which !== 9) {
+          this._destroy();
+        } else {
+          // the key is tab: ignore the event and reattach the handler again for
+          // future events
+          invalidEl.one('keydown', destroyIfNotTab);
+        }
+      }.bind(this);
+
+      invalidEl.one('keydown', destroyIfNotTab);
       // handle selecting an option with the mouse for select elements
       invalidEl.find('option').one('click', this._destroy);
 
       // destroy when dismissed
-      this.$el.find('.dismiss').one('click', function () {
-        var metricsEvent = 'tooltip.' + this.type + '-dismissed';
-        this.logEvent(metricsEvent);
-        this._destroy();
+      this.$el.find('.dismiss').one('click keypress', function (e) {
+        if (e.type === 'click' || e.which === 13) {
+          var metricsEvent = 'tooltip.' + this.type + '-dismissed';
+          this.logEvent(metricsEvent);
+          this._destroy();
+        }
       }.bind(this));
     }
   });

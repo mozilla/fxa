@@ -35,6 +35,12 @@
     > span {
       cursor: pointer;
       text-decoration: underline;
+      &:focus {
+        border-color: #FFFFFF;
+        border-style: dotted;
+        border-width: 1px;
+        color: #FFFFFF;
+      }
       &.dismiss {
         margin-left: 5px;
         text-decoration: none;
