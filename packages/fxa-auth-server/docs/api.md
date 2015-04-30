@@ -88,6 +88,7 @@ A valid 200 response will be a JSON blob with the following properties:
 - `name`: A string name of the client.
 - `image_uri`: A url to a logo or image that represents the client.
 - `redirect_uri`: The url registered to redirect to after successful oauth.
+- `trusted`: Whether the client is a trusted internal application.
 
 **Example:**
 
@@ -95,7 +96,8 @@ A valid 200 response will be a JSON blob with the following properties:
 {
   "name": "Where's My Fox",
   "image_uri": "https://mozilla.org/firefox.png",
-  "redirect_uri": "https://wheres.my.firefox.com/oauth"
+  "redirect_uri": "https://wheres.my.firefox.com/oauth",
+  "trusted": true
 }
 ```
 
@@ -132,7 +134,7 @@ which contains an array of client objects.
       "redirect_uri": "https://ex.am.ple/path",
       "image_uri": "https://ex.am.ple/logo.png",
       "can_grant": false,
-      "whitelisted": false
+      "trusted": false
     }
   ]
 }
@@ -149,7 +151,7 @@ Register a new client (FxA relier).
 - `name`: The name of the client.
 - `redirect_uri`: The URI to redirect to after logging in.
 - `image_uri`: A URI to an image to show to a user when logging in.
-- `whitelisted`: A whitelisted client is whitelisted.
+- `trusted`: Whether the client is a trusted internal application.
 - `can_grant`: A client needs permission to get implicit grants.
 
 **Example:**
@@ -164,7 +166,7 @@ curl -v \
   "name": "Example",
   "redirect_uri": "https://ex.am.ple/path",
   "image_uri": "https://ex.am.ple/logo.png",
-  "whitelisted": false,
+  "trusted": false,
   "can_grant": false
 }'
 ```
@@ -181,7 +183,7 @@ A valid 201 response will be a JSON blob with the following properties:
 - `image_uri`: A url to a logo or image that represents the client.
 - `redirect_uri`: The url registered to redirect to after successful oauth.
 - `can_grant`: If the client can get implicit grants.
-- `whitelisted`: If the client is whitelisted.
+- `trusted`: Whether the client is a trusted internal application.
 
 **Example:**
 
@@ -193,7 +195,7 @@ A valid 201 response will be a JSON blob with the following properties:
   "redirect_uri": "https://ex.am.ple/path",
   "image_uri": "https://ex.am.ple/logo.png",
   "can_grant": false,
-  "whitelisted": false
+  "trusted": false
 }
 ```
 
@@ -209,7 +211,7 @@ request will stay unchanged.
 - `name`: The name of the client.
 - `redirect_uri`: The URI to redirect to after logging in.
 - `image_uri`: A URI to an image to show to a user when logging in.
-- `whitelisted`: A whitelisted client is whitelisted.
+- `trusted`: Whether the client is a trusted internal application.
 - `can_grant`: A client needs permission to get implicit grants.
 
 **Example:**

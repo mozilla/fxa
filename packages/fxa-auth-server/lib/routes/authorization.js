@@ -166,7 +166,7 @@ module.exports = {
         if (!client) {
           logger.debug('notFound', { id: req.payload.client_id });
           throw AppError.unknownClient(req.payload.client_id);
-        } else if (!client.whitelisted) {
+        } else if (!client.trusted) {
           var invalidScopes = detectInvalidScopes(scope,
                                 UNTRUSTED_CLIENT_ALLOWED_SCOPES);
 

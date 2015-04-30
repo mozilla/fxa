@@ -21,8 +21,11 @@ module.exports = {
     schema: {
       id: validators.clientId,
       name: Joi.string().required(),
+      trusted: Joi.boolean().required(),
       image_uri: Joi.any(),
-      redirect_uri: Joi.string().required().allow('')
+      redirect_uri: Joi.string().required().allow(''),
+      terms_uri: Joi.string().required().allow(''),
+      privacy_uri: Joi.string().required().allow('')
     }
   },
   handler: function requestInfoEndpoint(req, reply) {
@@ -37,8 +40,11 @@ module.exports = {
       reply({
         id: hex(client.id),
         name: client.name,
+        trusted: client.trusted,
         image_uri: client.imageUri,
-        redirect_uri: client.redirectUri
+        redirect_uri: client.redirectUri,
+        terms_uri: client.termsUri,
+        privacy_uri: client.privacyUri
       });
     }, reply);
   }

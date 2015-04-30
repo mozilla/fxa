@@ -13,7 +13,7 @@ With this procedure you will generate both client id and secret tokens to provid
 
 While other applications within your infrastructure would ideally be pre-approved at the user point of view, external consumers shouldn't be. This is why when we develop a service leveraging another site, the user gets a confirmation window.
 
-If you want to pre-approve your own web applications and prevent users in your accounts userbase to have a confirmation window, set the `whitelisted` flag to `true`.
+If you want to pre-approve your own web applications and prevent users in your accounts userbase to have a confirmation window, set the `trusted` flag to `true`.
 
 
 ## Installing a new consumer
@@ -54,13 +54,13 @@ Add a new object literal within the `clients` array, that would look like:
       "name": "123done",
       "imageUri": "https://clientapp.example.com/static/img/logo100.png",
       "redirectUri": "https://clientapp.example.com/api/oauth",
-      "whitelisted": true
+      "trusted": true
     }
   ]
 }
 ```
 
-**NOTE:**  the `whitelisted`, this would be for an internal application that you manage.
+**NOTE:**  the `trusted`, this would be for an internal application that you manage.
 
 
 ### OAuth clients

@@ -20,7 +20,9 @@ const unique = require('../unique');
  *       name: <string>,
  *       imageUri: <string>,
  *       redirectUri: <string>,
- *       whitelisted: <boolean>,
+ *       termsUri: <string>,
+ *       privacyUri: <string>,
+ *       trusted: <boolean>,
  *       createdAt: <timestamp>
  *     }
  *   },
@@ -106,8 +108,12 @@ MemoryStore.prototype = {
     var hex = unbuf(client.id);
     logger.debug('registerClient', { name: client.name, id: hex });
     client.createdAt = new Date();
+    client.imageUri = client.imageUri || '';
+    client.redirectUri = client.redirectUri || '';
+    client.termsUri = client.termsUri || '';
+    client.privacyUri = client.privacyUri || '';
     client.canGrant = !!client.canGrant;
-    client.whitelisted = !!client.whitelisted;
+    client.trusted = !!client.trusted;
     this.clients[hex] = client;
     client.secret = client.hashedSecret;
     return P.resolve(client);
@@ -161,8 +167,10 @@ MemoryStore.prototype = {
             name: client.name,
             imageUri: client.imageUri,
             redirectUri: client.redirectUri,
+            termsUri: client.termsUri,
+            privacyUri: client.privacyUri,
             canGrant: client.canGrant,
-            whitelisted: client.whitelisted
+            trusted: client.trusted
           };
         }, this);
       });
