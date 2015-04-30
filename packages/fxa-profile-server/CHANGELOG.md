@@ -1,3 +1,17 @@
+<a name="0.36.0"></a>
+## 0.36.0 (2015-04-30)
+
+
+#### Bug Fixes
+
+* **db:** race condition when asking for db multiple times at startup ([1bc2cae5](https://github.com/mozilla/fxa-profile-server/commit/1bc2cae55a065d5d979dd5e4494e51c3492c4e2f))
+
+
+#### Features
+
+* **profile:** return all /profile pieces that scopes allow ([35a4875f](https://github.com/mozilla/fxa-profile-server/commit/35a4875f868d5695d455e382673aba8db4586b91), closes [#108](https://github.com/mozilla/fxa-profile-server/issues/108))
+
+
 <a name"0.35.0"></a>
 ## 0.35.0 (2015-04-13)
 
