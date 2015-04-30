@@ -48,6 +48,8 @@ define([
    * @param {String} email Email input
    * @param {String} password Password input
    * @param {Object} [options={}] Options
+   *   @param {Boolean} [options.keys]
+   *   If `true`, calls the API with `?keys=true` to get the keyFetchToken
    *   @param {String} [options.service]
    *   Opaque alphanumeric token to be included in verification links
    *   @param {String} [options.redirectTo]
