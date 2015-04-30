@@ -115,11 +115,29 @@ describe('/profile', function() {
     });
   });
 
-  it('should NOT return a profile if wrong scope', function() {
+  it('should return filtered profile if smaller scope', function() {
     mock.token({
       user: USERID,
       email: 'user@example.domain',
       scope: ['profile:email']
+    });
+    return Server.api.get({
+      url: '/profile',
+      headers: {
+        authorization: 'Bearer ' + tok
+      }
+    }).then(function(res) {
+      assert.equal(res.statusCode, 200);
+      assert.equal(res.result.email, 'user@example.domain');
+      assert.equal(Object.keys(res.result).length, 1);
+    });
+  });
+
+  it('should require a profile:* scope', function() {
+    mock.token({
+      user: USERID,
+      email: 'user@example.domain',
+      scope: ['some:other:scope']
     });
     return Server.api.get({
       url: '/profile',
@@ -181,7 +199,7 @@ describe('/uid', function() {
     });
   });
 
-  it('should NOT return a profile if wrong scope', function() {
+  it('should NOT return a uid if wrong scope', function() {
     mock.token({
       user: USERID,
       email: 'user@example.domain',
@@ -537,7 +555,6 @@ describe('/display_name', function() {
           authorization: 'Bearer ' + tok
         }
       }).then(function(res) {
-        console.log('res', res);
         assert.equal(res.statusCode, 404);
       });
     });

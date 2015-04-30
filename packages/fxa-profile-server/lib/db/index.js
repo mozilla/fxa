@@ -24,20 +24,24 @@ function loadProviders() {
   }));
 }
 
+var driverPromise;
 var driver;
 function withDriver() {
   if (driver) {
     return P.resolve(driver);
   }
-  var p;
-  if (config.get('db.driver') === 'mysql') {
-    p = klass.connect(config.get('mysql'));
-  } else {
-    p = klass.connect();
+  if (driverPromise) {
+    return driverPromise;
   }
-  return p.then(function(store) {
+  if (config.get('db.driver') === 'mysql') {
+    driverPromise = klass.connect(config.get('mysql'));
+  } else {
+    driverPromise = klass.connect();
+  }
+  return driverPromise.then(function(store) {
     logger.debug('connected', config.get('db.driver'));
     driver = store;
+    driverPromise = null;
   }).then(loadProviders).then(function() {
     return driver;
   });
