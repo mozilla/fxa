@@ -2,35 +2,43 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const Boom = require('hapi').error;
 const Joi = require('joi');
 
-const db = require('../db');
+const batch = require('../batch');
+
+function hasProfileScope(scopes) {
+  for (var i = 0, len = scopes.length; i < len; i++) {
+    var scope = scopes[i];
+    // careful to not match a scope of 'profilebogie'
+    if (scope === 'profile' || scope.indexOf('profile:') === 0) {
+      return true;
+    }
+  }
+  return false;
+}
 
 module.exports = {
   auth: {
-    strategy: 'oauth',
-    scope: ['profile', 'profile:write']
+    strategy: 'oauth'
   },
   response: {
     schema: {
-      email: Joi.string().required(),
-      uid: Joi.string().required(),
+      email: Joi.string().allow(null),
+      uid: Joi.string().allow(null),
       avatar: Joi.string().allow(null),
       displayName: Joi.string().allow(null)
     }
   },
   handler: function email(req, reply) {
-    var creds = req.auth.credentials;
-    db.getSelectedAvatar(creds.user).then(function(avatar) {
-      return db.getDisplayName(creds.user).then(function(profile) {
-        return {
-          email: creds.email,
-          uid: creds.user,
-          avatar: avatar ? avatar.url : null,
-          displayName: profile && profile.displayName ?
-            profile.displayName : null
-        };
-      });
+    if (!hasProfileScope(req.auth.credentials.scope || [])) {
+      return reply(Boom.forbidden());
+    }
+    batch(req, {
+      email: '/v1/email',
+      uid: '/v1/uid',
+      avatar: '/v1/avatar',
+      displayName: '/v1/display_name'
     }).done(reply, reply);
   }
 };
