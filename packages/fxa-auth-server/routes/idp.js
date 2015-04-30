@@ -2,17 +2,32 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, serverPublicKey) {
+var jwtool = require('fxa-jwtool')
 
-  var browseridKey = {
+function b64toDec(str) {
+  var n = new jwtool.BN(Buffer(str, 'base64'))
+  return n.toString(10)
+}
+
+function toDec(str) {
+  return /^[0-9]+$/.test(str) ? str : b64toDec(str)
+}
+
+function browseridKey(jwk) {
+  return {
     'public-key': {
-      algorithm: serverPublicKey.jwk.algorithm,
-      n: serverPublicKey.jwk.n,
-      e: serverPublicKey.jwk.e
+      algorithm: jwk.algorithm,
+      n: toDec(jwk.n),
+      e: toDec(jwk.e)
     },
     'authentication': '/.well-known/browserid/sign_in.html',
     'provisioning': '/.well-known/browserid/provision.html'
   }
+}
+
+module.exports = function (log, serverPublicKey) {
+
+  var browserid = browseridKey(serverPublicKey.jwk)
 
   var routes = [
     {
@@ -24,9 +39,9 @@ module.exports = function (log, serverPublicKey) {
           expiresIn: 10000
         }
       },
-      handler: function browserid(request, reply) {
+      handler: function (request, reply) {
         log.begin('browserid', request)
-        reply(browseridKey)
+        reply(browserid)
       }
     },
     {
