@@ -207,14 +207,32 @@ describe('/v1', function() {
         }).done(done, done);
       });
 
-      it('redirects with signin action by default', function(done) {
+      it('redirects `action=signin` to signin', function(done) {
+        Server.api
+        .get('/authorization?client_id=123&state=321&scope=1&action=signin&a=b')
+        .then(function(res) {
+          assert.equal(res.statusCode, 302);
+          var redirect = url.parse(res.headers.location, true);
+
+          assert.equal(redirect.query.client_id, '123');
+          assert.equal(redirect.query.state, '321');
+          assert.equal(redirect.query.scope, '1');
+          // unknown query params are forwarded
+          assert.equal(redirect.query.a, 'b');
+          var target = url.parse(config.get('contentUrl'), true);
+          assert.equal(redirect.pathname, target.pathname + 'signin');
+          assert.equal(redirect.host, target.host);
+        }).done(done, done);
+      });
+
+      it('redirects no action to contentUrl root', function(done) {
         Server.api.get('/authorization?client_id=123&state=321&scope=1')
         .then(function(res) {
           assert.equal(res.statusCode, 302);
           var redirect = url.parse(res.headers.location, true);
 
           var target = url.parse(config.get('contentUrl'), true);
-          assert.equal(redirect.pathname, target.pathname + 'signin');
+          assert.equal(redirect.pathname, target.pathname);
           assert.equal(redirect.host, target.host);
         }).done(done, done);
       });
