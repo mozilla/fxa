@@ -212,4 +212,15 @@ AppError.invalidContentType = function invalidContentType() {
   });
 };
 
+AppError.invalidScopes = function invalidScopes(scopes) {
+  return new AppError({
+    code: 400,
+    error: 'Invalid scopes',
+    errno: 114,
+    message: 'Invalid scopes'
+  }, {
+    invalidScopes: scopes
+  });
+};
+
 module.exports = AppError;

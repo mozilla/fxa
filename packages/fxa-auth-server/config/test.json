@@ -35,6 +35,15 @@
       "redirectUri": "",
       "whitelisted": true,
       "canGrant": false
+    },
+    {
+      "name": "Untrusted",
+      "id": "ea3ca969f8c6bb0e",
+      "hashedSecret": "0000000000000000000000000000000000000000000000000000000000000000",
+      "imageUri": "",
+      "redirectUri": "https://example.domain/return?foo=bar",
+      "whitelisted": false,
+      "canGrant": false
     }
   ],
   "logging": {

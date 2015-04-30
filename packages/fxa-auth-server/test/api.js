@@ -157,6 +157,12 @@ function getUniqueUserAndToken(cId) {
   });
 }
 
+function clientByName(name) {
+  return config.get('clients').reduce(function (client, lastClient) {
+    return client.name === name ? client : lastClient;
+  });
+}
+
 
 describe('/v1', function() {
   before(function(done) {
@@ -166,7 +172,7 @@ describe('/v1', function() {
         AN_ASSERTION = ass;
       }),
       db.ping().then(function() {
-        client = config.get('clients')[0];
+        client = clientByName('Mocha');
         clientId = client.id;
         assert.equal(encrypt.hash(secret).toString('hex'), client.hashedSecret);
         badSecret = Buffer(secret, 'hex').slice();
@@ -240,6 +246,40 @@ describe('/v1', function() {
         }).then(function(res) {
           assert.equal(res.statusCode, 415);
           assert.equal(res.result.errno, 113);
+        });
+      });
+    });
+
+    describe('untrusted client scope', function() {
+      it('should fail if invalid scopes', function() {
+        var client = clientByName('Untrusted');
+        mockAssertion().reply(200, VERIFY_GOOD);
+        return Server.api.post({
+          url: '/authorization',
+          payload: authParams({
+            client_id: client.id,
+            scope: 'profile profile:write profile:uid'
+          })
+        }).then(function(res) {
+          assert.equal(res.statusCode, 400);
+          assert.equal(res.result.errno, 114);
+          assert.ok(res.result.invalidScopes.indexOf('profile') !== -1);
+          assert.ok(res.result.invalidScopes.indexOf('profile:write') !== -1);
+          assert.ok(res.result.invalidScopes.indexOf('profile:uid') === -1);
+        });
+      });
+
+      it('should succeed if valid scope', function() {
+        var client = clientByName('Untrusted');
+        mockAssertion().reply(200, VERIFY_GOOD);
+        return Server.api.post({
+          url: '/authorization',
+          payload: authParams({
+            client_id: client.id,
+            scope: 'profile:email profile:uid'
+          })
+        }).then(function(res) {
+          assert.equal(res.statusCode, 200);
         });
       });
     });
@@ -458,7 +498,7 @@ describe('/v1', function() {
       });
 
       describe('token', function() {
-        var client2 = config.get('clients')[1];
+        var client2 = clientByName('Admin');
         assert(client2.canGrant); //sanity check
 
         it('does not require state argument', function() {
