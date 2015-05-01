@@ -62,6 +62,10 @@ define([
           .click()
         .end()
 
+        // wait for terms to load
+        .findByCssSelector('#fxa-tos-back')
+        .end()
+
         .refresh()
 
         .findByCssSelector('#fxa-tos-back')
