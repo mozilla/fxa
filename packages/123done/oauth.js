@@ -27,6 +27,10 @@ function getOAuthInfo(action, nonce, email, preVerifyToken) {
     content_uri: config.content_uri
   };
 
+  if (action) {
+    oauthParams.action = action;
+  }
+
   if (email) {
     oauthParams.email = email;
   }
