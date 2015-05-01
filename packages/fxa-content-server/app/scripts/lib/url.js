@@ -104,6 +104,17 @@ function (_) {
       var params = this.searchParams(str);
       delete params[name];
       return this.objToSearchString(params);
+    },
+
+    updateSearchString: function (uri, newParams) {
+      var params = {};
+      var startOfParams = uri.indexOf('?');
+      if (startOfParams >= 0) {
+        params = this.searchParams(uri.substring(startOfParams + 1));
+        uri = uri.substring(0, startOfParams);
+      }
+      _.extend(params, newParams);
+      return uri + this.objToSearchString(params);
     }
   };
 });

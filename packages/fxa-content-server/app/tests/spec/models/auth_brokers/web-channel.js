@@ -13,6 +13,7 @@ define([
   'models/user',
   'lib/fxa-client',
   'lib/promise',
+  'lib/constants',
   'lib/channels/null',
   'lib/session',
   'lib/auth-errors',
@@ -20,8 +21,7 @@ define([
   '../../../mocks/window'
 ],
 function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWrapper,
-      p, NullChannel, Session, AuthErrors, BaseView, WindowMock) {
-
+      p, Constants, NullChannel, Session, AuthErrors, BaseView, WindowMock) {
   var assert = chai.assert;
 
   describe('models/auth_brokers/web-channel', function () {
@@ -170,8 +170,10 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
 
         return broker.afterSignIn(account)
           .then(function () {
-            assert.isTrue(
-                broker.sendOAuthResultToRelier.calledWith({ closeWindow: true }));
+            assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
+              action: Constants.OAUTH_ACTION_SIGNIN,
+              closeWindow: true
+            }));
             assert.isFalse(view.displayError.called);
           });
       });
@@ -221,7 +223,9 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
             return broker.afterCompleteSignUp(account);
           })
           .then(function () {
-            assert.isTrue(broker.sendOAuthResultToRelier.called);
+            assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
+              action: Constants.OAUTH_ACTION_SIGNUP
+            }));
             assert.isFalse(view.displayError.called);
           });
       });
@@ -271,7 +275,9 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
             return broker.afterSignUpConfirmationPoll(account);
           })
           .then(function () {
-            assert.isTrue(broker.sendOAuthResultToRelier.called);
+            assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
+              action: Constants.OAUTH_ACTION_SIGNUP
+            }));
             assert.isFalse(view.displayError.called);
           });
       });
@@ -298,7 +304,9 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
             return broker.afterCompleteResetPassword(account);
           })
           .then(function () {
-            assert.isTrue(broker.sendOAuthResultToRelier.called);
+            assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
+              action: Constants.OAUTH_ACTION_SIGNIN
+            }));
             assert.isFalse(view.displayError.called);
           });
       });
@@ -325,7 +333,9 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
             return broker.afterResetPasswordConfirmationPoll(account);
           })
           .then(function () {
-            assert.isTrue(broker.sendOAuthResultToRelier.called);
+            assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
+              action: Constants.OAUTH_ACTION_SIGNIN
+            }));
             assert.isFalse(view.displayError.called);
           });
       });

@@ -27,6 +27,8 @@ define([], function () {
     UID_LENGTH: 32,
 
     OAUTH_CODE_LENGTH: 64,
+    OAUTH_ACTION_SIGNIN: 'signin',
+    OAUTH_ACTION_SIGNUP: 'signup',
 
     RELIER_KEYS_LENGTH: 32,
     RELIER_KEYS_CONTEXT_INFO_PREFIX: 'identity.mozilla.com/picl/v1/oauth/',

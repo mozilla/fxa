@@ -143,6 +143,31 @@ function (chai, _, Url) {
       });
     });
 
+    describe('updateSearchString', function () {
+      it('adds new params while leaving the old ones intact', function () {
+        var updated = Url.updateSearchString('?foo=one', {
+          bar: 'two',
+          baz: 'three'
+        });
+        assert.equal(updated, '?foo=one&bar=two&baz=three');
+      });
+
+      it('updates values for existing params', function () {
+        var updated = Url.updateSearchString('?foo=one', {
+          foo: 'two'
+        });
+        assert.equal(updated, '?foo=two');
+      });
+
+      it('adds a search string if none exists', function () {
+        var updated = Url.updateSearchString('http://example.com', {
+          foo: 'one',
+          bar: 'two'
+        });
+        assert.equal(updated, 'http://example.com?foo=one&bar=two');
+      });
+    });
+
     describe('isNavigable', function () {
       it('detects HTTP and HTTPS properly', function () {
         assert.isFalse(Url.isNavigable('urn:ietf:wg:oauth:2.0:fx:webchannel'), 'urn values are not navigable');

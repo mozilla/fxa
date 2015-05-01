@@ -11,13 +11,16 @@
 
 define([
   'underscore',
+  'lib/constants',
   'lib/url',
   'lib/oauth-errors',
   'lib/auth-errors',
   'lib/promise',
   'lib/validate',
   'models/auth_brokers/base'
-], function (_, Url, OAuthErrors, AuthErrors, p, Validate, BaseAuthenticationBroker) {
+],
+function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
+      BaseAuthenticationBroker) {
 
   /**
    * Formats the OAuth "result.redirect" url into a {code, state} object
@@ -92,6 +95,18 @@ define([
       return p.reject(new Error('subclasses must override sendOAuthResultToRelier'));
     },
 
+    finishOAuthSignInFlow: function (account, additionalResultData) {
+      additionalResultData = additionalResultData || {};
+      additionalResultData.action = Constants.OAUTH_ACTION_SIGNIN;
+      return this.finishOAuthFlow(account, additionalResultData);
+    },
+
+    finishOAuthSignUpFlow: function (account, additionalResultData) {
+      additionalResultData = additionalResultData || {};
+      additionalResultData.action = Constants.OAUTH_ACTION_SIGNUP;
+      return this.finishOAuthFlow(account, additionalResultData);
+    },
+
     finishOAuthFlow: function (account, additionalResultData) {
       var self = this;
       return self.getOAuthResult(account)
@@ -120,7 +135,7 @@ define([
     },
 
     afterSignIn: function (account, additionalResultData) {
-      return this.finishOAuthFlow(account, additionalResultData)
+      return this.finishOAuthSignInFlow(account, additionalResultData)
         .then(function () {
           // the RP will take over from here, no need for a screen transition.
           return { halt: true };
@@ -129,12 +144,11 @@ define([
 
     afterSignUpConfirmationPoll: function (account) {
       // The original tab always finishes the OAuth flow if it is still open.
-      return this.finishOAuthFlow(account);
+      return this.finishOAuthSignUpFlow(account);
     },
 
     afterResetPasswordConfirmationPoll: function (account) {
-      // The original tab always finishes the OAuth flow if it is still open.
-      return this.finishOAuthFlow(account);
+      return this.finishOAuthSignInFlow(account);
     },
 
     transformLink: function (link) {
