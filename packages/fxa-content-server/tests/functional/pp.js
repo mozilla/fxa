@@ -65,6 +65,10 @@ define([
           .click()
         .end()
 
+        // wait for policy to load
+        .findByCssSelector('#fxa-pp-back')
+        .end()
+
         .refresh()
 
         .findByCssSelector('#fxa-pp-back')
