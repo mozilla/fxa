@@ -1,3 +1,12 @@
+<a name="0.36.3"></a>
+### 0.36.3 (2015-05-01)
+
+
+#### Bug Fixes
+
+* **tests:** stabilize tos and pp functional tests ([d14d608a](https://github.com/mozilla/fxa-content-server/commit/d14d608a1e9b487dc296b75c9c957d465e3d144e))
+
+
 <a name="0.36.2"></a>
 ### 0.36.2 (2015-04-30)
 
