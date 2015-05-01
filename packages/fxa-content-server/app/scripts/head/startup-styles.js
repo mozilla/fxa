@@ -80,6 +80,7 @@
       this.addIframeStyles();
       this.addSearchParamStyles();
       this.addFxiOSSyncStyles();
+      this.addGetUserMediaStyles();
     },
 
     addTouchEventStyles: function () {
@@ -129,6 +130,14 @@
       var isSync = this._getQueryParam('service') === 'sync';
       if (this.environment.isFxiOS() && isSync) {
         this._addClass('fx-ios-sync');
+      }
+    },
+
+    addGetUserMediaStyles: function () {
+      if (this.environment.hasGetUserMedia()) {
+        this._addClass('getusermedia');
+      } else {
+        this._addClass('no-getusermedia');
       }
     }
   };

@@ -153,6 +153,28 @@ define([
       });
     });
 
+    describe('addGetUserMediaStyles', function () {
+      it('adds `getusermedia` if UA supports getUserMedia', function () {
+        sinon.stub(environment, 'hasGetUserMedia', function () {
+          return true;
+        });
+
+        startupStyles.addGetUserMediaStyles();
+        assert.isTrue(/getusermedia/.test(startupStyles.getClassName()));
+        assert.isFalse(/no-getusermedia/.test(startupStyles.getClassName()));
+      });
+
+      it('adds `no-getusermedia` if UA does not support getUserMedia', function () {
+        sinon.stub(environment, 'hasGetUserMedia', function () {
+          return false;
+        });
+
+        startupStyles.addGetUserMediaStyles();
+        assert.isTrue(/no-getusermedia/.test(startupStyles.getClassName()));
+      });
+    });
+
+
     describe('initialize', function () {
       it('runs all the tests', function () {
         startupStyles.initialize();
