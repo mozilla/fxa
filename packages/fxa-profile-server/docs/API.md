@@ -60,6 +60,8 @@ The currently-defined error responses are:
 - [POST /v1/avatar][avatar-post]
 - [POST /v1/avatar/upload][upload]
 - [DELETE /v1/avatar/:id][delete]
+- [GET /v1/display_name][display_name]
+- [POST /v1/display_name][display_name-post]
 
 ### GET /v1/profile
 
@@ -268,6 +270,56 @@ curl -v \
 ```
 
 
+### GET /v1/display_name
+
+- scope: `profile:display_name`
+
+Get the user's display name.
+
+#### Request
+
+```sh
+curl -v \
+-H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
+"https://profile.accounts.firefox.com/v1/display_name"
+```
+
+#### Response
+
+```json
+{
+  "displayName": "Joe Cool"
+}
+```
+
+### POST /v1/display_name
+
+- scope: `profile:display_name:write`
+
+Update the user's display name.
+
+#### Request
+
+- `displayName` - A new display name
+
+
+```sh
+curl -v \
+-X POST \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
+"https://profile.accounts.firefox.com/v1/display_name" \
+-d '{
+  "displayName": "Snoopy"
+}'
+```
+
+#### Response
+
+```json
+{}
+```
+
 [profile]: #get-v1profile
 [email]: #get-v1email
 [uid]: #get-v1uid
@@ -276,5 +328,7 @@ curl -v \
 [avatars]: #get-v1avatars
 [upload]: #post-v1avatarupload
 [delete]: #delete-v1avatarid
+[display_name]: #get-v1display_name
+[display_name-post]: #post-v1display_name
 
 [OAuth]: https://github.com/mozilla/fxa-oauth-server
