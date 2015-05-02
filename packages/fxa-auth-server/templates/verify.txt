@@ -1,6 +1,6 @@
-{{t "Almost there"}}
+{{t "Welcome!"}}
 
-{{{t "%(email)s, you're one click away from verifying your Firefox Account." }}}
-{{t "Verify:"}} {{{link}}}
+{{{t "Please activate your account by confirming this email address." }}}
+{{t "Activate now:"}} {{{link}}}
 
 {{t "This is an automated email; if you received it in error, no action is required."}} {{t "For more information, please visit https://support.mozilla.org"}}
