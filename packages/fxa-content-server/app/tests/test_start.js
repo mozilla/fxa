@@ -43,6 +43,7 @@ function (Translator, Session) {
     '../tests/spec/lib/relier-keys',
     '../tests/spec/lib/able',
     '../tests/spec/lib/environment',
+    '../tests/spec/lib/base64url',
     '../tests/spec/head/startup-styles',
     '../tests/spec/views/base',
     '../tests/spec/views/tooltip',
