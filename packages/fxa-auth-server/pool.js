@@ -26,7 +26,7 @@ function Pool(url, options) {
     {
       timeout: options.timeout || 5000,
       keepAlive: true,
-      maxRetries: 2
+      maxRetries: 0
     }
   )
 }
