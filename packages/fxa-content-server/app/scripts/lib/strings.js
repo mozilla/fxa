@@ -18,6 +18,8 @@ function () {
   // Should be removed in favor of #992 and #993 when implemented
   t('Subscribe to Firefox news and tips');
 
+  t('Sign up to learn more');
+
   /**
    * Replace instances of %s and %(name)s with their corresponding values in
    * the context
