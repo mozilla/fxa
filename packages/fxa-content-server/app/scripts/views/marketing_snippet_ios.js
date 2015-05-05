@@ -18,34 +18,6 @@ define([
   'stache!templates/marketing_snippet_ios'
 ], function (_, MarketingSnippetView, Constants, Template) {
 
-  var appStoreImageLanguages = [
-    'da',
-    'de',
-    'en',
-    'es',
-    'et',
-    'fr',
-    'he',
-    'hu',
-    'id',
-    'it',
-    'ja',
-    'ko',
-    'lt',
-    'nb-NO',
-    'nl',
-    'pl',
-    'pt-BR',
-    'pt',
-    'ru',
-    'sk',
-    'sl',
-    'sv-SE',
-    'tr',
-    'zh-CN',
-    'zh-TW'
-  ];
-
   var playStoreImageLanguages = [
     'ca',
     'cs',
@@ -85,22 +57,12 @@ define([
       MarketingSnippetView.prototype.initialize.call(this, options);
 
       this._language = options.language;
-      this._able = options.able;
     },
 
     context: function () {
-      // fallback in case experiment has not concluded
-      var fxIos = this._able.choose('fxIos') || {};
-
-      // app store links come from experiments
-      // allows us to update after prod push
-      var appStoreLinkDirect = fxIos.appStoreLinkDirect;
-      var appStoreLinkWeb = fxIos.appStoreLinkWeb;
-
       var shouldShowMarketing = this._shouldShowSignUpMarketing();
       var isIos = this._isIos();
       var isAndroid = this._isAndroid();
-      var appStoreImage = this._appStoreImage();
       var playStoreImage = this._playStoreImage();
 
       return {
@@ -108,9 +70,6 @@ define([
         isIos: isIos,
         isAndroid: isAndroid,
         isOther: (!isIos && !isAndroid),
-        appStoreLinkDirect: appStoreLinkDirect,
-        appStoreLinkWeb: appStoreLinkWeb,
-        appStoreImage: appStoreImage,
         playStoreImage: playStoreImage
       };
     },
@@ -123,17 +82,6 @@ define([
 
     _isAndroid: function () {
       return /android/i.test(this.window.navigator.userAgent);
-    },
-
-    _appStoreImage: function () {
-      // fall back to en image if user's language is not supported
-      var buttonLang = _.contains(appStoreImageLanguages, this._language) ?
-                          this._language : 'en';
-
-      // images without cache-busting URLs are used since most users will
-      // only ever see these images one time. This can be updated if
-      // requirements change.
-      return '/images/apple_app_store_button/' + buttonLang + '.svg';
     },
 
     _playStoreImage: function () {

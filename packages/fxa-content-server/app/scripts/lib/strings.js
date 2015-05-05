@@ -18,11 +18,6 @@ function () {
   // Should be removed in favor of #992 and #993 when implemented
   t('Subscribe to Firefox news and tips');
 
-  // These can be removed with PR #2382 -
-  // the updated spring campaign snippet.
-  t('Sign up to learn more');
-  t('Firefox is coming soon to iOS!');
-
   // Strings for the permission screen. Remove when PR #2346 lands.
   t('%(serviceName)s would like to know…');
   t('By proceeding, I agree to the <a id="service-tos" href="%(termsUri)s">Terms of Service</a> and' +
