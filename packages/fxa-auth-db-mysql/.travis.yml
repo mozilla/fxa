@@ -3,7 +3,8 @@ language: node_js
 node_js:
  - "0.10"
  - "0.12"
- - "iojs"
+ - "iojs-v1"
+ - "iojs-v2"
 
 services:
  - mysql
@@ -30,5 +31,6 @@ script:
 matrix:
   allow_failures:
     - node_js: "0.12"
-    - node_js: "iojs"
+    - node_js: "iojs-v1"
+    - node_js: "iojs-v2"
   fast_finish: true
