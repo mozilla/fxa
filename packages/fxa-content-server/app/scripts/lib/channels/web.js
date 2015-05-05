@@ -10,72 +10,48 @@
 
 define([
   'underscore',
-  'lib/url',
-  'lib/channels/base'
-], function (_, Url, BaseChannel) {
-
-  function noOp() {
-    // it's a noOp, nothing to do.
-  }
+  'lib/channels/duplex',
+  'lib/channels/senders/web-channel',
+  'lib/channels/receivers/web-channel'
+], function (_, DuplexChannel, WebChannelSender, WebChannelReceiver) {
 
   function WebChannel(id) {
     if (! id) {
       throw new Error('WebChannel must have an id');
     }
 
-    this.id = id;
+    this._id = id;
   }
 
-  _.extend(WebChannel.prototype, new BaseChannel(), {
+  _.extend(WebChannel.prototype, new DuplexChannel(), {
     init: function (options) {
       options = options || {};
 
-      this._window = options.window || window;
-    },
+      var win = options.window || window;
+      var webChannelId = this._id;
 
-    /**
-     * Creates a new WebChannelMessageToChrome CustomEvent and dispatches it.
-     * The event is received by a content script in Firefox
-     *
-     * @param {String} command
-     *        Command name
-     * @param {Object} data
-     *        Message Object
-     * @param {Function} [done]
-     *        Optional callback function
-     */
-    send: function (command, data, done) {
-      done = done || noOp;
-
-      try {
-        // Browsers can blow up dispatching the event.
-        // Ignore the blowups and return without retrying.
-        var event = this.createEvent(command, data);
-        this._window.dispatchEvent(event);
-      } catch (e) {
-        return done && done(e);
-      }
-
-      done(null);
-    },
-    /**
-     * Create a WebChannel compatible custom event
-     * @param {String} command
-     *        Command name
-     * @param {Object} data
-     *        Message object
-     * @returns CustomEvent
-     */
-    createEvent: function (command, data) {
-      return new this._window.CustomEvent('WebChannelMessageToChrome', {
-        detail: {
-          id: this.id,
-          message: {
-            command: command,
-            data: data
-          }
-        }
+      var sender = this._sender = new WebChannelSender();
+      sender.initialize({
+        window: win,
+        webChannelId: webChannelId
       });
+
+      var receiver = this._receiver = new WebChannelReceiver();
+      receiver.initialize({
+        window: win,
+        webChannelId: webChannelId
+      });
+
+      DuplexChannel.prototype.init.call(this, {
+        window: win,
+        sender: sender,
+        receiver: receiver
+      });
+    },
+
+    teardown: function () {
+      this._sender.teardown();
+      this._receiver.teardown();
     }
   });
 

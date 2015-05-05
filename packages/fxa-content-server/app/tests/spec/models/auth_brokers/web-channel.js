@@ -21,7 +21,7 @@ define([
 ],
 function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWrapper,
       p, NullChannel, Session, AuthErrors, BaseView, WindowMock) {
-      
+
   var assert = chai.assert;
 
   describe('models/auth_brokers/web-channel', function () {
@@ -160,7 +160,7 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
         broker.set('webChannelId', 'test');
 
         var channel = broker.getChannel();
-        assert.equal(channel.id, 'test');
+        assert.equal(channel._id, 'test');
       });
     });
 
@@ -245,6 +245,56 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
                 broker.relier.deriveRelierKeys.calledWith('MASTER KEYS', 'uid'));
             assert.equal(result.keys, 'RELIER KEYS');
           });
+      });
+    });
+
+    describe('old style channels', function () {
+      describe('send', function () {
+        it('sends a message', function () {
+          return broker.send('message')
+            .then(function () {
+              assert.isTrue(channelMock.send.calledWith('message'));
+            });
+        });
+      });
+
+      describe('request', function () {
+        it('sends a message and waits for a response', function () {
+          return broker.request('request_message')
+            .then(function () {
+              assert.isTrue(channelMock.send.calledWith('request_message'));
+            });
+        });
+      });
+    });
+
+    describe('new style channels', function () {
+      beforeEach(function () {
+        channelMock.send = sinon.spy(function () {
+          return p();
+        });
+
+        channelMock.request = sinon.spy(function () {
+          return p();
+        });
+      });
+
+      describe('send', function () {
+        it('sends a message', function () {
+          return broker.send('message')
+            .then(function () {
+              assert.isTrue(channelMock.send.calledWith('message'));
+            });
+        });
+      });
+
+      describe('request', function () {
+        it('sends a message and waits for a response', function () {
+          return broker.request('request_message')
+            .then(function () {
+              assert.isTrue(channelMock.request.calledWith('request_message'));
+            });
+        });
       });
     });
   });
