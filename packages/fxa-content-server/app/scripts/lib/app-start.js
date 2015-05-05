@@ -45,6 +45,7 @@ define([
   'models/reliers/fx-desktop',
   'models/auth_brokers/base',
   'models/auth_brokers/fx-desktop',
+  'models/auth_brokers/fx-desktop-v2',
   'models/auth_brokers/web-channel',
   'models/auth_brokers/redirect',
   'models/auth_brokers/iframe',
@@ -80,7 +81,8 @@ function (
   OAuthRelier,
   FxDesktopRelier,
   BaseAuthenticationBroker,
-  FxDesktopAuthenticationBroker,
+  FxDesktopV1AuthenticationBroker,
+  FxDesktopV2AuthenticationBroker,
   WebChannelAuthenticationBroker,
   RedirectAuthenticationBroker,
   IframeAuthenticationBroker,
@@ -304,12 +306,18 @@ function (
     },
 
     initializeAuthenticationBroker: function () {
+      //jshint maxcomplexity: 7
       if (! this._authenticationBroker) {
-        if (this._isFxDesktop()) {
-          this._authenticationBroker = new FxDesktopAuthenticationBroker({
+        if (this._isFxDesktopV2()) {
+          this._authenticationBroker = new FxDesktopV2AuthenticationBroker({
             window: this._window,
             relier: this._relier,
-            session: Session,
+            metrics: this._metrics
+          });
+        } else if (this._isFxDesktopV1()) {
+          this._authenticationBroker = new FxDesktopV1AuthenticationBroker({
+            window: this._window,
+            relier: this._relier,
             metrics: this._metrics
           });
         } else if (this._isWebChannel()) {
@@ -381,7 +389,8 @@ function (
     },
 
     initializeNotifications: function () {
-      var notificationWebChannel = new WebChannel(Constants.PROFILE_WEBCHANNEL_ID);
+      var notificationWebChannel =
+            new WebChannel(Constants.ACCOUNT_UPDATES_WEBCHANNEL_ID);
       notificationWebChannel.initialize();
 
       this._notifications = new Notifications({
@@ -464,9 +473,28 @@ function (
       return Storage.factory('localStorage', this._window);
     },
 
+    _isSync: function () {
+      return this._searchParam('service') === Constants.FX_DESKTOP_SYNC;
+    },
+
+    _isFxDesktopV1: function () {
+      return this._searchParam('context') === Constants.FX_DESKTOP_CONTEXT;
+    },
+
+    _isFxDesktopV2: function () {
+      // A user is signing into sync from within an iframe on a trusted
+      // web page. Automatically speak version 2 using WebChannels.
+      //
+      // A check for context=fx_desktop_v2 can be added when about:accounts
+      // is converted to use WebChannels.
+      return this._isSync() && this._isIframeContext();
+    },
+
     _isFxDesktop: function () {
-      return ((this._searchParam('service') === Constants.FX_DESKTOP_SYNC) ||
-              (this._searchParam('context') === Constants.FX_DESKTOP_CONTEXT));
+      // In addition to the two obvious fx desktop choices, sync is always
+      // considered fx-desktop. If service=sync is on the URL, it's considered
+      // fx-desktop.
+      return this._isFxDesktopV1() || this._isFxDesktopV2() || this._isSync();
     },
 
     _isWebChannel: function () {

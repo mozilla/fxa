@@ -574,6 +574,12 @@ define([
     };
   }
 
+  function openPage(context, url) {
+    return context.get('remote')
+      .get(require.toUrl(url))
+      .setFindTimeout(config.pageLoadTimeout);
+  }
+
   return {
     imageLoadedByQSA: imageLoadedByQSA,
     clearBrowserState: clearBrowserState,
@@ -598,6 +604,7 @@ define([
     fillOutResetPassword: fillOutResetPassword,
     fillOutCompleteResetPassword: fillOutCompleteResetPassword,
     fillOutChangePassword: fillOutChangePassword,
-    fillOutDeleteAccount: fillOutDeleteAccount
+    fillOutDeleteAccount: fillOutDeleteAccount,
+    openPage: openPage
   };
 });
