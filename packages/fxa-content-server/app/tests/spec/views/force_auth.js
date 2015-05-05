@@ -92,7 +92,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, AuthErrors, Relier,
 
       describe('submit', function () {
         it('is able to submit the form on click', function (done) {
-          sinon.stub(view.fxaClient, 'signIn', function () {
+          sinon.stub(user, 'signInAccount', function () {
             done();
           });
           view.$('#submit-btn').click();
@@ -100,20 +100,16 @@ function (chai, $, sinon, View, Session, FxaClient, p, AuthErrors, Relier,
 
         it('submits the sign in', function () {
           var password = 'password';
-          sinon.stub(view.fxaClient, 'signIn', function () {
-            return p({
-              verified: true
-            });
-          });
-          sinon.stub(view.fxaClient, 'recoveryEmailStatus', function () {
-            return p.reject(assert.fail);
+          sinon.stub(user, 'signInAccount', function (account) {
+            account.set('verified', true);
+            return p(account);
           });
           view.$('input[type=password]').val(password);
 
           return view.submit()
             .then(function () {
-              assert.isTrue(view.fxaClient.signIn.calledWith(
-                  email, password, relier));
+              assert.equal(user.signInAccount.args[0][0].get('email'), email);
+              assert.equal(user.signInAccount.args[0][0].get('password'), password);
             });
         });
       });
@@ -245,7 +241,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, AuthErrors, Relier,
 
       describe('submit', function () {
         it('prints an error message and does not allow the user to sign up', function () {
-          sinon.stub(view.fxaClient, 'signIn', function () {
+          sinon.stub(user, 'signInAccount', function () {
             return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
           });
 

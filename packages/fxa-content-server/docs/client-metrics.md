@@ -146,10 +146,14 @@ The event stream is a log of events and the time they occurred while the user is
 * signin.ask-password.shown.email-mismatch - asked for password due to using a different email
 * signin.ask-password.shown.session-from-web - asked for password because session was created via web content
 * signin.ask-password.shown.session-expired - asked for password due to expired session token
-
+#### signin_permissions
+* proceed - user proceeds and grants the requested permissions
 #### signup
 * tooltip.mailcheck-suggested - an email address correction was suggested
 * tooltip.mailcheck-used - an email address correction was chosen by the user
 * tooltip.mailcheck-dismissed - an email address correction tooltip was dismissed without the selection being made.
+#### signup_permissions
+* proceed - user proceeds and grants the requested permissions
+
 #### tos
 #### unexpected_error

@@ -76,10 +76,13 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
     });
 
     it('getSignedInAccount', function () {
-      var account = user.initAccount({ uid: 'uid', email: 'email' });
+      var account = user.initAccount({ uid: 'uid', email: 'email', grantedPermissions: {
+        'someClientId': ['profile:email']
+      }});
       return user.setSignedInAccount(account)
         .then(function () {
           assert.equal(user.getSignedInAccount().get('uid'), account.get('uid'));
+          assert.deepEqual(user.getSignedInAccount().get('grantedPermissions')['someClientId'], ['profile:email']);
         });
     });
 
@@ -99,7 +102,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
       return user.setSignedInAccount({ uid: 'uid', email: 'email' })
         .then(function () {
           user.clearSignedInAccount();
-          assert.isTrue(user.getSignedInAccount().isEmpty());
+          assert.isTrue(user.getSignedInAccount().isDefault());
           assert.equal(user.getAccountByUid('uid').get('uid'), 'uid');
         });
     });
@@ -109,8 +112,8 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
       return user.setSignedInAccount(account)
         .then(function () {
           user.removeAccount(account);
-          assert.isTrue(user.getAccountByUid(account.uid).isEmpty());
-          assert.isTrue(user.getSignedInAccount().isEmpty());
+          assert.isTrue(user.getAccountByUid(account.uid).isDefault());
+          assert.isTrue(user.getSignedInAccount().isDefault());
         });
     });
 
@@ -121,8 +124,8 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
         })
         .then(function () {
           user.removeAllAccounts();
-          assert.isTrue(user.getAccountByUid('uid').isEmpty());
-          assert.isTrue(user.getAccountByUid('uid2').isEmpty());
+          assert.isTrue(user.getAccountByUid('uid').isDefault());
+          assert.isTrue(user.getAccountByUid('uid2').isDefault());
         });
     });
 
@@ -182,7 +185,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
       return user.upgradeFromSession(Session, fxaClientMock)
         .then(function () {
           assert.isTrue(user.getSignedInAccount.called);
-          assert.isTrue(user.getAccountByEmail('b@b.com').isEmpty());
+          assert.isTrue(user.getAccountByEmail('b@b.com').isDefault());
         });
     });
 
@@ -276,6 +279,65 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
         .then(function () {
           assert.isTrue(fxaClientMock.sessionStatus.calledWith('session token too'));
           assert.isTrue(user.setSignedInAccount.calledTwice);
+        });
+    });
+
+
+    it('signInAccount', function () {
+      var relierMock = {};
+      var account = user.initAccount({ uid: 'uid', email: 'email' });
+      sinon.stub(account, 'signIn', function () {
+        return p();
+      });
+      sinon.stub(user, 'setSignedInAccount', function () {
+        return p();
+      });
+
+      return user.signInAccount(account, relierMock)
+        .then(function () {
+          assert.isTrue(account.signIn.calledWith(relierMock));
+          assert.isTrue(user.setSignedInAccount.calledWith(account));
+        });
+    });
+
+    it('signInAccount with existing account keeps data', function () {
+      var relierMock = {};
+      var account = user.initAccount({ uid: 'uid', email: 'email', password: 'foo' });
+      var oldAccount = user.initAccount({ uid: 'uid2', email: 'email', grantedPermissions: { foo: ['bar'] } });
+      sinon.stub(account, 'signIn', function () {
+        return p();
+      });
+      sinon.stub(user, 'setSignedInAccount', function () {
+        return p();
+      });
+      sinon.stub(user, 'getAccountByUid', function () {
+        return oldAccount;
+      });
+
+      return user.signInAccount(account, relierMock)
+        .then(function () {
+          assert.isTrue(account.signIn.calledWith(relierMock));
+          assert.isTrue(user.getAccountByUid.calledWith(account.get('uid')));
+          assert.isTrue(user.setSignedInAccount.calledWith(oldAccount));
+          assert.deepEqual(user.setSignedInAccount.args[0][0].get('grantedPermissions').foo, ['bar']);
+          assert.equal(user.setSignedInAccount.args[0][0].get('password'), 'foo');
+        });
+    });
+
+    it('signUpAccount', function () {
+      var relierMock = {};
+      var account = user.initAccount({ uid: 'uid', email: 'email' });
+      sinon.stub(account, 'signUp', function () {
+        return p();
+      });
+      sinon.stub(user, 'setSignedInAccount', function () {
+        return p();
+      });
+
+      return user.signUpAccount(account, relierMock)
+        .then(function () {
+          assert.isTrue(account.signUp.calledWith(relierMock));
+          assert.isTrue(user.setSignedInAccount.calledWith(account));
         });
     });
 

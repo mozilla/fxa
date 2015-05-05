@@ -17,6 +17,7 @@ define([
   var config = intern.config;
   var CONTENT_SERVER = config.fxaContentRoot;
   var OAUTH_APP = config.fxaOauthApp;
+  var UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
   var SIGNUP_URL = config.fxaContentRoot + 'signup';
@@ -36,6 +37,10 @@ define([
       options['123done'] = false;
     }
 
+    if (! ('321done' in options)) {
+      options['321done'] = false;
+    }
+
     return context.get('remote')
       .then(function () {
         if (options.contentServer) {
@@ -45,6 +50,11 @@ define([
       .then(function () {
         if (options['123done']) {
           return clear123DoneState(context);
+        }
+      })
+      .then(function () {
+        if (options['321done']) {
+          return clear123DoneState(context, true);
         }
       });
   }
@@ -82,7 +92,8 @@ define([
       }, []);
   }
 
-  function clear123DoneState(context) {
+  function clear123DoneState(context, untrusted) {
+    var app = untrusted ? UNTRUSTED_OAUTH_APP : OAUTH_APP;
     /**
      * Clearing state for 123done is a bit of a hack.
      * When the user clicks "Sign out", the buttons to signup/signin
@@ -101,7 +112,7 @@ define([
       // iframe flow.
       .switchToFrame(null)
       .setFindTimeout(config.pageLoadTimeout)
-      .get(require.toUrl(OAUTH_APP))
+      .get(require.toUrl(app))
 
       .findByCssSelector('#footer-main')
       .end()
@@ -308,21 +319,26 @@ define([
       });
   }
 
-  function openFxaFromRp(context, page, urlSuffix) {
+  function openFxaFromUntrustedRp(context, page, urlSuffix) {
+    return openFxaFromRp(context, page, urlSuffix, true);
+  }
+
+  function openFxaFromRp(context, page, urlSuffix, untrusted) {
+    var app = untrusted ? UNTRUSTED_OAUTH_APP : OAUTH_APP;
 
     // force_auth does not have a button on 123done, instead this is
     // only available programatically.
     if (page === 'force_auth') {
 
       return context.get('remote')
-        .get(require.toUrl(OAUTH_APP + 'api/force_auth' + urlSuffix))
+        .get(require.toUrl(app + 'api/force_auth' + urlSuffix))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findByCssSelector('#fxa-force-auth-header')
         .end();
     }
 
     return context.get('remote')
-      .get(require.toUrl(OAUTH_APP))
+      .get(require.toUrl(app))
       .setFindTimeout(intern.config.pageLoadTimeout)
 
       .findByCssSelector('#splash .' + page)
@@ -560,6 +576,7 @@ define([
     openPasswordResetLinkDifferentBrowser: openPasswordResetLinkDifferentBrowser,
     openUnlockLinkDifferentBrowser: openUnlockLinkDifferentBrowser,
     openFxaFromRp: openFxaFromRp,
+    openFxaFromUntrustedRp: openFxaFromUntrustedRp,
     listenForWebChannelMessage: listenForWebChannelMessage,
     testIsBrowserNotified: testIsBrowserNotified,
 

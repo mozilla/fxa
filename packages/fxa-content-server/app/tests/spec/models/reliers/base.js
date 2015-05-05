@@ -85,6 +85,12 @@ define([
         assert.isTrue(relier.allowCachedCredentials());
       });
     });
+
+    describe('isTrusted', function () {
+      it('returns `true`', function () {
+        assert.isTrue(relier.isTrusted());
+      });
+    });
   });
 });
 

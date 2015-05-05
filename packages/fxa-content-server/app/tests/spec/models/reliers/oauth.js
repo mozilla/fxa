@@ -31,7 +31,8 @@ define([
     var CLIENT_ID = 'dcdb5ae7add825d2';
     var REDIRECT_URI = 'http://redirect.here';
     var SERVER_REDIRECT_URI = 'http://127.0.0.1:8080/api/oauth';
-    var SCOPE = 'profile:name';
+    var SCOPE = 'profile:email profile:uid';
+    var PERMISSIONS = ['profile:email', 'profile:uid'];
     var ACTION = 'signup';
     var PREVERIFY_TOKEN = 'abigtoken';
 
@@ -184,6 +185,19 @@ define([
           });
       });
 
+      it('populates permissions from scope', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          //jshint camelcase: false
+          client_id: CLIENT_ID,
+          scope: SCOPE
+        });
+
+        return relier.fetch()
+          .then(function () {
+            assert.deepEqual(relier.get('permissions'), PERMISSIONS);
+          });
+      });
+
       it('errors if `client_id` is missing', function () {
         windowMock.location.search = TestHelpers.toSearchString({
           scope: SCOPE
@@ -224,6 +238,46 @@ define([
           .then(assert.fail, function (err) {
             assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
             assert.equal(err.param, 'scope');
+          });
+      });
+
+      it('isTrusted when `trusted` is true', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          //jshint camelcase: false
+          client_id: CLIENT_ID,
+          scope: SCOPE
+        });
+        oAuthClient.getClientInfo.restore();
+        sinon.stub(oAuthClient, 'getClientInfo', function () {
+          return p({
+            name: SERVICE_NAME,
+            redirect_uri: SERVER_REDIRECT_URI,
+            trusted: true
+          });
+        });
+        return relier.fetch()
+          .then(function () {
+            assert.isTrue(relier.isTrusted());
+          });
+      });
+
+      it('!isTrusted when `trusted` is false', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          //jshint camelcase: false
+          client_id: CLIENT_ID,
+          scope: SCOPE
+        });
+        oAuthClient.getClientInfo.restore();
+        sinon.stub(oAuthClient, 'getClientInfo', function () {
+          return p({
+            name: SERVICE_NAME,
+            redirect_uri: SERVER_REDIRECT_URI,
+            trusted: false
+          });
+        });
+        return relier.fetch()
+          .then(function () {
+            assert.isFalse(relier.isTrusted());
           });
       });
     });

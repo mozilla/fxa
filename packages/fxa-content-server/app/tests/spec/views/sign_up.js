@@ -81,7 +81,9 @@ function (chai, _, $, moment, sinon, p, View, Coppa, Session, AuthErrors, Metric
       broker = new Broker();
       fxaClient = new FxaClient();
       ephemeralMessages = new EphemeralMessages();
-      user = new User();
+      user = new User({
+        fxaClient: fxaClient
+      });
       formPrefill = new FormPrefill();
       coppa = new Coppa();
 
@@ -384,16 +386,51 @@ function (chai, _, $, moment, sinon, p, View, Coppa, Session, AuthErrors, Metric
     });
 
     describe('submit', function () {
+      it('redirects users to permissions page if relier needs permissions', function () {
+        var password = 'password';
+        fillOutSignUp(email, password, true);
+
+        sinon.spy(user, 'initAccount');
+        sinon.spy(broker, 'beforeSignIn');
+
+        sinon.stub(coppa, 'isUserOldEnough', function () {
+          return true;
+        });
+
+        sinon.stub(user, 'signUpAccount', function (account) {
+          return p(account);
+        });
+        sinon.stub(broker, 'shouldPromptForPermissions', function () {
+          return true;
+        });
+        sinon.stub(view, 'navigate', function () { });
+
+        return view.submit()
+          .then(function () {
+            var account = user.initAccount.returnValues[0];
+
+            assert.equal(account.get('email'), email);
+            assert.isTrue(broker.beforeSignIn.calledWith(email));
+            assert.isTrue(user.signUpAccount.calledWith(account));
+            assert.isTrue(broker.shouldPromptForPermissions.calledWith(account));
+            assert.isTrue(view.navigate.calledWith('signup_permissions', {
+              data: {
+                account: account
+              }
+            }));
+          });
+      });
+
       it('sends the user to `/confirm` if form filled out, not pre-verified, passes COPPA', function () {
         var password = 'password';
 
         fillOutSignUp(email, password, true);
+        sinon.spy(user, 'initAccount');
 
-        sinon.stub(view.fxaClient, 'signUp', function () {
-          return p({
-            verified: false,
-            customizeSync: true
-          });
+        sinon.stub(user, 'signUpAccount', function (account) {
+          account.set('verified', false);
+          account.set('customizeSync', true);
+          return p(account);
         });
 
         sinon.spy(view, 'navigate');
@@ -404,10 +441,11 @@ function (chai, _, $, moment, sinon, p, View, Coppa, Session, AuthErrors, Metric
 
         return view.submit()
           .then(function () {
+            var account = user.initAccount.returnValues[0];
+
             assert.equal(view.navigate.args[0][0], 'confirm');
             assert.isTrue(view.navigate.args[0][1].data.account.get('customizeSync'));
-            assert.isTrue(view.fxaClient.signUp.calledWith(
-                email, password, relier));
+            assert.isTrue(user.signUpAccount.calledWith(account, relier));
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                               'signup.success'));
           });
@@ -418,11 +456,10 @@ function (chai, _, $, moment, sinon, p, View, Coppa, Session, AuthErrors, Metric
         var password = 'password';
         fillOutSignUp(email, password, true);
 
-        sinon.stub(view.fxaClient, 'signUp', function () {
-          return p({
-            verified: true,
-            customizeSync: true
-          });
+        sinon.stub(user, 'signUpAccount', function (account) {
+          account.set('verified', true);
+          account.set('customizeSync', true);
+          return p(account);
         });
 
         sinon.stub(broker, 'afterSignIn', function (account) {
@@ -436,6 +473,7 @@ function (chai, _, $, moment, sinon, p, View, Coppa, Session, AuthErrors, Metric
 
         return view.submit()
             .then(function () {
+              assert.isTrue(user.signUpAccount.called);
               assert.isTrue(broker.afterSignIn.called);
             });
       });
@@ -481,7 +519,7 @@ function (chai, _, $, moment, sinon, p, View, Coppa, Session, AuthErrors, Metric
       });
 
       it('shows message allowing the user to sign in if user enters existing verified account', function () {
-        sinon.stub(view.fxaClient, 'signUp', function () {
+        sinon.stub(user, 'signUpAccount', function () {
           return p.reject(AuthErrors.toError('ACCOUNT_ALREADY_EXISTS'));
         });
 
@@ -500,14 +538,8 @@ function (chai, _, $, moment, sinon, p, View, Coppa, Session, AuthErrors, Metric
 
       it('re-signs up unverified user with new password', function () {
 
-        sinon.stub(view.fxaClient, 'signUp', function () {
-          return p({});
-        });
-
-        sinon.stub(view.fxaClient, 'signIn', function () {
-          return p({
-            verified: false
-          });
+        sinon.stub(user, 'signUpAccount', function (account) {
+          return p(account);
         });
 
         fillOutSignUp(email, 'incorrect', true);
@@ -544,7 +576,7 @@ function (chai, _, $, moment, sinon, p, View, Coppa, Session, AuthErrors, Metric
       });
 
       it('re-throws any other errors for display', function () {
-        sinon.stub(view.fxaClient, 'signUp', function () {
+        sinon.stub(user, 'signUpAccount', function () {
           return p.reject(AuthErrors.toError('SERVER_BUSY'));
         });
 
@@ -572,10 +604,9 @@ function (chai, _, $, moment, sinon, p, View, Coppa, Session, AuthErrors, Metric
           relier.set('service', service);
           relier.set('customizeSync', isCustomizeSyncChecked);
 
-          sinon.stub(view.fxaClient, 'signUp', function () {
-            return p({
-              verified: true
-            });
+          sinon.stub(user, 'signUpAccount', function (account) {
+            account.set('verified', true);
+            return p(account);
           });
 
           sinon.stub(broker, 'afterSignIn', function () {
@@ -597,8 +628,7 @@ function (chai, _, $, moment, sinon, p, View, Coppa, Session, AuthErrors, Metric
         it('passes the customize sync option to the fxa-client', function () {
           return setupCustomizeSyncTest('sync', true)
             .then(function () {
-              assert.isTrue(view.fxaClient.signUp.calledWith(email, 'password', relier,
-                { customizeSync: true }), 'fxa client params');
+              assert.isTrue(user.signUpAccount.args[0][0].get('customizeSync'), 'fxa client params');
             });
         });
 

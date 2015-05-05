@@ -109,55 +109,35 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
      */
     _signIn: function (account) {
       var self = this;
-      if (! account || account.isEmpty()) {
+      if (! account || account.isDefault()) {
         return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
       }
 
-      // saved in case there is an error and the
-      // account becomes locked in onSignInError
-      self._signInAccount = account;
+      return self.broker.beforeSignIn(account.get('email'))
+        .then(function () {
+          return self.user.signInAccount(account, self.relier);
+        })
+        .then(function (account) {
+          if (self.broker.shouldPromptForPermissions(account)) {
+            self.navigate('signin_permissions', {
+              data: {
+                account: account
+              }
+            });
 
-      return p().then(function () {
-        if (account.get('password')) {
-          return self.broker.beforeSignIn(account.get('email'))
-            .then(function () {
-              return self.fxaClient.signIn(account.get('email'),
-                      account.get('password'), self.relier);
-            })
-            .then(function (updatedSessionData) {
-              account.set(updatedSessionData);
-              return account;
-            });
-        } else if (account.get('sessionToken')) {
-          // We have a cached Sync session so just check that it hasn't expired.
-          return self.fxaClient.recoveryEmailStatus(account.get('sessionToken'))
-            .then(function (result) {
-              // The result includes the latest verified state
-              account.set(result);
-              return account;
-            });
-        } else {
-          return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
-        }
-      })
-      .then(function (account) {
-        return self.user.setSignedInAccount(account)
-          .then(function () {
-            return account;
-          });
-      })
-      .then(function (account) {
-        if (account.get('verified')) {
-          self.logScreenEvent('success');
-          return self.onSignInSuccess(account);
-        } else {
+            return false;
+          }
+
+          if (account.get('verified')) {
+            return self.onSignInSuccess(account);
+          }
+
           return self.onSignInUnverified(account);
-        }
-      })
-      .then(null, self.onSignInError.bind(self));
+        })
+        .fail(self.onSignInError.bind(self, account));
     },
 
-    onSignInError: function (err) {
+    onSignInError: function (account, err) {
       var self = this;
 
       if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
@@ -167,7 +147,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
         // if user canceled login, just stop
         return;
       } else if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
-        return self.notifyOfLockedAccount(self._signInAccount);
+        return self.notifyOfLockedAccount(account);
       }
       // re-throw error, it will be handled at a lower level.
       throw err;
@@ -175,6 +155,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
 
     onSignInSuccess: function (account) {
       var self = this;
+      self.logScreenEvent('success');
       return self.broker.afterSignIn(account)
         .then(function (result) {
           if (! (result && result.halt)) {
@@ -186,17 +167,11 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
     },
 
     onSignInUnverified: function (account) {
-      var self = this;
-      var sessionToken = account.get('sessionToken');
-
-      return self.fxaClient.signUpResend(self.relier, sessionToken)
-        .then(function () {
-          self.navigate('confirm', {
-            data: {
-              account: account
-            }
-          });
-        });
+      this.navigate('confirm', {
+        data: {
+          account: account
+        }
+      });
     },
 
     _suggestSignUp: function (err) {

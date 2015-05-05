@@ -11,13 +11,14 @@ define([
   './tools/firefox_profile'
 ],
 function (args, topic, firefoxProfile) {
-  /*jshint maxcomplexity:10 */
+  /*jshint maxcomplexity:11 */
   'use strict';
 
   var fxaAuthRoot = args.fxaAuthRoot || 'http://127.0.0.1:9000/v1';
   var fxaContentRoot = args.fxaContentRoot || 'http://127.0.0.1:3030/';
   var fxaEmailRoot = args.fxaEmailRoot || 'http://127.0.0.1:9001';
   var fxaOauthApp = args.fxaOauthApp || 'http://127.0.0.1:8080/';
+  var fxaUntrustedOauthApp = args.fxaUntrustedOauthApp || 'http://127.0.0.1:10139/';
   var fxaIframeOauthApp = args.fxaIframeOauthApp || 'http://127.0.0.1:8080/iframe';
   var fxaProduction = !!args.fxaProduction;
   var fxaToken = args.fxaToken || 'http://';
@@ -42,6 +43,7 @@ function (args, topic, firefoxProfile) {
     fxaContentRoot: fxaContentRoot,
     fxaEmailRoot: fxaEmailRoot,
     fxaOauthApp: fxaOauthApp,
+    fxaUntrustedOauthApp: fxaUntrustedOauthApp,
     fxaIframeOauthApp: fxaIframeOauthApp,
     fxaProduction: fxaProduction,
     fxaToken: fxaToken,

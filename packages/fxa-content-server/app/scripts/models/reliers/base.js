@@ -89,6 +89,13 @@ define([
      */
     allowCachedCredentials: function () {
       return true;
+    },
+
+    /**
+     * Indicates whether the relier is trusted
+     */
+    isTrusted: function () {
+      return true;
     }
   });
 

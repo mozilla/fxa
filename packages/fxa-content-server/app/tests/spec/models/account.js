@@ -16,10 +16,12 @@ define([
   'lib/fxa-client',
   'lib/auth-errors',
   'lib/profile-errors',
-  'models/account'
+  'models/account',
+  'models/reliers/relier'
 ],
 function (chai, sinon, p, Constants, Assertion, ProfileClient,
-    OAuthClient, FxaClientWrapper, AuthErrors, ProfileErrors, Account) {
+    OAuthClient, FxaClientWrapper, AuthErrors, ProfileErrors, Account,
+    Relier) {
   var assert = chai.assert;
 
   describe('models/account', function () {
@@ -27,8 +29,10 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
     var assertion;
     var oAuthClient;
     var profileClient;
+    var relier;
     var fxaClient;
     var EMAIL = 'user@example.domain';
+    var PASSWORD = 'password';
     var UID = '6d940dd41e636cc156074109b8092f96';
     var URL = 'http://127.0.0.1:1112/avatar/example.jpg';
     var PNG_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
@@ -40,6 +44,7 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
       oAuthClient = new OAuthClient();
       profileClient = new ProfileClient();
       fxaClient = new FxaClientWrapper();
+      relier = new Relier();
 
       account = new Account({
         oAuthClient: oAuthClient,
@@ -162,6 +167,131 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
             assert.isTrue(fxaClient.recoveryEmailStatus.calledWith(SESSION_TOKEN));
             assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
           });
+    });
+
+    describe('signIn', function () {
+      it('sign in with password, unverified', function () {
+        account.set('password', PASSWORD);
+        sinon.stub(fxaClient, 'signIn', function () {
+          return p({ sessionToken: SESSION_TOKEN, verified: false });
+        });
+        sinon.stub(fxaClient, 'signUpResend', function () {
+          return p();
+        });
+
+        return account.signIn(relier)
+          .then(function () {
+            assert.isFalse(account.get('verified'));
+            assert.equal(account.get('sessionToken'), SESSION_TOKEN);
+            assert.isTrue(fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier));
+            assert.isTrue(fxaClient.signUpResend.calledWith(relier, SESSION_TOKEN));
+          });
+      });
+
+      it('sign in with password, verified', function () {
+        account.set('password', PASSWORD);
+        sinon.stub(fxaClient, 'signIn', function () {
+          return p({ sessionToken: SESSION_TOKEN, verified: true });
+        });
+
+        return account.signIn(relier)
+          .then(function () {
+            assert.isTrue(account.get('verified'));
+            assert.equal(account.get('sessionToken'), SESSION_TOKEN);
+            assert.isTrue(fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier));
+          });
+      });
+
+      it('sign in with password error', function () {
+        account.set('password', 'password');
+        sinon.stub(fxaClient, 'signIn', function () {
+          return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
+        });
+
+        return account.signIn(relier)
+          .then(assert.fail,
+            function (err) {
+              assert.isTrue(fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier));
+              assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
+            });
+      });
+
+      it('sign in with sessionToken, unverified', function () {
+        account.set('sessionToken', SESSION_TOKEN);
+        sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
+          return p({ verified: false });
+        });
+        sinon.stub(fxaClient, 'signUpResend', function () {
+          return p();
+        });
+
+        return account.signIn(relier)
+          .then(function () {
+            assert.isFalse(account.get('verified'));
+            assert.isTrue(fxaClient.recoveryEmailStatus.calledWith(SESSION_TOKEN));
+            assert.isTrue(fxaClient.signUpResend.calledWith(relier, SESSION_TOKEN));
+          });
+      });
+
+      it('sign in with sessionToken, verified', function () {
+        account.set('sessionToken', SESSION_TOKEN);
+        sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
+          return p({ verified: true });
+        });
+
+        return account.signIn(relier)
+          .then(function () {
+            assert.isTrue(account.get('verified'));
+            assert.isTrue(fxaClient.recoveryEmailStatus.calledWith(SESSION_TOKEN));
+          });
+      });
+
+      it('sign in with sessionToken error', function () {
+        account.set('sessionToken', SESSION_TOKEN);
+        sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
+          return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
+        });
+
+        return account.signIn(relier)
+          .then(assert.fail,
+            function (err) {
+              assert.isTrue(fxaClient.recoveryEmailStatus.calledWith(SESSION_TOKEN));
+              assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
+            });
+      });
+
+      it('sign in unexpected error', function () {
+        account.clear('sessionToken');
+        account.clear('password');
+
+        return account.signIn(relier)
+          .then(assert.fail,
+            function (err) {
+              assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
+            });
+      });
+    });
+
+
+    describe('signUp', function () {
+      it('sign up', function () {
+        account.set('password', PASSWORD);
+        account.set('customizeSync', true);
+        sinon.stub(fxaClient, 'signUp', function () {
+          return p({ sessionToken: SESSION_TOKEN, verified: false });
+        });
+
+        return account.signUp(relier)
+          .then(function () {
+            assert.isFalse(account.get('verified'));
+            assert.equal(account.get('sessionToken'), SESSION_TOKEN);
+
+            assert.isTrue(fxaClient.signUp.calledWith(EMAIL, PASSWORD, relier, {
+              customizeSync: true
+            }));
+          });
+      });
+
     });
 
     describe('with an access token', function () {
@@ -352,7 +482,10 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
           uid: UID,
           sessionToken: SESSION_TOKEN,
           foo: 'bar',
-          password: 'password'
+          password: 'password',
+          grantedPermissions: {
+            'some-client-id': ['profile:email', 'profile:uid']
+          }
         },
         assertion: 'test'
       });
@@ -364,19 +497,21 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
       assert.isUndefined(data.foo);
       assert.isUndefined(data.password);
       assert.ok(data.email);
+      assert.ok(data.grantedPermissions);
+      assert.equal(data.grantedPermissions['some-client-id'][0], 'profile:email');
     });
 
-    describe('isEmpty', function () {
+    describe('isDefault', function () {
       it('true for empty account', function () {
-        assert.isTrue(new Account().isEmpty());
+        assert.isTrue(new Account().isDefault());
       });
 
       it('true for account with data that is not in one of its allowed keys', function () {
-        assert.isTrue(new Account({ assertion: 'blah' }).isEmpty());
+        assert.isTrue(new Account({ assertion: 'blah' }).isDefault());
       });
 
       it('not true for account with data', function () {
-        assert.isFalse(new Account({ email: 'a@a.com' }).isEmpty());
+        assert.isFalse(new Account({ email: 'a@a.com' }).isDefault());
       });
     });
 
@@ -452,6 +587,27 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
           }, function (err) {
             assert.isTrue(ProfileErrors.is(err, 'IMAGE_LOAD_ERROR'));
           });
+      });
+    });
+
+    describe('permissions', function () {
+      it('saves permissions', function () {
+        var clientId = 'blah';
+        var scope = ['profile:email', 'profile:uid'];
+
+        assert.isTrue(account.hasGrantedPermissions(clientId), 'no scopes requested');
+        assert.isFalse(account.hasGrantedPermissions(clientId, ['profile:email']));
+
+        account.saveGrantedPermissions(clientId, scope);
+
+        assert.isTrue(account.hasGrantedPermissions(clientId, scope));
+        assert.isTrue(account.hasGrantedPermissions(clientId, ['profile:email']));
+        assert.isTrue(account.hasGrantedPermissions(clientId, ['profile:uid']));
+
+        assert.isFalse(account.hasGrantedPermissions(clientId, ['profile:avatar']));
+
+        assert.deepEqual(account.ungrantedPermissions(clientId, ['profile:avatar', 'profile:uid', 'profile:email', 'todolist:write']),
+          ['profile:avatar', 'todolist:write']);
       });
     });
 

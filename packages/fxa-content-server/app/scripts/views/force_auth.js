@@ -74,12 +74,12 @@ function (Cocktail, p, BaseView, FormView, SignInView, PasswordMixin,
       return this._signIn(account);
     },
 
-    onSignInError: function (err) {
+    onSignInError: function (account, err) {
       if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
         // dead end, do not allow the user to sign up.
         this.displayError(err);
       } else {
-        return SignInView.prototype.onSignInError.call(this, err);
+        return SignInView.prototype.onSignInError.call(this, account, err);
       }
     },
 

@@ -66,6 +66,7 @@ function (Translator, Session) {
     '../tests/spec/views/change_password',
     '../tests/spec/views/delete_account',
     '../tests/spec/views/confirm',
+    '../tests/spec/views/permissions',
     '../tests/spec/views/tos',
     '../tests/spec/views/pp',
     '../tests/spec/views/reset_password',

@@ -104,7 +104,9 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
       assertionLibrary = new Assertion({
         fxaClient: fxaClient
       });
-      user = new User();
+      user = new User({
+        fxaClient: fxaClient
+      });
       formPrefill = new FormPrefill();
 
       view = new View({
@@ -148,25 +150,18 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
       it('redirects to confirm on success', function () {
         fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
 
-        sinon.stub(fxaClient, 'signUp', function () {
-          return p({});
+        sinon.stub(user, 'signUpAccount', function (account) {
+          return p(account);
         });
 
-        sinon.stub(fxaClient, 'signIn', function () {
-          return p({
-            sessionToken: 'asessiontoken',
-            verified: false
-          });
-        });
-
-        sinon.stub(user, 'setSignedInAccount', function () {
-          return p();
+        sinon.stub(broker, 'shouldPromptForPermissions', function () {
+          return false;
         });
 
         return view.submit()
           .then(function () {
-            assert.isTrue(fxaClient.signUp.calledWith(
-                email, 'password', relier));
+            assert.equal(user.signUpAccount.args[0][0].get('email'), email);
+            assert.equal(user.signUpAccount.args[0][0].get('password'), 'password');
             assert.equal(router.page, 'confirm');
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                               'oauth.signup.success'));
@@ -179,20 +174,49 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         relier.set('preVerifyToken', 'preverifytoken');
       });
 
-      it('notifies the broker when a pre-verified user signs up', function () {
-        sinon.stub(fxaClient, 'signUp', function () {
-          return p({
-            sessionToken: 'asessiontoken',
-            verified: true
-          });
-        });
+      it('redirects users to permissions page if relier needs permissions', function () {
+        var password = 'password';
+        fillOutSignUp(email, password, { year: nowYear - 14, context: view });
 
-        sinon.stub(user, 'setSignedInAccount', function () {
-          return p();
+        sinon.spy(user, 'initAccount');
+        sinon.spy(broker, 'beforeSignIn');
+
+        sinon.stub(user, 'signUpAccount', function (account) {
+          return p(account);
+        });
+        sinon.stub(broker, 'shouldPromptForPermissions', function () {
+          return true;
+        });
+        sinon.stub(view, 'navigate', function () { });
+
+        return view.submit()
+          .then(function () {
+            var account = user.initAccount.returnValues[0];
+
+            assert.equal(account.get('email'), email);
+            assert.isTrue(broker.beforeSignIn.calledWith(email));
+            assert.isTrue(user.signUpAccount.calledWith(account));
+            assert.isTrue(broker.shouldPromptForPermissions.calledWith(account));
+            assert.isTrue(view.navigate.calledWith('signup_permissions', {
+              data: {
+                account: account
+              }
+            }));
+          });
+      });
+
+      it('notifies the broker when a pre-verified user signs up', function () {
+        sinon.stub(user, 'signUpAccount', function (account) {
+          account.set('sessionToken', 'asessiontoken');
+          account.set('verified', true);
+          return p(account);
         });
 
         sinon.stub(broker, 'afterSignIn', function () {
           return p();
+        });
+        sinon.stub(broker, 'shouldPromptForPermissions', function () {
+          return false;
         });
 
         fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
@@ -200,6 +224,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         return view.submit()
           .then(function () {
             assert.isTrue(broker.afterSignIn.called);
+            assert.equal(broker.afterSignIn.args[0][0].get('email'), email);
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                               'oauth.signup.preverified'));
             assert.isTrue(TestHelpers.isEventLogged(metrics,
@@ -210,16 +235,13 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
       });
 
       it('redirects to /confirm if pre-verification is not successful', function () {
-        sinon.stub(fxaClient, 'signUp', function () {
-          return p({
-            sessionToken: 'asessiontoken',
-            // verified: false simulates the preVerifyToken failing.
-            verified: false
-          });
+        sinon.stub(user, 'signUpAccount', function (account) {
+          account.set('sessionToken', 'asessiontoken');
+          account.set('verified', false);
+          return p(account);
         });
-
-        sinon.stub(user, 'setSignedInAccount', function () {
-          return p();
+        sinon.stub(broker, 'shouldPromptForPermissions', function () {
+          return false;
         });
 
         var password = 'password';
@@ -227,8 +249,8 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         return view.submit()
           .then(function () {
             assert.equal(router.page, 'confirm');
-            assert.isTrue(fxaClient.signUp.calledWith(
-                email, password, relier));
+            assert.equal(user.signUpAccount.args[0][0].get('email'), email);
+            assert.equal(user.signUpAccount.args[0][0].get('password'), password);
           });
       });
     });

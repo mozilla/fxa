@@ -57,8 +57,10 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
         session: Session,
         window: windowMock
       });
-      user = new User();
       fxaClient = new FxaClient();
+      user = new User({
+        fxaClient: fxaClient
+      });
       metrics = new Metrics();
       profileClientMock = TestHelpers.stubbedProfileClient();
       formPrefill = new FormPrefill();
@@ -115,50 +117,31 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
 
     describe('submit', function () {
       it('notifies the broker when a verified user signs in', function () {
-        var password = 'password';
-
-        sinon.stub(view.fxaClient, 'signIn', function () {
-          return p({ verified: true });
+        sinon.spy(user, 'initAccount');
+        sinon.stub(user, 'signInAccount', function (account) {
+          account.set('verified', true);
+          return p(account);
         });
-
+        sinon.stub(broker, 'shouldPromptForPermissions', function () {
+          return false;
+        });
         sinon.stub(broker, 'afterSignIn', function () {
           return p();
         });
 
+        var password = 'password';
         $('.email').val(email);
         $('[type=password]').val(password);
+
         return view.submit()
           .then(function () {
+            var account = user.initAccount.returnValues[0];
+
+            assert.isTrue(user.signInAccount.calledWith(account));
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                               'oauth.signin.success'));
-            assert.isTrue(view.fxaClient.signIn.calledWith(
-                email, password, relier));
-            assert.isTrue(broker.afterSignIn.called);
-          });
-      });
-
-      it('sends an unverified user to the confirm screen', function () {
-        var password = 'password';
-
-        sinon.stub(view.fxaClient, 'signIn', function () {
-          return p({ verified: false });
-        });
-
-        sinon.stub(view, 'getAccount', function () {
-          return user.initAccount({ sessionToken: 'abc123' });
-        });
-
-        sinon.stub(view.fxaClient, 'signUpResend', function () {
-          return p();
-        });
-
-        $('.email').val(email);
-        $('[type=password]').val(password);
-        return view.submit()
-          .then(function () {
-            assert.isTrue(view.fxaClient.signIn.calledWith(
-                email, password, relier));
-            assert.equal(router.page, 'confirm');
+            assert.isTrue(broker.afterSignIn.calledWith(account));
+            assert.equal(router.page, 'settings');
           });
       });
     });

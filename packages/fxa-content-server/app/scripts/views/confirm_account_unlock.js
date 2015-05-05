@@ -69,7 +69,7 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
       // browsing directly to the page should not be allowed.
       var self = this;
       return p().then(function () {
-        if (self.getAccount().isEmpty()) {
+        if (self.getAccount().isDefault()) {
           self.navigate('signup');
           return false;
         }

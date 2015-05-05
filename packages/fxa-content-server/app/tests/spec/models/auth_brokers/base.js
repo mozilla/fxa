@@ -127,6 +127,12 @@ function (chai, sinon, Relier, BaseAuthenticationBroker, BaseView, WindowMock) {
           });
       });
     });
+
+    describe('shouldPromptForPermissions', function () {
+      it('returns `false`', function () {
+        assert.isFalse(broker.shouldPromptForPermissions());
+      });
+    });
   });
 });
 

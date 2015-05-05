@@ -34,7 +34,8 @@ define([
   'views/delete_account',
   'views/cookies_disabled',
   'views/clear_storage',
-  'views/unexpected_error'
+  'views/unexpected_error',
+  'views/permissions'
 ],
 function (
   _,
@@ -66,7 +67,8 @@ function (
   DeleteAccountView,
   CookiesDisabledView,
   ClearStorageView,
-  UnexpectedErrorView
+  UnexpectedErrorView,
+  PermissionsView
 ) {
 
   function showView(View, options) {
@@ -79,12 +81,14 @@ function (
     routes: {
       '(/)': 'redirectToSignupOrSettings',
       'signin(/)': showView(SignInView),
+      'signin_permissions(/)': showView(PermissionsView, { type: 'sign_in' }),
       'oauth(/)': 'redirectToBestOAuthChoice',
       'oauth/signin(/)': showView(SignInView),
       'oauth/signup(/)': showView(SignUpView),
       'oauth/force_auth(/)': showView(ForceAuthView),
       'signup(/)': showView(SignUpView),
       'signup_complete(/)': showView(ReadyView, { type: 'sign_up' }),
+      'signup_permissions(/)': showView(PermissionsView, { type: 'sign_up' }),
       'cannot_create_account(/)': showView(CannotCreateAccountView),
       'verify_email(/)': showView(CompleteSignUpView),
       'confirm(/)': showView(ConfirmView),
@@ -164,7 +168,7 @@ function (
       var account = this.user.getChooserAccount();
       var route = '/oauth/signin';
 
-      if (account.isEmpty()) {
+      if (account.isDefault()) {
         route = '/oauth/signup';
       }
 

@@ -52,8 +52,10 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
       metrics = new Metrics();
       relier = new Relier();
       broker = new Broker();
-      user = new User();
       fxaClient = new FxaClient();
+      user = new User({
+        fxaClient: fxaClient
+      });
       formPrefill = new FormPrefill();
 
       initView();
@@ -163,17 +165,51 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
     });
 
     describe('submit', function () {
-      it('redirects unverified users to the confirm page on success', function () {
+      it('redirects users to permissions page if relier needs permissions', function () {
+        sinon.spy(user, 'initAccount');
+        sinon.spy(broker, 'beforeSignIn');
         var sessionToken = 'abc123';
 
-        sinon.stub(view.fxaClient, 'signIn', function () {
-          return p({ verified: false, sessionToken: sessionToken });
+        sinon.stub(user, 'signInAccount', function (account) {
+          account.set('sessionToken', sessionToken);
+          return p(account);
         });
-        sinon.stub(view.fxaClient, 'signUpResend', function () {
-          return p();
+        sinon.stub(broker, 'shouldPromptForPermissions', function () {
+          return true;
         });
-        sinon.stub(user, 'setSignedInAccount', function () {
-          return p();
+        sinon.stub(view, 'navigate', function () { });
+
+        var password = 'password';
+        $('[type=email]').val(email);
+        $('[type=password]').val(password);
+
+        return view.submit()
+          .then(function () {
+            var account = user.initAccount.returnValues[0];
+
+            assert.equal(account.get('email'), email);
+            assert.equal(account.get('sessionToken'), sessionToken);
+            assert.isTrue(broker.beforeSignIn.calledWith(email));
+            assert.isTrue(user.signInAccount.calledWith(account, relier));
+            assert.isTrue(broker.shouldPromptForPermissions.calledWith(account));
+            assert.isTrue(view.navigate.calledWith('signin_permissions', {
+              data: {
+                account: account
+              }
+            }));
+          });
+      });
+
+      it('redirects unverified users to the confirm page on success', function () {
+        sinon.spy(user, 'initAccount');
+        sinon.spy(broker, 'beforeSignIn');
+
+        sinon.stub(user, 'signInAccount', function (account) {
+          account.set('verified', false);
+          return p(account);
+        });
+        sinon.stub(broker, 'shouldPromptForPermissions', function () {
+          return false;
         });
 
         var password = 'password';
@@ -182,34 +218,43 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
 
         return view.submit()
           .then(function () {
+            assert.isTrue(broker.beforeSignIn.calledWith(email));
+            assert.isTrue(user.signInAccount.calledWith(user.initAccount.returnValues[0], relier));
             assert.equal(routerMock.page, 'confirm');
-            assert.isTrue(user.setSignedInAccount.called);
-            assert.isTrue(view.fxaClient.signIn.calledWith(
-                email, password, relier));
-            assert.isTrue(view.fxaClient.signUpResend.calledWith(
-                relier, sessionToken));
           });
       });
 
       it('notifies the broker when a verified user signs in', function () {
-        sinon.stub(view.fxaClient, 'signIn', function () {
-          return p({
-            verified: true
-          });
+        sinon.spy(user, 'initAccount');
+        sinon.spy(broker, 'beforeSignIn');
+
+        sinon.stub(user, 'signInAccount', function (account) {
+          account.set('verified', true);
+          return p(account);
+        });
+        sinon.stub(broker, 'shouldPromptForPermissions', function () {
+          return false;
+        });
+        sinon.stub(broker, 'afterSignIn', function () {
+          return p();
         });
 
         var password = 'password';
         $('[type=email]').val(email);
         $('[type=password]').val(password);
-        sinon.stub(broker, 'afterSignIn', function () {
-          return p();
-        });
 
         return view.submit()
           .then(function () {
+            var account = user.initAccount.returnValues[0];
+
+            assert.isTrue(broker.beforeSignIn.calledWith(email));
+            assert.isTrue(user.signInAccount.calledWith(account, relier));
+
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                               'signin.success'));
-            assert.isTrue(broker.afterSignIn.calledWith());
+            assert.isTrue(broker.afterSignIn.calledWith(account));
+
+            assert.equal(routerMock.page, 'settings');
           });
       });
 
@@ -357,17 +402,14 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           return account;
         });
 
-        view.fxaClient.recoveryEmailStatus = function () {
-          return p({ verified: true });
-        };
-
-        sinon.stub(user, 'setSignedInAccount', function () {
-          return p();
+        sinon.stub(user, 'signInAccount', function (account) {
+          account.set('verified', true);
+          return p(account);
         });
 
         return view.useLoggedInAccount()
           .then(function () {
-            assert.isTrue(user.setSignedInAccount.calledWith(account));
+            assert.isTrue(user.signInAccount.calledWith(account));
             assert.equal(view.$('.error').text(), '');
             assert.notOk(view._isErrorVisible);
           });
@@ -403,26 +445,26 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
 
     describe('_suggestedAccount', function () {
       it('can suggest the user based on session variables', function () {
-        assert.isTrue(view._suggestedAccount().isEmpty(), 'null when no account set');
+        assert.isTrue(view._suggestedAccount().isDefault(), 'null when no account set');
 
         sinon.stub(user, 'getChooserAccount', function () {
           return user.initAccount({ sessionToken: 'abc123' });
         });
-        assert.isTrue(view._suggestedAccount().isEmpty(), 'null when no email set');
+        assert.isTrue(view._suggestedAccount().isDefault(), 'null when no email set');
 
 
         user.getChooserAccount.restore();
         sinon.stub(user, 'getChooserAccount', function () {
           return user.initAccount({ email: 'a@a.com' });
         });
-        assert.isTrue(view._suggestedAccount().isEmpty(), 'null when no session token set');
+        assert.isTrue(view._suggestedAccount().isDefault(), 'null when no session token set');
 
         user.getChooserAccount.restore();
         formPrefill.set('email', 'a@a.com');
         sinon.stub(user, 'getChooserAccount', function () {
           return user.initAccount({ sessionToken: 'abc123', email: 'b@b.com' });
         });
-        assert.isTrue(view._suggestedAccount().isEmpty(), 'null when prefill does not match');
+        assert.isTrue(view._suggestedAccount().isDefault(), 'null when prefill does not match');
 
         delete view.prefillEmail;
         user.getChooserAccount.restore();

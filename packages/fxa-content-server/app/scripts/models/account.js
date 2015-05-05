@@ -27,7 +27,8 @@ define([
     verified: undefined,
     profileImageUrl: undefined,
     profileImageId: undefined,
-    lastLogin: undefined
+    lastLogin: undefined,
+    grantedPermissions: undefined
   };
 
   var DEFAULTS = _.extend({
@@ -49,7 +50,9 @@ define([
 
       if (options.accountData) {
         ALLOWED_KEYS.forEach(function (key) {
-          self.set(key, options.accountData[key]);
+          if (typeof options.accountData[key] !== 'undefined') {
+            self.set(key, options.accountData[key]);
+          }
         });
       }
 
@@ -106,11 +109,11 @@ define([
       return this.get('sessionTokenContext') === Constants.FX_DESKTOP_CONTEXT;
     },
 
-    // returns true if all attributes within ALLOWED_KEYS are undefined
-    isEmpty: function () {
+    // returns true if all attributes within ALLOWED_KEYS are defaults
+    isDefault: function () {
       var self = this;
       return ! _.find(ALLOWED_KEYS, function (key) {
-        return typeof self.get(key) !== 'undefined';
+        return self.get(key) !== DEFAULTS[key];
       });
     },
 
@@ -174,6 +177,62 @@ define([
         .then(function () {
           return profileImage;
         });
+    },
+
+    signIn: function (relier) {
+      var self = this;
+      return p().then(function () {
+        var password = self.get('password');
+        var sessionToken = self.get('sessionToken');
+        var email = self.get('email');
+
+        if (password) {
+          return self._fxaClient.signIn(email, password, relier);
+        } else if (sessionToken) {
+          // We have a cached Sync session so just check that it hasn't expired.
+          // The result includes the latest verified state
+          return self._fxaClient.recoveryEmailStatus(sessionToken);
+        } else {
+          throw AuthErrors.toError('UNEXPECTED_ERROR');
+        }
+      })
+      .then(function (updatedSessionData) {
+        self.set(updatedSessionData);
+
+        if (! self.get('verified')) {
+          return self._fxaClient.signUpResend(relier, self.get('sessionToken'));
+        }
+      });
+    },
+
+    signUp: function (relier) {
+      var self = this;
+      return self._fxaClient.signUp(self.get('email'), self.get('password'), relier,
+        {
+          customizeSync: self.get('customizeSync')
+        })
+        .then(function (updatedSessionData) {
+          self.set(updatedSessionData);
+        });
+    },
+
+    saveGrantedPermissions: function (clientId, clientPermissions) {
+      var permissions = this.get('grantedPermissions') || {};
+      permissions[clientId] = clientPermissions;
+      this.set('grantedPermissions', permissions);
+    },
+
+    hasGrantedPermissions: function (clientId, scope) {
+      if (! scope) {
+        return true;
+      }
+      return this.ungrantedPermissions(clientId, scope).length === 0;
+    },
+
+    ungrantedPermissions: function (clientId, clientPermissions) {
+      var permissions = this.get('grantedPermissions') || {};
+      var clientGrantedPermissions = permissions[clientId] || [];
+      return _.difference(clientPermissions, clientGrantedPermissions);
     }
   });
 
