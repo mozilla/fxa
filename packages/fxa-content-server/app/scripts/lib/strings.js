@@ -18,7 +18,10 @@ function () {
   // Should be removed in favor of #992 and #993 when implemented
   t('Subscribe to Firefox news and tips');
 
+  // These can be removed with PR #2382 -
+  // the updated spring campaign snippet.
   t('Sign up to learn more');
+  t('Firefox is coming soon to iOS!');
 
   /**
    * Replace instances of %s and %(name)s with their corresponding values in
