@@ -23,6 +23,12 @@ function () {
   t('Sign up to learn more');
   t('Firefox is coming soon to iOS!');
 
+  // Strings for the permission screen. Remove when PR #2346 lands.
+  t('%(serviceName)s would like to know…');
+  t('By proceeding, I agree to the <a id="service-tos" href="%(termsUri)s">Terms of Service</a> and' +
+    '<a id="service-pp" href="%(privacyUri)s">Privacy Notice</a> of %(serviceName)s (%(serviceUri)s).');
+  t('Proceed');
+
   /**
    * Replace instances of %s and %(name)s with their corresponding values in
    * the context
