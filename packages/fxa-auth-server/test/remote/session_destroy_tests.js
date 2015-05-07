@@ -22,7 +22,7 @@ TestServer.start(config)
         .then(
           function (x) {
             client = x
-            return client.devices()
+            return client.sessionStatus()
           }
         )
         .then(
@@ -35,12 +35,12 @@ TestServer.start(config)
           function () {
             t.equal(client.sessionToken, null, 'session token deleted')
             client.sessionToken = sessionToken
-            return client.devices()
+            return client.sessionStatus()
           }
         )
         .then(
-          function (devices) {
-            t.fail('got devices with destroyed session')
+          function (status) {
+            t.fail('got status with destroyed session')
           },
           function (err) {
             t.equal(err.errno, 110, 'session is invalid')

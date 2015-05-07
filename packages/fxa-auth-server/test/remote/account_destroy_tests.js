@@ -21,11 +21,11 @@ TestServer.start(config)
         .then(
           function (x) {
             client = x
-            return client.devices()
+            return client.sessionStatus()
           }
         )
         .then(
-          function (devices) {
+          function (status) {
             return client.destroyAccount()
           }
         )

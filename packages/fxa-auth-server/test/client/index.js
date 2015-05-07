@@ -22,7 +22,6 @@ function Client(origin) {
   this.passwordForgotToken = null
   this.kA = null
   this.wrapKb = null
-  this._devices = null
   this.options = {}
 }
 
@@ -134,7 +133,6 @@ Client.prototype._clear = function () {
   this.passwordForgotToken = null
   this.kA = null
   this.wrapKb = null
-  this._devices = null
 }
 
 Client.prototype.stringify = function () {
@@ -268,17 +266,11 @@ Client.prototype.keys = function () {
     )
 }
 
-Client.prototype.devices = function () {
+Client.prototype.sessionStatus = function () {
   var o = this.sessionToken ? P(null) : this.login()
   return o.then(
       function () {
-        return this.api.accountDevices(this.sessionToken)
-      }.bind(this)
-    )
-    .then(
-      function (json) {
-        this._devices = json.devices
-        return this._devices
+        return this.api.sessionStatus(this.sessionToken)
       }.bind(this)
     )
 }

@@ -230,11 +230,6 @@ module.exports = function (
       )
   }
 
-  DB.prototype.accountDevices = function (uid) {
-    log.trace({ op: 'DB.accountDevices', uid: uid })
-    return this.pool.get('/account/' + uid.toString('hex') + '/devices')
-  }
-
   DB.prototype.sessionToken = function (id) {
     log.trace({ op: 'DB.sessionToken', id: id })
     return this.pool.get('/sessionToken/' + id.toString('hex'))
