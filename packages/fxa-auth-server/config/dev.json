@@ -15,6 +15,15 @@
       "canGrant": false
     },
     {
+      "id": "325b4083e32fe8e7",
+      "hashedSecret": "ded3c396f28123f3fe6b152784e8eab7357c6806cb5175805602a2cd67f85080",
+      "name": "321Done Untrusted",
+      "imageUri": "https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png",
+      "redirectUri": "http://127.0.0.1:10139/api/oauth",
+      "trusted": false,
+      "canGrant": false
+    },
+    {
       "id": "98e6508e88680e1a",
       "hashedSecret": "ba5cfb370fd782f7eae1807443ab816288c101a54c0d80a09063273c86d3c435",
       "name": "Admin",
