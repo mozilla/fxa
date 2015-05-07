@@ -257,6 +257,19 @@ define([
           .execute(function (verificationLink, windowName) {
             var newWindow = window.open(verificationLink, windowName);
 
+            // Hook up the new window to listen for WebChannel messages.
+            // XXX TODO: this is pretty gross to do universally like this...
+            // XXX TODO: it will go away if we can make the original tab
+            //           reliably be the one to complete the oauth flow.
+            newWindow.addEventListener('WebChannelMessageToChrome', function (e) {
+              var command = e.detail.message.command;
+              var data = e.detail.message.data;
+              var element = newWindow.document.createElement('div');
+              element.setAttribute('id', 'message-' + command.replace(/:/g, '-'));
+              element.innerText = JSON.stringify(data);
+              newWindow.document.body.appendChild(element);
+            });
+
             // from http://dev.w3.org/html5/webstorage/
             // When a new top-level browsing context is created by a script in
             // an existing browsing context, then the session storage area of

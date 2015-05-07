@@ -112,6 +112,7 @@ define([
           //jshint camelcase: false
           client_id: relier.get('clientId'),
           state: relier.get('state'),
+          keys: relier.get('keys'),
           scope: relier.get('scope'),
           action: relier.get('action')
         });

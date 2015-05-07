@@ -117,6 +117,7 @@ define([
 
       self.set({
         state: resumeObj.state,
+        keys: resumeObj.keys,
         //jshint camelcase: false
         clientId: resumeObj.client_id,
         redirectUri: resumeObj.redirect_uri,
