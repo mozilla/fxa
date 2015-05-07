@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2015-04-24 00:11+0000\n"
+"POT-Creation-Date: 2015-05-07 16:09+0000\n"
 
 #: app/scripts/templates/partial/coppa-date-picker.mustache:4
 msgid "1991"
@@ -324,8 +324,8 @@ msgstr ""
 msgid "Verification link damaged"
 msgstr ""
 
-#: app/scripts/lib/mailcheck.js:63
-msgid "Did you mean <span>%(domain)s</span>?"
+#: app/scripts/lib/mailcheck.js:66
+msgid "Did you mean <span tabindex=\"1\">%(domain)s</span>?"
 msgstr ""
 
 #: app/scripts/lib/oauth-errors.js:21
@@ -368,20 +368,20 @@ msgstr ""
 msgid "Subscribe to Firefox news and tips"
 msgstr ""
 
-#: app/scripts/lib/strings.js:23
-msgid "Get the full Sync experience."
+#: app/scripts/lib/strings.js:22
+msgid "%(serviceName)s would like to know…"
 msgstr ""
 
-#: app/scripts/lib/strings.js:24
-msgid "Download Firefox for iOS."
+#: app/scripts/lib/strings.js:23
+msgid ""
+"By proceeding, I agree to the <a id=\"service-tos\" "
+"href=\"%(termsUri)s\">Terms of Service</a> and<a id=\"service-pp\" "
+"href=\"%(privacyUri)s\">Privacy Notice</a> of %(serviceName)s "
+"(%(serviceUri)s)."
 msgstr ""
 
 #: app/scripts/lib/strings.js:25
-msgid "Download Firefox for Android."
-msgstr ""
-
-#: app/scripts/lib/strings.js:26
-msgid "Download Firefox for your mobile devices."
+msgid "Proceed"
 msgstr ""
 
 #: app/scripts/templates/cannot_create_account.mustache:1
@@ -645,6 +645,32 @@ msgstr ""
 
 #: app/scripts/templates/marketing_snippet.mustache:2
 msgid "Get Firefox for Android"
+msgstr ""
+
+#: app/scripts/templates/marketing_snippet_ios.mustache:1
+#: app/scripts/templates/marketing_snippet_ios.mustache:5
+#: app/scripts/templates/marketing_snippet_ios.mustache:9
+msgid "Get the full Sync experience."
+msgstr ""
+
+#: app/scripts/templates/marketing_snippet_ios.mustache:2
+#: app/scripts/templates/marketing_snippet_ios.mustache:12
+msgid "Firefox is coming soon to iOS!"
+msgstr ""
+
+#: app/scripts/templates/marketing_snippet_ios.mustache:3
+#: app/scripts/templates/marketing_snippet_ios.mustache:13
+msgid "Sign up to learn more"
+msgstr ""
+
+#: app/scripts/templates/marketing_snippet_ios.mustache:6
+#: app/scripts/templates/marketing_snippet_ios.mustache:7
+#: app/scripts/templates/marketing_snippet_ios.mustache:11
+msgid "Download Firefox for Android."
+msgstr ""
+
+#: app/scripts/templates/marketing_snippet_ios.mustache:10
+msgid "Download Firefox for mobile devices."
 msgstr ""
 
 #: app/scripts/templates/ready.mustache:1
