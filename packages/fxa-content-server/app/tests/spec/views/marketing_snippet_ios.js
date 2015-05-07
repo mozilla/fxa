@@ -101,8 +101,8 @@ function (chai, sinon, View, Able, Metrics, WindowMock) {
 
         return view.render()
             .then(function () {
-              // de.svg for app store and de.png for play store
-              assert.equal(view.$('img[src*="/de."]').length, 2);
+              // de.png for play store
+              assert.equal(view.$('img[src*="/de."]').length, 1);
             });
       });
 
@@ -113,8 +113,8 @@ function (chai, sinon, View, Able, Metrics, WindowMock) {
 
         return view.render()
             .then(function () {
-              // en.svg for app store and en.png for play store
-              assert.equal(view.$('img[src*="/en."]').length, 2);
+              // en.png for play store
+              assert.equal(view.$('img[src*="/en."]').length, 1);
             });
       });
 

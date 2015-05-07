@@ -64,15 +64,11 @@ function (Cocktail, BaseView, Template, Session, Xss, Strings,
         service: this.relier.get('service'),
         language: this.language,
         el: this.$('.marketing-area'),
-        metrics: this.metrics,
-        able: this._able
+        metrics: this.metrics
       };
 
-      // fallback in case experiment has not concluded
-      var fxIos = this._able.choose('fxIos') || {};
-
-      // Fx iOS scheduled to launch 6/2
-      if (fxIos.launched) {
+      // spring campaign scheduled to launch 6/2
+      if (this._able.choose('springCampaign2015')) {
         marketingSnippet = new MarketingSnippetiOS(marketingSnippetOpts);
       } else {
         marketingSnippet = new MarketingSnippet(marketingSnippetOpts);

@@ -18,16 +18,16 @@
     }
   }
 
-  @include respond-to('small') {
-    font-size: $base-font;
-    margin: 20px -20px -20px;
-    padding: 20px;
-    text-align: center;
-  }
-
   @include respond-to('big') {
     margin: 60px -40px -40px -40px;
     padding: 20px 20px 30px;
+    text-align: center;
+  }
+
+  @include respond-to('small') {
+    font-size: $base-font;
+    margin: 20px -20px -20px;
+    padding: 15px 50px 20px 50px;
     text-align: center;
   }
 
