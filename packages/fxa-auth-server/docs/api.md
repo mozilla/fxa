@@ -283,7 +283,7 @@ content-server page.
 - `state`: A value that will be returned to the client as-is upon redirection, so that clients can verify the redirect is authentic.
 - `redirect_uri`: Optional. If supplied, a string URL of where to redirect afterwards. Must match URL from registration.
 - `scope`: Optional. A space-separated list of scopes that the user has authorized. This could be pruned by the user at the confirmation dialog.
-- `action`: Optional. If provided, should be `signup`, `signin`, or `force_auth`. Send to improve the user experience, based on whether they clicked on a Sign In or Sign Up button. `force_auth` requires the user to sign in using the address specified in `email`. `signin` is the default.
+- `action`: Optional. If provided, should be `signup`, `signin`, or `force_auth`. Send to improve the user experience, based on whether they clicked on a Sign In or Sign Up button. `force_auth` requires the user to sign in using the address specified in `email`. If unspecified then Firefox Accounts will try choose intelligently between `signin` and `signup` based on the user's browser state.
 - `email`: Optional if `action` is `signup` or `signin`. Required if `action`
   is `force_auth`.
   - If `action` is `signup` or `signin`, the email address will be pre-filled into the account form, but the user is free to change it.
