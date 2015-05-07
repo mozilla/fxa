@@ -27,6 +27,7 @@ function (chai, sinon, View, Session, FxaClient, p, Able, FxDesktopRelier,
     var fxaClient;
     var relier;
     var broker;
+    var able;
 
     function createView() {
       windowMock = new WindowMock();
@@ -40,12 +41,13 @@ function (chai, sinon, View, Session, FxaClient, p, Able, FxDesktopRelier,
       });
       fxaClient = new FxaClient();
 
+      able = new Able();
       view = new View({
         window: windowMock,
         fxaClient: fxaClient,
         relier: relier,
         broker: broker,
-        able: new Able()
+        able: able
       });
     }
 
@@ -72,27 +74,27 @@ function (chai, sinon, View, Session, FxaClient, p, Able, FxDesktopRelier,
       it('renders with correct header for sign_up type', function () {
         view.type = 'sign_up';
         return view.render()
-            .then(function () {
-              assert.ok(view.$('#fxa-sign-up-complete-header').length);
-            });
+          .then(function () {
+            assert.ok(view.$('#fxa-sign-up-complete-header').length);
+          });
       });
 
       it('renders with correct header for account_unlock type', function () {
         view.type = 'account_unlock';
         return view.render()
-            .then(function () {
-              assert.ok(view.$('#fxa-account-unlock-complete-header').length);
-            });
+          .then(function () {
+            assert.ok(view.$('#fxa-account-unlock-complete-header').length);
+          });
       });
 
       it('shows service name if available', function () {
         relier.set('serviceName', 'Firefox Sync');
 
         return view.render()
-            .then(function () {
-              var html = view.$('section').text();
-              assert.include(html, 'Firefox Sync');
-            });
+          .then(function () {
+            var html = view.$('section').text();
+            assert.include(html, 'Firefox Sync');
+          });
       });
 
       // regression test for #1216
@@ -104,9 +106,9 @@ function (chai, sinon, View, Session, FxaClient, p, Able, FxDesktopRelier,
         };
 
         return view.render()
-            .then(function () {
-              assert.ok(view.$('.account-ready-generic').length);
-            });
+          .then(function () {
+            assert.ok(view.$('.account-ready-generic').length);
+          });
       });
 
       it('shows some form of marketing for english speakers', function () {
@@ -115,9 +117,24 @@ function (chai, sinon, View, Session, FxaClient, p, Able, FxDesktopRelier,
         relier.set('service', 'sync');
 
         return view.render()
-            .then(function () {
-              assert.equal(view.$('.marketing').length, 1);
-            });
+          .then(function () {
+            assert.equal(view.$('.marketing').length, 1);
+          });
+      });
+
+      it('shows the spring 2015 snippet if the campaign has started', function () {
+        sinon.stub(able, 'choose', function () {
+          return true;
+        });
+
+        view.type = 'sign_up';
+        relier.set('service', 'sync');
+
+        return view.render()
+          .then(function () {
+            assert.isTrue(able.choose.calledWith('springCampaign2015'));
+            assert.ok(view.$('.os-general').length);
+          });
       });
     });
   });
