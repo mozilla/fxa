@@ -288,39 +288,6 @@ DB.connect(config[config.db.backend])
       )
 
       test(
-        'db.accountDevices',
-        function (t) {
-          return db.emailRecord(ACCOUNT.email)
-          .then(function(emailRecord) {
-            return db.createSessionToken(emailRecord)
-          })
-          .then(function(sessionToken) {
-            return db.createSessionToken(sessionToken)
-          })
-          .then(function(sessionToken) {
-            return db.accountDevices(ACCOUNT.uid)
-          })
-          .then(function(devices) {
-            t.equal(devices.length, 2, 'Account devices should be two')
-            return devices[0]
-          })
-          .then(function(sessionToken) {
-            return db.deleteSessionToken(sessionToken)
-          })
-          .then(function(sessionToken) {
-            return db.accountDevices(ACCOUNT.uid)
-          })
-          .then(function(devices) {
-            t.equal(devices.length, 1)
-            return devices[0]
-          })
-          .then(function(sessionToken) {
-            return db.deleteSessionToken(sessionToken)
-          })
-        }
-      )
-
-      test(
         'db.resetAccount',
         function (t) {
           return db.emailRecord(ACCOUNT.email)
@@ -332,12 +299,6 @@ DB.connect(config[config.db.backend])
           })
           .then(function(accountResetToken) {
             return db.resetAccount(accountResetToken, ACCOUNT)
-          })
-          .then(function(sessionToken) {
-            return db.accountDevices(ACCOUNT.uid)
-          })
-          .then(function(devices) {
-            t.equal(devices.length, 0, 'The devices length should be zero')
           })
           .then(function() {
             // account should STILL exist for this email address

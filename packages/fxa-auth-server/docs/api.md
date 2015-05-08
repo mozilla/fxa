@@ -107,7 +107,6 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
 * Account
     * [POST /v1/account/create](#post-v1accountcreate)
     * [GET  /v1/account/status](#get-v1accountstatus)
-    * [GET  /v1/account/devices (:lock: sessionToken)](#get-v1accountdevices)
     * [GET  /v1/account/keys (:lock: keyFetchToken) (verf-required)](#get-v1accountkeys)
     * [POST /v1/account/reset (:lock: accountResetToken)](#post-v1accountreset)
     * [POST /v1/account/destroy](#post-v1accountdestroy)
@@ -314,55 +313,6 @@ Failing requests may be due to the following errors:
 * status code 413, errno 113:  request body too large
 * status code 400, errno 120:  incorrect email case
 * status code 400, errno 121:  account is locked
-
-
-## GET /v1/account/devices
-
-:lock: HAWK-authenticated with sessionToken
-
-Gets the collection of devices currently authenticated and syncing for the user.
-
-This is intentionally vague for now, and will be figured out soon.
-
-Devices describe themselves to the server with arguments to `/v1/session/create`, which returns a distinct sessionToken for each one. This status API is expected to use that information.
-
-___Headers___
-
-The request must include a Hawk header that authenticates the request using a `sessionToken` received from `/v1/account/login`.
-
-### Request
-
-```sh
-curl -v \
--X GET \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://api-accounts.dev.lcip.org/v1/account/devices \
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with the device details provided in the JSON body:
-
-```json
-{
-  "devices": [
-    {
-      "id": "4c352927-cd4f-4a4a-a03d-7d1893d950b8",
-      "type": "computer",
-      "name": "Foxy's Macbook"
-    }
-  ]
-}
-```
-
-Failing requests may be due to the following errors:
-
-* status code 401, errno 109:  invalid request signature
-* status code 401, errno 110:  invalid authentication token
-* status code 401, errno 111:  invalid authentication timestamp
-* status code 401, errno 115:  invalid authentication nonce
 
 
 ## GET /v1/account/keys

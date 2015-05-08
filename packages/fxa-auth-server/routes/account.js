@@ -96,7 +96,6 @@ module.exports = function (
                       emailVerified: form.preVerified || preverified,
                       kA: crypto.randomBytes(32),
                       wrapWrapKb: crypto.randomBytes(32),
-                      devices: {},
                       accountResetToken: null,
                       passwordForgotToken: null,
                       authSalt: authSalt,
@@ -294,35 +293,6 @@ module.exports = function (
                     : undefined,
                   verified: tokens.sessionToken.emailVerified,
                   authAt: tokens.sessionToken.lastAuthAt()
-                }
-              )
-            },
-            reply
-          )
-      }
-    },
-    {
-      method: 'GET',
-      path: '/account/devices',
-      config: {
-        auth: {
-          strategy: 'sessionToken'
-        },
-        response: {
-          schema: {
-            devices: isA.array()
-          }
-        }
-      },
-      handler: function (request, reply) {
-        log.begin('Account.devices', request)
-        var sessionToken = request.auth.credentials
-        db.accountDevices(sessionToken.uid)
-          .done(
-            function (devices) {
-              reply(
-                {
-                  devices: Object.keys(devices)
                 }
               )
             },

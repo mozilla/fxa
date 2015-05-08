@@ -125,19 +125,6 @@ ClientApi.prototype.accountLogin = function (email, authPW, opts) {
   )
 }
 
-ClientApi.prototype.accountDevices = function (sessionTokenHex) {
-  return tokens.SessionToken.fromHex(sessionTokenHex)
-    .then(
-      function (token) {
-        return this.doRequest(
-          'GET',
-          this.baseURL + '/account/devices',
-          token
-        )
-      }.bind(this)
-    )
-}
-
 ClientApi.prototype.accountKeys = function (keyFetchTokenHex) {
   return tokens.KeyFetchToken.fromHex(keyFetchTokenHex)
     .then(
