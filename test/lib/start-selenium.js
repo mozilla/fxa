@@ -1,5 +1,4 @@
 var selenium = require('selenium-standalone');
-var isUp = require('is-up');
 var chalk = require('chalk');
 
 module.exports = function (cb) {
