@@ -9,9 +9,10 @@ curl 127.0.0.1:9010
 curl 127.0.0.1:9011
 curl 127.0.0.1:10137
 
-# 123done
+# 123done and 321done untrusted apps
 curl 127.0.0.1:8080
-  
+curl 127.0.0.1:10139
+
 # profile server
 curl 127.0.0.1:1111
 curl 127.0.0.1:1112
