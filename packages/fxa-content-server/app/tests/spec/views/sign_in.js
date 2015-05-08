@@ -474,6 +474,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           .then(function () {
             assert.notOk(view.$('.password').length, 'should not show password input');
             assert.ok(view.$('.avatar-view img').length, 'should show suggested avatar');
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'signin.ask-password.skipped'));
           });
       });
 
@@ -493,8 +494,9 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
 
         return view.render()
           .then(function () {
-            assert.equal(view.$('.email')[0].type, 'email', 'should show email input');
+            assert.equal(view.$('.email').attr('type'), 'email', 'should show email input');
             assert.ok(view.$('.password').length, 'should show password input');
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'signin.ask-password.shown.account-unknown'));
           });
       });
 
@@ -519,6 +521,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           .then(function () {
             assert.equal(view.$('input[type=email]').length, 1, 'should show email input');
             assert.equal(view.$('input[type=password]').length, 1, 'should show password input');
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'signin.ask-password.shown.account-unknown'));
           });
       });
     });
@@ -544,8 +547,9 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
 
         return view.render()
           .then(function () {
-            assert.equal($('.email')[0].type, 'hidden', 'should not show email input');
+            assert.equal($('.email').attr('type'), 'hidden', 'should not show email input');
             assert.ok($('.password').length, 'should show password input');
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'signin.ask-password.shown.keys-required'));
           });
       });
 
@@ -570,8 +574,9 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
 
         return view.render()
           .then(function () {
-            assert.equal($('.email')[0].type, 'hidden', 'should not show email input');
+            assert.equal($('.email').attr('type'), 'hidden', 'should not show email input');
             assert.ok($('.password').length, 'should show password input');
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'signin.ask-password.shown.keys-required'));
           });
       });
 
@@ -593,7 +598,81 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
         return view.render()
           .then(function () {
             assert.ok($('.avatar-view').length, 'should show suggested avatar');
-            assert.notOk($('.password').length, 'should show password input');
+            assert.notOk($('.password').length, 'should not show password input');
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'signin.ask-password.skipped'));
+          });
+      });
+
+      it('asks for the password if the stored session is not from sync', function () {
+        var account = user.initAccount({
+          sessionToken: 'abc123',
+          email: 'a@a.com',
+          verified: true,
+          accessToken: 'foo'
+        });
+
+        sinon.stub(view, 'getAccount', function () {
+          return account;
+        });
+
+        relier.set('service', 'loop');
+
+        return view.render()
+          .then(function () {
+            assert.equal($('.email').attr('type'), 'hidden', 'should not show email input');
+            assert.ok($('.password').length, 'should show password input');
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'signin.ask-password.shown.session-from-web'));
+          });
+      });
+
+      it('asks for the password if the prefill email is different', function () {
+        var account = user.initAccount({
+          sessionToken: 'abc123',
+          email: 'a@a.com',
+          verified: true,
+          sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
+          accessToken: 'foo'
+        });
+
+        sinon.stub(view, 'getAccount', function () {
+          return account;
+        });
+
+        sinon.stub(view, 'getPrefillEmail', function () {
+          return 'b@b.com';
+        });
+
+        relier.set('service', 'loop');
+
+        return view.render()
+          .then(function () {
+            assert.equal($('.email').attr('type'), 'hidden', 'should not show email input');
+            assert.ok($('.password').length, 'should show password input');
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'signin.ask-password.shown.email-mismatch'));
+          });
+      });
+
+      it('asks for the password when re-rendered due to an expired session', function () {
+        var account = user.initAccount({
+          sessionToken: 'abc123',
+          email: 'a@a.com',
+          sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
+          verified: true,
+          accessToken: 'foo'
+        });
+
+        sinon.stub(view, 'getAccount', function () {
+          return account;
+        });
+
+        relier.set('service', 'loop');
+
+        view.chooserAskForPassword = true;
+        return view.render()
+          .then(function () {
+            assert.equal($('.email').attr('type'), 'hidden', 'should not show email input');
+            assert.ok($('.password').length, 'should show password input');
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'signin.ask-password.shown.session-expired'));
           });
       });
     });
