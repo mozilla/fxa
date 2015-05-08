@@ -6,9 +6,6 @@ var chalk = require('chalk');
 
 var profile = require('./profile');
 
-var bunyan = require('bunyan');
-var log = bunyan.createLogger({name: "firefox"});
-
 selenium.install({
   // check for more recent versions of selenium here:
   // http://selenium-release.storage.googleapis.com/index.html
@@ -74,9 +71,9 @@ var tailLogs = function() {
     console.log('ERROR: ', error);
   });
 
-}
+};
 
 
 var w = function(s) {
   console.log(s);
-}
+};
