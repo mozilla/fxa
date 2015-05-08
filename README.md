@@ -9,7 +9,7 @@
 git clone https://github.com/vladikoff/fxa-local-dev.git && cd fxa-local-dev && npm i
 ``` 
 
-After installation completes you can visit [127.0.0.1:3030](http://127.0.0.1:3030/) and use the [PM2 tool](https://github.com/Unitech/PM2#main-features) to start, stop and read server logs.  Most common commands are as follows:
+After installation completes visit [127.0.0.1:3030](http://127.0.0.1:3030/). Use the [PM2 tool](https://github.com/Unitech/PM2#main-features) to start, stop and read server logs.  Most common commands are as follows:
 
 - `./pm2 start servers.json` **- start all servers.** 
 - ^ (WARNING: running the above command multiple times will spawn more of the same servers).
@@ -17,19 +17,37 @@ After installation completes you can visit [127.0.0.1:3030](http://127.0.0.1:303
 - `./pm2 status` - display running servers. 
 - `./pm2 logs` - logs for all servers (note: this must be used to verify accounts).
 - `./pm2 logs 1` - display logs for process `1`.
+- `./pm2 stop 1` - stop process `1`.
+- `./pm2 restart 1` - restart process `1`.
 - More commands on the [PM2 Readme](https://github.com/Unitech/PM2#main-features).
 
-**Use `npm run update` to fetch the latest changes on the `master` branch.**
+**Use `npm run update` to [fetch the latest changes](_scripts/update_all.sh) to servers**
 
-**Use `npm start` to start Firefox with local sync configurations.**
+*******
+
+### Firefox Custom Profile 
+
+**Use `npm start` to start Firefox with local server configurations.**
 Available options:
 
 * `FXA_ENV=local` or `latest` or `stable` (NOTE: `local` is default).
 * `FIREFOX_BIN=/Applications/FirefoxNightly.app/Contents/MacOS/firefox-bin npm start`
 
-### Workflow
+*******
 
-This is an example workflow for **fxa-local-dev**. After installing **fxa-local-dev** the servers should automatically start up. Use `./pm2 status` command to check the status of the servers: 
+### Functional Tests
+> The following requires [Java](https://www.java.com/en/download/).
+
+**Use `npm test` - all functional tests**
+
+**Use `npm run test-oauth` - only OAuth functional tests**
+
+*******
+
+### Workflow
+> This is an example workflow for **fxa-local-dev**.
+
+After installing **fxa-local-dev** the servers should automatically start up. Use `./pm2 status` command to check the status of the servers: 
 
 ![](http://i.imgur.com/eqL8FiZ.png)
 
@@ -42,8 +60,10 @@ Use the `./pm2 logs` command to get the logs of all servers. You may also use `.
 
 If you get an `error` status for any of the servers please verify that you installed all required dependencies. Otherwise file an issue on this repository.  
 
-### Dependencies
+*******
 
+### Dependencies
+> Required dependencies: 
 [Git](http://git-scm.com/book/en/v2/Getting-Started-Installing-Git), 
 [node.js](http://nodejs.org/), 
 [Python 2.6+](https://www.python.org/), 
@@ -51,11 +71,11 @@ If you get an `error` status for any of the servers please verify that you insta
 [libgmp](https://gmplib.org/),
 [graphicsmagick](http://www.graphicsmagick.org/).
 
-#### OSX (with [Brew](http://brew.sh/)): 
+#### OS X (with [Brew](http://brew.sh/)): 
 ##### `brew install gmp redis graphicsmagick`
 ##### `sudo easy_install pip && sudo pip install virtualenv` 
 
-(You might also need to run `xcode-select --install` to get OS X Command Line Tools)
+> You might also need to run `xcode-select --install` to get OS X Command Line Tools
 
 #### Ubuntu: 
 ```
