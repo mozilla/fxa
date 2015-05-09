@@ -14,7 +14,7 @@ function (chai, NullChannel) {
   describe('lib/channel/null', function () {
     beforeEach(function () {
       channel = new NullChannel();
-      channel.init();
+      channel.initialize();
     });
 
     describe('send', function () {

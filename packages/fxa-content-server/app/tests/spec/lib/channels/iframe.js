@@ -31,7 +31,7 @@ function (chai, sinon, IFrameChannel, AuthErrors, Metrics,
       metrics = new Metrics();
 
       channel = new IFrameChannel();
-      return channel.init({
+      return channel.initialize({
         window: windowMock,
         origin: 'https://trusted-parent.org',
         metrics: metrics

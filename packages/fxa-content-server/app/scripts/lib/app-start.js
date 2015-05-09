@@ -244,7 +244,7 @@ function (
     initializeIframeChannel: function () {
       if (this._isIframe()) {
         this._iframeChannel = new IframeChannel();
-        this._iframeChannel.init({
+        this._iframeChannel.initialize({
           window: this._window,
           origin: this._relier.get('origin'),
           metrics: this._metrics
@@ -382,7 +382,7 @@ function (
 
     initializeNotifications: function () {
       var notificationWebChannel = new WebChannel(Constants.PROFILE_WEBCHANNEL_ID);
-      notificationWebChannel.init();
+      notificationWebChannel.initialize();
 
       this._notifications = new Notifications({
         tabChannel: this._interTabChannel,

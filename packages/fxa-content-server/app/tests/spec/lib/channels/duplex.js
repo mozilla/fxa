@@ -30,7 +30,7 @@ function (chai, sinon, DuplexChannel, NullSender, NullReceiver, AuthErrors,
       receiver = new NullReceiver();
 
       channel = new DuplexChannel();
-      channel.init({
+      channel.initialize({
         window: windowMock,
         sender: sender,
         receiver: receiver
@@ -41,10 +41,10 @@ function (chai, sinon, DuplexChannel, NullSender, NullReceiver, AuthErrors,
       channel.teardown();
     });
 
-    describe('init', function () {
+    describe('initialize', function () {
       it('throws if no `sender`', function () {
         assert.throws(function () {
-          channel.init({
+          channel.initialize({
             window: windowMock,
             receiver: receiver
           });
@@ -53,7 +53,7 @@ function (chai, sinon, DuplexChannel, NullSender, NullReceiver, AuthErrors,
 
       it('throws if no `receiver`', function () {
         assert.throws(function () {
-          channel.init({
+          channel.initialize({
             window: windowMock,
             sender: sender
           });

@@ -45,7 +45,7 @@ function (chai, sinon, AuthErrors, Metrics, FxDesktopChannel, WindowMock) {
       metrics = new Metrics();
 
       channel = new FxDesktopChannel();
-      channel.init({
+      channel.initialize({
         window: windowMock,
         origin: CONTENT_SERVER_ORIGIN,
         sendTimeoutLength: 10,

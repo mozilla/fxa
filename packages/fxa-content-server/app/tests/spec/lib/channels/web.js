@@ -40,7 +40,7 @@ function (chai, sinon, Router, View, WebChannel, WindowMock) {
     describe('send', function () {
       it('sends a message', function () {
         channel = new WebChannel('MyChannel');
-        channel.init({
+        channel.initialize({
           window: windowMock
         });
 
@@ -56,7 +56,7 @@ function (chai, sinon, Router, View, WebChannel, WindowMock) {
         });
 
         channel = new WebChannel('MyChannel');
-        channel.init({
+        channel.initialize({
           window: windowMock
         });
 
@@ -70,7 +70,7 @@ function (chai, sinon, Router, View, WebChannel, WindowMock) {
     describe('request', function () {
       it('sends a message, waits for a response, ', function () {
         channel = new WebChannel('MyChannel');
-        channel.init({
+        channel.initialize({
           window: windowMock
         });
 

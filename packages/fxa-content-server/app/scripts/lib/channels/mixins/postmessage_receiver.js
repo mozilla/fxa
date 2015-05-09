@@ -41,7 +41,7 @@ define([
   }
 
   var PostMessageReceiverMixin = {
-    init: function (options) {
+    initialize: function (options) {
       options = options || {};
 
       this.window = options.window || window;

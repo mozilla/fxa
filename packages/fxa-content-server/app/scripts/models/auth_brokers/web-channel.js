@@ -119,7 +119,7 @@ define([
       }
 
       var channel = new WebChannel(this.get('webChannelId'));
-      channel.init({
+      channel.initialize({
         window: this.window
       });
 
