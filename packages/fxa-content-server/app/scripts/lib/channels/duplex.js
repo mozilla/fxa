@@ -60,7 +60,7 @@ define([
   }
 
   _.extend(DuplexChannel.prototype, new BaseChannel(), {
-    init: function (options) {
+    initialize: function (options) {
       options = options || {};
 
       this._sender = options.sender;

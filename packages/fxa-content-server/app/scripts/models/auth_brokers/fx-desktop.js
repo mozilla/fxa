@@ -109,7 +109,7 @@ define([
     getChannel: function () {
       var channel = this._channel || new FxDesktopChannel();
 
-      channel.init({
+      channel.initialize({
         window: this.window,
         // Fx Desktop browser will send messages with an origin of the string
         // `null`. These messages are trusted by the channel by default.

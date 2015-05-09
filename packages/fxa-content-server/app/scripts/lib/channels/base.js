@@ -16,7 +16,7 @@ function (_, Backbone) {
   }
 
   _.extend(BaseChannel.prototype, Backbone.Events, {
-    init: function () {
+    initialize: function () {
     },
 
     teardown: function () {
