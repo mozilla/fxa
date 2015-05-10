@@ -11,8 +11,8 @@ var log = { trace: console.log }
 
 process.env.CONFIG_FILES = path.join(__dirname, '../config/verifier_version_0.json')
 var config = require('../../config').root()
-var Token = require('../../tokens')(log)
-var DB = require('../../db')(
+var Token = require('../../lib/tokens')(log)
+var DB = require('../../lib/db')(
   config.db.backend,
   log,
   Token.error,

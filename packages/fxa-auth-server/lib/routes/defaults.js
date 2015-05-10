@@ -7,7 +7,7 @@ var fs = require('fs')
 var util = require('util')
 var child_process = require('child_process')
 
-var version = require('../package.json').version
+var version = require('../../package.json').version
 var commitHash;
 
 module.exports = function (log, P, db, error) {
@@ -39,7 +39,7 @@ module.exports = function (log, P, db, error) {
         // (2) figure it out from git (either regular '.git', or '/home/app/git' for AwsBox)
 
         // (1) read config/version.json if exists (ie. staging, production)
-        var configFile = path.join(__dirname, '..', 'config', 'version.json')
+        var configFile = path.join(__dirname, '..', '..', 'config', 'version.json')
         if ( fs.existsSync(configFile) ) {
           commitHash = require(configFile).version.hash
           return sendReply()
@@ -47,7 +47,7 @@ module.exports = function (log, P, db, error) {
 
         // (2) figure it out from git (either regular '.git', or '/home/app/git' for AwsBox)
         var gitDir
-        if ( !fs.existsSync(path.join(__dirname, '..', '.git')) ) {
+        if ( !fs.existsSync(path.join(__dirname, '..', '..', '.git')) ) {
           // try at '/home/app/git' for AwsBox deploys
           gitDir = path.sep + path.join('home', 'app', 'git')
         }

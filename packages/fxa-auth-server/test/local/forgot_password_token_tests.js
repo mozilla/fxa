@@ -7,10 +7,10 @@ var log = { trace: function() {} }
 
 var timestamp = Date.now()
 
-var PasswordForgotToken = require('../../tokens/password_forgot_token')(
+var PasswordForgotToken = require('../../lib/tokens/password_forgot_token')(
   log,
   require('util').inherits,
-  require('../../tokens')(log),
+  require('../../lib/tokens')(log),
   require('crypto'),
   1000 * 60 * 15
 )

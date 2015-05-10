@@ -6,7 +6,7 @@ var config = require('../config').root()
 var jwtool = require('fxa-jwtool')
 
 function main() {
-  var log = require('../log')(config.log.level)
+  var log = require('../lib/log')(config.log.level)
 
   function logStatInfo() {
     log.stat(server.stat())
@@ -18,11 +18,11 @@ function main() {
     log.info(config, "starting config")
   }
 
-  var error = require('../error')
-  var Token = require('../tokens')(log, config.tokenLifetimes)
-  var Password = require('../crypto/password')(log, config)
+  var error = require('../lib/error')
+  var Token = require('../lib/tokens')(log, config.tokenLifetimes)
+  var Password = require('../lib/crypto/password')(log, config)
 
-  var signer = require('../signer')(config.secretKeyFile, config.domain)
+  var signer = require('../lib/signer')(config.secretKeyFile, config.domain)
   var serverPublicKey = jwtool.JWK.fromFile(
     config.publicKeyFile,
     {
@@ -33,21 +33,21 @@ function main() {
     }
   )
 
-  var Customs = require('../customs')(log, error)
+  var Customs = require('../lib/customs')(log, error)
 
-  var Server = require('../server')
+  var Server = require('../lib/server')
   var server = null
   var mailer = null
   var statsInterval = null
   var database = null
   var customs = null
 
-  require('../mailer')(config, log)
+  require('../lib/mailer')(config, log)
     .done(
       function(m) {
         mailer = m
 
-        var DB = require('../db')(
+        var DB = require('../lib/db')(
           config.db.backend,
           log,
           error,
@@ -63,7 +63,7 @@ function main() {
             function (db) {
               database = db
               customs = new Customs(config.customsUrl)
-              var routes = require('../routes')(
+              var routes = require('../lib/routes')(
                 log,
                 error,
                 serverPublicKey,

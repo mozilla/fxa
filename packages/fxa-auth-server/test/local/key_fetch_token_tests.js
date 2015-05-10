@@ -6,7 +6,7 @@ var test = require('../ptaptest')
 var crypto = require('crypto')
 var log = { trace: function() {} }
 
-var tokens = require('../../tokens')(log)
+var tokens = require('../../lib/tokens')(log)
 var KeyFetchToken = tokens.KeyFetchToken
 
 var ACCOUNT = {

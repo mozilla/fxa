@@ -2,15 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var Pool = require('../pool')
+var P = require('./promise')
+var Pool = require('./pool')
 
 var crypto = require('crypto')
-var butil = require('../crypto/butil')
+var butil = require('./crypto/butil')
 var unbuffer = butil.unbuffer
 var bufferize = butil.bufferize
 
 module.exports = function (
-  P,
+  backend,
   log,
   error,
   SessionToken,

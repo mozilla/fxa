@@ -3,14 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('../ptaptest')
-var promise = require('../../promise')
+var promise = require('../../lib/promise')
 var config = { scrypt: { maxPending: 5 } }
 var log = {
   buffer: [],
   warn: function(obj){ log.buffer.push(obj) },
 }
 
-var scrypt = require('../../crypto/scrypt')(log, config)
+var scrypt = require('../../lib/crypto/scrypt')(log, config)
 
 test(
   'scrypt basic',

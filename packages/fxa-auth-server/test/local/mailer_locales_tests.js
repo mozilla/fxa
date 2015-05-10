@@ -7,7 +7,7 @@ var test = require('tap').test
 var config = require('../../config').root()
 var log = {}
 
-require('../../mailer')(config, log)
+require('../../lib/mailer')(config, log)
   .done(
     function(mailer) {
 

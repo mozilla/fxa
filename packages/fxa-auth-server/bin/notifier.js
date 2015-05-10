@@ -5,7 +5,7 @@
 var split = require('binary-split')
 var through = require('through')
 var AWS = require('aws-sdk')
-var log = require('../log')('info')
+var log = require('../lib/log')('info')
 var snsTopicArn = ''
 var sns = {
   publish: function (msg, cb) {

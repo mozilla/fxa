@@ -11,8 +11,8 @@ to the [basket API](https://github.com/mozilla/basket) for user engagement.
 
 var request = require('request')
 var config = require('../config').root()
-var log = require('../log')(config.log.level, 'basket')
-var SQSReceiver = require('../sqs')(log)
+var log = require('../lib/log')(config.log.level, 'basket')
+var SQSReceiver = require('../lib/sqs')(log)
 
 
 function shouldIgnoreEmail(email) {
