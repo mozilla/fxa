@@ -140,6 +140,12 @@ The event stream is a log of events and the time they occurred while the user is
 * error.signin.auth.121 - account locked
 * signin.unlock-email.send - user attempted to send unlock email
 * signin.unlock-email.send.success - unlock email successfully sent
+* signin.ask-password.skipped - skipped asking for password thanks to existing session token
+* signin.ask-password.shown.account-unknown - asked for password due to missing account data
+* signin.ask-password.shown.keys-required - asked for password because the relier wanted keys
+* signin.ask-password.shown.email-mismatch - asked for password due to using a different email
+* signin.ask-password.shown.session-from-web - asked for password because session was created via web content
+* signin.ask-password.shown.session-expired - asked for password due to expired session token
 
 #### signup
 * tooltip.mailcheck-suggested - an email address correction was suggested

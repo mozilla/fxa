@@ -268,14 +268,16 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
      * @private
      */
     _suggestedAccountAskPassword: function (account) {
-      // sync must always use a password login to generate keys, skip the login chooser at all cost
-      if (this.relier.isSync()) {
+      // If there's no email, obviously we'll have to ask for the password.
+      if (! account.get('email')) {
+        this.logScreenEvent('ask-password.shown.account-unknown');
         return true;
       }
 
-      // If the relier wants keys, then the user must authenticate
-      // and the password must be requested.
+      // If the relier wants keys, then the user must authenticate and the password must be requested.
+      // This includes sync, which must skip the login chooser at all cost
       if (this.relier.wantsKeys()) {
+        this.logScreenEvent('ask-password.shown.keys-required');
         return true;
       }
 
@@ -283,14 +285,27 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
       // Otherwise they aren't able to "fully" log out. Only Sync has a clear path to disconnect/log out
       // your account that invalidates your sessionToken.
       if (! this.user.isSyncAccount(account)) {
+        this.logScreenEvent('ask-password.shown.session-from-web');
         return true;
       }
 
-      // shows when 'chooserAskForPassword' already set or
+      // Ask when 'chooserAskForPassword' is explicitly set.
+      // This happens in response to an expired session token.
+      if (this.chooserAskForPassword === true) {
+        this.logScreenEvent('ask-password.shown.session-expired');
+        return true;
+      }
+
+      // Ask when a prefill email does not match the account email.
       var prefillEmail = this.getPrefillEmail();
-      return !!(this.chooserAskForPassword === true ||
-          // or when a prefill email does not match the account email
-          (prefillEmail && prefillEmail !== account.get('email')));
+      if (prefillEmail && prefillEmail !== account.get('email')) {
+        this.logScreenEvent('ask-password.shown.email-mismatch');
+        return true;
+      }
+
+      // If none of that is true, it's safe to proceed without asking for the password.
+      this.logScreenEvent('ask-password.skipped');
+      return false;
     }
   });
 
