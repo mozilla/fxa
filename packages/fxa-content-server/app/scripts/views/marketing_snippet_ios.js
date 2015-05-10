@@ -14,9 +14,8 @@
 define([
   'underscore',
   'views/marketing_snippet',
-  'lib/constants',
   'stache!templates/marketing_snippet_ios'
-], function (_, MarketingSnippetView, Constants, Template) {
+], function (_, MarketingSnippetView, Template) {
 
   var playStoreImageLanguages = [
     'ca',

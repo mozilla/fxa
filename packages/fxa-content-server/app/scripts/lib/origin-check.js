@@ -26,9 +26,8 @@
 
 define([
   'lib/promise',
-  'lib/constants',
   'lib/channels/iframe'
-], function (p, Constants, IFrameChannel) {
+], function (p, IFrameChannel) {
   var RESPONSE_TIMEOUT_MS = 100;
 
   function OriginCheck(win) {

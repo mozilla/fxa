@@ -6,12 +6,11 @@
 
 define([
   'chai',
-  'backbone',
   'underscore',
   '../../../lib/helpers',
   'views/mixins/timer-mixin',
   'views/base'
-], function (Chai, Backbone, _, TestHelpers, TimerMixin, BaseView) {
+], function (Chai, _, TestHelpers, TimerMixin, BaseView) {
   var assert = Chai.assert;
 
   var TimerView = BaseView.extend({});

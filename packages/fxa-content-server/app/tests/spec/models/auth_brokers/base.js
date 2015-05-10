@@ -6,13 +6,12 @@
 
 define([
   'chai',
-  'sinon',
   'models/reliers/relier',
   'models/auth_brokers/base',
   'views/base',
   '../../../mocks/window'
 ],
-function (chai, sinon, Relier, BaseAuthenticationBroker, BaseView, WindowMock) {
+function (chai, Relier, BaseAuthenticationBroker, BaseView, WindowMock) {
   var assert = chai.assert;
 
   describe('models/auth_brokers/base', function () {

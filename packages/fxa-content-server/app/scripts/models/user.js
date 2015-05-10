@@ -15,11 +15,9 @@ define([
   'backbone',
   'underscore',
   'lib/promise',
-  'lib/assertion',
-  'lib/oauth-client',
   'models/account',
   'lib/storage'
-], function (Backbone, _, p, Assertion, OAuthClient, Account, Storage) {
+], function (Backbone, _, p, Account, Storage) {
 
   var User = Backbone.Model.extend({
     initialize: function (options) {

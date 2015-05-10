@@ -7,7 +7,6 @@
 
 define([
   'chai',
-  'underscore',
   'jquery',
   'sinon',
   'lib/auth-errors',
@@ -22,7 +21,7 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, _, $, sinon, AuthErrors, FxaClient, Metrics, p,
+function (chai, $, sinon, AuthErrors, FxaClient, Metrics, p,
     EphemeralMessages, View, Relier, Broker, User, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;

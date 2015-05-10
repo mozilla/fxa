@@ -5,9 +5,9 @@
 'use strict';
 
 
+/* exceptsPaths: draggable */
 define([
   'chai',
-  'underscore',
   'jquery',
   'draggable',
   'sinon',
@@ -19,13 +19,11 @@ define([
   'models/reliers/relier',
   'models/auth_brokers/base',
   'lib/promise',
-  'lib/constants',
   'lib/ephemeral-messages',
   'lib/auth-errors'
 ],
-function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, User,
-    CropperImage, Relier, AuthBroker, p, Constants, EphemeralMessages,
-    AuthErrors) {
+function (chai, $, ui, sinon, View, RouterMock, ProfileMock, User, CropperImage,
+    Relier, AuthBroker, p, EphemeralMessages, AuthErrors) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 

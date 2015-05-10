@@ -13,19 +13,14 @@ define([
   'cocktail',
   'views/base',
   'stache!templates/ready',
-  'lib/session',
-  'lib/xss',
   'lib/url',
-  'lib/strings',
-  'lib/auth-errors',
-  'lib/promise',
   'lib/constants',
   'views/mixins/service-mixin',
   'views/marketing_snippet',
   'views/marketing_snippet_ios'
 ],
-function (Cocktail, BaseView, Template, Session, Xss, Url, Strings,
-      AuthErrors, p, Constants, ServiceMixin, MarketingSnippet, MarketingSnippetiOS) {
+function (Cocktail, BaseView, Template, Url, Constants, ServiceMixin,
+      MarketingSnippet, MarketingSnippetiOS) {
 
   var View = BaseView.extend({
     template: Template,

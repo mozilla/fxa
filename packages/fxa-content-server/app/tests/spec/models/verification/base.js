@@ -6,9 +6,8 @@
 
 define([
   'chai',
-  'sinon',
   'models/verification/base'
-], function (chai, sinon, BaseModel) {
+], function (chai, BaseModel) {
   var assert = chai.assert;
 
   var Model = BaseModel.extend({

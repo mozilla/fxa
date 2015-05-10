@@ -4,12 +4,11 @@
 
 define([
   'chai',
-  'underscore',
   'lib/validate',
   'lib/constants',
   '../../lib/helpers'
 ],
-function (chai, _, Validate, Constants, TestHelpers) {
+function (chai, Validate, Constants, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;

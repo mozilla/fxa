@@ -9,7 +9,6 @@ define([
   'fxaClient',
   'lib/promise',
   '../../lib/helpers',
-  'lib/session',
   'lib/fxa-client',
   'lib/auth-errors',
   'lib/constants',
@@ -19,8 +18,8 @@ define([
 // FxaClientWrapper is the object that is used in
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
-function (chai, $, sinon, FxaClient, p, testHelpers, Session, FxaClientWrapper,
-      AuthErrors, Constants, ResumeToken, OAuthRelier) {
+function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthErrors,
+      Constants, ResumeToken, OAuthRelier) {
   'use strict';
 
   var STATE = 'state';

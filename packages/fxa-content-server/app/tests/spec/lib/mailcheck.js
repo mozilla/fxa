@@ -8,10 +8,9 @@ define([
   'sinon',
   'chai',
   'jquery',
-  'lib/promise',
   'lib/mailcheck'
 ],
-function (sinon, chai, $, p, mailcheck) {
+function (sinon, chai, $, mailcheck) {
   'use strict';
 
   /*global describe, it*/

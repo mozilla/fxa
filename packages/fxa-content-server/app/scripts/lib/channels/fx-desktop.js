@@ -9,9 +9,8 @@
 define([
   'underscore',
   'lib/channels/base',
-  'lib/auth-errors',
   'lib/channels/mixins/postmessage_receiver'
-], function (_, BaseChannel, AuthErrors, PostMessageReceiverMixin) {
+], function (_, BaseChannel, PostMessageReceiverMixin) {
   function createEvent(command, data) {
     /*jshint validthis: true*/
     return new this.window.CustomEvent('FirefoxAccountsCommand', {

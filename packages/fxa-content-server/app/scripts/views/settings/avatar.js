@@ -5,14 +5,13 @@
 'use strict';
 
 define([
-  'underscore',
   'cocktail',
   'views/form',
   'stache!templates/settings/avatar',
   'views/mixins/avatar-mixin',
   'views/mixins/settings-mixin'
 ],
-function (_, Cocktail, FormView, Template, AvatarMixin, SettingsMixin) {
+function (Cocktail, FormView, Template, AvatarMixin, SettingsMixin) {
   var View = FormView.extend({
     template: Template,
     className: 'avatar',

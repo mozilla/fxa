@@ -11,15 +11,14 @@ define([
   'stache!templates/complete_reset_password',
   'views/mixins/password-mixin',
   'views/mixins/floating-placeholder-mixin',
-  'lib/validate',
   'lib/auth-errors',
   'views/mixins/service-mixin',
   'models/verification/reset-password',
   'lib/url'
 ],
 function (Cocktail, BaseView, FormView, Template, PasswordMixin,
-      FloatingPlaceholderMixin, Validate, AuthErrors, ServiceMixin,
-      VerificationInfo, Url) {
+      FloatingPlaceholderMixin, AuthErrors, ServiceMixin, VerificationInfo,
+      Url) {
   var t = BaseView.t;
   var View = FormView.extend({
     template: Template,

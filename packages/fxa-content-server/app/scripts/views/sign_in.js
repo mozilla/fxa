@@ -12,7 +12,6 @@ define([
   'stache!templates/sign_in',
   'lib/session',
   'lib/auth-errors',
-  'lib/validate',
   'views/mixins/password-mixin',
   'views/mixins/service-mixin',
   'views/mixins/avatar-mixin',
@@ -21,9 +20,8 @@ define([
   'views/decorators/progress_indicator'
 ],
 function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
-      AuthErrors, Validate, PasswordMixin, ServiceMixin,
-      AvatarMixin, AccountLockedMixin, allowOnlyOneSubmit,
-      showProgressIndicator) {
+      AuthErrors, PasswordMixin, ServiceMixin, AvatarMixin, AccountLockedMixin,
+      allowOnlyOneSubmit, showProgressIndicator) {
   var t = BaseView.t;
 
   var View = FormView.extend({

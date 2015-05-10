@@ -7,8 +7,6 @@
 
 define([
   'chai',
-  'jquery',
-  '../../lib/helpers',
   'sinon',
   'lib/session',
   'lib/oauth-client',
@@ -17,8 +15,7 @@ define([
 // FxaClientWrapper is the object that is used in
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
-function (chai, $, testHelpers, sinon,
-              Session, OAuthClient, OAuthErrors) {
+function (chai, sinon, Session, OAuthClient, OAuthErrors) {
   /*global beforeEach, afterEach, describe, it*/
 
   var OAUTH_URL = 'http://127.0.0.1:9010';

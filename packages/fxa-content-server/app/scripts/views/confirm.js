@@ -6,7 +6,6 @@
 
 define([
   'cocktail',
-  'underscore',
   'views/form',
   'views/base',
   'stache!templates/confirm',
@@ -16,7 +15,7 @@ define([
   'views/mixins/resend-mixin',
   'views/mixins/service-mixin'
 ],
-function (Cocktail, _, FormView, BaseView, Template, p, AuthErrors, Constants,
+function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
     ResendMixin, ServiceMixin) {
   var t = BaseView.t;
 

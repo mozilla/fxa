@@ -7,7 +7,6 @@
 
 define([
   'chai',
-  'jquery',
   'sinon',
   'lib/session',
   'lib/profile-client'
@@ -15,8 +14,7 @@ define([
 // FxaClientWrapper is the object that is used in
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
-function (chai, $, sinon,
-              Session, ProfileClient) {
+function (chai, sinon, Session, ProfileClient) {
   /*global beforeEach, afterEach, describe, it*/
 
   var PROFILE_URL = 'http://127.0.0.1:1111';

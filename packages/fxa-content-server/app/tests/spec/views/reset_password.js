@@ -10,7 +10,6 @@ define([
   'chai',
   'sinon',
   'lib/promise',
-  'lib/session',
   'lib/auth-errors',
   'lib/metrics',
   'lib/fxa-client',
@@ -21,8 +20,8 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (_, chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
-      Relier, Broker, FormPrefill, RouterMock, TestHelpers) {
+function (_, chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
+      Broker, FormPrefill, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 

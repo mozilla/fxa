@@ -6,11 +6,10 @@
 
 define([
   'chai',
-  'sinon',
   'lib/constants',
   'models/verification/reset-password',
   '../../../lib/helpers'
-], function (chai, sinon, Constants, Model, TestHelpers) {
+], function (chai, Constants, Model, TestHelpers) {
   var assert = chai.assert;
 
   describe('models/verification/reset-password', function () {

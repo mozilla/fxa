@@ -9,11 +9,10 @@ define([
   'jquery',
   'chai',
   'sinon',
-  'lib/promise',
   'views/cookies_disabled',
   '../../mocks/window'
 ],
-function ($, chai, sinon, p, View, WindowMock) {
+function ($, chai, sinon, View, WindowMock) {
   var assert = chai.assert;
 
   describe('views/cookies_disabled', function () {

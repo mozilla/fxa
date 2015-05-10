@@ -9,16 +9,14 @@
 'use strict';
 
 define([
-  'underscore',
   'fxaClient',
   'jquery',
-  'lib/xhr',
   'lib/promise',
   'lib/session',
   'lib/auth-errors',
   'lib/constants'
 ],
-function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
+function (FxaClient, $, p, Session, AuthErrors, Constants) {
   function trim(str) {
     return $.trim(str);
   }

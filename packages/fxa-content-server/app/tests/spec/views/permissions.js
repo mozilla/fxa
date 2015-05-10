@@ -11,11 +11,9 @@ define([
   'sinon',
   'lib/promise',
   'views/permissions',
-  'lib/auth-errors',
   'lib/metrics',
   'lib/fxa-client',
   'lib/ephemeral-messages',
-  'lib/constants',
   'models/reliers/relier',
   'models/user',
   'models/auth_brokers/base',
@@ -23,9 +21,8 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, sinon, p, View, AuthErrors, Metrics, FxaClient,
-      EphemeralMessages, Constants, Relier, User, Broker, WindowMock, RouterMock,
-      TestHelpers) {
+function (chai, $, sinon, p, View, Metrics, FxaClient, EphemeralMessages,
+      Relier, User, Broker, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('views/permissions', function () {

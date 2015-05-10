@@ -11,13 +11,12 @@ define([
   'views/ready',
   'lib/session',
   'lib/fxa-client',
-  'lib/promise',
   'lib/able',
   'models/reliers/fx-desktop',
   'models/auth_brokers/oauth',
   '../../mocks/window'
 ],
-function (chai, sinon, View, Session, FxaClient, p, Able, FxDesktopRelier,
+function (chai, sinon, View, Session, FxaClient, Able, FxDesktopRelier,
       OAuthBroker, WindowMock) {
   var assert = chai.assert;
 

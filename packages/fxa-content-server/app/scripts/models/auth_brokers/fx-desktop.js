@@ -13,11 +13,10 @@ define([
   'underscore',
   'models/auth_brokers/base',
   'models/auth_brokers/mixins/channel',
-  'lib/promise',
   'lib/auth-errors',
   'lib/channels/fx-desktop',
   'lib/url'
-], function (Cocktail, _, BaseAuthenticationBroker, ChannelMixin, p, AuthErrors,
+], function (Cocktail, _, BaseAuthenticationBroker, ChannelMixin, AuthErrors,
   FxDesktopChannel, Url) {
 
   var FxDesktopAuthenticationBroker = BaseAuthenticationBroker.extend({

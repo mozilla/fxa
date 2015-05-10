@@ -6,16 +6,13 @@
 
 define([
   'cocktail',
-  'underscore',
   'views/form',
-  'views/base',
   'stache!templates/permissions',
   'lib/promise',
   'views/mixins/back-mixin',
   'views/mixins/service-mixin'
 ],
-function (Cocktail, _, FormView, BaseView, Template, p,
-    BackMixin, ServiceMixin) {
+function (Cocktail, FormView, Template, p, BackMixin, ServiceMixin) {
 
   var View = FormView.extend({
     template: Template,

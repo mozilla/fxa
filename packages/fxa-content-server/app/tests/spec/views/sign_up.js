@@ -7,9 +7,7 @@
 
 define([
   'chai',
-  'underscore',
   'jquery',
-  'moment',
   'sinon',
   'lib/promise',
   'views/sign_up',
@@ -27,7 +25,7 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, _, $, moment, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
+function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
       FxaClient, EphemeralMessages, mailcheck, Relier, Broker, User, FormPrefill,
       RouterMock, TestHelpers) {
   var assert = chai.assert;

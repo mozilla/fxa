@@ -12,12 +12,11 @@ define([
   'underscore',
   'models/reliers/relier',
   'lib/resume-token',
-  'lib/promise',
   'lib/oauth-errors',
   'lib/relier-keys',
   'lib/url',
   'lib/constants'
-], function (_, Relier, ResumeToken, p, OAuthErrors, RelierKeys, Url, Constants) {
+], function (_, Relier, ResumeToken, OAuthErrors, RelierKeys, Url, Constants) {
   var RELIER_FIELDS_IN_RESUME_TOKEN = ['state', 'verificationRedirect'];
 
   var OAuthRelier = Relier.extend({

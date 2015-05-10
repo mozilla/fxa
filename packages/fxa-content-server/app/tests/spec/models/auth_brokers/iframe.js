@@ -14,11 +14,10 @@ define([
   'lib/promise',
   'lib/channels/null',
   'lib/session',
-  'lib/auth-errors',
   '../../../mocks/window'
 ],
 function (chai, sinon, $, IframeAuthenticationBroker, Relier, p, NullChannel,
-      Session, AuthErrors, WindowMock) {
+      Session, WindowMock) {
   var assert = chai.assert;
 
   describe('models/auth_brokers/iframe', function () {

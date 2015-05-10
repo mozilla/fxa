@@ -6,7 +6,6 @@
 
 define([
   'chai',
-  'backbone',
   'sinon',
   'underscore',
   'views/mixins/avatar-mixin',
@@ -18,8 +17,8 @@ define([
   'models/profile-image',
   'lib/promise',
   'lib/channels/null'
-], function (Chai, Backbone, sinon, _, AvatarMixin, BaseView, Notifications,
-    Relier, User, Account, ProfileImage, p, NullChannel) {
+], function (Chai, sinon, _, AvatarMixin, BaseView, Notifications, Relier,
+    User, Account, ProfileImage, p, NullChannel) {
   var assert = Chai.assert;
 
   var SettingsView = BaseView.extend({});

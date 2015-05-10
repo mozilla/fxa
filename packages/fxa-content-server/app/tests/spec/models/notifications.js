@@ -9,10 +9,9 @@ define([
   'chai',
   'sinon',
   'models/notifications',
-  'lib/promise',
   'lib/channels/null'
 ],
-function (chai, sinon, Notifications, p, NullChannel) {
+function (chai, sinon, Notifications, NullChannel) {
   var assert = chai.assert;
 
   describe('models/notifications', function () {

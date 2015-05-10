@@ -7,19 +7,17 @@
 define([
   'cocktail',
   'underscore',
-  'jquery',
   'views/confirm',
   'views/base',
   'stache!templates/confirm_reset_password',
   'lib/promise',
   'lib/session',
-  'lib/constants',
   'lib/auth-errors',
   'views/mixins/resend-mixin',
   'views/mixins/service-mixin'
 ],
-function (Cocktail, _, $, ConfirmView, BaseView, Template, p, Session, Constants,
-      AuthErrors, ResendMixin, ServiceMixin) {
+function (Cocktail, _, ConfirmView, BaseView, Template, p, Session, AuthErrors,
+      ResendMixin, ServiceMixin) {
   var t = BaseView.t;
 
   var SESSION_UPDATE_TIMEOUT_MS = 10000;

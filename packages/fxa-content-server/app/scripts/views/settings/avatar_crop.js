@@ -6,7 +6,6 @@
 
 define([
   'p-promise',
-  'underscore',
   'cocktail',
   'views/form',
   'views/mixins/settings-mixin',
@@ -18,7 +17,7 @@ define([
   'models/cropper-image',
   'models/profile-image'
 ],
-function (p, _, Cocktail, FormView, SettingsMixin, AvatarMixin, Template,
+function (p, Cocktail, FormView, SettingsMixin, AvatarMixin, Template,
     Constants, Cropper, AuthErrors, CropperImage, ProfileImage) {
   var HORIZONTAL_GUTTER = 90;
   var VERTICAL_GUTTER = 0;

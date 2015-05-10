@@ -4,6 +4,7 @@
 
 'use strict';
 
+/* exceptsPaths: canvasToBlob */
 define([
   'underscore',
   'cocktail',

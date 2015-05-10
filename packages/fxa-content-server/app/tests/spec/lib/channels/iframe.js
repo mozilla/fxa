@@ -9,13 +9,11 @@ define([
   'chai',
   'sinon',
   'lib/channels/iframe',
-  'lib/auth-errors',
   'lib/metrics',
   '../../../mocks/window',
   '../../../lib/helpers'
 ],
-function (chai, sinon, IFrameChannel, AuthErrors, Metrics,
-  WindowMock, TestHelpers) {
+function (chai, sinon, IFrameChannel, Metrics, WindowMock, TestHelpers) {
   var channel;
   var windowMock;
   var parentMock;

@@ -7,12 +7,10 @@
 
 define([
   'chai',
-  'sinon',
-  'lib/promise',
   'lib/profile-errors',
   'models/profile-image'
 ],
-function (chai, sinon, p, ProfileErrors, ProfileImage) {
+function (chai, ProfileErrors, ProfileImage) {
   var assert = chai.assert;
 
   describe('models/profile-image', function () {

@@ -8,12 +8,10 @@
 define([
   'chai',
   'sinon',
-  'router',
-  'views/sign_in',
   'lib/channels/web',
   '/tests/mocks/window.js'
 ],
-function (chai, sinon, Router, View, WebChannel, WindowMock) {
+function (chai, sinon, WebChannel, WindowMock) {
   var assert = chai.assert;
 
   describe('lib/channels/web', function () {

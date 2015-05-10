@@ -8,7 +8,6 @@
 define([
   'chai',
   'sinon',
-  'underscore',
   'backbone',
   'router',
   'views/sign_in',
@@ -26,7 +25,7 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
+function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
       Able, Constants, Metrics, EphemeralMessages, p, Relier,
       User, FormPrefill, NullBroker, WindowMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
