@@ -39,13 +39,14 @@ define([
    * finish OAuth flows
    */
 
-  function testIsBrowserNotifiedOfLogin(context, shouldCloseTab, wantKeys) {
+  function testIsBrowserNotifiedOfLogin(context, options) {
+    options = options || {};
     return FunctionalHelpers.testIsBrowserNotified(context, 'oauth_complete', function (data) {
       assert.ok(data.redirect);
       assert.ok(data.code);
       assert.ok(data.state);
-      assert.equal(data.closeWindow, shouldCloseTab);
-      if (wantKeys) {
+      assert.equal(data.closeWindow, options.shouldCloseTab);
+      if (options.wantsKeys) {
         assert.ok(data.keys);
       }
     });
@@ -108,7 +109,7 @@ define([
           return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
         })
 
-        .then(testIsBrowserNotifiedOfLogin(self, true))
+        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: true }))
 
         // no screen transition, Loop will close this screen.
         .findByCssSelector('#fxa-signin-header')
@@ -141,7 +142,7 @@ define([
         // switch to the original window
         .switchToWindow('')
 
-        .then(testIsBrowserNotifiedOfLogin(self, false))
+        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
 
         .findById('fxa-sign-up-complete-header')
         .end();
@@ -168,7 +169,7 @@ define([
         .switchToWindow('newwindow')
         .execute(FunctionalHelpers.listenForWebChannelMessage)
 
-        .then(testIsBrowserNotifiedOfLogin(self, false))
+        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
 
         .findById('fxa-sign-up-complete-header')
         .end()
@@ -198,7 +199,7 @@ define([
             .execute(FunctionalHelpers.listenForWebChannelMessage);
         })
 
-        .then(testIsBrowserNotifiedOfLogin(self, false))
+        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
 
         .findById('fxa-sign-up-complete-header')
         .end();
@@ -221,7 +222,7 @@ define([
           return FunctionalHelpers.openVerificationLinkDifferentBrowser(client, email);
         })
 
-        .then(testIsBrowserNotifiedOfLogin(self, false))
+        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
 
         .findById('fxa-sign-up-complete-header')
         .end();
@@ -309,7 +310,7 @@ define([
         .switchToWindow('')
 
         // the original tab should automatically sign in
-        .then(testIsBrowserNotifiedOfLogin(self, false))
+        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
 
         .findByCssSelector('#fxa-reset-password-complete-header')
         .end();
@@ -349,7 +350,7 @@ define([
         })
 
         // the tab should automatically sign in
-        .then(testIsBrowserNotifiedOfLogin(self, false))
+        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
 
         .findByCssSelector('#fxa-reset-password-complete-header')
         .end()
@@ -393,7 +394,7 @@ define([
         })
 
         // the tab should automatically sign in
-        .then(testIsBrowserNotifiedOfLogin(self, false))
+        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
 
         .findByCssSelector('#fxa-reset-password-complete-header')
         .end();
@@ -442,7 +443,7 @@ define([
         .end()
 
         // user is signed in
-        .then(testIsBrowserNotifiedOfLogin(self, true))
+        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: true }))
 
         // no screen transition, Loop will close this screen.
         .findByCssSelector('#fxa-signin-header')
@@ -534,7 +535,7 @@ define([
               .click()
             .end()
 
-            .then(testIsBrowserNotifiedOfLogin(self, true, true));
+            .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: true, wantsKeys: true }));
         });
     }
   });
