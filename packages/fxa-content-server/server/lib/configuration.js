@@ -75,7 +75,8 @@ var conf = module.exports = convict({
     port: {
       format: 'port',
       default: 8125
-    }
+    },
+    sample_rate: 1
   },
   logging: {
     app: {

@@ -1,0 +1,53 @@
+{
+    "campaign": "none",
+    "context": "web",
+    "duration": 4460,
+    "entrypoint": "none",
+    "events": [
+        {
+            "type": "screen.signup",
+            "offset": 1930
+        }
+    ],
+    "migration": "none",
+    "lang": "en",
+    "marketingClicked": false,
+    "marketingLink": "none",
+    "marketingType": "none",
+    "navigationTiming": {
+        "navigationStart": 0,
+        "unloadEventStart": null,
+        "unloadEventEnd": null,
+        "redirectStart": null,
+        "redirectEnd": null,
+        "fetchStart": 202,
+        "domainLookupStart": 202,
+        "domainLookupEnd": 202,
+        "connectStart": 202,
+        "connectEnd": 202,
+        "secureConnectionStart": null,
+        "requestStart": 208,
+        "responseStart": 464,
+        "responseEnd": 466,
+        "domLoading": 466,
+        "domInteractive": 627,
+        "domContentLoadedEventStart": 627,
+        "domContentLoadedEventEnd": 628,
+        "domComplete": 689,
+        "loadEventStart": 689,
+        "loadEventEnd": 689
+    },
+    "screen": {
+        "devicePixelRatio": 2,
+        "clientWidth": 819,
+        "clientHeight": 955,
+        "width": 1680,
+        "height": 1050
+    },
+    "service": "none",
+    "timers": {
+    },
+    "ab": [
+    ],
+    "agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36"
+}
