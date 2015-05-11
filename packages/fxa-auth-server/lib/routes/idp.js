@@ -60,14 +60,14 @@ module.exports = function (log, serverPublicKey) {
       method: 'GET',
       path: '/.well-known/browserid/sign_in.html',
       handler: {
-        file: './routes/static/sign_in.html'
+        file: './lib/routes/static/sign_in.html'
       }
     },
     {
       method: 'GET',
       path: '/.well-known/browserid/provision.html',
       handler: {
-        file: './routes/static/provision.html'
+        file: './lib/routes/static/provision.html'
       }
     }
   ]

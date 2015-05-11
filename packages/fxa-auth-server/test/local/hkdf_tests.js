@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('../ptaptest')
-var hkdf = require('../../crypto/hkdf')
+var hkdf = require('../../lib/crypto/hkdf')
 
 test(
   'hkdf basic',

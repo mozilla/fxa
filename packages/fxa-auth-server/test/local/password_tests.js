@@ -5,7 +5,7 @@
 var test = require('../ptaptest')
 var log = {}
 var config = {}
-var Password = require('../../crypto/password')(log, config)
+var Password = require('../../lib/crypto/password')(log, config)
 
 test(
   'password version zero',

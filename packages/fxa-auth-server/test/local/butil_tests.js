@@ -4,7 +4,7 @@
 
 require('ass')
 var test = require('tap').test
-var butil = require('../../crypto/butil')
+var butil = require('../../lib/crypto/butil')
 
 test(
   'buffersAreEqual returns false if lengths are different',

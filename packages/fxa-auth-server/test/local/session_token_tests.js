@@ -5,7 +5,7 @@
 var test = require('../ptaptest')
 var log = { trace: function() {} }
 
-var tokens = require('../../tokens')(log)
+var tokens = require('../../lib/tokens')(log)
 var SessionToken = tokens.SessionToken
 
 

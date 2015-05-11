@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var P = require('../../promise')
+var P = require('../../lib/promise')
 var test = require('../ptaptest')
 var MockLog = { info: function () { } }
 var config = { lockoutEnabled: true }
-var Password = require('../../crypto/password')(MockLog, config)
+var Password = require('../../lib/crypto/password')(MockLog, config)
 
 var triggersLockout = false;
 var MockCustoms = {
@@ -25,7 +25,7 @@ var MockDB = {
   }
 }
 
-var checkPassword = require('../../routes/utils/password_check')(MockLog, config, Password, MockCustoms, MockDB)
+var checkPassword = require('../../lib/routes/utils/password_check')(MockLog, config, Password, MockCustoms, MockDB)
 
 test(
   'password check with correct password',

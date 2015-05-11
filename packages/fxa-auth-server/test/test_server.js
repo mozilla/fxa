@@ -4,7 +4,7 @@
 
 var cp = require('child_process')
 var crypto = require('crypto')
-var P = require('../promise')
+var P = require('../lib/promise')
 var request = require('request')
 var mailbox = require('./mailbox')
 var createDBServer = require('fxa-auth-db-mem')
