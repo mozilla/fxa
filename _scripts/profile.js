@@ -59,6 +59,8 @@ fxaProfile.setPreference('identity.fxaccounts.allowHttp', true);
 fxaProfile.setPreference('identity.fxaccounts.remote.force_auth.uri', fxaEnv.content + 'force_auth?service=sync&context=fx_desktop_v1');
 fxaProfile.setPreference('identity.fxaccounts.remote.signin.uri', fxaEnv.content + 'signin?service=sync&context=fx_desktop_v1');
 fxaProfile.setPreference('identity.fxaccounts.remote.signup.uri', fxaEnv.content + 'signup?service=sync&context=fx_desktop_v1');
+fxaProfile.setPreference('identity.fxaccounts.remote.webchannel.uri', fxaEnv.content);
+
 fxaProfile.setPreference('identity.fxaccounts.settings.uri', fxaEnv.content + 'settings');
 fxaProfile.setPreference('services.sync.tokenServerURI', fxaEnv.token);
 
