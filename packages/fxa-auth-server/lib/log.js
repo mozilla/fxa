@@ -2,23 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var Domain = require('domain')
+var EventEmitter = require('events').EventEmitter
 var util = require('util')
-var Logger = require('bunyan')
-
-function Overdrive(options) {
-  Logger.call(this, options)
-}
-util.inherits(Overdrive, Logger)
-
-Overdrive.prototype.begin = function (op, request) {
-  var domain = Domain.active
-  if (domain) {
-    domain.add(request)
-    request.app.traced = []
-  }
-  this.trace({ op: op })
-}
+var mozlog = require('mozlog')
 
 function unbuffer(object) {
   var keys = Object.keys(object)
@@ -31,23 +17,43 @@ function unbuffer(object) {
   return object
 }
 
-Overdrive.prototype.trace = function () {
-  // TODO if this is a performance burden reintroduce the level check
-  // otherwise this is valuable data for debugging in the log.summary
-  var arg0 = arguments[0]
-  if (typeof(arg0) === 'object') {
-    unbuffer(arg0)
-    var request = Domain.active && Domain.active.members[0]
-    arg0.rid = arg0.rid || (request && request.id)
-    if (request) {
-      request.app.traced.push(arg0)
-    }
-  }
+function Lug(options) {
+  EventEmitter.call(this)
+  this.name = options.name || 'fxa-auth-server'
+  mozlog.config({
+    app: this.name,
+    level: options.level,
+    stream: process.stderr
+  })
+  this.logger = mozlog('auth')
+}
+util.inherits(Lug, EventEmitter)
 
-  return Logger.prototype.trace.apply(this, arguments)
+Lug.prototype.trace = function (data) {
+  this.logger.debug(data.op, data)
 }
 
-Overdrive.prototype.event = function (name, data) {
+Lug.prototype.error = function (data) {
+  this.logger.error(data.op, data)
+}
+
+Lug.prototype.fatal = function (data) {
+  this.logger.critical(data.op, data)
+}
+
+Lug.prototype.warn = function (data) {
+  this.logger.warn(data.op, data)
+}
+
+Lug.prototype.info = function (data) {
+  this.logger.info(data.op, data)
+}
+
+Lug.prototype.begin = function (op, request) {
+  this.logger.debug(op)
+}
+
+Lug.prototype.event = function (name, data) {
   var e = {
     event: name,
     data: unbuffer(data)
@@ -55,12 +61,11 @@ Overdrive.prototype.event = function (name, data) {
   process.stdout.write(JSON.stringify(e) + '\n')
 }
 
-Overdrive.prototype.stat = function (stats) {
-  stats.op = 'stat'
-  this.info(stats)
+Lug.prototype.stat = function (stats) {
+  this.logger.info('stat', stats)
 }
 
-Overdrive.prototype.summary = function (request, response) {
+Lug.prototype.summary = function (request, response) {
   if (request.method === 'options') { return }
   var payload = request.payload || {}
   var query = request.query || {}
@@ -95,13 +100,10 @@ Overdrive.prototype.summary = function (request, response) {
 }
 
 module.exports = function (level, name) {
-  var logStreams = [{ stream: process.stderr, level: level }]
-  name = name || 'fxa-auth-server'
-
-  var log = new Overdrive(
+  var log = new Lug(
     {
       name: name,
-      streams: logStreams
+      level: level
     }
   )
 
