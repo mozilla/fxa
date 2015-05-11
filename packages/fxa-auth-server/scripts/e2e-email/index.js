@@ -11,7 +11,7 @@ const assert = require('assert')
 const crypto = require('crypto')
 const url = require('url')
 
-const P = require('../../promise')
+const P = require('../../lib/promise')
 const preq = require('./p-request')
 const localeQuirks = require('./localeQuirks')
 
