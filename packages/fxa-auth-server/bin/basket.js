@@ -11,7 +11,7 @@ to the [basket API](https://github.com/mozilla/basket) for user engagement.
 
 var request = require('request')
 var config = require('../config').root()
-var log = require('../lib/log')(config.log.level, 'basket')
+var log = require('../lib/log')(config.log.level, 'fxa-basket-sender')
 var SQSReceiver = require('../lib/sqs')(log)
 
 

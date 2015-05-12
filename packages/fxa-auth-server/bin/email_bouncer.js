@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var config = require('../config').root()
-var log = require('../lib/log')(config.log.level, 'email-bouncer')
+var log = require('../lib/log')(config.log.level, 'fxa-email-bouncer')
 var error = require('../lib/error')
 var Token = require('../lib/tokens')(log, config.tokenLifetimes)
 var bounces = require('../lib/bounces')(log)
