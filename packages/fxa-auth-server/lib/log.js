@@ -25,7 +25,7 @@ function Lug(options) {
     level: options.level,
     stream: process.stderr
   })
-  this.logger = mozlog('auth')
+  this.logger = mozlog()
 }
 util.inherits(Lug, EventEmitter)
 
