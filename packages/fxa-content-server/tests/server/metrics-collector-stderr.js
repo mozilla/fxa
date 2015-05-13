@@ -58,6 +58,7 @@ define([
 
       assert.equal(loggedMetrics.service, 'sync');
       assert.equal(loggedMetrics.context, 'fx_desktop_v1');
+      assert.equal(loggedMetrics.broker, 'fx-desktop-v1');
 
       assert.equal(loggedMetrics.marketingType, 'survey');
       assert.equal(loggedMetrics.marketingLink, 'http://mzl.la/1oV7jUy');
@@ -90,6 +91,7 @@ define([
       lang: 'db_LB',
       service: 'sync',
       context: 'fx_desktop_v1',
+      broker: 'fx-desktop-v1',
       entrypoint: 'menupanel',
       migration: 'sync1.5',
       campaign: 'fennec',

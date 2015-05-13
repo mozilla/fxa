@@ -47,6 +47,7 @@ define([
   }
 
   var OAuthAuthenticationBroker = BaseAuthenticationBroker.extend({
+    type: 'oauth',
     initialize: function (options) {
       options = options || {};
 

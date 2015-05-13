@@ -9,6 +9,7 @@
 'use strict';
 
 define([
+  'cocktail',
   'underscore',
   'models/auth_brokers/base',
   'models/auth_brokers/mixins/channel',
@@ -16,16 +17,33 @@ define([
   'lib/auth-errors',
   'lib/channels/fx-desktop',
   'lib/url'
-], function (_, BaseAuthenticationBroker, ChannelMixin, p, AuthErrors,
-        FxDesktopChannel, Url) {
+], function (Cocktail, _, BaseAuthenticationBroker, ChannelMixin, p, AuthErrors,
+  FxDesktopChannel, Url) {
 
   var FxDesktopAuthenticationBroker = BaseAuthenticationBroker.extend({
+    type: 'fx-desktop-v1',
+    _commands: {
+      CAN_LINK_ACCOUNT: 'can_link_account',
+      CHANGE_PASSWORD: 'change_password',
+      DELETE_ACCOUNT: 'delete_account',
+      LOADED: 'loaded',
+      LOGIN: 'login'
+    },
+
+    /**
+     * Initialize the broker
+     *
+     * @param {Object} options
+     * @param {String} options.channel
+     *        Channel used to send commands to remote listeners.
+     * @param {Object} options.metrics
+     *        Metrics where events/errors can be logged.
+     */
     initialize: function (options) {
       options = options || {};
 
       // channel can be passed in for testing.
       this._channel = options.channel;
-      this._session = options.session;
       this._metrics = options.metrics;
 
       return BaseAuthenticationBroker.prototype.initialize.call(
@@ -33,7 +51,7 @@ define([
     },
 
     afterLoaded: function () {
-      return this.send('loaded');
+      return this.send(this._commands.LOADED);
     },
 
     beforeSignIn: function (email) {
@@ -42,7 +60,7 @@ define([
       // we should cancel the login to sync or not based on Desktop
       // specific checks and dialogs. It throws an error with
       // message='USER_CANCELED_LOGIN' and errno=1001 if that's the case.
-      return self.send('can_link_account', { email: email })
+      return self.request(self._commands.CAN_LINK_ACCOUNT, { email: email })
         .then(function (response) {
           if (response && response.data && ! response.data.ok) {
             throw AuthErrors.toError('USER_CANCELED_LOGIN');
@@ -91,23 +109,29 @@ define([
     },
 
     afterChangePassword: function (account) {
-      // no response is expected, so do not wait for one
-      this.send('change_password', this._getLoginData(account));
-      return p();
+      return this.send(
+          this._commands.CHANGE_PASSWORD, this._getLoginData(account));
     },
 
     afterDeleteAccount: function (account) {
       // no response is expected, so do not wait for one
-      this.send('delete_account', {
+      return this.send(this._commands.DELETE_ACCOUNT, {
         email: account.get('email'),
         uid: account.get('uid')
       });
-      return p();
     },
 
     // used by the ChannelMixin to get a channel.
     getChannel: function () {
-      var channel = this._channel || new FxDesktopChannel();
+      if (! this._channel) {
+        this._channel = this.createChannel();
+      }
+
+      return this._channel;
+    },
+
+    createChannel: function () {
+      var channel = new FxDesktopChannel();
 
       channel.initialize({
         window: this.window,
@@ -126,7 +150,7 @@ define([
     },
 
     _notifyRelierOfLogin: function (account) {
-      return this.send('login', this._getLoginData(account));
+      return this.send(this._commands.LOGIN, this._getLoginData(account));
     },
 
     _getLoginData: function (account) {
@@ -152,7 +176,10 @@ define([
     }
   });
 
-  _.extend(FxDesktopAuthenticationBroker.prototype, ChannelMixin);
+  Cocktail.mixin(
+    FxDesktopAuthenticationBroker,
+    ChannelMixin
+  );
 
   return FxDesktopAuthenticationBroker;
 });

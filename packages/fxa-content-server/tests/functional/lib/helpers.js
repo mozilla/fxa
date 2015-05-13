@@ -574,6 +574,16 @@ define([
     };
   }
 
+  function openPage(context, url, readySelector) {
+    return context.get('remote')
+      .get(require.toUrl(url))
+      .setFindTimeout(config.pageLoadTimeout)
+
+      // Wait until the `readySelector` element is found to return.
+      .findByCssSelector(readySelector)
+      .end();
+  }
+
   return {
     imageLoadedByQSA: imageLoadedByQSA,
     clearBrowserState: clearBrowserState,
@@ -598,6 +608,7 @@ define([
     fillOutResetPassword: fillOutResetPassword,
     fillOutCompleteResetPassword: fillOutCompleteResetPassword,
     fillOutChangePassword: fillOutChangePassword,
-    fillOutDeleteAccount: fillOutDeleteAccount
+    fillOutDeleteAccount: fillOutDeleteAccount,
+    openPage: openPage
   };
 });

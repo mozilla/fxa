@@ -193,20 +193,22 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
           history: historyMock,
           user: userMock
         });
+        appStart._metrics = new Metrics();
       });
 
       describe('fx-desktop', function () {
-        it('returns an FxDesktop broker if `service=sync`', function () {
+        it('returns an FxDesktop broker if `context=fx_desktop_v1`', function () {
           windowMock.location.search = Url.objToSearchString({
-            service: Constants.FX_DESKTOP_SYNC
+            context: Constants.FX_DESKTOP_CONTEXT
           });
 
           return testExpectedBrokerCreated(FxDesktopBroker);
         });
 
-        it('returns an FxDesktop broker if `context=fx_desktop_v1`', function () {
+        it('returns an FxDesktop broker if `service=sync&context=iframe`', function () {
           windowMock.location.search = Url.objToSearchString({
-            context: Constants.FX_DESKTOP_CONTEXT
+            service: Constants.FX_DESKTOP_SYNC,
+            context: Constants.IFRAME_CONTEXT
           });
 
           return testExpectedBrokerCreated(FxDesktopBroker);

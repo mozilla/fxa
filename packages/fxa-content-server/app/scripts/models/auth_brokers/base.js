@@ -16,6 +16,7 @@ define([
 ], function (_, Backbone, p, SearchParamMixin) {
 
   var BaseAuthenticationBroker = Backbone.Model.extend({
+    type: 'base',
     initialize: function (options) {
       options = options || {};
 

@@ -45,6 +45,7 @@ define([
     'screen',
     'service',
     'timers',
+    'broker',
     'ab'
   ];
 
@@ -52,7 +53,7 @@ define([
   var NOT_REPORTED_VALUE = 'none';
 
   function Metrics (options) {
-    /*jshint maxcomplexity:17 */
+    /*jshint maxcomplexity:18 */
     options = options || {};
 
     // by default, send the metrics to the content server.
@@ -75,6 +76,7 @@ define([
     this._migration = options.migration || NOT_REPORTED_VALUE;
     this._service = options.service || NOT_REPORTED_VALUE;
     this._campaign = options.campaign || NOT_REPORTED_VALUE;
+    this._brokerType = options.brokerType || NOT_REPORTED_VALUE;
 
     this._clientHeight = options.clientHeight || NOT_REPORTED_VALUE;
     this._clientWidth = options.clientWidth || NOT_REPORTED_VALUE;
@@ -154,6 +156,7 @@ define([
         ab: this._able ? this._able.report() : [],
         context: this._context,
         service: this._service,
+        broker: this._brokerType,
         lang: this._lang,
         entrypoint: this._entrypoint,
         migration: this._migration,
@@ -280,6 +283,10 @@ define([
      */
     logMarketingClick: function () {
       this._marketingClicked = true;
+    },
+
+    setBrokerType: function (brokerType) {
+      this._brokerType = brokerType;
     }
   });
 

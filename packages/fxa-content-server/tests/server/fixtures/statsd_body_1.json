@@ -1,6 +1,7 @@
 {
     "campaign": "none",
     "context": "web",
+    "broker": "fx-desktop-v1",
     "duration": 4460,
     "entrypoint": "none",
     "events": [

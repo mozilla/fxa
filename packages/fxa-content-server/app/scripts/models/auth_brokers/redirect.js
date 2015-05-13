@@ -12,6 +12,7 @@ define([
 ], function (p, OAuthAuthenticationBroker) {
 
   var RedirectAuthenticationBroker = OAuthAuthenticationBroker.extend({
+    type: 'redirect',
     sendOAuthResultToRelier: function (result) {
       var win = this.window;
       return p()

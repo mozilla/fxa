@@ -47,7 +47,7 @@ define([], function () {
 
     ONERROR_MESSAGE_LIMIT: 100,
 
-    PROFILE_WEBCHANNEL_ID: 'account_updates'
+    ACCOUNT_UPDATES_WEBCHANNEL_ID: 'account_updates'
   };
 });
 
