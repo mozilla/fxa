@@ -574,10 +574,14 @@ define([
     };
   }
 
-  function openPage(context, url) {
+  function openPage(context, url, readySelector) {
     return context.get('remote')
       .get(require.toUrl(url))
-      .setFindTimeout(config.pageLoadTimeout);
+      .setFindTimeout(config.pageLoadTimeout)
+
+      // Wait until the `readySelector` element is found to return.
+      .findByCssSelector(readySelector)
+      .end();
   }
 
   return {

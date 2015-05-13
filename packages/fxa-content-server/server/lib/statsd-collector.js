@@ -57,6 +57,7 @@ StatsDCollector.prototype = {
       var tags = [
         'campaign:' + body.campaign,
         'context:' + body.context,
+        'broker:' + body.broker,
         'entrypoint:' + body.entrypoint,
         'migration:' + body.migration,
         'lang:' + body.lang,

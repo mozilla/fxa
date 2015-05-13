@@ -21,6 +21,7 @@ define([
   FxDesktopChannel, Url) {
 
   var FxDesktopAuthenticationBroker = BaseAuthenticationBroker.extend({
+    type: 'fx-desktop-v1',
     _commands: {
       CAN_LINK_ACCOUNT: 'can_link_account',
       CHANGE_PASSWORD: 'change_password',

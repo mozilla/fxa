@@ -20,6 +20,7 @@ define([
 ], function (FxDesktopAuthenticationBroker, WebChannel, Constants) {
 
   var FxDesktopV2AuthenticationBroker = FxDesktopAuthenticationBroker.extend({
+    type: 'fx-desktop-v2',
     _commands: {
       CAN_LINK_ACCOUNT: 'fxaccounts:can_link_account',
       CHANGE_PASSWORD: 'fxaccounts:change_password',

@@ -3,7 +3,10 @@
 ## Top level
 
 ### context
-The context will be `fx_desktop_v1` if the user is signing up for sync, `web` otherwise.
+The context will be `fx_desktop_v1` if the user is signing up for sync, `iframe` if the user is signing up in an iframe, `web` otherwise.
+
+### broker
+The broker used to coordinate behavior between FxA and the relier.
 
 ### duration
 How long the user was at Firefox Account

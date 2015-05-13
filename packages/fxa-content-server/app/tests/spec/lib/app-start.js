@@ -193,6 +193,7 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
           history: historyMock,
           user: userMock
         });
+        appStart._metrics = new Metrics();
       });
 
       describe('fx-desktop', function () {

@@ -30,7 +30,8 @@ function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
         window: windowMock,
         lang: 'db_LB',
         service: 'sync',
-        context: 'fxa_desktop_v1',
+        context: 'fx_desktop_v1',
+        brokerType: 'fx-desktop',
         entrypoint: 'menupanel',
         migration: 'sync1.5',
         campaign: 'fennec',
@@ -66,8 +67,9 @@ function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
         assert.isTrue(filteredData.hasOwnProperty('navigationTiming'));
         assert.isTrue(filteredData.hasOwnProperty('duration'));
 
-        assert.equal(filteredData.context, 'fxa_desktop_v1');
+        assert.equal(filteredData.context, 'fx_desktop_v1');
         assert.equal(filteredData.service, 'sync');
+        assert.equal(filteredData.broker, 'fx-desktop');
         assert.equal(filteredData.lang, 'db_LB');
         assert.equal(filteredData.entrypoint, 'menupanel');
         assert.equal(filteredData.migration, 'sync1.5');
@@ -226,6 +228,15 @@ function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
       it('logs the screen', function () {
         metrics.logScreen('signup');
         assert.isTrue(TestHelpers.isScreenLogged(metrics, 'signup'));
+      });
+    });
+
+    describe('setBrokerType', function () {
+      it('sets the broker name', function () {
+        metrics.setBrokerType('fx-desktop-v2');
+        var filteredData = metrics.getFilteredData();
+
+        assert.equal(filteredData.broker, 'fx-desktop-v2');
       });
     });
   });

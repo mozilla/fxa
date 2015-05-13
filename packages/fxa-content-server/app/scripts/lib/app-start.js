@@ -353,6 +353,8 @@ function (
           });
         }
 
+        this._metrics.setBrokerType(this._authenticationBroker.type);
+
         return this._authenticationBroker.fetch();
       }
     },

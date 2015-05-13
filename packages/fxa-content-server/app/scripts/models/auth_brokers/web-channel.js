@@ -18,6 +18,7 @@ define([
 ], function (_, OAuthAuthenticationBroker, ChannelMixin, p, WebChannel) {
 
   var WebChannelAuthenticationBroker = OAuthAuthenticationBroker.extend({
+    type: 'web-channel',
     defaults: _.extend({}, OAuthAuthenticationBroker.prototype.defaults, {
       webChannelId: null
     }),

@@ -92,14 +92,11 @@ define([
     'sign up, verify same browser': function () {
       var self = this;
 
-      return FunctionalHelpers.openPage(this, PAGE_URL)
+      return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
         .execute(listenForFxaCommands)
 
         .then(respondToWebChannel(self, 'fxaccounts:can_link_account', { ok: true } ))
 
-
-        .findByCssSelector('#fxa-signup-header')
-        .end()
 
         .then(function () {
           return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);

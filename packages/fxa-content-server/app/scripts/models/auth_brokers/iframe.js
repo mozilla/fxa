@@ -29,6 +29,7 @@ define([
   }
 
   var IframeAuthenticationBroker = OAuthAuthenticationBroker.extend({
+    type: 'iframe',
     initialize: function (options) {
       options = options || {};
 
