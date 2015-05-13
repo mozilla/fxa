@@ -48,6 +48,7 @@ set -o xtrace # echo the following commands
     fxaAuthRoot="$FXA_AUTH_ROOT" \
     fxaContentRoot="$FXA_CONTENT_ROOT" \
     fxaOauthApp="$FXA_OAUTH_APP_ROOT" \
+    fxaUntrustedOauthApp="$FXA_UNTRUSTED_OAUTH_APP_ROOT" \
     fxaIframeOauthApp="${FXA_OAUTH_APP_ROOT}iframe" \
     fxaEmailRoot="http://restmail.net" \
     fxaProduction="true" \
