@@ -142,6 +142,24 @@ function (chai, _, Url) {
         assert.equal(Url.removeParamFromSearchString('foo', ''), '');
       });
     });
+
+    describe('isNavigable', function () {
+      it('detects HTTP and HTTPS properly', function () {
+        assert.isFalse(Url.isNavigable('urn:ietf:wg:oauth:2.0:fx:webchannel'), 'urn values are not navigable');
+        assert.isTrue(Url.isNavigable('https://find.firefox.com'));
+        assert.isTrue(Url.isNavigable('http://find.firefox.com'));
+        assert.isTrue(Url.isNavigable('http://ab'));
+        assert.isTrue(Url.isNavigable('https://b'));
+
+        assert.isFalse(Url.isNavigable('telnet://'));
+        assert.isFalse(Url.isNavigable('ftp://'));
+        assert.isFalse(Url.isNavigable(''));
+        assert.isFalse(Url.isNavigable());
+        assert.isFalse(Url.isNavigable('http://'));
+        assert.isFalse(Url.isNavigable('https://'));
+      });
+    });
+
   });
 });
 

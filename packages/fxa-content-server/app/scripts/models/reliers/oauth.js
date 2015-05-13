@@ -15,9 +15,10 @@ define([
   'lib/promise',
   'lib/oauth-errors',
   'lib/relier-keys',
-  'lib/url'
-], function (_, Relier, ResumeToken, p, OAuthErrors, RelierKeys, Url) {
-  var RELIER_FIELDS_IN_RESUME_TOKEN = ['state'];
+  'lib/url',
+  'lib/constants'
+], function (_, Relier, ResumeToken, p, OAuthErrors, RelierKeys, Url, Constants) {
+  var RELIER_FIELDS_IN_RESUME_TOKEN = ['state', 'verificationRedirect'];
 
   var OAuthRelier = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {
@@ -31,7 +32,9 @@ define([
       // would have redirectUri as its base.
       redirectTo: null,
       // whether to fetch and derive relier-specific keys
-      keys: false
+      keys: false,
+      // verification redirect to the rp, useful during email verification signup flow
+      verificationRedirect: Constants.VERIFICATION_REDIRECT_NO
     }),
 
     initialize: function (options) {
@@ -47,6 +50,10 @@ define([
       var self = this;
       return Relier.prototype.fetch.call(this)
         .then(function () {
+          // parse the resume token before importing server provided data,
+          // the server values might take precedent over the parsed values
+          self._parseResumeToken();
+
           if (self._isVerificationFlow()) {
             self._setupVerificationFlow();
           } else {
@@ -99,6 +106,23 @@ define([
       return !! this.getSearchParam('code');
     },
 
+    /**
+     * Sets relier properties from the resume token value
+     * @private
+     */
+    _parseResumeToken: function () {
+      var resumeToken = this.getSearchParam('resume');
+      var parsedResumeToken = ResumeToken.parse(resumeToken);
+
+      if (parsedResumeToken) {
+        _.each(RELIER_FIELDS_IN_RESUME_TOKEN, function (itemName) {
+          if (Object.prototype.hasOwnProperty.call(parsedResumeToken, itemName)) {
+            this.set(itemName, parsedResumeToken[itemName]);
+          }
+        }, this);
+      }
+    },
+
     _setupVerificationFlow: function () {
       var self = this;
 
@@ -141,6 +165,7 @@ define([
       self.importSearchParam('state');
       self.importSearchParam('redirect_uri', 'redirectUri');
       self.importSearchParam('redirectTo');
+      self.importSearchParam('verification_redirect', 'verificationRedirect');
       self.importBooleanSearchParam('keys');
     },
 

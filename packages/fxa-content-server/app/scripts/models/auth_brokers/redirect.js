@@ -8,8 +8,9 @@
 
 define([
   'lib/promise',
+  'lib/constants',
   'models/auth_brokers/oauth'
-], function (p, OAuthAuthenticationBroker) {
+], function (p, Constants, OAuthAuthenticationBroker) {
 
   var RedirectAuthenticationBroker = OAuthAuthenticationBroker.extend({
     type: 'redirect',
@@ -61,7 +62,7 @@ define([
     finishOAuthFlow: function (account) {
       var self = this;
       return p().then(function () {
-        // There are no ill side effects if if the Original Tab Marker is
+        // There are no ill side effects if the Original Tab Marker is
         // cleared in the a tab other than the original. Always clear it just
         // to make sure the bases are covered.
         self.clearOriginalTabMarker();
@@ -76,14 +77,25 @@ define([
       // The slight delay is to allow the functional tests time to bind
       // event handlers before the flow completes.
       var self = this;
+
       return p().delay(100).then(function () {
-        if (self.isOriginalTab()) {
+        if (self.isOriginalTab() || self.canVerificationRedirect()) {
           return self.finishOAuthFlow(account)
             .then(function () {
               return { halt: true };
             });
         }
       });
+    },
+
+    canVerificationRedirect: function () {
+      // checks if the relier is using the verificationRedirect option
+      // then automatically redirects to the relier if an oauth session is present
+      var verificationRedirect = this.relier.get('verificationRedirect');
+
+      return this.session.oauth &&
+        (verificationRedirect === Constants.VERIFICATION_REDIRECT_ALWAYS ||
+        verificationRedirect === Constants.VERIFICATION_REDIRECT_SAME_BROWSER);
     },
 
     afterCompleteResetPassword: function (account) {

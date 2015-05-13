@@ -48,7 +48,10 @@ function (chai, $, sinon, FxaClient, p, testHelpers, Session, FxaClientWrapper,
       relier.set('service', SERVICE);
       relier.set('redirectTo', REDIRECT_TO);
 
-      expectedResumeToken = ResumeToken.stringify({ state: STATE });
+      expectedResumeToken = ResumeToken.stringify({
+        state: STATE,
+        verificationRedirect: Constants.VERIFICATION_REDIRECT_NO
+      });
 
       realClient = new FxaClient(AUTH_SERVER_URL);
 
