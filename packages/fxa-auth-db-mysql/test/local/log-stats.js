@@ -4,13 +4,13 @@
 require('ass')
 var dbServer = require('fxa-auth-db-server')
 var test = require('../ptaptest')
-var P = require('../../promise')
+var P = require('../../lib/promise')
 var config = require('../../config')
 
 config.logLevel = 'info'
 config.statInterval = 100
 
-var log = require('../../logging')('test.local.log-stats')
+var log = require('../../lib/logging')('test.local.log-stats')
 
 // monkeypatch log.info to hook into db/mysql.js:statInterval
 var dfd = P.defer()
@@ -21,7 +21,7 @@ log.info = function(msg, stats) {
   dfd.resolve(stats)
 }
 
-var DB = require('../../db/mysql')(log, dbServer.errors)
+var DB = require('../../lib/db/mysql')(log, dbServer.errors)
 
 DB.connect(config)
   .then(

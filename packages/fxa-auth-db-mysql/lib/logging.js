@@ -4,7 +4,7 @@
 
 const mozlog = require('mozlog')
 
-const config = require('./config')
+const config = require('../config')
 
 mozlog.config(config.logging)
 

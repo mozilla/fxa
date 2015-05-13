@@ -159,7 +159,7 @@ module.exports = function (fs, path, url, convict) {
       jwt: {
         secretKeyFile: {
           doc: 'Secret key to use for signing JWTs, a PEM-encoded file.',
-          default: './test/local/test-secret.pem',
+          default: __dirname + '/../test/local/test-secret.pem',
           env: 'NOTIFICATIONS_JWT_SECRET_KEY_FILE'
         },
         iss: {

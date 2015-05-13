@@ -4,10 +4,10 @@
 require('ass')
 var dbServer = require('fxa-auth-db-server')
 var log = { trace: console.log, error: console.log, stat: console.log, info: console.log }
-var DB = require('../../db/mysql')(log, dbServer.errors)
+var DB = require('../../lib/db/mysql')(log, dbServer.errors)
 var config = require('../../config')
 var test = require('../ptaptest')
-var P = require('../../promise')
+var P = require('../../lib/promise')
 
 DB.connect(config)
   .then(

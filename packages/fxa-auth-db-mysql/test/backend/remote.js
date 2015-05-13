@@ -7,7 +7,7 @@ var backendTests = require('fxa-auth-db-server/test/backend')
 var config = require('../../config')
 var noop = function () {}
 var log = { trace: noop, error: noop, stat: noop, info: noop }
-var DB = require('../../db/mysql')(log, dbServer.errors)
+var DB = require('../../lib/db/mysql')(log, dbServer.errors)
 var P = require('bluebird')
 
 var server

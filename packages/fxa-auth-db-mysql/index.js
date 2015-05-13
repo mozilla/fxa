@@ -5,8 +5,8 @@
 var config = require('./config')
 var dbServer = require('fxa-auth-db-server')
 var error = dbServer.errors
-var logger = require('./logging')('bin.server')
-var DB = require('./db/mysql')(logger, error)
+var logger = require('./lib/logging')('bin.server')
+var DB = require('./lib/db/mysql')(logger, error)
 
 module.exports = function () {
   return DB.connect(config)
