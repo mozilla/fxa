@@ -142,6 +142,10 @@ function (Cocktail, _, Backbone, $, p, AuthErrors,
           return p().then(function () {
             self.destroySubviews();
 
+            // force a re-load of the context every time the
+            // view is rendered or else stale data may
+            // be returned.
+            self._context = null;
             self.$el.html(self.template(self.getContext()));
           })
           .then(_.bind(self.afterRender, self))
@@ -277,7 +281,12 @@ function (Cocktail, _, Backbone, $, p, AuthErrors,
     },
 
     getContext: function () {
-      var ctx = this.context() || {};
+      // use cached context, if available. This prevents the context()
+      // function from being called multiple times per render.
+      if (! this._context) {
+        this._context = this.context() || {};
+      }
+      var ctx = this._context;
 
       ctx.t = _.bind(this.translate, this);
       ctx.canGoBack = this.canGoBack();
