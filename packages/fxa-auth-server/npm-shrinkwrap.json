@@ -312,9 +312,28 @@
         }
       }
     },
+    "envc": {
+      "version": "2.2.0",
+      "from": "envc@2.2.0",
+      "resolved": "https://registry.npmjs.org/envc/-/envc-2.2.0.tgz",
+      "dependencies": {
+        "params": {
+          "version": "0.1.1",
+          "from": "params@>=0.1.1 <0.2.0",
+          "resolved": "https://registry.npmjs.org/params/-/params-0.1.1.tgz",
+          "dependencies": {
+            "type-detect": {
+              "version": "0.1.2",
+              "from": "type-detect@>=0.1.2 <0.2.0",
+              "resolved": "https://registry.npmjs.org/type-detect/-/type-detect-0.1.2.tgz"
+            }
+          }
+        }
+      }
+    },
     "fxa-auth-db-mem": {
       "version": "0.33.0",
-      "from": "../../../../var/folders/rv/6mf4_t5x169fdxtrnd14y7500000gn/T/npm-32036-f4483a58/git-cache-6c2f2ff0d4d7/219faab1345a7ae45c1c83e9a3d97a4424df8dcc",
+      "from": "git://github.com/mozilla/fxa-auth-db-mem.git#219faab1345a7ae45c1c83e9a3d97a4424df8dcc",
       "resolved": "git://github.com/mozilla/fxa-auth-db-mem.git#219faab1345a7ae45c1c83e9a3d97a4424df8dcc",
       "dependencies": {
         "bluebird": {
@@ -324,7 +343,7 @@
         },
         "fxa-auth-db-server": {
           "version": "0.36.0",
-          "from": "../../../../var/folders/rv/6mf4_t5x169fdxtrnd14y7500000gn/T/npm-32036-f4483a58/git-cache-cd63ed4f185d/38ff26c867e40caf1f10cd2c42b287148be149bc",
+          "from": "git://github.com/mozilla/fxa-auth-db-server.git#38ff26c867e40caf1f10cd2c42b287148be149bc",
           "resolved": "git://github.com/mozilla/fxa-auth-db-server.git#38ff26c867e40caf1f10cd2c42b287148be149bc",
           "dependencies": {
             "restify": {
@@ -512,11 +531,6 @@
                       "resolved": "https://registry.npmjs.org/extsprintf/-/extsprintf-1.2.0.tgz"
                     }
                   }
-                },
-                "dtrace-provider": {
-                  "version": "0.2.8",
-                  "from": "https://registry.npmjs.org/dtrace-provider/-/dtrace-provider-0.2.8.tgz",
-                  "resolved": "https://registry.npmjs.org/dtrace-provider/-/dtrace-provider-0.2.8.tgz"
                 }
               }
             }
@@ -616,7 +630,7 @@
     },
     "fxa-auth-mailer": {
       "version": "1.0.7",
-      "from": "../../../../var/folders/rv/6mf4_t5x169fdxtrnd14y7500000gn/T/npm-32036-f4483a58/git-cache-696d0b98d870/d2eb3b298464455c8fe18fd964141ba89a0d1a0e",
+      "from": "git://github.com/mozilla/fxa-auth-mailer.git#d2eb3b298464455c8fe18fd964141ba89a0d1a0e",
       "resolved": "git://github.com/mozilla/fxa-auth-mailer.git#d2eb3b298464455c8fe18fd964141ba89a0d1a0e",
       "dependencies": {
         "bluebird": {
@@ -662,7 +676,7 @@
         },
         "fxa-content-server-l10n": {
           "version": "0.0.0",
-          "from": "../../../../var/folders/rv/6mf4_t5x169fdxtrnd14y7500000gn/T/npm-32036-f4483a58/git-cache-4c950ec35c81/d6d263acccbf27df194e2b53f0bc7bbdb811ea22",
+          "from": "git://github.com/mozilla/fxa-content-server-l10n.git#d6d263acccbf27df194e2b53f0bc7bbdb811ea22",
           "resolved": "git://github.com/mozilla/fxa-content-server-l10n.git#d6d263acccbf27df194e2b53f0bc7bbdb811ea22"
         },
         "handlebars": {
@@ -1339,11 +1353,6 @@
                   "resolved": "https://registry.npmjs.org/extsprintf/-/extsprintf-1.2.0.tgz"
                 }
               }
-            },
-            "dtrace-provider": {
-              "version": "0.2.8",
-              "from": "https://registry.npmjs.org/dtrace-provider/-/dtrace-provider-0.2.8.tgz",
-              "resolved": "https://registry.npmjs.org/dtrace-provider/-/dtrace-provider-0.2.8.tgz"
             }
           }
         }

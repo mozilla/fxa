@@ -4,12 +4,11 @@
 
 var test = require('../ptaptest')
 var TestServer = require('../test_server')
-var path = require('path')
 var Client = require('../client')
 var P = require('../../lib/promise')
 var request = require('request')
 
-process.env.CONFIG_FILES = path.join(__dirname, '../config/base_path.json')
+process.env.PUBLIC_URL = 'http://127.0.0.1:9000/auth'
 var config = require('../../config').root()
 
 TestServer.start(config)
