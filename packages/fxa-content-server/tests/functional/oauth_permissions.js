@@ -90,6 +90,7 @@ define([
         .end()
 
         .findByCssSelector('#loggedin')
+
         .getCurrentUrl()
         .then(function (url) {
           // redirected back to the App
@@ -101,9 +102,9 @@ define([
           .click()
         .end()
 
-        .then(function () {
-          return FunctionalHelpers.openFxaFromUntrustedRp(self, 'signin');
-        })
+        .findByCssSelector('.signin')
+          .click()
+        .end()
 
         // user signed in previously and should not need to enter
         // their email address.
@@ -323,9 +324,9 @@ define([
           .click()
         .end()
 
-        .then(function () {
-          return FunctionalHelpers.openFxaFromUntrustedRp(self, 'signin');
-        })
+        .findByCssSelector('.signin')
+          .click()
+        .end()
 
         // user signed in previously and should not need to enter
         // their email address.
@@ -346,7 +347,7 @@ define([
           assert.ok(url.indexOf(OAUTH_APP) > -1);
         })
         .end();
-    },
+    }
 
   });
 
