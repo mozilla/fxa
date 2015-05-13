@@ -28,6 +28,8 @@ define([
   var email;
   var client;
   var ANIMATION_DELAY_MS = 1000;
+  var CHANNEL_DELAY = 4000; // how long it takes for the WebChannel indicator to appear
+  var TIMEOUT = 90 * 1000;
 
   var listenForSyncCommands = FxDesktopHelpers.listenForFxaCommands;
   var testIsBrowserNotifiedOfSyncLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
@@ -79,6 +81,9 @@ define([
 
     'signup, verify same browser, in a different tab, with original tab open': function () {
       var self = this;
+      self.timeout = TIMEOUT;
+
+      var messageReceived = false;
 
       return openFxaFromRpAndRequestKeys(self, 'signup')
         .execute(FunctionalHelpers.listenForWebChannelMessage)
@@ -95,17 +100,33 @@ define([
                       self, email, 0);
         })
         .switchToWindow('newwindow')
+        .execute(FunctionalHelpers.listenForWebChannelMessage)
         // wait for the verified window in the new tab
         .findById('fxa-sign-up-complete-header')
-        // the verification tab will almost always be the one to complete the flow.
-        // XXX TODO: can we not fail the test if the other tab wins?
-        // XXX TODO: or, ensure that the original tab always wins if it's open?
+        .setFindTimeout(CHANNEL_DELAY)
         .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
         .end()
+        .then(function () {
+          messageReceived = true;
+        }, function () {
+          // element was not found
+        })
 
         .closeCurrentWindow()
         // switch to the original window
         .switchToWindow('')
+        .setFindTimeout(CHANNEL_DELAY)
+        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
+        .then(function () {
+          messageReceived = true;
+        }, function () {
+          // element was not found
+        })
+
+        .then(function () {
+          assert.isTrue(messageReceived, 'expected to receive a WebChannel event in either tab');
+        })
+        .setFindTimeout(config.pageLoadTimeout)
 
         .findById('fxa-sign-up-complete-header')
         .end();
@@ -113,6 +134,7 @@ define([
 
     'signup, verify same browser, original tab closed navigated to another page': function () {
       var self = this;
+      self.timeout = TIMEOUT;
 
       return openFxaFromRpAndRequestKeys(self, 'signup')
 
@@ -144,6 +166,7 @@ define([
 
     'signup, verify same browser, replace original tab': function () {
       var self = this;
+      self.timeout = TIMEOUT;
 
       return openFxaFromRpAndRequestKeys(self, 'signup')
 
@@ -170,6 +193,7 @@ define([
 
     'signup, verify different browser, from original tab\'s P.O.V.': function () {
       var self = this;
+      self.timeout = TIMEOUT;
 
       return openFxaFromRpAndRequestKeys(self, 'signup')
         .execute(FunctionalHelpers.listenForWebChannelMessage)
@@ -193,6 +217,9 @@ define([
 
     'password reset, verify same browser': function () {
       var self = this;
+      self.timeout = TIMEOUT;
+
+      var messageReceived = false;
 
       return openFxaFromRpAndRequestKeys(self, 'signin')
         .execute(FunctionalHelpers.listenForWebChannelMessage)
@@ -219,6 +246,7 @@ define([
 
         // Complete the password reset in the new tab
         .switchToWindow('newwindow')
+        .execute(FunctionalHelpers.listenForWebChannelMessage)
 
         .then(function () {
           return FunctionalHelpers.fillOutCompleteResetPassword(
@@ -229,21 +257,38 @@ define([
         .findByCssSelector('#fxa-reset-password-complete-header')
         .end()
 
+        .setFindTimeout(CHANNEL_DELAY)
+        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
+        .end()
+        .then(function () {
+          messageReceived = true;
+        }, function () {
+          // element was not found
+        })
+
         .sleep(ANIMATION_DELAY_MS)
 
         .findByCssSelector('.error').isDisplayed()
         .then(function (isDisplayed) {
           assert.isFalse(isDisplayed);
         })
-        // It will almost always win the race to finish the oauth flow.
-        // XXX TODO: can we not fail the test if the other tab wins?
-        // XXX TODO: or, ensure that the original tab always wins if it's open?
-        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
         .end()
 
         .closeCurrentWindow()
         // switch to the original window
         .switchToWindow('')
+        .setFindTimeout(CHANNEL_DELAY)
+        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
+        .then(function () {
+          messageReceived = true;
+        }, function () {
+          // element was not found
+        })
+
+        .then(function () {
+          assert.isTrue(messageReceived, 'expected to receive a WebChannel event in either tab');
+        })
+        .setFindTimeout(config.pageLoadTimeout)
 
         // the original tab should automatically sign in
         .findByCssSelector('#fxa-reset-password-complete-header')
@@ -252,6 +297,7 @@ define([
 
     'password reset, verify same browser, original tab closed': function () {
       var self = this;
+      self.timeout = TIMEOUT;
 
       return openFxaFromRpAndRequestKeys(self, 'signin')
         .then(function () {
@@ -296,6 +342,7 @@ define([
 
     'password reset, verify same browser, replace original tab': function () {
       var self = this;
+      self.timeout = TIMEOUT;
 
       return openFxaFromRpAndRequestKeys(self, 'signin')
 
@@ -336,6 +383,7 @@ define([
 
     'password reset, verify in different browser, from the original tab\'s P.O.V.': function () {
       var self = this;
+      self.timeout = TIMEOUT;
 
       return openFxaFromRpAndRequestKeys(self, 'signin')
         .execute(FunctionalHelpers.listenForWebChannelMessage)
@@ -386,6 +434,7 @@ define([
 
     'signin a verified account and requesting keys after signing in to sync': function () {
       var self = this;
+      self.timeout = TIMEOUT;
 
       return client.signUp(email, PASSWORD, { preVerified: true })
         .then(function () {
