@@ -506,6 +506,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           return account;
         });
 
+        metrics.events.clear();
         return view.render()
           .then(function () {
             sinon.stub(account, 'getAvatar', function () {
@@ -517,6 +518,10 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
             assert.notOk(view.$('.password').length, 'should not show password input');
             assert.ok(view.$('.avatar-view img').length, 'should show suggested avatar');
             assert.isTrue(TestHelpers.isEventLogged(metrics, 'signin.ask-password.skipped'));
+            var askPasswordEvents = metrics.getFilteredData().events.filter(function (event) {
+              return event.type === 'signin.ask-password.skipped';
+            });
+            assert.equal(askPasswordEvents.length, 1, 'event should only be logged once');
           });
       });
 
