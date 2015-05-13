@@ -212,13 +212,6 @@ define([
      */
     isAutomatedBrowser: function () {
       return !! this.get('automatedBrowser');
-    },
-
-    /**
-     * Indicates wether the permissions screen should be shown during sign in/up
-     */
-    shouldPromptForPermissions: function (/* account */) {
-      return false;
     }
   });
 

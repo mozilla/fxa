@@ -400,7 +400,7 @@ function (chai, _, $, moment, sinon, p, View, Coppa, Session, AuthErrors, Metric
         sinon.stub(user, 'signUpAccount', function (account) {
           return p(account);
         });
-        sinon.stub(broker, 'shouldPromptForPermissions', function () {
+        sinon.stub(relier, 'accountNeedsPermissions', function () {
           return true;
         });
         sinon.stub(view, 'navigate', function () { });
@@ -412,7 +412,7 @@ function (chai, _, $, moment, sinon, p, View, Coppa, Session, AuthErrors, Metric
             assert.equal(account.get('email'), email);
             assert.isTrue(broker.beforeSignIn.calledWith(email));
             assert.isTrue(user.signUpAccount.calledWith(account));
-            assert.isTrue(broker.shouldPromptForPermissions.calledWith(account));
+            assert.isTrue(relier.accountNeedsPermissions.calledWith(account));
             assert.isTrue(view.navigate.calledWith('signup_permissions', {
               data: {
                 account: account

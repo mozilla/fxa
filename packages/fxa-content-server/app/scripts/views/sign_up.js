@@ -256,7 +256,7 @@ function (Cocktail, _, p, BaseView, FormView, Template, Session, AuthErrors,
           }
           self.logScreenEvent('success');
 
-          if (self.broker.shouldPromptForPermissions(account)) {
+          if (self.relier.accountNeedsPermissions(account)) {
             self.navigate('signup_permissions', {
               data: {
                 account: account

@@ -154,7 +154,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
           return p(account);
         });
 
-        sinon.stub(broker, 'shouldPromptForPermissions', function () {
+        sinon.stub(relier, 'accountNeedsPermissions', function () {
           return false;
         });
 
@@ -184,7 +184,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         sinon.stub(user, 'signUpAccount', function (account) {
           return p(account);
         });
-        sinon.stub(broker, 'shouldPromptForPermissions', function () {
+        sinon.stub(relier, 'accountNeedsPermissions', function () {
           return true;
         });
         sinon.stub(view, 'navigate', function () { });
@@ -196,7 +196,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
             assert.equal(account.get('email'), email);
             assert.isTrue(broker.beforeSignIn.calledWith(email));
             assert.isTrue(user.signUpAccount.calledWith(account));
-            assert.isTrue(broker.shouldPromptForPermissions.calledWith(account));
+            assert.isTrue(relier.accountNeedsPermissions.calledWith(account));
             assert.isTrue(view.navigate.calledWith('signup_permissions', {
               data: {
                 account: account
@@ -215,7 +215,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         sinon.stub(broker, 'afterSignIn', function () {
           return p();
         });
-        sinon.stub(broker, 'shouldPromptForPermissions', function () {
+        sinon.stub(relier, 'accountNeedsPermissions', function () {
           return false;
         });
 
@@ -240,7 +240,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
           account.set('verified', false);
           return p(account);
         });
-        sinon.stub(broker, 'shouldPromptForPermissions', function () {
+        sinon.stub(relier, 'accountNeedsPermissions', function () {
           return false;
         });
 

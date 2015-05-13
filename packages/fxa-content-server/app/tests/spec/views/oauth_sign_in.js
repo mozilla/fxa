@@ -122,7 +122,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
           account.set('verified', true);
           return p(account);
         });
-        sinon.stub(broker, 'shouldPromptForPermissions', function () {
+        sinon.stub(relier, 'accountNeedsPermissions', function () {
           return false;
         });
         sinon.stub(broker, 'afterSignIn', function () {

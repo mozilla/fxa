@@ -138,16 +138,7 @@ define([
 
     transformLink: function (link) {
       return '/oauth' + link;
-    },
-
-    shouldPromptForPermissions: function (account) {
-      var relier = this.relier;
-      if (relier.isTrusted()) {
-        return false;
-      }
-      return ! account.hasGrantedPermissions(relier.get('clientId'), relier.get('permissions'));
     }
-
   });
 
   return OAuthAuthenticationBroker;

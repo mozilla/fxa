@@ -70,6 +70,62 @@ define([
         .end();
     },
 
+    're-sign in verified': function () {
+      var self = this;
+
+      return FunctionalHelpers.openFxaFromUntrustedRp(self, 'signin')
+        .then(function () {
+          return client.signUp(email, PASSWORD, { preVerified: true });
+        })
+
+        .then(function () {
+          return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
+        })
+
+        .findByCssSelector('#fxa-permissions-header')
+        .end()
+
+        .findByCssSelector('#proceed')
+          .click()
+        .end()
+
+        .findByCssSelector('#loggedin')
+        .getCurrentUrl()
+        .then(function (url) {
+          // redirected back to the App
+          assert.ok(url.indexOf(OAUTH_APP) > -1);
+        })
+        .end()
+
+        .findByCssSelector('#logout')
+          .click()
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.openFxaFromUntrustedRp(self, 'signin');
+        })
+
+        // user signed in previously and should not need to enter
+        // their email address.
+        .findByCssSelector('input[type=password]')
+          .click()
+          .clearValue()
+          .type(PASSWORD)
+        .end()
+
+        .findByCssSelector('button[type=submit]')
+          .click()
+        .end()
+
+        .findByCssSelector('#loggedin')
+        .getCurrentUrl()
+        .then(function (url) {
+          // redirected back to the App without seeing the permissions screen.
+          assert.ok(url.indexOf(OAUTH_APP) > -1);
+        })
+        .end();
+    },
+
     'sign in unverified, acts like signup': function () {
       var self = this;
 
@@ -217,7 +273,81 @@ define([
           assert.equal(text, email);
         })
         .end();
-    }
+    },
+
+    'signup, then sign in': function () {
+      var self = this;
+      return FunctionalHelpers.openFxaFromUntrustedRp(self, 'signup')
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+        })
+
+        .findByCssSelector('#fxa-permissions-header')
+        .end()
+
+        .findByCssSelector('#proceed')
+          .click()
+        .end()
+
+        .findByCssSelector('#fxa-confirm-header')
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.openVerificationLinkSameBrowser(
+                      self, email, 0);
+        })
+
+        .switchToWindow('newwindow')
+        // wait for the verified window in the new tab
+        .findById('fxa-sign-up-complete-header')
+        .end()
+
+        .sleep(5000)
+        .findByCssSelector('.account-ready-service')
+        .getVisibleText()
+        .then(function (text) {
+          // user sees the name of the RP,
+          // but cannot redirect
+          assert.ok(/321done Untrusted/i.test(text));
+        })
+        .end()
+
+        // switch to the original window
+        .closeCurrentWindow()
+        .switchToWindow('')
+
+        .findByCssSelector('#loggedin')
+        .end()
+
+        .findByCssSelector('#logout')
+          .click()
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.openFxaFromUntrustedRp(self, 'signin');
+        })
+
+        // user signed in previously and should not need to enter
+        // their email address.
+        .findByCssSelector('input[type=password]')
+          .click()
+          .clearValue()
+          .type(PASSWORD)
+        .end()
+
+        .findByCssSelector('button[type=submit]')
+          .click()
+        .end()
+
+        .findByCssSelector('#loggedin')
+        .getCurrentUrl()
+        .then(function (url) {
+          // redirected back to the App without seeing the permissions screen.
+          assert.ok(url.indexOf(OAUTH_APP) > -1);
+        })
+        .end();
+    },
+
   });
 
 });

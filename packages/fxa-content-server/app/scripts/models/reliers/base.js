@@ -96,6 +96,13 @@ define([
      */
     isTrusted: function () {
       return true;
+    },
+
+    /**
+     * Indicate whether the given accounts needs any additional permissions
+     */
+    accountNeedsPermissions: function (/* account */) {
+      return false;
     }
   });
 

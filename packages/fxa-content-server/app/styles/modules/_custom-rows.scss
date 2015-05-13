@@ -132,6 +132,7 @@ ul.links {
   border: 1px solid $permissions-border-color;
   text-align: left;
   padding: 10px;
+  word-wrap: break-word;
 
   .permission {
     font-size: $base-font;

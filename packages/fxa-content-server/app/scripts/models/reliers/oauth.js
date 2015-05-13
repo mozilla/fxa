@@ -185,6 +185,14 @@ define([
 
     isTrusted: function () {
       return this.get('trusted');
+    },
+
+    accountNeedsPermissions: function (account) {
+      if (this.isTrusted()) {
+        return false;
+      }
+
+      return ! account.hasGrantedPermissions(this.get('clientId'), this.get('permissions'));
     }
   });
 

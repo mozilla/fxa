@@ -91,6 +91,12 @@ define([
         assert.isTrue(relier.isTrusted());
       });
     });
+
+    describe('accountNeedsPermissions', function () {
+      it('returns `false`', function () {
+        assert.isFalse(relier.accountNeedsPermissions());
+      });
+    });
   });
 });
 
