@@ -205,7 +205,7 @@ function (Cocktail, _, p, BaseView, FormView, Template, Session, AuthErrors,
     },
 
     _isEmailFirefoxDomain: function () {
-      var email = this.$('.email').val();
+      var email = this.getElementValue('.email');
 
       // some users input a "@firefox.com" email.
       // this is not a valid email at this time, therefore we block the attempt.
@@ -230,54 +230,45 @@ function (Cocktail, _, p, BaseView, FormView, Template, Session, AuthErrors,
 
     _initAccount: function () {
       var self = this;
-      var email = self.$('.email').val();
-      var password = self.$('.password').val();
-      var customizeSync = self.$('.customize-sync').is(':checked');
+
       var preVerifyToken = self.relier.get('preVerifyToken');
+      var account = self.user.initAccount({
+        email: self.getElementValue('.email'),
+        password: self.getElementValue('.password'),
+        customizeSync: self.$('.customize-sync').is(':checked')
+      });
 
       if (preVerifyToken) {
         self.logScreenEvent('preverified');
       }
 
       if (self.relier.isSync()) {
-        self.logScreenEvent('customizeSync.' + String(customizeSync));
+        self.logScreenEvent('customizeSync.' + String(account.get('customizeSync')));
       }
 
-      return self.broker.beforeSignIn(email)
+      return self.broker.beforeSignIn(account.get('email'))
         .then(function () {
-          return self.fxaClient.signUp(
-                        email, password, self.relier, {
-                          customizeSync: customizeSync
-                        });
-        }).then(function (accountData) {
-          var account = self.user.initAccount(accountData);
-
+          return self.user.signUpAccount(account, self.relier);
+        })
+        .then(function (account) {
           if (preVerifyToken && account.get('verified')) {
             self.logScreenEvent('preverified.success');
           }
           self.logScreenEvent('success');
 
-          return self.user.setSignedInAccount(account)
-            .then(function () {
-              return account;
+          if (self.relier.accountNeedsPermissions(account)) {
+            self.navigate('signup_permissions', {
+              data: {
+                account: account
+              }
             });
-        })
-        .then(_.bind(self.onSignUpSuccess, self))
-        .then(null, function (err) {
-          // Account already exists. No attempt is made at signing the
-          // user in directly, instead, point the user to the signin page
-          // where the entered email/password will be prefilled.
-          if (AuthErrors.is(err, 'ACCOUNT_ALREADY_EXISTS')) {
-            return self._suggestSignIn(err);
-          } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
-            self.logEvent('login.canceled');
-            // if user canceled login, just stop
+
             return;
           }
 
-          // re-throw error, it will be handled at a lower level.
-          throw err;
-        });
+          return self.onSignUpSuccess(account);
+        })
+        .fail(_.bind(self.signUpError, self));
     },
 
     onSignUpSuccess: function (account) {
@@ -297,6 +288,23 @@ function (Cocktail, _, p, BaseView, FormView, Template, Session, AuthErrors,
           }
         });
       }
+    },
+
+    signUpError: function (err) {
+      var self = this;
+      // Account already exists. No attempt is made at signing the
+      // user in directly, instead, point the user to the signin page
+      // where the entered email/password will be prefilled.
+      if (AuthErrors.is(err, 'ACCOUNT_ALREADY_EXISTS')) {
+        return self._suggestSignIn(err);
+      } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
+        self.logEvent('login.canceled');
+        // if user canceled login, just stop
+        return;
+      }
+
+      // re-throw error, it will be handled at a lower level.
+      throw err;
     },
 
     _suggestSignIn: function (err) {

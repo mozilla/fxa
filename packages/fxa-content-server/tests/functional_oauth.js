@@ -9,7 +9,8 @@ define([
   './functional/oauth_webchannel',
   './functional/oauth_preverified_sign_up',
   './functional/oauth_iframe',
-  './functional/oauth_force_email'
+  './functional/oauth_force_email',
+  './functional/oauth_permissions'
 ], function () {
   'use strict';
 });

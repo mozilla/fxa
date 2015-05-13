@@ -56,6 +56,10 @@ define([
           if (! self.has('service')) {
             self.set('service', self.get('clientId'));
           }
+          if (self.has('scope')) {
+            // Turn the scope string into an array of permissions
+            self.set('permissions', scopeStrToArray(self.get('scope')));
+          }
 
           return self._setupOAuthRPInfo();
         });
@@ -159,7 +163,13 @@ define([
           //jshint camelcase: false
           // server version always takes precedent over the search parameter
           self.set('redirectUri', serviceInfo.redirect_uri);
+          self.set('termsUri', serviceInfo.terms_uri);
+          self.set('privacyUri', serviceInfo.privacy_uri);
+          self.set('trusted', serviceInfo.trusted);
           self.set('origin', Url.getOrigin(serviceInfo.redirect_uri));
+
+          self.set('serviceUri', self.get('origin').replace(/https?:\/\//, ''));
+
         }, function (err) {
           // the server returns an invalid request signature for an
           // invalid/unknown client_id
@@ -171,8 +181,24 @@ define([
           }
           throw err;
         });
+    },
+
+    isTrusted: function () {
+      return this.get('trusted');
+    },
+
+    accountNeedsPermissions: function (account) {
+      if (this.isTrusted()) {
+        return false;
+      }
+
+      return ! account.hasGrantedPermissions(this.get('clientId'), this.get('permissions'));
     }
   });
+
+  function scopeStrToArray(scopes) {
+    return typeof scopes === 'string' ? _.uniq(scopes.split(/\s+/g)) : scopes;
+  }
 
   return OAuthRelier;
 });

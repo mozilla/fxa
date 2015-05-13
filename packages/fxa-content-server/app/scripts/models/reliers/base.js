@@ -89,6 +89,20 @@ define([
      */
     allowCachedCredentials: function () {
       return true;
+    },
+
+    /**
+     * Indicates whether the relier is trusted
+     */
+    isTrusted: function () {
+      return true;
+    },
+
+    /**
+     * Indicate whether the given accounts needs any additional permissions
+     */
+    accountNeedsPermissions: function (/* account */) {
+      return false;
     }
   });
 

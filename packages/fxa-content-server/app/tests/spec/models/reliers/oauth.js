@@ -8,6 +8,7 @@ define([
   'chai',
   'sinon',
   'models/reliers/oauth',
+  'models/user',
   'lib/session',
   'lib/oauth-client',
   'lib/oauth-errors',
@@ -16,7 +17,7 @@ define([
   'lib/url',
   '../../../mocks/window',
   '../../../lib/helpers'
-], function (chai, sinon, OAuthRelier, Session, OAuthClient, OAuthErrors,
+], function (chai, sinon, OAuthRelier, User, Session, OAuthClient, OAuthErrors,
       p, RelierKeys, Url, WindowMock, TestHelpers) {
   var assert = chai.assert;
 
@@ -24,6 +25,7 @@ define([
     var relier;
     var oAuthClient;
     var windowMock;
+    var user;
 
     var STATE = 'fakestatetoken';
     var SERVICE = 'service';
@@ -31,7 +33,8 @@ define([
     var CLIENT_ID = 'dcdb5ae7add825d2';
     var REDIRECT_URI = 'http://redirect.here';
     var SERVER_REDIRECT_URI = 'http://127.0.0.1:8080/api/oauth';
-    var SCOPE = 'profile:name';
+    var SCOPE = 'profile:email profile:uid';
+    var PERMISSIONS = ['profile:email', 'profile:uid'];
     var ACTION = 'signup';
     var PREVERIFY_TOKEN = 'abigtoken';
 
@@ -53,6 +56,8 @@ define([
           redirect_uri: SERVER_REDIRECT_URI
         });
       });
+
+      user = new User();
 
       relier = new OAuthRelier({
         window: windowMock,
@@ -184,6 +189,19 @@ define([
           });
       });
 
+      it('populates permissions from scope', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          //jshint camelcase: false
+          client_id: CLIENT_ID,
+          scope: SCOPE
+        });
+
+        return relier.fetch()
+          .then(function () {
+            assert.deepEqual(relier.get('permissions'), PERMISSIONS);
+          });
+      });
+
       it('errors if `client_id` is missing', function () {
         windowMock.location.search = TestHelpers.toSearchString({
           scope: SCOPE
@@ -226,6 +244,46 @@ define([
             assert.equal(err.param, 'scope');
           });
       });
+
+      it('isTrusted when `trusted` is true', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          //jshint camelcase: false
+          client_id: CLIENT_ID,
+          scope: SCOPE
+        });
+        oAuthClient.getClientInfo.restore();
+        sinon.stub(oAuthClient, 'getClientInfo', function () {
+          return p({
+            name: SERVICE_NAME,
+            redirect_uri: SERVER_REDIRECT_URI,
+            trusted: true
+          });
+        });
+        return relier.fetch()
+          .then(function () {
+            assert.isTrue(relier.isTrusted());
+          });
+      });
+
+      it('!isTrusted when `trusted` is false', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          //jshint camelcase: false
+          client_id: CLIENT_ID,
+          scope: SCOPE
+        });
+        oAuthClient.getClientInfo.restore();
+        sinon.stub(oAuthClient, 'getClientInfo', function () {
+          return p({
+            name: SERVICE_NAME,
+            redirect_uri: SERVER_REDIRECT_URI,
+            trusted: false
+          });
+        });
+        return relier.fetch()
+          .then(function () {
+            assert.isFalse(relier.isTrusted());
+          });
+      });
     });
 
     describe('isOAuth', function () {
@@ -263,6 +321,45 @@ define([
           });
       });
     });
+
+    describe('accountNeedsPermissions', function () {
+      it('should not prompt when relier is trusted', function () {
+        sinon.stub(relier, 'isTrusted', function () {
+          return true;
+        });
+        assert.isFalse(relier.accountNeedsPermissions(user.initAccount()));
+        assert.isTrue(relier.isTrusted.called);
+      });
+
+      it('should not prompt when relier is untrusted and has permissions', function () {
+        var account = user.initAccount();
+        sinon.stub(relier, 'isTrusted', function () {
+          return false;
+        });
+        sinon.stub(account, 'hasGrantedPermissions', function () {
+          return true;
+        });
+        relier.set('permissions', ['profile:email']);
+        assert.isFalse(relier.accountNeedsPermissions(account));
+        assert.isTrue(relier.isTrusted.called);
+        assert.isTrue(account.hasGrantedPermissions.calledWith(relier.get('clientId'), ['profile:email']));
+      });
+
+      it('returns true when relier is untrusted and at least one permission is needed', function () {
+        var account = user.initAccount();
+        sinon.stub(relier, 'isTrusted', function () {
+          return false;
+        });
+        sinon.stub(account, 'hasGrantedPermissions', function () {
+          return false;
+        });
+        relier.set('permissions', ['profile:email']);
+        assert.isTrue(relier.accountNeedsPermissions(account));
+        assert.isTrue(relier.isTrusted.called);
+        assert.isTrue(account.hasGrantedPermissions.calledWith(relier.get('clientId'), ['profile:email']));
+      });
+    });
+
   });
 });
 

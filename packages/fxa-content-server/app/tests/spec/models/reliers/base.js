@@ -85,6 +85,18 @@ define([
         assert.isTrue(relier.allowCachedCredentials());
       });
     });
+
+    describe('isTrusted', function () {
+      it('returns `true`', function () {
+        assert.isTrue(relier.isTrusted());
+      });
+    });
+
+    describe('accountNeedsPermissions', function () {
+      it('returns `false`', function () {
+        assert.isFalse(relier.accountNeedsPermissions());
+      });
+    });
   });
 });
 

@@ -58,6 +58,8 @@ define([
     '/confirm_account_unlock': { statusCode: 200 },
     '/complete_unlock_account': { statusCode: 200 },
     '/account_unlock_complete': { statusCode: 200 },
+    '/signup_permissions': { statusCode: 200 },
+    '/signin_permissions': { statusCode: 200 },
 
     // the following have a version prefix
     '/v1/verify_email': { statusCode: 200 },

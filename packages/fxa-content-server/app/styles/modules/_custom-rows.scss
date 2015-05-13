@@ -126,3 +126,26 @@ ul.links {
   top: 0;
   z-index: 1;
 }
+
+#permissions {
+  border-radius: $big-border-radius;
+  border: 1px solid $permissions-border-color;
+  text-align: left;
+  padding: 10px;
+  word-wrap: break-word;
+
+  .permission {
+    font-size: $base-font;
+  }
+  .value {
+    display: block;
+  }
+}
+
+
+ul.permission-links {
+  li {
+    margin:  0;
+    padding: 0;
+  }
+}

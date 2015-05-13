@@ -24,7 +24,7 @@ define([
       // it exists in our list of cached accounts. If it doesn't,
       // clear the current account.
       // The `mustVerify` flag will ensure that the account is valid.
-      if (! self.user.getAccountByUid(uid).isEmpty()) {
+      if (! self.user.getAccountByUid(uid).isDefault()) {
         // The account with uid exists; set it to our current account.
         self.user.setSignedInAccountByUid(uid);
       } else if (uid) {

@@ -260,6 +260,7 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
         assert.equal(transformed, '/oauth/signin');
       });
     });
+
   });
 });
 

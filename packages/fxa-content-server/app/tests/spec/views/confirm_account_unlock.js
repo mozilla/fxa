@@ -98,7 +98,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
 
     describe('beforeRender', function () {
       it('redirects users who browse directly to the page to /signup', function () {
-        sinon.stub(account, 'isEmpty', function () {
+        sinon.stub(account, 'isDefault', function () {
           return true;
         });
 

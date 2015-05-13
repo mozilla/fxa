@@ -173,7 +173,7 @@ define([
 
       return p()
         .then(function () {
-          if (! self.getSignedInAccount().isEmpty()) {
+          if (! self.getSignedInAccount().isDefault()) {
             // We've already upgraded the session
             return;
           }
@@ -222,6 +222,33 @@ define([
       return (Session.email && Session.sessionToken &&
         (! Session.cachedCredentials ||
         Session.cachedCredentials.email !== Session.email));
+    },
+
+    signInAccount: function (account, relier) {
+      var self = this;
+      return account.signIn(relier)
+        .then(function () {
+          // If there's an account with the same uid in localStorage we merge
+          // its attributes with the new account instance to retain state
+          // used across sign-ins, such as granted permissions.
+          var oldAccount = self.getAccountByUid(account.get('uid'));
+          if (! oldAccount.isDefault()) {
+            // allow new account attributes to override old ones
+            oldAccount.set(_.omit(account.attributes, function (val) {
+              return typeof val === 'undefined';
+            }));
+            return self.setSignedInAccount(oldAccount);
+          }
+          return self.setSignedInAccount(account);
+        });
+    },
+
+    signUpAccount: function (account, relier) {
+      var self = this;
+      return account.signUp(relier)
+        .then(function () {
+          return self.setSignedInAccount(account);
+        });
     }
 
   });
