@@ -292,6 +292,10 @@ content-server page.
     signed in email address will be used as the default.
   - If `action` is `force_auth`, the user is unable to modify the email
     address and is unable to sign up if the address is not registered.
+- `keys`: Optional. Boolean setting, set this if the relier wants to receive encryption keys.
+- `verification_redirect`: Optional. This option adds a "Proceed" button into the "Account Ready" view. See options for details.
+  - Default. If `verification_redirect` is `no` the account ready view will not show a "Proceed" button that will return to the relier.
+  - If `verification_redirect` is `always` then a "Proceed" button is only displayed if the user verifies in a 2nd browser. If the user verifies in the same browser, they are automatically redirected w/o user interaction.
 
 **Example:**
 
