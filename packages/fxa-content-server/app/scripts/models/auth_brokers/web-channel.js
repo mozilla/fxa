@@ -96,20 +96,83 @@ define([
                 this, account, { closeWindow: true });
     },
 
+    beforeSignUpConfirmationPoll: function (account) {
+      // If the relier wants keys, the signup verification tab will need
+      // to be able to fetch them in order to complete the flow.
+      // Send them as part of the oauth session data.
+      if (this.relier.wantsKeys()) {
+        this.session.set('oauth', _.extend({}, this.session.oauth, {
+          keyFetchToken: account.get('keyFetchToken'),
+          unwrapBKey: account.get('unwrapBKey')
+        }));
+      }
+    },
+
+    /**
+     * If the user has to go through an email verification loop, they could
+     * wind up with two tabs open that are both capable of completing the OAuth
+     * flow.  To avoid sending duplicate webchannel events, and to avoid double
+     * use of the keyFetchToken when the relier wants keys, we coordinate via
+     * session data to ensure that only a single tab completes the flow.
+     *
+     * If session.oauth exists then there's an outstanding flow to be completed.
+     * If it is empty then another tab must have completed the flow.
+     *
+     * There's still a small race window that would allow both tabs to complete,
+     * but it's unlikely to trigger in practice.
+     */
+
+    hasPendingOAuthFlow: function () {
+      this.session.reload();
+      return !!(this.session.oauth);
+    },
+
+    afterSignUpConfirmationPoll: function (account) {
+      if (this.hasPendingOAuthFlow()) {
+        return this.finishOAuthFlow(account);
+      }
+      return p();
+    },
+
     afterCompleteSignUp: function (account) {
       // The original tab may be closed, so the verification tab should
       // send the OAuth result to the browser to ensure the flow completes.
       //
-      // The slight delay is to allow the functional tests time to bind
-      // event handlers before the flow completes.
+      // The slight delay here is to allow the functional tests time to
+      // bind event handlers before the flow completes.
       var self = this;
-      return p().delay(100).then(_.bind(self.finishOAuthFlow, self, account));
+      return p().delay(100).then(function () {
+        if (self.hasPendingOAuthFlow()) {
+          // This tab won't have access to key-fetching material, so
+          // retreive it from the session if necessary.
+          if (self.relier.wantsKeys()) {
+            account.set('keyFetchToken', self.session.oauth.keyFetchToken);
+            account.set('unwrapBKey', self.session.oauth.unwrapBKey);
+          }
+          return self.finishOAuthFlow(account);
+        }
+      });
+    },
+
+    afterResetPasswordConfirmationPoll: function (account) {
+      if (this.hasPendingOAuthFlow()) {
+        return this.finishOAuthFlow(account);
+      }
+      return p();
     },
 
     afterCompleteResetPassword: function (account) {
       // The original tab may be closed, so the verification tab should
       // send the OAuth result to the browser to ensure the flow completes.
-      return this.finishOAuthFlow(account);
+      //
+      // The slight delay here is to allow the functional tests time to
+      // bind event handlers before the flow completes.
+      var self = this;
+      return p().delay(100).then(function () {
+        if (self.hasPendingOAuthFlow()) {
+          return self.finishOAuthFlow(account);
+        }
+      });
     },
 
     // used by the ChannelMixin to get a channel.

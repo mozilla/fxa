@@ -177,26 +177,168 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
       });
     });
 
-    describe('afterCompleteSignUp', function () {
-      it('calls sendOAuthResultToRelier', function () {
+    describe('beforeSignUpConfirmationPoll', function () {
+      it('does not persist key-fetch material by default', function () {
         setupCompletesOAuthTest();
+        assert.isFalse(broker.relier.wantsKeys());
+        account.set('keyFetchToken', 'keyFetchToken');
+        account.set('unwrapBKey', 'unwrapBKey');
 
-        return broker.afterCompleteSignUp(account)
+        return broker.persist()
+          .then(function () {
+            return broker.beforeSignUpConfirmationPoll(account);
+          })
+          .then(function () {
+            assert.isUndefined(broker.session.oauth.keyFetchToken);
+            assert.isUndefined(broker.session.oauth.unwrapBKey);
+          });
+      });
+
+      it('persists key-fetch material if the relier wants keys', function () {
+        setupCompletesOAuthTest();
+        sinon.stub(broker.relier, 'wantsKeys', function () {
+          return true;
+        });
+
+        return broker.persist()
+          .then(function () {
+            account.set('keyFetchToken', 'keyFetchToken');
+            account.set('unwrapBKey', 'unwrapBKey');
+            return broker.beforeSignUpConfirmationPoll(account);
+          })
+          .then(function () {
+            assert.equal(broker.session.oauth.keyFetchToken, 'keyFetchToken');
+            assert.equal(broker.session.oauth.unwrapBKey, 'unwrapBKey');
+          });
+      });
+    });
+
+    describe('afterCompleteSignUp', function () {
+      it('calls sendOAuthResultToRelier if there is session data present', function () {
+        setupCompletesOAuthTest();
+        return broker.persist()
+          .then(function () {
+            return broker.afterCompleteSignUp(account);
+          })
           .then(function () {
             assert.isTrue(broker.sendOAuthResultToRelier.called);
             assert.isFalse(view.displayError.called);
           });
       });
+
+      it('doesn\'t call sendOAuthResultToRelier if there is no session data', function () {
+        setupCompletesOAuthTest();
+        return broker.persist()
+          .then(function () {
+            broker.session.clear('oauth');
+            return broker.afterCompleteSignUp(account);
+          })
+          .then(function () {
+            assert.isFalse(broker.sendOAuthResultToRelier.called);
+          });
+      });
+
+      it('retrieves key-fetch material from session if the relier wants keys', function () {
+        setupCompletesOAuthTest();
+        sinon.stub(broker.relier, 'wantsKeys', function () {
+          return true;
+        });
+
+        return broker.persist()
+          .then(function () {
+            account.set('keyFetchToken', 'keyFetchToken');
+            account.set('unwrapBKey', 'unwrapBKey');
+            return broker.beforeSignUpConfirmationPoll(account);
+          })
+          .then(function () {
+            account.set('keyFetchToken', null);
+            account.set('unwrapBKey', null);
+            return broker.afterCompleteSignUp(account);
+          })
+          .then(function () {
+            assert.isTrue(broker.sendOAuthResultToRelier.called);
+            assert.equal(account.get('keyFetchToken'), 'keyFetchToken');
+            assert.equal(account.get('unwrapBKey'), 'unwrapBKey');
+          });
+      });
     });
 
-    describe('afterCompleteResetPassword', function () {
-      it('calls sendOAuthResultToRelier', function () {
+    describe('afterSignUpConfirmationPoll', function () {
+      it('calls sendOAuthResultToRelier if there is session data present', function () {
         setupCompletesOAuthTest();
-
-        return broker.afterCompleteResetPassword(account)
+        return broker.persist()
+          .then(function () {
+            return broker.afterSignUpConfirmationPoll(account);
+          })
           .then(function () {
             assert.isTrue(broker.sendOAuthResultToRelier.called);
             assert.isFalse(view.displayError.called);
+          });
+      });
+
+      it('doesn\'t call sendOAuthResultToRelier if there is no session data', function () {
+        setupCompletesOAuthTest();
+        return broker.persist()
+          .then(function () {
+            broker.session.clear('oauth');
+            return broker.afterSignUpConfirmationPoll(account);
+          })
+          .then(function () {
+            assert.isFalse(broker.sendOAuthResultToRelier.called);
+          });
+      });
+    });
+
+    describe('afterCompleteResetPassword', function () {
+      it('calls sendOAuthResultToRelier if there is session data present', function () {
+        setupCompletesOAuthTest();
+
+        return broker.persist()
+          .then(function () {
+            return broker.afterCompleteResetPassword(account);
+          })
+          .then(function () {
+            assert.isTrue(broker.sendOAuthResultToRelier.called);
+            assert.isFalse(view.displayError.called);
+          });
+      });
+
+      it('doesn\'t call sendOAuthResultToRelier if there is no session data', function () {
+        setupCompletesOAuthTest();
+        return broker.persist()
+          .then(function () {
+            broker.session.clear('oauth');
+            return broker.afterCompleteResetPassword(account);
+          })
+          .then(function () {
+            assert.isFalse(broker.sendOAuthResultToRelier.called);
+          });
+      });
+    });
+
+    describe('afterResetPasswordConfirmationPoll', function () {
+      it('calls sendOAuthResultToRelier if there is session data present', function () {
+        setupCompletesOAuthTest();
+
+        return broker.persist()
+          .then(function () {
+            return broker.afterResetPasswordConfirmationPoll(account);
+          })
+          .then(function () {
+            assert.isTrue(broker.sendOAuthResultToRelier.called);
+            assert.isFalse(view.displayError.called);
+          });
+      });
+
+      it('doesn\'t call sendOAuthResultToRelier if there is no session data', function () {
+        setupCompletesOAuthTest();
+        return broker.persist()
+          .then(function () {
+            broker.session.clear('oauth');
+            return broker.afterResetPasswordConfirmationPoll(account);
+          })
+          .then(function () {
+            assert.isFalse(broker.sendOAuthResultToRelier.called);
           });
       });
     });

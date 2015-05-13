@@ -89,6 +89,35 @@ function (chai, Session) {
         assert.equal(Session.key7, 'value7');
         assert.equal(Session.key8, 'value8');
       });
+
+    });
+
+    describe('reload', function () {
+      it('reloads new, modified, and cleared keys from storage', function () {
+        Session.set({
+          key9: 'value9',
+          key10: 'value10',
+          key11: 'value11'
+        });
+
+        sessionStorage.setItem('__fxa_session', JSON.stringify({
+          key10: 'newValue10',
+          key11: 'value11',
+          key12: 'value12'
+        }));
+
+        assert.equal(Session.key9, 'value9');
+        assert.equal(Session.key10, 'value10');
+        assert.equal(Session.key11, 'value11');
+        assert.isUndefined(Session.key12);
+
+        Session.reload();
+
+        assert.isUndefined(Session.key9);
+        assert.equal(Session.key10, 'newValue10');
+        assert.equal(Session.key11, 'value11');
+        assert.equal(Session.key12, 'value12');
+      });
     });
   });
 });

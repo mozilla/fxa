@@ -7,6 +7,7 @@ define([
   './functional/oauth_sign_up',
   './functional/oauth_reset_password',
   './functional/oauth_webchannel',
+  './functional/oauth_webchannel_keys',
   './functional/oauth_preverified_sign_up',
   './functional/oauth_iframe',
   './functional/oauth_force_email',
