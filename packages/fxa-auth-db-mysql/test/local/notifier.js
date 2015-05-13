@@ -21,14 +21,14 @@ config.notifications.publishUrl = NOTIFICATION_SERVER + '/v0/publish'
 config.notifications.jwt.iss = 'test.com'
 config.notifications.jwt.jku = 'http://test.com/.well-known/keys'
 config.notifications.jwt.kid = 'test-key'
-config.notifications.jwt.secretKeyFile = './test/local/test-secret.pem'
+config.notifications.jwt.secretKeyFile = path.resolve(__dirname, 'test-secret.pem')
 
 var publicKey = JWK.fromPEM(fs.readFileSync(
   path.resolve(__dirname, 'test-public.pem'),
   'utf8'
 ))
 
-var notifier = require('../../notifier')(log, config)
+var notifier = require('../../lib/notifier')(log, config)
 
 var events = [
   { uid: 'ABCDEF', typ: 'create', iat: 123456 },

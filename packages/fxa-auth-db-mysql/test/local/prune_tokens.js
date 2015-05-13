@@ -5,7 +5,7 @@ require('ass')
 var dbServer = require('fxa-auth-db-server')
 var test = require('../ptaptest')
 var log = { trace: console.log, error: console.log, info: console.log }
-var DB = require('../../db/mysql')(log, dbServer.errors)
+var DB = require('../../lib/db/mysql')(log, dbServer.errors)
 var fake = require('fxa-auth-db-server/test/fake')
 var config = require('../../config')
 

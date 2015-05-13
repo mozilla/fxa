@@ -6,14 +6,14 @@ var path = require('path')
 var mysql = require('mysql')
 var clone = require('clone')
 var config = require('../config')
-var logger = require('../logging')('bin.db_patcher')
+var logger = require('../lib/logging')('bin.db_patcher')
 var patcher = require('mysql-patcher')
 
-var patch = require('../db/patch')
+var patch = require('../lib/db/patch')
 
 // set some options
 var options = clone(config.master)
-options.dir = path.join(__dirname, '..', 'db', 'schema')
+options.dir = path.join(__dirname, '..', 'lib', 'db', 'schema')
 options.patchKey = config.patchKey
 options.metaTable = 'dbMetadata'
 options.patchLevel = patch.level
