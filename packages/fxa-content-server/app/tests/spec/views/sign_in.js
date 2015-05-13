@@ -439,6 +439,8 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
             assert.ok(view.$('.password').length, 'should show password input');
 
             assert.equal(view.$('.email').val(), '', 'should have an empty email input');
+            assert.isTrue(TestHelpers.isEventLogged(metrics,
+                              'signin.use-different-account'));
           });
       });
     });
