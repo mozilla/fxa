@@ -151,6 +151,7 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics,
                   .calledWith(email, password));
                 assert.isTrue(user.removeAccount.calledWith(account));
                 assert.isTrue(broker.afterDeleteAccount.calledWith(account));
+                assert.isTrue(TestHelpers.isEventLogged(metrics, 'delete-account.deleted'));
               });
         });
 
