@@ -128,6 +128,17 @@ define([
       return !!(this.session.oauth);
     },
 
+    finishOAuthFlow: function (account, additionalResultData) {
+      // The oauth information needs to be cleared to prevent
+      // multiple tabs from attempting to complete the OAuth flow.
+      // This can happen anytime an email verification is needed
+      // and both tabs are open in the same browser. If both tabs
+      // try to send OAuth info, then one tab will show the error
+      // "Invalid authentication token in request signature"
+      this.session.clear('oauth');
+      return OAuthAuthenticationBroker.prototype.finishOAuthFlow.call(this, account, additionalResultData);
+    },
+
     afterSignUpConfirmationPoll: function (account) {
       if (this.hasPendingOAuthFlow()) {
         return this.finishOAuthFlow(account);
