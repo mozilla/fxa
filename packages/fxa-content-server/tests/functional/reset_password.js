@@ -26,6 +26,7 @@ define([
   var COMPLETE_PAGE_URL_ROOT = config.fxaContentRoot + 'complete_reset_password';
 
   var PASSWORD = 'password';
+  var TIMEOUT = 90 * 1000;
   var email;
   var code;
   var token;
@@ -332,6 +333,7 @@ define([
 
     'reset password, verify same browser': function () {
       var self = this;
+      self.timeout = TIMEOUT;
 
       return FunctionalHelpers.fillOutResetPassword(self, email)
 
