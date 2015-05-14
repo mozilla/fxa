@@ -1441,6 +1441,7 @@ describe('/v1', function() {
         });
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
+        assert.deepEqual(res.result, {});
         return db.getToken(encrypt.hash(token)).then(function(tok) {
           assert.equal(tok, undefined);
         });
