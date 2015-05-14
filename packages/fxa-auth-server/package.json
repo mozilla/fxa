@@ -27,6 +27,7 @@
   "dependencies": {
     "aws-sdk": "2.1.26",
     "binary-split": "0.1.2",
+    "bluebird": "2.9.25",
     "convict": "0.6.1",
     "envc": "2.2.0",
     "fxa-auth-mailer": "git+https://github.com/mozilla/fxa-auth-mailer.git#master",
@@ -36,7 +37,6 @@
     "hkdf": "0.0.2",
     "joi": "6.4.1",
     "mozlog": "2.0.1",
-    "p-promise": "0.5.0",
     "poolee": "1.0.0",
     "request": "2.55.0",
     "scrypt-hash": "1.1.12",

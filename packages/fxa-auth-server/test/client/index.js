@@ -158,7 +158,7 @@ Client.prototype.login = function (opts) {
 }
 
 Client.prototype.destroySession = function () {
-  var p = P(null)
+  var p = P.resolve(null)
   if (this.sessionToken) {
     p = this.api.sessionDestroy(this.sessionToken)
       .then(
@@ -176,7 +176,7 @@ Client.prototype.verifyEmail = function (code) {
 }
 
 Client.prototype.emailStatus = function () {
-  var o = this.sessionToken ? P(null) : this.login()
+  var o = this.sessionToken ? P.resolve(null) : this.login()
   return o.then(
       function () {
         return this.api.recoveryEmailStatus(this.sessionToken)
@@ -185,7 +185,7 @@ Client.prototype.emailStatus = function () {
 }
 
 Client.prototype.requestVerifyEmail = function () {
-  var o = this.sessionToken ? P(null) : this.login()
+  var o = this.sessionToken ? P.resolve(null) : this.login()
   return o.then(
     function () {
       return this.api.recoveryEmailResendCode(this.sessionToken, this.options)
@@ -194,7 +194,7 @@ Client.prototype.requestVerifyEmail = function () {
 }
 
 Client.prototype.sign = function (publicKey, duration) {
-  var o = this.sessionToken ? P(null) : this.login()
+  var o = this.sessionToken ? P.resolve(null) : this.login()
   return o.then(
       function () {
         return this.api.certificateSign(this.sessionToken, publicKey, duration)
@@ -235,7 +235,7 @@ Client.prototype.changePassword = function (newPassword) {
 }
 
 Client.prototype.keys = function () {
-  var o = this.keyFetchToken ? P(null) : this.login()
+  var o = this.keyFetchToken ? P.resolve(null) : this.login()
   return o.then(
       function () {
         return this.api.accountKeys(this.keyFetchToken)
@@ -267,7 +267,7 @@ Client.prototype.keys = function () {
 }
 
 Client.prototype.sessionStatus = function () {
-  var o = this.sessionToken ? P(null) : this.login()
+  var o = this.sessionToken ? P.resolve(null) : this.login()
   return o.then(
       function () {
         return this.api.sessionStatus(this.sessionToken)

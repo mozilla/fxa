@@ -64,7 +64,7 @@ module.exports = function (log, crypto, P, hkdf, Bundle, error) {
                 d.resolve(new TokenType(keys, details || {}))
               }
             )
-            .fail(
+            .catch(
               function (err) {
                 d.reject(err)
               }
@@ -89,7 +89,7 @@ module.exports = function (log, crypto, P, hkdf, Bundle, error) {
           d.resolve(new TokenType(keys, details || {}))
         }
       )
-      .fail(
+      .catch(
         function (err) {
           d.reject(err)
         }

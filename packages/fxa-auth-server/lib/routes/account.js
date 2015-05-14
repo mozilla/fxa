@@ -122,7 +122,7 @@ module.exports = function (
                       .then(
                         function (sessionToken) {
                           if (request.query.keys !== 'true') {
-                            return P({
+                            return P.resolve({
                               account: account,
                               sessionToken: sessionToken
                             })
@@ -166,7 +166,7 @@ module.exports = function (
                   resume: form.resume,
                   acceptLanguage: request.app.acceptLanguage
                 })
-                .fail(
+                .catch(
                   function (err) {
                     log.error({ op: 'mailer.sendVerifyCode.1', err: err })
                   }
@@ -248,7 +248,7 @@ module.exports = function (
                 .then(
                   function (sessionToken) {
                     if (request.query.keys !== 'true') {
-                      return P({
+                      return P.resolve({
                         sessionToken: sessionToken
                       })
                     }

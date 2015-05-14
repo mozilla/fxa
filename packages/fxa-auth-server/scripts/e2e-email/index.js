@@ -151,7 +151,7 @@ function verifyMailbox(mbox, log) {
                      'content-language header is en-US')
     } else {
       // See https://github.com/mozilla/fxa-content-server-l10n/issues/44 about sr-LATN
-      if (lang !== 'sr-LATN') { 
+      if (lang !== 'sr-LATN') {
         assert.equal(lang, headers['content-language'],
                      'content-language header is locale specific')
       }
@@ -218,7 +218,7 @@ function checkLocale(lang, index) {
   // AWS SES in stage has rate-limiting in stage of 5/sec, so go slow
   var delay = index * 750
 
-  return P().delay(delay)
+  return P.delay(delay)
     .then(
       function() {
         log(log.INFO, 'Kicking off', lang)
@@ -253,7 +253,7 @@ function checkLocale(lang, index) {
               // Briefly delay in order to allow SMTP to happen, and not trigger
               // unnecessary retries; `preq.get` will handle any actual subsequent
               // need to retry.
-              return P().delay(1000).then(function() {
+              return P.delay(1000).then(function() {
                 return preq.get(options)
               })
             }
@@ -265,7 +265,7 @@ function checkLocale(lang, index) {
               return mbox
             }
           )
-          .fail(
+          .catch(
             function(err) {
               log(log.ERROR, err)
             }

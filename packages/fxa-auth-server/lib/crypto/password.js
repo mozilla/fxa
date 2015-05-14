@@ -12,7 +12,7 @@ module.exports = function(log, config) {
 
   var hashVersions = {
     0: function (authPW, authSalt) {
-      return P(butil.xorBuffers(authPW, authSalt))
+      return P.resolve(butil.xorBuffers(authPW, authSalt))
     },
     1: function (authPW, authSalt) {
       return scrypt.hash(authPW, authSalt, 65536, 8, 1, 32)
