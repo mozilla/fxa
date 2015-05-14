@@ -126,6 +126,7 @@ The event stream is a log of events and the time they occurred while the user is
 * error.delete-account.auth.121 - account locked
 * delete-account.unlock-email.send - user attempted to send unlock email
 * delete-account.unlock-email.send.success - unlock email successfully sent
+* delete-account.deleted - user successfully deleted an account
 
 #### force_auth
 #### illegal_iframe
