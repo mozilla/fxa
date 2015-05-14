@@ -278,5 +278,19 @@ define([
         assert.ok(broker.getChannel());
       });
     });
+
+    describe('channel errors', function () {
+      it('are propagated outwards', function () {
+        var channel = broker.createChannel();
+
+        var errorSpy = sinon.spy();
+        broker.on('error', errorSpy);
+
+        var error = new Error('malformed message');
+        channel.trigger('error', error);
+        assert.isTrue(errorSpy.calledWith(error));
+      });
+    });
   });
 });
+

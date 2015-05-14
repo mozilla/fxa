@@ -12,7 +12,7 @@ define([
   'models/auth_brokers/base',
   'models/auth_brokers/mixins/channel',
   'lib/auth-errors',
-  'lib/channels/fx-desktop',
+  'lib/channels/fx-desktop-v1',
   'lib/url'
 ], function (Cocktail, _, BaseAuthenticationBroker, ChannelMixin, AuthErrors,
   FxDesktopChannel, Url) {
@@ -34,15 +34,12 @@ define([
      * @param {Object} options
      * @param {String} options.channel
      *        Channel used to send commands to remote listeners.
-     * @param {Object} options.metrics
-     *        Metrics where events/errors can be logged.
      */
     initialize: function (options) {
       options = options || {};
 
       // channel can be passed in for testing.
       this._channel = options.channel;
-      this._metrics = options.metrics;
 
       return BaseAuthenticationBroker.prototype.initialize.call(
           this, options);
@@ -140,9 +137,10 @@ define([
         // content server itself. Accept messages from the content
         // server to handle these cases.
         // 2) Fx 18 (& FxOS 1.*) do not support location.origin. Build the origin from location.href
-        origin: this.window.location.origin || Url.getOrigin(this.window.location.href),
-        metrics: this._metrics
+        origin: this.window.location.origin || Url.getOrigin(this.window.location.href)
       });
+
+      channel.on('error', this.trigger.bind(this, 'error'));
 
       return channel;
     },

@@ -11,14 +11,16 @@ function (Translator, Session) {
   'use strict';
 
   var tests = [
-    '../tests/spec/lib/channels/null',
-    '../tests/spec/lib/channels/fx-desktop',
-    '../tests/spec/lib/channels/web',
-    '../tests/spec/lib/channels/inter-tab',
-    '../tests/spec/lib/channels/iframe',
     '../tests/spec/lib/channels/duplex',
-    '../tests/spec/lib/channels/senders/web-channel',
+    '../tests/spec/lib/channels/fx-desktop-v1',
+    '../tests/spec/lib/channels/iframe',
+    '../tests/spec/lib/channels/inter-tab',
+    '../tests/spec/lib/channels/null',
+    '../tests/spec/lib/channels/web',
+    '../tests/spec/lib/channels/receivers/postmessage',
     '../tests/spec/lib/channels/receivers/web-channel',
+    '../tests/spec/lib/channels/senders/fx-desktop-v1',
+    '../tests/spec/lib/channels/senders/web-channel',
     '../tests/spec/lib/xss',
     '../tests/spec/lib/url',
     '../tests/spec/lib/session',

@@ -46,11 +46,6 @@ define([
         sender: sender,
         receiver: receiver
       });
-    },
-
-    teardown: function () {
-      this._sender.teardown();
-      this._receiver.teardown();
     }
   });
 

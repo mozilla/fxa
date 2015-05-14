@@ -73,6 +73,8 @@ define([
         throw new Error('DuplexChannel must have a receiver');
       }
 
+      // propagate errors outwards
+      this._receiver.on('error', this.trigger.bind(this, 'error'));
       this._receiver.on('message', this.onMessageReceived.bind(this));
 
       this._outstandingRequests = new OutstandingRequests({

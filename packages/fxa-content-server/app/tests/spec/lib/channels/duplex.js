@@ -125,5 +125,17 @@ function (chai, sinon, DuplexChannel, NullSender, NullReceiver, WindowMock) {
           });
       });
     });
+
+    describe('errors', function () {
+      it('receiver errors are propagated', function () {
+        var errorSpy = sinon.spy();
+        channel.on('error', errorSpy);
+
+        var error = new Error('malformed message');
+        receiver.trigger('error', error);
+
+        assert.isTrue(errorSpy.calledWith(error));
+      });
+    });
   });
 });
