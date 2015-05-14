@@ -1,3 +1,8 @@
+train-37
+  * refactor(lib): move most things into lib/
+  * build(travis): Test on both io.js v1 and v2
+  * chore(shrinkwrap): update shrinkwrap picking up lib changes in fxa-auth-db-server
+
 train-36
   * refactor(db): Change table access in stored procedures to be consistent - #36
   * fix(db): Fix reverse patches 8->7 and 9->8 - #38
