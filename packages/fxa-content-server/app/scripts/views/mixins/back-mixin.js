@@ -22,7 +22,7 @@ define([
     },
 
     back: function (event) {
-      if (event) {
+      if (event && event.preventDefault) {
         event.preventDefault();
       }
 

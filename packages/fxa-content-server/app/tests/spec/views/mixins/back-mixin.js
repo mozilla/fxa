@@ -43,6 +43,15 @@ define([
         view.back();
         assert.isTrue(windowMock.history.back.called);
       });
+
+      it('calls event.preventDefault() if event is passed in', function () {
+        var event = {
+          preventDefault: sinon.spy()
+        };
+
+        view.back(event);
+        assert.isTrue(event.preventDefault.called);
+      });
     });
 
     describe('backOnEnter', function () {

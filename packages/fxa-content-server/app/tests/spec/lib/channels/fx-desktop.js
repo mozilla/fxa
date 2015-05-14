@@ -100,6 +100,33 @@ function (chai, sinon, AuthErrors, Metrics, FxDesktopChannel, WindowMock) {
             });
     });
 
+    describe('parseMessage', function () {
+      it('returns undefined if `type` not set', function () {
+        assert.isUndefined(channel.parseMessage({
+          content: {
+            status: 'can_link_account'
+          }
+        }));
+      });
+
+      it('throws if no content returned', function () {
+        assert.throws(function () {
+          channel.parseMessage({ type: 'message' });
+        });
+      });
+
+      it('returns both `command` and `data` if correctly formed', function () {
+        var parsed = channel.parseMessage({
+          type: 'message',
+          content: {
+            status: 'can_link_account'
+          }
+        });
+        assert.equal(parsed.command, 'can_link_account');
+        assert.deepEqual(parsed.data, { status: 'can_link_account' });
+      });
+    });
+
     describe('receiveMessage', function () {
       it('ignores and logs messages that come from an unexpected origin', function () {
         sinon.spy(channel, 'trigger');

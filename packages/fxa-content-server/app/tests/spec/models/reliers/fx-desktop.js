@@ -36,15 +36,28 @@ define([
         windowMock.location.search = TestHelpers.toSearchString({
           context: 'fx_desktop_v1',
           migration: 'sync1.5',
-          service: 'sync'
+          service: 'sync',
+          customizeSync: 'true'
         });
 
         return relier.fetch()
-            .then(function () {
-              assert.equal(relier.get('context'), 'fx_desktop_v1');
-              assert.equal(relier.get('migration'), 'sync1.5');
-              assert.equal(relier.get('service'), 'sync');
-            });
+          .then(function () {
+            assert.equal(relier.get('context'), 'fx_desktop_v1');
+            assert.equal(relier.get('migration'), 'sync1.5');
+            assert.equal(relier.get('service'), 'sync');
+            assert.isTrue(relier.get('customizeSync'));
+          });
+      });
+
+      it('does not throw if `customizeSync` is not a boolean', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          customizeSync: 'not a boolean'
+        });
+
+        return relier.fetch()
+          .then(function () {
+            assert.isFalse(relier.has('customizeSync'));
+          });
       });
 
       it('translates `service` to `serviceName`', function () {
@@ -53,9 +66,9 @@ define([
         });
 
         return relier.fetch()
-            .then(function () {
-              assert.equal(relier.get('serviceName'), 'Firefox Sync');
-            });
+          .then(function () {
+            assert.equal(relier.get('serviceName'), 'Firefox Sync');
+          });
       });
     });
 
@@ -100,6 +113,12 @@ define([
           .then(function () {
             assert.isFalse(relier.isCustomizeSyncChecked());
           });
+      });
+    });
+
+    describe('wantsKeys', function () {
+      it('always returns true', function () {
+        assert.isTrue(relier.wantsKeys());
       });
     });
   });

@@ -35,6 +35,14 @@ function (chai, Session) {
       });
     });
 
+    describe('get', function () {
+      it('gets an item', function () {
+        Session.set('key', 'value');
+        assert.equal(Session.get('key'), 'value');
+        assert.isUndefined(Session.get('notSet'));
+      });
+    });
+
     describe('clear', function () {
       it('with a key clears item', function () {
         Session.set({
