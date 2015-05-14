@@ -1,3 +1,38 @@
+<a name="0.37.0"></a>
+## 0.37.0 (2015-05-13)
+
+
+#### Bug Fixes
+
+* **client:**
+  * Ensure ask-password metrics are only logged once. ([bc336543](https://github.com/mozilla/fxa-content-server/commit/bc336543a7f99998f2b32d7f698934e38c8d03c0))
+  * getUserMedia check for avatar change. ([0a0405bd](https://github.com/mozilla/fxa-content-server/commit/0a0405bd6f0bd4f74cb9cd0bc4634ddbeb041832))
+* **oauth:**
+  * bring back oauth session clearing to WebChannels ([7487fe65](https://github.com/mozilla/fxa-content-server/commit/7487fe6582b8bf946275a2452bcbb0fa8d483ae9))
+  * Ensure we can derive relier keys during the signup flow. ([fd2fc72d](https://github.com/mozilla/fxa-content-server/commit/fd2fc72d3af8abaa7acff61f026c166fc306d3c3))
+* **signup:** make email suggestion tooltip keyboard accessible ([6d40efbb](https://github.com/mozilla/fxa-content-server/commit/6d40efbb9153fed8d88d2aa455b43eaaf591637a), closes [#2185](https://github.com/mozilla/fxa-content-server/issues/2185))
+* **tests:**
+  * Fix the oauth permissions tests. ([2b479e1e](https://github.com/mozilla/fxa-content-server/commit/2b479e1e563790d442951e4989cc303e71bca85f))
+  * more timeout and fix element .end() for OAuth tests ([6296db62](https://github.com/mozilla/fxa-content-server/commit/6296db621dafe10de8808bd992957495484ad783))
+  * add untrusted app to TeamCity configs ([33a97662](https://github.com/mozilla/fxa-content-server/commit/33a97662990370e8d4e46d65fabc4038f90f347d))
+  * stabilize tos and pp functional tests ([50994dc6](https://github.com/mozilla/fxa-content-server/commit/50994dc6c73120deeea5f70a93ade904878e3701))
+
+
+#### Features
+
+* **client:**
+  * Sync over WebChannel glue ([92b118c9](https://github.com/mozilla/fxa-content-server/commit/92b118c9711e3d69078e9fe68b10d83b0f243715))
+  * Add a DuplexChannel, convert the WebChannel to a duplex channel. ([9b1ebb1e](https://github.com/mozilla/fxa-content-server/commit/9b1ebb1e83b1a795f1a249884992ed316b7d3329))
+* **metrics:**
+  * Log metrics about whether we ask for a password at signin: ([838c365e](https://github.com/mozilla/fxa-content-server/commit/838c365ec5528141c178f1d03deae665141e9b06))
+  * adds DataDog integration ([d10b0de0](https://github.com/mozilla/fxa-content-server/commit/d10b0de0fba0679dd12028e7dad1370bc051ace0))
+* **oauth:**
+  *  'verification_redirect' option for OAuth reliers ([a5fdaee9](https://github.com/mozilla/fxa-content-server/commit/a5fdaee90b61b7aa3ecc5c39e6d2499a19632750))
+  * show permission screen for untrusted reliers ([123821de](https://github.com/mozilla/fxa-content-server/commit/123821de702f59b813bb0900a18fd3c25dcc1886))
+  * suggest account to use during sign up if possible ([7fc06358](https://github.com/mozilla/fxa-content-server/commit/7fc06358cdd525793047b5370ae13977dbade618))
+* **test:** Print unit test names when they fail in travis. ([08932c5a](https://github.com/mozilla/fxa-content-server/commit/08932c5adc2956cf0b05a9a820e97b1965e4d6dd))
+
+
 <a name="0.36.3"></a>
 ### 0.36.3 (2015-05-01)
 
