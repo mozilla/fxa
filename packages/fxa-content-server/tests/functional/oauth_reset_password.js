@@ -21,6 +21,7 @@ define([
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
 
   var PASSWORD = 'password';
+  var TIMEOUT = 90 * 1000;
   var user;
   var email;
   var client;
@@ -31,7 +32,7 @@ define([
 
     setup: function () {
       // timeout after 90 seconds
-      this.timeout = 90000;
+      this.timeout = TIMEOUT;
 
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
@@ -58,6 +59,7 @@ define([
 
     'reset password, verify same browser': function () {
       var self = this;
+      self.timeout = TIMEOUT;
 
       return FunctionalHelpers.openFxaFromRp(self, 'signin')
         .getCurrentUrl()
