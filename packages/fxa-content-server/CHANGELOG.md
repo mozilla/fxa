@@ -1,3 +1,14 @@
+<a name="0.37.1"></a>
+### 0.37.1 (2015-05-14)
+
+
+#### Bug Fixes
+
+* **metrics:** track account deleted events ([2c296a44](https://github.com/mozilla/fxa-content-server/commit/2c296a445ed7d613ec99e3711311c122ae989a9e), closes [#2297](https://github.com/mozilla/fxa-content-server/issues/2297))
+* **oauth:** serviceUri is not used for now so remove it ([b361aba3](https://github.com/mozilla/fxa-content-server/commit/b361aba35df3215105e8d57f108db3f64007e886))
+* **tests:** increase timeout for password reset tests ([10a3fc6c](https://github.com/mozilla/fxa-content-server/commit/10a3fc6c340446097d9b5ebd8b50f9a573fa6f72))
+
+
 <a name="0.37.0"></a>
 ## 0.37.0 (2015-05-13)
 
