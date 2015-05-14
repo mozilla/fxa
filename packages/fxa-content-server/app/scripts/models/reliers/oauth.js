@@ -193,9 +193,6 @@ define([
           self.set('privacyUri', serviceInfo.privacy_uri);
           self.set('trusted', serviceInfo.trusted);
           self.set('origin', Url.getOrigin(serviceInfo.redirect_uri));
-
-          self.set('serviceUri', self.get('origin').replace(/https?:\/\//, ''));
-
         }, function (err) {
           // the server returns an invalid request signature for an
           // invalid/unknown client_id

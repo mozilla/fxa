@@ -39,8 +39,7 @@ function (Cocktail, _, FormView, BaseView, Template, p,
         email: account.get('email'),
         serviceName: this.relier.get('serviceName'),
         termsUri: this.relier.get('termsUri'),
-        privacyUri: this.relier.get('privacyUri'),
-        serviceUri: this.relier.get('serviceUri')
+        privacyUri: this.relier.get('privacyUri')
       };
     },
 
