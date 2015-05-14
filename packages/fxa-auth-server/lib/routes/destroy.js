@@ -28,7 +28,8 @@ module.exports = {
         throw AppError.invalidToken();
       }
       return db.removeToken(token);
-    }).done(reply, reply);
-
+    }).done(function() {
+      reply({});
+    }, reply);
   }
 };
