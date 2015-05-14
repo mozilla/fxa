@@ -208,6 +208,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
       this.user.removeAllAccounts();
       Session.clear();
       this._formPrefill.clear();
+      this.logScreenEvent('use-different-account');
 
       return this.render();
     }),

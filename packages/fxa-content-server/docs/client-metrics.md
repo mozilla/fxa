@@ -150,6 +150,7 @@ The event stream is a log of events and the time they occurred while the user is
 * signin.ask-password.shown.email-mismatch - asked for password due to using a different email
 * signin.ask-password.shown.session-from-web - asked for password because session was created via web content
 * signin.ask-password.shown.session-expired - asked for password due to expired session token
+* signin.use-different-account - user clicked link to use different account
 #### signin_permissions
 * signin-permissions.proceed - user proceeds and grants the requested permissions
 * signin-permissions.success - sign in successfully occurred
