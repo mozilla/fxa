@@ -555,11 +555,14 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
           return p({ avatar: PNG_URL, id: 'foo' });
         });
 
+        sinon.spy(account, 'setProfileImage');
+
         return account.fetchCurrentProfileImage()
           .then(function (profileImage) {
             assert.equal(profileImage.get('url'), PNG_URL);
             assert.equal(profileImage.get('id'), 'foo');
             assert.isTrue(profileImage.has('img'));
+            assert.isTrue(account.setProfileImage.calledWith(profileImage));
           });
       });
 

@@ -55,9 +55,30 @@ define([
       sinon.stub(view, 'getSignedInAccount', function () {
         return account;
       });
-      sinon.stub(user, 'setAccount', function () { });
+      sinon.spy(user, 'setAccount');
 
       sinon.stub(notifications, 'profileChanged', function () { });
+    });
+
+    it('displayAccountProfileImage updates the cached account data', function () {
+      var image = new ProfileImage({ url: 'url', id: 'foo' });
+      var cachedAccount = user.initAccount({ uid: 'uid' });
+      sinon.spy(cachedAccount, 'setProfileImage');
+
+      sinon.stub(account, 'fetchCurrentProfileImage', function () {
+        return p(image);
+      });
+      sinon.stub(user, 'getAccountByUid', function () {
+        return cachedAccount;
+      });
+
+      return view.displayAccountProfileImage(account)
+        .then(function () {
+          assert.isTrue(account.fetchCurrentProfileImage.called);
+          assert.isTrue(user.getAccountByUid.calledWith(UID));
+          assert.isTrue(user.setAccount.calledWith(cachedAccount));
+          assert.isTrue(cachedAccount.setProfileImage.calledWith(image));
+        });
     });
 
     describe('updateProfileImage', function () {

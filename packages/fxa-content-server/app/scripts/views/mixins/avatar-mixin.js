@@ -29,6 +29,9 @@ define([
 
       return account.fetchCurrentProfileImage()
         .then(function (profileImage) {
+          // Cache the result to make sure we don't flash the default
+          // image while fetching the latest profile image
+          self._updateCachedProfileImage(account.get('uid'), profileImage);
           return profileImage;
         }, function (err) {
           self.logError(err);
@@ -48,6 +51,16 @@ define([
             self.logScreenEvent('profile_image_shown');
           }
         });
+    },
+
+    // Makes sure the account with uid has an uptodate image cache.
+    // This should be called after fetching the current profile image.
+    _updateCachedProfileImage: function (uid, profileImage) {
+      var cachedAccount = this.user.getAccountByUid(uid);
+      if (! cachedAccount.isDefault()) {
+        cachedAccount.setProfileImage(profileImage);
+        this.user.setAccount(cachedAccount);
+      }
     },
 
     _shouldShowDefaultProfileImage: function (account) {
