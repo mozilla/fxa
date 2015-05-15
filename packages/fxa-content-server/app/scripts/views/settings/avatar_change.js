@@ -94,6 +94,8 @@ function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
       var self = this;
       var defer = p.defer();
       var file = e.target.files[0];
+      var account = self.getSignedInAccount();
+      self.logAccountImageChange(account);
 
       var imgOnError = function () {
         var msg = AuthErrors.toMessage('UNUSABLE_IMAGE');

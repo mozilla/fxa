@@ -12,14 +12,16 @@ define([
   'views/settings/avatar_gravatar',
   '../../../mocks/router',
   '../../../mocks/profile',
+  '../../../lib/helpers',
   'models/user',
   'models/reliers/relier',
   'models/auth_brokers/base',
   'lib/promise',
+  'lib/metrics',
   'lib/profile-client'
 ],
-function (chai, $, sinon, View, RouterMock, ProfileMock, User,
-    Relier, AuthBroker, p, ProfileClient) {
+function (chai, $, sinon, View, RouterMock, ProfileMock, TestHelpers, User,
+    Relier, AuthBroker, p, Metrics, ProfileClient) {
   var assert = chai.assert;
   var GRAVATAR_URL = 'https://secure.gravatar.com/avatar/';
   var EMAIL_HASH = '0bc83cb571cd1c50ba6f3e8a78ef1346';
@@ -33,6 +35,7 @@ function (chai, $, sinon, View, RouterMock, ProfileMock, User,
     var account;
     var relier;
     var broker;
+    var metrics;
 
     beforeEach(function () {
       routerMock = new RouterMock();
@@ -41,12 +44,15 @@ function (chai, $, sinon, View, RouterMock, ProfileMock, User,
       broker = new AuthBroker({
         relier: relier
       });
+      metrics = new Metrics();
 
       view = new View({
         user: user,
         router: routerMock,
         relier: relier,
-        broker: broker
+        broker: broker,
+        metrics: metrics,
+        screenName: 'settings.avatar.gravatar'
       });
 
       account = user.initAccount({
@@ -140,6 +146,8 @@ function (chai, $, sinon, View, RouterMock, ProfileMock, User,
               return view.submit();
             })
             .then(function (result) {
+              assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.avatar.gravatar.submit.new'));
+              assert.isFalse(TestHelpers.isEventLogged(metrics, 'settings.avatar.gravatar.submit.change'));
               assert.equal(view.updateProfileImage.args[0][0].get('id'), 'foo');
               assert.equal(result.id, 'foo');
               assert.equal(routerMock.page, 'settings');
@@ -164,6 +172,29 @@ function (chai, $, sinon, View, RouterMock, ProfileMock, User,
               assert.isTrue(view.isErrorVisible());
               assert.isTrue(profileClientMock.postAvatar.called);
             });
+        });
+
+        it('properly tracks avatar change events', function () {
+          // set the account to have an existing profile image id
+          account.set('hadProfileImageSetBefore', true);
+          sinon.stub(profileClientMock, 'postAvatar', function () {
+            return p({
+              id: 'foo'
+            });
+          });
+
+          sinon.stub(view, 'updateProfileImage', function () {
+            return p();
+          });
+
+          return view.render()
+            .then(function () {
+              return view.submit();
+            })
+            .then(function () {
+              assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.avatar.gravatar.submit.change'));
+            });
+
         });
       });
 
