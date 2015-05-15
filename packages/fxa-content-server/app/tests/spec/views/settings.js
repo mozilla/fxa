@@ -47,7 +47,8 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
         relier: relier,
         user: user,
         metrics: metrics,
-        able: able
+        able: able,
+        screenName: 'settings'
       });
     }
 
@@ -249,6 +250,9 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
           return view.submit()
             .then(function () {
               assert.isTrue(user.clearSignedInAccount.called);
+              assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.submit'));
+              assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.success'));
+              assert.isFalse(TestHelpers.isEventLogged(metrics, 'settings.signout.error'));
               assert.equal(routerMock.page, 'signin');
             });
         });
@@ -262,6 +266,10 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
           return view.submit()
             .then(function () {
               assert.isTrue(user.clearSignedInAccount.called);
+              assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.submit'));
+              // track the error, but success is still finally called
+              assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.error'));
+              assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.success'));
               assert.equal(routerMock.page, 'signin');
             });
         });

@@ -135,6 +135,9 @@ The event stream is a log of events and the time they occurred while the user is
 #### ready
 #### reset_password
 #### settings
+* settings.signout.submit - user clicked signout
+* settings.signout.success - user successfully signed out
+* settings.signout.error - user signed out but with an error
 #### settings/avatar
 #### settings/avatar/camera
 #### settings/avatar/change

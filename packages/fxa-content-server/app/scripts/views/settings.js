@@ -51,13 +51,17 @@ function (Cocktail, Session, FormView, BaseView, AvatarMixin,
     submit: function () {
       var self = this;
       var sessionToken = self.getSignedInAccount().get('sessionToken');
+
+      self.logScreenEvent('signout.submit');
       return self.fxaClient.signOut(sessionToken)
         .fail(function () {
           // ignore the error.
           // Clear the session, even on failure. Everything is A-OK.
           // See issue #616
+          self.logScreenEvent('signout.error');
         })
         .fin(function () {
+          self.logScreenEvent('signout.success');
           self.user.clearSignedInAccount();
           Session.clear();
           self.navigate('signin', {
