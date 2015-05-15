@@ -1,3 +1,22 @@
+train-37
+  * fix(logging): configuration changes per @whd - #930
+  * switch from bunyan to mozlog - #929
+  * reorganized source files - #926
+  * unceremoniously removed /account/devices endpoint - #924
+  * fix(pool): Stop retrying requests to db-server - #922
+  * updated scrypt-hash for iojs 2.0
+  * upgrade multiple dependencies to work with iojs 2.0 - #920
+  * to support legacy jwcrypto .well-known/browserid must be base 10 - #919
+  * improved signature tests - #902
+  * updated jwtool - #902
+  * replace browserid-crypto with fxa-jwtool - #902
+  * build(travis): Test on both io.js v1 and v2 - #923
+  * Fix the DB unit tests - #933
+  * tests(preverify): add 321done to trusted jkus for dev - #925
+  * chore(shrinkwrap): update npm-shrinkwrap mostly to update fxa-content-server-l10n for mailer - #932
+  * chore(test): adjust library paths for GH-926 - #928
+  * chore(test): fr,fy now translate "re-verify your account" subject line; small naming fix - #918
+
 train-36
   * fix(l10n): pass config.i18n.defaultLanguage to fxa-auth-mailer - #917
   * fix(mailer): split out the list of supported locales, for easier maintenance - #916
