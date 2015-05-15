@@ -22,6 +22,8 @@ define([
     var PREVERIFY_TOKEN = 'abigtoken';
     var EMAIL = 'email';
     var UID = 'uid';
+    var ENTRYPOINT = 'preferences';
+    var CAMPAIGN = 'fennec';
 
     beforeEach(function () {
       windowMock = new WindowMock();
@@ -38,6 +40,8 @@ define([
           service: SERVICE,
           email: EMAIL,
           uid: UID,
+          entrypoint: ENTRYPOINT,
+          campaign: CAMPAIGN,
           ignored: 'ignored'
         });
 
@@ -47,6 +51,8 @@ define([
               assert.equal(relier.get('service'), SERVICE);
               assert.equal(relier.get('email'), EMAIL);
               assert.equal(relier.get('uid'), UID);
+              assert.equal(relier.get('entrypoint'), ENTRYPOINT);
+              assert.equal(relier.get('campaign'), CAMPAIGN);
               assert.isFalse(relier.has('ignored'));
             });
       });

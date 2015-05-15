@@ -7,7 +7,7 @@
  * `Relier`, provides the following:
  *
  * - context
- * - entrypoint
+ * - migration
  */
 
 'use strict';
@@ -20,9 +20,7 @@ define([
 
   var FxDesktopRelier = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {
-      campaign: null,
       context: null,
-      entrypoint: null,
       migration: null
     }),
 
@@ -39,8 +37,6 @@ define([
       return Relier.prototype.fetch.call(self)
         .then(function () {
           self.importSearchParam('context');
-          self.importSearchParam('entrypoint');
-          self.importSearchParam('campaign');
           self.importSearchParam('migration');
           try {
             self.importBooleanSearchParam('customizeSync');

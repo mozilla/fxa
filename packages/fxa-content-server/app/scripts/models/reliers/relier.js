@@ -21,7 +21,9 @@ define([
       service: null,
       preVerifyToken: null,
       email: null,
-      allowCachedCredentials: true
+      allowCachedCredentials: true,
+      entrypoint: null,
+      campaign: null
     },
 
     initialize: function (options) {
@@ -52,6 +54,8 @@ define([
           self.importSearchParam('preVerifyToken');
           self.importSearchParam('uid');
           self.importSearchParam('setting');
+          self.importSearchParam('entrypoint');
+          self.importSearchParam('campaign');
 
           // A relier can indicate they do not want to allow
           // cached credentials if they set email === 'blank'
