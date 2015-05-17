@@ -13,6 +13,7 @@ define([
   'views/sign_in',
   'lib/session',
   'lib/auth-errors',
+  'lib/oauth-errors',
   'lib/metrics',
   'lib/fxa-client',
   'lib/constants',
@@ -24,9 +25,9 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
-      Constants, Relier, User, FormPrefill, Broker, WindowMock, RouterMock,
-      TestHelpers) {
+function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
+      FxaClient, Constants, Relier, User, FormPrefill, Broker, WindowMock,
+      RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -165,6 +166,13 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
     });
 
     describe('submit', function () {
+      beforeEach(function () {
+        view.enableForm();
+
+        $('[type=email]').val(email);
+        $('[type=password]').val('password');
+      });
+
       it('redirects users to permissions page if relier needs permissions', function () {
         sinon.spy(user, 'initAccount');
         sinon.spy(broker, 'beforeSignIn');
@@ -178,10 +186,6 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           return true;
         });
         sinon.stub(view, 'navigate', function () { });
-
-        var password = 'password';
-        $('[type=email]').val(email);
-        $('[type=password]').val(password);
 
         return view.submit()
           .then(function () {
@@ -212,10 +216,6 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           return false;
         });
 
-        var password = 'password';
-        $('[type=email]').val(email);
-        $('[type=password]').val(password);
-
         return view.submit()
           .then(function () {
             assert.isTrue(broker.beforeSignIn.calledWith(email));
@@ -239,10 +239,6 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           return p();
         });
 
-        var password = 'password';
-        $('[type=email]').val(email);
-        $('[type=password]').val(password);
-
         return view.submit()
           .then(function () {
             var account = user.initAccount.returnValues[0];
@@ -263,9 +259,6 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           return p.reject(AuthErrors.toError('ACCOUNT_LOCKED'));
         });
 
-        var password = 'password';
-        $('[type=email]').val(email);
-        $('[type=password]').val(password);
         return view.submit()
           .then(function () {
             assert.isTrue(view.isErrorVisible());
@@ -275,13 +268,29 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           });
       });
 
+      it('shows an error message if the scope is invalid', function () {
+        sinon.stub(view.fxaClient, 'signIn', function () {
+          return p.reject(OAuthErrors.toError({ errno: 114 }));
+        });
+
+        // The submit handler does not special case INVALID_SCOPES and error
+        // generic handling logic is done by validateAndSubmit.
+        // Call validateAndSubmit to ensure the error message is displayed.
+        return view.validateAndSubmit()
+          .then(assert.fail, function () {
+            assert.isTrue(view.isErrorVisible());
+            assert.include(view.$('.error').text().toLowerCase(), 'scope');
+
+            var err = view._normalizeError(OAuthErrors.toError('INVALID_SCOPES'));
+            assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
+          });
+      });
+
       it('logs an error if user cancels login', function () {
         sinon.stub(broker, 'beforeSignIn', function () {
           return p.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
         });
 
-        $('[type=email]').val(email);
-        $('[type=password]').val('password');
         return view.submit()
           .then(function () {
             assert.isTrue(broker.beforeSignIn.calledWith(email));
@@ -297,8 +306,6 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           return p.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
         });
 
-        $('[type=email]').val(email);
-        $('[type=password]').val('incorrect');
         return view.submit()
           .then(assert.fail, function (err) {
             assert.ok(err.message.indexOf('Incorrect') > -1);
@@ -306,41 +313,25 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
       });
 
       it('shows message allowing the user to sign up if user enters unknown account', function () {
-        $('[type=email]').val(email);
-        $('[type=password]').val('incorrect');
-
         sinon.stub(view.fxaClient, 'signIn', function () {
           return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
         });
 
         return view.submit()
-            .then(function (msg) {
-              assert.ok(msg.indexOf('/signup') > -1);
-            });
+          .then(function (msg) {
+            assert.ok(msg.indexOf('/signup') > -1);
+          });
       });
 
       it('passes other errors along', function () {
-        $('[type=email]').val(email);
-        $('[type=password]').val('incorrect');
-
-        view.fxaClient.signIn = function () {
-          return p()
-              .then(function () {
-                throw AuthErrors.toError('INVALID_JSON');
-              });
-        };
+        sinon.stub(view.fxaClient, 'signIn', function () {
+          return p.reject(AuthErrors.toError('INVALID_JSON'));
+        });
 
         return view.submit()
-                  .then(null, function (err) {
-                    // The errorback will not be called if the submit
-                    // succeeds, but the following callback always will
-                    // be. To ensure the errorback was called, pass
-                    // the error along and check its type.
-                    return err;
-                  })
-                  .then(function (err) {
-                    assert.isTrue(AuthErrors.is(err, 'INVALID_JSON'));
-                  });
+          .then(assert.fail, function (err) {
+            assert.isTrue(AuthErrors.is(err, 'INVALID_JSON'));
+          });
       });
     });
 

@@ -48,7 +48,12 @@ define([
         return messageSource.message;
       }
 
-      // could not find an error with a message, return the original.
+      // the original is not a string, default to unexpected error
+      if (typeof err !== 'string') {
+        return this.toMessage('UNEXPECTED_ERROR');
+      }
+
+      // The original was already a string, just return it.
       return err;
     },
 

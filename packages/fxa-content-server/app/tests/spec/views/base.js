@@ -311,6 +311,11 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
         assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
       });
 
+      it('displays an `Unexpected Error` if error is unknown', function () {
+        view.displayError({ errno: -10001 });
+        assert.equal(view.$('.error').html(), AuthErrors.toMessage('UNEXPECTED_ERROR'));
+      });
+
       it('displays an `Unexpected Error` if no error passed in', function () {
         view.displayError();
         assert.equal(view.$('.error').html(), AuthErrors.toMessage('UNEXPECTED_ERROR'));
