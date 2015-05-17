@@ -278,6 +278,18 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
           return testExpectedBrokerCreated(BaseBroker);
         });
       });
+
+      describe('broker errors', function () {
+        it('are logged to metrics', function () {
+          sinon.spy(appStart._metrics, 'logError');
+          return appStart.initializeAuthenticationBroker()
+            .then(function () {
+              var err = new Error('test error');
+              appStart._authenticationBroker.trigger('error', err);
+              assert.isTrue(appStart._metrics.logError.calledWith(err));
+            });
+        });
+      });
     });
 
     describe('initializeRelier', function () {

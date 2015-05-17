@@ -5,18 +5,16 @@
 define([
   'chai',
   'sinon',
+  'lib/auth-errors',
   'lib/channels/iframe',
-  'lib/metrics',
-  '../../../mocks/window',
-  '../../../lib/helpers'
+  '../../../mocks/window'
 ],
-function (chai, sinon, IFrameChannel, Metrics, WindowMock, TestHelpers) {
+function (chai, sinon, AuthErrors, IFrameChannel, WindowMock) {
   'use strict';
 
   var channel;
   var windowMock;
   var parentMock;
-  var metrics;
 
   var assert = chai.assert;
 
@@ -25,13 +23,11 @@ function (chai, sinon, IFrameChannel, Metrics, WindowMock, TestHelpers) {
       windowMock = new WindowMock();
       parentMock = new WindowMock();
       windowMock.parent = parentMock;
-      metrics = new Metrics();
 
       channel = new IFrameChannel();
       return channel.initialize({
         window: windowMock,
-        origin: 'https://trusted-parent.org',
-        metrics: metrics
+        origin: 'https://trusted-parent.org'
       });
     });
 
@@ -40,9 +36,14 @@ function (chai, sinon, IFrameChannel, Metrics, WindowMock, TestHelpers) {
     });
 
     describe('send', function () {
-      it('sends a message to the parent, at specified origin', function (done) {
-        sinon.stub(parentMock, 'postMessage', function (msg, targetOrigin) {
-          TestHelpers.wrapAssertion(function () {
+      it('sends a message to the parent, at specified origin', function () {
+        sinon.stub(parentMock, 'postMessage', sinon.spy());
+
+        return channel.send('ping', { key: 'value' })
+          .then(function () {
+            var msg = parentMock.postMessage.args[0][0];
+            var targetOrigin = parentMock.postMessage.args[0][1];
+
             var parsed = IFrameChannel.parse(msg);
             var command = parsed.command;
             var data = parsed.data;
@@ -50,61 +51,51 @@ function (chai, sinon, IFrameChannel, Metrics, WindowMock, TestHelpers) {
             assert.equal(command, 'ping');
             assert.equal(data.key, 'value');
             assert.equal(targetOrigin, 'https://trusted-parent.org');
-          }, done);
-        });
-
-        channel.send('ping', { key: 'value' });
+          });
       });
 
-      it('can send a message with no data', function (done) {
-        sinon.stub(parentMock, 'postMessage', function (msg) {
-          TestHelpers.wrapAssertion(function () {
+      it('can send a message with no data', function () {
+        sinon.stub(parentMock, 'postMessage', sinon.spy());
+
+        return channel.send('ping')
+          .then(function () {
+            var msg = parentMock.postMessage.args[0][0];
+
             var parsed = IFrameChannel.parse(msg);
             var command = parsed.command;
             var data = parsed.data;
 
             assert.equal(command, 'ping');
             assert.equal(Object.keys(data).length, 0);
-          }, done);
-        });
-
-        channel.send('ping');
-      });
-
-      it('prints a message to the console if there is no response', function (done) {
-        // drop the message on the ground.
-        sinon.stub(parentMock, 'postMessage', function () {
-        });
-
-        sinon.stub(windowMock, 'setTimeout', function (callback) {
-          callback();
-        });
-
-        sinon.stub(windowMock.console, 'error', function () {
-          done();
-        });
-
-        channel.send('ping', {});
-      });
-
-      it('returns any errors in `dispatchCommand`', function (done) {
-        sinon.stub(channel, 'dispatchCommand', function () {
-          throw new Error('uh oh');
-        });
-
-        channel.send('ping', {}, function (err) {
-          TestHelpers.wrapAssertion(function () {
-            assert.equal(err.message, 'uh oh');
-          }, done);
-        });
+          });
       });
     });
 
-    describe('receiveMessage', function () {
+    describe('request', function () {
+      it('prints a message to the console if there is no response', function () {
+        // drop the message on the ground.
+        sinon.stub(parentMock, 'postMessage', sinon.spy());
+
+        sinon.stub(windowMock, 'setTimeout', function (callback) {
+          // force the wait timeout to expire immediately.
+          callback();
+        });
+
+        sinon.stub(windowMock.console, 'error', sinon.spy());
+
+        return channel.request('wait-for-response', {}).timeout(10)
+          .fail(function () {
+            assert.isTrue(windowMock.console.error.called);
+          });
+      });
+    });
+
+    describe('receiveEvent', function () {
       it('triggers an event if message is from trusted origin', function () {
         sinon.spy(channel, 'trigger');
 
-        channel.receiveMessage({
+        channel.receiveEvent({
+          type: 'message',
           data: IFrameChannel.stringify('message_type', { key: 'value' }),
           origin: 'https://trusted-parent.org'
         });
@@ -114,42 +105,51 @@ function (chai, sinon, IFrameChannel, Metrics, WindowMock, TestHelpers) {
       });
 
       it('ignores and logs messages from untrusted origins', function () {
-        sinon.spy(channel, 'trigger');
-        sinon.spy(metrics, 'logError');
+        var errorSpy = sinon.spy();
+        channel.on('error', errorSpy);
 
-        channel.receiveMessage({
+        channel.receiveEvent({
+          type: 'message',
           data: IFrameChannel.stringify('message_type', { key: 'value' }),
           origin: 'https://untrusted-parent.org'
         });
 
-        assert.equal(
-          metrics.logError.args[0][0].context, 'https://untrusted-parent.org');
-        assert.isFalse(channel.trigger.called);
+        var error = errorSpy.args[0][0];
+        assert.isTrue(AuthErrors.is(error, 'UNEXPECTED_POSTMESSAGE_ORIGIN'));
+        assert.equal(error.context, 'https://untrusted-parent.org');
       });
 
       it('can handle a malformed message', function () {
         var invalidMsg = '{';
-        channel.receiveMessage({
+        channel.receiveEvent({
+          type: 'message',
           data: invalidMsg
         });
       });
     });
 
     describe('the full cycle', function () {
-      it('calls the callback with the data received from the parentWindow', function (done) {
-        channel.send('ping', {}, function (err, data) {
-          TestHelpers.wrapAssertion(function () {
-            assert.equal(data.key, 'value');
-            assert.equal(data.origin, 'https://trusted-parent.org');
-          }, done);
+      it('calls the callback with the data received from the parentWindow', function () {
+        sinon.stub(windowMock.parent, 'postMessage', function (message) {
+          var parsed = JSON.parse(message);
+          channel.receiveEvent({
+            type: 'message',
+            data: JSON.stringify({
+              messageId: parsed.messageId,
+              command: parsed.command,
+              data: {
+                key: 'value'
+              }
+            }),
+            origin: 'https://trusted-parent.org'
+          });
         });
 
         // synthesize receiving a message over postMessage
-        var message = IFrameChannel.stringify('ping', { key: 'value' });
-        channel.receiveMessage({
-          data: message,
-          origin: 'https://trusted-parent.org'
-        });
+        return channel.request('ping', {})
+          .then(function (data) {
+            assert.equal(data.key, 'value');
+          });
       });
     });
   });
