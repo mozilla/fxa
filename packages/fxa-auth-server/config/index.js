@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+require('envc')()
+
 var fs = require('fs')
 var path = require('path')
 var url = require('url')
@@ -28,13 +30,19 @@ var conf = convict({
     env: "PUBLIC_URL"
   },
   secretKeyFile: {
-    default: path.resolve(__dirname, '../config/secret-key.json')
+    format: String,
+    default: path.resolve(__dirname, '../config/secret-key.json'),
+    env: 'SECRET_KEY_FILE'
   },
   publicKeyFile: {
-    default: path.resolve(__dirname, '../config/public-key.json')
+    format: String,
+    default: path.resolve(__dirname, '../config/public-key.json'),
+    env: 'PUBLIC_KEY_FILE'
   },
   trustedJKUs: {
-    default: []
+    format: Array,
+    default: [],
+    env: 'TRUSTED_JKUS'
   },
   db: {
     backend: {
@@ -45,7 +53,8 @@ var conf = convict({
   httpdb: {
     url: {
       doc: 'database api url',
-      default: 'http://127.0.0.1:8000'
+      default: 'http://127.0.0.1:8000',
+      env: 'HTTPDB_URL'
     }
   },
   listen: {
@@ -136,10 +145,13 @@ var conf = convict({
     redirectDomain: {
       doc: 'Domain that mail urls are allowed to redirect to',
       format: String,
-      default: 'firefox.com'
+      default: 'firefox.com',
+      env: 'REDIRECT_DOMAIN'
     },
     resendBlackoutPeriod: {
       doc: 'Blackout period for resending verification emails',
+      format: 'int',
+      env: 'RESEND_BLACKOUT_PERIOD',
       default: 1000 * 60 * 10
     }
   },
@@ -160,46 +172,61 @@ var conf = convict({
   i18n: {
     defaultLanguage: {
       format: String,
-      default: "en"
+      default: 'en',
+      env: 'DEFAULT_LANG'
     },
     supportedLanguages: {
-      default: DEFAULT_SUPPORTED_LANGUAGES
+      format: Array,
+      default: DEFAULT_SUPPORTED_LANGUAGES,
+      env: 'SUPPORTED_LANGS'
     }
   },
   tokenLifetimes: {
     accountResetToken: {
+      format: 'int',
+      env: 'ACCOUNT_RESET_TOKEN_TTL',
       default: 1000 * 60 * 15
     },
     passwordForgotToken: {
+      format: 'int',
+      env: 'PASSWORD_FORGOT_TOKEN_TTL',
       default: 1000 * 60 * 60
     },
     passwordChangeToken: {
+      format: 'int',
+      env: 'PASSWORD_CHANGE_TOKEN_TTL',
       default: 1000 * 60 * 15
     }
   },
   verifierVersion: {
     doc: 'verifer version for new and changed passwords',
+    format: 'int',
+    env: 'VERIFIER_VERSION',
     default: 1
   },
   snsTopicArn: {
     doc: 'Amazon SNS topic on which to send account event notifications. Set to "disabled" to turn off the notifier',
     format: String,
+    env: 'SNS_TOPIC_ARN',
     default: ''
   },
   bounces: {
     region: {
       doc: 'The region where the queues live, most likely the same region we are sending email e.g. us-east-1, us-west-2',
       format: String,
+      env: 'BOUNCE_REGION',
       default: ''
     },
     bounceQueueUrl: {
       doc: 'The bounce queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
       format: String,
+      env: 'BOUNCE_QUEUE_URL',
       default: ''
     },
     complaintQueueUrl: {
       doc: 'The complaint queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
       format: String,
+      env: 'COMPLAINT_QUEUE_URL',
       default: ''
     }
   },
@@ -207,50 +234,56 @@ var conf = convict({
     region: {
       doc: 'The region where the queues live, most likely the same region we are sending email e.g. us-east-1, us-west-2',
       format: String,
+      env: 'BASKET_REGION',
       default: ''
     },
     apiUrl: {
       doc: 'Url for the Basket API server',
       format: String,
+      env: 'BASKET_API_URL',
       default: ''
     },
     apiKey: {
       doc: 'Basket API key',
       format: String,
+      env: 'BASKET_API_KEY',
       default: ''
     },
     queueUrl: {
       doc: 'The bounce queue URL',
       format: String,
+      env: 'BASKET_QUEUE_URL',
       default: ''
     }
   },
   useHttps: {
     doc: "set to true to serve directly over https",
+    env: 'USE_TLS',
     default: false
   },
   keyPath: {
     doc: "path to SSL key in PEM format if serving over https",
+    env: 'TLS_KEY_PATH',
     default: path.resolve(__dirname, '../key.pem')
   },
   certPath: {
     doc: "path to SSL certificate in PEM format if serving over https",
+    env: 'TLS_CERT_PATH',
     default: path.resolve(__dirname, '../cert.pem')
   },
   lockoutEnabled: {
     doc: 'Is account lockout enabled',
     format: Boolean,
+    env: 'LOCKOUT_ENABLED',
     default: false
   }
 })
 
 // handle configuration files.  you can specify a CSV list of configuration
 // files to process, which will be overlayed in order, in the CONFIG_FILES
-// environment variable. By default, the ./config/<env>.json file is loaded.
+// environment variable.
 
-var envConfig = path.join(__dirname, conf.get('env') + '.json')
-var files = (envConfig + ',' + process.env.CONFIG_FILES)
-              .split(',').filter(fs.existsSync)
+var files = (process.env.CONFIG_FILES || '').split(',').filter(fs.existsSync)
 conf.loadFile(files)
 
 // set the public url as the issuer domain for assertions

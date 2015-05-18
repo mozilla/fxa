@@ -4,12 +4,11 @@
 
 var test = require('../ptaptest')
 var TestServer = require('../test_server')
-var path = require('path')
 var Client = require('../client')
 var createDBServer = require('fxa-auth-db-mem')
 var log = { trace: console.log }
 
-process.env.CONFIG_FILES = path.join(__dirname, '../config/verifier_version_0.json')
+process.env.VERIFIER_VERSION = '0'
 var config = require('../../config').root()
 var Token = require('../../lib/tokens')(log)
 var DB = require('../../lib/db')(
@@ -67,7 +66,7 @@ function (t) {
   )
   .then(
     function () {
-      process.env.CONFIG_FILES = path.join(__dirname, '../config/verifier_version_1.json')
+      process.env.VERIFIER_VERSION = '1'
       return TestServer.start(config)
     }
   )

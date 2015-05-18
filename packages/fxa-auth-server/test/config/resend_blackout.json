@@ -1,5 +1,0 @@
-{
-  "smtp": {
-    "resendBlackoutPeriod": 500
-  }
-}

@@ -4,11 +4,10 @@
 
 var test = require('../ptaptest')
 var TestServer = require('../test_server')
-var path = require('path')
 var Client = require('../client')
 var P = require('../../lib/promise')
 
-process.env.CONFIG_FILES = path.join(__dirname, '../config/resend_blackout.json')
+process.env.RESEND_BLACKOUT_PERIOD = '500'
 var config = require('../../config').root()
 
 TestServer.start(config)
