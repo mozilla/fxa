@@ -220,6 +220,11 @@
         }
       }
     },
+    "bluebird": {
+      "version": "2.9.25",
+      "from": "bluebird@*",
+      "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-2.9.25.tgz"
+    },
     "convict": {
       "version": "0.6.1",
       "from": "https://registry.npmjs.org/convict/-/convict-0.6.1.tgz",
@@ -2716,11 +2721,6 @@
           "resolved": "https://registry.npmjs.org/propagate/-/propagate-0.3.1.tgz"
         }
       }
-    },
-    "p-promise": {
-      "version": "0.5.0",
-      "from": "https://registry.npmjs.org/p-promise/-/p-promise-0.5.0.tgz",
-      "resolved": "https://registry.npmjs.org/p-promise/-/p-promise-0.5.0.tgz"
     },
     "pem-jwk": {
       "version": "1.5.1",

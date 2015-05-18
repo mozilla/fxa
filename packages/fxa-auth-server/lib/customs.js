@@ -10,7 +10,7 @@
   function Customs(url) {
     if (url === 'none') {
       this.pool = {
-        post: function () { return P({ block: false })},
+        post: function () { return P.resolve({ block: false })},
         close: function () {}
       }
     }

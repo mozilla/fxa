@@ -44,7 +44,7 @@ module.exports = function (
   }
 
   DB.prototype.close = function () {
-    return P(this.pool.close())
+    return P.resolve(this.pool.close())
   }
 
   DB.prototype.ping = function () {

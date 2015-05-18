@@ -19,7 +19,7 @@ module.exports = function (config, log) {
   .then(
     function (mailer) {
       mailer.sendVerifyCode = function (account, code, opts) {
-        return P(mailer.verifyEmail(
+        return P.resolve(mailer.verifyEmail(
           {
             email: account.email,
             uid: account.uid.toString('hex'),
@@ -32,7 +32,7 @@ module.exports = function (config, log) {
         ))
       }
       mailer.sendRecoveryCode = function (token, code, opts) {
-        return P(mailer.recoveryEmail(
+        return P.resolve(mailer.recoveryEmail(
           {
             email: token.email,
             token: token.data.toString('hex'),
@@ -45,7 +45,7 @@ module.exports = function (config, log) {
         ))
       }
       mailer.sendUnlockCode = function (account, code, opts) {
-        return P(mailer.unlockEmail(
+        return P.resolve(mailer.unlockEmail(
           {
             email: account.email,
             uid: account.uid.toString('hex'),

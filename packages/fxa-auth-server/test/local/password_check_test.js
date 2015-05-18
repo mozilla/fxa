@@ -11,7 +11,7 @@ var Password = require('../../lib/crypto/password')(MockLog, config)
 var triggersLockout = false;
 var MockCustoms = {
   flag: function (clientAddress, emailRecord) {
-    return P({ lockout: triggersLockout })
+    return P.resolve({ lockout: triggersLockout })
   }
 }
 

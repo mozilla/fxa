@@ -43,7 +43,7 @@ module.exports = function (error, config) {
   }
 
   return function isPreVerified(email, token) {
-    if (!token) { return P(false) }
+    if (!token) { return P.resolve(false) }
     return isValidToken(email, token)
   }
 }

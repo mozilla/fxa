@@ -3,4 +3,4 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // for easy promise lib switching
-module.exports = require('p-promise')
+module.exports = require('bluebird')
