@@ -80,6 +80,10 @@ function (chai, AuthErrors) {
       it('converts SERVER_BUSY error correctly', function () {
         assert.equal(AuthErrors.toMessage(AuthErrors.toError('SERVER_BUSY')), 'Server busy, try again soon');
       });
+
+      it('converts an unknown object to `UNEXPECTED_ERROR`', function () {
+        assert.equal(AuthErrors.toMessage({}), 'Unexpected error');
+      });
     });
 
     describe('toInterpolationContext', function () {

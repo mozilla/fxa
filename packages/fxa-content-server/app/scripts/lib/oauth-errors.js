@@ -8,12 +8,15 @@
 
 define([
   'underscore',
-  'lib/errors'
+  'lib/errors',
+  'lib/strings'
 ],
-function (_, Errors) {
+function (_, Errors, Strings) {
   var t = function (msg) {
     return msg;
   };
+
+  var UNEXPECTED_ERROR = t('Unexpected error');
 
   var ERRORS = {
     UNKNOWN_CLIENT: {
@@ -28,6 +31,18 @@ function (_, Errors) {
       errno: 104,
       message: t('Invalid assertion')
     },
+    UNKNOWN_CODE: {
+      errno: 105,
+      message: t('Unknown code')
+    },
+    INCORRECT_CODE: {
+      errno: 106,
+      message: t('Incorrect code')
+    },
+    EXPIRED_CODE: {
+      errno: 107,
+      message: t('Expired code')
+    },
     INVALID_PARAMETER: {
       errno: 108,
       message: t('Invalid parameter in request body: %(param)s')
@@ -36,13 +51,35 @@ function (_, Errors) {
       errno: 109,
       message: t('Invalid request signature')
     },
+    INVALID_RESPONSE_TYPE: {
+      errno: 110,
+      message: UNEXPECTED_ERROR
+    },
+    UNAUTHORIZED: {
+      errno: 111,
+      message: t('Unauthorized')
+    },
+    FORBIDDEN: {
+      errno: 112,
+      message: t('Forbidden')
+    },
+    INVALID_CONTENT_TYPE: {
+      errno: 113,
+      message: UNEXPECTED_ERROR
+    },
+    INVALID_SCOPES: {
+      errno: 114,
+      message: Strings.interpolate(
+        // `scope` should not be translated, so interpolate it in.
+        t('Invalid OAuth parameter: %(param)s'), { param: 'scope' })
+    },
     SERVICE_UNAVAILABLE: {
       errno: 998,
       message: t('System unavailable, try again soon')
     },
     UNEXPECTED_ERROR: {
       errno: 999,
-      message: t('Unexpected error')
+      message: UNEXPECTED_ERROR
     },
     TRY_AGAIN: {
       errno: 1000,
@@ -50,15 +87,15 @@ function (_, Errors) {
     },
     INVALID_RESULT: {
       errno: 1001,
-      message: t('Unexpected error')
+      message: UNEXPECTED_ERROR
     },
     INVALID_RESULT_REDIRECT: {
       errno: 1002,
-      message: t('Unexpected error')
+      message: UNEXPECTED_ERROR
     },
     INVALID_RESULT_CODE: {
       errno: 1003,
-      message: t('Unexpected error')
+      message: UNEXPECTED_ERROR
     },
     USER_CANCELED_OAUTH_LOGIN: {
       errno: 1004,
