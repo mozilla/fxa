@@ -257,8 +257,15 @@ define([
         .then(function () {
           return self.setSignedInAccount(account);
         });
-    }
+    },
 
+    completeAccountPasswordReset: function (account, token, code, relier) {
+      var self = this;
+      return account.completePasswordReset(token, code, relier)
+        .then(function () {
+          return self.setSignedInAccount(account);
+        });
+    }
   });
 
   return User;

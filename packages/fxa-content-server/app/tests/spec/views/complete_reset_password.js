@@ -76,7 +76,9 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
       broker = new Broker();
       fxaClient = new FxaClient();
       interTabChannel = new InterTabChannel();
-      user = new User();
+      user = new User({
+        fxaClient: fxaClient
+      });
 
       windowMock = new WindowMock();
       windowMock.location.search = '?code=dea0fae1abc2fab3bed4dec5eec6ace7&email=testuser@testuser.com&token=feed';
@@ -282,7 +284,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
         });
         sinon.stub(user, 'setSignedInAccount', function (newAccount) {
           account = newAccount;
-          return p();
+          return p(account);
         });
         sinon.spy(broker, 'afterCompleteResetPassword');
         sinon.stub(relier, 'isDirectAccess', function () {
@@ -326,7 +328,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
         });
         sinon.stub(user, 'setSignedInAccount', function (newAccount) {
           account = newAccount;
-          return p();
+          return p(account);
         });
         sinon.stub(relier, 'isDirectAccess', function () {
           return true;
@@ -351,7 +353,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
         });
         sinon.stub(user, 'setSignedInAccount', function (newAccount) {
           account = newAccount;
-          return p();
+          return p(account);
         });
         sinon.stub(broker, 'afterCompleteResetPassword', function () {
           return p({ halt: true });

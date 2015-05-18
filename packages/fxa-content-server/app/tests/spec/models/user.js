@@ -366,5 +366,28 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
           assert.isTrue(user.setSignedInAccount.calledWith(account));
         });
     });
+
+    it('completeAccountPasswordReset completes the password reset', function () {
+      var relierMock = {};
+      var account = user.initAccount({ uid: 'uid', email: 'email' });
+
+      sinon.stub(account, 'completePasswordReset', function () {
+        return p();
+      });
+      sinon.stub(user, 'setSignedInAccount', function (account) {
+        return p(account);
+      });
+
+      return user.completeAccountPasswordReset(account, 'token', 'code', relierMock)
+        .then(function () {
+          assert.isTrue(account.completePasswordReset.calledWith(
+            'token',
+            'code',
+            relierMock
+          ));
+
+          assert.isTrue(user.setSignedInAccount.calledWith(account));
+        });
+    });
   });
 });
