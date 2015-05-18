@@ -249,6 +249,14 @@ define([
         .then(function () {
           return self.setSignedInAccount(account);
         });
+    },
+
+    changeAccountPassword: function (account, oldPassword, newPassword, relier) {
+      var self = this;
+      return account.changePassword(oldPassword, newPassword, relier)
+        .then(function () {
+          return self.setSignedInAccount(account);
+        });
     }
 
   });

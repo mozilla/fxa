@@ -341,5 +341,30 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
         });
     });
 
+    it('changeAccountPassword changes the account password', function () {
+      var relierMock = {};
+      var account = user.initAccount({ uid: 'uid', email: 'email' });
+
+      sinon.stub(account, 'changePassword', function () {
+        return p();
+      });
+      sinon.stub(user, 'setSignedInAccount', function () {
+        return p();
+      });
+
+      var oldPassword = 'password';
+      var newPassword = 'new_password';
+
+      return user.changeAccountPassword(account, oldPassword, newPassword, relierMock)
+        .then(function () {
+          assert.isTrue(account.changePassword.calledWith(
+            oldPassword,
+            newPassword,
+            relierMock
+          ));
+
+          assert.isTrue(user.setSignedInAccount.calledWith(account));
+        });
+    });
   });
 });

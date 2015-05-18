@@ -623,5 +623,65 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
         assert.ok(account.getMarketingEmailPrefs());
       });
     });
+
+    describe('changePassword', function () {
+      it('returns `INCORRECT_PASSWORD` error if old password is incorrect (event if passwords are the same)', function () {
+        sinon.stub(fxaClient, 'checkPassword', function () {
+          return p.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
+        });
+
+        return account.changePassword('bad_password', 'bad_password', relier)
+          .then(assert.fail, function (err) {
+            assert.isTrue(AuthErrors.is(err, 'INCORRECT_PASSWORD'));
+          });
+      });
+
+      it('returns `PASSWORD_MUST_BE_DIFFERENT` error if both passwords are the same and the first password is correct', function () {
+        sinon.stub(fxaClient, 'checkPassword', function () {
+          return p();
+        });
+
+        return account.changePassword('password', 'password', relier)
+          .then(assert.fail, function (err) {
+            assert.ok(AuthErrors.is(err, 'PASSWORDS_MUST_BE_DIFFERENT'));
+          });
+      });
+
+      it('changes from old to new password', function () {
+        var oldPassword = 'password';
+        var newPassword = 'new_password';
+        account.set('sessionTokenContext', 'foo');
+
+        sinon.stub(fxaClient, 'checkPassword', function () {
+          return p();
+        });
+
+        sinon.stub(fxaClient, 'changePassword', function () {
+          return p();
+        });
+
+        sinon.stub(fxaClient, 'signIn', function () {
+          return p({});
+        });
+
+
+        return account.changePassword(oldPassword, newPassword, relier)
+          .then(function () {
+            assert.isTrue(fxaClient.checkPassword.calledWith(
+                EMAIL, oldPassword));
+            assert.isTrue(fxaClient.changePassword.calledWith(
+                EMAIL, oldPassword, newPassword));
+            assert.isTrue(fxaClient.signIn.calledWith(
+                EMAIL,
+                newPassword,
+                relier,
+                {
+                  reason: fxaClient.SIGNIN_REASON.PASSWORD_CHANGE,
+                  sessionTokenContext: 'foo'
+                }
+            ));
+          });
+      });
+    });
   });
 });

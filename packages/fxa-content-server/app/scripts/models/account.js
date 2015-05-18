@@ -252,6 +252,42 @@ define([
       });
 
       return emailPrefs;
+    },
+
+    changePassword: function (oldPassword, newPassword, relier) {
+      // Try to sign the user in before checking whether the
+      // passwords are the same. If the user typed the incorrect old
+      // password, they should know that first.
+      var self = this;
+
+      var fxaClient = self._fxaClient;
+      var email = self.get('email');
+
+      return fxaClient.checkPassword(email, oldPassword)
+        .then(function () {
+          if (oldPassword === newPassword) {
+            throw AuthErrors.toError('PASSWORDS_MUST_BE_DIFFERENT');
+          }
+
+          return fxaClient.changePassword(email, oldPassword, newPassword);
+        })
+        .then(function () {
+          // sign the user in, keeping the current sessionTokenContext. This
+          // prevents sync users from seeing the `sign out` button on the
+          // settings screen.
+          return fxaClient.signIn(
+            email,
+            newPassword,
+            relier,
+            {
+              reason: fxaClient.SIGNIN_REASON.PASSWORD_CHANGE,
+              sessionTokenContext: self.get('sessionTokenContext')
+            }
+          );
+        })
+        .then(function (updatedSessionData) {
+          self.set(updatedSessionData);
+        });
     }
   });
 
