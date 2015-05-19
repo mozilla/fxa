@@ -53,6 +53,10 @@ define(['client/lib/errors'], function (ERRORS) {
       status: 200,
       body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}]'
     },
+    resetMailUnlock: {
+      status: 200,
+      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}]'
+    },
     resetMailWithServiceAndRedirect: {
       status: 200,
       body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001 service=sync redirectTo=https resume=resumejwt"}]'
@@ -120,10 +124,6 @@ define(['client/lib/errors'], function (ERRORS) {
     accountKeys: {
       status: 200,
       body: '{ "bundle": "7f1a9633560774251a2d317b4539e04bcb14a767ec92e3b3f4d438fdad984831f6d1e1b0d93c23d312bf0859270dc8c0e6ebcae4c499f3a604881fc57683459b01cdfd04757835b0334a80728ce40cf50dce32bb365d8a0ac868bb747bf8aca4"}'
-    },
-    accountDevices: {
-      status: 200,
-      body: '{ "devices": [ { "id": "4c352927-cd4f-4a4a-a03d-7d1893d950b8", "type": "computer", "name": "Macbook" } ] }'
     },
     accountStatus: {
       status: 200,

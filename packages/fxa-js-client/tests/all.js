@@ -12,7 +12,6 @@ define([
   'tests/lib/credentials',
   'tests/lib/hawkCredentials',
   'tests/lib/passwordChange',
-  'tests/lib/devices',
   'tests/lib/session',
   'tests/lib/certificateSign',
   'tests/lib/account',
