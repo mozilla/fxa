@@ -172,6 +172,7 @@ define([
       return self.getAvatar()
         .then(function (result) {
           profileImage = new ProfileImage({ url: result.avatar, id: result.id });
+          self.setProfileImage(profileImage);
           return profileImage.fetch();
         })
         .then(function () {
