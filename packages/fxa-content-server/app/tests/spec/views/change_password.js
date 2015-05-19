@@ -222,7 +222,14 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, Metrics, p,
               assert.isTrue(view.fxaClient.changePassword.calledWith(
                   EMAIL, oldPassword, newPassword));
               assert.isTrue(view.fxaClient.signIn.calledWith(
-                      EMAIL, newPassword, relier));
+                  EMAIL,
+                  newPassword,
+                  relier,
+                  {
+                    reason: view.fxaClient.SIGNIN_REASON.PASSWORD_CHANGE,
+                    sessionTokenContext: account.get('sessionTokenContext')
+                  }
+              ));
               assert.isTrue(user.setSignedInAccount.calledWith(account));
               assert.isTrue(broker.afterChangePassword.calledWith(account));
             });
@@ -254,8 +261,14 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, Metrics, p,
           return view.submit()
               .then(function () {
                 assert.isTrue(view.fxaClient.signIn.calledWith(
-                    EMAIL, 'new_password', relier,
-                    { sessionTokenContext: 'foo' }));
+                    EMAIL,
+                    'new_password',
+                    relier,
+                    {
+                      reason: view.fxaClient.SIGNIN_REASON.PASSWORD_CHANGE,
+                      sessionTokenContext: 'foo'
+                    }
+                ));
                 assert.isTrue(user.setSignedInAccount.calledWith(account));
               });
         });

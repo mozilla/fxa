@@ -55,10 +55,21 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
      * Check the user's current password without affecting session state.
      */
     checkPassword: function (email, password) {
+      var self = this;
       return this._getClient()
-          .then(function (client) {
-            return client.signIn(email, password);
+        .then(function (client) {
+          return client.signIn(email, password, {
+            reason: self.SIGNIN_REASON.PASSWORD_CHECK
+          })
+          .then(function (sessionInfo) {
+            // a session was created on the backend to check the user's
+            // password. Delete the newly created session immediately
+            // so that the session token is not left in the database.
+            if (sessionInfo && sessionInfo.sessionToken) {
+              return client.sessionDestroy(sessionInfo.sessionToken);
+            }
           });
+        });
     },
 
     /**
@@ -98,6 +109,37 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
     },
 
 
+    /**
+     * Signin reasons are indicators to the backend that the signin
+     * is to complete a particular action. The backend can choose
+     * to perform actions, e.g., send emails, based on the reason.
+     */
+    SIGNIN_REASON: {
+      SIGN_IN: 'signin',
+      PASSWORD_CHECK: 'password_check',
+      PASSWORD_CHANGE: 'password_change',
+      PASSWORD_RESET: 'password_reset',
+      ACCOUNT_UNLOCK: 'account_unlock'
+    },
+
+    /**
+     * Authenticate a user.
+     *
+     * @method signIn
+     * @param {String} originalEmail
+     * @param {String} password
+     * @param {Releir} relier
+     * @param {Object} [options]
+     *   @param {String} [options.reason] - reason for the sign in. Can be
+     *                   one of the values defined in SIGNIN_REASON.
+     *                   Defaults to SIGNIN_REASON.SIGN_IN.
+     *   @param {Boolean} [options.customizeSync] - If the relier is Sync,
+     *                   whether the user wants to customize which items will
+     *                   be synced. Defaults to `false`
+     *   @param {String} [options.sessionTokenContext] - The context for which
+     *                   the session token is being created. Defaults to the
+     *                   relier's context.
+     */
     signIn: function (originalEmail, password, relier, options) {
       var email = trim(originalEmail);
       var self = this;
@@ -105,7 +147,18 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
 
       return self._getClient()
         .then(function (client) {
-          return client.signIn(email, password, { keys: relier.wantsKeys() });
+          var signInOptions = {
+            keys: relier.wantsKeys(),
+            reason: options.reason || self.SIGNIN_REASON.SIGN_IN
+          };
+
+          // `service` is sent on signIn to notify users when a new service
+          // has been attached to their account.
+          if (relier.has('service')) {
+            signInOptions.service = relier.get('service');
+          }
+
+          return client.signIn(email, password, signInOptions);
         })
         .then(function (accountData) {
           return self._getUpdatedSessionData(email, relier, accountData, options);

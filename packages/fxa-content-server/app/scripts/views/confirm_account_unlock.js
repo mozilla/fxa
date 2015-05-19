@@ -132,8 +132,15 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
       // the sign in will successfully complete. If they have not verified
       // their address, the sign in call will fail with the ACCOUNT_LOCKED
       // error, and we poll again.
-      return self.fxaClient.signIn(email, password, self.relier)
-        .then(null, function (err) {
+      return self.fxaClient.signIn(
+          email,
+          password,
+          self.relier,
+          {
+            reason: self.fxaClient.SIGNIN_REASON.ACCOUNT_UNLOCK
+          }
+        )
+        .fail(function (err) {
           if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
             // user has not yet verified, poll again.
             var deferred = p.defer();

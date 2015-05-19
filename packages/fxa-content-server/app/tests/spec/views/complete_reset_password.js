@@ -299,7 +299,13 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
               assert.isTrue(fxaClient.completePasswordReset.calledWith(
                   EMAIL, PASSWORD, TOKEN, CODE));
               assert.isTrue(fxaClient.signIn.calledWith(
-                  EMAIL, PASSWORD, relier));
+                  EMAIL,
+                  PASSWORD,
+                  relier,
+                  {
+                    reason: view.fxaClient.SIGNIN_REASON.PASSWORD_RESET
+                  }
+              ));
               assert.equal(routerMock.page, 'reset_password_complete');
               assert.isTrue(broker.afterCompleteResetPassword.calledWith(account));
               assert.isTrue(loginSpy.called);
@@ -356,7 +362,13 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
               assert.isTrue(fxaClient.completePasswordReset.calledWith(
                   EMAIL, PASSWORD, TOKEN, CODE));
               assert.isTrue(fxaClient.signIn.calledWith(
-                  EMAIL, PASSWORD, relier));
+                  EMAIL,
+                  PASSWORD,
+                  relier,
+                  {
+                    reason: view.fxaClient.SIGNIN_REASON.PASSWORD_RESET
+                  }
+              ));
               assert.notEqual(routerMock.page, 'reset_password_complete');
               assert.isTrue(broker.afterCompleteResetPassword.calledWith(account));
             });
