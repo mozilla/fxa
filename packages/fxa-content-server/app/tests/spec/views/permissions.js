@@ -122,10 +122,10 @@ function (chai, $, sinon, p, View, AuthErrors, Metrics, FxaClient,
       it('renders relier info', function () {
         return initView('sign_up')
           .then(function () {
-            assert(!! view.$('#fxa-permissions-header').text().match(SERVICE_NAME),
-              'service name shows in header');
+            assert.include(view.$('#permission-request').text(), SERVICE_NAME,
+              'service name shows in paragraph');
 
-            assert(!! view.$('#permissions').text().match(EMAIL),
+            assert.equal(view.$('.email').val(), EMAIL,
               'shows email in permissions list');
           });
       });

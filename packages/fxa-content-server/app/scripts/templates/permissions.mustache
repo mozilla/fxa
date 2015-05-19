@@ -1,20 +1,22 @@
 <div id="main-content" class="card">
   <header>
-    <h1 id="fxa-permissions-header">{{#t}}%(serviceName)s would like to know…{{/t}}</h1>
+    <h1 id="fxa-permissions-header">{{#t}}Request for permission{{/t}}</h1>
   </header>
 
   <section>
     <div class="error"></div>
     <div class="success"></div>
 
-    <p id="permissions">
-      <span class="permission">{{#t}}Email{{/t}}</span>
-      <span class="value">{{ email }}</span>
-    </p>
+    <p id="permission-request">{{#t}}%(serviceName)s wants the following information from your account:{{/t}}</p>
 
-    <form novalidate>
+    <form id="permissions" novalidate>
+      <div class="input-row">
+        <label class="small-label">{{#t}}Email{{/t}}</label>
+        <input type="email" class="email" value="{{ email }}" disabled/>
+      </div>
+
       <div class="button-row">
-        <button id="proceed" type="submit">{{#t}}Proceed{{/t}}</button>
+        <button id="accept" type="submit">{{#t}}Accept{{/t}}</button>
       </div>
     </form>
 

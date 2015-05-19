@@ -115,6 +115,7 @@ ul.links {
   }
 }
 
+.small-label,
 .label-helper {
   border-radius: $small-border-radius;
   color: $input-placeholder-color;
@@ -122,26 +123,26 @@ ul.links {
   font-weight: normal;
   height: 16px;
   margin: 0 10px;
+}
+
+.label-helper {
   position: absolute;
   top: 0;
   z-index: 1;
 }
 
 #permissions {
-  border-radius: $big-border-radius;
-  border: 1px solid $permissions-border-color;
-  text-align: left;
-  padding: 10px;
-  word-wrap: break-word;
-
-  .permission {
-    font-size: $base-font;
+  .input-row {
+    text-align: left;
+    margin: 30px 0;
   }
-  .value {
-    display: block;
+
+  input[disabled] {
+    background-color: $input-background-disabled-color;
+    border-color: $input-border-disabled-color;
+    color: $input-disabled-color;
   }
 }
-
 
 ul.permission-links {
   li {

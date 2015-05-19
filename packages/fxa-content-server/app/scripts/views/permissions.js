@@ -55,7 +55,7 @@ function (Cocktail, _, FormView, BaseView, Template, p,
       var self = this;
       var account = self.getAccount();
 
-      self.logScreenEvent('proceed');
+      self.logScreenEvent('accept');
 
       return p().then(function () {
         account.saveGrantedPermissions(self.relier.get('clientId'), self.relier.get('permissions'));
