@@ -76,7 +76,6 @@ If the user arrived at Firefox Accounts via a Mozilla marketing campaign,
 specify the campaign identifier.
 
 #### When to specify
-Only available if `context=fx_desktop_v1`.
 
 * /signin
 * /signup
@@ -99,11 +98,10 @@ Only available if `context=fx_desktop_v1&service=sync`.
 If they user arrived at Firefox Accounts from within Firefox browser chrome, specify where in Firefox the user came from.
 
 #### When to specify
-Only available if `context=fx_desktop_v1`.
-
 * /signin
 * /signup
 * /force_auth
+* /settings
 
 ### `migration`
 If the user is migrating their Sync account from "old sync" to "new sync", specify which sync they are migrating from.
