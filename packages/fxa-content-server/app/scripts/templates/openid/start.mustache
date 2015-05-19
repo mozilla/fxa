@@ -1,0 +1,21 @@
+<div id="main-content" class="card">
+  <header id="partner-header">
+    <h1 id="fxa-partner-header">{{#t}}Sign in to Sync{{/t}}</h1>
+  </header>
+
+  <p>
+    {{#t}}Choose the account you would like to use to sync your tabs, bookmarks, passwords and more.{{/t}}
+  </p>
+
+  <form id="permissions" novalidate>
+    <div class="input-row">
+        <input id="openid" type="text" class="email" value="https://me.yahoo.com" />
+    </div>
+    <div class="button-row">
+      <button id="openid-button" type="submit">{{#t}}Use OpenID{{/t}}</button>
+    </div>
+    <div class="button-row">
+      <button id="fxa-button">{{#t}}Use Firefox Account{{/t}}</button>
+    </div>
+  </form>
+</div>

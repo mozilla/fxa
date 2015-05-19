@@ -66,6 +66,7 @@
     "morgan": "1.6.1",
     "mozlog": "2.0.1",
     "node-statsd": "0.1.1",
+    "openid": "0.5.13",
     "request": "2.60.0",
     "serve-static": "1.10.0",
     "time-grunt": "1.2.1",
