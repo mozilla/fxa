@@ -11,11 +11,14 @@
 
 define([
   'underscore',
+  'lib/constants',
   'models/auth_brokers/oauth',
   'models/auth_brokers/mixins/channel',
   'lib/promise',
   'lib/channels/web'
-], function (_, OAuthAuthenticationBroker, ChannelMixin, p, WebChannel) {
+],
+function (_, Constants, OAuthAuthenticationBroker, ChannelMixin, p,
+      WebChannel) {
 
   var WebChannelAuthenticationBroker = OAuthAuthenticationBroker.extend({
     type: 'web-channel',
@@ -92,9 +95,13 @@ define([
         });
     },
 
-    afterSignIn: function (account) {
+    afterSignIn: function (account, additionalResultData) {
+      if (! additionalResultData) {
+        additionalResultData = {};
+      }
+      additionalResultData.closeWindow = true;
       return OAuthAuthenticationBroker.prototype.afterSignIn.call(
-                this, account, { closeWindow: true });
+                this, account, additionalResultData);
     },
 
     beforeSignUpConfirmationPoll: function (account) {
@@ -141,7 +148,7 @@ define([
 
     afterSignUpConfirmationPoll: function (account) {
       if (this.hasPendingOAuthFlow()) {
-        return this.finishOAuthFlow(account);
+        return this.finishOAuthSignUpFlow(account);
       }
       return p();
     },
@@ -161,14 +168,14 @@ define([
             account.set('keyFetchToken', self.session.oauth.keyFetchToken);
             account.set('unwrapBKey', self.session.oauth.unwrapBKey);
           }
-          return self.finishOAuthFlow(account);
+          return self.finishOAuthSignUpFlow(account);
         }
       });
     },
 
     afterResetPasswordConfirmationPoll: function (account) {
       if (this.hasPendingOAuthFlow()) {
-        return this.finishOAuthFlow(account);
+        return this.finishOAuthSignInFlow(account);
       }
       return p();
     },
@@ -182,7 +189,7 @@ define([
       var self = this;
       return p().delay(100).then(function () {
         if (self.hasPendingOAuthFlow()) {
-          return self.finishOAuthFlow(account);
+          return self.finishOAuthSignInFlow(account);
         }
       });
     },

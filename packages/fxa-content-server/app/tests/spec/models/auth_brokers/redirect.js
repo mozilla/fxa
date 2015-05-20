@@ -9,13 +9,14 @@ define([
   'chai',
   'sinon',
   'lib/promise',
+  'lib/constants',
   'lib/session',
   'models/auth_brokers/redirect',
   'models/reliers/base',
   'models/user',
   '../../../mocks/window'
 ],
-function (chai, sinon, p, Session, RedirectAuthenticationBroker,
+function (chai, sinon, p, Constants, Session, RedirectAuthenticationBroker,
     Relier, User, WindowMock) {
   var assert = chai.assert;
   var REDIRECT_TO = 'https://redirect.here';
@@ -70,6 +71,34 @@ function (chai, sinon, p, Session, RedirectAuthenticationBroker,
           });
         });
       });
+
+      describe('with an action', function () {
+        it('appends an action query parameter', function () {
+          var action = Constants.OAUTH_ACTION_SIGNIN;
+          return broker.sendOAuthResultToRelier({
+            redirect: REDIRECT_TO,
+            action: action
+          })
+          .then(function () {
+            assert.include(windowMock.location.href, REDIRECT_TO);
+            assert.include(windowMock.location.href, 'action=' + action);
+          });
+        });
+      });
+
+      describe('with existing query parameters', function () {
+        it('passes through existing parameters unchanged', function () {
+          return broker.sendOAuthResultToRelier({
+            redirect: REDIRECT_TO + '?test=param',
+            error: 'error'
+          })
+          .then(function () {
+            assert.include(windowMock.location.href, REDIRECT_TO);
+            assert.include(windowMock.location.href, 'test=param');
+            assert.include(windowMock.location.href, 'error=error');
+          });
+        });
+      });
     });
 
     describe('persist', function () {
@@ -111,7 +140,9 @@ function (chai, sinon, p, Session, RedirectAuthenticationBroker,
             return broker.afterCompleteSignUp(account);
           })
           .then(function () {
-            assert.isTrue(broker.finishOAuthFlow.calledWith(account));
+            assert.isTrue(broker.finishOAuthFlow.calledWith(account, {
+              action: Constants.OAUTH_ACTION_SIGNUP
+            }));
           });
       });
 
@@ -130,7 +161,9 @@ function (chai, sinon, p, Session, RedirectAuthenticationBroker,
             return broker.afterCompleteResetPassword(account);
           })
           .then(function () {
-            assert.isTrue(broker.finishOAuthFlow.calledWith(account));
+            assert.isTrue(broker.finishOAuthFlow.calledWith(account, {
+              action: Constants.OAUTH_ACTION_SIGNIN
+            }));
           });
       });
 

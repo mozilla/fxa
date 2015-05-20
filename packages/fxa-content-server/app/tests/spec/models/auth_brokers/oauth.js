@@ -10,6 +10,7 @@ define([
   'sinon',
   'lib/session',
   'lib/promise',
+  'lib/constants',
   'lib/oauth-client',
   'lib/assertion',
   'lib/auth-errors',
@@ -18,7 +19,7 @@ define([
   'models/user',
   'models/auth_brokers/oauth'
 ],
-function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
+function (chai, sinon, Session, p, Constants, OAuthClient, Assertion, AuthErrors,
       OAuthErrors, Relier, User, OAuthAuthenticationBroker) {
   var assert = chai.assert;
 
@@ -100,9 +101,12 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
 
         return broker.afterSignIn(account)
           .then(function () {
-            assert.isTrue(broker.finishOAuthFlow.calledWith(account));
+            assert.isTrue(broker.finishOAuthFlow.calledWith(account, {
+              action: Constants.OAUTH_ACTION_SIGNIN
+            }));
             assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
               redirect:  VALID_OAUTH_CODE_REDIRECT_URL,
+              action: Constants.OAUTH_ACTION_SIGNIN,
               state: 'state',
               code: VALID_OAUTH_CODE
             }));
@@ -138,9 +142,12 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
 
         return broker.afterSignUpConfirmationPoll(account)
           .then(function () {
-            assert.isTrue(broker.finishOAuthFlow.calledWith(account));
+            assert.isTrue(broker.finishOAuthFlow.calledWith(account, {
+              action: Constants.OAUTH_ACTION_SIGNUP
+            }));
             assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
               redirect:  VALID_OAUTH_CODE_REDIRECT_URL,
+              action: Constants.OAUTH_ACTION_SIGNUP,
               state: 'state',
               code: VALID_OAUTH_CODE
             }));
@@ -156,9 +163,12 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
 
         return broker.afterResetPasswordConfirmationPoll(account)
           .then(function () {
-            assert.isTrue(broker.finishOAuthFlow.calledWith(account));
+            assert.isTrue(broker.finishOAuthFlow.calledWith(account, {
+              action: Constants.OAUTH_ACTION_SIGNIN
+            }));
             assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
               redirect:  VALID_OAUTH_CODE_REDIRECT_URL,
+              action: Constants.OAUTH_ACTION_SIGNIN,
               state: 'state',
               code: VALID_OAUTH_CODE
             }));

@@ -9,8 +9,9 @@
 define([
   'lib/promise',
   'lib/constants',
+  'lib/url',
   'models/auth_brokers/oauth'
-], function (p, Constants, OAuthAuthenticationBroker) {
+], function (p, Constants, Url, OAuthAuthenticationBroker) {
 
   var RedirectAuthenticationBroker = OAuthAuthenticationBroker.extend({
     type: 'redirect',
@@ -18,16 +19,14 @@ define([
       var win = this.window;
       return p()
         .then(function () {
-          var redirectTo = result.redirect;
-
+          var extraParams = {};
           if (result.error) {
-            // really, we should be parsing the URL and adding the error
-            // parameter. That requires more code than this.
-            var separator = redirectTo.indexOf('?') === -1 ? '?' : '&';
-            redirectTo += (separator + 'error=' + encodeURIComponent(result.error));
+            extraParams['error'] = result.error;
           }
-
-          win.location.href = redirectTo;
+          if (result.action) {
+            extraParams['action'] = result.action;
+          }
+          win.location.href = Url.updateSearchString(result.redirect, extraParams);
         });
     },
 
@@ -59,14 +58,15 @@ define([
       });
     },
 
-    finishOAuthFlow: function (account) {
+    finishOAuthFlow: function (account, additionalResultData) {
       var self = this;
       return p().then(function () {
         // There are no ill side effects if the Original Tab Marker is
         // cleared in the a tab other than the original. Always clear it just
         // to make sure the bases are covered.
         self.clearOriginalTabMarker();
-        return OAuthAuthenticationBroker.prototype.finishOAuthFlow.call(self, account);
+        return OAuthAuthenticationBroker.prototype
+          .finishOAuthFlow.call(self, account, additionalResultData);
       });
     },
 
@@ -80,7 +80,7 @@ define([
 
       return p().delay(100).then(function () {
         if (self.isOriginalTab() || self.canVerificationRedirect()) {
-          return self.finishOAuthFlow(account)
+          return self.finishOAuthSignUpFlow(account)
             .then(function () {
               return { halt: true };
             });
@@ -104,7 +104,7 @@ define([
       var self = this;
       return p().then(function () {
         if (self.isOriginalTab()) {
-          return self.finishOAuthFlow(account)
+          return self.finishOAuthSignInFlow(account)
             .then(function () {
               return { halt: true };
             });
