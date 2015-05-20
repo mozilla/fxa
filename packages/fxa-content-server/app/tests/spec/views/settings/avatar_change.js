@@ -143,31 +143,25 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
               var ev = FileReaderMock._mockTextEvent();
               view.fileSet(ev);
 
-              assert.equal(routerMock.page, 'settings');
-              assert.equal(view.ephemeralMessages.get('error'), AuthErrors.toMessage('UNUSABLE_IMAGE'));
+              assert.equal(view.$('.error').text(), AuthErrors.toMessage('UNUSABLE_IMAGE'));
+              assert.isTrue(view.isErrorVisible());
             });
         });
 
-        it('errors on a bad image', function (done) {
+        it('errors on a bad image', function () {
           view.FileReader = FileReaderMock;
 
-          view.afterVisible()
+          return view.afterVisible()
             .then(function () {
               var ev = FileReaderMock._mockBadPngEvent();
-
-              view.router.on('navigate', function () {
-                try {
-                  assert.equal(routerMock.page, 'settings');
-                  assert.equal(view.ephemeralMessages.get('error'), AuthErrors.toMessage('UNUSABLE_IMAGE'));
-                  done();
-                } catch (e) {
-                  return done(e);
-                }
-              });
-
-              view.fileSet(ev);
-            })
-            .fail(done);
+              return view.fileSet(ev)
+                .then(function () {
+                  assert.fail('unexpected success');
+                }, function () {
+                  assert.equal(view.$('.error').text(), AuthErrors.toMessage('UNUSABLE_IMAGE'));
+                  assert.isTrue(view.isErrorVisible());
+                });
+            });
         });
 
         it('loads a supported file', function (done) {
