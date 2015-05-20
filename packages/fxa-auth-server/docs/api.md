@@ -272,6 +272,8 @@ ___Parameters___
 
 * email - the primary email for this account
 * authPW - the PBKDF2/HKDF stretched password as a hex string
+* service - (optional) opaque alphanumeric token to be included in verification links
+* reason - (optional) alphanumeric string indicating the reason for establishing a new session; may be "login" (the default) or "reconnect"
 
 ### Request
 
