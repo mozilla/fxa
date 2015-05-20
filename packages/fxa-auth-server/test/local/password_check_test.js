@@ -17,6 +17,9 @@ var MockCustoms = {
 
 var MockDB = {
   locked: {},
+  checkPassword: function (uid) {
+    return uid === 'correct_password';
+  },
   isLocked: function (uid) {
     return !! this.locked[uid];
   },
