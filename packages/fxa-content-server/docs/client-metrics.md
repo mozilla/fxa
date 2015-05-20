@@ -152,14 +152,14 @@ The event stream is a log of events and the time they occurred while the user is
 * signin.ask-password.shown.session-expired - asked for password due to expired session token
 * signin.use-different-account - user clicked link to use different account
 #### signin_permissions
-* signin-permissions.proceed - user proceeds and grants the requested permissions
+* signin-permissions.accept - user accepts and grants the requested permissions
 * signin-permissions.success - sign in successfully occurred
 #### signup
 * tooltip.mailcheck-suggested - an email address correction was suggested
 * tooltip.mailcheck-used - an email address correction was chosen by the user
 * tooltip.mailcheck-dismissed - an email address correction tooltip was dismissed without the selection being made.
 #### signup_permissions
-* signup-permissions.proceed - user proceeds and grants the requested permissions
+* signup-permissions.accept - user accepts and grants the requested permissions
 
 #### tos
 #### unexpected_error
