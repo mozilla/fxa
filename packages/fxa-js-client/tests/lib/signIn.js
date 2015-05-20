@@ -65,8 +65,18 @@ define([
         var password = "iliketurtles";
 
         return respond(client.signUp(email, password), RequestMocks.signUp)
-          .then(function (res) {
+          .then(function () {
             return respond(client.signIn(email, password, {service: 'sync'}), RequestMocks.signIn);
+          });
+      });
+
+      test('#with reason', function () {
+        var email = "test" + new Date().getTime() + "@restmail.net";
+        var password = "iliketurtles";
+
+        return respond(client.signUp(email, password), RequestMocks.signUp)
+          .then(function () {
+            return respond(client.signIn(email, password, {reason: 'password_change'}), RequestMocks.signIn);
           });
       });
 

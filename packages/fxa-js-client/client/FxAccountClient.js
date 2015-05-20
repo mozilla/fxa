@@ -143,6 +143,9 @@ define([
    *   If `true`, the request will skip the incorrect case error
    *   @param {String} [options.service]
    *   Service being signed into
+   *   @param {String} [options.reason]
+   *   Reason for sign in. Can be one of: `signin`, `password_check`,
+   *   `password_change`, `password_reset`, `account_unlock`.
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.signIn = function (email, password, options) {
@@ -168,6 +171,10 @@ define([
 
           if (options.service) {
             data.service = options.service;
+          }
+
+          if (options.reason) {
+            data.reason = options.reason;
           }
 
           return self.request.send(endpoint, 'POST', null, data)
