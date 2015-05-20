@@ -232,8 +232,8 @@ define([
           .click()
         .end()
 
-        //success is returning to the settings page
-        .findById('fxa-settings-header')
+        // success is going to the change avatar page
+        .findById('avatar-options')
         .end()
 
         // success is seeing the error text

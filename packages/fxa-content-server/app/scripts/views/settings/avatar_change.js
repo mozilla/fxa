@@ -15,10 +15,11 @@ define([
   'lib/auth-errors',
   'lib/image-loader',
   'lib/url',
+  'lib/promise',
   'models/cropper-image'
 ],
 function ($, _, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
-    AuthErrors, ImageLoader, Url, CropperImage) {
+    AuthErrors, ImageLoader, Url, p, CropperImage) {
 
   var View = FormView.extend({
     template: Template,
@@ -86,12 +87,13 @@ function ($, _, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
 
     fileSet: function (e) {
       var self = this;
+      var defer = p.defer();
       var file = e.target.files[0];
 
-      var imgOnerrer = function () {
-        self.navigate('settings', {
-          error: AuthErrors.toMessage('UNUSABLE_IMAGE')
-        });
+      var imgOnError = function () {
+        var msg = AuthErrors.toMessage('UNUSABLE_IMAGE');
+        self.displayError(msg);
+        defer.reject(msg);
       };
 
       if (file.type.match('image.*')) {
@@ -115,15 +117,16 @@ function ($, _, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
                   }
                 });
               });
+              defer.resolve();
             })
-            .fail(imgOnerrer);
+            .fail(imgOnError);
         };
         reader.readAsDataURL(file);
       } else {
-        self.navigate('settings', {
-          error: AuthErrors.toMessage('UNUSABLE_IMAGE')
-        });
+        imgOnError();
       }
+
+      return defer.promise;
     }
 
   });

@@ -54,7 +54,7 @@ function ($, _, md5, Cocktail, FormView, SettingsMixin, AvatarMixin,
     },
 
     _notFound: function () {
-      this.navigate('settings', {
+      this.navigate('settings/avatar/change', {
         error: t('No Gravatar found')
       });
     },

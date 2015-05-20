@@ -92,8 +92,8 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, User,
         return view.render()
           .then(function () {
             return view._showGravatar()
-              .then(null, function () {
-                assert.equal(routerMock.page, 'settings');
+              .then(function () {
+                assert.equal(routerMock.page, 'settings/avatar/change');
                 assert.equal(view.ephemeralMessages.get('error'), 'No Gravatar found');
               });
           });
