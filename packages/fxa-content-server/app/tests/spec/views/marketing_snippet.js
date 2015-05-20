@@ -47,9 +47,9 @@ function (chai, View, Metrics, WindowMock) {
         });
 
         return view.render()
-            .then(function () {
-              assert.equal(view.$('.marketing.default').length, 1);
-            });
+          .then(function () {
+            assert.equal(view.$('.marketing.default').length, 1);
+          });
       });
 
       it('shows nothing to english speaking non-sync users', function () {
@@ -61,9 +61,9 @@ function (chai, View, Metrics, WindowMock) {
         });
 
         return view.render()
-            .then(function () {
-              assert.equal(view.$('.marketing.default').length, 0);
-            });
+          .then(function () {
+            assert.equal(view.$('.marketing.default').length, 0);
+          });
       });
 
       it('shows nothing to english speaking users on Firefox for Android', function () {
@@ -76,9 +76,9 @@ function (chai, View, Metrics, WindowMock) {
         });
 
         return view.render()
-            .then(function () {
-              assert.equal(view.$('.marketing.default').length, 0);
-            });
+          .then(function () {
+            assert.equal(view.$('.marketing.default').length, 0);
+          });
       });
 
       it('shows nothing to english speaking users on B2G', function () {
@@ -90,9 +90,9 @@ function (chai, View, Metrics, WindowMock) {
         });
 
         return view.render()
-            .then(function () {
-              assert.equal(view.$('.marketing.default').length, 0);
-            });
+          .then(function () {
+            assert.equal(view.$('.marketing.default').length, 0);
+          });
       });
 
       it('shows nothing to non-english speaking, non-sync users', function () {
@@ -103,9 +103,9 @@ function (chai, View, Metrics, WindowMock) {
         });
 
         return view.render()
-            .then(function () {
-              assert.equal(view.$('.marketing.default').length, 0);
-            });
+          .then(function () {
+            assert.equal(view.$('.marketing.default').length, 0);
+          });
       });
 
       it('logs the marketing type and link', function () {
@@ -116,12 +116,13 @@ function (chai, View, Metrics, WindowMock) {
         });
 
         return view.render()
-            .then(function () {
-              var filteredData = metrics.getFilteredData();
-              assert.ok(filteredData.marketingType);
-              assert.ok(filteredData.marketingLink);
-              assert.isFalse(filteredData.marketingClicked);
-            });
+          .then(function () {
+            var filteredData = metrics.getFilteredData();
+            var impression = filteredData.marketing[0];
+            assert.isTrue('campaignId' in impression);
+            assert.isTrue('url' in impression);
+            assert.isFalse(impression.clicked);
+          });
       });
 
     });
@@ -136,13 +137,14 @@ function (chai, View, Metrics, WindowMock) {
         });
 
         return view.render()
-            .then(function () {
-              view.$('.marketing-link').click();
-            })
-            .then(function () {
-              var filteredData = metrics.getFilteredData();
-              assert.isTrue(filteredData.marketingClicked);
-            });
+          .then(function () {
+            view.$('.marketing-link').click();
+          })
+          .then(function () {
+            var filteredData = metrics.getFilteredData();
+            var impression = filteredData.marketing[0];
+            assert.isTrue(impression.clicked);
+          });
       });
     });
   });

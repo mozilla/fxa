@@ -10,7 +10,8 @@
 var os = require('os');
 
 var HOSTNAME = os.hostname();
-var OP = 'client.metrics';
+var METRICS_OP = 'client.metrics';
+var MARKETING_OP = 'client.marketing';
 var VERSION = 1;
 
 function addTime(loggableEvent) {
@@ -20,8 +21,8 @@ function addTime(loggableEvent) {
   loggableEvent.time = today.toISOString();
 }
 
-function addOp(loggableEvent) {
-  loggableEvent.op = OP;
+function addOp(loggableEvent, op) {
+  loggableEvent.op = op;
 }
 
 function addHostname(loggableEvent) {
@@ -89,7 +90,7 @@ function toLoggableEvent(event) {
 
   // fields that rely on server data.
   addTime(loggableEvent);
-  addOp(loggableEvent);
+  addOp(loggableEvent, METRICS_OP);
   addHostname(loggableEvent);
   addPid(loggableEvent);
   addVersion(loggableEvent);
@@ -104,10 +105,7 @@ function toLoggableEvent(event) {
     'entrypoint',
     'service',
     'migration',
-    'campaign',
-    'marketingLink',
-    'marketingType',
-    'marketingClicked'
+    'campaign'
   ], loggableEvent, event);
 
   addNavigationTiming(loggableEvent, event);
@@ -118,6 +116,41 @@ function toLoggableEvent(event) {
   return loggableEvent;
 }
 
+function writeEntry(entry) {
+  // Heka listens on stderr.
+  // process.stderr.write is synchronous unlike most stream operations.
+  // See http://nodejs.org/api/process.html#process_process_stderr
+  // If this causes a performance problem, figure out another way of
+  // doing it.
+  process.stderr.write(JSON.stringify(entry) + '\n');
+}
+
+
+function processMarketingImpressions(event) {
+  if (! (event && event.marketing && event.marketing.forEach)) {
+    return;
+  }
+
+  // each marketing impression is printed individually
+  event.marketing.forEach(function (impression) {
+    addTime(impression);
+    addOp(impression, MARKETING_OP);
+    addHostname(impression);
+    addPid(impression);
+    addVersion(impression);
+
+    copyFields([
+      'lang',
+      'agent',
+      'context',
+      'entrypoint',
+      'service',
+      'migration'
+    ], impression, event);
+
+    writeEntry(impression);
+  });
+}
 
 function StdErrCollector() {
   // nothing to do here.
@@ -126,13 +159,9 @@ function StdErrCollector() {
 StdErrCollector.prototype = {
   write: function (event) {
     var loggableEvent = toLoggableEvent(event);
+    writeEntry(loggableEvent);
 
-    // Heka listens on stderr.
-    // process.stderr.write is synchronous unlike most stream operations.
-    // See http://nodejs.org/api/process.html#process_process_stderr
-    // If this causes a performance problem, figure out another way of
-    // doing it.
-    process.stderr.write(JSON.stringify(loggableEvent) + '\n');
+    processMarketingImpressions(event);
   }
 };
 

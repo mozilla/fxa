@@ -239,5 +239,18 @@ function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
         assert.equal(filteredData.broker, 'fx-desktop-v2');
       });
     });
+
+    describe('logMarketingImpression & logMarketingClick', function () {
+      it('logs the marketing impression and click', function () {
+        var campaign = 'campaign1';
+        var url = 'https://accounts.firefox.com';
+
+        assert.isUndefined(metrics.getMarketingImpression(campaign, url));
+        metrics.logMarketingImpression(campaign, url);
+        assert.isFalse(metrics.getMarketingImpression(campaign, url).clicked);
+        metrics.logMarketingClick(campaign, url);
+        assert.isTrue(metrics.getMarketingImpression(campaign, url).clicked);
+      });
+    });
   });
 });

@@ -31,45 +31,56 @@ define([
     // process.stderr.write is overwritten because the 'data' message
     // is never received and the test times out.
     var _origWrite = process.stderr.write;
-    process.stderr.write = dfd.callback(function (chunk) {
-      process.stderr.write = _origWrite;
+    process.stderr.write = function (chunk) {
       var loggedMetrics = JSON.parse(String(chunk));
 
-      // fields originating on the server.
-      assert.ok(loggedMetrics.time);
-      assert.equal(loggedMetrics.op, 'client.metrics');
-      assert.ok(loggedMetrics.hostname);
-      assert.ok(loggedMetrics.pid);
-      assert.ok(loggedMetrics.v);
+      if (loggedMetrics.op === 'client.metrics') {
+        // fields originating on the server.
+        assert.ok(loggedMetrics.time);
+        assert.equal(loggedMetrics.op, 'client.metrics');
+        assert.ok(loggedMetrics.hostname);
+        assert.ok(loggedMetrics.pid);
+        assert.ok(loggedMetrics.v);
 
-      // fields origininating on the client.
-      assert.ok(loggedMetrics.lang, 'db_LB');
-      assert.ok(loggedMetrics.agent, 'Firefox 32.0');
-      assert.equal(loggedMetrics.duration, 1234);
-      assert.equal(loggedMetrics['nt.included'], 0);
-      assert.isUndefined(loggedMetrics['nt.notIncludedUndefined']);
-      assert.isUndefined(loggedMetrics['nt.notIncludedNull']);
+        // fields origininating on the client.
+        assert.ok(loggedMetrics.lang, 'db_LB');
+        assert.ok(loggedMetrics.agent, 'Firefox 32.0');
+        assert.equal(loggedMetrics.duration, 1234);
+        assert.equal(loggedMetrics['nt.included'], 0);
+        assert.isUndefined(loggedMetrics['nt.notIncludedUndefined']);
+        assert.isUndefined(loggedMetrics['nt.notIncludedNull']);
 
-      assert.equal(loggedMetrics.events[0], 'firstEvent');
-      assert.equal(loggedMetrics.event_durations[0], 1235);
+        assert.equal(loggedMetrics.events[0], 'firstEvent');
+        assert.equal(loggedMetrics.event_durations[0], 1235);
 
-      assert.equal(loggedMetrics.events[1], 'secondEvent');
-      assert.equal(loggedMetrics.event_durations[1], 3512);
+        assert.equal(loggedMetrics.events[1], 'secondEvent');
+        assert.equal(loggedMetrics.event_durations[1], 3512);
 
-      assert.equal(loggedMetrics.service, 'sync');
-      assert.equal(loggedMetrics.context, 'fx_desktop_v1');
-      assert.equal(loggedMetrics.broker, 'fx-desktop-v1');
+        assert.equal(loggedMetrics.service, 'sync');
+        assert.equal(loggedMetrics.context, 'fx_desktop_v1');
+        assert.equal(loggedMetrics.broker, 'fx-desktop-v1');
 
-      assert.equal(loggedMetrics.marketingType, 'survey');
-      assert.equal(loggedMetrics.marketingLink, 'http://mzl.la/1oV7jUy');
-      assert.isFalse(loggedMetrics.marketingClicked);
+        assert.equal(loggedMetrics['screen.width'], 1680);
+        assert.equal(loggedMetrics['screen.height'], 1050);
+        assert.equal(loggedMetrics.entrypoint, 'menupanel');
+        assert.equal(loggedMetrics.migration, 'sync1.5');
+        assert.equal(loggedMetrics.campaign, 'fennec');
+      } else if (loggedMetrics.op === 'client.marketing') {
+        assert.equal(loggedMetrics.campaignId, 'survey');
+        assert.isFalse(loggedMetrics.clicked, true);
+        assert.equal(loggedMetrics.url, 'http://mzl.la/1oV7jUy');
 
-      assert.equal(loggedMetrics['screen.width'], 1680);
-      assert.equal(loggedMetrics['screen.height'], 1050);
-      assert.equal(loggedMetrics.entrypoint, 'menupanel');
-      assert.equal(loggedMetrics.migration, 'sync1.5');
-      assert.equal(loggedMetrics.campaign, 'fennec');
-    });
+        assert.equal(loggedMetrics.lang, 'db_LB');
+        assert.ok(loggedMetrics.agent, 'Firefox 32.0');
+        assert.equal(loggedMetrics.context, 'fx_desktop_v1');
+        assert.equal(loggedMetrics.entrypoint, 'menupanel');
+        assert.equal(loggedMetrics.service, 'sync');
+        assert.equal(loggedMetrics.migration, 'sync1.5');
+
+        process.stderr.write = _origWrite;
+        dfd.resolve();
+      }
+    };
 
     metricsCollector.write({
       navigationTiming: {
@@ -95,9 +106,13 @@ define([
       entrypoint: 'menupanel',
       migration: 'sync1.5',
       campaign: 'fennec',
-      marketingType: 'survey',
-      marketingLink: 'http://mzl.la/1oV7jUy',
-      marketingClicked: false,
+      marketing: [
+        {
+          campaignId: 'survey',
+          clicked: false,
+          url: 'http://mzl.la/1oV7jUy'
+        }
+      ],
       screen: {
         width: 1680,
         height: 1050

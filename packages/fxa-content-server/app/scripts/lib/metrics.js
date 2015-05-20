@@ -37,9 +37,7 @@ define([
     'events',
     'migration',
     'lang',
-    'marketingClicked',
-    'marketingLink',
-    'marketingType',
+    'marketing',
     'navigationTiming',
     'referrer',
     'screen',
@@ -51,6 +49,17 @@ define([
 
   var TEN_MINS_MS = 10 * 60 * 1000;
   var NOT_REPORTED_VALUE = 'none';
+  var UNKNOWN_CAMPAIGN_ID = 'unknown';
+
+
+  // convert a hash of marketing impressions into an array of objects.
+  function flattenMarketingImpressions (impressions) {
+    return _.reduce(impressions, function (memo, impressionsById) {
+      return memo.concat(_.map(impressionsById, function (impression) {
+        return impression;
+      }));
+    }, []);
+  }
 
   function Metrics (options) {
     /*jshint maxcomplexity:18 */
@@ -86,9 +95,7 @@ define([
 
     this._inactivityFlushMs = options.inactivityFlushMs || TEN_MINS_MS;
 
-    this._marketingType = NOT_REPORTED_VALUE;
-    this._marketingLink = NOT_REPORTED_VALUE;
-    this._marketingClicked = false;
+    this._marketingImpressions = {};
 
     this._able = options.able;
   }
@@ -160,9 +167,7 @@ define([
         lang: this._lang,
         entrypoint: this._entrypoint,
         migration: this._migration,
-        marketingType: this._marketingType,
-        marketingLink: this._marketingLink,
-        marketingClicked: this._marketingClicked,
+        marketing: flattenMarketingImpressions(this._marketingImpressions),
         campaign: this._campaign,
         screen: {
           devicePixelRatio: this._devicePixelRatio,
@@ -271,18 +276,45 @@ define([
     },
 
     /**
-     * Log which marketing snippet is shown to the user
+     * Log when a marketing snippet is shown to the user
+     *
+     * @param {String} campaignId - marketing campaign id
+     * @param {String} url - url of marketing link
      */
-    logMarketingImpression: function (type, link) {
-      this._marketingType = type;
-      this._marketingLink = link;
+    logMarketingImpression: function (campaignId, url) {
+      campaignId = campaignId || UNKNOWN_CAMPAIGN_ID;
+
+      var impressions = this._marketingImpressions;
+      if (! impressions[campaignId]) {
+        impressions[campaignId] = {};
+      }
+
+      impressions[campaignId][url] = {
+        campaignId: campaignId,
+        url: url,
+        clicked: false
+      };
     },
 
     /**
-     * Log whether the user clicked on the marketing link
+     * Log whether the user clicked on a marketing link
+     *
+     * @param {String} campaignId - marketing campaign id
+     * @param {String} url - URL clicked.
      */
-    logMarketingClick: function () {
-      this._marketingClicked = true;
+    logMarketingClick: function (campaignId, url) {
+      campaignId = campaignId || UNKNOWN_CAMPAIGN_ID;
+
+      var impression = this.getMarketingImpression(campaignId, url);
+
+      if (impression) {
+        impression.clicked = true;
+      }
+    },
+
+    getMarketingImpression: function (campaignId, url) {
+      var impressions = this._marketingImpressions;
+      return impressions[campaignId] && impressions[campaignId][url];
     },
 
     setBrokerType: function (brokerType) {

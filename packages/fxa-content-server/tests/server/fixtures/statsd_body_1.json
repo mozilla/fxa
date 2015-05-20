@@ -12,9 +12,11 @@
     ],
     "migration": "none",
     "lang": "en",
-    "marketingClicked": false,
-    "marketingLink": "none",
-    "marketingType": "none",
+    "marketing": [{
+      "campaignId": "spring_2015",
+      "url": "https://play.google.com/fx_for_android",
+      "clicked": true
+    }],
     "navigationTiming": {
         "navigationStart": 0,
         "unloadEventStart": null,

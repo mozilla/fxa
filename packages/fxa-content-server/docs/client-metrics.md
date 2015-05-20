@@ -26,14 +26,11 @@ The locale shown to the user.
 ### campaign
 If the user is shown a Firefox Accounts promotion in Firefox browser chrome, the link to FxA will contain a `campaign` field. Set to `none` if not reported.
 
-### marketingType
-The marketing campaign currently being shown on the `signup_complete` screen. Set to `none` if the user is not shown the material.
-
-### marketingLink
-The call to action link in the marketing material. set to `none` if the user is not shown the material.
-
-### marketingClicked
-Set to `true` if the user clicked the call to action link, `false` otw.
+### marketing
+A log of marketing links shown to the user on `signup_complete`. An array of entries, each entry contains the following fields:
+* campaignId - The marketing campaign identifier.
+* clicked - Whether the user clicked the link.
+* url - the URL displayed.
 
 ### navigationTiming
 Performance information from window.performance.timing.

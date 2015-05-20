@@ -42,21 +42,35 @@ define([
 
     var metricsCollector = new StatsDCollector();
     metricsCollector.init();
-    var fixture_message = JSON.parse(fs.readFileSync('tests/server/fixtures/statsd_body_1.json'));
-    var expected_message = fs.readFileSync('tests/server/expected/statsd_body_1.txt');
 
+    var fixtureMessage = JSON.parse(fs.readFileSync('tests/server/fixtures/statsd_body_1.json'));
+    var expectedEventBody = fs.readFileSync('tests/server/expected/statsd_event_body_1.txt').toString().trim();
+    var expectedImpressionBody = fs.readFileSync('tests/server/expected/statsd_impression_body_1.txt').toString().trim();
+
+    var EXPECTED_TOTAL_MESSAGES = 2;
+    var count = 0;
     udpTest(function (message, server) {
       message = statsdMessageToObject(message);
-      assert.equal(message.raw, expected_message.toString().trim());
-      assert.equal(message.name, 'fxa.content.screen.signup');
+
+      // ensure both the single event and the single impression are logged.
+      if (message.name === 'fxa.content.screen.signup') {
+        assert.equal(message.raw, expectedEventBody);
+      } else if (message.name === 'fxa.content.marketing.impression') {
+        assert.equal(message.raw, expectedImpressionBody);
+      }
+
+      // both types of message should have the normal tags.
       assert.equal(message.tags['lang'], 'en');
       assert.equal(message.tags['screen_device_pixel_ratio'], '2');
 
-      metricsCollector.close();
-      server.close();
-      dfd.resolve();
+      count++;
+      if (count === EXPECTED_TOTAL_MESSAGES) {
+        metricsCollector.close();
+        server.close();
+        dfd.resolve();
+      }
     }, function (){
-      metricsCollector.write(fixture_message);
+      metricsCollector.write(fixtureMessage);
     });
 
     return dfd.promise;
