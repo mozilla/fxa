@@ -11,7 +11,7 @@
 
 define([
   'cocktail',
-  'views/base',
+  'views/form',
   'stache!templates/ready',
   'lib/url',
   'lib/constants',
@@ -19,10 +19,10 @@ define([
   'views/marketing_snippet',
   'views/marketing_snippet_ios'
 ],
-function (Cocktail, BaseView, Template, Url, Constants, ServiceMixin,
+function (Cocktail, FormView, Template, Url, Constants, ServiceMixin,
       MarketingSnippet, MarketingSnippetiOS) {
 
-  var View = BaseView.extend({
+  var View = FormView.extend({
     template: Template,
     className: 'ready',
 
@@ -38,25 +38,44 @@ function (Cocktail, BaseView, Template, Url, Constants, ServiceMixin,
     context: function () {
       var serviceName = this.relier.get('serviceName');
       var redirectUri = this.relier.get('redirectUri');
-      var verificationRedirect = this.relier.get('verificationRedirect');
-      var showProceedButton = false;
-
-      // if this is a "signup" flow and the relier uses verification_redirect
-      // then show the "Proceed" button
-      if (verificationRedirect === Constants.VERIFICATION_REDIRECT_ALWAYS &&
-          redirectUri && Url.isNavigable(redirectUri) && this.is('sign_up')) {
-        showProceedButton = true;
-      }
 
       return {
         service: this.relier.get('service'),
         serviceName: serviceName,
-        showProceedButton: showProceedButton,
+        showProceedButton: this._shouldShowProceed(),
         redirectUri: redirectUri,
         signUp: this.is('sign_up'),
         resetPassword: this.is('reset_password'),
         accountUnlock: this.is('account_unlock')
       };
+    },
+
+    submit: function () {
+      this.window.location.href = this.relier.get('redirectUri');
+    },
+
+    /**
+     * Determines if the view should show the "Proceed" button in the template.
+     * The button links to the redirect_uri of the relier with no extra OAuth information
+     *
+     * @returns {boolean}
+     * @private
+     */
+    _shouldShowProceed: function () {
+      var redirectUri = this.relier.get('redirectUri');
+      var verificationRedirect = this.relier.get('verificationRedirect');
+
+      // if this is a "signup" flow and the relier uses verification_redirect
+      // then show the "Proceed" button
+      if (this.is('sign_up') && redirectUri && Url.isNavigable(redirectUri)) {
+
+        // verification_redirect=always
+        if (verificationRedirect === Constants.VERIFICATION_REDIRECT_ALWAYS) {
+          return true;
+        }
+      }
+
+      return false;
     },
 
     afterRender: function () {

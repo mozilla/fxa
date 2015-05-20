@@ -19,9 +19,11 @@
     {{#serviceName}}
       <p class="account-ready-service">{{#t}}You are now ready to use %(serviceName)s{{/t}}</p>
       {{#showProceedButton}}
-      <div class="button-row">
-        <a class="button" href="{{ redirectUri }}" id="proceedButton" >{{#t}}Proceed{{/t}}</a>
-      </div>
+      <form novalidate>
+        <div class="button-row">
+          <button id="proceed" type="submit">{{#t}}Proceed{{/t}}</button>
+        </div>
+      </form>
       {{/showProceedButton}}
     {{/serviceName}}
     {{^serviceName}}

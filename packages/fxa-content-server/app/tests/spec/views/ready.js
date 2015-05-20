@@ -161,6 +161,17 @@ function (chai, sinon, View, Session, FxaClient, Able, FxDesktopRelier,
 
       });
 
+      it('submits with the proceed button with verification_redirect', function () {
+        var redirectUri = 'https://find.firefox.com';
+
+        view.type = 'sign_up';
+        relier.set('redirectUri', redirectUri);
+        relier.set('verificationRedirect', 'always');
+
+        view.submit();
+        assert.equal(windowMock.location.href, redirectUri);
+      });
+
     });
   });
 });

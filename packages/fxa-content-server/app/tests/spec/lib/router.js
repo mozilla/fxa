@@ -83,7 +83,7 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
     });
 
     describe('navigate', function () {
-      it('Tells the router to navigate to a page', function () {
+      it('tells the router to navigate to a page', function () {
         windowMock.location.search = '';
         router.navigate('/signin');
         assert.equal(navigateUrl, '/signin');
