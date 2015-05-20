@@ -44,7 +44,7 @@
     "uuid": "1.4.1"
   },
   "devDependencies": {
-    "ass": "0.0.4",
+    "ass": "git://github.com/jrgm/ass.git#5be99ee7abc9fcf63f9ebcc37b151b9c822146d1",
     "fxa-auth-db-mem": "git+https://github.com/mozilla/fxa-auth-db-mem.git#master",
     "grunt": "0.4.5",
     "grunt-bump": "0.3.1",
