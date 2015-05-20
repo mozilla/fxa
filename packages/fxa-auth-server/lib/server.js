@@ -79,7 +79,7 @@ function create(log, error, config, routes, db) {
         }
       },
       load: {
-        maxEventLoopDelay: config.toobusy.maxLag
+        maxEventLoopDelay: config.maxEventLoopDelay
       }
     },
     load: {

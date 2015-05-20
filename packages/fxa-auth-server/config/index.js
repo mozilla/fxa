@@ -155,12 +155,10 @@ var conf = convict({
       default: 1000 * 60 * 10
     }
   },
-  toobusy: {
-    maxLag: {
-      doc: "Max event-loop lag before toobusy reports failure",
-      default: 0,
-      env: 'TOOBUSY_MAX_LAG'
-    }
+  maxEventLoopDelay: {
+    doc: "Max event-loop delay before which incoming requests are rejected",
+    default: 0,
+    env: 'MAX_EVENT_LOOP_DELAY'
   },
   scrypt: {
     maxPending: {
