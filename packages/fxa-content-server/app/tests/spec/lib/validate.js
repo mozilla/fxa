@@ -72,6 +72,10 @@ function (chai, _, Validate, Constants, TestHelpers) {
     });
 
     describe('isOAuthCodeValid', function () {
+      it('returns false for non-string value', function () {
+        assert.isFalse(Validate.isOAuthCodeValid(1235));
+      });
+
       it('returns false for non-hex value', function () {
         assert.isFalse(Validate.isOAuthCodeValid('this is a normal string'));
       });
@@ -116,6 +120,10 @@ function (chai, _, Validate, Constants, TestHelpers) {
     });
 
     describe('isPasswordValid', function () {
+      it('returns false for non-string password', function () {
+        assert.isFalse(Validate.isPasswordValid(1234));
+      });
+
       it('returns false with empty password', function () {
         assert.isFalse(Validate.isPasswordValid(''));
       });

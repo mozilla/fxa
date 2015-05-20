@@ -453,6 +453,24 @@ function (chai, sinon, $, p, FormView, Template, Constants, Metrics, AuthErrors,
         assert.isTrue(view.validateInput('#required'));
         assert.isTrue(view.isElementValid('#required'));
       });
+
+      it('returns true if no internal validation fails, and HTML5 validation is not available', function () {
+        sinon.stub(view, '$', function () {
+          // completely synthesize a mock element that
+          // has no HTML5 form validity.
+          return {
+            attr: function () {
+            },
+            val: function () {
+              return 'hiya!';
+            },
+            '0': {
+            }
+          };
+        });
+        assert.isTrue(view.validateInput({}));
+        view.$.restore();
+      });
     });
 
     describe('showValidationErrors', function () {

@@ -96,6 +96,7 @@ function (Translator, Session) {
     '../tests/spec/models/profile-image',
     '../tests/spec/models/form-prefill',
     '../tests/spec/models/notifications',
+    '../tests/spec/models/mixins/search-param',
     '../tests/spec/models/reliers/base',
     '../tests/spec/models/reliers/relier',
     '../tests/spec/models/reliers/oauth',
