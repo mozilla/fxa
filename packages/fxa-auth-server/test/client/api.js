@@ -120,7 +120,9 @@ ClientApi.prototype.accountLogin = function (email, authPW, opts) {
     null,
     {
       email: email,
-      authPW: authPW.toString('hex')
+      authPW: authPW.toString('hex'),
+      service: opts.service || undefined,
+      reason: opts.reason || undefined
     }
   )
 }

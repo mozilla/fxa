@@ -200,7 +200,9 @@ module.exports = function (
         validate: {
           payload: {
             email: validators.email().required(),
-            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required()
+            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
+            service: isA.string().max(16).alphanum().optional(),
+            reason: isA.string().max(16).optional()
           }
         },
         response: {

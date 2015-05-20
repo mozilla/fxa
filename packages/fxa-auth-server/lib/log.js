@@ -85,6 +85,7 @@ Lug.prototype.summary = function (request, response) {
     request.auth.credentials.uid :
     payload.uid || query.uid || '00'
   line.service = payload.service || query.service
+  line.reason = payload.reason || query.reason
   line.redirectTo = payload.redirectTo || query.redirectTo
   line.keys = query.keys
   line.email = payload.email || query.email
