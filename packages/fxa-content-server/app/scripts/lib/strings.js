@@ -14,15 +14,15 @@ function () {
   // temporary strings that can be extracted for the
   // l10n team to start translations.
 
-  // Intended for email marketing opt-in
-  // Should be removed in favor of #992 and #993 when implemented
-  t('Subscribe to Firefox news and tips');
-
   // Was needed by #2346, but later deemed unnecessary. We'll keep it around since
   // it's already being translated and may be used in the future.
   t('By proceeding, I agree to the <a id="service-tos" href="%(termsUri)s">Terms of Service</a> and' +
     '<a id="service-pp" href="%(privacyUri)s">Privacy Notice</a> of %(serviceName)s (%(serviceUri)s).');
 
+  // Will be needed for #2444, the email opt-in
+  t('Get the latest news about Mozilla and Firefox.');
+  t('Communication preferences');
+  t('Email preferences');
 
   /**
    * Replace instances of %s and %(name)s with their corresponding values in
