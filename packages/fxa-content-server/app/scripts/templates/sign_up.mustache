@@ -42,6 +42,12 @@
         {{#t}}By proceeding, I agree to the <a id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy">Privacy Notice</a> of Firefox cloud services.{{/t}}
       </div>
 
+      {{#isEmailOptInVisible}}
+      <div class="input-row marketing-email-optin-row">
+          <label><input id="marketing-email-optin" type="checkbox" class="marketing-email-optin"> {{#t}}Get the latest news about Mozilla and Firefox.{{/t}}</label>
+      </div>
+      {{/isEmailOptInVisible}}
+
       <div class="button-row">
         <button id="submit-btn" type="submit" class="disabled">{{#t}}Sign up{{/t}}</button>
       </div>

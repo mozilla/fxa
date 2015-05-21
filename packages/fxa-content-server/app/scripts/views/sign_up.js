@@ -15,10 +15,11 @@ define([
   'lib/mailcheck',
   'views/mixins/password-mixin',
   'views/mixins/service-mixin',
+  'views/mixins/checkbox-mixin',
   'views/coppa/coppa-date-picker'
 ],
 function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
-      PasswordMixin, ServiceMixin, CoppaDatePicker) {
+      PasswordMixin, ServiceMixin, CheckboxMixin, CoppaDatePicker) {
   var t = BaseView.t;
 
   function selectAutoFocusEl(bouncedEmail, email, password) {
@@ -41,6 +42,7 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
 
       this._formPrefill = options.formPrefill;
       this._coppa = options.coppa;
+      this._able = options.able;
     },
 
     beforeRender: function () {
@@ -80,6 +82,10 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
 
     afterRender: function () {
       var self = this;
+
+      self.logScreenEvent('email-optin.visible.' +
+          String(self._isEmailOptInEnabled()));
+
       self._createCoppaView()
         .then(function () {
           self.transformLinks();
@@ -139,7 +145,8 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
         password: prefillPassword,
         shouldFocusEmail: autofocusEl === 'email',
         shouldFocusPassword: autofocusEl === 'password',
-        error: this.error
+        error: this.error,
+        isEmailOptInVisible: this._isEmailOptInEnabled()
       };
     },
 
@@ -233,7 +240,8 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       var account = self.user.initAccount({
         email: self.getElementValue('.email'),
         password: self.getElementValue('.password'),
-        customizeSync: self.$('.customize-sync').is(':checked')
+        customizeSync: self.$('.customize-sync').is(':checked'),
+        needsOptedInToMarketingEmail: self.$('.marketing-email-optin').is(':checked')
       });
 
       if (preVerifyToken) {
@@ -308,13 +316,20 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
     _suggestSignIn: function (err) {
       err.forceMessage = t('Account already exists. <a href="/signin">Sign in</a>');
       return this.displayErrorUnsafe(err);
+    },
+
+    _isEmailOptInEnabled: function () {
+      return !! this._able.choose('communicationPrefsVisible', {
+        lang: this.navigator.language
+      });
     }
   });
 
   Cocktail.mixin(
     View,
     PasswordMixin,
-    ServiceMixin
+    ServiceMixin,
+    CheckboxMixin
   );
 
   return View;

@@ -15,6 +15,7 @@ define([
   'lib/metrics',
   'lib/oauth-client',
   'lib/assertion',
+  'lib/able',
   'models/reliers/oauth',
   'models/auth_brokers/oauth',
   'models/user',
@@ -24,7 +25,7 @@ define([
   '../../lib/helpers'
 ],
 function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
-      Assertion, OAuthRelier, OAuthBroker, User, FormPrefill, WindowMock,
+      Assertion, Able, OAuthRelier, OAuthBroker, User, FormPrefill, WindowMock,
       RouterMock, TestHelpers) {
   var assert = chai.assert;
 
@@ -65,6 +66,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
     var broker;
     var user;
     var formPrefill;
+    var able;
 
     beforeEach(function () {
       Session.clear();
@@ -107,6 +109,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
         fxaClient: fxaClient
       });
       formPrefill = new FormPrefill();
+      able = new Able();
 
       view = new View({
         router: router,
@@ -119,7 +122,8 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
         assertionLibrary: assertionLibrary,
         oAuthClient: oAuthClient,
         screenName: 'oauth.signup',
-        formPrefill: formPrefill
+        formPrefill: formPrefill,
+        able: able
       });
 
       return view.render()

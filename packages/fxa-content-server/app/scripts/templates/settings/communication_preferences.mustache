@@ -1,0 +1,26 @@
+<div id="main-content" class="card">
+  <header>
+    <h1 id="fxa-communication-preferences-header">{{#t}}Communication preferences{{/t}}</h1>
+  </header>
+
+  <section>
+    <div class="success"></div>
+    <div class="error"></div>
+
+    <div class="input-row marketing-email-optin-row">
+        <label><input id="marketing-email-optin" type="checkbox" class="marketing-email-optin" {{#isOptedIn}}checked="checked"{{/isOptedIn}}> {{#t}}Get the latest news about Mozilla and Firefox.{{/t}}</label>
+    </div>
+
+
+    <ul class="links">
+      {{#preferencesUrl}}
+      <li>
+        <a id="preferences-url" href="{{preferencesUrl}}">{{#t}}Email preferences{{/t}}</a>
+      </li>
+      {{/preferencesUrl}}
+      <li>
+        <a href="#" id="back" class="back">{{#t}}Back{{/t}}</a>
+      </li>
+    </ul>
+  </section>
+</div>

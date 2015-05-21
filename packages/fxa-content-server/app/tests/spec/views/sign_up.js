@@ -18,6 +18,7 @@ define([
   'lib/fxa-client',
   'lib/ephemeral-messages',
   'lib/mailcheck',
+  'lib/able',
   'models/reliers/fx-desktop',
   'models/auth_brokers/base',
   'models/user',
@@ -26,7 +27,7 @@ define([
   '../../lib/helpers'
 ],
 function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
-      FxaClient, EphemeralMessages, mailcheck, Relier, Broker, User, FormPrefill,
+      FxaClient, EphemeralMessages, mailcheck, Able, Relier, Broker, User, FormPrefill,
       RouterMock, TestHelpers) {
   var assert = chai.assert;
 
@@ -42,6 +43,7 @@ function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
     var user;
     var formPrefill;
     var coppa;
+    var able;
 
     function fillOutSignUp(email, password, isCoppaValid) {
       view.$('[type=email]').val(email);
@@ -65,7 +67,8 @@ function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
         ephemeralMessages: ephemeralMessages,
         screenName: 'signup',
         formPrefill: formPrefill,
-        coppa: coppa
+        coppa: coppa,
+        able: able
       });
     }
 
@@ -84,6 +87,7 @@ function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
       });
       formPrefill = new FormPrefill();
       coppa = new Coppa();
+      able = new Able();
 
       createView();
 
@@ -156,6 +160,32 @@ function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
             .then(function () {
               assert.include(view.$('#fxa-signup-header').text(), serviceName);
             });
+      });
+
+      describe('email opt in', function () {
+        it('is visible if enabled', function () {
+          sinon.stub(able, 'choose', function () {
+            return true;
+          });
+
+          return view.render()
+            .then(function () {
+              assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
+              assert.equal(view.$('#marketing-email-optin').length, 1);
+            });
+        });
+
+        it('is not visible if disabled', function () {
+          sinon.stub(able, 'choose', function () {
+            return false;
+          });
+
+          return view.render()
+            .then(function () {
+              assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
+              assert.equal(view.$('#marketing-email-optin').length, 0);
+            });
+        });
       });
     });
 
@@ -497,7 +527,8 @@ function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
         var revisitView = new View({
           router: revisitRouter,
           relier: relier,
-          fxaClient: fxaClient
+          fxaClient: fxaClient,
+          able: able
         });
 
         sinon.stub(coppa, 'isUserOldEnough', function () {

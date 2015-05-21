@@ -8,14 +8,15 @@
 define([
   'chai',
   'sinon',
-  'lib/session',
   'lib/oauth-client',
-  'lib/oauth-errors'
+  'lib/oauth-errors',
+  'lib/xhr',
+  'lib/promise'
 ],
 // FxaClientWrapper is the object that is used in
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
-function (chai, sinon, Session, OAuthClient, OAuthErrors) {
+function (chai, sinon, OAuthClient, OAuthErrors, Xhr, p) {
   /*global beforeEach, afterEach, describe, it*/
 
   var OAUTH_URL = 'http://127.0.0.1:9010';
@@ -23,6 +24,7 @@ function (chai, sinon, Session, OAuthClient, OAuthErrors) {
   var assert = chai.assert;
   var client;
   var server;
+  var xhr;
 
   describe('lib/oauth-client', function () {
     /* jshint camelcase: false */
@@ -30,184 +32,142 @@ function (chai, sinon, Session, OAuthClient, OAuthErrors) {
     beforeEach(function () {
       server = sinon.fakeServer.create();
       server.autoRespond = true;
-      Session.clear();
+
+      // Xhr does not have a constructor, so use Object.create.
+      xhr = Object.create(Xhr);
 
       client = new OAuthClient({
-        oAuthUrl: OAUTH_URL
+        oAuthUrl: OAUTH_URL,
+        xhr: xhr
       });
     });
 
     afterEach(function () {
       server.restore();
-      Session.clear();
     });
 
-    describe('oauth-client', function () {
-      /* jshint camelcase: false */
-      describe('getCode', function () {
+    describe('_request', function () {
+      it('calls an endpoint', function () {
+        sinon.stub(xhr, 'post', function () {
+          return p({
+            ok: true
+          });
+        });
+
+        var params = {};
+        return client._request('post', '/v1/authorization', params)
+          .then(function (resp)  {
+            assert.isTrue(xhr.post.calledWith(OAUTH_URL + '/v1/authorization', params));
+            assert.isTrue(resp.ok);
+          });
+      });
+
+      it('converts returned errors to OAuthErrors', function () {
+        sinon.stub(xhr, 'post', function () {
+          return p.reject({
+            responseJSON: {
+              errno: OAuthErrors.toErrno('UNKNOWN_CLIENT'),
+              code: 400
+            }
+          });
+        });
+
+        var params = {};
+        return client._request('post', '/v1/authorization', params)
+          .then(assert.fail, function (err) {
+            assert.isTrue(xhr.post.calledWith(OAUTH_URL + '/v1/authorization', params));
+            assert.isTrue(OAuthErrors.is(err, 'UNKNOWN_CLIENT'));
+          });
+      });
+    });
+
+    /* jshint camelcase: false */
+    describe('getCode', function () {
+      var params = {
+        assertion: 'assertion',
+        client_id: 'deadbeef',
+        redirect_uri: 'http://example.com',
+        scope: 'profile',
+        state: 'state'
+      };
+
+      it('responds with a redirect', function () {
+        var redirect = RP_URL + '?code=code&state=state';
+
+        sinon.stub(client, '_request', function () {
+          return p({
+            redirect: redirect
+          });
+        });
+
+        return client.getCode(params)
+          .then(function (result) {
+            assert.isTrue(client._request.calledWith('post', '/v1/authorization'));
+
+            assert.equal(result.redirect, redirect);
+          });
+      });
+    });
+
+    describe('getClientInfo', function () {
+      var clientId = 'clientId';
+
+      it('response with a name and imageUri', function () {
+        sinon.stub(client, '_request', function () {
+          return p({
+            name: 'MozRP',
+            imageUri: 'https://mozilla.org/firefox.png'
+          });
+        });
+
+        return client.getClientInfo(clientId)
+          .then(function (result) {
+            assert.isTrue(client._request.calledWith('get', '/v1/client/' + clientId));
+            assert.ok(result);
+            assert.equal(result.name, 'MozRP');
+          });
+      });
+    });
+
+    describe('getToken', function () {
+      it('responds with a token', function () {
+        var token = 'access token';
+
+        sinon.stub(client, '_request', function () {
+          return p({
+            scope: 'profile',
+            token_type: 'bearer',
+            access_token: token
+          });
+        });
 
         var params = {
           assertion: 'assertion',
           client_id: 'deadbeef',
-          redirect_uri: 'http://example.com',
-          scope: 'profile',
-          state: 'state'
+          scope: 'profile'
         };
 
-        it('normally responds with a redirect', function () {
-          var redirect = RP_URL + '?code=code&state=state';
+        return client.getToken(params)
+          .then(function (result) {
+            assert.isTrue(client._request.calledWith('post', '/v1/authorization'));
+            assert.ok(result);
 
-          server.respondWith('POST', OAUTH_URL + '/v1/authorization',
-            [200, { 'Content-Type': 'application/json' },
-            '{ "redirect": "' + redirect + '" }']);
-
-          return client.getCode(params)
-            .then(function (result) {
-              assert.ok(result);
-              assert.equal(result.redirect, redirect);
-            });
-        });
-
-        it('responds with a SERVICE_UNAVAILABLE error if the service is unavailable', function () {
-          server.respondWith('POST', OAUTH_URL + '/v1/authorization',
-            [0, {}, '']);
-
-          return client.getCode(params)
-            .then(function () {
-              assert.fail('unexpected success');
-            }, function (err) {
-              assert.isTrue(OAuthErrors.is(err, 'SERVICE_UNAVAILABLE'));
-            });
-        });
-
-        it('converts returned errors to OAuth error objects', function () {
-          server.respondWith('POST', OAUTH_URL + '/v1/authorization',
-            [400, { 'Content-Type': 'application/json' },
-              JSON.stringify({
-                errno: OAuthErrors.toErrno('INCORRECT_REDIRECT'),
-                code: 400
-              })]);
-
-
-              return client.getCode(params)
-                .then(function () {
-                  assert.fail('unexpected success');
-                }, function (err) {
-                  assert.isTrue(OAuthErrors.is(err, 'INCORRECT_REDIRECT'));
-                });
-            });
-        });
-
-        describe('getClientInfo', function () {
-          var clientId = 'clientId';
-
-          it('normally response with a name and imageUri', function () {
-            server.respondWith('GET', OAUTH_URL + '/v1/client/' + clientId,
-              [200, { 'Content-Type': 'application/json' },
-              '{ "name": "MozRP", "imageUri": "https://mozilla.org/firefox.png" }']);
-
-            return client.getClientInfo(clientId)
-              .then(function (result) {
-                assert.ok(result);
-                assert.equal(result.name, 'MozRP');
-              });
+            assert.equal(result.access_token, token);
           });
-
-          it('responds with a SERVICE_UNAVAILABLE error if the service is unavailable', function () {
-            var clientId = 'clientId';
-
-            server.respondWith('GET', OAUTH_URL + '/v1/client/' + clientId,
-              [0, {}, '']);
-
-            return client.getClientInfo(clientId)
-              .then(function () {
-                assert.fail('unexpected success');
-              }, function (err) {
-                assert.isTrue(OAuthErrors.is(err, 'SERVICE_UNAVAILABLE'));
-              });
-          });
-
-          it('converts returned errors to OAuth error objects', function () {
-            var clientId = 'clientId';
-
-            server.respondWith('GET', OAUTH_URL + '/v1/client/' + clientId,
-              [400, { 'Content-Type': 'application/json' },
-                JSON.stringify({
-                  errno: OAuthErrors.toErrno('EXPIRED_CODE'),
-                  code: 400
-                })]);
-
-                return client.getClientInfo(clientId)
-                  .then(function () {
-                    assert.fail('unexpected success');
-                  }, function (err) {
-                    assert.isTrue(OAuthErrors.is(err, 'EXPIRED_CODE'));
-                  });
-              });
-          });
-
-          describe('getToken', function () {
-            it('normally responds with a token', function () {
-              var token = 'access token';
-
-              server.respondWith('POST', OAUTH_URL + '/v1/authorization',
-                [200, { 'Content-Type': 'application/json' },
-                '{ "scope": "profile", "token_type": "bearer", "access_token": "' + token + '" }']);
-
-              var params = {
-                assertion: 'assertion',
-                client_id: 'deadbeef',
-                scope: 'profile'
-              };
-
-              return client.getToken(params)
-                .then(function (result) {
-                  assert.ok(result);
-                  assert.equal(result.access_token, 'access token');
-                });
-            });
-
-            it('responds with a SERVICE_UNAVAILABLE error if the service is unavailable', function () {
-              server.respondWith('POST', OAUTH_URL + '/v1/authorization',
-                [0, {}, '']);
-
-              var params = {
-                assertion: 'assertion',
-                client_id: 'deadbeef',
-                scope: 'profile'
-              };
-
-              return client.getToken(params)
-                .then(function () {
-                  assert.fail('unexpected success');
-                }, function (err) {
-                  assert.isTrue(OAuthErrors.is(err, 'SERVICE_UNAVAILABLE'));
-                });
-            });
-
-            it('converts returned errors to OAuth error objects', function () {
-              server.respondWith('POST', OAUTH_URL + '/v1/authorization',
-                [400, { 'Content-Type': 'application/json' },
-                  JSON.stringify({
-                    errno: OAuthErrors.toErrno('INVALID_ASSERTION'),
-                    code: 400
-                  })]);
-
-                  var params = {
-                    assertion: 'assertion',
-                    client_id: 'deadbeef',
-                    scope: 'profile'
-                  };
-
-                  return client.getToken(params)
-                    .then(function () {
-                      assert.fail('unexpected success');
-                    }, function (err) {
-                      assert.isTrue(OAuthErrors.is(err, 'INVALID_ASSERTION'));
-                    });
-                });
-            });
-          });
-
-        });
       });
+    });
+
+    describe('destroyToken', function () {
+      it('destroys a token', function () {
+        sinon.stub(client, '_request', function () {
+          return p({});
+        });
+
+        return client.destroyToken('token')
+          .then(function () {
+            assert.isTrue(client._request.calledWith('post', '/v1/destroy'));
+          });
+      });
+    });
+  });
+});

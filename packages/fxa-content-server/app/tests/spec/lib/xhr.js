@@ -4,16 +4,23 @@
 
 'use strict';
 
-
 define([
   'chai',
   'sinon',
   'jquery',
   'underscore',
-  'lib/xhr'
+  'lib/xhr',
+  'lib/promise'
 ],
-function (chai, sinon, $, _, xhr, undefined) {
+function (chai, sinon, $, _, Xhr, p, undefined) {
+
   var assert = chai.assert;
+
+  var xhr;
+
+  beforeEach(function () {
+    xhr = Object.create(Xhr);
+  });
 
   afterEach(function () {
     var possiblyOverridden = ['ajax', 'get', 'post', 'getJSON'];
@@ -75,6 +82,56 @@ function (chai, sinon, $, _, xhr, undefined) {
         });
       });
     });
+
+    describe('oauthAjax', function () {
+      it('calls xhr.ajax with the appropriate options set', function () {
+        sinon.stub(xhr, 'ajax', function () {
+          return p();
+        });
+
+        return xhr.oauthAjax({
+          url: '/endpoint',
+          type: 'get',
+          accessToken: 'token',
+          headers: {
+            'ETag': 'why not?'
+          },
+          data: {
+            key: 'value'
+          }
+        })
+        .then(function () {
+          var ajaxOptions = xhr.ajax.args[0][0];
+
+          assert.equal(ajaxOptions.url, '/endpoint');
+          assert.equal(ajaxOptions.type, 'get');
+          assert.equal(ajaxOptions.headers.Authorization, 'Bearer token');
+          assert.equal(ajaxOptions.headers.Accept, 'application/json');
+          assert.equal(ajaxOptions.headers.ETag, 'why not?');
+          assert.equal(ajaxOptions.data.key, 'value');
+        });
+      });
+
+      it('handles Blob data', function () {
+        if (typeof window.Blob !== 'undefined') {
+          sinon.stub(xhr, 'ajax', function () {
+            return p();
+          });
+
+          return xhr.oauthAjax({
+            url: '/endpoint',
+            type: 'get',
+            accessToken: 'token',
+            data: new Blob()
+          })
+          .then(function () {
+            var ajaxOptions = xhr.ajax.args[0][0];
+            assert.equal(ajaxOptions.processData, false);
+          });
+        }
+      });
+    });
+
 
     describe('get', function () {
       it('calls $.get, sets the default dataType to `json`', function () {

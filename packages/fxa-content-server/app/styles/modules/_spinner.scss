@@ -9,6 +9,10 @@
   white-space: nowrap;
   width: 36px;
 
+  @include respond-to('small') {
+    margin-top: 95px;
+  }
+
   .button-row & {
     @include hidpi-background-image('spinnerwhite', 33px 33px);
     height: 33px;

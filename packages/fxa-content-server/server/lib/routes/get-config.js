@@ -12,6 +12,8 @@ var oauthServerUrl = config.get('oauth_url');
 var profileServerUrl = config.get('profile_url');
 var metricsSampleRate = config.get('metrics.sample_rate');
 var allowedParentOrigins = config.get('allowed_parent_origins');
+var marketingEmailApiServerUrl = config.get('marketing_email.api_url');
+var marketingEmailPreferencesUrl = config.get('marketing_email.preferences_url');
 
 module.exports = function () {
   var route = {};
@@ -35,15 +37,17 @@ module.exports = function () {
       // The `__cookies_check` cookie is set in client code
       // to see if cookies are enabled. If cookies are disabled,
       // the `__cookie_check` cookie will not arrive.
-      cookiesEnabled: !!req.cookies['__cookie_check'],
+      allowedParentOrigins: allowedParentOrigins,
       authServerUrl: authServerUrl,
-      oAuthUrl: oauthServerUrl,
-      profileUrl: profileServerUrl,
+      cookiesEnabled: !!req.cookies['__cookie_check'],
+      marketingEmailServerUrl: marketingEmailApiServerUrl,
+      marketingEmailPreferencesUrl: marketingEmailPreferencesUrl,
       oAuthClientId: clientId,
+      oAuthUrl: oauthServerUrl,
       // req.lang is set by abide in a previous middleware.
       language: req.lang,
       metricsSampleRate: metricsSampleRate,
-      allowedParentOrigins: allowedParentOrigins
+      profileUrl: profileServerUrl
     });
   };
 

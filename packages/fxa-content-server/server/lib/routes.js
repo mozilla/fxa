@@ -94,6 +94,7 @@ module.exports = function (config, i18n) {
       '/settings/avatar/crop',
       '/settings/avatar/gravatar',
       '/settings/avatar/camera',
+      '/settings/communication_preferences',
       '/change_password',
       '/legal',
       '/cannot_create_account',

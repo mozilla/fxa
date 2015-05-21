@@ -42,6 +42,7 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
     var broker;
     var user;
     var formPrefill;
+    var able;
 
     beforeEach(function () {
       navigateUrl = navigateOptions = null;
@@ -59,13 +60,16 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
 
       broker = new NullBroker();
 
+      able = new Able();
+
       router = new Router({
         window: windowMock,
         metrics: metrics,
         relier: relier,
         broker: broker,
         user: user,
-        formPrefill: formPrefill
+        formPrefill: formPrefill,
+        able: able
       });
 
       origNavigate = Backbone.Router.prototype.navigate;
@@ -163,7 +167,8 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
           router: router,
           broker: broker,
           screenName: 'signup',
-          formPrefill: formPrefill
+          formPrefill: formPrefill,
+          able: able
         });
       });
 
@@ -241,7 +246,8 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
           relier: relier,
           broker: broker,
           screenName: 'signup',
-          formPrefill: formPrefill
+          formPrefill: formPrefill,
+          able: able
         });
       });
 

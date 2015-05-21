@@ -14,28 +14,31 @@ define([
   'lib/auth-errors',
   'lib/profile-client',
   'lib/constants',
-  'models/profile-image'
-], function (Backbone, _, p, AuthErrors, ProfileClient, Constants, ProfileImage) {
-
+  'models/profile-image',
+  'models/oauth-token',
+  'models/marketing-email-prefs'
+], function (Backbone, _, p, AuthErrors, ProfileClient, Constants,
+  ProfileImage, OAuthToken, MarketingEmailPrefs) {
   // Account attributes that can be persisted
   var PERSISTENT = {
-    uid: undefined,
+    accessToken: undefined,
     email: undefined,
+    grantedPermissions: undefined,
+    lastLogin: undefined,
+    needsOptedInToMarketingEmail: undefined,
+    profileImageId: undefined,
+    profileImageUrl: undefined,
     sessionToken: undefined,
     sessionTokenContext: undefined,
-    accessToken: undefined,
-    verified: undefined,
-    profileImageUrl: undefined,
-    profileImageId: undefined,
-    lastLogin: undefined,
-    grantedPermissions: undefined
+    uid: undefined,
+    verified: undefined
   };
 
   var DEFAULTS = _.extend({
-    password: undefined,
-    unwrapBKey: undefined,
+    customizeSync: undefined,
     keyFetchToken: undefined,
-    customizeSync: undefined
+    password: undefined,
+    unwrapBKey: undefined
   }, PERSISTENT);
 
   var ALLOWED_KEYS = Object.keys(DEFAULTS);
@@ -61,6 +64,7 @@ define([
       self._assertion = options.assertion;
       self._profileClient = options.profileClient;
       self._fxaClient = options.fxaClient;
+      self._marketingEmailClient = options.marketingEmailClient;
     },
 
     // Hydrate the account
@@ -85,9 +89,9 @@ define([
       // upgrade the credentials with an accessToken
       promise = promise.then(function () {
         if (self._needsAccessToken()) {
-          return self._getAccessTokenFromSessionToken(self.get('sessionToken'))
+          return self.createOAuthToken('profile:write')
             .then(function (accessToken) {
-              self.set('accessToken', accessToken);
+              self.set('accessToken', accessToken.get('token'));
             }, function () {
               // Ignore errors; we'll just fetch again when needed
             });
@@ -123,21 +127,24 @@ define([
       return this.get('verified') && ! this.get('accessToken');
     },
 
-    _getAccessTokenFromSessionToken: function (sessionToken) {
+    createOAuthToken: function (scope) {
       /* jshint camelcase: false */
       var self = this;
-      var params = {
-        client_id: self._oAuthClientId,
-        scope: 'profile:write'
-      };
 
-      return self._assertion.generate(sessionToken)
+      return self._assertion.generate(self.get('sessionToken'))
         .then(function (assertion) {
-          params.assertion = assertion;
+          var params = {
+            client_id: self._oAuthClientId,
+            scope: scope,
+            assertion: assertion
+          };
           return self._oAuthClient.getToken(params);
         })
         .then(function (result) {
-          return result.access_token;
+          return new OAuthToken({
+            oAuthClient: self._oAuthClient,
+            token: result.access_token
+          });
         });
     },
 
@@ -234,6 +241,17 @@ define([
       var permissions = this.get('grantedPermissions') || {};
       var clientGrantedPermissions = permissions[clientId] || [];
       return _.difference(clientPermissions, clientGrantedPermissions);
+    },
+
+    getMarketingEmailPrefs: function () {
+      var self = this;
+
+      var emailPrefs = new MarketingEmailPrefs({
+        account: self,
+        marketingEmailClient: self._marketingEmailClient
+      });
+
+      return emailPrefs;
     }
   });
 
@@ -253,7 +271,6 @@ define([
           });
       };
     });
-
 
   return Account;
 });

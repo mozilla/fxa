@@ -145,6 +145,8 @@ The event stream is a log of events and the time they occurred while the user is
 * settings.signout.submit - user clicked signout
 * settings.signout.success - user successfully signed out
 * settings.signout.error - user signed out but with an error
+* settings.communication-prefs-link.visible.true - communication preferences link is visible
+* settings.communication-prefs-link.visible.false - communication preferences link is not visible
 
 #### settings/avatar
 
@@ -155,6 +157,16 @@ The event stream is a log of events and the time they occurred while the user is
 #### settings/avatar/crop
 
 #### settings/avatar/gravatar
+
+#### settings/communication_preferences
+* settings.communication-preferences.newsletter.optin.true - user is opted in to newsletter when opening screen.
+* settings.communication-preferences.newsletter.optin.false - user is not opted in to newsletter when opening screen.
+* settings.communication-preferences.checkbox.change.marketing-email-optin.unchecked - user has opted in to the marketing email
+* settings.communication-preferences.checkbox.change.marketing-email-optin.checked - user has opted out of the marketing email
+* settings.communication-preferences.optIn - user is attempting to opt in to email marketing.
+* settings.communication-preferences.optIn.success - user has successfully opted in to email marketing.
+* settings.communication-preferences.optOut - user is attempting to opt out of email marketing.
+* settings.communication-preferences.optOut.success - user has successfully opted out of email marketing.
 
 #### signin
 * error.signin.auth.121 - account locked
@@ -176,6 +188,12 @@ The event stream is a log of events and the time they occurred while the user is
 * tooltip.mailcheck-suggested - an email address correction was suggested
 * tooltip.mailcheck-used - an email address correction was chosen by the user
 * tooltip.mailcheck-dismissed - an email address correction tooltip was dismissed without the selection being made.
+* signup.checkbox.change.show-password.checked - password is shown
+* signup.checkbox.change.show-password.unchecked - password is hidden
+* signup.password.visible - password is shown
+* signup.password.hidden - password is hidden
+* signup.email-optin.visible.true - email opt-in is visible
+* signup.email-optin.visible.false - email opt-in is not visible
 
 #### signup_permissions
 * signup-permissions.accept - user accepts and grants the requested permissions

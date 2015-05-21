@@ -296,7 +296,40 @@ function (chai, $, sinon, View, RouterMock, WindowMock, TestHelpers,
             });
         });
       });
+    });
 
+    describe('communication preferences link', function () {
+      it('is visible if enabled', function () {
+        sinon.stub(view, 'isUserAuthorized', function () {
+          return p(true);
+        });
+
+        sinon.stub(able, 'choose', function () {
+          return true;
+        });
+
+        return view.render()
+          .then(function () {
+            assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
+            assert.equal(view.$('#communications').length, 1);
+          });
+      });
+
+      it('is not visible if disabled', function () {
+        sinon.stub(view, 'isUserAuthorized', function () {
+          return p(true);
+        });
+
+        sinon.stub(able, 'choose', function () {
+          return false;
+        });
+
+        return view.render()
+          .then(function () {
+            assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
+            assert.equal(view.$('#communications').length, 0);
+          });
+      });
     });
   });
 });

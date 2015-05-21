@@ -16,12 +16,13 @@ define([
   'lib/fxa-client',
   'lib/auth-errors',
   'lib/profile-errors',
+  'lib/marketing-email-client',
   'models/account',
   'models/reliers/relier'
 ],
 function (chai, sinon, p, Constants, Assertion, ProfileClient,
-    OAuthClient, FxaClientWrapper, AuthErrors, ProfileErrors, Account,
-    Relier) {
+    OAuthClient, FxaClientWrapper, AuthErrors, ProfileErrors,
+    MarketingEmailClient, Account, Relier) {
   var assert = chai.assert;
 
   describe('models/account', function () {
@@ -31,6 +32,7 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
     var profileClient;
     var relier;
     var fxaClient;
+    var marketingEmailClient;
     var EMAIL = 'user@example.domain';
     var PASSWORD = 'password';
     var UID = '6d940dd41e636cc156074109b8092f96';
@@ -44,6 +46,7 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
       oAuthClient = new OAuthClient();
       profileClient = new ProfileClient();
       fxaClient = new FxaClientWrapper();
+      marketingEmailClient = new MarketingEmailClient();
       relier = new Relier();
 
       account = new Account({
@@ -51,6 +54,7 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
         assertion: assertion,
         profileClient: profileClient,
         fxaClient: fxaClient,
+        marketingEmailClient: marketingEmailClient,
         oAuthClientId: CLIENT_ID,
         accountData: {
           email: EMAIL,
@@ -614,5 +618,10 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
       });
     });
 
+    describe('getMarketingEmailPrefs', function () {
+      it('returns a MarketingEmailPrefs instance', function () {
+        assert.ok(account.getMarketingEmailPrefs());
+      });
+    });
   });
 });

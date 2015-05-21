@@ -29,10 +29,13 @@ function (Cocktail, Session, FormView, BaseView, AvatarMixin,
 
     context: function () {
       var account = this.getSignedInAccount();
+      var email = account.get('email');
+
       return {
-        email: account.get('email'),
+        email: email,
         showSignOut: !account.isFromSync(),
-        avatarLinkVisible: this._isAvatarLinkVisible(account.get('email'))
+        avatarLinkVisible: this._isAvatarLinkVisible(email),
+        communicationPrefsVisible: this._areCommunicationPrefsVisible()
       };
     },
 
@@ -46,6 +49,11 @@ function (Cocktail, Session, FormView, BaseView, AvatarMixin,
         this.navigate('/settings/avatar/change');
         return false;
       }
+    },
+
+    afterRender: function () {
+      this.logScreenEvent('communication-prefs-link.visible.' +
+          String(this._areCommunicationPrefsVisible()));
     },
 
     submit: function () {
@@ -75,6 +83,12 @@ function (Cocktail, Session, FormView, BaseView, AvatarMixin,
       var isTestAccount = /^avatarAB-.+@restmail\.net$/.test(email);
 
       return isTestAccount || this._able.choose('avatarLinkVisible', { email: email });
+    },
+
+    _areCommunicationPrefsVisible: function () {
+      return this._able.choose('communicationPrefsVisible', {
+        lang: this.navigator.language
+      });
     },
 
     afterVisible: function () {
