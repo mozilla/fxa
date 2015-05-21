@@ -24,6 +24,10 @@ function () {
   t('Communication preferences');
   t('Email preferences');
 
+  // Needed for #2451
+  t('Edit profile');
+  t('Name');
+
   /**
    * Replace instances of %s and %(name)s with their corresponding values in
    * the context
