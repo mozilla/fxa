@@ -340,6 +340,19 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
                 'screen.signup-complete'));
           });
       });
+
+      it('logs view refreshes', function () {
+        return router.showView(view)
+          .then(function () {
+            assert.isFalse(TestHelpers.isEventLogged(metrics,
+                'signup.refresh'));
+            return router.showView(view);
+          })
+          .then(function () {
+            assert.isTrue(TestHelpers.isEventLogged(metrics,
+                'signup.refresh'));
+          });
+      });
     });
 
     describe('pathToScreenName', function () {
