@@ -110,7 +110,7 @@ module.exports = function (log, error) {
     // Where  : name = $1
     var DB_METADATA = 'CALL dbMetadata_1(?)'
 
-    return mysql.readFirstResult(DB_METADATA, options.patchKey)
+    return mysql.readFirstResult(DB_METADATA, [options.patchKey])
       .then(
         function (result) {
           mysql.patchLevel = +result.value
@@ -269,7 +269,7 @@ module.exports = function (log, error) {
   var ACCOUNT_EXISTS = 'CALL accountExists_1(?)'
 
   MySql.prototype.accountExists = function (emailBuffer) {
-    return this.readFirstResult(ACCOUNT_EXISTS, emailBuffer.toString('utf8'))
+    return this.readFirstResult(ACCOUNT_EXISTS, [emailBuffer.toString('utf8')])
   }
 
   // Select : sessionTokens
@@ -278,7 +278,7 @@ module.exports = function (log, error) {
   var ACCOUNT_DEVICES = 'CALL accountDevices_1(?)'
 
   MySql.prototype.accountDevices = function (uid) {
-    return this.readOneFromFirstResult(ACCOUNT_DEVICES, uid)
+    return this.readOneFromFirstResult(ACCOUNT_DEVICES, [uid])
   }
 
   // Select : sessionTokens t, accounts a
@@ -287,7 +287,7 @@ module.exports = function (log, error) {
   var SESSION_TOKEN = 'CALL sessionToken_1(?)'
 
   MySql.prototype.sessionToken = function (id) {
-    return this.readFirstResult(SESSION_TOKEN, id)
+    return this.readFirstResult(SESSION_TOKEN, [id])
   }
 
   // Select : keyFetchTokens t, accounts a
@@ -296,7 +296,7 @@ module.exports = function (log, error) {
   var KEY_FETCH_TOKEN = 'CALL keyFetchToken_1(?)'
 
   MySql.prototype.keyFetchToken = function (id) {
-    return this.readFirstResult(KEY_FETCH_TOKEN, id)
+    return this.readFirstResult(KEY_FETCH_TOKEN, [id])
   }
 
   // Select : accountResetTokens t, accounts a
@@ -305,7 +305,7 @@ module.exports = function (log, error) {
   var ACCOUNT_RESET_TOKEN = 'CALL accountResetToken_1(?)'
 
   MySql.prototype.accountResetToken = function (id) {
-    return this.readFirstResult(ACCOUNT_RESET_TOKEN, id)
+    return this.readFirstResult(ACCOUNT_RESET_TOKEN, [id])
   }
 
   // Select : passwordForgotToken t, accounts a
@@ -313,7 +313,7 @@ module.exports = function (log, error) {
   // Where  : t.tokenId = $1 AND t.uid = a.uid
   var PASSWORD_FORGOT_TOKEN = 'CALL passwordForgotToken_1(?)'
   MySql.prototype.passwordForgotToken = function (id) {
-    return this.readFirstResult(PASSWORD_FORGOT_TOKEN, id)
+    return this.readFirstResult(PASSWORD_FORGOT_TOKEN, [id])
   }
 
   // Select : passwordChangeToken t, accounts a
@@ -322,7 +322,7 @@ module.exports = function (log, error) {
   var PASSWORD_CHANGE_TOKEN = 'CALL passwordChangeToken_1(?)'
 
   MySql.prototype.passwordChangeToken = function (id) {
-    return this.readFirstResult(PASSWORD_CHANGE_TOKEN, id)
+    return this.readFirstResult(PASSWORD_CHANGE_TOKEN, [id])
   }
 
   // Select : accounts
@@ -331,7 +331,7 @@ module.exports = function (log, error) {
   var EMAIL_RECORD = 'CALL emailRecord_2(?)'
 
   MySql.prototype.emailRecord = function (emailBuffer) {
-    return this.readFirstResult(EMAIL_RECORD, emailBuffer.toString('utf8'))
+    return this.readFirstResult(EMAIL_RECORD, [emailBuffer.toString('utf8')])
   }
 
   // Select : accounts
@@ -340,7 +340,7 @@ module.exports = function (log, error) {
   var ACCOUNT = 'CALL account_2(?)'
 
   MySql.prototype.account = function (uid) {
-    return this.readFirstResult(ACCOUNT, uid)
+    return this.readFirstResult(ACCOUNT, [uid])
   }
 
   // UPDATE
@@ -502,7 +502,7 @@ module.exports = function (log, error) {
   var GET_UNLOCK_CODE = 'call unlockCode_1(?)'
 
   MySql.prototype.unlockCode = function (uid) {
-    return this.readFirstResult(GET_UNLOCK_CODE, uid);
+    return this.readFirstResult(GET_UNLOCK_CODE, [uid]);
   }
 
   // Internal
@@ -573,8 +573,8 @@ module.exports = function (log, error) {
     )
   }
 
-  MySql.prototype.readFirstResult = function (sql, param) {
-    return this.read(sql, param)
+  MySql.prototype.readFirstResult = function (sql, params) {
+    return this.read(sql, params)
       .then(function(results) {
         // instead of the result being [result], it'll be [[result...]]
         if (!results.length) { throw error.notFound() }
@@ -583,8 +583,8 @@ module.exports = function (log, error) {
       })
   }
 
-  MySql.prototype.readOneFromFirstResult = function (sql, param) {
-    return this.read(sql, param)
+  MySql.prototype.readOneFromFirstResult = function (sql, params) {
+    return this.read(sql, params)
       .then(function(results) {
         // instead of the result being [result], it'll be [[result...]]
         if (!results.length) { throw error.notFound() }
@@ -592,11 +592,11 @@ module.exports = function (log, error) {
       })
   }
 
-  MySql.prototype.read = function (sql, param) {
-    return this.singleQuery('SLAVE*', sql, [param])
+  MySql.prototype.read = function (sql, params) {
+    return this.singleQuery('SLAVE*', sql, params)
       .catch(
         function (err) {
-          log.error({ op: 'MySql.read', sql: sql, id: param, err: err })
+          log.error({ op: 'MySql.read', sql: sql, id: params, err: err })
           throw error.wrap(err)
         }
       )
