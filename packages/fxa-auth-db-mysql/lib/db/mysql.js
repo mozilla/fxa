@@ -272,6 +272,18 @@ module.exports = function (log, error) {
     return this.readFirstResult(ACCOUNT_EXISTS, [emailBuffer.toString('utf8')])
   }
 
+  // Select : accounts
+  // Fields : uid
+  // Where  : uid = $1 AND verifyHash = $2
+  var CHECK_PASSWORD = 'CALL checkPassword_1(?, ?)'
+
+  MySql.prototype.checkPassword = function (uid, hash) {
+    return this.readFirstResult(
+      CHECK_PASSWORD,
+      [uid, hash.verifyHash]
+    )
+  }
+
   // Select : sessionTokens
   // Fields : tokenId
   // Where  : uid = $1
