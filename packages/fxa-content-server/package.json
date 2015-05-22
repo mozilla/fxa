@@ -21,7 +21,7 @@
   "homepage": "https://github.com/mozilla/fxa-content-server",
   "bugs": "https://github.com/mozilla/fxa-content-server/issues",
   "author": "Mozilla (https://mozilla.org/)",
-  "license": "MPL 2.0",
+  "license": "MPL-2.0",
   "dependencies": {
     "bluebird": "2.2.2",
     "body-parser": "1.12.2",
