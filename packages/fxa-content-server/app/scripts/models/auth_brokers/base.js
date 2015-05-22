@@ -38,17 +38,6 @@ define([
     },
 
     /**
-     * Select the start page. Returned promise can resolve to a string that
-     * will cause the start page to redirect. If returned promise resolves
-     * to a 'falsy' value, no redirection will occur.
-     * @returns {Promise}
-     */
-    selectStartPage: function () {
-      // the default is to use the page set in the URL
-      return p();
-    },
-
-    /**
      * Check if the environment supports the cancelling of the flow.
      */
     canCancel: function () {

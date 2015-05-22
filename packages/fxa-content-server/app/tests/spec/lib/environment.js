@@ -84,12 +84,18 @@ define([
 
     describe('isFramed', function () {
       it('returns `true` if window is iframed', function () {
-        windowMock.top = {};
+        windowMock.top = new WindowMock();
 
         assert.isTrue(environment.isFramed());
       });
 
       it('returns `false` if window is not iframed', function () {
+        assert.isFalse(environment.isFramed());
+      });
+
+      it('returns `false` if the window\'s name is `remote`', function () {
+        windowMock.top = new WindowMock();
+        windowMock.name = 'remote';
         assert.isFalse(environment.isFramed());
       });
     });

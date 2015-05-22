@@ -14,6 +14,7 @@ define([
   'lib/promise',
   'lib/url',
   'lib/oauth-errors',
+  'lib/auth-errors',
   'models/auth_brokers/base',
   'models/auth_brokers/fx-desktop',
   'models/auth_brokers/iframe',
@@ -31,11 +32,13 @@ define([
   '../../lib/helpers'
 ],
 function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
-      BaseBroker, FxDesktopBroker, IframeBroker, RedirectBroker,
+      AuthErrors, BaseBroker, FxDesktopBroker, IframeBroker, RedirectBroker,
       WebChannelBroker, BaseRelier, FxDesktopRelier, OAuthRelier, Relier,
       User, Metrics, WindowMock, RouterMock, HistoryMock, TestHelpers) {
   /*global describe, beforeEach, it*/
   var assert = chai.assert;
+  var FIRSTRUN_ORIGIN = 'https://firstrun.firefox.com';
+  var HELLO_ORIGIN = 'https://hello.firefox.com';
 
   describe('lib/app-start', function () {
     var windowMock;
@@ -47,6 +50,8 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
 
     beforeEach(function () {
       windowMock = new WindowMock();
+      windowMock.parent = new WindowMock();
+
       routerMock = new RouterMock();
       historyMock = new HistoryMock();
       userMock = new User();
@@ -69,19 +74,6 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
           .then(function () {
             // translator is put on the global object.
             assert.isDefined(windowMock.translator);
-          });
-      });
-
-      it('starts the app in an iframe', function () {
-        windowMock.top = new WindowMock();
-        windowMock.location.search = Url.objToSearchString({
-          context: Constants.IFRAME_CONTEXT
-        });
-
-        return appStart.startApp()
-          .then(function () {
-            assert.isTrue(appStart._isIframe());
-            assert.isDefined(appStart._iframeChannel);
           });
       });
 
@@ -118,38 +110,15 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
           });
       });
 
-      it('redirects to the start page specified by the broker', function () {
-        sinon.stub(brokerMock, 'selectStartPage', function () {
-          return p('settings');
-        });
-
-        return appStart.startApp()
-            .then(function () {
-              assert.equal(routerMock.page, 'settings');
-            });
-      });
-
-      it('does not redirect if the broker does not return a start page', function () {
-        sinon.stub(brokerMock, 'selectStartPage', function () {
-          return p();
-        });
-
-        routerMock.page = 'signup';
-        return appStart.startApp()
-            .then(function () {
-              assert.equal(routerMock.page, 'signup');
-            });
-      });
-
       it('redirects to the `INTERNAL_ERROR_PAGE` if an error occurs', function () {
-        sinon.stub(brokerMock, 'selectStartPage', function () {
+        sinon.stub(appStart, '_selectStartPage', function () {
           return p.reject(new Error('boom!'));
         });
 
         return appStart.startApp()
-            .then(function () {
-              assert.equal(windowMock.location.href, Constants.INTERNAL_ERROR_PAGE);
-            });
+          .then(function () {
+            assert.equal(windowMock.location.href, Constants.INTERNAL_ERROR_PAGE);
+          });
       });
 
       it('updates old sessions', function () {
@@ -361,7 +330,7 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
 
       it('does not create a close button by default', function () {
         appStart.initializeCloseButton();
-        assert.equal(typeof appStart._closeButton, 'undefined');
+        assert.isUndefined(appStart._closeButton);
       });
     });
 
@@ -412,6 +381,192 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
       it('returns INTERNAL_ERROR_PAGE by default', function () {
         var errorUrl = appStart._getErrorPage(OAuthErrors.toError('INVALID_ASSERTION'));
         assert.include(errorUrl, Constants.INTERNAL_ERROR_PAGE);
+      });
+    });
+
+    describe('initializeIframeChannel', function () {
+      beforeEach(function () {
+        appStart = new AppStart({
+          window: windowMock,
+          history: historyMock,
+          broker: brokerMock
+        });
+      });
+
+      it('creates an iframe channel and checks the origin if in an iframe', function () {
+        sinon.stub(appStart, '_checkParentOrigin', function () {
+          return p(FIRSTRUN_ORIGIN);
+        });
+
+        windowMock.top = new WindowMock();
+
+        return appStart.initializeIframeChannel()
+          .then(function () {
+            assert.isDefined(appStart._iframeChannel);
+            assert.isTrue(appStart._checkParentOrigin.called);
+          });
+      });
+
+      it('does not create an iframe channel if not in an iframe', function () {
+        sinon.spy(appStart, '_checkParentOrigin');
+
+        return appStart.initializeIframeChannel()
+          .then(function () {
+            assert.isUndefined(appStart._iframeChannel);
+            assert.isFalse(appStart._checkParentOrigin.called);
+          });
+      });
+
+      it('throws an error if not allowed to iframe', function () {
+        sinon.stub(appStart, '_checkParentOrigin', function () {
+          return p(null);
+        });
+
+        windowMock.top = new WindowMock();
+
+        return appStart.initializeIframeChannel()
+          .then(assert.fail, function (err) {
+            assert.isTrue(AuthErrors.is(err, 'ILLEGAL_IFRAME_PARENT'));
+            assert.isUndefined(appStart._iframeChannel);
+          });
+      });
+
+      it('passes on any other errors', function () {
+        sinon.stub(appStart, '_checkParentOrigin', function () {
+          return p.reject(new Error('uh oh'));
+        });
+
+        windowMock.top = new WindowMock();
+
+        return appStart.initializeIframeChannel()
+          .then(assert.fail, function (err) {
+            assert.equal(err.message, 'uh oh');
+            assert.isUndefined(appStart._iframeChannel);
+          });
+      });
+    });
+
+    describe('_getAllowedParentOrigins', function () {
+      var relierMock;
+      beforeEach(function () {
+        relierMock = new BaseRelier();
+
+        appStart = new AppStart({
+          window: windowMock,
+          history: historyMock,
+          broker: brokerMock,
+          relier: relierMock
+        });
+      });
+
+      it('returns an empty array if not in an iframe', function () {
+        sinon.stub(appStart, '_isInAnIframe', function () {
+          return false;
+        });
+
+        assert.equal(appStart._getAllowedParentOrigins().length, 0);
+      });
+
+      it('returns the firstrun origin for Fx Desktop Sync', function () {
+        sinon.stub(appStart, '_isInAnIframe', function () {
+          return true;
+        });
+
+        sinon.stub(appStart, '_isFxDesktop', function () {
+          return true;
+        });
+
+        appStart.useConfig({
+          allowedParentOrigins: [FIRSTRUN_ORIGIN]
+        });
+        var allowedOrigins = appStart._getAllowedParentOrigins();
+        assert.equal(allowedOrigins.length, 1);
+        assert.equal(allowedOrigins[0], FIRSTRUN_ORIGIN);
+      });
+
+      it('returns the relier\'s origin if an oauth flow', function () {
+        sinon.stub(appStart, '_isInAnIframe', function () {
+          return true;
+        });
+
+        sinon.stub(appStart, '_isOAuth', function () {
+          return true;
+        });
+
+        relierMock.set('origin', HELLO_ORIGIN);
+        var allowedOrigins = appStart._getAllowedParentOrigins();
+        assert.equal(allowedOrigins.length, 1);
+        assert.equal(allowedOrigins[0], HELLO_ORIGIN);
+      });
+
+      it('returns an empty array otherwise', function () {
+        sinon.stub(appStart, '_isInAnIframe', function () {
+          return true;
+        });
+
+        assert.equal(appStart._getAllowedParentOrigins().length, 0);
+      });
+    });
+
+    describe('_checkParentOrigin', function () {
+      beforeEach(function () {
+        var relierMock = new BaseRelier();
+
+        appStart = new AppStart({
+          window: windowMock,
+          history: historyMock,
+          broker: brokerMock,
+          relier: relierMock
+        });
+      });
+
+      it('should return the value returned by originCheck.getOrigin', function () {
+        sinon.stub(appStart, '_getAllowedParentOrigins', function () {
+          return [FIRSTRUN_ORIGIN];
+        });
+
+        var originCheck = {
+          getOrigin: function () {
+            return p(FIRSTRUN_ORIGIN);
+          }
+        };
+
+        sinon.spy(originCheck, 'getOrigin');
+
+        return appStart._checkParentOrigin(originCheck)
+          .then(function (origin) {
+            assert.equal(origin, FIRSTRUN_ORIGIN);
+            assert.isTrue(originCheck.getOrigin.calledWith(windowMock.parent, [FIRSTRUN_ORIGIN]));
+          });
+      });
+    });
+
+
+    describe('allResourcesReady', function () {
+      beforeEach(function () {
+        appStart = new AppStart({
+          window: windowMock,
+          router: routerMock,
+          history: historyMock,
+          user: userMock,
+          broker: brokerMock
+        });
+      });
+
+      it('should set the window hash if in an iframe', function () {
+        sinon.stub(appStart, '_selectStartPage', function () {
+          return p();
+        });
+
+        sinon.stub(appStart, '_isInAnIframe', function () {
+          return true;
+        });
+
+        windowMock.location.pathname = 'signup';
+        return appStart.allResourcesReady()
+          .then(function () {
+            assert.equal(windowMock.location.hash, 'signup');
+          });
       });
     });
   });

@@ -103,11 +103,8 @@
       /**
        * The iframe'd OAuth flow needs special styling applied to it as
        * soon as possible so that it doesn't look terrible.
-       *
-       * Make sure that the iframe name is not 'remote'
-       * which is used by 'about:accounts'.
        */
-      if (this.environment.isFramed() && this.window.name !== 'remote') {
+      if (this.environment.isFramed()) {
         this._addClass('iframe');
       }
     },

@@ -10,6 +10,8 @@ var clientId = config.get('oauth_client_id');
 var authServerUrl = config.get('fxaccount_url');
 var oauthServerUrl = config.get('oauth_url');
 var profileServerUrl = config.get('profile_url');
+var metricsSampleRate = config.get('metrics.sample_rate');
+var allowedParentOrigins = config.get('allowed_parent_origins');
 
 module.exports = function () {
   var route = {};
@@ -40,7 +42,8 @@ module.exports = function () {
       oAuthClientId: clientId,
       // req.lang is set by abide in a previous middleware.
       language: req.lang,
-      metricsSampleRate: config.get('metrics.sample_rate')
+      metricsSampleRate: metricsSampleRate,
+      allowedParentOrigins: allowedParentOrigins
     });
   };
 

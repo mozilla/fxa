@@ -34,12 +34,15 @@ define([
   'lib/constants',
   'lib/oauth-client',
   'lib/oauth-errors',
+  'lib/auth-errors',
   'lib/profile-client',
   'lib/channels/inter-tab',
   'lib/channels/iframe',
   'lib/channels/web',
   'lib/storage',
   'lib/able',
+  'lib/environment',
+  'lib/origin-check',
   'models/reliers/relier',
   'models/reliers/oauth',
   'models/reliers/fx-desktop',
@@ -71,12 +74,15 @@ function (
   Constants,
   OAuthClient,
   OAuthErrors,
+  AuthErrors,
   ProfileClient,
   InterTabChannel,
   IframeChannel,
   WebChannel,
   Storage,
   Able,
+  Environment,
+  OriginCheck,
   Relier,
   OAuthRelier,
   FxDesktopRelier,
@@ -134,7 +140,7 @@ function (
       }, function (err) {
         if (console && console.error) {
           console.error('Critical error:');
-          console.error(err);
+          console.error(String(err));
         }
         if (self._metrics) {
           self._metrics.logError(err);
@@ -243,15 +249,51 @@ function (
       this._metrics.init();
     },
 
-    initializeIframeChannel: function () {
-      if (this._isIframe()) {
-        this._iframeChannel = new IframeChannel();
-        this._iframeChannel.initialize({
-          window: this._window,
-          origin: this._relier.get('origin'),
-          metrics: this._metrics
-        });
+    _getAllowedParentOrigins: function () {
+      if (! this._isInAnIframe()) {
+        return [];
+      } else if (this._isFxDesktop()) {
+        // If in an iframe for sync, the origin is checked against
+        // a pre-defined set of origins sent from the server.
+        return this._config.allowedParentOrigins;
+      } else if (this._isOAuth()) {
+        // If in oauth, the relier has the allowed parent origin.
+        return [this._relier.get('origin')];
       }
+
+      return [];
+    },
+
+    _checkParentOrigin: function (originCheck) {
+      var self = this;
+      originCheck = originCheck || new OriginCheck(self._window);
+      var allowedOrigins = self._getAllowedParentOrigins();
+
+      return originCheck.getOrigin(self._window.parent, allowedOrigins);
+    },
+
+    initializeIframeChannel: function () {
+      var self = this;
+      if (! self._isInAnIframe()) {
+        return p();
+      }
+
+      return self._checkParentOrigin()
+        .then(function (parentOrigin) {
+          if (! parentOrigin) {
+            // No allowed origins were found. Illegal iframe.
+            throw AuthErrors.toError('ILLEGAL_IFRAME_PARENT');
+          }
+
+          var iframeChannel = new IframeChannel();
+          iframeChannel.initialize({
+            window: self._window,
+            origin: parentOrigin,
+            metrics: self._metrics
+          });
+
+          self._iframeChannel = iframeChannel;
+        });
     },
 
     initializeFormPrefill: function () {
@@ -506,7 +548,7 @@ function (
     },
 
     _isInAnIframe: function () {
-      return this._window !== this._window.top;
+      return new Environment(this._window).isFramed();
     },
 
     _isIframeContext: function () {
@@ -552,8 +594,6 @@ function (
               if (! areCookiesEnabled) {
                 return 'cookies_disabled';
               }
-
-              return self._authenticationBroker.selectStartPage();
             });
       });
     }
