@@ -1,4 +1,4 @@
-## fxa-local-dev [![Build Status](https://travis-ci.org/mozilla/fxa-local-dev.svg?branch=master)](https://travis-ci.org/vladikoff/fxa-local-dev)
+## fxa-local-dev [![Build Status](https://travis-ci.org/mozilla/fxa-local-dev.svg?branch=master)](https://travis-ci.org/mozilla/fxa-local-dev) ![](https://img.shields.io/badge/tested_on-OS%20X%20and_Ubuntu-brightgreen.svg)
 > An easy way to contribute to Firefox Accounts
 
 ### Getting Started
@@ -6,7 +6,7 @@
 - Install required system [dependencies](#dependencies)
 - Clone this repository and run `npm install`. Here is the full command:
 ```
-git clone https://github.com/vladikoff/fxa-local-dev.git && cd fxa-local-dev && npm i
+git clone https://github.com/mozilla/fxa-local-dev.git && cd fxa-local-dev && npm i
 ``` 
 
 After installation completes visit [127.0.0.1:3030](http://127.0.0.1:3030/). Use the [PM2 tool](https://github.com/Unitech/PM2#main-features) to start, stop and read server logs.  Most common commands are as follows:
@@ -36,7 +36,7 @@ Available options:
 *******
 
 ### Functional Tests
-> The following requires [Java](https://www.java.com/en/download/).
+> The following requires [Java](https://www.java.com/en/download/) and tests the local servers only.
 
 **Use `npm test` - all functional tests**
 
@@ -65,21 +65,36 @@ If you get an `error` status for any of the servers please verify that you insta
 ### Dependencies
 > Required dependencies: 
 [Git](http://git-scm.com/book/en/v2/Getting-Started-Installing-Git), 
-[node.js](http://nodejs.org/), 
+[node.js **0.10** with npm 2.4+](http://nodejs.org/), 
 [Python 2.6+](https://www.python.org/), 
 [Redis](http://redis.io/), 
 [libgmp](https://gmplib.org/),
 [graphicsmagick](http://www.graphicsmagick.org/).
 
-#### OS X (with [Brew](http://brew.sh/)): 
-##### `brew install gmp redis graphicsmagick`
-##### `sudo easy_install pip && sudo pip install virtualenv` 
+##### OS X (with [Brew](http://brew.sh/)): 
+###### `brew install gmp redis graphicsmagick`
+###### `sudo easy_install pip && sudo pip install virtualenv` 
 
 > You might also need to run `xcode-select --install` to get OS X Command Line Tools
 
-#### Ubuntu: 
+##### Ubuntu: 
 ```
 sudo apt-get install libgmp3-dev graphicsmagick redis-server python-virtualenv python-dev
 ```
-#### FreeBSD: 
+##### FreeBSD: 
 Use [bigint fix](https://github.com/substack/node-bigint/pull/29): `"bigint": "git://github.com/frasertweedale/node-bigint.git#fix/freebsd-build"`
+
+#### Installing Node.js
+##### OS X 
+Find the latest `node-v0.10.x.pkg` at [nodejs.org/dist/](http://nodejs.org/dist/) and install. Example [node-v0.10.38.pkg](http://nodejs.org/dist/v0.10.38/node-v0.10.38.pkg)
+
+##### Ubuntu: 
+
+`curl -sL https://deb.nodesource.com/setup_0.10 | sudo bash -` and `sudo apt-get install -y nodejs`
+
+#### Updating NPM
+> Check your npm version using `npm --version`. If it is lower than 2.4 then please upgrade.
+
+All OS: `sudo npm install -g npm@2.4` 
+
+*******
