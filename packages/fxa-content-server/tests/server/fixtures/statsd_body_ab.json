@@ -1,0 +1,91 @@
+{
+    "campaign": "none",
+    "context": "web",
+    "duration": 8744,
+    "entrypoint": "none",
+    "events": [
+        {
+            "type": "tooltip.mailcheck-used",
+            "offset": 7873
+        }
+    ],
+    "migration": "none",
+    "lang": "en",
+    "marketing": [
+
+    ],
+    "navigationTiming": {
+        "navigationStart": 0,
+        "unloadEventStart": 13,
+        "unloadEventEnd": 36,
+        "redirectStart": null,
+        "redirectEnd": null,
+        "fetchStart": 0,
+        "domainLookupStart": 0,
+        "domainLookupEnd": 0,
+        "connectStart": 0,
+        "connectEnd": 0,
+        "secureConnectionStart": null,
+        "requestStart": 3,
+        "responseStart": 11,
+        "responseEnd": 12,
+        "domLoading": 41,
+        "domInteractive": 106,
+        "domContentLoadedEventStart": 106,
+        "domContentLoadedEventEnd": 108,
+        "domComplete": 148,
+        "loadEventStart": 148,
+        "loadEventEnd": 148
+    },
+    "screen": {
+        "devicePixelRatio": 2,
+        "clientWidth": 819,
+        "clientHeight": 955,
+        "width": 1680,
+        "height": 1050
+    },
+    "service": "none",
+    "timers": {
+
+    },
+    "broker": "base",
+    "ab": [
+        {
+            "event": "choice",
+            "time": 1434560512626,
+            "experiment": "Are the communication preferences enabled",
+            "subjectId": "6ae1b608e316504fd6ead70df3e68dea75ba282d",
+            "choice": {
+                "communicationPrefsVisible": true
+            },
+            "data": {
+
+            }
+        },
+        {
+            "event": "choice",
+            "time": 1434560512629,
+            "experiment": "Are the communication preferences enabled",
+            "subjectId": "6ae1b608e316504fd6ead70df3e68dea75ba282d",
+            "choice": {
+                "communicationPrefsVisible": true
+            },
+            "data": {
+
+            }
+        },
+        {
+            "event": "choice",
+            "time": 1434560518370,
+            "experiment": "mailcheck is enable or disabled",
+            "subjectId": "dadbdad74def13df844c00c6b29238f74968dff5",
+            "choice": {
+                "mailcheckEnabled": true
+            },
+            "data": {
+
+            }
+        }
+    ],
+    "agent": "Mozilla\/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/43.0.2357.124 Safari\/537.36"
+}

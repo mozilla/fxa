@@ -319,6 +319,10 @@ define([
 
     setBrokerType: function (brokerType) {
       this._brokerType = brokerType;
+    },
+
+    isCollectionEnabled: function () {
+      return true;
     }
   });
 

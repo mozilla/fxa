@@ -22,11 +22,12 @@ define([
   'models/user',
   'models/form-prefill',
   '../../mocks/router',
+  '../../mocks/window',
   '../../lib/helpers'
 ],
 function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
       FxaClient, EphemeralMessages, mailcheck, Able, Relier, Broker, User, FormPrefill,
-      RouterMock, TestHelpers) {
+      RouterMock, WindowMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -713,9 +714,67 @@ function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
     });
 
     describe('suggestEmail', function () {
+      it('works when able chooses true', function (done) {
+        var ableChoose = sinon.stub(view._able, 'choose', function () {
+          return true;
+        });
+
+        view.$('.email').val('testuser@gnail.com');
+        view.suggestEmail();
+        setTimeout(function () {
+          assert.equal($('.tooltip-suggest').text(), 'Did you mean gmail.com?✕');
+          ableChoose.restore();
+          done();
+        }, 50);
+      });
+
+      it('does not show when able chooses false', function (done) {
+        var ableChoose = sinon.stub(view._able, 'choose', function () {
+          return false;
+        });
+
+        view.$('.email').val('testuser@gnail.com');
+        view.suggestEmail();
+        setTimeout(function () {
+          assert.equal($('.tooltip-suggest').length, 0);
+          ableChoose.restore();
+          done();
+        }, 50);
+      });
+
+      it('does not show when able chooses undefined', function (done) {
+        var ableChoose = sinon.stub(view._able, 'choose', function () {
+          return undefined;
+        });
+
+        view.$('.email').val('testuser@gnail.com');
+        view.suggestEmail();
+        setTimeout(function () {
+          assert.equal($('.tooltip-suggest').length, 0);
+          ableChoose.restore();
+          done();
+        }, 50);
+      });
+
+      it('accepts window parameter override', function () {
+        view.window = new WindowMock();
+        view.window.location.search = '?mailcheck=true';
+        var ableChoose = sinon.stub(view._able, 'choose', function (name, data) {
+          assert.equal(name, 'mailcheckEnabled');
+          assert.equal(data.forceMailcheck, 'true');
+
+          return true;
+        });
+
+        view.$('.email').val('testuser@gnail.com');
+        view.suggestEmail();
+        assert.isTrue(view._able.choose.called);
+        ableChoose.restore();
+      });
+
       it('suggests emails via a tooltip', function (done) {
         view.suggestEmail = function () {
-          mailcheck(view.$('.email'), metrics, translator, 'mailcheck=1');
+          mailcheck(view.$('.email'), metrics, translator);
         };
 
         view.$('.email').val('testuser@gnail.com');
@@ -731,6 +790,26 @@ function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
           assert.equal($('.tooltip-suggest .dismiss').get(0), $('[tabindex="2"]').get(0));
           done();
         }, 50);
+      });
+
+      it('suggests emails via a tooltip in the automated browser', function (done) {
+        createView();
+        var container =  $('#container');
+        var autoBrowser = sinon.stub(view.broker, 'isAutomatedBrowser', function () {
+          return true;
+        });
+        var suggestEmail = sinon.stub(view, 'suggestEmail', function () {
+          autoBrowser.restore();
+          suggestEmail.restore();
+          done();
+        });
+
+        return view.render()
+          .then(function () {
+            view.afterVisible();
+            container.html(view.el);
+            container.find('input[type=password]').trigger('click');
+          });
       });
     });
   });

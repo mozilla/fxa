@@ -11,6 +11,7 @@ define([
   'stache!templates/sign_up',
   'lib/auth-errors',
   'lib/mailcheck',
+  'lib/url',
   'views/mixins/password-mixin',
   'views/mixins/service-mixin',
   'views/mixins/checkbox-mixin',
@@ -18,8 +19,7 @@ define([
   'views/coppa/coppa-date-picker'
 ],
 function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
-      PasswordMixin, ServiceMixin, CheckboxMixin, ResumeTokenMixin,
-      CoppaDatePicker) {
+      Url, PasswordMixin, ServiceMixin, CheckboxMixin, ResumeTokenMixin, CoppaDatePicker) {
   'use strict';
 
   var t = BaseView.t;
@@ -199,7 +199,16 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
     },
 
     suggestEmail: function () {
-      mailcheck(this.$el.find('.email'), this.metrics, this.translator, this.window.location.search);
+      var abData = {
+        isMetricsEnabled: this.metrics.isCollectionEnabled(),
+        uuid: this.user.get('uuid'),
+        // the window parameter will override any ab testing features
+        forceMailcheck: Url.searchParam('mailcheck', this.window.location.search)
+      };
+
+      if (this._able.choose('mailcheckEnabled', abData)) {
+        mailcheck(this.$el.find('.email'), this.metrics, this.translator);
+      }
     },
 
     _isEmailSameAsBouncedEmail: function () {
