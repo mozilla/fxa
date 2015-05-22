@@ -7,14 +7,12 @@
 
 define([
   'chai',
-  'underscore',
   'jquery',
   'sinon',
   'views/settings',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers',
-  'lib/constants',
   'lib/fxa-client',
   'lib/promise',
   'lib/profile-errors',
@@ -24,8 +22,8 @@ define([
   'models/reliers/relier',
   'models/user'
 ],
-function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
-      Constants, FxaClient, p, ProfileErrors, AuthErrors, Able, Metrics, Relier, User) {
+function (chai, $, sinon, View, RouterMock, WindowMock, TestHelpers,
+      FxaClient, p, ProfileErrors, AuthErrors, Able, Metrics, Relier, User) {
   var assert = chai.assert;
 
   describe('views/settings', function () {

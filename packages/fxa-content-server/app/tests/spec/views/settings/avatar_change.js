@@ -7,7 +7,6 @@
 
 define([
   'chai',
-  'underscore',
   'jquery',
   'sinon',
   'views/settings/avatar_change',
@@ -21,7 +20,7 @@ define([
   'lib/promise',
   'lib/auth-errors'
 ],
-function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
+function (chai, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
             WindowMock, User, Relier, ProfileClient, p, AuthErrors) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';

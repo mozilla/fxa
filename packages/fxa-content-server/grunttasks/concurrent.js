@@ -23,7 +23,8 @@ module.exports = function (grunt) {
     lint: [
       'jshint',
       'jsonlint:app',
-      'jscs'
+      'jscs',
+      'amdcheck'
     ]
   });
 };

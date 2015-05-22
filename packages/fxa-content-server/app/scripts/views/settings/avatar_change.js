@@ -6,7 +6,6 @@
 
 define([
   'jquery',
-  'underscore',
   'cocktail',
   'views/form',
   'views/mixins/avatar-mixin',
@@ -14,12 +13,11 @@ define([
   'stache!templates/settings/avatar_change',
   'lib/auth-errors',
   'lib/image-loader',
-  'lib/url',
   'lib/promise',
   'models/cropper-image'
 ],
-function ($, _, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
-    AuthErrors, ImageLoader, Url, p, CropperImage) {
+function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
+    AuthErrors, ImageLoader, p, CropperImage) {
 
   var View = FormView.extend({
     template: Template,

@@ -1,3 +1,4 @@
+
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -7,16 +8,14 @@
 define([
   'chai',
   'sinon',
-  'underscore',
   'models/auth_brokers/fx-desktop',
   'models/user',
-  'lib/constants',
   'lib/auth-errors',
   'lib/channels/null',
   'lib/promise',
   '../../../mocks/window'
-], function (chai, sinon, _, FxDesktopAuthenticationBroker, User,
-        Constants, AuthErrors, NullChannel, p, WindowMock) {
+], function (chai, sinon, FxDesktopAuthenticationBroker, User,
+        AuthErrors, NullChannel, p, WindowMock) {
   var assert = chai.assert;
 
   describe('models/auth_brokers/fx-desktop', function () {

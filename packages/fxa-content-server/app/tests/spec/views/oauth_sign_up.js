@@ -13,7 +13,6 @@ define([
   'lib/session',
   'lib/fxa-client',
   'lib/metrics',
-  'lib/auth-errors',
   'lib/oauth-client',
   'lib/assertion',
   'models/reliers/oauth',
@@ -24,9 +23,9 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
-      OAuthClient, Assertion, OAuthRelier, OAuthBroker, User, FormPrefill,
-      WindowMock, RouterMock, TestHelpers) {
+function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
+      Assertion, OAuthRelier, OAuthBroker, User, FormPrefill, WindowMock,
+      RouterMock, TestHelpers) {
   var assert = chai.assert;
 
   function fillOutSignUp (email, password, opts) {

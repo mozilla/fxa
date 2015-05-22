@@ -8,12 +8,11 @@
 define([
   'chai',
   'sinon',
-  'lib/auth-errors',
   'lib/metrics',
   'lib/channels/fx-desktop',
   '../../../mocks/window'
 ],
-function (chai, sinon, AuthErrors, Metrics, FxDesktopChannel, WindowMock) {
+function (chai, sinon, Metrics, FxDesktopChannel, WindowMock) {
   var assert = chai.assert;
   var channel;
   // events from Fx Desktop have an origin of the string 'null'

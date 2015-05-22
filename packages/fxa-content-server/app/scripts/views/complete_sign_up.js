@@ -10,14 +10,12 @@ define([
   'views/base',
   'stache!templates/complete_sign_up',
   'lib/auth-errors',
-  'lib/validate',
-  'lib/promise',
   'views/mixins/resend-mixin',
   'models/verification/sign-up',
   'lib/url'
 ],
 function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
-  AuthErrors, Validate, p, ResendMixin, VerificationInfo, Url) {
+  AuthErrors, ResendMixin, VerificationInfo, Url) {
   var t = BaseView.t;
 
   var CompleteSignUpView = FormView.extend({

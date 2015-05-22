@@ -5,10 +5,9 @@
 'use strict';
 
 define([
-  'chai',
   'lib/channels/null'
 ],
-function (chai, NullChannel) {
+function (NullChannel) {
   var channel;
 
   describe('lib/channel/null', function () {

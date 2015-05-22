@@ -10,7 +10,6 @@ define([
   'jquery',
   'sinon',
   'views/force_auth',
-  'lib/session',
   'lib/fxa-client',
   'lib/promise',
   'lib/auth-errors',
@@ -22,8 +21,8 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, sinon, View, Session, FxaClient, p, AuthErrors, Relier,
-      Broker, User, FormPrefill, WindowMock, RouterMock, TestHelpers) {
+function (chai, $, sinon, View, FxaClient, p, AuthErrors, Relier, Broker,
+      User, FormPrefill, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('/views/force_auth', function () {

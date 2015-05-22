@@ -5,6 +5,7 @@
 // A ux utility to suggest correct spelling of email domains
 'use strict';
 
+/* exceptsPaths: mailcheck */
 define([
   'views/tooltip',
   'lib/url',

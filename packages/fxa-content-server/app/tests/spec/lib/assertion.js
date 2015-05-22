@@ -5,14 +5,13 @@
 'use strict';
 
 
+/* exceptsPaths: vendor/jwcrypto/lib/algs/rs */
 define([
   'chai',
   'jquery',
-  'sinon',
   '../../lib/helpers',
   'lib/promise',
   'lib/config-loader',
-  'lib/constants',
   'lib/assertion',
   'lib/fxa-client',
   'models/reliers/relier',
@@ -22,8 +21,8 @@ define([
 // FxaClientWrapper is the object that is used in
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
-function (chai, $, sinon, TestHelpers, p, ConfigLoader,
-      Constants, Assertion, FxaClientWrapper, Relier, jwcrypto) {
+function (chai, $, TestHelpers, p, ConfigLoader, Assertion, FxaClientWrapper,
+      Relier, jwcrypto) {
   var assert = chai.assert;
   var AUDIENCE = 'http://123done.org';
   var ISSUER = 'http://' + document.location.hostname + ':9000';

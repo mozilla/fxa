@@ -11,13 +11,12 @@
 
 define([
   'underscore',
-  'lib/constants',
   'models/auth_brokers/oauth',
   'models/auth_brokers/mixins/channel',
   'lib/promise',
   'lib/channels/web'
 ],
-function (_, Constants, OAuthAuthenticationBroker, ChannelMixin, p,
+function (_, OAuthAuthenticationBroker, ChannelMixin, p,
       WebChannel) {
 
   var WebChannelAuthenticationBroker = OAuthAuthenticationBroker.extend({

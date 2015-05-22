@@ -7,7 +7,6 @@
 
 define([
   'chai',
-  'underscore',
   'jquery',
   'sinon',
   'views/settings/avatar_camera',
@@ -20,7 +19,7 @@ define([
   'models/auth_brokers/base',
   'lib/promise'
 ],
-function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock,
+function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
     ProfileMock, User, Relier, AuthBroker, p) {
   var assert = chai.assert;
 

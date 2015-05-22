@@ -7,7 +7,6 @@
 
 define([
   'chai',
-  'underscore',
   'jquery',
   'sinon',
   'views/settings/avatar',
@@ -18,7 +17,7 @@ define([
   'models/reliers/relier',
   'models/user'
 ],
-function (chai, _, $, sinon, View, RouterMock, FxaClientMock,
+function (chai, $, sinon, View, RouterMock, FxaClientMock,
     p, AuthErrors, Relier, User) {
   var assert = chai.assert;
   var IMG_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';

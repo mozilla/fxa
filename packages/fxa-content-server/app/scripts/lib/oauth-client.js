@@ -6,11 +6,9 @@
 
 define([
   'lib/xhr',
-  'lib/promise',
-  'lib/session',
   'lib/oauth-errors'
 ],
-function (xhr, p, Session, OAuthErrors) {
+function (xhr, OAuthErrors) {
   var GET_CLIENT = '/v1/client/';
   var GET_CODE = '/v1/authorization';
 

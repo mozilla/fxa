@@ -8,7 +8,6 @@ define([
   'jquery',
   'chai',
   'sinon',
-  'backbone',
   'underscore',
   'lib/metrics',
   'views/mixins/password-mixin',
@@ -16,8 +15,8 @@ define([
   'models/reliers/relier',
   'stache!templates/test_template',
   '../../../lib/helpers'
-], function ($, chai, sinon, Backbone, _, Metrics, PasswordMixin, BaseView,
-  Relier, TestTemplate, TestHelpers) {
+], function ($, chai, sinon, _, Metrics, PasswordMixin, BaseView, Relier,
+  TestTemplate, TestHelpers) {
   var assert = chai.assert;
 
   var PasswordView = BaseView.extend({

@@ -16,12 +16,11 @@ define([
   'lib/constants',
   'lib/channels/null',
   'lib/session',
-  'lib/auth-errors',
   'views/base',
   '../../../mocks/window'
 ],
 function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWrapper,
-      p, Constants, NullChannel, Session, AuthErrors, BaseView, WindowMock) {
+      p, Constants, NullChannel, Session, BaseView, WindowMock) {
   var assert = chai.assert;
 
   describe('models/auth_brokers/web-channel', function () {

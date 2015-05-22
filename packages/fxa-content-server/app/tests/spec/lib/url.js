@@ -7,10 +7,9 @@
 
 define([
   'chai',
-  'underscore',
   'lib/url'
 ],
-function (chai, _, Url) {
+function (chai, Url) {
   var assert = chai.assert;
 
   describe('lib/url', function () {

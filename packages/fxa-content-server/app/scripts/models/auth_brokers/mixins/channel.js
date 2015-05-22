@@ -14,9 +14,8 @@
 'use strict';
 
 define([
-  'underscore',
   'lib/promise'
-], function (_, p) {
+], function (p) {
 
   // normalize the channel action. New channels return promises, old
   // channels use NodeJS style callbacks. Convert the old channel style

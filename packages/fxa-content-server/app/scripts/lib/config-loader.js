@@ -7,14 +7,12 @@
 'use strict';
 
 define([
-  'underscore',
   'lib/xhr',
   'lib/promise',
   'lib/url',
   'lib/storage'
 ],
 function (
-  _,
   xhr,
   p,
   Url,

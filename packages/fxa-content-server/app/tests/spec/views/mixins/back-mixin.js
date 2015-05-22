@@ -8,12 +8,11 @@ define([
   'cocktail',
   'chai',
   'sinon',
-  'underscore',
   '../../../mocks/window',
   'views/mixins/back-mixin',
   'views/base',
   'stache!templates/test_template'
-], function (Cocktail, Chai, sinon, _, WindowMock,
+], function (Cocktail, Chai, sinon, WindowMock,
         BackMixin, BaseView, TestTemplate) {
   var assert = Chai.assert;
   var ENTER_BUTTON_CODE = 13;

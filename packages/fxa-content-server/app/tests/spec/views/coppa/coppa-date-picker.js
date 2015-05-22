@@ -7,16 +7,13 @@
 
 define([
   'chai',
-  'underscore',
   'jquery',
   'moment',
   'sinon',
-  'lib/auth-errors',
-  'lib/promise',
   'views/coppa/coppa-date-picker',
   'models/form-prefill'
 ],
-function (chai, _, $, moment, sinon, p, AuthErrors, View, FormPrefill) {
+function (chai, $, moment, sinon, View, FormPrefill) {
   var assert = chai.assert;
 
   var DEFAULT_YEAR = 1990;

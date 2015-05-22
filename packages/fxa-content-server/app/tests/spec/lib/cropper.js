@@ -7,7 +7,6 @@
 
 define([
   'chai',
-  'jquery',
   '../../mocks/router',
   '../../mocks/canvas',
   'lib/promise',
@@ -18,8 +17,8 @@ define([
   'models/user',
   'models/reliers/relier'
 ],
-function (chai, jquery, RouterMock, CanvasMock, p, Cropper, EphemeralMessages,
-    View, CropperImage, User, Relier) {
+function (chai, RouterMock, CanvasMock, p, Cropper, EphemeralMessages, View,
+    CropperImage, User, Relier) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 

@@ -7,7 +7,6 @@
 
 define([
   'chai',
-  'underscore',
   'jquery',
   'sinon',
   'views/settings/avatar_gravatar',
@@ -19,7 +18,7 @@ define([
   'lib/promise',
   'lib/profile-client'
 ],
-function (chai, _, $, sinon, View, RouterMock, ProfileMock, User,
+function (chai, $, sinon, View, RouterMock, ProfileMock, User,
     Relier, AuthBroker, p, ProfileClient) {
   var assert = chai.assert;
   var GRAVATAR_URL = 'https://secure.gravatar.com/avatar/';

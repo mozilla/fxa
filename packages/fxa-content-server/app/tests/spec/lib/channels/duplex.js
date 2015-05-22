@@ -11,11 +11,9 @@ define([
   'lib/channels/duplex',
   'lib/channels/senders/null',
   'lib/channels/receivers/null',
-  'lib/auth-errors',
   '../../../mocks/window'
 ],
-function (chai, sinon, DuplexChannel, NullSender, NullReceiver, AuthErrors,
-  WindowMock) {
+function (chai, sinon, DuplexChannel, NullSender, NullReceiver, WindowMock) {
   var channel;
   var windowMock;
   var receiver;

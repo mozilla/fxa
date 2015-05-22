@@ -8,7 +8,6 @@ define([
   'lib/promise',
   'lib/auth-errors',
   'views/confirm_reset_password',
-  'lib/session',
   'lib/metrics',
   'lib/ephemeral-messages',
   'lib/channels/inter-tab',
@@ -21,7 +20,7 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, sinon, p, AuthErrors, View, Session, Metrics, EphemeralMessages,
+function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
       InterTabChannel, Storage, FxaClient, Relier, Broker, User,
       RouterMock, WindowMock, TestHelpers) {
   'use strict';

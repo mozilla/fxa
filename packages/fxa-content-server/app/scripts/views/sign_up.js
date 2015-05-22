@@ -11,16 +11,14 @@ define([
   'views/base',
   'views/form',
   'stache!templates/sign_up',
-  'lib/session',
   'lib/auth-errors',
-  'lib/strings',
   'lib/mailcheck',
   'views/mixins/password-mixin',
   'views/mixins/service-mixin',
   'views/coppa/coppa-date-picker'
 ],
-function (Cocktail, _, p, BaseView, FormView, Template, Session, AuthErrors,
-      Strings, mailcheck, PasswordMixin, ServiceMixin, CoppaDatePicker) {
+function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
+      PasswordMixin, ServiceMixin, CoppaDatePicker) {
   var t = BaseView.t;
 
   function selectAutoFocusEl(bouncedEmail, email, password) {
