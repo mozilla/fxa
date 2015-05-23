@@ -5,11 +5,10 @@
 define([
   'intern',
   'intern!object',
-  'intern/chai!assert',
   'tests/functional/lib/helpers',
   'tests/functional/lib/test',
   'require'
-], function (intern, registerSuite, assert, FunctionalHelpers, Test, require) {
+], function (intern, registerSuite, FunctionalHelpers, Test, require) {
   'use strict';
 
   var PAGE_URL = intern.config.fxaContentRoot + 'legal/privacy';
