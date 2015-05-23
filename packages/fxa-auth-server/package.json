@@ -15,7 +15,7 @@
   },
   "author": "Mozilla (https://mozilla.org)",
   "homepage": "https://github.com/mozilla/fxa-oauth-server",
-  "license": "MPLv2.0",
+  "license": "MPL-2.0",
   "bugs": {
     "url": "https://github.com/mozilla/fxa-oauth-server/issues"
   },
