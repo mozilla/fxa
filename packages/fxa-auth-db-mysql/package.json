@@ -20,10 +20,7 @@
   "bugs": {
     "url": "https://github.com/mozilla/fxa-auth-db-mysql/issues"
   },
-  "license": {
-    "name": "MPL 2.0",
-    "url": "https://raw.githubusercontent.com/mozilla/fxa-auth-db-mysql/master/LICENSE"
-  },
+  "license": "MPL-2.0",
   "dependencies": {
     "bluebird": "2.1.3",
     "clone": "0.2.0",
