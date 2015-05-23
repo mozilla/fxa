@@ -3,7 +3,7 @@
   "version": "0.1.28",
   "description": "Web client that talks to the Firefox Accounts API server",
   "author": "Mozilla",
-  "license": "MPL 2.0",
+  "license": "MPL-2.0",
   "scripts": {
     "start": "grunt",
     "test": "grunt test",
@@ -20,7 +20,7 @@
   "readmeFilename": "README.md",
   "homepage": "https://github.com/mozilla/fxa-js-client",
   "engines": {
-    "node": "0.10.x"
+    "node": ">=0.10.x"
   },
   "repository": {
     "type": "git",
