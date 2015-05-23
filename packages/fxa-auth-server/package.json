@@ -13,10 +13,7 @@
   },
   "homepage": "https://github.com/mozilla/fxa-auth-mailer",
   "bugs": "https://github.com/mozilla/fxa-auth-mailer/issues",
-  "license": {
-    "type": "MPL 2.0",
-    "url": "https://raw.githubusercontent.com/mozilla/fxa-auth-mailer/master/LICENSE"
-  },
+  "license": "MPL-2.0",
   "dependencies": {
     "bluebird": "2.2.2",
     "bunyan": "1.0.0",
