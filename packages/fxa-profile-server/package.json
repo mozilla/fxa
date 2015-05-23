@@ -58,5 +58,5 @@
   "engines": {
     "node": ">=0.10.0"
   },
-  "license": "MPL 2.0"
+  "license": "MPL-2.0"
 }
