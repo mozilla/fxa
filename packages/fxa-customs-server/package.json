@@ -3,7 +3,7 @@
   "version": "0.36.0",
   "description": "Firefox Accounts Customs Server",
   "author": "Mozilla (https://mozilla.org/)",
-  "license": "MPL 2.0",
+  "license": "MPL-2.0",
   "keywords": [],
   "repository": {
     "type": "git",
