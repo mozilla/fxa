@@ -452,6 +452,7 @@ A valid request will return JSON with these properties:
 - `user`: The uid of the respective user.
 - `client_id`: The client_id of the respective client.
 - `scopes`: An array of scopes allowed for this token.
+- `email`: The email of the respective user.
 
 **Example:**
 
