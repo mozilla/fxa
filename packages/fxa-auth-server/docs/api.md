@@ -460,7 +460,8 @@ A valid request will return JSON with these properties:
 {
   "user": "5901bd09376fadaa076afacef5251b6a",
   "client_id": "45defeda038a1c92",
-  "scopes": ["profile:email", "profile:avatar"]
+  "scopes": ["profile:email", "profile:avatar"],
+  "email": "foo@example.com"
 }
 ```
 
