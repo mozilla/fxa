@@ -27,7 +27,7 @@ function (Cocktail, _, Backbone, $, p, AuthErrors,
 
   // A null metrics instance is created for unit tests. In the app,
   // when a view is initialized, an initialized Metrics instance
-  // is passed in to the contstructor.
+  // is passed in to the constructor.
   var nullMetrics = new NullMetrics();
 
   function displaySuccess(displayStrategy, msg) {

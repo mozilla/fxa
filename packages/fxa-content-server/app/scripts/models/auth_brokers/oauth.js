@@ -109,6 +109,7 @@ function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
 
     finishOAuthFlow: function (account, additionalResultData) {
       var self = this;
+      self.session.clear('oauth');
       return self.getOAuthResult(account)
         .then(function (result) {
           if (additionalResultData) {

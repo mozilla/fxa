@@ -176,6 +176,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
           }
 
           // all good, do the beforeSubmit, submit, and afterSubmit chain.
+          self.logScreenEvent('submit');
           return self._submitForm();
         });
     }),

@@ -93,9 +93,7 @@ define([
       // then automatically redirects to the relier if an oauth session is present
       var verificationRedirect = this.relier.get('verificationRedirect');
 
-      return this.session.oauth &&
-        (verificationRedirect === Constants.VERIFICATION_REDIRECT_ALWAYS ||
-        verificationRedirect === Constants.VERIFICATION_REDIRECT_SAME_BROWSER);
+      return this.session.oauth && verificationRedirect === Constants.VERIFICATION_REDIRECT_ALWAYS;
     },
 
     afterCompleteResetPassword: function (account) {
