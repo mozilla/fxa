@@ -35,6 +35,12 @@
       "max_restarts": "1"      
     },
     {
+      "name": "content-server basket proxy PORT 1114",
+      "script": "server/bin/basket-proxy-server.js",
+      "cwd": "fxa-content-server",
+      "max_restarts": "1"
+    },
+    {
       "name": "oauth-server PORT 9010",
       "script": "bin/server.js",
       "cwd": "fxa-oauth-server",
