@@ -72,14 +72,16 @@ If you get an `error` status for any of the servers please verify that you insta
 [graphicsmagick](http://www.graphicsmagick.org/).
 
 ##### OS X (with [Brew](http://brew.sh/)): 
-###### `brew install gmp redis graphicsmagick`
-###### `sudo easy_install pip && sudo pip install virtualenv` 
+```
+brew install gmp redis graphicsmagick
+sudo easy_install pip && sudo pip install virtualenv
+```
 
 > You might also need to run `xcode-select --install` to get OS X Command Line Tools
 
 ##### Ubuntu: 
 ```
-sudo apt-get install libgmp3-dev graphicsmagick redis-server python-virtualenv python-dev
+sudo apt-get install git-core libgmp3-dev graphicsmagick redis-server python-virtualenv python-dev
 ```
 ##### FreeBSD: 
 Use [bigint fix](https://github.com/substack/node-bigint/pull/29): `"bigint": "git://github.com/frasertweedale/node-bigint.git#fix/freebsd-build"`
@@ -90,11 +92,17 @@ Find the latest `node-v0.10.x.pkg` at [nodejs.org/dist/](http://nodejs.org/dist/
 
 ##### Ubuntu: 
 
-`curl -sL https://deb.nodesource.com/setup_0.10 | sudo bash -` and `sudo apt-get install -y nodejs`
+```
+curl -sL https://deb.nodesource.com/setup_0.10 | sudo bash -
+sudo apt-get install -y nodejs
+```
 
 #### Updating NPM
 > Check your npm version using `npm --version`. If it is lower than 2.4 then please upgrade.
 
-All OS: `sudo npm install -g npm@2.4` 
+All OS: 
+```
+sudo npm install -g npm@2.4
+```
 
 *******
