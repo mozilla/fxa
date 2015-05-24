@@ -283,6 +283,18 @@ var conf = module.exports = convict({
       doc: 'Location of "report-uri"',
       default: '/_/csp-violation',
     }
+  },
+  basket: {
+    api_url: {
+      doc: 'Url for the Basket API server',
+      format: String,
+      default: ''
+    },
+    api_key: {
+      doc: 'Basket API key',
+      format: String,
+      default: ''
+    }
   }
 });
 
