@@ -81,10 +81,8 @@ sudo easy_install pip && sudo pip install virtualenv
 
 ##### Ubuntu: 
 ```
-sudo apt-get install git-core libgmp3-dev graphicsmagick redis-server python-virtualenv python-dev
+sudo apt-get install build-essential git-core libgmp3-dev graphicsmagick redis-server python-virtualenv python-dev
 ```
-##### FreeBSD: 
-Use [bigint fix](https://github.com/substack/node-bigint/pull/29): `"bigint": "git://github.com/frasertweedale/node-bigint.git#fix/freebsd-build"`
 
 #### Installing Node.js
 ##### OS X 
