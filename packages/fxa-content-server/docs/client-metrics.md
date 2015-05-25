@@ -90,7 +90,9 @@ The event stream is a log of events and the time they occurred while the user is
 * screen.submit - A submit event has occurred on a form where all of the input elements are valid.
 
 #### account_unlock_complete
+
 #### cannot_create_account
+
 #### change_password
 * error.change-password.auth.121 - account locked
 * change-password.unlock-email.send - user attempted to send unlock email
@@ -106,12 +108,15 @@ The event stream is a log of events and the time they occurred while the user is
 * complete_reset_password.resend - A verification email was resent after an expired link was opened.
 * error.complete_reset_password.auth.1025 - User clicked on an expired verification link.
 * error.complete_reset_password.auth.1026 - User clicked on a damaged verification link.
+
 #### complete_sign_up
 * complete_sign_up.verification.success - email successfully verified.
 * complete_sign_up.resend - A verification email was resent after an expired link was opened.
 * error.complete_sign_up.auth.1025 - User clicked on an expired verification link.
 * error.complete_sign_up.auth.1026 - User clicked on a damaged verification link.
+
 #### confirm
+
 #### confirm_account_unlock
 * confirm-account-unlock.verification.success - account unlock verification occurred in another tab
 * confirm-account-unlock.resend - attempt to resend unlock email
@@ -132,15 +137,22 @@ The event stream is a log of events and the time they occurred while the user is
 #### pp
 #### ready
 #### reset_password
+
 #### settings
 * settings.signout.submit - user clicked signout
 * settings.signout.success - user successfully signed out
 * settings.signout.error - user signed out but with an error
+
 #### settings/avatar
+
 #### settings/avatar/camera
+
 #### settings/avatar/change
+
 #### settings/avatar/crop
+
 #### settings/avatar/gravatar
+
 #### signin
 * error.signin.auth.121 - account locked
 * signin.unlock-email.send - user attempted to send unlock email
@@ -152,15 +164,19 @@ The event stream is a log of events and the time they occurred while the user is
 * signin.ask-password.shown.session-from-web - asked for password because session was created via web content
 * signin.ask-password.shown.session-expired - asked for password due to expired session token
 * signin.use-different-account - user clicked link to use different account
+
 #### signin_permissions
 * signin-permissions.accept - user accepts and grants the requested permissions
 * signin-permissions.success - sign in successfully occurred
+
 #### signup
 * tooltip.mailcheck-suggested - an email address correction was suggested
 * tooltip.mailcheck-used - an email address correction was chosen by the user
 * tooltip.mailcheck-dismissed - an email address correction tooltip was dismissed without the selection being made.
+
 #### signup_permissions
 * signup-permissions.accept - user accepts and grants the requested permissions
 
 #### tos
+
 #### unexpected_error
