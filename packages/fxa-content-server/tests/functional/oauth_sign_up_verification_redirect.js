@@ -7,9 +7,8 @@ define([
   'intern/chai!assert',
   'require',
   'tests/lib/helpers',
-  'tests/functional/lib/test',
   'tests/functional/lib/helpers'
-], function (registerSuite, assert, require, TestHelpers, Test, FunctionalHelpers) {
+], function (registerSuite, assert, require, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
