@@ -6,10 +6,11 @@
 
 define([
   'chai',
+  'sinon',
   'jquery',
   'views/progress_indicator'
 ],
-function (chai, $, ProgressIndicator) {
+function (chai, sinon, $, ProgressIndicator) {
   var assert = chai.assert;
   var progressIndicator;
 
@@ -28,6 +29,19 @@ function (chai, $, ProgressIndicator) {
       it('shows the indicator', function () {
         progressIndicator.start('#indicate');
         assert.isTrue(progressIndicator.isVisible());
+      });
+
+      it('works when waiting for the indicator', function () {
+        progressIndicator._removeIndicatorTimeout = true;
+        progressIndicator.start('#indicate');
+        assert.isTrue(progressIndicator.isVisible());
+      });
+
+      it('calls showIndicator', function (done) {
+        sinon.stub(progressIndicator, 'showIndicator', function () {
+          done();
+        });
+        progressIndicator.start('#indicate');
       });
     });
 
@@ -63,6 +77,14 @@ function (chai, $, ProgressIndicator) {
         progressIndicator.showIndicator('#indicate');
         progressIndicator.removeIndicator();
         assert.equal($('#indicate').text(), 'Button');
+      });
+
+      it('calls removeIndicator', function (done) {
+        sinon.stub(progressIndicator, 'removeIndicator', function () {
+          done();
+        });
+        progressIndicator.showIndicator('#indicate');
+        progressIndicator.removeIndicator();
       });
     });
   });
