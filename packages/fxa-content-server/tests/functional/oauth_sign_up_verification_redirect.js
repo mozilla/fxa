@@ -3,16 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  'intern',
   'intern!object',
   'intern/chai!assert',
   'require',
-  'intern/node_modules/dojo/node!xmlhttprequest',
-  'tests/lib/restmail',
   'tests/lib/helpers',
   'tests/functional/lib/test',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, restmail, TestHelpers, Test, FunctionalHelpers) {
+], function (registerSuite, assert, require, TestHelpers, Test, FunctionalHelpers) {
   'use strict';
 
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;

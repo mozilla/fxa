@@ -13,10 +13,10 @@ module.exports = function (grunt) {
       },
       files: [{
         expand: true,
-        cwd: 'app/',
         src: [
-          '{scripts,tests}/**/*.js',
-          '!scripts/vendor/**'
+          'app/{scripts,tests}/**/*.js',
+          'app/!scripts/vendor/**',
+          'tests/functional/**/*.js'
         ]
       }]
     }

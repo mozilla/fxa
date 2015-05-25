@@ -5,11 +5,10 @@
 define([
   'intern',
   'intern!object',
-  'intern/chai!assert',
   'require',
   'tests/lib/restmail',
   'tests/lib/helpers'
-], function (intern, registerSuite, assert, require, restmail, TestHelpers) {
+], function (intern, registerSuite, require, restmail, TestHelpers) {
   'use strict';
 
   var config = intern.config;

@@ -9,12 +9,11 @@ define([
   'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
-  'tests/lib/restmail',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
   'tests/functional/lib/fx-desktop'
 ], function (intern, registerSuite, assert, require, nodeXMLHttpRequest,
-        FxaClient, restmail, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
+        FxaClient, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
   'use strict';
 
   var config = intern.config;

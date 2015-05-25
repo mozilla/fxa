@@ -5,9 +5,8 @@
 define([
   'intern',
   'intern!object',
-  'intern/chai!assert',
   'require'
-], function (intern, registerSuite, assert, require) {
+], function (intern, registerSuite, require) {
   'use strict';
 
   var url = intern.config.fxaContentRoot + 'boom';
