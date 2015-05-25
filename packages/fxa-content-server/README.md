@@ -1,9 +1,7 @@
 # Firefox Accounts Content Server
 
-Travis Tests: [![Build Status: Travis](https://travis-ci.org/mozilla/fxa-content-server.svg?branch=master)](https://travis-ci.org/mozilla/fxa-content-server)
+[![Build Status: Travis](https://travis-ci.org/mozilla/fxa-content-server.svg?branch=master)](https://travis-ci.org/mozilla/fxa-content-server)
 [![Coverage Status](https://img.shields.io/coveralls/mozilla/fxa-content-server.svg)](https://coveralls.io/r/mozilla/fxa-content-server)
-Functional Tests: 
-[![Build Status: Functional Tests](http://qa.stage.mozaws.net:8080/job/fxa.content-server-tests.dev/badge/icon)](http://qa.stage.mozaws.net:8080/job/fxa.content-server-tests.dev/)
 
 Static server that hosts Firefox Account sign up, sign in, email verification, etc. flows.
 

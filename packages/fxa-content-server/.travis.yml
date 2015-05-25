@@ -2,7 +2,7 @@ language: node_js
 node_js:
   - "0.10"
 addons:
-  firefox: "36.0"
+  firefox: "38.0"
   apt_packages:
     - libgmp-dev
 env:
