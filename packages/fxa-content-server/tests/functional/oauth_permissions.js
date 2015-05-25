@@ -57,7 +57,7 @@ define([
         .findByCssSelector('#fxa-permissions-header')
         .end()
 
-        .findByCssSelector('#proceed')
+        .findByCssSelector('#accept')
           .click()
         .end()
 
@@ -85,7 +85,7 @@ define([
         .findByCssSelector('#fxa-permissions-header')
         .end()
 
-        .findByCssSelector('#proceed')
+        .findByCssSelector('#accept')
           .click()
         .end()
 
@@ -142,7 +142,7 @@ define([
         .findByCssSelector('#fxa-permissions-header')
         .end()
 
-        .findByCssSelector('#proceed')
+        .findByCssSelector('#accept')
           .click()
         .end()
 
@@ -185,7 +185,7 @@ define([
 
         .findByCssSelector('#fxa-permissions-header')
         .end()
-        .findByCssSelector('#proceed')
+        .findByCssSelector('#accept')
           .click()
         .end()
 
@@ -251,7 +251,8 @@ define([
 
         .findByCssSelector('#fxa-permissions-header')
         .end()
-        .findByCssSelector('#proceed')
+
+        .findByCssSelector('#accept')
           .click()
         .end()
 
@@ -286,7 +287,7 @@ define([
         .findByCssSelector('#fxa-permissions-header')
         .end()
 
-        .findByCssSelector('#proceed')
+        .findByCssSelector('#accept')
           .click()
         .end()
 
@@ -348,7 +349,6 @@ define([
         })
         .end();
     }
-
   });
 
 });
