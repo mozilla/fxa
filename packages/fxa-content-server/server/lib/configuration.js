@@ -284,6 +284,14 @@ var conf = module.exports = convict({
       default: '/_/csp-violation',
     }
   },
+  marketing_email: {
+    api_url: {
+      doc: 'User facing URL of the Marketing Email Server',
+      format: 'url',
+      default: 'http://127.0.0.1:1114',
+      env: 'FXA_MARKETING_EMAIL_API_URL'
+    }
+  },
   basket: {
     api_url: {
       doc: 'Url for the Basket API server',
