@@ -87,7 +87,7 @@ The event stream is a log of events and the time they occurred while the user is
 * tooltip.generic-dismissed - a dismissable tooltip is dismissed
 * error.&lt;unexpected_origin&gt;.auth.1027 - a postMessage message was received from an unexpected origin.
 * error.&lt;image_url&gt;.profile.997 - a profile image could not load.
-* screen.submit - A submit event has occurred on a form where all of the input elements are valid.
+* &lt;screen_name&gt;.submit - A submit event has occurred and all of the form's input elements are valid.
 
 #### account_unlock_complete
 
