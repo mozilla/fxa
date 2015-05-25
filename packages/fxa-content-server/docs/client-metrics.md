@@ -117,6 +117,8 @@ The event stream is a log of events and the time they occurred while the user is
 
 #### confirm
 
+* confirm.resend - attempt to resend verification email
+
 #### confirm_account_unlock
 * confirm-account-unlock.verification.success - account unlock verification occurred in another tab
 * confirm-account-unlock.resend - attempt to resend unlock email
