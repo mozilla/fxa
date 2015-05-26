@@ -18,6 +18,9 @@ define([
   'lib/constants'
 ], function (_, Relier, ResumeToken, OAuthErrors, RelierKeys, Url, Constants) {
   var RELIER_FIELDS_IN_RESUME_TOKEN = ['state', 'verificationRedirect'];
+  // We only grant permissions that our UI currently prompts for. Others
+  // will be stripped.
+  var PERMISSION_WHITE_LIST = ['profile:uid', 'profile:email'];
 
   var OAuthRelier = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {
@@ -64,7 +67,8 @@ define([
           }
           if (self.has('scope')) {
             // Turn the scope string into an array of permissions
-            self.set('permissions', scopeStrToArray(self.get('scope')));
+            self.set('permissions',
+              stripNonWhiteListedPermissions(scopeStrToArray(self.get('scope'))));
           }
 
           return self._setupOAuthRPInfo();
@@ -220,6 +224,12 @@ define([
 
   function scopeStrToArray(scopes) {
     return typeof scopes === 'string' ? _.uniq(scopes.split(/\s+/g)) : scopes;
+  }
+
+  function stripNonWhiteListedPermissions(permissions) {
+    return permissions.filter(function (permission) {
+      return PERMISSION_WHITE_LIST.indexOf(permission) !== -1;
+    });
   }
 
   return OAuthRelier;
