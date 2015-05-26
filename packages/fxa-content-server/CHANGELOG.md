@@ -1,3 +1,39 @@
+<a name="0.38.0"></a>
+## 0.38.0 (2015-05-26)
+
+
+#### Bug Fixes
+
+* **avatars:**
+  * Redirect to settings/avatar/change on error ([6b6a5f77](https://github.com/mozilla/fxa-content-server/commit/6b6a5f77c6cc0f332b4649a22678aa9ef4278644))
+  * cache the profile image after fetching ([30601d4f](https://github.com/mozilla/fxa-content-server/commit/30601d4f2ef466f9203bcb31079ada17ab470909), closes [#2429](https://github.com/mozilla/fxa-content-server/issues/2429))
+* **client:** `Invalid scopes` is an error message. ([3f42a328](https://github.com/mozilla/fxa-content-server/commit/3f42a32867bcb5a4171f82c489e2e7eb2db0f858))
+* **docs:**
+  * add <screen_name>.refresh metrics event ([d30a95b2](https://github.com/mozilla/fxa-content-server/commit/d30a95b2838f53aa78253fbecbc63e3572fe6806))
+  * add confirm resend metrics event ([492f8bbf](https://github.com/mozilla/fxa-content-server/commit/492f8bbfd77666e97e93a0e40fb3efa309d28fc5))
+  * fix metrics documentation headers ([dc24d386](https://github.com/mozilla/fxa-content-server/commit/dc24d3868f1dc398691859b705f4fc6535bb7df1))
+* **metrics:**
+  * set metrics to 1 in local dev ([5599e91d](https://github.com/mozilla/fxa-content-server/commit/5599e91d708b6df3816aaae9a88cb7cbcaeb245c))
+  * metrics for signout. ([455da813](https://github.com/mozilla/fxa-content-server/commit/455da8131ca1f7923b59c110303b19e8322281f0), closes [#2295](https://github.com/mozilla/fxa-content-server/issues/2295))
+* **oauth:**
+  * strip permissions that are not on the whitelist ([a6a22c0a](https://github.com/mozilla/fxa-content-server/commit/a6a22c0ab74139ed2d8ceef3a7315200e68bfa38))
+  * update verification_redirect to always redirect in same browser or show "proceed ([3be6da92](https://github.com/mozilla/fxa-content-server/commit/3be6da9263abe05754ffd8e2244c114c695da94f), closes [#2436](https://github.com/mozilla/fxa-content-server/issues/2436), [#2402](https://github.com/mozilla/fxa-content-server/issues/2402))
+* **tests:**
+  * improve progress indicator coverage ([51cb1058](https://github.com/mozilla/fxa-content-server/commit/51cb1058bcf1f81e298d26609e11092a229685a0), closes [#2465](https://github.com/mozilla/fxa-content-server/issues/2465))
+  * remove Test lib from verification_redirect ([a38d8082](https://github.com/mozilla/fxa-content-server/commit/a38d80828bca01c16406183dffd0194fb5ffe836))
+  * update travis to firefox 38 ([35d0027f](https://github.com/mozilla/fxa-content-server/commit/35d0027fb8e56b35346e847c84fe26532412085a))
+  * Update the submit button selector for the permissions screen tests. ([e67cbc30](https://github.com/mozilla/fxa-content-server/commit/e67cbc305513c7d945396c0cbd4cbc8223345e16))
+
+
+#### Features
+
+* `/` can be framed by allowed reliers. ([aedfae9e](https://github.com/mozilla/fxa-content-server/commit/aedfae9e1ca1c1891d9cb3b7430390bdfdcc1d98))
+* **client:** Pass along a `service` and `reason` whenever signing a user in. ([32812392](https://github.com/mozilla/fxa-content-server/commit/32812392012ae583541daf9c4fa0caf1b462abc3))
+* **lib:** storage lib is now able to use sessionStorage ([33c53def](https://github.com/mozilla/fxa-content-server/commit/33c53defb91f2bd8ac96e025191fd3c825945024))
+* **metrics:** measure page reloads by user ([29ede010](https://github.com/mozilla/fxa-content-server/commit/29ede010010eb14ca994fba78d49674fb0d0f3d5))
+* **oauth:** signal action=signup or action=signin at end of oauth flow. ([9016164b](https://github.com/mozilla/fxa-content-server/commit/9016164b7742c04ddf15169c1ccceac2a2634941))
+
+
 <a name="0.37.1"></a>
 ### 0.37.1 (2015-05-14)
 
