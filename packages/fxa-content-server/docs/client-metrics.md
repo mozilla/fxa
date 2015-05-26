@@ -88,6 +88,7 @@ The event stream is a log of events and the time they occurred while the user is
 * error.&lt;unexpected_origin&gt;.auth.1027 - a postMessage message was received from an unexpected origin.
 * error.&lt;image_url&gt;.profile.997 - a profile image could not load.
 * &lt;screen_name&gt;.submit - A submit event has occurred and all of the form's input elements are valid.
+* &lt;screen_name&gt;.refresh - The aforementioned screen was refreshed.
 
 #### account_unlock_complete
 
