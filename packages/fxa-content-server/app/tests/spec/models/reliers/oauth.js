@@ -35,6 +35,7 @@ define([
     var REDIRECT_URI = 'http://redirect.here';
     var SERVER_REDIRECT_URI = 'http://127.0.0.1:8080/api/oauth';
     var SCOPE = 'profile:email profile:uid';
+    var SCOPE_WITH_EXTRAS = 'profile:email profile:uid profile:non_whitelisted';
     var PERMISSIONS = ['profile:email', 'profile:uid'];
     var ACTION = 'signup';
     var PREVERIFY_TOKEN = 'abigtoken';
@@ -195,6 +196,19 @@ define([
           //jshint camelcase: false
           client_id: CLIENT_ID,
           scope: SCOPE
+        });
+
+        return relier.fetch()
+          .then(function () {
+            assert.deepEqual(relier.get('permissions'), PERMISSIONS);
+          });
+      });
+
+      it('only populates whitelisted permissions from scope', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          //jshint camelcase: false
+          client_id: CLIENT_ID,
+          scope: SCOPE_WITH_EXTRAS
         });
 
         return relier.fetch()
