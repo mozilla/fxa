@@ -5,30 +5,39 @@
 const Joi = require('joi');
 
 const AppError = require('../error');
-const config = require('../config');
 const db = require('../db');
 const encrypt = require('../encrypt');
 const validators = require('../validators');
 
+/*jshint camelcase: false*/
+
 module.exports = {
   validate: {
-    payload: {
-      token: Joi.string()
-        .length(config.get('unique.token') * 2) // hex = bytes*2
-        .regex(validators.HEX_STRING)
-        .required(),
-      client_secret: Joi.string().allow('')
-    }
+    payload: Joi.object().keys({
+      client_secret: Joi.string().allow(''),
+      access_token: validators.token,
+      refresh_token: validators.token
+    }).rename('token', 'access_token').xor('access_token', 'refresh_token')
   },
   handler: function destroyToken(req, reply) {
-    var token = encrypt.hash(req.payload.token);
+    var token;
+    var getToken;
+    var removeToken;
+    if (req.payload.access_token) {
+      getToken = 'getAccessToken';
+      removeToken = 'removeAccessToken';
+      token = encrypt.hash(req.payload.access_token);
+    } else {
+      getToken = 'getRefreshToken';
+      removeToken = 'removeRefreshToken';
+      token = encrypt.hash(req.payload.refresh_token);
+    }
 
-    db.getToken(token)
-    .then(function(tok) {
+    db[getToken](token).then(function(tok) {
       if (!tok) {
         throw AppError.invalidToken();
       }
-      return db.removeToken(token);
+      return db[removeToken](token);
     }).done(function() {
       reply({});
     }, reply);

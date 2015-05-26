@@ -47,7 +47,7 @@
     }
   ],
   "logging": {
-    "level": "warn",
+    "level": "error",
     "fmt": "pretty"
   }
 }

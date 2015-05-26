@@ -12,31 +12,22 @@ const config = require('../config');
 const db = require('../db');
 const logger = require('../logging')('routes.authorization');
 const P = require('../promise');
+const Scope = require('../scope');
 const validators = require('../validators');
 const verify = require('../browserid');
 
 const CODE = 'code';
 const TOKEN = 'token';
 
+const ACCESS_TYPE_ONLINE = 'online';
+const ACCESS_TYPE_OFFLINE = 'offline';
+
+
 const UNTRUSTED_CLIENT_ALLOWED_SCOPES = [
   'profile:uid',
   'profile:email',
   'profile:display_name'
 ];
-
-function set(arr) {
-  var obj = {};
-  for (var i = 0; i < arr.length; i++) {
-    obj[arr[i]] = true;
-  }
-  return Object.keys(obj);
-}
-
-function scopeStringToSet(scopes) {
-  return typeof scopes === 'string' ?
-    set(scopes.split(/\s+/g)) :
-    scopes;
-}
 
 function isLocalHost(url) {
   var host = new URI(url).hostname();
@@ -56,13 +47,14 @@ function detectInvalidScopes(requestedScopes, validScopes) {
 }
 
 function generateCode(claims, client, scope, req) {
-  return db.generateCode(
-    client.id,
-    buf(claims.uid),
-    claims['fxa-verifiedEmail'],
-    scope,
-    claims['fxa-lastAuthAt']
-  ).then(function(code) {
+  return db.generateCode({
+    clientId: client.id,
+    userId: buf(claims.uid),
+    email: claims['fxa-verifiedEmail'],
+    scope: scope,
+    authAt: claims['fxa-lastAuthAt'],
+    offline: req.payload.access_type === ACCESS_TYPE_OFFLINE
+  }).then(function(code) {
     logger.debug('redirecting', { uri: req.payload.redirect_uri });
 
     var redirect = URI(req.payload.redirect_uri)
@@ -85,7 +77,7 @@ function generateCode(claims, client, scope, req) {
 }
 
 function generateGrant(claims, client, scope) {
-  return db.generateToken({
+  return db.generateAccessToken({
     clientId: client.id,
     userId: buf(claims.uid),
     email: claims['fxa-verifiedEmail'],
@@ -94,6 +86,7 @@ function generateGrant(claims, client, scope) {
     return {
       access_token: hex(token.token),
       token_type: 'bearer',
+      expires_in: Math.floor((token.expiresAt - Date.now()) / 1000),
       scope: scope.join(' '),
       auth_at: claims['fxa-lastAuthAt']
     };
@@ -123,29 +116,36 @@ module.exports = {
           is: TOKEN,
           then: Joi.optional(),
           otherwise: Joi.required()
-        })
+        }),
+      access_type: Joi.string()
+        .valid(ACCESS_TYPE_OFFLINE, ACCESS_TYPE_ONLINE)
+        .default(ACCESS_TYPE_ONLINE)
+        .optional(),
     }
   },
   response: {
     schema: Joi.object().keys({
       redirect: Joi.string(),
-      access_token: Joi.string().regex(validators.HEX_STRING),
+      access_token: validators.token,
       token_type: Joi.string().valid('bearer'),
       scope: Joi.string(),
-      auth_at: Joi.number()
+      auth_at: Joi.number(),
+      expires_in: Joi.number()
     }).without('redirect', [
-      'access_token',
+      'access_token'
+    ]).with('access_token', [
       'token_type',
       'scope',
-      'auth_at'
-    ]).with('access_token', 'token_type', 'scope', 'auth_at')
+      'auth_at',
+      'expires_in'
+    ])
   },
   handler: function authorizationEndpoint(req, reply) {
     logger.debug('response_type', req.payload.response_type);
     var start = Date.now();
     var wantsGrant = req.payload.response_type === TOKEN;
     var exitEarly = false;
-    var scope = req.payload.scope ? scopeStringToSet(req.payload.scope) : [];
+    var scope = Scope(req.payload.scope || []);
     P.all([
       verify(req.payload.assertion).then(function(claims) {
         logger.info('time.browserid_verify', { ms: Date.now() - start });
@@ -165,7 +165,7 @@ module.exports = {
           logger.debug('notFound', { id: req.payload.client_id });
           throw AppError.unknownClient(req.payload.client_id);
         } else if (!client.trusted) {
-          var invalidScopes = detectInvalidScopes(scope,
+          var invalidScopes = detectInvalidScopes(scope.values(),
                                 UNTRUSTED_CLIENT_ALLOWED_SCOPES);
 
           if (invalidScopes.length) {
@@ -200,7 +200,7 @@ module.exports = {
 
         return client;
       }),
-      scope,
+      scope.values(),
       req
     ])
     .spread(wantsGrant ? generateGrant : generateCode)

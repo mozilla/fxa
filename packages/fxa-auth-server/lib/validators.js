@@ -17,3 +17,7 @@ exports.clientSecret = Joi.string()
   .length(config.get('unique.clientSecret') * 2) // hex = bytes*2
   .regex(exports.HEX_STRING)
   .required();
+
+exports.token = Joi.string()
+  .length(config.get('unique.token') * 2)
+  .regex(exports.HEX_STRING);

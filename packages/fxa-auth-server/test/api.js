@@ -30,6 +30,8 @@ const VERIFY_GOOD = JSON.stringify({
   }
 });
 
+const MAX_TTL_S = config.get('expiration.accessToken') / 1000;
+
 function mockAssertion() {
   var parts = url.parse(config.get('browserid.verificationUrl'));
   return nock(parts.protocol + '//' + parts.host).post(parts.path);
@@ -95,17 +97,20 @@ function authParams(params) {
   };
 
   params = params || {};
-  for (var key in params) {
+  Object.keys(params).forEach(function(key) {
     defaults[key] = params[key];
-  }
+  });
   return defaults;
 }
 
 function newToken(payload) {
+  payload = payload || {};
+  var ttl = payload.ttl || MAX_TTL_S;
+  delete payload.ttl;
   mockAssertion().reply(200, VERIFY_GOOD);
   return Server.api.post({
     url: '/authorization',
-    payload: authParams(payload || {})
+    payload: authParams(payload)
   }).then(function(res) {
     assert.equal(res.statusCode, 200);
     return Server.api.post({
@@ -113,7 +118,8 @@ function newToken(payload) {
       payload: {
         client_id: clientId,
         client_secret: secret,
-        code: url.parse(res.result.redirect, true).query.code
+        code: url.parse(res.result.redirect, true).query.code,
+        ttl: ttl
       }
     });
   });
@@ -139,7 +145,7 @@ function getUniqueUserAndToken(cId) {
   var uid = unique(16).toString('hex');
   var email = unique(4).toString('hex') + '@mozilla.com';
 
-  return db.generateToken({
+  return db.generateAccessToken({
     clientId: buf(cId),
     userId: buf(uid),
     email: email,
@@ -564,6 +570,7 @@ describe('/v1', function() {
             assert(res.result.access_token);
             assert.equal(res.result.token_type, 'bearer');
             assert(res.result.scope);
+            assert(res.result.expires_in);
             assert(res.result.auth_at);
           }).done(done, done);
         });
@@ -643,106 +650,174 @@ describe('/v1', function() {
       });
     });
 
-    describe('?code', function() {
-      it('is required', function(done) {
-        Server.api.post({
-          url: '/token',
-          payload: {
-            client_id: clientId,
-            client_secret: secret
-          }
-        }).then(function(res) {
-          assertRequestParam(res.result, 'code');
-        }).done(done, done);
-      });
+    describe('?grant_type=authorization_code', function() {
+      describe('?code', function() {
+        it('is required', function(done) {
+          Server.api.post({
+            url: '/token',
+            payload: {
+              client_id: clientId,
+              client_secret: secret
+            }
+          }).then(function(res) {
+            assertRequestParam(res.result, 'code');
+          }).done(done, done);
+        });
 
-      it('must match an existing code', function(done) {
-        Server.api.post({
-          url: '/token',
-          payload: {
-            client_id: clientId,
-            client_secret: secret,
-            code: unique.code().toString('hex')
-          }
-        }).then(function(res) {
-          assert.equal(res.result.code, 400);
-          assert.equal(res.result.message, 'Unknown code');
-        }).done(done, done);
-      });
+        it('must match an existing code', function(done) {
+          Server.api.post({
+            url: '/token',
+            payload: {
+              client_id: clientId,
+              client_secret: secret,
+              code: unique.code().toString('hex')
+            }
+          }).then(function(res) {
+            assert.equal(res.result.code, 400);
+            assert.equal(res.result.message, 'Unknown code');
+          }).done(done, done);
+        });
 
-      it('must be a code owned by this client', function(done) {
-        var secret2 = unique.secret();
-        var client2 = {
-          name: 'client2',
-          hashedSecret: encrypt.hash(secret2),
-          redirectUri: 'https://example.domain',
-          imageUri: 'https://example.foo.domain/logo.png',
-          trusted: true
-        };
-        db.registerClient(client2).then(function() {
+        it('must be a code owned by this client', function(done) {
+          var secret2 = unique.secret();
+          var client2 = {
+            name: 'client2',
+            hashedSecret: encrypt.hash(secret2),
+            redirectUri: 'https://example.domain',
+            imageUri: 'https://example.foo.domain/logo.png',
+            trusted: true
+          };
+          db.registerClient(client2).then(function() {
+            mockAssertion().reply(200, VERIFY_GOOD);
+            return Server.api.post({
+              url: '/authorization',
+              payload: authParams({
+                client_id: client2.id.toString('hex')
+              })
+            }).then(function(res) {
+              assert.equal(res.statusCode, 200);
+              return url.parse(res.result.redirect, true).query.code;
+            });
+          }).then(function(code) {
+            return Server.api.post({
+              url: '/token',
+              payload: {
+                // client is trying to use client2's code
+                client_id: clientId,
+                client_secret: secret,
+                code: code
+              }
+            });
+          }).then(function(res) {
+            assert.equal(res.result.code, 400);
+            assert.equal(res.result.message, 'Incorrect code');
+          }).done(done, done);
+
+        });
+
+        it('must not have expired', function(_done) {
+          this.slow(200);
+          var exp = config.get('expiration.code');
+          config.set('expiration.code', 50);
+          function done() {
+            config.set('expiration.code', exp);
+            _done.apply(this, arguments);
+          }
           mockAssertion().reply(200, VERIFY_GOOD);
-          return Server.api.post({
+          Server.api.post({
             url: '/authorization',
-            payload: authParams({
-              client_id: client2.id.toString('hex')
-            })
+            payload: authParams()
           }).then(function(res) {
             return url.parse(res.result.redirect, true).query.code;
-          });
-        }).then(function(code) {
-          return Server.api.post({
-            url: '/token',
-            payload: {
-              // client is trying to use client2's code
-              client_id: clientId,
-              client_secret: secret,
-              code: code
-            }
-          });
-        }).then(function(res) {
-          assert.equal(res.result.code, 400);
-          assert.equal(res.result.message, 'Incorrect code');
-        }).done(done, done);
-
+          }).delay(60).then(function(code) {
+            return Server.api.post({
+              url: '/token',
+              payload: {
+                client_id: clientId,
+                client_secret: secret,
+                code: code
+              }
+            });
+          }).then(function(res) {
+            assert.equal(res.result.code, 400);
+            assert.equal(res.result.message, 'Expired code');
+          }).done(done, done);
+        });
       });
 
-      it('must not have expired', function(_done) {
-        this.slow(200);
-        var exp = config.get('expiration.code');
-        config.set('expiration.code', 50);
-        function done() {
-          config.set('expiration.code', exp);
-          _done.apply(this, arguments);
-        }
-        mockAssertion().reply(200, VERIFY_GOOD);
-        Server.api.post({
-          url: '/authorization',
-          payload: authParams()
-        }).then(function(res) {
-          return url.parse(res.result.redirect, true).query.code;
-        }).delay(60).then(function(code) {
-          return Server.api.post({
-            url: '/token',
-            payload: {
-              client_id: clientId,
-              client_secret: secret,
-              code: code
-            }
+      describe('response', function() {
+        describe('access_type=online', function() {
+          it('should return a correct response', function(done) {
+            mockAssertion().reply(200, VERIFY_GOOD);
+            Server.api.post({
+              url: '/authorization',
+              payload: authParams({
+                scope: 'foo bar bar'
+              })
+            }).then(function(res) {
+              assert.equal(res.statusCode, 200);
+              return Server.api.post({
+                url: '/token',
+                payload: {
+                  client_id: clientId,
+                  client_secret: secret,
+                  code: url.parse(res.result.redirect, true).query.code,
+                  foo: 'bar' // testing stripUnknown
+                }
+              });
+            }).then(function(res) {
+              assert.equal(res.statusCode, 200);
+              assert.equal(res.result.token_type, 'bearer');
+              assert(res.result.access_token);
+              assert(!res.result.refresh_token);
+              assert.equal(res.result.access_token.length,
+                config.get('unique.token') * 2);
+              assert.equal(res.result.scope, 'foo bar');
+              assert.equal(res.result.auth_at, 123456);
+            }).done(done, done);
           });
-        }).then(function(res) {
-          assert.equal(res.result.code, 400);
-          assert.equal(res.result.message, 'Expired code');
-        }).done(done, done);
+        });
+        describe('access_type=offline', function() {
+          it('should return a correct response', function(done) {
+            mockAssertion().reply(200, VERIFY_GOOD);
+            Server.api.post({
+              url: '/authorization',
+              payload: authParams({
+                scope: 'foo bar bar',
+                access_type: 'offline'
+              })
+            }).then(function(res) {
+              assert.equal(res.statusCode, 200);
+              return Server.api.post({
+                url: '/token',
+                payload: {
+                  client_id: clientId,
+                  client_secret: secret,
+                  code: url.parse(res.result.redirect, true).query.code
+                }
+              });
+            }).then(function(res) {
+              assert.equal(res.statusCode, 200);
+              assert.equal(res.result.token_type, 'bearer');
+              assert(res.result.access_token);
+              assert(res.result.refresh_token);
+              assert.equal(res.result.access_token.length,
+                config.get('unique.token') * 2);
+              assert.equal(res.result.refresh_token.length,
+                config.get('unique.token') * 2);
+              assert.equal(res.result.scope, 'foo bar');
+              assert.equal(res.result.auth_at, 123456);
+            }).done(done, done);
+          });
+        });
       });
-    });
 
-    describe('response', function() {
-      it('should return a correct response', function(done) {
+      it('with a blank scope', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
         Server.api.post({
           url: '/authorization',
           payload: authParams({
-            scope: 'foo bar bar'
+            scope: undefined
           })
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
@@ -751,8 +826,7 @@ describe('/v1', function() {
             payload: {
               client_id: clientId,
               client_secret: secret,
-              code: url.parse(res.result.redirect, true).query.code,
-              foo: 'bar' // testing stripUnknown
+              code: url.parse(res.result.redirect, true).query.code
             }
           });
         }).then(function(res) {
@@ -761,37 +835,187 @@ describe('/v1', function() {
           assert(res.result.access_token);
           assert.equal(res.result.access_token.length,
             config.get('unique.token') * 2);
-          assert.equal(res.result.scope, 'foo bar');
-          assert.equal(res.result.auth_at, 123456);
+          assert.equal(res.result.scope, '');
         }).done(done, done);
       });
+
     });
 
-    it('should work if no scope was requested', function(done) {
-      mockAssertion().reply(200, VERIFY_GOOD);
-      Server.api.post({
-        url: '/authorization',
-        payload: authParams({
-          scope: undefined
-        })
-      }).then(function(res) {
-        assert.equal(res.statusCode, 200);
-        return Server.api.post({
-          url: '/token',
-          payload: {
-            client_id: clientId,
-            client_secret: secret,
-            code: url.parse(res.result.redirect, true).query.code
-          }
+    describe('grant_type=refresh_token', function() {
+
+      describe('?refresh_token', function() {
+
+        it('should be required', function() {
+          return Server.api.post({
+            url: '/token',
+            payload: {
+              client_id: clientId,
+              client_secret: secret,
+              grant_type: 'refresh_token'
+            }
+          }).then(function(res) {
+            assertRequestParam(res.result, 'refresh_token');
+          });
         });
-      }).then(function(res) {
-        assert.equal(res.statusCode, 200);
-        assert.equal(res.result.token_type, 'bearer');
-        assert(res.result.access_token);
-        assert.equal(res.result.access_token.length,
-          config.get('unique.token') * 2);
-        assert.equal(res.result.scope, '');
-      }).done(done, done);
+
+        it('should be an existing token', function() {
+          return Server.api.post({
+            url: '/token',
+            payload: {
+              client_id: clientId,
+              client_secret: secret,
+              grant_type: 'refresh_token',
+              refresh_token: unique.token().toString('hex')
+            }
+          }).then(function(res) {
+            assert.equal(res.statusCode, 400);
+            assert.equal(res.result.errno, 108);
+          });
+        });
+
+        it('should be owned by the client_id', function() {
+          var id2;
+          var secret2 = unique.secret();
+          var client2 = {
+            name: 'client2',
+            hashedSecret: encrypt.hash(secret2),
+            redirectUri: 'https://example.domain',
+            imageUri: 'https://example.foo.domain/logo.png',
+            whitelisted: true
+          };
+          return db.registerClient(client2).then(function(c) {
+            id2 = c.id.toString('hex');
+            return newToken({ access_type: 'offline' }); //for main client
+          }).then(function(res) {
+            assert.equal(res.statusCode, 200);
+            var refresh = res.result.refresh_token;
+            assert(refresh);
+            return Server.api.post({
+              url: '/token',
+              payload: {
+                client_id: id2, // client2 stole it somehow
+                client_secret: secret2,
+                grant_type: 'refresh_token',
+                refresh_token: refresh
+              }
+            });
+          }).then(function(res) {
+            assert.equal(res.statusCode, 400);
+            assert.equal(res.result.errno, 109);
+          });
+        });
+
+        it('should not create a new refresh token', function() {
+          return newToken({ access_type: 'offline' }).then(function(res) {
+            assert.equal(res.statusCode, 200);
+            return Server.api.post({
+              url: '/token',
+              payload: {
+                client_id: clientId,
+                client_secret: secret,
+                grant_type: 'refresh_token',
+                refresh_token: res.result.refresh_token
+              }
+            });
+          }).then(function(res) {
+            assert.equal(res.statusCode, 200);
+            assert.equal(res.result.refresh_token, undefined);
+          });
+        });
+
+      });
+
+      describe('?scope', function() {
+
+        it('should be able to reduce scopes', function() {
+          return newToken({
+            access_type: 'offline',
+            scope: 'foo bar:baz'
+          }).then(function(res) {
+            assert.equal(res.statusCode, 200);
+            assert.equal(res.result.scope, 'foo bar:baz');
+            return Server.api.post({
+              url: '/token',
+              payload: {
+                client_id: clientId,
+                client_secret: secret,
+                grant_type: 'refresh_token',
+                refresh_token: res.result.refresh_token,
+                scope: 'foo'
+              }
+            });
+          }).then(function(res) {
+            assert.equal(res.statusCode, 200);
+            assert.equal(res.result.scope, 'foo');
+          });
+        });
+
+        it('should not expand scopes', function() {
+          return newToken({
+            access_type: 'offline',
+            scope: 'foo bar:baz'
+          }).then(function(res) {
+            assert.equal(res.statusCode, 200);
+            assert.equal(res.result.scope, 'foo bar:baz');
+            return Server.api.post({
+              url: '/token',
+              payload: {
+                client_id: clientId,
+                client_secret: secret,
+                grant_type: 'refresh_token',
+                refresh_token: res.result.refresh_token,
+                scope: 'foo quux'
+              }
+            });
+          }).then(function(res) {
+            assert.equal(res.statusCode, 400);
+            assert.equal(res.result.errno, 114);
+          });
+        });
+
+      });
+
+      describe('?ttl', function() {
+
+        it('should reduce the expires_in of the access_token', function() {
+          return newToken({ access_type: 'offline' }).then(function(res) {
+            assert.equal(res.statusCode, 200);
+            return Server.api.post({
+              url: '/token',
+              payload: {
+                client_id: clientId,
+                client_secret: secret,
+                grant_type: 'refresh_token',
+                refresh_token: res.result.refresh_token,
+                ttl: 60
+              }
+            });
+          }).then(function(res) {
+            assert.equal(res.statusCode, 200);
+            assert(res.result.expires_in <= 60);
+          });
+        });
+
+        it('should not exceed the maximum', function() {
+          return newToken({ access_type: 'offline' }).then(function(res) {
+            assert.equal(res.statusCode, 200);
+            return Server.api.post({
+              url: '/token',
+              payload: {
+                client_id: clientId,
+                client_secret: secret,
+                grant_type: 'refresh_token',
+                refresh_token: res.result.refresh_token,
+                ttl: MAX_TTL_S * 100
+              }
+            });
+          }).then(function(res) {
+            assertRequestParam(res.result, 'ttl');
+          });
+        });
+
+      });
+
     });
 
   });
@@ -804,14 +1028,14 @@ describe('/v1', function() {
     var badTok;
 
     before(function() {
-      return db.generateToken({
+      return db.generateAccessToken({
         clientId: buf(clientId),
         userId: buf(USERID),
         email: VEMAIL,
         scope: [auth.SCOPE_CLIENT_MANAGEMENT]
       }).then(function(token) {
         tok = token.token.toString('hex');
-        return db.generateToken({
+        return db.generateAccessToken({
           clientId: buf(clientId),
           userId: unique(16),
           email: 'user@not.allow.ed',
@@ -1384,6 +1608,25 @@ describe('/v1', function() {
       });
     });
 
+    it('should reject expired tokens', function() {
+      this.slow(2200);
+      return newToken({
+        ttl: 1
+      }).delay(1000).then(function(res) {
+        assert.equal(res.statusCode, 200);
+        assert.equal(res.result.expires_in, 1);
+        return Server.api.post({
+          url: '/verify',
+          payload: {
+            token: res.result.access_token
+          }
+        });
+      }).then(function(res) {
+        assert.equal(res.statusCode, 400);
+        assert.equal(res.result.errno, 115);
+      });
+    });
+
     describe('response', function() {
       it('should return the correct response', function(done) {
         newToken({
@@ -1424,7 +1667,7 @@ describe('/v1', function() {
   });
 
   describe('/destroy', function() {
-    it('should destroy tokens', function() {
+    it('should destroy access tokens', function() {
       var token;
       return newToken().then(function(res) {
         token = res.result.access_token;
@@ -1437,7 +1680,26 @@ describe('/v1', function() {
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
         assert.deepEqual(res.result, {});
-        return db.getToken(encrypt.hash(token)).then(function(tok) {
+        return db.getAccessToken(encrypt.hash(token)).then(function(tok) {
+          assert.equal(tok, undefined);
+        });
+      });
+    });
+
+    it('should destroy refresh tokens', function() {
+      var token;
+      return newToken({ access_type: 'offline' }).then(function(res) {
+        token = res.result.refresh_token;
+        return Server.api.post({
+          url: '/destroy',
+          payload: {
+            refresh_token: token
+          }
+        });
+      }).then(function(res) {
+        assert.equal(res.statusCode, 200);
+        assert.deepEqual(res.result, {});
+        return db.getRefreshToken(encrypt.hash(token)).then(function(tok) {
           assert.equal(tok, undefined);
         });
       });
