@@ -89,6 +89,14 @@ function (chai, sinon, Storage, NullStorage, WindowMock) {
         assert.isTrue(windowMock.localStorage.setItem.called);
       });
 
+      it('creates sessionStorage instance', function () {
+        sinon.stub(windowMock.sessionStorage, 'setItem', function () { });
+
+        var store = Storage.factory('sessionStorage', windowMock);
+        store.set('foo', 'bar');
+        assert.isTrue(windowMock.sessionStorage.setItem.called);
+      });
+
       it('creates null storage instance otherwise', function () {
         var store = Storage.factory(null, windowMock);
         store.set('foo', 'bar');
@@ -114,5 +122,3 @@ function (chai, sinon, Storage, NullStorage, WindowMock) {
     });
   });
 });
-
-

@@ -9,6 +9,7 @@ define([
   'jquery',
   'backbone',
   'lib/promise',
+  'lib/storage',
   'views/sign_in',
   'views/force_auth',
   'views/sign_up',
@@ -42,6 +43,7 @@ function (
   $,
   Backbone,
   p,
+  Storage,
   SignInView,
   ForceAuthView,
   SignUpView,
@@ -207,6 +209,24 @@ function (
       return new View(viewOptions);
     },
 
+    _checkForRefresh: function () {
+      var storage = Storage.factory('sessionStorage', this._window);
+      var refreshMetrics = storage.get('last_page_loaded');
+      var currentView = this.currentView;
+      var screenName = currentView.getScreenName();
+
+      if (refreshMetrics && refreshMetrics.view === screenName && this.metrics) {
+        currentView.logScreenEvent('refresh');
+      }
+
+      refreshMetrics = {
+        view: screenName,
+        timestamp: Date.now()
+      };
+
+      storage.set('last_page_loaded', refreshMetrics);
+    },
+
     showView: function (viewToShow) {
       if (this.currentView) {
         this.currentView.destroy();
@@ -253,6 +273,7 @@ function (
             self.canGoBack = self.window.sessionStorage.canGoBack = true;
             self._firstViewHasLoaded = true;
           }
+          self._checkForRefresh();
         })
         .fail(function (err) {
           // The router's navigate method doesn't set ephemeral messages,

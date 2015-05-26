@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// This module abstracts interaction with storage backends such as localStorage.
+// This module abstracts interaction with storage backends such as localStorage
+// or sessionStorage.
 
 'use strict';
 
@@ -44,17 +45,32 @@ define([
     return this._backend instanceof NullStorage;
   };
 
-  Storage.isLocalStorageEnabled = function (win) {
-    var testData = 'local-storage-test';
+  Storage._isStorageEnabled = function (type, win) {
+    var testData = 'storage-test';
     win = win || window;
+    var storage;
 
     try {
-      win.localStorage.setItem(testData, testData);
-      win.localStorage.removeItem(testData);
+      if (type === 'sessionStorage') {
+        storage = win.sessionStorage;
+      } else {
+        storage = win.localStorage;
+      }
+
+      storage.setItem(testData, testData);
+      storage.removeItem(testData);
       return true;
     } catch(e) {
       return false;
     }
+  };
+
+  Storage.isLocalStorageEnabled = function (win) {
+    return this._isStorageEnabled('localStorage', win);
+  };
+
+  Storage.isSessionStorageEnabled = function (win) {
+    return this._isStorageEnabled('sessionStorage', win);
   };
 
   Storage.factory = function (type, win) {
@@ -63,6 +79,8 @@ define([
 
     if (type === 'localStorage' && this.isLocalStorageEnabled(win)) {
       storage = new Storage(win.localStorage);
+    } else if (type === 'sessionStorage' && this.isSessionStorageEnabled(win)) {
+      storage = new Storage(win.sessionStorage);
     } else {
       storage = new Storage(new NullStorage());
     }
