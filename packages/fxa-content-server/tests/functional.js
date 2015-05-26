@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  './functional/refreshes_metrics',
   './functional/sign_in',
   './functional/sign_in_cached',
   './functional/sync_sign_in',
