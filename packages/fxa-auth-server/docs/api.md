@@ -816,7 +816,7 @@ Failing requests may be due to the following errors:
 
 :lock: HAWK-authenticated with the sessionToken.
 
-Sign a BrowserID public key. The server is given a public key, and returns a signed certificate using the same JWT-like mechanism as a BrowserID primary IdP would (see the [browserid-certifier project](https://github.com/mozilla/browserid-certifier for details)). The signed certificate includes a `principal.email` property to indicate the Firefox Account identifier (a uuid at the account server's primary domain) and is stamped with an expiry time based on the "duration" parameter.
+Sign a BrowserID public key. The server is given a public key, and returns a signed certificate using the same JWT-like mechanism as a BrowserID primary IdP would (see the [browserid-certifier project](https://github.com/mozilla/browserid-certifier) for details). The signed certificate includes a `principal.email` property to indicate the Firefox Account identifier (a uuid at the account server's primary domain) and is stamped with an expiry time based on the "duration" parameter.
 
 This request will fail unless the account's email address has been verified.
 
