@@ -227,6 +227,9 @@ module.exports = function (
           .then(db.emailRecord.bind(db, email))
           .then(
             function (emailRecord) {
+              if(email !== emailRecord.email) {
+                throw error.incorrectPassword(emailRecord.email, email)
+              }
               if (emailRecord.lockedAt) {
                 throw error.lockedAccount()
               }
