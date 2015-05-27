@@ -9,7 +9,6 @@
 var url = require('url');
 var mozlog = require('mozlog');
 var request = require('request');
-var p = require('bluebird');
 
 var config = require('../lib/configuration');
 mozlog.config(config.get('logging'));
@@ -18,39 +17,88 @@ var logger = require('mozlog')('server.basketproxy');
 
 var express = require('express');
 var bodyParser = require('body-parser');
+var cors = require('cors');
 
+var CORS_ORIGIN = config.get('public_url');
 var API_KEY = config.get('basket.api_key');
 var API_URL = config.get('basket.api_url');
 var VERIFY_URL = config.get('oauth_url') + '/v1/verify';
 
+
+// Error codes are defined in:
+// https://github.com/mozilla/basket-client/blob/master/basket/errors.py
+var BASKET_ERRORS = {
+  NETWORK_FAILURE: 1,
+  INVALID_EMAIL: 2,
+  UNKNOWN_EMAIL: 3,
+  UNKNOWN_TOKEN: 4,
+  USAGE_ERROR: 5,
+  EMAIL_PROVIDER_AUTH_FAILURE: 6,
+  AUTH_ERROR: 7,
+  SSL_REQUIRED: 8,
+  INVALID_NEWSLETTER: 9,
+  INVALID_LANGUAGE: 10,
+  EMAIL_NOT_CHANGED: 11,
+  CHANGE_REQUEST_NOT_FOUND: 12,
+
+  // If you get this, report it as a bug so we can add a more specific
+  // error code.
+  UNKNOWN_ERROR: 99
+};
+
+function errorResponse(desc, code) {
+  // Format from
+  // https://basket.readthedocs.org/en/latest/newsletter_api.html
+  return {
+    status: 'error',
+    desc: String(desc),
+    code: code || BASKET_ERRORS.UNKNOWN_ERROR
+  };
+}
+
 // Verify an OAuth token and return the associated credentials
-function verifyOAuthToken(token) {
-  var defer = p.defer();
+function verifyOAuthToken() {
+  return function (req, res, next) {
+    var authHeader = req.headers && req.headers.authorization;
 
-  request.post({
-    url: VERIFY_URL,
-    json: {
-      token: token
+    if (! authHeader) {
+      logger.error('auth.missing-authorization-header');
+      res.status(400).json(errorResponse('missing authorization header', BASKET_ERRORS.USAGE_ERROR));
+      return;
     }
-  }, function(err, res, body) {
-    // TODO use an actual error format
-    if (err) {
-      logger.error('auth', err);
-      return defer.reject(err);
-    }
-    if (body.code >= 400) {
-      logger.debug('unauthorized', body);
-      return defer.reject(new Error(body.message));
-    }
-    logger.debug('auth.valid', body);
-    return defer.resolve(body);
-  });
 
-  return defer.promise;
+    var token = authHeader.replace(/^Bearer /, '');
+
+    request.post({
+      url: VERIFY_URL,
+      json: {
+        token: token
+      }
+    }, function (err, _, body) {
+      // TODO use an actual error format
+      if (err) {
+        logger.error('auth.error', err);
+        res.status(400).json(errorResponse(err, BASKET_ERRORS.UNKNOWN_ERROR));
+        return;
+      }
+
+      if (body.code >= 400) {
+        logger.error('auth.unauthorized', body);
+        res.status(body.code).json(errorResponse('unauthorized', BASKET_ERRORS.AUTH_ERROR));
+        return;
+      }
+
+      logger.debug('auth.valid', body);
+
+      res.locals.creds = body;
+
+      next();
+    });
+  };
 }
 
 // Send a request to the Basket backend
-function basketRequest(path, method, params) {
+function basketRequest(path, method, params, done) {
   var req = request({
     url: API_URL + path,
     strictSSL: true,
@@ -59,7 +107,7 @@ function basketRequest(path, method, params) {
       'X-API-Key': API_KEY
     },
     form: params
-  });
+  }, done);
 
   return req;
 }
@@ -68,34 +116,53 @@ function initApp() {
   var app = express();
   app.use(bodyParser.json());
 
-  app.get('/lookup-user', function (req, res) {
+  app.use(cors({
+    origin: CORS_ORIGIN
+  }));
 
-    verifyOAuthToken(req.headers.authorization)
-      .then(function (creds) {
-        basketRequest('/lookup-user?email=' + creds.email, 'get').pipe(res);
-      });
+  app.use(verifyOAuthToken());
+
+  app.get('/lookup-user', function (req, res) {
+    var params = req.body;
+    var creds = res.locals.creds;
+
+    basketRequest('/lookup-user/?email=' + creds.email, 'get', params).pipe(res);
   });
 
   app.post('/subscribe', function (req, res) {
+    var params = req.body;
+    params.email = res.locals.creds.email;
 
-    verifyOAuthToken(req.headers.authorization)
-      .then(function (creds) {
-        basketRequest('/subscribe', 'post', {
-          email: creds.email,
-          newsletter_id: req.params.newsletter_id,
-          lang: req.params.lang
-        }).pipe(res);
-    });
+    basketRequest('/subscribe/', 'post', params).pipe(res);
   });
 
   app.post('/unsubscribe', function (req, res) {
+    var creds = res.locals.creds;
+    basketRequest('/lookup-user/?email=' + creds.email, 'get', {}, function (lookupError, httpRequest, body) {
+      if (lookupError) {
+        logger.error('lookup-user.error', lookupError);
+        res.status(400).json(errorResponse(lookupError, BASKET_ERRORS.UNKNOWN_ERROR));
+        return;
+      }
 
-    verifyOAuthToken(req.headers.authorization)
-      .then(function (creds) {
-        basketRequest('/unsubscribe', 'post', {
-          email: creds.email,
-          newsletter_id: req.params.newsletter_id
-        }).pipe(res);
+      var responseData;
+      try {
+        responseData = JSON.parse(body);
+      } catch (parseError) {
+        logger.error('lookup-user.cannot-parse-response', parseError);
+        res.status(400).json(errorResponse(parseError, BASKET_ERRORS.UNKNOWN_ERROR));
+        return;
+      }
+      if (responseData.status !== 'ok') {
+        logger.error('lookup-user status not ok: ' + responseData.status);
+        res.status(httpRequest.statusCode).json(responseData);
+        return;
+      }
+
+      var params = req.body;
+      params.email = creds.email;
+
+      basketRequest('/unsubscribe/' + responseData.token + '/', 'post', params).pipe(res);
     });
   });
 
@@ -103,7 +170,7 @@ function initApp() {
 }
 
 function listen(app) {
-  var serverUrl = url.parse(config.get('marketing_email_url'));
+  var serverUrl = url.parse(config.get('marketing_email.api_url'));
   app.listen(serverUrl.port, serverUrl.hostname);
   logger.info('FxA Basket Proxy listening on port', serverUrl.port);
   return true;
