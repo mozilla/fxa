@@ -236,6 +236,7 @@ define([
         .end()
 
         // success is seeing the error text
+        .then(FunctionalHelpers.visibleByQSA('.error'))
         .findByCssSelector('.error')
           .getVisibleText()
           .then(function (val) {
