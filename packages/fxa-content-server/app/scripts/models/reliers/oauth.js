@@ -65,13 +65,16 @@ define([
           if (! self.has('service')) {
             self.set('service', self.get('clientId'));
           }
-          if (self.has('scope')) {
-            // Turn the scope string into an array of permissions
-            self.set('permissions',
-              stripNonWhiteListedPermissions(scopeStrToArray(self.get('scope'))));
-          }
-
-          return self._setupOAuthRPInfo();
+          return self._setupOAuthRPInfo()
+            .then(function () {
+              var permissions;
+              // Sanitize permissions for untrusted reliers
+              if (! self.isTrusted() && self.has('scope')) {
+                permissions = stripNonWhiteListedPermissions(scopeStrToArray(self.get('scope')));
+                self.set('scope', permissions.join(' '));
+                self.set('permissions', permissions);
+              }
+            });
         });
     },
 

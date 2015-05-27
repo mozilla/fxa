@@ -204,16 +204,39 @@ define([
           });
       });
 
-      it('only populates whitelisted permissions from scope', function () {
+      it('sanitizes the scope of untrusted reliers', function () {
         windowMock.location.search = TestHelpers.toSearchString({
           //jshint camelcase: false
           client_id: CLIENT_ID,
           scope: SCOPE_WITH_EXTRAS
         });
 
+        sinon.stub(relier, 'isTrusted', function () {
+          return false;
+        });
+
         return relier.fetch()
           .then(function () {
+            assert.equal(relier.get('scope'), SCOPE);
             assert.deepEqual(relier.get('permissions'), PERMISSIONS);
+          });
+      });
+
+      it('does not sanitize the scope of trusted reliers', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          //jshint camelcase: false
+          client_id: CLIENT_ID,
+          scope: SCOPE_WITH_EXTRAS
+        });
+
+        sinon.stub(relier, 'isTrusted', function () {
+          return true;
+        });
+
+        return relier.fetch()
+          .then(function () {
+            assert.equal(relier.get('scope'), SCOPE_WITH_EXTRAS);
+            assert.isFalse(relier.has('permissions'), 'permissions not set for trusted reliers');
           });
       });
 
