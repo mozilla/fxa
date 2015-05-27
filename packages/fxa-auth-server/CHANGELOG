@@ -1,3 +1,13 @@
+train-38
+  * feat(server): Log the `service` and `reason` parameters for `/account/login` - #875, #941
+  * switch promises to bluebird from p-promise - #936
+  * make more configuration settable in environment; use module envc in dev - #931
+  * fix(env): updated development TRUSTED_JKUS to bring back support for the untrusted relier
+  * fix(test): use a version of node-ass with updated node-temp - #939
+  * fix(env): set RESEND_BLACKOUT_PERIOD to zero in development - #942
+  * Always check email case on login - #800
+  * chore(config): Renaming toolbusy config option to maxEventLoopDelay - #741
+
 train-37
   * fix(logging): configuration changes per @whd - #930
   * switch from bunyan to mozlog - #929
