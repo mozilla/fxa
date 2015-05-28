@@ -1,3 +1,13 @@
+<a name="0.38.1"></a>
+### 0.38.1 (2015-05-28)
+
+
+#### Bug Fixes
+
+* **oauth:** sanitize scope of untrusted reliers ([619b3429](https://github.com/mozilla/fxa-content-server/commit/619b3429a46fdcb1e19ddc53c3ec7cb4a4e3c90b))
+* **tests:** wait for ".error" to be visible; fixes #2475 ([436a47c7](https://github.com/mozilla/fxa-content-server/commit/436a47c718400f7d96b89f4832f9e3c936d38a43))
+
+
 <a name="0.38.0"></a>
 ## 0.38.0 (2015-05-26)
 
