@@ -36,7 +36,8 @@ Available options:
 *******
 
 ### Functional Tests
-> The following requires [Java](https://www.java.com/en/download/) and tests the local servers only.
+
+**The following requires [Java](https://www.java.com/en/download/) and tests the local servers only.**
 
 **Use `npm test` - all functional tests**
 
@@ -101,6 +102,20 @@ sudo apt-get install -y nodejs
 All OS: 
 ```
 sudo npm install -g npm@2.4
+```
+
+#### Installing Java
+
+##### OS X: 
+
+Download from [java.com/en/download/](https://www.java.com/en/download/)
+
+##### Ubuntu: 
+
+```
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt-get update
+sudo apt-get install oracle-java7-installer
 ```
 
 *******
