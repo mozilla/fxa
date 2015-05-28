@@ -94,7 +94,11 @@ module.exports = function (log, isA, error, signer, db, domain) {
             lastAuthAt: sessionToken.lastAuthAt(),
             verifiedEmail: sessionToken.email
           }
-        ).then(reply, reply)
+        ).then(function(certResult) {
+          var uid = sessionToken.uid.toString('hex')
+          log.activityEvent('account.signed', uid, request)
+          reply(certResult)
+        }, reply)
       }
     }
   ]
