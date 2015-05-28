@@ -293,12 +293,12 @@ var conf = module.exports = convict({
     api_url: {
       doc: 'Url for the Basket API server',
       format: String,
-      default: ''
+      default: 'http://127.0.0.1:10140'
     },
     api_key: {
       doc: 'Basket API key',
       format: String,
-      default: ''
+      default: 'test key please change'
     }
   }
 });
