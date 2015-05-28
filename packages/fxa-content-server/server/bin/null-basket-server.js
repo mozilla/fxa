@@ -68,18 +68,28 @@ function newToken() {
   return tokens++;
 }
 
+function extend(target, source) {
+  for (var key in source) {
+    target[key] = source[key];
+  }
+
+  return target;
+}
+
 function initApp() {
   var app = express();
-  app.use(bodyParser.json());
-  app.use(verifyApiKey());
+  app.use(bodyParser.urlencoded());
+  app.use(verifyApiKey);
 
   app.get('/lookup-user/', function (req, res) {
-    var email = req.params.email;
+    var email = req.query.email;
     if (! userData[email]) {
-      res.status(400).json(errorResponse('unknown-email', BASKET_ERRORS.UNKNOWN_EMAIL));
+      res.status(404).json(errorResponse('unknown-email', BASKET_ERRORS.UNKNOWN_EMAIL));
       return;
     }
-    res.json(userData[email]);
+
+    var dataToSend = extend({ status: 'ok' }, userData[email]);
+    res.status(200).json(dataToSend);
   });
 
   app.post('/subscribe/', function (req, res) {
@@ -92,23 +102,23 @@ function initApp() {
       userData[email] = {
         email: email,
         token: token,
-        newsletters: params.newsletters.slipt(',')
+        newsletters: params.newsletters.split(',')
       };
       tokenToUser[token] = userData[email];
     } else {
       user.newsletters = user.newsletters.concat(params.newsletters.split(','));
     }
-    res.send(200, { status: 'ok' });
+    res.status(200).json({ status: 'ok' });
   });
 
   app.post('/unsubscribe/:token/', function (req, res) {
-    var user = tokenToUser[req.body.token];
-    var newsletters = req.params.newsletters.slit(',');
+    var user = tokenToUser[req.params.token];
+    var newsletters = req.body.newsletters.split(',');
     if (user) {
       user.newsletters = user.newsletters.filter(function (id) {
         return newsletters.indexOf(id) === -1;
       });
-      res.send(200, { status: 'ok' });
+      res.status(200).json({ status: 'ok' });
     } else {
       res.status(400).json(errorResponse('unknown-token', BASKET_ERRORS.UNKNOWN_TOKEN));
       return;
