@@ -71,6 +71,7 @@ function verifyOAuthToken() {
     }
 
     if (! authHeader.match(/^Bearer /)) {
+      logger.error('auth.invalid-authorization-header');
       res.status(400).json(errorResponse('invalid authorization header', BASKET_ERRORS.USAGE_ERROR));
       return;
     }
