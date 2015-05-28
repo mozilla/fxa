@@ -23,6 +23,30 @@ define([
 
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
 
+  function testOptedIn(context) {
+    return function () {
+      return context.get('remote')
+        .findByCssSelector('#marketing-email-optin')
+          .getVisibleText()
+          .then(function (buttonText) {
+            assert.equal(buttonText, 'Unsubscribe');
+          })
+        .end();
+    };
+  }
+
+  function testNotOptedIn(context) {
+    return function () {
+      return context.get('remote')
+        .findByCssSelector('#marketing-email-optin')
+          .getVisibleText()
+          .then(function (buttonText) {
+            assert.equal(buttonText, 'Subscribe');
+          })
+        .end();
+    };
+  }
+
   registerSuite({
     name: 'communication preferences',
 
@@ -66,12 +90,7 @@ define([
         .findByCssSelector('#fxa-communication-preferences-header')
         .end()
 
-        .findByCssSelector('#marketing-email-optin')
-          .isSelected()
-          .then(function (isSelected) {
-            assert.isTrue(isSelected);
-          })
-        .end()
+        .then(testOptedIn(self))
 
         // user signed up to basket, so has a preferences URL
         .findByCssSelector('#preferences-url')
@@ -83,11 +102,9 @@ define([
         .findByCssSelector('#fxa-communication-preferences-header')
         .end()
 
+        .then(testOptedIn(self))
+
         .findByCssSelector('#marketing-email-optin')
-          .isSelected()
-          .then(function (isSelected) {
-            assert.isTrue(isSelected);
-          })
           .click()
         .end()
 
@@ -100,12 +117,7 @@ define([
         .findByCssSelector('#fxa-communication-preferences-header')
         .end()
 
-        .findByCssSelector('#marketing-email-optin')
-          .isSelected()
-          .then(function (isSelected) {
-            assert.isFalse(isSelected);
-          })
-        .end();
+        .then(testNotOptedIn(self));
     },
 
     'do not opt in to the marketing email': function () {
@@ -135,12 +147,7 @@ define([
         .findByCssSelector('#fxa-communication-preferences-header')
         .end()
 
-        .findByCssSelector('#marketing-email-optin')
-          .isSelected()
-          .then(function (isSelected) {
-            assert.isFalse(isSelected);
-          })
-        .end()
+        .then(testNotOptedIn(self))
 
         // user does not have a basket account, so the
         // manage link does not exist.
@@ -148,10 +155,6 @@ define([
         .then(Test.noElementByCssSelector(self, '#preferences-url'))
 
         .findByCssSelector('#marketing-email-optin')
-          .isSelected()
-          .then(function (isSelected) {
-            assert.isFalse(isSelected);
-          })
           .click()
         .end()
 
@@ -168,12 +171,7 @@ define([
         .findByCssSelector('#fxa-communication-preferences-header')
         .end()
 
-        .findByCssSelector('#marketing-email-optin')
-          .isSelected()
-          .then(function (isSelected) {
-            assert.isTrue(isSelected);
-          })
-        .end()
+        .then(testOptedIn(self))
 
         // user should not have a preferences URL
         .findByCssSelector('#preferences-url')

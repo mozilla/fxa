@@ -89,19 +89,19 @@ function (chai, $, sinon, View, User, Account, MarketingEmailPrefs, Relier,
     });
 
     describe('render', function () {
-      it('renders with the preferencesUrl', function () {
+      it('renders opted-in user corrected', function () {
         sinon.stub(emailPrefsModel, 'isOptedIn', function () {
           return true;
         });
 
         return render()
           .then(function () {
-            assert.isTrue(view.$('#marketing-email-optin').is(':checked'));
+            assert.include(view.$('#marketing-email-optin').text(), 'Unsubscribe');
             assert.equal(view.$('#preferences-url').attr('href'), preferencesUrl);
           });
       });
 
-      it('does not check the opt-in checkbox if not opted in', function () {
+      it('renders not opted-in user correctly', function () {
         sinon.stub(emailPrefsModel, 'isOptedIn', function () {
           return false;
         });
@@ -109,7 +109,7 @@ function (chai, $, sinon, View, User, Account, MarketingEmailPrefs, Relier,
         return render()
           .then(function () {
             assert.isTrue(emailPrefsModel.isOptedIn.calledWith(NEWSLETTER_ID));
-            assert.isFalse(view.$('#marketing-email-optin').is(':checked'));
+            assert.include(view.$('#marketing-email-optin').text(), 'Subscribe');
           });
       });
 
@@ -142,17 +142,16 @@ function (chai, $, sinon, View, User, Account, MarketingEmailPrefs, Relier,
       });
     });
 
-    describe('update preferences', function () {
-      it('toggle', function () {
+    describe('submit', function () {
+      it('calls setOptInStatus', function () {
         sinon.stub(view, 'setOptInStatus', function () {
-          // do nothing
+          return p();
         });
 
-        view.$('#marketing-email-optin').click();
-        assert.isTrue(view.setOptInStatus.calledWith(NEWSLETTER_ID, false));
-
-        view.$('#marketing-email-optin').click();
-        assert.isTrue(view.setOptInStatus.calledWith(NEWSLETTER_ID, true));
+        return view.submit()
+          .then(function () {
+            assert.isTrue(view.setOptInStatus.calledWith(NEWSLETTER_ID, false));
+          });
       });
     });
 

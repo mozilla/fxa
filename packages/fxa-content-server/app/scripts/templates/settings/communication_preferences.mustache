@@ -7,20 +7,33 @@
     <div class="success"></div>
     <div class="error"></div>
 
-    <div class="input-row marketing-email-optin-row">
-        <label><input id="marketing-email-optin" type="checkbox" class="marketing-email-optin" {{#isOptedIn}}checked="checked"{{/isOptedIn}}> {{#t}}Get the latest news about Mozilla and Firefox.{{/t}}</label>
-    </div>
+    <form novalidate>
+      <div>
+        {{#t}}Get the latest news about Mozilla and Firefox.{{/t}}
+      </div>
+
+      <div class="button-row">
+        <button type="submit" id="marketing-email-optin" class="marketing-email-optin">
+          {{#isOptedIn}}
+            {{#t}}Unsubscribe{{/t}}
+          {{/isOptedIn}}
+          {{^isOptedIn}}
+            {{#t}}Subscribe{{/t}}
+          {{/isOptedIn}}
+        </button>
+      </div>
+    </form>
 
 
-    <ul class="links">
+    <div class="links email-optin-links">
       {{#preferencesUrl}}
-      <li>
-        <a id="preferences-url" href="{{preferencesUrl}}">{{#t}}Email preferences{{/t}}</a>
-      </li>
+      <a href="#" id="back" class="left back">{{#t}}Back{{/t}}</a>
+      <a href="{{preferencesUrl}}" id="preferences-url" class="right">{{#t}}Email preferences{{/t}}</a>
       {{/preferencesUrl}}
-      <li>
+
+      {{^preferencesUrl}}
         <a href="#" id="back" class="back">{{#t}}Back{{/t}}</a>
-      </li>
-    </ul>
+      {{/preferencesUrl}}
+    </div>
   </section>
 </div>

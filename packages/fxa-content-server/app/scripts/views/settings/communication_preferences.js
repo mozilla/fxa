@@ -10,27 +10,22 @@ define([
   'lib/constants',
   'lib/marketing-email-errors',
   'views/base',
+  'views/form',
   'views/mixins/back-mixin',
   'views/mixins/settings-mixin',
   'views/mixins/checkbox-mixin',
   'views/mixins/loading-mixin',
   'stache!templates/settings/communication_preferences'
 ],
-function (Cocktail, Xss, Constants, MarketingEmailErrors, BaseView,
+function (Cocktail, Xss, Constants, MarketingEmailErrors, BaseView, FormView,
   BackMixin, SettingsMixin, CheckboxMixin, LoadingMixin, Template) {
+
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
   var t = BaseView.t;
 
-  var View = BaseView.extend({
-    // email preferences can take a long time to load. Load the "loading"
-    // template while waiting for the prefs to load, then render the
-    // real template.
+  var View = FormView.extend({
     template: Template,
     className: 'communication-preferences',
-
-    events: {
-      'change .marketing-email-optin': 'onOptInChange'
-    },
 
     getMarketingEmailPrefs: function () {
       var self = this;
@@ -76,10 +71,10 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, BaseView,
       };
     },
 
-    onOptInChange: function () {
+    submit: function () {
       var self = this;
-      var isChecked = self.$('#marketing-email-optin').is(':checked');
-      return self.setOptInStatus(NEWSLETTER_ID, isChecked);
+      var emailPrefs = self.getMarketingEmailPrefs();
+      return self.setOptInStatus(NEWSLETTER_ID, !emailPrefs.isOptedIn(NEWSLETTER_ID));
     },
 
     setOptInStatus: function (newsletterId, isOptedIn) {
@@ -96,6 +91,12 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, BaseView,
                                   t('Subscribed successfully') :
                                   t('Unsubscribed successfully');
           self.displaySuccess(successMessage);
+
+          var buttonText = isOptedIn ?
+                                  t('Unsubscribe') :
+                                  t('Subscribe');
+
+          self.$('button[type=submit]').text(buttonText);
         }, function (err) {
           self.displayError(err);
         });

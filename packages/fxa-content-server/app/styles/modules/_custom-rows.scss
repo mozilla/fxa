@@ -25,6 +25,16 @@
     width: 50%;
   }
 
+  &.email-optin-links {
+    .left {
+      text-align: left;
+    }
+
+    .right {
+      text-align: right;
+    }
+  }
+
   a {
     text-decoration: none;
 
