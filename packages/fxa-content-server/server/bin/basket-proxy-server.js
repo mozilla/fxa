@@ -100,7 +100,7 @@ function verifyOAuthToken() {
         return;
       }
 
-      if (body.scopes.indexOf('basket:write') === -1) {
+      if (body.scope.indexOf('basket:write') === -1) {
         logger.error('auth.invalid-scope', body);
         res.status(400).json(errorResponse('invalid scope', BASKET_ERRORS.AUTH_ERROR));
         return;
