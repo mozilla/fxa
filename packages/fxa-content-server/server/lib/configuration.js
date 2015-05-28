@@ -293,6 +293,11 @@ var conf = module.exports = convict({
     }
   },
   basket: {
+    proxy_url: {
+      doc: 'Url for the Basket proxy server',
+      format: String,
+      default: 'http://127.0.0.1:1114'
+    },
     api_url: {
       doc: 'Url for the Basket API server',
       format: String,

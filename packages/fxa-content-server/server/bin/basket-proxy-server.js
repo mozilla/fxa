@@ -15,6 +15,9 @@ mozlog.config(config.get('logging'));
 
 var logger = require('mozlog')('server.basketproxy');
 
+// Side effect - Adds default_fxa and dev_fxa to express.logger formats
+var routeLogging = require('../lib/logging/route_logging');
+
 var express = require('express');
 var bodyParser = require('body-parser');
 var cors = require('cors');
@@ -67,6 +70,10 @@ function verifyOAuthToken() {
       return;
     }
 
+    if (! authHeader.match(/^Bearer /)) {
+      res.status(400).json(errorResponse('invalid authorization header', BASKET_ERRORS.USAGE_ERROR));
+      return;
+    }
     var token = authHeader.replace(/^Bearer /, '');
 
     request.post({
@@ -75,7 +82,6 @@ function verifyOAuthToken() {
         token: token
       }
     }, function (err, _, body) {
-      // TODO use an actual error format
       if (err) {
         logger.error('auth.error', err);
         res.status(400).json(errorResponse(err, BASKET_ERRORS.UNKNOWN_ERROR));
@@ -85,6 +91,18 @@ function verifyOAuthToken() {
       if (body.code >= 400) {
         logger.error('auth.unauthorized', body);
         res.status(body.code).json(errorResponse('unauthorized', BASKET_ERRORS.AUTH_ERROR));
+        return;
+      }
+
+      if (! body.email) {
+        logger.error('auth.missing-email', body);
+        res.status(400).json(errorResponse('missing email', BASKET_ERRORS.AUTH_ERROR));
+        return;
+      }
+
+      if (body.scopes.indexOf('basket:write') === -1) {
+        logger.error('auth.invalid-scope', body);
+        res.status(400).json(errorResponse('invalid scope', BASKET_ERRORS.AUTH_ERROR));
         return;
       }
 
@@ -114,6 +132,7 @@ function basketRequest(path, method, params, done) {
 
 function initApp() {
   var app = express();
+  app.use(routeLogging());
   app.use(bodyParser.json());
 
   app.use(cors({
@@ -126,14 +145,22 @@ function initApp() {
     var params = req.body;
     var creds = res.locals.creds;
 
-    basketRequest('/lookup-user/?email=' + creds.email, 'get', params).pipe(res);
+    basketRequest('/lookup-user/?email=' + creds.email, 'get', params)
+      .on('error', function (error) {
+        logger.error('lookup-user.error', error);
+      })
+      .pipe(res);
   });
 
   app.post('/subscribe', function (req, res) {
     var params = req.body;
     params.email = res.locals.creds.email;
 
-    basketRequest('/subscribe/', 'post', params).pipe(res);
+    basketRequest('/subscribe/', 'post', params)
+      .on('error', function (error) {
+        logger.error('subscribe.error', error);
+      })
+      .pipe(res);
   });
 
   app.post('/unsubscribe', function (req, res) {
@@ -162,7 +189,11 @@ function initApp() {
       var params = req.body;
       params.email = creds.email;
 
-      basketRequest('/unsubscribe/' + responseData.token + '/', 'post', params).pipe(res);
+      basketRequest('/unsubscribe/' + responseData.token + '/', 'post', params)
+        .on('error', function (error) {
+          logger.error('unsubscribe.error', error);
+        })
+        .pipe(res);
     });
   });
 
@@ -170,7 +201,7 @@ function initApp() {
 }
 
 function listen(app) {
-  var serverUrl = url.parse(config.get('marketing_email.api_url'));
+  var serverUrl = url.parse(config.get('basket.proxy_url'));
   app.listen(serverUrl.port, serverUrl.hostname);
   logger.info('FxA Basket Proxy listening on port', serverUrl.port);
   return true;
