@@ -90,13 +90,9 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, BaseView, FormView,
           var successMessage = isOptedIn ?
                                   t('Subscribed successfully') :
                                   t('Unsubscribed successfully');
-          self.displaySuccess(successMessage);
 
-          var buttonText = isOptedIn ?
-                                  t('Unsubscribe') :
-                                  t('Subscribe');
-
-          self.$('button[type=submit]').text(buttonText);
+          self.ephemeralMessages.set('success', successMessage);
+          return self.render();
         }, function (err) {
           self.displayError(err);
         });
