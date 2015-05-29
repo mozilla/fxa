@@ -36,7 +36,7 @@ TestServer.start(config)
   )
 
   test(
-    'the email is returned in the error on Incorrect email case errors',
+    'the email is returned in the error on Incorrect email case errors with correct password',
     function (t) {
       var signupEmail = server.uniqueEmail()
       var loginEmail = signupEmail.toUpperCase()
