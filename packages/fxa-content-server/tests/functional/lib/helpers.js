@@ -9,9 +9,10 @@ define([
   'tests/lib/helpers',
   'intern/dojo/node!leadfoot/helpers/pollUntil',
   'intern/node_modules/dojo/node!url',
-  'intern/node_modules/dojo/node!querystring'
+  'intern/node_modules/dojo/node!querystring',
+  'intern/chai!assert'
 ], function (intern, require, restmail, TestHelpers, pollUntil,
-        Url, Querystring) {
+        Url, Querystring, assert) {
   'use strict';
 
   var config = intern.config;
@@ -584,7 +585,52 @@ define([
       .end();
   }
 
+  function fetchAllMetrics(context) {
+    return context.get('remote')
+      .execute(function () {
+        var key = '__fxa_storage.metrics_all';
+        var item;
+        try {
+          item = JSON.parse(localStorage.getItem(key));
+        } catch (e) {
+        }
+        return item;
+      });
+  }
+
+  function testIsEventLogged(context, eventName) {
+    return testAreEventsLogged(context, [eventName]);
+  }
+
+  function testAreEventsLogged(context, eventsNames) {
+    return fetchAllMetrics(context)
+      .then(function (allMetrics) {
+        return context.get('remote')
+          .execute(function (eventsNames, allMetrics) {
+
+            var toFindAll = eventsNames.slice().reverse();
+            var toFind = toFindAll.pop();
+
+            allMetrics.forEach(function (metrics) {
+              metrics.events.forEach(function (event) {
+                if (event.type === toFind) {
+                  toFind = toFindAll.pop();
+                }
+              });
+            });
+
+            return toFindAll.length === 0;
+          }, [ eventsNames, allMetrics ]);
+      })
+      .then(function (found) {
+        assert.ok(found, 'found the events we were looking for');
+      });
+  }
+
   return {
+    fetchAllMetrics: fetchAllMetrics,
+    testIsEventLogged: testIsEventLogged,
+    testAreEventsLogged: testAreEventsLogged,
     imageLoadedByQSA: imageLoadedByQSA,
     clearBrowserState: clearBrowserState,
     clearSessionStorage: clearSessionStorage,

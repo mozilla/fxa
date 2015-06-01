@@ -26,6 +26,7 @@ define([
   'models/reliers/relier',
   'models/user',
   'lib/metrics',
+  'lib/storage-metrics',
   '../../mocks/window',
   '../../mocks/router',
   '../../mocks/history',
@@ -34,7 +35,8 @@ define([
 function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
       AuthErrors, BaseBroker, FxDesktopBroker, IframeBroker, RedirectBroker,
       WebChannelBroker, BaseRelier, FxDesktopRelier, OAuthRelier, Relier,
-      User, Metrics, WindowMock, RouterMock, HistoryMock, TestHelpers) {
+      User, Metrics, StorageMetrics, WindowMock, RouterMock, HistoryMock,
+      TestHelpers) {
   /*global describe, beforeEach, it*/
   var assert = chai.assert;
   var FIRSTRUN_ORIGIN = 'https://firstrun.firefox.com';
@@ -143,6 +145,17 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
           .then(function () {
             var expectedMessage = message.substring(0, Constants.ONERROR_MESSAGE_LIMIT);
             assert.isTrue(TestHelpers.isEventLogged(appStart._metrics, 'error.onwindow.' + expectedMessage));
+          });
+      });
+
+      it('uses storage metrics when an automated browser is detected', function () {
+        windowMock.location.search = Url.objToSearchString({
+          automatedBrowser: true
+        });
+
+        return appStart.startApp()
+          .then(function () {
+            assert.instanceOf(appStart._metrics, StorageMetrics);
           });
       });
     });
