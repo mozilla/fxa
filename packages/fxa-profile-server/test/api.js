@@ -7,6 +7,7 @@
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const checksum = require('checksum');
 
 const assert = require('insist');
 const P = require('../lib/promise');
@@ -146,6 +147,28 @@ describe('/profile', function() {
       }
     }).then(function(res) {
       assert.equal(res.statusCode, 403);
+    });
+  });
+
+  it('should include an etag in the http response', function() {
+    mock.token({
+      user: user,
+      email: 'user@example.domain',
+      scope: ['profile']
+    });
+    return db.setDisplayName(user, 'Spock')
+    .then(function() {
+      return Server.api.get({
+        url: '/profile',
+        headers: {
+          authorization: 'Bearer ' + tok
+        }
+      }).then(function(res) {
+        assert.equal(res.statusCode, 200);
+        var etag = res.headers.etag.substr(1, 40);
+        var expectedEtag = checksum(JSON.stringify(res.result));
+        assert.equal(etag, expectedEtag);
+      });
     });
   });
 });
