@@ -215,6 +215,26 @@ module.exports = function (
 
   // READ
 
+  DB.prototype.checkPassword = function (uid, verifyHash) {
+    verifyHash = Buffer(verifyHash).toString('hex')
+    log.trace({ op: 'DB.checkPassword', uid: uid, verifyHash: verifyHash })
+    return this.pool.post('/account/' + uid.toString('hex') + '/checkPassword',
+      {
+        'verifyHash': verifyHash
+      })
+      .then(
+        function () {
+          return true
+        },
+        function (err) {
+          if (err.statusCode === 404) {
+            return false
+          }
+          throw err
+        }
+      )
+  }
+
   DB.prototype.accountExists = function (email) {
     log.trace({ op: 'DB.accountExists', email: email })
     return this.pool.head('/emailRecord/' + Buffer(email, 'utf8').toString('hex'))
