@@ -35,7 +35,13 @@ module.exports = {
   handler: function avatar(req, reply) {
     db.getSelectedAvatar(req.auth.credentials.user)
       .then(avatarOrEmpty)
-      .done(reply, reply);
+      .done(function (result) {
+        var rep = reply(result);
+        if (result.id) {
+          rep = rep.etag(result.id);
+        }
+        return rep;
+      }, reply);
   }
 };
 
