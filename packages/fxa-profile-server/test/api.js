@@ -253,6 +253,26 @@ describe('/avatar', function() {
         assert.equal(res.result.id, id2);
       });
     });
+    it('should include an etag in the http response', function() {
+      mock.token({
+        user: user,
+        email: 'user@example.domain',
+        scope: ['profile:avatar']
+      });
+      return Server.api.get({
+        url: '/avatar',
+        headers: {
+          authorization: 'Bearer ' + tok
+        }
+      }).then(function(res) {
+        assert.equal(res.statusCode, 200);
+        assert.equal(res.result.avatar, GRAVATAR);
+        assert.equal(res.result.id, id2);
+
+        var etag = res.headers.etag.substr(1, 32);
+        assert.equal(etag, id2);
+      });
+    });
   });
 
   describe('POST', function() {
