@@ -62,7 +62,7 @@ module.exports = {
       // Accept both for now for API b/w compat.
       trusted: !!(typeof payload.trusted !== 'undefined' ?
                     payload.trusted :
-                    payload.whitelist)
+                    payload.whitelisted)
     };
     var developerEmail = req.auth.credentials.email;
     var developerId = null;
