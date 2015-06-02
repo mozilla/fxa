@@ -451,7 +451,7 @@ A valid request will return JSON with these properties:
 
 - `user`: The uid of the respective user.
 - `client_id`: The client_id of the respective client.
-- `scopes`: An array of scopes allowed for this token.
+- `scope`: An array of scopes allowed for this token.
 - `email`: The email of the respective user.
 
 **Example:**
@@ -460,7 +460,7 @@ A valid request will return JSON with these properties:
 {
   "user": "5901bd09376fadaa076afacef5251b6a",
   "client_id": "45defeda038a1c92",
-  "scopes": ["profile:email", "profile:avatar"],
+  "scope": ["profile:email", "profile:avatar"],
   "email": "foo@example.com"
 }
 ```
