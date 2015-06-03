@@ -345,18 +345,18 @@ module.exports = function (log, error) {
   }
 
   // Select : accounts
-  // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, verifyHash, authSalt, verifierSetAt, lockedAt
+  // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, authSalt, verifierSetAt, lockedAt
   // Where  : accounts.normalizedEmail = LOWER($1)
-  var EMAIL_RECORD = 'CALL emailRecord_2(?)'
+  var EMAIL_RECORD = 'CALL emailRecord_3(?)'
 
   MySql.prototype.emailRecord = function (emailBuffer) {
     return this.readFirstResult(EMAIL_RECORD, [emailBuffer.toString('utf8')])
   }
 
   // Select : accounts
-  // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, verifyHash, authSalt, verifierSetAt, createdAt, locale, lockedAt
+  // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, authSalt, verifierSetAt, createdAt, locale, lockedAt
   // Where  : accounts.uid = LOWER($1)
-  var ACCOUNT = 'CALL account_2(?)'
+  var ACCOUNT = 'CALL account_3(?)'
 
   MySql.prototype.account = function (uid) {
     return this.readFirstResult(ACCOUNT, [uid])
