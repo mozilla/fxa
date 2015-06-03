@@ -21,5 +21,4 @@ before_install:
 script:
   - npm i
   - sleep 30
-  # content
   - ./test/curl.sh
