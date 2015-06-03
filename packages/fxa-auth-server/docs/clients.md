@@ -20,24 +20,10 @@ If you want to pre-approve your own web applications and prevent users in your a
 
 ### Creating the client id and secret keys
 
-You can use the utility in `scripts/generate-client.js` to create new
-ids and secrets.
+Use the [fxa-oauth-client][] CLI tool for registering new clients with
+your server.
 
-```sh
-./scripts/generate-client.js config/prod.json
-```
-
-The utility will ask for various inputs related to the client, and then
-generate an id and secret and store them in the config file for you.
-
-Then you can just start the OAuth server. The entry will be inserted automatically in your configured backend (i.e. database).
-
-```sh
-CONFIG_FILES=config/prod.json NODE_ENV=prod grunt server
-```
-
-Last step is to give informations about your OAuth resource server to your clients.
-
+[fxa-oauth-client]: https://github.com/mozilla/fxa-oauth-client
 
 ### OAuth resource server (a.k.a. `fxa-oauth-server`)
 
