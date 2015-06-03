@@ -5,25 +5,22 @@
 
 Static server that hosts Firefox Account sign up, sign in, email verification, etc. flows.
 
-## Prerequisites
 
+Follow the instructions on:
+	[fxa-local-dev](https://github.com/mozilla/fxa-local-dev)
+	
+The above link helps to install the following pre-requisites, and set up a development environment.
+
+## Prerequisites
 * node 0.10.x
 * npm
-* Grunt (`npm install -g grunt-cli`)
+* Grunt
 * libgmp
-  * On Linux, Install libgmp and libgmp-dev packages: `sudo apt-get install libgmp3-dev`
-  * On Mac OS X: `brew install gmp`
-* [fxa-auth-server](https://github.com/mozilla/fxa-auth-server) running on 127.0.0.1:9000.
+* [fxa-local-dev](https://github.com/mozilla/fxa-local-dev) - Please note that this is the preferred way of contributing to Firefox Accounts.
 
 ## Development Setup
 
-```sh
-cp server/config/local.json-dist server/config/local.json
-npm install
-npm start
-```
-
-It will listen on <http://127.0.0.1:3030> by default.
+Make sure that fxa-local-dev servers are running. The fxa-content-server will listen on <http://127.0.0.1:3030> by default.
 
 Note: If you have issues with `npm install` please update to npm 2.0+ using `npm install -g npm@2` 
 ([Issue #1594](https://github.com/mozilla/fxa-content-server/issues/1594))
@@ -55,17 +52,11 @@ To stop the container, first try CTRL+C. If that does not work, run `docker ps |
 ### Setup
 
 * Run Selenium Server
-* Run the Firefox Content Server locally: `npm start`
-* Run an instance of the [fxa-auth-server](https://github.com/mozilla/fxa-auth-server) at 127.0.0.1:9000.
 
 e.g. in shell form:
 
 ```sh
-java -jar selenium-server-standalone-2.43.1.jar &
-cd fxa-auth-server
-npm start &
-cd ../fxa-content-server
-npm start &
+java -jar selenium-server-standalone-2.45.0.jar 
 ```
 
 To run tests locally with Selenium:
