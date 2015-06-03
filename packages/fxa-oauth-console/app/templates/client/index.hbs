@@ -10,6 +10,11 @@
       <th>Redirect URI</th>
       <td>{{redirect_uri}}</td>
     </tr>
+    <tr>
+      <td colspan="2">
+          <p>This client is {{#if model.trusted}}<strong>a trusted</strong>{{else}}<strong>not a trusted</strong>{{/if}} Firefox Accounts client.</p>
+      </td>
+    </tr>
   </tbody>
 </table>
 
