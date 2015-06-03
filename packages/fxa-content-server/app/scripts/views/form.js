@@ -61,7 +61,8 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
     events: {
       'submit form': BaseView.preventDefaultThen('validateAndSubmit'),
       'keyup form': ifFormValuesChanged('enableSubmitIfValid'),
-      'change form': ifFormValuesChanged('enableSubmitIfValid')
+      'change form': ifFormValuesChanged('enableSubmitIfValid'),
+      'input form': ifFormValuesChanged('enableSubmitIfValid')
     },
 
     afterRender: function () {
