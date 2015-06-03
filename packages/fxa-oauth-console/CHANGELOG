@@ -1,3 +1,7 @@
+v0.3.8:
+  date: 2015-06-03
+  changes:
+    - update default image uri to blank
 v0.3.7:
   date: 2015-05-07
   changes:
