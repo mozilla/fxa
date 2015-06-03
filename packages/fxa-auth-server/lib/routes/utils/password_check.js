@@ -17,12 +17,7 @@ module.exports = function (log, config, Password, customs, db) {
       emailRecord.authSalt,
       emailRecord.verifierVersion
     )
-    return password.verifyHash()
-      .then(
-        function (verifyHash) {
-          return db.checkPassword(emailRecord.uid, verifyHash)
-        }
-      )
+    return password.matches(emailRecord.verifyHash)
       .then(
         function (match) {
           if (match) {
