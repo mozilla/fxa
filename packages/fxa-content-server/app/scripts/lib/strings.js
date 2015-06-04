@@ -16,7 +16,7 @@ function () {
 
   // Was needed by #2346, but later deemed unnecessary. We'll keep it around since
   // it's already being translated and may be used in the future.
-  t('By proceeding, I agree to the <a id="service-tos" href="%(termsUri)s">Terms of Service</a> and' +
+  t('By proceeding, you agree to the <a id="service-tos" href="%(termsUri)s">Terms of Service</a> and' +
     '<a id="service-pp" href="%(privacyUri)s">Privacy Notice</a> of %(serviceName)s (%(serviceUri)s).');
 
   // Will be needed for #2444, the email opt-in
