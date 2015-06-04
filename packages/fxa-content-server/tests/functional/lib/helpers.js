@@ -411,7 +411,7 @@ define([
       .end();
   }
 
-  function fillOutSignUp(context, email, password, year, customizeSync) {
+  function fillOutSignUp(context, email, password, year, customizeSync, optInToMarketingEmail) {
     return context.get('remote')
       .getCurrentUrl()
       .then(function (currentUrl) {
@@ -448,6 +448,15 @@ define([
         if (customizeSync) {
           return context.get('remote')
             .findByCssSelector('form input.customize-sync')
+              .click()
+            .end();
+        }
+      })
+
+      .then(function () {
+        if (optInToMarketingEmail) {
+          return context.get('remote')
+            .findByCssSelector('form input.marketing-email-optin')
               .click()
             .end();
         }

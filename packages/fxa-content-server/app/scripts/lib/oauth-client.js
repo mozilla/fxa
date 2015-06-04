@@ -11,29 +11,31 @@ define([
 function (xhr, OAuthErrors) {
   var GET_CLIENT = '/v1/client/';
   var GET_CODE = '/v1/authorization';
+  var DESTROY_TOKEN = '/v1/destroy';
 
   function OAuthClient(options) {
-    if (options && options.oAuthUrl) {
-      this._oAuthUrl = options.oAuthUrl;
-    }
+    options = options || {};
+
+    this._oAuthUrl = options.oAuthUrl;
+    this._xhr = options.xhr || xhr;
   }
 
   OAuthClient.prototype = {
+    _request: function (method, endpoint, params) {
+      return this._xhr[method](this._oAuthUrl + endpoint, params || null)
+        .fail(function (xhr) {
+          var err = OAuthErrors.normalizeXHRError(xhr);
+          throw err;
+        });
+    },
+
     // params = { assertion, client_id, redirect_uri, scope, state }
     getCode: function getCode(params) {
-      return xhr.post(this._oAuthUrl + GET_CODE, params)
-          .then(null, function (xhr) {
-            var err = OAuthErrors.normalizeXHRError(xhr);
-            throw err;
-          });
+      return this._request('post', GET_CODE, params);
     },
 
     getClientInfo: function getClientInfo(id) {
-      return xhr.get(this._oAuthUrl + GET_CLIENT + id)
-          .then(null, function (xhr) {
-            var err = OAuthErrors.normalizeXHRError(xhr);
-            throw err;
-          });
+      return this._request('get', GET_CLIENT + id);
     },
 
     // params = { assertion, client_id, scope }
@@ -43,6 +45,14 @@ function (xhr, OAuthErrors) {
       // Use the special 'token' response type
       params.response_type = 'token';
       return this.getCode(params);
+    },
+
+    destroyToken: function destroyToken(token) {
+      var params = {
+        token: token
+      };
+
+      return this._request('post', DESTROY_TOKEN, params);
     }
   };
 

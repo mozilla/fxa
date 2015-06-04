@@ -8,7 +8,7 @@ define([
 ], function (nodeXMLHttpRequest, Deferred) {
   'use strict';
 
-  function request(uri, method, jsonPayload) {
+  function request(uri, method, jsonPayload, headers) {
     var dfd = new Deferred();
     var xhr = new nodeXMLHttpRequest.XMLHttpRequest();
     var payload;
@@ -29,6 +29,10 @@ define([
       }
       dfd.resolve(result);
     };
+
+    for (var headerName in headers) {
+      xhr.setRequestHeader(headerName, headers[headerName]);
+    }
 
     if (jsonPayload) {
       payload = JSON.stringify(jsonPayload);

@@ -11,11 +11,15 @@ define([
   'stache!templates/complete_sign_up',
   'lib/auth-errors',
   'views/mixins/resend-mixin',
+  'views/mixins/loading-mixin',
   'models/verification/sign-up',
-  'lib/url'
+  'lib/url',
+  'lib/constants'
 ],
 function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
-  AuthErrors, ResendMixin, VerificationInfo, Url) {
+  AuthErrors, ResendMixin, LoadingMixin, VerificationInfo, Url, Constants) {
+
+  var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
   var t = BaseView.t;
 
   var CompleteSignUpView = FormView.extend({
@@ -60,6 +64,17 @@ function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
       return self.fxaClient.verifyCode(uid, code)
           .then(function () {
             self.logScreenEvent('verification.success');
+            var account = self.getAccount();
+
+            if (account.get('needsOptedInToMarketingEmail')) {
+              account.unset('needsOptedInToMarketingEmail');
+              self.user.setAccount(account);
+
+              var emailPrefs = account.getMarketingEmailPrefs();
+              return emailPrefs.optIn(NEWSLETTER_ID);
+            }
+          })
+          .then(function () {
             return self.broker.afterCompleteSignUp(self.getAccount());
           })
           .then(function (result) {
@@ -160,7 +175,8 @@ function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
 
   Cocktail.mixin(
     CompleteSignUpView,
-    ResendMixin
+    ResendMixin,
+    LoadingMixin
   );
 
   return CompleteSignUpView;

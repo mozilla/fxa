@@ -8,10 +8,9 @@
 
 define([
   'lib/xhr',
-  'underscore',
   'lib/profile-errors'
 ],
-function (xhr, _, ProfileErrors) {
+function (xhr, ProfileErrors) {
 
   function ProfileClient(options) {
     options = options || {};
@@ -19,31 +18,15 @@ function (xhr, _, ProfileErrors) {
   }
 
   ProfileClient.prototype._request = function (path, type, accessToken, data, headers) {
-    var url = this.profileUrl;
-
     var request = {
-      url: url + path,
-      // make sure to set the dataType for Firefox <21. See issue #1930
-      dataType: 'json',
+      url: this.profileUrl + path,
       type: type,
-      headers: {
-        Authorization: 'Bearer ' + accessToken,
-        Accept: 'application/json'
-      }
+      accessToken: accessToken,
+      data: data,
+      headers: headers
     };
 
-    if (data) {
-      request.data = data;
-    }
-    if (headers) {
-      _.extend(request.headers, headers);
-    }
-
-    if (typeof Blob !== 'undefined' && data instanceof Blob) {
-      request.processData = false;
-    }
-
-    return xhr.ajax(request)
+    return xhr.oauthAjax(request)
       .then(function (result) {
         if (result.error) {
           throw ProfileErrors.toError(result);

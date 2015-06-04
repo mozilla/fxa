@@ -24,6 +24,11 @@
     <p class="signed-in-email-message">{{#t}}You are signed in as{{/t}}<br />{{email}}</p>
 
     <ul class="links">
+      {{#communicationPrefsVisible}}
+      <li>
+        <a id="communications" href="/settings/communication_preferences">{{#t}}Communication preferences{{/t}}</a>
+      </li>
+      {{/communicationPrefsVisible}}
       <li>
         <a id="change-password" href="/change_password">{{#t}}Change password{{/t}}</a>
       </li>

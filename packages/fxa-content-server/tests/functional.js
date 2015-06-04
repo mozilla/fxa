@@ -33,7 +33,8 @@ define([
   './functional/fonts',
   './functional/password_visibility',
   './functional/avatar',
-  './functional/alternative_styles'
+  './functional/alternative_styles',
+  './functional/email_opt_in'
 ], function () {
   'use strict';
 });

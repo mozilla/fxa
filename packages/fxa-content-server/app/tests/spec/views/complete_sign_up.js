@@ -101,7 +101,8 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
       account = user.initAccount({
         sessionToken: 'foo',
         email: 'a@a.com',
-        uid: validUid
+        uid: validUid,
+        fxaClient: fxaClient
       });
 
       windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
@@ -249,6 +250,31 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
             assert.isTrue(view.fxaClient.verifyCode.calledWith(validUid, validCode));
             assert.notEqual(routerMock.page, 'signup_complete');
             assert.isTrue(broker.afterCompleteSignUp.called);
+          });
+      });
+
+      it('opts the user in to email marketing if needed', function () {
+        account.set('needsOptedInToMarketingEmail', true);
+
+        var mockEmailPrefs = {
+          optIn: sinon.spy(function () {
+            return p();
+          })
+        };
+
+        sinon.stub(account, 'getMarketingEmailPrefs', function () {
+          return mockEmailPrefs;
+        });
+
+        sinon.stub(user, 'setAccount', function () {
+          // do nothing
+        });
+
+        return view.render()
+          .then(function () {
+            assert.isTrue(user.setAccount.calledWith(account));
+            assert.isTrue(account.getMarketingEmailPrefs.called);
+            assert.isTrue(mockEmailPrefs.optIn.called);
           });
       });
     });

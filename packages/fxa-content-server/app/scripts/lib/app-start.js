@@ -37,6 +37,7 @@ define([
   'lib/oauth-errors',
   'lib/auth-errors',
   'lib/profile-client',
+  'lib/marketing-email-client',
   'lib/channels/inter-tab',
   'lib/channels/iframe',
   'lib/channels/web',
@@ -78,6 +79,7 @@ function (
   OAuthErrors,
   AuthErrors,
   ProfileClient,
+  MarketingEmailClient,
   InterTabChannel,
   IframeChannel,
   WebChannel,
@@ -195,6 +197,8 @@ function (
                     .then(_.bind(this.initializeAssertionLibrary, this))
                     // profileClient depends on fxaClient and assertionLibrary
                     .then(_.bind(this.initializeProfileClient, this))
+                    // marketingEmailClient depends on config
+                    .then(_.bind(this.initializeMarketingEmailClient, this))
                     // user depends on the profileClient, oAuthClient, and assertionLibrary.
                     .then(_.bind(this.initializeUser, this))
                     // broker relies on the user, relier, fxaClient,
@@ -303,6 +307,13 @@ function (
     initializeProfileClient: function () {
       this._profileClient = new ProfileClient({
         profileUrl: this._config.profileUrl
+      });
+    },
+
+    initializeMarketingEmailClient: function () {
+      this._marketingEmailClient = new MarketingEmailClient({
+        baseUrl: this._config.marketingEmailServerUrl,
+        preferencesUrl: this._config.marketingEmailPreferencesUrl
       });
     },
 
@@ -420,6 +431,7 @@ function (
           profileClient: this._profileClient,
           oAuthClient: this._oAuthClient,
           fxaClient: this._fxaClient,
+          marketingEmailClient: this._marketingEmailClient,
           assertion: this._assertionLibrary,
           storage: this._getStorageInstance()
         });

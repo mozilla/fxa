@@ -25,6 +25,16 @@
     width: 50%;
   }
 
+  &.email-optin-links {
+    .left {
+      text-align: left;
+    }
+
+    .right {
+      text-align: right;
+    }
+  }
+
   a {
     text-decoration: none;
 
@@ -65,6 +75,11 @@ ul.links {
 .customize-sync-row {
   color: $input-placeholder-color;
   margin-bottom: 10px !important;
+}
+
+.marketing-email-optin-row {
+  color: $input-placeholder-color;
+  margin: 10px 0;
 }
 
 .cannot-create-account-content {

@@ -1,0 +1,39 @@
+<div id="main-content" class="card">
+  <header>
+    <h1 id="fxa-communication-preferences-header">{{#t}}Communication preferences{{/t}}</h1>
+  </header>
+
+  <section>
+    <div class="success"></div>
+    <div class="error"></div>
+
+    <form novalidate>
+      <div>
+        {{#t}}Get the latest news about Mozilla and Firefox.{{/t}}
+      </div>
+
+      <div class="button-row">
+        <button type="submit" id="marketing-email-optin" class="marketing-email-optin">
+          {{#isOptedIn}}
+            {{#t}}Unsubscribe{{/t}}
+          {{/isOptedIn}}
+          {{^isOptedIn}}
+            {{#t}}Subscribe{{/t}}
+          {{/isOptedIn}}
+        </button>
+      </div>
+    </form>
+
+
+    <div class="links email-optin-links">
+      {{#preferencesUrl}}
+      <a href="#" id="back" class="left back">{{#t}}Back{{/t}}</a>
+      <a href="{{preferencesUrl}}" id="preferences-url" class="right">{{#t}}Email preferences{{/t}}</a>
+      {{/preferencesUrl}}
+
+      {{^preferencesUrl}}
+        <a href="#" id="back" class="back">{{#t}}Back{{/t}}</a>
+      {{/preferencesUrl}}
+    </div>
+  </section>
+</div>

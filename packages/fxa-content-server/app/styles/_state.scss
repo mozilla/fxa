@@ -24,6 +24,11 @@
   &.visible {
     display: block;
   }
+
+  .loading & {
+    // there is no header on the loading screen. Push the text down slightly.
+    margin-top: 20px;
+  }
 }
 
 .success {

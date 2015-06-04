@@ -36,7 +36,8 @@ var cspMiddleware = helmet.csp({
     SELF,
     getOrigin(config.get('fxaccount_url')),
     config.get('oauth_url'),
-    config.get('profile_url')
+    config.get('profile_url'),
+    config.get('marketing_email.api_url')
   ],
 
   imgSrc: [
