@@ -25,7 +25,8 @@ module.exports = function (config, i18n) {
     require('./routes/get-ver.json'),
     require('./routes/get-config')(i18n),
     require('./routes/get-client.json')(i18n),
-    require('./routes/post-metrics')()
+    require('./routes/post-metrics')(),
+    require('./routes/get-metrics-errors')()
   ];
 
   if (config.get('api_proxy.enabled')) {

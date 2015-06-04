@@ -77,6 +77,18 @@ var conf = module.exports = convict({
     },
     sample_rate: 1
   },
+  sentry: {
+    endpoint: {
+      doc: 'Remote Sentry endpoint',
+      format: String,
+      default: undefined
+    },
+    api_key: {
+      doc: 'Sentry API key',
+      format: String,
+      default: undefined
+    }
+  },
   logging: {
     app: {
       default: 'fxa-content-server'

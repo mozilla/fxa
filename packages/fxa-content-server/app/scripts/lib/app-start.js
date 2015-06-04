@@ -21,12 +21,14 @@ define([
   'lib/promise',
   'uuid',
   'router',
+  'raven',
   'lib/translator',
   'lib/session',
   'lib/url',
   'lib/config-loader',
   'lib/screen-info',
   'lib/metrics',
+  'lib/sentry',
   'lib/storage-metrics',
   'lib/null-metrics',
   'lib/fxa-client',
@@ -65,12 +67,14 @@ function (
   p,
   uuid,
   Router,
+  Raven,
   Translator,
   Session,
   Url,
   ConfigLoader,
   ScreenInfo,
   Metrics,
+  SentryMetrics,
   StorageMetrics,
   NullMetrics,
   FxaClient,
@@ -105,6 +109,10 @@ function (
 ) {
   'use strict';
 
+  // delay before redirecting to the error page to
+  // ensure metrics are reported to the backend.
+  var ERROR_REDIRECT_TIMEOUT = 1000;
+
   function isMetricsCollectionEnabled (sampleRate) {
     return Math.random() <= sampleRate;
   }
@@ -131,19 +139,25 @@ function (
 
       // fetch both config and translations in parallel to speed up load.
       return p.all([
-        this.initializeAble(),
         this.initializeConfig(),
         this.initializeL10n(),
         this.initializeInterTabChannel()
       ])
       .then(_.bind(this.allResourcesReady, this))
-      .then(function () {
-        self._trackWindowOnError();
-      }, function (err) {
+      .fail(function (err) {
         if (console && console.error) {
           console.error('Critical error:');
           console.error(String(err));
         }
+
+        // if there is no error metrics set that means there was probably an error with app start
+        // therefore force error reporting to get error information
+        if (! self._sentryMetrics) {
+          self.enableSentryMetrics();
+        }
+
+        Raven.captureException(err);
+
         if (self._metrics) {
           self._metrics.logError(err);
         }
@@ -154,31 +168,19 @@ function (
         // persistent logs enabled. See #2183
         return p()
           .then(function () {
-            //Something terrible happened. Let's bail.
-            var redirectTo = self._getErrorPage(err);
-            self._window.location.href = redirectTo;
+            // give a bit of time to flush the error logs,
+            // otherwise Safari Mobile redirects too quickly.
+            self._window.setTimeout(function () {
+              //Something terrible happened. Let's bail.
+              var redirectTo = self._getErrorPage(err);
+              self._window.location.href = redirectTo;
+            }, ERROR_REDIRECT_TIMEOUT);
           });
       });
     },
 
     initializeInterTabChannel: function () {
       this._interTabChannel = new InterTabChannel();
-    },
-
-    _trackWindowOnError: function () {
-      var self = this;
-      // if startup is okay we want to log future window.onerror events
-      window.onerror = function (message /*, url, lineNumber*/) {
-        var errMsg = 'null';
-
-        if (message) {
-          errMsg = message.toString().substring(0, Constants.ONERROR_MESSAGE_LIMIT);
-        }
-
-        if (self._metrics) {
-          self._metrics.logEvent('error.onwindow.' +  errMsg);
-        }
-      };
     },
 
     initializeAble: function () {
@@ -188,6 +190,8 @@ function (
     initializeConfig: function () {
       return this._configLoader.fetch()
                     .then(_.bind(this.useConfig, this))
+                    .then(_.bind(this.initializeAble, this))
+                    .then(_.bind(this.initializeErrorMetrics, this))
                     .then(_.bind(this.initializeOAuthClient, this))
                     // both the metrics and router depend on the language
                     // fetched from config.
@@ -228,6 +232,24 @@ function (
     useConfig: function (config) {
       this._config = config;
       this._configLoader.useConfig(config);
+    },
+
+    initializeErrorMetrics: function () {
+      if (this._config && this._config.env && this._able) {
+        var abData = {
+          env: this._config.env,
+          uuid: this._uuid
+        };
+        var abChoose = this._able.choose('sentryEnabled', abData);
+
+        if (abChoose) {
+          this.enableSentryMetrics();
+        }
+      }
+    },
+
+    enableSentryMetrics: function () {
+      this._sentryMetrics = new SentryMetrics(this._window.location.host);
     },
 
     initializeL10n: function () {
