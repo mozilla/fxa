@@ -4,7 +4,7 @@
   "dependencies": {
     "ass": {
       "version": "1.0.0",
-      "from": "../../../../var/folders/rv/6mf4_t5x169fdxtrnd14y7500000gn/T/npm-35806-a6451113/git-cache-bb98fd0c0714/5be99ee7abc9fcf63f9ebcc37b151b9c822146d1",
+      "from": "../../../../var/folders/t6/2vcrxfcd0953m57lybpmh8xr0000gp/T/npm-61905-d54e37f1/git-cache-897d3d513be7/5be99ee7abc9fcf63f9ebcc37b151b9c822146d1",
       "resolved": "git://github.com/jrgm/ass.git#5be99ee7abc9fcf63f9ebcc37b151b9c822146d1",
       "dependencies": {
         "async": {
@@ -263,8 +263,8 @@
     },
     "fxa-auth-db-server": {
       "version": "0.36.0",
-      "from": "../../../../var/folders/rv/6mf4_t5x169fdxtrnd14y7500000gn/T/npm-35806-a6451113/git-cache-d982356977cb/38ff26c867e40caf1f10cd2c42b287148be149bc",
-      "resolved": "git://github.com/mozilla/fxa-auth-db-server.git#38ff26c867e40caf1f10cd2c42b287148be149bc",
+      "from": "../../../../var/folders/t6/2vcrxfcd0953m57lybpmh8xr0000gp/T/npm-61905-d54e37f1/git-cache-6ac2e697eddb/6caae44b355a6fa46bc6a4860090ba4dec45987b",
+      "resolved": "git://github.com/mozilla/fxa-auth-db-server.git#6caae44b355a6fa46bc6a4860090ba4dec45987b",
       "dependencies": {
         "restify": {
           "version": "2.8.2",
