@@ -1,0 +1,6 @@
+site_name: Firefox Accounts Documentation
+pages:
+- Home: 'index.md'
+- 'Local Development':
+    - 'Getting Started': 'local-development/getting-started.md'
+theme: readthedocs
