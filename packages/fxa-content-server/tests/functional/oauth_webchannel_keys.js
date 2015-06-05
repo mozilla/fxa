@@ -179,7 +179,7 @@ define([
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (verificationLink) {
-          return self.get('remote').get(require.toUrl(verificationLink))
+          return self.remote.get(require.toUrl(verificationLink))
             .execute(FunctionalHelpers.listenForWebChannelMessage);
         })
 
@@ -363,7 +363,7 @@ define([
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (verificationLink) {
-          return self.get('remote').get(require.toUrl(verificationLink))
+          return self.remote.get(require.toUrl(verificationLink))
             .execute(FunctionalHelpers.listenForWebChannelMessage);
         })
 
@@ -436,7 +436,7 @@ define([
 
       return client.signUp(email, PASSWORD, { preVerified: true })
         .then(function () {
-          return self.get('remote')
+          return self.remote
             .get(require.toUrl(SYNC_URL))
             .setFindTimeout(intern.config.pageLoadTimeout)
             .execute(listenForSyncCommands)

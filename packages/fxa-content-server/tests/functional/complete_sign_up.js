@@ -60,7 +60,7 @@ define([
       var uid = accountData.uid;
       var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
-      return this.get('remote')
+      return this.remote
         .setFindTimeout(intern.config.pageLoadTimeout)
         .get(require.toUrl(url))
 
@@ -78,7 +78,7 @@ define([
       var uid = accountData.uid;
       var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(url))
 
         // a successful user is immediately redirected to the
@@ -91,7 +91,7 @@ define([
       var uid = createRandomHexString(Constants.UID_LENGTH - 1);
       var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(url))
 
         // a successful user is immediately redirected to the
@@ -104,7 +104,7 @@ define([
       var uid = createRandomHexString(Constants.UID_LENGTH);
       var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(url))
 
         // a successful user is immediately redirected to the
@@ -116,7 +116,7 @@ define([
     'open valid email verification link': function () {
       var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(url))
 
         // a successful user is immediately redirected to the
@@ -154,7 +154,7 @@ define([
       var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
       var self = this;
-      return self.get('remote')
+      return self.remote
         .get(require.toUrl(url))
 
         .findById('fxa-verification-link-expired-header')
@@ -183,7 +183,7 @@ define([
       var self = this;
       var completeUrl;
 
-      return self.get('remote')
+      return self.remote
         .setFindTimeout(intern.config.pageLoadTimeout)
         // Sign up and obtain a verification link
         .then(function () {
@@ -207,7 +207,7 @@ define([
         .end()
 
         .then(function () {
-          return self.get('remote')
+          return self.remote
             .get(require.toUrl(completeUrl))
 
             .findById('fxa-verification-link-expired-header')

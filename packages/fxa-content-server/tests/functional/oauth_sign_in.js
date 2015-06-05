@@ -70,19 +70,19 @@ define([
     },
 
     'with missing client_id': function () {
-      return this.get('remote').get(require.toUrl(SIGNIN_ROOT + '?scope=profile'))
+      return this.remote.get(require.toUrl(SIGNIN_ROOT + '?scope=profile'))
         .findByCssSelector('#fxa-400-header')
         .end();
     },
 
     'with missing scope': function () {
-      return this.get('remote').get(require.toUrl(SIGNIN_ROOT + '?client_id=client_id'))
+      return this.remote.get(require.toUrl(SIGNIN_ROOT + '?client_id=client_id'))
         .findByCssSelector('#fxa-400-header')
         .end();
     },
 
     'with invalid client_id': function () {
-      return this.get('remote').get(require.toUrl(SIGNIN_ROOT + '?client_id=invalid_client_id&scope=profile'))
+      return this.remote.get(require.toUrl(SIGNIN_ROOT + '?client_id=invalid_client_id&scope=profile'))
         .findByCssSelector('#fxa-400-header')
         .end();
     },
@@ -184,7 +184,7 @@ define([
           return FunctionalHelpers.getVerificationLink(user, 1);
         })
         .then(function (verifyUrl) {
-          return self.get('remote')
+          return self.remote
             // user verifies in the same tab, so they are logged in to the RP.
             .get(require.toUrl(verifyUrl))
 
@@ -291,7 +291,7 @@ define([
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (verificationLink) {
-          return self.get('remote').get(require.toUrl(verificationLink));
+          return self.remote.get(require.toUrl(verificationLink));
         })
 
         .findByCssSelector('#fxa-account-unlock-complete-header')
@@ -328,7 +328,7 @@ define([
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (verificationLink) {
-          return self.get('remote').get(require.toUrl(verificationLink));
+          return self.remote.get(require.toUrl(verificationLink));
         })
 
         // new browser dead ends at the 'account verified' screen.
@@ -348,7 +348,7 @@ define([
     'oauth endpoint chooses the right auth flows': function () {
       var self = this;
 
-      return self.get('remote')
+      return self.remote
         .get(require.toUrl(OAUTH_APP))
         .setFindTimeout(intern.config.pageLoadTimeout)
 

@@ -50,7 +50,7 @@ define([
           return clearBrowserState(self);
         })
         .then(function () {
-          return self.get('remote')
+          return self.remote
             .get(require.toUrl(SIGNIN_URL))
             .setFindTimeout(intern.config.pageLoadTimeout)
 
@@ -77,7 +77,7 @@ define([
     'sign in, change the password': function () {
       var self = this;
 
-      return this.get('remote')
+      return this.remote
 
         .findByCssSelector('#change-password')
           .click()
@@ -98,7 +98,7 @@ define([
     'sign in, delete the account': function () {
       var self = this;
 
-      return this.get('remote')
+      return this.remote
 
         .findByCssSelector('#delete-account')
           .click()

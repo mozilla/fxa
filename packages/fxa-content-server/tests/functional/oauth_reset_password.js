@@ -181,7 +181,7 @@ define([
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (verificationLink) {
-          return self.get('remote').get(require.toUrl(verificationLink));
+          return self.remote.get(require.toUrl(verificationLink));
         })
 
         .then(function () {
@@ -265,7 +265,7 @@ define([
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (verificationLink) {
-          return self.get('remote').get(require.toUrl(verificationLink));
+          return self.remote.get(require.toUrl(verificationLink));
         })
         .end()
 

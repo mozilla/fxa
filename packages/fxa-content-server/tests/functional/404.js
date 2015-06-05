@@ -15,7 +15,7 @@ define([
 
     'visit an invalid page': function () {
 
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(url))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findById('fxa-404-home')

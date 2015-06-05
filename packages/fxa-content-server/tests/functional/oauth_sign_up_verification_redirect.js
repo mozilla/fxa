@@ -37,7 +37,7 @@ define([
         // upgrade the content server oauth to include 'verification_redirect'
         .getCurrentUrl()
         .then(function (url) {
-          return self.get('remote').get(require.toUrl(url + '&verification_redirect=always'));
+          return self.remote.get(require.toUrl(url + '&verification_redirect=always'));
         })
         .then(function () {
           return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
@@ -50,7 +50,7 @@ define([
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (verificationLink) {
-          return self.get('remote').get(require.toUrl(verificationLink));
+          return self.remote.get(require.toUrl(verificationLink));
         })
 
         // should redirect back to 123done
@@ -65,7 +65,7 @@ define([
         // upgrade the content server oauth to include 'verification_redirect'
         .getCurrentUrl()
         .then(function (url) {
-          return self.get('remote').get(require.toUrl(url + '&verification_redirect=always'));
+          return self.remote.get(require.toUrl(url + '&verification_redirect=always'));
         })
         .then(function () {
           return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
@@ -96,7 +96,7 @@ define([
         // upgrade the content server oauth to include 'verification_redirect'
         .getCurrentUrl()
         .then(function (url) {
-          return self.get('remote').get(require.toUrl(url + '&verification_redirect=always'));
+          return self.remote.get(require.toUrl(url + '&verification_redirect=always'));
         })
         .then(function () {
           return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
@@ -131,7 +131,7 @@ define([
         // upgrade the content server oauth to include 'verification_redirect'
         .getCurrentUrl()
         .then(function (url) {
-          return self.get('remote').get(require.toUrl(url + '&verification_redirect=always'));
+          return self.remote.get(require.toUrl(url + '&verification_redirect=always'));
         })
         .then(function () {
           return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
@@ -152,7 +152,7 @@ define([
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (verificationLink) {
-          return self.get('remote').get(require.toUrl(verificationLink));
+          return self.remote.get(require.toUrl(verificationLink));
         })
 
         // new browser provides a proceed link to the relier

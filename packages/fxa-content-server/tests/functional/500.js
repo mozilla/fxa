@@ -16,7 +16,7 @@ define([
     'visit an invalid page': function () {
       var expected = intern.config.fxaProduction ? 'fxa-404-home' : 'fxa-500-home';
 
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(url))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findById(expected)

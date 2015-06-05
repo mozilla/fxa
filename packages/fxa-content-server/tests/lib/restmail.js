@@ -5,8 +5,8 @@
 
 define([
   'tests/lib/request',
-  'intern/node_modules/dojo/Deferred'
-], function (request, Deferred) {
+  'intern/node_modules/dojo/Promise'
+], function (request, Promise) {
   function waitForEmail(uri, number) {
     if (!number) {
       number = 1;
@@ -18,7 +18,7 @@ define([
         if (result.length >= number) {
           return result;
         } else {
-          var dfd = new Deferred();
+          var dfd = new Promise.Deferred();
           setTimeout(function () {
             waitForEmail(uri, number)
               .then(dfd.resolve, dfd.reject);

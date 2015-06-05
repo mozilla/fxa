@@ -154,7 +154,7 @@ define([
           return FunctionalHelpers.getVerificationLink(user, 1);
         })
         .then(function (verifyUrl) {
-          return self.get('remote')
+          return self.remote
             // user verifies in the same tab, so they are logged in to the RP.
             .get(require.toUrl(verifyUrl))
 
@@ -225,7 +225,7 @@ define([
       var SIGNUP_URL = OAUTH_APP + 'api/preverified-signup?' +
                         'email=' + encodeURIComponent(email);
 
-      return self.get('remote')
+      return self.remote
         .get(require.toUrl(SIGNUP_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
 

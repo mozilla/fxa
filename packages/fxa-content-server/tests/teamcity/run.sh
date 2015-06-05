@@ -37,7 +37,7 @@ git show --summary
 npm config set cache ~/.fxacache
 export npm_config_cache=~/.fxacache
 export npm_config_tmp=~/fxatemp
-npm install intern-geezer@2.1.1 bower zaach/node-XMLHttpRequest.git#onerror \
+npm install theintern/intern#42aebd9beb942a11e2c6e6d7687c70a1c22b9bf7 bower zaach/node-XMLHttpRequest.git#onerror \
   firefox-profile@0.3.3 request@2.40.0 sync-exec@0.5.0 convict@0.8.0
 node_modules/.bin/bower install --config.interactive=false
 

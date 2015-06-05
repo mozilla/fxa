@@ -23,7 +23,7 @@ define([
     'refreshing the signup screen': function () {
       var self = this;
 
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(url))
         .setFindTimeout(intern.config.pageLoadTimeout)
 

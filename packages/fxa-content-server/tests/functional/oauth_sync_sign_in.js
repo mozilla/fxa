@@ -77,7 +77,7 @@ define([
       var self = this;
       return verifyUser(email, 0)
         .then(function () {
-          return self.get('remote')
+          return self.remote
 
             // Sign in to Sync with existing account
             .get(require.toUrl(PAGE_URL))

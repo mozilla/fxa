@@ -85,7 +85,7 @@
     "grunt-jsonlint": "1.0.4",
     "grunt-nsp-shrinkwrap": "0.0.3",
     "grunt-todo": "0.4.0",
-    "intern-geezer": "2.1.1",
+    "intern": "git://github.com/theintern/intern#42aebd9beb942a11e2c6e6d7687c70a1c22b9bf7",
     "jshint": "2.5.3",
     "jshint-stylish": "0.4.0",
     "sync-exec": "0.5.0",

@@ -16,7 +16,7 @@ define([
     name: 'back button after navigating to the root',
 
     'start at github, visit Fxa root, click `back` - should go back to example': function () {
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(FROM_URL))
         .get(require.toUrl(FXA_ROOT_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)

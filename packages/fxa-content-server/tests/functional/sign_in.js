@@ -181,7 +181,7 @@ define([
     var email = TestHelpers.createEmail();
     var password = '12345678';
 
-    return self.get('remote')
+    return self.remote
       .get(require.toUrl(PAGE_URL))
       .setFindTimeout(intern.config.pageLoadTimeout)
 

@@ -63,7 +63,7 @@ define([
   }
 
   function testIsBrowserNotifiedOfLogin(context, email, options) {
-    return context.get('remote')
+    return context.remote
       .findByCssSelector('#message-login')
         .getProperty('innerText')
         .then(function (innerText) {
@@ -82,7 +82,7 @@ define([
   }
 
   function testIsBrowserNotifiedOfMessage(context, message) {
-    return context.get('remote')
+    return context.remote
       .findByCssSelector('#message-' + message)
       .end();
   }

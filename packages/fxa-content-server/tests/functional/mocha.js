@@ -8,11 +8,10 @@ define([
   'intern!object',
   'intern/chai!assert',
   'intern/dojo/node!../../server/lib/configuration',
-  'intern/dojo/Deferred',
-  'intern/dojo/promise/all',
+  'intern/dojo/Promise',
   'require',
   'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!child_process'
-], function (intern, registerSuite, assert, config, Deferred, all, require, child_process) {
+], function (intern, registerSuite, assert, config, Promise, require, child_process) {
   var ERROR_COLOR = '\x1b[1;31m';       // red
   var DESCRIPTION_COLOR = '\x1b[1;36m'; // cyan
   var DEFAULT_COLOR = '\x1b[0;0m';      // off
@@ -41,7 +40,7 @@ define([
       // timeout after 300 seconds
       this.timeout = 300000;
 
-      return this.get('remote')
+      return this.remote
         .setFindTimeout(this.timeout)
         .get(require.toUrl(url))
         .refresh()
@@ -53,11 +52,11 @@ define([
         .getVisibleText()
         .then(function (text) {
           if (text !== '0') {
-            return self.get('remote')
+            return self.remote
               // print the errors to the console
               .findAllByCssSelector('.fail')
               .then(function (elements) {
-                return all(elements.map(function (element) {
+                return Promise.all(elements.map(function (element) {
                   return element.getVisibleText()
                     .then(function (errorText) {
                       var parts = errorText.split('‣');
@@ -95,11 +94,11 @@ define([
    * @returns {Deferred}
    */
   function sendCoverageToCoveralls(context) {
-    var dfd = new Deferred();
+    var dfd = new Promise.Deferred();
     var spawn = child_process.spawn;
 
     console.log('Sending code coverage to coveralls.io');
-    context.get('remote')
+    context.remote
       // get code coverage data
       .execute(function () {
         /* global window */
@@ -131,11 +130,11 @@ define([
    * @returns {Deferred}
    */
   function validateCoverageLocally(context) {
-    var dfd = new Deferred();
+    var dfd = new Promise.Deferred();
 
     console.log('Validating code coverage...');
     context
-      .get('remote')
+      .remote
       .findByCssSelector('.grand-total .rs')
       .getVisibleText()
       .then(function (text) {

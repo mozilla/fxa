@@ -5,7 +5,7 @@
 
 define([
   'tests/lib/request',
-  'intern/node_modules/dojo/Deferred',
+  'intern/node_modules/dojo/Promise',
   'intern/dojo/node!../../server/lib/configuration'
 ], function (request, Deferred, config) {
   var API_KEY = config.get('basket.api_key');
@@ -22,7 +22,7 @@ define([
         if (result.status === 'ok') {
           return result;
         } else {
-          var dfd = new Deferred();
+          var dfd = new Promise.Deferred();
           setTimeout(function () {
             waitUntilUserIsRegistered(email)
               .then(dfd.resolve, dfd.reject);

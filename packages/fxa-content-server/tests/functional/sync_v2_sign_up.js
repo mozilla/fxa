@@ -30,7 +30,7 @@ define([
   var listenForFxaCommands = FunctionalHelpers.listenForWebChannelMessage;
   var respondToWebChannel = function (context, expectedCommand, response) {
     return function () {
-      return context.get('remote')
+      return context.remote
         .execute(function (expectedCommand, response) {
           /* global addEventListener, removeEventListener, CustomEvent, dispatchEvent */
           addEventListener('WebChannelMessageToChrome', function listener(e) {
@@ -80,7 +80,7 @@ define([
           // signup page. If a fresh signup page is not forced, the
           // bounced_email tests try to sign up using the Sync broker,
           // resulting in a channel timeout.
-          self.get('remote')
+          self.remote
             .get(require.toUrl(SIGNIN_URL))
 
             .findByCssSelector('#fxa-signin-header')

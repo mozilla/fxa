@@ -65,7 +65,7 @@ define([
       var self = this;
 
       // verify account
-      return self.get('remote')
+      return self.remote
         .get(require.toUrl(PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .execute(listenForFxaCommands)
@@ -121,7 +121,7 @@ define([
     'password reset, verify same browser with original tab closed': function () {
       var self = this;
 
-      return self.get('remote')
+      return self.remote
         .get(require.toUrl(PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .execute(listenForFxaCommands)
@@ -160,7 +160,7 @@ define([
     'password reset, verify same browser by replacing the original tab': function () {
       var self = this;
 
-      return self.get('remote')
+      return self.remote
         .get(require.toUrl(PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .execute(listenForFxaCommands)
@@ -176,7 +176,7 @@ define([
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (verificationLink) {
-          return self.get('remote').get(require.toUrl(verificationLink));
+          return self.remote.get(require.toUrl(verificationLink));
         })
 
         .then(function () {
@@ -192,7 +192,7 @@ define([
       var self = this;
 
       // verify account
-      return self.get('remote')
+      return self.remote
         .get(require.toUrl(PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .execute(listenForFxaCommands)
@@ -242,7 +242,7 @@ define([
       var self = this;
 
       // verify account
-      return self.get('remote')
+      return self.remote
         .get(require.toUrl(PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .execute(listenForFxaCommands)
@@ -265,7 +265,7 @@ define([
           return FunctionalHelpers.getVerificationLink(user, 0);
         })
         .then(function (url) {
-          return self.get('remote').get(require.toUrl(url));
+          return self.remote.get(require.toUrl(url));
         })
         .end()
 

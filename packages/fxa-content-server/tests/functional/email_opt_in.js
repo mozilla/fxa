@@ -25,7 +25,7 @@ define([
 
   function testOptedIn(context) {
     return function () {
-      return context.get('remote')
+      return context.remote
         .findByCssSelector('#marketing-email-optin')
           .getVisibleText()
           .then(function (buttonText) {
@@ -37,7 +37,7 @@ define([
 
   function testNotOptedIn(context) {
     return function () {
-      return context.get('remote')
+      return context.remote
         .findByCssSelector('#marketing-email-optin')
           .getVisibleText()
           .then(function (buttonText) {
@@ -87,7 +87,7 @@ define([
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (verificationLink) {
-          return self.get('remote').get(require.toUrl(verificationLink));
+          return self.remote.get(require.toUrl(verificationLink));
         })
 
         .findByCssSelector('#fxa-settings-header')
@@ -122,7 +122,7 @@ define([
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (verificationLink) {
-          return self.get('remote').get(require.toUrl(verificationLink));
+          return self.remote.get(require.toUrl(verificationLink));
         })
 
         .findByCssSelector('#fxa-settings-header')
@@ -183,7 +183,7 @@ define([
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (verificationLink) {
-          return self.get('remote').get(require.toUrl(verificationLink));
+          return self.remote.get(require.toUrl(verificationLink));
         })
 
         .findByCssSelector('#fxa-settings-header')

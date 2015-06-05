@@ -43,7 +43,7 @@ define([
       var SIGNUP_URL = OAUTH_APP + 'api/preverified-signup?' +
                         'email=' + encodeURIComponent(email);
 
-      return self.get('remote')
+      return self.remote
         .get(require.toUrl(SIGNUP_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
 
