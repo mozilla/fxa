@@ -18,8 +18,11 @@ define([], function () {
     return str;
   }
 
-  function createEmail() {
-    return 'signin' + Math.random() + '@restmail.net';
+  function createEmail(template) {
+    if (! template) {
+      template = 'signin{id}';
+    }
+    return template.replace('{id}', Math.random()) + '@restmail.net';
   }
 
   function emailToUser(email) {

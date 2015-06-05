@@ -90,6 +90,41 @@ define([
         .findByCssSelector('#fxa-communication-preferences-header')
         .end()
 
+        .then(testOptedIn(self));
+    },
+
+    'opt-in with a plus sign in the email address': function () {
+      var self = this;
+      email = TestHelpers.createEmail('signup{id}+extra');
+      return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
+        .then(function () {
+          return fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR, false, true);
+        })
+
+        .findByCssSelector('#fxa-confirm-header')
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.getVerificationLink(email, 0);
+        })
+        .then(function (verificationLink) {
+          return self.get('remote').get(require.toUrl(verificationLink));
+        })
+
+        .findByCssSelector('#fxa-settings-header')
+        .end()
+
+        .then(function () {
+          return waitForBasket(email);
+        })
+
+        .findByCssSelector('a[href="/settings/communication_preferences"]')
+          .click()
+        .end()
+
+        .findByCssSelector('#fxa-communication-preferences-header')
+        .end()
+
         .then(testOptedIn(self))
 
         // user signed up to basket, so has a preferences URL
