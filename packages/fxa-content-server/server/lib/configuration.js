@@ -147,6 +147,11 @@ var conf = module.exports = convict({
     format: Array,
     default: []
   },
+  are_dist_resources: {
+    doc: 'Check if the resources are under the /dist directory',
+    format: Boolean,
+    default: false
+  },
   static_directory: {
     doc: 'Directory that static files are served from.',
     format: String,
@@ -395,7 +400,10 @@ if (missingLangs.length) {
 
 var areDistResources = conf.get('static_directory') === 'dist';
 conf.set('are_dist_resources', areDistResources);
+var options = {
+  strict: true
+};
 
 // validate the configuration based on the above specification
-conf.validate();
+conf.validate(options);
 
