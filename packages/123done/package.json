@@ -37,7 +37,7 @@
     "node": ">=0.8.0"
   },
   "optionalDependencies": {
-    "hiredis": "0.1.14"
+    "hiredis": "0.1.15"
   },
   "devDependencies": {
     "awsbox": "0.7.0"
