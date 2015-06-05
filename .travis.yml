@@ -9,6 +9,10 @@ os:
   - linux
   - osx
 
+matrix:
+  allow_failures:
+    - os: osx
+
 before_install:
   - sudo apt-get install graphicsmagick
   - sudo apt-get install python-virtualenv
