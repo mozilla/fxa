@@ -69,10 +69,13 @@ module.exports = function (log) {
     if (message.resume) { query.resume = message.resume }
 
     var link = this.verificationUrl + '?' + qs.stringify(query)
+    query.one_click = true
+    var oneClickLink = this.verificationUrl + '?' + qs.stringify(query)
 
     var values = {
       translator: translator,
       link: link,
+      oneClickLink: oneClickLink,
       email: message.email
     }
     var localized = this.templates.verifyEmail(values)
