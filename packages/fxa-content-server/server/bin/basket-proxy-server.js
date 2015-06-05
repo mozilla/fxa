@@ -144,9 +144,9 @@ function initApp() {
 
   app.get('/lookup-user', function (req, res) {
     var params = req.body;
-    var creds = res.locals.creds;
+    var email = encodeURIComponent(res.locals.creds.email);
 
-    basketRequest('/lookup-user/?email=' + creds.email, 'get', params)
+    basketRequest('/lookup-user/?email=' + email, 'get', params)
       .on('error', function (error) {
         logger.error('lookup-user.error', error);
       })
@@ -166,7 +166,8 @@ function initApp() {
 
   app.post('/unsubscribe', function (req, res) {
     var creds = res.locals.creds;
-    basketRequest('/lookup-user/?email=' + creds.email, 'get', {}, function (lookupError, httpRequest, body) {
+    var email = encodeURIComponent(creds.email);
+    basketRequest('/lookup-user/?email=' + email, 'get', {}, function (lookupError, httpRequest, body) {
       if (lookupError) {
         logger.error('lookup-user.error', lookupError);
         res.status(400).json(errorResponse(lookupError, BASKET_ERRORS.UNKNOWN_ERROR));

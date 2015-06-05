@@ -17,7 +17,8 @@ define([
   function waitUntilUserIsRegistered(email) {
     console.log('Waiting for %s to register at: %s', email, API_URL);
 
-    return request(LOOKUP_URL + email, 'GET', null, { 'X-API-Key': API_KEY })
+    var url = LOOKUP_URL + encodeURIComponent(email);
+    return request(url, 'GET', null, { 'X-API-Key': API_KEY })
       .then(function (result) {
         if (result.status === 'ok') {
           return result;
