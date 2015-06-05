@@ -613,23 +613,27 @@ define([
 
   function testAreEventsLogged(context, eventsNames) {
     return fetchAllMetrics(context)
-      .then(function (allMetrics) {
-        return context.get('remote')
-          .execute(function (eventsNames, allMetrics) {
+      .then(function (metrics) {
+        var events = metrics.reduce(function (evts, metrics) {
+          var evtsNames = metrics.events.map(function (evt) {
+            return evt.type;
+          });
+          return evts.concat(evtsNames);
+        }, []);
 
+        return context.get('remote')
+          .execute(function (eventsNames, events) {
             var toFindAll = eventsNames.slice().reverse();
             var toFind = toFindAll.pop();
 
-            allMetrics.forEach(function (metrics) {
-              metrics.events.forEach(function (event) {
-                if (event.type === toFind) {
-                  toFind = toFindAll.pop();
-                }
-              });
+            events.forEach(function (event) {
+              if (event === toFind) {
+                toFind = toFindAll.pop();
+              }
             });
 
             return toFindAll.length === 0;
-          }, [ eventsNames, allMetrics ]);
+          }, [ eventsNames, events ]);
       })
       .then(function (found) {
         assert.ok(found, 'found the events we were looking for');
