@@ -1,4 +1,4 @@
-# Welcome to Firefox Accounts
+# Welcome to Firefox Accounts [![Build Status](https://travis-ci.org/mozilla/fxa.svg?branch=master)](https://travis-ci.org/mozilla/fxa) [![Documentation Status](https://readthedocs.org/projects/fxa/badge/?version=latest)](https://readthedocs.org/projects/fxa/?badge=latest)
 
 ## [Read the documentation at fxa.readthedocs.org](http://fxa.readthedocs.org)
 
