@@ -51,7 +51,9 @@ define([
           // so they are not left in the DB. If the user needs
           // to interact with the basket server again, a new
           // access token will be created.
-          self._accessToken.destroy();
+          if (self._accessToken) {
+            self._accessToken.destroy();
+          }
           self._accessToken = null;
         });
     },
