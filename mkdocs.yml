@@ -1,6 +1,9 @@
 site_name: Firefox Accounts Documentation
 pages:
 - Home: 'index.md'
+- Metrics:
+    - 'Intro': 'metrics/index.md'
+    - 'DataDog Documentation': 'metrics/datadog.md'
 - 'Local Development':
     - 'Getting Started': 'local-development/getting-started.md'
 theme: readthedocs
