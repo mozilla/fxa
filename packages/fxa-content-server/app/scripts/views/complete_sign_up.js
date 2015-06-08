@@ -71,7 +71,14 @@ function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
               self.user.setAccount(account);
 
               var emailPrefs = account.getMarketingEmailPrefs();
-              return emailPrefs.optIn(NEWSLETTER_ID);
+              return emailPrefs.optIn(NEWSLETTER_ID)
+                .fail(function (err) {
+                  // A basket error should not prevent the
+                  // sign up verification from completing, nor
+                  // should an error be displayed to the user.
+                  // Log the error and nothing else.
+                  self.logError(err);
+                });
             }
           })
           .then(function () {
