@@ -337,7 +337,7 @@ describe('/v1', function() {
           url: '/authorization',
           payload: authParams()
         }).then(function(res) {
-          assert.equal(res.result.code, 400);
+          assert.equal(res.result.code, 401);
           assert.equal(res.result.message, 'Invalid assertion');
         }).done(done, done);
       });
@@ -631,7 +631,7 @@ describe('/v1', function() {
             code: unique.code().toString('hex')
           }
         }).then(function(res) {
-          assert.equal(res.statusCode, 401);
+          assert.equal(res.statusCode, 400);
           assert.equal(res.result.message, 'Incorrect secret');
         }).done(done, done);
       });
