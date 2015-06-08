@@ -100,6 +100,18 @@ function (chai, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
         assert.isFalse(view.$(':file').is(':visible'));
       });
 
+      it('hides the gravatar option', function () {
+        assert.equal(view.$('#gravatar').length, 0);
+      });
+
+      it('shows the gravatar option for test emails', function () {
+        account.set('email', 'avatarAB-test@restmail.net');
+        return view.render()
+          .then(function () {
+            assert.equal(view.$('#gravatar').length, 1);
+          });
+      });
+
       it('can remove the avatar', function () {
         sinon.stub(view, 'deleteDisplayedAccountProfileImage', function () {
           return p();

@@ -17,7 +17,9 @@
       <input type="file" id="imageLoader" name="imageLoader" accept="image/png, image/jpeg"/>
       <a href="#" id="file"><span class="icon-plus"></span>{{#t}}Upload{{/t}}</a>
       <a href="/settings/avatar/camera" id="camera"><span class="icon-camera-alt"></span>{{#t}}Camera{{/t}}</a>
+      {{#shouldShowGravatar}}
       <a href="/settings/avatar/gravatar" id="gravatar"><span class="gravatar-logo"></span>{{#t}}Gravatar{{/t}}</a>
+      {{/shouldShowGravatar}}
     </nav>
 
     <p id="settings-home">
