@@ -44,6 +44,7 @@ define([
 
           if (profileImage.isDefault()) {
             self.$(wrapperClass).addClass('with-default');
+            self.$(wrapperClass).append('<span></span>');
             self.logScreenEvent('profile_image_not_shown');
           } else {
             self.$(wrapperClass).removeClass('with-default');
@@ -51,6 +52,10 @@ define([
             self.logScreenEvent('profile_image_shown');
           }
         });
+    },
+
+    hasDisplayedAccountProfileImage: function () {
+      return this._displayedProfileImage && ! this._displayedProfileImage.isDefault();
     },
 
     // Makes sure the account with uid has an uptodate image cache.

@@ -20,10 +20,11 @@ define([
   'lib/able',
   'lib/metrics',
   'models/reliers/relier',
+  'models/profile-image',
   'models/user'
 ],
 function (chai, $, sinon, View, RouterMock, WindowMock, TestHelpers,
-      FxaClient, p, ProfileErrors, AuthErrors, Able, Metrics, Relier, User) {
+      FxaClient, p, ProfileErrors, AuthErrors, Able, Metrics, Relier, ProfileImage, User) {
   var assert = chai.assert;
 
   describe('views/settings', function () {
@@ -157,11 +158,14 @@ function (chai, $, sinon, View, RouterMock, WindowMock, TestHelpers,
       });
 
       it('does not shows avatar change link non-mozilla account', function () {
-        assert.notOk(view.$('.avatar-wrapper a.change-avatar').length);
-        assert.notOk(view.$('.change-avatar-text a').length);
+        return view.afterVisible()
+          .then(function () {
+            assert.equal(view.$('.avatar-wrapper a').length, 0);
+            assert.notEqual(view.$('.change-avatar-text')[0].style.visibility, 'visible');
+          });
       });
 
-      describe('with avatar change link enabled', function () {
+      describe('with mozilla email', function () {
         beforeEach(function () {
           account.set('email', 'test@mozilla.com');
 
@@ -172,17 +176,50 @@ function (chai, $, sinon, View, RouterMock, WindowMock, TestHelpers,
           return view.render()
             .then(function () {
               $('body').append(view.el);
+              return view.afterVisible();
             });
         });
 
         it('shows avatar change link for mozilla account', function () {
-          assert.ok(view.$('.avatar-wrapper a.change-avatar').length);
-          assert.ok(view.$('.change-avatar-text a').length);
+          assert.ok(view.$('.avatar-wrapper a').length);
+          assert.equal(view.$('.change-avatar-text')[0].style.visibility, 'visible');
+        });
+      });
+
+      describe('with a profile image set', function () {
+        beforeEach(function () {
+          var image = new ProfileImage({ url: 'url', id: 'foo', img: new Image() });
+          sinon.stub(account, 'fetchCurrentProfileImage', function () {
+            return p(image);
+          });
+
+          return view.render()
+            .then(function () {
+              $('body').append(view.el);
+              return view.afterVisible();
+            });
         });
 
-        it('shows avatar change link for automated testing account', function () {
-          assert.ok(view.$('.avatar-wrapper a.change-avatar').length);
-          assert.ok(view.$('.change-avatar-text a').length);
+        it('shows avatar change link for account with profile image set', function () {
+          assert.ok(view.$('.avatar-wrapper a').length);
+          assert.equal(view.$('.change-avatar-text')[0].style.visibility, 'visible');
+        });
+      });
+
+      describe('with a profile image previously set', function () {
+        beforeEach(function () {
+          account.set('hadProfileImageSetBefore', true);
+
+          return view.render()
+            .then(function () {
+              $('body').append(view.el);
+              return view.afterVisible();
+            });
+        });
+
+        it('shows avatar change link for account with profile image set', function () {
+          assert.ok(view.$('.avatar-wrapper a').length);
+          assert.equal(view.$('.change-avatar-text')[0].style.visibility, 'visible');
         });
       });
 

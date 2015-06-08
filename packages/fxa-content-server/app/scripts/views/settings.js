@@ -34,7 +34,6 @@ function (Cocktail, Session, FormView, BaseView, AvatarMixin,
       return {
         email: email,
         showSignOut: !account.isFromSync(),
-        avatarLinkVisible: this._isAvatarLinkVisible(email),
         communicationPrefsVisible: this._areCommunicationPrefsVisible()
       };
     },
@@ -78,11 +77,15 @@ function (Cocktail, Session, FormView, BaseView, AvatarMixin,
         });
     },
 
-    _isAvatarLinkVisible: function (email) {
+    _isAvatarLinkVisible: function (account) {
+      var email = account.get('email');
       // For automated testing accounts, emails begin with "avatarAB-" and end with "restmail.net"
       var isTestAccount = /^avatarAB-.+@restmail\.net$/.test(email);
 
-      return isTestAccount || this._able.choose('avatarLinkVisible', { email: email });
+      return isTestAccount ||
+             this.hasDisplayedAccountProfileImage() ||
+             account.get('hadProfileImageSetBefore') ||
+             this._able.choose('avatarLinkVisible', { email: email });
     },
 
     _areCommunicationPrefsVisible: function () {
@@ -91,14 +94,22 @@ function (Cocktail, Session, FormView, BaseView, AvatarMixin,
       });
     },
 
-    afterVisible: function () {
-      var account = this.getSignedInAccount();
-      var imageContainerSelector = this._isAvatarLinkVisible(account.get('email')) ?
-                                     '.avatar-wrapper a.change-avatar' :
-                                     '.avatar-wrapper';
+    _setupAvatarChangeLinks: function (show) {
+      if (show) {
+        this.$('.change-avatar-text').css('visibility', 'visible');
+        this.$('.avatar-wrapper > *').wrap('<a href="/settings/avatar/change" class="change-avatar"></a>');
+      }
+    },
 
-      FormView.prototype.afterVisible.call(this);
-      return this.displayAccountProfileImage(account, imageContainerSelector);
+    afterVisible: function () {
+      var self = this;
+      var account = self.getSignedInAccount();
+
+      FormView.prototype.afterVisible.call(self);
+      return self.displayAccountProfileImage(account)
+        .then(function () {
+          self._setupAvatarChangeLinks(self._isAvatarLinkVisible(account));
+        });
     }
   });
 
