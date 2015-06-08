@@ -37,13 +37,16 @@ if (fxaEnv.loop) {
   fxaProfile.setPreference('loop.server', fxaEnv.loop);
 }
 
-
-
 fxaProfile.setPreference('webdriver.log.browser.file', BROWSER_LOG);
 fxaProfile.setPreference('webdriver.log.driver.file', DRIVER_LOG);
 
-// enable pocket 
+// enable pocket
 fxaProfile.setPreference('browser.pocket.enabled', true);
+
+// disable e10s
+fxaProfile.setPreference('browser.tabs.remote.autostart', false);
+fxaProfile.setPreference('browser.tabs.remote.autostart.1', false);
+fxaProfile.setPreference('browser.tabs.remote.autostart.2', false);
 
 // enable avatars in pref pane
 fxaProfile.setPreference('identity.fxaccounts.profile_image.enabled', true);

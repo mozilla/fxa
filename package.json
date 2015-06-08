@@ -22,7 +22,7 @@
   "license": "MPL-2.0",
   "dependencies": {
     "chalk": "1.0.0",
-    "firefox-profile": "0.3.6",
+    "firefox-profile": "0.3.11",
     "minimist": "1.1.1",
     "pm2": "0.12.7",
     "selenium-standalone": "4.4.0",
