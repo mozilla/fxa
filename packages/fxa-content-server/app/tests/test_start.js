@@ -102,6 +102,7 @@ function (Translator, Session) {
     '../tests/spec/models/user',
     '../tests/spec/models/account',
     '../tests/spec/models/profile-image',
+    '../tests/spec/models/email-resend',
     '../tests/spec/models/form-prefill',
     '../tests/spec/models/marketing-email-prefs',
     '../tests/spec/models/notifications',

@@ -244,27 +244,6 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
                 ));
           });
       });
-
-      it('still shows success after max tries', function () {
-        sinon.stub(realClient, 'recoveryEmailResendCode', function () {
-          return p();
-        });
-        var triesLeft = Constants.SIGNUP_RESEND_MAX_TRIES;
-
-        // exhaust all tries
-        var promises = [];
-        for (var i = 0; i < triesLeft; i++) {
-          promises.push(client.signUpResend(relier));
-        }
-
-        return p.all(promises)
-          .then(function () {
-            return client.signUpResend(relier);
-          })
-          .then(function (result) {
-            assert.ok(result);
-          });
-      });
     });
 
     describe('verifyCode', function () {
@@ -468,27 +447,6 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
                     passwordForgotToken,
                     params
                 ));
-          });
-      });
-
-      it('still shows success after max tries', function () {
-        sinon.stub(realClient, 'passwordForgotResendCode', function () {
-          return p({});
-        });
-
-        var triesLeft = Constants.PASSWORD_RESET_RESEND_MAX_TRIES;
-        var promises = [];
-        // exhaust all tries
-        for (var i = 0; i < triesLeft; i++) {
-          promises.push(client.passwordResetResend(email, 'token', relier));
-        }
-
-        return p.all(promises)
-          .then(function () {
-            return client.passwordResetResend(email, 'token', relier);
-          })
-          .then(function (result) {
-            assert.ok(result);
           });
       });
     });
@@ -821,7 +779,7 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
         sinon.stub(realClient, 'accountUnlockResendCode', function () {
           return p();
         });
-        var triesLeft = Constants.ACCOUNT_UNLOCK_RESEND_MAX_TRIES;
+        var triesLeft = Constants.EMAIL_RESEND_MAX_TRIES - 1;
 
         // exhaust all tries
         var promises = [];

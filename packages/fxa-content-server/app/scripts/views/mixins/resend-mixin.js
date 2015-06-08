@@ -6,14 +6,18 @@
 // Note, this mixin overrides beforeSubmit and is incompatible with Cocktail.
 
 define([
-], function () {
+  'models/email-resend'
+], function (EmailResend) {
   'use strict';
 
   var SHOW_RESEND_IN_MS = 5 * 60 * 1000; // 5 minutes.
-  var TOO_MANY_ATTEMPTS = 4;
 
   return {
-    _attemptedSubmits: 0,
+
+    initialize: function () {
+      this._emailResend = new EmailResend();
+      this._emailResend.on('maxTriesReached', this._onMaxTriesReached.bind(this));
+    },
 
     beforeSubmit: function () {
       // See https://github.com/mozilla/fxa-content-server/issues/885.
@@ -23,12 +27,10 @@ define([
       // The button is hidden after the forth click for 5 minutes, then
       // start the process again.
 
-      this._attemptedSubmits++;
-
+      this._emailResend.incrementRequestCount();
       this._updateSuccessMessage();
-      this._updateResendButton();
 
-      return this._attemptedSubmits === 1 || this._attemptedSubmits === 4;
+      return this._emailResend.shouldResend();
     },
 
     _updateSuccessMessage: function () {
@@ -41,17 +43,15 @@ define([
       }
     },
 
-    _updateResendButton: function () {
+    _onMaxTriesReached: function () {
       var self = this;
-      // Hide the button after 4 attempts. Redisplay button after a delay.
-      if (self._attemptedSubmits === TOO_MANY_ATTEMPTS) {
-        self.logScreenEvent('too_many_attempts');
-        self.$('#resend').hide();
-        self.setTimeout(function () {
-          self._attemptedSubmits = 0;
-          self.$('#resend').show();
-        }, SHOW_RESEND_IN_MS);
-      }
+      // Hide the button after too many attempts. Redisplay button after a delay.
+      self.logScreenEvent('too_many_attempts');
+      self.$('#resend').hide();
+      self.setTimeout(function () {
+        self._emailResend.reset();
+        self.$('#resend').show();
+      }, SHOW_RESEND_IN_MS);
     }
   };
 });
