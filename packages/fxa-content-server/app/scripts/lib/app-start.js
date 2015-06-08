@@ -566,7 +566,7 @@ function (
     },
 
     _isOAuth: function () {
-                 // for /force_auth
+      // for /force_auth
       return !! (this._searchParam('client_id') ||
                  // for verification flows
                  (this._searchParam('code') && this._searchParam('service')) ||
