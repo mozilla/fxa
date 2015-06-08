@@ -60,7 +60,7 @@ define([
     });
 
     it('displayAccountProfileImage updates the cached account data', function () {
-      var image = new ProfileImage({ url: 'url', id: 'foo' });
+      var image = new ProfileImage({ url: 'url', id: 'foo', img: new Image() });
       var cachedAccount = user.initAccount({ uid: 'uid' });
       sinon.spy(cachedAccount, 'setProfileImage');
 
@@ -77,6 +77,7 @@ define([
           assert.isTrue(user.getAccountByUid.calledWith(UID));
           assert.isTrue(user.setAccount.calledWith(cachedAccount));
           assert.isTrue(cachedAccount.setProfileImage.calledWith(image));
+          assert.isTrue(view.hasDisplayedAccountProfileImage());
         });
     });
 

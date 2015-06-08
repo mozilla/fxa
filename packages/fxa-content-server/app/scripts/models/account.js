@@ -26,6 +26,7 @@ define([
     grantedPermissions: undefined,
     lastLogin: undefined,
     needsOptedInToMarketingEmail: undefined,
+    hadProfileImageSetBefore: undefined,
     profileImageId: undefined,
     profileImageUrl: undefined,
     sessionToken: undefined,
@@ -170,6 +171,11 @@ define([
     setProfileImage: function (profileImage) {
       this.set('profileImageUrl', profileImage.get('url'));
       this.set('profileImageId', profileImage.get('id'));
+      if (this.get('profileImageUrl')) {
+        // This is a heuristic to let us know if the user has, at some point,
+        // had a custom profile image.
+        this.set('hadProfileImageSetBefore', true);
+      }
     },
 
     fetchCurrentProfileImage: function () {
