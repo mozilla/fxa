@@ -17,6 +17,7 @@ define([
   var PAGE_URL = intern.config.fxaContentRoot + 'signup';
   var CUTOFF_YEAR = new Date().getFullYear() - 13;
   var OLD_ENOUGH_YEAR = CUTOFF_YEAR - 1;
+  var fxaProduction = intern.config.fxaProduction;
 
   var email;
   var PASSWORD = '12345678';
@@ -47,8 +48,22 @@ define([
     };
   }
 
+  var suiteName = 'communication preferences';
+  if (fxaProduction) {
+    // The actual tests below depend on polling a real or mock implementation
+    // of Basket. This isn't something feasible when running this server
+    // against a remote server (api keys unavailable, or server only listening
+    // to its localhost interface). So, we skip these tests by registering an
+    // empty test suite.
+    registerSuite({
+      name: suiteName
+    });
+    return;
+  }
+
+  // okay, not remote so run these for real.
   registerSuite({
-    name: 'communication preferences',
+    name: suiteName,
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
