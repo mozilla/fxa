@@ -14,6 +14,7 @@ define([
   'lib/metrics',
   'lib/constants',
   'lib/fxa-client',
+  'lib/marketing-email-errors',
   'models/reliers/relier',
   'models/auth_brokers/base',
   'models/user',
@@ -22,7 +23,8 @@ define([
   '../../lib/helpers'
 ],
 function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
-      FxaClient, Relier, Broker, User, RouterMock, WindowMock, TestHelpers) {
+      FxaClient, MarketingEmailErrors, Relier, Broker, User, RouterMock,
+      WindowMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('views/complete_sign_up', function () {
@@ -275,6 +277,35 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
             assert.isTrue(user.setAccount.calledWith(account));
             assert.isTrue(account.getMarketingEmailPrefs.called);
             assert.isTrue(mockEmailPrefs.optIn.called);
+          });
+      });
+
+      it('does not stop the verification if email optin failed', function () {
+        account.set('needsOptedInToMarketingEmail', true);
+
+        var basketError = MarketingEmailErrors.toError('USAGE_ERROR');
+        var mockEmailPrefs = {
+          optIn: sinon.spy(function () {
+            return p.reject(basketError);
+          })
+        };
+
+        sinon.stub(account, 'getMarketingEmailPrefs', function () {
+          return mockEmailPrefs;
+        });
+
+        sinon.stub(user, 'setAccount', function () {
+          // do nothing
+        });
+
+        sinon.spy(view, 'logError');
+
+        return view.render()
+          .then(function () {
+            assert.isTrue(user.setAccount.calledWith(account));
+            assert.isTrue(account.getMarketingEmailPrefs.called);
+            assert.isTrue(mockEmailPrefs.optIn.called);
+            assert.isTrue(view.logError.calledWith(basketError));
           });
       });
     });
