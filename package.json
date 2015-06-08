@@ -10,12 +10,16 @@
     "test-core": "node test/functional.js --suite=core",
     "test-oauth": "node test/functional.js --suite=oauth"
   },
+  "homepage": "https://github.com/mozilla/fxa-local-dev",
+  "bugs": {
+    "url": "https://github.com/mozilla/fxa-local-dev/issues"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/vladikoff/fxa-local-dev"
+    "url": "https://github.com/mozilla/fxa-local-dev"
   },
-  "author": "",
-  "license": "MPL",
+  "author": "Mozilla (https://mozilla.org/)",
+  "license": "MPL-2.0",
   "dependencies": {
     "chalk": "1.0.0",
     "firefox-profile": "0.3.6",
