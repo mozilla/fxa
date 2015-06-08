@@ -40,7 +40,6 @@ module.exports = function (grunt) {
     // 'copy:styles',
     //  'connect_fonts_copy', - copy the generated connect fonts
     //  'imagemin', - optimize image files
-    //  'htmlmin' - minify HTML
     'concurrent:dist',
 
     // concatenate files as part of the useminPrepare task
@@ -63,6 +62,8 @@ module.exports = function (grunt) {
     // copy the non-minified scripts file for sourcemap purposes
     'copy:build',
     // update the sourcemap path to match the hosted files
-    'sourcemap-source'
+    'sourcemap-source',
+
+    'htmlmin',
   ]);
 };

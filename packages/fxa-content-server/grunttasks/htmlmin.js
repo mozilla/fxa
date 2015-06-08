@@ -8,23 +8,27 @@ module.exports = function (grunt) {
   grunt.config('htmlmin', {
     dist: {
       options: {
-        /*
         removeCommentsFromCDATA: true,
-        // https://github.com/yeoman/grunt-usemin/issues/44
-        // collapseWhitespace: true,
+        collapseWhitespace: true,
+        conservativeCollapse: true,
         collapseBooleanAttributes: true,
         removeAttributeQuotes: true,
-        removeRedundantAttributes: true,
-        useShortDoctype: true,
+        removeComments: true,
+        ignoreCustomComments: [
+          // ignore IE conditional comments, strip all others.
+          /\[if/
+        ],
         removeEmptyAttributes: true,
-        removeOptionalTags: true
-        */
+        removeRedundantAttributes: true,
+        removeScriptTypeAttributes: true,
+        removeStyleLinkTypeAttributes: true,
+        useShortDoctype: true
       },
       files: [{
         expand: true,
-        cwd: '<%= yeoman.app %>',
-        src: '*.html',
-        dest: '<%= yeoman.dist %>'
+        cwd: '<%= yeoman.page_template_dist %>',
+        src: '**/*.html',
+        dest: '<%= yeoman.page_template_dist %>'
       }]
     }
   });
