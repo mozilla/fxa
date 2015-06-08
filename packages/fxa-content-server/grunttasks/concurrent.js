@@ -17,8 +17,7 @@ module.exports = function (grunt) {
     dist: [
       'copy:styles',
       'copy:normalize',
-      'connect_fonts_copy',
-      'htmlmin'
+      'connect_fonts_copy'
     ],
     lint: [
       'jshint',
