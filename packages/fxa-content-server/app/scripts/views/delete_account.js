@@ -10,12 +10,15 @@ define([
   'lib/session',
   'lib/auth-errors',
   'views/mixins/password-mixin',
+  'views/mixins/settings-mixin',
   'views/mixins/service-mixin',
+  'views/mixins/settings-panel-mixin',
   'views/mixins/back-mixin',
   'views/mixins/account-locked-mixin'
 ],
 function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
-      PasswordMixin, ServiceMixin, BackMixin, AccountLockedMixin) {
+      PasswordMixin, SettingsMixin, SettingsPanelMixin, ServiceMixin, BackMixin,
+      AccountLockedMixin) {
   'use strict';
 
   var t = BaseView.t;
@@ -26,6 +29,14 @@ function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
 
     template: Template,
     className: 'delete-account',
+
+    events: {
+      'click .settings-unit-toggle': '_openSettingsUnit'
+    },
+
+    _openSettingsUnit: function () {
+      this.navigate('/settings/delete_account');
+    },
 
     context: function () {
       return {
@@ -69,6 +80,8 @@ function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
   Cocktail.mixin(
     View,
     PasswordMixin,
+    SettingsMixin,
+    SettingsPanelMixin,
     ServiceMixin,
     BackMixin,
     AccountLockedMixin

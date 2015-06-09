@@ -10,12 +10,15 @@ define([
   'stache!templates/change_password',
   'views/mixins/password-mixin',
   'views/mixins/floating-placeholder-mixin',
+  'views/mixins/settings-mixin',
+  'views/mixins/settings-panel-mixin',
   'views/mixins/service-mixin',
   'views/mixins/back-mixin',
   'views/mixins/account-locked-mixin'
 ],
 function (Cocktail, BaseView, FormView, AuthErrors, Template, PasswordMixin,
-  FloatingPlaceholderMixin, ServiceMixin, BackMixin, AccountLockedMixin) {
+  FloatingPlaceholderMixin, SettingsMixin, SettingsPanelMixin, ServiceMixin,
+  BackMixin, AccountLockedMixin) {
   'use strict';
 
   var t = BaseView.t;
@@ -26,6 +29,14 @@ function (Cocktail, BaseView, FormView, AuthErrors, Template, PasswordMixin,
 
     template: Template,
     className: 'change-password',
+
+    events: {
+      'click .settings-unit-toggle': '_openSettingsUnit'
+    },
+
+    _openSettingsUnit: function () {
+      this.navigate('/settings/change_password');
+    },
 
     context: function () {
       return {
@@ -75,6 +86,8 @@ function (Cocktail, BaseView, FormView, AuthErrors, Template, PasswordMixin,
     View,
     PasswordMixin,
     FloatingPlaceholderMixin,
+    SettingsMixin,
+    SettingsPanelMixin,
     ServiceMixin,
     BackMixin,
     AccountLockedMixin

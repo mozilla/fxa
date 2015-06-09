@@ -35,7 +35,6 @@ define([
     '/signup_complete': { statusCode: 200 },
     '/confirm': { statusCode: 200 },
     '/settings': { statusCode: 200 },
-    '/settings/avatar': { statusCode: 200 },
     '/settings/avatar/change': { statusCode: 200 },
     '/settings/avatar/gravatar': { statusCode: 200 },
     '/settings/avatar/camera': { statusCode: 200 },

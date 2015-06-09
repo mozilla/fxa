@@ -655,6 +655,13 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
      */
     getAccount: function () {
       // Implement in subclasses
+    },
+
+    /**
+     * Shows the SubView, creating and rendering it if needed.
+     */
+    showSubView: function (/* SubView */) {
+      // Implement in subclasses
     }
   });
 

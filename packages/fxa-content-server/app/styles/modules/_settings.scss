@@ -1,7 +1,7 @@
 // this needs to be overridden, 
 // or done in a way that doesn't kill these everywhere
-#fox-logo,
-#about-mozilla {
+body.settings #fox-logo,
+body.settings #about-mozilla {
   display: none;
 }
 
@@ -12,7 +12,7 @@
 
   @include respond-to('big') {
     height: 56px;
-    margin-bottom: 40px;
+    margin-bottom: 46px;
   }
 
   @include respond-to('small') {
@@ -59,7 +59,21 @@
       width: 29%;
     }
   }
+
+  .settings-success {
+    background-color: rgb(205, 248, 208);
+    border-color: rgb(0, 170, 0);
+    border-radius: 0 0 2px 2px;
+    border-style: solid;
+    border-width: 0 1px 1px;
+    color: $text-color;
+    margin: 0 auto;
+    text-align: center;
+    top: 56px;
+    width: 500px;
+  }
 }
+
 
 // settings buttons
 .settings-button {
@@ -168,7 +182,7 @@
     text-overflow: ellipsis;
     text-wrap: nowrap;
     white-space: nowrap;
-    
+
     @include respond-to('big') {
       font-size: $medium-font;
       line-height: 36px;
@@ -185,18 +199,20 @@
   }
 }
 
-.settings-unit {
-  padding: 20px 0;
-  border-bottom: 1px solid $marketing-border-color;
-  
-  &:first-child {
+.settings-subview {
+  &:first-child .settings-unit {
     padding: 0 0 20px;
   }
 
-  &:last-child {
+  &:last-child .settings-unit {
     border-bottom: none;
     padding: 20px 0 0 0;
   }
+}
+
+.settings-unit {
+  padding: 20px 0;
+  border-bottom: 1px solid $marketing-border-color;
 }
 
 .settings-unit-stub {
@@ -222,7 +238,7 @@
     margin: 0;
     font-weight: normal;
     line-height: $medium-font;
-    
+
     @include respond-to('big') {
       font-size: $medium-font;
     }
@@ -231,8 +247,6 @@
       font-size: $base-font;
     }
   }
-
-
 
   .settings-unit-subtitle {
     color: $faint-text-color;
@@ -265,4 +279,8 @@
     color: $faint-text-color;
     margin-bottom: 24px;
   }
+}
+
+.open .settings-unit-details {
+  display: block;
 }

@@ -37,7 +37,7 @@ function (xhr, ProfileErrors) {
   };
 
   // Returns the user's profile data
-  // including: email, uid
+  // including: email, uid, displayName, avatar
   ProfileClient.prototype.getProfile = function (accessToken) {
     return this._request('/v1/profile', 'get', accessToken);
   };
@@ -64,6 +64,16 @@ function (xhr, ProfileErrors) {
   ProfileClient.prototype.uploadAvatar = function (accessToken, data) {
     return this._request('/v1/avatar/upload', 'post', accessToken, data, {
       'Content-type': data.type
+    });
+  };
+
+  ProfileClient.prototype.getDisplayName = function (accessToken) {
+    return this._request('/v1/display_name', 'get', accessToken);
+  };
+
+  ProfileClient.prototype.postDisplayName = function (accessToken, displayName) {
+    return this._request('/v1/display_name', 'post', accessToken, {
+      displayName: displayName
     });
   };
 

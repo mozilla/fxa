@@ -8,14 +8,15 @@ define([
   'views/form',
   'views/mixins/avatar-mixin',
   'views/mixins/settings-mixin',
+  'views/mixins/settings-panel-mixin',
   'stache!templates/settings/avatar_change',
   'lib/auth-errors',
   'lib/image-loader',
   'lib/promise',
   'models/cropper-image'
 ],
-function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
-    AuthErrors, ImageLoader, p, CropperImage) {
+function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, SettingsPanelMixin,
+    Template, AuthErrors, ImageLoader, p, CropperImage) {
   'use strict';
 
   var View = FormView.extend({
@@ -134,11 +135,28 @@ function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
       }
 
       return defer.promise;
+    },
+
+    // Hide Gravatar except for tests until #2515 is resolved
+    _shouldShowGravatar: function (email) {
+      return /^avatarAB-.+@restmail\.net$/.test(email);
+    },
+
+    submit: function () {
+      var self = this;
+      var account = self.getSignedInAccount();
+      var displayName = self.getElementValue('.name');
+
+      account.setDisplayName(displayName)
+        .then(function () {
+          account.set('displayName', displayName);
+          self.user.setAccount(account);
+        });
     }
 
   });
 
-  Cocktail.mixin(View, AvatarMixin, SettingsMixin);
+  Cocktail.mixin(View, AvatarMixin, SettingsMixin, SettingsPanelMixin);
 
   return View;
 });
