@@ -1,3 +1,38 @@
+<a name="0.39.0"></a>
+## 0.39.0 (2015-06-09)
+
+
+#### Bug Fixes
+
+* **avatars:**
+  * allow users to change their avatar if they have/had one ([e6a9cd0d](https://github.com/mozilla/fxa-content-server/commit/e6a9cd0d7b3f3f511d8e960cbb9978b2c5fc41d4))
+  * disable the gravatar option on avatar change ([153f3d4c](https://github.com/mozilla/fxa-content-server/commit/153f3d4cfa98df75e9a819e6d5edf4f0aea7d6e9))
+* **basket:**
+  * only destroy the token if we successfully acquired one ([de4c26c7](https://github.com/mozilla/fxa-content-server/commit/de4c26c785fca0bbc8f6c1f742e3ed6f95ec03b5))
+  * URI-encode email address in basket server urls. ([a43061d3](https://github.com/mozilla/fxa-content-server/commit/a43061d3317af3d26c15337c314e07f6ab5dade2))
+* **basket-proxy:** tighten up param checking and logging ([fa5aa01d](https://github.com/mozilla/fxa-content-server/commit/fa5aa01d1e19df561b1497fc23aedd0422826abc))
+* **client:** Continue email verification flow on Basket server error. ([919e64db](https://github.com/mozilla/fxa-content-server/commit/919e64dbf1389da8f03ef993613a0c7c90838e53))
+* **docs:** add verification_redirect to query params ([5dff0821](https://github.com/mozilla/fxa-content-server/commit/5dff08217ae9401010e175900c892e4906cb09bd), closes [#2438](https://github.com/mozilla/fxa-content-server/issues/2438))
+* **form:** fixes form autofill for Firefox and paste for iOS ([9b062568](https://github.com/mozilla/fxa-content-server/commit/9b062568ef152694be276488f01b36f203d3b2d8))
+* **metrics:** measure when users add or modify their profile picture. ([e5b35659](https://github.com/mozilla/fxa-content-server/commit/e5b356594ee1c596fcfc400aa9671d21a44e797d), closes [#2294](https://github.com/mozilla/fxa-content-server/issues/2294))
+* **npm:** move request to production dependency ([dcd6a50c](https://github.com/mozilla/fxa-content-server/commit/dcd6a50c98471a3c53b4798c24cb14219e46a66b))
+* **oauth:** sanitize scope of untrusted reliers ([f80a57fb](https://github.com/mozilla/fxa-content-server/commit/f80a57fbe163646d59396d8c3330d162fab259af))
+* **test:** Fix refreshes_metrics functional test on Firefox 18 ([52c88e54](https://github.com/mozilla/fxa-content-server/commit/52c88e543d4036733d9bbb53c7f72d7483df573f))
+* **tests:**
+  * more improvements to avatar tests to avoid remote timeouts ([c7a44841](https://github.com/mozilla/fxa-content-server/commit/c7a448414b7fd03e3ee7d9436504cf91c4be8e8d))
+  * improve legal copy tests and update avatar tests ([11104f77](https://github.com/mozilla/fxa-content-server/commit/11104f772790ba63efca3d13a00b848be6df2771))
+  * skip functional/email_opt_in test if fxaProduction=true ([c7fbe52c](https://github.com/mozilla/fxa-content-server/commit/c7fbe52cc9901caaea17bcd0c83af4bc829a7977))
+  * wait for ".error" to be visible; fixes #2475 ([8ab41765](https://github.com/mozilla/fxa-content-server/commit/8ab4176525520a5125c198b16f3ae46c8b989066))
+
+
+#### Features
+
+* Email opt-in. ([8c4246ec](https://github.com/mozilla/fxa-content-server/commit/8c4246ec5afdb25a9c2fe6fc290f506ef8c2e896))
+* **build:** Compress the HTML files ([39667b9a](https://github.com/mozilla/fxa-content-server/commit/39667b9aa5a599b275546e4a26ce116232e10bcb))
+* **server:** add basket proxy server ([4cbfed3d](https://github.com/mozilla/fxa-content-server/commit/4cbfed3d33b70a8e35ac894e2b7ce3c61d1fdbaa))
+* **tests:** Add metrics in functional tests ([18658991](https://github.com/mozilla/fxa-content-server/commit/186589914de6cd0db4ce74d81411f1174a4f26d4))
+
+
 <a name="0.38.1"></a>
 ### 0.38.1 (2015-05-28)
 
