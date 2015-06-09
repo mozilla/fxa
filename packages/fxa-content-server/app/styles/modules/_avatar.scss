@@ -39,6 +39,36 @@
     }
   }
 
+  &.avatar-settings-view {
+    float:left;
+    margin: 0;
+    border: 1px solid $faint-text-color;
+
+    @include respond-to('big') {
+      height: 36px;
+      width: 36px;
+    }
+
+    @include respond-to('small') {
+      height: 30px;
+      width: 30px;
+    }
+
+    img,
+    .change-avatar {
+
+      @include respond-to('big') {
+        height: 36px;
+        width: 36px;
+      }
+
+      @include respond-to('small') {
+        height: 30px;
+        width: 30px;
+      }
+    }
+  }
+
   img {
     background-color: $content-background-color;
     display: block;
@@ -60,6 +90,8 @@
     position: relative;
   }
 }
+
+
 
 .with-default {
   background: image-url('default-profile.svg') center;

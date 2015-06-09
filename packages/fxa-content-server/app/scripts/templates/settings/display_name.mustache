@@ -1,0 +1,25 @@
+<div id="display-name" class="settings-unit">
+  <div class="success">Hello</div>
+  <div class="error"></div>
+  
+  <div class="settings-unit-stub">
+    <header class="settings-unit-summary">
+      <h2 class="settings-unit-title">{{#t}}Display name{{/t}}</h2>
+    </header>
+    <button class="settings-button secondary settings-unit-toggle hidden">{{#t}}Add {{/t}}</button>
+  </div>
+
+  <div class="settings-unit-details">
+    <form novalidate>
+      <p>
+        {{#t}}Insert pending rationale for display name.{{/t}}
+      </p>   
+      <div class="input-row">
+        <input type="text" class="text" placeholder="{{#t}}Display name{{/t}}" value="{{ displayName }}" autocomplete="off"/>
+      </div>
+      <div class="button-row">
+        <button type="submit" class="settings-button primary disabled">{{#t}}Add{{/t}}</button>
+        <button class="settings-button secondary cancel">{{#t}}Cancel{{/t}}</button>
+      </div>
+  </div>
+</div>
