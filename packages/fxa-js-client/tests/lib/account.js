@@ -324,12 +324,13 @@ define([
       });
 
       test('#accountLock', function () {
-        return accountHelper.newVerifiedAccount()
-          .then(
-            function (acc) {
-              account = acc;
+        var account;
 
-              return respond(client.accountLock(account.input.email, account.input.password), RequestMocks.accountLock);
+        return accountHelper.newVerifiedAccount()
+          .then(function (acc) {
+            account = acc;
+
+            return respond(client.accountLock(account.input.email, account.input.password), RequestMocks.accountLock);
           })
           .then(
             function (result) {
@@ -354,6 +355,7 @@ define([
       });
 
       test('#accountUnlockResendCode', function () {
+        var account;
         var opts = {
           service: 'sync',
           redirectTo: 'https://sync.firefox.com/after_account_unlocked',
@@ -361,16 +363,13 @@ define([
         };
 
         return accountHelper.newVerifiedAccount()
-          .then(
-            function (acc) {
-              account = acc;
+          .then(function (acc) {
+            account = acc;
 
-              return respond(client.accountLock(account.input.email, account.input.password), RequestMocks.accountLock);
+            return respond(client.accountLock(account.input.email, account.input.password), RequestMocks.accountLock);
           })
-          .then(
-            function (result) {
-
-              return respond(client.accountUnlockResendCode(account.input.email, opts), RequestMocks.accountUnlockResendCode)
+          .then(function () {
+            return respond(client.accountUnlockResendCode(account.input.email, opts), RequestMocks.accountUnlockResendCode)
           })
           .then(
             function (result) {
@@ -390,14 +389,35 @@ define([
 
 
       test('#accountUnlockVerifyCode', function () {
-        return respond(client.accountUnlockVerifyCode('uid', 'code'), RequestMocks.accountUnlockVerifyCode)
-          .then(function (result) {
-            // result is an empty object
-            assert.ok(result);
-            assert.equal(Object.keys(result).length, 0);
-          },
-          assert.notOk
-        );
+        var account;
+        var opts = {
+          service: 'sync',
+          redirectTo: 'https://sync.firefox.com/after_account_unlocked',
+          resume: 'resumejwt'
+        };
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (acc) {
+            account = acc;
+
+            return respond(client.accountLock(account.input.email, account.input.password), RequestMocks.accountLock);
+          })
+          .then(function () {
+            return respond(client.accountUnlockResendCode(account.input.email, opts), RequestMocks.accountUnlockResendCode)
+          })
+          .then(function () {
+            return respond(mail.wait(account.input.user, 2), RequestMocks.resetMailUnlock);
+          })
+          .then(function (emails) {
+            var code = emails[1].html.match(/code=([A-Za-z0-9]+)/)[1];
+            return respond(client.accountUnlockVerifyCode(account.signUp.uid, code), RequestMocks.accountUnlockVerifyCode);
+          })
+          .then(
+            function (result) {
+              assert.ok(result);
+            },
+            assert.notOk
+          );
       });
 
       test('#accountUnlockVerifyCode with no uid', function () {

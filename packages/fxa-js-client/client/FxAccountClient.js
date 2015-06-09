@@ -502,24 +502,6 @@ define([
   };
 
   /**
-   * Gets the collection of devices currently authenticated and syncing for the user.
-   *
-   * @method accountDevices
-   * @param {String} sessionToken User session token
-   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
-   */
-  FxAccountClient.prototype.accountDevices = function(sessionToken) {
-    var self = this;
-
-    required(sessionToken, 'sessionToken');
-
-    return hawkCredentials(sessionToken, 'sessionToken',  2 * 32)
-      .then(function(creds) {
-        return self.request.send('/account/devices', 'GET', creds);
-      });
-  };
-
-  /**
    * This deletes the account completely. All stored data is erased.
    *
    * @method accountDestroy
