@@ -41,7 +41,6 @@
 
   &.avatar-settings-view {
     float:left;
-    margin: 0;
     border: 1px solid $faint-text-color;
 
     @include respond-to('big') {

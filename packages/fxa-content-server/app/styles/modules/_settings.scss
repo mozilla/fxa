@@ -11,7 +11,7 @@
   border-bottom: 1px solid #b4bdc3;
 
   @include respond-to('big') {
-    height: 48px;
+    height: 56px;
     margin-bottom: 40px;
   }
 
@@ -22,20 +22,42 @@
 
   #fxa-manage-account {
     @include hidpi-background-image('firefox', 80px 85px);
-    background-position: left 8px;
     background-repeat: no-repeat;
-    background-size: 30px auto;
     float: left;
-    height: 48px;
-    line-height: 50px;
-    margin: 0 0 0 9px;
-    padding-left: 40px;
+    margin: 0;
+
+    @include respond-to('big') {
+      background-position: left 11px;
+      background-size: 36px auto;
+      height: 56px;
+      line-height: 58px;
+      padding-left: 48px;
+    }
+
+    @include respond-to('small') {
+      background-position: left 8px;
+      background-size: 32px auto;
+      height: 48px;
+      line-height: 50px;
+      padding-left: 36px;
+    }
+
   }
 
   .settings-button {
     display: block;
-    margin: 9px;
     float: right;
+    height: 30px;
+
+    @include respond-to('big') {
+      width: 100px;
+      margin-top: 13px;
+    }
+
+    @include respond-to('small') {
+      margin-top: 9px;
+      width: 29%;
+    }
   }
 }
 
@@ -132,7 +154,7 @@
 
   @include respond-to('small') {
     height: 30px;
-    padding: 0 1%;
+    padding: 0 2%;
     margin-bottom: 6px;
   }
 
@@ -198,10 +220,19 @@
   .settings-unit-title {
     color: $text-color;
     margin: 0;
-    font-size: $medium-font;
     font-weight: normal;
     line-height: $medium-font;
+    
+    @include respond-to('big') {
+      font-size: $medium-font;
+    }
+
+    @include respond-to('small') {
+      font-size: $base-font;
+    }
   }
+
+
 
   .settings-unit-subtitle {
     color: $faint-text-color;
@@ -227,7 +258,7 @@
 }
 
 .settings-unit-details {
-  //display: none;
+  display: none;
   margin-top: 24px;
 
   p {

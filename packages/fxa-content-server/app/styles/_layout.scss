@@ -80,8 +80,16 @@
     border-bottom: 1px solid #b4bdc3;
     border-top: 1px solid #b4bdc3;
     width: 100%;
-    padding: 20px 1%;
+    padding: 20px 2%;
   }
+}
+
+.fxa-settings-header {
+  margin: 0 auto;
+  text-wrap: nowrap;
+  width: 100%;
+  padding: 0 2%;
+
 }
 
 #stage {
