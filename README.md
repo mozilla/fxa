@@ -23,6 +23,10 @@ After installation completes visit [127.0.0.1:3030](http://127.0.0.1:3030/). Use
 
 **Use `npm run update` to [fetch the latest changes](_scripts/update_all.sh) to servers**
 
+Note 1 : if npm fails when installing (specifically the fxa-content-server) or a number of servers fail to start, it may be worth trying `ulimit -n 2560` to allow more files to be open currently.
+
+Note 2 : If the fxa-content-server fails with a message such as `Error: env: must be one of the possible values: ["production","development"]: value was "dev"`, then it may be because you have `NODE_ENV` set in your environment. Please `unset NODE_ENV` and restart the servers with `./pm2 kill` and `./pm2 start servers.json`.
+
 *******
 
 ### Firefox Custom Profile 
