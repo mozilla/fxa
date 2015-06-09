@@ -266,7 +266,7 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Relier, Broker,
             .then(function () {
               assert.isTrue(view.isErrorVisible());
               assert.include(view.$('.error').text(), 'Unknown');
-                // no link to sign up.
+              // no link to sign up.
               assert.equal(view.$('.error').find('a').length, 0);
             });
         });

@@ -313,7 +313,7 @@ function (
 
     fragmentToScreenName: function (fragment) {
       fragment = fragment || '';
-                // strip leading /
+      // strip leading /
       return fragment.replace(/^\//, '')
                 // strip trailing /
                 .replace(/\/$/, '')

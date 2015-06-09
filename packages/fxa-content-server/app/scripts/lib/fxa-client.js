@@ -397,7 +397,7 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
         return p(false);
       }
 
-        // Validate session token
+      // Validate session token
       return this.sessionStatus(sessionToken)
         .then(function () {
           return true;
