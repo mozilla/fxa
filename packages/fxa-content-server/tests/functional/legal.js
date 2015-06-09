@@ -6,8 +6,9 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require'
-], function (intern, registerSuite, assert, require) {
+  'require',
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, assert, require, FunctionalHelpers) {
   'use strict';
 
   var url = intern.config.fxaContentRoot + 'legal';
@@ -48,11 +49,13 @@ define([
     'start at terms page': function () {
 
       return this.get('remote')
+        .setFindTimeout(intern.config.pageLoadTimeout)
         .get(require.toUrl(url + '/terms'))
 
         .findByCssSelector('#main-content')
         .end()
 
+        .then(FunctionalHelpers.visibleByQSA('#legal-copy'))
         .findById('legal-copy')
           .getVisibleText()
           .then(function (resultText) {
@@ -65,11 +68,13 @@ define([
     'start at privacy page': function () {
 
       return this.get('remote')
+        .setFindTimeout(intern.config.pageLoadTimeout)
         .get(require.toUrl(url + '/privacy'))
 
         .findByCssSelector('#main-content')
         .end()
 
+        .then(FunctionalHelpers.visibleByQSA('#legal-copy'))
         .findById('legal-copy')
           .getVisibleText()
           .then(function (resultText) {

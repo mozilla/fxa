@@ -287,9 +287,9 @@ define([
         .then(testIsBrowserNotifiedOfAvatarChange(this))
 
         .findById('fxa-settings-header')
+        .end()
         //success is seeing the image loaded
-        .then(FunctionalHelpers.imageLoadedByQSA('.avatar-wrapper > img'))
-        .end();
+        .then(FunctionalHelpers.imageLoadedByQSA('.change-avatar > img'));
     },
 
     'attempt to use webcam for avatar, then cancel': function () {
@@ -346,9 +346,9 @@ define([
         .then(testIsBrowserNotifiedOfAvatarChange(this))
 
         .findById('fxa-settings-header')
+        .end()
         //success is seeing the image loaded
-        .then(FunctionalHelpers.imageLoadedByQSA('.avatar-wrapper > img'))
-        .end();
+        .then(FunctionalHelpers.imageLoadedByQSA('.change-avatar > img'));
 
     },
 
