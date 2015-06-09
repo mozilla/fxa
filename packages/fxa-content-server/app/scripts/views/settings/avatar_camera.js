@@ -149,10 +149,12 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
 
     submit: function () {
       var self = this;
+      var account = self.getSignedInAccount();
+      self.logAccountImageChange(account);
 
       return self.takePicture()
         .then(function (data) {
-          return self.getSignedInAccount().uploadAvatar(data);
+          return account.uploadAvatar(data);
         })
         .then(function (result) {
           self.stream.stop();

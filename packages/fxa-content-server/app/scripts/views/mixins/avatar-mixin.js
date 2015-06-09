@@ -72,6 +72,15 @@ define([
       return ! account.has('profileImageUrl');
     },
 
+    logAccountImageChange: function (account) {
+      // if the user already has an image set, then report a change event
+      if (account.get('hadProfileImageSetBefore')) {
+        this.logScreenEvent('submit.change');
+      } else {
+        this.logScreenEvent('submit.new');
+      }
+    },
+
     updateProfileImage: function (profileImage) {
       var account = this.getSignedInAccount();
       account.setProfileImage(profileImage);

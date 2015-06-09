@@ -14,14 +14,17 @@ define([
   '../../../mocks/window',
   '../../../mocks/canvas',
   '../../../mocks/profile',
+  '../../../lib/helpers',
   'models/user',
   'models/reliers/relier',
   'models/auth_brokers/base',
-  'lib/promise'
+  'lib/promise',
+  'lib/metrics'
 ],
 function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
-    ProfileMock, User, Relier, AuthBroker, p) {
+    ProfileMock, TestHelpers, User, Relier, AuthBroker, p, Metrics) {
   var assert = chai.assert;
+  var SCREEN_NAME = 'settings.avatar.camera';
 
   describe('views/settings/avatar/camera', function () {
     var view;
@@ -32,6 +35,7 @@ function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
     var account;
     var relier;
     var broker;
+    var metrics;
 
     beforeEach(function () {
       routerMock = new RouterMock();
@@ -41,13 +45,16 @@ function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
       broker = new AuthBroker({
         relier: relier
       });
+      metrics = new Metrics();
 
       view = new View({
         router: routerMock,
         user: user,
         window: windowMock,
         relier: relier,
-        broker: broker
+        broker: broker,
+        metrics: metrics,
+        screenName: SCREEN_NAME
       });
 
       account = user.initAccount({
@@ -153,6 +160,8 @@ function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
           window: windowMock,
           relier: relier,
           broker: broker,
+          metrics: metrics,
+          screenName: SCREEN_NAME,
           displayLength: 240,
           exportLength: 600
         });
@@ -196,29 +205,64 @@ function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
               view.stream.stop = function () {
                 stopped = true;
               };
-
               view.submit()
-                .then(function (result) {
+                .done(function (result) {
                   assert.isTrue(stopped, 'stream stopped');
                   assert.ok(! view.stream, 'stream is gone');
                   assert.equal(result.url, 'test');
                   assert.equal(result.id, 'foo');
                   assert.isTrue(view.updateProfileImage.called);
                   assert.equal(view.updateProfileImage.args[0][0].get('url'), result.url);
+                  assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.avatar.camera.submit.new'));
+
+                  // check canvas drawImage args
+                  assert.equal(view.canvas._context._args[0], view.video[0]);
+                  assert.equal(view.canvas._context._args[7], view.exportLength);
+                  assert.equal(view.canvas._context._args[8], view.exportLength);
+
+                  assert.equal(routerMock.page, 'settings');
+                  done();
                 }, done);
-
-              // check canvas drawImage args
-              assert.equal(view.canvas._context._args[0], view.video[0]);
-              assert.equal(view.canvas._context._args[7], view.exportLength);
-              assert.equal(view.canvas._context._args[8], view.exportLength);
             });
 
-            routerMock.on('navigate', function () {
-              assert.equal(routerMock.page, 'settings');
-              done();
-            });
           })
           .fail(done);
+      });
+
+      it('tracks new and change events for avatars', function (done) {
+        profileClientMock = new ProfileMock();
+
+        sinon.stub(account, 'profileClient', function () {
+          return p(profileClientMock);
+        });
+
+        sinon.stub(view, 'updateProfileImage', function () {
+          return p();
+        });
+
+        function mockStream() {
+          view.stream = {
+            stop: function () {}
+          };
+        }
+
+        view.render()
+          .then(function () {
+            mockStream();
+            return view.submit();
+          })
+          .then(function () {
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.avatar.camera.submit.new'));
+            assert.isFalse(TestHelpers.isEventLogged(metrics, 'settings.avatar.camera.submit.change'));
+            mockStream();
+            account.set('hadProfileImageSetBefore', true);
+
+            return view.submit();
+          })
+          .done(function () {
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.avatar.camera.submit.change'));
+            done();
+          }, done);
       });
 
     });

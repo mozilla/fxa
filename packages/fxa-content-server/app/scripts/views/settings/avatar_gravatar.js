@@ -76,10 +76,13 @@ function ($, _, md5, Cocktail, FormView, SettingsMixin, AvatarMixin,
     submit: function () {
       var self = this;
       var url = self.gravatarUrl();
+      var account = self.getSignedInAccount();
+
       // Use the URL for a full size image
       url = url.slice(0, url.indexOf('?')) + '?s=' + EXPORT_LENGTH;
+      self.logAccountImageChange(account);
 
-      return self.getSignedInAccount().postAvatar(url, true)
+      return account.postAvatar(url, true)
         .then(function (result) {
           self.updateProfileImage(new ProfileImage({ url: url, id: result.id }));
 

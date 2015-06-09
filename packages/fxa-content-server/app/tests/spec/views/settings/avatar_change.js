@@ -14,16 +14,19 @@ define([
   '../../../mocks/file-reader',
   '../../../mocks/profile',
   '../../../mocks/window',
+  '../../../lib/helpers',
   'models/user',
   'models/reliers/relier',
   'lib/profile-client',
   'lib/promise',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'lib/metrics'
 ],
 function (chai, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
-            WindowMock, User, Relier, ProfileClient, p, AuthErrors) {
+            WindowMock, TestHelpers, User, Relier, ProfileClient, p, AuthErrors, Metrics) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
+  var SCREEN_NAME = 'settings.avatar.change';
 
   describe('views/settings/avatar/change', function () {
     var view;
@@ -33,6 +36,7 @@ function (chai, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
     var user;
     var account;
     var relier;
+    var metrics;
 
     beforeEach(function () {
       routerMock = new RouterMock();
@@ -40,12 +44,15 @@ function (chai, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
       profileClientMock = new ProfileMock();
       windowMock = new WindowMock();
       relier = new Relier();
+      metrics = new Metrics();
 
       view = new View({
         user: user,
         relier: relier,
         router: routerMock,
-        window: windowMock
+        window: windowMock,
+        metrics: metrics,
+        screenName: SCREEN_NAME
       });
     });
 
@@ -73,7 +80,9 @@ function (chai, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
           router: routerMock,
           relier: relier,
           window: windowMock,
-          user: user
+          user: user,
+          metrics: metrics,
+          screenName: SCREEN_NAME
         });
         view.isUserAuthorized = function () {
           return p(true);
@@ -197,6 +206,56 @@ function (chai, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
             })
             .fail(done);
         });
+      });
+
+      it('properly tracks avatar change events', function (done) {
+        view.FileReader = FileReaderMock;
+
+        view.afterVisible()
+          .then(function () {
+            var ev = FileReaderMock._mockPngEvent();
+
+            view.router.on('navigate', function () {
+              try {
+                assert.isFalse(TestHelpers.isEventLogged(metrics, 'settings.avatar.change.submit.new'));
+                assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.avatar.change.submit.change'));
+                done();
+              } catch (e) {
+                return done(e);
+              }
+            });
+
+            view.fileSet(ev);
+          })
+          .fail(done);
+      });
+
+      it('properly tracks avatar new events', function (done) {
+        view.FileReader = FileReaderMock;
+
+        account.getAvatar.restore();
+        sinon.stub(account, 'getAvatar', function () {
+          return p({ avatar: pngSrc, id: null });
+        });
+
+        view.afterVisible()
+          .then(function () {
+            var ev = FileReaderMock._mockPngEvent();
+
+            view.router.on('navigate', function () {
+              try {
+                assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.avatar.change.submit.new'));
+                assert.isFalse(TestHelpers.isEventLogged(metrics, 'settings.avatar.change.submit.change'));
+                done();
+              } catch (e) {
+                return done(e);
+              }
+            });
+
+            account.set('hadProfileImageSetBefore', false);
+            view.fileSet(ev);
+          })
+          .fail(done);
       });
 
       it('clears setting param if set to avatar', function () {
