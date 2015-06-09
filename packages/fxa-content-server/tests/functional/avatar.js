@@ -100,17 +100,29 @@ define([
       return this.get('remote')
         .get(require.toUrl(SETTINGS_URL))
 
-        // Should not see this anchor
-        .waitForDeletedByCssSelector('a.change-avatar')
-        .end();
+        .setFindTimeout(intern.config.pageLoadTimeout)
+
+        .findByCssSelector('.avatar-view')
+        .end()
+
+        // this link should not be present on the page at all
+        .then(FunctionalHelpers.noSuchElement(this, 'a.change-avatar'));
     },
 
     'go to settings with an email NOT selected to see change link should not see text link': function () {
       return this.get('remote')
         .get(require.toUrl(SETTINGS_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
 
-        // Should not see this anchor
-        .waitForDeletedByCssSelector('p.change-avatar-text a')
+        .findByCssSelector('.avatar-view')
+        .end()
+
+        // this link will be present on the page, but not visible to the user.
+        .setFindTimeout(0)
+        .findByCssSelector('p.change-avatar-text a').isDisplayed()
+        .then(function (isDisplayed) {
+          assert.isFalse(isDisplayed);
+        })
         .end();
     },
 
