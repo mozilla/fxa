@@ -1,3 +1,26 @@
+<a name"0.39.0"></a>
+## 0.39.0 (2015-06-10)
+
+
+#### Bug Fixes
+
+* **api:**
+  * Correct the error codes changed in 2781b3a ([d0dba7c9](https://github.com/mozilla/fxa-oauth-server/commit/d0dba7c9))
+  * Change InvalidAssertions error code to  401 ([2781b3a2](https://github.com/mozilla/fxa-oauth-server/commit/2781b3a2))
+  * ensure /destroy endpoint returns an empty object in response body. ([6efd47d1](https://github.com/mozilla/fxa-oauth-server/commit/6efd47d1))
+* **clients:** fixes client registration to use payload.whitelisted ([83e145b0](https://github.com/mozilla/fxa-oauth-server/commit/83e145b0))
+* **docs:**
+  * Change Status Code for Invalid Assertion based ([780aaee3](https://github.com/mozilla/fxa-oauth-server/commit/780aaee3))
+  * document keys and verification_redirect options ([ef8c47a5](https://github.com/mozilla/fxa-oauth-server/commit/ef8c47a5))
+  * Update description of the `action` param to match latest reality. ([b475fcbc](https://github.com/mozilla/fxa-oauth-server/commit/b475fcbc))
+* **fatal-error:** Exit with non-zero exit code for fatal errors ([7c90ff08](https://github.com/mozilla/fxa-oauth-server/commit/7c90ff08), closes [#244](https://github.com/mozilla/fxa-oauth-server/issues/244))
+
+
+#### Features
+
+* **clients:** remove obsolete generate-client.js script ([62ab0adb](https://github.com/mozilla/fxa-oauth-server/commit/62ab0adb), closes [#231](https://github.com/mozilla/fxa-oauth-server/issues/231))
+
+
 <a name"0.36.1"></a>
 ### 0.36.1 (2015-04-30)
 
