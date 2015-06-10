@@ -38,7 +38,6 @@ module.exports = function (grunt) {
 
     // 'copy:styles',
     //  'connect_fonts_copy', - copy the generated connect fonts
-    //  'imagemin', - optimize image files
     'concurrent:dist',
 
     // concatenate files as part of the useminPrepare task
