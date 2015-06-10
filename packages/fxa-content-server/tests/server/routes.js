@@ -62,9 +62,10 @@ define([
     '/signin_permissions': { statusCode: 200 },
 
     // the following have a version prefix
-    '/v1/verify_email': { statusCode: 200 },
     '/v1/complete_reset_password': { statusCode: 200 },
-    '/v1/complete_unlock_account': { statusCode: 200 }
+    '/v1/complete_unlock_account': { statusCode: 200 },
+    '/v1/reset_password': { statusCode: 200 },
+    '/v1/verify_email': { statusCode: 200 }
   };
 
   if (config.get('are_dist_resources')) {

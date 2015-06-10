@@ -13,8 +13,9 @@ define([
 
   var pages = [
     'v1/complete_reset_password',
-    'v1/verify_email',
     'v1/complete_unlock_account',
+    'v1/reset_password',
+    'v1/verify_email',
     '',
     'signin',
     'signup',
