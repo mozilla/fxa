@@ -36,7 +36,7 @@ The currently-defined error responses are:
 | 400 | 101 | unknown client id |
 | 400 | 102 | incorrect client secret |
 | 400 | 103 | `redirect_uri` doesn't match registered value |
-| 400 | 104 | invalid fxa assertion |
+| 401 | 104 | invalid fxa assertion |
 | 400 | 105 | unknown code |
 | 400 | 106 | incorrect code |
 | 400 | 107 | expired code |

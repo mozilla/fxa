@@ -112,7 +112,7 @@ AppError.incorrectRedirect = function incorrectRedirect(uri) {
 
 AppError.invalidAssertion = function invalidAssertion() {
   return new AppError({
-    code: 400,
+    code: 401,
     error: 'Bad Request',
     errno: 104,
     message: 'Invalid assertion'

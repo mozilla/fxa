@@ -337,7 +337,7 @@ describe('/v1', function() {
           url: '/authorization',
           payload: authParams()
         }).then(function(res) {
-          assert.equal(res.result.code, 400);
+          assert.equal(res.result.code, 401);
           assert.equal(res.result.message, 'Invalid assertion');
         }).done(done, done);
       });
