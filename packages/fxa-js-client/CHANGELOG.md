@@ -1,3 +1,20 @@
+<a name="0.1.29"></a>
+### 0.1.29 (2015-06-10)
+
+
+#### Bug Fixes
+
+* **docs:** include keys for signUp ([dff42d0d](https://github.com/mozilla/fxa-js-client/commit/dff42d0d185524cfccf02a67af0e4c696875e54c), closes [#140](https://github.com/mozilla/fxa-js-client/issues/140))
+* **tests:** remove account devices, add unlock verify code ([13c1b836](https://github.com/mozilla/fxa-js-client/commit/13c1b836ffe9ad5cdde43a4a809d83d33795ce75), closes [#151](https://github.com/mozilla/fxa-js-client/issues/151))
+
+
+#### Features
+
+* **client:**
+  * Pass along `reason` in `signIn` ([b33b1d53](https://github.com/mozilla/fxa-js-client/commit/b33b1d53d8b49e1e069c733d897a063309346194))
+  * signIn can now pass along a `service` option. ([0188dbb2](https://github.com/mozilla/fxa-js-client/commit/0188dbb233286cefd3145f53b39e8279ad0c6e40))
+
+
 <a name="0.1.28"></a>
 ### 0.1.28 (2015-02-12)
 
