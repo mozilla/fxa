@@ -192,8 +192,10 @@ define([
         });
     },
 
-    signIn: function (relier) {
+    signIn: function (relier, options) {
       var self = this;
+      options = options || {};
+
       return p().then(function () {
         var password = self.get('password');
         var sessionToken = self.get('sessionToken');
@@ -213,16 +215,28 @@ define([
         self.set(updatedSessionData);
 
         if (! self.get('verified')) {
-          return self._fxaClient.signUpResend(relier, self.get('sessionToken'));
+          return self._fxaClient.signUpResend(
+            relier,
+            self.get('sessionToken'),
+            {
+              resume: options.resume
+            }
+          );
         }
       });
     },
 
-    signUp: function (relier) {
+    signUp: function (relier, options) {
       var self = this;
-      return self._fxaClient.signUp(self.get('email'), self.get('password'), relier,
+      options = options || {};
+
+      return self._fxaClient.signUp(
+        self.get('email'),
+        self.get('password'),
+        relier,
         {
-          customizeSync: self.get('customizeSync')
+          customizeSync: self.get('customizeSync'),
+          resume: options.resume
         })
         .then(function (updatedSessionData) {
           self.set(updatedSessionData);

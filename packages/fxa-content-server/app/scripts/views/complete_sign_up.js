@@ -10,12 +10,14 @@ define([
   'lib/auth-errors',
   'views/mixins/resend-mixin',
   'views/mixins/loading-mixin',
+  'views/mixins/resume-token-mixin',
   'models/verification/sign-up',
   'lib/url',
   'lib/constants'
 ],
 function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
-  AuthErrors, ResendMixin, LoadingMixin, VerificationInfo, Url, Constants) {
+  AuthErrors, ResendMixin, LoadingMixin, ResumeTokenMixin, VerificationInfo,
+  Url, Constants) {
   'use strict';
 
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
@@ -159,19 +161,26 @@ function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
 
       self.logScreenEvent('resend');
 
-      return self.fxaClient.signUpResend(self.relier, self._getResendSessionToken())
-              .then(function () {
-                self.displaySuccess();
-              }, function (err) {
-                if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-                  return self.navigate('signup', {
-                    error: err
-                  });
-                }
+      return self.fxaClient.signUpResend(
+        self.relier,
+        self._getResendSessionToken(),
+        {
+          resume: self.getStringifiedResumeToken()
+        }
+      )
+      .then(function () {
+        self.displaySuccess();
+      })
+      .fail(function (err) {
+        if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+          return self.navigate('signup', {
+            error: err
+          });
+        }
 
-                // unexpected error, rethrow for display.
-                throw err;
-              });
+        // unexpected error, rethrow for display.
+        throw err;
+      });
     },
 
     // The ResendMixin overrides beforeSubmit. Unless set to undefined,
@@ -181,8 +190,9 @@ function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
 
   Cocktail.mixin(
     CompleteSignUpView,
+    LoadingMixin,
     ResendMixin,
-    LoadingMixin
+    ResumeTokenMixin
   );
 
   return CompleteSignUpView;

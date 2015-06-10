@@ -222,9 +222,9 @@ define([
         Session.cachedCredentials.email !== Session.email));
     },
 
-    signInAccount: function (account, relier) {
+    signInAccount: function (account, relier, options) {
       var self = this;
-      return account.signIn(relier)
+      return account.signIn(relier, options)
         .then(function () {
           // If there's an account with the same uid in localStorage we merge
           // its attributes with the new account instance to retain state
@@ -241,9 +241,9 @@ define([
         });
     },
 
-    signUpAccount: function (account, relier) {
+    signUpAccount: function (account, relier, options) {
       var self = this;
-      return account.signUp(relier)
+      return account.signUp(relier, options)
         .then(function () {
           return self.setSignedInAccount(account);
         });

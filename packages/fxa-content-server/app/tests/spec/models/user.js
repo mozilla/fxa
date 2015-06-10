@@ -292,9 +292,14 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
         return p();
       });
 
-      return user.signInAccount(account, relierMock)
+      return user.signInAccount(account, relierMock, { resume: 'resume token'})
         .then(function () {
-          assert.isTrue(account.signIn.calledWith(relierMock));
+          assert.isTrue(account.signIn.calledWith(
+            relierMock,
+            {
+              resume: 'resume token'
+            }
+          ));
           assert.isTrue(user.setSignedInAccount.calledWith(account));
         });
     });
@@ -333,9 +338,14 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
         return p();
       });
 
-      return user.signUpAccount(account, relierMock)
+      return user.signUpAccount(account, relierMock, { resume: 'resume token'})
         .then(function () {
-          assert.isTrue(account.signUp.calledWith(relierMock));
+          assert.isTrue(account.signUp.calledWith(
+            relierMock,
+            {
+              resume: 'resume token'
+            }
+          ));
           assert.isTrue(user.setSignedInAccount.calledWith(account));
         });
     });

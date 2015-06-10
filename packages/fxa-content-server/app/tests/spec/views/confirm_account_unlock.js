@@ -230,6 +230,9 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
         sinon.stub(fxaClient, 'sendAccountUnlockEmail', function () {
           return p();
         });
+        sinon.stub(view, 'getStringifiedResumeToken', function () {
+          return 'resume token';
+        });
 
         return view.submit()
           .then(function () {
@@ -237,7 +240,13 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
                               'confirm-account-unlock.resend'));
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                               'confirm-account-unlock.resend.success'));
-            assert.isTrue(fxaClient.sendAccountUnlockEmail.calledWith(EMAIL));
+            assert.isTrue(fxaClient.sendAccountUnlockEmail.calledWith(
+              EMAIL,
+              relier,
+              {
+                resume: 'resume token'
+              }
+            ));
             assert.isTrue(view.isSuccessVisible());
           });
       });

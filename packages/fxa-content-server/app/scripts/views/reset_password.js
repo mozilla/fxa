@@ -9,11 +9,12 @@ define([
   'stache!templates/reset_password',
   'lib/session',
   'lib/auth-errors',
+  'views/mixins/resume-token-mixin',
   'views/mixins/service-mixin',
   'views/mixins/back-mixin'
 ],
 function (Cocktail, BaseView, FormView, Template, Session,
-  AuthErrors, ServiceMixin, BackMixin) {
+  AuthErrors, ResumeTokenMixin, ServiceMixin, BackMixin) {
   'use strict';
 
   var t = BaseView.t;
@@ -59,36 +60,43 @@ function (Cocktail, BaseView, FormView, Template, Session,
       var email = this.getElementValue('.email');
 
       var self = this;
-      return self.fxaClient.passwordReset(email, self.relier)
-        .then(function (result) {
-          self.navigate('confirm_reset_password', {
-            data: {
-              email: email,
-              passwordForgotToken: result.passwordForgotToken
-            }
-          });
-        })
-        .then(null, function (err) {
-          // clear oauth session
-          Session.clear('oauth');
-          if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
-            err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
-            return self.displayErrorUnsafe(err);
-          } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
-            self.logEvent('login.canceled');
-            // if user canceled login, just stop
-            return;
+      return self.fxaClient.passwordReset(
+        email,
+        self.relier,
+        {
+          resume: self.getStringifiedResumeToken()
+        }
+      )
+      .then(function (result) {
+        self.navigate('confirm_reset_password', {
+          data: {
+            email: email,
+            passwordForgotToken: result.passwordForgotToken
           }
-          // re-throw error, it will be handled at a lower level.
-          throw err;
         });
+      })
+      .fail(function (err) {
+        // clear oauth session
+        Session.clear('oauth');
+        if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
+          err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
+          return self.displayErrorUnsafe(err);
+        } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
+          self.logEvent('login.canceled');
+          // if user canceled login, just stop
+          return;
+        }
+        // re-throw error, it will be handled at a lower level.
+        throw err;
+      });
     }
   });
 
   Cocktail.mixin(
     View,
-    ServiceMixin,
-    BackMixin
+    BackMixin,
+    ResumeTokenMixin,
+    ServiceMixin
   );
 
   return View;

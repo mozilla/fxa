@@ -12,7 +12,7 @@ define([
   'lib/oauth-errors',
   'lib/promise',
   'lib/relier-keys',
-  'lib/resume-token',
+  'models/resume-token',
   'lib/url',
   '../../../mocks/window',
   '../../../lib/helpers'
@@ -327,10 +327,19 @@ define([
       });
     });
 
-    describe('getResumeToken', function () {
-      it('returns an opaque token to be passed along with email verification links', function () {
-        relier.set('state', 'STATE');
-        assert.equal(typeof relier.getResumeToken(), 'string');
+    describe('pickResumeTokenInfo', function () {
+      it('returns an object with info to be passed along with email verification links', function () {
+        var STATE = 'some long opaque state token';
+        var VERIFICATION_REDIRECT = 'https://redirect.here.org';
+
+        relier.set('state', STATE);
+        relier.set('verificationRedirect', VERIFICATION_REDIRECT);
+        relier.set('notPassed', 'this should not be picked');
+
+        assert.deepEqual(relier.pickResumeTokenInfo(), {
+          state: STATE,
+          verificationRedirect: VERIFICATION_REDIRECT
+        });
       });
     });
 

@@ -76,11 +76,11 @@ define([
     },
 
     /**
-     * Create a resume token to be passed along in the email
+     * Get the resume token info to be passed along in the email
      * verification links
      */
-    getResumeToken: function () {
-      return null;
+    pickResumeTokenInfo: function () {
+      return {};
     },
 
     /**

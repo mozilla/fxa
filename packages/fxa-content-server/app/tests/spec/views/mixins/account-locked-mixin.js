@@ -6,6 +6,7 @@ define([
   'chai',
   'cocktail',
   'sinon',
+  'models/reliers/base',
   'models/user',
   'lib/fxa-client',
   'lib/promise',
@@ -16,7 +17,7 @@ define([
   'stache!templates/test_template',
   '../../../mocks/router',
   '../../../lib/helpers'
-], function (Chai, Cocktail, sinon, User, FxaClient, p, AuthErrors,
+], function (Chai, Cocktail, sinon, Relier, User, FxaClient, p, AuthErrors,
     Metrics, AccountLockedMixin, BaseView, Template, RouterMock, TestHelpers) {
   'use strict';
 
@@ -34,6 +35,7 @@ define([
     var fxaClient;
     var account;
     var metrics;
+    var relier;
 
     beforeEach(function () {
       routerMock = new RouterMock();
@@ -44,11 +46,13 @@ define([
       });
 
       metrics = new Metrics();
+      relier = new Relier();
 
       view = new AccountLockedView({
         router: routerMock,
         fxaClient: fxaClient,
         metrics: metrics,
+        relier: relier,
         screenName: 'delete-account'  // just an example name
       });
       return view.render();
@@ -71,11 +75,21 @@ define([
         sinon.stub(fxaClient, 'sendAccountUnlockEmail', function () {
           return p();
         });
+        sinon.stub(view, 'getStringifiedResumeToken', function () {
+          return 'resume token';
+        });
 
         view.notifyOfLockedAccount(account);
         return view.sendAccountLockedEmail()
           .then(function () {
             assert.equal(routerMock.page, 'confirm_account_unlock');
+            assert.isTrue(fxaClient.sendAccountUnlockEmail.calledWith(
+              'testuser@testuser.com',
+              relier,
+              {
+                resume: 'resume token'
+              }
+            ));
           });
       });
 

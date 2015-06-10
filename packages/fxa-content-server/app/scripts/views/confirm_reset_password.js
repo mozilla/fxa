@@ -12,10 +12,11 @@ define([
   'lib/session',
   'lib/auth-errors',
   'views/mixins/resend-mixin',
+  'views/mixins/resume-token-mixin',
   'views/mixins/service-mixin'
 ],
 function (Cocktail, _, ConfirmView, BaseView, Template, p, Session, AuthErrors,
-      ResendMixin, ServiceMixin) {
+      ResendMixin, ResumeTokenMixin, ServiceMixin) {
   'use strict';
 
   var t = BaseView.t;
@@ -247,20 +248,27 @@ function (Cocktail, _, ConfirmView, BaseView, Template, p, Session, AuthErrors,
       var self = this;
       self.logScreenEvent('resend');
 
-      return self.fxaClient.passwordResetResend(self._email,
-                      self._passwordForgotToken, self.relier)
-        .then(function () {
-          self.displaySuccess();
-        }, function (err) {
-          if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-            return self.navigate('reset_password', {
-              error: err
-            });
-          }
+      return self.fxaClient.passwordResetResend(
+        self._email,
+        self._passwordForgotToken,
+        self.relier,
+        {
+          resume: self.getStringifiedResumeToken()
+        }
+      )
+      .then(function () {
+        self.displaySuccess();
+      })
+      .fail(function (err) {
+        if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+          return self.navigate('reset_password', {
+            error: err
+          });
+        }
 
-          // unexpected error, rethrow for display.
-          throw err;
-        });
+        // unexpected error, rethrow for display.
+        throw err;
+      });
     },
 
     // The ResendMixin overrides beforeSubmit. Unless set to undefined,
@@ -271,6 +279,7 @@ function (Cocktail, _, ConfirmView, BaseView, Template, p, Session, AuthErrors,
   Cocktail.mixin(
     View,
     ResendMixin,
+    ResumeTokenMixin,
     ServiceMixin
   );
 

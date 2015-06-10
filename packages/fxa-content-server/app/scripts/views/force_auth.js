@@ -9,12 +9,13 @@ define([
   'views/form',
   'views/sign_in',
   'views/mixins/password-mixin',
+  'views/mixins/resume-token-mixin',
   'stache!templates/force_auth',
   'lib/session',
   'lib/auth-errors'
 ],
 function (Cocktail, p, BaseView, FormView, SignInView, PasswordMixin,
-    Template, Session, AuthErrors) {
+    ResumeTokenMixin, Template, Session, AuthErrors) {
   'use strict';
 
   function getFatalErrorMessage(self, fatalError) {
@@ -94,19 +95,26 @@ function (Cocktail, p, BaseView, FormView, SignInView, PasswordMixin,
         var email = self.relier.get('email');
         self._isSubmitting = true;
 
-        return self.fxaClient.passwordReset(email, self.relier)
-                .then(function (result) {
-                  self._isSubmitting = false;
-                  self.navigate('confirm_reset_password', {
-                    data: {
-                      email: email,
-                      passwordForgotToken: result.passwordForgotToken
-                    }
-                  });
-                }, function (err) {
-                  self._isSubmitting = false;
-                  self.displayError(err);
-                });
+        return self.fxaClient.passwordReset(
+          email,
+          self.relier,
+          {
+            resume: self.getStringifiedResumeToken()
+          }
+        )
+        .then(function (result) {
+          self._isSubmitting = false;
+          self.navigate('confirm_reset_password', {
+            data: {
+              email: email,
+              passwordForgotToken: result.passwordForgotToken
+            }
+          });
+        })
+        .fail(function (err) {
+          self._isSubmitting = false;
+          self.displayError(err);
+        });
       });
     },
 
@@ -131,7 +139,8 @@ function (Cocktail, p, BaseView, FormView, SignInView, PasswordMixin,
 
   Cocktail.mixin(
     View,
-    PasswordMixin
+    PasswordMixin,
+    ResumeTokenMixin
   );
 
   return View;

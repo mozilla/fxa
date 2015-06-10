@@ -321,13 +321,22 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
         sinon.stub(fxaClient, 'passwordResetResend', function () {
           return p(true);
         });
+        sinon.stub(view, 'getStringifiedResumeToken', function () {
+          return 'resume token';
+        });
 
         return view.submit()
           .then(function () {
             assert.isTrue(view.$('.success').is(':visible'));
 
             assert.isTrue(fxaClient.passwordResetResend.calledWith(
-                EMAIL, PASSWORD_FORGOT_TOKEN, relier));
+              EMAIL,
+              PASSWORD_FORGOT_TOKEN,
+              relier,
+              {
+                resume: 'resume token'
+              }
+            ));
           });
       });
 

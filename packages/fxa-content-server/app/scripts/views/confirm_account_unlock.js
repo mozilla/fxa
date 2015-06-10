@@ -10,12 +10,13 @@ define([
   'lib/promise',
   'lib/auth-errors',
   'lib/constants',
+  'views/mixins/back-mixin',
   'views/mixins/resend-mixin',
-  'views/mixins/service-mixin',
-  'views/mixins/back-mixin'
+  'views/mixins/resume-token-mixin',
+  'views/mixins/service-mixin'
 ],
 function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
-    ResendMixin, ServiceMixin, BackMixin) {
+    BackMixin, ResendMixin, ResumeTokenMixin, ServiceMixin) {
   'use strict';
 
   var t = BaseView.t;
@@ -164,19 +165,22 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
 
       self.logScreenEvent('resend');
       var email = self.getAccount().get('email');
-      return self.fxaClient.sendAccountUnlockEmail(email, self.relier)
-        .then(function () {
-          self.logScreenEvent('resend.success');
-          self.displaySuccess();
-        });
+      return self.fxaClient.sendAccountUnlockEmail(email, self.relier, {
+        resume: self.getStringifiedResumeToken()
+      })
+      .then(function () {
+        self.logScreenEvent('resend.success');
+        self.displaySuccess();
+      });
     }
   });
 
   Cocktail.mixin(
     View,
+    BackMixin,
     ResendMixin,
-    ServiceMixin,
-    BackMixin
+    ResumeTokenMixin,
+    ServiceMixin
   );
 
   return View;

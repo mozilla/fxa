@@ -214,11 +214,21 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
         sinon.stub(relier, 'accountNeedsPermissions', function () {
           return false;
         });
+        sinon.stub(view, 'getStringifiedResumeToken', function () {
+          // the resume token is used post email verification.
+          return 'resume token';
+        });
 
         return view.submit()
           .then(function () {
             assert.isTrue(broker.beforeSignIn.calledWith(email));
-            assert.isTrue(user.signInAccount.calledWith(user.initAccount.returnValues[0], relier));
+            assert.isTrue(user.signInAccount.calledWith(
+              user.initAccount.returnValues[0],
+              relier,
+              {
+                resume: 'resume token'
+              }
+            ));
             assert.equal(routerMock.page, 'confirm');
           });
       });

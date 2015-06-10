@@ -9,14 +9,16 @@
  */
 
 define([
+  'underscore',
+  'lib/auth-errors',
   'views/base',
-  'lib/auth-errors'
-], function (BaseView, AuthErrors) {
+  'views/mixins/resume-token-mixin'
+], function (_, AuthErrors, BaseView, ResumeTokenMixin) {
   'use strict';
 
   var t = BaseView.t;
 
-  var AccountLockedMixin = {
+  var AccountLockedMixin = _.extend({
     events: {
       'click a[href="/confirm_account_unlock"]':
             BaseView.preventDefaultThen('sendAccountLockedEmail')
@@ -36,26 +38,34 @@ define([
       var account = self._lockedAccount;
       var email = account.get('email');
       self.logScreenEvent('unlock-email.send');
-      return self.fxaClient.sendAccountUnlockEmail(email, self.relier)
-        .then(function () {
-          self.logScreenEvent('unlock-email.send.success');
-          self.navigate('confirm_account_unlock', {
-            data: {
-              lockoutSource: self.getScreenName(),
-              account: account
-            }
-          });
-        }, function (err) {
-          if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
-            return self.navigate('signup', {
-              error: err
-            });
+      return self.fxaClient.sendAccountUnlockEmail(
+        email,
+        self.relier,
+        {
+          resume: this.getStringifiedResumeToken()
+        }
+      )
+      .then(function () {
+        self.logScreenEvent('unlock-email.send.success');
+        self.navigate('confirm_account_unlock', {
+          data: {
+            lockoutSource: self.getScreenName(),
+            account: account
           }
-
-          self.displayError(err);
         });
+      }, function (err) {
+        if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
+          return self.navigate('signup', {
+            error: err
+          });
+        }
+
+        self.displayError(err);
+      });
     }
-  };
+    // Any view that uses the AccountLockedMixin has the ResumeTokenMixin
+    // because the AccountLockedMixin depends on the ResumeTokenMixin.
+  }, ResumeTokenMixin);
 
   return AccountLockedMixin;
 });

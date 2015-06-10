@@ -186,7 +186,9 @@ function (FxaClient, $, p, Session, AuthErrors) {
             signUpOptions.preVerified = true;
           }
 
-          signUpOptions.resume = self._createResumeToken(relier);
+          if (options.resume) {
+            signUpOptions.resume = options.resume;
+          }
 
           return client.signUp(email, password, signUpOptions)
             .then(function (accountData) {
@@ -207,15 +209,19 @@ function (FxaClient, $, p, Session, AuthErrors) {
         });
     },
 
-    signUpResend: function (relier, sessionToken) {
-      var self = this;
+    signUpResend: function (relier, sessionToken, options) {
+      options = options || {};
+
       return this._getClient()
         .then(function (client) {
           var clientOptions = {
             service: relier.get('service'),
-            redirectTo: relier.get('redirectTo'),
-            resume: self._createResumeToken(relier)
+            redirectTo: relier.get('redirectTo')
           };
+
+          if (options.resume) {
+            clientOptions.resume = options.resume;
+          }
 
           return client.recoveryEmailResendCode(sessionToken, clientOptions);
         });
@@ -235,29 +241,32 @@ function (FxaClient, $, p, Session, AuthErrors) {
               });
     },
 
-    passwordReset: function (originalEmail, relier) {
-      var self = this;
+    passwordReset: function (originalEmail, relier, options) {
       var email = trim(originalEmail);
+      options = options || {};
 
       return this._getClient()
-              .then(function (client) {
-                var clientOptions = {
-                  service: relier.get('service'),
-                  redirectTo: relier.get('redirectTo'),
-                  resume: self._createResumeToken(relier)
-                };
+        .then(function (client) {
+          var clientOptions = {
+            service: relier.get('service'),
+            redirectTo: relier.get('redirectTo')
+          };
 
-                return client.passwordForgotSendCode(email, clientOptions);
-              })
-              .then(function (result) {
-                Session.clear();
-                return result;
-              });
+          if (options.resume) {
+            clientOptions.resume = options.resume;
+          }
+
+          return client.passwordForgotSendCode(email, clientOptions);
+        })
+        .then(function (result) {
+          Session.clear();
+          return result;
+        });
     },
 
-    passwordResetResend: function (originalEmail, passwordForgotToken, relier) {
-      var self = this;
+    passwordResetResend: function (originalEmail, passwordForgotToken, relier, options) {
       var email = trim(originalEmail);
+      options = options || {};
 
       return this._getClient()
         .then(function (client) {
@@ -265,15 +274,18 @@ function (FxaClient, $, p, Session, AuthErrors) {
           // passwordForgotResendCode
           var clientOptions = {
             service: relier.get('service'),
-            redirectTo: relier.get('redirectTo'),
-            resume: self._createResumeToken(relier)
+            redirectTo: relier.get('redirectTo')
           };
 
+          if (options.resume) {
+            clientOptions.resume = options.resume;
+          }
+
           return client.passwordForgotResendCode(
-                   email,
-                   passwordForgotToken,
-                   clientOptions
-                 );
+            email,
+            passwordForgotToken,
+            clientOptions
+          );
         });
     },
 
@@ -316,17 +328,23 @@ function (FxaClient, $, p, Session, AuthErrors) {
         });
     },
 
-    sendAccountUnlockEmail: function (email, relier) {
+    sendAccountUnlockEmail: function (originalEmail, relier, options) {
       var self = this;
+      var email = trim(originalEmail);
+      options = options || {};
+
       return self._getClient()
         .then(function (client) {
           var clientOptions = {};
           if (relier) {
             clientOptions = {
               service: relier.get('service'),
-              redirectTo: relier.get('redirectTo'),
-              resume: self._createResumeToken(relier)
+              redirectTo: relier.get('redirectTo')
             };
+          }
+
+          if (options.resume) {
+            clientOptions.resume = options.resume;
           }
 
           return client.accountUnlockResendCode(email, clientOptions);
@@ -417,13 +435,6 @@ function (FxaClient, $, p, Session, AuthErrors) {
         .then(function (client) {
           return client.accountKeys(keyFetchToken, unwrapBKey);
         });
-    },
-
-    // The resume token is eventually for post-verification if the
-    // user verifies in a second client, with the goal of allowing
-    // users to continue back to the original RP.
-    _createResumeToken: function (relier) {
-      return relier.getResumeToken();
     }
   };
 
