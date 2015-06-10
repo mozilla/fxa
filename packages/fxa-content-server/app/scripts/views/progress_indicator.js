@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+'use strict';
 
 // Handles screen updates to indicate progress.
 //
@@ -22,8 +23,6 @@ define([
   'backbone',
   'views/mixins/timer-mixin'
 ], function (_, $, Backbone, TimerMixin) {
-  'use strict';
-
   // The show and hide delays are to minimize flash.
   var SHOW_DELAY_MS = 100;
   var HIDE_DELAY_MS = 100;

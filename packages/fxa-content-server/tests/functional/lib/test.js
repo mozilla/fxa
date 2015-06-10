@@ -5,13 +5,12 @@
 /**
  * Additional tests.
  */
+'use strict';
 
 define([
   'intern',
   'intern/chai!assert'
 ], function (intern, assert) {
-  'use strict';
-
   function noElementByCssSelector(context, selector) {
     return function () {
       return context.get('remote')

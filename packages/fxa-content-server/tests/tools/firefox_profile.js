@@ -1,14 +1,13 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+'use strict';
 
 define([
   'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!path',
   'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!sync-exec'
 ],
 function (path, exec) {
-  'use strict';
-
   var createProfile = function (config) {
     var profileProcess = null;
     var encodedProfile = '';

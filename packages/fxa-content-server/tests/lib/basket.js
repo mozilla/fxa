@@ -1,14 +1,13 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+'use strict';
 
 define([
   'tests/lib/request',
   'intern/node_modules/dojo/Deferred',
   'intern/dojo/node!../../server/lib/configuration'
 ], function (request, Deferred, config) {
-  'use strict';
-
   var API_KEY = config.get('basket.api_key');
   var API_URL = config.get('basket.api_url');
 

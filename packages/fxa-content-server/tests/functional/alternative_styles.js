@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+'use strict';
 
 define([
   'intern',
@@ -9,8 +10,6 @@ define([
   'tests/functional/lib/test',
   'require'
 ], function (intern, registerSuite, FunctionalHelpers, Test, require) {
-  'use strict';
-
   var INVALID_CHROMELESS_URL = intern.config.fxaContentRoot + 'signup?style=chromeless';
   var CHROMELESS_IFRAME_SYNC_URL = intern.config.fxaContentRoot + 'signup?service=sync&context=iframe&style=chromeless';
 

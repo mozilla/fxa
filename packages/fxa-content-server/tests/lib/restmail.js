@@ -1,13 +1,12 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+'use strict';
 
 define([
   'tests/lib/request',
   'intern/node_modules/dojo/Deferred'
 ], function (request, Deferred) {
-  'use strict';
-
   function waitForEmail(uri, number) {
     if (!number) {
       number = 1;

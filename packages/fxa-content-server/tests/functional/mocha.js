@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+'use strict';
 
 define([
   'intern',
@@ -12,8 +13,6 @@ define([
   'require',
   'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!child_process'
 ], function (intern, registerSuite, assert, config, Deferred, all, require, child_process) {
-  'use strict';
-
   var ERROR_COLOR = '\x1b[1;31m';       // red
   var DESCRIPTION_COLOR = '\x1b[1;36m'; // cyan
   var DEFAULT_COLOR = '\x1b[0;0m';      // off

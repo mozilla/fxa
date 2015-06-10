@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+'use strict';
 
 define([
   'intern',
@@ -16,8 +17,6 @@ define([
 ], function (intern, registerSuite, assert, require, nodeXMLHttpRequest,
         FxaClient, TestHelpers, FunctionalHelpers, FxDesktopHelpers,
         Constants) {
-  'use strict';
-
   var FX_DESKTOP_CONTEXT = Constants.FX_DESKTOP_CONTEXT;
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
 

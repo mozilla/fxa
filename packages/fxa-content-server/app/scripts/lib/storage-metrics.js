@@ -6,6 +6,7 @@
  * A Storage metrics module. For use as a standin when running functional
  * tests
  */
+'use strict';
 
 define([
   'underscore',
@@ -13,8 +14,6 @@ define([
   'lib/metrics',
   'lib/storage'
 ], function (_, p, Metrics, Storage) {
-  'use strict';
-
   var storage = Storage.factory('localStorage');
 
   function StorageMetrics() {

@@ -12,9 +12,9 @@
 // 'test/spec/{,*/}*.js'
 // use this if you want to recursively match all subfolders:
 // 'test/spec/**/*.js'
-module.exports = function (grunt) {
-  'use strict';
+'use strict';
 
+module.exports = function (grunt) {
   // load all grunt tasks based on environment
   if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
     require('load-grunt-tasks')(grunt, {scope: 'dependencies'});

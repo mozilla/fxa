@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
+'use strict';
 
 // Ensure l10n is working as expected based on the
 // user's `Accept-Language` headers
@@ -13,8 +13,6 @@ define([
   'intern/dojo/node!../../server/lib/configuration',
   'intern/dojo/node!request'
 ], function (intern, registerSuite, assert, config, request) {
-  'use strict';
-
   var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
 
   var suite = {

@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+'use strict';
 
 define([
   './functional/oauth_sign_in',
@@ -13,6 +14,4 @@ define([
   './functional/oauth_iframe',
   './functional/oauth_force_email',
   './functional/oauth_permissions'
-], function () {
-  'use strict';
-});
+], function () {});

@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+'use strict';
 
 // grunt task to create a copy of each static page for each locale.
 // Three steps are performed to create the pages:
@@ -13,8 +14,6 @@
 // (requirejs, minification, revving).
 
 module.exports = function (grunt) {
-  'use strict';
-
   var path = require('path');
   var Handlebars = require('handlebars');
   var Promise = require('bluebird');

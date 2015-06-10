@@ -6,6 +6,7 @@
 /**
  * Test the iframe oauth flow
  */
+'use strict';
 
 define([
   'intern',
@@ -18,8 +19,6 @@ define([
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, assert, require, nodeXMLHttpRequest,
         FxaClient, TestHelpers, FunctionalHelpers) {
-  'use strict';
-
   var config = intern.config;
   var IFRAME_OAUTH_APP = config.fxaIframeOauthApp;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;

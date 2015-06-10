@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+'use strict';
 
 define([
   'intern',
@@ -9,8 +10,6 @@ define([
   'tests/lib/restmail',
   'tests/lib/helpers'
 ], function (intern, registerSuite, require, restmail, TestHelpers) {
-  'use strict';
-
   var config = intern.config;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   var PASSWORD = 'password';

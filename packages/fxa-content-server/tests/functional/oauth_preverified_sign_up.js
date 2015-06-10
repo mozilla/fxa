@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+'use strict';
 
 define([
   'intern',
@@ -10,8 +11,6 @@ define([
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, assert, require, TestHelpers, FunctionalHelpers) {
-  'use strict';
-
   var config = intern.config;
   var OAUTH_APP = config.fxaOauthApp;
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;

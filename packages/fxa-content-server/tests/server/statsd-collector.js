@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+'use strict';
 
 define([
   'intern',
@@ -12,8 +13,6 @@ define([
   'intern/dojo/node!dgram',
   'intern/dojo/node!../../server/lib/statsd-collector'
 ], function (intern, registerSuite, assert, Deferred, initLogging, fs, dgram, StatsDCollector) {
-  'use strict';
-
   var STATSD_PORT = 8125;
   var STATSD_HOST = '127.0.0.1';
 
