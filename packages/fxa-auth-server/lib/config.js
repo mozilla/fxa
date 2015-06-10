@@ -196,7 +196,11 @@ var files = (envConfig + ',' + process.env.CONFIG_FILES)
   .split(',').filter(fs.existsSync);
 conf.loadFile(files);
 
-conf.validate();
+var options = {
+  strict: true
+};
+
+conf.validate(options);
 
 
 module.exports = conf;
