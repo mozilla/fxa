@@ -17,12 +17,6 @@ module.exports = function (grunt) {
       'copy:styles',
       'copy:normalize',
       'connect_fonts_copy'
-    ],
-    lint: [
-      'jshint',
-      'jsonlint:app',
-      'jscs',
-      'amdcheck'
     ]
   });
 };
