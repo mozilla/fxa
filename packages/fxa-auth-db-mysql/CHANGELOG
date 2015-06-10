@@ -1,3 +1,9 @@
+train-39
+  * fix(npm): Update npm-shrinkwrap to include the last version of fxa-auth-db-server - #50
+  * Added checkPassword_1 stored procedure - #45
+  * Use array for Mysql read() bound parameters - #45
+  * chore(license): Update license to be SPDX compliant - #46
+
 train-37
   * refactor(lib): move most things into lib/
   * build(travis): Test on both io.js v1 and v2
@@ -10,7 +16,7 @@ train-36
   * chore(package): Update to mysql-patcher@0.7.0 - #39
   * chore(copyright): Update to grunt-copyright v0.2.0 - #40
   * chore(test): Test on node.js v0.10, v0.12 and the latest io.js - #41
-  
+
 train-35
   * there was no train-35 for fxa-auth-db-mysql
 
