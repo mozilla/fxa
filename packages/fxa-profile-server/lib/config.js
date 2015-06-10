@@ -88,6 +88,10 @@ const conf = convict({
     level: {
       env: 'LOG_LEVEL',
       default: 'info'
+    },
+    debug: {
+      env: 'LOG_DEBUG',
+      default: false
     }
   },
   mysql: {
@@ -172,6 +176,10 @@ if (conf.get('env') === 'test') {
 
 process.env.NODE_ENV = conf.get('env');
 
-conf.validate();
+var options = {
+  strict: true
+};
+
+conf.validate(options);
 
 module.exports = conf;

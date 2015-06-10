@@ -16,7 +16,7 @@
     "buf": "0.1.0",
     "checksum": "0.1.1",
     "compute-cluster": "0.0.9",
-    "convict": "0.6.0",
+    "convict": "0.8.0",
     "gm": "1.17.0",
     "hapi": "7.5.3",
     "joi": "4.7.0",
