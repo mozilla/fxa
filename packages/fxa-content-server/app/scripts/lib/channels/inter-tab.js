@@ -6,7 +6,6 @@
  * This is a special channel that communicates between two
  * tabs of the same browser. It uses localStorage to communicate.
  */
-
 'use strict';
 
 define([

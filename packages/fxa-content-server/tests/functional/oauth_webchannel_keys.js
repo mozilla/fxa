@@ -22,7 +22,6 @@ define([
   var PASSWORD = 'password';
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
   var OLD_ENOUGH_YEAR = TOO_YOUNG_YEAR - 1;
-  var user;
   var email;
   var client;
   var ANIMATION_DELAY_MS = 1000;
@@ -65,8 +64,6 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      user = TestHelpers.emailToUser(email);
-
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });

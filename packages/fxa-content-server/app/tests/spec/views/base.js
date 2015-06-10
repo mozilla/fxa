@@ -1,9 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 'use strict';
-
 
 define([
   'chai',
@@ -16,7 +14,6 @@ define([
   'lib/metrics',
   'lib/auth-errors',
   'lib/fxa-client',
-  'models/reliers/relier',
   'models/user',
   'stache!templates/test_template',
   '../../mocks/dom-event',
@@ -25,7 +22,7 @@ define([
   '../../lib/helpers'
 ],
 function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
-          AuthErrors, FxaClient, Relier, User, Template, DOMEventMock, RouterMock,
+          AuthErrors, FxaClient, User, Template, DOMEventMock, RouterMock,
           WindowMock, TestHelpers) {
   var requiresFocus = TestHelpers.requiresFocus;
   var wrapAssertion = TestHelpers.wrapAssertion;
@@ -40,7 +37,6 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
     var translator;
     var metrics;
     var fxaClient;
-    var relier;
     var user;
     var screenName = 'screen';
 
@@ -60,7 +56,6 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
       windowMock = new WindowMock();
       ephemeralMessages = new EphemeralMessages();
       metrics = new Metrics();
-      relier = new Relier();
       fxaClient = new FxaClient();
       user = new User();
 
@@ -596,4 +591,3 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
     });
   });
 });
-

@@ -5,7 +5,6 @@
 /**
  * A null sender. Sends messages nowhere.
  */
-
 'use strict';
 
 define([

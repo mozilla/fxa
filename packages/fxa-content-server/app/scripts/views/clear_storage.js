@@ -6,7 +6,6 @@
  * This is a very small view to allow selenium tests
  * to clear browser storage state between tests.
  */
-
 'use strict';
 
 define([

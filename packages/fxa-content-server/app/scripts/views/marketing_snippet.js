@@ -8,7 +8,6 @@
  * Shows `Get Sync on Firefox for Android` for users that complete
  * signup for sync in Firefox Desktop.
  */
-
 'use strict';
 
 define([

@@ -6,7 +6,6 @@
  * The base relier. It's the base of all other reliers, or a NullRelier,
  * depending on how you want to use it.
  */
-
 'use strict';
 
 define([

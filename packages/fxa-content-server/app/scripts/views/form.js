@@ -16,7 +16,6 @@
  *
  * See documentation for an explanation of each.
  */
-
 'use strict';
 
 define([

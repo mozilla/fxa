@@ -7,7 +7,6 @@
  *
  * @class BackMixin
  */
-
 'use strict';
 
 define([

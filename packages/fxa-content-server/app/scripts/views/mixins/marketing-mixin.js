@@ -6,7 +6,6 @@
  * A view mixin that takes care of logging marketing impressions
  * and clicks.
  */
-
 'use strict';
 
 define([

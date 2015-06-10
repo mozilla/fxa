@@ -4,7 +4,6 @@
 
 // This module abstracts interaction with storage backends such as localStorage
 // or sessionStorage.
-
 'use strict';
 
 define([
@@ -24,7 +23,7 @@ define([
     var item;
     try {
       item = JSON.parse(this._backend.getItem(fullKey(key)));
-    } catch (e) {
+    } catch (e) { //eslint-disable-line no-empty
     }
     return item;
   };

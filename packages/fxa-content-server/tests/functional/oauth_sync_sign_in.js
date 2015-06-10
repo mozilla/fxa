@@ -22,7 +22,6 @@ define([
   var client;
   var email;
   var email2;
-  var user;
   var PASSWORD = '12345678';
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
   var OLD_ENOUGH_YEAR = TOO_YOUNG_YEAR - 1;
@@ -44,7 +43,6 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      user = TestHelpers.emailToUser(email);
       email2 = TestHelpers.createEmail();
 
       client = new FxaClient(AUTH_SERVER_ROOT, {

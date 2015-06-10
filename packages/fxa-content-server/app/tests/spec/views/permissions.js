@@ -1,9 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 'use strict';
-
 
 define([
   'chai',
@@ -27,7 +25,6 @@ function (chai, $, sinon, p, View, Metrics, FxaClient, EphemeralMessages,
 
   describe('views/permissions', function () {
     var view;
-    var email;
     var routerMock;
     var metrics;
     var windowMock;
@@ -35,17 +32,16 @@ function (chai, $, sinon, p, View, Metrics, FxaClient, EphemeralMessages,
     var relier;
     var broker;
     var user;
+    var email;
     var ephemeralMessages;
     var account;
     var SERVICE_NAME = 'Relier';
     var CLIENT_ID = 'relier';
     var SERVICE_URI = 'relier.com';
-    var EMAIL = 'a@a.com';
     var PERMISSIONS = ['profile:email', 'profile:uid'];
 
     beforeEach(function () {
       email = TestHelpers.createEmail();
-
       routerMock = new RouterMock();
       windowMock = new WindowMock();
       metrics = new Metrics();
@@ -63,7 +59,7 @@ function (chai, $, sinon, p, View, Metrics, FxaClient, EphemeralMessages,
       });
       ephemeralMessages = new EphemeralMessages();
       account = user.initAccount({
-        email: EMAIL,
+        email: email,
         uid: 'uid',
         sessionToken: 'fake session token'
       });
@@ -122,7 +118,7 @@ function (chai, $, sinon, p, View, Metrics, FxaClient, EphemeralMessages,
             assert.include(view.$('#permission-request').text(), SERVICE_NAME,
               'service name shows in paragraph');
 
-            assert.equal(view.$('.email').val(), EMAIL,
+            assert.equal(view.$('.email').val(), email,
               'shows email in permissions list');
           });
       });

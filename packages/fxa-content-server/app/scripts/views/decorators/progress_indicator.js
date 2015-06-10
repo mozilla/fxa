@@ -11,7 +11,6 @@
  *
  * Requires the invokeHandler function.
  */
-
 'use strict';
 
 define([

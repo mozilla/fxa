@@ -6,7 +6,6 @@
  * Prints a message to the user that says
  * "All ready! You can go visit {{ service }}"
  */
-
 'use strict';
 
 define([

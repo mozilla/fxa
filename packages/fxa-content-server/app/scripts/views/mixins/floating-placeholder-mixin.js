@@ -4,7 +4,6 @@
 
 // FormView plugin to convert a placeholder into a
 // floating label if the input changes.
-
 'use strict';
 
 define([

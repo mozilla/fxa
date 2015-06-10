@@ -8,6 +8,8 @@ module.exports = function (grunt) {
     config: {
       src: [
         '.bowerrc',
+        '.eslintrc',
+        '.jscsrc',
         '.jshintrc'
       ]
     },

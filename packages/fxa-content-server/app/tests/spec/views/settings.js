@@ -1,9 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 'use strict';
-
 
 define([
   'chai',
@@ -11,7 +9,6 @@ define([
   'sinon',
   'views/settings',
   '../../mocks/router',
-  '../../mocks/window',
   '../../lib/helpers',
   'lib/fxa-client',
   'lib/promise',
@@ -23,14 +20,13 @@ define([
   'models/profile-image',
   'models/user'
 ],
-function (chai, $, sinon, View, RouterMock, WindowMock, TestHelpers,
+function (chai, $, sinon, View, RouterMock, TestHelpers,
       FxaClient, p, ProfileErrors, AuthErrors, Able, Metrics, Relier, ProfileImage, User) {
   var assert = chai.assert;
 
   describe('views/settings', function () {
     var view;
     var routerMock;
-    var windowMock;
     var fxaClient;
     var relier;
     var user;
@@ -54,7 +50,6 @@ function (chai, $, sinon, View, RouterMock, WindowMock, TestHelpers,
     beforeEach(function () {
       routerMock = new RouterMock();
       metrics = new Metrics();
-      windowMock = new WindowMock();
       relier = new Relier();
       fxaClient = new FxaClient();
       user = new User();
@@ -370,5 +365,3 @@ function (chai, $, sinon, View, RouterMock, WindowMock, TestHelpers,
     });
   });
 });
-
-

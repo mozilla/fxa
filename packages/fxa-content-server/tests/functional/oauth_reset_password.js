@@ -20,10 +20,8 @@ define([
 
   var PASSWORD = 'password';
   var TIMEOUT = 90 * 1000;
-  var user;
   var email;
   var client;
-  var accountData;
 
   registerSuite({
     name: 'oauth reset password',
@@ -39,12 +37,11 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      user = TestHelpers.emailToUser(email);
       var self = this;
 
       return client.signUp(email, PASSWORD, { preVerified: true })
         .then(function (result) {
-          accountData = result;
+          // do nothing
         })
         .then(function () {
           // clear localStorage to avoid polluting other tests.

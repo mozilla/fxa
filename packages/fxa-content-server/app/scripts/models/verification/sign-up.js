@@ -5,7 +5,6 @@
 /**
  * A model to hold sign up verification data
  */
-
 'use strict';
 
 define([

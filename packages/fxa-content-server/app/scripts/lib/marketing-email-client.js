@@ -5,7 +5,6 @@
 /**
  * A client to talk to the basket marketing email server
  */
-
 'use strict';
 
 define([

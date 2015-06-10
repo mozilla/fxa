@@ -5,7 +5,6 @@
 /**
  * Derive relier-specific encryption keys from account master keys.
  */
-
 'use strict';
 
 define([

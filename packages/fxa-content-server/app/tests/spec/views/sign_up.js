@@ -1,9 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
+ /*global translator */
 'use strict';
-
 
 define([
   'chai',
@@ -193,7 +192,6 @@ function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
       it('shows a tooltip on the email element if ephemeralMessages.bouncedEmail is set', function () {
         sinon.spy(view, 'showValidationError');
         ephemeralMessages.set('bouncedEmail', 'testuser@testuser.com');
-
 
         return view.render()
           .then(function () {
@@ -726,5 +724,4 @@ function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
     });
   });
 });
-
 

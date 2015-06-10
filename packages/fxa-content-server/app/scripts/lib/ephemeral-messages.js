@@ -4,7 +4,6 @@
 
 // an ephemeral messages model. Ephemeral messages are allowed
 // a single `get` and no more.
-
 'use strict';
 
 define([

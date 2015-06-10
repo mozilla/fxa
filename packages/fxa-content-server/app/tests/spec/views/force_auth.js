@@ -1,9 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 'use strict';
-
 
 define([
   'chai',
@@ -62,7 +60,6 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Relier, Broker,
       router = view = null;
     });
 
-
     describe('missing email address', function () {
       beforeEach(function () {
         initDeps();
@@ -73,7 +70,6 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Relier, Broker,
         assert.include(view.$('.error').text(), 'requires an email');
       });
     });
-
 
     describe('with registered email', function () {
       beforeEach(function () {
@@ -292,5 +288,3 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Relier, Broker,
     });
   });
 });
-
-

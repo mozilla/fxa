@@ -11,7 +11,6 @@
  *    dataType is set. `ajax` is a low level function and does not set
  *    a default data type. See issue #1786.
  */
-
 'use strict';
 
 define([

@@ -8,22 +8,17 @@ define([
   'intern!object',
   'intern/chai!assert',
   'require',
-  'intern/node_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest,
-        FxaClient, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, require, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'signup?context=iframe&service=sync';
 
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
 
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
   var OLD_ENOUGH_YEAR = TOO_YOUNG_YEAR - 1;
 
-  var client;
   var email;
   var PASSWORD = '12345678';
 
@@ -63,11 +58,6 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
-
       return FunctionalHelpers.clearBrowserState(this);
     },
 

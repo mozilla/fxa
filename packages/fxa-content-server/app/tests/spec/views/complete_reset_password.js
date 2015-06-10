@@ -1,9 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 'use strict';
-
 
 define([
   'chai',
@@ -273,7 +271,6 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
       });
 
       it('non-direct-access signs the user in and redirects to `/reset_password_complete` if broker does not say halt', function () {
-        var account;
         view.$('[type=password]').val(PASSWORD);
 
         sinon.stub(fxaClient, 'signIn', function () {
@@ -283,8 +280,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
           return p(true);
         });
         sinon.stub(user, 'setSignedInAccount', function (newAccount) {
-          account = newAccount;
-          return p(account);
+          return p(newAccount);
         });
         sinon.spy(broker, 'afterCompleteResetPassword');
         sinon.stub(relier, 'isDirectAccess', function () {
@@ -309,15 +305,16 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
                   }
               ));
               assert.equal(routerMock.page, 'reset_password_complete');
-              assert.isTrue(broker.afterCompleteResetPassword.calledWith(account));
               assert.isTrue(loginSpy.called);
               assert.isTrue(TestHelpers.isEventLogged(
                       metrics, 'complete_reset_password.verification.success'));
+              return user.setSignedInAccount.returnValues[0].then(function (returnValue) {
+                assert.isTrue(broker.afterCompleteResetPassword.calledWith(returnValue));
+              });
             });
       });
 
       it('direct access signs the user in and redirects to `/settings` if broker does not say halt', function () {
-        var account;
         view.$('[type=password]').val(PASSWORD);
 
         sinon.stub(fxaClient, 'signIn', function () {
@@ -327,8 +324,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
           return p(true);
         });
         sinon.stub(user, 'setSignedInAccount', function (newAccount) {
-          account = newAccount;
-          return p(account);
+          return p(newAccount);
         });
         sinon.stub(relier, 'isDirectAccess', function () {
           return true;
@@ -340,9 +336,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
           });
       });
 
-
       it('halts if the broker says halt', function () {
-        var account;
         view.$('[type=password]').val(PASSWORD);
 
         sinon.stub(fxaClient, 'signIn', function () {
@@ -352,8 +346,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
           return p(true);
         });
         sinon.stub(user, 'setSignedInAccount', function (newAccount) {
-          account = newAccount;
-          return p(account);
+          return p(newAccount);
         });
         sinon.stub(broker, 'afterCompleteResetPassword', function () {
           return p({ halt: true });
@@ -372,7 +365,9 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
                   }
               ));
               assert.notEqual(routerMock.page, 'reset_password_complete');
-              assert.isTrue(broker.afterCompleteResetPassword.calledWith(account));
+              return user.setSignedInAccount.returnValues[0].then(function (returnValue) {
+                assert.isTrue(broker.afterCompleteResetPassword.calledWith(returnValue));
+              });
             });
       });
 

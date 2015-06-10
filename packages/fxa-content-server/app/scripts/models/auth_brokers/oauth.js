@@ -6,7 +6,6 @@
  * A broker that knows how to finish an OAuth flow. Should be subclassed
  * to override `sendOAuthResultToRelier`
  */
-
 'use strict';
 
 define([

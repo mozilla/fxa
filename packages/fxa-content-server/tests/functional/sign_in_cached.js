@@ -35,8 +35,6 @@ define([
 
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
   var PASSWORD = 'password';
-  var user;
-  var user2;
   var email;
   var email2;
   var client;
@@ -62,9 +60,7 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      user = TestHelpers.emailToUser(email);
       email2 = TestHelpers.createEmail();
-      user2 = TestHelpers.emailToUser(email2);
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });

@@ -7,7 +7,6 @@
  * on the "Basket" server, not the auth server. Email preferences are
  * loaded on demand, independently of account information.
  */
-
 'use strict';
 
 define([

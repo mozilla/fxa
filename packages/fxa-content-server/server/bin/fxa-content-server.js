@@ -20,7 +20,6 @@ if (isMain) {
   process.chdir(path.dirname(__dirname));
 }
 
-var config = require('../lib/configuration');
 mozlog.config(config.get('logging'));
 
 var logger = require('mozlog')('server.main');

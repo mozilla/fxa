@@ -5,7 +5,6 @@
 /**
  * A mixin that allows models to get/import search parameters
  */
-
 'use strict';
 
 define([
@@ -64,6 +63,3 @@ define([
     }
   };
 });
-
-
-

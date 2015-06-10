@@ -17,7 +17,6 @@ define([
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var PAGE_URL = config.fxaContentRoot + 'signin';
   var PASSWORD = 'password';
-  var user;
   var email;
   var accountData;
   var client;
@@ -39,7 +38,6 @@ define([
 
     setup: function () {
       email = TestHelpers.createEmail();
-      user = TestHelpers.emailToUser(email);
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });

@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // This model abstracts images used by the cropper view
-
 'use strict';
 
 define([

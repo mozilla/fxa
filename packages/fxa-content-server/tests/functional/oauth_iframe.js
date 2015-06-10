@@ -30,7 +30,6 @@ define([
   var PASSWORD = 'password';
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
   var OLD_ENOUGH_YEAR = TOO_YOUNG_YEAR - 1;
-  var user;
   var email;
   var client;
   function openFxaFromRp(context, page) {
@@ -58,8 +57,6 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      user = TestHelpers.emailToUser(email);
-
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
@@ -74,7 +71,6 @@ define([
       var self = this;
 
       email = TestHelpers.createEmail();
-      user = TestHelpers.emailToUser(email);
 
       return openFxaFromRp(self, 'signin')
         .then(function () {
@@ -94,7 +90,6 @@ define([
       var self = this;
 
       email = TestHelpers.createEmail();
-      user = TestHelpers.emailToUser(email);
 
       return openFxaFromRp(self, 'signin')
         .then(function () {
