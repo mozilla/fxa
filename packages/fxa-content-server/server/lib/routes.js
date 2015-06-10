@@ -66,6 +66,11 @@ module.exports = function (config, i18n) {
       res.redirect(removeVersionPrefix(req.originalUrl));
     });
 
+    // handle reset password from notification emails
+    app.get(addVersionPrefix('/reset_password'), function (req, res) {
+      res.redirect(removeVersionPrefix(req.originalUrl));
+    });
+
     // front end mocha tests
     if (config.get('env') === 'development') {
       app.get('/tests/index.html', function (req, res) {
