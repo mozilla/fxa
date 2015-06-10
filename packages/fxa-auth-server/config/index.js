@@ -29,6 +29,11 @@ var conf = convict({
     default: "http://127.0.0.1:9000",
     env: "PUBLIC_URL"
   },
+  domain: {
+    format: "url",
+    doc: "Derived automatically from publicUrl",
+    default: undefined
+  },
   secretKeyFile: {
     format: String,
     default: path.resolve(__dirname, '../config/secret-key.json'),
@@ -141,6 +146,13 @@ var conf = convict({
       default: undefined,
       env: 'RESET_URL',
       arg: 'reset-url'
+    },
+    accountUnlockUrl: {
+      doc: 'Deprecated. uses contentServer.url',
+      format: String,
+      default: undefined,
+      env: 'UNLOCK_URL',
+      arg: 'unlock-url'
     },
     redirectDomain: {
       doc: 'Domain that mail urls are allowed to redirect to',
@@ -292,6 +304,10 @@ conf.set('smtp.verificationUrl', conf.get('contentServer.url') + '/v1/verify_ema
 conf.set('smtp.passwordResetUrl', conf.get('contentServer.url') + '/v1/complete_reset_password')
 conf.set('smtp.accountUnlockUrl', conf.get('contentServer.url') + '/v1/complete_unlock_account')
 
-conf.validate()
+var options = {
+  strict: true
+}
+
+conf.validate(options)
 
 module.exports = conf
