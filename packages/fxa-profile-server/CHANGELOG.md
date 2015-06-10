@@ -1,3 +1,13 @@
+<a name"0.39.0"></a>
+## 0.39.0 (2015-06-10)
+
+
+#### Features
+
+* **avatar:** Add etag to the profile avatar API endpoint ([07569c5d](https://github.com/mozilla/fxa-profile-server/commit/07569c5d))
+* **profile:** add etag to profile API endpoint ([dcf1bb64](https://github.com/mozilla/fxa-profile-server/commit/dcf1bb64))
+
+
 <a name="0.36.0"></a>
 ## 0.36.0 (2015-04-30)
 
