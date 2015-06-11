@@ -1,3 +1,13 @@
+train-39
+  * Use checkPassword API #943
+  * fix(password): revert part of GH-943; currently in broken state #954
+  * feat(log): Add logging of various account events #947
+  * fix(docs): Change the test title to be more specific #948
+  * fix(docs): Fix Markdown link in api.md #946
+  * chore(config): Update convict and switch on strict validation. #959
+  * chore(shrinkwrap): Update shrinkwrap due to password change api #952
+  * chore(shrinkwrap): update shrinkwrap to pickup latest fxa-content-server-l10n #958
+  
 train-38
   * feat(server): Log the `service` and `reason` parameters for `/account/login` - #875, #941
   * switch promises to bluebird from p-promise - #936
