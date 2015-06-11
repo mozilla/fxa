@@ -88,6 +88,7 @@ function (Translator, Session) {
     '../tests/spec/views/cannot_create_account',
     '../tests/spec/views/close_button',
     '../tests/spec/views/coppa/coppa-date-picker',
+    '../tests/spec/views/decorators/progress_indicator',
     '../tests/spec/views/mixins/floating-placeholder-mixin',
     '../tests/spec/views/mixins/timer-mixin',
     '../tests/spec/views/mixins/service-mixin',
