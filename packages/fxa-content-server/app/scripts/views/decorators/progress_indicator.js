@@ -20,43 +20,49 @@ define([
 ],
 function (p, ProgressIndicator) {
 
-  function showProgressIndicator(handler, _el, _property) {
+  function showProgressIndicator(handler, _el) {
     var el = _el || 'button[type=submit]';
-    var property = _property || '_progressIndicator';
 
     return function () {
       var self = this;
       var args = arguments;
+      var target = self.$(el);
 
-      var progressIndicator = getProgressIndicator.call(self, property);
-      progressIndicator.start(self.$(el));
+      var progressIndicator = getProgressIndicator(self, target);
+      progressIndicator.start(target);
 
       return p()
-          .then(function () {
-            return self.invokeHandler(handler, args);
-          })
-          .then(function (value) {
-            // Stop the progress indicator unless the page is navigating
-            if (! (value && value.halt)) {
-              progressIndicator.done();
-            }
-            return value;
-          }, function (err) {
+        .then(function () {
+          return self.invokeHandler(handler, args);
+        })
+        .then(function (value) {
+          // Stop the progress indicator unless the flow halts.
+          if (! (value && value.halt)) {
             progressIndicator.done();
-            throw err;
-          });
+          }
+          return value;
+        }, function (err) {
+          progressIndicator.done();
+          throw err;
+        });
     };
   }
 
-  function getProgressIndicator(property) {
-    /*jshint validthis: true*/
-    var self = this;
-    if (! self[property]) {
-      self[property] = new ProgressIndicator();
-      self.trackSubview(self[property]);
+  function getProgressIndicator(context, target) {
+    // use the progress indicator already attached
+    // to the button, if one exists.
+    var progressIndicator = target.data('progressIndicator');
+    if (! progressIndicator) {
+      progressIndicator = new ProgressIndicator();
+      context.trackSubview(progressIndicator);
+
+      // store a reference to the progress indicator on the button
+      // itself. This allows a view's button to be updated and allow
+      // the new button to receive a progress indicator. See #2502
+      target.data('progressIndicator', progressIndicator);
     }
 
-    return self[property];
+    return progressIndicator;
   }
 
   return showProgressIndicator;
