@@ -20,7 +20,7 @@ define([
 
     'Uses Fira for en': function () {
 
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(url))
         .setFindTimeout(intern.config.pageLoadTimeout)
 
@@ -41,7 +41,7 @@ define([
 
     'Does not use Fira for non-supported locale': function () {
 
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(nonFiraUrl))
 
         .findByCssSelector('#fxa-pp-header')

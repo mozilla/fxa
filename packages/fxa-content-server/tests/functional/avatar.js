@@ -39,7 +39,7 @@ define([
         return FunctionalHelpers.clearBrowserState(context);
       })
       .then(function () {
-        return context.get('remote')
+        return context.remote
           .get(require.toUrl(SIGNIN_URL))
           // This will configure the timeout for the duration of this test suite
           .setFindTimeout(intern.config.pageLoadTimeout)
@@ -82,7 +82,7 @@ define([
     },
 
     'go to avatars then avatar change': function () {
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(AVATAR_URL))
 
         // go to change avatar
@@ -96,7 +96,7 @@ define([
     },
 
     'go to settings with an email NOT selected to see change link should not see one': function () {
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(SETTINGS_URL))
 
         .setFindTimeout(intern.config.pageLoadTimeout)
@@ -109,7 +109,7 @@ define([
     },
 
     'go to settings with an email NOT selected to see change link should not see text link': function () {
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(SETTINGS_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
 
@@ -129,7 +129,7 @@ define([
       var self = this;
       return signUp(self, emailAvatarAb)
         .then(function () {
-          return self.get('remote')
+          return self.remote
             .get(require.toUrl(SETTINGS_URL))
 
             // go to change avatar
@@ -147,7 +147,7 @@ define([
       var self = this;
       return signUp(self, emailAvatarAb)
         .then(function () {
-          return self.get('remote')
+          return self.remote
             .get(require.toUrl(SETTINGS_URL))
 
             // go to change avatar
@@ -163,7 +163,7 @@ define([
 
     // revert this and the gravatar tests once #2515 is resolved
     'try to visit gravatar when it is disabled': function () {
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
 
         // gravatar link should be absent
@@ -175,7 +175,7 @@ define([
       var self = this;
       return signUp(self, emailAvatarAb)
         .then(function () {
-          return self.get('remote')
+          return self.remote
             .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
 
             // go to change avatar
@@ -217,7 +217,7 @@ define([
       var self = this;
       return signUp(self, emailAvatarAb)
         .then(function () {
-          return self.get('remote')
+          return self.remote
             .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
 
             // go to change avatar
@@ -256,7 +256,7 @@ define([
       var self = this;
       return signUp(self, emailAvatarAb)
         .then(function () {
-          return self.get('remote')
+          return self.remote
             .get(require.toUrl(AVATAR_CHANGE_URL))
 
             // go to change avatar
@@ -280,7 +280,7 @@ define([
     },
 
     'attempt to use webcam for avatar': function () {
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
 
         // go to change avatar - click the span inside the element
@@ -304,7 +304,7 @@ define([
     },
 
     'attempt to use webcam for avatar, then cancel': function () {
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
 
         // go to change avatar
@@ -322,7 +322,7 @@ define([
     },
 
     'upload a profile image': function () {
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
 
         // go to change avatar
@@ -364,7 +364,7 @@ define([
     },
 
     'cancel uploading a profile image': function () {
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
 
         // go to change avatar

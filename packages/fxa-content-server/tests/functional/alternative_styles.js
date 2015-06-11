@@ -22,7 +22,7 @@ define([
 
     'the `chromeless` style is not applied if not iframed sync': function () {
 
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(INVALID_CHROMELESS_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findByCssSelector('#fxa-signup-header')
@@ -35,7 +35,7 @@ define([
 
     'the `chromeless` style can be applied to an iframed sync': function () {
 
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(CHROMELESS_IFRAME_SYNC_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findByCssSelector('#fxa-signup-header')

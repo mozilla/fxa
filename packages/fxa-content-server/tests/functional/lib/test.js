@@ -13,7 +13,7 @@ define([
 ], function (intern, assert) {
   function noElementByCssSelector(context, selector) {
     return function () {
-      return context.get('remote')
+      return context.remote
         .setFindTimeout(0)
 
         .findByCssSelector(selector)

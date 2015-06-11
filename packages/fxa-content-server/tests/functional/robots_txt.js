@@ -16,7 +16,7 @@ define([
 
     'should disallow root': function () {
 
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(url))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findByTagName('body')

@@ -26,7 +26,7 @@ define([
     },
 
     'toggle show password for normal RP': function () {
-      this.get('remote').get(require.toUrl(SIGNIN_URL))
+      this.remote.get(require.toUrl(SIGNIN_URL))
         .findByCssSelector('#fxa-signin-header')
         .end()
 
@@ -71,7 +71,7 @@ define([
     },
 
     'toggle show password for Sync': function () {
-      this.get('remote').get(require.toUrl(SYNC_SIGNIN_URL))
+      this.remote.get(require.toUrl(SYNC_SIGNIN_URL))
         .findByCssSelector('#fxa-signin-header')
         .end()
 

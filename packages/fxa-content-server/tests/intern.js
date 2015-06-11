@@ -7,12 +7,13 @@
 // These default settings work OK for most people. The options that *must* be changed below are the
 // packages, suites, excludeInstrumentation, and (if you want functional tests) functionalSuites.
 define([
-  'intern/lib/args',
+  'intern',
   'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/topic',
   './tools/firefox_profile'
 ],
-function (args, topic, firefoxProfile) {
+function (intern, topic, firefoxProfile) {
   /*jshint maxcomplexity:11 */
+  var args = intern.args;
   var fxaAuthRoot = args.fxaAuthRoot || 'http://127.0.0.1:9000/v1';
   var fxaContentRoot = args.fxaContentRoot || 'http://127.0.0.1:3030/';
   var fxaEmailRoot = args.fxaEmailRoot || 'http://127.0.0.1:9001';
@@ -62,6 +63,8 @@ function (args, topic, firefoxProfile) {
       { browserName: 'firefox' }
     ],
 
+    fixSessionCapabilities: false,
+
     // the default test timeout is 30 seconds
     // make it 28 seconds to see the timeout error stack
     pageLoadTimeout: 28000,
@@ -72,8 +75,7 @@ function (args, topic, firefoxProfile) {
     // Functional test suite(s) to run in each browser once non-functional tests are completed
     functionalSuites: [ 'tests/functional/mocha', 'tests/functional' ],
 
-    // A regular expression matching URLs to files that should not be included in code coverage analysis
-    excludeInstrumentation: /./
+    excludeInstrumentation: true
   };
 
   // to create a profile, give it the `config` option.

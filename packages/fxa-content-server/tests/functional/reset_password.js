@@ -79,12 +79,12 @@ define([
     }
 
     url += queryParams.join('&');
-    return context.get('remote').get(require.toUrl(url))
+    return context.remote.get(require.toUrl(url))
       .setFindTimeout(intern.config.pageLoadTimeout);
   }
 
   function testSuccessMessageVisible(context, message) {
-    return context.get('remote')
+    return context.remote
       .setFindTimeout(intern.config.pageLoadTimeout)
 
       .then(FunctionalHelpers.visibleByQSA('.success'))
@@ -98,7 +98,7 @@ define([
   }
 
   function testAtSettingsWithVerifiedMessage(context) {
-    return context.get('remote')
+    return context.remote
       .setFindTimeout(intern.config.pageLoadTimeout)
 
       .findByCssSelector('#fxa-settings-header')
@@ -129,7 +129,7 @@ define([
     },
 
     'visit confirmation screen without initiating reset_password, user is redirected to /reset_password': function () {
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(CONFIRM_PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
 
@@ -142,7 +142,7 @@ define([
 
     'open /reset_password page from /signin': function () {
       var self = this;
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(SIGNIN_PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
 
@@ -185,7 +185,7 @@ define([
       var self = this;
       email = 'partial';
 
-      return self.get('remote')
+      return self.remote
         .get(require.toUrl(SIGNIN_PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
 
@@ -414,7 +414,7 @@ define([
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (verificationLink) {
-          return self.get('remote')
+          return self.remote
             .get(require.toUrl(verificationLink))
             .setFindTimeout(intern.config.pageLoadTimeout);
         })
@@ -488,7 +488,7 @@ define([
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (verificationLink) {
-          return self.get('remote')
+          return self.remote
             .get(require.toUrl(verificationLink))
             .setFindTimeout(intern.config.pageLoadTimeout);
         })
@@ -628,7 +628,7 @@ define([
     'browse directly to page with email on query params': function () {
       var url = RESET_PAGE_URL + '?email=' + email;
       var self = this;
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(url))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findByCssSelector('form input.email')

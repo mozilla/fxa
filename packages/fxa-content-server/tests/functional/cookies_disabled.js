@@ -26,7 +26,7 @@ define([
     name: 'cookies_disabled',
 
     'visit signup page with localStorage disabled': function () {
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(SIGNUP_COOKIES_DISABLED_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findById('fxa-cookies-disabled-header')
@@ -46,7 +46,7 @@ define([
     },
 
     'synthesize enabling cookies by visiting the sign up page, then cookies_disabled, then clicking "try again"': function () {
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(SIGNUP_COOKIES_ENABLED_URL))
         // wd has no way of disabling/enabling cookies, so we have to
         // manually seed history.
@@ -68,7 +68,7 @@ define([
     },
 
     'visit verify page with localStorage disabled': function () {
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(VERIFY_COOKIES_DISABLED_URL))
 
         .findById('fxa-cookies-disabled-header')

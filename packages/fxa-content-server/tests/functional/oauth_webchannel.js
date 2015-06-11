@@ -214,7 +214,7 @@ define([
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (verificationLink) {
-          return self.get('remote').get(require.toUrl(verificationLink))
+          return self.remote.get(require.toUrl(verificationLink))
             .execute(FunctionalHelpers.listenForWebChannelMessage);
         })
 
@@ -272,7 +272,7 @@ define([
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (verificationLink) {
-          return self.get('remote').get(require.toUrl(verificationLink));
+          return self.remote.get(require.toUrl(verificationLink));
         })
 
         // new browser dead ends at the 'account verified' screen.
@@ -428,7 +428,7 @@ define([
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (verificationLink) {
-          return self.get('remote').get(require.toUrl(verificationLink))
+          return self.remote.get(require.toUrl(verificationLink))
             .execute(FunctionalHelpers.listenForWebChannelMessage);
         })
 
@@ -525,7 +525,7 @@ define([
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (verificationLink) {
-          return self.get('remote').get(require.toUrl(verificationLink));
+          return self.remote.get(require.toUrl(verificationLink));
         })
 
         .then(function () {

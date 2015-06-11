@@ -25,7 +25,7 @@ define([
     },
 
     'visit confirmation screen without initiating sign up, user is redirected to /signup': function () {
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(CONFIRM_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
 
@@ -39,7 +39,7 @@ define([
       var email = TestHelpers.createEmail();
       var password = '12345678';
 
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(SIGNUP_URL))
         .findByCssSelector('form input.email')
           .click()

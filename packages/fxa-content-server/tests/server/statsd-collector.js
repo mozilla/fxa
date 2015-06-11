@@ -7,12 +7,12 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'intern/dojo/Deferred',
+  'intern/dojo/Promise',
   'intern/dojo/node!./helpers/init-logging',
   'intern/dojo/node!fs',
   'intern/dojo/node!dgram',
   'intern/dojo/node!../../server/lib/statsd-collector'
-], function (intern, registerSuite, assert, Deferred, initLogging, fs, dgram, StatsDCollector) {
+], function (intern, registerSuite, assert, Promise, initLogging, fs, dgram, StatsDCollector) {
   var STATSD_PORT = 8125;
   var STATSD_HOST = '127.0.0.1';
 
@@ -37,7 +37,7 @@ define([
   };
 
   suite['properly collects metrics events'] = function () {
-    var dfd = new Deferred();
+    var dfd = new Promise.Deferred();
 
     var metricsCollector = new StatsDCollector();
     metricsCollector.init();

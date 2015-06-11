@@ -33,7 +33,7 @@ define([
   }
 
   function testAtConfirmScreen(context, email) {
-    return context.get('remote')
+    return context.remote
       .findByCssSelector('.verification-email-message')
         .getVisibleText()
         .then(function (resultText) {
@@ -44,7 +44,7 @@ define([
   }
 
   function testVerifiedMessageVisible(context) {
-    return context.get('remote')
+    return context.remote
       .then(FunctionalHelpers.visibleByQSA('.success'))
       .findByCssSelector('.success')
         .getVisibleText()
@@ -137,7 +137,7 @@ define([
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (verificationLink) {
-          return self.get('remote').get(require.toUrl(verificationLink));
+          return self.remote.get(require.toUrl(verificationLink));
         })
 
         .findByCssSelector('#fxa-settings-header')
@@ -187,7 +187,7 @@ define([
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (link) {
-          return self.get('remote').get(link);
+          return self.remote.get(link);
         })
 
         // user cannot be signed in and redirected to the settings page
@@ -257,7 +257,7 @@ define([
       var monthToSelect = now.getMonth();
       var dateToSelect = now.getDate();
 
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(PAGE_URL))
         .findByCssSelector('form input.email')
           .click()
@@ -298,7 +298,7 @@ define([
       var monthToSelect = now.getMonth();
       var dateToSelect = now.getDate();
 
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(PAGE_URL))
         .findByCssSelector('form input.email')
           .click()
@@ -399,7 +399,7 @@ define([
       var BAD_EMAIL = 'something@gnail.com';
       var CORRECTED_EMAIL = 'something@gmail.com';
 
-      return this.get('remote')
+      return this.remote
         .get(require.toUrl(PAGE_URL + '?mailcheck=1&automatedBrowser=true'))
         .findByCssSelector('input[type=email]')
         .type(BAD_EMAIL)
@@ -430,7 +430,7 @@ define([
     var self = this;
     var year = OLD_ENOUGH_YEAR;
 
-    return self.get('remote')
+    return self.remote
       .get(require.toUrl(PAGE_URL))
       .findByCssSelector('input[type=email]')
         .clearValue()
