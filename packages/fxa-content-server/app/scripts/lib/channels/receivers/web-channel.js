@@ -31,7 +31,7 @@ define([
     receiveMessage: function (event) {
       var detail = event.detail;
 
-      if (! (detail && detail.id && detail.message)) {
+      if (! (detail && detail.id)) {
         // malformed message
         this._window.console.error('malformed WebChannelMessageToContent event', JSON.stringify(detail));
         return;
@@ -42,6 +42,11 @@ define([
         return;
       }
 
+      // Fx has an error where error responses are sent with neither
+      // an `error` nor a `message` field. See
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=1173830
+      //
+      // Ignore events with no `message` field.
       var message = detail.message;
       if (message) {
         this.trigger('message', message);
