@@ -294,6 +294,29 @@ define([
         .then(function (updatedSessionData) {
           self.set(updatedSessionData);
         });
+    },
+
+    completePasswordReset: function (token, code, relier) {
+      var self = this;
+
+      var fxaClient = self._fxaClient;
+      var email = self.get('email');
+      var password = self.get('password');
+
+      return fxaClient.completePasswordReset(email, password, token, code)
+        .then(function () {
+          return fxaClient.signIn(
+            email,
+            password,
+            relier,
+            {
+              reason: fxaClient.SIGNIN_REASON.PASSWORD_RESET
+            }
+          );
+        })
+        .then(function (updatedSessionData) {
+          self.set(updatedSessionData);
+        });
     }
   });
 

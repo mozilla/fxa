@@ -102,33 +102,27 @@ function (Cocktail, BaseView, FormView, Template, PasswordMixin,
 
       // If the user verifies in the same browser and the original tab
       // is still open, we want the original tab to redirect back to
-      // the RP. The only way to do that is for this tab to sign in and
-      // get a sessionToken. When the reset password complete poll
-      // completes in the original tab, it will fetch the sessionToken
-      // from localStorage and go to town.
-      return self.fxaClient.completePasswordReset(email, password, token, code)
-        .then(function () {
-          return self.fxaClient.signIn(
-            email,
-            password,
-            self.relier,
-            {
-              reason: self.fxaClient.SIGNIN_REASON.PASSWORD_RESET
-            }
-          );
-        }).then(function (accountData) {
-          var account = self.user.initAccount(accountData);
-          self._interTabChannel.send('login', accountData);
+      // the RP. The only way to do that is for this tab to get a
+      // sessionToken that can be used by the original tab. This tab
+      // will store the sessionToken in localStorage, when the
+      // reset password complete poll completes in the original tab,
+      // it will fetch the sessionToken from localStorage and go to town.
+      var account = self.user.initAccount({
+        email: email,
+        password: password
+      });
 
-          return self.user.setSignedInAccount(account)
-            .then(function () {
-              return account;
-            });
-        })
-        .then(function (account) {
+      return self.user.completeAccountPasswordReset(
+          account,
+          token,
+          code,
+          self.relier
+        )
+        .then(function (updatedAccount) {
+          self._interTabChannel.send('login', updatedAccount.toJSON());
           // See the above note about notifying the original tab.
           self.logScreenEvent('verification.success');
-          return self.broker.afterCompleteResetPassword(account);
+          return self.broker.afterCompleteResetPassword(updatedAccount);
         })
         .then(function (result) {
           if (! (result && result.halt)) {

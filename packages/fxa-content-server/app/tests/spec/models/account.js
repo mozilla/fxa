@@ -669,18 +669,52 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
         return account.changePassword(oldPassword, newPassword, relier)
           .then(function () {
             assert.isTrue(fxaClient.checkPassword.calledWith(
-                EMAIL, oldPassword));
+              EMAIL, oldPassword));
             assert.isTrue(fxaClient.changePassword.calledWith(
-                EMAIL, oldPassword, newPassword));
+              EMAIL, oldPassword, newPassword));
             assert.isTrue(fxaClient.signIn.calledWith(
-                EMAIL,
-                newPassword,
-                relier,
-                {
-                  reason: fxaClient.SIGNIN_REASON.PASSWORD_CHANGE,
-                  sessionTokenContext: 'foo'
-                }
+              EMAIL,
+              newPassword,
+              relier,
+              {
+                reason: fxaClient.SIGNIN_REASON.PASSWORD_CHANGE,
+                sessionTokenContext: 'foo'
+              }
             ));
+          });
+      });
+    });
+
+    describe('completePasswordReset', function () {
+      it('completes the password reset, signs the user in', function () {
+        account.set('email', EMAIL);
+        account.set('password', PASSWORD);
+        var token = 'token';
+        var code = 'code';
+
+        sinon.stub(fxaClient, 'signIn', function () {
+          return p({
+            verified: true
+          });
+        });
+        sinon.stub(fxaClient, 'completePasswordReset', function () {
+          return p(true);
+        });
+
+        return account.completePasswordReset(token, code, relier)
+          .then(function () {
+            assert.isTrue(fxaClient.completePasswordReset.calledWith(
+              EMAIL, PASSWORD, token, code));
+            assert.isTrue(fxaClient.signIn.calledWith(
+              EMAIL,
+              PASSWORD,
+              relier,
+              {
+                reason: fxaClient.SIGNIN_REASON.PASSWORD_RESET
+              }
+            ));
+            // ensure data returned from fxaClient.signIn updates the account
+            assert.isTrue(account.get('verified'));
           });
       });
     });
