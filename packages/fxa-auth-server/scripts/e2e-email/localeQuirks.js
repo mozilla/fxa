@@ -27,8 +27,6 @@ var translationQuirks = {
     'ca',
     'en',
     'es-AR',
-    'et',
-    'eu',
     'ff',
     'he',
     'id',
