@@ -12,13 +12,22 @@ define([
 
   var LOOKUP_URL = API_URL + '/lookup-user/?email=';
 
+  var requestAttempts = 0;
+
   function waitUntilUserIsRegistered(email) {
-    console.log('Waiting for %s to register at: %s', email, API_URL);
+    if (requestAttempts > 2) {
+      // only log if too many attempts, probably means the service is not properly responding
+      console.log('Waiting for %s to register at: %s', email, API_URL);
+    }
 
     var url = LOOKUP_URL + encodeURIComponent(email);
     return request(url, 'GET', null, { 'X-API-Key': API_KEY })
       .then(function (result) {
+        requestAttempts++;
+
         if (result.status === 'ok') {
+          requestAttempts = 0;
+
           return result;
         } else {
           var dfd = new Promise.Deferred();

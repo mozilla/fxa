@@ -6,15 +6,25 @@ define([
   'tests/lib/request',
   'intern/node_modules/dojo/Promise'
 ], function (request, Promise) {
+  var requestAttempts = 0;
+
   function waitForEmail(uri, number) {
     if (! number) {
       number = 1;
     }
-    console.log('Waiting for email at:', uri);
+
+    if (requestAttempts > 2) {
+      // only log if too many attempts, probably means the service is not properly responding
+      console.log('Waiting for email at:', uri);
+    }
 
     return request(uri, 'GET', null)
       .then(function (result) {
+        requestAttempts++;
+
         if (result.length >= number) {
+          requestAttempts = 0;
+
           return result;
         } else {
           var dfd = new Promise.Deferred();
