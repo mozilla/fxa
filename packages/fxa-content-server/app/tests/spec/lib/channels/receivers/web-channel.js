@@ -47,15 +47,19 @@ function (chai, sinon, WebChannelReceiver, WindowMock) {
         });
         assert.equal(windowMock.console.error.callCount, 2);
 
-        // missing message
+        windowMock.console.error.restore();
+      });
+
+      it('ignores messages without a `message`', function () {
+        sinon.spy(receiver, 'trigger');
+
         receiver.receiveMessage({
           detail: {
             id: 'channel_id'
           }
         });
-        assert.equal(windowMock.console.error.callCount, 3);
 
-        windowMock.console.error.restore();
+        assert.isFalse(receiver.trigger.called);
       });
 
       it('ignores messages from other channels', function () {
