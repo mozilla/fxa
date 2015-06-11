@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -ex
 
 # Clone all the projects
 
@@ -22,21 +22,22 @@ wait
 # Install and Setup all the projects
 
 
-cd fxa-content-server && npm i --production && npm i && cp server/config/local.json-dist server/config/local.json && cd ..
+cd fxa-content-server; npm i --production; npm i; cp server/config/local.json-dist server/config/local.json; cd ..
 
-cd fxa-auth-server && npm i && node ./scripts/gen_keys.js && cd ..
+cd fxa-auth-server; npm i; node ./scripts/gen_keys.js; cd ..
 # Install a custom http only verifier
-cd browserid-verifier && npm i && npm i vladikoff/browserid-local-verify#http && cd ..
+cd browserid-verifier; npm i; npm i vladikoff/browserid-local-verify#http; cd ..
 
-cd fxa-oauth-server && npm i && cd ..
-cd fxa-oauth-console && npm i && cd ..
+cd fxa-oauth-server; npm i; cd ..
 
-cd fxa-profile-server && npm i && mkdir -p var/public/ && cd ..
+cd fxa-oauth-console; npm i; cd ..
 
-cd 123done && npm i && CONFIG_123DONE=./config-local.json node ./scripts/gen_keys.js && cd ..
+cd fxa-profile-server; npm i; mkdir -p var/public/; cd ..
 
-cd loop-server && npm i && cd ..
+cd 123done; npm i; CONFIG_123DONE=./config-local.json node ./scripts/gen_keys.js; cd ..
 
-cd syncserver && make build && cd ..
+cd loop-server; npm i; cd ..
 
-ln -s node_modules/.bin/pm2 pm2
+cd syncserver; make build; cd ..
+
+ln -sf node_modules/.bin/pm2 pm2
