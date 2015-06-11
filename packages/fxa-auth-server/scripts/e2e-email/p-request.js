@@ -75,7 +75,7 @@ function get(options) {
           opts.progress('Retrying', opts.url)
           setTimeout(function () {
             get(opts)
-              .done(dfd.resolve, dfd.reject)
+              .done(dfd.resolve.bind(dfd), dfd.reject.bind(dfd))
           }, opts.interval)
         }
 
