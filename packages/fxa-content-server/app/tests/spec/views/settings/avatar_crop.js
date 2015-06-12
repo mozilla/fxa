@@ -2,12 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exceptsPaths: draggable */
+/* exceptsPaths: draggable, jquery-simulate */
 define([
   'chai',
   'jquery',
   'draggable',
   'sinon',
+  'jquery-simulate',
   'views/settings/avatar_crop',
   '../../../mocks/router',
   '../../../mocks/profile',
@@ -17,10 +18,12 @@ define([
   'models/auth_brokers/base',
   'lib/promise',
   'lib/ephemeral-messages',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'lib/metrics',
+  '../../../lib/helpers'
 ],
-function (chai, $, ui, sinon, View, RouterMock, ProfileMock, User, CropperImage,
-    Relier, AuthBroker, p, EphemeralMessages, AuthErrors) {
+function (chai, $, ui, sinon, jQuerySimulate, View, RouterMock, ProfileMock, User, CropperImage,
+    Relier, AuthBroker, p, EphemeralMessages, AuthErrors, Metrics, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -35,9 +38,11 @@ function (chai, $, ui, sinon, View, RouterMock, ProfileMock, User, CropperImage,
     var account;
     var relier;
     var broker;
+    var metrics;
 
     beforeEach(function () {
       routerMock = new RouterMock();
+      metrics = new Metrics();
       user = new User();
       ephemeralMessages = new EphemeralMessages();
       relier = new Relier();
@@ -57,9 +62,11 @@ function (chai, $, ui, sinon, View, RouterMock, ProfileMock, User, CropperImage,
     afterEach(function () {
       $(view.el).remove();
       view.destroy();
+      metrics.destroy();
       view = null;
       routerMock = null;
       profileClientMock = null;
+      metrics = null;
     });
 
     describe('with no session', function () {
@@ -113,7 +120,9 @@ function (chai, $, ui, sinon, View, RouterMock, ProfileMock, User, CropperImage,
             router: routerMock,
             ephemeralMessages: ephemeralMessages,
             user: user,
-            relier: relier
+            relier: relier,
+            metrics: metrics,
+            screenName: 'settings.avatar.crop'
           });
           view.isUserAuthorized = function () {
             return p(true);
@@ -160,6 +169,66 @@ function (chai, $, ui, sinon, View, RouterMock, ProfileMock, User, CropperImage,
               assert.equal(result.url, 'test');
               assert.equal(result.id, 'foo');
               assert.equal(routerMock.page, 'settings');
+            });
+        });
+
+        it('logs a metric event on rotation', function () {
+          return view.render()
+            .then(function () {
+              return view.afterVisible();
+            })
+            .then(function () {
+              view.$('.controls > .rotate').click();
+              assert.isTrue(TestHelpers.isEventLogged(metrics,
+                'settings.avatar.crop.rotate.cw'));
+            });
+        });
+
+        it('logs a metric event on translation', function () {
+          return view.render()
+            .then(function () {
+              return view.afterVisible();
+            })
+            .then(function () {
+              view.$('.cropper .ui-draggable').simulate('drag', { dx: 50, dy: 50 });
+              assert.isTrue(TestHelpers.isEventLogged(metrics,
+                'settings.avatar.crop.translate'));
+            });
+        });
+
+        it('logs a metric event on zoom in', function () {
+          return view.render()
+            .then(function () {
+              return view.afterVisible();
+            })
+            .then(function () {
+              view.$('.controls > .zoom-in').click();
+              assert.isTrue(TestHelpers.isEventLogged(metrics,
+                'settings.avatar.crop.zoom.in'));
+            });
+        });
+
+        it('logs a metric event on zoom out', function () {
+          return view.render()
+            .then(function () {
+              return view.afterVisible();
+            })
+            .then(function () {
+              view.$('.controls > .zoom-out').click();
+              assert.isTrue(TestHelpers.isEventLogged(metrics,
+                'settings.avatar.crop.zoom.out'));
+            });
+        });
+
+        it('logs a metric event on zoom range change', function () {
+          return view.render()
+            .then(function () {
+              return view.afterVisible();
+            })
+            .then(function () {
+              view.$('.controls > .slider').change();
+              assert.isTrue(TestHelpers.isEventLogged(metrics,
+                'settings.avatar.crop.zoom.range'));
             });
         });
       });

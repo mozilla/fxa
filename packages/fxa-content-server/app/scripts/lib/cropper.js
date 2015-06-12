@@ -22,10 +22,16 @@ function (_) {
    *  verticalGutter: The amount of space between the crop zone and the top/bottom of the wrapper
    *  displayLength: The length of the crop square during cropping
    *  exportLength: The length of the final cropped image
+   *  onRotate: Function to call back when the rotation button is clicked
+   *  onTranslate: Function to call back when the image is dragged
+   *  onZoomIn: Function to call back when the zoom-in button is clicked
+   *  onZoomOut: Function to call back when the zoom-out button is clicked
+   *  onZoomRangeChange: Function to call back when the zoom range input is changed
    * }
    */
   function Cropper (options) {
 
+    /*eslint complexity: [2, 10] */
     this.displayLength = options.displayLength || DEFAULT_DISPLAY_LENGTH;
     this.exportLength = options.exportLength || DEFAULT_EXPORT_LENGTH;
 
@@ -35,6 +41,11 @@ function (_) {
     this.xCenter = 0;
     this.verticalGutter = _.result(options, 'verticalGutter', DEFAULT_GUTTER);
     this.horizontalGutter = _.result(options, 'horizontalGutter', DEFAULT_GUTTER);
+    this.onRotate = options.onRotate || _.noop;
+    this.onTranslate = options.onTranslate || _.noop;
+    this.onZoomIn = options.onZoomIn || _.noop;
+    this.onZoomOut =  options.onZoomOut || _.noop;
+    this.onZoomRangeChange = options.onZoomRangeChange || _.noop;
 
     if (! options.container) {
       throw new Error('A container element is required');
@@ -64,6 +75,7 @@ function (_) {
         var pos = self.img.position();
         self.updatePosition(pos);
         ui.helper.css({ top: 0, left: 0 });
+        self.onTranslate();
       }
     });
 
@@ -71,22 +83,28 @@ function (_) {
     this.slider.on('input', function () {
       self.resize(parseInt(this.value, 10));
     });
+    this.slider.on('change', function () {
+      self.onZoomRangeChange();
+    });
     this.scale = parseInt(this.slider.val() || 0, 10);
 
     this.rotator = container.find('.rotate');
     this.rotator.on('click', function () {
       var data = self.rotate(90);
       self.setImageSrc(data, self._originalHeight, self._originalWidth);
+      self.onRotate();
     });
 
     container.find('.zoom-out').on('click', function () {
       self.resize(self.scale - 10);
       self.slider.val(self.scale);
+      self.onZoomOut();
     });
 
     container.find('.zoom-in').on('click', function () {
       self.resize(self.scale + 10);
       self.slider.val(self.scale);
+      self.onZoomIn();
     });
 
     // Cache some invariants

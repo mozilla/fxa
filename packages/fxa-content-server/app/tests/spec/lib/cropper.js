@@ -2,8 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* exceptsPaths: jquery-simulate */
 define([
   'chai',
+  'sinon',
+  'jquery-simulate',
   '../../mocks/router',
   '../../mocks/canvas',
   'lib/promise',
@@ -14,7 +17,7 @@ define([
   'models/user',
   'models/reliers/relier'
 ],
-function (chai, RouterMock, CanvasMock, p, Cropper, EphemeralMessages, View,
+function (chai, sinon, jQuerySimulate, RouterMock, CanvasMock, p, Cropper, EphemeralMessages, View,
     CropperImage, User, Relier) {
   'use strict';
 
@@ -76,8 +79,14 @@ function (chai, RouterMock, CanvasMock, p, Cropper, EphemeralMessages, View,
 
     describe('with a cropper', function () {
       var cropper;
+      var rotateCb, translateCb, zoomInCb, zoomOutCb, zoomRangeChangeCb;
 
       beforeEach(function () {
+        rotateCb =  sinon.spy();
+        translateCb = sinon.spy();
+        zoomInCb = sinon.spy();
+        zoomOutCb = sinon.spy();
+        zoomRangeChangeCb = sinon.spy();
         return view.render()
           .then(function () {
             cropper = new Cropper({
@@ -85,7 +94,12 @@ function (chai, RouterMock, CanvasMock, p, Cropper, EphemeralMessages, View,
               verticalGutter: 0,
               horizontalGutter: 40,
               displayLength: 240,
-              exportLength: 480
+              exportLength: 480,
+              onRotate: rotateCb,
+              onTranslate: translateCb,
+              onZoomIn: zoomInCb,
+              onZoomOut: zoomOutCb,
+              onZoomRangeChange: zoomRangeChangeCb
             });
 
             cropper._wrapperHeight = 240;
@@ -230,6 +244,42 @@ function (chai, RouterMock, CanvasMock, p, Cropper, EphemeralMessages, View,
         assert.equal(cropper.canvas._context._args[4], 50);
         assert.equal(cropper.canvas._context._args[7], 480);
         assert.equal(cropper.canvas._context._args[8], 480);
+      });
+
+      it('callbacks on translate', function () {
+        cropper.setImageSrc(pngSrc, 100, 50);
+
+        cropper.draggable.simulate('drag', { dx: 50, dy: 50 });
+        assert.isTrue(translateCb.calledOnce);
+      });
+
+      it('callbacks on zoom range change', function () {
+        cropper.setImageSrc(pngSrc, 100, 50);
+
+        cropper.slider.val(50);
+        cropper.slider.trigger('change');
+        assert.isTrue(zoomRangeChangeCb.calledOnce);
+      });
+
+      it('callbacks on rotate', function () {
+        cropper.setImageSrc(pngSrc, 100, 50);
+
+        cropper.rotator.trigger('click');
+        assert.isTrue(rotateCb.calledOnce);
+      });
+
+      it('callbacks on zoom in', function () {
+        cropper.setImageSrc(pngSrc, 100, 50);
+
+        cropper.container.find('.zoom-in').trigger('click');
+        assert.isTrue(zoomInCb.calledOnce);
+      });
+
+      it('callbacks on zoom out', function () {
+        cropper.setImageSrc(pngSrc, 100, 50);
+
+        cropper.container.find('.zoom-out').trigger('click');
+        assert.isTrue(zoomOutCb.calledOnce);
       });
     });
   });

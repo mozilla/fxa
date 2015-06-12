@@ -156,6 +156,12 @@ The event stream is a log of events and the time they occurred while the user is
 
 #### settings/avatar/crop
 
+* settings.avatar.crop.rotate.cw - user rotated the image clockwise using the rotate button
+* settings.avatar.crop.translate - user translated the image using a drag operation
+* settings.avatar.crop.zoom.in - user zoomed into the image using the magnify button
+* settings.avatar.crop.zoom.out - user zoomed out from the image using the magnify button
+* settings.avatar.crop.zomm.range - user zoomed in or out the image using the input range control
+
 #### settings/avatar/gravatar
 
 #### settings/communication_preferences
