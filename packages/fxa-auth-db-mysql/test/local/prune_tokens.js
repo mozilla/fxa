@@ -39,7 +39,7 @@ DB.connect(config)
             })
             .then(function() {
               // now set it to be a day ago
-              var sql = "UPDATE accountResetTokens SET createdAt = createdAt - ? WHERE tokenId = ?"
+              var sql = 'UPDATE accountResetTokens SET createdAt = createdAt - ? WHERE tokenId = ?'
               return db.write(sql, [ oneDay, user.accountResetTokenId ])
             })
             .then(function(sdf) {
@@ -47,7 +47,7 @@ DB.connect(config)
             })
             .then(function() {
               // now set it to be a day ago
-              var sql = "UPDATE passwordForgotTokens SET createdAt = createdAt - ? WHERE tokenId = ?"
+              var sql = 'UPDATE passwordForgotTokens SET createdAt = createdAt - ? WHERE tokenId = ?'
               return db.write(sql, [ oneDay, user.passwordForgotTokenId ])
             })
             .then(function() {

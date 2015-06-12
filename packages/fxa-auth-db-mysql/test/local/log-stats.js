@@ -38,7 +38,7 @@ DB.connect(config)
                 t.equal(stats.stat, 'mysql', 'stats.stat is mysql')
                 t.equal(stats.errors, 0, 'have no errors')
                 t.equal(stats.connections, 1, 'have one connection')
-              }, 
+              },
               function(err) {
                 t.fail('this should never happen ' + err)
               }
