@@ -75,6 +75,7 @@ define([
     return credentials.setup(email, password)
       .then(
         function (result) {
+          /*eslint complexity: [2, 9] */
           var endpoint = '/account/create';
           var data = {
             email: result.emailUTF8,
