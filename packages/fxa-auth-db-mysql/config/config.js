@@ -81,7 +81,7 @@ module.exports = function (fs, path, url, convict) {
         env: 'MYSQL_PORT',
       },
       connectionLimit: {
-        doc: "The maximum number of connections to create at once.",
+        doc: 'The maximum number of connections to create at once.',
         default: 10,
         format: 'nat',
         env: 'MYSQL_CONNECTION_LIMIT',
@@ -127,7 +127,7 @@ module.exports = function (fs, path, url, convict) {
         env: 'MYSQL_SLAVE_PORT',
       },
       connectionLimit: {
-        doc: "The maximum number of connections to create at once.",
+        doc: 'The maximum number of connections to create at once.',
         default: 10,
         format: 'nat',
         env: 'MYSQL_SLAVE_CONNECTION_LIMIT',
@@ -159,7 +159,7 @@ module.exports = function (fs, path, url, convict) {
       jwt: {
         secretKeyFile: {
           doc: 'Secret key to use for signing JWTs, a PEM-encoded file.',
-          default: __dirname + '/../test/local/test-secret.pem',
+          default: path.join(__dirname, '..', 'test', 'local', 'test-secret.pem'),
           env: 'NOTIFICATIONS_JWT_SECRET_KEY_FILE'
         },
         iss: {

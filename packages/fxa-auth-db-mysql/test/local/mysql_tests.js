@@ -203,8 +203,8 @@ DB.connect(config)
               t.pass('The call to the stored procedure failed as expected')
               t.equal(err.code, 500, 'error code is correct')
               var possibleErrors = [
-                { msg: "ER_BAD_NULL_ERROR", errno: 1048 },
-                { msg: "ER_NO_DEFAULT_FOR_FIELD", errno: 1364 }
+                { msg: 'ER_BAD_NULL_ERROR', errno: 1048 },
+                { msg: 'ER_NO_DEFAULT_FOR_FIELD', errno: 1364 }
               ];
               var matchedError = false;
               possibleErrors.forEach(function(possibleErr) {

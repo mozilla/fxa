@@ -8,10 +8,10 @@ module.exports = function (grunt) {
   grunt.config('copyright', {
     app: {
       src: [
-        "{,bin/,config/,db/,scripts/}*.js"
+        '{,bin/,config/,db/,scripts/}*.js'
       ],
       options: {
-        pattern: "This Source Code Form is subject to the terms of the Mozilla Public"
+        pattern: 'This Source Code Form is subject to the terms of the Mozilla Public'
       }
     },
     tests: {

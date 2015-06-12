@@ -21,14 +21,14 @@ var p = spawn(path.join(path.dirname(__dirname), 'node_modules', '.bin', 'tap'),
 p.on('close', function(code) {
   if (!process.env.NO_COVERAGE) {
     ass.report('json', function(err, r) {
-      console.log("code coverage:", r.percent + "%");
-      process.stdout.write("generating coverage.html: ");
+      console.log('code coverage:', r.percent + '%');
+      process.stdout.write('generating coverage.html: ');
       var start = new Date();
       ass.report('html', function(err, html) {
         fs.writeFileSync(path.join(path.dirname(__dirname), 'coverage.html'),
                          html);
-        process.stdout.write("complete in " +
-                             ((new Date() - start) / 1000.0).toFixed(1) + "s\n");
+        process.stdout.write('complete in ' +
+                             ((new Date() - start) / 1000.0).toFixed(1) + 's\n');
         process.exit(code);
       });
     });

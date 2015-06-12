@@ -66,7 +66,7 @@ module.exports = function (log, error) {
         }
       )
 
-      var pruneIn = options.pruneEvery/2 + Math.floor(Math.random() * options.pruneEvery)
+      var pruneIn = options.pruneEvery / 2 + Math.floor(Math.random() * options.pruneEvery)
       setTimeout(prune.bind(this), pruneIn).unref();
     }
     // start the pruning off, but only if enabled in config
@@ -672,7 +672,7 @@ module.exports = function (log, error) {
   // exposed for testing only
   MySql.prototype.retryable_ = retryable
 
-  var PRUNE = "CALL prune(?, ?)"
+  var PRUNE = 'CALL prune(?, ?)'
   MySql.prototype.pruneTokens = function () {
     log.info({  op : 'MySql.pruneTokens' })
 
