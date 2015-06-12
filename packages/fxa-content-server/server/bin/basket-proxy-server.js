@@ -77,6 +77,8 @@ function verifyOAuthToken() {
     }
     var token = authHeader.replace(/^Bearer /, '');
 
+    logger.info('auth.valid.starting');
+
     request.post({
       url: VERIFY_URL,
       json: {
@@ -107,7 +109,7 @@ function verifyOAuthToken() {
         return;
       }
 
-      logger.debug('auth.valid', body);
+      logger.info('auth.valid', body);
 
       res.locals.creds = body;
 
@@ -156,6 +158,7 @@ function initApp() {
   app.post('/subscribe', function (req, res) {
     var params = req.body;
     params.email = res.locals.creds.email;
+    logger.info('subscribe.params', params);
 
     basketRequest('/subscribe/', 'post', params)
       .on('error', function (error) {
@@ -190,6 +193,7 @@ function initApp() {
 
       var params = req.body;
       params.email = creds.email;
+      logger.info('unsubscribe.params', params);
 
       basketRequest('/unsubscribe/' + responseData.token + '/', 'post', params)
         .on('error', function (error) {
