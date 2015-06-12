@@ -112,6 +112,7 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
       this._getMedia();
 
       this._avatarProgressIndicator = new ProgressIndicator();
+      this.wrapper = this.$('#avatar-camera-wrapper');
       this.video = this.$('#video');
 
       this._avatarProgressIndicator.start(this.$('.progress-container'));
@@ -129,7 +130,7 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
         this.height = this.video[0].videoHeight / (this.video[0].videoWidth / this.width);
         this.video.width(this.width);
         this.video.height(this.height);
-        this.video.css(pos);
+        this.wrapper.css(pos);
         this.canvas.width = this.width;
         this.canvas.height = this.height;
         this._avatarProgressIndicator.done();
