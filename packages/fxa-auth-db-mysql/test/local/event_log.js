@@ -16,6 +16,21 @@ DB.connect(config)
     function (db) {
 
       test(
+        'processUnpublishedEvents guards for callback not returning promise',
+        function (t) {
+          t.plan(2);
+          return db.processUnpublishedEvents(function (events) {
+            t.ok(true, 'The db.processUnpublishedEvents callback was called')
+            // ... but the callback itself returns nothing
+          })
+          .then(function () {
+            // Yet a promise is returned
+            t.ok(true, 'The following thenable is called')
+          })
+        }
+      )
+
+      test(
         'account activity should generate event logs',
         function (t) {
           t.plan(14);

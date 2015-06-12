@@ -730,7 +730,7 @@ module.exports = function (log, error) {
                 // Luckily MySQL will clear it if our connection dies,
                 // and we kill the connection in the event of error.
                 var events = results[2]
-                return fn(events)
+                return P.resolve(events).then(fn)
                   .then(
                     function (numProcessed) {
                       var ackPos
