@@ -44,6 +44,7 @@ define([
   'lib/able',
   'lib/environment',
   'lib/origin-check',
+  'lib/height-observer',
   'models/reliers/relier',
   'models/reliers/oauth',
   'models/reliers/fx-desktop',
@@ -87,6 +88,7 @@ function (
   Able,
   Environment,
   OriginCheck,
+  HeightObserver,
   Relier,
   OAuthRelier,
   FxDesktopRelier,
@@ -208,6 +210,8 @@ function (
                     // broker relies on the user, relier, fxaClient,
                     // assertionLibrary, and metrics
                     .then(_.bind(this.initializeAuthenticationBroker, this))
+                    // depends on the authentication broker
+                    .then(_.bind(this.initializeHeightObserver, this))
                     // the close button depends on the broker
                     .then(_.bind(this.initializeCloseButton, this))
                     // storage format upgrades depend on user
@@ -408,6 +412,22 @@ function (
         this._metrics.setBrokerType(this._authenticationBroker.type);
 
         return this._authenticationBroker.fetch();
+      }
+    },
+
+    initializeHeightObserver: function () {
+      var self = this;
+      if (self._isInAnIframe()) {
+        var heightObserver = new HeightObserver({
+          target: self._window.document.body,
+          window: self._window
+        });
+
+        heightObserver.on('change', function (height) {
+          self._iframeChannel.send('resize', { height: height });
+        });
+
+        heightObserver.start();
       }
     },
 

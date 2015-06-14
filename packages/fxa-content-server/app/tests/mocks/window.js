@@ -5,12 +5,24 @@
 // stub out the window object for testing.
 
 define([
-  'underscore',
   'backbone',
+  'sinon',
+  'underscore',
   'lib/null-storage'
 ],
-function (_, Backbone, NullStorage) {
+function (Backbone, sinon, _, NullStorage) {
   'use strict';
+
+  function MutationObserver (notifier) {
+    return {
+      observe: sinon.spy(),
+      disconnect: sinon.spy(),
+      // test function to call notifier.
+      mockNotify: function (mutations) {
+        notifier(mutations);
+      }
+    };
+  }
 
   function WindowMock() {
     var self = this;
@@ -24,9 +36,11 @@ function (_, Backbone, NullStorage) {
     };
 
     this.document = {
+      body: window.document.body,
       title: window.document.title,
       documentElement: {
-        className: ''
+        className: '',
+        clientHeight: window.document.documentElement.clientHeight
       }
     };
 
@@ -75,6 +89,9 @@ function (_, Backbone, NullStorage) {
     this.localStorage = new NullStorage();
     this.sessionStorage = new NullStorage();
     this.top = this;
+
+
+    this.MutationObserver = MutationObserver;
   }
 
   _.extend(WindowMock.prototype, Backbone.Events, {
