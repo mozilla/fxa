@@ -112,6 +112,10 @@ header {
       }
 
     }
+
+    .chromeless & {
+      display: none;
+    }
   }
 
   h2 {
