@@ -32,7 +32,7 @@ module.exports = function (locales, defaultLanguage) {
       var supportedLanguages = []
       for (var i = 0; i < translations.length; i++) {
         var t = translations[i]
-        var language = i18n.languageFrom(t.locale_data.messages[""].lang)
+        var language = i18n.normalizeLanguage(i18n.languageFrom(t.locale_data.messages[""].lang))
         supportedLanguages.push(language)
         var translator = new Jed(t)
         translator.language = language
