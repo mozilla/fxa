@@ -27,13 +27,23 @@ define([
    * @param {Object} config Configuration
    */
   function FxAccountClient(uri, config) {
+    if (! uri && ! config) {
+      throw new Error('Firefox Accounts auth server endpoint or configuration object required.');
+    }
+
     if (typeof uri !== 'string') {
       config = uri || {};
       uri = config.uri;
     }
+
     if (typeof config === 'undefined') {
       config = {};
     }
+
+    if (! uri) {
+      throw new Error('FxA auth server uri not set.');
+    }
+
     if (!uriVersionRegExp.test(uri)) {
       uri = uri + '/' + VERSION;
     }
