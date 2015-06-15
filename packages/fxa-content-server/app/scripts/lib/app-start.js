@@ -361,7 +361,6 @@ function (
     },
 
     initializeAuthenticationBroker: function () {
-      /*jshint maxcomplexity: 7 */
       /*eslint complexity: [2, 7] */
       if (! this._authenticationBroker) {
         if (this._isFxDesktopV2()) {
@@ -549,8 +548,7 @@ function (
           namespace: err.namespace,
           context: err.context,
           param: err.param,
-          //jshint camelcase: false
-          client_id: err.client_id
+          client_id: err.client_id //eslint-disable-line camelcase
         });
 
         return Constants.BAD_REQUEST_PAGE + queryString;
@@ -615,7 +613,6 @@ function (
     },
 
     _isOAuthVerificationSameBrowser: function () {
-      //jshint camelcase: false
       var savedClientId = Session.oauth && Session.oauth.client_id;
       return !! (this._searchParam('code') &&
                 (this._searchParam('service') === savedClientId));

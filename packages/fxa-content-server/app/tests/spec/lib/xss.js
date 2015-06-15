@@ -38,9 +38,7 @@ function (chai, _, XSS, Constants) {
       });
 
       it('disallows javascript: href', function () {
-        /*eslint-disable */
-        expectEmpty('javascript:alert(1)'); // jshint ignore:line 
-        /*eslint-enable */
+        expectEmpty('javascript:alert(1)'); //eslint-disable-line no-script-url
       });
 
       it('disallows href without a scheme', function () {

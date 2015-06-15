@@ -155,7 +155,7 @@ define([
      * @param {Object} [data]
      * @return {String}
      */
-    createMessageId: function (command, data) { //jshint ignore: line
+    createMessageId: function (command, data) {
       return Date.now();
     },
 

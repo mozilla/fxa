@@ -12,7 +12,7 @@
  *
  */
 
-
+/*eslint-disable camelcase */
 module.exports = function (config) {
 
   // this is perhaps a bit janky. In dev mode, a `t` helper needs to be

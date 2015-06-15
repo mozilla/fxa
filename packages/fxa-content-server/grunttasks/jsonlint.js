@@ -8,8 +8,7 @@ module.exports = function (grunt) {
       src: [
         '.bowerrc',
         '.eslintrc',
-        '.jscsrc',
-        '.jshintrc'
+        '.jscsrc'
       ]
     },
     app: {

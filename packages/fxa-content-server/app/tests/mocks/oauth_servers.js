@@ -15,7 +15,6 @@ define([
    * To destroy the fakeServer, call fakeServer.destroy();
    */
   function MockOAuthServers() {
-    /*jshint camelcase: false*/
     this.fakeServer = sinon.fakeServer.create();
     this.fakeServer.autoRespond = true;
 
@@ -37,8 +36,8 @@ define([
         'Content-Type': 'application/json'
       }, JSON.stringify({
         name: '123Done',
-        image_uri: 'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png',
-        redirect_uri: 'http://127.0.0.1:8080/api/oauth'
+        image_uri: 'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png', //eslint-disable-line camelcase
+        redirect_uri: 'http://127.0.0.1:8080/api/oauth' //eslint-disable-line camelcase
       }));
     });
   }

@@ -40,10 +40,8 @@ function (xhr, OAuthErrors) {
 
     // params = { assertion, client_id, scope }
     getToken: function (params) {
-      /* jshint camelcase: false */
-
       // Use the special 'token' response type
-      params.response_type = 'token';
+      params.response_type = 'token'; //eslint-disable-line camelcase
       return this.getCode(params);
     },
 

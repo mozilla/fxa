@@ -10,7 +10,6 @@ var uaParser = require('ua-parser');
 var STATSD_PREFIX = 'fxa.content.';
 
 function getGenericTags(body) {
-  /*jshint maxcomplexity:7 */
   /*eslint complexity: [2, 7] */
   // see more about tags here: http://docs.datadoghq.com/guides/metrics/
   var tags = [

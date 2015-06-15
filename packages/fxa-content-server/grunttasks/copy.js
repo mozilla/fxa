@@ -22,7 +22,7 @@ module.exports = function (grunt) {
         ]
       }]
     },
-    tos_pp: {
+    tos_pp: { //eslint-disable-line camelcase
       // The legal repo use es-ES but we (in accordance with Verbatim) use es,
       // so copy es-ES templates to es
       files: [
@@ -46,7 +46,7 @@ module.exports = function (grunt) {
         }
       ]
     },
-    error_pages: {
+    error_pages: { //eslint-disable-line camelcase
       files: [
         {
           expand: true,

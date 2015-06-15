@@ -129,13 +129,12 @@ define([
     },
 
     createOAuthToken: function (scope) {
-      /* jshint camelcase: false */
       var self = this;
 
       return self._assertion.generate(self.get('sessionToken'))
         .then(function (assertion) {
           var params = {
-            client_id: self._oAuthClientId,
+            client_id: self._oAuthClientId, //eslint-disable-line camelcase
             scope: scope,
             assertion: assertion
           };

@@ -72,8 +72,7 @@ function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
           var relier = self.relier;
           var oauthParams = {
             assertion: assertion,
-            //jshint camelcase: false
-            client_id: relier.get('clientId'),
+            client_id: relier.get('clientId'), //eslint-disable-line camelcase
             scope: relier.get('scope'),
             state: relier.get('state')
           };
@@ -124,8 +123,7 @@ function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
         var relier = self.relier;
         self.session.set('oauth', {
           webChannelId: self.get('webChannelId'),
-          //jshint camelcase: false
-          client_id: relier.get('clientId'),
+          client_id: relier.get('clientId'), //eslint-disable-line camelcase
           state: relier.get('state'),
           keys: relier.get('keys'),
           scope: relier.get('scope'),

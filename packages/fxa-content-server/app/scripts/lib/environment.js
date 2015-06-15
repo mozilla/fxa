@@ -9,8 +9,6 @@
 // NOTE: This is run in the HEAD of the document, and must support IE8+.
 // No ES5/ES6 features!
 
-//jshint es3: true, es5: false, esnext: false
-
 // This is loaded in the HEAD of the doc & uses a modified version of
 // https://github.com/umdjs/umd/blob/master/amdWeb.js
 (function (root, factory) {
@@ -23,7 +21,7 @@
     // Browser globals
     root.FxaHead.Environment = factory();
   }
-}(this, function () { //jshint ignore: line
+}(this, function () {
   'use strict';
 
   function Environment(win) {

@@ -4,7 +4,7 @@
 
 module.exports = function (grunt) {
   grunt.config('replace', {
-    tos_pp: {
+    tos_pp: { //eslint-disable-line camelcase
       src: [
         '<%= yeoman.pp_md_src %>/*.md',
         '<%= yeoman.tos_md_src %>/*.md'

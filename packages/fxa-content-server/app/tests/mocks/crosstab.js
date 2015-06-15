@@ -10,7 +10,7 @@ define([
   function deepStub(target, source) {
     for (var key in source) {
       if (typeof source[key] === 'function') {
-        target[key] = function () {}; //jshint ignore:line
+        target[key] = function () {};
       }
 
       if (typeof source[key] === 'object') {

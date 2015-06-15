@@ -17,7 +17,7 @@ function (chai, sinon, OAuthClient, OAuthErrors, Xhr, p) {
   'use strict';
 
   /*global beforeEach, afterEach, describe, it*/
-
+  /*eslint-disable camelcase */
   var OAUTH_URL = 'http://127.0.0.1:9010';
   var RP_URL = 'http://127.0.0.1:8080/api/oauth';
   var assert = chai.assert;
@@ -26,8 +26,6 @@ function (chai, sinon, OAuthClient, OAuthErrors, Xhr, p) {
   var xhr;
 
   describe('lib/oauth-client', function () {
-    /* jshint camelcase: false */
-
     beforeEach(function () {
       server = sinon.fakeServer.create();
       server.autoRespond = true;
@@ -80,7 +78,6 @@ function (chai, sinon, OAuthClient, OAuthErrors, Xhr, p) {
       });
     });
 
-    /* jshint camelcase: false */
     describe('getCode', function () {
       var params = {
         assertion: 'assertion',

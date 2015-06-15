@@ -8,6 +8,7 @@ module.exports = function (grunt) {
   var TOS_PP_REPO_ROOT = 'app/bower_components/tos-pp';
 
   grunt.config('yeoman', {
+    /*eslint-disable camelcase */
     app: 'app',
     dist: 'dist',
     server: 'server',

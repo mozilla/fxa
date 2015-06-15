@@ -425,7 +425,6 @@ define([
   });
 
   function testRepopulateFields(dest, header) {
-    /*jshint validthis: true*/
     var self = this;
     var year = OLD_ENOUGH_YEAR;
 

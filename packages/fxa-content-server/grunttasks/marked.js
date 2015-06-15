@@ -20,7 +20,7 @@ module.exports = function (grunt) {
       gfm: true,
       sanitize: false
     },
-    tos_pp: {
+    tos_pp: { //eslint-disable-line camelcase
       files: [
         {
           expand: true,

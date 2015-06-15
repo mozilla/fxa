@@ -15,7 +15,7 @@
 var fs = require('fs');
 var path = require('path');
 var util = require('util');
-var child_process = require('child_process');
+var child_process = require('child_process'); //eslint-disable-line camelcase
 var Promise = require('bluebird');
 var logger = require('mozlog')('server.ver.json');
 
@@ -52,7 +52,7 @@ function getCommitHashFromGit() {
   var gitDir = getGitDir();
   var cmd = util.format('git %s rev-parse HEAD', gitDir ? '--git-dir=' + gitDir : '');
 
-  child_process.exec(cmd, function (err, stdout) {
+  child_process.exec(cmd, function (err, stdout) { //eslint-disable-line camelcase
     deferred.resolve(stdout.replace(/\s+/, ''));
   });
 

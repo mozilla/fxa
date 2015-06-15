@@ -37,6 +37,7 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
   'use strict';
 
   /*global describe, beforeEach, it*/
+  /*eslint-disable camelcase */
   var assert = chai.assert;
   var FIRSTRUN_ORIGIN = 'https://firstrun.firefox.com';
   var HELLO_ORIGIN = 'https://hello.firefox.com';
@@ -207,7 +208,6 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
 
         it('returns a WebChannel broker if verifying in the same brower where a signup was initiated from a web channel', function () {
           Session.set('oauth', {
-            //jshint camelcase: false
             client_id: 'client id',
             webChannelId: 'channel id'
           });
@@ -226,7 +226,6 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
           windowMock.top = new WindowMock();
           windowMock.location.search = Url.objToSearchString({
             context: Constants.IFRAME_CONTEXT,
-            //jshint camelcase: false
             client_id: 'client id'
           });
 
@@ -236,7 +235,6 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
         it('returns a Redirect broker if `context=iframe` is not present and in an iframe - for Marketplace on Android', function () {
           windowMock.top = new WindowMock();
           windowMock.location.search = Url.objToSearchString({
-            //jshint camelcase: false
             client_id: 'client id'
           });
 
@@ -247,7 +245,6 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
       describe('redirect', function () {
         it('returns a Redirect broker if `client_id` is available', function () {
           windowMock.location.search = Url.objToSearchString({
-            //jshint camelcase: false
             client_id: 'client id'
           });
 

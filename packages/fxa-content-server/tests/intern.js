@@ -11,7 +11,6 @@ define([
   './tools/firefox_profile'
 ],
 function (intern, topic, firefoxProfile) {
-  /*jshint maxcomplexity:11 */
   /*eslint complexity: [2, 11] */
   var args = intern.args;
   var fxaAuthRoot = args.fxaAuthRoot || 'http://127.0.0.1:9000/v1';
@@ -79,12 +78,12 @@ function (intern, topic, firefoxProfile) {
   };
 
   // to create a profile, give it the `config` option.
-  config.capabilities.firefox_profile = firefoxProfile(config);
+  config.capabilities.firefox_profile = firefoxProfile(config); //eslint-disable-line camelcase
 
   // custom Firefox binary location, if specified then the default is ignored.
   // ref: https://code.google.com/p/selenium/wiki/DesiredCapabilities#WebDriver
   if (args.firefoxBinary) {
-    config.capabilities.firefox_binary = args.firefoxBinary;
+    config.capabilities.firefox_binary = args.firefoxBinary; //eslint-disable-line camelcase
   }
 
   return config;

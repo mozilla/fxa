@@ -4,7 +4,7 @@
 
 module.exports = function (grunt) {
   grunt.config('clean', {
-    tos_pp: {
+    tos_pp: { //eslint-disable-line camelcase
       files: [{
         dot: true,
         src: [

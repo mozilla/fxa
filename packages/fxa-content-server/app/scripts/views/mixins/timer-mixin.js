@@ -46,7 +46,6 @@ function (_) {
   };
 
   function clearAllTimeouts() {
-    /*jshint validthis: true*/
     var win = this.window || window;
 
     _.each(this._timeouts, function (timeout) {

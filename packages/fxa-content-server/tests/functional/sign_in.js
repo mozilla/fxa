@@ -173,7 +173,6 @@ define([
   });
 
   function testRepopulateFields(dest, header) {
-    /*jshint validthis: true*/
     var self = this;
     var email = TestHelpers.createEmail();
     var password = '12345678';

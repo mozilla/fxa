@@ -96,8 +96,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
       sinon.stub(oAuthClient, 'getClientInfo', function () {
         return p({
           name: '123Done',
-          //jshint camelcase: false
-          redirect_uri: BASE_REDIRECT_URL
+          redirect_uri: BASE_REDIRECT_URL //eslint-disable-line camelcase
         });
       });
 
