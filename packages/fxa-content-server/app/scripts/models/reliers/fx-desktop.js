@@ -9,7 +9,6 @@
  * - context
  * - migration
  */
-
 'use strict';
 
 define([

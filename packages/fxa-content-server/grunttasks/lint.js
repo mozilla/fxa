@@ -7,6 +7,7 @@
 
 module.exports = function (grunt) {
   grunt.registerTask('lint', 'lint all the things', [
+    'eslint',
     'jshint',
     'jsonlint:app',
     'jscs',

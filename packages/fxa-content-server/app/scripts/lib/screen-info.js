@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // module to calculate screen dimentions given a window.
-
 'use strict';
 
 define([
@@ -12,6 +11,7 @@ define([
 
   function ScreenInfo(win) {
     /*jshint maxcomplexity:8 */
+    /*eslint complexity: [2, 8] */
     var documentElement = win.document.documentElement || {};
     var screen = win.screen || {};
 

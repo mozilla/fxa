@@ -9,7 +9,6 @@
 // NOTE: This file must run in IE8+, so no ES5/ES6 features!
 
 //jshint es3: true, es5: false, esnext: false
-
 'use strict';
 
 // This is loaded in the HEAD of the doc & uses a modified version of

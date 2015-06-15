@@ -1,9 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 'use strict';
-
 
 define([
   'chai',
@@ -36,7 +34,6 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
     var relier;
     var broker;
     var user;
-    var account;
     var validCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH);
     var invalidCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH - 1);
     var validUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
@@ -96,12 +93,6 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
         } else {
           return p();
         }
-      });
-
-      account = user.initAccount({
-        sessionToken: 'foo',
-        email: 'a@a.com',
-        uid: validUid
       });
 
       initView();
@@ -224,6 +215,3 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
     });
   });
 });
-
-
-

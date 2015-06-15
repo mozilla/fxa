@@ -1,9 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 'use strict';
-
 
 define([
   'chai',
@@ -39,7 +37,9 @@ function (chai, _, XSS, Constants) {
       });
 
       it('disallows javascript: href', function () {
-        expectEmpty('javascript:alert(1)'); // jshint ignore:line
+        /*eslint-disable */
+        expectEmpty('javascript:alert(1)'); // jshint ignore:line 
+        /*eslint-enable */
       });
 
       it('disallows href without a scheme', function () {

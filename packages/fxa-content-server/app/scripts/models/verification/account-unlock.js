@@ -6,7 +6,6 @@
 /**
  * A model to hold account unlock verification data
  */
-
 'use strict';
 
 define([

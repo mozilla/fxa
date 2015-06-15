@@ -5,7 +5,6 @@
 // a very light wrapper around the real FxaClient to reduce boilerplate code
 // and to allow us to develop to features that are not yet present in the real
 // client.
-
 'use strict';
 
 define([

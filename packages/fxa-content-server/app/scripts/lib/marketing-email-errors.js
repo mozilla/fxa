@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // provides functions to work with errors returned by the auth server.
-
 'use strict';
 
 define([

@@ -16,7 +16,6 @@ define([
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
 
   var PASSWORD = 'password';
-  var user;
   var email;
 
   registerSuite({
@@ -24,7 +23,6 @@ define([
 
     setup: function () {
       email = TestHelpers.createEmail();
-      user = TestHelpers.emailToUser(email);
     },
 
     beforeEach: function () {

@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Finishes the OAuth flow by redirecting the window.
-
 'use strict';
 
 define([

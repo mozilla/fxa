@@ -9,7 +9,6 @@
  *
  * If Sync is iframed by web content, v2 of the protocol is assumed.
  */
-
 'use strict';
 
 define([

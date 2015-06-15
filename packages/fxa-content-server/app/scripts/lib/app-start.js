@@ -14,7 +14,6 @@
  * 5) If cookies are disabled, go to the /cookies_disabled page.
  * 6) Start the app if cookies are enabled.
  */
-
 'use strict';
 
 define([
@@ -353,7 +352,8 @@ function (
     },
 
     initializeAuthenticationBroker: function () {
-      //jshint maxcomplexity: 7
+      /*jshint maxcomplexity: 7 */
+      /*eslint complexity: [2, 7] */
       if (! this._authenticationBroker) {
         if (this._isFxDesktopV2()) {
           this._authenticationBroker = new FxDesktopV2AuthenticationBroker({

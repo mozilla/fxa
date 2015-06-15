@@ -170,5 +170,3 @@ function (Translator, Session) {
 
 });
 
-
-

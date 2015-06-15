@@ -5,7 +5,6 @@
 /**
  * A relier is a model that holds information about the RP.
  */
-
 'use strict';
 
 define([

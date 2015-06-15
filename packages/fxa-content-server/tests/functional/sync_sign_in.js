@@ -21,7 +21,6 @@ define([
 
   var client;
   var email;
-  var user;
   var PASSWORD = '12345678';
   var accountData;
 
@@ -41,7 +40,6 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      user = TestHelpers.emailToUser(email);
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });

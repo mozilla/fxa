@@ -9,9 +9,7 @@
  * callbacks passed to setTimeout will be called in the context of
  * the view.
  */
-
 'use strict';
-
 
 define([
   'underscore'

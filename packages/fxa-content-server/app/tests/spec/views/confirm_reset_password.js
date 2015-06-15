@@ -257,7 +257,6 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
           }, done);
         });
 
-
         view.render();
       });
 

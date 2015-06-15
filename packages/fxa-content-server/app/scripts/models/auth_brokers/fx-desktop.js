@@ -5,7 +5,6 @@
 /**
  * A broker that knows how to communicate with Firefox when used for Sync.
  */
-
 'use strict';
 
 define([

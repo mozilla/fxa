@@ -177,7 +177,6 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
           });
       });
 
-
       it('if caused by a signin, redirects to `/account_unlock_complete` if broker does not halt', function () {
         sinon.stub(fxaClient, 'signIn', function () {
           return p({

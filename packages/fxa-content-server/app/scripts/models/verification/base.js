@@ -11,7 +11,6 @@
  * hashes. The `validation` hash contains the same keys as the `defaults`
  * whose values are validation functions.
  */
-
 'use strict';
 
 define([

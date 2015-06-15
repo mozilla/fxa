@@ -4,7 +4,6 @@
 
 // This model abstracts interaction between the user's account
 // and the profile server and also handles (de)serialization.
-
 'use strict';
 
 define([

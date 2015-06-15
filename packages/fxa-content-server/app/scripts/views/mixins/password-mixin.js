@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // helper functions for views with passwords. Meant to be mixed into views.
-
 'use strict';
 
 define([

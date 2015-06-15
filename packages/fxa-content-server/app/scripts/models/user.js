@@ -8,7 +8,6 @@
 //
 // i.e. User hasMany Accounts.
 
-
 'use strict';
 
 define([

@@ -1,0 +1,4 @@
+.tmp/**
+app/bower_components/**
+app/scripts/vendor/**
+dist/**

@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-'use strict';
 
 /*
  * A metrics module!
@@ -14,6 +13,7 @@
  * Metrics are automatically sent to the server on window.unload
  * but can also be sent by calling metrics.flush();
  */
+'use strict';
 
 define([
   'underscore',
@@ -62,6 +62,7 @@ define([
 
   function Metrics (options) {
     /*jshint maxcomplexity:18 */
+    /*eslint complexity: [2, 18] */
     options = options || {};
 
     // by default, send the metrics to the content server.

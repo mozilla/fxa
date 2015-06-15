@@ -2,12 +2,13 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+'use strict';
 
-const path = require('path');
-const spawn = require('child_process').spawn;
+var path = require('path');
+var spawn = require('child_process').spawn;
 
 
-const BIN_ROOT = path.join(__dirname, '..', 'server', 'bin');
+var BIN_ROOT = path.join(__dirname, '..', 'server', 'bin');
 
 module.exports = function (done) {
   process.chdir(path.dirname(__dirname));
@@ -21,7 +22,7 @@ module.exports = function (done) {
     if (done) {
       done(code);
     } else {
-      process.exit(code);
+      process.exit(code); //eslint-disable-line no-process-exit
     }
   });
 };

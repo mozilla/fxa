@@ -24,7 +24,6 @@ define([
   var user;
   var email;
   var client;
-  var accountData;
 
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
@@ -48,7 +47,7 @@ define([
 
       return client.signUp(email, PASSWORD, { preVerified: true })
         .then(function (result) {
-          accountData = result;
+          // do nothing
         })
         .then(function () {
           // clear localStorage to avoid polluting other tests.

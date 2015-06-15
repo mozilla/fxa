@@ -5,7 +5,6 @@
 /**
  * The notifier broadcasts messages across multiple channels (iframe, tabs, browsers, etc).
  */
-
 'use strict';
 
 define([

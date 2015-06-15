@@ -6,7 +6,6 @@
  * A broker that makes use of the WebChannel abstraction to communicate
  * with the browser
  */
-
 'use strict';
 
 define([

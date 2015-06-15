@@ -21,7 +21,6 @@ define([
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
 
   var PASSWORD = 'password';
-  var user;
   var email;
   var bouncedEmail;
   var fxaClient;
@@ -32,7 +31,6 @@ define([
     beforeEach: function () {
       email = TestHelpers.createEmail();
       bouncedEmail = TestHelpers.createEmail();
-      user = TestHelpers.emailToUser(email);
       fxaClient = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });

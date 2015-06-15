@@ -5,7 +5,6 @@
 /**
  * Based on bower_components/blanket/src/reporters/lcov_reporter.js
  */
-
 'use strict';
 
 //lcov_reporter

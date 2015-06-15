@@ -5,7 +5,6 @@
 /**
  * An OAuth Relier - holds OAuth information.
  */
-
 'use strict';
 
 define([
