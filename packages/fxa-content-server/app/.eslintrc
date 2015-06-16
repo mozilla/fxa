@@ -5,10 +5,10 @@
     "jquery": true,
     "node": false
   },
+  "globals": {
+    "router": false
+  },
   "rules": {
-    "globals": {
-      "router": false
-    },
     "no-bitwise": 2,
     "no-caller": 2,
     "no-console": 0,

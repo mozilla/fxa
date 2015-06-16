@@ -1,3 +1,5 @@
+'use strict';
+
 var mozlog = require('mozlog');
 var config = require('../../../server/lib/configuration');
 
