@@ -362,6 +362,32 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
       });
     });
 
+    describe('initializeUuid', function () {
+      beforeEach(function () {
+        appStart = new AppStart({
+          window: windowMock,
+          router: routerMock,
+          history: historyMock,
+          broker: brokerMock
+        });
+        appStart.useConfig({});
+      });
+
+      it('creates a user', function () {
+        appStart.initializeUuid();
+        assert.isDefined(appStart._uuid);
+      });
+
+      it('persistent via localStorage', function () {
+        appStart.initializeUuid();
+        assert.isDefined(appStart._uuid);
+        var uuid = appStart._uuid;
+
+        appStart.initializeUuid();
+        assert.equal(appStart._uuid, uuid);
+      });
+    });
+
     describe('initializeRouter', function () {
       beforeEach(function () {
         appStart = new AppStart({
