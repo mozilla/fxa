@@ -24,7 +24,6 @@ module.exports = function summary(request, response) {
     path: request.path,
     agent: request.headers['user-agent'],
     t: Date.now() - request.info.received,
-    /*jshint camelcase: false*/
     client_id: payload.client_id || query.client_id || params.client_id,
     auth: auth,
     payload: Object.keys(payload)

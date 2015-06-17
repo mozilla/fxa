@@ -9,8 +9,6 @@ const auth = require('../../auth');
 const db = require('../../db');
 const validators = require('../../validators');
 
-/*jshint camelcase: false*/
-
 function serialize(client) {
   return {
     id: hex(client.id),

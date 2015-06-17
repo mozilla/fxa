@@ -19,7 +19,6 @@ function generateToken(code) {
 }
 
 function toToken(authAt, _, token) {
-  /*jshint camelcase: false*/
   return {
     access_token: token.token.toString('hex'),
     token_type: token.type,
@@ -30,7 +29,6 @@ function toToken(authAt, _, token) {
 
 
 var payloadSchema = Joi.object({
-  /*jshint camelcase: false*/
   client_id: validators.clientId,
   client_secret: validators.clientSecret,
   code: Joi.string()

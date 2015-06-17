@@ -8,8 +8,6 @@ const config = require('../config');
 const token = require('../token');
 const validators = require('../validators');
 
-/*jshint camelcase: false*/
-
 module.exports = {
   validate: {
     payload: {

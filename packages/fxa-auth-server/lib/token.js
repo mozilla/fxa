@@ -7,8 +7,6 @@ const auth = require('./auth');
 const db = require('./db');
 const encrypt = require('./encrypt');
 
-/*jshint camelcase: false*/
-
 exports.verify = function verify(token) {
   return db.getToken(encrypt.hash(token))
   .then(function(token) {
