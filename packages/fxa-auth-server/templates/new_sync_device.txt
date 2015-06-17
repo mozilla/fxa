@@ -1,0 +1,5 @@
+{{t "Account activity notice" }}
+{{t "A new device is now syncing with all of the devices connected to your Firefox Account." }}
+
+{{t "This is an automated email; if you didn't add a new device to your Firefox Account, you should change your password immediately at %(resetLink)s."}}
+{{t "For more information, please visit https://support.mozilla.org"}}

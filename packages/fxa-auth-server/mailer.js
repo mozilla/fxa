@@ -21,10 +21,11 @@ module.exports = function (log) {
         pass: config.password
       }
     }
-    
+
     this.mailer = nodemailer.createTransport('SMTP', options)
     this.sender = config.sender
     this.verificationUrl = config.verificationUrl
+    this.initiatePasswordResetUrl = config.initiatePasswordResetUrl
     this.passwordResetUrl = config.passwordResetUrl
     this.accountUnlockUrl = config.accountUnlockUrl
     this.translator = translator
@@ -78,7 +79,7 @@ module.exports = function (log) {
     var email = {
       sender: this.sender,
       to: message.email,
-      subject: translator.gettext('Verify your account'),
+      subject: translator.gettext('Verify your Firefox Account'),
       text: localized.text,
       html: localized.html,
       headers: {
@@ -117,7 +118,7 @@ module.exports = function (log) {
     var email = {
       sender: this.sender,
       to: message.email,
-      subject: translator.gettext('Reset your password'),
+      subject: translator.gettext('Reset your Firefox Account password'),
       text: localized.text,
       html: localized.html,
       headers: {
@@ -151,7 +152,7 @@ module.exports = function (log) {
     var email = {
       sender: this.sender,
       to: message.email,
-      subject: translator.gettext('Re-verify your account'),
+      subject: translator.gettext('Re-verify your Firefox Account'),
       text: localized.text,
       html: localized.html,
       headers: {
@@ -160,6 +161,87 @@ module.exports = function (log) {
         'X-Service-ID': message.service,
         'X-Link': link,
         'Content-Language': translator.language
+      }
+    }
+    return this.send(email)
+  }
+
+  Mailer.prototype.passwordChangedEmail = function (message) {
+    log.trace({ op: 'mailer.passwordChangedEmail', email: message.email, uid: message.uid })
+    var query = {
+      email: message.email
+    }
+    var link = this.initiatePasswordResetUrl + '?' + qs.stringify(query)
+
+    var translator = this.translator(message.acceptLanguage)
+    var values = {
+      translator: translator,
+      resetLink: link
+    }
+    var localized = this.templates.passwordChangedEmail(values)
+    var email = {
+      sender: this.sender,
+      to: message.email,
+      subject: translator.gettext('Your Firefox Account password has been changed'),
+      text: localized.text,
+      html: localized.html,
+      headers: {
+        'Content-Language': translator.language,
+        'X-Link': link
+      }
+    }
+    return this.send(email)
+  }
+
+  Mailer.prototype.passwordResetEmail = function (message) {
+    log.trace({ op: 'mailer.passwordiResetEmail', email: message.email, uid: message.uid })
+    var query = {
+      email: message.email
+    }
+    var link = this.initiatePasswordResetUrl + '?' + qs.stringify(query)
+
+    var translator = this.translator(message.acceptLanguage)
+    var values = {
+      translator: translator,
+      resetLink: link
+    }
+    var localized = this.templates.passwordResetEmail(values)
+    var email = {
+      sender: this.sender,
+      to: message.email,
+      subject: translator.gettext('Your Firefox Account password has been reset'),
+      text: localized.text,
+      html: localized.html,
+      headers: {
+        'Content-Language': translator.language,
+        'X-Link': link
+      }
+    }
+    return this.send(email)
+  }
+
+  Mailer.prototype.newSyncDeviceEmail = function (message) {
+    log.trace({ op: 'mailer.newSyncDeviceEmail', email: message.email, uid: message.uid })
+    var query = {
+      email: message.email
+    }
+    var link = this.initiatePasswordResetUrl + '?' + qs.stringify(query)
+
+    var translator = this.translator(message.acceptLanguage)
+    var values = {
+      translator: translator,
+      resetLink: link
+    }
+    var localized = this.templates.newSyncDeviceEmail(values)
+    var email = {
+      sender: this.sender,
+      to: message.email,
+      subject: translator.gettext('A new device is now syncing to your Firefox Account'),
+      text: localized.text,
+      html: localized.html,
+      headers: {
+        'Content-Language': translator.language,
+        'X-Link': link
       }
     }
     return this.send(email)
