@@ -128,7 +128,6 @@ module.exports = function mock(options) {
 
     workerFailure: function workerFailure() {
       var parts = url.parse(config.get('worker.url'));
-      var path = '';
       var headers = {
         'content-type': 'image/png',
         'content-length': 12696
@@ -137,7 +136,6 @@ module.exports = function mock(options) {
         reqheaders: headers
       })
         .filteringPath(function filter(_path) {
-          path = _path;
           return _path.replace(/\/a\/[0-9a-f]{32}/g, '/a/' + MOCK_ID);
         })
         .post('/a/' + MOCK_ID)

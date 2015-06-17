@@ -51,7 +51,7 @@ function Avatar(options) {
 
   if (!options.host) throw new Error('option "host" is required');
   this.host = options.host;
-  
+
   this.image = options.image ||
     fs.readFileSync(path.resolve(__dirname, 'cat.png'));
 }
@@ -95,7 +95,7 @@ Avatar.prototype.upload = function avatarUpload(options) {
       result.error = err;
       return self.emit('error', result);
     }
-    
+
     if (res.statusCode !== 201) {
       result.error = new Error('Invalid response code: ' + res.statusCode);
       return self.emit('error', result);
@@ -122,7 +122,7 @@ Avatar.prototype.download = function avatarDownload(options) {
 
   this.log('start:download    -> %s', options.url);
 
-  var requestArgs = { 
+  var requestArgs = {
     encoding: null, // `encoding: null` will return body as a `Buffer`
     uri: options.url,
     gzip: true,

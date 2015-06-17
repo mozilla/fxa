@@ -35,7 +35,7 @@ function withDriver() {
   return p.then(function(store) {
     store.id = unique;
     logger.debug('connected', config.get('img.driver'));
-    return driver = store;
+    return driver = store; // eslint-disable-line no-return-assign
   });
 }
 
