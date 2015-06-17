@@ -153,7 +153,7 @@ MysqlStore.prototype = {
   addAvatar: function addAvatar(id, uid, url, provider, selected) {
     id = buf(id);
     uid = buf(uid);
-    var store = this; // eslint-disable-line consistent-this
+    var store = this;
     return this.getProviderByName(provider).then(function(prov) {
       if (!prov) {
         throw AppError.unsupportedProvider(url);
@@ -251,7 +251,7 @@ MysqlStore.prototype = {
 
 if (config.get('env') === 'test') {
   MysqlStore.prototype._clear = function clear() {
-    var store = this; // eslint-disable-line consistent-this
+    var store = this;
     return this._write('DELETE FROM avatar_selected;')
       .then(function() {
         return store._write('DELETE FROM avatars;');
