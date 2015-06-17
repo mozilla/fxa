@@ -113,13 +113,13 @@ function startUpload() {
     log('Invalid Bearer token!: %s', options.bearer);
     process.exit(1);
   }
-  
+
   avatar = new Avatar(options);
 
   var intervalReport = setInterval(reportStats, 2000);
   intervalReport.unref();
 
-  log('Starting with concurrent: %s, count: %s, profile: %s', 
+  log('Starting with concurrent: %s, count: %s, profile: %s',
       options.concurrent, options.count, options.host);
 
   for (var i = 0; i < options.concurrent; ++i) {
@@ -140,7 +140,7 @@ avatar.on('error', function onError(error) {
 avatar.on('complete:upload', function onCompleteUpload(info) {
   if (options.verbose) {
     var activeCount = Object.keys(transactions).length;
-    log('complete:upload   -> xid: %s, active: %s, rc: %s, elapsedTime: %s', 
+    log('complete:upload   -> xid: %s, active: %s, rc: %s, elapsedTime: %s',
         info.transactionid, activeCount, info.statusCode, info.elapsedTime);
   }
 
@@ -148,8 +148,8 @@ avatar.on('complete:upload', function onCompleteUpload(info) {
   transactions[info.transactionid] = 'downloading';
 
   avatar.download({
-    url: info.body.url, 
-    imageid: info.body.id, 
+    url: info.body.url,
+    imageid: info.body.id,
     transactionid: info.transactionid
   });
 });
@@ -157,7 +157,7 @@ avatar.on('complete:upload', function onCompleteUpload(info) {
 avatar.on('complete:download', function onCompleteDownload(info) {
   if (options.verbose) {
     var activeCount = Object.keys(transactions).length;
-    log('complete:download -> xid: %s, active: %s, rc: %s, elapsedTime: %s', 
+    log('complete:download -> xid: %s, active: %s, rc: %s, elapsedTime: %s',
         info.transactionid, activeCount, info.statusCode, info.elapsedTime);
   }
 
@@ -172,13 +172,13 @@ avatar.on('complete:download', function onCompleteDownload(info) {
     delete transactions[info.transactionid];
     startUpload();
   }
-  
+
 });
 
 avatar.on('complete:delete', function onCompleteDelete(info) {
   if (options.verbose) {
     var activeCount = Object.keys(transactions).length;
-    log('complete:delete -> xid: %s, active: %s, rc: %s, elapsedTime: %s', 
+    log('complete:delete -> xid: %s, active: %s, rc: %s, elapsedTime: %s',
         info.transactionid, activeCount, info.statusCode, info.elapsedTime);
   }
 

@@ -5,10 +5,9 @@
 module.exports = function (grunt) {
   'use strict';
 
-  grunt.config('jshint', {
+  grunt.config('eslint', {
     options: {
-      jshintrc: '.jshintrc',
-      reporter: require('jshint-stylish')
+      eslintrc: '.eslintrc'
     },
     app: [
       '<%= mainJsFiles %>'

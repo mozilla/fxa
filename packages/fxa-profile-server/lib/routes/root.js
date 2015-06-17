@@ -47,7 +47,7 @@ module.exports = {
       gitDir = path.sep + path.join('home', 'app', 'git');
     }
     var cmd = util.format('git --git-dir=%s rev-parse HEAD', gitDir);
-    exec(cmd, function(err, stdout) {
+    exec(cmd, function(err, stdout) { // eslint-disable-line handle-callback-err
       commitHash = stdout.replace(/\s+/, '');
       return sendReply();
     });
