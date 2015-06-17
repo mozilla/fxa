@@ -227,7 +227,7 @@ module.exports = function (
           return true
         },
         function (err) {
-          if (err.statusCode === 404) {
+          if (err.statusCode === 400) {
             return false
           }
           throw err
