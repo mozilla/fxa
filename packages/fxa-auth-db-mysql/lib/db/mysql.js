@@ -281,7 +281,14 @@ module.exports = function (log, error) {
     return this.readFirstResult(
       CHECK_PASSWORD,
       [uid, hash.verifyHash]
-    )
+    ).catch(function(err) {
+      // If .readFirstResult() doesn't find anything, it returns an error.notFound()
+      // so we need to convert that to an error.incorrectPassword()
+      if ( err.errno === error.notFound().errno ) {
+        throw error.incorrectPassword()
+      }
+      throw err
+    })
   }
 
   // Select : sessionTokens
