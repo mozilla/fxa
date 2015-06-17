@@ -1,7 +1,7 @@
 var path = require('path')
 var P = require('bluebird')
 var handlebars = require('handlebars')
-var readFile = P.promisify(require("fs").readFile)
+var readFile = P.promisify(require('fs').readFile)
 
 handlebars.registerHelper(
   't',

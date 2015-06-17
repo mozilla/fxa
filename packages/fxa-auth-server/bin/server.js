@@ -42,7 +42,7 @@ P.all(
           res.send(200)
         }
         else {
-          log.error({ op: 'send', err: { message: 'invalid type', body: body }})
+          log.error({ op: 'send', err: { message: 'invalid type', body: req.body }})
           res.send(400)
         }
         next()

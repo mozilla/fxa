@@ -1,6 +1,6 @@
 var test = require('tap').test
 
-require('../../translator')(['en','pt_br', 'DE', 'ES_AR', 'ES_cl'], 'en')
+require('../../translator')(['en', 'pt_br', 'DE', 'ES_AR', 'ES_cl'], 'en')
 .done(
   function (translator) {
     test(
