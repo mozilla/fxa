@@ -573,7 +573,7 @@ curl -v \
 https://api-accounts.dev.lcip.org/v1/account/unlock/verify_code \
 -d '{
   "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
-  "code": "e3c5b0e3f5391e134596c27519979b93a45e6d0da34c7509c5632ac35b28b48d"
+  "code": "e3c5b0e3f5391e134596c27519979b93"
 }'
 ```
 
@@ -789,7 +789,7 @@ curl -v \
 https://api-accounts.dev.lcip.org/v1/recovery_email/verify_code \
 -d '{
   "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
-  "code": "e3c5b0e3f5391e134596c27519979b93a45e6d0da34c7509c5632ac35b28b48d"
+  "code": "e3c5b0e3f5391e134596c27519979b93"
 }'
 ```
 
