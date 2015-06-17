@@ -20,6 +20,7 @@ define([
   'underscore',
   'backbone',
   'lib/promise',
+  'uuid',
   'router',
   'lib/translator',
   'lib/session',
@@ -62,6 +63,7 @@ function (
   _,
   Backbone,
   p,
+  uuid,
   Router,
   Translator,
   Session,
@@ -121,6 +123,9 @@ function (
   Start.prototype = {
     startApp: function () {
       var self = this;
+
+      // set UUID early so other methods can use it for metrics and ab testing purposes.
+      this.initializeUuid();
 
       // fetch both config and translations in parallel to speed up load.
       return p.all([
@@ -450,10 +455,25 @@ function (
       });
     },
 
+    /**
+     * Sets a UUID value that is unrelated to any account information.
+     * This value is useful to determine if the logged out user qualifies for ab testing or metrics.
+     */
+    initializeUuid: function () {
+      var storage = Storage.factory('localStorage', this._window);
+
+      // we reuse the same uuid if it is available in local storage.
+      if (storage.get('uuid')) {
+        this._uuid = storage.get('uuid');
+      } else {
+        this._uuid = uuid.v4();
+        storage.set('uuid', this._uuid);
+      }
+    },
+
     upgradeStorageFormats: function () {
       return this._user.upgradeFromSession(Session, this._fxaClient);
     },
-
 
     initializeRouter: function () {
       if (! this._router) {

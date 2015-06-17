@@ -27,7 +27,8 @@
     "JavaScript-MD5": "1.1.0",
     "jquery-ui-touch-punch": "https://github.com/zaach/jquery-ui-touch-punch.git#89e5a9159494de37df1e09cccf9036dda5429830",
     "blueimp-canvas-to-blob": "2.1.0",
-    "mailcheck": "https://github.com/mailcheck/mailcheck.git#9fcf9c40da06f6769e5d702dd0fd1f33f36e55a6"
+    "mailcheck": "https://github.com/mailcheck/mailcheck.git#9fcf9c40da06f6769e5d702dd0fd1f33f36e55a6",
+    "node-uuid": "1.4.3"
   },
   "devDependencies": {
     "moment": "2.8.3"

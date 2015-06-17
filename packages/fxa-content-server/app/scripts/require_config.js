@@ -23,7 +23,8 @@ require.config({
     canvasToBlob: '../bower_components/blueimp-canvas-to-blob/js/canvas-to-blob',
     moment: '../bower_components/moment/moment',
     mailcheck: '../bower_components/mailcheck/src/mailcheck',
-    crosstab: 'vendor/crosstab'
+    crosstab: 'vendor/crosstab',
+    uuid: '../bower_components/node-uuid/uuid'
   },
   config: {
     moment: {
