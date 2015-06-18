@@ -29,7 +29,8 @@ function (xhr, OAuthErrors) {
         });
     },
 
-    // params = { assertion, client_id, redirect_uri, scope, state }
+    // params = { assertion, client_id, redirect_uri, scope, state,
+    // access_type }
     getCode: function getCode(params) {
       return this._request('post', GET_CODE, params);
     },

@@ -77,6 +77,10 @@ function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
             scope: relier.get('scope'),
             state: relier.get('state')
           };
+          if (relier.get('accessType') === Constants.ACCESS_TYPE_OFFLINE) {
+            //jshint camelcase: false
+            oauthParams.access_type = Constants.ACCESS_TYPE_OFFLINE;
+          }
           return self._oAuthClient.getCode(oauthParams);
         })
         .then(_formatOAuthResult);
@@ -129,7 +133,9 @@ function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
           state: relier.get('state'),
           keys: relier.get('keys'),
           scope: relier.get('scope'),
-          action: relier.get('action')
+          action: relier.get('action'),
+          //jshint camelcase: false
+          access_type: relier.get('access_type')
         });
       });
     },

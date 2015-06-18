@@ -30,6 +30,7 @@ define([
       // redirectUri is used by the oauth flow
       redirectUri: null,
       scope: null,
+      accessType: null,
       // redirectTo is for future use by the oauth flow. redirectTo
       // would have redirectUri as its base.
       redirectTo: null,
@@ -151,7 +152,9 @@ define([
         //jshint camelcase: false
         clientId: resumeObj.client_id,
         redirectUri: resumeObj.redirect_uri,
-        scope: resumeObj.scope
+        scope: resumeObj.scope,
+        //jshint camelcase: false
+        accessType: resumeObj.access_type
       });
 
       if (! self.has('clientId')) {
@@ -170,6 +173,7 @@ define([
       self._importRequiredSearchParam('scope', 'scope');
       self.importSearchParam('state');
       self.importSearchParam('redirect_uri', 'redirectUri');
+      self.importSearchParam('access_type', 'accessType');
       self.importSearchParam('redirectTo');
       self.importSearchParam('verification_redirect', 'verificationRedirect');
       self.importBooleanSearchParam('keys');

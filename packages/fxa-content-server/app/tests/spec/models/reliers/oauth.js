@@ -39,13 +39,15 @@ define([
     var PERMISSIONS = ['profile:email', 'profile:uid'];
     var ACTION = 'signup';
     var PREVERIFY_TOKEN = 'abigtoken';
+    var ACCESS_TYPE = 'offline';
 
     var RESUME_INFO = {
       state: STATE,
       //jshint camelcase: false
       client_id: CLIENT_ID,
       scope: SCOPE,
-      action: ACTION
+      action: ACTION,
+      access_type: ACCESS_TYPE
     };
 
     beforeEach(function () {
@@ -78,7 +80,8 @@ define([
           client_id: CLIENT_ID,
           redirect_uri: REDIRECT_URI,
           scope: SCOPE,
-          action: ACTION
+          action: ACTION,
+          access_type: ACCESS_TYPE
         });
 
         return relier.fetch()
@@ -90,6 +93,7 @@ define([
             // client_id and redirect_uri are converted to camelCase
             // for consistency with other variables in the app.
             assert.equal(relier.get('clientId'), CLIENT_ID);
+            assert.equal(relier.get('accessType'), ACCESS_TYPE);
 
             // The redirect_uri passed in is ignored, we only care about
             // the redirect_uri returned by the oauth server
@@ -131,6 +135,7 @@ define([
             assert.equal(relier.get('state'), STATE);
             assert.equal(relier.get('clientId'), CLIENT_ID);
             assert.equal(relier.get('scope'), SCOPE);
+            assert.equal(relier.get('accessType'), ACCESS_TYPE);
           });
       });
 

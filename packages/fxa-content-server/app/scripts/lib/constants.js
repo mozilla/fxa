@@ -54,7 +54,10 @@ define([], function () {
     VERIFICATION_REDIRECT_ALWAYS: 'always',
     VERIFICATION_REDIRECT_NO: 'no',
 
-    MARKETING_EMAIL_NEWSLETTER_ID: 'firefox-accounts-journey'
+    MARKETING_EMAIL_NEWSLETTER_ID: 'firefox-accounts-journey',
+
+    ACCESS_TYPE_ONLINE: 'online',
+    ACCESS_TYPE_OFFLINE: 'offline'
   };
 });
 
