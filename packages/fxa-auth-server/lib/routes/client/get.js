@@ -10,7 +10,6 @@ const db = require('../../db');
 const logger = require('../../logging')('routes.client.get');
 const validators = require('../../validators');
 
-/*jshint camelcase: false*/
 module.exports = {
   validate: {
     params: {

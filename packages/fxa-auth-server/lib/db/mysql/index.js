@@ -354,9 +354,9 @@ MysqlStore.prototype = {
       type: 'bearer'
     };
     var _token = unique.token();
-    var me = this;
+    var self = this;
     var hash = encrypt.hash(_token);
-    return me._write(QUERY_TOKEN_INSERT, [
+    return self._write(QUERY_TOKEN_INSERT, [
       t.clientId,
       t.userId,
       t.email,
@@ -385,16 +385,15 @@ MysqlStore.prototype = {
   getEncodingInfo: function getEncodingInfo() {
     var info = {};
 
-    var me = this;
+    var self = this;
     var qry = 'SHOW VARIABLES LIKE "%character\\_set\\_%"';
     return this._read(qry).then(function(rows) {
-      /*jshint camelcase:false*/
       rows.forEach(function(row) {
         info[row.Variable_name] = row.Value;
       });
 
       qry = 'SHOW VARIABLES LIKE "%collation\\_%"';
-      return me._read(qry).then(function(rows) {
+      return self._read(qry).then(function(rows) {
         rows.forEach(function(row) {
           info[row.Variable_name] = row.Value;
         });

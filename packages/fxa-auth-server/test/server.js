@@ -18,7 +18,7 @@ describe('server', function() {
         assert.equal(res.result.version, require('../package.json').version);
         assert(res.result.commit);
 
-        // and must return an STS header 
+        // and must return an STS header
         var stsHeader = res.headers['strict-transport-security'];
         assert.equal(stsHeader, 'max-age=15552000; includeSubdomains');
 

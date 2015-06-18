@@ -14,7 +14,6 @@ function developerResponse(developer) {
   };
 }
 
-/*jshint camelcase: false*/
 module.exports = {
   auth: {
     strategy: auth.AUTH_STRATEGY,

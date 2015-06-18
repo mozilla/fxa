@@ -12,7 +12,6 @@ const unique = require('../../unique');
 const validators = require('../../validators');
 const AppError = require('../../error');
 
-/*jshint camelcase: false*/
 module.exports = {
   auth: {
     strategy: auth.AUTH_STRATEGY,

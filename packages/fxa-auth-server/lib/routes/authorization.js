@@ -24,8 +24,6 @@ const UNTRUSTED_CLIENT_ALLOWED_SCOPES = [
   'profile:display_name'
 ];
 
-/*jshint camelcase: false*/
-
 function set(arr) {
   var obj = {};
   for (var i = 0; i < arr.length; i++) {

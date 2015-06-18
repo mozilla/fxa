@@ -19,8 +19,6 @@ exports.create = function createServer() {
     require('./config')
   );
 
-
-
   server.auth.scheme(auth.AUTH_SCHEME, auth.strategy);
   server.auth.strategy(auth.AUTH_STRATEGY, auth.AUTH_SCHEME);
 

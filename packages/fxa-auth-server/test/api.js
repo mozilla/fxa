@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const url = require('url');
-
 const assert = require('insist');
 const bidcrypto = require('browserid-crypto');
 const nock = require('nock');
@@ -18,9 +17,6 @@ const Server = require('./lib/server');
 const unique = require('../lib/unique');
 
 require('browserid-crypto/lib/algs/ds');
-
-/*global describe,it,before,beforeEach,afterEach*/
-/*jshint camelcase: false*/
 
 const USERID = unique(16).toString('hex');
 const VEMAIL = unique(4).toString('hex') + '@mozilla.com';
@@ -910,12 +906,11 @@ describe('/v1', function() {
         });
 
         it('should return a list of clients for a developer', function() {
-          var uid, vemail, tok;
+          var vemail, tok;
 
           return getUniqueUserAndToken(clientId)
             .then(function(data) {
               tok = data.token;
-              uid = data.uid;
               vemail = data.email;
               // make this user a developer
               return db.activateDeveloper(vemail);
@@ -942,8 +937,6 @@ describe('/v1', function() {
       });
 
       describe('POST', function() {
-        var developer;
-
         before(function() {
           return Server.internal.api.post({
             url: '/developer/activate',
@@ -951,7 +944,6 @@ describe('/v1', function() {
               authorization: 'Bearer ' + tok
             }
           }).then(function(res) {
-            developer = res.result;
           });
         });
 
@@ -1050,7 +1042,7 @@ describe('/v1', function() {
         var id = unique.id();
 
         it('should forbid update to unknown developers', function() {
-          var uid, vemail, tok, devId;
+          var vemail, tok;
           var id = unique.id();
           var client = {
             name: 'test/api/update',
@@ -1067,14 +1059,12 @@ describe('/v1', function() {
             })
             .then(function(data) {
               tok = data.token;
-              uid = data.uid;
               vemail = data.email;
 
               return db.activateDeveloper(vemail);
             }).then(function () {
               return db.getDeveloper(vemail);
             }).then(function (developer) {
-              devId = developer.developerId;
             }).then(function () {
               return Server.internal.api.post({
                 url: '/client/' + id.toString('hex'),
@@ -1092,7 +1082,7 @@ describe('/v1', function() {
         });
 
         it('should allow client update', function() {
-          var uid, vemail, tok, devId;
+          var vemail, tok, devId;
           var id = unique.id();
           var client = {
             name: 'test/api/update2',
@@ -1111,7 +1101,6 @@ describe('/v1', function() {
             })
             .then(function(data) {
               tok = data.token;
-              uid = data.uid;
               vemail = data.email;
 
               return db.activateDeveloper(vemail);
@@ -1211,7 +1200,7 @@ describe('/v1', function() {
       describe('DELETE /:id', function() {
 
         it('should delete the client', function() {
-          var uid, vemail, tok, devId;
+          var vemail, tok, devId;
           var id = unique.id();
           var client = {
             name: 'test/api/deleteOwner',
@@ -1228,7 +1217,6 @@ describe('/v1', function() {
             })
             .then(function(data) {
               tok = data.token;
-              uid = data.uid;
               vemail = data.email;
 
               return db.activateDeveloper(vemail);
@@ -1257,7 +1245,7 @@ describe('/v1', function() {
         });
 
         it('should not delete the client if not owner', function() {
-          var uid, vemail, tok, devId;
+          var vemail, tok;
           var id = unique.id();
           var client = {
             name: 'test/api/deleteOwner',
@@ -1274,14 +1262,12 @@ describe('/v1', function() {
             })
             .then(function(data) {
               tok = data.token;
-              uid = data.uid;
               vemail = data.email;
 
               return db.activateDeveloper(vemail);
             }).then(function () {
               return db.getDeveloper(vemail);
             }).then(function (developer) {
-              devId = developer.developerId;
             }).then(function () {
               return Server.internal.api.delete({
                 url: '/client/' + id.toString('hex'),
@@ -1330,12 +1316,11 @@ describe('/v1', function() {
   describe('/developer', function() {
     describe('POST /developer/activate', function() {
       it('should create a developer', function(done) {
-        var uid, vemail, tok;
+        var vemail, tok;
 
         return getUniqueUserAndToken(clientId)
           .then(function(data) {
             tok = data.token;
-            uid = data.uid;
             vemail = data.email;
 
             return db.getDeveloper(vemail);

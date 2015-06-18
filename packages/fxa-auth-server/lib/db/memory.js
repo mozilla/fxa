@@ -180,7 +180,6 @@ MemoryStore.prototype = {
     return P.resolve();
   },
   generateCode: function generateCode(clientId, userId, email, scope, authAt) {
-                                      
     var code = {};
     code.clientId = clientId;
     code.userId = userId;
@@ -306,10 +305,8 @@ MemoryStore.prototype = {
         return self.getClientDevelopers(clientId);
       })
       .then(function (developers) {
-        var result;
 
         function hasDeveloper(developer) {
-          result = developer;
           return unbuf(developer.developerId) === unbuf(developerId);
         }
 

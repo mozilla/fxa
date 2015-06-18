@@ -12,7 +12,7 @@ module.exports = function (grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('./package.json'),
-    // .js files for JSHint, JSCS, etc.
+    // .js files for ESLint, JSHint, JSCS, etc.
     mainJsFiles: '{,lib/**/,scripts/**/,test/**/,tasks/**/,bin/**/}*.js'
   });
 

@@ -10,7 +10,6 @@ const db = require('../../db');
 const validators = require('../../validators');
 const AppError = require('../../error');
 
-/*jshint camelcase: false*/
 module.exports = {
   auth: {
     strategy: auth.AUTH_STRATEGY,

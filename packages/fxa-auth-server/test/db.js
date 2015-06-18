@@ -86,7 +86,6 @@ describe('db', function() {
 
       return db.getEncodingInfo()
         .then(function(info) {
-          /*jshint sub:true*/
           assert.equal(info['character_set_connection'], 'utf8');
           assert.equal(info['character_set_database'], 'utf8');
           assert.equal(info['collation_connection'], 'utf8_unicode_ci');
@@ -232,7 +231,6 @@ describe('db', function() {
       var email = 'a@b.c';
       var scope = ['no-scope'];
       var code = null;
-      var token = null;
 
       before(function() {
         return db.registerClient({
@@ -256,7 +254,6 @@ describe('db', function() {
             scope: scope
           });
         }).then(function(t) {
-          token = t.token;
           assert.equal(hex(t.userId), hex(userId), 'token userId');
         });
       });
