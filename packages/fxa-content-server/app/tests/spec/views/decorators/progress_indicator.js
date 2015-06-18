@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
 
 define([
   'chai',
@@ -14,6 +13,8 @@ define([
   'views/decorators/progress_indicator'
 ],
 function (chai, sinon, $, p, BaseView, ProgressIndicator, showProgressIndicator) {
+  'use strict';
+
   var assert = chai.assert;
 
   describe('views/decorators/progress_indicator', function () {

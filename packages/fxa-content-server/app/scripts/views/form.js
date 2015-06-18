@@ -16,7 +16,6 @@
  *
  * See documentation for an explanation of each.
  */
-'use strict';
 
 define([
   'underscore',
@@ -32,6 +31,8 @@ define([
 ],
 function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
     showButtonProgressIndicator, notifyDelayedRequest, allowOnlyOneSubmit) {
+  'use strict';
+
   /**
    * Decorator that checks whether the form has changed, and if so, call
    * the specified handler.

@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Basic XSS protection
-'use strict';
 
 define([
   'underscore',
   'lib/constants'
 ],
 function (_, Constants) {
+  'use strict';
+
   return {
     // only allow http or https URLs, encoding the URL.
     href: function (text) {

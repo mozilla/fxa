@@ -6,13 +6,14 @@
  * This is a very small view to allow selenium tests
  * to clear browser storage state between tests.
  */
-'use strict';
 
 define([
   'views/base',
   'stache!templates/clear_storage'
 ],
 function (BaseView, Template) {
+  'use strict';
+
   var View = BaseView.extend({
     template: Template,
 

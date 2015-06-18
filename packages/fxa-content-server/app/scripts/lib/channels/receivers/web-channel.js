@@ -7,12 +7,12 @@
  * https://developer.mozilla.org/en-US/docs/Mozilla/JavaScript_code_modules/WebChannel.jsm
  */
 
-'use strict';
 
 define([
   'backbone',
   'underscore'
 ], function (Backbone, _) {
+  'use strict';
 
   function WebChannelReceiver() {
     // nothing to do

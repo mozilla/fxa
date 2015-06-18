@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Look up friendly service names by their 'slug'
-'use strict';
 
 define([],
 function () {
+  'use strict';
 
   function t(str) {
     return str;

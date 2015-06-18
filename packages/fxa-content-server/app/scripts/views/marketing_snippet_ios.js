@@ -8,13 +8,13 @@
  * Shows `Get Sync on Firefox for Android` for users that complete
  * signup for sync in Firefox Desktop.
  */
-'use strict';
 
 define([
   'underscore',
   'views/marketing_snippet',
   'stache!templates/marketing_snippet_ios'
 ], function (_, MarketingSnippetView, Template) {
+  'use strict';
 
   var playStoreImageLanguages = [
     'ca',

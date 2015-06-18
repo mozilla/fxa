@@ -1,13 +1,14 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-'use strict';
 
 define([
   'lib/xhr',
   'lib/oauth-errors'
 ],
 function (xhr, OAuthErrors) {
+  'use strict';
+
   var GET_CLIENT = '/v1/client/';
   var GET_CODE = '/v1/authorization';
   var DESTROY_TOKEN = '/v1/destroy';

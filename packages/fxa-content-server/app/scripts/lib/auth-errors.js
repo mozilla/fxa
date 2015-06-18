@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // provides functions to work with errors returned by the auth server.
-'use strict';
 
 define([
   'underscore',
   'lib/errors'
 ],
 function (_, Errors) {
+  'use strict';
+
   var t = function (msg) {
     return msg;
   };

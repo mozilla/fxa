@@ -4,11 +4,12 @@
 
 // The service-mixin is used in views that know about services, which is mostly
 // OAuth services but also Sync.
-'use strict';
 
 define([
   'views/base'
 ], function (BaseView) {
+  'use strict';
+
   return {
     transformLinks: function () {
       this.$('a[href~="/signin"]').attr('href',

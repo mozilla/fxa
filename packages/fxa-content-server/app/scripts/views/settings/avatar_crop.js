@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-'use strict';
 
 define([
   'p-promise',
@@ -18,6 +17,8 @@ define([
 ],
 function (p, Cocktail, FormView, SettingsMixin, AvatarMixin, Template,
     Constants, Cropper, AuthErrors, CropperImage, ProfileImage) {
+  'use strict';
+
   var HORIZONTAL_GUTTER = 90;
   var VERTICAL_GUTTER = 0;
 

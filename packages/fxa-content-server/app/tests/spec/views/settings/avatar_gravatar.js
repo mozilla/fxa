@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-'use strict';
 
 define([
   'chai',
@@ -20,6 +19,8 @@ define([
 ],
 function (chai, $, sinon, View, RouterMock, ProfileMock, TestHelpers, User,
     Relier, AuthBroker, p, Metrics, ProfileClient) {
+  'use strict';
+
   var assert = chai.assert;
   var GRAVATAR_URL = 'https://secure.gravatar.com/avatar/';
   var EMAIL_HASH = '0bc83cb571cd1c50ba6f3e8a78ef1346';

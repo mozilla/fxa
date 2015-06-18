@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // A ux utility to suggest correct spelling of email domains
-'use strict';
 
 /* exceptsPaths: mailcheck */
 define([
@@ -12,6 +11,7 @@ define([
   'mailcheck'
 ],
 function (Tooltip, Url) {
+  'use strict';
 
   var DOMAINS = [ // domains that get suggested, i.e gnail.com => gmail.com
     'gmail.com', 'qq.com', 'yandex.ru', 'o2.pl', 'rambler.ru', 'googlemail.com', 't-online.de', 'mail.ru', 'web.de',

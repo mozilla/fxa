@@ -4,11 +4,12 @@
 
 // FormView plugin to convert a placeholder into a
 // floating label if the input changes.
-'use strict';
 
 define([
   'jquery'
 ], function ($) {
+  'use strict';
+
   return {
     //when a user begins typing in an input, grab the placeholder,
     // put it in a label and then unbind the event

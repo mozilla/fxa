@@ -5,11 +5,12 @@
 /**
  * A mixin that allows models to get/import search parameters
  */
-'use strict';
 
 define([
   'lib/url'
 ], function (Url) {
+  'use strict';
+
   return {
     /**
      * Get a value from the URL search parameter

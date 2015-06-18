@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // This model abstracts profile images
-'use strict';
 
 define([
   'backbone',
@@ -11,6 +10,8 @@ define([
   'lib/image-loader',
   'lib/profile-errors'
 ], function (Backbone, p, ImageLoader, ProfileErrors) {
+  'use strict';
+
   var ProfileImage = Backbone.Model.extend({
     defaults: {
       url: undefined,

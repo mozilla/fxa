@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-'use strict';
 
 define([
   'cocktail',
@@ -12,6 +11,8 @@ define([
   'views/mixins/back-mixin'
 ],
 function (Cocktail, BaseView, ConfigLoader, AuthErrors, Template, BackMixin) {
+  'use strict';
+
   var View = BaseView.extend({
     constructor: function (options) {
       BaseView.call(this, options);

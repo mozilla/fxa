@@ -7,12 +7,13 @@
  *
  * Requires the invokeHandler function.
  */
-'use strict';
 
 define([
   'lib/promise'
 ],
 function (p) {
+  'use strict';
+
   function allowOnlyOneSubmit(handler) {
     return function () {
       var self = this;

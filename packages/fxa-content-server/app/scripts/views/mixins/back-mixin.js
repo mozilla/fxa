@@ -7,10 +7,10 @@
  *
  * @class BackMixin
  */
-'use strict';
 
 define([
 ], function () {
+  'use strict';
 
   var ENTER_BUTTON_CODE = 13;
 

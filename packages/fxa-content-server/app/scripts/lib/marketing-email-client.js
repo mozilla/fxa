@@ -5,12 +5,12 @@
 /**
  * A client to talk to the basket marketing email server
  */
-'use strict';
 
 define([
   'lib/xhr',
   'lib/marketing-email-errors'
 ], function (xhr, MarketingEmailErrors) {
+  'use strict';
 
   function MarketingEmailClient(options) {
     options = options || {};

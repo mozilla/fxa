@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // utilities to deal with urls
-'use strict';
 
 define(['underscore'],
 function (_) {
+  'use strict';
 
   function searchParams (str, whitelist) {
     var search = (typeof str === 'string' ? str : window.location.search).replace(/^\?/, '');

@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // A utility for pre-loading images
-'use strict';
 
 define(['underscore', 'lib/promise'],
 function (_, p) {
+  'use strict';
 
   /**
    * Returns true if given "uri" has HTTP or HTTPS scheme

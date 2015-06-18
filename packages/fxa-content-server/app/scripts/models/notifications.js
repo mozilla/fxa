@@ -5,12 +5,12 @@
 /**
  * The notifier broadcasts messages across multiple channels (iframe, tabs, browsers, etc).
  */
-'use strict';
 
 define([
   'backbone',
   'underscore'
 ], function (Backbone, _) {
+  'use strict';
 
   var EVENTS = {
     PROFILE_CHANGE: 'profile:change'

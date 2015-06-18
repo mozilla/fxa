@@ -8,8 +8,6 @@
 //
 // i.e. User hasMany Accounts.
 
-'use strict';
-
 define([
   'backbone',
   'underscore',
@@ -17,6 +15,7 @@ define([
   'models/account',
   'lib/storage'
 ], function (Backbone, _, p, Account, Storage) {
+  'use strict';
 
   var User = Backbone.Model.extend({
     initialize: function (options) {

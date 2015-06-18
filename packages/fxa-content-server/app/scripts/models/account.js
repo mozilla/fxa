@@ -4,7 +4,6 @@
 
 // This model abstracts interaction between the user's account
 // and the profile server and also handles (de)serialization.
-'use strict';
 
 define([
   'backbone',
@@ -18,6 +17,8 @@ define([
   'models/marketing-email-prefs'
 ], function (Backbone, _, p, AuthErrors, ProfileClient, Constants,
   ProfileImage, OAuthToken, MarketingEmailPrefs) {
+  'use strict';
+
   // Account attributes that can be persisted
   var PERSISTENT = {
     accessToken: undefined,

@@ -5,7 +5,6 @@
 /**
  * An OAuth Relier - holds OAuth information.
  */
-'use strict';
 
 define([
   'underscore',
@@ -16,6 +15,8 @@ define([
   'lib/url',
   'lib/constants'
 ], function (_, Relier, ResumeToken, OAuthErrors, RelierKeys, Url, Constants) {
+  'use strict';
+
   var RELIER_FIELDS_IN_RESUME_TOKEN = ['state', 'verificationRedirect'];
   // We only grant permissions that our UI currently prompts for. Others
   // will be stripped.

@@ -5,7 +5,6 @@
 /**
  * Derive relier-specific encryption keys from account master keys.
  */
-'use strict';
 
 define([
   'sjcl',
@@ -14,6 +13,7 @@ define([
   'lib/base64url',
   'lib/constants'
 ], function (sjcl, p, hkdf, base64url, Constants) {
+  'use strict';
 
   var KEY_CLASS_TAG_A = 'kAr';
   var KEY_CLASS_TAG_B = 'kBr';

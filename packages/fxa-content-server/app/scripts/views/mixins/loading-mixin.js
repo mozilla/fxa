@@ -6,12 +6,13 @@
  * Display a loading screen on view initialization until
  * the View's normal template is rendered.
  */
-'use strict';
 
 define([
   'jquery',
   'stache!templates/loading'
 ], function ($, loadingTemplate) {
+  'use strict';
+
   return {
     initialize: function () {
       var self = this;

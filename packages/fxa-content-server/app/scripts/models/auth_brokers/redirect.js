@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Finishes the OAuth flow by redirecting the window.
-'use strict';
 
 define([
   'lib/promise',
@@ -11,6 +10,7 @@ define([
   'lib/url',
   'models/auth_brokers/oauth'
 ], function (p, Constants, Url, OAuthAuthenticationBroker) {
+  'use strict';
 
   var RedirectAuthenticationBroker = OAuthAuthenticationBroker.extend({
     type: 'redirect',

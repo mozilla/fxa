@@ -6,12 +6,12 @@
 /**
  * A model to hold account unlock verification data
  */
-'use strict';
 
 define([
   './base',
   'lib/validate'
 ], function (VerificationInfo, Validate) {
+  'use strict';
 
   return VerificationInfo.extend({
     defaults: {

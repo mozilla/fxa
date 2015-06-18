@@ -5,12 +5,12 @@
 /**
  * A null receiver. Doesn't actually receive any messages
  */
-'use strict';
 
 define([
   'backbone',
   'underscore'
 ], function (Backbone, _) {
+  'use strict';
 
   function NullReceiver() {
     // nothing to do

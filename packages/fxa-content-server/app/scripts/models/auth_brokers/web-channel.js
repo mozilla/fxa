@@ -6,7 +6,6 @@
  * A broker that makes use of the WebChannel abstraction to communicate
  * with the browser
  */
-'use strict';
 
 define([
   'underscore',
@@ -17,6 +16,7 @@ define([
 ],
 function (_, OAuthAuthenticationBroker, ChannelMixin, p,
       WebChannel) {
+  'use strict';
 
   var WebChannelAuthenticationBroker = OAuthAuthenticationBroker.extend({
     type: 'web-channel',

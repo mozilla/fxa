@@ -4,10 +4,11 @@
 
 // helper functions for views with passwords. Meant to be mixed into views.
 // Note, this mixin overrides beforeSubmit and is incompatible with Cocktail.
-'use strict';
 
 define([
 ], function () {
+  'use strict';
+
   var SHOW_RESEND_IN_MS = 5 * 60 * 1000; // 5 minutes.
   var TOO_MANY_ATTEMPTS = 4;
 

@@ -1,12 +1,13 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-'use strict';
 
 // monkey patch p to be able to convert jQuery XHR promises to our promises.
 define([
   'p-promise'
 ], function (p) {
+  'use strict';
+
   // for more background, read
   // https://github.com/kriskowal/q/wiki/Coming-from-jQuery
 

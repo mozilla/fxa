@@ -5,10 +5,11 @@
 /**
  * Based on bower_components/blanket/src/reporters/lcov_reporter.js
  */
-'use strict';
 
 //lcov_reporter
 (function () {
+  'use strict';
+
   //takes the option: toHTML {boolean}
 
   var appendHtml = function (filename, data) {

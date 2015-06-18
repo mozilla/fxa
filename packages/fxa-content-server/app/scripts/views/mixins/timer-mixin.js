@@ -9,12 +9,13 @@
  * callbacks passed to setTimeout will be called in the context of
  * the view.
  */
-'use strict';
 
 define([
   'underscore'
 ],
 function (_) {
+  'use strict';
+
   var Mixin = {
     setTimeout: function (callback, timeoutMS) {
       if (! this._timeouts) {

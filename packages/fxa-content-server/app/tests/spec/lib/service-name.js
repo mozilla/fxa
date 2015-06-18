@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // test the service-name library
-'use strict';
 
 define([
   'chai',
@@ -11,6 +10,8 @@ define([
   'lib/service-name'
 ],
 function (chai, Translator, ServiceName) {
+  'use strict';
+
   /*global describe, it*/
   var assert = chai.assert;
   var serviceName;

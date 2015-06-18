@@ -6,13 +6,14 @@
  * A null metrics module. For use as a standin if metrics are disabled
  * or for unit tests.
  */
-'use strict';
 
 define([
   'underscore',
   'lib/promise',
   'lib/metrics'
 ], function (_, p, Metrics) {
+  'use strict';
+
   function NullMetrics () {
     // do nothing
   }

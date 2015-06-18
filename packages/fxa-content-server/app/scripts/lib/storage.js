@@ -4,11 +4,12 @@
 
 // This module abstracts interaction with storage backends such as localStorage
 // or sessionStorage.
-'use strict';
 
 define([
   'lib/null-storage'
 ], function (NullStorage) {
+  'use strict';
+
   var NAMESPACE = '__fxa_storage';
 
   function fullKey (key) {

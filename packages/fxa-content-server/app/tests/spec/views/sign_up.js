@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
  /*global translator */
-'use strict';
 
 define([
   'chai',
@@ -28,6 +27,8 @@ define([
 function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
       FxaClient, EphemeralMessages, mailcheck, Able, Relier, Broker, User, FormPrefill,
       RouterMock, TestHelpers) {
+  'use strict';
+
   var assert = chai.assert;
 
   describe('views/sign_up', function () {

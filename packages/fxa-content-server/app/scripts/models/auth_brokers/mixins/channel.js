@@ -11,11 +11,11 @@
  * the this.ChannelConstructor will be used to create a new
  * instance
  */
-'use strict';
 
 define([
   'lib/promise'
 ], function (p) {
+  'use strict';
 
   // normalize the channel action. New channels return promises, old
   // channels use NodeJS style callbacks. Convert the old channel style

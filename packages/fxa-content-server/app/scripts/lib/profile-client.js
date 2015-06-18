@@ -3,13 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // This module handles communication with the fxa-profile-server.
-'use strict';
 
 define([
   'lib/xhr',
   'lib/profile-errors'
 ],
 function (xhr, ProfileErrors) {
+  'use strict';
 
   function ProfileClient(options) {
     options = options || {};

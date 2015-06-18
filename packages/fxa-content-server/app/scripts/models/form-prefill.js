@@ -8,11 +8,11 @@
 // should automatically be filled in.
 //
 // These values are not persisted across browser sessions.
-'use strict';
 
 define([
   'backbone'
 ], function (Backbone) {
+  'use strict';
 
   var FormPrefill = Backbone.Model.extend({
     defaults: {

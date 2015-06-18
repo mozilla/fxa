@@ -9,7 +9,6 @@
  *
  * If Sync is iframed by web content, v2 of the protocol is assumed.
  */
-'use strict';
 
 define([
   './fx-desktop',
@@ -17,6 +16,7 @@ define([
   'lib/constants'
 
 ], function (FxDesktopAuthenticationBroker, WebChannel, Constants) {
+  'use strict';
 
   var FxDesktopV2AuthenticationBroker = FxDesktopAuthenticationBroker.extend({
     type: 'fx-desktop-v2',

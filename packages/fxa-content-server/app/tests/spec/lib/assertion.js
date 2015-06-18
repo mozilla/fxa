@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-'use strict';
 
 /* exceptsPaths: vendor/jwcrypto/lib/algs/rs */
 define([
@@ -21,6 +20,8 @@ define([
 // take care of some app-specific housekeeping.
 function (chai, $, TestHelpers, p, ConfigLoader, Assertion, FxaClientWrapper,
       Relier, jwcrypto) {
+  'use strict';
+
   var assert = chai.assert;
   var AUDIENCE = 'http://123done.org';
   var ISSUER = 'http://' + document.location.hostname + ':9000';

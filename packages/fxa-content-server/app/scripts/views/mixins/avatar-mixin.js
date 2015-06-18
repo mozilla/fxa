@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // helper functions for views with a profile image. Meant to be mixed into views.
-'use strict';
 
 define([
   'models/profile-image'
 ], function (ProfileImage) {
+  'use strict';
 
   return {
     initialize: function (options) {

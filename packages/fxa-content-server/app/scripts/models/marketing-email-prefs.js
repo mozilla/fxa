@@ -7,13 +7,13 @@
  * on the "Basket" server, not the auth server. Email preferences are
  * loaded on demand, independently of account information.
  */
-'use strict';
 
 define([
   'underscore',
   'backbone',
   'lib/promise'
 ], function (_, Backbone, p) {
+  'use strict';
 
   var SCOPES = 'basket:write profile:email';
 

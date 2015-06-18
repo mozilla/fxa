@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-'use strict';
 
 define([
   'cocktail',
@@ -10,6 +9,7 @@ define([
   'views/mixins/back-mixin'
 ],
 function (Cocktail, xhr, BaseView, BackMixin) {
+  'use strict';
 
   // A view to fetch and render legal copy. Sub-classes must provide
   // a `copyUrl` where the copy template can be fetched, as well a
