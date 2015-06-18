@@ -5,7 +5,6 @@
 // A collector that accepts rum-diary-js-client stats, reformats them,
 // and sends them to stderr. Heka will listen to the events from stderr.
 
-'use strict';
 
 var os = require('os');
 

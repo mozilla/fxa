@@ -8,7 +8,6 @@
  * XMLHttpRequest objects.
  */
 
-'use strict';
 
 var httpProxy = require('http-proxy');
 var logger = require('mozlog')('server.proxy');

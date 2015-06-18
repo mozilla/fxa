@@ -13,7 +13,6 @@
  * is rendered.
  */
 
-'use strict';
 
 var path = require('path');
 var config = require('./configuration');
