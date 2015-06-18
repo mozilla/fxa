@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // It's a tooltip!
-'use strict';
 
 define([
   'underscore',
   'jquery',
   'views/base'
 ], function (_, $, BaseView) {
+  'use strict';
+
   var displayedTooltip;
   var PADDING_BELOW_TOOLTIP_PX = 2;
   var PADDING_ABOVE_TOOLTIP_PX = 4;

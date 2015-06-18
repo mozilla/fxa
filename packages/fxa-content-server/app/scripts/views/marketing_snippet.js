@@ -8,7 +8,6 @@
  * Shows `Get Sync on Firefox for Android` for users that complete
  * signup for sync in Firefox Desktop.
  */
-'use strict';
 
 define([
   'cocktail',
@@ -17,6 +16,7 @@ define([
   'views/mixins/marketing-mixin',
   'stache!templates/marketing_snippet'
 ], function (Cocktail, BaseView, Constants, MarketingMixin, Template) {
+  'use strict';
 
   var View = BaseView.extend({
     template: Template,

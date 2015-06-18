@@ -10,9 +10,9 @@
  * via window.able. If able is disabled in production, choose
  * will always return `undefined` and `report` will return an empty array.
  */
-'use strict';
 
 define([], function () {
+  'use strict';
 
   function AbleWrapper() {
     // nothing to do here.

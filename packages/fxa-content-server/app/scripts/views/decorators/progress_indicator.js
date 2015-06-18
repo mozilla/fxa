@@ -11,13 +11,13 @@
  *
  * Requires the invokeHandler function.
  */
-'use strict';
 
 define([
   'lib/promise',
   'views/progress_indicator'
 ],
 function (p, ProgressIndicator) {
+  'use strict';
 
   function showProgressIndicator(handler, _el) {
     var el = _el || 'button[type=submit]';

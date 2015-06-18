@@ -5,7 +5,6 @@
 // a very light wrapper around the real FxaClient to reduce boilerplate code
 // and to allow us to develop to features that are not yet present in the real
 // client.
-'use strict';
 
 define([
   'fxaClient',
@@ -16,6 +15,8 @@ define([
   'lib/constants'
 ],
 function (FxaClient, $, p, Session, AuthErrors, Constants) {
+  'use strict';
+
   function trim(str) {
     return $.trim(str);
   }

@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // fetch config from the backend and provide some helper functions.
-'use strict';
 
 define([
   'lib/xhr',
@@ -17,6 +16,7 @@ function (
   Url,
   Storage
 ) {
+  'use strict';
 
   function ConfigLoader() {
   }

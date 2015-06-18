@@ -3,13 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Finishes the OAuth flow by redirecting the window.
-'use strict';
 
 define([
   'underscore',
   'models/auth_brokers/oauth',
   'models/auth_brokers/mixins/channel'
 ], function (_, OAuthAuthenticationBroker, ChannelMixin) {
+  'use strict';
 
   var IframeAuthenticationBroker = OAuthAuthenticationBroker.extend({
     type: 'iframe',

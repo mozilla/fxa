@@ -6,11 +6,11 @@
  * This is a special channel that communicates between two
  * tabs of the same browser. It uses localStorage to communicate.
  */
-'use strict';
 
 define([
   'crosstab'
 ], function (crosstab) {
+  'use strict';
 
   function InterTabChannel(options) {
     options = options || {};

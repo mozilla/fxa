@@ -13,7 +13,6 @@
  * Metrics are automatically sent to the server on window.unload
  * but can also be sent by calling metrics.flush();
  */
-'use strict';
 
 define([
   'underscore',
@@ -23,6 +22,8 @@ define([
   'lib/xhr',
   'lib/strings'
 ], function (_, Backbone, $, speedTrap, xhr, Strings) {
+  'use strict';
+
   // Speed trap is a singleton, convert it
   // to an instantiable function.
   var SpeedTrap = function () {};

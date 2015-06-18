@@ -6,9 +6,10 @@
  * stringify and parse the `resume` token that is set in the URL
  * search parameters post-verification in the OAuth flow
  */
-'use strict';
 
 define([], function () {
+  'use strict';
+
   var ResumeToken = {
     parse: function (resumeToken) {
       try {

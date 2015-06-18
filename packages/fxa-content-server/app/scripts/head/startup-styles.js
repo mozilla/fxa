@@ -9,11 +9,12 @@
 // NOTE: This file must run in IE8+, so no ES5/ES6 features!
 
 //jshint es3: true, es5: false, esnext: false
-'use strict';
 
 // This is loaded in the HEAD of the doc & uses a modified version of
 // https://github.com/umdjs/umd/blob/master/amdWeb.js
 (function (root, factory) {
+  'use strict';
+
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
     /* exceptsPaths: lib/environment */
@@ -23,6 +24,8 @@
     root.FxaHead.StartupStyles = factory(root.FxaHead.Environment);
   }
 }(this, function (Environment) { //jshint ignore: line
+  'use strict';
+
   function parseQueryParams(queryParams) {
     var search = queryParams.replace(/^\?/, '');
     var paramPairs = search.split('&');

@@ -5,7 +5,6 @@
 /**
  * A broker that knows how to communicate with Firefox when used for Sync.
  */
-'use strict';
 
 define([
   'cocktail',
@@ -17,6 +16,7 @@ define([
   'lib/url'
 ], function (Cocktail, _, BaseAuthenticationBroker, ChannelMixin, AuthErrors,
   FxDesktopChannel, Url) {
+  'use strict';
 
   var FxDesktopAuthenticationBroker = BaseAuthenticationBroker.extend({
     type: 'fx-desktop-v1',

@@ -5,12 +5,13 @@
 /**
  * Log when checkbox values are changed, if the checkbox has an id.
  */
-'use strict';
 
 define([
   'jquery',
   'lib/strings'
 ], function ($, Strings) {
+  'use strict';
+
   return {
     events: {
       'change input[type=checkbox]': 'logCheckboxChange'

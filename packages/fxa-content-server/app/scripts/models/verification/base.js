@@ -11,12 +11,12 @@
  * hashes. The `validation` hash contains the same keys as the `defaults`
  * whose values are validation functions.
  */
-'use strict';
 
 define([
   'backbone',
   'underscore'
 ], function (Backbone, _) {
+  'use strict';
 
   var VerificationInfo = Backbone.Model.extend({
     initialize: function (options) {

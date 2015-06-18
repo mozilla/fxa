@@ -22,12 +22,13 @@
  * allowed origins. If the origin is allowed, it is returned. If no origin
  * is found after a short period, return `null`.
  */
-'use strict';
 
 define([
   'lib/promise',
   'lib/channels/iframe'
 ], function (p, IFrameChannel) {
+  'use strict';
+
   var RESPONSE_TIMEOUT_MS = 100;
 
   function OriginCheck(win) {

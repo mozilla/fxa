@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // helper functions for views with a profile image. Meant to be mixed into views.
-'use strict';
 
 define([
   'lib/session'
 ], function (Session) {
+  'use strict';
 
   return {
     // user must be authenticated and verified to see Settings pages

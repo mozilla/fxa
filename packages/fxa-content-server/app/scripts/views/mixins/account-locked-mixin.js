@@ -7,12 +7,13 @@
  *
  * @class AccountLockedMixin
  */
-'use strict';
 
 define([
   'views/base',
   'lib/auth-errors'
 ], function (BaseView, AuthErrors) {
+  'use strict';
+
   var t = BaseView.t;
 
   var AccountLockedMixin = {

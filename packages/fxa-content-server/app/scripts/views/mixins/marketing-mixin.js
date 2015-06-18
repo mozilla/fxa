@@ -6,11 +6,12 @@
  * A view mixin that takes care of logging marketing impressions
  * and clicks.
  */
-'use strict';
 
 define([
   'jquery'
 ], function ($) {
+  'use strict';
+
   var MarketingMixin = {
     events: {
       'click .marketing-link': '_onMarketingClick'

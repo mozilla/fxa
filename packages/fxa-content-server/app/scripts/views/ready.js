@@ -6,7 +6,6 @@
  * Prints a message to the user that says
  * "All ready! You can go visit {{ service }}"
  */
-'use strict';
 
 define([
   'cocktail',
@@ -20,6 +19,7 @@ define([
 ],
 function (Cocktail, FormView, Template, Url, Constants, ServiceMixin,
       MarketingSnippet, MarketingSnippetiOS) {
+  'use strict';
 
   var View = FormView.extend({
     template: Template,

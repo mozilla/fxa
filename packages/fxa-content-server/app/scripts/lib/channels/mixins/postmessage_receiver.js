@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-'use strict';
 
 /**
  * A channel mixin that expects responses to sent messages. Responses
@@ -12,6 +11,8 @@ define([
   'underscore',
   'lib/auth-errors'
 ], function (_, AuthErrors) {
+  'use strict';
+
   var DEFAULT_SEND_TIMEOUT_LENGTH_MS = 90 * 1000;
 
   function noOp() {

@@ -5,7 +5,6 @@
 // A channel that completes the OAuth flow using Firefox WebChannel events
 // https://developer.mozilla.org/en-US/docs/Mozilla/JavaScript_code_modules/WebChannel.jsm
 // https://developer.mozilla.org/en-US/docs/Mozilla/JavaScript_code_modules/FxAccountsOAuthClient.jsm
-'use strict';
 
 define([
   'underscore',
@@ -13,6 +12,7 @@ define([
   'lib/channels/senders/web-channel',
   'lib/channels/receivers/web-channel'
 ], function (_, DuplexChannel, WebChannelSender, WebChannelReceiver) {
+  'use strict';
 
   function WebChannel(id) {
     if (! id) {

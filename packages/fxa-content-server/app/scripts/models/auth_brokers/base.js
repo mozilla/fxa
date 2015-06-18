@@ -6,7 +6,6 @@
  * A broker is a model that knows how to handle interaction with
  * the outside world.
  */
-'use strict';
 
 define([
   'underscore',
@@ -14,6 +13,7 @@ define([
   'lib/promise',
   'models/mixins/search-param'
 ], function (_, Backbone, p, SearchParamMixin) {
+  'use strict';
 
   var BaseAuthenticationBroker = Backbone.Model.extend({
     type: 'base',

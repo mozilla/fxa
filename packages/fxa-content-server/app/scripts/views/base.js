@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-'use strict';
 
 define([
   'cocktail',
@@ -17,6 +16,8 @@ define([
 ],
 function (Cocktail, _, Backbone, $, p, AuthErrors,
       Strings, EphemeralMessages, NullMetrics, TimerMixin) {
+  'use strict';
+
   var DEFAULT_TITLE = window.document.title;
   var EPHEMERAL_MESSAGE_ANIMATION_MS = 150;
 

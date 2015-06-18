@@ -6,7 +6,6 @@
  * A broker that knows how to finish an OAuth flow. Should be subclassed
  * to override `sendOAuthResultToRelier`
  */
-'use strict';
 
 define([
   'underscore',
@@ -20,6 +19,7 @@ define([
 ],
 function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
       BaseAuthenticationBroker) {
+  'use strict';
 
   /**
    * Formats the OAuth "result.redirect" url into a {code, state} object

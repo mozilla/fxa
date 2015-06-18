@@ -9,13 +9,13 @@
  * - context
  * - migration
  */
-'use strict';
 
 define([
   'underscore',
   'models/reliers/relier',
   'lib/service-name'
 ], function (_, Relier, ServiceNameTranslator) {
+  'use strict';
 
   var FxDesktopRelier = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {

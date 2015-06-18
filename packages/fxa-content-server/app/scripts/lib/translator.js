@@ -6,7 +6,6 @@
 // Translated strings are fetched from the server. The translation
 // is chosen on the backend based on the user's `Accept-Language`
 // headers.
-'use strict';
 
 define([
   'underscore',
@@ -15,6 +14,7 @@ define([
   'lib/strings'
 ],
 function (_, $, p, Strings) {
+  'use strict';
 
   var Translator = function () {
     this.translations = {};

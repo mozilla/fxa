@@ -5,7 +5,6 @@
 /**
  * A relier is a model that holds information about the RP.
  */
-'use strict';
 
 define([
   'underscore',
@@ -14,6 +13,7 @@ define([
   'lib/promise',
   'lib/constants'
 ], function (_, BaseRelier, SearchParamMixin, p, Constants) {
+  'use strict';
 
   var Relier = BaseRelier.extend({
     defaults: {

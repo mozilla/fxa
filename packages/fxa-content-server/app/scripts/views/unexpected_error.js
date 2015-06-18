@@ -6,13 +6,14 @@
  * This is a very small view to allow selenium tests
  * to clear browser storage state between tests.
  */
-'use strict';
 
 define([
   'views/base',
   'stache!templates/unexpected_error'
 ],
 function (BaseView, Template) {
+  'use strict';
+
   var View = BaseView.extend({
     template: Template,
     className: 'unexpected-error'

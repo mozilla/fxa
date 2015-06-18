@@ -6,13 +6,14 @@
  * Function decorator to show a notice when requests take
  * longer than expected
  */
-'use strict';
 
 define([
   'lib/promise',
   'lib/auth-errors'
 ],
 function (p, AuthErrors) {
+  'use strict';
+
   function notifyDelayedRequest(handler) {
     return function () {
       var self = this;

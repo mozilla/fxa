@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-'use strict';
 
 define([
   'chai',
@@ -35,6 +34,8 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
       WebChannelBroker, BaseRelier, FxDesktopRelier, OAuthRelier, Relier,
       User, Metrics, StorageMetrics, WindowMock, RouterMock, HistoryMock,
       TestHelpers) {
+  'use strict';
+
   /*global describe, beforeEach, it*/
   var assert = chai.assert;
   var FIRSTRUN_ORIGIN = 'https://firstrun.firefox.com';

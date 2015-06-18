@@ -1,13 +1,14 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-'use strict';
 
 define([
   'sinon',
   'lib/promise',
   '../mocks/profile.js'
 ], function (sinon, p, ProfileMock) {
+  'use strict';
+
   function requiresFocus(callback, done) {
     // Give the document focus
     window.focus();

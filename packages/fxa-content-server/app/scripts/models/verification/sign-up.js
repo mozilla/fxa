@@ -5,12 +5,12 @@
 /**
  * A model to hold sign up verification data
  */
-'use strict';
 
 define([
   './base',
   'lib/validate'
 ], function (VerificationInfo, Validate) {
+  'use strict';
 
   return VerificationInfo.extend({
     defaults: {

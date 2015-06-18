@@ -14,7 +14,6 @@
  * 5) If cookies are disabled, go to the /cookies_disabled page.
  * 6) Start the app if cookies are enabled.
  */
-'use strict';
 
 define([
   'underscore',
@@ -102,6 +101,7 @@ function (
   Notifications,
   CloseButtonView
 ) {
+  'use strict';
 
   function isMetricsCollectionEnabled (sampleRate) {
     return Math.random() <= sampleRate;

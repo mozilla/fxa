@@ -15,7 +15,7 @@
     "no-extend-native": 2,
     "no-multi-str": 2,
     "no-proto": 2,
-    "strict": [2, "global"],
+    "strict": [2, "function"],
     "valid-typeof": 2
   }
 }

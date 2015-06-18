@@ -6,12 +6,12 @@
  * The base relier. It's the base of all other reliers, or a NullRelier,
  * depending on how you want to use it.
  */
-'use strict';
 
 define([
   'backbone',
   'lib/promise'
 ], function (Backbone, p) {
+  'use strict';
 
   var Relier = Backbone.Model.extend({
     defaults: {},

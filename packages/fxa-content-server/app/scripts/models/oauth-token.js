@@ -7,11 +7,12 @@
  * OAuth tokens when no longer needed without the need to interace
  * with an Account model.
  */
-'use strict';
 
 define([
   'backbone'
 ], function (Backbone) {
+  'use strict';
+
   var Model = Backbone.Model.extend({
     defaults: {
       token: undefined

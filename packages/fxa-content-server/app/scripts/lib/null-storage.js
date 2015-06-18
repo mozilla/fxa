@@ -4,10 +4,10 @@
 
 // This is a memory store that's api compatible with localStorage/sessionStorage.
 // It's used for testing lib/storage.
-'use strict';
 
 define([
 ], function () {
+  'use strict';
 
   function NullStorage () {
     this._storage = {};

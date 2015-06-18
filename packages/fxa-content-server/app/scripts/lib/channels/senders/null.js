@@ -5,11 +5,11 @@
 /**
  * A null sender. Sends messages nowhere.
  */
-'use strict';
 
 define([
   'lib/promise'
 ], function (p) {
+  'use strict';
 
   function NullSender() {
     // nothing to do here.

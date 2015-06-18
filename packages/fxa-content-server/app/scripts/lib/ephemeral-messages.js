@@ -4,11 +4,11 @@
 
 // an ephemeral messages model. Ephemeral messages are allowed
 // a single `get` and no more.
-'use strict';
 
 define([
   'backbone'
 ], function (Backbone) {
+  'use strict';
 
   var Model = Backbone.Model.extend({
     get: function (attribute) {

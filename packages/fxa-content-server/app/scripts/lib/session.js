@@ -4,11 +4,12 @@
 
 // Session saves session information about the user. Data is automatically
 // saved to sessionStorage and automatically loaded from sessionStorage on startup.
-'use strict';
 
 define([
   'underscore'
 ], function (_) {
+  'use strict';
+
   var NAMESPACE = '__fxa_session';
 
   // these keys will be persisted to localStorage so that they live between browser sessions
