@@ -11,7 +11,6 @@
  * (2) figure it out from git (either regular '.git', or
  *     '/home/app/git' for AwsBox)
  */
-'use strict';
 
 var fs = require('fs');
 var path = require('path');

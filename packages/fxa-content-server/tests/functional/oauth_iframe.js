@@ -6,7 +6,6 @@
 /**
  * Test the iframe oauth flow
  */
-'use strict';
 
 define([
   'intern',

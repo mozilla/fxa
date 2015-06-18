@@ -6,7 +6,6 @@
 // option 'csp.enabled' is set (default true in development), with a special
 // exception for the /tests/index.html path, which are the frontend unit
 // tests.
-'use strict';
 
 var helmet = require('helmet');
 var config = require('./configuration');

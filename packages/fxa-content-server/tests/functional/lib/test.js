@@ -5,7 +5,6 @@
 /**
  * Additional tests.
  */
-'use strict';
 
 define([
   'intern',

@@ -5,7 +5,6 @@
 // Fetch a translated strings bundle. The best match will be found
 // by i18n-abide based on the users `accept-language` headers.
 
-'use strict';
 
 module.exports = function (i18n) {
   var route = {};
