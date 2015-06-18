@@ -1,7 +1,6 @@
 extends: fxa/server
 
 rules:
-  complexity: 0
   curly: 0
   semi: [2, always]
   strict: 0
