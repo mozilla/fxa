@@ -81,6 +81,15 @@ TestServer.start(config)
             t.ok(Buffer.isBuffer(keys.kA), 'kA exists, login after password reset')
             t.ok(Buffer.isBuffer(keys.wrapKb), 'wrapKb exists, login after password reset')
             t.equal(client.kB.length, 32, 'kB exists, has the right length')
+
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            var link = emailData.headers['x-link']
+            var query = url.parse(link, true).query
+            t.ok(query.email, 'email is in the link')
           }
         )
     }
