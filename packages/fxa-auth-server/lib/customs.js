@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
- var P = require('./promise')
- var Pool = require('./pool')
+var P = require('./promise')
+var Pool = require('./pool')
 
- module.exports = function (log, error) {
+module.exports = function (log, error) {
 
   function Customs(url) {
     if (url === 'none') {

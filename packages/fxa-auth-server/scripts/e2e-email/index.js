@@ -15,12 +15,12 @@ const P = require('../../lib/promise')
 const preq = require('./p-request')
 const localeQuirks = require('./localeQuirks')
 
-var program;
+var program
 try {
-  program = require('commander');
+  program = require('commander')
 } catch(e) {
-  console.log("This program requires you to do `npm install commander` first.");
-  process.exit(1);
+  console.log('This program requires you to do `npm install commander` first.')
+  process.exit(1)
 }
 
 program
@@ -47,7 +47,7 @@ program
   .option('-p, --password [64 hex string]',
           'Password to use for this test run',
           crypto.randomBytes(32).toString('hex'))
-  .parse(process.argv);
+  .parse(process.argv)
 
 const VERIFY_PATH = '/v1/verify_email'
 const RESET_PATH = '/v1/complete_reset_password'
@@ -58,7 +58,7 @@ const supportedLanguages = program.locale ||
 
 function log(level /*, rest */) {
   if (level < log.level) return
-  var args = Array.prototype.slice.call(arguments);
+  var args = Array.prototype.slice.call(arguments)
   var timestamp = '[' + new Date().toISOString() + ']'
   args[0] = timestamp
   console.log.apply(null, args)
@@ -147,7 +147,7 @@ function verifyMailbox(mbox, log) {
     var lang = langFromEmail(headers.to)
     var quirks = localeQuirks['content-language']
     if (quirks[lang]) {
-        assert.equal('en-US', headers['content-language'],
+      assert.equal('en-US', headers['content-language'],
                      'content-language header is en-US')
     } else {
       // See https://github.com/mozilla/fxa-content-server-l10n/issues/44 about sr-LATN
@@ -245,7 +245,7 @@ function checkLocale(lang, index) {
 
               var options = {
                 url: 'http://' + program.restmailDomain + '/mail/' +
-                  program.basename + "-" + lang,
+                  program.basename + '-' + lang,
                 complete: resultComplete,
                 progress: log.bind(null, log.level)
               }

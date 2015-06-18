@@ -52,7 +52,7 @@ function run(c) {
       return c.destroyAccount()
     },
     function (err) {
-      console.error("Error during run:", err.message)
+      console.error('Error during run:', err.message)
       return c.destroyAccount()
     }
   )
@@ -75,7 +75,7 @@ client.setupCredentials(config.email, config.password)
               }
             },
             function (err) {
-              console.error("Error during cleanup:", err.message)
+              console.error('Error during cleanup:', err.message)
             }
           )
       }

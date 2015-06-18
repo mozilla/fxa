@@ -12,9 +12,9 @@ var DEFAULT_SUPPORTED_LANGUAGES = require('./supportedLanguages')
 
 var conf = convict({
   env: {
-    doc: "The current node.js environment",
-    default: "prod",
-    format: [ "dev", "test", "stage", "prod" ],
+    doc: 'The current node.js environment',
+    default: 'prod',
+    format: [ 'dev', 'test', 'stage', 'prod' ],
     env: 'NODE_ENV'
   },
   log: {
@@ -24,14 +24,14 @@ var conf = convict({
     }
   },
   publicUrl: {
-    format: "url",
+    format: 'url',
     // the real url is set by awsbox
-    default: "http://127.0.0.1:9000",
-    env: "PUBLIC_URL"
+    default: 'http://127.0.0.1:9000',
+    env: 'PUBLIC_URL'
   },
   domain: {
-    format: "url",
-    doc: "Derived automatically from publicUrl",
+    format: 'url',
+    doc: 'Derived automatically from publicUrl',
     default: undefined
   },
   secretKeyFile: {
@@ -51,7 +51,7 @@ var conf = convict({
   },
   db: {
     backend: {
-      default: "httpdb",
+      default: 'httpdb',
       env: 'DB_BACKEND'
     }
   },
@@ -64,26 +64,26 @@ var conf = convict({
   },
   listen: {
     host: {
-      doc: "The ip address the server should bind",
+      doc: 'The ip address the server should bind',
       default: '127.0.0.1',
       format: 'ipaddress',
       env: 'IP_ADDRESS'
     },
     port: {
-      doc: "The port the server should bind",
+      doc: 'The port the server should bind',
       default: 9000,
       format: 'port',
       env: 'PORT'
     }
   },
   customsUrl: {
-    doc: "fraud / abuse server url",
+    doc: 'fraud / abuse server url',
     default: 'http://127.0.0.1:7000',
     env: 'CUSTOMS_SERVER_URL'
   },
   contentServer: {
     url: {
-      doc: "The url of the corresponding fxa-content-server instance",
+      doc: 'The url of the corresponding fxa-content-server instance',
       default: 'http://127.0.0.1:3030',
       env: 'CONTENT_SERVER_URL'
     }
@@ -173,13 +173,13 @@ var conf = convict({
     }
   },
   maxEventLoopDelay: {
-    doc: "Max event-loop delay before which incoming requests are rejected",
+    doc: 'Max event-loop delay before which incoming requests are rejected',
     default: 0,
     env: 'MAX_EVENT_LOOP_DELAY'
   },
   scrypt: {
     maxPending: {
-      doc: "Max number of scrypt hash operations that can be pending",
+      doc: 'Max number of scrypt hash operations that can be pending',
       default: 0,
       env: 'SCRYPT_MAX_PENDING'
     }
@@ -272,17 +272,17 @@ var conf = convict({
     }
   },
   useHttps: {
-    doc: "set to true to serve directly over https",
+    doc: 'set to true to serve directly over https',
     env: 'USE_TLS',
     default: false
   },
   keyPath: {
-    doc: "path to SSL key in PEM format if serving over https",
+    doc: 'path to SSL key in PEM format if serving over https',
     env: 'TLS_KEY_PATH',
     default: path.resolve(__dirname, '../key.pem')
   },
   certPath: {
-    doc: "path to SSL certificate in PEM format if serving over https",
+    doc: 'path to SSL certificate in PEM format if serving over https',
     env: 'TLS_CERT_PATH',
     default: path.resolve(__dirname, '../cert.pem')
   },

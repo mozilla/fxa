@@ -22,7 +22,7 @@
 
 const fs = require('fs')
 const cp = require('child_process')
-const assert = require("assert")
+const assert = require('assert')
 const config = require('../config')
 
 const pubKeyFile = config.get('publicKeyFile')
@@ -30,12 +30,12 @@ const secretKeyFile = config.get('secretKeyFile')
 
 try {
   var keysExist = fs.existsSync(pubKeyFile) && fs.existsSync(secretKeyFile)
-  assert(!keysExist, "keys already exists")
+  assert(!keysExist, 'keys already exists')
 } catch(e) {
   process.exit()
 }
 
-console.error("Generating keypair")
+console.error('Generating keypair')
 
 cp.exec(
   'openssl genrsa 2048 | ../node_modules/pem-jwk/bin/pem-jwk.js',
@@ -45,7 +45,7 @@ cp.exec(
   function (err, stdout, stderr) {
     var secret = stdout
     fs.writeFileSync(secretKeyFile, secret)
-    console.error("Secret Key saved:", secretKeyFile)
+    console.error('Secret Key saved:', secretKeyFile)
     var s = JSON.parse(secret)
     var pub = {
       kty: 'RSA',
@@ -53,7 +53,7 @@ cp.exec(
       e: s.e
     }
     fs.writeFileSync(pubKeyFile, JSON.stringify(pub))
-    console.error("Public Key saved:", pubKeyFile)
+    console.error('Public Key saved:', pubKeyFile)
   }
 )
 

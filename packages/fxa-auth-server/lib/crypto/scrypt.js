@@ -4,7 +4,7 @@
 
 var P = require('../promise')
 var scrypt_hash = require('scrypt-hash')
- 
+
 // The maximum numer of hash operations allowed concurrently.
 // This can be customized by setting the `maxPending` attribute on the
 // exported object, or by setting the `scrypt.maxPending` config option.
@@ -21,7 +21,7 @@ module.exports = function(log, config) {
     // The maximum number of hash operations that may be in progress.
     maxPending: DEFAULT_MAX_PENDING
   }
-  if (config.scrypt && config.scrypt.hasOwnProperty("maxPending")) {
+  if (config.scrypt && config.scrypt.hasOwnProperty('maxPending')) {
     scrypt.maxPending = config.scrypt.maxPending
   }
 

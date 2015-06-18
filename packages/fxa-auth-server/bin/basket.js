@@ -17,12 +17,12 @@ var SQSReceiver = require('../lib/sqs')(log)
 
 function shouldIgnoreEmail(email) {
   if (email.match(/@restmail.net$/)) {
-    return true;
+    return true
   }
   if (email.match(/@restmail.lcip.org$/)) {
-    return true;
+    return true
   }
-  return false;
+  return false
 }
 
 
@@ -34,7 +34,7 @@ basketQueue.on(
     if (message.event === 'verified') {
       // Ignore email addresses that are clearly from dev testing.
       if (shouldIgnoreEmail(message.email)) {
-        message.del();
+        message.del()
         return
       }
       // Forward all others to basket API.
@@ -52,7 +52,7 @@ basketQueue.on(
             // Basket won't accept empty or null `accept_lang` field,
             // so we default to en-US.  This should only happen if
             // the user has not sent an explicit Accept-Language header.
-            accept_lang: message.locale || "en-US"
+            accept_lang: message.locale || 'en-US'
           }
         },
         function (err, res, body) {

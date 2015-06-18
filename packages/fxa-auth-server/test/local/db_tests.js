@@ -48,7 +48,7 @@ var dbConn = TestServer.start(config)
 test(
   'ping',
   function (t) {
-    t.plan(1);
+    t.plan(1)
     return dbConn.then(function(db) {
       return db.ping()
     })
@@ -97,7 +97,7 @@ test(
   'session token handling',
   function (t) {
     return dbConn.then(function(db) {
-      var tokenId;
+      var tokenId
       return db.emailRecord(ACCOUNT.email)
       .then(function(emailRecord) {
         return db.createSessionToken(emailRecord)
@@ -138,7 +138,7 @@ test(
   'keyfetch token handling',
   function (t) {
     return dbConn.then(function(db) {
-      var tokenId;
+      var tokenId
       return db.emailRecord(ACCOUNT.email)
       .then(function(emailRecord) {
         return db.createKeyFetchToken({uid: emailRecord.uid, kA: emailRecord.kA, wrapKb: ACCOUNT.wrapWrapKb})
@@ -177,7 +177,7 @@ test(
   'reset token handling',
   function (t) {
     return dbConn.then(function(db) {
-      var tokenId;
+      var tokenId
       return db.emailRecord(ACCOUNT.email)
       .then(function(emailRecord) {
         return db.createAccountResetToken(emailRecord)
@@ -215,7 +215,7 @@ test(
   'forgotpwd token handling',
   function (t) {
     return dbConn.then(function(db) {
-      var token1;
+      var token1
       var token1tries = 0
       return db.emailRecord(ACCOUNT.email)
       .then(function(emailRecord) {
@@ -285,7 +285,7 @@ test(
   'db.forgotPasswordVerified',
   function (t) {
     return dbConn.then(function(db) {
-      var token1;
+      var token1
       return db.emailRecord(ACCOUNT.email)
       .then(function(emailRecord) {
         return db.createPasswordForgotToken(emailRecord)

@@ -15,8 +15,8 @@ util.inherits(ClientApi, EventEmitter)
 function ClientApi(origin) {
   EventEmitter.call(this)
   this.origin = origin
-  this.baseURL = origin + "/v1"
-  this.timeOffset = 0;
+  this.baseURL = origin + '/v1'
+  this.timeOffset = 0
 }
 
 ClientApi.prototype.Token = tokens
@@ -30,7 +30,7 @@ function hawkHeader(token, method, url, payload, offset) {
     verify.payload = JSON.stringify(payload)
   }
   if (offset) {
-    verify.localtimeOffsetMsec = offset;
+    verify.localtimeOffsetMsec = offset
   }
   return hawk.client.header(url, method, verify).field
 }
@@ -265,15 +265,15 @@ ClientApi.prototype.getRandomBytes = function () {
 }
 
 ClientApi.prototype.passwordChangeStart = function (email, oldAuthPW, newAuthPW) {
-    return this.doRequest(
-      'POST',
-      this.baseURL + '/password/change/start',
-      null,
-      {
-        email: email,
-        oldAuthPW: oldAuthPW.toString('hex')
-      }
-    )
+  return this.doRequest(
+    'POST',
+    this.baseURL + '/password/change/start',
+    null,
+    {
+      email: email,
+      oldAuthPW: oldAuthPW.toString('hex')
+    }
+  )
 }
 
 ClientApi.prototype.passwordChangeFinish = function (passwordChangeTokenHex, authPW, wrapKb) {

@@ -317,7 +317,7 @@ Client.prototype.verifyAccountUnlockCode = function (uid, code) {
 
 Client.prototype.resetPassword = function (newPassword) {
   if (!this.accountResetToken) {
-    throw new Error("call verifyPasswordResetCode before calling resetPassword");
+    throw new Error('call verifyPasswordResetCode before calling resetPassword')
   }
   // this will generate a new wrapKb on the server
   return this.setupCredentials(this.email, newPassword)

@@ -66,7 +66,7 @@ TestServer.start(config)
     function (t) {
       var email = server.uniqueEmail()
       var password = 'something'
-      var client = null
+      var client = null // eslint-disable-line no-unused-vars
       var options = {
         redirectTo: 'https://sync.firefox.com',
         service: 'sync'

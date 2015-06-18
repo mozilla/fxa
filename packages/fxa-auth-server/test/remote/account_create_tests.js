@@ -85,7 +85,7 @@ TestServer.start(config)
     function (t) {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
-      var client = null
+      var client = null // eslint-disable-line no-unused-vars
       var options = { service: 'abcdef', resume: 'foo' }
       return Client.create(config.publicUrl, email, password, options)
         .then(

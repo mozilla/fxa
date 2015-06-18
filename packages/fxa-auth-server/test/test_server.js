@@ -22,7 +22,7 @@ function waitLoop(testServer, url, cb) {
     function (err, res, body) {
       if (err) {
         if (err.errno !== 'ECONNREFUSED') {
-          console.log("ERROR: unexpected result from " + url)
+          console.log('ERROR: unexpected result from ' + url)
           console.log(err)
           return cb(err)
         }

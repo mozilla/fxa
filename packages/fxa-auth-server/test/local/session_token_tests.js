@@ -20,7 +20,7 @@ var ACCOUNT = {
 test(
   're-creation from tokenData works',
   function (t) {
-    var token = null;
+    var token = null
     return SessionToken.create(ACCOUNT)
       .then(
         function (x) {
@@ -51,7 +51,7 @@ test(
 test(
   'sessionToken key derivations are test-vector compliant',
   function (t) {
-    var token = null;
+    var token = null
     var tokenData = 'a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf'
     return SessionToken.fromHex(tokenData, ACCOUNT)
       .then(

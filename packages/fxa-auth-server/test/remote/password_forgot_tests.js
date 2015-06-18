@@ -48,7 +48,7 @@ TestServer.start(config)
         )
         .then(
           function (code) {
-            t.throws(function() { client.resetPassword(newPassword); })
+            t.throws(function() { client.resetPassword(newPassword) })
             return resetPassword(client, code, newPassword)
           }
         )
@@ -100,7 +100,7 @@ TestServer.start(config)
     function (t) {
       var code = null
       var email = server.uniqueEmail()
-      var password = "hothamburger"
+      var password = 'hothamburger'
       var client = null
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
@@ -255,7 +255,7 @@ TestServer.start(config)
               .then(
                 function (x) {
                   t.equal(x.tries, 3, 'three tries remaining')
-                  t.ok(x.ttl > 0 && x.ttl <= (60*60), 'ttl is ok')
+                  t.ok(x.ttl > 0 && x.ttl <= (60 * 60), 'ttl is ok')
                 }
               )
           }

@@ -284,7 +284,7 @@ AppError.requestBodyTooLarge = function () {
 
 AppError.tooManyRequests = function (retryAfter) {
   if (!retryAfter) {
-    retryAfter = 30;
+    retryAfter = 30
   }
   return new AppError(
     {
@@ -304,7 +304,7 @@ AppError.tooManyRequests = function (retryAfter) {
 
 AppError.serviceUnavailable = function (retryAfter) {
   if (!retryAfter) {
-    retryAfter = 30;
+    retryAfter = 30
   }
   return new AppError(
     {
@@ -354,4 +354,4 @@ AppError.accountNotLocked = function (email) {
   )
 }
 
-module.exports = AppError;
+module.exports = AppError
