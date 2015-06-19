@@ -3,6 +3,11 @@
     <header class="settings-unit-summary">
       <h2 class="settings-unit-title">{{#t}}Account Picture{{/t}}</h2>
     </header>
-    <button class="settings-button secondary settings-unit-toggle">{{#t}}Change {{/t}}</button>
+    {{#avatar}}
+    <button class="settings-button secondary settings-unit-toggle">{{#t}}Change{{/t}}</button>
+    {{/avatar}}
+    {{^avatar}}
+    <button class="settings-button secondary settings-unit-toggle">{{#t}}Add{{/t}}</button>
+    {{/avatar}}
   </div>
 </div>

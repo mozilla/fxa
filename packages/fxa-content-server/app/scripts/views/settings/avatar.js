@@ -26,9 +26,11 @@ function (Cocktail, FormView, Template, AvatarMixin, SettingsMixin,
       this.navigate('/settings/avatar/change');
     },
 
-    afterVisible: function () {
-      FormView.prototype.afterVisible.call(this);
-      return this.displayAccountProfileImage(this.getSignedInAccount());
+    context: function () {
+      var account = this.getSignedInAccount();
+      return {
+        avatar: account.has('profileImageUrl')
+      };
     }
 
   });

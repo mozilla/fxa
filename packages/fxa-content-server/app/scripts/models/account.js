@@ -56,7 +56,7 @@ define([
   var ALLOWED_KEYS = Object.keys(DEFAULTS);
   var ALLOWED_PERSISTENT_KEYS = Object.keys(PERSISTENT);
 
-  var PROFILE_SCOPE = 'profile:write';
+  var PROFILE_SCOPE = 'profile profile:write';
 
   var Account = Backbone.Model.extend({
     defaults: DEFAULTS,
@@ -203,10 +203,6 @@ define([
           profileImage = new ProfileImage({ url: result.avatar });
           self.setProfileImage(profileImage);
           self.set('displayName', result.displayName);
-          return profileImage.fetch();
-        })
-        .then(function () {
-          return profileImage;
         });
     },
 

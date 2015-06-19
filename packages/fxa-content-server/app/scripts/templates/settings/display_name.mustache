@@ -4,8 +4,16 @@
   <div class="settings-unit-stub">
     <header class="settings-unit-summary">
       <h2 class="settings-unit-title">{{#t}}Display name{{/t}}</h2>
+      {{#displayName}}
+        <h3 class="settings-unit-subtitle">{{ displayName }}</h3>
+      {{/displayName}}
     </header>
-    <button class="settings-button secondary settings-unit-toggle hidden">{{#t}}Add {{/t}}</button>
+    {{#displayName}}
+      <button class="settings-button secondary settings-unit-toggle hidden">{{#t}}Change{{/t}}</button>
+    {{/displayName}}
+    {{^displayName}}
+      <button class="settings-button secondary settings-unit-toggle hidden">{{#t}}Add{{/t}}</button>
+    {{/displayName}}
   </div>
 
   <div class="settings-unit-details">

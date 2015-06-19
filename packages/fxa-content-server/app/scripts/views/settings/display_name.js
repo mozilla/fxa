@@ -29,15 +29,31 @@ function (Cocktail, BaseView, FormView, AuthErrors, Template,
       this.navigate('/settings/display_name');
     },
 
+    context: function () {
+      return {
+        displayName: this._displayName
+      };
+    },
+
+    beforeRender: function () {
+      var self = this;
+      var account = self.getSignedInAccount();
+      return account.fetchProfile()
+        .then(function () {
+          self._displayName = account.get('displayName');
+        });
+    },
+
     submit: function () {
       var self = this;
       var account = self.getSignedInAccount();
       var displayName = self.getElementValue('input.text');
 
       return account.postDisplayName(displayName)
-        .then(function (result) {
+        .then(function () {
           self.displaySuccess(t('Display name updated'));
           self.navigate('settings');
+          return self.render();
         });
     }
   });
