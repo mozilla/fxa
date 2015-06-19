@@ -5,6 +5,7 @@
 const url = require('url');
 
 const config = require('../config');
+const AppError = require('../error');
 
 function actionToPathname(action) {
   if (action === 'signup') {
@@ -13,9 +14,11 @@ function actionToPathname(action) {
     return 'force_auth';
   } else if (action === 'signin') {
     return 'signin';
+  } else if (action === undefined) {
+    return '';
   }
 
-  return '';
+  throw AppError.incorrectRedirect();
 }
 
 module.exports = {
