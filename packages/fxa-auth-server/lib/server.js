@@ -1,7 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-var fs = require('fs');
+
+var fs = require('fs')
 var path = require('path')
 var url = require('url')
 var Hapi = require('hapi')
@@ -15,8 +16,8 @@ function create(log, error, config, routes, db) {
   // not the local URL to which it is bound.
   var publicURL = url.parse(config.publicUrl)
   var defaultPorts = {
-    "http:": 80,
-    "https:": 443
+    'http:': 80,
+    'https:': 443
   }
   var hawkOptions = {
     host: publicURL.hostname,
@@ -160,7 +161,7 @@ function create(log, error, config, routes, db) {
 
   function trimLocale(header) {
     if (!header) {
-      return header;
+      return header
     }
     if (header.length < 256) {
       return header.trim()

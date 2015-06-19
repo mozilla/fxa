@@ -38,7 +38,7 @@ Pool.prototype.request = function (method, path, data) {
       method: method || 'GET',
       path: path,
       headers: {
-        "Content-Type": "application/json"
+        'Content-Type': 'application/json'
       },
       data: data ? JSON.stringify(data) : undefined
     },
@@ -94,7 +94,7 @@ Pool.prototype.close = function () {
         method: 'GET',
         path: '/',
         headers: {
-          "Connection": "close"
+          'Connection': 'close'
         }
       },
       noop

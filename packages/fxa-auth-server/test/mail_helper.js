@@ -15,7 +15,7 @@ function emailName(emailAddress) {
 
 require('simplesmtp').createSimpleServer(
   {
-    SMTPBanner: "FXATEST"
+    SMTPBanner: 'FXATEST'
   },
   function (req) {
     var mp = new MailParser({ defaultCharset: 'utf8' })

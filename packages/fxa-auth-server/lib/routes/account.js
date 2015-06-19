@@ -85,7 +85,7 @@ module.exports = function (
                       email: email,
                       locale: locale,
                       agent: request.headers['user-agent']
-                    });
+                    })
                   }
                   return db.createAccount(
                     {
@@ -286,7 +286,7 @@ module.exports = function (
                         }
                       }
                     )
-                }
+                  }
               )
               .then(
                 function (tokens) {
@@ -765,7 +765,7 @@ module.exports = function (
             reply
           )
       }
-    });
+    })
   }
 
   return routes

@@ -45,7 +45,7 @@ test(
         t.fail('We should have failed open (no url provided) for /check')
       })
       .then(function() {
-        return customsNoUrl.flag(ip, { email: email, uid: "12345" })
+        return customsNoUrl.flag(ip, { email: email, uid: '12345' })
       })
       .then(function(result) {
         t.equal(result.lockout, false, 'lockout is false when /failedLoginAttempt returns `lockout: false`')
@@ -93,7 +93,7 @@ test(
         t.fail('We should not have failed here for /check : err=' + error)
       })
       .then(function() {
-        return customsWithUrl.flag(ip, { email: email, uid: "12345" })
+        return customsWithUrl.flag(ip, { email: email, uid: '12345' })
       })
       .then(function(result) {
         t.equal(result.lockout, false, 'lockout is false when /failedLoginAttempt returns false')
@@ -127,7 +127,7 @@ test(
       })
       .then(function() {
         // account is locked
-        return customsWithUrl.flag(ip, { email: email, uid: "12345" })
+        return customsWithUrl.flag(ip, { email: email, uid: '12345' })
       })
       .then(function(result) {
         t.equal(result.lockout, true, 'lockout is true when /failedLoginAttempt returns `lockout: true`')
@@ -140,7 +140,7 @@ test(
 )
 
 test(
-  "can create a customs object with non-existant customs service'",
+  'can create a customs object with non-existant customs service',
   function (t) {
     t.plan(7)
 
@@ -160,7 +160,7 @@ test(
         t.fail('We should have failed open (non-existant service url provided) for /check')
       })
       .then(function() {
-        return customsInvalidUrl.flag(ip, { email: email, uid: "12345" })
+        return customsInvalidUrl.flag(ip, { email: email, uid: '12345' })
       })
       .then(function(result) {
         t.equal(result.lockout, false, 'lockout is false when /failedLoginAttempt hits an invalid endpoint')

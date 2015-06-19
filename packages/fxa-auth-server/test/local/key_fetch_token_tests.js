@@ -20,7 +20,7 @@ var ACCOUNT = {
 test(
   're-creation from tokenData works',
   function (t) {
-    var token = null;
+    var token = null
     return KeyFetchToken.create(ACCOUNT)
       .then(
         function (x) {
@@ -51,12 +51,12 @@ test(
 test(
   're-creation from id works',
   function (t) {
-    var token = null;
+    var token = null
     return KeyFetchToken.create(ACCOUNT)
       .then(
         function (x) {
           token = x
-          return KeyFetchToken.fromId(token.tokenId, token);
+          return KeyFetchToken.fromId(token.tokenId, token)
         }
       )
       .then(
@@ -72,7 +72,7 @@ test(
 test(
   'bundle / unbundle of keys works',
   function (t) {
-    var token = null;
+    var token = null
     var kA = crypto.randomBytes(32)
     var wrapKb = crypto.randomBytes(32)
     return KeyFetchToken.create(ACCOUNT)
@@ -100,8 +100,8 @@ test(
 test(
   'bundle / unbundle of keys only works with correct token',
   function (t) {
-    var token1 = null;
-    var token2 = null;
+    var token1 = null
+    var token2 = null
     var kA = crypto.randomBytes(32)
     var wrapKb = crypto.randomBytes(32)
     return KeyFetchToken.create(ACCOUNT)
@@ -137,7 +137,7 @@ test(
 test(
   'keyFetchToken key derivations are test-vector compliant',
   function (t) {
-    var token = null;
+    var token = null
     var tokenData = '808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f'
     return KeyFetchToken.fromHex(tokenData, ACCOUNT)
       .then(

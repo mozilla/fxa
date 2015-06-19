@@ -12,9 +12,9 @@ test(
   function (t) {
     var pwd = Buffer('aaaaaaaaaaaaaaaa')
     var salt = Buffer('bbbbbbbbbbbbbbbb')
-    var p1 = new Password(pwd, salt, 0);
+    var p1 = new Password(pwd, salt, 0)
     t.equal(p1.version, 0, 'should be using version zero')
-    var p2 = new Password(pwd, salt, 0);
+    var p2 = new Password(pwd, salt, 0)
     t.equal(p2.version, 0, 'should be using version zero')
     return p1.verifyHash()
     .then(
@@ -35,9 +35,9 @@ test(
   function (t) {
     var pwd = Buffer('aaaaaaaaaaaaaaaa')
     var salt = Buffer('bbbbbbbbbbbbbbbb')
-    var p1 = new Password(pwd, salt, 1);
+    var p1 = new Password(pwd, salt, 1)
     t.equal(p1.version, 1, 'should be using version one')
-    var p2 = new Password(pwd, salt, 1);
+    var p2 = new Password(pwd, salt, 1)
     t.equal(p2.version, 1, 'should be using version one')
     return p1.verifyHash()
     .then(
@@ -58,8 +58,8 @@ test(
   function (t) {
     var pwd = Buffer('aaaaaaaaaaaaaaaa')
     var salt = Buffer('bbbbbbbbbbbbbbbb')
-    var p1 = new Password(pwd, salt, 0);
-    var p2 = new Password(pwd, salt, 1);
+    var p1 = new Password(pwd, salt, 0)
+    var p2 = new Password(pwd, salt, 1)
     return p1.verifyHash()
     .then(
       function (hash) {

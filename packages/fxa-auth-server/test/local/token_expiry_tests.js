@@ -18,7 +18,7 @@ TestServer.start(config)
     'token expiry',
     function (t) {
       // FYI config.tokenLifetimes.passwordChangeToken = -1
-      var email = Math.random() + "@example.com"
+      var email = Math.random() + '@example.com'
       var password = 'ok'
       return Client.create(config.publicUrl, email, password, { preVerified: true })
         .then(

@@ -17,7 +17,7 @@ TestServer.start(config)
     'resend blackout period',
     function (t) {
       // FYI config.tokenLifetimes.passwordChangeToken = -1
-      var email = Math.random() + "@example.com"
+      var email = Math.random() + '@example.com'
       var password = 'ok'
       var client = null
       t.ok(true) // this silences log output. with no assertions tap dumps logs

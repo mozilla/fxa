@@ -12,7 +12,7 @@ var PasswordForgotToken = require('../../lib/tokens/password_forgot_token')(
   require('util').inherits,
   require('../../lib/tokens')(log),
   require('crypto'),
-  1000 * 60 * 15
+  1000 * 60 * 15 // 15 minutes
 )
 
 
@@ -25,7 +25,7 @@ var ACCOUNT = {
 test(
   're-creation from tokenData works',
   function (t) {
-    var token = null;
+    var token = null
     return PasswordForgotToken.create(ACCOUNT)
       .then(
         function (x) {

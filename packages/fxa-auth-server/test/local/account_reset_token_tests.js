@@ -16,7 +16,7 @@ var ACCOUNT = {
 test(
   're-creation from tokenData works',
   function (t) {
-    var token = null;
+    var token = null
     return AccountResetToken.create(ACCOUNT)
       .then(
         function (x) {
@@ -43,7 +43,7 @@ test(
 test(
   'accountResetToken key derivations are test-vector compliant',
   function (t) {
-    var token = null;
+    var token = null
     var tokenData = 'c0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedf'
     return AccountResetToken.fromHex(tokenData, ACCOUNT)
       .then(

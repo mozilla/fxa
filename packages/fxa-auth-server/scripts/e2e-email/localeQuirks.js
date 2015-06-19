@@ -49,8 +49,8 @@ function ary2map(ary) {
 }
 
 Object.keys(translationQuirks).forEach(function(quirk) {
-  var locales = translationQuirks[quirk];
-  translationQuirks[quirk] = ary2map(locales);
+  var locales = translationQuirks[quirk]
+  translationQuirks[quirk] = ary2map(locales)
 })
 
 module.exports = translationQuirks

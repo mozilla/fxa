@@ -17,7 +17,7 @@ TestServer.start(config)
   test(
     'alternate base path',
     function (t) {
-      var email = Math.random() + "@example.com"
+      var email = Math.random() + '@example.com'
       var password = 'ok'
       // if this doesn't crash, we're all good
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)

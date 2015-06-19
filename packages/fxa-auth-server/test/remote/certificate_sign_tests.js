@@ -11,9 +11,9 @@ var config = require('../../config').root()
 var pubSigKey = jwtool.JWK.fromFile(config.publicKeyFile)
 
 var publicKey = {
-  "algorithm":"RS",
-  "n":"4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123",
-  "e":"65537"
+  'algorithm': 'RS',
+  'n': '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
+  'e': '65537'
 }
 
 TestServer.start(config)
@@ -25,7 +25,7 @@ TestServer.start(config)
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var client = null
-      var duration = 1000 * 60 * 60 * 24
+      var duration = 1000 * 60 * 60 * 24 // 24 hours
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function (c) {
@@ -53,7 +53,7 @@ TestServer.start(config)
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var client = null
-      var duration = 1000 * 60 * 60 * 24
+      var duration = 1000 * 60 * 60 * 24 // 24 hours
       return Client.create(config.publicUrl, email, password)
         .then(
           function (c) {
@@ -83,7 +83,7 @@ TestServer.start(config)
           function (c) {
             client = c
             // string as publicKey
-            return client.sign("tada", 1000)
+            return client.sign('tada', 1000)
           }
         )
         .then(
@@ -180,7 +180,7 @@ TestServer.start(config)
     function (t) {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
-      var duration = 1000 * 60 * 60 * 24
+      var duration = 1000 * 60 * 60 * 24 // 24 hours
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function (client) {

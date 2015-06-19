@@ -19,7 +19,7 @@ TestServer.start(config, false)
     )
 
     tap.on('close', function(code) {
-        server.stop()
+      server.stop()
     })
   }
 )

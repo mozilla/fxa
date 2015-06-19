@@ -8,14 +8,9 @@ var jwtool = require('fxa-jwtool')
 function main() {
   var log = require('../lib/log')(config.log.level)
 
-  function logStatInfo() {
-    log.stat(server.stat())
-    log.stat(Password.stat())
-  }
-
   log.event('config', config)
   if (config.env !== 'prod') {
-    log.info(config, "starting config")
+    log.info(config, 'starting config')
   }
 
   var error = require('../lib/error')
@@ -41,6 +36,11 @@ function main() {
   var statsInterval = null
   var database = null
   var customs = null
+
+  function logStatInfo() {
+    log.stat(server.stat())
+    log.stat(Password.stat())
+  }
 
   require('../lib/mailer')(config, log)
     .done(

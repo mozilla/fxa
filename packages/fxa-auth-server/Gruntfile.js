@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = function (grunt) {
-  require('load-grunt-tasks')(grunt);
+  require('load-grunt-tasks')(grunt)
 
-  grunt.loadTasks('grunttasks');
+  grunt.loadTasks('grunttasks')
 
-  grunt.registerTask('default', ['jshint', 'copyright']);
-};
+  grunt.registerTask('default', ['eslint', 'copyright'])
+}

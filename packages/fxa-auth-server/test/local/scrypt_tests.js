@@ -36,7 +36,7 @@ test(
     t.equal(scrypt.maxPending, 5, 'maxPending is correctly set from config')
     // Send many concurrent requests.
     // Not yielding the event loop ensures they will pile up quickly.
-    var promises = [];
+    var promises = []
     for (var i = 0; i < 10; i++) {
       promises.push(scrypt.hash(K1, salt, 65536, 8, 1, 32))
     }
@@ -49,6 +49,6 @@ test(
         t.equal(scrypt.numPendingHWM, 6, 'HWM should be maxPending+1')
         t.equal(log.buffer[0].op, 'scrypt.maxPendingExceeded')
       }
-    );
+    )
   }
 )

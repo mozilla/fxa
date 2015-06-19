@@ -8,7 +8,7 @@ var util = require('util')
 var child_process = require('child_process')
 
 var version = require('../../package.json').version
-var commitHash;
+var commitHash
 
 module.exports = function (log, P, db, error) {
 

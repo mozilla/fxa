@@ -18,7 +18,7 @@ module.exports = function (log, isA, error, signer, db, domain) {
         validate: {
           payload: {
             publicKey: isA.object({
-              algorithm: isA.string().valid("RS", "DS").required(),
+              algorithm: isA.string().valid('RS', 'DS').required(),
               n: isA.string(),
               e: isA.string(),
               y: isA.string(),
@@ -70,7 +70,7 @@ module.exports = function (log, isA, error, signer, db, domain) {
             log.info({
               op: 'signer.updateLocale',
               locale: request.app.acceptLanguage
-            });
+            })
             db.updateLocale(sessionToken.uid, request.app.acceptLanguage)
             // meh on the result
           } else {
@@ -81,7 +81,7 @@ module.exports = function (log, isA, error, signer, db, domain) {
               email: sessionToken.email,
               locale: request.app.acceptLanguage,
               agent: request.headers['user-agent']
-            });
+            })
           }
         }
         signer.sign(

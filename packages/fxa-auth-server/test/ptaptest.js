@@ -29,7 +29,7 @@
  */
 
 // support code coverage
-require('ass');
+require('ass')
 
 var tap = require('tap')
 

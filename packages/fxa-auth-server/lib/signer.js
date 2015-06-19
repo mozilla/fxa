@@ -13,15 +13,15 @@ module.exports = function (secretKeyFile, domain) {
       var now = Date.now()
       return key.sign(
         {
-          "public-key": data.publicKey,
+          'public-key': data.publicKey,
           principal: {
             email: data.email
           },
           iat: now - (10 * 1000),
           exp: now + data.duration,
-          "fxa-generation": data.generation,
-          "fxa-lastAuthAt": data.lastAuthAt,
-          "fxa-verifiedEmail": data.verifiedEmail
+          'fxa-generation': data.generation,
+          'fxa-lastAuthAt': data.lastAuthAt,
+          'fxa-verifiedEmail': data.verifiedEmail
         }
       )
       .then(

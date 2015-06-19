@@ -458,7 +458,7 @@ module.exports = function (
   }
 
   DB.prototype.lockAccount = function (account) {
-    var unlockCode = crypto.randomBytes(16).toString('hex');
+    var unlockCode = crypto.randomBytes(16).toString('hex')
     log.trace({ op: 'DB.lockAccount', uid: account && account.uid, unlockCode: unlockCode })
 
     return this.pool.post(
@@ -474,7 +474,7 @@ module.exports = function (
     log.trace({ op: 'DB.unlockAccount', uid: account && account.uid })
     return this.pool.post(
       '/account/' + account.uid.toString('hex') + '/unlock'
-      );
+    )
   }
 
   DB.prototype.unlockCode = function (account) {

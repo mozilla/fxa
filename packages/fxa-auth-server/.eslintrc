@@ -1,0 +1,4 @@
+extends: fxa/server
+
+rules:
+  handle-callback-err: 0

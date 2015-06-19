@@ -36,7 +36,7 @@ TestServer.start(config)
 
         // check that the git hash just looks like a hash
         t.ok(json.commit.match(/^[0-9a-f]{40}$/), 'The git hash actually looks like one')
-        t.end();
+        t.end()
       })
     }
   )

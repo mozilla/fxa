@@ -8,7 +8,7 @@ var MockLog = { info: function () { } }
 var config = { lockoutEnabled: true }
 var Password = require('../../lib/crypto/password')(MockLog, config)
 
-var triggersLockout = false;
+var triggersLockout = false
 var MockCustoms = {
   flag: function (clientAddress, emailRecord) {
     return P.resolve({ lockout: triggersLockout })
@@ -18,13 +18,13 @@ var MockCustoms = {
 var MockDB = {
   locked: {},
   checkPassword: function (uid) {
-    return uid === 'correct_password';
+    return uid === 'correct_password'
   },
   isLocked: function (uid) {
-    return !! this.locked[uid];
+    return !! this.locked[uid]
   },
   lockAccount: function(account) {
-    MockDB.locked[account.uid] = true;
+    MockDB.locked[account.uid] = true
   }
 }
 
@@ -42,7 +42,7 @@ test(
     }
 
     var password = new Password(
-        authPW, emailRecord.authSalt, emailRecord.verifierVersion);
+        authPW, emailRecord.authSalt, emailRecord.verifierVersion)
 
     return password.verifyHash()
       .then(
@@ -71,8 +71,8 @@ test(
       authSalt: new Buffer('bbbbbbbbbbbbbbbb')
     }
 
-    var password= new Password(
-            authPW, emailRecord.authSalt, emailRecord.verifierVersion);
+    var password = new Password(
+            authPW, emailRecord.authSalt, emailRecord.verifierVersion)
 
     return password.verifyHash()
       .then(
@@ -81,14 +81,14 @@ test(
 
           var incorrectAuthPW = new Buffer('cccccccccccccccc')
 
-          triggersLockout = false;
+          triggersLockout = false
           return checkPassword(emailRecord, incorrectAuthPW, '10.0.0.1')
         }
       )
       .then(
         function (match) {
           t.equal(!!match, false, 'password does not match, checkPassword returns false')
-          t.equal(MockDB.isLocked('not_locked'), false, 'account was not marked as locked');
+          t.equal(MockDB.isLocked('not_locked'), false, 'account was not marked as locked')
         }
       )
   }
@@ -105,8 +105,8 @@ test(
       authSalt: new Buffer('bbbbbbbbbbbbbbbb')
     }
 
-    var password= new Password(
-            authPW, emailRecord.authSalt, emailRecord.verifierVersion);
+    var password = new Password(
+            authPW, emailRecord.authSalt, emailRecord.verifierVersion)
 
     return password.verifyHash()
       .then(
@@ -115,16 +115,15 @@ test(
 
           var incorrectAuthPW = new Buffer('cccccccccccccccc')
 
-          triggersLockout = true;
+          triggersLockout = true
           return checkPassword(emailRecord, incorrectAuthPW, '10.0.0.1')
         }
       )
       .then(
         function (match) {
           t.equal(!!match, false, 'password does not match, checkPassword returns false')
-          t.equal(MockDB.isLocked('locked'), true, 'account was not marked as locked');
+          t.equal(MockDB.isLocked('locked'), true, 'account was not marked as locked')
         }
       )
   }
 )
-
