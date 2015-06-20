@@ -18,7 +18,7 @@ function actionToPathname(action) {
     return '';
   }
 
-  throw AppError.incorrectRedirect();
+  throw AppError.invalidRequestParameter('action');
 }
 
 module.exports = {

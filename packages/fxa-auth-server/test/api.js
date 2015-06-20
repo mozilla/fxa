@@ -253,7 +253,8 @@ describe('/v1', function() {
         .get('/authorization?client_id=123&state=321&scope=1&action=something_invalid&a=b')
         .then(function(res) {
           assert.equal(res.statusCode, 400);
-          assert.equal(res.result.errno, 103);
+          assert.equal(res.result.errno, 109);
+          assert.equal(res.result.validation, 'action');
         }).done(done, done);
       });
     });
