@@ -54,6 +54,8 @@ function ($, Cocktail, Session, FormView, BaseView, AvatarMixin,
       this._able = options.able;
       this._subViewToShow = options.subView;
       this._subViews = [];
+
+      this.on('navigate-from-subview', this._closeAvatarView.bind(this));
     },
 
     context: function () {
@@ -77,18 +79,18 @@ function ($, Cocktail, Session, FormView, BaseView, AvatarMixin,
       }
       var self = this;
 
+      self._closeAvatarView();
+
       // Avatar views depend on state so we have to render them on-demand.
       if (self._isAvatarView(SubView)) {
-        self._renderSubView(SubView, options);
+        return self._renderSubView(SubView, options)
+          .then(function (view) {
+            view.openPanel();
+          });
       }
 
       var subView = self.subviewInstanceFromClass(SubView);
       subView.openPanel();
-
-      // Destroy any previous avatar view
-      if (self._avatarView) {
-        self._avatarView.destroy(true);
-      }
 
       // TODO log screen here?
     },
@@ -99,6 +101,13 @@ function ($, Cocktail, Session, FormView, BaseView, AvatarMixin,
           return true;
         }
       })[0];
+    },
+
+    _closeAvatarView: function () {
+      // Destroy any previous avatar view
+      if (this._avatarView) {
+        this._avatarView.destroy(true);
+      }
     },
 
     _closeSubViews: function () {
@@ -145,6 +154,8 @@ function ($, Cocktail, Session, FormView, BaseView, AvatarMixin,
             return;
           }
           view.afterVisible();
+
+          return view;
         });
     },
 

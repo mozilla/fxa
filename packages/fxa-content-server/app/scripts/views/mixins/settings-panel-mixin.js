@@ -15,8 +15,8 @@ define([
       this.superView = options.superView;
     },
     events: {
-      'click .settings-unit-toggle': BaseView.cancelEventThen('openPanel'),
-      'click .cancel': BaseView.cancelEventThen('cancelPanel')
+      'click .settings-unit-toggle': BaseView.preventDefaultThen('openPanel'),
+      'click .cancel': BaseView.preventDefaultThen('cancelPanel')
     },
 
     openPanel: function () {
