@@ -51,6 +51,7 @@ function (Translator, Session) {
     '../tests/spec/lib/base64url',
     '../tests/spec/lib/origin-check',
     '../tests/spec/lib/marketing-email-client',
+    '../tests/spec/lib/height-observer',
     '../tests/spec/head/startup-styles',
     '../tests/spec/views/base',
     '../tests/spec/views/tooltip',

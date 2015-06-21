@@ -20,6 +20,10 @@ Sent if the user completes authentication. The `data` field will be an object wi
 #### oauth_cancel
 Sent when a user indicates they want to close the iframe. The parent should close the iframe.
 
+#### resize
+Sent when the content height changes. The `data` field will be an object that contains `height`.
+* `height` {Number} - the content height
+
 ### Message format
 Since all messages are sent over postMessage, commands and data must be represented by strings. A JSON.stringify serialized object containing a command and data object is used.
 

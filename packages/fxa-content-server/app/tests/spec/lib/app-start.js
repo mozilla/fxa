@@ -579,6 +579,34 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
       });
     });
 
+    describe('initializeHeightObserver', function () {
+      beforeEach(function () {
+        appStart = new AppStart({
+          window: windowMock,
+          router: routerMock,
+          history: historyMock,
+          user: userMock,
+          broker: brokerMock
+        });
+      });
+
+      it('sets up the HeightObserver, triggers a `resize` notification on the iframe channel when the height changes', function (done) {
+        sinon.stub(appStart, '_isInAnIframe', function () {
+          return true;
+        });
+
+        appStart._iframeChannel = {
+          send: function (message, data) {
+            TestHelpers.wrapAssertion(function () {
+              assert.equal(message, 'resize');
+              assert.typeOf(data.height, 'number');
+            }, done);
+          }
+        };
+
+        appStart.initializeHeightObserver();
+      });
+    });
 
     describe('allResourcesReady', function () {
       beforeEach(function () {
