@@ -774,32 +774,6 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
             assert.isTrue(realClient.accountUnlockResendCode.called);
           });
       });
-
-      it('limits the number of attempts', function () {
-        sinon.stub(realClient, 'accountUnlockResendCode', function () {
-          return p();
-        });
-        var triesLeft = Constants.EMAIL_RESEND_MAX_TRIES - 1;
-
-        // exhaust all tries
-        var promises = [];
-        for (var i = 0; i < triesLeft; i++) {
-          promises.push(client.sendAccountUnlockEmail(email, relier));
-        }
-
-        return p.all(promises)
-          .then(function () {
-            // the number of email resends is capped, this last attempt
-            // will not send an email but will silently succeed.
-            return client.sendAccountUnlockEmail(email, relier);
-          })
-          .then(function () {
-            // number of retries was capped. The last send should not have
-            // called the low level client, instead it should just
-            // silently succeed.
-            assert.equal(realClient.accountUnlockResendCode.called.count, Constants.ACCOUNT_UNLOCK_RSEND_MAX_TRIES);
-          });
-      });
     });
   });
 });
