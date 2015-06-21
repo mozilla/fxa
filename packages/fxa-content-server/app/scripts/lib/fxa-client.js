@@ -11,10 +11,9 @@ define([
   'jquery',
   'lib/promise',
   'lib/session',
-  'lib/auth-errors',
-  'lib/constants'
+  'lib/auth-errors'
 ],
-function (FxaClient, $, p, Session, AuthErrors, Constants) {
+function (FxaClient, $, p, Session, AuthErrors) {
   'use strict';
 
   function trim(str) {
@@ -25,9 +24,6 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
     options = options || {};
 
     this._client = options.client;
-    this._signUpResendCount = 0;
-    this._passwordResetResendCount = 0;
-    this._accountUnlockResendCount = 0;
 
     if (! this._client && options.authServerUrl) {
       this._client = new FxaClient(options.authServerUrl);
@@ -218,11 +214,6 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
       var self = this;
       return this._getClient()
         .then(function (client) {
-          if (self._signUpResendCount >= Constants.SIGNUP_RESEND_MAX_TRIES) {
-            return p(true);
-          }
-          self._signUpResendCount++;
-
           var clientOptions = {
             service: relier.get('service'),
             redirectTo: relier.get('redirectTo'),
@@ -276,11 +267,6 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
 
       return this._getClient()
         .then(function (client) {
-          if (self._passwordResetResendCount >= Constants.PASSWORD_RESET_RESEND_MAX_TRIES) {
-            return p(true);
-          }
-          self._passwordResetResendCount++;
-
           // the linters complain if this is defined in the call to
           // passwordForgotResendCode
           var clientOptions = {
@@ -340,11 +326,6 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
       var self = this;
       return self._getClient()
         .then(function (client) {
-          if (self._accountUnlockResendCount >= Constants.ACCOUNT_UNLOCK_RESEND_MAX_TRIES) {
-            return p(true);
-          }
-          self._accountUnlockResendCount++;
-
           var clientOptions = {};
           if (relier) {
             clientOptions = {
