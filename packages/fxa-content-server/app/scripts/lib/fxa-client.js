@@ -164,9 +164,6 @@ function (FxaClient, $, p, Session, AuthErrors) {
       var self = this;
       options = options || {};
 
-      // ensure resend works again
-      this._signUpResendCount = 0;
-
       return self._getClient()
         .then(function (client) {
           var signUpOptions = {
@@ -241,9 +238,6 @@ function (FxaClient, $, p, Session, AuthErrors) {
     passwordReset: function (originalEmail, relier) {
       var self = this;
       var email = trim(originalEmail);
-
-      // ensure resend works again
-      this._passwordResetResendCount = 0;
 
       return this._getClient()
               .then(function (client) {
