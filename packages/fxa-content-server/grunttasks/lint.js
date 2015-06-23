@@ -5,11 +5,17 @@
 // meta grunt task to run other linters.
 
 module.exports = function (grunt) {
-  grunt.registerTask('lint', 'lint all the things', [
+
+  var SUBTASKS = [
     'eslint',
     'jshint',
     'jsonlint:app',
     'jscs',
     'amdcheck'
-  ]);
+  ];
+
+  grunt.registerTask('lint', 'lint all the things', SUBTASKS);
+  grunt.registerTask('quicklint', 'lint the modified files', SUBTASKS.map(function (task) {
+    return 'newer:' + task;
+  }));
 };

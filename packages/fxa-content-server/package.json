@@ -12,7 +12,8 @@
     "test-travis": "intern-runner config=tests/intern_travis",
     "test-server": "intern-client config=tests/intern_server",
     "test-latest": "intern-runner config=tests/intern_functional_full fxaAuthRoot=https://latest.dev.lcip.org/auth/v1 fxaContentRoot=https://latest.dev.lcip.org/ fxaEmailRoot=http://restmail.net fxaOauthApp=https://123done-latest.dev.lcip.org/ fxaIframeOauthApp=https://123done-latest.dev.lcip.org/iframe fxaUntrustedOauthApp=https://321done-latest.dev.lcip.org/ fxaProduction=true fxaToken=https://token.dev.lcip.org/1.0/sync/1.5",
-    "contributors": "git shortlog -s | cut -c8- | sort -f > AUTHORS"
+    "contributors": "git shortlog -s | cut -c8- | sort -f > AUTHORS",
+    "prepush": "grunt quicklint"
   },
   "repository": {
     "type": "git",
@@ -84,8 +85,10 @@
     "grunt-eslint": "15.0.0",
     "grunt-jscs": "1.8.0",
     "grunt-jsonlint": "1.0.4",
+    "grunt-newer": "1.1.1",
     "grunt-nsp-shrinkwrap": "0.0.3",
     "grunt-todo": "0.4.0",
+    "husky": "0.8.1",
     "intern": "git://github.com/theintern/intern#42aebd9beb942a11e2c6e6d7687c70a1c22b9bf7",
     "jshint": "2.5.3",
     "jshint-stylish": "0.4.0",
