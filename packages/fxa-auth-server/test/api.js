@@ -247,6 +247,16 @@ describe('/v1', function() {
           assert.equal(redirect.query.email, VEMAIL);
         }).done(done, done);
       });
+
+      it('should fail for invalid action', function(done) {
+        Server.api
+        .get('/authorization?client_id=123&state=321&scope=1&action=something_invalid&a=b')
+        .then(function(res) {
+          assert.equal(res.statusCode, 400);
+          assert.equal(res.result.errno, 109);
+          assert.equal(res.result.validation, 'action');
+        }).done(done, done);
+      });
     });
 
     describe('content-type', function() {
