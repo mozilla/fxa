@@ -16,8 +16,6 @@ define([
 function (chai, sinon, OAuthClient, OAuthErrors, Xhr, p) {
   'use strict';
 
-  /*global beforeEach, afterEach, describe, it*/
-  /*eslint-disable camelcase */
   var OAUTH_URL = 'http://127.0.0.1:9010';
   var RP_URL = 'http://127.0.0.1:8080/api/oauth';
   var assert = chai.assert;

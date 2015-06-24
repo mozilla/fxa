@@ -12,7 +12,6 @@ define([
 function (chai, NullMetrics, Metrics) {
   'use strict';
 
-  /*global describe, it*/
   var assert = chai.assert;
 
   describe('lib/null-metrics', function () {

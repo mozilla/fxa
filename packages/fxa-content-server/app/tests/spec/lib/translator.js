@@ -11,7 +11,6 @@ define([
 function (chai, Translator) {
   'use strict';
 
-  /*global beforeEach, afterEach, describe, it*/
   var assert = chai.assert;
 
   // translations taken from Persona's db_LB translations.

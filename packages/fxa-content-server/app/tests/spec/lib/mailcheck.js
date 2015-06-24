@@ -13,7 +13,6 @@ define([
 function (sinon, chai, $, mailcheck) {
   'use strict';
 
-  /*global describe, it*/
   var assert = chai.assert;
   var MAILCHECK_ID = 'mailcheck-test';
   var MAILCHECK_SELECTOR = '#' + MAILCHECK_ID;

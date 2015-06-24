@@ -14,8 +14,6 @@ define([
 function (chai, sinon, Session, ProfileClient) {
   'use strict';
 
-  /*global beforeEach, afterEach, describe, it*/
-
   var PROFILE_URL = 'http://127.0.0.1:1111';
   var assert = chai.assert;
   var client;

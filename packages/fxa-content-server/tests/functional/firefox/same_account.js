@@ -98,7 +98,6 @@ define([
               var emailLink = emails[0].headers['x-link'];
 
               return self.remote.execute(function (emailLink) {
-                /* global window */
                 window.open(emailLink, 'newwindow');
 
                 return true;

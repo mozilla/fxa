@@ -1,6 +1,5 @@
 {
   "extends": "fxa/client",
-
   "rules": {
     "handle-callback-err": 0,
     "strict": [2, "never"]

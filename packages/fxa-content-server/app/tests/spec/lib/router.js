@@ -27,7 +27,6 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
       User, FormPrefill, NullBroker, WindowMock, TestHelpers) {
   'use strict';
 
-  /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
   describe('lib/router', function () {

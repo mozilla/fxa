@@ -12,7 +12,6 @@ define([
 function (chai, Translator, ServiceName) {
   'use strict';
 
-  /*global describe, it*/
   var assert = chai.assert;
   var serviceName;
 

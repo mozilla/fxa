@@ -11,7 +11,6 @@ define([
 function (chai, ImageLoader) {
   'use strict';
 
-  /*global describe, it*/
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 

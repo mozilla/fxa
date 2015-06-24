@@ -15,7 +15,6 @@ define([
    * Run in the context of the web page.
    */
   function listenForFxaCommands() {
-    /* global window, document */
     // postMessage back responses to the browser so that no error messages
     // are displayed and the flows can be completed. Mirrors how the browser
     // handles things in
