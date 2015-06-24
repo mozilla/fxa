@@ -642,6 +642,29 @@ describe('/display_name', function() {
         assert.equal(res.displayName, NAME);
       });
     });
+
+    it('should allow an empty display name', function() {
+      var NAME = '';
+      mock.token({
+        user: USERID,
+        email: 'user@example.domain',
+        scope: ['profile:display_name:write']
+      });
+      return Server.api.post({
+        url: '/display_name',
+        payload: {
+          displayName: NAME
+        },
+        headers: {
+          authorization: 'Bearer ' + tok
+        }
+      }).then(function(res) {
+        assert.equal(res.statusCode, 200);
+        return db.getDisplayName(USERID);
+      }).then(function(res) {
+        assert.equal(res.displayName, NAME);
+      });
+    });
   });
 
 });

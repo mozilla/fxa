@@ -14,7 +14,7 @@ module.exports = {
   },
   validate: {
     payload: {
-      displayName: Joi.string().required()
+      displayName: Joi.string().required().allow('')
     }
   },
   handler: function avatarPost(req, reply) {
