@@ -154,6 +154,10 @@ function (Backbone, sinon, _, NullStorage) {
       language: 'en-US'
     },
 
+    open: function (url/*, target, windowName*/) {
+      console.log('window.open was called with', url);
+    },
+
     postMessage: function (/*msg, targetOrigin*/) {
     }
   });

@@ -6,6 +6,7 @@ define([
   'underscore',
   'jquery',
   'backbone',
+  'lib/environment',
   'lib/promise',
   'lib/storage',
   'views/sign_in',
@@ -41,6 +42,7 @@ function (
   _,
   $,
   Backbone,
+  Environment,
   p,
   Storage,
   SignInView,
@@ -139,7 +141,7 @@ function (
       // back is enabled after the first view is rendered or
       // if the user is re-starts the app.
       this.canGoBack = this.window.sessionStorage.canGoBack || false;
-
+      this.environment = options.environment || new Environment(this.window);
       this._firstViewHasLoaded = false;
 
       this.watchAnchors();
@@ -271,7 +273,7 @@ function (
             self.broker.afterLoaded();
 
             // back is enabled after the first view is rendered or
-            // if the user is re-starts the app.
+            // if the user re-starts the app.
             self.canGoBack = self.window.sessionStorage.canGoBack = true;
             self._firstViewHasLoaded = true;
           }
@@ -291,6 +293,7 @@ function (
     },
 
     onAnchorClick: function (event) {
+      /*eslint complexity: [2, 7] */
       // if someone killed this event, or the user is holding a modifier
       // key, ignore the event.
       if (event.isDefaultPrevented() ||
@@ -305,7 +308,10 @@ function (
 
       // Remove leading slashes
       var url = $(event.currentTarget).attr('href').replace(/^\//, '');
-
+      if (this.environment.isFramed() && url.indexOf('legal') > -1) {
+        this.window.open(url, '_blank');
+        return;
+      }
       // Instruct Backbone to trigger routing events
       this.navigate(url);
     },
