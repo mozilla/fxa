@@ -19,7 +19,6 @@ define([
   };
 
   function testClientJson(acceptLanguageHeader, expectedLanguage) {
-    /*jshint validthis: true*/
     var dfd = this.async(intern.config.asyncTimeout);
 
     var headers = {};
@@ -65,7 +64,6 @@ define([
   }
 
   function testExpectHTMLResponse(url, acceptHeader) {
-    /*jshint validthis: true*/
     var dfd = this.async(intern.config.asyncTimeout);
 
     var headers = {};

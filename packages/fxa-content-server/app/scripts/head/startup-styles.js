@@ -8,8 +8,6 @@
 
 // NOTE: This file must run in IE8+, so no ES5/ES6 features!
 
-//jshint es3: true, es5: false, esnext: false
-
 // This is loaded in the HEAD of the doc & uses a modified version of
 // https://github.com/umdjs/umd/blob/master/amdWeb.js
 (function (root, factory) {
@@ -23,7 +21,7 @@
     // Browser globals
     root.FxaHead.StartupStyles = factory(root.FxaHead.Environment);
   }
-}(this, function (Environment) { //jshint ignore: line
+}(this, function (Environment) {
   'use strict';
 
   function parseQueryParams(queryParams) {

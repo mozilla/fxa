@@ -6,7 +6,6 @@
  * A channel mixin that expects responses to sent messages. Responses
  * are expected to be received via a postMessage to the window.
  */
-
 define([
   'underscore',
   'lib/auth-errors'
@@ -20,12 +19,10 @@ define([
   }
 
   function getOutstandingRequest(command) {
-    /*jshint validthis: true*/
     return this._outstandingRequests[command];
   }
 
   function clearOutstandingRequest(command) {
-    /*jshint validthis: true*/
     var outstandingRequest = getOutstandingRequest.call(this, command);
     if (outstandingRequest) {
       this.window.clearTimeout(outstandingRequest.timeout);
@@ -34,7 +31,6 @@ define([
   }
 
   function setResponseTimeoutTimer(outstandingRequest) {
-    /*jshint validthis: true*/
     outstandingRequest.timeout = this.window.setTimeout(function (command) {
       this.window.console.error('Response not received for: ' + command);
     }.bind(this, outstandingRequest.command), this._sendTimeoutLength);

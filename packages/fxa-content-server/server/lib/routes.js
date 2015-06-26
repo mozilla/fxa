@@ -76,8 +76,8 @@ module.exports = function (config, i18n) {
         var coverNever = JSON.stringify(config.get('tests.coverage.excludeFiles'));
 
         return res.render('mocha', {
-          check_coverage: checkCoverage,
-          cover_never: coverNever
+          check_coverage: checkCoverage, //eslint-disable-line camelcase
+          cover_never: coverNever //eslint-disable-line camelcase
         });
       });
     }
@@ -180,7 +180,7 @@ module.exports = function (config, i18n) {
         namespace: req.query.namespace,
         context: req.query.context,
         param: req.query.param,
-        client_id: req.query.client_id
+        client_id: req.query.client_id //eslint-disable-line camelcase
       });
       return res.render('400', {
         message: req.query.message

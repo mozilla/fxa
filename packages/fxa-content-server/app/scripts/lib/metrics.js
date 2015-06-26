@@ -62,7 +62,6 @@ define([
   }
 
   function Metrics (options) {
-    /*jshint maxcomplexity:18 */
     /*eslint complexity: [2, 18] */
     options = options || {};
 

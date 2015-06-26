@@ -10,7 +10,7 @@
 var helmet = require('helmet');
 var config = require('./configuration');
 var url = require('url');
-var SELF = "'self'"; //jshint ignore: line
+var SELF = "'self'";
 var DATA = 'data:';
 var GRAVATAR = 'https://secure.gravatar.com';
 

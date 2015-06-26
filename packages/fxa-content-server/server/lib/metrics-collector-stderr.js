@@ -59,7 +59,7 @@ function addNavigationTiming(loggableEvent, event) {
 function addEvents(loggableEvent, event) {
   if (event.events && event.events.forEach) {
     loggableEvent.events = [];
-    loggableEvent.event_durations = [];
+    loggableEvent.event_durations = []; //eslint-disable-line camelcase
 
     event.events.forEach(function (event) {
       loggableEvent.events.push(event.type);

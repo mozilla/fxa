@@ -110,7 +110,7 @@ module.exports = function (grunt) {
           l10n: context,
           locale: context.locale,
           lang: context.lang,
-          lang_dir: context.lang_dir,
+          lang_dir: context.lang_dir, //eslint-disable-line camelcase
           fontSupportDisabled: context.fontSupportDisabled,
           terms: terms,
           privacy: privacy

@@ -24,14 +24,13 @@ function (P, jwcrypto) {
     // browser has native crypto, no need to fetch entropy from the server.
     try {
       if (window.crypto && window.crypto.getRandomValues) {
-        return P(true); /*jshint ignore:line*/
+        return P(true);
       }
     } catch(e) {
       // some browsers blow up when trying to query window.crypto.
     }
 
     // wah wah, we need to get entropy from the server.
-    //jshint validthis: true
     return this._fxaClient.getRandomBytes()
         .then(function (bytes) {
           jwcrypto.addEntropy(bytes);
@@ -39,7 +38,6 @@ function (P, jwcrypto) {
   }
 
   function generateKeyPair() {
-    //jshint validthis: true
     return ensureCryptoIsSeeded.call(this)
       .then(function () {
         var genKeypair = P.denodeify(jwcrypto.generateKeypair);
@@ -54,7 +52,6 @@ function (P, jwcrypto) {
 
   function certificate(audience, sessionToken) {
     //TODO: check for a valid cert in localStorage first?
-    //jshint validthis: true
     var self = this;
     return generateKeyPair.call(self).then(function (kp) {
       // while certSign is going over the wire, we can also sign the
@@ -76,7 +73,6 @@ function (P, jwcrypto) {
   }
 
   function bundle(sessionToken, audience) {
-    //jshint validthis: true
     return certificate.call(this, audience || this._audience, sessionToken).spread(function (cert, ass) {
       return jwcrypto.cert.bundle([cert.cert], ass);
     });
@@ -94,4 +90,3 @@ function (P, jwcrypto) {
 
   return Assertion;
 });
-

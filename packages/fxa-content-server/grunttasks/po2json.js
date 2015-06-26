@@ -13,8 +13,7 @@ module.exports = function (grunt) {
     options: {
       format: 'raw',
       fuzzy: true,
-      /*jshint camelcase: false*/
-      output_filename: function (file) {
+      output_filename: function (file) { //eslint-disable-line camelcase
 
         /**
          * the files are stored in the locale subdirectory with a directory
@@ -42,7 +41,7 @@ module.exports = function (grunt) {
         }
         return locale + '/' + filename;
       },
-      output_transform: function (data) {
+      output_transform: function (data) { //eslint-disable-line camelcase
         // write the first translation only, ignore pluralization.
         var isArray = function (item) {
           return Object.prototype.toString.call(item) === '[object Array]';

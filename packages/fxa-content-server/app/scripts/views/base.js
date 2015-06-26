@@ -31,7 +31,6 @@ function (Cocktail, _, Backbone, $, p, AuthErrors,
   var nullMetrics = new NullMetrics();
 
   function displaySuccess(displayStrategy, msg) {
-    /*jshint validthis: true*/
     this.hideError();
 
     if (msg) {
@@ -44,8 +43,6 @@ function (Cocktail, _, Backbone, $, p, AuthErrors,
   }
 
   function displayError(displayStrategy, err) {
-    /*jshint validthis: true*/
-
     // Errors are disabled on page unload to supress errors
     // caused by aborted XHR requests.
     if (! this._areErrorsEnabled) {
@@ -87,7 +84,6 @@ function (Cocktail, _, Backbone, $, p, AuthErrors,
 
   var BaseView = Backbone.View.extend({
     constructor: function (options) {
-      /*jshint maxcomplexity:10 */
       /*eslint complexity: [2, 10] */
       options = options || {};
 

@@ -4,7 +4,6 @@
 
 // It's a 404 not found response.
 
-/*jshint unused: false */
 module.exports = function (req, res, next) {
   res.status(404);
 

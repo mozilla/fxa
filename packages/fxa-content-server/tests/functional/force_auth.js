@@ -137,7 +137,6 @@ define([
 
 
   function testRepopulateFields(dest, header) {
-    /*jshint validthis: true*/
     var self = this;
 
     return openFxa(self, email)

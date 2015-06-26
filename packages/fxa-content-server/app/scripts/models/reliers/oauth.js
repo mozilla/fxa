@@ -140,15 +140,13 @@ define([
         // redirect back to the RP but not sign in.
         resumeObj = {
           service: self.getSearchParam('service'),
-          //jshint camelcase: false
-          client_id: self.getSearchParam('service')
+          client_id: self.getSearchParam('service') //eslint-disable-line camelcase
         };
       }
 
       self.set({
         state: resumeObj.state,
         keys: resumeObj.keys,
-        //jshint camelcase: false
         clientId: resumeObj.client_id,
         redirectUri: resumeObj.redirect_uri,
         scope: resumeObj.scope
@@ -192,7 +190,6 @@ define([
       return self._oAuthClient.getClientInfo(clientId)
         .then(function (serviceInfo) {
           self.set('serviceName', serviceInfo.name);
-          //jshint camelcase: false
           // server version always takes precedent over the search parameter
           self.set('redirectUri', serviceInfo.redirect_uri);
           self.set('termsUri', serviceInfo.terms_uri);
@@ -205,8 +202,7 @@ define([
           if (OAuthErrors.is(err, 'INVALID_REQUEST_SIGNATURE')) {
             err = OAuthErrors.toError('UNKNOWN_CLIENT');
             // used for logging the error on the server.
-            //jshint camelcase: false
-            err.client_id = clientId;
+            err.client_id = clientId; //eslint-disable-line camelcase
           }
           throw err;
         });
@@ -237,5 +233,3 @@ define([
 
   return OAuthRelier;
 });
-
-

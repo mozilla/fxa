@@ -12,7 +12,6 @@ define([
   'use strict';
 
   function createEvent(command, data) {
-    /*jshint validthis: true*/
     return new this.window.CustomEvent('FirefoxAccountsCommand', {
       detail: {
         command: command,
@@ -54,4 +53,3 @@ define([
   return Channel;
 
 });
-

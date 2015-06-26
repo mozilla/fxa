@@ -20,6 +20,7 @@ define([
       p, RelierKeys, ResumeToken, Url, WindowMock, TestHelpers) {
   'use strict';
 
+  /*eslint-disable camelcase */
   var assert = chai.assert;
 
   describe('models/reliers/oauth', function () {
@@ -42,7 +43,6 @@ define([
 
     var RESUME_INFO = {
       state: STATE,
-      //jshint camelcase: false
       client_id: CLIENT_ID,
       scope: SCOPE,
       action: ACTION
@@ -74,7 +74,6 @@ define([
           preVerifyToken: PREVERIFY_TOKEN,
           service: SERVICE,
           state: STATE,
-          //jshint camelcase: false
           client_id: CLIENT_ID,
           redirect_uri: REDIRECT_URI,
           scope: SCOPE,
@@ -105,7 +104,6 @@ define([
           preVerifyToken: PREVERIFY_TOKEN,
           service: SERVICE,
           state: STATE,
-          //jshint camelcase: false
           client_id: CLIENT_ID,
           redirect_uri: REDIRECT_URI,
           scope: SCOPE,
@@ -180,7 +178,6 @@ define([
 
       it('populates service with client_id if service is not set', function () {
         windowMock.location.search = TestHelpers.toSearchString({
-          //jshint camelcase: false
           client_id: CLIENT_ID,
           scope: SCOPE
         });
@@ -193,7 +190,6 @@ define([
 
       it('populates permissions from scope', function () {
         windowMock.location.search = TestHelpers.toSearchString({
-          //jshint camelcase: false
           client_id: CLIENT_ID,
           scope: SCOPE
         });
@@ -206,7 +202,6 @@ define([
 
       it('sanitizes the scope of untrusted reliers', function () {
         windowMock.location.search = TestHelpers.toSearchString({
-          //jshint camelcase: false
           client_id: CLIENT_ID,
           scope: SCOPE_WITH_EXTRAS
         });
@@ -224,7 +219,6 @@ define([
 
       it('does not sanitize the scope of trusted reliers', function () {
         windowMock.location.search = TestHelpers.toSearchString({
-          //jshint camelcase: false
           client_id: CLIENT_ID,
           scope: SCOPE_WITH_EXTRAS
         });
@@ -285,7 +279,6 @@ define([
 
       it('isTrusted when `trusted` is true', function () {
         windowMock.location.search = TestHelpers.toSearchString({
-          //jshint camelcase: false
           client_id: CLIENT_ID,
           scope: SCOPE
         });
@@ -305,7 +298,6 @@ define([
 
       it('!isTrusted when `trusted` is false', function () {
         windowMock.location.search = TestHelpers.toSearchString({
-          //jshint camelcase: false
           client_id: CLIENT_ID,
           scope: SCOPE
         });
@@ -347,7 +339,6 @@ define([
         var resumeToken = ResumeToken.stringify(resumeData);
 
         windowMock.location.search = TestHelpers.toSearchString({
-          //jshint camelcase: false
           client_id: CLIENT_ID,
           scope: SCOPE,
           resume: resumeToken

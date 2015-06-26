@@ -10,7 +10,7 @@ define([
   'intern/dojo/Promise',
   'require',
   'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!child_process'
-], function (intern, registerSuite, assert, config, Promise, require, child_process) {
+], function (intern, registerSuite, assert, config, Promise, require, child_process) { //eslint-disable-line camelcase
   var ERROR_COLOR = '\x1b[1;31m';       // red
   var DESCRIPTION_COLOR = '\x1b[1;36m'; // cyan
   var DEFAULT_COLOR = '\x1b[0;0m';      // off
@@ -94,7 +94,7 @@ define([
    */
   function sendCoverageToCoveralls(context) {
     var dfd = new Promise.Deferred();
-    var spawn = child_process.spawn;
+    var spawn = child_process.spawn; //eslint-disable-line camelcase
 
     console.log('Sending code coverage to coveralls.io');
     context.remote

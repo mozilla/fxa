@@ -4,7 +4,7 @@
 
 module.exports = function (grunt) {
   grunt.config('useminPrepare', {
-    client_rendered: {
+    client_rendered: { //eslint-disable-line camelcase
       dest: '<%= yeoman.dist %>',
       src: [
         '<%= yeoman.app %>/{,*/}*.html',
@@ -12,7 +12,7 @@ module.exports = function (grunt) {
       ],
       type: 'html'
     },
-    server_rendered: {
+    server_rendered: { //eslint-disable-line camelcase
       options: {
         // root must be specified or else useminPrepare uses the template
         // directory as the root from where to search for assets.

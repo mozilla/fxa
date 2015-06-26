@@ -27,8 +27,7 @@
     });
 
     str += 'end_of_record\n';
-    /* jshint camelcase: false */
-    window._$blanket_LCOV = (window._$blanket_LCOV || '') + str;
+    window._$blanket_LCOV = (window._$blanket_LCOV || '') + str; //eslint-disable-line camelcase
   };
 
   /* global blanket */
