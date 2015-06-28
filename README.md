@@ -21,7 +21,7 @@ or [Firefox Hello](https://www.mozilla.org/en-US/firefox/hello/).
 Developing a service that needs Firefox Accounts authentication?  Head on over to the [Firefox Accounts portal on MDN](https://developer.mozilla.org/docs/Mozilla/Tech/Firefox_Accounts) for a description of the system, how it works, and how to plug into it.
 
 
-## Contributing to Firefox Accounts
+## Contributing to Firefox Accounts - [fxa.readthedocs.org](http://fxa.readthedocs.org)
 
 Interesting in contributing to the development of Firefox Accounts?  Great!
 Head over to the [FxA developer documentation](http://fxa.readthedocs.org) on readthedocs.org (which is actually the same content as the local [docs](/docs/index.md) directory, but in a nice pre-rendered HTML view).
