@@ -125,8 +125,6 @@ function (Translator, Session) {
     '../tests/spec/models/verification/reset-password'
   ];
 
-  /*global mocha */
-
   // The translator is expected to be on the window object.
   window.translator = new Translator('en-US', ['en-US']);
 

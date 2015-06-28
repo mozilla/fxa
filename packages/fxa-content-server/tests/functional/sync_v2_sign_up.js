@@ -26,7 +26,6 @@ define([
     return function () {
       return context.remote
         .execute(function (expectedCommand, response) {
-          /* global addEventListener, removeEventListener, CustomEvent, dispatchEvent */
           addEventListener('WebChannelMessageToChrome', function listener(e) {
             removeEventListener('WebChannelMessageToChrome', listener);
 

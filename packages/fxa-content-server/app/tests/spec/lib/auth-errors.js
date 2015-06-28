@@ -11,7 +11,6 @@ define([
 function (chai, AuthErrors) {
   'use strict';
 
-  /*global describe, it*/
   var assert = chai.assert;
 
   describe('lib/auth-errors', function () {

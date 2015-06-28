@@ -14,7 +14,6 @@ define([
 function (chai, StorageMetrics, Metrics, Storage, WindowMock) {
   'use strict';
 
-  /*global describe, it*/
   var assert = chai.assert;
 
   describe('lib/storage-metrics', function () {

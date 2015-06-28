@@ -42,7 +42,6 @@ define([
     // This will listen for the login event triggered by the submit below
     return context.remote
       .execute(function (URL) {
-        /* global addEventListener,window,sessionStorage */
         addEventListener('FirefoxAccountsCommand', function (e) {
           if (e.detail.command === 'login') {
             sessionStorage.clear();
@@ -244,7 +243,6 @@ define([
 
         // This will listen for the login event triggered by the submit below
         .execute(function (email, context, URL) {
-          /* global addEventListener,window,localStorage */
           addEventListener('FirefoxAccountsCommand', function (e) {
             if (e.detail.command === 'login') {
               var accounts = JSON.parse(localStorage.getItem('__fxa_storage.accounts'));

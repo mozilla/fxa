@@ -16,7 +16,6 @@ define([
 function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
   'use strict';
 
-  /*global describe, it*/
   var assert = chai.assert;
 
   describe('lib/metrics', function () {

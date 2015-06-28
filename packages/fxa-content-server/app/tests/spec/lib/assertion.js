@@ -36,8 +36,6 @@ function (chai, $, TestHelpers, p, ConfigLoader, Assertion, FxaClientWrapper,
   var LONG_LIVED_ASSERTION_DURATION = 1000 * 3600 * 24 * 365 * 25; // 25 years
 
   describe('lib/assertion', function () {
-    /*global before*/
-
     before(function () {
       var configLoader = new ConfigLoader();
       return configLoader.fetch()

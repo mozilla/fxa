@@ -36,8 +36,6 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
       TestHelpers) {
   'use strict';
 
-  /*global describe, beforeEach, it*/
-  /*eslint-disable camelcase */
   var assert = chai.assert;
   var FIRSTRUN_ORIGIN = 'https://firstrun.firefox.com';
   var HELLO_ORIGIN = 'https://hello.firefox.com';

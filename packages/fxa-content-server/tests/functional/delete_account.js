@@ -108,7 +108,6 @@ define([
         .end()
 
         .execute(function () {
-          /* global sessionStorage */
           sessionStorage.clear();
         })
 

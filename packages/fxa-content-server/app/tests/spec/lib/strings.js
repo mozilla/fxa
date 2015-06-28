@@ -11,7 +11,6 @@ define([
 function (chai, Strings) {
   'use strict';
 
-  /*global describe, it*/
   var assert = chai.assert;
 
   describe('lib/strings', function () {

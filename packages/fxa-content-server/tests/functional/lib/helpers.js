@@ -80,7 +80,6 @@ define([
       .clearCookies()
       .execute(function () {
         try {
-          /* global sessionStorage, localStorage */
           localStorage.clear();
           sessionStorage.clear();
         } catch(e) {
@@ -132,7 +131,6 @@ define([
     return context.remote
       .execute(function () {
         try {
-          /* global sessionStorage */
           sessionStorage.clear();
         } catch(e) {
           console.log('Failed to clearSessionStorage');
@@ -155,7 +153,6 @@ define([
     timeout = timeout || 10000;
 
     return pollUntil(function (selector) {
-      /* global document */
       var match = document.querySelectorAll(selector);
 
       if (match.length > 1) {
@@ -179,7 +176,6 @@ define([
     timeout = timeout || 10000;
 
     return pollUntil(function (selector) {
-      /* global document */
       var match = document.querySelectorAll(selector);
 
       if (match.length > 1) {
@@ -247,8 +243,6 @@ define([
   function openVerificationLinkSameBrowser(context, email, index, windowName) {
     var user = TestHelpers.emailToUser(email);
     windowName = windowName || 'newwindow';
-
-    /* global window*/
 
     return getVerificationLink(user, index)
       .then(function (verificationLink) {
@@ -549,8 +543,6 @@ define([
   }
 
   function listenForWebChannelMessage() {
-    /* global document, addEventListener */
-
     // this event will fire once the account is confirmed, helping it
     // redirect to the application. If the window redirect does not
     // happen then the sign in page will hang on the confirmation screen

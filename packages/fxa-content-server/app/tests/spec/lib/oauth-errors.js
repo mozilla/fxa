@@ -9,7 +9,6 @@ define([
 function (chai, OAuthErrors) {
   'use strict';
 
-  /*global describe, it*/
   var assert = chai.assert;
 
   describe('lib/oauth-errors', function () {

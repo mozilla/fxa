@@ -23,7 +23,6 @@ define([
     return DESCRIPTION_COLOR + text + DEFAULT_COLOR;
   }
 
-  /* global process */
   var travis = process && process.env.TRAVIS_COMMIT;
   var url = intern.config.fxaContentRoot + 'tests/index.html?coverage';
   if (travis) {
@@ -100,7 +99,6 @@ define([
     context.remote
       // get code coverage data
       .execute(function () {
-        /* global window */
         return window._$blanket_LCOV;
       }, [])
       .then(function (coverageData) {

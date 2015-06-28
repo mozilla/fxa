@@ -5,7 +5,6 @@
 define([], function () {
   'use strict';
 
-  /*global mocha */
   mocha.setup('bdd');
   mocha.timeout(20000);
 });
