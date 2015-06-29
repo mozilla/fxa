@@ -18,7 +18,7 @@ Patches should be submitted as pull requests (PR).
 
 Before submitting a PR:
 - Your code must run and pass all the automated tests before you submit your PR for review. "Work in progress" pull requests are allowed to be submitted, but should be clearly labeled as such and should not be merged until all tests pass and the code has been reviews. 
-  - Run `grunt jshint` to make sure your code passes linting.
+  - Run `grunt lint` to make sure your code passes linting.
   - Run `npm test` to make sure all tests still pass.
 - Your patch should include new tests that cover your changes. It is your and your reviewer's responsibility to ensure your patch includes adequate tests.
 
@@ -26,7 +26,7 @@ When submitting a PR:
 - You agree to license your code under the project's open source license ([MPL 2.0](/LICENSE)).
 - Base your branch off the current `master` (see below for an example workflow).
 - Add both your code and new tests if relevant.
-- Run `grunt jshint` and `npm test` to make sure your code passes linting and tests.
+- Run `grunt lint` and `npm test` to make sure your code passes linting and tests.
 - Please do not include merge commits in pull requests; include only commits with the new relevant code.
 
 See the main [README.md](/README.md) for information on prerequisites, installing, running and testing.
@@ -51,7 +51,7 @@ The `build` directory should have `fxa-client.js` and `fxa-client.min.js`.
 
 `grunt build` - builds the regular and minified version of the library
 
-`grunt dev` - builds the library, runs jshint, shows library size, runs tests, watches for changes
+`grunt dev` - builds the library, runs eslint, shows library size, runs tests, watches for changes
 
 `grunt debug` - builds the regular library, runs test, watches for changes. Helpful when you are debugging.
 

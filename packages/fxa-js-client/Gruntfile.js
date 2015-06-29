@@ -28,7 +28,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('lint',
     'Alias for eslint, jshint and jscs tasks',
-    ['eslint', 'jshint', 'jscs']);
+    ['eslint', 'jscs']);
 
   grunt.registerTask('default',
     ['build']);
