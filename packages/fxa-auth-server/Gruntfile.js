@@ -4,9 +4,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const fs = require('fs');
-const path = require('path');
-const extract = require('jsxgettext-recursive');
+const path = require('path')
+const extract = require('jsxgettext-recursive')
 
 // # Globbing
 // for performance reasons we're only matching one level down:
@@ -14,9 +13,11 @@ const extract = require('jsxgettext-recursive');
 // use this if you want to recursively match all subfolders:
 // 'test/spec/**/*.js'
 module.exports = function (grunt) {
-  'use strict';
+  'use strict'
 
-  grunt.loadNpmTasks('grunt-contrib-copy');
+  require('load-grunt-tasks')(grunt)
+
+  grunt.loadNpmTasks('grunt-contrib-copy')
 
   grunt.initConfig({
     copy: {
@@ -32,10 +33,10 @@ module.exports = function (grunt) {
         }]
       }
     }
-  });
+  })
 
   grunt.registerTask('l10n-extract', 'Extract strings from templates for localization.', function () {
-    var done = this.async();
+    var done = this.async()
 
     var walker = extract({
       'input-dir': path.join(__dirname, 'templates'),
@@ -47,7 +48,7 @@ module.exports = function (grunt) {
         '.txt': 'handlebars',
         '.html': 'handlebars'
       }
-    });
+    })
 
     walker.on('end', function () {
       var jsWalker = extract({
@@ -64,14 +65,19 @@ module.exports = function (grunt) {
         parsers: {
           '.js': 'javascript'
         }
-      });
+      })
 
       jsWalker.on('end', function () {
-        done();
-      });
-    });
-  });
+        done()
+      })
+    })
+  })
 
-  grunt.registerTask('default', [ 'copy:strings', 'l10n-extract' ]);
+  // load local Grunt tasks
+  grunt.loadTasks('tasks')
 
-};
+  grunt.registerTask('lint', 'Alias for eslint tasks', ['eslint'])
+
+  grunt.registerTask('default', [ 'copy:strings', 'l10n-extract' ])
+
+}

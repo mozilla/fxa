@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var Mail = require('lazysmtp').Mail
 var MailParser = require('mailparser').MailParser
 var restify = require('restify')
 var config = require('rc')(
@@ -21,7 +20,6 @@ var config = require('rc')(
 
 // SMTP half
 
-var mail = new Mail(config.mail.host)
 var users = {}
 
 function emailName(emailAddress) {
@@ -30,13 +28,12 @@ function emailName(emailAddress) {
 
 require('simplesmtp').createSimpleServer(
   {
-    SMTPBanner: "FXATEST"
+    SMTPBanner: 'FXATEST'
   },
   function (req) {
     var mp = new MailParser({ defaultCharset: 'utf8' })
     mp.on('end',
       function (mail) {
-        var uid = mail.headers['x-uid']
         var link = mail.headers['x-link']
         var rc = mail.headers['x-recovery-code']
         var vc = mail.headers['x-verify-code']

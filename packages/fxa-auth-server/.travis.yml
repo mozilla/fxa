@@ -15,4 +15,5 @@ before_install:
 
 script:
   - npm run outdated
+  - grunt lint
   - npm test
