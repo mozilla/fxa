@@ -70,6 +70,21 @@ join us in the following forums:
 * The `#fxa` channel on [Mozilla IRC](https://wiki.mozilla.org/IRC)
 
 
+## Bugs
+
+Most of our work takes place on github, and we use [waffle.io](https://waffle.io) to provide an overview of bug status and activity:
+
+* [GitHub issues for front-end content](https://waffle.io/mozilla/fxa-content-server)
+* [GitHub issues for back-end APIs](https://waffle.io/mozilla/fxa-auth-server)
+
+If you have found a bug in FxA, please file it via one of the two dashboards
+above.
+
+There is also a "Server: Firefox Accounts" component in bugzilla, for when FxA code interacts with parts of Mozilla that operate out of bugzilla:
+
+* [Bugzilla search for "Server: Firefox Accounts"](https://bugzilla.mozilla.org/buglist.cgi?query_format=advanced&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&component=Server%3A Firefox Accounts&product=Cloud Services)
+
+
 ## How To
 
 * [Get started with local development](https://github.com/mozilla/fxa-local-dev)
