@@ -1,3 +1,34 @@
+<a name="0.40.0"></a>
+## 0.40.0 (2015-06-29)
+
+
+#### Bug Fixes
+
+* **avatars:** rounded camera cropper in google chrome ([5c4a1264](https://github.com/mozilla/fxa-content-server/commit/5c4a12642b52422753c62d7f5298f113adb92178))
+* **basket:** add a bit more logging to basket-proxy-server ([2de3d6aa](https://github.com/mozilla/fxa-content-server/commit/2de3d6aa155ba08e1752369dccc1805febd76b61))
+* **build:** revert use script and force it to use function mode ([faa0a02d](https://github.com/mozilla/fxa-content-server/commit/faa0a02d459b7c6c67bc774295700422a1cb3882))
+* **client:**
+  * Supress the malformed WebChannelMessageToContent log for errors ([531a2259](https://github.com/mozilla/fxa-content-server/commit/531a225976155e4a4ffa83d49b7a91452621145e))
+  * Fix the submit button on communcation preferences page. ([fa0df9c7](https://github.com/mozilla/fxa-content-server/commit/fa0df9c77bfb3cf33ae62c596aa15bc35926c69a))
+* **lint:** remove "use strict" from server code ([745e569b](https://github.com/mozilla/fxa-content-server/commit/745e569b8042858b45f95ebea23f5ae45e91f84f), closes [#2558](https://github.com/mozilla/fxa-content-server/issues/2558))
+* **server:** inconsistent use of 'use strict' ([38ab1c05](https://github.com/mozilla/fxa-content-server/commit/38ab1c0516525274f2cec1fe380516c88545a7b0), closes [#1318](https://github.com/mozilla/fxa-content-server/issues/1318))
+* **tests:**
+  * restore first tests to run are signin and signup ([c3d474a1](https://github.com/mozilla/fxa-content-server/commit/c3d474a153c20a93f2a0086986a8cb0d9df2defd))
+  * use the regularly updated firefox binaries ([8bb8e3b4](https://github.com/mozilla/fxa-content-server/commit/8bb8e3b40c16ad152f1f02e88cf78da37d32d37d))
+  * fix Basket functional tests ([6adf3c0d](https://github.com/mozilla/fxa-content-server/commit/6adf3c0d837107163d84914ed4214c13d52f51ce))
+  * add a run script for beta on latest ([bcb0e699](https://github.com/mozilla/fxa-content-server/commit/bcb0e69998e200b0d3fd0f0246f3ddbf32ae6c9c))
+
+
+#### Features
+
+* **client:**
+  * Notify IFRAME reliers when the content height changes. ([c698324b](https://github.com/mozilla/fxa-content-server/commit/c698324b400a8be66d1b119a3c877b4b3b9da0bd))
+  * Add Easter Egg to Content Server ([0a5ea8ed](https://github.com/mozilla/fxa-content-server/commit/0a5ea8ed461575fa4d194a0d1bab857278524bee))
+* **metrics:** add uuid for metrics and able purposes ([89ac7a58](https://github.com/mozilla/fxa-content-server/commit/89ac7a587c31741a00cc29c8dca7d9b2042b1b48))
+* **server:** Support /v1/reset_password ([043f6221](https://github.com/mozilla/fxa-content-server/commit/043f6221bcab6e396858c10bdde8b222d6ebbd3b))
+* **style:** The `chromeless` style hides the header. ([7b12bbf6](https://github.com/mozilla/fxa-content-server/commit/7b12bbf68dd5e8e33d5ec05daa67c56403aa73a5))
+
+
 <a name="0.39.0"></a>
 ## 0.39.0 (2015-06-09)
 
