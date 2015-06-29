@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = function (grunt) {
-  'use strict';
+  'use strict'
 
-  require('load-grunt-tasks')(grunt);
+  require('load-grunt-tasks')(grunt)
 
   grunt.loadTasks('grunttasks')
 
   grunt.registerTask('default', ['lint', 'copyright', 'validate-shrinkwrap'])
-  grunt.registerTask('lint', ['jshint'])
+  grunt.registerTask('lint', ['eslint'])
 }

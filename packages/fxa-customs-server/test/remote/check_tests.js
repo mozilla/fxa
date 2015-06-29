@@ -28,9 +28,10 @@ test(
 
 var client = restify.createJsonClient({
   url: 'http://127.0.0.1:' + config.listen.port
-});
+})
 
-['accountCreate', 'accountLogin', 'passwordChange'].forEach(function (action) {
+// NOTE: Leading semi-colon because ASI is funny.
+; ['accountCreate', 'accountLogin', 'passwordChange'].forEach(function (action) {
   test(
     'normal ' + action,
     function (t) {
