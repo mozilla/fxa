@@ -77,12 +77,16 @@ If you get an `error` status for any of the servers please verify that you insta
 [graphicsmagick](http://www.graphicsmagick.org/).
 
 ##### OS X (with [Brew](http://brew.sh/)): 
+
+[Xcode and OS X Command Line Tools are required](https://developer.apple.com/xcode/), install it and verify that command line tools installed:
+```
+xcode-select --install
+```
+then:
 ```
 brew install gmp redis graphicsmagick
 sudo easy_install pip && sudo pip install virtualenv
 ```
-
-> You might also need to run `xcode-select --install` to get OS X Command Line Tools
 
 ##### Ubuntu: 
 ```
