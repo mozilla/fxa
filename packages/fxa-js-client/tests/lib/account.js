@@ -10,12 +10,12 @@ define([
 
   with (tdd) {
     suite('account', function () {
-       var accountHelper;
-       var respond;
-       var mail;
-       var client;
-       var RequestMocks;
-       var ErrorMocks;
+      var accountHelper;
+      var respond;
+      var mail;
+      var client;
+      var RequestMocks;
+      var ErrorMocks;
 
       beforeEach(function () {
         var env = new Environment();
@@ -36,13 +36,13 @@ define([
             email = account.input.email;
             password = account.input.password;
 
-            return respond(client.accountDestroy(email, password), RequestMocks.accountDestroy)
+            return respond(client.accountDestroy(email, password), RequestMocks.accountDestroy);
           })
           .then(
             function(res) {
               assert.ok(res, 'got response');
 
-              return respond(client.signIn(email, password), ErrorMocks.accountDoesNotExist)
+              return respond(client.signIn(email, password), ErrorMocks.accountDoesNotExist);
             }
           ).then(
             function () {
@@ -59,7 +59,7 @@ define([
 
         return accountHelper.newVerifiedAccount()
           .then(function (account) {
-            return respond(client.accountKeys(account.signIn.keyFetchToken, account.signIn.unwrapBKey), RequestMocks.accountKeys)
+            return respond(client.accountKeys(account.signIn.keyFetchToken, account.signIn.unwrapBKey), RequestMocks.accountKeys);
           })
           .then(
             function(keys) {
@@ -78,13 +78,13 @@ define([
             account = acc;
             var incorrectCaseEmail = account.input.email.charAt(0).toUpperCase() + account.input.email.slice(1);
 
-            return respond(client.accountDestroy(incorrectCaseEmail, account.input.password), RequestMocks.accountDestroy)
+            return respond(client.accountDestroy(incorrectCaseEmail, account.input.password), RequestMocks.accountDestroy);
           })
           .then(
           function(res) {
             assert.ok(res);
 
-            return respond(client.signIn(account.input.email, account.input.password), ErrorMocks.accountDoesNotExist)
+            return respond(client.signIn(account.input.email, account.input.password), ErrorMocks.accountDoesNotExist);
           }
         ).then(
           function () {
@@ -106,7 +106,7 @@ define([
             account = acc;
             var incorrectCaseEmail = account.input.email.charAt(0).toUpperCase() + account.input.email.slice(1);
 
-            return respond(client.accountDestroy(incorrectCaseEmail, account.input.password, {skipCaseError: true}), ErrorMocks.incorrectEmailCase)
+            return respond(client.accountDestroy(incorrectCaseEmail, account.input.password, {skipCaseError: true}), ErrorMocks.incorrectEmailCase);
           })
           .then(
             function () {
@@ -133,26 +133,26 @@ define([
         return respond(client.signUp(email, password), RequestMocks.signUp)
           .then(function (result) {
             uid = result.uid;
-            assert.ok(uid, "uid is returned");
+            assert.ok(uid, 'uid is returned');
 
             return respond(client.passwordForgotSendCode(email), RequestMocks.passwordForgotSendCode);
           })
           .then(function (result) {
             passwordForgotToken = result.passwordForgotToken;
-            assert.ok(passwordForgotToken, "passwordForgotToken is returned");
+            assert.ok(passwordForgotToken, 'passwordForgotToken is returned');
 
             return respond(mail.wait(user, 2), RequestMocks.resetMail);
           })
           .then(function (emails) {
             var code = emails[1].html.match(/code=([A-Za-z0-9]+)/)[1];
-            assert.ok(code, "code is returned: " + code);
+            assert.ok(code, 'code is returned: ' + code);
 
             return respond(client.passwordForgotVerifyCode(code, passwordForgotToken), RequestMocks.passwordForgotVerifyCode);
           })
           .then(function (result) {
             accountResetToken = result.accountResetToken;
             var newPassword = 'newturles';
-            assert.ok(accountResetToken, "accountResetToken is returned");
+            assert.ok(accountResetToken, 'accountResetToken is returned');
 
             return respond(client.accountReset(email, newPassword, accountResetToken), RequestMocks.accountReset);
           })
@@ -161,7 +161,7 @@ define([
               assert.isNotNull(result);
             },
             assert.notOk
-          )
+          );
       });
 
       test('#passwordForgotSendCode with service, redirectTo, and resume', function () {
@@ -176,7 +176,7 @@ define([
           .then(function (acc) {
             account = acc;
 
-            return respond(client.passwordForgotSendCode(account.input.email, opts), RequestMocks.passwordForgotSendCode)
+            return respond(client.passwordForgotSendCode(account.input.email, opts), RequestMocks.passwordForgotSendCode);
           })
           .then(function (result) {
             assert.ok(result.passwordForgotToken);
@@ -197,7 +197,7 @@ define([
             assert.equal(service[1], 'sync', 'service is returned');
             assert.equal(redirectTo[1], 'https', 'redirectTo is returned');
             assert.equal(resume[1], 'resumejwt', 'resume is returned');
-          })
+          });
       });
 
       test('#passwordForgotResendCode with service, redirectTo, and resume', function () {
@@ -213,7 +213,7 @@ define([
           .then(function (acc) {
             account = acc;
 
-            return respond(client.passwordForgotSendCode(account.input.email, opts), RequestMocks.passwordForgotSendCode)
+            return respond(client.passwordForgotSendCode(account.input.email, opts), RequestMocks.passwordForgotSendCode);
           })
           .then(function (result) {
             assert.ok(result.passwordForgotToken);
@@ -225,7 +225,7 @@ define([
             assert.ok(res);
 
             return respond(client.passwordForgotResendCode(account.input.email, passwordForgotToken, opts),
-              RequestMocks.passwordForgotResendCode)
+              RequestMocks.passwordForgotResendCode);
           })
           .then(function (result) {
             assert.ok(result.passwordForgotToken);
@@ -246,7 +246,7 @@ define([
             assert.equal(service[1], 'sync', 'service is returned');
             assert.equal(redirectTo[1], 'https', 'redirectTo is returned');
             assert.equal(resume[1], 'resumejwt', 'resume is returned');
-          })
+          });
       });
 
       test('#passwordForgotStatus', function () {
@@ -258,7 +258,7 @@ define([
           })
           .then(function (result) {
 
-            return respond(client.passwordForgotStatus(result.passwordForgotToken), RequestMocks.passwordForgotStatus)
+            return respond(client.passwordForgotStatus(result.passwordForgotToken), RequestMocks.passwordForgotStatus);
           })
           .then(
             function (result) {
@@ -266,7 +266,7 @@ define([
               assert.property(result, 'ttl');
             },
             assert.notOk
-          )
+          );
       });
 
       test('#passwordForgotStatus error with a false token', function () {
@@ -279,7 +279,7 @@ define([
           .then(function () {
             var fakeToken = 'e838790265a45f6ee1130070d57d67d9bb20953706f73af0e34b0d4d92f10000';
 
-            return respond(client.passwordForgotStatus(fakeToken), ErrorMocks.invalidAuthToken)
+            return respond(client.passwordForgotStatus(fakeToken), ErrorMocks.invalidAuthToken);
           })
           .then(
             assert.notOk,
@@ -287,7 +287,7 @@ define([
               assert.equal(err.code, 401);
               assert.equal(err.errno, 110);
             }
-          )
+          );
       });
 
       test('#accountStatus', function () {
@@ -302,7 +302,7 @@ define([
               assert.equal(res.exists, true);
             },
             assert.notOk
-          )
+          );
       });
 
       test('#accountStatus with wrong uid', function () {
@@ -313,7 +313,7 @@ define([
               assert.equal(res.exists, false);
             },
             assert.notOk
-        )
+        );
       });
 
       test('#accountStatus with no uid', function () {
@@ -344,13 +344,13 @@ define([
 
       test('#accountLock with no email', function () {
         assert.throws(function () {
-          client.accountLock(null, account.input.password);
+          client.accountLock(null, account.input.password); //eslint-disable-line no-undef
         });
       });
 
       test('#accountLock with no password', function () {
         assert.throws(function () {
-          client.accountLock(account.input.email, null);
+          client.accountLock(account.input.email, null); //eslint-disable-line no-undef
         });
       });
 
@@ -369,7 +369,7 @@ define([
             return respond(client.accountLock(account.input.email, account.input.password), RequestMocks.accountLock);
           })
           .then(function () {
-            return respond(client.accountUnlockResendCode(account.input.email, opts), RequestMocks.accountUnlockResendCode)
+            return respond(client.accountUnlockResendCode(account.input.email, opts), RequestMocks.accountUnlockResendCode);
           })
           .then(
             function (result) {
@@ -378,7 +378,7 @@ define([
               assert.equal(Object.keys(result).length, 0);
             },
             assert.notOk
-          )
+          );
       });
 
       test('#accountUnlockResendCode with no email', function () {
@@ -403,7 +403,7 @@ define([
             return respond(client.accountLock(account.input.email, account.input.password), RequestMocks.accountLock);
           })
           .then(function () {
-            return respond(client.accountUnlockResendCode(account.input.email, opts), RequestMocks.accountUnlockResendCode)
+            return respond(client.accountUnlockResendCode(account.input.email, opts), RequestMocks.accountUnlockResendCode);
           })
           .then(function () {
             return respond(mail.wait(account.input.user, 2), RequestMocks.resetMailUnlock);

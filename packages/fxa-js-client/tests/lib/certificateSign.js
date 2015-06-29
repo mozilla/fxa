@@ -12,19 +12,15 @@ define([
     suite('certificateSign', function () {
       var accountHelper;
       var respond;
-      var mail;
       var client;
       var RequestMocks;
-      var ErrorMocks;
 
       beforeEach(function () {
         var env = new Environment();
         accountHelper = env.accountHelper;
         respond = env.respond;
-        mail = env.mail;
         client = env.client;
         RequestMocks = env.RequestMocks;
-        ErrorMocks = env.ErrorMocks;
       });
 
       test('#basic', function () {
@@ -38,7 +34,7 @@ define([
             };
             var duration = 86400000;
 
-            return respond(client.certificateSign(account.signIn.sessionToken, publicKey, duration), RequestMocks.certificateSign)
+            return respond(client.certificateSign(account.signIn.sessionToken, publicKey, duration), RequestMocks.certificateSign);
           })
           .then(
             function(res) {

@@ -15,7 +15,6 @@ define([
       var mail;
       var client;
       var RequestMocks;
-      var ErrorMocks;
 
       beforeEach(function () {
         var env = new Environment();
@@ -24,7 +23,6 @@ define([
         mail = env.mail;
         client = env.client;
         RequestMocks = env.RequestMocks;
-        ErrorMocks = env.ErrorMocks;
       });
 
       test('#recoveryEmailResendCode', function () {
@@ -34,7 +32,7 @@ define([
           .then(function (account) {
             user = account.input.user;
 
-            return respond(client.recoveryEmailResendCode(account.signIn.sessionToken), RequestMocks.recoveryEmailResendCode)
+            return respond(client.recoveryEmailResendCode(account.signIn.sessionToken), RequestMocks.recoveryEmailResendCode);
           })
           .then(
           function(res) {
@@ -46,7 +44,7 @@ define([
             function (emails) {
               // second email, the code is resent.
               var code = emails[1].html.match(/code=([A-Za-z0-9]+)/)[1];
-              assert.ok(code, "code is returned");
+              assert.ok(code, 'code is returned');
             },
             assert.notOk
           );
@@ -64,7 +62,7 @@ define([
           .then(function (account) {
             user = account.input.user;
 
-            return respond(client.recoveryEmailResendCode(account.signIn.sessionToken, opts), RequestMocks.recoveryEmailResendCode)
+            return respond(client.recoveryEmailResendCode(account.signIn.sessionToken, opts), RequestMocks.recoveryEmailResendCode);
           })
           .then(
           function(res) {

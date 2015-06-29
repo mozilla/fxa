@@ -8,11 +8,12 @@ module.exports = function (grunt) {
   grunt.config('jscs', {
     src: [
       '**/*.js',
+      'tests/**/*.js',
       '!node_modules/**',
       '!build/**',
       '!components/**',
       '!docs/**',
-      '!tests/**'
+      '!tests/addons/sinon.js'
     ],
     options: {
       config: '.jscsrc'

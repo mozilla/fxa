@@ -26,9 +26,9 @@ define([
       });
 
       test('#signUp', function () {
-        var user = "test" + new Date().getTime();
-        var email = user + "@restmail.net";
-        var password = "iliketurtles";
+        var user = 'test' + new Date().getTime();
+        var email = user + '@restmail.net';
+        var password = 'iliketurtles';
         var opts = {
           lang: 'zh-cn;'
         };
@@ -59,11 +59,11 @@ define([
           .then(function (acc) {
             account = acc;
 
-            return respond(client.passwordForgotSendCode(account.input.email, opts), RequestMocks.passwordForgotSendCode)
+            return respond(client.passwordForgotSendCode(account.input.email, opts), RequestMocks.passwordForgotSendCode);
           })
           .then(function (result) {
             passwordForgotToken = result.passwordForgotToken;
-            assert.ok(passwordForgotToken, "passwordForgotToken is returned");
+            assert.ok(passwordForgotToken, 'passwordForgotToken is returned');
 
             return respond(mail.wait(account.input.user, 2), RequestMocks.resetMailLang);
           })
@@ -73,7 +73,7 @@ define([
               assert.equal(emails[1].headers['content-language'], 'zh-CN');
             },
             assert.notOk
-          )
+          );
       });
 
       test('#recoveryEmailResendCode', function () {
@@ -86,7 +86,7 @@ define([
           .then(function (account) {
             user = account.input.user;
 
-            return respond(client.recoveryEmailResendCode(account.signIn.sessionToken, opts), RequestMocks.recoveryEmailResendCode)
+            return respond(client.recoveryEmailResendCode(account.signIn.sessionToken, opts), RequestMocks.recoveryEmailResendCode);
           })
           .then(
           function(res) {
@@ -100,7 +100,7 @@ define([
               assert.equal(emails[1].headers['content-language'], 'zh-CN');
             },
             assert.notOk
-          )
+          );
       });
 
     });

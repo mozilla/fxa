@@ -16,8 +16,8 @@ define([
 
   AccountHelper.prototype.newVerifiedAccount = function () {
     var user = 'testHelp1' + new Date().getTime();
-    var email = user + "@restmail.net";
-    var password = "iliketurtles";
+    var email = user + '@restmail.net';
+    var password = 'iliketurtles';
     var respond = this.respond;
     var mail = this.mail;
     var client = this.client;
@@ -40,7 +40,7 @@ define([
       .then(function (emails) {
         var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
 
-        return respond(client.verifyCode(uid, code),RequestMocks.verifyCode);
+        return respond(client.verifyCode(uid, code), RequestMocks.verifyCode);
       })
 
       .then(function (res) {
@@ -57,8 +57,8 @@ define([
 
   AccountHelper.prototype.newUnverifiedAccount = function () {
     var user = 'testHelp2' + new Date().getTime();
-    var email = user + "@restmail.net";
-    var password = "iliketurtles";
+    var email = user + '@restmail.net';
+    var password = 'iliketurtles';
     var respond = this.respond;
     var client = this.client;
     var result = {

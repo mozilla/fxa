@@ -10,21 +10,17 @@ define([
 
   with (tdd) {
     suite('verifyCode', function () {
-      var accountHelper;
       var respond;
       var mail;
       var client;
       var RequestMocks;
-      var ErrorMocks;
 
       beforeEach(function () {
         var env = new Environment();
-        accountHelper = env.accountHelper;
         respond = env.respond;
         mail = env.mail;
         client = env.client;
         RequestMocks = env.RequestMocks;
-        ErrorMocks = env.ErrorMocks;
       });
 
       test('#verifyEmail', function () {
@@ -36,13 +32,13 @@ define([
         return respond(client.signUp(email, password), RequestMocks.signUp)
           .then(function (result) {
             uid = result.uid;
-            assert.ok(uid, "uid is returned");
+            assert.ok(uid, 'uid is returned');
 
             return respond(mail.wait(user), RequestMocks.mail);
           })
           .then(function (emails) {
             var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
-            assert.ok(code, "code is returned");
+            assert.ok(code, 'code is returned');
 
             return respond(client.verifyCode(uid, code), RequestMocks.verifyCode);
           })
@@ -51,7 +47,7 @@ define([
               assert.ok(result);
             },
             assert.notOk
-          )
+          );
       });
 
       test('#verifyEmailCheckStatus', function () {
@@ -64,25 +60,25 @@ define([
         return respond(client.signUp(email, password), RequestMocks.signUp)
           .then(function (result) {
             uid = result.uid;
-            assert.ok(uid, "uid is returned");
+            assert.ok(uid, 'uid is returned');
 
             return respond(client.signIn(email, password), RequestMocks.signIn);
           })
           .then(function (result) {
-            assert.ok(result.sessionToken, "sessionToken is returned");
+            assert.ok(result.sessionToken, 'sessionToken is returned');
             sessionToken = result.sessionToken;
 
             return respond(client.recoveryEmailStatus(sessionToken),
                     RequestMocks.recoveryEmailUnverified);
           })
           .then(function (result) {
-            assert.equal(result.verified, false, "Email should not be verified.");
+            assert.equal(result.verified, false, 'Email should not be verified.');
 
             return respond(mail.wait(user), RequestMocks.mail);
           })
           .then(function (emails) {
             var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
-            assert.ok(code, "code is returned: " + code);
+            assert.ok(code, 'code is returned: ' + code);
 
             return respond(client.verifyCode(uid, code),
                     RequestMocks.verifyCode);
@@ -94,10 +90,10 @@ define([
           })
           .then(
             function (result) {
-              assert.equal(result.verified, true, "Email should be verified.");
+              assert.equal(result.verified, true, 'Email should be verified.');
             },
             assert.notOk
-          )
+          );
       });
     });
   }

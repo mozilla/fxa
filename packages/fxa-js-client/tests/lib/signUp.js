@@ -29,8 +29,8 @@ define([
       });
 
       test('#basic', function () {
-        var email = "test" + new Date().getTime() + "@restmail.net";
-        var password = "iliketurtles";
+        var email = 'test' + new Date().getTime() + '@restmail.net';
+        var password = 'iliketurtles';
 
         return respond(client.signUp(email, password), RequestMocks.signUp)
           .then(
@@ -44,8 +44,8 @@ define([
       });
 
       test('#withKeys', function () {
-        var email = "test" + new Date().getTime() + "@restmail.net";
-        var password = "iliketurtles";
+        var email = 'test' + new Date().getTime() + '@restmail.net';
+        var password = 'iliketurtles';
         var opts = {
           keys: true
         };
@@ -63,9 +63,9 @@ define([
       });
 
       test('#create account with service, redirectTo, and resume', function () {
-        var user = "test" + new Date().getTime();
-        var email = user + "@restmail.net";
-        var password = "iliketurtles";
+        var user = 'test' + new Date().getTime();
+        var email = user + '@restmail.net';
+        var password = 'iliketurtles';
         var opts = {
           service: 'sync',
           redirectTo: 'https://sync.firefox.com/after_reset',
@@ -95,9 +95,9 @@ define([
       });
 
       test('#withService', function () {
-        var user = "test" + new Date().getTime();
-        var email = user + "@restmail.net";
-        var password = "iliketurtles";
+        var user = 'test' + new Date().getTime();
+        var email = user + '@restmail.net';
+        var password = 'iliketurtles';
         var opts = {
           service: 'sync'
         };
@@ -120,9 +120,9 @@ define([
       });
 
       test('#withRedirectTo', function () {
-        var user = "test" + new Date().getTime();
-        var email = user + "@restmail.net";
-        var password = "iliketurtles";
+        var user = 'test' + new Date().getTime();
+        var email = user + '@restmail.net';
+        var password = 'iliketurtles';
         var opts = {
           redirectTo: 'http://sync.firefox.com/after_reset'
         };
@@ -146,9 +146,9 @@ define([
       });
 
       test('#withResume', function () {
-        var user = "test" + new Date().getTime();
-        var email = user + "@restmail.net";
-        var password = "iliketurtles";
+        var user = 'test' + new Date().getTime();
+        var email = user + '@restmail.net';
+        var password = 'iliketurtles';
         var opts = {
           resume: 'resumejwt'
         };
@@ -172,8 +172,8 @@ define([
       });
 
       test('#preVerified', function () {
-        var email = "test" + new Date().getTime() + "@restmail.net";
-        var password = "iliketurtles";
+        var email = 'test' + new Date().getTime() + '@restmail.net';
+        var password = 'iliketurtles';
         var opts = {
           preVerified: true
         };
@@ -193,10 +193,10 @@ define([
       if (! setupEnv.useRemoteServer) {
 
         test('#preVerifyToken', function () {
-          var email = "test" + new Date().getTime() + "@restmail.net";
-          var password = "iliketurtles";
+          var email = 'test' + new Date().getTime() + '@restmail.net';
+          var password = 'iliketurtles';
           var opts = {
-            preVerifyToken: "somebiglongtoken"
+            preVerifyToken: 'somebiglongtoken'
           };
 
           return respond(client.signUp(email, password, opts), RequestMocks.signUp)

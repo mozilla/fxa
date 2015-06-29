@@ -53,7 +53,6 @@ define([
             newUnwrapBKey = sjcl.codec.hex.fromBits(newCreds.unwrapBKey);
             return respond(client.signUp(email, password), RequestMocks.signUp);
           })
-
           .then(function (result) {
             uid = result.uid;
 
@@ -64,7 +63,6 @@ define([
 
             return respond(client.verifyCode(uid, code), RequestMocks.verifyCode);
           })
-
           .then(function() {
             return respond(client.signIn(email, password, {keys: true}), RequestMocks.signInWithKeys);
           })
@@ -74,7 +72,6 @@ define([
           .then(function(keys) {
             kB = keys.kB;
           })
-
           .then(function () {
             return respond(client._passwordChangeStart(email, password), RequestMocks.passwordChangeStart);
           })
@@ -90,7 +87,7 @@ define([
           .then(function (result) {
             // currently only available for mocked requests (issue #103)
             if (requests) {
-              var req = requests[requests.length-1];
+              var req = requests[requests.length - 1];
               var args = JSON.parse(req.requestBody);
               var expectedNewWrapKB = sjcl.codec.hex.fromBits(
                 credentials.xor(sjcl.codec.hex.toBits(kB),
@@ -108,7 +105,7 @@ define([
             function (err) {
               throw err;
             }
-          )
+          );
       });
 
       test('#with incorrect case', function () {
@@ -145,7 +142,7 @@ define([
             function (err) {
               throw err;
             }
-          )
+          );
       });
 
       test('#with incorrect case with skipCaseError', function () {
@@ -197,7 +194,7 @@ define([
             return respond(client._passwordChangeStart(email, password), RequestMocks.passwordChangeStart);
           })
           .then(function (credentials) {
-            oldCreds = credentials
+            oldCreds = credentials;
 
             return respond(client._passwordChangeKeys(oldCreds), RequestMocks.accountKeys);
           })
@@ -219,7 +216,7 @@ define([
               assert.equal(error.message, 'Incorrect password', '== Password is incorrect');
               assert.equal(error.code, 400, '== Correct status code');
             }
-          )
+          );
       });
     });
   }
