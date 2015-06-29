@@ -66,7 +66,7 @@ development, and will be happy to help answer any questions you might have.
 We meet regularly to triage bugs and make grand plans for the future.  Anyone is welcome to
 join us in the following forums:
 
-* Regular video meetings, as noted on the [project calendar](https://www.google.com/calendar/embed?src=mozilla.com_urbkla6jvphpk1t8adi5c12kic%40group.calendar.google.com)
+* Regular video meetings, as noted on the [project calendar](https://www.google.com/calendar/embed?src=mozilla.com_urbkla6jvphpk1t8adi5c12kic%40group.calendar.google.com) and with minutes in the [coordination etherpad](https://id.etherpad.mozilla.org/fxa-engineering-coordination)
 * The [Firefox Accounts mailing list](https://mail.mozilla.org/listinfo/dev-fxacct)
 * The `#fxa` channel on [Mozilla IRC](https://wiki.mozilla.org/IRC)
 
