@@ -226,6 +226,9 @@ function (_) {
                   this._originalWidth / this.displayLength;
     var oscale = 1 + this.scale / 100;
     var sourceLength = this.displayLength / oscale * scale;
+    sourceLength = this.isLandscape ?
+                    Math.min(sourceLength, this._originalHeight) :
+                    Math.min(sourceLength, this._originalWidth);
 
     return {
       left: (-this.left + this.horizontalGutter) / oscale * scale,
@@ -242,7 +245,6 @@ function (_) {
 
     this.canvas.width = destLength;
     this.canvas.height = destLength;
-
 
     context.drawImage(
       this.img[0],
