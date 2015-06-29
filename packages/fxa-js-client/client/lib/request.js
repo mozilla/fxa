@@ -38,6 +38,7 @@ define(['./hawk', 'p', './errors'], function (hawk, P, ERRORS) {
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   Request.prototype.send = function request(path, method, credentials, jsonPayload, options) {
+    /*eslint complexity: [2, 8] */
     var deferred = P.defer();
     var xhr = new this.xhr();
     var uri = this.baseUri + path;

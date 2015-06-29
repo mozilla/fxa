@@ -47,7 +47,7 @@ define(['sjcl'], function (sjcl) {
      */
 
     header: function (uri, method, options) {
-
+      /*eslint complexity: [2, 21] */
       var result = {
         field: '',
         artifacts: {}
