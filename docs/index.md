@@ -37,6 +37,10 @@ Most repositories are [available via GitHub](https://github.com/mozilla?utf8=%E2
 - [fxa-auth-server](https://github.com/mozilla/fxa-auth-server)
 - [fxa-oauth-server](https://github.com/mozilla/fxa-oauth-server)
 - [fxa-profile-server](https://github.com/mozilla/fxa-profile-server)
+- [fxa-auth-db-server](https://github.com/mozilla/fxa-auth-db-server)
+- [fxa-auth-db-mem](https://github.com/mozilla/fxa-auth-db-mem)
+- [fxa-auth-db-mysql](https://github.com/mozilla/fxa-auth-db-mysql)
+- [fxa-customs-server](https://github.com/mozilla/fxa-customs-server)
 
 ### Other
 
