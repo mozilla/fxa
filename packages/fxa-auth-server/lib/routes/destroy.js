@@ -17,7 +17,7 @@ module.exports = {
         .length(config.get('unique.token') * 2) // hex = bytes*2
         .regex(validators.HEX_STRING)
         .required(),
-      client_secret: Joi.string()
+      client_secret: Joi.string().allow('')
     }
   },
   handler: function destroyToken(req, reply) {
