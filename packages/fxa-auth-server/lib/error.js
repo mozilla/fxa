@@ -139,7 +139,7 @@ AppError.mismatchCode = function mismatchCode(code, clientId) {
   });
 };
 
-AppError.expiredCode = function mismatchCode(code, expiredAt) {
+AppError.expiredCode = function expiredCode(code, expiredAt) {
   return new AppError({
     code: 400,
     error: 'Bad Request',
@@ -215,9 +215,20 @@ AppError.invalidScopes = function invalidScopes(scopes) {
     code: 400,
     error: 'Invalid scopes',
     errno: 114,
-    message: 'Invalid scopes'
+    message: 'Requested scopes are not allowed'
   }, {
     invalidScopes: scopes
+  });
+};
+
+AppError.expiredToken = function expiredToken(expiredAt) {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: 115,
+    message: 'Expired token'
+  }, {
+    expiredAt: expiredAt
   });
 };
 

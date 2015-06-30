@@ -80,10 +80,16 @@ const conf = convict({
     }
   },
   expiration: {
+    // in JavaScript, we live in milliseconds
+    accessToken: {
+      doc: 'Access Tokens maximum expiration (can live shorter)',
+      format: 'duration',
+      default: 1000 * 60 * 60 * 24 * 2 // 2weeks
+    },
     code: {
       doc: 'Clients must trade codes for tokens before they expire',
       format: 'duration',
-      default: 1000 * 60 * 15
+      default: 1000 * 60 * 15 // 15mins
     }
   },
   git: {

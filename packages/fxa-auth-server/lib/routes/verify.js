@@ -4,17 +4,13 @@
 
 const Joi = require('joi');
 
-const config = require('../config');
 const token = require('../token');
 const validators = require('../validators');
 
 module.exports = {
   validate: {
     payload: {
-      token: Joi.string()
-        .length(config.get('unique.token') * 2)
-        .regex(validators.HEX_STRING)
-        .required()
+      token: validators.token.required()
     }
   },
   response: {

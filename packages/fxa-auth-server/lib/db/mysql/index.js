@@ -9,11 +9,15 @@ const hex = require('buf').to.hex;
 const mysql = require('mysql');
 const MysqlPatcher = require('mysql-patcher');
 
+const config = require('../../config');
 const encrypt = require('../../encrypt');
 const logger = require('../../logging')('db.mysql');
 const P = require('../../promise');
+const Scope = require('../../scope');
 const unique = require('../../unique');
 const patch = require('./patch');
+
+const MAX_TTL = config.get('expiration.accessToken');
 
 
 function MysqlStore(options) {
@@ -145,16 +149,23 @@ const QUERY_CLIENT_UPDATE = 'UPDATE clients SET ' +
   'WHERE id=?';
 const QUERY_CLIENT_DELETE = 'DELETE FROM clients WHERE id=?';
 const QUERY_CODE_INSERT =
-  'INSERT INTO codes (clientId, userId, email, scope, authAt, code) ' +
-  'VALUES (?, ?, ?, ?, ?, ?)';
-const QUERY_TOKEN_INSERT =
-  'INSERT INTO tokens (clientId, userId, email, scope, type, token) VALUES ' +
-  '(?, ?, ?, ?, ?, ?)';
-const QUERY_TOKEN_FIND = 'SELECT * FROM tokens WHERE token=?';
+  'INSERT INTO codes (clientId, userId, email, scope, authAt, offline, code) ' +
+  'VALUES (?, ?, ?, ?, ?, ?, ?)';
+const QUERY_ACCESS_TOKEN_INSERT =
+  'INSERT INTO tokens (clientId, userId, email, scope, type, expiresAt, ' +
+  'token) VALUES (?, ?, ?, ?, ?, ?, ?)';
+const QUERY_REFRESH_TOKEN_INSERT =
+  'INSERT INTO refreshTokens (clientId, userId, email, scope, token) VALUES ' +
+  '(?, ?, ?, ?, ?)';
+const QUERY_ACCESS_TOKEN_FIND = 'SELECT * FROM tokens WHERE token=?';
+const QUERY_REFRESH_TOKEN_FIND = 'SELECT * FROM refreshTokens where token=?';
 const QUERY_CODE_FIND = 'SELECT * FROM codes WHERE code=?';
 const QUERY_CODE_DELETE = 'DELETE FROM codes WHERE code=?';
-const QUERY_TOKEN_DELETE = 'DELETE FROM tokens WHERE token=?';
-const QUERY_TOKEN_DELETE_USER = 'DELETE FROM tokens WHERE userId=?';
+const QUERY_ACCESS_TOKEN_DELETE = 'DELETE FROM tokens WHERE token=?';
+const QUERY_REFRESH_TOKEN_DELETE = 'DELETE FROM refreshTokens WHERE token=?';
+const QUERY_ACCESS_TOKEN_DELETE_USER = 'DELETE FROM tokens WHERE userId=?';
+const QUERY_REFRESH_TOKEN_DELETE_USER =
+  'DELETE FROM refreshTokens WHERE userId=?';
 const QUERY_CODE_DELETE_USER = 'DELETE FROM codes WHERE userId=?';
 const QUERY_DEVELOPER = 'SELECT * FROM developers WHERE email=?';
 const QUERY_DEVELOPER_DELETE = 'DELETE FROM developers WHERE email=?';
@@ -318,15 +329,16 @@ MysqlStore.prototype = {
   removeClient: function removeClient(id) {
     return this._write(QUERY_CLIENT_DELETE, [buf(id)]);
   },
-  generateCode: function generateCode(clientId, userId, email, scope, authAt) {
+  generateCode: function generateCode(codeObj) {
     var code = unique.code();
     var hash = encrypt.hash(code);
     return this._write(QUERY_CODE_INSERT, [
-      clientId,
-      userId,
-      email,
-      scope.join(' '),
-      authAt,
+      codeObj.clientId,
+      codeObj.userId,
+      codeObj.email,
+      codeObj.scope.join(' '),
+      codeObj.authAt,
+      !!codeObj.offline,
       hash
     ]).then(function() {
       return code;
@@ -345,32 +357,31 @@ MysqlStore.prototype = {
   removeCode: function removeCode(id) {
     return this._write(QUERY_CODE_DELETE, [id]);
   },
-  generateToken: function generateToken(vals) {
+  generateAccessToken: function generateAccessToken(vals) {
     var t = {
       clientId: vals.clientId,
       userId: vals.userId,
       email: vals.email,
-      scope: vals.scope,
-      type: 'bearer'
+      scope: Scope(vals.scope),
+      token: unique.token(),
+      type: 'bearer',
+      expiresAt: new Date(Date.now() + (vals.ttl  * 1000 || MAX_TTL))
     };
-    var _token = unique.token();
-    var self = this;
-    var hash = encrypt.hash(_token);
-    return self._write(QUERY_TOKEN_INSERT, [
+    return this._write(QUERY_ACCESS_TOKEN_INSERT, [
       t.clientId,
       t.userId,
       t.email,
-      t.scope.join(' '),
+      t.scope.toString(),
       t.type,
-      hash
+      t.expiresAt,
+      encrypt.hash(t.token)
     ]).then(function() {
-      t.token = _token;
       return t;
     });
   },
 
-  getToken: function getToken(token) {
-    return this._readOne(QUERY_TOKEN_FIND, [buf(token)]).then(function(t) {
+  getAccessToken: function getAccessToken(tok) {
+    return this._readOne(QUERY_ACCESS_TOKEN_FIND, [buf(tok)]).then(function(t) {
       if (t) {
         t.scope = t.scope.split(' ');
       }
@@ -378,8 +389,43 @@ MysqlStore.prototype = {
     });
   },
 
-  removeToken: function removeToken(id) {
-    return this._write(QUERY_TOKEN_DELETE, [buf(id)]);
+  removeAccessToken: function removeAccessToken(id) {
+    return this._write(QUERY_ACCESS_TOKEN_DELETE, [buf(id)]);
+  },
+
+  generateRefreshToken: function generateRefreshToken(vals) {
+    var t = {
+      clientId: vals.clientId,
+      userId: vals.userId,
+      email: vals.email,
+      scope: Scope(vals.scope)
+    };
+    var token = unique.token();
+    var hash = encrypt.hash(token);
+    return this._write(QUERY_REFRESH_TOKEN_INSERT, [
+      t.clientId,
+      t.userId,
+      t.email,
+      t.scope.toString(),
+      hash
+    ]).then(function() {
+      t.token = token;
+      return t;
+    });
+  },
+
+  getRefreshToken: function getRefreshToken(token) {
+    return this._readOne(QUERY_REFRESH_TOKEN_FIND, [buf(token)])
+    .then(function(t) {
+      if (t) {
+        t.scope = t.scope.split(' ');
+      }
+      return t;
+    });
+  },
+
+  removeRefreshToken: function removeRefreshToken(id) {
+    return this._write(QUERY_REFRESH_TOKEN_DELETE, [buf(id)]);
   },
 
   getEncodingInfo: function getEncodingInfo() {
@@ -405,7 +451,8 @@ MysqlStore.prototype = {
   removeUser: function removeUser(userId) {
     // TODO this should be a transaction or stored procedure
     var id = buf(userId);
-    return this._write(QUERY_TOKEN_DELETE_USER, [id])
+    return this._write(QUERY_ACCESS_TOKEN_DELETE_USER, [id])
+      .then(this._write.bind(this, QUERY_REFRESH_TOKEN_DELETE_USER, [id]))
       .then(this._write.bind(this, QUERY_CODE_DELETE_USER, [id]));
   },
 

@@ -6,12 +6,15 @@ const AppError = require('./error');
 const auth = require('./auth');
 const db = require('./db');
 const encrypt = require('./encrypt');
+const Scope = require('./scope');
 
 exports.verify = function verify(token) {
-  return db.getToken(encrypt.hash(token))
+  return db.getAccessToken(encrypt.hash(token))
   .then(function(token) {
     if (!token) {
       throw AppError.invalidToken();
+    } else if (+token.expiresAt < Date.now()) {
+      throw AppError.expiredToken(token.expiresAt);
     }
     var tokenInfo = {
       user: token.userId.toString('hex'),
@@ -19,10 +22,8 @@ exports.verify = function verify(token) {
       scope: token.scope
     };
 
-    // token.scope is a Set/Array
-    if (token.scope.indexOf('profile') !== -1 ||
-        token.scope.indexOf('profile:email') !== -1 ||
-        token.scope.indexOf(auth.SCOPE_CLIENT_MANAGEMENT) !== -1) {
+    var scope = Scope(token.scope);
+    if (scope.has('profile:email') || scope.has(auth.SCOPE_CLIENT_MANAGEMENT)) {
       tokenInfo.email = token.email;
     }
 

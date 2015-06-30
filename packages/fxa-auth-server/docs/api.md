@@ -47,6 +47,7 @@ The currently-defined error responses are:
 | 403 | 112 | forbidden |
 | 415 | 113 | invalid content type |
 | 400 | 114 | invalid scopes |
+| 400 | 115 | expired token |
 | 500 | 999 | internal server error |
 
 ## API Endpoints
@@ -283,6 +284,7 @@ content-server page.
 - `state`: A value that will be returned to the client as-is upon redirection, so that clients can verify the redirect is authentic.
 - `redirect_uri`: Optional. If supplied, a string URL of where to redirect afterwards. Must match URL from registration.
 - `scope`: Optional. A space-separated list of scopes that the user has authorized. This could be pruned by the user at the confirmation dialog.
+- `access_type`: Optional. If provided, should be `online` or `offline`. `offline` will result in a refresh_token being provided, so that the access_token can be refreshed after it expires.
 - `action`: Optional. If provided, should be `signup`, `signin`, or `force_auth`. Send to improve the user experience, based on whether they clicked on a Sign In or Sign Up button. `force_auth` requires the user to sign in using the address specified in `email`. If unspecified then Firefox Accounts will try choose intelligently between `signin` and `signup` based on the user's browser state.
 - `email`: Optional if `action` is `signup` or `signin`. Required if `action`
   is `force_auth`.
@@ -318,6 +320,7 @@ back to the client. This code will be traded for a token at the
 - `response_type`: Optional. If supplied, must be either `code` or `token`. `code` is the default. `token` means the implicit grant is desired, and requires that the client have special permission to do so.
 - `redirect_uri`: Optional. If supplied, a string URL of where to redirect afterwards. Must match URL from registration.
 - `scope`: Optional. A string-separated list of scopes that the user has authorized. This could be pruned by the user at the confirmation dialog.
+- `access_type`: Optional. A value of `offline` will generate a refresh token along with the access token.
 
 **Example:**
 
@@ -366,7 +369,18 @@ particular user.
 
 - `client_id`: The id returned from client registration.
 - `client_secret`: The secret returned from client registration.
-- `code`: A string that was received from the [authorization][] endpoint.
+- `ttl`: (optional) Seconds that this access_token should be valid.
+  
+  The default and maximum value is 2 weeks.
+- `grant_type`: Either the string `authorization_code` or `refresh_token`.
+  - If `authorization_code`:
+    - `code`: A string that was received from the [authorization][] endpoint.
+  - If `refresh_token`:
+    - `refresh_token`: A string that received from the [token][]
+      endpoint specifically as a refresh token.
+    - `scope`: (optional) A subset of scopes provided to this
+      refresh_token originally, to receive an access_token with less
+      permissions.
 
 **Example:**
 
@@ -378,6 +392,8 @@ curl -v \
 -d '{
   "client_id": "5901bd09376fadaa",
   "client_secret": "20c6882ef864d75ad1587c38f9d733c80751d2cbc8614e30202dc3d1d25301ff",
+  "ttl": 3600,
+  "grant_type": "authorization_code",
   "code": "4ab433e31ef3a7cf7c20590f047987922b5c9ceb1faff56f0f8164df053dd94c"
 }'
 ```
@@ -388,6 +404,8 @@ A valid request will return a JSON response with these properties:
 
 - `access_token`: A string that can be used for authorized requests to service providers.
 - `scope`: A string of space-separated permissions that this token has. May differ from requested scopes, since user can deny permissions.
+- `refresh_token`: (Optional) A refresh token to fetch a new access token when this one expires. Only will be present if  `grant_type=authorization_code` and the original authorization request included `access_type=offline`.
+- `expires_in`: **Seconds** until this access token will no longer be valid.
 - `token_type`: A string representing the token type. Currently will always be "bearer".
 - `auth_at`: An integer giving the time at which the user authenticated to the Firefox Accounts server when generating this token, as a UTC unix timestamp (i.e.  **seconds since epoch**).
 
@@ -398,6 +416,8 @@ A valid request will return a JSON response with these properties:
   "access_token": "558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0",
   "scope": "profile:email profile:avatar",
   "token_type": "bearer",
+  "expires_in": 3600,
+  "refresh_token": "58d59cc97c3ca183b3a87a65eec6f93d5be051415b53afbf8491cc4c45dbb0c6",
   "auth_at": 1422336613
 }
 ```

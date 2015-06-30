@@ -5,10 +5,13 @@
 const buf = require('buf').hex;
 const unbuf = require('buf').unbuf.hex;
 
+const config = require('../config');
 const encrypt = require('../encrypt');
 const logger = require('../logging')('db.memory');
 const P = require('../promise');
 const unique = require('../unique');
+
+const MAX_TTL = config.get('expiration.accessToken');
 
 /*
  * MemoryStore structure:
@@ -33,7 +36,8 @@ const unique = require('../unique');
  *       code: <string>
  *       scope: <string>,
  *       authAt: <timestamp>,
- *       createdAt: <timestamp>
+ *       createdAt: <timestamp>,
+ *       offline: <boolean>
  *     }
  *   },
  *   developers: {
@@ -57,6 +61,16 @@ const unique = require('../unique');
  *       userId: <user_id>,
  *       type: <string>,
  *       scope: <string>,
+ *       createdAt: <timestamp>,
+ *       expiresAt: <timestamp>
+ *     }
+ *   },
+ *   refreshTokens: {
+ *     <token>: {
+ *       token: <string>,
+ *       clientId: <client_id>,
+ *       userId: <user_id>,
+ *       scope: <string>,
  *       createdAt: <timestamp>
  *     }
  *   }
@@ -71,6 +85,7 @@ function MemoryStore() {
   this.tokens = {};
   this.developers = {};
   this.clientDevelopers = {};
+  this.refreshTokens = {};
 }
 
 MemoryStore.connect = function memoryConnect() {
@@ -78,6 +93,9 @@ MemoryStore.connect = function memoryConnect() {
 };
 
 function clone(obj) {
+  if (!obj) {
+    return obj;
+  }
   var clone = {};
   for (var k in obj) {
     clone[k] = obj[k];
@@ -179,46 +197,67 @@ MemoryStore.prototype = {
     delete this.clients[unbuf(id)];
     return P.resolve();
   },
-  generateCode: function generateCode(clientId, userId, email, scope, authAt) {
-    var code = {};
-    code.clientId = clientId;
-    code.userId = userId;
-    code.email = email;
-    code.scope = scope;
-    code.authAt = authAt;
-    code.createdAt = new Date();
-    var _code = unique.code();
-    code.code = encrypt.hash(_code);
-    this.codes[unbuf(code.code)] = code;
-    return P.resolve(_code);
+  generateCode: function generateCode(codeObj) {
+    codeObj = clone(codeObj);
+    codeObj.createdAt = new Date();
+    var code = unique.code();
+    codeObj.code = encrypt.hash(code);
+    this.codes[unbuf(codeObj.code)] = codeObj;
+    return P.resolve(code);
   },
   getCode: function getCode(code) {
-    return P.resolve(this.codes[unbuf(encrypt.hash(code))]);
+    return P.resolve(clone(this.codes[unbuf(encrypt.hash(code))]));
   },
   removeCode: function removeCode(id) {
     delete this.codes[unbuf(id)];
     return P.resolve();
   },
-  generateToken: function generateToken(vals) {
-    var token = {};
-    token.clientId = vals.clientId;
-    token.userId = vals.userId;
-    token.email = vals.email;
-    token.scope = vals.scope;
-    token.createdAt = new Date();
-    token.type = 'bearer';
-    var _token = unique.token();
-    var ret = clone(token);
-    token.token = encrypt.hash(_token);
-    this.tokens[unbuf(token.token)] = token;
-    ret.token = _token;
+  generateAccessToken: function generateAccessToken(vals) {
+    var token = unique.token();
+    var now = new Date();
+    var t = {
+      clientId: vals.clientId,
+      userId: vals.userId,
+      email: vals.email,
+      scope: vals.scope,
+      type: 'bearer',
+      createdAt: now,
+      // ttl is in seconds
+      expiresAt: new Date(+now + (vals.ttl * 1000 || MAX_TTL)),
+      token: encrypt.hash(token)
+    };
+    var ret = clone(t);
+    this.tokens[unbuf(t.token)] = t;
+    ret.token = token;
     return P.resolve(ret);
   },
-  getToken: function getToken(token) {
-    return P.resolve(this.tokens[unbuf(token)]);
+  getAccessToken: function getAccessToken(token) {
+    return P.resolve(clone(this.tokens[unbuf(token)]));
   },
-  removeToken: function removeToken(id) {
+  removeAccessToken: function removeAccessToken(id) {
     delete this.tokens[unbuf(id)];
+    return P.resolve();
+  },
+  generateRefreshToken: function generateRefreshToken(vals) {
+    var token = unique.token();
+    var t = {
+      clientId: vals.clientId,
+      userId: vals.userId,
+      email: vals.email,
+      scope: vals.scope,
+      createdAt: new Date(),
+      token: encrypt.hash(token)
+    };
+    var ret = clone(t);
+    this.refreshTokens[unbuf(t.token)] = t;
+    ret.token = token;
+    return P.resolve(ret);
+  },
+  getRefreshToken: function getRefreshToken(token) {
+    return P.resolve(clone(this.refreshTokens[unbuf(token)]));
+  },
+  removeRefreshToken: function removeRefreshToken(id) {
+    delete this.refreshTokens[unbuf(id)];
     return P.resolve();
   },
   getEncodingInfo: function getEncodingInfo() {
@@ -227,6 +266,7 @@ MemoryStore.prototype = {
   },
   removeUser: function removeUser(userId) {
     deleteByUserId(this.tokens, userId);
+    deleteByUserId(this.refreshTokens, userId);
     deleteByUserId(this.codes, userId);
     return P.resolve();
   },

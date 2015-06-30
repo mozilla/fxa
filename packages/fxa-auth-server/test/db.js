@@ -101,6 +101,7 @@ describe('db', function() {
     var scope = ['no-scope'];
     var code = null;
     var token = null;
+    var refreshToken = null;
 
     before(function() {
       return db.registerClient({
@@ -111,13 +112,19 @@ describe('db', function() {
         redirectUri: 'https://example.domain/return?foo=bar',
         trusted: true
       }).then(function () {
-        return db.generateCode(clientId, userId, email, scope, 0);
+        return db.generateCode({
+          clientId: clientId,
+          userId: userId,
+          email: email,
+          scope: scope,
+          authAt: 0
+        });
       }).then(function (c) {
         code = c;
         return db.getCode(code);
       }).then(function(code) {
         assert.equal(hex(code.userId), hex(userId));
-        return db.generateToken({
+        return db.generateAccessToken({
           clientId: clientId,
           userId: userId,
           email: email,
@@ -126,17 +133,28 @@ describe('db', function() {
       }).then(function (t) {
         token = t.token;
         assert.equal(hex(t.userId), hex(userId), 'token userId');
+        return db.generateRefreshToken({
+          clientId: clientId,
+          userId: userId,
+          email: email,
+          scope: scope
+        });
+      }).then(function (t) {
+        refreshToken = t.token;
+        assert.equal(hex(t.userId), hex(userId), 'token userId');
       });
     });
-
     it('should delete tokens and codes for the given userId', function () {
       return db.removeUser(userId).then(function () {
         return db.getCode(code);
       }).then(function (c) {
         assert.equal(c, undefined, 'code deleted');
-        return db.getToken(token);
+        return db.getAccessToken(token);
       }).then(function (t) {
         assert.equal(t, undefined, 'token deleted');
+        return db.getRefreshToken(refreshToken);
+      }).then(function (t) {
+        assert.equal(t, undefined, 'refresh_token deleted');
       });
     });
   });
@@ -241,13 +259,19 @@ describe('db', function() {
           redirectUri: 'https://example.domain/return?foo=bar',
           trusted: true
         }).then(function() {
-          return db.generateCode(clientId, userId, email, scope, 0);
+          return db.generateCode({
+            clientId: clientId,
+            userId: userId,
+            email: email,
+            scope: scope,
+            authAt: 0
+          });
         }).then(function(c) {
           code = c;
           return db.getCode(code);
         }).then(function(code) {
           assert.equal(hex(code.userId), hex(userId));
-          return db.generateToken({
+          return db.generateAccessToken({
             clientId: clientId,
             userId: userId,
             email: email,
