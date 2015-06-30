@@ -125,7 +125,7 @@ function newToken(payload) {
   });
 }
 
-function assertRequestParam(result, param) {
+function assertInvalidRequestParam(result, param) {
   assert.equal(result.code, 400);
   assert.equal(result.message, 'Invalid request parameter');
   assert.equal(result.validation.keys.length, 1);
@@ -324,7 +324,7 @@ describe('/v1', function() {
             client_id: undefined
           })
         }).then(function(res) {
-          assertRequestParam(res.result, 'client_id');
+          assertInvalidRequestParam(res.result, 'client_id');
         }).done(done, done);
       });
 
@@ -339,7 +339,7 @@ describe('/v1', function() {
             assertion: undefined
           })
         }).then(function(res) {
-          assertRequestParam(res.result, 'assertion');
+          assertInvalidRequestParam(res.result, 'assertion');
         }).done(done, done);
       });
 
@@ -458,7 +458,7 @@ describe('/v1', function() {
             state: undefined
           })
         }).then(function(res) {
-          assertRequestParam(res.result, 'state');
+          assertInvalidRequestParam(res.result, 'state');
         }).done(done, done);
       });
       it('is returned', function(done) {
@@ -617,7 +617,7 @@ describe('/v1', function() {
             code: unique.code().toString('hex')
           }
         }).then(function(res) {
-          assertRequestParam(res.result, 'client_id');
+          assertInvalidRequestParam(res.result, 'client_id');
         }).done(done, done);
       });
     });
@@ -631,7 +631,7 @@ describe('/v1', function() {
             code: unique.code().toString('hex')
           }
         }).then(function(res) {
-          assertRequestParam(res.result, 'client_secret');
+          assertInvalidRequestParam(res.result, 'client_secret');
         }).done(done, done);
       });
 
@@ -660,7 +660,7 @@ describe('/v1', function() {
               client_secret: secret
             }
           }).then(function(res) {
-            assertRequestParam(res.result, 'code');
+            assertInvalidRequestParam(res.result, 'code');
           }).done(done, done);
         });
 
@@ -854,7 +854,7 @@ describe('/v1', function() {
               grant_type: 'refresh_token'
             }
           }).then(function(res) {
-            assertRequestParam(res.result, 'refresh_token');
+            assertInvalidRequestParam(res.result, 'refresh_token');
           });
         });
 
@@ -1010,7 +1010,7 @@ describe('/v1', function() {
               }
             });
           }).then(function(res) {
-            assertRequestParam(res.result, 'ttl');
+            assertInvalidRequestParam(res.result, 'ttl');
           });
         });
 
