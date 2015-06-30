@@ -9,6 +9,15 @@ module.exports = function (grunt) {
    * Uglify all of the scripts in the dist directory
    */
   grunt.config('uglify', {
+    options: {
+      banner: '/*! <%= pkg.name %>@<%= pkg.version %> -- <%= grunt.template.today() %>\n *\n' +
+        ' * This Source Code Form is subject to the terms of the Mozilla Public\n' +
+        ' * License, v. 2.0. If a copy of the MPL was not distributed with this\n' +
+        ' * file, You can obtain one at http://mozilla.org/MPL/2.0/.\n *\n' +
+        ' * For more information, see https://github.com/mozilla/fxa-content-server/\n' +
+        ' */\n',
+      sourceMap: true
+    },
     dist: {
       files: [
         {
@@ -17,10 +26,7 @@ module.exports = function (grunt) {
           src: ['**/*.js'],
           dest: '<%= yeoman.dist %>/scripts'
         }
-      ],
-      options: {
-        sourceMap: true
-      }
+      ]
     }
   });
 };
