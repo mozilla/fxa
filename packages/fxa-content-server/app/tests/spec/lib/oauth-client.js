@@ -79,8 +79,8 @@ function (chai, sinon, OAuthClient, OAuthErrors, Xhr, p) {
     describe('getCode', function () {
       var params = {
         assertion: 'assertion',
-        client_id: 'deadbeef',
-        redirect_uri: 'http://example.com',
+        client_id: 'deadbeef', //eslint-disable-line camelcase
+        redirect_uri: 'http://example.com', //eslint-disable-line camelcase
         scope: 'profile',
         state: 'state'
       };
@@ -130,14 +130,14 @@ function (chai, sinon, OAuthClient, OAuthErrors, Xhr, p) {
         sinon.stub(client, '_request', function () {
           return p({
             scope: 'profile',
-            token_type: 'bearer',
-            access_token: token
+            token_type: 'bearer', //eslint-disable-line camelcase
+            access_token: token //eslint-disable-line camelcase
           });
         });
 
         var params = {
           assertion: 'assertion',
-          client_id: 'deadbeef',
+          client_id: 'deadbeef', //eslint-disable-line camelcase
           scope: 'profile'
         };
 
