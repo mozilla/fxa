@@ -151,7 +151,6 @@ define([
         clientId: resumeObj.client_id,
         redirectUri: resumeObj.redirect_uri,
         scope: resumeObj.scope,
-        //jshint camelcase: false
         accessType: resumeObj.access_type
       });
 

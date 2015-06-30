@@ -206,7 +206,7 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
 
         it('returns a WebChannel broker if verifying in the same brower where a signup was initiated from a web channel', function () {
           Session.set('oauth', {
-            client_id: 'client id',
+            client_id: 'client id', //eslint-disable-line camelcase
             webChannelId: 'channel id'
           });
 
@@ -224,7 +224,7 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
           windowMock.top = new WindowMock();
           windowMock.location.search = Url.objToSearchString({
             context: Constants.IFRAME_CONTEXT,
-            client_id: 'client id'
+            client_id: 'client id' //eslint-disable-line camelcase
           });
 
           return testExpectedBrokerCreated(IframeBroker);
@@ -233,7 +233,7 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
         it('returns a Redirect broker if `context=iframe` is not present and in an iframe - for Marketplace on Android', function () {
           windowMock.top = new WindowMock();
           windowMock.location.search = Url.objToSearchString({
-            client_id: 'client id'
+            client_id: 'client id' //eslint-disable-line camelcase
           });
 
           return testExpectedBrokerCreated(RedirectBroker);
@@ -243,7 +243,7 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
       describe('redirect', function () {
         it('returns a Redirect broker if `client_id` is available', function () {
           windowMock.location.search = Url.objToSearchString({
-            client_id: 'client id'
+            client_id: 'client id' //eslint-disable-line camelcase
           });
 
           return testExpectedBrokerCreated(RedirectBroker);
