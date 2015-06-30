@@ -1,3 +1,11 @@
+train-40
+  * feat(email): issue 875 notification emails - #876
+  * fix(password): check for 400 from check password - #964
+  * fix(password): revert changes induced by #954 pull request - #964
+  * fix(docs): update documentation for example verification code, from 64 to 32 chars - #956
+  * chore(build): replacing JSHint with ESLint - #967
+  * chore(shrinkwrap): update shrinkwrap, notably for git fxa-auth-mailer and fxa-content-server-l10n - #970
+
 train-39
   * Use checkPassword API #943
   * fix(password): revert part of GH-943; currently in broken state #954
@@ -7,7 +15,7 @@ train-39
   * chore(config): Update convict and switch on strict validation. #959
   * chore(shrinkwrap): Update shrinkwrap due to password change api #952
   * chore(shrinkwrap): update shrinkwrap to pickup latest fxa-content-server-l10n #958
-  
+
 train-38
   * feat(server): Log the `service` and `reason` parameters for `/account/login` - #875, #941
   * switch promises to bluebird from p-promise - #936
