@@ -1,3 +1,10 @@
+train-40
+  * fix(notifications): always return a promise from db.processUnpublishedEvents, fixes #49 - #52
+  * fix(npm): Update npm-shrinkwrap to include the last version of fxa-auth-db-server - #50
+  * chore(cleanup): Fixed some syntax errors reported by ESLint - #55
+  * fix(db): Return 400 on incorrect password - #53
+  * refactor(db): Remove old stored procedures that are no longer used - #57
+  
 train-39
   * fix(npm): Update npm-shrinkwrap to include the last version of fxa-auth-db-server - #50
   * Added checkPassword_1 stored procedure - #45
