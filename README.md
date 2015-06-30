@@ -3,33 +3,75 @@
 
 ### Getting Started
 
-- Install required system [dependencies](#dependencies)
-- Clone this repository and run `npm install`. Here is the full command:
-```
-git clone https://github.com/mozilla/fxa-local-dev.git && cd fxa-local-dev && npm i
-``` 
+1. Manually install the system [dependencies](#dependencies).
 
-After installation completes visit [127.0.0.1:3030](http://127.0.0.1:3030/). Use the [PM2 tool](https://github.com/Unitech/PM2#main-features) to start, stop and read server logs.  Most common commands are as follows:
+2. Clone this repository.
 
-- `./pm2 start servers.json` **- start all servers.** 
-- ^ (WARNING: running the above command multiple times will spawn more of the same servers).
-- `./pm2 kill` **- stop all servers.**
-- `./pm2 status` - display running servers. 
-- `./pm2 logs` - logs for all servers (note: this must be used to verify accounts).
-- `./pm2 logs 1` - display logs for process `1`.
-- `./pm2 stop 1` - stop process `1`.
-- `./pm2 restart 1` - restart process `1`.
-- More commands on the [PM2 Readme](https://github.com/Unitech/PM2#main-features).
+   ```sh
+   git clone git@github.com:mozilla/fxa-local-dev.git
+   ```
 
-**Use `npm run update` to [fetch the latest changes](_scripts/update_all.sh) to servers**
+3. Run `npm install`.
 
-Note 1 : if npm fails when installing (specifically the fxa-content-server) or a number of servers fail to start, it may be worth trying `ulimit -n 2560` to allow more files to be open currently.
+   ```sh
+   cd fxa-local-dev
+   npm i
+   ```
 
-Note 2 : If the fxa-content-server fails with a message such as `Error: env: must be one of the possible values: ["production","development"]: value was "dev"`, then it may be because you have `NODE_ENV` set in your environment. Please `unset NODE_ENV` and restart the servers with `./pm2 kill` and `./pm2 start servers.json`.
+4. Visit [127.0.0.1:3030](http://127.0.0.1:3030/).
+
+5. Use the [PM2 tool](https://github.com/Unitech/PM2#main-features) to stop and start the servers, and read server logs.
+
+   The most common commands are:
+
+   - `./pm2 start servers.json` **- start all servers.**
+
+     - WARNING: does not stop running servers, running multiple times spawns more of the same.
+
+   - `./pm2 kill` **- stop all servers.**
+
+   - `./pm2 status` - display running servers.
+
+   - `./pm2 logs` - logs for all servers (note: this must be used to verify accounts).
+
+   - `./pm2 logs 1` - display logs for process `1`.
+
+   - `./pm2 stop 1` - stop process `1`.
+
+   - `./pm2 restart 1` - restart process `1`.
+
+   - More commands in the [PM2 Readme](https://github.com/Unitech/PM2#main-features).
+
+6. When you want to [fetch the latest changes](_scripts/update_all.sh) to all servers:
+
+   ```sh
+   npm run update
+   ```
+
+### Troubleshooting
+
+1. For errors during `npm install` (specifically fxa-content-server), or if some servers fail to start:
+
+   ```sh
+   ulimit -n 2560
+   ```
+
+2. If fxa-content-server fails with this message:
+
+   ```
+   Error: env: must be one of the possible values: ["dev","test","stage","prod"]: value was "development"
+   ```
+
+   It means you probably have the `NODE_ENV` environment variable set. Run `unset NODE_ENV` (or the equivalent for your shell) then restart the servers:
+
+   ```sh
+   ./pm2 kill
+   ./pm2 start servers.json
+   ```
 
 *******
 
-### Firefox Custom Profile 
+### Firefox Custom Profile
 
 **Use `npm start` to start Firefox with local server configurations.**
 Available options:
@@ -52,7 +94,7 @@ Available options:
 ### Workflow
 > This is an example workflow for **fxa-local-dev**.
 
-After installing **fxa-local-dev** the servers should automatically start up. Use `./pm2 status` command to check the status of the servers: 
+After installing **fxa-local-dev** the servers should automatically start up. Use `./pm2 status` command to check the status of the servers:
 
 ![](http://i.imgur.com/eqL8FiZ.png)
 
@@ -63,20 +105,20 @@ Use the `./pm2 logs` command to get the logs of all servers. You may also use `.
 
 ![](http://i.imgur.com/oGYXSPl.png)
 
-If you get an `error` status for any of the servers please verify that you installed all required dependencies. Otherwise file an issue on this repository.  
+If you get an `error` status for any of the servers please verify that you installed all required dependencies. Otherwise file an issue on this repository.
 
 *******
 
 ### Dependencies
-> Required dependencies: 
-[Git](http://git-scm.com/book/en/v2/Getting-Started-Installing-Git), 
-[node.js **0.10** with npm 2.4+](http://nodejs.org/), 
-[Python 2.6+](https://www.python.org/), 
-[Redis](http://redis.io/), 
+> Required dependencies:
+[Git](http://git-scm.com/book/en/v2/Getting-Started-Installing-Git),
+[node.js **0.10** with npm 2.4+](http://nodejs.org/),
+[Python 2.6+](https://www.python.org/),
+[Redis](http://redis.io/),
 [libgmp](https://gmplib.org/),
 [graphicsmagick](http://www.graphicsmagick.org/).
 
-##### OS X (with [Brew](http://brew.sh/)): 
+##### OS X (with [Brew](http://brew.sh/)):
 
 [Xcode and OS X Command Line Tools are required](https://developer.apple.com/xcode/), install it and verify that command line tools installed:
 ```
@@ -88,16 +130,16 @@ brew install gmp redis graphicsmagick
 sudo easy_install pip && sudo pip install virtualenv
 ```
 
-##### Ubuntu: 
+##### Ubuntu:
 ```
 sudo apt-get install build-essential git-core libgmp3-dev graphicsmagick redis-server python-virtualenv python-dev
 ```
 
 #### Installing Node.js
-##### OS X 
+##### OS X
 Find the latest `node-v0.10.x.pkg` at [nodejs.org/dist/](http://nodejs.org/dist/) and install. Example [node-v0.10.38.pkg](http://nodejs.org/dist/v0.10.38/node-v0.10.38.pkg)
 
-##### Ubuntu: 
+##### Ubuntu:
 
 ```
 curl -sL https://deb.nodesource.com/setup_0.10 | sudo bash -
@@ -107,18 +149,18 @@ sudo apt-get install -y nodejs
 #### Updating NPM
 > Check your npm version using `npm --version`. If it is lower than 2.4 then please upgrade.
 
-All OS: 
+All OS:
 ```
 sudo npm install -g npm@2.4
 ```
 
 #### Installing Java
 
-##### OS X: 
+##### OS X:
 
 Download from [java.com/en/download/](https://www.java.com/en/download/)
 
-##### Ubuntu: 
+##### Ubuntu:
 
 ```
 sudo add-apt-repository ppa:webupd8team/java
