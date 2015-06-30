@@ -83,7 +83,7 @@ Available options:
 
 ### Functional Tests
 
-**The following requires [Java](https://www.java.com/en/download/) and tests the local servers only.**
+**The following requires [the JDK](http://www.oracle.com/technetwork/java/javase/downloads/index-jsp-138363.html#javasejdk) and tests the local servers only.**
 
 **Use `npm test` - all functional tests**
 
