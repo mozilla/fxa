@@ -1442,6 +1442,31 @@ describe('/v1', function() {
         });
       });
     });
+    it('should accept client_secret', function() {
+      return newToken().then(function(res) {
+        return Server.api.post({
+          url: '/destroy',
+          payload: {
+            token: res.result.access_token,
+            client_secret: 'foo'
+          }
+        });
+      }).then(function(res) {
+        assert.equal(res.statusCode, 200);
+      });
+    });
+    it('should accept empty client_secret', function() {
+      return newToken().then(function(res) {
+        return Server.api.post({
+          url: '/destroy',
+          payload: {
+            token: res.result.access_token,
+            client_secret: ''
+          }
+        });
+      }).then(function(res) {
+        assert.equal(res.statusCode, 200);
+      });
+    });
   });
-
 });
