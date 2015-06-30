@@ -33,15 +33,15 @@ Most repositories are [available via GitHub](https://github.com/mozilla?utf8=%E2
 
 ### Core Servers
 
-- https://github.com/mozilla/fxa-content-server
-- https://github.com/mozilla/fxa-auth-server
-- https://github.com/mozilla/fxa-oauth-server
-- https://github.com/mozilla/fxa-profile-server
+- [fxa-content-server](https://github.com/mozilla/fxa-content-server)
+- [fxa-auth-server](https://github.com/mozilla/fxa-auth-server)
+- [fxa-oauth-server](https://github.com/mozilla/fxa-oauth-server)
+- [fxa-profile-server](https://github.com/mozilla/fxa-profile-server)
 
 ### Other
 
-- https://github.com/mozilla/fxa-js-client
-- https://github.com/mozilla/fxa-relier-client
+- [fxa-js-client](https://github.com/mozilla/fxa-js-client)
+- [fxa-relier-client](https://github.com/mozilla/fxa-relier-client)
 
 
 ## People and Places
