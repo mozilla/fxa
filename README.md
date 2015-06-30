@@ -48,7 +48,7 @@
    npm run update
    ```
 
-### Troubleshooting
+#### Troubleshooting
 
 1. For errors during `npm install` (specifically fxa-content-server), or if some servers fail to start:
 
