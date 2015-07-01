@@ -17,6 +17,15 @@
     @include hidpi-background-image('spinnerwhite', 33px 33px);
     height: 33px;
     margin: 0 auto;
+    position: relative;
     width: 33px;
+
+    @include respond-to('small') {
+      top: -2px;
+    }
+
+    @include respond-to('trustedUI') {
+      top: -4px;
+    }
   }
 }
