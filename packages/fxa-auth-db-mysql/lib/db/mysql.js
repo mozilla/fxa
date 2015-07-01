@@ -336,9 +336,9 @@ module.exports = function (log, error) {
   }
 
   // Select : passwordChangeToken t, accounts a
-  // Fields : t.uid, t.tokenData, t.createdAt, a.verifierSetAt
+  // Fields : t.uid, t.tokenData, t.createdAt, a.email, a.verifierSetAt
   // Where  : t.tokenId = $1 AND t.uid = a.uid
-  var PASSWORD_CHANGE_TOKEN = 'CALL passwordChangeToken_1(?)'
+  var PASSWORD_CHANGE_TOKEN = 'CALL passwordChangeToken_2(?)'
 
   MySql.prototype.passwordChangeToken = function (id) {
     return this.readFirstResult(PASSWORD_CHANGE_TOKEN, [id])
