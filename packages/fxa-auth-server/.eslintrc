@@ -1,11 +1,11 @@
 {
-  "extends": "fxa",
+  "extends": "fxa/server",
   "env": {
-  	"mocha": true
+    "mocha": true
   },
   "rules": {
     "handle-callback-err": 0,
     "complexity": [2, 10],
-    "strict": 0
+    "semi": [2, "always"]
   }
 }
