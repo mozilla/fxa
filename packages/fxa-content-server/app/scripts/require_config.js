@@ -23,7 +23,8 @@ require.config({
     moment: '../bower_components/moment/moment',
     mailcheck: '../bower_components/mailcheck/src/mailcheck',
     crosstab: 'vendor/crosstab',
-    uuid: '../bower_components/node-uuid/uuid'
+    uuid: '../bower_components/node-uuid/uuid',
+    'jquery-simulate': '../bower_components/jquery-simulate/jquery.simulate'
   },
   config: {
     moment: {

@@ -65,7 +65,12 @@ function (p, Cocktail, FormView, SettingsMixin, AvatarMixin, Template,
           displayLength: Constants.PROFILE_IMAGE_DISPLAY_SIZE,
           exportLength: Constants.PROFILE_IMAGE_EXPORT_SIZE,
           verticalGutter: VERTICAL_GUTTER,
-          horizontalGutter: HORIZONTAL_GUTTER
+          horizontalGutter: HORIZONTAL_GUTTER,
+          onRotate: this._onRotate.bind(this),
+          onTranslate: this._onTranslate.bind(this),
+          onZoomIn: this._onZoomIn.bind(this),
+          onZoomOut: this._onZoomOut.bind(this),
+          onZoomRangeChange: this._onZoomRangeChange.bind(this)
         });
       } catch (e) {
         // settings_common functional tests visit this page directly so draggable
@@ -103,6 +108,26 @@ function (p, Cocktail, FormView, SettingsMixin, AvatarMixin, Template,
           self.navigate('settings');
           return result;
         });
+    },
+
+    _onRotate: function () {
+      this.logScreenEvent('rotate.cw');
+    },
+
+    _onTranslate: function () {
+      this.logScreenEvent('translate');
+    },
+
+    _onZoomIn: function () {
+      this.logScreenEvent('zoom.in');
+    },
+
+    _onZoomOut: function () {
+      this.logScreenEvent('zoom.out');
+    },
+
+    _onZoomRangeChange: function () {
+      this.logScreenEvent('zoom.range');
     }
 
   });
