@@ -11,10 +11,11 @@ define([
   'lib/auth-errors',
   'stache!templates/settings/display_name',
   'views/mixins/settings-mixin',
-  'views/mixins/settings-panel-mixin'
+  'views/mixins/settings-panel-mixin',
+  'views/mixins/avatar-mixin'
 ],
 function (Cocktail, BaseView, FormView, AuthErrors, Template,
-  SettingsMixin, SettingsPanelMixin) {
+  SettingsMixin, SettingsPanelMixin, AvatarMixin) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -40,6 +41,7 @@ function (Cocktail, BaseView, FormView, AuthErrors, Template,
       var account = self.getSignedInAccount();
       return account.fetchProfile()
         .then(function () {
+          self.user.setAccount(account);
           self._displayName = account.get('displayName');
         });
     },
@@ -51,6 +53,7 @@ function (Cocktail, BaseView, FormView, AuthErrors, Template,
 
       return account.postDisplayName(displayName)
         .then(function () {
+          self.updateDisplayName(displayName);
           self.displaySuccess(t('Display name updated'));
           self.navigate('settings');
           return self.render();
@@ -60,6 +63,7 @@ function (Cocktail, BaseView, FormView, AuthErrors, Template,
 
   Cocktail.mixin(
     View,
+    AvatarMixin,
     SettingsMixin,
     SettingsPanelMixin
   );

@@ -4,7 +4,9 @@
 
 define([
   'jquery',
+  'modal',
   'cocktail',
+  'lib/promise',
   'lib/session',
   'views/form',
   'views/base',
@@ -21,7 +23,7 @@ define([
   'views/decorators/allow_only_one_submit',
   'stache!templates/settings'
 ],
-function ($, Cocktail, Session, FormView, BaseView, AvatarMixin,
+function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
   AvatarView, AvatarChangeView, AvatarCropView, AvatarCameraView, CommunicationPreferencesView,
   ChangePasswordView, DisplayNameView, DeleteAccountView, SettingsMixin, allowOnlyOneSubmit,
   Template) {
@@ -54,16 +56,17 @@ function ($, Cocktail, Session, FormView, BaseView, AvatarMixin,
       this._able = options.able;
       this._subViewToShow = options.subView;
       this._subViews = [];
+      this.notifications = options.notifications;
 
-      this.on('navigate-from-subview', this._closeAvatarView.bind(this));
+      this.on('navigate-from-subview', this._onNavigateFromSubview.bind(this));
+      this.notifications.on('profile:change', this._onProfileChange.bind(this));
     },
 
     context: function () {
       var account = this.getSignedInAccount();
 
       return {
-        email: account.get('email'),
-        displayName: account.get('displayName'),
+        username: account.get('displayName') || account.get('email'),
         showSignOut: !account.isFromSync(),
         communicationPrefsVisible: this._areCommunicationPrefsVisible()
       };
@@ -81,18 +84,19 @@ function ($, Cocktail, Session, FormView, BaseView, AvatarMixin,
 
       self._closeAvatarView();
 
-      // Avatar views depend on state so we have to render them on-demand.
       if (self._isAvatarView(SubView)) {
+        // Avatar views depend on state so we have to render them on-demand.
         return self._renderSubView(SubView, options)
           .then(function (view) {
             view.openPanel();
+            self._openModal(view);
           });
       }
 
       var subView = self.subviewInstanceFromClass(SubView);
       subView.openPanel();
 
-      // TODO log screen here?
+      // TODO logScreen here?
     },
 
     subviewInstanceFromClass: function (SubView) {
@@ -103,10 +107,45 @@ function ($, Cocktail, Session, FormView, BaseView, AvatarMixin,
       })[0];
     },
 
+    _onProfileChange: function () {
+      var account = this.getSignedInAccount();
+      this._showAvatar();
+      this.$('.username').text(account.get('displayName') || account.get('email'));
+    },
+
+    // When we navigate to settings from a subview
+    // close the modal and destroy any avatar view
+    _onNavigateFromSubview: function () {
+      if ($.modal.isActive()) {
+        $.modal.close();
+      }
+      this._closeAvatarView();
+    },
+
+    _openModal: function (view) {
+      var self = this;
+      $(view.el).modal({
+        zIndex: 999,
+        opacity: 0.75,
+        showClose: false
+      });
+      $(view.el).on($.modal.CLOSE, function() {
+        self._onCloseModal();
+      });
+    },
+
+    _onCloseModal: function () {
+      this.subviewInstanceFromClass(AvatarView).closePanelReturnToSettings();
+    },
+
     _closeAvatarView: function () {
+      var view;
       // Destroy any previous avatar view
       if (this._avatarView) {
-        this._avatarView.destroy(true);
+        view = this._avatarView;
+        this._avatarView = null;
+        view.closePanel();
+        view.destroy(true);
       }
     },
 
@@ -160,12 +199,19 @@ function ($, Cocktail, Session, FormView, BaseView, AvatarMixin,
     },
 
     beforeRender: function () {
-      if (this.relier.get('setting') === 'avatar') {
-        this.navigate('/settings/avatar/change');
-        return false;
+      var self = this;
+      if (self.relier.get('setting') === 'avatar') {
+        self.relier.set('setting', null);
+        self.navigate('/settings/avatar/change');
       }
 
       $('body').addClass('settings');
+      var account = self.getSignedInAccount();
+
+      return account.fetchProfile()
+        .then(function () {
+          self.user.setAccount(account);
+        });
     },
 
     afterRender: function () {
@@ -174,15 +220,9 @@ function ($, Cocktail, Session, FormView, BaseView, AvatarMixin,
       self.logScreenEvent('communication-prefs-link.visible.' +
           String(self._areCommunicationPrefsVisible()));
 
-      SUBVIEWS.forEach(function (SubView) {
-        self._renderSubView(SubView);
-      });
-    },
-
-    afterVisible: function () {
-      if (this._subViewToShow) {
-        this.showSubView(this._subViewToShow);
-      }
+      return p.all(SUBVIEWS.map(function (SubView) {
+        return self._renderSubView(SubView);
+      }));
     },
 
     submit: allowOnlyOneSubmit(function () {
@@ -231,15 +271,24 @@ function ($, Cocktail, Session, FormView, BaseView, AvatarMixin,
       }
     },
 
-    afterVisible: function () {
+    _showAvatar: function () {
       var self = this;
       var account = self.getSignedInAccount();
-
-      FormView.prototype.afterVisible.call(self);
       return self.displayAccountProfileImage(account)
         .then(function () {
           self._setupAvatarChangeLinks(self._isAvatarLinkVisible(account));
         });
+    },
+
+    afterVisible: function () {
+      var self = this;
+      FormView.prototype.afterVisible.call(self);
+
+      if (self._subViewToShow) {
+        self.showSubView(self._subViewToShow);
+      }
+
+      return self._showAvatar();
     }
   });
 

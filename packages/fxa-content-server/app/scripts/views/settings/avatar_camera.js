@@ -10,6 +10,7 @@ define([
   'views/form',
   'views/progress_indicator',
   'views/mixins/settings-mixin',
+  'views/mixins/settings-panel-mixin',
   'views/mixins/avatar-mixin',
   'stache!templates/settings/avatar_camera',
   'lib/constants',
@@ -19,7 +20,7 @@ define([
   'models/profile-image'
 ],
 function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
-    SettingsMixin, AvatarMixin, Template, Constants, p, AuthErrors,
+    SettingsMixin, SettingsPanelMixin, AvatarMixin, Template, Constants, p, AuthErrors,
     Environment, ProfileImage) {
   'use strict';
 
@@ -219,7 +220,7 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
     }
   });
 
-  Cocktail.mixin(View, SettingsMixin, AvatarMixin);
+  Cocktail.mixin(View, SettingsMixin, SettingsPanelMixin, AvatarMixin);
 
   return View;
 });

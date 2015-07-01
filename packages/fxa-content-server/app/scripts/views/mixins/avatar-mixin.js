@@ -48,11 +48,11 @@ define([
 
           if (profileImage.isDefault()) {
             self.$(wrapperClass).addClass('with-default');
-            self.$(wrapperClass).append('<span></span>');
+            self.$(wrapperClass).html('<span></span>');
             self.logScreenEvent('profile_image_not_shown');
           } else {
             self.$(wrapperClass).removeClass('with-default');
-            self.$(wrapperClass).append(profileImage.get('img'));
+            self.$(wrapperClass).html(profileImage.get('img'));
             self.logScreenEvent('profile_image_shown');
           }
         });
@@ -85,12 +85,14 @@ define([
     },
 
     updateProfileImage: function (profileImage, account) {
+      var self = this;
       account.setProfileImage(profileImage);
-      this.user.setAccount(account);
-
-      this.notifications.profileChanged({
-        uid: account.get('uid')
-      });
+      self.user.setAccount(account)
+        .then(function () {
+          self.notifications.profileChanged({
+            uid: account.get('uid')
+          });
+        });
     },
 
     deleteDisplayedAccountProfileImage: function (account) {
@@ -99,6 +101,18 @@ define([
         .then(function () {
           // A blank image will clear the cache
           self.updateProfileImage(new ProfileImage(), account);
+        });
+    },
+
+    updateDisplayName: function (displayName) {
+      var self = this;
+      var account = self.getSignedInAccount();
+      account.set('displayName', displayName);
+      self.user.setAccount(account)
+        .then(function () {
+          self.notifications.profileChanged({
+            uid: account.get('uid')
+          });
         });
     }
   };

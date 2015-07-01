@@ -37,6 +37,7 @@ define([
       this._channels.forEach(function (channel) {
         channel.send(event, data);
       });
+      this.trigger(event, data);
     },
 
     profileChanged: function (data) {

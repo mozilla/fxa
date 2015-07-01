@@ -203,3 +203,14 @@
 .no-getusermedia #camera {
   display: none;
 }
+
+.avatar-view section {
+  text-align: center;
+}
+
+.avatar-view .settings-button {
+  float: none;
+  width: 100%;
+  margin-bottom: 10px;
+  text-decoration: none;
+}

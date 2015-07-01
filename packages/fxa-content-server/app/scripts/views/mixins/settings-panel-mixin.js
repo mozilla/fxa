@@ -9,14 +9,13 @@
 define([
   'views/base'
 ], function (BaseView) {
-
   return {
     initialize: function (options) {
       this.superView = options.superView;
     },
     events: {
       'click .settings-unit-toggle': BaseView.preventDefaultThen('openPanel'),
-      'click .cancel': BaseView.preventDefaultThen('cancelPanel')
+      'click .cancel': BaseView.preventDefaultThen('closePanelReturnToSettings')
     },
 
     openPanel: function () {
@@ -24,16 +23,26 @@ define([
       this.$('.settings-unit').removeClass('setting-updated');
     },
 
-    cancelPanel: function () {
-      this.$('.settings-unit').removeClass('open');
-      this.$('.settings-unit').removeClass('setting-updated');
+    closePanelReturnToSettings: function () {
+      this.closePanel();
       this.navigate('settings');
     },
 
-    displaySuccess: function (msg) {
-      this.superView.displaySuccess(msg);
-      this.$('.settings-unit').addClass('setting-updated');
+    closePanel: function () {
       this.$('.settings-unit').removeClass('open');
+      this.$('.settings-unit').removeClass('setting-updated');
+    },
+
+    displaySuccess: function (msg) {
+      var self = this;
+      self.superView.displaySuccess(msg);
+      self.$('.settings-unit').addClass('setting-updated');
+      self.$('.settings-unit').removeClass('open');
+
+      clearTimeout(self._successTimeout);
+      self._successTimeout = setTimeout(function () {
+        self.superView.hideSuccess(msg);
+      }, 3000);
     }
   };
 });

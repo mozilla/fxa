@@ -106,8 +106,7 @@ body.settings #about-mozilla {
 
   &.settings-unit-toggle {
     display: block;
-    height: 30px;
-    margin-top: 5px;
+    height: 35px;
 
     @include respond-to('big') {
       width: 100px;
@@ -221,6 +220,7 @@ body.settings #about-mozilla {
   .settings-unit-summary {
     display: inline-block;
     float: left;
+    margin-top: 5px;
 
     @include respond-to('big') {
       width: 350px;
@@ -283,4 +283,13 @@ body.settings #about-mozilla {
 
 .open .settings-unit-details {
   display: block;
+}
+
+.open .settings-unit-toggle {
+  display: none;
+}
+
+.modal {
+  border-radius: 4px;
+  box-shadow: 0px 1px 5px black;
 }
