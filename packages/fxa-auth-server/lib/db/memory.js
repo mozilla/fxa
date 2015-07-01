@@ -19,7 +19,7 @@ const MAX_TTL = config.get('expiration.accessToken');
  *   clients: {
  *     <id>: {
  *       id: <id>,
- *       secret: <string>,
+ *       hashedSecret: <string>,
  *       name: <string>,
  *       imageUri: <string>,
  *       redirectUri: <string>,
@@ -133,7 +133,7 @@ MemoryStore.prototype = {
     client.canGrant = !!client.canGrant;
     client.trusted = !!client.trusted;
     this.clients[hex] = client;
-    client.secret = client.hashedSecret;
+    client.hashedSecret = client.hashedSecret;
     return P.resolve(client);
   },
   updateClient: function updateClient(client) {
@@ -149,7 +149,7 @@ MemoryStore.prototype = {
       if (key === 'id') {
         // nothing
       } else if (key === 'hashedSecret') {
-        old.secret = buf(client[key]);
+        old.hashedSecret = buf(client[key]);
       } else if (client[key] !== undefined) {
         old[key] = client[key];
       }
