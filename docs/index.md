@@ -85,8 +85,9 @@ Most of our work takes place on github, and we use [waffle.io](https://waffle.io
 If you have found a bug in FxA, please file it via one of the two dashboards
 above.
 
-There is also a "Server: Firefox Accounts" component in bugzilla, for when FxA code interacts with parts of Mozilla that operate out of bugzilla:
+There is also a "Core/FxAccounts" bugzilla component that covers the accounts code inside Firefox itself, and a "Server: Firefox Accounts" component for when FxA code interacts with parts of Mozilla that operate out of bugzilla:
 
+* [Bugzilla search for "Core/FxAccounts"](https://bugzilla.mozilla.org/buglist.cgi?query_format=advanced&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&component=FxAccounts&product=Core&list_id=12360036)
 * [Bugzilla search for "Server: Firefox Accounts"](https://bugzilla.mozilla.org/buglist.cgi?query_format=advanced&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&component=Server%3A Firefox Accounts&product=Cloud Services)
 
 
