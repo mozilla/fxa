@@ -29,6 +29,7 @@ module.exports = function (grunt) {
   mozlog.config(config.get('logging'));
 
   grunt.initConfig({
+    pkg: grunt.file.readJSON('package.json')
   });
 
   grunt.loadTasks('grunttasks');
