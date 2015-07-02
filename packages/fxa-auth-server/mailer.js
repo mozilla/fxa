@@ -9,15 +9,15 @@ var nodemailer = require('nodemailer')
 module.exports = function (log) {
   function extend(target, source) {
     for (var key in source) {
-      target[key] = source[key];
+      target[key] = source[key]
     }
 
-    return target;
+    return target
   }
 
   // helper used to ensure strings are extracted
   function gettext(txt) {
-    return txt;
+    return txt
   }
 
 
