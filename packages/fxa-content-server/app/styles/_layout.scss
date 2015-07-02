@@ -48,12 +48,12 @@
   .chromeless & {
     border: none;
     box-shadow: none;
+    margin-top: 0;
   }
-
 }
 
 #stage {
-  
+
   display: block;
   opacity: 0;
 
