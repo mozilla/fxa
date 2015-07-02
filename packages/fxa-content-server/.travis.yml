@@ -1,10 +1,13 @@
 language: node_js
+
 node_js:
   - "0.10"
+
 addons:
   firefox: "38.0"
   apt_packages:
     - libgmp-dev
+
 env:
   global:
     - DISABLE_ROUTE_LOGGING=true
@@ -16,6 +19,13 @@ cache:
     - node_modules
     - app/bower_components
     - fxa-auth-server/node_modules
+
+notifications:
+  irc:
+    channels:
+      - 'irc.mozilla.org#fxa-bots'
+    use_notice: false
+    skip_join: false
 
 before_install:
   # Update npm to 2.4
