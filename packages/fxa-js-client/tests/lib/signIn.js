@@ -26,8 +26,8 @@ define([
       });
 
       test('#basic', function () {
-        var email = "test" + new Date().getTime() + "@restmail.net";
-        var password = "iliketurtles";
+        var email = 'test' + new Date().getTime() + '@restmail.net';
+        var password = 'iliketurtles';
 
         return respond(client.signUp(email, password), RequestMocks.signUp)
           .then(function () {
@@ -43,8 +43,8 @@ define([
       });
 
       test('#with keys', function () {
-        var email = "test" + new Date().getTime() + "@restmail.net";
-        var password = "iliketurtles";
+        var email = 'test' + new Date().getTime() + '@restmail.net';
+        var password = 'iliketurtles';
 
         return respond(client.signUp(email, password), RequestMocks.signUp)
           .then(function (res) {
@@ -61,8 +61,8 @@ define([
       });
 
       test('#with service', function () {
-        var email = "test" + new Date().getTime() + "@restmail.net";
-        var password = "iliketurtles";
+        var email = 'test' + new Date().getTime() + '@restmail.net';
+        var password = 'iliketurtles';
 
         return respond(client.signUp(email, password), RequestMocks.signUp)
           .then(function () {
@@ -71,8 +71,8 @@ define([
       });
 
       test('#with reason', function () {
-        var email = "test" + new Date().getTime() + "@restmail.net";
-        var password = "iliketurtles";
+        var email = 'test' + new Date().getTime() + '@restmail.net';
+        var password = 'iliketurtles';
 
         return respond(client.signUp(email, password), RequestMocks.signUp)
           .then(function () {

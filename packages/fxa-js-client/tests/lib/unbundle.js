@@ -33,7 +33,7 @@ define([
                 wrapKB: sjcl.codec.hex.fromBits(sjcl.bitArray.bitSlice(keyAWrapB, 8 * 32, 8 * 64))
               };
 
-              return keyObj
+              return keyObj;
             }
           ).then(
             function(result) {
@@ -53,8 +53,8 @@ define([
               assert.equal(result.kA, '939282904b808c6003ea31aeb14bc766d2ab70ba7dcaa54f820efcf4762b9619', '== kA equal');
               assert.equal(result.wrapKB, '849ac9f71643ace46dcdd384633ec1bffe565852806ee2f859c3eba7fafeafec', '== wrapKB equal');
             }
-          )
-      })
+          );
+      });
 
     });
   }

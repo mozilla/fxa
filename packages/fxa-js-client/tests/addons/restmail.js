@@ -16,7 +16,7 @@ define([
   Restmail.prototype.wait = function (user, number) {
     var self = this;
 
-    if (!number) number = 1;
+    if (!number) number = 1; //eslint-disable-line curly
     console.log('Waiting for email...');
 
     return self.request.send('/mail/' + user, 'GET')

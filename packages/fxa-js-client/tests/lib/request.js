@@ -22,7 +22,7 @@ define([
       });
 
       test('#heartbeat', function () {
-        var heartbeatRequest = env.respond(request.send("/__heartbeat__", "GET"), RequestMocks.heartbeat)
+        var heartbeatRequest = env.respond(request.send('/__heartbeat__', 'GET'), RequestMocks.heartbeat)
           .then(
             function (res) {
               assert.ok(res);
@@ -36,7 +36,7 @@ define([
       test('#error', function () {
         request = new Request('http://', env.xhr);
 
-        request.send("/", "GET")
+        request.send('/', 'GET')
           .then(
             assert.notOk,
             function () {
@@ -49,7 +49,7 @@ define([
       test('#timeout', function () {
         request = new Request('http://google.com:81', env.xhr, { timeout: 200 });
 
-        var timeoutRequest = env.respond(request.send("/", "GET"), ErrorMocks.timeout);
+        var timeoutRequest = env.respond(request.send('/', 'GET'), ErrorMocks.timeout);
 
         return timeoutRequest.then(
           assert.notOk,
@@ -63,7 +63,7 @@ define([
         request = new Request('http://example.com/', env.xhr);
 
         // Trigger an error response that's in HTML
-        var response = env.respond(request.send("/nonexistent", "GET"), ErrorMocks.badResponseFormat);
+        var response = env.respond(request.send('/nonexistent', 'GET'), ErrorMocks.badResponseFormat);
 
         return response.then(
           assert.notOk,

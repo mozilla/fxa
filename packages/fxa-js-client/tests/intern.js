@@ -24,28 +24,28 @@ define(['intern/lib/args'], function (args) {
     if (server === 'LATEST') {
       server = 'https://api-accounts-latest.dev.lcip.org';
     }
-    console.log("Running against " + server);
+    console.log('Running against ' + server);
   } else {
-    console.log("Running with mocks...");
+    console.log('Running with mocks...');
   }
 
   return {
-  loader: {
+    loader: {
     // Packages that should be registered with the loader in each testing environment
-    packages: [ { name: 'fxa-js-client', location: 'client' } ],
-    map: {
-      '*': {
-        sjcl: 'components/sjcl/sjcl',
-        p: 'components/p/p'
+      packages: [ { name: 'fxa-js-client', location: 'client' } ],
+      map: {
+        '*': {
+          sjcl: 'components/sjcl/sjcl',
+          p: 'components/p/p'
+        }
       }
-    }
-  },
+    },
 
-  suites: [ 'tests/all' ],
-  functionalSuites: [ ],
-  AUTH_SERVER_URL: server,
+    suites: [ 'tests/all' ],
+    functionalSuites: [ ],
+    AUTH_SERVER_URL: server,
 
-  excludeInstrumentation: /./
+    excludeInstrumentation: /./
 
   };
 

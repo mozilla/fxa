@@ -12,18 +12,14 @@ define([
     suite('errors', function () {
       var accountHelper;
       var respond;
-      var mail;
       var client;
-      var RequestMocks;
       var ErrorMocks;
 
       beforeEach(function () {
         var env = new Environment();
         accountHelper = env.accountHelper;
         respond = env.respond;
-        mail = env.mail;
         client = env.client;
-        RequestMocks = env.RequestMocks;
         ErrorMocks = env.ErrorMocks;
       });
 
@@ -34,7 +30,7 @@ define([
             var pk = {algorithm: 'RS', n: 'x', e: 'y'};
             var duration = 1000;
 
-            return respond(client.certificateSign(account.signIn.sessionToken, pk, duration), ErrorMocks.accountUnverified)
+            return respond(client.certificateSign(account.signIn.sessionToken, pk, duration), ErrorMocks.accountUnverified);
           })
           .then(
             function () {
@@ -51,7 +47,7 @@ define([
 
         return accountHelper.newUnverifiedAccount()
           .then(function (account) {
-            return respond(client.verifyCode(account.signUp.uid, 'eb531a64deb628b2baeaceaa8762abf0'), ErrorMocks.invalidVerification)
+            return respond(client.verifyCode(account.signUp.uid, 'eb531a64deb628b2baeaceaa8762abf0'), ErrorMocks.invalidVerification);
           })
           .then(
             function () {

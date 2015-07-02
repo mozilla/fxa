@@ -4,15 +4,22 @@
 
 module.exports = function (grunt) {
   grunt.config('eslint', {
-    options: {
-      eslintrc: '.eslintrc'
-    },
     app: {
+      eslintrc: '.eslintrc',
       src: ['Gruntfile.js', 'tasks/*.js', 'config/**/*.js', 'node/**/*.js']
     },
     client: {
       options: {eslintrc: 'client/.eslintrc'},
       src: ['client/*.js', 'client/lib/**/*']
+    },
+    test: {
+      options: {
+        eslintrc: 'tests/.eslintrc'
+      },
+      src: [
+        'tests/**/*.js',
+        '!tests/addons/sinon.js'
+      ]
     }
   });
 };

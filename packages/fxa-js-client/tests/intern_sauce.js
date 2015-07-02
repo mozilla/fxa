@@ -22,13 +22,13 @@ define([
   };
 
   intern.environments = [
-    { browserName: 'firefox', version: '25' , platform: [ 'Windows 7', 'Linux' ] },
+    { browserName: 'firefox', version: '25', platform: [ 'Windows 7', 'Linux' ] },
     { browserName: 'internet explorer', version: ['9', '10'], platform: [ 'Windows 7' ] },
     { browserName: 'chrome' },
     { browserName: 'safari' }
   ];
 
-  console.log("SAUCE", intern.proxyUrl);
+  console.log('SAUCE', intern.proxyUrl);
 
   return intern;
 });

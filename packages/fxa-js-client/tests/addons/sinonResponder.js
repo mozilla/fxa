@@ -21,7 +21,7 @@ define([
         });
 
         return returnValue;
-      }
+      };
     },
     respond: function (req, mock) {
       if (typeof mock === 'undefined') {
@@ -31,5 +31,5 @@ define([
         req.respond(mock.status, mock.headers, mock.body);
       }
     }
-  }
+  };
 });
