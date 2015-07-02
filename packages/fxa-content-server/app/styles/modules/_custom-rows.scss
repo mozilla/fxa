@@ -79,7 +79,14 @@ ul.links {
 
 .marketing-email-optin-row {
   color: $input-placeholder-color;
-  margin: 10px 0;
+  
+  @include respond-to('small') {
+    margin: 10px 0;
+  }
+
+  @include respond-to('big') {
+    margin: 20px 0 10px 0;
+  }
 }
 
 .cannot-create-account-content {
