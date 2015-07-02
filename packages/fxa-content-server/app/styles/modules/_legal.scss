@@ -24,16 +24,18 @@
     margin: 0;
   }
 
-  .terms {
-    margin-right: 10px;
-    text-align: right;
+  .terms,
+  .privacy {
+    margin: 0 20px;
     width: 50%;
   }
 
+  .terms {
+    text-align: right;
+  }
+
   .privacy {
-    margin-left: 10px;
     text-align: left;
-    width: 50%;
   }
 
   a {
