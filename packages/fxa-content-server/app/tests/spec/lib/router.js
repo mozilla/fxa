@@ -12,6 +12,7 @@ define([
   'views/ready',
   'lib/able',
   'lib/constants',
+  'lib/environment',
   'lib/metrics',
   'lib/ephemeral-messages',
   'lib/promise',
@@ -23,7 +24,7 @@ define([
   '../../lib/helpers'
 ],
 function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
-      Able, Constants, Metrics, EphemeralMessages, p, Relier,
+      Able, Constants, Environment, Metrics, EphemeralMessages, p, Relier,
       User, FormPrefill, NullBroker, WindowMock, TestHelpers) {
   'use strict';
 
@@ -41,6 +42,7 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
     var user;
     var formPrefill;
     var able;
+    var environment;
 
     beforeEach(function () {
       navigateUrl = navigateOptions = null;
@@ -60,6 +62,7 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
 
       able = new Able();
 
+      environment = new Environment(windowMock);
       router = new Router({
         window: windowMock,
         metrics: metrics,
@@ -67,7 +70,8 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
         broker: broker,
         user: user,
         formPrefill: formPrefill,
-        able: able
+        able: able,
+        environment: environment
       });
 
       origNavigate = Backbone.Router.prototype.navigate;
@@ -399,6 +403,13 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
         assert.isFalse(router.navigate.called);
       }
 
+      function setUpIFrameLink() {
+        sinon.stub(environment, 'isFramed', function () {
+          return true;
+        });
+        event.currentTarget = $('<a href="/legal/xyz">Legal Pages</a>');
+      }
+
       it('does nothing if the event\'s default is prevented', function () {
         sinon.stub(event, 'isDefaultPrevented', function () {
           return true;
@@ -429,6 +440,20 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
         event.shiftKey = true;
 
         testNoNavigation();
+      });
+
+      it('does not call navigate if inside an iframe', function () {
+        setUpIFrameLink();
+
+        testNoNavigation();
+      });
+
+      it('opens a new window if inside an iframe', function () {
+        setUpIFrameLink();
+
+        sinon.spy(windowMock, 'open');
+        router.onAnchorClick(event);
+        assert.isTrue(windowMock.open.called);
       });
 
       it('navigates otherwise', function () {
