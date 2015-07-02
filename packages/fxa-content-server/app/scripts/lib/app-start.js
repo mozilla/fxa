@@ -366,14 +366,12 @@ function (
         if (this._isFxDesktopV2()) {
           this._authenticationBroker = new FxDesktopV2AuthenticationBroker({
             window: this._window,
-            relier: this._relier,
-            metrics: this._metrics
+            relier: this._relier
           });
         } else if (this._isFxDesktopV1()) {
           this._authenticationBroker = new FxDesktopV1AuthenticationBroker({
             window: this._window,
-            relier: this._relier,
-            metrics: this._metrics
+            relier: this._relier
           });
         } else if (this._isWebChannel()) {
           this._authenticationBroker = new WebChannelAuthenticationBroker({
@@ -408,7 +406,15 @@ function (
           });
         }
 
-        this._metrics.setBrokerType(this._authenticationBroker.type);
+        var metrics = this._metrics;
+        var win = this._window;
+
+        this._authenticationBroker.on('error', function (err) {
+          win.console.error('broker error', String(err));
+          metrics.logError(err);
+        });
+
+        metrics.setBrokerType(this._authenticationBroker.type);
 
         return this._authenticationBroker.fetch();
       }
