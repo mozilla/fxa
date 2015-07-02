@@ -170,7 +170,7 @@ define([
     });
 
     describe('afterSignIn', function () {
-      it('notifies the channel of login', function () {
+      it('notifies the channel of login, halts by default', function () {
         sinon.spy(broker, 'send');
         account.set({
           uid: 'uid',
@@ -199,10 +199,23 @@ define([
             assert.isTrue(result.halt);
           });
       });
+
+      it('does not halt with `haltAfterSignIn: false`', function () {
+        broker = new FxDesktopAuthenticationBroker({
+          channel: channelMock,
+          haltAfterSignIn: false,
+          window: windowMock,
+        });
+
+        return broker.afterSignIn(account)
+          .then(function (result) {
+            assert.isFalse(result.halt);
+          });
+      });
     });
 
     describe('beforeSignUpConfirmationPoll', function () {
-      it('notifies the channel of login, halts the flow', function () {
+      it('notifies the channel of login, halts the flow by default', function () {
         sinon.spy(broker, 'send');
 
         return broker.beforeSignUpConfirmationPoll(account)
@@ -211,16 +224,42 @@ define([
             assert.isTrue(result.halt);
           });
       });
+
+      it('does not halt with `haltBeforeSignUpConfirmationPoll: false`', function () {
+        broker = new FxDesktopAuthenticationBroker({
+          channel: channelMock,
+          haltBeforeSignUpConfirmationPoll: false,
+          window: windowMock
+        });
+
+        return broker.beforeSignUpConfirmationPoll(account)
+          .then(function (result) {
+            assert.isFalse(result.halt);
+          });
+      });
     });
 
     describe('afterResetPasswordConfirmationPoll', function () {
-      it('notifies the channel of login', function () {
+      it('notifies the channel of login, halts by default', function () {
         sinon.spy(broker, 'send');
 
         return broker.afterResetPasswordConfirmationPoll(account)
           .then(function (result) {
             assert.isTrue(broker.send.calledWith('login'));
             assert.isTrue(result.halt);
+          });
+      });
+
+      it('does not halt with `haltAfterResetPasswordConfirmationPoll: false`', function () {
+        broker = new FxDesktopAuthenticationBroker({
+          channel: channelMock,
+          haltAfterResetPasswordConfirmationPoll: false,
+          window: windowMock
+        });
+
+        return broker.afterResetPasswordConfirmationPoll(account)
+          .then(function (result) {
+            assert.isFalse(result.halt);
           });
       });
     });

@@ -14,6 +14,8 @@ define([
     'tests/functional/complete_sign_up',
     'tests/functional/sync_sign_up',
     'tests/functional/sync_v2_sign_up',
+    'tests/functional/firstrun_sign_up',
+    'tests/functional/firstrun_sign_in',
     'tests/functional/bounced_email',
     'tests/functional/confirm',
     'tests/functional/delete_account',

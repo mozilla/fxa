@@ -11,7 +11,7 @@ define([
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, assert, require, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
-  var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v2&service=sync';
+  var PAGE_URL = config.fxaContentRoot + 'signup?context=iframe&service=sync';
 
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
 
@@ -25,7 +25,7 @@ define([
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
 
   registerSuite({
-    name: 'Firefox Desktop Sync v2 sign_up',
+    name: 'Firstrun sign_up',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
@@ -49,7 +49,7 @@ define([
         });
     },
 
-    'sign up, verify same browser': function () {
+    'sign up, verify same browser in a different tab': function () {
       var self = this;
 
       return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
@@ -65,6 +65,9 @@ define([
         .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
         .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:login'))
 
+        .findByCssSelector('#fxa-confirm-header')
+        .end()
+
         // verify the user
         .then(function () {
           return FunctionalHelpers.openVerificationLinkSameBrowser(
@@ -76,7 +79,7 @@ define([
         // In real life, the original browser window would show
         // a "welcome to sync!" screen that has a manage button
         // on it, and this screen should show the FxA success screen.
-        .findById('fxa-sign-up-complete-header')
+        .findByCssSelector('#fxa-sign-up-complete-header')
         .end()
 
         .findByCssSelector('.account-ready-service')
@@ -88,11 +91,11 @@ define([
         .end()
         .closeCurrentWindow()
 
-        // switch to the original window, it should not transition.
+        // switch back to the original window, it should not transition.
         .switchToWindow('')
         .end()
 
-        .findByCssSelector('#fxa-confirm-header')
+        .findByCssSelector('#fxa-sign-up-complete-header')
         .end();
     }
   });

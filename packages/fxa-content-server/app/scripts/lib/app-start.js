@@ -53,6 +53,7 @@ define([
   'models/auth_brokers/base',
   'models/auth_brokers/fx-desktop',
   'models/auth_brokers/fx-desktop-v2',
+  'models/auth_brokers/first-run',
   'models/auth_brokers/web-channel',
   'models/auth_brokers/redirect',
   'models/auth_brokers/iframe',
@@ -99,6 +100,7 @@ function (
   BaseAuthenticationBroker,
   FxDesktopV1AuthenticationBroker,
   FxDesktopV2AuthenticationBroker,
+  FirstRunAuthenticationBroker,
   WebChannelAuthenticationBroker,
   RedirectAuthenticationBroker,
   IframeAuthenticationBroker,
@@ -384,9 +386,14 @@ function (
     },
 
     initializeAuthenticationBroker: function () {
-      /*eslint complexity: [2, 7] */
+      /*eslint complexity: [2, 8] */
       if (! this._authenticationBroker) {
-        if (this._isFxDesktopV2()) {
+        if (this._isFirstRun()) {
+          this._authenticationBroker = new FirstRunAuthenticationBroker({
+            relier: this._relier,
+            window: this._window
+          });
+        } else if (this._isFxDesktopV2()) {
           this._authenticationBroker = new FxDesktopV2AuthenticationBroker({
             window: this._window,
             relier: this._relier
@@ -622,6 +629,10 @@ function (
       // considered fx-desktop. If service=sync is on the URL, it's considered
       // fx-desktop.
       return this._isFxDesktopV1() || this._isFxDesktopV2() || this._isSync();
+    },
+
+    _isFirstRun: function () {
+      return this._isFxDesktopV2() && this._isIframeContext();
     },
 
     _isWebChannel: function () {
