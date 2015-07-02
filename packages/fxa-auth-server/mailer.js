@@ -7,6 +7,19 @@ var P = require('bluebird')
 var nodemailer = require('nodemailer')
 
 module.exports = function (log) {
+  function extend(target, source) {
+    for (var key in source) {
+      target[key] = source[key];
+    }
+
+    return target;
+  }
+
+  // helper used to ensure strings are extracted
+  function gettext(txt) {
+    return txt;
+  }
+
 
   function Mailer(translator, templates, config) {
     var options = {
@@ -37,11 +50,30 @@ module.exports = function (log) {
   }
 
   Mailer.prototype.send = function (message) {
-    log.info({ op: 'mailer.send', email: message && message.to })
+    log.trace({ op: 'mailer.' + message.template, email: message.email, uid: message.uid })
+
+    var translator = this.translator(message.acceptLanguage)
+
+    var localized = this.templates[message.template](extend({
+      translator: translator
+    }, message.templateValues))
+
+    var emailConfig = {
+      sender: this.sender,
+      to: message.email,
+      subject: translator.gettext(message.subject),
+      text: localized.text,
+      html: localized.html,
+      headers: extend({
+        'Content-Language': translator.language
+      }, message.headers)
+    }
+
+    log.info({ op: 'mailer.send', email: message.email })
 
     var d = P.defer()
     this.mailer.sendMail(
-      message,
+      emailConfig,
       function (err, status) {
         log.trace(
           {
@@ -58,12 +90,11 @@ module.exports = function (log) {
   }
 
   Mailer.prototype.verifyEmail = function (message) {
-    log.trace({ op: 'mailer.verifyEmail', email: message.email, uid: message.uid })
-    var translator = this.translator(message.acceptLanguage)
     var query = {
         uid: message.uid,
         code: message.code
       }
+
     if (message.service) { query.service = message.service }
     if (message.redirectTo) { query.redirectTo = message.redirectTo }
     if (message.resume) { query.resume = message.resume }
@@ -72,33 +103,27 @@ module.exports = function (log) {
     query.one_click = true
     var oneClickLink = this.verificationUrl + '?' + qs.stringify(query)
 
-    var values = {
-      translator: translator,
-      link: link,
-      oneClickLink: oneClickLink,
-      email: message.email
-    }
-    var localized = this.templates.verifyEmail(values)
-    var email = {
-      sender: this.sender,
-      to: message.email,
-      subject: translator.gettext('Verify your Firefox Account'),
-      text: localized.text,
-      html: localized.html,
+    return this.send({
+      acceptLanguage: message.acceptLanguage,
+      email: message.email,
       headers: {
-        'X-Uid': message.uid,
-        'X-Verify-Code': message.code,
-        'X-Service-ID': message.service,
         'X-Link': link,
-        'Content-Language': translator.language
-      }
-    }
-    return this.send(email)
+        'X-Service-ID': message.service,
+        'X-Uid': message.uid,
+        'X-Verify-Code': message.code
+      },
+      subject: gettext('Verify your Firefox Account'),
+      template: 'verifyEmail',
+      templateValues: {
+        email: message.email,
+        link: link,
+        oneClickLink: oneClickLink
+      },
+      uid: message.uid
+    })
   }
 
   Mailer.prototype.recoveryEmail = function (message) {
-    log.trace({ op: 'mailer.recoveryEmail', email: message.email })
-    var translator = this.translator(message.acceptLanguage)
     var query = {
         token: message.token,
         code: message.code,
@@ -110,32 +135,25 @@ module.exports = function (log) {
 
     var link = this.passwordResetUrl + '?' + qs.stringify(query)
 
-    var values = {
-      translator: translator,
-      link: link,
+    return this.send({
+      acceptLanguage: message.acceptLanguage,
       email: message.email,
-      code: message.code
-    }
-
-    var localized = this.templates.recoveryEmail(values)
-    var email = {
-      sender: this.sender,
-      to: message.email,
-      subject: translator.gettext('Reset your Firefox Account password'),
-      text: localized.text,
-      html: localized.html,
       headers: {
-        'X-Recovery-Code': message.code,
         'X-Link': link,
-        'Content-Language': translator.language
-      }
-    }
-    return this.send(email)
+        'X-Recovery-Code': message.code
+      },
+      subject: gettext('Reset your Firefox Account password'),
+      template: 'recoveryEmail',
+      templateValues: {
+        code: message.code,
+        email: message.email,
+        link: link
+      },
+      uid: message.uid
+    })
   }
 
   Mailer.prototype.unlockEmail = function (message) {
-    log.trace({ op: 'mailer.unlockEmail', email: message.email, uid: message.uid })
-    var translator = this.translator(message.acceptLanguage)
     var query = {
         uid: message.uid,
         code: message.code
@@ -146,81 +164,64 @@ module.exports = function (log) {
 
     var link = this.accountUnlockUrl + '?' + qs.stringify(query)
 
-    var values = {
-      translator: translator,
-      link: link,
-      email: message.email
-    }
-    var localized = this.templates.unlockEmail(values)
-    var email = {
-      sender: this.sender,
-      to: message.email,
-      subject: translator.gettext('Re-verify your Firefox Account'),
-      text: localized.text,
-      html: localized.html,
+    return this.send({
+      acceptLanguage: message.acceptLanguage,
+      email: message.email,
       headers: {
-        'X-Uid': message.uid,
-        'X-Unlock-Code': message.code,
-        'X-Service-ID': message.service,
         'X-Link': link,
-        'Content-Language': translator.language
-      }
-    }
-    return this.send(email)
+        'X-Service-ID': message.service,
+        'X-Uid': message.uid,
+        'X-Unlock-Code': message.code
+      },
+      subject: gettext('Re-verify your Firefox Account'),
+      template: 'unlockEmail',
+      templateValues: {
+        email: message.email,
+        link: link
+      },
+      uid: message.uid
+    })
+  }
+
+  Mailer.prototype.createPasswordResetLink = function(email) {
+    return this.initiatePasswordResetUrl + '?' + qs.stringify({ email: email })
   }
 
   Mailer.prototype.passwordChangedEmail = function (message) {
-    log.trace({ op: 'mailer.passwordChangedEmail', email: message.email, uid: message.uid })
-    var query = {
-      email: message.email
-    }
-    var link = this.initiatePasswordResetUrl + '?' + qs.stringify(query)
+    var link = this.createPasswordResetLink(message.email)
 
-    var translator = this.translator(message.acceptLanguage)
-    var values = {
-      translator: translator,
-      resetLink: link
-    }
-    var localized = this.templates.passwordChangedEmail(values)
-    var email = {
-      sender: this.sender,
-      to: message.email,
-      subject: translator.gettext('Your Firefox Account password has been changed'),
-      text: localized.text,
-      html: localized.html,
+    return this.send({
+      acceptLanguage: message.acceptLanguage,
+      email: message.email,
       headers: {
-        'Content-Language': translator.language,
         'X-Link': link
-      }
-    }
-    return this.send(email)
+      },
+      subject: gettext('Your Firefox Account password has been changed'),
+      template: 'passwordChangedEmail',
+      templateValues: {
+        resetLink: link
+      },
+      uid: message.uid
+    })
   }
 
   Mailer.prototype.passwordResetEmail = function (message) {
-    log.trace({ op: 'mailer.passwordiResetEmail', email: message.email, uid: message.uid })
-    var query = {
-      email: message.email
-    }
-    var link = this.initiatePasswordResetUrl + '?' + qs.stringify(query)
 
-    var translator = this.translator(message.acceptLanguage)
-    var values = {
-      translator: translator,
-      resetLink: link
-    }
-    var localized = this.templates.passwordResetEmail(values)
-    var email = {
-      sender: this.sender,
-      to: message.email,
-      subject: translator.gettext('Your Firefox Account password has been reset'),
-      text: localized.text,
-      html: localized.html,
+    var link = this.createPasswordResetLink(message.email)
+
+    return this.send({
+      acceptLanguage: message.acceptLanguage,
+      email: message.email,
       headers: {
-        'Content-Language': translator.language,
         'X-Link': link
-      }
-    }
-    return this.send(email)
+      },
+      subject: gettext('Your Firefox Account password has been reset'),
+      template: 'passwordResetEmail',
+      templateValues: {
+        resetLink: link
+      },
+      uid: message.uid
+    })
   }
 
   Mailer.prototype.newSyncDeviceEmail = function (message) {
@@ -230,24 +231,19 @@ module.exports = function (log) {
     }
     var link = this.initiatePasswordResetUrl + '?' + qs.stringify(query)
 
-    var translator = this.translator(message.acceptLanguage)
-    var values = {
-      translator: translator,
-      resetLink: link
-    }
-    var localized = this.templates.newSyncDeviceEmail(values)
-    var email = {
-      sender: this.sender,
-      to: message.email,
-      subject: translator.gettext('A new device is now syncing to your Firefox Account'),
-      text: localized.text,
-      html: localized.html,
+    return this.send({
+      acceptLanguage: message.acceptLanguage,
+      email: message.email,
       headers: {
-        'Content-Language': translator.language,
         'X-Link': link
-      }
-    }
-    return this.send(email)
+      },
+      subject: gettext('A new device is now syncing to your Firefox Account'),
+      template: 'newSyncDeviceEmail',
+      templateValues: {
+        resetLink: link
+      },
+      uid: message.uid
+    })
   }
 
   return Mailer
