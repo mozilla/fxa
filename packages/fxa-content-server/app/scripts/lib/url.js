@@ -76,7 +76,12 @@ function (_) {
         return null;
       }
 
-      var origin = anchor.protocol + '//' + anchor.host;
+      // IE10 always returns port, Firefox and Chrome hide the port if it is the default port e.g 443, 80
+      // We normalize IE10 output, use the hostname if it is a default port to match Firefox and Chrome.
+      // Also IE10 returns anchor.port as String, Firefox and Chrome use Number.
+      var host = Number(anchor.port) === 443 || Number(anchor.port) === 80 ? anchor.hostname : anchor.host;
+      var origin = anchor.protocol + '//' + host;
+
       // if only the domain is specified without a protocol, the anchor
       // will use the page's origin as the URL's origin. Check that
       // the created origin matches the first portion of
