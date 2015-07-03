@@ -90,14 +90,17 @@ define([
       if (! this._validateYear()) {
         this.addInvalidRow('#fxa-age-year');
 
-        this.showValidationError('#fxa-age-year',
-                AuthErrors.toError('YEAR_OF_BIRTH_REQUIRED'));
+        var yearError = AuthErrors.toError('YEAR_OF_BIRTH_REQUIRED');
+        this.showValidationError('#fxa-age-year', yearError);
+        this.logError(yearError);
+
       } else if (this._getYear() === CUTOFF_AGE.year &&
                ! this._validateMonthAndDate()) {
         this.addInvalidRow('#fxa-age-month, #fxa-age-date');
 
-        this.showValidationError('#fxa-age-month',
-                AuthErrors.toError('BIRTHDAY_REQUIRED'));
+        var birthdayError = AuthErrors.toError('BIRTHDAY_REQUIRED');
+        this.showValidationError('#fxa-age-month', birthdayError);
+        this.logError(birthdayError);
       }
     },
 
