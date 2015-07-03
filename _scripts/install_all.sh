@@ -1,5 +1,8 @@
 #!/bin/bash -ex
 
+# Set ulimit, need it for npm
+ulimit -S -n 2048 || echo "Setting ulimit failed"
+
 # Clone all the projects
 
 git clone https://github.com/mozilla/fxa-content-server.git &
