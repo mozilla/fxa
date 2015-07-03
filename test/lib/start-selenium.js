@@ -3,7 +3,7 @@ var chalk = require('chalk');
 
 module.exports = function (cb) {
   selenium.install({
-    version: '2.45.0',
+    version: '2.46.0',
     drivers: {},
     logger: function(message) {
       process.stdout.write(chalk.green(message));
