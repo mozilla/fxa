@@ -18,11 +18,10 @@ define([
 
   intern.capabilities = {
     'build': '1',
-    'selenium-version': '2.39.0'
   };
 
   intern.environments = [
-    { browserName: 'firefox', version: '25', platform: [ 'Windows 7', 'Linux' ] },
+    { browserName: 'firefox', version: ['18', '38'], platform: [ 'Windows 7', 'Linux' ] },
     { browserName: 'internet explorer', version: ['9', '10'], platform: [ 'Windows 7' ] },
     { browserName: 'chrome' },
     { browserName: 'safari' }
