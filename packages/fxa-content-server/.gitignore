@@ -14,7 +14,7 @@ pids
 logs
 results
 
-npm-debug.log
+npm-debug.log*
 node_modules
 
 ### Bower ###
