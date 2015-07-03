@@ -55,7 +55,7 @@
       "id": "5882386c6d801776",
       "hashedSecret": "0000000000000000000000000000000000000000000000000000000000000000",
       "imageUri": "",
-      "redirectUri": "",
+      "redirectUri": "urn:ietf:wg:oauth:2.0:oob",
       "trusted": true,
       "canGrant": true
     },
@@ -64,7 +64,7 @@
       "id": "3332a18d142636cb",
       "hashedSecret": "0000000000000000000000000000000000000000000000000000000000000000",
       "imageUri": "",
-      "redirectUri": "",
+      "redirectUri": "urn:ietf:wg:oauth:2.0:oob",
       "trusted": true,
       "canGrant": true
     },
@@ -73,7 +73,7 @@
       "id": "d0eea24a1d613eeb",
       "hashedSecret": "0000000000000000000000000000000000000000000000000000000000000000",
       "imageUri": "",
-      "redirectUri": "",
+      "redirectUri": "urn:ietf:wg:oauth:2.0:oob",
       "trusted": true,
       "canGrant": true
     },
@@ -82,7 +82,7 @@
       "id": "ea3ca969f8c6bb0d",
       "hashedSecret": "0000000000000000000000000000000000000000000000000000000000000000",
       "imageUri": "",
-      "redirectUri": "",
+      "redirectUri": "urn:ietf:wg:oauth:2.0:oob",
       "trusted": true,
       "canGrant": true
     }

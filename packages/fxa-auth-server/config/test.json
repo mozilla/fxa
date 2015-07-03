@@ -14,7 +14,7 @@
       "hashedSecret": "0000000000000000000000000000000000000000000000000000000000000000",
       "name": "Admin",
       "imageUri": "https://example2.domain/logo",
-      "redirectUri": "",
+      "redirectUri": "https://example2.domain/redirect",
       "trusted": true,
       "canGrant": true
     },
