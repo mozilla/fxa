@@ -19,7 +19,15 @@ function (intern, topic, firefoxProfile) {
   var fxaOauthApp = args.fxaOauthApp || 'http://127.0.0.1:8080/';
   var fxaUntrustedOauthApp = args.fxaUntrustedOauthApp || 'http://127.0.0.1:10139/';
   var fxaIframeOauthApp = args.fxaIframeOauthApp || 'http://127.0.0.1:8080/iframe';
+
+  // "fxaProduction" is a little overloaded in how it is used in the tests.
+  // Sometimes it means real "stage" or real production configuration, but
+  // sometimes it also means fxa-dev style boxes like "latest". Configuration
+  // parameter "fxaDevBox" can be used as a crude way to distinguish between
+  // two.
   var fxaProduction = !! args.fxaProduction;
+  var fxaDevBox = !! args.fxaDevBox;
+
   var fxaToken = args.fxaToken || 'http://';
   var asyncTimeout = parseInt(args.asyncTimeout || 5000, 10);
 
@@ -45,6 +53,7 @@ function (intern, topic, firefoxProfile) {
     fxaUntrustedOauthApp: fxaUntrustedOauthApp,
     fxaIframeOauthApp: fxaIframeOauthApp,
     fxaProduction: fxaProduction,
+    fxaDevBox: fxaDevBox,
     fxaToken: fxaToken,
 
     // Default desired capabilities for all environments. Individual capabilities can be overridden by any of the

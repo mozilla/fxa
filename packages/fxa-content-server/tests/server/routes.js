@@ -136,12 +136,15 @@ define([
       assert.ok(headers.hasOwnProperty('x-frame-options'));
     }
 
-    if (intern.config.fxaProduction) {
-      assert.ok(headers.hasOwnProperty('content-security-policy-report-only'));
-    } else if (config.get('env') === 'development' &&
-               // the front end tests do not get CSP headers.
-               url.parse(route).pathname !== '/tests/index.html') {
-      assert.ok(headers.hasOwnProperty('content-security-policy'));
+    // fxa-dev boxes currently do not set CSP headers (but should - GH-2155)
+    if (! intern.config.fxaDevBox) {
+      if (intern.config.fxaProduction) {
+        assert.ok(headers.hasOwnProperty('content-security-policy-report-only'));
+      } else if (config.get('env') === 'development' &&
+                 // the front end tests do not get CSP headers.
+                 url.parse(route).pathname !== '/tests/index.html') {
+        assert.ok(headers.hasOwnProperty('content-security-policy'));
+      }
     }
 
     assert.equal(headers['x-content-type-options'], 'nosniff');
