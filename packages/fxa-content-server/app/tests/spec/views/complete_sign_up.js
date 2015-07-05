@@ -337,18 +337,27 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
         });
 
         initView();
+
+        sinon.stub(view, 'getStringifiedResumeToken', function () {
+          return 'resume token';
+        });
+
         return view.render()
           .then(function () {
             return view.submit();
           })
           .then(function () {
             testEventLogged('complete_sign_up.resend');
-          })
-          .then(function () {
             assert.isTrue(user.getAccountByUid.calledWith(validUid), 'getAccountByUid');
             assert.isTrue(user.getAccountByEmail.calledWith('a@a.com'), 'getAccountByEmail');
 
-            assert.isTrue(view.fxaClient.signUpResend.calledWith(relier, 'new token'), 'signUpResend');
+            assert.isTrue(view.fxaClient.signUpResend.calledWith(
+              relier,
+              'new token',
+              {
+                resume: 'resume token'
+              }
+            ), 'signUpResend');
             assert.isTrue(view.isSuccessVisible(), 'success');
           });
       });

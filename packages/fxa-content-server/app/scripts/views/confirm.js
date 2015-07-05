@@ -11,10 +11,11 @@ define([
   'lib/auth-errors',
   'lib/constants',
   'views/mixins/resend-mixin',
+  'views/mixins/resume-token-mixin',
   'views/mixins/service-mixin'
 ],
 function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
-    ResendMixin, ServiceMixin) {
+    ResendMixin, ResumeTokenMixin, ServiceMixin) {
   'use strict';
 
   var t = BaseView.t;
@@ -133,20 +134,26 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
       var self = this;
 
       self.logScreenEvent('resend');
-      return self.fxaClient.signUpResend(self.relier,
-          self.getAccount().get('sessionToken'))
-        .then(function () {
-          self.displaySuccess();
-        }, function (err) {
-          if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-            return self.navigate('signup', {
-              error: err
-            });
-          }
+      return self.fxaClient.signUpResend(
+        self.relier,
+        self.getAccount().get('sessionToken'),
+        {
+          resume: self.getStringifiedResumeToken()
+        }
+      )
+      .then(function () {
+        self.displaySuccess();
+      })
+      .fail(function (err) {
+        if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+          return self.navigate('signup', {
+            error: err
+          });
+        }
 
-          // unexpected error, rethrow for display.
-          throw err;
-        });
+        // unexpected error, rethrow for display.
+        throw err;
+      });
     },
 
     // The ResendMixin overrides beforeSubmit. Unless set to undefined,
@@ -156,8 +163,9 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
 
   Cocktail.mixin(
     View,
-    ServiceMixin,
-    ResendMixin
+    ResendMixin,
+    ResumeTokenMixin,
+    ServiceMixin
   );
 
   return View;

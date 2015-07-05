@@ -70,12 +70,6 @@ define([
       });
     });
 
-    describe('getResumeToken', function () {
-      it('returns null', function () {
-        assert.isNull(relier.getResumeToken());
-      });
-    });
-
     describe('isSync', function () {
       it('returns true if `service=sync`', function () {
         windowMock.location.search = TestHelpers.toSearchString({

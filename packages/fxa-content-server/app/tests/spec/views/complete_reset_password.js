@@ -411,11 +411,20 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
           return p(true);
         });
 
+        sinon.stub(view, 'getStringifiedResumeToken', function () {
+          return 'resume token';
+        });
+
         return view.resendResetEmail()
             .then(function () {
               assert.equal(routerMock.page, 'confirm_reset_password');
               assert.isTrue(view.fxaClient.passwordReset.calledWith(
-                  EMAIL, relier));
+                EMAIL,
+                relier,
+                {
+                  resume: 'resume token'
+                }
+              ));
             });
       });
 

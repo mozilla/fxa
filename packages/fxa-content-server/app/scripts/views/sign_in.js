@@ -11,6 +11,7 @@ define([
   'lib/session',
   'lib/auth-errors',
   'views/mixins/password-mixin',
+  'views/mixins/resume-token-mixin',
   'views/mixins/service-mixin',
   'views/mixins/avatar-mixin',
   'views/mixins/account-locked-mixin',
@@ -18,8 +19,8 @@ define([
   'views/decorators/progress_indicator'
 ],
 function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
-      AuthErrors, PasswordMixin, ServiceMixin, AvatarMixin, AccountLockedMixin,
-      allowOnlyOneSubmit, showProgressIndicator) {
+      AuthErrors, PasswordMixin, ResumeTokenMixin, ServiceMixin, AvatarMixin,
+      AccountLockedMixin, allowOnlyOneSubmit, showProgressIndicator) {
   'use strict';
 
   var t = BaseView.t;
@@ -113,7 +114,10 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
 
       return self.broker.beforeSignIn(account.get('email'))
         .then(function () {
-          return self.user.signInAccount(account, self.relier);
+          return self.user.signInAccount(account, self.relier, {
+            // a resume token is passed in to handle unverified users.
+            resume: self.getStringifiedResumeToken()
+          });
         })
         .then(function (account) {
           if (self.relier.accountNeedsPermissions(account)) {
@@ -285,10 +289,11 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
 
   Cocktail.mixin(
     View,
-    PasswordMixin,
-    ServiceMixin,
+    AccountLockedMixin,
     AvatarMixin,
-    AccountLockedMixin
+    PasswordMixin,
+    ResumeTokenMixin,
+    ServiceMixin
   );
 
   return View;

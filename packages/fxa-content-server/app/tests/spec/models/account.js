@@ -182,12 +182,18 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
           return p();
         });
 
-        return account.signIn(relier)
+        return account.signIn(relier, { resume: 'resume token' })
           .then(function () {
             assert.isFalse(account.get('verified'));
             assert.equal(account.get('sessionToken'), SESSION_TOKEN);
             assert.isTrue(fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier));
-            assert.isTrue(fxaClient.signUpResend.calledWith(relier, SESSION_TOKEN));
+            assert.isTrue(fxaClient.signUpResend.calledWith(
+              relier,
+              SESSION_TOKEN,
+              {
+                resume: 'resume token'
+              }
+            ));
           });
       });
 
@@ -284,17 +290,22 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
           return p({ sessionToken: SESSION_TOKEN, verified: false });
         });
 
-        return account.signUp(relier)
+        return account.signUp(relier, { resume: 'resume token' })
           .then(function () {
             assert.isFalse(account.get('verified'));
             assert.equal(account.get('sessionToken'), SESSION_TOKEN);
 
-            assert.isTrue(fxaClient.signUp.calledWith(EMAIL, PASSWORD, relier, {
-              customizeSync: true
-            }));
+            assert.isTrue(fxaClient.signUp.calledWith(
+              EMAIL,
+              PASSWORD,
+              relier,
+              {
+                customizeSync: true,
+                resume: 'resume token'
+              }
+            ));
           });
       });
-
     });
 
     describe('with an access token', function () {

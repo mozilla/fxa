@@ -74,9 +74,9 @@ define([
       });
     });
 
-    describe('getResumeToken', function () {
-      it('returns null', function () {
-        assert.isNull(relier.getResumeToken());
+    describe('pickResumeTokenInfo', function () {
+      it('returns an empty object by default', function () {
+        assert.deepEqual(relier.pickResumeTokenInfo(), {});
       });
     });
 

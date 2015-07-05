@@ -431,6 +431,10 @@ function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
           return true;
         });
         sinon.stub(view, 'navigate', function () { });
+        sinon.stub(view, 'getStringifiedResumeToken', function () {
+          // the resume token is used post email verification.
+          return 'resume token';
+        });
 
         return view.submit()
           .then(function () {
@@ -438,7 +442,13 @@ function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
 
             assert.equal(account.get('email'), email);
             assert.isTrue(broker.beforeSignIn.calledWith(email));
-            assert.isTrue(user.signUpAccount.calledWith(account));
+            assert.isTrue(user.signUpAccount.calledWith(
+              account,
+              relier,
+              {
+                resume: 'resume token'
+              }
+            ));
             assert.isTrue(relier.accountNeedsPermissions.calledWith(account));
             assert.isTrue(view.navigate.calledWith('signup_permissions', {
               data: {

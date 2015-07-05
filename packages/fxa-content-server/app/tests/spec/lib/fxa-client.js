@@ -12,7 +12,7 @@ define([
   'lib/fxa-client',
   'lib/auth-errors',
   'lib/constants',
-  'lib/resume-token',
+  'models/resume-token',
   'models/reliers/oauth'
 ],
 // FxaClientWrapper is the object that is used in
@@ -33,7 +33,7 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
   var client;
   var realClient;
   var relier;
-  var expectedResumeToken;
+  var resumeToken;
 
   function trim(str) {
     return $.trim(str);
@@ -47,7 +47,7 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
       relier.set('service', SERVICE);
       relier.set('redirectTo', REDIRECT_TO);
 
-      expectedResumeToken = ResumeToken.stringify({
+      resumeToken = ResumeToken.stringify({
         state: STATE,
         verificationRedirect: Constants.VERIFICATION_REDIRECT_NO
       });
@@ -77,13 +77,13 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
           });
         });
 
-        return client.signUp(email, password, relier, { customizeSync: true })
+        return client.signUp(email, password, relier, { customizeSync: true, resume: resumeToken })
           .then(function (sessionData) {
             assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
               keys: true,
               service: SERVICE,
               redirectTo: REDIRECT_TO,
-              resume: expectedResumeToken
+              resume: resumeToken
             }));
 
             // The following should only be set for Sync
@@ -101,13 +101,13 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
         relier.set('service', 'chronicle');
         assert.isFalse(relier.wantsKeys());
         // customizeSync should be ignored
-        return client.signUp(email, password, relier, { customizeSync: true })
+        return client.signUp(email, password, relier, { customizeSync: true, resume: resumeToken })
           .then(function (sessionData) {
             assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
               keys: false,
               service: 'chronicle',
               redirectTo: REDIRECT_TO,
-              resume: expectedResumeToken
+              resume: resumeToken
             }));
 
             // These should not be returned by default
@@ -129,13 +129,13 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
         relier.set('service', 'chronicle');
         relier.set('keys', true);
         assert.isTrue(relier.wantsKeys());
-        return client.signUp(email, password, relier, { customizeSync: true })
+        return client.signUp(email, password, relier, { customizeSync: true, resume: resumeToken })
           .then(function (sessionData) {
             assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
               keys: true,
               service: 'chronicle',
               redirectTo: REDIRECT_TO,
-              resume: expectedResumeToken
+              resume: resumeToken
             }));
 
             assert.equal(sessionData.unwrapBKey, 'unwrapBKey');
@@ -170,7 +170,8 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
         });
 
         return client.signUp(email, password, relier, {
-          preVerifyToken: preVerifyToken
+          preVerifyToken: preVerifyToken,
+          resume: resumeToken
         })
         .then(function () {
           assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
@@ -178,7 +179,7 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
             keys: true,
             redirectTo: REDIRECT_TO,
             service: SERVICE,
-            resume: expectedResumeToken
+            resume: resumeToken
           }));
         });
       });
@@ -199,7 +200,7 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
               keys: true,
               redirectTo: REDIRECT_TO,
               service: SERVICE,
-              resume: expectedResumeToken
+              resume: resumeToken
             }));
 
             return p.reject(AuthErrors.toError('INVALID_VERIFICATION_CODE'));
@@ -208,14 +209,14 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
               keys: true,
               redirectTo: REDIRECT_TO,
               service: SERVICE,
-              resume: expectedResumeToken
+              resume: resumeToken
             }));
 
             return p({});
           }
         });
 
-        return client.signUp(email, password, relier)
+        return client.signUp(email, password, relier, { resume: resumeToken })
           .then(function () {
             assert.equal(realClient.signUp.callCount, 2);
           });
@@ -230,12 +231,12 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
           return p();
         });
 
-        return client.signUpResend(relier, sessionToken)
+        return client.signUpResend(relier, sessionToken, { resume: resumeToken })
           .then(function () {
             var params = {
               service: SERVICE,
               redirectTo: REDIRECT_TO,
-              resume: expectedResumeToken
+              resume: resumeToken
             };
             assert.isTrue(
                 realClient.recoveryEmailResendCode.calledWith(
@@ -402,12 +403,12 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
           });
         });
 
-        return client.passwordReset(email, relier)
+        return client.passwordReset(email, relier, { resume: resumeToken })
           .then(function () {
             var params = {
               service: SERVICE,
               redirectTo: REDIRECT_TO,
-              resume: expectedResumeToken
+              resume: resumeToken
             };
             assert.isTrue(
                 realClient.passwordForgotSendCode.calledWith(
@@ -431,15 +432,15 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
           return p({});
         });
 
-        return client.passwordReset(email, relier)
+        return client.passwordReset(email, relier, { resume: resumeToken })
           .then(function () {
-            return client.passwordResetResend(email, passwordForgotToken, relier);
+            return client.passwordResetResend(email, passwordForgotToken, relier, { resume: resumeToken });
           })
           .then(function () {
             var params = {
               service: SERVICE,
               redirectTo: REDIRECT_TO,
-              resume: expectedResumeToken
+              resume: resumeToken
             };
             assert.isTrue(
                 realClient.passwordForgotResendCode.calledWith(
@@ -763,16 +764,29 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
       });
     });
 
-    describe('resendAccountUnlockEmail', function () {
-      it('resends an account unlock email', function () {
+    describe('sendAccountUnlockEmail', function () {
+      it('sends an account unlock email', function () {
         sinon.stub(realClient, 'accountUnlockResendCode', function () {
           return p();
         });
 
-        return client.sendAccountUnlockEmail()
-          .then(function () {
-            assert.isTrue(realClient.accountUnlockResendCode.called);
-          });
+        return client.sendAccountUnlockEmail(
+          'testuser@testuser.com',
+          relier,
+          {
+            resume: 'resume token'
+          }
+        )
+        .then(function () {
+          assert.isTrue(realClient.accountUnlockResendCode.calledWith(
+            'testuser@testuser.com',
+            {
+              service: relier.get('service'),
+              redirectTo: relier.get('redirectTo'),
+              resume: 'resume token'
+            }
+          ));
+        });
       });
     });
   });

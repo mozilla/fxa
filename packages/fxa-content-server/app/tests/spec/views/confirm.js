@@ -205,6 +205,9 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
         sinon.stub(view.fxaClient, 'signUpResend', function () {
           return p();
         });
+        sinon.stub(view, 'getStringifiedResumeToken', function () {
+          return 'resume token';
+        });
 
         return view.submit()
           .then(function () {
@@ -213,7 +216,12 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
                               'confirm.resend'));
 
             assert.isTrue(view.fxaClient.signUpResend.calledWith(
-                relier, account.get('sessionToken')));
+              relier,
+              account.get('sessionToken'),
+              {
+                resume: 'resume token'
+              }
+            ));
           });
       });
 

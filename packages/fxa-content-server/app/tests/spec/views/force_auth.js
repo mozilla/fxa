@@ -136,6 +136,9 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Relier, Broker,
         sinon.stub(view.fxaClient, 'passwordReset', function () {
           return p({ passwordForgotToken: passwordForgotToken });
         });
+        sinon.stub(view, 'getStringifiedResumeToken', function () {
+          return 'resume token';
+        });
 
         relier.set('email', email);
 
@@ -145,7 +148,12 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Relier, Broker,
             assert.equal(router.page, 'confirm_reset_password');
             assert.equal(view.ephemeralMessages.get('data').passwordForgotToken, passwordForgotToken);
             assert.isTrue(view.fxaClient.passwordReset.calledWith(
-                email, relier));
+              email,
+              relier,
+              {
+                resume: 'resume token'
+              }
+            ));
           });
       });
 

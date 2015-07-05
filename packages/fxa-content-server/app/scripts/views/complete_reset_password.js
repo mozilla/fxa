@@ -7,16 +7,18 @@ define([
   'views/base',
   'views/form',
   'stache!templates/complete_reset_password',
-  'views/mixins/password-mixin',
   'views/mixins/floating-placeholder-mixin',
-  'lib/auth-errors',
+  'views/mixins/password-mixin',
+  'views/mixins/resume-token-mixin',
   'views/mixins/service-mixin',
   'models/verification/reset-password',
+  'lib/auth-errors',
   'lib/url'
 ],
-function (Cocktail, BaseView, FormView, Template, PasswordMixin,
-      FloatingPlaceholderMixin, AuthErrors, ServiceMixin, VerificationInfo,
-      Url) {
+function (Cocktail, BaseView, FormView, Template, FloatingPlaceholderMixin,
+  PasswordMixin, ResumeTokenMixin, ServiceMixin, VerificationInfo,
+  AuthErrors, Url) {
+
   'use strict';
 
   var t = BaseView.t;
@@ -162,25 +164,31 @@ function (Cocktail, BaseView, FormView, Template, PasswordMixin,
       var self = this;
       self.logScreenEvent('resend');
       var email = self._verificationInfo.get('email');
-      return self.fxaClient.passwordReset(email, self.relier)
-              .then(function (result) {
-                self.navigate('confirm_reset_password', {
-                  data: {
-                    email: email,
-                    passwordForgotToken: result.passwordForgotToken
-                  }
-                });
-              }, function (err) {
-                self.displayError(err);
-              });
+      return self.fxaClient.passwordReset(
+        email,
+        self.relier,
+        {
+          resume: self.getStringifiedResumeToken()
+        }
+      )
+      .then(function (result) {
+        self.navigate('confirm_reset_password', {
+          data: {
+            email: email,
+            passwordForgotToken: result.passwordForgotToken
+          }
+        });
+      })
+      .fail(self.displayError.bind(self));
     }
   });
 
   Cocktail.mixin(
     View,
+    FloatingPlaceholderMixin,
     PasswordMixin,
-    ServiceMixin,
-    FloatingPlaceholderMixin
+    ResumeTokenMixin,
+    ServiceMixin
   );
 
   return View;

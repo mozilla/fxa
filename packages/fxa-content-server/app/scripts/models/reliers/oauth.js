@@ -9,7 +9,7 @@
 define([
   'underscore',
   'models/reliers/relier',
-  'lib/resume-token',
+  'models/resume-token',
   'lib/oauth-errors',
   'lib/relier-keys',
   'lib/url',
@@ -97,20 +97,8 @@ define([
       return RelierKeys.deriveRelierKeys(keys, uid, this.get('clientId'));
     },
 
-    getResumeToken: function () {
-      var resumeObj = {};
-
-      _.each(RELIER_FIELDS_IN_RESUME_TOKEN, function (itemName) {
-        if (this.has(itemName)) {
-          resumeObj[itemName] = this.get(itemName);
-        }
-      }, this);
-
-      return ResumeToken.stringify(resumeObj);
-    },
-
-    _isVerificationFlow: function () {
-      return !! this.getSearchParam('code');
+    pickResumeTokenInfo: function () {
+      return this.pick(RELIER_FIELDS_IN_RESUME_TOKEN);
     },
 
     /**
@@ -118,16 +106,14 @@ define([
      * @private
      */
     _parseResumeToken: function () {
-      var resumeToken = this.getSearchParam('resume');
-      var parsedResumeToken = ResumeToken.parse(resumeToken);
+      var resumeParam = this.getSearchParam('resume');
+      var resumeToken = new ResumeToken(ResumeToken.parse(resumeParam));
 
-      if (parsedResumeToken) {
-        _.each(RELIER_FIELDS_IN_RESUME_TOKEN, function (itemName) {
-          if (Object.prototype.hasOwnProperty.call(parsedResumeToken, itemName)) {
-            this.set(itemName, parsedResumeToken[itemName]);
-          }
-        }, this);
-      }
+      this.set(resumeToken.pick(RELIER_FIELDS_IN_RESUME_TOKEN));
+    },
+
+    _isVerificationFlow: function () {
+      return !! this.getSearchParam('code');
     },
 
     _setupVerificationFlow: function () {

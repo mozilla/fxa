@@ -14,10 +14,12 @@ define([
   'views/mixins/password-mixin',
   'views/mixins/service-mixin',
   'views/mixins/checkbox-mixin',
+  'views/mixins/resume-token-mixin',
   'views/coppa/coppa-date-picker'
 ],
 function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
-      PasswordMixin, ServiceMixin, CheckboxMixin, CoppaDatePicker) {
+      PasswordMixin, ServiceMixin, CheckboxMixin, ResumeTokenMixin,
+      CoppaDatePicker) {
   'use strict';
 
   var t = BaseView.t;
@@ -254,7 +256,9 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
 
       return self.broker.beforeSignIn(account.get('email'))
         .then(function () {
-          return self.user.signUpAccount(account, self.relier);
+          return self.user.signUpAccount(account, self.relier, {
+            resume: self.getStringifiedResumeToken()
+          });
         })
         .then(function (account) {
           if (preVerifyToken && account.get('verified')) {
@@ -327,9 +331,10 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
 
   Cocktail.mixin(
     View,
+    CheckboxMixin,
     PasswordMixin,
-    ServiceMixin,
-    CheckboxMixin
+    ResumeTokenMixin,
+    ServiceMixin
   );
 
   return View;
