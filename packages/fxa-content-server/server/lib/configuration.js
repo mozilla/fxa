@@ -111,12 +111,6 @@ var conf = module.exports = convict({
     default: 'http://127.0.0.1:9000',
     env: 'FXA_URL'
   },
-  api_proxy: {
-    enabled: {
-      doc: 'Set to true to listen for requests to API servers at the configured endpoint',
-      default: false
-    }
-  },
   oauth_url: {
     doc: 'The url of the Firefox Account OAuth server',
     format: 'url',
