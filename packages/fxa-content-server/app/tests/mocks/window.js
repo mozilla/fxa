@@ -82,7 +82,7 @@ function (Backbone, sinon, _, NullStorage) {
       error: console.error.bind(console),
       info: console.info.bind(console),
       log: console.log.bind(console),
-      trace: console.trace.bind(console),
+      trace: console.trace ? console.trace.bind(console) : console.log.bind(console),
       warn: console.warn.bind(console)
     };
 
