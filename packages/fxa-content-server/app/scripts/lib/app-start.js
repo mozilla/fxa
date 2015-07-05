@@ -19,7 +19,6 @@ define([
   'underscore',
   'backbone',
   'lib/promise',
-  'uuid',
   'router',
   'raven',
   'lib/translator',
@@ -57,6 +56,7 @@ define([
   'models/auth_brokers/web-channel',
   'models/auth_brokers/redirect',
   'models/auth_brokers/iframe',
+  'models/unique-user-id',
   'models/user',
   'models/form-prefill',
   'models/notifications',
@@ -66,7 +66,6 @@ function (
   _,
   Backbone,
   p,
-  uuid,
   Router,
   Raven,
   Translator,
@@ -104,6 +103,7 @@ function (
   WebChannelAuthenticationBroker,
   RedirectAuthenticationBroker,
   IframeAuthenticationBroker,
+  UniqueUserId,
   User,
   FormPrefill,
   Notifications,
@@ -136,9 +136,6 @@ function (
   Start.prototype = {
     startApp: function () {
       var self = this;
-
-      // set UUID early so other methods can use it for metrics and ab testing purposes.
-      this.initializeUniqueUserId();
 
       // fetch both config and translations in parallel to speed up load.
       return p.all([
@@ -241,7 +238,7 @@ function (
       if (this._config && this._config.env && this._able) {
         var abData = {
           env: this._config.env,
-          uniqueUserId: this._uniqueUserId
+          uniqueUserId: this._getUniqueUserId()
         };
         var abChoose = this._able.choose('sentryEnabled', abData);
 
@@ -494,7 +491,7 @@ function (
           marketingEmailClient: this._marketingEmailClient,
           assertion: this._assertionLibrary,
           storage: this._getStorageInstance(),
-          uniqueUserId: this._uniqueUserId
+          uniqueUserId: this._getUniqueUserId()
         });
       }
     },
@@ -511,31 +508,20 @@ function (
       });
     },
 
-    /**
-     * Sets a UUID value that is unrelated to any account information.
-     * This value is useful to determine if the logged out user qualifies for ab testing or metrics.
-     */
-    initializeUniqueUserId: function () {
-      var storage = Storage.factory('localStorage', this._window);
-
-      var uniqueUserId;
-
-      // Reuse a stored unique user id if available.
-      if (storage.get('uuid')) {
-        // stomlinson on 2015-07-08:
-        // `uuid` is the old name, this is transition code
-        // and can hopefully be removed after a time.
-        uniqueUserId = storage.get('uuid');
-        storage.remove('uuid');
-      } else if (storage.get('uniqueUserId')) {
-        // uniqueUserId is the new name.
-        uniqueUserId = storage.get('uniqueUserId');
-      } else {
-        uniqueUserId = uuid.v4();
+    _uniqueUserId: null,
+    _getUniqueUserId: function () {
+      if (! this._uniqueUserId) {
+        /**
+         * Sets a UUID value that is unrelated to any account information.
+         * This value is useful to determine if the logged out user qualifies
+         * for A/B testing or metrics.
+         */
+        this._uniqueUserId = new UniqueUserId({
+          window: this._window
+        }).get('uniqueUserId');
       }
 
-      this._uniqueUserId = uniqueUserId;
-      storage.set('uniqueUserId', uniqueUserId);
+      return this._uniqueUserId;
     },
 
     upgradeStorageFormats: function () {

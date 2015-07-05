@@ -11,8 +11,18 @@ function (chai, ResumeToken) {
 
   var assert = chai.assert;
 
+  var STATE = 'state';
+  var CAMPAIGN = 'campaign';
+  var ENTRYPOINT = 'entrypoint';
+  var VERIFICATION_REDIRECT = 'https://hello.firefox.com';
+  var UNIQUE_USER_ID = 'uuid';
+
   var TOKEN_OBJ = {
-    state: 'STATE'
+    campaign: CAMPAIGN,
+    entrypoint: ENTRYPOINT,
+    state: STATE,
+    verificationRedirect: VERIFICATION_REDIRECT,
+    uniqueUserId: UNIQUE_USER_ID
   };
 
   describe('models/resume-token', function () {
@@ -37,12 +47,14 @@ function (chai, ResumeToken) {
     describe('creation', function () {
       it('should populate the resume token', function () {
         var resumeToken = new ResumeToken(TOKEN_OBJ);
-        assert.equal(resumeToken.get('state'), 'STATE');
+        for (var key in TOKEN_OBJ) {
+          assert.equal(resumeToken.get(key), TOKEN_OBJ[key]);
+        }
       });
 
       it('should ignore fields that are not explicitly allowed', function () {
         var parsedToken = {
-          state: 'STATE',
+          state: STATE,
           ignored: true
         };
         var resumeToken = new ResumeToken(parsedToken);
@@ -61,7 +73,9 @@ function (chai, ResumeToken) {
 
         var stringified = resumeToken.stringify();
         var parsed = ResumeToken.parse(stringified);
-        assert.equal(parsed.state, 'STATE');
+        for (var key in TOKEN_OBJ) {
+          assert.equal(parsed[key], TOKEN_OBJ[key]);
+        }
         assert.isFalse('notStringified' in parsed);
       });
     });

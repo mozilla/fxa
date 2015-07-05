@@ -19,7 +19,9 @@ define([
       campaign: undefined,
       entrypoint: undefined,
       state: undefined,
-      verificationRedirect: undefined
+      verificationRedirect: undefined,
+      // fields from a User
+      uniqueUserId: undefined
     },
 
     initialize: function (options) {

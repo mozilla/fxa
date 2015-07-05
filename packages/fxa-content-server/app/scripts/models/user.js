@@ -10,11 +10,13 @@
 
 define([
   'backbone',
+  'cocktail',
   'underscore',
   'lib/promise',
+  'lib/storage',
   'models/account',
-  'lib/storage'
-], function (Backbone, _, p, Account, Storage) {
+  'models/mixins/resume-token'
+], function (Backbone, Cocktail, _, p, Storage, Account, ResumeTokenMixin) {
   'use strict';
 
   var User = Backbone.Model.extend({
@@ -27,12 +29,18 @@ define([
       this._marketingEmailClient = options.marketingEmailClient;
       this._assertion = options.assertion;
       this._storage = options.storage || Storage.factory();
+
+      // For now, the uniqueUserId is passed in from app-start instead of
+      // being initialized from the resume token or localStorage.
+      this.set('uniqueUserId', options.uniqueUserId);
     },
 
     defaults: {
       // uniqueUserId is a stable identifier for this User on this computer.
       uniqueUserId: null
     },
+
+    resumeTokenFields: ['uniqueUserId'],
 
     _accounts: function () {
       return this._storage.get('accounts') || {};
@@ -270,6 +278,11 @@ define([
         });
     }
   });
+
+  Cocktail.mixin(
+    User,
+    ResumeTokenMixin
+  );
 
   return User;
 });

@@ -104,6 +104,7 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/account-locked-mixin',
     '../tests/spec/views/mixins/checkbox-mixin',
     '../tests/spec/views/mixins/loading-mixin',
+    '../tests/spec/models/unique-user-id',
     '../tests/spec/models/user',
     '../tests/spec/models/account',
     '../tests/spec/models/profile-image',
