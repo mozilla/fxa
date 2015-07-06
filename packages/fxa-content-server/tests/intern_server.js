@@ -14,6 +14,7 @@ define([
     'tests/server/ver.json.js',
     'tests/server/cookies_disabled',
     'tests/server/l10n',
+    'tests/server/lang',
     'tests/server/metrics',
     'tests/server/metrics-collector-stderr',
     'tests/server/metrics-errors',
