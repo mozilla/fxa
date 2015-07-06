@@ -118,6 +118,8 @@ If you get an `error` status for any of the servers please verify that you insta
 [libgmp](https://gmplib.org/),
 [graphicsmagick](http://www.graphicsmagick.org/).
 
+**Note:** Node.js 0.12 is not currently supported. Please use Node.js 0.10.
+
 ##### OS X (with [Brew](http://brew.sh/)):
 
 [Xcode and OS X Command Line Tools are required](https://developer.apple.com/xcode/), install it and verify that command line tools installed:
