@@ -33,7 +33,7 @@ define([
     suite['#https get ' + httpsUrl + '/ -> ' + lang] = function () {
       var dfd = this.async(intern.config.asyncTimeout);
       request(httpsUrl + '/', options, dfd.callback(function (err, res) {
-        assert.ok(!err);
+        assert.ok(! err);
         assert.equal(res.statusCode, 200);
         var re = new RegExp(util.format('lang="%s"', lang));
         assert.ok(res.body.match(re), 'html has correct lang attribute');
@@ -43,7 +43,7 @@ define([
     suite['#https get ' + httpsUrl + '/i18n/client.json -> ' + lang] = function () {
       var dfd = this.async(intern.config.asyncTimeout);
       request(httpsUrl + '/i18n/client.json', options, dfd.callback(function (err, res) {
-        assert.ok(!err);
+        assert.ok(! err);
         assert.equal(res.statusCode, 200);
         if (intern.config.fxaProduction) {
           // using the empty string '' as the key below is intentional

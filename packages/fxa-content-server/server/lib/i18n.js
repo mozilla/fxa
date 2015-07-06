@@ -92,7 +92,7 @@ module.exports = function (config) {
 
   // Export the bestLanguage() function, but using defaults from the config.
   abideObj.bestLanguage = function (accepted, supported) {
-    if (!supported) {
+    if (! supported) {
       supported = config.supportedLanguages;
     }
     return abide.bestLanguage(accepted, supported, config.defaultLang);
@@ -113,7 +113,7 @@ module.exports = function (config) {
     }
     var callWasSynchronous = false;
     abideObj(fakeReq, fakeResp, function () { callWasSynchronous = true; });
-    if (!callWasSynchronous) {
+    if (! callWasSynchronous) {
       throw new Error('uh-oh, the call to i18n-abide was not synchronous!');
     }
     var l10n = {};

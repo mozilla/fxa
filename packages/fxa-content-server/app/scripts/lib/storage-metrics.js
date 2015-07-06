@@ -25,7 +25,7 @@ define([
     _send: function (data) {
       var metrics = storage.get('metrics_all');
 
-      if (!Array.isArray(metrics)) {
+      if (! Array.isArray(metrics)) {
         metrics = [];
       }
 

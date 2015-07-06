@@ -130,7 +130,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
 
     _isFormEnabled: true,
     isFormEnabled: function () {
-      return !!this._isFormEnabled;
+      return !! this._isFormEnabled;
     },
 
     /**

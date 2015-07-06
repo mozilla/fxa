@@ -67,7 +67,7 @@ define([
         showSignUpMarketing: shouldShowMarketing,
         isIos: isIos,
         isAndroid: isAndroid,
-        isOther: (!isIos && !isAndroid),
+        isOther: (! isIos && ! isAndroid),
         playStoreImage: playStoreImage
       };
     },
@@ -96,7 +96,7 @@ define([
     _isHighRes: function () {
       var win = this.window;
 
-      return !!(win.matchMedia && win.matchMedia('(-webkit-min-device-pixel-ratio: 1.5), (min-resolution: 1.5dppx), (min-resolution: 144dpi)'));
+      return !! (win.matchMedia && win.matchMedia('(-webkit-min-device-pixel-ratio: 1.5), (min-resolution: 1.5dppx), (min-resolution: 144dpi)'));
     }
   });
 

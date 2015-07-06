@@ -141,7 +141,7 @@ define([
      * Is the progress indicator either visible or waiting to become visible?
      */
     isVisible: function () {
-      return !!this._count;
+      return !! this._count;
     }
   });
 

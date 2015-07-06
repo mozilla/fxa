@@ -7,7 +7,7 @@ define([
   'intern/node_modules/dojo/Promise'
 ], function (request, Promise) {
   function waitForEmail(uri, number) {
-    if (!number) {
+    if (! number) {
       number = 1;
     }
     console.log('Waiting for email at:', uri);

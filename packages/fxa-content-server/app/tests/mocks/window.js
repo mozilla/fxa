@@ -145,7 +145,7 @@ function (Backbone, sinon, _, NullStorage) {
     },
 
     isTimeoutSet: function () {
-      return !!this._isTimeoutSet;
+      return !! this._isTimeoutSet;
     },
 
     clearTimeout: function (/*timeout*/) {

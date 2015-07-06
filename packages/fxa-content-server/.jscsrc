@@ -11,7 +11,7 @@
     "requireLineFeedAtFileEnd": true,
     "requireSpaceAfterBinaryOperators": ["=", ",", "+", "-", "/", "*", "==", "===", "!=", "!=="],
     "requireSpaceAfterKeywords": ["if", "else", "for", "function", "while", "do", "switch", "return"],
-    "requireSpaceAfterPrefixUnaryOperators": ["~"],
+    "requireSpaceAfterPrefixUnaryOperators": ["~", "!"],
     "requireSpaceBeforeBinaryOperators": ["+", "-", "/", "*", "=", "==", "===", "!=", "!=="],
     "requireSpacesInConditionalExpression": true,
     "validateIndentation": 2,

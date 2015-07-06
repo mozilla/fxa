@@ -301,7 +301,7 @@ define([
           });
       });
 
-      it('!isTrusted when `trusted` is false', function () {
+      it('! isTrusted when `trusted` is false', function () {
         windowMock.location.search = TestHelpers.toSearchString({
           client_id: CLIENT_ID,
           scope: SCOPE

@@ -73,7 +73,7 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, BaseView, FormView,
     submit: function () {
       var self = this;
       var emailPrefs = self.getMarketingEmailPrefs();
-      return self.setOptInStatus(NEWSLETTER_ID, !emailPrefs.isOptedIn(NEWSLETTER_ID));
+      return self.setOptInStatus(NEWSLETTER_ID, ! emailPrefs.isOptedIn(NEWSLETTER_ID));
     },
 
     setOptInStatus: function (newsletterId, isOptedIn) {

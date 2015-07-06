@@ -37,7 +37,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
     context.$('[type=email]').val(email);
     context.$('[type=password]').val(password);
 
-    if (!opts.ignoreYear) {
+    if (! opts.ignoreYear) {
       $('#fxa-age-year').val(year);
     }
 
