@@ -33,7 +33,7 @@ function (Cocktail, Session, FormView, BaseView, AvatarMixin,
 
       return {
         email: email,
-        showSignOut: !account.isFromSync(),
+        showSignOut: ! account.isFromSync(),
         communicationPrefsVisible: this._areCommunicationPrefsVisible()
       };
     },

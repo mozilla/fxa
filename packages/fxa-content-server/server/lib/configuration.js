@@ -357,7 +357,7 @@ if (! process.env.NODE_ENV) {
   process.env.NODE_ENV = conf.get('env');
 }
 
-if (!conf.has('public_url')) {
+if (! conf.has('public_url')) {
   conf.set('public_url', 'https://' + conf.get('issuer'));
 }
 

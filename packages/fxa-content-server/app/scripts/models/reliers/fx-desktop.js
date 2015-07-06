@@ -77,7 +77,7 @@ define([
      * Check if the relier wants to force the customize sync checkbox on
      */
     isCustomizeSyncChecked: function () {
-      return !!(this.isSync() && this.get('customizeSync'));
+      return !! (this.isSync() && this.get('customizeSync'));
     }
   });
 

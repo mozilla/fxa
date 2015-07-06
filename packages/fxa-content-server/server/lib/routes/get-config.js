@@ -40,7 +40,7 @@ module.exports = function () {
       allowedParentOrigins: allowedParentOrigins,
       authServerUrl: authServerUrl,
       env: env,
-      cookiesEnabled: !!req.cookies['__cookie_check'],
+      cookiesEnabled: !! req.cookies['__cookie_check'],
       marketingEmailServerUrl: marketingEmailApiServerUrl,
       marketingEmailPreferencesUrl: marketingEmailPreferencesUrl,
       oAuthClientId: clientId,

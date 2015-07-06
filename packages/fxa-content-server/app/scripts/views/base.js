@@ -367,7 +367,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
     },
 
     trackSubview: function (view) {
-      if (!_.contains(this.subviews, view)) {
+      if (! _.contains(this.subviews, view)) {
         this.subviews.push(view);
         view.on('destroyed', _.bind(this.untrackSubview, this, view));
       }
@@ -416,7 +416,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
      * Return true if the success message is visible
      */
     isSuccessVisible: function () {
-      return !!this._isSuccessVisible;
+      return !! this._isSuccessVisible;
     },
 
     /**
@@ -551,7 +551,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
     },
 
     isErrorVisible: function () {
-      return !!this._isErrorVisible;
+      return !! this._isErrorVisible;
     },
 
     /**

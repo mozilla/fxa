@@ -18,7 +18,7 @@ define([
     },
 
     isDefaultPrevented: function () {
-      return !!this._defaultPrevented;
+      return !! this._defaultPrevented;
     },
 
     stopPropagation: function () {
@@ -26,7 +26,7 @@ define([
     },
 
     isPropagationStopped: function () {
-      return !!this._propagationStopped;
+      return !! this._propagationStopped;
     }
   };
 

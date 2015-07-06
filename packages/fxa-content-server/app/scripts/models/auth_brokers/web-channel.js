@@ -130,7 +130,7 @@ function (_, OAuthAuthenticationBroker, ChannelMixin, p,
 
     hasPendingOAuthFlow: function () {
       this.session.reload();
-      return !!(this.session.oauth);
+      return !! (this.session.oauth);
     },
 
     afterSignUpConfirmationPoll: function (account) {

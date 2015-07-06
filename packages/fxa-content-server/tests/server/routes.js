@@ -73,7 +73,7 @@ define([
     routes['/503.html'] = { statusCode: 200 };
   }
 
-  if (!intern.config.fxaProduction) {
+  if (! intern.config.fxaProduction) {
     routes['/tests/index.html'] = { statusCode: 200 };
     routes['/tests/index.html?coverage'] = { statusCode: 200 };
     routes['/boom'] = { statusCode: 500 };

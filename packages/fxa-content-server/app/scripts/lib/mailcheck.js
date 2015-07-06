@@ -37,7 +37,7 @@ function (Tooltip, Url) {
    */
   return function checkMailInput(target, metrics, translator, queryParams) {
     var element = $(target);
-    if (!element.length) {
+    if (! element.length) {
       return;
     }
     var enabled = false;

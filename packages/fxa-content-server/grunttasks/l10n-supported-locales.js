@@ -38,12 +38,12 @@ module.exports = function (grunt) {
     var missing = [];
 
     clientKeys.forEach(function (key) {
-      if (!clientJson[key]) {
+      if (! clientJson[key]) {
         missing.push('client.json: ' + key);
       }
     });
     serverKeys.forEach(function (key) {
-      if (!messagesJson[key]) {
+      if (! messagesJson[key]) {
         missing.push('messages.json: ' + key);
       }
     });
