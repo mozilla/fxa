@@ -202,6 +202,8 @@ The event stream is a log of events and the time they occurred while the user is
 * signup.email-optin.visible.false - email opt-in is not visible
 * signup.checkbox.change.marketing-email-optin.checked - user checked the email opt-in
 * signup.checkbox.change.marketing-email-optin.unchecked - user unchecked the email opt-in
+* signup.checkbox.change.customize-sync.checked - user checked the "Choose what to sync" checkbox.
+* signup.checkbox.change.customize-sync.unchecked - user unchecked the "Choose what to sync" checkbox.
 
 #### signup_permissions
 * signup-permissions.accept - user accepts and grants the requested permissions
