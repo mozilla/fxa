@@ -58,6 +58,7 @@ define([
     '/account_unlock_complete': { statusCode: 200 },
     '/signup_permissions': { statusCode: 200 },
     '/signin_permissions': { statusCode: 200 },
+    '/metrics-errors': { statusCode: 200 },
 
     // the following have a version prefix
     '/v1/complete_reset_password': { statusCode: 200 },

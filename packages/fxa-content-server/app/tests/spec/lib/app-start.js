@@ -5,6 +5,7 @@
 define([
   'chai',
   'sinon',
+  'raven',
   'lib/app-start',
   'lib/session',
   'lib/constants',
@@ -29,7 +30,7 @@ define([
   '../../mocks/history',
   '../../lib/helpers'
 ],
-function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
+function (chai, sinon, Raven, AppStart, Session, Constants, p, Url, OAuthErrors,
       AuthErrors, BaseBroker, FxDesktopBroker, IframeBroker, RedirectBroker,
       WebChannelBroker, BaseRelier, FxDesktopRelier, OAuthRelier, Relier,
       User, Metrics, StorageMetrics, WindowMock, RouterMock, HistoryMock,
@@ -56,6 +57,10 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
       historyMock = new HistoryMock();
       userMock = new User();
       brokerMock = new BaseBroker();
+    });
+
+    afterEach(function () {
+      Raven.uninstall();
     });
 
     describe('startApp', function () {
@@ -110,14 +115,21 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
           });
       });
 
-      it('redirects to the `INTERNAL_ERROR_PAGE` if an error occurs', function () {
+      it('redirects to the `INTERNAL_ERROR_PAGE` if an error occurs', function (done) {
         sinon.stub(appStart, '_selectStartPage', function () {
           return p.reject(new Error('boom!'));
         });
 
+        sinon.stub(windowMock, 'setTimeout', function (callback) {
+          setTimeout(callback, 10);
+        });
+
         return appStart.startApp()
           .then(function () {
-            assert.equal(windowMock.location.href, Constants.INTERNAL_ERROR_PAGE);
+            setTimeout(function () {
+              assert.equal(windowMock.location.href, Constants.INTERNAL_ERROR_PAGE);
+              done();
+            }, 20);
           });
       });
 
@@ -129,21 +141,6 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
                     .then(function () {
                       assert.isTrue(userMock.upgradeFromSession.calledOnce);
                     });
-      });
-
-      it('tracks window errors', function () {
-        var message = 'Fake ReferenceError: xyz is not defined. ' +
-          'Testing length of a long window.onerror error message here, that is more than the given limit';
-
-        return appStart.startApp()
-          .then(function () {
-            appStart._metrics = new Metrics();
-            window.onerror.call(window, message, document.location.toString(), 2);
-          })
-          .then(function () {
-            var expectedMessage = message.substring(0, Constants.ONERROR_MESSAGE_LIMIT);
-            assert.isTrue(TestHelpers.isEventLogged(appStart._metrics, 'error.onwindow.' + expectedMessage));
-          });
       });
 
       it('uses storage metrics when an automated browser is detected', function () {
@@ -355,6 +352,57 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
       it('creates a user', function () {
         appStart.initializeUser();
         assert.isDefined(appStart._user);
+      });
+    });
+
+    describe('initializeErrorMetrics', function () {
+      beforeEach(function () {
+        appStart = new AppStart({
+          window: windowMock,
+          router: routerMock,
+          history: historyMock,
+          broker: brokerMock
+        });
+        appStart.useConfig({});
+      });
+
+      it('skips error metrics on empty config', function () {
+        appStart.initializeAble();
+        var ableChoose = sinon.stub(appStart._able, 'choose', function () {
+          return true;
+        });
+
+        appStart.initializeErrorMetrics();
+        assert.isUndefined(appStart._sentryMetrics);
+        ableChoose.restore();
+      });
+
+      it('skips error metrics if env is not defined', function () {
+        appStart.useConfig({ });
+        appStart.initializeAble();
+
+        appStart.initializeErrorMetrics();
+        assert.isUndefined(appStart._sentryMetrics);
+      });
+
+      it('creates error metrics', function () {
+        var appStart = new AppStart({
+          window: windowMock,
+          router: routerMock,
+          history: historyMock,
+          broker: brokerMock
+        });
+        appStart.useConfig({ env: 'development' });
+        appStart.initializeAble();
+
+        var ableChoose = sinon.stub(appStart._able, 'choose', function () {
+          return true;
+        });
+
+        appStart.initializeErrorMetrics();
+        assert.isDefined(appStart._sentryMetrics);
+
+        ableChoose.restore();
       });
     });
 

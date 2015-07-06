@@ -46,6 +46,7 @@ function (Translator, Session) {
     '../tests/spec/lib/xhr',
     '../tests/spec/lib/storage',
     '../tests/spec/lib/null-storage',
+    '../tests/spec/lib/sentry',
     '../tests/spec/lib/relier-keys',
     '../tests/spec/lib/able',
     '../tests/spec/lib/environment',

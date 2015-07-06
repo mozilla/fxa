@@ -7,6 +7,7 @@ var config = require('../configuration');
 var clientId = config.get('oauth_client_id');
 
 var authServerUrl = config.get('fxaccount_url');
+var env = config.get('env');
 var oauthServerUrl = config.get('oauth_url');
 var profileServerUrl = config.get('profile_url');
 var metricsSampleRate = config.get('metrics.sample_rate');
@@ -38,6 +39,7 @@ module.exports = function () {
       // the `__cookie_check` cookie will not arrive.
       allowedParentOrigins: allowedParentOrigins,
       authServerUrl: authServerUrl,
+      env: env,
       cookiesEnabled: !!req.cookies['__cookie_check'],
       marketingEmailServerUrl: marketingEmailApiServerUrl,
       marketingEmailPreferencesUrl: marketingEmailPreferencesUrl,
