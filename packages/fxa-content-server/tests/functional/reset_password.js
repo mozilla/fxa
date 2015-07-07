@@ -35,7 +35,7 @@ define([
   function setTokenAndCodeFromEmail(emailAddress, emailNumber) {
     var fetchCount = emailNumber + 1;
     var user = TestHelpers.emailToUser(emailAddress);
-    return restmail(EMAIL_SERVER_ROOT + '/mail/' + user, fetchCount)
+    return restmail(EMAIL_SERVER_ROOT + '/mail/' + user, fetchCount)()
       .then(function (emails) {
         // token and code are hex values
         token = emails[emailNumber].html.match(/token=([a-f\d]+)/)[1];
@@ -224,15 +224,13 @@ define([
     },
 
     'open confirm_reset_password page, click resend': function () {
+      var user = TestHelpers.emailToUser(email);
       return fillOutResetPassword(this, email)
         .findById('resend')
           .click()
         .end()
 
-        .then(function () {
-          var user = TestHelpers.emailToUser(email);
-          return restmail(EMAIL_SERVER_ROOT + '/mail/' + user, 2);
-        })
+        .then(restmail(EMAIL_SERVER_ROOT + '/mail/' + user, 2))
 
         // Success is showing the success message
         .then(FunctionalHelpers.visibleByQSA('.success'))

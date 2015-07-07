@@ -92,9 +92,7 @@ define([
         .findByCssSelector('#fxa-settings-header')
         .end()
 
-        .then(function () {
-          return waitForBasket(email);
-        })
+        .then(waitForBasket(email))
 
         .findByCssSelector('a[href="/settings/communication_preferences"]')
           .click()
@@ -127,9 +125,7 @@ define([
         .findByCssSelector('#fxa-settings-header')
         .end()
 
-        .then(function () {
-          return waitForBasket(email);
-        })
+        .then(waitForBasket(email))
 
         .findByCssSelector('a[href="/settings/communication_preferences"]')
           .click()

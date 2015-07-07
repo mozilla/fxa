@@ -91,18 +91,17 @@ define([
         .findByCssSelector('#fxa-confirm-header')
         .end()
 
-        .then(function () {
+        .then(restmail(EMAIL_SERVER_ROOT + '/mail/' + user))
+
+        .then(function (emails) {
           // open a new window to validate the email
-          return restmail(EMAIL_SERVER_ROOT + '/mail/' + user)
-            .then(function (emails) {
-              var emailLink = emails[0].headers['x-link'];
+          var emailLink = emails[0].headers['x-link'];
 
-              return self.remote.execute(function (emailLink) {
-                window.open(emailLink, 'newwindow');
+          return self.remote.execute(function (emailLink) {
+            window.open(emailLink, 'newwindow');
 
-                return true;
-              }, [ emailLink ]);
-            });
+            return true;
+          }, [ emailLink ]);
         })
 
         // close the email tab

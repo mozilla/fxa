@@ -12,33 +12,33 @@ define([
 
   var LOOKUP_URL = API_URL + '/lookup-user/?email=';
 
-  var requestAttempts = 0;
-
   function waitUntilUserIsRegistered(email) {
-    if (requestAttempts > 2) {
-      // only log if too many attempts, probably means the service is not properly responding
-      console.log('Waiting for %s to register at: %s', email, API_URL);
-    }
 
-    var url = LOOKUP_URL + encodeURIComponent(email);
-    return request(url, 'GET', null, { 'X-API-Key': API_KEY })
-      .then(function (result) {
-        requestAttempts++;
+    var requestAttempts = 0;
 
-        if (result.status === 'ok') {
-          requestAttempts = 0;
+    return function checkIt () {
+      requestAttempts++;
 
-          return result;
-        } else {
-          var dfd = new Promise.Deferred();
-          setTimeout(function () {
-            waitUntilUserIsRegistered(email)
-              .then(dfd.resolve, dfd.reject);
-          }, 1000);
+      if (requestAttempts > 2) {
+        // only log if too many attempts, probably means the service is not properly responding
+        console.log('Waiting for %s to register at: %s', email, API_URL);
+      }
 
-          return dfd.promise;
-        }
-      });
+      var url = LOOKUP_URL + encodeURIComponent(email);
+      return request(url, 'GET', null, { 'X-API-Key': API_KEY })
+        .then(function (result) {
+          if (result.status === 'ok') {
+            return result;
+          } else {
+            var dfd = new Promise.Deferred();
+            setTimeout(function () {
+              checkIt().then(dfd.resolve, dfd.reject);
+            }, 1000);
+
+            return dfd.promise;
+          }
+        });
+    };
   }
 
   return waitUntilUserIsRegistered;
