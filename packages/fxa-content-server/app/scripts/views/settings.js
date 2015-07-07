@@ -34,7 +34,7 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
   var SUBVIEWS = [
     AvatarView,
     DisplayNameView,
-    //CommunicationPreferencesView,
+    CommunicationPreferencesView,
     ChangePasswordView,
     DeleteAccountView
   ];
