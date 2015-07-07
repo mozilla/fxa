@@ -239,6 +239,12 @@ function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
       });
     });
 
+    describe('isCollectionEnabled', function () {
+      it('reports that real collection is enabled', function () {
+        assert.isTrue(metrics.isCollectionEnabled());
+      });
+    });
+
     describe('logMarketingImpression & logMarketingClick', function () {
       it('logs the marketing impression and click', function () {
         var campaign = 'campaign1';

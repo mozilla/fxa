@@ -485,7 +485,8 @@ function (
           fxaClient: this._fxaClient,
           marketingEmailClient: this._marketingEmailClient,
           assertion: this._assertionLibrary,
-          storage: this._getStorageInstance()
+          storage: this._getStorageInstance(),
+          uuid: this._uuid
         });
       }
     },

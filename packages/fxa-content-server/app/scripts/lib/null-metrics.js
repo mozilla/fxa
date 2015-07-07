@@ -29,6 +29,10 @@ define([
     return p();
   };
 
+  NullMetrics.prototype.isCollectionEnabled = function () {
+    return false;
+  };
+
   return NullMetrics;
 });
 

@@ -39,5 +39,9 @@ function (chai, NullMetrics, Metrics) {
           assert.isTrue(true);
         });
     });
+
+    it('reports that real collection is not enabled', function () {
+      assert.isFalse(nullMetrics.isCollectionEnabled());
+    });
   });
 });

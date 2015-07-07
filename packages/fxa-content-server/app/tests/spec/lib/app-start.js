@@ -353,6 +353,12 @@ function (chai, sinon, Raven, AppStart, Session, Constants, p, Url, OAuthErrors,
         appStart.initializeUser();
         assert.isDefined(appStart._user);
       });
+
+      it('sets the user uuid', function () {
+        appStart.initializeUuid();
+        appStart.initializeUser();
+        assert.isDefined(appStart._user.get('uuid'));
+      });
     });
 
     describe('initializeErrorMetrics', function () {

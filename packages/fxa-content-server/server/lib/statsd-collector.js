@@ -9,8 +9,18 @@ var uaParser = require('ua-parser');
 
 var STATSD_PREFIX = 'fxa.content.';
 
+/**
+ * Normalize the string to make it usable in StatsD tagging.
+ * @param {String} item
+ * @returns {String}
+ * @private
+ */
+function _normalizeTag(item) {
+  return String(item).replace(/ /g, '_').toLowerCase();
+}
+
 function getGenericTags(body) {
-  /*eslint complexity: [2, 7] */
+  /*eslint complexity: [2, 8] */
   // see more about tags here: http://docs.datadoghq.com/guides/metrics/
   var tags = [
     'campaign:' + body.campaign,
@@ -63,9 +73,33 @@ function getGenericTags(body) {
     }
   }
 
+  // collect AB choices
+  if (body.ab) {
+    var abTags = [];
+
+    body.ab.forEach(function (item) {
+      if (item.event && item.event === 'choice' && item.experiment && item.choice) {
+        var tagName = 'ab_' + _normalizeTag(item.experiment);
+        var hadChoice = false;
+
+        Object.keys(item.choice).forEach(function (choiceKey) {
+          hadChoice = true;
+          tagName += '_' + _normalizeTag(choiceKey);
+          tagName += ':' + _normalizeTag(item.choice[choiceKey]);
+        });
+
+        // only add unique values
+        if (hadChoice && abTags.indexOf(tagName) === -1) {
+          abTags.push(tagName);
+        }
+      }
+    });
+
+    tags = tags.concat(abTags);
+  }
+
   return tags;
 }
-
 
 function getImpressionTags(impression) {
   return [

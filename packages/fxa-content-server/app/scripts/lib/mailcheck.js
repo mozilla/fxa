@@ -7,21 +7,18 @@
 /* exceptsPaths: mailcheck */
 define([
   'views/tooltip',
-  'lib/url',
   'mailcheck'
 ],
-function (Tooltip, Url) {
+function (Tooltip) {
   'use strict';
 
-  var DOMAINS = [ // domains that get suggested, i.e gnail.com => gmail.com
-    'gmail.com', 'qq.com', 'yandex.ru', 'o2.pl', 'rambler.ru', 'googlemail.com', 't-online.de', 'mail.ru', 'web.de',
-    'sbcglobal.net', 'msn.com', 'me.com', 'aol.de', 'aol.com', 'seznam.cz', 'comcast.net', 'orange.fr',
-    'gmx.de', 'ymail.com', 'outlook.com', 'live.com', 'yahoo.com', 'yahoo.fr', 'yahoo.co.id'
+  var DOMAINS = [];
+  var SECOND_LEVEL_DOMAINS = [ // domains that get suggested, i.e gnail => gmail
+    'gmail', 'qq', 'yandex', 'o2', 'rambler', 'googlemail', 't-online', 'mail', 'web',
+    'sbcglobal', 'msn', 'hotmail', 'me', 'aol', 'seznam', 'comcast', 'orange',
+    'gmx', 'ymail', 'outlook', 'live', 'yahoo'
   ];
-  var SECOND_LEVEL_DOMAINS = [];
-  var TOP_LEVEL_DOMAINS = [ // TLD suggestion, i.e some.cpm => some.com
-    'com', 'net', 'org', 'ru', 'jp', 'de', 'fr', 'pl', 'es', 'co.uk', 'bg', 'co.id', 'cz'
-  ];
+  var TOP_LEVEL_DOMAINS = [];
   var MIN_CHARS = 5; // start suggesting email correction after MIN_CHARS
   var SUGGEST_DIV_CLASS = 'tooltip-suggest';
 
@@ -33,21 +30,14 @@ function (Tooltip, Url) {
    * @param {Object} target DOM input node to target with mailcheck
    * @param {Object} metrics Metrics logger
    * @param {Object} translator Translator object passed by the view
-   * @param {String} queryParams Window query params
    */
-  return function checkMailInput(target, metrics, translator, queryParams) {
+  return function checkMailInput(target, metrics, translator) {
     var element = $(target);
     if (! element.length) {
       return;
     }
-    var enabled = false;
-
-    // Url param flag 'mailcheck' to disable the feature unless the flag is set
-    if (Url.searchParam('mailcheck', queryParams) === '1') {
-      enabled = true;
-    }
     // check if the text value was changed before showing the tooltip
-    if (element[0].previousValue !==  element.val() && element.val().length > MIN_CHARS && enabled) {
+    if (element.data('previousValue') !== element.val() && element.val().length > MIN_CHARS) {
       element.mailcheck({
         domains: DOMAINS,
         secondLevelDomains: SECOND_LEVEL_DOMAINS,
@@ -86,6 +76,6 @@ function (Tooltip, Url) {
         }
       });
     }
-    element[0].previousValue = element.val();
+    element.data('previousValue', element.val());
   };
 });

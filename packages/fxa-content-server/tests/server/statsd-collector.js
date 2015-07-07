@@ -75,6 +75,34 @@ define([
 
   };
 
+  suite['properly collects metrics events with ab testing tags'] = function () {
+    var dfd = new Promise.Deferred();
+
+    var metricsCollector = new StatsDCollector();
+    metricsCollector.init();
+
+    var fixtureMessage = JSON.parse(fs.readFileSync('tests/server/fixtures/statsd_body_ab.json'));
+    var expectedEventBody = fs.readFileSync('tests/server/expected/statsd_event_body_ab.txt').toString().trim();
+
+    udpTest(function (message, server) {
+      message = statsdMessageToObject(message);
+
+      assert.equal(message.raw, expectedEventBody);
+
+      // both types of message should have the normal tags.
+      assert.equal(message.tags['ab_mailcheck_is_enable_or_disabled_mailcheckenabled'], 'true');
+      metricsCollector.close();
+      server.close();
+      dfd.resolve();
+
+    }, function (){
+      metricsCollector.write(fixtureMessage);
+    });
+
+    return dfd.promise;
+
+  };
+
   registerSuite(suite);
 
   /**

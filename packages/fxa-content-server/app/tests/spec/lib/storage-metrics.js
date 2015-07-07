@@ -89,5 +89,9 @@ function (chai, StorageMetrics, Metrics, Storage, WindowMock) {
           compareLastData();
         });
     });
+
+    it('reports that real collection is not enabled', function () {
+      assert.isTrue(storageMetrics.isCollectionEnabled());
+    });
   });
 });

@@ -23,7 +23,6 @@ function (sinon, chai, $, mailcheck) {
 
   describe('lib/mailcheck', function () {
     var mockTranslator = window.translator;
-    var mockParams = 'something=1&mailcheck=1';
     var mockMetrics = {
       logEvent: function () {
       }
@@ -41,9 +40,17 @@ function (sinon, chai, $, mailcheck) {
       metricsStub.restore();
     });
 
+    it('skips mailcheck if element cannot be found', function (done) {
+      var MAILCHECK_SELECTOR = $('.bad-selector-that-does-not-exist');
+      assert.doesNotThrow(function () {
+        mailcheck(MAILCHECK_SELECTOR);
+        done();
+      });
+    });
+
     it('works with attached elements and changes values', function (done) {
       $(MAILCHECK_SELECTOR).blur(function () {
-        mailcheck(MAILCHECK_SELECTOR, mockMetrics, mockTranslator, mockParams);
+        mailcheck(MAILCHECK_SELECTOR, mockMetrics, mockTranslator);
       });
 
       $(MAILCHECK_SELECTOR).val(BAD_EMAIL).blur();
@@ -62,7 +69,7 @@ function (sinon, chai, $, mailcheck) {
 
     it('works with attached elements and can be dismissed', function (done) {
       $(MAILCHECK_SELECTOR).blur(function () {
-        mailcheck(MAILCHECK_SELECTOR, mockMetrics, mockTranslator, mockParams);
+        mailcheck(MAILCHECK_SELECTOR, mockMetrics, mockTranslator);
       });
 
       $(MAILCHECK_SELECTOR).val(BAD_EMAIL).blur();
@@ -79,21 +86,5 @@ function (sinon, chai, $, mailcheck) {
       }, 50);
     });
 
-    it('only works if enabled', function (done) {
-      var mockParams = '';
-
-      $(MAILCHECK_SELECTOR).blur(function () {
-        mailcheck(MAILCHECK_SELECTOR, mockMetrics, mockTranslator, mockParams);
-      });
-
-      $(MAILCHECK_SELECTOR).val(BAD_EMAIL).blur();
-
-      // wait for tooltip
-      setTimeout(function () {
-        // no tooltips
-        assert.equal($(TOOLTIP_SELECTOR).length, 0);
-        done();
-      }, 50);
-    });
   });
 });
