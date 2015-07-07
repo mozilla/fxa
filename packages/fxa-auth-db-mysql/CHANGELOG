@@ -1,3 +1,7 @@
+train-41
+  * feat(api): Return the account email address on passwordChangeToken - #59
+  * chore(travis): Tell Travis to use #fxa-bots - #60
+  
 train-40
   * fix(notifications): always return a promise from db.processUnpublishedEvents, fixes #49 - #52
   * fix(npm): Update npm-shrinkwrap to include the last version of fxa-auth-db-server - #50
