@@ -201,7 +201,7 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
     suggestEmail: function () {
       var abData = {
         isMetricsEnabled: this.metrics.isCollectionEnabled(),
-        uuid: this.user.get('uuid'),
+        uniqueUserId: this.user.get('uniqueUserId'),
         // the window parameter will override any ab testing features
         forceMailcheck: Url.searchParam('mailcheck', this.window.location.search)
       };
