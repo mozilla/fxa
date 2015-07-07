@@ -12,31 +12,76 @@ var translationQuirks = {
   'content-language': [
   ],
 
-  'Verify your account': [
-    'en'
-  ],
-
-  'Reset your password': [
-    'en'
-  ],
-
-  // A *lot* have not been translated, but a number of broadly
-  // spoken languages (e.g., de, zh-TW, zh-TW, ja, ru, pt-BR)
-  // have been.
-  'Re-verify your account': [
+  'Verify your Firefox Account': [
     'ca',
+    'cy',
     'en',
     'es-AR',
+    'eu',
     'ff',
     'he',
+    'hu',
     'id',
     'ko',
     'lt',
     'nb-NO',
     'pa',
     'pl',
-    'rm',
+    'sk',
+    'sq',
+    'sr',
+    'sr-LATN',
     'sv',
+    'tr'
+  ],
+
+  'Reset your Firefox Account password': [
+    'ca',
+    'cy',
+    'en',
+    'es-AR',
+    'eu',
+    'ff',
+    'he',
+    'hu',
+    'id',
+    'ko',
+    'lt',
+    'nb-NO',
+    'pa',
+    'pl',
+    'sk',
+    'sq',
+    'sr',
+    'sr-LATN',
+    'sv',
+    'tr'
+  ],
+
+  // A *lot* have not been translated, but a number of broadly
+  // spoken languages (e.g., de, zh-TW, zh-TW, ja, ru, pt-BR)
+  // have been.
+  'Re-verify your Firefox Account': [
+    'ca',
+    'cy',
+    'en',
+    'es-AR',
+    'eu',
+    'ff',
+    'he',
+    'hu',
+    'id',
+    'ko',
+    'lt',
+    'nb-NO',
+    'pa',
+    'pl',
+    'sk',
+    'sq',
+    'sr',
+    'sr-LATN',
+    'sv',
+    'tr'
   ]
 }
 
