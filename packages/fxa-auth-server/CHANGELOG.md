@@ -1,3 +1,22 @@
+<a name"0.41.0"></a>
+## 0.41.0 (2015-07-07)
+
+
+#### Bug Fixes
+
+* **api:**
+  * tolerate an empty client_secret in /destroy ([25a4d308](https://github.com/mozilla/fxa-oauth-server/commit/25a4d308))
+  * accept and ignore client_secret param in /destroy ([c797ed23](https://github.com/mozilla/fxa-oauth-server/commit/c797ed23))
+  * use invalidRequestParameter instead of invalidRedirect for invalid redirect acti ([55eff2dd](https://github.com/mozilla/fxa-oauth-server/commit/55eff2dd))
+  * fail on invalid action parameters ([0c73ae79](https://github.com/mozilla/fxa-oauth-server/commit/0c73ae79))
+* **config:** update redirect_uri values to not be blank ([5267c62a](https://github.com/mozilla/fxa-oauth-server/commit/5267c62a))
+
+
+#### Features
+
+* **refresh_tokens:** add refresh_tokens to /token endpoint ([16e787f0](https://github.com/mozilla/fxa-oauth-server/commit/16e787f0), closes [#209](https://github.com/mozilla/fxa-oauth-server/issues/209))
+
+
 <a name"0.39.0"></a>
 ## 0.39.0 (2015-06-10)
 
