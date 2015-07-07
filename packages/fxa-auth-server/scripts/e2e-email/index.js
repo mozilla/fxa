@@ -81,9 +81,9 @@ function assertSubjectLang(subject, lang, expectSubject) {
   // If it's listed in quirks, expect en-US content
   var quirks = localeQuirks[expectSubject]
   if (quirks && quirks[lang]) {
-    assert.equal(subject, expectSubject)
+    assert.equal(subject, expectSubject, lang + ' -> ' + subject)
   } else {
-    assert.notEqual(subject, expectSubject)
+    assert.notEqual(subject, expectSubject, lang + ' -> ' + subject)
   }
 }
 
@@ -100,11 +100,11 @@ function checkSubjects(subject, lang, headers, link) {
   }
 
   if (link.pathname === VERIFY_PATH) {
-    checkByType('Verify your account', ['x-verify-code', 'x-uid'], '["code","uid"]')
+    checkByType('Verify your Firefox Account', ['x-verify-code', 'x-uid'], '["code","uid"]')
   } else if (link.pathname === RESET_PATH) {
-    checkByType('Reset your password', ['x-recovery-code'], '["code","email","token"]')
+    checkByType('Reset your Firefox Account password', ['x-recovery-code'], '["code","email","token"]')
   } else if (link.pathname === UNLOCK_PATH) {
-    checkByType('Re-verify your account', ['x-unlock-code', 'x-uid'], '["code","uid"]')
+    checkByType('Re-verify your Firefox Account', ['x-unlock-code', 'x-uid'], '["code","uid"]')
   }
 }
 
