@@ -94,8 +94,18 @@ define([
       });
 
       it('returns `false` if the window\'s name is `remote`', function () {
+        // `name=remote` is used by `about:accounts` by Fx Desktop. Do not
+        // consider this framed.
         windowMock.top = new WindowMock();
         windowMock.name = 'remote';
+        assert.isFalse(environment.isFramed());
+      });
+
+      it('returns `false` if the window\'s name is `payflow`', function () {
+        // `name=payflow` is used by Marketplace on Fx for Android during
+        // the Reset PIN flow. Do not consider this framed.
+        windowMock.top = new WindowMock();
+        windowMock.name = 'payflow';
         assert.isFalse(environment.isFramed());
       });
     });

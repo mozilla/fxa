@@ -65,9 +65,29 @@
 
     isFramed: function () {
       var win = this.window;
-      // about:accounts places FxA into an iframe, but is not considered
-      // to use the iframe flow. about:accounts sets window.name = 'remote'
-      return !! (win.top && win.top !== win && win.name !== 'remote');
+
+      // HACK:
+      // These are the iframe names when used in a native browser iframe.
+      // Do not consider windows with these names framed.
+      //
+      // 'remote' is for about:accounts
+      // 'payflow' is for Mozilla Payments reset PIN flow on Fx for Android.
+      //   See #2607
+
+      // use a hash instead of an array and array.indexOf
+      // b/c this module can only use ES3.
+      var nativeNames = {
+        remote: true,
+        payflow: true
+      };
+
+      var isNativelyEmbedded = nativeNames[win.name];
+
+      return !! (
+                 win.top &&
+                 win.top !== win &&
+                 ! isNativelyEmbedded
+                );
     },
 
     isFxiOS: function () {
