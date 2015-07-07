@@ -14,11 +14,9 @@ var translationQuirks = {
 
   'Verify your Firefox Account': [
     'ca',
-    'cs',
     'cy',
     'en',
     'es-AR',
-    'es-CL',
     'eu',
     'ff',
     'he',
@@ -29,23 +27,19 @@ var translationQuirks = {
     'nb-NO',
     'pa',
     'pl',
-    'rm',
     'sk',
     'sq',
     'sr',
     'sr-LATN',
     'sv',
-    'sv-SE',
     'tr'
   ],
 
   'Reset your Firefox Account password': [
     'ca',
-    'cs',
     'cy',
     'en',
     'es-AR',
-    'es-CL',
     'eu',
     'ff',
     'he',
@@ -56,13 +50,11 @@ var translationQuirks = {
     'nb-NO',
     'pa',
     'pl',
-    'rm',
     'sk',
     'sq',
     'sr',
     'sr-LATN',
     'sv',
-    'sv-SE',
     'tr'
   ],
 
@@ -71,11 +63,9 @@ var translationQuirks = {
   // have been.
   'Re-verify your Firefox Account': [
     'ca',
-    'cs',
     'cy',
     'en',
     'es-AR',
-    'es-CL',
     'eu',
     'ff',
     'he',
@@ -86,13 +76,11 @@ var translationQuirks = {
     'nb-NO',
     'pa',
     'pl',
-    'rm',
     'sk',
     'sq',
     'sr',
     'sr-LATN',
     'sv',
-    'sv-SE',
     'tr'
   ]
 }
