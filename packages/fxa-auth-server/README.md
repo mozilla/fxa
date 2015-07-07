@@ -17,10 +17,6 @@ The auth-mailer also includes a restify API to send emails, but the auth server 
 
 ## L10N
 
-After updating a string in one of the templates in `./templates` you'll need to perform the following these steps:
+After updating a string in one of the templates in `./templates` you'll need to extract the strings using [this script](https://raw.githubusercontent.com/mozilla/fxa-content-server-l10n/master/scripts/extract_strings.sh):
 
-1. `npm install` (updates the base .pot files)
-2. `grunt` (extracts the new strings)
-3. Copy `./server.pot` in to the FxA l10n repo, e.g. `cp server.pot ../fxa-content-server-l10n/locale/templates/LC_MESSAGES/server.pot`
-4. From the l10n repo, run `./scripts/merge_po.sh` and submit a pull request with the changes
-
+``extract_strings.sh [--mailer-repo ./fxa-auth-mailer] [--content-repo ./fxa-content-server] [--l10n-repo ./fxa-content-server-l10n] train_number``
