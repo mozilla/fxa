@@ -1,3 +1,12 @@
+<a name="0.41.1"></a>
+## 0.41.1 (2015-07-08)
+
+
+#### Bug Fixes
+
+* **templates:** fixes issues with 50*.html templates in production mode ([09e95013](https://github.com/mozilla/fxa-content-server/commit/09e95013745f193799ac39f9b41f4bff67ee28cf), closes [#2663](https://github.com/mozilla/fxa-content-server/issues/2663))
+
+
 <a name="0.41.0"></a>
 ## 0.41.0 (2015-07-08)
 
