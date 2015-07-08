@@ -1,3 +1,36 @@
+<a name="0.41.0"></a>
+## 0.41.0 (2015-07-08)
+
+
+#### Bug Fixes
+
+* **avatars:** Fix float imprecision errors when saving cropped image ([b241c698](https://github.com/mozilla/fxa-content-server/commit/b241c698871e331df7633e7e372fa44da2fd1686))
+* **client:** Mozilla Payments flow is not considered an iframe. ([82c1981d](https://github.com/mozilla/fxa-content-server/commit/82c1981d942b839f7e77235cc6a29073be5c94fe))
+* **content-server:** open TOS/PP in new tab if inside an iframe Check for presence of link inside ifr ([a556142e](https://github.com/mozilla/fxa-content-server/commit/a556142ec36e2f29a009a573372e885de211f5be), closes [#2351](https://github.com/mozilla/fxa-content-server/issues/2351))
+* **icons:** add a precomposed icon for apple devices to avoid extra 404 requests ([df4dccd7](https://github.com/mozilla/fxa-content-server/commit/df4dccd7c0c9c92d177d2864e09715ec57b95e71), closes [#2655](https://github.com/mozilla/fxa-content-server/issues/2655))
+* **lint:** Fix the eslint camelcase errors. ([b352476a](https://github.com/mozilla/fxa-content-server/commit/b352476a65b5df815191993b37760bfe56ef41bc))
+* **marketing:** add a bit of top margin to the opt in ([042c210f](https://github.com/mozilla/fxa-content-server/commit/042c210f0036b3295cd3821b6bb4c4d8ae0582fc))
+* **styles:** Fix the header spacing for the firstrun flow. ([b855a72b](https://github.com/mozilla/fxa-content-server/commit/b855a72ba60be43217af26a1c4c475da0630a893))
+* **tests:**
+  * check that content in all expected languages is available ([89591f00](https://github.com/mozilla/fxa-content-server/commit/89591f00c0be675e43762d342700fd9322f9a80a))
+  * adjust code to support IE10 ([a1c7c203](https://github.com/mozilla/fxa-content-server/commit/a1c7c203893aebc09aa09bcee9aca08731e31875), closes [#2378](https://github.com/mozilla/fxa-content-server/issues/2378))
+
+
+#### Features
+
+* **avatars:** add metrics for avatar cropping operations ([79c05c97](https://github.com/mozilla/fxa-content-server/commit/79c05c9748eaef5d2073a72111284c2077e978c7))
+* **metrics:** add Sentry metrics for front-end errors ([9c11f69a](https://github.com/mozilla/fxa-content-server/commit/9c11f69a9111f469fe72049ae607b7784f70df20))
+* **oauth:** allow access_type query parameter ([ebcc10d4](https://github.com/mozilla/fxa-content-server/commit/ebcc10d4806ac8d2c4ae3c718a0e3547af5c9a0e))
+* **signup:** adds mailcheck + ab testing ([1553651d](https://github.com/mozilla/fxa-content-server/commit/1553651d6bf5806360c6773b50002a5099e70fbf))
+
+
+#### Breaking Changes
+
+* Developer's local.json needs to be updated to remove
+the `api_proxy` configuration parameter.
+ ([d69a64b1](https://github.com/mozilla/fxa-content-server/commit/d69a64b1748aa6a5daf15ae680bd441f1118edab))
+
+
 <a name="0.40.0"></a>
 ## 0.40.0 (2015-06-29)
 
