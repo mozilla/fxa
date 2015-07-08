@@ -18,8 +18,6 @@ function serialize(client) {
     terms_uri: client.termsUri,
     privacy_uri: client.privacyUri,
     can_grant: client.canGrant,
-    // XXX TODO: a future PR will remove legacy "whitelisted" attr
-    whitelisted: client.trusted,
     trusted: client.trusted
   };
 }
@@ -40,8 +38,6 @@ module.exports = {
           terms_uri: Joi.string().allow('').required(),
           privacy_uri: Joi.string().allow('').required(),
           can_grant: Joi.boolean().required(),
-          // XXX TODO: a future PR will remove legacy "whitelisted" attr
-          whitelisted: Joi.boolean().required(),
           trusted: Joi.boolean().required()
         })
       )
