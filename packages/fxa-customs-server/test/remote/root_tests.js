@@ -26,7 +26,7 @@ test(
 
 var client = restify.createJsonClient({
   url: 'http://127.0.0.1:' + config.listen.port
-});
+})
 
 test(
   'version check',

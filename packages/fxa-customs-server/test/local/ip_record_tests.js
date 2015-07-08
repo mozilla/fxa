@@ -6,11 +6,11 @@ var test = require('tap').test
 var ipRecord = require('../../ip_record')
 
 function now() {
-  return 240*1000 // old school
+  return 240 * 1000 // old school
 }
 
 function simpleIpRecord() {
-  return new (ipRecord(120*1000, now))()
+  return new (ipRecord(120 * 1000, now))()
 }
 
 test(
@@ -21,9 +21,9 @@ test(
     t.equal(ir.shouldBlock(), false, 'record has never been blocked')
     ir.bk = now()
     t.equal(ir.shouldBlock(), true, 'record is blocked')
-    ir.bk = now() - 60*1000;
+    ir.bk = now() - 60 * 1000
     t.equal(ir.shouldBlock(), true, 'record is still blocked')
-    ir.bk = now() - 120*1000; // blockInterval
+    ir.bk = now() - 120 * 1000 // blockInterval
     t.equal(ir.shouldBlock(), false, 'record is no longer blocked')
     t.end()
   }
@@ -47,11 +47,11 @@ test(
     var ir = simpleIpRecord()
 
     t.equal(ir.retryAfter(), 0, 'unblocked records can be retried now')
-    ir.bk = now() - 180*1000
+    ir.bk = now() - 180 * 1000
     t.equal(ir.retryAfter(), 0, 'long expired blocks can be retried immediately')
-    ir.bk = now() - 120*1000
+    ir.bk = now() - 120 * 1000
     t.equal(ir.retryAfter(), 0, 'just expired blocks can be retried immediately')
-    ir.bk = now() - 60*1000
+    ir.bk = now() - 60 * 1000
     t.equal(ir.retryAfter(), 60, 'unexpired blocks can be retried in a bit')
     t.end()
   }
@@ -62,12 +62,12 @@ test(
   function (t) {
     var ir = simpleIpRecord()
     t.equal(ir.shouldBlock(), false, 'original object is not blocked')
-    var irCopy1 = (ipRecord(120*1000, now)).parse(ir)
+    var irCopy1 = (ipRecord(120 * 1000, now)).parse(ir)
     t.equal(irCopy1.shouldBlock(), false, 'copied object is not blocked')
 
     ir.block()
     t.equal(ir.shouldBlock(), true, 'original object is now blocked')
-    var irCopy2 = (ipRecord(120*1000, now)).parse(ir)
+    var irCopy2 = (ipRecord(120 * 1000, now)).parse(ir)
     t.equal(irCopy2.shouldBlock(), true, 'copied object is blocked')
     t.end()
   }
