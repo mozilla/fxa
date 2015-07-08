@@ -67,6 +67,7 @@ define([
         // make sure to set the dataType for Firefox <21. See issue #1930
         dataType: 'json',
         type: options.type,
+        timeout: options.timeout,
         headers: {
           Authorization: 'Bearer ' + options.accessToken,
           Accept: 'application/json'

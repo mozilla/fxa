@@ -4,6 +4,17 @@
   </header>
 
   <section>
+    {{#error}}
+      <div class="error visible nudge">
+        {{error}}
+      </div>
+      <div class="links email-optin-links">
+        <a href="#" id="back" class="back">{{#t}}Back{{/t}}</a>
+      </div>
+    </div>
+
+    {{/error}}
+    {{^error}}
     <div class="success"></div>
     <div class="error"></div>
 
@@ -35,5 +46,6 @@
         <a href="#" id="back" class="back">{{#t}}Back{{/t}}</a>
       {{/preferencesUrl}}
     </div>
+    {{/error}}
   </section>
 </div>
