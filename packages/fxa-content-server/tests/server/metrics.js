@@ -11,8 +11,10 @@ define([
 ], function (intern, registerSuite, assert, config, request) {
   var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
 
-  // IMHO, metrics should be enabled in dev too.
-  var metricsSampleRate = intern.config.fxaProduction ? 0.1 : config.get('metrics.sample_rate');
+  var metricsSampleRate = config.get('metrics.sample_rate');
+  if (intern.config.fxaProduction && ! intern.config.fxaDevBox) {
+    metricsSampleRate = 0.1;
+  }
 
   var suite = {
     name: 'metrics'

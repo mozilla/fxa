@@ -44,7 +44,7 @@ define([
       //
       assert.ok(res.headers.vary, 'the vary header exists');
       var varyHeader = res.headers.vary.toLowerCase().split(/,\s*/);
-      if (intern.config.fxaProduction) {
+      if (intern.config.fxaProduction && ! intern.config.fxaDevBox) {
         if (process.versions['node'] < '0.11.11') {
           assert.ok(varyHeader.indexOf('accept-encoding') !== -1);
         } else {
