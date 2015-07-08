@@ -19,7 +19,7 @@ module.exports = function (done) {
   fxaccntbridge.on('exit', function (code, signal) {
     console.log('fxa-content-server killed, exiting');
     if (done) {
-      done(code);
+      done(code === 0);
     } else {
       process.exit(code); //eslint-disable-line no-process-exit
     }
