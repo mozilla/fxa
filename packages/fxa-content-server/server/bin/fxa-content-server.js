@@ -110,6 +110,16 @@ function makeApp() {
 var app,
     port;
 
+function catchStartUpErrors(e) {
+  if ('EACCES' === e.code) {
+    logger.error('Permission Denied, maybe you should run this with sudo?');
+  } else if ('EADDRINUSE' === e.code) {
+    logger.error('Unable to listen for connections, this service might already be running?');
+  }
+  console.error(e);
+  process.exit(1);
+}
+
 function listen(theApp) {
   app = theApp || app;
   if (config.get('use_https')) {
@@ -121,17 +131,10 @@ function listen(theApp) {
     };
 
     https.createServer(tlsoptions, app).listen(port);
-    app.on('error', function (e) {
-      if ('EACCES' === e.code) {
-        logger.error('Permission Denied, maybe you should run this with sudo?');
-      } else if ('EADDRINUSE' === e.code) {
-        logger.error('Unable to listen for connections, this service might already be running?');
-      }
-      throw e;
-    });
+    app.on('error', catchStartUpErrors);
   } else {
     port = config.get('port');
-    app.listen(port, '0.0.0.0');
+    app.listen(port, '0.0.0.0').on('error', catchStartUpErrors);
   }
   if (isMain) {
     logger.info('Firefox Account Content server listening on port', port);
