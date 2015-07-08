@@ -23,7 +23,7 @@ Developing a service that needs Firefox Accounts authentication?  Head on over t
 
 ## Contributing to Firefox Accounts - [fxa.readthedocs.org](http://fxa.readthedocs.org)
 
-Interesting in contributing to the development of Firefox Accounts?  Great!
+Interested in contributing to the development of Firefox Accounts?  Great!
 Head over to the [FxA developer documentation](http://fxa.readthedocs.org) on readthedocs.org (which is actually the same content as the local [docs](/docs/index.md) directory, but in a nice pre-rendered HTML view).
 
 ##### Track development updates: [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mozilla/fxa?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
