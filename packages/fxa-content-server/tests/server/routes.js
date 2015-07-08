@@ -40,6 +40,7 @@ define([
     '/settings/avatar/gravatar': { statusCode: 200 },
     '/settings/avatar/camera': { statusCode: 200 },
     '/settings/avatar/crop': { statusCode: 200 },
+    '/settings/avatar/gravatar_permissions': { statusCode: 200 },
     '/change_password': { statusCode: 200 },
     '/legal': { statusCode: 200 },
     '/legal/terms': { statusCode: 200 },

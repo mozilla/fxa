@@ -33,13 +33,6 @@ function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
       this.FileReader = FileReader;
     },
 
-    context: function () {
-      var email = this.getSignedInAccount().get('email');
-      return {
-        shouldShowGravatar: this._shouldShowGravatar(email)
-      };
-    },
-
     beforeRender: function () {
       if (this.relier.get('setting') === 'avatar') {
         this.relier.unset('setting');
@@ -133,11 +126,6 @@ function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
       }
 
       return defer.promise;
-    },
-
-    // Hide Gravatar except for tests until #2515 is resolved
-    _shouldShowGravatar: function (email) {
-      return /^avatarAB-.+@restmail\.net$/.test(email);
     }
 
   });

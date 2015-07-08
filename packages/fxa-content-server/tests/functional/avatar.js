@@ -160,122 +160,130 @@ define([
         });
     },
 
-    // revert this and the gravatar tests once #2515 is resolved
-    'try to visit gravatar when it is disabled': function () {
-      return this.remote
-        .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
-
-        // gravatar link should be absent
-        .then(FunctionalHelpers.noSuchElement(this, '#gravatar'))
-        .end();
-    },
-
     'visit gravatar with gravatar set': function () {
       var self = this;
-      return signUp(self, emailAvatarAb)
-        .then(function () {
-          return self.remote
-            .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
+      return self.remote
+        .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
 
-            // go to change avatar
-            .findById('gravatar')
-              .click()
-            .end()
+        // go to gravatar change
+        .findById('gravatar')
+          .click()
+        .end()
 
-            .findByCssSelector('img[src*="https://secure.gravatar.com"]')
-            .end()
+        // accept permission
+        .findById('accept')
+          .click()
+        .end()
 
-            .execute(FunctionalHelpers.listenForWebChannelMessage)
+        .findByCssSelector('img[src*="https://secure.gravatar.com"]')
+        .end()
 
-            .findById('submit-btn')
-              .click()
-            .end()
+        .execute(FunctionalHelpers.listenForWebChannelMessage)
 
-            .then(FunctionalHelpers.visibleByQSA('.success'))
+        .findById('submit-btn')
+          .click()
+        .end()
 
-            .findByCssSelector('.success')
-              .getVisibleText()
-              .then(function (val) {
-                assert.ok(val, 'has success text');
-              })
-            .end()
+        .then(FunctionalHelpers.visibleByQSA('.success'))
 
-            .then(testIsBrowserNotifiedOfAvatarChange(self))
+        .findByCssSelector('.success')
+          .getVisibleText()
+          .then(function (val) {
+            assert.ok(val, 'has success text');
+          })
+        .end()
 
-            //success is returning to the settings page
-            .findById('fxa-settings-header')
-            .end()
+        .then(testIsBrowserNotifiedOfAvatarChange(self))
 
-            // check for an image with the gravatar url
-            .findByCssSelector('img[src*="https://secure.gravatar.com"]')
-            .end();
-        });
+        //success is returning to the settings page
+        .findById('fxa-settings-header')
+        .end()
+
+        // check for an image with the gravatar url
+        .findByCssSelector('img[src*="https://secure.gravatar.com"]')
+        .end()
+
+        // Go back to the gravatar view to make sure permission prompt is skipped the second time
+        .findByCssSelector('.change-avatar-text a')
+          .click()
+        .end()
+
+        .findById('gravatar')
+          .click()
+        .end()
+
+        .findById('fxa-avatar-gravatar-header')
+        .end();
     },
 
     'visit gravatar with gravatar set then cancel': function () {
       var self = this;
-      return signUp(self, emailAvatarAb)
-        .then(function () {
-          return self.remote
-            .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
+      return self.remote
+        .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
 
-            // go to change avatar
-            .findById('gravatar')
-              .click()
-            .end()
+        // go to change avatar
+        .findById('gravatar')
+          .click()
+        .end()
 
-            .findByCssSelector('img[src*="https://secure.gravatar.com"]')
-            .end()
+        // accept permission
+        .findById('accept')
+          .click()
+        .end()
 
-            .findByCssSelector('a.cancel')
-              .click()
-            .end()
+        .findByCssSelector('img[src*="https://secure.gravatar.com"]')
+        .end()
 
-            // redirected back to main avatar page after save
-            .findById('avatar-options')
-            .end()
+        .findByCssSelector('a.cancel')
+          .click()
+        .end()
 
-            // give time for error to show up, there should be no error though
-            .sleep(500)
+        // redirected back to main avatar page after save
+        .findById('avatar-options')
+        .end()
 
-            .findByCssSelector('.error')
-              .getVisibleText()
-              .then(function (val) {
-                assert.ok(! val, 'has no error text');
-              })
-            .end()
+        // give time for error to show up, there should be no error though
+        .sleep(500)
 
-            // success is seeing no profile image set
-            .waitForDeletedByCssSelector('.avatar-wrapper img')
-            .end();
-        });
+        .findByCssSelector('.error')
+          .getVisibleText()
+          .then(function (val) {
+            assert.ok(! val, 'has no error text');
+          })
+        .end()
+
+        // success is seeing no profile image set
+        .waitForDeletedByCssSelector('.avatar-wrapper img')
+        .end();
     },
 
     'visit gravatar with no gravatar set': function () {
       var self = this;
-      return signUp(self, emailAvatarAb)
-        .then(function () {
-          return self.remote
-            .get(require.toUrl(AVATAR_CHANGE_URL))
+      return self.remote
+        .get(require.toUrl(AVATAR_CHANGE_URL))
 
-            // go to change avatar
-            .findById('gravatar')
-              .click()
-            .end()
+        // go to change avatar
+        .findById('gravatar')
+          .click()
+        .end()
 
-            // success is going to the change avatar page
-            .findById('avatar-options')
-            .end()
+        // accept permission
+        .findById('accept')
+          .click()
+        .end()
 
-            // success is seeing the error text
-            .then(FunctionalHelpers.visibleByQSA('.error'))
-            .findByCssSelector('.error')
-              .getVisibleText()
-              .then(function (val) {
-                assert.ok(val, 'has error text');
-              })
-            .end();
-        });
+        // success is going to the change avatar page
+        .findById('avatar-options')
+        .end()
+
+        // success is seeing the error text
+        .then(FunctionalHelpers.visibleByQSA('.error'))
+        .findByCssSelector('.error')
+          .getVisibleText()
+          .then(function (val) {
+            assert.ok(val, 'has error text');
+          })
+        .end();
     },
 
     'attempt to use webcam for avatar': function () {
