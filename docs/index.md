@@ -66,6 +66,7 @@ development, and will be happy to help answer any questions you might have.
 * [John Morrison](https://github.com/jrgm) - Operations (Mountain View, approx UTC-8)
 * [Peter deHaan](https://github.com/pdehaan) - QA (Mountain View, approx UTC-8)
 * [Ryan Feeley](https://github.com/rfeeley) - UX (Toronto, approx UTC-5)
+* [John Gruen](https://github.com/johngruen) - UX (NYC, approx UTC-5)
 * [Chris Karlof](https://github.com/ckarlof) - Identity Services Manager (San Francisco, approx UTC-8)
 * [Edwin Wong](https://github.com/edwong) - Program Manager (San Francisco, approx UTC-8)
 
