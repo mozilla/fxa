@@ -473,18 +473,18 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
         return router.createAndShowView(SignUpView, { canGoBack: false })
           .then(function () {
             assert.equal($('#fxa-signup-header').length, 1);
-            assert.isTrue(windowMock.sessionStorage.canGoBack);
+            assert.isTrue(router.storage.get('canGoBack'));
           });
       });
     });
 
     describe('canGoBack initial value', function () {
       it('is `false` if sessionStorage.canGoBack is not set', function () {
-        assert.isFalse(router.canGoBack);
+        assert.isUndefined(router.storage._backend.getItem('canGoBack'));
       });
 
       it('is `true` if sessionStorage.canGoBack is set', function () {
-        windowMock.sessionStorage.canGoBack = true;
+        windowMock.sessionStorage.setItem('canGoBack', true);
         router = new Router({
           window: windowMock,
           metrics: metrics,
@@ -493,7 +493,7 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
           user: user,
           formPrefill: formPrefill
         });
-        assert.isTrue(router.canGoBack);
+        assert.isTrue(router.storage._backend.getItem('canGoBack'));
       });
     });
   });

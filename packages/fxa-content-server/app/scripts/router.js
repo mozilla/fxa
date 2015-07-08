@@ -137,10 +137,8 @@ function (
       this.formPrefill = options.formPrefill;
       this.notifications = options.notifications;
       this.able = options.able;
+      this.storage = Storage.factory('sessionStorage', this.window);
 
-      // back is enabled after the first view is rendered or
-      // if the user is re-starts the app.
-      this.canGoBack = this.window.sessionStorage.canGoBack || false;
       this.environment = options.environment || new Environment(this.window);
       this._firstViewHasLoaded = false;
 
@@ -194,7 +192,9 @@ function (
       // default options.
       var viewOptions = _.extend({
         broker: this.broker,
-        canGoBack: this.canGoBack,
+        // back is enabled after the first view is rendered or
+        // if the user is re-starts the app.
+        canGoBack: this.storage.get('canGoBack') || false,
         fxaClient: this.fxaClient,
         interTabChannel: this.interTabChannel,
         language: this.language,
@@ -214,8 +214,7 @@ function (
     },
 
     _checkForRefresh: function () {
-      var storage = Storage.factory('sessionStorage', this._window);
-      var refreshMetrics = storage.get('last_page_loaded');
+      var refreshMetrics = this.storage.get('last_page_loaded');
       var currentView = this.currentView;
       var screenName = currentView.getScreenName();
 
@@ -228,7 +227,7 @@ function (
         timestamp: Date.now()
       };
 
-      storage.set('last_page_loaded', refreshMetrics);
+      this.storage.set('last_page_loaded', refreshMetrics);
     },
 
     showView: function (viewToShow) {
@@ -274,7 +273,7 @@ function (
 
             // back is enabled after the first view is rendered or
             // if the user re-starts the app.
-            self.canGoBack = self.window.sessionStorage.canGoBack = true;
+            self.storage.set('canGoBack', true);
             self._firstViewHasLoaded = true;
           }
           self._checkForRefresh();
