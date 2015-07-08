@@ -29,6 +29,8 @@ on the web.
 
 ## Code
 
+[!High-level architecture diagram showing relationships between different FxA services](../img/fxa.png)
+
 Most repositories are [available via GitHub](https://github.com/mozilla?utf8=%E2%9C%93&query=fxa)
 
 ### Core Servers
