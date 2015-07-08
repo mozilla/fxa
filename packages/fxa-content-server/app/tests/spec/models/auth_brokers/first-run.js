@@ -4,12 +4,14 @@
 
 define([
   'chai',
+  'sinon',
+  'lib/channels/null',
   'models/account',
   'models/auth_brokers/first-run',
   'models/reliers/relier',
   '../../../mocks/window'
 ],
-function (chai, Account, FirstRunAuthenticationBroker, Relier, WindowMock) {
+function (chai, sinon, NullChannel, Account, FirstRunAuthenticationBroker, Relier, WindowMock) {
   'use strict';
 
   var assert = chai.assert;
@@ -17,23 +19,40 @@ function (chai, Account, FirstRunAuthenticationBroker, Relier, WindowMock) {
   describe('models/auth_brokers/first-run', function () {
     var account;
     var broker;
+    var iframeChannel;
     var relier;
     var windowMock;
 
     beforeEach(function () {
       account = new Account({});
+      iframeChannel = new NullChannel();
       relier = new Relier();
       windowMock = new WindowMock();
       broker = new FirstRunAuthenticationBroker({
+        iframeChannel: iframeChannel,
         relier: relier,
         window: windowMock
       });
     });
 
+    describe('afterLoaded', function () {
+      it('notifies the iframe channel', function () {
+        sinon.spy(iframeChannel, 'send');
+
+        return broker.afterLoaded(account)
+          .then(function () {
+            assert.isTrue(iframeChannel.send.calledWith(broker._iframeCommands.LOADED));
+          });
+      });
+    });
+
     describe('afterSignIn', function () {
-      it('does not halt', function () {
+      it('notifies the iframe channel, does not halt', function () {
+        sinon.spy(iframeChannel, 'send');
+
         return broker.afterSignIn(account)
           .then(function (result) {
+            assert.isTrue(iframeChannel.send.calledWith(broker._iframeCommands.LOGIN));
             assert.isFalse(result.halt);
           });
       });
@@ -48,10 +67,24 @@ function (chai, Account, FirstRunAuthenticationBroker, Relier, WindowMock) {
       });
     });
 
+    describe('afterSignUpConfirmationPoll', function () {
+      it('notifies the iframe channel', function () {
+        sinon.spy(iframeChannel, 'send');
+
+        return broker.afterSignUpConfirmationPoll(account)
+          .then(function () {
+            assert.isTrue(iframeChannel.send.calledWith(broker._iframeCommands.VERIFICATION_COMPLETE));
+          });
+      });
+    });
+
     describe('afterResetPasswordConfirmationPoll', function () {
-      it('does not halt', function () {
+      it('notifies the iframe channel, does not halt', function () {
+        sinon.spy(iframeChannel, 'send');
+
         return broker.afterResetPasswordConfirmationPoll(account)
           .then(function (result) {
+            assert.isTrue(iframeChannel.send.calledWith(broker._iframeCommands.VERIFICATION_COMPLETE));
             assert.isFalse(result.halt);
           });
       });

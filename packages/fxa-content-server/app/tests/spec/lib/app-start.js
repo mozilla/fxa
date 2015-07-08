@@ -8,6 +8,7 @@ define([
   'raven',
   'lib/app-start',
   'lib/session',
+  'lib/channels/null',
   'lib/constants',
   'lib/promise',
   'lib/url',
@@ -31,10 +32,11 @@ define([
   '../../mocks/history',
   '../../lib/helpers'
 ],
-function (chai, sinon, Raven, AppStart, Session, Constants, p, Url, OAuthErrors,
-      AuthErrors, Storage, BaseBroker, FxDesktopBroker, IframeBroker, RedirectBroker,
-      WebChannelBroker, BaseRelier, FxDesktopRelier, OAuthRelier, Relier, User,
-      Metrics, StorageMetrics, WindowMock, RouterMock, HistoryMock, TestHelpers) {
+function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
+  Url, OAuthErrors, AuthErrors, Storage, BaseBroker, FxDesktopBroker, IframeBroker,
+  RedirectBroker, WebChannelBroker, BaseRelier, FxDesktopRelier, OAuthRelier,
+  Relier, User, Metrics, StorageMetrics, WindowMock, RouterMock, HistoryMock,
+  TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -490,12 +492,12 @@ function (chai, sinon, Raven, AppStart, Session, Constants, p, Url, OAuthErrors,
           });
       });
 
-      it('does not create an iframe channel if not in an iframe', function () {
+      it('creates a null iframe channel if not in an iframe', function () {
         sinon.spy(appStart, '_checkParentOrigin');
 
         return appStart.initializeIframeChannel()
           .then(function () {
-            assert.isUndefined(appStart._iframeChannel);
+            assert.instanceOf(appStart._iframeChannel, NullChannel);
             assert.isFalse(appStart._checkParentOrigin.called);
           });
       });

@@ -40,6 +40,7 @@ define([
   'lib/marketing-email-client',
   'lib/channels/inter-tab',
   'lib/channels/iframe',
+  'lib/channels/null',
   'lib/channels/web',
   'lib/storage',
   'lib/able',
@@ -87,6 +88,7 @@ function (
   MarketingEmailClient,
   InterTabChannel,
   IframeChannel,
+  NullChannel,
   WebChannel,
   Storage,
   Able,
@@ -303,6 +305,11 @@ function (
     initializeIframeChannel: function () {
       var self = this;
       if (! self._isInAnIframe()) {
+        // Create a NullChannel in case any dependencies require it, such
+        // as when the FirstRunAuthenticationBroker is used in functional
+        // tests. The firstrun tests don't actually use an iframe, so the
+        // real IframeChannel is not created.
+        self._iframeChannel = new NullChannel();
         return p();
       }
 
@@ -387,6 +394,7 @@ function (
       if (! this._authenticationBroker) {
         if (this._isFirstRun()) {
           this._authenticationBroker = new FirstRunAuthenticationBroker({
+            iframeChannel: this._iframeChannel,
             relier: this._relier,
             window: this._window
           });
