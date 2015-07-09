@@ -125,6 +125,7 @@ function (
     this._relier = options.relier;
     this._authenticationBroker = options.broker;
     this._user = options.user;
+    this._storage = options.storage || Storage;
 
     this._history = options.history || Backbone.history;
     this._configLoader = new ConfigLoader();
@@ -543,29 +544,26 @@ function (
     },
 
     allResourcesReady: function () {
-      var self = this;
-      return this._selectStartPage()
-          .then(function (startPage) {
-            // The IFrame cannot use pushState or else a page transition
-            // would cause the parent frame to redirect.
-            var usePushState = ! self._isInAnIframe();
+      // The IFrame cannot use pushState or else a page transition
+      // would cause the parent frame to redirect.
+      var usePushState = ! this._isInAnIframe();
 
-            if (! usePushState) {
-              // If pushState cannot be used, Backbone falls back to using
-              // the hashchange. Put the initial pathname onto the hash
-              // so the correct page loads.
-              self._window.location.hash = self._window.location.pathname;
-            }
+      if (! usePushState) {
+        // If pushState cannot be used, Backbone falls back to using
+        // the hashchange. Put the initial pathname onto the hash
+        // so the correct page loads.
+        this._window.location.hash = this._window.location.pathname;
+      }
 
-            // If a new start page is specified, do not attempt to render
-            // the route displayed in the URL because the user is
-            // immediately redirected
-            var isSilent = !! startPage;
-            self._history.start({ pushState: usePushState, silent: isSilent });
-            if (startPage) {
-              self._router.navigate(startPage);
-            }
-          });
+      // If a new start page is specified, do not attempt to render
+      // the route displayed in the URL because the user is
+      // immediately redirected
+      var startPage = this._selectStartPage();
+      var isSilent = !! startPage;
+      this._history.start({ pushState: usePushState, silent: isSilent });
+      if (startPage) {
+        this._router.navigate(startPage);
+      }
     },
 
     _getErrorPage: function (err) {
@@ -652,22 +650,10 @@ function (
     },
 
     _selectStartPage: function () {
-      var self = this;
-      return p().then(function () {
-        if (self._window.location.pathname === '/cookies_disabled') {
-          // If the user is already at the cookies_disabled page, don't even
-          // attempt the cookie check or else a blank screen is rendered if
-          // cookies are actually disabled.
-          return;
-        }
-
-        return self._configLoader.areCookiesEnabled(false, self._window)
-            .then(function (areCookiesEnabled) {
-              if (! areCookiesEnabled) {
-                return 'cookies_disabled';
-              }
-            });
-      });
+      if (this._window.location.pathname !== '/cookies_disabled' &&
+        ! this._storage.isLocalStorageEnabled(this._window)) {
+        return 'cookies_disabled';
+      }
     },
 
     _createMetrics: function (sampleRate, options) {

@@ -6,8 +6,9 @@
 // or sessionStorage.
 
 define([
-  'lib/null-storage'
-], function (NullStorage) {
+  'lib/null-storage',
+  'lib/url'
+], function (NullStorage, Url) {
   'use strict';
 
   var NAMESPACE = '__fxa_storage';
@@ -54,6 +55,11 @@ define([
       if (type === 'sessionStorage') {
         storage = win.sessionStorage;
       } else {
+        // HACK: Allows the functional tests to simulate disabled local storage.
+        if (Url.searchParam('disable_local_storage') === '1') {
+          throw null;
+        }
+
         storage = win.localStorage;
       }
 
