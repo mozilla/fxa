@@ -7,9 +7,10 @@ define([
   'chai',
   'sinon',
   'views/cookies_disabled',
-  '../../mocks/window'
+  '../../mocks/window',
+  'lib/storage'
 ],
-function ($, chai, sinon, View, WindowMock) {
+function ($, chai, sinon, View, WindowMock, Storage) {
   'use strict';
 
   var assert = chai.assert;
@@ -32,7 +33,8 @@ function ($, chai, sinon, View, WindowMock) {
 
       windowMock = new WindowMock();
       view = new View({
-        window: windowMock
+        window: windowMock,
+        Storage: Storage
       });
       return view.render()
           .then(function () {
@@ -53,33 +55,22 @@ function ($, chai, sinon, View, WindowMock) {
       });
     });
 
-    describe('backIfCookiesEnabled', function () {
+    describe('backIfLocalStorageEnabled', function () {
       it('goes back in history if localStorage is enabled and there is a page to go back to', function () {
-        serverConfig = {
-          localStorageEnabled: true
-        };
-
-        sinon.stub(view, 'canGoBack', function () {
-          return true;
-        });
-
-        return view.backIfCookiesEnabled()
-          .then(function () {
-            assert.isTrue(view.window.history.back.called);
-            assert.equal(view.$('.error').text(), '');
-          });
+        view.backIfLocalStorageEnabled();
+        assert.isTrue(view.window.history.back.called);
+        assert.equal(view.$('.error').text(), '');
       });
 
       it('shows an error message if localStorage is still disabled', function () {
-        serverConfig = {
-          localStorageEnabled: false
-        };
-
-        return view.backIfCookiesEnabled()
-          .then(function () {
-            assert.isUndefined(view.window.history.back.called);
-            assert.ok(view.$('.error').text());
-          });
+        var sandbox = sinon.sandbox.create();
+        sandbox.stub(Storage, 'isLocalStorageEnabled', function () {
+          return false;
+        });
+        view.backIfLocalStorageEnabled();
+        assert.isUndefined(view.window.history.back.called);
+        assert.ok(view.$('.error').text());
+        sandbox.restore();
       });
     });
   });
