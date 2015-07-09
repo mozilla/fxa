@@ -60,5 +60,13 @@
         </td>
       </tr>
     </table>
+    <div itemscope itemtype="https://schema.org/EmailMessage">
+      <div itemprop="potentialAction" itemscope itemtype="https://schema.org/ViewAction">
+        <link itemprop="target" href="{{{oneClickLink}}}"/>
+        <meta itemprop="name" content="{{t 'Verify Email'}}"/>
+        <meta itemprop="url" content="{{{oneClickLink}}}"/>
+      </div>
+      <meta itemprop="description" content="{{t 'Verify your email to finish your Firefox Account registration'}}" />
+    </div>
   </body>
 </html>
