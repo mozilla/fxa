@@ -12,8 +12,12 @@ define([
   var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
 
   var metricsSampleRate = config.get('metrics.sample_rate');
+  // fxaProduction and fxaDevBox imply remote, so cannot use the
+  // local configuration for this expected value.
   if (intern.config.fxaProduction && ! intern.config.fxaDevBox) {
     metricsSampleRate = 0.1;
+  } else if (intern.config.fxaDevBox) {
+    metricsSampleRate = 1;
   }
 
   var suite = {
