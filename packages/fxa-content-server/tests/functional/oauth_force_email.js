@@ -24,8 +24,8 @@ define([
     return FunctionalHelpers.openFxaFromRp(context, 'force_auth', emailParam);
   }
 
-  function attemptSignIn(self) {
-    return self.remote
+  function attemptSignIn(context) {
+    return context.remote
       // user should be at the force-auth screen
       .findByCssSelector('#fxa-force-auth-header')
       .end()

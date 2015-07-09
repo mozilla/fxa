@@ -20,8 +20,8 @@ define([
   var email;
   var client;
 
-  function openFxa(self, email) {
-    return self.remote
+  function openFxa(context, email) {
+    return context.remote
       .setFindTimeout(intern.config.pageLoadTimeout)
       .get(require.toUrl(FORCE_AUTH_URL + '?email=' + email))
 
@@ -29,8 +29,8 @@ define([
       .end();
   }
 
-  function attemptSignIn(self) {
-    return self.remote
+  function attemptSignIn(context) {
+    return context.remote
       // user should be at the force-auth screen
       .findByCssSelector('#fxa-force-auth-header')
       .end()
