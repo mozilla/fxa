@@ -99,7 +99,7 @@ module.exports = function (grunt) {
   }
 
   function generatePage(srcPath, destPath, context) {
-    grunt.log.writeln('generating `%s`', destPath);
+    grunt.verbose.writeln('generating `%s`', destPath);
 
     grunt.file.copy(srcPath, destPath, {
       process: function (contents) {
