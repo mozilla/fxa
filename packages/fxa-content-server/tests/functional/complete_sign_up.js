@@ -46,9 +46,9 @@ define([
           accountData = result;
           uid = accountData.uid;
         })
-        .then(function () {
-          return restmail(EMAIL_SERVER_ROOT + '/mail/' + user);
-        })
+
+        .then(restmail(EMAIL_SERVER_ROOT + '/mail/' + user))
+
         .then(function (emails) {
           code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
         });
@@ -139,9 +139,9 @@ define([
           accountData = result;
           uid = accountData.uid;
         })
-        .then(function () {
-          return restmail(EMAIL_SERVER_ROOT + '/mail/' + user);
-        })
+
+        .then(restmail(EMAIL_SERVER_ROOT + '/mail/' + user))
+
         .then(function (emails) {
           code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
 

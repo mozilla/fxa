@@ -13,23 +13,32 @@ define([
   var LOOKUP_URL = API_URL + '/lookup-user/?email=';
 
   function waitUntilUserIsRegistered(email) {
-    console.log('Waiting for %s to register at: %s', email, API_URL);
 
-    var url = LOOKUP_URL + encodeURIComponent(email);
-    return request(url, 'GET', null, { 'X-API-Key': API_KEY })
-      .then(function (result) {
-        if (result.status === 'ok') {
-          return result;
-        } else {
-          var dfd = new Promise.Deferred();
-          setTimeout(function () {
-            waitUntilUserIsRegistered(email)
-              .then(dfd.resolve, dfd.reject);
-          }, 1000);
+    var requestAttempts = 0;
 
-          return dfd.promise;
-        }
-      });
+    return function checkIt () {
+      requestAttempts++;
+
+      if (requestAttempts > 2) {
+        // only log if too many attempts, probably means the service is not properly responding
+        console.log('Waiting for %s to register at: %s', email, API_URL);
+      }
+
+      var url = LOOKUP_URL + encodeURIComponent(email);
+      return request(url, 'GET', null, { 'X-API-Key': API_KEY })
+        .then(function (result) {
+          if (result.status === 'ok') {
+            return result;
+          } else {
+            var dfd = new Promise.Deferred();
+            setTimeout(function () {
+              checkIt().then(dfd.resolve, dfd.reject);
+            }, 1000);
+
+            return dfd.promise;
+          }
+        });
+    };
   }
 
   return waitUntilUserIsRegistered;
