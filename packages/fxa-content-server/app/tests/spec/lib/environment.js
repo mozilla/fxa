@@ -123,6 +123,18 @@ define([
         assert.isFalse(environment.isFxiOS());
       });
     });
+
+    describe('hasSendBeacon', function () {
+      it('returns `true` if sendBeacon function exists', function () {
+        windowMock.navigator.sendBeacon = function () {};
+        assert.isTrue(environment.hasSendBeacon());
+      });
+
+      it('returns `false` if sendBeacon is undefined', function () {
+        windowMock.navigator.sendBeacon = undefined;
+        assert.isFalse(environment.hasSendBeacon());
+      });
+    });
   });
 });
 

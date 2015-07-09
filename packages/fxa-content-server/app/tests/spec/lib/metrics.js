@@ -10,11 +10,13 @@ define([
   'lib/promise',
   'lib/metrics',
   'lib/auth-errors',
+  'lib/environment',
+  'sinon',
   'underscore',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, $, p, Metrics, AuthErrors, _, WindowMock, TestHelpers) {
+function (chai, $, p, Metrics, AuthErrors, Environment, sinon, _, WindowMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -137,95 +139,243 @@ function (chai, $, p, Metrics, AuthErrors, _, WindowMock, TestHelpers) {
     });
 
     describe('flush', function () {
-      var sentData, serverError;
-
-      function ajaxMock(options) {
-        sentData = options.data;
-
-        if (serverError) {
-          return p.reject({ statusText: serverError });
-        }
-
-        return p({});
-      }
+      var sandbox, xhr, environment;
 
       beforeEach(function () {
         metrics.destroy();
 
+        sandbox = sinon.sandbox.create();
+        xhr = { ajax: function () {} };
+        environment = new Environment(windowMock);
         metrics = new Metrics({
-          ajax: ajaxMock,
+          xhr: xhr,
           window: windowMock,
-          inactivityFlushMs: 100
+          inactivityFlushMs: 100,
+          environment: environment
         });
+
         metrics.init();
-
-        sentData = serverError = null;
+        metrics.logEvent('foo');
+        metrics.logEvent('bar');
       });
 
-      it('sends filtered data to the server and clears the event stream', function () {
-        metrics.logEvent('event1');
-        metrics.logEvent('event2');
-
-        return metrics.flush()
-            .then(function (data) {
-              var parsedSentData = JSON.parse(sentData);
-              assert.deepEqual(data, parsedSentData);
-
-              var events = metrics.getFilteredData().events;
-              assert.equal(events.length, 0);
-            });
+      afterEach(function () {
+        sandbox.restore();
       });
 
-      it('sends filtered data to the server on window unload', function (done) {
-        metrics.logEvent('event10');
-        metrics.logEvent('event20');
-
-        var filteredData = metrics.getFilteredData();
-        metrics.on('flush.success', function () {
-          var parsedSentData = JSON.parse(sentData);
-
-          // `duration` fields are different if the above `getFilteredData`
-          // is called in a different millisecond than the one used to
-          // generate data that is sent to the server.
-          // Ensure `duration` is in the results, but do not compare the two.
-          assert.isTrue(parsedSentData.hasOwnProperty('duration'));
-
-          delete parsedSentData.duration;
-          delete filteredData.duration;
-
-          assert.deepEqual(filteredData, parsedSentData);
-
-          done();
+      describe('has sendBeacon', function () {
+        beforeEach(function () {
+          sandbox.stub(environment, 'hasSendBeacon', function () {
+            return true;
+          });
         });
 
-        $(windowMock).trigger('unload');
-      });
+        describe('sendBeacon succeeds', function () {
+          var result;
 
-      it('handles server errors', function () {
-        metrics.logEvent('event100');
-        metrics.logEvent('event200');
-
-        serverError = 'server down';
-
-        return metrics.flush()
-            .then(null, function (err) {
-              // to ensure the failure branch is called, pass the error
-              // on to the next success callback which is called on
-              // success or failure.
-              return err;
-            })
-            .then(function (err) {
-              assert.equal(err, 'server down');
+          beforeEach(function () {
+            sandbox.stub(windowMock.navigator, 'sendBeacon', function () {
+              return true;
             });
+            return metrics.flush().then(function (r) {
+              result = r;
+            });
+          });
+
+          afterEach(function () {
+            result = undefined;
+          });
+
+          it('calls sendBeacon correctly', function () {
+            assert.isTrue(windowMock.navigator.sendBeacon.calledOnce);
+            assert.lengthOf(windowMock.navigator.sendBeacon.getCall(0).args, 2);
+            assert.equal(windowMock.navigator.sendBeacon.getCall(0).args[0], '/metrics');
+
+            var data = JSON.parse(windowMock.navigator.sendBeacon.getCall(0).args[1]);
+            assert.lengthOf(Object.keys(data), 22);
+            assert.isArray(data.ab);
+            assert.equal(data.broker, 'none');
+            assert.equal(data.campaign, 'none');
+            assert.equal(data.context, 'web');
+            assert.isNumber(data.duration);
+            assert.equal(data.entrypoint, 'none');
+            assert.isArray(data.events);
+            assert.lengthOf(data.events, 2);
+            assert.equal(data.events[0].type, 'foo');
+            assert.equal(data.events[1].type, 'bar');
+            assert.equal(data.isSampledUser, false);
+            assert.equal(data.lang, 'unknown');
+            assert.isArray(data.marketing);
+            assert.equal(data.migration, 'none');
+            assert.isObject(data.navigationTiming);
+            assert.equal(data.referrer, 'https://marketplace.firefox.com');
+            assert.isObject(data.screen);
+            assert.equal(data.service, 'none');
+            assert.isObject(data.timers);
+            assert.equal(data.utm_campaign, 'none');
+            assert.equal(data.utm_content, 'none');
+            assert.equal(data.utm_medium, 'none');
+            assert.equal(data.utm_source, 'none');
+            assert.equal(data.utm_term, 'none');
+          });
+
+          it('resolves to true', function () {
+            assert.isTrue(result);
+          });
+
+          it('clears the event stream', function () {
+            assert.equal(metrics.getFilteredData().events.length, 0);
+          });
+        });
+
+        describe('sendBeacon fails', function () {
+          var result;
+
+          beforeEach(function (done) {
+            sandbox.stub(windowMock.navigator, 'sendBeacon', function () {
+              return false;
+            });
+            metrics.flush().then(function (r) {
+              result = r;
+              done();
+            }, done);
+          });
+
+          afterEach(function () {
+            result = undefined;
+          });
+
+          it('resolves to false', function () {
+            assert.isFalse(result);
+          });
+
+          it('does not clear the event stream', function () {
+            assert.equal(metrics.getFilteredData().events.length, 2);
+          });
+        });
       });
 
-      it('automatically flushes after inactivityFlushMs', function (done) {
-        metrics.events.clear();
-        metrics.logEvent('event-is-autoflushed');
+      describe('does not have sendBeacon', function () {
+        beforeEach(function () {
+          sandbox.stub(environment, 'hasSendBeacon', function () {
+            return false;
+          });
+        });
 
-        metrics.on('flush.success', function (sentData) {
-          assert.equal(sentData.events[0].type, 'event-is-autoflushed');
-          done();
+        describe('ajax succeeds', function () {
+          var result;
+
+          beforeEach(function () {
+            sandbox.stub(xhr, 'ajax', function () {
+              return p(true);
+            });
+            metrics.logEvent('baz');
+            return metrics.flush().then(function (r) {
+              result = r;
+            });
+          });
+
+          afterEach(function () {
+            result = undefined;
+          });
+
+          it('calls ajax correctly', function () {
+            assert.isTrue(xhr.ajax.calledOnce);
+            assert.lengthOf(xhr.ajax.getCall(0).args, 1);
+
+            var settings = xhr.ajax.getCall(0).args[0];
+            assert.isObject(settings);
+            assert.lengthOf(Object.keys(settings), 5);
+            assert.isFalse(settings.async);
+            assert.equal(settings.type, 'POST');
+            assert.equal(settings.url, '/metrics');
+            assert.equal(settings.contentType, 'application/json');
+
+            var data = JSON.parse(settings.data);
+            assert.lengthOf(Object.keys(data), 22);
+            assert.isArray(data.events);
+            assert.lengthOf(data.events, 3);
+            assert.equal(data.events[0].type, 'foo');
+            assert.equal(data.events[1].type, 'bar');
+            assert.equal(data.events[2].type, 'baz');
+          });
+
+          it('resolves to true', function () {
+            assert.isTrue(result);
+          });
+
+          it('clears the event stream', function () {
+            assert.equal(metrics.getFilteredData().events.length, 0);
+          });
+        });
+
+        describe('ajax fails', function () {
+          var result;
+
+          beforeEach(function (done) {
+            sandbox.stub(xhr, 'ajax', function () {
+              return p.reject();
+            });
+            metrics.flush().then(function (r) {
+              result = r;
+              done();
+            }, done);
+          });
+
+          afterEach(function () {
+            result = undefined;
+          });
+
+          it('resolves to false', function () {
+            assert.isFalse(result);
+          });
+
+          it('does not clear the event stream', function () {
+            assert.equal(metrics.getFilteredData().events.length, 2);
+          });
+        });
+      });
+
+      describe('getFilteredData', function () {
+        beforeEach(function (done) {
+          sandbox.stub(metrics, '_send', function () {
+            done();
+          });
+          metrics.logEvent('qux');
+          $(windowMock).trigger('unload');
+        });
+
+        it('calls send correctly', function () {
+          assert.isTrue(metrics._send.calledOnce);
+          assert.lengthOf(metrics._send.getCall(0).args, 2);
+          assert.equal(metrics._send.getCall(0).args[1], '/metrics');
+
+          var data = metrics._send.getCall(0).args[0];
+          assert.lengthOf(Object.keys(data), 22);
+          assert.lengthOf(data.events, 3);
+          assert.equal(data.events[0].type, 'foo');
+          assert.equal(data.events[1].type, 'bar');
+          assert.equal(data.events[2].type, 'qux');
+        });
+      });
+
+      describe('automatic flush after inactivityFlushMs', function () {
+        beforeEach(function (done) {
+          sandbox.stub(metrics, 'logEvent', function () {});
+          sandbox.stub(metrics, 'flush', function () {
+            done();
+          });
+        });
+
+        it('calls logEvent correctly', function () {
+          assert.isTrue(metrics.logEvent.calledOnce);
+          assert.lengthOf(metrics.logEvent.getCall(0).args, 1);
+          assert.equal(metrics.logEvent.getCall(0).args[0], 'inactivity.flush');
+        });
+
+        it('calls flush correctly', function () {
+          assert.isTrue(metrics.flush.calledOnce);
+          assert.lengthOf(metrics.flush.getCall(0).args, 0);
         });
       });
     });

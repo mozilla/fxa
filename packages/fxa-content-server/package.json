@@ -91,6 +91,7 @@
     "husky": "0.9.1",
     "intern": "git://github.com/theintern/intern#42aebd9beb942a11e2c6e6d7687c70a1c22b9bf7",
     "proxyquire": "1.6.0",
+    "sinon": "1.15.4",
     "sync-exec": "0.6.1",
     "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
   },

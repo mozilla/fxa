@@ -6,6 +6,7 @@
 var MetricsCollector = require('../metrics-collector-stderr');
 var StatsDCollector = require('../statsd-collector');
 var GACollector = require('../ga-collector');
+var logger = require('mozlog')('server.post-metrics');
 
 module.exports = function () {
   var metricsCollector = new MetricsCollector();
@@ -19,8 +20,20 @@ module.exports = function () {
     process: function (req, res) {
       // don't wait around to send a response.
       res.json({ success: true });
+
       process.nextTick(function () {
         var metrics = req.body || {};
+
+        var contentType = req.get('content-type') || '';
+        if (contentType.indexOf('text/plain') === 0) {
+          try {
+            metrics = JSON.parse(req.body);
+          } catch (error) {
+            logger.error(error);
+            return;
+          }
+        }
+
         metrics.agent = req.get('user-agent');
 
         if (metrics.isSampledUser) {
@@ -28,10 +41,8 @@ module.exports = function () {
           // send the metrics body to the StatsD collector for processing
           statsd.write(metrics);
         }
-
         ga.write(metrics);
       });
-
     }
   };
 };

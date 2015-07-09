@@ -15,12 +15,26 @@ define([
     name: 'metrics'
   };
 
-  suite['#post /metrics - returns 200, all the time'] = function () {
+  suite['#post /metrics - returns 200'] = function () {
     var dfd = this.async(intern.config.asyncTimeout);
 
     request.post(serverUrl + '/metrics', {
       data: {
         events: [ { type: 'event1', offset: 1 } ]
+      }
+    },
+    dfd.callback(function (err, res) {
+      assert.equal(res.statusCode, 200);
+    }, dfd.reject.bind(dfd)));
+  };
+
+  suite['#post /metrics - returns 200 if Content-Type is text/plain'] = function () {
+    var dfd = this.async(intern.config.asyncTimeout);
+
+    request.post(serverUrl + '/metrics', {
+      data: '',
+      headers: {
+        'Content-Type': 'text/plain;charset=UTF-8'
       }
     },
     dfd.callback(function (err, res) {
