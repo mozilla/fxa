@@ -5,7 +5,7 @@
 const
 express = require('express'),
 http = require('http'),
-toobusy = require('toobusy'),
+toobusy = require('toobusy-js'),
 log = require('./log').getLogger('bid.server'),
 summary = require('./summary'),
 config = require('./config'),

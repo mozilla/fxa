@@ -1,5 +1,6 @@
 {
-  "author": "Lloyd <lloyd@hilaiel.com> (http://lloyd.io)",
+  "author": "Mozilla (https://mozilla.org/)",
+  "license": "MPL-2.0",
   "name": "browserid-verifier",
   "description": "A node.js verification server for BrowserID assertions.",
   "version": "0.3.0",
@@ -21,7 +22,7 @@
     "express": "3.8.1",
     "intel": "0.5.2",
     "optimist": "0.6.1",
-    "toobusy": "0.2.4",
+    "toobusy-js": "strml/node-toobusy#ed8b8bb6909a82ae3007940cd5ac42f0488b00ab",
     "underscore": "1.7.0"
   },
   "devDependencies": {
@@ -36,6 +37,5 @@
   },
   "scripts": {
     "test": "mocha -t 5000 -R spec tests/*.js"
-  },
-  "license": "MPL 2.0"
+  }
 }
