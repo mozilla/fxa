@@ -46,9 +46,11 @@
         <![endif]-->
 
         <!-- this will be overwritten if JS is enabled -->
+        <!--[if !(IE) | (gte IE 10)]><!-->
         <noscript>
           {{#t}}Firefox Accounts requires JavaScript.{{/t}}
         </noscript>
+        <!--<![endif]-->
 
         <!-- no build declaration, main.js build
              is done by requirejs and not concat.
