@@ -164,6 +164,10 @@ The event stream is a log of events and the time they occurred while the user is
 
 #### settings/avatar/gravatar
 
+#### settings/avatar/gravatar_permissions
+* settings.avatar.gravatar-permissions.accepted - user accepted permission prompt
+* settings.avatar.gravatar-permissions.alreadly-accepted - user accepted permission prompt
+
 #### settings/communication_preferences
 * settings.communication-preferences.newsletter.optin.true - user is opted in to newsletter when opening screen.
 * settings.communication-preferences.newsletter.optin.false - user is not opted in to newsletter when opening screen.

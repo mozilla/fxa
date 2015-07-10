@@ -86,6 +86,7 @@ module.exports = function (config, i18n) {
       '/settings/avatar/crop',
       '/settings/avatar/gravatar',
       '/settings/avatar/camera',
+      '/settings/avatar/gravatar_permissions',
       '/settings/communication_preferences',
       '/change_password',
       '/legal',

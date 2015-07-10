@@ -31,6 +31,7 @@ define([
     'settings/avatar/gravatar',
     'settings/avatar/camera',
     'settings/avatar/crop',
+    'settings/avatar/gravatar_permissions',
     'change_password',
     'legal',
     // legal are all redirected to the language detected
