@@ -486,7 +486,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
       err.logged = true;
 
       if (typeof console !== 'undefined' && console) {
-        console.error(err.message);
+        console.error(err.message || err);
       }
       Raven.captureException(err);
       this.metrics.logError(err);
