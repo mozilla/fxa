@@ -344,13 +344,13 @@ define([
 
       test('#accountLock with no email', function () {
         assert.throws(function () {
-          client.accountLock(null, account.input.password); //eslint-disable-line no-undef
+          client.accountLock(null, 'password');
         });
       });
 
       test('#accountLock with no password', function () {
         assert.throws(function () {
-          client.accountLock(account.input.email, null); //eslint-disable-line no-undef
+          client.accountLock('email', null);
         });
       });
 
