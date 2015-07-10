@@ -12,7 +12,7 @@ define([
     suite('init', function () {
       test('#should error if no options set', function () {
         try {
-          new FxAccountClient();
+          void new FxAccountClient();
         } catch (e) {
           assert.isDefined(e.message);
         }
@@ -20,7 +20,7 @@ define([
 
       test('#should catch undefined parameters for the url', function () {
         try {
-          new FxAccountClient(undefined, {});
+          void new FxAccountClient(undefined, {});
         } catch (e) {
           assert.isDefined(e.message);
         }
