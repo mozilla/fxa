@@ -45,14 +45,17 @@ define([
     var expectedEventBody = fs.readFileSync('tests/server/expected/statsd_event_body_1.txt').toString().trim();
     var expectedImpressionBody = fs.readFileSync('tests/server/expected/statsd_impression_body_1.txt').toString().trim();
 
-    var EXPECTED_TOTAL_MESSAGES = 2;
+    var EXPECTED_TOTAL_MESSAGES = 3;
     var count = 0;
+    var timingOffsetTracked = false;
     udpTest(function (message, server) {
       message = statsdMessageToObject(message);
 
       // ensure both the single event and the single impression are logged.
-      if (message.name === 'fxa.content.screen.signup') {
+      if (message.name === 'fxa.content.signup.success') {
         assert.equal(message.raw, expectedEventBody);
+      } else if (message.name === 'fxa.content.signup.success.time') {
+        timingOffsetTracked = true;
       } else if (message.name === 'fxa.content.marketing.impression') {
         assert.equal(message.raw, expectedImpressionBody);
       }
@@ -63,6 +66,7 @@ define([
 
       count++;
       if (count === EXPECTED_TOTAL_MESSAGES) {
+        assert.isTrue(timingOffsetTracked, 'timing events are submitted');
         metricsCollector.close();
         server.close();
         dfd.resolve();
