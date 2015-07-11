@@ -1,14 +1,18 @@
 language: node_js
 
+node_js:
+ - "0.10"
+ - "0.12"
+
+addons:
+  apt_packages:
+    - libgmp-dev
+
 env:
   global:
     - TMPDIR=/tmp
 
-before_install:
- - sudo apt-get install libgmp3-dev
-
-node_js:
- - "0.10"
+sudo: false
 
 notifications:
   email:
