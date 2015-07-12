@@ -2101,19 +2101,19 @@
       }
     },
     "express-able": {
-      "version": "0.4.2",
-      "from": "express-able@0.4.2",
-      "resolved": "https://registry.npmjs.org/express-able/-/express-able-0.4.2.tgz",
+      "version": "0.4.3",
+      "from": "express-able@0.4.3",
+      "resolved": "https://registry.npmjs.org/express-able/-/express-able-0.4.3.tgz",
       "dependencies": {
         "able": {
-          "version": "0.4.1",
-          "from": "able@0.4.1",
-          "resolved": "https://registry.npmjs.org/able/-/able-0.4.1.tgz",
+          "version": "0.4.2",
+          "from": "able@0.4.2",
+          "resolved": "https://registry.npmjs.org/able/-/able-0.4.2.tgz",
           "dependencies": {
             "abatar": {
-              "version": "0.3.1",
-              "from": "abatar@0.3.1",
-              "resolved": "https://registry.npmjs.org/abatar/-/abatar-0.3.1.tgz",
+              "version": "0.4.0",
+              "from": "abatar@0.4.0",
+              "resolved": "https://registry.npmjs.org/abatar/-/abatar-0.4.0.tgz",
               "dependencies": {
                 "js-sha1": {
                   "version": "0.2.0",
