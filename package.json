@@ -1,0 +1,17 @@
+{
+  "name": "fxa",
+  "version": "0.0.1",
+  "description": "Automate All the Firefox Accounts Things!",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mozilla/fxa.git"
+  },
+  "bugs": "https://github.com/mozilla/fxa/issues/",
+  "homepage": "https://github.com/mozilla/fxa/",
+  "license": "MPL-2.0",
+  "author": "Mozilla (https://mozilla.org/)",
+  "dependencies": {
+    "bluebird": "2.9.25",
+    "github": "0.2.4"
+  }
+}

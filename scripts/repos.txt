@@ -1,0 +1,29 @@
+# The names of all our repos.
+# They're all under the "mozilla" github org.
+fxa
+fxa-auth-db-mem
+fxa-auth-db-mysql
+fxa-auth-db-server
+fxa-auth-mailer
+fxa-auth-server
+fxa-basket-proxy
+fxa-content-experiments
+fxa-content-server
+fxa-content-server-l10n
+fxa-deployment
+fxa-dev
+fxa-js-client
+fxa-js-client-old
+fxa-jwtool
+fxa-local-dev
+fxa-notification-server
+fxa-oauth-console
+fxa-oauth-server
+fxa-profile-server
+fxa-python-client
+fxa-relier-client
+fxa-scrypt-helper
+hapi-fxa-oauth
+PyFxA
+fxa-easter-egg
+fxa-password-strength-checker
