@@ -136,7 +136,7 @@ function (
       var self = this;
 
       // set UUID early so other methods can use it for metrics and ab testing purposes.
-      this.initializeUuid();
+      this.initializeUniqueUserId();
 
       // fetch both config and translations in parallel to speed up load.
       return p.all([
@@ -239,7 +239,7 @@ function (
       if (this._config && this._config.env && this._able) {
         var abData = {
           env: this._config.env,
-          uuid: this._uuid
+          uniqueUserId: this._uniqueUserId
         };
         var abChoose = this._able.choose('sentryEnabled', abData);
 
@@ -487,7 +487,7 @@ function (
           marketingEmailClient: this._marketingEmailClient,
           assertion: this._assertionLibrary,
           storage: this._getStorageInstance(),
-          uuid: this._uuid
+          uniqueUserId: this._uniqueUserId
         });
       }
     },
@@ -508,16 +508,27 @@ function (
      * Sets a UUID value that is unrelated to any account information.
      * This value is useful to determine if the logged out user qualifies for ab testing or metrics.
      */
-    initializeUuid: function () {
+    initializeUniqueUserId: function () {
       var storage = Storage.factory('localStorage', this._window);
 
-      // we reuse the same uuid if it is available in local storage.
+      var uniqueUserId;
+
+      // Reuse a stored unique user id if available.
       if (storage.get('uuid')) {
-        this._uuid = storage.get('uuid');
+        // stomlinson on 2015-07-08:
+        // `uuid` is the old name, this is transition code
+        // and can hopefully be removed after a time.
+        uniqueUserId = storage.get('uuid');
+        storage.remove('uuid');
+      } else if (storage.get('uniqueUserId')) {
+        // uniqueUserId is the new name.
+        uniqueUserId = storage.get('uniqueUserId');
       } else {
-        this._uuid = uuid.v4();
-        storage.set('uuid', this._uuid);
+        uniqueUserId = uuid.v4();
       }
+
+      this._uniqueUserId = uniqueUserId;
+      storage.set('uniqueUserId', uniqueUserId);
     },
 
     upgradeStorageFormats: function () {

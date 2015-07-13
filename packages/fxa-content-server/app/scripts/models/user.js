@@ -29,6 +29,11 @@ define([
       this._storage = options.storage || Storage.factory();
     },
 
+    defaults: {
+      // uniqueUserId is a stable identifier for this User on this computer.
+      uniqueUserId: null
+    },
+
     _accounts: function () {
       return this._storage.get('accounts') || {};
     },
