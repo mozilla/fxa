@@ -113,10 +113,9 @@ header {
 
       }
 
-    }
-
-    .chromeless & {
-      display: none;
+      .chromeless & {
+        display: none;
+      }
     }
   }
 
