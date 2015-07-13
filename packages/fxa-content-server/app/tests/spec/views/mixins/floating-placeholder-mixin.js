@@ -33,7 +33,7 @@ define([
 
     it('no action if enter is pressed with no other input', function () {
       console.log('val: %s', view.$('#float_me').length);
-      var event = new $.Event('keyup');
+      var event = new $.Event('input');
       event.which = 13;
 
       view.$('#float_me').trigger(event);
@@ -45,7 +45,7 @@ define([
     it('floats the placeholder if the input changes', function () {
       view.$('#float_me').val('a');
 
-      var event = new $.Event('keyup');
+      var event = new $.Event('input');
       event.which = 13;
 
       view.$('#float_me').trigger(event);

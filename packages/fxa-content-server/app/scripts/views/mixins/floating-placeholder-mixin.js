@@ -18,7 +18,7 @@ define([
       var self = this;
       var input = el || this.$('input');
 
-      input.one('keyup', function () {
+      input.one('input', function () {
         // if values haven't changed, reattach the event listener for
         // just this element
         if (! self.detectFormValueChanges()) {
