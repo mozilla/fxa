@@ -273,7 +273,7 @@ var conf = module.exports = convict({
     },
     git: {
       doc: 'git url for experiments repo. set to empty to not pull',
-      default: 'git://github.com/mozilla/fxa-content-experiments.git#master'
+      default: 'github:mozilla/fxa-content-experiments#dev'
     },
     watch: {
       doc: 'poll the experiments git repo for changes',
