@@ -84,7 +84,7 @@ const conf = convict({
     accessToken: {
       doc: 'Access Tokens maximum expiration (can live shorter)',
       format: 'duration',
-      default: 1000 * 60 * 60 * 24 * 2 // 2weeks
+      default: 1000 * 60 * 60 * 24 * 7 * 2 // 2 weeks
     },
     code: {
       doc: 'Clients must trade codes for tokens before they expire',
