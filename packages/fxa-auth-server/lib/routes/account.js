@@ -162,7 +162,7 @@ module.exports = function (
             function (response) {
               if (!response.account.emailVerified) {
                 mailer.sendVerifyCode(response.account, response.account.emailCode, {
-                  service: form.service,
+                  service: form.service || request.query.service,
                   redirectTo: form.redirectTo,
                   resume: form.resume,
                   acceptLanguage: request.app.acceptLanguage
@@ -221,6 +221,7 @@ module.exports = function (
         var form = request.payload
         var email = form.email
         var authPW = Buffer(form.authPW, 'hex')
+        var service = request.payload.service || request.query.service
         customs.check(
           request.app.clientAddress,
           email,
@@ -290,7 +291,7 @@ module.exports = function (
               )
               .then(
                 function (tokens) {
-                  if (request.payload.service === 'sync' && request.payload.reason === 'signin') {
+                  if (service === 'sync' && request.payload.reason === 'signin') {
                     return mailer.sendNewSyncDeviceNotification(
                       emailRecord.email,
                       {
@@ -440,6 +441,7 @@ module.exports = function (
       handler: function (request, reply) {
         log.begin('Account.RecoveryEmailResend', request)
         var sessionToken = request.auth.credentials
+        var service = request.payload.service || request.query.service
         if (sessionToken.emailVerified ||
             Date.now() - sessionToken.verifierSetAt < resendBlackoutPeriod) {
           return reply({})
@@ -454,7 +456,7 @@ module.exports = function (
               sessionToken,
               sessionToken.emailCode,
               {
-                service: request.payload.service,
+                service: service,
                 redirectTo: request.payload.redirectTo,
                 resume: request.payload.resume,
                 acceptLanguage: request.app.acceptLanguage
@@ -524,6 +526,7 @@ module.exports = function (
         log.begin('Account.UnlockCodeResend', request)
         var email = request.payload.email
         var emailRecord
+        var service = request.payload.service || request.query.service
 
         customs.check(
           request.app.clientAddress,
@@ -548,7 +551,7 @@ module.exports = function (
                 emailRecord,
                 unlockCode,
                 {
-                  service: request.payload.service,
+                  service: service,
                   redirectTo: request.payload.redirectTo,
                   resume: request.payload.resume,
                   acceptLanguage: request.app.acceptLanguage

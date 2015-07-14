@@ -89,8 +89,7 @@ ClientApi.prototype.doRequest = function (method, url, token, payload, headers) 
  */
 ClientApi.prototype.accountCreate = function (email, authPW, options) {
   options = options || {}
-  var url = this.baseURL + '/account/create'
-  if (options.keys) { url += '?keys=true' }
+  var url = this.baseURL + '/account/create' + getQueryString(options)
   return this.doRequest(
     'POST',
     url,
@@ -116,7 +115,7 @@ ClientApi.prototype.accountLogin = function (email, authPW, opts) {
   }
   return this.doRequest(
     'POST',
-    this.baseURL + '/account/login' + (opts.keys ? '?keys=true' : ''),
+    this.baseURL + '/account/login' + getQueryString(opts),
     null,
     {
       email: email,
@@ -298,7 +297,7 @@ ClientApi.prototype.passwordForgotSendCode = function (email, options) {
   options = options || {}
   return this.doRequest(
     'POST',
-    this.baseURL + '/password/forgot/send_code',
+    this.baseURL + '/password/forgot/send_code' + getQueryString(options),
     null,
     {
       email: email,
@@ -316,7 +315,7 @@ ClientApi.prototype.passwordForgotResendCode = function (passwordForgotTokenHex,
       function (token) {
         return this.doRequest(
           'POST',
-          this.baseURL + '/password/forgot/resend_code',
+          this.baseURL + '/password/forgot/resend_code' + getQueryString(options),
           token,
           {
             email: email,
@@ -425,6 +424,20 @@ ClientApi.prototype.sessionStatus = function (sessionTokenHex) {
 
 ClientApi.heartbeat = function (origin) {
   return (new ClientApi(origin)).doRequest('GET', origin + '/__heartbeat__')
+}
+
+function getQueryString (options) {
+  var qs = '?'
+
+  if (options.keys) {
+    qs += 'keys=true&'
+  }
+
+  if (options.serviceQuery) {
+    qs += 'service=' + options.serviceQuery
+  }
+
+  return qs
 }
 
 module.exports = ClientApi
