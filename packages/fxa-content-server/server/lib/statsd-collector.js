@@ -8,6 +8,13 @@ var StatsD = require('node-statsd');
 var uaParser = require('ua-parser');
 
 var STATSD_PREFIX = 'fxa.content.';
+var TIMING_POSTFIX = '.time';
+var TIMED_EVENTS = [
+  'signin.success',
+  'signup.success',
+  'oauth.signin.success',
+  'oauth.signup.success'
+];
 
 /**
  * Normalize the string to make it usable in StatsD tagging.
@@ -101,6 +108,17 @@ function getGenericTags(body) {
   return tags;
 }
 
+function messageSentCallback (err) {
+  // this only gets called once after all messages have been sent
+  if (err) {
+    logger.error('StatsD error:', err);
+  }
+}
+
+function isTimedEvent (event) {
+  return TIMED_EVENTS.indexOf(event) >= 0;
+}
+
 function getImpressionTags(impression) {
   return [
     'marketing_campaign_id:' + impression.campaignId,
@@ -157,6 +175,10 @@ StatsDCollector.prototype = {
         body.events.forEach(function (event) {
           if (event.type) {
             self.increment(event.type, tags);
+            if (isTimedEvent(event.type)) {
+              self.timing(event.type, event.offset, tags);
+            }
+
           }
         });
       }
@@ -174,12 +196,17 @@ StatsDCollector.prototype = {
   },
 
   increment: function (name, tags) {
-    this.client.increment(STATSD_PREFIX + name, 1, this.sampleRate, tags, function (err) {
-      // this only gets called once after all messages have been sent
-      if (err) {
-        logger.error('StatsD error:', err);
-      }
-    });
+    this.client.increment(STATSD_PREFIX + name, 1, this.sampleRate, tags, messageSentCallback);
+  },
+
+  /**
+   * Sends the metrics timing offset value in milliseconds
+   * @param {String} name The metric event name
+   * @param {String} value Timing value in milliseconds from loading the page
+   * @param {Array} tags
+   */
+  timing: function (name, value, tags) {
+    this.client.timing(STATSD_PREFIX + name + TIMING_POSTFIX, value, this.sampleRate, tags, messageSentCallback);
   },
 
   /**
