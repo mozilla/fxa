@@ -21,6 +21,7 @@ GITHUB_PASSWORD = os.environ['GIT_API_KEY']
 labels_filter = ['waffle:in progress', 'waffle:ready', 'waffle:in review']
 AUTH = (GITHUB_USER, GITHUB_PASSWORD)
 repo = ""
+milestone_filter = ""
 now = datetime.datetime.now() - datetime.timedelta(days=60)
 START_DATE = "%d-%d-%dT01:01:01Z" % (now.year, now.month, now.day)
 print 'searching 60 days back, since', START_DATE
@@ -62,6 +63,21 @@ def write_issues(resp):
         raise Exception(resp.status_code)
 
     for issue in resp.json():
+        # filter out PRs
+        if 'pull_request' in issue.keys():
+            continue
+
+        #milestone filter
+        if milestone_filter:
+            if not issue['milestone']:
+                continue
+            milestone = issue['milestone'].get('title').lower().replace(" ", "-")
+            if milestone != milestone_filter:
+                continue
+        else:
+            milestone = issue['milestone']['title'] if issue['milestone'] is not None else ""
+
+        # labels filter
         labels = issue['labels']
         label_list = [is_ascii(label['name']) for label in labels]
 
@@ -70,7 +86,7 @@ def write_issues(resp):
             if not [i for i in labels_filter if i in label_list]:
                 continue
 
-        milestone = issue['milestone']['title'] if issue['milestone'] is not None else ""
+        # write to csv
         csvout.writerow([repo,
                          issue['number'],
                          issue['title'].encode('utf-8'),
@@ -101,6 +117,7 @@ def fetch_page(url):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument("-m", "--milestone", help = "filter for a specific milestone")
     parser.add_argument("-g", "--group_repos", help = "all_auth|all_content")
     parser.add_argument("-r", "--repos", nargs='+', help = "list of repos", default=[])
     parser.add_argument("-s", "--status",  help = "status open|closed")
@@ -115,7 +132,6 @@ if __name__ == '__main__':
 
     status = args.status if args.status is not None else 'open'
 
-    print 'args.labels', args.labels
     if args.labels is not None:
         labels_filter = args.labels
         print labels_filter
@@ -126,7 +142,10 @@ if __name__ == '__main__':
         print 'created file:', csvfile
         csvout.writerow(('Repo', 'ID', 'Title', 'Created At', 'Updated At', 'State', 'Assignee', 'Milestone', 'Labels'))
 
-    print ':: filtering on labels|status:', labels_filter, status
+    if args.milestone:
+        milestone_filter = args.milestone
+
+    print ':: filtering on labels|status|milestone:', labels_filter, status, milestone_filter
 
     for repo in repos:
         print 'repo:', repo
