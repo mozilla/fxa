@@ -167,9 +167,17 @@ function (
             // give a bit of time to flush the error logs,
             // otherwise Safari Mobile redirects too quickly.
             self._window.setTimeout(function () {
-              //Something terrible happened. Let's bail.
-              var redirectTo = self._getErrorPage(err);
-              self._window.location.href = redirectTo;
+              if (self._metrics) {
+                self._metrics.flush().then(redirect);
+              } else {
+                redirect();
+              }
+
+              function redirect () {
+                //Something terrible happened. Let's bail.
+                var redirectTo = self._getErrorPage(err);
+                self._window.location.href = redirectTo;
+              }
             }, ERROR_REDIRECT_TIMEOUT);
           });
       });
@@ -438,7 +446,8 @@ function (
             relier: this._relier,
             assertionLibrary: this._assertionLibrary,
             oAuthClient: this._oAuthClient,
-            session: Session
+            session: Session,
+            metrics: this._metrics
           });
         } else {
           this._authenticationBroker = new BaseAuthenticationBroker({

@@ -50,7 +50,10 @@ function (Cocktail, FormView, Template, Url, Constants, ServiceMixin,
     },
 
     submit: function () {
-      this.window.location.href = this.relier.get('redirectUri');
+      var self = this;
+      return this.metrics.flush().then(function () {
+        self.window.location.href = self.relier.get('redirectUri');
+      });
     },
 
     /**

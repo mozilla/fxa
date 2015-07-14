@@ -138,7 +138,7 @@ function (chai, $, p, Metrics, AuthErrors, Environment, sinon, _, WindowMock, Te
       });
     });
 
-    describe('flush', function () {
+    describe('create and initialise metrics', function () {
       var sandbox, xhr, environment;
 
       beforeEach(function () {
@@ -155,250 +155,371 @@ function (chai, $, p, Metrics, AuthErrors, Environment, sinon, _, WindowMock, Te
         });
 
         metrics.init();
-        metrics.logEvent('foo');
-        metrics.logEvent('bar');
       });
 
       afterEach(function () {
         sandbox.restore();
       });
 
-      describe('has sendBeacon', function () {
+      describe('log events', function () {
+        beforeEach(function () {
+          metrics.logEvent('foo');
+          metrics.logEvent('bar');
+        });
+
+        describe('has sendBeacon', function () {
+          beforeEach(function () {
+            sandbox.stub(environment, 'hasSendBeacon', function () {
+              return true;
+            });
+          });
+
+          describe('flush, sendBeacon succeeds', function () {
+            var result;
+
+            beforeEach(function () {
+              sandbox.stub(windowMock.navigator, 'sendBeacon', function () {
+                return true;
+              });
+              return metrics.flush().then(function (r) {
+                result = r;
+              });
+            });
+
+            afterEach(function () {
+              result = undefined;
+            });
+
+            it('calls sendBeacon correctly', function () {
+              assert.isTrue(windowMock.navigator.sendBeacon.calledOnce);
+              assert.lengthOf(windowMock.navigator.sendBeacon.getCall(0).args, 2);
+              assert.equal(windowMock.navigator.sendBeacon.getCall(0).args[0], '/metrics');
+
+              var data = JSON.parse(windowMock.navigator.sendBeacon.getCall(0).args[1]);
+              assert.lengthOf(Object.keys(data), 22);
+              assert.isArray(data.ab);
+              assert.lengthOf(data.ab, 0);
+              assert.equal(data.broker, 'none');
+              assert.equal(data.campaign, 'none');
+              assert.equal(data.context, 'web');
+              assert.isNumber(data.duration);
+              assert.equal(data.entrypoint, 'none');
+              assert.isArray(data.events);
+              assert.lengthOf(data.events, 2);
+              assert.equal(data.events[0].type, 'foo');
+              assert.equal(data.events[1].type, 'bar');
+              assert.equal(data.isSampledUser, false);
+              assert.equal(data.lang, 'unknown');
+              assert.isArray(data.marketing);
+              assert.equal(data.migration, 'none');
+              assert.isObject(data.navigationTiming);
+              assert.equal(data.referrer, 'https://marketplace.firefox.com');
+              assert.isObject(data.screen);
+              assert.equal(data.service, 'none');
+              assert.isObject(data.timers);
+              assert.lengthOf(Object.keys(data.timers), 0);
+              assert.equal(data.utm_campaign, 'none');
+              assert.equal(data.utm_content, 'none');
+              assert.equal(data.utm_medium, 'none');
+              assert.equal(data.utm_source, 'none');
+              assert.equal(data.utm_term, 'none');
+            });
+
+            it('resolves to true', function () {
+              assert.isTrue(result);
+            });
+
+            it('clears the event stream', function () {
+              assert.equal(metrics.getFilteredData().events.length, 0);
+            });
+          });
+
+          describe('flush, sendBeacon fails', function () {
+            var result;
+
+            beforeEach(function (done) {
+              sandbox.stub(windowMock.navigator, 'sendBeacon', function () {
+                return false;
+              });
+              metrics.flush().then(function (r) {
+                result = r;
+                done();
+              }, done);
+            });
+
+            afterEach(function () {
+              result = undefined;
+            });
+
+            it('resolves to false', function () {
+              assert.isFalse(result);
+            });
+
+            it('does not clear the event stream', function () {
+              assert.equal(metrics.getFilteredData().events.length, 2);
+            });
+          });
+        });
+
+        describe('does not have sendBeacon', function () {
+          beforeEach(function () {
+            sandbox.stub(environment, 'hasSendBeacon', function () {
+              return false;
+            });
+          });
+
+          describe('flush, ajax succeeds synchronously', function () {
+            var result;
+
+            beforeEach(function () {
+              sandbox.stub(xhr, 'ajax', function () {
+                return p(true);
+              });
+              metrics.logEvent('baz');
+              return metrics.flush(true).then(function (r) {
+                result = r;
+              });
+            });
+
+            afterEach(function () {
+              result = undefined;
+            });
+
+            it('calls ajax correctly', function () {
+              assert.isTrue(xhr.ajax.calledOnce);
+              assert.lengthOf(xhr.ajax.getCall(0).args, 1);
+
+              var settings = xhr.ajax.getCall(0).args[0];
+              assert.isObject(settings);
+              assert.lengthOf(Object.keys(settings), 5);
+              assert.isFalse(settings.async);
+              assert.equal(settings.type, 'POST');
+              assert.equal(settings.url, '/metrics');
+              assert.equal(settings.contentType, 'application/json');
+
+              var data = JSON.parse(settings.data);
+              assert.lengthOf(Object.keys(data), 22);
+              assert.isArray(data.events);
+              assert.lengthOf(data.events, 3);
+              assert.equal(data.events[0].type, 'foo');
+              assert.equal(data.events[1].type, 'bar');
+              assert.equal(data.events[2].type, 'baz');
+            });
+
+            it('resolves to true', function () {
+              assert.isTrue(result);
+            });
+
+            it('clears the event stream', function () {
+              assert.equal(metrics.getFilteredData().events.length, 0);
+            });
+          });
+
+          describe('flush, ajax succeeds asynchronously', function () {
+            beforeEach(function () {
+              sandbox.stub(xhr, 'ajax', function () {
+                return p(true);
+              });
+              return metrics.flush();
+            });
+
+            it('calls ajax correctly', function () {
+              var settings = xhr.ajax.getCall(0).args[0];
+              assert.isTrue(settings.async);
+            });
+          });
+
+          describe('flush, ajax fails', function () {
+            var result;
+
+            beforeEach(function () {
+              sandbox.stub(xhr, 'ajax', function () {
+                return p.reject();
+              });
+              return metrics.flush().then(function (r) {
+                result = r;
+              });
+            });
+
+            afterEach(function () {
+              result = undefined;
+            });
+
+            it('resolves to false', function () {
+              assert.isFalse(result);
+            });
+
+            it('does not clear the event stream', function () {
+              assert.equal(metrics.getFilteredData().events.length, 2);
+            });
+          });
+        });
+
+        describe('sends filtered data to the server on window unload', function () {
+          beforeEach(function (done) {
+            sandbox.stub(metrics, '_send', function () {
+              done();
+            });
+            metrics.logEvent('qux');
+            $(windowMock).trigger('unload');
+          });
+
+          it('calls _send correctly', function () {
+            assert.isTrue(metrics._send.calledOnce);
+            assert.lengthOf(metrics._send.getCall(0).args, 2);
+            assert.isTrue(metrics._send.getCall(0).args[1]);
+
+            var data = metrics._send.getCall(0).args[0];
+            assert.lengthOf(Object.keys(data), 22);
+            assert.equal(data.events[0].type, 'foo');
+            assert.equal(data.events[1].type, 'bar');
+            assert.equal(data.events[2].type, 'qux');
+          });
+        });
+
+        describe('sends filtered data to the server on window blur', function () {
+          beforeEach(function (done) {
+            sandbox.stub(metrics, '_send', function () {
+              done();
+            });
+            metrics.logEvent('qux');
+            $(windowMock).trigger('blur');
+          });
+
+          it('calls _send correctly', function () {
+            assert.isTrue(metrics._send.calledOnce);
+            assert.lengthOf(metrics._send.getCall(0).args, 2);
+            assert.isTrue(metrics._send.getCall(0).args[1]);
+
+            var data = metrics._send.getCall(0).args[0];
+            assert.lengthOf(Object.keys(data), 22);
+            assert.lengthOf(data.events, 3);
+            assert.equal(data.events[0].type, 'foo');
+            assert.equal(data.events[1].type, 'bar');
+            assert.equal(data.events[2].type, 'qux');
+          });
+        });
+
+        describe('automatic flush after inactivityFlushMs', function () {
+          beforeEach(function (done) {
+            sandbox.stub(metrics, 'logEvent', function () {});
+            sandbox.stub(metrics, 'flush', function () {
+              done();
+            });
+          });
+
+          it('calls logEvent correctly', function () {
+            assert.isTrue(metrics.logEvent.calledOnce);
+            assert.lengthOf(metrics.logEvent.getCall(0).args, 1);
+            assert.equal(metrics.logEvent.getCall(0).args[0], 'inactivity.flush');
+          });
+
+          it('calls flush correctly', function () {
+            assert.isTrue(metrics.flush.calledOnce);
+            assert.lengthOf(metrics.flush.getCall(0).args, 0);
+          });
+        });
+      });
+
+      describe('flush, no events or timers', function () {
         beforeEach(function () {
           sandbox.stub(environment, 'hasSendBeacon', function () {
             return true;
           });
+          sandbox.stub(windowMock.navigator, 'sendBeacon', function () {});
+          return metrics.flush();
         });
 
-        describe('sendBeacon succeeds', function () {
-          var result;
-
-          beforeEach(function () {
-            sandbox.stub(windowMock.navigator, 'sendBeacon', function () {
-              return true;
-            });
-            return metrics.flush().then(function (r) {
-              result = r;
-            });
-          });
-
-          afterEach(function () {
-            result = undefined;
-          });
-
-          it('calls sendBeacon correctly', function () {
-            assert.isTrue(windowMock.navigator.sendBeacon.calledOnce);
-            assert.lengthOf(windowMock.navigator.sendBeacon.getCall(0).args, 2);
-            assert.equal(windowMock.navigator.sendBeacon.getCall(0).args[0], '/metrics');
-
-            var data = JSON.parse(windowMock.navigator.sendBeacon.getCall(0).args[1]);
-            assert.lengthOf(Object.keys(data), 22);
-            assert.isArray(data.ab);
-            assert.equal(data.broker, 'none');
-            assert.equal(data.campaign, 'none');
-            assert.equal(data.context, 'web');
-            assert.isNumber(data.duration);
-            assert.equal(data.entrypoint, 'none');
-            assert.isArray(data.events);
-            assert.lengthOf(data.events, 2);
-            assert.equal(data.events[0].type, 'foo');
-            assert.equal(data.events[1].type, 'bar');
-            assert.equal(data.isSampledUser, false);
-            assert.equal(data.lang, 'unknown');
-            assert.isArray(data.marketing);
-            assert.equal(data.migration, 'none');
-            assert.isObject(data.navigationTiming);
-            assert.equal(data.referrer, 'https://marketplace.firefox.com');
-            assert.isObject(data.screen);
-            assert.equal(data.service, 'none');
-            assert.isObject(data.timers);
-            assert.equal(data.utm_campaign, 'none');
-            assert.equal(data.utm_content, 'none');
-            assert.equal(data.utm_medium, 'none');
-            assert.equal(data.utm_source, 'none');
-            assert.equal(data.utm_term, 'none');
-          });
-
-          it('resolves to true', function () {
-            assert.isTrue(result);
-          });
-
-          it('clears the event stream', function () {
-            assert.equal(metrics.getFilteredData().events.length, 0);
-          });
-        });
-
-        describe('sendBeacon fails', function () {
-          var result;
-
-          beforeEach(function (done) {
-            sandbox.stub(windowMock.navigator, 'sendBeacon', function () {
-              return false;
-            });
-            metrics.flush().then(function (r) {
-              result = r;
-              done();
-            }, done);
-          });
-
-          afterEach(function () {
-            result = undefined;
-          });
-
-          it('resolves to false', function () {
-            assert.isFalse(result);
-          });
-
-          it('does not clear the event stream', function () {
-            assert.equal(metrics.getFilteredData().events.length, 2);
-          });
+        it('does not send data', function () {
+          assert.equal(windowMock.navigator.sendBeacon.callCount, 0);
         });
       });
 
-      describe('does not have sendBeacon', function () {
-        beforeEach(function () {
+      describe('flush with timer', function () {
+        beforeEach(function (done) {
           sandbox.stub(environment, 'hasSendBeacon', function () {
-            return false;
+            return true;
           });
-        });
-
-        describe('ajax succeeds', function () {
-          var result;
-
-          beforeEach(function () {
-            sandbox.stub(xhr, 'ajax', function () {
-              return p(true);
-            });
-            metrics.logEvent('baz');
-            return metrics.flush().then(function (r) {
-              result = r;
-            });
-          });
-
-          afterEach(function () {
-            result = undefined;
-          });
-
-          it('calls ajax correctly', function () {
-            assert.isTrue(xhr.ajax.calledOnce);
-            assert.lengthOf(xhr.ajax.getCall(0).args, 1);
-
-            var settings = xhr.ajax.getCall(0).args[0];
-            assert.isObject(settings);
-            assert.lengthOf(Object.keys(settings), 5);
-            assert.isFalse(settings.async);
-            assert.equal(settings.type, 'POST');
-            assert.equal(settings.url, '/metrics');
-            assert.equal(settings.contentType, 'application/json');
-
-            var data = JSON.parse(settings.data);
-            assert.lengthOf(Object.keys(data), 22);
-            assert.isArray(data.events);
-            assert.lengthOf(data.events, 3);
-            assert.equal(data.events[0].type, 'foo');
-            assert.equal(data.events[1].type, 'bar');
-            assert.equal(data.events[2].type, 'baz');
-          });
-
-          it('resolves to true', function () {
-            assert.isTrue(result);
-          });
-
-          it('clears the event stream', function () {
-            assert.equal(metrics.getFilteredData().events.length, 0);
-          });
-        });
-
-        describe('ajax fails', function () {
-          var result;
-
-          beforeEach(function (done) {
-            sandbox.stub(xhr, 'ajax', function () {
-              return p.reject();
-            });
-            metrics.flush().then(function (r) {
-              result = r;
+          sandbox.stub(windowMock.navigator, 'sendBeacon', function () {});
+          metrics.startTimer('foo');
+          setTimeout(function () {
+            metrics.stopTimer('foo');
+            metrics.flush().then(function () {
               done();
-            }, done);
-          });
+            });
+          }, 4);
+        });
 
-          afterEach(function () {
-            result = undefined;
-          });
-
-          it('resolves to false', function () {
-            assert.isFalse(result);
-          });
-
-          it('does not clear the event stream', function () {
-            assert.equal(metrics.getFilteredData().events.length, 2);
-          });
+        it('sends data', function () {
+          assert.equal(windowMock.navigator.sendBeacon.callCount, 1);
+          var data = JSON.parse(windowMock.navigator.sendBeacon.getCall(0).args[1]);
+          assert.isArray(data.events);
+          assert.lengthOf(data.events, 0);
+          assert.isObject(data.timers);
+          assert.lengthOf(Object.keys(data.timers), 1);
+          assert.isArray(data.timers.foo);
+          assert.lengthOf(data.timers.foo, 1);
+          assert.isObject(data.timers.foo[0]);
+          assert.isTrue(data.timers.foo[0].elapsed >= 4);
+          assert.isTrue(data.timers.foo[0].elapsed < 14);
         });
       });
+    });
 
-      describe('sends filtered data to the server on window unload', function () {
-        beforeEach(function (done) {
-          sandbox.stub(metrics, '_send', function () {
-            done();
-          });
-          metrics.logEvent('qux');
-          $(windowMock).trigger('unload');
+    describe('create and initialise metrics with ab data', function () {
+      var sandbox, xhr, environment;
+
+      beforeEach(function () {
+        metrics.destroy();
+
+        sandbox = sinon.sandbox.create();
+        xhr = { ajax: function () {} };
+        environment = new Environment(windowMock);
+        metrics = new Metrics({
+          xhr: xhr,
+          window: windowMock,
+          inactivityFlushMs: 100,
+          environment: environment,
+          able: {
+            report: function () {
+              return [ 'foo' ];
+            }
+          }
         });
 
-        it('calls send correctly', function () {
-          assert.isTrue(metrics._send.calledOnce);
-          assert.lengthOf(metrics._send.getCall(0).args, 2);
-          assert.equal(metrics._send.getCall(0).args[1], '/metrics');
+        metrics.init();
 
-          var data = metrics._send.getCall(0).args[0];
-          assert.lengthOf(Object.keys(data), 22);
-          assert.lengthOf(data.events, 3);
-          assert.equal(data.events[0].type, 'foo');
-          assert.equal(data.events[1].type, 'bar');
-          assert.equal(data.events[2].type, 'qux');
+        sandbox.stub(environment, 'hasSendBeacon', function () {
+          return true;
         });
+        sandbox.stub(windowMock.navigator, 'sendBeacon', function () {});
       });
 
-      describe('sends filtered data to the server on window blur', function () {
-        beforeEach(function (done) {
-          sandbox.stub(metrics, '_send', function () {
-            done();
-          });
-          metrics.logEvent('qux');
-          $(windowMock).trigger('blur');
-        });
-
-        it('calls send correctly', function () {
-          assert.isTrue(metrics._send.calledOnce);
-          assert.lengthOf(metrics._send.getCall(0).args, 2);
-          assert.equal(metrics._send.getCall(0).args[1], '/metrics');
-
-          var data = metrics._send.getCall(0).args[0];
-          assert.lengthOf(Object.keys(data), 22);
-          assert.lengthOf(data.events, 3);
-          assert.equal(data.events[0].type, 'foo');
-          assert.equal(data.events[1].type, 'bar');
-          assert.equal(data.events[2].type, 'qux');
-        });
+      afterEach(function () {
+        sandbox.restore();
       });
 
-      describe('automatic flush after inactivityFlushMs', function () {
-        beforeEach(function (done) {
-          sandbox.stub(metrics, 'logEvent', function () {});
-          sandbox.stub(metrics, 'flush', function () {
-            done();
+      describe('flush, no events or timers', function () {
+        beforeEach(function () {
+          return metrics.flush();
+        });
+
+        it('sends data', function () {
+          assert.isTrue(windowMock.navigator.sendBeacon.calledOnce);
+          var data = JSON.parse(windowMock.navigator.sendBeacon.getCall(0).args[1]);
+          assert.isArray(data.ab);
+          assert.lengthOf(data.ab, 1);
+          assert.equal(data.ab[0], 'foo');
+        });
+
+        describe('flush, no events or timers', function () {
+          beforeEach(function () {
+            return metrics.flush();
           });
-        });
 
-        it('calls logEvent correctly', function () {
-          assert.isTrue(metrics.logEvent.calledOnce);
-          assert.lengthOf(metrics.logEvent.getCall(0).args, 1);
-          assert.equal(metrics.logEvent.getCall(0).args[0], 'inactivity.flush');
-        });
-
-        it('calls flush correctly', function () {
-          assert.isTrue(metrics.flush.calledOnce);
-          assert.lengthOf(metrics.flush.getCall(0).args, 0);
+          it('does not send data', function () {
+            assert.isTrue(windowMock.navigator.sendBeacon.calledOnce);
+          });
         });
       });
     });

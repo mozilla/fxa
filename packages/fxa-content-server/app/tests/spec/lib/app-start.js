@@ -104,8 +104,10 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
 
         return appStart.startApp()
           .then(function () {
+            sinon.spy(appStart._metrics, 'flush');
             setTimeout(function () {
               assert.equal(windowMock.location.href, Constants.INTERNAL_ERROR_PAGE);
+              assert.equal(appStart._metrics.flush.callCount, 1);
               done();
             }, 20);
           });

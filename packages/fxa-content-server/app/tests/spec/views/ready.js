@@ -9,11 +9,12 @@ define([
   'lib/session',
   'lib/fxa-client',
   'lib/able',
+  'lib/promise',
   'models/reliers/fx-desktop',
   'models/auth_brokers/oauth',
   '../../mocks/window'
 ],
-function (chai, sinon, View, Session, FxaClient, Able, FxDesktopRelier,
+function (chai, sinon, View, Session, FxaClient, Able, p, FxDesktopRelier,
       OAuthBroker, WindowMock) {
   'use strict';
 
@@ -26,6 +27,7 @@ function (chai, sinon, View, Session, FxaClient, Able, FxDesktopRelier,
     var relier;
     var broker;
     var able;
+    var metrics;
 
     function createView() {
       windowMock = new WindowMock();
@@ -40,12 +42,17 @@ function (chai, sinon, View, Session, FxaClient, Able, FxDesktopRelier,
       fxaClient = new FxaClient();
 
       able = new Able();
+      metrics = {
+        flush: sinon.spy(p),
+        logMarketingImpression: function () {}
+      };
       view = new View({
         window: windowMock,
         fxaClient: fxaClient,
         relier: relier,
         broker: broker,
-        able: able
+        able: able,
+        metrics: metrics
       });
     }
 
@@ -167,8 +174,11 @@ function (chai, sinon, View, Session, FxaClient, Able, FxDesktopRelier,
         relier.set('redirectUri', redirectUri);
         relier.set('verificationRedirect', 'always');
 
-        view.submit();
-        assert.equal(windowMock.location.href, redirectUri);
+        return view.submit().then(function () {
+          assert.isTrue(metrics.flush.calledOnce);
+          assert.lengthOf(metrics.flush.getCall(0).args, 0);
+          assert.equal(windowMock.location.href, redirectUri);
+        });
       });
 
     });
