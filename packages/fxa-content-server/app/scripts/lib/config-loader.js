@@ -6,15 +6,11 @@
 
 define([
   'lib/xhr',
-  'lib/promise',
-  'lib/url',
-  'lib/storage'
+  'lib/promise'
 ],
 function (
   xhr,
-  p,
-  Url,
-  Storage
+  p
 ) {
   'use strict';
 
@@ -59,32 +55,6 @@ function (
             return config;
           });
     },
-
-    areCookiesEnabled: function (force, win) {
-      return this.fetch(force)
-          .then(function (config) {
-            // use the search parameter for selenium testing. There is
-            // no way to disable cookies using wd, so the search parameter
-            // is used as a dirty hack.
-            // var cookiesEnabled = Url.searchParam('disable_local_storage') ?
-            //                            false : config.cookiesEnabled;
-
-            // HACK: This is a gross work around for 3rd party cookie issues in
-            //       Firefox Nightly (2014-04-18). Ignoring cookiesEnabled
-            //       altogether for now.
-            var localStorageEnabled;
-
-            if (Url.searchParam('disable_local_storage') === '1') {
-              localStorageEnabled = false;
-            } else if (typeof config.localStorageEnabled !== 'undefined') {
-              localStorageEnabled = config.localStorageEnabled;
-            } else {
-              localStorageEnabled = Storage.isLocalStorageEnabled(win);
-            }
-
-            return localStorageEnabled;
-          });
-    }
   };
 
   return ConfigLoader;

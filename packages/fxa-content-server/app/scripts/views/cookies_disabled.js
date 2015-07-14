@@ -7,10 +7,11 @@ define([
   'views/base',
   'lib/config-loader',
   'lib/auth-errors',
+  'lib/storage',
   'stache!templates/cookies_disabled',
   'views/mixins/back-mixin'
 ],
-function (Cocktail, BaseView, ConfigLoader, AuthErrors, Template, BackMixin) {
+function (Cocktail, BaseView, ConfigLoader, AuthErrors, Storage, Template, BackMixin) {
   'use strict';
 
   var View = BaseView.extend({
@@ -18,26 +19,22 @@ function (Cocktail, BaseView, ConfigLoader, AuthErrors, Template, BackMixin) {
       BaseView.call(this, options);
 
       this._configLoader = new ConfigLoader();
+      this._Storage = options.Storage || Storage;
     },
 
     template: Template,
     className: 'cookies-disabled',
 
     events: {
-      'click #submit-btn': 'backIfCookiesEnabled'
+      'click #submit-btn': 'backIfLocalStorageEnabled'
     },
 
-    backIfCookiesEnabled: function () {
-      var self = this;
-      return this._configLoader.areCookiesEnabled(true)
-        .then(function (areCookiesEnabled) {
-          if (! areCookiesEnabled) {
-            var err = AuthErrors.toError('COOKIES_STILL_DISABLED');
-            return self.displayError(err);
-          }
+    backIfLocalStorageEnabled: function () {
+      if (! this._Storage.isLocalStorageEnabled()) {
+        return this.displayError(AuthErrors.toError('COOKIES_STILL_DISABLED'));
+      }
 
-          self.back();
-        });
+      this.back();
     }
   });
 
