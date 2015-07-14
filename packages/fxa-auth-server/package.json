@@ -28,7 +28,7 @@
     "aws-sdk": "2.1.26",
     "binary-split": "0.1.2",
     "bluebird": "2.9.25",
-    "convict": "0.8.0",
+    "convict": "1.0.1",
     "envc": "2.2.0",
     "fxa-auth-mailer": "git+https://github.com/mozilla/fxa-auth-mailer.git#master",
     "fxa-jwtool": "0.7.1",
