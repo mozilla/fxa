@@ -65,15 +65,12 @@ def write_issues(resp):
         labels = issue['labels']
         label_list = [is_ascii(label['name']) for label in labels]
 
-        milestone = ""
-        if [i for i in labels_filter if i in label_list]:
-            milestone = issue['milestone']['title'] if issue['milestone'] is not None else ""
-
         # check if label filter is in labels of an issue
         if 'no_label' not in labels_filter:
             if not [i for i in labels_filter if i in label_list]:
                 continue
 
+        milestone = issue['milestone']['title'] if issue['milestone'] is not None else ""
         csvout.writerow([repo,
                          issue['number'],
                          issue['title'].encode('utf-8'),
