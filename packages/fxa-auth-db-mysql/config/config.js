@@ -20,7 +20,7 @@ module.exports = function (fs, path, url, convict) {
     port: {
       doc: 'The port the server should bind to',
       default: 8000,
-      format: 'nat',
+      format: 'port',
       env: 'PORT',
     },
     logging: {
@@ -49,8 +49,8 @@ module.exports = function (fs, path, url, convict) {
     },
     pruneEvery: {
       doc: 'Approximate time between prunes (in ms)',
-      default: 30 * 60 * 1000,
-      format: 'nat',
+      default: '30 minutes',
+      format: 'duration',
       env: 'PRUNE_EVERY',
     },
     master: {
@@ -77,7 +77,7 @@ module.exports = function (fs, path, url, convict) {
       port: {
         doc: 'The port to connect to for MySql',
         default: 3306,
-        format: 'nat',
+        format: 'port',
         env: 'MYSQL_PORT',
       },
       connectionLimit: {
@@ -123,7 +123,7 @@ module.exports = function (fs, path, url, convict) {
       port: {
         doc: 'The port to connect to for MySql',
         default: 3306,
-        format: 'nat',
+        format: 'port',
         env: 'MYSQL_SLAVE_PORT',
       },
       connectionLimit: {
