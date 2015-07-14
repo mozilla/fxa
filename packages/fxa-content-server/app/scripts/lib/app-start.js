@@ -613,7 +613,8 @@ function (
       //
       // A check for context=fx_desktop_v2 can be added when about:accounts
       // is converted to use WebChannels.
-      return this._isSync() && this._isIframeContext();
+      return (this._isSync() && this._isIframeContext()) ||
+             (this._searchParam('context') === Constants.FX_DESKTOP_V2_CONTEXT);
     },
 
     _isFxDesktop: function () {

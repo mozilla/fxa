@@ -13,6 +13,7 @@ define([], function () {
     URL_MAX_LENGTH: 2048,
 
     FX_DESKTOP_CONTEXT: 'fx_desktop_v1',
+    FX_DESKTOP_V2_CONTEXT: 'fx_desktop_v2',
     FX_DESKTOP_SYNC: 'sync',
 
     IFRAME_CONTEXT: 'iframe',

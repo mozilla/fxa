@@ -70,7 +70,7 @@ Specify an alternate style for Firefox Accounts.
 When authenticating a user with OAuth and an alternate style is needed.
 
 ### `verification_redirect`
-Helps avoid dead-end OAuth flows. This option adds a "Proceed" button to the Ready view. 
+Helps avoid dead-end OAuth flows. This option adds a "Proceed" button to the Ready view.
 The button provides a link to the relier using the `redirect_uri` without extra OAuth parameters.
 
 #### Options
@@ -78,7 +78,7 @@ The button provides a link to the relier using the `redirect_uri` without extra 
 * `none` (default).
 
 #### When to specify
-When the relier supports being linked to its `redirect_uri` without extra OAuth parameters. 
+When the relier supports being linked to its `redirect_uri` without extra OAuth parameters.
 
 ## Firefox/Sync parameters
 
@@ -100,7 +100,7 @@ Set the default value of the "Customize which values to sync" checkbox.
 * `false` (default)
 
 #### When to specify
-Only available if `context=fx_desktop_v1&service=sync`.
+Only available if `context` equals `fx_desktop_v1`, `fx_desktop_v2`, or `iframe` and `service` equals `sync`.
 
 * /signup
 
@@ -118,7 +118,7 @@ If they user arrived at Firefox Accounts from within Firefox browser chrome, spe
 If the user is migrating their Sync account from "old sync" to "new sync", specify which sync they are migrating from.
 
 #### When to specify
-Only available if `context=fx_desktop_v1`.
+Only available if `context` equals `fx_desktop_v1`, `fx_desktop_v2`, or `iframe`.
 
 * /signin
 * /signup
@@ -130,7 +130,7 @@ Specify which non-OAuth service a user is signing in to.
 * `sync`
 
 #### When to specify
-Only available if `context=fx_desktop_v1`.
+Only available if `context` equals `fx_desktop_v1`, `fx_desktop_v2`, or `iframe`.
 
 * /signin
 * /signup
@@ -153,7 +153,8 @@ If Firefox Accounts is opened to `/settings` and a profile field should be made 
 Specify an alternate context in which Firefox Accounts is being run, if not as a standard web page.
 
 #### Options
-* `fx_desktop_v1` - Firefox Accounts is being used to sign in to Sync.
+* `fx_desktop_v1` - Firefox Accounts is being used to sign in to Sync using CustomEvents.
+* `fx_desktop_v2` - Firefox Accounts is being used to sign in to Sync using WebChannels.
 * `iframe` - Firefox Accounts is displayed in an iframe.
 
 ### `email`
