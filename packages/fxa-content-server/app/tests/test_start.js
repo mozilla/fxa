@@ -119,6 +119,7 @@ function (Translator, Session) {
     '../tests/spec/models/reliers/oauth',
     '../tests/spec/models/reliers/fx-desktop',
     '../tests/spec/models/auth_brokers/base',
+    '../tests/spec/models/auth_brokers/first-run',
     '../tests/spec/models/auth_brokers/fx-desktop',
     '../tests/spec/models/auth_brokers/fx-desktop-v2',
     '../tests/spec/models/auth_brokers/web-channel',

@@ -559,6 +559,35 @@ define([
     return true;
   }
 
+  function respondToWebChannelMessage(context, expectedCommand, response) {
+    return function () {
+      return context.remote
+        .execute(function (expectedCommand, response) {
+          addEventListener('WebChannelMessageToChrome', function listener(e) {
+            removeEventListener('WebChannelMessageToChrome', listener);
+
+            var command = e.detail.message.command;
+            var messageId = e.detail.message.messageId;
+
+            if (command === expectedCommand) {
+              var event = new CustomEvent('WebChannelMessageToContent', {
+                detail: {
+                  id: 'account_updates',
+                  message: {
+                    messageId: messageId,
+                    command: command,
+                    data: response
+                  }
+                }
+              });
+
+              dispatchEvent(event);
+            }
+          });
+        }, [ expectedCommand, response ]);
+    };
+  }
+
   function testIsBrowserNotified(context, command, cb) {
     return function () {
       return context.remote
@@ -650,6 +679,7 @@ define([
     openFxaFromRp: openFxaFromRp,
     openFxaFromUntrustedRp: openFxaFromUntrustedRp,
     listenForWebChannelMessage: listenForWebChannelMessage,
+    respondToWebChannelMessage: respondToWebChannelMessage,
     testIsBrowserNotified: testIsBrowserNotified,
 
     fillOutSignIn: fillOutSignIn,
