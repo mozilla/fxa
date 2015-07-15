@@ -595,7 +595,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
 
         return view.render()
           .then(function () {
-            assert.equal($('.email').attr('type'), 'hidden', 'should not show email input');
+            assert.isTrue($('.email').hasClass('hidden'), 'should not show email input');
             assert.ok($('.password').length, 'should show password input');
             assert.isTrue(TestHelpers.isEventLogged(metrics, 'signin.ask-password.shown.keys-required'));
           });
@@ -622,7 +622,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
 
         return view.render()
           .then(function () {
-            assert.equal($('.email').attr('type'), 'hidden', 'should not show email input');
+            assert.isTrue($('.email').hasClass('hidden'), 'should not show email input');
             assert.ok($('.password').length, 'should show password input');
             assert.isTrue(TestHelpers.isEventLogged(metrics, 'signin.ask-password.shown.keys-required'));
           });
@@ -667,7 +667,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
 
         return view.render()
           .then(function () {
-            assert.equal($('.email').attr('type'), 'hidden', 'should not show email input');
+            assert.isTrue($('.email').hasClass('hidden'), 'should not show email input');
             assert.ok($('.password').length, 'should show password input');
             assert.isTrue(TestHelpers.isEventLogged(metrics, 'signin.ask-password.shown.session-from-web'));
           });
@@ -694,7 +694,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
 
         return view.render()
           .then(function () {
-            assert.equal($('.email').attr('type'), 'hidden', 'should not show email input');
+            assert.isTrue($('.email').hasClass('hidden'), 'should not show email input');
             assert.ok($('.password').length, 'should show password input');
             assert.isTrue(TestHelpers.isEventLogged(metrics, 'signin.ask-password.shown.email-mismatch'));
           });
@@ -718,7 +718,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
         view.chooserAskForPassword = true;
         return view.render()
           .then(function () {
-            assert.equal($('.email').attr('type'), 'hidden', 'should not show email input');
+            assert.isTrue($('.email').hasClass('hidden'), 'should not show email input');
             assert.ok($('.password').length, 'should show password input');
             assert.isTrue(TestHelpers.isEventLogged(metrics, 'signin.ask-password.shown.session-expired'));
           });
