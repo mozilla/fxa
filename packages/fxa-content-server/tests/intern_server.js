@@ -18,6 +18,7 @@ define([
     'tests/server/metrics',
     'tests/server/metrics-collector-stderr',
     'tests/server/metrics-errors',
+    'tests/server/metrics-ga',
     'tests/server/configuration',
     'tests/server/statsd-collector'
   ];

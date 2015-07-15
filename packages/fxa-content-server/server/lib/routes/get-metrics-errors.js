@@ -26,14 +26,12 @@ function reportError(query) {
     query['sentry_key'] = API_KEY;
     var newQuery = querystring.stringify(query);
 
-    process.nextTick(function () {
-      var sentryRequest = sentryConfig.endpoint + '?' + newQuery;
+    var sentryRequest = sentryConfig.endpoint + '?' + newQuery;
 
-      request(sentryRequest, function (err, resp, body) {
-        if (err || resp.statusCode !== 200) {
-          logger.error(err, body);
-        }
-      });
+    request(sentryRequest, function (err, resp, body) {
+      if (err || resp.statusCode !== 200) {
+        logger.error(err, body);
+      }
     });
   }
 }

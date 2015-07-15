@@ -89,6 +89,11 @@ var conf = module.exports = convict({
       default: undefined
     }
   },
+  google_analytics_id: {
+    doc: 'Google Analytics id',
+    format: String,
+    default: undefined
+  },
   logging: {
     app: {
       default: 'fxa-content-server'
