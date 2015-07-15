@@ -9,12 +9,11 @@
 define([
   'underscore',
   'models/reliers/relier',
-  'models/resume-token',
   'lib/oauth-errors',
   'lib/relier-keys',
   'lib/url',
   'lib/constants'
-], function (_, Relier, ResumeToken, OAuthErrors, RelierKeys, Url, Constants) {
+], function (_, Relier, OAuthErrors, RelierKeys, Url, Constants) {
   'use strict';
 
   var RELIER_FIELDS_IN_RESUME_TOKEN = ['state', 'verificationRedirect'];
@@ -40,6 +39,11 @@ define([
       verificationRedirect: Constants.VERIFICATION_REDIRECT_NO
     }),
 
+    resumeTokenFields: _.union(
+      RELIER_FIELDS_IN_RESUME_TOKEN,
+      Relier.prototype.resumeTokenFields
+    ),
+
     initialize: function (options) {
       options = options || {};
 
@@ -53,10 +57,6 @@ define([
       var self = this;
       return Relier.prototype.fetch.call(this)
         .then(function () {
-          // parse the resume token before importing server provided data,
-          // the server values might take precedent over the parsed values
-          self._parseResumeToken();
-
           if (self._isVerificationFlow()) {
             self._setupVerificationFlow();
           } else {
@@ -95,21 +95,6 @@ define([
 
     deriveRelierKeys: function (keys, uid) {
       return RelierKeys.deriveRelierKeys(keys, uid, this.get('clientId'));
-    },
-
-    pickResumeTokenInfo: function () {
-      return this.pick(RELIER_FIELDS_IN_RESUME_TOKEN);
-    },
-
-    /**
-     * Sets relier properties from the resume token value
-     * @private
-     */
-    _parseResumeToken: function () {
-      var resumeParam = this.getSearchParam('resume');
-      var resumeToken = new ResumeToken(ResumeToken.parse(resumeParam));
-
-      this.set(resumeToken.pick(RELIER_FIELDS_IN_RESUME_TOKEN));
     },
 
     _isVerificationFlow: function () {

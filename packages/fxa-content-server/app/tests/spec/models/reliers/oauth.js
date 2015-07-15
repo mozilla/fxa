@@ -12,12 +12,11 @@ define([
   'lib/oauth-errors',
   'lib/promise',
   'lib/relier-keys',
-  'models/resume-token',
   'lib/url',
   '../../../mocks/window',
   '../../../lib/helpers'
 ], function (chai, sinon, OAuthRelier, User, Session, OAuthClient, OAuthErrors,
-      p, RelierKeys, ResumeToken, Url, WindowMock, TestHelpers) {
+      p, RelierKeys, Url, WindowMock, TestHelpers) {
   'use strict';
 
   /*eslint-disable camelcase */
@@ -329,41 +328,27 @@ define([
 
     describe('pickResumeTokenInfo', function () {
       it('returns an object with info to be passed along with email verification links', function () {
+        var CAMPAIGN = 'campaign id';
+        var ENTRYPOINT = 'entry point';
         var STATE = 'some long opaque state token';
         var VERIFICATION_REDIRECT = 'https://redirect.here.org';
 
-        relier.set('state', STATE);
-        relier.set('verificationRedirect', VERIFICATION_REDIRECT);
-        relier.set('notPassed', 'this should not be picked');
+        relier.set({
+          campaign: CAMPAIGN,
+          entrypoint: ENTRYPOINT,
+          notPassed: 'this should not be picked',
+          state: STATE,
+          verificationRedirect: VERIFICATION_REDIRECT,
+        });
 
         assert.deepEqual(relier.pickResumeTokenInfo(), {
+          // ensure campaign and entrypoint from
+          // the Relier are still passed.
+          campaign: CAMPAIGN,
+          entrypoint: ENTRYPOINT,
           state: STATE,
           verificationRedirect: VERIFICATION_REDIRECT
         });
-      });
-    });
-
-    describe('_parseResumeToken', function () {
-      it('parses the resume param into an object', function () {
-        var resumeData = {
-          state: 'state',
-          verificationRedirect: 'always',
-          random: 'yes'
-        };
-        var resumeToken = ResumeToken.stringify(resumeData);
-
-        windowMock.location.search = TestHelpers.toSearchString({
-          client_id: CLIENT_ID,
-          scope: SCOPE,
-          resume: resumeToken
-        });
-
-        return relier.fetch()
-          .then(function () {
-            assert.equal(relier.get('state'), 'state');
-            assert.equal(relier.get('verificationRedirect'), 'always');
-            assert.isUndefined(relier.get('random'), 'only allow specific resume token values');
-          });
       });
     });
 

@@ -6,9 +6,10 @@ define([
   'chai',
   'lib/constants',
   'models/reliers/relier',
+  'models/resume-token',
   '../../../mocks/window',
   '../../../lib/helpers'
-], function (chai, Constants, Relier, WindowMock, TestHelpers) {
+], function (chai, Constants, Relier, ResumeToken, WindowMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -34,6 +35,17 @@ define([
     });
 
     describe('fetch', function () {
+      it('a missing `resume` token is not a problem', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          campaign: CAMPAIGN
+        });
+
+        return relier.fetch()
+          .then(function () {
+            assert.equal(relier.get('campaign'), CAMPAIGN);
+          });
+      });
+
       it('populates expected fields from the search parameters, unexpected search parameters are ignored', function () {
         windowMock.location.search = TestHelpers.toSearchString({
           preVerifyToken: PREVERIFY_TOKEN,
@@ -125,6 +137,48 @@ define([
             // the email should not be set on the relier model
             // if the specified email === blank
             assert.isFalse(relier.has('email'));
+          });
+      });
+    });
+
+    describe('pickResumeTokenInfo', function () {
+      it('returns an object with info to be passed along with email verification links', function () {
+        var CAMPAIGN = 'campaign id';
+        var ENTRYPOINT = 'entry point';
+
+        relier.set({
+          campaign: CAMPAIGN,
+          entrypoint: ENTRYPOINT,
+          notPassed: 'this should not be picked'
+        });
+
+        assert.deepEqual(relier.pickResumeTokenInfo(), {
+          campaign: CAMPAIGN,
+          entrypoint: ENTRYPOINT
+        });
+      });
+    });
+
+    describe('re-population from resume token', function () {
+      it('parses the resume param into an object', function () {
+        var CAMPAIGN = 'campaign id';
+        var ENTRYPOINT = 'entry point';
+        var resumeData = {
+          campaign: CAMPAIGN,
+          entrypoint: ENTRYPOINT,
+          notImported: 'this should not be picked'
+        };
+        var resumeToken = ResumeToken.stringify(resumeData);
+
+        windowMock.location.search = TestHelpers.toSearchString({
+          resume: resumeToken
+        });
+
+        return relier.fetch()
+          .then(function () {
+            assert.equal(relier.get('campaign'), CAMPAIGN);
+            assert.equal(relier.get('entrypoint'), ENTRYPOINT);
+            assert.isUndefined(relier.get('notImported'), 'only allow specific resume token values');
           });
       });
     });

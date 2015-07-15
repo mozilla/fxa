@@ -13,22 +13,11 @@ define([
 ], function (Backbone, _) {
   'use strict';
 
-  function parse(resumeToken) {
-    try {
-      return JSON.parse(atob(resumeToken));
-    } catch(e) {
-      // do nothing, its an invalid token.
-    }
-  }
-
-  function stringify(resumeObj) {
-    var encoded = btoa(JSON.stringify(resumeObj));
-    return encoded;
-  }
-
   var ResumeToken = Backbone.Model.extend({
     defaults: {
-      // fields from a relier
+      // fields from a Relier
+      campaign: undefined,
+      entrypoint: undefined,
       state: undefined,
       verificationRedirect: undefined
     },
@@ -48,10 +37,30 @@ define([
     }
   });
 
+  function parse(resumeToken) {
+    try {
+      return JSON.parse(atob(resumeToken));
+    } catch(e) {
+      // do nothing, its an invalid token.
+    }
+  }
+
+  function stringify(resumeObj) {
+    var encoded = btoa(JSON.stringify(resumeObj));
+    return encoded;
+  }
+
+  function createFromStringifiedResumeToken(stringifiedResumeToken) {
+    var parsedResumeToken = parse(stringifiedResumeToken);
+    return new ResumeToken(parsedResumeToken);
+  }
+
+
   // static methods on the ResumeToken object itself, not its prototype.
   _.extend(ResumeToken, {
     parse: parse,
-    stringify: stringify
+    stringify: stringify,
+    createFromStringifiedResumeToken: createFromStringifiedResumeToken
   });
 
   return ResumeToken;

@@ -4,16 +4,24 @@
 
 /**
  * A relier is a model that holds information about the RP.
+ *
+ * A subclass should override `resumeTokenFields` to add/modify which
+ * fields are saved to and populated from a resume token in the resume
+ * query parameter.
  */
 
 define([
-  'underscore',
+  'cocktail',
   'models/reliers/base',
+  'models/mixins/resume-token',
   'models/mixins/search-param',
   'lib/promise',
   'lib/constants'
-], function (_, BaseRelier, SearchParamMixin, p, Constants) {
+], function (Cocktail, BaseRelier, ResumeTokenMixin, SearchParamMixin, p,
+  Constants) {
   'use strict';
+
+  var RELIER_FIELDS_IN_RESUME_TOKEN = ['campaign', 'entrypoint'];
 
   var Relier = BaseRelier.extend({
     defaults: {
@@ -32,7 +40,7 @@ define([
     },
 
     /**
-     * Fetch hydrates the model. Returns a promise to allow
+     * Hydrate the model. Returns a promise to allow
      * for an asynchronous load. Sub-classes that override
      * fetch should still call Relier's version before completing.
      *
@@ -44,11 +52,18 @@ define([
      *         // do overriding behavior here.
      *       });
      * }
+     *
+     * @method fetch
      */
     fetch: function () {
       var self = this;
       return p()
         .then(function () {
+          // parse the resume token before importing any other data.
+          // query parameters and server provided data override
+          // resume provided data.
+          self.populateFromStringifiedResumeToken(self.getSearchParam('resume'));
+
           self.importSearchParam('service');
           self.importSearchParam('preVerifyToken');
           self.importSearchParam('uid');
@@ -90,10 +105,16 @@ define([
      */
     allowCachedCredentials: function () {
       return this.get('allowCachedCredentials');
-    }
+    },
+
+    resumeTokenFields: RELIER_FIELDS_IN_RESUME_TOKEN
   });
 
-  _.extend(Relier.prototype, SearchParamMixin);
+  Cocktail.mixin(
+    Relier,
+    ResumeTokenMixin,
+    SearchParamMixin
+  );
 
   return Relier;
 });
