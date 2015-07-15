@@ -27,7 +27,7 @@
 
         {{#chooserAskForPassword}}
           <form novalidate>
-            <input type="hidden" class="email" value="{{ email }}" />
+            <input type="email" class="email hidden" value="{{ email }}" />
 
             <div class="input-row password-row">
               <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" value="{{ password }}" pattern=".{8,}" required {{#isPasswordAutoCompleteDisabled}}autocomplete="off"{{/isPasswordAutoCompleteDisabled}} autofocus />
