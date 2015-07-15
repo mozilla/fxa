@@ -4,11 +4,12 @@
 
 // helper functions for views with a profile image. Meant to be mixed into views.
 
-'use strict';
-
 define([
+  'jquery',
   'views/base'
-], function (BaseView) {
+], function ($, BaseView) {
+  'use strict';
+
   return {
     initialize: function (options) {
       this.superView = options.superView;
@@ -18,9 +19,15 @@ define([
       'click .cancel': BaseView.preventDefaultThen('closePanelReturnToSettings')
     },
 
-    openPanel: function () {
-      this.$('.settings-unit').addClass('open');
-      this.$('.settings-unit').removeClass('setting-updated');
+    openPanel: function (event) {
+      var unit = this.$('.settings-unit');
+      unit.addClass('open');
+      unit.removeClass('setting-updated');
+
+      var href = event && $(event.target).data('href');
+      if (href) {
+        this.navigate(href);
+      }
     },
 
     closePanelReturnToSettings: function () {

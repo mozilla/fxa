@@ -122,6 +122,7 @@ function (
       'settings/avatar/change(/)': showSubView(SettingsView, { subView: AvatarChangeView }),
       'settings/avatar/crop(/)': showSubView(SettingsView, { subView: AvatarCropView }),
       'settings/avatar/gravatar(/)': showSubView(SettingsView, { subView: AvatarGravatarView }),
+      'settings/avatar/gravatar_permissions(/)': showSubView(SettingsView, { subView: GravatarPermissions }),
       'settings/avatar/camera(/)': showSubView(SettingsView, { subView: AvatarCameraView }),
       'settings/communication_preferences(/)': showSubView(SettingsView, { subView: CommunicationPreferencesView }),
       'settings/change_password(/)': showSubView(SettingsView, { subView: ChangePasswordView }),

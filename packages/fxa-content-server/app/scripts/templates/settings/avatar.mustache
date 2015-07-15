@@ -1,13 +1,12 @@
 <div id="change-avatar" class="settings-unit">
   <div class="settings-unit-stub">
     <header class="settings-unit-summary">
-      <h2 class="settings-unit-title">{{#t}}Account Picture{{/t}}</h2>
+      <h2 class="settings-unit-title">{{#t}}Account picture{{/t}}</h2>
     </header>
-    {{#avatar}}
-    <button class="settings-button secondary settings-unit-toggle">{{#t}}Change{{/t}}</button>
-    {{/avatar}}
-    {{^avatar}}
-    <button class="settings-button secondary settings-unit-toggle">{{#t}}Add{{/t}}</button>
-    {{/avatar}}
+    <button class="settings-button secondary settings-unit-toggle"
+      data-href="settings/avatar/change">
+      {{#avatar}}{{#t}}Change{{/t}}{{/avatar}}
+      {{^avatar}}{{#t}}Add{{/t}}{{/avatar}}
+    </button>
   </div>
 </div>

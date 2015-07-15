@@ -4,7 +4,8 @@
       <header class="settings-unit-summary">
         <h2 class="settings-unit-title">{{#t}}Communication preferences{{/t}}</h2>
       </header>
-      <button class="settings-button secondary settings-unit-toggle hidden">{{#t}}Change {{/t}}</button>
+      <button class="settings-button secondary settings-unit-toggle hidden"
+        data-href="settings/communication_preferences">{{#t}}Change{{/t}}</button>
     </div>
 
     <div class="settings-unit-details">
@@ -13,7 +14,6 @@
         {{error}}
       </div>
       <button class="settings-button secondary cancel">{{#t}}Cancel{{/t}}</button>
-
     {{/error}}
     {{^error}}
       <div class="error"></div>

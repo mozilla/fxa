@@ -28,10 +28,6 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, Metrics, BaseView, For
     template: Template,
     className: 'communication-preferences',
 
-    events: {
-      'click .settings-unit-toggle': '_openSettingsUnit'
-    },
-
     getMarketingEmailPrefs: function () {
       var self = this;
       if (! self._marketingEmailPrefs) {
@@ -40,10 +36,6 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, Metrics, BaseView, For
       }
 
       return self._marketingEmailPrefs;
-    },
-
-    _openSettingsUnit: function () {
-      this.navigate('/settings/communication_preferences');
     },
 
     beforeRender: function () {
@@ -116,10 +108,10 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, Metrics, BaseView, For
   Cocktail.mixin(
     View,
     BackMixin,
-    SettingsMixin,
-    SettingsPanelMixin,
     CheckboxMixin,
-    LoadingMixin
+    LoadingMixin,
+    SettingsMixin,
+    SettingsPanelMixin
   );
 
   return View;

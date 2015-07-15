@@ -48,8 +48,14 @@ function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, SettingsPanelMixin,
     },
 
     afterVisible: function () {
-      FormView.prototype.afterVisible.call(this);
-      return this.displayAccountProfileImage(this.getAccount());
+      var self = this;
+      FormView.prototype.afterVisible.call(self);
+      return self.displayAccountProfileImage(self.getAccount())
+        .then(function () {
+          if (self.getAccount().has('profileImageUrl')) {
+            self.$('.remove').css('display', 'inline-block');
+          }
+        });
     },
 
     afterRender: function () {

@@ -30,14 +30,6 @@ function (Cocktail, BaseView, FormView, AuthErrors, Template, PasswordMixin,
     template: Template,
     className: 'change-password',
 
-    events: {
-      'click .settings-unit-toggle': '_openSettingsUnit'
-    },
-
-    _openSettingsUnit: function () {
-      this.navigate('/settings/change_password');
-    },
-
     context: function () {
       return {
         isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled()

@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
-
 define([
   'cocktail',
   'views/base',
@@ -16,19 +14,13 @@ define([
 ],
 function (Cocktail, BaseView, FormView, AuthErrors, Template,
   SettingsMixin, SettingsPanelMixin, AvatarMixin) {
+  'use strict';
+
   var t = BaseView.t;
 
   var View = FormView.extend({
     template: Template,
     className: 'display-name',
-
-    events: {
-      'click .settings-unit-toggle': '_openSettingsUnit'
-    },
-
-    _openSettingsUnit: function () {
-      this.navigate('/settings/display_name');
-    },
 
     context: function () {
       return {

@@ -20,14 +20,6 @@ function ($, modal, Cocktail, FormView, Template, AvatarMixin, SettingsMixin,
     template: Template,
     className: 'avatar',
 
-    events: {
-      'click button': '_goToAvatarChange'
-    },
-
-    _goToAvatarChange: function () {
-      this.navigate('/settings/avatar/change');
-    },
-
     context: function () {
       var account = this.getSignedInAccount();
       return {

@@ -8,12 +8,11 @@
         <h3 class="settings-unit-subtitle">{{ displayName }}</h3>
       {{/displayName}}
     </header>
-    {{#displayName}}
-      <button class="settings-button secondary settings-unit-toggle hidden">{{#t}}Change{{/t}}</button>
-    {{/displayName}}
-    {{^displayName}}
-      <button class="settings-button secondary settings-unit-toggle hidden">{{#t}}Add{{/t}}</button>
-    {{/displayName}}
+    <button class="settings-button secondary settings-unit-toggle hidden"
+      data-href="settings/display_name">
+      {{#displayName}}{{#t}}Change{{/t}}{{/displayName}}
+      {{^displayName}}{{#t}}Add{{/t}}{{/displayName}}
+    </button>
   </div>
 
   <div class="settings-unit-details">

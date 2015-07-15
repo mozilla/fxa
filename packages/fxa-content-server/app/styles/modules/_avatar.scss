@@ -123,20 +123,10 @@
   display: inline-block;
   position: relative;
   width: $avatar-size;
+}
 
+#avatar-options {
   .remove {
-    font-size: 24px;
-    height: 50px;
-    line-height: 50px;
-    position: absolute;
-    right: -10px;
-    text-align: center;
-    text-decoration: none;
-    top: -10px;
-    width: 50px;
-  }
-
-  .with-default + .remove {
     display: none;
   }
 }

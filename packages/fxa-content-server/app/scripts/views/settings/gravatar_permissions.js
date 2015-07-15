@@ -8,9 +8,12 @@ define([
   'stache!templates/settings/gravatar_permissions',
   'lib/promise',
   'views/mixins/back-mixin',
+  'views/mixins/settings-mixin',
+  'views/mixins/settings-panel-mixin',
   'views/mixins/service-mixin'
 ],
-function (Cocktail, FormView, Template, p, BackMixin, ServiceMixin) {
+function (Cocktail, FormView, Template, p, BackMixin, SettingsMixin,
+  SettingsPanelMixin, ServiceMixin) {
   'use strict';
 
   var View = FormView.extend({
@@ -55,6 +58,8 @@ function (Cocktail, FormView, Template, p, BackMixin, ServiceMixin) {
   Cocktail.mixin(
     View,
     BackMixin,
+    SettingsMixin,
+    SettingsPanelMixin,
     ServiceMixin
   );
 

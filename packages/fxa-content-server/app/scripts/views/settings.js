@@ -15,6 +15,8 @@ define([
   'views/settings/avatar_change',
   'views/settings/avatar_crop',
   'views/settings/avatar_camera',
+  'views/settings/avatar_gravatar',
+  'views/settings/gravatar_permissions',
   'views/settings/communication_preferences',
   'views/change_password',
   'views/settings/display_name',
@@ -24,8 +26,9 @@ define([
   'stache!templates/settings'
 ],
 function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
-  AvatarView, AvatarChangeView, AvatarCropView, AvatarCameraView, CommunicationPreferencesView,
-  ChangePasswordView, DisplayNameView, DeleteAccountView, SettingsMixin, allowOnlyOneSubmit,
+  AvatarView, AvatarChangeView, AvatarCropView, AvatarCameraView, GravatarView,
+  GravatarPermissionsView, CommunicationPreferencesView, ChangePasswordView,
+  DisplayNameView, DeleteAccountView, SettingsMixin, allowOnlyOneSubmit,
   Template) {
   'use strict';
 
@@ -43,8 +46,22 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
   var AVATAR_VIEWS = [
     AvatarChangeView,
     AvatarCropView,
-    AvatarCameraView
+    AvatarCameraView,
+    GravatarView,
+    GravatarPermissionsView
   ];
+
+  function renderView(view) {
+    return view.render()
+      .then(function (shown) {
+        if (! shown) {
+          return;
+        }
+        view.afterVisible();
+
+        return view;
+      });
+  }
 
   var View = FormView.extend({
     template: Template,
@@ -111,6 +128,10 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
       var account = this.getSignedInAccount();
       this._showAvatar();
       this.$('.username').text(account.get('displayName') || account.get('email'));
+
+      // re-render views that depend on profile data
+      renderView(this.subviewInstanceFromClass(AvatarView));
+      renderView(this.subviewInstanceFromClass(DisplayNameView));
     },
 
     // When we navigate to settings from a subview
@@ -187,15 +208,7 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
 
       self.trackSubview(view);
 
-      return view.render()
-        .then(function (shown) {
-          if (! shown) {
-            return;
-          }
-          view.afterVisible();
-
-          return view;
-        });
+      return renderView(view);
     },
 
     beforeRender: function () {
@@ -266,7 +279,6 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
 
     _setupAvatarChangeLinks: function (show) {
       if (show) {
-        this.$('.change-avatar-text').css('visibility', 'visible');
         this.$('.avatar-wrapper > *').wrap('<a href="/settings/avatar/change" class="change-avatar"></a>');
       }
     },

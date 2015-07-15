@@ -30,14 +30,6 @@ function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
     template: Template,
     className: 'delete-account',
 
-    events: {
-      'click .settings-unit-toggle': '_openSettingsUnit'
-    },
-
-    _openSettingsUnit: function () {
-      this.navigate('/settings/delete_account');
-    },
-
     context: function () {
       return {
         email: this.getSignedInAccount().get('email')
