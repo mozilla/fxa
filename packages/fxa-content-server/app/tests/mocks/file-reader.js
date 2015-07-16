@@ -8,7 +8,9 @@ define([
 ], function () {
   'use strict';
 
-  var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
+  var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAACZJREFUeNrtwQEBAAAAgiD' +
+               '/r25IQAEAAAAAAAAAAAAAAAAAAADvBkCAAAEehacTAAAAAElFTkSuQmCC';
+  var tinyPngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
   function FileReaderMock() {
     // nothing to do
@@ -29,6 +31,10 @@ define([
 
   FileReaderMock._mockPngEvent = function () {
     return this._mockFileEvent('image/png', pngSrc);
+  };
+
+  FileReaderMock._mockTinyPngEvent = function () {
+    return this._mockFileEvent('image/png', tinyPngSrc);
   };
 
   FileReaderMock._mockBadPngEvent = function () {

@@ -213,6 +213,10 @@ function (_, Errors) {
     UNEXPECTED_POSTMESSAGE_ORIGIN: {
       errno: 1027,
       message: UNEXPECTED_ERROR_MESSAGE
+    },
+    INVALID_IMAGE_SIZE: {
+      errno: 1028,
+      message: t('The image dimensions must be at least 100x100px')
     }
   };
 

@@ -89,8 +89,9 @@ function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
       var account = self.getSignedInAccount();
       self.logAccountImageChange(account);
 
-      var imgOnError = function () {
-        var msg = AuthErrors.toMessage('UNUSABLE_IMAGE');
+      var imgOnError = function (e) {
+        var error = e && e.errno ? e : 'UNUSABLE_IMAGE';
+        var msg = AuthErrors.toMessage(error);
         self.displayError(msg);
         defer.reject(msg);
       };
