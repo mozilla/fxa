@@ -32,7 +32,10 @@
       "script": "node_modules/.bin/grunt",
       "args": ["server"],
       "cwd": "fxa-content-server",
-      "max_restarts": "1"      
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "max_restarts": "1"
     },
     {
       "name": "content-server basket proxy PORT 1114",
