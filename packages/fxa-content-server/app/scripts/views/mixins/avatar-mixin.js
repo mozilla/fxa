@@ -5,8 +5,9 @@
 // helper functions for views with a profile image. Meant to be mixed into views.
 
 define([
+  'lib/profile-errors',
   'models/profile-image'
-], function (ProfileImage) {
+], function (ProfileErrors, ProfileImage) {
   'use strict';
 
   return {
@@ -33,7 +34,9 @@ define([
           self._updateCachedProfileImage(account.get('uid'), profileImage);
           return profileImage;
         }, function (err) {
-          self.logError(err);
+          if (! ProfileErrors.is(err, 'UNAUTHORIZED')) {
+            self.logError(err);
+          }
           // Ignore errors; the image will be rendered as a
           // default image if displayed
           return new ProfileImage();
