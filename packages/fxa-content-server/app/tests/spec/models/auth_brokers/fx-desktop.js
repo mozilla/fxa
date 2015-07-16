@@ -191,10 +191,10 @@ define([
             assert.equal(args[1].email, 'testuser@testuser.com');
             assert.equal(args[1].uid, 'uid');
             assert.equal(args[1].sessionToken, 'session_token');
-            assert.equal(args[1].sessionTokenContext, 'sync');
             assert.equal(args[1].unwrapBKey, 'unwrap_b_key');
             assert.equal(args[1].customizeSync, true);
             assert.equal(args[1].verified, true);
+            assert.isUndefined(args[1].sessionTokenContext);
 
             assert.isTrue(result.halt);
           });
@@ -286,11 +286,11 @@ define([
             assert.equal(args[1].email, 'testuser@testuser.com');
             assert.equal(args[1].uid, 'uid');
             assert.equal(args[1].sessionToken, 'session_token');
-            assert.equal(args[1].sessionTokenContext, 'sync');
             assert.equal(args[1].unwrapBKey, 'unwrap_b_key');
             assert.equal(args[1].customizeSync, true);
             assert.equal(args[1].verified, true);
             assert.isFalse('notSent' in args[1]);
+            assert.isUndefined(args[1].sessionTokenContext);
           });
       });
     });

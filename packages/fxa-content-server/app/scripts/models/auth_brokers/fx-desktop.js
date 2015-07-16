@@ -180,7 +180,6 @@ define([
         'email',
         'uid',
         'sessionToken',
-        'sessionTokenContext',
         'unwrapBKey',
         'keyFetchToken',
         'customizeSync',
