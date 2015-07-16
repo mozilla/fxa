@@ -68,7 +68,6 @@ function checkDbPatchLevel(patcher) {
 
   patcher.readDbPatchLevel(function(err) {
     if (err) {
-      logger.error('checkDbPatchLevel', err);
       return d.reject(err);
     }
     // We are only guaranteed to run correctly if we're at the current
@@ -77,7 +76,6 @@ function checkDbPatchLevel(patcher) {
     if (patcher.currentPatchLevel !== patch.level) {
       if (patcher.currentPatchLevel !== patch.level + 1) {
         err = 'unexpected db patch level: ' + patcher.currentPatchLevel;
-        logger.error('checkDbPatchLevel', err);
         return d.reject(new Error(err));
       }
     }
@@ -105,6 +103,9 @@ MysqlStore.connect = function mysqlConnect(options) {
     return checkDbPatchLevel(patcher);
   }).then(function() {
     return P.promisify(patcher.end, patcher)();
+  }, function(error) {
+    logger.error('checkDbPatchLevel', error);
+    patcher.end(process.exit.bind(process, 1));
   }).then(function() {
     return new MysqlStore(options);
   });
