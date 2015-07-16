@@ -59,7 +59,6 @@ development, and will be happy to help answer any questions you might have.
 * [Shane Tomlinson](https://github.com/shane-tomlinson/) - Engineering (London, approx UTC)
 * [Danny Coates](https://github.com/dannycoates/) - Engineering (Portland, approx UTC-8)
 * [Sean McArthur](https://github.com/seanmonstar) - Engineering (Irvine, approx UTC-8)
-* [Andy Chilton](https://github.com/chilts) - Engineering (Wellington, approx UTC+12)
 * [Zach Carter](https://github.com/zaach) - Engineering (San Francisco, approx UTC-8)
 * [Vlad Filippov](https://github.com/vladikoff) - Engineering (Toronto, approx UTC-5)
 * [Phil Booth](https://github.com/philbooth) - Engineering (London, approx UTC)
