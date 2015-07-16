@@ -4,11 +4,14 @@
 
 var P = require('../lib/promise')
 var request = require('request')
+const EventEmitter = require('events').EventEmitter
 
 module.exports = function (host, port) {
 
   host = host || '127.0.0.1'
   port = port || 9001
+
+  const eventEmitter = new EventEmitter()
 
   function waitForCode(email) {
     return waitForEmail(email)
@@ -54,13 +57,19 @@ module.exports = function (host, port) {
   function waitForEmail(email) {
     var d = P.defer()
     loop(email.split('@')[0], 20, function (err, json) {
-      return err ? d.reject(err) : d.resolve(json)
+      if (err) {
+        eventEmitter.emit('email:error', email, err)
+        return d.reject(err)
+      }
+      eventEmitter.emit('email:message', email, json)
+      return d.resolve(json)
     })
     return d.promise
   }
 
   return {
     waitForEmail: waitForEmail,
-    waitForCode: waitForCode
+    waitForCode: waitForCode,
+    eventEmitter: eventEmitter
   }
 }
