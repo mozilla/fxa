@@ -53,18 +53,30 @@ var tailLogs = function() {
   tail = new Tail('log-browser.log');
 
   tail.on('line', function(data) {
-    var data = JSON.parse(data.toString());
-    var msg = data.message.trim();
-    if (data.level === 'SEVERE') {
-      w(chalk.red(data.level + ':', msg));
-    } else if (data.level === 'WARNING') {
-      // WARNING log is ignored
-    } else if (msg.toLowerCase().indexOf('fxa') >= 0 || msg.toLowerCase().indexOf('account') >= 0 ) {
-      w(chalk.green(data.level + ':', msg));
-    } else {
-      w(chalk.blue(data.level + ':', msg));
-    }
+    if (data) {
+      var parsed = true;
+      try {
+        data = JSON.parse(data.toString());
+      } catch (e) {
+        parsed = false;
+        w(chalk.blue(data.toString()));
+      }
 
+      if (! parsed) {
+        return;
+      }
+
+      var msg = data.message.trim();
+      if (data.level === 'SEVERE') {
+        w(chalk.red(data.level + ':', msg));
+      } else if (data.level === 'WARNING') {
+        // WARNING log is ignored
+      } else if (msg.toLowerCase().indexOf('fxa') >= 0 || msg.toLowerCase().indexOf('account') >= 0 ) {
+        w(chalk.green(data.level + ':', msg));
+      } else {
+        w(chalk.blue(data.level + ':', msg));
+      }
+    }
   });
 
   tail.on("error", function(error) {

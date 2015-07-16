@@ -37,6 +37,11 @@ if (fxaEnv.loop) {
   fxaProfile.setPreference('loop.server', fxaEnv.loop);
 }
 
+// enable debugger and toolbox
+fxaProfile.setPreference('devtools.chrome.enabled', true);
+fxaProfile.setPreference('devtools.debugger.remote-enabled', true);
+fxaProfile.setPreference('devtools.debugger.prompt-connection', false);
+
 fxaProfile.setPreference('webdriver.log.browser.file', BROWSER_LOG);
 fxaProfile.setPreference('webdriver.log.driver.file', DRIVER_LOG);
 
@@ -66,6 +71,13 @@ fxaProfile.setPreference('identity.fxaccounts.remote.webchannel.uri', fxaEnv.con
 
 fxaProfile.setPreference('identity.fxaccounts.settings.uri', fxaEnv.content + 'settings');
 fxaProfile.setPreference('services.sync.tokenServerURI', fxaEnv.token);
+
+// disable auto update
+fxaProfile.setPreference("app.update.auto", false);
+fxaProfile.setPreference("app.update.enabled", false);
+fxaProfile.setPreference("app.update.silent", false);
+fxaProfile.setPreference("app.update.staging.enabled", false);
+
 
 fxaProfile.updatePreferences();
 
