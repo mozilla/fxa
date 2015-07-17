@@ -250,14 +250,6 @@ var conf = module.exports = convict({
       }
     }
   },
-  metrics: {
-    sample_rate: {
-      doc: 'Front end metrics sample rate - must be between 0 and 1',
-      format: Number,
-      default: 0,
-      env: 'METRICS_SAMPLE_RATE'
-    }
-  },
   key_path: {
     doc: 'The location of the SSL key in pem format',
     default: path.resolve(__dirname, '..', '..', 'key.pem')

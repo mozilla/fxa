@@ -45,6 +45,7 @@ define([
     'timers',
     'broker',
     'ab',
+    'isSampledUser',
     'utm_campaign',
     'utm_content',
     'utm_medium',
@@ -67,7 +68,7 @@ define([
   }
 
   function Metrics (options) {
-    /*eslint complexity: [2, 24] */
+    /*eslint complexity: [2, 25] */
     options = options || {};
 
     // by default, send the metrics to the content server.
@@ -97,6 +98,10 @@ define([
     this._devicePixelRatio = options.devicePixelRatio || NOT_REPORTED_VALUE;
     this._screenHeight = options.screenHeight || NOT_REPORTED_VALUE;
     this._screenWidth = options.screenWidth || NOT_REPORTED_VALUE;
+
+    // All user metrics are sent to the backend. Data is only
+    // reported to Heka and Datadog if `isSampledUser===true`.
+    this._isSampledUser = options.isSampledUser || false;
 
     this._referrer = this._window.document.referrer || NOT_REPORTED_VALUE;
     this._utmCampaign = options.utmCampaign || NOT_REPORTED_VALUE;
@@ -189,6 +194,7 @@ define([
           width: this._screenWidth,
           height: this._screenHeight
         },
+        isSampledUser: this._isSampledUser,
         utm_campaign: this._utmCampaign, //eslint-disable-line camelcase
         utm_content: this._utmContent, //eslint-disable-line camelcase
         utm_medium: this._utmMedium, //eslint-disable-line camelcase
@@ -340,7 +346,7 @@ define([
     },
 
     isCollectionEnabled: function () {
-      return true;
+      return this._isSampledUser;
     }
   });
 

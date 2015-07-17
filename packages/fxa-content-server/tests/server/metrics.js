@@ -11,28 +11,8 @@ define([
 ], function (intern, registerSuite, assert, config, request) {
   var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
 
-  var metricsSampleRate = config.get('metrics.sample_rate');
-  // fxaProduction and fxaDevBox imply remote, so cannot use the
-  // local configuration for this expected value.
-  if (intern.config.fxaProduction && ! intern.config.fxaDevBox) {
-    metricsSampleRate = 0.1;
-  } else if (intern.config.fxaDevBox) {
-    metricsSampleRate = 1;
-  }
-
   var suite = {
     name: 'metrics'
-  };
-
-  suite['#get /config returns a `metricsSampleRate`'] = function () {
-    var dfd = this.async(intern.config.asyncTimeout);
-
-    request(serverUrl + '/config',
-    dfd.callback(function (err, res) {
-      var results = JSON.parse(res.body);
-
-      assert.equal(results.metricsSampleRate, metricsSampleRate);
-    }, dfd.reject.bind(dfd)));
   };
 
   suite['#post /metrics - returns 200, all the time'] = function () {

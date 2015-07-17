@@ -10,10 +10,11 @@ define([
   'lib/promise',
   'lib/metrics',
   'lib/auth-errors',
+  'underscore',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
+function (chai, $, p, Metrics, AuthErrors, _, WindowMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -22,11 +23,10 @@ function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
     var metrics;
     var windowMock;
 
-    beforeEach(function () {
-      windowMock = new WindowMock();
-      windowMock.document.referrer = 'https://marketplace.firefox.com';
+    function createMetrics(options) {
+      options = options || {};
 
-      metrics = new Metrics({
+      metrics = new Metrics(_.defaults(options, {
         window: windowMock,
         lang: 'db_LB',
         service: 'sync',
@@ -40,12 +40,20 @@ function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
         clientHeight: 966,
         screenWidth: 1600,
         screenHeight: 1200,
+        isSampledUser: true,
         utmCampaign: 'utm_campaign',
         utmContent: 'utm_content',
         utmMedium: 'utm_medium',
         utmSource: 'utm_source',
         utmTerm: 'utm_term'
-      });
+      }));
+    }
+
+    beforeEach(function () {
+      windowMock = new WindowMock();
+      windowMock.document.referrer = 'https://marketplace.firefox.com';
+
+      createMetrics();
       metrics.init();
     });
 
@@ -86,6 +94,8 @@ function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
         assert.equal(filteredData.screen.devicePixelRatio, 2);
         assert.equal(filteredData.screen.clientWidth, 1033);
         assert.equal(filteredData.screen.clientHeight, 966);
+
+        assert.isTrue(filteredData.isSampledUser);
 
         assert.equal(filteredData.utm_campaign, 'utm_campaign');
         assert.equal(filteredData.utm_content, 'utm_content');
@@ -253,8 +263,15 @@ function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
     });
 
     describe('isCollectionEnabled', function () {
-      it('reports that real collection is enabled', function () {
+      it('reports that collection is enabled if `isSampledUser===true`', function () {
         assert.isTrue(metrics.isCollectionEnabled());
+      });
+
+      it('reports that collection is disabled if `isSampledUser===false`', function () {
+        createMetrics({
+          isSampledUser: false
+        });
+        assert.isFalse(metrics.isCollectionEnabled());
       });
     });
 
