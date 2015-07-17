@@ -63,6 +63,7 @@ development, and will be happy to help answer any questions you might have.
 * [Vlad Filippov](https://github.com/vladikoff) - Engineering (Toronto, approx UTC-5)
 * [Phil Booth](https://github.com/philbooth) - Engineering (London, approx UTC)
 * [John Morrison](https://github.com/jrgm) - Operations (Mountain View, approx UTC-8)
+* [Chris Kolosiwsky](https://github.com/ckolos) - Operations (Indiana, approx UTC-6)
 * [Peter deHaan](https://github.com/pdehaan) - QA (Mountain View, approx UTC-8)
 * [Ryan Feeley](https://github.com/rfeeley) - UX (Toronto, approx UTC-5)
 * [John Gruen](https://github.com/johngruen) - UX (NYC, approx UTC-5)
