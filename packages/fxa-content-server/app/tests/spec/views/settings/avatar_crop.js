@@ -27,7 +27,8 @@ function (chai, $, ui, sinon, jQuerySimulate, View, RouterMock, ProfileMock, Use
   'use strict';
 
   var assert = chai.assert;
-  var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
+  var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAACZJREFUeNrtwQEBAAAAgiD' +
+               '/r25IQAEAAAAAAAAAAAAAAAAAAADvBkCAAAEehacTAAAAAElFTkSuQmCC';
 
   describe('views/settings/avatar/crop', function () {
     var view;
@@ -107,8 +108,8 @@ function (chai, $, ui, sinon, jQuerySimulate, View, RouterMock, ProfileMock, Use
           var cropImg = new CropperImage({
             src: pngSrc,
             type: 'image/png',
-            width: 1,
-            height: 1
+            width: 100,
+            height: 100
           });
 
           profileClientMock = new ProfileMock();

@@ -5,8 +5,10 @@
 // This model abstracts images used by the cropper view
 
 define([
-  'backbone'
-], function (Backbone) {
+  'backbone',
+  'lib/constants',
+  'lib/auth-errors'
+], function (Backbone, Constants, AuthErrors) {
   'use strict';
 
   // a 1x1 jpeg
@@ -24,6 +26,14 @@ define([
       type: 'image/jpeg',
       width: 1,
       height: 1
+    },
+
+    initialize: function (options) {
+      if (options &&
+          (options.width < Constants.PROFILE_IMAGE_MIN_HEIGHT ||
+           options.height < Constants.PROFILE_IMAGE_MIN_WIDTH)) {
+        throw AuthErrors.toError('INVALID_IMAGE_SIZE');
+      }
     }
   });
 

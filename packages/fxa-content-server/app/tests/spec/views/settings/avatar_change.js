@@ -24,7 +24,8 @@ function (chai, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
   'use strict';
 
   var assert = chai.assert;
-  var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
+  var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAACZJREFUeNrtwQEBAAAAgiD' +
+               '/r25IQAEAAAAAAAAAAAAAAAAAAADvBkCAAAEehacTAAAAAElFTkSuQmCC';
   var SCREEN_NAME = 'settings.avatar.change';
 
   describe('views/settings/avatar/change', function () {
@@ -166,6 +167,22 @@ function (chai, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
                   assert.fail('unexpected success');
                 }, function () {
                   assert.equal(view.$('.error').text(), AuthErrors.toMessage('UNUSABLE_IMAGE'));
+                  assert.isTrue(view.isErrorVisible());
+                });
+            });
+        });
+
+        it('errors on an undersized image', function () {
+          view.FileReader = FileReaderMock;
+
+          return view.afterVisible()
+            .then(function () {
+              var ev = FileReaderMock._mockTinyPngEvent();
+              return view.fileSet(ev)
+                .then(function () {
+                  assert.fail('unexpected success');
+                }, function () {
+                  assert.equal(view.$('.error').text(), AuthErrors.toMessage('INVALID_IMAGE_SIZE'));
                   assert.isTrue(view.isErrorVisible());
                 });
             });
