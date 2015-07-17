@@ -132,13 +132,18 @@ define([
         return this.toError('SERVICE_UNAVAILABLE');
       }
 
-      var errObj = xhr.responseJSON;
+      var serverError = xhr.responseJSON;
 
-      if (! errObj) {
+      if (! serverError) {
         return this.toError('UNEXPECTED_ERROR');
       }
+      // We need the error to be normalized before being returned.
+      // We also need to add a code to the normalized error, that
+      // contains the status code
+      var normalizedError = this.toError(serverError.errno);
+      normalizedError.code = serverError.code;
 
-      return this.toError(errObj.errno);
+      return normalizedError;
     }
   };
 });

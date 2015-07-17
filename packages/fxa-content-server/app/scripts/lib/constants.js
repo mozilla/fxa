@@ -56,7 +56,9 @@ define([], function () {
     MARKETING_EMAIL_NEWSLETTER_ID: 'firefox-accounts-journey',
 
     ACCESS_TYPE_ONLINE: 'online',
-    ACCESS_TYPE_OFFLINE: 'offline'
+    ACCESS_TYPE_OFFLINE: 'offline',
+
+    DEFAULT_XHR_TIMEOUT_MS: 2500
   };
 });
 

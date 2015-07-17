@@ -13,22 +13,25 @@ define([
   'models/reliers/relier',
   'lib/promise',
   'lib/constants',
-  'lib/marketing-email-errors'
+  'lib/marketing-email-errors',
+  'lib/metrics',
+  '../../../lib/helpers'
 ],
 function (chai, $, sinon, View, User, Account, MarketingEmailPrefs, Relier,
-  p, Constants, MarketingEmailErrors) {
+  p, Constants, MarketingEmailErrors, Metrics, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
 
   describe('views/settings/communication_preferences', function () {
-    var user;
     var account;
-    var view;
     var emailPrefsModel;
-    var relier;
+    var metrics;
     var preferencesUrl = 'https://marketing.preferences.com/user/user-token';
+    var relier;
+    var user;
+    var view;
 
     function render() {
       return view.render()
@@ -41,6 +44,7 @@ function (chai, $, sinon, View, User, Account, MarketingEmailPrefs, Relier,
       user = new User();
       relier = new Relier();
       account = new Account();
+      metrics = new Metrics();
 
       emailPrefsModel = new MarketingEmailPrefs({
         newsletters: [ NEWSLETTER_ID ],
@@ -66,7 +70,9 @@ function (chai, $, sinon, View, User, Account, MarketingEmailPrefs, Relier,
       });
 
       view = new View({
+        metrics: metrics,
         relier: relier,
+        screenName: 'settings.communication-preferences',
         user: user
       });
 
@@ -136,7 +142,41 @@ function (chai, $, sinon, View, User, Account, MarketingEmailPrefs, Relier,
 
         return render()
           .then(function () {
-            assert.isTrue(view.isErrorVisible());
+            assert.ok(view.$('.error').text().length);
+          });
+      });
+
+      it('correctly handles http 4xx errors as service unavailable', function () {
+        emailPrefsModel.fetch.restore();
+        sinon.stub(emailPrefsModel, 'fetch', function () {
+          var err = MarketingEmailErrors.toError('UNKNOWN_ERROR');
+          err.code = 400;
+          return p.reject(err);
+        });
+
+        return render()
+          .then(function () {
+            assert.equal(view.$('.error').text().trim(),
+              MarketingEmailErrors.toMessage('SERVICE_UNAVAILABLE'));
+            assert.isTrue(TestHelpers.isEventLogged(metrics,
+                'error.settings.communication-preferences.basket-errors.99.400'));
+          });
+      });
+
+      it('correctly handles http 5xx errors as service unavailable', function () {
+        emailPrefsModel.fetch.restore();
+        sinon.stub(emailPrefsModel, 'fetch', function () {
+          var err = MarketingEmailErrors.toError('UNKNOWN_ERROR');
+          err.code = 500;
+          return p.reject(err);
+        });
+
+        return render()
+          .then(function () {
+            assert.equal(view.$('.error').text().trim(),
+              MarketingEmailErrors.toMessage('SERVICE_UNAVAILABLE'));
+            assert.isTrue(TestHelpers.isEventLogged(metrics,
+                'error.settings.communication-preferences.basket-errors.99.500'));
           });
       });
     });

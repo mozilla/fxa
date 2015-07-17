@@ -7,16 +7,17 @@
  */
 
 define([
+  'lib/constants',
   'lib/xhr',
   'lib/marketing-email-errors'
-], function (xhr, MarketingEmailErrors) {
+], function (Constants, xhr, MarketingEmailErrors) {
   'use strict';
 
   function MarketingEmailClient(options) {
     options = options || {};
 
     var self = this;
-
+    self._xhrTimeout = options.timeout || Constants.DEFAULT_XHR_TIMEOUT_MS;
     self._xhr = options.xhr || xhr;
     self._baseUrl = options.baseUrl;
     self._preferencesUrl = options.preferencesUrl;
@@ -25,20 +26,14 @@ define([
   MarketingEmailClient.prototype = {
     _request: function (method, endpoint, accessToken, data) {
       var url = this._baseUrl + endpoint;
-
       return this._xhr.oauthAjax({
         url: url,
         type: method,
         accessToken: accessToken,
-        data: data
+        data: data,
+        timeout: this._xhrTimeout
       })
       .fail(function (xhr) {
-        var respJSON = xhr.responseJSON;
-        if (respJSON && ! ('errno' in respJSON) && respJSON.code) {
-          // the basket API returns code instead of errno. Convert.
-          respJSON.errno = respJSON.code;
-        }
-
         throw MarketingEmailErrors.normalizeXHRError(xhr);
       });
     },

@@ -7,6 +7,7 @@ define([
   'lib/xss',
   'lib/constants',
   'lib/marketing-email-errors',
+  'lib/metrics',
   'views/base',
   'views/form',
   'views/mixins/back-mixin',
@@ -15,7 +16,7 @@ define([
   'views/mixins/loading-mixin',
   'stache!templates/settings/communication_preferences'
 ],
-function (Cocktail, Xss, Constants, MarketingEmailErrors, BaseView, FormView,
+function (Cocktail, Xss, Constants, MarketingEmailErrors, Metrics, BaseView, FormView,
   BackMixin, SettingsMixin, CheckboxMixin, LoadingMixin, Template) {
   'use strict';
 
@@ -39,19 +40,24 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, BaseView, FormView,
     beforeRender: function () {
       var self = this;
       var emailPrefs = self.getMarketingEmailPrefs();
-
       return emailPrefs.fetch()
         .fail(function (err) {
           if (MarketingEmailErrors.is(err, 'UNKNOWN_EMAIL')) {
             // user has not yet opted in to Basket yet. Ignore.
             return;
           }
-
-          // error fetching the email preferences, show the
-          // error and hide the spinner.
-          self.$('.spinner').hide();
-          self.displayError(err);
-          return false;
+          if (MarketingEmailErrors.is(err, 'UNKNOWN_ERROR')) {
+            self._error = self.translateError(MarketingEmailErrors.toError('SERVICE_UNAVAILABLE'));
+          } else {
+            self._error = self.translateError(err);
+          }
+          err = self._normalizeError(err);
+          var errorString = Metrics.prototype.errorToId(err);
+          err.code = err.code || 'unknown';
+          // Add status code to metrics data, to differentiate between
+          // 400 and 500
+          errorString = errorString + '.' + err.code;
+          self.logEvent(errorString);
         });
     },
 
@@ -59,14 +65,14 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, BaseView, FormView,
       var self = this;
       var emailPrefs = this.getMarketingEmailPrefs();
       var isOptedIn = emailPrefs.isOptedIn(NEWSLETTER_ID);
-
       self.logScreenEvent('newsletter.optin.' + String(isOptedIn));
 
       return {
         isOptedIn: isOptedIn,
         // preferencesURL is only available if the user is already
         // registered with basket.
-        preferencesUrl: Xss.href(emailPrefs.get('preferencesUrl'))
+        preferencesUrl: Xss.href(emailPrefs.get('preferencesUrl')),
+        error: self._error
       };
     },
 

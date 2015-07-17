@@ -86,6 +86,16 @@ function (_, Errors) {
 
   return _.extend({}, Errors, {
     ERRORS: ERRORS,
-    NAMESPACE: 'basket-errors'
+    NAMESPACE: 'basket-errors',
+    normalizeXHRError: function (xhr) {
+      var respJSON = xhr.responseJSON;
+      if (respJSON && ! ('errno' in respJSON) && respJSON.code) {
+        // the basket API returns code instead of errno. Convert.
+        respJSON.errno = respJSON.code;
+        // we want to set the code equal to the http status code
+        respJSON.code = xhr.status;
+      }
+      return Errors.normalizeXHRError.call(this, xhr);
+    }
   });
 });
