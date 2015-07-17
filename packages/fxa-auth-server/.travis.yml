@@ -19,7 +19,6 @@ notifications:
     - dcoates@mozilla.com
     - jbonacci@mozilla.com
     - rfkelly@mozilla.com
-    - achilton@mozilla.com
   irc:
     channels:
       - "irc.mozilla.org#fxa-bots"
