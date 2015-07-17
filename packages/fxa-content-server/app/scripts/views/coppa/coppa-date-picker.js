@@ -89,7 +89,6 @@ define([
     showValidationErrorsEnd: function () {
       if (! this._validateYear()) {
         this.addInvalidRow('#fxa-age-year');
-
         this.showValidationError('#fxa-age-year',
                 AuthErrors.toError('YEAR_OF_BIRTH_REQUIRED'));
       } else if (this._getYear() === CUTOFF_AGE.year &&

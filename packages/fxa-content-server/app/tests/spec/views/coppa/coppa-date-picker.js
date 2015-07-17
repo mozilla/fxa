@@ -8,9 +8,12 @@ define([
   'moment',
   'sinon',
   'views/coppa/coppa-date-picker',
-  'models/form-prefill'
+  'models/form-prefill',
+  'lib/auth-errors',
+  'lib/metrics',
+  '../../../lib/helpers'
 ],
-function (chai, $, moment, sinon, View, FormPrefill) {
+function (chai, $, moment, sinon, View, FormPrefill, AuthErrors, Metrics, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -43,17 +46,21 @@ function (chai, $, moment, sinon, View, FormPrefill) {
   describe('views/coppa/coppa-date-picker', function () {
     var view;
     var formPrefill;
+    var metrics;
 
     function createView() {
+
       view = new View({
         screenName: 'signup',
-        formPrefill: formPrefill
+        formPrefill: formPrefill,
+        metrics: metrics
       });
     }
 
     beforeEach(function () {
 
       formPrefill = new FormPrefill();
+      metrics = new Metrics();
 
       createView();
 
@@ -94,12 +101,16 @@ function (chai, $, moment, sinon, View, FormPrefill) {
         fillOutDatePicker(null, DEFAULT_MONTH, DEFAULT_DATE, view);
 
         assert.isFalse(view.isValid());
+        view.showValidationErrorsEnd();
+
+        var yearError = AuthErrors.toError('YEAR_OF_BIRTH_REQUIRED');
+        yearError.context = view.getScreenName();
+        assert.isTrue(TestHelpers.isErrorLogged(metrics, yearError));
       });
 
       it('returns false if no month selected and needs to be checked', function () {
         var year = moment().subtract(13, 'years').year();
         fillOutDatePicker(year, null, DEFAULT_DATE, view);
-
         assert.isFalse(view.isValid());
       });
 
@@ -109,6 +120,11 @@ function (chai, $, moment, sinon, View, FormPrefill) {
         fillOutDatePicker(year, month, null, view);
 
         assert.isFalse(view.isValid());
+
+        view.showValidationErrorsEnd();
+        var birthdayError = AuthErrors.toError('BIRTHDAY_REQUIRED');
+        birthdayError.context = view.getScreenName();
+        assert.isTrue(TestHelpers.isErrorLogged(metrics, birthdayError));
       });
     });
 
@@ -251,5 +267,17 @@ function (chai, $, moment, sinon, View, FormPrefill) {
         assert.equal(formPrefill.get('year'), '1990');
       });
     });
+
+    describe('_getSelectedUserAge', function () {
+      it('returns selected user age', function () {
+        fillOutDatePicker(DEFAULT_YEAR, DEFAULT_MONTH, DEFAULT_DATE, view);
+
+        var result = view._getSelectedUserAge();
+        assert.equal(result.year, DEFAULT_YEAR);
+        assert.equal(result.month, DEFAULT_MONTH);
+        assert.equal(result.date, DEFAULT_DATE);
+      });
+    });
+
   });
 });
