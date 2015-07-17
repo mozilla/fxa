@@ -31,7 +31,7 @@ function (_) {
    */
   function Cropper (options) {
 
-    /*eslint complexity: [2, 10] */
+    /*eslint complexity: [2, 12] */
     this.displayLength = options.displayLength || DEFAULT_DISPLAY_LENGTH;
     this.exportLength = options.exportLength || DEFAULT_EXPORT_LENGTH;
 
@@ -53,7 +53,15 @@ function (_) {
     this._setupElements(options.container);
 
     if (options.src) {
-      this.setImageSrc(options.src, options.width, options.height);
+      var img = options;
+
+      // we want the extra resolution to be able to zoom in later (up to 200%)
+      var maxLength = this.exportLength * 2;
+      if (img.width > maxLength || img.height > maxLength) {
+        var scale = maxLength / Math.max(img.width, img.height);
+        img = this.resize(img, scale);
+      }
+      this.setImageSrc(img.src, img.width, img.height);
     }
   }
 
@@ -81,7 +89,7 @@ function (_) {
 
     this.slider = container.find('[type=range]');
     this.slider.on('input', function () {
-      self.resize(parseInt(this.value, 10));
+      self.zoom(parseInt(this.value, 10));
     });
     this.slider.on('change', function () {
       self.onZoomRangeChange();
@@ -96,13 +104,13 @@ function (_) {
     });
 
     container.find('.zoom-out').on('click', function () {
-      self.resize(self.scale - 10);
+      self.zoom(self.scale - 10);
       self.slider.val(self.scale);
       self.onZoomOut();
     });
 
     container.find('.zoom-in').on('click', function () {
-      self.resize(self.scale + 10);
+      self.zoom(self.scale + 10);
       self.slider.val(self.scale);
       self.onZoomIn();
     });
@@ -152,7 +160,7 @@ function (_) {
 
     this.isLandscape = this._originalHeight < this._originalWidth;
 
-    this.resize(this.scale);
+    this.zoom(this.scale);
   };
 
   Cropper.prototype.updateSize = function (length) {
@@ -196,7 +204,19 @@ function (_) {
     return { top: top, left: left };
   };
 
-  Cropper.prototype.resize = function resize(scale) {
+  Cropper.prototype.resize = function (img, scale) {
+    var canvas = this.canvas;
+    var context = canvas.getContext('2d');
+    canvas.width = img.width * scale;
+    canvas.height = img.height * scale;
+
+    this.img.attr('src', img.src);
+    context.drawImage(this.img[0], 0, 0, canvas.width, canvas.height);
+    var src = canvas.toDataURL();
+    return { src: src, width: canvas.width, height: canvas.height };
+  };
+
+  Cropper.prototype.zoom = function zoom(scale) {
     if (scale < 0) {
       scale = 0;
     }

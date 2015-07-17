@@ -77,6 +77,24 @@ function (chai, sinon, jQuerySimulate, RouterMock, CanvasMock, p, Cropper, Ephem
         });
     });
 
+    it('creates a cropper and resizes the oversized image', function () {
+      return view.render()
+        .then(function () {
+          var resize = sinon.spy(Cropper.prototype, 'resize');
+          var cropper = new Cropper({
+            src: pngSrc,
+            width: 5000,
+            height: 7000,
+            container: view.$('.cropper')
+          });
+          cropper.canvas = new CanvasMock();
+          assert.isTrue(resize.calledOnce);
+          assert.equal(cropper.img.width(), 240);
+          assert.equal(cropper.img.height(), 336.35);
+          Cropper.prototype.resize.restore();
+        });
+    });
+
     describe('with a cropper', function () {
       var cropper;
       var rotateCb, translateCb, zoomInCb, zoomOutCb, zoomRangeChangeCb;
@@ -188,27 +206,35 @@ function (chai, sinon, jQuerySimulate, RouterMock, CanvasMock, p, Cropper, Ephem
       });
 
       it('resize', function () {
+        var img = { width: 100, height: 50, src: pngSrc };
+        var resized = cropper.resize(img, 0.5);
+        assert.equal(resized.src, 'data:image/jpeg');
+        assert.equal(resized.width, 50);
+        assert.equal(resized.height, 25);
+      });
+
+      it('zoom', function () {
         cropper.setImageSrc(pngSrc, 100, 50);
 
-        cropper.resize(100);
+        cropper.zoom(100);
         assert.equal(cropper.scale, 100);
         assert.equal(cropper._width, 960);
         assert.equal(cropper._height, 480);
       });
 
-      it('resize handles over 100 value', function () {
+      it('zoom handles over 100 value', function () {
         cropper.setImageSrc(pngSrc, 100, 50);
 
-        cropper.resize(101);
+        cropper.zoom(101);
         assert.equal(cropper.scale, 100);
         assert.equal(cropper._width, 960);
         assert.equal(cropper._height, 480);
       });
 
-      it('resize handles negative value', function () {
+      it('zoom handles negative value', function () {
         cropper.setImageSrc(pngSrc, 100, 50);
 
-        cropper.resize(-1);
+        cropper.zoom(-1);
         assert.equal(cropper.scale, 0);
         assert.equal(cropper._width, 480);
         assert.equal(cropper._height, 240);
