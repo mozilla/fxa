@@ -329,6 +329,36 @@ TestServer.start(config)
   )
 
   test(
+    'forgot password with service query parameter',
+    function (t) {
+      var email = server.uniqueEmail()
+      var options = {
+        redirectTo: 'https://sync.firefox.com',
+        serviceQuery: 'sync'
+      }
+      var client
+      return Client.create(config.publicUrl, email, 'wibble', options)
+        .then(function (c) {
+          client = c
+        })
+        .then(function () {
+          return server.mailbox.waitForEmail(email)
+        })
+        .then(function () {
+          return client.forgotPassword()
+        })
+        .then(function () {
+          return server.mailbox.waitForEmail(email)
+        })
+        .then(function (emailData) {
+          var link = emailData.headers['x-link']
+          var query = url.parse(link, true).query
+          t.equal(query.service, options.serviceQuery, 'service is in link')
+        })
+    }
+  )
+
+  test(
     'teardown',
     function (t) {
       server.stop()

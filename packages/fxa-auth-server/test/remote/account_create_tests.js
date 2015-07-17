@@ -350,6 +350,20 @@ TestServer.start(config)
   )
 
   test(
+    'create account with service query parameter',
+    function (t) {
+      var email = server.uniqueEmail()
+      return Client.create(config.publicUrl, email, 'foo', { serviceQuery: 'bar' })
+        .then(function () {
+          return server.mailbox.waitForEmail(email)
+        })
+        .then(function (emailData) {
+          t.equal(emailData.headers['x-service-id'], 'bar', 'service query parameter was propagated')
+        })
+    }
+  )
+
+  test(
     'teardown',
     function (t) {
       server.stop()

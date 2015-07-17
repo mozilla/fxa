@@ -201,6 +201,7 @@ module.exports = function (
       handler: function (request, reply) {
         log.begin('Password.forgotSend', request)
         var email = request.payload.email
+        var service = request.payload.service || request.query.service
         customs.check(
           request.app.clientAddress,
           email,
@@ -217,7 +218,7 @@ module.exports = function (
                 passwordForgotToken,
                 passwordForgotToken.passCode,
                 {
-                  service: request.payload.service,
+                  service: service,
                   redirectTo: request.payload.redirectTo,
                   resume: request.payload.resume,
                   acceptLanguage: request.app.acceptLanguage
@@ -272,6 +273,7 @@ module.exports = function (
       handler: function (request, reply) {
         log.begin('Password.forgotResend', request)
         var passwordForgotToken = request.auth.credentials
+        var service = request.payload.service || request.query.service
         customs.check(
           request.app.clientAddress,
           passwordForgotToken.email,
@@ -282,7 +284,7 @@ module.exports = function (
               passwordForgotToken,
               passwordForgotToken.passCode,
               {
-                service: request.payload.service,
+                service: service,
                 redirectTo: request.payload.redirectTo,
                 resume: request.payload.resume,
                 acceptLanguage: request.app.acceptLanguage
