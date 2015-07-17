@@ -22,6 +22,7 @@ const TOKEN = 'token';
 const ACCESS_TYPE_ONLINE = 'online';
 const ACCESS_TYPE_OFFLINE = 'offline';
 
+const MAX_TTL_S = config.get('expiration.accessToken') / 1000;
 
 const UNTRUSTED_CLIENT_ALLOWED_SCOPES = [
   'profile:uid',
@@ -76,12 +77,13 @@ function generateCode(claims, client, scope, req) {
   });
 }
 
-function generateGrant(claims, client, scope) {
+function generateGrant(claims, client, scope, req) {
   return db.generateAccessToken({
     clientId: client.id,
     userId: buf(claims.uid),
     email: claims['fxa-verifiedEmail'],
-    scope: scope
+    scope: scope,
+    ttl: req.payload.ttl
   }).then(function(token) {
     return {
       access_token: hex(token.token),
@@ -116,6 +118,15 @@ module.exports = {
           is: TOKEN,
           then: Joi.optional(),
           otherwise: Joi.required()
+        }),
+      ttl: Joi.number()
+        .positive()
+        .max(MAX_TTL_S)
+        .default(MAX_TTL_S)
+        .when('response_type', {
+          is: TOKEN,
+          then: Joi.optional(),
+          otherwise: Joi.forbidden()
         }),
       access_type: Joi.string()
         .valid(ACCESS_TYPE_OFFLINE, ACCESS_TYPE_ONLINE)

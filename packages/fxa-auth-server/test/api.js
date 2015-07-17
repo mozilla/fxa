@@ -526,6 +526,18 @@ describe('/v1', function() {
           assert.equal(res.statusCode, 400);
         }).done(done, done);
       });
+      it('fails if ttl is specified with code', function(done) {
+        mockAssertion().reply(200, VERIFY_GOOD);
+        Server.api.post({
+          url: '/authorization',
+          payload: authParams({
+            response_type: 'code',
+            ttl: 42
+          })
+        }).then(function(res) {
+          assert.equal(res.statusCode, 400);
+        }).done(done, done);
+      });
 
       describe('token', function() {
         var client2 = clientByName('Admin');
@@ -566,12 +578,30 @@ describe('/v1', function() {
               response_type: 'token'
             })
           }).then(function(res) {
+            var defaultExpiresIn = config.get('expiration.accessToken') / 1000;
             assert.equal(res.statusCode, 200);
             assert(res.result.access_token);
             assert.equal(res.result.token_type, 'bearer');
             assert(res.result.scope);
-            assert(res.result.expires_in);
+            assert(res.result.expires_in <= defaultExpiresIn);
+            assert(res.result.expires_in > defaultExpiresIn - 10);
             assert(res.result.auth_at);
+          }).done(done, done);
+        });
+        it('honours the ttl parameter', function(done) {
+          var ttl = 42;
+          mockAssertion().reply(200, VERIFY_GOOD);
+          Server.api.post({
+            url: '/authorization',
+            payload: authParams({
+              client_id: client2.id,
+              response_type: 'token',
+              ttl: ttl
+            })
+          }).then(function(res) {
+            assert.equal(res.statusCode, 200);
+            assert(res.result.expires_in <= ttl);
+            assert(res.result.expires_in > ttl - 10);
           }).done(done, done);
         });
       });

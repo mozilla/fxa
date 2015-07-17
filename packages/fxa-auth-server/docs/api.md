@@ -318,6 +318,7 @@ back to the client. This code will be traded for a token at the
 - `assertion`: A FxA assertion for the signed-in user.
 - `state`: A value that will be returned to the client as-is upon redirection, so that clients can verify the redirect is authentic.
 - `response_type`: Optional. If supplied, must be either `code` or `token`. `code` is the default. `token` means the implicit grant is desired, and requires that the client have special permission to do so.
+- `ttl`: Optional if `response_type=token`, forbidden if `response_type=code`. Indicates the requested lifespan in seconds for the implicit grant token. The value is subject to an internal maximum limit, so clients must check the `expires_in` result property for the actual TTL.
 - `redirect_uri`: Optional. If supplied, a string URL of where to redirect afterwards. Must match URL from registration.
 - `scope`: Optional. A string-separated list of scopes that the user has authorized. This could be pruned by the user at the confirmation dialog.
 - `access_type`: Optional. A value of `offline` will generate a refresh token along with the access token.
@@ -370,7 +371,7 @@ particular user.
 - `client_id`: The id returned from client registration.
 - `client_secret`: The secret returned from client registration.
 - `ttl`: (optional) Seconds that this access_token should be valid.
-  
+
   The default and maximum value is 2 weeks.
 - `grant_type`: Either the string `authorization_code` or `refresh_token`.
   - If `authorization_code`:
