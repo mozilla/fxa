@@ -34,7 +34,8 @@ module.exports = function (grunt) {
         }
       }
       if (content !== '') {
-        grunt.file.write(path.join('<%= yeoman.tmp %>', pathname[1], pathname[2], pathname[3].replace('json', 'html')), content);
+        var tmpDir = grunt.config.get('yeoman.tmp');
+        grunt.file.write(path.join(tmpDir, pathname[1], pathname[2], pathname[3].replace('json', 'html')), content);
       }
     });
     grunt.log.ok(this.files.length + ' file(s) converted from JSON to HTML');
