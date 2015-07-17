@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var inherits = require('util').inherits
+var messages = require('joi/lib/language').errors
 
 var DEFAULTS = {
   code: 500,
@@ -75,7 +76,11 @@ AppError.translate = function (response) {
     }
   }
   else if (payload.validation) {
-    error = AppError.invalidRequestParameter(payload.validation)
+    if (payload.message && payload.message.indexOf(messages.any.required) >= 0) {
+      error = AppError.missingRequestParameter(payload.validation.keys[0])
+    } else {
+      error = AppError.invalidRequestParameter(payload.validation)
+    }
   }
   else if (payload.statusCode === 400 && TOO_LARGE.test(payload.message)) {
     error = AppError.requestBodyTooLarge()
