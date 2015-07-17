@@ -44,7 +44,12 @@ define([
     'service',
     'timers',
     'broker',
-    'ab'
+    'ab',
+    'utm_campaign',
+    'utm_content',
+    'utm_medium',
+    'utm_source',
+    'utm_term'
   ];
 
   var TEN_MINS_MS = 10 * 60 * 1000;
@@ -62,7 +67,7 @@ define([
   }
 
   function Metrics (options) {
-    /*eslint complexity: [2, 18] */
+    /*eslint complexity: [2, 24] */
     options = options || {};
 
     // by default, send the metrics to the content server.
@@ -92,6 +97,13 @@ define([
     this._devicePixelRatio = options.devicePixelRatio || NOT_REPORTED_VALUE;
     this._screenHeight = options.screenHeight || NOT_REPORTED_VALUE;
     this._screenWidth = options.screenWidth || NOT_REPORTED_VALUE;
+
+    this._referrer = this._window.document.referrer || NOT_REPORTED_VALUE;
+    this._utmCampaign = options.utmCampaign || NOT_REPORTED_VALUE;
+    this._utmContent = options.utmContent || NOT_REPORTED_VALUE;
+    this._utmMedium = options.utmMedium || NOT_REPORTED_VALUE;
+    this._utmSource = options.utmSource || NOT_REPORTED_VALUE;
+    this._utmTerm = options.utmTerm || NOT_REPORTED_VALUE;
 
     this._inactivityFlushMs = options.inactivityFlushMs || TEN_MINS_MS;
 
@@ -169,13 +181,19 @@ define([
         migration: this._migration,
         marketing: flattenMarketingImpressions(this._marketingImpressions),
         campaign: this._campaign,
+        referrer: this._referrer,
         screen: {
           devicePixelRatio: this._devicePixelRatio,
           clientWidth: this._clientWidth,
           clientHeight: this._clientHeight,
           width: this._screenWidth,
           height: this._screenHeight
-        }
+        },
+        utm_campaign: this._utmCampaign, //eslint-disable-line camelcase
+        utm_content: this._utmContent, //eslint-disable-line camelcase
+        utm_medium: this._utmMedium, //eslint-disable-line camelcase
+        utm_source: this._utmSource, //eslint-disable-line camelcase
+        utm_term: this._utmTerm, //eslint-disable-line camelcase
       });
 
       return allData;
