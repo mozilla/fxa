@@ -2,6 +2,7 @@ language: node_js
 node_js:
   - "0.10"
   - "0.12"
+  - "iojs"
 
 services:
   - redis-server
@@ -14,6 +15,7 @@ matrix:
   allow_failures:
     - os: osx
     - node_js: "0.12"
+    - node_js: "iojs"
     - fast_finish: true
 
 before_install:
