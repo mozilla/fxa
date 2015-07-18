@@ -21,10 +21,15 @@ define([
       // there might not be any relier if the resume token is being fetched
       // for an account unlock request caused by changing the password.
       var relierInfo = this.relier && this.relier.pickResumeTokenInfo();
+      var userInfo = this.user && this.user.pickResumeTokenInfo();
 
       // When account or user fields are needed,
       // they can be added as part of the resumeTokenInfo
-      var resumeTokenInfo = _.extend({}, relierInfo);
+      var resumeTokenInfo = _.extend(
+        {},
+        relierInfo,
+        userInfo
+      );
 
       return new ResumeToken(resumeTokenInfo);
     },
