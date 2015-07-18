@@ -7,6 +7,10 @@ module.exports = function (grunt) {
     requirejs: {
       dest: '<%= yeoman.tmp %>/scripts/main.js',
       src: ['app/bower_components/requirejs/require.js', '<%= yeoman.tmp %>/scripts/main.js']
+    },
+    easteregg: {
+      dest: '<%= yeoman.tmp %>/scripts/main.js',
+      src: ['<%= yeoman.tmp %>/scripts/main.js', 'app/bower_components/easteregg/src/easteregg.js']
     }
   });
 };
