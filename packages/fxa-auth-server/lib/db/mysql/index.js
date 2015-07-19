@@ -112,9 +112,9 @@ MysqlStore.connect = function mysqlConnect(options) {
 
 const QUERY_CLIENT_REGISTER =
   'INSERT INTO clients ' +
-  '(id, name, imageUri, hashedSecret, redirectUri, termsUri, privacyUri, ' +
-  ' trusted, canGrant) ' +
-  'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);';
+  '(id, name, imageUri, secret, redirectUri, termsUri, privacyUri, ' +
+  ' whitelisted, trusted, canGrant) ' +
+  'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);';
 const QUERY_CLIENT_DEVELOPER_INSERT =
   'INSERT INTO clientDevelopers ' +
   '(rowId, developerId, clientId) ' +
@@ -135,17 +135,17 @@ const QUERY_DEVELOPER_INSERT =
   'VALUES (?, ?);';
 const QUERY_CLIENT_GET = 'SELECT * FROM clients WHERE id=?';
 const QUERY_CLIENT_LIST = 'SELECT id, name, redirectUri, imageUri, ' +
-  'termsUri, privacyUri, canGrant, trusted ' +
+  'termsUri, privacyUri, canGrant, whitelisted, trusted ' +
   'FROM clients, clientDevelopers, developers ' +
   'WHERE clients.id = clientDevelopers.clientId AND ' +
   'developers.developerId = clientDevelopers.developerId AND ' +
   'developers.email =?;';
 const QUERY_CLIENT_UPDATE = 'UPDATE clients SET ' +
   'name=COALESCE(?, name), imageUri=COALESCE(?, imageUri), ' +
-  'hashedSecret=COALESCE(?, hashedSecret), ' +
-  'redirectUri=COALESCE(?, redirectUri), ' +
+  'secret=COALESCE(?, secret), redirectUri=COALESCE(?, redirectUri), ' +
   'termsUri=COALESCE(?, termsUri), privacyUri=COALESCE(?, privacyUri), ' +
-  'trusted=COALESCE(?, trusted), canGrant=COALESCE(?, canGrant) ' +
+  'whitelisted=COALESCE(?, whitelisted), trusted=COALESCE(?, trusted), ' +
+  'canGrant=COALESCE(?, canGrant) ' +
   'WHERE id=?';
 const QUERY_CLIENT_DELETE = 'DELETE FROM clients WHERE id=?';
 const QUERY_CODE_INSERT =
@@ -215,7 +215,8 @@ MysqlStore.prototype = {
       client.redirectUri,
       client.termsUri || '',
       client.privacyUri || '',
-      !!client.trusted,
+      !!client.trusted,  // XXX TODO: we have duplicate columns while we're
+      !!client.trusted,  // in the process of renaming whitelisted=>trusted.
       !!client.canGrant
     ]).then(function() {
       logger.debug('registerClient.success', { id: hex(id) });
@@ -298,7 +299,7 @@ MysqlStore.prototype = {
     if (!client.id) {
       return P.reject(new Error('Update client needs an id'));
     }
-    var secret = client.hashedSecret;
+    var secret = client.hashedSecret || client.secret || null;
     if (secret) {
       secret = buf(secret);
     }
@@ -310,7 +311,8 @@ MysqlStore.prototype = {
       client.redirectUri,
       client.termsUri,
       client.privacyUri,
-      client.trusted,
+      client.trusted,  // XXX TODO: we have duplicate columns while we're
+      client.trusted,  // in the process of renaming whitelisted => trusted.
       client.canGrant,
 
       // WHERE
