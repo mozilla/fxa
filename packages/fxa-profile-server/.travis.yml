@@ -21,6 +21,8 @@ env:
   - NODE_ENV=test DB=mysql IMG=aws
 
 before_install:
+  - npm install -g npm@2
+  - npm config set spin false
   - sudo apt-get install graphicsmagick
   - "mysql -e 'DROP DATABASE IF EXISTS fxa_profile;'"
   - "mysql -e 'CREATE DATABASE fxa_profile;'"
