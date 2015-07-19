@@ -911,7 +911,7 @@ describe('/v1', function() {
             hashedSecret: encrypt.hash(secret2),
             redirectUri: 'https://example.domain',
             imageUri: 'https://example.foo.domain/logo.png',
-            trusted: true
+            whitelisted: true
           };
           return db.registerClient(client2).then(function(c) {
             id2 = c.id.toString('hex');
@@ -1286,6 +1286,9 @@ describe('/v1', function() {
             assert(client.image_uri === '');
             assert(client.can_grant === false);
             assert(client.trusted === false);
+            // XXX TODO: future PR will remove legacy "whitelisted" attr,
+            // it's here for now for API b/w compat
+            assert(client.whitelisted === false);
             return db.getClient(client.id).then(function(klient) {
               assert.equal(klient.id.toString('hex'), client.id);
               assert.equal(klient.name, client.name);

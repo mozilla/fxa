@@ -25,6 +25,8 @@ module.exports = {
       terms_uri: Joi.string().max(256).allow(''),
       privacy_uri: Joi.string().max(256).allow(''),
       can_grant: Joi.boolean(),
+      // XXX TODO: a future PR will remove legacy "whitelisted" property
+      whitelisted: Joi.boolean(),
       trusted: Joi.boolean()
     }
   },
@@ -38,6 +40,8 @@ module.exports = {
       terms_uri: Joi.string().required().allow(''),
       privacy_uri: Joi.string().required().allow(''),
       can_grant: Joi.boolean().required(),
+      // XXX TODO: a future PR will remove legacy "whitelisted" property
+      whitelisted: Joi.boolean().required(),
       trusted: Joi.boolean().required()
     }
   },
@@ -53,7 +57,11 @@ module.exports = {
       termsUri: payload.terms_uri || '',
       privacyUri: payload.privacy_uri || '',
       canGrant: !!payload.can_grant,
-      trusted: !!payload.trusted
+      // XXX TODO: a future PR will remove legacy "whitelisted" property.
+      // Accept both for now for API b/w compat.
+      trusted: !!(typeof payload.trusted !== 'undefined' ?
+                    payload.trusted :
+                    payload.whitelisted)
     };
     var developerEmail = req.auth.credentials.email;
     var developerId = null;
@@ -83,6 +91,8 @@ module.exports = {
           terms_uri: client.termsUri,
           privacy_uri: client.privacyUri,
           can_grant: client.canGrant,
+          // XXX TODO: a future PR will remove legacy "whitelisted" property
+          whitelisted: client.trusted,
           trusted: client.trusted
         }).code(201);
       }, reply);

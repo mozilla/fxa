@@ -28,7 +28,7 @@ function confirmClient(id, secret) {
     }
 
     var submitted = hex(encrypt.hash(buf(secret)));
-    var stored = hex(client.hashedSecret);
+    var stored = hex(client.secret);
     if (submitted !== stored) {
       logger.info('client.mismatchSecret', { client: id });
       logger.verbose('client.mismatchSecret.details', {
