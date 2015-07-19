@@ -1639,7 +1639,7 @@ describe('/v1', function() {
       this.slow(2200);
       return newToken({
         ttl: 1
-      }).delay(1000).then(function(res) {
+      }).delay(1500).then(function(res) {
         assert.equal(res.statusCode, 200);
         assert.equal(res.result.expires_in, 1);
         return Server.api.post({
