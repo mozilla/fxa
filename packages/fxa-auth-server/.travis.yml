@@ -19,6 +19,7 @@ env:
 
 before_install:
   - sudo apt-get install libgmp3-dev
+  - npm install -g npm@2
   - npm config set spin false
 
 before_script:
