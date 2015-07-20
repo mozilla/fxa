@@ -30,7 +30,12 @@ define([
       email: null,
       allowCachedCredentials: true,
       entrypoint: null,
-      campaign: null
+      campaign: null,
+      utmCampaign: null,
+      utmContent: null,
+      utmMedium: null,
+      utmSource: null,
+      utmTerm: null
     },
 
     initialize: function (options) {
@@ -70,6 +75,12 @@ define([
           self.importSearchParam('setting');
           self.importSearchParam('entrypoint');
           self.importSearchParam('campaign');
+
+          self.importSearchParam('utm_campaign', 'utmCampaign');
+          self.importSearchParam('utm_content', 'utmContent');
+          self.importSearchParam('utm_medium', 'utmMedium');
+          self.importSearchParam('utm_source', 'utmSource');
+          self.importSearchParam('utm_term', 'utmTerm');
 
           // A relier can indicate they do not want to allow
           // cached credentials if they set email === 'blank'

@@ -272,7 +272,12 @@ function (
         devicePixelRatio: screenInfo.devicePixelRatio,
         screenHeight: screenInfo.screenHeight,
         screenWidth: screenInfo.screenWidth,
-        able: this._able
+        able: this._able,
+        utmCampaign: relier.get('utmCampaign'),
+        utmContent: relier.get('utmContent'),
+        utmMedium: relier.get('utmMedium'),
+        utmSource: relier.get('utmSource'),
+        utmTerm: relier.get('utmTerm')
       });
       this._metrics.init();
     },

@@ -24,6 +24,7 @@ function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
 
     beforeEach(function () {
       windowMock = new WindowMock();
+      windowMock.document.referrer = 'https://marketplace.firefox.com';
 
       metrics = new Metrics({
         window: windowMock,
@@ -38,7 +39,12 @@ function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
         clientWidth: 1033,
         clientHeight: 966,
         screenWidth: 1600,
-        screenHeight: 1200
+        screenHeight: 1200,
+        utmCampaign: 'utm_campaign',
+        utmContent: 'utm_content',
+        utmMedium: 'utm_medium',
+        utmSource: 'utm_source',
+        utmTerm: 'utm_term'
       });
       metrics.init();
     });
@@ -74,11 +80,18 @@ function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
         assert.equal(filteredData.migration, 'sync1.5');
         assert.equal(filteredData.campaign, 'fennec');
 
+        assert.equal(filteredData.referrer, 'https://marketplace.firefox.com');
         assert.equal(filteredData.screen.width, 1600);
         assert.equal(filteredData.screen.height, 1200);
         assert.equal(filteredData.screen.devicePixelRatio, 2);
         assert.equal(filteredData.screen.clientWidth, 1033);
         assert.equal(filteredData.screen.clientHeight, 966);
+
+        assert.equal(filteredData.utm_campaign, 'utm_campaign');
+        assert.equal(filteredData.utm_content, 'utm_content');
+        assert.equal(filteredData.utm_medium, 'utm_medium');
+        assert.equal(filteredData.utm_source, 'utm_source');
+        assert.equal(filteredData.utm_term, 'utm_term');
       });
     });
 

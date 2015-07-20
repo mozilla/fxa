@@ -180,6 +180,62 @@ A preVerifyToken is accepted from certain trusted reliers.
 #### When to specify
 * /signup or /oauth/signup
 
+
+### `utm_campaign`
+The Google Analytics `utm_campaign` field. Will be passed back to the relier
+when authentication completes.
+
+#### When to specify
+
+* /signin
+* /signup
+* /force_auth
+* /
+
+### `utm_content`
+The Google Analytics `utm_content` field. Will be passed back to the relier
+when authentication completes.
+
+#### When to specify
+
+* /signin
+* /signup
+* /force_auth
+* /
+
+### `utm_medium`
+The Google Analytics `utm_medium` field. Will be passed back to the relier
+when authentication completes.
+
+#### When to specify
+
+* /signin
+* /signup
+* /force_auth
+* /
+
+### `utm_source`
+The Google Analytics `utm_source` field. Will be passed back to the relier
+when authentication completes.
+
+#### When to specify
+
+* /signin
+* /signup
+* /force_auth
+* /
+
+### `utm_term`
+The Google Analytics `utm_term` field. Will be passed back to the relier
+when authentication completes.
+
+#### When to specify
+
+* /signin
+* /signup
+* /force_auth
+* /
+
 ### `webChannelId`
 Sign into a Firefox service that listens on a [WebChannel](https://developer.mozilla.org/en-US/docs/Mozilla/JavaScript_code_modules/WebChannel.jsm).
 
