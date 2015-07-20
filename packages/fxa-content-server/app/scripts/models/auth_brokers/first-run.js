@@ -12,10 +12,49 @@ define([
 ], function (FxDesktopV2AuthenticationBroker) {
   'use strict';
 
+  var proto = FxDesktopV2AuthenticationBroker.prototype;
+
   var FirstRunAuthenticationBroker = FxDesktopV2AuthenticationBroker.extend({
+    _iframeCommands: {
+       LOADED: 'loaded',
+       LOGIN: 'login',
+       VERIFICATION_COMPLETE: 'verification_complete'
+     },
+
     haltAfterResetPasswordConfirmationPoll: false,
     haltAfterSignIn: false,
-    haltBeforeSignUpConfirmationPoll: false
+    haltBeforeSignUpConfirmationPoll: false,
+
+    initialize: function (options) {
+      options = options || {};
+
+      this._iframeChannel = options.iframeChannel;
+      return proto.initialize.call(this, options);
+    },
+
+    afterLoaded: function () {
+      this._iframeChannel.send(this._iframeCommands.LOADED);
+
+      return proto.afterLoaded.apply(this, arguments);
+    },
+
+    afterSignIn: function () {
+      this._iframeChannel.send(this._iframeCommands.LOGIN);
+
+      return proto.afterSignIn.apply(this, arguments);
+    },
+
+    afterResetPasswordConfirmationPoll: function () {
+      this._iframeChannel.send(this._iframeCommands.VERIFICATION_COMPLETE);
+
+      return proto.afterResetPasswordConfirmationPoll.apply(this, arguments);
+    },
+
+    afterSignUpConfirmationPoll: function () {
+      this._iframeChannel.send(this._iframeCommands.VERIFICATION_COMPLETE);
+
+      return proto.afterSignUpConfirmationPoll.apply(this, arguments);
+    }
   });
 
   return FirstRunAuthenticationBroker;
