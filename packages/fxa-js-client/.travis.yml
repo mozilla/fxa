@@ -7,6 +7,8 @@ env:
     - SAUCE_USERNAME: fxa-client
     - SAUCE_ACCESS_KEY: 863203af-38fd-4f1d-9332-adc8f60f157b
 
+sudo: false
+
 notifications:
   irc:
     channels:
