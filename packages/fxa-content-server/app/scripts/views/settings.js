@@ -84,7 +84,7 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
 
       return {
         username: account.get('displayName') || account.get('email'),
-        showSignOut: !account.isFromSync(),
+        showSignOut: ! account.isFromSync(),
         communicationPrefsVisible: this._areCommunicationPrefsVisible()
       };
     },
@@ -150,7 +150,7 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
         opacity: 0.75,
         showClose: false
       });
-      $(view.el).on($.modal.CLOSE, function() {
+      $(view.el).on($.modal.CLOSE, function () {
         self._onCloseModal();
       });
     },
@@ -259,6 +259,10 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
           });
         });
     }),
+
+    beforeDestroy: function() {
+      $('body').removeClass('settings');
+    },
 
     _isAvatarLinkVisible: function (account) {
       var email = account.get('email');

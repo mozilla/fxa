@@ -348,6 +348,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
     },
 
     destroy: function (remove) {
+
       this.trigger('destroy');
 
       if (this.beforeDestroy) {

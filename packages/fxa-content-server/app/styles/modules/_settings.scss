@@ -1,8 +1,20 @@
 // this needs to be overridden, 
 // or done in a way that doesn't kill these everywhere
 body.settings #fox-logo,
-body.settings #about-mozilla {
+body.settings #about-mozilla,
+body.settings .sign-in {
   display: none;
+}
+
+body.settings .loading {
+  position: relative;
+  top: 150px;
+}
+
+body.settings #main-content {
+  border: none;
+  background: none;
+  box-shadow: none;
 }
 
 // settings header controls
@@ -60,6 +72,14 @@ body.settings #about-mozilla {
     }
   }
 
+  .settings-success-wrapper {
+    position: absolute;
+    width: 500px;
+    left: 50%;
+    margin: 0 0 0 -250px;
+    top: 56px;
+  }
+
   .settings-success {
     background-color: rgb(205, 248, 208);
     border-color: rgb(0, 170, 0);
@@ -69,8 +89,7 @@ body.settings #about-mozilla {
     color: $text-color;
     margin: 0 auto;
     text-align: center;
-    top: 56px;
-    width: 500px;
+    top: 0;
   }
 }
 
@@ -212,6 +231,10 @@ body.settings #about-mozilla {
 .settings-unit {
   padding: 20px 0;
   border-bottom: 1px solid $marketing-border-color;
+
+  & .error {
+    top: 0;
+  }
 }
 
 .settings-unit-stub {
@@ -277,7 +300,7 @@ body.settings #about-mozilla {
 
   p {
     color: $faint-text-color;
-    margin-bottom: 24px;
+    margin-bottom: 32px;
   }
 }
 
