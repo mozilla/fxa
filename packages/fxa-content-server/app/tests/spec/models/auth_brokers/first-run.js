@@ -59,9 +59,12 @@ function (chai, sinon, NullChannel, Account, FirstRunAuthenticationBroker, Relie
     });
 
     describe('beforeSignUpConfirmationPoll', function () {
-      it('does not halt', function () {
+      it('notifies the iframe channel, does not halt', function () {
+        sinon.spy(iframeChannel, 'send');
+
         return broker.beforeSignUpConfirmationPoll(account)
           .then(function (result) {
+            assert.isTrue(iframeChannel.send.calledWith(broker._iframeCommands.SIGNUP_MUST_VERIFY));
             assert.isFalse(result.halt);
           });
       });
