@@ -1,3 +1,13 @@
+<a name="0.1.30"></a>
+### 0.1.30 (2015-07-20)
+
+
+#### Bug Fixes
+
+* **client:** throw harder on bad client init ([c3b06b4d](https://github.com/mozilla/fxa-js-client/commit/c3b06b4df48ef01910c2c98fee01b676e0ea58af))
+* **tests:** fix account.js tests ([c0cc0d59](https://github.com/mozilla/fxa-js-client/commit/c0cc0d5915589366f6e6af01259065f70975eb60))
+
+
 <a name="0.1.29"></a>
 ### 0.1.29 (2015-06-10)
 
