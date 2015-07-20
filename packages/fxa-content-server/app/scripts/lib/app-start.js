@@ -29,7 +29,6 @@ define([
   'lib/metrics',
   'lib/sentry',
   'lib/storage-metrics',
-  'lib/null-metrics',
   'lib/fxa-client',
   'lib/assertion',
   'lib/constants',
@@ -77,7 +76,6 @@ function (
   Metrics,
   SentryMetrics,
   StorageMetrics,
-  NullMetrics,
   FxaClient,
   Assertion,
   Constants,
@@ -116,10 +114,6 @@ function (
   // delay before redirecting to the error page to
   // ensure metrics are reported to the backend.
   var ERROR_REDIRECT_TIMEOUT = 1000;
-
-  function isMetricsCollectionEnabled (sampleRate) {
-    return Math.random() <= sampleRate;
-  }
 
   function Start(options) {
     options = options || {};
@@ -260,9 +254,14 @@ function (
     },
 
     initializeMetrics: function () {
+      var isSampledUser = this._able.choose('isSampledUser', {
+        env: this._config.env,
+        uniqueUserId: this._getUniqueUserId()
+      });
+
       var relier = this._relier;
       var screenInfo = new ScreenInfo(this._window);
-      this._metrics = this._createMetrics(this._config.metricsSampleRate, {
+      this._metrics = this._createMetrics({
         lang: this._config.language,
         service: relier.get('service'),
         context: relier.get('context'),
@@ -275,6 +274,7 @@ function (
         screenHeight: screenInfo.screenHeight,
         screenWidth: screenInfo.screenWidth,
         able: this._able,
+        isSampledUser: isSampledUser,
         utmCampaign: relier.get('utmCampaign'),
         utmContent: relier.get('utmContent'),
         utmMedium: relier.get('utmMedium'),
@@ -678,14 +678,12 @@ function (
       }
     },
 
-    _createMetrics: function (sampleRate, options) {
+    _createMetrics: function (options) {
       if (this._isAutomatedBrowser()) {
         return new StorageMetrics(options);
-      } else if (isMetricsCollectionEnabled(sampleRate)) {
-        return new Metrics(options);
-      } else {
-        return new NullMetrics();
       }
+
+      return new Metrics(options);
     },
 
     _isAutomatedBrowser: function () {

@@ -18,11 +18,14 @@ module.exports = function () {
       // don't wait around to send a response.
       res.json({ success: true });
 
-      var metrics = req.body;
+      var metrics = req.body || {};
       metrics.agent = req.get('user-agent');
-      metricsCollector.write(metrics);
-      // send the metrics body to the StatsD collector for processing
-      statsd.write(metrics);
+
+      if (metrics.isSampledUser) {
+        metricsCollector.write(metrics);
+        // send the metrics body to the StatsD collector for processing
+        statsd.write(metrics);
+      }
     }
   };
 };

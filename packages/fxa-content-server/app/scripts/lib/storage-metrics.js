@@ -34,6 +34,10 @@ define([
       storage.set('metrics_all', metrics);
 
       return p(data);
+    },
+
+    isMetricsCollectionEnabled: function () {
+      return false;
     }
   });
 
