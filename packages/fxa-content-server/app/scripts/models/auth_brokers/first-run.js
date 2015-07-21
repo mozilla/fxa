@@ -18,6 +18,7 @@ define([
     _iframeCommands: {
        LOADED: 'loaded',
        LOGIN: 'login',
+       SIGNUP_MUST_VERIFY: 'signup_must_verify',
        VERIFICATION_COMPLETE: 'verification_complete'
      },
 
@@ -48,6 +49,12 @@ define([
       this._iframeChannel.send(this._iframeCommands.VERIFICATION_COMPLETE);
 
       return proto.afterResetPasswordConfirmationPoll.apply(this, arguments);
+    },
+
+    beforeSignUpConfirmationPoll: function () {
+      this._iframeChannel.send(this._iframeCommands.SIGNUP_MUST_VERIFY);
+
+      return proto.beforeSignUpConfirmationPoll.apply(this, arguments);
     },
 
     afterSignUpConfirmationPoll: function () {
