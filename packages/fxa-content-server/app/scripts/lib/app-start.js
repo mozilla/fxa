@@ -275,6 +275,7 @@ function (
         screenWidth: screenInfo.screenWidth,
         able: this._able,
         isSampledUser: isSampledUser,
+        uniqueUserId: this._getUniqueUserId(),
         utmCampaign: relier.get('utmCampaign'),
         utmContent: relier.get('utmContent'),
         utmMedium: relier.get('utmMedium'),

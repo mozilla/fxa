@@ -46,6 +46,7 @@ define([
     'broker',
     'ab',
     'isSampledUser',
+    'uniqueUserId',
     'utm_campaign',
     'utm_content',
     'utm_medium',
@@ -68,7 +69,7 @@ define([
   }
 
   function Metrics (options) {
-    /*eslint complexity: [2, 25] */
+    /*eslint complexity: [2, 26] */
     options = options || {};
 
     // by default, send the metrics to the content server.
@@ -104,6 +105,7 @@ define([
     this._isSampledUser = options.isSampledUser || false;
 
     this._referrer = this._window.document.referrer || NOT_REPORTED_VALUE;
+    this._uniqueUserId = options.uniqueUserId || NOT_REPORTED_VALUE;
     this._utmCampaign = options.utmCampaign || NOT_REPORTED_VALUE;
     this._utmContent = options.utmContent || NOT_REPORTED_VALUE;
     this._utmMedium = options.utmMedium || NOT_REPORTED_VALUE;
@@ -195,6 +197,7 @@ define([
           height: this._screenHeight
         },
         isSampledUser: this._isSampledUser,
+        uniqueUserId: this._uniqueUserId,
         utm_campaign: this._utmCampaign, //eslint-disable-line camelcase
         utm_content: this._utmContent, //eslint-disable-line camelcase
         utm_medium: this._utmMedium, //eslint-disable-line camelcase

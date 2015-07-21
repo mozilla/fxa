@@ -41,6 +41,7 @@ function (chai, $, p, Metrics, AuthErrors, _, WindowMock, TestHelpers) {
         screenWidth: 1600,
         screenHeight: 1200,
         isSampledUser: true,
+        uniqueUserId: '0ae7fe2b-244f-4a78-9857-dff3ae263927',
         utmCampaign: 'utm_campaign',
         utmContent: 'utm_content',
         utmMedium: 'utm_medium',
@@ -87,6 +88,7 @@ function (chai, $, p, Metrics, AuthErrors, _, WindowMock, TestHelpers) {
         assert.equal(filteredData.entrypoint, 'menupanel');
         assert.equal(filteredData.migration, 'sync1.5');
         assert.equal(filteredData.campaign, 'fennec');
+        assert.equal(filteredData.uniqueUserId, '0ae7fe2b-244f-4a78-9857-dff3ae263927');
 
         assert.equal(filteredData.referrer, 'https://marketplace.firefox.com');
         assert.equal(filteredData.screen.width, 1600);
