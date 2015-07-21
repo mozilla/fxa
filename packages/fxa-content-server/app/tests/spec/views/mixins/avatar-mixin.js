@@ -13,10 +13,14 @@ define([
   'models/user',
   'models/account',
   'models/profile-image',
+  'lib/metrics',
+  'lib/profile-errors',
   'lib/promise',
-  'lib/channels/null'
+  'lib/channels/null',
+  '../../../lib/helpers'
 ], function (Chai, sinon, _, AvatarMixin, BaseView, Notifications, Relier,
-    User, Account, ProfileImage, p, NullChannel) {
+    User, Account, ProfileImage, Metrics, ProfileErrors, p, NullChannel,
+    TestHelpers) {
   'use strict';
 
   var assert = Chai.assert;
@@ -30,6 +34,7 @@ define([
     var user;
     var account;
     var relier;
+    var metrics;
     var tabChannelMock;
     var notifications;
     var UID = '123';
@@ -38,6 +43,7 @@ define([
       user = new User();
       account = new Account();
       relier = new Relier();
+      metrics = new Metrics();
       tabChannelMock = new NullChannel();
 
       notifications = new Notifications({
@@ -49,6 +55,7 @@ define([
       view = new SettingsView({
         user: user,
         relier: relier,
+        metrics: metrics,
         notifications: notifications
       });
       sinon.stub(view, 'getSignedInAccount', function () {
@@ -57,6 +64,35 @@ define([
       sinon.spy(user, 'setAccount');
 
       sinon.stub(notifications, 'profileChanged', function () { });
+    });
+
+    afterEach(function () {
+      metrics.destroy();
+
+      view.remove();
+      view.destroy();
+
+      view = metrics = null;
+    });
+
+    describe('displayAccountProfileImage', function () {
+      it('does not log an error for a non-authenticated account', function () {
+        return view.displayAccountProfileImage(account)
+          .then(function () {
+            var err = view._normalizeError(ProfileErrors.toError('UNAUTHORIZED'));
+            assert.isFalse(TestHelpers.isErrorLogged(metrics, err));
+          });
+      });
+      it('logs other kind of errors', function () {
+        sinon.stub(account, 'fetchCurrentProfileImage', function () {
+          return p.reject(ProfileErrors.toError('SERVICE_UNAVAILABLE'));
+        });
+        return view.displayAccountProfileImage(account)
+          .then(function () {
+            var err = view._normalizeError(ProfileErrors.toError('SERVICE_UNAVAILABLE'));
+            assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
+          });
+      });
     });
 
     it('displayAccountProfileImage updates the cached account data', function () {
