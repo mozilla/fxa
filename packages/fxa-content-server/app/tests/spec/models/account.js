@@ -15,11 +15,12 @@ define([
   'lib/profile-errors',
   'lib/marketing-email-client',
   'models/account',
+  'models/oauth-token',
   'models/reliers/relier'
 ],
 function (chai, sinon, p, Constants, Assertion, ProfileClient,
     OAuthClient, FxaClientWrapper, AuthErrors, ProfileErrors,
-    MarketingEmailClient, Account, Relier) {
+    MarketingEmailClient, Account, OAuthToken, Relier) {
   'use strict';
 
   var assert = chai.assert;
@@ -412,26 +413,65 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
 
     describe('without an access token', function () {
       beforeEach(function () {
+        var tokens = 0;
         account.set('sessionToken', SESSION_TOKEN);
-        sinon.stub(assertion, 'generate', function () {
-          return p('assertion');
+        account.set('verified', true);
+
+        sinon.stub(account, 'createOAuthToken', function () {
+          // returns "token1" then "token2", etc.
+          return p(new OAuthToken({ token: 'token' + (++tokens) }));
         });
-        sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
-          return p({ verified: true });
-        });
-        sinon.stub(oAuthClient, 'getToken', function () {
-          return p.reject(ProfileClient.Errors.toError('UNVERIFIED_ACCOUNT'));
-        });
+
       });
 
       ['getAvatar', 'getAvatars', 'postAvatar', 'deleteAvatar', 'uploadAvatar']
       .forEach(function (method) {
-        it('fails on ' + method, function () {
+        it('retries on ' + method, function () {
+          sinon.stub(profileClient, method, function () {
+            return p.reject(ProfileClient.Errors.toError('UNAUTHORIZED'));
+          });
           return account[method]()
             .then(
               assert.fail,
               function (err) {
+                assert.isTrue(account.createOAuthToken.calledTwice);
+                assert.isTrue(profileClient[method].calledTwice);
                 assert.isTrue(ProfileClient.Errors.is(err, 'UNAUTHORIZED'));
+                assert.isUndefined(account.get('accessToken'));
+              }
+            );
+        });
+
+        it('retries and succeeds on ' + method, function () {
+          sinon.stub(profileClient, method, function (token) {
+            if (token === 'token1') {
+              return p.reject(ProfileClient.Errors.toError('UNAUTHORIZED'));
+            } else {
+              return p();
+            }
+          });
+          return account[method]()
+            .then(
+              function () {
+                assert.isTrue(account.createOAuthToken.calledTwice);
+                assert.isTrue(profileClient[method].calledTwice);
+                assert.equal(account.get('accessToken'), 'token2');
+              }
+            );
+        });
+
+        it('throws other errors on ' + method, function () {
+          sinon.stub(profileClient, method, function () {
+            return p.reject(ProfileClient.Errors.toError('UNKNOWN_ACCOUNT'));
+          });
+          return account[method]()
+            .then(
+              assert.fail,
+              function (err) {
+                assert.isTrue(ProfileClient.Errors.is(err, 'UNKNOWN_ACCOUNT'));
+                assert.isTrue(account.createOAuthToken.calledOnce);
+                assert.isTrue(profileClient[method].calledOnce);
+                assert.equal(account.get('accessToken'), 'token1');
               }
             );
         });
@@ -496,6 +536,7 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
           uid: UID,
           sessionToken: SESSION_TOKEN,
           foo: 'bar',
+          accessToken: 'token',
           password: 'password',
           grantedPermissions: {
             'some-client-id': ['profile:email', 'profile:uid']
@@ -509,6 +550,7 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
       assert.isUndefined(data.accountData);
       assert.isUndefined(data.assertion);
       assert.isUndefined(data.foo);
+      assert.isUndefined(data.accessToken);
       assert.isUndefined(data.password);
       assert.ok(data.email);
       assert.ok(data.grantedPermissions);

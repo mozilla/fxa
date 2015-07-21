@@ -21,7 +21,6 @@ define([
 
   // Account attributes that can be persisted
   var PERSISTENT = {
-    accessToken: undefined,
     email: undefined,
     grantedPermissions: undefined,
     lastLogin: undefined,
@@ -36,6 +35,7 @@ define([
   };
 
   var DEFAULTS = _.extend({
+    accessToken: undefined,
     customizeSync: undefined,
     keyFetchToken: undefined,
     password: undefined,
@@ -44,6 +44,8 @@ define([
 
   var ALLOWED_KEYS = Object.keys(DEFAULTS);
   var ALLOWED_PERSISTENT_KEYS = Object.keys(PERSISTENT);
+
+  var PROFILE_SCOPE = 'profile:write';
 
   var Account = Backbone.Model.extend({
     defaults: DEFAULTS,
@@ -90,16 +92,21 @@ define([
       // upgrade the credentials with an accessToken
       promise = promise.then(function () {
         if (self._needsAccessToken()) {
-          return self.createOAuthToken('profile:write')
-            .then(function (accessToken) {
-              self.set('accessToken', accessToken.get('token'));
-            }, function () {
-              // Ignore errors; we'll just fetch again when needed
-            });
+          return self._fetchProfileOAuthToken();
         }
       });
 
       return promise;
+    },
+
+    _fetchProfileOAuthToken: function () {
+      var self = this;
+      return self.createOAuthToken(PROFILE_SCOPE)
+        .then(function (accessToken) {
+          self.set('accessToken', accessToken.get('token'));
+        }, function () {
+          // Ignore errors; we'll just fetch again when needed
+        });
     },
 
     profileClient: function () {
@@ -337,15 +344,30 @@ define([
     .forEach(function (method) {
       Account.prototype[method] = function () {
         var self = this;
+        var profileClient;
         var args = Array.prototype.slice.call(arguments, 0);
         return self.profileClient()
-          .then(function (profileClient) {
+          .then(function (client) {
+            profileClient = client;
             var accessToken = self.get('accessToken');
-            if (! accessToken) {
-              return p.reject(ProfileClient.Errors.toError('UNAUTHORIZED'));
-            } else {
-              return profileClient[method].apply(profileClient, [accessToken].concat(args));
+            return profileClient[method].apply(profileClient, [accessToken].concat(args));
+          })
+          .fail(function (err) {
+            // If our oauth token has gone stale, retry with a new one
+            if (ProfileClient.Errors.is(err, 'UNAUTHORIZED')) {
+              return self._fetchProfileOAuthToken()
+                .then(function () {
+                  var accessToken = self.get('accessToken');
+                  return profileClient[method].apply(profileClient, [accessToken].concat(args));
+                })
+                .fail(function (err) {
+                  if (ProfileClient.Errors.is(err, 'UNAUTHORIZED')) {
+                    self.unset('accessToken');
+                  }
+                  throw err;
+                });
             }
+            throw err;
           });
       };
     });
