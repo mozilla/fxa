@@ -75,3 +75,20 @@
     }
   }
 }
+
+.marketing-area {
+  .chromeless.iframe & {
+    @include respond-to('reasonableUI') {
+      // This is a hack. The width of the firstrun iframe is 400px.
+      // The max-width of the main-content area is 360px, leaving 20px
+      // on either side. A 20px bottom-padding exists on the body.
+      // This leaves a 20px white area around the marketing snippet.
+
+      // For the firstrun flow only, pull the marketing box
+      // out to the sides to get rid of the padding.
+      margin: 0px -20px;
+      position: relative;
+      bottom: -20px;
+    }
+  }
+}
