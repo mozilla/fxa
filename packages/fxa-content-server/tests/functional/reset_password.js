@@ -99,8 +99,17 @@ define([
   function testAtSettingsWithVerifiedMessage(context) {
     return context.remote
       .setFindTimeout(intern.config.pageLoadTimeout)
+      .sleep(1000)
 
       .findByCssSelector('#fxa-settings-header')
+      .then(null, function (err) {
+        return context.remote.takeScreenshot().then(function (buffer) {
+          console.error('Error occurred, capturing base64 screenshot:');
+          console.error(buffer.toString('base64'));
+
+          throw err;
+        });
+      })
       .end()
 
       .then(function () {
