@@ -84,7 +84,7 @@ test(
         t.equal(account.emailVerified, ACCOUNT.emailVerified, 'emailVerified')
         t.deepEqual(account.kA, ACCOUNT.kA, 'kA')
         t.deepEqual(account.wrapWrapKb, ACCOUNT.wrapWrapKb, 'wrapWrapKb')
-        t.deepEqual(account.verifyHash, ACCOUNT.verifyHash, 'verifyHash')
+        t.notOk(account.verifyHash, 'verifyHash')
         t.deepEqual(account.authSalt, ACCOUNT.authSalt, 'authSalt')
         t.equal(account.verifierVersion, ACCOUNT.verifierVersion, 'verifierVersion')
         t.ok(account.createdAt, 'createdAt')
