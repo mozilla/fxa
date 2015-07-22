@@ -1,3 +1,12 @@
+<a name="0.42.0"></a>
+## 0.42.0 (2015-07-22)
+
+
+#### Bug Fixes
+
+* **display_name:** allow a blank display name ([e27223dd](https://github.com/mozilla/fxa-profile-server/commit/e27223ddcbb997cb9465466be763ed93de83b363))
+
+
 <a name"0.39.0"></a>
 ## 0.39.0 (2015-06-10)
 
