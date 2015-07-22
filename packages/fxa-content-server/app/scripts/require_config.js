@@ -25,7 +25,8 @@ require.config({
     crosstab: 'vendor/crosstab',
     uuid: '../bower_components/node-uuid/uuid',
     'jquery-simulate': '../bower_components/jquery-simulate/jquery.simulate',
-    raven: '../bower_components/raven-js/dist/raven'
+    raven: '../bower_components/raven-js/dist/raven',
+    passwordcheck: '../bower_components/fxa-password-strength-checker/build/fxa-password-strength-checker'
   },
   config: {
     moment: {

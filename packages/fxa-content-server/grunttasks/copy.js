@@ -91,6 +91,13 @@ module.exports = function (grunt) {
           dest: '<%= yeoman.dist %>/bower_components/jquery-ui'
         },
         {
+          // password strength checker
+          expand: true,
+          cwd: '<%= yeoman.app %>/bower_components/fxa-password-strength-checker/build/',
+          src: ['*.js'],
+          dest: '<%= yeoman.dist %>/bower_components/fxa-password-strength-checker/build/'
+        },
+        {
           // head scripts
           expand: true,
           cwd: '<%= yeoman.tmp %>/concat/scripts',

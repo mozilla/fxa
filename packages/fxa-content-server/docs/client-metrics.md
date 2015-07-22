@@ -236,6 +236,14 @@ The event stream is a log of events and the time they occurred while the user is
 * signup.checkbox.change.show-password.unchecked - password is hidden
 * signup.email-optin.visible.false - email opt-in is not visible
 * signup.email-optin.visible.true - email opt-in is visible
+* signup.experiment.pw_strength.all_letters_or_numbers - password contains all numbers or letters and is &lt; 12 characters in length
+* signup.experiment.pw_strength.bloomfilter_hit - password was found in bloomfilter
+* signup.experiment.pw_strength.bloomfilter_miss - password was checked against the bloomfilter but no found
+* signup.experiment.pw_strength.bloomfilter_used - bloomfilter was used
+* signup.experiment.pw_strength.enabled - user was opted in to password strength check
+* signup.experiment.pw_strength.long_enough - password is &gt;= 12 characters
+* signup.experiment.pw_strength.missing_password - no password supplied
+* signup.experiment.pw_strength.too_short - password was &lt; 8 characters
 * signup.password.hidden - password is hidden
 * signup.password.visible - password is shown
 * tooltip.mailcheck-suggested - an email address correction was suggested

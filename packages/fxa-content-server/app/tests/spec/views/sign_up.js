@@ -920,6 +920,20 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Metrics
           });
       });
     });
+
+    describe('onPasswordBlur', function () {
+      beforeEach(function () {
+        sinon.spy(view, 'checkPasswordStrength');
+      });
+
+      it('calls checkPasswordStrength with provided password', function () {
+        var password = 'somerandomvalue';
+        view.$('.password').val(password);
+        view.onPasswordBlur();
+        assert.isTrue(view.checkPasswordStrength.calledWith(password));
+      });
+    });
+
   });
 });
 
