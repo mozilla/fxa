@@ -28,7 +28,7 @@ module.exports = function (grunt) {
     console.log('Using configuration files', process.env.CONFIG_FILES);
 
     // `server` is a shortcut to the server configuration
-    var serverConfig = require('../server/lib/configuration').root();
+    var serverConfig = require('../server/lib/configuration').getProperties();
     grunt.config.set('server', serverConfig);
   });
 };
