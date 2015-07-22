@@ -48,27 +48,6 @@
    npm run update
    ```
 
-#### Troubleshooting
-
-1. For errors during `npm install` (specifically fxa-content-server), or if some servers fail to start:
-
-   ```sh
-   ulimit -n 2560
-   ```
-
-2. If fxa-content-server fails with this message:
-
-   ```
-   Error: env: must be one of the possible values: ["dev","test","stage","prod"]: value was "development"
-   ```
-
-   It means you probably have the `NODE_ENV` environment variable set. Run `unset NODE_ENV` (or the equivalent for your shell) then restart the servers:
-
-   ```sh
-   ./pm2 kill
-   ./pm2 start servers.json
-   ```
-
 *******
 
 ### Firefox Custom Profile
