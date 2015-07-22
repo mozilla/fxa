@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2015-06-04 17:53+0000\n"
+"POT-Creation-Date: 2015-07-20 21:50+0000\n"
 
 #: app/scripts/templates/partial/coppa-date-picker.mustache:4
 msgid "1991"
@@ -78,27 +78,27 @@ msgstr ""
 msgid "2007"
 msgstr ""
 
-#: app/scripts/views/change_password.js:85
+#: app/scripts/views/change_password.js:59
 msgid "Password changed successfully"
 msgstr ""
 
-#: app/scripts/views/complete_reset_password.js:139
-#: app/scripts/views/complete_sign_up.js:94
-#: app/scripts/views/confirm.js:90
-#: app/scripts/views/confirm_reset_password.js:172
+#: app/scripts/views/complete_reset_password.js:135
+#: app/scripts/views/complete_sign_up.js:102
+#: app/scripts/views/confirm.js:91
+#: app/scripts/views/confirm_reset_password.js:173
 msgid "Account verified successfully"
 msgstr ""
 
-#: app/scripts/views/confirm_account_unlock.js:106
+#: app/scripts/views/confirm_account_unlock.js:107
 msgid "Account unlocked, please try again"
 msgstr ""
 
-#: app/scripts/views/confirm_reset_password.js:160
+#: app/scripts/views/confirm_reset_password.js:161
 #: app/scripts/templates/ready.mustache:3
 msgid "Password reset"
 msgstr ""
 
-#: app/scripts/views/confirm_reset_password.js:188
+#: app/scripts/views/confirm_reset_password.js:189
 msgid "Password reset successfully. Sign in to continue."
 msgstr ""
 
@@ -106,36 +106,36 @@ msgstr ""
 msgid "Account deleted successfully"
 msgstr ""
 
-#: app/scripts/views/reset_password.js:75
-#: app/scripts/views/sign_in.js:176
+#: app/scripts/views/reset_password.js:82
+#: app/scripts/views/sign_in.js:180
 msgid "Unknown account. <a href=\"/signup\">Sign up</a>"
 msgstr ""
 
-#: app/scripts/views/settings.js:76
+#: app/scripts/views/settings.js:75
 msgid "Signed out successfully"
 msgstr ""
 
-#: app/scripts/views/sign_up.js:317
+#: app/scripts/views/sign_up.js:331
 msgid "Account already exists. <a href=\"/signin\">Sign in</a>"
 msgstr ""
 
-#: app/scripts/views/settings/avatar_gravatar.js:58
+#: app/scripts/views/settings/avatar_gravatar.js:57
 msgid "No Gravatar found"
 msgstr ""
 
-#: app/scripts/views/settings/avatar_gravatar.js:87
+#: app/scripts/views/settings/avatar_gravatar.js:89
 msgid "Courtesy of <a href=\"https://www.gravatar.com\">Gravatar</a>"
 msgstr ""
 
-#: app/scripts/views/settings/communication_preferences.js:91
+#: app/scripts/views/settings/communication_preferences.js:96
 msgid "Subscribed successfully"
 msgstr ""
 
-#: app/scripts/views/settings/communication_preferences.js:92
+#: app/scripts/views/settings/communication_preferences.js:97
 msgid "Unsubscribed successfully"
 msgstr ""
 
-#: app/scripts/views/mixins/account-locked-mixin.js:28
+#: app/scripts/views/mixins/account-locked-mixin.js:31
 msgid "Account locked. <a href=\"/confirm_account_unlock\">Send unlock email</a>"
 msgstr ""
 
@@ -331,7 +331,11 @@ msgstr ""
 msgid "Verification link damaged"
 msgstr ""
 
-#: app/scripts/lib/mailcheck.js:67
+#: app/scripts/lib/auth-errors.js:219
+msgid "The image dimensions must be at least 100x100px"
+msgstr ""
+
+#: app/scripts/lib/mailcheck.js:57
 msgid "Did you mean <span tabindex=\"1\">%(domain)s</span>?"
 msgstr ""
 
@@ -402,18 +406,18 @@ msgstr ""
 
 #: app/scripts/lib/strings.js:23
 #: app/scripts/templates/sign_up.mustache:14
-#: app/scripts/templates/settings/communication_preferences.mustache:2
+#: app/scripts/templates/settings/communication_preferences.mustache:4
 msgid "Get the latest news about Mozilla and Firefox."
 msgstr ""
 
 #: app/scripts/lib/strings.js:24
-#: app/scripts/templates/settings.mustache:5
+#: app/scripts/templates/settings.mustache:4
 #: app/scripts/templates/settings/communication_preferences.mustache:1
 msgid "Communication preferences"
 msgstr ""
 
 #: app/scripts/lib/strings.js:25
-#: app/scripts/templates/settings/communication_preferences.mustache:7
+#: app/scripts/templates/settings/communication_preferences.mustache:9
 msgid "Email preferences"
 msgstr ""
 
@@ -438,7 +442,7 @@ msgid "Learn more."
 msgstr ""
 
 #: app/scripts/templates/change_password.mustache:1
-#: app/scripts/templates/settings.mustache:7
+#: app/scripts/templates/settings.mustache:6
 msgid "Change password"
 msgstr ""
 
@@ -479,8 +483,10 @@ msgstr ""
 #: app/scripts/templates/pp.mustache:3
 #: app/scripts/templates/reset_password.mustache:6
 #: app/scripts/templates/tos.mustache:3
-#: app/scripts/templates/settings/communication_preferences.mustache:6
-#: app/scripts/templates/settings/communication_preferences.mustache:9
+#: app/scripts/templates/settings/avatar_change.mustache:5
+#: app/scripts/templates/settings/communication_preferences.mustache:2
+#: app/scripts/templates/settings/communication_preferences.mustache:8
+#: app/scripts/templates/settings/communication_preferences.mustache:11
 msgid "Back"
 msgstr ""
 
@@ -625,7 +631,7 @@ msgstr ""
 
 #: app/scripts/templates/delete_account.mustache:1
 #: app/scripts/templates/delete_account.mustache:5
-#: app/scripts/templates/settings.mustache:8
+#: app/scripts/templates/settings.mustache:7
 msgid "Delete account"
 msgstr ""
 
@@ -671,14 +677,14 @@ msgid "Legal"
 msgstr ""
 
 #: app/scripts/templates/legal.mustache:3
-#: app/scripts/templates/settings.mustache:11
+#: app/scripts/templates/settings.mustache:10
 #: app/scripts/templates/tos.mustache:2
 msgid "Terms of Service"
 msgstr ""
 
 #: app/scripts/templates/legal.mustache:4
 #: app/scripts/templates/pp.mustache:2
-#: app/scripts/templates/settings.mustache:12
+#: app/scripts/templates/settings.mustache:11
 msgid "Privacy Notice"
 msgstr ""
 
@@ -717,10 +723,12 @@ msgid "Download Firefox for mobile devices."
 msgstr ""
 
 #: app/scripts/templates/permissions.mustache:1
+#: app/scripts/templates/settings/gravatar_permissions.mustache:1
 msgid "Request for permission"
 msgstr ""
 
 #: app/scripts/templates/permissions.mustache:2
+#: app/scripts/templates/settings/gravatar_permissions.mustache:2
 msgid "%(serviceName)s wants the following information from your account:"
 msgstr ""
 
@@ -728,10 +736,12 @@ msgstr ""
 #: app/scripts/templates/reset_password.mustache:3
 #: app/scripts/templates/sign_in.mustache:17
 #: app/scripts/templates/sign_up.mustache:6
+#: app/scripts/templates/settings/gravatar_permissions.mustache:3
 msgid "Email"
 msgstr ""
 
 #: app/scripts/templates/permissions.mustache:4
+#: app/scripts/templates/settings/gravatar_permissions.mustache:4
 msgid "Accept"
 msgstr ""
 
@@ -739,6 +749,7 @@ msgstr ""
 #: app/scripts/templates/settings/avatar_camera.mustache:3
 #: app/scripts/templates/settings/avatar_crop.mustache:4
 #: app/scripts/templates/settings/avatar_gravatar.mustache:4
+#: app/scripts/templates/settings/gravatar_permissions.mustache:5
 msgid "Cancel"
 msgstr ""
 
@@ -786,11 +797,11 @@ msgstr ""
 msgid "Change"
 msgstr ""
 
-#: app/scripts/templates/settings.mustache:4
+#: app/scripts/templates/settings.mustache:3
 msgid "You are signed in as"
 msgstr ""
 
-#: app/scripts/templates/settings.mustache:9
+#: app/scripts/templates/settings.mustache:8
 msgid "Sign out"
 msgstr ""
 
@@ -826,7 +837,6 @@ msgid "Already have an account? Sign in."
 msgstr ""
 
 #: app/scripts/templates/unexpected_error.mustache:2
-#: app/scripts/templates/settings/avatar_change.mustache:5
 msgid "Home"
 msgstr ""
 
@@ -863,11 +873,11 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-#: app/scripts/templates/settings/communication_preferences.mustache:3
+#: app/scripts/templates/settings/communication_preferences.mustache:5
 msgid "Unsubscribe"
 msgstr ""
 
-#: app/scripts/templates/settings/communication_preferences.mustache:5
+#: app/scripts/templates/settings/communication_preferences.mustache:7
 msgid "Subscribe"
 msgstr ""
 
