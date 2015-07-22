@@ -1,3 +1,22 @@
+<a name="0.42.0"></a>
+## 0.42.0 (2015-07-22)
+
+
+#### Bug Fixes
+
+* **config:** set expiration.accessToken default to 2 weeks ([7a4742de](http://github.com/mozilla/fxa-oauth-server/commit/7a4742dea75e59e66153273d77dd6cd5dd4b9d84))
+* **sql:**
+  * remove references to the `whitelisted` column; this is now the `trusted` column ([6b4d1ec3](http://github.com/mozilla/fxa-oauth-server/commit/6b4d1ec3f3fb72aa376ab28aa191198014f1bd84))
+  * undo 155d2ce; for mysql-patcher fix up that database ([eb9f40d1](http://github.com/mozilla/fxa-oauth-server/commit/eb9f40d10389eb0de6a08b70089851789ac7f932))
+  * fix the schema issue with the trailing comma ([069caeb4](http://github.com/mozilla/fxa-oauth-server/commit/069caeb4891c90c4d77649acded270b01785adca), closes [#299](http://github.com/mozilla/fxa-oauth-server/issues/299))
+* **tests:** sleep additional half second to adjust for mysql round of timestamp ([a02f5161](http://github.com/mozilla/fxa-oauth-server/commit/a02f5161d632e383ec55decc314a81668b600c82))
+
+
+#### Features
+
+* **api:** add ttl parameter to POST /authorization ([36087fe6](http://github.com/mozilla/fxa-oauth-server/commit/36087fe6dd4589d6451e007aa76edc4f0db2fcca))
+
+
 <a name"0.41.0"></a>
 ## 0.41.0 (2015-07-07)
 
