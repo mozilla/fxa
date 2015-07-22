@@ -31,13 +31,13 @@ Since all messages are sent over postMessage, commands and data must be represen
 
 ```
 {
-  command: <command>
+  command: <command>,
   data: <data>
 }
 ```
 
 * `command` {String} - The command.
-* `data` {Object} - Data object. Can be empty.
+* `data` {Object} - Data object. Can be empty, i.e., `{}`.
 
 ### Command order
 1. ping
