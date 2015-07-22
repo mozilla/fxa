@@ -1,3 +1,62 @@
+<a name="0.42.0"></a>
+### 0.42.0 (2015-07-21)
+
+
+#### Bug Fixes
+
+* **able:** update shrinkwrap ([d8fa3019](https://github.com/mozilla/fxa-content-server/commit/d8fa3019cccd1a60f3f3376b332c145aaa11a40e))
+* **avatars:**
+  * resize avatars before cropping them ([decc26c8](https://github.com/mozilla/fxa-content-server/commit/decc26c855c603a528ae2859eb84ea9e56260611))
+  * error message does not overlap with the default avatar anymore ([5f5284f7](https://github.com/mozilla/fxa-content-server/commit/5f5284f7c304054b7229b5a5ea36f19713f38618))
+  * ensure uploaded avatars dimensions are 100x100px at least ([43580105](https://github.com/mozilla/fxa-content-server/commit/4358010543d47ce129659e5cc48fdd2def4a3c63))
+  * replace the word Home by Back ([c8b9bb10](https://github.com/mozilla/fxa-content-server/commit/c8b9bb101903c7bfb7b37648e0dcd44c412c7f96))
+* **client:**
+  * Hide the border around the marketing snippet for the firstrun flow. ([a84e2546](https://github.com/mozilla/fxa-content-server/commit/a84e254682851ef1de1c199e926ed3d558735722))
+  * Ensure COPPA errors are logged. ([628b62c8](https://github.com/mozilla/fxa-content-server/commit/628b62c8ec30983909d58a946261ef6c6a76f106))
+  * Handle 4xx and 5xx Basket errors. ([bc862acb](https://github.com/mozilla/fxa-content-server/commit/bc862acb9d51f21f72b86a17dc51b66b15fff00e))
+  * Ensure the password manager has an email to work with. ([ff38e16a](https://github.com/mozilla/fxa-content-server/commit/ff38e16a81163ee4baa1a04d949bec7f8166646a))
+  * Firstrun flow should not halt the screens after login. ([a178fa0b](https://github.com/mozilla/fxa-content-server/commit/a178fa0b75bfa47fc478065a8aa9aa4d37bc245d))
+* **config:**
+  * add production experiments config file ([8c87743d](https://github.com/mozilla/fxa-content-server/commit/8c87743d048e721451471071c232dc77710e9adb))
+  * use dev branch of experiments ([0f3bdbc2](https://github.com/mozilla/fxa-content-server/commit/0f3bdbc225cbcaf2174469ffddc0fd1cee8421a2))
+* **cookies:** redirect to /cookies_disabled if storage is disabled ([a24931f2](https://github.com/mozilla/fxa-content-server/commit/a24931f2d803dec2183d8f1292e434477b6df526), closes [#2480](https://github.com/mozilla/fxa-content-server/issues/2480))
+* **forms:** fixes regression with the floating placeholder ([d9853f00](https://github.com/mozilla/fxa-content-server/commit/d9853f00cb4afc18b433d4ab6c1c145712930345), closes [#2739](https://github.com/mozilla/fxa-content-server/issues/2739))
+* **log:** log errors with no message ([37af6e2a](https://github.com/mozilla/fxa-content-server/commit/37af6e2af4ff1821cb32eb6ed16187e25df7b4c9))
+* **metrics:** include coppa errors in metrics ([3b5841a5](https://github.com/mozilla/fxa-content-server/commit/3b5841a5299d2716a7a77172312d57c065151440), closes [#2512](https://github.com/mozilla/fxa-content-server/issues/2512))
+* **oauth:** handle short-lived access tokens for profile server requests ([b372c806](https://github.com/mozilla/fxa-content-server/commit/b372c8066cbb6ab27e8af8a2cd20c861d33f5543))
+* **server:**
+  * remove 'Fxa requires JavaScript' message in ie8/9 Add conditional comment to not ([158c041b](https://github.com/mozilla/fxa-content-server/commit/158c041b50d1c2d848662acb65be80c81a4146f1), closes [#2279](https://github.com/mozilla/fxa-content-server/issues/2279))
+  * let server task fail if port is in use ([fb175809](https://github.com/mozilla/fxa-content-server/commit/fb175809f829b31833ca8ccea75fa1b122703763))
+* **signin:** Hide the Unauthorized avatar error ([bc17e796](https://github.com/mozilla/fxa-content-server/commit/bc17e79644706f121ad0e928a7ac566bc43ee7d9))
+* **styles:** Hide the service name in the firstrun flow. ([4d98dd1a](https://github.com/mozilla/fxa-content-server/commit/4d98dd1a0517b6da938ee59d32b7fd933d9f8d7e))
+* **sync:** do not send sessionTokenContext to Firefox Sync ([5b29830b](https://github.com/mozilla/fxa-content-server/commit/5b29830b9f6e7c7f1065b7c4421c7baf04ae6eff), closes [#2766](https://github.com/mozilla/fxa-content-server/issues/2766))
+* **tests:**
+  * show the firefox --version in test logs ([f1c60a29](https://github.com/mozilla/fxa-content-server/commit/f1c60a29cc7435293d10b2ff169eafef8cbac281))
+  * only log "waiting" if too many attempts ([427ef395](https://github.com/mozilla/fxa-content-server/commit/427ef3955eef8180ef02e447ebf89c3486e7e092))
+  * set metrics.sample_rate based on FxaDevBox too ([8b7d469e](https://github.com/mozilla/fxa-content-server/commit/8b7d469eb693819dc42794d371c48a85508bee5a))
+  * allow override of expected value from remote server ([3e734189](https://github.com/mozilla/fxa-content-server/commit/3e73418950f3d21f8eb22c9485ef8ca2816d52bd))
+  * add fxaDevBox config param ([6688dd73](https://github.com/mozilla/fxa-content-server/commit/6688dd73553b18dbde7b2dea35ed4004617de747))
+  * only update Fx binaries if they are stale ([989243e5](https://github.com/mozilla/fxa-content-server/commit/989243e502e92db15fe087bcc574d095fe0e911f))
+  * add a test runner for intern_server tests ([1e551e37](https://github.com/mozilla/fxa-content-server/commit/1e551e3764a1102915d00625b803beed25fbfac5))
+
+
+#### Features
+
+* **avatars:** enable the gravatar option with permission prompt ([c2b5d96c](https://github.com/mozilla/fxa-content-server/commit/c2b5d96c658db2ed1f7ff4080fd116eef882f916), closes [#2053](https://github.com/mozilla/fxa-content-server/issues/2053))
+* **client:**
+  * Send a `signup_must_verify` event to the firstrun page on signup. ([da411363](https://github.com/mozilla/fxa-content-server/commit/da41136348eb0846af50935647d729dd6dc2c223))
+  * update to fxa-js-client 0.1.30 ([d81207c5](https://github.com/mozilla/fxa-content-server/commit/d81207c58429b62b1b9c3d5fafc369cc7d564003))
+  * firstrun - notify the parent of important events. ([aade4c77](https://github.com/mozilla/fxa-content-server/commit/aade4c77e01207f5c9aa80882ca3155cca46dfbe))
+  * Pass Google Analytics query params to metrics. ([b0f273a2](https://github.com/mozilla/fxa-content-server/commit/b0f273a2bc8d44a4a46338dc6c231bca5d01798f))
+  * Preserve `uniqueUserId` across email verifiation. ([84063546](https://github.com/mozilla/fxa-content-server/commit/8406354691085ccb748a1cb19607e431bb31717c))
+  * `campaign` and `entrypoint` are sent to metrics on verification. ([2c354ae0](https://github.com/mozilla/fxa-content-server/commit/2c354ae0fc7fd063ba8f18ca0bc38f63ae100c0c))
+  * Add support for `context=fx_desktop_v2` ([8830562a](https://github.com/mozilla/fxa-content-server/commit/8830562a6f8efbcc340dd36923c7b6ae5cd7f659))
+* **metrics:**
+  * add server google analytics events ([c549edfb](https://github.com/mozilla/fxa-content-server/commit/c549edfb3eef6056d9ca2c9d65590a7e16d9ad29))
+  * Report all metrics to our backend. ([bf71368e](https://github.com/mozilla/fxa-content-server/commit/bf71368efc5d4a409c1c79201dcf8912438930da))
+  * add timing metrics to the statsd collector ([90c95c7f](https://github.com/mozilla/fxa-content-server/commit/90c95c7fb339406eb2ae8db45ae0126337bfbb78))
+
+
 <a name="0.41.1"></a>
 ## 0.41.1 (2015-07-08)
 
