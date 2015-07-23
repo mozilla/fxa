@@ -27,12 +27,12 @@ DB.connect(config)
     server = dbServer.createServer(db)
     var d = P.defer()
     server.listen(config.port, config.hostname, function() {
-      d.resolve()
+      d.resolve(server)
     })
     return d.promise
   })
-  .then(function() {
-    return backendTests.remote(config)
+  .then(function(server) {
+    return backendTests.remote(config, server)
   })
   .then(function() {
     server.close()
