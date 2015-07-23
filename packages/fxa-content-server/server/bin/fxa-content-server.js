@@ -82,6 +82,9 @@ function makeApp() {
   app.use(routeLogging());
   app.use(cookieParser());
   app.use(bodyParser.json());
+  app.use(bodyParser.text({
+    type: 'text/plain'
+  }));
 
   var ableOptions = {
     dir: config.get('experiments.dir'),

@@ -93,6 +93,10 @@
     isFxiOS: function () {
       // User agent sniffing. Gross.
       return /FxiOS/.test(this.window.navigator.userAgent);
+    },
+
+    hasSendBeacon: function () {
+      return typeof this.window.navigator.sendBeacon === 'function';
     }
   };
 

@@ -20,8 +20,10 @@ define([
   'jquery',
   'speedTrap',
   'lib/xhr',
-  'lib/strings'
-], function (_, Backbone, $, speedTrap, xhr, Strings) {
+  'lib/strings',
+  'lib/environment',
+  'lib/promise'
+], function (_, Backbone, $, speedTrap, xhr, Strings, Environment, p) {
   'use strict';
 
   // Speed trap is a singleton, convert it
@@ -69,13 +71,13 @@ define([
   }
 
   function Metrics (options) {
-    /*eslint complexity: [2, 26] */
+    /*eslint complexity: [2, 27] */
     options = options || {};
 
     // by default, send the metrics to the content server.
     this._collector = options.collector || '';
 
-    this._ajax = options.ajax || xhr.ajax;
+    this._xhr = options.xhr || xhr;
 
     this._speedTrap = new SpeedTrap();
     this._speedTrap.init();
@@ -117,6 +119,7 @@ define([
     this._marketingImpressions = {};
 
     this._able = options.able;
+    this._env = options.environment || new Environment(this._window);
   }
 
   _.extend(Metrics.prototype, Backbone.Events, {
@@ -145,14 +148,19 @@ define([
       this._clearInactivityFlushTimeout();
 
       var filteredData = this.getFilteredData();
-      this._speedTrap.events.clear();
-      this._speedTrap.timers.clear();
 
       var url = this._collector + '/metrics';
+      var self = this;
 
-      // use a synchronous request to block the page from unloading
-      // until the request is complete.
-      return this._send(filteredData, url, false);
+      return this._send(filteredData, url)
+        .then(function (sent) {
+          if (sent) {
+            self._speedTrap.events.clear();
+            self._speedTrap.timers.clear();
+          }
+
+          return sent;
+        });
     },
 
     _clearInactivityFlushTimeout: function () {
@@ -227,21 +235,28 @@ define([
       return filteredData;
     },
 
-    _send: function (data, url, async) {
+    _send: function (data, url) {
       var self = this;
-      return this._ajax({
-        async: async !== false,
+      var payload = JSON.stringify(data);
+
+      if (this._env.hasSendBeacon()) {
+        return p().then(function () {
+          return self._window.navigator.sendBeacon(url, payload);
+        });
+      }
+
+      return this._xhr.ajax({
+        async: false,
         type: 'POST',
         url: url,
         contentType: 'application/json',
         data: JSON.stringify(data)
       })
+      // Boolean return values imitate the behaviour of sendBeacon
       .then(function () {
-        self.trigger('flush.success', data);
-        return data;
-      }, function (jqXHR) {
-        self.trigger('flush.error');
-        throw jqXHR.statusText;
+        return true;
+      }, function () {
+        return false;
       });
     },
 

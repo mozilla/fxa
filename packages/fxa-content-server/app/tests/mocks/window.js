@@ -69,7 +69,8 @@ function (Backbone, sinon, _, NullStorage) {
           }
           self.trigger('stream');
         }, 0);
-      }
+      },
+      sendBeacon: function () {}
     };
 
     this.URL = {
