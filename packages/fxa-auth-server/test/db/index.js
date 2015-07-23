@@ -8,8 +8,8 @@ const assert = require('insist');
 const buf = require('buf').hex;
 const hex = require('buf').to.hex;
 
-const db = require('../lib/db');
-const config = require('../lib/config');
+const db = require('../../lib/db');
+const config = require('../../lib/config');
 
 /*global describe,it,before*/
 
