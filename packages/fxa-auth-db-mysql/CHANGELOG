@@ -1,3 +1,9 @@
+train-42
+  * fix(tests): pass server object to backend tests - #63
+  * refactor(db): remove verifyHash from responses - #48
+  * chore(shrinkwrap): update shrinkwrap for verifyHash removal - #61
+  * chore(shrinkwrap): update shrinkwrap, principally to head of fxa-auth-db-server - #63
+
 train-41
   * feat(api): Return the account email address on passwordChangeToken - #59
   * chore(travis): Tell Travis to use #fxa-bots - #60
