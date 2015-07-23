@@ -11,29 +11,53 @@
 
 define([
   'underscore',
-  'lib/channels/base',
-  'lib/channels/mixins/postmessage_receiver'
-], function (_, BaseChannel, PostMessageReceiverMixin) {
+  'lib/channels/duplex',
+  'lib/channels/receivers/postmessage',
+  'lib/channels/senders/postmessage'
+], function (_, DuplexChannel, PostMessageReceiver, PostMessageSender) {
   'use strict';
 
   function IFrameChannel() {
     // constructor, nothing to do.
   }
 
-  _.extend(IFrameChannel.prototype, new BaseChannel(), {
+  _.extend(IFrameChannel.prototype, new DuplexChannel(), {
+    initialize: function (options) {
+      options = options || {};
+
+      var win = options.window || window;
+
+      var sender = this._sender = new PostMessageSender();
+      sender.initialize({
+        window: win.parent,
+        origin: options.origin
+      });
+
+      var receiver = this._receiver = new PostMessageReceiver();
+      receiver.initialize({
+        window: win,
+        origin: options.origin
+      });
+
+      DuplexChannel.prototype.initialize.call(this, {
+        window: win,
+        sender: sender,
+        receiver: receiver
+      });
+    },
+
+    receiveEvent: function (event) {
+      return this._receiver.receiveEvent(event);
+    },
+
     parseMessage: function (message) {
       try {
         return IFrameChannel.parse(message);
-      } catch(e) {
-        // drop the message on the ground
+      } catch (e) {
+        // invalid message, drop it on the ground.
       }
-    },
-
-    dispatchCommand: function (command, data) {
-      var msg = IFrameChannel.stringify(command, data);
-      this.window.parent.postMessage(msg, this.getOrigin());
     }
-  }, PostMessageReceiverMixin);
+  });
 
   IFrameChannel.stringify = function (command, data) {
     return JSON.stringify({
@@ -43,7 +67,12 @@ define([
   };
 
   IFrameChannel.parse = function (msg) {
-    return JSON.parse(msg);
+    var parsed = JSON.parse(msg);
+    if (! parsed.messageId) {
+      parsed.messageId = parsed.command;
+    }
+
+    return parsed;
   };
 
   return IFrameChannel;
