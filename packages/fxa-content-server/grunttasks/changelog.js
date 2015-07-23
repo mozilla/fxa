@@ -3,8 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = function (grunt) {
-  grunt.config('changelog', {
-    dest: 'CHANGELOG.md'
+  grunt.config('conventionalChangelog', {
+    options: {
+      // the empty object is needed or else conventionalChangelog blows up.
+      changelogOpts: {
+      }
+    },
+    release: {
+      src: 'CHANGELOG.md'
+    }
   });
 
 };
