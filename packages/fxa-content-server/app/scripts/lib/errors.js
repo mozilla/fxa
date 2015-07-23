@@ -100,15 +100,24 @@ define([
      * @param {String} [context]
      */
     toError: function (type, context) {
-      var message = this.toMessage(type);
-      if (! message) {
-        message = this.toMessage('UNEXPECTED_ERROR');
-      }
+      var errno = this.toErrno(type);
+      var message = this.toMessage(errno);
 
       var err = new Error(message);
 
+      if (typeof type === 'object') {
+        // copy over any fields from the original object,
+        // some fields may be overridden. This allows
+        // AuthServer fields like `code` or `retryAfter`
+        // to be propagated out without any additional work.
+        //
+        // `errno, `message`, `namespace`, `errorModule` and
+        // `context` are set below.
+        _.extendOwn(err, type);
+      }
+
+      err.errno = errno;
       err.message = message;
-      err.errno = this.toErrno(type);
       err.namespace = this.NAMESPACE;
       err.errorModule = this;
 
@@ -134,16 +143,7 @@ define([
 
       var serverError = xhr.responseJSON;
 
-      if (! serverError) {
-        return this.toError('UNEXPECTED_ERROR');
-      }
-      // We need the error to be normalized before being returned.
-      // We also need to add a code to the normalized error, that
-      // contains the status code
-      var normalizedError = this.toError(serverError.errno);
-      normalizedError.code = serverError.code;
-
-      return normalizedError;
+      return this.toError(serverError || 'UNEXPECTED_ERROR');
     }
   };
 });

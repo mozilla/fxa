@@ -20,13 +20,46 @@ function (FxaClient, $, p, Session, AuthErrors) {
     return $.trim(str);
   }
 
+  // errors from the FxaJSClient must be normalized so that they
+  // are translated and reported to metrics correctly.
+  function wrapClientToNormalizeErrors(client) {
+    var wrappedClient = Object.create(client);
+
+    for (var key in client) {
+      if (typeof client[key] === 'function') {
+        wrappedClient[key] = function (key) {
+          var retval = client[key].apply(this, [].slice.call(arguments, 1));
+
+          // make no assumptions about the client returning a promise.
+          // If the return value is not a promise, just return the value.
+          if (! retval.then) {
+            return retval;
+          }
+
+          // a promise was returned, ensure any errors are normalized.
+          return retval.then(null, function (err) {
+            throw AuthErrors.toError(err);
+          });
+        }.bind(client, key);
+      }
+    }
+
+    return wrappedClient;
+  }
+
   function FxaClientWrapper(options) {
     options = options || {};
 
-    this._client = options.client;
+    var client;
 
-    if (! this._client && options.authServerUrl) {
-      this._client = new FxaClient(options.authServerUrl);
+    if (options.client) {
+      client = options.client;
+    } else if (options.authServerUrl) {
+      client = new FxaClient(options.authServerUrl);
+    }
+
+    if (client) {
+      this._client = wrapClientToNormalizeErrors(client);
     }
   }
 
