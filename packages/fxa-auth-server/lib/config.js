@@ -208,5 +208,4 @@ var options = {
 
 conf.validate(options);
 
-
 module.exports = conf;

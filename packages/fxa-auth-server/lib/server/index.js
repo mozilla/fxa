@@ -6,6 +6,7 @@ const Hapi = require('hapi');
 
 const AppError = require('../error');
 const config = require('../config').root();
+const env = require('../env');
 const logger = require('../logging')('server');
 const hapiLogger = require('../logging')('server.hapi');
 const summary = require('../logging/summary');
@@ -18,7 +19,7 @@ exports.create = function createServer() {
     logger.warn('localRedirect',
       '*** localRedirects is set to TRUE. Should only be used for developers.');
   }
-  var isProd = config.env === 'prod';
+  var isProd = env.isProdLike();
   var server = Hapi.createServer(
     config.server.host,
     config.server.port,
