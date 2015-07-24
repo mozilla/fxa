@@ -146,6 +146,32 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
               assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
             });
       });
+
+      it('displays a message if isMigration returns true', function () {
+        initView();
+        sinon.stub(view, 'isMigration', function (arg) {
+          return true;
+        });
+
+        return view.render()
+          .then(function () {
+            assert.equal(view.$('.info.nudge').html(), 'Migrate your sync data by signing in to your Firefox&nbsp;Account.');
+            view.isMigration.restore();
+          });
+      });
+
+      it('does not display a message if isMigration returns false', function () {
+        initView();
+        sinon.stub(view, 'isMigration', function (arg) {
+          return false;
+        });
+
+        return view.render()
+          .then(function () {
+            assert.lengthOf(view.$('.info.nudge'), 0);
+            view.isMigration.restore();
+          });
+      });
     });
 
     describe('isValid', function () {

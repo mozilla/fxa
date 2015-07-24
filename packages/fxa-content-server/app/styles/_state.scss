@@ -1,5 +1,6 @@
 .error,
-.success {
+.success,
+.info {
   border-radius: $small-border-radius;
   color: $message-text-color;
   display: none;
@@ -16,9 +17,10 @@
   a {
     color: $message-text-color;
   }
-  /*Push the error message down to avoid being too close to the header*/
+
+  /*Pull the message up to bring it closer to the header*/
   &.nudge {
-    top: -5px;
+    top: -10px;
   }
 }
 
@@ -38,6 +40,11 @@
 .success {
   background: $success-background-color;
   display: none;
+}
+
+.info {
+  background: $info-background-color;
+  display: block;
 }
 
 // complete is like success, but without the associated styles.
