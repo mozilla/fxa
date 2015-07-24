@@ -83,7 +83,7 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
       var account = this.getSignedInAccount();
 
       return {
-        username: account.get('displayName') || account.get('email'),
+        username: _.escape(account.get('displayName') || account.get('email')),
         showSignOut: ! account.isFromSync(),
         communicationPrefsVisible: this._areCommunicationPrefsVisible()
       };
