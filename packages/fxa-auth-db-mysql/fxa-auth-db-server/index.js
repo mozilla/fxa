@@ -83,6 +83,7 @@ function createServer(db) {
   api.get('/sessionToken/:id', reply(db.sessionToken))
   api.del('/sessionToken/:id', reply(db.deleteSessionToken))
   api.put('/sessionToken/:id', reply(db.createSessionToken))
+  api.post('/sessionToken/:id/update', reply(db.updateSessionToken))
 
   api.get('/keyFetchToken/:id', reply(db.keyFetchToken))
   api.del('/keyFetchToken/:id', reply(db.deleteKeyFetchToken))

@@ -179,8 +179,10 @@ module.exports = function (log, error) {
   }
 
   // Insert : sessionTokens
-  // Values : tokenId = $1, tokenData = $2, uid = $3, createdAt = $4
-  var CREATE_SESSION_TOKEN = 'CALL createSessionToken_1(?, ?, ?, ?)'
+  // Values : tokenId = $1, tokenData = $2, uid = $3, createdAt = $4,
+  //          uaBrowser = $5, uaBrowserVersion = $6, uaOS = $7,
+  //          uaOSVersion = $8, uaDeviceType = $9
+  var CREATE_SESSION_TOKEN = 'CALL createSessionToken_2(?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createSessionToken = function (tokenId, sessionToken) {
     return this.write(
@@ -189,7 +191,12 @@ module.exports = function (log, error) {
         tokenId,
         sessionToken.data,
         sessionToken.uid,
-        sessionToken.createdAt
+        sessionToken.createdAt,
+        sessionToken.uaBrowser,
+        sessionToken.uaBrowserVersion,
+        sessionToken.uaOS,
+        sessionToken.uaOSVersion,
+        sessionToken.uaDeviceType
       ]
     )
   }
@@ -301,9 +308,11 @@ module.exports = function (log, error) {
   }
 
   // Select : sessionTokens t, accounts a
-  // Fields : t.tokenData, t.uid, t.createdAt, a.emailVerified, a.email, a.emailCode, a.verifierSetAt, a.locale
+  // Fields : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
+  //          t.uaOS, t.uaOSVersion, t.uaDeviceType, t.lastAccessTime,
+  //          a.emailVerified, a.email, a.emailCode, a.verifierSetAt, a.locale
   // Where  : t.tokenId = $1 AND t.uid = a.uid
-  var SESSION_TOKEN = 'CALL sessionToken_1(?)'
+  var SESSION_TOKEN = 'CALL sessionToken_2(?)'
 
   MySql.prototype.sessionToken = function (id) {
     return this.readFirstResult(SESSION_TOKEN, [id])
@@ -371,6 +380,27 @@ module.exports = function (log, error) {
 
   MySql.prototype.updatePasswordForgotToken = function (tokenId, token) {
     return this.write(UPDATE_PASSWORD_FORGOT_TOKEN, [token.tries, tokenId])
+  }
+
+  // Update : sessionTokens
+  // Set    : uaBrowser = $1, uaBrowserVersion = $2, uaOS = $3, uaOSVersion = $4,
+  //          uaDeviceType = $5, lastAccessTime = $6
+  // Where  : tokenId = $7
+  var UPDATE_SESSION_TOKEN = 'CALL updateSessionToken_1(?, ?, ?, ?, ?, ?, ?)'
+
+  MySql.prototype.updateSessionToken = function (tokenId, token) {
+    return this.write(
+      UPDATE_SESSION_TOKEN,
+      [
+        token.uaBrowser,
+        token.uaBrowserVersion,
+        token.uaOS,
+        token.uaOSVersion,
+        token.uaDeviceType,
+        token.lastAccessTime,
+        tokenId
+      ]
+    )
   }
 
   // DELETE

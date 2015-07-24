@@ -61,6 +61,7 @@ The following datatypes are used throughout this document:
     * sessionToken              : `GET /sessionToken/:id`
     * deleteSessionToken        : `DEL /sessionToken/:id`
     * createSessionToken        : `PUT /sessionToken/:id`
+    * updateSessionToken        : `POST /sessionToken/:id/update`
 * Account Reset Tokens:
     * accountResetToken         : `GET /accountResetToken/:id`
     * deleteAccountResetToken   : `DEL /accountResetToken/:id`
@@ -482,6 +483,62 @@ Content-Length: 2
     * Content-Type : 'application/json'
     * Body : {"code":"InternalError","message":"...<message related to the error>..."}
 
+## updateSessionToken : `POST /sessionToken/<tokenId>/update`
+
+This updates the user agent and last-access time for a particular token.
+
+### Example
+
+```
+curl \
+    -v \
+    -X POST \
+    -H "Content-Type: application/json" \
+    -d '{
+        "uaBrowser" : "Firefox",
+        "uaBrowserVersion" : "42",
+        "usOS" : "Android",
+        "usOSVersion" : "5.1",
+        "uaDeviceType": "mobile",
+        "lastAccessTime": 1437992394186
+    }' \
+    http://localhost:8000/sessionToken/522c251a1623e1f1db1f4fe68b9594d26772d6e77e04cb68e110c58600f97a77/update
+```
+
+### Request
+
+* Method : POST
+* Path : `/sessionToken/<tokenId>/update`
+    * tokenId : hex256
+* Params:
+    * uaBrowser : string
+    * uaBrowserVersion : string
+    * uaOS : string
+    * uaOSVersion : string
+    * uaDeviceType : string
+    * lastAccessTime : epoch
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : {}
+* Status Code : 404 Not Found
+    * Conditions: if this session `tokenId` doesn't exist
+    * Content-Type : 'application/json'
+    * Body : `{"message":"Not Found"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
 ## accountDevices : `GET /account/<uid>/devices`
 
@@ -1199,7 +1256,7 @@ curl \
 
 ### Request
 
-* Method : PUT
+* Method : POST
 * Path : `/passwordForgotToken/<tokenId>/update`
     * tokenId : hex256
 * Params:

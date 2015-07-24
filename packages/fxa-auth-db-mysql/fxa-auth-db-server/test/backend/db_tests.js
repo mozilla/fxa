@@ -41,7 +41,12 @@ var SESSION_TOKEN_ID = hex32()
 var SESSION_TOKEN = {
   data : hex32(),
   uid : ACCOUNT.uid,
-  createdAt: now + 1
+  createdAt : now + 1,
+  uaBrowser : 'mock browser',
+  uaBrowserVersion : 'mock browser version',
+  uaOS : 'mock OS',
+  uaOSVersion : 'mock OS version',
+  uaDeviceType : 'mock device type'
 }
 
 var KEY_FETCH_TOKEN_ID = hex32()
@@ -197,7 +202,7 @@ module.exports = function(config, DB) {
         test(
           'session token handling',
           function (t) {
-            t.plan(10)
+            t.plan(30)
             return db.createSessionToken(SESSION_TOKEN_ID, SESSION_TOKEN)
               .then(function(result) {
                 t.deepEqual(result, {}, 'Returned an empty object on session token creation')
@@ -208,6 +213,41 @@ module.exports = function(config, DB) {
                 t.deepEqual(token.tokenData, SESSION_TOKEN.data, 'token data matches')
                 t.deepEqual(token.uid, ACCOUNT.uid, 'token belongs to this account')
                 t.equal(token.createdAt, SESSION_TOKEN.createdAt, 'createdAt is correct')
+                t.equal(token.uaBrowser, SESSION_TOKEN.uaBrowser, 'uaBrowser is correct')
+                t.equal(token.uaBrowserVersion, SESSION_TOKEN.uaBrowserVersion, 'uaBrowserVersion is correct')
+                t.equal(token.uaOS, SESSION_TOKEN.uaOS, 'uaOS is correct')
+                t.equal(token.uaOSVersion, SESSION_TOKEN.uaOSVersion, 'uaOSVersion is correct')
+                t.equal(token.uaDeviceType, SESSION_TOKEN.uaDeviceType, 'uaDeviceType is correct')
+                t.equal(token.lastAccessTime, SESSION_TOKEN.createdAt, 'lastAccessTime was set')
+                t.equal(!!token.emailVerified, ACCOUNT.emailVerified, 'token emailVerified is same as account emailVerified')
+                t.equal(token.email, ACCOUNT.email, 'token email same as account email')
+                t.deepEqual(token.emailCode, ACCOUNT.emailCode, 'token emailCode same as account emailCode')
+                t.equal(token.verifierSetAt, ACCOUNT.verifierSetAt, 'verifierSetAt is correct')
+              })
+              .then(function() {
+                return db.updateSessionToken(SESSION_TOKEN_ID, {
+                  uaBrowser: 'foo',
+                  uaBrowserVersion: '1',
+                  uaOS: 'bar',
+                  uaOSVersion: '2',
+                  uaDeviceType: 'baz',
+                  lastAccessTime: 42
+                })
+              })
+              .then(function(result) {
+                t.deepEqual(result, {}, 'Returned an empty object on session token update')
+                return db.sessionToken(SESSION_TOKEN_ID)
+              })
+              .then(function(token) {
+                t.deepEqual(token.tokenData, SESSION_TOKEN.data, 'token data matches')
+                t.deepEqual(token.uid, ACCOUNT.uid, 'token belongs to this account')
+                t.equal(token.createdAt, SESSION_TOKEN.createdAt, 'createdAt is correct')
+                t.equal(token.uaBrowser, 'foo', 'uaBrowser is correct')
+                t.equal(token.uaBrowserVersion, '1', 'uaBrowserVersion is correct')
+                t.equal(token.uaOS, 'bar', 'uaOS is correct')
+                t.equal(token.uaOSVersion, '2', 'uaOSVersion is correct')
+                t.equal(token.uaDeviceType, 'baz', 'uaDeviceType is correct')
+                t.equal(token.lastAccessTime, 42, 'lastAccessTime is correct')
                 t.equal(!!token.emailVerified, ACCOUNT.emailVerified, 'token emailVerified is same as account emailVerified')
                 t.equal(token.email, ACCOUNT.email, 'token email same as account email')
                 t.deepEqual(token.emailCode, ACCOUNT.emailCode, 'token emailCode same as account emailCode')
@@ -749,7 +789,7 @@ module.exports = function(config, DB) {
             var anotherSessionToken = {
               data : hex32(),
               uid : ACCOUNT.uid,
-              createdAt: Date.now(),
+              createdAt: Date.now()
             }
             db.createSessionToken(SESSION_TOKEN_ID, SESSION_TOKEN)
               .then(function(sessionToken) {
