@@ -1,3 +1,17 @@
+train-42
+  * tests(e2e-email): updates to reflect current l10n state in train-41 - #976
+  * chore(lint): remove jshintrc from repo - #982
+  * fix(tests): add an EventEmitter to test/mailbox - #985
+  * fix(api): accept service as a query parameter - #961
+  * fix(errors): convert missing parameter errors correctly - 986
+  * fix(tests): verifyHash should no longer be returned - #995
+  * fix(tests): skip 3 pt-BR specific tests due to no translation yet - #995
+  * chore(shrinkwrap): update shrinkwrap, primarily to bring in updated auth-mailer l10n & fxa-auth-db-{mem,server} - #995
+
+train-41
+  * chore(travis): Tell Travis to use #fxa-bots - #971
+  * chore(shrinkwrap): update shrinkwrap, mostly for auth-{db-server,db-mem,mailer} and content-server-l10n - #975
+  
 train-40
   * feat(email): issue 875 notification emails - #876
   * fix(password): check for 400 from check password - #964

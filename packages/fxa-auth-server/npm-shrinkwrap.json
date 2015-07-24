@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.41.0",
+  "version": "1.42.0",
   "dependencies": {
     "ass": {
       "version": "1.0.0",
@@ -453,9 +453,9 @@
           }
         },
         "fxa-auth-db-server": {
-          "version": "0.41.0",
-          "from": "git://github.com/mozilla/fxa-auth-db-server.git#d7afa068e182c8017b2a2d81f4c848a73a9f83dc",
-          "resolved": "git://github.com/mozilla/fxa-auth-db-server.git#d7afa068e182c8017b2a2d81f4c848a73a9f83dc",
+          "version": "0.42.0",
+          "from": "git://github.com/mozilla/fxa-auth-db-server.git#3d5f649de3324be6c9c37076ea094b2fe3b7bdcd",
+          "resolved": "git://github.com/mozilla/fxa-auth-db-server.git#3d5f649de3324be6c9c37076ea094b2fe3b7bdcd",
           "dependencies": {
             "restify": {
               "version": "2.8.2",
@@ -534,9 +534,9 @@
                                   "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.1.tgz"
                                 },
                                 "minimatch": {
-                                  "version": "2.0.9",
+                                  "version": "2.0.10",
                                   "from": "minimatch@>=2.0.1 <3.0.0",
-                                  "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-2.0.9.tgz",
+                                  "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-2.0.10.tgz",
                                   "dependencies": {
                                     "brace-expansion": {
                                       "version": "1.1.0",
@@ -864,9 +864,9 @@
                           "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.1.tgz"
                         },
                         "minimatch": {
-                          "version": "2.0.9",
+                          "version": "2.0.10",
                           "from": "minimatch@>=2.0.1 <3.0.0",
-                          "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-2.0.9.tgz",
+                          "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-2.0.10.tgz",
                           "dependencies": {
                             "brace-expansion": {
                               "version": "1.1.0",
@@ -914,8 +914,8 @@
         },
         "fxa-content-server-l10n": {
           "version": "0.0.0",
-          "from": "git://github.com/mozilla/fxa-content-server-l10n.git#aa75952fcab01d6463ab38a8b271435127f8f894",
-          "resolved": "git://github.com/mozilla/fxa-content-server-l10n.git#aa75952fcab01d6463ab38a8b271435127f8f894"
+          "from": "git://github.com/mozilla/fxa-content-server-l10n.git#31fe9e530eca4656ea044377cd96fdd9e3e63ec4",
+          "resolved": "git://github.com/mozilla/fxa-content-server-l10n.git#31fe9e530eca4656ea044377cd96fdd9e3e63ec4"
         },
         "handlebars": {
           "version": "1.3.0",
@@ -1126,9 +1126,9 @@
                           "resolved": "https://registry.npmjs.org/readdirp/-/readdirp-0.2.5.tgz",
                           "dependencies": {
                             "minimatch": {
-                              "version": "2.0.9",
+                              "version": "2.0.10",
                               "from": "minimatch@>=0.2.4",
-                              "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-2.0.9.tgz",
+                              "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-2.0.10.tgz",
                               "dependencies": {
                                 "brace-expansion": {
                                   "version": "1.1.0",
@@ -1483,9 +1483,9 @@
                               "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.1.tgz"
                             },
                             "minimatch": {
-                              "version": "2.0.9",
+                              "version": "2.0.10",
                               "from": "minimatch@>=2.0.1 <3.0.0",
-                              "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-2.0.9.tgz",
+                              "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-2.0.10.tgz",
                               "dependencies": {
                                 "brace-expansion": {
                                   "version": "1.1.0",
@@ -1719,7 +1719,7 @@
         },
         "findup-sync": {
           "version": "0.1.3",
-          "from": "findup-sync@>=0.1.2 <0.2.0",
+          "from": "findup-sync@>=0.1.0 <0.2.0",
           "resolved": "https://registry.npmjs.org/findup-sync/-/findup-sync-0.1.3.tgz",
           "dependencies": {
             "glob": {
@@ -1943,7 +1943,7 @@
               "dependencies": {
                 "inherits": {
                   "version": "2.0.1",
-                  "from": "inherits@>=2.0.0 <3.0.0",
+                  "from": "inherits@>=2.0.1 <3.0.0",
                   "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.1.tgz"
                 },
                 "minimatch": {
@@ -2191,12 +2191,12 @@
                     },
                     "es5-ext": {
                       "version": "0.10.7",
-                      "from": "es5-ext@>=0.10.6 <0.11.0",
+                      "from": "es5-ext@>=0.10.4 <0.11.0",
                       "resolved": "https://registry.npmjs.org/es5-ext/-/es5-ext-0.10.7.tgz"
                     },
                     "es6-iterator": {
                       "version": "0.1.3",
-                      "from": "es6-iterator@>=0.1.3 <0.2.0",
+                      "from": "es6-iterator@>=0.1.1 <0.2.0",
                       "resolved": "https://registry.npmjs.org/es6-iterator/-/es6-iterator-0.1.3.tgz"
                     },
                     "es6-symbol": {
@@ -2351,9 +2351,9 @@
               }
             },
             "minimatch": {
-              "version": "2.0.9",
+              "version": "2.0.10",
               "from": "minimatch@>=2.0.1 <3.0.0",
-              "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-2.0.9.tgz",
+              "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-2.0.10.tgz",
               "dependencies": {
                 "brace-expansion": {
                   "version": "1.1.0",
@@ -2865,9 +2865,9 @@
               "resolved": "https://registry.npmjs.org/ecdsa-sig-formatter/-/ecdsa-sig-formatter-1.0.2.tgz",
               "dependencies": {
                 "asn1.js": {
-                  "version": "2.1.2",
+                  "version": "2.1.3",
                   "from": "asn1.js@>=2.0.3 <3.0.0",
-                  "resolved": "https://registry.npmjs.org/asn1.js/-/asn1.js-2.1.2.tgz",
+                  "resolved": "https://registry.npmjs.org/asn1.js/-/asn1.js-2.1.3.tgz",
                   "dependencies": {
                     "bn.js": {
                       "version": "2.2.0",
@@ -3037,13 +3037,13 @@
                 },
                 "inherits": {
                   "version": "2.0.1",
-                  "from": "inherits@>=2.0.0 <3.0.0",
+                  "from": "inherits@>=2.0.1 <3.0.0",
                   "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.1.tgz"
                 },
                 "minimatch": {
-                  "version": "2.0.9",
+                  "version": "2.0.10",
                   "from": "minimatch@>=2.0.1 <3.0.0",
-                  "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-2.0.9.tgz",
+                  "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-2.0.10.tgz",
                   "dependencies": {
                     "brace-expansion": {
                       "version": "1.1.0",
@@ -3103,9 +3103,9 @@
               }
             },
             "minimatch": {
-              "version": "2.0.9",
+              "version": "2.0.10",
               "from": "minimatch@>=2.0.1 <3.0.0",
-              "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-2.0.9.tgz",
+              "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-2.0.10.tgz",
               "dependencies": {
                 "brace-expansion": {
                   "version": "1.1.0",
@@ -3149,7 +3149,7 @@
         },
         "encoding": {
           "version": "0.1.11",
-          "from": "encoding@>=0.1.11 <0.2.0",
+          "from": "encoding@*",
           "resolved": "https://registry.npmjs.org/encoding/-/encoding-0.1.11.tgz",
           "dependencies": {
             "iconv-lite": {
@@ -3731,9 +3731,9 @@
               }
             },
             "minimatch": {
-              "version": "2.0.9",
+              "version": "2.0.10",
               "from": "minimatch@>=2.0.1 <3.0.0",
-              "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-2.0.9.tgz",
+              "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-2.0.10.tgz",
               "dependencies": {
                 "brace-expansion": {
                   "version": "1.1.0",
@@ -3770,7 +3770,7 @@
         },
         "inherits": {
           "version": "2.0.1",
-          "from": "inherits@*",
+          "from": "inherits@>=2.0.1 <3.0.0",
           "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.1.tgz"
         },
         "mkdirp": {
