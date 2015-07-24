@@ -33,6 +33,10 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
       options = options || {};
 
       this._formPrefill = options.formPrefill;
+      var data = this.ephemeralData();
+      if (data) {
+        this._redirectTo = data.redirectTo;
+      }
     },
 
     beforeRender: function () {
@@ -161,7 +165,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
       return self.broker.afterSignIn(account)
         .then(function (result) {
           if (! (result && result.halt)) {
-            self.navigate('settings');
+            self.navigate(self._redirectTo || 'settings');
           }
 
           return result;

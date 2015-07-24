@@ -165,9 +165,11 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
           if (! isUserAuthorized) {
             // user is not authorized, make them sign in.
             var err = AuthErrors.toError('SESSION_EXPIRED');
-
             self.navigate(self._reAuthPage(), {
-              error: err
+              error: err,
+              data: {
+                redirectTo: self.router.getCurrentPage()
+              }
             });
             return false;
           }
