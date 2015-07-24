@@ -27,7 +27,6 @@ function _normalizeTag(item) {
 }
 
 function getGenericTags(body) {
-  /*eslint complexity: [2, 8] */
   // see more about tags here: http://docs.datadoghq.com/guides/metrics/
   var tags = [
     'campaign:' + body.campaign,

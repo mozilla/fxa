@@ -85,7 +85,6 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
 
   var BaseView = Backbone.View.extend({
     constructor: function (options) {
-      /*eslint complexity: [2, 10] */
       options = options || {};
 
       this.subviews = [];

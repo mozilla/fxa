@@ -11,7 +11,6 @@ define([
   './tools/firefox_profile'
 ],
 function (intern, topic, firefoxProfile) {
-  /*eslint complexity: [2, 11] */
   var args = intern.args;
   var fxaAuthRoot = args.fxaAuthRoot || 'http://127.0.0.1:9000/v1';
   var fxaContentRoot = args.fxaContentRoot || 'http://127.0.0.1:3030/';

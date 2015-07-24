@@ -30,8 +30,6 @@ function (_) {
    * }
    */
   function Cropper (options) {
-
-    /*eslint complexity: [2, 12] */
     this.displayLength = options.displayLength || DEFAULT_DISPLAY_LENGTH;
     this.exportLength = options.exportLength || DEFAULT_EXPORT_LENGTH;
 

@@ -295,7 +295,6 @@ function (
     },
 
     onAnchorClick: function (event) {
-      /*eslint complexity: [2, 7] */
       // if someone killed this event, or the user is holding a modifier
       // key, ignore the event.
       if (event.isDefaultPrevented() ||
