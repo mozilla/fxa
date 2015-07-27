@@ -1,3 +1,4 @@
+config/dev.js
 node_modules/
 sandbox/
 coverage.html
