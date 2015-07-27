@@ -33,3 +33,8 @@ before_script:
 script:
   - npm run outdated
   - grunt validate-shrinkwrap test
+
+matrix:
+  allow_failures:
+    - node_js: "iojs"
+  fast_finish: true
