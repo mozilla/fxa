@@ -1,6 +1,7 @@
 site_name: Firefox Accounts Documentation
 pages:
 - Home: 'index.md'
+- Development Process: 'dev-process.md'
 - Metrics:
     - 'Intro': 'metrics/index.md'
     - 'DataDog Documentation': 'metrics/datadog.md'

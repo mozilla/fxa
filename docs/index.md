@@ -27,29 +27,6 @@ from Mozilla.  We are not (yet) offering Firefox Accounts authentication to thir
 on the web.
 
 
-## Code
-
-![High-level architecture diagram showing relationships between different FxA services](img/fxa.png)
-
-Most repositories are [available via GitHub](https://github.com/mozilla?utf8=%E2%9C%93&query=fxa)
-
-### Core Servers
-
-- [fxa-content-server](https://github.com/mozilla/fxa-content-server)
-- [fxa-auth-server](https://github.com/mozilla/fxa-auth-server)
-- [fxa-oauth-server](https://github.com/mozilla/fxa-oauth-server)
-- [fxa-profile-server](https://github.com/mozilla/fxa-profile-server)
-- [fxa-auth-db-server](https://github.com/mozilla/fxa-auth-db-server)
-- [fxa-auth-db-mem](https://github.com/mozilla/fxa-auth-db-mem)
-- [fxa-auth-db-mysql](https://github.com/mozilla/fxa-auth-db-mysql)
-- [fxa-customs-server](https://github.com/mozilla/fxa-customs-server)
-
-### Other
-
-- [fxa-js-client](https://github.com/mozilla/fxa-js-client)
-- [fxa-relier-client](https://github.com/mozilla/fxa-relier-client)
-
-
 ## People and Places
 
 These fine folks are the globally distributed team at the core of Firefox Accounts
@@ -78,15 +55,38 @@ join us in the following forums:
 * The `#fxa` channel on [Mozilla IRC](https://wiki.mozilla.org/IRC)
 
 
+## Code
+
+![High-level architecture diagram showing relationships between different FxA services](img/fxa.png)
+
+Most repositories are [available via GitHub](https://github.com/mozilla?utf8=%E2%9C%93&query=fxa)
+
+You can read more about the [details of our development process](/dev-process.md)
+
+### Core Servers
+
+- [fxa-content-server](https://github.com/mozilla/fxa-content-server)
+- [fxa-auth-server](https://github.com/mozilla/fxa-auth-server)
+- [fxa-oauth-server](https://github.com/mozilla/fxa-oauth-server)
+- [fxa-profile-server](https://github.com/mozilla/fxa-profile-server)
+- [fxa-auth-db-server](https://github.com/mozilla/fxa-auth-db-server)
+- [fxa-auth-db-mem](https://github.com/mozilla/fxa-auth-db-mem)
+- [fxa-auth-db-mysql](https://github.com/mozilla/fxa-auth-db-mysql)
+- [fxa-customs-server](https://github.com/mozilla/fxa-customs-server)
+
+### Other
+
+- [fxa-js-client](https://github.com/mozilla/fxa-js-client)
+- [fxa-relier-client](https://github.com/mozilla/fxa-relier-client)
+
+
 ## Bugs
 
 Most of our work takes place on github, and we use [waffle.io](https://waffle.io) to provide an overview of bug status and activity:
 
-* [GitHub issues for front-end content](https://waffle.io/mozilla/fxa-content-server)
-* [GitHub issues for back-end APIs](https://waffle.io/mozilla/fxa-auth-server)
+* [All GitHub issues for Firefox Accounts](https://waffle.io/mozilla/fxa)
 
-If you have found a bug in FxA, please file it via one of the two dashboards
-above.
+If you have found a bug in FxA, please file it via the dashboard above
 
 There is also a "Core/FxAccounts" bugzilla component that covers the accounts code inside Firefox itself, and a "Server: Firefox Accounts" component for when FxA code interacts with parts of Mozilla that operate out of bugzilla:
 
