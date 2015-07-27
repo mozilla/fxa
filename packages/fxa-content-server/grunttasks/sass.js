@@ -4,9 +4,6 @@
 
 module.exports = function (grunt) {
   grunt.config('sass', {
-    options: {
-      imagePath: '/images'
-    },
     styles: {
       files: {
         '<%= yeoman.app %>/styles/main.css': '<%= yeoman.app %>/styles/main.scss',

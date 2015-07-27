@@ -63,3 +63,8 @@ $fox-logo-zindex: 999;
 //IFrame close button
 $close-button-color: #c5cdd4;
 $close-button-zindex: $fox-logo-zindex + 1;
+
+$image-url-path: "/images/" !default;
+@function image-url($url) {
+  @return url("#{$image-url-path}#{$url}");
+}
