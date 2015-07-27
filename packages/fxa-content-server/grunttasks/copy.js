@@ -20,6 +20,14 @@ module.exports = function (grunt) {
         src: [
           '**/*.po'
         ]
+      }, {
+        // Copy strings from hi_IN to hi
+        expand: true,
+        cwd: '<%= yeoman.strings_src %>/hi_IN',
+        dest: '<%= yeoman.strings_dist %>/hi',
+        src: [
+          '**/*.po'
+        ]
       }]
     },
     tos_pp: { //eslint-disable-line camelcase
