@@ -59,12 +59,50 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
       });
     });
 
-    afterEach(function () {
-    });
-
     it('initializes client from authServerUrl', function () {
       client = new FxaClientWrapper({
         authServerUrl: AUTH_SERVER_URL
+      });
+    });
+
+    describe('errors', function () {
+      describe('realClient client returns a promise', function () {
+        it('are normalized to be AuthErrors based', function () {
+          // taken from the fxa-auth-server @
+          // https://github.com/mozilla/fxa-auth-server/blob/9dcdcd9b142a2ed93fc55ac187a501a7a2005c6b/lib/error.js#L290-L308
+          sinon.stub(realClient, 'signUp', function () {
+            return p.reject({
+              code: 429,
+              error: 'Too Many Requests',
+              errno: 114,
+              message: 'Client has sent too many requests',
+              retryAfter: 30
+            });
+          });
+
+          return client.signUp(email, password, relier)
+            .fail(function (err) {
+              assert.equal(err.message, AuthErrors.toMessage(114));
+              assert.equal(err.namespace, AuthErrors.NAMESPACE);
+              assert.equal(err.code, 429);
+              assert.equal(err.errno, 114);
+              assert.equal(err.retryAfter, 30);
+              realClient.signUp.restore();
+            });
+        });
+      });
+
+      describe('realClient does not return a promise', function () {
+        it('does not normalize', function () {
+          sinon.stub(realClient, 'signUp', function () {
+            return true;
+          });
+
+          return client._getClient()
+            .then(function (wrappedClient) {
+              assert.isTrue(wrappedClient.signUp(email, password, relier));
+            });
+        });
       });
     });
 
