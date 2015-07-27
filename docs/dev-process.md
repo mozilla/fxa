@@ -46,3 +46,46 @@ broad initiatives:
 * Issues that need to be resolved before the release of a particular Firefox version
   are labelled with a 'FxVERSION' tag, e.g. ["Fx42"](https://waffle.io/mozilla/fxa?label=Fx42).
 
+
+## Code Review
+
+This project is production Mozilla code and subject to our [engineering practices and quality standards](https://developer.mozilla.org/en-US/docs/Mozilla/Developer_guide/Committing_Rules_and_Responsibilities).  Every patch must be [reviewed](https://developer.mozilla.org/en-US/docs/Code_Review_FAQ) by an owner or peer of the [Firefox Accounts module](https://wiki.mozilla.org/Modules/Other#Firefox_Accounts).
+
+### Review Checklist
+
+Here are some handy questions and things to consider when reviewing code for Firefox Accounts:
+
+* How will we tell if this change is successful?
+    * If it's fixing a bug, have we introduced tests to ensure the bug stays fixed?
+    * If it's a feature, do we have metrics to tell whether it's providing value?
+    * Should it be A/B tested to check whether it's a good idea at all?
+* Did test coverage increase, or at least stay the same?
+    * We need a pretty good reason to merge code that decreases test coverage...
+    * If it's hard to answer this question, consider adding a test that tests the test coverage.
+* Does it introduce new user-facing strings?
+    * These strings will need to go through our localization process.  Check that the
+      templates in which they're defined are covered by our string extraction scripts.
+    * The code must be merged before the string-extraction date for that development cycle.
+* Does it store user-provided data?
+    * The validation rules should be explicit, documented, and clearly enforced before storage.
+* Does it display user-controlled data?
+    * It must be appropriately escaped, e.g. htmlescaped before being insrted into web content.
+* Does it involve a database schema migration?
+    * The changes must be backwards-compatible with the previous deployed version.  This means
+      that you can't do something like `ALTER TABLE CHANGE COLUMN` in a single deployment, but
+      must split it into two: one to add the new column and start using it, and second to
+      drop the now-unused old column.
+    * Does it contain any long-running statements that might lock tables during deployment?
+    * Can the changes be rolled back without data loss or a service outage?
+    * Has the canonical db schema been kept in sync with the patch files?
+    * Once merged, please file an Ops bug to track deployment in stage and production.
+* Does it alter the public API of a service?
+    * Ensure that the chage is backwards compatible.
+    * Ensure that it's documented appropriately in the API description.
+    * Note whether we should announce it on one or more developer mailing lists.
+* Does it add new metrics or logging?
+    * Make sure they're documented for future reference.
+* Does it conform to the prevailing style of the codebase?
+    * If it introduces new files, ensure they're covered by the linter.
+    * If you notice a stylistic issue that was *not* detected by the linter,
+      consider updating the linter.
