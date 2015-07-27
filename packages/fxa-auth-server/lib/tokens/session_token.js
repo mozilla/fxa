@@ -6,6 +6,12 @@ module.exports = function (log, inherits, Token) {
 
   function SessionToken(keys, details) {
     Token.call(this, keys, details)
+    this.uaBrowser = details.uaBrowser
+    this.uaBrowserVersion = details.uaBrowserVersion
+    this.uaOS = details.uaOS
+    this.uaOSVersion = details.uaOSVersion
+    this.uaDeviceType = details.uaDeviceType
+    this.lastAccessTime = details.lastAccessTime
     this.email = details.email || null
     this.emailCode = details.emailCode || null
     this.emailVerified = !!details.emailVerified

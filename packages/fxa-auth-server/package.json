@@ -41,6 +41,7 @@
     "request": "2.55.0",
     "scrypt-hash": "1.1.12",
     "through": "2.3.7",
+    "ua-parser": "0.3.5",
     "uuid": "1.4.1"
   },
   "devDependencies": {
@@ -59,7 +60,9 @@
     "mailparser": "0.5.1",
     "nock": "1.7.1",
     "pem-jwk": "1.5.1",
+    "proxyquire": "1.6.0",
     "simplesmtp": "0.3.35",
+    "sinon": "1.15.4",
     "sjcl": "1.0.2",
     "tap": "0.7.1"
   }
