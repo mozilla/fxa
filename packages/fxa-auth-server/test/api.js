@@ -4,9 +4,10 @@
 
 const url = require('url');
 const assert = require('insist');
-const bidcrypto = require('browserid-crypto');
 const nock = require('nock');
 const buf = require('buf').hex;
+const generateRSAKeypair = require('generate-rsa-keypair');
+const JWTool = require('fxa-jwtool');
 
 const auth = require('../lib/auth');
 const config = require('../lib/config');
@@ -15,8 +16,6 @@ const encrypt = require('../lib/encrypt');
 const P = require('../lib/promise');
 const Server = require('./lib/server');
 const unique = require('../lib/unique');
-
-require('browserid-crypto/lib/algs/ds');
 
 const USERID = unique(16).toString('hex');
 const VEMAIL = unique(4).toString('hex') + '@mozilla.com';
@@ -37,46 +36,35 @@ function mockAssertion() {
   return nock(parts.protocol + '//' + parts.host).post(parts.path);
 }
 
-var genKeypair = P.promisify(bidcrypto.generateKeypair);
-var certSign = P.promisify(bidcrypto.cert.sign);
-var assertionSign = P.promisify(bidcrypto.assertion.sign);
 function genAssertion(email) {
-  // seriously wtf. creating assertions is atrocious
-  return P.all([
-    genKeypair({
-      algorithm: 'DS',
-      keysize: 256
-    }),
-    genKeypair({
-      algorithm: 'DS',
-      keysize: 256
-    })
-  ]).spread(function(idp, user) {
-    var expiration = new Date();
-    return P.all([
-      certSign({
-        publicKey: user.publicKey,
-        // see fxa-assertion format
-        principal: {
-          email: email
-        }
-      }, {
-        expiresAt: expiration,
-        issuer: config.get('browserid.issuer'),
-        issuedAt: new Date()
-      }, {
-        'fxa-verifiedEmail': VEMAIL
+  var idp = JWTool.JWK.fromPEM(
+    generateRSAKeypair().private,
+    { iss: config.get('browserid.issuer') });
+  var userPair = generateRSAKeypair();
+  var userSecret = JWTool.JWK.fromPEM(
+    userPair.private,
+    { iss: config.get('browserid.issuer') });
+  var userPublic = JWTool.JWK.fromPEM(userPair.public);
+  var now = Date.now();
+  var cert = idp.signSync(
+    {
+      'public-key': userPublic,
+      principal: {
+        email: email
       },
-      idp.secretKey),
-      assertionSign({}, {
-        audience: 'oauth.fxa',
-        issuer: config.get('browserid.issuer'),
-        expiresAt: new Date()
-      }, user.secretKey)
-    ]);
-  }).spread(function (cert, assertion) {
-    return bidcrypto.cert.bundle([cert], assertion);
-  });
+      iat: now - 1000,
+      exp: now,
+      'fxa-verifiedEmail': VEMAIL
+    }
+  );
+  var assertion = userSecret.signSync(
+    {
+      aud: 'oauth.fxa',
+      exp: now
+    }
+  );
+
+  return P.resolve(cert + '~' + assertion);
 }
 
 
