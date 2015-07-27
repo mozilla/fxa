@@ -43,13 +43,13 @@ function (_, Errors, Strings) {
       errno: 107,
       message: t('Expired code')
     },
-    INVALID_PARAMETER: {
+    INVALID_TOKEN: {
       errno: 108,
-      message: t('Invalid parameter in request body: %(param)s')
+      message: t('Invalid token')
     },
-    INVALID_REQUEST_SIGNATURE: {
+    INVALID_REQUEST_PARAMETER: {
       errno: 109,
-      message: t('Invalid request signature')
+      message: t('Invalid OAuth parameter: %(param)s')
     },
     INVALID_RESPONSE_TYPE: {
       errno: 110,
@@ -116,11 +116,15 @@ function (_, Errors, Strings) {
      */
     toInterpolationContext: function (err) {
       // For data returned by backend, see
-      // https://github.com/mozilla/fxa-auth-server/blob/master/error.js
+      // https://github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md#errors
       try {
         if (this.is(err, 'MISSING_PARAMETER')) {
           return {
             param: err.param
+          };
+        } else if (this.is(err, 'INVALID_REQUEST_PARAMETER')) {
+          return {
+            param: err.validation.keys.join(',')
           };
         }
       } catch (e) {
