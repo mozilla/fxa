@@ -139,7 +139,7 @@ module.exports = {
       redirect: Joi.string(),
       access_token: validators.token,
       token_type: Joi.string().valid('bearer'),
-      scope: Joi.string(),
+      scope: Joi.string().allow(''),
       auth_at: Joi.number(),
       expires_in: Joi.number()
     }).without('redirect', [

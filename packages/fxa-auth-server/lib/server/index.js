@@ -55,13 +55,17 @@ exports.create = function createServer() {
   // hapi internal logging: server and request
   server.on('log', function onServerLog(ev, tags) {
     if (tags.error && tags.implementation) {
-      hapiLogger.critical('error.uncaught', { tags: ev.tags, error: ev.data });
+      hapiLogger.critical('error.uncaught.server', ev.data);
     }
   });
 
   server.on('request', function onRequestLog(req, ev, tags) {
     if (tags.error && tags.implementation) {
-      hapiLogger.critical('error.uncaught', { tags: ev.tags, error: ev.data });
+      if (ev.data.stack.indexOf('hapi/lib/validation.js') !== -1) {
+        hapiLogger.error('error.payload.validation', ev.data);
+      } else {
+        hapiLogger.critical('error.uncaught.request', ev.data);
+      }
     }
   });
 
