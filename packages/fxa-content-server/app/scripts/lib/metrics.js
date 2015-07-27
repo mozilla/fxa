@@ -71,7 +71,6 @@ define([
   }
 
   function Metrics (options) {
-    /*eslint complexity: [2, 27] */
     options = options || {};
 
     // by default, send the metrics to the content server.

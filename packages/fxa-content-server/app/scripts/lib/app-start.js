@@ -396,7 +396,6 @@ function (
     },
 
     initializeAuthenticationBroker: function () {
-      /*eslint complexity: [2, 8] */
       if (! this._authenticationBroker) {
         if (this._isFirstRun()) {
           this._authenticationBroker = new FirstRunAuthenticationBroker({
