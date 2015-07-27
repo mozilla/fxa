@@ -74,7 +74,6 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
 
       this._able = options.able;
       this._subViewToShow = options.subView;
-      this._subViews = [];
       this.notifications = options.notifications;
 
       this.on('navigate-from-subview', this._onNavigateFromSubview.bind(this));
@@ -95,6 +94,25 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
       'click #signout': BaseView.preventDefaultThen('submit')
     },
 
+    _onProfileChange: function () {
+      this._showAvatar();
+
+      // re-render views that depend on profile data
+      renderView(this._subviewInstanceFromClass(AvatarView));
+      renderView(this._subviewInstanceFromClass(DisplayNameView));
+    },
+
+    // When we navigate to settings from a subview
+    // close the modal, destroy any avatar view, and
+    // show any ephemeral messages passed to `navigate`
+    _onNavigateFromSubview: function () {
+      if ($.modal.isActive()) {
+        $.modal.close();
+      }
+      this._closeAvatarView();
+      this.showEphemeralMessages();
+    },
+
     showSubView: function (SubView, options) {
       if (SUBVIEWS.indexOf(SubView) === -1 && AVATAR_VIEWS.indexOf(SubView) === -1) {
         return;
@@ -112,38 +130,17 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
           });
       }
 
-      var subView = self.subviewInstanceFromClass(SubView);
+      var subView = self._subviewInstanceFromClass(SubView);
       subView.openPanel();
-
-      // TODO logScreen here?
+      subView.logScreen();
     },
 
-    subviewInstanceFromClass: function (SubView) {
+    _subviewInstanceFromClass: function (SubView) {
       return this.subviews.filter(function (subView) {
         if (subView instanceof SubView) {
           return true;
         }
       })[0];
-    },
-
-    _onProfileChange: function () {
-      var account = this.getSignedInAccount();
-      this._showAvatar();
-      this.$('.username').text(account.get('email'));
-
-      // re-render views that depend on profile data
-      renderView(this.subviewInstanceFromClass(AvatarView));
-      renderView(this.subviewInstanceFromClass(DisplayNameView));
-    },
-
-    // When we navigate to settings from a subview
-    // close the modal and destroy any avatar view
-    _onNavigateFromSubview: function () {
-      if ($.modal.isActive()) {
-        $.modal.close();
-      }
-      this._closeAvatarView();
-      this.showEphemeralMessages();
     },
 
     _openModal: function (view) {
@@ -159,7 +156,7 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
     },
 
     _onCloseModal: function () {
-      this.subviewInstanceFromClass(AvatarView).closePanelReturnToSettings();
+      this._subviewInstanceFromClass(AvatarView).closePanelReturnToSettings();
     },
 
     _closeAvatarView: function () {
@@ -171,17 +168,6 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
         view.closePanel();
         view.destroy(true);
       }
-    },
-
-    _closeSubViews: function () {
-      var self = this;
-
-      SUBVIEWS.forEach(function (subView) {
-        var selector = '.' + self._subViewClass(subView);
-        if (self.$(selector).hasClass('open')) {
-          self.$(selector).removeClass('open');
-        }
-      });
     },
 
     _subViewClass: function (SubView) {
@@ -206,7 +192,6 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
 
       if (self._isAvatarView(SubView)) {
         self._avatarView = view;
-        self.$(selector).addClass('avatar-view');
       }
 
       self.trackSubview(view);
@@ -232,11 +217,16 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
 
     afterRender: function () {
       var self = this;
+      var areCommunicationPrefsVisible = self._areCommunicationPrefsVisible();
+      var SubViews = SUBVIEWS.filter(function (SubView) {
+        return SubView !== CommunicationPreferencesView ||
+                areCommunicationPrefsVisible;
+      });
 
       self.logScreenEvent('communication-prefs-link.visible.' +
-          String(self._areCommunicationPrefsVisible()));
+          String(areCommunicationPrefsVisible));
 
-      return p.all(SUBVIEWS.map(function (SubView) {
+      return p.all(SubViews.map(function (SubView) {
         return self._renderSubView(SubView);
       }));
     },
@@ -269,21 +259,26 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
       });
     },
 
+    afterVisible: function () {
+      var self = this;
+      FormView.prototype.afterVisible.call(self);
+
+      if (self._subViewToShow) {
+        self.showSubView(self._subViewToShow);
+      }
+
+      return self._showAvatar();
+    },
+
     _isAvatarLinkVisible: function (account) {
       var email = account.get('email');
       // For automated testing accounts, emails begin with "avatarAB-" and end with "restmail.net"
       var isTestAccount = /^avatarAB-.+@restmail\.net$/.test(email);
 
-      return true || isTestAccount ||
+      return isTestAccount ||
              this.hasDisplayedAccountProfileImage() ||
              account.get('hadProfileImageSetBefore') ||
              this._able.choose('avatarLinkVisible', { email: email });
-    },
-
-    _areCommunicationPrefsVisible: function () {
-      return this._able.choose('communicationPrefsVisible', {
-        lang: this.navigator.language
-      });
     },
 
     _setupAvatarChangeLinks: function (show) {
@@ -301,15 +296,10 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
         });
     },
 
-    afterVisible: function () {
-      var self = this;
-      FormView.prototype.afterVisible.call(self);
-
-      if (self._subViewToShow) {
-        self.showSubView(self._subViewToShow);
-      }
-
-      return self._showAvatar();
+    _areCommunicationPrefsVisible: function () {
+      return this._able.choose('communicationPrefsVisible', {
+        lang: this.navigator.language
+      });
     }
   });
 

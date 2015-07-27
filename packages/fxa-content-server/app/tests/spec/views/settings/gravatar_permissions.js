@@ -6,13 +6,15 @@ define([
   'chai',
   'jquery',
   'sinon',
+  'lib/promise',
   'views/settings/gravatar_permissions',
   'lib/metrics',
+  'models/reliers/relier',
   'models/user',
   '../../../mocks/router',
   '../../../lib/helpers'
 ],
-function (chai, $, sinon, View, Metrics, User, RouterMock, TestHelpers) {
+function (chai, $, sinon, p, View, Metrics, Relier, User, RouterMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -24,6 +26,7 @@ function (chai, $, sinon, View, Metrics, User, RouterMock, TestHelpers) {
     var user;
     var email;
     var account;
+    var relier;
     var SERVICE_NAME = 'Gravatar';
 
     beforeEach(function () {
@@ -31,9 +34,11 @@ function (chai, $, sinon, View, Metrics, User, RouterMock, TestHelpers) {
       routerMock = new RouterMock();
       metrics = new Metrics();
       user = new User();
+      relier = new Relier();
       account = user.initAccount({
         email: email,
         uid: 'uid',
+        verified: true,
         sessionToken: 'fake session token'
       });
     });
@@ -52,11 +57,16 @@ function (chai, $, sinon, View, Metrics, User, RouterMock, TestHelpers) {
         router: routerMock,
         metrics: metrics,
         user: user,
+        relier: relier,
         screenName: 'gravatar-permissions'
       });
 
       sinon.stub(view, 'getSignedInAccount', function () {
         return account;
+      });
+
+      sinon.stub(view, 'isUserAuthorized', function () {
+        return p(true);
       });
 
       return view.render()

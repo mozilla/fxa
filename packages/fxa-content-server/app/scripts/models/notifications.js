@@ -30,7 +30,9 @@ define([
         this._channels.push(options.iframeChannel);
       }
 
-      this._listen(options.tabChannel);
+      if (options.tabChannel) {
+        this._listen(options.tabChannel);
+      }
     },
 
     broadcast: function (event, data) {

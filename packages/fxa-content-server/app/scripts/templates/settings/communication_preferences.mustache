@@ -1,45 +1,43 @@
 <div id="communication-preferences" class="settings-unit">
-  <section>
-    <div class="settings-unit-stub">
-      <header class="settings-unit-summary">
-        <h2 class="settings-unit-title">{{#t}}Communication preferences{{/t}}</h2>
-      </header>
-      <button class="settings-button secondary settings-unit-toggle hidden"
-        data-href="settings/communication_preferences">{{#t}}Change{{/t}}</button>
-    </div>
+  <div class="settings-unit-stub">
+    <header class="settings-unit-summary">
+      <h2 class="settings-unit-title">{{#t}}Communication preferences{{/t}}</h2>
+    </header>
+    <button class="settings-button secondary settings-unit-toggle hidden"
+      data-href="settings/communication_preferences">{{#t}}Change{{/t}}</button>
+  </div>
 
-    <div class="settings-unit-details">
-    {{#error}}
-      <div class="error visible nudge">
-        {{error}}
+  <div class="settings-unit-details">
+  {{#error}}
+    <div class="error visible nudge">
+      {{error}}
+    </div>
+    <button class="settings-button secondary cancel">{{#t}}Cancel{{/t}}</button>
+  {{/error}}
+  {{^error}}
+    <div class="error"></div>
+
+    <form novalidate>
+      <p>
+        {{#t}}Get the latest news about Mozilla and Firefox.{{/t}}
+        {{#preferencesUrl}}
+          <a href="{{preferencesUrl}}" id="preferences-url" class="right">{{#t}}Email preferences{{/t}}</a>
+        {{/preferencesUrl}}
+      </p>
+
+      <div class="button-row">
+        <button type="submit" id="marketing-email-optin" class="marketing-email-optin settings-button primary">
+          {{#isOptedIn}}
+            {{#t}}Unsubscribe{{/t}}
+          {{/isOptedIn}}
+          {{^isOptedIn}}
+            {{#t}}Subscribe{{/t}}
+          {{/isOptedIn}}
+        </button>
+        <button class="settings-button secondary cancel">{{#t}}Cancel{{/t}}</button>
+
       </div>
-      <button class="settings-button secondary cancel">{{#t}}Cancel{{/t}}</button>
-    {{/error}}
-    {{^error}}
-      <div class="error"></div>
-
-      <form novalidate>
-        <p>
-          {{#t}}Get the latest news about Mozilla and Firefox.{{/t}}
-          {{#preferencesUrl}}
-            <a href="{{preferencesUrl}}" id="preferences-url" class="right">{{#t}}Email preferences{{/t}}</a>
-          {{/preferencesUrl}}
-        </p>
-
-        <div class="button-row">
-          <button type="submit" id="marketing-email-optin" class="marketing-email-optin settings-button primary">
-            {{#isOptedIn}}
-              {{#t}}Unsubscribe{{/t}}
-            {{/isOptedIn}}
-            {{^isOptedIn}}
-              {{#t}}Subscribe{{/t}}
-            {{/isOptedIn}}
-          </button>
-          <button class="settings-button secondary cancel">{{#t}}Cancel{{/t}}</button>
-
-        </div>
-      </form>
-    {{/error}}
-    </div>
-  </section>
+    </form>
+  {{/error}}
+  </div>
 </div>

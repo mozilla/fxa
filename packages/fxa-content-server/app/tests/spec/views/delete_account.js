@@ -82,7 +82,8 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics,
 
         account = user.initAccount({
           email: email,
-          sessionToken: 'abc123'
+          sessionToken: 'abc123',
+          verified: true
         });
 
         sinon.stub(view, 'getSignedInAccount', function () {
@@ -106,10 +107,6 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics,
           $('form input[type=password]').val('passwor');
 
           assert.equal(view.isValid(), false);
-        });
-
-        it('displays user email in session', function () {
-          assert.equal($('.prefill').text(), email);
         });
       });
 
@@ -141,10 +138,13 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics,
           });
 
           sinon.spy(broker, 'afterDeleteAccount');
+          sinon.stub(view, 'navigate', function () {
+          });
 
           return view.submit()
               .then(function () {
-                assert.equal(routerMock.page, 'signup');
+                assert.equal(view.navigate.args[0][0], 'signup');
+                assert.ok(view.navigate.args[0][1].success);
                 assert.isTrue(view.fxaClient.deleteAccount
                   .calledWith(email, password));
                 assert.isTrue(user.removeAccount.calledWith(account));

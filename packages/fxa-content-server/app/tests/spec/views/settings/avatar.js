@@ -84,38 +84,16 @@ function (chai, $, sinon, View, RouterMock, FxaClientMock,
 
         return view.render()
           .then(function () {
-            return view.afterVisible();
-          })
-          .then(function () {
-            assert.equal(view.$('.avatar-wrapper img').length, 0);
-          });
-      });
-
-      it('avatar fetch fails', function () {
-        sinon.stub(account, 'getAvatar', function () {
-          return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
-        });
-
-        return view.render()
-          .then(function () {
-            return view.afterVisible();
-          })
-          .then(function () {
-            assert.equal(view.$('.avatar-wrapper img').length, 0);
+            assert.equal(view.$('.add').length, 1);
           });
       });
 
       it('has an avatar set', function () {
-        sinon.stub(account, 'getAvatar', function () {
-          return p({ avatar: IMG_URL, id: 'bar' });
-        });
+        account.set('profileImageUrl', IMG_URL);
 
         return view.render()
           .then(function () {
-            return view.afterVisible();
-          })
-          .then(function () {
-            assert.equal(view.$('.avatar-wrapper img').attr('src'), IMG_URL);
+            assert.equal(view.$('.change').length, 1);
           });
       });
 

@@ -97,7 +97,7 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, Metrics, BaseView, For
                                   t('Subscribed successfully') :
                                   t('Unsubscribed successfully');
 
-          self.ephemeralMessages.set('success', successMessage);
+          self.displaySuccess(successMessage);
           return self.render();
         }, function (err) {
           self.displayError(err);

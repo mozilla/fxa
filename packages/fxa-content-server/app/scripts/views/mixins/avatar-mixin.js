@@ -87,7 +87,7 @@ define([
     updateProfileImage: function (profileImage, account) {
       var self = this;
       account.setProfileImage(profileImage);
-      self.user.setAccount(account)
+      return self.user.setAccount(account)
         .then(function () {
           self.notifications.profileChanged({
             uid: account.get('uid')
@@ -108,7 +108,7 @@ define([
       var self = this;
       var account = self.getSignedInAccount();
       account.set('displayName', displayName);
-      self.user.setAccount(account)
+      return self.user.setAccount(account)
         .then(function () {
           self.notifications.profileChanged({
             uid: account.get('uid')

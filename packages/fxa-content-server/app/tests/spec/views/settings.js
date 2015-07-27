@@ -7,20 +7,24 @@ define([
   'jquery',
   'sinon',
   'views/settings',
+  'views/settings/avatar',
   '../../mocks/router',
   '../../lib/helpers',
   'lib/fxa-client',
   'lib/promise',
+  'lib/profile-client',
   'lib/profile-errors',
   'lib/auth-errors',
   'lib/able',
   'lib/metrics',
+  'models/notifications',
   'models/reliers/relier',
   'models/profile-image',
   'models/user'
 ],
-function (chai, $, sinon, View, RouterMock, TestHelpers,
-      FxaClient, p, ProfileErrors, AuthErrors, Able, Metrics, Relier, ProfileImage, User) {
+function (chai, $, sinon, View, SubView, RouterMock, TestHelpers, FxaClient, p,
+  ProfileClient, ProfileErrors, AuthErrors, Able, Metrics, Notifications,
+  Relier, ProfileImage, User) {
   'use strict';
 
   var assert = chai.assert;
@@ -29,12 +33,18 @@ function (chai, $, sinon, View, RouterMock, TestHelpers,
     var view;
     var routerMock;
     var fxaClient;
+    var profileClient;
     var relier;
     var user;
     var account;
     var metrics;
-    var UID = 'uid';
     var able;
+    var notifications;
+
+    var ACCESS_TOKEN = 'access token';
+    var DISPLAY_NAME = 'joe';
+    var IMAGE_URL = 'url';
+    var UID = 'uid';
 
     function createView () {
       view = new View({
@@ -44,6 +54,7 @@ function (chai, $, sinon, View, RouterMock, TestHelpers,
         user: user,
         metrics: metrics,
         able: able,
+        notifications: notifications,
         screenName: 'settings'
       });
     }
@@ -53,7 +64,12 @@ function (chai, $, sinon, View, RouterMock, TestHelpers,
       metrics = new Metrics();
       relier = new Relier();
       fxaClient = new FxaClient();
-      user = new User();
+      profileClient = new ProfileClient();
+      user = new User({
+        fxaClient: fxaClient,
+        profileClient: profileClient
+      });
+      notifications = new Notifications();
       account = user.initAccount({
         uid: UID,
         email: 'a@a.com',
@@ -88,9 +104,6 @@ function (chai, $, sinon, View, RouterMock, TestHelpers,
 
     describe('with uid', function () {
       beforeEach(function () {
-        sinon.stub(view.fxaClient, 'isSignedIn', function () {
-          return p(true);
-        });
         relier.set('uid', UID);
       });
 
@@ -101,15 +114,36 @@ function (chai, $, sinon, View, RouterMock, TestHelpers,
         sinon.stub(user, 'setSignedInAccountByUid', function () {
           return p();
         });
+        account.set('accessToken', ACCESS_TOKEN);
 
         createView();
+        sinon.stub(view, 'isUserAuthorized', function () {
+          return p(true);
+        });
+        sinon.stub(account, 'fetchProfile', function () {
+          return p({ avatar: IMAGE_URL, displayName: DISPLAY_NAME });
+        });
+        sinon.stub(view, 'displayAccountProfileImage', function () {
+          return p();
+        });
+        sinon.stub(view.router, 'createView', function (View) {
+          var subview = new SubView({
+            fxaClient: fxaClient,
+            user: user,
+            relier: relier,
+          });
+          sinon.stub(subview, 'render', function () {
+            return p('');
+          });
+          return subview;
+        });
 
         return view.render()
           .then(function () {
             $('body').append(view.el);
           })
           .then(function () {
-            assert.ok(view.$('#fxa-settings-header').length);
+            assert.ok(view.$('.fxa-settings-header').length);
             assert.isTrue(user.getAccountByUid.calledWith(UID));
             assert.isTrue(user.setSignedInAccountByUid.calledWith(UID));
           });
@@ -124,23 +158,45 @@ function (chai, $, sinon, View, RouterMock, TestHelpers,
         });
 
         createView();
+        sinon.stub(view, 'isUserAuthorized', function () {
+          return p(false);
+        });
+        sinon.stub(account, 'fetchProfile', function () {
+          return p({ avatar: IMAGE_URL, displayName: DISPLAY_NAME });
+        });
+        sinon.stub(view, 'navigate', function () { });
 
         return view.render()
           .then(function () {
             $('body').append(view.el);
           })
           .then(function () {
-            assert.ok(view.$('#fxa-settings-header').length);
             assert.isTrue(user.getAccountByUid.calledWith(UID));
             assert.isTrue(user.clearSignedInAccount.called);
+            assert.equal(view.navigate.args[0][0], 'signin');
           });
       });
     });
 
     describe('with session', function () {
       beforeEach(function () {
-        sinon.stub(view.fxaClient, 'isSignedIn', function () {
+        sinon.stub(view, 'isUserAuthorized', function () {
           return p(true);
+        });
+        account.set('accessToken', ACCESS_TOKEN);
+        sinon.stub(account, 'fetchProfile', function () {
+          return p({ avatar: IMAGE_URL, displayName: DISPLAY_NAME });
+        });
+        sinon.stub(view.router, 'createView', function (View) {
+          var subview = new SubView({
+            fxaClient: fxaClient,
+            user: user,
+            relier: relier,
+          });
+          sinon.stub(subview, 'render', function () {
+            return p('');
+          });
+          return subview;
         });
 
         return view.render()
@@ -150,14 +206,13 @@ function (chai, $, sinon, View, RouterMock, TestHelpers,
       });
 
       it('shows the settings page', function () {
-        assert.ok(view.$('#fxa-settings-header').length);
+        assert.ok(view.$('.fxa-settings-header').length);
       });
 
       it('does not shows avatar change link non-mozilla account', function () {
         return view.afterVisible()
           .then(function () {
             assert.equal(view.$('.avatar-wrapper a').length, 0);
-            assert.notEqual(view.$('.change-avatar-text')[0].style.visibility, 'visible');
           });
       });
 
@@ -178,7 +233,6 @@ function (chai, $, sinon, View, RouterMock, TestHelpers,
 
         it('shows avatar change link for mozilla account', function () {
           assert.ok(view.$('.avatar-wrapper a').length);
-          assert.equal(view.$('.change-avatar-text')[0].style.visibility, 'visible');
         });
       });
 
@@ -198,7 +252,6 @@ function (chai, $, sinon, View, RouterMock, TestHelpers,
 
         it('shows avatar change link for account with profile image set', function () {
           assert.ok(view.$('.avatar-wrapper a').length);
-          assert.equal(view.$('.change-avatar-text')[0].style.visibility, 'visible');
         });
       });
 
@@ -215,7 +268,6 @@ function (chai, $, sinon, View, RouterMock, TestHelpers,
 
         it('shows avatar change link for account with profile image set', function () {
           assert.ok(view.$('.avatar-wrapper a').length);
-          assert.equal(view.$('.change-avatar-text')[0].style.visibility, 'visible');
         });
       });
 
@@ -329,40 +381,34 @@ function (chai, $, sinon, View, RouterMock, TestHelpers,
             });
         });
       });
-    });
 
-    describe('communication preferences link', function () {
-      it('is visible if enabled', function () {
-        sinon.stub(view, 'isUserAuthorized', function () {
-          return p(true);
-        });
-
-        sinon.stub(able, 'choose', function () {
-          return true;
-        });
-
-        return view.render()
-          .then(function () {
-            assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
-            assert.equal(view.$('#communications').length, 1);
+      describe('communication preferences link', function () {
+        it('is visible if enabled', function () {
+          sinon.stub(able, 'choose', function () {
+            return true;
           });
+
+          return view.render()
+            .then(function () {
+              assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
+              assert.equal(view.$('.communication-preferences').length, 1);
+            });
+        });
+
+        it('is not visible if disabled', function () {
+
+          sinon.stub(able, 'choose', function () {
+            return false;
+          });
+
+          return view.render()
+            .then(function () {
+              assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
+              assert.equal(view.$('.communications-preferences').length, 0);
+            });
+        });
       });
 
-      it('is not visible if disabled', function () {
-        sinon.stub(view, 'isUserAuthorized', function () {
-          return p(true);
-        });
-
-        sinon.stub(able, 'choose', function () {
-          return false;
-        });
-
-        return view.render()
-          .then(function () {
-            assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
-            assert.equal(view.$('#communications').length, 0);
-          });
-      });
     });
   });
 });

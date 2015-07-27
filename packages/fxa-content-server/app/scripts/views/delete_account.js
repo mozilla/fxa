@@ -24,9 +24,6 @@ function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
   var t = BaseView.t;
 
   var View = FormView.extend({
-    // user must be authenticated to delete their account
-    mustAuth: true,
-
     template: Template,
     className: 'delete-account',
 

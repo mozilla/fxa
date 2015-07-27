@@ -15,19 +15,21 @@ define([
       this.superView = options.superView;
     },
     events: {
-      'click .settings-unit-toggle': BaseView.preventDefaultThen('openPanel'),
+      'click .settings-unit-toggle': BaseView.preventDefaultThen('triggerPanel'),
       'click .cancel': BaseView.preventDefaultThen('closePanelReturnToSettings')
+    },
+
+    triggerPanel: function (event) {
+      var href = event && $(event.target).data('href');
+      if (href) {
+        this.navigate(href);
+      }
     },
 
     openPanel: function (event) {
       var unit = this.$('.settings-unit');
       unit.addClass('open');
       unit.removeClass('setting-updated');
-
-      var href = event && $(event.target).data('href');
-      if (href) {
-        this.navigate(href);
-      }
     },
 
     closePanelReturnToSettings: function () {
@@ -42,6 +44,9 @@ define([
 
     displaySuccess: function (msg) {
       var self = this;
+      if (! self.superView) {
+        return BaseView.prototype.displaySuccess.call(this, msg);
+      }
       self.superView.displaySuccess(msg);
       self.$('.settings-unit').addClass('setting-updated');
       self.$('.settings-unit').removeClass('open');

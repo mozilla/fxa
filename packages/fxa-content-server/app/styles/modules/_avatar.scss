@@ -194,13 +194,13 @@
   display: none;
 }
 
-.avatar-view section {
+section.avatar-panel {
   text-align: center;
-}
 
-.avatar-view .settings-button {
-  float: none;
-  width: 100%;
-  margin-bottom: 10px;
-  text-decoration: none;
+  .settings-button {
+    float: none;
+    width: 100%;
+    margin-bottom: 10px;
+    text-decoration: none;
+  }
 }

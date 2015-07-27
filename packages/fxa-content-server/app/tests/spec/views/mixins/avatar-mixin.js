@@ -130,10 +130,12 @@ define([
 
     describe('updateProfileImage', function () {
       it('stores the url', function () {
-        view.updateProfileImage(new ProfileImage({ url: 'url' }), account);
-        assert.equal(account.get('profileImageUrl'), 'url');
-        assert.isTrue(user.setAccount.calledWith(account));
-        assert.isTrue(notifications.profileChanged.calledWith({ uid: UID }));
+        view.updateProfileImage(new ProfileImage({ url: 'url' }), account)
+          .then(function () {
+            assert.equal(account.get('profileImageUrl'), 'url');
+            assert.isTrue(user.setAccount.calledWith(account));
+            assert.isTrue(notifications.profileChanged.calledWith({ uid: UID }));
+          });
       });
 
       it('deletes the url if null', function () {
@@ -157,6 +159,19 @@ define([
           });
       });
     });
+
+    describe('updateDisplayName', function () {
+      it('stores the name', function () {
+        view.updateDisplayName('joe')
+          .then(function () {
+            assert.equal(account.get('displayName'), 'joe');
+            assert.isTrue(view.getSignedInAccount.called);
+            assert.isTrue(user.setAccount.calledWith(account));
+            assert.isTrue(notifications.profileChanged.calledWith({ uid: UID }));
+          });
+      });
+    });
+
 
   });
 });

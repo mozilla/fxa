@@ -22,6 +22,8 @@ define([
       this.trigger('navigate', page);
     },
     getCurrentPage: function () {
+    },
+    createView: function () {
     }
   });
 
