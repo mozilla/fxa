@@ -1,6 +1,8 @@
 language: node_js
 node_js:
   - "0.10"
+  - "0.12"
+  - "iojs"
 
 services:
   - redis-server
@@ -12,6 +14,9 @@ os:
 matrix:
   allow_failures:
     - os: osx
+    - node_js: "0.12"
+    - node_js: "iojs"
+    - fast_finish: true
 
 before_install:
   - sudo apt-get install graphicsmagick
