@@ -32,6 +32,8 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
   Template) {
   'use strict';
 
+  var FADE_OUT_SETTINGS = 250;
+
   var t = BaseView.t;
 
   var SUBVIEWS = [
@@ -83,7 +85,7 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
       var account = this.getSignedInAccount();
 
       return {
-        username: _.escape(account.get('displayName') || account.get('email')),
+        username: account.get('email'),
         showSignOut: ! account.isFromSync(),
         communicationPrefsVisible: this._areCommunicationPrefsVisible()
       };
@@ -127,7 +129,7 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
     _onProfileChange: function () {
       var account = this.getSignedInAccount();
       this._showAvatar();
-      this.$('.username').text(account.get('displayName') || account.get('email'));
+      this.$('.username').text(account.get('email'));
 
       // re-render views that depend on profile data
       renderView(this.subviewInstanceFromClass(AvatarView));
@@ -260,8 +262,10 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
         });
     }),
 
-    beforeDestroy: function() {
-      $('body').removeClass('settings');
+    beforeDestroy: function () {
+      $('.settings').fadeOut(FADE_OUT_SETTINGS, function (){
+        $('body').removeClass('settings').show();
+      });
     },
 
     _isAvatarLinkVisible: function (account) {

@@ -12,15 +12,15 @@ body.settings .loading {
 }
 
 body.settings #main-content {
-  border: none;
   background: none;
+  border: none;
   box-shadow: none;
 }
 
 // settings header controls
 #fxa-settings-header-wrapper {
   background: #fff;
-  border-bottom: 1px solid #b4bdc3;
+  border-bottom: 1px solid $settings-header-border-bottom;
 
   @include respond-to('big') {
     height: 56px;
@@ -53,7 +53,6 @@ body.settings #main-content {
       line-height: 50px;
       padding-left: 36px;
     }
-
   }
 
   .settings-button {
@@ -62,8 +61,8 @@ body.settings #main-content {
     height: 30px;
 
     @include respond-to('big') {
-      width: 100px;
       margin-top: 13px;
+      width: 100px;
     }
 
     @include respond-to('small') {
@@ -73,23 +72,41 @@ body.settings #main-content {
   }
 
   .settings-success-wrapper {
-    position: absolute;
-    width: 500px;
-    left: 50%;
-    margin: 0 0 0 -250px;
-    top: 56px;
+    @include respond-to('big') {
+      left: 50%;
+      margin: 0 0 0 -250px;
+      position: absolute;
+      top: 56px;
+      width: 500px;
+    }
+
+    @include respond-to('small') {
+      position: fixed;
+      left: 0;
+      margin: 0;
+      width: 100%;
+      top: 0;
+    }
   }
 
   .settings-success {
-    background-color: rgb(205, 248, 208);
-    border-color: rgb(0, 170, 0);
-    border-radius: 0 0 2px 2px;
+    background-color: $settings-success-background-color;
+    border-color: $settings-success-border-color;
     border-style: solid;
-    border-width: 0 1px 1px;
     color: $text-color;
     margin: 0 auto;
     text-align: center;
     top: 0;
+
+    @include respond-to('big') {
+      border-radius: 0 0 $small-border-radius $small-border-radius;
+      border-width: 0 1px 1px;
+    }
+
+    @include respond-to('small') {
+      border-width: 0 0 1px 0;
+      width: 100%;
+    }
   }
 }
 
@@ -105,17 +122,17 @@ body.settings #main-content {
 
   .button-row & {
     @extend .settings-button;
-    padding: 0;
     margin: 0;
+    padding: 0;
 
     @include respond-to('big') {
-      width: 48%;
       height: 45px;
+      width: 48%;
     }
 
     @include respond-to('small') {
-      width: 48%;
       height: 40px;
+      width: 48%;
     }
 
     &:last-child {
@@ -150,7 +167,7 @@ body.settings #main-content {
 
   &.secondary {
     background: $html-background-color;
-    border: 1px solid #c1c1c1;
+    border: 1px solid $secondary-button-border-color;
     color: $text-color;
 
     &:active,
@@ -244,23 +261,24 @@ body.settings #main-content {
     display: inline-block;
     float: left;
     margin-top: 5px;
+    overflow: hidden;
 
     @include respond-to('big') {
-      width: 350px;
       margin-right: 10px;
+      width: 350px;
     }
 
     @include respond-to('small') {
-      width: 70%;
       margin-right: 1%;
+      width: 70%;
     }
   }
 
   .settings-unit-title {
     color: $text-color;
-    margin: 0;
     font-weight: normal;
     line-height: $medium-font;
+    margin: 0;
 
     @include respond-to('big') {
       font-size: $medium-font;
@@ -273,10 +291,10 @@ body.settings #main-content {
 
   .settings-unit-subtitle {
     color: $faint-text-color;
-    margin: 0;
     font-size: $small-font;
-    line-height: $small-font;
     font-weight: normal;
+    line-height: $small-font;
+    margin: 0;
   }
 
   .settings-unit-title,
@@ -296,11 +314,11 @@ body.settings #main-content {
 
 .settings-unit-details {
   display: none;
-  margin-top: 24px;
+  margin-top: 12px;
 
   p {
     color: $faint-text-color;
-    margin-bottom: 32px;
+    margin: 6px 0 24px;
   }
 }
 
@@ -313,7 +331,7 @@ body.settings #main-content {
 }
 
 .modal {
-  width: 420px;
-  border-radius: 4px;
+  border-radius: $big-border-radius;
   box-shadow: 0px 1px 5px black;
+  width: 420px;
 }
