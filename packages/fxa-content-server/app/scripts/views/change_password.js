@@ -61,6 +61,8 @@ function (Cocktail, BaseView, FormView, AuthErrors, Template, PasswordMixin,
           self.navigate('settings', {
             success: t('Password changed successfully')
           });
+
+          return self.render();
         }, function (err) {
           if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
             // the password is needed to poll whether the account has

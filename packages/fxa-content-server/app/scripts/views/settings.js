@@ -143,6 +143,7 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
         $.modal.close();
       }
       this._closeAvatarView();
+      this.showEphemeralMessages();
     },
 
     _openModal: function (view) {

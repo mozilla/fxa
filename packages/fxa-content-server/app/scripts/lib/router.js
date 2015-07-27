@@ -83,7 +83,7 @@ function (
       // If the current view is an instance of View, that means we're
       // navigating from a subview of the current view
       if (this.currentView instanceof View) {
-        this.currentView.trigger('navigate-from-subview');
+        this.currentView.trigger('navigate-from-subview', options);
       } else {
         this.createAndShowView(View, options);
       }
