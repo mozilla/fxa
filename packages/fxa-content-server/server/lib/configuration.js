@@ -220,7 +220,7 @@ var conf = module.exports = convict({
         'af', 'an', 'ar', 'as', 'ast', 'az', 'be', 'bg', 'bn-BD', 'bn-IN', 'br',
         'bs', 'ca', 'cs', 'cy', 'da', 'de', 'dsb', 'el', 'en', 'en-GB', 'en-ZA',
         'eo', 'es', 'es-AR', 'es-CL', 'es-MX', 'et', 'eu', 'fa', 'ff', 'fi',
-        'fr', 'fy', 'fy-NL', 'ga', 'ga-IE', 'gd', 'gl', 'gu', 'gu-IN', 'he',
+        'fr', 'fy', 'fy-NL', 'ga', 'ga-IE', 'gd', 'gl', 'gu', 'gu-IN', 'he', 'hi',
         'hi-IN', 'hr', 'hsb', 'ht', 'hu', 'hy-AM', 'id', 'is', 'it', 'it-CH', 'ja',
         'kk', 'km', 'kn', 'ko', 'ku', 'lij', 'lt', 'lv', 'mai', 'mk', 'ml',
         'mr', 'ms', 'nb-NO', 'ne-NP', 'nl', 'nn-NO', 'or', 'pa', 'pa-IN',

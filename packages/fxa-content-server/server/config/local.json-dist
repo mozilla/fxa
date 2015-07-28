@@ -13,7 +13,7 @@
   "use_https": false,
   "static_max_age" : 0,
   "i18n": {
-    "supportedLanguages": ["af", "an", "ar", "as", "ast", "az", "be", "bg", "bn-BD", "bn-IN", "br", "bs", "ca", "cs", "cy", "da", "de", "dsb", "el", "en", "en-GB", "en-ZA", "eo", "es", "es-AR", "es-CL", "es-MX", "et", "eu", "fa", "ff", "fi", "fr", "fy", "fy-NL", "ga", "ga-IE", "gd", "gl", "gu", "gu-IN", "he", "hi-IN", "hr", "hsb", "ht", "hu", "hy-AM", "id", "is", "it", "it-CH", "ja", "kk", "km", "kn", "ko", "ku", "lij", "lt", "lv", "mai", "mk", "ml", "mr", "ms", "nb-NO", "ne-NP", "nl", "nn-NO", "or", "pa", "pa-IN", "pl", "pt", "pt-BR", "pt-PT", "rm", "ro", "ru", "si", "sk", "sl", "son", "sq", "sr", "sr-LATN", "sv", "sv-SE", "ta", "te", "th", "tr", "uk", "ur", "vi", "xh", "zh-CN", "zh-TW", "zu"]
+    "supportedLanguages": ["af", "an", "ar", "as", "ast", "az", "be", "bg", "bn-BD", "bn-IN", "br", "bs", "ca", "cs", "cy", "da", "de", "dsb", "el", "en", "en-GB", "en-ZA", "eo", "es", "es-AR", "es-CL", "es-MX", "et", "eu", "fa", "ff", "fi", "fr", "fy", "fy-NL", "ga", "ga-IE", "gd", "gl", "gu", "gu-IN", "he", "hi", "hi-IN", "hr", "hsb", "ht", "hu", "hy-AM", "id", "is", "it", "it-CH", "ja", "kk", "km", "kn", "ko", "ku", "lij", "lt", "lv", "mai", "mk", "ml", "mr", "ms", "nb-NO", "ne-NP", "nl", "nn-NO", "or", "pa", "pa-IN", "pl", "pt", "pt-BR", "pt-PT", "rm", "ro", "ru", "si", "sk", "sl", "son", "sq", "sr", "sr-LATN", "sv", "sv-SE", "ta", "te", "th", "tr", "uk", "ur", "vi", "xh", "zh-CN", "zh-TW", "zu"]
   },
   "route_log_format": "dev_fxa",
   "logging": {
