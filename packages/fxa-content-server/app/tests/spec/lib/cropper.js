@@ -87,10 +87,9 @@ function (chai, sinon, jQuerySimulate, RouterMock, CanvasMock, p, Cropper, Ephem
             height: 7000,
             container: view.$('.cropper')
           });
-          cropper.canvas = new CanvasMock();
           assert.isTrue(resize.calledOnce);
-          assert.equal(cropper.img.width(), 240);
-          assert.equal(cropper.img.height(), 336.35);
+          assert.equal(cropper._originalHeight, 960);
+          assert.equal(cropper._originalWidth, 685);
           Cropper.prototype.resize.restore();
         });
     });
