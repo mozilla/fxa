@@ -7,6 +7,7 @@
     "blueimp-canvas-to-blob": "2.1.0",
     "chai": "1.8.1",
     "cocktail": "0.5.9",
+    "easteregg": "https://github.com/mozilla/fxa-easter-egg.git#724d487c5ed027dfeab789af6dd9308fd88b9961",
     "fxa-content-server-l10n": "https://github.com/mozilla/fxa-content-server-l10n.git",
     "fxa-js-client": "https://github.com/mozilla/fxa-js-client.git#0.1.30",
     "html5shiv": "3.7.2",
