@@ -56,7 +56,7 @@ define([
     'utm_term'
   ];
 
-  var TEN_MINS_MS = 10 * 60 * 1000;
+  var DEFAULT_INACTIVITY_TIMEOUT_MS = 2 * 60 * 1000;
   var NOT_REPORTED_VALUE = 'none';
   var UNKNOWN_CAMPAIGN_ID = 'unknown';
 
@@ -113,7 +113,7 @@ define([
     this._utmSource = options.utmSource || NOT_REPORTED_VALUE;
     this._utmTerm = options.utmTerm || NOT_REPORTED_VALUE;
 
-    this._inactivityFlushMs = options.inactivityFlushMs || TEN_MINS_MS;
+    this._inactivityFlushMs = options.inactivityFlushMs || DEFAULT_INACTIVITY_TIMEOUT_MS;
 
     this._marketingImpressions = {};
 
@@ -127,6 +127,11 @@ define([
     init: function () {
       this._flush = _.bind(this.flush, this);
       $(this._window).on('unload', this._flush);
+      // iOS will not send events once the window is in the background,
+      // meaning the `unload` handler is ineffective. Send events on blur
+      // instead, so events are not lost when a user goes to verify their
+      // email.
+      $(this._window).on('blur', this._flush);
 
       // Set the initial inactivity timeout to clear navigation timing data.
       this._resetInactivityFlushTimeout();
@@ -134,6 +139,7 @@ define([
 
     destroy: function () {
       $(this._window).off('unload', this._flush);
+      $(this._window).off('blur', this._flush);
       this._clearInactivityFlushTimeout();
     },
 

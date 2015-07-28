@@ -336,13 +336,36 @@ function (chai, $, p, Metrics, AuthErrors, Environment, sinon, _, WindowMock, Te
         });
       });
 
-      describe('getFilteredData', function () {
+      describe('sends filtered data to the server on window unload', function () {
         beforeEach(function (done) {
           sandbox.stub(metrics, '_send', function () {
             done();
           });
           metrics.logEvent('qux');
           $(windowMock).trigger('unload');
+        });
+
+        it('calls send correctly', function () {
+          assert.isTrue(metrics._send.calledOnce);
+          assert.lengthOf(metrics._send.getCall(0).args, 2);
+          assert.equal(metrics._send.getCall(0).args[1], '/metrics');
+
+          var data = metrics._send.getCall(0).args[0];
+          assert.lengthOf(Object.keys(data), 22);
+          assert.lengthOf(data.events, 3);
+          assert.equal(data.events[0].type, 'foo');
+          assert.equal(data.events[1].type, 'bar');
+          assert.equal(data.events[2].type, 'qux');
+        });
+      });
+
+      describe('sends filtered data to the server on window blur', function () {
+        beforeEach(function (done) {
+          sandbox.stub(metrics, '_send', function () {
+            done();
+          });
+          metrics.logEvent('qux');
+          $(windowMock).trigger('blur');
         });
 
         it('calls send correctly', function () {
