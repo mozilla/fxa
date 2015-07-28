@@ -61,9 +61,14 @@ The subject contains succinct description of the change:
 * don't capitalize first letter
 * no dot (.) at the end
 
-###Body (optional)
+###Body
+In order to maintain a reference to the context of the commit, add
+`fixes #<issue_number>` if it closes a related issue or `issue #<issue_number>`
+if it's a partial fix.
+
+You can also write a detailed description of the commit:
 Just as in the **subject**, use the imperative, present tense: "change" not "changed" nor "changes"
-The body should include the motivation for the change and contrast this with previous behavior.
+It should include the motivation for the change and contrast this with previous behavior.
 
 ###Footer
 The footer should contain any information about **Breaking Changes** and is also the place to
