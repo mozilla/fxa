@@ -6,10 +6,11 @@ node_js:
  - "iojs-v1"
  - "iojs-v2"
 
-services:
- - mysql
-
 notifications:
+  email:
+    - dcoates@mozilla.com
+    - jrgm@mozilla.com
+    - rfkelly@mozilla.com
   irc:
     channels:
       - "irc.mozilla.org#fxa-bots"
@@ -17,14 +18,14 @@ notifications:
     skip_join: false
 
 before_install:
-  - npm install -g npm@2
   - npm config set spin false
 
 before_script:
-  - mysql -e 'DROP DATABASE IF EXISTS fxa'
   - npm i grunt-cli -g
   - npm run outdated
-  - grunt validate-shrinkwrap --force
+
+install:
+  - npm install
 
 script:
   - npm test
