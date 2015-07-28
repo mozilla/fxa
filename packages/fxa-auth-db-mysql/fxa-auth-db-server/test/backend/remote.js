@@ -44,13 +44,29 @@ function respOkEmpty(t, r) {
 // Takes the test object (t) and the error object (err).
 function testNotFound(t, err) {
   t.equal(err.statusCode, 404, 'returns a 404')
-  t.deepEqual(err.body, { message : 'Not Found' }, 'Object contains no other fields')
+  t.deepEqual(err.body, {
+    message: 'Not Found',
+    errno: 116,
+    error: 'Not Found',
+    code: 404
+  }, 'Object contains no other fields')
+}
+
+// Helper function that tests for the server failure event.
+//
+// Takes two arguments:
+//
+// 1. the test object (t)
+// 2. the restify server object (server)
+function captureFailureEvents(t, server) {
+  server.on('failure', t.pass.bind(t, 'The server emitted the failure event'))
 }
 
 // To run these tests from a new backend, create a DB instance, start a test server
 // and pass the config containing the connection params to this function. The tests
-// will run against that server.
-module.exports = function(cfg) {
+// will run against that server. Second argument is the restify server object, for
+// testing of events via `server.on`.
+module.exports = function(cfg, server) {
 
   var d = P.defer()
 
@@ -111,11 +127,12 @@ module.exports = function(cfg) {
           respOk(t, r)
 
           var account = r.obj
-          var fields = 'accountId,email,emailCode,kA,verifierVersion,verifyHash,authSalt'.split(',')
+          var fields = 'accountId,email,emailCode,kA,verifierVersion,authSalt'.split(',')
           fields.forEach(function(f) {
             t.equal(user.account[f], account[f], 'Both Fields ' + f + ' are the same')
           })
           t.equal(user.account.emailVerified, !!account.emailVerified, 'Both fields emailVerified are the same')
+          t.notOk(account.verifyHash, 'verifyHash field should be absent')
         }, function(err) {
           t.fail('Error for some reason:' + err)
         })
@@ -129,11 +146,12 @@ module.exports = function(cfg) {
         .then(function(r) {
           respOk(t, r)
           var account = r.obj
-          var fields = 'accountId,email,emailCode,kA,verifierVersion,verifyHash,authSalt'.split(',')
+          var fields = 'accountId,email,emailCode,kA,verifierVersion,authSalt'.split(',')
           fields.forEach(function(f) {
             t.equal(user.account[f], account[f], 'Both Fields ' + f + ' are the same')
           })
           t.equal(user.account.emailVerified, !!account.emailVerified, 'Both fields emailVerified are the same')
+          t.notOk(account.verifyHash, 'verifyHash field should be absent')
         })
         .then(function() {
           return client.delThen('/account/' + user.accountId)
@@ -540,6 +558,86 @@ module.exports = function(cfg) {
             t.end()
           }
         )
+    }
+  )
+
+  test(
+    'GET an unknown path',
+    function (t) {
+      t.plan(3)
+      captureFailureEvents(t, server)
+      client.getThen('/foo')
+        .then(function(r) {
+          t.fail('This request should have failed (instead it suceeded)')
+          t.end()
+        }, function(err) {
+          testNotFound(t, err)
+          t.end()
+        })
+    }
+  )
+
+  test(
+    'PUT an unknown path',
+    function (t) {
+      t.plan(3)
+      captureFailureEvents(t, server)
+      client.putThen('/bar', {})
+        .then(function(r) {
+          t.fail('This request should have failed (instead it suceeded)')
+          t.end()
+        }, function(err) {
+          testNotFound(t, err)
+          t.end()
+        })
+    }
+  )
+
+  test(
+    'POST an unknown path',
+    function (t) {
+      t.plan(3)
+      captureFailureEvents(t, server)
+      client.postThen('/baz', {})
+        .then(function(r) {
+          t.fail('This request should have failed (instead it suceeded)')
+          t.end()
+        }, function(err) {
+          testNotFound(t, err)
+          t.end()
+        })
+    }
+  )
+
+  test(
+    'DELETE an unknown path',
+    function (t) {
+      t.plan(3)
+      captureFailureEvents(t, server)
+      client.delThen('/qux')
+        .then(function(r) {
+          t.fail('This request should have failed (instead it suceeded)')
+          t.end()
+        }, function(err) {
+          testNotFound(t, err)
+          t.end()
+        })
+    }
+  )
+
+  test(
+    'HEAD an unknown path',
+    function (t) {
+      t.plan(2)
+      captureFailureEvents(t, server)
+      client.headThen('/wibble')
+        .then(function(r) {
+          t.fail('This request should have failed (instead it suceeded)')
+          t.end()
+        }, function(err) {
+          t.deepEqual(err.body, {}, 'Body is empty since this is a HEAD request')
+          t.end()
+        })
     }
   )
 

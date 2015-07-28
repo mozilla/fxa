@@ -1,3 +1,19 @@
+train-42
+  * feat(api): Test to check passwordChangeToken returns the account.email address - #153
+  * fix(db): ensure that requests for bad paths are logged - #145
+  * refactor(tests): expect verifyHash to be absent from responses - #143
+  * chore(travis): Remove chilts from travis notifications - #156
+
+train-41
+  * fix(db-api): propagate all error fields - #151 
+  * chore(travis): Tell Travis to use #fxa-bots - #152
+
+train-40
+  * feat(db-api): Add AppError.incorrectPassword for the backends to use in checkPassword - #146
+  * chore(lint): Clean up some syntax errors reported by ESLint - #147
+  * chore(lint): Remove more semi colons - #149
+  * chore(lint): Replace JSHint with ESLint - #149
+  
 train-39
   * add check password api - #141
   * docs(api): Server_API.md docs - #145

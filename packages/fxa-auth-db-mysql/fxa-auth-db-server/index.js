@@ -5,6 +5,7 @@
 var restify = require('restify')
 var bufferize = require('./lib/bufferize')
 var version = require('./package.json').version
+var errors = require('./lib/error')
 
 function createServer(db) {
 
@@ -30,29 +31,39 @@ function createServer(db) {
               res.send(bufferize.unbuffer(result || {}))
             }
           },
-          function (err) {
-            if (typeof err !== 'object') {
-              err = { message: err || 'none' }
-            }
-            var statusCode = err.code || 500
-            api.emit(
-              'failure',
-              {
-                code: statusCode,
-                route: req.route.name,
-                method: req.method,
-                path: req.url,
-                err: err,
-                t: Date.now() - req.time(),
-              }
-            )
-
-            res.send(statusCode, err)
-          }
+          handleError.bind(null, req, res)
         )
         .done(next, next)
     }
   }
+
+  function handleError (req, res, err) {
+    if (typeof err !== 'object') {
+      err = { message: err || 'none' }
+    }
+
+    var statusCode = err.code || 500
+
+    api.emit(
+      'failure',
+      {
+        code: statusCode,
+        route: req.route ? req.route.name : 'unknown',
+        method: req.method,
+        path: req.url,
+        err: err,
+        t: Date.now() - req.time(),
+      }
+    )
+
+    res.send(statusCode, {
+      message: err.message,
+      errno: err.errno,
+      error: err.error,
+      code: err.code
+    })
+  }
+
   var api = restify.createServer()
   api.use(restify.bodyParser())
   api.use(bufferize.bufferizeRequest)
@@ -109,10 +120,14 @@ function createServer(db) {
   }, 15000)
   memInterval.unref()
 
+  api.on('NotFound', function (req, res) {
+    handleError(req, res, errors.notFound())
+  })
+
   return api
 }
 
 module.exports = {
   createServer: createServer,
-  errors: require('./lib/error')
+  errors: errors
 }

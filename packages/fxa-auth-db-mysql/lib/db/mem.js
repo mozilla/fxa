@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var P = require('bluebird')
+var extend = require('util')._extend
 
 // our data stores
 var accounts = {}
@@ -17,6 +18,23 @@ var accountUnlockCodes = {}
 module.exports = function (log, error) {
 
   function Memory(db) {}
+
+  function getAccountByUid (uid) {
+    if (!uid) {
+      return P.reject(error.notFound())
+    }
+    uid = uid.toString('hex')
+    if ( accounts[uid] ) {
+      return P.resolve(accounts[uid])
+    }
+    return P.reject(error.notFound())
+  }
+
+  function filterAccount (account) {
+    var item = extend({}, account)
+    delete item.verifyHash
+    return P.resolve(item)
+  }
 
   // CREATE
   Memory.prototype.createAccount = function (uid, data) {
@@ -204,7 +222,7 @@ module.exports = function (log, error) {
 
   Memory.prototype.checkPassword = function (uid, hash) {
 
-    return this.account(uid)
+    return getAccountByUid(uid)
       .then(function(account) {
         if(account.verifyHash.toString('hex') === hash.verifyHash.toString('hex')) {
           return P.resolve({uid: uid})
@@ -218,7 +236,7 @@ module.exports = function (log, error) {
   }
 
   Memory.prototype.accountDevices = function (uid) {
-    return this.account(uid)
+    return getAccountByUid(uid)
       .then(function(account) {
         var devices = Object.keys(account.devices).map(
           function (id) {
@@ -238,11 +256,10 @@ module.exports = function (log, error) {
   //   - the account if found
   //   - throws 'notFound' if not found
   Memory.prototype.account = function (uid) {
-    uid = uid.toString('hex')
-    if ( accounts[uid] ) {
-      return P.resolve(accounts[uid])
-    }
-    return P.reject(error.notFound())
+    return getAccountByUid(uid)
+      .then(function (account) {
+        return filterAccount(account)
+      })
   }
 
   // emailRecord():
@@ -255,10 +272,10 @@ module.exports = function (log, error) {
   //   - throws 'notFound' if not found
   Memory.prototype.emailRecord = function (email) {
     email = email.toString('utf8').toLowerCase()
-    if ( uidByNormalizedEmail[email] ) {
-      return P.resolve(accounts[uidByNormalizedEmail[email]])
-    }
-    return P.reject(error.notFound())
+    return getAccountByUid(uidByNormalizedEmail[email])
+      .then(function (account) {
+        return filterAccount(account)
+      })
   }
 
   // sessionToken()
@@ -352,6 +369,7 @@ module.exports = function (log, error) {
 
     var accountId = token.uid.toString('hex')
     var account = accounts[accountId]
+    item.email = account.email
     item.verifierSetAt = account.verifierSetAt
 
     return P.resolve(item)
@@ -380,7 +398,7 @@ module.exports = function (log, error) {
 
   // BATCH
   Memory.prototype.verifyEmail = function (uid) {
-    return this.account(uid)
+    return getAccountByUid(uid)
       .then(
         function (account) {
           account.emailVerified = 1
@@ -402,7 +420,7 @@ module.exports = function (log, error) {
   }
 
   Memory.prototype.resetAccount = function (uid, data) {
-    return this.account(uid)
+    return getAccountByUid(uid)
       .then(
         function (account) {
           uid = uid.toString('hex')
@@ -425,7 +443,7 @@ module.exports = function (log, error) {
   }
 
   Memory.prototype.deleteAccount = function (uid) {
-    return this.account(uid)
+    return getAccountByUid(uid)
       .then(
         function (account) {
           uid = uid.toString('hex')
@@ -444,7 +462,7 @@ module.exports = function (log, error) {
   }
 
   Memory.prototype.updateLocale = function (uid, data) {
-    return this.account(uid)
+    return getAccountByUid(uid)
       .then(
         function (account) {
           account.locale = data.locale
@@ -454,7 +472,7 @@ module.exports = function (log, error) {
   }
 
   Memory.prototype.lockAccount = function (uid, data) {
-    return this.account(uid)
+    return getAccountByUid(uid)
       .then(
         function (account) {
           account.lockedAt = data.lockedAt
@@ -468,7 +486,7 @@ module.exports = function (log, error) {
   }
 
   Memory.prototype.unlockAccount = function (uid) {
-    return this.account(uid)
+    return getAccountByUid(uid)
       .then(
         function (account) {
           account.lockedAt = null
@@ -476,7 +494,7 @@ module.exports = function (log, error) {
           return {}
         },
         function(err) {
-          // The only error from this.account(uid) could be a 404 Not Found. We're masking
+          // The only error from getAccountByUid(uid) could be a 404 Not Found. We're masking
           // this since the auth server firstly checks for an account prior to calling this
           // so if we have stumbled here (without an account) we probably don't mind.
           return {}

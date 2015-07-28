@@ -9,12 +9,11 @@ node_js:
 notifications:
   email:
     - dcoates@mozilla.com
-    - achilton@mozilla.com
     - jrgm@mozilla.com
     - rfkelly@mozilla.com
   irc:
     channels:
-      - "irc.mozilla.org#fxa"
+      - "irc.mozilla.org#fxa-bots"
     use_notice: false
     skip_join: false
 

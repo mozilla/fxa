@@ -128,7 +128,7 @@ module.exports = function(config, DB) {
               t.equal(!!account.emailVerified, ACCOUNT.emailVerified, 'emailVerified')
               t.deepEqual(account.kA, ACCOUNT.kA, 'kA')
               t.deepEqual(account.wrapWrapKb, ACCOUNT.wrapWrapKb, 'wrapWrapKb')
-              t.deepEqual(account.verifyHash, ACCOUNT.verifyHash, 'verifyHash')
+              t.notOk(account.verifyHash, 'verifyHash field should be absent')
               t.deepEqual(account.authSalt, ACCOUNT.authSalt, 'authSalt')
               t.equal(account.verifierVersion, ACCOUNT.verifierVersion, 'verifierVersion')
               t.equal(account.createdAt, ACCOUNT.createdAt, 'createdAt')
@@ -169,7 +169,7 @@ module.exports = function(config, DB) {
               t.equal(!!account.emailVerified, ACCOUNT.emailVerified, 'emailVerified')
               t.deepEqual(account.kA, ACCOUNT.kA, 'kA')
               t.deepEqual(account.wrapWrapKb, ACCOUNT.wrapWrapKb, 'wrapWrapKb')
-              t.deepEqual(account.verifyHash, ACCOUNT.verifyHash, 'verifyHash')
+              t.notOk(account.verifyHash, 'verifyHash field should be absent')
               t.deepEqual(account.authSalt, ACCOUNT.authSalt, 'authSalt')
               t.equal(account.verifierVersion, ACCOUNT.verifierVersion, 'verifierVersion')
               t.equal(account.verifierSetAt, ACCOUNT.verifierSetAt, 'verifierSetAt')
@@ -370,7 +370,7 @@ module.exports = function(config, DB) {
         test(
           'change password token handling',
           function (t) {
-            t.plan(12)
+            t.plan(13)
 
             var THROWAWAY_PASSWORD_CHANGE_TOKEN_ID = hex32()
             var THROWAWAY_PASSWORD_CHANGE_TOKEN = {
@@ -390,6 +390,7 @@ module.exports = function(config, DB) {
                 t.deepEqual(token.uid, ACCOUNT.uid, 'token belongs to this account')
                 t.equal(token.createdAt, PASSWORD_CHANGE_TOKEN.createdAt, 'createdAt is correct')
                 t.equal(token.verifierSetAt, ACCOUNT.verifierSetAt, 'verifierSetAt is set correctly')
+                t.equal(token.email, ACCOUNT.email, 'email is set correctly')
               })
               .then(function() {
                 return db.deletePasswordChangeToken(PASSWORD_CHANGE_TOKEN_ID)
