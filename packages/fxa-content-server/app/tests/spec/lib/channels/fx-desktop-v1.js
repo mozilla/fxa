@@ -50,15 +50,17 @@ function (chai, FxDesktopV1Channel, WindowMock) {
         var fixtureMessage = {
           content: {
             status: 'ok',
-            key: 'value'
+            key: 'value',
+            data: {
+              dataKey: 'data_value'
+            }
           }
         };
         var expectedResult = {
           command: 'ok',
           messageId: 'ok',
           data: {
-            status: 'ok',
-            key: 'value'
+            dataKey: 'data_value'
           }
         };
 

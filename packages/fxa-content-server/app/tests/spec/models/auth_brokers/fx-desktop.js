@@ -59,7 +59,7 @@ define([
     describe('beforeSignIn', function () {
       it('is happy if the user clicks `yes`', function () {
         sinon.stub(channelMock, 'request', function () {
-          return p({ data: { ok: true }});
+          return p({ ok: true });
         });
 
         return broker.beforeSignIn('testuser@testuser.com')
