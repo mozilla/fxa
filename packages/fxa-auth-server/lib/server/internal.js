@@ -7,12 +7,13 @@ const Hapi = require('hapi');
 const AppError = require('../error');
 const auth = require('../auth');
 const config = require('../config').root();
+const env = require('../env');
 const logger = require('../logging')('server.clients');
 const hapiLogger = require('../logging')('server.hapi');
 const summary = require('../logging/summary');
 
 exports.create = function createServer() {
-  var isProd = config.env === 'prod';
+  var isProd = env.isProdLike();
   var server = Hapi.createServer(
     config.serverInternal.host,
     config.serverInternal.port,
