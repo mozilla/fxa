@@ -5,18 +5,13 @@
 const assert = require('assert');
 
 const Joi = require('joi');
-const P = require('../../promise');
 
-const AppError = require('../../error');
 const config = require('../../config');
 const db = require('../../db');
 const hex = require('buf').to.hex;
 const img = require('../../img');
-const logger = require('../../logging')('routes.avatar.upload');
-const request = require('../../request');
 const validate = require('../../validate');
-
-const WORKER_URL = config.get('worker.url');
+const workers = require('../../img-workers');
 
 const FXA_PROVIDER = 'fxa';
 const FXA_URL_TEMPLATE = config.get('img.url');
@@ -26,35 +21,6 @@ assert(FXA_URL_TEMPLATE.indexOf('{id}') !== -1,
 function fxaUrl(id) {
   return FXA_URL_TEMPLATE.replace('{id}', id);
 }
-
-function pipeToWorker(id, payload, headers) {
-  return new P(function(resolve, reject) {
-    var url = WORKER_URL + '/a/' + id;
-    var opts = { headers: headers, json: true };
-    logger.verbose('pipeToWorker', url);
-    payload.pipe(request.post(url, opts, function(err, res, body) {
-      if (err) {
-        logger.error('network.error', err);
-        reject(AppError.processingError(err));
-        return;
-      }
-
-      if (res.statusCode >= 400 || body.error) {
-        logger.error('worker.error', body);
-        reject(AppError.processingError(body));
-        return;
-      }
-
-      logger.verbose('worker', body);
-      resolve(body);
-    }));
-    payload.on('error', function(err) {
-      logger.error('payload', err);
-      reject(err);
-    });
-  });
-}
-
 
 module.exports = {
   auth: {
@@ -83,7 +49,7 @@ module.exports = {
     var id = img.id();
     var url = fxaUrl(id);
     var uid = req.auth.credentials.user;
-    pipeToWorker(id, req.payload, req.headers)
+    workers.upload(id, req.payload, req.headers)
       .then(function save() {
         return db.addAvatar(id, uid, url, FXA_PROVIDER, true);
       })

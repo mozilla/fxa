@@ -3,10 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const config = require('../lib/config').root();
+const db = require('../lib/db');
+const events = require('../lib/events');
 const logger = require('../lib/logging')('bin.server');
 const server = require('../lib/server').create();
 
 logger.debug('config', config);
-server.start(function() {
-  logger.info('listening', server.info.uri);
+db.ping().done(function() {
+  server.start(function() {
+    logger.info('listening', server.info.uri);
+  });
+  events.start();
+}, function(err) {
+  logger.critical('db.ping', err);
+  process.exit(2);
 });

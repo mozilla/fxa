@@ -7,37 +7,13 @@ const Joi = require('joi');
 const P = require('../../promise');
 
 const AppError = require('../../error');
-const config = require('../../config');
 const db = require('../../db');
 const logger = require('../../logging')('routes.avatar.delete');
-const request = require('../../request');
 const validate = require('../../validate');
+const workers = require('../../img-workers');
 
-const WORKER_URL = config.get('worker.url');
 const EMPTY = Object.create(null);
 const FXA_PROVIDER = 'fxa';
-
-function workerDelete(id) {
-  return new P(function(resolve, reject) {
-    var url = WORKER_URL + '/a/' + id;
-    var opts = { method: 'delete', json: true };
-    logger.verbose('workerDelete', url);
-    request(url, opts, function(err, res, body) {
-      if (err) {
-        logger.error('network.error', err);
-        return reject(AppError.processingError(err));
-      }
-      if (res.statusCode >= 400 || body.error) {
-        logger.error('worker.error', body);
-        reject(AppError.processingError(body));
-        return;
-      }
-
-      logger.verbose('worker', body);
-      resolve();
-    });
-  });
-}
 
 function empty() {
   return EMPTY;
@@ -74,7 +50,7 @@ module.exports = {
       .spread(function(_, provider) {
         logger.debug('provider', provider);
         if (provider.name === FXA_PROVIDER) {
-          return workerDelete(req.params.id);
+          return workers.delete(req.params.id);
         }
       })
       .then(empty)

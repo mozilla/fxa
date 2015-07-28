@@ -127,6 +127,11 @@ MemoryStore.prototype = {
     return P.resolve({ id: id, name: id });
   },
 
+  removeProfile: function removeProfile(uid) {
+    delete this.profile[hex(uid)];
+    return P.resolve();
+  },
+
   getDisplayName: function (uid) {
     var id = hex(uid);
     var name = this.profile[id] ? this.profile[id].displayName : undefined;
