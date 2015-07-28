@@ -60,18 +60,33 @@ function (chai, OAuthErrors) {
     });
 
     describe('toInterpolationContext', function () {
-      it('context returns object', function () {
+      it('returns an empty object by default', function () {
         var result = OAuthErrors.toInterpolationContext(OAuthErrors.toError('UNKNOWN_CLIENT'));
         assert.equal(Object.keys(result).length, 0);
       });
 
-      it('context returns param', function () {
+      it('`MISSING_PARAMETER` returns object w/ `param`', function () {
         var err = OAuthErrors.toError('MISSING_PARAMETER');
         err.param = 'param';
         assert.equal(OAuthErrors.toInterpolationContext(err).param, 'param');
       });
 
-      it('context catches data exception', function () {
+      it('`INVALID_REQUEST_PARAMETER` returns object w/ `param`', function () {
+        var err = OAuthErrors.toError('INVALID_REQUEST_PARAMETER');
+        err.validation = {
+          keys: ['param']
+        };
+        assert.equal(OAuthErrors.toInterpolationContext(err).param, 'param');
+      });
+
+      it('malformed server responses are handled gracefully', function () {
+        var err = OAuthErrors.toError('INVALID_REQUEST_PARAMETER');
+        // validation should have a keys field that is an array.
+        err.validation = {};
+        assert.equal(Object.keys(OAuthErrors.toInterpolationContext(err)).length, 0);
+      });
+
+      it('undefined server responses are handled gracefully', function () {
         assert.equal(Object.keys(OAuthErrors.toInterpolationContext(undefined)).length, 0);
       });
     });
