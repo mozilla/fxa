@@ -25,10 +25,10 @@ define([
   // The automatedBrowser query param tells signin/up to stub parts of the flow
   // that require a functioning desktop channel
   var PAGE_SIGNIN = config.fxaContentRoot + 'signin';
-  var PAGE_SIGNIN_DESKTOP = PAGE_SIGNIN + '?context=' + FX_DESKTOP_CONTEXT;
+  var PAGE_SIGNIN_DESKTOP = PAGE_SIGNIN + '?context=' + FX_DESKTOP_CONTEXT + '&service=sync';
   var PAGE_SIGNIN_NO_CACHED_CREDS = PAGE_SIGNIN + '?email=blank';
   var PAGE_SIGNUP = config.fxaContentRoot + 'signup';
-  var PAGE_SIGNUP_DESKTOP = config.fxaContentRoot + 'signup?context=' + FX_DESKTOP_CONTEXT;
+  var PAGE_SIGNUP_DESKTOP = config.fxaContentRoot + 'signup?context=' + FX_DESKTOP_CONTEXT + '&service=sync';
   var PAGE_SETTINGS = config.fxaContentRoot + 'settings';
 
 

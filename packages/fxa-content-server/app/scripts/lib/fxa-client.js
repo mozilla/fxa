@@ -9,11 +9,12 @@
 define([
   'fxaClient',
   'jquery',
+  'lib/constants',
   'lib/promise',
   'lib/session',
   'lib/auth-errors'
 ],
-function (FxaClient, $, p, Session, AuthErrors) {
+function (FxaClient, $, Constants, p, Session, AuthErrors) {
   'use strict';
 
   function trim(str) {
@@ -113,8 +114,10 @@ function (FxaClient, $, p, Session, AuthErrors) {
     },
 
     _getUpdatedSessionData: function (email, relier, accountData, options) {
-      var sessionTokenContext = options.sessionTokenContext ||
-                                  relier.get('context');
+      var sessionTokenContext = options.sessionTokenContext;
+      if (! sessionTokenContext && relier.isSync()) {
+        sessionTokenContext = Constants.SESSION_TOKEN_USED_FOR_SYNC;
+      }
 
       var updatedSessionData = {
         email: email,

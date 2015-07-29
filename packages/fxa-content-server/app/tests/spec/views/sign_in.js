@@ -520,7 +520,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
         var account = user.initAccount({
           sessionToken: 'abc123',
           email: 'a@a.com',
-          sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
+          sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
           verified: true,
           accessToken: 'foo'
         });
@@ -555,7 +555,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
         var account = user.initAccount({
           sessionToken: 'abc123',
           email: 'a@a.com',
-          sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
+          sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
           verified: true,
           accessToken: 'foo'
         });
@@ -583,7 +583,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
           return user.initAccount({
             sessionToken: 'abc123',
             email: 'a@a.com',
-            sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
+            sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
             verified: true,
             accessToken: 'foo'
           });
@@ -606,7 +606,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
         var account = user.initAccount({
           sessionToken: 'abc123',
           email: 'a@a.com',
-          sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
+          sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
           verified: true,
           accessToken: 'foo'
         });
@@ -633,7 +633,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
         var account = user.initAccount({
           sessionToken: 'abc123',
           email: 'a@a.com',
-          sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
+          sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
           verified: true,
           accessToken: 'foo'
         });
@@ -656,7 +656,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
         var account = user.initAccount({
           sessionToken: 'abc123',
           email: 'a@a.com',
-          sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
+          sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
           verified: true,
           accessToken: 'foo'
         });
@@ -702,7 +702,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
           sessionToken: 'abc123',
           email: 'a@a.com',
           verified: true,
-          sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
+          sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
           accessToken: 'foo'
         });
 
@@ -728,7 +728,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
         var account = user.initAccount({
           sessionToken: 'abc123',
           email: 'a@a.com',
-          sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
+          sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
           verified: true,
           accessToken: 'foo'
         });

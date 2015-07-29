@@ -479,7 +479,7 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
     });
 
     it('isFromSync returns true in the right context', function () {
-      account.set('sessionTokenContext', Constants.FX_DESKTOP_CONTEXT);
+      account.set('sessionTokenContext', Constants.SESSION_TOKEN_USED_FOR_SYNC);
       assert.isTrue(account.isFromSync());
     });
 

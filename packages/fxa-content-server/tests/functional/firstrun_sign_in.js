@@ -59,7 +59,12 @@ define([
         .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:login'))
 
         .findByCssSelector('#fxa-settings-header')
+        .end()
+
+        // user should be unable to sign out.
+        .then(FunctionalHelpers.noSuchElement(self, '#signout'))
         .end();
+
     }
   });
 });
