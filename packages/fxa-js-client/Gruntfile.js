@@ -34,7 +34,7 @@ module.exports = function (grunt) {
     ['build']);
 
   grunt.registerTask('release',
-    ['build', 'bump-only', 'changelog', 'bump-commit', 'yuidoc', 'buildcontrol']);
+    ['build', 'bump-only', 'conventionalChangelog', 'bump-commit', 'yuidoc', 'buildcontrol']);
 
   grunt.registerTask('dev',
     ['watch:dev']);
