@@ -110,6 +110,7 @@ function main() {
         customs.close()
         mailer.stop()
         database.close()
+        process.exit() //XXX: because of openid dep ಠ_ಠ
       }
     )
   }

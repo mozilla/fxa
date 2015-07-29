@@ -37,6 +37,7 @@
     "hkdf": "0.0.2",
     "joi": "6.4.1",
     "mozlog": "2.0.1",
+    "openid": "0.5.13",
     "poolee": "1.0.0",
     "request": "2.55.0",
     "scrypt-hash": "1.1.12",

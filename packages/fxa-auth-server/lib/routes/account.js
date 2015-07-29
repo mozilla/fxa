@@ -7,6 +7,9 @@ var HEX_STRING = validators.HEX_STRING
 var BASE64_JWT = validators.BASE64_JWT
 
 var butil = require('../crypto/butil')
+var openid = require('openid')
+var url = require('url')
+var qs = require('querystring')
 
 module.exports = function (
   log,
@@ -18,15 +21,27 @@ module.exports = function (
   db,
   mailer,
   Password,
-  redirectDomain,
-  verifierVersion,
-  isProduction,
-  domain,
-  resendBlackoutPeriod,
+  config,
   customs,
   isPreVerified,
   checkPassword
   ) {
+
+  var openIdExtensions = [
+    new openid.AttributeExchange(
+      {
+        'http://axschema.org/contact/email': 'optional'
+      }
+    )
+  ]
+
+  function isOpenIdProviderAllowed(id) {
+    return config.openIdProviders.some(
+      function (allowed) {
+        return id.indexOf(allowed) === 0
+      }
+    )
+  }
 
   var routes = [
     {
@@ -39,7 +54,7 @@ module.exports = function (
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
             preVerified: isA.boolean(),
             service: isA.string().max(16).alphanum().optional(),
-            redirectTo: validators.redirectTo(redirectDomain).optional(),
+            redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
             resume: isA.string().max(2048).optional(),
             preVerifyToken: isA.string().max(2048).regex(BASE64_JWT).optional()
           }
@@ -74,7 +89,7 @@ module.exports = function (
           .then(isPreVerified.bind(null, form.email, form.preVerifyToken))
           .then(
             function (preverified) {
-              var password = new Password(authPW, authSalt, verifierVersion)
+              var password = new Password(authPW, authSalt, config.verifierVersion)
               return password.verifyHash()
               .then(
                 function (verifyHash) {
@@ -333,6 +348,196 @@ module.exports = function (
     },
     {
       method: 'GET',
+      path: '/account/openid/authenticate',
+      handler: function (request, reply) {
+        var id = request.query.identifier
+        if (!isOpenIdProviderAllowed(id)) {
+          log.info({ op: 'Account.openid.authenticate', id: id })
+          return reply.redirect(
+            config.contentServer.url + '/openid?' + qs.stringify(
+              {
+                err: 'This OpenID Provider is not allowed'
+              }
+            )
+          )
+        }
+        openid.authenticate(
+          id,
+          config.openIdVerifyUrl,
+          null, // realm
+          false, // immediate
+          false, // stateless
+          function (err, authUrl) {
+            if (err) {
+              log.error({ op: 'Account.openid.authenticate', err: err })
+              return reply.redirect(
+                config.contentServer.url + '/openid?' + qs.stringify(
+                  {
+                    err: err.message
+                  }
+                )
+              )
+            }
+            reply.redirect(authUrl)
+          },
+          openIdExtensions,
+          false // strict
+        )
+      }
+    },
+    {
+      method: 'GET',
+      path: '/account/openid/login',
+      handler: function (request, reply) {
+        if (!request.url.search) {
+          return reply(
+          '<?xml version="1.0" encoding="UTF-8"?>\n'
+          + '<xrds:XRDS xmlns:xrds="xri://$xrds" xmlns="xri://$xrd*($v*2.0)"><XRD>'
+          + '<Service xmlns="xri://$xrd*($v*2.0)">'
+          + '<Type>http://specs.openid.net/auth/2.0/return_to</Type>'
+          + '<URI>' + config.openIdVerifyUrl + '</URI>'
+          + '</Service></XRD></xrds:XRDS>'
+          ).type('application/xrds+xml')
+        }
+        log.info({ op: 'Account.openid', url: request.url })
+        openid.verifyAssertion(
+          url.format(request.url),
+          function (err, assertion) {
+            if (err || !assertion || !assertion.authenticated) {
+              log.warn({ op: 'Account.openid', err: err, assertion: assertion })
+              return reply.redirect(
+                config.contentServer.url + '/openid?err=Unknown%20Account'
+              )
+            }
+            var id = assertion.claimedIdentifier
+            var locale = request.app.acceptLanguage
+
+            if (!isOpenIdProviderAllowed(id)) {
+              log.warn({op: 'Account.openid', id: id })
+              return reply.redirect(
+                config.contentServer.url + '/openid?' + qs.stringify(
+                  {
+                    err: 'This OpenID Provider is not allowed'
+                  }
+                )
+              )
+            }
+            db.openIdRecord(id)
+              .then(
+                function (record) {
+                  return record
+                },
+                function (err) {
+                  if (err.errno !== 102) {
+                    throw err
+                  }
+                  var uid = uuid.v4('binary')
+                  var email = assertion.email || uid.toString('hex') + '@firefox.com'
+                  var authSalt = crypto.randomBytes(32)
+                  var kA = crypto.randomBytes(32)
+                  return db.createAccount(
+                    {
+                      uid: uid,
+                      createdAt: Date.now(),
+                      email: email,
+                      emailCode: crypto.randomBytes(16),
+                      emailVerified: true,
+                      kA: kA,
+                      wrapWrapKb: crypto.randomBytes(32),
+                      accountResetToken: null,
+                      passwordForgotToken: null,
+                      authSalt: authSalt,
+                      verifierVersion: 0,
+                      verifyHash: crypto.randomBytes(32),
+                      openId: id,
+                      verifierSetAt: Date.now(),
+                      locale: locale
+                    }
+                  )
+                }
+              )
+              .then(
+                function (account) {
+                  return db.createSessionToken(
+                    {
+                      uid: account.uid,
+                      email: account.email,
+                      emailCode: account.emailCode,
+                      emailVerified: true,
+                      verifierSetAt: account.verifierSetAt
+                    }
+                  )
+                  .then(
+                    function (sessionToken) {
+                      return db.createKeyFetchToken(
+                        {
+                          uid: account.uid,
+                          kA: account.kA,
+                          // wrapKb is undefined without a password
+                          // wrapWrapKb has the properties we need for this
+                          // value; Its stable, random, and will change on
+                          // account reset.
+                          wrapKb: account.wrapWrapKb,
+                          emailVerified: true
+                        }
+                      )
+                      .then(
+                        function (keyFetchToken) {
+                          return {
+                            sessionToken: sessionToken,
+                            keyFetchToken: keyFetchToken,
+                            unwrapBKey: butil.xorBuffers(
+                              account.kA,
+                              account.wrapWrapKb
+                            )
+                          }
+                        }
+                      )
+                    }
+                  )
+                  .then(
+                    function (tokens) {
+                      reply.redirect(
+                        config.contentServer.url + '/openid?' +
+                        qs.stringify(
+                          {
+                            uid: tokens.sessionToken.uid.toString('hex'),
+                            email: account.email,
+                            session: tokens.sessionToken.data.toString('hex'),
+                            key: tokens.keyFetchToken ?
+                              tokens.keyFetchToken.data.toString('hex')
+                              : undefined,
+                            unwrap: tokens.unwrapBKey.toString('hex'),
+                            service: 'sync',
+                            context: 'fx_desktop_v2'
+                          }
+                        )
+                      )
+                    }
+                  )
+                }
+              )
+              .catch(
+                function (err) {
+                  log.error({ op: 'Account.openid', err: err })
+                  reply.redirect(
+                    config.contentServer.url + '/openid?' + qs.stringify(
+                      {
+                        err: err.toString()
+                      }
+                    )
+                  )
+                }
+              )
+          },
+          false, // stateless
+          openIdExtensions,
+          false // strict
+        )
+      }
+    },
+    {
+      method: 'GET',
       path: '/account/status',
       config: {
         auth: {
@@ -438,7 +643,7 @@ module.exports = function (
         validate: {
           payload: {
             service: isA.string().max(16).alphanum().optional(),
-            redirectTo: validators.redirectTo(redirectDomain).optional(),
+            redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
             resume: isA.string().max(2048).optional()
           }
         }
@@ -449,7 +654,7 @@ module.exports = function (
         db.updateSessionTokenInBackground(sessionToken, request.headers['user-agent'])
         var service = request.payload.service || request.query.service
         if (sessionToken.emailVerified ||
-            Date.now() - sessionToken.verifierSetAt < resendBlackoutPeriod) {
+            Date.now() - sessionToken.verifierSetAt < config.smtp.resendBlackoutPeriod) {
           return reply({})
         }
         customs.check(
@@ -523,7 +728,7 @@ module.exports = function (
           payload: {
             email: validators.email().required(),
             service: isA.string().max(16).alphanum().optional(),
-            redirectTo: validators.redirectTo(redirectDomain).optional(),
+            redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
             resume: isA.string().max(2048).optional()
           }
         }
@@ -639,7 +844,7 @@ module.exports = function (
         var accountResetToken = request.auth.credentials
         var authPW = Buffer(request.payload.authPW, 'hex')
         var authSalt = crypto.randomBytes(32)
-        var password = new Password(authPW, authSalt, verifierVersion)
+        var password = new Password(authPW, authSalt, config.verifierVersion)
         return password.verifyHash()
           .then(
             function (verifyHash) {
@@ -705,7 +910,7 @@ module.exports = function (
                 )
                 .then(
                   function () {
-                    log.event('delete', { uid: emailRecord.uid.toString('hex') + '@' + domain })
+                    log.event('delete', { uid: emailRecord.uid.toString('hex') + '@' + config.domain })
                     return {}
                   }
                 )
@@ -716,7 +921,7 @@ module.exports = function (
     }
   ]
 
-  if (isProduction) {
+  if (config.isProduction) {
     delete routes[0].config.validate.payload.preVerified
   } else {
     // programmatic account lockout is only available in non-production mode.
