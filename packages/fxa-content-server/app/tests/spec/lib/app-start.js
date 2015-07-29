@@ -201,6 +201,17 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
         });
       });
 
+      describe('fx-ios', function () {
+        it('returns an FxDesktop broker if `context=fx_ios_v1`', function () {
+          windowMock.location.search = Url.objToSearchString({
+            context: Constants.FX_IOS_CONTEXT
+          });
+
+          return testExpectedBrokerCreated(FxDesktopBroker);
+        });
+      });
+
+
       describe('web channel', function () {
         it('returns a WebChannel broker if `webChannelId` is present', function () {
           windowMock.location.search = Url.objToSearchString({
