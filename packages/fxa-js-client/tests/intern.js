@@ -31,7 +31,7 @@ define(['intern/lib/args'], function (args) {
 
   return {
     loader: {
-    // Packages that should be registered with the loader in each testing environment
+      // Packages that should be registered with the loader in each testing environment
       packages: [ { name: 'fxa-js-client', location: 'client' } ],
       map: {
         '*': {

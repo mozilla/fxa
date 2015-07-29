@@ -16,13 +16,6 @@ module.exports = function amdload(absoluteFilename, map) {
   /**
    * These two functions operate as a pair
    */
-  var define = function define(deps, factory) {
-    // Load all dependencies
-    var modules = deps.map(amdrequire);
-    // Capture the exported value
-    exported = factory.apply(null, modules);
-  };
-  define.amd = true;
   var amdrequire = function amdrequire(filepath) {
     // Return real node modules if we have them mapped
     if (filepath in map) {
@@ -59,6 +52,13 @@ module.exports = function amdload(absoluteFilename, map) {
     // return value captured by define()
     return loaded[fullpath];
   };
+  var define = function define(deps, factory) {
+    // Load all dependencies
+    var modules = deps.map(amdrequire);
+    // Capture the exported value
+    exported = factory.apply(null, modules);
+  };
+  define.amd = true;
 
   return amdrequire(absoluteFilename);
 };

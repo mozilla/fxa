@@ -5,7 +5,7 @@
 module.exports = function (grunt) {
   'use strict';
 
-  grunt.config('changelog', {
+  grunt.config('conventionalChangelog', {
     options: {
       from: 'source-<%= pkgReadOnly.version %>'
     }

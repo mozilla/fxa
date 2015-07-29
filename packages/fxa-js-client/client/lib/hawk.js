@@ -11,7 +11,7 @@ define(['sjcl'], function (sjcl) {
    */
 
 
-// Declare namespace
+  // Declare namespace
 
   var hawk = {};
 
