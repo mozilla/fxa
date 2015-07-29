@@ -10,6 +10,10 @@ services:
  - mysql
 
 notifications:
+  email:
+    - dcoates@mozilla.com
+    - jrgm@mozilla.com
+    - rfkelly@mozilla.com
   irc:
     channels:
       - "irc.mozilla.org#fxa-bots"
