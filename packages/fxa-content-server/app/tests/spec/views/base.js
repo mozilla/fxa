@@ -160,6 +160,17 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
         assert.isUndefined(view.ephemeralData().foo);
       });
 
+      it('redirects if the user is not authorized', function () {
+        sinon.stub(view, 'isUserAuthorized', function () {
+          return p(false);
+        });
+        return view.render()
+          .then(function (result) {
+            assert.isFalse(result);
+            assert.equal(router.page, 'signin');
+          });
+      });
+
       it('redirects if mustVerify flag is set and account is unverified', function () {
         view.mustVerify = true;
         var account = user.initAccount({

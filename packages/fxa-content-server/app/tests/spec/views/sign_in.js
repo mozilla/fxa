@@ -14,6 +14,7 @@ define([
   'lib/metrics',
   'lib/fxa-client',
   'lib/constants',
+  'lib/ephemeral-messages',
   'models/reliers/relier',
   'models/user',
   'models/form-prefill',
@@ -23,8 +24,8 @@ define([
   '../../lib/helpers'
 ],
 function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
-      FxaClient, Constants, Relier, User, FormPrefill, Broker, WindowMock,
-      RouterMock, TestHelpers) {
+      FxaClient, Constants, EphemeralMessages, Relier, User, FormPrefill, Broker,
+      WindowMock, RouterMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -41,6 +42,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
     var broker;
     var user;
     var formPrefill;
+    var ephemeralMessages;
 
     beforeEach(function () {
       email = TestHelpers.createEmail();
@@ -57,6 +59,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
         fxaClient: fxaClient
       });
       formPrefill = new FormPrefill();
+      ephemeralMessages = new EphemeralMessages();
 
       initView();
 
@@ -85,7 +88,8 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
         relier: relier,
         broker: broker,
         screenName: 'signin',
-        formPrefill: formPrefill
+        formPrefill: formPrefill,
+        ephemeralMessages: ephemeralMessages
       });
     }
 
@@ -200,6 +204,26 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
                 account: account
               }
             }));
+          });
+      });
+
+      it('redirects users to the page they requested before getting redirected to signin', function () {
+        sinon.stub(user, 'signInAccount', function (account) {
+          account.set('verified', true);
+          return p(account);
+        });
+
+        ephemeralMessages.set('data', {
+          redirectTo: '/settings/avatar/change'
+        });
+
+        initView();
+        sinon.stub(view, 'navigate', function () { });
+
+        return view.render()
+          .then(view.submit.bind(view))
+          .then(function () {
+            assert.isTrue(view.navigate.calledWith('/settings/avatar/change'));
           });
       });
 

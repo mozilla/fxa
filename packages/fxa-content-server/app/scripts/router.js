@@ -317,6 +317,10 @@ function (
       this.navigate(url);
     },
 
+    getCurrentPage: function () {
+      return Backbone.history.fragment;
+    },
+
     fragmentToScreenName: function (fragment) {
       fragment = fragment || '';
       // strip leading /

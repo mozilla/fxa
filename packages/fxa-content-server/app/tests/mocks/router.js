@@ -20,6 +20,8 @@ define([
       this.opts = opts;
 
       this.trigger('navigate', page);
+    },
+    getCurrentPage: function () {
     }
   });
 
