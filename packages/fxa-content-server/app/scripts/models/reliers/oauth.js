@@ -171,9 +171,12 @@ define([
           self.set('trusted', serviceInfo.trusted);
           self.set('origin', Url.getOrigin(serviceInfo.redirect_uri));
         }, function (err) {
-          // the server returns an invalid request signature for an
+          // the server returns an invalid request parameter for an
           // invalid/unknown client_id
-          if (OAuthErrors.is(err, 'INVALID_REQUEST_SIGNATURE')) {
+          if (OAuthErrors.is(err, 'INVALID_REQUEST_PARAMETER') &&
+              err.validation &&
+              err.validation.keys &&
+              err.validation.keys[0] === 'client_id') {
             err = OAuthErrors.toError('UNKNOWN_CLIENT');
             // used for logging the error on the server.
             err.client_id = clientId; //eslint-disable-line camelcase
