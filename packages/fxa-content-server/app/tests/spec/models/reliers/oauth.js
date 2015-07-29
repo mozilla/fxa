@@ -258,12 +258,16 @@ define([
 
         oAuthClient.getClientInfo.restore();
         sinon.stub(oAuthClient, 'getClientInfo', function () {
-          return p.reject(OAuthErrors.toError('INVALID_REQUEST_SIGNATURE'));
+          var err = OAuthErrors.toError('INVALID_REQUEST_PARAMETER');
+          err.validation = {
+            keys: ['client_id']
+          };
+          return p.reject(err);
         });
 
         return relier.fetch()
           .then(assert.fail, function (err) {
-            // INVALID_REQUEST_SIGNATURE should be converted to
+            // INVALID_REQUEST_PARAMETER should be converted to
             // UNKNOWN_CLIENT
             assert.isTrue(OAuthErrors.is(err, 'UNKNOWN_CLIENT'));
           });
