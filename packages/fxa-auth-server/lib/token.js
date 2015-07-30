@@ -24,7 +24,7 @@ exports.verify = function verify(token) {
         created_at: token.createdAt,
         expires_at: token.expiresAt
       });
-      throw AppError.expiredToken(token.expiresAt);
+      //throw AppError.expiredToken(token.expiresAt);
     } else if ((+token.createdAt + TWENTY_FOUR_HOURS) < Date.now()) {
       // Log a warning if reliers are using access tokens that are more
       // than 24 hours old.  Eventually we will shorten the expiry time
