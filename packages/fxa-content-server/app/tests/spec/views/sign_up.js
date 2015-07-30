@@ -728,6 +728,22 @@ function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
         }, 50);
       });
 
+      it('only calls able.choose once on multiple `suggestEmail` calls', function () {
+        var sandbox = sinon.sandbox.create();
+
+        var ableChoose = sandbox.stub(view._able, 'choose', function () {
+          return true;
+        });
+
+        view.suggestEmail();
+        view.suggestEmail();
+        view.suggestEmail();
+
+        assert.equal(ableChoose.callCount, 1);
+
+        sandbox.restore();
+      });
+
       it('does not show when able chooses false', function (done) {
         var ableChoose = sinon.stub(view._able, 'choose', function () {
           return false;

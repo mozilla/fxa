@@ -199,15 +199,27 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
         });
     },
 
-    suggestEmail: function () {
-      var abData = {
-        isMetricsEnabled: this.metrics.isCollectionEnabled(),
-        uniqueUserId: this.user.get('uniqueUserId'),
-        // the window parameter will override any ab testing features
-        forceMailcheck: Url.searchParam('mailcheck', this.window.location.search)
-      };
+    _isMailcheckEnabledValue: undefined,
+    _isMailcheckEnabled: function () {
+      // only check whether mailcheck is enabled once. Otherwise,
+      // an event is added to the able log every time the user
+      // blurs the email field, which could be multiple times.
+      if (typeof this._isMailcheckEnabledValue === 'undefined') {
+        var abData = {
+          isMetricsEnabledValue: this.metrics.isCollectionEnabled(),
+          uniqueUserId: this.user.get('uniqueUserId'),
+          // the window parameter will override any ab testing features
+          forceMailcheck: Url.searchParam('mailcheck', this.window.location.search)
+        };
 
-      if (this._able.choose('mailcheckEnabled', abData)) {
+        this._isMailcheckEnabledValue =
+              this._able.choose('mailcheckEnabled', abData);
+      }
+      return this._isMailcheckEnabledValue;
+    },
+
+    suggestEmail: function () {
+      if (this._isMailcheckEnabled()) {
         mailcheck(this.$el.find('.email'), this.metrics, this.translator);
       }
     },
