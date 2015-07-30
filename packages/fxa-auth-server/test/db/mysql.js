@@ -139,12 +139,12 @@ describe('db/mysql:', function() {
 
       describe('db patch level is bad:', function() {
         beforeEach(function() {
-          instances.patcher.currentPatchLevel += 2;
+          instances.patcher.currentPatchLevel -= 2;
           return mysql.connect({});
         });
 
         afterEach(function() {
-          instances.patcher.currentPatchLevel -= 2;
+          instances.patcher.currentPatchLevel += 2;
         });
 
         it('called patcher.end', function() {
@@ -157,7 +157,7 @@ describe('db/mysql:', function() {
           assert.equal(args.length, 2);
           assert.equal(args[0], 'checkDbPatchLevel');
           assert(args[1] instanceof Error);
-          assert.equal(args[1].message, 'unexpected db patch level: ' + (dependencies['./patch'].level + 2));
+          assert.equal(args[1].message, 'unexpected db patch level: ' + (dependencies['./patch'].level - 2));
         });
 
         it('called process.exit', function() {
