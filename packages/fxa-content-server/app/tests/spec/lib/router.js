@@ -193,6 +193,28 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
             });
       });
 
+      it('logs events from the view\'s render function after the view name', function () {
+        sinon.stub(signUpView, 'render', function () {
+          var self = this;
+          return p().then(function () {
+            self.logScreenEvent('an_event_name');
+            return true;
+          });
+        });
+
+        return router.showView(signUpView)
+          .then(function () {
+            var screenNameIndex = TestHelpers.indexOfEvent(metrics, 'screen.signup');
+            var screenEventIndex = TestHelpers.indexOfEvent(metrics, 'signup.an_event_name');
+
+            assert.isNumber(screenNameIndex);
+            assert.notEqual(screenNameIndex, -1);
+            assert.isNumber(screenEventIndex);
+            assert.notEqual(screenEventIndex, -1);
+            assert.isTrue(screenNameIndex < screenEventIndex);
+          });
+      });
+
       it('calls broker.afterLoaded only after initial view', function () {
         sinon.stub(broker, 'afterLoaded', function () {
         });

@@ -88,17 +88,21 @@ define([
     return email.split('@')[0];
   }
 
-  function isEventLogged(metrics, eventName) {
+  function indexOfEvent(metrics, eventName) {
     var events = metrics.getFilteredData().events;
 
     for (var i = 0; i < events.length; ++i) {
       var event = events[i];
       if (event.type === eventName) {
-        return true;
+        return i;
       }
     }
 
-    return false;
+    return -1;
+  }
+
+  function isEventLogged(metrics, eventName) {
+    return indexOfEvent(metrics, eventName) !== -1;
   }
 
   function isErrorLogged(metrics, error) {
@@ -140,6 +144,7 @@ define([
     createRandomHexString: createRandomHexString,
     createEmail: createEmail,
     emailToUser: emailToUser,
+    indexOfEvent: indexOfEvent,
     isEventLogged: isEventLogged,
     isErrorLogged: isErrorLogged,
     isScreenLogged: isScreenLogged,
