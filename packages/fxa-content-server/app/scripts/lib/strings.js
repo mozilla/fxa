@@ -19,14 +19,13 @@ function () {
   t('By proceeding, you agree to the <a id="service-tos" href="%(termsUri)s">Terms of Service</a> and' +
     '<a id="service-pp" href="%(privacyUri)s">Privacy Notice</a> of %(serviceName)s (%(serviceUri)s).');
 
-  // Will be needed for #2444, the email opt-in
-  t('Get the latest news about Mozilla and Firefox.');
-  t('Communication preferences');
-  t('Email preferences');
-
   // Needed for #2451
   t('Edit profile');
   t('Name');
+
+  // Needed for PR #2823, issue #2786
+  t('Migrate your sync data by signing in to your Firefox&nbsp;Account.');
+  t('Migrate your sync data by creating a new Firefox&nbsp;Account.');
 
   /**
    * Replace instances of %s and %(name)s with their corresponding values in
