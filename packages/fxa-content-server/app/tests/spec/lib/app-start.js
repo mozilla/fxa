@@ -93,21 +93,21 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
           });
       });
 
-      it('redirects to the `INTERNAL_ERROR_PAGE` if an error occurs', function (done) {
+      it('redirects to the `INTERNAL_ERROR_PAGE` if an error occurs', function () {
         sinon.stub(appStart, 'allResourcesReady', function () {
+          sinon.stub(appStart._metrics, 'flush', function () {
+            return p();
+          });
+
           return p.reject(new Error('boom!'));
         });
 
-        sinon.stub(windowMock, 'setTimeout', function (callback) {
-          setTimeout(callback, 10);
-        });
+        appStart.ERROR_REDIRECT_TIMEOUT_MS = 10;
 
         return appStart.startApp()
           .then(function () {
-            setTimeout(function () {
-              assert.equal(windowMock.location.href, Constants.INTERNAL_ERROR_PAGE);
-              done();
-            }, 20);
+            assert.equal(windowMock.location.href, Constants.INTERNAL_ERROR_PAGE);
+            assert.equal(appStart._metrics.flush.callCount, 1);
           });
       });
 

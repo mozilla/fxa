@@ -14,9 +14,17 @@ define([
 
   var RedirectAuthenticationBroker = OAuthAuthenticationBroker.extend({
     type: 'redirect',
+    initialize: function (options) {
+      options = options || {};
+
+      this._metrics = options.metrics;
+
+      return OAuthAuthenticationBroker.prototype.initialize.call(this, options);
+    },
+
     sendOAuthResultToRelier: function (result) {
       var win = this.window;
-      return p()
+      return this._metrics.flush()
         .then(function () {
           var extraParams = {};
           if (result.error) {

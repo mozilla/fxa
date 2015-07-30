@@ -111,10 +111,6 @@ function (
 ) {
   'use strict';
 
-  // delay before redirecting to the error page to
-  // ensure metrics are reported to the backend.
-  var ERROR_REDIRECT_TIMEOUT = 1000;
-
   function Start(options) {
     options = options || {};
 
@@ -130,6 +126,9 @@ function (
   }
 
   Start.prototype = {
+    // delay before redirecting to the error page to
+    // ensure metrics are reported to the backend.
+    ERROR_REDIRECT_TIMEOUT_MS: 1000,
     startApp: function () {
       var self = this;
 
@@ -158,19 +157,18 @@ function (
           self._metrics.logError(err);
         }
 
-        // this extra promise is to ensure the message is printed
-        // to the console in Firefox before redirecting. Without
-        // the delay, the console message is lost, even with
-        // persistent logs enabled. See #2183
-        return p()
+        // give a bit of time to flush the Sentry error logs,
+        // otherwise Safari Mobile redirects too quickly.
+        return p().delay(self.ERROR_REDIRECT_TIMEOUT_MS)
           .then(function () {
-            // give a bit of time to flush the error logs,
-            // otherwise Safari Mobile redirects too quickly.
-            self._window.setTimeout(function () {
-              //Something terrible happened. Let's bail.
-              var redirectTo = self._getErrorPage(err);
-              self._window.location.href = redirectTo;
-            }, ERROR_REDIRECT_TIMEOUT);
+            if (self._metrics) {
+              return self._metrics.flush();
+            }
+          })
+          .then(function () {
+            //Something terrible happened. Let's bail.
+            var redirectTo = self._getErrorPage(err);
+            self._window.location.href = redirectTo;
           });
       });
     },
@@ -438,7 +436,8 @@ function (
             relier: this._relier,
             assertionLibrary: this._assertionLibrary,
             oAuthClient: this._oAuthClient,
-            session: Session
+            session: Session,
+            metrics: this._metrics
           });
         } else {
           this._authenticationBroker = new BaseAuthenticationBroker({
