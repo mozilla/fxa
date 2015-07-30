@@ -6,9 +6,6 @@ node_js:
 
 addons:
   firefox: "38.0"
-  apt_packages:
-    - libgmp-dev
-
 env:
   global:
     - DISABLE_ROUTE_LOGGING=true
