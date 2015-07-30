@@ -29,6 +29,16 @@ define([
     profileImageId: undefined,
     profileImageUrl: undefined,
     sessionToken: undefined,
+    // Hint for future code spelunkers. sessionTokenContext is a misnomer,
+    // what the field is really used for is to indicate whether the
+    // sessionToken is shared with Sync. It will be set to `fx_desktop_v1` if
+    // the sessionToken is shared. Users cannot sign out of Sync shared
+    // sessions from within the content server, instead they must go into the
+    // Sync panel and disconnect there. The reason this field has not been
+    // renamed is because we cannot gracefully handle rollback without the
+    // side effect of users being able to sign out of their Sync based
+    // session. Data migration within the client goes one way. It's easy to
+    // move forward, very hard to move back.
     sessionTokenContext: undefined,
     uid: undefined,
     verified: undefined
@@ -118,7 +128,7 @@ define([
     },
 
     isFromSync: function () {
-      return this.get('sessionTokenContext') === Constants.FX_DESKTOP_CONTEXT;
+      return this.get('sessionTokenContext') === Constants.SESSION_TOKEN_USED_FOR_SYNC;
     },
 
     // returns true if all attributes within ALLOWED_KEYS are defaults

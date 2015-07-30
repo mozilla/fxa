@@ -44,7 +44,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
     it('isSyncAccount', function () {
       var account = user.initAccount({
         email: 'email',
-        sessionTokenContext: Constants.FX_DESKTOP_CONTEXT
+        sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC
       });
 
       assert.isTrue(user.isSyncAccount(account));
@@ -90,7 +90,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
 
     it('getChooserAccount', function () {
       return user.setSignedInAccount({ uid: 'uid2', email: 'email',
-        sessionTokenContext: Constants.FX_DESKTOP_CONTEXT
+        sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC
       })
         .then(function () {
           return user.setSignedInAccount({ uid: 'uid', email: 'email' });
@@ -170,7 +170,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
       var accountData = {
         email: 'a@a.com',
         sessionToken: 'session token',
-        sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
+        sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
         uid: 'uid'
       };
       Session.set('cachedCredentials', accountData);
@@ -195,7 +195,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
       var accountData = {
         email: 'a@a.com',
         sessionToken: 'session token',
-        sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
+        sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
         uid: 'uid'
       };
       Session.set('cachedCredentials', accountData);
@@ -212,7 +212,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
       var accountData = {
         email: 'a@a.com',
         sessionToken: 'session token',
-        sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
+        sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
         uid: 'uid'
       };
       Session.set('cachedCredentials', accountData);
@@ -260,7 +260,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
       var accountData = {
         email: 'a@a.com',
         sessionToken: 'session token',
-        sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
+        sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
         uid: 'uid'
       };
       Session.set('cachedCredentials', accountData);

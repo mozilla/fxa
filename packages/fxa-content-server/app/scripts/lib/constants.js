@@ -12,6 +12,19 @@ define([], function () {
     // See http://blogs.msdn.com/b/ieinternals/archive/2014/08/13/url-length-limits-in-internet-explorer.aspx
     URL_MAX_LENGTH: 2048,
 
+    // Used to indicate that a sessionToken was shared with Sync. The value
+    // `fx_desktop_v1` is historical to avoid problems in case of a rollback.
+    //
+    // The quick background, an accounts sessionTokenContext is used to
+    // indicate whether that account's sessionToken is shared with Firefox to
+    // sign into Sync. This is all it is ever used for. The original value
+    // could only be `fx_desktop_v1`, but with the firstrun flow, it can now
+    // be `iframe`. This broke a lot of expectations. Trying to change the
+    // name of the field in localStorage to reflect its true intent is
+    // problematic because we can't cleanly handle rollback w/o causing some
+    // set of users to disconnect from Sync.
+    SESSION_TOKEN_USED_FOR_SYNC: 'fx_desktop_v1',
+
     FX_DESKTOP_CONTEXT: 'fx_desktop_v1',
     FX_DESKTOP_V2_CONTEXT: 'fx_desktop_v2',
     FX_DESKTOP_SYNC: 'sync',
