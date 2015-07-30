@@ -7,7 +7,7 @@ var crypto = require('crypto')
 var P = require('../lib/promise')
 var request = require('request')
 var mailbox = require('./mailbox')
-var createDBServer = require('fxa-auth-db-mem')
+var createDBServer = require('fxa-auth-db-mysql')
 
 function TestServer(config, printLogs) {
   this.printLogs = printLogs === false ? false : true

@@ -46,7 +46,7 @@
   "devDependencies": {
     "ass": "git://github.com/jrgm/ass.git#5be99ee7abc9fcf63f9ebcc37b151b9c822146d1",
     "eslint-config-fxa": "1.6.0",
-    "fxa-auth-db-mem": "git+https://github.com/mozilla/fxa-auth-db-mem.git#master",
+    "fxa-auth-db-mysql": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#master",
     "grunt": "0.4.5",
     "grunt-bump": "0.3.1",
     "grunt-cli": "0.1.13",
