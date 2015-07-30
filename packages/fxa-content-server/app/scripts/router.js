@@ -244,6 +244,8 @@ function (
       // rendered for any reason, including if the view was
       // automatically redirected.
       var self = this;
+
+      viewToShow.logScreen();
       return viewToShow.render()
         .then(function (isShown) {
           if (! isShown) {
@@ -254,8 +256,6 @@ function (
           // catch problems with an explicit opacity rule after class is added.
           $('#stage').html(viewToShow.el).addClass('fade-in-forward').css('opacity', 1);
           viewToShow.afterVisible();
-
-          viewToShow.logScreen();
 
           // The user may be scrolled part way down the page
           // on screen transition. Force them to the top of the page.
