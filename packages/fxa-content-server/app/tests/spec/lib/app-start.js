@@ -18,6 +18,7 @@ define([
   'models/auth_brokers/base',
   'models/auth_brokers/fx-desktop',
   'models/auth_brokers/fx-desktop-v2',
+  'models/auth_brokers/fx-fennec-v1',
   'models/auth_brokers/fx-ios-v1',
   'models/auth_brokers/iframe',
   'models/auth_brokers/redirect',
@@ -36,10 +37,10 @@ define([
 ],
 function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
   Url, OAuthErrors, AuthErrors, Storage, BaseBroker, FxDesktopV1Broker,
-  FxDesktopV2Broker, FxiOSV1Broker, IframeBroker, RedirectBroker,
-  WebChannelBroker, BaseRelier, FxDesktopRelier, OAuthRelier, Relier,
-  User, Metrics, StorageMetrics, WindowMock, RouterMock, HistoryMock,
-  TestHelpers) {
+  FxDesktopV2Broker, FxFennecV1Broker, FxiOSV1Broker, IframeBroker,
+  RedirectBroker, WebChannelBroker, BaseRelier, FxDesktopRelier,
+  OAuthRelier, Relier, User, Metrics, StorageMetrics, WindowMock,
+  RouterMock, HistoryMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -214,7 +215,17 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
         });
       });
 
-      describe('fx-ios v1', function () {
+      describe('fx-fennec-v1', function () {
+        it('returns an FxFennecV1 broker if `context=fx_fennec_v1`', function () {
+          windowMock.location.search = Url.objToSearchString({
+            context: Constants.FX_FENNEC_V1_CONTEXT
+          });
+
+          return testExpectedBrokerCreated(FxFennecV1Broker);
+        });
+      });
+
+      describe('fx-ios-v1', function () {
         it('returns an FxiOSV1 broker if `context=fx_ios_v1`', function () {
           windowMock.location.search = Url.objToSearchString({
             context: Constants.FX_IOS_V1_CONTEXT
@@ -223,7 +234,6 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
           return testExpectedBrokerCreated(FxiOSV1Broker);
         });
       });
-
 
       describe('web channel', function () {
         it('returns a WebChannel broker if `webChannelId` is present', function () {
