@@ -73,6 +73,7 @@ function (Translator, Session) {
     '../tests/spec/views/settings/avatar_gravatar',
     '../tests/spec/views/settings/avatar_camera',
     '../tests/spec/views/settings/communication_preferences',
+    '../tests/spec/views/settings/display_name',
     '../tests/spec/views/settings/gravatar_permissions',
     '../tests/spec/views/change_password',
     '../tests/spec/views/delete_account',

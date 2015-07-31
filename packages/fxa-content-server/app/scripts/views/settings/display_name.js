@@ -45,6 +45,7 @@ function (Cocktail, BaseView, FormView, AuthErrors, Template,
 
       return account.postDisplayName(displayName)
         .then(function () {
+          self.logScreenEvent('success');
           self.updateDisplayName(displayName);
           self.displaySuccess(t('Display name updated'));
           self.navigate('settings');
