@@ -16,10 +16,12 @@ define([
   'views/mixins/service-mixin',
   'views/mixins/checkbox-mixin',
   'views/mixins/resume-token-mixin',
+  'views/mixins/migration-mixin',
   'views/coppa/coppa-date-picker'
 ],
 function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
-      Url, PasswordMixin, ServiceMixin, CheckboxMixin, ResumeTokenMixin, CoppaDatePicker) {
+      Url, PasswordMixin, ServiceMixin, CheckboxMixin, ResumeTokenMixin,
+      MigrationMixin, CoppaDatePicker) {
   'use strict';
 
   var t = BaseView.t;
@@ -149,7 +151,8 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
         shouldFocusEmail: autofocusEl === 'email',
         shouldFocusPassword: autofocusEl === 'password',
         error: this.error,
-        isEmailOptInVisible: this._isEmailOptInEnabled()
+        isEmailOptInVisible: this._isEmailOptInEnabled(),
+        isMigration: this.isMigration()
       };
     },
 
@@ -354,6 +357,7 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
   Cocktail.mixin(
     View,
     CheckboxMixin,
+    MigrationMixin,
     PasswordMixin,
     ResumeTokenMixin,
     ServiceMixin

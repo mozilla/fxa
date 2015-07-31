@@ -15,12 +15,13 @@ define([
   'views/mixins/service-mixin',
   'views/mixins/avatar-mixin',
   'views/mixins/account-locked-mixin',
+  'views/mixins/migration-mixin',
   'views/decorators/allow_only_one_submit',
   'views/decorators/progress_indicator'
 ],
 function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
       AuthErrors, PasswordMixin, ResumeTokenMixin, ServiceMixin, AvatarMixin,
-      AccountLockedMixin, allowOnlyOneSubmit, showProgressIndicator) {
+      AccountLockedMixin, MigrationMixin, allowOnlyOneSubmit, showProgressIndicator) {
   'use strict';
 
   var t = BaseView.t;
@@ -67,7 +68,8 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
         suggestedAccount: hasSuggestedAccount,
         chooserAskForPassword: this._suggestedAccountAskPassword(suggestedAccount),
         password: this._formPrefill.get('password'),
-        error: this.error
+        error: this.error,
+        isMigration: this.isMigration()
       };
     },
 
@@ -295,6 +297,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
     View,
     AccountLockedMixin,
     AvatarMixin,
+    MigrationMixin,
     PasswordMixin,
     ResumeTokenMixin,
     ServiceMixin

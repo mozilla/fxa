@@ -15,6 +15,7 @@ define([
         TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
+  var PAGE_URL_WITH_MIGRATION = PAGE_URL + '&migration=foo';
 
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
 
@@ -80,7 +81,6 @@ define([
         });
     },
 
-
     'unverified': function () {
       var self = this;
 
@@ -102,6 +102,16 @@ define([
         .then(function () {
           return testIsBrowserNotifiedOfLogin(self, email);
         });
+    },
+
+    'as a migrating user': function () {
+      return this.remote
+        .get(require.toUrl(PAGE_URL_WITH_MIGRATION))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .execute(listenForFxaCommands)
+        .findByCssSelector('.info.nudge')
+        .isDisplayed()
+        .end();
     }
   });
 });

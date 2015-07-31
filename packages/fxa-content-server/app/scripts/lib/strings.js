@@ -23,10 +23,6 @@ function () {
   t('Edit profile');
   t('Name');
 
-  // Needed for PR #2823, issue #2786
-  t('Migrate your sync data by signing in to your Firefox&nbsp;Account.');
-  t('Migrate your sync data by creating a new Firefox&nbsp;Account.');
-
   /**
    * Replace instances of %s and %(name)s with their corresponding values in
    * the context

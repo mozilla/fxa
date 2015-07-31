@@ -16,6 +16,7 @@ define([
         FxaClient, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v1&service=sync';
+  var PAGE_URL_WITH_MIGRATION = PAGE_URL + '&migration=wibble';
 
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
 
@@ -308,6 +309,16 @@ define([
           .then(function (checkedAttribute) {
             assert.equal(checkedAttribute, 'checked');
           })
+        .end();
+    },
+
+    'as a migrating user': function () {
+      return this.remote
+        .get(require.toUrl(PAGE_URL_WITH_MIGRATION))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .execute(listenForFxaCommands)
+        .findByCssSelector('.info.nudge')
+        .isDisplayed()
         .end();
     }
   });

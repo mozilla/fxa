@@ -188,6 +188,30 @@ function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
             });
         });
       });
+
+      it('displays a message if isMigration returns true', function () {
+        sinon.stub(view, 'isMigration', function (arg) {
+          return true;
+        });
+
+        return view.render()
+          .then(function () {
+            assert.equal(view.$('.info.nudge').html(), 'Migrate your sync data by creating a new Firefox&nbsp;Account.');
+            view.isMigration.restore();
+          });
+      });
+
+      it('does not display a message if isMigration returns false', function () {
+        sinon.stub(view, 'isMigration', function (arg) {
+          return false;
+        });
+
+        return view.render()
+          .then(function () {
+            assert.lengthOf(view.$('.info.nudge'), 0);
+            view.isMigration.restore();
+          });
+      });
     });
 
     describe('afterVisible', function () {
