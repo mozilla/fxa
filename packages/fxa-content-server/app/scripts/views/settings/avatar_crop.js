@@ -6,9 +6,9 @@ define([
   'p-promise',
   'cocktail',
   'views/form',
-  'views/mixins/settings-mixin',
-  'views/mixins/settings-panel-mixin',
   'views/mixins/avatar-mixin',
+  'views/mixins/modal-settings-panel-mixin',
+  'views/mixins/settings-mixin',
   'stache!templates/settings/avatar_crop',
   'lib/constants',
   'lib/cropper',
@@ -16,7 +16,7 @@ define([
   'models/cropper-image',
   'models/profile-image'
 ],
-function (p, Cocktail, FormView, SettingsMixin, SettingsPanelMixin, AvatarMixin,
+function (p, Cocktail, FormView, AvatarMixin, ModalSettingsPanelMixin, SettingsMixin,
     Template, Constants, Cropper, AuthErrors, CropperImage, ProfileImage) {
   'use strict';
 
@@ -136,7 +136,12 @@ function (p, Cocktail, FormView, SettingsMixin, SettingsPanelMixin, AvatarMixin,
 
   });
 
-  Cocktail.mixin(View, SettingsMixin, SettingsPanelMixin, AvatarMixin);
+  Cocktail.mixin(
+    View,
+    AvatarMixin,
+    ModalSettingsPanelMixin,
+    SettingsMixin
+  );
 
   return View;
 });

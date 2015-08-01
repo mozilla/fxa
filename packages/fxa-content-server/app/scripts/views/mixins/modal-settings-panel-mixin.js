@@ -11,24 +11,25 @@ define([
   'use strict';
 
   return {
+    isModal: true,
+
     initialize: function (options) {
       this.superView = options.superView;
     },
     events: {
-      'click .settings-unit-toggle': BaseView.preventDefaultThen('_triggerPanel'),
       'click .cancel': BaseView.preventDefaultThen('closePanelReturnToSettings')
     },
 
-    _triggerPanel: function (event) {
-      var href = event && $(event.currentTarget).data('href');
-      if (href) {
-        this.navigate(href);
-      }
-    },
-
-    openPanel: function () {
-      var unit = this.$('.settings-unit');
-      unit.addClass('open');
+    openPanel: function (event) {
+      var self = this;
+      $(self.el).modal({
+        zIndex: 999,
+        opacity: 0.75,
+        showClose: false
+      });
+      $(self.el).on($.modal.CLOSE, function () {
+        self.closePanelReturnToSettings();
+      });
     },
 
     closePanelReturnToSettings: function () {
@@ -37,7 +38,7 @@ define([
     },
 
     closePanel: function () {
-      this.$('.settings-unit').removeClass('open');
+      this.destroy(true);
     },
 
     displaySuccess: function (msg) {
@@ -46,7 +47,6 @@ define([
         return;
       }
       self.superView.displaySuccess(msg);
-      self.closePanel();
     }
   };
 });

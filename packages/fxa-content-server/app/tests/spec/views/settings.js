@@ -323,14 +323,14 @@ function (chai, $, sinon, View, SubView, RouterMock, TestHelpers, FxaClient, p,
           });
       });
 
-      describe('submit', function () {
+      describe('signOut', function () {
         it('on success, signs the user out, redirects to the signin page', function () {
           sinon.stub(fxaClient, 'signOut', function () {
             return p();
           });
           sinon.spy(user, 'clearSignedInAccount');
 
-          return view.submit()
+          return view.signOut()
             .then(function () {
               assert.isTrue(user.clearSignedInAccount.called);
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.submit'));
@@ -346,7 +346,7 @@ function (chai, $, sinon, View, SubView, RouterMock, TestHelpers, FxaClient, p,
           });
           sinon.spy(user, 'clearSignedInAccount');
 
-          return view.submit()
+          return view.signOut()
             .then(function () {
               assert.isTrue(user.clearSignedInAccount.called);
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.submit'));

@@ -8,15 +8,15 @@ define([
   'views/form',
   'views/mixins/avatar-mixin',
   'views/mixins/settings-mixin',
-  'views/mixins/settings-panel-mixin',
+  'views/mixins/modal-settings-panel-mixin',
   'stache!templates/settings/avatar_change',
   'lib/auth-errors',
   'lib/image-loader',
   'lib/promise',
   'models/cropper-image'
 ],
-function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, SettingsPanelMixin,
-    Template, AuthErrors, ImageLoader, p, CropperImage) {
+function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, ModalSettingsPanelMixin,
+  Template, AuthErrors, ImageLoader, p, CropperImage) {
   'use strict';
 
   var View = FormView.extend({
@@ -150,7 +150,12 @@ function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, SettingsPanelMixin,
 
   });
 
-  Cocktail.mixin(View, AvatarMixin, SettingsMixin, SettingsPanelMixin);
+  Cocktail.mixin(
+    View,
+    AvatarMixin,
+    ModalSettingsPanelMixin,
+    SettingsMixin
+  );
 
   return View;
 });

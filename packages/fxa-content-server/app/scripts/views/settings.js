@@ -41,11 +41,7 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
     DisplayNameView,
     CommunicationPreferencesView,
     ChangePasswordView,
-    DeleteAccountView
-  ];
-
-  // Avatar views are stateful so they require special handling
-  var AVATAR_VIEWS = [
+    DeleteAccountView,
     AvatarChangeView,
     AvatarCropView,
     AvatarCameraView,
@@ -57,6 +53,7 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
     return view.render()
       .then(function (shown) {
         if (! shown) {
+          view.destroy(true);
           return;
         }
         view.afterVisible();
@@ -65,7 +62,7 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
       });
   }
 
-  var View = FormView.extend({
+  var View = BaseView.extend({
     template: Template,
     className: 'settings',
 
@@ -91,7 +88,7 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
     },
 
     events: {
-      'click #signout': BaseView.preventDefaultThen('submit')
+      'click #signout': BaseView.preventDefaultThen('signOut')
     },
 
     _onProfileChange: function () {
@@ -109,30 +106,29 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
       if ($.modal.isActive()) {
         $.modal.close();
       }
-      this._closeAvatarView();
+      this._subviewInstanceFromClass(AvatarView).closePanel();
       this.showEphemeralMessages();
     },
 
     showSubView: function (SubView, options) {
-      if (SUBVIEWS.indexOf(SubView) === -1 && AVATAR_VIEWS.indexOf(SubView) === -1) {
+      if (SUBVIEWS.indexOf(SubView) === -1) {
         return;
       }
       var self = this;
 
-      self._closeAvatarView();
-
-      if (self._isAvatarView(SubView)) {
-        // Avatar views depend on state so we have to render them on-demand.
-        return self._renderSubView(SubView, options)
-          .then(function (view) {
-            view.openPanel();
-            self._openModal(view);
-          });
+      // Destroy any previous modal view
+      if (self._currentSubView && self._currentSubView.isModal) {
+        self._currentSubView.closePanel();
       }
 
-      var subView = self._subviewInstanceFromClass(SubView);
-      subView.openPanel();
-      subView.logScreen();
+      return self._createSubViewIfNeeded(SubView, options)
+        .then(function (subView) {
+          if (subView) {
+            self._currentSubView = subView;
+            subView.openPanel();
+            subView.logScreen();
+          }
+        });
     },
 
     _subviewInstanceFromClass: function (SubView) {
@@ -143,42 +139,21 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
       })[0];
     },
 
-    _openModal: function (view) {
-      var self = this;
-      $(view.el).modal({
-        zIndex: 999,
-        opacity: 0.75,
-        showClose: false
-      });
-      $(view.el).on($.modal.CLOSE, function () {
-        self._onCloseModal();
-      });
-    },
-
-    _onCloseModal: function () {
-      this._subviewInstanceFromClass(AvatarView).closePanelReturnToSettings();
-    },
-
-    _closeAvatarView: function () {
-      var view;
-      // Destroy any previous avatar view
-      if (this._avatarView) {
-        view = this._avatarView;
-        this._avatarView = null;
-        view.closePanel();
-        view.destroy(true);
-      }
+    _isModalViewClass: function (SubView) {
+      return !! SubView.prototype.isModal;
     },
 
     _subViewClass: function (SubView) {
       return SubView.prototype.className;
     },
 
-    _isAvatarView: function (SubView) {
-      return (AVATAR_VIEWS.indexOf(SubView) !== -1);
-    },
+    // Render subview if an instance doesn't already exist
+    _createSubViewIfNeeded: function (SubView) {
+      var subView = this._subviewInstanceFromClass(SubView);
+      if (subView) {
+        return p(subView);
+      }
 
-    _renderSubView: function (SubView) {
       var self = this;
       var className = self._subViewClass(SubView);
       var selector = '.' + className;
@@ -189,10 +164,6 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
         el: self.$(selector),
         superView: self
       });
-
-      if (self._isAvatarView(SubView)) {
-        self._avatarView = view;
-      }
 
       self.trackSubview(view);
 
@@ -218,45 +189,20 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
     afterRender: function () {
       var self = this;
       var areCommunicationPrefsVisible = self._areCommunicationPrefsVisible();
-      var SubViews = SUBVIEWS.filter(function (SubView) {
-        return SubView !== CommunicationPreferencesView ||
-                areCommunicationPrefsVisible;
+
+      // Initial subviews to render; excludes CommunicationPreferencesView if not visible
+      // and modal views.
+      var initialSubViews = SUBVIEWS.filter(function (SubView) {
+        return (SubView !== CommunicationPreferencesView || areCommunicationPrefsVisible) &&
+              ! self._isModalViewClass(SubView);
       });
 
       self.logScreenEvent('communication-prefs-link.visible.' +
           String(areCommunicationPrefsVisible));
 
-      return p.all(SubViews.map(function (SubView) {
-        return self._renderSubView(SubView);
+      return p.all(initialSubViews.map(function (SubView) {
+        return self._createSubViewIfNeeded(SubView);
       }));
-    },
-
-    submit: allowOnlyOneSubmit(function () {
-      var self = this;
-      var sessionToken = self.getSignedInAccount().get('sessionToken');
-
-      self.logScreenEvent('signout.submit');
-      return self.fxaClient.signOut(sessionToken)
-        .fail(function () {
-          // ignore the error.
-          // Clear the session, even on failure. Everything is A-OK.
-          // See issue #616
-          self.logScreenEvent('signout.error');
-        })
-        .fin(function () {
-          self.logScreenEvent('signout.success');
-          self.user.clearSignedInAccount();
-          Session.clear();
-          self.navigate('signin', {
-            success: t('Signed out successfully')
-          });
-        });
-    }),
-
-    beforeDestroy: function () {
-      $('.settings').fadeOut(FADE_OUT_SETTINGS, function (){
-        $('body').removeClass('settings').show();
-      });
     },
 
     afterVisible: function () {
@@ -268,6 +214,12 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
       }
 
       return self._showAvatar();
+    },
+
+    beforeDestroy: function () {
+      $('.settings').fadeOut(FADE_OUT_SETTINGS, function (){
+        $('body').removeClass('settings').show();
+      });
     },
 
     _isAvatarLinkVisible: function (account) {
@@ -300,7 +252,48 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
       return this._able.choose('communicationPrefsVisible', {
         lang: this.navigator.language
       });
+    },
+
+    signOut: allowOnlyOneSubmit(function () {
+      var self = this;
+      var sessionToken = self.getSignedInAccount().get('sessionToken');
+
+      self.logScreenEvent('signout.submit');
+      return self.fxaClient.signOut(sessionToken)
+        .fail(function () {
+          // ignore the error.
+          // Clear the session, even on failure. Everything is A-OK.
+          // See issue #616
+          self.logScreenEvent('signout.error');
+        })
+        .fin(function () {
+          self.logScreenEvent('signout.success');
+          self.user.clearSignedInAccount();
+          Session.clear();
+          self.navigate('signin', {
+            success: t('Signed out successfully')
+          });
+        });
+    }),
+
+    displaySuccess: function () {
+      var self = this;
+      clearTimeout(self._successTimeout);
+      self._successTimeout = setTimeout(function () {
+        self.hideSuccess();
+      }, 3000);
+      return BaseView.prototype.displaySuccess.apply(this, arguments);
+    },
+
+    displaySuccessUnsafe: function () {
+      var self = this;
+      clearTimeout(self._successTimeout);
+      self._successTimeout = setTimeout(function () {
+        self.hideSuccess();
+      }, 3000);
+      return BaseView.prototype.displaySuccessUnsafe.apply(this, arguments);
     }
+
   });
 
   Cocktail.mixin(View, AvatarMixin, SettingsMixin);

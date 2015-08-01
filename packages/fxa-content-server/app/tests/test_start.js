@@ -110,6 +110,8 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/checkbox-mixin',
     '../tests/spec/views/mixins/loading-mixin',
     '../tests/spec/views/mixins/migration-mixin',
+    '../tests/spec/views/mixins/modal-settings-panel-mixin',
+    '../tests/spec/views/mixins/settings-panel-mixin',
     '../tests/spec/views/mixins/signup-enabled-mixin',
     '../tests/spec/models/unique-user-id',
     '../tests/spec/models/user',
