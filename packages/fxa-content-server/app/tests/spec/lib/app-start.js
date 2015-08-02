@@ -201,10 +201,10 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
         });
       });
 
-      describe('fx-ios', function () {
+      describe('fx-ios v1', function () {
         it('returns an FxDesktop broker if `context=fx_ios_v1`', function () {
           windowMock.location.search = Url.objToSearchString({
-            context: Constants.FX_IOS_CONTEXT
+            context: Constants.FX_IOS_V1_CONTEXT
           });
 
           return testExpectedBrokerCreated(FxDesktopBroker);
