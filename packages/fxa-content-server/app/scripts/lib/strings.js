@@ -23,6 +23,14 @@ function () {
   t('Edit profile');
   t('Name');
 
+  // Needed for #2757
+  t('Bookmarks');
+  t('History');
+  t('Tabs');
+  t('Passwords');
+  t('Desktop Add-ons');
+  t('Desktop Preferences');
+
   /**
    * Replace instances of %s and %(name)s with their corresponding values in
    * the context
