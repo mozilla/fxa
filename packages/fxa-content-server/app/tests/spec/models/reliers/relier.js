@@ -19,7 +19,6 @@ define([
     var windowMock;
 
     var SERVICE = 'service';
-    var SYNC_SERVICE = 'sync';
     var PREVERIFY_TOKEN = 'abigtoken';
     var EMAIL = 'email';
     var UID = 'uid';
@@ -133,26 +132,15 @@ define([
     });
 
     describe('isSync', function () {
-      it('returns true if `service=sync`', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          service: SYNC_SERVICE
-        });
-
-        return relier.fetch()
-            .then(function () {
-              assert.isTrue(relier.isSync());
-            });
-      });
-
-      it('returns false otw', function () {
+      it('returns `false` by default', function () {
         windowMock.location.search = TestHelpers.toSearchString({
           service: SERVICE
         });
 
         return relier.fetch()
-            .then(function () {
-              assert.isFalse(relier.isSync());
-            });
+          .then(function () {
+            assert.isFalse(relier.isSync());
+          });
       });
     });
 

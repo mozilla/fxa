@@ -115,6 +115,14 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
           });
         });
 
+        sinon.stub(relier, 'wantsKeys', function () {
+          return true;
+        });
+
+        sinon.stub(relier, 'isSync', function () {
+          return true;
+        });
+
         return client.signUp(email, password, relier, { customizeSync: true, resume: resumeToken })
           .then(function (sessionData) {
             assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
@@ -207,6 +215,10 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
           return p({});
         });
 
+        sinon.stub(relier, 'wantsKeys', function () {
+          return true;
+        });
+
         return client.signUp(email, password, relier, {
           preVerifyToken: preVerifyToken,
           resume: resumeToken
@@ -225,6 +237,9 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
       it('signUp a user with an invalid preVerifyToken retries the signup without the token', function () {
         var preVerifyToken = 'somebiglongtoken';
         relier.set('preVerifyToken', preVerifyToken);
+        sinon.stub(relier, 'wantsKeys', function () {
+          return true;
+        });
 
         // we are going to take over from here.
         testHelpers.removeFxaClientSpy(realClient);
@@ -330,6 +345,14 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
           });
         });
 
+        sinon.stub(relier, 'wantsKeys', function () {
+          return true;
+        });
+
+        sinon.stub(relier, 'isSync', function () {
+          return true;
+        });
+
         relier.set('service', 'sync');
         return client.signIn(email, password, relier, { customizeSync: true })
           .then(function (sessionData) {
@@ -396,8 +419,12 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
           });
       });
 
-      it('informs browser of customizeSync option', function () {
+      it('Sync signIn informs browser of customizeSync option', function () {
         sinon.stub(relier, 'isSync', function () {
+          return true;
+        });
+
+        sinon.stub(relier, 'wantsKeys', function () {
           return true;
         });
 
@@ -418,6 +445,10 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
       });
 
       it('passes along an optional `reason`', function () {
+        sinon.stub(relier, 'wantsKeys', function () {
+          return true;
+        });
+
         sinon.stub(realClient, 'signIn', function () {
           return p({});
         });

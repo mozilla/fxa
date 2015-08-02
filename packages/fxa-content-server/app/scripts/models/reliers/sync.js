@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * The FxDesktop for Sync relier. In addition to the fields available on
+ * The Sync for Sync relier. In addition to the fields available on
  * `Relier`, provides the following:
  *
  * - context
@@ -17,7 +17,7 @@ define([
 ], function (_, Relier, ServiceNameTranslator) {
   'use strict';
 
-  var FxDesktopRelier = Relier.extend({
+  var SyncRelier = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {
       context: null,
       migration: null
@@ -54,7 +54,7 @@ define([
         });
     },
 
-    isFxDesktop: function () {
+    isSync: function () {
       return true;
     },
 
@@ -78,9 +78,9 @@ define([
      * Check if the relier wants to force the customize sync checkbox on
      */
     isCustomizeSyncChecked: function () {
-      return !! (this.isSync() && this.get('customizeSync'));
+      return !! this.get('customizeSync');
     }
   });
 
-  return FxDesktopRelier;
+  return SyncRelier;
 });

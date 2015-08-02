@@ -10,11 +10,11 @@ define([
   'lib/fxa-client',
   'lib/able',
   'lib/promise',
-  'models/reliers/fx-desktop',
+  'models/reliers/sync',
   'models/auth_brokers/oauth',
   '../../mocks/window'
 ],
-function (chai, sinon, View, Session, FxaClient, Able, p, FxDesktopRelier,
+function (chai, sinon, View, Session, FxaClient, Able, p, SyncRelier,
       OAuthBroker, WindowMock) {
   'use strict';
 
@@ -31,7 +31,7 @@ function (chai, sinon, View, Session, FxaClient, Able, p, FxDesktopRelier,
 
     function createView() {
       windowMock = new WindowMock();
-      relier = new FxDesktopRelier({
+      relier = new SyncRelier({
         window: windowMock
       });
       broker = new OAuthBroker({

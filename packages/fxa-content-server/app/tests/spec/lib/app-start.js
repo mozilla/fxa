@@ -24,7 +24,7 @@ define([
   'models/auth_brokers/redirect',
   'models/auth_brokers/web-channel',
   'models/reliers/base',
-  'models/reliers/fx-desktop',
+  'models/reliers/sync',
   'models/reliers/oauth',
   'models/reliers/relier',
   'models/user',
@@ -38,7 +38,7 @@ define([
 function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
   Url, OAuthErrors, AuthErrors, Storage, BaseBroker, FxDesktopV1Broker,
   FxDesktopV2Broker, FxFennecV1Broker, FxiOSV1Broker, IframeBroker,
-  RedirectBroker, WebChannelBroker, BaseRelier, FxDesktopRelier,
+  RedirectBroker, WebChannelBroker, BaseRelier, SyncRelier,
   OAuthRelier, Relier, User, Metrics, StorageMetrics, WindowMock,
   RouterMock, HistoryMock, TestHelpers) {
   'use strict';
@@ -343,13 +343,13 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
         });
       });
 
-      it('creates an FxDesktopRelier if Firefox Desktop', function () {
-        sinon.stub(appStart, '_isFxDesktop', function () {
+      it('creates an SyncRelier if Sync', function () {
+        sinon.stub(appStart, '_isSync', function () {
           return true;
         });
 
         appStart.initializeRelier();
-        assert.instanceOf(appStart._relier, FxDesktopRelier);
+        assert.instanceOf(appStart._relier, SyncRelier);
       });
 
       it('creates an OAuthRelier if using the OAuth flow', function () {
@@ -603,7 +603,7 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
           return true;
         });
 
-        sinon.stub(appStart, '_isFxDesktop', function () {
+        sinon.stub(appStart, '_isSync', function () {
           return true;
         });
 

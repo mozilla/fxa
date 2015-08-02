@@ -107,23 +107,6 @@ define([
     },
 
     /**
-     * Check if the relier is Sync for Firefox Desktop
-     */
-    isSync: function () {
-      return this.get('service') === Constants.SYNC_SERVICE;
-    },
-
-    /**
-     * We should always fetch keys for sync.  If the user verifies in a
-     * second tab on the same browser, the context will not be available,
-     * but we will need to ship the keyFetchToken and unwrapBKey over to
-     * the first tab.
-     */
-    wantsKeys: function () {
-      return this.isSync();
-    },
-
-    /**
      * Check if the relier allows cached credentials. A relier
      * can set email=blank to indicate they do not.
      */
