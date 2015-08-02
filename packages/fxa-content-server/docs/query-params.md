@@ -100,7 +100,7 @@ Set the default value of the "Customize which values to sync" checkbox.
 * `false` (default)
 
 #### When to specify
-Only available if `context` equals `fx_desktop_v1`, `fx_desktop_v2`, or `iframe` and `service` equals `sync`.
+Only available if `context` equals `fx_desktop_v1`, `fx_desktop_v2`, `fx_ios_v1`, or `iframe` and `service` equals `sync`.
 
 * /signup
 
@@ -118,7 +118,7 @@ If they user arrived at Firefox Accounts from within Firefox browser chrome, spe
 If the user is migrating their Sync account from "old sync" to "new sync", specify which sync they are migrating from.
 
 #### When to specify
-Only available if `context` equals `fx_desktop_v1`, `fx_desktop_v2`, or `iframe`.
+Only available if `context` equals `fx_desktop_v1`, `fx_desktop_v2`, `fx_ios_v1`, or `iframe`.
 
 * /signin
 * /signup
@@ -130,7 +130,7 @@ Specify which non-OAuth service a user is signing in to.
 * `sync`
 
 #### When to specify
-Only available if `context` equals `fx_desktop_v1`, `fx_desktop_v2`, or `iframe`.
+Only available if `context` equals `fx_desktop_v1`, `fx_desktop_v2`, `fx_ios_v1`, or `iframe`.
 
 * /signin
 * /signup
@@ -153,8 +153,12 @@ If Firefox Accounts is opened to `/settings` and a profile field should be made 
 Specify an alternate context in which Firefox Accounts is being run, if not as a standard web page.
 
 #### Options
-* `fx_desktop_v1` - Firefox Accounts is being used to sign in to Sync using CustomEvents.
-* `fx_desktop_v2` - Firefox Accounts is being used to sign in to Sync using WebChannels.
+* `fx_desktop_v1` - Firefox Accounts is being used to sign in to Sync on
+   Firefox Desktop using CustomEvents.
+* `fx_desktop_v2` - Firefox Accounts is being used to sign in to Sync on
+   Firefox Desktop using WebChannels.
+* `fx_ios_v1` - Firefox Accounts is being used to sign in to Sync on Firefox
+   for iOS using CustomEvents.
 * `iframe` - Firefox Accounts is displayed in an iframe.
 
 ### `email`

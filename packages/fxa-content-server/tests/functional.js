@@ -12,6 +12,7 @@ define([
   './functional/sync_v2_sign_up',
   './functional/firstrun_sign_up',
   './functional/firstrun_sign_in',
+  './functional/fx_ios_v1_sign_in',
   './functional/bounced_email',
   './functional/legal',
   './functional/tos',

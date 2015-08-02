@@ -609,7 +609,11 @@ function (
     },
 
     _isFxDesktopV1: function () {
-      return this._searchParam('context') === Constants.FX_DESKTOP_CONTEXT;
+      // Firefox for iOS is using the desktop broker for now.
+      // It provides a custom context value so that we can implement
+      // a custom auth broker if necessary in the future.
+      return (this._searchParam('context') === Constants.FX_DESKTOP_CONTEXT ||
+              this._searchParam('context') === Constants.FX_IOS_V1_CONTEXT);
     },
 
     _isFxDesktopV2: function () {
