@@ -64,7 +64,7 @@ define([
         // and
         // https://dxr.mozilla.org/mozilla-central/source/browser/base/content/aboutaccounts/aboutaccounts.js#193
         messageId: content.status,
-        data: content
+        data: content.data
       };
     }
   });

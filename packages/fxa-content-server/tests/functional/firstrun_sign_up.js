@@ -97,6 +97,25 @@ define([
 
         .findByCssSelector('#fxa-sign-up-complete-header')
         .end();
+    },
+
+    'sign up, cancel merge warning': function () {
+      var self = this;
+      return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
+        .execute(listenForFxaCommands)
+
+        .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: false } ))
+
+
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+        })
+
+        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
+
+        // user should not transition to the next screen
+        .then(FunctionalHelpers.noSuchElement(self, '#fxa-confirm-header'))
+        .end();
     }
   });
 });

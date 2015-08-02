@@ -77,7 +77,7 @@ define([
       // message='USER_CANCELED_LOGIN' and errno=1001 if that's the case.
       return self.request(self._commands.CAN_LINK_ACCOUNT, { email: email })
         .then(function (response) {
-          if (response && response.data && ! response.data.ok) {
+          if (response && ! response.ok) {
             throw AuthErrors.toError('USER_CANCELED_LOGIN');
           }
 
