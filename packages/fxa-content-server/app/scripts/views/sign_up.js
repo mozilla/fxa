@@ -1,5 +1,4 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
+/* This Source Code Form is subject to the terms of the Mozilla Public * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
@@ -17,11 +16,12 @@ define([
   'views/mixins/checkbox-mixin',
   'views/mixins/resume-token-mixin',
   'views/mixins/migration-mixin',
+  'views/mixins/signup-disabled-mixin',
   'views/coppa/coppa-date-picker'
 ],
 function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       Url, PasswordMixin, ServiceMixin, CheckboxMixin, ResumeTokenMixin,
-      MigrationMixin, CoppaDatePicker) {
+      MigrationMixin, SignupDisabledMixin, CoppaDatePicker) {
   'use strict';
 
   var t = BaseView.t;
@@ -52,6 +52,11 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
     beforeRender: function () {
       if (document.cookie.indexOf('tooyoung') > -1) {
         this.navigate('cannot_create_account');
+        return p(false);
+      } else if (this.isSignupDisabled()) {
+        this.navigate('signin', {
+          error: this.getSignupDisabledReason()
+        });
         return p(false);
       }
 
@@ -360,7 +365,8 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
     MigrationMixin,
     PasswordMixin,
     ResumeTokenMixin,
-    ServiceMixin
+    ServiceMixin,
+    SignupDisabledMixin
   );
 
   return View;

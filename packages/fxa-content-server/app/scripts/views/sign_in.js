@@ -13,6 +13,7 @@ define([
   'views/mixins/password-mixin',
   'views/mixins/resume-token-mixin',
   'views/mixins/service-mixin',
+  'views/mixins/signup-disabled-mixin',
   'views/mixins/avatar-mixin',
   'views/mixins/account-locked-mixin',
   'views/mixins/migration-mixin',
@@ -20,8 +21,10 @@ define([
   'views/decorators/progress_indicator'
 ],
 function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
-      AuthErrors, PasswordMixin, ResumeTokenMixin, ServiceMixin, AvatarMixin,
-      AccountLockedMixin, MigrationMixin, allowOnlyOneSubmit, showProgressIndicator) {
+  AuthErrors, PasswordMixin, ResumeTokenMixin, ServiceMixin,
+  SignupDisabledMixin, AvatarMixin, AccountLockedMixin, MigrationMixin,
+  allowOnlyOneSubmit, showProgressIndicator) {
+
   'use strict';
 
   var t = BaseView.t;
@@ -69,7 +72,8 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
         chooserAskForPassword: this._suggestedAccountAskPassword(suggestedAccount),
         password: this._formPrefill.get('password'),
         error: this.error,
-        isMigration: this.isMigration()
+        isMigration: this.isMigration(),
+        isSignupDisabled: this.isSignupDisabled()
       };
     },
 
@@ -148,7 +152,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
     onSignInError: function (account, err) {
       var self = this;
 
-      if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
+      if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT') && ! this.isSignupDisabled()) {
         return self._suggestSignUp(err);
       } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
         self.logScreenEvent('canceled');
@@ -300,7 +304,8 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
     MigrationMixin,
     PasswordMixin,
     ResumeTokenMixin,
-    ServiceMixin
+    ServiceMixin,
+    SignupDisabledMixin
   );
 
   return View;

@@ -10,9 +10,10 @@
 define([
   'underscore',
   'backbone',
+  'lib/auth-errors',
   'lib/promise',
   'models/mixins/search-param'
-], function (_, Backbone, p, SearchParamMixin) {
+], function (_, Backbone, AuthErrors, p, SearchParamMixin) {
   'use strict';
 
   var BaseAuthenticationBroker = Backbone.Model.extend({
@@ -202,7 +203,19 @@ define([
      */
     isAutomatedBrowser: function () {
       return !! this.get('automatedBrowser');
-    }
+    },
+
+    /**
+     * Is FxA account signup disabled?
+     */
+    isSignupDisabled: function () {
+      if (this.relier.isSignupDisabled()) {
+        this.SIGNUP_DISABLED_REASON =
+            AuthErrors.toError('SIGNUP_DISABLED_BY_RELIER');
+        return true;
+      }
+      return false;
+    },
   });
 
   _.extend(BaseAuthenticationBroker.prototype, SearchParamMixin);

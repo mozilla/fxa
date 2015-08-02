@@ -210,6 +210,8 @@ The event stream is a log of events and the time they occurred while the user is
 * signup.checkbox.change.customize-sync.unchecked - user unchecked the "Choose what to sync" checkbox.
 * error.signup.auth.1012 - user did not enter year of birth
 * error.signup.auth.1016 - user did not enter their birthday
+* error.signup.auth.1029 - signup is disabled on Fx for iOS v1
+* error.signup.auth.1030 - signup has been force disabled by a Sync based relier.
 
 #### signup_permissions
 * signup-permissions.accept - user accepts and grants the requested permissions

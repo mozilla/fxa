@@ -58,7 +58,9 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
       user = new User();
       formPrefill = new FormPrefill();
 
-      broker = new NullBroker();
+      broker = new NullBroker({
+        relier: relier
+      });
 
       able = new Able();
 

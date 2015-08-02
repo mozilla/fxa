@@ -52,6 +52,7 @@ define([
   'models/auth_brokers/base',
   'models/auth_brokers/fx-desktop',
   'models/auth_brokers/fx-desktop-v2',
+  'models/auth_brokers/fx-ios-v1',
   'models/auth_brokers/first-run',
   'models/auth_brokers/web-channel',
   'models/auth_brokers/redirect',
@@ -99,6 +100,7 @@ function (
   BaseAuthenticationBroker,
   FxDesktopV1AuthenticationBroker,
   FxDesktopV2AuthenticationBroker,
+  FxiOSV1AuthenticationBroker,
   FirstRunAuthenticationBroker,
   WebChannelAuthenticationBroker,
   RedirectAuthenticationBroker,
@@ -411,6 +413,11 @@ function (
             window: this._window,
             relier: this._relier
           });
+        } else if (this._isFxiOSV1()) {
+          this._authenticationBroker = new FxiOSV1AuthenticationBroker({
+            window: this._window,
+            relier: this._relier
+          });
         } else if (this._isWebChannel()) {
           this._authenticationBroker = new WebChannelAuthenticationBroker({
             window: this._window,
@@ -609,11 +616,7 @@ function (
     },
 
     _isFxDesktopV1: function () {
-      // Firefox for iOS is using the desktop broker for now.
-      // It provides a custom context value so that we can implement
-      // a custom auth broker if necessary in the future.
-      return (this._searchParam('context') === Constants.FX_DESKTOP_V1_CONTEXT ||
-              this._searchParam('context') === Constants.FX_IOS_V1_CONTEXT);
+      return this._searchParam('context') === Constants.FX_DESKTOP_V1_CONTEXT;
     },
 
     _isFxDesktopV2: function () {
@@ -626,11 +629,18 @@ function (
              (this._searchParam('context') === Constants.FX_DESKTOP_V2_CONTEXT);
     },
 
+    _isFxiOSV1: function () {
+      return this._searchParam('context') === Constants.FX_IOS_V1_CONTEXT;
+    },
+
     _isFxDesktop: function () {
       // In addition to the two obvious fx desktop choices, sync is always
       // considered fx-desktop. If service=sync is on the URL, it's considered
       // fx-desktop.
-      return this._isFxDesktopV1() || this._isFxDesktopV2() || this._isSync();
+      return this._isFxDesktopV1() ||
+             this._isFxDesktopV2() ||
+             this._isFxiOSV1() ||
+             this._isSync();
     },
 
     _isFirstRun: function () {

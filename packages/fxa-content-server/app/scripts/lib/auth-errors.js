@@ -217,6 +217,14 @@ function (_, Errors) {
     INVALID_IMAGE_SIZE: {
       errno: 1028,
       message: t('The image dimensions must be at least 100x100px')
+    },
+    IOS_SIGNUP_DISABLED: {
+      errno: 1029,
+      message: t('Signup is coming soon to Firefox for iOS')
+    },
+    SIGNUP_DISABLED_BY_RELIER: {
+      errno: 1030,
+      message: t('Signup has been disabled')
     }
   };
 

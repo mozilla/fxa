@@ -53,7 +53,9 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
       windowMock = new WindowMock();
       metrics = new Metrics();
       relier = new Relier();
-      broker = new Broker();
+      broker = new Broker({
+        relier: relier
+      });
       fxaClient = new FxaClient();
       user = new User({
         fxaClient: fxaClient
@@ -371,14 +373,33 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
           });
       });
 
-      it('shows message allowing the user to sign up if user enters unknown account', function () {
+      it('show a link to to signup page if user enters unknown account and signup is enabled', function () {
+        sinon.stub(broker, 'isSignupDisabled', function () {
+          return false;
+        });
+
         sinon.stub(view.fxaClient, 'signIn', function () {
           return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
         });
 
         return view.submit()
           .then(function (msg) {
-            assert.ok(msg.indexOf('/signup') > -1);
+            assert.include(msg, '/signup');
+          });
+      });
+
+      it('do not show a link to signup page if user enters unknown account and signup is disabled', function () {
+        sinon.stub(broker, 'isSignupDisabled', function () {
+          return true;
+        });
+
+        sinon.stub(view.fxaClient, 'signIn', function () {
+          return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
+        });
+
+        return view.submit()
+          .fail(function (err) {
+            assert.notInclude(AuthErrors.toMessage(err), '/signup');
           });
       });
 

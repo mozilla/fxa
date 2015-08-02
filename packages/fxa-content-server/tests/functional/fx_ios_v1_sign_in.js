@@ -51,12 +51,44 @@ define([
       return FunctionalHelpers.clearBrowserState(this);
     },
 
+    'signup link is disabled': function () {
+      var self = this;
+      return createUser(true)
+        .then(function () {
+          return FunctionalHelpers.openPage(self, PAGE_URL, '#fxa-signin-header')
+            .execute(listenForFxaCommands)
+
+            .then(FunctionalHelpers.noSuchElement(self, 'a[href="/signup"]'));
+        });
+    },
+
+    'signin with an unknown account does not allow the user to sign up': function () {
+      var self = this;
+      email = TestHelpers.createEmail();
+
+      return FunctionalHelpers.openPage(self, PAGE_URL, '#fxa-signin-header')
+        .execute(listenForFxaCommands)
+
+        .then(function () {
+          return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
+        })
+
+        // an error is visible
+        .then(FunctionalHelpers.visibleByQSA('.error'))
+
+        // just not the signup link in the error
+        .then(FunctionalHelpers.noSuchElement(self, '.error a[href="/signup"]'));
+    },
+
     'sign in verified': function () {
       var self = this;
       return createUser(true)
         .then(function () {
           return FunctionalHelpers.openPage(self, PAGE_URL, '#fxa-signin-header')
             .execute(listenForFxaCommands)
+
+            // signup link is disabled
+            .then(FunctionalHelpers.noSuchElement(self, 'a[href="/signup"]'))
 
             .then(function () {
               return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
