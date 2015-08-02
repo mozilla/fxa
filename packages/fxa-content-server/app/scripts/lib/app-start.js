@@ -605,14 +605,14 @@ function (
     },
 
     _isSync: function () {
-      return this._searchParam('service') === Constants.FX_DESKTOP_SYNC;
+      return this._searchParam('service') === Constants.SYNC_SERVICE;
     },
 
     _isFxDesktopV1: function () {
       // Firefox for iOS is using the desktop broker for now.
       // It provides a custom context value so that we can implement
       // a custom auth broker if necessary in the future.
-      return (this._searchParam('context') === Constants.FX_DESKTOP_CONTEXT ||
+      return (this._searchParam('context') === Constants.FX_DESKTOP_V1_CONTEXT ||
               this._searchParam('context') === Constants.FX_IOS_V1_CONTEXT);
     },
 
