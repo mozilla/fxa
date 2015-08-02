@@ -38,7 +38,7 @@ define([
 
     _shouldShowSignUpMarketing: function () {
       var isSignUp = this._type === 'sign_up';
-      var isSync = this._service === Constants.FX_DESKTOP_SYNC;
+      var isSync = this._service === Constants.SYNC_SERVICE;
       var isFirefoxMobile = this._isFirefoxMobile();
 
       // If the user is completing a signup for sync and ALWAYS

@@ -605,7 +605,7 @@ function (
     },
 
     _isSync: function () {
-      return this._searchParam('service') === Constants.FX_DESKTOP_SYNC;
+      return this._searchParam('service') === Constants.SYNC_SERVICE;
     },
 
     _isFxDesktopV1: function () {

@@ -193,7 +193,7 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
 
         it('returns an FxDesktop broker if `service=sync&context=iframe`', function () {
           windowMock.location.search = Url.objToSearchString({
-            service: Constants.FX_DESKTOP_SYNC,
+            service: Constants.SYNC_SERVICE,
             context: Constants.IFRAME_CONTEXT
           });
 

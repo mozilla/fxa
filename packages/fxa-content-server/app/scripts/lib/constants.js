@@ -27,10 +27,11 @@ define([], function () {
 
     FX_DESKTOP_CONTEXT: 'fx_desktop_v1',
     FX_DESKTOP_V2_CONTEXT: 'fx_desktop_v2',
-    FX_DESKTOP_SYNC: 'sync',
     FX_IOS_V1_CONTEXT: 'fx_ios_v1',
-
     IFRAME_CONTEXT: 'iframe',
+
+    SYNC_SERVICE: 'sync',
+
 
     VERIFICATION_POLL_IN_MS: 4000,
 
