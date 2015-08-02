@@ -68,7 +68,7 @@ TestServer.start(config)
       var password = 'something'
       var client = null // eslint-disable-line no-unused-vars
       var options = {
-        redirectTo: 'https://sync.firefox.com',
+        redirectTo: 'https://sync.'  + config.smtp.redirectDomain,
         service: 'sync'
       }
       return Client.create(config.publicUrl, email, password, options)

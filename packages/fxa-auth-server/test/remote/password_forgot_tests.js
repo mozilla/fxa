@@ -200,7 +200,7 @@ TestServer.start(config)
       var password = 'something'
       var client = null
       var options = {
-        redirectTo: 'https://sync.firefox.com',
+        redirectTo: 'https://sync.' + config.smtp.redirectDomain,
         service: 'sync'
       }
       return Client.create(config.publicUrl, email, password, options)
@@ -333,7 +333,7 @@ TestServer.start(config)
     function (t) {
       var email = server.uniqueEmail()
       var options = {
-        redirectTo: 'https://sync.firefox.com',
+        redirectTo: 'https://sync.' + config.smtp.redirectDomain,
         serviceQuery: 'sync'
       }
       var client
