@@ -25,7 +25,7 @@ define([], function () {
     // set of users to disconnect from Sync.
     SESSION_TOKEN_USED_FOR_SYNC: 'fx_desktop_v1',
 
-    FX_DESKTOP_CONTEXT: 'fx_desktop_v1',
+    FX_DESKTOP_V1_CONTEXT: 'fx_desktop_v1',
     FX_DESKTOP_V2_CONTEXT: 'fx_desktop_v2',
     FX_IOS_V1_CONTEXT: 'fx_ios_v1',
     IFRAME_CONTEXT: 'iframe',

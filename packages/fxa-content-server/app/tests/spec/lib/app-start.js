@@ -185,7 +185,7 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
       describe('fx-desktop', function () {
         it('returns an FxDesktop broker if `context=fx_desktop_v1`', function () {
           windowMock.location.search = Url.objToSearchString({
-            context: Constants.FX_DESKTOP_CONTEXT
+            context: Constants.FX_DESKTOP_V1_CONTEXT
           });
 
           return testExpectedBrokerCreated(FxDesktopBroker);

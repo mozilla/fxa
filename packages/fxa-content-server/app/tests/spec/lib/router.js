@@ -98,9 +98,9 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
 
       it('preserves window search parameters across screen transition',
         function () {
-          windowMock.location.search = '?context=' + Constants.FX_DESKTOP_CONTEXT;
+          windowMock.location.search = '?context=' + Constants.FX_DESKTOP_V1_CONTEXT;
           router.navigate('/forgot');
-          assert.equal(navigateUrl, '/forgot?context=' + Constants.FX_DESKTOP_CONTEXT);
+          assert.equal(navigateUrl, '/forgot?context=' + Constants.FX_DESKTOP_V1_CONTEXT);
           assert.deepEqual(navigateOptions, { trigger: true });
         });
     });
