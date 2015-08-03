@@ -350,10 +350,10 @@
       "from": "eslint-config-fxa@1.6.0",
       "resolved": "https://registry.npmjs.org/eslint-config-fxa/-/eslint-config-fxa-1.6.0.tgz"
     },
-    "fxa-auth-db-mem": {
+    "fxa-auth-db-mysql": {
       "version": "0.33.0",
-      "from": "git+https://github.com/mozilla/fxa-auth-db-mem.git#33803409adce8cb8c31a4c292238698b1a435e16",
-      "resolved": "git+https://github.com/mozilla/fxa-auth-db-mem.git#33803409adce8cb8c31a4c292238698b1a435e16",
+      "from": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#63a8ba4714d2b105ddc7396f72f99e743df4bdf5",
+      "resolved": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#63a8ba4714d2b105ddc7396f72f99e743df4bdf5",
       "dependencies": {
         "bluebird": {
           "version": "2.2.2",

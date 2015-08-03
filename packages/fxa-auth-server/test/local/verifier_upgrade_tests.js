@@ -5,7 +5,7 @@
 var test = require('../ptaptest')
 var TestServer = require('../test_server')
 var Client = require('../client')
-var createDBServer = require('fxa-auth-db-mem')
+var createDBServer = require('fxa-auth-db-mysql')
 var log = { trace: console.log }
 
 process.env.VERIFIER_VERSION = '0'
