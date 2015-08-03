@@ -297,6 +297,11 @@ var conf = module.exports = convict({
       format: String,
       default: 'http://127.0.0.1:1114'
     },
+    api_timeout: {
+      doc: 'Timeout for talking to the Basket API server, in ms',
+      format: Number,
+      default: 5 * 1000 // 5 seconds
+    },
     api_url: {
       doc: 'Url for the Basket API server',
       format: String,

@@ -24,6 +24,7 @@ var cors = require('cors');
 var CORS_ORIGIN = config.get('public_url');
 var API_KEY = config.get('basket.api_key');
 var API_URL = config.get('basket.api_url');
+var API_TIMEOUT = config.get('basket.api_timeout');
 var VERIFY_URL = config.get('oauth_url') + '/v1/verify';
 
 
@@ -123,6 +124,7 @@ function basketRequest(path, method, params, done) {
     url: API_URL + path,
     strictSSL: true,
     method: method,
+    timeout: API_TIMEOUT,
     headers: {
       'X-API-Key': API_KEY
     },
@@ -150,6 +152,7 @@ function initApp() {
     basketRequest('/lookup-user/?email=' + email, 'get', params)
       .on('error', function (error) {
         logger.error('lookup-user.error', error);
+        res.status(500).json(errorResponse(error, BASKET_ERRORS.UNKNOWN_ERROR));
       })
       .pipe(res);
   });
@@ -162,6 +165,7 @@ function initApp() {
     basketRequest('/subscribe/', 'post', params)
       .on('error', function (error) {
         logger.error('subscribe.error', error);
+        res.status(500).json(errorResponse(error, BASKET_ERRORS.UNKNOWN_ERROR));
       })
       .pipe(res);
   });
@@ -197,6 +201,7 @@ function initApp() {
       basketRequest('/unsubscribe/' + responseData.token + '/', 'post', params)
         .on('error', function (error) {
           logger.error('unsubscribe.error', error);
+          res.status(500).json(errorResponse(error, BASKET_ERRORS.UNKNOWN_ERROR));
         })
         .pipe(res);
     });
