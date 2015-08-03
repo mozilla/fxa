@@ -20,6 +20,18 @@ function ($, modal, Cocktail, FormView, Template, AvatarMixin, SettingsMixin,
     template: Template,
     className: 'avatar',
 
+    initialize: function (options) {
+      this._notifications = options.notifications;
+      if (this._notifications) {
+        this._notifications.on(this._notifications.EVENTS.PROFILE_CHANGE,
+          this._onProfileUpdate.bind(this));
+      }
+    },
+
+    _onProfileUpdate: function () {
+      this.render();
+    },
+
     context: function () {
       var account = this.getSignedInAccount();
       return {

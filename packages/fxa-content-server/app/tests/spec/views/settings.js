@@ -6,8 +6,11 @@ define([
   'chai',
   'jquery',
   'sinon',
+  'underscore',
   'views/settings',
-  'views/settings/avatar',
+  'views/base',
+  'views/mixins/modal-settings-panel-mixin',
+  'views/mixins/settings-panel-mixin',
   '../../mocks/router',
   '../../lib/helpers',
   'lib/fxa-client',
@@ -20,14 +23,26 @@ define([
   'models/notifications',
   'models/reliers/relier',
   'models/profile-image',
-  'models/user'
+  'models/user',
+  'stache!templates/test_template',
 ],
-function (chai, $, sinon, View, SubView, RouterMock, TestHelpers, FxaClient, p,
+function (chai, $, sinon, _, View, BaseView, ModalSettingsPanelMixin,
+  SettingsPanelMixin, RouterMock, TestHelpers, FxaClient, p,
   ProfileClient, ProfileErrors, AuthErrors, Able, Metrics, Notifications,
-  Relier, ProfileImage, User) {
+  Relier, ProfileImage, User, TestTemplate) {
   'use strict';
 
   var assert = chai.assert;
+
+  var SettingsPanelView = BaseView.extend({
+    template: TestTemplate
+  });
+  var ModalSettingsPanelView = BaseView.extend({
+    template: TestTemplate
+  });
+
+  _.extend(SettingsPanelView.prototype, SettingsPanelMixin);
+  _.extend(ModalSettingsPanelView.prototype, ModalSettingsPanelMixin);
 
   describe('views/settings', function () {
     var view;
@@ -127,11 +142,7 @@ function (chai, $, sinon, View, SubView, RouterMock, TestHelpers, FxaClient, p,
           return p();
         });
         sinon.stub(view.router, 'createView', function (View) {
-          var subview = new SubView({
-            fxaClient: fxaClient,
-            user: user,
-            relier: relier,
-          });
+          var subview = new SettingsPanelView();
           sinon.stub(subview, 'render', function () {
             return p('');
           });
@@ -188,7 +199,7 @@ function (chai, $, sinon, View, SubView, RouterMock, TestHelpers, FxaClient, p,
           return p({ avatar: IMAGE_URL, displayName: DISPLAY_NAME });
         });
         sinon.stub(view.router, 'createView', function (View) {
-          var subview = new SubView({
+          var subview = new SettingsPanelView({
             fxaClient: fxaClient,
             user: user,
             relier: relier,

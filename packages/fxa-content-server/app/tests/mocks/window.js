@@ -49,6 +49,8 @@ function (Backbone, sinon, _, NullStorage) {
     this.history = {
       back: function () {
         self.history.back.called = true;
+      },
+      pushState: function () {
       }
     };
 

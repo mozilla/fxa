@@ -22,6 +22,19 @@ function (Cocktail, BaseView, FormView, AuthErrors, Template,
     template: Template,
     className: 'display-name',
 
+    initialize: function (options) {
+      this._notifications = options.notifications;
+
+      if (this._notifications) {
+        this._notifications.on(this._notifications.EVENTS.PROFILE_CHANGE,
+          this._onProfileUpdate.bind(this));
+      }
+    },
+
+    _onProfileUpdate: function () {
+      this.render();
+    },
+
     context: function () {
       return {
         displayName: this._displayName

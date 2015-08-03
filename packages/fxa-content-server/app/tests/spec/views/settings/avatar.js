@@ -11,11 +11,12 @@ define([
   '../../../mocks/fxa-client',
   'lib/promise',
   'lib/auth-errors',
+  'models/notifications',
   'models/reliers/relier',
   'models/user'
 ],
 function (chai, $, sinon, View, RouterMock, FxaClientMock,
-    p, AuthErrors, Relier, User) {
+    p, AuthErrors, Notifications, Relier, User) {
   'use strict';
 
   var assert = chai.assert;
@@ -28,17 +29,20 @@ function (chai, $, sinon, View, RouterMock, FxaClientMock,
     var relierMock;
     var user;
     var account;
+    var notifications;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       fxaClientMock = new FxaClientMock();
       relierMock = new Relier();
       user = new User();
+      notifications = new Notifications();
 
       view = new View({
         router: routerMock,
         user: user,
         fxaClient: fxaClientMock,
+        notifications: notifications,
         relier: relierMock
       });
     });
@@ -95,6 +99,14 @@ function (chai, $, sinon, View, RouterMock, FxaClientMock,
           .then(function () {
             assert.equal(view.$('.change').length, 1);
           });
+      });
+
+      it('rerenders on profile updates', function () {
+        sinon.stub(view, 'render', function () {
+          return p();
+        });
+        notifications.profileChanged({});
+        assert.isTrue(view.render.called);
       });
 
     });

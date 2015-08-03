@@ -25,7 +25,6 @@ define([
 
   describe('views/mixins/modal-settings-panel-mixin', function () {
     var view;
-    var user;
     var metrics;
 
     beforeEach(function () {

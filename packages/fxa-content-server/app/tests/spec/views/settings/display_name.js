@@ -9,12 +9,13 @@ define([
   'lib/promise',
   'views/settings/display_name',
   'lib/metrics',
+  'models/notifications',
   'models/reliers/relier',
   'models/user',
   '../../../mocks/router',
   '../../../lib/helpers'
 ],
-function (chai, $, sinon, p, View, Metrics, Relier, User, RouterMock, TestHelpers) {
+function (chai, $, sinon, p, View, Metrics, Notifications, Relier, User, RouterMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -27,6 +28,7 @@ function (chai, $, sinon, p, View, Metrics, Relier, User, RouterMock, TestHelper
     var email;
     var account;
     var relier;
+    var notifications;
 
     beforeEach(function () {
       email = TestHelpers.createEmail();
@@ -34,6 +36,7 @@ function (chai, $, sinon, p, View, Metrics, Relier, User, RouterMock, TestHelper
       metrics = new Metrics();
       user = new User();
       relier = new Relier();
+      notifications = new Notifications();
       account = user.initAccount({
         email: email,
         uid: 'uid',
@@ -57,6 +60,7 @@ function (chai, $, sinon, p, View, Metrics, Relier, User, RouterMock, TestHelper
         metrics: metrics,
         user: user,
         relier: relier,
+        notifications: notifications,
         screenName: 'display-name'
       });
 
@@ -90,6 +94,18 @@ function (chai, $, sinon, p, View, Metrics, Relier, User, RouterMock, TestHelper
             assert.isTrue(account.fetchProfile.called);
             assert.isTrue(user.setAccount.calledWith(account));
             assert.equal(view.$('.text').val(), name);
+          });
+      });
+
+      it('rerenders on profile updates', function () {
+        return initView()
+          .then(function () {
+            sinon.stub(view, 'render', function () {
+              return p();
+            });
+            notifications.profileChanged({});
+
+            assert.isTrue(view.render.called);
           });
       });
     });

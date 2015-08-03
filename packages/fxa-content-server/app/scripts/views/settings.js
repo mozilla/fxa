@@ -8,7 +8,6 @@ define([
   'cocktail',
   'lib/promise',
   'lib/session',
-  'views/form',
   'views/base',
   'views/mixins/avatar-mixin',
   'views/settings/avatar',
@@ -25,7 +24,7 @@ define([
   'views/decorators/allow_only_one_submit',
   'stache!templates/settings'
 ],
-function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
+function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
   AvatarView, AvatarChangeView, AvatarCropView, AvatarCameraView, GravatarView,
   GravatarPermissionsView, CommunicationPreferencesView, ChangePasswordView,
   DisplayNameView, DeleteAccountView, SettingsMixin, allowOnlyOneSubmit,
@@ -71,10 +70,12 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
 
       this._able = options.able;
       this._subViewToShow = options.subView;
-      this.notifications = options.notifications;
+      this._notifications = options.notifications;
 
       this.on('navigate-from-subview', this._onNavigateFromSubview.bind(this));
-      this.notifications.on('profile:change', this._onProfileChange.bind(this));
+
+      this._notifications.on(this._notifications.EVENTS.PROFILE_CHANGE,
+        this._onProfileChange.bind(this));
     },
 
     context: function () {
@@ -93,10 +94,6 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
 
     _onProfileChange: function () {
       this._showAvatar();
-
-      // re-render views that depend on profile data
-      renderView(this._subviewInstanceFromClass(AvatarView));
-      renderView(this._subviewInstanceFromClass(DisplayNameView));
     },
 
     // When we navigate to settings from a subview
@@ -106,7 +103,6 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
       if ($.modal.isActive()) {
         $.modal.close();
       }
-      this._subviewInstanceFromClass(AvatarView).closePanel();
       this.showEphemeralMessages();
     },
 
@@ -207,7 +203,7 @@ function ($, modal, Cocktail, p, Session, FormView, BaseView, AvatarMixin,
 
     afterVisible: function () {
       var self = this;
-      FormView.prototype.afterVisible.call(self);
+      BaseView.prototype.afterVisible.call(self);
 
       if (self._subViewToShow) {
         self.showSubView(self._subViewToShow);
