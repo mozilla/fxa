@@ -69,7 +69,7 @@ Here are some handy questions and things to consider when reviewing code for Fir
 * Does it store user-provided data?
     * The validation rules should be explicit, documented, and clearly enforced before storage.
 * Does it display user-controlled data?
-    * It must be appropriately escaped, e.g. htmlescaped before being insrted into web content.
+    * It must be appropriately escaped, e.g. htmlescaped before being inserted into web content.
 * Does it involve a database schema migration?
     * The changes must be backwards-compatible with the previous deployed version.  This means
       that you can't do something like `ALTER TABLE CHANGE COLUMN` in a single deployment, but
