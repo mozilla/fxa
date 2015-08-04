@@ -69,7 +69,7 @@ define([
         });
     },
 
-    teardown: function () {
+    afterEach: function () {
       return clearBrowserState(this);
     },
 
