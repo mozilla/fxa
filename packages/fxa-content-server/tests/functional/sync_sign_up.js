@@ -317,8 +317,7 @@ define([
         .get(require.toUrl(PAGE_URL_WITH_MIGRATION))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .execute(listenForFxaCommands)
-        .findByCssSelector('.info.nudge')
-        .isDisplayed()
+        .then(FunctionalHelpers.visibleByQSA('.info.nudge'))
         .end();
     }
   });
