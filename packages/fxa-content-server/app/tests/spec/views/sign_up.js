@@ -80,7 +80,9 @@ function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
 
       metrics = new Metrics();
       relier = new Relier();
-      broker = new Broker();
+      broker = new Broker({
+        relier: relier
+      });
       fxaClient = new FxaClient();
       ephemeralMessages = new EphemeralMessages();
       user = new User({
@@ -210,6 +212,24 @@ function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
           .then(function () {
             assert.lengthOf(view.$('.info.nudge'), 0);
             view.isMigration.restore();
+          });
+      });
+
+      it('sends users to /signin if signup is disabled', function () {
+        sinon.stub(view, 'isSignupDisabled', function () {
+          return true;
+        });
+
+        sinon.stub(view, 'navigate', sinon.spy());
+        sinon.stub(view, 'getSignupDisabledReason', function () {
+          return AuthErrors.toError('IOS_SIGNUP_DISABLED');
+        });
+
+        return view.render()
+          .then(function () {
+            assert.isTrue(view.navigate.calledWith('signin'));
+            var err = view.navigate.args[0][1].error;
+            assert.isTrue(AuthErrors.is(err, 'IOS_SIGNUP_DISABLED'));
           });
       });
     });

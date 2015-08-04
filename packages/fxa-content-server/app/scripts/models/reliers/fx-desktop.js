@@ -20,6 +20,7 @@ define([
   var FxDesktopRelier = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {
       context: null,
+      exclude_signup: null, //eslint-disable-line camelcase
       migration: null
     }),
 
@@ -36,6 +37,7 @@ define([
       return Relier.prototype.fetch.call(self)
         .then(function () {
           self.importSearchParam('context');
+          self.importSearchParam('exclude_signup');
           self.importSearchParam('migration');
           try {
             self.importBooleanSearchParam('customizeSync');
@@ -78,6 +80,10 @@ define([
      */
     isCustomizeSyncChecked: function () {
       return !! (this.isSync() && this.get('customizeSync'));
+    },
+
+    isSignupDisabled: function () {
+      return this.get('exclude_signup') === '1';
     }
   });
 

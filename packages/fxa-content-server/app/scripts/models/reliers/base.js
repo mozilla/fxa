@@ -102,6 +102,10 @@ define([
      */
     accountNeedsPermissions: function (/* account */) {
       return false;
+    },
+
+    isSignupDisabled: function () {
+      return false;
     }
   });
 
