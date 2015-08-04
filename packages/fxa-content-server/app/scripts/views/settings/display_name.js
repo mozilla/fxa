@@ -54,7 +54,7 @@ function (Cocktail, BaseView, FormView, AuthErrors, Template,
     submit: function () {
       var self = this;
       var account = self.getSignedInAccount();
-      var displayName = self.getElementValue('input.text').trim();
+      var displayName = self.getElementValue('input.display-name').trim();
 
       return account.postDisplayName(displayName)
         .then(function () {

@@ -11,12 +11,12 @@ define([
   'lib/metrics',
   'lib/promise',
   'lib/ephemeral-messages',
-  'views/change_password',
+  'views/settings/change_password',
   'models/reliers/relier',
   'models/auth_brokers/base',
   'models/user',
-  '../../mocks/router',
-  '../../lib/helpers'
+  '../../../mocks/router',
+  '../../../lib/helpers'
 ],
 function (chai, $, sinon, AuthErrors, FxaClient, Metrics, p,
     EphemeralMessages, View, Relier, Broker, User, RouterMock, TestHelpers) {

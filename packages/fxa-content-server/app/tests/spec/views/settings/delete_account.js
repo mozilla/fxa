@@ -6,7 +6,7 @@ define([
   'chai',
   'jquery',
   'sinon',
-  'views/delete_account',
+  'views/settings/delete_account',
   'lib/fxa-client',
   'lib/promise',
   'lib/auth-errors',
@@ -14,8 +14,8 @@ define([
   'models/reliers/relier',
   'models/auth_brokers/base',
   'models/user',
-  '../../mocks/router',
-  '../../lib/helpers'
+  '../../../mocks/router',
+  '../../../lib/helpers'
 ],
 function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics,
     Relier, Broker, User, RouterMock, TestHelpers) {

@@ -6,22 +6,23 @@ define([
   'chai',
   'sinon',
   'underscore',
+  'cocktail',
   'views/mixins/settings-panel-mixin',
   'views/base',
   'lib/metrics',
   'stache!templates/test_template',
   '../../../lib/helpers'
-], function (Chai, sinon, _, SettingsPanelMixin, BaseView,
+], function (chai, sinon, _, Cocktail, SettingsPanelMixin, BaseView,
     Metrics, TestTemplate, TestHelpers) {
   'use strict';
 
-  var assert = Chai.assert;
+  var assert = chai.assert;
 
   var SettingsPanelView = BaseView.extend({
     template: TestTemplate
   });
 
-  _.extend(SettingsPanelView.prototype, SettingsPanelMixin);
+  Cocktail.mixin(SettingsPanelView, SettingsPanelMixin);
 
   describe('views/mixins/settings-panel-mixin', function () {
     var view;

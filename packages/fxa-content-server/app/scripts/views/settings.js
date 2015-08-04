@@ -17,9 +17,9 @@ define([
   'views/settings/avatar_gravatar',
   'views/settings/gravatar_permissions',
   'views/settings/communication_preferences',
-  'views/change_password',
+  'views/settings/change_password',
+  'views/settings/delete_account',
   'views/settings/display_name',
-  'views/delete_account',
   'views/mixins/settings-mixin',
   'views/decorators/allow_only_one_submit',
   'stache!templates/settings'
@@ -27,7 +27,7 @@ define([
 function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
   AvatarView, AvatarChangeView, AvatarCropView, AvatarCameraView, GravatarView,
   GravatarPermissionsView, CommunicationPreferencesView, ChangePasswordView,
-  DisplayNameView, DeleteAccountView, SettingsMixin, allowOnlyOneSubmit,
+  DeleteAccountView, DisplayNameView, SettingsMixin, allowOnlyOneSubmit,
   Template) {
   'use strict';
 

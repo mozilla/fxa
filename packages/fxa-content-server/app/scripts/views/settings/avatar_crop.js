@@ -9,6 +9,7 @@ define([
   'views/mixins/avatar-mixin',
   'views/mixins/modal-settings-panel-mixin',
   'views/mixins/settings-mixin',
+  'views/mixins/back-mixin',
   'stache!templates/settings/avatar_crop',
   'lib/constants',
   'lib/cropper',
@@ -17,7 +18,7 @@ define([
   'models/profile-image'
 ],
 function (p, Cocktail, FormView, AvatarMixin, ModalSettingsPanelMixin, SettingsMixin,
-    Template, Constants, Cropper, AuthErrors, CropperImage, ProfileImage) {
+    BackMixin, Template, Constants, Cropper, AuthErrors, CropperImage, ProfileImage) {
   'use strict';
 
   var HORIZONTAL_GUTTER = 90;
@@ -139,6 +140,7 @@ function (p, Cocktail, FormView, AvatarMixin, ModalSettingsPanelMixin, SettingsM
   Cocktail.mixin(
     View,
     AvatarMixin,
+    BackMixin,
     ModalSettingsPanelMixin,
     SettingsMixin
   );

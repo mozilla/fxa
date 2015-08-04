@@ -53,7 +53,7 @@ function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, ModalSettingsPanelM
       return self.displayAccountProfileImage(self.getAccount())
         .then(function () {
           if (self.getAccount().has('profileImageUrl')) {
-            self.$('.remove').css('display', 'inline-block');
+            self.$('.remove').removeClass('hidden');
           }
         });
     },

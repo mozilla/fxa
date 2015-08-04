@@ -93,7 +93,7 @@ function (chai, $, sinon, p, View, Metrics, Notifications, Relier, User, RouterM
           .then(function () {
             assert.isTrue(account.fetchProfile.called);
             assert.isTrue(user.setAccount.calledWith(account));
-            assert.equal(view.$('.text').val(), name);
+            assert.equal(view.getElementValue('input.display-name'), name);
           });
       });
 
@@ -112,7 +112,7 @@ function (chai, $, sinon, p, View, Metrics, Notifications, Relier, User, RouterM
 
     describe('submit', function () {
       it('submits correctly', function () {
-        var name = 'joe cool';
+        var name = 'joe cool  ';
         sinon.stub(account, 'postDisplayName', function () {
           return p();
         });
@@ -126,12 +126,13 @@ function (chai, $, sinon, p, View, Metrics, Notifications, Relier, User, RouterM
               return p();
             });
             sinon.spy(view, 'render');
-            view.$('.text').val(name);
+            view.$('input.display-name').val(name);
             return view.submit();
           })
           .then(function () {
-            assert.isTrue(account.postDisplayName.calledWith(name));
-            assert.isTrue(view.updateDisplayName.calledWith(name));
+            var expectedName = name.trim();
+            assert.isTrue(account.postDisplayName.calledWith(expectedName));
+            assert.isTrue(view.updateDisplayName.calledWith(expectedName));
             assert.isTrue(view.displaySuccess.called);
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                                   'display-name.success'));

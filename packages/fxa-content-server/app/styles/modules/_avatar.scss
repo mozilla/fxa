@@ -127,7 +127,11 @@
 
 #avatar-options {
   .remove {
-    display: none;
+    display: inline-block;
+
+    &.hidden {
+      display: none;
+    }
   }
 }
 
@@ -203,11 +207,4 @@
 
 section.avatar-panel {
   text-align: center;
-
-  .settings-button {
-    float: none;
-    width: 100%;
-    margin-bottom: 10px;
-    text-decoration: none;
-  }
 }

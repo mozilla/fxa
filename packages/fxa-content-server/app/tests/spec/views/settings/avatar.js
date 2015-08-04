@@ -88,7 +88,7 @@ function (chai, $, sinon, View, RouterMock, FxaClientMock,
 
         return view.render()
           .then(function () {
-            assert.equal(view.$('.add').length, 1);
+            assert.equal(view.$('.add-button').length, 1);
           });
       });
 
@@ -97,7 +97,7 @@ function (chai, $, sinon, View, RouterMock, FxaClientMock,
 
         return view.render()
           .then(function () {
-            assert.equal(view.$('.change').length, 1);
+            assert.equal(view.$('.change-button').length, 1);
           });
       });
 

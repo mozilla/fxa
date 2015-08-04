@@ -7,6 +7,7 @@ define([
   'jquery',
   'sinon',
   'underscore',
+  'cocktail',
   'views/settings',
   'views/base',
   'views/settings/communication_preferences',
@@ -27,7 +28,7 @@ define([
   'models/user',
   'stache!templates/test_template',
 ],
-function (chai, $, sinon, _, View, BaseView, CommunicationPreferencesView,
+function (chai, $, sinon, _, Cocktail, View, BaseView, CommunicationPreferencesView,
   ModalSettingsPanelMixin, SettingsPanelMixin, RouterMock, TestHelpers, FxaClient, p,
   ProfileClient, ProfileErrors, AuthErrors, Able, Metrics, Notifications,
   Relier, ProfileImage, User, TestTemplate) {
@@ -39,18 +40,20 @@ function (chai, $, sinon, _, View, BaseView, CommunicationPreferencesView,
     template: TestTemplate,
     className: 'panel'
   });
+
   var SettingsPanelView2 = BaseView.extend({
     template: TestTemplate,
     className: 'panel2'
   });
+
   var ModalSettingsPanelView = BaseView.extend({
     template: TestTemplate,
     className: 'modal-panel'
   });
 
-  _.extend(SettingsPanelView.prototype, SettingsPanelMixin);
-  _.extend(SettingsPanelView2.prototype, SettingsPanelMixin);
-  _.extend(ModalSettingsPanelView.prototype, ModalSettingsPanelMixin);
+  Cocktail.mixin(SettingsPanelView, SettingsPanelMixin);
+  Cocktail.mixin(SettingsPanelView2, SettingsPanelMixin);
+  Cocktail.mixin(ModalSettingsPanelView, ModalSettingsPanelMixin);
 
   describe('views/settings', function () {
     var view;
@@ -160,7 +163,7 @@ function (chai, $, sinon, _, View, BaseView, CommunicationPreferencesView,
         });
         return view.render()
           .then(function () {
-            $('body').append(view.el);
+            $('#container').append(view.el);
           })
           .then(function () {
             assert.ok(view.$('.fxa-settings-header').length);
@@ -185,7 +188,7 @@ function (chai, $, sinon, _, View, BaseView, CommunicationPreferencesView,
 
         return view.render()
           .then(function () {
-            $('body').append(view.el);
+            $('#container').append(view.el);
           })
           .then(function () {
             assert.isTrue(user.getAccountByUid.calledWith(UID));
@@ -206,7 +209,7 @@ function (chai, $, sinon, _, View, BaseView, CommunicationPreferencesView,
       it('shows the settings page', function () {
         return view.render()
           .then(function () {
-            $('body').append(view.el);
+            $('#container').append(view.el);
           })
           .then(function () {
             assert.ok(view.$('.fxa-settings-header').length);
@@ -227,7 +230,7 @@ function (chai, $, sinon, _, View, BaseView, CommunicationPreferencesView,
 
           return view.render()
             .then(function () {
-              $('body').append(view.el);
+              $('#container').append(view.el);
               return view.afterVisible();
             })
             .then(function () {
@@ -355,7 +358,7 @@ function (chai, $, sinon, _, View, BaseView, CommunicationPreferencesView,
       it('on profile change', function () {
         return view.render()
           .then(function () {
-            $('body').append(view.el);
+            $('#container').append(view.el);
             return view.afterVisible();
           })
           .then(function () {
@@ -368,7 +371,7 @@ function (chai, $, sinon, _, View, BaseView, CommunicationPreferencesView,
       it('does not shows avatar change link non-mozilla account', function () {
         return view.render()
           .then(function () {
-            $('body').append(view.el);
+            $('#container').append(view.el);
             return view.afterVisible();
           })
           .then(function () {
@@ -386,7 +389,7 @@ function (chai, $, sinon, _, View, BaseView, CommunicationPreferencesView,
 
           return view.render()
             .then(function () {
-              $('body').append(view.el);
+              $('#container').append(view.el);
               return view.afterVisible();
             });
         });
@@ -405,7 +408,7 @@ function (chai, $, sinon, _, View, BaseView, CommunicationPreferencesView,
 
           return view.render()
             .then(function () {
-              $('body').append(view.el);
+              $('#container').append(view.el);
               return view.afterVisible();
             });
         });
@@ -421,7 +424,7 @@ function (chai, $, sinon, _, View, BaseView, CommunicationPreferencesView,
 
           return view.render()
             .then(function () {
-              $('body').append(view.el);
+              $('#container').append(view.el);
               return view.afterVisible();
             });
         });
@@ -543,37 +546,31 @@ function (chai, $, sinon, _, View, BaseView, CommunicationPreferencesView,
       });
 
       describe('hide success', function () {
-        it('displaySuccessUnsafe', function (done) {
+        it('displaySuccessUnsafe', function () {
           view.SUCCESS_MESSAGE_DELAY = 5;
           var spy = sinon.spy(view, 'hideSuccess');
-          view.render()
+
+          return view.render()
             .then(function () {
               view.displaySuccessUnsafe('hi');
-              setTimeout(function () {
-                try {
-                  assert.isTrue(spy.called, 'hide success called');
-                } catch (e) {
-                  done(e);
-                }
-                done();
-              }, 10);
+              return p().delay(10);
+            })
+            .then(function () {
+              assert.isTrue(spy.called, 'hide success called');
             });
         });
 
-        it('displaySuccess', function (done) {
+        it('displaySuccess', function () {
           view.SUCCESS_MESSAGE_DELAY = 5;
           var spy = sinon.spy(view, 'hideSuccess');
-          view.render()
+
+          return view.render()
             .then(function () {
               view.displaySuccess('hi');
-              setTimeout(function () {
-                try {
-                  assert.isTrue(spy.called, 'hide success called');
-                } catch (e) {
-                  done(e);
-                }
-                done();
-              }, 10);
+              return p().delay(10);
+            })
+            .then(function () {
+              assert.isTrue(spy.called, 'hide success called');
             });
         });
       });
