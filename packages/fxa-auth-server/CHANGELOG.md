@@ -1,3 +1,21 @@
+<a name="0.43.0"></a>
+## 0.43.0 (2015-08-04)
+
+
+#### Bug Fixes
+
+* **db:** we need to enforce only a minimum patch level (not {n,n+1}) ([e12f54d5](http://github.com/mozilla/fxa-oauth-server/commit/e12f54d5dc83c9f9595f7cc765ccc7e932361177))
+* **events:** require events to be configured in production ([1bef9e0a](http://github.com/mozilla/fxa-oauth-server/commit/1bef9e0aa26e15921d48205335a32565b255a6da))
+* **server:** exit if db patch level is wrong ([78d63829](http://github.com/mozilla/fxa-oauth-server/commit/78d6382980a8ce1e6adbcb2af5825f643cbcbccd))
+
+
+#### Breaking Changes
+
+* Server will fail to start up if `config.events` is not
+  set with values when in production.
+ ([1bef9e0a](http://github.com/mozilla/fxa-oauth-server/commit/1bef9e0aa26e15921d48205335a32565b255a6da))
+
+
 <a name="0.42.0"></a>
 ## 0.42.0 (2015-07-22)
 
