@@ -15,6 +15,8 @@ define([
   }
 
   _.extend(RouterMock.prototype, Backbone.Events, {
+    NAVIGATE_FROM_SUBVIEW: 'navigate-from-subview',
+
     navigate: function (page, opts) {
       this.page = page;
       this.opts = opts;
@@ -23,7 +25,8 @@ define([
     },
     getCurrentPage: function () {
     },
-    createView: function () {
+    createView: function (View) {
+      return new View();
     }
   });
 

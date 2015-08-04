@@ -83,7 +83,7 @@ function (
       // If the current view is an instance of View, that means we're
       // navigating from a subview of the current view
       if (this.currentView instanceof View) {
-        this.currentView.trigger('navigate-from-subview', options);
+        this.currentView.trigger(this.NAVIGATE_FROM_SUBVIEW, options);
       } else {
         this.createAndShowView(View, options);
       }
@@ -104,6 +104,8 @@ function (
   }
 
   var Router = Backbone.Router.extend({
+    NAVIGATE_FROM_SUBVIEW: 'navigate-from-subview',
+
     routes: {
       '(/)': 'redirectToSignupOrSettings',
       'signin(/)': showView(SignInView),

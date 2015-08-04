@@ -8,9 +8,11 @@ define([
   'backbone',
   'lib/router',
   'views/base',
+  'views/settings/display_name',
   'views/sign_in',
   'views/sign_up',
   'views/ready',
+  'views/settings',
   'lib/able',
   'lib/constants',
   'lib/environment',
@@ -24,7 +26,7 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, sinon, Backbone, Router, BaseView, SignInView, SignUpView,
+function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, SignUpView,
       ReadyView, Able, Constants, Environment, Metrics, EphemeralMessages, p,
       Relier, User, FormPrefill, NullBroker, WindowMock, TestHelpers) {
   'use strict';
@@ -89,6 +91,69 @@ function (chai, sinon, Backbone, Router, BaseView, SignInView, SignUpView,
       windowMock = router = navigateUrl = navigateOptions = metrics = null;
       Backbone.Router.prototype.navigate = origNavigate;
       $('#container').empty();
+    });
+
+    describe('routes', function () {
+      beforeEach(function () {
+        sinon.stub(window.history, 'pushState', function () {
+        });
+        Backbone.Router.prototype.navigate = origNavigate;
+        Backbone.history.start({ pushState: true });
+      });
+      afterEach(function () {
+        Backbone.history.stop();
+        window.history.pushState.restore();
+      });
+
+      it('navigate to view', function () {
+        sinon.stub(router, 'createAndShowView', function () { });
+        router.navigate('/settings');
+
+        assert.isTrue(window.history.pushState.called, 'pushState');
+        assert.isTrue(router.createAndShowView.called);
+        assert.equal(router.createAndShowView.args[0][0], SettingsView);
+      });
+
+      it('navigating to subview from non-superview', function () {
+        sinon.stub(router, 'createAndShowView', function () { });
+
+        router.navigate('/settings/display_name');
+
+        assert.isTrue(window.history.pushState.called, 'pushState');
+        assert.isTrue(router.createAndShowView.called);
+        assert.equal(router.createAndShowView.args[0][0], SettingsView);
+      });
+
+      it('navigating to subview from superview ', function () {
+        var settingsView = router.createView(SettingsView);
+        router.currentView = settingsView;
+        sinon.stub(settingsView, 'showSubView', function () {
+        });
+        router.navigate('/settings/display_name');
+
+        assert.isTrue(window.history.pushState.called, 'pushState');
+        assert.isTrue(settingsView.showSubView.called);
+        assert.equal(settingsView.showSubView.args[0][0], DisplayNameView);
+      });
+
+      it('navigate to settings from subview ', function () {
+        var settingsView = router.createView(SettingsView);
+        router.currentView = settingsView;
+
+        sinon.stub(settingsView, 'showSubView', function () { });
+
+        var spy = sinon.spy();
+        settingsView.on('navigate-from-subview', spy);
+
+        router.navigate('/settings/display_name');
+        router.navigate('/settings');
+
+        assert.isTrue(window.history.pushState.calledTwice, 'pushState');
+        assert.isTrue(settingsView.showSubView.called);
+        assert.equal(settingsView.showSubView.args[0][0], DisplayNameView);
+
+        assert.isTrue(spy.called);
+      });
     });
 
     describe('navigate', function () {

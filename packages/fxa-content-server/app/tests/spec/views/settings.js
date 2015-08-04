@@ -9,6 +9,7 @@ define([
   'underscore',
   'views/settings',
   'views/base',
+  'views/settings/communication_preferences',
   'views/mixins/modal-settings-panel-mixin',
   'views/mixins/settings-panel-mixin',
   '../../mocks/router',
@@ -26,8 +27,8 @@ define([
   'models/user',
   'stache!templates/test_template',
 ],
-function (chai, $, sinon, _, View, BaseView, ModalSettingsPanelMixin,
-  SettingsPanelMixin, RouterMock, TestHelpers, FxaClient, p,
+function (chai, $, sinon, _, View, BaseView, CommunicationPreferencesView,
+  ModalSettingsPanelMixin, SettingsPanelMixin, RouterMock, TestHelpers, FxaClient, p,
   ProfileClient, ProfileErrors, AuthErrors, Able, Metrics, Notifications,
   Relier, ProfileImage, User, TestTemplate) {
   'use strict';
@@ -35,13 +36,20 @@ function (chai, $, sinon, _, View, BaseView, ModalSettingsPanelMixin,
   var assert = chai.assert;
 
   var SettingsPanelView = BaseView.extend({
-    template: TestTemplate
+    template: TestTemplate,
+    className: 'panel'
+  });
+  var SettingsPanelView2 = BaseView.extend({
+    template: TestTemplate,
+    className: 'panel2'
   });
   var ModalSettingsPanelView = BaseView.extend({
-    template: TestTemplate
+    template: TestTemplate,
+    className: 'modal-panel'
   });
 
   _.extend(SettingsPanelView.prototype, SettingsPanelMixin);
+  _.extend(SettingsPanelView2.prototype, SettingsPanelMixin);
   _.extend(ModalSettingsPanelView.prototype, ModalSettingsPanelMixin);
 
   describe('views/settings', function () {
@@ -55,10 +63,10 @@ function (chai, $, sinon, _, View, BaseView, ModalSettingsPanelMixin,
     var metrics;
     var able;
     var notifications;
+    var panelViews;
+    var subViewToShow;
 
     var ACCESS_TOKEN = 'access token';
-    var DISPLAY_NAME = 'joe';
-    var IMAGE_URL = 'url';
     var UID = 'uid';
 
     function createView () {
@@ -69,9 +77,12 @@ function (chai, $, sinon, _, View, BaseView, ModalSettingsPanelMixin,
         user: user,
         metrics: metrics,
         able: able,
+        subView: subViewToShow,
         notifications: notifications,
+        panelViews: panelViews,
         screenName: 'settings'
       });
+      view.FADE_OUT_SETTINGS = 0;
     }
 
     beforeEach(function () {
@@ -80,18 +91,30 @@ function (chai, $, sinon, _, View, BaseView, ModalSettingsPanelMixin,
       relier = new Relier();
       fxaClient = new FxaClient();
       profileClient = new ProfileClient();
+
       user = new User({
         fxaClient: fxaClient,
         profileClient: profileClient
       });
       notifications = new Notifications();
+
       account = user.initAccount({
         uid: UID,
         email: 'a@a.com',
         sessionToken: 'abc123',
         verified: true
       });
+      sinon.stub(account, 'fetchProfile', function () {
+        return p();
+      });
+
       able = new Able();
+
+      panelViews = [
+        SettingsPanelView,
+        SettingsPanelView2,
+        ModalSettingsPanelView
+      ];
 
       createView();
 
@@ -111,9 +134,9 @@ function (chai, $, sinon, _, View, BaseView, ModalSettingsPanelMixin,
       it('redirects to signin', function () {
         user.getSignedInAccount.restore();
         return view.render()
-            .then(function () {
-              assert.equal(routerMock.page, 'signin');
-            });
+          .then(function () {
+            assert.equal(routerMock.page, 'signin');
+          });
       });
     });
 
@@ -135,20 +158,6 @@ function (chai, $, sinon, _, View, BaseView, ModalSettingsPanelMixin,
         sinon.stub(view, 'isUserAuthorized', function () {
           return p(true);
         });
-        sinon.stub(account, 'fetchProfile', function () {
-          return p({ avatar: IMAGE_URL, displayName: DISPLAY_NAME });
-        });
-        sinon.stub(view, 'displayAccountProfileImage', function () {
-          return p();
-        });
-        sinon.stub(view.router, 'createView', function (View) {
-          var subview = new SettingsPanelView();
-          sinon.stub(subview, 'render', function () {
-            return p('');
-          });
-          return subview;
-        });
-
         return view.render()
           .then(function () {
             $('body').append(view.el);
@@ -172,9 +181,6 @@ function (chai, $, sinon, _, View, BaseView, ModalSettingsPanelMixin,
         sinon.stub(view, 'isUserAuthorized', function () {
           return p(false);
         });
-        sinon.stub(account, 'fetchProfile', function () {
-          return p({ avatar: IMAGE_URL, displayName: DISPLAY_NAME });
-        });
         sinon.stub(view, 'navigate', function () { });
 
         return view.render()
@@ -195,33 +201,176 @@ function (chai, $, sinon, _, View, BaseView, ModalSettingsPanelMixin,
           return p(true);
         });
         account.set('accessToken', ACCESS_TOKEN);
-        sinon.stub(account, 'fetchProfile', function () {
-          return p({ avatar: IMAGE_URL, displayName: DISPLAY_NAME });
-        });
-        sinon.stub(view.router, 'createView', function (View) {
-          var subview = new SettingsPanelView({
-            fxaClient: fxaClient,
-            user: user,
-            relier: relier,
-          });
-          sinon.stub(subview, 'render', function () {
-            return p('');
-          });
-          return subview;
-        });
-
-        return view.render()
-          .then(function () {
-            $('body').append(view.el);
-          });
       });
 
       it('shows the settings page', function () {
-        assert.ok(view.$('.fxa-settings-header').length);
+        return view.render()
+          .then(function () {
+            $('body').append(view.el);
+          })
+          .then(function () {
+            assert.ok(view.$('.fxa-settings-header').length);
+            assert.isTrue($('body').hasClass('settings'));
+          });
+      });
+
+      describe('subviews', function () {
+        it('shows subview if initialized with one', function () {
+          subViewToShow = SettingsPanelView;
+          createView();
+          sinon.stub(view, 'isUserAuthorized', function () {
+            return p(true);
+          });
+          sinon.stub(view, 'showSubView', function () {
+            return p();
+          });
+
+          return view.render()
+            .then(function () {
+              $('body').append(view.el);
+              return view.afterVisible();
+            })
+            .then(function () {
+              assert.isTrue(view.showSubView.calledWith(SettingsPanelView));
+            });
+        });
+
+        it('renders non-modal subviews on render', function () {
+          sinon.stub(routerMock, 'createView', function (View) {
+            var subview = new View();
+            return subview;
+          });
+
+          return view.render()
+            .then(function () {
+              assert.isTrue(routerMock.createView.calledTwice, 'is only called for the non-modal views');
+              assert.equal(routerMock.createView.args[0][0], SettingsPanelView);
+              assert.equal(routerMock.createView.args[1][0], SettingsPanelView2);
+            });
+        });
+
+        it('showSubView with undeclared view returns', function () {
+          var result = view.showSubView(BaseView);
+          assert.isUndefined(result);
+        });
+
+        it('showSubView opens and logs', function () {
+          sinon.stub(routerMock, 'createView', function (View) {
+            var subview = new View();
+            sinon.stub(subview, 'afterVisible', function () { });
+            sinon.stub(subview, 'openPanel', function () { });
+            sinon.stub(subview, 'logScreen', function () { });
+            return subview;
+          });
+          var spy = sinon.spy(view, 'trackSubview');
+
+          return view.showSubView(SettingsPanelView)
+            .then(function () {
+              assert.isTrue(routerMock.createView.called);
+              assert.equal(routerMock.createView.args[0][0], SettingsPanelView);
+              assert.equal(routerMock.createView.args[0][1].superView, view);
+              assert.isTrue(routerMock.createView.returnValues[0].afterVisible.called);
+              assert.isTrue(routerMock.createView.returnValues[0].openPanel.called);
+              assert.isTrue(routerMock.createView.returnValues[0].logScreen.called);
+              assert.isTrue(spy.calledWith(routerMock.createView.returnValues[0]));
+            });
+        });
+
+        it('showSubView only creates view once', function () {
+          sinon.stub(routerMock, 'createView', function (View) {
+            var subview = new View();
+            sinon.stub(subview, 'openPanel', function () { });
+            sinon.stub(subview, 'logScreen', function () { });
+            return subview;
+          });
+          var returnedView;
+
+          return view.showSubView(SettingsPanelView)
+            .then(function (subView) {
+              returnedView = subView;
+              return view.showSubView(SettingsPanelView);
+            })
+            .then(function (subView) {
+              assert.equal(returnedView, subView);
+              assert.isTrue(routerMock.createView.calledOnce);
+            });
+        });
+
+        it('showSubView destroys subview if fails to render', function () {
+          sinon.stub(routerMock, 'createView', function (View) {
+            var subview = new View();
+            sinon.stub(subview, 'afterVisible', function () { });
+            sinon.stub(subview, 'destroy', function () { });
+            sinon.stub(subview, 'render', function () {
+              return p(false);
+            });
+            return subview;
+          });
+
+          return view.showSubView(SettingsPanelView)
+            .then(function () {
+              assert.isTrue(routerMock.createView.called);
+              assert.equal(routerMock.createView.args[0][0], SettingsPanelView);
+              assert.isTrue(routerMock.createView.returnValues[0].render.called);
+              assert.isTrue(routerMock.createView.returnValues[0].destroy.calledWith(true));
+              assert.isFalse(routerMock.createView.returnValues[0].afterVisible.called);
+            });
+        });
+
+        it('showSubView destroys previous modal view', function () {
+          sinon.stub(routerMock, 'createView', function (View) {
+            var subview = new View();
+            sinon.stub(subview, 'openPanel', function () { });
+            sinon.stub(subview, 'logScreen', function () { });
+            return subview;
+          });
+
+          return view.showSubView(ModalSettingsPanelView)
+            .then(function (subView) {
+              sinon.stub(subView, 'closePanel', function () { });
+              return view.showSubView(SettingsPanelView);
+            })
+            .then(function (subView) {
+              assert.isTrue(routerMock.createView.returnValues[0].closePanel.called);
+            });
+        });
+
+        it('on navigate from subview', function () {
+          var spy1 = sinon.spy(view, 'showEphemeralMessages');
+          var spy2 = sinon.spy(view, 'logScreen');
+          sinon.stub($.modal, 'isActive', function () {
+            return true;
+          });
+          sinon.stub($.modal, 'close', function () { });
+          view.trigger(routerMock.NAVIGATE_FROM_SUBVIEW);
+          assert.isTrue(spy1.called);
+          assert.isTrue(spy2.called);
+          assert.isTrue($.modal.isActive.called);
+          assert.isTrue($.modal.close.called);
+          $.modal.isActive.restore();
+          $.modal.close.restore();
+        });
+      });
+
+      it('on profile change', function () {
+        return view.render()
+          .then(function () {
+            $('body').append(view.el);
+            return view.afterVisible();
+          })
+          .then(function () {
+            sinon.spy(view, 'displayAccountProfileImage');
+            notifications.profileChanged({});
+            assert.isTrue(view.displayAccountProfileImage.calledWith(account));
+          });
       });
 
       it('does not shows avatar change link non-mozilla account', function () {
-        return view.afterVisible()
+        return view.render()
+          .then(function () {
+            $('body').append(view.el);
+            return view.afterVisible();
+          })
           .then(function () {
             assert.equal(view.$('.avatar-wrapper a').length, 0);
           });
@@ -393,7 +542,58 @@ function (chai, $, sinon, _, View, BaseView, ModalSettingsPanelMixin,
         });
       });
 
+      describe('hide success', function () {
+        it('displaySuccessUnsafe', function (done) {
+          view.SUCCESS_MESSAGE_DELAY = 5;
+          var spy = sinon.spy(view, 'hideSuccess');
+          view.render()
+            .then(function () {
+              view.displaySuccessUnsafe('hi');
+              setTimeout(function () {
+                try {
+                  assert.isTrue(spy.called, 'hide success called');
+                } catch (e) {
+                  done(e);
+                }
+                done();
+              }, 10);
+            });
+        });
+
+        it('displaySuccess', function (done) {
+          view.SUCCESS_MESSAGE_DELAY = 5;
+          var spy = sinon.spy(view, 'hideSuccess');
+          view.render()
+            .then(function () {
+              view.displaySuccess('hi');
+              setTimeout(function () {
+                try {
+                  assert.isTrue(spy.called, 'hide success called');
+                } catch (e) {
+                  done(e);
+                }
+                done();
+              }, 10);
+            });
+        });
+      });
+
       describe('communication preferences link', function () {
+        beforeEach(function () {
+          panelViews.push(CommunicationPreferencesView);
+          createView();
+          sinon.stub(routerMock, 'createView', function (View) {
+            var subview = new SettingsPanelView();
+            sinon.stub(subview, 'render', function () {
+              return p('');
+            });
+            return subview;
+          });
+          sinon.stub(view, 'isUserAuthorized', function () {
+            return p(true);
+          });
+        });
+
         it('is visible if enabled', function () {
           sinon.stub(able, 'choose', function () {
             return true;
@@ -402,7 +602,9 @@ function (chai, $, sinon, _, View, BaseView, ModalSettingsPanelMixin,
           return view.render()
             .then(function () {
               assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
-              assert.equal(view.$('.communication-preferences').length, 1);
+              assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.communication-prefs-link.visible.true'));
+              assert.isTrue(routerMock.createView.calledThrice);
+              assert.equal(routerMock.createView.args[2][0], CommunicationPreferencesView);
             });
         });
 
@@ -415,7 +617,8 @@ function (chai, $, sinon, _, View, BaseView, ModalSettingsPanelMixin,
           return view.render()
             .then(function () {
               assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
-              assert.equal(view.$('.communications-preferences').length, 0);
+              assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.communication-prefs-link.visible.false'));
+              assert.isTrue(routerMock.createView.calledTwice, 'is only called for non-comm pref views');
             });
         });
       });

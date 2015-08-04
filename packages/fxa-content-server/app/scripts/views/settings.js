@@ -31,11 +31,9 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
   Template) {
   'use strict';
 
-  var FADE_OUT_SETTINGS = 250;
-
   var t = BaseView.t;
 
-  var SUBVIEWS = [
+  var PANEL_VIEWS = [
     AvatarView,
     DisplayNameView,
     CommunicationPreferencesView,
@@ -65,17 +63,22 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
     template: Template,
     className: 'settings',
 
+    FADE_OUT_SETTINGS: 250,
+
     initialize: function (options) {
       options = options || {};
 
       this._able = options.able;
       this._subViewToShow = options.subView;
       this._notifications = options.notifications;
+      this._panelViews = options.panelViews || PANEL_VIEWS;
 
       this.on('navigate-from-subview', this._onNavigateFromSubview.bind(this));
 
-      this._notifications.on(this._notifications.EVENTS.PROFILE_CHANGE,
-        this._onProfileChange.bind(this));
+      if (this._notifications) {
+        this._notifications.on(this._notifications.EVENTS.PROFILE_CHANGE,
+          this._onProfileChange.bind(this));
+      }
     },
 
     context: function () {
@@ -97,20 +100,20 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
     },
 
     // When we navigate to settings from a subview
-    // close the modal, destroy any avatar view, and
-    // show any ephemeral messages passed to `navigate`
+    // close the modal, show any ephemeral messages passed to `navigate`
     _onNavigateFromSubview: function () {
       if ($.modal.isActive()) {
         $.modal.close();
       }
       this.showEphemeralMessages();
+      this.logScreen();
     },
 
     showSubView: function (SubView, options) {
-      if (SUBVIEWS.indexOf(SubView) === -1) {
+      var self = this;
+      if (self._panelViews.indexOf(SubView) === -1) {
         return;
       }
-      var self = this;
 
       // Destroy any previous modal view
       if (self._currentSubView && self._currentSubView.isModal) {
@@ -123,6 +126,7 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
             self._currentSubView = subView;
             subView.openPanel();
             subView.logScreen();
+            return subView;
           }
         });
     },
@@ -188,7 +192,7 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
 
       // Initial subviews to render; excludes CommunicationPreferencesView if not visible
       // and modal views.
-      var initialSubViews = SUBVIEWS.filter(function (SubView) {
+      var initialSubViews = self._panelViews.filter(function (SubView) {
         return (SubView !== CommunicationPreferencesView || areCommunicationPrefsVisible) &&
               ! self._isModalViewClass(SubView);
       });
@@ -213,7 +217,7 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
     },
 
     beforeDestroy: function () {
-      $('.settings').fadeOut(FADE_OUT_SETTINGS, function (){
+      $('.settings').fadeOut(this.FADE_OUT_SETTINGS, function (){
         $('body').removeClass('settings').show();
       });
     },
@@ -245,7 +249,7 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
     },
 
     _areCommunicationPrefsVisible: function () {
-      return this._able.choose('communicationPrefsVisible', {
+      return !! this._able.choose('communicationPrefsVisible', {
         lang: this.navigator.language
       });
     },
@@ -272,12 +276,14 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
         });
     }),
 
+    SUCCESS_MESSAGE_DELAY: 3000, // show success message for 3 seconds
+
     displaySuccess: function () {
       var self = this;
       clearTimeout(self._successTimeout);
       self._successTimeout = setTimeout(function () {
         self.hideSuccess();
-      }, 3000);
+      }, self.SUCCESS_MESSAGE_DELAY);
       return BaseView.prototype.displaySuccess.apply(this, arguments);
     },
 
@@ -286,7 +292,7 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
       clearTimeout(self._successTimeout);
       self._successTimeout = setTimeout(function () {
         self.hideSuccess();
-      }, 3000);
+      }, self.SUCCESS_MESSAGE_DELAY);
       return BaseView.prototype.displaySuccessUnsafe.apply(this, arguments);
     }
 

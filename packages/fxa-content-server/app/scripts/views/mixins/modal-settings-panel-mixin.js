@@ -43,9 +43,6 @@ define([
 
     displaySuccess: function (msg) {
       var self = this;
-      if (! self.superView) {
-        return;
-      }
       self.superView.displaySuccess(msg);
     }
   };
