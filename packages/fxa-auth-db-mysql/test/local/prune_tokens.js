@@ -18,7 +18,7 @@ DB.connect(config)
       test(
         'ping',
         function (t) {
-          t.plan(1);
+          t.plan(1)
           return db.ping()
           .then(function(account) {
             t.pass('Got the ping ok')
@@ -31,7 +31,7 @@ DB.connect(config)
       test(
         'prune tokens',
         function (t) {
-          t.plan(9);
+          t.plan(9)
           var user = fake.newUserDataBuffer()
           return db.createAccount(user.accountId, user.account)
             .then(function() {
@@ -52,7 +52,7 @@ DB.connect(config)
             })
             .then(function() {
               // set pruneLastRun to be zero, so we know it will run
-              var sql = "UPDATE dbMetadata SET value = '0' WHERE name = 'prune-last-ran'"
+              var sql = 'UPDATE dbMetadata SET value = \'0\' WHERE name = \'prune-last-ran\''
               return db.write(sql, [])
             })
             .then(function() {

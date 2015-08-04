@@ -67,7 +67,7 @@ module.exports = function (log, error) {
       )
 
       var pruneIn = options.pruneEvery / 2 + Math.floor(Math.random() * options.pruneEvery)
-      setTimeout(prune.bind(this), pruneIn).unref();
+      setTimeout(prune.bind(this), pruneIn).unref()
     }
     // start the pruning off, but only if enabled in config
     if ( options.enablePruning ) {
@@ -521,7 +521,7 @@ module.exports = function (log, error) {
   var GET_UNLOCK_CODE = 'call unlockCode_1(?)'
 
   MySql.prototype.unlockCode = function (uid) {
-    return this.readFirstResult(GET_UNLOCK_CODE, [uid]);
+    return this.readFirstResult(GET_UNLOCK_CODE, [uid])
   }
 
   // Internal

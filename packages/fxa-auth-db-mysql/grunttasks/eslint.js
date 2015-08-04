@@ -10,7 +10,11 @@ module.exports = function (grunt) {
       eslintrc: '.eslintrc'
     },
     files: [
-      '{,grunttasks/,lib/,scripts/,test/,test/backend/,test/local/}*.js'
+      'index.js',
+      '{grunttasks,lib,lib/db,scripts,test}/*.js',
+      'fxa-auth-db-server/index.js',
+      'fxa-auth-db-server/{lib,test,test/backend,test/local}/*.js',
+      'test/{backend,local,mem}/*.js'
     ]
   })
 

@@ -30,7 +30,7 @@ DB.connect(config)
       test(
         'db/mysql logs stats periodically',
         function (t) {
-          t.plan(4);
+          t.plan(4)
           return dfd.promise
             .then(
               function(stats) {

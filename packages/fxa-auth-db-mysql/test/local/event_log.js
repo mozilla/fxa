@@ -18,7 +18,7 @@ DB.connect(config)
       test(
         'processUnpublishedEvents guards for callback not returning promise',
         function (t) {
-          t.plan(2);
+          t.plan(2)
           return db.processUnpublishedEvents(function (events) {
             t.ok(true, 'The db.processUnpublishedEvents callback was called')
             // ... but the callback itself returns nothing
@@ -33,7 +33,7 @@ DB.connect(config)
       test(
         'account activity should generate event logs',
         function (t) {
-          t.plan(14);
+          t.plan(14)
           var user = fake.newUserDataBuffer()
           var verifiedUser = fake.newUserDataBuffer()
           verifiedUser.account.emailVerified = true

@@ -5,7 +5,7 @@
 // takes care of bumping the version number in package.json
 
 module.exports = function (grunt) {
-  'use strict';
+  'use strict'
 
   grunt.config('bump', {
     options: {
@@ -13,7 +13,7 @@ module.exports = function (grunt) {
       bumpVersion: true,
       commit: true,
       commitMessage: 'Release v%VERSION%',
-      commitFiles: ['package.json', 'npm-shrinkwrap.json', 'CHANGELOG'],
+      commitFiles: ['package.json', 'npm-shrinkwrap.json', 'CHANGELOG-db.md', 'CHANGELOG-server.md'],
       createTag: true,
       tagName: 'v%VERSION%',
       tagMessage: 'Version %VERSION%',
@@ -21,6 +21,6 @@ module.exports = function (grunt) {
       pushTo: 'origin',
       gitDescribeOptions: '--tags --always --abrev=1 --dirty=-d'
     }
-  });
-};
+  })
+}
 
