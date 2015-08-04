@@ -129,11 +129,8 @@ function (Cocktail, p, BaseView, FormView, SignInView, PasswordMixin,
       // Use FormView's afterVisible because SignIn attemps to
       // display a profile image for the "suggested" account.
       FormView.prototype.afterVisible.call(this);
-
-      // Only display the profile image if we have a cached account
-      if (account.get('email') === email) {
-        return this.displayAccountProfileImage(account);
-      }
+      // Display the profile image if possible, otherwise show a placeholder.
+      return this.displayAccountProfileImage(account);
     }
   });
 

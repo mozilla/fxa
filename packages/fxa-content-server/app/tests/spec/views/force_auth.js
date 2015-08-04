@@ -179,7 +179,8 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Relier, Broker,
             return view.afterVisible();
           })
           .then(function () {
-            assert.notOk(view.$('.avatar-view img').length);
+            assert.notOk(view.$('.avatar-view img').length, 'does not show a profile image');
+            assert.ok(view.$('.avatar-view span').length, 'shows a placeholder if avatar is not available');
           });
       });
 
