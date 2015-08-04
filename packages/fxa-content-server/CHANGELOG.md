@@ -1,3 +1,184 @@
+<a name="0.43.0"></a>
+# 0.43.0 (2015-08-04)
+
+
+### chore
+
+* chore(client): Add the Sync migration strings to strings.js
+ ([ac20b86](https://github.com/mozilla/fxa-content-server/commit/ac20b86))
+* chore(deps): Bump out of date deps.
+ ([d0b8915](https://github.com/mozilla/fxa-content-server/commit/d0b8915)), closes [#2784](https://github.com/mozilla/fxa-content-server/issues/2784)
+* chore(deps): update development dependencies
+ ([bf9f563](https://github.com/mozilla/fxa-content-server/commit/bf9f563))
+* chore(deps): update grunt-eslint to 16.0.0
+ ([677a4c0](https://github.com/mozilla/fxa-content-server/commit/677a4c0))
+* chore(dev): add 'npm run start-production' command to make it easier to run the server in prod mode
+ ([679eeaf](https://github.com/mozilla/fxa-content-server/commit/679eeaf))
+* chore(docs): Fix a typo in the firstrun docs.
+ ([15f26ac](https://github.com/mozilla/fxa-content-server/commit/15f26ac))
+* chore(docs): Update the commit body guidelines to include the issue number
+ ([fcf4058](https://github.com/mozilla/fxa-content-server/commit/fcf4058))
+* chore(l10n): update pot files
+ ([164b9e7](https://github.com/mozilla/fxa-content-server/commit/164b9e7))
+* chore(lint): Remove the eslint complexity checks
+ ([3592d79](https://github.com/mozilla/fxa-content-server/commit/3592d79))
+* chore(sass): update sass
+ ([cf5dadf](https://github.com/mozilla/fxa-content-server/commit/cf5dadf))
+* chore(strings): add choose what to sync strings
+ ([73194ed](https://github.com/mozilla/fxa-content-server/commit/73194ed))
+* chore(travis): remove libgmp-dev
+ ([492fd94](https://github.com/mozilla/fxa-content-server/commit/492fd94))
+* chore(travis): update Travis to use npm 2
+ ([7d6ac7d](https://github.com/mozilla/fxa-content-server/commit/7d6ac7d))
+
+### feat
+
+* feat(client): Add the FxiOSV1 Authentication Broker.
+ ([5cff1f4](https://github.com/mozilla/fxa-content-server/commit/5cff1f4)), closes [#2860](https://github.com/mozilla/fxa-content-server/issues/2860)
+* feat(client): Provide `fx_ios_v1` context string for use by FxiOS
+ ([2767a26](https://github.com/mozilla/fxa-content-server/commit/2767a26)), closes [#2861](https://github.com/mozilla/fxa-content-server/issues/2861)
+* feat(client): redirect to the requested page after successful login
+ ([ccfbef4](https://github.com/mozilla/fxa-content-server/commit/ccfbef4)), closes [#2821](https://github.com/mozilla/fxa-content-server/issues/2821)
+* feat(client): sign in/up messaging for migrating users
+ ([88a56ac](https://github.com/mozilla/fxa-content-server/commit/88a56ac))
+* feat(content-server): Easter egg for Cloud Services
+ ([70e1998](https://github.com/mozilla/fxa-content-server/commit/70e1998)), closes [#2470](https://github.com/mozilla/fxa-content-server/issues/2470)
+* feat(deps): updating production dependencies
+ ([26c26f1](https://github.com/mozilla/fxa-content-server/commit/26c26f1))
+* feat(docs): Add info about the firstrun communication protocol.
+ ([6e18531](https://github.com/mozilla/fxa-content-server/commit/6e18531))
+* feat(l10n): Add support for Hindi (hi) and Hindi-India (hi-IN).
+ ([c45edce](https://github.com/mozilla/fxa-content-server/commit/c45edce))
+* feat(l10n): check if translated urls are valid
+ ([5d378e1](https://github.com/mozilla/fxa-content-server/commit/5d378e1)), closes [#2763](https://github.com/mozilla/fxa-content-server/issues/2763)
+* feat(test): Add signin functional tests for Fx on iOS.
+ ([bf4fadf](https://github.com/mozilla/fxa-content-server/commit/bf4fadf))
+
+* Merge pull request #2686 from mozilla/convert-iframe-channel
+ ([9ec6b18](https://github.com/mozilla/fxa-content-server/commit/9ec6b18))
+* Merge pull request #2737 from mozilla/phil/issue-2493
+ ([6601361](https://github.com/mozilla/fxa-content-server/commit/6601361)), closes [#2493](https://github.com/mozilla/fxa-content-server/issues/2493)
+* Merge pull request #2781 from TDA/issue-2470-easter-egg-redesigned
+ ([131171c](https://github.com/mozilla/fxa-content-server/commit/131171c))
+* Merge pull request #2803 from mozilla/document-firstrun-protocol
+ ([456449e](https://github.com/mozilla/fxa-content-server/commit/456449e))
+* Merge pull request #2804 from mozilla/firstrun-docs-typo
+ ([bd43972](https://github.com/mozilla/fxa-content-server/commit/bd43972))
+* Merge pull request #2805 from vladikoff/issue-2763-verify-translated-urls
+ ([dff66fa](https://github.com/mozilla/fxa-content-server/commit/dff66fa))
+* Merge pull request #2806 from mozilla/bump-eslint
+ ([34c6e30](https://github.com/mozilla/fxa-content-server/commit/34c6e30))
+* Merge pull request #2807 from vladikoff/update-deps-t43
+ ([c7c4a18](https://github.com/mozilla/fxa-content-server/commit/c7c4a18))
+* Merge pull request #2808 from vladikoff/prod-start
+ ([d679f9a](https://github.com/mozilla/fxa-content-server/commit/d679f9a))
+* Merge pull request #2809 from vladikoff/devdeps-t43
+ ([94d56d7](https://github.com/mozilla/fxa-content-server/commit/94d56d7))
+* Merge pull request #2812 from mozilla/ios-metrics-missing
+ ([48dee30](https://github.com/mozilla/fxa-content-server/commit/48dee30))
+* Merge pull request #2813 from mozilla/phil/issue-2493-postponed-navigation
+ ([8de80bf](https://github.com/mozilla/fxa-content-server/commit/8de80bf))
+* Merge pull request #2814 from mozilla/issue-2784-outdated-deps
+ ([8eda711](https://github.com/mozilla/fxa-content-server/commit/8eda711))
+* Merge pull request #2816 from mozilla/issues-2513-2623-normalize-auth-errors
+ ([c144c51](https://github.com/mozilla/fxa-content-server/commit/c144c51))
+* Merge pull request #2822 from eoger/issue-2821
+ ([dcab648](https://github.com/mozilla/fxa-content-server/commit/dcab648))
+* Merge pull request #2823 from mozilla/phil/issue-2786
+ ([ee4443f](https://github.com/mozilla/fxa-content-server/commit/ee4443f))
+* Merge pull request #2826 from mozilla/issue-2789-de-eslint-complexity
+ ([b8db477](https://github.com/mozilla/fxa-content-server/commit/b8db477))
+* Merge pull request #2833 from mozilla/issue-2830-correct-oauth-errors
+ ([d60dd9d](https://github.com/mozilla/fxa-content-server/commit/d60dd9d))
+* Merge pull request #2839 from mozilla/add-hindi-support
+ ([0ccfb8d](https://github.com/mozilla/fxa-content-server/commit/0ccfb8d))
+* Merge pull request #2840 from eoger/issue-2837
+ ([b98e8f3](https://github.com/mozilla/fxa-content-server/commit/b98e8f3))
+* Merge pull request #2841 from mozilla/update-sass
+ ([e976839](https://github.com/mozilla/fxa-content-server/commit/e976839))
+* Merge pull request #2845 from mozilla/issue-2844-merge-warning-firstrun
+ ([0efbe4e](https://github.com/mozilla/fxa-content-server/commit/0efbe4e))
+* Merge pull request #2846 from vladikoff/npm2
+ ([4ed0589](https://github.com/mozilla/fxa-content-server/commit/4ed0589))
+* Merge pull request #2847 from eoger/contributing-body-fixes
+ ([640f6ac](https://github.com/mozilla/fxa-content-server/commit/640f6ac))
+* Merge pull request #2851 from mozilla/issue-2850-invalid-client-id
+ ([3bb62ae](https://github.com/mozilla/fxa-content-server/commit/3bb62ae))
+* Merge pull request #2853 from mozilla/issue-2658-firstrun-signout
+ ([4b6ab6a](https://github.com/mozilla/fxa-content-server/commit/4b6ab6a))
+* Merge pull request #2854 from mozilla/remove-libgmp-dev
+ ([93f3641](https://github.com/mozilla/fxa-content-server/commit/93f3641))
+* Merge pull request #2857 from mozilla/issue-2856-metrics-screen-name-order
+ ([73d8587](https://github.com/mozilla/fxa-content-server/commit/73d8587))
+* Merge pull request #2859 from mozilla/issue-2858-one-mailcheckEnabled-choice
+ ([74160d5](https://github.com/mozilla/fxa-content-server/commit/74160d5))
+* Merge pull request #2863 from mozilla/issue-2786-strings
+ ([d3eace6](https://github.com/mozilla/fxa-content-server/commit/d3eace6))
+* Merge pull request #2865 from mozilla/rfk/fx-ios-v1-context
+ ([c39d365](https://github.com/mozilla/fxa-content-server/commit/c39d365))
+* Merge pull request #2866 from mozilla/constant-names
+ ([5cf3012](https://github.com/mozilla/fxa-content-server/commit/5cf3012))
+* Merge pull request #2868 from mozilla/issue-2860-no-signup-fx-ios
+ ([719b2ae](https://github.com/mozilla/fxa-content-server/commit/719b2ae))
+* Merge pull request #2869 from mozilla/choose-sync-strings
+ ([40783dc](https://github.com/mozilla/fxa-content-server/commit/40783dc))
+* Merge pull request #2871 from mozilla/rfk/basket-api-timeout
+ ([42b73e2](https://github.com/mozilla/fxa-content-server/commit/42b73e2))
+* Merge pull request #2875 from vladikoff/i2495
+ ([b4dc552](https://github.com/mozilla/fxa-content-server/commit/b4dc552))
+* Merge pull request #2876 from vladikoff/migrate-test-fix
+ ([66dcd79](https://github.com/mozilla/fxa-content-server/commit/66dcd79))
+* Merge pull request #2878 from vladikoff/exp43
+ ([9b6beda](https://github.com/mozilla/fxa-content-server/commit/9b6beda))
+
+### fix
+
+* fix(avatar): cropper resize tests are more accurate
+ ([8c7f362](https://github.com/mozilla/fxa-content-server/commit/8c7f362))
+* fix(avatars): fixes blank avatars when session is expired
+ ([3d0e7eb](https://github.com/mozilla/fxa-content-server/commit/3d0e7eb)), closes [#2495](https://github.com/mozilla/fxa-content-server/issues/2495)
+* fix(basket): add explicit timeout when proxying to basket api.
+ ([7fde0f5](https://github.com/mozilla/fxa-content-server/commit/7fde0f5))
+* fix(client): Do not allow firstrun Sync based flows to sign out.
+ ([a28fce6](https://github.com/mozilla/fxa-content-server/commit/a28fce6)), closes [#2658](https://github.com/mozilla/fxa-content-server/issues/2658)
+* fix(client): Fix incorrect OAuth errors in error table.
+ ([78ba49e](https://github.com/mozilla/fxa-content-server/commit/78ba49e)), closes [#2830](https://github.com/mozilla/fxa-content-server/issues/2830)
+* fix(client): Fix merge warning handling in the firstrun flow.
+ ([4914b73](https://github.com/mozilla/fxa-content-server/commit/4914b73)), closes [#2844](https://github.com/mozilla/fxa-content-server/issues/2844)
+* fix(client): Invalid client id's show a 400 page, not 500.
+ ([cd898f5](https://github.com/mozilla/fxa-content-server/commit/cd898f5)), closes [#2850](https://github.com/mozilla/fxa-content-server/issues/2850)
+* fix(client): Normalize all errors from the Auth Server.
+ ([3a45d1a](https://github.com/mozilla/fxa-content-server/commit/3a45d1a)), closes [#2513](https://github.com/mozilla/fxa-content-server/issues/2513) [#2623](https://github.com/mozilla/fxa-content-server/issues/2623)
+* fix(experiments): add train-43 experiments
+ ([9fa1fd4](https://github.com/mozilla/fxa-content-server/commit/9fa1fd4))
+* fix(metrics): Ensure a screen's name is logged before any of it's events.
+ ([25971d1](https://github.com/mozilla/fxa-content-server/commit/25971d1)), closes [#2856](https://github.com/mozilla/fxa-content-server/issues/2856)
+* fix(metrics): Only check whether mailcheck is enabled once.
+ ([6de03f1](https://github.com/mozilla/fxa-content-server/commit/6de03f1)), closes [#2858](https://github.com/mozilla/fxa-content-server/issues/2858)
+* fix(metrics): minimize flush timeout and flush event metrics on blur event
+ ([5b22cb3](https://github.com/mozilla/fxa-content-server/commit/5b22cb3)), closes [#2577](https://github.com/mozilla/fxa-content-server/issues/2577)
+* fix(metrics): postpone OAuth navigation until metrics are flushed
+ ([503e670](https://github.com/mozilla/fxa-content-server/commit/503e670))
+* fix(metrics): use sendBeacon where available
+ ([d45586e](https://github.com/mozilla/fxa-content-server/commit/d45586e))
+* fix(tests): better migration message functional tests
+ ([ecb28ea](https://github.com/mozilla/fxa-content-server/commit/ecb28ea))
+* fix(tests): use "afterEach" instead of "teardown" for sync settings tests
+ ([f49cafb](https://github.com/mozilla/fxa-content-server/commit/f49cafb))
+
+### refactor
+
+* refactor(client): Rename `FX_DESKTOP_CONTEXT` to `FX_DESKTOP_V1_CONTEXT`
+ ([146dd54](https://github.com/mozilla/fxa-content-server/commit/146dd54))
+* refactor(client): Rename `FX_DESKTOP_SYNC` to `SYNC_SERVICE`.
+ ([5dc8b7a](https://github.com/mozilla/fxa-content-server/commit/5dc8b7a))
+* refactor(client): Simplify the app-start error reporting/redirection.
+ ([918ff9c](https://github.com/mozilla/fxa-content-server/commit/918ff9c))
+* refactor(client): The IframeChannel is now DuplexChannel based.
+ ([aa15de2](https://github.com/mozilla/fxa-content-server/commit/aa15de2))
+
+
+
 <a name="0.42.0"></a>
 ### 0.42.0 (2015-07-21)
 
