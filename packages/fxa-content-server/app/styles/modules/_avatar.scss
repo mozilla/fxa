@@ -164,15 +164,22 @@
     padding: 20px;
 
     a {
-      background-color: $content-background-color;
-      border-radius: 50%;
       display: inline-block;
-      height: 80px;
       line-height: 1.1;
-      margin: 5px;
-      min-width: 80px;
-      padding: 11px;
       text-decoration: none;
+
+      @include respond-to('big') {
+        height: 80px;
+        margin: 5px;
+        min-width: 80px;
+        padding: 11px;
+      }
+
+      @include respond-to('small') {
+        margin: 0 0 10px 0;
+        min-width: 75px;
+      }
+
     }
 
     span {

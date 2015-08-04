@@ -177,7 +177,7 @@ body.settings #main-content {
     &:active,
     &:hover,
     &:focus {
-      background: darken($html-background-color, 5);
+      background: darken($html-background-color, 10);
     }
   }
 
@@ -207,7 +207,7 @@ body.settings #main-content {
 
   @include respond-to('small') {
     height: 30px;
-    padding: 0 2%;
+    padding: 0 3%;
     margin-bottom: 6px;
   }
 
@@ -255,6 +255,7 @@ body.settings #main-content {
 
   & .error {
     top: 0;
+    padding: 5px 10px;
   }
 }
 
@@ -264,7 +265,7 @@ body.settings #main-content {
   .settings-unit-summary {
     display: inline-block;
     float: left;
-    margin-top: 5px;
+    margin-top: 2px;
     overflow: hidden;
 
     @include respond-to('big') {
@@ -298,12 +299,11 @@ body.settings #main-content {
     font-size: $small-font;
     font-weight: normal;
     line-height: $small-font;
-    margin: 0;
+    margin: 5px 0 0 0;
   }
 
   .settings-unit-title,
   .settings-unit-subtitle {
-    display: inline-block;
     overflow: hidden;
     text-overflow: ellipsis;
     text-wrap: nowrap;
@@ -337,5 +337,15 @@ body.settings #main-content {
 .modal {
   border-radius: $big-border-radius;
   box-shadow: 0px 1px 5px black;
-  width: 420px;
+
+
+  @include respond-to('big') {
+    padding: 30px;
+    width: 420px;
+  }
+
+  @include respond-to('small') {
+    padding:10px;
+    width: 320px;
+  }
 }
