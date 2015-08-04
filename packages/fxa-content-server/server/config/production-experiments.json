@@ -1,7 +1,7 @@
 {
   "experiments": {
     "dir": "/home/app/experiments",
-    "git": "github:mozilla/fxa-content-experiments#train-42",
+    "git": "github:mozilla/fxa-content-experiments#train-43",
     "watch": true
   }
 }
