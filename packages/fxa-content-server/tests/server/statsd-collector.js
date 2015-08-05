@@ -62,7 +62,6 @@ define([
 
       // both types of message should have the normal tags.
       assert.equal(message.tags['lang'], 'en');
-      assert.equal(message.tags['screen_device_pixel_ratio'], '2');
 
       count++;
       if (count === EXPECTED_TOTAL_MESSAGES) {

@@ -38,18 +38,6 @@ function getGenericTags(body) {
     'service:' + body.service
   ];
 
-  if (body.screen) {
-    var screen = body.screen;
-
-    tags = tags.concat([
-      'screen_client_width:' + screen.clientWidth,
-      'screen_client_height:' + screen.clientHeight,
-      'screen_device_pixel_ratio:' + screen.devicePixelRatio,
-      'screen_width:' + screen.width,
-      'screen_height:' + screen.height
-    ]);
-  }
-
   if (body.agent) {
     var agent = uaParser.parse(body.agent);
     if (agent) {

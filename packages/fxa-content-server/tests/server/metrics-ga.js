@@ -35,6 +35,8 @@ define([
           assert.equal(data.ev, 1);
           assert.equal(data.hitType, 'event');
           assert.equal(data.uid, 'c614d7fb-43e4-485c-bf11-40afbb202656');
+          assert.equal(data.sr, '1680x1050');
+          assert.equal(data.vp, '819x955');
           assert.isDefined(data.documentHostName);
           assert.isDefined(data.ua);
 
