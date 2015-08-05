@@ -14,9 +14,6 @@ define([
   registerSuite({
     name: 'legal',
 
-    setup: function () {
-    },
-
     'start at legal page': function () {
 
       return this.remote

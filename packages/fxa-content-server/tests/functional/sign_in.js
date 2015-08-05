@@ -36,22 +36,22 @@ define([
   registerSuite({
     name: 'sign_in',
 
-    setup: function () {
+    beforeEach: function () {
       email = TestHelpers.createEmail();
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
-      return client.signUp(email, PASSWORD)
+
+      return FunctionalHelpers.clearBrowserState(this)
+        .then(function () {
+          return client.signUp(email, PASSWORD);
+        })
         .then(function (result) {
           accountData = result;
         });
     },
 
-    beforeEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
-    },
-
-    teardown: function () {
+    afterEach: function () {
       return FunctionalHelpers.clearBrowserState(this);
     },
 

@@ -35,7 +35,7 @@ define([
   registerSuite({
     name: 'complete_sign_up',
 
-    setup: function () {
+    beforeEach: function () {
       email = TestHelpers.createEmail();
       user = TestHelpers.emailToUser(email);
       client = new FxaClient(AUTH_SERVER_ROOT, {
@@ -128,7 +128,7 @@ define([
   registerSuite({
     name: 'complete_sign_up with expired link, but without signing up in browser',
 
-    setup: function () {
+    beforeEach: function () {
       email = TestHelpers.createEmail();
       user = TestHelpers.emailToUser(email);
       client = new FxaClient(AUTH_SERVER_ROOT, {
@@ -170,7 +170,7 @@ define([
   registerSuite({
     name: 'complete_sign_up with expired link and click resend',
 
-    setup: function () {
+    beforeEach: function () {
       email = TestHelpers.createEmail();
       user = TestHelpers.emailToUser(email);
       client = new FxaClient(AUTH_SERVER_ROOT, {

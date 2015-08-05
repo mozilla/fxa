@@ -14,9 +14,6 @@ define([
   registerSuite({
     name: 'fonts',
 
-    setup: function () {
-    },
-
     'Uses Fira for en': function () {
 
       return this.remote

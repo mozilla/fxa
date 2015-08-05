@@ -36,18 +36,15 @@ define([
   registerSuite({
     name: 'FxiOS v1 sign_in',
 
-    setup: function () {
+    beforeEach: function () {
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
-    },
-
-    beforeEach: function () {
       // clear localStorage to avoid pollution from other tests.
       return FunctionalHelpers.clearBrowserState(this);
     },
 
-    teardown: function () {
+    afterEach: function () {
       return FunctionalHelpers.clearBrowserState(this);
     },
 

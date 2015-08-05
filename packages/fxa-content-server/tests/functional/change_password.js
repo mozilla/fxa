@@ -75,7 +75,7 @@ define([
         });
     },
 
-    teardown: function () {
+    afterEach: function () {
       return FunctionalHelpers.clearBrowserState(this);
     },
 

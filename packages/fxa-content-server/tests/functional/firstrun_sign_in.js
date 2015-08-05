@@ -25,7 +25,7 @@ define([
   registerSuite({
     name: 'Firstrun sign_in',
 
-    setup: function () {
+    beforeEach: function () {
       email = TestHelpers.createEmail();
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
@@ -34,11 +34,7 @@ define([
       return client.signUp(email, PASSWORD, { preVerified: true });
     },
 
-    beforeEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
-    },
-
-    teardown: function () {
+    afterEach: function () {
       return FunctionalHelpers.clearBrowserState(this);
     },
 

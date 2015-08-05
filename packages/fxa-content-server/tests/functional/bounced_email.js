@@ -27,7 +27,7 @@ define([
       return FunctionalHelpers.clearBrowserState(this);
     },
 
-    teardown: function () {
+    afterEach: function () {
       return FunctionalHelpers.clearBrowserState(this);
     },
 
