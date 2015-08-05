@@ -1,88 +1,204 @@
-# Firefox Accounts DB Server, MySql Backend
+# Firefox Accounts database service
 
-MySql backend (used in production) for the [fxa-auth-db-server](https://github.com/mozilla/fxa-auth-db-server/).
+[![Build Status][ci-status-icon]][ci-status]
+
+Node.js-based database service
+for Firefox Accounts.
+Includes:
+
+* The [API server](#api-server).
+  Also published independently
+  via npm as `fxa-auth-db-server`,
+  to enable use with
+  alternative backend storage.
+* A [memory-store backend](#memory-store-backend).
+  Useful as a stub
+  for testing against.
+* A [MySQL backend](#mysql-backend).
+  Used in production.
+
+To run the tests
+for all components:
+
+```sh
+npm test
+```
 
 ## Prerequisites
 
-* node 0.10.x or higher
+* Node.js 0.10 or later
 * npm
-* mysql
+* MySQL (we use version 5.6.21 in production)
 
-## Configuration ##
+## API Server
 
-If you then set your `NODE_ENV`, then the file `config/$NODE_ENV.json` will be read in as part
-of loading configuration:
+See the [API documentation][apidocs].
+Backend implementers should also read
+the [database documentation][dbdocs].
 
+For example usage,
+see the [readme][server-readme].
+
+To run the server tests:
+
+```sh
+npm run test-server
 ```
-export NODE_ENV=dev
+
+## Memory-store backend
+
+Implements the [backend API][dbdocs]
+as a memory store.
+
+This is the backend store
+that is loaded by the default export
+from the npm package,
+so the following call to `require`
+will return a server
+that uses the memory-store backend:
+
+```js
+var fxadb = require('fxa-auth-db-mysql')
 ```
 
-In `config/config.js` you can see a set of defaults for various config options. Go take a look and
-then create a new local file called `config/dev.js`. This will contain a set of values to override
-the defaults. For example, if you have a password set for your MySql `root` user, you might try
-something like this:
+To run the memory-store tests:
+
+```sh
+npm run test-mem
+```
+
+## MySQL backend
+
+Implements the [backend API][dbdocs]
+as a MySQL database.
+
+To run the MySQL tests:
+
+```sh
+npm run test-mysql
+```
+
+### Configuration
+
+Both the server
+and the database patcher
+read values from a config file
+`config/$NODE_ENV.json`,
+where `NODE_ENV` is an environment variable
+set in the shell.
+
+For local development,
+set `NODE_ENV` to `dev`
+then create a new JSON file
+called `config/dev.json`.
+In there,
+you can set any values
+that you'd like to override
+the master config file,
+`config/config.js`.
+
+For instance:
 
 ```json
 {
   "master": {
     "user": "root",
-    "password": "mysecret1"
+    "password": "foo"
   },
   "slave": {
     "user": "root",
-    "password": "mysecret1"
+    "password": "bar"
   }
 }
 ```
 
-The same config is used by both the database patcher and the main server as shown below.
+### Starting the server
 
-## Creating the Database ##
-
-Once you have your config in place, you can create and patch the database using the
-`db_patcher.js` command. Try this:
-
-```sh
-node bin/db_patcher.js
-```
-
-This should create the database (if it doesn't yet exist), and apply each patch located
-in `db/schema/*.sql` in the correct order. If this command fails and can't connect to the
-database, please check your mysql configuration and connectivity on the command line.
-
-## Starting the Server ##
-
-Once the database has been created and patched, you can start the server (keep the same `NODE_ENV`
-as you had earlier):
+You can start the server like so:
 
 ```sh
 npm start
 ```
 
-Once this has started up, it will be listening on `locahost:8000` (or whatever port you have
-configured in your local config file).
+This will set up the database for you
+then start the server on whichever port
+is configured in `config/$NODE_ENV.json`
+(port 8000 by default).
 
-## Cleanup
+If the server fails to start,
+check that MySQL is running
+and that your active config
+has the correct settings
+to connect to the database.
 
-You may want to clear the data from the database periodically. You can just drop the database
-but make sure there is nothing in it that you want to keep:
+### Setting-up the database separately
+
+If you want to run
+the database patcher on its own,
+use the following command:
+
+```sh
+node bin/db_patcher.js
+```
+
+This command creates the database
+if it doesn't exist,
+then runs migrations
+from `lib/db/schema`
+in the appropriate order.
+Both forward and reverse migrations
+are contained in this directory,
+but note that the reverse migrations
+are commented out
+as a precaution against
+accidental execution.
+
+If the command fails,
+check that MySQL is running
+and that your active config
+has the correct settings
+to connect to the database.
+
+### Clean-up
+
+If you want to clean the database,
+just drop it in MySQL:
 
 ```sh
 mysql -u root -p -e 'DROP DATABASE fxa'
 ```
 
-The server will automatically re-create it on next use.
+It will be recreated automatically
+next time you run `npm start`.
 
-## Docker Based Development
+### Docker-based development
 
-To run the auth db MySQL backend via Docker, three steps are required:
+To run the MySQL backend
+inside a container,
+use the following commands:
 
-    $ docker build --rm -t mozilla/fxa_auth_db_mysql .
-    $ docker run --rm -v $PWD:/opt/fxa mozilla/fxa_auth_db_mysql npm install
-    $ docker run -it --rm -v $PWD:/opt/fxa --net=host mozilla/fxa_auth_db_mysql
+```sh
+docker build --rm -t mozilla/fxa_auth_db_mysql .
+docker run --rm -v $PWD:/opt/fxa mozilla/fxa_auth_db_mysql npm install
+docker run -it --rm -v $PWD:/opt/fxa --net=host mozilla/fxa_auth_db_mysql
+```
 
-This method shares the codebase into the running container so that you can install npm and various modules required by package.json. It then runs FxA auth db MySQL backend in a container, while allowing you to use your IDE of choice from your normal desktop environment to develop code.
+This method shares the codebase
+into a container
+and runs the MySQL backend inside it.
+You can `npm install`
+and edit code
+in your normal desktop environment
+and the changes will be picked up automatically.
 
 ## License
 
-MPL 2.0
+[MPL 2.0][license]
+
+[ci-status-icon]: https://travis-ci.org/mozilla/fxa-auth-db-mysql.svg?branch=master
+[ci-status]: https://travis-ci.org/mozilla/fxa-auth-db-server
+[apidocs]: fxa-auth-db-server/docs/API.md
+[dbdocs]: docs/API.md
+[server-readme]: fxa-auth-db-server/README.md
+[license]: LICENSE
+
