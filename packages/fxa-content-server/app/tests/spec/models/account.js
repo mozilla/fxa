@@ -78,29 +78,15 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
           });
       });
 
-      it('fetches access token and sets verified state', function () {
+      it('sets verified state', function () {
         account.set('sessionToken', SESSION_TOKEN);
         sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
           return p({ verified: true });
         });
-        sinon.stub(assertion, 'generate', function () {
-          return p('assertion');
-        });
-        sinon.stub(oAuthClient, 'getToken', function () {
-          return p({ 'access_token': 'access token' });
-        });
 
         return account.fetch()
           .then(function () {
-            assert.isTrue(assertion.generate.calledWith(SESSION_TOKEN));
-            assert.isTrue(oAuthClient.getToken.calledWith({
-              'client_id': CLIENT_ID,
-              assertion: 'assertion',
-              scope: 'profile:write'
-            }));
-
-            assert.isTrue(account.get('verified'));
-            assert.equal(account.get('accessToken'), 'access token');
+            assert.isTrue(account.get('verified'), 'verified');
           });
       });
 
@@ -116,31 +102,14 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
           });
       });
 
-      it('fails to fetch access token with an unverified account', function () {
-        account.set('sessionToken', SESSION_TOKEN);
-        sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
-          return p({ verified: false });
-        });
-
-        return account.fetch()
-          .then(function () {
-            assert.isFalse(account.get('verified'));
-            assert.isUndefined(account.get('accessToken'));
-          });
-      });
-
       it('fails to fetch with other errors', function () {
         account.set('sessionToken', SESSION_TOKEN);
         sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
-          return p({ verified: true });
-        });
-        sinon.stub(assertion, 'generate', function () {
           return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
         });
         return account.fetch()
           .then(function () {
-            assert.isUndefined(account.get('accessToken'));
-            assert.isTrue(account.get('verified'));
+            assert.isUndefined(account.get('verified'));
           });
       });
 
@@ -313,10 +282,7 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
       var accessToken = 'access token';
 
       beforeEach(function () {
-        account.set('sessionToken', SESSION_TOKEN);
-        sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
-          return p({ verified: true });
-        });
+        account.set('verified', true);
         sinon.stub(assertion, 'generate', function () {
           return p('assertion');
         });
@@ -332,7 +298,21 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
           });
       });
 
+      it('profile client undefined if not authorized', function () {
+        sinon.stub(account, 'createOAuthToken', function () {
+          return p.reject(ProfileClient.Errors.toError('UNAUTHORIZED'));
+        });
+        return account.profileClient()
+          .then(assert.fail, function (err) {
+            assert.isTrue(ProfileErrors.is(err, 'UNAUTHORIZED'));
+            assert.isTrue(account.createOAuthToken.called);
+          });
+      });
+
       it('isVerified returns true', function () {
+        sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
+          return p({ verified: true });
+        });
         return account.isVerified()
           .then(function (isVerified) {
             assert.isTrue(isVerified);
@@ -480,27 +460,23 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
 
     describe('without a valid sessionToken, without an access token', function () {
       beforeEach(function () {
-        account.unset('sessionToken', 'expired session token');
         account.set('verified', true);
 
         sinon.stub(account, 'createOAuthToken', function () {
           return p.reject(ProfileClient.Errors.toError('UNAUTHORIZED'));
         });
-
       });
 
       ['getAvatar', 'getAvatars', 'postAvatar', 'deleteAvatar', 'uploadAvatar']
       .forEach(function (method) {
         it('retries on ' + method, function () {
-          sinon.stub(profileClient, method, function () {
-            return p.reject(ProfileClient.Errors.toError('UNAUTHORIZED'));
-          });
+          var spy = sinon.spy(profileClient, method);
           return account[method]()
             .then(
               assert.fail,
               function (err) {
-                assert.isTrue(account.createOAuthToken.calledOnce);
-                assert.isFalse(profileClient[method].called);
+                assert.isTrue(account.createOAuthToken.calledTwice);
+                assert.isFalse(spy.called);
                 assert.isTrue(ProfileClient.Errors.is(err, 'UNAUTHORIZED'));
                 assert.isUndefined(account.get('accessToken'));
               }

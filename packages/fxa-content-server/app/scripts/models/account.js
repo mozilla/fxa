@@ -99,13 +99,6 @@ define([
           });
       }
 
-      // upgrade the credentials with an accessToken
-      promise = promise.then(function () {
-        if (self._needsAccessToken()) {
-          return self._fetchProfileOAuthToken();
-        }
-      });
-
       return promise;
     },
 
@@ -114,14 +107,18 @@ define([
       return self.createOAuthToken(PROFILE_SCOPE)
         .then(function (accessToken) {
           self.set('accessToken', accessToken.get('token'));
-        }, function () {
-          // Ignore errors; we'll just fetch again when needed
         });
     },
 
     profileClient: function () {
       var self = this;
-      return self.fetch()
+      var promise = self.fetch();
+
+      if (self._needsAccessToken()) {
+        promise = promise.then(self._fetchProfileOAuthToken.bind(self));
+      }
+
+      return promise
         .then(function () {
           return self._profileClient;
         });
@@ -360,11 +357,7 @@ define([
           .then(function (client) {
             profileClient = client;
             var accessToken = self.get('accessToken');
-            if (accessToken) {
-              return profileClient[method].apply(profileClient, [accessToken].concat(args));
-            } else {
-              throw ProfileClient.Errors.toError('UNAUTHORIZED');
-            }
+            return profileClient[method].apply(profileClient, [accessToken].concat(args));
           })
           .fail(function (err) {
             // If no oauth token existed, or it has gone stale,
@@ -373,11 +366,7 @@ define([
               return self._fetchProfileOAuthToken()
                 .then(function () {
                   var accessToken = self.get('accessToken');
-                  if (accessToken) {
-                    return profileClient[method].apply(profileClient, [accessToken].concat(args));
-                  } else {
-                    throw ProfileClient.Errors.toError('UNAUTHORIZED');
-                  }
+                  return profileClient[method].apply(profileClient, [accessToken].concat(args));
                 })
                 .fail(function (err) {
                   if (ProfileClient.Errors.is(err, 'UNAUTHORIZED')) {
