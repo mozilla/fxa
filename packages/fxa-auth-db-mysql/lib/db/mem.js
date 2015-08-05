@@ -70,6 +70,12 @@ module.exports = function (log, error) {
       data: sessionToken.data,
       uid: sessionToken.uid,
       createdAt: sessionToken.createdAt,
+      uaBrowser: sessionToken.uaBrowser,
+      uaBrowserVersion: sessionToken.uaBrowserVersion,
+      uaOS: sessionToken.uaOS,
+      uaOSVersion: sessionToken.uaOSVersion,
+      uaDeviceType: sessionToken.uaDeviceType,
+      lastAccessTime: sessionToken.createdAt
     }
 
     var account = accounts[sessionToken.uid.toString('hex')]
@@ -294,6 +300,12 @@ module.exports = function (log, error) {
     item.tokenData = sessionTokens[id].data
     item.uid = sessionTokens[id].uid
     item.createdAt = sessionTokens[id].createdAt
+    item.uaBrowser = sessionTokens[id].uaBrowser
+    item.uaBrowserVersion = sessionTokens[id].uaBrowserVersion
+    item.uaOS = sessionTokens[id].uaOS
+    item.uaOSVersion = sessionTokens[id].uaOSVersion
+    item.uaDeviceType = sessionTokens[id].uaDeviceType
+    item.lastAccessTime = sessionTokens[id].lastAccessTime
 
     var accountId = sessionTokens[id].uid.toString('hex')
     var account = accounts[accountId]
@@ -511,12 +523,29 @@ module.exports = function (log, error) {
     return P.resolve(unlockCode)
   }
 
+  // UPDATE
+
   Memory.prototype.updatePasswordForgotToken = function (id, data) {
     var token = passwordForgotTokens[id.toString('hex')]
     if (!token) { return P.reject(error.notFound()) }
     token.tries = data.tries
     return P.resolve({})
   }
+
+  Memory.prototype.updateSessionToken = function (id, data) {
+    var token = sessionTokens[id.toString('hex')]
+    if (!token) {
+      return P.reject(error.notFound())
+    }
+    token.uaBrowser = data.uaBrowser
+    token.uaBrowserVersion = data.uaBrowserVersion
+    token.uaOS = data.uaOS
+    token.uaOSVersion = data.uaOSVersion
+    token.uaDeviceType = data.uaDeviceType
+    token.lastAccessTime = data.lastAccessTime
+    return P.resolve({})
+  }
+
 
   // UTILITY FUNCTIONS
 

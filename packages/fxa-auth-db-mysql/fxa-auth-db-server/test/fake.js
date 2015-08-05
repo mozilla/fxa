@@ -43,7 +43,12 @@ module.exports.newUserDataHex = function() {
   data.sessionToken = {
     data : hex32(),
     uid : data.accountId,
-    createdAt: Date.now()
+    createdAt: Date.now(),
+    uaBrowser: 'fake browser',
+    uaBrowserVersion: 'fake browser version',
+    uaOS: 'fake OS',
+    uaOSVersion: 'fake OS version',
+    uaDeviceType: 'fake device type'
   }
 
   // keyFetchToken

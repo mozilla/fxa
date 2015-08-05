@@ -15,6 +15,7 @@ There are a number of methods that a DB storage backend should implement:
     * .accountExists(emailBuffer)
 * Session Tokens
     * .createSessionToken(tokenId, sessionToken)
+    * .updateSessionToken(tokenId, sessionToken)
     * .sessionToken(id)
     * .deleteSessionToken(tokenId)
 * Key Fetch Tokens
@@ -249,7 +250,7 @@ Parameters.
 
 Each token takes the following fields for it's create method respectively:
 
-* sessionToken : data, uid, createdAt
+* sessionToken : data, uid, createdAt, uaBrowser, uaBrowserVersion, uaOS, uaOSVersion, uaDeviceType
 * keyFetchToken : authKey, uid, keyBundle, createdAt
 * passwordChangeToken : data, uid, createdAt
 * passwordForgotToken : data, uid, passCode, createdAt, triesxb
@@ -288,7 +289,9 @@ Returns:
 Each token returns different fields. These fields are represented as `t.*` for a field
 from the token and `a.*` for a field from the corresponding account.
 
-* sessionToken : t.tokenData, t.uid, t.createdAt, a.emailVerified, a.email, a.emailCode, a.verifierSetAt
+* sessionToken : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
+                 t.uaOS, t.uaOSVersion, t.uaDeviceType, t.lastAccessTime,
+                 a.emailVerified, a.email, a.emailCode, a.verifierSetAt
 * keyFetchToken : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified, a.verifierSetAt
 * passwordChangeToken : t.tokenData, t.uid, t.createdAt, a.verifierSetAt
 * passwordForgotToken : t.tokenData, t.uid, t.createdAt, t.passCode, t.tries, a.email, a.verifierSetAt
@@ -301,6 +304,28 @@ from the token and `a.*` for a field from the corresponding account.
 ### .deleteAccountResetToken(tokenId) ###
 
 Will delete the token of the correct type designated by the given `tokenId`.
+
+## .updateSessionToken(tokenId, token) ##
+
+An extra function for `sessionTokens`. Just updates the `uaBrowser`, `uaBrowserVersion`, `uaOS`, `uaOSVersion`, `uaDeviceType` and `lastAccessTime` fields of the token.
+
+Parameters.
+
+* tokenId : (Buffer32) the unique id for this token
+* token : (Object) -
+    * uaBrowser : (string)
+    * uaBrowserVersion : (string)
+    * uaOS : (string)
+    * uaOSVersion : (string)
+    * uaDeviceType : (string)
+    * lastAccessTime : (number)
+
+Returns:
+
+* resolves with:
+    * an object `{}` (whether a row was updated or not, ie. even if `tokenId` does not exist.)
+* rejects with:
+    * any error from the underlying storage system (wrapped in `error.wrap()`)
 
 ## .updatePasswordForgotToken(tokenId, token) ##
 
@@ -317,7 +342,7 @@ Returns:
 * resolves with:
     * an object `{}` (whether a row was updated or not, ie. even if `tokenId` does not exist.)
 * rejects with:
-    * any error from the underlying storage system (wrapped in `error.wrap()`
+    * any error from the underlying storage system (wrapped in `error.wrap()`)
 
 ## .forgotPasswordVerified(tokenId, accountResetToken) ##
 

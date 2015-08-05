@@ -180,7 +180,7 @@ module.exports = function(cfg, server) {
   test(
     'session token handling',
     function (t) {
-      t.plan(14)
+      t.plan(31)
       var user = fake.newUserDataHex()
       client.putThen('/account/' + user.accountId, user.account)
         .then(function() {
@@ -202,13 +202,47 @@ module.exports = function(cfg, server) {
           // tokenId is not returned from db.sessionToken()
           t.deepEqual(token.tokenData, user.sessionToken.data, 'token data matches')
           t.deepEqual(token.uid, user.accountId, 'token belongs to this account')
-          t.ok(token.createdAt, 'Got a createdAt')
+          t.equal(token.createdAt, user.sessionToken.createdAt, 'createdAt matches')
+          t.equal(token.uaBrowser, user.sessionToken.uaBrowser, 'uaBrowser matches')
+          t.equal(token.uaBrowserVersion, user.sessionToken.uaBrowserVersion, 'uaBrowserVersion matches')
+          t.equal(token.uaOS, user.sessionToken.uaOS, 'uaOS matches')
+          t.equal(token.uaOSVersion, user.sessionToken.uaOSVersion, 'uaOSVersion matches')
+          t.equal(token.uaDeviceType, user.sessionToken.uaDeviceType, 'uaDeviceType matches')
+          t.equal(token.lastAccessTime, token.createdAt, 'lastAccessTime was set')
           t.equal(!!token.emailVerified, user.account.emailVerified, 'emailVerified same as account emailVerified')
           t.equal(token.email, user.account.email, 'token.email same as account email')
           t.deepEqual(token.emailCode, user.account.emailCode, 'token emailCode same as account emailCode')
           t.ok(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
 
-          // now delete it
+          // update the session token
+          return client.postThen('/sessionToken/' + user.sessionTokenId + '/update', {
+            uaBrowser: 'different browser',
+            uaBrowserVersion: 'different browser version',
+            uaOS: 'different OS',
+            uaOSVersion: 'different OS version',
+            uaDeviceType: 'different device type',
+            lastAccessTime: 42
+          })
+        })
+        .then(function(r) {
+          respOk(t, r)
+          return client.getThen('/sessionToken/' + user.sessionTokenId)
+        })
+        .then(function(r) {
+          var token = r.obj
+
+          // tokenId is not returned from db.sessionToken()
+          t.deepEqual(token.tokenData, user.sessionToken.data, 'token data matches')
+          t.deepEqual(token.uid, user.accountId, 'token belongs to this account')
+          t.equal(token.createdAt, user.sessionToken.createdAt, 'createdAt was not updated')
+          t.equal(token.uaBrowser, 'different browser', 'uaBrowser was updated')
+          t.equal(token.uaBrowserVersion, 'different browser version', 'uaBrowserVersion was updated')
+          t.equal(token.uaOS, 'different OS', 'uaOS was updated')
+          t.equal(token.uaOSVersion, 'different OS version', 'uaOSVersion was updated')
+          t.equal(token.uaDeviceType, 'different device type', 'uaDeviceType was updated')
+          t.equal(token.lastAccessTime, 42, 'lastAccessTime was updated')
+
+          // delete the session token
           return client.delThen('/sessionToken/' + user.sessionTokenId)
         })
         .then(function(r) {
