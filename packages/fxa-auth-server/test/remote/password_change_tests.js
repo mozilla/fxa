@@ -95,6 +95,36 @@ TestServer.start(config)
   )
 
   test(
+    'change password on locked account',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'wibble'
+      var client
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+        .then(
+          function (c) {
+            client = c
+            return client.lockAccount()
+          }
+        )
+        .then(
+          function () {
+            return client.changePassword('foobar')
+          }
+        )
+        .then(
+          t.fail,
+          function (error) {
+            t.equal(error.code, 400)
+            t.equal(error.error, 'Bad Request')
+            t.equal(error.errno, 121)
+            t.equal(error.message, 'Account is locked')
+          }
+        )
+    }
+  )
+
+  test(
     'teardown',
     function (t) {
       server.stop()
