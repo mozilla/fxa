@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2015-07-20 21:50+0000\n"
+"POT-Creation-Date: 2015-08-04 21:47+0000\n"
 
 #: app/scripts/templates/partial/coppa-date-picker.mustache:4
 msgid "1991"
@@ -107,7 +107,7 @@ msgid "Account deleted successfully"
 msgstr ""
 
 #: app/scripts/views/reset_password.js:82
-#: app/scripts/views/sign_in.js:180
+#: app/scripts/views/sign_in.js:190
 msgid "Unknown account. <a href=\"/signup\">Sign up</a>"
 msgstr ""
 
@@ -115,7 +115,7 @@ msgstr ""
 msgid "Signed out successfully"
 msgstr ""
 
-#: app/scripts/views/sign_up.js:331
+#: app/scripts/views/sign_up.js:351
 msgid "Account already exists. <a href=\"/signin\">Sign in</a>"
 msgstr ""
 
@@ -149,6 +149,7 @@ msgid "Unexpected error"
 msgstr ""
 
 #: app/scripts/lib/auth-errors.js:27
+#: app/scripts/lib/oauth-errors.js:48
 msgid "Invalid token"
 msgstr ""
 
@@ -189,7 +190,6 @@ msgid "Invalid JSON in request body"
 msgstr ""
 
 #: app/scripts/lib/auth-errors.js:67
-#: app/scripts/lib/oauth-errors.js:48
 #: app/scripts/lib/profile-errors.js:22
 msgid "Invalid parameter in request body: %(param)s"
 msgstr ""
@@ -199,7 +199,6 @@ msgid "Missing parameter in request body: %(param)s"
 msgstr ""
 
 #: app/scripts/lib/auth-errors.js:75
-#: app/scripts/lib/oauth-errors.js:52
 msgid "Invalid request signature"
 msgstr ""
 
@@ -270,7 +269,7 @@ msgstr ""
 #: app/scripts/lib/auth-errors.js:143
 #: app/scripts/templates/change_password.mustache:9
 #: app/scripts/templates/complete_reset_password.mustache:16
-#: app/scripts/templates/sign_up.mustache:12
+#: app/scripts/templates/sign_up.mustache:14
 msgid "Must be at least 8 characters"
 msgstr ""
 
@@ -335,6 +334,14 @@ msgstr ""
 msgid "The image dimensions must be at least 100x100px"
 msgstr ""
 
+#: app/scripts/lib/auth-errors.js:223
+msgid "Signup is coming soon to Firefox for iOS"
+msgstr ""
+
+#: app/scripts/lib/auth-errors.js:227
+msgid "Signup has been disabled"
+msgstr ""
+
 #: app/scripts/lib/mailcheck.js:57
 msgid "Did you mean <span tabindex=\"1\">%(domain)s</span>?"
 msgstr ""
@@ -363,6 +370,11 @@ msgstr ""
 msgid "Expired code"
 msgstr ""
 
+#: app/scripts/lib/oauth-errors.js:52
+#: app/scripts/lib/oauth-errors.js:74
+msgid "Invalid OAuth parameter: %(param)s"
+msgstr ""
+
 #: app/scripts/lib/oauth-errors.js:60
 #: app/scripts/lib/profile-errors.js:18
 msgid "Unauthorized"
@@ -370,10 +382,6 @@ msgstr ""
 
 #: app/scripts/lib/oauth-errors.js:64
 msgid "Forbidden"
-msgstr ""
-
-#: app/scripts/lib/oauth-errors.js:74
-msgid "Invalid OAuth parameter: %(param)s"
 msgstr ""
 
 #: app/scripts/lib/oauth-errors.js:86
@@ -405,28 +413,35 @@ msgid ""
 msgstr ""
 
 #: app/scripts/lib/strings.js:23
-#: app/scripts/templates/sign_up.mustache:14
-#: app/scripts/templates/settings/communication_preferences.mustache:4
-msgid "Get the latest news about Mozilla and Firefox."
-msgstr ""
-
-#: app/scripts/lib/strings.js:24
-#: app/scripts/templates/settings.mustache:4
-#: app/scripts/templates/settings/communication_preferences.mustache:1
-msgid "Communication preferences"
-msgstr ""
-
-#: app/scripts/lib/strings.js:25
-#: app/scripts/templates/settings/communication_preferences.mustache:9
-msgid "Email preferences"
-msgstr ""
-
-#: app/scripts/lib/strings.js:28
 msgid "Edit profile"
 msgstr ""
 
-#: app/scripts/lib/strings.js:29
+#: app/scripts/lib/strings.js:24
 msgid "Name"
+msgstr ""
+
+#: app/scripts/lib/strings.js:27
+msgid "Bookmarks"
+msgstr ""
+
+#: app/scripts/lib/strings.js:28
+msgid "History"
+msgstr ""
+
+#: app/scripts/lib/strings.js:29
+msgid "Tabs"
+msgstr ""
+
+#: app/scripts/lib/strings.js:30
+msgid "Passwords"
+msgstr ""
+
+#: app/scripts/lib/strings.js:31
+msgid "Desktop Add-ons"
+msgstr ""
+
+#: app/scripts/lib/strings.js:32
+msgid "Desktop Preferences"
 msgstr ""
 
 #: app/scripts/templates/cannot_create_account.mustache:1
@@ -462,9 +477,9 @@ msgstr ""
 #: app/scripts/templates/complete_reset_password.mustache:15
 #: app/scripts/templates/delete_account.mustache:4
 #: app/scripts/templates/force_auth.mustache:6
-#: app/scripts/templates/sign_in.mustache:8
-#: app/scripts/templates/sign_in.mustache:21
-#: app/scripts/templates/sign_up.mustache:11
+#: app/scripts/templates/sign_in.mustache:10
+#: app/scripts/templates/sign_in.mustache:23
+#: app/scripts/templates/sign_up.mustache:13
 msgid "Show"
 msgstr ""
 
@@ -604,9 +619,9 @@ msgstr ""
 #: app/scripts/templates/force_auth.mustache:7
 #: app/scripts/templates/sign_in.mustache:1
 #: app/scripts/templates/sign_in.mustache:4
-#: app/scripts/templates/sign_in.mustache:9
-#: app/scripts/templates/sign_in.mustache:13
-#: app/scripts/templates/sign_in.mustache:22
+#: app/scripts/templates/sign_in.mustache:11
+#: app/scripts/templates/sign_in.mustache:15
+#: app/scripts/templates/sign_in.mustache:24
 msgid "Sign in"
 msgstr ""
 
@@ -641,9 +656,9 @@ msgstr ""
 
 #: app/scripts/templates/delete_account.mustache:3
 #: app/scripts/templates/force_auth.mustache:3
-#: app/scripts/templates/sign_in.mustache:6
-#: app/scripts/templates/sign_in.mustache:18
-#: app/scripts/templates/sign_up.mustache:8
+#: app/scripts/templates/sign_in.mustache:8
+#: app/scripts/templates/sign_in.mustache:20
+#: app/scripts/templates/sign_up.mustache:10
 msgid "Password"
 msgstr ""
 
@@ -652,14 +667,15 @@ msgid "Sign in to continue"
 msgstr ""
 
 #: app/scripts/templates/force_auth.mustache:8
-#: app/scripts/templates/sign_in.mustache:10
-#: app/scripts/templates/sign_in.mustache:23
+#: app/scripts/templates/sign_in.mustache:12
+#: app/scripts/templates/sign_in.mustache:25
+#: app/scripts/templates/sign_in.mustache:27
 msgid "Forgot password?"
 msgstr ""
 
 #: app/scripts/templates/force_auth.mustache:9
-#: app/scripts/templates/sign_in.mustache:25
-#: app/scripts/templates/sign_up.mustache:13
+#: app/scripts/templates/sign_in.mustache:29
+#: app/scripts/templates/sign_up.mustache:15
 msgid ""
 "By proceeding, you agree to the <a id=\"fxa-tos\" "
 "href=\"/legal/terms\">Terms of Service</a> and <a id=\"fxa-pp\" "
@@ -734,8 +750,8 @@ msgstr ""
 
 #: app/scripts/templates/permissions.mustache:3
 #: app/scripts/templates/reset_password.mustache:3
-#: app/scripts/templates/sign_in.mustache:17
-#: app/scripts/templates/sign_up.mustache:6
+#: app/scripts/templates/sign_in.mustache:19
+#: app/scripts/templates/sign_up.mustache:8
 #: app/scripts/templates/settings/gravatar_permissions.mustache:3
 msgid "Email"
 msgstr ""
@@ -801,6 +817,11 @@ msgstr ""
 msgid "You are signed in as"
 msgstr ""
 
+#: app/scripts/templates/settings.mustache:4
+#: app/scripts/templates/settings/communication_preferences.mustache:1
+msgid "Communication preferences"
+msgstr ""
+
 #: app/scripts/templates/settings.mustache:8
 msgid "Sign out"
 msgstr ""
@@ -810,12 +831,16 @@ msgstr ""
 msgid "Continue to %(serviceName)s"
 msgstr ""
 
-#: app/scripts/templates/sign_in.mustache:11
-#: app/scripts/templates/sign_in.mustache:14
+#: app/scripts/templates/sign_in.mustache:6
+msgid "Migrate your sync data by signing in to your Firefox&nbsp;Account."
+msgstr ""
+
+#: app/scripts/templates/sign_in.mustache:13
+#: app/scripts/templates/sign_in.mustache:16
 msgid "Use a different account"
 msgstr ""
 
-#: app/scripts/templates/sign_in.mustache:24
+#: app/scripts/templates/sign_in.mustache:28
 msgid "Create an account"
 msgstr ""
 
@@ -824,15 +849,24 @@ msgstr ""
 msgid "Create a Firefox Account"
 msgstr ""
 
+#: app/scripts/templates/sign_up.mustache:6
+msgid "Migrate your sync data by creating a new Firefox&nbsp;Account."
+msgstr ""
+
 #: app/scripts/templates/sign_up.mustache:16
-msgid "Sign up"
+#: app/scripts/templates/settings/communication_preferences.mustache:4
+msgid "Get the latest news about Mozilla and Firefox."
 msgstr ""
 
 #: app/scripts/templates/sign_up.mustache:18
-msgid "Choose what to sync"
+msgid "Sign up"
 msgstr ""
 
 #: app/scripts/templates/sign_up.mustache:20
+msgid "Choose what to sync"
+msgstr ""
+
+#: app/scripts/templates/sign_up.mustache:22
 msgid "Already have an account? Sign in."
 msgstr ""
 
@@ -879,6 +913,10 @@ msgstr ""
 
 #: app/scripts/templates/settings/communication_preferences.mustache:7
 msgid "Subscribe"
+msgstr ""
+
+#: app/scripts/templates/settings/communication_preferences.mustache:9
+msgid "Email preferences"
 msgstr ""
 
 #: app/scripts/templates/partial/coppa-date-picker.mustache:2
