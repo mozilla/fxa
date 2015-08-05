@@ -18,8 +18,7 @@ module.exports = function (grunt) {
     'l10n-generate-pages',
     'l10n-json-to-html',
     'htmllint:l10n'
-    ]
-  );
+  ]);
 
   grunt.registerMultiTask('l10n-json-to-html', 'Convert l10n JSON files to HTML', function () {
     this.files.forEach(function (file) {
