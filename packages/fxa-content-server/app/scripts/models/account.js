@@ -360,15 +360,24 @@ define([
           .then(function (client) {
             profileClient = client;
             var accessToken = self.get('accessToken');
-            return profileClient[method].apply(profileClient, [accessToken].concat(args));
+            if (accessToken) {
+              return profileClient[method].apply(profileClient, [accessToken].concat(args));
+            } else {
+              throw ProfileClient.Errors.toError('UNAUTHORIZED');
+            }
           })
           .fail(function (err) {
-            // If our oauth token has gone stale, retry with a new one
+            // If no oauth token existed, or it has gone stale,
+            // get a new one and retry.
             if (ProfileClient.Errors.is(err, 'UNAUTHORIZED')) {
               return self._fetchProfileOAuthToken()
                 .then(function () {
                   var accessToken = self.get('accessToken');
-                  return profileClient[method].apply(profileClient, [accessToken].concat(args));
+                  if (accessToken) {
+                    return profileClient[method].apply(profileClient, [accessToken].concat(args));
+                  } else {
+                    throw ProfileClient.Errors.toError('UNAUTHORIZED');
+                  }
                 })
                 .fail(function (err) {
                   if (ProfileClient.Errors.is(err, 'UNAUTHORIZED')) {
