@@ -107,48 +107,12 @@ Firefox Accounts authorization is a complicated flow.  You can get verbose loggi
 
 Valid `level` values (from least to most verbose logging) include: `"fatal", "error", "warn", "info", "trace", "debug"`.
 
-## MySQL setup
+## Database integration
 
-### Install MySQL
-
-#### Mac
-
-Installation is easy with homebrew. I use mariadb which is a fork of mysql but either should work.
-
-    brew install mariadb
-
-Follow the homebrew instructions for starting the server. I usually just do
-
-    mysql.server start
-
-#### Linux
-
-[Install MySQL](http://bit.ly/19XPRZf) and start it.
-
-### Database Patches
-
-Previously the database patches were contained in this repo and were run when the server started up (in development mode). However, there is a new backend service that this project will use as we go forward. Whilst the database connection and API code is still contained and used in this repo you should take a look at the [fxa-auth-db-server](https://github.com/mozilla/fxa-auth-db-server/) repo for the SQL that you should run once you have your database set up, specifically the instructions on [Creating the Database](https://github.com/mozilla/fxa-auth-db-server/#creating-the-database). Note where the schema [patches](https://github.com/mozilla/fxa-auth-db-server/tree/master/db/schema) live, in case you need them.
-
-As we switch over to the httpdb backend, the instructions here and in the *fxa-auth-db-server* repo will be updated to clarify this. We know this isn't optimal for now but it is temporary during this transition.
-
-### Execution
-
-Our test suite assumes mysql uses it's default configuration. See `config/config.js` for the override ENV variables if you have different root user password or other user. Now you should be able to run the test suite from the project root directory.
-
-    DB_BACKEND=mysql npm test
-
-Or run the local server
-
-    DB_BACKEND=mysql npm start
-
-
-### Cleanup
-
-You may want to clear the data from the database periodically. I just drop the database:
-
-    mysql -uroot -e"DROP DATABASE fxa"
-
-The server will automatically re-create it on next use.
+This server depends on a database server
+from the [`fxa-auth-db-mysql` repo](https://github.com/mozilla/fxa-auth-db-mysql/).
+When running the tests, it uses a memory-store
+that mocks behaviour of the production MySQL server.
 
 ## Using with FxOS
 
