@@ -203,6 +203,8 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
             return self._cannotCreateAccount();
           }
 
+          self._wasMailcheckUseful();
+
           return self._initAccount();
         });
     },
@@ -224,6 +226,17 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
               this._able.choose('mailcheckEnabled', abData);
       }
       return this._isMailcheckEnabledValue;
+    },
+    _wasMailcheckUseful: function () {
+      var email = this.$el.find('.email');
+
+      if (email) {
+        var emailValue = email.val();
+        var mailcheckValue = email.data('mailcheckValue');
+        if (emailValue.length > 0 && mailcheckValue === emailValue) {
+          this.logScreenEvent('mailcheck-useful');
+        }
+      }
     },
 
     suggestEmail: function () {

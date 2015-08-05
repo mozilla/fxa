@@ -832,6 +832,42 @@ function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
         ableChoose.restore();
       });
 
+      it('measures how successful our mailcheck suggestion is', function () {
+        view.window = new WindowMock();
+        var ableChoose = sinon.stub(view._able, 'choose', function () {
+          return true;
+        });
+
+        // user puts wrong email first
+        fillOutSignUp('testuser@gnail.com', 'password', true);
+        // mailcheck runs
+        view.suggestEmail();
+
+        sinon.spy(user, 'initAccount');
+        sinon.stub(user, 'signUpAccount', function (account) {
+          return p(account);
+        });
+
+        sinon.spy(view, 'navigate');
+
+        sinon.stub(coppa, 'isUserOldEnough', function () {
+          return true;
+        });
+
+        return view.submit()
+          .then(function () {
+            assert.isFalse(TestHelpers.isEventLogged(metrics, 'signup.mailcheck-useful'));
+            // user fixes value manually
+            view.$('.email').val('testuser@gmail.com');
+
+            return view.submit()
+              .then(function () {
+                assert.isTrue(TestHelpers.isEventLogged(metrics, 'signup.mailcheck-useful'));
+                ableChoose.restore();
+              });
+          });
+      });
+
       it('suggests emails via a tooltip', function (done) {
         view.suggestEmail = function () {
           mailcheck(view.$('.email'), metrics, translator);

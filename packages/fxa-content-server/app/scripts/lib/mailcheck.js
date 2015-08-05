@@ -62,6 +62,9 @@ function (Tooltip) {
           });
 
           tooltip.render();
+          // set that this value was suggested, user might not click on the tooltip
+          // but still take the suggestion
+          element.data('mailcheckValue', suggestion.full);
 
           tooltip.$el.on('click keypress', 'span', function (e) {
             // if a click event is triggered or an enter key is pressed, destroy

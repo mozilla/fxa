@@ -224,9 +224,10 @@ The event stream is a log of events and the time they occurred while the user is
 * signup.email-optin.visible.true - email opt-in is visible
 * signup.password.hidden - password is hidden
 * signup.password.visible - password is shown
-* tooltip.mailcheck-dismissed - an email address correction tooltip was dismissed without the selection being made.
 * tooltip.mailcheck-suggested - an email address correction was suggested
-* tooltip.mailcheck-used - an email address correction was chosen by the user
+* tooltip.mailcheck-used - an email address correction was chosen by the user in the tooltip
+* tooltip.mailcheck-dismissed - an email address correction tooltip was dismissed without the selection being made.
+* signup.mailcheck-useful - an email address correction was used by the user during sign up form submit. This is tracked because some users might not use the tooltip to correct the email.
 
 #### signup_permissions
 * signup-permissions.accept - user accepts and grants the requested permissions
