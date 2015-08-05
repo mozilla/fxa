@@ -7,5 +7,5 @@ module.exports = function (grunt) {
 
   grunt.loadTasks('grunttasks');
 
-  grunt.registerTask('default', ['jshint', 'copyright']);
+  grunt.registerTask('default', ['eslint', 'copyright']);
 };

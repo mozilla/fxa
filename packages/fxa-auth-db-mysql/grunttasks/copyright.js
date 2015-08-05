@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = function (grunt) {
-  'use strict';
+  'use strict'
 
   grunt.config('copyright', {
     app: {
       src: [
-        '{,bin/,config/,db/,scripts/}*.js'
+        '{bin,config,fxa-auth-db-server/lib,lib,lib/db,scripts}/*.js'
       ],
       options: {
         pattern: 'This Source Code Form is subject to the terms of the Mozilla Public'
@@ -16,7 +16,8 @@ module.exports = function (grunt) {
     },
     tests: {
       src: [
-        'test/{remote,local,backend}/*.js'
+        'test/{remote,local,backend}/*.js',
+        'fxa-auth-db-server/test/{backend,local}/*.js'
       ],
       options: {
         pattern: 'Any copyright is dedicated to the Public Domain.'

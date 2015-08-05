@@ -3,10 +3,6 @@
   "version": "0.42.0",
   "description": "Firefox Accounts DB Server",
   "main": "index.js",
-  "scripts": {
-    "test": "grunt && ./scripts/tap-coverage.js test/local",
-    "outdated": "npm outdated --depth 0"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/mozilla/fxa-auth-db-server"
@@ -19,17 +15,6 @@
   "homepage": "https://github.com/mozilla/fxa-auth-db-server",
   "dependencies": {
     "restify": "2.8.2"
-  },
-  "devDependencies": {
-    "ass": "git://github.com/jrgm/ass.git#5be99ee",
-    "bluebird": "1.2.2",
-    "eslint-config-fxa": "1.2.0",
-    "grunt": "0.4.5",
-    "grunt-bump": "0.3.0",
-    "grunt-copyright": "0.2.0",
-    "grunt-eslint": "14.0.0",
-    "load-grunt-tasks": "0.6.0",
-    "tap": "0.4.12"
   },
   "keywords": [],
   "engines": {
