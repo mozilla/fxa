@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var crypto = require('crypto')
 var util = require('util')
 var mysql = require('mysql')
 var P = require('../promise')
@@ -154,8 +155,8 @@ module.exports = function (log, error) {
   // CREATE
 
   // Insert : accounts
-  // Values : uid = $1, normalizedEmail = $2, email = $3, emailCode = $4, emailVerified = $5, kA = $6, wrapWrapKb = $7, authSalt = $8, verifierVersion = $9, verifyHash = $10, verifierSetAt = $11, createdAt = $12, locale = $13
-  var CREATE_ACCOUNT = 'CALL createAccount_2(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  // Values : uid = $1, normalizedEmail = $2, email = $3, emailCode = $4, emailVerified = $5, kA = $6, wrapWrapKb = $7, authSalt = $8, verifierVersion = $9, verifyHash = $10, verifierSetAt = $11, createdAt = $12, locale = $13, openid = $14, openidHash = $15
+  var CREATE_ACCOUNT = 'CALL createAccount_3(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createAccount = function (uid, data) {
     return this.write(
@@ -173,7 +174,9 @@ module.exports = function (log, error) {
         data.verifyHash,
         data.verifierSetAt,
         data.createdAt,
-        data.locale
+        data.locale,
+        data.openId,
+        data.openId ? crypto.createHash('sha256').update(data.openId).digest() : null
       ]
     )
   }
@@ -362,6 +365,13 @@ module.exports = function (log, error) {
     return this.readFirstResult(EMAIL_RECORD, [emailBuffer.toString('utf8')])
   }
 
+  var OPENID_RECORD = 'CALL openIdRecord_1(?)'
+
+  MySql.prototype.openIdRecord = function (openid) {
+    var openidHash = crypto.createHash('sha256').update(openid).digest()
+    return this.readFirstResult(OPENID_RECORD, [openidHash])
+  }
+
   // Select : accounts
   // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, authSalt, verifierSetAt, createdAt, locale, lockedAt
   // Where  : accounts.uid = LOWER($1)
@@ -407,7 +417,7 @@ module.exports = function (log, error) {
 
   // Delete : sessionTokens, keyFetchTokens, accountResetTokens, passwordChangeTokens, passwordForgotTokens, accountUnlockCodes, accounts
   // Where  : uid = $1
-  var DELETE_ACCOUNT = 'CALL deleteAccount_4(?)'
+  var DELETE_ACCOUNT = 'CALL deleteAccount_5(?)'
 
   MySql.prototype.deleteAccount = function (uid) {
     return this.write(DELETE_ACCOUNT, [uid])
