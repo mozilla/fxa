@@ -411,7 +411,7 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
       });
     });
 
-    describe('without an access token', function () {
+    describe('with a valid sessionToken, without an access token', function () {
       beforeEach(function () {
         var tokens = 0;
         account.set('sessionToken', SESSION_TOKEN);
@@ -477,6 +477,38 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
         });
       });
     });
+
+    describe('without a valid sessionToken, without an access token', function () {
+      beforeEach(function () {
+        account.unset('sessionToken', 'expired session token');
+        account.set('verified', true);
+
+        sinon.stub(account, 'createOAuthToken', function () {
+          return p.reject(ProfileClient.Errors.toError('UNAUTHORIZED'));
+        });
+
+      });
+
+      ['getAvatar', 'getAvatars', 'postAvatar', 'deleteAvatar', 'uploadAvatar']
+      .forEach(function (method) {
+        it('retries on ' + method, function () {
+          sinon.stub(profileClient, method, function () {
+            return p.reject(ProfileClient.Errors.toError('UNAUTHORIZED'));
+          });
+          return account[method]()
+            .then(
+              assert.fail,
+              function (err) {
+                assert.isTrue(account.createOAuthToken.calledOnce);
+                assert.isFalse(profileClient[method].called);
+                assert.isTrue(ProfileClient.Errors.is(err, 'UNAUTHORIZED'));
+                assert.isUndefined(account.get('accessToken'));
+              }
+            );
+        });
+      });
+    });
+
 
     it('isFromSync returns true in the right context', function () {
       account.set('sessionTokenContext', Constants.SESSION_TOKEN_USED_FOR_SYNC);
