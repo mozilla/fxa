@@ -10,6 +10,31 @@ var config = require('../configuration');
 var sentryConfig = config.get('sentry');
 
 var API_KEY = sentryConfig.api_key;
+var CONTENT_SERVER_VERSION = require('../../../package.json').version;
+
+/**
+ * Attaches extra tags to sentry data
+ *
+ * @param {String} data - stringified Sentry data object
+ * @returns {String} data - stringified Sentry data object with extra tags
+ */
+function setExtraSentryData(data) {
+  var sentryData = null;
+  try {
+    sentryData = JSON.parse(data);
+  } catch (e) {
+    logger.error('Failed to parse Sentry data', data);
+  }
+
+  if (sentryData) {
+    sentryData.release = CONTENT_SERVER_VERSION;
+
+    return JSON.stringify(sentryData);
+  } else {
+    return data;
+  }
+
+}
 
 /**
  * Reports errors to Sentry
@@ -24,8 +49,9 @@ function reportError(query) {
   if (sentryConfig && sentryConfig.endpoint && API_KEY) {
     // set API_KEY using the server
     query['sentry_key'] = API_KEY;
-    var newQuery = querystring.stringify(query);
+    query['sentry_data'] = setExtraSentryData(query['sentry_data']);
 
+    var newQuery = querystring.stringify(query);
     var sentryRequest = sentryConfig.endpoint + '?' + newQuery;
 
     request(sentryRequest, function (err, resp, body) {
