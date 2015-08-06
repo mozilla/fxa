@@ -566,7 +566,7 @@ define([
     name: 'try to re-use a link',
 
 
-    setup: function () {
+    beforeEach: function () {
       // timeout after 90 seconds
       this.timeout = 90000;
       email = TestHelpers.createEmail();
@@ -618,7 +618,7 @@ define([
   registerSuite({
     name: 'reset_password with email specified on URL',
 
-    setup: function () {
+    beforeEach: function () {
       email = TestHelpers.createEmail();
       var client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
@@ -661,7 +661,7 @@ define([
   registerSuite({
     name: 'confirm_reset_password page transition',
 
-    setup: function () {
+    beforeEach: function () {
       email = TestHelpers.createEmail();
 
       client = new FxaClient(AUTH_SERVER_ROOT, {
@@ -693,7 +693,7 @@ define([
   registerSuite({
     name: 'reset_password with unknown email',
 
-    setup: function () {
+    beforeEach: function () {
       email = TestHelpers.createEmail();
       return FunctionalHelpers.clearBrowserState(this);
     },

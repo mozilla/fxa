@@ -20,11 +20,8 @@ define([
   registerSuite({
     name: 'preverified oauth sign up',
 
-    setup: function () {
-      email = TestHelpers.createEmail();
-    },
-
     beforeEach: function () {
+      email = TestHelpers.createEmail();
       // clear localStorage to avoid polluting other tests.
       // Without the clear, /signup tests fail because of the info stored
       // in prefillEmail

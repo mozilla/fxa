@@ -63,7 +63,7 @@ define([
         });
     },
 
-    teardown: function () {
+    afterEach: function () {
       return FunctionalHelpers.clearBrowserState(this, {
         contentServer: true,
         '123done': true

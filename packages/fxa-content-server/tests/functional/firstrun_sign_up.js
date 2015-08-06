@@ -29,10 +29,9 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      return FunctionalHelpers.clearBrowserState(this);
     },
 
-    teardown: function () {
+    afterEach: function () {
       var self = this;
 
       return FunctionalHelpers.clearBrowserState(this)
@@ -41,7 +40,7 @@ define([
           // signup page. If a fresh signup page is not forced, the
           // bounced_email tests try to sign up using the Sync broker,
           // resulting in a channel timeout.
-          self.remote
+          return self.remote
             .get(require.toUrl(SIGNIN_URL))
 
             .findByCssSelector('#fxa-signin-header')

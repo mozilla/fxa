@@ -76,7 +76,7 @@ define([
       return signUp(this, email);
     },
 
-    teardown: function () {
+    afterEach: function () {
       return FunctionalHelpers.clearBrowserState(this);
     },
 

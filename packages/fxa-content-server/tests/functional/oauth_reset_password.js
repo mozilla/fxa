@@ -25,16 +25,12 @@ define([
   registerSuite({
     name: 'oauth reset password',
 
-    setup: function () {
-      // timeout after 90 seconds
-      this.timeout = TIMEOUT;
-
+    beforeEach: function () {
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
-    },
-
-    beforeEach: function () {
+      // timeout after 90 seconds
+      this.timeout = TIMEOUT;
       email = TestHelpers.createEmail();
       var self = this;
 
