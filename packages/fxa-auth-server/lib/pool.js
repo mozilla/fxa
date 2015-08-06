@@ -18,11 +18,11 @@ function parseUrl(url) {
 
 function Pool(url, options) {
   options = options || {}
-  var foo = parseUrl(url)
-  var protocol = require(foo.protocol)
+  var parsedUrl = parseUrl(url)
+  var protocol = require(parsedUrl.protocol)
   this.poolee = new Poolee(
     protocol,
-    [foo.host],
+    [parsedUrl.host],
     {
       timeout: options.timeout || 5000,
       keepAlive: true,
@@ -42,24 +42,33 @@ Pool.prototype.request = function (method, path, data) {
       },
       data: data ? JSON.stringify(data) : undefined
     },
-    function (err, res, body) {
-      if (err || Math.floor(res && res.statusCode / 100) !== 2) {
-        var e = new Error(body || (err && err.message))
-        e.statusCode = res && res.statusCode
-        return d.reject(e)
-      }
-      if (!body) { return d.resolve() }
-      var json = null
-      try {
-        json = JSON.parse(body)
-      }
-      catch (e) {
-        return d.reject(new Error('Invalid JSON'))
-      }
-      d.resolve(json)
-    }
+    handleResponse
   )
   return d.promise
+
+  function handleResponse (err, res, body) {
+    var parsedBody = safeParse(body)
+
+    if (err) {
+      return d.reject(err)
+    }
+
+    if (res.statusCode < 200 || res.statusCode >= 300) {
+      var error = parsedBody || new Error(body)
+      error.statusCode = res.statusCode
+      return d.reject(error)
+    }
+
+    if (! body) {
+      return d.resolve()
+    }
+
+    if (! parsedBody) {
+      return d.reject(new Error('Invalid JSON'))
+    }
+
+    d.resolve(parsedBody)
+  }
 }
 
 Pool.prototype.post = function (path, data) {
@@ -103,3 +112,12 @@ Pool.prototype.close = function () {
 }
 
 module.exports = Pool
+
+function safeParse (json) {
+  try {
+    return JSON.parse(json)
+  }
+  catch (e) {
+  }
+}
+

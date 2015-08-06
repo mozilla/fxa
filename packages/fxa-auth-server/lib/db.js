@@ -73,7 +73,7 @@ module.exports = function (
         return data
       },
       function (err) {
-        if (err.statusCode === 409) {
+        if (isRecordAlreadyExistsError(err)) {
           err = error.accountExists(data.email)
         }
         throw err
@@ -233,7 +233,7 @@ module.exports = function (
           return true
         },
         function (err) {
-          if (err.statusCode === 400) {
+          if (isIncorrectPasswordError(err)) {
             return false
           }
           throw err
@@ -274,7 +274,7 @@ module.exports = function (
           return SessionToken.fromHex(data.tokenData, data)
         },
         function (err) {
-          if (err.statusCode === 404) {
+          if (isNotFoundError(err)) {
             err = error.invalidToken()
           }
           throw err
@@ -291,7 +291,7 @@ module.exports = function (
           return KeyFetchToken.fromId(id, data)
         },
         function (err) {
-          if (err.statusCode === 404) {
+          if (isNotFoundError(err)) {
             err = error.invalidToken()
           }
           throw err
@@ -308,7 +308,7 @@ module.exports = function (
           return AccountResetToken.fromHex(data.tokenData, data)
         },
         function (err) {
-          if (err.statusCode === 404) {
+          if (isNotFoundError(err)) {
             err = error.invalidToken()
           }
           throw err
@@ -325,7 +325,7 @@ module.exports = function (
           return PasswordForgotToken.fromHex(data.tokenData, data)
         },
         function (err) {
-          if (err.statusCode === 404) {
+          if (isNotFoundError(err)) {
             err = error.invalidToken()
           }
           throw err
@@ -342,7 +342,7 @@ module.exports = function (
           return PasswordChangeToken.fromHex(data.tokenData, data)
         },
         function (err) {
-          if (err.statusCode === 404) {
+          if (isNotFoundError(err)) {
             err = error.invalidToken()
           }
           throw err
@@ -360,7 +360,7 @@ module.exports = function (
           return data
         },
         function (err) {
-          if (err.statusCode === 404) {
+          if (isNotFoundError(err)) {
             err = error.unknownAccount(email)
           }
           throw err
@@ -378,7 +378,7 @@ module.exports = function (
           return data
         },
         function (err) {
-          if (err.statusCode === 404) {
+          if (isNotFoundError(err)) {
             err = error.unknownAccount()
           }
           throw err
@@ -511,7 +511,7 @@ module.exports = function (
           return bufferize(body).unlockCode
         },
         function (err) {
-          if (err.statusCode === 404) {
+          if (isNotFoundError(err)) {
             err = error.accountNotLocked()
           }
           throw err
@@ -560,3 +560,16 @@ module.exports = function (
 
   return DB
 }
+
+function isRecordAlreadyExistsError (err) {
+  return err.statusCode === 409 && err.errno === 101
+}
+
+function isIncorrectPasswordError (err) {
+  return err.statusCode === 400 && err.errno === 103
+}
+
+function isNotFoundError (err) {
+  return err.statusCode === 404 && err.errno === 116
+}
+
