@@ -170,6 +170,16 @@ define([
           .click()
         .end()
 
+        // there is a strange race condition with the permission screen,
+        // if the .sleep does not help then we should revisit this
+        .findByCssSelector('.email')
+        .end()
+
+        .findByCssSelector('#back')
+        .end()
+
+        .sleep(2000)
+
         // accept permission
         .findById('accept')
           .click()
