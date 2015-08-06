@@ -461,7 +461,6 @@ function (chai, $, p, Metrics, AuthErrors, Environment, sinon, _, WindowMock, Te
           assert.lengthOf(data.timers.foo, 1);
           assert.isObject(data.timers.foo[0]);
           assert.isTrue(data.timers.foo[0].elapsed >= 4);
-          assert.isTrue(data.timers.foo[0].elapsed < 14);
         });
       });
     });
