@@ -29,11 +29,11 @@
     "bluebird": "2.1.3",
     "clone": "0.2.0",
     "convict": "0.4.2",
-    "fxa-auth-db-server": "file:fxa-auth-db-server",
     "fxa-jwtool": "0.4.0",
     "mozlog": "2.0.0",
     "mysql": "2.3.2",
-    "request": "2.53.0"
+    "request": "2.53.0",
+    "restify": "2.8.2"
   },
   "devDependencies": {
     "ass": "git://github.com/jrgm/ass.git#5be99ee",
@@ -46,7 +46,6 @@
     "load-grunt-tasks": "0.6.0",
     "mysql-patcher": "0.7.0",
     "nock": "1.2.0",
-    "restify": "2.8.1",
     "tap": "0.4.13"
   },
   "keywords": [

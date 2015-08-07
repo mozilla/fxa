@@ -2,11 +2,11 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 require('ass')
-var dbServer = require('fxa-auth-db-server')
+var dbServer = require('../../fxa-auth-db-server')
 var test = require('../ptaptest')
 var log = { trace: console.log, error: console.log, info: console.log }
 var DB = require('../../lib/db/mysql')(log, dbServer.errors)
-var fake = require('fxa-auth-db-server/test/fake')
+var fake = require('../../fxa-auth-db-server/test/fake')
 var config = require('../../config')
 var P = require('../../lib/promise')
 

@@ -2,7 +2,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 require('ass')
-var dbServer = require('fxa-auth-db-server')
+var dbServer = require('../../fxa-auth-db-server')
 var test = require('../ptaptest')
 var P = require('../../lib/promise')
 var config = require('../../config')
