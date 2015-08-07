@@ -63,22 +63,16 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
     template: Template,
     className: 'settings',
 
-    FADE_OUT_SETTINGS: 250,
+    FADE_OUT_SETTINGS_MS: 250,
 
     initialize: function (options) {
       options = options || {};
 
       this._able = options.able;
       this._subViewToShow = options.subView;
-      this._notifications = options.notifications;
       this._panelViews = options.panelViews || PANEL_VIEWS;
 
-      this.on('navigate-from-subview', this._onNavigateFromSubview.bind(this));
-
-      if (this._notifications) {
-        this._notifications.on(this._notifications.EVENTS.PROFILE_CHANGE,
-          this._onProfileChange.bind(this));
-      }
+      this.router.on(this.router.NAVIGATE_FROM_SUBVIEW, this._onNavigateFromSubview.bind(this));
     },
 
     context: function () {
@@ -95,7 +89,7 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
       'click #signout': BaseView.preventDefaultThen('signOut')
     },
 
-    _onProfileChange: function () {
+    onProfileUpdate: function () {
       this._showAvatar();
     },
 
@@ -172,11 +166,6 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
 
     beforeRender: function () {
       var self = this;
-      if (self.relier.get('setting') === 'avatar') {
-        self.relier.set('setting', null);
-        self.navigate('/settings/avatar/change');
-      }
-
       $('body').addClass('settings');
       var account = self.getSignedInAccount();
 
@@ -188,17 +177,20 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
 
     afterRender: function () {
       var self = this;
-      var areCommunicationPrefsVisible = self._areCommunicationPrefsVisible();
+      var communicationPrefsAreVisible = self._areCommunicationPrefsVisible();
 
       // Initial subviews to render; excludes CommunicationPreferencesView if not visible
       // and modal views.
       var initialSubViews = self._panelViews.filter(function (SubView) {
-        return (SubView !== CommunicationPreferencesView || areCommunicationPrefsVisible) &&
-              ! self._isModalViewClass(SubView);
+        var isCommView = SubView === CommunicationPreferencesView;
+        var isModalView = self._isModalViewClass(SubView);
+        var shouldHide = (! communicationPrefsAreVisible && isCommView) || isModalView;
+
+        return ! shouldHide;
       });
 
       self.logScreenEvent('communication-prefs-link.visible.' +
-          String(areCommunicationPrefsVisible));
+          String(communicationPrefsAreVisible));
 
       return p.all(initialSubViews.map(function (SubView) {
         return self._createSubViewIfNeeded(SubView);
@@ -209,7 +201,12 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
       var self = this;
       BaseView.prototype.afterVisible.call(self);
 
-      if (self._subViewToShow) {
+      // Clients may link to the settings page with a `setting` query param
+      // so that that field can be displayed/focused.
+      if (self.relier.get('setting') === 'avatar') {
+        self.relier.set('setting', null);
+        self.navigate('settings/avatar/change');
+      } else if (self._subViewToShow) {
         self.showSubView(self._subViewToShow);
       }
 
@@ -217,7 +214,7 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
     },
 
     beforeDestroy: function () {
-      $('.settings').fadeOut(this.FADE_OUT_SETTINGS, function (){
+      $('.settings').fadeOut(this.FADE_OUT_SETTINGS_MS, function (){
         $('body').removeClass('settings').show();
       });
     },
@@ -228,7 +225,7 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
       var isTestAccount = /^avatarAB-.+@restmail\.net$/.test(email);
 
       return isTestAccount ||
-             this.hasDisplayedAccountProfileImage() ||
+             this.hasDisplayedAccountProfileImage(account) ||
              account.get('hadProfileImageSetBefore') ||
              this._able.choose('avatarLinkVisible', { email: email });
     },
@@ -276,14 +273,14 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
         });
     }),
 
-    SUCCESS_MESSAGE_DELAY: 3000, // show success message for 3 seconds
+    SUCCESS_MESSAGE_DELAY_MS: 3000, // show success message for 3 seconds
 
     displaySuccess: function () {
       var self = this;
       clearTimeout(self._successTimeout);
       self._successTimeout = setTimeout(function () {
         self.hideSuccess();
-      }, self.SUCCESS_MESSAGE_DELAY);
+      }, self.SUCCESS_MESSAGE_DELAY_MS);
       return BaseView.prototype.displaySuccess.apply(this, arguments);
     },
 
@@ -292,7 +289,7 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
       clearTimeout(self._successTimeout);
       self._successTimeout = setTimeout(function () {
         self.hideSuccess();
-      }, self.SUCCESS_MESSAGE_DELAY);
+      }, self.SUCCESS_MESSAGE_DELAY_MS);
       return BaseView.prototype.displaySuccessUnsafe.apply(this, arguments);
     }
 

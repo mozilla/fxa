@@ -15,7 +15,7 @@ define([
       FxaClient, TestHelpers, FunctionalHelpers, Test)  {
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
-  var PAGE_URL = config.fxaContentRoot + 'delete_account';
+  var PAGE_URL = config.fxaContentRoot + 'settings/delete_account';
 
   var PASSWORD = 'password';
   var email;
@@ -29,7 +29,7 @@ define([
 
       .get(require.toUrl(PAGE_URL))
 
-      .findByCssSelector('#fxa-delete-account-header')
+      .then(FunctionalHelpers.visibleByQSA('#delete-account'))
       .end()
 
       .then(function () {
@@ -41,7 +41,7 @@ define([
         return FunctionalHelpers.fillOutDeleteAccount(context, PASSWORD);
       })
 
-      .then(FunctionalHelpers.visibleByQSA('.error'))
+      .then(FunctionalHelpers.visibleByQSA('#delete-account .error'))
       .end()
 
       .findByCssSelector('a[href="/confirm_account_unlock"]')
@@ -80,17 +80,12 @@ define([
         .end()
 
         // Go to delete account screen
-        .findById('delete-account')
+        .findByCssSelector('#delete-account .settings-unit-toggle')
           .click()
         .end()
 
-        // ensure the back button exists
-        .findById('back')
-        .end()
-
         // success is going to the delete account page
-        .findById('fxa-delete-account-header')
-        .end()
+        .then(FunctionalHelpers.visibleByQSA('#delete-account'))
 
         .then(function () {
           return FunctionalHelpers.fillOutDeleteAccount(self, PASSWORD);
@@ -101,39 +96,25 @@ define([
         .end();
     },
 
-    'visit delete account directly - no back button': function () {
-      var self = this;
+    'sign in, cancel delete account': function () {
       return FunctionalHelpers.fillOutSignIn(this, email, PASSWORD)
         .findById('fxa-settings-header')
         .end()
 
-        .execute(function () {
-          sessionStorage.clear();
-        })
-
-        // Go to delete account screen directly
-        .get(require.toUrl(PAGE_URL))
-        .findById('fxa-delete-account-header')
-        .end()
-
-        .then(Test.noElementById(self, 'back'));
-    },
-
-    'refresh the page, back button shown': function () {
-      return FunctionalHelpers.fillOutSignIn(this, email, PASSWORD)
-        .findById('fxa-settings-header')
-        .end()
-
-        .findById('delete-account')
+        // Go to delete account screen
+        .findByCssSelector('#delete-account .settings-unit-toggle')
           .click()
         .end()
 
-        .findById('fxa-delete-account-header')
+        // success is going to the delete account page
+        .then(FunctionalHelpers.visibleByQSA('#delete-account'))
+
+        .findByCssSelector('#delete-account .cancel')
+          .click()
         .end()
 
-        .refresh()
-
-        .findById('back')
+        // success is going to the signup page
+        .findById('fxa-settings-header')
         .end();
     },
 

@@ -64,19 +64,22 @@ function (chai, sinon, Notifications, NullChannel) {
       it('broabcasts to all channels', function () {
         var ev = 'some event';
         var data = { foo: 'bar' };
+        var spy = sinon.spy();
 
+        notifications.on(ev, spy);
         notifications.broadcast(ev, data);
 
         assert.isTrue(webChannelMock.send.calledWith(ev, data));
         assert.isTrue(tabChannelMock.send.calledWith(ev, data));
         assert.isTrue(iframeChannelMock.send.calledWith(ev, data));
+        assert.isTrue(spy.called);
       });
 
       it('notifies profile image change', function () {
-        var ev = NOTIFICATION;
+        var ev = notifications.EVENTS.PROFILE_CHANGE;
         var data = { foo: 'bar' };
 
-        notifications.profileChanged(data);
+        notifications.profileUpdated(data);
 
         assert.isTrue(webChannelMock.send.calledWith(ev, data));
         assert.isTrue(tabChannelMock.send.calledWith(ev, data));

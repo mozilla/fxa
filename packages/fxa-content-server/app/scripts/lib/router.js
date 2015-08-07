@@ -83,7 +83,7 @@ function (
       // If the current view is an instance of View, that means we're
       // navigating from a subview of the current view
       if (this.currentView instanceof View) {
-        this.currentView.trigger(this.NAVIGATE_FROM_SUBVIEW, options);
+        this.trigger(this.NAVIGATE_FROM_SUBVIEW, options);
       } else {
         this.createAndShowView(View, options);
       }
@@ -305,7 +305,6 @@ function (
           self._checkForRefresh();
         })
         .fail(function (err) {
-          console.log('err', err);
           // The router's navigate method doesn't set ephemeral messages,
           // so use the view's higher level navigate method.
           return viewToShow.navigate('unexpected_error', {

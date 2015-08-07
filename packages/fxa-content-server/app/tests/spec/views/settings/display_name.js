@@ -97,14 +97,13 @@ function (chai, $, sinon, p, View, Metrics, Notifications, Relier, User, RouterM
           });
       });
 
-      it('rerenders on profile updates', function () {
+      it('onProfileUpdate', function () {
         return initView()
           .then(function () {
             sinon.stub(view, 'render', function () {
               return p();
             });
-            notifications.profileChanged({});
-
+            view.onProfileUpdate();
             assert.isTrue(view.render.called);
           });
       });
@@ -137,7 +136,6 @@ function (chai, $, sinon, p, View, Metrics, Notifications, Relier, User, RouterM
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                                   'display-name.success'));
             assert.equal(routerMock.page, 'settings');
-            assert.isTrue(view.render.called);
           });
       });
 

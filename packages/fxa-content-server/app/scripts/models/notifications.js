@@ -44,7 +44,7 @@ define([
       this.trigger(event, data);
     },
 
-    profileChanged: function (data) {
+    profileUpdated: function (data) {
       this.broadcast(EVENTS.PROFILE_CHANGE, data);
     },
 

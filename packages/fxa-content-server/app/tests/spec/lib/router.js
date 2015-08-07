@@ -91,7 +91,7 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, 
       $('#container').empty();
     });
 
-    describe('routes', function () {
+    describe('navigating to views/subviews', function () {
       beforeEach(function () {
         sinon.stub(window.history, 'pushState', function () {
         });
@@ -143,7 +143,7 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, 
         sinon.stub(settingsView, 'showSubView', function () { });
 
         var spy = sinon.spy();
-        settingsView.on('navigate-from-subview', spy);
+        router.on(router.NAVIGATE_FROM_SUBVIEW, spy);
 
         router.navigate('/settings/display_name');
         router.navigate('/settings');

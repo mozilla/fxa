@@ -103,15 +103,8 @@
   visibility: hidden;
 }
 
-#settings-home {
-  border-top: 1px solid $horizontal-rule-color;
-  margin: 40px 0 -30px;
-  padding: 25px;
-
-  a {
-    font-size: $base-font;
-    text-decoration: none;
-  }
+#done {
+  width: 100%;
 }
 
 .notice {

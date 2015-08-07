@@ -85,7 +85,7 @@ function (chai, $, sinon, _, Cocktail, View, BaseView, CommunicationPreferencesV
         panelViews: panelViews,
         screenName: 'settings'
       });
-      view.FADE_OUT_SETTINGS = 0;
+      view.FADE_OUT_SETTINGS_MS = 0;
     }
 
     beforeEach(function () {
@@ -166,7 +166,7 @@ function (chai, $, sinon, _, Cocktail, View, BaseView, CommunicationPreferencesV
             $('#container').append(view.el);
           })
           .then(function () {
-            assert.ok(view.$('.fxa-settings-header').length);
+            assert.ok(view.$('#fxa-settings-header').length);
             assert.isTrue(user.getAccountByUid.calledWith(UID));
             assert.isTrue(user.setSignedInAccountByUid.calledWith(UID));
           });
@@ -212,7 +212,7 @@ function (chai, $, sinon, _, Cocktail, View, BaseView, CommunicationPreferencesV
             $('#container').append(view.el);
           })
           .then(function () {
-            assert.ok(view.$('.fxa-settings-header').length);
+            assert.ok(view.$('#fxa-settings-header').length);
             assert.isTrue($('body').hasClass('settings'));
           });
       });
@@ -345,7 +345,7 @@ function (chai, $, sinon, _, Cocktail, View, BaseView, CommunicationPreferencesV
             return true;
           });
           sinon.stub($.modal, 'close', function () { });
-          view.trigger(routerMock.NAVIGATE_FROM_SUBVIEW);
+          routerMock.trigger(routerMock.NAVIGATE_FROM_SUBVIEW);
           assert.isTrue(spy1.called);
           assert.isTrue(spy2.called);
           assert.isTrue($.modal.isActive.called);
@@ -363,7 +363,7 @@ function (chai, $, sinon, _, Cocktail, View, BaseView, CommunicationPreferencesV
           })
           .then(function () {
             sinon.spy(view, 'displayAccountProfileImage');
-            notifications.profileChanged({});
+            view.onProfileUpdate();
             assert.isTrue(view.displayAccountProfileImage.calledWith(account));
           });
       });
@@ -540,14 +540,17 @@ function (chai, $, sinon, _, Cocktail, View, BaseView, CommunicationPreferencesV
 
           return view.render()
             .then(function () {
-              assert.equal(routerMock.page, '/settings/avatar/change');
+              return view.afterVisible();
+            })
+            .then(function () {
+              assert.equal(routerMock.page, 'settings/avatar/change');
             });
         });
       });
 
       describe('hide success', function () {
         it('displaySuccessUnsafe', function () {
-          view.SUCCESS_MESSAGE_DELAY = 5;
+          view.SUCCESS_MESSAGE_DELAY_MS = 5;
           var spy = sinon.spy(view, 'hideSuccess');
 
           return view.render()
@@ -561,7 +564,7 @@ function (chai, $, sinon, _, Cocktail, View, BaseView, CommunicationPreferencesV
         });
 
         it('displaySuccess', function () {
-          view.SUCCESS_MESSAGE_DELAY = 5;
+          view.SUCCESS_MESSAGE_DELAY_MS = 5;
           var spy = sinon.spy(view, 'hideSuccess');
 
           return view.render()

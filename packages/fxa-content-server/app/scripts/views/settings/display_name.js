@@ -22,16 +22,7 @@ function (Cocktail, BaseView, FormView, AuthErrors, Template,
     template: Template,
     className: 'display-name',
 
-    initialize: function (options) {
-      this._notifications = options.notifications;
-
-      if (this._notifications) {
-        this._notifications.on(this._notifications.EVENTS.PROFILE_CHANGE,
-          this._onProfileUpdate.bind(this));
-      }
-    },
-
-    _onProfileUpdate: function () {
+    onProfileUpdate: function () {
       this.render();
     },
 
@@ -62,7 +53,6 @@ function (Cocktail, BaseView, FormView, AuthErrors, Template,
           self.updateDisplayName(displayName);
           self.displaySuccess(t('Display name updated'));
           self.navigate('settings');
-          return self.render();
         });
     }
   });
