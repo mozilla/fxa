@@ -53,7 +53,7 @@ define(['./hawk', 'p', './errors'], function (hawk, P, ERRORS) {
     try {
       xhr.open(method, uri);
     } catch (e) {
-      deferred.reject({ error: 'Unknown error', message: e.toString(), errno: 999 });
+      return P.reject({ error: 'Unknown error', message: e.toString(), errno: 999 });
     }
 
     xhr.timeout = this.timeout;
