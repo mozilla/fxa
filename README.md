@@ -55,7 +55,7 @@
 **Use `npm start` to start Firefox with local server configurations.**
 Available options:
 
-* `FXA_ENV=local` or `latest` or `stable` (NOTE: `local` is default).
+* `FXA_ENV=local` or `latest` or `stable` or `stage` (NOTE: `local` is default).
 * `FIREFOX_BIN=/Applications/FirefoxNightly.app/Contents/MacOS/firefox-bin npm start`
 
 *******

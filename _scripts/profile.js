@@ -13,17 +13,30 @@ var CONFIGS = {
     auth: 'http://127.0.0.1:9000/v1',
     content: 'http://127.0.0.1:3030/',
     token: 'http://localhost:5000/token/1.0/sync/1.5',
-    loop: 'http://localhost:10222'
+    loop: 'http://localhost:10222',
+    oauth: 'http://localhost:9010/v1',
+    profile: 'http://localhost:1111/v1'
   },
   'latest': {
     auth: 'https://latest.dev.lcip.org/auth/v1',
     content: 'https://latest.dev.lcip.org/',
-    token: 'https://token.dev.lcip.org/1.0/sync/1.5'
+    token: 'https://token.dev.lcip.org/1.0/sync/1.5',
+    oauth: 'https://oauth-latest.dev.lcip.org/v1',
+    profile: 'https://latest.dev.lcip.org/profile/v1'
   },
   'stable': {
     auth: 'https://stable.dev.lcip.org/auth/v1',
     content: 'https://stable.dev.lcip.org/',
-    token: 'https://token.dev.lcip.org/1.0/sync/1.5'
+    token: 'https://token.dev.lcip.org/1.0/sync/1.5',
+    oauth: 'https://oauth-stable.dev.lcip.org/v1',
+    profile: 'https://stable.dev.lcip.org/profile/v1'
+  },
+  'stage': {
+    auth: 'https://api-accounts.stage.mozaws.net/v1',
+    content: 'https://accounts.stage.mozaws.net/',
+    token: 'https://token.dev.lcip.org/1.0/sync/1.5',
+    oauth: 'https://oauth.stage.mozaws.net/v1',
+    profile: 'https://profile.stage.mozaws.net/v1'
   }
 };
 
@@ -68,6 +81,9 @@ fxaProfile.setPreference('identity.fxaccounts.remote.force_auth.uri', fxaEnv.con
 fxaProfile.setPreference('identity.fxaccounts.remote.signin.uri', fxaEnv.content + 'signin?service=sync&context=fx_desktop_v1');
 fxaProfile.setPreference('identity.fxaccounts.remote.signup.uri', fxaEnv.content + 'signup?service=sync&context=fx_desktop_v1');
 fxaProfile.setPreference('identity.fxaccounts.remote.webchannel.uri', fxaEnv.content);
+
+fxaProfile.setPreference('identity.fxaccounts.remote.oauth.uri', fxaEnv.oauth);
+fxaProfile.setPreference('identity.fxaccounts.remote.profile.uri', fxaEnv.profile);
 
 fxaProfile.setPreference('identity.fxaccounts.settings.uri', fxaEnv.content + 'settings');
 fxaProfile.setPreference('services.sync.tokenServerURI', fxaEnv.token);
