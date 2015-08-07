@@ -4,6 +4,7 @@
 
 var P = require('./promise')
 var Pool = require('./pool')
+var userAgent = require('./userAgent')
 
 var crypto = require('crypto')
 var butil = require('./crypto/butil')
@@ -80,9 +81,9 @@ module.exports = function (
     )
   }
 
-  DB.prototype.createSessionToken = function (authToken) {
+  DB.prototype.createSessionToken = function (authToken, userAgentString) {
     log.trace({ op: 'DB.createSessionToken', uid: authToken && authToken.uid })
-    return SessionToken.create(authToken)
+    return SessionToken.create(userAgent.call(authToken, userAgentString))
       .then(
         function (sessionToken) {
           return this.pool.put(
@@ -92,7 +93,12 @@ module.exports = function (
                 tokenId: sessionToken.tokenId,
                 data: sessionToken.data,
                 uid: sessionToken.uid,
-                createdAt: sessionToken.createdAt
+                createdAt: sessionToken.createdAt,
+                uaBrowser: sessionToken.uaBrowser,
+                uaBrowserVersion: sessionToken.uaBrowserVersion,
+                uaOS: sessionToken.uaOS,
+                uaOSVersion: sessionToken.uaOSVersion,
+                uaDeviceType: sessionToken.uaDeviceType
               },
               'inplace'
             )
@@ -256,7 +262,15 @@ module.exports = function (
     return this.pool.get('/sessionToken/' + id.toString('hex'))
       .then(
         function (body) {
-          var data = bufferize(body)
+          var data = bufferize(body, {
+            ignore: [
+              'uaBrowser',
+              'uaBrowserVersion',
+              'uaOS',
+              'uaOSVersion',
+              'uaDeviceType'
+            ]
+          })
           return SessionToken.fromHex(data.tokenData, data)
         },
         function (err) {
@@ -381,6 +395,16 @@ module.exports = function (
       {
         tries: token.tries
       }
+    )
+  }
+
+  DB.prototype.updateSessionTokenInBackground = function (token, userAgentString) {
+    log.trace({ op: 'DB.updateSessionTokenInBackground', uid: token && token.uid })
+    return this.pool.post(
+      '/sessionToken/' + token.id + '/update',
+      userAgent.call({
+        lastAccessTime: Date.now()
+      }, userAgentString)
     )
   }
 

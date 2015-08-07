@@ -52,6 +52,7 @@ module.exports = function (
         var authSalt = crypto.randomBytes(32)
         var authPW = Buffer(form.authPW, 'hex')
         var locale = request.app.acceptLanguage
+        var userAgentString = request.headers['user-agent']
         customs.check(
           request.app.clientAddress,
           email,
@@ -84,7 +85,7 @@ module.exports = function (
                       op: 'account.create.emptyLocale',
                       email: email,
                       locale: locale,
-                      agent: request.headers['user-agent']
+                      agent: userAgentString
                     })
                   }
                   return db.createAccount(
@@ -118,7 +119,8 @@ module.exports = function (
                           emailCode: account.emailCode,
                           emailVerified: account.emailVerified,
                           verifierSetAt: account.verifierSetAt
-                        }
+                        },
+                        userAgentString
                       )
                       .then(
                         function (sessionToken) {
@@ -250,7 +252,8 @@ module.exports = function (
                         emailCode: emailRecord.emailCode,
                         emailVerified: emailRecord.emailVerified,
                         verifierSetAt: emailRecord.verifierSetAt
-                      }
+                      },
+                      request.headers['user-agent']
                     )
                   }
                 )
@@ -345,6 +348,7 @@ module.exports = function (
       handler: function (request, reply) {
         var sessionToken = request.auth.credentials
         if (sessionToken) {
+          db.updateSessionTokenInBackground(sessionToken, request.headers['user-agent'])
           reply({ exists: true, locale: sessionToken.locale })
         }
         else if (request.query.uid) {
@@ -415,6 +419,7 @@ module.exports = function (
       handler: function (request, reply) {
         log.begin('Account.RecoveryEmailStatus', request)
         var sessionToken = request.auth.credentials
+        db.updateSessionTokenInBackground(sessionToken, request.headers['user-agent'])
         reply(
           {
             email: sessionToken.email,
@@ -441,6 +446,7 @@ module.exports = function (
       handler: function (request, reply) {
         log.begin('Account.RecoveryEmailResend', request)
         var sessionToken = request.auth.credentials
+        db.updateSessionTokenInBackground(sessionToken, request.headers['user-agent'])
         var service = request.payload.service || request.query.service
         if (sessionToken.emailVerified ||
             Date.now() - sessionToken.verifierSetAt < resendBlackoutPeriod) {

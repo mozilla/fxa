@@ -46,3 +46,57 @@ test(
     t.end()
   }
 )
+
+test(
+  'bufferize works',
+  function (t) {
+    var argument = { foo: 'bar', baz: 'f00d' }
+    var result = butil.bufferize(argument)
+    t.notEqual(result, argument)
+    t.equal(Object.keys(result).length, Object.keys(argument).length)
+    t.equal(typeof result.foo, 'string')
+    t.equal(result.foo, argument.foo)
+    t.ok(Buffer.isBuffer(result.baz))
+    t.equal(result.baz.length, 2)
+    t.equal(result.baz[0], 0xf0)
+    t.equal(result.baz[1], 0x0d)
+    t.end()
+  }
+)
+
+test(
+  'bufferize works in-place',
+  function (t) {
+    var argument = { foo: 'beef', bar: 'baz' }
+    var result = butil.bufferize(argument, { inplace: true })
+    t.equal(result, argument)
+    t.equal(Object.keys(result).length, 2)
+    t.ok(Buffer.isBuffer(result.foo))
+    t.equal(result.foo.length, 2)
+    t.equal(result.foo[0], 0xbe)
+    t.equal(result.foo[1], 0xef)
+    t.equal(typeof result.bar, 'string')
+    t.equal(result.bar, 'baz')
+    t.end()
+  }
+)
+
+test(
+  'bufferize ignores exceptions',
+  function (t) {
+    var argument = { foo: 'bar', baz: 'f00d', qux: 'beef' }
+    var result = butil.bufferize(argument, { ignore: [ 'baz' ] })
+    t.notEqual(argument, result)
+    t.equal(Object.keys(result).length, Object.keys(argument).length)
+    t.equal(typeof result.foo, 'string')
+    t.equal(result.foo, argument.foo)
+    t.equal(typeof result.baz, 'string')
+    t.equal(result.baz, argument.baz)
+    t.ok(Buffer.isBuffer(result.qux))
+    t.equal(result.qux.length, 2)
+    t.equal(result.qux[0], 0xbe)
+    t.equal(result.qux[1], 0xef)
+    t.end()
+  }
+)
+

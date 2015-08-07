@@ -100,7 +100,7 @@ test(
       var tokenId
       return db.emailRecord(ACCOUNT.email)
       .then(function(emailRecord) {
-        return db.createSessionToken(emailRecord)
+        return db.createSessionToken(emailRecord, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0')
       })
       .then(function(sessionToken) {
         t.deepEqual(sessionToken.uid, ACCOUNT.uid)
@@ -111,10 +111,32 @@ test(
       })
       .then(function(sessionToken) {
         t.deepEqual(sessionToken.tokenId, tokenId, 'token id matches')
+        t.equal(sessionToken.uaBrowser, 'Firefox')
+        t.equal(sessionToken.uaBrowserVersion, '41')
+        t.equal(sessionToken.uaOS, 'Mac OS X')
+        t.equal(sessionToken.uaOSVersion, '10.10')
+        t.equal(sessionToken.uaDeviceType, undefined)
+        t.equal(sessionToken.lastAccessTime, sessionToken.createdAt)
         t.deepEqual(sessionToken.uid, ACCOUNT.uid)
         t.equal(sessionToken.email, ACCOUNT.email)
         t.deepEqual(sessionToken.emailCode, ACCOUNT.emailCode)
         t.equal(sessionToken.emailVerified, ACCOUNT.emailVerified)
+        return sessionToken
+      })
+      .then(function(sessionToken) {
+        return db.updateSessionTokenInBackground(sessionToken, 'Mozilla/5.0 (Android; Linux armv7l; rv:9.0) Gecko/20111216 Firefox/9.0 Fennec/9.0')
+      })
+      .then(function() {
+        return db.sessionToken(tokenId)
+      })
+      .then(function(sessionToken) {
+        t.equal(sessionToken.uaBrowser, 'Firefox Mobile')
+        t.equal(sessionToken.uaBrowserVersion, '9')
+        t.equal(sessionToken.uaOS, 'Android')
+        t.equal(sessionToken.uaOSVersion, undefined)
+        t.equal(sessionToken.uaDeviceType, undefined)
+        t.ok(sessionToken.lastAccessTime >= sessionToken.createdAt)
+        t.ok(sessionToken.lastAccessTime <= Date.now())
         return sessionToken
       })
       .then(function(sessionToken) {
@@ -314,7 +336,7 @@ test(
     return dbConn.then(function(db) {
       return db.emailRecord(ACCOUNT.email)
       .then(function(emailRecord) {
-        return db.createSessionToken(emailRecord)
+        return db.createSessionToken(emailRecord, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0')
       })
       .then(function(sessionToken) {
         return db.createAccountResetToken(sessionToken)

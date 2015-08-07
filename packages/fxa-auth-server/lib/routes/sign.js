@@ -37,6 +37,8 @@ module.exports = function (log, isA, error, signer, db, domain) {
         var publicKey = request.payload.publicKey
         var duration = request.payload.duration
 
+        db.updateSessionTokenInBackground(sessionToken, request.headers['user-agent'])
+
         if (!sessionToken.emailVerified) {
           return reply(error.unverifiedAccount())
         }
