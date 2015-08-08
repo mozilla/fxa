@@ -3,12 +3,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var path = require('path')
-var fs = require('fs')
-var util = require('util')
-var child_process = require('child_process')
+var cp = require('child_process')
 
 var version = require('../../package.json').version
 var commitHash
+var sourceRepo
+
+// Production and stage provide './config/version.json'. Try to load this at
+// startup; punt on failure. For dev environments, we'll get this from `git`
+// for dev environments.
+(function requireVersionInfo() {
+  try {
+    var versionJson = path.join(__dirname, '..', '..', 'config', 'version.json')
+    var info = require(versionJson)
+    commitHash = info.version.hash
+    sourceRepo = info.version.source
+  } catch (e) {
+    /* ignore */
+  }
+})()
+
 
 module.exports = function (log, P, db, error) {
 
@@ -18,6 +32,7 @@ module.exports = function (log, P, db, error) {
     function sendReply() {
       reply(
         {
+          source: sourceRepo,
           version: version,
           commit: commitHash
         }
@@ -29,28 +44,13 @@ module.exports = function (log, P, db, error) {
       return sendReply()
     }
 
-    // Note: we figure out the Git hash in the following order:
-    //
-    // (1) read config/version.json if exists (ie. staging, production)
-    // (2) figure it out from git (either regular '.git', or '/home/app/git' for AwsBox)
-
-    // (1) read config/version.json if exists (ie. staging, production)
-    var configFile = path.join(__dirname, '..', '..', 'config', 'version.json')
-    if ( fs.existsSync(configFile) ) {
-      commitHash = require(configFile).version.hash
-      return sendReply()
-    }
-
-    // (2) figure it out from git (either regular '.git', or '/home/app/git' for AwsBox)
-    var gitDir
-    if ( !fs.existsSync(path.join(__dirname, '..', '..', '.git')) ) {
-      // try at '/home/app/git' for AwsBox deploys
-      gitDir = path.sep + path.join('home', 'app', 'git')
-    }
-    var cmd = util.format('git %s rev-parse HEAD', gitDir ? '--git-dir=' + gitDir : '')
-    child_process.exec(cmd, function(err, stdout) {
-      commitHash = stdout.replace(/\s+/, '')
-      return sendReply()
+    // ignore errors and default to 'unknown' if not found
+    cp.exec('git rev-parse HEAD', function(err, stdout1) {
+      cp.exec('git config --get remote.origin.url', function(err, stdout2) {
+        commitHash = (stdout1 && stdout1.trim()) || 'unknown'
+        sourceRepo = (stdout2 && stdout2.trim()) || 'unknown'
+        return sendReply()
+      })
     })
   }
 

@@ -14,6 +14,27 @@ var config = require('../../config').root()
 TestServer.start(config)
 .then(function main(server) {
 
+  function testVersionRoute(path) {
+    return function (t) {
+      var d = P.defer()
+      request(config.publicUrl + path,
+        function (err, res, body) {
+          if (err) { d.reject(err) }
+          t.equal(res.statusCode, 200)
+          var json = JSON.parse(body)
+          t.deepEqual(Object.keys(json), ['source', 'version', 'commit'])
+          t.equal(json.version, require('../../package.json').version, 'package version')
+          t.ok(json.source && json.source !== 'unknown', 'source repository')
+
+          // check that the git hash just looks like a hash
+          t.ok(json.commit.match(/^[0-9a-f]{40}$/), 'The git hash actually looks like one')
+          d.resolve(json)
+        }
+      )
+      return d.promise
+    }
+  }
+
   test(
     'alternate base path',
     function (t) {
@@ -42,20 +63,13 @@ TestServer.start(config)
   )
 
   test(
-    'default routes are prefixed',
-    function (t) {
-      var d = P.defer()
-      request(config.publicUrl + '/',
-        function (err, res, body) {
-          if (err) { d.reject(err) }
-          t.equal(res.statusCode, 200)
-          var json = JSON.parse(body)
-          t.deepEqual(Object.keys(json), ['version', 'commit'])
-          d.resolve(json)
-        }
-      )
-      return d.promise
-    }
+    '"/" returns valid version information',
+    testVersionRoute('/')
+  )
+
+  test(
+    '"/__version__" returns valid version information',
+    testVersionRoute('/__version__')
   )
 
   test(
