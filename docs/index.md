@@ -78,6 +78,7 @@ You can read more about the [details of our development process](/dev-process.md
 
 - [fxa-js-client](https://github.com/mozilla/fxa-js-client)
 - [fxa-relier-client](https://github.com/mozilla/fxa-relier-client)
+- [fxa-easter-egg](https://github.com/mozilla/fxa-easter-egg)
 
 
 ## Bugs
