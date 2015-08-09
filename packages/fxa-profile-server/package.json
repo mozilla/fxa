@@ -3,7 +3,6 @@
   "version": "0.42.0",
   "private": true,
   "description": "Firefox Accounts Profile service.",
-  "main": "index.js",
   "scripts": {
     "start": "scripts/run_dev.js",
     "test": "grunt test --node-env=test",
