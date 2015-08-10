@@ -15,6 +15,23 @@ var config = require('../../config').root()
 TestServer.start(config)
 .then(function main(server) {
 
+  function testVersionRoute(route) {
+    return function (t) {
+      request(config.publicUrl + route, function (err, res, body) {
+        t.ok(!err, 'No error fetching ' + route)
+
+        var json = JSON.parse(body)
+        t.deepEqual(Object.keys(json), ['source', 'version', 'commit'])
+        t.equal(json.version, require('../../package.json').version, 'package version')
+        t.ok(json.source && json.source !== 'unknown', 'source repository')
+
+        // check that the git hash just looks like a hash
+        t.ok(json.commit.match(/^[0-9a-f]{40}$/), 'The git hash actually looks like one')
+        t.end()
+      })
+    }
+  }
+
   test(
     'unsupported api version',
     function (t) {
@@ -26,19 +43,13 @@ TestServer.start(config)
   )
 
   test(
-    '/ returns version and git hash',
-    function (t) {
-      request(config.publicUrl + '/', function (err, res, body) {
-        t.ok(!err, 'No error fetching /')
+    '/ returns source repo, version and git hash',
+    testVersionRoute('/')
+  )
 
-        var json = JSON.parse(body)
-        t.equal(json.version, require('../../package.json').version, 'package version')
-
-        // check that the git hash just looks like a hash
-        t.ok(json.commit.match(/^[0-9a-f]{40}$/), 'The git hash actually looks like one')
-        t.end()
-      })
-    }
+  test(
+    '/__version__ returns source repo, version and git hash',
+    testVersionRoute('/__version__')
   )
 
   test(
