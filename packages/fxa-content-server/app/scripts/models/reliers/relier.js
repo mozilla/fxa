@@ -74,6 +74,11 @@ define([
           self.importSearchParam('uid');
           self.importSearchParam('setting');
           self.importSearchParam('entrypoint');
+          if (! self.has('entrypoint')) {
+            // FxDesktop declares both `entryPoint` (capital P) and
+            // `entrypoint` (lowcase p). Normalize to `entrypoint`.
+            self.importSearchParam('entryPoint', 'entrypoint');
+          }
           self.importSearchParam('campaign');
 
           self.importSearchParam('utm_campaign', 'utmCampaign');
