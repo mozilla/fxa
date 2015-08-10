@@ -95,6 +95,31 @@ define([
       });
     });
 
+    describe('entryPoint', function () {
+      it('is correctly translated to `entrypoint` if `entrypoint` is not specified', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          entryPoint: ENTRYPOINT
+        });
+
+        return relier.fetch()
+          .then(function () {
+            assert.equal(relier.get('entrypoint'), ENTRYPOINT);
+          });
+      });
+
+      it('is ignored if `entrypoint` is already specified', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          entrypoint: ENTRYPOINT,
+          entryPoint: 'ignored entrypoint'
+        });
+
+        return relier.fetch()
+          .then(function () {
+            assert.equal(relier.get('entrypoint'), ENTRYPOINT);
+          });
+      });
+    });
+
     describe('isOAuth', function () {
       it('returns `false`', function () {
         assert.isFalse(relier.isOAuth());
