@@ -45,9 +45,7 @@ install:
   # first npm install will fail because there is no global GMP, we add localGmp after that failure
   - npm install
   # start the DB server
-  - cd node_modules/fxa-auth-db-mem
-  - LOG_LEVEL=error npm start &
-  - cd ../../
+  - LOG_LEVEL=error node ./node_modules/fxa-auth-db-mysql/bin/mem.js &
   # start the auth server
   - node ./scripts/gen_keys.js
   - LOG_LEVEL=error npm start &
