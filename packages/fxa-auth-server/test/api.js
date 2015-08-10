@@ -544,6 +544,21 @@ describe('/v1', function() {
             assert.equal(res.statusCode, 200);
           });
         });
+
+        it('does not require scope argument', function() {
+          mockAssertion().reply(200, VERIFY_GOOD);
+          return Server.api.post({
+            url: '/authorization',
+            payload: authParams({
+              client_id: client2.id,
+              scope: undefined,
+              response_type: 'token'
+            })
+          }).then(function(res) {
+            assert.equal(res.statusCode, 200);
+          });
+        });
+
         it('requires a client with proper permission', function() {
           mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api.post({

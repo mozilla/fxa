@@ -22,8 +22,6 @@ module.exports = function (grunt) {
     dest: 'CHANGELOG.md'
   });
 
-  grunt.renameTask('release', 'version');
-
   grunt.registerTask('version', [
     'bump-only:minor',
     'changelog',
