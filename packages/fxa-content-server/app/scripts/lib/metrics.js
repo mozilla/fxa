@@ -48,6 +48,8 @@ define([
     'broker',
     'ab',
     'isSampledUser',
+    'startTime',
+    'flushTime',
     'uniqueUserId',
     'utm_campaign',
     'utm_content',
@@ -121,6 +123,9 @@ define([
     this._env = options.environment || new Environment(this._window);
 
     this._lastAbLength = 0;
+    // if navigationTiming is supported,
+    // the baseTime will be from navitgationTiming.navigationStart, otherwise Date.now().
+    this._startTime = options.startTime || this._speedTrap.baseTime;
   }
 
   _.extend(Metrics.prototype, Backbone.Events, {
@@ -222,6 +227,8 @@ define([
           height: this._screenHeight
         },
         isSampledUser: this._isSampledUser,
+        startTime: this._startTime,
+        flushTime: Date.now(),
         uniqueUserId: this._uniqueUserId,
         utm_campaign: this._utmCampaign, //eslint-disable-line camelcase
         utm_content: this._utmContent, //eslint-disable-line camelcase

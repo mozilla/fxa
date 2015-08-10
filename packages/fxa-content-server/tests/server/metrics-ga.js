@@ -37,8 +37,10 @@ define([
           assert.equal(data.uid, 'c614d7fb-43e4-485c-bf11-40afbb202656');
           assert.equal(data.sr, '1680x1050');
           assert.equal(data.vp, '819x955');
+          assert.isTrue(data.qt > 0);
           assert.isDefined(data.documentHostName);
           assert.isDefined(data.ua);
+          assert.equal(data.ul, 'en');
 
           return this;
         },
@@ -54,6 +56,19 @@ define([
       analyticsId: 'mockId'
     });
     collect.write(data);
+  };
+
+  suite['describes _calculateQueueTime'] = function () {
+    var GACollector = proxyquire(path.join(process.cwd(), 'server', 'lib', 'ga-collector'), {});
+    var collect = new GACollector({
+      analyticsId: 'mockId'
+    });
+
+    assert.equal(collect._calculateQueueTime(), 0);
+    assert.equal(collect._calculateQueueTime(1000), 0);
+    assert.equal(collect._calculateQueueTime(1000, 2000, 500), 500);
+    assert.equal(collect._calculateQueueTime(Date.now(), Date.now() + 5000, 1000), 4000);
+    assert.equal(collect._calculateQueueTime(Date.now(), Date.now() - 5000, 1000), 0);
   };
 
   registerSuite(suite);
