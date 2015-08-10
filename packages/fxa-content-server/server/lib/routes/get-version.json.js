@@ -6,11 +6,11 @@
  * Return version info based on package.json, the git sha, and source repo
  *
  * @see lib/version.js
- * @see lib/routes/get-version.json.js
+ * @see lib/routes/get-ver.json.js
  */
 
 var version = require('../version');
 
-exports.path = '/ver.json';
+exports.path = '/__version__';
 exports.method = 'get';
 exports.process = version.process;

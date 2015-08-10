@@ -23,6 +23,7 @@ module.exports = function (config, i18n) {
     require('./routes/get-terms-privacy')(i18n),
     require('./routes/get-index')(),
     require('./routes/get-ver.json'),
+    require('./routes/get-version.json'),
     require('./routes/get-config')(i18n),
     require('./routes/get-client.json')(i18n),
     require('./routes/post-metrics')(),
