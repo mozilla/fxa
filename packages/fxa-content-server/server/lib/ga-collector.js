@@ -80,6 +80,20 @@ GACollector.prototype = {
           uid: body.uniqueUserId
         };
 
+        if (body.screen) {
+          var screen = body.screen;
+
+          // screen resolution and viewport parameter
+          // https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters?hl=en#sr
+          if (screen.width && screen.height) {
+            gaData.sr = screen.width + 'x' + screen.height;
+          }
+
+          if (screen.clientWidth && screen.clientHeight) {
+            gaData.vp = screen.clientWidth + 'x' + screen.clientHeight;
+          }
+        }
+
         extend(gaEvent, gaData);
 
         visitor.event(gaEvent).send(function (err) {
