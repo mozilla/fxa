@@ -20,7 +20,7 @@ GITHUB_USER = os.environ['GIT_API_USER']
 GITHUB_PASSWORD = os.environ['GIT_API_KEY']
 DAYS_PRIOR_DEFAULT = 90
 ROW_HEADERS = ('Repo', 'ID', 'Title', 'Created At', 'Updated At', 'Closed At', 'State', 'Reporter', 'Assignee', 'Milestone', 'Labels')
-labels_filter = ['waffle:in progress', 'waffle:ready', 'waffle:in review']
+labels_filter = ['waffle:progress', 'waffle:now', 'waffle:review']
 AUTH = (GITHUB_USER, GITHUB_PASSWORD)
 repo = ""
 milestone_filter = ""
@@ -87,11 +87,6 @@ def write_issues(resp):
         else:
             milestone = issue['milestone']['title'] if issue['milestone'] is not None else ""
 
-        # check if label filter is in labels of an issue
-        if 'no_label' not in labels_filter:
-            if not [i for i in labels_filter if i in label_list]:
-                continue
-
         #closed_at default
         closed_at = issue['closed_at'] if issue['closed_at'] is not None else ""
 
@@ -101,6 +96,11 @@ def write_issues(resp):
         # labels filter
         labels = issue['labels']
         label_list = [is_ascii(label['name']) for label in labels]
+
+        # check if label filter is in labels of an issue
+        if 'no_label' not in labels_filter:
+            if not [i for i in labels_filter if i in label_list]:
+                continue
 
         # write to csv
         csvout.writerow([repo,
