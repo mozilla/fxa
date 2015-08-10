@@ -19,89 +19,122 @@
  */
 
 var cp = require('child_process');
+var Promise = require('bluebird');
 var logger = require('mozlog')('server.version');
-
-var pkgVersion = require('../../package.json').version;
 
 const UNKNOWN = 'unknown';
 
-var commitHash;
-var sourceRepo;
-var l10nVersion = UNKNOWN;
-var tosPpVersion = UNKNOWN;
+var versionJsonPath = '../../config/version.json';
+
+function getPkgVersion () {
+  return require('../../package.json').version;
+}
 
 // commitHash and sourceRepo
-(function () {
+function getCommitHash () {
   try {
-    var versionJsonPath = '../../config/version.json';
     var versionInfo = require(versionJsonPath);
     var ver = versionInfo.version;
-    commitHash = ver.hash;
-    sourceRepo = ver.source;
-    if (commitHash) {
-      logger.info('source set to: %s', sourceRepo);
-      logger.info('commit hash set to: %s', commitHash);
-    }
+    return ver.hash;
   } catch(e) {
-    /* ignore */
+    /* ignore, shell out to `git` for hash */
   }
-})();
 
-// l10nVersion
-(function () {
+  var deferred = Promise.defer();
+
+  cp.exec('git rev-parse HEAD', function (err, stdout) {
+    if (err) {
+      // ignore the error
+      deferred.resolve(UNKNOWN);
+      return;
+    }
+
+    deferred.resolve((stdout && stdout.trim()) || UNKNOWN);
+  });
+
+  return deferred.promise;
+}
+
+function getSourceRepo () {
+  try {
+    var versionInfo = require(versionJsonPath);
+    var ver = versionInfo.version;
+    return ver.source;
+  } catch(e) {
+    /* ignore, shell out to `git` for repo */
+  }
+
+  var deferred = Promise.defer();
+  cp.exec('git config --get remote.origin.url', function (err, stdout) {
+    if (err) {
+      // ignore the error
+      deferred.resolve(UNKNOWN);
+      return;
+    }
+    deferred.resolve((stdout && stdout.trim()) || UNKNOWN);
+  });
+
+  return deferred.promise;
+}
+
+function getL10nVersion () {
   try {
     var bowerPath = '../../app/bower_components/fxa-content-server-l10n/.bower.json';
     var bowerInfo = require(bowerPath);
-    l10nVersion = bowerInfo && bowerInfo._release;
+    return bowerInfo && bowerInfo._release;
   } catch(e) {
     /* ignore */
   }
-})();
+}
 
-// tosPpVersion
-(function () {
+function getTosPpVersion () {
   try {
     var bowerPath = '../../app/bower_components/tos-pp/.bower.json';
     var bowerInfo = require(bowerPath);
-    tosPpVersion = bowerInfo && bowerInfo._release;
+    return bowerInfo && bowerInfo._release;
   } catch(e) {
     /* ignore */
   }
-})();
+}
 
 
-(function getCommitHashFromGit() {
-  // Only if we haven't figured out the value of commitHash,
-  // try to read commitHash and sourceRepo with `git`.
-  if (commitHash) {
-    return;
+var versionPromise;
+function getVersionInfo() {
+  if (! versionPromise) {
+    // only fetch version info if it has not already been fetched.
+    versionPromise = Promise.all([
+      getSourceRepo(),
+      getPkgVersion(),
+      getCommitHash(),
+      getL10nVersion(),
+      getTosPpVersion()
+    ]).spread(function (sourceRepo, pkgVersion, commitHash, l10nVersion, tosPpVersion) {
+      logger.info('source set to: ' + sourceRepo);
+      logger.info('version set to: ' + pkgVersion);
+      logger.info('commit hash set to: ' + commitHash);
+      logger.info('fxa-content-server-l10n commit hash set to: ' + l10nVersion);
+      logger.info('tos-pp (legal-docs) commit hash set to: ' + tosPpVersion);
+
+      return {
+        source: sourceRepo,
+        version: pkgVersion,
+        commit: commitHash,
+        l10n: l10nVersion,
+        tosPp: tosPpVersion
+      };
+    });
   }
 
-  // ignore errors and default to UNKNOWN if not found
-  cp.exec('git rev-parse HEAD', function (err, stdout1) {
-    cp.exec('git config --get remote.origin.url', function (err, stdout2) {
-      commitHash = (stdout1 && stdout1.trim()) || UNKNOWN;
-      sourceRepo = (stdout2 && stdout2.trim()) || UNKNOWN;
-      logger.info('source set to: %s', sourceRepo);
-      logger.info('commit hash set to: %s', commitHash);
-    });
-  });
-})();
+  return versionPromise;
+}
 
-logger.info('version set to: %s', pkgVersion);
-logger.info('fxa-content-server-l10n commit hash set to: %s', l10nVersion);
-logger.info('tos-pp (legal-docs) commit hash set to: %s', tosPpVersion);
+getVersionInfo();
 
 exports.process = function (req, res) {
-  var versionInfo = {
-    source: sourceRepo,
-    version: pkgVersion,
-    commit: commitHash,
-    l10n: l10nVersion,
-    tosPp: tosPpVersion
-  };
-
-  // charset must be set on json responses.
-  res.charset = 'utf-8';
-  res.json(versionInfo);
+  getVersionInfo()
+    .then(function (versionInfo) {
+      // charset must be set on json responses.
+      res.charset = 'utf-8';
+      res.json(versionInfo);
+    });
 };
