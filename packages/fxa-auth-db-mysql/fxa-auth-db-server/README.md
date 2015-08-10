@@ -1,15 +1,16 @@
 Firefox Accounts DB Server
 ==========================
 
-[![Build Status](https://travis-ci.org/mozilla/fxa-auth-db-server.svg?branch=master)](https://travis-ci.org/mozilla/fxa-auth-db-server)
+For context, see the
+[`fxa-auth-db-mysql` repo](http://github.com/mozilla/fxa-auth-db-mysql),
+which contains a MySQL backend
+(for production)
+and a memory-store backend
+(for testing).
 
-## Usage
-
-If you would like to run an FxA Auth DB Server, then you probably want to look at the
-[FxA Auth DB MySql](http://github.com/mozilla/fxa-auth-db-mysql/) repo (for production usage) or the
-[FxA Auth DB Mem](http://github.com/mozilla/fxa-auth-db-mem/) repo (for testing purposes). Each of these repos
-implement a storage backend and will install this repo when you run `npm install` since they each import the server
-from here.
+This package
+is actually a sub-directory
+of that repository.
 
 ## Usage
 
@@ -63,8 +64,16 @@ server.on(
 ## DB API
 
 If you would like to implement a
-[database/storage API](https://github.com/mozilla/fxa-auth-db-server/blob/master/docs/DB_API.md), this document will be
+[database/storage API](https://github.com/mozilla/fxa-auth-db-mysql/blob/master/docs/API.md), this document will be
 useful.
+
+## Server API
+
+If you want to know more
+about the endpoints
+implemented by this server,
+read the
+[server API documentation](docs/API.md).
 
 ## License
 
