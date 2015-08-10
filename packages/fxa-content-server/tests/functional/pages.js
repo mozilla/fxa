@@ -58,7 +58,8 @@ define([
     'complete_unlock_account',
     'account_unlock_complete',
     'signup_permissions',
-    'signin_permissions'
+    'signin_permissions',
+    'unexpected_error'
   ];
 
   var suite = {

@@ -108,7 +108,8 @@ module.exports = function (config, i18n) {
       '/complete_unlock_account',
       '/account_unlock_complete',
       '/signup_permissions',
-      '/signin_permissions'
+      '/signin_permissions',
+      '/unexpected_error'
     ];
 
     var ALLOWED_TO_FRAME = {
