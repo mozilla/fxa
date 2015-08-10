@@ -10,8 +10,7 @@ module.exports = function (grunt) {
     'l10n-json-to-html',
     'generate-valid-urls',
     'verify-urls'
-    ]
-  );
+  ]);
 
   grunt.registerMultiTask('verify-urls', 'Verify whether the translated urls are valid', function (){
     var fileArray = this.files[0].src;
