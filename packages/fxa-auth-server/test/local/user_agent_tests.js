@@ -114,9 +114,217 @@ test(
       }
     }
     var context = {}
-    var result = userAgent.call(context, 'qux')
+    var result = userAgent.call(context)
     t.equal(result.uaBrowserVersion, '1.1')
     t.equal(result.uaOSVersion, '2.34567')
+    uaParser.parse.reset()
+    t.end()
+  }
+)
+
+test(
+  'recognises Android as a mobile OS',
+  function (t) {
+    parserResult = {
+      ua: {
+        family: 'foo',
+        major: '1',
+        minor: '0'
+      },
+      os: {
+        family: 'Android',
+        major: '2',
+        minor: '0'
+      },
+      device: {
+        family: 'Other'
+      }
+    }
+    var context = {}
+    var result = userAgent.call(context)
+    t.equal(result.uaDeviceType, 'mobile')
+    uaParser.parse.reset()
+    t.end()
+  }
+)
+
+test(
+  'recognises iOS as a mobile OS',
+  function (t) {
+    parserResult = {
+      ua: {
+        family: 'foo',
+        major: '1',
+        minor: '0'
+      },
+      os: {
+        family: 'iOS',
+        major: '2',
+        minor: '0'
+      },
+      device: {
+        family: 'Other'
+      }
+    }
+    var context = {}
+    var result = userAgent.call(context)
+    t.equal(result.uaDeviceType, 'mobile')
+    uaParser.parse.reset()
+    t.end()
+  }
+)
+
+test(
+  'recognises Firefox OS as a mobile OS',
+  function (t) {
+    parserResult = {
+      ua: {
+        family: 'foo',
+        major: '1',
+        minor: '0'
+      },
+      os: {
+        family: 'Firefox OS',
+        major: '2',
+        minor: '0'
+      },
+      device: {
+        family: 'Other'
+      }
+    }
+    var context = {}
+    var result = userAgent.call(context)
+    t.equal(result.uaDeviceType, 'mobile')
+    uaParser.parse.reset()
+    t.end()
+  }
+)
+
+test(
+  'recognises Windows Phone as a mobile OS',
+  function (t) {
+    parserResult = {
+      ua: {
+        family: 'foo',
+        major: '1',
+        minor: '0'
+      },
+      os: {
+        family: 'Windows Phone',
+        major: '2',
+        minor: '0'
+      },
+      device: {
+        family: 'Other'
+      }
+    }
+    var context = {}
+    var result = userAgent.call(context)
+    t.equal(result.uaDeviceType, 'mobile')
+    uaParser.parse.reset()
+    t.end()
+  }
+)
+
+test(
+  'recognises BlackBerry OS as a mobile OS',
+  function (t) {
+    parserResult = {
+      ua: {
+        family: 'foo',
+        major: '1',
+        minor: '0'
+      },
+      os: {
+        family: 'BlackBerry OS',
+        major: '2',
+        minor: '0'
+      },
+      device: {
+        family: 'Other'
+      }
+    }
+    var context = {}
+    var result = userAgent.call(context)
+    t.equal(result.uaDeviceType, 'mobile')
+    uaParser.parse.reset()
+    t.end()
+  }
+)
+
+test(
+  'does not recognise Mac OS X as a mobile OS',
+  function (t) {
+    parserResult = {
+      ua: {
+        family: 'foo',
+        major: '1',
+        minor: '0'
+      },
+      os: {
+        family: 'Mac OS X',
+        major: '2',
+        minor: '0'
+      },
+      device: {
+        family: 'Other'
+      }
+    }
+    var context = {}
+    var result = userAgent.call(context)
+    t.equal(result.uaDeviceType, undefined)
+    uaParser.parse.reset()
+    t.end()
+  }
+)
+
+test(
+  'does not recognise Linux as a mobile OS',
+  function (t) {
+    parserResult = {
+      ua: {
+        family: 'foo',
+        major: '1',
+        minor: '0'
+      },
+      os: {
+        family: 'Linux',
+        major: '2',
+        minor: '0'
+      },
+      device: {
+        family: 'Other'
+      }
+    }
+    var context = {}
+    var result = userAgent.call(context)
+    t.equal(result.uaDeviceType, undefined)
+    uaParser.parse.reset()
+    t.end()
+  }
+)
+
+test(
+  'does not recognise Windows as a mobile OS',
+  function (t) {
+    parserResult = {
+      ua: {
+        family: 'foo',
+        major: '1',
+        minor: '0'
+      },
+      os: {
+        family: 'Windows',
+        major: '2',
+        minor: '0'
+      },
+      device: {
+        family: 'Other'
+      }
+    }
+    var context = {}
+    var result = userAgent.call(context)
+    t.equal(result.uaDeviceType, undefined)
     uaParser.parse.reset()
     t.end()
   }
