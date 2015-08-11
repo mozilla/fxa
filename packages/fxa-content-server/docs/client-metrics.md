@@ -140,6 +140,8 @@ The event stream is a log of events and the time they occurred while the user is
 #### pp
 #### ready
 #### reset_password
+* error.reset_password.auth.1011 - user did not enter an email address
+* error.reset_password.auth.1023 - user entered an email address that was invalid
 
 #### settings
 * settings.signout.submit - user clicked signout
@@ -179,39 +181,52 @@ The event stream is a log of events and the time they occurred while the user is
 * settings.communication-preferences.optOut.success - user has successfully opted out of email marketing.
 
 #### signin
+* error.oauth.signin.auth.1011 - user did not enter an email address
+* error.oauth.signin.auth.1023 - user entered an email address that was invalid
 * error.signin.auth.121 - account locked
-* signin.unlock-email.send - user attempted to send unlock email
-* signin.unlock-email.send.success - unlock email successfully sent
+* error.signin.auth.1011 - user did not enter an email address
+* error.signin.auth.1023 - user entered an email address that was invalid
 * signin.ask-password.skipped - skipped asking for password thanks to existing session token
 * signin.ask-password.shown.account-unknown - asked for password due to missing account data
-* signin.ask-password.shown.keys-required - asked for password because the relier wanted keys
 * signin.ask-password.shown.email-mismatch - asked for password due to using a different email
+* signin.ask-password.shown.keys-required - asked for password because the relier wanted keys
 * signin.ask-password.shown.session-from-web - asked for password because session was created via web content
 * signin.ask-password.shown.session-expired - asked for password due to expired session token
 * signin.use-different-account - user clicked link to use different account
+* signin.unlock-email.send - user attempted to send unlock email
+* signin.unlock-email.send.success - unlock email successfully sent
+
 
 #### signin_permissions
 * signin-permissions.accept - user accepts and grants the requested permissions
 * signin-permissions.success - sign in successfully occurred
 
 #### signup
-* tooltip.mailcheck-suggested - an email address correction was suggested
-* tooltip.mailcheck-used - an email address correction was chosen by the user
-* tooltip.mailcheck-dismissed - an email address correction tooltip was dismissed without the selection being made.
-* signup.checkbox.change.show-password.checked - password is shown
-* signup.checkbox.change.show-password.unchecked - password is hidden
-* signup.password.visible - password is shown
-* signup.password.hidden - password is hidden
-* signup.email-optin.visible.true - email opt-in is visible
-* signup.email-optin.visible.false - email opt-in is not visible
-* signup.checkbox.change.marketing-email-optin.checked - user checked the email opt-in
-* signup.checkbox.change.marketing-email-optin.unchecked - user unchecked the email opt-in
-* signup.checkbox.change.customize-sync.checked - user checked the "Choose what to sync" checkbox.
-* signup.checkbox.change.customize-sync.unchecked - user unchecked the "Choose what to sync" checkbox.
+* error.oauth.signup.auth.1011 - user did not enter an email address
+* error.oauth.signup.auth.1023 - user entered an email address that was invalid
+* error.signup.auth.1011 - user did not enter an email address
+* error.signup.auth.1011 - user did not enter an email address
 * error.signup.auth.1012 - user did not enter year of birth
 * error.signup.auth.1016 - user did not enter their birthday
+* error.signup.auth.1018 - user's verification email bounced
+* error.signup.auth.1019 - user re-submitted bounced email address
+* error.signup.auth.1020 - user entered an @firefox.com address
+* error.signup.auth.1023 - user entered an email address that was invalid
 * error.signup.auth.1029 - signup is disabled on Fx for iOS v1
 * error.signup.auth.1030 - signup has been force disabled by a Sync based relier.
+* signup.checkbox.change.customize-sync.checked - user checked the "Choose what to sync" checkbox.
+* signup.checkbox.change.customize-sync.unchecked - user unchecked the "Choose what to sync" checkbox.
+* signup.checkbox.change.marketing-email-optin.checked - user checked the email opt-in
+* signup.checkbox.change.marketing-email-optin.unchecked - user unchecked the email opt-in
+* signup.checkbox.change.show-password.checked - password is shown
+* signup.checkbox.change.show-password.unchecked - password is hidden
+* signup.email-optin.visible.false - email opt-in is not visible
+* signup.email-optin.visible.true - email opt-in is visible
+* signup.password.hidden - password is hidden
+* signup.password.visible - password is shown
+* tooltip.mailcheck-dismissed - an email address correction tooltip was dismissed without the selection being made.
+* tooltip.mailcheck-suggested - an email address correction was suggested
+* tooltip.mailcheck-used - an email address correction was chosen by the user
 
 #### signup_permissions
 * signup-permissions.accept - user accepts and grants the requested permissions
