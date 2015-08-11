@@ -33,6 +33,11 @@ define([
       // For now, the uniqueUserId is passed in from app-start instead of
       // being initialized from the resume token or localStorage.
       this.set('uniqueUserId', options.uniqueUserId);
+
+      // We cache the signed-in account instance to share across
+      // consumers so that they don't have to refetch the account's
+      // ephemeral data, e.g. OAuth access tokens.
+      this._cachedSignedInAccount = null;
     },
 
     defaults: {
@@ -54,7 +59,20 @@ define([
       }
     },
 
-    _getSignedInAccount: function () {
+    _setSignedInAccountUid: function (uid) {
+      this._storage.set('currentAccountUid', uid);
+      // Clear the in-memory cache if the uid has changed
+      if (this._cachedSignedInAccount && this._cachedSignedInAccount.get('uid') !== uid) {
+        this._cachedSignedInAccount = null;
+      }
+    },
+
+    _clearSignedInAccountUid: function () {
+      this._storage.remove('currentAccountUid');
+      this._cachedSignedInAccount = null;
+    },
+
+    _getSignedInAccountData: function () {
       return this._getAccount(this._storage.get('currentAccountUid'));
     },
 
@@ -89,12 +107,16 @@ define([
     },
 
     getSignedInAccount: function () {
-      return this.initAccount(this._getSignedInAccount());
+      if (! this._cachedSignedInAccount) {
+        this._cachedSignedInAccount = this.initAccount(this._getSignedInAccountData());
+      }
+
+      return this._cachedSignedInAccount;
     },
 
     setSignedInAccountByUid: function (uid) {
       if (this._accounts()[uid]) {
-        this._storage.set('currentAccountUid', uid);
+        this._setSignedInAccountUid(uid);
       }
     },
 
@@ -123,18 +145,18 @@ define([
 
       var account = _.find(self._accounts(), function (account) {
         return self.isSyncAccount(account);
-      }) || self._getSignedInAccount();
+      }) || self.getSignedInAccount();
 
       return self.initAccount(account);
     },
 
     // Used to clear the current account, but keeps the account details
     clearSignedInAccount: function () {
-      this._storage.remove('currentAccountUid');
+      this._clearSignedInAccountUid();
     },
 
     removeAllAccounts: function () {
-      this._storage.remove('currentAccountUid');
+      this._clearSignedInAccountUid();
       this._storage.remove('accounts');
     },
 
@@ -160,7 +182,8 @@ define([
 
       return self.setAccount(account)
         .then(function (account) {
-          self._storage.set('currentAccountUid', account.get('uid'));
+          self._cachedSignedInAccount = account;
+          self._setSignedInAccountUid(account.get('uid'));
           return account;
         });
     },

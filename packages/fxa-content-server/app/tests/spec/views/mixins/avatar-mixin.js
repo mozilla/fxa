@@ -14,12 +14,13 @@ define([
   'models/account',
   'models/profile-image',
   'lib/metrics',
+  'lib/auth-errors',
   'lib/profile-errors',
   'lib/promise',
   'lib/channels/null',
   '../../../lib/helpers'
 ], function (Chai, sinon, _, AvatarMixin, BaseView, Notifications, Relier,
-    User, Account, ProfileImage, Metrics, ProfileErrors, p, NullChannel,
+    User, Account, ProfileImage, Metrics, AuthErrors, ProfileErrors, p, NullChannel,
     TestHelpers) {
   'use strict';
 
@@ -77,12 +78,27 @@ define([
 
     describe('displayAccountProfileImage', function () {
       it('does not log an error for a non-authenticated account', function () {
+        sinon.stub(account, 'fetchCurrentProfileImage', function () {
+          return p.reject(ProfileErrors.toError('UNAUTHORIZED'));
+        });
         return view.displayAccountProfileImage(account)
           .then(function () {
             var err = view._normalizeError(ProfileErrors.toError('UNAUTHORIZED'));
             assert.isFalse(TestHelpers.isErrorLogged(metrics, err));
           });
       });
+
+      it('does not log an error for an unverified account', function () {
+        sinon.stub(account, 'fetchCurrentProfileImage', function () {
+          return p.reject(AuthErrors.toError('UNVERIFIED'));
+        });
+        return view.displayAccountProfileImage(account)
+          .then(function () {
+            var err = view._normalizeError(AuthErrors.toError('UNVERIFIED'));
+            assert.isFalse(TestHelpers.isErrorLogged(metrics, err));
+          });
+      });
+
       it('logs other kind of errors', function () {
         sinon.stub(account, 'fetchCurrentProfileImage', function () {
           return p.reject(ProfileErrors.toError('SERVICE_UNAVAILABLE'));

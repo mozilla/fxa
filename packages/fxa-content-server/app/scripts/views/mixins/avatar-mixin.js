@@ -5,9 +5,10 @@
 // helper functions for views with a profile image. Meant to be mixed into views.
 
 define([
+  'lib/auth-errors',
   'lib/profile-errors',
   'models/profile-image'
-], function (ProfileErrors, ProfileImage) {
+], function (AuthErrors, ProfileErrors, ProfileImage) {
   'use strict';
 
   return {
@@ -31,10 +32,11 @@ define([
         .then(function (profileImage) {
           // Cache the result to make sure we don't flash the default
           // image while fetching the latest profile image
-          self._updateCachedProfileImage(account, profileImage);
+          self._updateCachedProfileImage(profileImage, account);
           return profileImage;
         }, function (err) {
-          if (! ProfileErrors.is(err, 'UNAUTHORIZED')) {
+          if (! ProfileErrors.is(err, 'UNAUTHORIZED') &&
+              ! AuthErrors.is(err, 'UNVERIFIED')) {
             self.logError(err);
           }
           // Ignore errors; the image will be rendered as a
@@ -60,9 +62,9 @@ define([
       return this._displayedProfileImage && ! this._displayedProfileImage.isDefault();
     },
 
-    // Makes sure the account with uid has an uptodate image cache.
+    // Makes sure the account has an up-to-date image cache.
     // This should be called after fetching the current profile image.
-    _updateCachedProfileImage: function (account, profileImage) {
+    _updateCachedProfileImage: function (profileImage, account) {
       if (! account.isDefault()) {
         account.setProfileImage(profileImage);
         this.user.setAccount(account);

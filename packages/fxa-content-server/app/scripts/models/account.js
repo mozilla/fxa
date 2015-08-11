@@ -114,6 +114,7 @@ define([
       var self = this;
       return self.fetch()
         .then(function () {
+          // If the account is not verified fail before attempting to fetch a token
           if (! self.get('verified')) {
             throw AuthErrors.toError('UNVERIFIED_ACCOUNT');
           } else if (self._needsAccessToken()) {

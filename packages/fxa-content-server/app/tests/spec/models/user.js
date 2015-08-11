@@ -9,9 +9,10 @@ define([
   'lib/constants',
   'lib/session',
   'lib/fxa-client',
+  'lib/auth-errors',
   'models/user'
 ],
-function (chai, sinon, p, Constants, Session, FxaClient, User) {
+function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
   'use strict';
 
   var assert = chai.assert;
@@ -140,6 +141,98 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
         .then(function () {
           assert.equal(user.getSignedInAccount().get('uid'), 'uid');
         });
+    });
+
+
+    describe('in memory caching of signed in account', function () {
+      it('getSignedInAccount returns same instance from setSignedInAccount', function () {
+        var account = user.initAccount({ uid: 'uid', email: 'email'});
+        return user.setSignedInAccount(account)
+          .then(function () {
+            assert.strictEqual(user.getSignedInAccount(), account);
+          });
+      });
+
+      it('account is not cached in memory if setAccount fails', function () {
+        var account = user.initAccount({ uid: 'uid', email: 'email'});
+
+        return user.setSignedInAccount({ uid: 'foo', email: 'email'})
+          .then(function () {
+            sinon.stub(user, 'setAccount', function () {
+              return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+            });
+            return user.setSignedInAccount(account);
+          })
+          .then(assert.fail, function (err) {
+            assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
+            assert.isFalse(user.getSignedInAccount() === account);
+          });
+      });
+
+      it('getSignedInAccount returns same instance when called multiple times', function () {
+        return user.setSignedInAccount({ uid: 'uid', email: 'email'})
+          .then(function () {
+            assert.strictEqual(user.getSignedInAccount(), user.getSignedInAccount());
+          });
+      });
+
+      it('getSignedInAccount returns same instance as getChooserAccount', function () {
+        return user.setSignedInAccount({ uid: 'uid', email: 'email'})
+          .then(function () {
+            assert.strictEqual(user.getSignedInAccount(), user.getChooserAccount());
+          });
+      });
+
+      it('getSignedInAccount does not return previously cached account after clearSignedInAccount', function () {
+        var account = user.initAccount({ uid: 'uid', email: 'email'});
+        return user.setSignedInAccount(account)
+          .then(function () {
+            user.clearSignedInAccount();
+            assert.isFalse(user.getSignedInAccount() === account);
+          });
+      });
+
+      it('getSignedInAccount does not return previously cached account after removeAccount', function () {
+        var account = user.initAccount({ uid: 'uid', email: 'email'});
+        return user.setSignedInAccount(account)
+          .then(function () {
+            user.removeAccount(account);
+            assert.isFalse(user.getSignedInAccount() === account);
+          });
+      });
+
+      it('getSignedInAccount does not return previously cached account after removeAllAccounts', function () {
+        var account = user.initAccount({ uid: 'uid', email: 'email'});
+        return user.setSignedInAccount(account)
+          .then(function () {
+            user.removeAllAccounts();
+            assert.isFalse(user.getSignedInAccount() === account);
+          });
+      });
+
+      it('getSignedInAccount does not return previously cached account after setSignedInAccountByUid with different account uid', function () {
+        var uid = 'abc123';
+        var account = user.initAccount({ uid: 'uid', email: 'email'});
+
+        return user.setSignedInAccount(account)
+          .then(function () {
+            return user.setAccount({ uid: uid, email: 'email' })
+              .then(function () {
+                user.setSignedInAccountByUid(uid);
+                assert.isFalse(user.getSignedInAccount() === account);
+              });
+          });
+      });
+
+      it('getSignedInAccount returns previously cached account after setSignedInAccountByUid with same account uid', function () {
+        var account = user.initAccount({ uid: 'uid', email: 'email'});
+
+        return user.setSignedInAccount(account)
+          .then(function () {
+            user.setSignedInAccountByUid('uid');
+            assert.strictEqual(user.getSignedInAccount(), account);
+          });
+      });
     });
 
     it('setSignedInAccountByUid works if account is already cached', function () {

@@ -40,6 +40,13 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
     var PNG_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
     var CLIENT_ID = 'client_id';
     var SESSION_TOKEN = 'abc123';
+    var PROFILE_CLIENT_METHODS = [
+      'getAvatar',
+      'getAvatars',
+      'postAvatar',
+      'deleteAvatar',
+      'uploadAvatar'
+    ];
 
     beforeEach(function () {
       assertion = new Assertion();
@@ -115,33 +122,46 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
 
     });
 
-    it('isVerified returns false if account is unverified', function () {
-      account.set('sessionToken', SESSION_TOKEN);
-      sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
-        return p({ verified: false });
-      });
-
-      return account.isVerified()
-        .then(function (isVerified) {
-          assert.isTrue(fxaClient.recoveryEmailStatus.calledWith(SESSION_TOKEN));
-          assert.isFalse(isVerified);
+    describe('isVerified', function () {
+      it('isVerified returns false if account is unverified', function () {
+        account.set('sessionToken', SESSION_TOKEN);
+        sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
+          return p({ verified: false });
         });
-    });
 
-    it('isVerified fails if an error occurs', function () {
-      account.set('sessionToken', SESSION_TOKEN);
-      sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
-        return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
+        return account.isVerified()
+          .then(function (isVerified) {
+            assert.isTrue(fxaClient.recoveryEmailStatus.calledWith(SESSION_TOKEN));
+            assert.isFalse(isVerified);
+          });
       });
 
-      return account.isVerified()
-        .then(assert.fail,
-          function (err) {
-            assert.isTrue(fxaClient.recoveryEmailStatus.calledWith(SESSION_TOKEN));
-            assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
-          });
-    });
+      it('isVerified fails if an error occurs', function () {
+        account.set('sessionToken', SESSION_TOKEN);
+        sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
+          return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
+        });
 
+        return account.isVerified()
+          .then(assert.fail,
+            function (err) {
+              assert.isTrue(fxaClient.recoveryEmailStatus.calledWith(SESSION_TOKEN));
+              assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
+            });
+      });
+
+      it('isVerified returns true', function () {
+        account.set('sessionToken', SESSION_TOKEN);
+        sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
+          return p({ verified: true });
+        });
+        return account.isVerified()
+          .then(function (isVerified) {
+            assert.isTrue(fxaClient.recoveryEmailStatus.calledWith(SESSION_TOKEN));
+            assert.isTrue(isVerified);
+          });
+      });
+    });
 
     describe('signIn', function () {
       it('sign in with password, unverified', function () {
@@ -331,16 +351,6 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
       });
     });
 
-    it('isVerified returns true', function () {
-      sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
-        return p({ verified: true });
-      });
-      return account.isVerified()
-        .then(function (isVerified) {
-          assert.isTrue(isVerified);
-        });
-    });
-
     describe('profileClient', function () {
       var accessToken = 'access token';
 
@@ -488,8 +498,7 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
 
       });
 
-      ['getAvatar', 'getAvatars', 'postAvatar', 'deleteAvatar', 'uploadAvatar']
-      .forEach(function (method) {
+      PROFILE_CLIENT_METHODS.forEach(function (method) {
         it('retries on ' + method, function () {
           sinon.stub(profileClient, method, function () {
             return p.reject(ProfileClient.Errors.toError('UNAUTHORIZED'));
@@ -554,8 +563,7 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
         });
       });
 
-      ['getAvatar', 'getAvatars', 'postAvatar', 'deleteAvatar', 'uploadAvatar']
-      .forEach(function (method) {
+      PROFILE_CLIENT_METHODS.forEach(function (method) {
         it('retries on ' + method, function () {
           var spy = sinon.spy(profileClient, method);
           return account[method]()
@@ -579,8 +587,7 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
         });
       });
 
-      ['getAvatar', 'getAvatars', 'postAvatar', 'deleteAvatar', 'uploadAvatar']
-      .forEach(function (method) {
+      PROFILE_CLIENT_METHODS.forEach(function (method) {
         it('rejects on ' + method, function () {
           sinon.spy(profileClient, method);
           return account[method]()
