@@ -216,14 +216,14 @@
       "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-2.9.25.tgz"
     },
     "convict": {
-      "version": "0.8.0",
-      "from": "convict@0.8.0",
-      "resolved": "https://registry.npmjs.org/convict/-/convict-0.8.0.tgz",
+      "version": "1.0.1",
+      "from": "convict@1.0.1",
+      "resolved": "https://registry.npmjs.org/convict/-/convict-1.0.1.tgz",
       "dependencies": {
         "cjson": {
-          "version": "0.3.0",
-          "from": "cjson@0.3.0",
-          "resolved": "https://registry.npmjs.org/cjson/-/cjson-0.3.0.tgz",
+          "version": "0.3.1",
+          "from": "cjson@0.3.1",
+          "resolved": "https://registry.npmjs.org/cjson/-/cjson-0.3.1.tgz",
           "dependencies": {
             "jsonlint": {
               "version": "1.6.0",
@@ -274,14 +274,14 @@
           }
         },
         "depd": {
-          "version": "1.0.0",
-          "from": "depd@1.0.0",
-          "resolved": "https://registry.npmjs.org/depd/-/depd-1.0.0.tgz"
+          "version": "1.0.1",
+          "from": "depd@1.0.1",
+          "resolved": "https://registry.npmjs.org/depd/-/depd-1.0.1.tgz"
         },
         "moment": {
-          "version": "2.9.0",
-          "from": "moment@2.9.0",
-          "resolved": "https://registry.npmjs.org/moment/-/moment-2.9.0.tgz"
+          "version": "2.10.6",
+          "from": "moment@2.10.6",
+          "resolved": "https://registry.npmjs.org/moment/-/moment-2.10.6.tgz"
         },
         "optimist": {
           "version": "0.6.1",
@@ -301,9 +301,9 @@
           }
         },
         "validator": {
-          "version": "3.33.0",
-          "from": "validator@3.33.0",
-          "resolved": "https://registry.npmjs.org/validator/-/validator-3.33.0.tgz"
+          "version": "3.43.0",
+          "from": "validator@3.43.0",
+          "resolved": "https://registry.npmjs.org/validator/-/validator-3.43.0.tgz"
         },
         "varify": {
           "version": "0.1.1",
@@ -352,8 +352,8 @@
     },
     "fxa-auth-db-mysql": {
       "version": "0.42.0",
-      "from": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#master",
-      "resolved": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#b415b35340f8586919ec7080f8797be37416893c",
+      "from": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#a09790c20fa8c9f4a2c6f108b86aabf07038220f",
+      "resolved": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#a09790c20fa8c9f4a2c6f108b86aabf07038220f",
       "dependencies": {
         "bluebird": {
           "version": "2.1.3",
@@ -1308,7 +1308,7 @@
     },
     "fxa-auth-mailer": {
       "version": "1.0.7",
-      "from": "git+https://github.com/mozilla/fxa-auth-mailer.git#master",
+      "from": "git+https://github.com/mozilla/fxa-auth-mailer.git#6aac195ff6d1692b239c7906fd1becd95ee85ebf",
       "resolved": "git+https://github.com/mozilla/fxa-auth-mailer.git#6aac195ff6d1692b239c7906fd1becd95ee85ebf",
       "dependencies": {
         "bluebird": {
@@ -1421,8 +1421,8 @@
         },
         "fxa-content-server-l10n": {
           "version": "0.0.0",
-          "from": "git://github.com/mozilla/fxa-content-server-l10n.git",
-          "resolved": "git://github.com/mozilla/fxa-content-server-l10n.git#72c1bb4864abb948b9a71ae6e45ea580615d816a"
+          "from": "git://github.com/mozilla/fxa-content-server-l10n.git#4bbc8a6a71e45cf0abcf6d4de2219c6b0488c0e6",
+          "resolved": "git://github.com/mozilla/fxa-content-server-l10n.git#4bbc8a6a71e45cf0abcf6d4de2219c6b0488c0e6"
         },
         "handlebars": {
           "version": "1.3.0",
@@ -2027,9 +2027,9 @@
               }
             },
             "csv": {
-              "version": "0.4.5",
+              "version": "0.4.6",
               "from": "csv@>=0.4.0 <0.5.0",
-              "resolved": "https://registry.npmjs.org/csv/-/csv-0.4.5.tgz",
+              "resolved": "https://registry.npmjs.org/csv/-/csv-0.4.6.tgz",
               "dependencies": {
                 "csv-generate": {
                   "version": "0.0.6",
@@ -2037,9 +2037,9 @@
                   "resolved": "https://registry.npmjs.org/csv-generate/-/csv-generate-0.0.6.tgz"
                 },
                 "csv-parse": {
-                  "version": "0.1.4",
-                  "from": "csv-parse@>=0.1.3 <0.2.0",
-                  "resolved": "https://registry.npmjs.org/csv-parse/-/csv-parse-0.1.4.tgz"
+                  "version": "1.0.0",
+                  "from": "csv-parse@>=1.0.0 <2.0.0",
+                  "resolved": "https://registry.npmjs.org/csv-parse/-/csv-parse-1.0.0.tgz"
                 },
                 "stream-transform": {
                   "version": "0.1.0",
@@ -2153,6 +2153,11 @@
                   "resolved": "https://registry.npmjs.org/extsprintf/-/extsprintf-1.2.0.tgz"
                 }
               }
+            },
+            "dtrace-provider": {
+              "version": "0.2.8",
+              "from": "dtrace-provider@>=0.2.8 <0.3.0",
+              "resolved": "https://registry.npmjs.org/dtrace-provider/-/dtrace-provider-0.2.8.tgz"
             }
           }
         }
@@ -2175,7 +2180,7 @@
           "dependencies": {
             "encoding": {
               "version": "0.1.11",
-              "from": "encoding@*",
+              "from": "encoding@>=0.1.11 <0.2.0",
               "resolved": "https://registry.npmjs.org/encoding/-/encoding-0.1.11.tgz",
               "dependencies": {
                 "iconv-lite": {
@@ -2654,7 +2659,7 @@
                     },
                     "es6-iterator": {
                       "version": "0.1.3",
-                      "from": "es6-iterator@>=0.1.3 <0.2.0",
+                      "from": "es6-iterator@>=0.1.1 <0.2.0",
                       "resolved": "https://registry.npmjs.org/es6-iterator/-/es6-iterator-0.1.3.tgz",
                       "dependencies": {
                         "es6-symbol": {
@@ -2698,7 +2703,7 @@
                     },
                     "es6-iterator": {
                       "version": "0.1.3",
-                      "from": "es6-iterator@>=0.1.3 <0.2.0",
+                      "from": "es6-iterator@>=0.1.1 <0.2.0",
                       "resolved": "https://registry.npmjs.org/es6-iterator/-/es6-iterator-0.1.3.tgz"
                     },
                     "es6-symbol": {
@@ -3081,7 +3086,7 @@
               "dependencies": {
                 "isemail": {
                   "version": "1.1.1",
-                  "from": "isemail@>=1.0.0 <2.0.0",
+                  "from": "isemail@1.1.1",
                   "resolved": "https://registry.npmjs.org/isemail/-/isemail-1.1.1.tgz"
                 },
                 "moment": {
@@ -3367,9 +3372,9 @@
               "resolved": "https://registry.npmjs.org/ecdsa-sig-formatter/-/ecdsa-sig-formatter-1.0.2.tgz",
               "dependencies": {
                 "asn1.js": {
-                  "version": "2.1.3",
+                  "version": "2.2.0",
                   "from": "asn1.js@>=2.0.3 <3.0.0",
-                  "resolved": "https://registry.npmjs.org/asn1.js/-/asn1.js-2.1.3.tgz",
+                  "resolved": "https://registry.npmjs.org/asn1.js/-/asn1.js-2.2.0.tgz",
                   "dependencies": {
                     "bn.js": {
                       "version": "2.2.0",
@@ -3852,7 +3857,7 @@
           "dependencies": {
             "inherits": {
               "version": "2.0.1",
-              "from": "inherits@>=2.0.1 <3.0.0",
+              "from": "inherits@>=2.0.0 <3.0.0",
               "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.1.tgz"
             },
             "minimalistic-assert": {

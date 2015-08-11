@@ -166,10 +166,10 @@ var conf = convict({
       env: 'REDIRECT_DOMAIN'
     },
     resendBlackoutPeriod: {
-      doc: 'Blackout period for resending verification emails',
-      format: 'int',
+      doc: 'Blackout period for resending verification emails (milliseconds)',
+      format: 'duration',
       env: 'RESEND_BLACKOUT_PERIOD',
-      default: 1000 * 60 * 10
+      default: '10 minutes'
     }
   },
   maxEventLoopDelay: {
@@ -198,19 +198,19 @@ var conf = convict({
   },
   tokenLifetimes: {
     accountResetToken: {
-      format: 'int',
+      format: 'duration',
       env: 'ACCOUNT_RESET_TOKEN_TTL',
-      default: 1000 * 60 * 15
+      default: '15 minutes'
     },
     passwordForgotToken: {
-      format: 'int',
+      format: 'duration',
       env: 'PASSWORD_FORGOT_TOKEN_TTL',
-      default: 1000 * 60 * 60
+      default: '60 minutes'
     },
     passwordChangeToken: {
-      format: 'int',
+      format: 'duration',
       env: 'PASSWORD_CHANGE_TOKEN_TTL',
-      default: 1000 * 60 * 15
+      default: '15 minutes'
     }
   },
   verifierVersion: {
