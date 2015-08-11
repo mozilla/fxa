@@ -97,31 +97,25 @@ define([
 
     it('displayAccountProfileImage updates the cached account data', function () {
       var image = new ProfileImage({ url: 'url', id: 'foo', img: new Image() });
-      var cachedAccount = user.initAccount({ uid: 'uid' });
-      sinon.spy(cachedAccount, 'setProfileImage');
 
+      sinon.spy(account, 'setProfileImage');
       sinon.stub(account, 'fetchCurrentProfileImage', function () {
         return p(image);
-      });
-      sinon.stub(user, 'getAccountByUid', function () {
-        return cachedAccount;
       });
 
       return view.displayAccountProfileImage(account)
         .then(function () {
           assert.isTrue(account.fetchCurrentProfileImage.called);
-          assert.isTrue(user.getAccountByUid.calledWith(UID));
-          assert.isTrue(user.setAccount.calledWith(cachedAccount));
-          assert.isTrue(cachedAccount.setProfileImage.calledWith(image));
+          assert.isTrue(user.setAccount.calledWith(account));
+          assert.isTrue(account.setProfileImage.calledWith(image));
           assert.isTrue(view.hasDisplayedAccountProfileImage());
         });
     });
 
     describe('updateProfileImage', function () {
       it('stores the url', function () {
-        view.updateProfileImage(new ProfileImage({ url: 'url' }));
+        view.updateProfileImage(new ProfileImage({ url: 'url' }), account);
         assert.equal(account.get('profileImageUrl'), 'url');
-        assert.isTrue(view.getSignedInAccount.called);
         assert.isTrue(user.setAccount.calledWith(account));
         assert.isTrue(notifications.profileChanged.calledWith({ uid: UID }));
       });

@@ -31,7 +31,7 @@ define([
         .then(function (profileImage) {
           // Cache the result to make sure we don't flash the default
           // image while fetching the latest profile image
-          self._updateCachedProfileImage(account.get('uid'), profileImage);
+          self._updateCachedProfileImage(account, profileImage);
           return profileImage;
         }, function (err) {
           if (! ProfileErrors.is(err, 'UNAUTHORIZED')) {
@@ -62,11 +62,10 @@ define([
 
     // Makes sure the account with uid has an uptodate image cache.
     // This should be called after fetching the current profile image.
-    _updateCachedProfileImage: function (uid, profileImage) {
-      var cachedAccount = this.user.getAccountByUid(uid);
-      if (! cachedAccount.isDefault()) {
-        cachedAccount.setProfileImage(profileImage);
-        this.user.setAccount(cachedAccount);
+    _updateCachedProfileImage: function (account, profileImage) {
+      if (! account.isDefault()) {
+        account.setProfileImage(profileImage);
+        this.user.setAccount(account);
       }
     },
 
@@ -83,8 +82,7 @@ define([
       }
     },
 
-    updateProfileImage: function (profileImage) {
-      var account = this.getSignedInAccount();
+    updateProfileImage: function (profileImage, account) {
       account.setProfileImage(profileImage);
       this.user.setAccount(account);
 
@@ -98,7 +96,7 @@ define([
       return account.deleteAvatar(self._displayedProfileImage.get('id'))
         .then(function () {
           // A blank image will clear the cache
-          self.updateProfileImage(new ProfileImage());
+          self.updateProfileImage(new ProfileImage(), account);
         });
     }
   };

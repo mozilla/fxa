@@ -107,7 +107,7 @@ function (p, Cocktail, FormView, SettingsMixin, AvatarMixin, Template,
           return account.uploadAvatar(data);
         })
         .then(function (result) {
-          self.updateProfileImage(new ProfileImage(result));
+          self.updateProfileImage(new ProfileImage(result), account);
           self.navigate('settings');
           return result;
         });

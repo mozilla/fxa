@@ -167,6 +167,7 @@ function (chai, $, ui, sinon, jQuerySimulate, View, RouterMock, ProfileMock, Use
             })
             .then(function (result) {
               assert.equal(view.updateProfileImage.args[0][0].get('url'), result.url);
+              assert.equal(view.updateProfileImage.args[0][1], account);
               assert.equal(result.url, 'test');
               assert.equal(result.id, 'foo');
               assert.equal(routerMock.page, 'settings');

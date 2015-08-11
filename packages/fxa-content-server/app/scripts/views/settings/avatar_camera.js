@@ -161,7 +161,7 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
           self.stream.stop();
           delete self.stream;
 
-          self.updateProfileImage(new ProfileImage(result));
+          self.updateProfileImage(new ProfileImage(result), account);
           self.navigate('settings');
           return result;
         });

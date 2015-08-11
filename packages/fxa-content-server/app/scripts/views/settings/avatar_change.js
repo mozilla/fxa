@@ -33,6 +33,13 @@ function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
       this.FileReader = FileReader;
     },
 
+    getAccount: function () {
+      if (! this._account) {
+        this._account = this.getSignedInAccount();
+      }
+      return this._account;
+    },
+
     beforeRender: function () {
       if (this.relier.get('setting') === 'avatar') {
         this.relier.unset('setting');
@@ -41,7 +48,7 @@ function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
 
     afterVisible: function () {
       FormView.prototype.afterVisible.call(this);
-      return this.displayAccountProfileImage(this.getSignedInAccount());
+      return this.displayAccountProfileImage(this.getAccount());
     },
 
     afterRender: function () {
@@ -53,7 +60,7 @@ function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
 
     remove: function () {
       var self = this;
-      var account = self.getSignedInAccount();
+      var account = self.getAccount();
       return self.deleteDisplayedAccountProfileImage(account)
         .then(function () {
           self.navigate('settings');
@@ -86,7 +93,7 @@ function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
       var self = this;
       var defer = p.defer();
       var file = e.target.files[0];
-      var account = self.getSignedInAccount();
+      var account = self.getAccount();
       self.logAccountImageChange(account);
 
       var imgOnError = function (e) {
