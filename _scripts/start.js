@@ -9,12 +9,24 @@ var profile = require('./profile');
 selenium.install({
   // check for more recent versions of selenium here:
   // http://selenium-release.storage.googleapis.com/index.html
-  version: '2.45.0',
+  version: '2.47.1',
 }, function() {
 
-  selenium.start(function(err, cp) {
-    if (err) throw err;
+  selenium.start({
+    version: '2.47.1',
 
+  },function(err, cp) {
+    process.on('exit', function(code) {
+      cp.kill();
+    });
+
+    if (err) {
+      if (err.message && err.message === 'Another Selenium process is already running') {
+        console.log('Did not start Selenium, already running..');
+      } else {
+        throw err
+      }
+    };
 
     profile(function (profile) {
       var opts = {
