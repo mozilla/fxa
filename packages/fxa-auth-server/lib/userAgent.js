@@ -6,6 +6,25 @@
 
 var ua = require('ua-parser')
 
+var MOBILE_OS_FAMILIES = {
+  'Android': null,
+  'Bada': null,
+  'BlackBerry OS': null,
+  'BlackBerry Tablet OS': null,
+  'Brew MP': null,
+  'Firefox OS': null,
+  'iOS': null,
+  'Maemo': null,
+  'MeeGo': null,
+  'Symbian OS': null,
+  'Symbian^3': null,
+  'Symbian^3 Anna': null,
+  'Symbian^3 Belle': null,
+  'Windows CE': null,
+  'Windows Mobile': null,
+  'Windows Phone': null
+}
+
 module.exports = function (userAgentString) {
   var userAgentData = ua.parse(userAgentString)
 
@@ -37,8 +56,12 @@ function getVersion (data) {
 }
 
 function getDeviceType (data) {
-  if (getFamily(data.device)) {
+  if (getFamily(data.device) || isMobileOS(data.os)) {
     return 'mobile'
   }
+}
+
+function isMobileOS (os) {
+  return os.family in MOBILE_OS_FAMILIES
 }
 

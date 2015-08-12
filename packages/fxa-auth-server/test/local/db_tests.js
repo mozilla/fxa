@@ -134,7 +134,7 @@ test(
         t.equal(sessionToken.uaBrowserVersion, '9')
         t.equal(sessionToken.uaOS, 'Android')
         t.equal(sessionToken.uaOSVersion, undefined)
-        t.equal(sessionToken.uaDeviceType, undefined)
+        t.equal(sessionToken.uaDeviceType, 'mobile')
         t.ok(sessionToken.lastAccessTime >= sessionToken.createdAt)
         t.ok(sessionToken.lastAccessTime <= Date.now())
         return sessionToken
