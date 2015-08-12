@@ -10,8 +10,8 @@ define([
   'cocktail',
   'views/settings',
   'views/base',
+  'views/sub_panels',
   'views/settings/communication_preferences',
-  'views/mixins/modal-settings-panel-mixin',
   'views/mixins/settings-panel-mixin',
   '../../mocks/router',
   '../../lib/helpers',
@@ -28,8 +28,8 @@ define([
   'models/user',
   'stache!templates/test_template',
 ],
-function (chai, $, sinon, _, Cocktail, View, BaseView, CommunicationPreferencesView,
-  ModalSettingsPanelMixin, SettingsPanelMixin, RouterMock, TestHelpers, FxaClient, p,
+function (chai, $, sinon, _, Cocktail, View, BaseView, SubPanels, CommunicationPreferencesView,
+  SettingsPanelMixin, RouterMock, TestHelpers, FxaClient, p,
   ProfileClient, ProfileErrors, AuthErrors, Able, Metrics, Notifications,
   Relier, ProfileImage, User, TestTemplate) {
   'use strict';
@@ -41,19 +41,7 @@ function (chai, $, sinon, _, Cocktail, View, BaseView, CommunicationPreferencesV
     className: 'panel'
   });
 
-  var SettingsPanelView2 = BaseView.extend({
-    template: TestTemplate,
-    className: 'panel2'
-  });
-
-  var ModalSettingsPanelView = BaseView.extend({
-    template: TestTemplate,
-    className: 'modal-panel'
-  });
-
   Cocktail.mixin(SettingsPanelView, SettingsPanelMixin);
-  Cocktail.mixin(SettingsPanelView2, SettingsPanelMixin);
-  Cocktail.mixin(ModalSettingsPanelView, ModalSettingsPanelMixin);
 
   describe('views/settings', function () {
     var view;
@@ -67,7 +55,8 @@ function (chai, $, sinon, _, Cocktail, View, BaseView, CommunicationPreferencesV
     var able;
     var notifications;
     var panelViews;
-    var subViewToShow;
+    var initialSubView;
+    var subPanels;
 
     var ACCESS_TOKEN = 'access token';
     var UID = 'uid';
@@ -80,9 +69,10 @@ function (chai, $, sinon, _, Cocktail, View, BaseView, CommunicationPreferencesV
         user: user,
         metrics: metrics,
         able: able,
-        subView: subViewToShow,
+        subView: initialSubView,
         notifications: notifications,
         panelViews: panelViews,
+        subPanels: subPanels,
         screenName: 'settings'
       });
       view.FADE_OUT_SETTINGS_MS = 0;
@@ -113,11 +103,10 @@ function (chai, $, sinon, _, Cocktail, View, BaseView, CommunicationPreferencesV
 
       able = new Able();
 
-      panelViews = [
-        SettingsPanelView,
-        SettingsPanelView2,
-        ModalSettingsPanelView
-      ];
+      subPanels = new SubPanels();
+      sinon.stub(subPanels, 'render', function () {
+        return p();
+      });
 
       createView();
 
@@ -217,142 +206,34 @@ function (chai, $, sinon, _, Cocktail, View, BaseView, CommunicationPreferencesV
           });
       });
 
-      describe('subviews', function () {
-        it('shows subview if initialized with one', function () {
-          subViewToShow = SettingsPanelView;
-          createView();
-          sinon.stub(view, 'isUserAuthorized', function () {
-            return p(true);
-          });
-          sinon.stub(view, 'showSubView', function () {
-            return p();
-          });
 
-          return view.render()
-            .then(function () {
-              $('#container').append(view.el);
-              return view.afterVisible();
-            })
-            .then(function () {
-              assert.isTrue(view.showSubView.calledWith(SettingsPanelView));
-            });
+      it('on navigate from subview', function () {
+        var spy1 = sinon.spy(view, 'showEphemeralMessages');
+        var spy2 = sinon.spy(view, 'logScreen');
+        sinon.stub($.modal, 'isActive', function () {
+          return true;
         });
+        sinon.stub($.modal, 'close', function () { });
+        routerMock.trigger(routerMock.NAVIGATE_FROM_SUBVIEW);
+        assert.isTrue(spy1.called);
+        assert.isTrue(spy2.called);
+        assert.isTrue($.modal.isActive.called);
+        assert.isTrue($.modal.close.called);
+        $.modal.isActive.restore();
+        $.modal.close.restore();
+      });
 
-        it('renders non-modal subviews on render', function () {
-          sinon.stub(routerMock, 'createView', function (View) {
-            var subview = new View();
-            return subview;
+      it('afterVisible', function () {
+        sinon.stub(subPanels, 'setElement', function () {});
+        return view.render()
+          .then(function () {
+            $('#container').append(view.el);
+            return view.afterVisible();
+          })
+          .then(function () {
+            assert.isTrue(subPanels.setElement.called);
+            assert.isTrue(subPanels.render.called);
           });
-
-          return view.render()
-            .then(function () {
-              assert.isTrue(routerMock.createView.calledTwice, 'is only called for the non-modal views');
-              assert.equal(routerMock.createView.args[0][0], SettingsPanelView);
-              assert.equal(routerMock.createView.args[1][0], SettingsPanelView2);
-            });
-        });
-
-        it('showSubView with undeclared view returns', function () {
-          var result = view.showSubView(BaseView);
-          assert.isUndefined(result);
-        });
-
-        it('showSubView opens and logs', function () {
-          sinon.stub(routerMock, 'createView', function (View) {
-            var subview = new View();
-            sinon.stub(subview, 'afterVisible', function () { });
-            sinon.stub(subview, 'openPanel', function () { });
-            sinon.stub(subview, 'logScreen', function () { });
-            return subview;
-          });
-          var spy = sinon.spy(view, 'trackSubview');
-
-          return view.showSubView(SettingsPanelView)
-            .then(function () {
-              assert.isTrue(routerMock.createView.called);
-              assert.equal(routerMock.createView.args[0][0], SettingsPanelView);
-              assert.equal(routerMock.createView.args[0][1].superView, view);
-              assert.isTrue(routerMock.createView.returnValues[0].afterVisible.called);
-              assert.isTrue(routerMock.createView.returnValues[0].openPanel.called);
-              assert.isTrue(routerMock.createView.returnValues[0].logScreen.called);
-              assert.isTrue(spy.calledWith(routerMock.createView.returnValues[0]));
-            });
-        });
-
-        it('showSubView only creates view once', function () {
-          sinon.stub(routerMock, 'createView', function (View) {
-            var subview = new View();
-            sinon.stub(subview, 'openPanel', function () { });
-            sinon.stub(subview, 'logScreen', function () { });
-            return subview;
-          });
-          var returnedView;
-
-          return view.showSubView(SettingsPanelView)
-            .then(function (subView) {
-              returnedView = subView;
-              return view.showSubView(SettingsPanelView);
-            })
-            .then(function (subView) {
-              assert.equal(returnedView, subView);
-              assert.isTrue(routerMock.createView.calledOnce);
-            });
-        });
-
-        it('showSubView destroys subview if fails to render', function () {
-          sinon.stub(routerMock, 'createView', function (View) {
-            var subview = new View();
-            sinon.stub(subview, 'afterVisible', function () { });
-            sinon.stub(subview, 'destroy', function () { });
-            sinon.stub(subview, 'render', function () {
-              return p(false);
-            });
-            return subview;
-          });
-
-          return view.showSubView(SettingsPanelView)
-            .then(function () {
-              assert.isTrue(routerMock.createView.called);
-              assert.equal(routerMock.createView.args[0][0], SettingsPanelView);
-              assert.isTrue(routerMock.createView.returnValues[0].render.called);
-              assert.isTrue(routerMock.createView.returnValues[0].destroy.calledWith(true));
-              assert.isFalse(routerMock.createView.returnValues[0].afterVisible.called);
-            });
-        });
-
-        it('showSubView destroys previous modal view', function () {
-          sinon.stub(routerMock, 'createView', function (View) {
-            var subview = new View();
-            sinon.stub(subview, 'openPanel', function () { });
-            sinon.stub(subview, 'logScreen', function () { });
-            return subview;
-          });
-
-          return view.showSubView(ModalSettingsPanelView)
-            .then(function (subView) {
-              sinon.stub(subView, 'closePanel', function () { });
-              return view.showSubView(SettingsPanelView);
-            })
-            .then(function (subView) {
-              assert.isTrue(routerMock.createView.returnValues[0].closePanel.called);
-            });
-        });
-
-        it('on navigate from subview', function () {
-          var spy1 = sinon.spy(view, 'showEphemeralMessages');
-          var spy2 = sinon.spy(view, 'logScreen');
-          sinon.stub($.modal, 'isActive', function () {
-            return true;
-          });
-          sinon.stub($.modal, 'close', function () { });
-          routerMock.trigger(routerMock.NAVIGATE_FROM_SUBVIEW);
-          assert.isTrue(spy1.called);
-          assert.isTrue(spy2.called);
-          assert.isTrue($.modal.isActive.called);
-          assert.isTrue($.modal.close.called);
-          $.modal.isActive.restore();
-          $.modal.close.restore();
-        });
       });
 
       it('on profile change', function () {
@@ -578,48 +459,77 @@ function (chai, $, sinon, _, Cocktail, View, BaseView, CommunicationPreferencesV
         });
       });
 
-      describe('communication preferences link', function () {
-        beforeEach(function () {
-          panelViews.push(CommunicationPreferencesView);
-          createView();
-          sinon.stub(routerMock, 'createView', function (View) {
-            var subview = new SettingsPanelView();
-            sinon.stub(subview, 'render', function () {
-              return p('');
-            });
-            return subview;
-          });
-          sinon.stub(view, 'isUserAuthorized', function () {
-            return p(true);
-          });
+      it('it calls showSubView on subPanels', function () {
+        sinon.stub(subPanels, 'showSubView', function () {
+          return p();
         });
 
-        it('is visible if enabled', function () {
+        return view.showSubView(SettingsPanelView)
+          .then(function () {
+            assert.isTrue(subPanels.showSubView.calledWith(SettingsPanelView));
+          });
+      });
+
+      describe('initialize subPanels', function () {
+        beforeEach(function () {
+          subPanels = null;
+          panelViews = [
+            SettingsPanelView
+          ];
+          sinon.stub(SubPanels.prototype, 'initialize', function () {
+          });
+          initialSubView = SettingsPanelView;
+        });
+
+        afterEach(function () {
+          SubPanels.prototype.initialize.restore();
+        });
+
+        it('CommunicationPreferencesView is visible if enabled', function () {
+          panelViews.push(CommunicationPreferencesView);
           sinon.stub(able, 'choose', function () {
             return true;
           });
+          createView();
 
-          return view.render()
-            .then(function () {
-              assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
-              assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.communication-prefs-link.visible.true'));
-              assert.isTrue(routerMock.createView.calledThrice);
-              assert.equal(routerMock.createView.args[2][0], CommunicationPreferencesView);
-            });
+          assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
+          assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.communication-prefs-link.visible.true'));
+          console.log(SubPanels.prototype.initialize);
+          assert.isTrue(SubPanels.prototype.initialize.calledWith({
+            router: routerMock,
+            panelViews: panelViews,
+            initialSubView: SettingsPanelView
+          }));
         });
 
-        it('is not visible if disabled', function () {
-
+        it('CommunicationPreferencesView is not visible if disabled', function () {
+          panelViews.push(CommunicationPreferencesView);
           sinon.stub(able, 'choose', function () {
             return false;
           });
+          createView();
 
-          return view.render()
-            .then(function () {
-              assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
-              assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.communication-prefs-link.visible.false'));
-              assert.isTrue(routerMock.createView.calledTwice, 'is only called for non-comm pref views');
-            });
+          assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
+          assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.communication-prefs-link.visible.false'));
+          console.log(SubPanels.prototype.initialize);
+          assert.isTrue(SubPanels.prototype.initialize.calledWith({
+            router: routerMock,
+            panelViews: [ SettingsPanelView ],
+            initialSubView: SettingsPanelView
+          }));
+        });
+
+        it('initialize SubPanels without CommunicationPreferencesView', function () {
+          sinon.spy(able, 'choose');
+          createView();
+
+          assert.isFalse(able.choose.called);
+          assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.communication-prefs-link.visible.false'));
+          assert.isTrue(SubPanels.prototype.initialize.calledWith({
+            router: routerMock,
+            panelViews: [ SettingsPanelView ],
+            initialSubView: SettingsPanelView
+          }));
         });
       });
 

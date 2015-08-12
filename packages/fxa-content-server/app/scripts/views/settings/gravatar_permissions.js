@@ -7,18 +7,23 @@ define([
   'views/form',
   'stache!templates/settings/gravatar_permissions',
   'lib/promise',
-  'views/mixins/back-mixin',
   'views/mixins/modal-settings-panel-mixin',
   'views/mixins/settings-mixin',
   'views/mixins/service-mixin'
 ],
-function (Cocktail, FormView, Template, p, BackMixin,
+function (Cocktail, FormView, Template, p,
   ModalSettingsPanelMixin, SettingsMixin, ServiceMixin) {
   'use strict';
 
   var View = FormView.extend({
     template: Template,
     className: 'gravatar-permissions',
+
+    events: {
+      'click #back': function () {
+        this.navigate('settings/avatar/change');
+      }
+    },
 
     context: function () {
       var account = this.getSignedInAccount();
@@ -57,7 +62,6 @@ function (Cocktail, FormView, Template, p, BackMixin,
 
   Cocktail.mixin(
     View,
-    BackMixin,
     ModalSettingsPanelMixin,
     SettingsMixin,
     ServiceMixin

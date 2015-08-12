@@ -13,9 +13,9 @@ define([
 
   return {
     initialize: function (options) {
-      this.notifications = options.notifications;
-      if (this.notifications) {
-        this.notifications.on(this.notifications.EVENTS.PROFILE_CHANGE,
+      var notifications = this.notifications = options.notifications;
+      if (notifications) {
+        notifications.on(notifications.EVENTS.PROFILE_CHANGE,
           _.bind(this.onProfileUpdate, this));
       }
     },
@@ -53,7 +53,6 @@ define([
         })
         .then(function (profileImage) {
           self._displayedProfileImage = profileImage;
-          self._displayedProfileImageAccount = account;
 
           if (profileImage.isDefault()) {
             self.$(wrapperClass).addClass('with-default');
@@ -97,11 +96,7 @@ define([
       var self = this;
       account.setProfileImage(profileImage);
       return self.user.setAccount(account)
-        .then(function () {
-          self.notifications.profileUpdated({
-            uid: account.get('uid')
-          });
-        });
+        .then(_.bind(self._notifyProfileUpdate, self, account.get('uid')));
     },
 
     deleteDisplayedAccountProfileImage: function (account) {
@@ -118,11 +113,13 @@ define([
       var account = self.getSignedInAccount();
       account.set('displayName', displayName);
       return self.user.setAccount(account)
-        .then(function () {
-          self.notifications.profileUpdated({
-            uid: account.get('uid')
-          });
-        });
+        .then(_.bind(self._notifyProfileUpdate, self, account.get('uid')));
+    },
+
+    _notifyProfileUpdate: function (uid) {
+      this.notifications.profileUpdated({
+        uid: uid
+      });
     }
   };
 });

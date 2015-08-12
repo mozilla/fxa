@@ -155,6 +155,10 @@ define([
         // ensure the opt-out sticks across refreshes
         .refresh()
 
+        .findByCssSelector('#communication-preferences .settings-unit-toggle')
+          .click()
+        .end()
+
         .then(FunctionalHelpers.visibleByQSA('#communication-preferences .settings-unit-details'))
 
         .then(testNotOptedIn(self));
@@ -206,6 +210,10 @@ define([
 
         // ensure the opt-in sticks across refreshes
         .refresh()
+
+        .findByCssSelector('#communication-preferences .settings-unit-toggle')
+          .click()
+        .end()
 
         .then(FunctionalHelpers.visibleByQSA('#communication-preferences .settings-unit-details'))
 

@@ -20,15 +20,17 @@ define([
   'views/settings/change_password',
   'views/settings/delete_account',
   'views/settings/display_name',
+  'views/sub_panels',
   'views/mixins/settings-mixin',
+  'views/mixins/loading-mixin',
   'views/decorators/allow_only_one_submit',
   'stache!templates/settings'
 ],
 function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
   AvatarView, AvatarChangeView, AvatarCropView, AvatarCameraView, GravatarView,
   GravatarPermissionsView, CommunicationPreferencesView, ChangePasswordView,
-  DeleteAccountView, DisplayNameView, SettingsMixin, allowOnlyOneSubmit,
-  Template) {
+  DeleteAccountView, DisplayNameView, SubPanels, SettingsMixin, LoadingMixin,
+  allowOnlyOneSubmit, Template) {
   'use strict';
 
   var t = BaseView.t;
@@ -46,19 +48,6 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
     GravatarPermissionsView
   ];
 
-  function renderView(view) {
-    return view.render()
-      .then(function (shown) {
-        if (! shown) {
-          view.destroy(true);
-          return;
-        }
-        view.afterVisible();
-
-        return view;
-      });
-  }
-
   var View = BaseView.extend({
     template: Template,
     className: 'settings',
@@ -69,10 +58,33 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
       options = options || {};
 
       this._able = options.able;
-      this._subViewToShow = options.subView;
-      this._panelViews = options.panelViews || PANEL_VIEWS;
+      this._subPanels = options.subPanels || this._initializeSubPanels(options);
 
       this.router.on(this.router.NAVIGATE_FROM_SUBVIEW, this._onNavigateFromSubview.bind(this));
+    },
+
+    _initializeSubPanels: function (options) {
+      var areCommunicationPrefsVisible = false;
+      var panelViews = options.panelViews || PANEL_VIEWS;
+
+      if (panelViews.indexOf(CommunicationPreferencesView) !== -1) {
+        areCommunicationPrefsVisible = this._areCommunicationPrefsVisible();
+        panelViews = panelViews.filter(function (SubView) {
+          if (SubView === CommunicationPreferencesView) {
+            return areCommunicationPrefsVisible;
+          }
+          return true;
+        });
+      }
+
+      this.logScreenEvent('communication-prefs-link.visible.' +
+          String(areCommunicationPrefsVisible));
+
+      return new SubPanels({
+        router: this.router,
+        panelViews: panelViews,
+        initialSubView: options.subView
+      });
     },
 
     context: function () {
@@ -80,8 +92,7 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
 
       return {
         username: account.get('email'),
-        showSignOut: ! account.isFromSync(),
-        communicationPrefsVisible: this._areCommunicationPrefsVisible()
+        showSignOut: ! account.isFromSync()
       };
     },
 
@@ -89,8 +100,13 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
       'click #signout': BaseView.preventDefaultThen('signOut')
     },
 
+    // Triggered by AvatarMixin
     onProfileUpdate: function () {
       this._showAvatar();
+    },
+
+    showSubView: function (SubView) {
+      return this._subPanels.showSubView(SubView);
     },
 
     // When we navigate to settings from a subview
@@ -101,67 +117,6 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
       }
       this.showEphemeralMessages();
       this.logScreen();
-    },
-
-    showSubView: function (SubView, options) {
-      var self = this;
-      if (self._panelViews.indexOf(SubView) === -1) {
-        return;
-      }
-
-      // Destroy any previous modal view
-      if (self._currentSubView && self._currentSubView.isModal) {
-        self._currentSubView.closePanel();
-      }
-
-      return self._createSubViewIfNeeded(SubView, options)
-        .then(function (subView) {
-          if (subView) {
-            self._currentSubView = subView;
-            subView.openPanel();
-            subView.logScreen();
-            return subView;
-          }
-        });
-    },
-
-    _subviewInstanceFromClass: function (SubView) {
-      return this.subviews.filter(function (subView) {
-        if (subView instanceof SubView) {
-          return true;
-        }
-      })[0];
-    },
-
-    _isModalViewClass: function (SubView) {
-      return !! SubView.prototype.isModal;
-    },
-
-    _subViewClass: function (SubView) {
-      return SubView.prototype.className;
-    },
-
-    // Render subview if an instance doesn't already exist
-    _createSubViewIfNeeded: function (SubView) {
-      var subView = this._subviewInstanceFromClass(SubView);
-      if (subView) {
-        return p(subView);
-      }
-
-      var self = this;
-      var className = self._subViewClass(SubView);
-      var selector = '.' + className;
-
-      self.$('#subviews').append('<div class="settings-subview ' + className + '"></div>');
-
-      var view = self.router.createView(SubView, {
-        el: self.$(selector),
-        superView: self
-      });
-
-      self.trackSubview(view);
-
-      return renderView(view);
     },
 
     beforeRender: function () {
@@ -175,28 +130,6 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
         });
     },
 
-    afterRender: function () {
-      var self = this;
-      var communicationPrefsAreVisible = self._areCommunicationPrefsVisible();
-
-      // Initial subviews to render; excludes CommunicationPreferencesView if not visible
-      // and modal views.
-      var initialSubViews = self._panelViews.filter(function (SubView) {
-        var isCommView = SubView === CommunicationPreferencesView;
-        var isModalView = self._isModalViewClass(SubView);
-        var shouldHide = (! communicationPrefsAreVisible && isCommView) || isModalView;
-
-        return ! shouldHide;
-      });
-
-      self.logScreenEvent('communication-prefs-link.visible.' +
-          String(communicationPrefsAreVisible));
-
-      return p.all(initialSubViews.map(function (SubView) {
-        return self._createSubViewIfNeeded(SubView);
-      }));
-    },
-
     afterVisible: function () {
       var self = this;
       BaseView.prototype.afterVisible.call(self);
@@ -206,11 +139,15 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
       if (self.relier.get('setting') === 'avatar') {
         self.relier.set('setting', null);
         self.navigate('settings/avatar/change');
-      } else if (self._subViewToShow) {
-        self.showSubView(self._subViewToShow);
+        return;
       }
 
-      return self._showAvatar();
+      self._subPanels.setElement(self.$('.sub-views')[0]);
+
+      return p.all([
+        self._showAvatar(),
+        self._subPanels.render()
+      ]);
     },
 
     beforeDestroy: function () {
@@ -295,7 +232,12 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
 
   });
 
-  Cocktail.mixin(View, AvatarMixin, SettingsMixin);
+  Cocktail.mixin(
+    View,
+    AvatarMixin,
+    LoadingMixin,
+    SettingsMixin
+  );
 
   return View;
 });

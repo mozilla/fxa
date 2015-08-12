@@ -27,6 +27,9 @@ define([
     },
     createView: function (View) {
       return new View();
+    },
+    createSubView: function (View) {
+      return new View();
     }
   });
 

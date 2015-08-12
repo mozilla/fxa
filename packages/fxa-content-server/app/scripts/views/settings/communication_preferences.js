@@ -14,11 +14,10 @@ define([
   'views/mixins/settings-mixin',
   'views/mixins/settings-panel-mixin',
   'views/mixins/checkbox-mixin',
-  'views/mixins/loading-mixin',
   'stache!templates/settings/communication_preferences'
 ],
 function (Cocktail, Xss, Constants, MarketingEmailErrors, Metrics, BaseView, FormView,
-  BackMixin, SettingsMixin, SettingsPanelMixin, CheckboxMixin, LoadingMixin, Template) {
+  BackMixin, SettingsMixin, SettingsPanelMixin, CheckboxMixin, Template) {
   'use strict';
 
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
@@ -98,6 +97,7 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, Metrics, BaseView, For
                                   t('Unsubscribed successfully');
 
           self.displaySuccess(successMessage);
+          self.navigate('settings');
           return self.render();
         }, function (err) {
           self.displayError(err);
@@ -109,7 +109,6 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, Metrics, BaseView, For
     View,
     BackMixin,
     CheckboxMixin,
-    LoadingMixin,
     SettingsMixin,
     SettingsPanelMixin
   );

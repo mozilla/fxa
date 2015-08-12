@@ -239,6 +239,11 @@ function (
       return new View(viewOptions);
     },
 
+    createSubView: function (SubView, options) {
+      options.superView = this.currentView;
+      return this.createView(SubView, options);
+    },
+
     _checkForRefresh: function () {
       var refreshMetrics = this.storage.get('last_page_loaded');
       var currentView = this.currentView;

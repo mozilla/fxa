@@ -592,6 +592,17 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, 
       });
     });
 
+    it('creates a subView', function () {
+      router.currentView = {};
+      sinon.stub(router, 'createView', function () {
+      });
+      router.createSubView(SignInView, { foo: 'bar' });
+      assert.isTrue(router.createView.calledWith(SignInView, {
+        superView: router.currentView,
+        foo: 'bar'
+      }));
+    });
+
     describe('canGoBack initial value', function () {
       it('is `false` if sessionStorage.canGoBack is not set', function () {
         assert.isUndefined(router.storage._backend.getItem('canGoBack'));

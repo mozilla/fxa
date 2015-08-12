@@ -60,6 +60,7 @@ function (chai, $, sinon, p, View, Metrics, Relier, User, RouterMock, TestHelper
         relier: relier,
         screenName: 'gravatar-permissions'
       });
+      sinon.stub(view, 'navigate', function () { });
 
       sinon.stub(view, 'getSignedInAccount', function () {
         return account;
@@ -86,7 +87,7 @@ function (chai, $, sinon, p, View, Metrics, Relier, User, RouterMock, TestHelper
             assert.isTrue(account.hasGrantedPermissions.calledWith(View.GRAVATAR_MOCK_CLIENT_ID, View.PERMISSIONS));
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                                   'gravatar-permissions.already-accepted'));
-            assert.equal(routerMock.page, 'settings/avatar/gravatar');
+            assert.isTrue(view.navigate.calledWith('settings/avatar/gravatar'));
           });
       });
 
@@ -99,6 +100,14 @@ function (chai, $, sinon, p, View, Metrics, Relier, User, RouterMock, TestHelper
           .then(function () {
             assert.isTrue(account.hasGrantedPermissions.calledWith(View.GRAVATAR_MOCK_CLIENT_ID, View.PERMISSIONS));
             assert.include(view.$el.html(), SERVICE_NAME);
+          });
+      });
+
+      it('back', function () {
+        return initView()
+          .then(function () {
+            view.$('#back').click();
+            assert.isTrue(view.navigate.calledWith('settings/avatar/change'));
           });
       });
     });
@@ -118,7 +127,7 @@ function (chai, $, sinon, p, View, Metrics, Relier, User, RouterMock, TestHelper
                 assert.isTrue(user.setAccount.calledWith(account));
                 assert.isTrue(TestHelpers.isEventLogged(metrics,
                                   'gravatar-permissions.accept'));
-                assert.equal(routerMock.page, 'settings/avatar/gravatar');
+                assert.isTrue(view.navigate.calledWith('settings/avatar/gravatar'));
               });
           });
       });

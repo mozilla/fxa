@@ -95,10 +95,6 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
     },
 
     enableSubmitIfValid: function (event) {
-      if (event) {
-        event.stopImmediatePropagation();
-      }
-
       // the change event can be called after the form is already
       // submitted if the user presses "enter" in the form. If the
       // form is in the midst of being submitted, bail out now.

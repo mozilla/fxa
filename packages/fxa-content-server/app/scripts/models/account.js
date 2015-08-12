@@ -196,11 +196,10 @@ define([
 
     fetchProfile: function () {
       var self = this;
-      var profileImage;
 
       return self.getProfile()
         .then(function (result) {
-          profileImage = new ProfileImage({ url: result.avatar });
+          var profileImage = new ProfileImage({ url: result.avatar });
           self.setProfileImage(profileImage);
           self.set('displayName', result.displayName);
         });
