@@ -3,18 +3,27 @@ var chalk = require('chalk');
 
 module.exports = function (cb) {
   selenium.install({
-    version: '2.46.0',
+    version: '2.47.1',
     drivers: {},
     logger: function(message) {
       process.stdout.write(chalk.green(message));
     }
   }, function (err) {
     if (err) { throw err; }
-    selenium.start(function (err, child) {
-      if (err) { throw err; }
+    selenium.start({
+      version: '2.47.1'
+    },function (err, cp) {
+      if (err) {
+        if (err.message && err.message === 'Another Selenium process is already running') {
+          console.log('Did not start Selenium, already running..');
+        } else {
+          throw err
+        }
+      } else {
+        console.log('Started Selenium');
+      }
 
-      console.log(chalk.green('Selenium started or already running...'));
-      cb(child);
+      cb(cp);
     });
   });
 };
