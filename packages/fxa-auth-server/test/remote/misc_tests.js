@@ -21,7 +21,7 @@ TestServer.start(config)
         t.ok(!err, 'No error fetching ' + route)
 
         var json = JSON.parse(body)
-        t.deepEqual(Object.keys(json), ['source', 'version', 'commit'])
+        t.deepEqual(Object.keys(json), ['version', 'commit', 'source'])
         t.equal(json.version, require('../../package.json').version, 'package version')
         t.ok(json.source && json.source !== 'unknown', 'source repository')
 
@@ -43,12 +43,12 @@ TestServer.start(config)
   )
 
   test(
-    '/ returns source repo, version and git hash',
+    '/ returns version, git hash and source repo',
     testVersionRoute('/')
   )
 
   test(
-    '/__version__ returns source repo, version and git hash',
+    '/__version__ returns version, git hash and source repo',
     testVersionRoute('/__version__')
   )
 
