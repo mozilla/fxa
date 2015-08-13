@@ -112,13 +112,14 @@ define([
 
     profileClient: function () {
       var self = this;
-      var promise = self.fetch();
-
-      if (self._needsAccessToken()) {
-        promise = promise.then(self._fetchProfileOAuthToken.bind(self));
-      }
-
-      return promise
+      return self.fetch()
+        .then(function () {
+          if (! self.get('verified')) {
+            throw AuthErrors.toError('UNVERIFIED_ACCOUNT');
+          } else if (self._needsAccessToken()) {
+            return self._fetchProfileOAuthToken();
+          }
+        })
         .then(function () {
           return self._profileClient;
         });
