@@ -43,7 +43,7 @@ node_modules/.bin/bower install --config.interactive=false
 
 set -o xtrace # echo the following commands
 
-$FXA_FIREFOX_BINARY --version
+$FXA_FIREFOX_BINARY --version 2>/dev/null # squelch annoying 'GLib-CRITICAL **' message
 
 ./node_modules/.bin/intern-runner \
     config="tests/intern_functional_full" \
