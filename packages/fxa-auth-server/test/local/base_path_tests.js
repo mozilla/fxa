@@ -22,7 +22,7 @@ TestServer.start(config)
           if (err) { d.reject(err) }
           t.equal(res.statusCode, 200)
           var json = JSON.parse(body)
-          t.deepEqual(Object.keys(json), ['source', 'version', 'commit'])
+          t.deepEqual(Object.keys(json), ['version', 'commit', 'source'])
           t.equal(json.version, require('../../package.json').version, 'package version')
           t.ok(json.source && json.source !== 'unknown', 'source repository')
 

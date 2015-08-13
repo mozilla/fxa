@@ -32,9 +32,9 @@ module.exports = function (log, P, db, error) {
     function sendReply() {
       reply(
         {
-          source: sourceRepo,
           version: version,
-          commit: commitHash
+          commit: commitHash,
+          source: sourceRepo
         }
       )
     }
