@@ -28,10 +28,16 @@ function (sinon, chai, $, mailcheck) {
       }
     };
     var metricsStub;
+    var mockView = {
+      experimentTrigger: function () {},
+      isInExperimentGroup: function () {
+        return true;
+      }
+    };
 
     beforeEach(function () {
       $('body').append('<div class="input-row test-input"><input type=text id="' + MAILCHECK_ID + '"/></div>');
-      metricsStub = sinon.stub(mockMetrics, 'logEvent', function () {
+      metricsStub = sinon.stub(mockView, 'experimentTrigger', function () {
       });
     });
 
@@ -50,11 +56,12 @@ function (sinon, chai, $, mailcheck) {
 
     it('works with attached elements and changes values', function (done) {
       $(MAILCHECK_SELECTOR).blur(function () {
-        mailcheck(MAILCHECK_SELECTOR, mockMetrics, mockTranslator);
+        mailcheck(MAILCHECK_SELECTOR, mockMetrics, mockTranslator, mockView);
       });
 
+
       $(MAILCHECK_SELECTOR).val(BAD_EMAIL).blur();
-      assert.isTrue(mockMetrics.logEvent.calledOnce, 'called logEvent once');
+      assert.isTrue(mockView.experimentTrigger.calledTwice, 'called experimentTrigger twice');
 
       // wait for tooltip
       setTimeout(function () {
@@ -62,18 +69,18 @@ function (sinon, chai, $, mailcheck) {
         $(TOOLTIP_SELECTOR).find('span').first().click();
         // email should be corrected
         assert.equal($(MAILCHECK_SELECTOR).val(), CORRECTED_EMAIL);
-        assert.isTrue(mockMetrics.logEvent.calledTwice, 'called logEvent twice');
+        assert.isTrue(mockView.experimentTrigger.calledThrice, 'called experimentTrigger thrice');
         done();
       }, 50);
     });
 
     it('works with attached elements and can be dismissed', function (done) {
       $(MAILCHECK_SELECTOR).blur(function () {
-        mailcheck(MAILCHECK_SELECTOR, mockMetrics, mockTranslator);
+        mailcheck(MAILCHECK_SELECTOR, mockMetrics, mockTranslator, mockView);
       });
 
       $(MAILCHECK_SELECTOR).val(BAD_EMAIL).blur();
-      assert.isTrue(mockMetrics.logEvent.calledOnce, 'called logEvent once');
+      assert.isTrue(mockView.experimentTrigger.calledTwice, 'called experimentTrigger twice');
 
       // wait for tooltip
       setTimeout(function () {
@@ -81,7 +88,7 @@ function (sinon, chai, $, mailcheck) {
         $(TOOLTIP_SELECTOR).find('span').eq(1).click();
         // email should NOT be corrected
         assert.equal($(MAILCHECK_SELECTOR).val(), BAD_EMAIL);
-        assert.isFalse(mockMetrics.logEvent.calledTwice, 'called logEvent twice');
+        assert.isFalse(mockView.experimentTrigger.calledThrice, 'called experimentTrigger thrice');
         done();
       }, 50);
     });

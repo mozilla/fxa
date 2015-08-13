@@ -10,7 +10,7 @@ define([
   'stache!templates/sign_up',
   'lib/auth-errors',
   'lib/mailcheck',
-  'lib/url',
+  'views/mixins/experiment-mixin',
   'views/mixins/password-mixin',
   'views/mixins/password-strength-mixin',
   'views/mixins/service-mixin',
@@ -22,7 +22,7 @@ define([
   'views/coppa/coppa-age-input'
 ],
 function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
-      Url, PasswordMixin, PasswordStrengthMixin, ServiceMixin, CheckboxMixin, ResumeTokenMixin,
+      ExperimentMixin, PasswordMixin, PasswordStrengthMixin, ServiceMixin, CheckboxMixin, ResumeTokenMixin,
       MigrationMixin, SignupDisabledMixin, CoppaDatePicker, CoppaAgeInput) {
   'use strict';
 
@@ -83,8 +83,14 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
         shouldFocus: autofocusEl === null
       };
 
-      if (Url.searchParam('forceCoppa', self.window.location.search) === 'input') {
-        coppaView = new CoppaAgeInput(coppaOptions);
+      if (self.isInExperiment('coppaView')) {
+        self.experimentTrigger('coppaView.triggered');
+
+        if (self.isInExperimentGroup('coppaView', 'treatment')) {
+          coppaView = new CoppaAgeInput(coppaOptions);
+        } else {
+          coppaView = new CoppaDatePicker(coppaOptions);
+        }
       } else {
         coppaView = new CoppaDatePicker(coppaOptions);
       }
@@ -122,7 +128,7 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
         // helps avoid 'focus' issues with Firefox Selenium Driver
         // See https://code.google.com/p/selenium/issues/detail?id=157
         this.$el.find('input[type=password]').click(function () {
-          this.suggestEmail();
+          this.onEmailBlur();
         }.bind(this));
       }
 
@@ -136,7 +142,7 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
     },
 
     events: {
-      'blur input.email': 'suggestEmail',
+      'blur input.email': 'onEmailBlur',
       'blur input.password': 'onPasswordBlur'
     },
 
@@ -161,9 +167,10 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       var autofocusEl = this._selectAutoFocusEl();
 
       var relier = this.relier;
-      return {
+      var isSync = relier.isSync();
+      var context = {
         serviceName: relier.get('serviceName'),
-        isSync: relier.isSync(),
+        isSync: isSync,
         isCustomizeSyncChecked: relier.isCustomizeSyncChecked(),
         isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
         email: prefillEmail,
@@ -174,6 +181,16 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
         isEmailOptInVisible: this._isEmailOptInEnabled(),
         isMigration: this.isMigration()
       };
+
+      if (isSync && this.isInExperiment('syncCheckbox')) {
+        this.experimentTrigger('syncCheckbox.triggered');
+        if (this.isInExperimentGroup('syncCheckbox', 'treatment')) {
+          context.isSyncTop = isSync;
+          context.isSync = null;
+        }
+      }
+
+      return context;
     },
 
     beforeDestroy: function () {
@@ -215,43 +232,14 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       return p()
         .then(function () {
           if (! self._isUserOldEnough()) {
+            self.experimentTrigger('signup.tooyoung');
+
             return self._cannotCreateAccount();
           }
-
-          self._wasMailcheckUseful();
+          self.experimentTrigger('signup.submit');
 
           return self._initAccount();
         });
-    },
-
-    _isMailcheckEnabledValue: undefined,
-    _isMailcheckEnabled: function () {
-      // only check whether mailcheck is enabled once. Otherwise,
-      // an event is added to the able log every time the user
-      // blurs the email field, which could be multiple times.
-      if (typeof this._isMailcheckEnabledValue === 'undefined') {
-        var abData = {
-          isMetricsEnabledValue: this.metrics.isCollectionEnabled(),
-          uniqueUserId: this.user.get('uniqueUserId'),
-          // the window parameter will override any ab testing features
-          forceMailcheck: Url.searchParam('mailcheck', this.window.location.search)
-        };
-
-        this._isMailcheckEnabledValue =
-              this._able.choose('mailcheckEnabled', abData);
-      }
-      return this._isMailcheckEnabledValue;
-    },
-    _wasMailcheckUseful: function () {
-      var email = this.$el.find('.email');
-
-      if (email) {
-        var emailValue = email.val();
-        var mailcheckValue = email.data('mailcheckValue');
-        if (emailValue.length > 0 && mailcheckValue === emailValue) {
-          this.logScreenEvent('mailcheck-useful');
-        }
-      }
     },
 
     onPasswordBlur: function () {
@@ -259,9 +247,9 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       this.checkPasswordStrength(password);
     },
 
-    suggestEmail: function () {
-      if (this._isMailcheckEnabled()) {
-        mailcheck(this.$el.find('.email'), this.metrics, this.translator);
+    onEmailBlur: function () {
+      if (this.isInExperiment('mailcheck')) {
+        mailcheck(this.$el.find('.email'), this.metrics, this.translator, this);
       }
     },
 
@@ -314,7 +302,12 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       }
 
       if (self.relier.isSync()) {
-        self.logScreenEvent('customizeSync.' + String(account.get('customizeSync')));
+        var customizeSync = account.get('customizeSync');
+        self.logScreenEvent('customizeSync.' + String(customizeSync));
+
+        if (customizeSync && self.isInExperiment('syncCheckbox')) {
+          self.experimentTrigger('syncCheckbox.clicked');
+        }
       }
 
       return self.broker.beforeSignIn(account.get('email'))
@@ -395,6 +388,7 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
   Cocktail.mixin(
     View,
     CheckboxMixin,
+    ExperimentMixin,
     MigrationMixin,
     PasswordMixin,
     PasswordStrengthMixin,

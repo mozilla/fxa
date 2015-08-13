@@ -10,12 +10,13 @@ define([
   'lib/promise',
   'lib/auth-errors',
   'lib/constants',
+  'views/mixins/experiment-mixin',
   'views/mixins/resend-mixin',
   'views/mixins/resume-token-mixin',
   'views/mixins/service-mixin'
 ],
 function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
-    ResendMixin, ResumeTokenMixin, ServiceMixin) {
+  ExperimentMixin, ResendMixin, ResumeTokenMixin, ServiceMixin) {
   'use strict';
 
   var t = BaseView.t;
@@ -41,19 +42,36 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
     },
 
     context: function () {
+      if (this.isInExperiment('openGmail')) {
+        this.experimentTrigger('openGmail.triggered');
+      }
+
+      var email = this.getAccount().get('email');
+
       return {
-        email: this.getAccount().get('email')
+        email: email,
+        safeEmail: encodeURIComponent(email),
+        isOpenGmailButtonVisible: this._isOpenGmailButtonVisible()
       };
+    },
+
+    _isOpenGmailButtonVisible: function () {
+      return this.isInExperimentGroup('openGmail', 'treatment');
     },
 
     events: {
       // validateAndSubmit is used to prevent multiple concurrent submissions.
-      'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
+      'click #resend': BaseView.preventDefaultThen('validateAndSubmit'),
+      'click #open-gmail': '_gmailTabOpened'
     },
 
     _bouncedEmailSignup: function () {
       this.ephemeralMessages.set('bouncedEmail', this.getAccount().get('email'));
       this.navigate('signup');
+    },
+
+    _gmailTabOpened: function () {
+      this.experimentTrigger('openGmail.clicked');
     },
 
     beforeRender: function () {
@@ -163,6 +181,7 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
 
   Cocktail.mixin(
     View,
+    ExperimentMixin,
     ResendMixin,
     ResumeTokenMixin,
     ServiceMixin

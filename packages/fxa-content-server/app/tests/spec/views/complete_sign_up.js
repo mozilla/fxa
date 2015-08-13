@@ -15,12 +15,13 @@ define([
   'models/reliers/relier',
   'models/auth_brokers/base',
   'models/user',
+  'models/notifications',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
 function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
-      FxaClient, MarketingEmailErrors, Relier, Broker, User, RouterMock,
+      FxaClient, MarketingEmailErrors, Relier, Broker, User, Notifications, RouterMock,
       WindowMock, TestHelpers) {
   'use strict';
 
@@ -36,6 +37,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
     var relier;
     var broker;
     var user;
+    var notifications;
     var account;
     var validCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH);
     var validUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
@@ -77,7 +79,8 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
         relier: relier,
         broker: broker,
         screenName: 'complete_sign_up',
-        account: account
+        account: account,
+        notifications: notifications
       });
     }
 
@@ -89,6 +92,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
       broker = new Broker();
       fxaClient = new FxaClient();
       user = new User();
+      notifications = new Notifications();
 
       verificationError = null;
       sinon.stub(fxaClient, 'verifyCode', function () {

@@ -8,6 +8,7 @@ define([
   'views/base',
   'stache!templates/complete_sign_up',
   'lib/auth-errors',
+  'views/mixins/experiment-mixin',
   'views/mixins/resend-mixin',
   'views/mixins/loading-mixin',
   'views/mixins/resume-token-mixin',
@@ -16,7 +17,7 @@ define([
   'lib/constants'
 ],
 function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
-  AuthErrors, ResendMixin, LoadingMixin, ResumeTokenMixin, VerificationInfo,
+  AuthErrors, ExperimentMixin, ResendMixin, LoadingMixin, ResumeTokenMixin, VerificationInfo,
   Url, Constants) {
   'use strict';
 
@@ -65,6 +66,7 @@ function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
       return self.fxaClient.verifyCode(uid, code)
           .then(function () {
             self.logScreenEvent('verification.success');
+            self.experimentTrigger('verification.success');
             var account = self.getAccount();
 
             if (account.get('needsOptedInToMarketingEmail')) {
@@ -190,6 +192,7 @@ function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
 
   Cocktail.mixin(
     CompleteSignUpView,
+    ExperimentMixin,
     LoadingMixin,
     ResendMixin,
     ResumeTokenMixin

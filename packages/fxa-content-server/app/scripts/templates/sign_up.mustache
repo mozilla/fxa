@@ -51,13 +51,19 @@
       </div>
       {{/isEmailOptInVisible}}
 
+      {{#isSyncTop}}
+        <div class="input-row customize-sync-row">
+          <label><input id="customize-sync" type="checkbox" class="customize-sync customize-sync-top" {{#isCustomizeSyncChecked}}checked="checked"{{/isCustomizeSyncChecked}}> {{#t}}Choose what to sync{{/t}}</label>
+        </div>
+      {{/isSyncTop}}
+
       <div class="button-row">
         <button id="submit-btn" type="submit" class="disabled">{{#t}}Sign up{{/t}}</button>
       </div>
 
       {{#isSync}}
         <div class="input-row customize-sync-row">
-          <label><input id="customize-sync" type="checkbox" class="customize-sync" {{#isCustomizeSyncChecked}}checked="checked"{{/isCustomizeSyncChecked}}> {{#t}}Choose what to sync{{/t}}</label>
+          <label><input id="customize-sync" type="checkbox" class="customize-sync  customize-sync-bottom" {{#isCustomizeSyncChecked}}checked="checked"{{/isCustomizeSyncChecked}}> {{#t}}Choose what to sync{{/t}}</label>
         </div>
       {{/isSync}}
     </form>

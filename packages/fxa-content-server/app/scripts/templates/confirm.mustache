@@ -13,6 +13,12 @@
 
     <p class="verification-email-message">{{#t}}A verification link has been sent&nbsp;to %(email)s{{/t}}</p>
 
+    {{#isOpenGmailButtonVisible}}
+      <div class="button-row">
+        <a href="https://mail.google.com/mail/u/?authuser={{ safeEmail }}" class="button" target="_blank" id="open-gmail" type="button">{{#t}}Open Gmail{{/t}}</a>
+      </div>
+    {{/isOpenGmailButtonVisible}}
+
     <div class="links">
       <a id="resend" href="#">{{#t}}Resend email{{/t}}</a>
     </div>

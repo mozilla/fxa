@@ -392,35 +392,6 @@ define([
 
     'visiting the tos links saves information for return': function () {
       return testRepopulateFields.call(this, '/legal/privacy', 'fxa-pp-header');
-    },
-
-    'use an email suggestion': function () {
-      var BAD_EMAIL = 'something@gnail.com';
-      var CORRECTED_EMAIL = 'something@gmail.com';
-
-      return this.remote
-        .get(require.toUrl(PAGE_URL + '?mailcheck=true&automatedBrowser=true'))
-        .findByCssSelector('input[type=email]')
-        .type(BAD_EMAIL)
-        .click()
-        .end()
-
-        .findByCssSelector('input[type=password]')
-        .click()
-        .end()
-
-        .findByCssSelector('.tooltip-suggest > span:nth-child(1)')
-        .click()
-        .end()
-
-        .findByCssSelector('input[type=email]')
-        .getProperty('value')
-        .then(function (resultText) {
-          // check the email address was re-populated
-          assert.equal(resultText, CORRECTED_EMAIL);
-        })
-        .end();
-
     }
   });
 
