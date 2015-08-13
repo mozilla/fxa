@@ -36,8 +36,13 @@ define([
    * @private
    */
   function beforeSend(data) {
-    if (data && data.request && data.request.url) {
-      data.request.url = cleanUpQueryParam(data.request.url);
+    if (data && data.request) {
+      if (data.request.url) {
+        data.request.url = cleanUpQueryParam(data.request.url);
+      }
+      if (data.request.headers && data.request.headers.Referer) {
+        data.request.headers.Referer = cleanUpQueryParam(data.request.headers.Referer);
+      }
     }
 
     return data;
