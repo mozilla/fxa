@@ -129,6 +129,31 @@ define([
         assert.equal(resultData.key, goodData.key);
         assert.equal(resultData.url, goodData.url);
       });
+
+      it('properly erases sensitive information from referrer', function () {
+        var url = 'https://accounts.firefox.com/complete_reset_password';
+        var badQuery = '?token=foo&code=bar&email=some%40restmail.net&service=sync';
+        var goodQuery = '?token=VALUE&code=VALUE&email=VALUE&service=sync';
+        var badData = {
+          request: {
+            headers: {
+              Referer: url + badQuery
+            }
+          }
+        };
+
+        var goodData = {
+          request: {
+            headers: {
+              Referer: url + goodQuery
+            }
+          }
+        };
+
+        var sentry = new SentryMetrics(host);
+        var resultData = sentry.__beforeSend(badData);
+        assert.equal(resultData.request.headers.Referer, goodData.request.headers.Referer);
+      });
     });
 
     describe('cleanUpQueryParam', function () {
