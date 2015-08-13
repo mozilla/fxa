@@ -2,6 +2,10 @@
   position: relative;
   width: 100%;
 
+  &.input-row-age {
+    margin-top: 25px;
+  }
+
   @include respond-to('reasonableUI') {
     margin-bottom: 12px;
   }
@@ -21,8 +25,22 @@
   input {
     transition: border-color $short-transition;
 
+    // disable arrows on HTML5 number inputs
+    &[type=number]::-webkit-inner-spin-button,
+    &[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      margin: 0;
+    }
+
+    &[type=number] {
+      -moz-appearance: textfield;
+    }
+
     &[type='email'],
     &[type='text'],
+    &[type='number'],
     &[type='password'] {
       @include input-element();
       &:hover {

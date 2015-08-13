@@ -18,7 +18,9 @@ define([
     defaults: {
       email: null,
       password: null,
-      year: null
+      // year should be removed if we remove the dropdown based COPPA
+      year: null,
+      age: null
     }
   });
 
