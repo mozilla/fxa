@@ -131,6 +131,7 @@ function (
       this.window = options.window || window;
 
       this.metrics = options.metrics;
+      this.sentryMetrics = options.sentryMetrics;
       this.language = options.language;
       this.relier = options.relier;
       this.broker = options.broker;
@@ -202,6 +203,7 @@ function (
         interTabChannel: this.interTabChannel,
         language: this.language,
         metrics: this.metrics,
+        sentryMetrics: this.sentryMetrics,
         profileClient: this.profileClient,
         relier: this.relier,
         router: this,

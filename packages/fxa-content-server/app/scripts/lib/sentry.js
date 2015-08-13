@@ -125,6 +125,37 @@ define([
     _ravenOpts: {
       dataCallback: beforeSend
     },
+
+    /**
+     * Exception fields that are imported as tags
+     */
+    _exceptionTags: [
+      'code',
+      'errno',
+      'namespace',
+      'status'
+    ],
+
+    /**
+     * Capture an exception. Error fields listed in _exceptionTags
+     * will be added as tags to the raven data.
+     */
+    captureException: function (err) {
+      var tags = {};
+
+      this._exceptionTags.forEach(function (tagName) {
+        if (tagName in err) {
+          tags[tagName] = err[tagName];
+        }
+      });
+
+      var extraContext = {
+        tags: tags
+      };
+
+      Raven.captureException(err, extraContext);
+    },
+
     /**
      * Disable error metrics with raven.js
      *

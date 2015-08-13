@@ -137,13 +137,22 @@ define([
     },
 
     normalizeXHRError: function (xhr) {
+      var err;
+
       if (! xhr || xhr.status === 0) {
-        return this.toError('SERVICE_UNAVAILABLE');
+        err = this.toError('SERVICE_UNAVAILABLE');
+      } else {
+        var serverError = xhr.responseJSON || 'UNEXPECTED_ERROR';
+        err = this.toError(serverError);
       }
 
-      var serverError = xhr.responseJSON;
+      // copy over the HTTP status if not already part of the error.
+      if (! ('status' in err)) {
+        var status = (xhr && xhr.status) || 0;
+        err.status = status;
+      }
 
-      return this.toError(serverError || 'UNEXPECTED_ERROR');
+      return err;
     }
   };
 });

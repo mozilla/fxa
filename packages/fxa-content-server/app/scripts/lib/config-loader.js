@@ -5,16 +5,22 @@
 // fetch config from the backend and provide some helper functions.
 
 define([
+  'lib/errors',
+  'lib/promise',
   'lib/xhr',
-  'lib/promise'
-],
-function (
+  'underscore'
+], function (
+  Errors,
+  p,
   xhr,
-  p
+  _
 ) {
   'use strict';
 
-  function ConfigLoader() {
+  function ConfigLoader(options) {
+    options = options || {};
+
+    this._xhr = options.xhr || xhr;
   }
 
   ConfigLoader.prototype = {
@@ -22,12 +28,16 @@ function (
      * Pass in a configuration to use. Useful for unit testing.
      */
     useConfig: function (config) {
-      this._config = config;
+      this._configPromise = p(config);
     },
 
+    _configPromise: null,
     fetch: function (force) {
-      if (force !== true && this._config) {
-        return p(this._config);
+      var self = this;
+      if (force !== true && self._configPromise) {
+        // self will resolve to the eventual config value,
+        // but prevent multiple concurrent requests to /config
+        return self._configPromise;
       }
 
       // The content server sets no cookies of its own, and cannot check for
@@ -48,14 +58,32 @@ function (
         // did not receive the cookie.
       }
 
-      var self = this;
-      return xhr.getJSON('/config')
-          .then(function (config) {
-            self._config = config;
-            return config;
-          });
+      self._configPromise = self._xhr.getJSON('/config')
+        .fail(function (jqXHR) {
+          throw ConfigLoader.Errors.normalizeXHRError(jqXHR);
+        });
+
+      return self._configPromise;
     },
   };
+
+  var t = function (msg) {
+    return msg;
+  };
+
+  ConfigLoader.Errors = _.extend({}, Errors, {
+    ERRORS: {
+      SERVICE_UNAVAILABLE: {
+        errno: 998,
+        message: t('System unavailable, try again soon')
+      },
+      UNEXPECTED_ERROR: {
+        errno: 999,
+        message: t('Unexpected error')
+      }
+    },
+    NAMESPACE: 'config'
+  });
 
   return ConfigLoader;
 });
