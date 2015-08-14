@@ -54,6 +54,7 @@ function (p, Cocktail, FormView, AvatarMixin, ModalSettingsPanelMixin, SettingsM
     },
 
     afterRender: function () {
+      FormView.prototype.afterRender.call(this);
       this.canvas = this.$('canvas')[0];
     },
 

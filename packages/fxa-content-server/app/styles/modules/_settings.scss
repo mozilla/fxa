@@ -167,6 +167,11 @@ body.settings #main-content {
     &:focus {
       background: $button-background-hover-color;
     }
+
+    &:disabled,
+    &.disabled {
+      background: $button-background-disabled-color;
+    }
   }
 
   &.secondary {
@@ -190,6 +195,11 @@ body.settings #main-content {
     &:hover,
     &:focus {
       background: darken($error-background-color, 5);
+    }
+
+    &:disabled,
+    &.disabled {
+      background: $button-background-disabled-color;
     }
   }
 }
