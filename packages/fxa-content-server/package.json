@@ -90,7 +90,7 @@
     "grunt-nsp-shrinkwrap": "0.0.3",
     "grunt-todo": "0.5.0",
     "husky": "0.9.2",
-    "intern": "git://github.com/theintern/intern#42aebd9beb942a11e2c6e6d7687c70a1c22b9bf7",
+    "intern": "3.0.0",
     "jscs-jsdoc": "1.1.0",
     "proxyquire": "1.6.0",
     "sinon": "1.15.4",
