@@ -38,12 +38,6 @@ function (p, Cocktail, FormView, AvatarMixin, ModalSettingsPanelMixin, SettingsM
       }
     },
 
-    events: {
-      'click #back': function () {
-        this.navigate('settings/avatar/change');
-      }
-    },
-
     beforeRender: function () {
       if (! this._cropImg) {
         this.navigate('settings/avatar/change', {

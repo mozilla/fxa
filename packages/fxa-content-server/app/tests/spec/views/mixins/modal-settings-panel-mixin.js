@@ -55,9 +55,17 @@ define([
 
     describe('events', function () {
       it('toggles open and closed', function () {
-        sinon.stub(view, 'closePanelReturnToSettings', function () { });
+        sinon.stub(view, 'closePanel', function () {});
+        sinon.stub(view, 'navigate', function () { });
         $('button.cancel').click();
-        assert.isTrue(view.closePanelReturnToSettings.called);
+        assert.isTrue(view.closePanel.called);
+        assert.isTrue(view.navigate.calledWith('settings'));
+      });
+
+      it('back', function () {
+        sinon.stub(view, 'navigate', function () { });
+        $('.avatar-panel #back').click();
+        assert.isTrue(view.navigate.calledWith('settings/avatar/change'));
       });
     });
 
@@ -66,9 +74,11 @@ define([
         view.openPanel();
         assert.isTrue($.modal.isActive());
 
-        sinon.stub(view, 'closePanelReturnToSettings', function () { });
+        sinon.stub(view, 'closePanel', function () {});
+        sinon.stub(view, 'navigate', function () { });
         $.modal.close();
-        assert.isTrue(view.closePanelReturnToSettings.called);
+        assert.isTrue(view.closePanel.called);
+        assert.isTrue(view.navigate.calledWith('settings'));
         assert.isFalse($.modal.isActive());
       });
 
@@ -76,14 +86,6 @@ define([
         sinon.stub(view, 'destroy', function () { });
         view.closePanel();
         assert.isTrue(view.destroy.calledWith(true));
-      });
-
-      it('closePanelReturnToSettings', function () {
-        sinon.stub(view, 'closePanel', function () {});
-        sinon.stub(view, 'navigate', function () { });
-        view.closePanelReturnToSettings();
-        assert.isTrue(view.closePanel.called);
-        assert.isTrue(view.navigate.calledWith('settings'));
       });
 
       it('displaySuccess', function () {

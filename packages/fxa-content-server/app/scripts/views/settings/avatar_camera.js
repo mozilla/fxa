@@ -36,12 +36,6 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
     template: Template,
     className: 'avatar-camera',
 
-    events: {
-      'click #back': function () {
-        this.navigate('settings/avatar/change');
-      }
-    },
-
     context: function () {
       return {
         streaming: this.streaming

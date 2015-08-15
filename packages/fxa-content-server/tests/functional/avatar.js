@@ -205,7 +205,7 @@ define([
         .findByCssSelector('img[src*="https://secure.gravatar.com"]')
         .end()
 
-        .findByCssSelector('a.cancel')
+        .findByCssSelector('.avatar-panel #back')
           .click()
         .end()
 
@@ -290,7 +290,10 @@ define([
           .click()
         .end()
 
-        .findByCssSelector('a.cancel')
+        .findById('avatar-camera')
+        .end()
+
+        .findByCssSelector('.avatar-panel #back')
           .click()
         .end()
 
@@ -356,7 +359,7 @@ define([
         .findByCssSelector('.cropper')
         .end()
 
-        .findByCssSelector('.cancel')
+        .findByCssSelector('.avatar-panel #back')
           .click()
         .end()
 

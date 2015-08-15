@@ -19,12 +19,6 @@ function (Cocktail, FormView, Template, p,
     template: Template,
     className: 'gravatar-permissions',
 
-    events: {
-      'click #back': function () {
-        this.navigate('settings/avatar/change');
-      }
-    },
-
     context: function () {
       var account = this.getSignedInAccount();
       var serviceName = this.translator.get('Gravatar');

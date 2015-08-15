@@ -61,9 +61,11 @@ define([
       });
 
       it('toggles open and closed', function () {
-        sinon.stub(view, 'closePanelReturnToSettings', function () { });
+        sinon.stub(view, 'closePanel', function () {});
+        sinon.stub(view, 'navigate', function () { });
         $('button.cancel').click();
-        assert.isTrue(view.closePanelReturnToSettings.called);
+        assert.isTrue(view.closePanel.called);
+        assert.isTrue(view.navigate.calledWith('settings'));
       });
     });
 
@@ -73,14 +75,6 @@ define([
         assert.isTrue($('.settings-unit').hasClass('open'));
         view.closePanel();
         assert.isFalse($('.settings-unit').hasClass('open'));
-      });
-
-      it('closePanelReturnToSettings', function () {
-        sinon.stub(view, 'closePanel', function () {});
-        sinon.stub(view, 'navigate', function () { });
-        view.closePanelReturnToSettings();
-        assert.isTrue(view.closePanel.called);
-        assert.isTrue(view.navigate.calledWith('settings'));
       });
 
       it('displaySuccess', function () {

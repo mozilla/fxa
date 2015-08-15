@@ -53,7 +53,12 @@
       width: 30px;
     }
 
+    span {
+      display: inline-block;
+    }
+
     img,
+    span,
     .change-avatar {
 
       @include respond-to('big') {

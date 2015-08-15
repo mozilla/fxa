@@ -249,35 +249,15 @@ function (chai, $, sinon, _, Cocktail, View, BaseView, SubPanels, CommunicationP
           });
       });
 
-      it('does not shows avatar change link non-mozilla account', function () {
+      it('shows avatar change link', function () {
         return view.render()
           .then(function () {
             $('#container').append(view.el);
             return view.afterVisible();
           })
           .then(function () {
-            assert.equal(view.$('.avatar-wrapper a').length, 0);
+            assert.ok(view.$('.avatar-wrapper a').length);
           });
-      });
-
-      describe('with mozilla email', function () {
-        beforeEach(function () {
-          account.set('email', 'test@mozilla.com');
-
-          sinon.stub(able, 'choose', function () {
-            return true;
-          });
-
-          return view.render()
-            .then(function () {
-              $('#container').append(view.el);
-              return view.afterVisible();
-            });
-        });
-
-        it('shows avatar change link for mozilla account', function () {
-          assert.ok(view.$('.avatar-wrapper a').length);
-        });
       });
 
       describe('with a profile image set', function () {

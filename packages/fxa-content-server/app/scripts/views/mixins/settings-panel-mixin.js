@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// helper functions for views with a profile image. Meant to be mixed into views.
+// This is a mixin used by views that are subviews of Settings
+// Modal subviews of Settings use modal-settings-panel-mixin instead.
 
 define([
   'jquery',
@@ -16,7 +17,7 @@ define([
     },
     events: {
       'click .settings-unit-toggle': BaseView.preventDefaultThen('_triggerPanel'),
-      'click .cancel': BaseView.preventDefaultThen('closePanelReturnToSettings')
+      'click .cancel': BaseView.preventDefaultThen('_closePanelReturnToSettings')
     },
 
     _triggerPanel: function (event) {
@@ -31,7 +32,7 @@ define([
       unit.addClass('open');
     },
 
-    closePanelReturnToSettings: function () {
+    _closePanelReturnToSettings: function () {
       this.navigate('settings');
       this.closePanel();
     },

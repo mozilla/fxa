@@ -11,16 +11,8 @@
 </div>
 
 <div id="fxa-settings-profile-header">
-    {{#avatarLinkVisible}}
     <div class="avatar-wrapper avatar-settings-view">
-      <a href="/settings/avatar/change" class="change-avatar"></a>
     </div>
-    {{/avatarLinkVisible}}
-    {{^avatarLinkVisible}}
-      <a href="/settings/avatar/change" class="change-avatar">
-        <div class="avatar-wrapper avatar-settings-view"></div>
-      </a>
-    {{/avatarLinkVisible}}
     <p class="signed-in-email-message">
       {{#t}}Hello, <span class="username">%(username)s</span>{{/t}}
     </p>

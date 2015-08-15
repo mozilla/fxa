@@ -156,21 +156,8 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
       });
     },
 
-    _isAvatarLinkVisible: function (account) {
-      var email = account.get('email');
-      // For automated testing accounts, emails begin with "avatarAB-" and end with "restmail.net"
-      var isTestAccount = /^avatarAB-.+@restmail\.net$/.test(email);
-
-      return isTestAccount ||
-             this.hasDisplayedAccountProfileImage(account) ||
-             account.get('hadProfileImageSetBefore') ||
-             this._able.choose('avatarLinkVisible', { email: email });
-    },
-
-    _setupAvatarChangeLinks: function (show) {
-      if (show) {
-        this.$('.avatar-wrapper > *').wrap('<a href="/settings/avatar/change" class="change-avatar"></a>');
-      }
+    _setupAvatarChangeLinks: function () {
+      this.$('.avatar-wrapper > *').wrap('<a href="/settings/avatar/change" class="change-avatar"></a>');
     },
 
     _showAvatar: function () {
@@ -178,7 +165,7 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
       var account = self.getSignedInAccount();
       return self.displayAccountProfileImage(account)
         .then(function () {
-          self._setupAvatarChangeLinks(self._isAvatarLinkVisible(account));
+          self._setupAvatarChangeLinks();
         });
     },
 
