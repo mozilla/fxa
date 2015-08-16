@@ -20,7 +20,7 @@ define([
   var httpsUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
 
   var suite = {
-    name: 'load / with various accept-languages'
+    name: 'load / and /i18n/client.json with various accept-languages'
   };
 
   function langTest(lang) {
@@ -61,6 +61,13 @@ define([
           //   558e5e6c788fbf87b880bc9e36649bdb74cb2096/grunttasks/copy.js#L16
           if (lang === 'sv') {
             lang = 'sv-SE';
+          }
+
+          // hi is a straight copy of hi-IN, so adjust the expected value.
+          // https://github.com/mozilla/fxa-content-server/blob/\
+          //   c45edce0fe1cc3a1fd8f95abfd958ce6a1ea0634/grunttasks/copy.js#L24
+          if (lang === 'hi') {
+            lang = 'hi-IN';
           }
 
           assert.equal(lang, language);
