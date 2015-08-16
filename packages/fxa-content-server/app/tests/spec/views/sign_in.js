@@ -105,6 +105,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
             .then(function () {
               assert.ok(view.$('#fxa-signin-header').length);
               assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+              assert.equal(view.$('[type=email]').attr('spellcheck'), 'false');
               assert.equal(view.$('[type=password]').val(), 'prefilled password');
             });
       });
