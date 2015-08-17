@@ -7,7 +7,7 @@ var TestServer = require('../test_server')
 var Client = require('../client')
 
 process.env.PASSWORD_CHANGE_TOKEN_TTL = '-1'
-var config = require('../../config').root()
+var config = require('../../config').getProperties()
 
 function fail() { throw new Error() }
 

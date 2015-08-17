@@ -8,7 +8,7 @@ var Client = require('../client')
 var TestServer = require('../test_server')
 
 
-var config = require('../../config').root()
+var config = require('../../config').getProperties()
 
 TestServer.start(config)
 .then(function main(server) {

@@ -9,7 +9,7 @@ var P = require('../../lib/promise')
 var request = require('request')
 
 process.env.PUBLIC_URL = 'http://127.0.0.1:9000/auth'
-var config = require('../../config').root()
+var config = require('../../config').getProperties()
 
 TestServer.start(config)
 .then(function main(server) {

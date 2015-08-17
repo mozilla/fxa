@@ -10,7 +10,7 @@ var hawk = require('hawk')
 var request = require('request')
 
 
-var config = require('../../config').root()
+var config = require('../../config').getProperties()
 
 TestServer.start(config)
 .then(function main(server) {

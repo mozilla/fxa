@@ -4,7 +4,7 @@
 
 require('ass')
 var test = require('tap').test
-var config = require('../../config').root()
+var config = require('../../config').getProperties()
 var log = {}
 
 require('../../lib/mailer')(config, log)

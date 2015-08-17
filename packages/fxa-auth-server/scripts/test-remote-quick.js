@@ -6,7 +6,7 @@
 
 var path = require('path')
 var spawn = require('child_process').spawn
-var config = require('../config').root()
+var config = require('../config').getProperties()
 var TestServer = require('../test/test_server')
 
 TestServer.start(config, false)
