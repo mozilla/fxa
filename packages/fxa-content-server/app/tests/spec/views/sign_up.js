@@ -121,6 +121,7 @@ function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
           .then(function () {
             assert.ok(view.$('#fxa-signup-header').length);
             assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+            assert.equal(view.$('[type=email]').attr('spellcheck'), 'false');
             assert.equal(view.$('[type=password]').val(), 'prefilled password');
           });
       });
