@@ -6,7 +6,7 @@ var test = require('../ptaptest')
 var TestServer = require('../test_server')
 var Client = require('../client')
 
-var config = require('../../config').root()
+var config = require('../../config').getProperties()
 var key = {
   'algorithm': 'RS',
   'n': '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',

@@ -7,7 +7,7 @@ var test = require('../ptaptest')
 var uuid = require('uuid')
 var log = { trace: console.log }
 
-var config = require('../../config').root()
+var config = require('../../config').getProperties()
 var TestServer = require('../test_server')
 var Token = require('../../lib/tokens')(log)
 var DB = require('../../lib/db')(

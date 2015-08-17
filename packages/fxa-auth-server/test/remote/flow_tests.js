@@ -8,7 +8,7 @@ var TestServer = require('../test_server')
 var jwtool = require('fxa-jwtool')
 
 
-var config = require('../../config').root()
+var config = require('../../config').getProperties()
 var pubSigKey = jwtool.JWK.fromFile(config.publicKeyFile)
 
 TestServer.start(config)

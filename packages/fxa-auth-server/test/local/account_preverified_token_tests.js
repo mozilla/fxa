@@ -8,7 +8,7 @@ var Client = require('../client')
 var JWTool = require('fxa-jwtool')
 
 process.env.TRUSTED_JKUS = 'http://127.0.0.1:9000/.well-known/public-keys'
-var config = require('../../config').root()
+var config = require('../../config').getProperties()
 var secretKey = JWTool.JWK.fromFile(
   config.secretKeyFile,
   {

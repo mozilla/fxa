@@ -9,7 +9,7 @@ var crypto = require('crypto')
 var Client = require('../client')
 
 
-var config = require('../../config').root()
+var config = require('../../config').getProperties()
 
 TestServer.start(config)
 .then(function main(server) {

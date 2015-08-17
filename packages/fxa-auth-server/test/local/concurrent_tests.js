@@ -9,7 +9,7 @@ var P = require('../../lib/promise')
 
 
 process.env.VERIFIER_VERSION = '1'
-var config = require('../../config').root()
+var config = require('../../config').getProperties()
 
 TestServer.start(config)
 .then(function main(server) {

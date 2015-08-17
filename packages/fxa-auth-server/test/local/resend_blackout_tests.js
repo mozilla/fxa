@@ -8,7 +8,7 @@ var Client = require('../client')
 var P = require('../../lib/promise')
 
 process.env.RESEND_BLACKOUT_PERIOD = '500'
-var config = require('../../config').root()
+var config = require('../../config').getProperties()
 
 TestServer.start(config)
 .then(function main(server) {

@@ -9,7 +9,7 @@ var createDBServer = require('fxa-auth-db-mysql')
 var log = { trace: console.log }
 
 process.env.VERIFIER_VERSION = '0'
-var config = require('../../config').root()
+var config = require('../../config').getProperties()
 var Token = require('../../lib/tokens')(log)
 var DB = require('../../lib/db')(
   config.db.backend,
