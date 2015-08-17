@@ -94,6 +94,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
       this.router = options.router || this.window.router;
       this.ephemeralMessages = options.ephemeralMessages || ephemeralMessages;
       this.metrics = options.metrics || nullMetrics;
+      this.sentryMetrics = options.sentryMetrics || Raven;
       this.relier = options.relier;
       this.broker = options.broker;
       this.user = options.user;
@@ -489,7 +490,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
       if (typeof console !== 'undefined' && console) {
         console.error(err.message || err);
       }
-      Raven.captureException(err);
+      this.sentryMetrics.captureException(err);
       this.metrics.logError(err);
     },
 

@@ -183,6 +183,35 @@ define([
         assert.equal(resultUrl, expectedUrl);
       });
     });
+
+    describe('captureException', function () {
+      it('reports the error to Raven, passing along tags', function () {
+        var sandbox = sinon.sandbox.create();
+        sandbox.spy(Raven, 'captureException');
+
+        var sentry = new SentryMetrics(host);
+
+        var err = new Error('uh oh');
+        err.code = 400;
+        err.errno = 998;
+        err.namespace = 'config';
+        err.status = 401;
+        err.ignored = true;
+
+        sentry.captureException(err);
+
+        assert.isTrue(Raven.captureException.calledWith(err, {
+          tags: {
+            code: 400,
+            errno: 998,
+            namespace: 'config',
+            status: 401
+          }
+        }));
+
+        sandbox.restore();
+      });
+    });
   });
 
 });

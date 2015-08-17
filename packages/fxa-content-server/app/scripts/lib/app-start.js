@@ -20,7 +20,6 @@ define([
   'backbone',
   'lib/promise',
   'router',
-  'raven',
   'lib/translator',
   'lib/session',
   'lib/url',
@@ -68,7 +67,6 @@ function (
   Backbone,
   p,
   Router,
-  Raven,
   Translator,
   Session,
   Url,
@@ -153,7 +151,7 @@ function (
           self.enableSentryMetrics();
         }
 
-        Raven.captureException(err);
+        self._sentryMetrics.captureException(err);
 
         if (self._metrics) {
           self._metrics.logError(err);
@@ -551,6 +549,7 @@ function (
       if (! this._router) {
         this._router = new Router({
           metrics: this._metrics,
+          sentryMetrics: this._sentryMetrics,
           language: this._config.language,
           relier: this._relier,
           broker: this._authenticationBroker,
