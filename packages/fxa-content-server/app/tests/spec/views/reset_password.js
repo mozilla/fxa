@@ -83,6 +83,7 @@ function (_, chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
         return view.render()
           .then(function () {
             assert.equal(view.$('.email').val(), 'prefilled@testuser.com');
+            assert.equal(view.$('.email').attr('spellcheck'), 'false');
           });
       });
 
