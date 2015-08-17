@@ -8,6 +8,7 @@ const P = require('../promise');
 
 const config = require('../config');
 const encrypt = require('../encrypt');
+const env = require('../env');
 const logger = require('../logging')('db');
 const klass = config.get('db.driver') === 'mysql' ?
   require('./mysql') : require('./memory');
@@ -78,6 +79,12 @@ function preClients() {
       // ensure booleans are boolean and not undefined
       c.trusted = !!c.trusted;
       c.canGrant = !!c.canGrant;
+
+      // Modification of the database at startup in production or stage is a
+      // footgun.
+      if (env.isProdLike()) {
+        return P.resolve();
+      }
 
       return exports.getClient(c.id).then(function(client) {
         if (client) {
