@@ -103,7 +103,7 @@ function (chai, $, sinon, p, View, Metrics, Relier, User, RouterMock, TestHelper
           });
       });
 
-      it('back', function () {
+      it('goes back to avatar change', function () {
         return initView()
           .then(function () {
             view.$('#back').click();

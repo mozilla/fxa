@@ -23,11 +23,14 @@ define([
 
       this.trigger('navigate', page);
     },
+
     getCurrentPage: function () {
     },
+
     createView: function (View) {
       return new View();
     },
+
     createSubView: function (View) {
       return new View();
     }

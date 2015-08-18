@@ -6,13 +6,12 @@ define([
   'cocktail',
   'views/base',
   'views/form',
-  'lib/auth-errors',
   'stache!templates/settings/display_name',
   'views/mixins/settings-mixin',
   'views/mixins/settings-panel-mixin',
   'views/mixins/avatar-mixin'
 ],
-function (Cocktail, BaseView, FormView, AuthErrors, Template,
+function (Cocktail, BaseView, FormView, Template,
   SettingsMixin, SettingsPanelMixin, AvatarMixin) {
   'use strict';
 

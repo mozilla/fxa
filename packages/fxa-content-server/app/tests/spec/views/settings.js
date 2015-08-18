@@ -6,7 +6,6 @@ define([
   'chai',
   'jquery',
   'sinon',
-  'underscore',
   'cocktail',
   'views/settings',
   'views/base',
@@ -28,7 +27,7 @@ define([
   'models/user',
   'stache!templates/test_template',
 ],
-function (chai, $, sinon, _, Cocktail, View, BaseView, SubPanels, CommunicationPreferencesView,
+function (chai, $, sinon, Cocktail, View, BaseView, SubPanels, CommunicationPreferencesView,
   SettingsPanelMixin, RouterMock, TestHelpers, FxaClient, p,
   ProfileClient, ProfileErrors, AuthErrors, Able, Metrics, Notifications,
   Relier, ProfileImage, User, TestTemplate) {

@@ -5,7 +5,6 @@
 define([
   'chai',
   'sinon',
-  'underscore',
   'cocktail',
   'views/mixins/avatar-mixin',
   'views/base',
@@ -20,7 +19,7 @@ define([
   'lib/promise',
   'lib/channels/null',
   '../../../lib/helpers'
-], function (Chai, sinon, _, Cocktail, AvatarMixin, BaseView, Notifications, Relier,
+], function (Chai, sinon, Cocktail, AvatarMixin, BaseView, Notifications, Relier,
     User, Account, ProfileImage, Metrics, AuthErrors, ProfileErrors, p, NullChannel,
     TestHelpers) {
   'use strict';
@@ -184,9 +183,11 @@ define([
           notifications: notifications
         });
       });
+
       afterEach(function () {
         SettingsView.prototype.onProfileUpdate.restore();
       });
+
       it('call onProfileUpdate after notification', function () {
         notifications.profileUpdated.restore();
         notifications.profileUpdated({});

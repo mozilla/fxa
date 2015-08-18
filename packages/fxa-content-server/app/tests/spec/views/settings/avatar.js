@@ -10,12 +10,11 @@ define([
   '../../../mocks/router',
   '../../../mocks/fxa-client',
   'lib/promise',
-  'lib/auth-errors',
   'models/reliers/relier',
   'models/user'
 ],
 function (chai, $, sinon, View, RouterMock, FxaClientMock,
-    p, AuthErrors, Relier, User) {
+    p, Relier, User) {
   'use strict';
 
   var assert = chai.assert;

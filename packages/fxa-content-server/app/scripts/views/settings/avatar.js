@@ -3,8 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  'jquery',
-  'modal',
   'cocktail',
   'views/form',
   'stache!templates/settings/avatar',
@@ -12,7 +10,7 @@ define([
   'views/mixins/settings-mixin',
   'views/mixins/settings-panel-mixin'
 ],
-function ($, modal, Cocktail, FormView, Template, AvatarMixin, SettingsMixin,
+function (Cocktail, FormView, Template, AvatarMixin, SettingsMixin,
     SettingsPanelMixin) {
   'use strict';
 

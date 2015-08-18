@@ -111,7 +111,7 @@ function (chai, $, sinon, p, View, Metrics, Notifications, Relier, User, RouterM
 
     describe('submit', function () {
       it('submits correctly', function () {
-        var name = 'joe cool  ';
+        var name = '  joe cool  ';
         sinon.stub(account, 'postDisplayName', function () {
           return p();
         });

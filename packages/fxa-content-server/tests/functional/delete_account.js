@@ -9,10 +9,9 @@ define([
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/test'
+  'tests/functional/lib/helpers'
 ], function (intern, registerSuite, require, nodeXMLHttpRequest,
-      FxaClient, TestHelpers, FunctionalHelpers, Test)  {
+      FxaClient, TestHelpers, FunctionalHelpers)  {
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var PAGE_URL = config.fxaContentRoot + 'settings/delete_account';

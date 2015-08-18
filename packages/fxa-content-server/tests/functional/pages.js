@@ -33,6 +33,7 @@ define([
     'settings/avatar/crop',
     'settings/avatar/gravatar_permissions',
     'settings/change_password',
+    'settings/communication_preferences',
     'settings/delete_account',
     'settings/display_name',
     'legal',

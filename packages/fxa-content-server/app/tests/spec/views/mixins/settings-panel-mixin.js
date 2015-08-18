@@ -5,15 +5,13 @@
 define([
   'chai',
   'sinon',
-  'underscore',
   'cocktail',
   'views/mixins/settings-panel-mixin',
   'views/base',
   'lib/metrics',
-  'stache!templates/test_template',
-  '../../../lib/helpers'
-], function (chai, sinon, _, Cocktail, SettingsPanelMixin, BaseView,
-    Metrics, TestTemplate, TestHelpers) {
+  'stache!templates/test_template'
+], function (chai, sinon, Cocktail, SettingsPanelMixin, BaseView,
+    Metrics, TestTemplate) {
   'use strict';
 
   var assert = chai.assert;

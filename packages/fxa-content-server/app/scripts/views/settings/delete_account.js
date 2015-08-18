@@ -13,11 +13,10 @@ define([
   'views/mixins/settings-mixin',
   'views/mixins/service-mixin',
   'views/mixins/settings-panel-mixin',
-  'views/mixins/back-mixin',
   'views/mixins/account-locked-mixin'
 ],
 function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
-      PasswordMixin, SettingsMixin, SettingsPanelMixin, ServiceMixin, BackMixin,
+      PasswordMixin, SettingsMixin, SettingsPanelMixin, ServiceMixin,
       AccountLockedMixin) {
   'use strict';
 
@@ -72,7 +71,6 @@ function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
     SettingsMixin,
     SettingsPanelMixin,
     ServiceMixin,
-    BackMixin,
     AccountLockedMixin
   );
 

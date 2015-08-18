@@ -30,7 +30,11 @@ define([
     '/avatar/gravatar': 'avatar-gravatar',
     '/avatar/gravatar_permissions': 'avatar-gravatar-permissions',
     '/avatar/camera': 'avatar-camera',
-    '/avatar/crop': 'avatar-crop'
+    '/avatar/crop': 'avatar-crop',
+    '/change_password': 'change-password',
+    '/communication_preferences': 'communication-preferences',
+    '/delete_account': 'delete-account',
+    '/display_name': 'display-name'
   };
 
 

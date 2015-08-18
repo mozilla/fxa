@@ -10,10 +10,9 @@ define([
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/test'
+  'tests/functional/lib/helpers'
 ], function (intern, registerSuite, assert, require, nodeXMLHttpRequest,
-      FxaClient, TestHelpers, FunctionalHelpers, Test) {
+      FxaClient, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';

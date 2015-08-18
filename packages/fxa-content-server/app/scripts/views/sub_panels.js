@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// This component renders multiple subviews
 define([
-  'jquery',
   'lib/promise',
   'views/base',
   'stache!templates/sub_panels'
 ],
-function ($, p, BaseView, Template) {
+function (p, BaseView, Template) {
   'use strict';
 
   function renderView(view) {

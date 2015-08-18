@@ -6,20 +6,18 @@ define([
   'chai',
   'jquery',
   'sinon',
-  'underscore',
   'cocktail',
   'views/sub_panels',
   'views/base',
   'views/mixins/modal-settings-panel-mixin',
   'views/mixins/settings-panel-mixin',
   '../../mocks/router',
-  '../../lib/helpers',
   'lib/promise',
   'lib/metrics',
   'stache!templates/test_template',
 ],
-function (chai, $, sinon, _, Cocktail, View, BaseView,
-  ModalSettingsPanelMixin, SettingsPanelMixin, RouterMock, TestHelpers, p,
+function (chai, $, sinon, Cocktail, View, BaseView,
+  ModalSettingsPanelMixin, SettingsPanelMixin, RouterMock, p,
   Metrics, TestTemplate) {
   'use strict';
 
