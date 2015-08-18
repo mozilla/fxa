@@ -13,6 +13,7 @@ module.exports = [
   'de',
   'dsb',
   'en',
+  'en-GB',
   'es',
   'es-AR',
   'es-CL',
