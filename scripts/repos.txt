@@ -10,6 +10,7 @@ fxa-basket-proxy
 fxa-content-experiments
 fxa-content-server
 fxa-content-server-l10n
+fxa-customs-server
 fxa-deployment
 fxa-dev
 fxa-js-client
@@ -18,6 +19,7 @@ fxa-jwtool
 fxa-local-dev
 fxa-notification-server
 fxa-oauth-console
+fxa-oauth-client
 fxa-oauth-server
 fxa-profile-server
 fxa-python-client

@@ -16,6 +16,7 @@ COLORS = {
   ALERT: 'e11d21',
   INFO: '207de5',
   TARGET: 'd4c5f9',
+  WELCOMING: '009800'
 }
 
 
@@ -24,8 +25,9 @@ COLORS = {
 
 STANDARD_LABELS = {
   // Issue lifecycle management labels, for waffle.
-  'waffle:later': { color: COLORS.WAFFLE },
-  'waffle:ready': { color: COLORS.WAFFLE },
+  'waffle:backlog': { color: COLORS.WAFFLE },
+  'waffle:next': { color: COLORS.WAFFLE },
+  'waffle:now': { color: COLORS.WAFFLE },
   'waffle:progress': { color: COLORS.WAFFLE },
   'waffle:review': { color: COLORS.WAFFLE },
   // Issue deathcycle management labels, for reporting purposes.
@@ -40,12 +42,8 @@ STANDARD_LABELS = {
   'quality': { color: COLORS.THEME },
   // For calling out really important stuff.
   'blocker': { color: COLORS.ALERT },
-  'good-first-bug': { color: '009800' },
-  // Firefox version targets by which issues have to land.
-  'Fx40': { color: COLORS.TARGET },
-  'Fx41': { color: COLORS.TARGET },
-  'Fx42': { color: COLORS.TARGET },
-  'Fx43': { color: COLORS.TARGET },
+  'good-first-bug': { color: COLORS.WELCOMING },
+  'WIP': { color: COLORS.INFO },
   // Cross-cutting concerns that we need to account for when
   // working with or reviewing the issue.
   'strings': { color: COLORS.INFO },
@@ -54,22 +52,14 @@ STANDARD_LABELS = {
 },
 
 
-// These are old label names that we're maintaining for
-// compatibility with existing workflows.
+WAFFLE_LABEL_ORDER =[
+  'waffle:backlog',
+  'waffle:next',
+  'waffle:now',
+  'waffle:progress',
+  'waffle:review'
+]
 
-ALTERNATE_LABELS = {
-  'waffle:later': [ 'z-later', 'backlog' ],
-  'waffle:ready': [ 'ready' ],
-  'waffle:progress': [ 'waffle:in progress', 'waffle:wip', 'WIP' ],
-  'waffle:review': [ 'waffle:in review', 'waffle:needs review' ],
-  'resolved:fixed': [ 'fixed' ],
-  'resolved:wontfix': [ 'wontfix' ],
-  'resolved:invalid': [ 'invalid' ],
-  'resolved:duplicate': [ 'duplicate' ],
-  'resolved:worksforme': [ 'worksforme' ],
-  'good-first-bug': [ 'good first bug', 'help wanted' ],
-  'chore': [ 'cleanup' ],
-},
 
 module.exports = {
 
@@ -87,7 +77,7 @@ module.exports = {
         if (! (label in curLabels)) {
           p = p.then(function() {
             console.log("Creating '" + label + "' on " + repo)
-            gh.issues.createLabel({
+            return gh.issues.createLabel({
               repo: repo,
               name: label,
               color: STANDARD_LABELS[label].color
@@ -96,7 +86,7 @@ module.exports = {
         } else if (curLabels[label].color !== STANDARD_LABELS[label].color) {
           p = p.then(function() {
             console.log("Updating '" + label + "' on " + repo)
-            gh.issues.updateLabel({
+            return gh.issues.updateLabel({
               repo: repo,
               name: label,
               color: STANDARD_LABELS[label].color
@@ -113,22 +103,28 @@ module.exports = {
 
   fixupStandardLabels: function fixupStandardLabels(gh, repo) {
     var p = P.resolve(null);
-    Object.keys(ALTERNATE_LABELS).forEach(function(stdLabel) {
-      ALTERNATE_LABELS[stdLabel].forEach(function(altLabel) {
-        p = p.then(function() {
+    // Clear duplicate waffle labels, to ensure issues are only on 1 column.
+    for (var i = WAFFLE_LABEL_ORDER.length - 1; i >= 0; i--) {
+      p = p.then((function(i) {
+        var waffleLabel = WAFFLE_LABEL_ORDER[i];
+        return function() {
           return gh.issues.repoIssues({
             repo: repo,
-            labels: altLabel,
+            labels: waffleLabel,
             filter: 'all',
             state: 'open'
           }).each(function (issue) {
             var labels = []
+            var oldLabelsCount = 0;
             issue.labels.forEach(function(labelInfo) {
-              labels.push(labelInfo.name)
+              if (labelInfo.name === waffleLabel || labelInfo.name.indexOf("waffle:") !== 0) {
+                labels.push(labelInfo.name)
+              } else {
+                oldLabelsCount++
+              }
             })
-            if (labels.indexOf(stdLabel) === -1) {
-              labels.push(stdLabel)
-              console.log("Adding '" + stdLabel + "' to " + repo + " #" + issue.number)
+            if (oldLabelsCount) {
+              console.log("Clearing old waffle labels on " + repo + " #" + issue.number)
               return gh.issues.edit({
                 repo: repo,
                 number: issue.number,
@@ -136,9 +132,9 @@ module.exports = {
               })
             }
           })
-        })
-      })
-    })
+        }
+      })(i))
+    }
     return p;
   }
 
