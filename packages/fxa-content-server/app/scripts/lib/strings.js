@@ -31,6 +31,10 @@ function () {
   t('Desktop Add-ons');
   t('Desktop Preferences');
 
+  // Needed for #2108
+  t('How old are you?');
+  t('Age is required');
+
   /**
    * Replace instances of %s and %(name)s with their corresponding values in
    * the context
