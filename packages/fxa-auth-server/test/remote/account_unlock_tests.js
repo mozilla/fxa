@@ -20,36 +20,32 @@ TestServer.start(config)
       var password = 'allyourbasearebelongtous'
       var client = null
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
-      .then(
-        function () {
-          return Client.login(config.publicUrl, email, password)
-        }
-      )
-      .then(
-        function (x) {
-          client = x
-        }
-      )
-      .then(
-        function () {
-          return client.lockAccount(email, password)
-        }
-      )
-      .then(
-        function () {
-          return client.resendAccountUnlockCode()
-        }
-      )
-      .then(
-        function () {
-          return server.mailbox.waitForCode(email)
-        }
-      )
-      .then(
-        function (code) {
-          return client.verifyAccountUnlockCode(client.uid, code)
-        }
-      )
+        .then(
+          function () {
+            return Client.login(config.publicUrl, email, password)
+          }
+        )
+        .then(
+          function (c) {
+            client = c
+            return client.lockAccount(email, password)
+          }
+        )
+        .then(
+          function () {
+            return client.resendAccountUnlockCode()
+          }
+        )
+        .then(
+          function () {
+            return server.mailbox.waitForCode(email)
+          }
+        )
+        .then(
+          function (code) {
+            return client.verifyAccountUnlockCode(client.uid, code)
+          }
+        )
     }
   )
 
@@ -109,30 +105,26 @@ TestServer.start(config)
       var password = 'allyourbasearebelongtous'
       var client = null
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
-      .then(
-        function () {
-          return Client.login(config.publicUrl, email, password)
-        }
-      )
-      .then(
-        function (x) {
-          client = x
-        }
-      )
-      .then(
-        function () {
-          return client.resendAccountUnlockCode()
-        }
-      )
-      .then(
-        function () {
-          t.fail('resendAccountUnlockCode is expected to fail')
-        },
-        function (err) {
-          t.equal(err.code, 400, '400 status code')
-          t.equal(err.errno, 122, 'account is not locked errno')
-        }
-      )
+        .then(
+          function () {
+            return Client.login(config.publicUrl, email, password)
+          }
+        )
+        .then(
+          function (c) {
+            client = c
+            return client.resendAccountUnlockCode()
+          }
+        )
+        .then(
+          function () {
+            t.fail('resendAccountUnlockCode is expected to fail')
+          },
+          function (err) {
+            t.equal(err.code, 400, '400 status code')
+            t.equal(err.errno, 122, 'account is not locked errno')
+          }
+        )
     }
   )
 
@@ -144,44 +136,134 @@ TestServer.start(config)
       var client = null
       var code = null
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
-      .then(
-        function () {
-          return Client.login(config.publicUrl, email, password)
-        }
-      )
-      .then(
-        function (x) {
-          client = x
-        }
-      )
-      .then(
-        function () {
-          return client.lockAccount(email, password)
-        }
-      )
-      .then(
-        function () {
-          return client.resendAccountUnlockCode()
-        }
-      )
-      .then(
-        function () {
-          return server.mailbox.waitForCode(email)
-        }
-      )
-      .then(
-        function (_code) {
-          code = _code
-          return client.verifyAccountUnlockCode(client.uid, code)
-        }
-      )
-      .then(
-        function () {
-          // the user may be re-verifying a stale link,
-          // silently succeed.
-          return client.verifyAccountUnlockCode(client.uid, code)
-        }
-      )
+        .then(
+          function () {
+            return Client.login(config.publicUrl, email, password)
+          }
+        )
+        .then(
+          function (c) {
+            client = c
+            return client.lockAccount(email, password)
+          }
+        )
+        .then(
+          function () {
+            return client.resendAccountUnlockCode()
+          }
+        )
+        .then(
+          function () {
+            return server.mailbox.waitForCode(email)
+          }
+        )
+        .then(
+          function (_code) {
+            code = _code
+            return client.verifyAccountUnlockCode(client.uid, code)
+          }
+        )
+        .then(
+          function () {
+            // the user may be re-verifying a stale link,
+            // silently succeed.
+            return client.verifyAccountUnlockCode(client.uid, code)
+          }
+        )
+    }
+  )
+
+  test(
+    'unlock account with incorrect verify code',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'allyourbasearebelongtous'
+      var client
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+        .then(
+          function () {
+            return Client.login(config.publicUrl, email, password)
+          }
+        )
+        .then(
+          function (c) {
+            client = c
+            return client.lockAccount(email, password)
+          }
+        )
+        .then(
+          function () {
+            return client.resendAccountUnlockCode()
+          }
+        )
+        .then(
+          function () {
+            return server.mailbox.waitForCode(email)
+          }
+        )
+        .then(
+          function (code) {
+            return client.verifyAccountUnlockCode(client.uid, 'deadbeefbaadf00ddeadbeefbaadf00d')
+          }
+        )
+        .then(
+          function () {
+            t.fail('verifyAccountUnlockCode was expected to fail')
+          },
+          function (error) {
+            t.equal(error.code, 400)
+            t.equal(error.error, 'Bad Request')
+            t.equal(error.errno, 105)
+            t.equal(error.message, 'Invalid verification code')
+          }
+        )
+    }
+  )
+
+  test(
+    'unlock account with bad verify code',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'allyourbasearebelongtous'
+      var client
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+        .then(
+          function () {
+            return Client.login(config.publicUrl, email, password)
+          }
+        )
+        .then(
+          function (c) {
+            client = c
+            return client.lockAccount(email, password)
+          }
+        )
+        .then(
+          function () {
+            return client.resendAccountUnlockCode()
+          }
+        )
+        .then(
+          function () {
+            return server.mailbox.waitForCode(email)
+          }
+        )
+        .then(
+          function (code) {
+            return client.verifyAccountUnlockCode(client.uid, 'wibble')
+          }
+        )
+        .then(
+          function () {
+            t.fail('verifyAccountUnlockCode was expected to fail')
+          },
+          function (error) {
+            t.equal(error.code, 400)
+            t.equal(error.error, 'Bad Request')
+            t.equal(error.errno, 107)
+            t.equal(error.message, 'Invalid parameter in request body')
+          }
+        )
     }
   )
 
