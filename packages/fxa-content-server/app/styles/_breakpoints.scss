@@ -4,7 +4,7 @@ $breakpoints: (
   trustedUI: '(max-width: 319px)',
   reasonableUI: '(min-width: 320px)',
   small: '(max-width: 520px), (orientation:landscape) and (min-width:481px) and (max-height: 480px)',
-  big: '(min-width: 521px)'
+  big: '(min-width: 521px) and (min-height: 481px)'
 );
 
 @mixin respond-to($breakpoint) {
