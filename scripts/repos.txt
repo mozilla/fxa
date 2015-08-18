@@ -11,7 +11,6 @@ fxa-content-experiments
 fxa-content-server
 fxa-content-server-l10n
 fxa-customs-server
-fxa-deployment
 fxa-dev
 fxa-js-client
 fxa-js-client-old
@@ -24,7 +23,6 @@ fxa-oauth-server
 fxa-profile-server
 fxa-python-client
 fxa-relier-client
-fxa-scrypt-helper
 hapi-fxa-oauth
 PyFxA
 fxa-easter-egg
