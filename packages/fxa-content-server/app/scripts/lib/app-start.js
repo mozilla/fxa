@@ -51,6 +51,7 @@ define([
   'models/auth_brokers/base',
   'models/auth_brokers/fx-desktop',
   'models/auth_brokers/fx-desktop-v2',
+  'models/auth_brokers/fx-fennec-v1',
   'models/auth_brokers/fx-ios-v1',
   'models/auth_brokers/first-run',
   'models/auth_brokers/web-channel',
@@ -98,6 +99,7 @@ function (
   BaseAuthenticationBroker,
   FxDesktopV1AuthenticationBroker,
   FxDesktopV2AuthenticationBroker,
+  FxFennecV1AuthenticationBroker,
   FxiOSV1AuthenticationBroker,
   FirstRunAuthenticationBroker,
   WebChannelAuthenticationBroker,
@@ -401,6 +403,11 @@ function (
             relier: this._relier,
             window: this._window
           });
+        } else if (this._isFxFennecV1()) {
+          this._authenticationBroker = new FxFennecV1AuthenticationBroker({
+            window: this._window,
+            relier: this._relier
+          });
         } else if (this._isFxDesktopV2()) {
           this._authenticationBroker = new FxDesktopV2AuthenticationBroker({
             window: this._window,
@@ -612,6 +619,10 @@ function (
 
     _isSync: function () {
       return this._searchParam('service') === Constants.SYNC_SERVICE;
+    },
+
+    _isFxFennecV1: function () {
+      return this._searchParam('context') === Constants.FX_FENNEC_V1_CONTEXT;
     },
 
     _isFxDesktopV1: function () {

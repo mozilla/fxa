@@ -127,6 +127,7 @@ function (Translator, Session) {
     '../tests/spec/models/auth_brokers/first-run',
     '../tests/spec/models/auth_brokers/fx-desktop',
     '../tests/spec/models/auth_brokers/fx-desktop-v2',
+    '../tests/spec/models/auth_brokers/fx-fennec-v1',
     '../tests/spec/models/auth_brokers/fx-ios-v1',
     '../tests/spec/models/auth_brokers/web-channel',
     '../tests/spec/models/auth_brokers/redirect',
