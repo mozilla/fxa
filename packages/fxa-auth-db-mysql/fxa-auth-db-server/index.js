@@ -106,6 +106,8 @@ function createServer(db) {
   api.get('/emailRecord/:id', reply(db.emailRecord))
   api.head('/emailRecord/:id', reply(db.accountExists))
 
+  api.get('/openIdRecord/:id', reply(db.openIdRecord))
+
   api.get('/__heartbeat__', reply(db.ping))
 
   api.get(

@@ -6,28 +6,33 @@ var crypto = require('crypto')
 
 var zeroBuffer16 = Buffer('00000000000000000000000000000000', 'hex')
 var zeroBuffer32 = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
+var now = Date.now()
 
 function newUuid() {
   return crypto.randomBytes(16)
 }
 
-var now = Date.now()
-var ACCOUNT = {
-  uid: newUuid(),
-  email: ('' + Math.random()).substr(2) + '@bar.com',
-  emailCode: zeroBuffer16,
-  emailVerified: false,
-  verifierVersion: 1,
-  verifyHash: zeroBuffer32,
-  authSalt: zeroBuffer32,
-  kA: zeroBuffer32,
-  wrapWrapKb: zeroBuffer32,
-  verifierSetAt: now,
-  createdAt: now,
-  locale : 'en_US',
+function createAccount() {
+  var account = {
+    uid: newUuid(),
+    email: ('' + Math.random()).substr(2) + '@bar.com',
+    emailCode: zeroBuffer16,
+    emailVerified: false,
+    verifierVersion: 1,
+    verifyHash: zeroBuffer32,
+    authSalt: zeroBuffer32,
+    kA: zeroBuffer32,
+    wrapWrapKb: zeroBuffer32,
+    verifierSetAt: now,
+    createdAt: now,
+    locale : 'en_US',
+  }
+  account.normalizedEmail = account.email.toLowerCase()
+  return account
 }
-// set normalizedEmail, since the fxa-auth-server should do that for us!
-ACCOUNT.normalizedEmail = ACCOUNT.email.toLowerCase()
+
+
+var ACCOUNT = createAccount()
 
 function hex(len) {
   return Buffer(crypto.randomBytes(len).toString('hex'), 'hex')
@@ -651,26 +656,11 @@ module.exports = function(config, DB) {
             // for this test, we are creating a new account with a different email address
             // so that we can check that emailVerified turns from false to true (since
             // we already set it to true earlier)
-            var now = Date.now()
-            var ACCOUNT = {
-              uid: newUuid(),
-              email: ('' + Math.random()).substr(2) + '@bar.com',
-              emailCode: zeroBuffer16,
-              emailVerified: false,
-              verifierVersion: 1,
-              verifyHash: zeroBuffer32,
-              authSalt: zeroBuffer32,
-              kA: zeroBuffer32,
-              wrapWrapKb: zeroBuffer32,
-              verifierSetAt: now,
-              createdAt: now,
-              locale: 'en_GB',
-            }
-            ACCOUNT.normalizedEmail = ACCOUNT.email.toLowerCase()
+            var account = createAccount()
             var PASSWORD_FORGOT_TOKEN_ID = hex32()
             var PASSWORD_FORGOT_TOKEN = {
               data : hex32(),
-              uid : ACCOUNT.uid,
+              uid : account.uid,
               passCode : hex16(),
               tries : 1,
               createdAt: now + 1
@@ -679,19 +669,19 @@ module.exports = function(config, DB) {
             var ACCOUNT_RESET_TOKEN = {
               tokenId : ACCOUNT_RESET_TOKEN_ID,
               data : hex32(),
-              uid : ACCOUNT.uid,
+              uid : account.uid,
               createdAt: now + 2
             }
             var THROWAWAY_ACCOUNT_RESET_TOKEN_ID = hex32()
             var THROWAWAY_ACCOUNT_RESET_TOKEN = {
               tokenId : ACCOUNT_RESET_TOKEN_ID,
               data : hex32(),
-              uid : ACCOUNT.uid,
+              uid : account.uid,
               createdAt: now + 3
             }
             var ACCOUNT_UNLOCK_CODE = hex16()
 
-            return db.createAccount(ACCOUNT.uid, ACCOUNT)
+            return db.createAccount(account.uid, account)
               .then(function() {
                 // let's add a throwaway accountResetToken, which should be overwritten when
                 // we call passwordForgotToken() later.
@@ -704,10 +694,10 @@ module.exports = function(config, DB) {
               })
               .then(function(token) {
                 // check a couple of fields
-                t.deepEqual(token.uid, ACCOUNT.uid, 'token belongs to this account')
+                t.deepEqual(token.uid, account.uid, 'token belongs to this account')
                 t.deepEqual(token.tokenData, THROWAWAY_ACCOUNT_RESET_TOKEN.data, 'token data matches')
                 // get this account out using emailRecord
-                var emailBuffer = Buffer(ACCOUNT.email)
+                var emailBuffer = Buffer(account.email)
                 return db.emailRecord(emailBuffer)
               })
               .then(function(result) {
@@ -717,7 +707,7 @@ module.exports = function(config, DB) {
               .then(function(passwordForgotToken) {
                 t.pass('.createPasswordForgotToken() did not error')
                 // let's also lock the account here so we can check it is unlocked after the createPasswordForgotToken()
-                return db.lockAccount(ACCOUNT.uid, { lockedAt: Date.now(), unlockCode: ACCOUNT_UNLOCK_CODE })
+                return db.lockAccount(account.uid, { lockedAt: Date.now(), unlockCode: ACCOUNT_UNLOCK_CODE })
               })
               .then(function(passwordForgotToken) {
                 t.pass('.lockAccount() did not error')
@@ -726,7 +716,7 @@ module.exports = function(config, DB) {
               .then(function() {
                 t.pass('.forgotPasswordVerified() did not error')
                 // now check that the forgotPasswordVerified also reset the lockedAt
-                return db.emailRecord(Buffer(ACCOUNT.email))
+                return db.emailRecord(Buffer(account.email))
               })
               .then(function(account) {
                 t.equal(account.lockedAt, null, 'account should now be unlocked')
@@ -755,12 +745,12 @@ module.exports = function(config, DB) {
               .then(function(accountResetToken) {
                 t.pass('.accountResetToken() did not error')
                 // tokenId is not returned
-                t.deepEqual(accountResetToken.uid, ACCOUNT.uid, 'token belongs to this account')
+                t.deepEqual(accountResetToken.uid, account.uid, 'token belongs to this account')
                 t.deepEqual(accountResetToken.tokenData, ACCOUNT_RESET_TOKEN.data, 'token data matches')
-                t.equal(accountResetToken.verifierSetAt, ACCOUNT.verifierSetAt, 'verifierSetAt is set correctly')
+                t.equal(accountResetToken.verifierSetAt, account.verifierSetAt, 'verifierSetAt is set correctly')
               })
               .then(function() {
-                return db.account(ACCOUNT.uid)
+                return db.account(account.uid)
               })
               .then(function(account) {
                 t.ok(account.emailVerified, 'account should now be emailVerified (truthy)')
@@ -913,6 +903,36 @@ module.exports = function(config, DB) {
               }, function(err) {
                 t.fail('We should not have failed this .unlockAccount() request')
               })
+          }
+        )
+
+        test(
+          'openid create and get',
+          function (t) {
+            t.plan(11)
+            var account = createAccount()
+            account.openId = 'https://openid.example.com/foo'
+            return db.createAccount(account.uid, account)
+              .then(
+                function () {
+                  return db.openIdRecord(account.openId)
+                }
+              )
+              .then(
+                function (record) {
+                  t.deepEqual(record.uid, account.uid, 'uid')
+                  t.equal(record.email, account.email, 'email')
+                  t.deepEqual(record.emailCode, account.emailCode, 'emailCode')
+                  t.equal(!!record.emailVerified, account.emailVerified, 'emailVerified')
+                  t.deepEqual(record.kA, account.kA, 'kA')
+                  t.deepEqual(record.wrapWrapKb, account.wrapWrapKb, 'wrapWrapKb')
+                  t.notOk(record.verifyHash, 'verifyHash field should be absent')
+                  t.deepEqual(record.authSalt, account.authSalt, 'authSalt')
+                  t.equal(record.verifierVersion, account.verifierVersion, 'verifierVersion')
+                  t.equal(record.verifierSetAt, account.verifierSetAt, 'verifierSetAt')
+                  t.equal(record.openId, account.openId)
+                }
+              )
           }
         )
 

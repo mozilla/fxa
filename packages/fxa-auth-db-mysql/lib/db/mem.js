@@ -8,6 +8,7 @@ var extend = require('util')._extend
 // our data stores
 var accounts = {}
 var uidByNormalizedEmail = {}
+var uidByOpenId = {}
 var sessionTokens = {}
 var keyFetchTokens = {}
 var accountResetTokens = {}
@@ -50,6 +51,13 @@ module.exports = function (log, error) {
 
     if ( uidByNormalizedEmail[data.normalizedEmail] ) {
       return P.reject(error.duplicate())
+    }
+
+    if (data.openId) {
+      if (uidByOpenId[data.openId]) {
+        return P.reject(error.duplicate())
+      }
+      uidByOpenId[data.openId] = uid
     }
 
     accounts[uid.toString('hex')] = data
@@ -284,6 +292,13 @@ module.exports = function (log, error) {
       })
   }
 
+  Memory.prototype.openIdRecord = function (openId) {
+    return getAccountByUid(uidByOpenId[openId.toString('utf8')])
+      .then(function (account) {
+        return filterAccount(account)
+      })
+  }
+
   // sessionToken()
   //
   // Takes:
@@ -467,6 +482,7 @@ module.exports = function (log, error) {
           deleteByUid(uid, accountUnlockCodes)
 
           delete uidByNormalizedEmail[account.normalizedEmail]
+          delete uidByOpenId[account.openId]
           delete accounts[uid]
           return []
         }
@@ -545,7 +561,6 @@ module.exports = function (log, error) {
     token.lastAccessTime = data.lastAccessTime
     return P.resolve({})
   }
-
 
   // UTILITY FUNCTIONS
 
