@@ -221,6 +221,94 @@ DB.connect(config)
       )
 
       test(
+        'readMultiple with valid queries',
+        function (t) {
+          t.plan(9)
+          return db.readMultiple([
+            {
+              sql: 'SELECT * FROM accounts LIMIT ?',
+              params: 1
+            },
+            {
+              sql: 'SELECT COUNT(*) AS count FROM accounts WHERE createdAt < ? AND normalizedEmail LIKE ?',
+              params: [ Date.now(), '%@mozilla.com' ]
+            }
+          ])
+          .then(
+            function(results) {
+              t.ok(Array.isArray(results), 'results array was returned')
+              t.equal(results.length, 2, 'results array contained two items')
+              t.ok(Array.isArray(results[0]), 'first result was an array')
+              t.ok(results[0].length <= 1, 'first result contained zero or one items')
+              t.ok(Array.isArray(results[1]), 'second result was an array')
+              t.equal(results[1].length, 1, 'second result contained one item')
+              t.equal(typeof results[1][0], 'object', 'second result item was object')
+              t.equal(Object.keys(results[1][0]).length, 1, 'second result item had one property')
+              t.ok(results[1][0].count >= 0, 'count property was non-negative number')
+            }
+          )
+        }
+      )
+
+      test(
+        'readMultiple with final query',
+        function (t) {
+          t.plan(1)
+          return db.readMultiple([
+            { sql: 'SELECT * FROM accounts LIMIT 1' },
+            { sql: 'SELECT * FROM accounts LIMIT 1' }
+          ], { sql: 'SELECT * FROM accounts LIMIT 1' })
+          .then(
+            function(results) {
+              t.equal(results.length, 2, 'results array contained two items')
+            }
+          )
+        }
+      )
+
+      test(
+        'readMultiple with error in query',
+        function (t) {
+          t.plan(1)
+          db.readMultiple([
+            { sql: 'SELECT nonsense FROM gibberish' },
+            { sql: 'SELECT * FROM accounts LIMIT 1' }
+          ], { sql: 'SELECT * FROM accounts LIMIT 1' })
+          .then(
+            function(results) {
+              t.fail('should have failed')
+              t.end()
+            },
+            function(err) {
+              t.pass('failed correctly')
+              t.end()
+            }
+          )
+        }
+      )
+
+      test(
+        'readMultiple with error in final query',
+        function (t) {
+          t.plan(1)
+          db.readMultiple([
+            { sql: 'SELECT * FROM accounts LIMIT 1' },
+            { sql: 'SELECT * FROM accounts LIMIT 1' }
+          ], { sql: 'SELECT nonsense FROM gibberish' })
+          .then(
+            function(results) {
+              t.fail('should have failed')
+              t.end()
+            },
+            function(err) {
+              t.pass('failed correctly')
+              t.end()
+            }
+          )
+        }
+      )
+
+      test(
         'teardown',
         function (t) {
           return db.close()

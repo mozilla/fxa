@@ -46,6 +46,8 @@
     "load-grunt-tasks": "0.6.0",
     "mysql-patcher": "0.7.0",
     "nock": "1.2.0",
+    "proxyquire": "1.7.0",
+    "sinon": "1.16.0",
     "tap": "0.4.13"
   },
   "keywords": [
