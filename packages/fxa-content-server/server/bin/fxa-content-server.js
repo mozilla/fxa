@@ -110,8 +110,8 @@ function makeApp() {
   return app;
 }
 
-var app,
-    port;
+var app;
+var port;
 
 function catchStartUpErrors(e) {
   if ('EACCES' === e.code) {

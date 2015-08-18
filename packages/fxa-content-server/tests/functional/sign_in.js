@@ -165,15 +165,15 @@ define([
           return fillOutSignIn(self, email, '  ' + PASSWORD)
 
             // success is seeing the error message.
-           .then(FunctionalHelpers.visibleByQSA('.error'))
-           .end()
+            .then(FunctionalHelpers.visibleByQSA('.error'))
+            .end()
 
-           .findByCssSelector('.error')
-             .getVisibleText()
-             .then(function (text) {
-               assert.isTrue(/password/i.test(text));
-             })
-           .end();
+            .findByCssSelector('.error')
+            .getVisibleText()
+            .then(function (text) {
+              assert.isTrue(/password/i.test(text));
+            })
+            .end();
         });
     },
 

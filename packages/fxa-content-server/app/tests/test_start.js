@@ -142,19 +142,6 @@ function (Translator, Session) {
   // The translator is expected to be on the window object.
   window.translator = new Translator('en-US', ['en-US']);
 
-  // Make sure to tests are loaded in proper order using Require.JS
-  var index = 0;
-  var loadTests = function () {
-    var test = tests[index];
-    index += 1;
-    if (index === tests.length) {
-      // run the tests after all of them have loaded
-      require([test], runTests);
-    } else {
-      require([test], loadTests);
-    }
-  };
-
   var runTests = function () {
     /**
      * Ensure session state does not pollute other tests
@@ -179,6 +166,19 @@ function (Translator, Session) {
       failureEl.innerHTML = runner.failures || '0';
       document.body.appendChild(failureEl);
     });
+  };
+
+  // Make sure to tests are loaded in proper order using Require.JS
+  var index = 0;
+  var loadTests = function () {
+    var test = tests[index];
+    index += 1;
+    if (index === tests.length) {
+      // run the tests after all of them have loaded
+      require([test], runTests);
+    } else {
+      require([test], loadTests);
+    }
   };
 
   loadTests();

@@ -301,9 +301,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
                   EMAIL,
                   PASSWORD,
                   relier,
-                  {
-                    reason: view.fxaClient.SIGNIN_REASON.PASSWORD_RESET
-                  }
+                  { reason: view.fxaClient.SIGNIN_REASON.PASSWORD_RESET }
               ));
               assert.equal(routerMock.page, 'reset_password_complete');
               assert.isTrue(loginSpy.called);
@@ -361,9 +359,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
                   EMAIL,
                   PASSWORD,
                   relier,
-                  {
-                    reason: view.fxaClient.SIGNIN_REASON.PASSWORD_RESET
-                  }
+                  { reason: view.fxaClient.SIGNIN_REASON.PASSWORD_RESET }
               ));
               assert.notEqual(routerMock.page, 'reset_password_complete');
               return user.setSignedInAccount.returnValues[0].then(function (returnValue) {

@@ -137,9 +137,7 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
           email,
           password,
           self.relier,
-          {
-            reason: self.fxaClient.SIGNIN_REASON.ACCOUNT_UNLOCK
-          }
+          { reason: self.fxaClient.SIGNIN_REASON.ACCOUNT_UNLOCK }
         )
         .fail(function (err) {
           if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
