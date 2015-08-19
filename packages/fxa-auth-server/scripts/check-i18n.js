@@ -15,6 +15,26 @@ const assert = require('assert')
 const request = require('request')
 const config = require('../config')
 
+function diffLists(first, second) {
+  var langs = {}
+
+  first.forEach(function(lang) {
+    langs[lang] = 1
+  })
+
+  second.forEach(function(lang) {
+    if (langs[lang]) {
+      langs[lang] += 1
+    } else {
+      langs[lang] = 1
+    }
+  })
+
+  return Object.keys(langs).filter(function(key) {
+    return langs[key] !== 2
+  })
+}
+
 function main() {
   var options = {
     url: CONTENT_SERVER_CONFIG,
@@ -30,14 +50,17 @@ function main() {
       return
     }
 
+    var actual = config.get('i18n').supportedLanguages
+    var expect = body.i18n.supportedLanguages
+
     try {
-      var actual = config.get('i18n').supportedLanguages
-      var expect = body.i18n.supportedLanguages
       assert.deepEqual(actual, expect)
       console.log('OK: List of supported languages match content server config')
     } catch(e) {
+      var different = diffLists(actual, expect).join(',')
       console.log('****************************************************************************')
       console.log('* FIXME! List of supported languages not in synch with content server config')
+      console.log('*   They differ on: %s', different)
       console.log('****************************************************************************')
     }
   })
