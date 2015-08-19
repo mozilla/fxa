@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const AppError = require('./error');
 const logger = require('./logging')('batch');
 const P = require('./promise');
 
@@ -35,13 +36,14 @@ function batch(request, map) {
           return res.result[prop];
         case 403:
         case 404:
-          logger.debug('batch.' + res.statusCode, {
+          logger.debug(prop + '.' + res.statusCode, {
             scope: request.auth.credentials.scope,
             response: res.result
           });
           return undefined;
         default:
-          throw res.result;
+          logger.error(prop + '.' + res.statusCode, res.result);
+          throw AppError.from(res.result);
       }
     });
   });

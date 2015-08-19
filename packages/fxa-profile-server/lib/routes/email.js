@@ -4,6 +4,8 @@
 
 const Joi = require('joi');
 
+const AppError = require('../error');
+
 module.exports = {
   auth: {
     strategy: 'oauth',
@@ -15,9 +17,14 @@ module.exports = {
     }
   },
   handler: function email(req, reply) {
-    reply({
-      email: req.auth.credentials.email
-    });
+    var email = req.auth.credentials.email;
+    if (email) {
+      reply({
+        email: email
+      });
+    } else {
+      reply(new AppError.oauthError('email field missing from oauth response'));
+    }
   }
 };
 

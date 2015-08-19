@@ -21,7 +21,7 @@ const SIZES = require('../../lib/img').SIZES;
 
 module.exports = function mock(options) {
   assert(options.userid);
-  var TOKEN_GOOD = JSON.stringify({
+  const TOKEN_GOOD = JSON.stringify({
     user: options.userid,
     scope: ['profile'],
     email: 'user@example.domain'
