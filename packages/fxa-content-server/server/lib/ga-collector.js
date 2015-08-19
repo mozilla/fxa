@@ -56,6 +56,7 @@ GACollector.prototype = {
       return;
     }
 
+    var self = this;
     var visitor = universalAnalytics(ANALYTICS_ID, { https: true, debug: false });
 
     body.events.forEach(function (event) {
@@ -77,8 +78,11 @@ GACollector.prototype = {
           geoid: 'NOTSET',
           hitType: 'event',
           ua: body.agent,
-          uid: body.uniqueUserId
+          uid: body.uniqueUserId,
+          ul: body.lang
         };
+
+        gaData.qt = self._calculateQueueTime(body.startTime, body.flushTime, event.offset);
 
         if (body.screen) {
           var screen = body.screen;
@@ -103,6 +107,31 @@ GACollector.prototype = {
         });
       }
     });
+  },
+  /**
+   * Calculate the queue time of the event.
+   * See https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters?hl=en#qt
+   *
+   * @param {Number} startTime
+   *  The time from which all offsets are calculated in the front-end metrics.
+   * @param {Number} flushTime
+   *  The time when the events were flushed and sent to the server in the front-end metrics.
+   * @param {Number} offset
+   *  Offset of the event since metrics start
+   *
+   * @returns {Number}
+   *  The time delta (in milliseconds) between when the hit being reported occurred and the time the hit was sent.
+   *
+   * @private
+   */
+  _calculateQueueTime: function (startTime, flushTime, offset) {
+    if (! startTime || ! flushTime || ! offset) {
+      return 0;
+    }
+
+    var offsetTime = startTime + offset;
+
+    return Math.max(0, flushTime - offsetTime);
   }
 };
 

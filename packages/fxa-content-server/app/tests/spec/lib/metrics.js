@@ -43,6 +43,7 @@ function (chai, $, p, Metrics, AuthErrors, Environment, sinon, _, WindowMock, Te
         screenWidth: 1600,
         screenHeight: 1200,
         isSampledUser: true,
+        startTime: 1439233336187,
         uniqueUserId: '0ae7fe2b-244f-4a78-9857-dff3ae263927',
         utmCampaign: 'utm_campaign',
         utmContent: 'utm_content',
@@ -91,6 +92,7 @@ function (chai, $, p, Metrics, AuthErrors, Environment, sinon, _, WindowMock, Te
         assert.equal(filteredData.migration, 'sync1.5');
         assert.equal(filteredData.campaign, 'fennec');
         assert.equal(filteredData.uniqueUserId, '0ae7fe2b-244f-4a78-9857-dff3ae263927');
+        assert.equal(filteredData.startTime, 1439233336187);
 
         assert.equal(filteredData.referrer, 'https://marketplace.firefox.com');
         assert.equal(filteredData.screen.width, 1600);
@@ -196,7 +198,7 @@ function (chai, $, p, Metrics, AuthErrors, Environment, sinon, _, WindowMock, Te
               assert.equal(windowMock.navigator.sendBeacon.getCall(0).args[0], '/metrics');
 
               var data = JSON.parse(windowMock.navigator.sendBeacon.getCall(0).args[1]);
-              assert.lengthOf(Object.keys(data), 22);
+              assert.lengthOf(Object.keys(data), 24);
               assert.isArray(data.ab);
               assert.lengthOf(data.ab, 0);
               assert.equal(data.broker, 'none');
@@ -216,6 +218,8 @@ function (chai, $, p, Metrics, AuthErrors, Environment, sinon, _, WindowMock, Te
               assert.equal(data.referrer, 'https://marketplace.firefox.com');
               assert.isObject(data.screen);
               assert.equal(data.service, 'none');
+              assert.isDefined(data.startTime);
+              assert.isDefined(data.flushTime);
               assert.isObject(data.timers);
               assert.lengthOf(Object.keys(data.timers), 0);
               assert.equal(data.utm_campaign, 'none');
@@ -298,7 +302,7 @@ function (chai, $, p, Metrics, AuthErrors, Environment, sinon, _, WindowMock, Te
               assert.equal(settings.contentType, 'application/json');
 
               var data = JSON.parse(settings.data);
-              assert.lengthOf(Object.keys(data), 22);
+              assert.lengthOf(Object.keys(data), 24);
               assert.isArray(data.events);
               assert.lengthOf(data.events, 3);
               assert.equal(data.events[0].type, 'foo');
@@ -370,7 +374,7 @@ function (chai, $, p, Metrics, AuthErrors, Environment, sinon, _, WindowMock, Te
             assert.isTrue(metrics._send.getCall(0).args[1]);
 
             var data = metrics._send.getCall(0).args[0];
-            assert.lengthOf(Object.keys(data), 22);
+            assert.lengthOf(Object.keys(data), 24);
             assert.equal(data.events[0].type, 'foo');
             assert.equal(data.events[1].type, 'bar');
             assert.equal(data.events[2].type, 'qux');
@@ -392,7 +396,7 @@ function (chai, $, p, Metrics, AuthErrors, Environment, sinon, _, WindowMock, Te
             assert.isTrue(metrics._send.getCall(0).args[1]);
 
             var data = metrics._send.getCall(0).args[0];
-            assert.lengthOf(Object.keys(data), 22);
+            assert.lengthOf(Object.keys(data), 24);
             assert.lengthOf(data.events, 3);
             assert.equal(data.events[0].type, 'foo');
             assert.equal(data.events[1].type, 'bar');
