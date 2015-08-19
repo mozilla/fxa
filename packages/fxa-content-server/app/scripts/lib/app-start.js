@@ -19,7 +19,7 @@ define([
   'underscore',
   'backbone',
   'lib/promise',
-  'router',
+  'lib/router',
   'lib/translator',
   'lib/session',
   'lib/url',

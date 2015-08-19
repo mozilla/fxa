@@ -6,7 +6,7 @@ define([
   'chai',
   'sinon',
   'backbone',
-  'router',
+  'lib/router',
   'views/sign_in',
   'views/sign_up',
   'views/ready',
