@@ -15,7 +15,6 @@ var sns = {
 
 function init(config) {
   snsTopicArn = config.snsTopicArn
-  log.level(config.log.level)
   if (snsTopicArn === 'disabled') {
     sns = { publish: function (msg, cb) { cb() }}
     return
