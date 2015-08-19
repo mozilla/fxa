@@ -20,8 +20,9 @@ If you want to pre-approve your own web applications and prevent users in your a
 
 ### Creating the client id and secret keys
 
-Use the [fxa-oauth-client][] CLI tool for registering new clients with
-your server.
+Use the [fxa-oauth-client][] CLI tool for registering new clients with your server.
+
+FxA OAuth development environments support `127.0.0.1` and `localhost` as valid `redirectUri` values to ease development.
 
 [fxa-oauth-client]: https://github.com/mozilla/fxa-oauth-client
 
