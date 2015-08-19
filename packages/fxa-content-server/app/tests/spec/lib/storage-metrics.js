@@ -63,14 +63,16 @@ function (chai, StorageMetrics, Metrics, Storage, WindowMock) {
         var storedData = storage.get('metrics_all');
         storedData = storedData[storedData.length - 1];
 
+        // These properties are affected by timing, for example:
         // `duration` fields are different if the above `getFilteredData`
         // is called in a different millisecond than the one used to
         // generate data that is sent to the server.
         // Ensure `duration` is in the results, but do not compare the two.
-        assert.isTrue(storedData.hasOwnProperty('duration'));
-
-        delete filteredData.duration;
-        delete storedData.duration;
+        ['duration', 'flushTime'].forEach(function (prop) {
+          assert.isTrue(storedData.hasOwnProperty(prop));
+          delete filteredData[prop];
+          delete storedData[prop];
+        });
 
         assert.deepEqual(filteredData, storedData);
       }
