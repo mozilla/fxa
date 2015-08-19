@@ -170,7 +170,36 @@ function (chai, $, ui, sinon, jQuerySimulate, View, RouterMock, ProfileMock, Use
               assert.equal(result.url, 'test');
               assert.equal(result.id, 'foo');
               assert.equal(routerMock.page, 'settings');
+              assert.isTrue(TestHelpers.isEventLogged(metrics,
+                'settings.avatar.crop.submit.new'));
+              assert.isFalse(TestHelpers.isEventLogged(metrics,
+                'settings.avatar.gravatar.submit.change'));
             });
+        });
+
+        it('properly tracks avatar change events', function () {
+          // set the account to have an existing profile image id
+          account.set('hadProfileImageSetBefore', true);
+          sinon.stub(profileClientMock, 'uploadAvatar', function () {
+            return p({
+              id: 'foo'
+            });
+          });
+
+          return view.render()
+            .then(function () {
+              return view.afterVisible();
+            })
+            .then(function () {
+              return view.submit();
+            })
+            .then(function () {
+              assert.isTrue(TestHelpers.isEventLogged(metrics,
+                'settings.avatar.crop.submit.change'));
+              assert.isFalse(TestHelpers.isEventLogged(metrics,
+                'settings.avatar.crop.submit.new'));
+            });
+
         });
 
         it('logs a metric event on rotation', function () {
