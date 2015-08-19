@@ -5,10 +5,11 @@
 // helper functions for views with a profile image. Meant to be mixed into views.
 
 define([
+  'underscore',
   'lib/auth-errors',
   'lib/profile-errors',
   'models/profile-image'
-], function (AuthErrors, ProfileErrors, ProfileImage) {
+], function (_, AuthErrors, ProfileErrors, ProfileImage) {
   'use strict';
 
   return {
