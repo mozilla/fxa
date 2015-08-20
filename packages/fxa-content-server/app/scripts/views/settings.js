@@ -143,7 +143,7 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
         return;
       }
 
-      self._subPanels.setElement(self.$('.sub-views')[0]);
+      self._subPanels.setElement(self.$('#sub-panels')[0]);
 
       return p.all([
         self._showAvatar(),

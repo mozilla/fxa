@@ -125,7 +125,11 @@ function (chai, $, sinon, Cocktail, View, BaseView,
         });
         var spy = sinon.spy(view, 'trackSubview');
 
-        return view.showSubView(SettingsPanelView)
+        return view.render()
+          .then(function () {
+            $('#container').append(view.el);
+            return view.showSubView(SettingsPanelView);
+          })
           .then(function () {
             var subView = routerMock.createSubView.returnValues[0];
 

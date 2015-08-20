@@ -85,7 +85,7 @@ function (p, BaseView, Template) {
       var className = self._subViewClassName(SubView);
       var selector = '.' + className;
 
-      self.$el.append('<div class="settings-subview ' + className + '"></div>');
+      self.$('.sub-views').append('<div class="settings-subview ' + className + '"></div>');
 
       var view = self.router.createSubView(SubView, {
         el: self.$(selector)
