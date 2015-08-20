@@ -36,7 +36,7 @@ define([
           return profileImage;
         }, function (err) {
           if (! ProfileErrors.is(err, 'UNAUTHORIZED') &&
-              ! AuthErrors.is(err, 'UNVERIFIED')) {
+              ! AuthErrors.is(err, 'UNVERIFIED_ACCOUNT')) {
             self.logError(err);
           }
           // Ignore errors; the image will be rendered as a

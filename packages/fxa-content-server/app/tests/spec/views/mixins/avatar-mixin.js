@@ -90,11 +90,11 @@ define([
 
       it('does not log an error for an unverified account', function () {
         sinon.stub(account, 'fetchCurrentProfileImage', function () {
-          return p.reject(AuthErrors.toError('UNVERIFIED'));
+          return p.reject(AuthErrors.toError('UNVERIFIED_ACCOUNT'));
         });
         return view.displayAccountProfileImage(account)
           .then(function () {
-            var err = view._normalizeError(AuthErrors.toError('UNVERIFIED'));
+            var err = view._normalizeError(AuthErrors.toError('UNVERIFIED_ACCOUNT'));
             assert.isFalse(TestHelpers.isErrorLogged(metrics, err));
           });
       });
