@@ -11,14 +11,16 @@ define([
   'lib/promise',
   'lib/auth-errors',
   'lib/metrics',
+  'lib/channels/null',
   'models/reliers/relier',
   'models/auth_brokers/base',
   'models/user',
+  'models/notifications',
   '../../../mocks/router',
   '../../../lib/helpers'
 ],
-function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics,
-    Relier, Broker, User, RouterMock, TestHelpers) {
+function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics, NullChannel,
+    Relier, Broker, User, Notifications, RouterMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -31,16 +33,23 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics,
     var password = 'password';
     var fxaClient;
     var broker;
+    var tabChannelMock;
+    var notifications;
     var relier;
     var user;
     var account;
     var metrics;
+    var UID = '123';
 
     beforeEach(function () {
       routerMock = new RouterMock();
       relier = new Relier();
       broker = new Broker({
         relier: relier
+      });
+      tabChannelMock = new NullChannel();
+      notifications = new Notifications({
+        tabChannel: tabChannelMock
       });
       fxaClient = new FxaClient();
       user = new User();
@@ -52,6 +61,7 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics,
         user: user,
         relier: relier,
         broker: broker,
+        notifications: notifications,
         metrics: metrics,
         screenName: 'delete-account'
       });
@@ -85,10 +95,12 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics,
           sessionToken: 'abc123',
           verified: true
         });
+        account.set('uid', UID);
 
         sinon.stub(view, 'getSignedInAccount', function () {
           return account;
         });
+        sinon.stub(notifications, 'accountDeleted', function () { });
 
         return view.render()
           .then(function () {
@@ -150,6 +162,7 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics,
                 assert.isTrue(user.removeAccount.calledWith(account));
                 assert.isTrue(broker.afterDeleteAccount.calledWith(account));
                 assert.isTrue(TestHelpers.isEventLogged(metrics, 'delete-account.deleted'));
+                assert.isTrue(notifications.accountDeleted.calledWith({ uid: UID }));
               });
         });
 
