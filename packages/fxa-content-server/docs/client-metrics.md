@@ -172,14 +172,16 @@ The event stream is a log of events and the time they occurred while the user is
 
 #### settings/avatar/gravatar
 
-* settings.avatar.gravatar.submit - user submit the gravatar avatar view 
+* settings.avatar.gravatar.submit - user submit the gravatar avatar view
 * settings.avatar.gravatar.submit.change - user submit the gravatar and had an avatar set before
 * settings.avatar.gravatar.submit.new - user submit the gravatar and had no avatar set
+* error.settings.avatar.gravatar.auth.1032 - No gravatar found
 
 #### settings/avatar/gravatar_permissions
 
 * settings.avatar.gravatar-permissions.accepted - user accepted permission prompt
 * settings.avatar.gravatar-permissions.alreadly-accepted - user accepted permission prompt
+* settings.avatar.gravatar-permissions.submit - user accepted permission prompt
 
 #### settings/communication_preferences
 
