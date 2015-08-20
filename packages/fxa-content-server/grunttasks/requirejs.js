@@ -27,7 +27,10 @@ module.exports = function (grunt) {
         preserveLicenseComments: false,
         useStrict: true,
         wrap: true,
-        stubModules: ['text', 'stache']
+        stubModules: ['text', 'stache'],
+        // since nocache is a requirejs plugin and not stubbed, it must
+        // be added manually to the bundle.
+        deps: ['nocache']
       }
     }
   });

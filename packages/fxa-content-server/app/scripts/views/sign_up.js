@@ -12,6 +12,7 @@ define([
   'lib/mailcheck',
   'lib/url',
   'views/mixins/password-mixin',
+  'views/mixins/password-strength-mixin',
   'views/mixins/service-mixin',
   'views/mixins/checkbox-mixin',
   'views/mixins/resume-token-mixin',
@@ -21,7 +22,7 @@ define([
   'views/coppa/coppa-age-input'
 ],
 function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
-      Url, PasswordMixin, ServiceMixin, CheckboxMixin, ResumeTokenMixin,
+      Url, PasswordMixin, PasswordStrengthMixin, ServiceMixin, CheckboxMixin, ResumeTokenMixin,
       MigrationMixin, SignupDisabledMixin, CoppaDatePicker, CoppaAgeInput) {
   'use strict';
 
@@ -62,7 +63,6 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       }
 
       this._bouncedEmail = this.ephemeralMessages.get('bouncedEmail');
-
       return FormView.prototype.beforeRender.call(this);
     },
 
@@ -126,11 +126,18 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
         }.bind(this));
       }
 
+      if (this.isPasswordStrengthCheckEnabled()) {
+        // load the password strength checker early so the user does
+        // not need to wait once they fill out the password.
+        this.getPasswordStrengthChecker();
+      }
+
       return FormView.prototype.afterVisible.call(this);
     },
 
     events: {
-      'blur input.email': 'suggestEmail'
+      'blur input.email': 'suggestEmail',
+      'blur input.password': 'onPasswordBlur'
     },
 
     getPrefillEmail: function () {
@@ -245,6 +252,11 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
           this.logScreenEvent('mailcheck-useful');
         }
       }
+    },
+
+    onPasswordBlur: function () {
+      var password = this.getElementValue('.password');
+      this.checkPasswordStrength(password);
     },
 
     suggestEmail: function () {
@@ -385,6 +397,7 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
     CheckboxMixin,
     MigrationMixin,
     PasswordMixin,
+    PasswordStrengthMixin,
     ResumeTokenMixin,
     ServiceMixin,
     SignupDisabledMixin

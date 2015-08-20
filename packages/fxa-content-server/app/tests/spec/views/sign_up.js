@@ -274,6 +274,24 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Metrics
             });
         }, done);
       });
+
+      it('loads the password strength checker if enabled', function () {
+        sinon.stub(view, 'isPasswordStrengthCheckEnabled', function () {
+          return true;
+        });
+
+        sinon.stub(view, 'getPasswordStrengthChecker', function () {
+          return true;
+        });
+
+        return view.render()
+          .then(function () {
+            return view.afterVisible();
+          })
+          .then(function () {
+            assert.isTrue(view.getPasswordStrengthChecker.called);
+          });
+      });
     });
 
     describe('isValid', function () {
@@ -920,6 +938,20 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Metrics
           });
       });
     });
+
+    describe('onPasswordBlur', function () {
+      beforeEach(function () {
+        sinon.spy(view, 'checkPasswordStrength');
+      });
+
+      it('calls checkPasswordStrength with provided password', function () {
+        var password = 'somerandomvalue';
+        view.$('.password').val(password);
+        view.onPasswordBlur();
+        assert.isTrue(view.checkPasswordStrength.calledWith(password));
+      });
+    });
+
   });
 });
 

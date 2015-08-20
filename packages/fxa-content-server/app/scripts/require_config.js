@@ -12,6 +12,7 @@ require.config({
     text: '../bower_components/requirejs-text/text',
     mustache: '../bower_components/mustache/mustache',
     stache: '../bower_components/requirejs-mustache/stache',
+    nocache: 'lib/requirejs-plugin-nocache',
     chai: '../bower_components/chai/chai',
     cocktail: '../bower_components/cocktail/Cocktail',
     'p-promise': '../bower_components/p/p',
@@ -25,7 +26,8 @@ require.config({
     crosstab: 'vendor/crosstab',
     uuid: '../bower_components/node-uuid/uuid',
     'jquery-simulate': '../bower_components/jquery-simulate/jquery.simulate',
-    raven: '../bower_components/raven-js/dist/raven'
+    raven: '../bower_components/raven-js/dist/raven',
+    passwordcheck: '../bower_components/fxa-password-strength-checker/build/fxa-password-strength-checker'
   },
   config: {
     moment: {

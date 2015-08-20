@@ -85,6 +85,10 @@ The event stream is a log of events and the time they occurred while the user is
 
 #### Generic events
 * tooltip.generic-dismissed - a dismissable tooltip is dismissed
+* error.&lt;resource&gt;.require-on-demand.999 - resource dependency fetch had an unexpected error.
+* error.&lt;resource&gt;.require-on-demand.1000 - resource dependency fetch has timed out.
+* error.&lt;resource&gt;.require-on-demand.1001 - resource dependency does not have a define.
+* error.&lt;resource&gt;.require-on-demand.1002 - resource dependency had a script error.
 * error.&lt;unexpected_origin&gt;.auth.1027 - a postMessage message was received from an unexpected origin.
 * error.&lt;image_url&gt;.profile.997 - a profile image could not load.
 * &lt;screen_name&gt;.submit - A submit event has occurred and all of the form's input elements are valid.
@@ -236,6 +240,14 @@ The event stream is a log of events and the time they occurred while the user is
 * signup.checkbox.change.show-password.unchecked - password is hidden
 * signup.email-optin.visible.false - email opt-in is not visible
 * signup.email-optin.visible.true - email opt-in is visible
+* signup.experiment.pw_strength.all_letters_or_numbers - password contains all numbers or letters and is &lt; 12 characters in length
+* signup.experiment.pw_strength.bloomfilter_hit - password was found in bloomfilter
+* signup.experiment.pw_strength.bloomfilter_miss - password was checked against the bloomfilter but no found
+* signup.experiment.pw_strength.bloomfilter_used - bloomfilter was used
+* signup.experiment.pw_strength.enabled - user was opted in to password strength check
+* signup.experiment.pw_strength.long_enough - password is &gte; 12 characters
+* signup.experiment.pw_strength.missing_password - no password supplied
+* signup.experiment.pw_strength.too_short - password was &lt; 8 characters
 * signup.password.hidden - password is hidden
 * signup.password.visible - password is shown
 * tooltip.mailcheck-suggested - an email address correction was suggested
