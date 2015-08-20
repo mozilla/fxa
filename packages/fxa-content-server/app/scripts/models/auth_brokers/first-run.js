@@ -16,11 +16,11 @@ define([
 
   var FirstRunAuthenticationBroker = FxDesktopV2AuthenticationBroker.extend({
     _iframeCommands: {
-       LOADED: 'loaded',
-       LOGIN: 'login',
-       SIGNUP_MUST_VERIFY: 'signup_must_verify',
-       VERIFICATION_COMPLETE: 'verification_complete'
-     },
+      LOADED: 'loaded',
+      LOGIN: 'login',
+      SIGNUP_MUST_VERIFY: 'signup_must_verify',
+      VERIFICATION_COMPLETE: 'verification_complete'
+    },
 
     haltAfterResetPasswordConfirmationPoll: false,
     haltAfterSignIn: false,

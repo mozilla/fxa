@@ -243,7 +243,7 @@ define([
                 });
               }, function () {
                 // if there's an error, just ignore the account
-              });
+              }); /* HACK: See eslint/eslint#1801 */ // eslint-disable-line indent
           }
 
           return promise;
