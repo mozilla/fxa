@@ -19,7 +19,7 @@ define([
   'models/profile-image'
 ],
 function ($, _, md5, Cocktail, FormView, AvatarMixin, ModalSettingsPanelMixin, SettingsMixin,
-    Template, Constants, ImageLoader, showProgressIndicator, ProfileImage) {
+    Template, AuthErrors, Constants, ImageLoader, showProgressIndicator, ProfileImage) {
   'use strict';
 
   function t (s) { return s; }

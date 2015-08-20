@@ -27,7 +27,7 @@ define([
   '../../lib/helpers'
 ],
 function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, SignUpView,
-      ReadyView, Able, Constants, Environment, Metrics, EphemeralMessages, p,
+      ReadyView, SettingsView, Able, Constants, Environment, Metrics, EphemeralMessages, p,
       Relier, User, FormPrefill, NullBroker, WindowMock, TestHelpers) {
   'use strict';
 

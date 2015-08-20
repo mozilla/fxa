@@ -131,6 +131,11 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
         });
     },
 
+    afterRender: function () {
+      this._subPanels.setElement(this.$('#sub-panels')[0]);
+      return this._subPanels.render();
+    },
+
     afterVisible: function () {
       var self = this;
       BaseView.prototype.afterVisible.call(self);
@@ -140,15 +145,9 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
       if (self.relier.get('setting') === 'avatar') {
         self.relier.set('setting', null);
         self.navigate('settings/avatar/change');
-        return;
       }
 
-      self._subPanels.setElement(self.$('#sub-panels')[0]);
-
-      return p.all([
-        self._showAvatar(),
-        self._subPanels.render()
-      ]);
+      return self._showAvatar();
     },
 
     beforeDestroy: function () {
