@@ -7,6 +7,7 @@ define([
   'sinon',
   'backbone',
   'lib/router',
+  'views/base',
   'views/sign_in',
   'views/sign_up',
   'views/ready',
@@ -23,9 +24,9 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
-      Able, Constants, Environment, Metrics, EphemeralMessages, p, Relier,
-      User, FormPrefill, NullBroker, WindowMock, TestHelpers) {
+function (chai, sinon, Backbone, Router, BaseView, SignInView, SignUpView,
+      ReadyView, Able, Constants, Environment, Metrics, EphemeralMessages, p,
+      Relier, User, FormPrefill, NullBroker, WindowMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -244,11 +245,8 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
         });
 
         return router.showView(signInView)
-            .then(function () {
+            .fail(function () {
               assert.isFalse(broker.afterLoaded.called);
-              assert.isTrue(signInView.navigate.calledWith('unexpected_error', {
-                error: boom
-              }));
 
               return router.showView(signUpView);
             })
@@ -295,57 +293,6 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
         return router.showView(view)
           .then(function () {
             assert.equal($('#fxa-signup-header').length, 0);
-          });
-      });
-
-      it('navigates to unexpected error view on beforeRender errors', function () {
-        view.beforeRender = function () {
-          throw new Error('boom');
-        };
-
-        var navigate = view.navigate;
-        view.navigate = function (url, options) {
-          assert.equal(options.error.message, 'boom');
-          return navigate.call(this, url, options);
-        };
-
-        return router.showView(view)
-          .then(function () {
-            assert.include(navigateUrl, 'unexpected_error');
-          });
-      });
-
-      it('navigates to unexpected error view on context errors', function () {
-        view.context = function () {
-          throw new Error('boom');
-        };
-
-        var navigate = view.navigate;
-        view.navigate = function (url, options) {
-          assert.equal(options.error.message, 'boom');
-          return navigate.call(this, url, options);
-        };
-
-        return router.showView(view)
-          .then(function () {
-            assert.include(navigateUrl, 'unexpected_error');
-          });
-      });
-
-      it('navigates to unexpected error view on afterRender errors', function () {
-        view.afterRender = function () {
-          throw new Error('boom');
-        };
-
-        var navigate = view.navigate;
-        view.navigate = function (url, options) {
-          assert.equal(options.error.message, 'boom');
-          return navigate.call(this, url, options);
-        };
-
-        return router.showView(view)
-          .then(function () {
-            assert.include(navigateUrl, 'unexpected_error');
           });
       });
 
@@ -493,12 +440,90 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
     });
 
     describe('createAndShowView', function () {
+      var MockView;
+
+      beforeEach(function () {
+        MockView = SignUpView.extend({});
+      });
+
       it('creates and shows a view', function () {
         return router.createAndShowView(SignUpView, { canGoBack: false })
           .then(function () {
             assert.equal($('#fxa-signup-header').length, 1);
             assert.isTrue(router.storage.get('canGoBack'));
           });
+      });
+
+      it('navigates to unexpected error view on views constructor errors', function () {
+        var MockView = function () {
+          throw new Error('boom');
+        };
+
+        sinon.spy(BaseView.prototype, 'navigate');
+        return router.createAndShowView(MockView)
+          .then(function () {
+            var spyCall = BaseView.prototype.navigate.lastCall;
+            assert.equal(spyCall.args[0], 'unexpected_error');
+            assert.equal(spyCall.args[1].error.message, 'boom');
+            BaseView.prototype.navigate.restore();
+          }, assert.fail);
+      });
+
+      it('navigates to unexpected error view on views initialize errors', function () {
+        MockView.prototype.initialize = function () {
+          throw new Error('boom');
+        };
+
+        sinon.spy(BaseView.prototype, 'navigate');
+        return router.createAndShowView(MockView)
+          .then(function () {
+            var spyCall = BaseView.prototype.navigate.lastCall;
+            assert.equal(spyCall.args[0], 'unexpected_error');
+            assert.equal(spyCall.args[1].error.message, 'boom');
+            BaseView.prototype.navigate.restore();
+          }, assert.fail);
+      });
+
+      it('navigates to unexpected error view on views beforeRender errors', function () {
+        MockView.prototype.beforeRender = function () {
+          throw new Error('boom');
+        };
+
+        sinon.spy(MockView.prototype, 'navigate');
+        return router.createAndShowView(MockView)
+          .then(function () {
+            var spyCall = MockView.prototype.navigate.firstCall;
+            assert.equal(spyCall.args[0], 'unexpected_error');
+            assert.equal(spyCall.args[1].error.message, 'boom');
+          }, assert.fail);
+      });
+
+      it('navigates to unexpected error view on views context errors', function () {
+        MockView.prototype.context = function () {
+          throw new Error('boom');
+        };
+
+        sinon.spy(MockView.prototype, 'navigate');
+        return router.createAndShowView(MockView)
+          .then(function () {
+            var spyCall = MockView.prototype.navigate.firstCall;
+            assert.equal(spyCall.args[0], 'unexpected_error');
+            assert.equal(spyCall.args[1].error.message, 'boom');
+          }, assert.fail);
+      });
+
+      it('navigates to unexpected error view on views afterRender errors', function () {
+        MockView.prototype.afterRender = function () {
+          throw new Error('boom');
+        };
+
+        sinon.spy(MockView.prototype, 'navigate');
+        return router.createAndShowView(MockView)
+          .then(function () {
+            var spyCall = MockView.prototype.navigate.firstCall;
+            assert.equal(spyCall.args[0], 'unexpected_error');
+            assert.equal(spyCall.args[1].error.message, 'boom');
+          }, assert.fail);
       });
     });
 

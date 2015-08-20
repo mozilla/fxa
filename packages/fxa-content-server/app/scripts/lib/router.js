@@ -9,6 +9,7 @@ define([
   './environment',
   './promise',
   './storage',
+  '../views/base',
   '../views/sign_in',
   '../views/force_auth',
   '../views/sign_up',
@@ -46,6 +47,7 @@ function (
   Environment,
   p,
   Storage,
+  BaseView,
   SignInView,
   ForceAuthView,
   SignUpView,
@@ -185,9 +187,20 @@ function (
 
     createAndShowView: function (View, options) {
       var self = this;
+      var view;
       return p().then(function () {
-        var view = self.createView(View, options);
+        view = self.createView(View, options);
         return self.showView(view);
+      })
+      .fail(function (err) {
+        view = view || self.currentView || new BaseView({
+          router: self
+        });
+        // The router's navigate method doesn't set ephemeral messages,
+        // so use the view's higher level navigate method.
+        return view.navigate('unexpected_error', {
+          error: err
+        });
       });
     },
 
@@ -282,13 +295,6 @@ function (
             self._firstViewHasLoaded = true;
           }
           self._checkForRefresh();
-        })
-        .fail(function (err) {
-          // The router's navigate method doesn't set ephemeral messages,
-          // so use the view's higher level navigate method.
-          return viewToShow.navigate('unexpected_error', {
-            error: err
-          });
         });
     },
 
