@@ -58,6 +58,8 @@ define([
         view.setPasswordVisibilityFromButton('#show-password');
         assert.equal(view.$('#password').attr('type'), 'text');
         assert.equal(view.$('#password').attr('autocomplete'), 'off');
+        assert.equal(view.$('#password').attr('autocapitalize'), 'off');
+        assert.equal(view.$('#password').attr('autocorrect'), 'off');
       });
 
       it('sets the password field to type=password if button is unchecked', function () {
@@ -65,6 +67,8 @@ define([
         view.setPasswordVisibilityFromButton('#show-password');
         assert.equal(view.$('#password').attr('type'), 'password');
         assert.isUndefined(view.$('#password').attr('autocomplete'));
+        assert.isUndefined(view.$('#password').attr('autocapitalize'));
+        assert.isUndefined(view.$('#password').attr('autocorrect'));
       });
 
       it('always sets the `autocomplete=off` attribute if the relier is sync', function () {
@@ -88,8 +92,12 @@ define([
         view.$('.show-password').click();
         assert.equal(view.$('#password').attr('type'), 'text');
         assert.equal(view.$('#password').attr('autocomplete'), 'off');
+        assert.equal(view.$('#password').attr('autocapitalize'), 'off');
+        assert.equal(view.$('#password').attr('autocorrect'), 'off');
         assert.equal(view.$('#vpassword').attr('type'), 'text');
         assert.equal(view.$('#vpassword').attr('autocomplete'), 'off');
+        assert.equal(view.$('#vpassword').attr('autocomplete'), 'off');
+        assert.equal(view.$('#vpassword').attr('autocapitalize'), 'off');
       });
 
       it('pw field set to password when clicked again', function () {
@@ -97,8 +105,12 @@ define([
         view.$('.show-password').click();
         assert.equal(view.$('#password').attr('type'), 'password');
         assert.equal(view.$('#password').attr('autocomplete'), null);
+        assert.equal(view.$('#password').attr('autocapitalize'), null);
+        assert.equal(view.$('#password').attr('autocorrect'), null);
         assert.equal($('#vpassword').attr('type'), 'password');
         assert.equal($('#vpassword').attr('autocomplete'), null);
+        assert.equal($('#vpassword').attr('autocapitalize'), null);
+        assert.equal($('#vpassword').attr('autocorrect'), null);
       });
 
       it('logs whether the password is shown or hidden', function () {
