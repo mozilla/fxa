@@ -21,10 +21,8 @@ define([
   var AVATAR_CHANGE_URL_AUTOMATED = config.fxaContentRoot + 'settings/avatar/change?automatedBrowser=true';
 
   var PASSWORD = 'password';
-  var EMAIL_AVATAR_AB_PREFIX = 'avatarAB-';
   var email;
   var client;
-  var emailAvatarAb;
 
   function testIsBrowserNotifiedOfAvatarChange(context) {
     return FunctionalHelpers.testIsBrowserNotified(context, 'profile:change', function (data) {
@@ -67,7 +65,6 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      emailAvatarAb = EMAIL_AVATAR_AB_PREFIX + TestHelpers.createEmail();
 
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
@@ -94,70 +91,34 @@ define([
         .end();
     },
 
-    'go to settings with an email NOT selected to see change link should not see one': function () {
-      return this.remote
-        .get(require.toUrl(SETTINGS_URL))
-
-        .setFindTimeout(intern.config.pageLoadTimeout)
-
-        .findByCssSelector('.avatar-view')
-        .end()
-
-        // this link should not be present on the page at all
-        .then(FunctionalHelpers.noSuchElement(this, 'a.change-avatar'));
-    },
-
-    'go to settings with an email NOT selected to see change link should not see text link': function () {
-      return this.remote
-        .get(require.toUrl(SETTINGS_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-
-        .findByCssSelector('.avatar-view')
-        .end()
-
-        // this link will be present on the page, but not visible to the user.
-        .setFindTimeout(0)
-        .findByCssSelector('p.change-avatar-text a').isDisplayed()
-        .then(function (isDisplayed) {
-          assert.isFalse(isDisplayed);
-        })
-        .end();
-    },
-
     'go to settings with an email selected to see change link then click on avatar to change': function () {
       var self = this;
-      return signUp(self, emailAvatarAb)
-        .then(function () {
-          return self.remote
-            .get(require.toUrl(SETTINGS_URL))
+      return self.remote
+        .get(require.toUrl(SETTINGS_URL))
 
-            // go to change avatar
-            .findByCssSelector('a.change-avatar')
-              .click()
-            .end()
+        // go to change avatar
+        .findByCssSelector('a.change-avatar')
+          .click()
+        .end()
 
-            // success is going to the change avatar page
-            .findById('avatar-options')
-            .end();
-        });
+        // success is going to the change avatar page
+        .findById('avatar-options')
+        .end();
     },
 
     'go to settings with an email selected to see change link then click on text link to change': function () {
       var self = this;
-      return signUp(self, emailAvatarAb)
-        .then(function () {
-          return self.remote
-            .get(require.toUrl(SETTINGS_URL))
+      return self.remote
+        .get(require.toUrl(SETTINGS_URL))
 
-            // go to change avatar
-            .findByCssSelector('p.change-avatar-text a')
-              .click()
-            .end()
+        // go to change avatar
+        .findByCssSelector('p.change-avatar-text a')
+          .click()
+        .end()
 
-            // success is going to the change avatar page
-            .findById('avatar-options')
-            .end();
-        });
+        // success is going to the change avatar page
+        .findById('avatar-options')
+        .end();
     },
 
     'visit gravatar with gravatar set': function () {
