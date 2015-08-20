@@ -484,6 +484,10 @@ define([
         .click()
         .end()
 
+        // ensure signin page is visible otherwise credentials might
+        // not be cleared by clicking .use-different
+        .then(FunctionalHelpers.visibleByQSA('#fxa-signin-header'))
+
         // This will clear the desktop credentials
         .findByCssSelector('.use-different')
         .click()

@@ -148,6 +148,7 @@ function (chai, $, sinon, View, RouterMock, ProfileMock, TestHelpers, User,
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.avatar.gravatar.submit.new'));
               assert.isFalse(TestHelpers.isEventLogged(metrics, 'settings.avatar.gravatar.submit.change'));
               assert.equal(view.updateProfileImage.args[0][0].get('id'), 'foo');
+              assert.equal(view.updateProfileImage.args[0][1], account);
               assert.equal(result.id, 'foo');
               assert.equal(routerMock.page, 'settings');
               assert.equal(view.ephemeralMessages.get('successUnsafe'), 'Courtesy of <a href="https://www.gravatar.com">Gravatar</a>');

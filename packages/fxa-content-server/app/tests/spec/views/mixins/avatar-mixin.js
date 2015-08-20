@@ -14,12 +14,13 @@ define([
   'models/account',
   'models/profile-image',
   'lib/metrics',
+  'lib/auth-errors',
   'lib/profile-errors',
   'lib/promise',
   'lib/channels/null',
   '../../../lib/helpers'
 ], function (Chai, sinon, _, AvatarMixin, BaseView, Notifications, Relier,
-    User, Account, ProfileImage, Metrics, ProfileErrors, p, NullChannel,
+    User, Account, ProfileImage, Metrics, AuthErrors, ProfileErrors, p, NullChannel,
     TestHelpers) {
   'use strict';
 
@@ -77,12 +78,27 @@ define([
 
     describe('displayAccountProfileImage', function () {
       it('does not log an error for a non-authenticated account', function () {
+        sinon.stub(account, 'fetchCurrentProfileImage', function () {
+          return p.reject(ProfileErrors.toError('UNAUTHORIZED'));
+        });
         return view.displayAccountProfileImage(account)
           .then(function () {
             var err = view._normalizeError(ProfileErrors.toError('UNAUTHORIZED'));
             assert.isFalse(TestHelpers.isErrorLogged(metrics, err));
           });
       });
+
+      it('does not log an error for an unverified account', function () {
+        sinon.stub(account, 'fetchCurrentProfileImage', function () {
+          return p.reject(AuthErrors.toError('UNVERIFIED_ACCOUNT'));
+        });
+        return view.displayAccountProfileImage(account)
+          .then(function () {
+            var err = view._normalizeError(AuthErrors.toError('UNVERIFIED_ACCOUNT'));
+            assert.isFalse(TestHelpers.isErrorLogged(metrics, err));
+          });
+      });
+
       it('logs other kind of errors', function () {
         sinon.stub(account, 'fetchCurrentProfileImage', function () {
           return p.reject(ProfileErrors.toError('SERVICE_UNAVAILABLE'));
@@ -97,31 +113,25 @@ define([
 
     it('displayAccountProfileImage updates the cached account data', function () {
       var image = new ProfileImage({ url: 'url', id: 'foo', img: new Image() });
-      var cachedAccount = user.initAccount({ uid: 'uid' });
-      sinon.spy(cachedAccount, 'setProfileImage');
 
+      sinon.spy(account, 'setProfileImage');
       sinon.stub(account, 'fetchCurrentProfileImage', function () {
         return p(image);
-      });
-      sinon.stub(user, 'getAccountByUid', function () {
-        return cachedAccount;
       });
 
       return view.displayAccountProfileImage(account)
         .then(function () {
           assert.isTrue(account.fetchCurrentProfileImage.called);
-          assert.isTrue(user.getAccountByUid.calledWith(UID));
-          assert.isTrue(user.setAccount.calledWith(cachedAccount));
-          assert.isTrue(cachedAccount.setProfileImage.calledWith(image));
+          assert.isTrue(user.setAccount.calledWith(account));
+          assert.isTrue(account.setProfileImage.calledWith(image));
           assert.isTrue(view.hasDisplayedAccountProfileImage());
         });
     });
 
     describe('updateProfileImage', function () {
       it('stores the url', function () {
-        view.updateProfileImage(new ProfileImage({ url: 'url' }));
+        view.updateProfileImage(new ProfileImage({ url: 'url' }), account);
         assert.equal(account.get('profileImageUrl'), 'url');
-        assert.isTrue(view.getSignedInAccount.called);
         assert.isTrue(user.setAccount.calledWith(account));
         assert.isTrue(notifications.profileChanged.calledWith({ uid: UID }));
       });

@@ -212,6 +212,7 @@ function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
                   assert.equal(result.id, 'foo');
                   assert.isTrue(view.updateProfileImage.called);
                   assert.equal(view.updateProfileImage.args[0][0].get('url'), result.url);
+                  assert.equal(view.updateProfileImage.args[0][1], account);
                   assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.avatar.camera.submit.new'));
 
                   // check canvas drawImage args
