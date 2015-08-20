@@ -603,7 +603,7 @@ describe('/display_name', function() {
       });
     });
 
-    it('should NOT return a profile if wrong scope', function() {
+    it('should NOT return a display_name if wrong scope', function() {
       mock.token({
         user: USERID,
         email: 'user@example.domain',
@@ -644,8 +644,8 @@ describe('/display_name', function() {
       });
     });
 
-    it('should allow an empty display name', function() {
-      var NAME = '';
+    it('should unset the display name if given an empty string', function() {
+      var NAME = 'Spock';
       mock.token({
         user: USERID,
         email: 'user@example.domain',
@@ -661,9 +661,109 @@ describe('/display_name', function() {
         }
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
-        return db.getDisplayName(USERID);
+        mock.token({
+          user: USERID,
+          email: 'user@example.domain',
+          scope: ['profile:display_name:write']
+        });
+        return Server.api.post({
+          url: '/display_name',
+          payload: {
+            displayName: ''
+          },
+          headers: {
+            authorization: 'Bearer ' + tok
+          }
+        });
       }).then(function(res) {
-        assert.equal(res.displayName, NAME);
+        assert.equal(res.statusCode, 200);
+        mock.token({
+          user: USERID,
+          email: 'user@example.domain',
+          scope: ['profile:display_name']
+        });
+        return Server.api.get({
+          url: '/display_name',
+          headers: {
+            authorization: 'Bearer ' + tok
+          }
+        });
+      }).then(function(res) {
+        assert.equal(res.statusCode, 404);
+      });
+    });
+
+    it('should accept a variety of unicode characters', function() {
+      var NAMES = [
+        'André Citroën',
+        'the unblinking ಠ_ಠ of ckarlof',
+        'abominable ☃'
+      ];
+      return P.resolve(NAMES).each(function(NAME) {
+        mock.token({
+          user: USERID,
+          email: 'user@example.domain',
+          scope: ['profile:display_name:write']
+        });
+        return Server.api.post({
+          url: '/display_name',
+          payload: {
+            displayName: NAME
+          },
+          headers: {
+            authorization: 'Bearer ' + tok
+          }
+        }).then(function(res) {
+          assert.equal(res.statusCode, 200);
+          mock.token({
+            user: USERID,
+            email: 'user@example.domain',
+            scope: ['profile:display_name']
+          });
+          return Server.api.get({
+            url: '/display_name',
+            headers: {
+              authorization: 'Bearer ' + tok
+            }
+          });
+        }).then(function(res) {
+          assert.equal(res.statusCode, 200);
+          // Using JSON.parse() on the payload seems to break the utf8 here..?
+          //assert.equal(JSON.parse(res.payload).displayName, NAME);
+          assert.equal(res.result.displayName, NAME);
+        });
+      });
+    });
+
+    it('should reject unicode control characters', function() {
+      var NAMES = [
+        'null\0terminator',
+        'ring\u0007my\u0007bell',
+        'new\nline',
+        'line\rfeed',
+        'C1 next \u0085 line',
+        'paragraph \u2028 separator',
+        'private \uE005 use \uF8FF block',
+        'specials \uFFFB annotation terminator',
+      ];
+      return P.resolve(NAMES).each(function(NAME) {
+        mock.token({
+          user: USERID,
+          email: 'user@example.domain',
+          scope: ['profile:display_name:write']
+        });
+        return Server.api.post({
+          url: '/display_name',
+          payload: {
+            displayName: NAME
+          },
+          headers: {
+            authorization: 'Bearer ' + tok
+          }
+        }).then(function(res) {
+          assert.equal(res.statusCode, 400);
+          assert.equal(res.result.errno, 101);
+        });
       });
     });
   });
