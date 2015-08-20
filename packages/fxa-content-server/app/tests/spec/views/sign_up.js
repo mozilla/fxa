@@ -25,7 +25,7 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
+function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Metrics,
       FxaClient, EphemeralMessages, mailcheck, Able, Relier, Broker, User, FormPrefill,
       RouterMock, WindowMock, TestHelpers) {
   'use strict';
@@ -89,7 +89,7 @@ function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
         fxaClient: fxaClient
       });
       formPrefill = new FormPrefill();
-      coppa = new Coppa();
+      coppa = new CoppaDatePicker();
       able = new Able();
 
       createView();
@@ -156,14 +156,25 @@ function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
             });
       });
 
-      it('Shows serviceName', function () {
+      it('choose input COPPA based on document param', function () {
+        view._coppa = null;
+        view.window = new WindowMock();
+        view.window.location.search = '?forceCoppa=input';
+        return view.render()
+          .then(function () {
+            view._createCoppaView();
+            assert.ok(view.$el.find('#age').length);
+          });
+      });
+
+      it('shows serviceName', function () {
         var serviceName = 'my service name';
         relier.set('serviceName', serviceName);
 
         return view.render()
-            .then(function () {
-              assert.include(view.$('#fxa-signup-header').text(), serviceName);
-            });
+          .then(function () {
+            assert.include(view.$('#fxa-signup-header').text(), serviceName);
+          });
       });
 
       describe('email opt in', function () {

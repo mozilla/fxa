@@ -17,11 +17,12 @@ define([
   'views/mixins/resume-token-mixin',
   'views/mixins/migration-mixin',
   'views/mixins/signup-disabled-mixin',
-  'views/coppa/coppa-date-picker'
+  'views/coppa/coppa-date-picker',
+  'views/coppa/coppa-age-input'
 ],
 function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       Url, PasswordMixin, ServiceMixin, CheckboxMixin, ResumeTokenMixin,
-      MigrationMixin, SignupDisabledMixin, CoppaDatePicker) {
+      MigrationMixin, SignupDisabledMixin, CoppaDatePicker, CoppaAgeInput) {
   'use strict';
 
   var t = BaseView.t;
@@ -73,20 +74,27 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       }
 
       var autofocusEl = this._selectAutoFocusEl();
-      var coppaDatePicker = new CoppaDatePicker({
+      var coppaView;
+      var coppaOptions = {
         el: self.$('#coppa'),
-        metrics: this.metrics,
+        metrics: self.metrics,
         screenName: self.getScreenName(),
         formPrefill: self._formPrefill,
         shouldFocus: autofocusEl === null
-      });
+      };
 
-      return coppaDatePicker.render()
+      if (Url.searchParam('forceCoppa', self.window.location.search) === 'input') {
+        coppaView = new CoppaAgeInput(coppaOptions);
+      } else {
+        coppaView = new CoppaDatePicker(coppaOptions);
+      }
+
+      return coppaView.render()
         .then(function () {
-          self.trackSubview(coppaDatePicker);
-          coppaDatePicker.on('submit', self.validateAndSubmit.bind(self));
+          self.trackSubview(coppaView);
+          coppaView.on('submit', self.validateAndSubmit.bind(self));
 
-          self._coppa = coppaDatePicker;
+          self._coppa = coppaView;
         });
     },
 

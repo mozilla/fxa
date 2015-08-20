@@ -214,7 +214,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
         return false;
       }
 
-      var inputEls = this.$('input');
+      var inputEls = this.$('input').not('#coppa input');
       for (var i = 0, length = inputEls.length; i < length; ++i) {
         var el = inputEls[i];
         if (! this.isElementValid(el)) {
@@ -280,7 +280,8 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
         return;
       }
 
-      var inputEls = this.$('input');
+      // exclude coppa inputs from validation, coppa has its own validation
+      var inputEls = this.$('input').not('#coppa input');
       for (var i = 0, length = inputEls.length; i < length; ++i) {
         var el = inputEls[i];
         if (! this.isElementValid(el)) {

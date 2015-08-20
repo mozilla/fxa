@@ -225,6 +225,10 @@ function (_, Errors) {
     SIGNUP_DISABLED_BY_RELIER: {
       errno: 1030,
       message: t('Signup has been disabled')
+    },
+    AGE_REQUIRED: {
+      errno: 1031,
+      message: t('Age is required')
     }
   };
 
