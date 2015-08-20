@@ -126,19 +126,20 @@ module.exports = function mock(options) {
         .reply(200, JSON.stringify(tok));
     },
 
-    workerFailure: function workerFailure() {
+    workerFailure: function workerFailure(action) {
+      if (action !== 'post' && action !== 'delete') {
+        throw new Error('failure must be post or delete');
+      }
       var parts = url.parse(config.get('worker.url'));
-      var headers = {
+      var headers = action === 'post' ? {
         'content-type': 'image/png',
         'content-length': 12696
-      };
+      } : {};
       return nock(parts.protocol + '//' + parts.host, {
         reqheaders: headers
       })
-        .filteringPath(function filter(_path) {
-          return _path.replace(/\/a\/[0-9a-f]{32}/g, '/a/' + MOCK_ID);
-        })
-        .post('/a/' + MOCK_ID)
+        .filteringPath(/^\/a\/[0-9a-f]{32}$/g, '/a/' + MOCK_ID)
+        [action]('/a/' + MOCK_ID)
         .reply(500, 'unexpected server error');
 
     },

@@ -381,10 +381,13 @@ describe('/avatar', function() {
         email: 'user@example.domain',
         scope: ['profile:avatar:write']
       });
-      mock.workerFailure();
-      mock.log('routes.avatar.upload', function(rec) {
+      mock.workerFailure('post');
+      mock.log('img_workers', function(rec) {
         if (rec.levelname === 'ERROR') {
-          assert.equal(rec.message, 'worker.error unexpected server error');
+          assert.equal(
+            rec.message,
+            'upload.worker.error unexpected server error'
+          );
           return true;
         }
       });
@@ -457,8 +460,6 @@ describe('/avatar', function() {
       var s3url;
       var id;
       before(function() {
-        this.slow(2000);
-        this.timeout(3000);
         mock.token({
           user: user,
           email: 'user@example.domain',

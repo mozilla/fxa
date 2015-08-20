@@ -121,6 +121,7 @@ const Q_PROFILE_DISPLAY_NAME_UPDATE = 'INSERT INTO profile ' +
   'displayName = VALUES(displayName)';
 const Q_PROFILE_DISPLAY_NAME_GET = 'SELECT displayName FROM profile ' +
   'WHERE userId=?';
+const Q_PROFILE_DELETE = 'DELETE FROM profile WHERE userId=?';
 
 function firstRow(rows) {
   return rows[0];
@@ -203,6 +204,10 @@ MysqlStore.prototype = {
 
   getDisplayName: function getDisplayName(uid) {
     return this._readOne(Q_PROFILE_DISPLAY_NAME_GET, [buf(uid)]);
+  },
+
+  removeProfile: function removeProfile(uid) {
+    return this._write(Q_PROFILE_DELETE, [buf(uid)]);
   },
 
   _write: function _write(sql, params) {
