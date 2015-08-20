@@ -302,7 +302,9 @@ function (
 
     _checkParentOrigin: function (originCheck) {
       var self = this;
-      originCheck = originCheck || new OriginCheck(self._window);
+      originCheck = originCheck || new OriginCheck({
+        window: self._window
+      });
       var allowedOrigins = self._getAllowedParentOrigins();
 
       return originCheck.getOrigin(self._window.parent, allowedOrigins);

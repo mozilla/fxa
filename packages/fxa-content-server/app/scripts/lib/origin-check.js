@@ -34,11 +34,22 @@ define([
   // See https://github.com/mozilla/fxa-content-server/issues/2946 for details
   var RESPONSE_TIMEOUT_MS = 5000;
 
-  function OriginCheck(win) {
-    this._window = win;
+  function OriginCheck(options) {
+    options = options || {};
+
+    this._window = options.window || window;
+    if ('responseTimeoutMS' in options) {
+      this._responseTimeoutMS = options.responseTimeoutMS;
+    }
   }
 
   OriginCheck.prototype = {
+    /**
+     * Amount of time in milliseconds to wait for a response
+     * from the parent before giving up.
+     */
+    _responseTimeoutMS: RESPONSE_TIMEOUT_MS,
+
     /**
      * Get the origin of a targetWindow
      *
@@ -75,7 +86,7 @@ define([
       return deferred.promise
         // timeout after a short period. If no response is received,
         // no parent is listening.
-        .timeout(RESPONSE_TIMEOUT_MS)
+        .timeout(this._responseTimeoutMS)
         .fail(function (err) {
           if (/Timed out/.test(String(err))) {
             // a timeout is A-OK, no allowed origins are listening.

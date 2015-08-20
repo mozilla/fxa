@@ -31,7 +31,10 @@ function (chai, sinon, OriginCheck, WindowMock) {
 
       windowMock.parent = parentMock;
 
-      originCheck = new OriginCheck(windowMock);
+      originCheck = new OriginCheck({
+        responseTimeoutMS: 100,
+        window: windowMock
+      });
     });
 
     describe('getOrigin', function () {
