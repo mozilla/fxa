@@ -11,13 +11,14 @@ define([
   'views/mixins/settings-mixin',
   'views/mixins/avatar-mixin',
   'stache!templates/settings/avatar_gravatar',
+  'lib/auth-errors',
   'lib/constants',
   'lib/image-loader',
   'views/decorators/progress_indicator',
   'models/profile-image'
 ],
-function ($, _, md5, Cocktail, FormView, SettingsMixin, AvatarMixin,
-    Template, Constants, ImageLoader, showProgressIndicator, ProfileImage) {
+function ($, _, md5, Cocktail, FormView, SettingsMixin, AvatarMixin, Template,
+    AuthErrors, Constants, ImageLoader, showProgressIndicator, ProfileImage) {
   'use strict';
 
   function t (s) { return s; }
@@ -54,7 +55,7 @@ function ($, _, md5, Cocktail, FormView, SettingsMixin, AvatarMixin,
 
     _notFound: function () {
       this.navigate('settings/avatar/change', {
-        error: t('No Gravatar found')
+        error: AuthErrors.toError('NO_GRAVATAR_FOUND')
       });
     },
 

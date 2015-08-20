@@ -138,6 +138,23 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
             });
       });
 
+      it('logError is called for ephemeral error', function () {
+        var error = AuthErrors.toError('UNEXPECTED_ERROR');
+        sinon.spy(view, 'logError');
+        ephemeralMessages.set('error', error);
+        view.showEphemeralMessages();
+        assert.isTrue(view.logError.called);
+        assert.isTrue(error.logged);
+      });
+
+      it('displayError does not log an already logged error', function () {
+        var error = AuthErrors.toError('UNEXPECTED_ERROR');
+        error.logged = true;
+        sinon.stub(metrics, 'logError', function () { });
+        view.displayError(error);
+        assert.isFalse(metrics.logError.called);
+      });
+
       it('shows one time error messages', function () {
         ephemeralMessages.set('error', 'error message');
         return view.render()

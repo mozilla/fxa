@@ -13,12 +13,13 @@ define([
   'models/user',
   'models/reliers/relier',
   'models/auth_brokers/base',
+  'lib/auth-errors',
   'lib/promise',
   'lib/metrics',
   'lib/profile-client'
 ],
 function (chai, $, sinon, View, RouterMock, ProfileMock, TestHelpers, User,
-    Relier, AuthBroker, p, Metrics, ProfileClient) {
+    Relier, AuthBroker, AuthErrors, p, Metrics, ProfileClient) {
   'use strict';
 
   var assert = chai.assert;
@@ -98,7 +99,7 @@ function (chai, $, sinon, View, RouterMock, ProfileMock, TestHelpers, User,
             return view._showGravatar()
               .then(function () {
                 assert.equal(routerMock.page, 'settings/avatar/change');
-                assert.equal(view.ephemeralMessages.get('error'), 'No Gravatar found');
+                assert.isTrue(AuthErrors.is(view.ephemeralMessages.get('error'), 'NO_GRAVATAR_FOUND'));
               });
           });
       });

@@ -229,6 +229,10 @@ function (_, Errors) {
     AGE_REQUIRED: {
       errno: 1031,
       message: t('Age is required')
+    },
+    NO_GRAVATAR_FOUND: {
+      errno: 1032,
+      message: t('No Gravatar found')
     }
   };
 
