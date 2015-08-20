@@ -36,9 +36,11 @@ module.exports = function (
   ]
 
   function isOpenIdProviderAllowed(id) {
+    if (typeof(id) !== 'string') { return false }
+    var hostname = url.parse(id).hostname
     return config.openIdProviders.some(
       function (allowed) {
-        return id.indexOf(allowed) === 0
+        return hostname === url.parse(allowed).hostname
       }
     )
   }
