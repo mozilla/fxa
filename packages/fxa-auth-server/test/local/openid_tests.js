@@ -90,7 +90,7 @@ TestServer.start(config)
     'openid login rejects invalid assertions',
     function (t) {
       Pool.request(
-        config.publicUrl + '/v1/account/openid/login?foo=bar',
+        config.publicUrl + '/v1/account/openid/login?openid.claimed_id=https://me.yahoo.com/foo',
         function (err, res) {
           t.equal(res.statusCode, 302)
           var location = url.parse(res.headers.location, true)

@@ -27,7 +27,7 @@ module.exports = function (
   checkPassword
   ) {
 
-  var openIdExtensions = [
+  var OPENID_EXTENSIONS = [
     new openid.AttributeExchange(
       {
         'http://axschema.org/contact/email': 'optional'
@@ -382,7 +382,7 @@ module.exports = function (
             }
             reply.redirect(authUrl)
           },
-          openIdExtensions,
+          OPENID_EXTENSIONS,
           false // strict
         )
       }
@@ -392,6 +392,8 @@ module.exports = function (
       path: '/account/openid/login',
       handler: function (request, reply) {
         if (!request.url.search) {
+          // OpenID providers may perform discovery on the verify url expecting
+          // an XRDS document.
           return reply(
           '<?xml version="1.0" encoding="UTF-8"?>\n'
           + '<xrds:XRDS xmlns:xrds="xri://$xrds" xmlns="xri://$xrd*($v*2.0)"><XRD>'
@@ -402,6 +404,19 @@ module.exports = function (
           ).type('application/xrds+xml')
         }
         log.info({ op: 'Account.openid', url: request.url })
+
+        var unverifiedId = request.url.query && request.url.query['openid.claimed_id']
+        if (!isOpenIdProviderAllowed(unverifiedId)) {
+          log.warn({op: 'Account.openid', id: unverifiedId })
+          return reply.redirect(
+            config.contentServer.url + '/openid?' + qs.stringify(
+              {
+                err: 'This OpenID Provider is not allowed'
+              }
+            )
+          )
+        }
+
         openid.verifyAssertion(
           url.format(request.url),
           function (err, assertion) {
@@ -414,16 +429,6 @@ module.exports = function (
             var id = assertion.claimedIdentifier
             var locale = request.app.acceptLanguage
 
-            if (!isOpenIdProviderAllowed(id)) {
-              log.warn({op: 'Account.openid', id: id })
-              return reply.redirect(
-                config.contentServer.url + '/openid?' + qs.stringify(
-                  {
-                    err: 'This OpenID Provider is not allowed'
-                  }
-                )
-              )
-            }
             db.openIdRecord(id)
               .then(
                 function (record) {
@@ -434,7 +439,7 @@ module.exports = function (
                     throw err
                   }
                   var uid = uuid.v4('binary')
-                  var email = assertion.email || uid.toString('hex') + '@firefox.com'
+                  var email = assertion.email || uid.toString('hex') + '@uid.' + config.domain
                   var authSalt = crypto.randomBytes(32)
                   var kA = crypto.randomBytes(32)
                   return db.createAccount(
@@ -475,7 +480,7 @@ module.exports = function (
                         {
                           uid: account.uid,
                           kA: account.kA,
-                          // wrapKb is undefined without a password
+                          // wrapKb is undefined without a password.
                           // wrapWrapKb has the properties we need for this
                           // value; Its stable, random, and will change on
                           // account reset.
@@ -492,6 +497,9 @@ module.exports = function (
                               account.kA,
                               account.wrapWrapKb
                             )
+                            // The browser using these values for unwrapBKey
+                            // and wrapKb (from above) will yield kA
+                            // as the Sync key instead of kB
                           }
                         }
                       )
@@ -533,7 +541,7 @@ module.exports = function (
               )
           },
           false, // stateless
-          openIdExtensions,
+          OPENID_EXTENSIONS,
           false // strict
         )
       }
