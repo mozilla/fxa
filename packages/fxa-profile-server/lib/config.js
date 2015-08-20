@@ -28,6 +28,18 @@ const conf = convict({
     format: ['dev', 'test', 'stage', 'prod'],
     default: 'dev'
   },
+  events: {
+    region: {
+      doc: 'AWS Region of fxa account events',
+      format: String,
+      default: ''
+    },
+    queueUrl: {
+      doc: 'SQS queue url for fxa account events',
+      format: String,
+      default: ''
+    }
+  },
   git: {
     commit: {
       doc: 'Commit SHA when in stage/production',
