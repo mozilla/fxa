@@ -47,6 +47,12 @@ AppError.prototype.header = function (name, value) {
   this.output.headers[name] = value;
 };
 
+AppError.from = function from(obj) {
+  var err = new AppError(obj);
+  err.cause = obj.cause;
+  return err;
+};
+
 AppError.translate = function translate(response) {
   if (response instanceof AppError) {
     return response;
@@ -126,7 +132,7 @@ AppError.oauthError = function oauthError(err) {
     code: 503,
     error: 'Service Unavailable',
     errno: 104,
-    message: 'OAuth server unavailable'
+    message: 'OAuth server error'
   }, {
     cause: err
   });
