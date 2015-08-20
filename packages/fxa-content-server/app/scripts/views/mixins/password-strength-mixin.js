@@ -16,9 +16,9 @@ define([
     },
 
     _isPasswordStrengthCheckEnabledValue: undefined,
-    _isPasswordStrengthCheckEnabled: function () {
+    isPasswordStrengthCheckEnabled: function () {
       var self = this;
-      if (_.undefined(self._isPasswordStrengthCheckEnabledValue)) {
+      if (_.isUndefined(self._isPasswordStrengthCheckEnabledValue)) {
         var abData = {
           isMetricsEnabledValue: self.metrics.isCollectionEnabled(),
           uniqueUserId: self.user.get('uniqueUserId'),
@@ -37,11 +37,13 @@ define([
     },
 
     _passwordStrengthCheckerPromise: undefined,
-    _getPasswordStrengthChecker: function () {
+    getPasswordStrengthChecker: function () {
       // returns a promise that resolves once the library is loaded.
       var self = this;
       if (! self._passwordStrengthCheckerPromise) {
         self._passwordStrengthCheckerPromise = requireOnDemand('passwordcheck')
+          // Log any failures loading the script
+          .fail(self.logError.bind(self))
           .then(function (PasswordCheck) {
             return new PasswordCheck();
           });
@@ -66,11 +68,11 @@ define([
      */
     checkPasswordStrength: function (password) {
       var self = this;
-      if (! self._isPasswordStrengthCheckEnabled()) {
+      if (! self.isPasswordStrengthCheckEnabled()) {
         return p('DISABLED');
       }
 
-      return self._getPasswordStrengthChecker()
+      return self.getPasswordStrengthChecker()
         .then(function (passwordStrengthChecker) {
           var deferred = p.defer();
           passwordStrengthChecker(password, function (passwordCheckStatus) {

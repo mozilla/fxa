@@ -26,7 +26,7 @@ define([
       PasswordStrengthMixin
     );
 
-    describe('_isPasswordStengthCheckEnabled', function () {
+    describe('isPasswordStengthCheckEnabled', function () {
       it('calls able to make the choice', function () {
         var ableMock = {
           choose: sinon.spy(function () {
@@ -55,7 +55,7 @@ define([
         });
 
         sinon.spy(view, 'logScreenEvent');
-        assert.isTrue(view._isPasswordStrengthCheckEnabled());
+        assert.isTrue(view.isPasswordStrengthCheckEnabled());
         assert.isTrue(
           ableMock.choose.calledWith('passwordStrengthCheckEnabled', {
             isMetricsEnabledValue: true,
@@ -72,15 +72,15 @@ define([
         view = new View();
         sinon.spy(view, 'logScreenEvent');
 
-        sinon.stub(view, '_isPasswordStrengthCheckEnabled', function () {
+        sinon.stub(view, 'isPasswordStrengthCheckEnabled', function () {
           return false;
         });
 
-        sinon.spy(view, '_getPasswordStrengthChecker');
+        sinon.spy(view, 'getPasswordStrengthChecker');
         return view.checkPasswordStrength('password')
           .then(function (status) {
             assert.equal(status, 'DISABLED');
-            assert.isFalse(view._getPasswordStrengthChecker.called);
+            assert.isFalse(view.getPasswordStrengthChecker.called);
           });
       });
     });
@@ -89,7 +89,7 @@ define([
       beforeEach(function () {
         view = new View();
         sinon.spy(view, 'logScreenEvent');
-        sinon.stub(view, '_isPasswordStrengthCheckEnabled', function () {
+        sinon.stub(view, 'isPasswordStrengthCheckEnabled', function () {
           return true;
         });
       });

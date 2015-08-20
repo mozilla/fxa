@@ -12,6 +12,7 @@ require.config({
     text: '../bower_components/requirejs-text/text',
     mustache: '../bower_components/mustache/mustache',
     stache: '../bower_components/requirejs-mustache/stache',
+    nocache: 'lib/requirejs-plugin-nocache',
     chai: '../bower_components/chai/chai',
     cocktail: '../bower_components/cocktail/Cocktail',
     'p-promise': '../bower_components/p/p',

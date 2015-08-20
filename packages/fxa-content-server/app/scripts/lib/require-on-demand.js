@@ -15,9 +15,37 @@
  */
 
 define([
-  'lib/promise'
-], function (p) {
+  'lib/errors',
+  'lib/promise',
+  'underscore'
+], function (Errors, p, _) {
   'use strict';
+
+  var t = function (msg) {
+    return msg;
+  };
+
+  var RODErrors = _.extend({}, Errors, {
+    ERRORS: {
+      UNEXPECTED_ERROR: {
+        errno: 999,
+        message: t('Unexpected error')
+      },
+      TIMEOUT: {
+        errno: 1000,
+        message: t('Unexpected error')
+      },
+      NODEFINE: {
+        errno: 1001,
+        message: t('Unexpected error')
+      },
+      SCRIPTERROR: {
+        errno: 1002,
+        message: t('Unexpected error')
+      }
+    },
+    NAMESPACE: 'require-on-demand'
+  });
 
   function requireOnDemand(resourceToGet) {
     return p().then(function () {
@@ -32,11 +60,22 @@ define([
       // be loaded on demand, and the module returned when the promise
       // resolves.
       var getNow = window.require;
-      getNow([resourceToGet], deferred.resolve.bind(deferred));
+      getNow(['nocache!' + resourceToGet],
+        deferred.resolve.bind(deferred), function (requireErr) {
+          // RequireJS errors described in
+          // http://requirejs.org/docs/api.html#errors
+          var errorType = requireErr.requireType || 'UNEXPECTED_ERROR';
+          var normalizedErrorType = errorType.toUpperCase();
+          var err = RODErrors.toError(normalizedErrorType, resourceToGet);
+
+          deferred.reject(err);
+        });
 
       return deferred.promise;
     });
   }
+
+  requireOnDemand.Errors = RODErrors;
 
   return requireOnDemand;
 });

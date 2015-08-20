@@ -126,6 +126,12 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
         }.bind(this));
       }
 
+      if (this.isPasswordStrengthCheckEnabled()) {
+        // load the password strength checker early so the user does
+        // not need to wait once they fill out the password.
+        this.getPasswordStrengthChecker();
+      }
+
       return FormView.prototype.afterVisible.call(this);
     },
 
