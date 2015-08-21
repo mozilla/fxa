@@ -65,7 +65,10 @@ GH.prototype._getAllPages = function _getAllPages(curPage, acc) {
   })
 }
 
-GH.ALL_REPOS = fs.readFileSync(path.join(__dirname, 'repos.txt')).toString().split('\n')
+GH.ALL_REPOS = fs.readFileSync(path.join(__dirname, 'repos.txt'))
+                 .toString().split('\n')
                  .filter(function(r) { return r && r.charAt(0) !== '#' })
+
+GH.TOP_LEVEL_REPO = 'fxa'
 
 module.exports = GH
