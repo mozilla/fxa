@@ -25,7 +25,7 @@ define([
   'models/reliers/relier',
   'models/profile-image',
   'models/user',
-  'stache!templates/test_template',
+  'stache!templates/test_template'
 ],
 function (chai, $, sinon, Cocktail, View, BaseView, SubPanels, CommunicationPreferencesView,
   SettingsPanelMixin, RouterMock, TestHelpers, FxaClient, p,

@@ -58,9 +58,8 @@ function (Cocktail, BaseView, FormView, AuthErrors, Template, PasswordMixin,
           return self.broker.afterChangePassword(account);
         })
         .then(function () {
-          self.navigate('settings', {
-            success: t('Password changed successfully')
-          });
+          self.displaySuccess(t('Password changed successfully'));
+          self.navigate('settings');
 
           return self.render();
         }, function (err) {

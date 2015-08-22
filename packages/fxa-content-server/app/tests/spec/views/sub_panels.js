@@ -48,14 +48,12 @@ function (chai, $, sinon, Cocktail, View, BaseView,
     var routerMock;
     var metrics;
     var panelViews;
-    var initialSubView;
     var superView;
 
     function createView () {
       view = new View({
         router: routerMock,
         metrics: metrics,
-        initialSubView: initialSubView,
         panelViews: panelViews,
         superView: superView
       });
@@ -82,20 +80,6 @@ function (chai, $, sinon, Cocktail, View, BaseView,
     });
 
     describe('subviews', function () {
-      it('shows subview if initialized with one', function () {
-        initialSubView = SettingsPanelView;
-        createView();
-        sinon.stub(view, 'showSubView', function () {
-          return p();
-        });
-
-        return view.render()
-          .then(function () {
-            $('#container').append(view.el);
-            assert.isTrue(view.showSubView.calledWith(SettingsPanelView));
-          });
-      });
-
       it('renders non-modal subviews on render', function () {
         sinon.stub(routerMock, 'createSubView', function (View) {
           var subview = new View();
@@ -115,14 +99,13 @@ function (chai, $, sinon, Cocktail, View, BaseView,
         assert.isUndefined(result);
       });
 
-      it('showSubView opens and logs', function () {
+      it('showSubView renders and opens', function () {
         sinon.stub(routerMock, 'createSubView', function (View) {
           var subview = new View();
-          sinon.stub(subview, 'afterVisible', function () { });
           sinon.stub(subview, 'openPanel', function () { });
-          sinon.stub(subview, 'logScreen', function () { });
           return subview;
         });
+        sinon.spy(routerMock, 'renderSubView');
         var spy = sinon.spy(view, 'trackSubview');
 
         return view.render()
@@ -136,10 +119,11 @@ function (chai, $, sinon, Cocktail, View, BaseView,
             assert.isTrue(routerMock.createSubView.called);
             assert.equal(routerMock.createSubView.args[0][0], SettingsPanelView);
             assert.isTrue(routerMock.createSubView.args[0][1].el.hasClass(SETTINGS_PANEL_CLASSNAME));
-            assert.isTrue(subView.afterVisible.called);
-            assert.isTrue(subView.openPanel.called);
-            assert.isTrue(subView.logScreen.called);
+
             assert.isTrue(spy.calledWith(subView));
+
+            assert.isTrue(routerMock.renderSubView.calledWith(subView));
+            assert.isTrue(subView.openPanel.called);
           });
       });
 
@@ -147,8 +131,11 @@ function (chai, $, sinon, Cocktail, View, BaseView,
         sinon.stub(routerMock, 'createSubView', function (View) {
           var subview = new View();
           sinon.stub(subview, 'openPanel', function () { });
-          sinon.stub(subview, 'logScreen', function () { });
           return subview;
+        });
+
+        sinon.stub(routerMock, 'renderSubView', function (view) {
+          return p(view);
         });
         var returnedView;
 
@@ -158,30 +145,10 @@ function (chai, $, sinon, Cocktail, View, BaseView,
             return view.showSubView(SettingsPanelView);
           })
           .then(function (subView) {
+            assert.ok(subView);
             assert.equal(returnedView, subView);
             assert.isTrue(routerMock.createSubView.calledOnce);
-          });
-      });
-
-      it('showSubView destroys subview if fails to render', function () {
-        sinon.stub(routerMock, 'createSubView', function (View) {
-          var subview = new View();
-          sinon.stub(subview, 'afterVisible', function () { });
-          sinon.stub(subview, 'destroy', function () { });
-          sinon.stub(subview, 'render', function () {
-            return p(false);
-          });
-          return subview;
-        });
-
-        return view.showSubView(SettingsPanelView)
-          .then(function () {
-            var subView = routerMock.createSubView.returnValues[0];
-            assert.isTrue(routerMock.createSubView.called);
-            assert.equal(routerMock.createSubView.args[0][0], SettingsPanelView);
-            assert.isTrue(subView.render.called);
-            assert.isTrue(subView.destroy.calledWith(true));
-            assert.isFalse(subView.afterVisible.called);
+            assert.isTrue(routerMock.renderSubView.calledOnce);
           });
       });
 
@@ -189,8 +156,11 @@ function (chai, $, sinon, Cocktail, View, BaseView,
         sinon.stub(routerMock, 'createSubView', function (View) {
           var subview = new View();
           sinon.stub(subview, 'openPanel', function () { });
-          sinon.stub(subview, 'logScreen', function () { });
           return subview;
+        });
+
+        sinon.stub(routerMock, 'renderSubView', function (view) {
+          return p(view);
         });
 
         return view.showSubView(ModalSettingsPanelView)

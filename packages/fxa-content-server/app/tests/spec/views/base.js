@@ -96,21 +96,33 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
 
       it('updates the page title with the embedded h1 and h2 tags', function () {
         view.template = function () {
-          return '<h1>Main title</h1><h2>Sub title</h2>';
+          return '<header><h1>Main title</h1><h2>Sub title</h2></header>';
         };
         return view.render()
             .then(function () {
-              assert.equal(windowMock.document.title, 'Main title: Sub title');
+              $('#container').html(view.el);
+              assert.equal(view.titleFromView(), 'Main title: Sub title');
+            });
+      });
+
+
+      it('updates the page title with the embedded h2 tag and base title', function () {
+        view.template = function () {
+          return '<header><h2>Sub title</h2></header>';
+        };
+        return view.render()
+            .then(function () {
+              assert.equal(view.titleFromView('Base title'), 'Base title: Sub title');
             });
       });
 
       it('updates the page title with the embedded h1 tag if no h2 tag', function () {
         view.template = function () {
-          return '<h1>Title only</h1>';
+          return '<header><h1>Title only</h1></header><header><h2>Not in first header</h2></header>';
         };
         return view.render()
             .then(function () {
-              assert.equal(windowMock.document.title, 'Title only');
+              assert.equal(view.titleFromView(), 'Title only');
             });
       });
 
@@ -120,7 +132,7 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
         };
         return view.render()
             .then(function () {
-              assert.equal(windowMock.document.title, 'Firefox Accounts Unit Tests');
+              assert.equal(view.titleFromView(), 'Firefox Accounts Unit Tests');
             });
       });
 

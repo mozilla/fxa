@@ -11,19 +11,6 @@ define([
 function (p, BaseView, Template) {
   'use strict';
 
-  function renderView(view) {
-    return view.render()
-      .then(function (shown) {
-        if (! shown) {
-          view.destroy(true);
-          return;
-        }
-        view.afterVisible();
-
-        return view;
-      });
-  }
-
   var View = BaseView.extend({
     template: Template,
     className: 'sub-panels',
@@ -31,7 +18,6 @@ function (p, BaseView, Template) {
     initialize: function (options) {
       options = options || {};
 
-      this._initialSubView = options.initialSubView;
       this._panelViews = options.panelViews || [];
     },
 
@@ -52,7 +38,7 @@ function (p, BaseView, Template) {
           if (subView) {
             self._currentSubView = subView;
             subView.openPanel();
-            subView.logScreen();
+
             return subView;
           }
         });
@@ -93,7 +79,7 @@ function (p, BaseView, Template) {
 
       self.trackSubview(view);
 
-      return renderView(view);
+      return self.router.renderSubView(view);
     },
 
     afterRender: function () {
@@ -106,12 +92,7 @@ function (p, BaseView, Template) {
 
       return p.all(initialSubViews.map(function (SubView) {
         return self._createSubViewIfNeeded(SubView);
-      }))
-      .then(function () {
-        if (self._initialSubView) {
-          self.showSubView(self._initialSubView);
-        }
-      });
+      }));
     }
   });
 

@@ -28,8 +28,7 @@ define([
     },
 
     openPanel: function () {
-      var unit = this.$('.settings-unit');
-      unit.addClass('open');
+      this.$('.settings-unit').addClass('open');
     },
 
     _closePanelReturnToSettings: function () {

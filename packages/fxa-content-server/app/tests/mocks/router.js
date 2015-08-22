@@ -33,6 +33,12 @@ define([
 
     createSubView: function (View) {
       return new View();
+    },
+
+    renderSubView: function () {
+    },
+
+    showSubView: function () {
     }
   });
 

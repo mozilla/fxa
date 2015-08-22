@@ -86,6 +86,7 @@ function (
       // navigating from a subview of the current view
       if (this.currentView instanceof View) {
         this.trigger(this.NAVIGATE_FROM_SUBVIEW, options);
+        this.setDocumentTitle(this.currentView.titleFromView());
       } else {
         this.createAndShowView(View, options);
       }
@@ -95,12 +96,16 @@ function (
   // Show a sub-view, creating and initializing the SuperView if needed.
   function showSubView(SuperView, options) {
     return function () {
+      var self = this;
       // If currentView is of the SuperView type, simply show the subView
-      if (this.currentView instanceof SuperView) {
-        this.currentView.showSubView(options.subView, options);
+      if (self.currentView instanceof SuperView) {
+          self.showSubView(options);
       } else {
         // Create the SuperView; its initialization method should handle the subView option.
-        this.createAndShowView(SuperView, options);
+        self.createAndShowView(SuperView, options)
+          .then(function () {
+            self.showSubView(options);
+          });
       }
     };
   }
@@ -293,6 +298,8 @@ function (
             return;
           }
 
+          self.setDocumentTitle(viewToShow.titleFromView());
+
           // Render the new view while stage is invisible then fade it in using css animations
           // catch problems with an explicit opacity rule after class is added.
           $('#stage').html(viewToShow.el).addClass('fade-in-forward').css('opacity', 1);
@@ -321,6 +328,33 @@ function (
             self._firstViewHasLoaded = true;
           }
           self._checkForRefresh();
+        });
+    },
+
+    renderSubView: function (viewToShow) {
+      var self = this;
+
+      return viewToShow.render()
+        .then(function (shown) {
+          if (! shown) {
+            viewToShow.destroy(true);
+            return;
+          }
+
+          viewToShow.afterVisible();
+
+          return viewToShow;
+        });
+    },
+
+    showSubView: function (options) {
+      var self = this;
+      return self.currentView.showSubView(options.subView, options)
+        .then(function (viewToShow) {
+          // Use the super view's title as the base title
+          var title = viewToShow.titleFromView(self.currentView.titleFromView());
+          self.setDocumentTitle(title);
+          viewToShow.logScreen();
         });
     },
 
@@ -367,6 +401,10 @@ function (
                 .replace(/\?.*/, '')
                 // replace _ with -
                 .replace(/_/g, '-');
+    },
+
+    setDocumentTitle: function (title) {
+      this.window.document.title = title;
     }
   });
 
