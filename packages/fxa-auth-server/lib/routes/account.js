@@ -9,7 +9,6 @@ var BASE64_JWT = validators.BASE64_JWT
 var butil = require('../crypto/butil')
 var openid = require('openid')
 var url = require('url')
-var qs = require('querystring')
 
 module.exports = function (
   log,
@@ -350,71 +349,13 @@ module.exports = function (
     },
     {
       method: 'GET',
-      path: '/account/openid/authenticate',
-      handler: function (request, reply) {
-        var id = request.query.identifier
-        if (!isOpenIdProviderAllowed(id)) {
-          log.info({ op: 'Account.openid.authenticate', id: id })
-          return reply.redirect(
-            config.contentServer.url + '/openid?' + qs.stringify(
-              {
-                err: 'This OpenID Provider is not allowed'
-              }
-            )
-          )
-        }
-        openid.authenticate(
-          id,
-          config.openIdVerifyUrl,
-          null, // realm
-          false, // immediate
-          false, // stateless
-          function (err, authUrl) {
-            if (err) {
-              log.error({ op: 'Account.openid.authenticate', err: err })
-              return reply.redirect(
-                config.contentServer.url + '/openid?' + qs.stringify(
-                  {
-                    err: err.message
-                  }
-                )
-              )
-            }
-            reply.redirect(authUrl)
-          },
-          OPENID_EXTENSIONS,
-          false // strict
-        )
-      }
-    },
-    {
-      method: 'GET',
       path: '/account/openid/login',
       handler: function (request, reply) {
-        if (!request.url.search) {
-          // OpenID providers may perform discovery on the verify url expecting
-          // an XRDS document.
-          return reply(
-          '<?xml version="1.0" encoding="UTF-8"?>\n'
-          + '<xrds:XRDS xmlns:xrds="xri://$xrds" xmlns="xri://$xrd*($v*2.0)"><XRD>'
-          + '<Service xmlns="xri://$xrd*($v*2.0)">'
-          + '<Type>http://specs.openid.net/auth/2.0/return_to</Type>'
-          + '<URI>' + config.openIdVerifyUrl + '</URI>'
-          + '</Service></XRD></xrds:XRDS>'
-          ).type('application/xrds+xml')
-        }
-        log.info({ op: 'Account.openid', url: request.url })
 
         var unverifiedId = request.url.query && request.url.query['openid.claimed_id']
         if (!isOpenIdProviderAllowed(unverifiedId)) {
           log.warn({op: 'Account.openid', id: unverifiedId })
-          return reply.redirect(
-            config.contentServer.url + '/openid?' + qs.stringify(
-              {
-                err: 'This OpenID Provider is not allowed'
-              }
-            )
-          )
+          return reply({ err: 'This OpenID Provider is not allowed' }).code(400)
         }
 
         openid.verifyAssertion(
@@ -422,9 +363,7 @@ module.exports = function (
           function (err, assertion) {
             if (err || !assertion || !assertion.authenticated) {
               log.warn({ op: 'Account.openid', err: err, assertion: assertion })
-              return reply.redirect(
-                config.contentServer.url + '/openid?err=Unknown%20Account'
-              )
+              return reply({ err: err.message || 'Unknown Account' }).code(400)
             }
             var id = assertion.claimedIdentifier
             var locale = request.app.acceptLanguage
@@ -507,21 +446,16 @@ module.exports = function (
                   )
                   .then(
                     function (tokens) {
-                      reply.redirect(
-                        config.contentServer.url + '/openid?' +
-                        qs.stringify(
-                          {
-                            uid: tokens.sessionToken.uid.toString('hex'),
-                            email: account.email,
-                            session: tokens.sessionToken.data.toString('hex'),
-                            key: tokens.keyFetchToken ?
-                              tokens.keyFetchToken.data.toString('hex')
-                              : undefined,
-                            unwrap: tokens.unwrapBKey.toString('hex'),
-                            service: 'sync',
-                            context: 'fx_desktop_v2'
-                          }
-                        )
+                      reply(
+                        {
+                          uid: tokens.sessionToken.uid.toString('hex'),
+                          email: account.email,
+                          session: tokens.sessionToken.data.toString('hex'),
+                          key: tokens.keyFetchToken ?
+                            tokens.keyFetchToken.data.toString('hex')
+                            : undefined,
+                          unwrap: tokens.unwrapBKey.toString('hex')
+                        }
                       )
                     }
                   )
@@ -530,17 +464,13 @@ module.exports = function (
               .catch(
                 function (err) {
                   log.error({ op: 'Account.openid', err: err })
-                  reply.redirect(
-                    config.contentServer.url + '/openid?' + qs.stringify(
-                      {
-                        err: err.toString()
-                      }
-                    )
-                  )
+                  reply({
+                    err: err.message
+                  }).code(500)
                 }
               )
           },
-          false, // stateless
+          true, // stateless
           OPENID_EXTENSIONS,
           false // strict
         )
