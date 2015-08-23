@@ -151,7 +151,7 @@ function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
     },
 
     beforeDestroy: function () {
-      $('.settings').fadeOut(this.FADE_OUT_SETTINGS_MS, function (){
+      $('body.settings').fadeOut(this.FADE_OUT_SETTINGS_MS, function (){
         $('body').removeClass('settings').show();
       });
     },

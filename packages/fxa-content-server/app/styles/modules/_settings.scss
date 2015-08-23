@@ -17,6 +17,11 @@ body.settings #main-content {
   box-shadow: none;
 }
 
+
+body.settings #main-content.panel {
+  visibility: hidden;
+}
+
 // settings header controls
 #fxa-settings-header-wrapper {
   background: #fff;
