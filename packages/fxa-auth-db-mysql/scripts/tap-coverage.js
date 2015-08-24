@@ -7,7 +7,7 @@
 if (!process.env.NO_COVERAGE) {
   var ass = require('ass').enable( {
     // exclude files in /client/ and /test/ from code coverage
-    exclude: [ '/client/', '/test' ]
+    exclude: [ '/client/', '/test', '/fxa-auth-db-server/node_modules/' ]
   })
 }
 
