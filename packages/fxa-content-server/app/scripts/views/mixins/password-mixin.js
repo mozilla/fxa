@@ -39,14 +39,16 @@ define([
       try {
         var passwordField = this.$('.password');
         if (isVisible) {
-          passwordField.attr('type', 'text').attr('autocomplete', 'off');
+          passwordField.attr('type', 'text').attr('autocomplete', 'off')
+            .attr('autocorrect', 'off').attr('autocapitalize', 'off');
           this.logScreenEvent('password.visible');
         } else {
           passwordField.attr('type', 'password');
           if (this.isPasswordAutoCompleteDisabled()) {
             passwordField.attr('autocomplete', 'off');
           } else {
-            passwordField.removeAttr('autocomplete');
+            passwordField.removeAttr('autocomplete')
+              .removeAttr('autocorrect').removeAttr('autocapitalize');
           }
           this.logScreenEvent('password.hidden');
         }
