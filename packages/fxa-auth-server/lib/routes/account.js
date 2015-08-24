@@ -415,6 +415,11 @@ module.exports = function (
                   )
                   .then(
                     function (sessionToken) {
+                      if (request.query.keys !== 'true') {
+                        return P.resolve({
+                          sessionToken: sessionToken
+                        })
+                      }
                       return db.createKeyFetchToken(
                         {
                           uid: account.uid,
@@ -454,7 +459,9 @@ module.exports = function (
                           key: tokens.keyFetchToken ?
                             tokens.keyFetchToken.data.toString('hex')
                             : undefined,
-                          unwrap: tokens.unwrapBKey.toString('hex')
+                          unwrap: tokens.unwrapBKey ?
+                            tokens.unwrapBKey.toString('hex')
+                            : undefined
                         }
                       )
                     }
