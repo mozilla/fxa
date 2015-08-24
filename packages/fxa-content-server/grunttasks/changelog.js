@@ -5,8 +5,8 @@
 module.exports = function (grunt) {
   grunt.config('conventionalChangelog', {
     options: {
-      // the empty object is needed or else conventionalChangelog blows up.
       changelogOpts: {
+        preset: 'angular'
       }
     },
     release: {
