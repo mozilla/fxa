@@ -317,7 +317,7 @@
               "dependencies": {
                 "esprima": {
                   "version": "1.0.4",
-                  "from": "esprima@>=1.0.4 <1.1.0",
+                  "from": "esprima@>=1.0.2 <1.1.0",
                   "resolved": "https://registry.npmjs.org/esprima/-/esprima-1.0.4.tgz"
                 }
               }
@@ -352,8 +352,8 @@
     },
     "fxa-auth-db-mysql": {
       "version": "0.42.0",
-      "from": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#a09790c20fa8c9f4a2c6f108b86aabf07038220f",
-      "resolved": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#a09790c20fa8c9f4a2c6f108b86aabf07038220f",
+      "from": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#master",
+      "resolved": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#354fc512d181b002b7aa62740889eaf60511a2d7",
       "dependencies": {
         "bluebird": {
           "version": "2.1.3",
@@ -885,7 +885,7 @@
                 },
                 "isarray": {
                   "version": "0.0.1",
-                  "from": "https://registry.npmjs.org/isarray/-/isarray-0.0.1.tgz",
+                  "from": "isarray@0.0.1",
                   "resolved": "https://registry.npmjs.org/isarray/-/isarray-0.0.1.tgz"
                 },
                 "string_decoder": {
@@ -1308,7 +1308,7 @@
     },
     "fxa-auth-mailer": {
       "version": "1.0.7",
-      "from": "git+https://github.com/mozilla/fxa-auth-mailer.git#6aac195ff6d1692b239c7906fd1becd95ee85ebf",
+      "from": "git+https://github.com/mozilla/fxa-auth-mailer.git#master",
       "resolved": "git+https://github.com/mozilla/fxa-auth-mailer.git#6aac195ff6d1692b239c7906fd1becd95ee85ebf",
       "dependencies": {
         "bluebird": {
@@ -1421,8 +1421,8 @@
         },
         "fxa-content-server-l10n": {
           "version": "0.0.0",
-          "from": "git://github.com/mozilla/fxa-content-server-l10n.git#4bbc8a6a71e45cf0abcf6d4de2219c6b0488c0e6",
-          "resolved": "git://github.com/mozilla/fxa-content-server-l10n.git#4bbc8a6a71e45cf0abcf6d4de2219c6b0488c0e6"
+          "from": "git://github.com/mozilla/fxa-content-server-l10n.git",
+          "resolved": "git://github.com/mozilla/fxa-content-server-l10n.git#e89599581ac4b362b8bde684565712e22195647c"
         },
         "handlebars": {
           "version": "1.3.0",
@@ -2153,11 +2153,6 @@
                   "resolved": "https://registry.npmjs.org/extsprintf/-/extsprintf-1.2.0.tgz"
                 }
               }
-            },
-            "dtrace-provider": {
-              "version": "0.2.8",
-              "from": "dtrace-provider@>=0.2.8 <0.3.0",
-              "resolved": "https://registry.npmjs.org/dtrace-provider/-/dtrace-provider-0.2.8.tgz"
             }
           }
         }
@@ -2180,7 +2175,7 @@
           "dependencies": {
             "encoding": {
               "version": "0.1.11",
-              "from": "encoding@>=0.1.11 <0.2.0",
+              "from": "encoding@*",
               "resolved": "https://registry.npmjs.org/encoding/-/encoding-0.1.11.tgz",
               "dependencies": {
                 "iconv-lite": {
@@ -2647,7 +2642,7 @@
                     },
                     "es5-ext": {
                       "version": "0.10.7",
-                      "from": "es5-ext@>=0.10.6 <0.11.0",
+                      "from": "es5-ext@>=0.10.4 <0.11.0",
                       "resolved": "https://registry.npmjs.org/es5-ext/-/es5-ext-0.10.7.tgz",
                       "dependencies": {
                         "es6-symbol": {
@@ -2659,7 +2654,7 @@
                     },
                     "es6-iterator": {
                       "version": "0.1.3",
-                      "from": "es6-iterator@>=0.1.1 <0.2.0",
+                      "from": "es6-iterator@>=0.1.3 <0.2.0",
                       "resolved": "https://registry.npmjs.org/es6-iterator/-/es6-iterator-0.1.3.tgz",
                       "dependencies": {
                         "es6-symbol": {
@@ -2698,12 +2693,12 @@
                     },
                     "es5-ext": {
                       "version": "0.10.7",
-                      "from": "es5-ext@>=0.10.6 <0.11.0",
+                      "from": "es5-ext@>=0.10.4 <0.11.0",
                       "resolved": "https://registry.npmjs.org/es5-ext/-/es5-ext-0.10.7.tgz"
                     },
                     "es6-iterator": {
                       "version": "0.1.3",
-                      "from": "es6-iterator@>=0.1.1 <0.2.0",
+                      "from": "es6-iterator@>=0.1.3 <0.2.0",
                       "resolved": "https://registry.npmjs.org/es6-iterator/-/es6-iterator-0.1.3.tgz"
                     },
                     "es6-symbol": {
@@ -2726,9 +2721,9 @@
               }
             },
             "espree": {
-              "version": "2.2.3",
+              "version": "2.2.4",
               "from": "espree@>=2.0.1 <3.0.0",
-              "resolved": "https://registry.npmjs.org/espree/-/espree-2.2.3.tgz"
+              "resolved": "https://registry.npmjs.org/espree/-/espree-2.2.4.tgz"
             },
             "estraverse": {
               "version": "2.0.0",
@@ -2741,9 +2736,9 @@
               "resolved": "https://registry.npmjs.org/estraverse-fb/-/estraverse-fb-1.3.1.tgz"
             },
             "globals": {
-              "version": "8.3.0",
+              "version": "8.4.0",
               "from": "globals@>=8.0.0 <9.0.0",
-              "resolved": "https://registry.npmjs.org/globals/-/globals-8.3.0.tgz"
+              "resolved": "https://registry.npmjs.org/globals/-/globals-8.4.0.tgz"
             },
             "inquirer": {
               "version": "0.8.5",
@@ -2929,9 +2924,9 @@
                   "resolved": "https://registry.npmjs.org/levn/-/levn-0.2.5.tgz"
                 },
                 "fast-levenshtein": {
-                  "version": "1.0.6",
+                  "version": "1.0.7",
                   "from": "fast-levenshtein@>=1.0.0 <1.1.0",
-                  "resolved": "https://registry.npmjs.org/fast-levenshtein/-/fast-levenshtein-1.0.6.tgz"
+                  "resolved": "https://registry.npmjs.org/fast-levenshtein/-/fast-levenshtein-1.0.7.tgz"
                 }
               }
             },
@@ -3414,7 +3409,7 @@
               "dependencies": {
                 "inherits": {
                   "version": "2.0.1",
-                  "from": "inherits@>=2.0.1 <2.1.0",
+                  "from": "inherits@>=2.0.1 <3.0.0",
                   "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.1.tgz"
                 },
                 "typedarray": {
@@ -3722,7 +3717,7 @@
                   "dependencies": {
                     "ansi-regex": {
                       "version": "0.2.1",
-                      "from": "ansi-regex@>=0.2.1 <0.3.0",
+                      "from": "ansi-regex@>=0.2.0 <0.3.0",
                       "resolved": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-0.2.1.tgz"
                     }
                   }
@@ -3734,7 +3729,7 @@
                   "dependencies": {
                     "ansi-regex": {
                       "version": "0.2.1",
-                      "from": "ansi-regex@>=0.2.1 <0.3.0",
+                      "from": "ansi-regex@>=0.2.0 <0.3.0",
                       "resolved": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-0.2.1.tgz"
                     }
                   }
@@ -3845,6 +3840,11 @@
         }
       }
     },
+    "openid": {
+      "version": "0.5.13",
+      "from": "openid@0.5.13",
+      "resolved": "https://registry.npmjs.org/openid/-/openid-0.5.13.tgz"
+    },
     "pem-jwk": {
       "version": "1.5.1",
       "from": "pem-jwk@1.5.1",
@@ -3857,7 +3857,7 @@
           "dependencies": {
             "inherits": {
               "version": "2.0.1",
-              "from": "inherits@>=2.0.0 <3.0.0",
+              "from": "inherits@>=2.0.1 <3.0.0",
               "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.1.tgz"
             },
             "minimalistic-assert": {

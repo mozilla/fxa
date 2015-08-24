@@ -368,6 +368,24 @@ module.exports = function (
       )
   }
 
+  DB.prototype.openIdRecord = function (id) {
+    log.trace({ op: 'DB.openIdRecord', id: id })
+    return this.pool.get('/openIdRecord/' + Buffer(id, 'utf8').toString('hex'))
+      .then(
+        function (body) {
+          var data = bufferize(body)
+          data.emailVerified = !!data.emailVerified
+          return data
+        },
+        function (err) {
+          if (err.statusCode === 404) {
+            err = error.unknownAccount()
+          }
+          throw err
+        }
+      )
+  }
+
   DB.prototype.account = function (uid) {
     log.trace({ op: 'DB.account', uid: uid })
     return this.pool.get('/account/' + uid.toString('hex'))

@@ -20,7 +20,6 @@ module.exports = function (
   config,
   customs
   ) {
-  var isProduction = config.env === 'prod'
   var isPreVerified = require('../preverifier')(error, config)
   var defaults = require('./defaults')(log, P, db, error)
   var idp = require('./idp')(log, serverPublicKey)
@@ -35,11 +34,7 @@ module.exports = function (
     db,
     mailer,
     Password,
-    config.smtp.redirectDomain,
-    config.verifierVersion,
-    isProduction,
-    config.domain,
-    config.smtp.resendBlackoutPeriod,
+    config,
     customs,
     isPreVerified,
     checkPassword

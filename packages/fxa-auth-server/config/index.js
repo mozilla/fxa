@@ -291,6 +291,12 @@ var conf = convict({
     format: Boolean,
     env: 'LOCKOUT_ENABLED',
     default: false
+  },
+  openIdProviders: {
+    doc: 'root urls of allowed OpenID providers',
+    format: Array,
+    default: [],
+    env: 'OPENID_PROVIDERS'
   }
 })
 
@@ -315,5 +321,10 @@ var options = {
 }
 
 conf.validate(options)
+
+conf.set('isProduction', conf.get('env') === 'prod')
+
+conf.set('openIdVerifyUrl', conf.get('publicUrl') + '/v1/account/openid/login')
+
 
 module.exports = conf

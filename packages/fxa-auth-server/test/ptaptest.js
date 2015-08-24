@@ -34,6 +34,9 @@ require('ass')
 var tap = require('tap')
 
 module.exports = function(name, testfunc) {
+  if (!testfunc) {
+    return tap.test(name)
+  }
   var wrappedtestfunc = function(t) {
     var res = testfunc(t)
     if (typeof res !== 'undefined') {
