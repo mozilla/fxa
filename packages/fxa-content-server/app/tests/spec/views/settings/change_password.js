@@ -204,13 +204,14 @@ function (chai, $, sinon, AuthErrors, FxaClient, Metrics, p,
           });
 
           sinon.stub(view, 'navigate', function () { });
+          sinon.stub(view, 'displaySuccess', function () { });
 
           sinon.spy(broker, 'afterChangePassword');
 
           return view.submit()
             .then(function () {
               assert.equal(view.navigate.args[0][0], 'settings');
-              assert.ok(view.navigate.args[0][1].success);
+              assert.isTrue(view.displaySuccess.called);
               assert.isTrue(user.changeAccountPassword.calledWith(
                   account, oldPassword, newPassword));
               assert.isTrue(broker.afterChangePassword.calledWith(account));

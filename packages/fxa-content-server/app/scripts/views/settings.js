@@ -7,7 +7,6 @@ define([
   'jquery',
   'modal',
   'cocktail',
-  'lib/promise',
   'lib/session',
   'views/base',
   'views/mixins/avatar-mixin',
@@ -27,7 +26,7 @@ define([
   'views/decorators/allow_only_one_submit',
   'stache!templates/settings'
 ],
-function ($, modal, Cocktail, p, Session, BaseView, AvatarMixin,
+function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
   AvatarView, AvatarChangeView, AvatarCropView, AvatarCameraView, GravatarView,
   GravatarPermissionsView, CommunicationPreferencesView, ChangePasswordView,
   DeleteAccountView, DisplayNameView, SubPanels, SettingsMixin, LoadingMixin,

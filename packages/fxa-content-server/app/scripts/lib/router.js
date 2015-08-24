@@ -99,7 +99,7 @@ function (
       var self = this;
       // If currentView is of the SuperView type, simply show the subView
       if (self.currentView instanceof SuperView) {
-          self.showSubView(options);
+        self.showSubView(options);
       } else {
         // Create the SuperView; its initialization method should handle the subView option.
         self.createAndShowView(SuperView, options)
@@ -332,8 +332,6 @@ function (
     },
 
     renderSubView: function (viewToShow) {
-      var self = this;
-
       return viewToShow.render()
         .then(function (shown) {
           if (! shown) {

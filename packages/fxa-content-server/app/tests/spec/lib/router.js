@@ -663,29 +663,31 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, 
     });
 
     it('showSubView sets title and logs screen', function () {
+      var settingsView = router.createView(SettingsView);
       router.currentView = {
         showSubView: function () {},
         titleFromView: function () {}
       };
-      sinon.stub(routre.currentView, 'showSubView', function () {
-        return settingsView;
+      sinon.stub(router.currentView, 'showSubView', function () {
+        return p(settingsView);
       });
-      sinon.stub(routre.currentView, 'titleFromView', function () {
+      sinon.stub(router.currentView, 'titleFromView', function () {
         return 'Foo';
       });
 
-      var settingsView = router.createView(SettingsView);
       sinon.stub(settingsView, 'titleFromView', function () {
-        return 'Bar';
+        return 'Foo: Bar';
       });
+      sinon.spy(settingsView, 'logScreen');
       sinon.stub(router, 'setDocumentTitle', function () {
       });
       return router.showSubView({ subView: SettingsView })
         .then(function () {
-          assert.isTrue(router.createView.calledWith(SignInView, {
-            superView: router.currentView,
-            foo: 'bar'
-          }));
+          assert.strictEqual(router.currentView.showSubView.args[0][0], SettingsView);
+          assert.isTrue(router.currentView.titleFromView.called);
+          assert.isTrue(settingsView.titleFromView.calledWith('Foo'));
+          assert.isTrue(router.setDocumentTitle.calledWith('Foo: Bar'));
+          assert.isTrue(settingsView.logScreen.called);
         });
     });
 

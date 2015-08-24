@@ -473,7 +473,6 @@ function (chai, $, sinon, Cocktail, View, BaseView, SubPanels, CommunicationPref
 
           assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
           assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.communication-prefs-link.visible.true'));
-          console.log(SubPanels.prototype.initialize);
           assert.isTrue(SubPanels.prototype.initialize.calledWith({
             router: routerMock,
             panelViews: panelViews,
@@ -490,7 +489,6 @@ function (chai, $, sinon, Cocktail, View, BaseView, SubPanels, CommunicationPref
 
           assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
           assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.communication-prefs-link.visible.false'));
-          console.log(SubPanels.prototype.initialize);
           assert.isTrue(SubPanels.prototype.initialize.calledWith({
             router: routerMock,
             panelViews: [ SettingsPanelView ],
