@@ -486,7 +486,12 @@ define([
 
         // ensure signin page is visible otherwise credentials might
         // not be cleared by clicking .use-different
+        .findByCssSelector('.use-different')
+        .end()
+
         .then(FunctionalHelpers.visibleByQSA('#fxa-signin-header'))
+        // need this sleep here, even with visible selectors the credentials are not cleared fast enough
+        .sleep(1500)
 
         // This will clear the desktop credentials
         .findByCssSelector('.use-different')
