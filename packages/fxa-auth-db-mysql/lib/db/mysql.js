@@ -585,6 +585,45 @@ module.exports = function (log, error) {
       )
   }
 
+  MySql.prototype.multipleQueries = function (poolName, queries, finalQuery) {
+    return this.getConnection(poolName)
+      .then(
+        function (connection) {
+          var results = []
+          return P.each(
+            queries,
+            function (q) {
+              return query(connection, q.sql, q.params)
+                .then(
+                  function (result) {
+                    results.push(result)
+                  }
+                )
+            }
+          )
+          .then(
+            function () {
+              return results
+            }
+          )
+          .finally(
+            function () {
+              if (finalQuery) {
+                return query(connection, finalQuery.sql, finalQuery.params)
+                  .finally(finish)
+              }
+
+              finish()
+
+              function finish () {
+                connection.release()
+              }
+            }
+          )
+        }
+      )
+  }
+
   MySql.prototype.transaction = function (fn) {
     return retryable(
       function () {
@@ -656,6 +695,16 @@ module.exports = function (log, error) {
       .catch(
         function (err) {
           log.error({ op: 'MySql.read', sql: sql, id: params, err: err })
+          throw error.wrap(err)
+        }
+      )
+  }
+
+  MySql.prototype.readMultiple = function (queries, finalQuery) {
+    return this.multipleQueries('SLAVE*', queries, finalQuery)
+      .catch(
+        function (err) {
+          log.error({ op: 'MySql.readMultiple', err: err })
           throw error.wrap(err)
         }
       )
