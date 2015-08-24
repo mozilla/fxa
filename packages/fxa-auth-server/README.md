@@ -88,16 +88,43 @@ development use:
 
     https://api-accounts-latest.dev.lcip.org/
 
+## Configuration
 
-### Configuration
+Configuration of this project
+is managed by [convict](https://github.com/mozilla/node-convict),
+using the schema in
+[`config/index.js`](https://github.com/mozilla/fxa-auth-server/blob/master/config/index.js).
 
-To set the url of the [content server](https://github.com/mozilla/fxa-content-server), edit `config.json` on your deployed instance and add:
+Default values from this schema
+can be overridden in two ways:
 
-    "contentServer": {
-      "url": "http://your.content.server.org"
-    }
+1. By setting individual environment variables,
+   as indicated by the `env` property
+   for each item in the schema.
 
-### Troubleshooting
+   For example:
+   ```sh
+   export CONTENT_SERVER_URL="http://your.content.server.org"
+   ```
+
+2. By specifying the path
+   to a conforming JSON file,
+   or a comma-separated list of paths,
+   using the `CONFIG_FILES` environment variable.
+   Files specified in this way
+   are loaded when the server starts.
+   If the server fails to start,
+   it usually indicates that one of these JSON files
+   does not conform to the schema;
+   check the error message
+   for more information.
+
+   For example:
+   ```sh
+   export CONFIG_FILES="~/fxa-content-server.json,~/fxa-db.json"
+   ```
+
+## Troubleshooting
 
 Firefox Accounts authorization is a complicated flow.  You can get verbose logging by adjusting the log level in the `config.json` on your deployed instance.  Add a stanza like:
 
