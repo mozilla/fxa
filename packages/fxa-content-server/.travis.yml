@@ -6,6 +6,8 @@ node_js:
 
 addons:
   firefox: "38.0"
+  apt_packages:
+    - graphicsmagick
 env:
   global:
     - DISABLE_ROUTE_LOGGING=true
@@ -39,17 +41,8 @@ install:
   - travis_retry npm install --silent
   # copy over the configuration that can be used to start the server.
   - cp server/config/local.json-dist server/config/local.json
-  # install the resources necessary for the auth server.
-  - mkdir -p fxa-auth-server
-  - cd fxa-auth-server && git init && git pull git://github.com/mozilla/fxa-auth-server.git --depth 1
-  # first npm install will fail because there is no global GMP, we add localGmp after that failure
-  - npm install
-  # start the DB server
-  - LOG_LEVEL=error node ./node_modules/fxa-auth-db-mysql/bin/mem.js &
-  # start the auth server
-  - node ./scripts/gen_keys.js
-  - LOG_LEVEL=error npm start &
-  - cd ..
+  # install auth, oauth, verifier and profile servers
+  - ./tests/ci/deps.sh
   - npm start &
   - sleep 5
 
