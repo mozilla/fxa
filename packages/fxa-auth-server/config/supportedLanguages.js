@@ -19,6 +19,7 @@ module.exports = [
   'es-CL',
   'et',
   'eu',
+  'fa',
   'ff',
   'fr',
   'fy',
