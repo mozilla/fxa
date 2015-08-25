@@ -1,3 +1,70 @@
+<a name="0.44.1"></a>
+## 0.44.1 (2015-08-25)
+
+
+### Bug Fixes
+
+* **account:** handle unverified attempts to request profile data ([ba49d4b](https://github.com/mozilla/fxa-content-server/commit/ba49d4b))
+* **avatars:** allow users to change their avatar if they have/had one ([4efe6fd](https://github.com/mozilla/fxa-content-server/commit/4efe6fd))
+* **avatars:** use an error object instead of string to ensure it is not logged twice ([487abc5](https://github.com/mozilla/fxa-content-server/commit/487abc5))
+* **client:** Handle the `entryPoint` query parameter. ([67b54fc](https://github.com/mozilla/fxa-content-server/commit/67b54fc)), closes [#2885](https://github.com/mozilla/fxa-content-server/issues/2885)
+* **client:** Only make profile requests if a valid accessToken exists. ([f73ccde](https://github.com/mozilla/fxa-content-server/commit/f73ccde))
+* **deps:** update dev dependencies ([e6ee68f](https://github.com/mozilla/fxa-content-server/commit/e6ee68f))
+* **deps:** update grunt-contrib-uglify to 0.9.2 ([7caf769](https://github.com/mozilla/fxa-content-server/commit/7caf769))
+* **deps:** update to express-able 0.4.4 ([0a22e00](https://github.com/mozilla/fxa-content-server/commit/0a22e00))
+* **easteregg:** update easter egg SHA ([9a9f7e3](https://github.com/mozilla/fxa-content-server/commit/9a9f7e3))
+* **firstrun:** increase response timeout for iframing ([89d8d08](https://github.com/mozilla/fxa-content-server/commit/89d8d08))
+* **forms:** disable spellcheck ([cc03c33](https://github.com/mozilla/fxa-content-server/commit/cc03c33)), closes [#2910](https://github.com/mozilla/fxa-content-server/issues/2910)
+* **forms:** remove spellcheck from reset_password ([bfe7b0d](https://github.com/mozilla/fxa-content-server/commit/bfe7b0d))
+* **input:** remove autocapitalize on iOS ([2ef1174](https://github.com/mozilla/fxa-content-server/commit/2ef1174))
+* **metrics:** Provide more detailed logging for errors fetching /config ([e149da2](https://github.com/mozilla/fxa-content-server/commit/e149da2))
+* **metrics:** measure how helpful mailcheck is ([ff13860](https://github.com/mozilla/fxa-content-server/commit/ff13860)), closes [#2819](https://github.com/mozilla/fxa-content-server/issues/2819)
+* **metrics:** move screen metrics to ga from datadog ([8c2731f](https://github.com/mozilla/fxa-content-server/commit/8c2731f)), closes [#2614](https://github.com/mozilla/fxa-content-server/issues/2614)
+* **profile:** avoid creating new instances of account ([981660c](https://github.com/mozilla/fxa-content-server/commit/981660c))
+* **profile:** do not request an access token when saving an account ([59efae0](https://github.com/mozilla/fxa-content-server/commit/59efae0))
+* **reset:** improve the reset password caveat copy ([0d32d07](https://github.com/mozilla/fxa-content-server/commit/0d32d07)), closes [#2762](https://github.com/mozilla/fxa-content-server/issues/2762)
+* **sentry:** remove noise from referer header in sentry ([d6ad1cf](https://github.com/mozilla/fxa-content-server/commit/d6ad1cf))
+* **server:** add server route for /unexpected_error ([c1342ef](https://github.com/mozilla/fxa-content-server/commit/c1342ef))
+* **settings:** always show avatars and fix modal cancel buttons ([a1422a9](https://github.com/mozilla/fxa-content-server/commit/a1422a9))
+* **settings:** clean up amd dependencies ([a885945](https://github.com/mozilla/fxa-content-server/commit/a885945))
+* **settings:** escape display name ([0f21cdc](https://github.com/mozilla/fxa-content-server/commit/0f21cdc))
+* **settings:** fix avatar modal ([c2a8c6b](https://github.com/mozilla/fxa-content-server/commit/c2a8c6b))
+* **settings:** fix gravatar permission screen within modal ([a1ad7cb](https://github.com/mozilla/fxa-content-server/commit/a1ad7cb))
+* **settings:** fix lint errors and mocha failures ([46d49a0](https://github.com/mozilla/fxa-content-server/commit/46d49a0))
+* **settings:** fix page titles and other nits ([36b3302](https://github.com/mozilla/fxa-content-server/commit/36b3302))
+* **settings:** fix short page styling ([cd19bb0](https://github.com/mozilla/fxa-content-server/commit/cd19bb0)), closes [#2862](https://github.com/mozilla/fxa-content-server/issues/2862)
+* **settings:** move sub panel logic from settings to a separate subPanel component ([a5a56e8](https://github.com/mozilla/fxa-content-server/commit/a5a56e8))
+* **settings:** prevent flicker when leaving settings page ([55f8936](https://github.com/mozilla/fxa-content-server/commit/55f8936))
+* **settings:** refactor sub panel template so that it is not empty ([0d484e3](https://github.com/mozilla/fxa-content-server/commit/0d484e3))
+* **src:** Fix a typo: `UNVERIFIED`=>`UNVERIFIED_ACCOUNT` ([b40b735](https://github.com/mozilla/fxa-content-server/commit/b40b735))
+* **strings:** change "Already have an account?" to "Have an account?" ([2d28f3e](https://github.com/mozilla/fxa-content-server/commit/2d28f3e)), closes [#2753](https://github.com/mozilla/fxa-content-server/issues/2753)
+* **tests:** Fix the failing avatar functional tests. ([fb59c19](https://github.com/mozilla/fxa-content-server/commit/fb59c19)), closes [#2987](https://github.com/mozilla/fxa-content-server/issues/2987)
+* **tests:** Speed up the iframe origin tests. ([e908d70](https://github.com/mozilla/fxa-content-server/commit/e908d70)), closes [#2986](https://github.com/mozilla/fxa-content-server/issues/2986)
+* **tests:** do not compare flushTime property in storage-metrics tests ([72cf1bc](https://github.com/mozilla/fxa-content-server/commit/72cf1bc)), closes [#2984](https://github.com/mozilla/fxa-content-server/issues/2984)
+* **tests:** fix gravatar permission tests ([56d9e1c](https://github.com/mozilla/fxa-content-server/commit/56d9e1c))
+* **tests:** fix typo in tests ([aa496ed](https://github.com/mozilla/fxa-content-server/commit/aa496ed))
+* **tests:** fix up flaky test for desktop credentials ([c078458](https://github.com/mozilla/fxa-content-server/commit/c078458))
+* **tests:** remove misguided time-based assertion ([2782f0a](https://github.com/mozilla/fxa-content-server/commit/2782f0a))
+* **tests:** restore functional tests ([72d4969](https://github.com/mozilla/fxa-content-server/commit/72d4969))
+* **tests:** switch from teardown and setup to improve stability ([6a33723](https://github.com/mozilla/fxa-content-server/commit/6a33723))
+* **travis:** install auth, oauth and profile servers for travis ([26e768e](https://github.com/mozilla/fxa-content-server/commit/26e768e))
+* **user:** cache the signed in account instance to reduce token fetching ([8737367](https://github.com/mozilla/fxa-content-server/commit/8737367))
+* **view:** log errors in extended views initialize() ([b08b5ac](https://github.com/mozilla/fxa-content-server/commit/b08b5ac)), closes [#2964](https://github.com/mozilla/fxa-content-server/issues/2964)
+
+### Features
+
+* **client:** Cache busting on-demand load. ([88c8f32](https://github.com/mozilla/fxa-content-server/commit/88c8f32))
+* **client:** Start on the FxFennecV1AuthenticationBroker ([3095f21](https://github.com/mozilla/fxa-content-server/commit/3095f21))
+* **coppa:** input based COPPA ([64bfe86](https://github.com/mozilla/fxa-content-server/commit/64bfe86)), closes [#2108](https://github.com/mozilla/fxa-content-server/issues/2108)
+* **deps:** update production dependencies ([ecbf309](https://github.com/mozilla/fxa-content-server/commit/ecbf309))
+* **docs:** Document email validation errors for signin/signup. ([da90143](https://github.com/mozilla/fxa-content-server/commit/da90143)), closes [#2909](https://github.com/mozilla/fxa-content-server/issues/2909)
+* **l10n:** add en-GB as a supported locale. ([bacd99e](https://github.com/mozilla/fxa-content-server/commit/bacd99e)), closes [#2942](https://github.com/mozilla/fxa-content-server/issues/2942)
+* **metrics:** add queue time to analytics ([d62891d](https://github.com/mozilla/fxa-content-server/commit/d62891d)), closes [#2903](https://github.com/mozilla/fxa-content-server/issues/2903)
+* **sentry:** include version in Sentry reports ([a53db95](https://github.com/mozilla/fxa-content-server/commit/a53db95)), closes [#2724](https://github.com/mozilla/fxa-content-server/issues/2724)
+* **signup:** Password Strength Checker ([166b5e1](https://github.com/mozilla/fxa-content-server/commit/166b5e1))
+
+
+
 <a name="0.44.0"></a>
 # 0.44.0 (2015-08-24)
 
