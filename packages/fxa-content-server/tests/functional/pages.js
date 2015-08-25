@@ -32,7 +32,10 @@ define([
     'settings/avatar/camera',
     'settings/avatar/crop',
     'settings/avatar/gravatar_permissions',
-    'change_password',
+    'settings/change_password',
+    'settings/communication_preferences',
+    'settings/delete_account',
+    'settings/display_name',
     'legal',
     // legal are all redirected to the language detected
     // by sniffing headers, barring that, using en-US as
@@ -49,7 +52,6 @@ define([
     'confirm_reset_password',
     'complete_reset_password',
     'reset_password_complete',
-    'delete_account',
     'non_existent',
     'cookies_disabled',
     'clear',

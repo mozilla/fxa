@@ -26,15 +26,15 @@ define([
   '../views/complete_account_unlock',
   '../views/ready',
   '../views/settings',
-  '../views/settings/avatar',
   '../views/settings/avatar_change',
   '../views/settings/avatar_crop',
   '../views/settings/avatar_gravatar',
   '../views/settings/avatar_camera',
   '../views/settings/communication_preferences',
   '../views/settings/gravatar_permissions',
-  '../views/change_password',
-  '../views/delete_account',
+  '../views/settings/display_name',
+  '../views/settings/change_password',
+  '../views/settings/delete_account',
   '../views/cookies_disabled',
   '../views/clear_storage',
   '../views/unexpected_error',
@@ -64,13 +64,13 @@ function (
   CompleteAccountUnlockView,
   ReadyView,
   SettingsView,
-  AvatarView,
   AvatarChangeView,
   AvatarCropView,
   AvatarGravatarView,
   AvatarCameraView,
   CommunicationPreferencesView,
   GravatarPermissions,
+  DisplayNameView,
   ChangePasswordView,
   DeleteAccountView,
   CookiesDisabledView,
@@ -82,11 +82,37 @@ function (
 
   function showView(View, options) {
     return function () {
-      this.createAndShowView(View, options);
+      // If the current view is an instance of View, that means we're
+      // navigating from a subview of the current view
+      if (this.currentView instanceof View) {
+        this.trigger(this.NAVIGATE_FROM_SUBVIEW, options);
+        this.setDocumentTitle(this.currentView.titleFromView());
+      } else {
+        this.createAndShowView(View, options);
+      }
+    };
+  }
+
+  // Show a sub-view, creating and initializing the SuperView if needed.
+  function showSubView(SuperView, options) {
+    return function () {
+      var self = this;
+      // If currentView is of the SuperView type, simply show the subView
+      if (self.currentView instanceof SuperView) {
+        self.showSubView(options);
+      } else {
+        // Create the SuperView; its initialization method should handle the subView option.
+        self.createAndShowView(SuperView, options)
+          .then(function () {
+            self.showSubView(options);
+          });
+      }
     };
   }
 
   var Router = Backbone.Router.extend({
+    NAVIGATE_FROM_SUBVIEW: 'navigate-from-subview',
+
     routes: {
       '(/)': 'redirectToSignupOrSettings',
       'signin(/)': showView(SignInView),
@@ -102,15 +128,15 @@ function (
       'verify_email(/)': showView(CompleteSignUpView),
       'confirm(/)': showView(ConfirmView),
       'settings(/)': showView(SettingsView),
-      'settings/avatar(/)': showView(AvatarView),
-      'settings/avatar/change(/)': showView(AvatarChangeView),
-      'settings/avatar/crop(/)': showView(AvatarCropView),
-      'settings/avatar/gravatar(/)': showView(AvatarGravatarView),
-      'settings/avatar/camera(/)': showView(AvatarCameraView),
-      'settings/avatar/gravatar_permissions(/)': showView(GravatarPermissions),
-      'settings/communication_preferences(/)': showView(CommunicationPreferencesView),
-      'change_password(/)': showView(ChangePasswordView),
-      'delete_account(/)': showView(DeleteAccountView),
+      'settings/avatar/change(/)': showSubView(SettingsView, { subView: AvatarChangeView }),
+      'settings/avatar/crop(/)': showSubView(SettingsView, { subView: AvatarCropView }),
+      'settings/avatar/gravatar(/)': showSubView(SettingsView, { subView: AvatarGravatarView }),
+      'settings/avatar/gravatar_permissions(/)': showSubView(SettingsView, { subView: GravatarPermissions }),
+      'settings/avatar/camera(/)': showSubView(SettingsView, { subView: AvatarCameraView }),
+      'settings/communication_preferences(/)': showSubView(SettingsView, { subView: CommunicationPreferencesView }),
+      'settings/change_password(/)': showSubView(SettingsView, { subView: ChangePasswordView }),
+      'settings/delete_account(/)': showSubView(SettingsView, { subView: DeleteAccountView }),
+      'settings/display_name(/)': showSubView(SettingsView, { subView: DisplayNameView }),
       'legal(/)': showView(LegalView),
       'legal/terms(/)': showView(TosView),
       'legal/privacy(/)': showView(PpView),
@@ -231,6 +257,11 @@ function (
       return new View(viewOptions);
     },
 
+    createSubView: function (SubView, options) {
+      options.superView = this.currentView;
+      return this.createView(SubView, options);
+    },
+
     _checkForRefresh: function () {
       var refreshMetrics = this.storage.get('last_page_loaded');
       var currentView = this.currentView;
@@ -267,6 +298,8 @@ function (
             return;
           }
 
+          self.setDocumentTitle(viewToShow.titleFromView());
+
           // Render the new view while stage is invisible then fade it in using css animations
           // catch problems with an explicit opacity rule after class is added.
           $('#stage').html(viewToShow.el).addClass('fade-in-forward').css('opacity', 1);
@@ -295,6 +328,31 @@ function (
             self._firstViewHasLoaded = true;
           }
           self._checkForRefresh();
+        });
+    },
+
+    renderSubView: function (viewToShow) {
+      return viewToShow.render()
+        .then(function (shown) {
+          if (! shown) {
+            viewToShow.destroy(true);
+            return;
+          }
+
+          viewToShow.afterVisible();
+
+          return viewToShow;
+        });
+    },
+
+    showSubView: function (options) {
+      var self = this;
+      return self.currentView.showSubView(options.subView, options)
+        .then(function (viewToShow) {
+          // Use the super view's title as the base title
+          var title = viewToShow.titleFromView(self.currentView.titleFromView());
+          self.setDocumentTitle(title);
+          viewToShow.logScreen();
         });
     },
 
@@ -341,6 +399,10 @@ function (
                 .replace(/\?.*/, '')
                 // replace _ with -
                 .replace(/_/g, '-');
+    },
+
+    setDocumentTitle: function (title) {
+      this.window.document.title = title;
     }
   });
 

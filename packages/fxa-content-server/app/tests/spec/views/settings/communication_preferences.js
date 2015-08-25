@@ -199,10 +199,13 @@ function (chai, $, sinon, View, User, Account, MarketingEmailPrefs, Relier,
         sinon.stub(emailPrefsModel, 'optOut', function () {
           return p();
         });
+        sinon.stub(view, 'navigate', function () { });
+        sinon.stub(view, 'displaySuccess', function () { });
 
         return view.setOptInStatus(NEWSLETTER_ID, false)
           .then(function () {
-            assert.isTrue(view.isSuccessVisible());
+            assert.isTrue(view.navigate.calledWith('settings'));
+            assert.isTrue(view.displaySuccess.called);
           });
       });
 

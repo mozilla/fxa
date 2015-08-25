@@ -149,7 +149,6 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
           .then(_.bind(self.afterRender, self))
           .then(function () {
             self.showEphemeralMessages();
-            self.setTitleFromView();
 
             return true;
           });
@@ -266,18 +265,20 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
       return p(true);
     },
 
-    setTitleFromView: function () {
-      var title = DEFAULT_TITLE;
-      var titleText = this.$('h1').text();
-      var subText = this.$('h2').text();
+    titleFromView: function (baseTitle) {
+      var title = baseTitle || DEFAULT_TITLE;
+      var titleText = this.$('header:first h1').text();
+      var subText = this.$('header:first h2').text();
 
       if (titleText && subText) {
         title = titleText + ': ' + subText;
       } else if (titleText) {
         title = titleText;
+      } else if (subText) {
+        title = title + ': ' + subText;
       }
 
-      this.window.document.title = title;
+      return title;
     },
 
     getContext: function () {
@@ -348,6 +349,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
     },
 
     destroy: function (remove) {
+
       this.trigger('destroy');
 
       if (this.beforeDestroy) {
@@ -654,6 +656,13 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
      * be the currently logged in account.
      */
     getAccount: function () {
+      // Implement in subclasses
+    },
+
+    /**
+     * Shows the SubView, creating and rendering it if needed.
+     */
+    showSubView: function (/* SubView */) {
       // Implement in subclasses
     }
   });

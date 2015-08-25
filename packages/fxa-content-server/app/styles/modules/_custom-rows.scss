@@ -147,6 +147,13 @@ ul.links {
   margin: 0 10px;
 }
 
+.modal {
+  .small-label,
+  .label-helper {
+    margin-left: 1px;
+  }
+}
+
 .label-helper {
   position: absolute;
   top: 0;

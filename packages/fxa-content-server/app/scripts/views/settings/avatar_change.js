@@ -8,14 +8,15 @@ define([
   'views/form',
   'views/mixins/avatar-mixin',
   'views/mixins/settings-mixin',
+  'views/mixins/modal-settings-panel-mixin',
   'stache!templates/settings/avatar_change',
   'lib/auth-errors',
   'lib/image-loader',
   'lib/promise',
   'models/cropper-image'
 ],
-function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
-    AuthErrors, ImageLoader, p, CropperImage) {
+function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, ModalSettingsPanelMixin,
+  Template, AuthErrors, ImageLoader, p, CropperImage) {
   'use strict';
 
   var View = FormView.extend({
@@ -24,7 +25,7 @@ function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
 
     events: {
       'click #file': 'filePicker',
-      'click .remove': 'remove',
+      'click .remove': 'removeAvatar',
       'change #imageLoader': 'fileSet'
     },
 
@@ -47,8 +48,14 @@ function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
     },
 
     afterVisible: function () {
-      FormView.prototype.afterVisible.call(this);
-      return this.displayAccountProfileImage(this.getAccount());
+      var self = this;
+      FormView.prototype.afterVisible.call(self);
+      return self.displayAccountProfileImage(self.getAccount())
+        .then(function () {
+          if (self.getAccount().has('profileImageUrl')) {
+            self.$('.remove').removeClass('hidden');
+          }
+        });
     },
 
     afterRender: function () {
@@ -58,7 +65,7 @@ function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
       this.$(':file').wrap(wrapper);
     },
 
-    remove: function () {
+    removeAvatar: function () {
       var self = this;
       var account = self.getAccount();
       return self.deleteDisplayedAccountProfileImage(account)
@@ -138,7 +145,12 @@ function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
 
   });
 
-  Cocktail.mixin(View, AvatarMixin, SettingsMixin);
+  Cocktail.mixin(
+    View,
+    AvatarMixin,
+    ModalSettingsPanelMixin,
+    SettingsMixin
+  );
 
   return View;
 });

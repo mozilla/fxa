@@ -522,7 +522,7 @@ define([
         .type(newPassword)
       .end()
 
-      .findByCssSelector('button[type="submit"]')
+      .findByCssSelector('#change-password button[type="submit"]')
         .click()
       .end();
   }
@@ -531,13 +531,13 @@ define([
     return context.remote
       .setFindTimeout(intern.config.pageLoadTimeout)
 
-      .findByCssSelector('form input.password')
+      .findByCssSelector('#delete-account form input.password')
         .click()
         .type(password)
       .end()
 
       // delete account
-      .findByCssSelector('button[type="submit"]')
+      .findByCssSelector('#delete-account button[type="submit"]')
         .click()
       .end();
   }

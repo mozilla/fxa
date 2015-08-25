@@ -1,11 +1,6 @@
-<div id="main-content" class="card">
-  <header>
-    <h1 id="fxa-avatar-crop-header">{{#t}}Account picture{{/t}}</h1>
-  </header>
-
-  <section>
+<div id="avatar-crop">
+  <section class="avatar-panel">
     <div class="error"></div>
-    <div class="success"></div>
 
     <div class="cropper">
       <div class="wrapper">
@@ -28,12 +23,10 @@
 
     <form novalidate>
       <div class="button-row">
-        <button id="submit-btn" type="submit">{{#t}}Save{{/t}}</button>
+        <button type="submit" id="submit-btn" class="settings-button primary disabled">{{#t}}Change{{/t}}</button>
+        <button class="settings-button secondary" id="back">{{#t}}Cancel{{/t}}</button>
       </div>
     </form>
-    <ul class="links">
-      <li><a href="/settings/avatar/change" class="cancel">{{#t}}Cancel{{/t}}</a>
-    </ul>
 
   </section>
 </div>

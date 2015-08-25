@@ -1,0 +1,366 @@
+// this needs to be overridden, 
+// or done in a way that doesn't kill these everywhere
+body.settings #fox-logo,
+body.settings #about-mozilla,
+body.settings .sign-in {
+  display: none;
+}
+
+body.settings .loading {
+  position: relative;
+  top: 150px;
+}
+
+body.settings #main-content {
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
+
+body.settings #main-content.panel {
+  visibility: hidden;
+}
+
+// settings header controls
+#fxa-settings-header-wrapper {
+  background: #fff;
+  border-bottom: 1px solid $settings-header-border-bottom;
+
+  @include respond-to('big') {
+    height: 56px;
+    margin-bottom: 46px;
+  }
+
+  @include respond-to('small') {
+    height: 48px;
+    margin-bottom: 24px;
+  }
+
+  #fxa-manage-account {
+    @include hidpi-background-image('firefox', 80px 85px);
+    background-repeat: no-repeat;
+    float: left;
+    margin: 0;
+
+    @include respond-to('big') {
+      background-position: left 11px;
+      background-size: 36px auto;
+      height: 56px;
+      line-height: 58px;
+      padding-left: 48px;
+    }
+
+    @include respond-to('small') {
+      background-position: left 8px;
+      background-size: 32px auto;
+      height: 48px;
+      line-height: 50px;
+      padding-left: 36px;
+    }
+  }
+
+  .settings-button {
+    display: block;
+    float: right;
+    height: 30px;
+
+    @include respond-to('big') {
+      margin-top: 13px;
+      width: 100px;
+    }
+
+    @include respond-to('small') {
+      margin-top: 9px;
+      width: 29%;
+    }
+  }
+
+  .settings-success-wrapper {
+    @include respond-to('big') {
+      left: 50%;
+      margin: 0 0 0 -250px;
+      position: absolute;
+      top: 56px;
+      width: 500px;
+    }
+
+    @include respond-to('small') {
+      position: fixed;
+      left: 0;
+      margin: 0;
+      width: 100%;
+      top: 0;
+    }
+  }
+
+  .settings-success {
+    background-color: $settings-success-background-color;
+    border-color: $settings-success-border-color;
+    border-style: solid;
+    color: $text-color;
+    margin: 0 auto;
+    text-align: center;
+    top: 0;
+
+    @include respond-to('big') {
+      border-radius: 0 0 $small-border-radius $small-border-radius;
+      border-width: 0 1px 1px;
+    }
+
+    @include respond-to('small') {
+      border-width: 0 0 1px 0;
+      width: 100%;
+    }
+
+    a {
+      color: $text-color;
+    }
+  }
+}
+
+
+// settings buttons
+.settings-button {
+  @include font();
+  border-radius: $small-border-radius;
+  cursor: pointer;
+  font-size: $base-font;
+  transition-duration: $short-transition;
+  transition-property: background-color;
+
+  .button-row & {
+    @extend .settings-button;
+    margin: 0;
+    padding: 0;
+
+    @include respond-to('big') {
+      height: 45px;
+      width: 48%;
+    }
+
+    @include respond-to('small') {
+      height: 40px;
+      width: 48%;
+    }
+
+    &:last-child {
+      float: right;
+    }
+  }
+
+  &.settings-unit-toggle {
+    display: block;
+    height: 35px;
+
+    @include respond-to('big') {
+      width: 100px;
+    }
+
+    @include respond-to('small') {
+      width: 29%;
+    }
+  }
+
+  &.primary {
+    background: $button-background-color;
+    border: 0;
+    color: $message-text-color;
+
+    &:active,
+    &:hover,
+    &:focus {
+      background: $button-background-hover-color;
+    }
+
+    &:disabled,
+    &.disabled {
+      background: $button-background-disabled-color;
+    }
+  }
+
+  &.secondary {
+    background: $html-background-color;
+    border: 1px solid $secondary-button-border-color;
+    color: $text-color;
+
+    &:active,
+    &:hover,
+    &:focus {
+      background: darken($html-background-color, 10);
+    }
+  }
+
+  &.warning {
+    background: $error-background-color;
+    border: 0;
+    color: $message-text-color;
+
+    &:active,
+    &:hover,
+    &:focus {
+      background: darken($error-background-color, 5);
+    }
+
+    &:disabled,
+    &.disabled {
+      background: $button-background-disabled-color;
+    }
+  }
+}
+
+// area above white box with avatar content
+#fxa-settings-profile-header {
+
+  white-space: nowrap;
+
+  @include respond-to('big') {
+    height: 36px;
+    padding: 0 20px;
+    margin-bottom: 12px;
+  }
+
+  @include respond-to('small') {
+    height: 30px;
+    padding: 0 3%;
+    margin-bottom: 6px;
+  }
+
+  .avatar-wrapper {
+    display: inline-block;
+  }
+
+  .signed-in-email-message {
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-wrap: nowrap;
+    white-space: nowrap;
+
+    @include respond-to('big') {
+      font-size: $medium-font;
+      line-height: 36px;
+      margin: 0 0 0 12px;
+      width: 420px;
+    }
+
+    @include respond-to('small') {
+      font-size: $base-font;
+      line-height: 30px;
+      margin: 0 0 0 6px;
+      width: 85%;
+    }
+  }
+}
+
+.settings-subview {
+  &:first-child .settings-unit {
+    padding: 0 0 20px;
+  }
+
+  &:last-child .settings-unit {
+    border-bottom: none;
+    padding: 20px 0 0 0;
+  }
+}
+
+.settings-unit {
+  padding: 20px 0;
+  border-bottom: 1px solid $marketing-border-color;
+
+  & .error {
+    top: 0;
+    padding: 5px 10px;
+  }
+}
+
+.settings-unit-stub {
+  height: 35px;
+
+  .settings-unit-summary {
+    display: inline-block;
+    float: left;
+    margin-top: 2px;
+    overflow: hidden;
+
+    @include respond-to('big') {
+      margin-right: 10px;
+      width: 350px;
+    }
+
+    @include respond-to('small') {
+      margin-right: 1%;
+      width: 70%;
+    }
+  }
+
+  .settings-unit-title {
+    color: $text-color;
+    font-weight: normal;
+    line-height: $medium-font;
+    margin: 0;
+
+    @include respond-to('big') {
+      font-size: $medium-font;
+    }
+
+    @include respond-to('small') {
+      font-size: $base-font;
+    }
+  }
+
+  .settings-unit-subtitle {
+    color: $faint-text-color;
+    font-size: $small-font;
+    font-weight: normal;
+    line-height: $small-font;
+    margin: 5px 0 0 0;
+  }
+
+  .settings-unit-title,
+  .settings-unit-subtitle {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-wrap: nowrap;
+    white-space: nowrap;
+    width: 360px;
+  }
+
+  .settings-unit-title:only-child {
+    line-height: 35px;
+  }
+}
+
+.settings-unit-details {
+  display: none;
+  margin-top: 12px;
+
+  p {
+    color: $faint-text-color;
+    margin: 6px 0 24px;
+  }
+}
+
+.open .settings-unit-details {
+  display: block;
+}
+
+.open .settings-unit-toggle {
+  display: none;
+}
+
+.modal {
+  border-radius: $big-border-radius;
+  box-shadow: 0px 1px 5px black;
+
+
+  @include respond-to('big') {
+    padding: 30px;
+    width: 420px;
+  }
+
+  @include respond-to('small') {
+    padding:10px;
+    width: 320px;
+  }
+}

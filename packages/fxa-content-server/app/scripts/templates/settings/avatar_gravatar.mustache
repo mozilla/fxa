@@ -1,9 +1,5 @@
-<div id="main-content" class="card">
-  <header>
-    <h1 id="fxa-avatar-gravatar-header">{{#t}}Account picture{{/t}}</h1>
-  </header>
-
-  <section>
+<div id="avatar-gravatar">
+  <section class="avatar-panel">
     <div class="avatar-wrapper with-default">
       {{#gravatar}}
         <img src="{{ gravatar }}" id="gravatar" alt="Gravatar" />
@@ -11,15 +7,12 @@
     </div>
 
     <div class="error"></div>
-    <div class="success"></div>
 
     <form novalidate>
       <div class="button-row">
-        <button id="submit-btn" type="submit" {{^gravatar}}class="disabled"{{/gravatar}}>{{#t}}Save{{/t}}</button>
+        <button id="submit-btn" type="submit" class="settings-button primary {{^gravatar}}disabled{{/gravatar}}">{{#t}}Save{{/t}}</button>
+        <button class="settings-button secondary" id="back">{{#t}}Cancel{{/t}}</button>
       </div>
     </form>
-    <ul class="links">
-      <li><a href="/settings/avatar/change" class="cancel">{{#t}}Cancel{{/t}}</a>
-    </ul>
   </section>
 </div>

@@ -5,7 +5,7 @@
 define([
   'chai',
   'sinon',
-  'underscore',
+  'cocktail',
   'views/mixins/avatar-mixin',
   'views/base',
   'models/notifications',
@@ -19,7 +19,7 @@ define([
   'lib/promise',
   'lib/channels/null',
   '../../../lib/helpers'
-], function (Chai, sinon, _, AvatarMixin, BaseView, Notifications, Relier,
+], function (Chai, sinon, Cocktail, AvatarMixin, BaseView, Notifications, Relier,
     User, Account, ProfileImage, Metrics, AuthErrors, ProfileErrors, p, NullChannel,
     TestHelpers) {
   'use strict';
@@ -28,7 +28,7 @@ define([
 
   var SettingsView = BaseView.extend({});
 
-  _.extend(SettingsView.prototype, AvatarMixin);
+  Cocktail.mixin(SettingsView, AvatarMixin);
 
   describe('views/mixins/avatar-mixin', function () {
     var view;
@@ -64,7 +64,7 @@ define([
       });
       sinon.spy(user, 'setAccount');
 
-      sinon.stub(notifications, 'profileChanged', function () { });
+      sinon.stub(notifications, 'profileUpdated', function () { });
     });
 
     afterEach(function () {
@@ -130,10 +130,12 @@ define([
 
     describe('updateProfileImage', function () {
       it('stores the url', function () {
-        view.updateProfileImage(new ProfileImage({ url: 'url' }), account);
-        assert.equal(account.get('profileImageUrl'), 'url');
-        assert.isTrue(user.setAccount.calledWith(account));
-        assert.isTrue(notifications.profileChanged.calledWith({ uid: UID }));
+        return view.updateProfileImage(new ProfileImage({ url: 'url' }), account)
+          .then(function () {
+            assert.equal(account.get('profileImageUrl'), 'url');
+            assert.isTrue(user.setAccount.calledWith(account));
+            assert.isTrue(notifications.profileUpdated.calledWith({ uid: UID }));
+          });
       });
 
       it('deletes the url if null', function () {
@@ -153,11 +155,45 @@ define([
             assert.isTrue(account.deleteAvatar.calledWith('foo'));
             assert.isFalse(account.has('profileImageUrl'));
             assert.isTrue(user.setAccount.calledWith(account));
-            assert.isTrue(notifications.profileChanged.calledWith({ uid: UID }));
+            assert.isTrue(notifications.profileUpdated.calledWith({ uid: UID }));
           });
       });
     });
 
+    describe('updateDisplayName', function () {
+      it('stores the name', function () {
+        return view.updateDisplayName('joe')
+          .then(function () {
+            assert.equal(account.get('displayName'), 'joe');
+            assert.isTrue(view.getSignedInAccount.called);
+            assert.isTrue(user.setAccount.calledWith(account));
+            assert.isTrue(notifications.profileUpdated.calledWith({ uid: UID }));
+          });
+      });
+    });
+
+    describe('on profile update', function () {
+      var spy;
+      beforeEach(function () {
+        spy = sinon.spy(SettingsView.prototype, 'onProfileUpdate');
+        view = new SettingsView({
+          user: user,
+          relier: relier,
+          metrics: metrics,
+          notifications: notifications
+        });
+      });
+
+      afterEach(function () {
+        SettingsView.prototype.onProfileUpdate.restore();
+      });
+
+      it('call onProfileUpdate after notification', function () {
+        notifications.profileUpdated.restore();
+        notifications.profileUpdated({});
+        assert.isTrue(spy.called);
+      });
+    });
   });
 });
 

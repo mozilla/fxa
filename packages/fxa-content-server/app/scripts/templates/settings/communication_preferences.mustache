@@ -1,30 +1,32 @@
-<div id="main-content" class="card">
-  <header>
-    <h1 id="fxa-communication-preferences-header">{{#t}}Communication preferences{{/t}}</h1>
-  </header>
+<div id="communication-preferences" class="settings-unit">
+  <div class="settings-unit-stub">
+    <header class="settings-unit-summary">
+      <h2 class="settings-unit-title">{{#t}}Communication preferences{{/t}}</h2>
+    </header>
+    <button class="settings-button secondary settings-unit-toggle hidden"
+      data-href="settings/communication_preferences">{{#t}}Change{{/t}}</button>
+  </div>
 
-  <section>
-    {{#error}}
-      <div class="error visible nudge">
-        {{error}}
-      </div>
-      <div class="links email-optin-links">
-        <a href="#" id="back" class="back">{{#t}}Back{{/t}}</a>
-      </div>
+  <div class="settings-unit-details">
+  {{#error}}
+    <div class="error visible nudge">
+      {{error}}
     </div>
-
-    {{/error}}
-    {{^error}}
-    <div class="success"></div>
+    <button class="settings-button secondary cancel">{{#t}}Cancel{{/t}}</button>
+  {{/error}}
+  {{^error}}
     <div class="error"></div>
 
     <form novalidate>
-      <div>
+      <p>
         {{#t}}Get the latest news about Mozilla and Firefox.{{/t}}
-      </div>
+        {{#preferencesUrl}}
+          <a href="{{preferencesUrl}}" id="preferences-url" class="right">{{#t}}Email preferences{{/t}}</a>
+        {{/preferencesUrl}}
+      </p>
 
       <div class="button-row">
-        <button type="submit" id="marketing-email-optin" class="marketing-email-optin">
+        <button type="submit" id="marketing-email-optin" class="marketing-email-optin settings-button primary">
           {{#isOptedIn}}
             {{#t}}Unsubscribe{{/t}}
           {{/isOptedIn}}
@@ -32,20 +34,10 @@
             {{#t}}Subscribe{{/t}}
           {{/isOptedIn}}
         </button>
+        <button class="settings-button secondary cancel">{{#t}}Cancel{{/t}}</button>
+
       </div>
     </form>
-
-
-    <div class="links email-optin-links">
-      {{#preferencesUrl}}
-        <a href="#" id="back" class="left back">{{#t}}Back{{/t}}</a>
-        <a href="{{preferencesUrl}}" id="preferences-url" class="right">{{#t}}Email preferences{{/t}}</a>
-      {{/preferencesUrl}}
-
-      {{^preferencesUrl}}
-        <a href="#" id="back" class="back">{{#t}}Back{{/t}}</a>
-      {{/preferencesUrl}}
-    </div>
-    {{/error}}
-  </section>
+  {{/error}}
+  </div>
 </div>

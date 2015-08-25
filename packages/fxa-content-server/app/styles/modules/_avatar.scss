@@ -39,6 +39,40 @@
     }
   }
 
+  &.avatar-settings-view {
+    float:left;
+    border: 1px solid $faint-text-color;
+
+    @include respond-to('big') {
+      height: 36px;
+      width: 36px;
+    }
+
+    @include respond-to('small') {
+      height: 30px;
+      width: 30px;
+    }
+
+    span {
+      display: inline-block;
+    }
+
+    img,
+    span,
+    .change-avatar {
+
+      @include respond-to('big') {
+        height: 36px;
+        width: 36px;
+      }
+
+      @include respond-to('small') {
+        height: 30px;
+        width: 30px;
+      }
+    }
+  }
+
   img {
     background-color: $content-background-color;
     display: block;
@@ -61,6 +95,8 @@
   }
 }
 
+
+
 .with-default {
   background: image-url('default-profile.svg') center;
   background-repeat: no-repeat;
@@ -72,15 +108,8 @@
   visibility: hidden;
 }
 
-#settings-home {
-  border-top: 1px solid $horizontal-rule-color;
-  margin: 40px 0 -30px;
-  padding: 25px;
-
-  a {
-    font-size: $base-font;
-    text-decoration: none;
-  }
+#done {
+  width: 100%;
 }
 
 .notice {
@@ -92,21 +121,15 @@
   display: inline-block;
   position: relative;
   width: $avatar-size;
+}
 
+#avatar-options {
   .remove {
-    font-size: 24px;
-    height: 50px;
-    line-height: 50px;
-    position: absolute;
-    right: -10px;
-    text-align: center;
-    text-decoration: none;
-    top: -10px;
-    width: 50px;
-  }
+    display: inline-block;
 
-  .with-default + .remove {
-    display: none;
+    &.hidden {
+      display: none;
+    }
   }
 }
 
@@ -143,15 +166,22 @@
     padding: 20px;
 
     a {
-      background-color: $content-background-color;
-      border-radius: 50%;
       display: inline-block;
-      height: 80px;
       line-height: 1.1;
-      margin: 5px;
-      min-width: 80px;
-      padding: 11px;
       text-decoration: none;
+
+      @include respond-to('big') {
+        height: 80px;
+        margin: 5px;
+        min-width: 80px;
+        padding: 11px;
+      }
+
+      @include respond-to('small') {
+        margin: 0 0 10px 0;
+        min-width: 75px;
+      }
+
     }
 
     span {
@@ -171,4 +201,12 @@
 
 .no-getusermedia #camera {
   display: none;
+}
+
+section.avatar-panel {
+  text-align: center;
+  .button-row {
+    text-align: left;
+    margin-bottom: 0;
+  }
 }

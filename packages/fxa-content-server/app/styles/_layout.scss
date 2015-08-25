@@ -1,9 +1,18 @@
+// Two main widths
 // Apply styles to div injected by backbone, rather than to the stage itself.
 #main-content {
 
   background: $content-background-color;
   text-align: center;
 
+  &.card {
+    width: 420px;
+  }
+
+  &.panel {
+    max-width: 750px;
+    width: 96%;
+  }
 
   @include respond-to('big') {
     border-radius: $big-border-radius;
@@ -11,15 +20,6 @@
     margin: -15px auto 0 auto;
     min-height: 420px;
     padding: 50px 40px 40px 40px;
-
-    &.card {
-      width: 420px;
-    }
-
-    &.panel {
-      max-width: 750px;
-      width: 96%;
-    }
   }
 
   @include respond-to('small') {
@@ -50,6 +50,46 @@
     box-shadow: none;
     margin-top: 0;
   }
+}
+
+#fxa-settings-profile-header {
+  margin: 0 auto;
+
+  @include respond-to('big') {
+    width: 500px;
+  }
+
+  @include respond-to('small') {
+    width: 100%;
+  }
+}
+
+#fxa-settings-content {
+
+  background: $content-background-color;
+  margin: 0 auto;
+
+  @include respond-to('big') {
+    border-radius: $big-border-radius;
+    box-shadow: 0 1px 5px $input-row-border-color;
+    padding: 20px;  
+    width: 500px;
+  }
+
+  @include respond-to('small') {
+    border-bottom: 1px solid #b4bdc3;
+    border-top: 1px solid #b4bdc3;
+    width: 100%;
+    padding: 20px 3%;
+  }
+}
+
+#fxa-settings-header {
+  margin: 0 auto;
+  white-space: nowrap;
+  width: 100%;
+  padding: 0 3%;
+
 }
 
 #stage {

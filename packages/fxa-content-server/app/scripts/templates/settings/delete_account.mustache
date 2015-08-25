@@ -1,0 +1,30 @@
+<div id="delete-account" class="settings-unit">
+  <div class="settings-unit-stub">
+    <header class="settings-unit-summary">
+      <h2 class="settings-unit-title">{{#t}}Delete account{{/t}}</h2>
+    </header>
+    <button class="settings-button secondary settings-unit-toggle hidden"
+      data-href="settings/delete_account">{{#t}}Delete{{/t}}</button>
+  </div>
+
+  <div class="settings-unit-details">
+    <div class="error"></div>
+
+    <form novalidate>
+      <p>{{#t}}Are you sure you want to delete your account? This action cannot be undone.{{/t}}</p>
+
+      <div class="input-row password-row">
+        <!-- add the autocomplete=off attribute - the user is deleting the account, they most likely don't want the password saved. -->
+        <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required autofocus autocomplete="off" />
+        <input id="show-password" type="checkbox" class="show-password" aria-controls="password" tabindex="-1" data-novalue />
+        <label for="show-password" class="show-password-label">{{#t}}Show{{/t}}</label>
+      </div>
+
+      <div class="button-row">
+        <button type="submit" class="settings-button warning disabled">{{#t}}Delete account{{/t}}</button>
+        <button class="settings-button secondary cancel">{{#t}}Cancel{{/t}}</button>
+      </div>
+
+    </form>
+  </div>
+</div>

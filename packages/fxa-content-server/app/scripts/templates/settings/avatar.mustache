@@ -1,17 +1,12 @@
-<div id="main-content" class="card">
-  <header>
-    <h1 id="fxa-account-picture-header">{{#t}}Account picture{{/t}}</h1>
-  </header>
-
-  <section>
-    <p class="avatar-wrapper">
-    </p>
-
-    <div class="error"></div>
-    <div class="success"></div>
-
-    <ul class="links">
-      <li><a href="/settings/avatar/change" id="change-avatar">{{#t}}Change{{/t}}</a>
-    </ul>
-  </section>
+<div id="change-avatar" class="settings-unit">
+  <div class="settings-unit-stub">
+    <header class="settings-unit-summary">
+      <h2 class="settings-unit-title">{{#t}}Account picture{{/t}}</h2>
+    </header>
+    <button class="settings-button secondary settings-unit-toggle"
+      data-href="settings/avatar/change">
+      {{#avatar}}<span class="change-button">{{#t}}Change{{/t}}</span>{{/avatar}}
+      {{^avatar}}<span class="add-button">{{#t}}Add{{/t}}</span>{{/avatar}}
+    </button>
+  </div>
 </div>

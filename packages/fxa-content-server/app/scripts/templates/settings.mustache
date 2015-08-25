@@ -1,38 +1,25 @@
-<div id="main-content" class="card">
-  <header>
-    <h1 id="fxa-settings-header">{{#t}}Manage account{{/t}}</h1>
+<div id="fxa-settings-header-wrapper">
+  <header id="fxa-settings-header">
+    <h1 id="fxa-manage-account">{{#t}}Manage account{{/t}}</h1>
+    {{#showSignOut}}
+    <button id="signout" class="settings-button secondary">{{#t}}Sign out{{/t}}</button>
+    {{/showSignOut}}
   </header>
-
-  <section>
-    <div class="error"></div>
-    <div class="success"></div>
-
-    <div class="avatar-wrapper avatar-view">
-    </div>
-    <p class="change-avatar-text links">
-      <a href="/settings/avatar/change">{{#t}}Change{{/t}}</a>
-    </p>
-
-    <p class="signed-in-email-message">{{#t}}You are signed in as{{/t}}<br />{{email}}</p>
-
-    <ul class="links">
-      {{#communicationPrefsVisible}}
-      <li>
-        <a id="communications" href="/settings/communication_preferences">{{#t}}Communication preferences{{/t}}</a>
-      </li>
-      {{/communicationPrefsVisible}}
-      <li>
-        <a id="change-password" href="/change_password">{{#t}}Change password{{/t}}</a>
-      </li>
-      <li>
-        <a id="delete-account" href="/delete_account">{{#t}}Delete account{{/t}}</a>
-      </li>
-      {{#showSignOut}}
-        <li>
-          <a id="signout" href="#">{{#t}}Sign out{{/t}}</a>
-        </li>
-      {{/showSignOut}}
-    </ul>
-  </section>
+  <div class="settings-success-wrapper">
+    <div class="success settings-success">Hello</div>
+  </div>
 </div>
+
+<div id="fxa-settings-profile-header">
+    <div class="avatar-wrapper avatar-settings-view">
+    </div>
+    <p class="signed-in-email-message">
+      {{#t}}Hello, <span>%(username)s</span>{{/t}}
+    </p>
+</div>
+
+<div id="fxa-settings-content" class="card">
+  <div id="sub-panels"></div>
+</div>
+
 <footer id="legal-footer"><a class="terms" href="/legal/terms">{{#t}}Terms of Service{{/t}}</a><a class="privacy" href="/legal/privacy">{{#t}}Privacy Notice{{/t}}</a></footer>

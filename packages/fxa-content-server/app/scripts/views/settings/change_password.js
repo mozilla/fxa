@@ -7,15 +7,18 @@ define([
   'views/base',
   'views/form',
   'lib/auth-errors',
-  'stache!templates/change_password',
+  'stache!templates/settings/change_password',
   'views/mixins/password-mixin',
   'views/mixins/floating-placeholder-mixin',
+  'views/mixins/settings-mixin',
+  'views/mixins/settings-panel-mixin',
   'views/mixins/service-mixin',
   'views/mixins/back-mixin',
   'views/mixins/account-locked-mixin'
 ],
 function (Cocktail, BaseView, FormView, AuthErrors, Template, PasswordMixin,
-  FloatingPlaceholderMixin, ServiceMixin, BackMixin, AccountLockedMixin) {
+  FloatingPlaceholderMixin, SettingsMixin, SettingsPanelMixin, ServiceMixin,
+  BackMixin, AccountLockedMixin) {
   'use strict';
 
   var t = BaseView.t;
@@ -55,9 +58,10 @@ function (Cocktail, BaseView, FormView, AuthErrors, Template, PasswordMixin,
           return self.broker.afterChangePassword(account);
         })
         .then(function () {
-          self.navigate('settings', {
-            success: t('Password changed successfully')
-          });
+          self.displaySuccess(t('Password changed successfully'));
+          self.navigate('settings');
+
+          return self.render();
         }, function (err) {
           if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
             // the password is needed to poll whether the account has
@@ -75,6 +79,8 @@ function (Cocktail, BaseView, FormView, AuthErrors, Template, PasswordMixin,
     View,
     PasswordMixin,
     FloatingPlaceholderMixin,
+    SettingsMixin,
+    SettingsPanelMixin,
     ServiceMixin,
     BackMixin,
     AccountLockedMixin

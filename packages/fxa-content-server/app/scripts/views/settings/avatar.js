@@ -7,23 +7,31 @@ define([
   'views/form',
   'stache!templates/settings/avatar',
   'views/mixins/avatar-mixin',
-  'views/mixins/settings-mixin'
+  'views/mixins/settings-mixin',
+  'views/mixins/settings-panel-mixin'
 ],
-function (Cocktail, FormView, Template, AvatarMixin, SettingsMixin) {
+function (Cocktail, FormView, Template, AvatarMixin, SettingsMixin,
+    SettingsPanelMixin) {
   'use strict';
 
   var View = FormView.extend({
     template: Template,
     className: 'avatar',
 
-    afterVisible: function () {
-      FormView.prototype.afterVisible.call(this);
-      return this.displayAccountProfileImage(this.getSignedInAccount());
+    onProfileUpdate: function () {
+      this.render();
+    },
+
+    context: function () {
+      var account = this.getSignedInAccount();
+      return {
+        avatar: account.has('profileImageUrl')
+      };
     }
 
   });
 
-  Cocktail.mixin(View, AvatarMixin, SettingsMixin);
+  Cocktail.mixin(View, AvatarMixin, SettingsMixin, SettingsPanelMixin);
 
   return View;
 });

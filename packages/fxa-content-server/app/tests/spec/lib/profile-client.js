@@ -149,6 +149,32 @@ function (chai, sinon, Session, ProfileClient) {
         });
       });
 
+      describe('displayName', function () {
+
+        it('gets displayName', function () {
+          var name = 'Joe';
+          server.respondWith('GET', PROFILE_URL + '/v1/display_name',
+            [200, { 'Content-Type': 'application/json' },
+            '{ "displayName": "' + name + '" }']);
+
+          return client.getDisplayName(token)
+            .then(function (result) {
+              assert.equal(result.displayName, name);
+            });
+        });
+
+        it('posts a displayName', function () {
+          var name = 'Joe';
+          server.respondWith('POST', PROFILE_URL + '/v1/display_name',
+            [201, { 'Content-Type': 'application/json' }, '{}']);
+
+          return client.postDisplayName(name)
+            .then(function (result) {
+              assert.ok(result);
+            });
+        });
+      });
+
     });
   });
 });

@@ -6,24 +6,23 @@ define([
   'cocktail',
   'views/base',
   'views/form',
-  'stache!templates/delete_account',
+  'stache!templates/settings/delete_account',
   'lib/session',
   'lib/auth-errors',
   'views/mixins/password-mixin',
+  'views/mixins/settings-mixin',
   'views/mixins/service-mixin',
-  'views/mixins/back-mixin',
+  'views/mixins/settings-panel-mixin',
   'views/mixins/account-locked-mixin'
 ],
 function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
-      PasswordMixin, ServiceMixin, BackMixin, AccountLockedMixin) {
+      PasswordMixin, SettingsMixin, SettingsPanelMixin, ServiceMixin,
+      AccountLockedMixin) {
   'use strict';
 
   var t = BaseView.t;
 
   var View = FormView.extend({
-    // user must be authenticated to delete their account
-    mustAuth: true,
-
     template: Template,
     className: 'delete-account',
 
@@ -69,8 +68,9 @@ function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
   Cocktail.mixin(
     View,
     PasswordMixin,
+    SettingsMixin,
+    SettingsPanelMixin,
     ServiceMixin,
-    BackMixin,
     AccountLockedMixin
   );
 

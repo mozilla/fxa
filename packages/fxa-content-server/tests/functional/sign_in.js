@@ -74,7 +74,7 @@ define([
         })
         .then(function () {
           return fillOutSignIn(self, email, PASSWORD)
-            .findById('fxa-avatar-change-header')
+            .findById('avatar-change')
             .end();
         });
     },

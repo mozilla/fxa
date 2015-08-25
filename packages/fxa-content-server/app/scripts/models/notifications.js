@@ -17,29 +17,34 @@ define([
   };
 
   var Notifications = Backbone.Model.extend({
+    EVENTS: EVENTS,
+
     defaults: {
     },
+
     initialize: function (options) {
       options = options || {};
-      this._channels = [
-        options.tabChannel,
-        options.webChannel
-      ];
-      // The iframe channel only available when the content is framed, naturally.
+      this._channels = [];
       if (options.iframeChannel) {
         this._channels.push(options.iframeChannel);
       }
-
-      this._listen(options.tabChannel);
+      if (options.webChannel) {
+        this._channels.push(options.webChannel);
+      }
+      if (options.tabChannel) {
+        this._channels.push(options.tabChannel);
+        this._listen(options.tabChannel);
+      }
     },
 
     broadcast: function (event, data) {
       this._channels.forEach(function (channel) {
         channel.send(event, data);
       });
+      this.trigger(event, data);
     },
 
-    profileChanged: function (data) {
+    profileUpdated: function (data) {
       this.broadcast(EVENTS.PROFILE_CHANGE, data);
     },
 

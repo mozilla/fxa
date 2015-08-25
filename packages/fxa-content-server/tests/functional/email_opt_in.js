@@ -94,12 +94,11 @@ define([
 
         .then(waitForBasket(email))
 
-        .findByCssSelector('a[href="/settings/communication_preferences"]')
+        .findByCssSelector('#communication-preferences .settings-unit-toggle')
           .click()
         .end()
 
-        .findByCssSelector('#fxa-communication-preferences-header')
-        .end()
+        .then(FunctionalHelpers.visibleByQSA('#communication-preferences .settings-unit-details'))
 
         .then(testOptedIn(self));
     },
@@ -127,12 +126,11 @@ define([
 
         .then(waitForBasket(email))
 
-        .findByCssSelector('a[href="/settings/communication_preferences"]')
+        .findByCssSelector('#communication-preferences .settings-unit-toggle')
           .click()
         .end()
 
-        .findByCssSelector('#fxa-communication-preferences-header')
-        .end()
+        .then(FunctionalHelpers.visibleByQSA('#communication-preferences .settings-unit-details'))
 
         .then(testOptedIn(self))
 
@@ -143,8 +141,7 @@ define([
         // ensure the changes stick across refreshes
         .refresh()
 
-        .findByCssSelector('#fxa-communication-preferences-header')
-        .end()
+        .then(FunctionalHelpers.visibleByQSA('#communication-preferences .settings-unit-details'))
 
         .then(testOptedIn(self))
 
@@ -158,8 +155,11 @@ define([
         // ensure the opt-out sticks across refreshes
         .refresh()
 
-        .findByCssSelector('#fxa-communication-preferences-header')
+        .findByCssSelector('#communication-preferences .settings-unit-toggle')
+          .click()
         .end()
+
+        .then(FunctionalHelpers.visibleByQSA('#communication-preferences .settings-unit-details'))
 
         .then(testNotOptedIn(self));
     },
@@ -184,12 +184,11 @@ define([
         .findByCssSelector('#fxa-settings-header')
         .end()
 
-        .findByCssSelector('a[href="/settings/communication_preferences"]')
+        .findByCssSelector('#communication-preferences .settings-unit-toggle')
           .click()
         .end()
 
-        .findByCssSelector('#fxa-communication-preferences-header')
-        .end()
+        .then(FunctionalHelpers.visibleByQSA('#communication-preferences .settings-unit-details'))
 
         .then(testNotOptedIn(self))
 
@@ -212,8 +211,11 @@ define([
         // ensure the opt-in sticks across refreshes
         .refresh()
 
-        .findByCssSelector('#fxa-communication-preferences-header')
+        .findByCssSelector('#communication-preferences .settings-unit-toggle')
+          .click()
         .end()
+
+        .then(FunctionalHelpers.visibleByQSA('#communication-preferences .settings-unit-details'))
 
         .then(testOptedIn(self))
 

@@ -26,11 +26,15 @@ define([
 
   var SETTINGS_PAGES = {
     '': 'fxa-settings-header',
-    '/avatar': 'fxa-account-picture-header',
-    '/avatar/change': 'fxa-avatar-change-header',
-    '/avatar/gravatar': 'fxa-avatar-gravatar-header',
-    '/avatar/camera': 'fxa-avatar-camera-header',
-    '/avatar/crop': 'fxa-avatar-crop-header'
+    '/avatar/change': 'avatar-change',
+    '/avatar/gravatar': 'avatar-gravatar',
+    '/avatar/gravatar_permissions': 'avatar-gravatar-permissions',
+    '/avatar/camera': 'avatar-camera',
+    '/avatar/crop': 'avatar-crop',
+    '/change_password': 'change-password',
+    '/communication_preferences': 'communication-preferences',
+    '/delete_account': 'delete-account',
+    '/display_name': 'display-name'
   };
 
 

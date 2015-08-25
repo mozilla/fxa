@@ -5,15 +5,24 @@
 // helper functions for views with a profile image. Meant to be mixed into views.
 
 define([
+  'underscore',
   'lib/auth-errors',
   'lib/profile-errors',
   'models/profile-image'
-], function (AuthErrors, ProfileErrors, ProfileImage) {
+], function (_, AuthErrors, ProfileErrors, ProfileImage) {
   'use strict';
 
   return {
     initialize: function (options) {
-      this.notifications = options.notifications;
+      var notifications = this.notifications = options.notifications;
+      if (notifications) {
+        notifications.on(notifications.EVENTS.PROFILE_CHANGE,
+          _.bind(this.onProfileUpdate, this));
+      }
+    },
+
+    onProfileUpdate: function (/* data */) {
+      // implement in view
     },
 
     displayAccountProfileImage: function (account, wrapperClass) {
@@ -48,11 +57,11 @@ define([
 
           if (profileImage.isDefault()) {
             self.$(wrapperClass).addClass('with-default');
-            self.$(wrapperClass).append('<span></span>');
+            self.$(wrapperClass).html('<span></span>');
             self.logScreenEvent('profile_image_not_shown');
           } else {
             self.$(wrapperClass).removeClass('with-default');
-            self.$(wrapperClass).append(profileImage.get('img'));
+            self.$(wrapperClass).html(profileImage.get('img'));
             self.logScreenEvent('profile_image_shown');
           }
         });
@@ -85,12 +94,10 @@ define([
     },
 
     updateProfileImage: function (profileImage, account) {
+      var self = this;
       account.setProfileImage(profileImage);
-      this.user.setAccount(account);
-
-      this.notifications.profileChanged({
-        uid: account.get('uid')
-      });
+      return self.user.setAccount(account)
+        .then(_.bind(self._notifyProfileUpdate, self, account.get('uid')));
     },
 
     deleteDisplayedAccountProfileImage: function (account) {
@@ -100,6 +107,20 @@ define([
           // A blank image will clear the cache
           self.updateProfileImage(new ProfileImage(), account);
         });
+    },
+
+    updateDisplayName: function (displayName) {
+      var self = this;
+      var account = self.getSignedInAccount();
+      account.set('displayName', displayName);
+      return self.user.setAccount(account)
+        .then(_.bind(self._notifyProfileUpdate, self, account.get('uid')));
+    },
+
+    _notifyProfileUpdate: function (uid) {
+      this.notifications.profileUpdated({
+        uid: uid
+      });
     }
   };
 });

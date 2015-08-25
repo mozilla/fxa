@@ -1,0 +1,30 @@
+<div id="display-name" class="settings-unit">
+  <div class="settings-unit-stub">
+    <header class="settings-unit-summary">
+      <h2 class="settings-unit-title">{{#t}}Display name{{/t}}</h2>
+      {{#displayName}}
+        <h3 class="settings-unit-subtitle">{{ displayName }}</h3>
+      {{/displayName}}
+    </header>
+    <button class="settings-button secondary settings-unit-toggle hidden"
+      data-href="settings/display_name">
+      {{#t}}Change{{/t}}
+    </button>
+  </div>
+
+  <div class="settings-unit-details">
+    <div class="error"></div>
+
+    <form novalidate>
+      <p>
+        {{#t}}Choose the name you would like to appear in Firefox and when managing your account.{{/t}}
+      </p>
+      <div class="input-row">
+        <input type="text" class="text display-name" placeholder="{{#t}}Display name{{/t}}" value="{{ displayName }}" autocomplete="off"/>
+      </div>
+      <div class="button-row">
+        <button type="submit" class="settings-button primary disabled">{{#t}}Change{{/t}}</button>
+        <button class="settings-button secondary cancel">{{#t}}Cancel{{/t}}</button>
+      </div>
+  </div>
+</div>

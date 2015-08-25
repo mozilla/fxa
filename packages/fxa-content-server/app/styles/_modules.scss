@@ -1,3 +1,4 @@
+@import '../bower_components/jquery-modal/jquery.modal';
 @import 'modules/iframe';
 @import 'modules/branding';
 @import 'modules/tooltip';
@@ -6,6 +7,7 @@
 @import 'modules/button-row';
 @import 'modules/password-row';
 @import 'modules/custom-rows';
+@import 'modules/settings';
 @import 'modules/legal';
 @import 'modules/spinner';
 @import 'modules/avatar';
@@ -13,4 +15,3 @@
 @import 'modules/graphic';
 @import 'modules/marketing';
 @import 'modules/marketing-ios';
-

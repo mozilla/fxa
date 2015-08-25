@@ -776,6 +776,26 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
       });
     });
 
+    describe('fetchProfile', function () {
+      it('returns profile', function () {
+        var name = 'snoopy';
+        sinon.stub(account, 'getProfile', function () {
+          return p({ avatar: PNG_URL, displayName: name });
+        });
+
+        sinon.spy(account, 'setProfileImage');
+
+        return account.fetchProfile()
+          .then(function () {
+            assert.equal(account.get('profileImageUrl'), PNG_URL);
+            assert.isTrue(account.setProfileImage.called);
+            assert.equal(account.setProfileImage.args[0][0].get('url'), PNG_URL);
+            assert.isTrue(account.get('hadProfileImageSetBefore'));
+            assert.equal(account.get('displayName'), name);
+          });
+      });
+    });
+
     describe('permissions', function () {
       it('saves permissions', function () {
         var clientId = 'blah';

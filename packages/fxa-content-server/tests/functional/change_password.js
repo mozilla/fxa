@@ -10,14 +10,13 @@ define([
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/test'
+  'tests/functional/lib/helpers'
 ], function (intern, registerSuite, assert, require, nodeXMLHttpRequest,
-      FxaClient, TestHelpers, FunctionalHelpers, Test) {
+      FxaClient, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
-  var PAGE_URL = config.fxaContentRoot + 'change_password';
+  var PAGE_URL = config.fxaContentRoot + 'settings/change_password';
 
   var FIRST_PASSWORD = 'password';
   var SECOND_PASSWORD = 'new_password';
@@ -30,7 +29,7 @@ define([
     return context.remote
       .get(require.toUrl(PAGE_URL))
 
-      .findByCssSelector('#fxa-change-password-header')
+      .then(FunctionalHelpers.visibleByQSA('#change-password'))
       .end()
 
       .then(function () {
@@ -84,21 +83,17 @@ define([
       return this.remote
 
         // Go to change password screen
-        .findByCssSelector('#change-password')
+        .findByCssSelector('#change-password .settings-unit-toggle')
           .click()
-        .end()
-
-        // ensure there is a back button
-        .findByCssSelector('#back')
         .end()
 
         .then(function () {
           return FunctionalHelpers.fillOutChangePassword(self, 'INCORRECT', SECOND_PASSWORD);
         })
 
-        .then(FunctionalHelpers.visibleByQSA('.error'))
+        .then(FunctionalHelpers.visibleByQSA('#change-password .error'))
 
-        .findByCssSelector('.error').isDisplayed()
+        .findByCssSelector('#change-password .error').isDisplayed()
           .then(function (isDisplayed) {
             assert.isTrue(isDisplayed);
           })
@@ -109,7 +104,7 @@ define([
           .click()
         .end()
 
-        .findByCssSelector('.error').isDisplayed()
+        .findByCssSelector('#change-password .error').isDisplayed()
           .then(function (isDisplayed) {
             assert.isTrue(isDisplayed);
           })
@@ -126,7 +121,7 @@ define([
         // .findByClass.
         .sleep(ANIMATION_DELAY_MS)
 
-        .findByCssSelector('.error').isDisplayed()
+        .findByCssSelector('#change-password .error').isDisplayed()
           .then(function (isDisplayed) {
             assert.isFalse(isDisplayed);
           })
@@ -138,7 +133,7 @@ define([
       return this.remote
 
         // Go to change password screen
-        .findByCssSelector('#change-password')
+        .findByCssSelector('#change-password .settings-unit-toggle')
           .click()
         .end()
 
@@ -168,44 +163,6 @@ define([
         })
 
         .findByCssSelector('#fxa-settings-header')
-        .end();
-    },
-
-    'browse directly to page - no back button': function () {
-      var self = this;
-      return this.remote
-        // check that signin is complete before proceeding
-        .findByCssSelector('#fxa-settings-header')
-        .end()
-
-        .execute(function () {
-          sessionStorage.clear();
-        })
-
-        .get(require.toUrl(PAGE_URL))
-
-        .findByCssSelector('#fxa-change-password-header')
-        .end()
-
-        .then(Test.noElementById(self, 'back'));
-    },
-
-    'refresh the page - back button': function () {
-      return this.remote
-        // check that signin is complete before proceeding
-        .findByCssSelector('#fxa-settings-header')
-        .end()
-
-        .findById('change-password')
-          .click()
-        .end()
-
-        .findByCssSelector('#fxa-change-password-header')
-        .end()
-
-        .refresh()
-
-        .findByCssSelector('#back')
         .end();
     },
 

@@ -6,8 +6,9 @@ define([
   'p-promise',
   'cocktail',
   'views/form',
-  'views/mixins/settings-mixin',
   'views/mixins/avatar-mixin',
+  'views/mixins/modal-settings-panel-mixin',
+  'views/mixins/settings-mixin',
   'stache!templates/settings/avatar_crop',
   'lib/constants',
   'lib/cropper',
@@ -15,8 +16,8 @@ define([
   'models/cropper-image',
   'models/profile-image'
 ],
-function (p, Cocktail, FormView, SettingsMixin, AvatarMixin, Template,
-    Constants, Cropper, AuthErrors, CropperImage, ProfileImage) {
+function (p, Cocktail, FormView, AvatarMixin, ModalSettingsPanelMixin, SettingsMixin,
+    Template, Constants, Cropper, AuthErrors, CropperImage, ProfileImage) {
   'use strict';
 
   var HORIZONTAL_GUTTER = 90;
@@ -47,6 +48,7 @@ function (p, Cocktail, FormView, SettingsMixin, AvatarMixin, Template,
     },
 
     afterRender: function () {
+      FormView.prototype.afterRender.call(this);
       this.canvas = this.$('canvas')[0];
     },
 
@@ -135,7 +137,12 @@ function (p, Cocktail, FormView, SettingsMixin, AvatarMixin, Template,
 
   });
 
-  Cocktail.mixin(View, SettingsMixin, AvatarMixin);
+  Cocktail.mixin(
+    View,
+    AvatarMixin,
+    ModalSettingsPanelMixin,
+    SettingsMixin
+  );
 
   return View;
 });

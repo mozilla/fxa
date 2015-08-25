@@ -163,10 +163,10 @@ define([
 
         .get(require.toUrl(SETTINGS_URL + '?setting=avatar'))
 
-        .findById('fxa-avatar-change-header')
+        .findById('avatar-options')
         .end()
 
-        .findByCssSelector('#settings-home a')
+        .findByCssSelector('.avatar-panel button.cancel')
           .click()
         .end()
 
@@ -183,10 +183,10 @@ define([
 
         .get(require.toUrl(SETTINGS_URL + '?setting=avatar&uid=' + accountData.uid + '&email=' + email))
 
-        .findById('fxa-avatar-change-header')
+        .findById('avatar-options')
         .end()
 
-        .findByCssSelector('#settings-home a')
+        .findByCssSelector('.avatar-panel button.cancel')
           .click()
         .end()
 
@@ -203,7 +203,7 @@ define([
         .then(function () {
           return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD);
         })
-        .findById('fxa-avatar-change-header')
+        .findById('avatar-options')
         .end();
     },
 
@@ -215,7 +215,7 @@ define([
         .then(function () {
           return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD);
         })
-        .findById('fxa-avatar-change-header')
+        .findById('avatar-options')
         .end();
     }
 

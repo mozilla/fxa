@@ -78,12 +78,11 @@ define([
 
       return this.remote
 
-        .findByCssSelector('#change-password')
+        .findByCssSelector('#change-password .settings-unit-toggle')
           .click()
         .end()
 
-        .findByCssSelector('#fxa-change-password-header')
-        .end()
+        .then(FunctionalHelpers.visibleByQSA('#change-password .settings-unit-details'))
 
         .then(function () {
           return fillOutChangePassword(self, FIRST_PASSWORD, SECOND_PASSWORD);
@@ -99,12 +98,11 @@ define([
 
       return this.remote
 
-        .findByCssSelector('#delete-account')
+        .findByCssSelector('#delete-account .settings-unit-toggle')
           .click()
         .end()
 
-        .findByCssSelector('#fxa-delete-account-header')
-        .end()
+        .then(FunctionalHelpers.visibleByQSA('#delete-account .settings-unit-details'))
 
         .then(function () {
           return fillOutDeleteAccount(self, FIRST_PASSWORD);

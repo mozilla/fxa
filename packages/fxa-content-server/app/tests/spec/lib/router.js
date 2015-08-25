@@ -8,9 +8,11 @@ define([
   'backbone',
   'lib/router',
   'views/base',
+  'views/settings/display_name',
   'views/sign_in',
   'views/sign_up',
   'views/ready',
+  'views/settings',
   'lib/able',
   'lib/constants',
   'lib/environment',
@@ -24,8 +26,8 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, sinon, Backbone, Router, BaseView, SignInView, SignUpView,
-      ReadyView, Able, Constants, Environment, Metrics, EphemeralMessages, p,
+function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, SignUpView,
+      ReadyView, SettingsView, Able, Constants, Environment, Metrics, EphemeralMessages, p,
       Relier, User, FormPrefill, NullBroker, WindowMock, TestHelpers) {
   'use strict';
 
@@ -34,7 +36,6 @@ function (chai, sinon, Backbone, Router, BaseView, SignInView, SignUpView,
   describe('lib/router', function () {
     var router;
     var windowMock;
-    var origNavigate;
     var navigateUrl;
     var navigateOptions;
     var metrics;
@@ -77,18 +78,127 @@ function (chai, sinon, Backbone, Router, BaseView, SignInView, SignUpView,
         environment: environment
       });
 
-      origNavigate = Backbone.Router.prototype.navigate;
-      Backbone.Router.prototype.navigate = function (url, options) {
+      sinon.stub(Backbone.Router.prototype, 'navigate', function (url, options) {
         navigateUrl = url;
         navigateOptions = options;
-      };
+      });
     });
 
     afterEach(function () {
       metrics.destroy();
       windowMock = router = navigateUrl = navigateOptions = metrics = null;
-      Backbone.Router.prototype.navigate = origNavigate;
+      Backbone.Router.prototype.navigate.restore();
       $('#container').empty();
+    });
+
+    describe('renderSubView', function () {
+      it('calls render and afterVisible on subview', function () {
+        var settingsView = router.createView(SettingsView);
+        sinon.stub(settingsView, 'render', function () {
+          return p(true);
+        });
+        sinon.spy(settingsView, 'afterVisible');
+
+        router.renderSubView(settingsView)
+          .then(function (view) {
+            assert.strictEqual(view, settingsView);
+            assert.isTrue(settingsView.render.called);
+            assert.isTrue(settingsView.afterVisible.called);
+          });
+      });
+
+      it('does not call afterVisible if render fails', function () {
+        var settingsView = router.createView(SettingsView);
+        sinon.stub(settingsView, 'render', function () {
+          return p(false);
+        });
+        sinon.spy(settingsView, 'afterVisible');
+        sinon.spy(settingsView, 'destroy');
+
+        return router.renderSubView(settingsView)
+          .then(function (view) {
+            assert.isUndefined(view);
+            assert.isTrue(settingsView.render.called);
+            assert.isFalse(settingsView.afterVisible.called);
+            assert.isTrue(settingsView.destroy.calledWith(true));
+          });
+      });
+    });
+
+    describe('navigating to views/subviews', function () {
+      beforeEach(function () {
+        sinon.stub(window.history, 'pushState', function () {
+        });
+        Backbone.Router.prototype.navigate.restore();
+        Backbone.history.start({ pushState: true });
+      });
+
+      afterEach(function () {
+        Backbone.history.stop();
+        sinon.stub(Backbone.Router.prototype, 'navigate', function () { });
+        window.history.pushState.restore();
+      });
+
+      it('navigate to view', function () {
+        sinon.stub(router, 'createAndShowView', function () { });
+        router.navigate('/settings');
+
+        assert.isTrue(window.history.pushState.called, 'pushState');
+        assert.isTrue(router.createAndShowView.called);
+        assert.equal(router.createAndShowView.args[0][0], SettingsView);
+      });
+
+      it('navigating to subview from non-superview', function (done) {
+        sinon.stub(router, 'createAndShowView', function () {
+          return p();
+        });
+        sinon.stub(router, 'showSubView', function () {
+          try {
+            assert.isTrue(window.history.pushState.called, 'pushState');
+            assert.isTrue(router.createAndShowView.called);
+            assert.equal(router.createAndShowView.args[0][0], SettingsView);
+            assert.equal(router.createAndShowView.args[0][1].subView, DisplayNameView);
+          } catch (e) {
+            return done(e);
+          }
+          done();
+        });
+
+        router.navigate('/settings/display_name');
+      });
+
+      it('navigating to subview from superview ', function () {
+        var settingsView = router.createView(SettingsView);
+        router.currentView = settingsView;
+        sinon.stub(router, 'showSubView', function () {
+        });
+        router.navigate('/settings/display_name');
+
+        assert.isTrue(window.history.pushState.called, 'pushState');
+        assert.isTrue(router.showSubView.called);
+        assert.equal(router.showSubView.args[0][0].subView, DisplayNameView);
+      });
+
+      it('navigate to settings from subview ', function () {
+        var settingsView = router.createView(SettingsView);
+        router.currentView = settingsView;
+
+        sinon.stub(settingsView, 'titleFromView', function () {
+          return 'Foo';
+        });
+        sinon.spy(router, 'setDocumentTitle');
+
+        var spy = sinon.spy();
+        router.on(router.NAVIGATE_FROM_SUBVIEW, spy);
+
+        router.navigate('/settings/display_name');
+        router.navigate('/settings');
+
+        assert.isTrue(window.history.pushState.calledTwice, 'pushState');
+        assert.isTrue(router.setDocumentTitle.calledWith('Foo'));
+
+        assert.isTrue(spy.called);
+      });
     });
 
     describe('navigate', function () {
@@ -331,6 +441,20 @@ function (chai, sinon, Backbone, Router, BaseView, SignInView, SignUpView,
                 'signup.refresh'));
           });
       });
+
+
+      it('sets document title', function () {
+        sinon.stub(view, 'titleFromView', function () {
+          return 'Foo';
+        });
+        sinon.spy(router, 'setDocumentTitle');
+
+        return router.showView(view)
+          .then(function () {
+            assert.isTrue(view.titleFromView.called);
+            assert.isTrue(router.setDocumentTitle.calledWith('Foo'));
+          });
+      });
     });
 
     describe('pathToScreenName', function () {
@@ -525,6 +649,51 @@ function (chai, sinon, Backbone, Router, BaseView, SignInView, SignUpView,
             assert.equal(spyCall.args[1].error.message, 'boom');
           }, assert.fail);
       });
+    });
+
+    it('creates a subView', function () {
+      router.currentView = {};
+      sinon.stub(router, 'createView', function () {
+      });
+      router.createSubView(SignInView, { foo: 'bar' });
+      assert.isTrue(router.createView.calledWith(SignInView, {
+        superView: router.currentView,
+        foo: 'bar'
+      }));
+    });
+
+    it('showSubView sets title and logs screen', function () {
+      var settingsView = router.createView(SettingsView);
+      router.currentView = {
+        showSubView: function () {},
+        titleFromView: function () {}
+      };
+      sinon.stub(router.currentView, 'showSubView', function () {
+        return p(settingsView);
+      });
+      sinon.stub(router.currentView, 'titleFromView', function () {
+        return 'Foo';
+      });
+
+      sinon.stub(settingsView, 'titleFromView', function () {
+        return 'Foo: Bar';
+      });
+      sinon.spy(settingsView, 'logScreen');
+      sinon.stub(router, 'setDocumentTitle', function () {
+      });
+      return router.showSubView({ subView: SettingsView })
+        .then(function () {
+          assert.strictEqual(router.currentView.showSubView.args[0][0], SettingsView);
+          assert.isTrue(router.currentView.titleFromView.called);
+          assert.isTrue(settingsView.titleFromView.calledWith('Foo'));
+          assert.isTrue(router.setDocumentTitle.calledWith('Foo: Bar'));
+          assert.isTrue(settingsView.logScreen.called);
+        });
+    });
+
+    it('setDocumentTitle sets document title', function () {
+      router.setDocumentTitle('Foo');
+      assert.equal(windowMock.document.title, 'Foo');
     });
 
     describe('canGoBack initial value', function () {

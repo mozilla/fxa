@@ -21,6 +21,7 @@ define([
 
   // Account attributes that can be persisted
   var PERSISTENT = {
+    displayName: undefined,
     email: undefined,
     grantedPermissions: undefined,
     lastLogin: undefined,
@@ -55,7 +56,7 @@ define([
   var ALLOWED_KEYS = Object.keys(DEFAULTS);
   var ALLOWED_PERSISTENT_KEYS = Object.keys(PERSISTENT);
 
-  var PROFILE_SCOPE = 'profile:write';
+  var PROFILE_SCOPE = 'profile profile:write';
 
   var Account = Backbone.Model.extend({
     defaults: DEFAULTS,
@@ -191,6 +192,17 @@ define([
         // had a custom profile image.
         this.set('hadProfileImageSetBefore', true);
       }
+    },
+
+    fetchProfile: function () {
+      var self = this;
+
+      return self.getProfile()
+        .then(function (result) {
+          var profileImage = new ProfileImage({ url: result.avatar });
+          self.setProfileImage(profileImage);
+          self.set('displayName', result.displayName);
+        });
     },
 
     fetchCurrentProfileImage: function () {
@@ -349,7 +361,15 @@ define([
     }
   });
 
-  ['getAvatar', 'getAvatars', 'postAvatar', 'deleteAvatar', 'uploadAvatar']
+  [
+    'getProfile',
+    'getAvatar',
+    'getAvatars',
+    'postAvatar',
+    'deleteAvatar',
+    'uploadAvatar',
+    'postDisplayName'
+  ]
     .forEach(function (method) {
       Account.prototype[method] = function () {
         var self = this;

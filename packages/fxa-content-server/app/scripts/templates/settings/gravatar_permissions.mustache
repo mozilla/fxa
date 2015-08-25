@@ -1,11 +1,9 @@
-<div id="main-content" class="card">
-  <header>
-    <h1 id="fxa-permissions-header">{{#t}}Request for permission{{/t}}</h1>
-  </header>
-
-  <section>
+<div id="avatar-gravatar-permissions">
+  <section class="avatar-panel">
+    <header>
+      <h1 id="fxa-permissions-header">{{#t}}Request for permission{{/t}}</h1>
+    </header>
     <div class="error"></div>
-    <div class="success"></div>
 
     <p id="permission-request">{{#t}}%(serviceName)s wants the following information from your account:{{/t}}</p>
 
@@ -16,13 +14,9 @@
       </div>
 
       <div class="button-row">
-        <button id="accept" type="submit">{{#t}}Accept{{/t}}</button>
+        <button type="submit" id="accept" class="settings-button primary disabled">{{#t}}Accept{{/t}}</button>
+        <button class="settings-button secondary" id="back">{{#t}}Cancel{{/t}}</button>
       </div>
     </form>
-
-    <ul class="links permission-links">
-      <li><a href="#" id="back">{{#t}}Cancel{{/t}}</a></li>
-    </ul>
-
   </section>
 </div>

@@ -1,27 +1,22 @@
-<div id="main-content" class="card">
-  <header>
-    <h1 id="fxa-avatar-change-header">{{#t}}Account picture{{/t}}</h1>
-  </header>
-
-  <section>
+<div id="avatar-change">
+  <section class="avatar-panel">
     <div class="main-avatar">
       <p class="avatar-wrapper">
       </p>
-      <a href="#" class="remove icon-cancel"></a>
     </div>
 
     <div class="error"></div>
-    <div class="success"></div>
 
     <nav id="avatar-options">
       <input type="file" id="imageLoader" name="imageLoader" accept="image/png, image/jpeg"/>
       <a href="#" id="file"><span class="icon-plus"></span>{{#t}}Upload{{/t}}</a>
       <a href="/settings/avatar/camera" id="camera"><span class="icon-camera-alt"></span>{{#t}}Camera{{/t}}</a>
       <a href="/settings/avatar/gravatar_permissions" id="gravatar"><span class="gravatar-logo"></span>{{#t}}Gravatar{{/t}}</a>
+      <a href="#" class="remove hidden"><span class="icon-cancel"></span>{{#t}}Clear{{/t}}</a>
     </nav>
 
-    <p id="settings-home">
-      <a href="/settings">{{#t}}Back{{/t}}</a>
-    </p>
+    <div class="button-row">
+      <button id="done" class="settings-button secondary cancel">{{#t}}Done{{/t}}</button>
+    </div>
   </section>
 </div>
