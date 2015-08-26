@@ -6,6 +6,8 @@ var EventEmitter = require('events').EventEmitter
 var util = require('util')
 var mozlog = require('mozlog')
 
+var StatsDCollector = require('./metrics/statsd')
+
 function unbuffer(object) {
   var keys = Object.keys(object)
   for (var i = 0; i < keys.length; i++) {
@@ -26,6 +28,9 @@ function Lug(options) {
     stream: process.stderr
   })
   this.logger = mozlog()
+
+  this.statsd = new StatsDCollector(this.logger)
+  this.statsd.init()
 }
 util.inherits(Lug, EventEmitter)
 
@@ -73,6 +78,14 @@ Lug.prototype.activityEvent = function(event, uid, request) {
     info.service = request.payload.service
   }
   this.logger.info('activityEvent', info)
+  this.statsd.write(info)
+}
+
+
+Lug.prototype.increment = function(event) {
+  this.statsd.write({
+    event: event
+  })
 }
 
 Lug.prototype.stat = function (stats) {

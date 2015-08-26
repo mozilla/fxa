@@ -297,6 +297,28 @@ var conf = convict({
     format: Array,
     default: [],
     env: 'OPENID_PROVIDERS'
+  },
+  statsd: {
+    enabled: {
+      doc: 'enable UDP based statsd reporting',
+      default: true,
+      env: 'STATSD_ENABLE'
+    },
+    host: {
+      doc: 'StatsD host for sending logging events',
+      default: 'localhost',
+      env: 'STATSD_HOST'
+    },
+    port: {
+      format: 'port',
+      default: 8125,
+      env: 'STATSD_PORT'
+    },
+    sample_rate: {
+      doc: 'statsd sample rate',
+      default: 0.1,
+      env: 'STATSD_SAMPLE_RATE'
+    }
   }
 })
 

@@ -650,12 +650,14 @@ module.exports = function (
               // If the account is already verified, they may be e.g.
               // clicking a stale link.  Silently succeed.
               if (account.emailVerified) {
+                log.increment('account.already_verified')
                 return true
               }
               if (!butil.buffersAreEqual(code, account.emailCode)) {
                 throw error.invalidVerificationCode()
               }
               log.event('verified', { email: account.email, uid: account.uid, locale: account.locale })
+              log.increment('account.verified')
               return db.verifyEmail(account)
             }
           )
