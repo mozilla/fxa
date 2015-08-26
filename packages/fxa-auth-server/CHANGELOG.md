@@ -1,4 +1,14 @@
 <a name="0.43.0"></a>
+## 0.43.0 (2015-08-26)
+
+
+#### Bug Fixes
+
+* **authorization:** allow empty scope with implicit grant ([1d6ac8e5](http://github.com/mozilla/fxa-oauth-server/commit/1d6ac8e55d28683072f448e022c33154bb4d7397), closes [#315](http://github.com/mozilla/fxa-oauth-server/issues/315))
+* **db:** don't change client database at startup; footgun ([8877f818](http://github.com/mozilla/fxa-oauth-server/commit/8877f818ec46a05a283e95e10fd8398756ad907c))
+
+
+<a name="0.43.0"></a>
 ## 0.43.0 (2015-08-04)
 
 
