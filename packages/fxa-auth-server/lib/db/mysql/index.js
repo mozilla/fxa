@@ -114,9 +114,9 @@ MysqlStore.connect = function mysqlConnect(options) {
 
 const QUERY_CLIENT_REGISTER =
   'INSERT INTO clients ' +
-  '(id, name, imageUri, secret, redirectUri, termsUri, privacyUri, ' +
-  ' trusted, canGrant) ' +
-  'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);';
+  '(id, name, imageUri, hashedSecret, secret, redirectUri, termsUri,' +
+  'privacyUri, trusted, canGrant) ' +
+  'VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?);';
 const QUERY_CLIENT_DEVELOPER_INSERT =
   'INSERT INTO clientDevelopers ' +
   '(rowId, developerId, clientId) ' +
@@ -144,7 +144,9 @@ const QUERY_CLIENT_LIST = 'SELECT id, name, redirectUri, imageUri, ' +
   'developers.email =?;';
 const QUERY_CLIENT_UPDATE = 'UPDATE clients SET ' +
   'name=COALESCE(?, name), imageUri=COALESCE(?, imageUri), ' +
-  'secret=COALESCE(?, secret), redirectUri=COALESCE(?, redirectUri), ' +
+  'hashedSecret=COALESCE(?, hashedSecret), ' +
+  'secret=COALESCE(?, hashedSecret), ' +
+  'redirectUri=COALESCE(?, redirectUri), ' +
   'termsUri=COALESCE(?, termsUri), privacyUri=COALESCE(?, privacyUri), ' +
   'trusted=COALESCE(?, trusted), canGrant=COALESCE(?, canGrant) ' +
   'WHERE id=?';
@@ -213,6 +215,7 @@ MysqlStore.prototype = {
       client.name,
       client.imageUri || '',
       buf(client.hashedSecret),
+      buf(client.hashedSecret), // duplicate for `secret` column until dropped
       client.redirectUri,
       client.termsUri || '',
       client.privacyUri || '',
@@ -299,7 +302,7 @@ MysqlStore.prototype = {
     if (!client.id) {
       return P.reject(new Error('Update client needs an id'));
     }
-    var secret = client.hashedSecret || client.secret || null;
+    var secret = client.hashedSecret;
     if (secret) {
       secret = buf(secret);
     }
@@ -308,6 +311,7 @@ MysqlStore.prototype = {
       client.name,
       client.imageUri,
       secret,
+      secret, // duplicate for `secret` column until dropped
       client.redirectUri,
       client.termsUri,
       client.privacyUri,
