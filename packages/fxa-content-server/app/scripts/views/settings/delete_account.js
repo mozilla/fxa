@@ -26,6 +26,10 @@ function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
     template: Template,
     className: 'delete-account',
 
+    initialize: function (options) {
+      this.notifications = options.notifications;
+    },
+
     context: function () {
       return {
         email: this.getSignedInAccount().get('email')
@@ -41,6 +45,9 @@ function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
         .then(function () {
           Session.clear();
           self.user.removeAccount(account);
+          self.notifications.accountDeleted({
+            uid: account.get('uid')
+          });
 
           return self.broker.afterDeleteAccount(account);
         })

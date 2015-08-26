@@ -13,7 +13,9 @@ define([
   'use strict';
 
   var EVENTS = {
-    PROFILE_CHANGE: 'profile:change'
+    PROFILE_CHANGE: 'profile:change',
+    LOGOUT: 'fxaccounts:logout',
+    DELETE: 'fxaccounts:delete'
   };
 
   var Notifications = Backbone.Model.extend({
@@ -46,6 +48,14 @@ define([
 
     profileUpdated: function (data) {
       this.broadcast(EVENTS.PROFILE_CHANGE, data);
+    },
+
+    loggedOut: function (data) {
+      this.broadcast(EVENTS.LOGOUT, data);
+    },
+
+    accountDeleted: function (data) {
+      this.broadcast(EVENTS.DELETE, data);
     },
 
     // Listen for notifications from other fxa tabs or frames

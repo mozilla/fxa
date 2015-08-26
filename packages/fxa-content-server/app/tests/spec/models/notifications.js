@@ -85,6 +85,28 @@ function (chai, sinon, Notifications, NullChannel) {
         assert.isTrue(tabChannelMock.send.calledWith(ev, data));
         assert.isTrue(iframeChannelMock.send.calledWith(ev, data));
       });
+
+      it('notifies account deletions', function () {
+        var ev = notifications.EVENTS.DELETE;
+        var data = { foo: 'bar' };
+
+        notifications.accountDeleted(data);
+
+        assert.isTrue(webChannelMock.send.calledWith(ev, data));
+        assert.isTrue(tabChannelMock.send.calledWith(ev, data));
+        assert.isTrue(iframeChannelMock.send.calledWith(ev, data));
+      });
+
+      it('notifies account logouts', function () {
+        var ev = notifications.EVENTS.LOGOUT;
+        var data = { foo: 'bar' };
+
+        notifications.loggedOut(data);
+
+        assert.isTrue(webChannelMock.send.calledWith(ev, data));
+        assert.isTrue(tabChannelMock.send.calledWith(ev, data));
+        assert.isTrue(iframeChannelMock.send.calledWith(ev, data));
+      });
     });
 
   });
