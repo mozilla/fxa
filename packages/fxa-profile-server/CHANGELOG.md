@@ -1,3 +1,19 @@
+<a name="0.44.0"></a>
+## 0.44.0 (2015-08-26)
+
+
+#### Bug Fixes
+
+* **config:** add options events.region and events.queueUrl ([4c3c4135](https://github.com/mozilla/fxa-profile-server/commit/4c3c41357f595ad8fd44c52cbec05b7d696df9f7))
+* **display_name:** Don't allow control characters in the display_name field. ([5b9e20d2](https://github.com/mozilla/fxa-profile-server/commit/5b9e20d224c4662db62b635398beb633dc5615ff), closes [#126](https://github.com/mozilla/fxa-profile-server/issues/126))
+* **server:** return errno 104 if oauth server is drunk ([3bd6b14d](https://github.com/mozilla/fxa-profile-server/commit/3bd6b14d29d47751bebdb12ef506c6bf1a140241), closes [#121](https://github.com/mozilla/fxa-profile-server/issues/121))
+
+
+#### Features
+
+* **events:** add events to delete user data when account is deleted ([79d98a3d](https://github.com/mozilla/fxa-profile-server/commit/79d98a3d5e3ef94c326ad72a42f6f3ea60f73b3b), closes [#127](https://github.com/mozilla/fxa-profile-server/issues/127))
+
+
 <a name="0.42.0"></a>
 ## 0.42.0 (2015-07-22)
 
