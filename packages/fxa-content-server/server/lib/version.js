@@ -22,7 +22,7 @@ var cp = require('child_process');
 var Promise = require('bluebird');
 var logger = require('mozlog')('server.version');
 
-const UNKNOWN = 'unknown';
+var UNKNOWN = 'unknown';
 
 var versionJsonPath = '../../config/version.json';
 
