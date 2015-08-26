@@ -131,7 +131,7 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
         this.height = this.video[0].videoHeight / (this.video[0].videoWidth / this.width);
         this.video.width(this.width);
         this.video.height(this.height);
-        this.wrapper.css(pos);
+        this.wrapper.css({ marginLeft: pos.left, marginTop: pos.top });
         this.canvas.width = this.width;
         this.canvas.height = this.height;
         this._avatarProgressIndicator.done();
