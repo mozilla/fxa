@@ -353,7 +353,7 @@
     "fxa-auth-db-mysql": {
       "version": "0.42.0",
       "from": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#master",
-      "resolved": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#62c34b63b37a3fa713663c9f86a79993e500de0b",
+      "resolved": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#dca05efbe3f63eafc2a091136d41e5263e858874",
       "dependencies": {
         "bluebird": {
           "version": "2.1.3",
