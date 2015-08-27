@@ -100,6 +100,15 @@ function (chai, $, sinon, AuthErrors, FxaClient, Metrics, p,
           });
       });
 
+      describe('render', function () {
+        it('renders properly', function () {
+          assert.ok($('#old_password').length);
+          assert.ok($('.reset-password').length);
+          assert.ok($('#new_password').length);
+          assert.isTrue($('.input-help').length === 2);
+        });
+      });
+
       describe('isValid', function () {
         it('returns true if both old and new passwords are valid and different', function () {
           $('#old_password').val('password');

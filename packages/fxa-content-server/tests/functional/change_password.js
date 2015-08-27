@@ -195,6 +195,21 @@ define([
         .end();
     },
 
+    'sign in, reset password via settings works': function () {
+      return this.remote
+        // Go to change password screen
+        .findByCssSelector('#change-password .settings-unit-toggle')
+        .click()
+        .end()
+
+        .findByCssSelector('.reset-password')
+        .click()
+        .end()
+
+        .findByCssSelector('#fxa-reset-password-header')
+        .end();
+    },
+
     'locked account, verify same browser with original tab closed': function () {
       var self = this;
       return initiateLockedAccountChangePassword(this)
