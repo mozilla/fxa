@@ -911,7 +911,7 @@ module.exports = function(config, DB) {
           function (t) {
             t.plan(11)
             var account = createAccount()
-            account.openId = 'https://openid.example.com/foo'
+            account.openId = 'https://openid.example.com/foo' + hex16()
             return db.createAccount(account.uid, account)
               .then(
                 function () {
