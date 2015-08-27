@@ -16,14 +16,23 @@ define([
   'models/reliers/relier',
   'models/auth_brokers/base',
   'lib/promise',
+  'lib/auth-errors',
   'lib/metrics'
 ],
 function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
-    ProfileMock, TestHelpers, User, Relier, AuthBroker, p, Metrics) {
+    ProfileMock, TestHelpers, User, Relier, AuthBroker, p, AuthErrors, Metrics) {
   'use strict';
 
   var assert = chai.assert;
   var SCREEN_NAME = 'settings.avatar.camera';
+
+  function mockVideo (w, h) {
+    return {
+      videoWidth: w,
+      videoHeight: h,
+      play: sinon.spy()
+    };
+  }
 
   describe('views/settings/avatar/camera', function () {
     var view;
@@ -94,7 +103,7 @@ function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
       it('initializes', function () {
         return view.render()
           .then(function () {
-            assert.equal(view.video.length, 1);
+            assert.ok(view.video);
             assert.isFalse(view.streaming);
           });
       });
@@ -126,16 +135,60 @@ function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
         view.render()
           .then(function () {
             var ev = document.createEvent('HTMLEvents');
-            ev.initEvent('canplay', true, true);
+            ev.initEvent('loadedmetadata', true, true);
 
             windowMock.on('stream', function () {
-              view.video[0].dispatchEvent(ev);
+              view.video.dispatchEvent(ev);
               assert.ok(view.stream, 'stream is set');
               assert.isTrue(view.streaming, 'is streaming');
               done();
             });
           })
           .fail(done);
+      });
+
+      it('logs video dimension error', function () {
+        return view.render()
+          .then(function () {
+            sinon.spy(view, 'logError');
+            view.video = mockVideo(0, 0);
+            view.onLoadedMetaData();
+            assert.isTrue(AuthErrors.is(view.logError.args[0][0], 'INVALID_CAMERA_DIMENSIONS'));
+          });
+      });
+
+      it('does not log video dimension error', function () {
+        return view.render()
+          .then(function () {
+            sinon.spy(view, 'logError');
+            view.video = mockVideo(1, 1);
+            view.onLoadedMetaData();
+            assert.isFalse(view.logError.called);
+          });
+      });
+
+      it('computes height width correctly for landscape video', function () {
+        var expectedWidth = 640 / (480 / view.displayLength);
+        return view.render()
+          .then(function () {
+            sinon.spy(view, 'logError');
+            view.video = mockVideo(640, 480);
+            view.onLoadedMetaData();
+            assert.equal(view.height, view.displayLength);
+            assert.equal(view.width, expectedWidth);
+          });
+      });
+
+      it('computes height width correctly for portrait video', function () {
+        var expectedHeight = 640 / (480 / view.displayLength);
+        return view.render()
+          .then(function () {
+            sinon.spy(view, 'logError');
+            view.video = mockVideo(480, 640);
+            view.onLoadedMetaData();
+            assert.equal(view.width, view.displayLength);
+            assert.equal(view.height, expectedHeight);
+          });
       });
 
       it('centered position is accurate', function () {
@@ -193,12 +246,12 @@ function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
             view.canvas = new CanvasMock();
 
             var ev = document.createEvent('HTMLEvents');
-            ev.initEvent('canplay', true, true);
+            ev.initEvent('loadedmetadata', true, true);
 
             windowMock.on('stream', function () {
               var stopped = false;
 
-              view.video[0].dispatchEvent(ev);
+              view.video.dispatchEvent(ev);
               assert.ok(view.stream, 'stream is set');
 
               view.stream.stop = function () {
@@ -216,7 +269,7 @@ function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
                   assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.avatar.camera.submit.new'));
 
                   // check canvas drawImage args
-                  assert.equal(view.canvas._context._args[0], view.video[0]);
+                  assert.equal(view.canvas._context._args[0], view.video);
                   assert.equal(view.canvas._context._args[7], view.exportLength);
                   assert.equal(view.canvas._context._args[8], view.exportLength);
 

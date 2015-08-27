@@ -61,7 +61,7 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
           stop: function () {}
         };
 
-        self.window.setTimeout(_.bind(self.canPlay, self), ARTIFICIAL_DELAY);
+        self.window.setTimeout(_.bind(self.onLoadedMetaData, self), ARTIFICIAL_DELAY);
       }
     },
 
@@ -84,12 +84,12 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
         function (stream) {
           self.stream = stream;
           if (nav.mozGetUserMedia) {
-            self.video[0].mozSrcObject = stream;
+            self.video.mozSrcObject = stream;
           } else {
             var vendorURL = self.window.URL || self.window.webkitURL;
-            self.video[0].src = vendorURL.createObjectURL(stream);
+            self.video.src = vendorURL.createObjectURL(stream);
           }
-          self.video[0].play();
+          self.video.play();
         },
         function () {
           self._avatarProgressIndicator.done();
@@ -114,29 +114,42 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
 
       this._avatarProgressIndicator = new ProgressIndicator();
       this.wrapper = this.$('#avatar-camera-wrapper');
-      this.video = this.$('#video');
+      this.video = this.$('#video')[0];
 
       this._avatarProgressIndicator.start(this.$('.progress-container'));
 
       this.canvas = this.$('#canvas')[0];
-      this.width = 320;
-      this.height = 0;
 
-      this.video[0].addEventListener('canplay', _.bind(this.canPlay, this), false);
+      this.video.addEventListener('loadedmetadata', _.bind(this.onLoadedMetaData, this), false);
     },
 
-    canPlay: function () {
+    onLoadedMetaData: function () {
       if (! this.streaming) {
+        var vw = this.video.videoWidth;
+        var vh = this.video.videoHeight;
+
+        // Log metrics if these are 0; something with the browser/machine isn't right
+        if (vh === 0 || vw === 0) {
+          this.logError(AuthErrors.toError('INVALID_CAMERA_DIMENSIONS'));
+        }
+
+        if (vh > vw) {
+          // The camera is in portrait mode
+          this.width = this.displayLength;
+          this.height = vh / (vw / this.width);
+        } else {
+          // The camera is in landscape mode
+          this.height = this.displayLength;
+          this.width = vw / (vh / this.height);
+        }
+
         var pos = this.centeredPos(this.width, this.height, this.displayLength);
-        this.height = this.video[0].videoHeight / (this.video[0].videoWidth / this.width);
-        this.video.width(this.width);
-        this.video.height(this.height);
         this.wrapper.css({ marginLeft: pos.left, marginTop: pos.top });
         this.canvas.width = this.width;
         this.canvas.height = this.height;
         this._avatarProgressIndicator.done();
         this.$('.progress-container').addClass('hidden');
-        this.video.removeClass('hidden');
+        this.$('#video').height(this.height).removeClass('hidden');
         this.streaming = true;
 
         this.enableSubmitIfValid();
@@ -178,8 +191,8 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
     takePicture: function takepicture() {
       var defer = p.defer();
 
-      var w = this.video[0].videoWidth;
-      var h = this.video[0].videoHeight;
+      var w = this.video.videoWidth;
+      var h = this.video.videoHeight;
       var minValue = Math.min(h, w);
 
       this.canvas.width = this.exportLength;
@@ -187,7 +200,7 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
 
       var pos = this.centeredPos(w, h, minValue);
 
-      var dataSrc = this.video[0];
+      var dataSrc = this.video;
       if (this.broker.isAutomatedBrowser()) {
         dataSrc = new Image();
         dataSrc.src = pngSrc;

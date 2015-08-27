@@ -12,6 +12,7 @@ var config = require('./configuration');
 var url = require('url');
 var SELF = "'self'";
 var DATA = 'data:';
+var BLOB = 'blob:';
 var GRAVATAR = 'https://secure.gravatar.com';
 
 function requiresCsp(req) {
@@ -42,6 +43,10 @@ var cspMiddleware = helmet.csp({
     DATA,
     GRAVATAR,
     config.get('profile_images_url')
+  ],
+
+  mediaSrc: [
+    BLOB
   ],
 
   reportUri: config.get('csp.reportUri'),
