@@ -15,20 +15,21 @@ function unbuffer(object) {
   return object
 }
 
-function bufferize(object) {
+function bufferize(object, ignore) {
   var keys = Object.keys(object)
   for (var i = 0; i < keys.length; i++) {
-    var x = object[keys[i]]
-    if (typeof(x) === 'string' && HEX_STRING.test(x)) {
-      object[keys[i]] = Buffer(x, 'hex')
+    var key = keys[i]
+    var value = object[key]
+    if (ignore.indexOf(key) === -1 && typeof value === 'string' && HEX_STRING.test(value)) {
+      object[key] = Buffer(value, 'hex')
     }
   }
   return object
 }
 
-function bufferizeRequest(req, res, next) {
-  if (req.body) { req.body = bufferize(req.body) }
-  if (req.params) { req.params = bufferize(req.params) }
+function bufferizeRequest(ignore, req, res, next) {
+  if (req.body) { req.body = bufferize(req.body, ignore) }
+  if (req.params) { req.params = bufferize(req.params, ignore) }
   next()
 }
 
