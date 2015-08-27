@@ -39,8 +39,13 @@ module.exports = function (log) {
     this.sender = config.sender
     this.verificationUrl = config.verificationUrl
     this.initiatePasswordResetUrl = config.initiatePasswordResetUrl
+    this.initiatePasswordChangeUrl = config.initiatePasswordChangeUrl
     this.passwordResetUrl = config.passwordResetUrl
     this.accountUnlockUrl = config.accountUnlockUrl
+    this.syncUrl = config.syncUrl
+    this.androidUrl = config.androidUrl
+    this.iosUrl = config.iosUrl
+    this.supportUrl = config.supportUrl
     this.translator = translator
     this.templates = templates
   }
@@ -117,7 +122,8 @@ module.exports = function (log) {
       templateValues: {
         email: message.email,
         link: link,
-        oneClickLink: oneClickLink
+        oneClickLink: oneClickLink,
+        supportUrl: this.supportUrl
       },
       uid: message.uid
     })
@@ -143,11 +149,12 @@ module.exports = function (log) {
         'X-Recovery-Code': message.code
       },
       subject: gettext('Reset your Firefox Account password'),
-      template: 'recoveryEmail',
+      template: 'resetEmail',
       templateValues: {
         code: message.code,
         email: message.email,
-        link: link
+        link: link,
+        supportUrl: this.supportUrl
       },
       uid: message.uid
     })
@@ -177,7 +184,8 @@ module.exports = function (log) {
       template: 'unlockEmail',
       templateValues: {
         email: message.email,
-        link: link
+        link: link,
+        supportUrl: this.supportUrl
       },
       uid: message.uid
     })
@@ -199,7 +207,8 @@ module.exports = function (log) {
       subject: gettext('Your Firefox Account password has been changed'),
       template: 'passwordChangedEmail',
       templateValues: {
-        resetLink: link
+        resetLink: link,
+        supportUrl: this.supportUrl
       },
       uid: message.uid
     })
@@ -218,7 +227,8 @@ module.exports = function (log) {
       subject: gettext('Your Firefox Account password has been reset'),
       template: 'passwordResetEmail',
       templateValues: {
-        resetLink: link
+        resetLink: link,
+        supportUrl: this.supportUrl
       },
       uid: message.uid
     })
@@ -226,10 +236,7 @@ module.exports = function (log) {
 
   Mailer.prototype.newSyncDeviceEmail = function (message) {
     log.trace({ op: 'mailer.newSyncDeviceEmail', email: message.email, uid: message.uid })
-    var query = {
-      email: message.email
-    }
-    var link = this.initiatePasswordResetUrl + '?' + qs.stringify(query)
+    var link = this.initiatePasswordChangeUrl + '?' + qs.stringify({ email: message.email })
 
     return this.send({
       acceptLanguage: message.acceptLanguage,
@@ -237,10 +244,70 @@ module.exports = function (log) {
       headers: {
         'X-Link': link
       },
-      subject: gettext('A new device is now syncing to your Firefox Account'),
+      subject: gettext('New sign-in to Sync'),
       template: 'newSyncDeviceEmail',
       templateValues: {
-        resetLink: link
+        resetLink: link,
+        supportUrl: this.supportUrl
+      },
+      uid: message.uid
+    })
+  }
+
+  Mailer.prototype.postVerifyEmail = function (message) {
+    log.trace({ op: 'mailer.postVerifyEmail', email: message.email, uid: message.uid })
+
+    var link = this.syncUrl
+
+    return this.send({
+      acceptLanguage: message.acceptLanguage,
+      email: message.email,
+      headers: {
+        'X-Link': link
+      },
+      subject: gettext('Firefox Account Verified'),
+      template: 'postVerifyEmail',
+      templateValues: {
+        link: link,
+        androidUrl: this.androidUrl,
+        iosUrl: this.iosUrl,
+        supportUrl: this.supportUrl
+      },
+      uid: message.uid
+    })
+  }
+
+  Mailer.prototype.verificationReminderEmail = function (message) {
+    log.trace({ op: 'mailer.verificationReminderEmail', email: message.email, uid: message.uid })
+    var query = {
+        uid: message.uid,
+        code: message.code
+      }
+
+    if (message.service) { query.service = message.service }
+    if (message.redirectTo) { query.redirectTo = message.redirectTo }
+    if (message.resume) { query.resume = message.resume }
+
+    var link = this.verificationUrl + '?' + qs.stringify(query)
+    query.one_click = true
+    var oneClickLink = this.verificationUrl + '?' + qs.stringify(query)
+
+    return this.send({
+      acceptLanguage: message.acceptLanguage,
+      email: message.email,
+      headers: {
+        'X-Link': link,
+        'X-Service-ID': message.service,
+        'X-Uid': message.uid,
+        'X-Verify-Code': message.code
+      },
+      subject: gettext('Verify your Firefox Account'),
+      template: 'verificationReminderEmail',
+      templateValues: {
+        email: message.email,
+        link: link,
+        oneClickLink: oneClickLink,
+        supportUrl: this.supportUrl
       },
       uid: message.uid
     })
