@@ -159,6 +159,26 @@ var conf = convict({
       format: String,
       default: undefined
     },
+    syncUrl: {
+      doc: 'url to Sync product page',
+      format: String,
+      default: 'https://www.mozilla.org/en-US/firefox/sync/'
+    },
+    androidUrl: {
+      doc: 'url to Android product page',
+      format: String,
+      default: 'https://www.mozilla.org/en-US/firefox/android/'
+    },
+    iosUrl: {
+      doc: 'url to IOS product page',
+      format: String,
+      default: 'https://www.mozilla.org/en-US/firefox/ios/'
+    },
+    supportUrl: {
+      doc: 'url to Mozilla Support product page',
+      format: String,
+      default: 'https://support.mozilla.org'
+    },
     redirectDomain: {
       doc: 'Domain that mail urls are allowed to redirect to',
       format: String,
@@ -328,6 +348,7 @@ var conf = convict({
 
 var files = (process.env.CONFIG_FILES || '').split(',').filter(fs.existsSync)
 conf.loadFile(files)
+conf.validate({ strict: true })
 
 // set the public url as the issuer domain for assertions
 conf.set('domain', url.parse(conf.get('publicUrl')).host)
@@ -336,13 +357,9 @@ conf.set('domain', url.parse(conf.get('publicUrl')).host)
 conf.set('smtp.verificationUrl', conf.get('contentServer.url') + '/v1/verify_email')
 conf.set('smtp.passwordResetUrl', conf.get('contentServer.url') + '/v1/complete_reset_password')
 conf.set('smtp.accountUnlockUrl', conf.get('contentServer.url') + '/v1/complete_unlock_account')
-conf.set('smtp.initiatePasswordResetUrl', conf.get('contentServer.url') + '/v1/reset_password')
+conf.set('smtp.initiatePasswordResetUrl', conf.get('contentServer.url') + '/reset_password')
+conf.set('smtp.initiatePasswordChangeUrl', conf.get('contentServer.url') + '/settings/change_password')
 
-var options = {
-  strict: true
-}
-
-conf.validate(options)
 
 conf.set('isProduction', conf.get('env') === 'prod')
 

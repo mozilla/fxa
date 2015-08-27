@@ -81,6 +81,14 @@ module.exports = function (config, log) {
           }
         ))
       }
+      mailer.sendPostVerifyEmail = function (email, opts) {
+        return P.resolve(mailer.postVerifyEmail(
+          {
+            email: email,
+            acceptLanguage: opts.acceptLanguage || defaultLanguage
+          }
+        ))
+      }
       return mailer
     }
   )

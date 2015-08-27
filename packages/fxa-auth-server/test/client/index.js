@@ -100,6 +100,12 @@ Client.createAndVerify = function (origin, email, password, mailbox, options) {
           )
           .then(
             function () {
+              // clear the post verified email
+              return mailbox.waitForEmail(email)
+            }
+          )
+          .then(
+            function () {
               return client
             }
           )
