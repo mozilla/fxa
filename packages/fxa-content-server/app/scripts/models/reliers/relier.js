@@ -21,7 +21,15 @@ define([
   Constants) {
   'use strict';
 
-  var RELIER_FIELDS_IN_RESUME_TOKEN = ['campaign', 'entrypoint'];
+  var RELIER_FIELDS_IN_RESUME_TOKEN = [
+    'utmTerm',
+    'utmSource',
+    'utmMedium',
+    'utmContent',
+    'utmCampaign',
+    'campaign',
+    'entrypoint'
+  ];
 
   var Relier = BaseRelier.extend({
     defaults: {

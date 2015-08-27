@@ -194,16 +194,27 @@ define([
     describe('pickResumeTokenInfo', function () {
       it('returns an object with info to be passed along with email verification links', function () {
         var CAMPAIGN = 'campaign id';
+        var ITEM = 'item';
         var ENTRYPOINT = 'entry point';
 
         relier.set({
           campaign: CAMPAIGN,
           entrypoint: ENTRYPOINT,
+          utmCampaign: CAMPAIGN,
+          utmSource: ITEM,
+          utmMedium: ITEM,
+          utmTerm: ITEM,
+          utmContent: ITEM,
           notPassed: 'this should not be picked'
         });
 
         assert.deepEqual(relier.pickResumeTokenInfo(), {
           campaign: CAMPAIGN,
+          utmCampaign: CAMPAIGN,
+          utmSource: ITEM,
+          utmMedium: ITEM,
+          utmTerm: ITEM,
+          utmContent: ITEM,
           entrypoint: ENTRYPOINT
         });
       });
