@@ -1,5 +1,5 @@
 {
-    "disallowKeywords": ["with", "eval"],
+    "disallowKeywords": ["with", "eval", "const"],
     "disallowKeywordsOnNewLine": ["else"],
     "disallowMultipleLineStrings": true,
     "disallowSpaceAfterObjectKeys": true,
