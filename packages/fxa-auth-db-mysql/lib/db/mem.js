@@ -304,6 +304,7 @@ module.exports = function (log, error) {
   // Takes:
   //   - id - a string of hex chars
   Memory.prototype.sessionToken = function (id) {
+    /*eslint complexity:7*/
     id = id.toString('hex')
 
     if ( !sessionTokens[id] ) {
@@ -315,11 +316,11 @@ module.exports = function (log, error) {
     item.tokenData = sessionTokens[id].data
     item.uid = sessionTokens[id].uid
     item.createdAt = sessionTokens[id].createdAt
-    item.uaBrowser = sessionTokens[id].uaBrowser
-    item.uaBrowserVersion = sessionTokens[id].uaBrowserVersion
-    item.uaOS = sessionTokens[id].uaOS
-    item.uaOSVersion = sessionTokens[id].uaOSVersion
-    item.uaDeviceType = sessionTokens[id].uaDeviceType
+    item.uaBrowser = sessionTokens[id].uaBrowser || null
+    item.uaBrowserVersion = sessionTokens[id].uaBrowserVersion || null
+    item.uaOS = sessionTokens[id].uaOS || null
+    item.uaOSVersion = sessionTokens[id].uaOSVersion || null
+    item.uaDeviceType = sessionTokens[id].uaDeviceType || null
     item.lastAccessTime = sessionTokens[id].lastAccessTime
 
     var accountId = sessionTokens[id].uid.toString('hex')
