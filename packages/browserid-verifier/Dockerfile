@@ -11,5 +11,6 @@ COPY . /app
 
 RUN npm install && \
     rm -rf /root/.node-gyp /root/.npm && \
+    apt remove -y libgmp-dev && \
     apt-get clean
 
