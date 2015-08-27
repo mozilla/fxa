@@ -66,7 +66,13 @@ function createServer(db) {
 
   var api = restify.createServer()
   api.use(restify.bodyParser())
-  api.use(bufferize.bufferizeRequest)
+  api.use(bufferize.bufferizeRequest.bind(null, [
+    'uaBrowser',
+    'uaBrowserVersion',
+    'uaOS',
+    'uaOSVersion',
+    'uaDeviceType'
+  ]))
 
   api.get('/account/:id', reply(db.account))
   api.del('/account/:id', reply(db.deleteAccount))
