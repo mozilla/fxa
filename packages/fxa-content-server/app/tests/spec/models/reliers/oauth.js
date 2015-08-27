@@ -333,6 +333,7 @@ define([
     describe('pickResumeTokenInfo', function () {
       it('returns an object with info to be passed along with email verification links', function () {
         var CAMPAIGN = 'campaign id';
+        var ITEM = 'item';
         var ENTRYPOINT = 'entry point';
         var STATE = 'some long opaque state token';
         var VERIFICATION_REDIRECT = 'https://redirect.here.org';
@@ -340,6 +341,11 @@ define([
         relier.set({
           campaign: CAMPAIGN,
           entrypoint: ENTRYPOINT,
+          utmCampaign: CAMPAIGN,
+          utmSource: ITEM,
+          utmMedium: ITEM,
+          utmTerm: ITEM,
+          utmContent: ITEM,
           notPassed: 'this should not be picked',
           state: STATE,
           verificationRedirect: VERIFICATION_REDIRECT,
@@ -350,6 +356,11 @@ define([
           // the Relier are still passed.
           campaign: CAMPAIGN,
           entrypoint: ENTRYPOINT,
+          utmCampaign: CAMPAIGN,
+          utmSource: ITEM,
+          utmMedium: ITEM,
+          utmTerm: ITEM,
+          utmContent: ITEM,
           state: STATE,
           verificationRedirect: VERIFICATION_REDIRECT
         });
