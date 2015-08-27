@@ -9,7 +9,7 @@ RUN apt update && \
 # Install node requirements and clean up unneeded cache data
 COPY . /app
 
-RUN npm install && \
+RUN npm install --unsafe-perm && \
     npm cache clear && \
     rm -rf /root/.node-gyp && \
     apt remove -y libgmp-dev && \
