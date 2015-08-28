@@ -26,17 +26,14 @@ module.exports = {
       repo: repo,
       state: 'open'
     }).reduce(function(milestones, item) {
-      // Ignore milestones exported from AHA.
-      if (item.title.indexOf('Firefox ') === 0) return milestones;
-      if (item.title.indexOf('Fx ') === 0) return milestones;
-      if (item.title.indexOf('Parking Lot') !== -1) return milestones;
       milestones[item.title] = item
       return milestones
     }, {})
   },
 
-  // Ensure the given milestones exist in the given repo.
-  // The milestones must be as return by getMilestonesByTitle().
+  // Ensure that a repo's milestones are consistent with the given
+  // top-level milestones, which must be in the format returned by
+  // getMilestonesByTitle().
 
   syncMilestones: function syncMilestones(gh, repo, milestones) {
     return P.all([
@@ -44,26 +41,32 @@ module.exports = {
       module.exports.getMilestonesByTitle(gh, repo)
     ]).spread(function(theirs, ours) {
       return P.resolve(Object.keys(theirs)).each(function(title) {
-        if (!ours.hasOwnProperty(title)) {
+        var theirMilestone = theirs[title]
+        var ourMilestone = module.exports.findMatchingMilestone(title, ours)
+        if (!ourMilestone) {
           // It doesn't exist at all, create it.
-          console.log("Creating " + title + " in " + repo);
+          console.log("Creating '" + title + "' in " + repo)
           return gh.issues.createMilestone({
             repo: repo,
             title: title,
-            due_on: theirs[title].due_on,
-            description: theirs[title].description
+            due_on: theirMilestone.due_on,
+            description: theirMilestone.description
           })
         } else {
           // It already exists, see if we need to update it. 
-          for (var k in {due_on: 1, description: 1}) {
-            if (theirs[title][k] !== ours[title][k]) {
-              console.log("Updating " + title + " in " + repo);
+          for (var k in {title: 1, due_on: 1, description: 1}) {
+            if (theirMilestone[k] !== ourMilestone[k]) {
+              console.log("Updating '" + title + "' in " + repo)
+              if (theirMilestone.title !== ourMilestone.title) {
+                ours[theirMilestone.title] = ourMilestone
+                delete ours[ourMilestone.title]
+              }
               return gh.issues.updateMilestone({
                 repo: repo,
-                number: ours[title].number,
-                title: title,
-                due_on: theirs[title].due_on,
-                description: theirs[title].description,
+                number: ourMilestone.number,
+                title: theirMilestone.title,
+                due_on: theirMilestone.due_on,
+                description: theirMilestone.description,
               })
             }
           }
@@ -73,13 +76,32 @@ module.exports = {
       })
     }).spread(function(theirs, ours) {
       return P.resolve(Object.keys(ours)).each(function(title) {
-        if (!theirs.hasOwnProperty(title)) {
-          console.warn("Extra milestone in " + repo + ": " + title)
+        if (!module.exports.findMatchingMilestone(title, theirs)) {
+          console.warn("Extra milestone in " + repo + ": '" + title + "'")
         }
       })
     })
   },
 
+  // Find the milestone matching the one with the given title.
+  // This matches on Aha! feature number if present in the title,
+  // otherwise falls back to a simple string compare.
+
+  findMatchingMilestone: function findMatchingMilestone(title, milestones) {
+    var featureRE = /(FxA-\d+): .*/
+    var featureMatch = featureRE.exec(title)
+    if (!featureMatch) {
+      return milestones[title]
+    }
+    var feature = featureMatch[1]
+    for (var k in milestones) {
+      featureMatch = featureRE.exec(k)
+      if (featureMatch && featureMatch[1] === feature) {
+        return milestones[k]
+      }
+    }
+    return undefined
+  },
 
   // Close out any past-due milestones in a repo.
   // If the milestone stuff has issues in it, a warning is
@@ -99,9 +121,9 @@ module.exports = {
       var due = new Date(milestone.due_on)
       if (due < now) {
         if (milestone.open_issues > 0) {
-          console.warn("Old milestone with open issues in " + repo + ": " + milestone.title)
+          console.warn("Old milestone with open issues in " + repo + ": '" + milestone.title + "'")
         } else {
-          console.warn("Closing old milestone in " + repo + ": " + milestone.title)
+          console.warn("Closing old milestone in " + repo + ": '" + milestone.title + "'")
           return gh.issues.updateMilestone({
             repo: repo,
             number: milestone.number,
