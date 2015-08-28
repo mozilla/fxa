@@ -1,3 +1,19 @@
+train-44
+  * There are no longer separate fxa-auth-db-mysql and fxa-auth-db-server repositories - assemble all db repos - #56 
+  * preliminary support for authenticating with OpenID - #78
+  * feat(db): add script for reporting metrics #80
+  * feat(db): store user agent and last-access time in sessionTokens - #65
+  * refactor(config): Use human-readable duration values in config - #62
+  * fix(tests): used a randomized openid url - #92
+  * fix(db): default user-agent fields to null in memory backend - #90
+  * fix(server): prevent insane bufferization of non-hex parameters - #89
+  * chore(configs): eliminate sub-directory dotfiles - #69
+  * chore(package): expose scripts for running and testing db-mem - #71
+  * chore(project): merge db-server project admin/config stuff to top level - #74
+  * chore(docs): update readme and api docs for merged repos - #76
+  * reshuffle package.json (use file paths, not file: url) - #77
+  * chore(coverage): exclude fxa-auth-db-server/node_modules from coverage checks - #82
+
 train-42
   * fix(tests): pass server object to backend tests - #63
   * refactor(db): remove verifyHash from responses - #48
