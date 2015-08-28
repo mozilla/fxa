@@ -119,13 +119,15 @@ module.exports = {
 
 if (require.main == module) {
   gh = new GH()
-  return module.exports.getTopLevelMilestones(gh).then(function(milestones) {
-    return P.resolve(GH.ALL_REPOS).each(function(repo) {
-      if (repo !== GH.TOP_LEVEL_REPO)  {
-        return module.exports.closeOldMilestones(gh, repo).then(function() {
-          module.exports.syncMilestones(gh, repo, milestones)
-        })
-      }
+  return module.exports.closeOldMilestones(gh, GH.TOP_LEVEL_REPO).then(function() {
+    return module.exports.getTopLevelMilestones(gh).then(function(milestones) {
+      return P.resolve(GH.ALL_REPOS).each(function(repo) {
+        if (repo !== GH.TOP_LEVEL_REPO)  {
+          return module.exports.closeOldMilestones(gh, repo).then(function() {
+            module.exports.syncMilestones(gh, repo, milestones)
+          })
+        }
+      })
     })
   }).catch(function(err) {
     console.log(err)
