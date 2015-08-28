@@ -93,6 +93,9 @@ module.exports = {
       repo: repo,
       state: 'open'
     }).each(function(milestone) {
+      if (!milestone.due_on) {
+        return
+      }
       var due = new Date(milestone.due_on)
       if (due < now) {
         if (milestone.open_issues > 0) {
