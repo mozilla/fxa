@@ -1,3 +1,25 @@
+train-44
+  * OpenID login support #1007
+  * feat(l10n): add en-GB as a supported locale. #1021
+  * feat(metrics): add DataDog to activity events, email verified activity events #1013
+  * feat(db): store user agent and last-access time in sessionTokens #997
+  * fix(server): check errno on database errors #1004
+  * fix(server): improve identification of mobile user agents #1012
+  * fix(config): update convict .root() to .getProperties() calls #1020
+  * fix(notifier): calling undefined "log" throws #1023
+  * fix(tests): make smtp.redirectDomain configurable in remote tests #998
+  * fix(tests): unset user-agent fields are null #1031
+  * refactor(config): Use human-readable duration values in config #978
+  * chore(deps): switch from db-mem to db-mysql #999
+  * chore(docs): remove stale db info from the readme #1001
+  * chore(version): add /__version__ route; add source repo based on origin; simplify routes/default #1006
+  * chore(version): display source repo last in {/ver.json,/__version__} #1014
+  * chore(version): generate legacy-format output for ./config/version.json #1016
+  * chore(tests): test locked account behaviour #1002
+  * chore(tests): print locale differences on failure #1017
+  * chore(docs): update the configuration documentation #1024
+  * chore(deps): rewrap shrinkwrap #1029
+
 train-42
   * tests(e2e-email): updates to reflect current l10n state in train-41 - #976
   * chore(lint): remove jshintrc from repo - #982
