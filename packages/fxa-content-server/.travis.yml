@@ -51,5 +51,7 @@ script:
   - npm ls --depth 0 | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g'
   - grunt validate-shrinkwrap --force # check for vulnerable modules via nodesecurity.io
   - grunt lint
+  - grunt selectconfig:dist l10n-generate-pages &> /dev/null
+  - grunt htmllint:dist
   - travis_retry npm run test-travis
   - travis_retry npm run test-server

@@ -2,8 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var crypto = require('crypto');
 var path = require('path');
 var i18n = require('i18n-abide');
+var marked = require('marked');
+
+var renderer = new marked.Renderer();
+
+renderer.heading = function (text, level) {
+  // Avoid invalid characters in the heading ID by hashing the text
+  var digest = crypto.createHash('md5').update(text).digest('hex');
+
+  var h = '<h' + level + ' id="h' + level + digest + '">' + text + '</h' + level + '>';
+  return h;
+};
 
 module.exports = function (grunt) {
   // convert localized TOS/PP agreements from markdown to html partials.
@@ -18,7 +30,8 @@ module.exports = function (grunt) {
     options: {
       breaks: true,
       gfm: true,
-      sanitize: false
+      sanitize: false,
+      renderer: renderer
     },
     tos_pp: { //eslint-disable-line camelcase
       files: [

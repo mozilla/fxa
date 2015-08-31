@@ -4,11 +4,31 @@
 
 module.exports = function (grunt) {
   grunt.config('htmllint', {
-    options: {
-      htmllintrc: '.htmllintrc'
+    l10n: {
+      options: {
+        htmllintrc: '.htmllintrc',
+      },
+      src: [
+        '<%= yeoman.tmp %>/i18n/*/*.html'
+      ],
     },
-    l10n: [
-      '<%= yeoman.tmp %>/i18n/*/*.html'
-    ],
+
+    dist: {
+      options: {
+        'attr-no-dup': true,
+        'attr-no-unsafe-char': true,
+        'attr-quote-style': 'quoted',
+        'attr-name-style': 'dash',
+        'doctype-html5': true,
+        'id-class-style': 'dash',
+        'indent-style': 'spaces',
+        'indent-width': 0,
+        'tag-name-lowercase': true,
+        'tag-name-match': true,
+      },
+      src: [
+        '<%= yeoman.page_template_dist %>/*/*.html'
+      ]
+    }
   });
 };
