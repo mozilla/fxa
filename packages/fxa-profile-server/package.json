@@ -44,6 +44,7 @@
     "mocha-text-cov": "^0.1.0",
     "nock": "^0.48.0",
     "pngparse": "2.0.1",
+    "rimraf": "^2.4.3",
     "through": "^2.3.4",
     "time-grunt": "^1.0.0"
   },
