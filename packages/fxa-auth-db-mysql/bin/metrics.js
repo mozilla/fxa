@@ -116,7 +116,7 @@ function run (config, now) {
       total_accounts_with_mobile_device: results[6][0].count,
       time: (new Date(lastMidnight)).toISOString(),
       v: 0
-    }))
+    }) + '\n')
     db.close()
   })
   .catch(function (error) {

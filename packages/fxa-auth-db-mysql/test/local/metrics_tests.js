@@ -221,7 +221,7 @@ DB.connect(config)
           }
         }, new Date(1977, 5, 10, 10, 30))
         .then(function () {
-          t.plan(81)
+          t.plan(83)
 
           t.equal(connect.callCount, 1, 'mysql.connect was called once')
           t.equal(connect.getCall(0).args.length, 1, 'mysql.connect was passed one argument')
@@ -273,7 +273,10 @@ DB.connect(config)
           var args = mocks.fs.appendFileSync.getCall(0).args
           t.equal(args.length, 2, 'fs.appendFileSync was passed two arguments')
           t.equal(args[0], '/media/ephemeral0/fxa-admin/basic_metrics.log', 'log file path was correct')
-          var data = JSON.parse(args[1])
+          t.equal(typeof args[1], 'string', 'log file data was string')
+          var delimiterIndex = args[1].length - 1
+          t.equal(args[1][delimiterIndex], '\n', 'log file data was correctly delimited')
+          var data = JSON.parse(args[1].substr(0, delimiterIndex))
           t.equal(Object.keys(data).length, 10, 'log file data had correct number of properties')
           t.equal(data.hostname, 'fake hostname', 'log file hostname property was correct')
           t.equal(data.pid, process.pid, 'log file pid property was correct')
