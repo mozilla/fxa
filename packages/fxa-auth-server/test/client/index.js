@@ -72,13 +72,13 @@ Client.login = function (origin, email, password, opts) {
     )
 }
 
-Client.changePassword = function (origin, email, oldPassword, newPassword) {
+Client.changePassword = function (origin, email, oldPassword, newPassword, headers) {
   var c = new Client(origin)
 
   return c.setupCredentials(email, oldPassword)
     .then(
       function () {
-        return c.changePassword(newPassword)
+        return c.changePassword(newPassword, headers)
         .then(
           function () {
             return c
@@ -207,8 +207,8 @@ Client.prototype.sign = function (publicKey, duration) {
   )
 }
 
-Client.prototype.changePassword = function (newPassword) {
-  return this.api.passwordChangeStart(this.email, this.authPW)
+Client.prototype.changePassword = function (newPassword, headers) {
+  return this.api.passwordChangeStart(this.email, this.authPW, headers)
     .then(
       function (json) {
         this.keyFetchToken = json.keyFetchToken
@@ -217,14 +217,14 @@ Client.prototype.changePassword = function (newPassword) {
       }.bind(this)
     )
     .then(
-      function (keys) {
+      function (/* keys */) {
         return this.setupCredentials(this.email, newPassword)
       }.bind(this)
     )
     .then(
       function () {
         this.wrapKb = butil.xorBuffers(this.kB, this.unwrapBKey)
-        return this.api.passwordChangeFinish(this.passwordChangeToken, this.authPW, this.wrapKb)
+        return this.api.passwordChangeFinish(this.passwordChangeToken, this.authPW, this.wrapKb, headers)
       }.bind(this)
     )
     .then(
@@ -280,9 +280,9 @@ Client.prototype.destroyAccount = function () {
     .then(this._clear.bind(this))
 }
 
-Client.prototype.forgotPassword = function () {
+Client.prototype.forgotPassword = function (lang) {
   this._clear()
-  return this.api.passwordForgotSendCode(this.email, this.options)
+  return this.api.passwordForgotSendCode(this.email, this.options, lang)
     .then(
       function (x) {
         this.passwordForgotToken = x.passwordForgotToken
@@ -294,8 +294,8 @@ Client.prototype.reforgotPassword = function () {
   return this.api.passwordForgotResendCode(this.passwordForgotToken, this.email)
 }
 
-Client.prototype.verifyPasswordResetCode = function (code) {
-  return this.api.passwordForgotVerifyCode(this.passwordForgotToken, code)
+Client.prototype.verifyPasswordResetCode = function (code, headers) {
+  return this.api.passwordForgotVerifyCode(this.passwordForgotToken, code, headers)
     .then(
       function (result) {
         this.accountResetToken = result.accountResetToken
@@ -307,25 +307,26 @@ Client.prototype.lockAccount = function () {
   return this.api.accountLock(this.email, this.authPW)
 }
 
-Client.prototype.resendAccountUnlockCode = function () {
-  return this.api.accountUnlockResendCode(this.email, this.options)
+Client.prototype.resendAccountUnlockCode = function (lang) {
+  return this.api.accountUnlockResendCode(this.email, this.options, lang)
 }
 
 Client.prototype.verifyAccountUnlockCode = function (uid, code) {
   return this.api.accountUnlockVerifyCode(uid, code)
 }
 
-Client.prototype.resetPassword = function (newPassword) {
+Client.prototype.resetPassword = function (newPassword, headers) {
   if (!this.accountResetToken) {
     throw new Error('call verifyPasswordResetCode before calling resetPassword')
   }
   // this will generate a new wrapKb on the server
   return this.setupCredentials(this.email, newPassword)
     .then(
-      function (bundle) {
+      function (/* bundle */) {
         return this.api.accountReset(
           this.accountResetToken,
-          this.authPW
+          this.authPW,
+          headers
         )
       }.bind(this)
     )

@@ -40,6 +40,8 @@ ClientApi.prototype.doRequest = function (method, url, token, payload, headers) 
   if (typeof headers === 'undefined') {
     headers = {}
   }
+  // We do a shallow clone to avoid tainting the caller's copy of `headers`.
+  headers = JSON.parse(JSON.stringify(headers))
   if (token && !headers.Authorization) {
     headers.Authorization = hawkHeader(token, method, url, payload, this.timeOffset)
   }
@@ -122,6 +124,9 @@ ClientApi.prototype.accountLogin = function (email, authPW, opts) {
       authPW: authPW.toString('hex'),
       service: opts.service || undefined,
       reason: opts.reason || undefined
+    },
+    {
+      'accept-language': opts.lang
     }
   )
 }
@@ -164,7 +169,7 @@ ClientApi.prototype.accountStatus = function (uid, sessionTokenHex) {
   }
 }
 
-ClientApi.prototype.accountReset = function (accountResetTokenHex, authPW) {
+ClientApi.prototype.accountReset = function (accountResetTokenHex, authPW, headers) {
   return tokens.AccountResetToken.fromHex(accountResetTokenHex)
     .then(
       function (token) {
@@ -174,7 +179,8 @@ ClientApi.prototype.accountReset = function (accountResetTokenHex, authPW) {
           token,
           {
             authPW: authPW.toString('hex')
-          }
+          },
+          headers
         )
       }.bind(this)
     )
@@ -263,7 +269,7 @@ ClientApi.prototype.getRandomBytes = function () {
   )
 }
 
-ClientApi.prototype.passwordChangeStart = function (email, oldAuthPW, newAuthPW) {
+ClientApi.prototype.passwordChangeStart = function (email, oldAuthPW, headers) {
   return this.doRequest(
     'POST',
     this.baseURL + '/password/change/start',
@@ -271,11 +277,12 @@ ClientApi.prototype.passwordChangeStart = function (email, oldAuthPW, newAuthPW)
     {
       email: email,
       oldAuthPW: oldAuthPW.toString('hex')
-    }
+    },
+    headers
   )
 }
 
-ClientApi.prototype.passwordChangeFinish = function (passwordChangeTokenHex, authPW, wrapKb) {
+ClientApi.prototype.passwordChangeFinish = function (passwordChangeTokenHex, authPW, wrapKb, headers) {
   return tokens.PasswordChangeToken.fromHex(passwordChangeTokenHex)
     .then(
       function (token) {
@@ -286,15 +293,22 @@ ClientApi.prototype.passwordChangeFinish = function (passwordChangeTokenHex, aut
           {
             authPW: authPW.toString('hex'),
             wrapKb: wrapKb.toString('hex')
-          }
+          },
+          headers
         )
       }.bind(this)
     )
 }
 
 
-ClientApi.prototype.passwordForgotSendCode = function (email, options) {
+ClientApi.prototype.passwordForgotSendCode = function (email, options, lang) {
   options = options || {}
+  var headers = {}
+  if (lang) {
+    headers = {
+      'accept-language': lang
+    }
+  }
   return this.doRequest(
     'POST',
     this.baseURL + '/password/forgot/send_code' + getQueryString(options),
@@ -304,7 +318,8 @@ ClientApi.prototype.passwordForgotSendCode = function (email, options) {
       service: options.service || undefined,
       redirectTo: options.redirectTo || undefined,
       resume: options.resume || undefined
-    }
+    },
+    headers
   )
 }
 
@@ -328,7 +343,7 @@ ClientApi.prototype.passwordForgotResendCode = function (passwordForgotTokenHex,
     )
 }
 
-ClientApi.prototype.passwordForgotVerifyCode = function (passwordForgotTokenHex, code) {
+ClientApi.prototype.passwordForgotVerifyCode = function (passwordForgotTokenHex, code, headers) {
   return tokens.PasswordForgotToken.fromHex(passwordForgotTokenHex)
     .then(
       function (token) {
@@ -338,7 +353,8 @@ ClientApi.prototype.passwordForgotVerifyCode = function (passwordForgotTokenHex,
           token,
           {
             code: code
-          }
+          },
+          headers
         )
       }.bind(this)
     )
@@ -369,8 +385,14 @@ ClientApi.prototype.accountLock = function (email, authPW) {
   )
 }
 
-ClientApi.prototype.accountUnlockResendCode = function (email, options) {
+ClientApi.prototype.accountUnlockResendCode = function (email, options, lang) {
   options = options || {}
+  var headers = {}
+  if (lang) {
+    headers = {
+      'accept-language': lang
+    }
+  }
   return this.doRequest(
     'POST',
     this.baseURL + '/account/unlock/resend_code',
@@ -380,7 +402,8 @@ ClientApi.prototype.accountUnlockResendCode = function (email, options) {
       service: options.service || undefined,
       redirectTo: options.redirectTo || undefined,
       resume: options.resume || undefined
-    }
+    },
+    headers
   )
 }
 
