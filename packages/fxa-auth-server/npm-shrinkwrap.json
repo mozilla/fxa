@@ -215,6 +215,18 @@
       "from": "bluebird@2.9.25",
       "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-2.9.25.tgz"
     },
+    "commander": {
+      "version": "2.8.1",
+      "from": "commander@2.8.1",
+      "resolved": "https://registry.npmjs.org/commander/-/commander-2.8.1.tgz",
+      "dependencies": {
+        "graceful-readlink": {
+          "version": "1.0.1",
+          "from": "graceful-readlink@>=1.0.0",
+          "resolved": "https://registry.npmjs.org/graceful-readlink/-/graceful-readlink-1.0.1.tgz"
+        }
+      }
+    },
     "convict": {
       "version": "1.0.1",
       "from": "convict@1.0.1",
