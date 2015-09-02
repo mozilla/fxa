@@ -4,14 +4,12 @@
 
 define([
   'chai',
-  'sinon',
-  'lib/auth-errors',
   'models/reliers/relier',
   'models/auth_brokers/base',
   'views/base',
   '../../../mocks/window'
 ],
-function (chai, sinon, AuthErrors, Relier, BaseAuthenticationBroker,
+function (chai, Relier, BaseAuthenticationBroker,
   BaseView, WindowMock) {
   'use strict';
 
@@ -132,21 +130,7 @@ function (chai, sinon, AuthErrors, Relier, BaseAuthenticationBroker,
 
     describe('isSignupDisabled', function () {
       it('returns `false` by default', function () {
-        sinon.stub(relier, 'isSignupDisabled', function () {
-          return false;
-        });
-
         assert.isFalse(broker.isSignupDisabled());
-      });
-
-      it('returns `true` if relier says signup is disabled', function () {
-        sinon.stub(relier, 'isSignupDisabled', function () {
-          return true;
-        });
-
-        assert.isTrue(broker.isSignupDisabled());
-        assert.isTrue(AuthErrors.is(
-            broker.SIGNUP_DISABLED_REASON, 'SIGNUP_DISABLED_BY_RELIER'));
       });
     });
   });
