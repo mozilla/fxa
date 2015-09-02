@@ -1,4 +1,4 @@
-SERVER_URL = https://api-accounts.stage.mozaws.net
+SERVER_URL = https://api-accounts.stage.mozaws.net/v1
 
 # Hackety-hack around OSX system python bustage.
 # The need for this should go away with a future osx/xcode update.
@@ -12,7 +12,8 @@ build:
 	virtualenv --no-site-packages .
 	$(INSTALL) gevent
 	$(INSTALL) pexpect
-	$(INSTALL) PyFxA
+	$(INSTALL) PyFxA[openssl]
+	$(INSTALL) backports.functools_lru_cache
 	$(INSTALL) https://github.com/mozilla-services/loads/archive/master.zip
 	rm -rf ./local  # ubuntu, why you create this useless folder?
 
