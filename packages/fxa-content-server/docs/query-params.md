@@ -113,6 +113,14 @@ If they user arrived at Firefox Accounts from within Firefox browser chrome, spe
 * /force_auth
 * /settings
 
+### `haltAfterSignIn`
+Halt after the user signs in, do not redirect to the settings page.
+
+#### When to specify (must specify context=iframe&service=sync)
+* /signin
+* /signup
+* /force_auth
+
 ### `migration`
 If the user is migrating their Sync account from "old sync" to "new sync", specify which sync they are migrating from.
 
