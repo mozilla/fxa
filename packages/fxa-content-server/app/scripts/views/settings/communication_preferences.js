@@ -10,14 +10,13 @@ define([
   'lib/metrics',
   'views/base',
   'views/form',
-  'views/mixins/back-mixin',
   'views/mixins/settings-mixin',
   'views/mixins/settings-panel-mixin',
   'views/mixins/checkbox-mixin',
   'stache!templates/settings/communication_preferences'
 ],
 function (Cocktail, Xss, Constants, MarketingEmailErrors, Metrics, BaseView, FormView,
-  BackMixin, SettingsMixin, SettingsPanelMixin, CheckboxMixin, Template) {
+  SettingsMixin, SettingsPanelMixin, CheckboxMixin, Template) {
   'use strict';
 
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
@@ -107,7 +106,6 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, Metrics, BaseView, For
 
   Cocktail.mixin(
     View,
-    BackMixin,
     CheckboxMixin,
     SettingsMixin,
     SettingsPanelMixin

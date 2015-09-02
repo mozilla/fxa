@@ -68,5 +68,17 @@ define([
         assert.isFalse(windowMock.history.back.called);
       });
     });
+
+    describe('canGoBack', function () {
+      it('returns `true` if view created with `canGoBack: true` option', function () {
+        view = new View({ canGoBack: true });
+        assert.isTrue(view.canGoBack());
+      });
+
+      it('returns `false` if view created with `canGoBack: false` option', function () {
+        view = new View({ canGoBack: false });
+        assert.isFalse(view.canGoBack());
+      });
+    });
   });
 });

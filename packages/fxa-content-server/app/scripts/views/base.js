@@ -101,7 +101,6 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
       this.screenName = options.screenName || '';
 
       this.fxaClient = options.fxaClient;
-      this._canGoBack = options.canGoBack;
 
       Backbone.View.call(this, options);
 
@@ -290,7 +289,6 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
       var ctx = this._context;
 
       ctx.t = _.bind(this.translate, this);
-      ctx.canGoBack = this.canGoBack();
 
       return ctx;
     },
@@ -556,13 +554,6 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
 
     isErrorVisible: function () {
       return !! this._isErrorVisible;
-    },
-
-    /**
-     * Check if the back button should be shown.
-     */
-    canGoBack: function () {
-      return !! this._canGoBack;
     },
 
     /**
