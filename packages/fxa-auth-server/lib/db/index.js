@@ -36,8 +36,8 @@ function convertClientToConfigFormat(client) {
   for (var key in client) {
     if (key === 'createdAt') {
       continue;
-    } else if (key === 'secret') {
-      out.hashedSecret = unbuf(client.secret);
+    } else if (key === 'hashedSecret') {
+      out.hashedSecret = unbuf(client.hashedSecret);
     } else if (key === 'trusted' || key === 'canGrant') {
       out[key] = !!client[key]; // db stores booleans as 0 or 1.
     } else if (key === 'termsUri' || key === 'privacyUri') {
