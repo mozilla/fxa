@@ -20,22 +20,40 @@ function (chai, NullChannel, FxiOSAuthenticationBroker, Relier, WindowMock) {
     var relier;
     var windowMock;
 
-    beforeEach(function () {
-      channel = new NullChannel();
-      relier = new Relier();
-      windowMock = new WindowMock();
-
+    function createBroker () {
       broker = new FxiOSAuthenticationBroker({
         relier: relier,
         window: windowMock,
         channel: channel
       });
+    }
+
+    beforeEach(function () {
+      channel = new NullChannel();
+      relier = new Relier();
+      windowMock = new WindowMock();
     });
 
     describe('isSignupDisabled', function () {
-      it('returns `true` by default, a reason is provided', function () {
-        assert.isTrue(broker.isSignupDisabled());
-        assert.ok(broker.SIGNUP_DISABLED_REASON);
+      it('returns `true` if `exclude_signup=1` is specified, a reason is provided', function () {
+        windowMock.location.search = '?exclude_signup=1';
+        createBroker();
+
+        return broker.fetch()
+          .then(function () {
+            assert.isTrue(broker.isSignupDisabled());
+            assert.ok(broker.SIGNUP_DISABLED_REASON);
+          });
+      });
+
+      it('returns `false` otherwise', function () {
+        windowMock.location.search = '';
+        createBroker();
+
+        return broker.fetch()
+          .then(function () {
+            assert.isFalse(broker.isSignupDisabled());
+          });
       });
     });
 

@@ -14,6 +14,7 @@ define([
   TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'signin?context=fx_ios_v1&service=sync';
+  var EXCLUDE_SIGNUP_PAGE_URL = PAGE_URL + '&exclude_signup=1';
 
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
 
@@ -50,13 +51,17 @@ define([
 
     'signup link is disabled': function () {
       var self = this;
-      return createUser(true)
-        .then(function () {
-          return FunctionalHelpers.openPage(self, PAGE_URL, '#fxa-signin-header')
-            .execute(listenForFxaCommands)
+      return FunctionalHelpers.openPage(self, EXCLUDE_SIGNUP_PAGE_URL, '#fxa-signin-header')
+        .then(FunctionalHelpers.noSuchElement(self, 'a[href="/signup"]'))
+        .end();
+    },
 
-            .then(FunctionalHelpers.noSuchElement(self, 'a[href="/signup"]'));
-        });
+    'signup link is enabled': function () {
+      var self = this;
+      return FunctionalHelpers.openPage(self, PAGE_URL, '#fxa-signin-header')
+
+        .findByCssSelector('a[href="/signup"]')
+        .end();
     },
 
     'signin with an unknown account does not allow the user to sign up': function () {
@@ -72,9 +77,7 @@ define([
 
         // an error is visible
         .then(FunctionalHelpers.visibleByQSA('.error'))
-
-        // just not the signup link in the error
-        .then(FunctionalHelpers.noSuchElement(self, '.error a[href="/signup"]'));
+        .end();
     },
 
     'sign in verified': function () {
@@ -83,9 +86,6 @@ define([
         .then(function () {
           return FunctionalHelpers.openPage(self, PAGE_URL, '#fxa-signin-header')
             .execute(listenForFxaCommands)
-
-            // signup link is disabled
-            .then(FunctionalHelpers.noSuchElement(self, 'a[href="/signup"]'))
 
             .then(function () {
               return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
