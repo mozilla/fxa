@@ -1,76 +1,41 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>{{t "Firefox Accounts"}}</title>
-    <style>
-      a {
-        color: #0095dd;
-        text-decoration: none !important;
-      }
-
-      @media only screen and (max-width: 599px){
-        /*CLIENT-SPECIFIC MOBILE STYLES */
-        body, table, td, p, a, li, blockquote{-webkit-text-size-adjust:none !important;} /* Prevent Webkit platforms from changing default text sizes */
-        body{width:100% !important; min-width:100% !important;} /* Prevent iOS Mail from adding padding to the body */
-        #bodyCell{padding:10px !important;}
-
-        .flexibleContainer {
-          width:85% !important;
-        }
-
-        #templateContainer{
-          max-width:600px !important;
-          width:100% !important;
-        }
-        h1{
-          font-size:24px !important;
-          line-height:100% !important;
-        }
-      }
-    </style>
   </head>
-  <body leftmargin="0" marginwidth="0" topmargin="0" marginheight="0" offset="0" style="background-color:#F2F2F2;width:100% !important;height:100% !important;padding:0;margin:0;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
-    <center>
-      <table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable" style="background-color:#F2F2F2;width:100% !important;padding:0;margin:0;height:100% !important;border-collapse:collapse !important;mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
-        <tr>
-          <td align="center" valign="top" id="bodyCell" style="width:100% !important;padding:50px;margin:0;height:100% !important;mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
-            <!-- BEGIN TEMPLATE // -->
-            <table border="0" cellpadding="0" cellspacing="0" id="templateContainer" style="border:1px solid #DDDDDD;border-bottom-color:#CCCCCC;max-width:500px !important;border-collapse:collapse !important;mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
-              <tr>
-                <td align="center" valign="top" style="mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
-                  <!-- BEGIN BODY // -->
-                  <table border="0" cellpadding="0" cellspacing="0" width="100%" id="templateBody" style="border-bottom:1px solid #CCCCCC;border-top:1px solid #FFFFFF;background-color:#FFFFFF;border-collapse:collapse !important;mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
-                    <tr>
-                      <td valign="top" class="bodyContent" mc:edit="body_content" style="text-align:center;padding-left:20px;padding-bottom:30px;padding-right:20px;padding-top:30px;line-height:150%;font-size:15px;font-family:Helvetica;color:#424F59;mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
-                        <h1 style="text-align:center;margin-left:0;margin-bottom:10px;margin-right:0;margin-top:0;letter-spacing:normal;line-height:100%;font-weight:normal;font-style:normal;font-size:26px;font-family:Helvetica;display:block;color:#424F59 !important;">{{t "Account activity notice"}}</h1>
-                        <br>
-                        {{t "A new device is now syncing with all of the devices connected to your Firefox Account." }}
-                      </td>
-                    </tr>
-                    <tr width="100%">
-                      <td align="center" valign="top" style="mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
-                        <!-- CENTERING TABLE // -->
-                        <table border="0" cellpadding="0" cellspacing="0" width="70%" style="border-collapse:collapse !important;mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
-                          <tr>
-                            <td valign="top" class="bodyContent" mc:edit="body_content" style="text-align:center;padding-left:20px;padding-bottom:30px;padding-right:20px;padding-top:30px;font-family:Helvetica;mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;color:#8A9BA8;line-height:13px;font-size:11px;">
-                              {{{t "This is an automated email; if you didn't add a new device to your Firefox Account, you should change your password immediately at <a href='%(resetLink)s'>%(resetLink)s</a>."}}}
-                              {{{t "For more information, please visit <a href='https://support.mozilla.org'>Mozilla Support</a>"}}}
 
-                            </td>
-                          </tr>
-                        </table>
-                      </td>
-                    </tr>
-                  </table>
-                  <!-- // END BODY -->
-                </td>
-              </tr>
-            </table>
-            <!-- // END TEMPLATE -->
-          </td>
-        </tr>
-      </table>
-    </center>
+  <body style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; margin: 0; padding: 0;">
+    <table border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="body-table" style="-webkit-text-size-adjust: 100%; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+      <tr>
+        <td align="center" valign="top">
+          <table align="center" border="0" cellpadding="0" cellspacing="0" width="310" id="email-container" style="-webkit-text-size-adjust: 100%; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 310px; margin: 0 auto;">
+
+            <!--Logo-->
+            <tr>
+              <td align="center" id="firefox-logo" style="padding: 20px 0;">
+                <img src="http://image.e.mozilla.org/lib/fe9915707361037e75/m/2/fxlogojg.gif" height="95" width="88" alt="Firefox" style="-ms-interpolation-mode: bicubic;" />
+              </td>
+            </tr>
+
+            <!--Header Area-->
+            <tr>
+              <td valign="top">
+                <h1 style="font-family: sans-serif; font-weight: normal; margin: 0 0 24px 0; text-align: center;">{{t "Account activity notice"}}</h1>
+                <p class="primary" style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0 0 24px 0; text-align: center; width: 310px;">{{t "A device began syncing with the devices connected to your Firefox Account." }}</p>
+              </td>
+            </tr>
+
+            <tr>
+              <td border="0" cellpadding="0" cellspacing="0" height="100%" width="100%">
+                <br/>
+                <p class="secondary" style="font-family: sans-serif; font-weight: normal; margin: 0; text-align: center; color: #8A9BA8; font-size: 11px; line-height: 13px; width: 310px !important; word-wrap:break-word">{{t "This is an automated email; if you received it in error, no action is required."}} {{{t "For more information, please visit <a href='%(supportUrl)s' style='color: #0095dd; text-decoration: none;'>Mozilla Support</a>"}}}</p>
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>
