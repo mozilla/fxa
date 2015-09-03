@@ -304,7 +304,6 @@ module.exports = function (log, error) {
   // Takes:
   //   - id - a string of hex chars
   Memory.prototype.sessionToken = function (id) {
-    /*eslint complexity:7*/
     id = id.toString('hex')
 
     if ( !sessionTokens[id] ) {
