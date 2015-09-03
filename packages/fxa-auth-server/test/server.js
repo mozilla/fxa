@@ -9,31 +9,42 @@ const Server = require('./lib/server');
 
 /*global describe,it*/
 
+function checkVersionAndHeaders(path) {
+  return function(done) {
+    Server.get(path).then(function(res) {
+      assert.equal(res.statusCode, 200);
+      assert.equal(res.result.version, require('../package.json').version);
+      assert.deepEqual(Object.keys(res.result), ['version', 'commit', 'source' ]);
+      assert(res.result.source);
+      assert(res.result.commit);
+      assert.ok(res.result.commit.match(/^[0-9a-f]{40}$/));
+
+      // and must return an STS header
+      var stsHeader = res.headers['strict-transport-security'];
+      assert.equal(stsHeader, 'max-age=15552000; includeSubdomains');
+
+      // but the other security builtin headers from hapi are not set
+      var other = {
+        'x-content-type-options': 1,
+        'x-download-options': 1,
+        'x-frame-options': 1,
+        'x-xss-protection': 1
+      };
+
+      Object.keys(res.headers).forEach(function(header) {
+        assert.ok(!other[header.toLowerCase()]);
+      });
+    }).done(done, done);
+  };
+}
+
 describe('server', function() {
-
   describe('/', function() {
-    it('should return the version', function(done) {
-      Server.get('/').then(function(res) {
-        assert.equal(res.statusCode, 200);
-        assert.equal(res.result.version, require('../package.json').version);
-        assert(res.result.commit);
+    it('should return the version', checkVersionAndHeaders('/'));
+  });
 
-        // and must return an STS header
-        var stsHeader = res.headers['strict-transport-security'];
-        assert.equal(stsHeader, 'max-age=15552000; includeSubdomains');
-
-        // but the other security builtin headers from hapi are not set
-        var other = {
-          'x-content-type-options': 1,
-          'x-download-options': 1,
-          'x-frame-options': 1,
-          'x-xss-protection': 1
-        };
-        Object.keys(res.headers).forEach(function(header) {
-          assert.ok(!other[header.toLowerCase()]);
-        });
-      }).done(done, done);
-    });
+  describe('/__version__', function() {
+    it('should return the version', checkVersionAndHeaders('/__version__'));
   });
 
   describe('/__heartbeat__', function() {
