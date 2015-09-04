@@ -26,12 +26,16 @@ define([
     name: 'Firstrun sign_in',
 
     beforeEach: function () {
+      var self = this;
       email = TestHelpers.createEmail();
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
 
-      return client.signUp(email, PASSWORD, { preVerified: true });
+      return client.signUp(email, PASSWORD, { preVerified: true })
+        .then(function () {
+          return FunctionalHelpers.clearBrowserState(self);
+        });
     },
 
     afterEach: function () {
