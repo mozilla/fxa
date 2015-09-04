@@ -39,6 +39,8 @@ before_install:
 install:
   # install everything for full dev in the fxa-content-server.
   - travis_retry npm install --silent
+  - npm ls --depth 0 | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g'
+  - grunt lint
   # copy over the configuration that can be used to start the server.
   - cp server/config/local.json-dist server/config/local.json
   # install auth, oauth, verifier and profile servers
@@ -48,9 +50,7 @@ install:
 
 # now run the tests!
 script:
-  - npm ls --depth 0 | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g'
   - grunt validate-shrinkwrap --force # check for vulnerable modules via nodesecurity.io
-  - grunt lint
   - grunt selectconfig:dist l10n-generate-pages &> /dev/null
   - grunt htmllint:dist
   - travis_retry npm run test-travis
