@@ -77,7 +77,15 @@ module.exports = {
     }).spread(function(theirs, ours) {
       return P.resolve(Object.keys(ours)).each(function(title) {
         if (!module.exports.findMatchingMilestone(title, theirs)) {
-          console.warn("Extra milestone in " + repo + ": '" + title + "'")
+          if (ours[title].open_issues > 0) {
+            console.warn("Extra milestone in " + repo + ": '" + title + "'")
+          } else {
+            console.warn("Deleting extra milestone in " + repo + ": '" + title + "'")
+            return gh.issues.deleteMilestone({
+              repo: repo,
+              number: ours[title].number,
+            })
+          }
         }
       })
     })
