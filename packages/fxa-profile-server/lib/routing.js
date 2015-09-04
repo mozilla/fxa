@@ -16,6 +16,11 @@ module.exports = [
   },
   {
     method: 'GET',
+    path: '/__version__',
+    config: require('./routes/root')
+  },
+  {
+    method: 'GET',
     path: '/__heartbeat__',
     config: require('./routes/heartbeat')
   },
