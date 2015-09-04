@@ -12,9 +12,9 @@
 # to a bigger odd number if it looks like the distribution of results
 # warrants it.
 #
-# Usage: bin/metrics-perf.sh <load-test path> <metrics.conf path>
+# Usage: scripts/metrics-perf.sh <load-test path> <metrics.conf path>
 #
-# Example: bin/metrics-perf.sh ~/code/fxa-auth-server/test/load ~/fxa-metrics.conf
+# Example: scripts/metrics-perf.sh ~/code/fxa-auth-server/test/load ~/fxa-metrics.conf
 #
 # For the format of metrics.conf, see:
 #
@@ -33,19 +33,24 @@ TEST_DIR="$1"
 run_tests()
 {
   INDEX=0
-  TIMINGS=
+  AGGREGATE_REQUESTS=
+  AGGREGATE_REQUESTS_PER_SECOND=
 
   cd "$TEST_DIR"
 
   while [ $INDEX -lt $COUNT ]
   do
-    TIMING=`make bench 2>&1 | grep Duration | cut -d ' ' -s -f 2`
+    BENCHMARK=`make bench`
+    REQUESTS=`echo "$BENCHMARK" | grep 'Hits:' | cut -d ' ' -s -f 2`
+    REQUESTS_PER_SECOND=`echo "$BENCHMARK" | grep 'Approximate Average RPS:' | cut -d ' ' -s -f 4`
 
-    if [ "$TIMINGS" = '' ]
+    if [ "$AGGREGATE_REQUESTS" = '' ]
     then
-      TIMINGS=$TIMING
+      AGGREGATE_REQUESTS=$REQUESTS
+      AGGREGATE_REQUESTS_PER_SECOND=$REQUESTS_PER_SECOND
     else
-      TIMINGS="$TIMINGS $TIMING"
+      AGGREGATE_REQUESTS="$AGGREGATE_REQUESTS $REQUESTS"
+      AGGREGATE_REQUESTS_PER_SECOND="$AGGREGATE_REQUESTS_PER_SECOND $REQUESTS_PER_SECOND"
     fi
 
     INDEX=`expr $INDEX + 1`
@@ -53,7 +58,8 @@ run_tests()
 
   cd "$THIS_DIR"
 
-  echo "$1 times (seconds): $TIMINGS"
+  echo "$1 number of requests: $AGGREGATE_REQUESTS"
+  echo "$1 requests per second: $AGGREGATE_REQUESTS_PER_SECOND"
 }
 
 run_tests "Benchmark"
@@ -65,7 +71,7 @@ then
   echo
 else
   "`dirname $0`/metrics-loop.sh" "$2" &
-  FXA_METRICS_LOOP_PID=$!
+  METRICS_PID=$!
 fi
 
 run_tests "  Metrics"
