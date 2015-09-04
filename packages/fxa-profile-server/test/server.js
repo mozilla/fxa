@@ -9,9 +9,8 @@ const Server = require('./lib/server');
 /*global describe,it*/
 
 describe('server', function() {
-
-  describe('/', function() {
-    it('should return the version', function() {
+  function checkVersionAndHeaders(path) {
+    return function(done) {
       return Server.get('/').then(function(res) {
         assert.equal(res.statusCode, 200);
         assert.equal(res.result.version, require('../package.json').version);
@@ -28,11 +27,20 @@ describe('server', function() {
           'x-frame-options': 1,
           'x-xss-protection': 1
         };
+
         Object.keys(res.headers).forEach(function(header) {
           assert.ok(!other[header.toLowerCase()]);
         });
-      });
-    });
+      }).done(done, done);
+    };
+  }
+
+  describe('/', function() {
+    it('should return the version', checkVersionAndHeaders('/'));
+  });
+
+  describe('/__version__', function() {
+    it('should return the version', checkVersionAndHeaders('/__version__'));
   });
 
   describe('/__heartbeat__', function() {

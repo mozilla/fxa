@@ -3,29 +3,29 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const exec = require('child_process').exec;
-const fs = require('fs');
 const path = require('path');
 const util = require('util');
 
 const Joi = require('joi');
 
 const version = require('../../package.json').version;
+var commitHash, source;
 
 // See if config/version.json exists (part of rpm builds)
-var commitHash = (function() {
-  var sha;
+(function() {
   try {
-    sha = require('../../config/version.json');
-    sha = sha.version.hash;
+    var info = require('../../config/version.json');
+    commitHash = info.version.hash;
+    source = info.version.source;
   } catch(e) { /* ignore */ }
-  return sha;
 })();
 
 module.exports = {
   response: {
     schema: {
       version: Joi.string().required(),
-      commit: Joi.string()
+      commit: Joi.string().required(),
+      source: Joi.string().required(),
     }
   },
   handler: function index(req, reply) {
@@ -33,6 +33,7 @@ module.exports = {
       reply({
         version: version,
         commit: commitHash,
+        source: source
       }).spaces(2);
     }
 
@@ -40,16 +41,15 @@ module.exports = {
       return sendReply();
     }
 
-    // figure it out from git (either '.git', or '/home/app/git' for AwsBox)
+    // figure it out from .git
     var gitDir = path.resolve(__dirname, '..', '..', '.git');
-    if (!fs.existsSync(gitDir)) {
-      // try at '/home/app/git' for AwsBox deploys
-      gitDir = path.sep + path.join('home', 'app', 'git');
-    }
     var cmd = util.format('git --git-dir=%s rev-parse HEAD', gitDir);
     exec(cmd, function(err, stdout) { // eslint-disable-line handle-callback-err
       commitHash = stdout.replace(/\s+/, '');
-      return sendReply();
+      exec('git config --get remote.origin.url', function(err, stdout) { // eslint-disable-line handle-callback-err
+        source = stdout.replace(/\s+/, '');
+        return sendReply();
+      });
     });
   }
 };
