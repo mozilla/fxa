@@ -500,7 +500,6 @@ module.exports = function (
       handler: function (request, reply) {
         var sessionToken = request.auth.credentials
         if (sessionToken) {
-          db.updateSessionTokenInBackground(sessionToken, request.headers['user-agent'])
           reply({ exists: true, locale: sessionToken.locale })
         }
         else if (request.query.uid) {
@@ -571,7 +570,6 @@ module.exports = function (
       handler: function (request, reply) {
         log.begin('Account.RecoveryEmailStatus', request)
         var sessionToken = request.auth.credentials
-        db.updateSessionTokenInBackground(sessionToken, request.headers['user-agent'])
         reply(
           {
             email: sessionToken.email,
@@ -598,7 +596,6 @@ module.exports = function (
       handler: function (request, reply) {
         log.begin('Account.RecoveryEmailResend', request)
         var sessionToken = request.auth.credentials
-        db.updateSessionTokenInBackground(sessionToken, request.headers['user-agent'])
         var service = request.payload.service || request.query.service
         if (sessionToken.emailVerified ||
             Date.now() - sessionToken.verifierSetAt < config.smtp.resendBlackoutPeriod) {

@@ -28,11 +28,11 @@ var MOBILE_OS_FAMILIES = {
 module.exports = function (userAgentString) {
   var userAgentData = ua.parse(userAgentString)
 
-  this.uaBrowser = getFamily(userAgentData.ua)
-  this.uaBrowserVersion = getVersion(userAgentData.ua)
-  this.uaOS = getFamily(userAgentData.os)
-  this.uaOSVersion = getVersion(userAgentData.os)
-  this.uaDeviceType = getDeviceType(userAgentData)
+  this.uaBrowser = getFamily(userAgentData.ua) || null
+  this.uaBrowserVersion = getVersion(userAgentData.ua) || null
+  this.uaOS = getFamily(userAgentData.os) || null
+  this.uaOSVersion = getVersion(userAgentData.os) || null
+  this.uaDeviceType = getDeviceType(userAgentData) || null
 
   return this
 }
