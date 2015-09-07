@@ -392,6 +392,46 @@ define([
 
     'visiting the tos links saves information for return': function () {
       return testRepopulateFields.call(this, '/legal/privacy', 'fxa-pp-header');
+    },
+
+    'form prefill information is cleared after sign up->sign out': function () {
+      var self = this;
+      return fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR)
+        .then(function () {
+          return testAtConfirmScreen(self, email);
+        })
+
+        .then(function () {
+          return FunctionalHelpers.openVerificationLinkDifferentBrowser(client, email);
+        })
+
+        // The original tab should transition to the settings page w/ success
+        // message.
+        .findByCssSelector('#fxa-settings-header')
+        .end()
+
+        .findByCssSelector('#signout')
+          .click()
+        .end()
+
+        .findByCssSelector('#fxa-signin-header')
+        .end()
+
+        .findByCssSelector('input[type=email]')
+          .getProperty('value')
+          .then(function (resultText) {
+            // check the email address was cleared
+            assert.equal(resultText, '');
+          })
+        .end()
+
+        .findByCssSelector('input[type=password]')
+          .getProperty('value')
+          .then(function (resultText) {
+            // check the password address was cleared
+            assert.equal(resultText, '');
+          })
+        .end();
     }
   });
 

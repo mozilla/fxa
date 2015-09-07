@@ -59,6 +59,7 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
 
       this._able = options.able;
       this._subPanels = options.subPanels || this._initializeSubPanels(options);
+      this._formPrefill = options.formPrefill;
 
       this.router.on(this.router.NAVIGATE_FROM_SUBVIEW, this._onNavigateFromSubview.bind(this));
     },
@@ -189,6 +190,11 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
         .fin(function () {
           self.logScreenEvent('signout.success');
           self.user.clearSignedInAccount();
+          // The user has manually signed out, a pretty strong indicator
+          // the user does not want any of their information pre-filled
+          // on the signin page. Clear any remaining formPrefill info
+          // to ensure their data isn't sticking around in memory.
+          self._formPrefill.clear();
           Session.clear();
           self.navigate('signin', {
             success: t('Signed out successfully')
