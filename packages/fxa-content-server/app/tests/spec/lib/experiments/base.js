@@ -4,57 +4,54 @@
 
 define([
   'chai',
-  'sinon',
-  '../../../mocks/window',
-  'lib/session',
-  'lib/storage',
   'lib/able',
+  'lib/experiments/base',
   'lib/metrics',
-  'models/user',
+  'lib/storage',
   'models/notifications',
-  'lib/experiments/base'
+  'models/user',
+  'sinon',
+  '../../../mocks/window'
 ],
-function (chai, sinon, WindowMock, Session, Storage, Able,
-          Metrics, User, Notifications, Experiment) {
+function (chai, Able, Experiment, Metrics, Storage, Notifications,
+  User, sinon, WindowMock) {
   'use strict';
 
+  var able;
   var assert = chai.assert;
   var experiment;
-  var notifications;
-  var windowMock;
-  var able;
+  var expOptions;
   var metrics;
+  var notifications;
+  var storage;
   var user;
   var UUID = 'a mock uuid';
-  var expOptions;
+  var windowMock;
 
   describe('lib/experiments/base', function () {
     beforeEach(function () {
-      windowMock = new WindowMock();
       able = new Able();
-      metrics = new Metrics();
-      user = new User({
-        uniqueUserId: UUID
-      });
-
       sinon.stub(able, 'choose', function () {
         return 'treatment';
       });
-
+      metrics = new Metrics();
       notifications = new Notifications();
+      storage = new Storage();
+      user = new User({
+        uniqueUserId: UUID
+      });
+      windowMock = new WindowMock();
+
       experiment = new Experiment();
       expOptions = {
-        window: windowMock,
         able: able,
         metrics: metrics,
+        notifications: notifications,
+        storage: storage,
         user: user,
-        notifications: notifications
+        window: windowMock
       };
       experiment.initialize('baseExperiment', expOptions);
-    });
-
-    afterEach(function () {
-      Session.testClear();
     });
 
     describe('initialize', function () {
@@ -129,7 +126,6 @@ function (chai, sinon, WindowMock, Session, Storage, Able,
 
     describe('saveState', function () {
       it('saves state', function () {
-        var storage = Storage.factory('localStorage');
         experiment.saveState('clicked');
         assert.isTrue(JSON.parse(storage.get(experiment._storageNamespace)).clicked);
       });
@@ -141,7 +137,6 @@ function (chai, sinon, WindowMock, Session, Storage, Able,
 
     describe('hasState', function () {
       it('returns if part treatment', function () {
-        var storage = Storage.factory('localStorage');
         storage.set(experiment._storageNamespace, JSON.stringify({
           clicked: true
         }));

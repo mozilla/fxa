@@ -4,62 +4,59 @@
 
 define([
   'chai',
-  'sinon',
-  '../../../lib/helpers',
-  '../../../mocks/window',
-  'lib/session',
   'lib/able',
+  'lib/experiments/open-gmail',
   'lib/metrics',
-  'models/user',
+  'lib/storage',
   'models/account',
   'models/notifications',
-  'lib/experiments/open-gmail'
+  'models/user',
+  'sinon',
+  '../../../lib/helpers',
+  '../../../mocks/window'
 ],
-function (chai, sinon, TestHelpers, WindowMock, Session, Able,
-  Metrics, User, Account, Notifications, Experiment) {
+function (chai, Able, Experiment, Metrics, Storage, Account, Notifications,
+  User, sinon, TestHelpers, WindowMock) {
   'use strict';
 
+  var able;
+  var account;
   var assert = chai.assert;
   var experiment;
-  var notifications;
-  var windowMock;
-  var able;
   var metrics;
+  var notifications;
+  var storage;
   var user;
-  var account;
   var UUID = 'a mock uuid';
+  var windowMock;
 
   describe('lib/experiments/open-gmail', function () {
     beforeEach(function () {
-      account = new Account({
-        email: 'some@gmail.com'
-      });
-      windowMock = new WindowMock();
       able = new Able();
-      metrics = new Metrics();
-      user = new User({
-        uniqueUserId: UUID
-      });
-
       sinon.stub(able, 'choose', function () {
         return 'treatment';
       });
-
+      account = new Account({
+        email: 'some@gmail.com'
+      });
+      metrics = new Metrics();
       notifications = new Notifications();
+      storage = new Storage();
+      user = new User({
+        uniqueUserId: UUID
+      });
+      windowMock = new WindowMock();
+
       experiment = new Experiment();
       experiment.initialize('openGmail', {
-        window: windowMock,
         able: able,
-        metrics: metrics,
         account: account,
+        metrics: metrics,
+        notifications: notifications,
+        storage: storage,
         user: user,
-        notifications: notifications
+        window: windowMock
       });
-
-    });
-
-    afterEach(function () {
-      Session.testClear();
     });
 
     describe('initialize', function () {
@@ -70,11 +67,12 @@ function (chai, sinon, TestHelpers, WindowMock, Session, Able,
       it('requires account', function () {
         var experiment = new Experiment();
         var initResult = experiment.initialize('openGmail', {
-          window: windowMock,
           able: able,
           metrics: metrics,
+          notifications: notifications,
+          storage: storage,
           user: user,
-          notifications: notifications
+          window: windowMock,
         });
 
         assert.isFalse(initResult);

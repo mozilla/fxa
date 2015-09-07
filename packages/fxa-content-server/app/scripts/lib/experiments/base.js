@@ -60,6 +60,7 @@ function (Backbone, _, Storage, Url) {
       this.user = options.user;
       this.extraAbleOptions = options.extraAbleOptions || {};
       this._notifications = options.notifications;
+      this.storage = options.storage || storage;
 
       var abData = {
         isMetricsEnabledValue: this.metrics.isCollectionEnabled(),
@@ -140,7 +141,7 @@ function (Backbone, _, Storage, Url) {
 
       var store = {};
       try {
-        store = JSON.parse(storage.get(this._storageNamespace)) || {};
+        store = JSON.parse(this.storage.get(this._storageNamespace)) || {};
       } catch (e) {
         // parse failed
       }
@@ -149,7 +150,7 @@ function (Backbone, _, Storage, Url) {
         this.logEvent(state);
       }
       store[state] = true;
-      storage.set(this._storageNamespace, JSON.stringify(store));
+      this.storage.set(this._storageNamespace, JSON.stringify(store));
     },
 
     /**
@@ -166,7 +167,7 @@ function (Backbone, _, Storage, Url) {
       var store = {};
 
       try {
-        store = JSON.parse(storage.get(this._storageNamespace)) || {};
+        store = JSON.parse(this.storage.get(this._storageNamespace)) || {};
       } catch (e) {
         // parse failed
       }

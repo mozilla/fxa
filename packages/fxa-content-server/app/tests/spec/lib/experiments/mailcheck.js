@@ -4,56 +4,53 @@
 
 define([
   'chai',
+  'lib/able',
+  'lib/experiments/mailcheck',
+  'lib/metrics',
+  'lib/storage',
+  'models/notifications',
+  'models/user',
   'sinon',
   '../../../lib/helpers',
-  '../../../mocks/window',
-  'lib/session',
-  'lib/able',
-  'lib/metrics',
-  'models/user',
-  'models/notifications',
-  'lib/experiments/mailcheck'
+  '../../../mocks/window'
 ],
-function (chai, sinon, TestHelpers, WindowMock, Session, Able,
-          Metrics, User, Notifications, Experiment) {
+function (chai, Able, Experiment, Metrics, Storage, Notifications, User,
+  sinon, TestHelpers, WindowMock) {
   'use strict';
 
+  var able;
   var assert = chai.assert;
   var experiment;
   var notifications;
-  var windowMock;
-  var able;
   var metrics;
+  var storage;
   var user;
   var UUID = 'a mock uuid';
+  var windowMock;
 
   describe('lib/experiments/mailcheck', function () {
     beforeEach(function () {
-      windowMock = new WindowMock();
       able = new Able();
-      metrics = new Metrics();
-      user = new User({
-        uniqueUserId: UUID
-      });
-
       sinon.stub(able, 'choose', function () {
         return 'treatment';
       });
-
+      metrics = new Metrics();
       notifications = new Notifications();
+      storage = new Storage();
+      user = new User({
+        uniqueUserId: UUID
+      });
+      windowMock = new WindowMock();
+
       experiment = new Experiment();
       experiment.initialize('mailcheck', {
-        window: windowMock,
         able: able,
         metrics: metrics,
+        notifications: notifications,
+        storage: storage,
         user: user,
-        notifications: notifications
+        window: windowMock
       });
-
-    });
-
-    afterEach(function () {
-      Session.testClear();
     });
 
     describe('initialize', function () {
