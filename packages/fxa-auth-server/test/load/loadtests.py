@@ -266,4 +266,5 @@ class LoadTest(TestCase):
                 )
 
     def test_support_doc_flow(self):
-        self.session.get(self.server_url + "/.well-known/browserid")
+        base_url = self.server_url[:-3]
+        self.session.get(base_url + "/.well-known/browserid")
