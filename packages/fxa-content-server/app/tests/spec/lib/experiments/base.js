@@ -94,11 +94,11 @@ function (chai, Able, Experiment, Metrics, Storage, Notifications,
       });
     });
 
-    describe('isGroup', function () {
+    describe('isInGroup', function () {
       it('returns if part treatment', function () {
-        assert.isTrue(experiment.isGroup('treatment'));
-        assert.isFalse(experiment.isGroup('control'));
-        assert.isFalse(experiment.isGroup('randomGroup'));
+        assert.isTrue(experiment.isInGroup('treatment'));
+        assert.isFalse(experiment.isInGroup('control'));
+        assert.isFalse(experiment.isInGroup('randomGroup'));
       });
 
       it('returns if part control', function () {
@@ -107,9 +107,9 @@ function (chai, Able, Experiment, Metrics, Storage, Notifications,
           return 'control';
         });
         experiment.initialize('baseExperiment', expOptions);
-        assert.isTrue(experiment.isGroup('control'));
-        assert.isFalse(experiment.isGroup('treatment'));
-        assert.isFalse(experiment.isGroup('randomGroup'));
+        assert.isTrue(experiment.isInGroup('control'));
+        assert.isFalse(experiment.isInGroup('treatment'));
+        assert.isFalse(experiment.isInGroup('randomGroup'));
       });
 
       it('returns if able is undefined', function () {
@@ -118,9 +118,9 @@ function (chai, Able, Experiment, Metrics, Storage, Notifications,
           return undefined;
         });
         experiment.initialize('baseExperiment', expOptions);
-        assert.isFalse(experiment.isGroup('control'));
-        assert.isFalse(experiment.isGroup('treatment'));
-        assert.isFalse(experiment.isGroup('randomGroup'));
+        assert.isFalse(experiment.isInGroup('control'));
+        assert.isFalse(experiment.isInGroup('treatment'));
+        assert.isFalse(experiment.isInGroup('randomGroup'));
       });
     });
 

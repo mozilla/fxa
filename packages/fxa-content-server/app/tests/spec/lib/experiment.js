@@ -30,10 +30,7 @@ function (chai, sinon, WindowMock, Session, Able,
     initialize: function () {
       return true;
     },
-    isOptedInTo: function () {
-      return true;
-    },
-    isGroup: function () {
+    isInGroup: function () {
       return true;
     }
   };
@@ -83,27 +80,27 @@ function (chai, sinon, WindowMock, Session, Able,
       });
     });
 
-    describe('isOptedInTo', function () {
+    describe('isInExperiment', function () {
       it('checks experiment opt in', function () {
         expInt._activeExperiments = {
           'mockExperiment': mockExperiment
         };
 
-        assert.isTrue(expInt.isOptedInTo('mockExperiment'));
-        assert.isFalse(expInt.isOptedInTo('otherExperiment'));
-        assert.isFalse(expInt.isOptedInTo());
+        assert.isTrue(expInt.isInExperiment('mockExperiment'));
+        assert.isFalse(expInt.isInExperiment('otherExperiment'));
+        assert.isFalse(expInt.isInExperiment());
       });
     });
 
-    describe('isGroup', function () {
+    describe('isInExperimentGroup', function () {
       it('is true when opted in', function () {
         expInt._activeExperiments = {
           'mockExperiment': mockExperiment
         };
 
-        assert.isTrue(expInt.isGroup('mockExperiment'));
-        assert.isFalse(expInt.isGroup('otherExperiment'));
-        assert.isFalse(expInt.isGroup());
+        assert.isTrue(expInt.isInExperimentGroup('mockExperiment'));
+        assert.isFalse(expInt.isInExperimentGroup('otherExperiment'));
+        assert.isFalse(expInt.isInExperimentGroup());
       });
     });
 

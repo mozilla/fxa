@@ -4,34 +4,43 @@
 
 define([
   'underscore',
-  'lib/url',
-  'lib/experiments/open-gmail',
-  'lib/experiments/mailcheck',
   'lib/experiments/coppa-view',
-  'lib/experiments/sync-checkbox'
-], function (_, Url, OpenGmailExperiment, MailcheckExperiment, CoppaExperiment, SyncCheckbox) {
+  'lib/experiments/mailcheck',
+  'lib/experiments/open-gmail',
+  'lib/experiments/sync-checkbox',
+  'lib/url'
+], function (_, CoppaExperiment, MailcheckExperiment, OpenGmailExperiment,
+  SyncCheckboxExperiment, Url) {
   'use strict';
 
-  var UA_OVERRIDE = 'FxATester';
   var CHOOSE_ABLE_EXPERIMENT = 'chooseAbExperiment';
   var FORCE_EXPERIMENT_PARAM = 'forceExperiment';
-  // all available experiments that must be independent for A/B testing purposes.
+  var UA_OVERRIDE = 'FxATester';
+
+  // all available experiments that must be independent for
+  // A/B testing purposes.
   var DEFAULT_EXPERIMENTS = {
-    'openGmail': OpenGmailExperiment,
-    'mailcheck': MailcheckExperiment,
     'coppaView': CoppaExperiment,
-    'syncCheckbox': SyncCheckbox
+    'mailcheck': MailcheckExperiment,
+    'openGmail': OpenGmailExperiment,
+    'syncCheckbox': SyncCheckboxExperiment
   };
 
   function ExperimentInterface (options) {
-    if (! options || ! options.window || ! options.able || ! options.metrics || ! options.user || ! options.notifications) {
+    if (! (options &&
+           options.able &&
+           options.metrics &&
+           options.notifications &&
+           options.user &&
+           options.window)) {
       this.initialized = false;
       return;
     }
 
     this.window = options.window;
     var agent = this.window.navigator.userAgent;
-    this.forceExperiment = Url.searchParam(FORCE_EXPERIMENT_PARAM, this.window.location.search);
+    this.forceExperiment = Url.searchParam(FORCE_EXPERIMENT_PARAM,
+        this.window.location.search);
 
     // if this is running in functional test mode then we do not want any unpredictable experiments
     if (agent.indexOf(UA_OVERRIDE) >= 0 && ! this.forceExperiment) {
@@ -40,11 +49,12 @@ define([
     }
 
     this.able = options.able;
-    this.metrics = options.metrics;
-    this.user = options.user;
-    this.notifications = options.notifications;
     this.account = options.account;
+    this.metrics = options.metrics;
+    this.notifications = options.notifications;
     this.translator = options.translator;
+    this.user = options.user;
+
     this.initialized = true;
   }
 
@@ -53,18 +63,32 @@ define([
      * All available independent experiments
      */
     _allExperiments: DEFAULT_EXPERIMENTS,
+
     /**
      * All active experiments
      */
     _activeExperiments: {},
 
-    isOptedInTo: function (experiment) {
-      return !! this._activeExperiments[experiment];
+    /**
+     * Is the user in an experiment?
+     *
+     * @param {String} experimentName
+     * @return {Boolean}
+     */
+    isInExperiment: function (experimentName) {
+      return !! this._activeExperiments[experimentName];
     },
 
-    isGroup: function (experiment, groupType) {
-      if (this.isOptedInTo(experiment)) {
-        return this._activeExperiments[experiment].isGroup(groupType);
+    /**
+     * Is the user in an experiment group?
+     *
+     * @param {String} experimentName
+     * @param {String} groupName
+     * @return {Boolean}
+     */
+    isInExperimentGroup: function (experimentName, groupName) {
+      if (this.isInExperiment(experimentName)) {
+        return this._activeExperiments[experimentName].isInGroup(groupName);
       }
 
       return false;
@@ -82,19 +106,31 @@ define([
           uniqueUserId: this.user.get('uniqueUserId'),
           forceExperiment: this.forceExperiment
         });
+
         var ExperimentConstructor = this._allExperiments[choice];
         if (ExperimentConstructor) {
           var experiment = new ExperimentConstructor();
           var initResult = experiment.initialize(choice , {
-            window: this.window,
             able: this.able,
-            metrics: this.metrics,
-            user: this.user,
             account: this.account,
+            metrics: this.metrics,
+            notifications: this.notifications,
             translator: this.translator,
-            notifications: this.notifications
+            user: this.user,
+            window: this.window
           });
 
+          // TODO from @shane-tomlinson:
+          // Can you leave a note about when initResult could be false? I'm
+          // unclear under what circumstances that could happen. Is there
+          // a problem if initResult is false, and should that be logged? Would
+          // this be an appropriate place to return an error code or string,
+          // similar to unix processes? 0/false for "all good", or
+          // a code/string for "something is wrong, and here is what."
+          //
+          // If an experiment fails to initialize, is a default chosen so the
+          // user is not left w/ an unresponsive UI? If so, can you document
+          // that?
           if (initResult) {
             this._activeExperiments[choice] = experiment;
           }

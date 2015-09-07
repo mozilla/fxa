@@ -25,10 +25,7 @@ define([
   Cocktail.mixin(View, Mixin);
 
   var mockExperiment = {
-    isOptedInTo: function () {
-      return true;
-    },
-    isGroup: function () {
+    isInGroup: function () {
       return true;
     }
   };

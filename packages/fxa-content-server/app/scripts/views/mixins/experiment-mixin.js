@@ -13,23 +13,36 @@ define([
 
       this.notifications = options.notifications;
       this.experiments = new ExperimentInterface({
-        window: this.window,
         able: options.able,
-        metrics: this.metrics,
         account: this._account,
+        metrics: this.metrics,
+        notifications: options.notifications,
         user: options.user,
-        notifications: options.notifications
+        window: this.window
       });
 
       this.experiments.chooseExperiments();
     },
 
+    /**
+     * Is the user in an experiment?
+     *
+     * @param {String} experimentName
+     * @return {Boolean}
+     */
     isInExperiment: function (experimentName) {
-      return this.experiments.isOptedInTo(experimentName);
+      return this.experiments.isInExperiment(experimentName);
     },
 
+    /**
+     * Is the user in an experiment group?
+     *
+     * @param {String} experimentName
+     * @param {String} groupName
+     * @return {Boolean}
+     */
     isInExperimentGroup: function (experimentName, groupName) {
-      return this.experiments.isGroup(experimentName, groupName);
+      return this.experiments.isInExperimentGroup(experimentName, groupName);
     },
 
     /**

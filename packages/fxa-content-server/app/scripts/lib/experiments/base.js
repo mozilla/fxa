@@ -50,17 +50,24 @@ function (Backbone, _, Storage, Url) {
     initialize: function (name, options) {
       this._initialized = false;
       // all experiments require these options
-      if (! name || ! options || ! options.window || ! options.metrics || ! options.able || ! options.user || ! options.notifications) {
+      if (! (name &&
+             options &&
+             options.able &&
+             options.metrics &&
+             options.notifications &&
+             options.user &&
+             options.window)) {
         return false;
       }
 
-      this.window = options.window;
       this.able = options.able;
-      this.metrics = options.metrics;
-      this.user = options.user;
       this.extraAbleOptions = options.extraAbleOptions || {};
+      this.metrics = options.metrics;
+      this._name = name;
       this._notifications = options.notifications;
       this.storage = options.storage || storage;
+      this.user = options.user;
+      this.window = options.window;
 
       var abData = {
         isMetricsEnabledValue: this.metrics.isCollectionEnabled(),
@@ -71,7 +78,6 @@ function (Backbone, _, Storage, Url) {
 
       abData = _.extend(abData, this.extraAbleOptions);
 
-      this._name = name;
       this._groupType = this.able.choose(this._name, abData) || null;
       if (! this._groupType) {
         return false;
@@ -109,16 +115,18 @@ function (Backbone, _, Storage, Url) {
     /**
      * Checks the experiment group
      *
+     * @method isInGroup
      * @param groupType
      * @returns {boolean}
      */
-    isGroup: function (groupType) {
+    isInGroup: function (groupType) {
       return !! (groupType && groupType === this._groupType);
     },
 
     /**
      * Log an experiment event
      *
+     * @method logEvent
      * @param event
      */
     logEvent: function (event) {
@@ -175,6 +183,22 @@ function (Backbone, _, Storage, Url) {
     }
   });
 
+  /**
+   * Create a delegate function that calls saveState with `stateName`.
+   * Delegate can be used in an Experiment's `notifications` hash.
+   *
+   * e.g.:
+   *
+   * ...
+   * notifications: {
+   *  'mailcheck.clicked': createSaveStateDelegate('clicked')
+   * },
+   * ...
+   *
+   * @method createSaveStateDelegate
+   * @param {String} stateName
+   * @static
+   */
   BaseExperiment.createSaveStateDelegate = function (stateName) {
     return function () {
       this.saveState(stateName);
