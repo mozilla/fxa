@@ -19,6 +19,8 @@
  */
 
 var cp = require('child_process');
+var util = require('util');
+var path = require('path');
 var Promise = require('bluebird');
 var logger = require('mozlog')('server.version');
 
@@ -42,7 +44,9 @@ function getCommitHash () {
 
   var deferred = Promise.defer();
 
-  cp.exec('git rev-parse HEAD', function (err, stdout) {
+  var gitDir = path.resolve(__dirname, '..', '..', '.git');
+  var cmd = util.format('git --git-dir=%s rev-parse HEAD', gitDir);
+  cp.exec(cmd, function (err, stdout) {
     if (err) {
       // ignore the error
       deferred.resolve(UNKNOWN);
@@ -65,7 +69,11 @@ function getSourceRepo () {
   }
 
   var deferred = Promise.defer();
-  cp.exec('git config --get remote.origin.url', function (err, stdout) {
+
+  var gitDir = path.resolve(__dirname, '..', '..', '.git');
+  var configPath = path.join(gitDir, 'config');
+  var cmd = util.format('git config --file %s --get remote.origin.url', configPath);
+  cp.exec(cmd, function (err, stdout) {
     if (err) {
       // ignore the error
       deferred.resolve(UNKNOWN);
@@ -135,6 +143,6 @@ exports.process = function (req, res) {
     .then(function (versionInfo) {
       // charset must be set on json responses.
       res.charset = 'utf-8';
-      res.json(versionInfo);
+      res.type('json').send(JSON.stringify(versionInfo, null, 2) + '\n');
     });
 };
