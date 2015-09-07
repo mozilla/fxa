@@ -3,18 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  'underscore',
   'lib/experiments/base'
-], function (_, BaseExperiment) {
+], function (BaseExperiment) {
   'use strict';
-
-  function MailCheck() {
-    // constructor
-  }
 
   var createSaveStateDelegate = BaseExperiment.createSaveStateDelegate;
 
-  _.extend(MailCheck.prototype, new BaseExperiment(), {
+  var MailCheckExperiment = BaseExperiment.extend({
     notifications: {
       'mailcheck.clicked': createSaveStateDelegate('clicked'),
       'mailcheck.suggested': createSaveStateDelegate('suggested'),
@@ -47,5 +42,5 @@ define([
     }
   });
 
-  return MailCheck;
+  return MailCheckExperiment;
 });

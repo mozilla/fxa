@@ -3,18 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  'underscore',
   'lib/experiments/base'
-], function (_, BaseExperiment) {
+], function (BaseExperiment) {
   'use strict';
-
-  function Experiment() {
-    // constructor
-  }
 
   var createSaveStateDelegate = BaseExperiment.createSaveStateDelegate;
 
-  _.extend(Experiment.prototype, new BaseExperiment(), {
+  var SyncCheckboxExperiment = BaseExperiment.extend({
     notifications: {
       'syncCheckbox.clicked': createSaveStateDelegate('clicked'),
       'syncCheckbox.triggered': createSaveStateDelegate('triggered'),
@@ -34,5 +29,5 @@ define([
     }
   });
 
-  return Experiment;
+  return SyncCheckboxExperiment;
 });

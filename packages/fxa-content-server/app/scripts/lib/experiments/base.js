@@ -8,11 +8,12 @@
  */
 
 define([
+  'backbone',
   'underscore',
   'lib/storage',
   'lib/url'
 ],
-function (_, Storage, Url) {
+function (Backbone, _, Storage, Url) {
   'use strict';
 
   var FORCE_GROUP_TYPE = 'forceExperimentGroup';
@@ -22,7 +23,9 @@ function (_, Storage, Url) {
     // nothing to do.
   }
 
-  _.extend(BaseExperiment.prototype, {}, {
+  _.extend(BaseExperiment.prototype, {
+    constructor: BaseExperiment,
+
     /**
      * Name of the experiment. Used in metrics and view logic.
      */
@@ -176,6 +179,8 @@ function (_, Storage, Url) {
       this.saveState(stateName);
     };
   };
+
+  BaseExperiment.extend = Backbone.Model.extend;
 
   return BaseExperiment;
 });
