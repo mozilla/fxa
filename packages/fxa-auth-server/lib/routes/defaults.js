@@ -4,6 +4,7 @@
 
 var path = require('path')
 var cp = require('child_process')
+const util = require('util')
 
 var version = require('../../package.json').version
 var commitHash
@@ -12,17 +13,14 @@ var sourceRepo
 // Production and stage provide './config/version.json'. Try to load this at
 // startup; punt on failure. For dev environments, we'll get this from `git`
 // for dev environments.
-(function requireVersionInfo() {
-  try {
-    var versionJson = path.join(__dirname, '..', '..', 'config', 'version.json')
-    var info = require(versionJson)
-    commitHash = info.version.hash
-    sourceRepo = info.version.source
-  } catch (e) {
-    /* ignore */
-  }
-})()
-
+try {
+  var versionJson = path.join(__dirname, '..', '..', 'config', 'version.json')
+  var info = require(versionJson)
+  commitHash = info.version.hash
+  sourceRepo = info.version.source
+} catch (e) {
+  /* ignore */
+}
 
 module.exports = function (log, P, db, error) {
 
@@ -36,7 +34,7 @@ module.exports = function (log, P, db, error) {
           commit: commitHash,
           source: sourceRepo
         }
-      )
+      ).spaces(2).suffix('\n')
     }
 
     // if we already have the commitHash, send the reply and return
@@ -45,8 +43,12 @@ module.exports = function (log, P, db, error) {
     }
 
     // ignore errors and default to 'unknown' if not found
-    cp.exec('git rev-parse HEAD', function(err, stdout1) {
-      cp.exec('git config --get remote.origin.url', function(err, stdout2) {
+    var gitDir = path.resolve(__dirname, '..', '..', '.git')
+    var cmd = util.format('git --git-dir=%s rev-parse HEAD', gitDir)
+    cp.exec(cmd, function(err, stdout1) {
+      var configPath = path.join(gitDir, 'config')
+      var cmd = util.format('git config --file %s --get remote.origin.url', configPath)
+      cp.exec(cmd, function(err, stdout2) {
         commitHash = (stdout1 && stdout1.trim()) || 'unknown'
         sourceRepo = (stdout2 && stdout2.trim()) || 'unknown'
         return sendReply()
