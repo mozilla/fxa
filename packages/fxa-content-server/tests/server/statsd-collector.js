@@ -78,6 +78,47 @@ define([
 
   };
 
+  suite['properly collects navigationTiming stats'] = function () {
+    var dfd = new Promise.Deferred();
+
+    var metricsCollector = new StatsDCollector();
+    metricsCollector.init();
+
+    var fixtureMessage = JSON.parse(fs.readFileSync('tests/server/fixtures/statsd_body_1.json'));
+    // expectedEvents are written to disk in alphabetical order already.
+    var expectedEventBody = fs.readFileSync('tests/server/expected/statsd_navigation_timing_data_1.txt').toString().trim();
+
+    var expectedEvents = expectedEventBody.split('\n');
+    var receivedEvents = [];
+
+    udpTest(function (message, server) {
+      message = statsdMessageToObject(message);
+
+      // event data is sent if available, interfering
+      // with the test. Only collect navigationTiming data.
+      if (/navigationTiming\./.test(message.raw)) {
+        receivedEvents.push(message.raw);
+      }
+
+      if (receivedEvents.length === expectedEvents.length) {
+        // udp messages can be received out of order, sort them, the check
+        // to ensure all the expected ones arrive.
+        receivedEvents = receivedEvents.sort();
+        assert.deepEqual(receivedEvents, expectedEvents);
+
+        metricsCollector.close();
+        server.close();
+        dfd.resolve();
+      }
+
+
+    }, function (){
+      metricsCollector.write(fixtureMessage);
+    });
+
+    return dfd.promise;
+  };
+
   suite['properly collects metrics events with ab testing tags'] = function () {
     var dfd = new Promise.Deferred();
 
@@ -89,6 +130,12 @@ define([
 
     udpTest(function (message, server) {
       message = statsdMessageToObject(message);
+
+      // navigationTiming timing data is sent if available, interfering
+      // with the test. Ignore navigationTiming data.
+      if (/navigationTiming\./.test(message.raw)) {
+        return;
+      }
 
       assert.equal(message.raw, expectedEventBody);
 
