@@ -126,7 +126,7 @@ test(
       })
       .then(function(sessionToken) {
         sessionToken.lastAccessTime -= 59 * 60 * 1000
-        return db.updateSessionTokenInBackground(sessionToken, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0')
+        return db.updateSessionToken(sessionToken, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0')
       })
       .then(function() {
         return db.sessionToken(tokenId)
@@ -137,7 +137,7 @@ test(
       })
       .then(function(sessionToken) {
         sessionToken.lastAccessTime -= 60 * 60 * 1000
-        return db.updateSessionTokenInBackground(sessionToken, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0')
+        return db.updateSessionToken(sessionToken, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0')
       })
       .then(function() {
         return db.sessionToken(tokenId)
@@ -147,7 +147,7 @@ test(
         return sessionToken
       })
       .then(function(sessionToken) {
-        return db.updateSessionTokenInBackground(sessionToken, 'Mozilla/5.0 (Android; Linux armv7l; rv:9.0) Gecko/20111216 Firefox/9.0 Fennec/9.0')
+        return db.updateSessionToken(sessionToken, 'Mozilla/5.0 (Android; Linux armv7l; rv:9.0) Gecko/20111216 Firefox/9.0 Fennec/9.0')
       })
       .then(function() {
         return db.sessionToken(tokenId)
