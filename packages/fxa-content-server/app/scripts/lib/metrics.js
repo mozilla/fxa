@@ -15,15 +15,15 @@
  */
 
 define([
-  'underscore',
   'backbone',
   'jquery',
-  'speedTrap',
-  'lib/xhr',
-  'lib/strings',
   'lib/environment',
-  'lib/promise'
-], function (_, Backbone, $, speedTrap, xhr, Strings, Environment, p) {
+  'lib/promise',
+  'lib/strings',
+  'lib/xhr',
+  'speedTrap',
+  'underscore'
+], function (Backbone, $, Environment, p, Strings, xhr, speedTrap, _) {
   'use strict';
 
   // Speed trap is a singleton, convert it
@@ -32,24 +32,24 @@ define([
   SpeedTrap.prototype = speedTrap;
 
   var ALLOWED_FIELDS = [
+    'ab',
+    'broker',
     'campaign',
     'context',
     'duration',
     'entrypoint',
     'events',
-    'migration',
+    'flushTime',
+    'isSampledUser',
     'lang',
     'marketing',
+    'migration',
     'navigationTiming',
     'referrer',
     'screen',
     'service',
-    'timers',
-    'broker',
-    'ab',
-    'isSampledUser',
     'startTime',
-    'flushTime',
+    'timers',
     'uniqueUserId',
     'utm_campaign',
     'utm_content',
@@ -123,8 +123,9 @@ define([
     this._env = options.environment || new Environment(this._window);
 
     this._lastAbLength = 0;
-    // if navigationTiming is supported,
-    // the baseTime will be from navitgationTiming.navigationStart, otherwise Date.now().
+
+    // if navigationTiming is supported, the baseTime will be from
+    // navigationTiming.navigationStart, otherwise Date.now().
     this._startTime = options.startTime || this._speedTrap.baseTime;
   }
 
@@ -210,25 +211,25 @@ define([
 
       var allData = _.extend({}, loadData, unloadData, {
         ab: this._able ? this._able.report() : [],
-        context: this._context,
-        service: this._service,
         broker: this._brokerType,
-        lang: this._lang,
-        entrypoint: this._entrypoint,
-        migration: this._migration,
-        marketing: flattenMarketingImpressions(this._marketingImpressions),
         campaign: this._campaign,
+        context: this._context,
+        entrypoint: this._entrypoint,
+        flushTime: Date.now(),
+        isSampledUser: this._isSampledUser,
+        lang: this._lang,
+        marketing: flattenMarketingImpressions(this._marketingImpressions),
+        migration: this._migration,
         referrer: this._referrer,
         screen: {
-          devicePixelRatio: this._devicePixelRatio,
-          clientWidth: this._clientWidth,
           clientHeight: this._clientHeight,
-          width: this._screenWidth,
-          height: this._screenHeight
+          clientWidth: this._clientWidth,
+          devicePixelRatio: this._devicePixelRatio,
+          height: this._screenHeight,
+          width: this._screenWidth
         },
-        isSampledUser: this._isSampledUser,
+        service: this._service,
         startTime: this._startTime,
-        flushTime: Date.now(),
         uniqueUserId: this._uniqueUserId,
         utm_campaign: this._utmCampaign, //eslint-disable-line camelcase
         utm_content: this._utmContent, //eslint-disable-line camelcase
@@ -246,17 +247,11 @@ define([
      * that is defined and not an empty string.
      */
     getFilteredData: function () {
-      var allData = this.getAllData();
+      var allowedData = _.pick(this.getAllData(), ALLOWED_FIELDS);
 
-      var filteredData = {};
-      _.forEach(ALLOWED_FIELDS, function (itemName) {
-        if (typeof allData[itemName] !== 'undefined' &&
-            allData[itemName] !== '') {
-          filteredData[itemName] = allData[itemName];
-        }
+      return _.pick(allowedData, function (value, key) {
+        return ! _.isUndefined(value) && value !== '';
       });
-
-      return filteredData;
     },
 
     _send: function (data, isPageUnloading) {
@@ -278,10 +273,10 @@ define([
       // but we must call it synchronously in the unload case.
       return this._xhr.ajax({
         async: ! isPageUnloading,
-        type: 'POST',
-        url: url,
         contentType: 'application/json',
-        data: payload
+        data: payload,
+        type: 'POST',
+        url: url
       })
       // Boolean return values imitate the behaviour of sendBeacon
       .then(function () {
@@ -364,8 +359,8 @@ define([
 
       impressions[campaignId][url] = {
         campaignId: campaignId,
-        url: url,
-        clicked: false
+        clicked: false,
+        url: url
       };
     },
 
