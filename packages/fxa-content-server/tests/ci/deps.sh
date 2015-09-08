@@ -5,14 +5,14 @@ npm i mozilla/fxa-auth-server
 cd node_modules/fxa-auth-server
 LOG_LEVEL=error node ./node_modules/fxa-auth-db-mysql/bin/mem.js &
 node ./scripts/gen_keys.js
-LOG_LEVEL=error npm start &
+npm start &> /dev/null &
 cd ../..
 
 # OAuth
 
 npm i mozilla/fxa-oauth-server
 cd node_modules/fxa-oauth-server
-NODE_ENV=dev node ./bin/server.js &
+LOG_LEVEL=error NODE_ENV=dev node ./bin/server.js &
 cd ../..
 
 # Profile
@@ -21,7 +21,7 @@ cd node_modules/fxa-profile-server
 npm i
 # issue https://github.com/mozilla/fxa-profile-server/issues/138
 npm i rimraf@^2.2.8
-NODE_ENV=dev npm start &
+LOG_LEVEL=error NODE_ENV=dev npm start &
 cd ../..
 
 # Verifier
@@ -29,5 +29,5 @@ cd ../..
 npm i vladikoff/browserid-verifier#http
 cd node_modules/browserid-verifier
 npm i vladikoff/browserid-local-verify#http
-PORT=5050 node server.js &
+LOG_LEVEL=error PORT=5050 node server.js &
 cd ../..
