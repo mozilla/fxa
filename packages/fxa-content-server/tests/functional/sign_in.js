@@ -183,6 +183,40 @@ define([
 
     'visiting the tos links saves information for return': function () {
       return testRepopulateFields.call(this, '/legal/privacy', 'fxa-pp-header');
+    },
+
+    'form prefill information is cleared after sign in->sign out': function () {
+      var self = this;
+      return verifyUser(email, 0)
+        .then(function () {
+          return fillOutSignIn(self, email, PASSWORD)
+            // success is seeing the sign-in-complete screen.
+            .findById('fxa-settings-header')
+            .end()
+
+            .findByCssSelector('#signout')
+              .click()
+            .end()
+
+            .findByCssSelector('#fxa-signin-header')
+            .end()
+
+            .findByCssSelector('input[type=email]')
+              .getProperty('value')
+              .then(function (resultText) {
+                // check the email address was cleared
+                assert.equal(resultText, '');
+              })
+            .end()
+
+            .findByCssSelector('input[type=password]')
+              .getProperty('value')
+              .then(function (resultText) {
+                // check the password address was cleared
+                assert.equal(resultText, '');
+              })
+            .end();
+        });
     }
   });
 
@@ -229,7 +263,7 @@ define([
       .findByCssSelector('input[type=password]')
         .getProperty('value')
         .then(function (resultText) {
-          // check the email address was re-populated
+          // check the password was re-populated
           assert.equal(resultText, password);
         })
       .end();

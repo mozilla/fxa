@@ -205,6 +205,23 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
         $('[type=password]').val('password');
       });
 
+      it('clears formPrefill information on successful sign in', function () {
+        sinon.stub(user, 'signInAccount', function (account) {
+          return p(account);
+        });
+
+        sinon.stub(view, 'navigate', function () { });
+
+        formPrefill.set('email', email);
+        formPrefill.set('password', 'password');
+
+        return view.submit()
+          .then(function () {
+            assert.isFalse(formPrefill.has('email'));
+            assert.isFalse(formPrefill.has('password'));
+          });
+      });
+
       it('redirects users to permissions page if relier needs permissions', function () {
         sinon.spy(user, 'initAccount');
         sinon.spy(broker, 'beforeSignIn');

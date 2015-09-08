@@ -543,6 +543,27 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Experim
     });
 
     describe('submit', function () {
+      it('clears formPrefill information on successful sign in', function () {
+        sinon.stub(user, 'signUpAccount', function (account) {
+          return p(account);
+        });
+
+        sinon.stub(view, '_isUserOldEnough', function () {
+          return true;
+        });
+
+        sinon.stub(view, 'navigate', function () { });
+
+        formPrefill.set('email', email);
+        formPrefill.set('password', 'password');
+
+        return view.submit()
+          .then(function () {
+            assert.isFalse(formPrefill.has('email'));
+            assert.isFalse(formPrefill.has('password'));
+          });
+      });
+
       it('redirects users to permissions page if relier needs permissions', function () {
         var password = 'password';
         fillOutSignUp(email, password, true);

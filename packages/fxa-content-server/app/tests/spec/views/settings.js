@@ -21,16 +21,17 @@ define([
   'lib/auth-errors',
   'lib/able',
   'lib/metrics',
+  'models/form-prefill',
   'models/notifications',
   'models/reliers/relier',
   'models/profile-image',
   'models/user',
   'stache!templates/test_template'
 ],
-function (chai, $, sinon, Cocktail, View, BaseView, SubPanels, CommunicationPreferencesView,
-  SettingsPanelMixin, RouterMock, TestHelpers, FxaClient, p,
-  ProfileClient, ProfileErrors, AuthErrors, Able, Metrics, Notifications,
-  Relier, ProfileImage, User, TestTemplate) {
+function (chai, $, sinon, Cocktail, View, BaseView, SubPanels,
+  CommunicationPreferencesView, SettingsPanelMixin, RouterMock, TestHelpers,
+  FxaClient, p, ProfileClient, ProfileErrors, AuthErrors, Able, Metrics,
+  FormPrefill, Notifications, Relier, ProfileImage, User, TestTemplate) {
   'use strict';
 
   var assert = chai.assert;
@@ -45,6 +46,7 @@ function (chai, $, sinon, Cocktail, View, BaseView, SubPanels, CommunicationPref
   describe('views/settings', function () {
     var view;
     var routerMock;
+    var formPrefill;
     var fxaClient;
     var profileClient;
     var relier;
@@ -63,6 +65,7 @@ function (chai, $, sinon, Cocktail, View, BaseView, SubPanels, CommunicationPref
     function createView () {
       view = new View({
         router: routerMock,
+        formPrefill: formPrefill,
         fxaClient: fxaClient,
         relier: relier,
         user: user,
@@ -89,6 +92,8 @@ function (chai, $, sinon, Cocktail, View, BaseView, SubPanels, CommunicationPref
         profileClient: profileClient
       });
       notifications = new Notifications();
+
+      formPrefill = new FormPrefill();
 
       account = user.initAccount({
         uid: UID,
@@ -347,11 +352,14 @@ function (chai, $, sinon, Cocktail, View, BaseView, SubPanels, CommunicationPref
       });
 
       describe('signOut', function () {
-        it('on success, signs the user out, redirects to the signin page', function () {
+        it('on success, signs the user out, clears formPrefill info, redirects to the signin page', function () {
           sinon.stub(fxaClient, 'signOut', function () {
             return p();
           });
           sinon.spy(user, 'clearSignedInAccount');
+
+          formPrefill.set('email', 'testuser@testuser.com');
+          formPrefill.set('password', 'password');
 
           return view.signOut()
             .then(function () {
@@ -359,6 +367,10 @@ function (chai, $, sinon, Cocktail, View, BaseView, SubPanels, CommunicationPref
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.submit'));
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.success'));
               assert.isFalse(TestHelpers.isEventLogged(metrics, 'settings.signout.error'));
+
+              assert.isFalse(formPrefill.has('email'));
+              assert.isFalse(formPrefill.has('password'));
+
               assert.equal(routerMock.page, 'signin');
             });
         });

@@ -317,6 +317,11 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
           });
         })
         .then(function (account) {
+          // formPrefill information is no longer needed after the user
+          // has successfully signed up. Clear the info to ensure
+          // passwords aren't sticking around in memory.
+          self._formPrefill.clear();
+
           if (preVerifyToken && account.get('verified')) {
             self.logScreenEvent('preverified.success');
           }

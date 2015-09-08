@@ -130,6 +130,11 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
           });
         })
         .then(function (account) {
+          // formPrefill information is no longer needed after the user
+          // has successfully signed in. Clear the info to ensure
+          // passwords aren't sticking around in memory.
+          self._formPrefill.clear();
+
           if (self.relier.accountNeedsPermissions(account)) {
             self.navigate('signin_permissions', {
               data: {

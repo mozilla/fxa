@@ -99,6 +99,33 @@ define([
         .then(function () {
           return testRepopulateFields.call(self, '/legal/privacy', 'fxa-pp-header');
         });
+    },
+
+    'form prefill information is cleared after sign in->sign out': function () {
+      var self = this;
+      return openFxa(self, email)
+
+        .then(function () {
+          return attemptSignIn(self);
+        })
+
+        .findById('fxa-settings-header')
+        .end()
+
+        .findByCssSelector('#signout')
+          .click()
+        .end()
+
+        .findByCssSelector('#fxa-signin-header')
+        .end()
+
+        .findByCssSelector('input[type=password]')
+          .getProperty('value')
+          .then(function (resultText) {
+            // check the password address was cleared
+            assert.equal(resultText, '');
+          })
+        .end();
     }
   });
 
