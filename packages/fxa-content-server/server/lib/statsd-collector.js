@@ -114,6 +114,41 @@ function getImpressionTags(impression) {
   ];
 }
 
+function sendEvents(context, events, tags) {
+  if (events && events.length > 0) {
+    events.forEach(function (event) {
+      if (event.type) {
+        context.increment(event.type, tags);
+        if (isTimedEvent(event.type)) {
+          context.timing(event.type, event.offset, tags);
+        }
+      }
+    });
+  }
+}
+
+function sendMarketingImpressions(context, marketing, tags) {
+  if (marketing && marketing.length > 0) {
+    marketing.forEach(function (impression) {
+      if (impression.campaignId && impression.url) {
+        var impressionTags = tags.concat(getImpressionTags(impression));
+        context.increment('marketing.impression', impressionTags);
+      }
+    });
+  }
+}
+
+
+function sendNavigationTiming(context, navigationTiming, tags) {
+  if (navigationTiming) {
+    for (var key in navigationTiming) {
+      if (typeof navigationTiming[key] === 'number') {
+        context.timing('navigationTiming.' + key, navigationTiming[key], tags);
+      }
+    }
+  }
+}
+
 function StatsDCollector() {
   var config = require('./configuration');
   var statsdConfig = config.get('statsd');
@@ -153,32 +188,12 @@ StatsDCollector.prototype = {
    * @param {Object} body
    */
   write: function (body) {
-    var self = this;
-
     if (body && this.connected) {
       var tags = getGenericTags(body);
 
-      if (body.events && body.events.length > 0) {
-        body.events.forEach(function (event) {
-          if (event.type) {
-            self.increment(event.type, tags);
-            if (isTimedEvent(event.type)) {
-              self.timing(event.type, event.offset, tags);
-            }
-
-          }
-        });
-      }
-
-      if (body.marketing && body.marketing.length > 0) {
-        body.marketing.forEach(function (impression) {
-          if (impression.campaignId && impression.url) {
-            var impressionTags = tags.concat(getImpressionTags(impression));
-
-            self.increment('marketing.impression', impressionTags);
-          }
-        });
-      }
+      sendEvents(this, body.events, tags);
+      sendMarketingImpressions(this, body.marketing, tags);
+      sendNavigationTiming(this, body.navigationTiming, tags);
     }
   },
 
