@@ -17,6 +17,7 @@ define([
   './functional/fx_ios_v1_sign_up',
   './functional/fx_fennec_v1_sign_in',
   './functional/fx_fennec_v1_sign_up',
+  './functional/verification_experiments',
   './functional/bounced_email',
   './functional/legal',
   './functional/tos',

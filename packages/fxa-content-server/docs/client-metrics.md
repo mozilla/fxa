@@ -261,3 +261,65 @@ The event stream is a log of events and the time they occurred while the user is
 #### tos
 
 #### unexpected_error
+
+## Experiment Metrics
+
+mailcheck
+
+* experiment.mailcheck.treatment.enrolled
+* experiment.mailcheck.treatment.triggered 
+* experiment.mailcheck.treatment.closed
+* experiment.mailcheck.treatment.clicked
+* experiment.mailcheck.treatment.corrected
+* experiment. mailcheck.control.enrolled
+* experiment.mailcheck.control.triggered
+* experiment.mailcheck.control.corrected
+* experiment.mailcheck.treatment.verified
+* experiment.mailcheck.treatment.triggered.verified
+* experiment.mailcheck.treatment.corrected.verified
+* experiment.mailcheck.control.verified
+* experiment.mailcheck.control.triggered.verified
+* experiment.mailcheck.control.corrected.verified
+
+coppaView
+
+* experiment.coppaView.treatment.enrolled
+* experiment.coppaView.treatment.tooyoung
+* experiment.coppaView.treatment.triggered
+* experiment.coppaView.treatment.clicked
+* experiment.coppaView.control.enrolled
+* experiment.coppaView.control.tooyoung
+* experiment.coppaView.control.triggered
+* experiment.coppaView.treatment.verified
+* experiment.coppaView.treatment.triggered.verified
+* experiment.coppaView.treatment.clicked.verified
+* experiment.coppaView.control.verified
+* experiment.coppaView.control.triggered.verified
+
+openGmail 
+
+* experiment.openGmail.treatment.enrolled
+* experiment.openGmail.treatment.triggered
+* experiment.openGmail.treatment.clicked
+* experiment.openGmail.control.enrolled
+* experiment.openGmail.control.triggered
+* experiment.openGmail.treatment.verified
+* experiment.openGmail.treatment.triggered.verified
+* experiment.openGmail.treatment.clicked.verified
+* experiment.openGmail.control.verified
+* experiment.openGmail.control.triggered.verified
+
+syncCheckbox
+
+* experiment.syncCheckbox.treatment.enrolled
+* experiment.syncCheckbox.treatment.triggered
+* experiment.syncCheckbox.treatment.clicked
+* experiment.syncCheckbox.control.enrolled
+* experiment.syncCheckbox.control.triggered
+* experiment.syncCheckbox.control.clicked
+* experiment.syncCheckbox.treatment.verified
+* experiment.syncCheckbox.treatment.triggered.verified
+* experiment.syncCheckbox.treatment.clicked.verified
+* experiment.syncCheckbox.control.verified
+* experiment.syncCheckbox.control.triggered.verified
+* experiment.syncCheckbox.control.clicked.verified

@@ -39,8 +39,6 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
     var ephemeralMessages;
 
     beforeEach(function () {
-
-      ephemeralMessages = new EphemeralMessages();
       routerMock = new RouterMock();
       windowMock = new WindowMock();
       metrics = new Metrics();
@@ -123,6 +121,18 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
         return view.render()
           .then(function () {
             assert.isTrue(broker.persist.called);
+          });
+      });
+
+      it('triggers the experiment', function () {
+        sinon.spy(view, 'notify');
+        view.isInExperiment = function () {
+          return true;
+        };
+
+        return view.render()
+          .then(function () {
+            assert.isTrue(view.notify.called);
           });
       });
 
@@ -332,6 +342,14 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
           .then(function () {
             assert.equal(routerMock.page, 'signup_complete');
           });
+      });
+    });
+
+    describe('_gmailTabOpened', function () {
+      it('triggers gmail tab opening', function () {
+        sinon.spy(view, 'notify');
+        view._gmailTabOpened();
+        assert.isTrue(view.notify.called);
       });
     });
   });

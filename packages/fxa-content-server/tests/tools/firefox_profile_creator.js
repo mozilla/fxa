@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var UA_OVERRIDE = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:40.0) Gecko/20100101 Firefox/40.0 FxATester/1.0';
+
 var FirefoxProfile = require('firefox-profile');
 var myProfile = new FirefoxProfile();
 var profile = null;
@@ -32,6 +34,9 @@ if (profile) {
   // Better tab navigation for Sync preferences
   // see https://bugzilla.mozilla.org/show_bug.cgi?id=1055370
   myProfile.setPreference('accessibility.browsewithcaret', true);
+
+  // add a string to the Firefox UA to signal that this is a test runner
+  myProfile.setPreference('general.useragent.override', UA_OVERRIDE);
 
   myProfile.updatePreferences();
 

@@ -12,7 +12,8 @@ define([
     'tests/functional/reset_password',
     'tests/functional/sign_in',
     'tests/functional/sign_up',
-    'tests/functional/settings'
+    'tests/functional/settings',
+    'tests/functional/verification_experiments'
   ];
 
   intern.environments = [

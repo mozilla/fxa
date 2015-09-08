@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-/*global translator */
 
 define([
   'chai',
@@ -12,22 +11,23 @@ define([
   'views/coppa/coppa-date-picker',
   'lib/session',
   'lib/auth-errors',
+  'lib/experiment',
   'lib/metrics',
   'lib/fxa-client',
   'lib/ephemeral-messages',
-  'lib/mailcheck',
   'lib/able',
   'models/reliers/fx-desktop',
   'models/auth_brokers/base',
   'models/user',
   'models/form-prefill',
+  'models/notifications',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Metrics,
-      FxaClient, EphemeralMessages, mailcheck, Able, Relier, Broker, User, FormPrefill,
-      RouterMock, WindowMock, TestHelpers) {
+function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, ExperimentInterface, Metrics,
+      FxaClient, EphemeralMessages, Able, Relier, Broker, User, FormPrefill,
+      Notifications, RouterMock, WindowMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -45,6 +45,7 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Metrics
     var formPrefill;
     var coppa;
     var able;
+    var notifications;
 
     function fillOutSignUp(email, password, isCoppaValid) {
       view.$('[type=email]').val(email);
@@ -57,8 +58,10 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Metrics
       view.enableSubmitIfValid();
     }
 
-    function createView() {
-      view = new View({
+    function createView(options) {
+      options = options || {};
+
+      var viewOpts = {
         router: router,
         metrics: metrics,
         fxaClient: fxaClient,
@@ -69,8 +72,14 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Metrics
         screenName: 'signup',
         formPrefill: formPrefill,
         coppa: coppa,
-        able: able
-      });
+        able: options.able || able,
+        notifications: notifications
+      };
+
+      if (options.window) {
+        viewOpts.window = options.window;
+      }
+      view = new View(viewOpts);
     }
 
     beforeEach(function () {
@@ -91,6 +100,7 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Metrics
       formPrefill = new FormPrefill();
       coppa = new CoppaDatePicker();
       able = new Able();
+      notifications = new Notifications();
 
       createView();
 
@@ -146,6 +156,24 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Metrics
             });
       });
 
+      it('shows syncCheckbox experiment treatment', function () {
+        relier.set('service', 'sync');
+        Session.clear();
+        sinon.stub(view, 'isInExperiment', function () {
+          return true;
+        });
+
+        sinon.stub(view, 'isInExperimentGroup', function () {
+          return true;
+        });
+
+        return view.render()
+          .then(function () {
+            assert.equal(view.$('#customize-sync.customize-sync-top').length, 1);
+            assert.isFalse(view.$('#customize-sync.customize-sync-top').is(':checked'));
+          });
+      });
+
       it('checks `customize sync` checkbox for sync relier that forces it to true', function () {
         relier.set('service', 'sync');
         relier.set('customizeSync', true);
@@ -156,14 +184,41 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Metrics
             });
       });
 
-      it('choose input COPPA based on document param', function () {
+      it('choose input COPPA based on an experiment treatment group', function () {
+        sinon.stub(view, 'isInExperiment', function () {
+          return true;
+        });
+
+        sinon.stub(view, 'isInExperimentGroup', function () {
+          return true;
+        });
+
         view._coppa = null;
-        view.window = new WindowMock();
-        view.window.location.search = '?forceCoppa=input';
         return view.render()
           .then(function () {
-            view._createCoppaView();
+            $('#container').html(view.el);
+          }).then(function () {
             assert.ok(view.$el.find('#age').length);
+            assert.notOk(view.$el.find('#fxa-age-year').length);
+          });
+      });
+
+      it('choose input COPPA based on an experiment control group', function () {
+        sinon.stub(view, 'isInExperiment', function () {
+          return true;
+        });
+
+        sinon.stub(view, 'isInExperimentGroup', function () {
+          return false;
+        });
+
+        view._coppa = null;
+        return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+          }).then(function () {
+            assert.notOk(view.$el.find('#age').length);
+            assert.ok(view.$el.find('#fxa-age-year').length);
           });
       });
 
@@ -745,6 +800,21 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Metrics
             });
         });
 
+        it('passes customize sync option to the experiment', function () {
+          sinon.spy(view, 'notify');
+          sinon.stub(view, 'isInExperiment', function () {
+            return true;
+          });
+          sinon.stub(view, 'isInExperimentGroup', function () {
+            return true;
+          });
+
+          return setupCustomizeSyncTest('sync', true)
+            .then(function () {
+              assert.isTrue(view.notify.called);
+            });
+        });
+
         it('does not log `signup.customizeSync.*` if not sync', function () {
           return setupCustomizeSyncTest('hello')
             .then(function () {
@@ -788,123 +858,117 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Metrics
     });
 
     describe('suggestEmail', function () {
-      it('works when able chooses true', function (done) {
-        var ableChoose = sinon.stub(view._able, 'choose', function () {
+      it('works when able chooses treatment', function (done) {
+        sinon.stub(view, 'isInExperiment', function () {
           return true;
         });
-
+        sinon.stub(view, 'isInExperimentGroup', function () {
+          return true;
+        });
         view.$('.email').val('testuser@gnail.com');
-        view.suggestEmail();
+        view.onEmailBlur();
         setTimeout(function () {
           assert.equal($('.tooltip-suggest').text(), 'Did you mean gmail.com?✕');
-          ableChoose.restore();
           done();
         }, 50);
       });
 
-      it('only calls able.choose once on multiple `suggestEmail` calls', function () {
-        var sandbox = sinon.sandbox.create();
-
-        var ableChoose = sandbox.stub(view._able, 'choose', function () {
+      it('does not show when able chooses control', function (done) {
+        view.experiments.able = new Able();
+        sinon.stub(view, 'isInExperiment', function () {
           return true;
         });
-
-        view.suggestEmail();
-        view.suggestEmail();
-        view.suggestEmail();
-
-        assert.equal(ableChoose.callCount, 1);
-
-        sandbox.restore();
-      });
-
-      it('does not show when able chooses false', function (done) {
-        var ableChoose = sinon.stub(view._able, 'choose', function () {
+        sinon.stub(view, 'isInExperimentGroup', function () {
           return false;
         });
 
+        view.experiments.chooseExperiments();
         view.$('.email').val('testuser@gnail.com');
-        view.suggestEmail();
+        view.onEmailBlur();
         setTimeout(function () {
           assert.equal($('.tooltip-suggest').length, 0);
-          ableChoose.restore();
           done();
         }, 50);
       });
 
-      it('does not show when able chooses undefined', function (done) {
-        var ableChoose = sinon.stub(view._able, 'choose', function () {
-          return undefined;
-        });
-
-        view.$('.email').val('testuser@gnail.com');
-        view.suggestEmail();
-        setTimeout(function () {
-          assert.equal($('.tooltip-suggest').length, 0);
-          ableChoose.restore();
+      it('accepts window parameter override', function (done) {
+        var windowMock = new WindowMock();
+        windowMock.location.search = '?forceVerificationExperiment=mailcheck&forceExperimentGroup=treatment';
+        windowMock.navigator.userAgent = 'mocha';
+        var mockAble = new Able();
+        sinon.stub(mockAble, 'choose', function (name, data) {
+          console.log(name, data);
+          if (name === 'chooseAbExperiment') {
+            return 'mailcheck';
+          }
+          assert.equal(name, 'mailcheck');
+          assert.equal(data.forceExperimentGroup, 'treatment');
           done();
-        }, 50);
-      });
 
-      it('accepts window parameter override', function () {
-        view.window = new WindowMock();
-        view.window.location.search = '?mailcheck=true';
-        var ableChoose = sinon.stub(view._able, 'choose', function (name, data) {
-          assert.equal(name, 'mailcheckEnabled');
-          assert.equal(data.forceMailcheck, 'true');
-
-          return true;
+          return 'treatment';
         });
 
+        view.experiments = new ExperimentInterface({
+          window: windowMock,
+          able: mockAble,
+          metrics: metrics,
+          user: user,
+          notifications: notifications
+        });
+        view.experiments.chooseExperiments();
         view.$('.email').val('testuser@gnail.com');
-        view.suggestEmail();
-        assert.isTrue(view._able.choose.called);
-        ableChoose.restore();
+        view.onEmailBlur();
       });
 
       it('measures how successful our mailcheck suggestion is', function () {
-        view.window = new WindowMock();
-        var ableChoose = sinon.stub(view._able, 'choose', function () {
-          return true;
-        });
+        var windowMock = new WindowMock();
+        windowMock.navigator.userAgent = 'mocha';
+        var mockAble = new Able();
+        sinon.stub(mockAble, 'choose', function (name) {
+          if (name === 'chooseAbExperiment') {
+            return 'mailcheck';
+          }
 
+          return 'treatment';
+        });
+        view.experiments = new ExperimentInterface({
+          window: windowMock,
+          able: mockAble,
+          metrics: metrics,
+          user: user,
+          notifications: notifications
+        });
+        view.experiments.chooseExperiments();
         // user puts wrong email first
         fillOutSignUp('testuser@gnail.com', 'password', true);
         // mailcheck runs
-        view.suggestEmail();
-
+        view.onEmailBlur();
         sinon.spy(user, 'initAccount');
         sinon.stub(user, 'signUpAccount', function (account) {
           return p(account);
         });
 
         sinon.spy(view, 'navigate');
-
         sinon.stub(coppa, 'isUserOldEnough', function () {
           return true;
         });
 
         return view.submit()
           .then(function () {
-            assert.isFalse(TestHelpers.isEventLogged(metrics, 'signup.mailcheck-useful'));
+            assert.isFalse(TestHelpers.isEventLogged(metrics, 'experiment.treatment.mailcheck.corrected'), 'is not useful');
             // user fixes value manually
             view.$('.email').val('testuser@gmail.com');
 
             return view.submit()
               .then(function () {
-                assert.isTrue(TestHelpers.isEventLogged(metrics, 'signup.mailcheck-useful'));
-                ableChoose.restore();
+                assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.mailcheck.corrected'), 'is useful');
               });
           });
       });
 
       it('suggests emails via a tooltip', function (done) {
-        view.suggestEmail = function () {
-          mailcheck(view.$('.email'), metrics, translator);
-        };
-
         view.$('.email').val('testuser@gnail.com');
-        view.suggestEmail();
+        view.onEmailBlur();
         // wait for tooltip
         setTimeout(function () {
           assert.equal($('.tooltip-suggest').text(), 'Did you mean gmail.com?✕');
@@ -924,7 +988,7 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Metrics
         var autoBrowser = sinon.stub(view.broker, 'isAutomatedBrowser', function () {
           return true;
         });
-        var suggestEmail = sinon.stub(view, 'suggestEmail', function () {
+        var suggestEmail = sinon.stub(view, 'onEmailBlur', function () {
           autoBrowser.restore();
           suggestEmail.restore();
           done();

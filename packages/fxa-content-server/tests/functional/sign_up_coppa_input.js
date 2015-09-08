@@ -12,7 +12,7 @@ define([
 ], function (intern, registerSuite, assert, require, TestHelpers, FunctionalHelpers) {
   /* global $ */
 
-  var PAGE_URL = intern.config.fxaContentRoot + 'signup?forceCoppa=input';
+  var PAGE_URL = intern.config.fxaContentRoot + 'signup?forceExperiment=coppaView&forceExperimentGroup=treatment';
   var CUTOFF_AGE = 13;
   var email;
   var PASSWORD = '12345678';
