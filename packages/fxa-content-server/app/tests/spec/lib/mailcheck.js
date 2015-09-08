@@ -29,7 +29,7 @@ function (sinon, chai, $, mailcheck) {
     };
     var metricsStub;
     var mockView = {
-      experimentTrigger: function () {},
+      notify: function () {},
       isInExperimentGroup: function () {
         return true;
       }
@@ -37,7 +37,7 @@ function (sinon, chai, $, mailcheck) {
 
     beforeEach(function () {
       $('body').append('<div class="input-row test-input"><input type=text id="' + MAILCHECK_ID + '"/></div>');
-      metricsStub = sinon.stub(mockView, 'experimentTrigger', function () {
+      metricsStub = sinon.stub(mockView, 'notify', function () {
       });
     });
 
@@ -61,7 +61,7 @@ function (sinon, chai, $, mailcheck) {
 
 
       $(MAILCHECK_SELECTOR).val(BAD_EMAIL).blur();
-      assert.isTrue(mockView.experimentTrigger.calledTwice, 'called experimentTrigger twice');
+      assert.isTrue(mockView.notify.calledTwice, 'called notify twice');
 
       // wait for tooltip
       setTimeout(function () {
@@ -69,7 +69,7 @@ function (sinon, chai, $, mailcheck) {
         $(TOOLTIP_SELECTOR).find('span').first().click();
         // email should be corrected
         assert.equal($(MAILCHECK_SELECTOR).val(), CORRECTED_EMAIL);
-        assert.isTrue(mockView.experimentTrigger.calledThrice, 'called experimentTrigger thrice');
+        assert.isTrue(mockView.notify.calledThrice, 'called notify thrice');
         done();
       }, 50);
     });
@@ -80,7 +80,7 @@ function (sinon, chai, $, mailcheck) {
       });
 
       $(MAILCHECK_SELECTOR).val(BAD_EMAIL).blur();
-      assert.isTrue(mockView.experimentTrigger.calledTwice, 'called experimentTrigger twice');
+      assert.isTrue(mockView.notify.calledTwice, 'called notify twice');
 
       // wait for tooltip
       setTimeout(function () {
@@ -88,7 +88,7 @@ function (sinon, chai, $, mailcheck) {
         $(TOOLTIP_SELECTOR).find('span').eq(1).click();
         // email should NOT be corrected
         assert.equal($(MAILCHECK_SELECTOR).val(), BAD_EMAIL);
-        assert.isFalse(mockView.experimentTrigger.calledThrice, 'called experimentTrigger thrice');
+        assert.isFalse(mockView.notify.calledThrice, 'called notify thrice');
         done();
       }, 50);
     });

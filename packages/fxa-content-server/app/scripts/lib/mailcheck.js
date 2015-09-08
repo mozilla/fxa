@@ -40,7 +40,7 @@ function (Tooltip) {
 
     // check if the text value was changed before showing the tooltip
     if (element.data('previousValue') !== element.val() && element.val().length > MIN_CHARS) {
-      view.experimentTrigger('mailcheck.triggered');
+      view.notify('mailcheck.triggered');
 
       element.mailcheck({
         domains: DOMAINS,
@@ -56,7 +56,7 @@ function (Tooltip) {
           }
 
           // user got a suggestion to check their email input
-          view.experimentTrigger('mailcheck.suggested');
+          view.notify('mailcheck.suggested');
           if (view.isInExperimentGroup('mailcheck', 'treatment')) {
             var tooltip = new Tooltip({
               message: t('Did you mean <span tabindex="1">%(domain)s</span>?', suggestion, translator),
@@ -77,7 +77,7 @@ function (Tooltip) {
               if (e.type === 'click' || e.which === 13) {
                 element.val(suggestion.full);
                 // the user has used the suggestion
-                view.experimentTrigger('mailcheck.clicked');
+                view.notify('mailcheck.clicked');
                 tooltip._destroy();
               }
             });

@@ -159,9 +159,13 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Experim
       it('shows syncCheckbox experiment treatment', function () {
         relier.set('service', 'sync');
         Session.clear();
-        view.isInExperiment = view.isInExperimentGroup = function () {
+        sinon.stub(view, 'isInExperiment', function () {
           return true;
-        };
+        });
+
+        sinon.stub(view, 'isInExperimentGroup', function () {
+          return true;
+        });
 
         return view.render()
           .then(function () {
@@ -797,14 +801,17 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Experim
         });
 
         it('passes customize sync option to the experiment', function () {
-          sinon.spy(view, 'experimentTrigger');
-          view.isInExperiment = view.isInExperimentGroup = function () {
+          sinon.spy(view, 'notify');
+          sinon.stub(view, 'isInExperiment', function () {
             return true;
-          };
+          });
+          sinon.stub(view, 'isInExperimentGroup', function () {
+            return true;
+          });
 
           return setupCustomizeSyncTest('sync', true)
             .then(function () {
-              assert.isTrue(view.experimentTrigger.called);
+              assert.isTrue(view.notify.called);
             });
         });
 
@@ -852,12 +859,12 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Experim
 
     describe('suggestEmail', function () {
       it('works when able chooses treatment', function (done) {
-        view.isInExperimentGroup = function () {
+        sinon.stub(view, 'isInExperiment', function () {
           return true;
-        };
-        view.isInExperiment = function () {
+        });
+        sinon.stub(view, 'isInExperimentGroup', function () {
           return true;
-        };
+        });
         view.$('.email').val('testuser@gnail.com');
         view.onEmailBlur();
         setTimeout(function () {
@@ -868,12 +875,13 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Experim
 
       it('does not show when able chooses control', function (done) {
         view.experiments.able = new Able();
-        view.isInExperimentGroup = function () {
-          return false;
-        };
-        view.isInExperiment = function () {
+        sinon.stub(view, 'isInExperiment', function () {
           return true;
-        };
+        });
+        sinon.stub(view, 'isInExperimentGroup', function () {
+          return false;
+        });
+
         view.experiments.chooseExperiments();
         view.$('.email').val('testuser@gnail.com');
         view.onEmailBlur();

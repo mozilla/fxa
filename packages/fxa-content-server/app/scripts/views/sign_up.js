@@ -84,7 +84,7 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       };
 
       if (self.isInExperiment('coppaView')) {
-        self.experimentTrigger('coppaView.triggered');
+        self.notify('coppaView.triggered');
 
         if (self.isInExperimentGroup('coppaView', 'treatment')) {
           coppaView = new CoppaAgeInput(coppaOptions);
@@ -183,7 +183,7 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       };
 
       if (isSync && this.isInExperiment('syncCheckbox')) {
-        this.experimentTrigger('syncCheckbox.triggered');
+        this.notify('syncCheckbox.triggered');
         if (this.isInExperimentGroup('syncCheckbox', 'treatment')) {
           context.isSyncTop = isSync;
           context.isSync = null;
@@ -232,11 +232,11 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       return p()
         .then(function () {
           if (! self._isUserOldEnough()) {
-            self.experimentTrigger('signup.tooyoung');
+            self.notify('signup.tooyoung');
 
             return self._cannotCreateAccount();
           }
-          self.experimentTrigger('signup.submit');
+          self.notify('signup.submit');
 
           return self._initAccount();
         });
@@ -306,7 +306,7 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
         self.logScreenEvent('customizeSync.' + String(customizeSync));
 
         if (customizeSync && self.isInExperiment('syncCheckbox')) {
-          self.experimentTrigger('syncCheckbox.clicked');
+          self.notify('syncCheckbox.clicked');
         }
       }
 

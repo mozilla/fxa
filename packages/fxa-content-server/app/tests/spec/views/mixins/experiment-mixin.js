@@ -108,16 +108,16 @@ define([
       });
     });
 
-    describe('experimentTrigger', function () {
+    describe('notify', function () {
       it('does not trigger if there is no event name', function () {
         sinon.spy(view.experiments.notifications, 'trigger');
-        view.experimentTrigger();
+        view.notify();
         assert.isTrue(view.experiments.notifications.trigger.notCalled);
       });
 
       it('triggers notifications', function () {
         sinon.spy(view.experiments.notifications, 'trigger');
-        view.experimentTrigger('notifications');
+        view.notify('notifications');
         assert.isTrue(view.experiments.notifications.trigger.called);
       });
     });

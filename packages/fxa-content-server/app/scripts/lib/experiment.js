@@ -120,17 +120,14 @@ define([
             window: this.window
           });
 
-          // TODO from @shane-tomlinson:
-          // Can you leave a note about when initResult could be false? I'm
-          // unclear under what circumstances that could happen. Is there
-          // a problem if initResult is false, and should that be logged? Would
-          // this be an appropriate place to return an error code or string,
-          // similar to unix processes? 0/false for "all good", or
-          // a code/string for "something is wrong, and here is what."
-          //
-          // If an experiment fails to initialize, is a default chosen so the
-          // user is not left w/ an unresponsive UI? If so, can you document
-          // that?
+          /**
+           * 'initResult' may be false if the view does not have the require components, such as 'user', or 'account'.
+           * Those components are required to make a correct decision about the experiment.
+           * 'initialize' does not throw because some experiments only work on particular views.
+           *
+           * If experiment failed to initialized then do not add it to active experiments.
+           * Also if the experiment is not active then the user gets the default view options with no modifications.
+           */
           if (initResult) {
             this._activeExperiments[choice] = experiment;
           }

@@ -43,7 +43,7 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
 
     context: function () {
       if (this.isInExperiment('openGmail')) {
-        this.experimentTrigger('openGmail.triggered');
+        this.notify('openGmail.triggered');
       }
 
       var email = this.getAccount().get('email');
@@ -71,7 +71,7 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
     },
 
     _gmailTabOpened: function () {
-      this.experimentTrigger('openGmail.clicked');
+      this.notify('openGmail.clicked');
     },
 
     beforeRender: function () {

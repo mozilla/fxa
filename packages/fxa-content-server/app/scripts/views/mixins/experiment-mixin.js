@@ -52,7 +52,7 @@ define([
      * @param eventName
      * @param data
      */
-    experimentTrigger: function (eventName, data) {
+    notify: function (eventName, data) {
       if (eventName && this.notifications) {
         this.notifications.trigger(eventName, data, this);
       }

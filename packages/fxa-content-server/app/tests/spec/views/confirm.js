@@ -125,14 +125,14 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
       });
 
       it('triggers the experiment', function () {
-        sinon.spy(view, 'experimentTrigger');
+        sinon.spy(view, 'notify');
         view.isInExperiment = function () {
           return true;
         };
 
         return view.render()
           .then(function () {
-            assert.isTrue(view.experimentTrigger.called);
+            assert.isTrue(view.notify.called);
           });
       });
 
@@ -347,9 +347,9 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
 
     describe('_gmailTabOpened', function () {
       it('triggers gmail tab opening', function () {
-        sinon.spy(view, 'experimentTrigger');
+        sinon.spy(view, 'notify');
         view._gmailTabOpened();
-        assert.isTrue(view.experimentTrigger.called);
+        assert.isTrue(view.notify.called);
       });
     });
   });

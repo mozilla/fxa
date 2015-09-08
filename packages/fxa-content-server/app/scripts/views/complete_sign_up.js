@@ -66,7 +66,7 @@ function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
       return self.fxaClient.verifyCode(uid, code)
           .then(function () {
             self.logScreenEvent('verification.success');
-            self.experimentTrigger('verification.success');
+            self.notify('verification.success');
             var account = self.getAccount();
 
             if (account.get('needsOptedInToMarketingEmail')) {
