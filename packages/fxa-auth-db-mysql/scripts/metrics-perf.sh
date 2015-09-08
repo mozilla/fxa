@@ -35,6 +35,7 @@ run_tests()
   INDEX=0
   AGGREGATE_REQUESTS=
   AGGREGATE_REQUESTS_PER_SECOND=
+  AGGREGATE_REQUEST_TIME=
 
   cd "$TEST_DIR"
 
@@ -43,14 +44,17 @@ run_tests()
     BENCHMARK=`make bench`
     REQUESTS=`echo "$BENCHMARK" | grep 'Hits:' | cut -d ' ' -s -f 2`
     REQUESTS_PER_SECOND=`echo "$BENCHMARK" | grep 'Approximate Average RPS:' | cut -d ' ' -s -f 4`
+    REQUEST_TIME=`echo "$BENCHMARK" | grep 'Average request time:' | sed -n '1p' | cut -d ' ' -s -f 4`
 
     if [ "$AGGREGATE_REQUESTS" = '' ]
     then
       AGGREGATE_REQUESTS=$REQUESTS
       AGGREGATE_REQUESTS_PER_SECOND=$REQUESTS_PER_SECOND
+      AGGREGATE_REQUEST_TIME=$REQUEST_TIME
     else
       AGGREGATE_REQUESTS="$AGGREGATE_REQUESTS $REQUESTS"
       AGGREGATE_REQUESTS_PER_SECOND="$AGGREGATE_REQUESTS_PER_SECOND $REQUESTS_PER_SECOND"
+      AGGREGATE_REQUEST_TIME="$AGGREGATE_REQUEST_TIME $REQUEST_TIME"
     fi
 
     INDEX=`expr $INDEX + 1`
@@ -60,6 +64,7 @@ run_tests()
 
   echo "$1 number of requests: $AGGREGATE_REQUESTS"
   echo "$1 requests per second: $AGGREGATE_REQUESTS_PER_SECOND"
+  echo "$1 request time: $AGGREGATE_REQUEST_TIME"
 }
 
 run_tests "Benchmark"
