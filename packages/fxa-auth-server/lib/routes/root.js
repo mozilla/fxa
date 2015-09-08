@@ -10,13 +10,13 @@ const version = require('../../package.json').version;
 var commitHash, source;
 
 // See if config/version.json exists (part of rpm builds)
-(function() {
-  try {
-    var info = require('../../config/version.json');
-    commitHash = info.version.hash;
-    source = info.version.source;
-  } catch(e) { /* ignore */ }
-})();
+try {
+  var info = require('../../config/version.json');
+  commitHash = info.version.hash;
+  source = info.version.source;
+} catch(e) {
+  /* ignore */
+}
 
 module.exports = {
   handler: function index(req, reply) {
@@ -25,7 +25,7 @@ module.exports = {
         version: version,
         commit: commitHash,
         source: source
-      }).spaces(2);
+      }).spaces(2).suffix('\n');
     }
 
     if (commitHash) {
@@ -37,7 +37,9 @@ module.exports = {
     var cmd = util.format('git --git-dir=%s rev-parse HEAD', gitDir);
     exec(cmd, function(err, stdout) {
       commitHash = stdout.replace(/\s+/, '');
-      exec('git config --get remote.origin.url', function(err, stdout) {
+      var configPath = path.join(gitDir, 'config');
+      var cmd = util.format('git config --file %s --get remote.origin.url', configPath);
+      exec(cmd, function(err, stdout) {
         source = stdout.replace(/\s+/, '');
         return sendReply();
       });
