@@ -58,6 +58,32 @@ define([
     collect.write(data);
   };
 
+  suite['it works with GA path page events'] = function () {
+    var data = JSON.parse(fs.readFileSync('tests/server/fixtures/ga_body_screen.json'));
+
+    function analyticsMock() {
+      return {
+        pageview: function (data) {
+          assert.equal(data.dp, '/oauth/signup');
+          assert.equal(data.hitType, 'screenview');
+          assert.equal(data.cid, 'c614d7fb-43e4-485c-bf11-40afbb202656');
+
+          return this;
+        },
+        send: function () {}
+      };
+    }
+
+    var mocks = {
+      'universal-analytics': analyticsMock
+    };
+    var GACollector = proxyquire(path.join(process.cwd(), 'server', 'lib', 'ga-collector'), mocks);
+    var collect = new GACollector({
+      analyticsId: 'mockId'
+    });
+    collect.write(data);
+  };
+
   suite['describes _calculateQueueTime'] = function () {
     var GACollector = proxyquire(path.join(process.cwd(), 'server', 'lib', 'ga-collector'), {});
     var collect = new GACollector({
