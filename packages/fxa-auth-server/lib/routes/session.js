@@ -36,7 +36,6 @@ module.exports = function (log, isA, error, db) {
       handler: function (request, reply) {
         log.begin('Session.status', request)
         var sessionToken = request.auth.credentials
-        db.updateSessionTokenInBackground(sessionToken, request.headers['user-agent'])
         reply({ uid: sessionToken.uid.toString('hex') })
       }
     }

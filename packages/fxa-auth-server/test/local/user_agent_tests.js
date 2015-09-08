@@ -87,9 +87,9 @@ test(
     t.ok(uaParser.parse.calledWithExactly('wibble'))
     t.equal(result, context)
     t.equal(Object.keys(result).length, 5)
-    t.equal(result.uaBrowser, undefined)
-    t.equal(result.uaOS, undefined)
-    t.equal(result.uaDeviceType, undefined)
+    t.equal(result.uaBrowser, null)
+    t.equal(result.uaOS, null)
+    t.equal(result.uaDeviceType, null)
     uaParser.parse.reset()
     t.end()
   }
@@ -272,7 +272,7 @@ test(
     }
     var context = {}
     var result = userAgent.call(context)
-    t.equal(result.uaDeviceType, undefined)
+    t.equal(result.uaDeviceType, null)
     uaParser.parse.reset()
     t.end()
   }
@@ -298,7 +298,7 @@ test(
     }
     var context = {}
     var result = userAgent.call(context)
-    t.equal(result.uaDeviceType, undefined)
+    t.equal(result.uaDeviceType, null)
     uaParser.parse.reset()
     t.end()
   }
@@ -324,7 +324,7 @@ test(
     }
     var context = {}
     var result = userAgent.call(context)
-    t.equal(result.uaDeviceType, undefined)
+    t.equal(result.uaDeviceType, null)
     uaParser.parse.reset()
     t.end()
   }

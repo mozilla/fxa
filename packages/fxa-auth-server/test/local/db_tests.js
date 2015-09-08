@@ -5,7 +5,7 @@
 require('ass')
 var test = require('../ptaptest')
 var uuid = require('uuid')
-var log = { trace: console.log }
+var log = { trace: console.log, info: console.log }
 
 var config = require('../../config').getProperties()
 var TestServer = require('../test_server')
@@ -100,6 +100,7 @@ test(
       var tokenId
       return db.emailRecord(ACCOUNT.email)
       .then(function(emailRecord) {
+        emailRecord.createdAt = Date.now()
         return db.createSessionToken(emailRecord, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0')
       })
       .then(function(sessionToken) {
@@ -121,6 +122,28 @@ test(
         t.equal(sessionToken.email, ACCOUNT.email)
         t.deepEqual(sessionToken.emailCode, ACCOUNT.emailCode)
         t.equal(sessionToken.emailVerified, ACCOUNT.emailVerified)
+        return sessionToken
+      })
+      .then(function(sessionToken) {
+        sessionToken.lastAccessTime -= 59 * 60 * 1000
+        return db.updateSessionTokenInBackground(sessionToken, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0')
+      })
+      .then(function() {
+        return db.sessionToken(tokenId)
+      })
+      .then(function(sessionToken) {
+        t.equal(sessionToken.lastAccessTime, sessionToken.createdAt, 'session token was not updated')
+        return sessionToken
+      })
+      .then(function(sessionToken) {
+        sessionToken.lastAccessTime -= 60 * 60 * 1000
+        return db.updateSessionTokenInBackground(sessionToken, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0')
+      })
+      .then(function() {
+        return db.sessionToken(tokenId)
+      })
+      .then(function(sessionToken) {
+        t.ok(sessionToken.lastAccessTime > sessionToken.createdAt, 'session token was updated')
         return sessionToken
       })
       .then(function(sessionToken) {
