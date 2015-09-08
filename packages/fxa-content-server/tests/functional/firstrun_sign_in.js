@@ -14,6 +14,7 @@ define([
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var PAGE_URL = config.fxaContentRoot + 'signin?context=iframe&service=sync';
+  var NO_REDIRECT_URL = PAGE_URL + '&haltAfterSignIn=true';
 
   var email;
   var PASSWORD = '12345678';
@@ -63,6 +64,26 @@ define([
 
         // user should be unable to sign out.
         .then(FunctionalHelpers.noSuchElement(self, '#signout'))
+        .end();
+    },
+
+    'sign in with an existing account with the `haltAfterSignIn=true` query parameter': function () {
+      var self = this;
+
+      return FunctionalHelpers.openPage(this, NO_REDIRECT_URL, '#fxa-signin-header')
+        .execute(listenForFxaCommands)
+
+        .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: true } ))
+
+
+        .then(function () {
+          return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
+        })
+
+        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
+        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:login'))
+
+        .then(FunctionalHelpers.noSuchElement(self, '#fxa-settings-header'))
         .end();
     },
 

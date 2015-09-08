@@ -47,13 +47,36 @@ function (chai, sinon, NullChannel, Account, FirstRunAuthenticationBroker, Relie
     });
 
     describe('afterSignIn', function () {
-      it('notifies the iframe channel, does not halt', function () {
+      it('notifies the iframe channel, does not halt by default', function () {
         sinon.spy(iframeChannel, 'send');
 
-        return broker.afterSignIn(account)
+        return broker.fetch()
+          .then(function () {
+            return broker.afterSignIn(account);
+          })
           .then(function (result) {
             assert.isTrue(iframeChannel.send.calledWith(broker._iframeCommands.LOGIN));
             assert.isFalse(result.halt);
+          });
+      });
+
+      it('halts if the `haltAfterSignIn` query parameter is set to `true`', function () {
+        sinon.spy(iframeChannel, 'send');
+
+        windowMock.location.search = '?haltAfterSignIn=true';
+        broker = new FirstRunAuthenticationBroker({
+          iframeChannel: iframeChannel,
+          relier: relier,
+          window: windowMock
+        });
+
+        return broker.fetch()
+          .then(function () {
+            return broker.afterSignIn(account);
+          })
+          .then(function (result) {
+            assert.isTrue(iframeChannel.send.calledWith(broker._iframeCommands.LOGIN));
+            assert.isTrue(result.halt);
           });
       });
     });

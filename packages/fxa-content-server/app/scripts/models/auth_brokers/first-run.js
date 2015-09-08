@@ -33,6 +33,21 @@ define([
       return proto.initialize.call(this, options);
     },
 
+    fetch: function () {
+      var self = this;
+      return proto.fetch.call(self)
+        .then(function () {
+          // Some settings do not work in an iframe due to x-frame and
+          // same-origin policies. Allow the firstrun flow to decide whether
+          // they want to display the settings page after the `login` message
+          // is sent. If `haltAfterSignIn` is set to true, the firstrun page
+          // will take care of displaying an update to the user.
+          if (self.getSearchParam('haltAfterSignIn') === 'true') {
+            self.haltAfterSignIn = true;
+          }
+        });
+    },
+
     afterLoaded: function () {
       this._iframeChannel.send(this._iframeCommands.LOADED);
 
