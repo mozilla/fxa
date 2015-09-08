@@ -5,7 +5,7 @@ node_js:
   - "0.12"
 
 addons:
-  firefox: "38.0"
+  firefox: "40.0"
   apt_packages:
     - graphicsmagick
 env:
