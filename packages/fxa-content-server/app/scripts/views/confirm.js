@@ -99,6 +99,7 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
           self._waitForConfirmation()
             .then(function () {
               self.logScreenEvent('verification.success');
+              self.notify('verification.success');
               return self.broker.afterSignUpConfirmationPoll(self.getAccount());
             })
             .then(function (result) {

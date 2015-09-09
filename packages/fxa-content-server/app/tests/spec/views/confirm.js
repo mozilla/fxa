@@ -149,6 +149,8 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
       });
 
       it('notifies the broker after the account is confirmed', function (done) {
+        var notifySpy = sinon.spy(view, 'notify');
+
         sinon.stub(broker, 'beforeSignUpConfirmationPoll', function () {
           return p();
         });
@@ -159,6 +161,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
             assert.isTrue(broker.beforeSignUpConfirmationPoll.calledWith(account));
             assert.isTrue(TestHelpers.isEventLogged(
                     metrics, 'confirm.verification.success'));
+            assert.isTrue(notifySpy.withArgs('verification.success').calledOnce);
           }, done);
         });
         sinon.stub(user, 'setAccount', function (account) {
