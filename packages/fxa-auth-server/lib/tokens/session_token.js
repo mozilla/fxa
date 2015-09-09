@@ -2,16 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var userAgent = require('../userAgent')
+var ONE_HOUR = 60 * 60 * 1000
+
 module.exports = function (log, inherits, Token) {
 
   function SessionToken(keys, details) {
     Token.call(this, keys, details)
-    this.uaBrowser = details.uaBrowser
-    this.uaBrowserVersion = details.uaBrowserVersion
-    this.uaOS = details.uaOS
-    this.uaOSVersion = details.uaOSVersion
-    this.uaDeviceType = details.uaDeviceType
-    this.lastAccessTime = details.lastAccessTime
+    this.forceUpdate(details)
     this.email = details.email || null
     this.emailCode = details.emailCode || null
     this.emailVerified = !!details.emailVerified
@@ -34,6 +32,58 @@ module.exports = function (log, inherits, Token) {
 
   SessionToken.prototype.lastAuthAt = function () {
     return Math.floor(this.createdAt / 1000)
+  }
+
+  // Parse the user agent string, then check the result to see whether
+  // the session token needs updating.
+  //
+  // If the session token has not changed, allowing up to an hour of
+  // leeway for lastAccessTime, return false.
+  //
+  // Otherwise, update properties on this then return true.
+  //
+  // It is the caller's responsibility to update the database.
+  SessionToken.prototype.update = function (userAgentString) {
+    log.trace({ op: 'SessionToken.update', uid: this.uid })
+
+    var freshData = userAgent.call({
+      lastAccessTime: Date.now()
+    }, userAgentString)
+
+    if (this.isFresh(freshData)) {
+      return false
+    }
+
+    this.forceUpdate(freshData)
+
+    return true
+  }
+
+  SessionToken.prototype.isFresh = function (freshData) {
+    var result = this.uaBrowser === freshData.uaBrowser &&
+      this.uaBrowserVersion === freshData.uaBrowserVersion &&
+      this.uaOS === freshData.uaOS &&
+      this.uaOSVersion === freshData.uaOSVersion &&
+      this.uaDeviceType === freshData.uaDeviceType &&
+      this.lastAccessTime + ONE_HOUR > freshData.lastAccessTime
+
+    log.info({
+      op: 'SessionToken.isFresh',
+      uid: this.uid,
+      tokenAge: freshData.lastAccessTime - this.lastAccessTime,
+      fresh: result
+    })
+
+    return result
+  }
+
+  SessionToken.prototype.forceUpdate = function (data) {
+    this.uaBrowser = data.uaBrowser
+    this.uaBrowserVersion = data.uaBrowserVersion
+    this.uaOS = data.uaOS
+    this.uaOSVersion = data.uaOSVersion
+    this.uaDeviceType = data.uaDeviceType
+    this.lastAccessTime = data.lastAccessTime
   }
 
   return SessionToken

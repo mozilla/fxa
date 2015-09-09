@@ -11,8 +11,6 @@ var butil = require('./crypto/butil')
 var unbuffer = butil.unbuffer
 var bufferize = butil.bufferize
 
-var ONE_HOUR = 60 * 60 * 1000
-
 module.exports = function (
   backend,
   log,
@@ -418,36 +416,21 @@ module.exports = function (
     )
   }
 
-  DB.prototype.updateSessionTokenInBackground = function (token, userAgentString) {
-    log.trace({ op: 'DB.updateSessionTokenInBackground', uid: token && token.uid })
+  DB.prototype.updateSessionToken = function (token, userAgentString) {
+    log.trace({ op: 'DB.updateSessionToken', uid: token && token.uid })
 
-    var freshData = userAgent.call({
-      lastAccessTime: Date.now()
-    }, userAgentString)
-
-    if (isSessionTokenFresh(token, freshData)) {
+    if (! token.update(userAgentString)) {
       return P.resolve()
     }
 
-    return this.pool.post('/sessionToken/' + token.id + '/update', freshData)
-  }
-
-  function isSessionTokenFresh (token, freshData) {
-    var fresh = (token.uaBrowser === freshData.uaBrowser &&
-                 token.uaBrowserVersion === freshData.uaBrowserVersion &&
-                 token.uaOS === freshData.uaOS &&
-                 token.uaOSVersion === freshData.uaOSVersion &&
-                 token.uaDeviceType === freshData.uaDeviceType &&
-                 token.lastAccessTime + ONE_HOUR > freshData.lastAccessTime)
-
-    log.info({
-      op: 'DB.isSessionTokenFresh',
-      uid: token && token.uid,
-      tokenAge: freshData.lastAccessTime - token.lastAccessTime,
-      fresh: fresh
+    return this.pool.post('/sessionToken/' + token.id + '/update', {
+      uaBrowser: token.uaBrowser,
+      uaBrowserVersion: token.uaBrowserVersion,
+      uaOS: token.uaOS,
+      uaOSVersion: token.uaOSVersion,
+      uaDeviceType: token.uaDeviceType,
+      lastAccessTime: token.lastAccessTime
     })
-
-    return fresh
   }
 
   // DELETE

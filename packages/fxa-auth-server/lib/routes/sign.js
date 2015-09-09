@@ -37,7 +37,8 @@ module.exports = function (log, isA, error, signer, db, domain) {
         var publicKey = request.payload.publicKey
         var duration = request.payload.duration
 
-        db.updateSessionTokenInBackground(sessionToken, request.headers['user-agent'])
+        // No need to wait for a response, update in the background.
+        db.updateSessionToken(sessionToken, request.headers['user-agent'])
 
         if (!sessionToken.emailVerified) {
           return reply(error.unverifiedAccount())
