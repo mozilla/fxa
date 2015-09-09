@@ -299,6 +299,29 @@ module.exports = function (log, error) {
       })
   }
 
+  Memory.prototype.sessions = function (uid) {
+    var hexUid = uid.toString('hex')
+
+    return P.resolve(
+      Object.keys(sessionTokens).filter(function (key) {
+        return sessionTokens[key].uid.toString('hex') === hexUid
+      }).map(function (key) {
+        var sessionToken = sessionTokens[key]
+        return {
+          tokenId: new Buffer(key, 'hex'),
+          uid: sessionToken.uid,
+          createdAt: sessionToken.createdAt,
+          uaBrowser: sessionToken.uaBrowser || null,
+          uaBrowserVersion: sessionToken.uaBrowserVersion || null,
+          uaOS: sessionToken.uaOS || null,
+          uaOSVersion: sessionToken.uaOSVersion || null,
+          uaDeviceType: sessionToken.uaDeviceType || null,
+          lastAccessTime: sessionToken.lastAccessTime
+        }
+      })
+    )
+  }
+
   // sessionToken()
   //
   // Takes:

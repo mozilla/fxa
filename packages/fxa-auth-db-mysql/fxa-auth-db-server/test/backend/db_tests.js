@@ -207,10 +207,29 @@ module.exports = function(config, DB) {
         test(
           'session token handling',
           function (t) {
-            t.plan(30)
-            return db.createSessionToken(SESSION_TOKEN_ID, SESSION_TOKEN)
+            t.plan(54)
+            return db.sessions(ACCOUNT.uid)
+              .then(function(sessions) {
+                t.ok(Array.isArray(sessions), 'sessions is an array')
+                t.equal(sessions.length, 0, 'sessions is empty')
+                return db.createSessionToken(SESSION_TOKEN_ID, SESSION_TOKEN)
+              })
               .then(function(result) {
                 t.deepEqual(result, {}, 'Returned an empty object on session token creation')
+                return db.sessions(ACCOUNT.uid)
+              })
+              .then(function (sessions) {
+                t.equal(sessions.length, 1, 'sessions contains one item')
+                t.equal(Object.keys(sessions[0]).length, 9, 'session has nine properties')
+                t.equal(sessions[0].tokenId.toString('hex'), SESSION_TOKEN_ID.toString('hex'), 'tokenId is correct')
+                t.equal(sessions[0].uid.toString('hex'), ACCOUNT.uid.toString('hex'), 'uid is correct')
+                t.equal(sessions[0].createdAt, SESSION_TOKEN.createdAt, 'createdAt is correct')
+                t.equal(sessions[0].uaBrowser, SESSION_TOKEN.uaBrowser, 'uaBrowser is correct')
+                t.equal(sessions[0].uaBrowserVersion, SESSION_TOKEN.uaBrowserVersion, 'uaBrowserVersion is correct')
+                t.equal(sessions[0].uaOS, SESSION_TOKEN.uaOS, 'uaOS is correct')
+                t.equal(sessions[0].uaOSVersion, SESSION_TOKEN.uaOSVersion, 'uaOSVersion is correct')
+                t.equal(sessions[0].uaDeviceType, SESSION_TOKEN.uaDeviceType, 'uaDeviceType is correct')
+                t.equal(sessions[0].lastAccessTime, SESSION_TOKEN.createdAt, 'lastAccessTime is correct')
                 return db.sessionToken(SESSION_TOKEN_ID)
               })
               .then(function(token) {
@@ -241,6 +260,19 @@ module.exports = function(config, DB) {
               })
               .then(function(result) {
                 t.deepEqual(result, {}, 'Returned an empty object on session token update')
+                return db.sessions(ACCOUNT.uid)
+              })
+              .then(function (sessions) {
+                t.equal(sessions.length, 1, 'sessions still contains one item')
+                t.equal(sessions[0].tokenId.toString('hex'), SESSION_TOKEN_ID.toString('hex'), 'tokenId is correct')
+                t.equal(sessions[0].uid.toString('hex'), ACCOUNT.uid.toString('hex'), 'uid is correct')
+                t.equal(sessions[0].createdAt, SESSION_TOKEN.createdAt, 'createdAt is correct')
+                t.equal(sessions[0].uaBrowser, 'foo', 'uaBrowser is correct')
+                t.equal(sessions[0].uaBrowserVersion, '1', 'uaBrowserVersion is correct')
+                t.equal(sessions[0].uaOS, 'bar', 'uaOS is correct')
+                t.equal(sessions[0].uaOSVersion, '2', 'uaOSVersion is correct')
+                t.equal(sessions[0].uaDeviceType, 'baz', 'uaDeviceType is correct')
+                t.equal(sessions[0].lastAccessTime, 42, 'lastAccessTime is correct')
                 return db.sessionToken(SESSION_TOKEN_ID)
               })
               .then(function(token) {
@@ -263,6 +295,10 @@ module.exports = function(config, DB) {
               })
               .then(function(result) {
                 t.deepEqual(result, {}, 'Returned an empty object on forgot key fetch token deletion')
+                return db.sessions(ACCOUNT.uid)
+              })
+              .then(function (sessions) {
+                t.equal(sessions.length, 0, 'sessions is empty')
                 return db.sessionToken(SESSION_TOKEN_ID)
               })
               .then(function(token) {

@@ -180,10 +180,20 @@ module.exports = function(cfg, server) {
   test(
     'session token handling',
     function (t) {
-      t.plan(31)
+      t.plan(59)
       var user = fake.newUserDataHex()
-      client.putThen('/account/' + user.accountId, user.account)
+      client.getThen('/account/' + user.accountId + '/sessions')
+        .then(function(r) {
+          respOk(t, r)
+          t.ok(Array.isArray(r.obj), 'sessions is array')
+          t.equal(r.obj.length, 0, 'sessions is empty')
+          return client.putThen('/account/' + user.accountId, user.account)
+        })
         .then(function() {
+          return client.getThen('/account/' + user.accountId + '/sessions')
+        })
+        .then(function(r) {
+          t.equal(r.obj.length, 0, 'sessions is empty')
           return client.getThen('/sessionToken/' + user.sessionTokenId)
         })
         .then(function(r) {
@@ -194,6 +204,22 @@ module.exports = function(cfg, server) {
         })
         .then(function(r) {
           respOk(t, r)
+          return client.getThen('/account/' + user.accountId + '/sessions')
+        })
+        .then(function(r) {
+          respOk(t, r)
+          var sessions = r.obj
+          t.equal(sessions.length, 1, 'sessions contains one item')
+          t.equal(Object.keys(sessions[0]).length, 9, 'session has nine properties')
+          t.equal(sessions[0].tokenId, user.sessionTokenId, 'tokenId is correct')
+          t.equal(sessions[0].uid, user.accountId, 'uid is correct')
+          t.equal(sessions[0].createdAt, user.sessionToken.createdAt, 'createdAt is correct')
+          t.equal(sessions[0].uaBrowser, user.sessionToken.uaBrowser, 'uaBrowser is correct')
+          t.equal(sessions[0].uaBrowserVersion, user.sessionToken.uaBrowserVersion, 'uaBrowserVersion is correct')
+          t.equal(sessions[0].uaOS, user.sessionToken.uaOS, 'uaOS is correct')
+          t.equal(sessions[0].uaOSVersion, user.sessionToken.uaOSVersion, 'uaOSVersion is correct')
+          t.equal(sessions[0].uaDeviceType, user.sessionToken.uaDeviceType, 'uaDeviceType is correct')
+          t.equal(sessions[0].lastAccessTime, user.sessionToken.createdAt, 'lastAccessTime is correct')
           return client.getThen('/sessionToken/' + user.sessionTokenId)
         })
         .then(function(r) {
@@ -226,6 +252,21 @@ module.exports = function(cfg, server) {
         })
         .then(function(r) {
           respOk(t, r)
+          return client.getThen('/account/' + user.accountId + '/sessions')
+        })
+        .then(function(r) {
+          respOk(t, r)
+          var sessions = r.obj
+          t.equal(sessions.length, 1, 'sessions still contains one item')
+          t.equal(sessions[0].tokenId, user.sessionTokenId, 'tokenId is correct')
+          t.equal(sessions[0].uid, user.accountId, 'uid is correct')
+          t.equal(sessions[0].createdAt, user.sessionToken.createdAt, 'createdAt is correct')
+          t.equal(sessions[0].uaBrowser, 'different browser', 'uaBrowser is correct')
+          t.equal(sessions[0].uaBrowserVersion, 'different browser version', 'uaBrowserVersion is correct')
+          t.equal(sessions[0].uaOS, 'different OS', 'uaOS is correct')
+          t.equal(sessions[0].uaOSVersion, 'different OS version', 'uaOSVersion is correct')
+          t.equal(sessions[0].uaDeviceType, 'different device type', 'uaDeviceType is correct')
+          t.equal(sessions[0].lastAccessTime, 42, 'lastAccessTime is correct')
           return client.getThen('/sessionToken/' + user.sessionTokenId)
         })
         .then(function(r) {
@@ -247,6 +288,11 @@ module.exports = function(cfg, server) {
         })
         .then(function(r) {
           respOk(t, r)
+          return client.getThen('/account/' + user.accountId + '/sessions')
+        })
+        .then(function(r) {
+          respOk(t, r)
+          t.equal(r.obj.length, 0, 'sessions is empty')
           // now make sure the token no longer exists
           return client.getThen('/sessionToken/' + user.sessionTokenId)
         })

@@ -310,6 +310,16 @@ module.exports = function (log, error) {
     return this.readOneFromFirstResult(ACCOUNT_DEVICES, [uid])
   }
 
+  // Select : sessionTokens
+  // Fields : id, uid, createdAt, uaBrowser, uaBrowserVersion,
+  //          uaOS, uaOSVersion, uaDeviceType, lastAccessTime
+  // Where  : uid = $1
+  var SESSIONS = 'CALL sessions_1(?)'
+
+  MySql.prototype.sessions = function (uid) {
+    return this.readOneFromFirstResult(SESSIONS, [uid])
+  }
+
   // Select : sessionTokens t, accounts a
   // Fields : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
   //          t.uaOS, t.uaOSVersion, t.uaDeviceType, t.lastAccessTime,
