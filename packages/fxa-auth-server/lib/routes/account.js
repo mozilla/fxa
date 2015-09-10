@@ -124,7 +124,7 @@ module.exports = function (
                   )
                   .then(
                     function (account) {
-                      log.activityEvent('account.created', account.uid, request)
+                      log.activityEvent('account.created', account.uid.toString('hex'), request)
                       if (account.emailVerified) {
                         log.event('verified', { email: account.email, uid: account.uid, locale: account.locale })
                       }
