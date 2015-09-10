@@ -106,7 +106,14 @@ createDBServer().then(
         }
       )
       .then(
-        function () { db_server.close() }
+        function () {
+          try {
+            db_server.close()
+          } catch (e) {
+            // This connection may already be dead if a real mysql server is
+            // already bound to :8000.
+          }
+        }
       )
     })
   })
