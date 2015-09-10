@@ -10,6 +10,7 @@ define([
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, assert, require, TestHelpers, FunctionalHelpers) {
+  var SIGN_UP_URL = intern.config.fxaContentRoot + 'signup';
   var EXP_OPEN_GMAIL_URL = intern.config.fxaContentRoot + 'signup?forceExperiment=openGmail';
   var EXP_COPPA_URL = intern.config.fxaContentRoot + 'signup?forceExperiment=coppaView';
   var EXP_MAILCHECK_URL = intern.config.fxaContentRoot + 'signup?forceExperiment=mailcheck&automatedBrowser=true';
@@ -223,7 +224,9 @@ define([
         .get(require.toUrl(EXP_SYNCCHECKBOX_URL + EXP_TREATMENT))
 
         .findByCssSelector('#customize-sync.customize-sync-top')
-        .end();
+        .end()
+
+        .get(require.toUrl(SIGN_UP_URL));
     },
 
     'control works': function () {
@@ -232,7 +235,9 @@ define([
         .get(require.toUrl(EXP_SYNCCHECKBOX_URL + EXP_CONTROL))
 
         .findByCssSelector('#customize-sync.customize-sync-bottom')
-        .end();
+        .end()
+
+        .get(require.toUrl(SIGN_UP_URL));
     }
   });
 });
