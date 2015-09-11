@@ -233,6 +233,10 @@ function (_, Errors) {
     NO_GRAVATAR_FOUND: {
       errno: 1032,
       message: t('No Gravatar found')
+    },
+    INVALID_CAMERA_DIMENSIONS: {
+      errno: 1033,
+      message: UNEXPECTED_ERROR_MESSAGE
     }
   };
 
