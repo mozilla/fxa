@@ -1,3 +1,18 @@
+<a name="0.45.0"></a>
+## 0.45.0 (2015-09-11)
+
+
+#### Bug Fixes
+
+* **token:** disable expiration error ([c9547a8b](http://github.com/mozilla/fxa-oauth-server/commit/c9547a8b541b23956676b182df22b83c8a786e61))
+* **version:** use explicit path with git-config ([e0af8bcc](http://github.com/mozilla/fxa-oauth-server/commit/e0af8bccda69f478f286a86f4b11f6da485cc0f6))
+
+
+#### Features
+
+* **db:** remove clients.secret column ([0e39d1ee](http://github.com/mozilla/fxa-oauth-server/commit/0e39d1ee67818722d32f5ae0455ea56cf5d0cec1), closes [#323](http://github.com/mozilla/fxa-oauth-server/issues/323))
+
+
 <a name="0.44.0"></a>
 ## 0.44.0 (2015-08-26)
 
