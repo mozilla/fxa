@@ -1,3 +1,13 @@
+<a name="0.45.0"></a>
+## 0.45.0 (2015-09-11)
+
+
+#### Bug Fixes
+
+* **run_dev:** add rimraf dependency back ([29c076d6](https://github.com/mozilla/fxa-profile-server/commit/29c076d61588ca660e7fc67c03204109371967a5), closes [#138](https://github.com/mozilla/fxa-profile-server/issues/138))
+* **version:** use explicit path with git-config ([aa6535f2](https://github.com/mozilla/fxa-profile-server/commit/aa6535f2c40acba9b5a1acabd9745f9cc3bd3385))
+
+
 <a name="0.44.0"></a>
 ## 0.44.0 (2015-08-26)
 
