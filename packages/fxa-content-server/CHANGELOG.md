@@ -1,3 +1,45 @@
+<a name="0.45.0"></a>
+# 0.45.0 (2015-09-11)
+
+
+### Bug Fixes
+
+* **avatar:** correctly center camera preview ([ae9ee07](https://github.com/mozilla/fxa-content-server/commit/ae9ee07))
+* **avatars:** render the camera preview properly in portrait and landscape mode ([d33e369](https://github.com/mozilla/fxa-content-server/commit/d33e369))
+* **build:** adjust eslint settings ([ff1fd47](https://github.com/mozilla/fxa-content-server/commit/ff1fd47))
+* **client:** Allow the firstrun flow to halt after signin. ([9686548](https://github.com/mozilla/fxa-content-server/commit/9686548)), closes [#2945](https://github.com/mozilla/fxa-content-server/issues/2945)
+* **client:** Clear form prefill info after signin/signup/signout. ([91f0608](https://github.com/mozilla/fxa-content-server/commit/91f0608)), closes [#3034](https://github.com/mozilla/fxa-content-server/issues/3034)
+* **experiments:** include confirm view verification ([d976d3c](https://github.com/mozilla/fxa-content-server/commit/d976d3c))
+* **l10n:** remove const keyword that breaks acorn JS parser ([32afb92](https://github.com/mozilla/fxa-content-server/commit/32afb92)), closes [#3005](https://github.com/mozilla/fxa-content-server/issues/3005)
+* **lint:** disallow const keyword ([0b88aca](https://github.com/mozilla/fxa-content-server/commit/0b88aca))
+* **metrics:** prevent utm parameters from being dropped after verification ([edde78a](https://github.com/mozilla/fxa-content-server/commit/edde78a)), closes [#2937](https://github.com/mozilla/fxa-content-server/issues/2937)
+* **styles:** adjust specific signup input help styles ([47ad129](https://github.com/mozilla/fxa-content-server/commit/47ad129))
+* **tests:** add proper promise return to firstrun ([1882757](https://github.com/mozilla/fxa-content-server/commit/1882757))
+* **tests:** adjust experiment return signup url ([354f88a](https://github.com/mozilla/fxa-content-server/commit/354f88a)), closes [#3047](https://github.com/mozilla/fxa-content-server/issues/3047)
+* **tests:** update iOS signup tests to refelect new exclude_signup=1 behaviour ([79c2de4](https://github.com/mozilla/fxa-content-server/commit/79c2de4)), closes [#3030](https://github.com/mozilla/fxa-content-server/issues/3030)
+* **tests:** update travis to firefox 40 ([0f0f955](https://github.com/mozilla/fxa-content-server/commit/0f0f955))
+* **version:** use explicit path with git-config ([cec9e9f](https://github.com/mozilla/fxa-content-server/commit/cec9e9f))
+
+### Features
+
+* **delete_account:** notify observers of a logout event ([d74c972](https://github.com/mozilla/fxa-content-server/commit/d74c972)), closes [#2993](https://github.com/mozilla/fxa-content-server/issues/2993)
+* **l10n:** add fa as a supported locale. ([7690dcd](https://github.com/mozilla/fxa-content-server/commit/7690dcd))
+* **metrics:** Send navigationTiming stats to StatsD. ([0842fa4](https://github.com/mozilla/fxa-content-server/commit/0842fa4))
+* **metrics:** add ga pageviews ([b7830c8](https://github.com/mozilla/fxa-content-server/commit/b7830c8)), closes [#2898](https://github.com/mozilla/fxa-content-server/issues/2898)
+* **settings:** "forgot password" affordance to change password ([936c64b](https://github.com/mozilla/fxa-content-server/commit/936c64b)), closes [#994](https://github.com/mozilla/fxa-content-server/issues/994)
+* **verification:** organize verification experiments ([07a6b6d](https://github.com/mozilla/fxa-content-server/commit/07a6b6d)), closes [#2673](https://github.com/mozilla/fxa-content-server/issues/2673)
+
+### Refactor
+
+* **client:** Add BaseExperiment.extend to simplify experiment extension. ([24cf4b8](https://github.com/mozilla/fxa-content-server/commit/24cf4b8))
+* **client:** Cleanup and unification. ([b563c3e](https://github.com/mozilla/fxa-content-server/commit/b563c3e))
+* **client:** Move back button related code from base.js to back-mixin.js ([230510d](https://github.com/mozilla/fxa-content-server/commit/230510d))
+* **client:** Only allow exclude_signup=1 if the context=fx_ios_v1 ([9d9d560](https://github.com/mozilla/fxa-content-server/commit/9d9d560))
+* **client:** Pass a NullStorage instance to experiments for unit tests. ([aacffd2](https://github.com/mozilla/fxa-content-server/commit/aacffd2))
+* **experiments:** add docs, change to view.notify, fix up tests ([e0d1b2f](https://github.com/mozilla/fxa-content-server/commit/e0d1b2f))
+
+
+
 <a name="0.44.1"></a>
 ## 0.44.1 (2015-08-25)
 
