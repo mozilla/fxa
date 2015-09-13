@@ -1,3 +1,8 @@
+0.45.0
+  * chore(version): generate legacy-format output for ./config/version.json - #90
+  * chore(travis): Tell Travis to use #fxa-bots - #88
+  * chore(build): Replace JSHint with ESLint - #87
+
 0.39.0
   * chore(config): Update convict and switch on strict validation - #85
   * chore(license): Update license to be SPDX compliant - #82
