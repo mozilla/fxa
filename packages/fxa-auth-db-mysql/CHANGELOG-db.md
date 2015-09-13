@@ -1,3 +1,12 @@
+train-45
+  * fix(metrics): measure request count and time in perf tests - #97
+  * fix(metrics): append delimiter to metrics output - #94
+  * chore(version): generate legacy-format output for ./config/version.json - #101
+  * chore(metrics): add script for creating dummy session tokens - #100
+  * chore(metrics): report latency in performance tests - #99
+  * chore(eslint): change complexity rule - #96
+  * chore(metrics): add scripts for perf-testing metrics queries - #88
+
 train-44
   * There are no longer separate fxa-auth-db-mysql and fxa-auth-db-server repositories - assemble all db repos - #56 
   * preliminary support for authenticating with OpenID - #78
