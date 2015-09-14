@@ -98,7 +98,12 @@ test(
   function (t) {
     return dbConn.then(function(db) {
       var tokenId
-      return db.emailRecord(ACCOUNT.email)
+      return db.sessions(ACCOUNT.uid)
+      .then(function(sessions) {
+        t.ok(Array.isArray(sessions), 'sessions is array')
+        t.equal(sessions.length, 0, 'sessions is empty')
+        return db.emailRecord(ACCOUNT.email)
+      })
       .then(function(emailRecord) {
         emailRecord.createdAt = Date.now()
         return db.createSessionToken(emailRecord, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0')
@@ -106,8 +111,20 @@ test(
       .then(function(sessionToken) {
         t.deepEqual(sessionToken.uid, ACCOUNT.uid)
         tokenId = sessionToken.tokenId
+        return db.sessions(ACCOUNT.uid)
       })
-      .then(function() {
+      .then(function(sessions) {
+        t.equal(sessions.length, 1, 'sessions contains one item')
+        t.equal(Object.keys(sessions[0]).length, 9, 'session has nine properties')
+        t.ok(Buffer.isBuffer(sessions[0].tokenId), 'tokenId property is buffer')
+        t.equal(sessions[0].uid.toString('hex'), ACCOUNT.uid.toString('hex'), 'uid property is correct')
+        t.ok(sessions[0].createdAt >= ACCOUNT.createdAt, 'createdAt property seems correct')
+        t.equal(sessions[0].uaBrowser, 'Firefox', 'uaBrowser property is correct')
+        t.equal(sessions[0].uaBrowserVersion, '41', 'uaBrowserVersion property is correct')
+        t.equal(sessions[0].uaOS, 'Mac OS X', 'uaOS property is correct')
+        t.equal(sessions[0].uaOSVersion, '10.10', 'uaOSVersion property is correct')
+        t.equal(sessions[0].uaDeviceType, null, 'uaDeviceType property is correct')
+        t.equal(sessions[0].lastAccessTime, sessions[0].createdAt, 'lastAccessTime property is correct')
         return db.sessionToken(tokenId)
       })
       .then(function(sessionToken) {
@@ -150,6 +167,15 @@ test(
         return db.updateSessionToken(sessionToken, 'Mozilla/5.0 (Android; Linux armv7l; rv:9.0) Gecko/20111216 Firefox/9.0 Fennec/9.0')
       })
       .then(function() {
+        return db.sessions(ACCOUNT.uid)
+      })
+      .then(function(sessions) {
+        t.equal(sessions.length, 1, 'sessions still contains one item')
+        t.equal(sessions[0].uaBrowser, 'Firefox Mobile', 'uaBrowser property is correct')
+        t.equal(sessions[0].uaBrowserVersion, '9', 'uaBrowserVersion property is correct')
+        t.equal(sessions[0].uaOS, 'Android', 'uaOS property is correct')
+        t.equal(sessions[0].uaOSVersion, null, 'uaOSVersion property is correct')
+        t.equal(sessions[0].uaDeviceType, 'mobile', 'uaDeviceType property is correct')
         return db.sessionToken(tokenId)
       })
       .then(function(sessionToken) {
