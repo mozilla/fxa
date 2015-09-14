@@ -1,3 +1,12 @@
+train-45
+  * feat(l10n): add fa as a supported locale. #1026
+  * fix(db): decrease session token update frequency #1042
+  * fix(db): properly encapsulate session token update logic #1043
+  * fix(metrics): properly report account.uid for account.created #1046
+  * fix(version): use explicit path with git-config #1041
+  * fix(tests): update loadtest build script to work with latest PyFxA. #1035
+  * fix(tests): update loadtest to be more similar to production traffic breakdown - redux #1040
+
 train-44
   * OpenID login support #1007
   * feat(l10n): add en-GB as a supported locale. #1021
