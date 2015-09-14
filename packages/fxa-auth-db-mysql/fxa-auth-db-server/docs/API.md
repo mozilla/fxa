@@ -56,6 +56,7 @@ The following datatypes are used throughout this document:
     * resetAccount              : `POST /account/:id/reset`
     * deleteAccount             : `DELETE /account/:id`
     * verifyEmail               : `POST /account/:id/verifyEmail`
+    * sessions                  : `GET /account/:id/sessions`
 * Session Tokens:
     * accountDevices            : `GET /account/:id/devices`
     * sessionToken              : `GET /sessionToken/:id`
@@ -433,6 +434,55 @@ Content-Length: 2
 
 Note: if the account `uid` is not found, a `200 OK` is returned anyway.
 
+## sessions : `GET /account/<uid>/sessions`
+
+```
+curl \
+    -v \
+    -X GET \
+    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/sessions
+```
+
+### Request
+
+* Method : GET
+* Path : `/account/<uid>/sessions`
+    * uid : hex128
+* Params: none
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 371
+
+[
+    {
+        "id":"522c251a1623e1f1db1f4fe68b9594d26772d6e77e04cb68e110c58600f97a77",
+        "uid":"6044486dd15b42e08b1fb9167415b9ac",
+        "createdAt":1425004396952,
+        "uaBrowser":"Firefox",
+        "uaBrowserVersion":"42",
+        "uaOS":"Mac OS X",
+        "uaOSVersion":"10.10",
+        "uaDeviceType":null,
+        "lastAccessTime":1441874852627
+    }
+]
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `[...]`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+Note: if the account `uid` is not found,
+the response is `200 OK`
+with an empty array in the body.
 
 ## createSessionToken : `PUT /sessionToken/<tokenId>`
 

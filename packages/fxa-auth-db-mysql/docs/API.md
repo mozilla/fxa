@@ -10,6 +10,7 @@ There are a number of methods that a DB storage backend should implement:
     * .accountDevices(uid)
     * .resetAccount(uid, data)
     * .deleteAccount(uid)
+    * .sessions(uid)
 * Accounts (using `email`)
     * .emailRecord(emailBuffer)
     * .accountExists(emailBuffer)
@@ -184,6 +185,23 @@ Returns:
 
 * resolves with:
     * an empty object `{}`
+* rejects with:
+    * any errors from the underlying storage engine
+
+
+## .sessions(uid) ##
+
+Fetches all session tokens for a user,
+without any of the secret data.
+
+Parameters:
+
+* `uid` - (Buffer16) the uid of the account to get sessions for
+
+Returns:
+
+* resolves with:
+    * an array of incompletely-populated session tokens
 * rejects with:
     * any errors from the underlying storage engine
 

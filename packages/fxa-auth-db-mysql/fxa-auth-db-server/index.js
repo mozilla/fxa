@@ -85,6 +85,7 @@ function createServer(db) {
   api.post('/account/:id/lock', reply(db.lockAccount))
   api.post('/account/:id/unlock', reply(db.unlockAccount))
   api.get('/account/:id/unlockCode', reply(db.unlockCode))
+  api.get('/account/:id/sessions', reply(db.sessions))
 
   api.get('/sessionToken/:id', reply(db.sessionToken))
   api.del('/sessionToken/:id', reply(db.deleteSessionToken))
