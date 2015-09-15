@@ -60,6 +60,20 @@ TestServer.start(config)
             return client.verifyEmail(verifyCode)
           }
         )
+
+        .then(
+          function () {
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            t.equal(
+              emailData.headers['x-link'],
+              config.smtp.syncUrl,
+              'sync url present')
+          }
+        )
         .then(
           function () {
             return client.emailStatus()

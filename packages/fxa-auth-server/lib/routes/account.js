@@ -656,6 +656,14 @@ module.exports = function (
               log.event('verified', { email: account.email, uid: account.uid, locale: account.locale })
               log.increment('account.verified')
               return db.verifyEmail(account)
+                .then(mailer.sendPostVerifyEmail.bind(
+                    mailer,
+                    account.email,
+                    {
+                      acceptLanguage: request.app.acceptLanguage
+                    }
+                  )
+                )
             }
           )
           .done(

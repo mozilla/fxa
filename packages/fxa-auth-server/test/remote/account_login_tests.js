@@ -114,9 +114,13 @@ TestServer.start(config)
         )
         .then(
           function (emailData) {
-            var link = emailData.headers['x-link']
-            var query = url.parse(link, true).query
-            t.ok(query.email, 'email is in the link')
+            var changeUrl = url.parse(emailData.headers['x-link'], true)
+            t.ok(
+              changeUrl.href.indexOf(
+                config.smtp.initiatePasswordChangeUrl) === 0,
+              'links to change password'
+            )
+            t.equal(changeUrl.query.email, email, 'with email querystring')
           }
         )
     }
