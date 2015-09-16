@@ -27,3 +27,5 @@ hapi-fxa-oauth
 PyFxA
 fxa-easter-egg
 fxa-password-strength-checker
+browserid-verifier
+browserid-local-verify
