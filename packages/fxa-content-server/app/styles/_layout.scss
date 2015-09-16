@@ -6,7 +6,9 @@
   text-align: center;
 
   &.card {
-    width: 420px;
+    @include respond-to('big') {
+      width: 420px;
+    }
   }
 
   &.panel {
