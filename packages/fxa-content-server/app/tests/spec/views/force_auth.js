@@ -114,8 +114,8 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Relier, Broker,
         assert.equal(view.$('.error').text(), '');
       });
 
-      it('does not allow the email to be edited', function () {
-        assert.equal(view.$('input[type=email]').length, 0);
+      it('email input is hidden for the Firefox Password manager', function () {
+        assert.equal(view.$('input[type=email]').hasClass('hidden'), 1);
       });
 
       it('prefills password', function () {

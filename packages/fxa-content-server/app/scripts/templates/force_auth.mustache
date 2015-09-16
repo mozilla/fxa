@@ -14,7 +14,7 @@
     </div>
     <form novalidate>
       <p class="prefill">{{ email }}</p>
-
+      <input type="email" class="email hidden" value="{{ email }}" />
       <div class="input-row password-row">
         <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" value="{{ password }}" required {{#email}}autofocus{{/email}} {{#isPasswordAutoCompleteDisabled}}autocomplete="off"{{/isPasswordAutoCompleteDisabled}} />
 
