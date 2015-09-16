@@ -3,6 +3,8 @@
 # Auth
 npm i mozilla/fxa-auth-server
 cd node_modules/fxa-auth-server
+# Install devDeps for the Auth Server to get memory db
+npm i
 LOG_LEVEL=error node ./node_modules/fxa-auth-db-mysql/bin/mem.js &
 node ./scripts/gen_keys.js
 npm start &> /dev/null &
