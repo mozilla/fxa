@@ -26,6 +26,7 @@ COLORS = {
 STANDARD_LABELS = {
   // Issue lifecycle management labels, for waffle.
   'waffle:backlog': { color: COLORS.WAFFLE },
+  'waffle:soon': { color: COLORS.WAFFLE },
   'waffle:next': { color: COLORS.WAFFLE },
   'waffle:now': { color: COLORS.WAFFLE },
   'waffle:progress': { color: COLORS.WAFFLE },
