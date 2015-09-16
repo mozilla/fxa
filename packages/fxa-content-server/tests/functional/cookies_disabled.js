@@ -6,9 +6,8 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, FunctionalHelpers) {
+], function (intern, registerSuite, assert, FunctionalHelpers) {
   // there is no way to disable cookies using wd. Add `disable_cookies`
   // to the URL to synthesize cookies being disabled.
   var config = intern.config;
@@ -25,12 +24,8 @@ define([
     name: 'cookies_disabled',
 
     'visit signup page with localStorage disabled': function () {
-      return this.remote
-        .get(require.toUrl(SIGNUP_COOKIES_DISABLED_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .findById('fxa-cookies-disabled-header')
-        .end()
-
+      return FunctionalHelpers.openPage(
+            this, SIGNUP_COOKIES_DISABLED_URL, '#fxa-cookies-disabled-header')
         // try again, cookies are still disabled.
         .findById('submit-btn')
           .click()
@@ -45,17 +40,15 @@ define([
     },
 
     'synthesize enabling cookies by visiting the sign up page, then cookies_disabled, then clicking "try again"': function () {
-      return this.remote
-        .get(require.toUrl(SIGNUP_COOKIES_ENABLED_URL))
-        // wd has no way of disabling/enabling cookies, so we have to
-        // manually seed history.
-        .findById('fxa-signup-header')
-        .end()
-
-        .get(require.toUrl(COOKIES_DISABLED_URL))
-
-        .findById('fxa-cookies-disabled-header')
-        .end()
+      var self = this;
+      // wd has no way of disabling/enabling cookies, so we have to
+      // manually seed history.
+      return FunctionalHelpers.openPage(
+            self, SIGNUP_COOKIES_ENABLED_URL, '#fxa-signup-header')
+        .then(function () {
+          return FunctionalHelpers.openPage(
+              self, COOKIES_DISABLED_URL, '#fxa-cookies-disabled-header');
+        })
 
         // try again, cookies are enabled.
         .findById('submit-btn')
@@ -67,10 +60,8 @@ define([
     },
 
     'visit verify page with localStorage disabled': function () {
-      return this.remote
-        .get(require.toUrl(VERIFY_COOKIES_DISABLED_URL))
-
-        .findById('fxa-cookies-disabled-header')
+      return FunctionalHelpers.openPage(
+            this, VERIFY_COOKIES_DISABLED_URL, '#fxa-cookies-disabled-header')
         .end();
     }
   });
