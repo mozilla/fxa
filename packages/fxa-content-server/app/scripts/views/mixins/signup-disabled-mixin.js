@@ -9,7 +9,7 @@ define([], function () {
 
   return {
     isSignupDisabled: function () {
-      return this.broker.isSignupDisabled();
+      return ! this.broker.hasCapability('signup');
     },
 
     getSignupDisabledReason: function () {

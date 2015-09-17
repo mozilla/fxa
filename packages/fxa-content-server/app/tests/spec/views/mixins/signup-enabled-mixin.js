@@ -30,8 +30,8 @@ define([
 
       beforeEach(function () {
         broker = {
-          isSignupDisabled: sinon.spy(function () {
-            return true;
+          hasCapability: sinon.spy(function () {
+            return false;
           })
         };
 
@@ -39,7 +39,7 @@ define([
       });
 
       it('calls this.broker.isSignupDisabled correctly', function () {
-        assert.equal(broker.isSignupDisabled.callCount, 1);
+        assert.equal(broker.hasCapability.callCount, 1);
 
         assert.isTrue(result);
       });

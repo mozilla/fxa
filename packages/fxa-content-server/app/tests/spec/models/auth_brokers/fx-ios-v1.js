@@ -34,25 +34,25 @@ function (chai, NullChannel, FxiOSAuthenticationBroker, Relier, WindowMock) {
       windowMock = new WindowMock();
     });
 
-    describe('isSignupDisabled', function () {
-      it('returns `true` if `exclude_signup=1` is specified, a reason is provided', function () {
+    describe('`signup` capability', function () {
+      it('returns `false` if `exclude_signup=1` is specified, a reason is provided', function () {
         windowMock.location.search = '?exclude_signup=1';
         createBroker();
 
         return broker.fetch()
           .then(function () {
-            assert.isTrue(broker.isSignupDisabled());
+            assert.isFalse(broker.hasCapability('signup'));
             assert.ok(broker.SIGNUP_DISABLED_REASON);
           });
       });
 
-      it('returns `false` otherwise', function () {
+      it('returns `true` otherwise', function () {
         windowMock.location.search = '';
         createBroker();
 
         return broker.fetch()
           .then(function () {
-            assert.isFalse(broker.isSignupDisabled());
+            assert.isTrue(broker.hasCapability('signup'));
           });
       });
     });

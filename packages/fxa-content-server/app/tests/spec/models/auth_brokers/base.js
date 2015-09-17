@@ -155,9 +155,43 @@ function (chai, Relier, BaseAuthenticationBroker,
       });
     });
 
-    describe('isSignupDisabled', function () {
-      it('returns `false` by default', function () {
-        assert.isFalse(broker.isSignupDisabled());
+    describe('capabilities', function () {
+      describe('hasCapability', function () {
+        it('returns `false` by default', function () {
+          assert.isFalse(broker.hasCapability('some-capability'));
+        });
+
+        it('returns `true` if `setCapability` was called with truthy value', function () {
+          broker.setCapability('some-capability', { key: 'value' });
+          assert.isTrue(broker.hasCapability('some-capability'));
+
+          broker.setCapability('other-capability', true);
+          assert.isTrue(broker.hasCapability('other-capability'));
+
+          broker.unsetCapability('other-capability');
+          assert.isFalse(broker.hasCapability('other-capability'));
+        });
+
+        it('returns `true` for `signup` by default', function () {
+          assert.isTrue(broker.hasCapability('signup'));
+        });
+      });
+
+      describe('getCapability', function () {
+        it('returns `undefined` by default', function () {
+          assert.isUndefined(broker.getCapability('missing-capability'));
+        });
+
+        it('returns the capability value if available', function () {
+          var capabilityMetadata = { key: 'value' };
+          broker.setCapability('some-capability', capabilityMetadata);
+          assert.deepEqual(
+            broker.getCapability('some-capability'), capabilityMetadata);
+
+
+          broker.unsetCapability('some-capability');
+          assert.isUndefined(broker.getCapability('some-capability'));
+        });
       });
     });
 
