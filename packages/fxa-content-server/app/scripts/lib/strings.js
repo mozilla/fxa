@@ -19,10 +19,6 @@ function () {
   t('By proceeding, you agree to the <a id="service-tos" href="%(termsUri)s">Terms of Service</a> and' +
     '<a id="service-pp" href="%(privacyUri)s">Privacy Notice</a> of %(serviceName)s (%(serviceUri)s).');
 
-  // Needed for #2451
-  t('Edit profile');
-  t('Name');
-
   // Needed for #2757
   t('Bookmarks');
   t('History');
@@ -31,9 +27,12 @@ function () {
   t('Desktop Add-ons');
   t('Desktop Preferences');
 
-  // Needed for #2108
-  t('How old are you?');
-  t('Age is required');
+  // Needed for #2772 - Web based FxA for Fennec Sync
+  t('Welcome back');
+  t('Welcome to Sync');
+  t('Firefox Sync will begin momentarily');
+  t('Firefox Sync will resume momentarily');
+  t('Sync preferences');
 
   /**
    * Replace instances of %s and %(name)s with their corresponding values in
