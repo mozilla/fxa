@@ -8,10 +8,11 @@
  */
 
 define([
+  'lib/promise',
   'models/auth_brokers/fx-desktop-v2',
   'underscore',
   'views/behaviors/navigate'
-], function (FxDesktopV2AuthenticationBroker, _, NavigateBehavior) {
+], function (p, FxDesktopV2AuthenticationBroker, _, NavigateBehavior) {
   'use strict';
 
   var proto = FxDesktopV2AuthenticationBroker.prototype;
@@ -24,6 +25,14 @@ define([
     }),
 
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
+      chooseWhatToSyncWebV1: {
+        engines: [
+          'bookmarks',
+          'history',
+          'passwords',
+          'tabs'
+        ]
+      },
       emailVerificationMarketingSnippet: false,
       syncPreferencesNotification: true
     }),
@@ -33,6 +42,19 @@ define([
       afterSignIn: new NavigateBehavior('signin_complete'),
       afterSignUpConfirmationPoll: new NavigateBehavior('signup_complete')
     }),
+
+    afterSignUp: function (account) {
+      var self = this;
+      return p().then(function () {
+        if (self.hasCapability('chooseWhatToSyncWebV1')) {
+          return new NavigateBehavior('choose_what_to_sync', {
+            data: {
+              account: account
+            }
+          });
+        }
+      });
+    },
 
     /**
      * Notify the browser that it should open sync preferences

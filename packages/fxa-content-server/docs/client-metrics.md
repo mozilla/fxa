@@ -105,6 +105,9 @@ The event stream is a log of events and the time they occurred while the user is
 * change-password.unlock-email.send - user attempted to send unlock email
 * change-password.unlock-email.send.success - unlock email successfully sent
 
+#### choose_what_to_sync
+* choose-what-to-sync.engine-unchecked.`<engine_name>` - a Sync engine was unselected.
+
 #### complete_account_unlock
 * error.complete_account_unlock.auth.1025 - User clicked on an expired verification link.
 * error.complete_account_unlock.auth.1026 - User clicked on a damaged verification link.

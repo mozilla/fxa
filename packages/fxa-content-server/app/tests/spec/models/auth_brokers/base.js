@@ -169,6 +169,20 @@ function (chai, Relier, BaseAuthenticationBroker,
           assert.isFalse(broker.hasCapability('some-capability'));
         });
 
+        it('returns `false` if the capability\'s value is falsy', function () {
+          broker.setCapability('some-capability', false);
+          assert.isFalse(broker.hasCapability('some-capability'));
+
+          broker.setCapability('some-capability', undefined);
+          assert.isFalse(broker.hasCapability('some-capability'));
+
+          broker.setCapability('some-capability', null);
+          assert.isFalse(broker.hasCapability('some-capability'));
+
+          broker.setCapability('some-capability', 0);
+          assert.isFalse(broker.hasCapability('some-capability'));
+        });
+
         it('returns `true` if `setCapability` was called with truthy value', function () {
           broker.setCapability('some-capability', { key: 'value' });
           assert.isTrue(broker.hasCapability('some-capability'));

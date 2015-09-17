@@ -58,7 +58,43 @@ define([
         })
 
         .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:login'))
+        // the login message is only sent after the confirm screen is shown.
+        .then(FunctionalHelpers.noSuchBrowserNotification(self, 'fxaccounts:login'))
+
+        // user should be transitioned to the choose what to Sync page
+        .findByCssSelector('#fxa-choose-what-to-sync-header')
+        .end()
+
+        // uncheck the passwords and history engines
+        .findByCssSelector('input[value="passwords"]')
+          .click()
+        .end()
+
+        .findByCssSelector('input[value="history"]')
+          .click()
+        .end()
+
+        .findByCssSelector('button[type=submit]')
+          .click()
+        .end()
+
+        // user should be transitioned to the "go confirm your address" page
+        .findByCssSelector('#fxa-confirm-header')
+        .end()
+
+        // the login message is only sent after the sync preferences screen
+        // has been cleared.
+        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:login', function (data) {
+          assert.isTrue(data.customizeSync);
+          assert.deepEqual(data.declinedSyncEngines, ['history', 'passwords']);
+          assert.equal(data.email, email);
+          assert.ok(data.keyFetchToken);
+          assert.ok(data.sessionToken);
+          assert.ok(data.uid);
+          assert.ok(data.unwrapBKey);
+          assert.isFalse(data.verified);
+          assert.isTrue(data.verifiedCanLinkAccount);
+        }))
 
         // verify the user
         .then(function () {
@@ -70,28 +106,31 @@ define([
         .findByCssSelector('#fxa-sign-up-complete-header')
         .end()
 
-        // user should be able to open sync preferences
-        .findByCssSelector('#sync-preferences')
-        .end()
-
         .findByCssSelector('.account-ready-service')
-        .getVisibleText()
-        .then(function (text) {
-          assert.ok(text.indexOf('Firefox Sync') > -1);
-        })
-
+          .getVisibleText()
+          .then(function (text) {
+            assert.ok(text.indexOf('Firefox Sync') > -1);
+          })
         .end()
-        .closeCurrentWindow()
 
+        .closeCurrentWindow()
         .switchToWindow('')
         .end()
 
         .findByCssSelector('#fxa-sign-up-complete-header')
         .end()
 
+        .then(FunctionalHelpers.noSuchBrowserNotification(self, 'fxaccounts:sync_preferences'))
+
         // user should be able to open sync preferences
         .findByCssSelector('#sync-preferences')
-        .end();
+          // user wants to open sync preferences.
+          .click()
+        .end()
+
+        // browser is notified of desire to open Sync preferences
+        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:sync_preferences'));
+
     }
   });
 });

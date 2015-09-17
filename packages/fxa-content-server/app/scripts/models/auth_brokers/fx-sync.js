@@ -192,12 +192,13 @@ define([
 
     _getLoginData: function (account) {
       var ALLOWED_FIELDS = [
-        'email',
-        'uid',
-        'sessionToken',
-        'unwrapBKey',
-        'keyFetchToken',
         'customizeSync',
+        'declinedSyncEngines',
+        'email',
+        'keyFetchToken',
+        'sessionToken',
+        'uid',
+        'unwrapBKey',
         'verified'
       ];
 

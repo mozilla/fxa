@@ -3,7 +3,6 @@
 
 define([
   'cocktail',
-  'underscore',
   'lib/promise',
   'views/base',
   'views/form',
@@ -18,12 +17,14 @@ define([
   'views/mixins/resume-token-mixin',
   'views/mixins/migration-mixin',
   'views/mixins/signup-disabled-mixin',
+  'views/mixins/signup-success-mixin',
   'views/coppa/coppa-date-picker',
   'views/coppa/coppa-age-input'
 ],
-function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
-      ExperimentMixin, PasswordMixin, PasswordStrengthMixin, ServiceMixin, CheckboxMixin, ResumeTokenMixin,
-      MigrationMixin, SignupDisabledMixin, CoppaDatePicker, CoppaAgeInput) {
+function (Cocktail, p, BaseView, FormView, Template, AuthErrors, mailcheck,
+  ExperimentMixin, PasswordMixin, PasswordStrengthMixin, ServiceMixin,
+  CheckboxMixin, ResumeTokenMixin, MigrationMixin, SignupDisabledMixin,
+  SignupSuccessMixin, CoppaDatePicker, CoppaAgeInput) {
   'use strict';
 
   var t = BaseView.t;
@@ -171,6 +172,7 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       var context = {
         email: prefillEmail,
         error: this.error,
+        isChooseWhatToSyncWeb: this.broker.hasCapability('chooseWhatToSyncWebV1'),
         isCustomizeSyncChecked: relier.isCustomizeSyncChecked(),
         isEmailOptInVisible: this._isEmailOptInEnabled(),
         isMigration: this.isMigration(),
@@ -326,37 +328,10 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
             self.logScreenEvent('preverified.success');
           }
           self.logScreenEvent('success');
-
-          if (self.relier.accountNeedsPermissions(account)) {
-            self.navigate('signup_permissions', {
-              data: {
-                account: account
-              }
-            });
-
-            return;
-          }
-
-          return self.onSignUpSuccess(account);
+          return self.invokeBrokerMethod('afterSignUp', account);
         })
-        .fail(_.bind(self.signUpError, self));
-    },
-
-    onSignUpSuccess: function (account) {
-      var self = this;
-      if (account.get('verified')) {
-        // user was pre-verified, notify the broker.
-        return self.invokeBrokerMethod('afterSignIn', account)
-          .then(function () {
-            self.navigate('signup_complete');
-          });
-      } else {
-        self.navigate('confirm', {
-          data: {
-            account: account
-          }
-        });
-      }
+        .then(self.onSignUpSuccess.bind(self, account))
+        .fail(self.signUpError.bind(self));
     },
 
     signUpError: function (err) {
@@ -397,7 +372,8 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
     PasswordStrengthMixin,
     ResumeTokenMixin,
     ServiceMixin,
-    SignupDisabledMixin
+    SignupDisabledMixin,
+    SignupSuccessMixin
   );
 
   return View;

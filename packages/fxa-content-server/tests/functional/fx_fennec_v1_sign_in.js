@@ -62,12 +62,20 @@ define([
             .findByCssSelector('#fxa-sign-in-complete-header')
             .end()
 
-            // user should be able to open sync preferences
+            // browser should have been notified.
+            .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
+            .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:login'))
+            .then(FunctionalHelpers.noSuchBrowserNotification(self, 'fxaccounts:sync_preferences'))
+
+            // user should be able to click on a sync preferences button.
             .findByCssSelector('#sync-preferences')
+              // user wants to open sync preferences.
+              .click()
             .end()
 
-            .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
-            .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:login'));
+            // browser is notified of desire to open Sync preferences
+            .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:sync_preferences'));
+
         });
     },
 

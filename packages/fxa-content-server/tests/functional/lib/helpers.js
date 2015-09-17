@@ -615,10 +615,14 @@ define([
     };
   }
 
+  function commandToCssSelector(command) {
+    return '#message-' + command.replace(/:/g, '-');
+  }
+
   function testIsBrowserNotified(context, command, cb) {
     return function () {
       return context.remote
-        .findByCssSelector('#message-' + command.replace(/:/g, '-'))
+        .findByCssSelector(commandToCssSelector(command))
           .getProperty('innerText')
           .then(function (innerText) {
             var data = JSON.parse(innerText);
@@ -628,6 +632,10 @@ define([
           })
         .end();
     };
+  }
+
+  function noSuchBrowserNotification(context, command, cb) {
+    return noSuchElement(context, commandToCssSelector(command));
   }
 
   function openPage(context, url, readySelector) {
@@ -701,6 +709,7 @@ define([
     getVerificationLink: getVerificationLink,
     imageLoadedByQSA: imageLoadedByQSA,
     listenForWebChannelMessage: listenForWebChannelMessage,
+    noSuchBrowserNotification: noSuchBrowserNotification,
     noSuchElement: noSuchElement,
     openExternalSite: openExternalSite,
     openFxaFromRp: openFxaFromRp,

@@ -47,9 +47,9 @@ function (chai, NullChannel, FxFennecV1AuthenticationBroker, Relier,
     describe('afterForceAuth', function () {
       it('notifies the channel of `login`, redirects to `/force_auth_complete`', function () {
         return broker.afterForceAuth(account)
-          .then(function (result) {
+          .then(function (behavior) {
             assert.isTrue(broker.send.calledWith('fxaccounts:login'));
-            assert.equal(result.endpoint, 'force_auth_complete');
+            assert.equal(behavior.endpoint, 'force_auth_complete');
           });
       });
     });
@@ -57,9 +57,33 @@ function (chai, NullChannel, FxFennecV1AuthenticationBroker, Relier,
     describe('afterSignIn', function () {
       it('notifies the channel of `login`, redirects to `/signin_complete`', function () {
         return broker.afterSignIn(account)
-          .then(function (result) {
+          .then(function (behavior) {
             assert.isTrue(broker.send.calledWith('fxaccounts:login'));
-            assert.equal(result.endpoint, 'signin_complete');
+            assert.equal(behavior.endpoint, 'signin_complete');
+          });
+      });
+    });
+
+    describe('afterSignUp', function () {
+      it('causes a redirect to `/choose_what_to_sync` if `chooseWhatToSyncWebV1` capability is supported', function () {
+        sinon.stub(broker, 'hasCapability', function (capabilityName) {
+          return capabilityName === 'chooseWhatToSyncWebV1';
+        });
+
+        return broker.afterSignUp(account)
+          .then(function (behavior) {
+            assert.equal(behavior.endpoint, 'choose_what_to_sync');
+          });
+      });
+
+      it('does nothing if `chooseWhatToSyncWebV1` capability is unsupported', function () {
+        sinon.stub(broker, 'hasCapability', function (capabilityName) {
+          return false;
+        });
+
+        return broker.afterSignUp(account)
+          .then(function (behavior) {
+            assert.isUndefined(behavior);
           });
       });
     });
@@ -67,8 +91,8 @@ function (chai, NullChannel, FxFennecV1AuthenticationBroker, Relier,
     describe('afterSignUpConfirmationPoll', function () {
       it('redirects to `/signup_complete`', function () {
         return broker.afterSignUpConfirmationPoll(account)
-          .then(function (result) {
-            assert.equal(result.endpoint, 'signup_complete');
+          .then(function (behavior) {
+            assert.equal(behavior.endpoint, 'signup_complete');
           });
       });
     });
@@ -76,9 +100,9 @@ function (chai, NullChannel, FxFennecV1AuthenticationBroker, Relier,
     describe('beforeSignUpConfirmationPoll', function () {
       it('notifies the channel of `login`, does not halt the flow', function () {
         return broker.beforeSignUpConfirmationPoll(account)
-          .then(function (result) {
+          .then(function (behavior) {
             assert.isTrue(broker.send.calledWith('fxaccounts:login'));
-            assert.isUndefined(result.halt);
+            assert.isUndefined(behavior.halt);
           });
       });
     });

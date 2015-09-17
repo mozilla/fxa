@@ -44,6 +44,7 @@ define([
       afterForceAuth: new NullBehavior(),
       afterResetPasswordConfirmationPoll: new NullBehavior(),
       afterSignIn: new NullBehavior(),
+      afterSignUp: new NullBehavior(),
       afterSignUpConfirmationPoll: new NullBehavior(),
       beforeSignIn: new NullBehavior(),
       beforeSignUpConfirmationPoll: new NullBehavior()
@@ -120,10 +121,6 @@ define([
      * Called after sign in. Can be used to notify the RP that the user
      * has signed in or signed up with a valid preVerifyToken.
      *
-     * Resolve promise with an object that contains `{ halt: true }` to
-     * prevent the "signin" screen from transitioning to "settings" if
-     * the browser or OAuth flow completes the action.
-     *
      * @return {promise}
      */
     afterSignIn: function () {
@@ -132,10 +129,6 @@ define([
 
     /**
      * Called after a force auth.
-     *
-     * Resolve promise with an object that contains `{ halt: true }` to
-     * prevent the "force_auth" screen from transitioning to "settings" if
-     * the browser or OAuth flow completes the action.
      *
      * @return {promise}
      */
@@ -150,6 +143,16 @@ define([
      */
     persist: function () {
       return p();
+    },
+
+    /**
+     * Called after the user has signed up but before the screen has
+     * transitioned to the "confirm your email" screen.
+     *
+     * @return {promise}
+     */
+    afterSignUp: function () {
+      return p(this.getBehavior('afterSignUp'));
     },
 
     /**
@@ -168,10 +171,6 @@ define([
      * to notify the RP that the user has successfully signed up and
      * completed verification.
      *
-     * Resolve promise with an object that contains `{ halt: true }` to
-     * prevent the "confirm" screen from transitioning to "signup_complete"
-     * if the browser or OAuth flow completes the action.
-     *
      * @return {promise}
      */
     afterSignUpConfirmationPoll: function () {
@@ -180,10 +179,6 @@ define([
 
     /**
      * Called after signup email verification, in the verification tab.
-     *
-     * Resolve promise with an object that contains `{ halt: true }` to
-     * prevent the "complete_signup" screen from transitioning to
-     * "signup_complete" if the browser or OAuth flow completes the action.
      *
      * @return {promise}
      */
@@ -196,11 +191,6 @@ define([
      * Can be used to notify the RP that the user has sucessfully reset their
      * password.
      *
-     * Resolve promise with an object that contains `{ halt: true }` to
-     * prevent the "reset_password" screen from transitioning to
-     * "reset_password_complete" if the browser or OAuth flow completes
-     * the action.
-     *
      * @return {promise}
      */
     afterResetPasswordConfirmationPoll: function () {
@@ -209,11 +199,6 @@ define([
 
     /**
      * Called after password reset email verification, in the verification tab.
-     *
-     * Resolve promise with an object that contains `{ halt: true }` to
-     * prevent the "complete_reset_password" screen from transitioning to
-     * "reset_password_complete" if the browser or OAuth flow completes
-     * the action.
      *
      * @return {promise}
      */
@@ -289,13 +274,15 @@ define([
     },
 
     /**
-     * Check if a capability is supported.
+     * Check if a capability is supported. A capability is not supported
+     * if it's value is not a member of or falsy in `this.defaultCapabilities`.
      *
      * @param {string} capabilityName
      * @return {boolean}
      */
     hasCapability: function (capabilityName) {
-      return this._capabilities.has(capabilityName);
+      return this._capabilities.has(capabilityName) &&
+             !! this._capabilities.get(capabilityName);
     },
 
     /**

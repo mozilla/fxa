@@ -52,9 +52,11 @@
       {{/isEmailOptInVisible}}
 
       {{#isSyncTop}}
+      {{^isChooseWhatToSyncWeb}}
         <div class="input-row customize-sync-row">
           <label class="fxa-checkbox"><input id="customize-sync" type="checkbox" class="customize-sync customize-sync-top" {{#isCustomizeSyncChecked}}checked="checked"{{/isCustomizeSyncChecked}}> <span class="fxa-checkbox__label">{{#t}}Choose what to sync{{/t}}</span></label>
         </div>
+      {{/isChooseWhatToSyncWeb}}
       {{/isSyncTop}}
 
       <div class="button-row">
@@ -62,12 +64,14 @@
       </div>
 
       {{#isSync}}
+      {{^isChooseWhatToSyncWeb}}
         <div class="input-row customize-sync-row">
           <label class="fxa-checkbox">
             <input id="customize-sync" type="checkbox" class="customize-sync customize-sync-bottom" {{#isCustomizeSyncChecked}}checked="checked"{{/isCustomizeSyncChecked}}>
             <span>{{#t}}Choose what to sync{{/t}}</span>
           </label>
         </div>
+      {{/isChooseWhatToSyncWeb}}
       {{/isSync}}
     </form>
 

@@ -46,8 +46,7 @@ define([
 
       view.$('#show-password').click();
 
-      var eventName = view.logScreenEvent.args[0][0];
-      assert.equal(eventName, 'checkbox.change.show-password.checked');
+      assert.isTrue(view.logScreenEvent.calledWith('checkbox.change.show-password.checked'));
     });
 
     it('logs when a checkbox is toggled off', function () {
@@ -55,8 +54,15 @@ define([
 
       view.$('#show-password').attr('checked', 'checked').click();
 
-      var eventName = view.logScreenEvent.args[0][0];
-      assert.equal(eventName, 'checkbox.change.show-password.unchecked');
+      assert.isTrue(view.logScreenEvent.calledWith('checkbox.change.show-password.unchecked'));
+    });
+
+    it('works if the element has a `name` but no `id`', function () {
+      sinon.spy(view, 'logScreenEvent');
+      view.$('input[name="named-checkbox"]').click().click();
+
+      assert.isTrue(view.logScreenEvent.calledWith('checkbox.change.named-checkbox.checked'));
+      assert.isTrue(view.logScreenEvent.calledWith('checkbox.change.named-checkbox.unchecked'));
     });
   });
 });

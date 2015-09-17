@@ -180,37 +180,6 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
         relier.set('preVerifyToken', 'preverifytoken');
       });
 
-      it('redirects users to permissions page if relier needs permissions', function () {
-        var password = 'password';
-        fillOutSignUp(email, password, { context: view, year: nowYear - 14 });
-
-        sinon.spy(user, 'initAccount');
-        sinon.spy(broker, 'beforeSignIn');
-
-        sinon.stub(user, 'signUpAccount', function (account) {
-          return p(account);
-        });
-        sinon.stub(relier, 'accountNeedsPermissions', function () {
-          return true;
-        });
-        sinon.stub(view, 'navigate', function () { });
-
-        return view.submit()
-          .then(function () {
-            var account = user.initAccount.returnValues[0];
-
-            assert.equal(account.get('email'), email);
-            assert.isTrue(broker.beforeSignIn.calledWith(email));
-            assert.isTrue(user.signUpAccount.calledWith(account));
-            assert.isTrue(relier.accountNeedsPermissions.calledWith(account));
-            assert.isTrue(view.navigate.calledWith('signup_permissions', {
-              data: {
-                account: account
-              }
-            }));
-          });
-      });
-
       it('notifies the broker when a pre-verified user signs up', function () {
         sinon.stub(user, 'signUpAccount', function (account) {
           account.set('sessionToken', 'asessiontoken');

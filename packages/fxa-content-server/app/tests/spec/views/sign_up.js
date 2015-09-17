@@ -568,51 +568,6 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Experim
           });
       });
 
-      it('redirects users to permissions page if relier needs permissions', function () {
-        var password = 'password';
-        fillOutSignUp(email, password, true);
-
-        sinon.spy(user, 'initAccount');
-        sinon.spy(broker, 'beforeSignIn');
-
-        sinon.stub(coppa, 'isUserOldEnough', function () {
-          return true;
-        });
-
-        sinon.stub(user, 'signUpAccount', function (account) {
-          return p(account);
-        });
-        sinon.stub(relier, 'accountNeedsPermissions', function () {
-          return true;
-        });
-        sinon.stub(view, 'navigate', function () { });
-        sinon.stub(view, 'getStringifiedResumeToken', function () {
-          // the resume token is used post email verification.
-          return 'resume token';
-        });
-
-        return view.submit()
-          .then(function () {
-            var account = user.initAccount.returnValues[0];
-
-            assert.equal(account.get('email'), email);
-            assert.isTrue(broker.beforeSignIn.calledWith(email));
-            assert.isTrue(user.signUpAccount.calledWith(
-              account,
-              relier,
-              {
-                resume: 'resume token'
-              }
-            ));
-            assert.isTrue(relier.accountNeedsPermissions.calledWith(account));
-            assert.isTrue(view.navigate.calledWith('signup_permissions', {
-              data: {
-                account: account
-              }
-            }));
-          });
-      });
-
       it('sends the user to `/confirm` if form filled out, not pre-verified, passes COPPA', function () {
         var password = 'password';
 

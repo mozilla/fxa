@@ -67,6 +67,7 @@ function (Translator, Session) {
     '../tests/spec/views/tooltip',
     '../tests/spec/views/form',
     '../tests/spec/views/sign_up',
+    '../tests/spec/views/choose_what_to_sync',
     '../tests/spec/views/complete_sign_up',
     '../tests/spec/views/sign_in',
     '../tests/spec/views/oauth_sign_in',
