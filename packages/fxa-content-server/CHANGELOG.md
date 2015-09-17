@@ -1,3 +1,15 @@
+<a name="0.45.1"></a>
+## 0.45.1 (2015-09-17)
+
+
+### Bug Fixes
+
+* **force_auth:** make sure force_auth supports the Firefox password manager ([01bcd8e](https://github.com/mozilla/fxa-content-server/commit/01bcd8e)), closes [#3049](https://github.com/mozilla/fxa-content-server/issues/3049)
+* **style:** Fix the signin/signup width on mobile devices. ([39e2ada](https://github.com/mozilla/fxa-content-server/commit/39e2ada)), closes [#3060](https://github.com/mozilla/fxa-content-server/issues/3060)
+* **tests:** Fix the cookies disabled functional tests. ([002b899](https://github.com/mozilla/fxa-content-server/commit/002b899)), closes [#3066](https://github.com/mozilla/fxa-content-server/issues/3066)
+
+
+
 <a name="0.45.0"></a>
 # 0.45.0 (2015-09-11)
 
