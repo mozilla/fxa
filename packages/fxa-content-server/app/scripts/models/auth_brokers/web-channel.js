@@ -18,9 +18,11 @@ function (_, OAuthAuthenticationBroker, ChannelMixin, p,
       WebChannel) {
   'use strict';
 
+  var proto = OAuthAuthenticationBroker.prototype;
+
   var WebChannelAuthenticationBroker = OAuthAuthenticationBroker.extend({
     type: 'web-channel',
-    defaults: _.extend({}, OAuthAuthenticationBroker.prototype.defaults, {
+    defaults: _.extend({}, proto.defaults, {
       webChannelId: null
     }),
 
@@ -31,12 +33,12 @@ function (_, OAuthAuthenticationBroker, ChannelMixin, p,
       // channel can be passed in for testing.
       this._channel = options.channel;
 
-      return OAuthAuthenticationBroker.prototype.initialize.call(this, options);
+      return proto.initialize.call(this, options);
     },
 
     fetch: function () {
       var self = this;
-      return OAuthAuthenticationBroker.prototype.fetch.call(this)
+      return proto.fetch.call(this)
         .then(function () {
           if (self._isVerificationFlow()) {
             self._setupVerificationFlow();
@@ -70,7 +72,7 @@ function (_, OAuthAuthenticationBroker, ChannelMixin, p,
 
     getOAuthResult: function (account) {
       var self = this;
-      return OAuthAuthenticationBroker.prototype.getOAuthResult.call(this, account)
+      return proto.getOAuthResult.call(this, account)
         .then(function (result) {
           if (! self.relier.wantsKeys()) {
             return result;
@@ -98,7 +100,16 @@ function (_, OAuthAuthenticationBroker, ChannelMixin, p,
         additionalResultData = {};
       }
       additionalResultData.closeWindow = true;
-      return OAuthAuthenticationBroker.prototype.afterSignIn.call(
+      return proto.afterSignIn.call(
+                this, account, additionalResultData);
+    },
+
+    afterForceAuth: function (account, additionalResultData) {
+      if (! additionalResultData) {
+        additionalResultData = {};
+      }
+      additionalResultData.closeWindow = true;
+      return proto.afterForceAuth.call(
                 this, account, additionalResultData);
     },
 

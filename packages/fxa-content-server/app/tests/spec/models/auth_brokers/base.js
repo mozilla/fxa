@@ -34,6 +34,7 @@ function (chai, Relier, BaseAuthenticationBroker,
     function testDoesNotHalt(behavior) {
       assert.ok(behavior);
       assert.isUndefined(behavior.halt);
+      return behavior;
     }
 
     describe('afterLoaded', function () {
@@ -96,6 +97,13 @@ function (chai, Relier, BaseAuthenticationBroker,
     describe('afterSignIn', function () {
       it('returns a promise', function () {
         return broker.afterSignIn(view)
+          .then(testDoesNotHalt);
+      });
+    });
+
+    describe('afterForceAuth', function () {
+      it('returns a promise', function () {
+        return broker.afterForceAuth(view)
           .then(testDoesNotHalt);
       });
     });

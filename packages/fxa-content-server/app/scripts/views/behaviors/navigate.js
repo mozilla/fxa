@@ -7,18 +7,28 @@
  */
 
 define([
-], function () {
+  'lib/promise'
+], function (p) {
   'use strict';
 
   var NavigationBehavior = function (endpoint, options) {
     options = options || {};
 
-    return function (view) {
-      return view.navigate(endpoint, {
+    var behavior = function (view) {
+      view.navigate(endpoint, {
         error: options.error,
         success: options.success
       });
+
+      // halt the flow after navigating.
+      return p.defer().promise;
     };
+
+    // used for testing
+    behavior.endpoint = endpoint;
+    behavior.halt = true;
+
+    return behavior;
   };
 
   return NavigationBehavior;

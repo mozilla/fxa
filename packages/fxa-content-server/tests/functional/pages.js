@@ -25,6 +25,7 @@ define([
     'en/legal/terms',
     'en/legal/privacy',
     'force_auth',
+    'force_auth_complete',
     // invalid locale legal pages should be redirected to en-US
     'invalid-locale/legal/terms',
     'invalid-locale/legal/privacy',
@@ -53,6 +54,7 @@ define([
     'settings/delete_account',
     'settings/display_name',
     'signin',
+    'signin_complete',
     'signin_permissions',
     'signup',
     'signup_complete',

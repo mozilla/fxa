@@ -177,6 +177,21 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
       });
     });
 
+    describe('afterForceAuth', function () {
+      it('calls sendOAuthResultToRelier, tells window to close', function () {
+        setupCompletesOAuthTest();
+
+        return broker.afterForceAuth(account)
+          .then(function () {
+            assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
+              action: Constants.OAUTH_ACTION_SIGNIN,
+              closeWindow: true
+            }));
+            assert.isFalse(view.displayError.called);
+          });
+      });
+    });
+
     describe('beforeSignUpConfirmationPoll', function () {
       it('does not persist key-fetch material by default', function () {
         setupCompletesOAuthTest();

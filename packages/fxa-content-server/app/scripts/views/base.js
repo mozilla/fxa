@@ -298,20 +298,42 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
       }
       var ctx = this._context;
 
-      ctx.t = _.bind(this.translate, this);
+      // `t` is a mustache helper to translate strings.
+      ctx.t = this.translateInTemplate.bind(this);
 
       return ctx;
     },
 
-    translate: function () {
-      var self = this;
-      return function (text) {
-        return self.translator.get(text, self.getContext());
-      };
-    },
-
     context: function () {
       // Implement in subclasses
+    },
+
+    /**
+     * Translate a string
+     *
+     * @param {string} text - string to translate
+     * @returns {string}
+     */
+    translate: function (text) {
+      return this.translator.get(text, this.getContext());
+    },
+
+    /**
+     * Create a function that can be used by Mustache
+     * to translate a string. Useful for translate a string
+     * for use in the template, which iteself depends on
+     * this.getContext(). This function avoids
+     * infinite recursion.
+     *
+     * @param {string} [text] - string to translate
+     * @returns {function}
+     */
+    translateInTemplate: function (text) {
+      if (text) {
+        return this.translate.bind(this, text);
+      } else {
+        return this.translate.bind(this);
+      }
     },
 
     beforeRender: function () {

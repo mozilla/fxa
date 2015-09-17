@@ -56,6 +56,7 @@ function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
 
     defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
       // the relier will take over after sign in, no need to transition.
+      afterForceAuth: new HaltBehavior(),
       afterSignIn: new HaltBehavior()
     }),
 
@@ -143,6 +144,14 @@ function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
           webChannelId: self.get('webChannelId')
         });
       });
+    },
+
+    afterForceAuth: function (account, additionalResultData) {
+      var self = this;
+      return self.finishOAuthSignInFlow(account, additionalResultData)
+        .then(function () {
+          return proto.afterForceAuth.call(self, account);
+        });
     },
 
     afterSignIn: function (account, additionalResultData) {

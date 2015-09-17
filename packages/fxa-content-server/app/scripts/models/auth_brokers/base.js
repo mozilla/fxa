@@ -11,9 +11,9 @@ define([
   'backbone',
   'lib/promise',
   'models/mixins/search-param',
+  'views/behaviors/null',
   'underscore',
-  'views/behaviors/null'
-], function (Backbone, p, SearchParamMixin, _, NullBehavior) {
+], function (Backbone, p, SearchParamMixin, NullBehavior, _) {
   'use strict';
 
   var BaseAuthenticationBroker = Backbone.Model.extend({
@@ -41,6 +41,7 @@ define([
       afterCompleteResetPassword: new NullBehavior(),
       afterCompleteSignUp: new NullBehavior(),
       afterDeleteAccount: new NullBehavior(),
+      afterForceAuth: new NullBehavior(),
       afterResetPasswordConfirmationPoll: new NullBehavior(),
       afterSignIn: new NullBehavior(),
       afterSignUpConfirmationPoll: new NullBehavior(),
@@ -127,6 +128,19 @@ define([
      */
     afterSignIn: function () {
       return p(this.getBehavior('afterSignIn'));
+    },
+
+    /**
+     * Called after a force auth.
+     *
+     * Resolve promise with an object that contains `{ halt: true }` to
+     * prevent the "force_auth" screen from transitioning to "settings" if
+     * the browser or OAuth flow completes the action.
+     *
+     * @return {promise}
+     */
+    afterForceAuth: function () {
+      return p(this.getBehavior('afterForceAuth'));
     },
 
     /**
@@ -259,7 +273,19 @@ define([
      * @property defaultCapabilities
      */
     defaultCapabilities: {
-      signup: true
+      /**
+       * should the *_complete pages show the marketing snippet?
+       */
+      emailVerificationMarketingSnippet: true,
+      /**
+       * Is signup supported? the fx_ios_v1 broker can disable it.
+       */
+      signup: true,
+      /**
+       * Should the *_complete pages show a `Sync preferences` button
+       * if the relier is Firefox Sync?
+       */
+      syncPreferencesNotification: false
     },
 
     /**

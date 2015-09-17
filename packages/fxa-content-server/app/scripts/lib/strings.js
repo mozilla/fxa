@@ -27,13 +27,6 @@ function () {
   t('Desktop Add-ons');
   t('Desktop Preferences');
 
-  // Needed for #2772 - Web based FxA for Fennec Sync
-  t('Welcome back');
-  t('Welcome to Sync');
-  t('Firefox Sync will begin momentarily');
-  t('Firefox Sync will resume momentarily');
-  t('Sync preferences');
-
   /**
    * Replace instances of %s and %(name)s with their corresponding values in
    * the context

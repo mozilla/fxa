@@ -9,17 +9,61 @@
 
 define([
   'cocktail',
-  'views/form',
-  'stache!templates/ready',
-  'lib/url',
   'lib/constants',
-  'views/mixins/service-mixin',
+  'lib/url',
+  'stache!templates/ready',
+  'views/form',
   'views/marketing_snippet',
-  'views/marketing_snippet_ios'
+  'views/marketing_snippet_ios',
+  'views/mixins/service-mixin'
 ],
-function (Cocktail, FormView, Template, Url, Constants, ServiceMixin,
-      MarketingSnippet, MarketingSnippetiOS) {
+function (Cocktail, Constants, Url, Template, FormView, MarketingSnippet,
+  MarketingSnippetiOS, ServiceMixin) {
   'use strict';
+
+  function t(msg) {
+    return msg;
+  }
+
+  /*eslint-disable camelcase*/
+
+  var FX_SYNC_WILL_BEGIN_MOMENTARILY =
+          t('Firefox Sync will begin momentarily');
+
+  /**
+   * Some template strings are fetched from JS to keep
+   * the template marginally cleaner and easier to read.
+   */
+  var TEMPLATE_INFO = {
+    account_unlock: {
+      headerId: 'fxa-account-unlock-complete-header',
+      headerTitle: t('Account unlocked'),
+      readyToSyncText: FX_SYNC_WILL_BEGIN_MOMENTARILY
+    },
+    force_auth: {
+      headerId: 'fxa-force-auth-complete-header',
+      headerTitle: t('Welcome back'),
+      readyToSyncText: t('Firefox Sync will resume momentarily'),
+    },
+    reset_password: {
+      headerId: 'fxa-reset-password-complete-header',
+      headerTitle: t('Password reset'),
+      readyToSyncText: FX_SYNC_WILL_BEGIN_MOMENTARILY
+    },
+    // sign_in_complete is only shown to sync for now.
+    sign_in: {
+      headerId: 'fxa-sign-in-complete-header',
+      headerTitle: t('Welcome to Sync'),
+      readyToSyncText: FX_SYNC_WILL_BEGIN_MOMENTARILY
+    },
+    sign_up: {
+      headerId: 'fxa-sign-up-complete-header',
+      headerTitle: t('Account verified'),
+      readyToSyncText: t('You are now ready to use %(serviceName)s')
+    }
+  };
+
+  /*eslint-enable camelcase*/
 
   var View = FormView.extend({
     template: Template,
@@ -32,52 +76,83 @@ function (Cocktail, FormView, Template, Url, Constants, ServiceMixin,
 
       this.type = options.type;
       this.language = options.language;
+
+      if (this._shouldShowProceedButton()) {
+        this.submit = this._submitForProceed.bind(this);
+      } else if (this._shouldShowSyncPreferencesButton()) {
+        this.submit = this._submitForSyncPreferences.bind(this);
+      }
     },
 
     context: function () {
-      var serviceName = this.relier.get('serviceName');
-      var redirectUri = this.relier.get('redirectUri');
-
       return {
-        accountUnlock: this.is('account_unlock'),
-        redirectUri: redirectUri,
-        resetPassword: this.is('reset_password'),
+        headerId: this._getHeaderId(),
+        headerTitle: this._getHeaderTitle(),
+        isSync: this.relier.isSync(),
+        readyToSyncText: this._getReadyToSyncText(),
+        redirectUri: this.relier.get('redirectUri'),
         service: this.relier.get('service'),
-        serviceName: serviceName,
-        showProceedButton: this._shouldShowProceed(),
-        signUp: this.is('sign_up')
+        serviceName: this.relier.get('serviceName'),
+        shouldShowProceedButton: this._shouldShowProceedButton(),
+        shouldShowSyncPreferencesButton: this._shouldShowSyncPreferencesButton()
       };
     },
 
-    submit: function () {
+    _getHeaderId: function () {
+      return TEMPLATE_INFO[this.type].headerId;
+    },
+
+    _getHeaderTitle: function () {
+      var title = TEMPLATE_INFO[this.type].headerTitle;
+      return this.translateInTemplate(title);
+    },
+
+    _getReadyToSyncText: function () {
+      var readyToSyncText = TEMPLATE_INFO[this.type].readyToSyncText;
+      return this.translateInTemplate(readyToSyncText);
+    },
+
+    _submitForProceed: function () {
       var self = this;
       return this.metrics.flush().then(function () {
         self.window.location.href = self.relier.get('redirectUri');
       });
     },
 
+    _submitForSyncPreferences: function () {
+      var self = this;
+      return this.metrics.flush().then(function () {
+        return self.broker.openSyncPreferences();
+      });
+    },
+
     /**
      * Determines if the view should show the "Proceed" button in the template.
-     * The button links to the redirect_uri of the relier with no extra OAuth information
+     * The button links to the redirect_uri of the relier with no extra
+     * OAuth information.
      *
      * @returns {boolean}
      * @private
      */
-    _shouldShowProceed: function () {
+    _shouldShowProceedButton: function () {
       var redirectUri = this.relier.get('redirectUri');
       var verificationRedirect = this.relier.get('verificationRedirect');
 
-      // if this is a "signup" flow and the relier uses verification_redirect
-      // then show the "Proceed" button
-      if (this.is('sign_up') && redirectUri && Url.isNavigable(redirectUri)) {
+      return !! (this.is('sign_up') &&
+                 redirectUri &&
+                 Url.isNavigable(redirectUri) &&
+                 verificationRedirect === Constants.VERIFICATION_REDIRECT_ALWAYS);
+    },
 
-        // verification_redirect=always
-        if (verificationRedirect === Constants.VERIFICATION_REDIRECT_ALWAYS) {
-          return true;
-        }
-      }
-
-      return false;
+    /**
+     * Determine whether the `Sync Preferences` button should be shown.
+     *
+     * @returns {boolean}
+     * @private
+     */
+    _shouldShowSyncPreferencesButton: function () {
+      return !! (this.relier.isSync() &&
+                 this.broker.hasCapability('syncPreferencesNotification'));
     },
 
     afterRender: function () {
@@ -88,7 +163,10 @@ function (Cocktail, FormView, Template, Url, Constants, ServiceMixin,
     },
 
     _createMarketingSnippet: function () {
-      var marketingSnippet;
+      if (! this.broker.hasCapability('emailVerificationMarketingSnippet')) {
+        return;
+      }
+
       var marketingSnippetOpts = {
         el: this.$('.marketing-area'),
         language: this.language,
@@ -97,7 +175,7 @@ function (Cocktail, FormView, Template, Url, Constants, ServiceMixin,
         type: this.type
       };
 
-      // spring campaign scheduled to launch 6/2
+      var marketingSnippet;
       if (this._able.choose('springCampaign2015')) {
         marketingSnippet = new MarketingSnippetiOS(marketingSnippetOpts);
       } else {
