@@ -3,80 +3,80 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  'underscore',
-  'jquery',
   'backbone',
   './environment',
+  'jquery',
   './promise',
   './storage',
+  'underscore',
   '../views/base',
-  '../views/sign_in',
-  '../views/force_auth',
-  '../views/sign_up',
-  '../views/confirm',
-  '../views/legal',
-  '../views/tos',
-  '../views/pp',
   '../views/cannot_create_account',
-  '../views/complete_sign_up',
-  '../views/reset_password',
-  '../views/confirm_reset_password',
-  '../views/complete_reset_password',
-  '../views/confirm_account_unlock',
+  '../views/clear_storage',
   '../views/complete_account_unlock',
+  '../views/complete_reset_password',
+  '../views/complete_sign_up',
+  '../views/confirm',
+  '../views/confirm_account_unlock',
+  '../views/confirm_reset_password',
+  '../views/cookies_disabled',
+  '../views/force_auth',
+  '../views/legal',
+  '../views/permissions',
+  '../views/pp',
   '../views/ready',
+  '../views/reset_password',
   '../views/settings',
+  '../views/settings/avatar_camera',
   '../views/settings/avatar_change',
   '../views/settings/avatar_crop',
   '../views/settings/avatar_gravatar',
-  '../views/settings/avatar_camera',
-  '../views/settings/communication_preferences',
-  '../views/settings/gravatar_permissions',
-  '../views/settings/display_name',
   '../views/settings/change_password',
+  '../views/settings/communication_preferences',
   '../views/settings/delete_account',
-  '../views/cookies_disabled',
-  '../views/clear_storage',
-  '../views/unexpected_error',
-  '../views/permissions'
+  '../views/settings/display_name',
+  '../views/settings/gravatar_permissions',
+  '../views/sign_in',
+  '../views/sign_up',
+  '../views/tos',
+  '../views/unexpected_error'
 ],
 function (
-  _,
-  $,
   Backbone,
   Environment,
+  $,
   p,
   Storage,
+  _,
   BaseView,
-  SignInView,
-  ForceAuthView,
-  SignUpView,
-  ConfirmView,
-  LegalView,
-  TosView,
-  PpView,
   CannotCreateAccountView,
-  CompleteSignUpView,
-  ResetPasswordView,
-  ConfirmResetPasswordView,
-  CompleteResetPasswordView,
-  ConfirmAccountUnlockView,
+  ClearStorageView,
   CompleteAccountUnlockView,
+  CompleteResetPasswordView,
+  CompleteSignUpView,
+  ConfirmView,
+  ConfirmAccountUnlockView,
+  ConfirmResetPasswordView,
+  CookiesDisabledView,
+  ForceAuthView,
+  LegalView,
+  PermissionsView,
+  PpView,
   ReadyView,
+  ResetPasswordView,
   SettingsView,
+  AvatarCameraView,
   AvatarChangeView,
   AvatarCropView,
   AvatarGravatarView,
-  AvatarCameraView,
-  CommunicationPreferencesView,
-  GravatarPermissions,
-  DisplayNameView,
   ChangePasswordView,
+  CommunicationPreferencesView,
   DeleteAccountView,
-  CookiesDisabledView,
-  ClearStorageView,
-  UnexpectedErrorView,
-  PermissionsView
+  DisplayNameView,
+  GravatarPermissionsView,
+  SignInView,
+  SignUpView,
+  TosView,
+  UnexpectedErrorView
 ) {
   'use strict';
 
@@ -115,63 +115,63 @@ function (
 
     routes: {
       '(/)': 'redirectToSignupOrSettings',
-      'signin(/)': showView(SignInView),
-      'signin_permissions(/)': showView(PermissionsView, { type: 'sign_in' }),
+      'account_unlock_complete(/)': showView(ReadyView, { type: 'account_unlock' }),
+      'cannot_create_account(/)': showView(CannotCreateAccountView),
+      'clear(/)': showView(ClearStorageView),
+      'complete_reset_password(/)': showView(CompleteResetPasswordView),
+      'complete_unlock_account(/)': showView(CompleteAccountUnlockView),
+      'confirm(/)': showView(ConfirmView),
+      'confirm_account_unlock(/)': showView(ConfirmAccountUnlockView),
+      'confirm_reset_password(/)': showView(ConfirmResetPasswordView),
+      'cookies_disabled(/)': showView(CookiesDisabledView),
+      'force_auth(/)': showView(ForceAuthView),
+      'legal(/)': showView(LegalView),
+      'legal/privacy(/)': showView(PpView),
+      'legal/terms(/)': showView(TosView),
       'oauth(/)': 'redirectToBestOAuthChoice',
+      'oauth/force_auth(/)': showView(ForceAuthView),
       'oauth/signin(/)': showView(SignInView),
       'oauth/signup(/)': showView(SignUpView),
-      'oauth/force_auth(/)': showView(ForceAuthView),
-      'signup(/)': showView(SignUpView),
-      'signup_complete(/)': showView(ReadyView, { type: 'sign_up' }),
-      'signup_permissions(/)': showView(PermissionsView, { type: 'sign_up' }),
-      'cannot_create_account(/)': showView(CannotCreateAccountView),
-      'verify_email(/)': showView(CompleteSignUpView),
-      'confirm(/)': showView(ConfirmView),
+      'reset_password(/)': showView(ResetPasswordView),
+      'reset_password_complete(/)': showView(ReadyView, { type: 'reset_password' }),
       'settings(/)': showView(SettingsView),
+      'settings/avatar/camera(/)': showSubView(SettingsView, { subView: AvatarCameraView }),
       'settings/avatar/change(/)': showSubView(SettingsView, { subView: AvatarChangeView }),
       'settings/avatar/crop(/)': showSubView(SettingsView, { subView: AvatarCropView }),
       'settings/avatar/gravatar(/)': showSubView(SettingsView, { subView: AvatarGravatarView }),
-      'settings/avatar/gravatar_permissions(/)': showSubView(SettingsView, { subView: GravatarPermissions }),
-      'settings/avatar/camera(/)': showSubView(SettingsView, { subView: AvatarCameraView }),
-      'settings/communication_preferences(/)': showSubView(SettingsView, { subView: CommunicationPreferencesView }),
+      'settings/avatar/gravatar_permissions(/)': showSubView(SettingsView, { subView: GravatarPermissionsView }),
       'settings/change_password(/)': showSubView(SettingsView, { subView: ChangePasswordView }),
+      'settings/communication_preferences(/)': showSubView(SettingsView, { subView: CommunicationPreferencesView }),
       'settings/delete_account(/)': showSubView(SettingsView, { subView: DeleteAccountView }),
       'settings/display_name(/)': showSubView(SettingsView, { subView: DisplayNameView }),
-      'legal(/)': showView(LegalView),
-      'legal/terms(/)': showView(TosView),
-      'legal/privacy(/)': showView(PpView),
-      'reset_password(/)': showView(ResetPasswordView),
-      'confirm_reset_password(/)': showView(ConfirmResetPasswordView),
-      'complete_reset_password(/)': showView(CompleteResetPasswordView),
-      'reset_password_complete(/)': showView(ReadyView, { type: 'reset_password' }),
-      'force_auth(/)': showView(ForceAuthView),
-      'cookies_disabled(/)': showView(CookiesDisabledView),
-      'clear(/)': showView(ClearStorageView),
+      'signin(/)': showView(SignInView),
+      'signin_permissions(/)': showView(PermissionsView, { type: 'sign_in' }),
+      'signup(/)': showView(SignUpView),
+      'signup_complete(/)': showView(ReadyView, { type: 'sign_up' }),
+      'signup_permissions(/)': showView(PermissionsView, { type: 'sign_up' }),
       'unexpected_error(/)': showView(UnexpectedErrorView),
-      'confirm_account_unlock(/)': showView(ConfirmAccountUnlockView),
-      'complete_unlock_account(/)': showView(CompleteAccountUnlockView),
-      'account_unlock_complete(/)': showView(ReadyView, { type: 'account_unlock' })
+      'verify_email(/)': showView(CompleteSignUpView)
     },
 
     initialize: function (options) {
       options = options || {};
 
+      this.able = options.able;
+      this.broker = options.broker;
+      this.formPrefill = options.formPrefill;
+      this.fxaClient = options.fxaClient;
+      this.interTabChannel = options.interTabChannel;
+      this.language = options.language;
+      this.metrics = options.metrics;
+      this.notifications = options.notifications;
+      this.relier = options.relier;
+      this.sentryMetrics = options.sentryMetrics;
+      this.user = options.user;
       this.window = options.window || window;
 
-      this.metrics = options.metrics;
-      this.sentryMetrics = options.sentryMetrics;
-      this.language = options.language;
-      this.relier = options.relier;
-      this.broker = options.broker;
-      this.fxaClient = options.fxaClient;
-      this.user = options.user;
-      this.interTabChannel = options.interTabChannel;
-      this.formPrefill = options.formPrefill;
-      this.notifications = options.notifications;
-      this.able = options.able;
+      this.environment = options.environment || new Environment(this.window);
       this.storage = Storage.factory('sessionStorage', this.window);
 
-      this.environment = options.environment || new Environment(this.window);
       this._firstViewHasLoaded = false;
 
       this.watchAnchors();
@@ -234,24 +234,24 @@ function (
       // passed in options block can override
       // default options.
       var viewOptions = _.extend({
+        able: this.able,
         broker: this.broker,
         // back is enabled after the first view is rendered or
         // if the user is re-starts the app.
         canGoBack: this.storage.get('canGoBack') || false,
+        formPrefill: this.formPrefill,
         fxaClient: this.fxaClient,
         interTabChannel: this.interTabChannel,
         language: this.language,
         metrics: this.metrics,
-        sentryMetrics: this.sentryMetrics,
+        notifications: this.notifications,
         profileClient: this.profileClient,
         relier: this.relier,
         router: this,
-        user: this.user,
-        window: this.window,
         screenName: this.fragmentToScreenName(Backbone.history.fragment),
-        formPrefill: this.formPrefill,
-        notifications: this.notifications,
-        able: this.able
+        sentryMetrics: this.sentryMetrics,
+        user: this.user,
+        window: this.window
       }, options || {});
 
       return new View(viewOptions);
@@ -272,8 +272,8 @@ function (
       }
 
       refreshMetrics = {
-        view: screenName,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        view: screenName
       };
 
       this.storage.set('last_page_loaded', refreshMetrics);
