@@ -97,7 +97,7 @@ define([
      * @method interTabClear
      */
     interTabClear: function () {
-      this._interTabChannel.clearMessages();
+      this._interTabChannel.clear();
     }
   };
 
