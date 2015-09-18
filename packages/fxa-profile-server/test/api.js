@@ -331,6 +331,30 @@ describe('/avatar', function() {
         assert.equal(etag, id2);
       });
     });
+
+    it('should log an avatar.get activity event', function(done) {
+      mock.token({
+        user: user,
+        email: 'user@example.domain',
+        scope: ['profile:avatar']
+      });
+
+      mock.log('routes.avatar.get', function(rec) {
+        if (rec.levelname === 'INFO') {
+          assert.equal(rec.args[0], 'activityEvent');
+          assert.equal(rec.args[1].event, 'avatar.get');
+          assert.equal(rec.args[1].uid, user);
+          done();
+          return true;
+        }
+      });
+      return Server.api.get({
+        url: '/avatar',
+        headers: {
+          authorization: 'Bearer ' + tok
+        }
+      });
+    });
   });
 
   describe('POST', function() {
@@ -353,6 +377,35 @@ describe('/avatar', function() {
         assert(res.result.id);
       });
     });
+
+    it('should log the avatar.post activity event', function(done) {
+      mock.token({
+        user: USERID,
+        email: 'user@example.domain',
+        scope: ['profile:avatar:write']
+      });
+
+      mock.log('routes.avatar.post', function(rec) {
+        if (rec.levelname === 'INFO') {
+          assert.equal(rec.args[0], 'activityEvent');
+          assert.equal(rec.args[1].event, 'avatar.post');
+          assert.equal(rec.args[1].uid, USERID);
+          done();
+          return true;
+        }
+      });
+
+      return Server.api.post({
+        url: '/avatar',
+        payload: {
+          url: GRAVATAR
+        },
+        headers: {
+          authorization: 'Bearer ' + tok
+        }
+      });
+    });
+
     it('should check url matches a provider', function() {
       mock.token({
         user: USERID,

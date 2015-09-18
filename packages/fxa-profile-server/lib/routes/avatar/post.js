@@ -9,6 +9,7 @@ const db = require('../../db');
 const hex = require('buf').to.hex;
 const img = require('../../img');
 const validate = require('../../validate');
+const logger = require('../../logging')('routes.avatar.post');
 
 
 const PROVIDERS = (function(providers) {
@@ -55,6 +56,11 @@ module.exports = {
     var id = img.id();
     db.addAvatar(id, uid, payload.url, provider, payload.selected)
     .done(function() {
+      var info = {
+        event: 'avatar.post',
+        uid: uid
+      };
+      logger.info('activityEvent', info);
       reply({ id: hex(id) }).code(201);
     }, reply);
   }
