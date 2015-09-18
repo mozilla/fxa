@@ -66,10 +66,12 @@ Lug.prototype.event = function (name, data) {
   process.stdout.write(JSON.stringify(e) + '\n')
 }
 
-Lug.prototype.activityEvent = function(event, uid, request) {
+Lug.prototype.activityEvent = function(event, request, data) {
+  if (! data || ! data.uid) {
+    return this.error({ op: 'log.activityEvent', data: data })
+  }
   var info = {
-    event: event,
-    uid: uid,
+    event: event
   }
   if (request.headers['user-agent']) {
     info.userAgent = request.headers['user-agent']
@@ -77,6 +79,10 @@ Lug.prototype.activityEvent = function(event, uid, request) {
   if (request.payload && request.payload.service) {
     info.service = request.payload.service
   }
+  Object.keys(data).forEach(function (key) {
+    info[key] = data[key]
+  })
+
   this.logger.info('activityEvent', info)
   this.statsd.write(info)
 }

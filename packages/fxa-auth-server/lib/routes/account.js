@@ -125,7 +125,9 @@ module.exports = function (
                   )
                   .then(
                     function (account) {
-                      log.activityEvent('account.created', account.uid.toString('hex'), request)
+                      log.activityEvent('account.created', request, {
+                        uid: account.uid.toString('hex')
+                      })
                       if (account.emailVerified) {
                         log.event('verified', { email: account.email, uid: account.uid, locale: account.locale })
                       }
@@ -270,7 +272,9 @@ module.exports = function (
                       throw error.incorrectPassword(emailRecord.email, email)
                     }
                     var uid = emailRecord.uid.toString('hex')
-                    log.activityEvent('account.login', uid, request)
+                    log.activityEvent('account.login', request, {
+                      uid: uid
+                    })
                     return db.createSessionToken(
                       {
                         uid: emailRecord.uid,
