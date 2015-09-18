@@ -4,24 +4,22 @@
 
 define([
   'cocktail',
-  'underscore',
   'views/confirm',
   'views/base',
   'stache!templates/confirm_reset_password',
   'lib/promise',
   'lib/session',
   'lib/auth-errors',
+  'views/mixins/inter-tab-channel-mixin',
   'views/mixins/resend-mixin',
   'views/mixins/resume-token-mixin',
   'views/mixins/service-mixin'
 ],
-function (Cocktail, _, ConfirmView, BaseView, Template, p, Session, AuthErrors,
-      ResendMixin, ResumeTokenMixin, ServiceMixin) {
+function (Cocktail, ConfirmView, BaseView, Template, p, Session, AuthErrors,
+  InterTabChannelMixin, ResendMixin, ResumeTokenMixin, ServiceMixin) {
   'use strict';
 
   var t = BaseView.t;
-
-  var SESSION_UPDATE_TIMEOUT_MS = 10000;
 
   var View = ConfirmView.extend({
     template: Template,
@@ -29,9 +27,8 @@ function (Cocktail, _, ConfirmView, BaseView, Template, p, Session, AuthErrors,
 
     initialize: function (options) {
       options = options || {};
-      this._interTabChannel = options.interTabChannel;
-      this._sessionUpdateTimeoutMS = options.sessionUpdateTimeoutMS ||
-              SESSION_UPDATE_TIMEOUT_MS;
+      this._verificationPollMS = options.verificationPollMS ||
+              this.VERIFICATION_POLL_IN_MS;
 
       var data = this.ephemeralData();
       this._email = data.email;
@@ -58,64 +55,13 @@ function (Cocktail, _, ConfirmView, BaseView, Template, p, Session, AuthErrors,
       }
     },
 
-    _getSignInRoute: function () {
-      if (this.relier.isOAuth()) {
-        return 'oauth/signin';
-      }
-      return 'signin';
-    },
-
     afterRender: function () {
       var bounceGraphic = this.$el.find('.graphic');
       bounceGraphic.addClass('pulse');
       var self = this;
 
-      if (self.relier.isOAuth()) {
-        this.transformLinks();
-      }
+      this.transformLinks();
 
-      // this sequence is a bit tricky and needs to be explained.
-      //
-      // For OAuth and Sync, we are trying to make it so users who complete
-      // the password reset flow in another tab of the same browser are
-      // able to finish signing in if the original tab is still open.
-      // After requesting the password reset, the original tab sits and polls
-      // the server querying whether the password reset is complete.
-      //
-      // This crypto stuff needs to occur in the original tab because OAuth
-      // reliers and sync may only have the appropriate state in the original
-      // tab. This means, for password reset, we have to ship information like
-      // the unwrapBKey and keyFetchToken from tab 2 to tab 1. We have a plan,
-      // albeit a complex one.
-      //
-      // In tab 2, two auth server calls are made after the user
-      // fills out the new passwords and submits the form:
-      //
-      // 1. /account/reset
-      // 2. /account/login
-      //
-      // The first call resets the password, the second signs the user in
-      // so that Sync/OAuth key/code generation can occur.
-      //
-      // tab 1 will be notified that the password reset is complete
-      // after step 1. The problem is, tab 1 can only do its crypto
-      // business after step 2 and after the information has been shipped from
-      // tab 2 to tab 1.
-      //
-      // To communicate between tabs, a special channel is set up that makes
-      // use of localStorage as the comms medium. When tab 1 starts its poll,
-      // it also starts listening for messages on localStorage. This is in
-      // case the tab 2 finishes both #1 and #2 before the poll completes.
-      // If a message is received by time the poll completes, take the
-      // information from the message and sign the user in.
-      //
-      // If a message has not been received by time the poll completes,
-      // assume we are either in a second browser or in between steps #1 and
-      // #2. Start a timeout in case the user verifies in a second browser
-      // and the message is never received. If the timeout is reached,
-      // force a manual signin of the user.
-      //
-      // If a message is received before the timeout hits, HOORAY!
       return self.broker.persist()
         .then(function () {
           self._waitForConfirmation()
@@ -130,25 +76,77 @@ function (Cocktail, _, ConfirmView, BaseView, Template, p, Session, AuthErrors,
 
               return self._finishPasswordResetDifferentBrowser();
             })
-            .then(null, function (err) {
-              self.displayError(err);
-            });
+            .fail(self.displayError.bind(self));
         });
     },
 
     _waitForConfirmation: function () {
       var self = this;
-      return p.all([
-        self._waitForSessionUpdate(),
-        self._waitForServerConfirmationNotice()
-          .then(function () {
-            if (! self._isWaitForSessionUpdateComplete) {
-              self._startSessionUpdateWaitTimeout();
-            }
-          })
-      ]).spread(function (sessionInfo) {
-        return sessionInfo;
+      var confirmationDeferred = self._confirmationDeferred = p.defer();
+      var confirmationPromise = self._confirmationPromise = confirmationDeferred.promise;
+
+      // If either the `login` message comes through or the `login` message
+      // timeout elapses after the server confirms the user is verified,
+      // stop waiting all together and move to the next screen.
+      function onComplete(response) {
+        self._stopWaiting();
+        self._confirmationDeferred.resolve(response);
+      }
+
+      function onError(err) {
+        self._stopWaiting();
+        self._confirmationDeferred.reject(err);
+      }
+
+      /**
+       * A short message on password reset verification:
+       *
+       * If the user initiates a password reset from about:accounts,
+       * about:accounts listens for a `login` message from FxA within the
+       * about:accounts tab and ignores messages from other tabs (including the
+       * verification tab). This is unfortunate, because for password reset,
+       * the sessionToken, kA and kB are generated in the verification tab.
+       * To sign the user in and send the `login` message, all the users data
+       * needs to be sent from the verification tab to this tab so we can send
+       * it off to the browser.
+       *
+       * We hope the user verifies in this browser, but we are not assured of
+       * that. The only way we know if the user verified in this browser is if
+       * a `login` message is received.
+       *
+       * When the user attempts a password reset, we have no idea whether the
+       * user is going to verify in the same browser. The only way we know if
+       * the user verified in this browser is if a `login` message is received
+       * from the inter-tab channel.
+       *
+       * Because we have no idea if the user will verify in this browser,
+       * assume they will not. Start polling the server to see if the user has
+       * verified. If the server eventually reports the user has successfully
+       * reset their password, assume the user has completed in a different
+       * browser. In this case the best we can do is ask the user to sign in
+       * again. Once the user has entered their updated creds, we can then
+       * notify the browser.
+       *
+       * If a `complete_reset_password_tab_open` message is received, hooray,
+       * the user has opened the password reset link in this browser. At this
+       * point we can assume the user will complete verification in this
+       * browser. It's not 100% certain the user will complete, but most
+       * likely. Stop polling the server. The server poll is no longer needed,
+       * and in fact makes things more complex. Instead, wait for the `login`
+       * message that will arrive once the user finishes the password reset.
+       *
+       * Once the `login` message has arrived, notify the browser. BOOM.
+       */
+      this.interTabOn('complete_reset_password_tab_open', function () {
+        if (! self._isWaitingForLoginMessage) {
+          self._waitForLoginMessage().then(onComplete, onError);
+          self._stopWaitingForServerConfirmation();
+        }
       });
+
+      self._waitForServerConfirmation().then(onComplete, onError);
+
+      return confirmationPromise;
     },
 
     _finishPasswordResetSameBrowser: function (sessionInfo) {
@@ -160,23 +158,27 @@ function (Cocktail, _, ConfirmView, BaseView, Template, p, Session, AuthErrors,
         .then(function () {
           self.displaySuccess(t('Password reset'));
 
-          return self.broker.afterResetPasswordConfirmationPoll(account)
-            .then(function (result) {
-              if (result && result.halt) {
-                return;
-              }
+          return self.broker.afterResetPasswordConfirmationPoll(account);
+        })
+        .then(function (result) {
+          if (result && result.halt) {
+            return;
+          }
 
-              if (self.relier.isDirectAccess()) {
-                // user is most definitely signed in since sessionInfo
-                // was passed in. Just ship direct access users to /settings
-                self.navigate('settings', {
-                  success: t('Account verified successfully')
-                });
-              } else {
-                self.navigate('reset_password_complete');
-              }
+          if (self.relier.isDirectAccess()) {
+            // user is most definitely signed in since sessionInfo
+            // was passed in. Just ship direct access users to /settings
+            self.navigate('settings', {
+              success: t('Account verified successfully')
             });
+          } else {
+            self.navigate('reset_password_complete');
+          }
         });
+    },
+
+    _getSignInRoute: function () {
+      return this.broker.transformLink('/signin').replace(/^\//, '');
     },
 
     _finishPasswordResetDifferentBrowser: function () {
@@ -190,58 +192,62 @@ function (Cocktail, _, ConfirmView, BaseView, Template, p, Session, AuthErrors,
       });
     },
 
-    _waitForServerConfirmationNotice: function () {
+    _isWaitingForServerConfirmation: false,
+    _waitForServerConfirmation: function () {
       var self = this;
+      // only check if still waiting.
+      this._isWaitingForServerConfirmation = true;
       return self.fxaClient.isPasswordResetComplete(self._passwordForgotToken)
         .then(function (isComplete) {
-          if (isComplete) {
-            return true;
+          if (! self._isWaitingForServerConfirmation) {
+            // we no longer care about the response, the other tab has opened.
+            // drop the response on the ground and never resolve.
+            return p.defer().promise;
+          } else if (isComplete) {
+            return null;
           }
 
           var deferred = p.defer();
-
-          self.setTimeout(function () {
-            // _waitForServerConfirmationNotice will return a promise and the
-            // promise chain remains unbroken.
-            deferred.resolve(self._waitForServerConfirmationNotice());
-          }, self.VERIFICATION_POLL_IN_MS);
+          self._waitForServerConfirmationTimeout = self.setTimeout(function () {
+            if (self._isWaitingForServerConfirmation) {
+              deferred.resolve(self._waitForServerConfirmation());
+            }
+          }, self._verificationPollMS);
 
           return deferred.promise;
         });
     },
 
-    _waitForSessionUpdate: function () {
-      var deferred = p.defer();
-      var self = this;
-      self._deferred = deferred;
+    _stopWaitingForServerConfirmation: function () {
+      if (this._waitForServerConfirmationTimeout) {
+        this.clearTimeout(this._waitForServerConfirmationTimeout);
+      }
+      this._isWaitingForServerConfirmation = false;
+    },
 
-      self._sessionUpdateNotificationHandler = _.bind(self._sessionUpdateWaitComplete, self);
-      self._interTabChannel.on('login', self._sessionUpdateNotificationHandler);
+    _isWaitingForLoginMessage: false,
+    _waitForLoginMessage: function () {
+      var deferred = p.defer();
+
+      this._isWaitingForLoginMessage = true;
+      this.interTabOn('login', function (event) {
+        deferred.resolve(event && event.data);
+      });
 
       return deferred.promise;
     },
 
-    _startSessionUpdateWaitTimeout: function () {
-      var self = this;
-      self._sessionUpdateWaitTimeoutHandler =
-            _.bind(self._sessionUpdateWaitComplete, self, null);
-      self._sessionUpdateWaitTimeout =
-            self.setTimeout(self._sessionUpdateWaitTimeoutHandler,
-                self._sessionUpdateTimeoutMS);
-    },
-
-    _sessionUpdateWaitComplete: function (event) {
-      var self = this;
-      var data = event && event.data;
-
-      self._isWaitForSessionUpdateComplete = true;
-
-      self.clearTimeout(self._sessionUpdateWaitTimeout);
-      self._interTabChannel.off('login', self._sessionUpdateNotificationHandler);
+    _stopListeningForInterTabMessages: function () {
+      this._isWaitingForLoginMessage = false;
+      this.interTabOffAll();
       // Sensitive data is passed between tabs using localStorage.
       // Delete the data from storage as soon as possible.
-      self._interTabChannel.clearMessages();
-      self._deferred.resolve(data);
+      this.interTabClear();
+    },
+
+    _stopWaiting: function () {
+      this._stopWaitingForServerConfirmation();
+      this._stopListeningForInterTabMessages();
     },
 
     submit: function () {
@@ -278,6 +284,7 @@ function (Cocktail, _, ConfirmView, BaseView, Template, p, Session, AuthErrors,
 
   Cocktail.mixin(
     View,
+    InterTabChannelMixin,
     ResendMixin,
     ResumeTokenMixin,
     ServiceMixin

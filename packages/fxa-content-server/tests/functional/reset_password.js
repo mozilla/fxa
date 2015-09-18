@@ -51,7 +51,7 @@ define([
   }
 
   /**
-   * Programatically initiate a password reset using the
+   * Programatically initiate a reset password using the
    * FxA Client. Saves the token and code.
    */
   function initiateResetPassword(context, emailAddress, emailNumber) {

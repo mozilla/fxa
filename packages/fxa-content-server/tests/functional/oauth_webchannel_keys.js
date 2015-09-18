@@ -209,7 +209,7 @@ define([
         .end();
     },
 
-    'password reset, verify same browser': function () {
+    'reset password, verify same browser': function () {
       var self = this;
       self.timeout = TIMEOUT;
 
@@ -238,7 +238,7 @@ define([
                       self, email, 0);
         })
 
-        // Complete the password reset in the new tab
+        // Complete the reset password in the new tab
         .switchToWindow('newwindow')
         .execute(FunctionalHelpers.listenForWebChannelMessage)
 
@@ -289,7 +289,7 @@ define([
         .end();
     },
 
-    'password reset, verify same browser, original tab closed': function () {
+    'reset password, verify same browser, original tab closed': function () {
       var self = this;
       self.timeout = TIMEOUT;
 
@@ -334,7 +334,7 @@ define([
         .switchToWindow('');
     },
 
-    'password reset, verify same browser, replace original tab': function () {
+    'reset password, verify same browser, replace original tab': function () {
       var self = this;
       self.timeout = TIMEOUT;
 
@@ -375,7 +375,7 @@ define([
         .end();
     },
 
-    'password reset, verify in different browser, from the original tab\'s P.O.V.': function () {
+    'reset password, verify in different browser, from the original tab\'s P.O.V.': function () {
       var self = this;
       self.timeout = TIMEOUT;
 
