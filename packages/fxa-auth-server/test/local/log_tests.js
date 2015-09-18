@@ -170,6 +170,39 @@ test(
 )
 
 test(
+  'log.activityEvent with service query parameter',
+  function (t) {
+    log.activityEvent('foo', {
+      headers: {},
+      payload: {},
+      query: {
+        service: 'wibble'
+      }
+    }, {
+      uid: 'bar'
+    })
+
+    t.equal(logger.info.callCount, 1, 'logger.info was called once')
+    var args = logger.info.args[0]
+    t.equal(Object.keys(args[1]).length, 3, 'second argument had three properties')
+    t.equal(args[1].service, 'wibble', 'service property was correct')
+
+    t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
+    t.equal(statsd.write.args[0][0], args[1], 'statsd.write argument was correct')
+
+    t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
+    t.equal(logger.error.callCount, 0, 'logger.error was not called')
+    t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
+    t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
+
+    t.end()
+
+    logger.info.reset()
+    statsd.write.reset()
+  }
+)
+
+test(
   'log.activityEvent with extra data',
   function (t) {
     log.activityEvent('foo', {
