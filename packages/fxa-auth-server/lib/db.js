@@ -257,6 +257,26 @@ module.exports = function (
       )
   }
 
+  DB.prototype.sessions = function (uid) {
+    log.trace({ op: 'DB.sessions', uid: uid })
+    return this.pool.get('/account/' + uid.toString('hex') + '/sessions')
+      .then(
+        function (body) {
+          return body.map(function (sessionToken) {
+            return bufferize(sessionToken, {
+              ignore: [
+                'uaBrowser',
+                'uaBrowserVersion',
+                'uaOS',
+                'uaOSVersion',
+                'uaDeviceType'
+              ]
+            })
+          })
+        }
+      )
+  }
+
   DB.prototype.sessionToken = function (id) {
     log.trace({ op: 'DB.sessionToken', id: id })
     return this.pool.get('/sessionToken/' + id.toString('hex'))

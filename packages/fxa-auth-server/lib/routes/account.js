@@ -69,6 +69,7 @@ module.exports = function (
         var authPW = Buffer(form.authPW, 'hex')
         var locale = request.app.acceptLanguage
         var userAgentString = request.headers['user-agent']
+        var service = form.service || request.query.service
         customs.check(
           request.app.clientAddress,
           email,
@@ -127,6 +128,15 @@ module.exports = function (
                       log.activityEvent('account.created', account.uid.toString('hex'), request)
                       if (account.emailVerified) {
                         log.event('verified', { email: account.email, uid: account.uid, locale: account.locale })
+                      }
+                      if (service === 'sync') {
+                        log.event('login', {
+                          service: 'sync',
+                          uid: account.uid,
+                          email: account.email,
+                          deviceCount: 1,
+                          userAgent: request.headers['user-agent']
+                        })
                       }
                       return db.createSessionToken(
                         {
@@ -311,6 +321,17 @@ module.exports = function (
               .then(
                 function (tokens) {
                   if (service === 'sync' && request.payload.reason === 'signin') {
+                    db.sessions(emailRecord.uid)
+                      .then(function (sessions) {
+                        log.event('login', {
+                          service: 'sync',
+                          uid: emailRecord.uid,
+                          email: emailRecord.email,
+                          deviceCount: sessions.length,
+                          userAgent: request.headers['user-agent']
+                        })
+                      })
+
                     return mailer.sendNewSyncDeviceNotification(
                       emailRecord.email,
                       {
