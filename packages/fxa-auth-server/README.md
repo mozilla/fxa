@@ -30,7 +30,7 @@ Clone the git repository and install dependencies:
     cd fxa-auth-server
     npm install
 
-To start the server in dev mode (ie. `NODE_ENV=dev`), run:
+To start the server in dev memory store mode (ie. `NODE_ENV=dev`), run:
 
     npm start
 
@@ -43,6 +43,10 @@ This runs a script `scripts/start-local.sh` as defined in `package.json`. This w
 * `bin/notifier.js` (no port)
 
 When you `Ctrl-c` your server, all 4 processes will be stopped.
+
+To start the server in dev MySQL store mode (ie. `NODE_ENV=dev`), run:
+
+    npm run start-mysql
 
 ## Testing
 

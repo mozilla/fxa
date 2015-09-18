@@ -11,6 +11,7 @@
   "scripts": {
     "test": "NODE_ENV=dev scripts/test-local.sh && grunt",
     "start": "NODE_ENV=dev scripts/start-local.sh 2>&1",
+    "start-mysql": "NODE_ENV=dev scripts/start-local-mysql.sh 2>&1",
     "test-quick": "npm run tq",
     "tq": "NODE_ENV=dev tap test/local 2>/dev/null && NODE_ENV=dev scripts/test-remote-quick.js",
     "test-remote": "MAILER_HOST=restmail.net MAILER_PORT=80 tap --timeout=300 --tap test/remote"

@@ -8,10 +8,13 @@ env:
 node_js:
  - "0.10"
  - "0.12"
- - "iojs-v1"
  - "iojs-v2"
 
 sudo: false
+
+env:
+  - NODE_ENV=test DB=memory
+  - NODE_ENV=test DB=mysql
 
 notifications:
   email:
@@ -19,6 +22,7 @@ notifications:
     - dcoates@mozilla.com
     - jbonacci@mozilla.com
     - rfkelly@mozilla.com
+    - jrgm@mozilla.com
   irc:
     channels:
       - "irc.mozilla.org#fxa-bots"
@@ -29,5 +33,6 @@ before_install:
   - npm config set spin false
 
 script:
+  - if [ $DB == "mysql" ]; then echo '~*~ Starting auth-db-mysql'; (./scripts/start-local-test-mysql.sh &>/dev/null &); fi
   - npm test
   - grunt validate-shrinkwrap --force
