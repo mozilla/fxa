@@ -28,7 +28,17 @@ module.exports = {
     }).reduce(function(milestones, item) {
       milestones[item.title] = item
       return milestones
-    }, {})
+    }, {}).then(function(milestones) {
+      return gh.issues.getAllMilestones({
+        repo: repo,
+        state: 'closed'
+      }).reduce(function(milestones, item) {
+        if (! milestones[item.title]) {
+          milestones[item.title] = item
+        }
+        return milestones
+      }, milestones)
+    })
   },
 
   // Ensure that a repo's milestones are consistent with the given
@@ -45,16 +55,18 @@ module.exports = {
         var ourMilestone = module.exports.findMatchingMilestone(title, ours)
         if (!ourMilestone) {
           // It doesn't exist at all, create it.
-          console.log("Creating '" + title + "' in " + repo)
-          return gh.issues.createMilestone({
-            repo: repo,
-            title: title,
-            due_on: theirMilestone.due_on,
-            description: theirMilestone.description
-          })
+          if (theirMilestone.state === 'open') {
+            console.log("Creating '" + title + "' in " + repo)
+            return gh.issues.createMilestone({
+              repo: repo,
+              title: title,
+              due_on: theirMilestone.due_on,
+              description: theirMilestone.description
+            })
+          }
         } else {
           // It already exists, see if we need to update it. 
-          for (var k in {title: 1, due_on: 1, description: 1}) {
+          for (var k in {title: 1, due_on: 1, description: 1, state: 1}) {
             if (theirMilestone[k] !== ourMilestone[k]) {
               console.log("Updating '" + title + "' in " + repo)
               if (theirMilestone.title !== ourMilestone.title) {
@@ -67,6 +79,7 @@ module.exports = {
                 title: theirMilestone.title,
                 due_on: theirMilestone.due_on,
                 description: theirMilestone.description,
+                state: theirMilestone.state
               })
             }
           }
@@ -80,10 +93,11 @@ module.exports = {
           if (ours[title].open_issues > 0) {
             console.warn("Extra milestone in " + repo + ": '" + title + "'")
           } else {
-            console.warn("Deleting extra milestone in " + repo + ": '" + title + "'")
-            return gh.issues.deleteMilestone({
+            console.warn("Closing extra milestone in " + repo + ": '" + title + "'")
+            return gh.issues.updateMilestone({
               repo: repo,
               number: ours[title].number,
+              state: 'closed'
             })
           }
         }
