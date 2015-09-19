@@ -38,15 +38,15 @@
       "max_restarts": "1"
     },
     {
-      "name": "content-server basket proxy PORT 1114",
-      "script": "server/bin/basket-proxy-server.js",
-      "cwd": "fxa-content-server",
+      "name": "fxa-basket-proxy PORT 1114",
+      "script": "./bin/basket-proxy-server.js",
+      "cwd": "fxa-basket-proxy",
       "max_restarts": "1"
     },
     {
-      "name": "content-server null basket server PORT 10140",
-      "script": "server/bin/null-basket-server.js",
-      "cwd": "fxa-content-server",
+      "name": "fxa-basket-proxy fake basket server PORT 10140",
+      "script": "./bin/fake-basket-server.js",
+      "cwd": "fxa-basket-proxy",
       "max_restarts": "1"
     },
     {
