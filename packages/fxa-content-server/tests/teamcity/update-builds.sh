@@ -11,6 +11,7 @@ function update_needed() {
 
   if [ ! -f "$LASTUPDATE_FILE" ]; then
     touch "$LASTUPDATE_FILE" # ensure it exists
+    return # needs to be run for the first time
   fi
 
   # allow environment override of $update_interval
