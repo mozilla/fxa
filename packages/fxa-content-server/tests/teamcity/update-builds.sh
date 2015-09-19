@@ -7,7 +7,7 @@
 set -o errexit # exit on first command with non-zero status
 
 function update_needed() {
-  echo -n "Checking whether Firefox binaries should be updated... "
+  echo "Checking whether Firefox binaries should be updated... "
 
   if [ ! -f "$LASTUPDATE_FILE" ]; then
     touch "$LASTUPDATE_FILE" # ensure it exists
@@ -26,6 +26,14 @@ function update_needed() {
   return $fresh
 }
 
+function show_firefox_versions() {
+  echo "Available firefox versions:"
+  for d in latest-beta latest latest-esr; do
+    echo -n "  "
+    $CHANNELS_DIR/$d/en-US/firefox/firefox-bin --version 2>/dev/null
+  done
+}
+
 CHANNELS_DIR=$1
 if [ -z "$1" ]; then
   CHANNELS_DIR="$HOME/firefox-channels"
@@ -40,12 +48,13 @@ LASTUPDATE_FILE="$CHANNELS_DIR/.lastupdate"
 mkdir -p $CHANNELS_DIR
 
 if ! update_needed; then
-  echo No update of Firefox builds is needed at this time.
+  show_firefox_versions
+  echo "No update of Firefox builds is needed at this time."
   exit 0
 fi
-echo Firefox builds update needed. Beginning update.
+echo "Firefox builds update needed. Beginning update... "
 
-echo Updating jrgm/fxdownload repo, if needed ...
+echo "Updating jrgm/fxdownload repo, if needed ... "
 if [ ! -d $FXDOWNLOAD_DIR ]; then
   git clone git://github.com/jrgm/fxdownload $FXDOWNLOAD_DIR
 else
@@ -58,9 +67,7 @@ for d in beta release esr; do
   ./index.js --install-dir $CHANNELS_DIR --channel $d
 done
 
-for d in latest-beta latest latest-esr; do
-  $CHANNELS_DIR/$d/en-US/firefox/firefox-bin --version
-done
+show_firefox_versions
 
 touch "$LASTUPDATE_FILE"
-echo Firefox binaries update complete!
+echo "Firefox binaries update complete!"
