@@ -87,9 +87,10 @@ module.exports = function (log, isA, error, signer, db, domain) {
             })
           }
         }
+        var uid = sessionToken.uid.toString('hex')
         signer.sign(
           {
-            email: sessionToken.uid.toString('hex') + '@' + domain,
+            email: uid + '@' + domain,
             publicKey: publicKey,
             domain: domain,
             duration: duration,
@@ -98,8 +99,10 @@ module.exports = function (log, isA, error, signer, db, domain) {
             verifiedEmail: sessionToken.email
           }
         ).then(function(certResult) {
-          var uid = sessionToken.uid.toString('hex')
-          log.activityEvent('account.signed', uid, request)
+          log.activityEvent('account.signed', request, {
+            uid: uid,
+            account_created_at: sessionToken.accountCreatedAt
+          })
           reply(certResult)
         }, reply)
       }

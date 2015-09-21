@@ -37,6 +37,7 @@ test(
       .then(
         function (x) {
           token = x
+          t.equal(token.accountCreatedAt, ACCOUNT.createdAt)
         }
       )
       .then(
@@ -54,6 +55,7 @@ test(
           t.equal(token.email, token2.email)
           t.equal(token.emailCode, token2.emailCode)
           t.equal(token.emailVerified, token2.emailVerified)
+          t.equal(token.accountCreatedAt, token2.accountCreatedAt)
         }
       )
   }
@@ -95,6 +97,7 @@ test(
           emailVerified: 'foo',
           verifierSetAt: 'foo',
           locale: 'foo',
+          accountCreatedAt: 'foo',
           uaBrowser: 'foo',
           uaBrowserVersion: 'bar',
           uaOS: 'baz',
@@ -114,6 +117,7 @@ test(
         t.notEqual(token.emailVerified, 'foo', 'emailVerified was not updated')
         t.notEqual(token.verifierSetAt, 'foo', 'verifierSetAt was not updated')
         t.notEqual(token.locale, 'foo', 'locale was not updated')
+        t.notEqual(token.accountCreatedAt, 'foo', 'accountCreatedAt was not updated')
         t.equal(token.uaBrowser, 'foo', 'uaBrowser was updated')
         t.equal(token.uaBrowserVersion, 'bar', 'uaBrowserVersion was updated')
         t.equal(token.uaOS, 'baz', 'uaOS was updated')

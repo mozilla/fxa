@@ -15,6 +15,7 @@ module.exports = function (log, inherits, Token) {
     this.emailVerified = !!details.emailVerified
     this.verifierSetAt = details.verifierSetAt
     this.locale = details.locale || null
+    this.accountCreatedAt = details.createdAt
   }
   inherits(SessionToken, Token)
 

@@ -66,17 +66,25 @@ Lug.prototype.event = function (name, data) {
   process.stdout.write(JSON.stringify(e) + '\n')
 }
 
-Lug.prototype.activityEvent = function(event, uid, request) {
+Lug.prototype.activityEvent = function(event, request, data) {
+  if (! data || ! data.uid) {
+    return this.error({ op: 'log.activityEvent', data: data })
+  }
   var info = {
-    event: event,
-    uid: uid,
+    event: event
   }
   if (request.headers['user-agent']) {
     info.userAgent = request.headers['user-agent']
   }
-  if (request.payload && request.payload.service) {
-    info.service = request.payload.service
+  try {
+    // request.payload and request.query are not always set in the unit tests
+    info.service = request.payload.service || request.query.service
+  } catch (err) {
   }
+  Object.keys(data).forEach(function (key) {
+    info[key] = data[key]
+  })
+
   this.logger.info('activityEvent', info)
   this.statsd.write(info)
 }
