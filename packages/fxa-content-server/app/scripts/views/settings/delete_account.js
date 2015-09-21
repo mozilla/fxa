@@ -10,13 +10,12 @@ define([
   'lib/session',
   'lib/auth-errors',
   'views/mixins/password-mixin',
-  'views/mixins/settings-mixin',
   'views/mixins/service-mixin',
   'views/mixins/settings-panel-mixin',
   'views/mixins/account-locked-mixin'
 ],
 function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
-      PasswordMixin, SettingsMixin, SettingsPanelMixin, ServiceMixin,
+      PasswordMixin, SettingsPanelMixin, ServiceMixin,
       AccountLockedMixin) {
   'use strict';
 
@@ -75,7 +74,6 @@ function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
   Cocktail.mixin(
     View,
     PasswordMixin,
-    SettingsMixin,
     SettingsPanelMixin,
     ServiceMixin,
     AccountLockedMixin

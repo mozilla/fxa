@@ -7,12 +7,11 @@ define([
   'views/base',
   'views/form',
   'stache!templates/settings/display_name',
-  'views/mixins/settings-mixin',
   'views/mixins/settings-panel-mixin',
   'views/mixins/avatar-mixin'
 ],
 function (Cocktail, BaseView, FormView, Template,
-  SettingsMixin, SettingsPanelMixin, AvatarMixin) {
+  SettingsPanelMixin, AvatarMixin) {
   'use strict';
 
   var t = BaseView.t;
@@ -59,7 +58,6 @@ function (Cocktail, BaseView, FormView, Template,
   Cocktail.mixin(
     View,
     AvatarMixin,
-    SettingsMixin,
     SettingsPanelMixin
   );
 

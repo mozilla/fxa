@@ -10,23 +10,19 @@ define([
   'stache!templates/settings/change_password',
   'views/mixins/password-mixin',
   'views/mixins/floating-placeholder-mixin',
-  'views/mixins/settings-mixin',
   'views/mixins/settings-panel-mixin',
   'views/mixins/service-mixin',
   'views/mixins/back-mixin',
   'views/mixins/account-locked-mixin'
 ],
 function (Cocktail, BaseView, FormView, AuthErrors, Template, PasswordMixin,
-  FloatingPlaceholderMixin, SettingsMixin, SettingsPanelMixin, ServiceMixin,
+  FloatingPlaceholderMixin, SettingsPanelMixin, ServiceMixin,
   BackMixin, AccountLockedMixin) {
   'use strict';
 
   var t = BaseView.t;
 
   var View = FormView.extend({
-    // user must be authenticated to change password
-    mustAuth: true,
-
     template: Template,
     className: 'change-password',
 
@@ -79,7 +75,6 @@ function (Cocktail, BaseView, FormView, AuthErrors, Template, PasswordMixin,
     View,
     PasswordMixin,
     FloatingPlaceholderMixin,
-    SettingsMixin,
     SettingsPanelMixin,
     ServiceMixin,
     BackMixin,

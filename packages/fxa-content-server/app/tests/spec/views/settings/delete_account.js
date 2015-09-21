@@ -74,15 +74,6 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics, NullChannel,
       routerMock = null;
     });
 
-    describe('with no session', function () {
-      it('redirects to signin', function () {
-        return view.render()
-            .then(function () {
-              assert.equal(routerMock.page, 'signin');
-            });
-      });
-    });
-
     describe('with session', function () {
       beforeEach(function () {
         email = TestHelpers.createEmail();

@@ -64,15 +64,6 @@ function (chai, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
       profileClientMock = null;
     });
 
-    describe('with no session', function () {
-      it('redirects to signin', function () {
-        return view.render()
-            .then(function () {
-              assert.equal(routerMock.page, 'signin');
-            });
-      });
-    });
-
     describe('with session', function () {
       var accessToken = 'token';
       beforeEach(function () {

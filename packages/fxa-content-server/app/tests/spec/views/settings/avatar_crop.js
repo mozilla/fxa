@@ -70,15 +70,6 @@ function (chai, $, ui, sinon, jQuerySimulate, View, RouterMock, ProfileMock, Use
       metrics = null;
     });
 
-    describe('with no session', function () {
-      it('redirects to signin', function () {
-        return view.render()
-            .then(function () {
-              assert.equal(routerMock.page, 'signin');
-            });
-      });
-    });
-
     describe('with session', function () {
       beforeEach(function () {
         view.isUserAuthorized = function () {

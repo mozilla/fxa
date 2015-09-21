@@ -8,11 +8,10 @@ define([
   'stache!templates/settings/gravatar_permissions',
   'lib/promise',
   'views/mixins/modal-settings-panel-mixin',
-  'views/mixins/settings-mixin',
   'views/mixins/service-mixin'
 ],
 function (Cocktail, FormView, Template, p,
-  ModalSettingsPanelMixin, SettingsMixin, ServiceMixin) {
+  ModalSettingsPanelMixin, ServiceMixin) {
   'use strict';
 
   var View = FormView.extend({
@@ -57,7 +56,6 @@ function (Cocktail, FormView, Template, p,
   Cocktail.mixin(
     View,
     ModalSettingsPanelMixin,
-    SettingsMixin,
     ServiceMixin
   );
 

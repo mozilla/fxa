@@ -70,15 +70,6 @@ function (chai, $, sinon, AuthErrors, FxaClient, Metrics, p,
       routerMock = null;
     });
 
-    describe('with no session', function () {
-      it('redirects to signin', function () {
-        return view.render()
-          .then(function () {
-            assert.equal(routerMock.page, 'signin');
-          });
-      });
-    });
-
     describe('with session', function () {
       beforeEach(function () {
         sinon.stub(view.fxaClient, 'isSignedIn', function () {
