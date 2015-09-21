@@ -1,18 +1,18 @@
 {
   "name": "fxa-auth-db-server",
-  "version": "0.42.0",
+  "version": "0.45.0",
   "description": "Firefox Accounts DB Server",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mozilla/fxa-auth-db-server"
+    "url": "https://github.com/mozilla/fxa-auth-db-myqsl"
   },
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL-2.0",
   "bugs": {
-    "url": "https://github.com/mozilla/fxa-auth-db-server/issues"
+    "url": "https://github.com/mozilla/fxa-auth-db-mysql/issues"
   },
-  "homepage": "https://github.com/mozilla/fxa-auth-db-server",
+  "homepage": "https://github.com/mozilla/fxa-auth-db-mysql",
   "dependencies": {
     "restify": "2.8.2"
   },
