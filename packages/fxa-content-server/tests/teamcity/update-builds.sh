@@ -10,7 +10,6 @@ function update_needed() {
   echo "Checking whether Firefox binaries should be updated... "
 
   if [ ! -f "$LASTUPDATE_FILE" ]; then
-    touch "$LASTUPDATE_FILE" # ensure it exists
     return # needs to be run for the first time
   fi
 
