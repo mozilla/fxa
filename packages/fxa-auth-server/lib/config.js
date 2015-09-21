@@ -173,6 +173,10 @@ const conf = convict({
       default: 9011
     }
   },
+  serviceClients: {
+    doc: 'Clients that can make oauth requests for any user',
+    default: []
+  },
   unique: {
     clientSecret: {
       doc: 'Bytes of generated client_secrets',
@@ -207,5 +211,17 @@ var options = {
 };
 
 conf.validate(options);
+
+// custom validation, since we cant yet specify rules for inside arrays
+conf.get('serviceClients').forEach(function(client) {
+  const assert = require('assert');
+  assert(client.id, 'client id required');
+  assert.equal(client.id.length, 16, 'client id must be 16 hex digits');
+  assert.equal(Buffer(client.id, 'hex').toString('hex'), client.id,
+    'client id must be 16 hex digits');
+  assert.equal(typeof client.name, 'string', 'client name required');
+  assert.equal(typeof client.scope, 'string', 'client scope required');
+  assert.equal(typeof client.jku, 'string', 'client jku required');
+});
 
 module.exports = conf;
