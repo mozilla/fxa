@@ -95,7 +95,7 @@ Client.createAndVerify = function (origin, email, password, mailbox, options) {
         return mailbox.waitForCode(email)
           .then(
             function (code) {
-              return client.verifyEmail(code)
+              return client.verifyEmail(code, options)
             }
           )
           .then(
@@ -177,8 +177,8 @@ Client.prototype.destroySession = function () {
   return p
 }
 
-Client.prototype.verifyEmail = function (code) {
-  return this.api.recoveryEmailVerifyCode(this.uid, code)
+Client.prototype.verifyEmail = function (code, options) {
+  return this.api.recoveryEmailVerifyCode(this.uid, code, options)
 }
 
 Client.prototype.emailStatus = function () {

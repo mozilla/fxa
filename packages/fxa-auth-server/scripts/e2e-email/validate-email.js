@@ -34,14 +34,20 @@ var messageContentChecks = [
     xheaders: [ 'x-service-id', 'x-uid', 'x-verify-code' ],
   },
   {
-    subject: 'A new device is now syncing to your Firefox Account',
-    pathname: '/v1/reset_password',
+    subject: 'Firefox Account Verified',
+    pathname: '/en-US/firefox/sync/',
+    args: [],
+    xheaders: [],
+  },
+  {
+    subject: 'New sign-in to Sync',
+    pathname: '/settings/change_password',
     args: [ 'email' ],
     xheaders: [],
   },
   {
     subject: 'Your Firefox Account password has been changed',
-    pathname: '/v1/reset_password',
+    pathname: '/reset_password',
     args: [ 'email' ],
     xheaders: [],
   },
@@ -53,7 +59,7 @@ var messageContentChecks = [
   },
   {
     subject: 'Your Firefox Account password has been reset',
-    pathname: '/v1/reset_password',
+    pathname: '/reset_password',
     args: [ 'email' ],
     xheaders: [],
   },
@@ -123,7 +129,7 @@ function ensureNonZeroContent(body, errmsg, lang) {
 
 function verifyMailbox(mbox) {
   var lang = langFromEmail(mbox[0].headers.to)
-  if (mbox.length !== 6) {
+  if (mbox.length !== 7) {
     return reportError(lang, 'Missing email response, count: ' + mbox.length)
   }
 
