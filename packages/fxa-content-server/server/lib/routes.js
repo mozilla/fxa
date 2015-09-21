@@ -27,7 +27,9 @@ module.exports = function (config, i18n) {
     require('./routes/get-config')(i18n),
     require('./routes/get-client.json')(i18n),
     require('./routes/post-metrics')(),
-    require('./routes/get-metrics-errors')()
+    require('./routes/get-metrics-errors')(),
+    require('./routes/get-openid-login')(config),
+    require('./routes/get-openid-authenticate')(config)
   ];
 
   function addVersionPrefix(unversionedUrl) {
@@ -92,6 +94,7 @@ module.exports = function (config, i18n) {
       '/oauth/force_auth',
       '/oauth/signin',
       '/oauth/signup',
+      '/openid/start',
       '/reset_password',
       '/reset_password_complete',
       '/settings',
