@@ -352,6 +352,7 @@ module.exports = function (log, error) {
     item.emailCode = account.emailCode
     item.verifierSetAt = account.verifierSetAt
     item.locale = account.locale
+    item.accountCreatedAt = account.createdAt
 
     return P.resolve(item)
   }

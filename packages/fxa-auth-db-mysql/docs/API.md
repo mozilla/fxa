@@ -309,7 +309,8 @@ from the token and `a.*` for a field from the corresponding account.
 
 * sessionToken : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
                  t.uaOS, t.uaOSVersion, t.uaDeviceType, t.lastAccessTime,
-                 a.emailVerified, a.email, a.emailCode, a.verifierSetAt
+                 a.emailVerified, a.email, a.emailCode, a.verifierSetAt,
+                 a.createdAt AS accountCreatedAt
 * keyFetchToken : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified, a.verifierSetAt
 * passwordChangeToken : t.tokenData, t.uid, t.createdAt, a.verifierSetAt
 * passwordForgotToken : t.tokenData, t.uid, t.createdAt, t.passCode, t.tries, a.email, a.verifierSetAt

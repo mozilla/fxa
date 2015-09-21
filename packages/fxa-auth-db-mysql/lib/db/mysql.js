@@ -323,9 +323,10 @@ module.exports = function (log, error) {
   // Select : sessionTokens t, accounts a
   // Fields : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
   //          t.uaOS, t.uaOSVersion, t.uaDeviceType, t.lastAccessTime,
-  //          a.emailVerified, a.email, a.emailCode, a.verifierSetAt, a.locale
+  //          a.emailVerified, a.email, a.emailCode, a.verifierSetAt, a.locale,
+  //          a.createdAt AS accountCreatedAt
   // Where  : t.tokenId = $1 AND t.uid = a.uid
-  var SESSION_TOKEN = 'CALL sessionToken_2(?)'
+  var SESSION_TOKEN = 'CALL sessionToken_3(?)'
 
   MySql.prototype.sessionToken = function (id) {
     return this.readFirstResult(SESSION_TOKEN, [id])

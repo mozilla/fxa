@@ -180,7 +180,7 @@ module.exports = function(cfg, server) {
   test(
     'session token handling',
     function (t) {
-      t.plan(59)
+      t.plan(60)
       var user = fake.newUserDataHex()
       client.getThen('/account/' + user.accountId + '/sessions')
         .then(function(r) {
@@ -239,6 +239,7 @@ module.exports = function(cfg, server) {
           t.equal(token.email, user.account.email, 'token.email same as account email')
           t.deepEqual(token.emailCode, user.account.emailCode, 'token emailCode same as account emailCode')
           t.ok(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
+          t.ok(token.accountCreatedAt > 0, 'accountCreatedAt is positive number')
 
           // update the session token
           return client.postThen('/sessionToken/' + user.sessionTokenId + '/update', {

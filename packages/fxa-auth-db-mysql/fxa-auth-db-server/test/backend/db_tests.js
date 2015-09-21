@@ -207,7 +207,7 @@ module.exports = function(config, DB) {
         test(
           'session token handling',
           function (t) {
-            t.plan(54)
+            t.plan(56)
             return db.sessions(ACCOUNT.uid)
               .then(function(sessions) {
                 t.ok(Array.isArray(sessions), 'sessions is an array')
@@ -247,6 +247,7 @@ module.exports = function(config, DB) {
                 t.equal(token.email, ACCOUNT.email, 'token email same as account email')
                 t.deepEqual(token.emailCode, ACCOUNT.emailCode, 'token emailCode same as account emailCode')
                 t.equal(token.verifierSetAt, ACCOUNT.verifierSetAt, 'verifierSetAt is correct')
+                t.equal(token.accountCreatedAt, ACCOUNT.createdAt, 'accountCreatedAt is correct')
               })
               .then(function() {
                 return db.updateSessionToken(SESSION_TOKEN_ID, {
@@ -289,6 +290,7 @@ module.exports = function(config, DB) {
                 t.equal(token.email, ACCOUNT.email, 'token email same as account email')
                 t.deepEqual(token.emailCode, ACCOUNT.emailCode, 'token emailCode same as account emailCode')
                 t.equal(token.verifierSetAt, ACCOUNT.verifierSetAt, 'verifierSetAt is correct')
+                t.equal(token.accountCreatedAt, ACCOUNT.createdAt, 'accountCreatedAt is correct')
               })
               .then(function() {
                 return db.deleteSessionToken(SESSION_TOKEN_ID)
