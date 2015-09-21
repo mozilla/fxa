@@ -209,7 +209,6 @@ function (chai, $, sinon, Cocktail, View, BaseView, SubPanels,
           });
       });
 
-
       it('on navigate from subview', function () {
         var spy1 = sinon.spy(view, 'showEphemeralMessages');
         var spy2 = sinon.spy(view, 'logScreen');
@@ -521,6 +520,70 @@ function (chai, $, sinon, Cocktail, View, BaseView, SubPanels,
         });
       });
 
+      // the following four tests
+      // confirm that the dom displays correctly
+      // when the _swapDisplayName method is called
+      describe('with no display name', function () {
+        it('should show email address in header', function () {
+
+          return view.render()
+            .then(function () {
+              view._swapDisplayName();
+
+              assert.equal(view.$('.card-header').text(), 'a@a.com');
+              assert.equal(view.$('.card-subheader').text(), '');
+            });
+        });
+      });
+
+      describe('with display name removed', function () {
+        it('should place the email in the header', function () {
+          account.set('displayName', 'test user');
+
+          return view.render()
+            .then(function () {
+              account.unset('displayName');
+
+              view._swapDisplayName();
+
+              assert.equal(view.$('.card-header').text(), 'a@a.com');
+              assert.equal(view.$('.card-subheader').text(), '');
+            });
+        });
+      });
+
+      describe('with display name changed', function () {
+        it('should place a new display name in the header', function () {
+          account.set('displayName', 'test user one');
+
+          return view.render()
+            .then(function () {
+              account.set('displayName', 'test user two');
+
+              view._swapDisplayName();
+
+              assert.equal(view.$('.card-header').text(), 'test user two');
+              assert.equal(view.$('.card-subheader').text(), 'a@a.com');
+            });
+        });
+      });
+
+      describe('with display name added', function () {
+        it('should show email by default then add display name to header and email to subheader', function () {
+          return view.render()
+            .then(function () {
+              assert.equal(view.$('.card-header').text(), 'a@a.com');
+              assert.equal(view.$('.card-subheader').text(), '');
+
+              account.set('displayName', 'test user');
+
+              view._swapDisplayName();
+
+              assert.equal(view.$('.card-header').text(), 'test user');
+              assert.equal(view.$('.card-subheader').text(), 'a@a.com');
+            });
+        });
+      });
     });
   });
 });

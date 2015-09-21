@@ -1,24 +1,30 @@
 <div id="fxa-settings-header-wrapper">
   <header id="fxa-settings-header">
-    <h1 id="fxa-manage-account">{{#t}}Manage account{{/t}}</h1>
+    <h1 id="fxa-manage-account">{{#t}}Firefox Account{{/t}}</h1>
     {{#showSignOut}}
     <button id="signout" class="settings-button secondary">{{#t}}Sign out{{/t}}</button>
     {{/showSignOut}}
   </header>
+
   <div class="settings-success-wrapper">
-    <div class="success settings-success">Hello</div>
+    <div class="success settings-success"></div>
   </div>
 </div>
 
-<div id="fxa-settings-profile-header">
-    <div class="avatar-wrapper avatar-settings-view">
-    </div>
-    <p class="signed-in-email-message">
-      {{#t}}Hello, <span>%(username)s</span>{{/t}}
-    </p>
-</div>
-
+<div class="avatar-wrapper avatar-settings-view"></div>
 <div id="fxa-settings-content" class="card">
+  <header id="fxa-settings-profile-header">
+
+    {{#displayName}}
+      <h1 class="card-header">{{#t}}%(displayName)s{{/t}}</h1>
+      <h2 class="card-subheader">{{#t}}%(userEmail)s{{/t}}</h2>
+    {{/displayName}}
+    {{^displayName}}
+      <h1 class="card-header">{{#t}}%(userEmail)s{{/t}}</h1>
+      <h2 class="card-subheader"></h2>
+    {{/displayName}}
+    
+  </header>
   <div id="sub-panels"></div>
 </div>
 

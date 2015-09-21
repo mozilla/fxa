@@ -54,18 +54,6 @@
   }
 }
 
-#fxa-settings-profile-header {
-  margin: 0 auto;
-
-  @include respond-to('big') {
-    width: 500px;
-  }
-
-  @include respond-to('small') {
-    width: 100%;
-  }
-}
-
 #fxa-settings-content {
 
   background: $content-background-color;
@@ -74,7 +62,7 @@
   @include respond-to('big') {
     border-radius: $big-border-radius;
     box-shadow: 0 1px 5px $input-row-border-color;
-    padding: 20px;  
+    padding: 50px 20px 20px;
     width: 500px;
   }
 
@@ -82,7 +70,7 @@
     border-bottom: 1px solid #b4bdc3;
     border-top: 1px solid #b4bdc3;
     width: 100%;
-    padding: 20px 3%;
+    padding: 30px 3% 10px;
   }
 }
 

@@ -59,7 +59,6 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
       this._able = options.able;
       this._subPanels = options.subPanels || this._initializeSubPanels(options);
       this._formPrefill = options.formPrefill;
-
       this.router.on(this.router.NAVIGATE_FROM_SUBVIEW, this._onNavigateFromSubview.bind(this));
     },
 
@@ -91,8 +90,9 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
       var account = this.getSignedInAccount();
 
       return {
+        displayName: account.get('displayName'),
         showSignOut: ! account.isFromSync(),
-        username: account.get('email')
+        userEmail: account.get('email')
       };
     },
 
@@ -117,6 +117,7 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
       }
       this.showEphemeralMessages();
       this.logScreen();
+      this._swapDisplayName();
     },
 
     beforeRender: function () {
@@ -146,6 +147,26 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
       }
 
       return self._showAvatar();
+    },
+
+    // When the user adds, removes or changes a display name
+    // this gets called and swaps out headers to reflect
+    // the updated state of the account
+    _swapDisplayName: function () {
+      var account = this.getSignedInAccount();
+      var displayName = account.get('displayName');
+      var email = account.get('email');
+
+      var cardHeader = this.$('.card-header');
+      var cardSubheader = this.$('.card-subheader');
+
+      if (displayName) {
+        cardHeader.text(displayName);
+        cardSubheader.text(email);
+      } else {
+        cardHeader.text(email);
+        cardSubheader.text('');
+      }
     },
 
     _setupAvatarChangeLinks: function () {
