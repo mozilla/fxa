@@ -44,7 +44,7 @@ define([
       return client.signUp(email, PASSWORD, { preVerified: true })
         .then(function (result) {
           // do nothing
-        }) /* HACK: See eslint/eslint#1801 */ // eslint-disable-line indent
+        })
         .then(function () {
           // clear localStorage to avoid polluting other tests.
           return FunctionalHelpers.clearBrowserState(self);

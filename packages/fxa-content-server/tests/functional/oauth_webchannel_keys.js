@@ -104,7 +104,7 @@ define([
           messageReceived = true;
         }, function () {
           // element was not found
-        }) /* HACK: See eslint/eslint#1801 */ // eslint-disable-line indent
+        })
 
         .closeCurrentWindow()
         // switch to the original window
@@ -115,7 +115,7 @@ define([
           messageReceived = true;
         }, function () {
           // element was not found
-        }) /* HACK: See eslint/eslint#1801 */ // eslint-disable-line indent
+        })
 
         .then(function () {
           assert.isTrue(messageReceived, 'expected to receive a WebChannel event in either tab');
@@ -258,7 +258,7 @@ define([
           messageReceived = true;
         }, function () {
           // element was not found
-        }) /* HACK: See eslint/eslint#1801 */ // eslint-disable-line indent
+        })
 
         .sleep(ANIMATION_DELAY_MS)
 
@@ -277,7 +277,7 @@ define([
           messageReceived = true;
         }, function () {
           // element was not found
-        }) /* HACK: See eslint/eslint#1801 */ // eslint-disable-line indent
+        })
 
         .then(function () {
           assert.isTrue(messageReceived, 'expected to receive a WebChannel event in either tab');

@@ -4,9 +4,6 @@
 
 // stub out the router object for testing.
 
-// HACK: See eslint/eslint#1801
-/* eslint indent: 0 */
-
 define([
 ], function () {
   'use strict';
