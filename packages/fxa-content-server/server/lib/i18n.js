@@ -37,10 +37,10 @@ module.exports = function (config) {
 
   // Convert the array to an object for faster lookups
   var fontSupportDisabled = config.fonts.unsupportedLanguages
-     .reduce(function (prev, val) {
-        prev[val] = true;
-        return prev;
-      }, {});
+    .reduce(function (prev, val) {
+      prev[val] = true;
+      return prev;
+    }, {});
 
   // Configure i18n-abide for loading gettext templates.
   // This causes it to process the configuration settings, parse the
