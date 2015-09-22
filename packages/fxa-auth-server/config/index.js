@@ -44,6 +44,12 @@ var conf = convict({
     default: path.resolve(__dirname, '../config/public-key.json'),
     env: 'PUBLIC_KEY_FILE'
   },
+  oldPublicKeyFile: {
+    format: String,
+    doc: 'Previous publicKeyFile, used for key rotation',
+    default: undefined,
+    env: 'OLD_PUBLIC_KEY_FILE'
+  },
   trustedJKUs: {
     format: Array,
     default: [],

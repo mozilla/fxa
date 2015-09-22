@@ -12,7 +12,7 @@ var url = require('url')
 module.exports = function (
   log,
   error,
-  serverPublicKey,
+  serverPublicKeys,
   signer,
   db,
   mailer,
@@ -22,7 +22,7 @@ module.exports = function (
   ) {
   var isPreVerified = require('../preverifier')(error, config)
   var defaults = require('./defaults')(log, P, db, error)
-  var idp = require('./idp')(log, serverPublicKey)
+  var idp = require('./idp')(log, serverPublicKeys)
   var checkPassword = require('./utils/password_check')(log, config, Password, customs, db)
   var account = require('./account')(
     log,

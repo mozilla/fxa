@@ -48,6 +48,7 @@ cp.exec(
     console.error('Secret Key saved:', secretKeyFile)
     var s = JSON.parse(secret)
     var pub = {
+      kid: 'dev-1',
       kty: 'RSA',
       n: s.n,
       e: s.e

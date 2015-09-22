@@ -18,15 +18,26 @@ function main() {
   var Password = require('../lib/crypto/password')(log, config)
 
   var signer = require('../lib/signer')(config.secretKeyFile, config.domain)
-  var serverPublicKey = jwtool.JWK.fromFile(
-    config.publicKeyFile,
-    {
-      algorithm: 'RS',
-      use: 'sig',
-      kid: 'dev-1',
-      kty: 'RSA'
-    }
-  )
+  var serverPublicKeys = {
+    primary: jwtool.JWK.fromFile(
+      config.publicKeyFile,
+      {
+        algorithm: 'RS',
+        use: 'sig',
+        kty: 'RSA'
+      }
+    ),
+    secondary: config.oldPublicKeyFile ?
+      jwtool.JWK.fromFile(
+        config.oldPublicKeyFile,
+        {
+          algorithm: 'RS',
+          use: 'sig',
+          kty: 'RSA'
+        }
+      )
+      : null
+  }
 
   var Customs = require('../lib/customs')(log, error)
 
@@ -66,7 +77,7 @@ function main() {
               var routes = require('../lib/routes')(
                 log,
                 error,
-                serverPublicKey,
+                serverPublicKeys,
                 signer,
                 db,
                 mailer,
