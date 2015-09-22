@@ -29,6 +29,33 @@ var translationQuirks = {
     'sv',
   ],
 
+  'Firefox Account Verified': [
+    'en',
+    'en-GB',
+    'ca',
+    'cy',
+    'es',
+    'es-AR',
+    'et',
+    'eu',
+    'fa',
+    'ff',
+    'fy',
+    'he',
+    'hu',
+    'id',
+    'ko',
+    'lt',
+    'nb-NO',
+    'pa',
+    'pl',
+    'sq',
+    'sr',
+    'sr-LATN',
+    'sv',
+    'tr',
+  ],
+
   'Reset your Firefox Account password': [
     'en',
     'en-GB',
@@ -63,21 +90,31 @@ var translationQuirks = {
     'sv',
   ],
 
-  'A new device is now syncing to your Firefox Account': [
+  'New sign-in to Sync': [
     'en',
     'en-GB',
     'ca',
     'cy',
+    'es',
     'es-AR',
+    'et',
     'eu',
+    'fa',
     'ff',
+    'fy',
     'he',
+    'hu',
     'id',
     'ko',
     'lt',
-    'pl',
     'nb-NO',
+    'pa',
+    'pl',
+    'sq',
+    'sr',
+    'sr-LATN',
     'sv',
+    'tr',
   ],
 
   'Your Firefox Account password has been changed': [
@@ -112,12 +149,15 @@ var translationQuirks = {
     'pl',
     'nb-NO',
     'sv',
-  ]
+  ],
 }
 
 function ary2map(ary) {
   var map = {}
   ary.forEach(function(val) {
+    if (map[val]) {
+      console.log('Duplicate!:', val)
+    }
     map[val] = 1
   })
   return map

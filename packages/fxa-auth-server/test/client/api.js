@@ -230,7 +230,8 @@ ClientApi.prototype.recoveryEmailResendCode = function (sessionTokenHex, options
     )
 }
 
-ClientApi.prototype.recoveryEmailVerifyCode = function (uid, code) {
+ClientApi.prototype.recoveryEmailVerifyCode = function (uid, code, options) {
+  options = options || {}
   return this.doRequest(
     'POST',
     this.baseURL + '/recovery_email/verify_code',
@@ -238,6 +239,9 @@ ClientApi.prototype.recoveryEmailVerifyCode = function (uid, code) {
     {
       uid: uid,
       code: code
+    },
+    {
+      'accept-language': options.lang
     }
   )
 }
