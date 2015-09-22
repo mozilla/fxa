@@ -22,6 +22,73 @@ define([
 
       this.relier = options.relier;
       this.window = options.window || window;
+
+      this._behaviors = _.extend({}, this.defaultBehaviors);
+    },
+
+    /**
+     * The default list of behaviors. Behaviors indicate a view's next step
+     * once a broker's function has completed. A subclass can override one
+     * or more behavior.
+     *
+     * A behavior should specify a `halt` value. In the future, `redirectTo`
+     * will be supported as well.
+     *
+     * @property defaultBehaviors
+     */
+    defaultBehaviors: {
+      afterChangePassword: {
+        halt: false
+      },
+      afterCompleteResetPassword: {
+        halt: false
+      },
+      afterCompleteSignUp: {
+        halt: false
+      },
+      afterDeleteAccount: {
+        halt: false
+      },
+      afterResetPasswordConfirmationPoll: {
+        halt: false
+      },
+      afterSignIn: {
+        halt: false
+      },
+      afterSignUpConfirmationPoll: {
+        halt: false
+      },
+      beforeSignIn: {
+        halt: false
+      },
+      beforeSignUpConfirmationPoll: {
+        halt: false
+      }
+    },
+
+    /**
+     * Set a behavior
+     *
+     * @param {string} behaviorName
+     * @param {object} value
+     */
+    setBehavior: function (behaviorName, value) {
+      this._behaviors[behaviorName] = value;
+    },
+
+    /**
+     * Get a behavior
+     *
+     * @param {string} behaviorName
+     * @return {object}
+     */
+    getBehavior: function (behaviorName) {
+      var behavior = this._behaviors[behaviorName];
+      if (! behavior) {
+        throw new Error('behavior not found for: ' + behaviorName);
+      }
+
+      return behavior;
     },
 
     /**
@@ -37,7 +104,7 @@ define([
         });
     },
 
-    /**
+    /*
      * Check if the environment supports the cancelling of the flow.
      */
     canCancel: function () {
@@ -64,7 +131,7 @@ define([
      * Called before sign in. Can be used to prevent sign in.
      */
     beforeSignIn: function () {
-      return p();
+      return p(this.getBehavior('beforeSignIn'));
     },
 
     /**
@@ -78,7 +145,7 @@ define([
      * @return {promise}
      */
     afterSignIn: function () {
-      return p();
+      return p(this.getBehavior('afterSignIn'));
     },
 
     /**
@@ -98,7 +165,7 @@ define([
      * @return {promise}
      */
     beforeSignUpConfirmationPoll: function () {
-      return p();
+      return p(this.getBehavior('beforeSignUpConfirmationPoll'));
     },
 
     /**
@@ -113,7 +180,7 @@ define([
      * @return {promise}
      */
     afterSignUpConfirmationPoll: function () {
-      return p();
+      return p(this.getBehavior('afterSignUpConfirmationPoll'));
     },
 
     /**
@@ -126,7 +193,7 @@ define([
      * @return {promise}
      */
     afterCompleteSignUp: function () {
-      return p();
+      return p(this.getBehavior('afterCompleteSignUp'));
     },
 
     /**
@@ -142,7 +209,7 @@ define([
      * @return {promise}
      */
     afterResetPasswordConfirmationPoll: function () {
-      return p();
+      return p(this.getBehavior('afterResetPasswordConfirmationPoll'));
     },
 
     /**
@@ -156,7 +223,7 @@ define([
      * @return {promise}
      */
     afterCompleteResetPassword: function () {
-      return p();
+      return p(this.getBehavior('afterCompleteResetPassword'));
     },
 
     /**
@@ -165,7 +232,7 @@ define([
      * @return {promise}
      */
     afterChangePassword: function () {
-      return p();
+      return p(this.getBehavior('afterChangePassword'));
     },
 
     /**
@@ -174,7 +241,7 @@ define([
      * @return {promise}
      */
     afterDeleteAccount: function () {
-      return p();
+      return p(this.getBehavior('afterDeleteAccount'));
     },
 
     /**

@@ -204,17 +204,6 @@ define([
             assert.isFalse(result.halt);
           });
       });
-
-      it('halts with `haltAfterSignIn: true`', function () {
-        createAuthBroker({
-          haltAfterSignIn: true,
-        });
-
-        return broker.afterSignIn(account)
-          .then(function (result) {
-            assert.isTrue(result.halt);
-          });
-      });
     });
 
     describe('beforeSignUpConfirmationPoll', function () {
@@ -225,17 +214,6 @@ define([
             assert.isFalse(result.halt);
           });
       });
-
-      it('halts with `haltBeforeSignUpConfirmationPoll: true`', function () {
-        createAuthBroker({
-          haltBeforeSignUpConfirmationPoll: true,
-        });
-
-        return broker.beforeSignUpConfirmationPoll(account)
-          .then(function (result) {
-            assert.isTrue(result.halt);
-          });
-      });
     });
 
     describe('afterResetPasswordConfirmationPoll', function () {
@@ -244,17 +222,6 @@ define([
           .then(function (result) {
             assert.isTrue(channelMock.send.calledWith('login'));
             assert.isFalse(result.halt);
-          });
-      });
-
-      it('halts with `haltAfterResetPasswordConfirmationPoll: true`', function () {
-        createAuthBroker({
-          haltAfterResetPasswordConfirmationPoll: true,
-        });
-
-        return broker.afterResetPasswordConfirmationPoll(account)
-          .then(function (result) {
-            assert.isTrue(result.halt);
           });
       });
     });

@@ -26,6 +26,8 @@ define([
 ], function (Cocktail, _, BaseAuthenticationBroker, ChannelMixin, AuthErrors) {
   'use strict';
 
+  var proto = BaseAuthenticationBroker.prototype;
+
   var FxSyncAuthenticationBroker = BaseAuthenticationBroker.extend({
     type: 'fx-sync',
 
@@ -37,7 +39,7 @@ define([
      *   CHANGE_PASSWORD: <specify in subclass>,
      *   DELETE_ACCOUNT: <specify in subclass>,
      *   LOADED: <specify in subclass>,
-     *   LOGIN: <specify in subclass>\
+     *   LOGIN: <specify in subclass>
      * }
      *
      * @property commands
@@ -71,27 +73,19 @@ define([
       // channel can be passed in for testing.
       self._channel = options.channel;
 
-      var optionsToImport = [
-        'haltAfterResetPasswordConfirmationPoll',
-        'haltAfterSignIn',
-        'haltBeforeSignUpConfirmationPoll'
-      ];
-      optionsToImport.forEach(function (optionName) {
-        if (optionName in options) {
-          self[optionName] = options[optionName];
-        }
-      });
-
       if (options.commands) {
         this.commands = options.commands;
       }
 
-      return BaseAuthenticationBroker.prototype.initialize.call(
-          self, options);
+      return proto.initialize.call(self, options);
     },
 
     afterLoaded: function () {
-      return this.send(this.getCommand('LOADED'));
+      var self = this;
+      return self.send(self.getCommand('LOADED'))
+        .then(function () {
+          return proto.afterLoaded.call(self);
+        });
     },
 
     beforeSignIn: function (email) {
@@ -107,6 +101,7 @@ define([
           }
 
           self._verifiedCanLinkAccount = true;
+          return proto.beforeSignIn.call(self, email);
         }, function (err) {
           console.error('beforeSignIn failed with', err);
           // If the browser doesn't implement this command, then it will
@@ -116,18 +111,14 @@ define([
         });
     },
 
-    haltAfterSignIn: false,
     afterSignIn: function (account) {
       var self = this;
       return self._notifyRelierOfLogin(account)
         .then(function () {
-          // the browser will take over from here,
-          // don't let the screen transition.
-          return { halt: self.haltAfterSignIn };
+          return proto.afterSignIn.call(self, account);
         });
     },
 
-    haltBeforeSignUpConfirmationPoll: false,
     beforeSignUpConfirmationPoll: function (account) {
       // The Sync broker notifies the browser of an unverified login
       // before the user has verified her email. This allows the user
@@ -136,34 +127,37 @@ define([
       var self = this;
       return this._notifyRelierOfLogin(account)
         .then(function () {
-          // the browser is already polling, no need for the content server
-          // code to poll as well, otherwise two sets of polls are going on
-          // for the same user.
-          return { halt: self.haltBeforeSignUpConfirmationPoll };
+          return proto.beforeSignUpConfirmationPoll.call(self, account);
         });
     },
 
-    haltAfterResetPasswordConfirmationPoll: false,
     afterResetPasswordConfirmationPoll: function (account) {
       var self = this;
       return self._notifyRelierOfLogin(account)
         .then(function () {
-          // the browser will take over from here,
-          // don't let the screen transition.
-          return { halt: self.haltAfterResetPasswordConfirmationPoll };
+          return proto.afterResetPasswordConfirmationPoll.call(self, account);
         });
     },
 
     afterChangePassword: function (account) {
-      return this.send(
-          this.getCommand('CHANGE_PASSWORD'), this._getLoginData(account));
+      var self = this;
+      return self.send(
+        self.getCommand('CHANGE_PASSWORD'),
+        self._getLoginData(account)
+      )
+      .then(function () {
+        return proto.afterChangePassword.call(self, account);
+      });
     },
 
     afterDeleteAccount: function (account) {
-      // no response is expected, so do not wait for one
-      return this.send(this.getCommand('DELETE_ACCOUNT'), {
+      var self = this;
+      return self.send(self.getCommand('DELETE_ACCOUNT'), {
         email: account.get('email'),
         uid: account.get('uid')
+      })
+      .then(function () {
+        return proto.afterDeleteAccount.call(self, account);
       });
     },
 

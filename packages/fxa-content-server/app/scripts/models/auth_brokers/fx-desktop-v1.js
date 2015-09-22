@@ -9,9 +9,12 @@
 define([
   'lib/channels/fx-desktop-v1',
   'lib/url',
-  'models/auth_brokers/fx-sync'
-], function (FxDesktopChannel, Url, FxSyncAuthenticationBroker) {
+  'models/auth_brokers/fx-sync',
+  'underscore'
+], function (FxDesktopChannel, Url, FxSyncAuthenticationBroker, _) {
   'use strict';
+
+  var proto = FxSyncAuthenticationBroker.prototype;
 
   var FxDesktopV1AuthenticationBroker = FxSyncAuthenticationBroker.extend({
     type: 'fx-desktop-v1',
@@ -24,9 +27,17 @@ define([
       LOGIN: 'login'
     },
 
-    haltAfterResetPasswordConfirmationPoll: true,
-    haltAfterSignIn: true,
-    haltBeforeSignUpConfirmationPoll: true,
+    defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
+      afterResetPasswordConfirmationPoll: {
+        halt: true
+      },
+      afterSignIn: {
+        halt: true
+      },
+      beforeSignUpConfirmationPoll: {
+        halt: true
+      }
+    }),
 
     createChannel: function () {
       var channel = new FxDesktopChannel();
