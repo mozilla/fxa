@@ -828,6 +828,35 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
             assert.equal(account.get('displayName'), name);
           });
       });
+
+      it('caches requests to avoid multiple XHR requests, as long as no account data was updated', function () {
+        sinon.stub(account, 'getProfile', function () {
+          return p({ avatar: PNG_URL, displayName: name });
+        });
+
+        return account.fetchProfile()
+          .then(function () {
+            return account.fetchProfile();
+          })
+          .then(function () {
+            assert.equal(account.getProfile.callCount, 1);
+          });
+      });
+
+      it('avoids returning stale data by re-requesting profile data if any account data was set after the initial fetch', function () {
+        sinon.stub(account, 'getProfile', function () {
+          return p({ avatar: PNG_URL, displayName: name });
+        });
+
+        return account.fetchProfile()
+          .then(function () {
+            account.set('displayName', 'test user');
+            return account.fetchProfile();
+          })
+          .then(function () {
+            assert.equal(account.getProfile.callCount, 2);
+          });
+      });
     });
 
     describe('permissions', function () {
