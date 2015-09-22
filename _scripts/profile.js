@@ -14,7 +14,7 @@ var CONFIGS = {
     content: 'http://127.0.0.1:3030/',
     token: 'http://localhost:5000/token/1.0/sync/1.5',
     loop: 'http://localhost:10222',
-    oauth: 'http://localhost:9010/v1',
+    oauth: 'http://127.0.0.1:9010/v1',
     profile: 'http://localhost:1111/v1'
   },
   'latest': {
