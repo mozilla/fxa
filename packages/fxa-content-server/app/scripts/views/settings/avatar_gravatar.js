@@ -10,7 +10,6 @@ define([
   'views/form',
   'views/mixins/avatar-mixin',
   'views/mixins/modal-settings-panel-mixin',
-  'views/mixins/settings-mixin',
   'stache!templates/settings/avatar_gravatar',
   'lib/auth-errors',
   'lib/constants',
@@ -18,7 +17,7 @@ define([
   'views/decorators/progress_indicator',
   'models/profile-image'
 ],
-function ($, _, md5, Cocktail, FormView, AvatarMixin, ModalSettingsPanelMixin, SettingsMixin,
+function ($, _, md5, Cocktail, FormView, AvatarMixin, ModalSettingsPanelMixin,
     Template, AuthErrors, Constants, ImageLoader, showProgressIndicator, ProfileImage) {
   'use strict';
 
@@ -98,8 +97,7 @@ function ($, _, md5, Cocktail, FormView, AvatarMixin, ModalSettingsPanelMixin, S
   Cocktail.mixin(
     View,
     AvatarMixin,
-    ModalSettingsPanelMixin,
-    SettingsMixin
+    ModalSettingsPanelMixin
   );
 
   return View;

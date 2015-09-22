@@ -11,7 +11,6 @@ define([
   'views/progress_indicator',
   'views/mixins/avatar-mixin',
   'views/mixins/modal-settings-panel-mixin',
-  'views/mixins/settings-mixin',
   'stache!templates/settings/avatar_camera',
   'lib/constants',
   'lib/promise',
@@ -20,7 +19,7 @@ define([
   'models/profile-image'
 ],
 function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
-    AvatarMixin, ModalSettingsPanelMixin, SettingsMixin, Template, Constants, p,
+    AvatarMixin, ModalSettingsPanelMixin, Template, Constants, p,
     AuthErrors, Environment, ProfileImage) {
   'use strict';
 
@@ -236,8 +235,7 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
   Cocktail.mixin(
     View,
     AvatarMixin,
-    ModalSettingsPanelMixin,
-    SettingsMixin
+    ModalSettingsPanelMixin
   );
 
   return View;

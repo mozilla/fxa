@@ -7,7 +7,6 @@ define([
   'cocktail',
   'views/form',
   'views/mixins/avatar-mixin',
-  'views/mixins/settings-mixin',
   'views/mixins/modal-settings-panel-mixin',
   'stache!templates/settings/avatar_change',
   'lib/auth-errors',
@@ -15,7 +14,7 @@ define([
   'lib/promise',
   'models/cropper-image'
 ],
-function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, ModalSettingsPanelMixin,
+function ($, Cocktail, FormView, AvatarMixin, ModalSettingsPanelMixin,
   Template, AuthErrors, ImageLoader, p, CropperImage) {
   'use strict';
 
@@ -148,8 +147,7 @@ function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, ModalSettingsPanelM
   Cocktail.mixin(
     View,
     AvatarMixin,
-    ModalSettingsPanelMixin,
-    SettingsMixin
+    ModalSettingsPanelMixin
   );
 
   return View;

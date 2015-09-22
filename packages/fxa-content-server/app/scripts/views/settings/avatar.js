@@ -7,11 +7,9 @@ define([
   'views/form',
   'stache!templates/settings/avatar',
   'views/mixins/avatar-mixin',
-  'views/mixins/settings-mixin',
   'views/mixins/settings-panel-mixin'
 ],
-function (Cocktail, FormView, Template, AvatarMixin, SettingsMixin,
-    SettingsPanelMixin) {
+function (Cocktail, FormView, Template, AvatarMixin, SettingsPanelMixin) {
   'use strict';
 
   var View = FormView.extend({
@@ -31,7 +29,7 @@ function (Cocktail, FormView, Template, AvatarMixin, SettingsMixin,
 
   });
 
-  Cocktail.mixin(View, AvatarMixin, SettingsMixin, SettingsPanelMixin);
+  Cocktail.mixin(View, AvatarMixin, SettingsPanelMixin);
 
   return View;
 });

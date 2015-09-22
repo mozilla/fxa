@@ -50,17 +50,7 @@ function (chai, $, sinon, View, RouterMock, FxaClientMock,
       fxaClientMock = null;
     });
 
-    describe('with no session', function () {
-      it('redirects to signin', function () {
-        return view.render()
-          .then(function () {
-            assert.equal(routerMock.page, 'signin');
-          });
-      });
-    });
-
     describe('with session', function () {
-
       beforeEach(function () {
         view.isUserAuthorized = function () {
           return p(true);
