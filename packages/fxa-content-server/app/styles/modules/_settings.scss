@@ -297,7 +297,7 @@ body.settings #main-content.panel, body.settings #main-content.card {
   .settings-unit-title {
     color: $text-color;
     font-weight: normal;
-    line-height: $medium-font;
+    line-height: 19px;
     margin: 0;
 
     @include respond-to('big') {
@@ -313,7 +313,7 @@ body.settings #main-content.panel, body.settings #main-content.card {
     color: $faint-text-color;
     font-size: $small-font;
     font-weight: normal;
-    line-height: $small-font;
+    line-height: 16px;
     margin: 5px 0 0 0;
   }
 
