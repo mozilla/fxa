@@ -138,7 +138,7 @@ function (Translator, Session) {
     '../tests/spec/models/reliers/base',
     '../tests/spec/models/reliers/relier',
     '../tests/spec/models/reliers/oauth',
-    '../tests/spec/models/reliers/fx-desktop',
+    '../tests/spec/models/reliers/sync',
     '../tests/spec/models/auth_brokers/base',
     '../tests/spec/models/auth_brokers/first-run',
     '../tests/spec/models/auth_brokers/fx-desktop',

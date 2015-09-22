@@ -16,7 +16,7 @@ define([
   'lib/fxa-client',
   'lib/ephemeral-messages',
   'lib/able',
-  'models/reliers/fx-desktop',
+  'models/reliers/sync',
   'models/auth_brokers/base',
   'models/user',
   'models/form-prefill',
@@ -792,6 +792,14 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Experim
         function setupCustomizeSyncTest(service, isCustomizeSyncChecked) {
           relier.set('service', service);
           relier.set('customizeSync', isCustomizeSyncChecked);
+
+          sinon.stub(relier, 'isSync', function () {
+            return service === 'sync';
+          });
+
+          sinon.stub(relier, 'isCustomizeSyncChecked', function () {
+            return isCustomizeSyncChecked;
+          });
 
           sinon.stub(user, 'signUpAccount', function (account) {
             account.set('verified', true);

@@ -4,7 +4,7 @@
 
 define([
   'chai',
-  'models/reliers/fx-desktop',
+  'models/reliers/sync',
   'lib/translator',
   '../../../mocks/window',
   '../../../lib/helpers'
@@ -13,13 +13,10 @@ define([
 
   var assert = chai.assert;
 
-  describe('models/reliers/fx-desktop', function () {
+  describe('models/reliers/sync', function () {
     var windowMock;
     var translator;
     var relier;
-
-    var SERVICE = 'service';
-    var SYNC_SERVICE = 'sync';
 
     beforeEach(function () {
       windowMock = new WindowMock();
@@ -72,16 +69,15 @@ define([
       });
     });
 
-    describe('isFxDesktop', function () {
+    describe('isSync', function () {
       it('returns `true`', function () {
-        assert.isTrue(relier.isFxDesktop());
+        assert.isTrue(relier.isSync());
       });
     });
 
     describe('isCustomizeSyncChecked', function () {
-      it('returns true if `service=sync` and `customizeSync=true`', function () {
+      it('returns true if `customizeSync=true`', function () {
         windowMock.location.search = TestHelpers.toSearchString({
-          service: SYNC_SERVICE,
           customizeSync: 'true'
         });
 
@@ -91,21 +87,8 @@ define([
           });
       });
 
-      it('returns false if `service!=sync`', function () {
+      it('returns false if `customizeSync=false`', function () {
         windowMock.location.search = TestHelpers.toSearchString({
-          service: SERVICE,
-          customizeSync: 'true'
-        });
-
-        return relier.fetch()
-          .then(function () {
-            assert.isFalse(relier.isCustomizeSyncChecked());
-          });
-      });
-
-      it('returns false if `customizeSync===false`', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          service: SYNC_SERVICE,
           customizeSync: 'false'
         });
 

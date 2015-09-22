@@ -664,10 +664,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
     });
 
     describe('_suggestedAccountAskPassword', function () {
-      it('asks for password right away if service is sync', function () {
-        relier.isSync = function () {
-          return true;
-        };
+      it('asks for password right away if the relier wants keys (Sync)', function () {
         var account = user.initAccount({
           sessionToken: 'abc123',
           email: 'a@a.com',
@@ -680,34 +677,9 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
           return account;
         });
 
-        relier.set('service', 'sync');
-
-        return view.render()
-          .then(function () {
-            assert.isTrue($('.email').hasClass('hidden'), 'should not show email input');
-            assert.ok($('.password').length, 'should show password input');
-            assert.isTrue(TestHelpers.isEventLogged(metrics, 'signin.ask-password.shown.keys-required'));
-          });
-      });
-
-      it('asks for the password if the relier wants keys', function () {
         sinon.stub(relier, 'wantsKeys', function () {
           return true;
         });
-
-        var account = user.initAccount({
-          sessionToken: 'abc123',
-          email: 'a@a.com',
-          sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
-          verified: true,
-          accessToken: 'foo'
-        });
-
-        sinon.stub(view, 'getAccount', function () {
-          return account;
-        });
-
-        relier.set('service', 'Firefox Hello');
 
         return view.render()
           .then(function () {

@@ -47,7 +47,7 @@ define([
   'lib/height-observer',
   'models/reliers/relier',
   'models/reliers/oauth',
-  'models/reliers/fx-desktop',
+  'models/reliers/sync',
   'models/auth_brokers/base',
   'models/auth_brokers/fx-desktop',
   'models/auth_brokers/fx-desktop-v2',
@@ -95,7 +95,7 @@ function (
   HeightObserver,
   Relier,
   OAuthRelier,
-  FxDesktopRelier,
+  SyncRelier,
   BaseAuthenticationBroker,
   FxDesktopV1AuthenticationBroker,
   FxDesktopV2AuthenticationBroker,
@@ -288,7 +288,7 @@ function (
     _getAllowedParentOrigins: function () {
       if (! this._isInAnIframe()) {
         return [];
-      } else if (this._isFxDesktop()) {
+      } else if (this._isSync()) {
         // If in an iframe for sync, the origin is checked against
         // a pre-defined set of origins sent from the server.
         return this._config.allowedParentOrigins;
@@ -366,10 +366,10 @@ function (
       if (! this._relier) {
         var relier;
 
-        if (this._isFxDesktop()) {
-          // Use the FxDesktopRelier for sync verification so that
+        if (this._isSync()) {
+          // Use the SyncRelier for sync verification so that
           // the service name is translated correctly.
-          relier = new FxDesktopRelier({
+          relier = new SyncRelier({
             window: this._window,
             translator: this._translator
           });
@@ -643,16 +643,6 @@ function (
 
     _isFxiOSV1: function () {
       return this._searchParam('context') === Constants.FX_IOS_V1_CONTEXT;
-    },
-
-    _isFxDesktop: function () {
-      // In addition to the two obvious fx desktop choices, sync is always
-      // considered fx-desktop. If service=sync is on the URL, it's considered
-      // fx-desktop.
-      return this._isFxDesktopV1() ||
-             this._isFxDesktopV2() ||
-             this._isFxiOSV1() ||
-             this._isSync();
     },
 
     _isFirstRun: function () {
