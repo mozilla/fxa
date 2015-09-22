@@ -49,7 +49,7 @@ define([
   'models/reliers/oauth',
   'models/reliers/sync',
   'models/auth_brokers/base',
-  'models/auth_brokers/fx-desktop',
+  'models/auth_brokers/fx-desktop-v1',
   'models/auth_brokers/fx-desktop-v2',
   'models/auth_brokers/fx-fennec-v1',
   'models/auth_brokers/fx-ios-v1',

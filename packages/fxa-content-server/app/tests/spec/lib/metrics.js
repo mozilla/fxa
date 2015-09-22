@@ -33,7 +33,7 @@ function (chai, $, p, Metrics, AuthErrors, Environment, sinon, _, WindowMock, Te
         lang: 'db_LB',
         service: 'sync',
         context: 'fx_desktop_v1',
-        brokerType: 'fx-desktop',
+        brokerType: 'fx-desktop-v1',
         entrypoint: 'menupanel',
         migration: 'sync1.5',
         campaign: 'fennec',
@@ -86,7 +86,7 @@ function (chai, $, p, Metrics, AuthErrors, Environment, sinon, _, WindowMock, Te
 
         assert.equal(filteredData.context, 'fx_desktop_v1');
         assert.equal(filteredData.service, 'sync');
-        assert.equal(filteredData.broker, 'fx-desktop');
+        assert.equal(filteredData.broker, 'fx-desktop-v1');
         assert.equal(filteredData.lang, 'db_LB');
         assert.equal(filteredData.entrypoint, 'menupanel');
         assert.equal(filteredData.migration, 'sync1.5');
