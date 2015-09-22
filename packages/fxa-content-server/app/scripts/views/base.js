@@ -84,6 +84,14 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
 
 
   var BaseView = Backbone.View.extend({
+    /**
+     * A class name that is added to the 'body' element pre-render
+     * and removed on destroy.
+     *
+     * @property layoutClassName
+     */
+    layoutClassName: null,
+
     constructor: function (options) {
       options = options || {};
 
@@ -122,6 +130,10 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
      */
     render: function () {
       var self = this;
+
+      if (this.layoutClassName) {
+        $('body').addClass(this.layoutClassName);
+      }
 
       return p()
         .then(function () {
@@ -347,7 +359,6 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
     },
 
     destroy: function (remove) {
-
       this.trigger('destroy');
 
       if (this.beforeDestroy) {
@@ -359,6 +370,10 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
       } else {
         this.stopListening();
         this.$el.off();
+      }
+
+      if (this.layoutClassName) {
+        $('body').removeClass(this.layoutClassName);
       }
 
       this.$(this.window).off('beforeunload', this._boundDisableErrors);

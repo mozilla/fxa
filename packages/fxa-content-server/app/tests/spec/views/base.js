@@ -42,7 +42,8 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
     var screenName = 'screen';
 
     var View = BaseView.extend({
-      template: Template
+      template: Template,
+      layoutClassName: 'layout'
     });
 
 
@@ -89,9 +90,8 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
     });
 
     describe('render', function () {
-      it('renders the template without attaching it to the body', function () {
-        // render is called in beforeEach
-        assert.ok($('#focusMe').length);
+      it('adds the `layoutClassName` to the body', function () {
+        assert.isTrue($('body').hasClass('layout'));
       });
 
       it('updates the page title with the embedded h1 and h2 tags', function () {
@@ -313,6 +313,23 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
 
           view.afterVisible();
         }, done);
+      });
+    });
+
+    describe('destroy', function () {
+      it('destroys the view, any subviews, stops listening for messages, and triggers `destroy` and `destroyed` messages', function () {
+        sinon.spy(view, 'trigger');
+        sinon.spy(view, 'destroySubviews');
+        view.beforeDestroy = sinon.spy();
+
+        view.destroy();
+
+        assert.isTrue(view.beforeDestroy.called);
+        assert.isTrue(view.trigger.calledWith('destroy'));
+        assert.isTrue(view.trigger.calledWith('destroyed'));
+        assert.isTrue(view.destroySubviews.called);
+
+        assert.isFalse($('body').hasClass('layout'));
       });
     });
 
