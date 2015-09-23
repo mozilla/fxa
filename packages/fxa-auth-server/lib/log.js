@@ -135,6 +135,10 @@ Lug.prototype.summary = function (request, response) {
   }
 }
 
+Lug.prototype.timing = function(name, timing, tags) {
+  this.statsd.timing(name, timing, tags)
+}
+
 module.exports = function (level, name) {
   var log = new Lug(
     {
