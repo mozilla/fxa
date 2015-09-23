@@ -1,3 +1,12 @@
+<a name="0.46.0"></a>
+## 0.46.0 (2015-09-23)
+
+
+#### Features
+
+* **logging:** add avatar.get activity event ([18cc9b93](https://github.com/mozilla/fxa-profile-server/commit/18cc9b9318c75fbb494faba9f917a422b7945d14), closes [#146](https://github.com/mozilla/fxa-profile-server/issues/146))
+
+
 <a name="0.45.0"></a>
 ## 0.45.0 (2015-09-11)
 
