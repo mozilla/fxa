@@ -1,3 +1,32 @@
+<a name="0.46.0"></a>
+# 0.46.0 (2015-09-23)
+
+
+### Bug Fixes
+
+* **client:** Only one sessionStatus check call should be made from /settings ([51bc0c5](https://github.com/mozilla/fxa-content-server/commit/51bc0c5)), closes [#3007](https://github.com/mozilla/fxa-content-server/issues/3007)
+* **client:** Reuse assertions for a given sessionToken for the duration of the browser tab. ([2bf08ab](https://github.com/mozilla/fxa-content-server/commit/2bf08ab)), closes [#3085](https://github.com/mozilla/fxa-content-server/issues/3085)
+* **client:** Smooth out the `/settings` page load. ([207dfd6](https://github.com/mozilla/fxa-content-server/commit/207dfd6))
+* **styles:** adjust line-height for settings ([0d4af0b](https://github.com/mozilla/fxa-content-server/commit/0d4af0b)), closes [#3052](https://github.com/mozilla/fxa-content-server/issues/3052)
+* **tests:** Fx updates, improve progress output ([fbeba0f](https://github.com/mozilla/fxa-content-server/commit/fbeba0f))
+* **tests:** on first time, run the update ([a7769bc](https://github.com/mozilla/fxa-content-server/commit/a7769bc))
+* **tests:** only update lastupdate file on success ([b7b0921](https://github.com/mozilla/fxa-content-server/commit/b7b0921))
+
+### Features
+
+* **openid:** base OpenID login (as xhr) ([25bba0f](https://github.com/mozilla/fxa-content-server/commit/25bba0f))
+
+### Refactor
+
+* **client:** Alphabetize deps and hash keys in metrics.js ([4756620](https://github.com/mozilla/fxa-content-server/commit/4756620))
+* **client:** Alphabetize deps, routes and object keys in router.js ([092f37b](https://github.com/mozilla/fxa-content-server/commit/092f37b))
+* **client:** Rename the FxDesktopRelier to the SyncRelier ([2e11bf0](https://github.com/mozilla/fxa-content-server/commit/2e11bf0))
+* **client:** Tease appart the FxSync and FxDesktopV1 auth brokers. ([cc963ab](https://github.com/mozilla/fxa-content-server/commit/cc963ab))
+* **server:** Alphabetize the FRONTEND_ROUTES array. ([0474246](https://github.com/mozilla/fxa-content-server/commit/0474246))
+* **test:** Alphabetize the routes to test in the pages functional test. ([719c67c](https://github.com/mozilla/fxa-content-server/commit/719c67c))
+
+
+
 <a name="0.45.1"></a>
 ## 0.45.1 (2015-09-17)
 
