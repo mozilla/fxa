@@ -1,3 +1,8 @@
+train-46
+  * feat(db): add endpoint to return a user's sessions #102
+  * feat(db): return accountCreatedAt from sessionToken stored procedure #105
+  * chore(metadata): Update package metadata for stand-alone server lib. #106
+
 train-45
   * fix(metrics): measure request count and time in perf tests - #97
   * fix(metrics): append delimiter to metrics output - #94
