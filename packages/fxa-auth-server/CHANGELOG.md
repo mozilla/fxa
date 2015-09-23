@@ -1,3 +1,12 @@
+<a name="0.46.0"></a>
+## 0.46.0 (2015-09-23)
+
+
+#### Features
+
+* **clients:** add notion of Service Clients in config ([8cfdffe8](http://github.com/mozilla/fxa-oauth-server/commit/8cfdffe8ba4e335e36949b6d3601b03ed0def2dd), closes [#327](http://github.com/mozilla/fxa-oauth-server/issues/327))
+
+
 <a name="0.45.0"></a>
 ## 0.45.0 (2015-09-11)
 
