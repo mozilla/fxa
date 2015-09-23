@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * A variant of the FxDesktop broker that speaks "v2" of the protocol.
+ * A variant of the FxSync broker that speaks "v2" of the protocol.
  * Communication with the browser is done via WebChannels and each
  * command is prefixed with `fxaccounts:`
  *
@@ -11,16 +11,17 @@
  */
 
 define([
-  './fx-desktop',
+  './fx-sync',
   'lib/channels/web',
   'lib/constants'
 
-], function (FxDesktopAuthenticationBroker, WebChannel, Constants) {
+], function (FxSyncAuthenticationBroker, WebChannel, Constants) {
   'use strict';
 
-  var FxDesktopV2AuthenticationBroker = FxDesktopAuthenticationBroker.extend({
+  var FxDesktopV2AuthenticationBroker = FxSyncAuthenticationBroker.extend({
     type: 'fx-desktop-v2',
-    _commands: {
+
+    commands: {
       CAN_LINK_ACCOUNT: 'fxaccounts:can_link_account',
       CHANGE_PASSWORD: 'fxaccounts:change_password',
       DELETE_ACCOUNT: 'fxaccounts:delete_account',

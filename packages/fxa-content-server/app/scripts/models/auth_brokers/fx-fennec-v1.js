@@ -13,11 +13,7 @@ define([
   'use strict';
 
   var FxFennecV1AuthenticationBroker = FxDesktopV2AuthenticationBroker.extend({
-    type: 'fx-fennec-v1',
-
-    haltAfterResetPasswordConfirmationPoll: false,
-    haltAfterSignIn: false,
-    haltBeforeSignUpConfirmationPoll: false
+    type: 'fx-fennec-v1'
   });
 
   return FxFennecV1AuthenticationBroker;

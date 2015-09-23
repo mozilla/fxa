@@ -9,7 +9,7 @@
 
 define([
   'lib/auth-errors',
-  'models/auth_brokers/fx-desktop'
+  'models/auth_brokers/fx-desktop-v1'
 ], function (AuthErrors, FxDesktopV1AuthenticationBroker) {
   'use strict';
 

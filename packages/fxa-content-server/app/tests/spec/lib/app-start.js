@@ -16,7 +16,8 @@ define([
   'lib/auth-errors',
   'lib/storage',
   'models/auth_brokers/base',
-  'models/auth_brokers/fx-desktop',
+  'models/auth_brokers/first-run',
+  'models/auth_brokers/fx-desktop-v1',
   'models/auth_brokers/fx-desktop-v2',
   'models/auth_brokers/fx-fennec-v1',
   'models/auth_brokers/fx-ios-v1',
@@ -36,9 +37,9 @@ define([
   '../../lib/helpers'
 ],
 function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
-  Url, OAuthErrors, AuthErrors, Storage, BaseBroker, FxDesktopV1Broker,
-  FxDesktopV2Broker, FxFennecV1Broker, FxiOSV1Broker, IframeBroker,
-  RedirectBroker, WebChannelBroker, BaseRelier, SyncRelier,
+  Url, OAuthErrors, AuthErrors, Storage, BaseBroker, FirstrunBroker,
+  FxDesktopV1Broker, FxDesktopV2Broker, FxFennecV1Broker, FxiOSV1Broker,
+  IframeBroker, RedirectBroker, WebChannelBroker, BaseRelier, SyncRelier,
   OAuthRelier, Relier, User, Metrics, StorageMetrics, WindowMock,
   RouterMock, HistoryMock, TestHelpers) {
   'use strict';
@@ -186,19 +187,21 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
         appStart._metrics = new Metrics();
       });
 
-      describe('fx-desktop', function () {
-        it('returns an FxDesktop broker if `context=fx_desktop_v1`', function () {
-          windowMock.location.search = Url.objToSearchString({
-            context: Constants.FX_DESKTOP_V1_CONTEXT
-          });
-
-          return testExpectedBrokerCreated(FxDesktopV1Broker);
-        });
-
-        it('returns an FxDesktop broker if `service=sync&context=iframe`', function () {
+      describe('firstrun', function () {
+        it('returns a Firstrun broker if `service=sync&context=iframe`', function () {
           windowMock.location.search = Url.objToSearchString({
             service: Constants.SYNC_SERVICE,
             context: Constants.IFRAME_CONTEXT
+          });
+
+          return testExpectedBrokerCreated(FirstrunBroker);
+        });
+      });
+
+      describe('fx-desktop-v1', function () {
+        it('returns an FxDesktopV1 broker if `context=fx_desktop_v1`', function () {
+          windowMock.location.search = Url.objToSearchString({
+            context: Constants.FX_DESKTOP_V1_CONTEXT
           });
 
           return testExpectedBrokerCreated(FxDesktopV1Broker);

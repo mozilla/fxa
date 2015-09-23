@@ -22,10 +22,6 @@ define([
       VERIFICATION_COMPLETE: 'verification_complete'
     },
 
-    haltAfterResetPasswordConfirmationPoll: false,
-    haltAfterSignIn: false,
-    haltBeforeSignUpConfirmationPoll: false,
-
     initialize: function (options) {
       options = options || {};
 

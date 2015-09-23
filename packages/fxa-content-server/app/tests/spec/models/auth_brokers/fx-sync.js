@@ -4,51 +4,60 @@
 
 define([
   'chai',
-  'sinon',
-  'models/auth_brokers/fx-desktop',
-  'models/user',
   'lib/auth-errors',
   'lib/channels/null',
   'lib/promise',
+  'models/auth_brokers/fx-sync',
+  'models/user',
+  'sinon',
+  'underscore',
   '../../../mocks/window'
-], function (chai, sinon, FxDesktopAuthenticationBroker, User,
-        AuthErrors, NullChannel, p, WindowMock) {
+], function (chai, AuthErrors, NullChannel, p, FxSyncAuthenticationBroker,
+  User, sinon, _, WindowMock) {
   'use strict';
 
   var assert = chai.assert;
 
-  describe('models/auth_brokers/fx-desktop', function () {
-    var windowMock;
-    var channelMock;
-
-    var broker;
-    var user;
+  describe('models/auth_brokers/fx-sync', function () {
     var account;
+    var broker;
+    var channelMock;
+    var user;
+    var windowMock;
+
+    function createAuthBroker (options) {
+      options = options || {};
+
+      broker = new FxSyncAuthenticationBroker(_.extend({
+        window: windowMock,
+        commands: {
+          CAN_LINK_ACCOUNT: 'can_link_account',
+          CHANGE_PASSWORD: 'change_password',
+          DELETE_ACCOUNT: 'delete_account',
+          LOADED: 'loaded',
+          LOGIN: 'login'
+        },
+        channel: channelMock
+      }, options));
+    }
 
     beforeEach(function () {
       windowMock = new WindowMock();
       channelMock = new NullChannel();
-      channelMock.send = function () {
+      channelMock.send = sinon.spy(function () {
         return p();
-      };
-      channelMock.request = function () {
-        return p();
-      };
+      });
 
       user = new User();
       account = user.initAccount({
         email: 'testuser@testuser.com'
       });
 
-      broker = new FxDesktopAuthenticationBroker({
-        window: windowMock,
-        channel: channelMock
-      });
+      createAuthBroker();
     });
 
     describe('afterLoaded', function () {
       it('sends a `loaded` message', function () {
-        sinon.spy(channelMock, 'send');
         return broker.afterLoaded()
           .then(function () {
             assert.isTrue(channelMock.send.calledWith('loaded'));
@@ -58,7 +67,7 @@ define([
 
     describe('beforeSignIn', function () {
       it('is happy if the user clicks `yes`', function () {
-        sinon.stub(channelMock, 'request', function () {
+        channelMock.request = sinon.spy(function () {
           return p({ ok: true });
         });
 
@@ -69,7 +78,7 @@ define([
       });
 
       it('throws a USER_CANCELED_LOGIN error if user rejects', function () {
-        sinon.stub(channelMock, 'request', function () {
+        channelMock.request = sinon.spy(function () {
           return p({ data: {}});
         });
 
@@ -81,7 +90,7 @@ define([
       });
 
       it('swallows errors returned by the browser', function () {
-        sinon.stub(channelMock, 'request', function () {
+        channelMock.request = sinon.spy(function () {
           return p.reject(new Error('uh oh'));
         });
 
@@ -97,8 +106,6 @@ define([
 
     describe('_notifyRelierOfLogin', function () {
       it('sends a `login` message to the channel', function () {
-        sinon.spy(channelMock, 'send');
-
         return broker._notifyRelierOfLogin(account)
           .then(function () {
             assert.isTrue(channelMock.send.calledWith('login'));
@@ -111,8 +118,6 @@ define([
       });
 
       it('sends a `login` message to the channel using current account data', function () {
-        sinon.spy(channelMock, 'send');
-
         return broker._notifyRelierOfLogin(account)
           .then(function () {
             assert.isTrue(channelMock.send.calledWith('login'));
@@ -125,9 +130,9 @@ define([
       });
 
       it('tells the window not to re-verify if the user can link accounts if the question has already been asked', function () {
-        sinon.stub(channelMock, 'send', function (message) {
+        channelMock.send = sinon.spy(function (message) {
           if (message === 'can_link_account') {
-            return p({ data: { ok: true }});
+            return p({ ok: true });
           } else if (message === 'login') {
             return p();
           }
@@ -138,11 +143,12 @@ define([
             return broker._notifyRelierOfLogin(account);
           })
           .then(function () {
-            assert.equal(channelMock.send.args[0][0], 'login');
-            var data = channelMock.send.args[0][1];
+            assert.equal(channelMock.send.args[0][0], 'can_link_account');
+            var data = channelMock.send.args[1][1];
             assert.equal(data.email, 'testuser@testuser.com');
             assert.isFalse(data.verified);
             assert.isTrue(data.verifiedCanLinkAccount);
+            assert.equal(channelMock.send.args[1][0], 'login');
           });
       });
 
@@ -150,9 +156,9 @@ define([
         // set account as verified
         account.set('verified', true);
 
-        sinon.stub(channelMock, 'send', function (message) {
+        channelMock.send = sinon.spy(function (message) {
           if (message === 'can_link_account') {
-            return p({ data: { ok: true }});
+            return p({ ok: true });
           } else if (message === 'login') {
             return p();
           }
@@ -163,15 +169,14 @@ define([
             return broker._notifyRelierOfLogin(account);
           })
           .then(function () {
-            var data = channelMock.send.args[0][1];
+            var data = channelMock.send.args[1][1];
             assert.isTrue(data.verified);
           });
       });
     });
 
     describe('afterSignIn', function () {
-      it('notifies the channel of login, halts by default', function () {
-        sinon.spy(broker, 'send');
+      it('notifies the channel of login, does not halt by default', function () {
         account.set({
           uid: 'uid',
           sessionToken: 'session_token',
@@ -186,7 +191,7 @@ define([
         return broker.afterSignIn(account)
           .then(function (result) {
 
-            var args = broker.send.args[0];
+            var args = channelMock.send.args[0];
             assert.equal(args[0], 'login');
             assert.equal(args[1].email, 'testuser@testuser.com');
             assert.equal(args[1].uid, 'uid');
@@ -196,78 +201,66 @@ define([
             assert.equal(args[1].verified, true);
             assert.isUndefined(args[1].sessionTokenContext);
 
-            assert.isTrue(result.halt);
+            assert.isFalse(result.halt);
           });
       });
 
-      it('does not halt with `haltAfterSignIn: false`', function () {
-        broker = new FxDesktopAuthenticationBroker({
-          channel: channelMock,
-          haltAfterSignIn: false,
-          window: windowMock,
+      it('halts with `haltAfterSignIn: true`', function () {
+        createAuthBroker({
+          haltAfterSignIn: true,
         });
 
         return broker.afterSignIn(account)
           .then(function (result) {
-            assert.isFalse(result.halt);
+            assert.isTrue(result.halt);
           });
       });
     });
 
     describe('beforeSignUpConfirmationPoll', function () {
-      it('notifies the channel of login, halts the flow by default', function () {
-        sinon.spy(broker, 'send');
-
+      it('notifies the channel of login, does not halt the flow by default', function () {
         return broker.beforeSignUpConfirmationPoll(account)
           .then(function (result) {
-            assert.isTrue(broker.send.calledWith('login'));
-            assert.isTrue(result.halt);
+            assert.isTrue(channelMock.send.calledWith('login'));
+            assert.isFalse(result.halt);
           });
       });
 
-      it('does not halt with `haltBeforeSignUpConfirmationPoll: false`', function () {
-        broker = new FxDesktopAuthenticationBroker({
-          channel: channelMock,
-          haltBeforeSignUpConfirmationPoll: false,
-          window: windowMock
+      it('halts with `haltBeforeSignUpConfirmationPoll: true`', function () {
+        createAuthBroker({
+          haltBeforeSignUpConfirmationPoll: true,
         });
 
         return broker.beforeSignUpConfirmationPoll(account)
           .then(function (result) {
-            assert.isFalse(result.halt);
+            assert.isTrue(result.halt);
           });
       });
     });
 
     describe('afterResetPasswordConfirmationPoll', function () {
-      it('notifies the channel of login, halts by default', function () {
-        sinon.spy(broker, 'send');
-
+      it('notifies the channel of login, does not halt by default', function () {
         return broker.afterResetPasswordConfirmationPoll(account)
           .then(function (result) {
-            assert.isTrue(broker.send.calledWith('login'));
-            assert.isTrue(result.halt);
+            assert.isTrue(channelMock.send.calledWith('login'));
+            assert.isFalse(result.halt);
           });
       });
 
-      it('does not halt with `haltAfterResetPasswordConfirmationPoll: false`', function () {
-        broker = new FxDesktopAuthenticationBroker({
-          channel: channelMock,
-          haltAfterResetPasswordConfirmationPoll: false,
-          window: windowMock
+      it('halts with `haltAfterResetPasswordConfirmationPoll: true`', function () {
+        createAuthBroker({
+          haltAfterResetPasswordConfirmationPoll: true,
         });
 
         return broker.afterResetPasswordConfirmationPoll(account)
           .then(function (result) {
-            assert.isFalse(result.halt);
+            assert.isTrue(result.halt);
           });
       });
     });
 
     describe('afterChangePassword', function () {
       it('notifies the channel of change_password with the new login info', function () {
-        sinon.spy(broker, 'send');
-
         account.set({
           uid: 'uid',
           sessionToken: 'session_token',
@@ -281,7 +274,7 @@ define([
 
         return broker.afterChangePassword(account)
           .then(function () {
-            var args = broker.send.args[0];
+            var args = channelMock.send.args[0];
             assert.equal(args[0], 'change_password');
             assert.equal(args[1].email, 'testuser@testuser.com');
             assert.equal(args[1].uid, 'uid');
@@ -297,13 +290,11 @@ define([
 
     describe('afterDeleteAccount', function () {
       it('notifies the channel of delete_account', function () {
-        sinon.spy(broker, 'send');
-
         account.set('uid', 'uid');
 
         return broker.afterDeleteAccount(account)
           .then(function () {
-            var args = broker.send.args[0];
+            var args = channelMock.send.args[0];
             assert.equal(args[0], 'delete_account');
             assert.equal(args[1].email, 'testuser@testuser.com');
             assert.equal(args[1].uid, 'uid');
@@ -311,23 +302,37 @@ define([
       });
     });
 
-    describe('getChannel', function () {
-      it('creates a channel if not already available', function () {
-        delete broker._channel;
-        assert.ok(broker.getChannel());
+    describe('createChannel', function () {
+      it('must be overridden', function () {
+        assert.throws(function () {
+          broker.createChannel();
+        }, 'createChannel must be overridden');
       });
     });
 
-    describe('channel errors', function () {
-      it('are propagated outwards', function () {
-        var channel = broker.createChannel();
+    describe('getChannel', function () {
+      it('returns an already created channel, if available', function () {
+        assert.strictEqual(broker.getChannel(), channelMock);
+      });
+    });
 
-        var errorSpy = sinon.spy();
-        broker.on('error', errorSpy);
+    describe('getCommand', function () {
+      it('throws if commands is not overridden', function () {
+        var SubBroker = FxSyncAuthenticationBroker.extend({});
+        var subBroker = new SubBroker();
+        assert.throws(function () {
+          subBroker.getCommand('LOGIN');
+        }, 'this.commands must be specified');
+      });
 
-        var error = new Error('malformed message');
-        channel.trigger('error', error);
-        assert.isTrue(errorSpy.calledWith(error));
+      it('throws if a command is not defined', function () {
+        assert.throws(function () {
+          broker.getCommand('NOT_SPECIFIED');
+        }, 'command not found for: NOT_SPECIFIED');
+      });
+
+      it('returns a command specified', function () {
+        assert.equal(broker.getCommand('LOGIN'), 'login');
       });
     });
   });
