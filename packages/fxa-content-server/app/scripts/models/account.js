@@ -79,6 +79,13 @@ define([
       self._profileClient = options.profileClient;
       self._fxaClient = options.fxaClient;
       self._marketingEmailClient = options.marketingEmailClient;
+
+      /**
+       * Keeps track of outstanding assertion generation requests, keyed
+       * by sessionToken. Used to prevent multiple concurrent assertion
+       * requests for the same sessionToken.
+       */
+      self._assertionPromises = {};
     },
 
     // Hydrate the account
@@ -145,10 +152,30 @@ define([
       return this.get('verified') && ! this.get('accessToken');
     },
 
+    _generateAssertion: function () {
+      var self = this;
+
+      var sessionToken = self.get('sessionToken');
+
+      // assertions live for 25 years, they can be cached and reused while
+      // this browser tab is open.
+      var existingAssertionPromise = self._assertionPromises[sessionToken];
+
+      if (existingAssertionPromise) {
+        return existingAssertionPromise;
+      }
+
+      var assertionPromise = self._assertion.generate(sessionToken);
+
+      self._assertionPromises[sessionToken] = assertionPromise;
+
+      return assertionPromise;
+    },
+
     createOAuthToken: function (scope) {
       var self = this;
 
-      return self._assertion.generate(self.get('sessionToken'))
+      return self._generateAssertion()
         .then(function (assertion) {
           var params = {
             client_id: self._oAuthClientId, //eslint-disable-line camelcase

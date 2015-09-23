@@ -326,6 +326,37 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
           });
       });
 
+      it('multiple concurrent OAuth token fetches for a single sessionToken causes a single assertion to be generated', function () {
+        return p.all([
+          account.createOAuthToken('scope1'),
+          account.createOAuthToken('scope2')
+        ]).then(function () {
+          assert.equal(assertion.generate.callCount, 1);
+        });
+      });
+
+      it('multiple sequential OAuth token fetches for a signle sessionToken causes a single assertion to be generated', function () {
+        return account.createOAuthToken('scope1')
+          .then(function () {
+            return account.createOAuthToken('scope2');
+          })
+          .then(function () {
+            assert.equal(assertion.generate.callCount, 1);
+          });
+      });
+
+      it('multiple sequential OAuth token fetches for different sessionTokens causes 2 assertions to be generated', function () {
+        return account.createOAuthToken('scope1')
+          .then(function () {
+            account.set('sessionToken', 'a different session token');
+            return account.createOAuthToken('scope2');
+          })
+          .then(function () {
+            assert.equal(assertion.generate.callCount, 2);
+          });
+      });
+
+
       it('fails to if bad assertion', function () {
         assertion.generate.restore();
         sinon.stub(assertion, 'generate', function () {
