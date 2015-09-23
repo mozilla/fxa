@@ -53,18 +53,6 @@
       "from": "bluebird@2.9.25",
       "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-2.9.25.tgz"
     },
-    "commander": {
-      "version": "2.8.1",
-      "from": "commander@2.8.1",
-      "resolved": "https://registry.npmjs.org/commander/-/commander-2.8.1.tgz",
-      "dependencies": {
-        "graceful-readlink": {
-          "version": "1.0.1",
-          "from": "graceful-readlink@>=1.0.0",
-          "resolved": "https://registry.npmjs.org/graceful-readlink/-/graceful-readlink-1.0.1.tgz"
-        }
-      }
-    },
     "convict": {
       "version": "1.0.1",
       "from": "convict@1.0.1",
@@ -197,8 +185,8 @@
     },
     "fxa-auth-mailer": {
       "version": "1.0.8",
-      "from": "git+https://github.com/mozilla/fxa-auth-mailer.git#df59422adc1a3e01825d8341470362cd6686f567",
-      "resolved": "git+https://github.com/mozilla/fxa-auth-mailer.git#df59422adc1a3e01825d8341470362cd6686f567",
+      "from": "git+https://github.com/mozilla/fxa-auth-mailer.git#62c023efbf9d4bffac326d1a8c03fa79c132b4e9",
+      "resolved": "git+https://github.com/mozilla/fxa-auth-mailer.git#62c023efbf9d4bffac326d1a8c03fa79c132b4e9",
       "dependencies": {
         "bluebird": {
           "version": "2.9.34",
@@ -310,8 +298,8 @@
         },
         "fxa-content-server-l10n": {
           "version": "0.0.0",
-          "from": "git://github.com/mozilla/fxa-content-server-l10n.git#2ec330494d949b1e166b62c1c01dae6f284df862",
-          "resolved": "git://github.com/mozilla/fxa-content-server-l10n.git#2ec330494d949b1e166b62c1c01dae6f284df862"
+          "from": "git://github.com/mozilla/fxa-content-server-l10n.git#6e9093757b3a5bf720c2eb7ab771df303fca98e5",
+          "resolved": "git://github.com/mozilla/fxa-content-server-l10n.git#6e9093757b3a5bf720c2eb7ab771df303fca98e5"
         },
         "handlebars": {
           "version": "1.3.0",
@@ -1536,9 +1524,9 @@
       "resolved": "https://registry.npmjs.org/hapi-auth-hawk/-/hapi-auth-hawk-2.0.0.tgz",
       "dependencies": {
         "boom": {
-          "version": "2.8.0",
+          "version": "2.9.0",
           "from": "boom@>=2.0.0 <3.0.0",
-          "resolved": "https://registry.npmjs.org/boom/-/boom-2.8.0.tgz"
+          "resolved": "https://registry.npmjs.org/boom/-/boom-2.9.0.tgz"
         },
         "hoek": {
           "version": "2.16.3",
@@ -1835,7 +1823,7 @@
         },
         "hawk": {
           "version": "2.3.1",
-          "from": "hawk@>=2.3.0 <2.4.0",
+          "from": "hawk@>=2.0.0 <3.0.0",
           "resolved": "https://registry.npmjs.org/hawk/-/hawk-2.3.1.tgz",
           "dependencies": {
             "hoek": {
@@ -1844,9 +1832,9 @@
               "resolved": "https://registry.npmjs.org/hoek/-/hoek-2.16.3.tgz"
             },
             "boom": {
-              "version": "2.8.0",
+              "version": "2.9.0",
               "from": "boom@>=2.0.0 <3.0.0",
-              "resolved": "https://registry.npmjs.org/boom/-/boom-2.8.0.tgz"
+              "resolved": "https://registry.npmjs.org/boom/-/boom-2.9.0.tgz"
             },
             "cryptiles": {
               "version": "2.0.5",
@@ -1893,9 +1881,9 @@
           "resolved": "https://registry.npmjs.org/har-validator/-/har-validator-1.8.0.tgz",
           "dependencies": {
             "bluebird": {
-              "version": "2.10.0",
+              "version": "2.10.1",
               "from": "bluebird@>=2.9.30 <3.0.0",
-              "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-2.10.0.tgz"
+              "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-2.10.1.tgz"
             },
             "chalk": {
               "version": "1.1.1",
