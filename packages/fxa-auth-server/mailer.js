@@ -244,7 +244,7 @@ module.exports = function (log) {
       headers: {
         'X-Link': link
       },
-      subject: gettext('New sign-in to Sync'),
+      subject: gettext('New sign-in to Firefox'),
       template: 'newSyncDeviceEmail',
       templateValues: {
         resetLink: link,
