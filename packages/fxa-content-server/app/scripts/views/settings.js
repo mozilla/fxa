@@ -51,8 +51,7 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
   var View = BaseView.extend({
     template: Template,
     className: 'settings',
-
-    FADE_OUT_SETTINGS_MS: 250,
+    layoutClassName: 'settings',
 
     initialize: function (options) {
       options = options || {};
@@ -122,7 +121,6 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
 
     beforeRender: function () {
       var self = this;
-      $('body').addClass('settings');
       var account = self.getSignedInAccount();
 
       return account.fetchProfile()
@@ -148,12 +146,6 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
       }
 
       return self._showAvatar();
-    },
-
-    beforeDestroy: function () {
-      $('body.settings').fadeOut(this.FADE_OUT_SETTINGS_MS, function (){
-        $('body').removeClass('settings').show();
-      });
     },
 
     _setupAvatarChangeLinks: function () {

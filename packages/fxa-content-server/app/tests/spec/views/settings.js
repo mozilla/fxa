@@ -77,7 +77,6 @@ function (chai, $, sinon, Cocktail, View, BaseView, SubPanels,
         subPanels: subPanels,
         screenName: 'settings'
       });
-      view.FADE_OUT_SETTINGS_MS = 0;
     }
 
     beforeEach(function () {
