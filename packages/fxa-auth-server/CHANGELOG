@@ -1,3 +1,14 @@
+train-46
+  * feat(logging): add createdAt to account.signed activity event #1056
+  * feat(basket): send sync login events to basket #1051
+  * fix(logging): use service query parameter in activityEvent #1051
+  * feat(email): added post verify email #1034
+  * fix(tests): e2e-email changes for "Firefox Account Verified" in train-46 #1063
+  * fix(tests): improved script to checking email of all supported locales #1050
+  * fix(tests): run mysql tests on travis #1047
+  * chore(shrinkwrap): update shrinkwrap for latest fxa-auth-mailer, fxa-content-server-l10n #1065
+  * chore(shrinkwrap): redo shrinkwrap to re-add missing fxa-jwtool->pem-jwk #1062
+
 train-45
   * feat(l10n): add fa as a supported locale. #1026
   * fix(db): decrease session token update frequency #1042
