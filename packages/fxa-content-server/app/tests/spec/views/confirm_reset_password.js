@@ -41,9 +41,17 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
     var ephemeralMessages;
     var user;
 
-    beforeEach(function () {
+    var LOGIN_MESSAGE_TIMEOUT_MS = 300;
+    var VERIFICATION_POLL_TIMEOUT_MS = 100;
+
+    function createDeps() {
+      destroyView();
+
       routerMock = new RouterMock();
       windowMock = new WindowMock();
+
+      sinon.stub(windowMock, 'setTimeout', window.setTimeout.bind(window));
+      sinon.stub(windowMock, 'clearTimeout', window.clearTimeout.bind(window));
 
       metrics = new Metrics();
       relier = new Relier();
@@ -66,6 +74,10 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
         passwordForgotToken: PASSWORD_FORGOT_TOKEN
       });
 
+      createView();
+    }
+
+    function createView () {
       view = new View({
         router: routerMock,
         window: windowMock,
@@ -75,51 +87,67 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
         broker: broker,
         user: user,
         interTabChannel: interTabChannel,
-        sessionUpdateTimeoutMS: 100,
+        loginMessageTimeoutMS: LOGIN_MESSAGE_TIMEOUT_MS,
+        verificationPollMS: VERIFICATION_POLL_TIMEOUT_MS,
         ephemeralMessages: ephemeralMessages,
         screenName: 'confirm_reset_password'
       });
+    }
 
-      return view.render()
-            .then(function () {
-              $('#container').html(view.el);
-            });
-    });
+    function destroyView () {
+      if (view) {
+        view.remove();
+        view.destroy();
+        view = null;
+      }
+    }
 
     afterEach(function () {
       metrics.destroy();
+      metrics = null;
 
-      view.remove();
-      view.destroy();
-
-      view = metrics = null;
+      destroyView();
     });
 
     describe('render', function () {
-      it('tells the broker to prepare for a password reset confirmation', function () {
+      beforeEach(function () {
+        createDeps();
+
         sinon.spy(broker, 'persist');
+
         return view.render()
           .then(function () {
-            assert.isTrue(broker.persist.called);
+            $('#container').html(view.el);
           });
       });
 
+      afterEach(function () {
+        destroyView();
+      });
+
       it('redirects to /reset_password if no passwordForgotToken', function () {
-        view = new View({
-          router: routerMock,
-          window: windowMock
+        ephemeralMessages.set('data', {
+          email: EMAIL
         });
+
+        createView();
+
+        sinon.spy(view, 'navigate');
+
         return view.render()
           .then(function () {
-            assert.equal(routerMock.page, 'reset_password');
+            assert.isTrue(view.navigate.calledWith('reset_password'));
           });
       });
 
       it('`sign in` link goes to /signin in normal flow', function () {
-        // Check to make sure the normal signin link is drawn
-        assert.equal(view.$('a[href="/signin"]').length, 1);
-        assert.equal(view.$('a[href="/force_auth?email=testuser%40testuser.com"]').length, 0);
-        assert.ok($('#fxa-confirm-reset-password-header').length);
+        return view.render()
+          .then(function () {
+            // Check to make sure the normal signin link is drawn
+            assert.equal(view.$('a[href="/signin"]').length, 1);
+            assert.equal(view.$('a[href="/force_auth?email=testuser%40testuser.com"]').length, 0);
+            assert.ok($('#fxa-confirm-reset-password-header').length);
+          });
       });
 
       it('`sign in` link goes to /force_auth in force auth flow', function () {
@@ -136,6 +164,8 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
       });
 
       it('does not allow XSS emails through for forceAuth', function () {
+        createDeps();
+
         sinon.stub(broker, 'isForceAuth', function () {
           return true;
         });
@@ -147,19 +177,7 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
           passwordForgotToken: PASSWORD_FORGOT_TOKEN
         });
 
-        // create a new view because ephemeralData is bound in the initializer
-        view = new View({
-          router: routerMock,
-          window: windowMock,
-          metrics: metrics,
-          fxaClient: fxaClient,
-          relier: relier,
-          broker: broker,
-          user: user,
-          interTabChannel: interTabChannel,
-          sessionUpdateTimeoutMS: 100,
-          ephemeralMessages: ephemeralMessages
-        });
+        createView();
 
         return view.render()
           .then(function () {
@@ -169,45 +187,206 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
       });
     });
 
-    describe('_waitForConfirmation', function () {
-      it('polls to check if user has verified, if not, retry', function () {
-        var count = 0;
-        fxaClient.isPasswordResetComplete.restore();
-        sinon.stub(view.fxaClient, 'isPasswordResetComplete', function () {
-          // force at least one cycle through the poll
-          count++;
-          return p(count === 2);
+    describe('afterRender', function () {
+      beforeEach(function () {
+        createDeps();
+
+        sinon.spy(broker, 'persist');
+      });
+
+      afterEach(function () {
+        destroyView();
+      });
+
+      it('calls `_finishPasswordResetSameBrowser` if `_waitForConfirmation` returns session info', function () {
+        var sessionInfo = { sessionToken: 'sessiontoken' };
+
+        sinon.stub(view, '_waitForConfirmation', function () {
+          return p(sessionInfo);
         });
 
-        sinon.stub(view, 'setTimeout', function (callback) {
-          callback();
+        sinon.stub(view, '_finishPasswordResetSameBrowser', function () {
+          return p();
         });
 
-        return view._waitForConfirmation()
-            .then(function () {
-              assert.equal(view.fxaClient.isPasswordResetComplete.callCount, 2);
-            });
+        return view.afterRender()
+          .then(function () {
+            assert.isTrue(broker.persist.called);
+            assert.isTrue(
+              view._finishPasswordResetSameBrowser.calledWith(sessionInfo));
+            assert.isTrue(TestHelpers.isEventLogged(
+              metrics, 'confirm_reset_password.verification.success'));
+          });
+      });
+
+      it('calls `_finishPasswordResetDifferentBrowser` if `_waitForConfirmation` does not return session info', function () {
+        sinon.stub(view, '_waitForConfirmation', function () {
+          return p(null);
+        });
+
+        sinon.stub(view, '_finishPasswordResetDifferentBrowser', function () {
+          return p();
+        });
+
+
+        return view.afterRender()
+          .then(function () {
+            assert.isTrue(broker.persist.called);
+            assert.isTrue(
+              view._finishPasswordResetDifferentBrowser.called);
+            assert.isTrue(TestHelpers.isEventLogged(
+              metrics, 'confirm_reset_password.verification.success'));
+          });
+      });
+
+      it('displays errors if `_waitForConfirmation` returns an error', function (done) {
+        sinon.stub(view, '_waitForConfirmation', function () {
+          return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+        });
+
+        sinon.stub(view, 'displayError', function (err) {
+          TestHelpers.wrapAssertion(function () {
+            assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
+
+            assert.isTrue(broker.persist.called);
+            assert.isFalse(TestHelpers.isEventLogged(
+              metrics, 'confirm_reset_password.verification.success'));
+          }, done);
+        });
+
+        // the _waitForConfirmation promise is not returned by afterRender
+        // so `displayError` must be wrapped and the `done` callback used.
+        view.afterRender();
       });
     });
 
-    describe('complete', function () {
-      it('non direct access redirects to `/reset_password_complete` and notifies the broker when the user has confirmed in the same browser', function (done) {
+    describe('_waitForConfirmation', function () {
+      beforeEach(function () {
+        createDeps();
         fxaClient.isPasswordResetComplete.restore();
+      });
+
+      afterEach(function () {
+        destroyView();
+      });
+
+      it('waits for the server confirmation if `complete_reset_password_tab_open` message is not received', function () {
         sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
-          // simulate the sessionToken being set in another tab.
-          // simulate the login occurring in another tab.
+          return p(fxaClient.isPasswordResetComplete.callCount === 3);
+        });
+
+        return view._waitForConfirmation()
+          .then(function (sessionInfo) {
+            assert.isNull(sessionInfo);
+          });
+      });
+
+      it('stops waiting if server returns an error', function () {
+        sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
+          return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+        });
+
+        sinon.spy(view, '_stopWaiting');
+        return view._waitForConfirmation()
+          .then(assert.fail, function (err) {
+            assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
+            assert.isTrue(view._stopWaiting.called);
+          });
+      });
+
+      it('waits for the `login` message if a `complete_reset_password_tab_open` message is received while an XHR request is outstanding', function () {
+        sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
+          // synthesize the message received while the 2nd XHR request is
+          // outstanding.
+          if (fxaClient.isPasswordResetComplete.callCount === 2) {
+            interTabChannel.send('complete_reset_password_tab_open');
+            return p(false).delay(100);
+          }
+
+          return p(false);
+        });
+
+        setTimeout(function () {
           interTabChannel.send('login', {
             sessionToken: 'sessiontoken'
           });
-          return p(true);
+        }, VERIFICATION_POLL_TIMEOUT_MS * 4);
+
+        return view._waitForConfirmation()
+          .then(function (sessionInfo) {
+            assert.equal(fxaClient.isPasswordResetComplete.callCount, 2);
+            assert.equal(sessionInfo.sessionToken, 'sessiontoken');
+          });
+      });
+
+      it('waits for the `login` message if a `complete_reset_password_tab_open` message is received', function () {
+        sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
+          if (fxaClient.isPasswordResetComplete.callCount === 2) {
+            // synthesize message sent afterr response received.
+            setTimeout(function () {
+              interTabChannel.send('complete_reset_password_tab_open');
+            }, 10);
+          }
+
+          return p(false);
         });
 
+        setTimeout(function () {
+          interTabChannel.send('login', {
+            sessionToken: 'sessiontoken'
+          });
+        }, VERIFICATION_POLL_TIMEOUT_MS * 4);
+
+        return view._waitForConfirmation()
+          .then(function (sessionInfo) {
+            assert.equal(fxaClient.isPasswordResetComplete.callCount, 2);
+            assert.equal(sessionInfo.sessionToken, 'sessiontoken');
+          });
+      });
+    });
+
+
+    describe('_finishPasswordResetDifferentBrowser', function () {
+      beforeEach(function () {
+        createDeps();
+      });
+
+      afterEach(function () {
+        destroyView();
+      });
+
+      it('redirects to page specified by broker if user verifies in a second browser', function () {
+        sinon.stub(broker, 'transformLink', function () {
+          // synthesize the OAuth broker.
+          return '/oauth/signin';
+        });
+
+        sinon.spy(view, 'navigate');
+
+        view._finishPasswordResetDifferentBrowser();
+
+        // leading slash should be removed from the url.
+        assert(view.navigate.calledWith('oauth/signin'));
+      });
+    });
+
+    describe('_finishPasswordResetSameBrowser', function () {
+      beforeEach(function () {
+        createDeps();
+      });
+
+      afterEach(function () {
+        destroyView();
+      });
+
+      it('halts if the broker says to halt', function () {
         sinon.stub(broker, 'afterResetPasswordConfirmationPoll', function () {
-          return p();
+          return p({
+            halt: true
+          });
         });
 
         sinon.stub(user, 'setSignedInAccount', function (account) {
-          assert.equal(account.get('sessionToken'), 'sessiontoken');
           return p();
         });
 
@@ -215,36 +394,47 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
           return false;
         });
 
-        sinon.stub(view, 'navigate', function (url) {
-          TestHelpers.wrapAssertion(function () {
-            assert.equal(url, 'reset_password_complete');
-            assert.isTrue(TestHelpers.isEventLogged(
-                    metrics, 'confirm_reset_password.verification.success'));
+        sinon.spy(view, 'navigate');
+
+        return view._finishPasswordResetSameBrowser()
+          .then(function () {
             assert.isTrue(user.setSignedInAccount.called);
             assert.isTrue(broker.afterResetPasswordConfirmationPoll.called);
-          }, done);
-        });
-
-        view.render();
+            assert.isFalse(view.navigate.called);
+          });
       });
 
-      it('direct access redirects to `/settings` if user verifies in the same browser', function (done) {
-        fxaClient.isPasswordResetComplete.restore();
-        sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
-          // simulate the sessionToken being set in another tab.
-          // simulate the login occurring in another tab.
-          interTabChannel.send('login', {
-            sessionToken: 'sessiontoken'
-          });
-          return p(true);
-        });
-
+      it('Non direct access redirects to `/reset_password_complete`', function () {
         sinon.stub(broker, 'afterResetPasswordConfirmationPoll', function () {
           return p();
         });
 
         sinon.stub(user, 'setSignedInAccount', function (account) {
-          assert.equal(account.get('sessionToken'), 'sessiontoken');
+          return p();
+        });
+
+        sinon.stub(relier, 'isDirectAccess', function () {
+          return false;
+        });
+
+        sinon.stub(view, 'navigate', function () {
+          // nothing to do
+        });
+
+        return view._finishPasswordResetSameBrowser()
+          .then(function () {
+            assert.isTrue(view.navigate.calledWith('reset_password_complete'));
+            assert.isTrue(user.setSignedInAccount.called);
+            assert.isTrue(broker.afterResetPasswordConfirmationPoll.called);
+          });
+      });
+
+      it('direct access redirects to `/settings`', function () {
+        sinon.stub(broker, 'afterResetPasswordConfirmationPoll', function () {
+          return p();
+        });
+
+        sinon.stub(user, 'setSignedInAccount', function (account) {
           return p();
         });
 
@@ -252,75 +442,38 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
           return true;
         });
 
-        sinon.stub(view, 'navigate', function (url) {
-          TestHelpers.wrapAssertion(function () {
-            assert.equal(url, 'settings');
-          }, done);
+        sinon.stub(view, 'navigate', function () {
+          // nothing to do
         });
 
-        view.render();
-      });
-
-      it('redirects to /signin if user verifies in a second browser', function (done) {
-        sinon.stub(relier, 'isOAuth', function () {
-          return false;
-        });
-
-        testSecondBrowserVerifyForcesSignIn('signin', done);
-      });
-
-      it('oauth flow redirects to /oauth/signin if user verifies in a second browser', function (done) {
-        sinon.stub(relier, 'isOAuth', function () {
-          return true;
-        });
-
-        testSecondBrowserVerifyForcesSignIn('oauth/signin', done);
-      });
-
-      function testSecondBrowserVerifyForcesSignIn(expectedPage, done) {
-        fxaClient.isPasswordResetComplete.restore();
-        sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
-          return p(true);
-        });
-
-        sinon.stub(view, 'setTimeout', function (callback) {
-          callback();
-        });
-
-        sinon.stub(view, 'navigate', function (page) {
-          TestHelpers.wrapAssertion(function () {
-            assert.equal(page, expectedPage);
-          }, done);
-        });
-
-        view.render();
-      }
-
-      it('displays an error if isPasswordResetComplete blows up', function (done) {
-        fxaClient.isPasswordResetComplete.restore();
-
-        sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
-          return p().then(function () {
-            throw AuthErrors.toError('UNEXPECTED_ERROR');
+        return view._finishPasswordResetSameBrowser()
+          .then(function () {
+            assert.isTrue(view.navigate.calledWith('settings'));
+            assert.isTrue(user.setSignedInAccount.called);
+            assert.isTrue(broker.afterResetPasswordConfirmationPoll.called);
           });
-        });
-
-        sinon.stub(view, 'displayError', function () {
-          // if isPasswordResetComplete blows up, it will be after
-          // view.render()'s promise has already resolved. Wait for the
-          // error to be displayed.
-          done();
-        });
-
-        view.render();
       });
     });
 
     describe('submit', function () {
+      beforeEach(function () {
+        createDeps();
+
+        return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+          });
+      });
+
+      afterEach(function () {
+        destroyView();
+      });
+
       it('resends the confirmation email, shows success message', function () {
         sinon.stub(fxaClient, 'passwordResetResend', function () {
           return p(true);
         });
+
         sinon.stub(view, 'getStringifiedResumeToken', function () {
           return 'resume token';
         });
@@ -373,6 +526,19 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
     });
 
     describe('validateAndSubmit', function () {
+      beforeEach(function () {
+        createDeps();
+
+        return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+          });
+      });
+
+      afterEach(function () {
+        destroyView();
+      });
+
       it('only called after click on #resend', function () {
         var count = 0;
         view.validateAndSubmit = function () {

@@ -113,7 +113,7 @@ define([
         });
     },
 
-    'password reset, verify same browser with original tab closed': function () {
+    'reset password, verify same browser with original tab closed': function () {
       var self = this;
 
       return self.remote
@@ -152,7 +152,7 @@ define([
         .end();
     },
 
-    'password reset, verify same browser by replacing the original tab': function () {
+    'reset password, verify same browser by replacing the original tab': function () {
       var self = this;
 
       return self.remote

@@ -66,18 +66,23 @@ define([
     describe('on', function () {
       it('register a callback to be called when a message is sent', function () {
         sinon.spy(crossTabMock.util.events, 'on');
-        interTabChannel.on('message', function () {});
+        var key = interTabChannel.on('message', function () {});
 
         assert.isTrue(crossTabMock.util.events.on.called);
+        assert.ok(key);
       });
     });
 
     describe('off', function () {
       it('unregister a callback to be called when a message is sent', function () {
         sinon.spy(crossTabMock.util.events, 'off');
-        interTabChannel.off('message', function () {});
 
-        assert.isTrue(crossTabMock.util.events.off.called);
+        var callback = function () {};
+        var key = interTabChannel.on('message', callback);
+        interTabChannel.off('message', key);
+
+        assert.isTrue(
+          crossTabMock.util.events.off.calledWith('message', key));
       });
     });
 

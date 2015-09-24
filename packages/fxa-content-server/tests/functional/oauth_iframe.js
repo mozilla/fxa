@@ -252,7 +252,7 @@ define([
         .end();
     },
 
-    'password reset, verify same browser': function () {
+    'reset password, verify same browser': function () {
       var self = this;
 
       return openFxaFromRp(self, 'signin')
@@ -276,7 +276,7 @@ define([
                       self, email, 0);
         })
 
-        // Complete the password reset in the new tab
+        // Complete the reset password in the new tab
         .switchToWindow('newwindow')
 
         .then(function () {
@@ -308,7 +308,7 @@ define([
         .end();
     },
 
-    'password reset, verify same browser with original tab closed': function () {
+    'reset password, verify same browser with original tab closed': function () {
       var self = this;
 
       return openFxaFromRp(self, 'signin')
@@ -356,7 +356,7 @@ define([
         .switchToFrame(null);
     },
 
-    'password reset, verify same browser by replacing the original tab': function () {
+    'reset password, verify same browser by replacing the original tab': function () {
       var self = this;
 
       return openFxaFromRp(self, 'signin')
@@ -391,7 +391,7 @@ define([
         .end();
     },
 
-    'password reset, verify in different browser, from the original tab\'s P.O.V.': function () {
+    'reset password, verify in different browser, from the original tab\'s P.O.V.': function () {
       var self = this;
 
       return openFxaFromRp(self, 'signin')
@@ -438,7 +438,7 @@ define([
         .end();
     },
 
-    'password reset, verify different browser - from new browser\'s P.O.V.': function () {
+    'reset password, verify different browser - from new browser\'s P.O.V.': function () {
       var self = this;
 
       return openFxaFromRp(self, 'signin')

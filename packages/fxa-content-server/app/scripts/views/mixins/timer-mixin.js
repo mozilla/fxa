@@ -21,7 +21,7 @@ function (_) {
       if (! this._timeouts) {
         this._timeouts = [];
         // clear all timeouts when the view is destroyed.
-        this.on('destroy', clearAllTimeouts);
+        this.on('destroy', clearAllTimeouts.bind(this));
       }
 
       var win = this.window || window;

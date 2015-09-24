@@ -8,6 +8,7 @@ define([
   'views/form',
   'stache!templates/complete_reset_password',
   'views/mixins/floating-placeholder-mixin',
+  'views/mixins/inter-tab-channel-mixin',
   'views/mixins/password-mixin',
   'views/mixins/resume-token-mixin',
   'views/mixins/service-mixin',
@@ -16,8 +17,8 @@ define([
   'lib/url'
 ],
 function (Cocktail, BaseView, FormView, Template, FloatingPlaceholderMixin,
-  PasswordMixin, ResumeTokenMixin, ServiceMixin, VerificationInfo,
-  AuthErrors, Url) {
+  InterTabChannelMixin, PasswordMixin, ResumeTokenMixin, ServiceMixin,
+  VerificationInfo, AuthErrors, Url) {
 
   'use strict';
 
@@ -31,10 +32,6 @@ function (Cocktail, BaseView, FormView, Template, FloatingPlaceholderMixin,
 
       var searchParams = Url.searchParams(this.window.location.search);
       this._verificationInfo = new VerificationInfo(searchParams);
-
-      // We use the interTabChannel rather than notifications because we only
-      // want to send account data to other tabs– not listeners on all channels.
-      this._interTabChannel = options.interTabChannel;
     },
 
     events: {
@@ -66,6 +63,9 @@ function (Cocktail, BaseView, FormView, Template, FloatingPlaceholderMixin,
     },
 
     afterRender: function () {
+      // The originating tab will start listening for `login` events once
+      // it knows the complete reset password tab is open in the same browser.
+      this.interTabSend('complete_reset_password_tab_open');
       this.initializePlaceholderFields();
     },
 
@@ -121,7 +121,7 @@ function (Cocktail, BaseView, FormView, Template, FloatingPlaceholderMixin,
           self.relier
         )
         .then(function (updatedAccount) {
-          self._interTabChannel.send('login', updatedAccount.toJSON());
+          self.interTabSend('login', updatedAccount.toJSON());
           // See the above note about notifying the original tab.
           self.logScreenEvent('verification.success');
           return self.broker.afterCompleteResetPassword(updatedAccount);
@@ -186,6 +186,7 @@ function (Cocktail, BaseView, FormView, Template, FloatingPlaceholderMixin,
   Cocktail.mixin(
     View,
     FloatingPlaceholderMixin,
+    InterTabChannelMixin,
     PasswordMixin,
     ResumeTokenMixin,
     ServiceMixin
