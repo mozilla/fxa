@@ -5,6 +5,7 @@
 var StatsD = require('node-statsd')
 
 var STATSD_PREFIX = 'fxa.auth.'
+var TIMING_SUFFIX = '.time'
 
 function StatsDCollector(log) {
   if (! log) {
@@ -56,15 +57,26 @@ StatsDCollector.prototype = {
   },
 
   increment: function (name, tags) {
-    var self = this
+    if (this.client) {
+      this.client.increment(
+        STATSD_PREFIX + name,
+        1,
+        this.sampleRate,
+        tags,
+        handleErrors(this, 'increment')
+      )
+    }
+  },
 
-    if (self.client) {
-      self.client.increment(STATSD_PREFIX + name, 1, self.sampleRate, tags, function messageSentCallback(err) {
-        // this only gets called once after all messages have been sent
-        if (err) {
-          self.log.error({op: 'statsd', err: err})
-        }
-      })
+  timing: function (name, timing, tags) {
+    if (this.client) {
+      this.client.timing(
+        STATSD_PREFIX + name + TIMING_SUFFIX,
+        timing,
+        this.sampleRate,
+        tags,
+        handleErrors(this, 'timing')
+      )
     }
   },
 
@@ -75,6 +87,17 @@ StatsDCollector.prototype = {
     if (this.client) {
       this.client.close()
       this.connected = false
+    }
+  }
+}
+
+function handleErrors (self, method) {
+  return function (error) {
+    if (error) {
+      self.log.error({
+        op: 'statsd.' + method,
+        err: error
+      })
     }
   }
 }

@@ -678,6 +678,7 @@ module.exports = function (
               if (!butil.buffersAreEqual(code, account.emailCode)) {
                 throw error.invalidVerificationCode()
               }
+              log.timing('account.verified', Date.now() - account.createdAt)
               log.event('verified', { email: account.email, uid: account.uid, locale: account.locale })
               log.increment('account.verified')
               return db.verifyEmail(account)

@@ -97,7 +97,7 @@ test(
   function (t) {
     var mockLog = {
       error: function (log) {
-        t.equal(log.op, 'statsd')
+        t.equal(log.op, 'statsd.increment')
         t.equal(log.err.message, 'Failed to send message')
         t.end()
       }
@@ -119,6 +119,64 @@ test(
       event: 'some-event',
       uid: 'id'
     })
+  }
+)
+
+test(
+  'statsd.timing',
+  function (t) {
+    function StatsDMock() {
+      return {
+        socket: {},
+        increment: function () {
+          t.fail('statsd.increment should not be called')
+          t.end()
+        },
+        timing: function () {
+          t.equal(arguments.length, 5, 'statsd.timing received the correct number arguments')
+          t.equal(arguments[0], 'fxa.auth.foo.time', 'statsd.timing received the correct name argument')
+          t.equal(arguments[1], 1, 'statsd.timing received the correct timing argument')
+          t.equal(typeof arguments[2], 'number', 'statsd.timing received the correct timing argument')
+          t.equal(arguments[3], undefined, 'statsd.timing received the correct tags argument')
+          t.equal(typeof arguments[4], 'function', 'statsd.timing received the correct callback argument')
+          t.end()
+        }
+      }
+    }
+
+    var statsd = new StatsDCollector(mockLog)
+    statsd.init()
+    statsd.client = new StatsDMock()
+    var log = require('../../lib/log')('info')
+    log.statsd = statsd
+    log.timing('foo', 1)
+  }
+)
+
+test(
+  'statsd.timing error',
+  function (t) {
+    var mockLog = {
+      error: function (log) {
+        t.equal(log.op, 'statsd.timing')
+        t.equal(log.err, 'foo')
+        t.end()
+      }
+    }
+
+    function StatsDMock() {
+      return {
+        socket: {},
+        timing: function () {
+          arguments[4]('foo')
+        }
+      }
+    }
+
+    var statsd = new StatsDCollector(mockLog)
+    statsd.init()
+    statsd.client = new StatsDMock()
+    statsd.timing('wibble', 42)
   }
 )
 
