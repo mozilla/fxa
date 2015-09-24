@@ -11,7 +11,6 @@ const MysqlPatcher = require('mysql-patcher');
 
 const config = require('../../config');
 const encrypt = require('../../encrypt');
-const logger = require('../../logging')('db.mysql');
 const P = require('../../promise');
 const Scope = require('../../scope');
 const unique = require('../../unique');
@@ -19,6 +18,8 @@ const patch = require('./patch');
 
 const MAX_TTL = config.get('expiration.accessToken');
 
+// logger is not const to support mocking in the unit tests
+var logger = require('../../logging')('db.mysql');
 
 function MysqlStore(options) {
   if (options.charset && options.charset !== 'UTF8_UNICODE_CI') {
@@ -87,6 +88,9 @@ function checkDbPatchLevel(patcher) {
 }
 
 MysqlStore.connect = function mysqlConnect(options) {
+  if (options.logger) {
+    logger = options.logger;
+  }
 
   options.createDatabase = options.createSchema;
   options.dir = path.join(__dirname, 'patches');

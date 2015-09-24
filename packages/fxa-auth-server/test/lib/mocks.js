@@ -3,15 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const path = require('path');
-const proxyquire = require('proxyquire');
-const m = require('module');
-
-var moduleCache;
 
 module.exports = {
-  require: requireDependencies,
-  register: registerDependencies,
-  deregister: deregisterDependencies
+  require: requireDependencies
 };
 
 // `mocks.require`
@@ -56,56 +50,5 @@ function requireDependency(dependency, modulePath, basePath) {
   }
 
   return require(localPath);
-}
-
-// `mocks.register`
-//
-// Register mock dependencies, fixing paths as we go so that it works
-// with the blanket coverage tool (which rewrites require paths in the
-// instrumented code). You should call this function inside beforeEach.
-//
-// Expects three arguments; `dependencies`, `modulePath` and `basePath`.
-//
-// dependencies: An object, where keys are dependency paths and values
-//               are mock objects. This argument is typically the return
-//               value from `mocks.require`, modified by sinon for your
-//               tests.
-// modulePath:   The relative path to the module under test.
-// basePath:     The base path, i.e. __dirname for the test itself.
-function registerDependencies(dependencies, modulePath, basePath) {
-  var instrumentedDependencies = {};
-
-  clearModuleCache();
-
-  Object.keys(dependencies).forEach(function(dependencyPath) {
-    var instrumentedPath = getInstrumentedPath(dependencyPath, modulePath, basePath);
-    instrumentedDependencies[instrumentedPath] = dependencies[dependencyPath];
-  });
-
-  proxyquire(modulePath, instrumentedDependencies);
-}
-
-function clearModuleCache() {
-  moduleCache = m._cache;
-  m._cache = {};
-}
-
-function getInstrumentedPath(dependencyPath, modulePath, basePath) {
-  if (dependencyPath[0] !== '.') {
-    return dependencyPath;
-  }
-
-  return path.resolve(basePath, modulePath) + '/' + dependencyPath;
-}
-
-// `mocks.deregister`
-//
-// Deregister mock dependencies. You should call this function
-// inside afterEach.
-function deregisterDependencies() {
-  if (moduleCache) {
-    m._cache = moduleCache;
-    moduleCache = null;
-  }
 }
 
