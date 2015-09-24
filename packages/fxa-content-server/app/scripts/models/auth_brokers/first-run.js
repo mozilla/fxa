@@ -39,7 +39,9 @@ define([
           // is sent. If `haltAfterSignIn` is set to true, the firstrun page
           // will take care of displaying an update to the user.
           if (self.getSearchParam('haltAfterSignIn') === 'true') {
-            self.haltAfterSignIn = true;
+            self.setBehavior('afterSignIn', {
+              halt: true
+            });
           }
         });
     },

@@ -48,8 +48,18 @@ function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
     return p(result);
   }
 
+  var proto = BaseAuthenticationBroker.prototype;
+
   var OAuthAuthenticationBroker = BaseAuthenticationBroker.extend({
     type: 'oauth',
+
+    defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
+      // the relier will take over after sign in, no need to transition.
+      afterSignIn: {
+        halt: true
+      }
+    }),
+
     initialize: function (options) {
       options = options || {};
 
@@ -137,10 +147,10 @@ function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
     },
 
     afterSignIn: function (account, additionalResultData) {
-      return this.finishOAuthSignInFlow(account, additionalResultData)
+      var self = this;
+      return self.finishOAuthSignInFlow(account, additionalResultData)
         .then(function () {
-          // the RP will take over from here, no need for a screen transition.
-          return { halt: true };
+          return proto.afterSignIn.call(self, account);
         });
     },
 

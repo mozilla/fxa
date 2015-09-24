@@ -31,6 +31,11 @@ function (chai, Relier, BaseAuthenticationBroker,
       });
     });
 
+    function testDoesNotHalt(behavior) {
+      assert.ok(behavior);
+      assert.isFalse(behavior.halt);
+    }
+
     describe('afterLoaded', function () {
       it('returns a promise', function () {
         return broker.afterLoaded()
@@ -45,13 +50,6 @@ function (chai, Relier, BaseAuthenticationBroker,
       });
     });
 
-    describe('afterSignIn', function () {
-      it('returns a promise', function () {
-        return broker.afterSignIn(view)
-          .then(assert.pass);
-      });
-    });
-
     describe('persist', function () {
       it('returns a promise', function () {
         return broker.persist(view)
@@ -59,38 +57,67 @@ function (chai, Relier, BaseAuthenticationBroker,
       });
     });
 
-    describe('beforeSignUpConfirmationPoll', function () {
-      it('returns a promise', function () {
-        return broker.beforeSignUpConfirmationPoll(view)
-          .then(assert.pass);
-      });
-    });
-
-    describe('afterSignUpConfirmationPoll', function () {
-      it('returns a promise', function () {
-        return broker.afterSignUpConfirmationPoll(view)
-          .then(assert.pass);
-      });
-    });
-
-    describe('afterResetPasswordConfirmationPoll', function () {
-      it('returns a promise', function () {
-        return broker.afterResetPasswordConfirmationPoll(view)
-          .then(assert.pass);
-      });
-    });
 
     describe('afterChangePassword', function () {
       it('returns a promise', function () {
         return broker.afterChangePassword(view)
-          .then(assert.pass);
+          .then(testDoesNotHalt);
+      });
+    });
+
+    describe('afterCompleteResetPassword', function () {
+      it('returns a promise', function () {
+        return broker.afterCompleteResetPassword(view)
+          .then(testDoesNotHalt);
+      });
+    });
+
+    describe('afterCompleteSignUp', function () {
+      it('returns a promise', function () {
+        return broker.afterCompleteSignUp(view)
+          .then(testDoesNotHalt);
       });
     });
 
     describe('afterDeleteAccount', function () {
       it('returns a promise', function () {
         return broker.afterDeleteAccount(view)
-          .then(assert.pass);
+          .then(testDoesNotHalt);
+      });
+    });
+
+    describe('afterResetPasswordConfirmationPoll', function () {
+      it('returns a promise', function () {
+        return broker.afterResetPasswordConfirmationPoll(view)
+          .then(testDoesNotHalt);
+      });
+    });
+
+    describe('afterSignIn', function () {
+      it('returns a promise', function () {
+        return broker.afterSignIn(view)
+          .then(testDoesNotHalt);
+      });
+    });
+
+    describe('beforeSignIn', function () {
+      it('returns a promise', function () {
+        return broker.beforeSignIn(view)
+          .then(testDoesNotHalt);
+      });
+    });
+
+    describe('afterSignUpConfirmationPoll', function () {
+      it('returns a promise', function () {
+        return broker.afterSignUpConfirmationPoll(view)
+          .then(testDoesNotHalt);
+      });
+    });
+
+    describe('beforeSignUpConfirmationPoll', function () {
+      it('returns a promise', function () {
+        return broker.beforeSignUpConfirmationPoll(view)
+          .then(testDoesNotHalt);
       });
     });
 
@@ -131,6 +158,26 @@ function (chai, Relier, BaseAuthenticationBroker,
     describe('isSignupDisabled', function () {
       it('returns `false` by default', function () {
         assert.isFalse(broker.isSignupDisabled());
+      });
+    });
+
+    describe('getBehavior', function () {
+      it('gets a behavior, if defined', function () {
+        var behavior = broker.getBehavior('beforeSignIn');
+        assert.isDefined(behavior);
+      });
+
+      it('throws if behavior is not defined', function () {
+        assert.throws(function () {
+          broker.getBehavior('NOT_SET');
+        }, 'behavior not found for: NOT_SET');
+      });
+    });
+
+    describe('setBehavior', function () {
+      it('sets a behavior', function () {
+        broker.setBehavior('new behavior', { halt: true });
+        assert.isTrue(broker.getBehavior('new behavior').halt);
       });
     });
   });
