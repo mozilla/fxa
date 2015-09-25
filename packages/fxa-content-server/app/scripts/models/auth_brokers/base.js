@@ -12,7 +12,8 @@ define([
   'lib/promise',
   'models/mixins/search-param',
   'underscore',
-], function (Backbone, p, SearchParamMixin, _) {
+  'views/behaviors/null'
+], function (Backbone, p, SearchParamMixin, _, NullBehavior) {
   'use strict';
 
   var BaseAuthenticationBroker = Backbone.Model.extend({
@@ -24,7 +25,7 @@ define([
       this.relier = options.relier;
       this.window = options.window || window;
 
-      this._behaviors = _.extend({}, this.defaultBehaviors);
+      this._behaviors = new Backbone.Model(this.defaultBehaviors);
       this._capabilities = new Backbone.Model(this.defaultCapabilities);
     },
 
@@ -33,39 +34,18 @@ define([
      * once a broker's function has completed. A subclass can override one
      * or more behavior.
      *
-     * A behavior should specify a `halt` value. In the future, `redirectTo`
-     * will be supported as well.
-     *
      * @property defaultBehaviors
      */
     defaultBehaviors: {
-      afterChangePassword: {
-        halt: false
-      },
-      afterCompleteResetPassword: {
-        halt: false
-      },
-      afterCompleteSignUp: {
-        halt: false
-      },
-      afterDeleteAccount: {
-        halt: false
-      },
-      afterResetPasswordConfirmationPoll: {
-        halt: false
-      },
-      afterSignIn: {
-        halt: false
-      },
-      afterSignUpConfirmationPoll: {
-        halt: false
-      },
-      beforeSignIn: {
-        halt: false
-      },
-      beforeSignUpConfirmationPoll: {
-        halt: false
-      }
+      afterChangePassword: new NullBehavior(),
+      afterCompleteResetPassword: new NullBehavior(),
+      afterCompleteSignUp: new NullBehavior(),
+      afterDeleteAccount: new NullBehavior(),
+      afterResetPasswordConfirmationPoll: new NullBehavior(),
+      afterSignIn: new NullBehavior(),
+      afterSignUpConfirmationPoll: new NullBehavior(),
+      beforeSignIn: new NullBehavior(),
+      beforeSignUpConfirmationPoll: new NullBehavior()
     },
 
     /**
@@ -75,7 +55,7 @@ define([
      * @param {object} value
      */
     setBehavior: function (behaviorName, value) {
-      this._behaviors[behaviorName] = value;
+      this._behaviors.set(behaviorName, value);
     },
 
     /**
@@ -85,12 +65,11 @@ define([
      * @return {object}
      */
     getBehavior: function (behaviorName) {
-      var behavior = this._behaviors[behaviorName];
-      if (! behavior) {
+      if (! this._behaviors.has(behaviorName)) {
         throw new Error('behavior not found for: ' + behaviorName);
       }
 
-      return behavior;
+      return this._behaviors.get(behaviorName);
     },
 
     /**

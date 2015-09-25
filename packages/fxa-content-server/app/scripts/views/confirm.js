@@ -85,35 +85,38 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
     afterRender: function () {
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
+
+      this.transformLinks();
     },
 
     afterVisible: function () {
       var self = this;
+
+      // the view is always rendered, but the confirmation poll may be
+      // prevented by the broker. An example is Firefox Desktop where the
+      // browser is already performing a poll, so a second poll is not needed.
+
       return self.broker.persist()
         .then(function () {
-          return self.broker.beforeSignUpConfirmationPoll(self.getAccount());
+          return self.invokeBrokerMethod(
+                    'beforeSignUpConfirmationPoll', self.getAccount());
         })
-        .then(function (result) {
-          if (result && result.halt) {
-            return;
-          }
-
+        .then(function () {
           return self._waitForConfirmation()
             .then(function () {
               self.logScreenEvent('verification.success');
               self.notify('verification.success');
-              return self.broker.afterSignUpConfirmationPoll(self.getAccount());
+              return self.invokeBrokerMethod(
+                        'afterSignUpConfirmationPoll', self.getAccount());
             })
-            .then(function (result) {
-              if (! (result && result.halt)) {
-                // the user is definitely authenticated here.
-                if (self.relier.isDirectAccess()) {
-                  self.navigate('settings', {
-                    success: t('Account verified successfully')
-                  });
-                } else {
-                  self.navigate('signup_complete');
-                }
+            .then(function () {
+              // the user is definitely authenticated here.
+              if (self.relier.isDirectAccess()) {
+                self.navigate('settings', {
+                  success: t('Account verified successfully')
+                });
+              } else {
+                self.navigate('signup_complete');
               }
             }, function (err) {
               // The user's email may have bounced because it was invalid.

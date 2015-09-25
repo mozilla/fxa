@@ -51,7 +51,7 @@ function (Cocktail, BaseView, FormView, AuthErrors, Template, PasswordMixin,
           self.relier
         )
         .then(function () {
-          return self.broker.afterChangePassword(account);
+          return self.invokeBrokerMethod('afterChangePassword', account);
         })
         .then(function () {
           self.displaySuccess(t('Password changed successfully'));

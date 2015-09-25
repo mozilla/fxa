@@ -69,20 +69,16 @@ function (chai, sinon, p, FxaClient, User, Broker, View, WindowMock, RouterMock)
         });
       });
       sinon.spy(user, 'initAccount');
-      sinon.stub(broker, 'afterSignIn', function () {
-        return p();
-      });
+      sinon.spy(broker, 'afterSignIn');
       sinon.stub(view, 'navigate', function () { });
 
       return view.render()
-        .then(
-          function () {
-            var account = user.initAccount.returnValues[0];
-            assert.equal(account.get('email'), accountData.email);
-            assert.isTrue(broker.afterSignIn.calledWith(account));
-            assert.isTrue(view.navigate.calledWith('settings'));
-          }
-        );
+        .then(function () {
+          var account = user.initAccount.returnValues[0];
+          assert.equal(account.get('email'), accountData.email);
+          assert.isTrue(broker.afterSignIn.calledWith(account));
+          assert.isTrue(view.navigate.calledWith('settings'));
+        });
     });
   });
 });

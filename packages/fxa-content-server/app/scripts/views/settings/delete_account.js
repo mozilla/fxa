@@ -48,7 +48,7 @@ function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
             uid: account.get('uid')
           });
 
-          return self.broker.afterDeleteAccount(account);
+          return self.invokeBrokerMethod('afterDeleteAccount', account);
         })
         .then(function () {
           // user deleted an account

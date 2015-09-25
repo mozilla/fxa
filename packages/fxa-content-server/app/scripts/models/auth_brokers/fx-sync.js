@@ -6,15 +6,6 @@
  * A generic broker that can communicate with Firefox when used to sign in
  * to Sync. Concrete sub-classes should define the function `createChannel`
  * and a `commands` object.
- *
- * The functions `afterResetPasswordConfirmationPoll`, `afterSignIn`, and
- * `beforeSignUpConfirmationPoll` all return `halt: true` by default.
- *
- * A subclass/instance can override this behavior by specifying
- * `false` for any of:
- *   `haltAfterResetPasswordConfirmationPoll`
- *   `haltAfterSignIn`
- *   `haltBeforeSignUpConfirmationPoll`
  */
 
 define([

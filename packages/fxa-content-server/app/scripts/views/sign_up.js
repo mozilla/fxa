@@ -310,7 +310,7 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
         }
       }
 
-      return self.broker.beforeSignIn(account.get('email'))
+      return self.invokeBrokerMethod('beforeSignIn', account.get('email'))
         .then(function () {
           return self.user.signUpAccount(account, self.relier, {
             resume: self.getStringifiedResumeToken()
@@ -346,11 +346,9 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       var self = this;
       if (account.get('verified')) {
         // user was pre-verified, notify the broker.
-        return self.broker.afterSignIn(account)
-          .then(function (result) {
-            if (! (result && result.halt)) {
-              self.navigate('signup_complete');
-            }
+        return self.invokeBrokerMethod('afterSignIn', account)
+          .then(function () {
+            self.navigate('signup_complete');
           });
       } else {
         self.navigate('confirm', {

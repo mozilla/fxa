@@ -19,7 +19,7 @@ define([
   '../../lib/helpers'
 ],
 function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
-      View, Relier, Broker, User, RouterMock, WindowMock, TestHelpers) {
+  View, Relier, Broker, User, RouterMock, WindowMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -335,39 +335,6 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
           .then(function () {
             assert.equal(routerMock.page, 'settings');
           });
-      });
-
-      it('halts if the broker says halt', function () {
-        view.$('[type=password]').val(PASSWORD);
-
-        sinon.stub(fxaClient, 'signIn', function () {
-          return p(ACCOUNT_DATA);
-        });
-        sinon.stub(fxaClient, 'completePasswordReset', function () {
-          return p(true);
-        });
-        sinon.stub(user, 'setSignedInAccount', function (newAccount) {
-          return p(newAccount);
-        });
-        sinon.stub(broker, 'afterCompleteResetPassword', function () {
-          return p({ halt: true });
-        });
-
-        return view.validateAndSubmit()
-            .then(function () {
-              assert.isTrue(fxaClient.completePasswordReset.calledWith(
-                  EMAIL, PASSWORD, TOKEN, CODE));
-              assert.isTrue(fxaClient.signIn.calledWith(
-                  EMAIL,
-                  PASSWORD,
-                  relier,
-                  { reason: view.fxaClient.SIGNIN_REASON.PASSWORD_RESET }
-              ));
-              assert.notEqual(routerMock.page, 'reset_password_complete');
-              return user.setSignedInAccount.returnValues[0].then(function (returnValue) {
-                assert.isTrue(broker.afterCompleteResetPassword.calledWith(returnValue));
-              });
-            });
       });
 
       it('reload view to allow user to resend an email on INVALID_TOKEN error', function () {

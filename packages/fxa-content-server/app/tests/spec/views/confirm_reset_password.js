@@ -21,8 +21,8 @@ define([
   '../../lib/helpers'
 ],
 function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
-      InterTabChannel, Storage, FxaClient, Relier, Broker, User,
-      RouterMock, WindowMock, TestHelpers) {
+  InterTabChannel, Storage, FxaClient, Relier, Broker, User,
+  RouterMock, WindowMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -375,31 +375,6 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
 
       afterEach(function () {
         destroyView();
-      });
-
-      it('halts if the broker says to halt', function () {
-        sinon.stub(broker, 'afterResetPasswordConfirmationPoll', function () {
-          return p({
-            halt: true
-          });
-        });
-
-        sinon.stub(user, 'setSignedInAccount', function (account) {
-          return p();
-        });
-
-        sinon.stub(relier, 'isDirectAccess', function () {
-          return false;
-        });
-
-        sinon.spy(view, 'navigate');
-
-        return view._finishPasswordResetSameBrowser()
-          .then(function () {
-            assert.isTrue(user.setSignedInAccount.called);
-            assert.isTrue(broker.afterResetPasswordConfirmationPoll.called);
-            assert.isFalse(view.navigate.called);
-          });
       });
 
       it('Non direct access redirects to `/reset_password_complete`', function () {

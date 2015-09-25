@@ -70,11 +70,9 @@ function (Cocktail, FormView, Template, p, BackMixin, ServiceMixin) {
       var self = this;
       if (account.get('verified')) {
         // user was pre-verified, notify the broker.
-        return self.broker.afterSignIn(account)
-          .then(function (result) {
-            if (! (result && result.halt)) {
-              self.navigate('signup_complete');
-            }
+        return self.invokeBrokerMethod('afterSignIn', account)
+          .then(function () {
+            self.navigate('signup_complete');
           });
       } else {
         self.navigate('confirm', {
@@ -88,13 +86,9 @@ function (Cocktail, FormView, Template, p, BackMixin, ServiceMixin) {
     onSignInSuccess: function (account) {
       var self = this;
       self.logScreenEvent('success');
-      return self.broker.afterSignIn(account)
-        .then(function (result) {
-          if (! (result && result.halt)) {
-            self.navigate('settings');
-          }
-
-          return result;
+      return self.invokeBrokerMethod('afterSignIn', account)
+        .then(function () {
+          self.navigate('settings');
         });
     },
 

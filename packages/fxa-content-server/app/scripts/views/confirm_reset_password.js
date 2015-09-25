@@ -58,8 +58,6 @@ function (Cocktail, ConfirmView, BaseView, Template, p, Session, AuthErrors,
     afterVisible: function () {
       var self = this;
 
-      this.transformLinks();
-
       return self.broker.persist()
         .then(function () {
           return self._waitForConfirmation()
@@ -156,13 +154,10 @@ function (Cocktail, ConfirmView, BaseView, Template, p, Session, AuthErrors,
         .then(function () {
           self.displaySuccess(t('Password reset'));
 
-          return self.broker.afterResetPasswordConfirmationPoll(account);
+          return self.invokeBrokerMethod(
+                  'afterResetPasswordConfirmationPoll', account);
         })
-        .then(function (result) {
-          if (result && result.halt) {
-            return;
-          }
-
+        .then(function () {
           if (self.relier.isDirectAccess()) {
             // user is most definitely signed in since sessionInfo
             // was passed in. Just ship direct access users to /settings

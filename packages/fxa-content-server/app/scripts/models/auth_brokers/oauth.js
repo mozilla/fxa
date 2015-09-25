@@ -15,10 +15,11 @@ define([
   'lib/auth-errors',
   'lib/promise',
   'lib/validate',
-  'models/auth_brokers/base'
+  'models/auth_brokers/base',
+  'views/behaviors/halt'
 ],
 function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
-      BaseAuthenticationBroker) {
+      BaseAuthenticationBroker, HaltBehavior) {
   'use strict';
 
   /**
@@ -55,9 +56,7 @@ function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
 
     defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
       // the relier will take over after sign in, no need to transition.
-      afterSignIn: {
-        halt: true
-      }
+      afterSignIn: new HaltBehavior()
     }),
 
     initialize: function (options) {

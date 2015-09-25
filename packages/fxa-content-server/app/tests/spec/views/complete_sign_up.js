@@ -20,8 +20,8 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
-      FxaClient, MarketingEmailErrors, Relier, Broker, User, Notifications, RouterMock,
+function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
+      MarketingEmailErrors, Relier, Broker, User, Notifications, RouterMock,
       WindowMock, TestHelpers) {
   'use strict';
 
@@ -242,19 +242,6 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
         return view.render()
           .then(function () {
             assert.equal(routerMock.page, 'signup_complete');
-          });
-      });
-
-      it('halts if the broker says halt', function () {
-        sinon.stub(broker, 'afterCompleteSignUp', function () {
-          return p({ halt: true });
-        });
-
-        return view.render()
-          .then(function () {
-            assert.isTrue(view.fxaClient.verifyCode.calledWith(validUid, validCode));
-            assert.notEqual(routerMock.page, 'signup_complete');
-            assert.isTrue(broker.afterCompleteSignUp.called);
           });
       });
 

@@ -56,7 +56,7 @@ function (chai, sinon, NullChannel, Account, FirstRunAuthenticationBroker, Relie
           })
           .then(function (result) {
             assert.isTrue(iframeChannel.send.calledWith(broker._iframeCommands.LOGIN));
-            assert.isFalse(result.halt);
+            assert.isUndefined(result.halt);
           });
       });
 
@@ -88,7 +88,7 @@ function (chai, sinon, NullChannel, Account, FirstRunAuthenticationBroker, Relie
         return broker.beforeSignUpConfirmationPoll(account)
           .then(function (result) {
             assert.isTrue(iframeChannel.send.calledWith(broker._iframeCommands.SIGNUP_MUST_VERIFY));
-            assert.isFalse(result.halt);
+            assert.isUndefined(result.halt);
           });
       });
     });
@@ -111,7 +111,7 @@ function (chai, sinon, NullChannel, Account, FirstRunAuthenticationBroker, Relie
         return broker.afterResetPasswordConfirmationPoll(account)
           .then(function (result) {
             assert.isTrue(iframeChannel.send.calledWith(broker._iframeCommands.VERIFICATION_COMPLETE));
-            assert.isFalse(result.halt);
+            assert.isUndefined(result.halt);
           });
       });
     });

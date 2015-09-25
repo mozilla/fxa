@@ -61,7 +61,7 @@ define([
         return broker.afterSignIn(account)
           .then(function (result) {
             assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
-            assert.isFalse(result.halt);
+            assert.isUndefined(result.halt);
           });
       });
     });
@@ -71,7 +71,7 @@ define([
         return broker.beforeSignUpConfirmationPoll(account)
           .then(function (result) {
             assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
-            assert.isFalse(result.halt);
+            assert.isUndefined(result.halt);
           });
       });
     });
@@ -81,7 +81,7 @@ define([
         return broker.afterResetPasswordConfirmationPoll(account)
           .then(function (result) {
             assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
-            assert.isFalse(result.halt);
+            assert.isUndefined(result.halt);
           });
       });
     });

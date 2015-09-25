@@ -129,16 +129,11 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
       });
     });
 
-    describe('afterVisible', function () {
-      it('tells the broker to prepare for a confirmation', function () {
-        sinon.spy(broker, 'persist');
-        return view.afterVisible()
-          .then(function () {
-            assert.isTrue(broker.persist.called);
-          });
-      });
 
+    describe('afterVisible', function () {
       it('notifies the broker before the confirmation', function () {
+        sinon.spy(broker, 'persist');
+
         sinon.stub(broker, 'beforeSignUpConfirmationPoll', function (account) {
           assert.isTrue(account.get('customizeSync'));
           return p();
@@ -146,7 +141,9 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
 
         return view.afterVisible()
           .then(function () {
-            assert.isTrue(broker.beforeSignUpConfirmationPoll.calledWith(account));
+            assert.isTrue(broker.persist.called);
+            assert.isTrue(
+                broker.beforeSignUpConfirmationPoll.calledWith(account));
           });
       });
 
@@ -199,19 +196,6 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
             assert.isTrue(view.fxaClient.recoveryEmailStatus.called);
             assert.equal(
                 ephemeralMessages.get('bouncedEmail'), 'a@a.com');
-          });
-      });
-
-      it('does not start the poll if beforeSignUpConfirmationPoll halts flow', function () {
-        sinon.stub(broker, 'beforeSignUpConfirmationPoll', function () {
-          return p({ halt: true });
-        });
-
-        sinon.spy(view, '_waitForConfirmation');
-
-        return view.afterVisible()
-          .then(function () {
-            assert.isFalse(view._waitForConfirmation.called);
           });
       });
     });
@@ -327,9 +311,13 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
           return true;
         });
 
+        sinon.stub(view, 'navigate', function (page) {
+          // do nothing
+        });
+
         return view.afterVisible()
           .then(function () {
-            assert.equal(routerMock.page, 'settings');
+            assert.isTrue(view.navigate.calledWith('settings'));
           });
       });
 
@@ -344,9 +332,13 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
           return false;
         });
 
+        sinon.stub(view, 'navigate', function (page) {
+          // do nothing
+        });
+
         return view.afterVisible()
           .then(function () {
-            assert.equal(routerMock.page, 'signup_complete');
+            assert.isTrue(view.navigate.calledWith('signup_complete'));
           });
       });
     });

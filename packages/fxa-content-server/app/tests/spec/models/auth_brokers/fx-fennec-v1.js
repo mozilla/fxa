@@ -49,7 +49,7 @@ function (chai, NullChannel, FxFennecV1AuthenticationBroker, Relier,
         return broker.afterResetPasswordConfirmationPoll(account)
           .then(function (result) {
             assert.isTrue(broker.send.calledWith('fxaccounts:login'));
-            assert.isFalse(result.halt);
+            assert.isUndefined(result.halt);
           });
       });
     });
@@ -59,7 +59,7 @@ function (chai, NullChannel, FxFennecV1AuthenticationBroker, Relier,
         return broker.afterSignIn(account)
           .then(function (result) {
             assert.isTrue(broker.send.calledWith('fxaccounts:login'));
-            assert.isFalse(result.halt);
+            assert.isUndefined(result.halt);
           });
       });
     });
@@ -69,7 +69,7 @@ function (chai, NullChannel, FxFennecV1AuthenticationBroker, Relier,
         return broker.beforeSignUpConfirmationPoll(account)
           .then(function (result) {
             assert.isTrue(broker.send.calledWith('fxaccounts:login'));
-            assert.isFalse(result.halt);
+            assert.isUndefined(result.halt);
           });
       });
     });

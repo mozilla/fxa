@@ -85,13 +85,10 @@ function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
             }
           })
           .then(function () {
-            return self.broker.afterCompleteSignUp(self.getAccount());
+            return self.invokeBrokerMethod(
+                      'afterCompleteSignUp', self.getAccount());
           })
-          .then(function (result) {
-            if (result && result.halt) {
-              return false;
-            }
-
+          .then(function () {
             if (! self.relier.isDirectAccess()) {
               self.navigate('signup_complete');
               return false;

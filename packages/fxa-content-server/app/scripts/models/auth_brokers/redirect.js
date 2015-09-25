@@ -8,8 +8,9 @@ define([
   'lib/promise',
   'lib/constants',
   'lib/url',
-  'models/auth_brokers/oauth'
-], function (p, Constants, Url, OAuthAuthenticationBroker) {
+  'models/auth_brokers/oauth',
+  'views/behaviors/halt'
+], function (p, Constants, Url, OAuthAuthenticationBroker, HaltBehavior) {
   'use strict';
 
   var RedirectAuthenticationBroker = OAuthAuthenticationBroker.extend({
@@ -89,7 +90,7 @@ define([
         if (self.isOriginalTab() || self.canVerificationRedirect()) {
           return self.finishOAuthSignUpFlow(account)
             .then(function () {
-              return { halt: true };
+              return new HaltBehavior();
             });
         }
       });
@@ -111,7 +112,7 @@ define([
         if (self.isOriginalTab()) {
           return self.finishOAuthSignInFlow(account)
             .then(function () {
-              return { halt: true };
+              return new HaltBehavior();
             });
         }
       });

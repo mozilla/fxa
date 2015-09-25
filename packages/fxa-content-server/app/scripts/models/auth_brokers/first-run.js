@@ -8,8 +8,9 @@
  */
 
 define([
-  'models/auth_brokers/fx-desktop-v2'
-], function (FxDesktopV2AuthenticationBroker) {
+  'models/auth_brokers/fx-desktop-v2',
+  'views/behaviors/halt'
+], function (FxDesktopV2AuthenticationBroker, HaltBehavior) {
   'use strict';
 
   var proto = FxDesktopV2AuthenticationBroker.prototype;
@@ -39,9 +40,7 @@ define([
           // is sent. If `haltAfterSignIn` is set to true, the firstrun page
           // will take care of displaying an update to the user.
           if (self.getSearchParam('haltAfterSignIn') === 'true') {
-            self.setBehavior('afterSignIn', {
-              halt: true
-            });
+            self.setBehavior('afterSignIn', new HaltBehavior());
           }
         });
     },

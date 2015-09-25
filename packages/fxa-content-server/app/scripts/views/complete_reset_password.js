@@ -124,19 +124,18 @@ function (Cocktail, BaseView, FormView, Template, FloatingPlaceholderMixin,
           self.interTabSend('login', updatedAccount.toJSON());
           // See the above note about notifying the original tab.
           self.logScreenEvent('verification.success');
-          return self.broker.afterCompleteResetPassword(updatedAccount);
+          return self.invokeBrokerMethod(
+                    'afterCompleteResetPassword', updatedAccount);
         })
-        .then(function (result) {
-          if (! (result && result.halt)) {
-            // the user is definitively signed in here, otherwise this
-            // path would not be taken.
-            if (self.relier.isDirectAccess()) {
-              self.navigate('settings', {
-                success: t('Account verified successfully')
-              });
-            } else {
-              self.navigate('reset_password_complete');
-            }
+        .then(function () {
+          // the user is definitively signed in here, otherwise this
+          // path would not be taken.
+          if (self.relier.isDirectAccess()) {
+            self.navigate('settings', {
+              success: t('Account verified successfully')
+            });
+          } else {
+            self.navigate('reset_password_complete');
           }
         })
         .then(null, function (err) {

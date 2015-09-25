@@ -33,7 +33,7 @@ function (chai, Relier, BaseAuthenticationBroker,
 
     function testDoesNotHalt(behavior) {
       assert.ok(behavior);
-      assert.isFalse(behavior.halt);
+      assert.isUndefined(behavior.halt);
     }
 
     describe('afterLoaded', function () {
