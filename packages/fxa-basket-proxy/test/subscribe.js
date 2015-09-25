@@ -107,4 +107,34 @@ describe('the /subscribe route', function () {
       .end(done);
   });
 
+  it('forwards the accept-language header if present', function (done) {
+    var EMAIL = 'test@example.com';
+    var NEWSLETTERS = 'a,b,c';
+    var ACCEPT_LANG = 'Accept-Language: de; q=1.0, en; q=0.5';
+    mocks.mockOAuthResponse().reply(200, {
+      email: EMAIL,
+      scope: 'basket:write'
+    });
+    mocks.mockBasketResponse().post('/subscribe/', function (body) {
+      /*eslint-disable camelcase */
+      assert.deepEqual(body, {
+        email: EMAIL,
+        newsletters: NEWSLETTERS,
+        accept_lang: ACCEPT_LANG
+      });
+      return true;
+    }).reply(200, {
+      status: 'ok',
+    });
+    request(app)
+      .post('/subscribe')
+      .set('authorization', 'Bearer TOKEN')
+      .set('accept-language', ACCEPT_LANG)
+      .send({ newsletters: NEWSLETTERS })
+      .expect(200, {
+        status: 'ok',
+      })
+      .end(done);
+  });
+
 });
