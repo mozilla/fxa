@@ -72,6 +72,11 @@ GACollector.prototype = {
     var visitor = universalAnalytics(ANALYTICS_ID, { debug: false, https: true });
 
     body.events.forEach(function (event) {
+      if (! (event.type && typeof event.type === 'string')) {
+        // invalid event
+        return;
+      }
+
       var extraData = self._getExtraData(body, event);
       // if it is a screen event then track it as a page view
       if (event.type.indexOf(SCREEN_EVENT_PREFIX) === 0) {
@@ -86,7 +91,7 @@ GACollector.prototype = {
         visitor.pageview(pageEvent).send(reportGAError);
       }
 
-      if (event.type && GA_EVENTS[event.type]) {
+      if (GA_EVENTS[event.type]) {
         var gaEvent = GA_EVENTS[event.type];
         extraData.hitType = 'event';
 

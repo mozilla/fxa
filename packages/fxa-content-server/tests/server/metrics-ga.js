@@ -97,5 +97,45 @@ define([
     assert.equal(collect._calculateQueueTime(Date.now(), Date.now() - 5000, 1000), 0);
   };
 
+  function testMalformedEventData (fixturePath) {
+    var data = JSON.parse(fs.readFileSync(fixturePath));
+
+    function analyticsMock() {
+      return {
+        event: function (data) {
+          assert.fail('unexpected event write, invalid event');
+
+          return this;
+        }
+      };
+    }
+
+    var mocks = {
+      'universal-analytics': analyticsMock
+    };
+    var GACollector = proxyquire(path.join(process.cwd(), 'server', 'lib', 'ga-collector'), mocks);
+    var collect = new GACollector({
+      analyticsId: 'mockId'
+    });
+    try {
+      collect.write(data);
+    } catch (err) {
+      assert.fail('unexpected failure: ' + String(err));
+    }
+  }
+
+  suite['malformed event data'] = function () {
+    /**
+     * event.type checks in malformed_event_data.json:
+     * - missing `type`
+     * - numeric `type`
+     * - null `type`
+     * - object `type`
+     * - array `type`
+     * - empty string `type`
+     */
+    testMalformedEventData('tests/server/fixtures/malformed_event_data.json');
+  };
+
   registerSuite(suite);
 });
