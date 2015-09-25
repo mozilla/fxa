@@ -6,6 +6,10 @@
     "entrypoint": "none",
     "events": [
         {
+            "type": "loaded",
+            "offset": 1000
+        },
+        {
             "type": "signup.success",
             "offset": 1930
         }
