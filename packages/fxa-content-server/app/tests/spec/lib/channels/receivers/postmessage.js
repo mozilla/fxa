@@ -22,8 +22,8 @@ function (chai, sinon, AuthErrors, PostMessageReceiver, WindowMock) {
       windowMock = new WindowMock();
       receiver = new PostMessageReceiver();
       receiver.initialize({
-        window: windowMock,
-        origin: 'http://firstrun.firefox.org'
+        origin: 'http://firstrun.firefox.org',
+        window: windowMock
       });
     });
 
@@ -66,8 +66,8 @@ function (chai, sinon, AuthErrors, PostMessageReceiver, WindowMock) {
         receiver.on('message', messageSpy);
 
         receiver.receiveEvent({
-          type: 'click',
-          data: {}
+          data: {},
+          type: 'click'
         });
 
         assert.isFalse(errorSpy.called);
@@ -80,8 +80,8 @@ function (chai, sinon, AuthErrors, PostMessageReceiver, WindowMock) {
 
         // missing data
         receiver.receiveEvent({
-          type: 'message',
-          origin: 'null'
+          origin: 'null',
+          type: 'message'
         });
         assert.equal(errorSpy.callCount, 1);
       });
@@ -92,9 +92,9 @@ function (chai, sinon, AuthErrors, PostMessageReceiver, WindowMock) {
 
         // invalid origin
         receiver.receiveEvent({
-          type: 'message',
+          data: {},
           origin: 'http://non-trusted-origin.org',
-          data: {}
+          type: 'message'
         });
 
         assert.equal(errorSpy.callCount, 1);
@@ -106,11 +106,9 @@ function (chai, sinon, AuthErrors, PostMessageReceiver, WindowMock) {
         receiver.on('message', messageSpy);
 
         receiver.receiveEvent({
-          type: 'message',
+          data: { key: 'value' },
           origin: 'null',
-          data: {
-            key: 'value'
-          }
+          type: 'message'
         });
 
         assert.isTrue(messageSpy.calledWith({ key: 'value' }));

@@ -574,9 +574,9 @@ define([
                 detail: {
                   id: 'account_updates',
                   message: {
-                    messageId: messageId,
                     command: command,
-                    data: response
+                    data: response,
+                    messageId: messageId
                   }
                 }
               });
@@ -660,34 +660,33 @@ define([
   }
 
   return {
-    fetchAllMetrics: fetchAllMetrics,
-    testIsEventLogged: testIsEventLogged,
-    testAreEventsLogged: testAreEventsLogged,
-    imageLoadedByQSA: imageLoadedByQSA,
     clearBrowserState: clearBrowserState,
     clearSessionStorage: clearSessionStorage,
-    visibleByQSA: visibleByQSA,
-    noSuchElement: noSuchElement,
-    pollUntil: pollUntil,
-    getVerificationLink: getVerificationLink,
-    getVerificationHeaders: getVerificationHeaders,
-    openExternalSite: openExternalSite,
-    openVerificationLinkSameBrowser: openVerificationLinkSameBrowser,
-    openVerificationLinkDifferentBrowser: openVerificationLinkDifferentBrowser,
-    openPasswordResetLinkDifferentBrowser: openPasswordResetLinkDifferentBrowser,
-    openUnlockLinkDifferentBrowser: openUnlockLinkDifferentBrowser,
-    openFxaFromRp: openFxaFromRp,
-    openFxaFromUntrustedRp: openFxaFromUntrustedRp,
-    listenForWebChannelMessage: listenForWebChannelMessage,
-    respondToWebChannelMessage: respondToWebChannelMessage,
-    testIsBrowserNotified: testIsBrowserNotified,
-
+    fetchAllMetrics: fetchAllMetrics,
+    fillOutChangePassword: fillOutChangePassword,
+    fillOutCompleteResetPassword: fillOutCompleteResetPassword,
+    fillOutDeleteAccount: fillOutDeleteAccount,
+    fillOutResetPassword: fillOutResetPassword,
     fillOutSignIn: fillOutSignIn,
     fillOutSignUp: fillOutSignUp,
-    fillOutResetPassword: fillOutResetPassword,
-    fillOutCompleteResetPassword: fillOutCompleteResetPassword,
-    fillOutChangePassword: fillOutChangePassword,
-    fillOutDeleteAccount: fillOutDeleteAccount,
-    openPage: openPage
+    getVerificationHeaders: getVerificationHeaders,
+    getVerificationLink: getVerificationLink,
+    imageLoadedByQSA: imageLoadedByQSA,
+    listenForWebChannelMessage: listenForWebChannelMessage,
+    noSuchElement: noSuchElement,
+    openExternalSite: openExternalSite,
+    openFxaFromRp: openFxaFromRp,
+    openFxaFromUntrustedRp: openFxaFromUntrustedRp,
+    openPage: openPage,
+    openPasswordResetLinkDifferentBrowser: openPasswordResetLinkDifferentBrowser,
+    openUnlockLinkDifferentBrowser: openUnlockLinkDifferentBrowser,
+    openVerificationLinkDifferentBrowser: openVerificationLinkDifferentBrowser,
+    openVerificationLinkSameBrowser: openVerificationLinkSameBrowser,
+    pollUntil: pollUntil,
+    respondToWebChannelMessage: respondToWebChannelMessage,
+    testAreEventsLogged: testAreEventsLogged,
+    testIsBrowserNotified: testIsBrowserNotified,
+    testIsEventLogged: testIsEventLogged,
+    visibleByQSA: visibleByQSA
   };
 });

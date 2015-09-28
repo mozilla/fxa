@@ -61,10 +61,10 @@ define([
     describe('generateDerivedKey', function () {
       it('correctly derives a known test value of `kAr`', function () {
         var options = {
+          clientId: clientId,
           inputKey: k,
           keyClassTag: 'kAr',
-          uid: uid,
-          clientId: clientId
+          uid: uid
         };
         return RelierKeys.generateDerivedKey(options)
           .then(function (kAr) {
@@ -78,10 +78,10 @@ define([
 
       it('correctly derives a known test value of `kBr`', function () {
         var options = {
+          clientId: clientId,
           inputKey: k,
           keyClassTag: 'kBr',
-          uid: uid,
-          clientId: clientId
+          uid: uid
         };
         return RelierKeys.generateDerivedKey(options)
           .then(function (kBr) {

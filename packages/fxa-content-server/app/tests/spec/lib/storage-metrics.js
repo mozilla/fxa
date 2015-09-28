@@ -25,19 +25,19 @@ function (chai, StorageMetrics, Metrics, Storage, WindowMock) {
       windowMock = new WindowMock();
 
       storageMetrics = new StorageMetrics({
-        window: windowMock,
-        lang: 'db_LB',
-        service: 'sync',
-        context: 'fx_desktop_v1',
         brokerType: 'fx-desktop',
-        entrypoint: 'menupanel',
-        migration: 'sync1.5',
         campaign: 'fennec',
-        devicePixelRatio: 2,
-        clientWidth: 1033,
         clientHeight: 966,
+        clientWidth: 1033,
+        context: 'fx_desktop_v1',
+        devicePixelRatio: 2,
+        entrypoint: 'menupanel',
+        lang: 'db_LB',
+        migration: 'sync1.5',
+        screenHeight: 1200,
         screenWidth: 1600,
-        screenHeight: 1200
+        service: 'sync',
+        window: windowMock
       });
       storageMetrics.init();
     });

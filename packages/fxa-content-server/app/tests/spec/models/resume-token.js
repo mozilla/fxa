@@ -21,8 +21,8 @@ function (chai, ResumeToken) {
     campaign: CAMPAIGN,
     entrypoint: ENTRYPOINT,
     state: STATE,
-    verificationRedirect: VERIFICATION_REDIRECT,
-    uniqueUserId: UNIQUE_USER_ID
+    uniqueUserId: UNIQUE_USER_ID,
+    verificationRedirect: VERIFICATION_REDIRECT
   };
 
   describe('models/resume-token', function () {
@@ -54,8 +54,8 @@ function (chai, ResumeToken) {
 
       it('should ignore fields that are not explicitly allowed', function () {
         var parsedToken = {
-          state: STATE,
-          ignored: true
+          ignored: true,
+          state: STATE
         };
         var resumeToken = new ResumeToken(parsedToken);
         assert.isFalse(resumeToken.has('ignored'));

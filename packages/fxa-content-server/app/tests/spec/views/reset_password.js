@@ -35,13 +35,13 @@ function (_, chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
 
     function createView(options) {
       var viewOptions = _.extend({
-        router: router,
-        metrics: metrics,
-        fxaClient: fxaClient,
-        relier: relier,
         broker: broker,
         canGoBack: true,
-        formPrefill: formPrefill
+        formPrefill: formPrefill,
+        fxaClient: fxaClient,
+        metrics: metrics,
+        relier: relier,
+        router: router
       }, options || {});
       return new View(viewOptions);
     }
@@ -239,8 +239,8 @@ function (_, chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
 
       view = new View({
         broker: broker,
-        relier: relier,
-        formPrefill: formPrefill
+        formPrefill: formPrefill,
+        relier: relier
       });
       return view.render();
     });

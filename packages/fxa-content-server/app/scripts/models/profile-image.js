@@ -14,9 +14,9 @@ define([
 
   var ProfileImage = Backbone.Model.extend({
     defaults: {
-      url: undefined,
       id: undefined,
-      img: undefined
+      img: undefined,
+      url: undefined
     },
 
     fetch: function () {

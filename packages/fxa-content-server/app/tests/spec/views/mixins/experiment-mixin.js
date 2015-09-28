@@ -52,9 +52,9 @@ define([
       view = new View({
         able: able,
         metrics: metrics,
+        notifications: notifications,
         user: user,
-        window: windowMock,
-        notifications: notifications
+        window: windowMock
       });
 
       return view.render();

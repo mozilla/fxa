@@ -71,16 +71,16 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
 
     function initView (account) {
       view = new View({
-        router: routerMock,
-        window: windowMock,
-        metrics: metrics,
-        user: user,
-        fxaClient: fxaClient,
-        relier: relier,
-        broker: broker,
-        screenName: 'complete_sign_up',
         account: account,
-        notifications: notifications
+        broker: broker,
+        fxaClient: fxaClient,
+        metrics: metrics,
+        notifications: notifications,
+        relier: relier,
+        router: routerMock,
+        screenName: 'complete_sign_up',
+        user: user,
+        window: windowMock
       });
     }
 
@@ -104,10 +104,10 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
       });
 
       account = user.initAccount({
-        sessionToken: 'foo',
         email: 'a@a.com',
-        uid: validUid,
-        fxaClient: fxaClient
+        fxaClient: fxaClient,
+        sessionToken: 'foo',
+        uid: validUid
       });
 
       windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
@@ -316,8 +316,8 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
     describe('submit - attempt to resend the verification email', function () {
       beforeEach(function () {
         account = user.initAccount({
-          sessionToken: 'foo',
           email: 'a@a.com',
+          sessionToken: 'foo',
           uid: validUid
         });
       });
@@ -334,8 +334,8 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
 
         sinon.stub(user, 'getAccountByEmail', function () {
           return user.initAccount({
-            sessionToken: 'new token',
             email: 'a@a.com',
+            sessionToken: 'new token',
             uid: validUid
           });
         });

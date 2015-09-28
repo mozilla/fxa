@@ -13,9 +13,9 @@ define([
 
   var now = new Date();
   var CUTOFF_AGE = {
-    year: now.getFullYear() - 13,
+    date: now.getDate(),
     month: now.getMonth(),
-    date: now.getDate()
+    year: now.getFullYear() - 13
   };
 
   var View = FormView.extend({
@@ -31,16 +31,15 @@ define([
     },
 
     events: {
-      'keydown #fxa-age-year': 'submitOnEnter',
-      'keydown #fxa-age-month': 'submitOnEnter',
-      'keydown #fxa-age-date': 'submitOnEnter',
-      'change #fxa-age-year': 'onUserYearSelect',
+      'blur select': 'onSelectBlur',
       'change #fxa-age-month': 'onUserMonthSelect',
-
+      'change #fxa-age-year': 'onUserYearSelect',
+      'change select': 'onSelectChange',
       // handles select-row hack (issue 822)
       'focus select': 'onSelectFocus',
-      'blur select': 'onSelectBlur',
-      'change select': 'onSelectChange'
+      'keydown #fxa-age-date': 'submitOnEnter',
+      'keydown #fxa-age-month': 'submitOnEnter',
+      'keydown #fxa-age-year': 'submitOnEnter'
     },
 
     /**
@@ -156,9 +155,9 @@ define([
     _getSelectedUserAge: function () {
       var self = this;
       return {
-        year: self._getYear(),
+        date: self._getDate(),
         month: self._getMonth(),
-        date: self._getDate()
+        year: self._getYear()
       };
     },
 

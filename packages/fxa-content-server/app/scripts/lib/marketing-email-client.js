@@ -27,11 +27,11 @@ define([
     _request: function (method, endpoint, accessToken, data) {
       var url = this._baseUrl + endpoint;
       return this._xhr.oauthAjax({
-        url: url,
-        type: method,
         accessToken: accessToken,
         data: data,
-        timeout: this._xhrTimeout
+        timeout: this._xhrTimeout,
+        type: method,
+        url: url
       })
       .fail(function (xhr) {
         throw MarketingEmailErrors.normalizeXHRError(xhr);

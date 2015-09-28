@@ -31,20 +31,20 @@ define([
 
       var sender = this._sender = new WebChannelSender();
       sender.initialize({
-        window: win,
-        webChannelId: webChannelId
+        webChannelId: webChannelId,
+        window: win
       });
 
       var receiver = this._receiver = new WebChannelReceiver();
       receiver.initialize({
-        window: win,
-        webChannelId: webChannelId
+        webChannelId: webChannelId,
+        window: win
       });
 
       DuplexChannel.prototype.initialize.call(this, {
-        window: win,
+        receiver: receiver,
         sender: sender,
-        receiver: receiver
+        window: win
       });
     }
   });

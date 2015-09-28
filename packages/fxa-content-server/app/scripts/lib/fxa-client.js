@@ -121,9 +121,9 @@ function (FxaClient, $, Constants, p, Session, AuthErrors) {
 
       var updatedSessionData = {
         email: email,
-        uid: accountData.uid,
         sessionToken: accountData.sessionToken,
         sessionTokenContext: sessionTokenContext,
+        uid: accountData.uid,
         verified: accountData.verified || false
       };
 
@@ -144,12 +144,12 @@ function (FxaClient, $, Constants, p, Session, AuthErrors) {
      * is to complete a particular action. The backend can choose
      * to perform actions, e.g., send emails, based on the reason.
      */
-    SIGNIN_REASON: {
-      SIGN_IN: 'signin',
-      PASSWORD_CHECK: 'password_check',
+    SIGNIN_REASON: { //eslint-disable-line sorting/sort-object-props
+      ACCOUNT_UNLOCK: 'account_unlock',
       PASSWORD_CHANGE: 'password_change',
+      PASSWORD_CHECK: 'password_check',
       PASSWORD_RESET: 'password_reset',
-      ACCOUNT_UNLOCK: 'account_unlock'
+      SIGN_IN: 'signin',
     },
 
     /**
@@ -251,8 +251,8 @@ function (FxaClient, $, Constants, p, Session, AuthErrors) {
       return this._getClient()
         .then(function (client) {
           var clientOptions = {
-            service: relier.get('service'),
-            redirectTo: relier.get('redirectTo')
+            redirectTo: relier.get('redirectTo'),
+            service: relier.get('service')
           };
 
           if (options.resume) {
@@ -284,8 +284,8 @@ function (FxaClient, $, Constants, p, Session, AuthErrors) {
       return this._getClient()
         .then(function (client) {
           var clientOptions = {
-            service: relier.get('service'),
-            redirectTo: relier.get('redirectTo')
+            redirectTo: relier.get('redirectTo'),
+            service: relier.get('service')
           };
 
           if (options.resume) {
@@ -309,8 +309,8 @@ function (FxaClient, $, Constants, p, Session, AuthErrors) {
           // the linters complain if this is defined in the call to
           // passwordForgotResendCode
           var clientOptions = {
-            service: relier.get('service'),
-            redirectTo: relier.get('redirectTo')
+            redirectTo: relier.get('redirectTo'),
+            service: relier.get('service')
           };
 
           if (options.resume) {
@@ -374,8 +374,8 @@ function (FxaClient, $, Constants, p, Session, AuthErrors) {
           var clientOptions = {};
           if (relier) {
             clientOptions = {
-              service: relier.get('service'),
-              redirectTo: relier.get('redirectTo')
+              redirectTo: relier.get('redirectTo'),
+              service: relier.get('service')
             };
           }
 

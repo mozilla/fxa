@@ -24,9 +24,9 @@ define([
     displayName: undefined,
     email: undefined,
     grantedPermissions: undefined,
+    hadProfileImageSetBefore: undefined,
     lastLogin: undefined,
     needsOptedInToMarketingEmail: undefined,
-    hadProfileImageSetBefore: undefined,
     profileImageId: undefined,
     profileImageUrl: undefined,
     sessionToken: undefined,
@@ -178,9 +178,9 @@ define([
       return self._generateAssertion()
         .then(function (assertion) {
           var params = {
+            assertion: assertion,
             client_id: self._oAuthClientId, //eslint-disable-line camelcase
-            scope: scope,
-            assertion: assertion
+            scope: scope
           };
           return self._oAuthClient.getToken(params);
         })
@@ -238,7 +238,7 @@ define([
 
       return self.getAvatar()
         .then(function (result) {
-          profileImage = new ProfileImage({ url: result.avatar, id: result.id });
+          profileImage = new ProfileImage({ id: result.id, url: result.avatar });
           self.setProfileImage(profileImage);
           return profileImage.fetch();
         })

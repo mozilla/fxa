@@ -36,9 +36,9 @@ function (chai, NullChannel, FxFennecV1AuthenticationBroker, Relier,
       });
 
       broker = new FxFennecV1AuthenticationBroker({
+        channel: channel,
         relier: relier,
-        window: windowMock,
-        channel: channel
+        window: windowMock
       });
 
       sinon.spy(broker, 'send');

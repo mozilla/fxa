@@ -42,11 +42,11 @@ define([
     var ACCESS_TYPE = 'offline';
 
     var RESUME_INFO = {
-      state: STATE,
+      access_type: ACCESS_TYPE,
+      action: ACTION,
       client_id: CLIENT_ID,
       scope: SCOPE,
-      action: ACTION,
-      access_type: ACCESS_TYPE
+      state: STATE
     };
 
     beforeEach(function () {
@@ -63,23 +63,23 @@ define([
       user = new User();
 
       relier = new OAuthRelier({
-        window: windowMock,
         oAuthClient: oAuthClient,
-        session: Session
+        session: Session,
+        window: windowMock
       });
     });
 
     describe('fetch', function () {
       it('populates expected fields from the search parameters', function () {
         windowMock.location.search = TestHelpers.toSearchString({
-          preVerifyToken: PREVERIFY_TOKEN,
-          service: SERVICE,
-          state: STATE,
+          access_type: ACCESS_TYPE,
+          action: ACTION,
           client_id: CLIENT_ID,
+          preVerifyToken: PREVERIFY_TOKEN,
           redirect_uri: REDIRECT_URI,
           scope: SCOPE,
-          action: ACTION,
-          access_type: ACCESS_TYPE
+          service: SERVICE,
+          state: STATE
         });
 
         return relier.fetch()
@@ -104,13 +104,13 @@ define([
 
       it('sets serviceName, redirectUri, and origin from parameters returned by the server', function () {
         windowMock.location.search = TestHelpers.toSearchString({
-          preVerifyToken: PREVERIFY_TOKEN,
-          service: SERVICE,
-          state: STATE,
+          action: ACTION,
           client_id: CLIENT_ID,
+          preVerifyToken: PREVERIFY_TOKEN,
           redirect_uri: REDIRECT_URI,
           scope: SCOPE,
-          action: ACTION
+          service: SERVICE,
+          state: STATE
         });
 
         return relier.fetch()
@@ -141,9 +141,9 @@ define([
           code: '123'
         });
         Session.set('oauth', {
-          state: STATE,
+          action: ACTION,
           scope: SCOPE,
-          action: ACTION
+          state: STATE
         });
 
         return relier.fetch()
@@ -156,8 +156,8 @@ define([
       it('populates `clientId` and `service` from the `service` URL search parameter if verifying in a second browser', function () {
         windowMock.location.search = TestHelpers.toSearchString({
           code: '123',
-          service: CLIENT_ID,
-          scope: SCOPE
+          scope: SCOPE,
+          service: CLIENT_ID
         });
 
         return relier.fetch()
@@ -169,8 +169,8 @@ define([
 
       it('populates `keys` from the URL search parameter if given', function () {
         windowMock.location.search = TestHelpers.toSearchString({
-          keys: 'true',
           client_id: CLIENT_ID,
+          keys: 'true',
           scope: SCOPE
         });
 
@@ -341,14 +341,14 @@ define([
         relier.set({
           campaign: CAMPAIGN,
           entrypoint: ENTRYPOINT,
-          utmCampaign: CAMPAIGN,
-          utmSource: ITEM,
-          utmMedium: ITEM,
-          utmTerm: ITEM,
-          utmContent: ITEM,
           notPassed: 'this should not be picked',
           state: STATE,
-          verificationRedirect: VERIFICATION_REDIRECT,
+          utmCampaign: CAMPAIGN,
+          utmContent: ITEM,
+          utmMedium: ITEM,
+          utmSource: ITEM,
+          utmTerm: ITEM,
+          verificationRedirect: VERIFICATION_REDIRECT
         });
 
         assert.deepEqual(relier.pickResumeTokenInfo(), {
@@ -356,12 +356,12 @@ define([
           // the Relier are still passed.
           campaign: CAMPAIGN,
           entrypoint: ENTRYPOINT,
-          utmCampaign: CAMPAIGN,
-          utmSource: ITEM,
-          utmMedium: ITEM,
-          utmTerm: ITEM,
-          utmContent: ITEM,
           state: STATE,
+          utmCampaign: CAMPAIGN,
+          utmContent: ITEM,
+          utmMedium: ITEM,
+          utmSource: ITEM,
+          utmTerm: ITEM,
           verificationRedirect: VERIFICATION_REDIRECT
         });
       });

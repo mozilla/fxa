@@ -18,6 +18,7 @@ function (_, Errors, Strings) {
 
   var UNEXPECTED_ERROR = t('Unexpected error');
 
+  /*eslint-disable sorting/sort-object-props*/
   var ERRORS = {
     UNKNOWN_CLIENT: {
       errno: 101,
@@ -106,6 +107,7 @@ function (_, Errors, Strings) {
       message: t('Missing OAuth parameter: %(param)s')
     }
   };
+  /*eslint-enable sorting/sort-object-props*/
 
   return _.extend({}, Errors, {
     ERRORS: ERRORS,

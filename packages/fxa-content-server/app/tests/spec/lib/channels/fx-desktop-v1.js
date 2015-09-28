@@ -49,19 +49,15 @@ function (chai, FxDesktopV1Channel, WindowMock) {
       it('returns the parsed message', function () {
         var fixtureMessage = {
           content: {
-            status: 'ok',
+            data: { dataKey: 'data_value' },
             key: 'value',
-            data: {
-              dataKey: 'data_value'
-            }
+            status: 'ok'
           }
         };
         var expectedResult = {
           command: 'ok',
-          messageId: 'ok',
-          data: {
-            dataKey: 'data_value'
-          }
+          data: { dataKey: 'data_value' },
+          messageId: 'ok'
         };
 
         assert.deepEqual(channel.parseMessage(fixtureMessage), expectedResult);

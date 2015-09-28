@@ -30,24 +30,24 @@ module.exports = function (grunt) {
     options: {
       breaks: true,
       gfm: true,
-      sanitize: false,
-      renderer: renderer
+      renderer: renderer,
+      sanitize: false
     },
     tos_pp: { //eslint-disable-line camelcase
       files: [
         {
-          expand: true,
           cwd: '<%= yeoman.pp_md_src %>',
-          src: ['**/*.md'],
           dest: '<%= yeoman.pp_html_dest %>',
-          rename: rename
+          expand: true,
+          rename: rename,
+          src: ['**/*.md']
         },
         {
-          expand: true,
           cwd: '<%= yeoman.tos_md_src %>',
-          src: ['**/*.md'],
           dest: '<%= yeoman.tos_html_dest %>',
-          rename: rename
+          expand: true,
+          rename: rename,
+          src: ['**/*.md']
         }
       ]
     }

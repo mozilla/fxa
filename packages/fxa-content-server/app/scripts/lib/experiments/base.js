@@ -70,10 +70,10 @@ function (Backbone, _, Storage, Url) {
       this.window = options.window;
 
       var abData = {
-        isMetricsEnabledValue: this.metrics.isCollectionEnabled(),
-        uniqueUserId: this.user.get('uniqueUserId'),
         // the window parameter will override any ab testing features
-        forceExperimentGroup: Url.searchParam(FORCE_GROUP_TYPE, this.window.location.search)
+        forceExperimentGroup: Url.searchParam(FORCE_GROUP_TYPE, this.window.location.search),
+        isMetricsEnabledValue: this.metrics.isCollectionEnabled(),
+        uniqueUserId: this.user.get('uniqueUserId')
       };
 
       abData = _.extend(abData, this.extraAbleOptions);

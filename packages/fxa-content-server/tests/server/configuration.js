@@ -23,10 +23,10 @@ define([
 
     var proc = cp.spawn('./scripts/run_locally.js', [], {
       env: {
-        PATH: process.env.PATH,
-        PORT: '3040',
         HTTP_PORT: '3090',
-        I18N_SUPPORTED_LANGUAGES: 'en,blah'
+        I18N_SUPPORTED_LANGUAGES: 'en,blah',
+        PATH: process.env.PATH,
+        PORT: '3040'
       }
     });
 

@@ -37,52 +37,28 @@ function (intern, topic, firefoxProfile) {
   }
 
   var config = {
-    // The port on which the instrumenting proxy will listen
-    proxyPort: 9090,
-
-    // A fully qualified URL to the Intern proxy
-    proxyUrl: 'http://127.0.0.1:9090/',
-
-    asyncTimeout: asyncTimeout, // milliseconds
-
+    asyncTimeout: asyncTimeout,
+    capabilities: {},
+    environments: [{ browserName: 'firefox' }],
+    excludeInstrumentation: true,
+    fixSessionCapabilities: false,
+    functionalSuites: [
+      'tests/functional/mocha',
+      'tests/functional'
+    ],
     fxaAuthRoot: fxaAuthRoot,
     fxaContentRoot: fxaContentRoot,
-    fxaEmailRoot: fxaEmailRoot,
-    fxaOauthApp: fxaOauthApp,
-    fxaUntrustedOauthApp: fxaUntrustedOauthApp,
-    fxaIframeOauthApp: fxaIframeOauthApp,
-    fxaProduction: fxaProduction,
     fxaDevBox: fxaDevBox,
+    fxaEmailRoot: fxaEmailRoot,
+    fxaIframeOauthApp: fxaIframeOauthApp,
+    fxaOauthApp: fxaOauthApp,
+    fxaProduction: fxaProduction,
     fxaToken: fxaToken,
-
-    // Default desired capabilities for all environments. Individual capabilities can be overridden by any of the
-    // specified browser environments in the `environments` array below as well. See
-    // https://code.google.com/p/selenium/wiki/DesiredCapabilities for standard Selenium capabilities and
-    // https://saucelabs.com/docs/additional-config#desired-capabilities for Sauce Labs capabilities.
-    // Note that the `build` capability will be filled in with the current commit ID from the Travis CI environment
-    // automatically
-    capabilities: { },
-
-    // Browsers to run integration testing against. Note that version numbers must be strings if used with Sauce
-    // OnDemand. Options that will be permutated are browserName, version, platform, and platformVersion; any other
-    // capabilities options specified for an environment will be copied as-is
-    environments: [
-      { browserName: 'firefox' }
-    ],
-
-    fixSessionCapabilities: false,
-
-    // the default test timeout is 30 seconds
-    // make it 28 seconds to see the timeout error stack
-    pageLoadTimeout: 28000,
-
-    // Maximum number of simultaneous integration tests that should be executed on the remote WebDriver service
+    fxaUntrustedOauthApp: fxaUntrustedOauthApp,
     maxConcurrency: 3,
-
-    // Functional test suite(s) to run in each browser once non-functional tests are completed
-    functionalSuites: [ 'tests/functional/mocha', 'tests/functional' ],
-
-    excludeInstrumentation: true
+    pageLoadTimeout: 28000,
+    proxyPort: 9090,
+    proxyUrl: 'http://127.0.0.1:9090/'
   };
 
   // to create a profile, give it the `config` option.

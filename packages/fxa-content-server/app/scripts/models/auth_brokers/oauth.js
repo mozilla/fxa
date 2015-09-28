@@ -135,13 +135,13 @@ function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
       return p().then(function () {
         var relier = self.relier;
         self.session.set('oauth', {
-          webChannelId: self.get('webChannelId'),
+          access_type: relier.get('access_type'), //eslint-disable-line camelcase
+          action: relier.get('action'),
           client_id: relier.get('clientId'), //eslint-disable-line camelcase
-          state: relier.get('state'),
           keys: relier.get('keys'),
           scope: relier.get('scope'),
-          action: relier.get('action'),
-          access_type: relier.get('access_type') //eslint-disable-line camelcase
+          state: relier.get('state'),
+          webChannelId: self.get('webChannelId')
         });
       });
     },

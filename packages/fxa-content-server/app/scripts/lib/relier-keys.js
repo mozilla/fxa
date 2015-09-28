@@ -51,18 +51,18 @@ define([
           throw new Error('Cant derive relier keys: missing rid');
         }
         return generateDerivedKey({
+          clientId: clientId,
           inputKey: keys.kA,
           keyClassTag: KEY_CLASS_TAG_A,
-          uid: uid,
-          clientId: clientId
+          uid: uid
         });
       }).then(function (kAr) {
         relierKeys[KEY_CLASS_TAG_A] = kAr;
         return generateDerivedKey({
+          clientId: clientId,
           inputKey: keys.kB,
           keyClassTag: KEY_CLASS_TAG_B,
-          uid: uid,
-          clientId: clientId
+          uid: uid
         });
       }).then(function (kBr) {
         relierKeys[KEY_CLASS_TAG_B] = kBr;
@@ -106,8 +106,8 @@ define([
         var keyId = sjcl.bitArray.bitSlice(out, 0, keySizeBits);
         var keyBytes = sjcl.bitArray.bitSlice(out, keySizeBits, keySizeBits * 2);
         return {
-          kid: options.keyClassTag + '-' + base64url.encode(keyId),
           k: base64url.encode(keyBytes),
+          kid: options.keyClassTag + '-' + base64url.encode(keyId),
           kty: 'oct',
           rid: options.clientId,
           uid: options.uid

@@ -80,7 +80,7 @@ function (_) {
       stop: function (e, ui) {
         var pos = self.img.position();
         self.updatePosition(pos);
-        ui.helper.css({ top: 0, left: 0 });
+        ui.helper.css({ left: 0, top: 0 });
         self.onTranslate();
       }
     });
@@ -134,10 +134,10 @@ function (_) {
 
     // reset the image position and dimensions
     img.css({
-      width: '',
       height: '',
+      left: 0,
       top: 0,
-      left: 0
+      width: ''
     });
 
     this.slider.val(this.scale);
@@ -199,7 +199,7 @@ function (_) {
       top = wh - this.verticalGutter - h;
     }
 
-    return { top: top, left: left };
+    return { left: left, top: top };
   };
 
   Cropper.prototype.resize = function (img, scale) {
@@ -211,7 +211,7 @@ function (_) {
     this.img.attr('src', img.src);
     context.drawImage(this.img[0], 0, 0, canvas.width, canvas.height);
     var src = canvas.toDataURL();
-    return { src: src, width: canvas.width, height: canvas.height };
+    return { height: canvas.height, src: src, width: canvas.width };
   };
 
   Cropper.prototype.zoom = function zoom(scale) {
@@ -268,8 +268,8 @@ function (_) {
 
     return {
       left: (-this.left + this.horizontalGutter) / oscale * scale,
-      top: (-this.top + this.verticalGutter) / oscale * scale,
-      length: sourceLength
+      length: sourceLength,
+      top: (-this.top + this.verticalGutter) / oscale * scale
     };
   };
 

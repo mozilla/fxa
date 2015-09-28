@@ -44,9 +44,9 @@ define([
   function createEvent(win, command, data/*, messageId*/) {
     return new win.CustomEvent('FirefoxAccountsCommand', {
       detail: {
+        bubbles: true,
         command: command,
-        data: data,
-        bubbles: true
+        data: data
       }
     });
   }

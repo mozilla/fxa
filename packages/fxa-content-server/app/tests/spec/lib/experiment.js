@@ -47,11 +47,11 @@ function (chai, sinon, WindowMock, Session, Able,
 
       notifications = new Notifications();
       expOptions = {
-        window: windowMock,
         able: able,
         metrics: metrics,
+        notifications: notifications,
         user: user,
-        notifications: notifications
+        window: windowMock
       };
       expInt = new ExperimentInterface(expOptions);
     });

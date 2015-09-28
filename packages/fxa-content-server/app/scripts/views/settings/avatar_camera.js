@@ -77,8 +77,8 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
 
       getMedia(
         {
-          video: true,
-          audio: false
+          audio: false,
+          video: true
         },
         function (stream) {
           self.stream = stream;
@@ -225,9 +225,9 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
     // in a square container
     centeredPos: function (w, h, max) {
       if (w > h) {
-        return { top: 0, left: (max - w) / 2 };
+        return { left: (max - w) / 2, top: 0 };
       } else {
-        return { top: (max - h) / 2, left: 0 };
+        return { left: 0, top: (max - h) / 2 };
       }
     }
   });

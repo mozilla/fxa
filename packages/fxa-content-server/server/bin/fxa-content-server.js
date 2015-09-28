@@ -67,9 +67,9 @@ function makeApp() {
   app.use(helmet.xframe('deny'));
   app.use(helmet.xssFilter());
   app.use(helmet.hsts({
-    maxAge: config.get('hsts_max_age'),
+    force: true,
     includeSubdomains: true,
-    force: true
+    maxAge: config.get('hsts_max_age')
   }));
   app.use(helmet.nosniff());
 
@@ -87,10 +87,10 @@ function makeApp() {
   }));
 
   var ableOptions = {
+    addRoutes: true,
     dir: config.get('experiments.dir'),
     git: config.get('experiments.git'),
-    watch: config.get('experiments.watch'),
-    addRoutes: true
+    watch: config.get('experiments.watch')
   };
 
   app.use(require('express-able')(ableOptions));
@@ -129,8 +129,8 @@ function listen(theApp) {
     // Development only... Ops runs this behind nginx
     port = config.get('port');
     var tlsoptions = {
-      key: fs.readFileSync(config.get('key_path')),
-      cert: fs.readFileSync(config.get('cert_path'))
+      cert: fs.readFileSync(config.get('cert_path')),
+      key: fs.readFileSync(config.get('key_path'))
     };
 
     https.createServer(tlsoptions, app).listen(port);
@@ -177,8 +177,8 @@ if (isMain) {
 } else {
   module.exports = {
     listen: listen,
+    listenHttpRedirectApp: listenHttpRedirectApp,
     makeApp: makeApp,
-    makeHttpRedirectApp: makeHttpRedirectApp,
-    listenHttpRedirectApp: listenHttpRedirectApp
+    makeHttpRedirectApp: makeHttpRedirectApp
   };
 }

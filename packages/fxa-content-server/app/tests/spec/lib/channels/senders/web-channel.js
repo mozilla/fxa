@@ -21,8 +21,8 @@ function (chai, sinon, WebChannelSender, WindowMock) {
       windowMock = new WindowMock();
       sender = new WebChannelSender();
       sender.initialize({
-        window: windowMock,
-        webChannelId: 'channel_id'
+        webChannelId: 'channel_id',
+        window: windowMock
       });
     });
 

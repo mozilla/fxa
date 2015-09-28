@@ -177,10 +177,8 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
             // user is not authorized, make them sign in.
             var err = AuthErrors.toError('SESSION_EXPIRED');
             self.navigate(self._reAuthPage(), {
-              error: err,
-              data: {
-                redirectTo: self.router.getCurrentPage()
-              }
+              data: { redirectTo: self.router.getCurrentPage() },
+              error: err
             });
             return false;
           }
@@ -555,8 +553,8 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
      */
     logScreenEvent: function (eventName) {
       var event = Strings.interpolate('%(screenName)s.%(eventName)s', {
-        screenName: this.getScreenName(),
-        eventName: eventName
+        eventName: eventName,
+        screenName: this.getScreenName()
       });
 
       this.metrics.logEvent(event);

@@ -27,9 +27,9 @@ define([
     openPanel: function (event) {
       var self = this;
       $(self.el).modal({
-        zIndex: 999,
         opacity: 0.75,
-        showClose: false
+        showClose: false,
+        zIndex: 999
       });
       $(self.el).on($.modal.CLOSE, function () {
         self._closePanelReturnToSettings();

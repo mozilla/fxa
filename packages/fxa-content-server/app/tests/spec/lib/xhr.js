@@ -61,22 +61,22 @@ function (chai, sinon, $, _, Xhr, p) {
         var data = { foo: 'bar' };
 
         return xhr.ajax({
-          url: '/fake_endpoint',
-          method: 'POST',
-          dataType: 'json',
           data: data,
-          processData: false
+          dataType: 'json',
+          method: 'POST',
+          processData: false,
+          url: '/fake_endpoint'
         })
         .then(function (resp) {
           assert.equal(resp, 'mocked_response');
           assert.isTrue($.ajax.calledWith({
-            url: '/fake_endpoint',
-            method: 'POST',
-            dataType: 'json',
-            data: data,
-            processData: false,
+            accepts: { json: 'application/json' },
             contentType: 'application/json',
-            accepts: { json: 'application/json' }
+            data: data,
+            dataType: 'json',
+            method: 'POST',
+            processData: false,
+            url: '/fake_endpoint'
           }));
         });
       });
@@ -89,15 +89,11 @@ function (chai, sinon, $, _, Xhr, p) {
         });
 
         return xhr.oauthAjax({
-          url: '/endpoint',
-          type: 'get',
           accessToken: 'token',
-          headers: {
-            'ETag': 'why not?'
-          },
-          data: {
-            key: 'value'
-          }
+          data: { key: 'value' },
+          headers: { 'ETag': 'why not?' },
+          type: 'get',
+          url: '/endpoint'
         })
         .then(function () {
           var ajaxOptions = xhr.ajax.args[0][0];
@@ -118,10 +114,10 @@ function (chai, sinon, $, _, Xhr, p) {
           });
 
           return xhr.oauthAjax({
-            url: '/endpoint',
-            type: 'get',
             accessToken: 'token',
-            data: new Blob()
+            data: new Blob(),
+            type: 'get',
+            url: '/endpoint'
           })
           .then(function () {
             var ajaxOptions = xhr.ajax.args[0][0];
@@ -147,13 +143,13 @@ function (chai, sinon, $, _, Xhr, p) {
             assert.equal(resp, 'mocked_response');
 
             assert.isTrue($.ajax.calledWith({
-              url: '/fake_endpoint',
-              method: 'GET',
-              dataType: 'json',
-              data: undefined,
-              success: undefined,
+              accepts: { json: 'application/json' },
               contentType: 'application/json',
-              accepts: { json: 'application/json' }
+              data: undefined,
+              dataType: 'json',
+              method: 'GET',
+              success: undefined,
+              url: '/fake_endpoint'
             }));
           });
       });
@@ -171,11 +167,11 @@ function (chai, sinon, $, _, Xhr, p) {
           .then(function (resp) {
             assert.equal(resp, 'mocked_response');
             assert.isTrue($.ajax.calledWith({
-              url: '/fake_endpoint',
-              method: 'GET',
               data: { key: 'value' },
+              dataType: 'text',
+              method: 'GET',
               success: null,
-              dataType: 'text'
+              url: '/fake_endpoint'
             }));
           });
       });
@@ -195,13 +191,13 @@ function (chai, sinon, $, _, Xhr, p) {
           .then(function (resp) {
             assert.equal(resp, 'mocked_response');
             assert.isTrue($.ajax.calledWith({
-              url: '/fake_endpoint',
-              method: 'POST',
-              dataType: 'json',
-              data: JSON.stringify({ foo: 'bar' }),
-              success: undefined,
+              accepts: { json: 'application/json' },
               contentType: 'application/json',
-              accepts: { json: 'application/json' }
+              data: JSON.stringify({ foo: 'bar' }),
+              dataType: 'json',
+              method: 'POST',
+              success: undefined,
+              url: '/fake_endpoint'
             }));
           });
       });
@@ -219,11 +215,11 @@ function (chai, sinon, $, _, Xhr, p) {
           .then(function (resp) {
             assert.equal(resp, 'mocked_response');
             assert.isTrue($.ajax.calledWith({
-              url: '/fake_endpoint',
-              method: 'POST',
               data: { key: 'value' },
+              dataType: 'text',
+              method: 'POST',
               success: null,
-              dataType: 'text'
+              url: '/fake_endpoint'
             }));
           });
       });

@@ -159,10 +159,10 @@ function (chai, Url) {
 
       it('adds a search string if none exists', function () {
         var updated = Url.updateSearchString('http://example.com', {
-          foo: 'one',
-          bar: 'two'
+          bar: 'two',
+          foo: 'one'
         });
-        assert.equal(updated, 'http://example.com?foo=one&bar=two');
+        assert.equal(updated, 'http://example.com?bar=two&foo=one');
       });
     });
 

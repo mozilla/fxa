@@ -38,8 +38,8 @@ define([
       // Without the clear, /signup tests fail because of the info stored
       // in prefillEmail
       return FunctionalHelpers.clearBrowserState(this, {
-        contentServer: true,
-        '123done': true
+        '123done': true,
+        contentServer: true
       });
     },
     'with missing client_id': function () {
@@ -197,8 +197,8 @@ define([
         .then(function () {
           // clear browser state to simulate opening link in a new browser
           return FunctionalHelpers.clearBrowserState(self, {
-            contentServer: true,
-            '123done': true
+            '123done': true,
+            contentServer: true
           });
         })
 

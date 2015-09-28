@@ -82,16 +82,16 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
 
     function initView () {
       view = new View({
-        router: routerMock,
-        metrics: metrics,
-        window: windowMock,
-        fxaClient: fxaClient,
-        user: user,
-        relier: relier,
         broker: broker,
-        screenName: 'signin',
+        ephemeralMessages: ephemeralMessages,
         formPrefill: formPrefill,
-        ephemeralMessages: ephemeralMessages
+        fxaClient: fxaClient,
+        metrics: metrics,
+        relier: relier,
+        router: routerMock,
+        screenName: 'signin',
+        user: user,
+        window: windowMock
       });
     }
 
@@ -466,8 +466,8 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
 
         sinon.stub(view, 'getAccount', function () {
           return user.initAccount({
-            sessionToken: 'abc123',
-            email: 'a@a.com'
+            email: 'a@a.com',
+            sessionToken: 'abc123'
           });
         });
 
@@ -484,8 +484,8 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
 
       it('signs in with a valid session', function () {
         var account = user.initAccount({
-          sessionToken: 'abc123',
-          email: 'a@a.com'
+          email: 'a@a.com',
+          sessionToken: 'abc123'
         });
         sinon.stub(view, 'getAccount', function () {
           return account;
@@ -508,8 +508,8 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
     describe('useDifferentAccount', function () {
       it('can switch to signin with the useDifferentAccount button', function () {
         var account = user.initAccount({
-          sessionToken: 'abc123',
-          email: 'a@a.com'
+          email: 'a@a.com',
+          sessionToken: 'abc123'
         });
         sinon.stub(view, 'getAccount', function () {
           return account;
@@ -552,14 +552,14 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
         user.getChooserAccount.restore();
         formPrefill.set('email', 'a@a.com');
         sinon.stub(user, 'getChooserAccount', function () {
-          return user.initAccount({ sessionToken: 'abc123', email: 'b@b.com' });
+          return user.initAccount({ email: 'b@b.com', sessionToken: 'abc123' });
         });
         assert.isTrue(view._suggestedAccount().isDefault(), 'null when prefill does not match');
 
         delete view.prefillEmail;
         user.getChooserAccount.restore();
         sinon.stub(user, 'getChooserAccount', function () {
-          return user.initAccount({ sessionToken: 'abc123', email: 'a@a.com' });
+          return user.initAccount({ email: 'a@a.com', sessionToken: 'abc123' });
         });
         assert.equal(view._suggestedAccount().get('email'), 'a@a.com');
 
@@ -567,8 +567,8 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
 
       it('initializes getAccount from user.getChooserAccount', function () {
         var account = user.initAccount({
-          sessionToken: 'abc123',
-          email: 'a@a.com'
+          email: 'a@a.com',
+          sessionToken: 'abc123'
         });
         sinon.stub(user, 'getChooserAccount', function () {
           return account;
@@ -583,11 +583,11 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
       it('shows if there is the same email in relier', function () {
         relier.set('email', 'a@a.com');
         var account = user.initAccount({
-          sessionToken: 'abc123',
+          accessToken: 'foo',
           email: 'a@a.com',
+          sessionToken: 'abc123',
           sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
-          verified: true,
-          accessToken: 'foo'
+          verified: true
         });
 
         var imgUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
@@ -618,11 +618,11 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
       it('does not show if there is an email in relier that does not match', function () {
         relier.set('email', 'b@b.com');
         var account = user.initAccount({
-          sessionToken: 'abc123',
+          accessToken: 'foo',
           email: 'a@a.com',
+          sessionToken: 'abc123',
           sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
-          verified: true,
-          accessToken: 'foo'
+          verified: true
         });
 
         sinon.stub(user, 'getChooserAccount', function () {
@@ -646,11 +646,11 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
 
         sinon.stub(user, 'getChooserAccount', function () {
           return user.initAccount({
-            sessionToken: 'abc123',
+            accessToken: 'foo',
             email: 'a@a.com',
+            sessionToken: 'abc123',
             sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
-            verified: true,
-            accessToken: 'foo'
+            verified: true
           });
         });
 
@@ -666,11 +666,11 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
     describe('_suggestedAccountAskPassword', function () {
       it('asks for password right away if the relier wants keys (Sync)', function () {
         var account = user.initAccount({
-          sessionToken: 'abc123',
+          accessToken: 'foo',
           email: 'a@a.com',
+          sessionToken: 'abc123',
           sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
-          verified: true,
-          accessToken: 'foo'
+          verified: true
         });
 
         sinon.stub(view, 'getAccount', function () {
@@ -691,11 +691,11 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
 
       it('does not ask for password right away if service is not sync', function () {
         var account = user.initAccount({
-          sessionToken: 'abc123',
+          accessToken: 'foo',
           email: 'a@a.com',
+          sessionToken: 'abc123',
           sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
-          verified: true,
-          accessToken: 'foo'
+          verified: true
         });
 
         sinon.stub(view, 'getAccount', function () {
@@ -714,10 +714,10 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
 
       it('asks for the password if the stored session is not from sync', function () {
         var account = user.initAccount({
-          sessionToken: 'abc123',
+          accessToken: 'foo',
           email: 'a@a.com',
-          verified: true,
-          accessToken: 'foo'
+          sessionToken: 'abc123',
+          verified: true
         });
 
         sinon.stub(view, 'getAccount', function () {
@@ -736,11 +736,11 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
 
       it('asks for the password if the prefill email is different', function () {
         var account = user.initAccount({
-          sessionToken: 'abc123',
+          accessToken: 'foo',
           email: 'a@a.com',
-          verified: true,
+          sessionToken: 'abc123',
           sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
-          accessToken: 'foo'
+          verified: true
         });
 
         sinon.stub(view, 'getAccount', function () {
@@ -763,11 +763,11 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
 
       it('asks for the password when re-rendered due to an expired session', function () {
         var account = user.initAccount({
-          sessionToken: 'abc123',
+          accessToken: 'foo',
           email: 'a@a.com',
+          sessionToken: 'abc123',
           sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
-          verified: true,
-          accessToken: 'foo'
+          verified: true
         });
 
         sinon.stub(view, 'getAccount', function () {

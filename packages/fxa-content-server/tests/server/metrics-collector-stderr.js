@@ -81,40 +81,39 @@ define([
     };
 
     metricsCollector.write({
-      navigationTiming: {
-        included: 0,
-        notIncludedUndefined: und,
-        notIncludedNull: null
-      },
+      broker: 'fx-desktop-v1',
+      campaign: 'fennec',
+      context: 'fx_desktop_v1',
+      duration: 1234,
+      entrypoint: 'menupanel',
       events: [
         {
-          type: 'firstEvent',
-          offset: 1235
-        }, {
-          type: 'secondEvent',
-          offset: 3512
-        }
-      ],
-      duration: 1234,
-      'user-agent': 'Firefox 32.0',
-      lang: 'db_LB',
-      service: 'sync',
-      context: 'fx_desktop_v1',
-      broker: 'fx-desktop-v1',
-      entrypoint: 'menupanel',
-      migration: 'sync1.5',
-      campaign: 'fennec',
-      marketing: [
+          offset: 1235,
+          type: 'firstEvent'
+        },
         {
-          campaignId: 'survey',
-          clicked: false,
-          url: 'http://mzl.la/1oV7jUy'
+          offset: 3512,
+          type: 'secondEvent'
         }
       ],
+      lang: 'db_LB',
+      marketing: [{
+        campaignId: 'survey',
+        clicked: false,
+        url: 'http://mzl.la/1oV7jUy'
+      }],
+      migration: 'sync1.5',
+      navigationTiming: {
+        included: 0,
+        notIncludedNull: null,
+        notIncludedUndefined: und
+      },
       screen: {
-        width: 1680,
-        height: 1050
-      }
+        height: 1050,
+        width: 1680
+      },
+      service: 'sync',
+      'user-agent': 'Firefox 32.0'
     });
   };
 

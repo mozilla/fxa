@@ -22,10 +22,10 @@ define([
 
   var CropperImage = Backbone.Model.extend({
     defaults: {
+      height: 1,
       src: jpegSrc,
       type: 'image/jpeg',
-      width: 1,
-      height: 1
+      width: 1
     },
 
     initialize: function (options) {

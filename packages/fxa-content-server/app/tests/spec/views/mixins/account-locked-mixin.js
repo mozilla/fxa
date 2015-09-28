@@ -49,10 +49,10 @@ define([
       relier = new Relier();
 
       view = new AccountLockedView({
-        router: routerMock,
         fxaClient: fxaClient,
         metrics: metrics,
         relier: relier,
+        router: routerMock,
         screenName: 'delete-account'  // just an example name
       });
       return view.render();

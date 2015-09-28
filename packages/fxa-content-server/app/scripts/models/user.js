@@ -94,11 +94,11 @@ define([
       return new Account({
         accountData: accountData,
         assertion: this._assertion,
-        oAuthClient: this._oAuthClient,
-        profileClient: this._profileClient,
         fxaClient: this._fxaClient,
         marketingEmailClient: this._marketingEmailClient,
-        oAuthClientId: this._oAuthClientId
+        oAuthClient: this._oAuthClient,
+        oAuthClientId: this._oAuthClientId,
+        profileClient: this._profileClient
       });
     },
 

@@ -56,14 +56,14 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics, NullChannel,
       metrics = new Metrics();
 
       view = new View({
-        router: routerMock,
-        fxaClient: fxaClient,
-        user: user,
-        relier: relier,
         broker: broker,
-        notifications: notifications,
+        fxaClient: fxaClient,
         metrics: metrics,
-        screenName: 'delete-account'
+        notifications: notifications,
+        relier: relier,
+        router: routerMock,
+        screenName: 'delete-account',
+        user: user
       });
     });
 

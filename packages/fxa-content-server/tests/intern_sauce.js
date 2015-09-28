@@ -8,13 +8,9 @@ define([
   // override the main config file and adjust it to suit Sauce Labs
   intern.tunnel = 'SauceLabsTunnel';
   intern.tunnelOptions = {
+    directDomains: ['latest.dev.lcip.org'],
     port: 4445,
-    directDomains: [
-      'latest.dev.lcip.org'
-    ],
-    skipSslDomains: [
-      'latest.dev.lcip.org'
-    ]
+    skipSslDomains: ['latest.dev.lcip.org']
   };
   intern.functionalSuites = [
     'tests/functional',
@@ -28,7 +24,11 @@ define([
   }
 
   intern.environments = [
-    { browserName: 'firefox', version: '33', platform: 'Windows 7' }
+    {
+      browserName: 'firefox',
+      platform: 'Windows 7',
+      version: '33'
+    }
   ];
 
   return intern;

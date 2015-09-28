@@ -25,8 +25,8 @@ function (chai, sinon, p, OAuthToken) {
       };
 
       oAuthToken = new OAuthToken({
-        token: 'access_token',
-        oAuthClient: oAuthClient
+        oAuthClient: oAuthClient,
+        token: 'access_token'
       });
     });
 

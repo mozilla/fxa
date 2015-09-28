@@ -14,7 +14,7 @@ function (chai, sinon, Notifications, NullChannel) {
   var assert = chai.assert;
 
   describe('models/notifications', function () {
-    var NOTIFICATION = 'profile:change';
+    var NOTIFICATION = 'fxaccounts:delete';
     var notifications;
     var webChannelMock;
     var tabChannelMock;
@@ -31,9 +31,9 @@ function (chai, sinon, Notifications, NullChannel) {
       sinon.spy(tabChannelMock, 'on');
 
       notifications = new Notifications({
-        webChannel: webChannelMock,
+        iframeChannel: iframeChannelMock,
         tabChannel: tabChannelMock,
-        iframeChannel: iframeChannelMock
+        webChannel: webChannelMock
       });
     });
 
@@ -52,8 +52,8 @@ function (chai, sinon, Notifications, NullChannel) {
         done();
       });
       var message = {
-        event: NOTIFICATION,
-        data: { uid: '123' }
+        data: { uid: '123' },
+        event: NOTIFICATION
       };
       var callback = tabChannelMock.on.args[0][1];
       // manually trigger the event callback

@@ -47,12 +47,12 @@ function (chai, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
       metrics = new Metrics();
 
       view = new View({
-        user: user,
+        metrics: metrics,
         relier: relier,
         router: routerMock,
-        window: windowMock,
-        metrics: metrics,
-        screenName: SCREEN_NAME
+        screenName: SCREEN_NAME,
+        user: user,
+        window: windowMock
       });
     });
 
@@ -68,20 +68,20 @@ function (chai, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
       var accessToken = 'token';
       beforeEach(function () {
         view = new View({
-          router: routerMock,
-          relier: relier,
-          window: windowMock,
-          user: user,
           metrics: metrics,
-          screenName: SCREEN_NAME
+          relier: relier,
+          router: routerMock,
+          screenName: SCREEN_NAME,
+          user: user,
+          window: windowMock
         });
         view.isUserAuthorized = function () {
           return p(true);
         };
         account = user.initAccount({
+          accessToken: accessToken,
           email: 'a@a.com',
-          verified: true,
-          accessToken: accessToken
+          verified: true
         });
         sinon.stub(account, 'getAvatar', function () {
           return p({ avatar: pngSrc, id: 'foo' });

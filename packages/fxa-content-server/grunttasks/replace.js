@@ -5,18 +5,21 @@
 module.exports = function (grunt) {
   grunt.config('replace', {
     tos_pp: { //eslint-disable-line camelcase
+      overwrite: true,
+      replacements: [
+        {
+          from: /{:\s.*?\s}/g,
+          to: ''
+        },
+        {
+          from: /^#\s.*?\n$/m,
+          to: ''
+        }
+      ],
       src: [
         '<%= yeoman.pp_md_src %>/*.md',
         '<%= yeoman.tos_md_src %>/*.md'
-      ],
-      overwrite: true,
-      replacements: [{
-        from: /{:\s.*?\s}/g,
-        to: ''
-      }, {
-        from: /^#\s.*?\n$/m,
-        to: ''
-      }]
+      ]
     }
   });
 };

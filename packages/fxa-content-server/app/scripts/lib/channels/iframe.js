@@ -29,20 +29,20 @@ define([
 
       var sender = this._sender = new PostMessageSender();
       sender.initialize({
-        window: win.parent,
-        origin: options.origin
+        origin: options.origin,
+        window: win.parent
       });
 
       var receiver = this._receiver = new PostMessageReceiver();
       receiver.initialize({
-        window: win,
-        origin: options.origin
+        origin: options.origin,
+        window: win
       });
 
       DuplexChannel.prototype.initialize.call(this, {
-        window: win,
+        receiver: receiver,
         sender: sender,
-        receiver: receiver
+        window: win
       });
     },
 

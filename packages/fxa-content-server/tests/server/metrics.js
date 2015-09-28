@@ -20,7 +20,10 @@ define([
 
     request.post(serverUrl + '/metrics', {
       data: {
-        events: [ { type: 'event1', offset: 1 } ]
+        events: [{
+          offset: 1,
+          type: 'event1'
+        }]
       }
     },
     dfd.callback(function (err, res) {

@@ -40,9 +40,9 @@ function (chai, View, Metrics, WindowMock) {
         windowMock.navigator.userAgent = 'Mozilla/5.0 (Windows NT x.y; rv:31.0) Gecko/20100101 Firefox/31.0';
 
         createView({
-          type: 'sign_up',
+          language: 'en',
           service: 'sync',
-          language: 'en'
+          type: 'sign_up'
         });
 
         return view.render()
@@ -55,8 +55,8 @@ function (chai, View, Metrics, WindowMock) {
         windowMock.navigator.userAgent = 'Mozilla/5.0 (Windows NT x.y; rv:31.0) Gecko/20100101 Firefox/31.0';
 
         createView({
-          type: 'sign_up',
-          language: 'en'
+          language: 'en',
+          type: 'sign_up'
         });
 
         return view.render()
@@ -69,9 +69,9 @@ function (chai, View, Metrics, WindowMock) {
         windowMock.navigator.userAgent = 'Mozilla/5.0 (Android; Tablet; rv:26.0) Gecko/26.0 Firefox/26.0';
 
         createView({
-          type: 'sign_up',
+          language: 'en',
           service: 'sync',
-          language: 'en'
+          type: 'sign_up'
         });
 
         return view.render()
@@ -83,9 +83,9 @@ function (chai, View, Metrics, WindowMock) {
       it('shows nothing to english speaking users on B2G', function () {
         windowMock.navigator.userAgent = 'Mozilla/5.0 (Mobile; rv:26.0) Gecko/26.0 Firefox/26.0';
         createView({
-          type: 'sign_up',
+          language: 'en',
           service: 'sync',
-          language: 'en'
+          type: 'sign_up'
         });
 
         return view.render()
@@ -96,9 +96,9 @@ function (chai, View, Metrics, WindowMock) {
 
       it('shows nothing to non-english speaking, non-sync users', function () {
         createView({
-          type: 'sign_up',
           language: 'ru',
-          surveyPercentage: 0
+          surveyPercentage: 0,
+          type: 'sign_up'
         });
 
         return view.render()
@@ -109,9 +109,9 @@ function (chai, View, Metrics, WindowMock) {
 
       it('logs the marketing type and link', function () {
         createView({
-          type: 'sign_up',
+          language: 'de',
           service: 'sync',
-          language: 'de'
+          type: 'sign_up'
         });
 
         return view.render()
@@ -129,9 +129,9 @@ function (chai, View, Metrics, WindowMock) {
     describe('a click on the marketing material', function () {
       it('is logged', function () {
         createView({
-          type: 'sign_up',
+          language: 'de',
           service: 'sync',
-          language: 'de'
+          type: 'sign_up'
         });
 
         return view.render()

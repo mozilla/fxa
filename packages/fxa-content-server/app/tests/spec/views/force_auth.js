@@ -45,13 +45,13 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Relier, Broker,
       formPrefill = new FormPrefill();
 
       view = new View({
-        window: windowMock,
-        fxaClient: fxaClient,
-        user: user,
-        relier: relier,
         broker: broker,
+        formPrefill: formPrefill,
+        fxaClient: fxaClient,
+        relier: relier,
         router: router,
-        formPrefill: formPrefill
+        user: user,
+        window: windowMock
       });
     }
 

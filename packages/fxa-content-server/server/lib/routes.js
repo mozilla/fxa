@@ -171,12 +171,12 @@ module.exports = function (config, i18n) {
     app.get('/400.html', function (req, res) {
       res.removeHeader('x-frame-options');
       logger.error('400.html', {
-        message: req.query.message,
-        errno: req.query.errno,
-        namespace: req.query.namespace,
+        client_id: req.query.client_id, //eslint-disable-line camelcase
         context: req.query.context,
-        param: req.query.param,
-        client_id: req.query.client_id //eslint-disable-line camelcase
+        errno: req.query.errno,
+        message: req.query.message,
+        namespace: req.query.namespace,
+        param: req.query.param
       });
       return res.render('400', {
         message: req.query.message
@@ -186,10 +186,10 @@ module.exports = function (config, i18n) {
     app.get('/500.html', function (req, res) {
       res.removeHeader('x-frame-options');
       logger.error('500.html', {
-        message: req.query.message,
+        context: req.query.context,
         errno: req.query.errno,
-        namespace: req.query.namespace,
-        context: req.query.context
+        message: req.query.message,
+        namespace: req.query.namespace
       });
       return res.render('500');
     });

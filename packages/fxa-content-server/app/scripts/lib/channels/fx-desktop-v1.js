@@ -30,14 +30,14 @@ define([
 
       var receiver = this._receiver = new PostMessageReceiver();
       receiver.initialize({
-        window: win,
-        origin: options.origin
+        origin: options.origin,
+        window: win
       });
 
       DuplexChannel.prototype.initialize.call(this, {
-        window: win,
+        receiver: receiver,
         sender: sender,
-        receiver: receiver
+        window: win
       });
     },
 
@@ -57,14 +57,14 @@ define([
       var content = message.content;
       return {
         command: content.status,
+        data: content.data,
         // The browser does not return messageIds, it returns a `status` field
         // in the content. Use the `status` field as the messageId.
         // See
         // https://dxr.mozilla.org/mozilla-central/source/browser/base/content/aboutaccounts/aboutaccounts.js#244
         // and
         // https://dxr.mozilla.org/mozilla-central/source/browser/base/content/aboutaccounts/aboutaccounts.js#193
-        messageId: content.status,
-        data: content.data
+        messageId: content.status
       };
     }
   });

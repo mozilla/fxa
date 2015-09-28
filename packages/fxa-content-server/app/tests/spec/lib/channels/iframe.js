@@ -26,8 +26,8 @@ function (chai, sinon, AuthErrors, IFrameChannel, WindowMock) {
 
       channel = new IFrameChannel();
       return channel.initialize({
-        window: windowMock,
-        origin: 'https://trusted-parent.org'
+        origin: 'https://trusted-parent.org',
+        window: windowMock
       });
     });
 
@@ -95,9 +95,9 @@ function (chai, sinon, AuthErrors, IFrameChannel, WindowMock) {
         sinon.spy(channel, 'trigger');
 
         channel.receiveEvent({
-          type: 'message',
           data: IFrameChannel.stringify('message_type', { key: 'value' }),
-          origin: 'https://trusted-parent.org'
+          origin: 'https://trusted-parent.org',
+          type: 'message'
         });
 
         assert.isTrue(
@@ -109,9 +109,9 @@ function (chai, sinon, AuthErrors, IFrameChannel, WindowMock) {
         channel.on('error', errorSpy);
 
         channel.receiveEvent({
-          type: 'message',
           data: IFrameChannel.stringify('message_type', { key: 'value' }),
-          origin: 'https://untrusted-parent.org'
+          origin: 'https://untrusted-parent.org',
+          type: 'message'
         });
 
         var error = errorSpy.args[0][0];
@@ -122,8 +122,8 @@ function (chai, sinon, AuthErrors, IFrameChannel, WindowMock) {
       it('can handle a malformed message', function () {
         var invalidMsg = '{';
         channel.receiveEvent({
-          type: 'message',
-          data: invalidMsg
+          data: invalidMsg,
+          type: 'message'
         });
       });
     });
@@ -133,15 +133,13 @@ function (chai, sinon, AuthErrors, IFrameChannel, WindowMock) {
         sinon.stub(windowMock.parent, 'postMessage', function (message) {
           var parsed = JSON.parse(message);
           channel.receiveEvent({
-            type: 'message',
             data: JSON.stringify({
-              messageId: parsed.messageId,
               command: parsed.command,
-              data: {
-                key: 'value'
-              }
+              data: { key: 'value' },
+              messageId: parsed.messageId
             }),
-            origin: 'https://trusted-parent.org'
+            origin: 'https://trusted-parent.org',
+            type: 'message'
           });
         });
 

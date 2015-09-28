@@ -29,7 +29,7 @@ define([
       options = options || {};
 
       broker = new FxSyncAuthenticationBroker(_.extend({
-        window: windowMock,
+        channel: channelMock,
         commands: {
           CAN_LINK_ACCOUNT: 'can_link_account',
           CHANGE_PASSWORD: 'change_password',
@@ -37,7 +37,7 @@ define([
           LOADED: 'loaded',
           LOGIN: 'login'
         },
-        channel: channelMock
+        window: windowMock
       }, options));
     }
 
@@ -178,14 +178,14 @@ define([
     describe('afterSignIn', function () {
       it('notifies the channel of login, does not halt by default', function () {
         account.set({
-          uid: 'uid',
+          customizeSync: true,
+          keyFetchToken: 'key_fetch_token',
+          notSent: 'not_sent',
           sessionToken: 'session_token',
           sessionTokenContext: 'sync',
+          uid: 'uid',
           unwrapBKey: 'unwrap_b_key',
-          keyFetchToken: 'key_fetch_token',
-          customizeSync: true,
-          verified: true,
-          notSent: 'not_sent'
+          verified: true
         });
 
         return broker.afterSignIn(account)
@@ -229,14 +229,14 @@ define([
     describe('afterChangePassword', function () {
       it('notifies the channel of change_password with the new login info', function () {
         account.set({
-          uid: 'uid',
+          customizeSync: true,
+          keyFetchToken: 'key_fetch_token',
+          notSent: 'not_sent',
           sessionToken: 'session_token',
           sessionTokenContext: 'sync',
+          uid: 'uid',
           unwrapBKey: 'unwrap_b_key',
-          keyFetchToken: 'key_fetch_token',
-          customizeSync: true,
-          verified: true,
-          notSent: 'not_sent'
+          verified: true
         });
 
         return broker.afterChangePassword(account)

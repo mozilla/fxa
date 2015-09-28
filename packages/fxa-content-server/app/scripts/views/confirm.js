@@ -50,8 +50,8 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
 
       return {
         email: email,
-        safeEmail: encodeURIComponent(email),
-        isOpenGmailButtonVisible: this._isOpenGmailButtonVisible()
+        isOpenGmailButtonVisible: this._isOpenGmailButtonVisible(),
+        safeEmail: encodeURIComponent(email)
       };
     },
 
@@ -60,9 +60,9 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
     },
 
     events: {
+      'click #open-gmail': '_gmailTabOpened',
       // validateAndSubmit is used to prevent multiple concurrent submissions.
-      'click #resend': BaseView.preventDefaultThen('validateAndSubmit'),
-      'click #open-gmail': '_gmailTabOpened'
+      'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
     },
 
     _bouncedEmailSignup: function () {

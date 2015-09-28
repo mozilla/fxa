@@ -18,11 +18,11 @@ function (xhr, ProfileErrors) {
 
   ProfileClient.prototype._request = function (path, type, accessToken, data, headers) {
     var request = {
-      url: this.profileUrl + path,
-      type: type,
       accessToken: accessToken,
       data: data,
-      headers: headers
+      headers: headers,
+      type: type,
+      url: this.profileUrl + path
     };
 
     return xhr.oauthAjax(request)
@@ -52,8 +52,8 @@ function (xhr, ProfileErrors) {
 
   ProfileClient.prototype.postAvatar = function (accessToken, url, selected) {
     return this._request('/v1/avatar', 'post', accessToken, {
-      url: url,
-      selected: selected
+      selected: selected,
+      url: url
     });
   };
 

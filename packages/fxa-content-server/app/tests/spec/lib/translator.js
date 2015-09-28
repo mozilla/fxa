@@ -15,15 +15,16 @@ function (chai, Translator) {
 
   // translations taken from Persona's db_LB translations.
   var TRANSLATIONS = {
-    'There was a problem with your signup link. Has this address already been registered?':
-      [null, '⊥ɥǝɹǝ ʍɐs ɐ dɹoqʅǝɯ ʍıʇɥ ʎonɹ sıƃund ʅıuʞ˙ Hɐs ʇɥıs ɐppɹǝss ɐʅɹǝɐpʎ qǝǝu ɹǝƃısʇǝɹǝp¿'],
-
-    'Error encountered trying to register: %(email)s.': [null,
-    'Ǝɹɹoɹ ǝuɔonuʇǝɹǝp ʇɹʎıuƃ ʇo ɹǝƃısʇɹɐʇıou: %(email)s˙'],
-
     // use one direct translation to prepare for simpler json files.
-    '%s, Persona requires cookies to remember you.':
-      '%s, Ԁǝɹsouɐ ɹǝbnıɹǝs ɔooʞıǝs ʇo ɹǝɯǝɯqǝɹ ʎon˙'
+    '%s, Persona requires cookies to remember you.': '%s, Ԁǝɹsouɐ ɹǝbnıɹǝs ɔooʞıǝs ʇo ɹǝɯǝɯqǝɹ ʎon\u02D9',
+    'Error encountered trying to register: %(email)s.': [
+      null,
+      'Ǝɹɹoɹ ǝuɔonuʇǝɹǝp ʇɹʎıuƃ ʇo ɹǝƃısʇɹɐʇıou: %(email)s\u02D9'
+    ],
+    'There was a problem with your signup link. Has this address already been registered?': [
+      null,
+      '\u22A5ɥǝɹǝ ʍɐs ɐ dɹoqʅǝɯ ʍıʇɥ ʎonɹ sıƃund ʅıuʞ\u02D9 Hɐs ʇɥıs ɐppɹǝss ɐʅɹǝɐpʎ qǝǝu ɹǝƃısʇǝɹǝp\xBF'
+    ]
   };
 
   describe('lib/translator', function () {

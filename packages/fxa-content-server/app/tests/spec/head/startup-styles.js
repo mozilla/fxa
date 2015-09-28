@@ -23,8 +23,8 @@ define([
       environment = new Environment(windowMock);
 
       startupStyles = new StartupStyles({
-        window: windowMock,
-        environment: environment
+        environment: environment,
+        window: windowMock
       });
     });
 

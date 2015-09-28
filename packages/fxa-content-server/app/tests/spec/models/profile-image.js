@@ -26,22 +26,22 @@ function (chai, ProfileErrors, ProfileImage) {
         assert.isTrue(profileImage.isDefault());
       });
       it('isDefault without id', function () {
-        profileImage = new ProfileImage({ url: 'foo', img: 'img' });
+        profileImage = new ProfileImage({ img: 'img', url: 'foo' });
         assert.isTrue(profileImage.isDefault());
       });
       it('isDefault without img', function () {
-        profileImage = new ProfileImage({ url: 'foo', id: 'id' });
+        profileImage = new ProfileImage({ id: 'id', url: 'foo' });
         assert.isTrue(profileImage.isDefault());
       });
       it('isDefault is false with url, id, and img', function () {
-        profileImage = new ProfileImage({ url: 'foo', id: 'id', img: 'img' });
+        profileImage = new ProfileImage({ id: 'id', img: 'img', url: 'foo' });
         assert.isFalse(profileImage.isDefault());
       });
     });
 
     describe('fetch', function () {
       beforeEach(function () {
-        profileImage = new ProfileImage({ url: pngSrc, id: 'id' });
+        profileImage = new ProfileImage({ id: 'id', url: pngSrc });
       });
 
       it('fetches', function () {

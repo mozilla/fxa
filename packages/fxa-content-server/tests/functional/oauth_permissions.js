@@ -35,8 +35,8 @@ define([
       });
 
       return FunctionalHelpers.clearBrowserState(this, {
-        contentServer: true,
-        '321done': true
+        '321done': true,
+        contentServer: true
       });
     },
 

@@ -77,9 +77,9 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       var coppaView;
       var coppaOptions = {
         el: self.$('#coppa'),
+        formPrefill: self._formPrefill,
         metrics: self.metrics,
         screenName: self.getScreenName(),
-        formPrefill: self._formPrefill,
         shouldFocus: autofocusEl === null
       };
 
@@ -169,17 +169,17 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       var relier = this.relier;
       var isSync = relier.isSync();
       var context = {
-        serviceName: relier.get('serviceName'),
-        isSync: isSync,
-        isCustomizeSyncChecked: relier.isCustomizeSyncChecked(),
-        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
         email: prefillEmail,
-        password: prefillPassword,
-        shouldFocusEmail: autofocusEl === 'email',
-        shouldFocusPassword: autofocusEl === 'password',
         error: this.error,
+        isCustomizeSyncChecked: relier.isCustomizeSyncChecked(),
         isEmailOptInVisible: this._isEmailOptInEnabled(),
-        isMigration: this.isMigration()
+        isMigration: this.isMigration(),
+        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
+        isSync: isSync,
+        password: prefillPassword,
+        serviceName: relier.get('serviceName'),
+        shouldFocusEmail: autofocusEl === 'email',
+        shouldFocusPassword: autofocusEl === 'password'
       };
 
       if (isSync && this.isInExperiment('syncCheckbox')) {
@@ -291,10 +291,10 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
 
       var preVerifyToken = self.relier.get('preVerifyToken');
       var account = self.user.initAccount({
-        email: self.getElementValue('.email'),
-        password: self.getElementValue('.password'),
         customizeSync: self.$('.customize-sync').is(':checked'),
-        needsOptedInToMarketingEmail: self.$('.marketing-email-optin').is(':checked')
+        email: self.getElementValue('.email'),
+        needsOptedInToMarketingEmail: self.$('.marketing-email-optin').is(':checked'),
+        password: self.getElementValue('.password')
       });
 
       if (preVerifyToken) {

@@ -38,8 +38,8 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
       user = new User();
 
       account = user.initAccount({
-        uid: 'uid',
-        sessionToken: 'abc123'
+        sessionToken: 'abc123',
+        uid: 'uid'
       });
 
       channelMock = new NullChannel();
@@ -49,11 +49,11 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
         relier: relierMock
       });
       broker = new WebChannelAuthenticationBroker({
-        window: windowMock,
-        relier: relierMock,
         channel: channelMock,
         fxaClient: fxaClientMock,
-        session: Session
+        relier: relierMock,
+        session: Session,
+        window: windowMock
       });
     });
 
@@ -151,8 +151,8 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
     describe('getChannel', function () {
       it('creates a WebChannel with the id set in the broker', function () {
         var broker = new WebChannelAuthenticationBroker({
-          windowMock: windowMock,
-          relier: relierMock
+          relier: relierMock,
+          windowMock: windowMock
         });
 
         broker.set('webChannelId', 'test');

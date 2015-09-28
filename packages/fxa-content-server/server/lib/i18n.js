@@ -52,12 +52,12 @@ module.exports = function (config) {
   // stateful object with helper methods.
   var abideMiddleware = abide.abide(
     {
-      default_lang: abide.localeFrom(config.defaultLang),
       debug_lang: config.debugLang,
+      default_lang: abide.localeFrom(config.defaultLang),
+      locale_on_url: true,
       supported_languages: config.supportedLanguages,
       translation_directory: config.translationDirectory,
-      translation_type: config.translationType,
-      locale_on_url: true
+      translation_type: config.translationType
     }
   );
 

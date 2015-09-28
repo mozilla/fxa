@@ -39,10 +39,10 @@ function (chai, sinon, p, Constants, Session, RedirectAuthenticationBroker,
       metrics = { flush: sinon.spy(p) };
 
       broker = new RedirectAuthenticationBroker({
+        metrics: metrics,
         relier: relier,
-        window: windowMock,
         session: Session,
-        metrics: metrics
+        window: windowMock
       });
 
       sinon.stub(broker, 'finishOAuthFlow', function () {
@@ -67,8 +67,8 @@ function (chai, sinon, p, Constants, Session, RedirectAuthenticationBroker,
       describe('with an error', function () {
         it('appends an error query parameter', function () {
           return broker.sendOAuthResultToRelier({
-            redirect: REDIRECT_TO,
-            error: 'error'
+            error: 'error',
+            redirect: REDIRECT_TO
           })
           .then(function () {
             assert.isTrue(metrics.flush.calledOnce);
@@ -83,8 +83,8 @@ function (chai, sinon, p, Constants, Session, RedirectAuthenticationBroker,
         it('appends an action query parameter', function () {
           var action = Constants.OAUTH_ACTION_SIGNIN;
           return broker.sendOAuthResultToRelier({
-            redirect: REDIRECT_TO,
-            action: action
+            action: action,
+            redirect: REDIRECT_TO
           })
           .then(function () {
             assert.isTrue(metrics.flush.calledOnce);
@@ -98,8 +98,8 @@ function (chai, sinon, p, Constants, Session, RedirectAuthenticationBroker,
       describe('with existing query parameters', function () {
         it('passes through existing parameters unchanged', function () {
           return broker.sendOAuthResultToRelier({
-            redirect: REDIRECT_TO + '?test=param',
-            error: 'error'
+            error: 'error',
+            redirect: REDIRECT_TO + '?test=param'
           })
           .then(function () {
             assert.isTrue(metrics.flush.calledOnce);

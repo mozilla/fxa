@@ -41,15 +41,15 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
 
     function initView() {
       view = new View({
-        router: routerMock,
-        window: windowMock,
-        metrics: metrics,
-        fxaClient: fxaClient,
-        relier: relier,
         broker: broker,
-        user: user,
         ephemeralMessages: ephemeralMessages,
-        screenName: 'confirm-account-unlock'
+        fxaClient: fxaClient,
+        metrics: metrics,
+        relier: relier,
+        router: routerMock,
+        screenName: 'confirm-account-unlock',
+        user: user,
+        window: windowMock
       });
       view.VERIFICATION_POLL_IN_MS = 10;
     }
@@ -63,9 +63,9 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
       fxaClient = new FxaClient();
 
       broker = new OAuthBroker({
+        relier: relier,
         session: Session,
-        window: windowMock,
-        relier: relier
+        window: windowMock
       });
       user = new User();
 
@@ -75,8 +75,8 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
 
       ephemeralMessages = new EphemeralMessages();
       ephemeralMessages.set('data', {
-        lockoutSource: 'signin',
-        account: account
+        account: account,
+        lockoutSource: 'signin'
       });
 
       initView();
@@ -155,8 +155,8 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
 
       it('if not caused by signin, sets the success ephemeral message and navigates back a screen', function () {
         ephemeralMessages.set('data', {
-          lockoutSource: 'change_password',
-          account: account
+          account: account,
+          lockoutSource: 'change_password'
         });
 
         initView();

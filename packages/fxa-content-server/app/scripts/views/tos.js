@@ -11,15 +11,14 @@ function (LegalCopyView, Template, AuthErrors) {
   'use strict';
 
   var View = LegalCopyView.extend({
-    template: Template,
     className: 'tos',
     copyUrl: '/legal/terms',
-    fetchError: AuthErrors.toError('COULD_NOT_GET_TOS'),
-
     events: {
       'click #fxa-tos-back': 'back',
       'keyup #fxa-tos-back': 'backOnEnter'
-    }
+    },
+    fetchError: AuthErrors.toError('COULD_NOT_GET_TOS'),
+    template: Template
   });
 
   return View;

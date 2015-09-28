@@ -49,8 +49,8 @@ define([
         self.logScreenEvent('unlock-email.send.success');
         self.navigate('confirm_account_unlock', {
           data: {
-            lockoutSource: self.getScreenName(),
-            account: account
+            account: account,
+            lockoutSource: self.getScreenName()
           }
         });
       }, function (err) {

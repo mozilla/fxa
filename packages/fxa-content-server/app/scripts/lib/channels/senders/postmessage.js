@@ -51,9 +51,9 @@ define([
 
   function stringify(command, data, messageId) {
     return JSON.stringify({
-      messageId: messageId,
       command: command,
-      data: data || {}
+      data: data || {},
+      messageId: messageId
     });
   }
 

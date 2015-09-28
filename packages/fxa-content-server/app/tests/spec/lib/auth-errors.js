@@ -152,7 +152,7 @@ function (chai, AuthErrors) {
       });
 
       it('converts an XHR request with `responseJSON` to an error`', function () {
-        assert.isTrue(AuthErrors.is(AuthErrors.normalizeXHRError({ status: 200, responseJSON: { errno: 201 }}), 'SERVER_BUSY'));
+        assert.isTrue(AuthErrors.is(AuthErrors.normalizeXHRError({ responseJSON: { errno: 201 }, status: 200 }), 'SERVER_BUSY'));
       });
     });
   });

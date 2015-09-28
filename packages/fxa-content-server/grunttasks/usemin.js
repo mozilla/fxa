@@ -13,13 +13,13 @@ module.exports = function (grunt) {
       type: 'html'
     },
     server_rendered: { //eslint-disable-line camelcase
+      dest: '<%= yeoman.dist %>',
       options: {
         // root must be specified or else useminPrepare uses the template
         // directory as the root from where to search for assets.
         root: '<%= yeoman.app %>',
         type: 'html'
       },
-      dest: '<%= yeoman.dist %>',
       src: [
         // Use the already generated locale specific pages as the source.
         '<%= yeoman.page_template_dist %>/{,*/}*.html',
@@ -29,14 +29,12 @@ module.exports = function (grunt) {
   });
 
   grunt.config('usemin', {
-    options: {
-      assetsDirs: ['<%= yeoman.dist %>']
-    },
+    css: ['<%= yeoman.dist %>/styles/{,*/}*.css'],
     html: [
       '<%= yeoman.dist %>/{,*/}*.html',
       '<%= yeoman.page_template_dist %>/{,*/}*.html',
       '!<%= yeoman.page_template_dist %>/{,*/}mocha.html'
     ],
-    css: ['<%= yeoman.dist %>/styles/{,*/}*.css']
+    options: { assetsDirs: ['<%= yeoman.dist %>'] }
   });
 };

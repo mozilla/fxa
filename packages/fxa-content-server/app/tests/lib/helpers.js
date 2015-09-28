@@ -137,18 +137,18 @@ define([
   }
 
   return {
-    requiresFocus: requiresFocus,
     addFxaClientSpy: addFxaClientSpy,
-    removeFxaClientSpy: removeFxaClientSpy,
-    wrapAssertion: wrapAssertion,
-    createRandomHexString: createRandomHexString,
     createEmail: createEmail,
+    createRandomHexString: createRandomHexString,
     emailToUser: emailToUser,
     indexOfEvent: indexOfEvent,
-    isEventLogged: isEventLogged,
     isErrorLogged: isErrorLogged,
+    isEventLogged: isEventLogged,
     isScreenLogged: isScreenLogged,
+    removeFxaClientSpy: removeFxaClientSpy,
+    requiresFocus: requiresFocus,
+    stubbedProfileClient: stubbedProfileClient,
     toSearchString: toSearchString,
-    stubbedProfileClient: stubbedProfileClient
+    wrapAssertion: wrapAssertion
   };
 });

@@ -28,9 +28,9 @@ function (chai, sinon, DuplexChannel, NullSender, NullReceiver, WindowMock) {
 
       channel = new DuplexChannel();
       channel.initialize({
-        window: windowMock,
+        receiver: receiver,
         sender: sender,
-        receiver: receiver
+        window: windowMock
       });
     });
 
@@ -42,8 +42,8 @@ function (chai, sinon, DuplexChannel, NullSender, NullReceiver, WindowMock) {
       it('throws if no `sender`', function () {
         assert.throws(function () {
           channel.initialize({
-            window: windowMock,
-            receiver: receiver
+            receiver: receiver,
+            window: windowMock
           });
         });
       });
@@ -51,8 +51,8 @@ function (chai, sinon, DuplexChannel, NullSender, NullReceiver, WindowMock) {
       it('throws if no `receiver`', function () {
         assert.throws(function () {
           channel.initialize({
-            window: windowMock,
-            sender: sender
+            sender: sender,
+            window: windowMock
           });
         });
       });

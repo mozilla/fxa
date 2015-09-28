@@ -38,14 +38,14 @@ module.exports = function () {
       // the `__cookie_check` cookie will not arrive.
       allowedParentOrigins: allowedParentOrigins,
       authServerUrl: authServerUrl,
+      cookiesEnabled: !! req.cookies.__cookie_check,
       env: env,
-      cookiesEnabled: !! req.cookies['__cookie_check'],
-      marketingEmailServerUrl: marketingEmailApiServerUrl,
-      marketingEmailPreferencesUrl: marketingEmailPreferencesUrl,
-      oAuthClientId: clientId,
-      oAuthUrl: oauthServerUrl,
       // req.lang is set by abide in a previous middleware.
       language: req.lang,
+      marketingEmailPreferencesUrl: marketingEmailPreferencesUrl,
+      marketingEmailServerUrl: marketingEmailApiServerUrl,
+      oAuthClientId: clientId,
+      oAuthUrl: oauthServerUrl,
       profileUrl: profileServerUrl
     });
   };

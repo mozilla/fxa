@@ -16,8 +16,8 @@ define([
       this.superView = options.superView;
     },
     events: {
-      'click .settings-unit-toggle': BaseView.preventDefaultThen('_triggerPanel'),
-      'click .cancel': BaseView.preventDefaultThen('_closePanelReturnToSettings')
+      'click .cancel': BaseView.preventDefaultThen('_closePanelReturnToSettings'),
+      'click .settings-unit-toggle': BaseView.preventDefaultThen('_triggerPanel')
     },
 
     _triggerPanel: function (event) {

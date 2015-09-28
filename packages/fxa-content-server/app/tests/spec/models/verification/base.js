@@ -12,8 +12,8 @@ define([
 
   var Model = BaseModel.extend({
     defaults: {
-      uid: null,
-      code: null
+      code: null,
+      uid: null
     },
 
     validate: function (attributes) {
@@ -27,8 +27,8 @@ define([
     describe('initialization cleanup', function () {
       it('removes whitespace in values', function () {
         var model = new Model({
-          uid: 'dead beef ',
-          code: ' fad fade'
+          code: ' fad fade',
+          uid: 'dead beef '
         });
 
         assert.equal(model.get('uid'), 'deadbeef');
@@ -37,8 +37,8 @@ define([
 
       it('removes empty values', function () {
         var model = new Model({
-          uid: '  ',
-          code: ''
+          code: '',
+          uid: '  '
         });
 
         assert.isFalse(model.has('uid'));
@@ -50,8 +50,8 @@ define([
     describe('isValid', function () {
       it('returns false if model is marked as damaged', function () {
         var model = new Model({
-          uid: 'hi',
-          code: 'ho'
+          code: 'ho',
+          uid: 'hi'
         });
         model.markDamaged();
         assert.isFalse(model.isValid());
@@ -59,16 +59,16 @@ define([
 
       it('returns false if `validate` explodes', function () {
         var model = new Model({
-          uid: 'hi',
-          code: null
+          code: null,
+          uid: 'hi'
         });
         assert.isFalse(model.isValid());
       });
 
       it('returns true otherwise', function () {
         var model = new Model({
-          uid: 'hi',
-          code: 'ho'
+          code: 'ho',
+          uid: 'hi'
         });
         assert.isTrue(model.isValid());
       });
@@ -77,8 +77,8 @@ define([
     describe('markExpired/isExpired', function () {
       it('marks the link as expired', function () {
         var model = new Model({
-          uid: 'hi',
-          code: 'ho'
+          code: 'ho',
+          uid: 'hi'
         });
 
         assert.isFalse(model.isExpired());
@@ -90,8 +90,8 @@ define([
     describe('markDamaged/isDamaged', function () {
       it('marks the link as damaged', function () {
         var model = new Model({
-          uid: 'hi',
-          code: 'ho'
+          code: 'ho',
+          uid: 'hi'
         });
 
         assert.isFalse(model.isDamaged());

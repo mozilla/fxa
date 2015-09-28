@@ -37,11 +37,11 @@ function (chai, sinon, p, FxaClient, User, Broker, View, WindowMock, RouterMock)
       broker = new Broker();
 
       view = new View({
-        window: windowMock,
-        router: routerMock,
+        broker: broker,
         fxaClient: fxaClient,
+        router: routerMock,
         user: user,
-        broker: broker
+        window: windowMock
       });
     });
 
@@ -52,12 +52,12 @@ function (chai, sinon, p, FxaClient, User, Broker, View, WindowMock, RouterMock)
 
     it('redirects to settings on success', function () {
       var accountData = {
-        uid: '00000000',
-        sessionToken: '00000000',
+        email: 'test@example.com',
         keyFetchToken: '00000000',
-        verified: true,
+        sessionToken: '00000000',
+        uid: '00000000',
         unwrapBKey: '00000000',
-        email: 'test@example.com'
+        verified: true
       };
       sinon.stub(fxaClient, '_getClient', function () {
         return p({

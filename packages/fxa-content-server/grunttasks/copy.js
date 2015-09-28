@@ -4,31 +4,99 @@
 
 module.exports = function (grunt) {
   grunt.config('copy', {
-    strings: {
+    build: {
       files: [{
+        cwd: '<%= yeoman.tmp %>/scripts',
+        dest: '<%= yeoman.dist %>/scripts',
         expand: true,
-        cwd: '<%= yeoman.strings_src %>',
-        dest: '<%= yeoman.strings_dist %>',
-        src: [
-          '**/*.po'
-        ]
-      }, {
-        // Copy strings from sv_SE to sv
-        expand: true,
-        cwd: '<%= yeoman.strings_src %>/sv_SE',
-        dest: '<%= yeoman.strings_dist %>/sv',
-        src: [
-          '**/*.po'
-        ]
-      }, {
-        // Copy strings from hi_IN to hi
-        expand: true,
-        cwd: '<%= yeoman.strings_src %>/hi_IN',
-        dest: '<%= yeoman.strings_dist %>/hi',
-        src: [
-          '**/*.po'
-        ]
+        src: ['**/*.js']
       }]
+    },
+    dist: {
+      files: [
+        {
+          cwd: '<%= yeoman.app %>',
+          dest: '<%= yeoman.dist %>',
+          dot: true,
+          // static resources.
+          expand: true,
+          src: [
+            '*.{ico,png,txt}',
+            '.htaccess',
+            'images/{,*/}*.{webp,gif,svg,jpg,jpeg,png}',
+            'styles/fonts/{,*/}*.*',
+            'fonts/**/*.{woff,eot,ttf,svg,ofl}',
+            'i18n/{,*/}{,*/}*.*'
+          ]
+        },
+        {
+          cwd: '<%= yeoman.app %>/bower_components/jquery-ui',
+          dest: '<%= yeoman.dist %>/bower_components/jquery-ui',
+          // jquery ui
+          expand: true,
+          src: ['**/*.js']
+        },
+        {
+          cwd: '<%= yeoman.app %>/bower_components/fxa-password-strength-checker/build/',
+          dest: '<%= yeoman.dist %>/bower_components/fxa-password-strength-checker/build/',
+          // password strength checker
+          expand: true,
+          src: ['*.js']
+        },
+        {
+          cwd: '<%= yeoman.tmp %>/concat/scripts',
+          dest: '<%= yeoman.dist %>/scripts',
+          // head scripts
+          expand: true,
+          src: ['**/*.js']
+        }
+      ]
+    },
+    error_pages: { //eslint-disable-line camelcase
+      files: [{
+        cwd: '<%= yeoman.page_template_dist %>',
+        dest: '<%= yeoman.app %>',
+        dot: true,
+        expand: true,
+        flatten: true,
+        src: 'en/{500,502,503}.html'
+      }]
+    },
+    // copy normalize.css to .tmp during build, this library is required by grunt-usemin to be in .tmp
+    normalize: {
+      dest: '<%= yeoman.tmp %>/bower_components/normalize-css/normalize.css',
+      src: 'app/bower_components/normalize-css/normalize.css'
+    },
+    strings: {
+      files: [
+        {
+          cwd: '<%= yeoman.strings_src %>',
+          dest: '<%= yeoman.strings_dist %>',
+          expand: true,
+          src: ['**/*.po']
+        },
+        {
+          cwd: '<%= yeoman.strings_src %>/sv_SE',
+          dest: '<%= yeoman.strings_dist %>/sv',
+          // Copy strings from sv_SE to sv
+          expand: true,
+          src: ['**/*.po']
+        },
+        {
+          cwd: '<%= yeoman.strings_src %>/hi_IN',
+          dest: '<%= yeoman.strings_dist %>/hi',
+          // Copy strings from hi_IN to hi
+          expand: true,
+          src: ['**/*.po']
+        }
+      ]
+    },
+    styles: {
+      cwd: '<%= yeoman.app %>/styles',
+      dest: '<%= yeoman.tmp %>/styles/',
+      dot: true,
+      expand: true,
+      src: '{,*/}*.css'
     },
     tos_pp: { //eslint-disable-line camelcase
       // The legal repo use es-ES but we (in accordance with Verbatim) use es,
@@ -51,80 +119,6 @@ module.exports = function (grunt) {
           rename: function (dest) {
             return dest + '/es.html';
           }
-        }
-      ]
-    },
-    error_pages: { //eslint-disable-line camelcase
-      files: [
-        {
-          expand: true,
-          dot: true,
-          flatten: true,
-          cwd: '<%= yeoman.page_template_dist %>',
-          dest: '<%= yeoman.app %>',
-          src: 'en/{500,502,503}.html'
-        }
-      ]
-    },
-    dist: {
-      files: [
-        {
-          // static resources.
-          expand: true,
-          dot: true,
-          cwd: '<%= yeoman.app %>',
-          dest: '<%= yeoman.dist %>',
-          src: [
-            '*.{ico,png,txt}',
-            '.htaccess',
-            'images/{,*/}*.{webp,gif,svg,jpg,jpeg,png}',
-            'styles/fonts/{,*/}*.*',
-            'fonts/**/*.{woff,eot,ttf,svg,ofl}',
-            'i18n/{,*/}{,*/}*.*'
-          ]
-        },
-        {
-          // jquery ui
-          expand: true,
-          cwd: '<%= yeoman.app %>/bower_components/jquery-ui',
-          src: ['**/*.js'],
-          dest: '<%= yeoman.dist %>/bower_components/jquery-ui'
-        },
-        {
-          // password strength checker
-          expand: true,
-          cwd: '<%= yeoman.app %>/bower_components/fxa-password-strength-checker/build/',
-          src: ['*.js'],
-          dest: '<%= yeoman.dist %>/bower_components/fxa-password-strength-checker/build/'
-        },
-        {
-          // head scripts
-          expand: true,
-          cwd: '<%= yeoman.tmp %>/concat/scripts',
-          src: ['**/*.js'],
-          dest: '<%= yeoman.dist %>/scripts'
-        }
-      ]
-    },
-    styles: {
-      expand: true,
-      dot: true,
-      cwd: '<%= yeoman.app %>/styles',
-      dest: '<%= yeoman.tmp %>/styles/',
-      src: '{,*/}*.css'
-    },
-    // copy normalize.css to .tmp during build, this library is required by grunt-usemin to be in .tmp
-    normalize: {
-      src: 'app/bower_components/normalize-css/normalize.css',
-      dest: '<%= yeoman.tmp %>/bower_components/normalize-css/normalize.css'
-    },
-    build: {
-      files: [
-        {
-          expand: true,
-          cwd: '<%= yeoman.tmp %>/scripts',
-          src: ['**/*.js'],
-          dest: '<%= yeoman.dist %>/scripts'
         }
       ]
     }

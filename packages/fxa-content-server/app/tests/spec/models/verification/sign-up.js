@@ -29,8 +29,8 @@ define([
 
       it('returns false if uid is invalid', function () {
         var model = new Model({
-          uid: invalidUid,
-          code: validCode
+          code: validCode,
+          uid: invalidUid
         });
 
         assert.isFalse(model.isValid());
@@ -46,8 +46,8 @@ define([
 
       it('returns false if code is invalid', function () {
         var model = new Model({
-          uid: validUid,
-          code: invalidCode
+          code: invalidCode,
+          uid: validUid
         });
 
         assert.isFalse(model.isValid());
@@ -55,8 +55,8 @@ define([
 
       it('returns true otherwise', function () {
         var model = new Model({
-          uid: validUid,
-          code: validCode
+          code: validCode,
+          uid: validUid
         });
 
         assert.isTrue(model.isValid());

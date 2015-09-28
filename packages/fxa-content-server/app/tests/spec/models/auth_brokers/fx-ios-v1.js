@@ -22,9 +22,9 @@ function (chai, NullChannel, FxiOSAuthenticationBroker, Relier, WindowMock) {
 
     function createBroker () {
       broker = new FxiOSAuthenticationBroker({
+        channel: channel,
         relier: relier,
-        window: windowMock,
-        channel: channel
+        window: windowMock
       });
     }
 

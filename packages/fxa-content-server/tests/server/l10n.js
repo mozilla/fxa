@@ -123,8 +123,8 @@ define([
 
       request(serverUrl + page, {
         headers: {
-          'Accept-Language': 'en',
-          'Accept': 'text/html'
+          'Accept': 'text/html',
+          'Accept-Language': 'en'
         }
       }, dfd.callback(function (err, res) {
         var re = /styles\/en\.css/;
@@ -145,8 +145,8 @@ define([
 
       request(serverUrl + page, {
         headers: {
-          'Accept-Language': 'he',
-          'Accept': 'text/html'
+          'Accept': 'text/html',
+          'Accept-Language': 'he'
         }
       }, dfd.callback(function (err, res) {
         var re = /styles\/system-font-main\.css/;
@@ -210,8 +210,8 @@ define([
 
     request(serverUrl + '/legal/privacy', {
       headers: {
-        'Accept-Language': 'hsb',
-        'Accept': 'text/html'
+        'Accept': 'text/html',
+        'Accept-Language': 'hsb'
       }
     }, dfd.callback(function (err, res) {
       assert.equal(res.request.href, serverUrl + '/en/legal/privacy');

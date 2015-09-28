@@ -68,14 +68,14 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, 
 
       environment = new Environment(windowMock);
       router = new Router({
-        window: windowMock,
+        able: able,
+        broker: broker,
+        environment: environment,
+        formPrefill: formPrefill,
         metrics: metrics,
         relier: relier,
-        broker: broker,
         user: user,
-        formPrefill: formPrefill,
-        able: able,
-        environment: environment
+        window: windowMock
       });
 
       sinon.stub(Backbone.Router.prototype, 'navigate', function (url, options) {
@@ -223,7 +223,7 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, 
         windowMock.location.search = '';
         router.redirectToSignupOrSettings();
         assert.equal(navigateUrl, '/signup');
-        assert.deepEqual(navigateOptions, { trigger: true, replace: true });
+        assert.deepEqual(navigateOptions, { replace: true, trigger: true });
       });
 
       it('replaces the current page with the settings page if there is a current account', function () {
@@ -235,7 +235,7 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, 
         });
         router.redirectToSignupOrSettings();
         assert.equal(navigateUrl, '/settings');
-        assert.deepEqual(navigateOptions, { trigger: true, replace: true });
+        assert.deepEqual(navigateOptions, { replace: true, trigger: true });
       });
     });
 
@@ -244,7 +244,7 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, 
         windowMock.location.search = '';
         router.redirectToBestOAuthChoice();
         assert.equal(navigateUrl, '/oauth/signup');
-        assert.deepEqual(navigateOptions, { trigger: true, replace: true });
+        assert.deepEqual(navigateOptions, { replace: true, trigger: true });
       });
 
       it('replaces the current page with the signin page', function () {
@@ -256,7 +256,7 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, 
         });
         router.redirectToBestOAuthChoice();
         assert.equal(navigateUrl, '/oauth/signin');
-        assert.deepEqual(navigateOptions, { trigger: true, replace: true });
+        assert.deepEqual(navigateOptions, { replace: true, trigger: true });
       });
     });
 
@@ -265,17 +265,17 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, 
 
       beforeEach(function () {
         view = new SignUpView({
-          metrics: metrics,
-          window: windowMock,
-          router: router,
-          user: user,
+          able: able,
+          broker: broker,
           // ensure there is no cross talk with other tests.
           ephemeralMessages: new EphemeralMessages(),
-          relier: relier,
-          broker: broker,
-          screenName: 'signup',
           formPrefill: formPrefill,
-          able: able
+          metrics: metrics,
+          relier: relier,
+          router: router,
+          screenName: 'signup',
+          user: user,
+          window: windowMock
         });
       });
 
@@ -303,17 +303,17 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, 
 
       it('only logs a screen that has children once', function () {
         view = new ReadyView({
-          metrics: metrics,
-          window: windowMock,
-          router: router,
-          user: user,
+          able: new Able(),
+          broker: broker,
           // ensure there is no cross talk with other tests.
           ephemeralMessages: new EphemeralMessages(),
+          metrics: metrics,
           relier: relier,
-          broker: broker,
-          type: 'sign_up',
+          router: router,
           screenName: 'signup-complete',
-          able: new Able()
+          type: 'sign_up',
+          user: user,
+          window: windowMock
         });
 
         return router.showView(view)
@@ -359,25 +359,25 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, 
 
       beforeEach(function () {
         signInView = new SignInView({
+          broker: broker,
+          formPrefill: formPrefill,
           metrics: metrics,
-          window: windowMock,
-          user: user,
           relier: relier,
           router: router,
-          broker: broker,
           screenName: 'signin',
-          formPrefill: formPrefill
+          user: user,
+          window: windowMock
         });
         signUpView = new SignUpView({
+          able: able,
+          broker: broker,
+          formPrefill: formPrefill,
           metrics: metrics,
-          window: windowMock,
-          user: user,
           relier: relier,
           router: router,
-          broker: broker,
           screenName: 'signup',
-          formPrefill: formPrefill,
-          able: able
+          user: user,
+          window: windowMock
         });
       });
 
@@ -680,8 +680,8 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, 
       });
       router.createSubView(SignInView, { foo: 'bar' });
       assert.isTrue(router.createView.calledWith(SignInView, {
-        superView: router.currentView,
-        foo: 'bar'
+        foo: 'bar',
+        superView: router.currentView
       }));
     });
 
@@ -727,12 +727,12 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, 
       it('is `true` if sessionStorage.canGoBack is set', function () {
         windowMock.sessionStorage.setItem('canGoBack', true);
         router = new Router({
-          window: windowMock,
+          broker: broker,
+          formPrefill: formPrefill,
           metrics: metrics,
           relier: relier,
-          broker: broker,
           user: user,
-          formPrefill: formPrefill
+          window: windowMock
         });
         assert.isTrue(router.storage._backend.getItem('canGoBack'));
       });

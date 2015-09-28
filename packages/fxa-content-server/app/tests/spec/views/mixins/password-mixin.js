@@ -20,10 +20,8 @@ define([
   var assert = chai.assert;
 
   var PasswordView = BaseView.extend({
-    template: TestTemplate,
-    events: {
-      'change .show-password': 'onPasswordVisibilityChange'
-    }
+    events: { 'change .show-password': 'onPasswordVisibilityChange' },
+    template: TestTemplate
   });
   _.extend(PasswordView.prototype, PasswordMixin);
 
@@ -37,8 +35,8 @@ define([
       metrics = new Metrics();
 
       view = new PasswordView({
-        relier: relier,
         metrics: metrics,
+        relier: relier,
         screenName: 'password-screen'
       });
 

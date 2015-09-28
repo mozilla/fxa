@@ -16,27 +16,27 @@ var SCREEN_EVENT_PREFIX = 'screen.';
 // See more details at http://event-tracking.com/ and
 // https://developers.google.com/analytics/devguides/collection/gajs/eventTrackerGuide
 var GA_EVENTS = {
-  'screen.signup': {
+  'oauth.signup.success': {
+    ea: 'registered',
     ec: SIGNUP_FLOW,
+    el: 'oauth',
+    ev: 1
+  },
+  'screen.signup': {
     ea: 'page load',
+    ec: SIGNUP_FLOW,
     el: 'Sign Up Page',
     ev: 1
   },
   'signup.success': {
-    ec: SIGNUP_FLOW,
     ea: 'registered',
+    ec: SIGNUP_FLOW,
     el: 'regular',
     ev: 1
   },
-  'oauth.signup.success': {
-    ec: SIGNUP_FLOW,
-    ea: 'registered',
-    el: 'oauth',
-    ev: 1
-  },
   'verify-email.verification.success': {
-    ec: SIGNUP_FLOW,
-    ea: 'verified email address'
+    ea: 'verified email address',
+    ec: SIGNUP_FLOW
   }
 };
 
@@ -69,7 +69,7 @@ GACollector.prototype = {
     }
 
     var self = this;
-    var visitor = universalAnalytics(ANALYTICS_ID, { https: true, debug: false });
+    var visitor = universalAnalytics(ANALYTICS_ID, { debug: false, https: true });
 
     body.events.forEach(function (event) {
       var extraData = self._getExtraData(body, event);

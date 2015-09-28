@@ -133,14 +133,13 @@ function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
     context: function () {
       var verificationInfo = this._verificationInfo;
       return {
-        // If the link is invalid, print a special error message.
-        isLinkDamaged: !  verificationInfo.isValid(),
-        isLinkExpired: verificationInfo.isExpired(),
-
         // This is only the case if you've signed up in the
         // same browser you opened the verification link in.
         canResend: this._canResend(),
-        error: this._error
+        error: this._error,
+        // If the link is invalid, print a special error message.
+        isLinkDamaged: ! verificationInfo.isValid(),
+        isLinkExpired: verificationInfo.isExpired()
       };
     },
 

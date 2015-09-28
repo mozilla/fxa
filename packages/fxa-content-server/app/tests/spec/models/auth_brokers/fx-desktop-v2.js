@@ -36,8 +36,8 @@ define([
       });
 
       broker = new FxDesktopV2AuthenticationBroker({
-        window: windowMock,
-        channel: channelMock
+        channel: channelMock,
+        window: windowMock
       });
     });
 

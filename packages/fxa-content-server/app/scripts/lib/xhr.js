@@ -63,15 +63,15 @@ define([
      */
     oauthAjax: function (options) {
       var request = {
-        url: options.url,
         // make sure to set the dataType for Firefox <21. See issue #1930
         dataType: 'json',
-        type: options.type,
-        timeout: options.timeout,
         headers: {
-          Authorization: 'Bearer ' + options.accessToken,
-          Accept: 'application/json'
-        }
+          Accept: 'application/json',
+          Authorization: 'Bearer ' + options.accessToken
+        },
+        timeout: options.timeout,
+        type: options.type,
+        url: options.url
       };
 
       if (options.headers) {
@@ -102,11 +102,11 @@ define([
       }
 
       return this.ajax({
-        url: url,
-        method: 'GET',
         data: data,
+        dataType: dataType,
+        method: 'GET',
         success: success,
-        dataType: dataType
+        url: url
       });
     },
 
@@ -122,11 +122,11 @@ define([
       }
 
       return this.ajax({
-        url: url,
-        method: 'POST',
         data: data,
+        dataType: dataType,
+        method: 'POST',
         success: success,
-        dataType: dataType
+        url: url
       });
     },
 

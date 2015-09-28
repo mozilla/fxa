@@ -25,9 +25,9 @@ define([
     },
 
     events: {
+      'input': 'onInput',
       'keydown': 'submitOnEnter',
-      'keyup': 'onInput',
-      'input': 'onInput'
+      'keyup': 'onInput'
     },
 
     /**

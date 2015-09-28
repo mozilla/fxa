@@ -4,31 +4,6 @@
 
 module.exports = function (grunt) {
   grunt.config('todo', {
-    options: {
-      marks: [{
-        name: 'FIX',
-        pattern: /FIXME/,
-        color: 'red'
-      },
-      {
-        name: 'TODO',
-        pattern: /TODO/,
-        color: 'yellow'
-      },
-      {
-        name: 'NOTE',
-        pattern: /NOTE/,
-        color: 'blue'
-      }, {
-        name: 'XXX',
-        pattern: /XXX/,
-        color: 'yellow'
-      }, {
-        name: 'HACK',
-        pattern: /HACK/,
-        color: 'red'
-      }]
-    },
     app: {
       files: {
         src: [
@@ -39,14 +14,41 @@ module.exports = function (grunt) {
           'scripts/*.js',
           'server/**/*.{js,css,html}',
           '<%= yeoman.tests %>/**/*.js',
-
           // This one is triggering some locale false positives.
           '!server/templates/pages/dist/**',
-
           // ignore this file, lest we get oodles of false positives.
           '!grunttasks/todo.js'
         ]
       }
+    },
+    options: {
+      marks: [
+        {
+          color: 'red',
+          name: 'FIX',
+          pattern: /FIXME/
+        },
+        {
+          color: 'yellow',
+          name: 'TODO',
+          pattern: /TODO/
+        },
+        {
+          color: 'blue',
+          name: 'NOTE',
+          pattern: /NOTE/
+        },
+        {
+          color: 'yellow',
+          name: 'XXX',
+          pattern: /XXX/
+        },
+        {
+          color: 'red',
+          name: 'HACK',
+          pattern: /HACK/
+        }
+      ]
     }
   });
 };

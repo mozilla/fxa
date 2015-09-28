@@ -102,9 +102,9 @@ function (chai, Session) {
     describe('reload', function () {
       it('reloads new, modified, and cleared keys from storage', function () {
         Session.set({
-          key9: 'value9',
           key10: 'value10',
-          key11: 'value11'
+          key11: 'value11',
+          key9: 'value9'
         });
 
         sessionStorage.setItem('__fxa_session', JSON.stringify({

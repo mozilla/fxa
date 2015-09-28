@@ -20,10 +20,10 @@ define([
       var self = this;
       if (_.isUndefined(self._isPasswordStrengthCheckEnabledValue)) {
         var abData = {
-          isMetricsEnabledValue: self.metrics.isCollectionEnabled(),
-          uniqueUserId: self.user.get('uniqueUserId'),
           // the window parameter will override any ab testing features
-          forcePasswordStrengthCheck: Url.searchParam('passwordStrengthCheck', self.window.location.search)
+          forcePasswordStrengthCheck: Url.searchParam('passwordStrengthCheck', self.window.location.search),
+          isMetricsEnabledValue: self.metrics.isCollectionEnabled(),
+          uniqueUserId: self.user.get('uniqueUserId')
         };
 
         self._isPasswordStrengthCheckEnabledValue =

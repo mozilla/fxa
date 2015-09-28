@@ -26,8 +26,8 @@ function (chai, Relier, BaseAuthenticationBroker,
       windowMock = new WindowMock();
       relier = new Relier();
       broker = new BaseAuthenticationBroker({
-        window: windowMock,
-        relier: relier
+        relier: relier,
+        window: windowMock
       });
     });
 

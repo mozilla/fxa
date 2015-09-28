@@ -17,6 +17,7 @@ function (_, Errors) {
 
   var UNEXPECTED_ERROR_MESSAGE = t('Unexpected error');
 
+  /*eslint-disable sorting/sort-object-props*/
   var ERRORS = {
     UNEXPECTED_ERROR: {
       errno: 999,
@@ -239,6 +240,7 @@ function (_, Errors) {
       message: UNEXPECTED_ERROR_MESSAGE
     }
   };
+  /*eslint-enable sorting/sort-object-props*/
 
   return _.extend({}, Errors, {
     ERRORS: ERRORS,

@@ -46,19 +46,19 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
         window: windowMock
       });
       broker = new BaseBroker({
+        relier: relier,
         session: Session,
-        window: windowMock,
-        relier: relier
+        window: windowMock
       });
       fxaClient = new FxaClient();
       ephemeralMessages = new EphemeralMessages();
       user = new User();
 
       account = user.initAccount({
+        customizeSync: true,
         email: 'a@a.com',
-        uid: 'uid',
         sessionToken: 'fake session token',
-        customizeSync: true
+        uid: 'uid'
       });
       ephemeralMessages.set('data', {
         account: account
@@ -69,15 +69,15 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
       });
 
       view = new View({
-        router: routerMock,
-        window: windowMock,
-        metrics: metrics,
-        user: user,
-        fxaClient: fxaClient,
-        relier: relier,
-        ephemeralMessages: ephemeralMessages,
         broker: broker,
-        screenName: 'confirm'
+        ephemeralMessages: ephemeralMessages,
+        fxaClient: fxaClient,
+        metrics: metrics,
+        relier: relier,
+        router: routerMock,
+        screenName: 'confirm',
+        user: user,
+        window: windowMock
       });
 
       return view.render()
@@ -105,10 +105,10 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
           account: user.initAccount()
         });
         view = new View({
-          router: routerMock,
           ephemeralMessages: ephemeralMessages,
-          window: windowMock,
-          user: user
+          router: routerMock,
+          user: user,
+          window: windowMock
         });
         return view.render()
           .then(function () {

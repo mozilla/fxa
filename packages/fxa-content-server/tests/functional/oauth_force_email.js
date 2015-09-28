@@ -54,8 +54,8 @@ define([
         .then(function () {
           // clear localStorage to avoid polluting other tests.
           return FunctionalHelpers.clearBrowserState(self, {
-            contentServer: true,
-            '123done': true
+            '123done': true,
+            contentServer: true
           });
         });
     },
@@ -86,8 +86,8 @@ define([
       email = TestHelpers.createEmail();
       // clear localStorage to avoid polluting other tests.
       return FunctionalHelpers.clearBrowserState(this, {
-        contentServer: true,
-        '123done': true
+        '123done': true,
+        contentServer: true
       });
     },
 

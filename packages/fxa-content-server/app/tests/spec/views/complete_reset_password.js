@@ -56,15 +56,15 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
 
     function initView() {
       view = new View({
-        router: routerMock,
-        window: windowMock,
-        metrics: metrics,
+        broker: broker,
         fxaClient: fxaClient,
         interTabChannel: interTabChannel,
+        metrics: metrics,
         relier: relier,
-        broker: broker,
+        router: routerMock,
+        screenName: 'complete_reset_password',
         user: user,
-        screenName: 'complete_reset_password'
+        window: windowMock
       });
     }
 
@@ -127,9 +127,10 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
 
       it('shows malformed screen if the token is invalid', function () {
         windowMock.location.search = TestHelpers.toSearchString({
-          token: 'invalid_token', // not a hex string
+          // not a hex string
           code: 'dea0fae1abc2fab3bed4dec5eec6ace7',
-          email: 'testuser@testuser.com'
+          email: 'testuser@testuser.com',
+          token: 'invalid_token'
         });
 
         initView();
@@ -142,8 +143,8 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
 
       it('shows malformed screen if the code is missing', function () {
         windowMock.location.search = TestHelpers.toSearchString({
-          token: 'feed',
-          email: 'testuser@testuser.com'
+          email: 'testuser@testuser.com',
+          token: 'feed'
         });
 
         initView();
@@ -156,9 +157,10 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
 
       it('shows malformed screen if the code is invalid', function () {
         windowMock.location.search = TestHelpers.toSearchString({
-          token: 'feed',
-          code: 'invalid_code', // not a hex string
-          email: 'testuser@testuser.com'
+          code: 'invalid_code',
+          // not a hex string
+          email: 'testuser@testuser.com',
+          token: 'feed'
         });
 
         initView();
@@ -181,9 +183,9 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
 
       it('shows malformed screen if the email is invalid', function () {
         windowMock.location.search = TestHelpers.toSearchString({
-          token: 'feed',
           code: 'dea0fae1abc2fab3bed4dec5eec6ace7',
-          email: 'does_not_validate'
+          email: 'does_not_validate',
+          token: 'feed'
         });
 
         initView();

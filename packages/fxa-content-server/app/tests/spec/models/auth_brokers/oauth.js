@@ -60,11 +60,11 @@ function (chai, sinon, Session, p, Constants, OAuthClient, Assertion, AuthErrors
 
       relier = new Relier();
       relier.set({
-        webChannelId: 'webChannelId',
+        action: 'action',
         clientId: 'clientId',
-        state: 'state',
         scope: 'scope',
-        action: 'action'
+        state: 'state',
+        webChannelId: 'webChannelId'
       });
 
       user = new User();
@@ -74,10 +74,10 @@ function (chai, sinon, Session, p, Constants, OAuthClient, Assertion, AuthErrors
       });
 
       broker = new OAuthAuthenticationBroker({
-        session: Session,
         assertionLibrary: assertionLibrary,
         oAuthClient: oAuthClient,
-        relier: relier
+        relier: relier,
+        session: Session
       });
 
       sinon.spy(broker, 'finishOAuthFlow');
@@ -104,10 +104,10 @@ function (chai, sinon, Session, p, Constants, OAuthClient, Assertion, AuthErrors
               action: Constants.OAUTH_ACTION_SIGNIN
             }));
             assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
-              redirect:  VALID_OAUTH_CODE_REDIRECT_URL,
               action: Constants.OAUTH_ACTION_SIGNIN,
-              state: 'state',
-              code: VALID_OAUTH_CODE
+              code: VALID_OAUTH_CODE,
+              redirect: VALID_OAUTH_CODE_REDIRECT_URL,
+              state: 'state'
             }));
           });
       });
@@ -145,10 +145,10 @@ function (chai, sinon, Session, p, Constants, OAuthClient, Assertion, AuthErrors
               action: Constants.OAUTH_ACTION_SIGNUP
             }));
             assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
-              redirect:  VALID_OAUTH_CODE_REDIRECT_URL,
               action: Constants.OAUTH_ACTION_SIGNUP,
-              state: 'state',
-              code: VALID_OAUTH_CODE
+              code: VALID_OAUTH_CODE,
+              redirect: VALID_OAUTH_CODE_REDIRECT_URL,
+              state: 'state'
             }));
           });
       });
@@ -166,10 +166,10 @@ function (chai, sinon, Session, p, Constants, OAuthClient, Assertion, AuthErrors
               action: Constants.OAUTH_ACTION_SIGNIN
             }));
             assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
-              redirect:  VALID_OAUTH_CODE_REDIRECT_URL,
               action: Constants.OAUTH_ACTION_SIGNIN,
-              state: 'state',
-              code: VALID_OAUTH_CODE
+              code: VALID_OAUTH_CODE,
+              redirect: VALID_OAUTH_CODE_REDIRECT_URL,
+              state: 'state'
             }));
           });
       });

@@ -61,8 +61,8 @@ define([
       });
 
       return FunctionalHelpers.clearBrowserState(this, {
-        contentServer: true,
-        '123done': true
+        '123done': true,
+        contentServer: true
       });
     },
 

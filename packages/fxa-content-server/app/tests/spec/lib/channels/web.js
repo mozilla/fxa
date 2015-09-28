@@ -75,10 +75,8 @@ function (chai, sinon, WebChannel, WindowMock) {
           console.log('dispatched: %s', JSON.stringify(dispatched));
           channel._receiver.trigger('message', {
             command: 'can_link_account',
-            messageId: dispatched.detail.message.messageId,
-            data: {
-              ok: true
-            }
+            data: { ok: true },
+            messageId: dispatched.detail.message.messageId
           });
         });
 

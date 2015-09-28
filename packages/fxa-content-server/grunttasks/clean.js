@@ -4,12 +4,17 @@
 
 module.exports = function (grunt) {
   grunt.config('clean', {
-    tos_pp: { //eslint-disable-line camelcase
+    app: {
       files: [{
         dot: true,
         src: [
-          '<%= yeoman.pp_html_dest %>',
-          '<%= yeoman.tos_html_dest %>'
+          '<%= yeoman.tmp %>/*',
+          // css files are regenerated on every server run.
+          '<%= yeoman.app %>/styles/**/*.css',
+          '!<%= yeoman.app %>/styles/fontello.css',
+          // fonts are copied over every server run.
+          '<%= yeoman.app %>/fonts/default',
+          '<%= yeoman.app %>/fonts/latin'
         ]
       }]
     },
@@ -24,17 +29,12 @@ module.exports = function (grunt) {
         ]
       }]
     },
-    app: {
+    tos_pp: { //eslint-disable-line camelcase
       files: [{
         dot: true,
         src: [
-          '<%= yeoman.tmp %>/*',
-          // css files are regenerated on every server run.
-          '<%= yeoman.app %>/styles/**/*.css',
-          '!<%= yeoman.app %>/styles/fontello.css',
-          // fonts are copied over every server run.
-          '<%= yeoman.app %>/fonts/default',
-          '<%= yeoman.app %>/fonts/latin'
+          '<%= yeoman.pp_html_dest %>',
+          '<%= yeoman.tos_html_dest %>'
         ]
       }]
     }
