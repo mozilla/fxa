@@ -21,3 +21,10 @@ exports.clientSecret = Joi.string()
 exports.token = Joi.string()
   .length(config.get('unique.token') * 2)
   .regex(exports.HEX_STRING);
+
+// taken from mozilla/persona/lib/validate.js
+exports.assertion = Joi.string()
+  .min(50)
+  .max(10240)
+  .regex(/^[a-zA-Z0-9_\-\.~=]+$/);
+
