@@ -3,7 +3,7 @@
   "version": "0.46.0",
   "description": "Firefox Accounts Content Server",
   "scripts": {
-    "start": "grunt server",
+    "start": "node scripts/check-local-config && grunt server",
     "start-production": "grunt build && CONFIG_FILES=server/config/local.json,server/config/production.json grunt serverproc:dist",
     "postinstall": "bower update --config.interactive=false -s",
     "test": "intern-runner config=tests/intern",
