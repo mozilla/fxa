@@ -71,8 +71,10 @@ define([
       it('open and close', function () {
         view.openPanel();
         assert.isTrue($('.settings-unit').hasClass('open'));
+        assert.isTrue(view.isPanelOpen());
         view.closePanel();
         assert.isFalse($('.settings-unit').hasClass('open'));
+        assert.isFalse(view.isPanelOpen());
       });
 
       it('displaySuccess', function () {

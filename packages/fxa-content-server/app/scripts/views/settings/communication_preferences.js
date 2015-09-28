@@ -25,6 +25,12 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, Metrics, BaseView, For
     template: Template,
     className: 'communication-preferences',
 
+    enableSubmitIfValid: function () {
+      // overwrite this to prevent the default FormView method from hiding errors
+      // after render
+      this.enableForm();
+    },
+
     getMarketingEmailPrefs: function () {
       var self = this;
       if (! self._marketingEmailPrefs) {
@@ -35,11 +41,18 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, Metrics, BaseView, For
       return self._marketingEmailPrefs;
     },
 
-    beforeRender: function () {
+    afterVisible: function () {
       var self = this;
       var emailPrefs = self.getMarketingEmailPrefs();
+
+      // the email prefs fetch is done in afterVisible instead of a render
+      // function so that the settings page render is not blocked while waiting
+      // for Basket to respond.  See #3061
       return emailPrefs.fetch()
-        .fail(function (err) {
+        .then(function () {
+          return self.render();
+        },
+        function (err) {
           if (MarketingEmailErrors.is(err, 'UNKNOWN_EMAIL')) {
             // user has not yet opted in to Basket yet. Ignore.
             return;
@@ -56,6 +69,8 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, Metrics, BaseView, For
           // 400 and 500
           errorString = errorString + '.' + err.code;
           self.logEvent(errorString);
+
+          return self.render();
         });
     },
 
@@ -68,6 +83,7 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, Metrics, BaseView, For
       return {
         error: self._error,
         isOptedIn: isOptedIn,
+        isPanelOpen: self.isPanelOpen(),
         // preferencesURL is only available if the user is already
         // registered with basket.
         preferencesUrl: Xss.href(emailPrefs.get('preferencesUrl'))

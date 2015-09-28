@@ -31,6 +31,10 @@ define([
       this.$('.settings-unit').addClass('open');
     },
 
+    isPanelOpen: function () {
+      return this.$('.settings-unit').hasClass('open');
+    },
+
     _closePanelReturnToSettings: function () {
       this.navigate('settings');
       this.closePanel();

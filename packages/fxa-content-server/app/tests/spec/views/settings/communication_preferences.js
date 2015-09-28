@@ -37,6 +37,7 @@ function (chai, $, sinon, View, User, Account, MarketingEmailPrefs, Relier,
       return view.render()
         .then(function () {
           $('#container').html(view.el);
+          return view.afterVisible();
         });
     }
 
