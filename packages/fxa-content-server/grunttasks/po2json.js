@@ -16,7 +16,7 @@ module.exports = function (grunt) {
     },
     options: {
       format: 'raw',
-      fuzzy: true,
+      fuzzy: false,
       output_filename: function (file) { //eslint-disable-line camelcase
         /**
          * the files are stored in the locale subdirectory with a directory
