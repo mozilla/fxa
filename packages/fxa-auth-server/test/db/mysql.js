@@ -4,6 +4,7 @@
 
 const assert = require('insist');
 const sinon = require('sinon');
+const proxyquire = require('proxyquire');
 const mocks = require('../lib/mocks');
 
 const modulePath = '../../lib/db/mysql';
@@ -15,9 +16,8 @@ var dependencies = mocks.require([
   { path: 'mysql-patcher', ctor: function() { return instances.patcher; } },
   { path: '../../config' },
   { path: '../../encrypt' },
-  { path: '../../logging', ctor: function() { return instances.logger; } },
-  { path: '../../scope' },
-  { path: '../../unique', ctor: function() { return instances.scope; } },
+  { path: '../../scope', ctor: function() { return instances.scope; } },
+  { path: '../../unique' },
   { path: './patch' }
 ], modulePath, __dirname);
 
@@ -50,14 +50,11 @@ describe('db/mysql:', function() {
       sandbox.spy(instances.logger, methodName);
     });
 
-    mocks.register(dependencies, modulePath, __dirname);
-
-    mysql = require(modulePath);
+    mysql = proxyquire(modulePath, dependencies);
   });
 
   afterEach(function() {
     sandbox.restore();
-    mocks.deregister();
   });
 
   it('exports a connect function', function() {
@@ -90,7 +87,7 @@ describe('db/mysql:', function() {
         var result;
 
         beforeEach(function() {
-          return mysql.connect({}).then(function(r) {
+          return mysql.connect({ logger: instances.logger }).then(function(r) {
             result = r;
           });
         });
@@ -140,7 +137,7 @@ describe('db/mysql:', function() {
       describe('db patch level is bad:', function() {
         beforeEach(function() {
           instances.patcher.currentPatchLevel -= 2;
-          return mysql.connect({});
+          return mysql.connect({ logger: instances.logger });
         });
 
         afterEach(function() {
@@ -174,7 +171,7 @@ describe('db/mysql:', function() {
         sandbox.stub(instances.patcher, 'readDbPatchLevel', function(callback) {
           callback('foo');
         });
-        return mysql.connect({});
+        return mysql.connect({ logger: instances.logger });
       });
 
       it('called patcher.end', function() {
