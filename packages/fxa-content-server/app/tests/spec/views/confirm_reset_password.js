@@ -187,7 +187,7 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
       });
     });
 
-    describe('afterRender', function () {
+    describe('afterVisible', function () {
       beforeEach(function () {
         createDeps();
 
@@ -209,7 +209,7 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
           return p();
         });
 
-        return view.afterRender()
+        return view.afterVisible()
           .then(function () {
             assert.isTrue(broker.persist.called);
             assert.isTrue(
@@ -229,7 +229,7 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
         });
 
 
-        return view.afterRender()
+        return view.afterVisible()
           .then(function () {
             assert.isTrue(broker.persist.called);
             assert.isTrue(
@@ -239,24 +239,22 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
           });
       });
 
-      it('displays errors if `_waitForConfirmation` returns an error', function (done) {
+      it('displays errors if `_waitForConfirmation` returns an error', function () {
         sinon.stub(view, '_waitForConfirmation', function () {
           return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
         });
 
-        sinon.stub(view, 'displayError', function (err) {
-          TestHelpers.wrapAssertion(function () {
+        sinon.spy(view, 'displayError');
+
+        return view.afterVisible()
+          .then(function () {
+            var err = view.displayError.args[0][0];
             assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
 
             assert.isTrue(broker.persist.called);
             assert.isFalse(TestHelpers.isEventLogged(
               metrics, 'confirm_reset_password.verification.success'));
-          }, done);
-        });
-
-        // the _waitForConfirmation promise is not returned by afterRender
-        // so `displayError` must be wrapped and the `done` callback used.
-        view.afterRender();
+          });
       });
     });
 

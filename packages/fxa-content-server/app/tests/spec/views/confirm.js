@@ -116,14 +116,6 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
           });
       });
 
-      it('tells the broker to prepare for a confirmation', function () {
-        sinon.spy(broker, 'persist');
-        return view.render()
-          .then(function () {
-            assert.isTrue(broker.persist.called);
-          });
-      });
-
       it('triggers the experiment', function () {
         sinon.spy(view, 'notify');
         view.isInExperiment = function () {
@@ -135,6 +127,16 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
             assert.isTrue(view.notify.called);
           });
       });
+    });
+
+    describe('afterVisible', function () {
+      it('tells the broker to prepare for a confirmation', function () {
+        sinon.spy(broker, 'persist');
+        return view.afterVisible()
+          .then(function () {
+            assert.isTrue(broker.persist.called);
+          });
+      });
 
       it('notifies the broker before the confirmation', function () {
         sinon.stub(broker, 'beforeSignUpConfirmationPoll', function (account) {
@@ -142,27 +144,20 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
           return p();
         });
 
-        return view.render()
+        return view.afterVisible()
           .then(function () {
             assert.isTrue(broker.beforeSignUpConfirmationPoll.calledWith(account));
           });
       });
 
-      it('notifies the broker after the account is confirmed', function (done) {
+      it('notifies the broker after the account is confirmed', function () {
         var notifySpy = sinon.spy(view, 'notify');
 
         sinon.stub(broker, 'beforeSignUpConfirmationPoll', function () {
           return p();
         });
-        sinon.stub(broker, 'afterSignUpConfirmationPoll', function (data) {
-          TestHelpers.wrapAssertion(function () {
-            assert.equal(data, account);
-            assert.isTrue(user.setAccount.called);
-            assert.isTrue(broker.beforeSignUpConfirmationPoll.calledWith(account));
-            assert.isTrue(TestHelpers.isEventLogged(
-                    metrics, 'confirm.verification.success'));
-            assert.isTrue(notifySpy.withArgs('verification.success').calledOnce);
-          }, done);
+        sinon.stub(broker, 'afterSignUpConfirmationPoll', function () {
+          return p();
         });
         sinon.stub(user, 'setAccount', function (account) {
           assert.equal(account.get('sessionToken'), account.get('sessionToken'));
@@ -182,7 +177,15 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
         });
 
         view.VERIFICATION_POLL_IN_MS = 100;
-        view.render();
+        return view.afterVisible()
+          .then(function () {
+            assert.isTrue(user.setAccount.called);
+            assert.isTrue(broker.beforeSignUpConfirmationPoll.calledWith(account));
+            assert.isTrue(broker.afterSignUpConfirmationPoll.calledWith(account));
+            assert.isTrue(TestHelpers.isEventLogged(
+                    metrics, 'confirm.verification.success'));
+            assert.isTrue(notifySpy.withArgs('verification.success').calledOnce);
+          });
       });
 
       it('displays an error message allowing the user to re-signup if their email bounces', function () {
@@ -190,7 +193,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
           return p.reject(AuthErrors.toError('SIGNUP_EMAIL_BOUNCE'));
         });
 
-        return view.render()
+        return view.afterVisible()
           .then(function () {
             assert.equal(routerMock.page, 'signup');
             assert.isTrue(view.fxaClient.recoveryEmailStatus.called);
@@ -206,7 +209,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
 
         sinon.spy(view, '_waitForConfirmation');
 
-        return view.render()
+        return view.afterVisible()
           .then(function () {
             assert.isFalse(view._waitForConfirmation.called);
           });
@@ -324,7 +327,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
           return true;
         });
 
-        return view.render()
+        return view.afterVisible()
           .then(function () {
             assert.equal(routerMock.page, 'settings');
           });
@@ -341,7 +344,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
           return false;
         });
 
-        return view.render()
+        return view.afterVisible()
           .then(function () {
             assert.equal(routerMock.page, 'signup_complete');
           });
