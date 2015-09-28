@@ -21,8 +21,8 @@ function (chai, sinon, WebChannelReceiver, WindowMock) {
       windowMock = new WindowMock();
       receiver = new WebChannelReceiver();
       receiver.initialize({
-        window: windowMock,
-        webChannelId: 'channel_id'
+        webChannelId: 'channel_id',
+        window: windowMock
       });
     });
 

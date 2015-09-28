@@ -38,12 +38,12 @@ function (BaseView, Template, Session) {
               throw new Error(res.err);
             }
             return self.user.setSignedInAccount({
-              uid: res.uid,
-              sessionToken: res.session,
+              email: res.email,
               keyFetchToken: res.key,
-              verified: true,
+              sessionToken: res.session,
+              uid: res.uid,
               unwrapBKey: res.unwrap,
-              email: res.email
+              verified: true
             });
           }
         )

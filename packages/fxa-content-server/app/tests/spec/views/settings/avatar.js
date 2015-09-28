@@ -35,10 +35,10 @@ function (chai, $, sinon, View, RouterMock, FxaClientMock,
       user = new User();
 
       view = new View({
-        router: routerMock,
-        user: user,
         fxaClient: fxaClientMock,
-        relier: relierMock
+        relier: relierMock,
+        router: routerMock,
+        user: user
       });
     });
 
@@ -56,8 +56,8 @@ function (chai, $, sinon, View, RouterMock, FxaClientMock,
           return p(true);
         };
         account = user.initAccount({
-          email: 'a@a.com',
           accessToken: 'abc123',
+          email: 'a@a.com',
           verified: true
         });
 

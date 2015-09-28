@@ -80,16 +80,16 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
 
     function initView () {
       view = new View({
-        router: router,
-        window: windowMock,
-        fxaClient: fxaClient,
-        relier: relier,
         broker: broker,
-        user: user,
-        profileClient: profileClientMock,
+        formPrefill: formPrefill,
+        fxaClient: fxaClient,
         metrics: metrics,
+        profileClient: profileClientMock,
+        relier: relier,
+        router: router,
         screenName: 'oauth.signin',
-        formPrefill: formPrefill
+        user: user,
+        window: windowMock
       });
     }
 

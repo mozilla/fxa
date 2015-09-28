@@ -49,9 +49,9 @@ function (chai, $, sinon, p, View, Metrics, FxaClient, EphemeralMessages,
       relier = new Relier();
       relier.set({
         clientId: CLIENT_ID,
+        permissions: PERMISSIONS,
         serviceName: SERVICE_NAME,
-        serviceUri: SERVICE_URI,
-        permissions: PERMISSIONS
+        serviceUri: SERVICE_URI
       });
       broker = new Broker();
       fxaClient = new FxaClient();
@@ -61,8 +61,8 @@ function (chai, $, sinon, p, View, Metrics, FxaClient, EphemeralMessages,
       ephemeralMessages = new EphemeralMessages();
       account = user.initAccount({
         email: email,
-        uid: 'uid',
-        sessionToken: 'fake session token'
+        sessionToken: 'fake session token',
+        uid: 'uid'
       });
       ephemeralMessages.set('data', {
         account: account
@@ -80,16 +80,16 @@ function (chai, $, sinon, p, View, Metrics, FxaClient, EphemeralMessages,
 
     function initView (type) {
       view = new View({
-        router: routerMock,
-        metrics: metrics,
-        window: windowMock,
-        fxaClient: fxaClient,
-        user: user,
-        relier: relier,
         broker: broker,
-        screenName: 'permissions',
         ephemeralMessages: ephemeralMessages,
-        type: type
+        fxaClient: fxaClient,
+        metrics: metrics,
+        relier: relier,
+        router: routerMock,
+        screenName: 'permissions',
+        type: type,
+        user: user,
+        window: windowMock
       });
 
       return view.render()

@@ -26,11 +26,11 @@ define([
 
   var SETTINGS_PAGES = {
     '': 'fxa-settings-header',
+    '/avatar/camera': 'avatar-camera',
     '/avatar/change': 'avatar-change',
+    '/avatar/crop': 'avatar-crop',
     '/avatar/gravatar': 'avatar-gravatar',
     '/avatar/gravatar_permissions': 'avatar-gravatar-permissions',
-    '/avatar/camera': 'avatar-camera',
-    '/avatar/crop': 'avatar-crop',
     '/change_password': 'change-password',
     '/communication_preferences': 'communication-preferences',
     '/delete_account': 'delete-account',

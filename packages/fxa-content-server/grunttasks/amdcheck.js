@@ -5,10 +5,6 @@
 module.exports = function (grunt) {
   grunt.config('amdcheck', {
     app: {
-      options: {
-        removeUnusedDependencies: false,
-        strict: true
-      },
       files: [{
         expand: true,
         src: [
@@ -16,7 +12,11 @@ module.exports = function (grunt) {
           'app/!scripts/vendor/**',
           'tests/functional/**/*.js'
         ]
-      }]
+      }],
+      options: {
+        removeUnusedDependencies: false,
+        strict: true
+      }
     }
   });
 };

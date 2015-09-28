@@ -79,18 +79,18 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
 
     function createView () {
       view = new View({
-        router: routerMock,
-        window: windowMock,
-        metrics: metrics,
-        fxaClient: fxaClient,
-        relier: relier,
         broker: broker,
-        user: user,
+        ephemeralMessages: ephemeralMessages,
+        fxaClient: fxaClient,
         interTabChannel: interTabChannel,
         loginMessageTimeoutMS: LOGIN_MESSAGE_TIMEOUT_MS,
+        metrics: metrics,
+        relier: relier,
+        router: routerMock,
+        screenName: 'confirm_reset_password',
+        user: user,
         verificationPollMS: VERIFICATION_POLL_TIMEOUT_MS,
-        ephemeralMessages: ephemeralMessages,
-        screenName: 'confirm_reset_password'
+        window: windowMock
       });
     }
 

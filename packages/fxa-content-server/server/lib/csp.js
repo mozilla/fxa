@@ -26,10 +26,6 @@ function getOrigin(link) {
 }
 
 var cspMiddleware = helmet.csp({
-  defaultSrc: [
-    SELF
-  ],
-
   connectSrc: [
     SELF,
     getOrigin(config.get('fxaccount_url')),
@@ -37,20 +33,16 @@ var cspMiddleware = helmet.csp({
     config.get('profile_url'),
     config.get('marketing_email.api_url')
   ],
-
+  defaultSrc: [SELF],
   imgSrc: [
     SELF,
     DATA,
     GRAVATAR,
     config.get('profile_images_url')
   ],
-
-  mediaSrc: [
-    BLOB
-  ],
-
-  reportUri: config.get('csp.reportUri'),
-  reportOnly: config.get('csp.reportOnly')
+  mediaSrc: [BLOB],
+  reportOnly: config.get('csp.reportOnly'),
+  reportUri: config.get('csp.reportUri')
 });
 
 module.exports = function (req, res, next) {

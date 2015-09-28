@@ -81,9 +81,9 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
           String(areCommunicationPrefsVisible));
 
       return new SubPanels({
-        router: this.router,
+        initialSubView: options.subView,
         panelViews: panelViews,
-        initialSubView: options.subView
+        router: this.router
       });
     },
 
@@ -91,8 +91,8 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
       var account = this.getSignedInAccount();
 
       return {
-        username: account.get('email'),
-        showSignOut: ! account.isFromSync()
+        showSignOut: ! account.isFromSync(),
+        username: account.get('email')
       };
     },
 

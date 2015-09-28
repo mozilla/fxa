@@ -23,8 +23,8 @@ define([
       translator = new Translator('en-US', ['en-US']);
 
       relier = new Relier({
-        window: windowMock,
-        translator: translator
+        translator: translator,
+        window: windowMock
       });
     });
 
@@ -32,9 +32,9 @@ define([
       it('populates model from the search parameters', function () {
         windowMock.location.search = TestHelpers.toSearchString({
           context: 'fx_desktop_v1',
+          customizeSync: 'true',
           migration: 'sync1.5',
-          service: 'sync',
-          customizeSync: 'true'
+          service: 'sync'
         });
 
         return relier.fetch()

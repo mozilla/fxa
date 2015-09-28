@@ -62,18 +62,18 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Experim
       options = options || {};
 
       var viewOpts = {
-        router: router,
-        metrics: metrics,
-        fxaClient: fxaClient,
-        user: user,
-        relier: relier,
-        broker: broker,
-        ephemeralMessages: ephemeralMessages,
-        screenName: 'signup',
-        formPrefill: formPrefill,
-        coppa: coppa,
         able: options.able || able,
-        notifications: notifications
+        broker: broker,
+        coppa: coppa,
+        ephemeralMessages: ephemeralMessages,
+        formPrefill: formPrefill,
+        fxaClient: fxaClient,
+        metrics: metrics,
+        notifications: notifications,
+        relier: relier,
+        router: router,
+        screenName: 'signup',
+        user: user
       };
 
       if (options.window) {
@@ -685,10 +685,10 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Experim
 
         var revisitRouter = new RouterMock();
         var revisitView = new View({
-          router: revisitRouter,
-          relier: relier,
+          able: able,
           fxaClient: fxaClient,
-          able: able
+          relier: relier,
+          router: revisitRouter
         });
 
         sinon.stub(coppa, 'isUserOldEnough', function () {
@@ -938,11 +938,11 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Experim
         });
 
         view.experiments = new ExperimentInterface({
-          window: windowMock,
           able: mockAble,
           metrics: metrics,
+          notifications: notifications,
           user: user,
-          notifications: notifications
+          window: windowMock
         });
         view.experiments.chooseExperiments();
         view.$('.email').val('testuser@gnail.com');
@@ -961,11 +961,11 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Experim
           return 'treatment';
         });
         view.experiments = new ExperimentInterface({
-          window: windowMock,
           able: mockAble,
           metrics: metrics,
+          notifications: notifications,
           user: user,
-          notifications: notifications
+          window: windowMock
         });
         view.experiments.chooseExperiments();
         // user puts wrong email first

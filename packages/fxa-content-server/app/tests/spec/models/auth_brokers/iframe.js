@@ -33,10 +33,10 @@ function (chai, sinon, $, IframeAuthenticationBroker, Relier, p, NullChannel,
       sinon.spy(channelMock, 'send');
 
       broker = new IframeAuthenticationBroker({
-        window: windowMock,
-        relier: relierMock,
         channel: channelMock,
-        session: Session
+        relier: relierMock,
+        session: Session,
+        window: windowMock
       });
     });
 

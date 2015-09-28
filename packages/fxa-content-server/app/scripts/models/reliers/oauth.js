@@ -23,18 +23,18 @@ define([
 
   var OAuthRelier = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {
-      // standard oauth parameters.
-      state: null,
-      clientId: null,
-      // redirectUri is used by the oauth flow
-      redirectUri: null,
-      scope: null,
       accessType: null,
+      clientId: null,
+      // whether to fetch and derive relier-specific keys
+      keys: false,
       // redirectTo is for future use by the oauth flow. redirectTo
       // would have redirectUri as its base.
       redirectTo: null,
-      // whether to fetch and derive relier-specific keys
-      keys: false,
+      // redirectUri is used by the oauth flow
+      redirectUri: null,
+      scope: null,
+      // standard oauth parameters.
+      state: null,
       // verification redirect to the rp, useful during email verification signup flow
       verificationRedirect: Constants.VERIFICATION_REDIRECT_NO
     }),
@@ -111,18 +111,18 @@ define([
         // and `clientId` fields which will allow the user to
         // redirect back to the RP but not sign in.
         resumeObj = {
-          service: self.getSearchParam('service'),
-          client_id: self.getSearchParam('service') //eslint-disable-line camelcase
+          client_id: self.getSearchParam('service'), //eslint-disable-line camelcase
+          service: self.getSearchParam('service')
         };
       }
 
       self.set({
-        state: resumeObj.state,
-        keys: resumeObj.keys,
+        accessType: resumeObj.access_type,
         clientId: resumeObj.client_id,
+        keys: resumeObj.keys,
         redirectUri: resumeObj.redirect_uri,
         scope: resumeObj.scope,
-        accessType: resumeObj.access_type
+        state: resumeObj.state
       });
 
       if (! self.has('clientId')) {

@@ -66,11 +66,11 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, Metrics, BaseView, For
       self.logScreenEvent('newsletter.optin.' + String(isOptedIn));
 
       return {
+        error: self._error,
         isOptedIn: isOptedIn,
         // preferencesURL is only available if the user is already
         // registered with basket.
-        preferencesUrl: Xss.href(emailPrefs.get('preferencesUrl')),
-        error: self._error
+        preferencesUrl: Xss.href(emailPrefs.get('preferencesUrl'))
       };
     },
 

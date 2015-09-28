@@ -63,8 +63,8 @@ define([
       });
 
       return FunctionalHelpers.clearBrowserState(this, {
-        contentServer: true,
-        '123done': true
+        '123done': true,
+        contentServer: true
       });
     },
 
@@ -318,8 +318,8 @@ define([
         .then(function () {
           // clear browser state to simulate opening link in a new browser
           return FunctionalHelpers.clearBrowserState(self, {
-            contentServer: true,
-            '123done': true
+            '123done': true,
+            contentServer: true
           });
         })
 

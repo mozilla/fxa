@@ -4,13 +4,6 @@
 
 module.exports = function (grunt) {
   grunt.config('jsonlint', {
-    config: {
-      src: [
-        '.bowerrc',
-        '.eslintrc',
-        '.jscsrc'
-      ]
-    },
     app: {
       src: [
         '{,<%= yeoman.app %>/**/}*.json',
@@ -20,10 +13,13 @@ module.exports = function (grunt) {
         '!<%= yeoman.app %>/tests/**'
       ]
     },
-    i18n: {
+    config: {
       src: [
-        '<%= yeoman.app %>/i18n/**/*.json'
+        '.bowerrc',
+        '.eslintrc',
+        '.jscsrc'
       ]
-    }
+    },
+    i18n: { src: ['<%= yeoman.app %>/i18n/**/*.json'] }
   });
 };

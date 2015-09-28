@@ -18,8 +18,8 @@ define([
 
   FileReaderMock._mockFileEvent = function (type, src) {
     var file = {
-      type: type,
-      _dataURL: src
+      _dataURL: src,
+      type: type
     };
 
     return {

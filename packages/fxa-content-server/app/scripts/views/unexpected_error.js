@@ -15,8 +15,8 @@ function (BaseView, Template) {
   'use strict';
 
   var View = BaseView.extend({
-    template: Template,
-    className: 'unexpected-error'
+    className: 'unexpected-error',
+    template: Template
   });
 
   return View;

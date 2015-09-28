@@ -77,8 +77,8 @@
       // use a hash instead of an array and array.indexOf
       // b/c this module can only use ES3.
       var nativeNames = {
-        remote: true,
-        payflow: true
+        payflow: true,
+        remote: true
       };
 
       var isNativelyEmbedded = nativeNames[win.name];

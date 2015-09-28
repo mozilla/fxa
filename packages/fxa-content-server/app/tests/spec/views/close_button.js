@@ -37,8 +37,8 @@ function (chai, sinon, $, WindowMock, TestHelpers, p, Metrics,
       view = new View({
         broker: broker,
         metrics: metrics,
-        window: windowMock,
-        screenName: 'signup'
+        screenName: 'signup',
+        window: windowMock
       });
     });
 

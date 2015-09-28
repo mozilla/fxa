@@ -78,8 +78,8 @@ define([
       this._receiver.on('message', this.onMessageReceived.bind(this));
 
       this._outstandingRequests = new OutstandingRequests({
-        window: options.window,
-        sendTimeoutLength: options.sendTimeoutLength
+        sendTimeoutLength: options.sendTimeoutLength,
+        window: options.window
       });
     },
 
@@ -123,9 +123,9 @@ define([
 
       var messageId = this.createMessageId(command, data);
       var outstanding = {
-        deferred: p.defer(),
         command: command,
         data: data,
+        deferred: p.defer(),
         messageId: messageId
       };
 
@@ -194,8 +194,8 @@ define([
     parseMessage: function (message) {
       return {
         command: message.command,
-        messageId: message.messageId,
-        data: message.data
+        data: message.data,
+        messageId: message.messageId
       };
     }
   });

@@ -57,16 +57,16 @@ define([
         .then(function () {
           // clear localStorage to avoid pollution from other tests.
           return FunctionalHelpers.clearBrowserState(self, {
-            contentServer: true,
-            '123done': true
+            '123done': true,
+            contentServer: true
           });
         });
     },
 
     afterEach: function () {
       return FunctionalHelpers.clearBrowserState(this, {
-        contentServer: true,
-        '123done': true
+        '123done': true,
+        contentServer: true
       });
     },
 

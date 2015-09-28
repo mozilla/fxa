@@ -94,11 +94,9 @@ module.exports = function (grunt) {
     dist: {
       files: [
         {
+          dest: '<%= yeoman.tmp %>/validURLS.json',
           expand: false,
-          src: [
-            '<%= yeoman.strings_dist %>/templates/*/*.pot'
-          ],
-          dest: '<%= yeoman.tmp %>/validURLS.json'
+          src: ['<%= yeoman.strings_dist %>/templates/*/*.pot']
         }
       ]
     }

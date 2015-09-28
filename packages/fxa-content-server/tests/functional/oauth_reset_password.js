@@ -41,8 +41,8 @@ define([
         .then(function () {
           // clear localStorage to avoid polluting other tests.
           return FunctionalHelpers.clearBrowserState(self, {
-            contentServer: true,
-            '123done': true
+            '123done': true,
+            contentServer: true
           });
         });
     },
@@ -249,8 +249,8 @@ define([
           // clear all browser state, simulate opening in a new
           // browser
           return FunctionalHelpers.clearBrowserState(self, {
-            contentServer: true,
-            '123done': true
+            '123done': true,
+            contentServer: true
           });
         })
         .then(function () {

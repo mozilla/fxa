@@ -15,18 +15,16 @@ define([
 
   var ResumeToken = Backbone.Model.extend({
     defaults: {
-      // fields from a Relier
       campaign: undefined,
       entrypoint: undefined,
       state: undefined,
+      uniqueUserId: undefined,
       utmCampaign: null,
       utmContent: null,
       utmMedium: null,
       utmSource: null,
       utmTerm: null,
-      verificationRedirect: undefined,
-      // fields from a User
-      uniqueUserId: undefined
+      verificationRedirect: undefined
     },
 
     initialize: function (options) {
@@ -65,9 +63,9 @@ define([
 
   // static methods on the ResumeToken object itself, not its prototype.
   _.extend(ResumeToken, {
+    createFromStringifiedResumeToken: createFromStringifiedResumeToken,
     parse: parse,
-    stringify: stringify,
-    createFromStringifiedResumeToken: createFromStringifiedResumeToken
+    stringify: stringify
   });
 
   return ResumeToken;

@@ -45,9 +45,9 @@ define([
       var key = this._interTabChannel.on(eventName, callback);
 
       this._interTabMessages.push({
-        name: eventName,
+        callback: callback,
         key: key,
-        callback: callback
+        name: eventName
       });
     },
 

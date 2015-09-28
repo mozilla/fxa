@@ -68,8 +68,8 @@ define([
           // requirejs is asynchronous, add a setTimeout to mimic that behavior.
           setTimeout(function () {
             errback({
-              requireType: errType,
-              requireModules: [moduleList]
+              requireModules: [moduleList],
+              requireType: errType
             });
           }, 0);
         });

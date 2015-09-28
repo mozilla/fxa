@@ -28,9 +28,9 @@ function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
 
   function mockVideo (w, h) {
     return {
-      videoWidth: w,
+      play: sinon.spy(),
       videoHeight: h,
-      play: sinon.spy()
+      videoWidth: w
     };
   }
 
@@ -56,18 +56,18 @@ function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
       metrics = new Metrics();
 
       view = new View({
-        router: routerMock,
-        user: user,
-        window: windowMock,
-        relier: relier,
         broker: broker,
         metrics: metrics,
-        screenName: SCREEN_NAME
+        relier: relier,
+        router: routerMock,
+        screenName: SCREEN_NAME,
+        user: user,
+        window: windowMock
       });
 
       account = user.initAccount({
-        email: 'a@a.com',
         accessToken: 'abc123',
+        email: 'a@a.com',
         verified: true
       });
     });
@@ -198,15 +198,15 @@ function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
         profileClientMock = new ProfileMock();
 
         view = new View({
-          router: routerMock,
-          user: user,
-          window: windowMock,
-          relier: relier,
           broker: broker,
-          metrics: metrics,
-          screenName: SCREEN_NAME,
           displayLength: 240,
-          exportLength: 600
+          exportLength: 600,
+          metrics: metrics,
+          relier: relier,
+          router: routerMock,
+          screenName: SCREEN_NAME,
+          user: user,
+          window: windowMock
         });
 
         view.isUserAuthorized = function () {
@@ -223,8 +223,8 @@ function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
 
         sinon.stub(profileClientMock, 'uploadAvatar', function () {
           return p({
-            url: 'test',
-            id: 'foo'
+            id: 'foo',
+            url: 'test'
           });
         });
 

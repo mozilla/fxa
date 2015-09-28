@@ -21,8 +21,8 @@ define([
     // http://mxr.mozilla.org/mozilla-central/source/browser/base/content/aboutaccounts/aboutaccounts.js#252
     function sendMessageToFxa(content) {
       window.postMessage({
-        type: 'message',
-        content: content
+        content: content,
+        type: 'message'
       }, '*');
     }
 

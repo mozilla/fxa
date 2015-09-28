@@ -16,11 +16,11 @@ define([
 
   var FormPrefill = Backbone.Model.extend({
     defaults: {
+      age: null,
       email: null,
       password: null,
       // year should be removed if we remove the dropdown based COPPA
-      year: null,
-      age: null
+      year: null
     }
   });
 

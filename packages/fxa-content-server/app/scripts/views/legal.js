@@ -10,8 +10,8 @@ function (BaseView, Template) {
   'use strict';
 
   var View = BaseView.extend({
-    template: Template,
-    className: 'legal'
+    className: 'legal',
+    template: Template
   });
 
   return View;

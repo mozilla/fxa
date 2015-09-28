@@ -58,8 +58,8 @@ module.exports = function (grunt) {
   grunt.config('connect_fonts_copy', {
     dist: {
       options: {
-        fontPacks: fontPacks,
-        dest: '<%= yeoman.app %>/fonts'
+        dest: '<%= yeoman.app %>/fonts',
+        fontPacks: fontPacks
       }
     }
   });

@@ -59,10 +59,10 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
     },
 
     events: {
-      'submit form': BaseView.preventDefaultThen('validateAndSubmit'),
       'change form': ifFormValuesChanged(BaseView.cancelEventThen('enableSubmitIfValid')),
+      'input form': ifFormValuesChanged(BaseView.cancelEventThen('enableSubmitIfValid')),
       'keyup form': ifFormValuesChanged(BaseView.cancelEventThen('enableSubmitIfValid')),
-      'input form': ifFormValuesChanged(BaseView.cancelEventThen('enableSubmitIfValid'))
+      'submit form': BaseView.preventDefaultThen('validateAndSubmit')
     },
 
     afterRender: function () {
@@ -429,8 +429,8 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
       var message = AuthErrors.toMessage(err);
 
       var tooltip = new Tooltip({
-        message: message,
-        invalidEl: invalidEl
+        invalidEl: invalidEl,
+        message: message
       });
 
       var self = this;

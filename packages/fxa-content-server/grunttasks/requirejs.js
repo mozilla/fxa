@@ -7,30 +7,33 @@ module.exports = function (grunt) {
     dist: {
       // Options: https://github.com/jrburke/r.js/blob/master/build/example.build.js
       options: {
+        baseUrl: '<%= yeoman.app %>/scripts',
+        // since nocache is a requirejs plugin and not stubbed, it must
+        // be added manually to the bundle.
+        deps: ['nocache'],
+        findNestedDependencies: true,
+        // TODO: (Issue #560) Figure out how to make sourcemaps work with grunt-usemin
+        // https://github.com/yeoman/grunt-usemin/issues/30
+        //generateSourceMaps: true,
+        keepBuildDir: true,
+        mainConfigFile: '<%= yeoman.app %>/scripts/require_config.js',
+        name: 'main',
+        optimize: 'none',
+        out: '<%= yeoman.tmp %>/scripts/main.js',
+        // required to support SourceMaps
+        // http://requirejs.org/docs/errors.html#sourcemapcomments
+        preserveLicenseComments: false,
         replaceRequireScript: [{
           files: ['<%= yeoman.page_template_dist %>/{,*/}index.html'],
           module: 'main',
           modulePath: '/scripts/main'
         }],
-        baseUrl: '<%= yeoman.app %>/scripts',
-        optimize: 'none',
-        name: 'main',
-        out: '<%= yeoman.tmp %>/scripts/main.js',
-        mainConfigFile: '<%= yeoman.app %>/scripts/require_config.js',
-        keepBuildDir: true,
-        findNestedDependencies: true,
-        // TODO: (Issue #560) Figure out how to make sourcemaps work with grunt-usemin
-        // https://github.com/yeoman/grunt-usemin/issues/30
-        //generateSourceMaps: true,
-        // required to support SourceMaps
-        // http://requirejs.org/docs/errors.html#sourcemapcomments
-        preserveLicenseComments: false,
+        stubModules: [
+          'text',
+          'stache'
+        ],
         useStrict: true,
-        wrap: true,
-        stubModules: ['text', 'stache'],
-        // since nocache is a requirejs plugin and not stubbed, it must
-        // be added manually to the bundle.
-        deps: ['nocache']
+        wrap: true
       }
     }
   });

@@ -61,8 +61,8 @@ function (chai, sinon, OAuthClient, OAuthErrors, Xhr, p) {
         sinon.stub(xhr, 'post', function () {
           return p.reject({
             responseJSON: {
-              errno: OAuthErrors.toErrno('UNKNOWN_CLIENT'),
-              code: 400
+              code: 400,
+              errno: OAuthErrors.toErrno('UNKNOWN_CLIENT')
             }
           });
         });
@@ -109,8 +109,8 @@ function (chai, sinon, OAuthClient, OAuthErrors, Xhr, p) {
       it('response with a name and imageUri', function () {
         sinon.stub(client, '_request', function () {
           return p({
-            name: 'MozRP',
-            imageUri: 'https://mozilla.org/firefox.png'
+            imageUri: 'https://mozilla.org/firefox.png',
+            name: 'MozRP'
           });
         });
 
@@ -128,10 +128,10 @@ function (chai, sinon, OAuthClient, OAuthErrors, Xhr, p) {
         var token = 'access token';
 
         sinon.stub(client, '_request', function () {
-          return p({
+          return p({ //eslint-disable-line camelcase
+            access_token: token, //eslint-disable-line camelcase
             scope: 'profile',
-            token_type: 'bearer', //eslint-disable-line camelcase
-            access_token: token //eslint-disable-line camelcase
+            token_type: 'bearer' //eslint-disable-line camelcase
           });
         });
 

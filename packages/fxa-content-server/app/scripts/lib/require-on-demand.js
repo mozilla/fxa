@@ -25,6 +25,7 @@ define([
     return msg;
   };
 
+  /*eslint-disable sorting/sort-object-props*/
   var RODErrors = _.extend({}, Errors, {
     ERRORS: {
       UNEXPECTED_ERROR: {
@@ -46,6 +47,7 @@ define([
     },
     NAMESPACE: 'require-on-demand'
   });
+  /*eslint-enable sorting/sort-object-props*/
 
   function requireOnDemand(resourceToGet) {
     return p().then(function () {

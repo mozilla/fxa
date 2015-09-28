@@ -26,9 +26,9 @@ function makeApp() {
   app.post('/_/csp-violation', function (req, res) {
     logger.warn('VIOLATION REPORT');
     var data = {
-      when: (new Date()).getTime() / 1000,
+      report: req.body,
       ua: req.get('user-agent'),
-      report: req.body
+      when: (new Date()).getTime() / 1000
     };
     violations.write(JSON.stringify(data) + '\n');
     logger.warn(data);

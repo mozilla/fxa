@@ -73,8 +73,8 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
           sinon.stub(realClient, 'signUp', function () {
             return p.reject({
               code: 429,
-              error: 'Too Many Requests',
               errno: 114,
+              error: 'Too Many Requests',
               message: 'Client has sent too many requests',
               retryAfter: 30
             });
@@ -110,8 +110,8 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
       it('Sync signUp signs up a user with email/password and returns keys', function () {
         sinon.stub(realClient, 'signUp', function () {
           return p({
-            unwrapBKey: 'unwrapBKey',
-            keyFetchToken: 'keyFetchToken'
+            keyFetchToken: 'keyFetchToken',
+            unwrapBKey: 'unwrapBKey'
           });
         });
 
@@ -127,9 +127,9 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
           .then(function (sessionData) {
             assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
               keys: true,
-              service: SERVICE,
               redirectTo: REDIRECT_TO,
-              resume: resumeToken
+              resume: resumeToken,
+              service: SERVICE
             }));
 
             // The following should only be set for Sync
@@ -151,9 +151,9 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
           .then(function (sessionData) {
             assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
               keys: false,
-              service: 'chronicle',
               redirectTo: REDIRECT_TO,
-              resume: resumeToken
+              resume: resumeToken,
+              service: 'chronicle'
             }));
 
             // These should not be returned by default
@@ -167,8 +167,8 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
       it('non-Sync signUp requests keys if the relier explicitly wants them', function () {
         sinon.stub(realClient, 'signUp', function () {
           return p({
-            unwrapBKey: 'unwrapBKey',
-            keyFetchToken: 'keyFetchToken'
+            keyFetchToken: 'keyFetchToken',
+            unwrapBKey: 'unwrapBKey'
           });
         });
 
@@ -179,9 +179,9 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
           .then(function (sessionData) {
             assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
               keys: true,
-              service: 'chronicle',
               redirectTo: REDIRECT_TO,
-              resume: resumeToken
+              resume: resumeToken,
+              service: 'chronicle'
             }));
 
             assert.equal(sessionData.unwrapBKey, 'unwrapBKey');
@@ -225,11 +225,11 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
         })
         .then(function () {
           assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
-            preVerifyToken: preVerifyToken,
             keys: true,
+            preVerifyToken: preVerifyToken,
             redirectTo: REDIRECT_TO,
-            service: SERVICE,
-            resume: resumeToken
+            resume: resumeToken,
+            service: SERVICE
           }));
         });
       });
@@ -249,11 +249,11 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
           count++;
           if (count === 1) {
             assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
-              preVerifyToken: preVerifyToken,
               keys: true,
+              preVerifyToken: preVerifyToken,
               redirectTo: REDIRECT_TO,
-              service: SERVICE,
-              resume: resumeToken
+              resume: resumeToken,
+              service: SERVICE
             }));
 
             return p.reject(AuthErrors.toError('INVALID_VERIFICATION_CODE'));
@@ -261,8 +261,8 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
             assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
               keys: true,
               redirectTo: REDIRECT_TO,
-              service: SERVICE,
-              resume: resumeToken
+              resume: resumeToken,
+              service: SERVICE
             }));
 
             return p({});
@@ -287,9 +287,9 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
         return client.signUpResend(relier, sessionToken, { resume: resumeToken })
           .then(function () {
             var params = {
-              service: SERVICE,
               redirectTo: REDIRECT_TO,
-              resume: resumeToken
+              resume: resumeToken,
+              service: SERVICE
             };
             assert.isTrue(
                 realClient.recoveryEmailResendCode.calledWith(
@@ -340,8 +340,8 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
       it('Sync signIn signs in a user with email/password and returns keys', function () {
         sinon.stub(realClient, 'signIn', function () {
           return p({
-            unwrapBKey: 'unwrapBKey',
-            keyFetchToken: 'keyFetchToken'
+            keyFetchToken: 'keyFetchToken',
+            unwrapBKey: 'unwrapBKey'
           });
         });
 
@@ -358,8 +358,8 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
           .then(function (sessionData) {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
               keys: true,
-              service: 'sync',
-              reason: client.SIGNIN_REASON.SIGN_IN
+              reason: client.SIGNIN_REASON.SIGN_IN,
+              service: 'sync'
             }));
 
             assert.equal(sessionData.unwrapBKey, 'unwrapBKey');
@@ -381,8 +381,8 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
           .then(function (sessionData) {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
               keys: false,
-              service: 'chronicle',
-              reason: client.SIGNIN_REASON.SIGN_IN
+              reason: client.SIGNIN_REASON.SIGN_IN,
+              service: 'chronicle'
             }));
 
             // These should not be returned by default
@@ -396,8 +396,8 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
       it('non-Sync signIn requests keys if the relier explicitly wants them', function () {
         sinon.stub(realClient, 'signIn', function () {
           return p({
-            unwrapBKey: 'unwrapBKey',
-            keyFetchToken: 'keyFetchToken'
+            keyFetchToken: 'keyFetchToken',
+            unwrapBKey: 'unwrapBKey'
           });
         });
 
@@ -408,8 +408,8 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
           .then(function (sessionData) {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
               keys: true,
-              service: 'chronicle',
-              reason: client.SIGNIN_REASON.SIGN_IN
+              reason: client.SIGNIN_REASON.SIGN_IN,
+              service: 'chronicle'
             }));
 
             assert.equal(sessionData.unwrapBKey, 'unwrapBKey');
@@ -436,8 +436,8 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
           .then(function (result) {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
               keys: true,
-              service: 'sync',
-              reason: client.SIGNIN_REASON.SIGN_IN
+              reason: client.SIGNIN_REASON.SIGN_IN,
+              service: 'sync'
             }));
 
             assert.isTrue(result.customizeSync);
@@ -457,8 +457,8 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
           .then(function () {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
               keys: true,
-              service: 'sync',
-              reason: client.SIGNIN_REASON.PASSWORD_CHANGE
+              reason: client.SIGNIN_REASON.PASSWORD_CHANGE,
+              service: 'sync'
             }));
           });
       });
@@ -475,9 +475,9 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
         return client.passwordReset(email, relier, { resume: resumeToken })
           .then(function () {
             var params = {
-              service: SERVICE,
               redirectTo: REDIRECT_TO,
-              resume: resumeToken
+              resume: resumeToken,
+              service: SERVICE
             };
             assert.isTrue(
                 realClient.passwordForgotSendCode.calledWith(
@@ -507,9 +507,9 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
           })
           .then(function () {
             var params = {
-              service: SERVICE,
               redirectTo: REDIRECT_TO,
-              resume: resumeToken
+              resume: resumeToken,
+              service: SERVICE
             };
             assert.isTrue(
                 realClient.passwordForgotResendCode.calledWith(
@@ -729,9 +729,10 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
       it('signs certificate', function () {
         var publicKey = {
           algorithm: 'RS',
-          n: '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341' +
-             '316862993582789079872007974809511698859885077002492642203267408776123',
-          e: '65537'
+          e: '65537',
+          n: '47593859672356105035714943391967496145446066925677857909539347' +
+             '68202714280652973091341316862993582789079872007974809511698859' +
+             '885077002492642203267408776123'
         };
         var duration = 86400000;
 
@@ -850,9 +851,9 @@ function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthError
           assert.isTrue(realClient.accountUnlockResendCode.calledWith(
             'testuser@testuser.com',
             {
-              service: relier.get('service'),
               redirectTo: relier.get('redirectTo'),
-              resume: 'resume token'
+              resume: 'resume token',
+              service: relier.get('service')
             }
           ));
         });

@@ -76,10 +76,10 @@ function (Cocktail, BaseView, FormView, Template, FloatingPlaceholderMixin,
 
       // damaged and expired links have special messages.
       return {
-        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
         isLinkDamaged: ! doesLinkValidate,
         isLinkExpired: isLinkExpired,
-        isLinkValid: doesLinkValidate && ! isLinkExpired
+        isLinkValid: doesLinkValidate && ! isLinkExpired,
+        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled()
       };
     },
 

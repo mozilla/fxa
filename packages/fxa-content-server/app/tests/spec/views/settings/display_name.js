@@ -39,9 +39,9 @@ function (chai, $, sinon, p, View, Metrics, Notifications, Relier, User, RouterM
       notifications = new Notifications();
       account = user.initAccount({
         email: email,
+        sessionToken: 'fake session token',
         uid: 'uid',
-        verified: true,
-        sessionToken: 'fake session token'
+        verified: true
       });
     });
 
@@ -56,12 +56,12 @@ function (chai, $, sinon, p, View, Metrics, Notifications, Relier, User, RouterM
 
     function initView () {
       view = new View({
-        router: routerMock,
         metrics: metrics,
-        user: user,
-        relier: relier,
         notifications: notifications,
-        screenName: 'display-name'
+        relier: relier,
+        router: routerMock,
+        screenName: 'display-name',
+        user: user
       });
 
       sinon.stub(view, 'getSignedInAccount', function () {

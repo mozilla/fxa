@@ -33,8 +33,8 @@ function ($, chai, sinon, View, WindowMock, Storage) {
 
       windowMock = new WindowMock();
       view = new View({
-        window: windowMock,
-        Storage: Storage
+        Storage: Storage,
+        window: windowMock
       });
       return view.render()
           .then(function () {

@@ -4,14 +4,12 @@
 
 module.exports = function (grunt) {
   grunt.config('zschema', {
-    options: {
-      noExtraKeywords: true
-    },
     locales: {
       files: {
         '<%= yeoman.tmp %>/i18n/schemas/client-schema.json': ['<%= yeoman.app %>/i18n/**/client.json'],
         '<%= yeoman.tmp %>/i18n/schemas/server-schema.json': ['<%= yeoman.app %>/i18n/**/server.json']
       }
-    }
+    },
+    options: { noExtraKeywords: true }
   });
 };

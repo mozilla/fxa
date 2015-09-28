@@ -54,10 +54,10 @@ define([
       account.set('uid', UID);
 
       view = new SettingsView({
-        user: user,
-        relier: relier,
         metrics: metrics,
-        notifications: notifications
+        notifications: notifications,
+        relier: relier,
+        user: user
       });
       sinon.stub(view, 'getSignedInAccount', function () {
         return account;
@@ -112,7 +112,7 @@ define([
     });
 
     it('displayAccountProfileImage updates the cached account data', function () {
-      var image = new ProfileImage({ url: 'url', id: 'foo', img: new Image() });
+      var image = new ProfileImage({ id: 'foo', img: new Image(), url: 'url' });
 
       sinon.spy(account, 'setProfileImage');
       sinon.stub(account, 'fetchCurrentProfileImage', function () {
@@ -140,7 +140,7 @@ define([
 
       it('deletes the url if null', function () {
         sinon.stub(account, 'fetchCurrentProfileImage', function () {
-          return p(new ProfileImage({ url: 'url', id: 'foo' }));
+          return p(new ProfileImage({ id: 'foo', url: 'url' }));
         });
         sinon.stub(account, 'deleteAvatar', function () {
           return p();
@@ -177,10 +177,10 @@ define([
       beforeEach(function () {
         spy = sinon.spy(SettingsView.prototype, 'onProfileUpdate');
         view = new SettingsView({
-          user: user,
-          relier: relier,
           metrics: metrics,
-          notifications: notifications
+          notifications: notifications,
+          relier: relier,
+          user: user
         });
       });
 

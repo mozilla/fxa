@@ -32,9 +32,9 @@ define([
 
       it('returns false if token is invalid', function () {
         var model = new Model({
-          token: invalidToken,
           code: validCode,
-          email: validEmail
+          email: validEmail,
+          token: invalidToken
         });
 
         assert.isFalse(model.isValid());
@@ -42,8 +42,8 @@ define([
 
       it('returns false if code is missing', function () {
         var model = new Model({
-          token: validToken,
-          email: validEmail
+          email: validEmail,
+          token: validToken
         });
 
         assert.isFalse(model.isValid());
@@ -51,9 +51,9 @@ define([
 
       it('returns false if code is invalid', function () {
         var model = new Model({
-          token: validToken,
           code: invalidCode,
-          email: validEmail
+          email: validEmail,
+          token: validToken
         });
 
         assert.isFalse(model.isValid());
@@ -61,8 +61,8 @@ define([
 
       it('returns false if email is missing', function () {
         var model = new Model({
-          token: validToken,
-          code: validCode
+          code: validCode,
+          token: validToken
         });
 
         assert.isFalse(model.isValid());
@@ -70,9 +70,9 @@ define([
 
       it('returns false if email is invalid', function () {
         var model = new Model({
-          token: validToken,
           code: validCode,
-          email: invalidEmail
+          email: invalidEmail,
+          token: validToken
         });
 
         assert.isFalse(model.isValid());
@@ -80,9 +80,9 @@ define([
 
       it('returns true otherwise', function () {
         var model = new Model({
-          token: validToken,
           code: validCode,
-          email: validEmail
+          email: validEmail,
+          token: validToken
         });
 
         assert.isTrue(model.isValid());

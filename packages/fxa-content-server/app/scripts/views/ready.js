@@ -39,13 +39,13 @@ function (Cocktail, FormView, Template, Url, Constants, ServiceMixin,
       var redirectUri = this.relier.get('redirectUri');
 
       return {
+        accountUnlock: this.is('account_unlock'),
+        redirectUri: redirectUri,
+        resetPassword: this.is('reset_password'),
         service: this.relier.get('service'),
         serviceName: serviceName,
         showProceedButton: this._shouldShowProceed(),
-        redirectUri: redirectUri,
-        signUp: this.is('sign_up'),
-        resetPassword: this.is('reset_password'),
-        accountUnlock: this.is('account_unlock')
+        signUp: this.is('sign_up')
       };
     },
 
@@ -90,11 +90,11 @@ function (Cocktail, FormView, Template, Url, Constants, ServiceMixin,
     _createMarketingSnippet: function () {
       var marketingSnippet;
       var marketingSnippetOpts = {
-        type: this.type,
-        service: this.relier.get('service'),
-        language: this.language,
         el: this.$('.marketing-area'),
-        metrics: this.metrics
+        language: this.language,
+        metrics: this.metrics,
+        service: this.relier.get('service'),
+        type: this.type
       };
 
       // spring campaign scheduled to launch 6/2

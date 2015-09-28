@@ -10,11 +10,14 @@ var i18n = require('i18n-abide');
 
 module.exports = function (grunt) {
   grunt.config('po2json', {
+    all: {
+      dest: '<%= yeoman.app %>/i18n',
+      src: ['<%= yeoman.strings_dist %>/**/*.po']
+    },
     options: {
       format: 'raw',
       fuzzy: true,
       output_filename: function (file) { //eslint-disable-line camelcase
-
         /**
          * the files are stored in the locale subdirectory with a directory
          * structure of:
@@ -28,7 +31,6 @@ module.exports = function (grunt) {
          * directory.
          **/
         var matches = /^locale\/([^\/]+)\/LC_MESSAGES\/(.*)$/.exec(file);
-
         // In order to make sure the locale is in a form that i18n-abide expects
         // we convert it from locale to langauge back to locale.
         var locale = i18n.normalizeLocale(matches[1]);
@@ -46,27 +48,20 @@ module.exports = function (grunt) {
         var isArray = function (item) {
           return Object.prototype.toString.call(item) === '[object Array]';
         };
-
         var transformed = {};
         for (var msgid in data) {
           var translation = data[msgid];
           if (isArray(translation) && translation.length >= 2) {
             translation = translation[1];
           }
-
           transformed[msgid] = translation;
         }
-
         return transformed;
       }
     },
-    all: {
-      src: ['<%= yeoman.strings_dist %>/**/*.po'],
-      dest: '<%= yeoman.app %>/i18n'
-    },
     template: {
-      src: ['<%= yeoman.strings_dist %>/**/*.pot'],
-      dest: '<%= yeoman.tmp %>/i18n'
+      dest: '<%= yeoman.tmp %>/i18n',
+      src: ['<%= yeoman.strings_dist %>/**/*.pot']
     }
   });
 };

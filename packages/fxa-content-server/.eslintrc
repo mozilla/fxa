@@ -1,8 +1,12 @@
 {
   "extends": "fxa/client",
+  "plugins": [
+    "sorting"
+  ],
   "rules": {
     "handle-callback-err": 0,
     "no-console": 0,
+    "sorting/sort-object-props": [ 2, { ignoreCase: true, ignoreMethods: true, ignoreObjectsWithMethods: true, ignorePrivate: true } ],
     "strict": [2, "never"]
   }
 }

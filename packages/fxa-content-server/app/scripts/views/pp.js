@@ -11,15 +11,14 @@ function (LegalCopyView, Template, AuthErrors) {
   'use strict';
 
   var View = LegalCopyView.extend({
-    template: Template,
     className: 'pp',
     copyUrl: '/legal/privacy',
-    fetchError: AuthErrors.toError('COULD_NOT_GET_PP'),
-
     events: {
       'click #fxa-pp-back': 'back',
       'keyup #fxa-pp-back': 'backOnEnter'
-    }
+    },
+    fetchError: AuthErrors.toError('COULD_NOT_GET_PP'),
+    template: Template
   });
 
   return View;

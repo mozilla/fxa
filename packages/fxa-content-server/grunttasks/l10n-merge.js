@@ -10,8 +10,8 @@ module.exports = function (grunt) {
   grunt.registerTask('l10n-merge', 'Merge extracted strings with .PO files.', function () {
     var done = this.async();
     grunt.util.spawn({
-      cmd: path.resolve(__dirname, '..', 'scripts', 'merge_po.sh'),
-      args: [path.resolve(__dirname, '..', 'locale')]
+      args: [path.resolve(__dirname, '..', 'locale')],
+      cmd: path.resolve(__dirname, '..', 'scripts', 'merge_po.sh')
     }, done);
   });
 };

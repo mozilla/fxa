@@ -56,8 +56,8 @@ function (chai, sinon, p, Constants, MarketingEmailClient,
       it('fetches the user\'s email preferences from basket', function () {
         sinon.stub(marketingEmailClient, 'fetch', function () {
           return p({
-            preferencesUrl: PREFERENCES_URL + 'user_token',
-            newsletters: [ NEWSLETTER_ID ]
+            newsletters: [NEWSLETTER_ID],
+            preferencesUrl: PREFERENCES_URL + 'user_token'
           });
         });
 

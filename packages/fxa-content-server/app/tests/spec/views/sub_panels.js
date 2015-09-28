@@ -25,18 +25,18 @@ function (chai, $, sinon, Cocktail, View, BaseView,
 
   var SETTINGS_PANEL_CLASSNAME = 'panel';
   var SettingsPanelView = BaseView.extend({
-    template: TestTemplate,
-    className: SETTINGS_PANEL_CLASSNAME
+    className: SETTINGS_PANEL_CLASSNAME,
+    template: TestTemplate
   });
 
   var SettingsPanelView2 = BaseView.extend({
-    template: TestTemplate,
-    className: 'panel2'
+    className: 'panel2',
+    template: TestTemplate
   });
 
   var ModalSettingsPanelView = BaseView.extend({
-    template: TestTemplate,
-    className: 'modal-panel'
+    className: 'modal-panel',
+    template: TestTemplate
   });
 
   Cocktail.mixin(SettingsPanelView, SettingsPanelMixin);
@@ -52,9 +52,9 @@ function (chai, $, sinon, Cocktail, View, BaseView,
 
     function createView () {
       view = new View({
-        router: routerMock,
         metrics: metrics,
         panelViews: panelViews,
+        router: routerMock,
         superView: superView
       });
     }

@@ -52,9 +52,9 @@ function (Cocktail, p, BaseView, FormView, SignInView, PasswordMixin,
 
       return {
         email: email,
-        password: this._formPrefill.get('password'),
         fatalError: getFatalErrorMessage(this, fatalError),
-        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled()
+        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
+        password: this._formPrefill.get('password')
       };
     },
 

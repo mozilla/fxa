@@ -33,9 +33,9 @@ function (Cocktail, FormView, Template, p, BackMixin, ServiceMixin) {
       var account = this.getAccount();
       return {
         email: account.get('email'),
+        privacyUri: this.relier.get('privacyUri'),
         serviceName: this.relier.get('serviceName'),
-        termsUri: this.relier.get('termsUri'),
-        privacyUri: this.relier.get('privacyUri')
+        termsUri: this.relier.get('termsUri')
       };
     },
 

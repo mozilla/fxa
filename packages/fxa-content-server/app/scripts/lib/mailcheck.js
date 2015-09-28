@@ -59,11 +59,11 @@ function (Tooltip) {
           view.notify('mailcheck.suggested');
           if (view.isInExperimentGroup('mailcheck', 'treatment')) {
             var tooltip = new Tooltip({
-              message: t('Did you mean <span tabindex="1">%(domain)s</span>?', suggestion, translator),
-              invalidEl: target,
-              type: 'mailcheck',
+              dismissible: true,
               extraClassNames: SUGGEST_DIV_CLASS,
-              dismissible: true
+              invalidEl: target,
+              message: t('Did you mean <span tabindex="1">%(domain)s</span>?', suggestion, translator),
+              type: 'mailcheck'
             });
 
             tooltip.render();

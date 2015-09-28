@@ -17,6 +17,7 @@ function (_, Errors) {
 
   var UNEXPECTED_ERROR = t('Unexpected error');
 
+  /*eslint-disable sorting/sort-object-props*/
   // error codes from
   // https://github.com/mozilla/basket-client/blob/master/basket/errors.py
   var ERRORS = {
@@ -83,6 +84,7 @@ function (_, Errors) {
       message: UNEXPECTED_ERROR
     }
   };
+  /*eslint-enable sorting/sort-object-props*/
 
   return _.extend({}, Errors, {
     ERRORS: ERRORS,

@@ -49,8 +49,8 @@ function (chai, $, TestHelpers, p, ConfigLoader, Assertion, FxaClientWrapper,
 
       relier = new Relier();
       client = new FxaClientWrapper({
-        relier: relier,
-        authServerUrl: config.authServerUrl
+        authServerUrl: config.authServerUrl,
+        relier: relier
       });
       assertionLibrary = new Assertion({
         fxaClient: client
@@ -115,11 +115,11 @@ function (chai, $, TestHelpers, p, ConfigLoader, Assertion, FxaClientWrapper,
                       assert.ok(payload, 'has payload');
                       assert.ok(assertionParams, 'has assertion params');
                       defer.resolve({
-                        fxaRootKey: fxaRootKey,
-                        payload: payload,
-                        checkDate: checkDate,
                         assertion: assertion,
-                        assertionParams: assertionParams
+                        assertionParams: assertionParams,
+                        checkDate: checkDate,
+                        fxaRootKey: fxaRootKey,
+                        payload: payload
                       });
                     }
                   }

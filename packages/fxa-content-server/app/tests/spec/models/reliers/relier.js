@@ -54,14 +54,14 @@ define([
       it('populates expected fields from the search parameters, unexpected search parameters are ignored', function () {
         windowMock.location.search = TestHelpers.toSearchString({
           allowCachedCredentials: false,
+          campaign: CAMPAIGN,
+          email: EMAIL,
+          entrypoint: ENTRYPOINT,
+          ignored: 'ignored',
           preVerifyToken: PREVERIFY_TOKEN,
           service: SERVICE,
-          email: EMAIL,
-          uid: UID,
-          entrypoint: ENTRYPOINT,
-          campaign: CAMPAIGN,
-          ignored: 'ignored',
           setting: SETTING,
+          uid: UID,
           utm_campaign: UTM_CAMPAIGN, //eslint-disable-line camelcase
           utm_content: UTM_CONTENT, //eslint-disable-line camelcase
           utm_medium: UTM_MEDIUM, //eslint-disable-line camelcase
@@ -108,8 +108,8 @@ define([
 
       it('is ignored if `entrypoint` is already specified', function () {
         windowMock.location.search = TestHelpers.toSearchString({
-          entrypoint: ENTRYPOINT,
-          entryPoint: 'ignored entrypoint'
+          entryPoint: 'ignored entrypoint',
+          entrypoint: ENTRYPOINT
         });
 
         return relier.fetch()
@@ -188,22 +188,22 @@ define([
         relier.set({
           campaign: CAMPAIGN,
           entrypoint: ENTRYPOINT,
+          notPassed: 'this should not be picked',
           utmCampaign: CAMPAIGN,
-          utmSource: ITEM,
-          utmMedium: ITEM,
-          utmTerm: ITEM,
           utmContent: ITEM,
-          notPassed: 'this should not be picked'
+          utmMedium: ITEM,
+          utmSource: ITEM,
+          utmTerm: ITEM
         });
 
         assert.deepEqual(relier.pickResumeTokenInfo(), {
           campaign: CAMPAIGN,
+          entrypoint: ENTRYPOINT,
           utmCampaign: CAMPAIGN,
-          utmSource: ITEM,
-          utmMedium: ITEM,
-          utmTerm: ITEM,
           utmContent: ITEM,
-          entrypoint: ENTRYPOINT
+          utmMedium: ITEM,
+          utmSource: ITEM,
+          utmTerm: ITEM
         });
       });
     });

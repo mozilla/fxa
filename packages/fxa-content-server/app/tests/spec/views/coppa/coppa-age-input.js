@@ -24,9 +24,9 @@ function (chai, $, AuthErrors, Metrics, FormPrefill, sinon, View, TestHelpers) {
 
     function createView() {
       view = new View({
-        screenName: 'signup',
         formPrefill: formPrefill,
-        metrics: metrics
+        metrics: metrics,
+        screenName: 'signup'
       });
     }
 

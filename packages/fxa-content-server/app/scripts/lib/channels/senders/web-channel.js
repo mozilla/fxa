@@ -42,9 +42,9 @@ define([
       detail: {
         id: webChannelId,
         message: {
-          messageId: messageId,
           command: command,
-          data: data
+          data: data,
+          messageId: messageId
         }
       }
     });

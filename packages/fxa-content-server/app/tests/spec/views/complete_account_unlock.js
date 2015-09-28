@@ -67,14 +67,14 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
 
     function initView () {
       view = new View({
-        router: routerMock,
-        window: windowMock,
-        metrics: metrics,
-        user: user,
-        fxaClient: fxaClient,
-        relier: relier,
         broker: broker,
-        screenName: 'complete-account-unlock'
+        fxaClient: fxaClient,
+        metrics: metrics,
+        relier: relier,
+        router: routerMock,
+        screenName: 'complete-account-unlock',
+        user: user,
+        window: windowMock
       });
     }
 
@@ -120,8 +120,8 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
 
       it('shows an error if uid is invalid', function () {
         return testShowsDamagedScreen(Url.objToSearchString({
-          uid: invalidUid,
-          code: validCode
+          code: validCode,
+          uid: invalidUid
         }))
         .then(function () {
           assert.isFalse(view.fxaClient.completeAccountUnlock.called);
@@ -139,8 +139,8 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
 
       it('shows an error if code is invalid', function () {
         return testShowsDamagedScreen(Url.objToSearchString({
-          uid: validUid,
-          code: invalidCode
+          code: invalidCode,
+          uid: validUid
         }))
         .then(function () {
           assert.isFalse(view.fxaClient.completeAccountUnlock.called);
@@ -150,8 +150,8 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
       it('INVALID_PARAMETER error displays the verification link damaged screen', function () {
         accountUnlockError = AuthErrors.toError('INVALID_PARAMETER', 'code');
         return testShowsDamagedScreen(Url.objToSearchString({
-          uid: validUid,
-          code: validCode
+          code: validCode,
+          uid: validUid
         }))
         .then(function () {
           assert.isTrue(view.fxaClient.completeAccountUnlock.called);
@@ -162,8 +162,8 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
         accountUnlockError = AuthErrors.toError(
             'UNKNOWN_ACCOUNT', 'who are you?');
         return testShowsExpiredScreen(Url.objToSearchString({
-          uid: validUid,
-          code: validCode
+          code: validCode,
+          uid: validUid
         }))
         .then(function () {
           assert.isTrue(view.fxaClient.completeAccountUnlock.called);
@@ -174,8 +174,8 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
         accountUnlockError = AuthErrors.toError(
             'INVALID_VERIFICATION_CODE', 'this isn\'t a lottery');
         return testShowsDamagedScreen(Url.objToSearchString({
-          uid: validUid,
-          code: validCode
+          code: validCode,
+          uid: validUid
         }))
         .then(function () {
           assert.isTrue(view.fxaClient.completeAccountUnlock.called);

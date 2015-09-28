@@ -179,23 +179,13 @@ define([
 
   function setUp (requestGet) {
     var mocks = {
-      request: {
-        get: requestGet ? sinon.spy(requestGet) : sinon.stub()
-      },
-      response: {
-        json: sinon.stub()
-      },
-      logger: {
-        error: sinon.stub()
-      },
-      metricsCollector: {
-        write: sinon.stub()
-      },
+      gaCollector: { write: sinon.stub() },
+      logger: { error: sinon.stub() },
+      metricsCollector: { write: sinon.stub() },
+      request: { get: requestGet ? sinon.spy(requestGet) : sinon.stub() },
+      response: { json: sinon.stub() },
       statsdCollector: {
         init: sinon.stub(),
-        write: sinon.stub()
-      },
-      gaCollector: {
         write: sinon.stub()
       }
     };
@@ -206,7 +196,6 @@ define([
     });
 
     return {
-      mocks: mocks,
       callbacks: callbacks,
       metrics: proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-metrics'), {
         mozlog: function () {
@@ -221,7 +210,8 @@ define([
         '../ga-collector': function () {
           return mocks.gaCollector;
         }
-      })()
+      })(),
+      mocks: mocks
     };
   }
 

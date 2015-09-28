@@ -57,16 +57,16 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
       relier = new Relier();
 
       account = new Account({
-        oAuthClient: oAuthClient,
-        assertion: assertion,
-        profileClient: profileClient,
-        fxaClient: fxaClient,
-        marketingEmailClient: marketingEmailClient,
-        oAuthClientId: CLIENT_ID,
         accountData: {
           email: EMAIL,
           uid: UID
-        }
+        },
+        assertion: assertion,
+        fxaClient: fxaClient,
+        marketingEmailClient: marketingEmailClient,
+        oAuthClient: oAuthClient,
+        oAuthClientId: CLIENT_ID,
+        profileClient: profileClient
       });
     });
 
@@ -319,9 +319,9 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
             assert.equal(token.get('token'), accessToken);
             assert.isTrue(assertion.generate.calledWith(SESSION_TOKEN));
             assert.isTrue(oAuthClient.getToken.calledWith({
+              assertion: 'assertion',
               client_id: CLIENT_ID, //eslint-disable-line camelcase
-              scope: 'scope',
-              assertion: 'assertion'
+              scope: 'scope'
             }));
           });
       });
@@ -649,9 +649,9 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
       account = new Account({
         accountData: {
           email: EMAIL,
-          uid: UID,
+          foo: 'bar',
           sessionToken: SESSION_TOKEN,
-          foo: 'bar'
+          uid: UID
         }
       });
 
@@ -669,10 +669,10 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
       account = new Account({
         accountData: {
           email: EMAIL,
-          uid: UID,
-          sessionToken: SESSION_TOKEN,
           foo: 'bar',
-          password: 'password'
+          password: 'password',
+          sessionToken: SESSION_TOKEN,
+          uid: UID
         },
         assertion: 'test'
       });
@@ -689,15 +689,18 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
     it('toPersistentJSON returns data for the right keys', function () {
       account = new Account({
         accountData: {
-          email: EMAIL,
-          uid: UID,
-          sessionToken: SESSION_TOKEN,
-          foo: 'bar',
           accessToken: 'token',
-          password: 'password',
+          email: EMAIL,
+          foo: 'bar',
           grantedPermissions: {
-            'some-client-id': ['profile:email', 'profile:uid']
-          }
+            'some-client-id': [
+              'profile:email',
+              'profile:uid'
+            ]
+          },
+          password: 'password',
+          sessionToken: SESSION_TOKEN,
+          uid: UID
         },
         assertion: 'test'
       });

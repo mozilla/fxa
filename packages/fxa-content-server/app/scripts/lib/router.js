@@ -198,7 +198,7 @@ function (
     redirectToSignupOrSettings: function () {
       var url = this.user.getSignedInAccount().get('sessionToken') ?
                   '/settings' : '/signup';
-      this.navigate(url, { trigger: true, replace: true });
+      this.navigate(url, { replace: true, trigger: true });
     },
 
     /**
@@ -212,7 +212,7 @@ function (
         route = '/oauth/signup';
       }
 
-      return this.navigate(route, { trigger: true, replace: true });
+      return this.navigate(route, { replace: true, trigger: true });
     },
 
     createAndShowView: function (View, options) {

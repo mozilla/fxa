@@ -29,27 +29,27 @@ function (chai, $, p, Metrics, AuthErrors, Environment, sinon, _, WindowMock, Te
       options = options || {};
 
       metrics = new Metrics(_.defaults(options, {
-        window: windowMock,
-        lang: 'db_LB',
-        service: 'sync',
-        context: 'fx_desktop_v1',
         brokerType: 'fx-desktop-v1',
-        entrypoint: 'menupanel',
-        migration: 'sync1.5',
         campaign: 'fennec',
-        devicePixelRatio: 2,
-        clientWidth: 1033,
         clientHeight: 966,
-        screenWidth: 1600,
-        screenHeight: 1200,
+        clientWidth: 1033,
+        context: 'fx_desktop_v1',
+        devicePixelRatio: 2,
+        entrypoint: 'menupanel',
         isSampledUser: true,
+        lang: 'db_LB',
+        migration: 'sync1.5',
+        screenHeight: 1200,
+        screenWidth: 1600,
+        service: 'sync',
         startTime: 1439233336187,
         uniqueUserId: '0ae7fe2b-244f-4a78-9857-dff3ae263927',
         utmCampaign: 'utm_campaign',
         utmContent: 'utm_content',
         utmMedium: 'utm_medium',
         utmSource: 'utm_source',
-        utmTerm: 'utm_term'
+        utmTerm: 'utm_term',
+        window: windowMock
       }));
     }
 
@@ -150,10 +150,10 @@ function (chai, $, p, Metrics, AuthErrors, Environment, sinon, _, WindowMock, Te
         xhr = { ajax: function () {} };
         environment = new Environment(windowMock);
         metrics = new Metrics({
-          xhr: xhr,
-          window: windowMock,
+          environment: environment,
           inactivityFlushMs: 100,
-          environment: environment
+          window: windowMock,
+          xhr: xhr
         });
 
         metrics.init();
@@ -479,15 +479,15 @@ function (chai, $, p, Metrics, AuthErrors, Environment, sinon, _, WindowMock, Te
         xhr = { ajax: function () {} };
         environment = new Environment(windowMock);
         metrics = new Metrics({
-          xhr: xhr,
-          window: windowMock,
-          inactivityFlushMs: 100,
-          environment: environment,
           able: {
             report: function () {
-              return [ 'foo' ];
+              return ['foo'];
             }
-          }
+          },
+          environment: environment,
+          inactivityFlushMs: 100,
+          window: windowMock,
+          xhr: xhr
         });
 
         metrics.init();

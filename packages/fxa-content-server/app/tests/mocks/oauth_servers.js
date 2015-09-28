@@ -23,11 +23,11 @@ define([
       xhr.respond(200, {
         'Content-Type': 'application/json'
       }, JSON.stringify({
-        cookiesEnabled: true,
         authServerUrl: 'http://127.0.0.1:9000',
-        oauthUrl: 'http://127.0.0.1:9010',
+        cookiesEnabled: true,
         language: 'en_US',
-        metricsSampleRate: 1
+        metricsSampleRate: 1,
+        oauthUrl: 'http://127.0.0.1:9010'
       }));
     });
 
@@ -35,8 +35,8 @@ define([
       xhr.respond(200, {
         'Content-Type': 'application/json'
       }, JSON.stringify({
-        name: '123Done',
         image_uri: 'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png', //eslint-disable-line camelcase
+        name: '123Done',
         redirect_uri: 'http://127.0.0.1:8080/api/oauth' //eslint-disable-line camelcase
       }));
     });

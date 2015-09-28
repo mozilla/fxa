@@ -37,9 +37,9 @@ function (chai, $, sinon, p, View, Metrics, Relier, User, RouterMock, TestHelper
       relier = new Relier();
       account = user.initAccount({
         email: email,
+        sessionToken: 'fake session token',
         uid: 'uid',
-        verified: true,
-        sessionToken: 'fake session token'
+        verified: true
       });
     });
 
@@ -54,11 +54,11 @@ function (chai, $, sinon, p, View, Metrics, Relier, User, RouterMock, TestHelper
 
     function initView () {
       view = new View({
-        router: routerMock,
         metrics: metrics,
-        user: user,
         relier: relier,
-        screenName: 'gravatar-permissions'
+        router: routerMock,
+        screenName: 'gravatar-permissions',
+        user: user
       });
       sinon.stub(view, 'navigate', function () { });
 

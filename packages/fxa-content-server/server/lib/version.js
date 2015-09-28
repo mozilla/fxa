@@ -124,11 +124,11 @@ function getVersionInfo() {
       logger.info('tos-pp (legal-docs) commit hash set to: ' + tosPpVersion);
 
       return {
-        version: pkgVersion,
         commit: commitHash,
         l10n: l10nVersion,
+        source: sourceRepo,
         tosPp: tosPpVersion,
-        source: sourceRepo
+        version: pkgVersion
       };
     });
   }

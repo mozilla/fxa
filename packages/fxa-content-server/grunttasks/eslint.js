@@ -4,31 +4,21 @@
 
 module.exports = function (grunt) {
   grunt.config('eslint', {
-    options: {
-      eslintrc: '.eslintrc'
-    },
-    grunt: [
-      'Gruntfile.js',
-      'grunttasks/*.js'
-    ],
     app: {
-      options: {
-        eslintrc: '<%= yeoman.app %>/.eslintrc'
-      },
+      options: { eslintrc: '<%= yeoman.app %>/.eslintrc' },
       src: [
         '<%= yeoman.app %>/**/*.js',
         '!<%= yeoman.app %>/bower_components/**',
         '!<%= yeoman.app %>/scripts/vendor/**'
       ]
     },
-    tests: [
-      '<%= yeoman.tests %>/**/*.js'
+    grunt: [
+      'Gruntfile.js',
+      'grunttasks/*.js'
     ],
-    scripts: [
-      'scripts/*.js'
-    ],
-    server: [
-      '<%= yeoman.server %>/**/*.js',
-    ]
+    options: { eslintrc: '.eslintrc' },
+    scripts: ['scripts/*.js'],
+    server: ['<%= yeoman.server %>/**/*.js'],
+    tests: ['<%= yeoman.tests %>/**/*.js']
   });
 };

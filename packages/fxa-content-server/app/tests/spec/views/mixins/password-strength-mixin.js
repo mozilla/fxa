@@ -58,9 +58,9 @@ define([
         assert.isTrue(view.isPasswordStrengthCheckEnabled());
         assert.isTrue(
           ableMock.choose.calledWith('passwordStrengthCheckEnabled', {
+            forcePasswordStrengthCheck: 'true',
             isMetricsEnabledValue: true,
-            uniqueUserId: 'userid',
-            forcePasswordStrengthCheck: 'true'
+            uniqueUserId: 'userid'
           })
         );
         assert.isTrue(view.logScreenEvent.calledWith(EVENT_NAME_PREFIX + 'enabled'));

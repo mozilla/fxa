@@ -33,12 +33,12 @@ define([
 
   var Relier = BaseRelier.extend({
     defaults: {
-      service: null,
-      preVerifyToken: null,
-      email: null,
       allowCachedCredentials: true,
-      entrypoint: null,
       campaign: null,
+      email: null,
+      entrypoint: null,
+      preVerifyToken: null,
+      service: null,
       utmCampaign: null,
       utmContent: null,
       utmMedium: null,

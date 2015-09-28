@@ -42,8 +42,8 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
     var screenName = 'screen';
 
     var View = BaseView.extend({
-      template: Template,
-      layoutClassName: 'layout'
+      layoutClassName: 'layout',
+      template: Template
     });
 
 
@@ -62,14 +62,14 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
       user = new User();
 
       view = new View({
-        translator: translator,
-        router: router,
-        window: windowMock,
         ephemeralMessages: ephemeralMessages,
-        metrics: metrics,
-        user: user,
         fxaClient: fxaClient,
-        screenName: screenName
+        metrics: metrics,
+        router: router,
+        screenName: screenName,
+        translator: translator,
+        user: user,
+        window: windowMock
       });
 
       return view.render()

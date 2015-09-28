@@ -14,15 +14,15 @@ define([
 
   return VerificationInfo.extend({
     defaults: {
-      token: null,
       code: null,
-      email: null
+      email: null,
+      token: null
     },
 
     validation: {
-      token: Validate.isTokenValid,
       code: Validate.isCodeValid,
-      email: Validate.isEmailValid
+      email: Validate.isEmailValid,
+      token: Validate.isTokenValid
     }
   });
 });

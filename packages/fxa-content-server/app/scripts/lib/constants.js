@@ -5,6 +5,7 @@
 define([], function () {
   'use strict';
 
+  /*eslint-disable sorting/sort-object-props*/
   return {
     // All browsers have a max length of URI that they can handle.
     // IE9 has the shortest total length at 2083 bytes and 2048 characters
@@ -78,5 +79,6 @@ define([], function () {
 
     DEFAULT_XHR_TIMEOUT_MS: 2500
   };
+  /*eslint-enable sorting/sort-object-props*/
 });
 

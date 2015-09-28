@@ -30,9 +30,9 @@ function (chai, sinon, MarketingEmailClient, MarketingEmailErrors, p, xhr) {
       };
 
       client = new MarketingEmailClient({
-        xhr: xhrMock,
         baseUrl: BASE_URL,
-        preferencesUrl: PREFERENCES_URL
+        preferencesUrl: PREFERENCES_URL,
+        xhr: xhrMock
       });
     });
 

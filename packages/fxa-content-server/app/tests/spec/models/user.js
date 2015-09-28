@@ -52,26 +52,26 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
     });
 
     it('getAccountByUid', function () {
-      return user.setAccount({ uid: 'uid', email: 'email' })
+      return user.setAccount({ email: 'email', uid: 'uid' })
         .then(function () {
           assert.equal(user.getAccountByUid('uid').get('uid'), 'uid');
         });
     });
 
     it('getAccountByEmail', function () {
-      return user.setAccount({ uid: 'uid', email: 'email' })
+      return user.setAccount({ email: 'email', uid: 'uid' })
         .then(function () {
           assert.equal(user.getAccountByEmail('email').get('email'), 'email');
         });
     });
 
     it('getAccountByEmail gets the last added if there are multiple', function () {
-      return user.setAccount({ uid: 'uid', email: 'email' })
+      return user.setAccount({ email: 'email', uid: 'uid' })
         .then(function () {
-          return user.setAccount({ uid: 'uid2', email: 'email' });
+          return user.setAccount({ email: 'email', uid: 'uid2' });
         })
         .then(function () {
-          return user.setAccount({ uid: 'uid3', email: 'email' });
+          return user.setAccount({ email: 'email', uid: 'uid3' });
         })
         .then(function () {
           assert.equal(user.getAccountByEmail('email').get('uid'), 'uid3');
@@ -79,9 +79,11 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
     });
 
     it('getSignedInAccount', function () {
-      var account = user.initAccount({ uid: 'uid', email: 'email', grantedPermissions: {
-        'someClientId': ['profile:email']
-      }});
+      var account = user.initAccount({
+        email: 'email',
+        grantedPermissions: { 'someClientId': ['profile:email'] },
+        uid: 'uid'
+      });
       return user.setSignedInAccount(account)
         .then(function () {
           assert.equal(user.getSignedInAccount().get('uid'), account.get('uid'));
@@ -90,19 +92,21 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
     });
 
     it('getChooserAccount', function () {
-      return user.setSignedInAccount({ uid: 'uid2', email: 'email',
-        sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC
+      return user.setSignedInAccount({
+        email: 'email',
+        sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
+        uid: 'uid2'
       })
-        .then(function () {
-          return user.setSignedInAccount({ uid: 'uid', email: 'email' });
-        })
-        .then(function () {
-          assert.equal(user.getChooserAccount().get('uid'), 'uid2');
-        });
+      .then(function () {
+        return user.setSignedInAccount({ email: 'email', uid: 'uid' });
+      })
+      .then(function () {
+        assert.equal(user.getChooserAccount().get('uid'), 'uid2');
+      });
     });
 
     it('clearSignedInAccount', function () {
-      return user.setSignedInAccount({ uid: 'uid', email: 'email' })
+      return user.setSignedInAccount({ email: 'email', uid: 'uid' })
         .then(function () {
           user.clearSignedInAccount();
           assert.isTrue(user.getSignedInAccount().isDefault());
@@ -111,7 +115,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
     });
 
     it('removeAccount', function () {
-      var account = { uid: 'uid', email: 'email' };
+      var account = { email: 'email', uid: 'uid' };
       return user.setSignedInAccount(account)
         .then(function () {
           user.removeAccount(account);
@@ -121,9 +125,9 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
     });
 
     it('removeAllAccounts', function () {
-      return user.setAccount({ uid: 'uid', email: 'email' })
+      return user.setAccount({ email: 'email', uid: 'uid' })
         .then(function () {
-          return user.setAccount({ uid: 'uid2', email: 'email' });
+          return user.setAccount({ email: 'email', uid: 'uid2' });
         })
         .then(function () {
           user.removeAllAccounts();
@@ -133,11 +137,11 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
     });
 
     it('setAccount', function () {
-      return user.setAccount({ uid: 'uid', email: 'email' });
+      return user.setAccount({ email: 'email', uid: 'uid' });
     });
 
     it('setSignedInAccount', function () {
-      return user.setSignedInAccount({ uid: 'uid', email: 'email' })
+      return user.setSignedInAccount({ email: 'email', uid: 'uid' })
         .then(function () {
           assert.equal(user.getSignedInAccount().get('uid'), 'uid');
         });
@@ -146,7 +150,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
 
     describe('in memory caching of signed in account', function () {
       it('getSignedInAccount returns same instance from setSignedInAccount', function () {
-        var account = user.initAccount({ uid: 'uid', email: 'email'});
+        var account = user.initAccount({ email: 'email', uid: 'uid' });
         return user.setSignedInAccount(account)
           .then(function () {
             assert.strictEqual(user.getSignedInAccount(), account);
@@ -154,9 +158,9 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
       });
 
       it('account is not cached in memory if setAccount fails', function () {
-        var account = user.initAccount({ uid: 'uid', email: 'email'});
+        var account = user.initAccount({ email: 'email', uid: 'uid' });
 
-        return user.setSignedInAccount({ uid: 'foo', email: 'email'})
+        return user.setSignedInAccount({ email: 'email', uid: 'foo' })
           .then(function () {
             sinon.stub(user, 'setAccount', function () {
               return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
@@ -170,21 +174,21 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
       });
 
       it('getSignedInAccount returns same instance when called multiple times', function () {
-        return user.setSignedInAccount({ uid: 'uid', email: 'email'})
+        return user.setSignedInAccount({ email: 'email', uid: 'uid' })
           .then(function () {
             assert.strictEqual(user.getSignedInAccount(), user.getSignedInAccount());
           });
       });
 
       it('getSignedInAccount returns same instance as getChooserAccount', function () {
-        return user.setSignedInAccount({ uid: 'uid', email: 'email'})
+        return user.setSignedInAccount({ email: 'email', uid: 'uid' })
           .then(function () {
             assert.strictEqual(user.getSignedInAccount(), user.getChooserAccount());
           });
       });
 
       it('getSignedInAccount does not return previously cached account after clearSignedInAccount', function () {
-        var account = user.initAccount({ uid: 'uid', email: 'email'});
+        var account = user.initAccount({ email: 'email', uid: 'uid' });
         return user.setSignedInAccount(account)
           .then(function () {
             user.clearSignedInAccount();
@@ -193,7 +197,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
       });
 
       it('getSignedInAccount does not return previously cached account after removeAccount', function () {
-        var account = user.initAccount({ uid: 'uid', email: 'email'});
+        var account = user.initAccount({ email: 'email', uid: 'uid' });
         return user.setSignedInAccount(account)
           .then(function () {
             user.removeAccount(account);
@@ -202,7 +206,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
       });
 
       it('getSignedInAccount does not return previously cached account after removeAllAccounts', function () {
-        var account = user.initAccount({ uid: 'uid', email: 'email'});
+        var account = user.initAccount({ email: 'email', uid: 'uid' });
         return user.setSignedInAccount(account)
           .then(function () {
             user.removeAllAccounts();
@@ -212,11 +216,11 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
 
       it('getSignedInAccount does not return previously cached account after setSignedInAccountByUid with different account uid', function () {
         var uid = 'abc123';
-        var account = user.initAccount({ uid: 'uid', email: 'email'});
+        var account = user.initAccount({ email: 'email', uid: 'uid' });
 
         return user.setSignedInAccount(account)
           .then(function () {
-            return user.setAccount({ uid: uid, email: 'email' })
+            return user.setAccount({ email: 'email', uid: uid })
               .then(function () {
                 user.setSignedInAccountByUid(uid);
                 assert.isFalse(user.getSignedInAccount() === account);
@@ -225,7 +229,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
       });
 
       it('getSignedInAccount returns previously cached account after setSignedInAccountByUid with same account uid', function () {
-        var account = user.initAccount({ uid: 'uid', email: 'email'});
+        var account = user.initAccount({ email: 'email', uid: 'uid' });
 
         return user.setSignedInAccount(account)
           .then(function () {
@@ -238,9 +242,9 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
     it('setSignedInAccountByUid works if account is already cached', function () {
       var uid = 'abc123';
 
-      return user.setSignedInAccount({ uid: 'uid', email: 'email' })
+      return user.setSignedInAccount({ email: 'email', uid: 'uid' })
         .then(function () {
-          return user.setAccount({ uid: uid, email: 'email' })
+          return user.setAccount({ email: 'email', uid: uid })
             .then(function () {
               user.setSignedInAccountByUid(uid);
               assert.equal(user.getSignedInAccount().get('uid'), uid);
@@ -251,7 +255,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
     it('setSignedInAccountByUid does nothing if account is not cached', function () {
       var uid = 'abc123';
 
-      return user.setSignedInAccount({ uid: 'uid', email: 'email' })
+      return user.setSignedInAccount({ email: 'email', uid: 'uid' })
         .then(function () {
           user.setSignedInAccountByUid(uid);
           assert.equal(user.getSignedInAccount().get('uid'), 'uid');
@@ -380,7 +384,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
 
     it('signInAccount', function () {
       var relierMock = {};
-      var account = user.initAccount({ uid: 'uid', email: 'email' });
+      var account = user.initAccount({ email: 'email', uid: 'uid' });
       sinon.stub(account, 'signIn', function () {
         return p();
       });
@@ -402,8 +406,8 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
 
     it('signInAccount with existing account keeps data', function () {
       var relierMock = {};
-      var account = user.initAccount({ uid: 'uid', email: 'email', password: 'foo' });
-      var oldAccount = user.initAccount({ uid: 'uid2', email: 'email', grantedPermissions: { foo: ['bar'] } });
+      var account = user.initAccount({ email: 'email', password: 'foo', uid: 'uid' });
+      var oldAccount = user.initAccount({ email: 'email', grantedPermissions: { foo: ['bar'] }, uid: 'uid2' });
       sinon.stub(account, 'signIn', function () {
         return p();
       });
@@ -426,7 +430,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
 
     it('signUpAccount', function () {
       var relierMock = {};
-      var account = user.initAccount({ uid: 'uid', email: 'email' });
+      var account = user.initAccount({ email: 'email', uid: 'uid' });
       sinon.stub(account, 'signUp', function () {
         return p();
       });
@@ -448,7 +452,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
 
     it('changeAccountPassword changes the account password', function () {
       var relierMock = {};
-      var account = user.initAccount({ uid: 'uid', email: 'email' });
+      var account = user.initAccount({ email: 'email', uid: 'uid' });
 
       sinon.stub(account, 'changePassword', function () {
         return p();
@@ -474,7 +478,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
 
     it('completeAccountPasswordReset completes the password reset', function () {
       var relierMock = {};
-      var account = user.initAccount({ uid: 'uid', email: 'email' });
+      var account = user.initAccount({ email: 'email', uid: 'uid' });
 
       sinon.stub(account, 'completePasswordReset', function () {
         return p();

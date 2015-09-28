@@ -3,16 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var minOptions = {
-  removeCommentsFromCDATA: true,
+  collapseBooleanAttributes: true,
   collapseWhitespace: true,
   conservativeCollapse: true,
-  collapseBooleanAttributes: true,
+  ignoreCustomComments: [// ignore IE conditional comments, strip all others.
+    /\[if/],
   removeAttributeQuotes: true,
   removeComments: true,
-  ignoreCustomComments: [
-    // ignore IE conditional comments, strip all others.
-    /\[if/
-  ],
+  removeCommentsFromCDATA: true,
   removeEmptyAttributes: true,
   removeRedundantAttributes: true,
   removeScriptTypeAttributes: true,
@@ -22,23 +20,23 @@ var minOptions = {
 
 module.exports = function (grunt) {
   grunt.config('htmlmin', {
-    templates: {
-      options: minOptions,
-      files: [{
-        expand: true,
-        cwd: '<%= yeoman.page_template_dist %>',
-        src: '**/*.html',
-        dest: '<%= yeoman.page_template_dist %>'
-      }]
-    },
     appFiles: {
-      options: minOptions,
       files: [{
-        expand: true,
         cwd: '<%= yeoman.app %>',
-        src: '*.html',
-        dest: '<%= yeoman.dist %>'
-      }]
+        dest: '<%= yeoman.dist %>',
+        expand: true,
+        src: '*.html'
+      }],
+      options: minOptions
+    },
+    templates: {
+      files: [{
+        cwd: '<%= yeoman.page_template_dist %>',
+        dest: '<%= yeoman.page_template_dist %>',
+        expand: true,
+        src: '**/*.html'
+      }],
+      options: minOptions
     }
   });
 };

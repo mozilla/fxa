@@ -20,8 +20,8 @@ function (chai, sinon, OriginCheck, WindowMock) {
 
     function dispatchMessageEvent(target, message, origin) {
       target.trigger('message', {
-        origin: origin,
-        data: message
+        data: message,
+        origin: origin
       });
     }
 

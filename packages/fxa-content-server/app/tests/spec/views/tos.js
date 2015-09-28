@@ -35,8 +35,8 @@ function (chai, sinon, View, p, WindowMock) {
       windowMock.location.pathname = '/legal/terms';
 
       view = new View({
-        xhr: xhrMock,
-        window: windowMock
+        window: windowMock,
+        xhr: xhrMock
       });
     });
 

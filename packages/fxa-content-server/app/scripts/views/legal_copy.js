@@ -24,11 +24,9 @@ function (Cocktail, xhr, BaseView, BackMixin) {
     afterRender: function () {
       var self = this;
       return self._xhr.ajax({
-        url: self.copyUrl,
-        accepts: {
-          text: 'text/partial'
-        },
-        dataType: 'text'
+        accepts: { text: 'text/partial' },
+        dataType: 'text',
+        url: self.copyUrl
       })
       .then(function (template) {
         self.$('#legal-copy').html(template);

@@ -19,8 +19,8 @@ function (chai, $, Tooltip) {
       $('#container').html('<div class="input-row"><input id="focusMe" /></div>');
 
       tooltip = new Tooltip({
-        message: 'this is a tooltip',
-        invalidEl: '#focusMe'
+        invalidEl: '#focusMe',
+        message: 'this is a tooltip'
       });
     });
 
@@ -40,8 +40,8 @@ function (chai, $, Tooltip) {
 
       it('only one tooltip can be rendered at a time', function () {
         var tooltip2 = new Tooltip({
-          message: 'this is a second tooltip',
-          invalidEl: '#focusMe'
+          invalidEl: '#focusMe',
+          message: 'this is a second tooltip'
         });
 
         return tooltip.render()

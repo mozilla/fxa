@@ -43,10 +43,10 @@ function (chai, sinon, jQuerySimulate, RouterMock, CanvasMock, p, Cropper, Ephem
       relier = new Relier();
 
       view = new View({
-        router: routerMock,
         ephemeralMessages: ephemeralMessages,
-        user: user,
-        relier: relier
+        relier: relier,
+        router: routerMock,
+        user: user
       });
 
       view.isUserAuthorized = function () {
@@ -67,10 +67,10 @@ function (chai, sinon, jQuerySimulate, RouterMock, CanvasMock, p, Cropper, Ephem
       return view.render()
         .then(function () {
           var cropper = new Cropper({
-            src: pngSrc,
-            width: 1,
+            container: view.$('.cropper'),
             height: 1,
-            container: view.$('.cropper')
+            src: pngSrc,
+            width: 1
           });
 
           assert.equal(cropper.src, pngSrc);
@@ -82,10 +82,10 @@ function (chai, sinon, jQuerySimulate, RouterMock, CanvasMock, p, Cropper, Ephem
         .then(function () {
           var resize = sinon.spy(Cropper.prototype, 'resize');
           var cropper = new Cropper({
-            src: pngSrc,
-            width: 5000,
+            container: view.$('.cropper'),
             height: 7000,
-            container: view.$('.cropper')
+            src: pngSrc,
+            width: 5000
           });
           assert.isTrue(resize.calledOnce);
           assert.equal(cropper._originalHeight, 960);
@@ -108,15 +108,15 @@ function (chai, sinon, jQuerySimulate, RouterMock, CanvasMock, p, Cropper, Ephem
           .then(function () {
             cropper = new Cropper({
               container: view.$('.cropper'),
-              verticalGutter: 0,
-              horizontalGutter: 40,
               displayLength: 240,
               exportLength: 480,
+              horizontalGutter: 40,
               onRotate: rotateCb,
               onTranslate: translateCb,
               onZoomIn: zoomInCb,
               onZoomOut: zoomOutCb,
-              onZoomRangeChange: zoomRangeChangeCb
+              onZoomRangeChange: zoomRangeChangeCb,
+              verticalGutter: 0
             });
 
             cropper._wrapperHeight = 240;
@@ -173,7 +173,7 @@ function (chai, sinon, jQuerySimulate, RouterMock, CanvasMock, p, Cropper, Ephem
 
       it('sets position', function () {
         cropper.setImageSrc(pngSrc, 100, 50);
-        cropper.updatePosition({ top: 25, left: 25 });
+        cropper.updatePosition({ left: 25, top: 25 });
         assert.equal(cropper.top, 25);
         assert.equal(cropper.left, 25);
         assert.equal(cropper.yCenter, 145);
@@ -205,7 +205,7 @@ function (chai, sinon, jQuerySimulate, RouterMock, CanvasMock, p, Cropper, Ephem
       });
 
       it('resize', function () {
-        var img = { width: 100, height: 50, src: pngSrc };
+        var img = { height: 50, src: pngSrc, width: 100 };
         var resized = cropper.resize(img, 0.5);
         assert.equal(resized.src, 'data:image/jpeg');
         assert.equal(resized.width, 50);

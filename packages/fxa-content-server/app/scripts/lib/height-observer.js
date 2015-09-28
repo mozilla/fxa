@@ -42,8 +42,8 @@ define([
         self._observer = new MutationObserver(onMutation);
 
         self._observer.observe(self._targetEl, {
-          attributes: true,
           attributeFilter: ['class', 'style'],
+          attributes: true,
           characterData: true,
           childList: true,
           subtree: true

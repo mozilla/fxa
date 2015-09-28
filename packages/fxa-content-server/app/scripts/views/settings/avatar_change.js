@@ -23,9 +23,9 @@ function ($, Cocktail, FormView, AvatarMixin, ModalSettingsPanelMixin,
     className: 'avatar-change',
 
     events: {
+      'change #imageLoader': 'fileSet',
       'click #file': 'filePicker',
-      'click .remove': 'removeAvatar',
-      'change #imageLoader': 'fileSet'
+      'click .remove': 'removeAvatar'
     },
 
     initialize: function () {
@@ -60,7 +60,7 @@ function ($, Cocktail, FormView, AvatarMixin, ModalSettingsPanelMixin,
     afterRender: function () {
       // Wrapper hides the browser's file picker widget so we can use
       // our own
-      var wrapper = $('<div/>').css({ height: 0, width: 0, 'overflow': 'hidden' });
+      var wrapper = $('<div/>').css({ height: 0, 'overflow': 'hidden', width: 0 });
       this.$(':file').wrap(wrapper);
     },
 
@@ -118,10 +118,10 @@ function ($, Cocktail, FormView, AvatarMixin, ModalSettingsPanelMixin,
           ImageLoader.load(src)
             .then(function (img) {
               var cropImg = new CropperImage({
+                height: img.height,
                 src: src,
                 type: file.type,
-                width: img.width,
-                height: img.height
+                width: img.width
               });
               require(['draggable', 'touch-punch'], function () {
                 self.navigate('settings/avatar/crop', {

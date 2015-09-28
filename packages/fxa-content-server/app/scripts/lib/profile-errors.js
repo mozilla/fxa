@@ -12,6 +12,7 @@ define([
     return msg;
   };
 
+  /*eslint-disable sorting/sort-object-props*/
   var ERRORS = {
     UNAUTHORIZED: {
       errno: 100,
@@ -42,6 +43,7 @@ define([
       message: t('Unexpected error')
     }
   };
+  /*eslint-enable sorting/sort-object-props*/
 
   return _.extend({}, Errors, {
     ERRORS: ERRORS,

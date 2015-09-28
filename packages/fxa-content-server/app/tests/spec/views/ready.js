@@ -35,9 +35,9 @@ function (chai, sinon, View, Session, FxaClient, Able, p, SyncRelier,
         window: windowMock
       });
       broker = new OAuthBroker({
+        relier: relier,
         session: Session,
-        window: windowMock,
-        relier: relier
+        window: windowMock
       });
       fxaClient = new FxaClient();
 
@@ -47,12 +47,12 @@ function (chai, sinon, View, Session, FxaClient, Able, p, SyncRelier,
         logMarketingImpression: function () {}
       };
       view = new View({
-        window: windowMock,
-        fxaClient: fxaClient,
-        relier: relier,
-        broker: broker,
         able: able,
-        metrics: metrics
+        broker: broker,
+        fxaClient: fxaClient,
+        metrics: metrics,
+        relier: relier,
+        window: windowMock
       });
     }
 

@@ -262,19 +262,19 @@ function (
       var relier = this._relier;
       var screenInfo = new ScreenInfo(this._window);
       this._metrics = this._createMetrics({
-        lang: this._config.language,
-        service: relier.get('service'),
-        context: relier.get('context'),
-        entrypoint: relier.get('entrypoint'),
-        migration: relier.get('migration'),
+        able: this._able,
         campaign: relier.get('campaign'),
         clientHeight: screenInfo.clientHeight,
         clientWidth: screenInfo.clientWidth,
+        context: relier.get('context'),
         devicePixelRatio: screenInfo.devicePixelRatio,
+        entrypoint: relier.get('entrypoint'),
+        isSampledUser: isSampledUser,
+        lang: this._config.language,
+        migration: relier.get('migration'),
         screenHeight: screenInfo.screenHeight,
         screenWidth: screenInfo.screenWidth,
-        able: this._able,
-        isSampledUser: isSampledUser,
+        service: relier.get('service'),
         uniqueUserId: this._getUniqueUserId(),
         utmCampaign: relier.get('utmCampaign'),
         utmContent: relier.get('utmContent'),
@@ -330,9 +330,9 @@ function (
 
           var iframeChannel = new IframeChannel();
           iframeChannel.initialize({
-            window: self._window,
+            metrics: self._metrics,
             origin: parentOrigin,
-            metrics: self._metrics
+            window: self._window
           });
 
           self._iframeChannel = iframeChannel;
@@ -370,14 +370,14 @@ function (
           // Use the SyncRelier for sync verification so that
           // the service name is translated correctly.
           relier = new SyncRelier({
-            window: this._window,
-            translator: this._translator
+            translator: this._translator,
+            window: this._window
           });
         } else if (this._isOAuth()) {
           relier = new OAuthRelier({
-            window: this._window,
             oAuthClient: this._oAuthClient,
-            session: Session
+            session: Session,
+            window: this._window
           });
         } else {
           relier = new Relier({
@@ -392,8 +392,8 @@ function (
 
     initializeAssertionLibrary: function () {
       this._assertionLibrary = new Assertion({
-        fxaClient: this._fxaClient,
-        audience: this._config.oAuthUrl
+        audience: this._config.oAuthUrl,
+        fxaClient: this._fxaClient
       });
     },
 
@@ -407,51 +407,51 @@ function (
           });
         } else if (this._isFxFennecV1()) {
           this._authenticationBroker = new FxFennecV1AuthenticationBroker({
-            window: this._window,
-            relier: this._relier
+            relier: this._relier,
+            window: this._window
           });
         } else if (this._isFxDesktopV2()) {
           this._authenticationBroker = new FxDesktopV2AuthenticationBroker({
-            window: this._window,
-            relier: this._relier
+            relier: this._relier,
+            window: this._window
           });
         } else if (this._isFxDesktopV1()) {
           this._authenticationBroker = new FxDesktopV1AuthenticationBroker({
-            window: this._window,
-            relier: this._relier
+            relier: this._relier,
+            window: this._window
           });
         } else if (this._isFxiOSV1()) {
           this._authenticationBroker = new FxiOSV1AuthenticationBroker({
-            window: this._window,
-            relier: this._relier
+            relier: this._relier,
+            window: this._window
           });
         } else if (this._isWebChannel()) {
           this._authenticationBroker = new WebChannelAuthenticationBroker({
-            window: this._window,
-            relier: this._relier,
-            fxaClient: this._fxaClient,
             assertionLibrary: this._assertionLibrary,
+            fxaClient: this._fxaClient,
             oAuthClient: this._oAuthClient,
-            session: Session
+            relier: this._relier,
+            session: Session,
+            window: this._window
           });
         } else if (this._isIframe()) {
           this._authenticationBroker = new IframeAuthenticationBroker({
-            window: this._window,
-            relier: this._relier,
             assertionLibrary: this._assertionLibrary,
-            oAuthClient: this._oAuthClient,
-            session: Session,
             channel: this._iframeChannel,
-            metrics: this._metrics
+            metrics: this._metrics,
+            oAuthClient: this._oAuthClient,
+            relier: this._relier,
+            session: Session,
+            window: this._window
           });
         } else if (this._isOAuth()) {
           this._authenticationBroker = new RedirectAuthenticationBroker({
-            window: this._window,
-            relier: this._relier,
             assertionLibrary: this._assertionLibrary,
+            metrics: this._metrics,
             oAuthClient: this._oAuthClient,
+            relier: this._relier,
             session: Session,
-            metrics: this._metrics
+            window: this._window
           });
         } else {
           this._authenticationBroker = new BaseAuthenticationBroker({
@@ -501,8 +501,8 @@ function (
     initializeFxaClient: function () {
       if (! this._fxaClient) {
         this._fxaClient = new FxaClient({
-          interTabChannel: this._interTabChannel,
-          authServerUrl: this._config.authServerUrl
+          authServerUrl: this._config.authServerUrl,
+          interTabChannel: this._interTabChannel
         });
       }
     },
@@ -510,12 +510,12 @@ function (
     initializeUser: function () {
       if (! this._user) {
         this._user = new User({
-          oAuthClientId: this._config.oAuthClientId,
-          profileClient: this._profileClient,
-          oAuthClient: this._oAuthClient,
+          assertion: this._assertionLibrary,
           fxaClient: this._fxaClient,
           marketingEmailClient: this._marketingEmailClient,
-          assertion: this._assertionLibrary,
+          oAuthClient: this._oAuthClient,
+          oAuthClientId: this._config.oAuthClientId,
+          profileClient: this._profileClient,
           storage: this._getStorageInstance(),
           uniqueUserId: this._getUniqueUserId()
         });
@@ -528,8 +528,8 @@ function (
       notificationWebChannel.initialize();
 
       this._notifications = new Notifications({
-        tabChannel: this._interTabChannel,
         iframeChannel: this._iframeChannel,
+        tabChannel: this._interTabChannel,
         webChannel: notificationWebChannel
       });
     },
@@ -557,18 +557,18 @@ function (
     initializeRouter: function () {
       if (! this._router) {
         this._router = new Router({
-          metrics: this._metrics,
-          sentryMetrics: this._sentryMetrics,
-          language: this._config.language,
-          relier: this._relier,
+          able: this._able,
           broker: this._authenticationBroker,
-          fxaClient: this._fxaClient,
-          user: this._user,
-          interTabChannel: this._interTabChannel,
-          session: Session,
           formPrefill: this._formPrefill,
+          fxaClient: this._fxaClient,
+          interTabChannel: this._interTabChannel,
+          language: this._config.language,
+          metrics: this._metrics,
           notifications: this._notifications,
-          able: this._able
+          relier: this._relier,
+          sentryMetrics: this._sentryMetrics,
+          session: Session,
+          user: this._user
         });
       }
       this._window.router = this._router;
@@ -601,12 +601,12 @@ function (
       if (OAuthErrors.is(err, 'MISSING_PARAMETER') ||
           OAuthErrors.is(err, 'UNKNOWN_CLIENT')) {
         var queryString = Url.objToSearchString({
-          message: OAuthErrors.toInterpolatedMessage(err, this._translator),
-          errno: err.errno,
-          namespace: err.namespace,
+          client_id: err.client_id, //eslint-disable-line camelcase
           context: err.context,
-          param: err.param,
-          client_id: err.client_id //eslint-disable-line camelcase
+          errno: err.errno,
+          message: OAuthErrors.toInterpolatedMessage(err, this._translator),
+          namespace: err.namespace,
+          param: err.param
         });
 
         return Constants.BAD_REQUEST_PAGE + queryString;

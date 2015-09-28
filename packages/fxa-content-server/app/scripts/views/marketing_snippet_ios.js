@@ -64,11 +64,11 @@ define([
       var playStoreImage = this._playStoreImage();
 
       return {
-        showSignUpMarketing: shouldShowMarketing,
-        isIos: isIos,
         isAndroid: isAndroid,
-        isOther: (! isIos && ! isAndroid),
-        playStoreImage: playStoreImage
+        isIos: isIos,
+        isOther: ! isIos && ! isAndroid,
+        playStoreImage: playStoreImage,
+        showSignUpMarketing: shouldShowMarketing
       };
     },
 

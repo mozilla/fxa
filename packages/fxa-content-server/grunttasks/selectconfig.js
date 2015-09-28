@@ -8,9 +8,9 @@ module.exports = function (grunt) {
   var CONFIG_ROOT = path.join(__dirname, '..', 'server', 'config');
   var TARGET_TO_CONFIG = {
     app: path.join(CONFIG_ROOT, 'local.json'),
-    test: path.join(CONFIG_ROOT, 'local.json'),
     aws: path.join(CONFIG_ROOT, 'awsbox.json'),
-    dist: path.join(CONFIG_ROOT, 'production.json')
+    dist: path.join(CONFIG_ROOT, 'production.json'),
+    test: path.join(CONFIG_ROOT, 'local.json')
   };
 
   grunt.registerTask('selectconfig', 'Select configuration files for the running environment.', function (target) {

@@ -13,9 +13,9 @@ define([
   'use strict';
 
   var EVENTS = {
-    PROFILE_CHANGE: 'profile:change',
+    DELETE: 'fxaccounts:delete',
     LOGOUT: 'fxaccounts:logout',
-    DELETE: 'fxaccounts:delete'
+    PROFILE_CHANGE: 'profile:change'
   };
 
   var Notifications = Backbone.Model.extend({

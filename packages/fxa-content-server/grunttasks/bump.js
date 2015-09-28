@@ -7,17 +7,21 @@
 module.exports = function (grunt) {
   grunt.config('bump', {
     options: {
-      files: [ 'package.json' ],
       bumpVersion: true,
       commit: true,
+      commitFiles: [
+        'package.json',
+        'CHANGELOG.md',
+        'AUTHORS'
+      ],
       commitMessage: 'Release v%VERSION%',
-      commitFiles: ['package.json', 'CHANGELOG.md', 'AUTHORS'],
       createTag: true,
-      tagName: 'v%VERSION%',
-      tagMessage: 'Version %VERSION%',
+      files: ['package.json'],
+      gitDescribeOptions: '--tags --always --abrev=1 --dirty=-d',
       push: false,
       pushTo: 'origin',
-      gitDescribeOptions: '--tags --always --abrev=1 --dirty=-d'
+      tagMessage: 'Version %VERSION%',
+      tagName: 'v%VERSION%'
     }
   });
 };

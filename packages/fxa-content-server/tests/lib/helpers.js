@@ -29,8 +29,8 @@ define([], function () {
   }
 
   return {
-    createRandomHexString: createRandomHexString,
     createEmail: createEmail,
+    createRandomHexString: createRandomHexString,
     emailToUser: emailToUser
   };
 });

@@ -20,8 +20,8 @@ function (chai, EphemeralMessages, View, WindowMock) {
       ephemeralMessages = new EphemeralMessages();
       windowMock = new WindowMock();
       view = new View({
-        window: windowMock,
-        ephemeralMessages: ephemeralMessages
+        ephemeralMessages: ephemeralMessages,
+        window: windowMock
       });
     });
 

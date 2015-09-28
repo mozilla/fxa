@@ -65,21 +65,21 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
                     suggestedAccount.get('email') : this.getPrefillEmail();
 
       return {
-        serviceName: this.relier.get('serviceName'),
-        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
-        email: email,
-        suggestedAccount: hasSuggestedAccount,
         chooserAskForPassword: this._suggestedAccountAskPassword(suggestedAccount),
-        password: this._formPrefill.get('password'),
+        email: email,
         error: this.error,
         isMigration: this.isMigration(),
-        isSignupDisabled: this.isSignupDisabled()
+        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
+        isSignupDisabled: this.isSignupDisabled(),
+        password: this._formPrefill.get('password'),
+        serviceName: this.relier.get('serviceName'),
+        suggestedAccount: hasSuggestedAccount
       };
     },
 
     events: {
-      'click .use-logged-in': 'useLoggedInAccount',
-      'click .use-different': 'useDifferentAccount'
+      'click .use-different': 'useDifferentAccount',
+      'click .use-logged-in': 'useLoggedInAccount'
     },
 
     afterRender: function () {

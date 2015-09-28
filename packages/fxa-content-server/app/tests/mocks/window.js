@@ -29,21 +29,21 @@ function (Backbone, sinon, _, NullStorage) {
 
     this.translator = window.translator;
     this.location = {
+      host: window.location.host,
       href: window.location.href,
-      search: window.location.search,
-      pathname: '/',
       origin: window.location.origin,
-      host: window.location.host
+      pathname: '/',
+      search: window.location.search
     };
 
     this.document = {
       body: window.document.body,
-      referrer: window.document.referrer,
-      title: window.document.title,
       documentElement: {
         className: '',
         clientHeight: window.document.documentElement.clientHeight
-      }
+      },
+      referrer: window.document.referrer,
+      title: window.document.title
     };
 
     this.history = {
@@ -103,8 +103,8 @@ function (Backbone, sinon, _, NullStorage) {
 
       var listenerEvent = {
         data: {
-          type: msg,
-          content: event.detail.data
+          content: event.detail.data,
+          type: msg
         },
         origin: event.origin
       };

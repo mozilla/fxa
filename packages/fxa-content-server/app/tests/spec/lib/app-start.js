@@ -73,12 +73,12 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
     describe('startApp', function () {
       beforeEach(function () {
         appStart = new AppStart({
-          window: windowMock,
-          router: routerMock,
-          history: historyMock,
-          user: userMock,
           broker: brokerMock,
-          storage: Storage
+          history: historyMock,
+          router: routerMock,
+          storage: Storage,
+          user: userMock,
+          window: windowMock
         });
       });
 
@@ -179,10 +179,10 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
 
       beforeEach(function () {
         appStart = new AppStart({
-          window: windowMock,
-          router: routerMock,
           history: historyMock,
-          user: userMock
+          router: routerMock,
+          user: userMock,
+          window: windowMock
         });
         appStart._metrics = new Metrics();
       });
@@ -190,8 +190,8 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
       describe('firstrun', function () {
         it('returns a Firstrun broker if `service=sync&context=iframe`', function () {
           windowMock.location.search = Url.objToSearchString({
-            service: Constants.SYNC_SERVICE,
-            context: Constants.IFRAME_CONTEXT
+            context: Constants.IFRAME_CONTEXT,
+            service: Constants.SYNC_SERVICE
           });
 
           return testExpectedBrokerCreated(FirstrunBroker);
@@ -266,8 +266,8 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
         it('returns an Iframe broker if `context=iframe` is present and in an iframe', function () {
           windowMock.top = new WindowMock();
           windowMock.location.search = Url.objToSearchString({
-            context: Constants.IFRAME_CONTEXT,
-            client_id: 'client id' //eslint-disable-line camelcase
+            client_id: 'client id', //eslint-disable-line camelcase
+            context: Constants.IFRAME_CONTEXT
           });
 
           return testExpectedBrokerCreated(IframeBroker);
@@ -338,11 +338,11 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
     describe('initializeRelier', function () {
       beforeEach(function () {
         appStart = new AppStart({
-          window: windowMock,
-          router: routerMock,
+          broker: brokerMock,
           history: historyMock,
+          router: routerMock,
           user: userMock,
-          broker: brokerMock
+          window: windowMock
         });
       });
 
@@ -373,11 +373,11 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
     describe('initializeCloseButton', function () {
       beforeEach(function () {
         appStart = new AppStart({
-          window: windowMock,
-          router: routerMock,
+          broker: brokerMock,
           history: historyMock,
+          router: routerMock,
           user: userMock,
-          broker: brokerMock
+          window: windowMock
         });
       });
 
@@ -399,10 +399,10 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
     describe('initializeUser', function () {
       beforeEach(function () {
         appStart = new AppStart({
-          window: windowMock,
-          router: routerMock,
+          broker: brokerMock,
           history: historyMock,
-          broker: brokerMock
+          router: routerMock,
+          window: windowMock
         });
         appStart.useConfig({});
       });
@@ -421,10 +421,10 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
     describe('initializeErrorMetrics', function () {
       beforeEach(function () {
         appStart = new AppStart({
-          window: windowMock,
-          router: routerMock,
+          broker: brokerMock,
           history: historyMock,
-          broker: brokerMock
+          router: routerMock,
+          window: windowMock
         });
         appStart.useConfig({});
       });
@@ -450,10 +450,10 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
 
       it('creates error metrics', function () {
         var appStart = new AppStart({
-          window: windowMock,
-          router: routerMock,
+          broker: brokerMock,
           history: historyMock,
-          broker: brokerMock
+          router: routerMock,
+          window: windowMock
         });
         appStart.useConfig({ env: 'development' });
         appStart.initializeAble();
@@ -472,10 +472,10 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
     describe('_getUniqueUserId', function () {
       beforeEach(function () {
         appStart = new AppStart({
-          window: windowMock,
-          router: routerMock,
+          broker: brokerMock,
           history: historyMock,
-          broker: brokerMock
+          router: routerMock,
+          window: windowMock
         });
         appStart.useConfig({});
       });
@@ -488,9 +488,9 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
     describe('initializeRouter', function () {
       beforeEach(function () {
         appStart = new AppStart({
-          window: windowMock,
+          broker: brokerMock,
           history: historyMock,
-          broker: brokerMock
+          window: windowMock
         });
         appStart.useConfig({});
       });
@@ -521,9 +521,9 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
     describe('initializeIframeChannel', function () {
       beforeEach(function () {
         appStart = new AppStart({
-          window: windowMock,
+          broker: brokerMock,
           history: historyMock,
-          broker: brokerMock
+          window: windowMock
         });
       });
 
@@ -586,10 +586,10 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
         relierMock = new BaseRelier();
 
         appStart = new AppStart({
-          window: windowMock,
-          history: historyMock,
           broker: brokerMock,
-          relier: relierMock
+          history: historyMock,
+          relier: relierMock,
+          window: windowMock
         });
       });
 
@@ -647,10 +647,10 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
         var relierMock = new BaseRelier();
 
         appStart = new AppStart({
-          window: windowMock,
-          history: historyMock,
           broker: brokerMock,
-          relier: relierMock
+          history: historyMock,
+          relier: relierMock,
+          window: windowMock
         });
       });
 
@@ -678,11 +678,11 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
     describe('initializeHeightObserver', function () {
       beforeEach(function () {
         appStart = new AppStart({
-          window: windowMock,
-          router: routerMock,
+          broker: brokerMock,
           history: historyMock,
+          router: routerMock,
           user: userMock,
-          broker: brokerMock
+          window: windowMock
         });
       });
 
@@ -707,11 +707,11 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
     describe('allResourcesReady', function () {
       beforeEach(function () {
         appStart = new AppStart({
-          window: windowMock,
-          router: routerMock,
+          broker: brokerMock,
           history: historyMock,
+          router: routerMock,
           user: userMock,
-          broker: brokerMock
+          window: windowMock
         });
       });
 

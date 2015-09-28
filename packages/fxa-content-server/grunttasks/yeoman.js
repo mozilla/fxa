@@ -11,18 +11,18 @@ module.exports = function (grunt) {
     /*eslint-disable camelcase */
     app: 'app',
     dist: 'dist',
-    server: 'server',
-    page_template_src: TEMPLATE_ROOT + '/pages/src',
     page_template_dist: TEMPLATE_ROOT + '/pages/dist',
-    strings_src: 'app/bower_components/fxa-content-server-l10n/locale',
+    page_template_src: TEMPLATE_ROOT + '/pages/src',
+    pp_html_dest: TEMPLATE_ROOT + '/pages/dist/privacy',
+    pp_md_src: TOS_PP_REPO_ROOT + '/firefox_cloud_services_PrivacyNotice/',
+    server: 'server',
     strings_dist: 'locale',
+    strings_src: 'app/bower_components/fxa-content-server-l10n/locale',
     tests: 'tests',
     tmp: TEMP_DIR,
-    // Translated TOS/PP agreements.
-    tos_pp_repo_dest: TOS_PP_REPO_ROOT,
-    tos_md_src: TOS_PP_REPO_ROOT + '/firefox_cloud_services_ToS/',
     tos_html_dest: TEMPLATE_ROOT + '/pages/dist/terms',
-    pp_md_src: TOS_PP_REPO_ROOT + '/firefox_cloud_services_PrivacyNotice/',
-    pp_html_dest: TEMPLATE_ROOT + '/pages/dist/privacy'
+    tos_md_src: TOS_PP_REPO_ROOT + '/firefox_cloud_services_ToS/',
+    // Translated TOS/PP agreements.
+    tos_pp_repo_dest: TOS_PP_REPO_ROOT
   });
 };

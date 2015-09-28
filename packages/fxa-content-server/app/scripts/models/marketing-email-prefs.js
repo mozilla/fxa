@@ -19,9 +19,9 @@ define([
 
   var MarketingEmailPrefs = Backbone.Model.extend({
     defaults: {
+      newsletters: [],
       preferencesUrl: null,
-      token: null,
-      newsletters: []
+      token: null
     },
 
     initialize: function (options) {

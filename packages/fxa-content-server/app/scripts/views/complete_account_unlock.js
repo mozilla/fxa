@@ -65,9 +65,9 @@ function (FormView, CompleteAccountUnlockTemplate, AuthErrors,
     context: function () {
       var verificationInfo = this._verificationInfo;
       return {
+        error: this._error,
         isLinkDamaged: ! verificationInfo.isValid(),
-        isLinkExpired: verificationInfo.isExpired(),
-        error: this._error
+        isLinkExpired: verificationInfo.isExpired()
       };
     }
   });

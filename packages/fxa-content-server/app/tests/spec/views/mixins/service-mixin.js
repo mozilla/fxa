@@ -21,8 +21,8 @@ define([
   var assert = Chai.assert;
 
   var OAuthView = BaseView.extend({
-    template: TestTemplate,
-    className: 'oauth'
+    className: 'oauth',
+    template: TestTemplate
   });
   _.extend(OAuthView.prototype, ServiceMixin);
 
@@ -37,14 +37,14 @@ define([
       relier = new OAuthRelier();
 
       broker = new NullBroker({
-        session: Session,
-        relier: relier
+        relier: relier,
+        session: Session
       });
 
       view = new OAuthView({
-        window: windowMock,
+        broker: broker,
         relier: relier,
-        broker: broker
+        window: windowMock
       });
 
       return view.render();

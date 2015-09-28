@@ -14,13 +14,13 @@ define([
 
   return VerificationInfo.extend({
     defaults: {
-      uid: null,
-      code: null
+      code: null,
+      uid: null
     },
 
     validation: {
-      uid: Validate.isUidValid,
-      code: Validate.isCodeValid
+      code: Validate.isCodeValid,
+      uid: Validate.isUidValid
     }
   });
 });

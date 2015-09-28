@@ -84,13 +84,13 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
       relier.set({
         clientId: CLIENT_ID,
         redirectUri: BASE_REDIRECT_URL,
-        state: STATE,
         scope: SCOPE,
-        serviceName: CLIENT_NAME
+        serviceName: CLIENT_NAME,
+        state: STATE
       });
       broker = new OAuthBroker({
-        session: Session,
         relier: relier,
+        session: Session,
         window: windowMock
       });
 
@@ -114,19 +114,19 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
       notifications = new Notifications();
 
       view = new View({
-        router: router,
-        metrics: metrics,
-        window: windowMock,
-        fxaClient: fxaClient,
-        relier: relier,
-        broker: broker,
-        user: user,
-        assertionLibrary: assertionLibrary,
-        oAuthClient: oAuthClient,
-        screenName: 'oauth.signup',
-        formPrefill: formPrefill,
         able: able,
-        notifications: notifications
+        assertionLibrary: assertionLibrary,
+        broker: broker,
+        formPrefill: formPrefill,
+        fxaClient: fxaClient,
+        metrics: metrics,
+        notifications: notifications,
+        oAuthClient: oAuthClient,
+        relier: relier,
+        router: router,
+        screenName: 'oauth.signup',
+        user: user,
+        window: windowMock
       });
 
       return view.render()
@@ -154,7 +154,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
 
     describe('submit without a preVerifyToken', function () {
       it('redirects to confirm on success', function () {
-        fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
+        fillOutSignUp(email, 'password', { context: view, year: nowYear - 14 });
 
         sinon.stub(user, 'signUpAccount', function (account) {
           return p(account);
@@ -182,7 +182,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
 
       it('redirects users to permissions page if relier needs permissions', function () {
         var password = 'password';
-        fillOutSignUp(email, password, { year: nowYear - 14, context: view });
+        fillOutSignUp(email, password, { context: view, year: nowYear - 14 });
 
         sinon.spy(user, 'initAccount');
         sinon.spy(broker, 'beforeSignIn');
@@ -225,7 +225,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
           return false;
         });
 
-        fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
+        fillOutSignUp(email, 'password', { context: view, year: nowYear - 14 });
 
         return view.submit()
           .then(function () {
@@ -251,7 +251,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
         });
 
         var password = 'password';
-        fillOutSignUp(email, password, { year: nowYear - 14, context: view });
+        fillOutSignUp(email, password, { context: view, year: nowYear - 14 });
         return view.submit()
           .then(function () {
             assert.equal(router.page, 'confirm');

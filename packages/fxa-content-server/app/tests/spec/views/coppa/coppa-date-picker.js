@@ -51,9 +51,9 @@ function (chai, $, moment, sinon, View, FormPrefill, AuthErrors, Metrics, TestHe
     function createView() {
 
       view = new View({
-        screenName: 'signup',
         formPrefill: formPrefill,
-        metrics: metrics
+        metrics: metrics,
+        screenName: 'signup'
       });
     }
 
@@ -188,72 +188,72 @@ function (chai, $, moment, sinon, View, FormPrefill, AuthErrors, Metrics, TestHe
       it('returns true if user is 14 year old', function () {
         var ageToCheck = moment().subtract(14, 'years');
         assert.isTrue(view.isUserOldEnough({
-          year: ageToCheck.year(),
+          date: ageToCheck.date(),
           month: ageToCheck.month(),
-          date: ageToCheck.date()
+          year: ageToCheck.year()
         }));
       });
 
       it('returns true if user is 13 years + 1 days old', function () {
         var ageToCheck = moment().subtract(13, 'years').subtract(1, 'days');
         assert.isTrue(view.isUserOldEnough({
-          year: ageToCheck.year(),
+          date: ageToCheck.date(),
           month: ageToCheck.month(),
-          date: ageToCheck.date()
+          year: ageToCheck.year()
         }));
       });
 
       it('returns true if user is 13 years and 29 days old', function () {
         var ageToCheck = moment().subtract(13, 'years').subtract(29, 'days');
         assert.isTrue(view.isUserOldEnough({
-          year: ageToCheck.year(),
+          date: ageToCheck.date(),
           month: ageToCheck.month(),
-          date: ageToCheck.date()
+          year: ageToCheck.year()
         }));
       });
 
       it('returns true if user is 13 years and 1 month old', function () {
         var ageToCheck = moment().subtract(13, 'years').subtract(1, 'months');
         assert.isTrue(view.isUserOldEnough({
-          year: ageToCheck.year(),
+          date: ageToCheck.date(),
           month: ageToCheck.month(),
-          date: ageToCheck.date()
+          year: ageToCheck.year()
         }));
       });
 
       it('returns true if user is 13 years old today - HOORAY!', function () {
         var ageToCheck = moment().subtract(13, 'years');
         assert.isTrue(view.isUserOldEnough({
-          year: ageToCheck.year(),
+          date: ageToCheck.date(),
           month: ageToCheck.month(),
-          date: ageToCheck.date()
+          year: ageToCheck.year()
         }));
       });
 
       it ('returns false if user is 13 years - 1 day old - wait until tomorrow', function () {
         var ageToCheck = moment().subtract(13, 'years').add(1, 'days');
         assert.isFalse(view.isUserOldEnough({
-          year: ageToCheck.year(),
+          date: ageToCheck.date(),
           month: ageToCheck.month(),
-          date: ageToCheck.date()
+          year: ageToCheck.year()
         }));
       });
 
       it('returns false if user is 13 years - 1 month old - wait another month', function () {
         var ageToCheck = moment().subtract(13, 'years').add(1, 'months');
         assert.isFalse(view.isUserOldEnough({
-          year: ageToCheck.year(),
+          date: ageToCheck.date(),
           month: ageToCheck.month(),
-          date: ageToCheck.date()
+          year: ageToCheck.year()
         }));
       });
 
       it('returns false if user is 12 years old - wait another year', function () {
         var ageToCheck = moment().subtract(12, 'years');
         assert.isFalse(view.isUserOldEnough({
-          year: ageToCheck.year(),
+          date: ageToCheck.date(),
           month: ageToCheck.month(),
-          date: ageToCheck.date()
+          year: ageToCheck.year()
         }));
       });
     });

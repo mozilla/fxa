@@ -52,14 +52,14 @@ function (chai, $, sinon, AuthErrors, FxaClient, Metrics, p,
       metrics = new Metrics();
 
       view = new View({
-        router: routerMock,
-        fxaClient: fxaClient,
-        relier: relier,
-        user: user,
         broker: broker,
         ephemeralMessages: ephemeralMessages,
+        fxaClient: fxaClient,
         metrics: metrics,
-        screenName: 'change-password'
+        relier: relier,
+        router: routerMock,
+        screenName: 'change-password',
+        user: user
       });
     });
 

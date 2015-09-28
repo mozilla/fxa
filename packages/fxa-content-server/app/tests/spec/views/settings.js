@@ -37,8 +37,8 @@ function (chai, $, sinon, Cocktail, View, BaseView, SubPanels,
   var assert = chai.assert;
 
   var SettingsPanelView = BaseView.extend({
-    template: TestTemplate,
-    className: 'panel'
+    className: 'panel',
+    template: TestTemplate
   });
 
   Cocktail.mixin(SettingsPanelView, SettingsPanelMixin);
@@ -64,18 +64,18 @@ function (chai, $, sinon, Cocktail, View, BaseView, SubPanels,
 
     function createView () {
       view = new View({
-        router: routerMock,
+        able: able,
         formPrefill: formPrefill,
         fxaClient: fxaClient,
-        relier: relier,
-        user: user,
         metrics: metrics,
-        able: able,
-        subView: initialSubView,
         notifications: notifications,
         panelViews: panelViews,
+        relier: relier,
+        router: routerMock,
+        screenName: 'settings',
         subPanels: subPanels,
-        screenName: 'settings'
+        subView: initialSubView,
+        user: user
       });
     }
 
@@ -95,9 +95,9 @@ function (chai, $, sinon, Cocktail, View, BaseView, SubPanels,
       formPrefill = new FormPrefill();
 
       account = user.initAccount({
-        uid: UID,
         email: 'a@a.com',
         sessionToken: 'abc123',
+        uid: UID,
         verified: true
       });
       sinon.stub(account, 'fetchProfile', function () {
@@ -265,7 +265,7 @@ function (chai, $, sinon, Cocktail, View, BaseView, SubPanels,
 
       describe('with a profile image set', function () {
         beforeEach(function () {
-          var image = new ProfileImage({ url: 'url', id: 'foo', img: new Image() });
+          var image = new ProfileImage({ id: 'foo', img: new Image(), url: 'url' });
           sinon.stub(account, 'fetchCurrentProfileImage', function () {
             return p(image);
           });
@@ -485,9 +485,9 @@ function (chai, $, sinon, Cocktail, View, BaseView, SubPanels,
           assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
           assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.communication-prefs-link.visible.true'));
           assert.isTrue(SubPanels.prototype.initialize.calledWith({
-            router: routerMock,
+            initialSubView: SettingsPanelView,
             panelViews: panelViews,
-            initialSubView: SettingsPanelView
+            router: routerMock
           }));
         });
 
@@ -501,9 +501,9 @@ function (chai, $, sinon, Cocktail, View, BaseView, SubPanels,
           assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
           assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.communication-prefs-link.visible.false'));
           assert.isTrue(SubPanels.prototype.initialize.calledWith({
-            router: routerMock,
-            panelViews: [ SettingsPanelView ],
-            initialSubView: SettingsPanelView
+            initialSubView: SettingsPanelView,
+            panelViews: [SettingsPanelView],
+            router: routerMock
           }));
         });
 
@@ -514,9 +514,9 @@ function (chai, $, sinon, Cocktail, View, BaseView, SubPanels,
           assert.isFalse(able.choose.called);
           assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.communication-prefs-link.visible.false'));
           assert.isTrue(SubPanels.prototype.initialize.calledWith({
-            router: routerMock,
-            panelViews: [ SettingsPanelView ],
-            initialSubView: SettingsPanelView
+            initialSubView: SettingsPanelView,
+            panelViews: [SettingsPanelView],
+            router: routerMock
           }));
         });
       });

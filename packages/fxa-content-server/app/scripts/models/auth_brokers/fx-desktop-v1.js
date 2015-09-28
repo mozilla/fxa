@@ -43,7 +43,6 @@ define([
       var channel = new FxDesktopChannel();
 
       channel.initialize({
-        window: this.window,
         // Fx Desktop browser will send messages with an origin of the string
         // `null`. These messages are trusted by the channel by default.
         //
@@ -51,7 +50,8 @@ define([
         // content server itself. Accept messages from the content
         // server to handle these cases.
         // 2) Fx 18 (& FxOS 1.*) do not support location.origin. Build the origin from location.href
-        origin: this.window.location.origin || Url.getOrigin(this.window.location.href)
+        origin: this.window.location.origin || Url.getOrigin(this.window.location.href),
+        window: this.window
       });
 
       channel.on('error', this.trigger.bind(this, 'error'));

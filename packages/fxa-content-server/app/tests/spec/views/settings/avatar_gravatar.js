@@ -47,17 +47,17 @@ function (chai, $, sinon, View, RouterMock, ProfileMock, TestHelpers, User,
       metrics = new Metrics();
 
       view = new View({
-        user: user,
-        router: routerMock,
-        relier: relier,
         broker: broker,
         metrics: metrics,
-        screenName: 'settings.avatar.gravatar'
+        relier: relier,
+        router: routerMock,
+        screenName: 'settings.avatar.gravatar',
+        user: user
       });
 
       account = user.initAccount({
-        email: email,
         accessToken: 'abc123',
+        email: email,
         verified: true
       });
     });

@@ -52,11 +52,11 @@ function (chai, $, ui, sinon, jQuerySimulate, View, RouterMock, ProfileMock, Use
       });
 
       view = new View({
-        user: user,
+        broker: broker,
         ephemeralMessages: ephemeralMessages,
-        router: routerMock,
         relier: relier,
-        broker: broker
+        router: routerMock,
+        user: user
       });
     });
 
@@ -76,8 +76,8 @@ function (chai, $, ui, sinon, jQuerySimulate, View, RouterMock, ProfileMock, Use
           return p(true);
         };
         account = user.initAccount({
-          email: 'a@a.com',
           accessToken: 'abc123',
+          email: 'a@a.com',
           verified: true
         });
         sinon.stub(view, 'getSignedInAccount', function () {
@@ -97,10 +97,10 @@ function (chai, $, ui, sinon, jQuerySimulate, View, RouterMock, ProfileMock, Use
 
         beforeEach(function () {
           var cropImg = new CropperImage({
+            height: 100,
             src: pngSrc,
             type: 'image/png',
-            width: 100,
-            height: 100
+            width: 100
           });
 
           profileClientMock = new ProfileMock();
@@ -109,12 +109,12 @@ function (chai, $, ui, sinon, jQuerySimulate, View, RouterMock, ProfileMock, Use
           });
 
           view = new View({
-            router: routerMock,
             ephemeralMessages: ephemeralMessages,
-            user: user,
-            relier: relier,
             metrics: metrics,
-            screenName: 'settings.avatar.crop'
+            relier: relier,
+            router: routerMock,
+            screenName: 'settings.avatar.crop',
+            user: user
           });
           view.isUserAuthorized = function () {
             return p(true);
@@ -144,8 +144,8 @@ function (chai, $, ui, sinon, jQuerySimulate, View, RouterMock, ProfileMock, Use
         it('submits an image', function () {
           sinon.stub(profileClientMock, 'uploadAvatar', function () {
             return p({
-              url: 'test',
-              id: 'foo'
+              id: 'foo',
+              url: 'test'
             });
           });
 

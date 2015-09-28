@@ -60,18 +60,18 @@ function (p, Cocktail, FormView, AvatarMixin, ModalSettingsPanelMixin,
       try {
         this.cropper = new Cropper({
           container: this.$('.cropper'),
-          src: src,
-          width: width,
-          height: height,
           displayLength: Constants.PROFILE_IMAGE_DISPLAY_SIZE,
           exportLength: Constants.PROFILE_IMAGE_EXPORT_SIZE,
-          verticalGutter: VERTICAL_GUTTER,
+          height: height,
           horizontalGutter: HORIZONTAL_GUTTER,
           onRotate: this._onRotate.bind(this),
           onTranslate: this._onTranslate.bind(this),
           onZoomIn: this._onZoomIn.bind(this),
           onZoomOut: this._onZoomOut.bind(this),
-          onZoomRangeChange: this._onZoomRangeChange.bind(this)
+          onZoomRangeChange: this._onZoomRangeChange.bind(this),
+          src: src,
+          verticalGutter: VERTICAL_GUTTER,
+          width: width
         });
       } catch (e) {
         // settings_common functional tests visit this page directly so draggable

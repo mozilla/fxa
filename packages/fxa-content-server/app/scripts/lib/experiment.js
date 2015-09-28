@@ -60,14 +60,14 @@ define([
 
   _.extend(ExperimentInterface.prototype, {}, {
     /**
-     * All available independent experiments
-     */
-    _allExperiments: DEFAULT_EXPERIMENTS,
-
-    /**
      * All active experiments
      */
     _activeExperiments: {},
+
+    /**
+     * All available independent experiments
+     */
+    _allExperiments: DEFAULT_EXPERIMENTS,
 
     /**
      * Is the user in an experiment?
@@ -102,9 +102,9 @@ define([
     chooseExperiments: function () {
       if (this.initialized) {
         var choice = this.able.choose(CHOOSE_ABLE_EXPERIMENT, {
+          forceExperiment: this.forceExperiment,
           isMetricsEnabledValue: this.metrics.isCollectionEnabled(),
-          uniqueUserId: this.user.get('uniqueUserId'),
-          forceExperiment: this.forceExperiment
+          uniqueUserId: this.user.get('uniqueUserId')
         });
 
         var ExperimentConstructor = this._allExperiments[choice];

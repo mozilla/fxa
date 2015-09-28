@@ -70,8 +70,8 @@ module.exports = function (grunt) {
         ])
         .then(function (temps) {
           legalTemplates[lang] = {
-            terms: temps[0],
-            privacy: temps[1]
+            privacy: temps[1],
+            terms: temps[0]
           };
         });
 
@@ -107,13 +107,13 @@ module.exports = function (grunt) {
         var privacy = legalTemplates[context.lang].privacy || legalTemplates[defaultLegalLang].privacy;
         var template = Handlebars.compile(contents);
         var out = template({
+          fontSupportDisabled: context.fontSupportDisabled,
           l10n: context,
-          locale: context.locale,
           lang: context.lang,
           lang_dir: context.lang_dir, //eslint-disable-line camelcase
-          fontSupportDisabled: context.fontSupportDisabled,
-          terms: terms,
-          privacy: privacy
+          locale: context.locale,
+          privacy: privacy,
+          terms: terms
         });
         return out;
       }
