@@ -10,10 +10,11 @@ var uaParser = require('ua-parser');
 var STATSD_PREFIX = 'fxa.content.';
 var TIMING_POSTFIX = '.time';
 var TIMED_EVENTS = [
-  'signin.success',
-  'signup.success',
+  'loaded',
   'oauth.signin.success',
-  'oauth.signup.success'
+  'oauth.signup.success',
+  'signin.success',
+  'signup.success'
 ];
 
 /**

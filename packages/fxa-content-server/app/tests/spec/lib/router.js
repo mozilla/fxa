@@ -260,6 +260,100 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, 
       });
     });
 
+    describe('showView', function () {
+      var view;
+
+      beforeEach(function () {
+        view = new SignUpView({
+          metrics: metrics,
+          window: windowMock,
+          router: router,
+          user: user,
+          // ensure there is no cross talk with other tests.
+          ephemeralMessages: new EphemeralMessages(),
+          relier: relier,
+          broker: broker,
+          screenName: 'signup',
+          formPrefill: formPrefill,
+          able: able
+        });
+      });
+
+      afterEach(function () {
+        view.destroy();
+        view = null;
+      });
+
+      it('does not append the view to the DOM if the view says it is not shown', function () {
+        var origRender = view.render;
+        sinon.stub(view, 'render', function () {
+          // synthesize the original render occuring but force it
+          // to say it should not be displayed.
+          return origRender.call(view)
+            .then(function () {
+              return p(false);
+            });
+        });
+
+        return router.showView(view)
+          .then(function () {
+            assert.equal($('#fxa-signup-header').length, 0);
+          });
+      });
+
+      it('only logs a screen that has children once', function () {
+        view = new ReadyView({
+          metrics: metrics,
+          window: windowMock,
+          router: router,
+          user: user,
+          // ensure there is no cross talk with other tests.
+          ephemeralMessages: new EphemeralMessages(),
+          relier: relier,
+          broker: broker,
+          type: 'sign_up',
+          screenName: 'signup-complete',
+          able: new Able()
+        });
+
+        return router.showView(view)
+          .then(function () {
+            assert.equal(metrics.getFilteredData().events.length, 2);
+            assert.isTrue(TestHelpers.isEventLogged(metrics,
+                'screen.signup-complete'));
+            assert.isTrue(TestHelpers.isEventLogged(metrics,
+                'loaded'));
+          });
+      });
+
+      it('logs view refreshes', function () {
+        return router.showView(view)
+          .then(function () {
+            assert.isFalse(TestHelpers.isEventLogged(metrics,
+                'signup.refresh'));
+            return router.showView(view);
+          })
+          .then(function () {
+            assert.isTrue(TestHelpers.isEventLogged(metrics,
+                'signup.refresh'));
+          });
+      });
+
+
+      it('sets document title', function () {
+        sinon.stub(view, 'titleFromView', function () {
+          return 'Foo';
+        });
+        sinon.spy(router, 'setDocumentTitle');
+
+        return router.showView(view)
+          .then(function () {
+            assert.isTrue(view.titleFromView.called);
+            assert.isTrue(router.setDocumentTitle.calledWith('Foo'));
+          });
+      });
+    });
+
     describe('showView, then another showView', function () {
       var signInView, signUpView;
 
@@ -288,6 +382,8 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, 
       });
 
       afterEach(function () {
+        signInView.destroy();
+        signUpView.destroy();
         signInView = signUpView = null;
       });
 
@@ -328,132 +424,60 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, 
           });
       });
 
-      it('calls broker.afterLoaded only after initial view', function () {
-        sinon.stub(broker, 'afterLoaded', function () {
-        });
+      it('calls `_afterFirstViewHasRendered` only after initial view', function () {
+        sinon.spy(router, '_afterFirstViewHasRendered');
 
         return router.showView(signInView)
             .then(function () {
               assert.ok($('#fxa-signin-header').length);
-              assert.isTrue(broker.afterLoaded.called);
+              assert.isTrue(router._afterFirstViewHasRendered.calledOnce);
 
               return router.showView(signUpView);
             })
             .then(function () {
               assert.ok($('#fxa-signup-header').length);
-              assert.isTrue(broker.afterLoaded.calledOnce);
+              assert.isTrue(router._afterFirstViewHasRendered.calledOnce);
             });
       });
 
-      it('does not call broker.afterLoaded if the initial view render fails', function () {
-        var boom = new Error('boom');
-        sinon.stub(broker, 'afterLoaded', function () { });
-        sinon.stub(signInView, 'navigate', function () { });
+      it('does not call `_afterFirstViewHasRendered` if the initial view render fails', function () {
+        sinon.spy(router, '_afterFirstViewHasRendered');
 
         sinon.stub(signInView, 'afterRender', function () {
-          throw boom;
+          throw new Error('boom');
         });
 
         return router.showView(signInView)
             .fail(function () {
-              assert.isFalse(broker.afterLoaded.called);
+              assert.isFalse(router._afterFirstViewHasRendered.called);
 
               return router.showView(signUpView);
             })
             .then(function () {
-              assert.isTrue(broker.afterLoaded.calledOnce);
+              assert.isTrue(router._afterFirstViewHasRendered.calledOnce);
             });
       });
     });
 
-    describe('showView', function () {
-      var view;
+    describe('_afterFirstViewHasRendered', function () {
+      it('notifies the broker', function () {
+        sinon.spy(broker, 'afterLoaded');
 
-      beforeEach(function () {
-        view = new SignUpView({
-          metrics: metrics,
-          window: windowMock,
-          router: router,
-          user: user,
-          // ensure there is no cross talk with other tests.
-          ephemeralMessages: new EphemeralMessages(),
-          relier: relier,
-          broker: broker,
-          screenName: 'signup',
-          formPrefill: formPrefill,
-          able: able
-        });
+        router._afterFirstViewHasRendered();
+
+        assert.isTrue(broker.afterLoaded.called);
       });
 
-      afterEach(function () {
-        view = null;
+      it('logs a `loaded` event', function () {
+        router._afterFirstViewHasRendered();
+
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'loaded'));
       });
 
-      it('does not append the view to the DOM if the view says it is not shown', function () {
-        var origRender = view.render;
-        sinon.stub(view, 'render', function () {
-          // synthesize the original render occuring but force it
-          // to say it should not be displayed.
-          return origRender.call(view)
-            .then(function () {
-              return p(false);
-            });
-        });
+      it('sets `canGoBack`', function () {
+        router._afterFirstViewHasRendered();
 
-        return router.showView(view)
-          .then(function () {
-            assert.equal($('#fxa-signup-header').length, 0);
-          });
-      });
-
-      it('only logs a screen that has children once', function () {
-        view = new ReadyView({
-          metrics: metrics,
-          window: windowMock,
-          router: router,
-          user: user,
-          // ensure there is no cross talk with other tests.
-          ephemeralMessages: new EphemeralMessages(),
-          relier: relier,
-          broker: broker,
-          type: 'sign_up',
-          screenName: 'signup-complete',
-          able: new Able()
-        });
-
-        return router.showView(view)
-          .then(function () {
-            assert.equal(metrics.getFilteredData().events.length, 1);
-            assert.isTrue(TestHelpers.isEventLogged(metrics,
-                'screen.signup-complete'));
-          });
-      });
-
-      it('logs view refreshes', function () {
-        return router.showView(view)
-          .then(function () {
-            assert.isFalse(TestHelpers.isEventLogged(metrics,
-                'signup.refresh'));
-            return router.showView(view);
-          })
-          .then(function () {
-            assert.isTrue(TestHelpers.isEventLogged(metrics,
-                'signup.refresh'));
-          });
-      });
-
-
-      it('sets document title', function () {
-        sinon.stub(view, 'titleFromView', function () {
-          return 'Foo';
-        });
-        sinon.spy(router, 'setDocumentTitle');
-
-        return router.showView(view)
-          .then(function () {
-            assert.isTrue(view.titleFromView.called);
-            assert.isTrue(router.setDocumentTitle.calledWith('Foo'));
-          });
+        assert.isTrue(router.storage.get('canGoBack'));
       });
     });
 
@@ -571,10 +595,9 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, 
       });
 
       it('creates and shows a view', function () {
-        return router.createAndShowView(SignUpView, { canGoBack: false })
+        return router.createAndShowView(SignUpView)
           .then(function () {
             assert.equal($('#fxa-signup-header').length, 1);
-            assert.isTrue(router.storage.get('canGoBack'));
           });
       });
 

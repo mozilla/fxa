@@ -178,8 +178,6 @@ function (
       this.environment = options.environment || new Environment(this.window);
       this.storage = Storage.factory('sessionStorage', this.window);
 
-      this._firstViewHasLoaded = false;
-
       this.watchAnchors();
     },
 
@@ -319,22 +317,34 @@ function (
 
           // if the first view errors, the fail branch of the promise will be
           // followed. The view will navigate to `unexpected_error`, which will
-          // eventually find its way here. `_firstViewHasLoaded` will still be
+          // eventually find its way here. `_hasFirstViewRendered` will still be
           // false, so broker.afterLoaded will be called. See
           // https://github.com/mozilla/fxa-content-server/pull/2147#issuecomment-76155999
-          if (! self._firstViewHasLoaded) {
-            // afterLoaded lets the RP know when the first screen has been
-            // loaded. It does not expect a response, so no error handler
-            // is attached and the promise is not returned.
-            self.broker.afterLoaded();
-
-            // back is enabled after the first view is rendered or
-            // if the user re-starts the app.
-            self.storage.set('canGoBack', true);
-            self._firstViewHasLoaded = true;
+          if (! self._hasFirstViewRendered) {
+            self._afterFirstViewHasRendered();
           }
           self._checkForRefresh();
         });
+    },
+
+    _hasFirstViewRendered: false,
+    _afterFirstViewHasRendered: function () {
+      var self = this;
+      self._hasFirstViewRendered = true;
+
+      // afterLoaded lets the relier know when the first screen has been
+      // loaded. It does not expect a response, so no error handler
+      // is attached and the promise is not returned.
+      self.broker.afterLoaded();
+
+      // `loaded` is used to determine how long until the
+      // first screen is rendered and the user can interact
+      // with FxA. Similar to window.onload, but FxA specific.
+      self.metrics.logEvent('loaded');
+
+      // back is enabled after the first view is rendered or
+      // if the user re-starts the app.
+      self.storage.set('canGoBack', true);
     },
 
     renderSubView: function (viewToShow) {

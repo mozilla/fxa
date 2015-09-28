@@ -81,9 +81,7 @@ an OAuth relier, this will be the relier's `client_id`. Set to `none` if the use
 
 The event stream is a log of events and the time they occurred while the user is interacting with Firefox Accounts. The event stream includes which screens are displayed, any success or error messages displayed, any JavaScript errors that occurr, as well as any other information the developers or metrics team feel is important.
 
-### Events per screen
-
-#### Generic events
+### Generic events
 * tooltip.generic-dismissed - a dismissable tooltip is dismissed
 * error.&lt;resource&gt;.require-on-demand.999 - resource dependency fetch had an unexpected error.
 * error.&lt;resource&gt;.require-on-demand.1000 - resource dependency fetch has timed out.
@@ -91,8 +89,12 @@ The event stream is a log of events and the time they occurred while the user is
 * error.&lt;resource&gt;.require-on-demand.1002 - resource dependency had a script error.
 * error.&lt;unexpected_origin&gt;.auth.1027 - a postMessage message was received from an unexpected origin.
 * error.&lt;image_url&gt;.profile.997 - a profile image could not load.
+* loaded - logged after the first screen is rendered.
 * &lt;screen_name&gt;.submit - A submit event has occurred and all of the form's input elements are valid.
 * &lt;screen_name&gt;.refresh - The aforementioned screen was refreshed.
+
+### Events per screen
+
 
 #### account_unlock_complete
 
@@ -267,7 +269,7 @@ The event stream is a log of events and the time they occurred while the user is
 mailcheck
 
 * experiment.mailcheck.treatment.enrolled
-* experiment.mailcheck.treatment.triggered 
+* experiment.mailcheck.treatment.triggered
 * experiment.mailcheck.treatment.closed
 * experiment.mailcheck.treatment.clicked
 * experiment.mailcheck.treatment.corrected
@@ -296,7 +298,7 @@ coppaView
 * experiment.coppaView.control.verified
 * experiment.coppaView.control.triggered.verified
 
-openGmail 
+openGmail
 
 * experiment.openGmail.treatment.enrolled
 * experiment.openGmail.treatment.triggered

@@ -1,0 +1,1 @@
+fxa.content.signup.success.time:1930|ms|#campaign:none,context:web,broker:fx-desktop-v1,entrypoint:none,migration:none,lang:en,service:none,agent_ua_name:Chrome 42.0.2311,agent_ua_family:Chrome,agent_ua_version:42.0.2311,agent_ua_version_major:42,agent_os_name:Mac OS X 10.10.3,agent_os_version:10.10.3,agent_os_family:Mac OS X,agent_os_major:10,agent_device:Other
