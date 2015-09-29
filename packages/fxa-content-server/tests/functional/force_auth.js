@@ -6,12 +6,12 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, nodeXMLHttpRequest, FxaClient,
+  TestHelpers, FunctionalHelpers) {
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var FORCE_AUTH_URL = config.fxaContentRoot + 'force_auth';
@@ -21,12 +21,8 @@ define([
   var client;
 
   function openFxa(context, email) {
-    return context.remote
-      .setFindTimeout(intern.config.pageLoadTimeout)
-      .get(require.toUrl(FORCE_AUTH_URL + '?email=' + email))
-
-      .findByCssSelector('#fxa-force-auth-header')
-      .end();
+    var url = FORCE_AUTH_URL + '?email=' + encodeURIComponent(email);
+    return FunctionalHelpers.openPage(context, url, '#fxa-force-auth-header');
   }
 
   function attemptSignIn(context) {
@@ -62,7 +58,7 @@ define([
         });
     },
 
-    'sign in via force-auth': function () {
+    'sign in via force_auth': function () {
       var self = this;
       return openFxa(self, email)
 

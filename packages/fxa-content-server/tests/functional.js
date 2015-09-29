@@ -6,6 +6,7 @@ define([
   './functional/sign_in',
   './functional/sign_in_cached',
   './functional/sync_sign_in',
+  './functional/sync_force_auth',
   './functional/sign_up',
   './functional/sign_up_coppa_input',
   './functional/complete_sign_up',

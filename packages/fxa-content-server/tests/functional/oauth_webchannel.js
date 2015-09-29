@@ -11,8 +11,9 @@ define([
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
+  'tests/functional/lib/webchannel-helpers',
 ], function (intern, registerSuite, assert, require, nodeXMLHttpRequest,
-        FxaClient, TestHelpers, FunctionalHelpers) {
+  FxaClient, TestHelpers, FunctionalHelpers, WebChannelHelpers) {
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
 
@@ -31,29 +32,11 @@ define([
    * finish OAuth flows
    */
 
-  function testIsBrowserNotifiedOfLogin(context, options) {
-    options = options || {};
-    return FunctionalHelpers.testIsBrowserNotified(context, 'oauth_complete', function (data) {
-      assert.ok(data.redirect);
-      assert.ok(data.code);
-      assert.ok(data.state);
-      // None of these flows should produce encryption keys.
-      assert.notOk(data.keys);
-      assert.equal(data.closeWindow, options.shouldCloseTab);
-    });
-  }
-
-  function openFxaFromRp(context, page, additionalQueryParams) {
-    var queryParams = '&webChannelId=test';
-    for (var key in additionalQueryParams) {
-      queryParams += ('&' + key + '=' + additionalQueryParams[key]);
-    }
-    return FunctionalHelpers.openFxaFromRp(context, page, queryParams);
-  }
-
+  var testIsBrowserNotifiedOfLogin = WebChannelHelpers.testIsBrowserNotifiedOfLogin;
+  var openFxaFromRp = WebChannelHelpers.openFxaFromRp;
 
   registerSuite({
-    name: 'oauth web channel',
+    name: 'oauth webchannel',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();

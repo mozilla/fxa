@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * This suite tests the WebChannel functionality for delivering encryption keys
+ * in the OAuth signin and signup cases. It uses a CustomEvent "WebChannelMessageToChrome"
+ * to finish OAuth flows
+ */
+
 define([
   'intern',
   'intern!object',
@@ -11,9 +17,10 @@ define([
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
-  'tests/functional/lib/fx-desktop'
+  'tests/functional/lib/fx-desktop',
+  'tests/functional/lib/webchannel-helpers'
 ], function (intern, registerSuite, assert, require, nodeXMLHttpRequest,
-        FxaClient, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
+        FxaClient, TestHelpers, FunctionalHelpers, FxDesktopHelpers, WebChannelHelpers) {
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var SYNC_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
@@ -29,37 +36,16 @@ define([
 
   var listenForSyncCommands = FxDesktopHelpers.listenForFxaCommands;
   var testIsBrowserNotifiedOfSyncLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
+  var testIsBrowserNotifiedOfLogin = WebChannelHelpers.testIsBrowserNotifiedOfLoginWithKeys;
 
-
-  /**
-   * This suite tests the WebChannel functionality for delivering encryption keys
-   * in the OAuth signin and signup cases. It uses a CustomEvent "WebChannelMessageToChrome"
-   * to finish OAuth flows
-   */
-
-  function testIsBrowserNotifiedOfLogin(context, options) {
-    options = options || {};
-    return FunctionalHelpers.testIsBrowserNotified(context, 'oauth_complete', function (data) {
-      assert.ok(data.redirect);
-      assert.ok(data.code);
-      assert.ok(data.state);
-      // All of these flows should produce encryption keys.
-      assert.ok(data.keys);
-      assert.equal(data.closeWindow, options.shouldCloseTab);
+  function openFxaFromRpAndRequestKeys(context, page) {
+    return WebChannelHelpers.openFxaFromRp(context, page, {
+      keys: true
     });
   }
 
-  function openFxaFromRpAndRequestKeys(context, page, additionalQueryParams) {
-    var queryParams = '&webChannelId=test&keys=true';
-    for (var key in additionalQueryParams) {
-      queryParams += ('&' + key + '=' + additionalQueryParams[key]);
-    }
-    return FunctionalHelpers.openFxaFromRp(context, page, queryParams);
-  }
-
-
   registerSuite({
-    name: 'oauth web channel keys',
+    name: 'oauth webchannel keys',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
