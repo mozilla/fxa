@@ -13,23 +13,21 @@ define([
 ], function (AuthErrors, FxDesktopV1AuthenticationBroker) {
   'use strict';
 
+  var proto = FxDesktopV1AuthenticationBroker.prototype;
+
   var FxiOSAuthenticationBroker = FxDesktopV1AuthenticationBroker.extend({
     fetch: function () {
       var self = this;
-      return FxDesktopV1AuthenticationBroker.prototype.fetch.call(self)
+
+      return proto.fetch.call(self)
         .then(function () {
           if (self.getSearchParam('exclude_signup') === '1') {
-            self._isSignupDisabled = true;
+            self.unsetCapability('signup');
+            self.SIGNUP_DISABLED_REASON =
+                AuthErrors.toError('IOS_SIGNUP_DISABLED');
           }
         });
-    },
-
-    _isSignupDisabled: false,
-    isSignupDisabled: function () {
-      return this._isSignupDisabled;
-    },
-
-    SIGNUP_DISABLED_REASON: AuthErrors.toError('IOS_SIGNUP_DISABLED')
+    }
   });
 
   return FxiOSAuthenticationBroker;

@@ -8,15 +8,16 @@
  */
 
 define([
-  'underscore',
   'backbone',
   'lib/promise',
-  'models/mixins/search-param'
-], function (_, Backbone, p, SearchParamMixin) {
+  'models/mixins/search-param',
+  'underscore',
+], function (Backbone, p, SearchParamMixin, _) {
   'use strict';
 
   var BaseAuthenticationBroker = Backbone.Model.extend({
     type: 'base',
+
     initialize: function (options) {
       options = options || {};
 
@@ -24,6 +25,7 @@ define([
       this.window = options.window || window;
 
       this._behaviors = _.extend({}, this.defaultBehaviors);
+      this._capabilities = new Backbone.Model(this.defaultCapabilities);
     },
 
     /**
@@ -272,13 +274,53 @@ define([
     },
 
     /**
-     * Is FxA account signup disabled?
+     * The default list of capabilities. Set to a capability's value to
+     * a truthy value to indicate whether it's supported.
      *
+     * @property defaultCapabilities
+     */
+    defaultCapabilities: {
+      signup: true
+    },
+
+    /**
+     * Check if a capability is supported.
+     *
+     * @param {string} capabilityName
      * @return {boolean}
      */
-    isSignupDisabled: function () {
-      return false;
+    hasCapability: function (capabilityName) {
+      return this._capabilities.has(capabilityName);
     },
+
+    /**
+     * Set whether a capability is supported
+     *
+     * @param {string} capabilityName
+     * @param {variant} capabilityValue
+     */
+    setCapability: function (capabilityName, capabilityValue) {
+      this._capabilities.set(capabilityName, capabilityValue);
+    },
+
+    /**
+     * Remove support for a capability
+     *
+     * @param {string} capabilityName
+     */
+    unsetCapability: function (capabilityName) {
+      this._capabilities.unset(capabilityName);
+    },
+
+    /**
+     * Get the capability value
+     *
+     * @param {string} capabilityName
+     * @return {variant}
+     */
+    getCapability: function (capabilityName) {
+      return this._capabilities.get(capabilityName);
+    }
   });
 
   _.extend(BaseAuthenticationBroker.prototype, SearchParamMixin);

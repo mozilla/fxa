@@ -392,9 +392,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
       });
 
       it('show a link to to signup page if user enters unknown account and signup is enabled', function () {
-        sinon.stub(broker, 'isSignupDisabled', function () {
-          return false;
-        });
+        broker.setCapability('signup', true);
 
         sinon.stub(view.fxaClient, 'signIn', function () {
           return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
@@ -407,9 +405,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
       });
 
       it('do not show a link to signup page if user enters unknown account and signup is disabled', function () {
-        sinon.stub(broker, 'isSignupDisabled', function () {
-          return true;
-        });
+        broker.setCapability('signup', false);
 
         sinon.stub(view.fxaClient, 'signIn', function () {
           return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
