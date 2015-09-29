@@ -4,6 +4,6 @@
     "apiUrl": "https://basket.mozilla.org/news"
   },
   "log": {
-    "format": "heka",
+    "format": "heka"
   }
 }
