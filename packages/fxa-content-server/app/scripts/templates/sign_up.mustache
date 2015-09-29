@@ -47,13 +47,13 @@
 
       {{#isEmailOptInVisible}}
       <div class="input-row marketing-email-optin-row">
-          <label><input id="marketing-email-optin" type="checkbox" class="marketing-email-optin"> {{#t}}Get the latest news about Mozilla and Firefox.{{/t}}</label>
+          <label class="fxa-checkbox"><input id="marketing-email-optin" type="checkbox" class="marketing-email-optin"><span>{{#t}}Get the latest news about Mozilla and Firefox.{{/t}}</span></label>
       </div>
       {{/isEmailOptInVisible}}
 
       {{#isSyncTop}}
         <div class="input-row customize-sync-row">
-          <label><input id="customize-sync" type="checkbox" class="customize-sync customize-sync-top" {{#isCustomizeSyncChecked}}checked="checked"{{/isCustomizeSyncChecked}}> {{#t}}Choose what to sync{{/t}}</label>
+          <label class="fxa-checkbox"><input id="customize-sync" type="checkbox" class="customize-sync customize-sync-top" {{#isCustomizeSyncChecked}}checked="checked"{{/isCustomizeSyncChecked}}> <span class="fxa-checkbox__label">{{#t}}Choose what to sync{{/t}}</span></label>
         </div>
       {{/isSyncTop}}
 
@@ -63,7 +63,10 @@
 
       {{#isSync}}
         <div class="input-row customize-sync-row">
-          <label><input id="customize-sync" type="checkbox" class="customize-sync  customize-sync-bottom" {{#isCustomizeSyncChecked}}checked="checked"{{/isCustomizeSyncChecked}}> {{#t}}Choose what to sync{{/t}}</label>
+          <label class="fxa-checkbox">
+            <input id="customize-sync" type="checkbox" class="customize-sync customize-sync-bottom" {{#isCustomizeSyncChecked}}checked="checked"{{/isCustomizeSyncChecked}}>
+            <span>{{#t}}Choose what to sync{{/t}}</span>
+          </label>
         </div>
       {{/isSync}}
     </form>
