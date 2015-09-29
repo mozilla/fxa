@@ -15,6 +15,12 @@ The auth-mailer also includes a restify API to send emails, but the auth server 
 * npm
 * postfix
 
+## Changing Templates
+
+If you are changing or adding templates then you need to update `.html` and `.txt` templates.
+Use the `/partials` directory to make changes to the HTML templates, then run `grunt templates` to regenerate the template.
+This saves the HTML template into `/templates`. Then make changes to the `.txt` template in the `/templates` directory.
+
 ## L10N
 
 After updating a string in one of the templates in `./templates` you'll need to extract the strings using [this script](https://raw.githubusercontent.com/mozilla/fxa-content-server-l10n/master/scripts/extract_strings.sh):

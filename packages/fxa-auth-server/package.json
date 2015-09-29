@@ -4,7 +4,8 @@
   "description": "Library to send out verification emails in the fxa-auth-server which renders emails from a template (and handles localization).",
   "main": "index.js",
   "scripts": {
-    "test": "tap test/local"
+    "test": "tap test/local",
+    "prepush": "grunt templates && git status -s | (! grep 'M templates/')"
   },
   "author": "Mozilla (https://mozilla.org/)",
   "repository": {
@@ -18,6 +19,7 @@
     "bluebird": "2.9.34",
     "bunyan": "1.0.0",
     "fxa-content-server-l10n": "git://github.com/mozilla/fxa-content-server-l10n.git",
+    "grunt-nunjucks-2-html": "vitkarpov/grunt-nunjucks-2-html#1900f91a756b2eaf900b20",
     "handlebars": "1.3.0",
     "i18n-abide": "0.0.23",
     "jed": "0.5.4",
@@ -32,6 +34,7 @@
     "grunt-cli": "0.1.13",
     "grunt-contrib-copy": "0.5.0",
     "grunt-eslint": "15.0.0",
+    "husky": "0.10.1",
     "jsxgettext-recursive": "0.0.5",
     "load-grunt-tasks": "3.2.0",
     "mailparser": "0.4.4",
