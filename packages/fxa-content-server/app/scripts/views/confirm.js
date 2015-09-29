@@ -85,7 +85,9 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
     afterRender: function () {
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
+    },
 
+    afterVisible: function () {
       var self = this;
       return self.broker.persist()
         .then(function () {
@@ -96,7 +98,7 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
             return;
           }
 
-          self._waitForConfirmation()
+          return self._waitForConfirmation()
             .then(function () {
               self.logScreenEvent('verification.success');
               self.notify('verification.success');

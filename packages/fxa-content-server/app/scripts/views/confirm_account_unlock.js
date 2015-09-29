@@ -78,9 +78,6 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
     },
 
     afterVisible: function () {
-      var graphic = this.$el.find('.graphic');
-      graphic.addClass('pulse');
-
       var self = this;
       return self.broker.persist()
         .then(function () {

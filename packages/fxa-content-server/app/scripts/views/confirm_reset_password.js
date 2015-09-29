@@ -55,16 +55,14 @@ function (Cocktail, ConfirmView, BaseView, Template, p, Session, AuthErrors,
       }
     },
 
-    afterRender: function () {
-      var bounceGraphic = this.$el.find('.graphic');
-      bounceGraphic.addClass('pulse');
+    afterVisible: function () {
       var self = this;
 
       this.transformLinks();
 
       return self.broker.persist()
         .then(function () {
-          self._waitForConfirmation()
+          return self._waitForConfirmation()
             .then(function (sessionInfo) {
               self.logScreenEvent('verification.success');
               // The original window should finish the flow if the user
