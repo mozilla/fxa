@@ -194,12 +194,12 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
         });
     }),
 
-    SUCCESS_MESSAGE_DELAY_MS: 3000, // show success message for 3 seconds
+    SUCCESS_MESSAGE_DELAY_MS: 5000, // show success message for 5 seconds
 
     displaySuccess: function () {
       var self = this;
-      clearTimeout(self._successTimeout);
-      self._successTimeout = setTimeout(function () {
+      self.clearTimeout(self._successTimeout);
+      self._successTimeout = self.setTimeout(function () {
         self.hideSuccess();
       }, self.SUCCESS_MESSAGE_DELAY_MS);
       return BaseView.prototype.displaySuccess.apply(this, arguments);
@@ -207,13 +207,12 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
 
     displaySuccessUnsafe: function () {
       var self = this;
-      clearTimeout(self._successTimeout);
-      self._successTimeout = setTimeout(function () {
+      self.clearTimeout(self._successTimeout);
+      self._successTimeout = self.setTimeout(function () {
         self.hideSuccess();
       }, self.SUCCESS_MESSAGE_DELAY_MS);
       return BaseView.prototype.displaySuccessUnsafe.apply(this, arguments);
     }
-
   });
 
   Cocktail.mixin(
