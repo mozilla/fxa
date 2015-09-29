@@ -25,7 +25,9 @@ define([
         assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
 
         var body = JSON.parse(res.body);
-        assert.deepEqual(Object.keys(body), ['commit', 'l10n', 'source', 'tosPp', 'version' ]);
+        /*eslint-disable sorting/sort-object-props*/
+        assert.deepEqual(Object.keys(body), ['commit', 'version', 'l10n', 'tosPp', 'source' ]);
+        /*eslint-disable sorting/sort-object-props*/
         assert.equal(body.version, pkg.version, 'package version');
         assert.ok(body.source && body.source !== 'unknown', 'source repository');
         assert.ok(body.l10n && body.l10n !== 'unknown', 'l10n version');
