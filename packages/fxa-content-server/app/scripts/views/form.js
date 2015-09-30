@@ -438,17 +438,17 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
         invalidEl.removeClass('invalid');
         self.trigger('validation_error_removed', el);
       }).render().then(function () {
+        try {
+          invalidEl.addClass('invalid').get(0).focus();
+        } catch (e) {
+          // IE can blow up if the element is not visible.
+        }
+
         // used for testing
         self.trigger('validation_error', el, message);
       });
 
       this.trackSubview(tooltip);
-
-      try {
-        invalidEl.addClass('invalid').get(0).focus();
-      } catch (e) {
-        // IE can blow up if the element is not visible.
-      }
 
       return message;
     },

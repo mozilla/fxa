@@ -352,9 +352,12 @@ function (chai, sinon, $, p, FormView, Template, Constants, Metrics, AuthErrors,
         view.showValidationError('#focusMe', err);
       });
 
-      it('adds invalid class to the invalid element', function () {
+      it('adds invalid class to the invalid element', function (done) {
         view.showValidationError('#focusMe', 'this is an error');
-        assert.isTrue(view.$('#focusMe').hasClass('invalid'));
+        setTimeout(function () {
+          assert.isTrue(view.$('#focusMe').hasClass('invalid'));
+          done();
+        }, 50);
       });
 
       it('invalid class is removed as soon as element is valid again', function (done) {
