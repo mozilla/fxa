@@ -363,7 +363,7 @@ function (chai, sinon, $, p, FormView, Template, Constants, Metrics, AuthErrors,
 
           // add a value, causing the validation error to be removed.
           $('#focusMe').val('heyya!');
-          view.$('#focusMe').trigger('keydown');
+          view.$('#focusMe').trigger('keyup');
         });
 
         view.on('validation_error_removed', function () {

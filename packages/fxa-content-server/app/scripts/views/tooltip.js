@@ -27,6 +27,14 @@ define([
       this.dismissible  = options.dismissible || false;
       this.extraClassNames = options.extraClassNames || '';
 
+      // Event codes for the keyboard keys.
+      this.DOWN_ARROW_KEY_CODE = 40;
+      this.ENTER_KEY_CODE = 13;
+      this.LEFT_ARROW_KEY_CODE = 37;
+      this.RIGHT_ARROW_KEY_CODE = 39;
+      this.TAB_KEY_CODE = 9;
+      this.UP_ARROW_KEY_CODE = 38;
+
       // the tooltip has to be attached to an element.
       // By default, the tooltip is displayed just above the
       // element. If the element has the 'tooltip-below' class, the
@@ -65,7 +73,7 @@ define([
       // ditch the events we manually added to reduce interference
       // between tooltips.
       var invalidEl = this.invalidEl;
-      invalidEl.off('keydown change', this._destroy);
+      invalidEl.off('keyup change', this._destroy);
       invalidEl.find('option').off('click', this._destroy);
     },
 
@@ -97,24 +105,25 @@ define([
       this._destroy = _.bind(this.destroy, this, true);
       // keyboard input for input/select elements.
       invalidEl.one('change', this._destroy);
-      // destroy the tooltip if a key different than tab is pressed
-      var destroyIfNotTab = function (e) {
-        if (e.which !== 9) {
+
+      // destroy the tooltip only if it's value has changed.
+      var originalValue = $(invalidEl).val().trim();
+      var closeIfInvalidElementValueHasChanged = function () {
+        var currValue = $(invalidEl).val().trim();
+        if (currValue !== originalValue) {
           this._destroy();
         } else {
-          // the key is tab: ignore the event and reattach the handler again for
-          // future events
-          invalidEl.one('keydown', destroyIfNotTab);
+          invalidEl.one('keyup', closeIfInvalidElementValueHasChanged);
         }
       }.bind(this);
 
-      invalidEl.one('keydown', destroyIfNotTab);
+      invalidEl.one('keyup', closeIfInvalidElementValueHasChanged);
       // handle selecting an option with the mouse for select elements
       invalidEl.find('option').one('click', this._destroy);
 
       // destroy when dismissed
       this.$el.find('.dismiss').one('click keypress', function (e) {
-        if (e.type === 'click' || e.which === 13) {
+        if (e.type === 'click' || e.which === this.ENTER_KEY_CODE) {
           var metricsEvent = 'tooltip.' + this.type + '-dismissed';
           this.logEvent(metricsEvent);
           this._destroy();
