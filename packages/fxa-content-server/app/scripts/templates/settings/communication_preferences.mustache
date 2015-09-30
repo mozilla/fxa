@@ -1,4 +1,4 @@
-<div id="communication-preferences" class="settings-unit">
+<div id="communication-preferences" class="settings-unit{{#isPanelOpen}} open{{/isPanelOpen}}">
   <div class="settings-unit-stub">
     <header class="settings-unit-summary">
       <h2 class="settings-unit-title">{{#t}}Communication preferences{{/t}}</h2>
@@ -12,7 +12,11 @@
     <div class="error visible nudge">
       {{error}}
     </div>
-    <button class="settings-button secondary cancel">{{#t}}Cancel{{/t}}</button>
+    <form novalidate>
+      <div class="button-row">
+        <button class="settings-button secondary cancel unpaired">{{#t}}Cancel{{/t}}</button>
+      </div>
+    </form>
   {{/error}}
   {{^error}}
     <div class="error"></div>

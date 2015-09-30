@@ -146,6 +146,10 @@ body.settings #main-content.panel, body.settings #main-content.card {
 
     &:last-child {
       float: right;
+
+      &.unpaired {
+        float: none;
+      }
     }
   }
 
@@ -206,6 +210,10 @@ body.settings #main-content.panel, body.settings #main-content.card {
     &.disabled {
       background: $button-background-disabled-color;
     }
+  }
+
+  &.unpaired {
+    width: 100%;
   }
 }
 
