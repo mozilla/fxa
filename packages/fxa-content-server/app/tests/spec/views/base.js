@@ -13,6 +13,7 @@ define([
   'lib/metrics',
   'lib/auth-errors',
   'lib/fxa-client',
+  'models/auth_brokers/base',
   'models/user',
   'stache!templates/test_template',
   '../../mocks/dom-event',
@@ -21,8 +22,8 @@ define([
   '../../lib/helpers'
 ],
 function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
-          AuthErrors, FxaClient, User, Template, DOMEventMock, RouterMock,
-          WindowMock, TestHelpers) {
+  AuthErrors, FxaClient, BaseBroker, User, Template, DOMEventMock, RouterMock,
+  WindowMock, TestHelpers) {
   'use strict';
 
   var requiresFocus = TestHelpers.requiresFocus;
@@ -31,6 +32,7 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
   var assert = chai.assert;
 
   describe('views/base', function () {
+    var broker;
     var view;
     var router;
     var windowMock;
@@ -54,14 +56,16 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
         'the success message': 'a translated success message'
       });
 
-      router = new RouterMock();
-      windowMock = new WindowMock();
+      broker = new BaseBroker();
       ephemeralMessages = new EphemeralMessages();
-      metrics = new Metrics();
       fxaClient = new FxaClient();
+      metrics = new Metrics();
+      router = new RouterMock();
       user = new User();
+      windowMock = new WindowMock();
 
       view = new View({
+        broker: broker,
         ephemeralMessages: ephemeralMessages,
         fxaClient: fxaClient,
         metrics: metrics,
@@ -632,6 +636,34 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
           })
           .then(function () {
             assert.equal(view.context.callCount, 3);
+          });
+      });
+    });
+
+    describe('invokeBrokerMethod', function () {
+      it('invokes the broker method, passing along any extra parameters, invokes the value returned from the broker if a function', function () {
+        var behavior = sinon.spy();
+
+        sinon.stub(broker, 'afterSignIn', function () {
+          return behavior;
+        });
+
+        var extraData = { key: 'value' };
+        return view.invokeBrokerMethod('afterSignIn', extraData)
+          .then(function () {
+            assert.isTrue(broker.afterSignIn.calledWith(extraData));
+            assert.isTrue(behavior.calledWith(view));
+          });
+      });
+
+      it('does not explode if the value returned from the broker is not a function', function () {
+        sinon.stub(broker, 'afterSignIn', function () {
+          return {};
+        });
+
+        return view.invokeBrokerMethod('afterSignIn')
+          .then(function () {
+            assert.isTrue(broker.afterSignIn.called);
           });
       });
     });

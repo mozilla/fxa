@@ -523,7 +523,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
         }
       }
 
-      if (typeof err === 'string') {
+      if (_.isString(err)) {
         err = new Error(err);
       }
 
@@ -627,15 +627,15 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
      */
     invokeHandler: function (handler/*, args...*/) {
       // convert a name to a function.
-      if (typeof handler === 'string') {
+      if (_.isString(handler)) {
         handler = this[handler];
 
-        if (typeof handler !== 'function') {
+        if (! _.isFunction(handler)) {
           throw new Error(handler + ' is an invalid function name');
         }
       }
 
-      if (typeof handler === 'function') {
+      if (_.isFunction(handler)) {
         var args = [].slice.call(arguments, 1);
 
         // If an `arguments` type object was passed in as the first item,
@@ -668,6 +668,40 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
      */
     showSubView: function (/* SubView */) {
       // Implement in subclasses
+    },
+
+    /**
+     * Invoke a method on the broker, handling any returned behaviors
+     *
+     * @method invokeBrokerMethod
+     * @param {string} methodName
+     * @param ...
+     * @return {promise}
+     */
+    invokeBrokerMethod: function (methodName/*, ...*/) {
+      var args = [].slice.call(arguments, 1);
+
+      var self = this;
+      var broker = self.broker;
+
+      return p(broker[methodName].apply(broker, args))
+        .then(self.invokeBehavior.bind(self));
+    },
+
+    /**
+     * Invoke a behavior returned by an auth broker.
+     *
+     * @method invokeBehavior
+     * @param {function} behavior
+     * @return {variant} behavior's return value if behavior is a function,
+     *         otherwise return the behavior.
+     */
+    invokeBehavior: function (behavior) {
+      if (_.isFunction(behavior)) {
+        return behavior(this);
+      }
+
+      return behavior;
     }
   });
 

@@ -201,7 +201,7 @@ define([
             assert.equal(args[1].verified, true);
             assert.isUndefined(args[1].sessionTokenContext);
 
-            assert.isFalse(result.halt);
+            assert.isUndefined(result.halt);
           });
       });
     });
@@ -211,7 +211,7 @@ define([
         return broker.beforeSignUpConfirmationPoll(account)
           .then(function (result) {
             assert.isTrue(channelMock.send.calledWith('login'));
-            assert.isFalse(result.halt);
+            assert.isUndefined(result.halt);
           });
       });
     });
@@ -221,7 +221,7 @@ define([
         return broker.afterResetPasswordConfirmationPoll(account)
           .then(function (result) {
             assert.isTrue(channelMock.send.calledWith('login'));
-            assert.isFalse(result.halt);
+            assert.isUndefined(result.halt);
           });
       });
     });

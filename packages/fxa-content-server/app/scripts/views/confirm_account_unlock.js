@@ -91,11 +91,9 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
           // the account lockout notice. The only time the broker should
           // be notified is if the user was trying to sign in.
           if (isLockoutSourceSignIn(self._lockoutSource)) {
-            return self.broker.afterSignIn(self.getAccount())
-              .then(function (result) {
-                if (! (result && result.halt)) {
-                  self.navigate('account_unlock_complete');
-                }
+            return self.invokeBrokerMethod('afterSignIn', self.getAccount())
+              .then(function () {
+                self.navigate('account_unlock_complete');
               });
           }
 

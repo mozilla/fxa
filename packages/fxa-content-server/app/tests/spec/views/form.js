@@ -7,6 +7,7 @@ define([
   'sinon',
   'jquery',
   'lib/promise',
+  'views/behaviors/halt',
   'views/form',
   'stache!templates/test_template',
   'lib/constants',
@@ -14,7 +15,7 @@ define([
   'lib/auth-errors',
   '../../lib/helpers'
 ],
-function (chai, sinon, $, p, FormView, Template, Constants, Metrics, AuthErrors,
+function (chai, sinon, $, p, HaltBehavior, FormView, Template, Constants, Metrics, AuthErrors,
       TestHelpers) {
   'use strict';
 
@@ -297,7 +298,7 @@ function (chai, sinon, $, p, FormView, Template, Constants, Metrics, AuthErrors,
       it('pass in an object with `halt: true` to completely disable form', function () {
         view.disableForm();
 
-        return view.afterSubmit({ halt: true })
+        return view.afterSubmit(new HaltBehavior())
           .then(function () {
             assert.isTrue(view.isHalted());
             assert.isFalse(view.isFormEnabled());

@@ -122,7 +122,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
         return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
       }
 
-      return self.broker.beforeSignIn(account.get('email'))
+      return self.invokeBrokerMethod('beforeSignIn', account.get('email'))
         .then(function () {
           return self.user.signInAccount(account, self.relier, {
             // a resume token is passed in to handle unverified users.
@@ -173,13 +173,9 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
     onSignInSuccess: function (account) {
       var self = this;
       self.logScreenEvent('success');
-      return self.broker.afterSignIn(account)
-        .then(function (result) {
-          if (! (result && result.halt)) {
-            self.navigate(self._redirectTo || 'settings');
-          }
-
-          return result;
+      return self.invokeBrokerMethod('afterSignIn', account)
+        .then(function () {
+          self.navigate(self._redirectTo || 'settings');
         });
     },
 
