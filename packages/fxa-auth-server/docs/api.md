@@ -368,20 +368,26 @@ particular user.
 
 #### Request Parameters
 
-- `client_id`: The id returned from client registration.
-- `client_secret`: The secret returned from client registration.
 - `ttl`: (optional) Seconds that this access_token should be valid.
 
   The default and maximum value is 2 weeks.
-- `grant_type`: Either the string `authorization_code` or `refresh_token`.
+- `grant_type`: Either `authorization_code`, `refresh_token`, or `urn:ietf:params:oauth:grant-type:jwt-bearer`.
   - If `authorization_code`:
+    - `client_id`: The id returned from client registration.
+    - `client_secret`: The secret returned from client registration.
     - `code`: A string that was received from the [authorization][] endpoint.
   - If `refresh_token`:
+    - `client_id`: The id returned from client registration.
+    - `client_secret`: The secret returned from client registration.
     - `refresh_token`: A string that received from the [token][]
       endpoint specifically as a refresh token.
     - `scope`: (optional) A subset of scopes provided to this
       refresh_token originally, to receive an access_token with less
       permissions.
+  - If `urn:ietf:params:oauth:grant-type:jwt-bearer`:
+    - `assertion`: A signed JWT assertion. See [Service
+      Clients][] for more.
+
 
 **Example:**
 
@@ -501,3 +507,5 @@ A valid request will return JSON with these properties:
 [delete]: #post-v1destroy
 [verify]: #post-v1verify
 [developer-activate]: #post-v1developeractivate
+
+[Service Clients]: ./service-clients.md
