@@ -537,6 +537,61 @@ module.exports = function (
     },
     {
       method: 'GET',
+      path: '/account/profile',
+      config: {
+        auth: {
+          mode: 'optional',
+          strategies: [
+            'sessionToken',
+            'oauthToken'
+          ]
+        }
+      },
+      handler: function (request, reply) {
+        var auth = request.auth
+        var uid
+        if (auth.strategy === 'sessionToken') {
+          uid = auth.credentials.uid
+        } else {
+          uid = Buffer(auth.credentials.user, 'hex')
+        }
+        function hasProfileItemScope(item) {
+          if (auth.strategy === 'sessionToken') {
+            return true
+          }
+          var scopes = auth.credentials.scopes
+          for (var i = 0; i < scopes.length; i++) {
+            if (scopes[i] === 'profile') {
+              return true
+            }
+            if (scopes[i] === 'profile:write') {
+              return true
+            }
+            if (scopes[i] === 'profile:' + item) {
+              return true
+            }
+            if (scopes[i] === 'profile:' + item + ':write') {
+              return true
+            }
+          }
+          return false
+        }
+        db.account(uid)
+          .done(
+            function (account) {
+              reply({
+                email: hasProfileItemScope('email') ? account.email : undefined,
+                locale: hasProfileItemScope('locale') ? account.locale : undefined
+              })
+            },
+            function (err) {
+              reply(err)
+            }
+          )
+      }
+    },
+    {
+      method: 'GET',
       path: '/account/keys',
       config: {
         auth: {

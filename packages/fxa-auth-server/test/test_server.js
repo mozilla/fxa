@@ -11,8 +11,10 @@ var createDBServer = require('fxa-auth-db-mysql')
 
 function TestServer(config, printLogs) {
   this.printLogs = printLogs === false ? false : true
+  this.config = config
   this.server = null
   this.mail = null
+  this.oauth = null
   this.mailbox = mailbox(config.smtp.api.host, config.smtp.api.port)
 }
 
@@ -82,6 +84,20 @@ TestServer.prototype.start = function () {
     this.mail.stdout.on('data', process.stdout.write.bind(process.stdout))
     this.mail.stderr.on('data', process.stderr.write.bind(process.stderr))
   }
+  if (this.config.oauth.url) {
+    this.oauth = cp.spawn(
+      'node',
+      ['./oauth_helper.js'],
+      {
+        cwd: __dirname,
+        stdio: this.printLogs ? 'pipe' : 'ignore'
+      }
+    )
+    if (this.printLogs) {
+      this.oauth.stdout.on('data', process.stdout.write.bind(process.stdout))
+      this.oauth.stderr.on('data', process.stderr.write.bind(process.stderr))
+    }
+  }
 }
 
 TestServer.prototype.stop = function () {
@@ -89,6 +105,9 @@ TestServer.prototype.stop = function () {
   if (this.server) {
     this.server.kill('SIGINT')
     this.mail.kill()
+    if (this.oauth) {
+      this.oauth.kill()
+    }
   }
 }
 

@@ -148,6 +148,10 @@ function create(log, error, config, routes, db) {
     )
   })
 
+  server.register(require('hapi-fxa-oauth'), function (err) {
+    server.auth.strategy('oauthToken', 'fxa-oauth', config.oauth)
+  })
+
   server.route(routes)
 
   server.app.log = log
