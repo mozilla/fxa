@@ -17,8 +17,6 @@ module.exports = function (grunt) {
 
   require('load-grunt-tasks')(grunt)
 
-  grunt.loadNpmTasks('grunt-contrib-copy')
-
   grunt.initConfig({
     copy: {
       strings: {
@@ -31,6 +29,30 @@ module.exports = function (grunt) {
             'server.pot'
           ]
         }]
+      }
+    },
+    nunjucks: {
+      options: {
+        tags: {
+          blockStart: '<%',
+          blockEnd: '%>',
+          variableStart: '<$',
+          variableEnd: '$>',
+          commentStart: '<#',
+          commentEnd: '#>'
+        },
+        data: {}
+      },
+      render: {
+        files: [
+          {
+            expand: true,
+            cwd: 'partials/',
+            src: '*.html',
+            dest: 'templates/',
+            ext: '.html'
+          }
+        ]
       }
     }
   })
@@ -77,7 +99,8 @@ module.exports = function (grunt) {
   grunt.loadTasks('tasks')
 
   grunt.registerTask('lint', 'Alias for eslint tasks', ['eslint'])
+  grunt.registerTask('templates', 'Alias for the template task', ['nunjucks'])
 
-  grunt.registerTask('default', [ 'copy:strings', 'l10n-extract' ])
+  grunt.registerTask('default', [ 'templates', 'copy:strings', 'l10n-extract' ])
 
 }

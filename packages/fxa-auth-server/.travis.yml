@@ -3,6 +3,8 @@ language: node_js
 node_js:
  - "0.10"
 
+sudo: false
+
 notifications:
   irc:
     channels:
@@ -16,4 +18,5 @@ before_install:
 script:
   - npm run outdated
   - grunt lint
+  - grunt templates
   - npm test
