@@ -7,6 +7,7 @@ define([
   'jquery',
   'sinon',
   'cocktail',
+  'underscore',
   'views/settings',
   'views/base',
   'views/sub_panels',
@@ -28,7 +29,7 @@ define([
   'models/user',
   'stache!templates/test_template'
 ],
-function (chai, $, sinon, Cocktail, View, BaseView, SubPanels,
+function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
   CommunicationPreferencesView, SettingsPanelMixin, RouterMock, TestHelpers,
   FxaClient, p, ProfileClient, ProfileErrors, AuthErrors, Able, Metrics,
   FormPrefill, Notifications, Relier, ProfileImage, User, TestTemplate) {
@@ -520,12 +521,62 @@ function (chai, $, sinon, Cocktail, View, BaseView, SubPanels,
         });
       });
 
+      describe('render with a displayName that contains XSS', function () {
+        it('should escape the displayName', function () {
+          var xssDisplayName = '<script>alert(1)</script>';
+          account.set('displayName', xssDisplayName);
+
+          return view.render()
+            .then(function () {
+              assert.equal(view.$('.card-header').html(), _.escape(xssDisplayName));
+            });
+        });
+      });
+
+      describe('render with an email that contains XSS', function () {
+        it('should escape the email', function () {
+          var xssEmail = '<script>alert(1)</script>';
+          account.unset('displayName');
+          account.set('email', xssEmail);
+
+          return view.render()
+            .then(function () {
+              assert.equal(view.$('.card-header').html(), _.escape(xssEmail));
+            });
+        });
+      });
+
+      describe('render with both displayName and email that contains XSS', function () {
+        it('should escape the email', function () {
+          var xssDisplayName = '<script>alert(1)</script>';
+          account.set('displayName', xssDisplayName);
+
+          var xssEmail = '<script>alert(2)</script>';
+          account.set('email', xssEmail);
+
+          return view.render()
+            .then(function () {
+              assert.equal(view.$('.card-header').html(), _.escape(xssDisplayName));
+              assert.equal(view.$('.card-subheader').html(), _.escape(xssEmail));
+            });
+        });
+      });
+    });
+
+
+    describe('_swapDisplayName', function () {
+      beforeEach(function () {
+        sinon.stub(view, 'isUserAuthorized', function () {
+          return p(true);
+        });
+        account.set('accessToken', ACCESS_TOKEN);
+      });
+
       // the following four tests
       // confirm that the dom displays correctly
       // when the _swapDisplayName method is called
       describe('with no display name', function () {
         it('should show email address in header', function () {
-
           return view.render()
             .then(function () {
               view._swapDisplayName();
@@ -581,6 +632,58 @@ function (chai, $, sinon, Cocktail, View, BaseView, SubPanels,
 
               assert.equal(view.$('.card-header').text(), 'test user');
               assert.equal(view.$('.card-subheader').text(), 'a@a.com');
+            });
+        });
+      });
+
+      describe('with a displayName that contains XSS', function () {
+        it('should escape the displayName', function () {
+
+          return view.render()
+            .then(function () {
+              var xssDisplayName = '<script>alert(1)</script>';
+              account.set('displayName', xssDisplayName);
+
+              view._swapDisplayName();
+
+              assert.equal(
+                view.$('.card-header').html(), _.escape(xssDisplayName));
+            });
+        });
+      });
+
+      describe('with an email that contains XSS', function () {
+        it('should escape the email', function () {
+
+          return view.render()
+            .then(function () {
+              var xssEmail = '<script>alert(1)</script>';
+              account.unset('displayName');
+              account.set('email', xssEmail);
+
+              view._swapDisplayName();
+
+              assert.equal(view.$('.card-header').html(), _.escape(xssEmail));
+            });
+        });
+      });
+
+      describe('with both displayName and email that contains XSS', function () {
+        it('should escape the email', function () {
+          return view.render()
+            .then(function () {
+              var xssDisplayName = '<script>alert(1)</script>';
+              account.set('displayName', xssDisplayName);
+
+              var xssEmail = '<script>alert(2)</script>';
+              account.set('email', xssEmail);
+
+              view._swapDisplayName();
+
+              assert.equal(
+                  view.$('.card-header').html(), _.escape(xssDisplayName));
+              assert.equal(
+                  view.$('.card-subheader').html(), _.escape(xssEmail));
             });
         });
       });

@@ -1,6 +1,6 @@
 <div id="fxa-settings-header-wrapper">
   <header id="fxa-settings-header">
-    <h1 id="fxa-manage-account">{{#t}}Firefox Account{{/t}}</h1>
+    <h1 id="fxa-manage-account">{{#t}}Firefox Accounts{{/t}}</h1>
     {{#showSignOut}}
     <button id="signout" class="settings-button secondary">{{#t}}Sign out{{/t}}</button>
     {{/showSignOut}}
@@ -16,11 +16,11 @@
   <header id="fxa-settings-profile-header">
 
     {{#displayName}}
-      <h1 class="card-header">{{#t}}%(displayName)s{{/t}}</h1>
-      <h2 class="card-subheader">{{#t}}%(userEmail)s{{/t}}</h2>
+      <h1 class="card-header">{{displayName}}</h1>
+      <h2 class="card-subheader">{{userEmail}}</h2>
     {{/displayName}}
     {{^displayName}}
-      <h1 class="card-header">{{#t}}%(userEmail)s{{/t}}</h1>
+      <h1 class="card-header">{{userEmail}}</h1>
       <h2 class="card-subheader"></h2>
     {{/displayName}}
     
