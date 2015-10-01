@@ -673,7 +673,7 @@ describe('/display_name', function() {
       });
     });
 
-    it('should return 404 if not set', function() {
+    it('should return 204 if not set', function() {
       var userId = uid();
       mock.token({
         user: userId,
@@ -687,7 +687,8 @@ describe('/display_name', function() {
           authorization: 'Bearer ' + tok
         }
       }).then(function(res) {
-        assert.equal(res.statusCode, 404);
+        assert.equal(res.statusCode, 204);
+        assert(!res.payload);
       });
     });
 
@@ -777,7 +778,7 @@ describe('/display_name', function() {
           }
         });
       }).then(function(res) {
-        assert.equal(res.statusCode, 404);
+        assert.equal(res.statusCode, 204);
       });
     });
 

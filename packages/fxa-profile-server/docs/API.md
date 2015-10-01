@@ -292,6 +292,8 @@ curl -v \
 }
 ```
 
+Returns a `204 No Content` if the display name is not for the user.
+
 ### POST /v1/display_name
 
 - scope: `profile:display_name:write`

@@ -34,6 +34,7 @@ function batch(request, map) {
       switch (res.statusCode) {
         case 200:
           return res.result[prop];
+        case 204:
         case 403:
         case 404:
           logger.debug(prop + '.' + res.statusCode, {
