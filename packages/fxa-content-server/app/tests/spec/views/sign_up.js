@@ -302,7 +302,7 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Experim
     });
 
     describe('afterVisible', function () {
-      it('shows a tooltip on the email element if ephemeralMessages.bouncedEmail is set', function () {
+      it('shows a tooltip on the email element if ephemeralMessages.bouncedEmail is set', function (done) {
         sinon.spy(view, 'showValidationError');
         ephemeralMessages.set('bouncedEmail', 'testuser@testuser.com');
 
@@ -312,6 +312,10 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Experim
           })
           .then(function () {
             assert.isTrue(view.showValidationError.called);
+            setTimeout(function () {
+              assert.isTrue(view.$('input[type="email"]').hasClass('invalid'));
+              done();
+            }, 50);
           });
       });
 
