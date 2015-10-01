@@ -8,11 +8,12 @@ define([
   'tests/lib/restmail',
   'tests/lib/helpers',
   'intern/dojo/node!leadfoot/helpers/pollUntil',
+  'intern/node_modules/dojo/lang',
   'intern/node_modules/dojo/node!url',
   'intern/node_modules/dojo/node!querystring',
   'intern/chai!assert'
 ], function (intern, require, restmail, TestHelpers, pollUntil,
-        Url, Querystring, assert) {
+  lang, Url, Querystring, assert) {
   var config = intern.config;
   var CONTENT_SERVER = config.fxaContentRoot;
   var OAUTH_APP = config.fxaOauthApp;
@@ -329,24 +330,41 @@ define([
     return openFxaFromRp(context, page, urlSuffix, true);
   }
 
+  function reOpenWithAdditionalQueryParams(context, additionalQueryParams, waitForSelector) {
+    return context.remote
+      .getCurrentUrl()
+      .then(function (url) {
+        var parsedUrl = Url.parse(url);
+        var currentQueryParams = Querystring.parse(parsedUrl.search);
+        var updatedQueryParams = lang.mixin({}, currentQueryParams, additionalQueryParams);
+        var urlToOpen = url + '?' + Querystring.stringify(updatedQueryParams);
+
+        return openPage(context, urlToOpen, waitForSelector);
+      });
+  }
+
   function openFxaFromRp(context, page, urlSuffix, untrusted) {
     var app = untrusted ? UNTRUSTED_OAUTH_APP : OAUTH_APP;
 
-    // force_auth does not have a button on 123done, instead this is
-    // only available programatically.
-    if (page === 'force_auth') {
-
-      return context.remote
-        .get(require.toUrl(app + 'api/force_auth' + urlSuffix))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .findByCssSelector('#fxa-force-auth-header')
-        .end();
+    var additionalQueryParams;
+    if (urlSuffix) {
+      additionalQueryParams = Querystring.parse(urlSuffix.replace(/^\?/, ''));
     }
 
-    return context.remote
-      .get(require.toUrl(app))
-      .setFindTimeout(intern.config.pageLoadTimeout)
+    // force_auth does not have a button on 123done, instead this is
+    // only available programatically. Load the force_auth page
+    // with only the email initially, then reload with the full passed
+    // in urlSuffix so things like the webChannelId are correctly passed.
+    if (page === 'force_auth') {
+      var email = additionalQueryParams.email;
+      var emailSearchString = '?' + Querystring.stringify({ email: email });
+      return openPage(context, app + 'api/force_auth' + emailSearchString, '#fxa-force-auth-header')
+        .then(function () {
+          return reOpenWithAdditionalQueryParams(context, additionalQueryParams, '#fxa-force-auth-header');
+        });
+    }
 
+    return openPage(context, app, '#splash .' + page)
       .findByCssSelector('#splash .' + page)
         .click()
       .end()
@@ -357,19 +375,10 @@ define([
       .end()
 
       .then(function () {
-        if (urlSuffix) {
-          return context.remote
-            .getCurrentUrl()
-            .then(function (url) {
-              url += urlSuffix;
-
-              return context.remote.get(require.toUrl(url));
-            });
+        if (additionalQueryParams) {
+          return reOpenWithAdditionalQueryParams(context, additionalQueryParams, '#fxa-' + page + '-header');
         }
-      })
-
-      .findByCssSelector('#fxa-' + page + '-header')
-      .end();
+      });
   }
 
   function fillOutSignIn(context, email, password, alwaysLoad) {
@@ -487,6 +496,24 @@ define([
         .click()
       .end();
   }
+
+  function fillOutForceAuth(context, password) {
+    return context.remote
+      .setFindTimeout(intern.config.pageLoadTimeout)
+
+      .findByCssSelector('#fxa-force-auth-header')
+      .end()
+
+      .findByCssSelector('input[type=password]')
+        .click()
+        .type(password)
+      .end()
+
+      .findByCssSelector('button[type="submit"]')
+        .click()
+      .end();
+  }
+
 
   function fillOutCompleteResetPassword(context, password, vpassword) {
     return context.remote
@@ -666,6 +693,7 @@ define([
     fillOutChangePassword: fillOutChangePassword,
     fillOutCompleteResetPassword: fillOutCompleteResetPassword,
     fillOutDeleteAccount: fillOutDeleteAccount,
+    fillOutForceAuth: fillOutForceAuth,
     fillOutResetPassword: fillOutResetPassword,
     fillOutSignIn: fillOutSignIn,
     fillOutSignUp: fillOutSignUp,
