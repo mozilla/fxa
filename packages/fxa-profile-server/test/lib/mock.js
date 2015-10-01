@@ -173,8 +173,8 @@ module.exports = function mock(options) {
     },
 
     log: function mockLog(logger, cb) {
+      var root = require('../../lib/logging')();
       var log = require('../../lib/logging')(logger);
-      var prevLevel = log.getEffectiveLevel();
       log.setLevel('verbose');
       var isDone = false;
       var filter = {
@@ -182,7 +182,7 @@ module.exports = function mock(options) {
           if (cb(record)) {
             isDone = true;
             log.removeFilter(filter);
-            log.setLevel(prevLevel);
+            log.setLevel(root.getEffectiveLevel());
             return false;
           }
           return true;

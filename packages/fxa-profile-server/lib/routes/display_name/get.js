@@ -5,17 +5,7 @@
 const Joi = require('joi');
 const checksum = require('checksum');
 
-const AppError = require('../../error');
 const db = require('../../db');
-
-function displayNameResult(result) {
-  if (result && result.displayName) {
-    return {
-      displayName: result.displayName
-    };
-  }
-  throw AppError.notFound();
-}
 
 module.exports = {
   auth: {
@@ -29,9 +19,13 @@ module.exports = {
   },
   handler: function avatar(req, reply) {
     db.getDisplayName(req.auth.credentials.user)
-      .then(displayNameResult)
       .done(function (result) {
-        return reply(result).etag(checksum(result.displayName));
+        if (result && result.displayName) {
+          reply({ displayName: result.displayName })
+            .etag(checksum(result.displayName));
+        } else {
+          reply({}).code(204);
+        }
       }, reply);
   }
 };
