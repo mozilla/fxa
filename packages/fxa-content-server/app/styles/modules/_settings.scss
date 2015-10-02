@@ -13,28 +13,26 @@ body.settings .loading {
 
 body.settings #main-content {
   background: none;
-  border: none;
+  border: 0;
   box-shadow: none;
 }
 
-
-body.settings #main-content.panel, body.settings #main-content.card {
+body.settings #main-content.panel,
+body.settings #main-content.card {
   visibility: hidden;
 }
 
 // settings header controls
 #fxa-settings-header-wrapper {
   background: #fff;
-  border-bottom: 1px solid $settings-header-border-bottom;
+  border-bottom: 1px solid $input-border-disabled-color;
 
   @include respond-to('big') {
-    height: 56px;
-    margin-bottom: 46px;
+    height: 64px;
   }
 
   @include respond-to('small') {
     height: 48px;
-    margin-bottom: 24px;
   }
 
   #fxa-manage-account {
@@ -46,8 +44,8 @@ body.settings #main-content.panel, body.settings #main-content.card {
     @include respond-to('big') {
       background-position: left 11px;
       background-size: 36px auto;
-      height: 56px;
-      line-height: 58px;
+      height: 64px;
+      line-height: 63px;
       padding-left: 48px;
     }
 
@@ -66,7 +64,7 @@ body.settings #main-content.panel, body.settings #main-content.card {
     height: 30px;
 
     @include respond-to('big') {
-      margin-top: 13px;
+      margin-top: 15px;
       width: 100px;
     }
 
@@ -81,16 +79,16 @@ body.settings #main-content.panel, body.settings #main-content.card {
       left: 50%;
       margin: 0 0 0 -250px;
       position: absolute;
-      top: 56px;
+      top: 64px;
       width: 500px;
     }
 
     @include respond-to('small') {
-      position: fixed;
       left: 0;
       margin: 0;
-      width: 100%;
+      position: fixed;
       top: 0;
+      width: 100%;
     }
   }
 
@@ -219,66 +217,75 @@ body.settings #main-content.panel, body.settings #main-content.card {
 
 // area above white box with avatar content
 #fxa-settings-profile-header {
-
+  border-bottom: 1px solid $marketing-border-color;
+  padding-bottom: 18px;
+  text-align: center;
   white-space: nowrap;
 
   @include respond-to('big') {
-    height: 36px;
-    padding: 0 20px;
-    margin-bottom: 12px;
+    margin-bottom: 15px;
   }
 
   @include respond-to('small') {
-    height: 30px;
-    padding: 0 3%;
-    margin-bottom: 6px;
+    margin-bottom: 10px;
   }
 
-  .avatar-wrapper {
-    display: inline-block;
-  }
-
-  .signed-in-email-message {
-    display: inline-block;
+  .card-header {
+    line-height: 30px;
+    margin-bottom: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     text-wrap: nowrap;
     white-space: nowrap;
+  }
 
-    @include respond-to('big') {
-      font-size: $medium-font;
-      line-height: 36px;
-      margin: 0 0 0 12px;
-      width: 420px;
-    }
-
-    @include respond-to('small') {
-      font-size: $base-font;
-      line-height: 30px;
-      margin: 0 0 0 6px;
-      width: 85%;
-    }
+  .card-subheader {
+    font-size: 14px;
+    font-weight: 200;
+    line-height: normal;
+    margin-bottom: 6px;
   }
 }
 
 .settings-subview {
   &:first-child .settings-unit {
-    padding: 0 0 20px;
+  
+    @include respond-to('big') {
+      padding: 0 0 20px;
+    }
+
+    @include respond-to('small') {
+      padding: 0 0 10px;
+    }
   }
 
   &:last-child .settings-unit {
-    border-bottom: none;
-    padding: 20px 0 0 0;
+    border-bottom: 0;
+
+    @include respond-to('big') {
+      padding: 20px 0 0;
+    }
+
+    @include respond-to('small') {
+      padding: 10px 0 0;
+    }
   }
 }
 
 .settings-unit {
-  padding: 20px 0;
   border-bottom: 1px solid $marketing-border-color;
 
-  & .error {
-    top: 0;
+  @include respond-to('big') {
+    padding: 20px 0;
+  }
+
+  @include respond-to('small') {
+    padding: 10px 0;
+  }
+
+  .error {
     padding: 5px 10px;
+    top: 0;
   }
 }
 
@@ -359,7 +366,7 @@ body.settings #main-content.panel, body.settings #main-content.card {
 
 .modal {
   border-radius: $big-border-radius;
-  box-shadow: 0px 1px 5px black;
+  box-shadow: 0 1px 5px $modal-border-color;
 
 
   @include respond-to('big') {
@@ -368,7 +375,7 @@ body.settings #main-content.panel, body.settings #main-content.card {
   }
 
   @include respond-to('small') {
-    padding:10px;
+    padding: 10px;
     width: 320px;
   }
 }
