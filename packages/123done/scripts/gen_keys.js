@@ -20,7 +20,7 @@
    keypair.
 */
 
-const jwcrypto = require("jwcrypto")
+const jwcrypto = require("browserid-crypto")
 const fs = require('fs')
 const assert = require("assert")
 const config = require('../config')
@@ -28,7 +28,7 @@ const config = require('../config')
 const pubKeyFile = config.publicKeyFile
 const secretKeyFile = config.secretKeyFile
 
-require("jwcrypto/lib/algs/rs")
+require("browserid-crypto/lib/algs/rs")
 
 try {
   var keysExist = fs.existsSync(pubKeyFile) && fs.existsSync(secretKeyFile)
