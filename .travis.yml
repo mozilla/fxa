@@ -1,33 +1,44 @@
-language: node_js
-node_js:
-  - "0.10"
-  - "0.12"
-  - "iojs"
+language: cpp
 
 services:
   - redis-server
+
+sudo: false
 
 os:
   - linux
   - osx
 
+addons:
+  apt_packages:
+    - graphicsmagick
+    - python-virtualenv
+    - libgmp3-dev
+
+env:
+  matrix:
+  - TRAVIS_NODE_VERSION="0.10"
+  - TRAVIS_NODE_VERSION="0.12"
+  - TRAVIS_NODE_VERSION="4"
+
 matrix:
   allow_failures:
-    - os: osx
-    - node_js: "0.12"
-    - node_js: "iojs"
+    - env: TRAVIS_NODE_VERSION="0.12"
+    - env: TRAVIS_NODE_VERSION="4"
     - fast_finish: true
 
 before_install:
-  - sudo apt-get install graphicsmagick
-  - sudo apt-get install python-virtualenv
-  - sudo apt-get install libgmp3-dev || brew install gmp
-  - npm install -g npm@2.4
+  - if [[ $TRAVIS_OS_NAME == "osx" ]]; then brew install gmp graphicsmagick; fi
+
+install:
+  - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION
+  - PATH="`npm bin`:`npm bin -g`:$PATH"
+  - npm install -g npm@2
   - node --version
   - npm --version
-  - npm config set spin false
 
 script:
-  - npm i
+  - npm config set spin false
+  - npm install
   - sleep 30
   - ./test/curl.sh
