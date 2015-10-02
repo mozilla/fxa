@@ -6,11 +6,12 @@
     <legend>New Client</legend>
   {{/if}}
 
-  {{partial 'client/form'}}
-
   <div class="form-group">
       <label for="trusted">Trusted Mozilla Client: {{view Ember.Checkbox name=model.trusted checked=model.trusted id="trusted"}}</label>
   </div>
+
+  {{partial 'client/form'}}
+
 </fieldset>
 </form>
 {{#unless model.secret}}

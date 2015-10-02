@@ -1,18 +1,19 @@
 <fieldset>
-  <legend>Are you sure you want to delete <em>{{name}}</em>?</legend>
+  <legend>Are you sure you want to delete <em>{{model.name}}</em>?</legend>
 
   <table class="table">
     <tbody>
     <tr>
       <th>Client ID:</th>
-      <td>{{id}}</td>
+      <td>{{model.id}}</td>
     </tr>
     <tr>
       <th>Redirect URI</th>
-      <td>{{redirect_uri}}</td>
+      <td>{{model.redirect_uri}}</td>
     </tr>
+    </tbody>
   </table>
 
-  <button class="small button alert" {{action 'remove' id}}>Confirm</button>
+  <button class="small button alert" {{action 'remove' this}}>Confirm</button>
 </fieldset>
 {{outlet}}

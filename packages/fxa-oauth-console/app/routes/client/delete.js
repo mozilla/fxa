@@ -3,13 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Ember from 'ember';
+import AuthenticatedRouteMixin from 'simple-auth/mixins/authenticated-route-mixin';
 
-export default Ember.Route.extend({
+export default Ember.Route.extend(AuthenticatedRouteMixin, {
   actions: {
-    remove: function (id) {
+    remove: function (model) {
+      console.log(model);
       var self = this;
 
-      return this.store.find('client', id).then(function (client) {
+      return this.store.find('client', model.id).then(function (client) {
         client.destroyRecord().then(function() {
           self.transitionTo('clients');
         });

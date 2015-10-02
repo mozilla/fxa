@@ -14,7 +14,7 @@ var requestToken = require('./lib/oauth').requestToken;
 var config = require('../config');
 var baseUrl = config.get('base_url');
 var fxaOAuthConfig = config.get('fxaOAuth');
-var log = require('mozlog')('server.ver.json');
+var log = require('mozlog')('server.oauth');
 
 // oauth flows are stored in memory
 var oauthFlows = { };

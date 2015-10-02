@@ -1,7 +1,9 @@
 language: node_js
 
 addons:
-  firefox: "32.0"
+  firefox: "39.0"
+
+sudo: false
 
 before_install:
   - "export DISPLAY=:99.0"
@@ -9,6 +11,8 @@ before_install:
 
 node_js:
   - '0.10'
+  - '0.12'
+  - '4'
 
 script:
   - npm i
