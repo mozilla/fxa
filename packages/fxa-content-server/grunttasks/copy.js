@@ -44,6 +44,13 @@ module.exports = function (grunt) {
           src: ['*.js']
         },
         {
+          cwd: '<%= yeoman.app %>/bower_components/fxa-checkbox/',
+          dest: '<%= yeoman.dist %>/bower_components/fxa-checkbox/',
+          // fxa-checkbox
+          expand: true,
+          src: ['*.js']
+        },
+        {
           cwd: '<%= yeoman.tmp %>/concat/scripts',
           dest: '<%= yeoman.dist %>/scripts',
           // head scripts

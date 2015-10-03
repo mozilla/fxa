@@ -7,14 +7,22 @@
  */
 
 define([
+  'fxaCheckbox',
   'jquery',
   'lib/strings'
-], function ($, Strings) {
+], function (FxaCheckbox, $, Strings) {
   'use strict';
 
   return {
     events: {
       'change input[type=checkbox]': 'logCheckboxChange'
+    },
+
+    afterRender: function () {
+      this.$el.find('.fxa-checkbox').get().forEach(function (el) {
+        // FxaCheckbox enhances the native checkbox and provides custom styling
+        new FxaCheckbox(el).init();
+      });
     },
 
     logCheckboxChange: function (event) {

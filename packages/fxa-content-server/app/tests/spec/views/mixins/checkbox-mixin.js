@@ -37,6 +37,10 @@ define([
         });
     });
 
+    it('adds custom checkboxes', function () {
+      assert.isTrue($('#container').find('.fxa-checkbox.is-upgraded').length > 0);
+    });
+
     it('logs when a checkbox is toggled on', function () {
       sinon.spy(view, 'logScreenEvent');
 
