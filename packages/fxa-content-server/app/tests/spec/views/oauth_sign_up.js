@@ -33,13 +33,13 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
   function fillOutSignUp (email, password, opts) {
     opts = opts || {};
     var context = opts.context || window;
-    var year = opts.year || '1960';
+    var year = opts.year || '24';
 
     context.$('[type=email]').val(email);
     context.$('[type=password]').val(password);
 
     if (! opts.ignoreYear) {
-      $('#fxa-age-year').val(year);
+      $('#age').val(year);
     }
 
     if (context.enableSubmitIfValid) {
@@ -54,7 +54,6 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
   var BASE_REDIRECT_URL = 'http://127.0.0.1:8080/api/oauth';
 
   describe('views/sign_up for /oauth/signup', function () {
-    var nowYear = (new Date()).getFullYear();
     var view;
     var router;
     var email;
@@ -154,7 +153,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
 
     describe('submit without a preVerifyToken', function () {
       it('redirects to confirm on success', function () {
-        fillOutSignUp(email, 'password', { context: view, year: nowYear - 14 });
+        fillOutSignUp(email, 'password', { context: view });
 
         sinon.stub(user, 'signUpAccount', function (account) {
           return p(account);
@@ -194,7 +193,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
           return false;
         });
 
-        fillOutSignUp(email, 'password', { context: view, year: nowYear - 14 });
+        fillOutSignUp(email, 'password', { context: view });
 
         return view.submit()
           .then(function () {
@@ -220,7 +219,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
         });
 
         var password = 'password';
-        fillOutSignUp(email, password, { context: view, year: nowYear - 14 });
+        fillOutSignUp(email, password, { context: view });
         return view.submit()
           .then(function () {
             assert.equal(router.page, 'confirm');

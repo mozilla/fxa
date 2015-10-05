@@ -17,10 +17,6 @@ define([
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   var PAGE_URL_ROOT = config.fxaContentRoot + 'verify_email';
-
-  var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
-  var OLD_ENOUGH_YEAR = TOO_YOUNG_YEAR - 1;
-
   var PASSWORD = 'password';
   var user;
   var email;
@@ -185,7 +181,7 @@ define([
         .setFindTimeout(intern.config.pageLoadTimeout)
         // Sign up and obtain a verification link
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
         .findById('fxa-confirm-header')
         .end()
@@ -199,7 +195,7 @@ define([
 
         // Sign up again to invalidate the old verification link
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, 'different_password', OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, 'different_password');
         })
         .findById('fxa-confirm-header')
         .end()

@@ -18,13 +18,12 @@ define([
   'views/mixins/migration-mixin',
   'views/mixins/signup-disabled-mixin',
   'views/mixins/signup-success-mixin',
-  'views/coppa/coppa-date-picker',
   'views/coppa/coppa-age-input'
 ],
 function (Cocktail, p, BaseView, FormView, Template, AuthErrors, mailcheck,
   ExperimentMixin, PasswordMixin, PasswordStrengthMixin, ServiceMixin,
   CheckboxMixin, ResumeTokenMixin, MigrationMixin, SignupDisabledMixin,
-  SignupSuccessMixin, CoppaDatePicker, CoppaAgeInput) {
+  SignupSuccessMixin, CoppaAgeInput) {
   'use strict';
 
   var t = BaseView.t;
@@ -75,7 +74,6 @@ function (Cocktail, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       }
 
       var autofocusEl = this._selectAutoFocusEl();
-      var coppaView;
       var coppaOptions = {
         el: self.$('#coppa'),
         formPrefill: self._formPrefill,
@@ -84,17 +82,7 @@ function (Cocktail, p, BaseView, FormView, Template, AuthErrors, mailcheck,
         shouldFocus: autofocusEl === null
       };
 
-      if (self.isInExperiment('coppaView')) {
-        self.notify('coppaView.triggered');
-
-        if (self.isInExperimentGroup('coppaView', 'treatment')) {
-          coppaView = new CoppaAgeInput(coppaOptions);
-        } else {
-          coppaView = new CoppaDatePicker(coppaOptions);
-        }
-      } else {
-        coppaView = new CoppaDatePicker(coppaOptions);
-      }
+      var coppaView = new CoppaAgeInput(coppaOptions);
 
       return coppaView.render()
         .then(function () {

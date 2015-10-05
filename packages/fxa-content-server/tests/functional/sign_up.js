@@ -16,15 +16,12 @@ define([
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var PAGE_URL = config.fxaContentRoot + 'signup';
 
-  var CUTOFF_YEAR = new Date().getFullYear() - 13;
-  var OLD_ENOUGH_YEAR = CUTOFF_YEAR - 1;
-
   var email;
   var PASSWORD = '12345678';
   var client;
 
-  function fillOutSignUp(context, email, password, year) {
-    return FunctionalHelpers.fillOutSignUp(context, email, password, year);
+  function fillOutSignUp(context, email, password) {
+    return FunctionalHelpers.fillOutSignUp(context, email, password);
   }
 
   function fillOutSignIn(context, email, password) {
@@ -59,7 +56,7 @@ define([
 
     'sign up, verify same browser': function () {
       var self = this;
-      return fillOutSignUp(this, email, PASSWORD, OLD_ENOUGH_YEAR)
+      return fillOutSignUp(this, email, PASSWORD)
         .then(function () {
           return testAtConfirmScreen(self, email);
         })
@@ -84,7 +81,7 @@ define([
 
     'sign up, verify same browser with original tab closed, sign out': function () {
       var self = this;
-      return fillOutSignUp(this, email, PASSWORD, OLD_ENOUGH_YEAR)
+      return fillOutSignUp(this, email, PASSWORD)
         .then(function () {
           return testAtConfirmScreen(self, email);
         })
@@ -125,7 +122,7 @@ define([
 
     'sign up, verify same browser by replacing the original tab': function () {
       var self = this;
-      return fillOutSignUp(this, email, PASSWORD, OLD_ENOUGH_YEAR)
+      return fillOutSignUp(this, email, PASSWORD)
         .then(function () {
           return testAtConfirmScreen(self, email);
         })
@@ -145,7 +142,7 @@ define([
 
     'signup, verify different browser - from original tab\'s P.O.V.': function () {
       var self = this;
-      return fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR)
+      return fillOutSignUp(self, email, PASSWORD)
         .then(function () {
           return testAtConfirmScreen(self, email);
         })
@@ -164,7 +161,7 @@ define([
 
     'signup, verify different browser - from new browser\'s P.O.V.': function () {
       var self = this;
-      return fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR)
+      return fillOutSignUp(self, email, PASSWORD)
         .then(function () {
           return testAtConfirmScreen(self, email);
         })
@@ -193,7 +190,7 @@ define([
       var emailWithoutSpace = email;
       var emailWithSpace = ('   ' + email);
       var self = this;
-      return fillOutSignUp(this, emailWithSpace, PASSWORD, OLD_ENOUGH_YEAR)
+      return fillOutSignUp(this, emailWithSpace, PASSWORD)
         .then(function () {
           return testAtConfirmScreen(self, emailWithoutSpace);
         })
@@ -214,7 +211,7 @@ define([
       var emailWithSpace = ('   ' + email);
 
       var self = this;
-      return fillOutSignUp(this, emailWithSpace, PASSWORD, OLD_ENOUGH_YEAR)
+      return fillOutSignUp(this, emailWithSpace, PASSWORD)
         .then(function () {
           return testAtConfirmScreen(self, emailWithoutSpace);
         })
@@ -230,26 +227,7 @@ define([
         .end();
     },
 
-    'select a year that is 1 year too young, no month/day picker is shown': function () {
-      return fillOutSignUp(this, email, PASSWORD, CUTOFF_YEAR + 1)
-        // Success is being redirected to the cannot create screen.
-        .findById('fxa-cannot-create-account-header')
-        .end();
-    },
-
-    'select an age that is one day too young': function () {
-      var now = new Date();
-      // the getDate/setDate bit causes the date to automatically wrap
-      // on the month boundaries - see
-      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/setDate
-      // If the dayValue is outside of the range of date values for the month,
-      // setDate will update the Date object accordingly. For example, if 0 is
-      // provided for dayValue, the date will be set to the last day of the
-      // previous month.
-      now.setDate(now.getDate() + 1);
-      var monthToSelect = now.getMonth();
-      var dateToSelect = now.getDate();
-
+    'coppa does not allow sign up if younger than 13 years old': function () {
       return this.remote
         .get(require.toUrl(PAGE_URL))
         .findByCssSelector('form input.email')
@@ -262,19 +240,11 @@ define([
           .type(PASSWORD)
         .end()
 
-        .findByCssSelector('#fxa-age-year')
-        .end()
-
-        .findById('fxa-' + CUTOFF_YEAR)
-          .click()
-        .end()
-
-        .findById('fxa-month-' + monthToSelect)
-          .click()
-        .end()
-
-        .findById('fxa-day-' + dateToSelect)
-          .click()
+        .findByCssSelector('#age')
+        // XXX: Bug in Selenium 2.47.1, if Firefox is out of focus it will just type 1 number,
+        // split the type commands for each character to avoid issues with the test runner
+        .type('1')
+        .type('2')
         .end()
 
         .findByCssSelector('button[type="submit"]')
@@ -286,58 +256,13 @@ define([
         .end();
     },
 
-    'select a 13 year old, on their birthday': function () {
-      var now = new Date();
-      var monthToSelect = now.getMonth();
-      var dateToSelect = now.getDate();
-
-      return this.remote
-        .get(require.toUrl(PAGE_URL))
-        .findByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('#fxa-age-year')
-        .end()
-
-        .findById('fxa-' + CUTOFF_YEAR)
-          .click()
-        .end()
-
-        .findById('fxa-month-' + monthToSelect)
-          .click()
-        .end()
-
-        .findById('fxa-day-' + dateToSelect)
-          .click()
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
-
-        // A 13 year old is allowed, on their birthday
-        .findByCssSelector('.verification-email-message')
-          .getVisibleText()
-          .then(function (resultText) {
-            // check the email address was written
-            assert.ok(resultText.indexOf(email) > -1);
-          })
-        .end();
-    },
 
     'sign up with a verified account forces the user to sign in': function () {
       var self = this;
 
       return client.signUp(email, PASSWORD, { preVerified: true })
         .then(function () {
-          return fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR)
+          return fillOutSignUp(self, email, PASSWORD)
             // The error area shows a link to /signin
             .then(FunctionalHelpers.visibleByQSA('.error a[href="/signin"]'))
             .findByCssSelector('.error a[href="/signin"]')
@@ -368,7 +293,7 @@ define([
 
       return client.signUp(email, PASSWORD)
         .then(function () {
-          return fillOutSignUp(self, email, 'different password', OLD_ENOUGH_YEAR)
+          return fillOutSignUp(self, email, 'different password')
             // Being pushed to the confirmation screen is success.
             .findByCssSelector('.verification-email-message')
               .getVisibleText()
@@ -390,7 +315,7 @@ define([
 
     'form prefill information is cleared after sign up->sign out': function () {
       var self = this;
-      return fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR)
+      return fillOutSignUp(self, email, PASSWORD)
         .then(function () {
           return testAtConfirmScreen(self, email);
         })
@@ -431,7 +356,6 @@ define([
 
   function testRepopulateFields(dest, header) {
     var self = this;
-    var year = OLD_ENOUGH_YEAR;
 
     return self.remote
       .get(require.toUrl(PAGE_URL))
@@ -447,11 +371,11 @@ define([
         .type(PASSWORD)
       .end()
 
-      .findByCssSelector('#fxa-age-year')
-      .end()
-
-      .findById('fxa-' + year)
-        .click()
+      .findByCssSelector('#age')
+      // XXX: Bug in Selenium 2.47.1, if Firefox is out of focus it will just type 1 number,
+      // split the type commands for each character to avoid issues with the test runner
+      .type('2')
+      .type('4')
       .end()
 
       .findByCssSelector('a[href="' + dest + '"]')
@@ -481,11 +405,11 @@ define([
         })
       .end()
 
-      .findByCssSelector('#fxa-age-year')
+      .findByCssSelector('#age')
         .getProperty('value')
         .then(function (resultText) {
           // check the email address was re-populated
-          assert.equal(resultText, year);
+          assert.equal(resultText, '24');
         })
       .end();
   }

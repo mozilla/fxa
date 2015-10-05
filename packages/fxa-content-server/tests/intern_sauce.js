@@ -17,12 +17,6 @@ define([
     'tests/functional_oauth'
   ];
 
-  if (intern.fxaContentRoot.indexOf('https://') === 0) {
-    // test firefox specific flows only on HTTPS
-    // this might have to change if we test more browsers in the future
-    intern.functionalSuites.push('tests/functional/firefox/functional_firefox');
-  }
-
   intern.environments = [
     {
       browserName: 'firefox',

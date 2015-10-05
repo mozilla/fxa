@@ -412,7 +412,7 @@ define([
       .end();
   }
 
-  function fillOutSignUp(context, email, password, year, customizeSync, optInToMarketingEmail) {
+  function fillOutSignUp(context, email, password, customizeSync, optInToMarketingEmail) {
     return context.remote
       .getCurrentUrl()
       .then(function (currentUrl) {
@@ -438,11 +438,11 @@ define([
         .type(password)
       .end()
 
-      .findByCssSelector('#fxa-age-year')
-      .end()
-
-      .findById('fxa-' + year)
-        .click()
+      .findByCssSelector('#age')
+      // XXX: Bug in Selenium 2.47.1, if Firefox is out of focus it will just type 1 number,
+      // split the type commands for each character to avoid issues with the test runner
+      .type('2')
+      .type('4')
       .end()
 
       .then(function () {

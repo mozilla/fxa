@@ -4,12 +4,11 @@
 
 define([
   'underscore',
-  'lib/experiments/coppa-view',
   'lib/experiments/mailcheck',
   'lib/experiments/open-gmail',
   'lib/experiments/sync-checkbox',
   'lib/url'
-], function (_, CoppaExperiment, MailcheckExperiment, OpenGmailExperiment,
+], function (_, MailcheckExperiment, OpenGmailExperiment,
   SyncCheckboxExperiment, Url) {
   'use strict';
 
@@ -20,7 +19,6 @@ define([
   // all available experiments that must be independent for
   // A/B testing purposes.
   var DEFAULT_EXPERIMENTS = {
-    'coppaView': CoppaExperiment,
     'mailcheck': MailcheckExperiment,
     'openGmail': OpenGmailExperiment,
     'syncCheckbox': SyncCheckboxExperiment

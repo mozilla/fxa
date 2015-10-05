@@ -12,7 +12,6 @@ define([
 ], function (intern, registerSuite, assert, require, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
   var OAUTH_APP = config.fxaOauthApp;
-  var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
 
   var PASSWORD = 'password';
   var email;
@@ -49,16 +48,17 @@ define([
           .type(PASSWORD)
         .end()
 
-        .findByCssSelector('#fxa-age-year')
-        .end()
-
-        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
-          .click()
+        .findByCssSelector('#age')
+        // XXX: Bug in Selenium 2.47.1, if Firefox is out of focus it will just type 1 number,
+        // split the type commands for each character to avoid issues with the test runner
+        .type('2')
+        .type('4')
         .end()
 
         .findByCssSelector('button[type="submit"]')
           .click()
         .end()
+
 
         // user is redirected to 123done, wait for the footer first,
         // and then for the loggedin user to be visible. If we go

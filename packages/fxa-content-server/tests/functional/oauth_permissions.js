@@ -15,8 +15,6 @@ define([
   var config = intern.config;
   var OAUTH_APP = config.fxaUntrustedOauthApp;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
-  var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
-  var OLD_ENOUGH_YEAR = TOO_YOUNG_YEAR - 1;
 
   var PASSWORD = 'password';
   var user;
@@ -178,7 +176,7 @@ define([
         .end()
 
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .findByCssSelector('#fxa-permissions-header')
@@ -220,7 +218,6 @@ define([
 
     'preverified sign up': function () {
       var self = this;
-
       var SIGNUP_URL = OAUTH_APP + 'api/preverified-signup?' +
                         'email=' + encodeURIComponent(email);
 
@@ -236,11 +233,11 @@ define([
           .type(PASSWORD)
         .end()
 
-        .findByCssSelector('#fxa-age-year')
-        .end()
-
-        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
-          .click()
+        .findByCssSelector('#age')
+        // XXX: Bug in Selenium 2.47.1, if Firefox is out of focus it will just type 1 number,
+        // split the type commands for each character to avoid issues with the test runner
+        .type('2')
+        .type('4')
         .end()
 
         .findByCssSelector('button[type="submit"]')
@@ -279,7 +276,7 @@ define([
       var self = this;
       return FunctionalHelpers.openFxaFromUntrustedRp(self, 'signup')
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .findByCssSelector('#fxa-permissions-header')

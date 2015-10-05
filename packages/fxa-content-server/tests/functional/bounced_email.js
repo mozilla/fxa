@@ -12,7 +12,6 @@ define([
 ], function (intern, registerSuite, nodeXMLHttpRequest, FxaClient, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
-  var CUTOFF_YEAR = new Date().getFullYear() - 13;
 
   var bouncedEmail;
   var deliveredEmail;
@@ -36,7 +35,7 @@ define([
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
 
-      return FunctionalHelpers.fillOutSignUp(this, bouncedEmail, PASSWORD, CUTOFF_YEAR - 1)
+      return FunctionalHelpers.fillOutSignUp(this, bouncedEmail, PASSWORD)
         .findById('fxa-confirm-header')
         .end()
 

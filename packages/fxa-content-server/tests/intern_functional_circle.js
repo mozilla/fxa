@@ -11,7 +11,6 @@ define([
     'tests/functional/sign_in_cached',
     'tests/functional/sync_sign_in',
     'tests/functional/sign_up',
-    'tests/functional/sign_up_coppa_input',
     'tests/functional/complete_sign_up',
     'tests/functional/sync_sign_up',
     'tests/functional/sync_v2_sign_up',

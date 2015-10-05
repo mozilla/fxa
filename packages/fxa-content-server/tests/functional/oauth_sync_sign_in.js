@@ -22,8 +22,6 @@ define([
   var email;
   var email2;
   var PASSWORD = '12345678';
-  var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
-  var OLD_ENOUGH_YEAR = TOO_YOUNG_YEAR - 1;
   var accountData;
 
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
@@ -98,7 +96,7 @@ define([
             })
 
             .then(function () {
-              return FunctionalHelpers.fillOutSignUp(self, email2, PASSWORD, OLD_ENOUGH_YEAR);
+              return FunctionalHelpers.fillOutSignUp(self, email2, PASSWORD);
             })
 
             .findByCssSelector('#fxa-confirm-header')

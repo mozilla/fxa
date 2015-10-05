@@ -21,8 +21,6 @@ define([
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
 
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
-  var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
-  var OLD_ENOUGH_YEAR = TOO_YOUNG_YEAR - 1;
 
   var client;
   var email;
@@ -74,7 +72,7 @@ define([
         .end()
 
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .findByCssSelector('#fxa-confirm-header')
@@ -128,7 +126,7 @@ define([
         .end()
 
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .findByCssSelector('#fxa-confirm-header')
@@ -169,7 +167,7 @@ define([
         .end()
 
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .findByCssSelector('#fxa-confirm-header')
@@ -199,7 +197,7 @@ define([
         .end()
 
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .findByCssSelector('#fxa-confirm-header')
@@ -231,7 +229,7 @@ define([
         .end()
 
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
 
@@ -287,7 +285,7 @@ define([
 
         .then(function () {
           return FunctionalHelpers.fillOutSignUp(
-              self, email, PASSWORD, OLD_ENOUGH_YEAR, true);
+              self, email, PASSWORD, true);
         })
 
         .then(function () {
