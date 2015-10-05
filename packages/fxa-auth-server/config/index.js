@@ -265,32 +265,6 @@ var conf = convict({
       default: ''
     }
   },
-  basket: {
-    region: {
-      doc: 'The region where the queues live, most likely the same region we are sending email e.g. us-east-1, us-west-2',
-      format: String,
-      env: 'BASKET_REGION',
-      default: ''
-    },
-    apiUrl: {
-      doc: 'Url for the Basket API server',
-      format: String,
-      env: 'BASKET_API_URL',
-      default: ''
-    },
-    apiKey: {
-      doc: 'Basket API key',
-      format: String,
-      env: 'BASKET_API_KEY',
-      default: ''
-    },
-    queueUrl: {
-      doc: 'The bounce queue URL',
-      format: String,
-      env: 'BASKET_QUEUE_URL',
-      default: ''
-    }
-  },
   useHttps: {
     doc: 'set to true to serve directly over https',
     env: 'USE_TLS',
