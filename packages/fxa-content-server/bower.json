@@ -8,7 +8,7 @@
     "chai": "1.8.1",
     "cocktail": "0.5.9",
     "easteregg": "https://github.com/mozilla/fxa-easter-egg.git#71e61f05ab7c0b7c7fcef8ced12d1969503f5968",
-    "fxa-checkbox": "mozilla/fxa-checkbox#fd04a1b2621bc68feb8f3436cfc8b801c88fd53f",
+    "fxa-checkbox": "mozilla/fxa-checkbox#73e969496a59f047f6080b2bdbc6f9cfe56bb34c",
     "fxa-content-server-l10n": "https://github.com/mozilla/fxa-content-server-l10n.git",
     "fxa-js-client": "https://github.com/mozilla/fxa-js-client.git#0.1.30",
     "fxa-password-strength-checker": "https://github.com/mozilla/fxa-password-strength-checker.git#d73b3ade374607e2749ee375301b0a168008b16f",
