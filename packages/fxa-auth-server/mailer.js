@@ -54,6 +54,12 @@ module.exports = function (log) {
     this.mailer.close()
   }
 
+  Mailer.prototype._supportLinkAttributes = function () {
+    // Not very nice to have presentation code in here, but this is to help l10n
+    // contributors not deal with extraneous noise in strings.
+    return 'href="' + this.supportUrl + '" style="color: #0095dd; text-decoration: none;"'
+  }
+
   Mailer.prototype.send = function (message) {
     log.trace({ op: 'mailer.' + message.template, email: message.email, uid: message.uid })
 
@@ -123,7 +129,8 @@ module.exports = function (log) {
         email: message.email,
         link: link,
         oneClickLink: oneClickLink,
-        supportUrl: this.supportUrl
+        supportUrl: this.supportUrl,
+        supportLinkAttributes: this._supportLinkAttributes()
       },
       uid: message.uid
     })
@@ -154,7 +161,8 @@ module.exports = function (log) {
         code: message.code,
         email: message.email,
         link: link,
-        supportUrl: this.supportUrl
+        supportUrl: this.supportUrl,
+        supportLinkAttributes: this._supportLinkAttributes()
       },
       uid: message.uid
     })
@@ -185,7 +193,8 @@ module.exports = function (log) {
       templateValues: {
         email: message.email,
         link: link,
-        supportUrl: this.supportUrl
+        supportUrl: this.supportUrl,
+        supportLinkAttributes: this._supportLinkAttributes()
       },
       uid: message.uid
     })
@@ -208,7 +217,8 @@ module.exports = function (log) {
       template: 'passwordChangedEmail',
       templateValues: {
         resetLink: link,
-        supportUrl: this.supportUrl
+        supportUrl: this.supportUrl,
+        supportLinkAttributes: this._supportLinkAttributes()
       },
       uid: message.uid
     })
@@ -228,7 +238,8 @@ module.exports = function (log) {
       template: 'passwordResetEmail',
       templateValues: {
         resetLink: link,
-        supportUrl: this.supportUrl
+        supportUrl: this.supportUrl,
+        supportLinkAttributes: this._supportLinkAttributes()
       },
       uid: message.uid
     })
@@ -248,7 +259,8 @@ module.exports = function (log) {
       template: 'newSyncDeviceEmail',
       templateValues: {
         resetLink: link,
-        supportUrl: this.supportUrl
+        supportUrl: this.supportUrl,
+        supportLinkAttributes: this._supportLinkAttributes()
       },
       uid: message.uid
     })
@@ -271,7 +283,8 @@ module.exports = function (log) {
         link: link,
         androidUrl: this.androidUrl,
         iosUrl: this.iosUrl,
-        supportUrl: this.supportUrl
+        supportUrl: this.supportUrl,
+        supportLinkAttributes: this._supportLinkAttributes()
       },
       uid: message.uid
     })
@@ -307,7 +320,8 @@ module.exports = function (log) {
         email: message.email,
         link: link,
         oneClickLink: oneClickLink,
-        supportUrl: this.supportUrl
+        supportUrl: this.supportUrl,
+        supportLinkAttributes: this._supportLinkAttributes()
       },
       uid: message.uid
     })
