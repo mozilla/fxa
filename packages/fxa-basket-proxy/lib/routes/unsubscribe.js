@@ -15,7 +15,7 @@ module.exports = function unsubscribe(req, res) {
   var creds = res.locals.creds;
   var email = encodeURIComponent(creds.email);
 
-  basket.request('/lookup-user/?email=' + email, 'get', {}, function (lookupError, httpRequest, body) {
+  basket.request('/lookup-user/?email=' + email, { method: 'get' }, function (lookupError, httpRequest, body) {
     if (lookupError) {
       logger.error('lookup-user.error', lookupError);
       res.status(400).json(basket.errorResponse(lookupError, basket.errors.UNKNOWN_ERROR));
@@ -40,7 +40,7 @@ module.exports = function unsubscribe(req, res) {
     params.email = creds.email;
     logger.info('params', params);
 
-    basket.request('/unsubscribe/' + responseData.token + '/', 'post', params)
+    basket.request('/unsubscribe/' + responseData.token + '/', { method: 'post', form: params })
       .on('error', function (error) {
         logger.error('error', error);
         res.status(500).json(basket.errorResponse(error, basket.errors.UNKNOWN_ERROR));

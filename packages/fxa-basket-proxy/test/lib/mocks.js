@@ -15,10 +15,9 @@ module.exports.mockOAuthResponse = function mockOAuthResponse() {
   return nock(VERIFY_URL).post('');
 };
 
-module.exports.mockBasketResponse = function mockBasketResponse() {
-  return nock(API_URL, {
-    reqheaders: {
-      'x-api-key': API_KEY
-    }
-  });
+module.exports.mockBasketResponse = function mockBasketResponse(opts) {
+  opts = opts || {};
+  opts.reqheaders = opts.reqheaders || {};
+  opts.reqheaders['x-api-key'] = API_KEY;
+  return nock(API_URL, opts);
 };

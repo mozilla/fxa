@@ -15,6 +15,10 @@ To run the proxy:
 
   node ./bin/basket-proxy-server.js
 
+To process account-related events from SQS:
+
+  node ./bin/basket-event-handler.js
+
 For testing and development purposes, there's a minimal 'fake' implementation
 of the Basket server API that stores its state in memory.  Run it like so,
 and the proxy will use it unless configured with the URL of a live Basket

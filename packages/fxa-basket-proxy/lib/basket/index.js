@@ -13,19 +13,19 @@ var API_TIMEOUT = config.get('basket.api_timeout');
 
 
 // Send a request to the Basket backend
-module.exports.request = function basketRequest(path, method, params, done) {
-  var req = request({
+module.exports.request = function basketRequest(path, options, done) {
+  var reqOptions = {
     url: API_URL + path,
-    //strictSSL: true,
-    method: method,
+    strictSSL: true,
     timeout: API_TIMEOUT,
     headers: {
       'X-API-Key': API_KEY
-    },
-    form: params
-  }, done);
-
-  return req;
+    }
+  };
+  Object.keys(options).forEach(function (key) {
+    reqOptions[key] = options[key];
+  });
+  return request(reqOptions, done);
 };
 
 
