@@ -24,7 +24,10 @@ function (chai, sinon, NavigateBehavior) {
         navigate: sinon.spy()
       };
 
-      navigateBehavior(viewMock);
+      var promise = navigateBehavior(viewMock);
+      // navigateBehavior returns a promise that never resolves,
+      // aborting the rest of the flow.
+      assert.equal(promise.inspect().state, 'pending');
 
       var endpoint = viewMock.navigate.args[0][0];
       var navigateOptions = viewMock.navigate.args[0][1];

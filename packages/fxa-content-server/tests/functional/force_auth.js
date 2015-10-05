@@ -25,23 +25,6 @@ define([
     return FunctionalHelpers.openPage(context, url, '#fxa-force-auth-header');
   }
 
-  function attemptSignIn(context) {
-    return context.remote
-      // user should be at the force-auth screen
-      .findByCssSelector('#fxa-force-auth-header')
-      .end()
-
-      .findByCssSelector('input[type=password]')
-        .click()
-        .type(PASSWORD)
-      .end()
-
-      .findByCssSelector('button[type="submit"]')
-        .click()
-      .end();
-  }
-
-
   registerSuite({
     name: 'force_auth with an existing user',
 
@@ -63,7 +46,7 @@ define([
       return openFxa(self, email)
 
         .then(function () {
-          return attemptSignIn(self);
+          return FunctionalHelpers.fillOutForceAuth(self, PASSWORD);
         })
 
         .findById('fxa-settings-header')
@@ -102,7 +85,7 @@ define([
       return openFxa(self, email)
 
         .then(function () {
-          return attemptSignIn(self);
+          return FunctionalHelpers.fillOutForceAuth(self, PASSWORD);
         })
 
         .findById('fxa-settings-header')
@@ -139,7 +122,7 @@ define([
       return openFxa(self, email)
 
         .then(function () {
-          return attemptSignIn(self);
+          return FunctionalHelpers.fillOutForceAuth(self, PASSWORD);
         })
 
         .then(FunctionalHelpers.visibleByQSA('.error'))

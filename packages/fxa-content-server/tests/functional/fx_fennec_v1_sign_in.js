@@ -59,7 +59,11 @@ define([
               return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
             })
 
-            .findByCssSelector('#fxa-settings-header')
+            .findByCssSelector('#fxa-sign-in-complete-header')
+            .end()
+
+            // user should be able to open sync preferences
+            .findByCssSelector('#sync-preferences')
             .end()
 
             .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))

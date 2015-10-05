@@ -8,12 +8,41 @@
  */
 
 define([
-  'models/auth_brokers/fx-desktop-v2'
-], function (FxDesktopV2AuthenticationBroker) {
+  'models/auth_brokers/fx-desktop-v2',
+  'underscore',
+  'views/behaviors/navigate'
+], function (FxDesktopV2AuthenticationBroker, _, NavigateBehavior) {
   'use strict';
 
+  var proto = FxDesktopV2AuthenticationBroker.prototype;
+
   var FxFennecV1AuthenticationBroker = FxDesktopV2AuthenticationBroker.extend({
-    type: 'fx-fennec-v1'
+    type: 'fx-fennec-v1',
+
+    commands: _.extend({}, proto.commands, {
+      SYNC_PREFERENCES: 'fxaccounts:sync_preferences'
+    }),
+
+    defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
+      emailVerificationMarketingSnippet: false,
+      syncPreferencesNotification: true
+    }),
+
+    defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
+      afterForceAuth: new NavigateBehavior('force_auth_complete'),
+      afterSignIn: new NavigateBehavior('signin_complete'),
+      afterSignUpConfirmationPoll: new NavigateBehavior('signup_complete')
+    }),
+
+    /**
+     * Notify the browser that it should open sync preferences
+     *
+     * @method openSyncPreferences
+     * @returns {promise} resolves when notification is sent.
+     */
+    openSyncPreferences: function () {
+      return this.send(this.getCommand('SYNC_PREFERENCES'));
+    }
   });
 
   return FxFennecV1AuthenticationBroker;

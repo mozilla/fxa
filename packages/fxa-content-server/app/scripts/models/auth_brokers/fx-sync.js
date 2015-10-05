@@ -110,6 +110,14 @@ define([
         });
     },
 
+    afterForceAuth: function (account) {
+      var self = this;
+      return self._notifyRelierOfLogin(account)
+        .then(function () {
+          return proto.afterForceAuth.apply(self, account);
+        });
+    },
+
     beforeSignUpConfirmationPoll: function (account) {
       // The Sync broker notifies the browser of an unverified login
       // before the user has verified her email. This allows the user

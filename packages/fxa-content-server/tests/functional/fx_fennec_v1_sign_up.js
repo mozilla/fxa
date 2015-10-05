@@ -70,6 +70,10 @@ define([
         .findByCssSelector('#fxa-sign-up-complete-header')
         .end()
 
+        // user should be able to open sync preferences
+        .findByCssSelector('#sync-preferences')
+        .end()
+
         .findByCssSelector('.account-ready-service')
         .getVisibleText()
         .then(function (text) {
@@ -83,6 +87,10 @@ define([
         .end()
 
         .findByCssSelector('#fxa-sign-up-complete-header')
+        .end()
+
+        // user should be able to open sync preferences
+        .findByCssSelector('#sync-preferences')
         .end();
     }
   });

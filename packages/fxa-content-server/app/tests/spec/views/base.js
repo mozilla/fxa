@@ -33,15 +33,15 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
 
   describe('views/base', function () {
     var broker;
-    var view;
-    var router;
-    var windowMock;
     var ephemeralMessages;
-    var translator;
-    var metrics;
     var fxaClient;
-    var user;
+    var metrics;
+    var router;
     var screenName = 'screen';
+    var translator;
+    var user;
+    var view;
+    var windowMock;
 
     var View = BaseView.extend({
       layoutClassName: 'layout',
@@ -52,6 +52,7 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
     beforeEach(function () {
       translator = new Translator('en-US', ['en-US']);
       translator.set({
+        'another message': 'another translated message',
         'the error message': 'a translated error message',
         'the success message': 'a translated success message'
       });
@@ -334,6 +335,29 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
         assert.isTrue(view.destroySubviews.called);
 
         assert.isFalse($('body').hasClass('layout'));
+      });
+    });
+
+    describe('translate', function () {
+      it('translates a message, if a translation is available', function () {
+        assert.equal(view.translate('no translation'), 'no translation');
+        assert.equal(view.translate('another message'), 'another translated message');
+      });
+    });
+
+    describe('translateInTemplate', function () {
+      describe('returns a function that can by used by Handlebars to do translation', function () {
+        it('can be bound to a string on creation', function () {
+          var translationFunc = view.translateInTemplate('another message');
+
+          assert.equal(translationFunc(), 'another translated message');
+        });
+
+        it('returned function can be passed a string at runtime', function () {
+          var translationFunc = view.translateInTemplate();
+
+          assert.equal(translationFunc('another message'), 'another translated message');
+        });
       });
     });
 

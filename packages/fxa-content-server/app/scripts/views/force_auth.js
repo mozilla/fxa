@@ -84,6 +84,15 @@ function (Cocktail, p, BaseView, FormView, SignInView, PasswordMixin,
       }
     },
 
+    onSignInSuccess: function (account) {
+      var self = this;
+      self.logScreenEvent('success');
+      return self.invokeBrokerMethod('afterForceAuth', account)
+        .then(function () {
+          self.navigate(self._redirectTo || 'settings');
+        });
+    },
+
     resetPasswordNow: function () {
       var self = this;
       return p().then(function () {

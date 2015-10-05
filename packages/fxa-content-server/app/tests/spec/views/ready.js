@@ -29,7 +29,7 @@ function (chai, sinon, View, Session, FxaClient, Able, p, SyncRelier,
     var able;
     var metrics;
 
-    function createView() {
+    function createDeps() {
       windowMock = new WindowMock();
       relier = new SyncRelier({
         window: windowMock
@@ -46,53 +46,50 @@ function (chai, sinon, View, Session, FxaClient, Able, p, SyncRelier,
         flush: sinon.spy(p),
         logMarketingImpression: function () {}
       };
+    }
+
+    function createView(type) {
       view = new View({
         able: able,
         broker: broker,
         fxaClient: fxaClient,
         metrics: metrics,
         relier: relier,
+        type: type,
         window: windowMock
       });
     }
 
-    beforeEach(function () {
-      createView();
-    });
-
-    afterEach(function () {
-      view.remove();
-      view.destroy();
-      view = null;
-    });
-
     describe('render', function () {
-      it('renders with correct header for reset_password type', function () {
-        view.type = 'reset_password';
-
-        return view.render()
-          .then(function () {
-            assert.ok(view.$('#fxa-reset-password-complete-header').length);
-          });
+      beforeEach(function () {
+        createDeps();
       });
 
-      it('renders with correct header for sign_up type', function () {
-        view.type = 'sign_up';
-        return view.render()
-          .then(function () {
-            assert.ok(view.$('#fxa-sign-up-complete-header').length);
-          });
+      afterEach(function () {
+        view.remove();
+        view.destroy();
       });
 
-      it('renders with correct header for account_unlock type', function () {
-        view.type = 'account_unlock';
-        return view.render()
-          .then(function () {
-            assert.ok(view.$('#fxa-account-unlock-complete-header').length);
-          });
-      });
+      var expectedHeaders = {
+        'account_unlock': '#fxa-account-unlock-complete-header',
+        'force_auth': '#fxa-force-auth-complete-header',
+        'reset_password': '#fxa-reset-password-complete-header',
+        'sign_in': '#fxa-sign-in-complete-header',
+        'sign_up': '#fxa-sign-up-complete-header'
+      };
+
+      for (var type in expectedHeaders) {
+        it('renders the correct header for `' + type + '`', function (type) {
+          createView(type);
+          return view.render()
+            .then(function () {
+              assert.ok(view.$(expectedHeaders[type]).length);
+            });
+        }.bind(null, type));
+      }
 
       it('shows service name if available', function () {
+        createView('sign_up');
         relier.set('serviceName', 'Firefox Sync');
 
         return view.render()
@@ -104,6 +101,7 @@ function (chai, sinon, View, Session, FxaClient, Able, p, SyncRelier,
 
       // regression test for #1216
       it('does not show service name if service is defined but serviceName is not', function () {
+        createView('sign_up');
         view.context = function () {
           return {
             service: 'sync'
@@ -116,11 +114,16 @@ function (chai, sinon, View, Session, FxaClient, Able, p, SyncRelier,
           });
       });
 
-      it('shows some form of marketing for english speakers', function () {
-        view.type = 'sign_up';
+      it('shows some form of marketing for english speakers if capability is supported', function () {
         Session.set('language', 'en');
         relier.set('service', 'sync');
+        sinon.stub(broker, 'hasCapability', function (type) {
+          if (type === 'emailVerificationMarketingSnippet') {
+            return true;
+          }
+        });
 
+        createView('sign_up');
         return view.render()
           .then(function () {
             assert.equal(view.$('.marketing').length, 1);
@@ -131,9 +134,14 @@ function (chai, sinon, View, Session, FxaClient, Able, p, SyncRelier,
         sinon.stub(able, 'choose', function () {
           return true;
         });
+        sinon.stub(broker, 'hasCapability', function (type) {
+          if (type === 'emailVerificationMarketingSnippet') {
+            return true;
+          }
+        });
 
-        view.type = 'sign_up';
         relier.set('service', 'sync');
+        createView('sign_up');
 
         return view.render()
           .then(function () {
@@ -142,42 +150,125 @@ function (chai, sinon, View, Session, FxaClient, Able, p, SyncRelier,
           });
       });
 
-      it('formats the service name correctly depending on the always redirect param', function () {
-        var serviceName = 'Find My Device';
-        var redirectUri = 'https://find.firefox.com';
-        view.type = 'sign_up';
-        relier.set('redirectUri', redirectUri);
-        relier.set('serviceName', serviceName);
-        assert.isFalse(view.context().showProceedButton);
-        assert.equal(view.context().redirectUri, redirectUri);
+      it('does not show marketing if the broker does not support it', function () {
+        sinon.stub(broker, 'hasCapability', function (type) {
+          if (type === 'emailVerificationMarketingSnippet') {
+            return false;
+          }
+        });
 
-        relier.set('verificationRedirect', 'always');
-        assert.isTrue(view.context().showProceedButton);
+        createView('sign_up');
 
-        relier.set('redirectUri', 'urn:ietf:wg:oauth:2.0:fx:webchannel');
-        assert.isFalse(view.context().showProceedButton);
-
-        relier.set('redirectUri', null);
-        assert.isFalse(view.context().showProceedButton);
-
-        // if view.type is not sign_up then should not show
-        view.type = null;
-        relier.set('verificationRedirect', 'always');
-        assert.isFalse(view.context().showProceedButton);
-
+        return view.render()
+          .then(function () {
+            assert.equal(view.$('.marketing').length, 0);
+            assert.equal(view.$('.os-general').length, 0);
+          });
       });
 
-      it('submits with the proceed button with verification_redirect', function () {
+      it('formats the service name correctly depending on the always redirect param', function () {
+        createView('sign_up');
+        var serviceName = 'Find My Device';
+        var redirectUri = 'https://find.firefox.com';
+        relier.set('redirectUri', redirectUri);
+        relier.set('serviceName', serviceName);
+        assert.isFalse(view.context().shouldShowProceedButton);
+
+        relier.set('verificationRedirect', 'always');
+        assert.isTrue(view.context().shouldShowProceedButton);
+
+        relier.set('redirectUri', 'urn:ietf:wg:oauth:2.0:fx:webchannel');
+        assert.isFalse(view.context().shouldShowProceedButton);
+
+        relier.set('redirectUri', null);
+        assert.isFalse(view.context().shouldShowProceedButton);
+      });
+
+      it('shows the `proceed` button for verification_redirect', function () {
+        relier.set('serviceName', 'Find My Device');
+        relier.set('redirectUri', 'https://find.firefox.com');
+        relier.set('verificationRedirect', 'always');
+
+        relier.isSync = sinon.spy(function () {
+          return false;
+        });
+
+        createView('sign_up');
+
+        return view.render()
+          .then(function () {
+            assert.ok(view.$('#proceed').length);
+          });
+      });
+
+      it('shows the `sync preferences` button for supporting brokers', function () {
+        relier.isSync = sinon.spy(function () {
+          return true;
+        });
+
+        sinon.stub(broker, 'hasCapability', function (type) {
+          if (type === 'syncPreferencesNotification') {
+            return true;
+          }
+        });
+
+        createView('sign_up');
+        return view.render()
+          .then(function () {
+            assert.ok(view.$('#sync-preferences').length);
+          });
+      });
+    });
+
+    describe('submit', function () {
+      beforeEach(function () {
+        createDeps();
+      });
+
+      afterEach(function () {
+        view.remove();
+        view.destroy();
+      });
+
+      it('for `proceed` - submit metrics, redirect to verification_redirect', function () {
         var redirectUri = 'https://find.firefox.com';
 
-        view.type = 'sign_up';
         relier.set('redirectUri', redirectUri);
         relier.set('verificationRedirect', 'always');
+
+        relier.isSync = sinon.spy(function () {
+          return false;
+        });
+
+        createView('sign_up');
 
         return view.submit().then(function () {
           assert.isTrue(metrics.flush.calledOnce);
           assert.lengthOf(metrics.flush.getCall(0).args, 0);
           assert.equal(windowMock.location.href, redirectUri);
+        });
+      });
+
+      it('for `sync preferences` - submit metrics, notify broker', function () {
+        relier.isSync = sinon.spy(function () {
+          return true;
+        });
+
+        sinon.stub(broker, 'hasCapability', function (type) {
+          if (type === 'syncPreferencesNotification') {
+            return true;
+          }
+        });
+
+        broker.openSyncPreferences = sinon.spy(function () {
+          return p();
+        });
+
+        createView('sign_up');
+
+        return view.submit().then(function () {
+          assert.isTrue(metrics.flush.calledOnce);
+          assert.isTrue(broker.openSyncPreferences.called);
         });
       });
 
