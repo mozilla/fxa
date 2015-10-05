@@ -15,6 +15,7 @@ var accountResetTokens = {}
 var passwordChangeTokens = {}
 var passwordForgotTokens = {}
 var accountUnlockCodes = {}
+var devices = {}
 
 module.exports = function (log, error) {
 
@@ -85,9 +86,6 @@ module.exports = function (log, error) {
       uaDeviceType: sessionToken.uaDeviceType,
       lastAccessTime: sessionToken.createdAt
     }
-
-    var account = accounts[sessionToken.uid.toString('hex')]
-    account.devices[tokenId] = sessionToken
 
     return P.resolve({})
   }
@@ -171,6 +169,41 @@ module.exports = function (log, error) {
     return P.resolve({})
   }
 
+  function internalDeviceId(account, deviceInfo) {
+    if (!deviceInfo.id) {
+      deviceInfo.id = Object.keys(account.devices).length + 1
+    }
+    return account.uid.toString('hex') + '_' + deviceInfo.id
+  }
+
+  Memory.prototype.upsertDevice = function (uid, deviceInfo) {
+    if (deviceInfo.sessionTokenId) {
+      deviceInfo.sessionTokenId = deviceInfo.sessionTokenId.toString('hex')
+    }
+    if (!deviceInfo.uid) {
+      deviceInfo.uid = uid
+    }
+    return getAccountByUid(uid)
+      .then(
+        function (account) {
+          var id = internalDeviceId(account, deviceInfo)
+          var device = extend(devices[id] || {}, deviceInfo)
+          var session = sessionTokens[device.sessionTokenId]
+          if (session) {
+            device.uaBrowser = session.uaBrowser
+            device.uaBrowserVersion = session.uaBrowserVersion
+            device.uaOS = session.uaOS
+            device.uaOSVersion = session.uaOSVersion
+            device.uaDeviceType = session.uaDeviceType
+            device.lastAccessTime = session.lastAccessTime
+          }
+          devices[id] = device
+          account.devices[device.id] = true
+          return device
+        }
+      )
+  }
+
   // DELETE
 
   // The lazy way
@@ -196,11 +229,8 @@ module.exports = function (log, error) {
       return P.resolve({})
     }
 
-    var sessionToken = sessionTokens[tokenId]
     delete sessionTokens[tokenId]
 
-    var account = accounts[sessionToken.uid.toString('hex')]
-    delete account.devices[tokenId]
     return P.resolve({})
   }
 
@@ -222,6 +252,19 @@ module.exports = function (log, error) {
   Memory.prototype.deletePasswordChangeToken = function (tokenId) {
     delete passwordChangeTokens[tokenId.toString('hex')]
     return P.resolve({})
+  }
+
+  Memory.prototype.deleteDevice = function (uid, deviceId) {
+    return getAccountByUid(uid)
+      .then(
+        function (account) {
+          var id = internalDeviceId(account, { id: deviceId })
+          var device = devices[id] || {}
+          delete sessionTokens[device.sessionTokenId]
+          delete account.devices[device.id]
+          return {}
+        }
+      )
   }
 
   // READ
@@ -251,14 +294,28 @@ module.exports = function (log, error) {
 
   Memory.prototype.accountDevices = function (uid) {
     return getAccountByUid(uid)
-      .then(function(account) {
-        var devices = Object.keys(account.devices).map(
-          function (id) {
-            return account.devices[id]
-          }
-        )
-        return P.resolve(devices)
-      })
+      .then(
+        function(account) {
+          return Object.keys(account.devices).map(
+            function (id) {
+              var device = devices[internalDeviceId(account, { id: id })]
+              var session = sessionTokens[device.sessionTokenId]
+              if (session) {
+                device.uaBrowser = session.uaBrowser
+                device.uaBrowserVersion = session.uaBrowserVersion
+                device.uaOS = session.uaOS
+                device.uaOSVersion = session.uaOSVersion
+                device.uaDeviceType = session.uaDeviceType
+                device.lastAccessTime = session.lastAccessTime
+              }
+              return device
+            }
+          )
+        },
+        function (err) {
+          return []
+        }
+      )
   }
 
   // account():
@@ -504,6 +561,7 @@ module.exports = function (log, error) {
           deleteByUid(uid, passwordChangeTokens)
           deleteByUid(uid, passwordForgotTokens)
           deleteByUid(uid, accountUnlockCodes)
+          deleteByUid(uid, devices)
 
           delete uidByNormalizedEmail[account.normalizedEmail]
           delete uidByOpenId[account.openId]

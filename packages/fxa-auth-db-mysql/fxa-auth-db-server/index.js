@@ -13,27 +13,29 @@ function createServer(db) {
     return function (req, res, next) {
       fn.call(db, req.params.id, req.body)
         .then(
-          function (result) {
-            api.emit(
-              'success',
-              {
-                code: 200,
-                route: req.route.name,
-                method: req.method,
-                path: req.url,
-                t: Date.now() - req.time()
-              }
-            )
-            if (Array.isArray(result)) {
-              res.send(result.map(bufferize.unbuffer))
-            }
-            else {
-              res.send(bufferize.unbuffer(result || {}))
-            }
-          },
+          handleSuccess.bind(null, req, res),
           handleError.bind(null, req, res)
         )
         .done(next, next)
+    }
+  }
+
+  function handleSuccess(req, res, result) {
+    api.emit(
+      'success',
+      {
+        code: 200,
+        route: req.route.name,
+        method: req.method,
+        path: req.url,
+        t: Date.now() - req.time()
+      }
+    )
+    if (Array.isArray(result)) {
+      res.send(result.map(bufferize.unbuffer))
+    }
+    else {
+      res.send(bufferize.unbuffer(result || {}))
     }
   }
 
@@ -71,13 +73,15 @@ function createServer(db) {
     'uaBrowserVersion',
     'uaOS',
     'uaOSVersion',
-    'uaDeviceType'
+    'uaDeviceType',
+    'deviceId'
   ]))
 
   api.get('/account/:id', reply(db.account))
   api.del('/account/:id', reply(db.deleteAccount))
   api.put('/account/:id', reply(db.createAccount))
   api.get('/account/:id/devices', reply(db.accountDevices))
+  api.post('/account/:id/device', reply(db.upsertDevice))
   api.post('/account/:id/checkPassword', reply(db.checkPassword))
   api.post('/account/:id/reset', reply(db.resetAccount))
   api.post('/account/:id/verifyEmail', reply(db.verifyEmail))
@@ -116,6 +120,18 @@ function createServer(db) {
   api.get('/openIdRecord/:id', reply(db.openIdRecord))
 
   api.get('/__heartbeat__', reply(db.ping))
+
+  api.del(
+    '/account/:uid/device/:deviceId',
+    function (req, res, next) {
+      db.deleteDevice(req.params.uid, parseInt(req.params.deviceId, 10) || 0)
+        .then(
+          handleSuccess.bind(null, req, res),
+          handleError.bind(null, req, res)
+        )
+        .done(next, next)
+    }
+  )
 
   api.get(
     '/',
