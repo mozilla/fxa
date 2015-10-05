@@ -75,6 +75,8 @@ body.settings #main-content.card {
   }
 
   .settings-success-wrapper {
+    z-index: 2;
+
     @include respond-to('big') {
       left: 50%;
       margin: 0 0 0 -250px;
