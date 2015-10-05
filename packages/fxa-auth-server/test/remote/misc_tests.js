@@ -214,6 +214,7 @@ TestServer.start(config)
           t.ok(/^[0-9]+$/.test(doc['public-key'].e), 'e is base 10')
           t.ok(doc.hasOwnProperty('authentication'), 'doc has auth page')
           t.ok(doc.hasOwnProperty('provisioning'), 'doc has provisioning page')
+          t.equal(doc.keys.length, 1)
           return doc
         }
       )

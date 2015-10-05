@@ -13,21 +13,25 @@ function toDec(str) {
   return /^[0-9]+$/.test(str) ? str : b64toDec(str)
 }
 
-function browseridKey(jwk) {
+function browseridFormat(keys) {
+  var primary = keys[0]
   return {
     'public-key': {
-      algorithm: jwk.algorithm,
-      n: toDec(jwk.n),
-      e: toDec(jwk.e)
+      algorithm: primary.jwk.algorithm,
+      n: toDec(primary.jwk.n),
+      e: toDec(primary.jwk.e)
     },
-    'authentication': '/.well-known/browserid/sign_in.html',
-    'provisioning': '/.well-known/browserid/provision.html'
+    authentication: '/.well-known/browserid/sign_in.html',
+    provisioning: '/.well-known/browserid/provision.html',
+    keys: keys
   }
 }
 
-module.exports = function (log, serverPublicKey) {
+module.exports = function (log, serverPublicKeys) {
+  var keys = [ serverPublicKeys.primary ]
+  if (serverPublicKeys.secondary) { keys.push(serverPublicKeys.secondary) }
 
-  var browserid = browseridKey(serverPublicKey.jwk)
+  var browserid = browseridFormat(keys)
 
   var routes = [
     {
@@ -51,7 +55,7 @@ module.exports = function (log, serverPublicKey) {
         // FOR DEV PURPOSES ONLY
         reply(
           {
-            keys: [ serverPublicKey ]
+            keys: keys
           }
         )
       }
