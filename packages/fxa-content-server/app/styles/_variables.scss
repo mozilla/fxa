@@ -32,17 +32,15 @@ $faint-text-color: #8a9ba8;
 $cropper-background-color: #000;
 $horizontal-rule-color: #e4e4e4;
 $input-background-disabled-color: #f2f2f2;
-$input-border-disabled-color: #dddddd;
+$input-border-disabled-color: #ddd;
 $input-disabled-color: #64778c;
 $secondary-button-border-color: #c1c1c1;
 $modal-border-color: #000;
-
 
 //Settings Specific Colors
 $settings-header-border-bottom: #b4bdc3;
 $settings-success-background-color: rgb(205, 248, 208);
 $settings-success-border-color: rgb(0, 170, 0);
-
 
 //Font-Size Variables
 $large-font: 24px;
@@ -74,6 +72,7 @@ $close-button-color: #c5cdd4;
 $close-button-zindex: $fox-logo-zindex + 1;
 
 $image-url-path: "/images/" !default;
+
 @function image-url($url) {
   @return url("#{$image-url-path}#{$url}");
 }

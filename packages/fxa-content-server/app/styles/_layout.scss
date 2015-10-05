@@ -67,19 +67,33 @@
   }
 
   @include respond-to('small') {
-    border-bottom: 1px solid #b4bdc3;
-    border-top: 1px solid #b4bdc3;
-    width: 100%;
+    border-bottom: 1px solid $settings-header-border-bottom;
+    border-top: 1px solid $settings-header-border-bottom;
     padding: 30px 3% 10px;
+    width: 100%;
+  }
+
+  @include respond-to('compressedLandscape') {
+    border: 1px solid $settings-header-border-bottom;
+    border-radius: $small-border-radius;
+    max-width: 750px;
+    padding-left: 20px;
+    padding-right: 20px;
+    width: 94%;
   }
 }
 
 #fxa-settings-header {
   margin: 0 auto;
+  padding: 0 3%;
   white-space: nowrap;
   width: 100%;
-  padding: 0 3%;
 
+  @include respond-to('compressedLandscape') {
+    max-width: 750px;
+    width: 94%;
+    padding: 0;
+  }
 }
 
 #stage {
