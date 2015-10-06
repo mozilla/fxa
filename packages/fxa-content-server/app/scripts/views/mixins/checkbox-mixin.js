@@ -29,7 +29,7 @@ define([
       var target = $(event.currentTarget);
       var isChecked = target.is(':checked');
       var checkedText = isChecked ? 'checked' : 'unchecked';
-      var id = target.attr('id');
+      var id = target.attr('id') || target.attr('name');
 
       // if no id, doesn't really make sense to log it.
       if (id) {

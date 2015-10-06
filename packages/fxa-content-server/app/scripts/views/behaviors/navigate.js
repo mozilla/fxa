@@ -16,6 +16,7 @@ define([
 
     var behavior = function (view) {
       view.navigate(endpoint, {
+        data: options.data,
         error: options.error,
         success: options.success
       });

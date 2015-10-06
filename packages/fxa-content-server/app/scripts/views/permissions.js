@@ -8,9 +8,11 @@ define([
   'stache!templates/permissions',
   'lib/promise',
   'views/mixins/back-mixin',
-  'views/mixins/service-mixin'
+  'views/mixins/service-mixin',
+  'views/mixins/signup-success-mixin'
 ],
-function (Cocktail, FormView, Template, p, BackMixin, ServiceMixin) {
+function (Cocktail, FormView, Template, p, BackMixin, ServiceMixin,
+  SignupSuccessMixin) {
   'use strict';
 
   var View = FormView.extend({
@@ -66,23 +68,6 @@ function (Cocktail, FormView, Template, p, BackMixin, ServiceMixin) {
       });
     },
 
-    onSignUpSuccess: function (account) {
-      var self = this;
-      if (account.get('verified')) {
-        // user was pre-verified, notify the broker.
-        return self.invokeBrokerMethod('afterSignIn', account)
-          .then(function () {
-            self.navigate('signup_complete');
-          });
-      } else {
-        self.navigate('confirm', {
-          data: {
-            account: account
-          }
-        });
-      }
-    },
-
     onSignInSuccess: function (account) {
       var self = this;
       self.logScreenEvent('success');
@@ -112,8 +97,9 @@ function (Cocktail, FormView, Template, p, BackMixin, ServiceMixin) {
 
   Cocktail.mixin(
     View,
+    BackMixin,
     ServiceMixin,
-    BackMixin
+    SignupSuccessMixin
   );
 
   return View;

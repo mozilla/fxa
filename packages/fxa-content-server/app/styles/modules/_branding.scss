@@ -73,3 +73,18 @@
   }
 }
 
+#choose-what-to-sync-graphic {
+  @include hidpi-background-image('choose_what_to_sync_devices', 200px 110px, 'jpg');
+  background-position: center top;
+  background-repeat: no-repeat;
+  height: 110px;
+  margin: 0 auto;
+  width: 200px;
+
+  @include respond-to('big') {
+    background-size: 300px 165px;
+    height: 165px;
+    width: 300px;
+  }
+}
+

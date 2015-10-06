@@ -1,0 +1,86 @@
+<div id="main-content" class="card">
+  <div id="choose-what-to-sync-graphic"></div>
+
+  <header>
+    <h1 id="fxa-choose-what-to-sync-header">
+      {{#t}}Choose What to Sync{{/t}}
+      <span class="email">for {{ email }}</span>
+    </h1>
+  </header>
+
+  <section>
+    <div class="error"></div>
+    <div class="success"></div>
+
+    <form id="choose-what-to-sync" novalidate>
+        {{#hasBookmarkSupport}}
+          <div class="input-row choose-what-to-sync-row">
+            <label class="fxa-checkbox">
+              <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="bookmarks"> 
+              <span class="fxa-checkbox__label">
+                {{#t}}Bookmarks{{/t}}
+              </span>
+            </label>
+          </div>
+        {{/hasBookmarkSupport}}
+        {{#hasHistorySupport}}
+          <div class="input-row choose-what-to-sync-row">
+            <label class="fxa-checkbox">
+              <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="history"> 
+              <span class="fxa-checkbox__label">
+                {{#t}}History{{/t}}
+              </span>
+            </label>
+          </div>
+        {{/hasHistorySupport}}
+        {{#hasTabSupport}}
+          <div class="input-row choose-what-to-sync-row">
+            <label class="fxa-checkbox">
+              <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="tabs"> 
+              <span class="fxa-checkbox__label">
+                {{#t}}Tabs{{/t}}
+              </span>
+            </label>
+          </div>
+        {{/hasTabSupport}}
+        {{#hasPasswordSupport}}
+          <div class="input-row choose-what-to-sync-row">
+            <label class="fxa-checkbox">
+              <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="passwords"> 
+              <span class="fxa-checkbox__label">
+                {{#t}}Passwords{{/t}}
+              </span>
+            </label>
+          </div>
+        {{/hasPasswordSupport}}
+        {{#hasDesktopAddonSupport}}
+          <div class="input-row choose-what-to-sync-row">
+            <label class="fxa-checkbox">
+              <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="addons"> 
+              <span class="fxa-checkbox__label">
+                {{#t}}Desktop Add-ons{{/t}}
+              </span>
+            </label>
+          </div>
+        {{/hasDesktopAddonSupport}}
+        {{#hasDesktopPreferencesSupport}}
+          <div class="input-row choose-what-to-sync-row">
+            <label class="fxa-checkbox">
+              <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="prefs"> 
+              <span class="fxa-checkbox__label">
+               {{#t}}Desktop Preferences{{/t}}
+              </span>
+            </label>
+          </div>
+        {{/hasDesktopPreferencesSupport}}
+        <div class="button-row">
+          <button id="submit-btn" type="submit">{{#t}}Next{{/t}}</button>
+        </div>
+    </form>
+
+    <div class="links">
+      <a href="#" id="back">{{#t}}Cancel{{/t}}</a>
+    </div>
+
+  </section>
+</div>

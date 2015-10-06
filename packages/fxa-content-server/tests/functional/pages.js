@@ -14,6 +14,7 @@ define([
     'account_unlock_complete',
     'boom',
     'cannot_create_account',
+    'choose_what_to_sync',
     'clear',
     'complete_reset_password',
     'complete_unlock_account',

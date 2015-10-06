@@ -51,12 +51,19 @@ define([
         .findById('fxa-force-auth-complete-header')
         .end()
 
+        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
+        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:login'))
+
+        .then(FunctionalHelpers.noSuchBrowserNotification(self, 'fxaccounts:sync_preferences'))
+
         // user should be able to open sync preferences
         .findByCssSelector('#sync-preferences')
+          // user wants to open sync preferences.
+          .click()
         .end()
 
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:login'));
+        // browser is notified of desire to open Sync preferences
+        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:sync_preferences'));
     }
   });
 });

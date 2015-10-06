@@ -16,10 +16,11 @@ define([
   'lib/promise',
   'lib/validate',
   'models/auth_brokers/base',
-  'views/behaviors/halt'
+  'views/behaviors/halt',
+  'views/behaviors/navigate'
 ],
 function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
-      BaseAuthenticationBroker, HaltBehavior) {
+      BaseAuthenticationBroker, HaltBehavior, NavigateBehavior) {
   'use strict';
 
   /**
@@ -160,6 +161,19 @@ function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
         .then(function () {
           return proto.afterSignIn.call(self, account);
         });
+    },
+
+    afterSignUp: function (account) {
+      var relier = this.relier;
+      return p().then(function () {
+        if (relier.accountNeedsPermissions(account)) {
+          return new NavigateBehavior('signup_permissions', {
+            data: {
+              account: account
+            }
+          });
+        }
+      });
     },
 
     afterSignUpConfirmationPoll: function (account) {

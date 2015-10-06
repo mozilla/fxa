@@ -179,6 +179,7 @@ define([
       it('notifies the channel of login, does not halt by default', function () {
         account.set({
           customizeSync: true,
+          declinedSyncEngines: ['bookmarks', 'passwords'],
           keyFetchToken: 'key_fetch_token',
           notSent: 'not_sent',
           sessionToken: 'session_token',
@@ -193,11 +194,13 @@ define([
 
             var args = channelMock.send.args[0];
             assert.equal(args[0], 'login');
-            assert.equal(args[1].email, 'testuser@testuser.com');
-            assert.equal(args[1].uid, 'uid');
-            assert.equal(args[1].sessionToken, 'session_token');
-            assert.equal(args[1].unwrapBKey, 'unwrap_b_key');
             assert.equal(args[1].customizeSync, true);
+            assert.deepEqual(
+                args[1].declinedSyncEngines, ['bookmarks', 'passwords']);
+            assert.equal(args[1].email, 'testuser@testuser.com');
+            assert.equal(args[1].sessionToken, 'session_token');
+            assert.equal(args[1].uid, 'uid');
+            assert.equal(args[1].unwrapBKey, 'unwrap_b_key');
             assert.equal(args[1].verified, true);
             assert.isUndefined(args[1].sessionTokenContext);
 

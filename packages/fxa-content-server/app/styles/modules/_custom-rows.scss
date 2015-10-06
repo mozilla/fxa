@@ -89,6 +89,19 @@ ul.links {
   }
 }
 
+.choose-what-to-sync-row {
+  label {
+    display: block;
+    text-align: left;
+
+    .fxa-checkbox__box-outline {
+      // The default is 2px, but leaves the checkbox 
+      // too high in comparison to the text.
+      top: 5px;
+    }
+  }
+}
+
 .cannot-create-account-content {
   margin-top: 105px;
 

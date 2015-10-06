@@ -98,7 +98,11 @@ header {
       margin: 0 0 10px 0;
     }
 
-    .service {
+    &#fxa-choose-what-to-sync-header {
+      margin-bottom: 10px;
+    }
+
+    .service, .email {
       display: block;
 
       @include respond-to('big') {
@@ -116,6 +120,12 @@ header {
       .chromeless & {
         display: none;
       }
+    }
+
+    .email {
+      // allow long email addresses to be 
+      // split across lines
+      word-break: break-all;
     }
   }
 
