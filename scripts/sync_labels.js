@@ -10,10 +10,10 @@ GH = require('./gh.js')
 P = require('bluebird')
 
 COLORS = {
-  WAFFLE: 'ededed',
+  STATUS: 'ededed',
   RESOLUTION: 'e6e6e6',
-  THEME: 'eb6420',
   ALERT: 'e11d21',
+  WARNING: 'eb6420',
   INFO: '207de5',
   TARGET: 'd4c5f9',
   WELCOMING: '009800'
@@ -25,24 +25,23 @@ COLORS = {
 
 STANDARD_LABELS = {
   // Issue lifecycle management labels, for waffle.
-  'waffle:backlog': { color: COLORS.WAFFLE },
-  'waffle:soon': { color: COLORS.WAFFLE },
-  'waffle:next': { color: COLORS.WAFFLE },
-  'waffle:now': { color: COLORS.WAFFLE },
-  'waffle:progress': { color: COLORS.WAFFLE },
-  'waffle:review': { color: COLORS.WAFFLE },
+  'waffle:backlog': { color: COLORS.STATUS },
+  'waffle:next': { color: COLORS.STATUS },
+  'waffle:now': { color: COLORS.STATUS },
+  'waffle:progress': { color: COLORS.STATUS },
+  'waffle:review': { color: COLORS.STATUS },
+  'waffle:blocked': { color: COLORS.ALERT },
   // Issue deathcycle management labels, for reporting purposes.
   'resolved:fixed': { color: COLORS.RESOLUTION },
   'resolved:wontfix': { color: COLORS.RESOLUTION },
   'resolved:invalid': { color: COLORS.RESOLUTION },
   'resolved:duplicate': { color: COLORS.RESOLUTION },
   'resolved:worksforme': { color: COLORS.RESOLUTION },
-  // Labels for active initiatives.  There are ongoing initiatives
-  // like "chore" and "quality"
-  'chore': { color: COLORS.THEME },
-  'quality': { color: COLORS.THEME },
   // For calling out really important stuff.
+  '❤': { color: COLORS.ALERT },
+  '❤❤❤': { color: COLORS.ALERT },
   'blocker': { color: COLORS.ALERT },
+  'shipit': { color: COLORS.WARNING },
   'good-first-bug': { color: COLORS.WELCOMING },
   'WIP': { color: COLORS.INFO },
   // Cross-cutting concerns that we need to account for when
@@ -58,7 +57,8 @@ WAFFLE_LABEL_ORDER =[
   'waffle:next',
   'waffle:now',
   'waffle:progress',
-  'waffle:review'
+  'waffle:review',
+  'waffle:blocked'
 ]
 
 
@@ -74,6 +74,7 @@ module.exports = {
         curLabels[labelInfo.name] = labelInfo
       })
       var p = P.resolve(null);
+      // Create an standard labels that are missing.
       Object.keys(STANDARD_LABELS).forEach(function(label) {
         if (! (label in curLabels)) {
           p = p.then(function() {
@@ -93,6 +94,33 @@ module.exports = {
               color: STANDARD_LABELS[label].color
             })
           })
+        }
+      })
+      // Delete any labels that should no longer be there.
+      Object.keys(curLabels).forEach(function(label) {
+        if (! (label in STANDARD_LABELS)) {
+          var obsolete = false;
+          // Waffle columns that no longer exist.
+          if (label.indexOf('waffle:') === 0) {
+            obsolete = true;
+          }
+          // Old Fx4X labels
+          if (label.indexOf('Fx4') === 0) {
+            obsolete = true;
+          }
+          // Old priority labels
+          if (['❤❤', 'z-later', 'wontfix'].indexOf(label) !== -1) {
+            obsolete = true;
+          }
+          if (obsolete) {
+            p = p.then(function() {
+              console.log("Deleting '" + label + "' on " + repo)
+              return gh.issues.deleteLabel({
+                repo: repo,
+                name: label
+              })
+            })
+          }
         }
       })
       return p
