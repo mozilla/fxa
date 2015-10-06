@@ -29,3 +29,4 @@ fxa-easter-egg
 fxa-password-strength-checker
 browserid-verifier
 browserid-local-verify
+fxa-checkbox
