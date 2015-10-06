@@ -49,6 +49,20 @@ var conf = module.exports = convict({
       doc: 'Timeout for talking to the Basket API server, in ms',
       format: 'duration',
       default: '5 seconds'
+    },
+    sqs: {
+      region: {
+        doc: 'The region where the queues live, e.g. us-east-1, us-west-2',
+        format: String,
+        env: 'BASKET_SQS_REGION',
+        default: ''
+      },
+      queue_url: {
+        doc: 'The basket event queue URL',
+        format: String,
+        env: 'BASKET_SQS_QUEUE_URL',
+        default: ''
+      }
     }
   },
   oauth_url: {

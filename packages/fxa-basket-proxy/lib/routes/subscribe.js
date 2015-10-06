@@ -20,7 +20,7 @@ module.exports = function subscribe(req, res) {
   }
   logger.info('params', params);
 
-  basket.request('/subscribe/', 'post', params)
+  basket.request('/subscribe/', { method: 'post', form: params })
     .on('error', function (error) {
       logger.error('error', error);
       res.status(500).json(basket.errorResponse(error, basket.errors.UNKNOWN_ERROR));
