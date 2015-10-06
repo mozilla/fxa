@@ -57,6 +57,13 @@ function (chai, NullChannel, FxiOSAuthenticationBroker, Relier, WindowMock) {
       });
     });
 
+    it('disables the `chooseWhatToSyncCheckbox` capability', function () {
+      createBroker();
+      return broker.fetch()
+        .then(function () {
+          assert.isFalse(broker.hasCapability('chooseWhatToSyncCheckbox'));
+        });
+    });
   });
 });
 

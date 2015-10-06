@@ -259,6 +259,10 @@ define([
      */
     defaultCapabilities: {
       /**
+       * Should the signup page show the `Choose what to sync` checkbox
+       */
+      chooseWhatToSyncCheckbox: true,
+      /**
        * should the *_complete pages show the marketing snippet?
        */
       emailVerificationMarketingSnippet: true,

@@ -52,6 +52,7 @@ define([
 
         .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: true } ))
 
+        .then(FunctionalHelpers.noSuchElement(self, '#customize-sync'))
 
         .then(function () {
           return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);

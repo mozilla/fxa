@@ -25,6 +25,7 @@ define([
     }),
 
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
+      chooseWhatToSyncCheckbox: false,
       chooseWhatToSyncWebV1: {
         engines: [
           'bookmarks',
