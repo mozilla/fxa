@@ -1,3 +1,42 @@
+<a name="0.47.0"></a>
+# 0.47.0 (2015-10-06)
+
+
+### Bug Fixes
+
+* **checkbox:** make custom checkbox label clickable  ([5a7dcc6](https://github.com/mozilla/fxa-content-server/commit/5a7dcc6)), closes [#3132](https://github.com/mozilla/fxa-content-server/issues/3132)
+* **client:** Fix the confirm_reset_password screen polling logic & tests. ([6cd7dc1](https://github.com/mozilla/fxa-content-server/commit/6cd7dc1)), closes [#2483](https://github.com/mozilla/fxa-content-server/issues/2483)
+* **client:** Show the `success` message for 5 seconds to help functional tests. ([10a882f](https://github.com/mozilla/fxa-content-server/commit/10a882f))
+* **config:** copy 'local.json-dist' to 'local.json' if it don't exists ([0eefb94](https://github.com/mozilla/fxa-content-server/commit/0eefb94)), closes [#2619](https://github.com/mozilla/fxa-content-server/issues/2619)
+* **deps:** bump dependencies ([6964d0c](https://github.com/mozilla/fxa-content-server/commit/6964d0c)), closes [#3064](https://github.com/mozilla/fxa-content-server/issues/3064)
+* **l10n:** Do not show fuzzy strings to users. ([e1fe471](https://github.com/mozilla/fxa-content-server/commit/e1fe471)), closes [#3113](https://github.com/mozilla/fxa-content-server/issues/3113)
+* **server:** Fix server crash if metrics event does not include `type` ([0703cc0](https://github.com/mozilla/fxa-content-server/commit/0703cc0)), closes [#1208397](https://github.com/mozilla/fxa-content-server/issues/1208397)
+* **settings:** Unblock rendering of settings on communication prefs screen ([2118e53](https://github.com/mozilla/fxa-content-server/commit/2118e53)), closes [#3061](https://github.com/mozilla/fxa-content-server/issues/3061)
+* **settings:** clean up compressed landscape layout ([aa585af](https://github.com/mozilla/fxa-content-server/commit/aa585af))
+* **signup:** show red border only after tooltip rendered ([ef08d86](https://github.com/mozilla/fxa-content-server/commit/ef08d86)), closes [#1865](https://github.com/mozilla/fxa-content-server/issues/1865)
+* **styles:** make setting header UI better ([b907fdc](https://github.com/mozilla/fxa-content-server/commit/b907fdc)), closes [#3055](https://github.com/mozilla/fxa-content-server/issues/3055)
+
+### Features
+
+* **build:** Object literals must be sorted alphabetically. ([8067c62](https://github.com/mozilla/fxa-content-server/commit/8067c62))
+* **client:** Add View behavior functions instead of passing around objects. ([4af0916](https://github.com/mozilla/fxa-content-server/commit/4af0916))
+* **client:** Add support for new fennec screens. ([8698f01](https://github.com/mozilla/fxa-content-server/commit/8698f01))
+* **client:** Add the beginning states of capabilities. ([ec9ddab](https://github.com/mozilla/fxa-content-server/commit/ec9ddab))
+* **client:** Choose what to sync on the web ([9beaaad](https://github.com/mozilla/fxa-content-server/commit/9beaaad))
+* **client:** Follow on /settings updates. ([20faf0e](https://github.com/mozilla/fxa-content-server/commit/20faf0e))
+* **client:** Start on view behaviors. ([ba0b7bc](https://github.com/mozilla/fxa-content-server/commit/ba0b7bc))
+* **i18n:** Enable Romanian ([05abfd1](https://github.com/mozilla/fxa-content-server/commit/05abfd1)), closes [#3125](https://github.com/mozilla/fxa-content-server/issues/3125)
+* **metrics:** Add a `loaded` event that is logged after first screen render. ([404bc9b](https://github.com/mozilla/fxa-content-server/commit/404bc9b)), closes [#3100](https://github.com/mozilla/fxa-content-server/issues/3100)
+* **signup:** add new checkbox style ([5633045](https://github.com/mozilla/fxa-content-server/commit/5633045)), closes [#2302](https://github.com/mozilla/fxa-content-server/issues/2302)
+* **test:** Add more /force_auth functional tests. ([3afdc32](https://github.com/mozilla/fxa-content-server/commit/3afdc32))
+
+### Refactor
+
+* **basket:** extricate basket proxy server into its own repo. ([2b53107](https://github.com/mozilla/fxa-content-server/commit/2b53107))
+* **client:** Start email confirmation polling in afterVisible. ([a37eb6f](https://github.com/mozilla/fxa-content-server/commit/a37eb6f))
+
+
+
 <a name="0.46.0"></a>
 # 0.46.0 (2015-09-23)
 
