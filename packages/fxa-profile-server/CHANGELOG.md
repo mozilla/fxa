@@ -1,3 +1,12 @@
+<a name="0.47.0"></a>
+## 0.47.0 (2015-10-07)
+
+
+#### Features
+
+* **display_name:** return 204 if user does not have a display name ([544e3323](https://github.com/mozilla/fxa-profile-server/commit/544e3323c6401d2c24625eb9a4114539cb36dbcc), closes [#144](https://github.com/mozilla/fxa-profile-server/issues/144))
+
+
 <a name="0.46.0"></a>
 ## 0.46.0 (2015-09-23)
 
