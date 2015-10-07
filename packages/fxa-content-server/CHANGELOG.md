@@ -1,3 +1,13 @@
+<a name="0.47.1"></a>
+## 0.47.1 (2015-10-07)
+
+
+### Bug Fixes
+
+* **lint:**  disable object-literal-order-checking in basket proxy server. ([a4ebfd5](https://github.com/mozilla/fxa-content-server/commit/a4ebfd5))
+* **basket:** revert "refactor(basket): extricate basket proxy server into its own repo."
+
+
 <a name="0.47.0"></a>
 # 0.47.0 (2015-10-06)
 
