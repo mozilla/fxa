@@ -128,6 +128,16 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics, NullChannel,
         });
       });
 
+      it('has floating labels on input', function () {
+        view.$('#password').val('a');
+        var event = new $.Event('input');
+        event.which = 13;
+
+        assert.isFalse(view.$('.label-helper').text().length > 0);
+        view.$('#password').trigger(event);
+        assert.isTrue(view.$('.label-helper').text().length > 0);
+      });
+
       describe('submit', function () {
         it('deletes the users account, redirect to signup', function () {
           $('form input[type=email]').val(email);

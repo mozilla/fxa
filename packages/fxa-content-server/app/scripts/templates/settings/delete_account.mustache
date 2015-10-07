@@ -14,6 +14,7 @@
       <p>{{#t}}Are you sure you want to delete your account? This action cannot be undone.{{/t}}</p>
 
       <div class="input-row password-row">
+        <label class="label-helper"></label>
         <!-- add the autocomplete=off attribute - the user is deleting the account, they most likely don't want the password saved. -->
         <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required autofocus autocomplete="off" />
         <input id="show-password" type="checkbox" class="show-password" aria-controls="password" tabindex="-1" data-novalue />
