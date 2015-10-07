@@ -30,6 +30,7 @@ var VERIFY_URL = config.get('oauth_url') + '/v1/verify';
 
 // Error codes are defined in:
 // https://github.com/mozilla/basket-client/blob/master/basket/errors.py
+/* eslint-disable sorting/sort-object-props */
 var BASKET_ERRORS = {
   NETWORK_FAILURE: 1,
   INVALID_EMAIL: 2,

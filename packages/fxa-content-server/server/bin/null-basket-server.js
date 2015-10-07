@@ -22,6 +22,7 @@ var API_URL = config.get('basket.api_url');
 
 // Error codes are defined in:
 // https://github.com/mozilla/basket-client/blob/master/basket/errors.py
+/* eslint-disable sorting/sort-object-props */
 var BASKET_ERRORS = {
   NETWORK_FAILURE: 1,
   INVALID_EMAIL: 2,
