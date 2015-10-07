@@ -30,6 +30,7 @@ function ($, _, md5, Cocktail, FormView, AvatarMixin, ModalSettingsPanelMixin,
   var View = FormView.extend({
     template: Template,
     className: 'avatar-gravatar',
+    screenName: 'settings.avatar.gravatar',
 
     context: function () {
       return {

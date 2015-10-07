@@ -20,6 +20,7 @@ function (Cocktail, BaseView, FormView, Template,
   var View = FormView.extend({
     template: Template,
     className: 'display-name',
+    screenName: 'settings.display-name',
 
     onProfileUpdate: function () {
       this.render();

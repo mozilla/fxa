@@ -26,9 +26,8 @@ function (chai, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAACZJREFUeNrtwQEBAAAAgiD' +
                '/r25IQAEAAAAAAAAAAAAAAAAAAADvBkCAAAEehacTAAAAAElFTkSuQmCC';
-  var SCREEN_NAME = 'settings.avatar.change';
 
-  describe('views/settings/avatar/change', function () {
+  describe('views/settings/avatar_change', function () {
     var view;
     var routerMock;
     var profileClientMock;
@@ -50,7 +49,6 @@ function (chai, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
         metrics: metrics,
         relier: relier,
         router: routerMock,
-        screenName: SCREEN_NAME,
         user: user,
         window: windowMock
       });
@@ -71,7 +69,6 @@ function (chai, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
           metrics: metrics,
           relier: relier,
           router: routerMock,
-          screenName: SCREEN_NAME,
           user: user,
           window: windowMock
         });

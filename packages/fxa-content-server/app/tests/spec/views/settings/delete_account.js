@@ -62,7 +62,6 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics, NullChannel,
         notifications: notifications,
         relier: relier,
         router: routerMock,
-        screenName: 'delete-account',
         user: user
       });
     });
@@ -162,7 +161,7 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics, NullChannel,
                   .calledWith(email, password));
                 assert.isTrue(user.removeAccount.calledWith(account));
                 assert.isTrue(broker.afterDeleteAccount.calledWith(account));
-                assert.isTrue(TestHelpers.isEventLogged(metrics, 'delete-account.deleted'));
+                assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.delete-account.deleted'));
                 assert.isTrue(notifications.accountDeleted.calledWith({ uid: UID }));
               });
         });

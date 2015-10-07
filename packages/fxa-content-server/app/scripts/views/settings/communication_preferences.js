@@ -23,6 +23,7 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, Metrics, BaseView, For
   var View = FormView.extend({
     template: Template,
     className: 'communication-preferences',
+    screenName: 'settings.communication-preferences',
 
     enableSubmitIfValid: function () {
       // overwrite this to prevent the default FormView method from hiding errors

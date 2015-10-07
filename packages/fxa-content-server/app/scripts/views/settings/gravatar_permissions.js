@@ -17,6 +17,7 @@ function (Cocktail, FormView, Template, p,
   var View = FormView.extend({
     template: Template,
     className: 'gravatar-permissions',
+    screenName: 'settings.gravatar-permissions',
 
     context: function () {
       var account = this.getSignedInAccount();

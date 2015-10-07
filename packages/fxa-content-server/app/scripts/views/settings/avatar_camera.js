@@ -34,6 +34,7 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
   var View = FormView.extend({
     template: Template,
     className: 'avatar-camera',
+    screenName: 'settings.avatar.camera',
 
     context: function () {
       return {

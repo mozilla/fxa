@@ -691,5 +691,43 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
           });
       });
     });
+
+    describe('getScreenName', function () {
+      describe('with a `screenName` on the view prototype', function () {
+        var view;
+
+        before(function () {
+          var ScreenNameView = View.extend({
+            screenName: 'set on the prototype'
+          });
+
+          view = new ScreenNameView({
+            screenName: 'set on creation'
+          });
+        });
+
+        it('returns the `screenName` from the prototype', function () {
+          assert.equal(view.getScreenName(), 'set on the prototype');
+        });
+      });
+
+      describe('without a `screenName` on the view prototype', function () {
+        var view;
+
+        before(function () {
+          var ScreenNameView = View.extend({
+            screenName: undefined
+          });
+
+          view = new ScreenNameView({
+            screenName: 'set on creation'
+          });
+        });
+
+        it('returns `screenName` passed in on creation', function () {
+          assert.equal(view.getScreenName(), 'set on creation');
+        });
+      });
+    });
   });
 });

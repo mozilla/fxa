@@ -24,7 +24,6 @@ function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
   'use strict';
 
   var assert = chai.assert;
-  var SCREEN_NAME = 'settings.avatar.camera';
 
   function mockVideo (w, h) {
     return {
@@ -60,7 +59,6 @@ function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
         metrics: metrics,
         relier: relier,
         router: routerMock,
-        screenName: SCREEN_NAME,
         user: user,
         window: windowMock
       });
@@ -204,7 +202,6 @@ function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
           metrics: metrics,
           relier: relier,
           router: routerMock,
-          screenName: SCREEN_NAME,
           user: user,
           window: windowMock
         });

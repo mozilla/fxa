@@ -25,6 +25,7 @@ function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
   var View = FormView.extend({
     template: Template,
     className: 'delete-account',
+    screenName: 'settings.delete-account',
 
     initialize: function (options) {
       this.notifications = options.notifications;

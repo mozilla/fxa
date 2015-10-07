@@ -57,7 +57,6 @@ function (chai, $, sinon, p, View, Metrics, Relier, User, RouterMock, TestHelper
         metrics: metrics,
         relier: relier,
         router: routerMock,
-        screenName: 'gravatar-permissions',
         user: user
       });
       sinon.stub(view, 'navigate', function () { });
@@ -86,7 +85,7 @@ function (chai, $, sinon, p, View, Metrics, Relier, User, RouterMock, TestHelper
           .then(function () {
             assert.isTrue(account.hasGrantedPermissions.calledWith(View.GRAVATAR_MOCK_CLIENT_ID, View.PERMISSIONS));
             assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                  'gravatar-permissions.already-accepted'));
+                                  'settings.gravatar-permissions.already-accepted'));
             assert.isTrue(view.navigate.calledWith('settings/avatar/gravatar'));
           });
       });
@@ -126,13 +125,11 @@ function (chai, $, sinon, p, View, Metrics, Relier, User, RouterMock, TestHelper
                 assert.isTrue(account.saveGrantedPermissions.calledWith(View.GRAVATAR_MOCK_CLIENT_ID, View.PERMISSIONS));
                 assert.isTrue(user.setAccount.calledWith(account));
                 assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                  'gravatar-permissions.accept'));
+                                  'settings.gravatar-permissions.accept'));
                 assert.isTrue(view.navigate.calledWith('settings/avatar/gravatar'));
               });
           });
       });
-
     });
-
   });
 });

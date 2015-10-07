@@ -51,7 +51,6 @@ function (chai, $, sinon, View, RouterMock, ProfileMock, TestHelpers, User,
         metrics: metrics,
         relier: relier,
         router: routerMock,
-        screenName: 'settings.avatar.gravatar',
         user: user
       });
 
