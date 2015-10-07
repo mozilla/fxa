@@ -16,23 +16,15 @@
   .left {
     float: left;
     padding: 0 4% 0 0;
+    text-align: left;
     width: 50%;
   }
 
   .right {
     float: right;
     padding: 0 0 0 4%;
+    text-align: right;
     width: 50%;
-  }
-
-  &.email-optin-links {
-    .left {
-      text-align: left;
-    }
-
-    .right {
-      text-align: right;
-    }
   }
 
   a {
