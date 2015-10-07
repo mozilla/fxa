@@ -7,7 +7,8 @@
       "env": {
         "NODE_ENV": "dev"
       },
-      "max_restarts": "1"
+      "max_restarts": "1",
+      "min_uptime": "2m"
     },
     {
       "name": "auth-server db memory",
@@ -16,7 +17,8 @@
       "env": {
         "NODE_ENV": "dev"
       },
-      "max_restarts": "1"
+      "max_restarts": "1",
+      "min_uptime": "2m"
     },
     {
       "name": "auth-server key server",
@@ -25,7 +27,8 @@
       "env": {
         "NODE_ENV": "dev"
       },
-      "max_restarts": "1"
+      "max_restarts": "1",
+      "min_uptime": "2m"
     },
     {
       "name": "content-server PORT 3030",
@@ -35,19 +38,22 @@
       "env": {
         "NODE_ENV": "development"
       },
-      "max_restarts": "1"
+      "max_restarts": "1",
+      "min_uptime": "2m"
     },
     {
       "name": "fxa-basket-proxy PORT 1114",
       "script": "./bin/basket-proxy-server.js",
       "cwd": "fxa-basket-proxy",
-      "max_restarts": "1"
+      "max_restarts": "1",
+      "min_uptime": "2m"
     },
     {
       "name": "fxa-basket-proxy fake basket server PORT 10140",
       "script": "./bin/fake-basket-server.js",
       "cwd": "fxa-basket-proxy",
-      "max_restarts": "1"
+      "max_restarts": "1",
+      "min_uptime": "2m"
     },
     {
       "name": "oauth-server PORT 9010",
@@ -56,7 +62,8 @@
       "env": {
         "NODE_ENV": "dev"
       },
-      "max_restarts": "1"      
+      "max_restarts": "1",
+      "min_uptime": "2m"
     },
      {
       "name": "oauth-server-internal PORT 9011",
@@ -65,7 +72,8 @@
       "env": {
         "NODE_ENV": "dev"
       },
-      "max_restarts": "1"      
+      "max_restarts": "1",
+      "min_uptime": "2m"
     },
     {
       "name": "profile-server PORT 1111",
@@ -74,7 +82,8 @@
       "max_restarts": "1",
       "env": {
         "NODE_ENV": "dev"
-      }
+      },
+      "min_uptime": "2m"
     },
     {
       "name": "profile-server static dev PORT 1112",
@@ -83,7 +92,8 @@
       "max_restarts": "1",
       "env": {
         "NODE_ENV": "dev"
-      }
+      },
+      "min_uptime": "2m"
     },
     {
       "name": "profile-server worker PORT 1113",
@@ -92,7 +102,8 @@
       "max_restarts": "1",
       "env": {
         "NODE_ENV": "dev"
-      }
+      },
+      "min_uptime": "2m"
     },
     {
       "name": "123done PORT 8080",
@@ -102,7 +113,8 @@
       "env": {
         "CONFIG_123DONE": "./config-local.json",
         "NODE_ENV": "dev"
-      }      
+      },
+      "min_uptime": "2m"
     },
     {
       "name": "321done UNTRUSTED PORT 10139",
@@ -112,7 +124,8 @@
       "env": {
         "CONFIG_123DONE": "./config-local-untrusted.json",
         "NODE_ENV": "dev"
-      }
+      },
+      "min_uptime": "2m"
     },
     {
       "name": "fxa-oauth-console PORT 10137",
@@ -121,7 +134,8 @@
       "env": {
         "NODE_ENV": "dev"
       },
-      "max_restarts": "1"      
+      "max_restarts": "1",
+      "min_uptime": "2m"
     },
     {
       "name": "browserid-verifier PORT 5050",
@@ -130,30 +144,34 @@
       "env": {
         "PORT": "5050"
       },
-      "max_restarts": "1"      
+      "max_restarts": "1",
+      "min_uptime": "2m" 
     },
     {
       "name": "redis-server PORT 6379",
       "script": "redis.sh",
       "cwd": "_scripts",
-      "max_restarts": "1"
+      "max_restarts": "1",
+      "min_uptime": "2m"
     },
     {
-      "name": "loop-server PORT 10222",   
-      "script": "loop/index.js",   
-      "cwd": "loop-server",    
+      "name": "loop-server PORT 10222",
+      "script": "loop/index.js",
+      "cwd": "loop-server",
       "env": {   
-        "NODE_ENV": "test",    
+        "NODE_ENV": "test",
         "PORT": "10222",
         "CONFIG_FILES": "../_scripts/configs/loop.json"
-      },   
-      "max_restarts": "1"          
+      },
+      "max_restarts": "1",
+      "min_uptime": "2m"
     },
     {
       "name": "sync server PORT 5000",
       "script": "../_scripts/syncserver.sh",
       "cwd": "syncserver",
-      "max_restarts": "1"
+      "max_restarts": "1",
+      "min_uptime": "2m"
     }
   ]
 }
