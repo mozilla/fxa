@@ -1,3 +1,12 @@
+<a name="0.47.0"></a>
+## 0.47.0 (2015-10-07)
+
+
+#### Bug Fixes
+
+* **deps:** update to mozlog 2.0.2 ([29342a92](http://github.com/mozilla/fxa-oauth-server/commit/29342a92445baa4ea45cc3f93c6a62e24c6d03d7), closes [#337](http://github.com/mozilla/fxa-oauth-server/issues/337))
+
+
 <a name="0.46.0"></a>
 ## 0.46.0 (2015-09-23)
 
