@@ -8,10 +8,11 @@ define([
   'views/form',
   'stache!templates/settings/display_name',
   'views/mixins/settings-panel-mixin',
-  'views/mixins/avatar-mixin'
+  'views/mixins/avatar-mixin',
+  'views/mixins/floating-placeholder-mixin'
 ],
 function (Cocktail, BaseView, FormView, Template,
-  SettingsPanelMixin, AvatarMixin) {
+  SettingsPanelMixin, AvatarMixin, FloatingPlaceholderMixin) {
   'use strict';
 
   var t = BaseView.t;
@@ -40,6 +41,10 @@ function (Cocktail, BaseView, FormView, Template,
         });
     },
 
+    afterRender: function () {
+      this.initializePlaceholderFields();
+    },
+
     submit: function () {
       var self = this;
       var account = self.getSignedInAccount();
@@ -58,7 +63,8 @@ function (Cocktail, BaseView, FormView, Template,
   Cocktail.mixin(
     View,
     AvatarMixin,
-    SettingsPanelMixin
+    SettingsPanelMixin,
+    FloatingPlaceholderMixin
   );
 
   return View;

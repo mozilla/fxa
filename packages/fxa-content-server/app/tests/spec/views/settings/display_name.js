@@ -107,6 +107,19 @@ function (chai, $, sinon, p, View, Metrics, Notifications, Relier, User, RouterM
             assert.isTrue(view.render.called);
           });
       });
+
+      it('has floating labels on input', function () {
+        return initView()
+          .then(function () {
+            view.$('.display-name').val('a');
+            var event = new $.Event('input');
+            event.which = 13;
+
+            assert.isFalse(view.$('.label-helper').text().length > 0);
+            view.$('.display-name').trigger(event);
+            assert.isTrue(view.$('.label-helper').text().length > 0);
+          });
+      });
     });
 
     describe('submit', function () {

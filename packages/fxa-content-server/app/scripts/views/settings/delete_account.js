@@ -12,11 +12,12 @@ define([
   'views/mixins/password-mixin',
   'views/mixins/service-mixin',
   'views/mixins/settings-panel-mixin',
-  'views/mixins/account-locked-mixin'
+  'views/mixins/account-locked-mixin',
+  'views/mixins/floating-placeholder-mixin'
 ],
 function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
       PasswordMixin, SettingsPanelMixin, ServiceMixin,
-      AccountLockedMixin) {
+      AccountLockedMixin, FloatingPlaceholderMixin) {
   'use strict';
 
   var t = BaseView.t;
@@ -33,6 +34,10 @@ function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
       return {
         email: this.getSignedInAccount().get('email')
       };
+    },
+
+    afterRender: function () {
+      this.initializePlaceholderFields();
     },
 
     submit: function () {
@@ -76,7 +81,8 @@ function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
     PasswordMixin,
     SettingsPanelMixin,
     ServiceMixin,
-    AccountLockedMixin
+    AccountLockedMixin,
+    FloatingPlaceholderMixin
   );
 
   return View;
