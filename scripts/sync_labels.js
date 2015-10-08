@@ -6,10 +6,10 @@
 // Script to apply our standard set of labels to each repo, and
 // do a bit of cleanup on the issues therein.
 
-GH = require('./gh.js')
-P = require('bluebird')
+var GH = require('./gh.js')
+var P = require('bluebird')
 
-COLORS = {
+var COLORS = {
   STATUS: 'ededed',
   RESOLUTION: 'e6e6e6',
   ALERT: 'e11d21',
@@ -23,7 +23,7 @@ COLORS = {
 // These are labels that should exist on every repo, and that
 // we use as part of our development management process.
 
-STANDARD_LABELS = {
+var STANDARD_LABELS = {
   // Issue lifecycle management labels, for waffle.
   'waffle:backlog': { color: COLORS.STATUS },
   'waffle:next': { color: COLORS.STATUS },
@@ -39,7 +39,6 @@ STANDARD_LABELS = {
   'resolved:worksforme': { color: COLORS.RESOLUTION },
   // For calling out really important stuff.
   '❤': { color: COLORS.ALERT },
-  '❤❤❤': { color: COLORS.ALERT },
   'blocker': { color: COLORS.ALERT },
   'shipit': { color: COLORS.WARNING },
   'good-first-bug': { color: COLORS.WELCOMING },
@@ -49,16 +48,25 @@ STANDARD_LABELS = {
   'strings': { color: COLORS.INFO },
   'security': { color: COLORS.INFO },
   'ux': { color: COLORS.INFO },
-},
+}
 
 
-WAFFLE_LABEL_ORDER =[
+var WAFFLE_LABEL_ORDER = [
   'waffle:backlog',
   'waffle:next',
   'waffle:now',
   'waffle:progress',
   'waffle:review',
   'waffle:blocked'
+]
+
+
+var OBSOLETE_LABELS = [
+  '❤❤',
+  '❤❤❤',
+  'z-later',
+  'wontfix',
+  'backlog'
 ]
 
 
@@ -108,8 +116,8 @@ module.exports = {
           if (label.indexOf('Fx4') === 0) {
             obsolete = true;
           }
-          // Old priority labels
-          if (['❤❤', 'z-later', 'wontfix'].indexOf(label) !== -1) {
+          // Old priority/status labels
+          if (OBSOLETE_LABELS.indexOf(label) !== -1) {
             obsolete = true;
           }
           if (obsolete) {

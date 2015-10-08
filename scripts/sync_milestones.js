@@ -96,6 +96,7 @@ module.exports = {
             console.warn("Closing extra milestone in " + repo + ": '" + title + "'")
             return gh.issues.updateMilestone({
               repo: repo,
+              title: title,
               number: ours[title].number,
               state: 'closed'
             })
