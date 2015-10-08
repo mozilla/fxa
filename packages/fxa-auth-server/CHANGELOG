@@ -1,3 +1,8 @@
+train-47
+  * feat(metrics): send account verification time to statsd #1066
+  * feat(i18n): enable Romainian `ro` support #1071
+  * feat(keys): allow multiple public keys #1064
+
 train-46
   * feat(logging): add createdAt to account.signed activity event #1056
   * feat(basket): send sync login events to basket #1051
