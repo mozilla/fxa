@@ -66,7 +66,6 @@ function (Cocktail, BaseView, FormView, Template, FloatingPlaceholderMixin,
       // The originating tab will start listening for `login` events once
       // it knows the complete reset password tab is open in the same browser.
       this.interTabSend('complete_reset_password_tab_open');
-      this.initializePlaceholderFields();
     },
 
     context: function () {

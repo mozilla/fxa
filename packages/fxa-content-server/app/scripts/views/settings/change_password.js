@@ -32,10 +32,6 @@ function (Cocktail, BaseView, FormView, AuthErrors, Template, PasswordMixin,
       };
     },
 
-    afterRender: function () {
-      this.initializePlaceholderFields();
-    },
-
     submit: function () {
       var self = this;
       var account = self.getSignedInAccount();

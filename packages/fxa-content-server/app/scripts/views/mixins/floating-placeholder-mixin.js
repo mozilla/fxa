@@ -2,8 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// FormView plugin to convert a placeholder into a
-// floating label if the input changes.
+/**
+ * FormView plugin to convert a placeholder into a
+ * floating label if the input changes. Behavior is automatically
+ * hooked up in `afterRender`
+ */
 
 define([
   'jquery'
@@ -11,34 +14,47 @@ define([
   'use strict';
 
   return {
-    //when a user begins typing in an input, grab the placeholder,
-    // put it in a label and then unbind the event
-    // this is done to prevent user confustion about multiple password inputs
-    togglePlaceholderPattern: function (el) {
-      var self = this;
-      var input = el || this.$('input');
+    events: {
+      'input input[placeholder]': 'floatingPlaceholderMixinOnInput'
+    },
 
-      input.one('input', function () {
-        // if values haven't changed, reattach the event listener for
-        // just this element
-        if (! self.detectFormValueChanges()) {
-          self.togglePlaceholderPattern($(this));
-          return true;
-        }
-        var placeholder = $(this).attr('placeholder');
-        if (placeholder !== '') {
-          $(this).removeAttr('placeholder');
-          $(this).prev('.label-helper').text(placeholder).animate( {'top': '-17px'}, 400);
-        }
-      });
+    afterRender: function () {
+      this.updateFormValueChanges();
     },
 
     /**
-     * Initialize fields with placeholder text that can toggle position.
+     * Force the display of the floating placeholder field
+     * for an element
+     *
+     * @param {object} inputEl - input element whose placeholder
+     *        should be shown.
      */
-    initializePlaceholderFields: function () {
-      this.updateFormValueChanges();
-      this.togglePlaceholderPattern();
+    showFloatingPlaceholder: function (inputEl) {
+      var $inputEl = $(inputEl);
+      var placeholder = $inputEl.attr('placeholder');
+
+      // If the placeholder for the element was already converted, no
+      // further conversion will occur.
+      if (placeholder !== '') {
+        $inputEl.removeAttr('placeholder');
+        $inputEl.prev('.label-helper').text(placeholder).animate( {'top': '-17px'}, 400);
+      }
+    },
+
+    /**
+     * The ridiculous name is to avoid collisions with
+     * functions on consumers.
+     */
+    floatingPlaceholderMixinOnInput: function (event) {
+      var $inputEl = $(event.currentTarget);
+
+      // If no form values have changed, no need to show the
+      // placeholder text.
+      if (! this.detectFormValueChanges()) {
+        return;
+      }
+
+      this.showFloatingPlaceholder($inputEl);
     }
   };
 });

@@ -111,7 +111,7 @@ function (Cocktail, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       self.logScreenEvent('email-optin.visible.' +
           String(self._isEmailOptInEnabled()));
 
-      self._createCoppaView()
+      return self._createCoppaView()
         .then(function () {
           self.transformLinks();
 
