@@ -19,6 +19,11 @@ module.exports = function subscribe(req, res) {
     params.accept_lang = req.headers['accept-language']; //eslint-disable-line camelcase
   }
   logger.info('params', params);
+  logger.info('activityEvent', {
+    event: 'basket.subscribe',
+    uid: res.locals.creds.user,
+    userAgent: req.headers['user-agent'] || undefined,
+  });
 
   basket.request('/subscribe/', { method: 'post', form: params })
     .on('error', function (error) {

@@ -9,6 +9,7 @@ var app = require('../lib/app')();
 
 var mocks = require('./lib/mocks');
 
+var UID = 'abcdef123456';
 
 describe('the /unsubscribe route', function () {
 
@@ -17,6 +18,7 @@ describe('the /unsubscribe route', function () {
     var TOKEN = 'abcdef123456';
     var NEWSLETTERS = 'a';
     mocks.mockOAuthResponse().reply(200, {
+      user: UID,
       email: EMAIL,
       scope: 'basket:write'
     });
@@ -48,6 +50,7 @@ describe('the /unsubscribe route', function () {
     var TOKEN = 'abcdef123456';
     var NEWSLETTERS = 'b';
     mocks.mockOAuthResponse().reply(200, {
+      user: UID,
       email: EMAIL,
       scope: 'basket:write'
     });
@@ -83,6 +86,7 @@ describe('the /unsubscribe route', function () {
     var EMAIL = 'test@example.com';
     var NEWSLETTERS = 'c,d';
     mocks.mockOAuthResponse().reply(200, {
+      user: UID,
       email: EMAIL,
       scope: 'basket:write'
     });
@@ -121,6 +125,7 @@ describe('the /unsubscribe route', function () {
     var TOKEN = 'abcdef123456';
     var NEWSLETTERS = 'b';
     mocks.mockOAuthResponse().reply(200, {
+      user: UID,
       email: EMAIL,
       scope: 'basket:write'
     });
@@ -152,6 +157,7 @@ describe('the /unsubscribe route', function () {
     var TOKEN = 'abcdef123456';
     var NEWSLETTERS = 'b';
     mocks.mockOAuthResponse().reply(200, {
+      user: UID,
       email: EMAIL,
       scope: 'basket:write'
     });
@@ -184,6 +190,7 @@ describe('the /unsubscribe route', function () {
     var EMAIL = 'test@example.com';
     var NEWSLETTERS = 'a,b,c';
     mocks.mockOAuthResponse().reply(200, {
+      user: UID,
       email: EMAIL,
       scope: 'basket:write'
     });
@@ -205,6 +212,7 @@ describe('the /unsubscribe route', function () {
     var EMAIL = 'test@example.com';
     var NEWSLETTERS = 'a,b,c';
     mocks.mockOAuthResponse().reply(200, {
+      user: UID,
       email: EMAIL,
       scope: 'basket:write'
     });

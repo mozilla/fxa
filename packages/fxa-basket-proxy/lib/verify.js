@@ -51,6 +51,12 @@ module.exports = function verifyOAuthToken() {
         return;
       }
 
+      if (! body.user) {
+        logger.error('auth.missing-user', body);
+        res.status(400).json(basket.errorResponse('missing user', basket.errors.AUTH_ERROR));
+        return;
+      }
+
       if (! body.email) {
         logger.error('auth.missing-email', body);
         res.status(400).json(basket.errorResponse('missing email', basket.errors.AUTH_ERROR));
