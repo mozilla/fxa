@@ -58,7 +58,6 @@ function (chai, $, sinon, AuthErrors, FxaClient, Metrics, p,
         metrics: metrics,
         relier: relier,
         router: routerMock,
-        screenName: 'change-password',
         user: user
       });
     });

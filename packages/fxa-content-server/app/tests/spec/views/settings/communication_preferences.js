@@ -73,7 +73,6 @@ function (chai, $, sinon, View, User, Account, MarketingEmailPrefs, Relier,
       view = new View({
         metrics: metrics,
         relier: relier,
-        screenName: 'settings.communication-preferences',
         user: user
       });
 

@@ -25,6 +25,7 @@ function (p, Cocktail, FormView, AvatarMixin, ModalSettingsPanelMixin,
   var View = FormView.extend({
     template: Template,
     className: 'avatar-crop',
+    screenName: 'settings.avatar.crop',
 
     initialize: function (options) {
       options = options || {};

@@ -92,23 +92,39 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
      */
     layoutClassName: null,
 
+    /**
+     * The default screen name
+     *
+     * @property screenName
+     */
+    screenName: '',
+
     constructor: function (options) {
       options = options || {};
 
-      this.subviews = [];
-      this.window = options.window || window;
-      this.navigator = options.navigator || this.window.navigator || navigator;
-      this.translator = options.translator || this.window.translator;
-      this.router = options.router || this.window.router;
-      this.ephemeralMessages = options.ephemeralMessages || ephemeralMessages;
-      this.metrics = options.metrics || nullMetrics;
-      this.sentryMetrics = options.sentryMetrics || Raven;
-      this.relier = options.relier;
       this.broker = options.broker;
-      this.user = options.user;
-      this.screenName = options.screenName || '';
-
+      this.ephemeralMessages = options.ephemeralMessages || ephemeralMessages;
       this.fxaClient = options.fxaClient;
+      this.metrics = options.metrics || nullMetrics;
+      this.relier = options.relier;
+      this.sentryMetrics = options.sentryMetrics || Raven;
+      this.subviews = [];
+      this.user = options.user;
+      this.window = options.window || window;
+
+      this.navigator = options.navigator || this.window.navigator || navigator;
+      this.router = options.router || this.window.router;
+      this.translator = options.translator || this.window.translator;
+
+      /**
+       * Prefer the `screenName` set on the object prototype. Subviews
+       * define their screenName on the prototype to avoid taking the
+       * name of the parent view. This is a terrible hack, but workable
+       * until a better solution arises. See #3029
+       */
+      if (! this.screenName && options.screenName) {
+        this.screenName = options.screenName;
+      }
 
       Backbone.View.call(this, options);
 
@@ -529,6 +545,11 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
       this.metrics.logError(err);
     },
 
+    /**
+     * Get the view's screen name.
+     *
+     * @returns {string}
+     */
     getScreenName: function () {
       return this.screenName;
     },

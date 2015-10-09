@@ -25,6 +25,7 @@ function (Cocktail, BaseView, FormView, AuthErrors, Template, PasswordMixin,
   var View = FormView.extend({
     template: Template,
     className: 'change-password',
+    screenName: 'settings.change-password',
 
     context: function () {
       return {

@@ -113,7 +113,6 @@ function (chai, $, ui, sinon, jQuerySimulate, View, RouterMock, ProfileMock, Use
             metrics: metrics,
             relier: relier,
             router: routerMock,
-            screenName: 'settings.avatar.crop',
             user: user
           });
           view.isUserAuthorized = function () {

@@ -60,7 +60,6 @@ function (chai, $, sinon, p, View, Metrics, Notifications, Relier, User, RouterM
         notifications: notifications,
         relier: relier,
         router: routerMock,
-        screenName: 'display-name',
         user: user
       });
 
@@ -147,7 +146,7 @@ function (chai, $, sinon, p, View, Metrics, Notifications, Relier, User, RouterM
             assert.isTrue(view.updateDisplayName.calledWith(expectedName));
             assert.isTrue(view.displaySuccess.called);
             assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                  'display-name.success'));
+                                  'settings.display-name.success'));
             assert.equal(routerMock.page, 'settings');
           });
       });

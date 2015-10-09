@@ -52,6 +52,7 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
     template: Template,
     className: 'settings',
     layoutClassName: 'settings',
+    screenName: 'settings',
 
     initialize: function (options) {
       options = options || {};
