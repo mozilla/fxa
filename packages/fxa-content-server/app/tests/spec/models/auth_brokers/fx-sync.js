@@ -50,7 +50,9 @@ define([
 
       user = new User();
       account = user.initAccount({
-        email: 'testuser@testuser.com'
+        email: 'testuser@testuser.com',
+        keyFetchToken: 'key-fetch-token',
+        unwrapBKey: 'unwrap-b-key'
       });
 
       createAuthBroker();
@@ -105,15 +107,19 @@ define([
     });
 
     describe('_notifyRelierOfLogin', function () {
-      it('sends a `login` message to the channel', function () {
+      it('does not send a `login` message to the channel if the account does not have a `keyFetchToken`', function () {
+        account.unset('keyFetchToken');
         return broker._notifyRelierOfLogin(account)
           .then(function () {
-            assert.isTrue(channelMock.send.calledWith('login'));
+            assert.isFalse(channelMock.send.called);
+          });
+      });
 
-            var data = channelMock.send.args[0][1];
-            assert.equal(data.email, 'testuser@testuser.com');
-            assert.isFalse(data.verified);
-            assert.isFalse(data.verifiedCanLinkAccount);
+      it('does not send a `login` message to the channel if the account does not have a `unwrapBKey`', function () {
+        account.unset('unwrapBKey');
+        return broker._notifyRelierOfLogin(account)
+          .then(function () {
+            assert.isFalse(channelMock.send.called);
           });
       });
 
@@ -124,6 +130,8 @@ define([
 
             var data = channelMock.send.args[0][1];
             assert.equal(data.email, 'testuser@testuser.com');
+            assert.equal(data.keyFetchToken, 'key-fetch-token');
+            assert.equal(data.unwrapBKey, 'unwrap-b-key');
             assert.isFalse(data.verified);
             assert.isFalse(data.verifiedCanLinkAccount);
           });
