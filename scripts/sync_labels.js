@@ -39,13 +39,14 @@ var STANDARD_LABELS = {
   'resolved:worksforme': { color: COLORS.RESOLUTION },
   // For calling out really important stuff.
   '❤': { color: COLORS.ALERT },
+  '❤❤❤': { color: COLORS.ALERT },
   'blocker': { color: COLORS.ALERT },
   'shipit': { color: COLORS.WARNING },
   'good-first-bug': { color: COLORS.WELCOMING },
   'WIP': { color: COLORS.INFO },
   // Cross-cutting concerns that we need to account for when
   // working with or reviewing the issue.
-  'strings': { color: COLORS.INFO },
+  'i18n': { color: COLORS.INFO },
   'security': { color: COLORS.INFO },
   'ux': { color: COLORS.INFO },
 }
@@ -63,10 +64,11 @@ var WAFFLE_LABEL_ORDER = [
 
 var OBSOLETE_LABELS = [
   '❤❤',
-  '❤❤❤',
   'z-later',
   'wontfix',
-  'backlog'
+  'backlog',
+  'good first bug',
+  'strings'
 ]
 
 

@@ -10,7 +10,7 @@ the Firefox Accounts service.  We have separate documentation for other purposes
 #### Using your Firefox Account
 
 You can [create an account](https://accounts.firefox.com/signup) or
-[sign in](https://accounts.firefox.com/signin) directly on https://accounts.firefox.com,
+[sign in](https://accounts.firefox.com/signin) directly on [https://accounts.firefox.com](https://accounts.firefox.com),
 but you almost certainly want to start by using an account-attached service such as
 [Firefox Sync](https://www.mozilla.org/en-US/firefox/sync/)
 or [Firefox Hello](https://www.mozilla.org/en-US/firefox/hello/).
@@ -23,14 +23,14 @@ More information is available on [Mozilla's support site](https://support.mozill
 Developing a service that needs Firefox Accounts authentication?  Head on over to the [Firefox Accounts portal on MDN](https://developer.mozilla.org/docs/Mozilla/Tech/Firefox_Accounts) for a description of the system, how it works, and how to plug into it.
 
 Note that all services integrating with Firefox Accounts require approval (and access credentials)
-from Mozilla.  We are not (yet) offering Firefox Accounts authentication to third-party reliers
+from Mozilla.  We are not yet offering Firefox Accounts authentication to third-party reliers
 on the web.
 
 
 ## People and Places
 
 These fine folks are the globally distributed team at the core of Firefox Accounts
-development, and will be happy to help answer any questions you might have.
+development, and will be happy to help answer any questions you might have:
 
 * [Ryan Kelly](https://github.com/rfk) - Engineering (Melbourne, approx UTC+10)
 * [Shane Tomlinson](https://github.com/shane-tomlinson/) - Engineering (London, approx UTC)
@@ -57,11 +57,14 @@ join us in the following forums:
 
 ## Code
 
+We mostly follow a micro-services architecture, with each component of the system
+being developed in a separate repository.  The main components fit together like so:
+
 ![High-level architecture diagram showing relationships between different FxA services](img/fxa.png)
 
 Most repositories are [available via GitHub](https://github.com/mozilla?utf8=%E2%9C%93&query=fxa)
 
-You can read more about the [details of our development process](/dev-process.md)
+You can read more about the [details of our development process](/dev-process/)
 
 ### Core Servers
 
