@@ -7,8 +7,9 @@ cut a release "train" that goes through deployment to stage and into production.
 
 Product-level feature planning takes place in Aha:
 
-* [Feature cards](https://mozilla.aha.io/products/FXA/feature_cards)
-* [Ongoing project initiatives](https://mozilla.aha.io/products/FXA/initiatives)
+* [High-level Product Goals](https://mozilla.aha.io/products/FXA/strategic_imperatives)
+* [Ongoing Initiatives](https://mozilla.aha.io/products/FXA/initiatives)
+* [Individual Feature Cards](https://mozilla.aha.io/products/FXA/feature_cards)
 
 ## Issue management
 
