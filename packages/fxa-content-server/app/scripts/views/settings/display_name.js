@@ -41,10 +41,6 @@ function (Cocktail, BaseView, FormView, Template,
         });
     },
 
-    afterRender: function () {
-      this.initializePlaceholderFields();
-    },
-
     submit: function () {
       var self = this;
       var account = self.getSignedInAccount();

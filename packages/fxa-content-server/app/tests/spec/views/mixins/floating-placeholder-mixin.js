@@ -3,27 +3,27 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  'jquery',
-  'underscore',
   'chai',
-  'views/form',
+  'cocktail',
+  'jquery',
   'stache!templates/test_template',
+  'views/form',
   'views/mixins/floating-placeholder-mixin'
-], function ($, _, chai, FormView, Template, FloatingPlaceholderMixin) {
+], function (chai, Cocktail, $, Template, FormView, FloatingPlaceholderMixin) {
   'use strict';
 
   var assert = chai.assert;
 
   var TestView = FormView.extend({
-    template: Template,
-    afterRender: function () {
-      this.initializePlaceholderFields();
-    }
+    template: Template
   });
 
-  _.extend(TestView.prototype, FloatingPlaceholderMixin);
+  Cocktail.mixin(
+    TestView,
+    FloatingPlaceholderMixin
+  );
 
-  describe('lib/floating-placeholder-mixin', function () {
+  describe('views/mixins/floating-placeholder-mixin', function () {
     var view;
 
     beforeEach(function () {
@@ -31,27 +31,36 @@ define([
       return view.render();
     });
 
-    it('no action if enter is pressed with no other input', function () {
-      console.log('val: %s', view.$('#float_me').length);
-      var event = new $.Event('input');
-      event.which = 13;
+    describe('keyboard input', function () {
+      it('no action if enter is pressed with no other input', function () {
+        var event = new $.Event('input');
+        event.which = 13;
 
-      view.$('#float_me').trigger(event);
+        view.$('#float_me').trigger(event);
 
-      assert.equal(view.$('#float_me').attr('placeholder'), 'placeholder text');
-      assert.equal(view.$('.label-helper').text(), '');
+        assert.equal(view.$('#float_me').attr('placeholder'), 'placeholder text');
+        assert.equal(view.$('.label-helper').text(), '');
+      });
+
+      it('floats the placeholder if the input changes', function () {
+        view.$('#float_me').val('a');
+
+        var event = new $.Event('input');
+        event.which = 13;
+
+        view.$('#float_me').trigger(event);
+
+        assert.equal(typeof view.$('#float_me').attr('placeholder'), 'undefined');
+        assert.equal(view.$('.label-helper').text(), 'placeholder text');
+      });
     });
 
-    it('floats the placeholder if the input changes', function () {
-      view.$('#float_me').val('a');
-
-      var event = new $.Event('input');
-      event.which = 13;
-
-      view.$('#float_me').trigger(event);
-
-      assert.equal(typeof view.$('#float_me').attr('placeholder'), 'undefined');
-      assert.equal(view.$('.label-helper').text(), 'placeholder text');
+    describe('showFloatingPlaceholder', function () {
+      it('forces the display of a floating placeholder', function () {
+        view.showFloatingPlaceholder('#float_me');
+        assert.equal(view.$('#float_me').attr('placeholder'), 'placeholder text');
+        assert.equal(view.$('.label-helper').text(), '');
+      });
     });
   });
 });

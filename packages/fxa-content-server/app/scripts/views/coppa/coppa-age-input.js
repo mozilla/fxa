@@ -5,11 +5,10 @@
 define([
   'cocktail',
   'lib/auth-errors',
-  'lib/promise',
   'stache!templates/partial/coppa-age-input',
   'views/form',
   'views/mixins/floating-placeholder-mixin'
-], function (Cocktail, AuthErrors, p, Template, FormView, FloatingPlaceholderMixin) {
+], function (Cocktail, AuthErrors, Template, FormView, FloatingPlaceholderMixin) {
   'use strict';
 
   var CUTOFF_AGE = 13;
@@ -45,15 +44,8 @@ define([
       age.val(age.val().substr(0, 3));
     },
 
-    render: function () {
-      var self = this;
-
-      return p()
-        .then(function () {
-          self.$el.html(self.template(self.getContext()));
-          self.initializePlaceholderFields();
-          self._selectPrefillAge('age');
-        });
+    afterRender: function () {
+      this._selectPrefillAge('age');
     },
 
     /**
@@ -93,7 +85,9 @@ define([
     _selectPrefillAge: function (context) {
       var prefillYear = this._formPrefill.get(context);
       if (prefillYear) {
-        this.$('#age').val(prefillYear);
+        var ageEl = this.$('#age');
+        ageEl.val(prefillYear);
+        this.showFloatingPlaceholder(ageEl);
       }
     },
 
