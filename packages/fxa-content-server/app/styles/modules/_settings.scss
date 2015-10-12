@@ -352,6 +352,10 @@ body.settings #main-content.card {
   display: none;
   margin-top: 12px;
 
+  a {
+    text-decoration: none;
+  }
+
   p {
     color: $faint-text-color;
     margin: 6px 0 24px;
