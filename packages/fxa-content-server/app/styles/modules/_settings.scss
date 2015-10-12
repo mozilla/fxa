@@ -225,7 +225,7 @@ body.settings #main-content.card {
   white-space: nowrap;
 
   @include respond-to('big') {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
   }
 
   @include respond-to('small') {
