@@ -345,6 +345,12 @@ var conf = convict({
       default: 0.1,
       env: 'STATSD_SAMPLE_RATE'
     }
+  },
+  corsOrigin: {
+    doc: 'Value for the Access-Control-Allow-Origin response header',
+    format: String,
+    env: 'CORS_ORIGIN',
+    default: '*'
   }
 })
 

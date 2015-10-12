@@ -20,6 +20,8 @@ TestServer.start(config)
       request(config.publicUrl + route, function (err, res, body) {
         t.ok(!err, 'No error fetching ' + route)
 
+        t.equal(res.headers['access-control-allow-origin'], config.corsOrigin, 'Access-Control-Allow-Origin header was set correctly')
+
         var json = JSON.parse(body)
         t.deepEqual(Object.keys(json), ['version', 'commit', 'source'])
         t.equal(json.version, require('../../package.json').version, 'package version')
