@@ -30,7 +30,7 @@
     {
       "name": "NoRedirectUri",
       "id": "ea3ca969f8c6bb0d",
-      "hashedSecret": "0000000000000000000000000000000000000000000000000000000000000000",
+      "hashedSecret": "d962cdf34a33ab26f7a6b900d0e1028f182d8e4811cb9b5ac4f20275525c8f54",
       "imageUri": "",
       "redirectUri": "",
       "trusted": true,
@@ -39,7 +39,7 @@
     {
       "name": "Untrusted",
       "id": "ea3ca969f8c6bb0e",
-      "hashedSecret": "0000000000000000000000000000000000000000000000000000000000000000",
+      "hashedSecret": "ec62e3281e3b56e702fe7e82ca7b1fa59d6c2a6766d6d28cccbf8bfa8d5fc8a8",
       "imageUri": "",
       "redirectUri": "https://example.domain/return?foo=bar",
       "trusted": false,
