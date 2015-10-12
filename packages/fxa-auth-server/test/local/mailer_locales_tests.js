@@ -16,9 +16,9 @@ require('../../lib/mailer')(config, log)
         function (t) {
           var locales = config.i18n.supportedLanguages
           locales.forEach(function(lang) {
+            // sr-LATN is sr, but in Latin characters, not Cyrillic
             if (lang === 'sr-LATN') {
-              // sr-LATN is sr, but in Latin characters, not Cyrillic
-              t.equal('sr', mailer.translator(lang).language)
+              t.equal('sr-Latn', mailer.translator(lang).language)
             } else {
               t.equal(lang, mailer.translator(lang).language)
             }
