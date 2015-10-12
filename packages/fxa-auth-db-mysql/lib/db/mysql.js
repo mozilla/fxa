@@ -271,36 +271,21 @@ module.exports = function (log, error) {
     )
   }
 
-  var CREATE_DEVICE = 'CALL createDevice_1(?, ?, ?, ?, ?, ?)'
-  var UPDATE_DEVICE = 'CALL updateDevice_1(?, ?, ?, ?, ?, ?)'
+  var UPSERT_DEVICE = 'CALL upsertDevice_1(?, ?, ?, ?, ?, ?, ?)'
 
-  MySql.prototype.upsertDevice = function (uid, deviceInfo) {
-    if (!deviceInfo.id) {
-      return this.readFirstResult(
-        CREATE_DEVICE,
-        [
-          uid,
-          deviceInfo.sessionTokenId,
-          deviceInfo.name,
-          deviceInfo.type,
-          deviceInfo.createdAt,
-          deviceInfo.callbackURL
-        ]
-      )
-    }
-    else {
-      return this.readFirstResult(
-        UPDATE_DEVICE,
-        [
-          uid,
-          deviceInfo.id,
-          deviceInfo.sessionTokenId,
-          deviceInfo.name,
-          deviceInfo.type,
-          deviceInfo.callbackURL
-        ]
-      )
-    }
+  MySql.prototype.upsertDevice = function (uid, deviceId, deviceInfo) {
+    return this.write(
+      UPSERT_DEVICE,
+      [
+        uid,
+        deviceId,
+        deviceInfo.sessionTokenId,
+        deviceInfo.name,
+        deviceInfo.type,
+        deviceInfo.createdAt,
+        deviceInfo.callbackURL
+      ]
+    )
   }
 
   // READ

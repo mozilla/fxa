@@ -1,19 +1,19 @@
 
 CREATE TABLE devices (
   uid BINARY(16) NOT NULL,
-  id INT UNSIGNED NOT NULL,
+  id BINARY(16) NOT NULL,
   sessionTokenId BINARY(32),
   name VARCHAR(255) NOT NULL,
   type VARCHAR(16) NOT NULL,
   createdAt BIGINT UNSIGNED NOT NULL,
   callbackURL VARCHAR(255),
-  INDEX devices_uid (uid),
   PRIMARY KEY (uid, id)
 ) ENGINE=InnoDB;
 
 
-CREATE PROCEDURE `createDevice_1` (
+CREATE PROCEDURE `upsertDevice_1` (
     IN `inUid` BINARY(16),
+    IN `inId` BINARY(16),
     IN `inSessionTokenId` BINARY(32),
     IN `inName` VARCHAR(255),
     IN `inType` VARCHAR(16),
@@ -30,93 +30,25 @@ BEGIN
     createdAt,
     callbackURL
   )
-  SELECT
+  VALUES (
     inUid,
-    COALESCE(MAX(id), 0) + 1,
+    inId,
     inSessionTokenId,
     inName,
     inType,
     inCreatedAt,
     inCallbackURL
-  FROM
-    devices
-  WHERE
-    uid = inUid;
-
-  SELECT
-    d.uid,
-    d.id,
-    d.sessionTokenId,
-    d.name,
-    d.type,
-    d.createdAt,
-    d.callbackURL,
-    s.uaBrowser,
-    s.uaBrowserVersion,
-    s.uaOS,
-    s.uaOSVersion,
-    s.uaDeviceType,
-    s.lastAccessTime
-  FROM
-    devices d LEFT JOIN sessionTokens s
-  ON
-    d.sessionTokenId = s.tokenId
-  WHERE
-    d.uid = inUid
-  ORDER BY
-    d.id
-  DESC
-  LIMIT 1;
-END;
-
-CREATE PROCEDURE `updateDevice_1` (
-    IN `inUid` BINARY(16),
-    IN `inId` INT UNSIGNED,
-    IN `inSessionTokenId` BINARY(32),
-    IN `inName` VARCHAR(255),
-    IN `inType` VARCHAR(16),
-    IN `inCallbackURL` VARCHAR(255)
-)
-BEGIN
-  UPDATE
-    devices
-  SET
+  )
+  ON DUPLICATE KEY UPDATE
     sessionTokenId = COALESCE(inSessionTokenId, sessionTokenId),
     name = COALESCE(inName, name),
     type = COALESCE(inType, type),
-    callbackURL = COALESCE(inCallbackURL, callbackURL)
-  WHERE
-    uid = inUid
-  AND
-    id = inId;
-
-  SELECT
-    d.uid,
-    d.id,
-    d.sessionTokenId,
-    d.name,
-    d.type,
-    d.createdAt,
-    d.callbackURL,
-    s.uaBrowser,
-    s.uaBrowserVersion,
-    s.uaOS,
-    s.uaOSVersion,
-    s.uaDeviceType,
-    s.lastAccessTime
-  FROM
-    devices d LEFT JOIN sessionTokens s
-  ON
-    d.sessionTokenId = s.tokenId
-  WHERE
-    d.uid = inUid
-  AND
-    d.id = inId;
+    callbackURL = COALESCE(inCallbackURL, callbackURL);
 END;
 
 CREATE PROCEDURE `deleteDevice_1` (
     IN `inUid` BINARY(16),
-    IN `inId` INT UNSIGNED
+    IN `inId` BINARY(16)
 )
 BEGIN
   DELETE

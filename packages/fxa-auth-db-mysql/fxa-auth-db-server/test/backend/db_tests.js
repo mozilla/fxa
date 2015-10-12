@@ -812,7 +812,8 @@ module.exports = function(config, DB) {
         test(
           'db.accountDevices',
           function (t) {
-            t.plan(10)
+            t.plan(7)
+            var deviceId = newUuid()
             var newDevice = {
               name: 'test device',
               createdAt: Date.now(),
@@ -821,13 +822,9 @@ module.exports = function(config, DB) {
             db.createSessionToken(SESSION_TOKEN_ID, SESSION_TOKEN)
               .then(function(sessionToken) {
                 newDevice.sessionTokenId = SESSION_TOKEN_ID
-                return db.upsertDevice(ACCOUNT.uid, newDevice)
+                return db.upsertDevice(ACCOUNT.uid, deviceId, newDevice)
               })
               .then(function(device) {
-                t.equal(device.name, newDevice.name, 'name')
-                t.equal(device.createdAt, newDevice.createdAt, 'createdAt')
-                t.equal(device.type, newDevice.type, 'type')
-                t.equal(device.uaOS, SESSION_TOKEN.uaOS, 'uaOS')
                 return db.accountDevices(ACCOUNT.uid)
               })
               .then(function(devices) {
@@ -836,6 +833,7 @@ module.exports = function(config, DB) {
               })
               .then(function(device) {
                 t.equal(device.name, newDevice.name, 'name')
+                t.deepEqual(device.id, deviceId, 'id')
                 t.equal(device.createdAt, newDevice.createdAt, 'createdAt')
                 t.equal(device.type, newDevice.type, 'type')
                 t.ok(device.lastAccessTime > 0, 'has a lastAccessTime')
