@@ -32,7 +32,9 @@ define([
 
       user = new User();
       account = user.initAccount({
-        email: 'testuser@testuser.com'
+        email: 'testuser@testuser.com',
+        keyFetchToken: 'key-fetch-token',
+        unwrapBKey: 'unwrap-b-key'
       });
 
       broker = new FxDesktopV2AuthenticationBroker({

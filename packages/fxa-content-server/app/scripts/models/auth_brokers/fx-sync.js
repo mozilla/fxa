@@ -13,8 +13,9 @@ define([
   'underscore',
   'models/auth_brokers/base',
   'models/auth_brokers/mixins/channel',
-  'lib/auth-errors'
-], function (Cocktail, _, BaseAuthenticationBroker, ChannelMixin, AuthErrors) {
+  'lib/auth-errors',
+  'lib/promise'
+], function (Cocktail, _, BaseAuthenticationBroker, ChannelMixin, AuthErrors, p) {
   'use strict';
 
   var proto = BaseAuthenticationBroker.prototype;
@@ -187,6 +188,19 @@ define([
     },
 
     _notifyRelierOfLogin: function (account) {
+      /**
+       * Workaround for #3078. If the user signs up but does not verify
+       * their account, then visit `/` or `/settings`, they are
+       * redirected to `/confirm` which attempts to notify the browser of
+       * login. Since `unwrapBKey` and `keyFetchToken` are not persisted to
+       * disk, the passed in account lacks these items. The browser can't
+       * do anything without this data, so don't actually send the message.
+       */
+      if (! account.get('keyFetchToken') ||
+          ! account.get('unwrapBKey')) {
+        return p();
+      }
+
       return this.send(this.getCommand('LOGIN'), this._getLoginData(account));
     },
 
