@@ -43,7 +43,7 @@ P.all(
           service: 'service',
         }
 
-        var supportHtmlLink = new RegExp('<a href="' + config.mail.supportUrl + '" style="color: #0095dd; text-decoration: none;">Mozilla Support</a>')
+        var supportHtmlLink = new RegExp('<a href="' + config.mail.supportUrl + '" style="color: #0095dd; text-decoration: none; font-family: sans-serif;">Mozilla Support</a>')
         var supportTextLink = config.mail.supportUrl
 
         test(

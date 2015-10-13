@@ -57,7 +57,13 @@ module.exports = function (log) {
   Mailer.prototype._supportLinkAttributes = function () {
     // Not very nice to have presentation code in here, but this is to help l10n
     // contributors not deal with extraneous noise in strings.
-    return 'href="' + this.supportUrl + '" style="color: #0095dd; text-decoration: none;"'
+    return 'href="' + this.supportUrl + '" style="color: #0095dd; text-decoration: none; font-family: sans-serif;"'
+  }
+
+  Mailer.prototype._initiatePasswordChange = function () {
+    // Not very nice to have presentation code in here, but this is to help l10n
+    // contributors not deal with extraneous noise in strings.
+    return 'href="' + this.initiatePasswordChangeUrl + '" style="color: #0095dd; text-decoration: none; font-family: sans-serif;"'
   }
 
   Mailer.prototype.send = function (message) {
@@ -130,7 +136,8 @@ module.exports = function (log) {
         link: link,
         oneClickLink: oneClickLink,
         supportUrl: this.supportUrl,
-        supportLinkAttributes: this._supportLinkAttributes()
+        supportLinkAttributes: this._supportLinkAttributes(),
+        passwordChangeLinkAttributes: this._initiatePasswordChange()
       },
       uid: message.uid
     })
@@ -162,7 +169,8 @@ module.exports = function (log) {
         email: message.email,
         link: link,
         supportUrl: this.supportUrl,
-        supportLinkAttributes: this._supportLinkAttributes()
+        supportLinkAttributes: this._supportLinkAttributes(),
+        passwordChangeLinkAttributes: this._initiatePasswordChange()
       },
       uid: message.uid
     })
@@ -194,7 +202,8 @@ module.exports = function (log) {
         email: message.email,
         link: link,
         supportUrl: this.supportUrl,
-        supportLinkAttributes: this._supportLinkAttributes()
+        supportLinkAttributes: this._supportLinkAttributes(),
+        passwordChangeLinkAttributes: this._initiatePasswordChange()
       },
       uid: message.uid
     })
@@ -218,7 +227,8 @@ module.exports = function (log) {
       templateValues: {
         resetLink: link,
         supportUrl: this.supportUrl,
-        supportLinkAttributes: this._supportLinkAttributes()
+        supportLinkAttributes: this._supportLinkAttributes(),
+        passwordChangeLinkAttributes: this._initiatePasswordChange()
       },
       uid: message.uid
     })
@@ -239,7 +249,8 @@ module.exports = function (log) {
       templateValues: {
         resetLink: link,
         supportUrl: this.supportUrl,
-        supportLinkAttributes: this._supportLinkAttributes()
+        supportLinkAttributes: this._supportLinkAttributes(),
+        passwordChangeLinkAttributes: this._initiatePasswordChange()
       },
       uid: message.uid
     })
@@ -260,7 +271,8 @@ module.exports = function (log) {
       templateValues: {
         resetLink: link,
         supportUrl: this.supportUrl,
-        supportLinkAttributes: this._supportLinkAttributes()
+        supportLinkAttributes: this._supportLinkAttributes(),
+        passwordChangeLinkAttributes: this._initiatePasswordChange()
       },
       uid: message.uid
     })
@@ -284,7 +296,8 @@ module.exports = function (log) {
         androidUrl: this.androidUrl,
         iosUrl: this.iosUrl,
         supportUrl: this.supportUrl,
-        supportLinkAttributes: this._supportLinkAttributes()
+        supportLinkAttributes: this._supportLinkAttributes(),
+        passwordChangeLinkAttributes: this._initiatePasswordChange()
       },
       uid: message.uid
     })
@@ -321,7 +334,8 @@ module.exports = function (log) {
         link: link,
         oneClickLink: oneClickLink,
         supportUrl: this.supportUrl,
-        supportLinkAttributes: this._supportLinkAttributes()
+        supportLinkAttributes: this._supportLinkAttributes(),
+        passwordChangeLinkAttributes: this._initiatePasswordChange()
       },
       uid: message.uid
     })
