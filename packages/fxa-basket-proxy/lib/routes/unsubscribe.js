@@ -15,6 +15,12 @@ module.exports = function unsubscribe(req, res) {
   var creds = res.locals.creds;
   var email = encodeURIComponent(creds.email);
 
+  logger.info('activityEvent', {
+    event: 'basket.unsubscribe',
+    uid: res.locals.creds.user,
+    userAgent: req.headers['user-agent'] || undefined,
+  });
+
   basket.request('/lookup-user/?email=' + email, { method: 'get' }, function (lookupError, httpRequest, body) {
     if (lookupError) {
       logger.error('lookup-user.error', lookupError);

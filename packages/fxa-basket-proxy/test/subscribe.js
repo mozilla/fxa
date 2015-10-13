@@ -9,6 +9,8 @@ var app = require('../lib/app')();
 
 var mocks = require('./lib/mocks');
 
+var UID = 'abcdef123456';
+
 
 describe('the /subscribe route', function () {
 
@@ -16,6 +18,7 @@ describe('the /subscribe route', function () {
     var EMAIL = 'test@example.com';
     var NEWSLETTERS = 'a,b,c';
     mocks.mockOAuthResponse().reply(200, {
+      user: UID,
       email: EMAIL,
       scope: 'basket:write'
     });
@@ -42,6 +45,7 @@ describe('the /subscribe route', function () {
     var EMAIL = 'test@example.com';
     var NEWSLETTERS = 'a,b,c';
     mocks.mockOAuthResponse().reply(200, {
+      user: UID,
       email: EMAIL,
       scope: 'basket:write'
     });
@@ -85,6 +89,7 @@ describe('the /subscribe route', function () {
     var EMAIL = 'test@example.com';
     var NEWSLETTERS = 'a,b,c';
     mocks.mockOAuthResponse().reply(200, {
+      user: UID,
       email: EMAIL,
       scope: 'basket:write'
     });
@@ -112,6 +117,7 @@ describe('the /subscribe route', function () {
     var NEWSLETTERS = 'a,b,c';
     var ACCEPT_LANG = 'Accept-Language: de; q=1.0, en; q=0.5';
     mocks.mockOAuthResponse().reply(200, {
+      user: UID,
       email: EMAIL,
       scope: 'basket:write'
     });

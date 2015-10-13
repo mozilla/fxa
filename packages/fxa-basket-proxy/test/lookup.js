@@ -9,6 +9,9 @@ var app = require('../lib/app')();
 var mocks = require('./lib/mocks');
 
 
+var UID = 'abcdef123456';
+
+
 describe('the route /lookup-user', function () {
 
   it('forwards properly-authenticated requests through to basket', function (done) {
@@ -16,6 +19,7 @@ describe('the route /lookup-user', function () {
     var TOKEN = 'abcdef123456';
     var NEWSLETTERS = 'a,b,c';
     mocks.mockOAuthResponse().reply(200, {
+      user: UID,
       email: EMAIL,
       scope: 'basket:write'
     });
@@ -40,6 +44,7 @@ describe('the route /lookup-user', function () {
   it('returns an error if the basket server request errors out', function (done) {
     var EMAIL = 'test@example.com';
     mocks.mockOAuthResponse().reply(200, {
+      user: UID,
       email: EMAIL,
       scope: 'basket:write'
     });
@@ -100,7 +105,7 @@ describe('the route /lookup-user', function () {
 
   it('returns an error if the oauth token has no associated email', function (done) {
     mocks.mockOAuthResponse().reply(200, {
-      uid: 'abcdef'
+      user: UID,
     });
     request(app)
       .get('/lookup-user')
@@ -117,6 +122,7 @@ describe('the route /lookup-user', function () {
   it('returns an error if the oauth token has incorrect scope', function (done) {
     var EMAIL = 'test@example.com';
     mocks.mockOAuthResponse().reply(200, {
+      user: UID,
       email: EMAIL,
       scope: 'profile'
     });
