@@ -53,6 +53,7 @@ define([
   'models/auth_brokers/fx-desktop-v2',
   'models/auth_brokers/fx-fennec-v1',
   'models/auth_brokers/fx-ios-v1',
+  'models/auth_brokers/fx-ios-v2',
   'models/auth_brokers/first-run',
   'models/auth_brokers/web-channel',
   'models/auth_brokers/redirect',
@@ -103,6 +104,7 @@ function (
   FxDesktopV2AuthenticationBroker,
   FxFennecV1AuthenticationBroker,
   FxiOSV1AuthenticationBroker,
+  FxiOSV2AuthenticationBroker,
   FirstRunAuthenticationBroker,
   WebChannelAuthenticationBroker,
   RedirectAuthenticationBroker,
@@ -434,6 +436,11 @@ function (
             relier: this._relier,
             window: this._window
           });
+        } else if (this._isFxiOSV2()) {
+          this._authenticationBroker = new FxiOSV2AuthenticationBroker({
+            relier: this._relier,
+            window: this._window
+          });
         } else if (this._isWebChannel()) {
           this._authenticationBroker = new WebChannelAuthenticationBroker({
             assertionLibrary: this._assertionLibrary,
@@ -676,6 +683,10 @@ function (
 
     _isFxiOSV1: function () {
       return this._searchParam('context') === Constants.FX_IOS_V1_CONTEXT;
+    },
+
+    _isFxiOSV2: function () {
+      return this._searchParam('context') === Constants.FX_IOS_V2_CONTEXT;
     },
 
     _isFirstRun: function () {
