@@ -12,6 +12,13 @@ function (chai, $, Tooltip) {
 
   var assert = chai.assert;
 
+  function _createEvent(keyCode) {
+    var keyEvent = $.Event('keydown');
+    keyEvent.which = keyCode;
+
+    return keyEvent;
+  }
+
   describe('views/tooltip', function () {
     var tooltip;
 
@@ -54,6 +61,48 @@ function (chai, $, Tooltip) {
       });
     });
 
+    describe('keyboard events', function () {
+      it('does not close on down arrow key press', function () {
+        return tooltip.render().then(function () {
+          $('#focusMe').trigger(_createEvent(tooltip.DOWN_ARROW_KEY_CODE));
+        }).then(function () {
+          assert.equal($('.tooltip').length, 1);
+        });
+      });
+
+      it('does not close on left arrow key press', function () {
+        return tooltip.render().then(function () {
+          $('#focusMe').trigger(_createEvent(tooltip.LEFT_ARROW_KEY_CODE));
+        }).then(function () {
+          assert.equal($('.tooltip').length, 1);
+        });
+      });
+
+      it('does not close on right arrow key press', function () {
+        return tooltip.render().then(function () {
+          $('#focusMe').trigger(_createEvent(tooltip.RIGHT_ARROW_KEY_CODE));
+        }).then(function () {
+          assert.equal($('.tooltip').length, 1);
+        });
+      });
+
+      it('does not close on tab key press', function () {
+        return tooltip.render().then(function () {
+          $('#focusMe').trigger(_createEvent(tooltip.TAB_KEY_CODE));
+        }).then(function () {
+          assert.equal($('.tooltip').length, 1);
+        });
+      });
+
+      it('does not close on up arrow key press', function () {
+        return tooltip.render().then(function () {
+          $('#focusMe').trigger(_createEvent(tooltip.UP_ARROW_KEY_CODE));
+        }).then(function () {
+          assert.equal($('.tooltip').length, 1);
+        });
+      });
+    });
+
     describe('self destruct', function () {
       it('when invalid element is changed', function (done) {
         tooltip.once('destroyed', function () {
@@ -61,10 +110,18 @@ function (chai, $, Tooltip) {
         });
 
         tooltip.render().then(function () {
-          $('#focusMe').trigger('keydown');
+          $('#focusMe').val('heyya!');
+          $('#focusMe').trigger('keyup');
+        });
+      });
+
+      it('when invalid element is not changed (should not destroy)', function () {
+        return tooltip.render().then(function () {
+          $('#focusMe').trigger('keyup');
+        }).then(function () {
+          assert.equal($('.tooltip').length, 1);
         });
       });
     });
   });
 });
-
