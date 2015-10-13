@@ -24,6 +24,7 @@ define([
   'models/auth_brokers/iframe',
   'models/auth_brokers/redirect',
   'models/auth_brokers/web-channel',
+  'models/notifications',
   'models/reliers/base',
   'models/reliers/sync',
   'models/reliers/oauth',
@@ -39,8 +40,8 @@ define([
 function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
   Url, OAuthErrors, AuthErrors, Storage, BaseBroker, FirstrunBroker,
   FxDesktopV1Broker, FxDesktopV2Broker, FxFennecV1Broker, FxiOSV1Broker,
-  IframeBroker, RedirectBroker, WebChannelBroker, BaseRelier, SyncRelier,
-  OAuthRelier, Relier, User, Metrics, StorageMetrics, WindowMock,
+  IframeBroker, RedirectBroker, WebChannelBroker, Notifications, BaseRelier,
+  SyncRelier, OAuthRelier, Relier, User, Metrics, StorageMetrics, WindowMock,
   RouterMock, HistoryMock, TestHelpers) {
   'use strict';
 
@@ -49,21 +50,23 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
   var HELLO_ORIGIN = 'https://hello.firefox.com';
 
   describe('lib/app-start', function () {
-    var windowMock;
-    var routerMock;
-    var historyMock;
-    var brokerMock;
-    var userMock;
     var appStart;
+    var brokerMock;
+    var historyMock;
+    var notifications;
+    var routerMock;
+    var userMock;
+    var windowMock;
 
     beforeEach(function () {
+      brokerMock = new BaseBroker();
+      historyMock = new HistoryMock();
+      notifications = new Notifications();
+      routerMock = new RouterMock();
+      userMock = new User();
+
       windowMock = new WindowMock();
       windowMock.parent = new WindowMock();
-
-      routerMock = new RouterMock();
-      historyMock = new HistoryMock();
-      userMock = new User();
-      brokerMock = new BaseBroker();
     });
 
     afterEach(function () {
@@ -490,6 +493,7 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
         appStart = new AppStart({
           broker: brokerMock,
           history: historyMock,
+          notifications: notifications,
           window: windowMock
         });
         appStart.useConfig({});

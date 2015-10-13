@@ -81,98 +81,128 @@ function (chai, $, sinon, Cocktail, View, BaseView,
 
     describe('subviews', function () {
       it('renders non-modal subviews on render', function () {
-        sinon.stub(routerMock, 'createSubView', function (View) {
+        sinon.spy(view, '_createSubViewIfNeeded', function (View) {
           var subview = new View();
           return subview;
         });
 
         return view.render()
           .then(function () {
-            assert.isTrue(routerMock.createSubView.calledTwice, 'is only called for the non-modal views');
-            assert.equal(routerMock.createSubView.args[0][0], SettingsPanelView);
-            assert.equal(routerMock.createSubView.args[1][0], SettingsPanelView2);
+            assert.isTrue(view._createSubViewIfNeeded.calledTwice, 'is only called for the non-modal views');
+            assert.equal(view._createSubViewIfNeeded.args[0][0], SettingsPanelView);
+            assert.equal(view._createSubViewIfNeeded.args[1][0], SettingsPanelView2);
           });
       });
 
-      it('showSubView with undeclared view returns', function () {
-        var result = view.showSubView(BaseView);
-        assert.isUndefined(result);
+    });
+
+    describe('_createSubViewIfNeeded', function () {
+      it('creates, tracks, and renders a subview', function () {
+        sinon.spy(view, 'trackSubview');
+        sinon.spy(view, 'renderSubView');
+
+        return view._createSubViewIfNeeded(SettingsPanelView)
+          .then(function (subView) {
+            assert.ok(subView);
+            assert.isTrue(view.trackSubview.calledWith(subView));
+            assert.isTrue(view.renderSubView.calledWith(subView));
+          });
+      });
+
+      it('only creates view once', function () {
+        var firstSubView;
+        return view._createSubViewIfNeeded(SettingsPanelView)
+          .then(function (subView) {
+            firstSubView = subView;
+            return view._createSubViewIfNeeded(SettingsPanelView);
+          })
+          .then(function (secondSubView) {
+            assert.ok(secondSubView);
+            assert.strictEqual(firstSubView, secondSubView);
+          });
+      });
+
+    });
+
+    describe('showSubView', function () {
+      it('with non-subpanel view returns', function () {
+        return view.showSubView(BaseView)
+          .then(function (shownView) {
+            assert.isNull(shownView);
+          });
       });
 
       it('showSubView renders and opens', function () {
-        sinon.stub(routerMock, 'createSubView', function (View) {
+        sinon.stub(view, '_createSubViewIfNeeded', function (View) {
           var subview = new View();
           sinon.stub(subview, 'openPanel', function () { });
-          return subview;
+          return p(subview);
         });
-        sinon.spy(routerMock, 'renderSubView');
-        var spy = sinon.spy(view, 'trackSubview');
 
         return view.render()
           .then(function () {
             $('#container').append(view.el);
             return view.showSubView(SettingsPanelView);
           })
-          .then(function () {
-            var subView = routerMock.createSubView.returnValues[0];
-
-            assert.isTrue(routerMock.createSubView.called);
-            assert.equal(routerMock.createSubView.args[0][0], SettingsPanelView);
-            assert.isTrue(routerMock.createSubView.args[0][1].el.hasClass(SETTINGS_PANEL_CLASSNAME));
-
-            assert.isTrue(spy.calledWith(subView));
-
-            assert.isTrue(routerMock.renderSubView.calledWith(subView));
+          .then(function (subView) {
+            assert.isTrue(
+                view._createSubViewIfNeeded.calledWith(SettingsPanelView));
             assert.isTrue(subView.openPanel.called);
           });
       });
 
-      it('showSubView only creates view once', function () {
-        sinon.stub(routerMock, 'createSubView', function (View) {
-          var subview = new View();
-          sinon.stub(subview, 'openPanel', function () { });
-          return subview;
-        });
-
-        sinon.stub(routerMock, 'renderSubView', function (view) {
-          return p(view);
-        });
-        var returnedView;
-
-        return view.showSubView(SettingsPanelView)
-          .then(function (subView) {
-            returnedView = subView;
-            return view.showSubView(SettingsPanelView);
-          })
-          .then(function (subView) {
-            assert.ok(subView);
-            assert.equal(returnedView, subView);
-            assert.isTrue(routerMock.createSubView.calledOnce);
-            assert.isTrue(routerMock.renderSubView.calledOnce);
-          });
-      });
-
       it('showSubView destroys previous modal view', function () {
-        sinon.stub(routerMock, 'createSubView', function (View) {
+        sinon.stub(view, '_createSubViewIfNeeded', function (View) {
           var subview = new View();
           sinon.stub(subview, 'openPanel', function () { });
-          return subview;
+          return p(subview);
         });
 
-        sinon.stub(routerMock, 'renderSubView', function (view) {
-          return p(view);
-        });
-
+        var modalSubView;
         return view.showSubView(ModalSettingsPanelView)
           .then(function (subView) {
+            modalSubView = subView;
             sinon.stub(subView, 'closePanel', function () { });
             return view.showSubView(SettingsPanelView);
           })
           .then(function (subView) {
-            assert.isTrue(routerMock.createSubView.returnValues[0].closePanel.called);
+            assert.isTrue(modalSubView.closePanel.called);
           });
       });
     });
 
+    describe('renderSubView', function () {
+      it('calls render and afterVisible on subview', function () {
+        var subview = new View();
+        sinon.stub(subview, 'render', function () {
+          return p(true);
+        });
+        sinon.spy(subview, 'afterVisible');
+
+        return view.renderSubView(subview)
+          .then(function (renderedSubview) {
+            assert.strictEqual(renderedSubview, subview);
+            assert.isTrue(subview.render.called);
+            assert.isTrue(subview.afterVisible.called);
+          });
+      });
+
+      it('destroys subview if render fails', function () {
+        var subview = new View();
+        sinon.stub(subview, 'render', function () {
+          return p(false);
+        });
+        sinon.spy(subview, 'afterVisible');
+        sinon.spy(subview, 'destroy');
+
+        return view.renderSubView(subview)
+          .then(function (renderedSubview) {
+            assert.isUndefined(renderedSubview);
+            assert.isTrue(subview.render.called);
+            assert.isFalse(subview.afterVisible.called);
+            assert.isTrue(subview.destroy.calledWith(true));
+          });
+      });
+    });
   });
 });

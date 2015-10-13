@@ -118,15 +118,15 @@ function (
   function Start(options) {
     options = options || {};
 
-    this._window = options.window || window;
-    this._router = options.router;
-    this._relier = options.relier;
     this._authenticationBroker = options.broker;
-    this._user = options.user;
-    this._storage = options.storage || Storage;
-
-    this._history = options.history || Backbone.history;
     this._configLoader = new ConfigLoader();
+    this._history = options.history || Backbone.history;
+    this._notifications = options.notifications;
+    this._relier = options.relier;
+    this._router = options.router;
+    this._storage = options.storage || Storage;
+    this._user = options.user;
+    this._window = options.window || window;
   }
 
   Start.prototype = {
@@ -527,15 +527,17 @@ function (
     },
 
     initializeNotifications: function () {
-      var notificationWebChannel =
-            new WebChannel(Constants.ACCOUNT_UPDATES_WEBCHANNEL_ID);
-      notificationWebChannel.initialize();
+      if (! this._notifications) {
+        var notificationWebChannel =
+              new WebChannel(Constants.ACCOUNT_UPDATES_WEBCHANNEL_ID);
+        notificationWebChannel.initialize();
 
-      this._notifications = new Notifications({
-        iframeChannel: this._iframeChannel,
-        tabChannel: this._interTabChannel,
-        webChannel: notificationWebChannel
-      });
+        this._notifications = new Notifications({
+          iframeChannel: this._iframeChannel,
+          tabChannel: this._interTabChannel,
+          webChannel: notificationWebChannel
+        });
+      }
     },
 
     _uniqueUserId: null,
@@ -581,7 +583,9 @@ function (
     initializeAppView: function () {
       if (! this._appView) {
         this._appView = new AppView({
+          el: 'body',
           environment: new Environment(this._window),
+          notifications: this._notifications,
           router: this._router,
           window: this._window
         });

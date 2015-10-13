@@ -3,38 +3,51 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'backbone',
   'chai',
+  'jquery',
+  'lib/auth-errors',
   'lib/environment',
+  'lib/promise',
   '../../mocks/router',
   '../../mocks/window',
+  'models/notifications',
   'sinon',
   'views/app'
-], function (chai, Environment, RouterMock, WindowMock, sinon, AppView) {
+], function (Backbone, chai, $, AuthErrors, Environment, p, RouterMock,
+  WindowMock, Notifications, sinon, AppView) {
   'use strict';
 
   var assert = chai.assert;
 
   describe('views/app', function () {
     var environment;
+    var notifications;
     var router;
     var view;
     var windowMock;
+
+    function createDeps() {
+      notifications = new Notifications();
+      router = new RouterMock();
+      windowMock = new WindowMock();
+      environment = new Environment(windowMock);
+
+      $('#container').empty().append('<a href="/signup">Sign up</a><div id="stage"></stage>');
+      view = new AppView({
+        el: $('#container'),
+        environment: environment,
+        notifications: notifications,
+        router: router,
+        window: windowMock
+      });
+    }
 
     describe('onAnchorClick', function () {
       var event;
 
       beforeEach(function () {
-        router = new RouterMock();
-        windowMock = new WindowMock();
-        environment = new Environment(windowMock);
-
-        view = new AppView({
-          environment: environment,
-          router: router,
-          window: windowMock
-        });
-
-        $('#container').empty().append('<a href="/signup">Sign up</a>');
+        createDeps();
 
         event = $.Event('click');
         event.currentTarget = $('a[href="/signup"]');
@@ -103,6 +116,317 @@ define([
         view.onAnchorClick(event);
 
         assert.isTrue(router.navigate.calledWith('signup'));
+      });
+    });
+
+    describe('setTitle', function () {
+      it('sets the document title', function () {
+        view.setTitle('Foo');
+        assert.equal(windowMock.document.title, 'Foo');
+      });
+    });
+
+    describe('showView', function () {
+      describe('with a view that does not render', function () {
+        var displayedView;
+        var isDestroyed = false;
+        var isLogged = false;
+
+        var DoesNotRenderView = Backbone.View.extend({
+          render: function () {
+            return p(false);
+          },
+
+          destroy: function () {
+            isDestroyed = true;
+          },
+
+          logScreen: function () {
+            isLogged = true;
+          }
+        });
+
+        before(function () {
+          createDeps();
+
+          return view.showView(DoesNotRenderView, {})
+            .then(function (_displayedView) {
+              displayedView = _displayedView;
+            });
+        });
+
+        it('returns `null` for the rendered view', function () {
+          assert.isNull(displayedView);
+        });
+
+        it('logs the view', function () {
+          assert.isTrue(isLogged);
+        });
+
+        it('destroys the view', function () {
+          assert.isTrue(isDestroyed);
+        });
+      });
+
+      describe('with a view that renders', function () {
+        var displayedView;
+
+        var ViewThatRenders = Backbone.View.extend({
+          afterVisible: sinon.spy(),
+          destroy: sinon.spy(),
+          logScreen: sinon.spy(),
+          render: function () {
+            this.$el.html('<div id="rendered-view"></div>');
+            return p(true);
+          },
+          titleFromView: function () {
+            return 'the title';
+          }
+        });
+
+        before(function () {
+          createDeps();
+
+          sinon.spy(notifications, 'trigger');
+          sinon.spy(view, 'setTitle');
+
+          return view.showView(ViewThatRenders, {})
+            .then(function (_displayedView) {
+              displayedView = _displayedView;
+            });
+        });
+
+        it('returns the displayed view', function () {
+          assert.ok(displayedView);
+        });
+
+        it('adds the view to the DOM', function () {
+          assert.equal($('#rendered-view').length, 1);
+        });
+
+        it('calls the returned views `afterVisible`', function () {
+          assert.isTrue(displayedView.afterVisible.called);
+        });
+
+        it('logs the view', function () {
+          assert.isTrue(displayedView.logScreen.called);
+        });
+
+        it('sets the title from the text the view returns', function () {
+          assert.isTrue(view.setTitle.calledWith('the title'));
+        });
+
+        it('triggers a `view-shown` message with the view', function () {
+          assert.isTrue(notifications.trigger.calledWith(
+              'view-shown', displayedView));
+        });
+      });
+
+      describe('with a second view that renders', function () {
+        var firstDisplayedView;
+        var secondDisplayedView;
+
+        var FirstViewThatRenders = Backbone.View.extend({
+          afterVisible: sinon.spy(),
+          destroy: sinon.spy(),
+          logScreen: sinon.spy(),
+          render: sinon.spy(function () {
+            return p(true);
+          }),
+          titleFromView: function () {
+            return 'the title';
+          }
+        });
+
+        var SecondViewThatRenders = Backbone.View.extend({
+          afterVisible: sinon.spy(),
+          destroy: sinon.spy(),
+          logScreen: sinon.spy(),
+          render: sinon.spy(function () {
+            return p(true);
+          }),
+          titleFromView: function () {
+            return 'the second title';
+          }
+        });
+
+        before(function () {
+          createDeps();
+
+          sinon.spy(notifications, 'trigger');
+          sinon.spy(view, 'setTitle');
+
+          return view.showView(FirstViewThatRenders, {})
+            .then(function (_firstDisplayedView) {
+              firstDisplayedView = _firstDisplayedView;
+              return view.showView(SecondViewThatRenders, {});
+            })
+            .then(function (_secondDisplayedView) {
+              secondDisplayedView = _secondDisplayedView;
+            });
+        });
+
+        it('returns both views', function () {
+          assert.isTrue(firstDisplayedView !== secondDisplayedView);
+        });
+
+        it('renders each view', function () {
+          assert.equal(firstDisplayedView.render.callCount, 1);
+          assert.equal(secondDisplayedView.render.callCount, 1);
+        });
+
+        it('destroys the first view', function () {
+          assert.isTrue(firstDisplayedView.destroy.called);
+        });
+
+        it('sets the title to the second view', function () {
+          assert.isTrue(view.setTitle.calledWith('the second title'));
+        });
+      });
+
+      describe('with the same view that is already visible', function () {
+        var firstDisplayedView;
+        var secondDisplayedView;
+
+        var ViewThatRenders = Backbone.View.extend({
+          afterVisible: sinon.spy(),
+          destroy: sinon.spy(),
+          logScreen: sinon.spy(),
+          render: sinon.spy(function () {
+            return p(true);
+          }),
+          titleFromView: function () {
+            return 'the title';
+          }
+        });
+
+        before(function () {
+          createDeps();
+
+          sinon.spy(notifications, 'trigger');
+          sinon.spy(view, 'setTitle');
+
+          return view.showView(ViewThatRenders, {})
+            .then(function (_firstDisplayedView) {
+              firstDisplayedView = _firstDisplayedView;
+              return view.showView(ViewThatRenders, {});
+            })
+            .then(function (_secondDisplayedView) {
+              secondDisplayedView = _secondDisplayedView;
+            });
+        });
+
+        it('returns the same view both times', function () {
+          assert.strictEqual(firstDisplayedView, secondDisplayedView);
+        });
+
+        it('only renders once', function () {
+          assert.equal(firstDisplayedView.render.callCount, 1);
+        });
+
+        it('triggers the `navigate-from-subview` message', function () {
+          assert.isTrue(
+            notifications.trigger.calledWith('navigate-from-subview'));
+        });
+
+        it('sets the title', function () {
+          assert.isTrue(view.setTitle.calledWith('the title'));
+        });
+      });
+
+      describe('with a view that errors', function () {
+        var renderError = AuthErrors.toError('UNEXPECTED_ERROR');
+
+        var ViewThatErrors = Backbone.View.extend({
+          afterVisible: sinon.spy(),
+          destroy: sinon.spy(),
+          logScreen: sinon.spy(),
+          render: sinon.spy(function () {
+            return p.reject(renderError);
+          }),
+          titleFromView: function () {
+            return 'the title';
+          }
+        });
+
+        before(function () {
+          createDeps();
+
+          sinon.spy(view, 'navigate');
+
+          return view.showView(ViewThatErrors, {});
+        });
+
+        it('navigates to `unexpected_error` with the error', function () {
+          assert.isTrue(
+            view.navigate.calledWith('unexpected_error', {
+              error: renderError
+            }));
+        });
+      });
+    });
+
+    describe('showSubView', function () {
+      var parentView;
+      var subView;
+
+      var ParentView = Backbone.View.extend({
+        afterVisible: sinon.spy(),
+        destroy: sinon.spy(),
+        logScreen: sinon.spy(),
+        render: sinon.spy(function () {
+          return p(true);
+        }),
+        showSubView: sinon.spy(function (SubView, options) {
+          return new SubView(options);
+        }),
+        titleFromView: function () {
+          return 'the title';
+        }
+      });
+
+      var SubView = Backbone.View.extend({
+        afterVisible: sinon.spy(),
+        destroy: sinon.spy(),
+        logScreen: sinon.spy(),
+        render: sinon.spy(function () {
+          return p(true);
+        }),
+        titleFromView: function (base) {
+          return base + ', the second title';
+        }
+      });
+
+      before(function () {
+        createDeps();
+
+        sinon.spy(notifications, 'trigger');
+        sinon.spy(view, 'setTitle');
+        sinon.spy(view, 'showView');
+        notifications.on('view-shown', function (_parentView) {
+          parentView = _parentView;
+        });
+
+        return view.showSubView(SubView, ParentView, {})
+          .then(function (_subView) {
+            subView = _subView;
+          });
+      });
+
+      it('creates the parent view', function () {
+        assert.isTrue(view.showView.calledWith(ParentView));
+      });
+
+      it('tells the parent view to show the sub view', function () {
+        assert.isTrue(parentView.showSubView.calledWith(SubView));
+      });
+
+      it('logs the child view', function () {
+        assert.isTrue(subView.logScreen.called);
+      });
+
+      it('sets the title', function () {
+        assert.isTrue(view.setTitle.calledWith('the title, the second title'));
       });
     });
   });
