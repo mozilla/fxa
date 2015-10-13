@@ -4,7 +4,6 @@
 
 define([
   'backbone',
-  './environment',
   'jquery',
   './promise',
   './storage',
@@ -45,7 +44,6 @@ define([
 ],
 function (
   Backbone,
-  Environment,
   $,
   p,
   Storage,
@@ -180,10 +178,7 @@ function (
       this.user = options.user;
       this.window = options.window || window;
 
-      this.environment = options.environment || new Environment(this.window);
       this.storage = Storage.factory('sessionStorage', this.window);
-
-      this.watchAnchors();
     },
 
     navigate: function (url, options) {
@@ -375,33 +370,6 @@ function (
           self.setDocumentTitle(title);
           viewToShow.logScreen();
         });
-    },
-
-    watchAnchors: function () {
-      $(document).on('click', 'a[href^="/"]', this.onAnchorClick.bind(this));
-    },
-
-    onAnchorClick: function (event) {
-      // if someone killed this event, or the user is holding a modifier
-      // key, ignore the event.
-      if (event.isDefaultPrevented() ||
-          event.altKey ||
-          event.ctrlKey ||
-          event.metaKey ||
-          event.shiftKey) {
-        return;
-      }
-
-      event.preventDefault();
-
-      // Remove leading slashes
-      var url = $(event.currentTarget).attr('href').replace(/^\//, '');
-      if (this.environment.isFramed() && url.indexOf('legal') > -1) {
-        this.window.open(url, '_blank');
-        return;
-      }
-      // Instruct Backbone to trigger routing events
-      this.navigate(url);
     },
 
     getCurrentPage: function () {

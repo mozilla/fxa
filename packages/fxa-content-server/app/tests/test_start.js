@@ -63,6 +63,7 @@ function (Translator, Session) {
     '../tests/spec/lib/config-loader',
     '../tests/spec/lib/require-on-demand',
     '../tests/spec/head/startup-styles',
+    '../tests/spec/views/app',
     '../tests/spec/views/base',
     '../tests/spec/views/tooltip',
     '../tests/spec/views/form',

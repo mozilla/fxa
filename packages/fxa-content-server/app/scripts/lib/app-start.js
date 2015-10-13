@@ -61,6 +61,7 @@ define([
   'models/user',
   'models/form-prefill',
   'models/notifications',
+  'views/app',
   'views/close_button'
 ],
 function (
@@ -109,6 +110,7 @@ function (
   User,
   FormPrefill,
   Notifications,
+  AppView,
   CloseButtonView
 ) {
   'use strict';
@@ -222,7 +224,9 @@ function (
                     // depends on iframeChannel and interTabChannel
                     .then(_.bind(this.initializeNotifications, this))
                     // router depends on all of the above
-                    .then(_.bind(this.initializeRouter, this));
+                    .then(_.bind(this.initializeRouter, this))
+                    // appView depends on the router
+                    .then(_.bind(this.initializeAppView, this));
     },
 
     useConfig: function (config) {
@@ -572,6 +576,16 @@ function (
         });
       }
       this._window.router = this._router;
+    },
+
+    initializeAppView: function () {
+      if (! this._appView) {
+        this._appView = new AppView({
+          environment: new Environment(this._window),
+          router: this._router,
+          window: this._window
+        });
+      }
     },
 
     allResourcesReady: function () {
