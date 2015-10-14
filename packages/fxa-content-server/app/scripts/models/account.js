@@ -87,6 +87,9 @@ define([
        * requests for the same sessionToken.
        */
       self._assertionPromises = {};
+
+      self._boundOnChange = self.onChange.bind(self);
+      self.on('change', self._boundOnChange);
     },
 
     // Hydrate the account
@@ -213,8 +216,11 @@ define([
     },
 
     setProfileImage: function (profileImage) {
-      this.set('profileImageUrl', profileImage.get('url'));
-      this.set('profileImageId', profileImage.get('id'));
+      this.set({
+        profileImageId: profileImage.get('id'),
+        profileImageUrl: profileImage.get('url')
+      });
+
       if (this.get('profileImageUrl')) {
         // This is a heuristic to let us know if the user has, at some point,
         // had a custom profile image.
@@ -222,15 +228,39 @@ define([
       }
     },
 
+    onChange: function () {
+      // if any data is set outside of the `fetchProfile` function,
+      // clear the cache and force a reload of the profile the next time.
+      delete this._profileFetchPromise;
+    },
+
+    _profileFetchPromise: null,
     fetchProfile: function () {
       var self = this;
 
-      return self.getProfile()
+      // Avoid multiple views making profile requests by caching
+      // the profile fetch request. Only allow one for a given account,
+      // and then re-use the data after that. See #3053
+      if (self._profileFetchPromise) {
+        return self._profileFetchPromise;
+      }
+
+      // ignore change events while populating known good data.
+      // Unbinding the change event here ignores the `set` from
+      // the call to _fetchProfileOAuthToken made in `getProfile`.
+      self.off('change', self._boundOnChange);
+
+      self._profileFetchPromise = self.getProfile()
         .then(function (result) {
           var profileImage = new ProfileImage({ url: result.avatar });
+
           self.setProfileImage(profileImage);
           self.set('displayName', result.displayName);
+
+          self.on('change', self._boundOnChange);
         });
+
+      return self._profileFetchPromise;
     },
 
     fetchCurrentProfileImage: function () {
