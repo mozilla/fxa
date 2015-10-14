@@ -12,9 +12,6 @@ module.exports = function (grunt) {
         // be added manually to the bundle.
         deps: ['nocache'],
         findNestedDependencies: true,
-        // TODO: (Issue #560) Figure out how to make sourcemaps work with grunt-usemin
-        // https://github.com/yeoman/grunt-usemin/issues/30
-        //generateSourceMaps: true,
         keepBuildDir: true,
         mainConfigFile: '<%= yeoman.app %>/scripts/require_config.js',
         name: 'main',
@@ -33,6 +30,9 @@ module.exports = function (grunt) {
           'stache'
         ],
         useStrict: true,
+        // See issue #3166, extending waitSeconds because r.js cannot
+        // parse the dependency tree in time on slow machines
+        waitSeconds: 20,
         wrap: true
       }
     }
