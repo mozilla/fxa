@@ -53,3 +53,11 @@ Publishing to http://fxa.readthedocs.org
 git commit
 git push origin/master
 ```
+
+## Admin Operations
+
+### Adding new milestones
+
+* Add the milestone by hand on the mozilla/fxa repo
+* Get a [GitHub access token](https://github.com/settings/tokens), set `GITHUB_USERNAME` and `GITHUB_API_KEY`
+* Run `scripts/sync_milestones.js` to propagate it to the other repos
