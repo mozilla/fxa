@@ -141,6 +141,9 @@ define([
         // ensure the changes stick across refreshes
         .refresh()
 
+        .findByCssSelector('#fxa-settings-header')
+        .end()
+
         .then(FunctionalHelpers.visibleByQSA('#communication-preferences .settings-unit-details'))
 
         .then(testOptedIn(self))
@@ -154,6 +157,9 @@ define([
 
         // ensure the opt-out sticks across refreshes
         .refresh()
+
+        .findByCssSelector('#fxa-settings-header')
+        .end()
 
         .findByCssSelector('#communication-preferences .settings-unit-toggle')
           .click()
@@ -210,6 +216,9 @@ define([
 
         // ensure the opt-in sticks across refreshes
         .refresh()
+
+        .findByCssSelector('#fxa-settings-header')
+        .end()
 
         .findByCssSelector('#communication-preferences .settings-unit-toggle')
           .click()
