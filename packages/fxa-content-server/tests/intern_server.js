@@ -21,7 +21,8 @@ define([
     'tests/server/metrics-ga',
     'tests/server/metrics-unit',
     'tests/server/configuration',
-    'tests/server/statsd-collector'
+    'tests/server/statsd-collector',
+    'tests/server/routes/post-csp'
   ];
 
   return intern;

@@ -86,6 +86,13 @@ function makeApp() {
     type: 'text/plain'
   }));
 
+  // chrome sends 'application/csp-report' and firefox sends 'application/json'
+  // correct is 'application/csp-report': https://w3c.github.io/webappsec/specs/content-security-policy/
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1192840
+  app.use(bodyParser.json({
+    type: ['json', 'application/csp-report']
+  }));
+
   var ableOptions = {
     addRoutes: true,
     dir: config.get('experiments.dir'),
