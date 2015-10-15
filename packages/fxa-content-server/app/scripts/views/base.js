@@ -10,13 +10,12 @@ define([
   'jquery',
   'lib/promise',
   'lib/auth-errors',
-  'lib/strings',
   'lib/ephemeral-messages',
   'lib/null-metrics',
   'views/mixins/timer-mixin'
 ],
 function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
-      Strings, EphemeralMessages, NullMetrics, TimerMixin) {
+      EphemeralMessages, NullMetrics, TimerMixin) {
   'use strict';
 
   var DEFAULT_TITLE = window.document.title;
@@ -611,14 +610,11 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
 
     /**
      * Log an event with the screen name as a prefix
+     *
+     * @param {string} eventName
      */
     logScreenEvent: function (eventName) {
-      var event = Strings.interpolate('%(screenName)s.%(eventName)s', {
-        eventName: eventName,
-        screenName: this.getScreenName()
-      });
-
-      this.metrics.logEvent(event);
+      this.metrics.logScreenEvent(this.getScreenName(), eventName);
     },
 
     hideError: function () {

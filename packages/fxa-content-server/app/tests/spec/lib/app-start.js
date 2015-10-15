@@ -25,6 +25,7 @@ define([
   'models/auth_brokers/redirect',
   'models/auth_brokers/web-channel',
   'models/notifications',
+  'models/refresh-observer',
   'models/reliers/base',
   'models/reliers/sync',
   'models/reliers/oauth',
@@ -40,9 +41,9 @@ define([
 function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
   Url, OAuthErrors, AuthErrors, Storage, BaseBroker, FirstrunBroker,
   FxDesktopV1Broker, FxDesktopV2Broker, FxFennecV1Broker, FxiOSV1Broker,
-  IframeBroker, RedirectBroker, WebChannelBroker, Notifications, BaseRelier,
-  SyncRelier, OAuthRelier, Relier, User, Metrics, StorageMetrics, WindowMock,
-  RouterMock, HistoryMock, TestHelpers) {
+  IframeBroker, RedirectBroker, WebChannelBroker, Notifications,
+  RefreshObserver, BaseRelier, SyncRelier, OAuthRelier, Relier, User,
+  Metrics, StorageMetrics, WindowMock, RouterMock, HistoryMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -705,6 +706,20 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
         };
 
         appStart.initializeHeightObserver();
+      });
+    });
+
+    describe('initializeRefreshObserver', function () {
+      beforeEach(function () {
+        appStart = new AppStart({
+          notifications: notifications,
+          window: windowMock
+        });
+      });
+
+      it('creates a RefreshObserver instance', function () {
+        appStart.initializeRefreshObserver();
+        assert.instanceOf(appStart._refreshObserver, RefreshObserver);
       });
     });
 

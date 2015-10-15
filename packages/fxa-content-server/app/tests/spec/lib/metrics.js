@@ -552,6 +552,16 @@ function (chai, $, p, Metrics, AuthErrors, Environment, sinon, _, WindowMock, Te
       });
     });
 
+    describe('logScreenEvent', function () {
+      beforeEach(function () {
+        metrics.logScreenEvent('screen', 'event1');
+      });
+
+      it('logs an event with the screen name as a prefix to the event stream', function () {
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'screen.event1'));
+      });
+    });
+
     describe('setBrokerType', function () {
       it('sets the broker name', function () {
         metrics.setBrokerType('fx-desktop-v2');
