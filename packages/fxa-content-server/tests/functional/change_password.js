@@ -144,13 +144,7 @@ define([
         .findByCssSelector('#fxa-settings-header')
         .end()
 
-        .then(FunctionalHelpers.visibleByQSA('.success'))
-
-        .findByClassName('success').isDisplayed()
-          .then(function (isDisplayed) {
-            assert.equal(isDisplayed, true);
-          })
-        .end()
+        .then(FunctionalHelpers.testSuccessWasShown(self))
 
         .get(require.toUrl(SIGNIN_URL))
 
@@ -183,8 +177,7 @@ define([
         .closeCurrentWindow()
         .switchToWindow('')
 
-        .then(FunctionalHelpers.visibleByQSA('.success'))
-        .end()
+        .then(FunctionalHelpers.testSuccessWasShown(self))
 
         // account is unlocked, re-try the password change
         .then(function () {
@@ -254,8 +247,7 @@ define([
           return FunctionalHelpers.openUnlockLinkDifferentBrowser(client, email, 'x-unlock-code');
         })
 
-        .then(FunctionalHelpers.visibleByQSA('.success'))
-        .end()
+        .then(FunctionalHelpers.testSuccessWasShown(self))
 
         // account is unlocked, re-try the password change
         .then(function () {

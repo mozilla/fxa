@@ -42,17 +42,6 @@ define([
       .end();
   }
 
-  function testVerifiedMessageVisible(context) {
-    return context.remote
-      .then(FunctionalHelpers.visibleByQSA('.success'))
-      .findByCssSelector('.success')
-        .getVisibleText()
-        .then(function (text) {
-          assert.ok(/verified/i.test(text));
-        })
-      .end();
-  }
-
   registerSuite({
     name: 'sign_up',
 
@@ -82,9 +71,7 @@ define([
         .findByCssSelector('#fxa-settings-header')
         .end()
 
-        .then(function () {
-          return testVerifiedMessageVisible(self);
-        })
+        .then(FunctionalHelpers.testSuccessWasShown(this))
 
         .closeCurrentWindow()
 
@@ -92,9 +79,7 @@ define([
         .switchToWindow('')
         .end()
 
-        .then(function () {
-          return testVerifiedMessageVisible(self);
-        });
+        .then(FunctionalHelpers.testSuccessWasShown(this));
     },
 
     'sign up, verify same browser with original tab closed': function () {
@@ -114,9 +99,7 @@ define([
         .findByCssSelector('#fxa-settings-header')
         .end()
 
-        .then(function () {
-          return testVerifiedMessageVisible(self);
-        })
+        .then(FunctionalHelpers.testSuccessWasShown(this))
 
         .closeCurrentWindow()
 
@@ -142,9 +125,7 @@ define([
         .findByCssSelector('#fxa-settings-header')
         .end()
 
-        .then(function () {
-          return testVerifiedMessageVisible(self);
-        });
+        .then(FunctionalHelpers.testSuccessWasShown(this));
     },
 
     'signup, verify different browser - from original tab\'s P.O.V.': function () {
@@ -163,9 +144,7 @@ define([
         .findByCssSelector('#fxa-settings-header')
         .end()
 
-        .then(function () {
-          return testVerifiedMessageVisible(self);
-        });
+        .then(FunctionalHelpers.testSuccessWasShown(this));
     },
 
     'signup, verify different browser - from new browser\'s P.O.V.': function () {

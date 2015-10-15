@@ -5,7 +5,6 @@
 define([
   'intern',
   'intern!object',
-  'intern/chai!assert',
   'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
@@ -13,7 +12,7 @@ define([
   'tests/lib/restmail',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Constants, restmail, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, require, nodeXMLHttpRequest, FxaClient, Constants, restmail, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
@@ -216,32 +215,19 @@ define([
               .click()
             .end()
 
-            .findByClassName('success')
-            .end()
-
-            .then(FunctionalHelpers.visibleByQSA('.success'))
-
-            // Success is showing the success message
-            .findByCssSelector('.success').isDisplayed()
-              .then(function (isDisplayed) {
-                assert.isTrue(isDisplayed);
-              })
-            .end()
+            .then(FunctionalHelpers.testSuccessWasShown(self))
 
             .findById('resend')
               .click()
-            .end()
-
-            .findById('resend')
               .click()
             .end()
 
             // Stills shows success message
-            .findByCssSelector('.success').isDisplayed()
-              .then(function (isDisplayed) {
-                assert.isTrue(isDisplayed);
-              })
-            .end();
+            //
+            // this uses .visibleByQSA instead of testSuccessWasShown because
+            // the element is not re-shown, but rather should continue to
+            // be visible.
+            .then(FunctionalHelpers.visibleByQSA('.success'));
         });
     }
   });

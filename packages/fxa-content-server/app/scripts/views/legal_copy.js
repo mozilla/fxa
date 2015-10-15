@@ -29,7 +29,9 @@ function (Cocktail, xhr, BaseView, BackMixin) {
         url: self.copyUrl
       })
       .then(function (template) {
-        self.$('#legal-copy').html(template);
+        var $legalCopy = self.$('#legal-copy');
+
+        $legalCopy.html(template);
 
         // data-visible-url is used to display the href in
         // brackets next to the original text.
@@ -52,6 +54,12 @@ function (Cocktail, xhr, BaseView, BackMixin) {
         });
 
         self.$('.hidden').removeClass('hidden');
+
+        // The `data-shown` attribute is searched for by the functional
+        // tests. The legal copy HTML has unstable markup, so the functional
+        // tests need some stable identifier to look for to know the copy is
+        // ready.
+        $legalCopy.attr('data-shown', 'true');
 
         // Set a session cookie that informs the server
         // the user can go back if they refresh the page.

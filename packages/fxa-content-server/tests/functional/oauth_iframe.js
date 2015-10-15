@@ -420,7 +420,7 @@ define([
         .findByCssSelector('#fxa-signin-header')
         .end()
 
-        .then(FunctionalHelpers.visibleByQSA('.success'))
+        .then(FunctionalHelpers.testSuccessWasShown(self))
 
         .findByCssSelector('#password')
           .type(PASSWORD)

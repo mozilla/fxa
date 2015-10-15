@@ -155,14 +155,7 @@ define([
           .click()
         .end()
 
-        .then(FunctionalHelpers.visibleByQSA('.success'))
-
-        .findByCssSelector('.success')
-          .getVisibleText()
-          .then(function (val) {
-            assert.ok(val, 'has success text');
-          })
-        .end()
+        .then(FunctionalHelpers.testSuccessWasShown(self))
 
         .then(testIsBrowserNotifiedOfAvatarChange(self))
 
