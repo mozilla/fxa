@@ -90,16 +90,18 @@ module.exports = {
     }).spread(function(theirs, ours) {
       return P.resolve(Object.keys(ours)).each(function(title) {
         if (!module.exports.findMatchingMilestone(title, theirs)) {
-          if (ours[title].open_issues > 0) {
-            console.warn("Extra milestone in " + repo + ": '" + title + "'")
-          } else {
-            console.warn("Closing extra milestone in " + repo + ": '" + title + "'")
-            return gh.issues.updateMilestone({
-              repo: repo,
-              title: title,
-              number: ours[title].number,
-              state: 'closed'
-            })
+          if (ours[title].state !== 'closed') {
+            if (ours[title].open_issues > 0) {
+              console.warn("Extra milestone in " + repo + ": '" + title + "'")
+            } else {
+              console.warn("Closing extra milestone in " + repo + ": '" + title + "'")
+              return gh.issues.updateMilestone({
+                repo: repo,
+                title: title,
+                number: ours[title].number,
+                state: 'closed'
+              })
+            }
           }
         }
       })
