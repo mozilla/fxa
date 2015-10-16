@@ -46,6 +46,13 @@ function (chai, NullChannel, FxFennecV1AuthenticationBroker, Relier,
       sinon.spy(broker, 'send');
     });
 
+    it('disables the `chooseWhatToSyncCheckbox` capability', function () {
+      return broker.fetch()
+        .then(function () {
+          assert.isFalse(broker.hasCapability('chooseWhatToSyncCheckbox'));
+        });
+    });
+
     describe('afterForceAuth', function () {
       it('notifies the channel of `login`, redirects to `/force_auth_complete`', function () {
         return broker.afterForceAuth(account)

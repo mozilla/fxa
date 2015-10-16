@@ -9,13 +9,17 @@
 
 define([
   'lib/auth-errors',
-  'models/auth_brokers/fx-desktop-v1'
-], function (AuthErrors, FxDesktopV1AuthenticationBroker) {
+  'models/auth_brokers/fx-desktop-v1',
+  'underscore'
+], function (AuthErrors, FxDesktopV1AuthenticationBroker, _) {
   'use strict';
 
   var proto = FxDesktopV1AuthenticationBroker.prototype;
 
   var FxiOSAuthenticationBroker = FxDesktopV1AuthenticationBroker.extend({
+    defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
+      chooseWhatToSyncCheckbox: false
+    }),
     fetch: function () {
       var self = this;
 

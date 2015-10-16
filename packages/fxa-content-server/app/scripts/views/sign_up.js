@@ -170,9 +170,9 @@ function (Cocktail, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       var relier = this.relier;
       var isSync = relier.isSync();
       var context = {
+        chooseWhatToSyncCheckbox: this.broker.hasCapability('chooseWhatToSyncCheckbox'),
         email: prefillEmail,
         error: this.error,
-        isChooseWhatToSyncWeb: this.broker.hasCapability('chooseWhatToSyncWebV1'),
         isCustomizeSyncChecked: relier.isCustomizeSyncChecked(),
         isEmailOptInVisible: this._isEmailOptInEnabled(),
         isMigration: this.isMigration(),

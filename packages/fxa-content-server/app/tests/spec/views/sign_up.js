@@ -830,6 +830,23 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Experim
                                 'signup.customizeSync.true'));
             });
         });
+
+        it('checkbox is visible for `service=sync`', function () {
+          return setupCustomizeSyncTest('sync', true)
+            .then(function () {
+              assert.isTrue(view.$el.find('#customize-sync').length > 0);
+            });
+        });
+
+        it('checkbox is not visible if no `chooseWhatToSyncCheckbox` capability', function () {
+          broker.setCapability('chooseWhatToSyncCheckbox', false);
+          view.context();
+          return setupCustomizeSyncTest('sync', true)
+            .then(function () {
+              assert.isFalse(view.$el.find('#customize-sync').length > 0);
+            });
+        });
+
       });
     });
 
@@ -885,7 +902,6 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Experim
         windowMock.navigator.userAgent = 'mocha';
         var mockAble = new Able();
         sinon.stub(mockAble, 'choose', function (name, data) {
-          console.log(name, data);
           if (name === 'chooseAbExperiment') {
             return 'mailcheck';
           }

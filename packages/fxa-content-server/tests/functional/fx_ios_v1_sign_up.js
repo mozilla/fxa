@@ -51,6 +51,9 @@ define([
 
       return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
         .execute(listenForFxaCommands)
+
+        .then(FunctionalHelpers.noSuchElement(self, '#customize-sync'))
+
         .then(function () {
           return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
         })
