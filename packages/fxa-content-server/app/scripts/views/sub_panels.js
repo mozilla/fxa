@@ -19,13 +19,14 @@ function (p, BaseView, Template) {
       options = options || {};
 
       this._panelViews = options.panelViews || [];
+      this._parent = options.parent;
     },
 
     showSubView: function (SubView) {
       var self = this;
       if (self._panelViews.indexOf(SubView) === -1) {
         console.warn('Tried to show a view that is not a subpanel');
-        return;
+        return p(null);
       }
 
       // Destroy any previous modal view
@@ -73,13 +74,28 @@ function (p, BaseView, Template) {
 
       self.$('.sub-views').append('<div class="settings-subview ' + className + '"></div>');
 
-      var view = self.router.createSubView(SubView, {
-        el: self.$(selector)
-      });
+      var view = new SubView(self.router.getViewOptions({
+        el: self.$(selector),
+        superView: self._parent
+      }));
 
       self.trackSubview(view);
 
-      return self.router.renderSubView(view);
+      return self.renderSubView(view);
+    },
+
+    renderSubView: function (viewToShow) {
+      return viewToShow.render()
+        .then(function (shown) {
+          if (! shown) {
+            viewToShow.destroy(true);
+            return;
+          }
+
+          viewToShow.afterVisible();
+
+          return viewToShow;
+        });
     },
 
     afterRender: function () {

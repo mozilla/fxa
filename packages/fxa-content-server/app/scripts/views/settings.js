@@ -60,7 +60,9 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
       this._able = options.able;
       this._subPanels = options.subPanels || this._initializeSubPanels(options);
       this._formPrefill = options.formPrefill;
-      this.router.on(this.router.NAVIGATE_FROM_SUBVIEW, this._onNavigateFromSubview.bind(this));
+      this._notifications = options.notifications;
+
+      this._notifications.on('navigate-from-subview', this._onNavigateFromSubview.bind(this));
     },
 
     _initializeSubPanels: function (options) {
@@ -83,6 +85,7 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
       return new SubPanels({
         initialSubView: options.subView,
         panelViews: panelViews,
+        parent: this,
         router: this.router
       });
     },

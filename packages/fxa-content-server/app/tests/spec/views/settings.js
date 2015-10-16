@@ -45,20 +45,20 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
   Cocktail.mixin(SettingsPanelView, SettingsPanelMixin);
 
   describe('views/settings', function () {
-    var view;
-    var routerMock;
+    var able;
+    var account;
     var formPrefill;
     var fxaClient;
-    var profileClient;
-    var relier;
-    var user;
-    var account;
+    var initialSubView;
     var metrics;
-    var able;
     var notifications;
     var panelViews;
-    var initialSubView;
+    var profileClient;
+    var relier;
+    var routerMock;
     var subPanels;
+    var user;
+    var view;
 
     var ACCESS_TOKEN = 'access token';
     var UID = 'uid';
@@ -211,15 +211,15 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
       });
 
       it('on navigate from subview', function () {
-        var spy1 = sinon.spy(view, 'showEphemeralMessages');
-        var spy2 = sinon.spy(view, 'logScreen');
+        sinon.spy(view, 'showEphemeralMessages');
+        sinon.spy(view, 'logScreen');
         sinon.stub($.modal, 'isActive', function () {
           return true;
         });
         sinon.stub($.modal, 'close', function () { });
-        routerMock.trigger(routerMock.NAVIGATE_FROM_SUBVIEW);
-        assert.isTrue(spy1.called);
-        assert.isTrue(spy2.called);
+        notifications.trigger('navigate-from-subview');
+        assert.isTrue(view.showEphemeralMessages.called);
+        assert.isTrue(view.logScreen.called);
         assert.isTrue($.modal.isActive.called);
         assert.isTrue($.modal.close.called);
         $.modal.isActive.restore();
@@ -487,6 +487,7 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
           assert.isTrue(SubPanels.prototype.initialize.calledWith({
             initialSubView: SettingsPanelView,
             panelViews: panelViews,
+            parent: view,
             router: routerMock
           }));
         });
@@ -503,6 +504,7 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
           assert.isTrue(SubPanels.prototype.initialize.calledWith({
             initialSubView: SettingsPanelView,
             panelViews: [SettingsPanelView],
+            parent: view,
             router: routerMock
           }));
         });
@@ -516,6 +518,7 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
           assert.isTrue(SubPanels.prototype.initialize.calledWith({
             initialSubView: SettingsPanelView,
             panelViews: [SettingsPanelView],
+            parent: view,
             router: routerMock
           }));
         });

@@ -4,11 +4,8 @@
 
 define([
   'backbone',
-  'jquery',
-  './promise',
   './storage',
   'underscore',
-  '../views/base',
   '../views/cannot_create_account',
   '../views/choose_what_to_sync',
   '../views/clear_storage',
@@ -44,11 +41,8 @@ define([
 ],
 function (
   Backbone,
-  $,
-  p,
   Storage,
   _,
-  BaseView,
   CannotCreateAccountView,
   ChooseWhatToSyncView,
   ClearStorageView,
@@ -84,82 +78,62 @@ function (
 ) {
   'use strict';
 
-  function showView(View, options) {
+  function createViewHandler(View, options) {
     return function () {
-      // If the current view is an instance of View, that means we're
-      // navigating from a subview of the current view
-      if (this.currentView instanceof View) {
-        this.trigger(this.NAVIGATE_FROM_SUBVIEW, options);
-        this.setDocumentTitle(this.currentView.titleFromView());
-      } else {
-        this.createAndShowView(View, options);
-      }
+      return this.showView(View, options);
     };
   }
 
-  // Show a sub-view, creating and initializing the SuperView if needed.
-  function showSubView(SuperView, options) {
+  function createSubViewHandler(SubView, ParentView, options) {
     return function () {
-      var self = this;
-      // If currentView is of the SuperView type, simply show the subView
-      if (self.currentView instanceof SuperView) {
-        self.showSubView(options);
-      } else {
-        // Create the SuperView; its initialization method should handle the subView option.
-        self.createAndShowView(SuperView, options)
-          .then(function () {
-            self.showSubView(options);
-          });
-      }
+      return this.showSubView(SubView, ParentView, options);
     };
   }
 
   var Router = Backbone.Router.extend({
-    NAVIGATE_FROM_SUBVIEW: 'navigate-from-subview',
-
     routes: {
       '(/)': 'redirectToSignupOrSettings',
-      'account_unlock_complete(/)': showView(ReadyView, { type: 'account_unlock' }),
-      'cannot_create_account(/)': showView(CannotCreateAccountView),
-      'choose_what_to_sync(/)': showView(ChooseWhatToSyncView),
-      'clear(/)': showView(ClearStorageView),
-      'complete_reset_password(/)': showView(CompleteResetPasswordView),
-      'complete_unlock_account(/)': showView(CompleteAccountUnlockView),
-      'confirm(/)': showView(ConfirmView),
-      'confirm_account_unlock(/)': showView(ConfirmAccountUnlockView),
-      'confirm_reset_password(/)': showView(ConfirmResetPasswordView),
-      'cookies_disabled(/)': showView(CookiesDisabledView),
-      'force_auth(/)': showView(ForceAuthView),
-      'force_auth_complete(/)': showView(ReadyView, { type: 'force_auth' }),
-      'legal(/)': showView(LegalView),
-      'legal/privacy(/)': showView(PpView),
-      'legal/terms(/)': showView(TosView),
+      'account_unlock_complete(/)': createViewHandler(ReadyView, { type: 'account_unlock' }),
+      'cannot_create_account(/)': createViewHandler(CannotCreateAccountView),
+      'choose_what_to_sync(/)': createViewHandler(ChooseWhatToSyncView),
+      'clear(/)': createViewHandler(ClearStorageView),
+      'complete_reset_password(/)': createViewHandler(CompleteResetPasswordView),
+      'complete_unlock_account(/)': createViewHandler(CompleteAccountUnlockView),
+      'confirm(/)': createViewHandler(ConfirmView),
+      'confirm_account_unlock(/)': createViewHandler(ConfirmAccountUnlockView),
+      'confirm_reset_password(/)': createViewHandler(ConfirmResetPasswordView),
+      'cookies_disabled(/)': createViewHandler(CookiesDisabledView),
+      'force_auth(/)': createViewHandler(ForceAuthView),
+      'force_auth_complete(/)': createViewHandler(ReadyView, { type: 'force_auth' }),
+      'legal(/)': createViewHandler(LegalView),
+      'legal/privacy(/)': createViewHandler(PpView),
+      'legal/terms(/)': createViewHandler(TosView),
       'oauth(/)': 'redirectToBestOAuthChoice',
-      'oauth/force_auth(/)': showView(ForceAuthView),
-      'oauth/signin(/)': showView(SignInView),
-      'oauth/signup(/)': showView(SignUpView),
-      'openid/login(/)': showView(OpenIdLoginView),
-      'openid/start(/)': showView(OpenIdStartView),
-      'reset_password(/)': showView(ResetPasswordView),
-      'reset_password_complete(/)': showView(ReadyView, { type: 'reset_password' }),
-      'settings(/)': showView(SettingsView),
-      'settings/avatar/camera(/)': showSubView(SettingsView, { subView: AvatarCameraView }),
-      'settings/avatar/change(/)': showSubView(SettingsView, { subView: AvatarChangeView }),
-      'settings/avatar/crop(/)': showSubView(SettingsView, { subView: AvatarCropView }),
-      'settings/avatar/gravatar(/)': showSubView(SettingsView, { subView: AvatarGravatarView }),
-      'settings/avatar/gravatar_permissions(/)': showSubView(SettingsView, { subView: GravatarPermissionsView }),
-      'settings/change_password(/)': showSubView(SettingsView, { subView: ChangePasswordView }),
-      'settings/communication_preferences(/)': showSubView(SettingsView, { subView: CommunicationPreferencesView }),
-      'settings/delete_account(/)': showSubView(SettingsView, { subView: DeleteAccountView }),
-      'settings/display_name(/)': showSubView(SettingsView, { subView: DisplayNameView }),
-      'signin(/)': showView(SignInView),
-      'signin_complete(/)': showView(ReadyView, { type: 'sign_in' }),
-      'signin_permissions(/)': showView(PermissionsView, { type: 'sign_in' }),
-      'signup(/)': showView(SignUpView),
-      'signup_complete(/)': showView(ReadyView, { type: 'sign_up' }),
-      'signup_permissions(/)': showView(PermissionsView, { type: 'sign_up' }),
-      'unexpected_error(/)': showView(UnexpectedErrorView),
-      'verify_email(/)': showView(CompleteSignUpView)
+      'oauth/force_auth(/)': createViewHandler(ForceAuthView),
+      'oauth/signin(/)': createViewHandler(SignInView),
+      'oauth/signup(/)': createViewHandler(SignUpView),
+      'openid/login(/)': createViewHandler(OpenIdLoginView),
+      'openid/start(/)': createViewHandler(OpenIdStartView),
+      'reset_password(/)': createViewHandler(ResetPasswordView),
+      'reset_password_complete(/)': createViewHandler(ReadyView, { type: 'reset_password' }),
+      'settings(/)': createViewHandler(SettingsView),
+      'settings/avatar/camera(/)': createSubViewHandler(AvatarCameraView, SettingsView),
+      'settings/avatar/change(/)': createSubViewHandler(AvatarChangeView, SettingsView),
+      'settings/avatar/crop(/)': createSubViewHandler(AvatarCropView, SettingsView),
+      'settings/avatar/gravatar(/)': createSubViewHandler(AvatarGravatarView, SettingsView),
+      'settings/avatar/gravatar_permissions(/)': createSubViewHandler(GravatarPermissionsView, SettingsView),
+      'settings/change_password(/)': createSubViewHandler(ChangePasswordView, SettingsView),
+      'settings/communication_preferences(/)': createSubViewHandler(CommunicationPreferencesView, SettingsView),
+      'settings/delete_account(/)': createSubViewHandler(DeleteAccountView, SettingsView),
+      'settings/display_name(/)': createSubViewHandler(DisplayNameView, SettingsView),
+      'signin(/)': createViewHandler(SignInView),
+      'signin_complete(/)': createViewHandler(ReadyView, { type: 'sign_in' }),
+      'signin_permissions(/)': createViewHandler(PermissionsView, { type: 'sign_in' }),
+      'signup(/)': createViewHandler(SignUpView),
+      'signup_complete(/)': createViewHandler(ReadyView, { type: 'sign_up' }),
+      'signup_permissions(/)': createViewHandler(PermissionsView, { type: 'sign_up' }),
+      'unexpected_error(/)': createViewHandler(UnexpectedErrorView),
+      'verify_email(/)': createViewHandler(CompleteSignUpView)
     },
 
     initialize: function (options) {
@@ -177,6 +151,9 @@ function (
       this.sentryMetrics = options.sentryMetrics;
       this.user = options.user;
       this.window = options.window || window;
+
+      this.notifications.once('view-shown', this._afterFirstViewHasRendered.bind(this));
+      this.notifications.on('view-shown', this._checkForRefresh.bind(this));
 
       this.storage = Storage.factory('sessionStorage', this.window);
     },
@@ -215,26 +192,16 @@ function (
       return this.navigate(route, { replace: true, trigger: true });
     },
 
-    createAndShowView: function (View, options) {
-      var self = this;
-      var view;
-      return p().then(function () {
-        view = self.createView(View, options);
-        return self.showView(view);
-      })
-      .fail(function (err) {
-        view = view || self.currentView || new BaseView({
-          router: self
-        });
-        // The router's navigate method doesn't set ephemeral messages,
-        // so use the view's higher level navigate method.
-        return view.navigate('unexpected_error', {
-          error: err
-        });
-      });
-    },
-
-    createView: function (View, options) {
+    /**
+     * Get the options to pass to a View constructor.
+     *
+     * TODO - this only exists because this module used to create the views.
+     * There should be a View factory that takes ownership of this logic.
+     *
+     * @param {object} options - additional options
+     * @returns {object}
+     */
+    getViewOptions: function (options) {
       // passed in options block can override
       // default options.
       var viewOptions = _.extend({
@@ -258,17 +225,11 @@ function (
         window: this.window
       }, options || {});
 
-      return new View(viewOptions);
+      return viewOptions;
     },
 
-    createSubView: function (SubView, options) {
-      options.superView = this.currentView;
-      return this.createView(SubView, options);
-    },
-
-    _checkForRefresh: function () {
+    _checkForRefresh: function (currentView) {
       var refreshMetrics = this.storage.get('last_page_loaded');
-      var currentView = this.currentView;
       var screenName = currentView.getScreenName();
 
       if (refreshMetrics && refreshMetrics.view === screenName && this.metrics) {
@@ -283,95 +244,27 @@ function (
       this.storage.set('last_page_loaded', refreshMetrics);
     },
 
-    showView: function (viewToShow) {
-      if (this.currentView) {
-        this.currentView.destroy();
-      }
-
-      this.currentView = viewToShow;
-
-      // render will return false if the view could not be
-      // rendered for any reason, including if the view was
-      // automatically redirected.
-      var self = this;
-
-      viewToShow.logScreen();
-      return viewToShow.render()
-        .then(function (isShown) {
-          if (! isShown) {
-            return;
-          }
-
-          self.setDocumentTitle(viewToShow.titleFromView());
-
-          // Render the new view while stage is invisible then fade it in using css animations
-          // catch problems with an explicit opacity rule after class is added.
-          $('#stage').html(viewToShow.el).addClass('fade-in-forward').css('opacity', 1);
-          viewToShow.afterVisible();
-
-          // The user may be scrolled part way down the page
-          // on screen transition. Force them to the top of the page.
-          self.window.scrollTo(0, 0);
-
-          $('#fox-logo').addClass('fade-in-forward').css('opacity', 1);
-
-          // if the first view errors, the fail branch of the promise will be
-          // followed. The view will navigate to `unexpected_error`, which will
-          // eventually find its way here. `_hasFirstViewRendered` will still be
-          // false, so broker.afterLoaded will be called. See
-          // https://github.com/mozilla/fxa-content-server/pull/2147#issuecomment-76155999
-          if (! self._hasFirstViewRendered) {
-            self._afterFirstViewHasRendered();
-          }
-          self._checkForRefresh();
-        });
-    },
-
-    _hasFirstViewRendered: false,
     _afterFirstViewHasRendered: function () {
-      var self = this;
-      self._hasFirstViewRendered = true;
-
       // afterLoaded lets the relier know when the first screen has been
       // loaded. It does not expect a response, so no error handler
       // is attached and the promise is not returned.
-      self.broker.afterLoaded();
+      this.broker.afterLoaded();
 
       // `loaded` is used to determine how long until the
       // first screen is rendered and the user can interact
       // with FxA. Similar to window.onload, but FxA specific.
-      self.metrics.logEvent('loaded');
+      this.metrics.logEvent('loaded');
 
       // back is enabled after the first view is rendered or
       // if the user re-starts the app.
-      self.storage.set('canGoBack', true);
+      this.storage.set('canGoBack', true);
     },
 
-    renderSubView: function (viewToShow) {
-      return viewToShow.render()
-        .then(function (shown) {
-          if (! shown) {
-            viewToShow.destroy(true);
-            return;
-          }
-
-          viewToShow.afterVisible();
-
-          return viewToShow;
-        });
-    },
-
-    showSubView: function (options) {
-      var self = this;
-      return self.currentView.showSubView(options.subView, options)
-        .then(function (viewToShow) {
-          // Use the super view's title as the base title
-          var title = viewToShow.titleFromView(self.currentView.titleFromView());
-          self.setDocumentTitle(title);
-          viewToShow.logScreen();
-        });
-    },
-
+    /**
+     * TODO - this is used by views/base to redirect unauthenticated users,
+     * pass the currentPage in getViewOptions so that views do not need
+     * to reach back into the router to get this information.
+     */
     getCurrentPage: function () {
       return Backbone.history.fragment;
     },
@@ -390,9 +283,50 @@ function (
                 .replace(/_/g, '-');
     },
 
-    setDocumentTitle: function (title) {
-      this.window.document.title = title;
-    }
+    /**
+     * Notify the system a new View should be shown.
+     *
+     * @param {function} View - view constructor
+     * @param {object} [options]
+     */
+    showView: function (View, options) {
+      this.notifications.trigger(
+          'show-view', View, this.getViewOptions(options));
+    },
+
+    /**
+     * Notify the system a new SubView should be shown.
+     *
+     * @param {function} SubView - view constructor
+     * @param {function} ParentView - view constructor,
+     *     the parent of the SubView
+     * @param {object} [options]
+     */
+    showSubView: function (SubView, ParentView, options) {
+      this.notifications.trigger(
+          'show-sub-view', SubView, ParentView, this.getViewOptions(options));
+    },
+
+    /**
+     * Create a route handler that is used to display a View
+     *
+     * @param {function} View - constructor of view to show
+     * @param {object} [options] - options to pass to View constructor
+     * @returns {function} - a function that can be given to the router.
+     */
+    createViewHandler: createViewHandler,
+
+    /**
+     * Create a route handler that is used to display a SubView inside of
+     * a ParentView. Views will be created as needed.
+     *
+     * @param {function} SubView - constructor of SubView to show
+     * @param {function} ParentView - constructor of ParentView to show
+     * @param {object} [options] - options to pass to SubView &
+     *     ParentView constructors
+     * @returns {function} - a function that can be given to the router.
+     */
+    createSubViewHandler: createSubViewHandler
   });
 
   return Router;
