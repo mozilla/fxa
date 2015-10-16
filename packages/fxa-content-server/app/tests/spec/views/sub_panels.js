@@ -44,18 +44,18 @@ function (chai, $, sinon, Cocktail, View, BaseView,
   Cocktail.mixin(ModalSettingsPanelView, ModalSettingsPanelMixin);
 
   describe('views/sub-panels', function () {
-    var view;
-    var routerMock;
     var metrics;
     var panelViews;
-    var superView;
+    var parentView;
+    var routerMock;
+    var view;
 
     function createView () {
       view = new View({
         metrics: metrics,
         panelViews: panelViews,
-        router: routerMock,
-        superView: superView
+        parentView: parentView,
+        router: routerMock
       });
     }
 

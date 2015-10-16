@@ -76,7 +76,7 @@ function (p, BaseView, Template) {
 
       var view = new SubView(self.router.getViewOptions({
         el: self.$(selector),
-        superView: self._parent
+        parentView: self._parent
       }));
 
       self.trackSubview(view);

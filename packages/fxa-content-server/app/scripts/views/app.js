@@ -135,18 +135,18 @@ define([
      * Show a SubView
      *
      * @param {function} SubView - constructor of subview to show.
-     * @param {function} SuperView - constructor of the subview's parent.
-     * @param {object} options used to create the SuperView as well as
+     * @param {function} ParentView - constructor of the subview's parent.
+     * @param {object} options used to create the ParentView as well as
      *        display the sub view.
      */
-    showSubView: function (SubView, SuperView, options) {
+    showSubView: function (SubView, ParentView, options) {
       var self = this;
-      // If currentView is of the SuperView type, simply show the subView
+      // If currentView is of the ParentView type, simply show the subView
       return p().then(function () {
-        if (! (self._currentView instanceof SuperView)) {
-          // Create the SuperView; its initialization method should
+        if (! (self._currentView instanceof ParentView)) {
+          // Create the ParentView; its initialization method should
           // handle the subView option.
-          return self.showView(SuperView, options);
+          return self.showView(ParentView, options);
         }
       })
       .then(function () {
