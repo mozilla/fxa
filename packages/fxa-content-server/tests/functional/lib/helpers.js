@@ -694,6 +694,32 @@ define([
       });
   }
 
+  function testSuccessWasShown(context, selector) {
+    selector = selector || '.success[data-shown]';
+    return testElementWasShown(context, selector);
+  }
+
+  function testErrorWasShown(context, selector) {
+    selector = selector || '.error[data-shown]';
+    return testElementWasShown(context, selector);
+  }
+
+  function testElementWasShown(context, selector) {
+    return function () {
+      return context.remote
+        .findByCssSelector(selector)
+        .end()
+
+        .executeAsync(function (selector, done) {
+          // remove the attribute so subsequent checks can be made
+          // against the same element. displaySuccess and displayError
+          // will re-add the 'data-shown' attribute.
+          $(selector).removeAttr('data-shown');
+          done();
+        }, [selector]);
+    };
+  }
+
   return {
     clearBrowserState: clearBrowserState,
     clearSessionStorage: clearSessionStorage,
@@ -722,8 +748,10 @@ define([
     pollUntil: pollUntil,
     respondToWebChannelMessage: respondToWebChannelMessage,
     testAreEventsLogged: testAreEventsLogged,
+    testErrorWasShown: testErrorWasShown,
     testIsBrowserNotified: testIsBrowserNotified,
     testIsEventLogged: testIsEventLogged,
+    testSuccessWasShown: testSuccessWasShown,
     visibleByQSA: visibleByQSA
   };
 });

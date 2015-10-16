@@ -135,8 +135,7 @@ define([
         .closeCurrentWindow()
         .switchToWindow('')
 
-        .then(FunctionalHelpers.visibleByQSA('.success'))
-        .end()
+        .then(FunctionalHelpers.testSuccessWasShown(self))
 
         // account is unlocked, re-try the delete account
         .then(function () {
@@ -192,8 +191,7 @@ define([
           return FunctionalHelpers.openUnlockLinkDifferentBrowser(client, email, 'x-unlock-code');
         })
 
-        .then(FunctionalHelpers.visibleByQSA('.success'))
-        .end()
+        .then(FunctionalHelpers.testSuccessWasShown(self))
 
         // account is unlocked, re-try the delete account
         .then(function () {

@@ -33,12 +33,21 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
 
   function displaySuccess(displayStrategy, msg) {
     this.hideError();
+    var $success = this.$('.success');
 
     if (msg) {
-      this.$('.success')[displayStrategy](this.translator.get(msg));
+      $success[displayStrategy](this.translator.get(msg));
     }
 
-    this.$('.success').slideDown(EPHEMERAL_MESSAGE_ANIMATION_MS);
+    // the 'data-shown' attribute value is added so the functional tests
+    // can find out if the success message was successfully shown, even
+    // if the element is then hidden. In the functional tests,
+    // testSuccessWasShown removes the attribute so multiple checks for the
+    // element can take place in the same test.
+    $success
+      .slideDown(EPHEMERAL_MESSAGE_ANIMATION_MS)
+      .attr('data-shown', 'true');
+
     this.trigger('success', msg);
     this._isSuccessVisible = true;
   }
@@ -58,11 +67,20 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
     this.logError(err);
     var translated = this.translateError(err);
 
+    var $error = this.$('.error');
     if (translated) {
-      this.$('.error')[displayStrategy](translated);
+      $error[displayStrategy](translated);
     }
 
-    this.$('.error').slideDown(EPHEMERAL_MESSAGE_ANIMATION_MS);
+    // the 'data-shown' attribute value is added so the functional tests
+    // can find out if the error message was successfully shown, even
+    // if the element is then hidden. In the functional tests,
+    // testErrorWasShown removes the attribute so multiple checks for the
+    // element can take place in the same test.
+    $error
+      .slideDown(EPHEMERAL_MESSAGE_ANIMATION_MS)
+      .attr('data-shown', 'true');
+
     this.trigger('error', translated);
 
     this._isErrorVisible = true;

@@ -6,9 +6,8 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, FunctionalHelpers) {
+  'tests/functional/lib/helpers',
+], function (intern, registerSuite, assert, FunctionalHelpers) {
   var url = intern.config.fxaContentRoot + 'legal';
 
   registerSuite({
@@ -16,9 +15,8 @@ define([
 
     'start at legal page': function () {
 
-      return this.remote
-        .get(require.toUrl(url))
-        .setFindTimeout(intern.config.pageLoadTimeout)
+      return FunctionalHelpers.openPage(this, url, '#fxa-legal-header')
+
         .findByCssSelector('a[href="/legal/terms"]')
           .click()
         .end()
@@ -43,15 +41,11 @@ define([
 
     'start at terms page': function () {
 
-      return this.remote
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .get(require.toUrl(url + '/terms'))
+      return FunctionalHelpers.openPage(this, url + '/terms', '#fxa-tos-header')
 
-        .findByCssSelector('#main-content')
-        .end()
+        .then(FunctionalHelpers.visibleByQSA('#legal-copy[data-shown]'))
+        .findByCssSelector('#legal-copy[data-shown]')
 
-        .then(FunctionalHelpers.visibleByQSA('#legal-copy'))
-        .findById('legal-copy')
           .getVisibleText()
           .then(function (resultText) {
             // the legal text shouldn't be empty
@@ -62,15 +56,10 @@ define([
 
     'start at privacy page': function () {
 
-      return this.remote
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .get(require.toUrl(url + '/privacy'))
+      return FunctionalHelpers.openPage(this, url + '/privacy', '#fxa-pp-header')
 
-        .findByCssSelector('#main-content')
-        .end()
-
-        .then(FunctionalHelpers.visibleByQSA('#legal-copy'))
-        .findById('legal-copy')
+        .then(FunctionalHelpers.visibleByQSA('#legal-copy[data-shown]'))
+        .findByCssSelector('#legal-copy[data-shown]')
           .getVisibleText()
           .then(function (resultText) {
             // the legal text shouldn't be empty

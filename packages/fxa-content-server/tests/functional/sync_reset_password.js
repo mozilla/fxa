@@ -105,8 +105,7 @@ define([
         .switchToWindow('')
         .end()
 
-        .then(FunctionalHelpers.visibleByQSA('.success'))
-        .end()
+        .then(FunctionalHelpers.testSuccessWasShown(this))
 
         .then(function () {
           return testIsBrowserNotifiedOfLogin(self, email, { checkVerified: true });
@@ -214,10 +213,7 @@ define([
         .findByCssSelector('#fxa-signin-header')
         .end()
 
-        // user verified in a new browser, they have to enter
-        // their updated credentials in the original tab.
-        .then(FunctionalHelpers.visibleByQSA('.success'))
-        .end()
+        .then(FunctionalHelpers.testSuccessWasShown(this))
 
         .findByCssSelector('#password')
           .type(PASSWORD)

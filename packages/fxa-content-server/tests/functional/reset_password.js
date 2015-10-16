@@ -82,20 +82,6 @@ define([
       .setFindTimeout(intern.config.pageLoadTimeout);
   }
 
-  function testSuccessMessageVisible(context, message) {
-    return context.remote
-      .setFindTimeout(intern.config.pageLoadTimeout)
-
-      .then(FunctionalHelpers.visibleByQSA('.success'))
-      .findByCssSelector('.success')
-        .getVisibleText()
-        .then(function (text) {
-          var searchFor = new RegExp(message, 'i');
-          assert.isTrue(searchFor.test(text));
-        })
-      .end();
-  }
-
   function testAtSettingsWithVerifiedMessage(context) {
     return context.remote
       .setFindTimeout(intern.config.pageLoadTimeout)
@@ -112,9 +98,7 @@ define([
       })
       .end()
 
-      .then(function () {
-        return testSuccessMessageVisible(context, 'verified');
-      });
+      .then(FunctionalHelpers.testSuccessWasShown(context));
   }
 
   registerSuite({
@@ -242,20 +226,19 @@ define([
         .then(restmail(EMAIL_SERVER_ROOT + '/mail/' + user, 2))
 
         // Success is showing the success message
-        .then(FunctionalHelpers.visibleByQSA('.success'))
-        .end()
+        .then(FunctionalHelpers.testSuccessWasShown(this))
 
         .findById('resend')
           .click()
-        .end()
-
-        .findById('resend')
           .click()
         .end()
 
         // Stills shows success message
-        .then(FunctionalHelpers.visibleByQSA('.success'))
-        .end();
+        //
+        // this uses .visibleByQSA instead of testSuccessWasShown because
+        // the element is not re-shown, but rather should continue to
+        // be visible.
+        .then(FunctionalHelpers.visibleByQSA('.success'));
     },
 
     'open complete page with missing token shows damaged screen': function () {
@@ -455,9 +438,7 @@ define([
         .findByCssSelector('#fxa-signin-header')
         .end()
 
-        .then(function () {
-          return testSuccessMessageVisible(self, 'reset');
-        })
+        .then(FunctionalHelpers.testSuccessWasShown(self))
 
         .findByCssSelector('#password')
           .type(PASSWORD)
@@ -545,8 +526,7 @@ define([
             .findByCssSelector('#fxa-settings-header')
             .end()
 
-            .then(FunctionalHelpers.visibleByQSA('.success'))
-            .end()
+            .then(FunctionalHelpers.testSuccessWasShown(self))
 
             .findByCssSelector('#signout')
               .click()

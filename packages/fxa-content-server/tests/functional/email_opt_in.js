@@ -152,8 +152,7 @@ define([
           .click()
         .end()
 
-        .then(FunctionalHelpers.visibleByQSA('.success'))
-        .end()
+        .then(FunctionalHelpers.testSuccessWasShown(self))
 
         // ensure the opt-out sticks across refreshes
         .refresh()
@@ -207,8 +206,7 @@ define([
           .click()
         .end()
 
-        .then(FunctionalHelpers.visibleByQSA('.success'))
-        .end()
+        .then(FunctionalHelpers.testSuccessWasShown(self))
 
         .then(function () {
           return waitForBasket(email);
