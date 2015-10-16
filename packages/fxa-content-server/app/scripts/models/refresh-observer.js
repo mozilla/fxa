@@ -5,7 +5,7 @@
 /**
  * Watch for page refreshes.
  *
- * Listen for `show-view` and `show-sub-view` messages and check if the user
+ * Listen for `show-view` and `show-child-view` messages and check if the user
  * has refreshed the page. If so, a `<view_name>.refresh` event is
  * logged to metrics.
  */
@@ -31,14 +31,14 @@ define([
       this._storage = Storage.factory('sessionStorage', this._window);
 
       this._notifications.on('show-view', this._onShowView.bind(this));
-      this._notifications.on('show-sub-view', this._onShowSubView.bind(this));
+      this._notifications.on('show-child-view', this._onShowChildView.bind(this));
     },
 
     _onShowView: function (View, viewOptions) {
       this.logIfRefresh(viewOptions.screenName);
     },
 
-    _onShowSubView: function (SubView, ParentView, viewOptions) {
+    _onShowChildView: function (ChildView, ParentView, viewOptions) {
       this.logIfRefresh(viewOptions.screenName);
     },
 

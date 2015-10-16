@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// This is a mixin used by views that are subviews of Settings
-// Modal subviews of Settings use modal-settings-panel-mixin instead.
+// This is a mixin used by views that are childViews of Settings
+// Modal childViews of Settings use modal-settings-panel-mixin instead.
 
 define([
   'jquery',

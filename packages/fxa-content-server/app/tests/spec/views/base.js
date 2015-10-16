@@ -322,9 +322,9 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
     });
 
     describe('destroy', function () {
-      it('destroys the view, any subviews, stops listening for messages, and triggers `destroy` and `destroyed` messages', function () {
+      it('destroys the view, any childViews, stops listening for messages, and triggers `destroy` and `destroyed` messages', function () {
         sinon.spy(view, 'trigger');
-        sinon.spy(view, 'destroySubviews');
+        sinon.spy(view, 'destroyChildViews');
         view.beforeDestroy = sinon.spy();
 
         view.destroy();
@@ -332,7 +332,7 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
         assert.isTrue(view.beforeDestroy.called);
         assert.isTrue(view.trigger.calledWith('destroy'));
         assert.isTrue(view.trigger.calledWith('destroyed'));
-        assert.isTrue(view.destroySubviews.called);
+        assert.isTrue(view.destroyChildViews.called);
 
         assert.isFalse($('body').hasClass('layout'));
       });
@@ -494,22 +494,22 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
       });
     });
 
-    describe('trackSubview/untrackSubview', function () {
-      it('trackSubview tracks a subview, untrackSubview untracks the subview', function () {
-        var subview = new BaseView();
-        view.trackSubview(subview);
-        assert.isTrue(view.isSubviewTracked(subview));
+    describe('trackChildView/untrackChildView', function () {
+      it('trackChildView tracks a childView, untrackChildView untracks the childView', function () {
+        var childView = new BaseView();
+        view.trackChildView(childView);
+        assert.isTrue(view.isChildViewTracked(childView));
 
-        view.untrackSubview(subview);
-        assert.isFalse(view.isSubviewTracked(subview));
+        view.untrackChildView(childView);
+        assert.isFalse(view.isChildViewTracked(childView));
       });
 
-      it('subview is automatically untracked when destroyed', function () {
-        var subview = new BaseView();
-        view.trackSubview(subview);
+      it('childView is automatically untracked when destroyed', function () {
+        var childView = new BaseView();
+        view.trackChildView(childView);
 
-        subview.destroy();
-        assert.isFalse(view.isSubviewTracked(subview));
+        childView.destroy();
+        assert.isFalse(view.isChildViewTracked(childView));
       });
     });
 

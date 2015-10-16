@@ -207,15 +207,15 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView,
       });
     });
 
-    describe('showSubView', function () {
-      it('triggers a `show-sub-view` notification', function () {
+    describe('showChildView', function () {
+      it('triggers a `show-child-view` notification', function () {
         sinon.spy(notifications, 'trigger');
 
         var options = { key: 'value' };
 
-        router.showSubView(DisplayNameView, SettingsView, options);
+        router.showChildView(DisplayNameView, SettingsView, options);
         assert.isTrue(notifications.trigger.calledWith(
-            'show-sub-view', DisplayNameView, SettingsView));
+            'show-child-view', DisplayNameView, SettingsView));
       });
     });
 
@@ -265,27 +265,27 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView,
       });
     });
 
-    describe('createSubViewHandler', function () {
+    describe('createChildViewHandler', function () {
       function ParentView() {
       }
-      function SubView() {
+      function ChildView() {
       }
 
       var viewConstructorOptions = {};
 
-      it('returns a function that can be used by the router to show a SubView within a ParentView', function () {
-        sinon.spy(router, 'showSubView');
+      it('returns a function that can be used by the router to show a ChildView within a ParentView', function () {
+        sinon.spy(router, 'showChildView');
 
-        var routeHandler = router.createSubViewHandler(
-            SubView, ParentView, viewConstructorOptions);
+        var routeHandler = router.createChildViewHandler(
+            ChildView, ParentView, viewConstructorOptions);
 
         assert.isFunction(routeHandler);
-        assert.isFalse(router.showSubView.called);
+        assert.isFalse(router.showChildView.called);
 
         routeHandler.call(router);
 
-        assert.isTrue(router.showSubView.calledWith(
-            SubView, ParentView, viewConstructorOptions));
+        assert.isTrue(router.showChildView.calledWith(
+            ChildView, ParentView, viewConstructorOptions));
       });
     });
   });

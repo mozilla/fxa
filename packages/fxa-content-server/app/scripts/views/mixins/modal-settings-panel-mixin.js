@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-// This is a mixin used by Modal views that are subviews of Settings
-// Non-modal subviews of Settings use settings-panel-mixin instead.
+// This is a mixin used by Modal views that are childViews of Settings
+// Non-modal childViews of Settings use settings-panel-mixin instead.
 
 define([
   'jquery',

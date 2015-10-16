@@ -324,9 +324,9 @@ define([
           assert.equal(firstDisplayedView.render.callCount, 1);
         });
 
-        it('triggers the `navigate-from-subview` message', function () {
+        it('triggers the `navigate-from-child-view` message', function () {
           assert.isTrue(
-            notifications.trigger.calledWith('navigate-from-subview'));
+            notifications.trigger.calledWith('navigate-from-child-view'));
         });
 
         it('sets the title', function () {
@@ -366,9 +366,9 @@ define([
       });
     });
 
-    describe('showSubView', function () {
+    describe('showChildView', function () {
       var parentView;
-      var subView;
+      var childView;
 
       var ParentView = Backbone.View.extend({
         afterVisible: sinon.spy(),
@@ -377,15 +377,15 @@ define([
         render: sinon.spy(function () {
           return p(true);
         }),
-        showSubView: sinon.spy(function (SubView, options) {
-          return new SubView(options);
+        showChildView: sinon.spy(function (ChildView, options) {
+          return new ChildView(options);
         }),
         titleFromView: function () {
           return 'the title';
         }
       });
 
-      var SubView = Backbone.View.extend({
+      var ChildView = Backbone.View.extend({
         afterVisible: sinon.spy(),
         destroy: sinon.spy(),
         logScreen: sinon.spy(),
@@ -407,9 +407,9 @@ define([
           parentView = _parentView;
         });
 
-        return view.showSubView(SubView, ParentView, {})
-          .then(function (_subView) {
-            subView = _subView;
+        return view.showChildView(ChildView, ParentView, {})
+          .then(function (_childView) {
+            childView = _childView;
           });
       });
 
@@ -418,11 +418,11 @@ define([
       });
 
       it('tells the parent view to show the sub view', function () {
-        assert.isTrue(parentView.showSubView.calledWith(SubView));
+        assert.isTrue(parentView.showChildView.calledWith(ChildView));
       });
 
       it('logs the child view', function () {
-        assert.isTrue(subView.logScreen.called);
+        assert.isTrue(childView.logScreen.called);
       });
 
       it('sets the title', function () {

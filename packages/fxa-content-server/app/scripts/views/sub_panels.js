@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// This component renders multiple subviews
+// This component renders multiple childViews
 define([
   'lib/promise',
   'views/base',
@@ -22,69 +22,69 @@ function (p, BaseView, Template) {
       this._parent = options.parent;
     },
 
-    showSubView: function (SubView) {
+    showChildView: function (ChildView) {
       var self = this;
-      if (self._panelViews.indexOf(SubView) === -1) {
+      if (self._panelViews.indexOf(ChildView) === -1) {
         console.warn('Tried to show a view that is not a subpanel');
         return p(null);
       }
 
       // Destroy any previous modal view
-      if (self._currentSubView && self._currentSubView.isModal) {
-        self._currentSubView.closePanel();
+      if (self._currentChildView && self._currentChildView.isModal) {
+        self._currentChildView.closePanel();
       }
 
-      return self._createSubViewIfNeeded(SubView)
-        .then(function (subView) {
-          if (subView) {
-            self._currentSubView = subView;
-            subView.openPanel();
+      return self._createChildViewIfNeeded(ChildView)
+        .then(function (childView) {
+          if (childView) {
+            self._currentChildView = childView;
+            childView.openPanel();
 
-            return subView;
+            return childView;
           }
         });
     },
 
-    _subviewInstanceFromClass: function (SubView) {
-      return this.subviews.filter(function (subView) {
-        if (subView instanceof SubView) {
+    _childViewInstanceFromClass: function (ChildView) {
+      return this.childViews.filter(function (childView) {
+        if (childView instanceof ChildView) {
           return true;
         }
       })[0];
     },
 
-    _isModalView: function (SubView) {
-      return !! SubView.prototype.isModal;
+    _isModalView: function (ChildView) {
+      return !! ChildView.prototype.isModal;
     },
 
-    _subViewClassName: function (SubView) {
-      return SubView.prototype.className;
+    _childViewClassName: function (ChildView) {
+      return ChildView.prototype.className;
     },
 
-    // Render subview if an instance doesn't already exist
-    _createSubViewIfNeeded: function (SubView) {
+    // Render childView if an instance doesn't already exist
+    _createChildViewIfNeeded: function (ChildView) {
       var self = this;
-      var subView = self._subviewInstanceFromClass(SubView);
-      if (subView) {
-        return p(subView);
+      var childView = self._childViewInstanceFromClass(ChildView);
+      if (childView) {
+        return p(childView);
       }
 
-      var className = self._subViewClassName(SubView);
+      var className = self._childViewClassName(ChildView);
       var selector = '.' + className;
 
-      self.$('.sub-views').append('<div class="settings-subview ' + className + '"></div>');
+      self.$('.child-views').append('<div class="settings-child-view ' + className + '"></div>');
 
-      var view = new SubView(self.router.getViewOptions({
+      var view = new ChildView(self.router.getViewOptions({
         el: self.$(selector),
         parentView: self._parent
       }));
 
-      self.trackSubview(view);
+      self.trackChildView(view);
 
-      return self.renderSubView(view);
+      return self.renderChildView(view);
     },
 
-    renderSubView: function (viewToShow) {
+    renderChildView: function (viewToShow) {
       return viewToShow.render()
         .then(function (shown) {
           if (! shown) {
@@ -101,13 +101,13 @@ function (p, BaseView, Template) {
     afterRender: function () {
       var self = this;
 
-      // Initial subviews to render; excludes modal views
-      var initialSubViews = self._panelViews.filter(function (SubView) {
-        return ! self._isModalView(SubView);
+      // Initial childViews to render; excludes modal views
+      var initialChildViews = self._panelViews.filter(function (ChildView) {
+        return ! self._isModalView(ChildView);
       });
 
-      return p.all(initialSubViews.map(function (SubView) {
-        return self._createSubViewIfNeeded(SubView);
+      return p.all(initialChildViews.map(function (ChildView) {
+        return self._createChildViewIfNeeded(ChildView);
       }));
     }
   });

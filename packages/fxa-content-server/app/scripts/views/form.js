@@ -448,7 +448,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
         self.trigger('validation_error', el, message);
       });
 
-      this.trackSubview(tooltip);
+      this.trackChildView(tooltip);
 
       return message;
     },

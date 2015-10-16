@@ -62,7 +62,7 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
       this._formPrefill = options.formPrefill;
       this._notifications = options.notifications;
 
-      this._notifications.on('navigate-from-subview', this._onNavigateFromSubview.bind(this));
+      this._notifications.on('navigate-from-child-view', this._onNavigateFromChildView.bind(this));
     },
 
     _initializeSubPanels: function (options) {
@@ -71,8 +71,8 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
 
       if (panelViews.indexOf(CommunicationPreferencesView) !== -1) {
         areCommunicationPrefsVisible = this._areCommunicationPrefsVisible();
-        panelViews = panelViews.filter(function (SubView) {
-          if (SubView === CommunicationPreferencesView) {
+        panelViews = panelViews.filter(function (ChildView) {
+          if (ChildView === CommunicationPreferencesView) {
             return areCommunicationPrefsVisible;
           }
           return true;
@@ -83,7 +83,7 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
           String(areCommunicationPrefsVisible));
 
       return new SubPanels({
-        initialSubView: options.subView,
+        initialChildView: options.childView,
         panelViews: panelViews,
         parent: this,
         router: this.router
@@ -109,13 +109,13 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
       this._showAvatar();
     },
 
-    showSubView: function (SubView) {
-      return this._subPanels.showSubView(SubView);
+    showChildView: function (ChildView) {
+      return this._subPanels.showChildView(ChildView);
     },
 
-    // When we navigate to settings from a subview
+    // When we navigate to settings from a childView
     // close the modal, show any ephemeral messages passed to `navigate`
-    _onNavigateFromSubview: function () {
+    _onNavigateFromChildView: function () {
       if ($.modal.isActive()) {
         $.modal.close();
       }
