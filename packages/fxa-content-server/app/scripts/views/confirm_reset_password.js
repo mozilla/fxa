@@ -62,7 +62,7 @@ function (Cocktail, ConfirmView, BaseView, Template, p, Session, AuthErrors,
         .then(function () {
           return self._waitForConfirmation()
             .then(function (sessionInfo) {
-              self.logScreenEvent('verification.success');
+              self.logViewEvent('verification.success');
               // The original window should finish the flow if the user
               // completes verification in the same browser and has sessionInfo
               // passed over from tab 2.
@@ -83,7 +83,7 @@ function (Cocktail, ConfirmView, BaseView, Template, p, Session, AuthErrors,
 
       // If either the `login` message comes through or the `login` message
       // timeout elapses after the server confirms the user is verified,
-      // stop waiting all together and move to the next screen.
+      // stop waiting all together and move to the next view.
       function onComplete(response) {
         self._stopWaiting();
         self._confirmationDeferred.resolve(response);
@@ -245,7 +245,7 @@ function (Cocktail, ConfirmView, BaseView, Template, p, Session, AuthErrors,
 
     submit: function () {
       var self = this;
-      self.logScreenEvent('resend');
+      self.logViewEvent('resend');
 
       return self.fxaClient.passwordResetResend(
         self._email,

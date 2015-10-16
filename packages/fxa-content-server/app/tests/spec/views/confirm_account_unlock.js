@@ -47,8 +47,8 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
         metrics: metrics,
         relier: relier,
         router: routerMock,
-        screenName: 'confirm-account-unlock',
         user: user,
+        viewName: 'confirm-account-unlock',
         window: windowMock
       });
       view.VERIFICATION_POLL_IN_MS = 10;
@@ -110,7 +110,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
     });
 
     describe('render', function () {
-      it('shows the confirm-account-unlock screen', function () {
+      it('shows the confirm-account-unlock view', function () {
         assert.ok($('#fxa-confirm-account-unlock-header').length);
       });
     });
@@ -153,7 +153,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
           });
       });
 
-      it('if not caused by signin, sets the success ephemeral message and navigates back a screen', function () {
+      it('if not caused by signin, sets the success ephemeral message and navigates back a view', function () {
         ephemeralMessages.set('data', {
           account: account,
           lockoutSource: 'change_password'

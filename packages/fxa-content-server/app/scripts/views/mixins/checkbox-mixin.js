@@ -33,7 +33,7 @@ define([
 
       // if no id, doesn't really make sense to log it.
       if (id) {
-        this.logScreenEvent(
+        this.logViewEvent(
           Strings.interpolate('checkbox.change.%s.%s', [id, checkedText]));
       }
     }

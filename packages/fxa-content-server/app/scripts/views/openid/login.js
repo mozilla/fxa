@@ -47,7 +47,7 @@ function (BaseView, Template, Session) {
           return self.invokeBrokerMethod('afterSignIn', account);
         })
         .then(function (result) {
-          self.logScreenEvent('success');
+          self.logViewEvent('success');
           self.navigate('settings');
           return result;
         });

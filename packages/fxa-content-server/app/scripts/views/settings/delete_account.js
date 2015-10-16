@@ -25,7 +25,7 @@ function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
   var View = FormView.extend({
     template: Template,
     className: 'delete-account',
-    screenName: 'settings.delete-account',
+    viewName: 'settings.delete-account',
 
     initialize: function (options) {
       this.notifications = options.notifications;
@@ -54,7 +54,7 @@ function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
         })
         .then(function () {
           // user deleted an account
-          self.logScreenEvent('deleted');
+          self.logViewEvent('deleted');
 
           self.navigate('signup', {
             success: t('Account deleted successfully')

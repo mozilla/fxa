@@ -20,7 +20,7 @@ function (Cocktail, BaseView, FormView, Template,
   var View = FormView.extend({
     template: Template,
     className: 'display-name',
-    screenName: 'settings.display-name',
+    viewName: 'settings.display-name',
 
     onProfileUpdate: function () {
       this.render();
@@ -49,7 +49,7 @@ function (Cocktail, BaseView, FormView, Template,
 
       return account.postDisplayName(displayName)
         .then(function () {
-          self.logScreenEvent('success');
+          self.logViewEvent('success');
           self.updateDisplayName(displayName);
           self.displaySuccess(t('Display name updated'));
           self.navigate('settings');

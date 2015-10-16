@@ -86,7 +86,7 @@ function (Cocktail, p, BaseView, FormView, SignInView, PasswordMixin,
 
     onSignInSuccess: function (account) {
       var self = this;
-      self.logScreenEvent('success');
+      self.logViewEvent('success');
       return self.invokeBrokerMethod('afterForceAuth', account)
         .then(function () {
           self.navigate(self._redirectTo || 'settings');

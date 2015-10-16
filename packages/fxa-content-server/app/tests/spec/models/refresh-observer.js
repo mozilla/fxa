@@ -41,29 +41,29 @@ function (chai, Metrics, WindowMock, Notifications, RefreshObserver, sinon) {
 
     describe('logIfRefresh', function () {
       beforeEach(function () {
-        sinon.spy(metrics, 'logScreenEvent');
+        sinon.spy(metrics, 'logViewEvent');
       });
 
       describe('with two consecutive views with different names', function () {
         beforeEach(function () {
-          refreshObserver.logIfRefresh('screen1');
-          refreshObserver.logIfRefresh('screen2');
+          refreshObserver.logIfRefresh('view1');
+          refreshObserver.logIfRefresh('view2');
         });
 
         it('does not log a page refresh', function () {
-          assert.isFalse(metrics.logScreenEvent.called);
+          assert.isFalse(metrics.logViewEvent.called);
         });
       });
 
       describe('with two consecutive views with the same name', function () {
         beforeEach(function () {
-          refreshObserver.logIfRefresh('screen1');
-          refreshObserver.logIfRefresh('screen1');
+          refreshObserver.logIfRefresh('view1');
+          refreshObserver.logIfRefresh('view1');
         });
 
         it('logs a page refresh', function () {
           assert.isTrue(
-              metrics.logScreenEvent.calledWith('screen1', 'refresh'));
+              metrics.logViewEvent.calledWith('view1', 'refresh'));
         });
       });
     });
@@ -75,21 +75,21 @@ function (chai, Metrics, WindowMock, Notifications, RefreshObserver, sinon) {
 
       describe('show-view', function () {
         beforeEach(function () {
-          notifications.trigger('show-view', ViewMock, { screenName: 'screen1' });
+          notifications.trigger('show-view', ViewMock, { viewName: 'view1' });
         });
 
         it('calls `logIfRefresh', function () {
-          assert.isTrue(refreshObserver.logIfRefresh.calledWith('screen1'));
+          assert.isTrue(refreshObserver.logIfRefresh.calledWith('view1'));
         });
       });
 
       describe('show-child-view', function () {
         beforeEach(function () {
-          notifications.trigger('show-child-view', ViewMock, ViewMock, { screenName: 'screen1' });
+          notifications.trigger('show-child-view', ViewMock, ViewMock, { viewName: 'view1' });
         });
 
         it('calls `logIfRefresh', function () {
-          assert.isTrue(refreshObserver.logIfRefresh.calledWith('screen1'));
+          assert.isTrue(refreshObserver.logIfRefresh.calledWith('view1'));
         });
       });
     });

@@ -44,7 +44,7 @@ function (Cocktail, FormView, Template, p, BackMixin, ServiceMixin,
     beforeRender: function () {
       // user cannot proceed if they have not initiated a sign up/in.
       if (! this.getAccount().get('sessionToken')) {
-        this.navigate(this._previousScreen());
+        this.navigate(this._previousView());
         return false;
       }
     },
@@ -53,7 +53,7 @@ function (Cocktail, FormView, Template, p, BackMixin, ServiceMixin,
       var self = this;
       var account = self.getAccount();
 
-      self.logScreenEvent('accept');
+      self.logViewEvent('accept');
 
       return p().then(function () {
         account.saveGrantedPermissions(self.relier.get('clientId'), self.relier.get('permissions'));
@@ -70,7 +70,7 @@ function (Cocktail, FormView, Template, p, BackMixin, ServiceMixin,
 
     onSignInSuccess: function (account) {
       var self = this;
-      self.logScreenEvent('success');
+      self.logViewEvent('success');
       return self.invokeBrokerMethod('afterSignIn', account)
         .then(function () {
           self.navigate('settings');
@@ -85,7 +85,7 @@ function (Cocktail, FormView, Template, p, BackMixin, ServiceMixin,
       });
     },
 
-    _previousScreen: function () {
+    _previousView: function () {
       var page = this.is('sign_up') ? '/signup' : '/signin';
       return this.broker.transformLink(page);
     },

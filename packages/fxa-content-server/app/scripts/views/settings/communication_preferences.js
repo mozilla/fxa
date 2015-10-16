@@ -23,7 +23,7 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, Metrics, BaseView, For
   var View = FormView.extend({
     template: Template,
     className: 'communication-preferences',
-    screenName: 'settings.communication-preferences',
+    viewName: 'settings.communication-preferences',
 
     enableSubmitIfValid: function () {
       // overwrite this to prevent the default FormView method from hiding errors
@@ -78,7 +78,7 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, Metrics, BaseView, For
       var self = this;
       var emailPrefs = this.getMarketingEmailPrefs();
       var isOptedIn = emailPrefs.isOptedIn(NEWSLETTER_ID);
-      self.logScreenEvent('newsletter.optin.' + String(isOptedIn));
+      self.logViewEvent('newsletter.optin.' + String(isOptedIn));
 
       return {
         error: self._error,
@@ -100,11 +100,11 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, Metrics, BaseView, For
       var self = this;
 
       var method = isOptedIn ? 'optIn' : 'optOut';
-      self.logScreenEvent(method);
+      self.logViewEvent(method);
 
       return self.getMarketingEmailPrefs()[method](newsletterId)
         .then(function () {
-          self.logScreenEvent(method + '.success');
+          self.logViewEvent(method + '.success');
 
           var successMessage = isOptedIn ?
                                   t('Subscribed successfully') :

@@ -37,7 +37,7 @@ define([
       view = new PasswordView({
         metrics: metrics,
         relier: relier,
-        screenName: 'password-screen'
+        viewName: 'password-view'
       });
 
       return view.render()
@@ -114,14 +114,14 @@ define([
       it('logs whether the password is shown or hidden', function () {
         view.$('.show-password').click();
         assert.isTrue(TestHelpers.isEventLogged(metrics,
-                          'password-screen.password.visible'));
+                          'password-view.password.visible'));
         // the password has not been hidden yet.
         assert.isFalse(TestHelpers.isEventLogged(metrics,
-                          'password-screen.password.hidden'));
+                          'password-view.password.hidden'));
 
         view.$('.show-password').click();
         assert.isTrue(TestHelpers.isEventLogged(metrics,
-                          'password-screen.password.hidden'));
+                          'password-view.password.hidden'));
       });
     });
   });

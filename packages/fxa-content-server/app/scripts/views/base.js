@@ -110,11 +110,11 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
     layoutClassName: null,
 
     /**
-     * The default screen name
+     * The default view name
      *
-     * @property screenName
+     * @property viewName
      */
-    screenName: '',
+    viewName: '',
 
     constructor: function (options) {
       options = options || {};
@@ -134,13 +134,13 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
       this.translator = options.translator || this.window.translator;
 
       /**
-       * Prefer the `screenName` set on the object prototype. ChildViews
-       * define their screenName on the prototype to avoid taking the
+       * Prefer the `viewName` set on the object prototype. ChildViews
+       * define their viewName on the prototype to avoid taking the
        * name of the parent view. This is a terrible hack, but workable
        * until a better solution arises. See #3029
        */
-      if (! this.screenName && options.screenName) {
-        this.screenName = options.screenName;
+      if (! this.viewName && options.viewName) {
+        this.viewName = options.viewName;
       }
 
       Backbone.View.call(this, options);
@@ -383,7 +383,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
     afterVisible: function () {
       // make a huge assumption and say if the device does not have touch,
       // it's a desktop device and autofocus can be applied without
-      // hiding part of the screen. The no-touch class is added by
+      // hiding part of the view. The no-touch class is added by
       // startup-styles
       if ($('html').hasClass('no-touch')) {
         var autofocusEl = this.$('[autofocus]');
@@ -547,8 +547,8 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
 
       // The error could already be logged, if so, abort mission.
       // This can occur when `navigate` redirects a user to a different
-      // screen and an error is passed. The error is logged before the screen
-      // transition, the new screen is rendered, then the original error is
+      // view and an error is passed. The error is logged before the view
+      // transition, the new view is rendered, then the original error is
       // displayed. This avoids duplicate entries.
       if (err.logged) {
         return;
@@ -563,12 +563,12 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
     },
 
     /**
-     * Get the view's screen name.
+     * Get the view's name.
      *
      * @returns {string}
      */
-    getScreenName: function () {
-      return this.screenName;
+    getViewName: function () {
+      return this.viewName;
     },
 
     _normalizeError: function (err) {
@@ -588,17 +588,17 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
       }
 
       if (! err.context) {
-        err.context = this.getScreenName();
+        err.context = this.getViewName();
       }
 
       return err;
     },
 
     /**
-     * Log the current screen
+     * Log the current view
      */
-    logScreen: function () {
-      this.metrics.logScreen(this.getScreenName());
+    logView: function () {
+      this.metrics.logView(this.getViewName());
     },
 
     /**
@@ -609,12 +609,12 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
     },
 
     /**
-     * Log an event with the screen name as a prefix
+     * Log an event with the view name as a prefix
      *
      * @param {string} eventName
      */
-    logScreenEvent: function (eventName) {
-      this.metrics.logScreenEvent(this.getScreenName(), eventName);
+    logViewEvent: function (eventName) {
+      this.metrics.logViewEvent(this.getViewName(), eventName);
     },
 
     hideError: function () {
@@ -627,7 +627,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
     },
 
     /**
-     * navigate to another screen
+     * navigate to another view
      */
     navigate: function (page, options) {
       options = options || {};
@@ -639,7 +639,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
       }
 
       if (options.error) {
-        // log the error entry before the new screen is rendered so events
+        // log the error entry before the new view is rendered so events
         // stay in the correct order.
         this.logError(options.error);
         this.ephemeralMessages.set('error', options.error);

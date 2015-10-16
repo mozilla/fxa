@@ -93,7 +93,7 @@ define([
 
     _logStrengthExperimentEvent: function (eventNameSuffix) {
       var eventName = 'experiment.pw_strength.' + eventNameSuffix.toLowerCase();
-      this.logScreenEvent(eventName);
+      this.logViewEvent(eventName);
     }
   };
   return PasswordStrengthMixin;

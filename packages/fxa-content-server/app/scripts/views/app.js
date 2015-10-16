@@ -83,7 +83,7 @@ define([
         var viewToShow = new View(options);
         self._currentView = viewToShow;
 
-        viewToShow.logScreen();
+        viewToShow.logView();
         return viewToShow.render()
           .then(function (isShown) {
             // render will return false if the view could not be
@@ -113,7 +113,7 @@ define([
             viewToShow.afterVisible();
 
             // The user may be scrolled part way down the page
-            // on screen transition. Force them to the top of the page.
+            // on view transition. Force them to the top of the page.
             self.window.scrollTo(0, 0);
 
             $('#fox-logo').addClass('fade-in-forward').css('opacity', 1);
@@ -156,7 +156,7 @@ define([
         // Use the super view's title as the base title
         var title = childView.titleFromView(self._currentView.titleFromView());
         self.setTitle(title);
-        childView.logScreen();
+        childView.logView();
 
         return childView;
       });

@@ -62,8 +62,8 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
         metrics: metrics,
         relier: relier,
         router: routerMock,
-        screenName: 'complete_reset_password',
         user: user,
+        viewName: 'complete_reset_password',
         window: windowMock
       });
     }

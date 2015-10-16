@@ -78,8 +78,8 @@ function (Cocktail, p, BaseView, FormView, Template, AuthErrors, mailcheck,
         el: self.$('#coppa'),
         formPrefill: self._formPrefill,
         metrics: self.metrics,
-        screenName: self.getScreenName(),
-        shouldFocus: autofocusEl === null
+        shouldFocus: autofocusEl === null,
+        viewName: self.getViewName()
       };
 
       var coppaView = new CoppaAgeInput(coppaOptions);
@@ -96,7 +96,7 @@ function (Cocktail, p, BaseView, FormView, Template, AuthErrors, mailcheck,
     afterRender: function () {
       var self = this;
 
-      self.logScreenEvent('email-optin.visible.' +
+      self.logViewEvent('email-optin.visible.' +
           String(self._isEmailOptInEnabled()));
 
       return self._createCoppaView()
@@ -137,7 +137,7 @@ function (Cocktail, p, BaseView, FormView, Template, AuthErrors, mailcheck,
 
     getPrefillEmail: function () {
       // formPrefill.email comes first because users can edit the email,
-      // go to another screen, edit the email again, and come back here. We
+      // go to another view, edit the email again, and come back here. We
       // want the last used email.
       return this._formPrefill.get('email') || this.relier.get('email');
     },
@@ -288,12 +288,12 @@ function (Cocktail, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       });
 
       if (preVerifyToken) {
-        self.logScreenEvent('preverified');
+        self.logViewEvent('preverified');
       }
 
       if (self.relier.isSync()) {
         var customizeSync = account.get('customizeSync');
-        self.logScreenEvent('customizeSync.' + String(customizeSync));
+        self.logViewEvent('customizeSync.' + String(customizeSync));
 
         if (customizeSync && self.isInExperiment('syncCheckbox')) {
           self.notify('syncCheckbox.clicked');
@@ -313,9 +313,9 @@ function (Cocktail, p, BaseView, FormView, Template, AuthErrors, mailcheck,
           self._formPrefill.clear();
 
           if (preVerifyToken && account.get('verified')) {
-            self.logScreenEvent('preverified.success');
+            self.logViewEvent('preverified.success');
           }
-          self.logScreenEvent('success');
+          self.logViewEvent('success');
           return self.invokeBrokerMethod('afterSignUp', account);
         })
         .then(self.onSignUpSuccess.bind(self, account))

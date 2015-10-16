@@ -141,7 +141,7 @@ define([
             isDestroyed = true;
           },
 
-          logScreen: function () {
+          logView: function () {
             isLogged = true;
           }
         });
@@ -174,7 +174,7 @@ define([
         var ViewThatRenders = Backbone.View.extend({
           afterVisible: sinon.spy(),
           destroy: sinon.spy(),
-          logScreen: sinon.spy(),
+          logView: sinon.spy(),
           render: function () {
             this.$el.html('<div id="rendered-view"></div>');
             return p(true);
@@ -209,7 +209,7 @@ define([
         });
 
         it('logs the view', function () {
-          assert.isTrue(displayedView.logScreen.called);
+          assert.isTrue(displayedView.logView.called);
         });
 
         it('sets the title from the text the view returns', function () {
@@ -229,7 +229,7 @@ define([
         var FirstViewThatRenders = Backbone.View.extend({
           afterVisible: sinon.spy(),
           destroy: sinon.spy(),
-          logScreen: sinon.spy(),
+          logView: sinon.spy(),
           render: sinon.spy(function () {
             return p(true);
           }),
@@ -241,7 +241,7 @@ define([
         var SecondViewThatRenders = Backbone.View.extend({
           afterVisible: sinon.spy(),
           destroy: sinon.spy(),
-          logScreen: sinon.spy(),
+          logView: sinon.spy(),
           render: sinon.spy(function () {
             return p(true);
           }),
@@ -291,7 +291,7 @@ define([
         var ViewThatRenders = Backbone.View.extend({
           afterVisible: sinon.spy(),
           destroy: sinon.spy(),
-          logScreen: sinon.spy(),
+          logView: sinon.spy(),
           render: sinon.spy(function () {
             return p(true);
           }),
@@ -340,7 +340,7 @@ define([
         var ViewThatErrors = Backbone.View.extend({
           afterVisible: sinon.spy(),
           destroy: sinon.spy(),
-          logScreen: sinon.spy(),
+          logView: sinon.spy(),
           render: sinon.spy(function () {
             return p.reject(renderError);
           }),
@@ -373,7 +373,7 @@ define([
       var ParentView = Backbone.View.extend({
         afterVisible: sinon.spy(),
         destroy: sinon.spy(),
-        logScreen: sinon.spy(),
+        logView: sinon.spy(),
         render: sinon.spy(function () {
           return p(true);
         }),
@@ -388,7 +388,7 @@ define([
       var ChildView = Backbone.View.extend({
         afterVisible: sinon.spy(),
         destroy: sinon.spy(),
-        logScreen: sinon.spy(),
+        logView: sinon.spy(),
         render: sinon.spy(function () {
           return p(true);
         }),
@@ -422,7 +422,7 @@ define([
       });
 
       it('logs the child view', function () {
-        assert.isTrue(childView.logScreen.called);
+        assert.isTrue(childView.logView.called);
       });
 
       it('sets the title', function () {

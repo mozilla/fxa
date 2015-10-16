@@ -29,7 +29,7 @@ define([
       $('#stage').html(loadingHTML).addClass('fade-in-forward').css('opacity', 1);
 
       // The user may be scrolled part way down the page
-      // on screen transition. Force them to the top of the page.
+      // on view transition. Force them to the top of the page.
       self.window.scrollTo(0, 0);
 
       $('#fox-logo').addClass('fade-in-forward').css('opacity', 1);

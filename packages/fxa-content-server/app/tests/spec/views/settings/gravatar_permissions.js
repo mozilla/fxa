@@ -90,7 +90,7 @@ function (chai, $, sinon, p, View, Metrics, Relier, User, RouterMock, TestHelper
           });
       });
 
-      it('shows permission screen if not granted', function () {
+      it('shows permission view if not granted', function () {
         sinon.stub(account, 'hasGrantedPermissions', function () {
           return false;
         });

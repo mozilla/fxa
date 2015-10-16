@@ -72,8 +72,8 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
         metrics: metrics,
         relier: relier,
         router: routerMock,
-        screenName: 'complete-account-unlock',
         user: user,
+        viewName: 'complete-account-unlock',
         window: windowMock
       });
     }

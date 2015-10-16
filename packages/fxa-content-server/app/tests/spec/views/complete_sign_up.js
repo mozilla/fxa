@@ -78,8 +78,8 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
         notifications: notifications,
         relier: relier,
         router: routerMock,
-        screenName: 'complete_sign_up',
         user: user,
+        viewName: 'complete_sign_up',
         window: windowMock
       });
     }

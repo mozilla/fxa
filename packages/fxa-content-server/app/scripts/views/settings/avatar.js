@@ -15,7 +15,7 @@ function (Cocktail, FormView, Template, AvatarMixin, SettingsPanelMixin) {
   var View = FormView.extend({
     template: Template,
     className: 'avatar',
-    screenName: 'settings.avatar',
+    viewName: 'settings.avatar',
 
     onProfileUpdate: function () {
       this.render();

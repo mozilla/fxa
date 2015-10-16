@@ -26,7 +26,7 @@ function (chai, $, AuthErrors, Metrics, FormPrefill, sinon, View, TestHelpers) {
       view = new View({
         formPrefill: formPrefill,
         metrics: metrics,
-        screenName: 'signup'
+        viewName: 'signup'
       });
     }
 
@@ -79,7 +79,7 @@ function (chai, $, AuthErrors, Metrics, FormPrefill, sinon, View, TestHelpers) {
         view.showValidationErrorsEnd();
 
         var yearError = AuthErrors.toError('AGE_REQUIRED');
-        yearError.context = view.getScreenName();
+        yearError.context = view.getViewName();
         assert.isTrue(TestHelpers.isErrorLogged(metrics, yearError));
       });
     });

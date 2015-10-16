@@ -21,7 +21,7 @@ function ($, Cocktail, FormView, AvatarMixin, ModalSettingsPanelMixin,
   var View = FormView.extend({
     template: Template,
     className: 'avatar-change',
-    screenName: 'settings.avatar.change',
+    viewName: 'settings.avatar.change',
 
     events: {
       'change #imageLoader': 'fileSet',

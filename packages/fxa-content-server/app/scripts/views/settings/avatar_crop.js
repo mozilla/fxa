@@ -25,7 +25,7 @@ function (p, Cocktail, FormView, AvatarMixin, ModalSettingsPanelMixin,
   var View = FormView.extend({
     template: Template,
     className: 'avatar-crop',
-    screenName: 'settings.avatar.crop',
+    viewName: 'settings.avatar.crop',
 
     initialize: function (options) {
       options = options || {};
@@ -116,23 +116,23 @@ function (p, Cocktail, FormView, AvatarMixin, ModalSettingsPanelMixin,
     },
 
     _onRotate: function () {
-      this.logScreenEvent('rotate.cw');
+      this.logViewEvent('rotate.cw');
     },
 
     _onTranslate: function () {
-      this.logScreenEvent('translate');
+      this.logViewEvent('translate');
     },
 
     _onZoomIn: function () {
-      this.logScreenEvent('zoom.in');
+      this.logViewEvent('zoom.in');
     },
 
     _onZoomOut: function () {
-      this.logScreenEvent('zoom.out');
+      this.logViewEvent('zoom.out');
     },
 
     _onZoomRangeChange: function () {
-      this.logScreenEvent('zoom.range');
+      this.logViewEvent('zoom.range');
     }
 
   });

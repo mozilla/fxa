@@ -65,7 +65,7 @@ function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
       var code = verificationInfo.get('code');
       return self.fxaClient.verifyCode(uid, code)
           .then(function () {
-            self.logScreenEvent('verification.success');
+            self.logViewEvent('verification.success');
             self.notify('verification.success');
             var account = self.getAccount();
 
@@ -157,7 +157,7 @@ function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
     submit: function () {
       var self = this;
 
-      self.logScreenEvent('resend');
+      self.logViewEvent('resend');
 
       return self.fxaClient.signUpResend(
         self.relier,
