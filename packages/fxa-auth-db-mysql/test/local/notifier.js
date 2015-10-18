@@ -38,7 +38,7 @@ var events = [
 test(
   'notifier should publish events as signed jwts',
   function (t) {
-    t.plan(17)
+    t.plan(13)
     var jwts
     var mock = nock(NOTIFICATION_SERVER)
       .post('/v0/publish', function(body) {
@@ -53,24 +53,17 @@ test(
         mock.done()
         t.equal(jwts.length, 2)
         var evt1 = publicKey.verifySync(jwts[0])
-        // XXX TODO: seems unnecessary...
-        evt1.payload = JSON.parse(evt1.payload)
-        t.equal(evt1.header.jku, config.notifications.jwt.jku)
-        t.equal(evt1.header.kid, config.notifications.jwt.kid)
-        t.equal(evt1.payload.iss, config.notifications.jwt.iss)
-        t.equal(evt1.payload.aud, url.parse(NOTIFICATION_SERVER).host)
-        t.equal(evt1.payload.uid, 'ABCDEF')
-        t.equal(evt1.payload.typ, 'create')
-        t.equal(evt1.payload.iat, 123456)
+        t.equal(evt1.iss, config.notifications.jwt.iss)
+        t.equal(evt1.aud, url.parse(NOTIFICATION_SERVER).host)
+        t.equal(evt1.uid, 'ABCDEF')
+        t.equal(evt1.typ, 'create')
+        t.equal(evt1.iat, 123456)
         var evt2 = publicKey.verifySync(jwts[1])
-        evt2.payload = JSON.parse(evt2.payload)
-        t.equal(evt2.header.jku, config.notifications.jwt.jku)
-        t.equal(evt2.header.kid, config.notifications.jwt.kid)
-        t.equal(evt2.payload.iss, config.notifications.jwt.iss)
-        t.equal(evt2.payload.aud, url.parse(NOTIFICATION_SERVER).host)
-        t.equal(evt2.payload.uid, 'ABCDEF')
-        t.equal(evt2.payload.typ, 'verify')
-        t.equal(evt2.payload.iat, 234567)
+        t.equal(evt2.iss, config.notifications.jwt.iss)
+        t.equal(evt2.aud, url.parse(NOTIFICATION_SERVER).host)
+        t.equal(evt2.uid, 'ABCDEF')
+        t.equal(evt2.typ, 'verify')
+        t.equal(evt2.iat, 234567)
       })
   }
 )
