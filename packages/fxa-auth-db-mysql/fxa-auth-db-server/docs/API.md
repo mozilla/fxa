@@ -57,8 +57,11 @@ The following datatypes are used throughout this document:
     * deleteAccount             : `DELETE /account/:id`
     * verifyEmail               : `POST /account/:id/verifyEmail`
     * sessions                  : `GET /account/:id/sessions`
+    * devices                   : `GET /account/:id/devices`
+* Devices:
+    * upsertDevice              : `PUT /account/:id/device/:deviceId`
+    * deleteDevice              : `DEL /account/:id/device/:deviceId`
 * Session Tokens:
-    * accountDevices            : `GET /account/:id/devices`
     * sessionToken              : `GET /sessionToken/:id`
     * deleteSessionToken        : `DEL /sessionToken/:id`
     * createSessionToken        : `PUT /sessionToken/:id`
@@ -613,14 +616,22 @@ curl \
 ```
 HTTP/1.1 200 OK
 Content-Type: application/json
-Content-Length: 564
 
 [
     {
-        "data":"e2c3a8f73e826b9176e54e0f6ecb34b60b1e1979d254638f6b61d721c069d576",
-        "uid":"6044486dd15b42e08b1fb9167415b9ac",
-        "createdAt":1425004396952,
-        "id":"522c251a1623e1f1db1f4fe68b9594d26772d6e77e04cb68e110c58600f97a77"
+        "id": "154c86dde08bfbb47415b9a216044916",
+        "uid": "6044486dd15b42e08b1fb9167415b9ac",
+        "sessionTokenId": "9a15b9ad6044ce08bfbb4744b1604491686dd15b42e2154c86d08b1fb9167415",
+        "name": "My Phone",
+        "type": "mobile"
+        "createdAt": 1437992394186,
+        "callbackURL": "",
+        "uaBrowser": "Firefox",
+        "uaBrowserVersion": "42",
+        "uaOS": "Android",
+        "uaOSVersion": "5.1",
+        "uaDeviceType": "mobile",
+        "lastAccessTime": 1437992394186
     }
 ]
 ```
@@ -637,6 +648,70 @@ Content-Length: 564
     * Content-Type : 'application/json'
     * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
+## upsertDevice : `PUT /account/<uid>/device/<deviceId>`
+
+### Example
+
+```
+curl \
+    -v \
+    -X PUT \
+    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/device/154c86dde08bfbb47415b9a216044916 \
+    -d '{
+      "id": "154c86dde08bfbb47415b9a216044916",
+      "uid": "6044486dd15b42e08b1fb9167415b9ac",
+      "sessionTokenId": "9a15b9ad6044ce08bfbb4744b1604491686dd15b42e2154c86d08b1fb9167415",
+      "name": "My Phone",
+      "type": "mobile"
+      "createdAt": 1437992394186,
+      "callbackURL": ""
+    }'
+```
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `[ ... <see example> ...]`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+## deleteDevice : `DEL /account/<uid>/device/<deviceId>`
+
+### Example
+
+```
+curl \
+    -v \
+    -X DELETE \
+    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/device/154c86dde08bfbb47415b9a216044916
+```
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `[ ... <see example> ...]`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
 ## sessionToken : `GET /sessionToken/<tokenId>`
 
