@@ -458,7 +458,7 @@ describe('/avatar', function() {
         email: 'user@example.domain',
         scope: ['profile:avatar:write']
       });
-      mock.image();
+      mock.image(imageData.length);
       return Server.api.post({
         url: '/avatar/upload',
         payload: imageData,
@@ -489,7 +489,7 @@ describe('/avatar', function() {
         email: 'user@example.domain',
         scope: ['profile:avatar:write']
       });
-      mock.workerFailure('post');
+      mock.workerFailure('post', imageData.length);
       mock.log('img_workers', function(rec) {
         if (rec.levelname === 'ERROR') {
           assert.equal(
@@ -573,7 +573,7 @@ describe('/avatar', function() {
           email: 'user@example.domain',
           scope: ['profile:avatar:write']
         });
-        mock.image();
+        mock.image(imageData.length);
         return Server.api.post({
           url: '/avatar/upload',
           payload: imageData,

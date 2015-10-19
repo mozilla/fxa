@@ -45,7 +45,8 @@ exports.create = function() {
       payload: {
         output: 'stream',
         parse: false,
-        allow: ['image/png', 'image/jpeg']
+        allow: ['image/png', 'image/jpeg'],
+        maxBytes: config.img.uploads.maxSize
       },
       handler: function upload(req, reply) {
         logger.debug('worker.receive', {
