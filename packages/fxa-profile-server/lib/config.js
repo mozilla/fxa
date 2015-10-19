@@ -84,6 +84,17 @@ const conf = convict({
         default: Math.ceil(require('os').cpus().length * 1.25)
       }
     },
+    gm: {
+      limits: {
+        // See http://www.graphicsmagick.org/GraphicsMagick.html#details-limit
+        disk: '2MB',
+        files: '8',
+        map: '2MB',
+        memory: '1MB',
+        pixels: '16K',
+        threads: '8'
+      }
+    },
     url: {
       doc: 'Pattern to generate FxA avatar URLs. {id} will be replaced.',
       default: 'http://127.0.0.1:1112/a/{id}'
