@@ -9,7 +9,6 @@ define([
   'lib/router',
   'views/base',
   'views/settings/display_name',
-  'views/sign_in',
   'views/settings',
   'lib/able',
   'lib/constants',
@@ -24,9 +23,8 @@ define([
   '../../lib/helpers'
 ],
 function (chai, sinon, Backbone, Router, BaseView, DisplayNameView,
-  SignInView, SettingsView, Able, Constants, Environment, Metrics,
-  Notifications, Relier, User, FormPrefill, NullBroker, WindowMock,
-  TestHelpers) {
+  SettingsView, Able, Constants, Environment, Metrics, Notifications,
+  Relier, User, FormPrefill, NullBroker, WindowMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -147,32 +145,6 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView,
         router.redirectToBestOAuthChoice();
         assert.equal(navigateUrl, '/oauth/signin');
         assert.deepEqual(navigateOptions, { replace: true, trigger: true });
-      });
-    });
-
-    describe('_checkForRefresh', function () {
-      var view;
-      before(function () {
-        view = new SignInView({
-          broker: broker,
-          formPrefill: formPrefill,
-          metrics: metrics,
-          relier: relier,
-          router: router,
-          screenName: 'signin',
-          user: user,
-          window: windowMock
-        });
-
-        sinon.spy(view, 'logScreenEvent');
-      });
-
-      it('logs a `refresh` if the same view is displayed twice in a row', function () {
-        router._checkForRefresh(view);
-        assert.isFalse(view.logScreenEvent.calledWith('refresh'));
-
-        router._checkForRefresh(view);
-        assert.isTrue(view.logScreenEvent.calledWith('refresh'));
       });
     });
 

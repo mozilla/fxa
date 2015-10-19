@@ -139,6 +139,7 @@ function (Translator, Session) {
     '../tests/spec/models/marketing-email-prefs',
     '../tests/spec/models/notifications',
     '../tests/spec/models/oauth-token',
+    '../tests/spec/models/refresh-observer',
     '../tests/spec/models/resume-token',
     '../tests/spec/models/mixins/resume-token',
     '../tests/spec/models/mixins/search-param',

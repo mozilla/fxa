@@ -40,7 +40,7 @@ define([
             isCollectionEnabled: function () {
               return true;
             },
-            logEvent: sinon.spy()
+            logScreenEvent: sinon.spy()
           },
           user: {
             get: function () {

@@ -589,6 +589,16 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
       });
     });
 
+    describe('logScreenEvent', function () {
+      beforeEach(function () {
+        view.logScreenEvent('event1');
+      });
+
+      it('logs an event with the screen name as a prefix to the event stream', function () {
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'screen.event1'));
+      });
+    });
+
     describe('logError', function () {
       it('logs an error to the event stream', function () {
         var err = AuthErrors.toError('INVALID_TOKEN', screenName);

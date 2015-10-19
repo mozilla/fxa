@@ -153,7 +153,6 @@ function (
       this.window = options.window || window;
 
       this.notifications.once('view-shown', this._afterFirstViewHasRendered.bind(this));
-      this.notifications.on('view-shown', this._checkForRefresh.bind(this));
 
       this.storage = Storage.factory('sessionStorage', this.window);
     },
@@ -226,22 +225,6 @@ function (
       }, options || {});
 
       return viewOptions;
-    },
-
-    _checkForRefresh: function (currentView) {
-      var refreshMetrics = this.storage.get('last_page_loaded');
-      var screenName = currentView.getScreenName();
-
-      if (refreshMetrics && refreshMetrics.view === screenName && this.metrics) {
-        currentView.logScreenEvent('refresh');
-      }
-
-      refreshMetrics = {
-        timestamp: Date.now(),
-        view: screenName
-      };
-
-      this.storage.set('last_page_loaded', refreshMetrics);
     },
 
     _afterFirstViewHasRendered: function () {

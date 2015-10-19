@@ -61,6 +61,7 @@ define([
   'models/user',
   'models/form-prefill',
   'models/notifications',
+  'models/refresh-observer',
   'views/app',
   'views/close_button'
 ],
@@ -110,6 +111,7 @@ function (
   User,
   FormPrefill,
   Notifications,
+  RefreshObserver,
   AppView,
   CloseButtonView
 ) {
@@ -122,6 +124,7 @@ function (
     this._configLoader = new ConfigLoader();
     this._history = options.history || Backbone.history;
     this._notifications = options.notifications;
+    this._refreshObserver = options.refreshObserver;
     this._relier = options.relier;
     this._router = options.router;
     this._storage = options.storage || Storage;
@@ -223,6 +226,8 @@ function (
                     .then(_.bind(this.initializeFormPrefill, this))
                     // depends on iframeChannel and interTabChannel
                     .then(_.bind(this.initializeNotifications, this))
+                    // depends on notifications, metrics
+                    .then(_.bind(this.initializeRefreshObserver, this))
                     // router depends on all of the above
                     .then(_.bind(this.initializeRouter, this))
                     // appView depends on the router
@@ -536,6 +541,16 @@ function (
           iframeChannel: this._iframeChannel,
           tabChannel: this._interTabChannel,
           webChannel: notificationWebChannel
+        });
+      }
+    },
+
+    initializeRefreshObserver: function () {
+      if (! this._refreshObserver) {
+        this._refreshObserver = new RefreshObserver({
+          metrics: this._metrics,
+          notifications: this._notifications,
+          window: this._window
         });
       }
     },

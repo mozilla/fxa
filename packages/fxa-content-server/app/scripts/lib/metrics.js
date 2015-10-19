@@ -337,6 +337,21 @@ define([
     },
 
     /**
+     * Log an event with the screen name as a prefix
+     *
+     * @param {string} screenName
+     * @param {string} eventName
+     */
+    logScreenEvent: function (screenName, eventName) {
+      var event = Strings.interpolate('%(screenName)s.%(eventName)s', {
+        eventName: eventName,
+        screenName: screenName,
+      });
+
+      this.logEvent(event);
+    },
+
+    /**
      * Convert a screenName an identifier
      */
     screenToId: function (screenName) {
