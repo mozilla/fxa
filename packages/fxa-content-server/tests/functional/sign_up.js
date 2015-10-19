@@ -82,7 +82,7 @@ define([
         .then(FunctionalHelpers.testSuccessWasShown(this));
     },
 
-    'sign up, verify same browser with original tab closed': function () {
+    'sign up, verify same browser with original tab closed, sign out': function () {
       var self = this;
       return fillOutSignUp(this, email, PASSWORD, OLD_ENOUGH_YEAR)
         .then(function () {
@@ -100,6 +100,21 @@ define([
         .end()
 
         .then(FunctionalHelpers.testSuccessWasShown(this))
+
+        // Ref https://github.com/mozilla/fxa-content-server/issues/3187
+        // Ensure the signin screen shows if the user signs out after
+        // verification.
+        .findByCssSelector('#signout')
+          .click()
+        .end()
+
+        .findByCssSelector('#fxa-signin-header')
+        .end()
+
+        // `visibleByQSA` is used to ensure visibility. With the bug in #3187
+        // referenced above, the signin screen is drawn, but invisible
+        .then(FunctionalHelpers.visibleByQSA('#fxa-signin-header'))
+        .end()
 
         .closeCurrentWindow()
 
