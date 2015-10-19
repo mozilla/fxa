@@ -263,6 +263,10 @@ define([
        */
       chooseWhatToSyncCheckbox: true,
       /**
+       * Should the broker convert links to text?
+       */
+      convertExternalLinksToText: false,
+      /**
        * should the *_complete pages show the marketing snippet?
        */
       emailVerificationMarketingSnippet: true,

@@ -3,12 +3,12 @@
     <h1 id="fxa-cannot-create-account-header">{{#t}}Cannot create account{{/t}}</h1>
   </header>
 
-  <section class="cannot-create-account-content">
+  <section class="cannot-create-account-content {{#convertExternalLinksToText}}show-visible-url{{/convertExternalLinksToText}}">
     <p>
       <strong>{{#t}}You must meet certain age requirements to create a Firefox&nbsp;Account.{{/t}}</strong>
     </p>
     <p class="links">
-      <a class="ftc" href="http://www.ftc.gov/news-events/media-resources/protecting-consumer-privacy/kids-privacy-coppa" {{#isSync}} target="_blank"{{/isSync}}>{{#t}}Learn more.{{/t}}</a>
+      <a class="ftc" data-visible-url="http://www.ftc.gov/news-events/media-resources/protecting-consumer-privacy/kids-privacy-coppa" href="http://www.ftc.gov/news-events/media-resources/protecting-consumer-privacy/kids-privacy-coppa" {{#isSync}} target="_blank"{{/isSync}}>{{#t}}Learn more.{{/t}}</a>
     </p>
 
   </section>

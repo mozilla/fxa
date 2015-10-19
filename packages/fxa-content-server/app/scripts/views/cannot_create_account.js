@@ -15,6 +15,7 @@ function (BaseView, CannotCreateAccountTemplate) {
 
     context: function () {
       return {
+        convertExternalLinksToText: this.broker.hasCapability('convertExternalLinksToText'),
         isSync: this.relier.isSync()
       };
     }

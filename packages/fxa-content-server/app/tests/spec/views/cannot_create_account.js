@@ -6,9 +6,10 @@ define([
   'chai',
   'sinon',
   'views/cannot_create_account',
+  'models/auth_brokers/base',
   'models/reliers/relier'
 ],
-function (chai, sinon, View, Relier) {
+function (chai, sinon, View, Broker, Relier) {
   'use strict';
 
   var assert = chai.assert;
@@ -16,11 +17,15 @@ function (chai, sinon, View, Relier) {
   describe('views/cannot_create_account', function () {
     var view;
     var relier;
+    var broker;
 
     beforeEach(function () {
       relier = new Relier();
-
+      broker = new Broker({
+        relier: relier
+      });
       view = new View({
+        broker: broker,
         relier: relier
       });
     });
@@ -50,6 +55,28 @@ function (chai, sinon, View, Relier) {
       return view.render()
         .then(function () {
           assert.equal(view.$('.ftc').attr('target'), null);
+        });
+    });
+
+    it('has a working `Learn More` link with the default broker', function () {
+      return view.render()
+        .then(function () {
+          assert.isFalse(view.$('.show-visible-url').length > 0);
+        });
+    });
+
+    it('has a `Learn More` link converted to text with `convertExternalLinksToText` capability', function () {
+      sinon.stub(broker, 'hasCapability', function (capability) {
+        if (capability === 'convertExternalLinksToText') {
+          return true;
+        }
+
+        return false;
+      });
+
+      return view.render()
+        .then(function () {
+          assert.isTrue(view.$('.show-visible-url').length > 0);
         });
     });
   });
