@@ -91,7 +91,15 @@ define([
             // automatically redirected.
             if (! isShown) {
               viewToShow.destroy();
-              self._currentView = null;
+
+              // If viewToShow calls `navigate` in its `beforeRender` function,
+              // the new view will be created and self._currentView will
+              // reference the second view before the first view's render
+              // promise chain completes. Ensure self._currentView is the same
+              // as viewToShow before destroying the reference. Ref #3187
+              if (viewToShow === self._currentView) {
+                self._currentView = null;
+              }
 
               return p(null);
             }
