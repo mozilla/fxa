@@ -43,8 +43,8 @@ module.exports = function (grunt) {
   grunt.registerTask('l10n-generate-pages', ['l10n-create-json', 'l10n-generate-tos-pp', 'l10n-compile-templates']);
 
 
-  grunt.registerTask('l10n-compile-templates',
-    'Generate localized versions of the static pages', function () {
+  grunt.registerTask('l10n-compile-templates', 'Generate localized versions of the static pages',
+    function () {
 
       var done = this.async();
 
