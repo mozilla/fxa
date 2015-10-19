@@ -14,6 +14,8 @@ cd ../..
 
 npm i mozilla/fxa-oauth-server
 cd node_modules/fxa-oauth-server
+# issue https://github.com/mozilla/fxa-oauth-server/issues/345
+npm i fxa-jwtool@^0.7.1
 LOG_LEVEL=error NODE_ENV=dev node ./bin/server.js &
 cd ../..
 
