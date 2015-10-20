@@ -61,7 +61,7 @@ function (chai, sinon, View, Broker, Relier) {
     it('has a working `Learn More` link with the default broker', function () {
       return view.render()
         .then(function () {
-          assert.isFalse(view.$('.show-visible-url').length > 0);
+          assert.lengthOf(view.$('.show-visible-url'), 0);
         });
     });
 
@@ -76,7 +76,7 @@ function (chai, sinon, View, Broker, Relier) {
 
       return view.render()
         .then(function () {
-          assert.isTrue(view.$('.show-visible-url').length > 0);
+          assert.lengthOf(view.$('.show-visible-url'), 1);
         });
     });
   });

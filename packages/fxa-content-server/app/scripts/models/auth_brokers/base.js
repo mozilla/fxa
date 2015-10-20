@@ -263,7 +263,7 @@ define([
        */
       chooseWhatToSyncCheckbox: true,
       /**
-       * Should the broker convert links to text?
+       * Should external links be converted to text?
        */
       convertExternalLinksToText: false,
       /**
