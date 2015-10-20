@@ -3,9 +3,9 @@ CREATE TABLE devices (
   uid BINARY(16) NOT NULL,
   id BINARY(16) NOT NULL,
   sessionTokenId BINARY(32),
-  name VARCHAR(255) NOT NULL,
-  type VARCHAR(16) NOT NULL,
-  createdAt BIGINT UNSIGNED NOT NULL,
+  name VARCHAR(255),
+  type VARCHAR(16),
+  createdAt BIGINT UNSIGNED,
   callbackURL VARCHAR(255),
   PRIMARY KEY (uid, id)
 ) ENGINE=InnoDB;

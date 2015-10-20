@@ -812,7 +812,7 @@ module.exports = function(config, DB) {
         test(
           'db.accountDevices',
           function (t) {
-            t.plan(7)
+            t.plan(10)
             var deviceId = newUuid()
             var newDevice = {
               name: 'test device',
