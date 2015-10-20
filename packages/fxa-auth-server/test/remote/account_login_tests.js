@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('../ptaptest')
-var url = require('url')
 var TestServer = require('../test_server')
 var crypto = require('crypto')
 var Client = require('../client')
@@ -91,36 +90,6 @@ TestServer.start(config)
         .then(
           function (c) {
             t.equal(c.keyFetchToken, null, 'should not have keyFetchToken')
-          }
-        )
-    }
-  )
-
-  test(
-    'sync signin sends an email',
-    function (t) {
-      var email = server.uniqueEmail()
-      var password = 'abcdef'
-      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
-        .then(
-          function (c) {
-            return Client.login(config.publicUrl, email, password, { service: 'sync', reason: 'signin' })
-          }
-        )
-        .then(
-          function (c) {
-            return server.mailbox.waitForEmail(email)
-          }
-        )
-        .then(
-          function (emailData) {
-            var changeUrl = url.parse(emailData.headers['x-link'], true)
-            t.ok(
-              changeUrl.href.indexOf(
-                config.smtp.initiatePasswordChangeUrl) === 0,
-              'links to change password'
-            )
-            t.equal(changeUrl.query.email, email, 'with email querystring')
           }
         )
     }

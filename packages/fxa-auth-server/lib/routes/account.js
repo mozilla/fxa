@@ -335,18 +335,6 @@ module.exports = function (
                           userAgent: request.headers['user-agent']
                         })
                       })
-
-                    return mailer.sendNewSyncDeviceNotification(
-                      emailRecord.email,
-                      {
-                        acceptLanguage: request.app.acceptLanguage
-                      }
-                    )
-                    .then(
-                      function () {
-                        return tokens
-                      }
-                    )
                   }
 
                   return tokens
