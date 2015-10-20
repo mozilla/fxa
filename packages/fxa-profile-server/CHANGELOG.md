@@ -1,3 +1,13 @@
+<a name="0.48.0"></a>
+## 0.48.0 (2015-10-20)
+
+
+#### Bug Fixes
+
+* **avatars:** add configuration to adjust avatar upload size ([bc86f168](https://github.com/mozilla/fxa-profile-server/commit/bc86f16887d8ebc52125f4ed3a1e507e12924bac), closes [#158](https://github.com/mozilla/fxa-profile-server/issues/158))
+* **server:** prevent null exception when oauth server is down ([cf1dc35d](https://github.com/mozilla/fxa-profile-server/commit/cf1dc35dfb6e5b10e786ccbc1efede8834aac549), closes [#151](https://github.com/mozilla/fxa-profile-server/issues/151))
+
+
 <a name="0.47.0"></a>
 ## 0.47.0 (2015-10-07)
 
