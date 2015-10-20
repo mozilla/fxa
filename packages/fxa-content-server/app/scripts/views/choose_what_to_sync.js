@@ -40,7 +40,6 @@ function (Cocktail, p, Template, FormView, BackMixin, CheckboxMixin,
 
     context: function () {
       var account = this.getAccount();
-      console.log('email', account.get('email'));
 
       return {
         email: account.get('email'),
