@@ -824,7 +824,7 @@ module.exports = function(config, DB) {
                 newDevice.sessionTokenId = SESSION_TOKEN_ID
                 return db.upsertDevice(ACCOUNT.uid, deviceId, newDevice)
               })
-              .then(function(device) {
+              .then(function() {
                 return db.accountDevices(ACCOUNT.uid)
               })
               .then(function(devices) {
@@ -837,6 +837,20 @@ module.exports = function(config, DB) {
                 t.equal(device.createdAt, newDevice.createdAt, 'createdAt')
                 t.equal(device.type, newDevice.type, 'type')
                 t.ok(device.lastAccessTime > 0, 'has a lastAccessTime')
+                return db.upsertDevice(ACCOUNT.uid, deviceId, {
+                  name: 'updated name'
+                })
+              })
+              .then(function() {
+                return db.accountDevices(ACCOUNT.uid)
+              })
+              .then(function(devices) {
+                t.equal(devices.length, 1, 'devices length still 1')
+                return devices[0]
+              })
+              .then(function (device) {
+                t.equal(device.name, 'updated name', 'name updated')
+                t.equal(device.type, newDevice.type, 'type unchanged')
                 return db.deleteDevice(device.uid, device.id)
               })
               .then(function() {
