@@ -57,8 +57,8 @@ exports.create = function createServer() {
             token: token
           }
         }, function(err, resp, body) {
-          if (err) {
-            logger.error('auth', err);
+          if (err || resp.statusCode >= 500) {
+            err = err || resp.statusMessage || 'unknown';
             return reply(AppError.oauthError(err));
           }
           if (body.code >= 400) {

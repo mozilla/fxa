@@ -126,6 +126,14 @@ module.exports = function mock(options) {
         .reply(200, JSON.stringify(tok));
     },
 
+    tokenFailure: function tokenFailure() {
+      var parts = url.parse(config.get('oauth.url'));
+      return nock(parts.protocol + '//' + parts.host)
+        .post(parts.path + '/verify')
+        .reply(500);
+
+    },
+
     workerFailure: function workerFailure(action) {
       if (action !== 'post' && action !== 'delete') {
         throw new Error('failure must be post or delete');

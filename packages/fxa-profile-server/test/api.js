@@ -109,6 +109,26 @@ describe('/profile', function() {
     });
   });
 
+  it('should handle oauth server failure', function() {
+    mock.tokenFailure();
+
+    mock.log('server', function(rec) {
+      return rec.levelname === 'ERROR'
+          && rec.args[0] === 'summary'
+          && rec.args[1].path === '/v1/profile';
+    });
+
+    return Server.api.get({
+      url: '/profile',
+      headers: {
+        authorization: 'Bearer ' + tok
+      }
+    }).then(function(res) {
+      assert.equal(res.statusCode, 503);
+      assert.equal(res.result.errno, 104);
+    });
+  });
+
   it('should return an avatar if selected', function() {
     mock.token({
       user: user,
