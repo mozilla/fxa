@@ -13,7 +13,6 @@ define([
   var config = intern.config;
   var CONFIRM_URL = config.fxaContentRoot + 'confirm';
   var SIGNUP_URL = config.fxaContentRoot + 'signup';
-  var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
 
   registerSuite({
     name: 'confirm',
@@ -35,31 +34,15 @@ define([
     },
 
     'sign up, wait for confirmation screen, click resend': function () {
+      var self = this;
       var email = TestHelpers.createEmail();
       var password = '12345678';
 
       return this.remote
         .get(require.toUrl(SIGNUP_URL))
-        .findByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(password)
-        .end()
-
-        .findByCssSelector('#fxa-age-year')
-        .end()
-
-        .findByCssSelector('#fxa-' + (TOO_YOUNG_YEAR - 1))
-          .click()
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, password);
+        })
 
         // Being pushed to the confirmation screen is success.
         .findByCssSelector('.verification-email-message')

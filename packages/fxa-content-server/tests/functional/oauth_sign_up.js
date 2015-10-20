@@ -15,8 +15,6 @@ define([
 ], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, TestHelpers, Test, FunctionalHelpers) {
   var config = intern.config;
   var SIGNUP_ROOT = config.fxaContentRoot + 'oauth/signup';
-  var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
-  var OLD_ENOUGH_YEAR = TOO_YOUNG_YEAR - 1;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
 
   var PASSWORD = 'password';
@@ -75,7 +73,7 @@ define([
         .end()
 
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .findByCssSelector('#fxa-confirm-header')
@@ -114,7 +112,7 @@ define([
       return FunctionalHelpers.openFxaFromRp(self, 'signup')
 
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .findByCssSelector('#fxa-confirm-header')
@@ -146,7 +144,7 @@ define([
       return FunctionalHelpers.openFxaFromRp(self, 'signup')
 
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .findByCssSelector('#fxa-confirm-header')
@@ -168,7 +166,7 @@ define([
 
       return FunctionalHelpers.openFxaFromRp(self, 'signup')
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .findByCssSelector('#fxa-confirm-header')
@@ -188,7 +186,7 @@ define([
 
       return FunctionalHelpers.openFxaFromRp(self, 'signup')
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .findByCssSelector('#fxa-confirm-header')
@@ -234,7 +232,7 @@ define([
 
       return FunctionalHelpers.openFxaFromRp(self, 'signup')
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, bouncedEmail, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, bouncedEmail, PASSWORD);
         })
 
         .findById('fxa-confirm-header')

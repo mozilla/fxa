@@ -10,12 +10,5 @@ define([
     'tests/functional_oauth'
   ];
 
-  if (intern.fxaContentRoot.indexOf('https://') === 0) {
-    // test firefox specific flows only on HTTPS
-    // this might have to change if we test more browsers in the future
-    // NOTE: these are disabled for now, see https://github.com/mozilla/fxa-content-server/issues/1769
-    //intern.functionalSuites.push('tests/functional/firefox/functional_firefox');
-  }
-
   return intern;
 });

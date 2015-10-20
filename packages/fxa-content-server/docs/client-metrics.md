@@ -286,21 +286,6 @@ mailcheck
 * experiment.mailcheck.control.triggered.verified
 * experiment.mailcheck.control.corrected.verified
 
-coppaView
-
-* experiment.coppaView.treatment.enrolled
-* experiment.coppaView.treatment.tooyoung
-* experiment.coppaView.treatment.triggered
-* experiment.coppaView.treatment.clicked
-* experiment.coppaView.control.enrolled
-* experiment.coppaView.control.tooyoung
-* experiment.coppaView.control.triggered
-* experiment.coppaView.treatment.verified
-* experiment.coppaView.treatment.triggered.verified
-* experiment.coppaView.treatment.clicked.verified
-* experiment.coppaView.control.verified
-* experiment.coppaView.control.triggered.verified
-
 openGmail
 
 * experiment.openGmail.treatment.enrolled

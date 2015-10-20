@@ -12,15 +12,12 @@ define([
 ], function (intern, registerSuite, assert, require, TestHelpers, FunctionalHelpers) {
   var SIGN_UP_URL = intern.config.fxaContentRoot + 'signup';
   var EXP_OPEN_GMAIL_URL = intern.config.fxaContentRoot + 'signup?forceExperiment=openGmail';
-  var EXP_COPPA_URL = intern.config.fxaContentRoot + 'signup?forceExperiment=coppaView';
   var EXP_MAILCHECK_URL = intern.config.fxaContentRoot + 'signup?forceExperiment=mailcheck&automatedBrowser=true';
   var EXP_SYNCCHECKBOX_URL = intern.config.fxaContentRoot + 'signup?forceExperiment=syncCheckbox&context=fx_desktop_v1&service=sync';
   var EXP_CONTROL = '&forceExperimentGroup=control';
   var EXP_TREATMENT = '&forceExperimentGroup=treatment';
 
   var email;
-  var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
-  var OLD_ENOUGH_YEAR = TOO_YOUNG_YEAR - 1;
   var PASSWORD = '12345678';
 
   registerSuite({
@@ -43,7 +40,7 @@ define([
         .get(require.toUrl(EXP_OPEN_GMAIL_URL + EXP_TREATMENT))
 
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .findByCssSelector('#open-gmail')
@@ -73,7 +70,7 @@ define([
         .get(require.toUrl(EXP_OPEN_GMAIL_URL + EXP_CONTROL))
 
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .findByCssSelector('#resend')
@@ -83,63 +80,6 @@ define([
         .then(FunctionalHelpers.noSuchElement(self, '#open-gmail'))
         .end();
 
-    }
-  });
-
-  registerSuite({
-    name: 'verification_experiments - coppa',
-
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
-      return FunctionalHelpers.clearBrowserState(this);
-    },
-
-    afterEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
-    },
-
-    'treatment works': function () {
-      return this.remote
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .get(require.toUrl(EXP_COPPA_URL + EXP_TREATMENT))
-
-        .findByCssSelector('.email')
-          .type(email)
-        .end()
-
-        .findByCssSelector('.password')
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('#age')
-          // XXX: Bug in Selenium 2.47.1, if Firefox is out of focus it will just type '2'
-          .type('2')
-          .type('4')
-        .end()
-
-        .findByCssSelector('#submit-btn')
-          .click()
-        .end()
-
-        .findByCssSelector('#fxa-confirm-header')
-        .end();
-    },
-
-    'control works': function () {
-      return this.remote
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .get(require.toUrl(EXP_COPPA_URL + EXP_CONTROL))
-
-        .findByCssSelector('.email')
-          .type(email)
-        .end()
-
-        .findByCssSelector('.password')
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('#fxa-1991')
-        .end();
     }
   });
 

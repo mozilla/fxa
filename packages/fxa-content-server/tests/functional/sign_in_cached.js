@@ -32,7 +32,6 @@ define([
   var PAGE_SETTINGS = config.fxaContentRoot + 'settings';
 
 
-  var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
   var PASSWORD = 'password';
   var email;
   var email2;
@@ -294,32 +293,12 @@ define([
       var email = TestHelpers.createEmail();
       var self = this;
 
-      return this.remote
-        .get(require.toUrl(PAGE_SIGNUP_DESKTOP))
-        .setFindTimeout(intern.config.pageLoadTimeout)
+      return FunctionalHelpers.openPage(self, PAGE_SIGNUP_DESKTOP, '#fxa-signup-header')
         .execute(listenForFxaCommands)
 
-        .findByCssSelector('form input.email')
-        .clearValue()
-        .click()
-        .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-        .click()
-        .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('#fxa-age-year')
-        .end()
-
-        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
-        .click()
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-        .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
+        })
 
         .findById('fxa-confirm-header')
         .end()
@@ -340,31 +319,13 @@ define([
         .end();
     },
     'unverified cached signin redirects to confirm email': function () {
+      var self = this;
       var email = TestHelpers.createEmail();
 
-      return this.remote
-        .get(require.toUrl(PAGE_SIGNUP))
-        .findByCssSelector('form input.email')
-        .clearValue()
-        .click()
-        .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-        .click()
-        .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('#fxa-age-year')
-        .end()
-
-        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
-        .click()
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-        .click()
-        .end()
+      return FunctionalHelpers.openPage(self, PAGE_SIGNUP, '#fxa-signup-header')
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
+        })
 
         .findById('fxa-confirm-header')
         .end()

@@ -26,8 +26,6 @@ define([
   var SYNC_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
 
   var PASSWORD = 'password';
-  var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
-  var OLD_ENOUGH_YEAR = TOO_YOUNG_YEAR - 1;
   var email;
   var client;
   var ANIMATION_DELAY_MS = 1000;
@@ -69,7 +67,7 @@ define([
         .execute(FunctionalHelpers.listenForWebChannelMessage)
 
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .findByCssSelector('#fxa-confirm-header')
@@ -119,7 +117,7 @@ define([
       return openFxaFromRpAndRequestKeys(self, 'signup')
 
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .findByCssSelector('#fxa-confirm-header')
@@ -151,7 +149,7 @@ define([
       return openFxaFromRpAndRequestKeys(self, 'signup')
 
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .findByCssSelector('#fxa-confirm-header')
@@ -179,7 +177,7 @@ define([
         .execute(FunctionalHelpers.listenForWebChannelMessage)
 
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .findByCssSelector('#fxa-confirm-header')

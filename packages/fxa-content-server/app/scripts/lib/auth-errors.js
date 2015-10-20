@@ -151,10 +151,13 @@ function (_, Errors) {
       errno: 1011,
       message: t('Valid email required')
     },
+    /*
+    Removed in issue #3137
     YEAR_OF_BIRTH_REQUIRED: {
       errno: 1012,
       message: t('Year of birth required')
     },
+    */
     UNUSABLE_IMAGE: {
       errno: 1013,
       message: t('A usable image was not found')
@@ -167,10 +170,13 @@ function (_, Errors) {
       errno: 1015,
       message: t('Valid URL required')
     },
+    /*
+    Removed in issue #3137
     BIRTHDAY_REQUIRED: {
       errno: 1016,
       message: t('Valid birthday required')
     },
+    */
     DESKTOP_CHANNEL_TIMEOUT: {
       errno: 1017,
       message: UNEXPECTED_ERROR_MESSAGE

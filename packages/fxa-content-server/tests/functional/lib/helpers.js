@@ -412,7 +412,14 @@ define([
       .end();
   }
 
-  function fillOutSignUp(context, email, password, year, customizeSync, optInToMarketingEmail) {
+  function fillOutSignUp(context, email, password, options) {
+    options = options || {};
+
+    var customizeSync = options.customizeSync || false;
+    var optInToMarketingEmail = options.optInToMarketingEmail || false;
+    var age = options.age || 24;
+    var submit = options.submit !== false;
+
     return context.remote
       .getCurrentUrl()
       .then(function (currentUrl) {
@@ -438,12 +445,30 @@ define([
         .type(password)
       .end()
 
-      .findByCssSelector('#fxa-age-year')
-      .end()
 
-      .findById('fxa-' + year)
-        .click()
-      .end()
+      .then(function () {
+        // XXX: Bug in Selenium 2.47.1, if Firefox is out of focus it will just type 1 number,
+        // split the type commands for each character to avoid issues with the test runner
+        age = String(age || '24');
+        var index = 0;
+
+        function typeNext() {
+          if (index >= age.length) {
+            return;
+          }
+          var charToType = age.charAt(index);
+          index++;
+
+          return context.remote
+            .findByCssSelector('#age')
+              .type(charToType)
+            .end()
+
+            .then(typeNext);
+        }
+
+        return typeNext();
+      })
 
       .then(function () {
         if (customizeSync) {
@@ -463,9 +488,14 @@ define([
         }
       })
 
-      .findByCssSelector('button[type="submit"]')
-        .click()
-      .end();
+      .then(function () {
+        if (submit) {
+          return context.remote
+            .findByCssSelector('button[type="submit"]')
+              .click()
+            .end();
+        }
+      });
   }
 
   function fillOutResetPassword(context, email) {

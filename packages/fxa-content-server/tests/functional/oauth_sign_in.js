@@ -18,8 +18,6 @@ define([
   var SIGNIN_ROOT = config.fxaContentRoot + 'oauth/signin';
 
   var PASSWORD = 'password';
-  var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
-  var OLD_ENOUGH_YEAR = TOO_YOUNG_YEAR - 1;
   var user;
   var email;
 
@@ -201,7 +199,7 @@ define([
 
         // first, sign the user up to cache the login
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR );
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .findByCssSelector('#fxa-confirm-header')
@@ -360,7 +358,7 @@ define([
         .end()
 
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .findByCssSelector('#fxa-confirm-header')

@@ -13,8 +13,6 @@ define([
   'tests/functional/lib/test'
 ], function (intern, registerSuite, assert, require, TestHelpers, waitForBasket, FunctionalHelpers, Test) {
   var PAGE_URL = intern.config.fxaContentRoot + 'signup';
-  var CUTOFF_YEAR = new Date().getFullYear() - 13;
-  var OLD_ENOUGH_YEAR = CUTOFF_YEAR - 1;
   var fxaProduction = intern.config.fxaProduction;
 
   var email;
@@ -76,7 +74,7 @@ define([
       var self = this;
       return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
         .then(function () {
-          return fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR, false, true);
+          return fillOutSignUp(self, email, PASSWORD, { optInToMarketingEmail: true });
         })
 
         .findByCssSelector('#fxa-confirm-header')
@@ -108,7 +106,7 @@ define([
       email = TestHelpers.createEmail('signup{id}+extra');
       return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
         .then(function () {
-          return fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR, false, true);
+          return fillOutSignUp(self, email, PASSWORD, { optInToMarketingEmail: true });
         })
 
         .findByCssSelector('#fxa-confirm-header')
@@ -173,7 +171,7 @@ define([
       var self = this;
       return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
         .then(function () {
-          return fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR, false, false);
+          return fillOutSignUp(self, email, PASSWORD, { optInToMarketingEmail: false });
         })
 
         .findByCssSelector('#fxa-confirm-header')

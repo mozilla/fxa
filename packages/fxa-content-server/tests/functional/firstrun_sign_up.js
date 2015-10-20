@@ -15,9 +15,6 @@ define([
 
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
 
-  var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
-  var OLD_ENOUGH_YEAR = TOO_YOUNG_YEAR - 1;
-
   var email;
   var PASSWORD = '12345678';
 
@@ -58,7 +55,7 @@ define([
 
 
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
@@ -107,7 +104,7 @@ define([
 
 
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))

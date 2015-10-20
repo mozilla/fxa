@@ -8,7 +8,7 @@ define([
   'sinon',
   'lib/promise',
   'views/sign_up',
-  'views/coppa/coppa-date-picker',
+  'views/coppa/coppa-age-input',
   'lib/session',
   'lib/auth-errors',
   'lib/experiment',
@@ -25,7 +25,7 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, ExperimentInterface, Metrics,
+function (chai, $, sinon, p, View, CoppaAgeInput, Session, AuthErrors, ExperimentInterface, Metrics,
       FxaClient, EphemeralMessages, Able, Relier, Broker, User, FormPrefill,
       Notifications, RouterMock, WindowMock, TestHelpers) {
   'use strict';
@@ -98,7 +98,7 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Experim
         fxaClient: fxaClient
       });
       formPrefill = new FormPrefill();
-      coppa = new CoppaDatePicker();
+      coppa = new CoppaAgeInput();
       able = new Able();
       notifications = new Notifications();
 
@@ -184,41 +184,13 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Experim
             });
       });
 
-      it('choose input COPPA based on an experiment treatment group', function () {
-        sinon.stub(view, 'isInExperiment', function () {
-          return true;
-        });
-
-        sinon.stub(view, 'isInExperimentGroup', function () {
-          return true;
-        });
-
+      it('uses input COPPA', function () {
         view._coppa = null;
         return view.render()
           .then(function () {
             $('#container').html(view.el);
           }).then(function () {
             assert.ok(view.$el.find('#age').length);
-            assert.notOk(view.$el.find('#fxa-age-year').length);
-          });
-      });
-
-      it('choose input COPPA based on an experiment control group', function () {
-        sinon.stub(view, 'isInExperiment', function () {
-          return true;
-        });
-
-        sinon.stub(view, 'isInExperimentGroup', function () {
-          return false;
-        });
-
-        view._coppa = null;
-        return view.render()
-          .then(function () {
-            $('#container').html(view.el);
-          }).then(function () {
-            assert.notOk(view.$el.find('#age').length);
-            assert.ok(view.$el.find('#fxa-age-year').length);
           });
       });
 

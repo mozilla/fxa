@@ -9,9 +9,6 @@ define([
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
 ], function (registerSuite, assert, require, TestHelpers, FunctionalHelpers) {
-  var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
-  var OLD_ENOUGH_YEAR = TOO_YOUNG_YEAR - 1;
-
   var PASSWORD = 'password';
   var email;
 
@@ -39,7 +36,7 @@ define([
           return self.remote.get(require.toUrl(url + '&verification_redirect=always'));
         })
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .findByCssSelector('#fxa-confirm-header')
@@ -67,7 +64,7 @@ define([
           return self.remote.get(require.toUrl(url + '&verification_redirect=always'));
         })
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .findByCssSelector('#fxa-confirm-header')
@@ -98,7 +95,7 @@ define([
           return self.remote.get(require.toUrl(url + '&verification_redirect=always'));
         })
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .findByCssSelector('#fxa-confirm-header')
@@ -133,7 +130,7 @@ define([
           return self.remote.get(require.toUrl(url + '&verification_redirect=always'));
         })
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .findByCssSelector('#fxa-confirm-header')

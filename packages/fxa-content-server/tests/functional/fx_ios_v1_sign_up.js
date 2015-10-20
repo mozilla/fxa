@@ -16,9 +16,6 @@ define([
 
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
 
-  var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
-  var OLD_ENOUGH_YEAR = TOO_YOUNG_YEAR - 1;
-
   var email;
   var PASSWORD = '12345678';
 
@@ -55,7 +52,7 @@ define([
         .then(FunctionalHelpers.noSuchElement(self, '#customize-sync'))
 
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
         .findByCssSelector('#fxa-confirm-header')
