@@ -1,3 +1,18 @@
+<a name"0.48.0"></a>
+## 0.48.0 (2015-10-20)
+
+
+#### Bug Fixes
+
+* **config:** remove 00000... from hashedSecrets ([8dcfd560](https://github.com/mozilla/fxa-oauth-server/commit/8dcfd560), closes [#339](https://github.com/mozilla/fxa-oauth-server/issues/339))
+* **dependencies:** move fxa-jwtool from dev-dependencies to dependencies ([79b0427a](https://github.com/mozilla/fxa-oauth-server/commit/79b0427a), closes [#345](https://github.com/mozilla/fxa-oauth-server/issues/345))
+
+
+#### Features
+
+* **tokens:** allow using JWT grants from Service Clients ([0a0e3034](https://github.com/mozilla/fxa-oauth-server/commit/0a0e3034), closes [#328](https://github.com/mozilla/fxa-oauth-server/issues/328))
+
+
 <a name="0.47.0"></a>
 ## 0.47.0 (2015-10-07)
 
