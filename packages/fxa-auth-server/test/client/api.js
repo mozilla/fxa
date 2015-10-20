@@ -61,11 +61,20 @@ ClientApi.prototype.doRequest = function (method, url, token, payload, headers) 
 
     this.emit('endRequest', options, err, res)
     if (err || body.error || res.statusCode !== 200) {
-      d.reject(err || body)
+      return d.reject(err || body)
     }
-    else {
-      d.resolve(body)
+
+    var allowedOrigin = res.headers['access-control-allow-origin']
+    if (allowedOrigin) {
+      // Requiring config outside this condition causes the local tests to fail
+      // because tokenLifetimes.passwordChangeToken is -1
+      var config = require('../../config')
+      if (allowedOrigin !== config.get('corsOrigin')) {
+        return d.reject(new Error('Unexpected allowed origin: ' + allowedOrigin))
+      }
     }
+
+    d.resolve(body)
   }.bind(this))
   return d.promise
 }
