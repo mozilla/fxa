@@ -37,12 +37,15 @@ module.exports = function mock(options) {
     return scope;
   }
 
-  function worker() {
+  function worker(bytes) {
+    if (bytes == null) {
+      throw new Error('Content-Length argument required');
+    }
     var parts = url.parse(config.get('worker.url'));
     var path = '';
     var headers = {
       'content-type': 'image/png',
-      'content-length': 12696
+      'content-length': bytes
     };
     return nock(parts.protocol + '//' + parts.host, {
       reqheaders: headers
@@ -134,14 +137,17 @@ module.exports = function mock(options) {
 
     },
 
-    workerFailure: function workerFailure(action) {
+    workerFailure: function workerFailure(action, bytes) {
       if (action !== 'post' && action !== 'delete') {
         throw new Error('failure must be post or delete');
+      }
+      if (bytes == null) {
+        throw new Error('Content-Length argument required');
       }
       var parts = url.parse(config.get('worker.url'));
       var headers = action === 'post' ? {
         'content-type': 'image/png',
-        'content-length': 12696
+        'content-length': bytes
       } : {};
       return nock(parts.protocol + '//' + parts.host, {
         reqheaders: headers
@@ -152,8 +158,8 @@ module.exports = function mock(options) {
 
     },
 
-    image: function image() {
-      worker();
+    image: function image(bytes) {
+      worker(bytes);
       if (IS_AWS) {
         uploadAws();
       }

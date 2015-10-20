@@ -68,6 +68,10 @@ const conf = convict({
           doc: 'Path or bucket name for images to be served publicly.',
           default: 'BUCKET_NAME'
         }
+      },
+      maxSize: {
+        doc: 'Maximum bytes allow for uploads',
+        default: 1024 * 1024 * 1 // 1MB
       }
     },
     compute: {

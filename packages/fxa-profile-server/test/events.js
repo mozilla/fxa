@@ -57,7 +57,7 @@ describe('events', function() {
           email: 'user@example.domain',
           scope: ['profile:avatar:write']
         });
-        mock.image();
+        mock.image(imageData.length);
         return Server.api.post({
           url: '/avatar/upload',
           payload: imageData,
@@ -93,7 +93,7 @@ describe('events', function() {
       });
 
       it('should not delete message on error', function(done) {
-        mock.workerFailure('delete');
+        mock.workerFailure('delete', 0);
         events.onData(new Message(function() {
           assert(false, 'message.del() should not be called');
         }));

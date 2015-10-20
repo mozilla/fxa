@@ -35,7 +35,8 @@ module.exports = {
   payload: {
     output: 'stream',
     parse: false,
-    allow: ['image/png', 'image/jpeg']
+    allow: ['image/png', 'image/jpeg'],
+    maxBytes: config.get('img.uploads.maxSize')
   },
   response: {
     schema: {
