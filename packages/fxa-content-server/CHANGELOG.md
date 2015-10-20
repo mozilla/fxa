@@ -1,3 +1,44 @@
+<a name="0.48.0"></a>
+# 0.48.0 (2015-10-20)
+
+
+### Bug Fixes
+
+* **build:** Fix the eslint indendation errors. ([8f2bd3c](https://github.com/mozilla/fxa-content-server/commit/8f2bd3c)), closes [#3189](https://github.com/mozilla/fxa-content-server/issues/3189)
+* **build:** extend r.js timeout for building production ([346fa46](https://github.com/mozilla/fxa-content-server/commit/346fa46)), closes [#3166](https://github.com/mozilla/fxa-content-server/issues/3166)
+* **client:** Ensure `/signin` is visible when users sign out after verification ([dc67988](https://github.com/mozilla/fxa-content-server/commit/dc67988)), closes [#3187](https://github.com/mozilla/fxa-content-server/issues/3187)
+* **client:** Log the correct screen name for the settings panels. ([ee07505](https://github.com/mozilla/fxa-content-server/commit/ee07505)), closes [#3029](https://github.com/mozilla/fxa-content-server/issues/3029)
+* **client:** Only allow one profile request per account per tab session. ([c7067cd](https://github.com/mozilla/fxa-content-server/commit/c7067cd))
+* **client:** Suppress spurious `login` messages to the browser. ([23fbe8b](https://github.com/mozilla/fxa-content-server/commit/23fbe8b)), closes [#3078](https://github.com/mozilla/fxa-content-server/issues/3078)
+* **coppa:** move to age input coppa ([2341e83](https://github.com/mozilla/fxa-content-server/commit/2341e83)), closes [#3137](https://github.com/mozilla/fxa-content-server/issues/3137)
+* **experiments:** bump to train 48 experiments ([97b30f2](https://github.com/mozilla/fxa-content-server/commit/97b30f2))
+* **links:** align secondary links ([10309fb](https://github.com/mozilla/fxa-content-server/commit/10309fb))
+* **messages:** misaligned success and error messages ([00ccec5](https://github.com/mozilla/fxa-content-server/commit/00ccec5))
+* **metrics:** Fix the refresh metrics when refreshing a settings subpanel. ([d4a5307](https://github.com/mozilla/fxa-content-server/commit/d4a5307)), closes [#3172](https://github.com/mozilla/fxa-content-server/issues/3172)
+* **settings:** add floating labels to delete account and display name ([6f3e650](https://github.com/mozilla/fxa-content-server/commit/6f3e650)), closes [#2848](https://github.com/mozilla/fxa-content-server/issues/2848)
+* **settings:** make header bottom margin uniform ([ed6981c](https://github.com/mozilla/fxa-content-server/commit/ed6981c))
+* **settings:** remove underline on links ([ee7235e](https://github.com/mozilla/fxa-content-server/commit/ee7235e))
+* **signup:** tooltips no longer removed when pressing an arrow key ([80ae84b](https://github.com/mozilla/fxa-content-server/commit/80ae84b)), closes [#1858](https://github.com/mozilla/fxa-content-server/issues/1858)
+* **tests:** Fix functional tests when run against a remote server. ([21b19b7](https://github.com/mozilla/fxa-content-server/commit/21b19b7)), closes [#3174](https://github.com/mozilla/fxa-content-server/issues/3174) [#3182](https://github.com/mozilla/fxa-content-server/issues/3182)
+* **tests:** Fix the communication preferences tests. ([9b6762c](https://github.com/mozilla/fxa-content-server/commit/9b6762c)), closes [#3176](https://github.com/mozilla/fxa-content-server/issues/3176)
+* **tests:** Force installation of fxa-jwtool for the oauth server ([9a99eea](https://github.com/mozilla/fxa-content-server/commit/9a99eea))
+
+### Features
+
+* **coppa:** better support for COPPA warning on FxiOS ([abbb302](https://github.com/mozilla/fxa-content-server/commit/abbb302)), closes [#3164](https://github.com/mozilla/fxa-content-server/issues/3164)
+* **ios:** hide "Choose what to sync" for fx_ios_v1 ([5c6bf2a](https://github.com/mozilla/fxa-content-server/commit/5c6bf2a)), closes [#3141](https://github.com/mozilla/fxa-content-server/issues/3141)
+
+### Refactor
+
+* **basket:** extricate basket proxy server into its own repo. ([0882f5f](https://github.com/mozilla/fxa-content-server/commit/0882f5f))
+* **client:** Extract router.onAnchorWatch into a new view, AppView. ([292d725](https://github.com/mozilla/fxa-content-server/commit/292d725))
+* **client:** Simplify the floating placeholder mixin logic. ([d0f3aca](https://github.com/mozilla/fxa-content-server/commit/d0f3aca))
+* **client:** move router.showView logic to the AppView. ([d00708d](https://github.com/mozilla/fxa-content-server/commit/d00708d))
+* **test:** Allow `fillOutSignUp` to accept an optional age. ([2646dd4](https://github.com/mozilla/fxa-content-server/commit/2646dd4))
+* **tests:** Reduce boilerplate in the settings functional tests. ([607f672](https://github.com/mozilla/fxa-content-server/commit/607f672))
+
+
+
 <a name="0.47.1"></a>
 ## 0.47.1 (2015-10-07)
 
