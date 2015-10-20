@@ -18,7 +18,8 @@ define([
 
   var FxiOSAuthenticationBroker = FxDesktopV1AuthenticationBroker.extend({
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
-      chooseWhatToSyncCheckbox: false
+      chooseWhatToSyncCheckbox: false,
+      convertExternalLinksToText: true
     }),
     fetch: function () {
       var self = this;

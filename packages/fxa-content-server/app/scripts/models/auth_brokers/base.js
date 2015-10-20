@@ -263,6 +263,10 @@ define([
        */
       chooseWhatToSyncCheckbox: true,
       /**
+       * Should external links be converted to text?
+       */
+      convertExternalLinksToText: false,
+      /**
        * should the *_complete pages show the marketing snippet?
        */
       emailVerificationMarketingSnippet: true,
