@@ -271,6 +271,23 @@ module.exports = function (log, error) {
     )
   }
 
+  var UPSERT_DEVICE = 'CALL upsertDevice_1(?, ?, ?, ?, ?, ?, ?)'
+
+  MySql.prototype.upsertDevice = function (uid, deviceId, deviceInfo) {
+    return this.write(
+      UPSERT_DEVICE,
+      [
+        uid,
+        deviceId,
+        deviceInfo.sessionTokenId,
+        deviceInfo.name,
+        deviceInfo.type,
+        deviceInfo.createdAt,
+        deviceInfo.callbackURL
+      ]
+    )
+  }
+
   // READ
 
   // Select : accounts
@@ -301,10 +318,12 @@ module.exports = function (log, error) {
     })
   }
 
-  // Select : sessionTokens
-  // Fields : tokenId
-  // Where  : uid = $1
-  var ACCOUNT_DEVICES = 'CALL accountDevices_1(?)'
+  // Select : devices d, sessionTokens s
+  // Fields : d.uid, d.id, d.sessionTokenId, d.name, d.type, d.createdAt, d.callbackURL,
+  //          s.uaBrowser, s.uaBrowserVersion, s.uaOS, s.uaOSVersion,
+  //          s.uaDeviceType, s.lastAccessTime
+  // Where  : d.uid = $1
+  var ACCOUNT_DEVICES = 'CALL accountDevices_2(?)'
 
   MySql.prototype.accountDevices = function (uid) {
     return this.readOneFromFirstResult(ACCOUNT_DEVICES, [uid])
@@ -428,7 +447,7 @@ module.exports = function (log, error) {
 
   // Delete : sessionTokens, keyFetchTokens, accountResetTokens, passwordChangeTokens, passwordForgotTokens, accountUnlockCodes, accounts
   // Where  : uid = $1
-  var DELETE_ACCOUNT = 'CALL deleteAccount_5(?)'
+  var DELETE_ACCOUNT = 'CALL deleteAccount_6(?)'
 
   MySql.prototype.deleteAccount = function (uid) {
     return this.write(DELETE_ACCOUNT, [uid])
@@ -472,6 +491,12 @@ module.exports = function (log, error) {
 
   MySql.prototype.deletePasswordChangeToken = function (tokenId) {
     return this.write(DELETE_PASSWORD_CHANGE_TOKEN, [tokenId])
+  }
+
+  var DELETE_DEVICE = 'CALL deleteDevice_1(?, ?)'
+
+  MySql.prototype.deleteDevice = function (uid, deviceId) {
+    return this.write(DELETE_DEVICE, [uid, deviceId])
   }
 
   // BATCH

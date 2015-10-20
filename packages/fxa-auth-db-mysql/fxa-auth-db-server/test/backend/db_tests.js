@@ -812,43 +812,54 @@ module.exports = function(config, DB) {
         test(
           'db.accountDevices',
           function (t) {
-            t.plan(3)
-            var anotherSessionTokenId = hex32()
-            var anotherSessionToken = {
-              data : hex32(),
-              uid : ACCOUNT.uid,
-              createdAt: Date.now()
+            t.plan(10)
+            var deviceId = newUuid()
+            var newDevice = {
+              name: 'test device',
+              createdAt: Date.now(),
+              type: 'mobile'
             }
             db.createSessionToken(SESSION_TOKEN_ID, SESSION_TOKEN)
               .then(function(sessionToken) {
-                return db.createSessionToken(anotherSessionTokenId, anotherSessionToken)
+                newDevice.sessionTokenId = SESSION_TOKEN_ID
+                return db.upsertDevice(ACCOUNT.uid, deviceId, newDevice)
               })
               .then(function() {
                 return db.accountDevices(ACCOUNT.uid)
               })
               .then(function(devices) {
-                t.equal(devices.length, 2, 'Account devices should be two')
+                t.equal(devices.length, 1, 'devices length 1')
                 return devices[0]
               })
-              .then(function(sessionToken) {
-                return db.deleteSessionToken(SESSION_TOKEN_ID)
+              .then(function(device) {
+                t.equal(device.name, newDevice.name, 'name')
+                t.deepEqual(device.id, deviceId, 'id')
+                t.equal(device.createdAt, newDevice.createdAt, 'createdAt')
+                t.equal(device.type, newDevice.type, 'type')
+                t.ok(device.lastAccessTime > 0, 'has a lastAccessTime')
+                return db.upsertDevice(ACCOUNT.uid, deviceId, {
+                  name: 'updated name'
+                })
               })
-              .then(function(sessionToken) {
+              .then(function() {
                 return db.accountDevices(ACCOUNT.uid)
               })
               .then(function(devices) {
-                t.equal(devices.length, 1, 'Account devices should be one')
+                t.equal(devices.length, 1, 'devices length still 1')
                 return devices[0]
               })
-              .then(function(sessionToken) {
-                return db.deleteSessionToken(anotherSessionTokenId)
+              .then(function (device) {
+                t.equal(device.name, 'updated name', 'name updated')
+                t.equal(device.type, newDevice.type, 'type unchanged')
+                return db.deleteDevice(device.uid, device.id)
               })
-              .then(function(sessionToken) {
+              .then(function() {
                 return db.accountDevices(ACCOUNT.uid)
               })
               .then(function(devices) {
                 t.equal(devices.length, 0, 'Account devices should be zero')
-              })
+              }
+            )
           }
         )
 

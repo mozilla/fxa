@@ -13,27 +13,29 @@ function createServer(db) {
     return function (req, res, next) {
       fn.call(db, req.params.id, req.body)
         .then(
-          function (result) {
-            api.emit(
-              'success',
-              {
-                code: 200,
-                route: req.route.name,
-                method: req.method,
-                path: req.url,
-                t: Date.now() - req.time()
-              }
-            )
-            if (Array.isArray(result)) {
-              res.send(result.map(bufferize.unbuffer))
-            }
-            else {
-              res.send(bufferize.unbuffer(result || {}))
-            }
-          },
+          handleSuccess.bind(null, req, res),
           handleError.bind(null, req, res)
         )
         .done(next, next)
+    }
+  }
+
+  function handleSuccess(req, res, result) {
+    api.emit(
+      'success',
+      {
+        code: 200,
+        route: req.route.name,
+        method: req.method,
+        path: req.url,
+        t: Date.now() - req.time()
+      }
+    )
+    if (Array.isArray(result)) {
+      res.send(result.map(bufferize.unbuffer))
+    }
+    else {
+      res.send(bufferize.unbuffer(result || {}))
     }
   }
 
@@ -116,6 +118,29 @@ function createServer(db) {
   api.get('/openIdRecord/:id', reply(db.openIdRecord))
 
   api.get('/__heartbeat__', reply(db.ping))
+
+  api.put(
+    '/account/:id/device/:deviceId',
+    function (req, res, next) {
+      db.upsertDevice(req.params.uid, req.params.deviceId, req.body)
+        .then(
+          handleSuccess.bind(null, req, res),
+          handleError.bind(null, req, res)
+        )
+        .done(next, next)
+    }
+  )
+  api.del(
+    '/account/:uid/device/:deviceId',
+    function (req, res, next) {
+      db.deleteDevice(req.params.uid, req.params.deviceId)
+        .then(
+          handleSuccess.bind(null, req, res),
+          handleError.bind(null, req, res)
+        )
+        .done(next, next)
+    }
+  )
 
   api.get(
     '/',

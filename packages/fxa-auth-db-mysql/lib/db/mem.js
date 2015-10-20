@@ -86,9 +86,6 @@ module.exports = function (log, error) {
       lastAccessTime: sessionToken.createdAt
     }
 
-    var account = accounts[sessionToken.uid.toString('hex')]
-    account.devices[tokenId] = sessionToken
-
     return P.resolve({})
   }
 
@@ -171,6 +168,30 @@ module.exports = function (log, error) {
     return P.resolve({})
   }
 
+  Memory.prototype.upsertDevice = function (uid, deviceId, deviceInfo) {
+    deviceInfo.uid = uid
+    deviceInfo.id = deviceId
+    return getAccountByUid(uid)
+      .then(
+        function (account) {
+          var deviceKey = deviceInfo.id.toString('hex')
+          var sessionKey = (deviceInfo.sessionTokenId || '').toString('hex')
+          var device = extend(account.devices[deviceKey] || {}, deviceInfo)
+          var session = sessionTokens[sessionKey]
+          if (session) {
+            device.uaBrowser = session.uaBrowser
+            device.uaBrowserVersion = session.uaBrowserVersion
+            device.uaOS = session.uaOS
+            device.uaOSVersion = session.uaOSVersion
+            device.uaDeviceType = session.uaDeviceType
+            device.lastAccessTime = session.lastAccessTime
+          }
+          account.devices[deviceKey] = device
+          return device
+        }
+      )
+  }
+
   // DELETE
 
   // The lazy way
@@ -196,11 +217,8 @@ module.exports = function (log, error) {
       return P.resolve({})
     }
 
-    var sessionToken = sessionTokens[tokenId]
     delete sessionTokens[tokenId]
 
-    var account = accounts[sessionToken.uid.toString('hex')]
-    delete account.devices[tokenId]
     return P.resolve({})
   }
 
@@ -222,6 +240,20 @@ module.exports = function (log, error) {
   Memory.prototype.deletePasswordChangeToken = function (tokenId) {
     delete passwordChangeTokens[tokenId.toString('hex')]
     return P.resolve({})
+  }
+
+  Memory.prototype.deleteDevice = function (uid, deviceId) {
+    var deviceKey = deviceId.toString('hex')
+    return getAccountByUid(uid)
+      .then(
+        function (account) {
+          var device = account.devices[deviceKey] || {}
+          var sessionKey = (device.sessionTokenId || '').toString('hex')
+          delete sessionTokens[sessionKey]
+          delete account.devices[deviceKey]
+          return {}
+        }
+      )
   }
 
   // READ
@@ -251,14 +283,29 @@ module.exports = function (log, error) {
 
   Memory.prototype.accountDevices = function (uid) {
     return getAccountByUid(uid)
-      .then(function(account) {
-        var devices = Object.keys(account.devices).map(
-          function (id) {
-            return account.devices[id]
-          }
-        )
-        return P.resolve(devices)
-      })
+      .then(
+        function(account) {
+          return Object.keys(account.devices).map(
+            function (id) {
+              var device = account.devices[id]
+              var sessionKey = (device.sessionTokenId || '').toString('hex')
+              var session = sessionTokens[sessionKey]
+              if (session) {
+                device.uaBrowser = session.uaBrowser
+                device.uaBrowserVersion = session.uaBrowserVersion
+                device.uaOS = session.uaOS
+                device.uaOSVersion = session.uaOSVersion
+                device.uaDeviceType = session.uaDeviceType
+                device.lastAccessTime = session.lastAccessTime
+              }
+              return device
+            }
+          )
+        },
+        function (err) {
+          return []
+        }
+      )
   }
 
   // account():
