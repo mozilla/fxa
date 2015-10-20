@@ -150,3 +150,17 @@ sudo apt-get install oracle-java7-installer
 ```
 
 *******
+
+### Firefox for iOS
+
+You can test sync locally in Firefox iOS using the XCode simulator.
+[Follow the steps at github.com/mozilla/firefox-ios and setup *firefox-ios* ](https://github.com/mozilla/firefox-ios) build locally.
+Currently there is no way to dynamically switch servers in Firefox for iOS, to use **local** servers you need to run the script below:
+
+```
+FIREFOX_IOS_HOME=<path_to_firefox_ios_project> npm run config-fxios
+```
+
+After the script you need to rebuild *firefox-ios*.
+
+*******
