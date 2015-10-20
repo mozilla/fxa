@@ -228,28 +228,7 @@ define([
     },
 
     'coppa does not allow sign up if younger than 13 years old': function () {
-      return this.remote
-        .get(require.toUrl(PAGE_URL))
-        .findByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('#age')
-        // XXX: Bug in Selenium 2.47.1, if Firefox is out of focus it will just type 1 number,
-        // split the type commands for each character to avoid issues with the test runner
-        .type('1')
-        .type('2')
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+      return FunctionalHelpers.fillOutSignUp(this, email, PASSWORD, { age: 12 })
 
         // Success is being redirected to the cannot create screen.
         .findById('fxa-cannot-create-account-header')
@@ -357,26 +336,11 @@ define([
   function testRepopulateFields(dest, header) {
     var self = this;
 
-    return self.remote
-      .get(require.toUrl(PAGE_URL))
-      .findByCssSelector('input[type=email]')
-        .clearValue()
-        .click()
-        .type(email)
-      .end()
+    return FunctionalHelpers.openPage(self, PAGE_URL, '#fxa-signup-header')
 
-      .findByCssSelector('input[type=password]')
-        .clearValue()
-        .click()
-        .type(PASSWORD)
-      .end()
-
-      .findByCssSelector('#age')
-      // XXX: Bug in Selenium 2.47.1, if Firefox is out of focus it will just type 1 number,
-      // split the type commands for each character to avoid issues with the test runner
-      .type('2')
-      .type('4')
-      .end()
+      .then(function () {
+        return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, { submit: false });
+      })
 
       .findByCssSelector('a[href="' + dest + '"]')
         .click()

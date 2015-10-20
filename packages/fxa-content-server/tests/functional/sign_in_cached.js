@@ -293,9 +293,7 @@ define([
       var email = TestHelpers.createEmail();
       var self = this;
 
-      return this.remote
-        .get(require.toUrl(PAGE_SIGNUP_DESKTOP))
-        .setFindTimeout(intern.config.pageLoadTimeout)
+      return FunctionalHelpers.openPage(self, PAGE_SIGNUP_DESKTOP, '#fxa-signup-header')
         .execute(listenForFxaCommands)
 
         .then(function () {
@@ -324,8 +322,7 @@ define([
       var self = this;
       var email = TestHelpers.createEmail();
 
-      return this.remote
-        .get(require.toUrl(PAGE_SIGNUP))
+      return FunctionalHelpers.openPage(self, PAGE_SIGNUP, '#fxa-signup-header')
         .then(function () {
           return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })

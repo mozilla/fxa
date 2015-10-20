@@ -6,10 +6,9 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
   var OAUTH_APP = config.fxaOauthApp;
 
@@ -36,12 +35,7 @@ define([
       var SIGNUP_URL = OAUTH_APP + 'api/preverified-signup?' +
                         'email=' + encodeURIComponent(email);
 
-      return self.remote
-        .get(require.toUrl(SIGNUP_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-
-        .findByCssSelector('#fxa-signup-header')
-        .end()
+      return FunctionalHelpers.openPage(self, SIGNUP_URL, '#fxa-signup-header')
 
         .findByCssSelector('form input.password')
           .click()
@@ -49,10 +43,10 @@ define([
         .end()
 
         .findByCssSelector('#age')
-        // XXX: Bug in Selenium 2.47.1, if Firefox is out of focus it will just type 1 number,
-        // split the type commands for each character to avoid issues with the test runner
-        .type('2')
-        .type('4')
+          // XXX: Bug in Selenium 2.47.1, if Firefox is out of focus it will just type 1 number,
+          // split the type commands for each character to avoid issues with the test runner
+          .type('2')
+          .type('4')
         .end()
 
         .findByCssSelector('button[type="submit"]')

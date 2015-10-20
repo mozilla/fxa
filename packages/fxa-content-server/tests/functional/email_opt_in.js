@@ -74,7 +74,7 @@ define([
       var self = this;
       return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
         .then(function () {
-          return fillOutSignUp(self, email, PASSWORD, false, true);
+          return fillOutSignUp(self, email, PASSWORD, { optInToMarketingEmail: true });
         })
 
         .findByCssSelector('#fxa-confirm-header')
@@ -106,7 +106,7 @@ define([
       email = TestHelpers.createEmail('signup{id}+extra');
       return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
         .then(function () {
-          return fillOutSignUp(self, email, PASSWORD, false, true);
+          return fillOutSignUp(self, email, PASSWORD, { optInToMarketingEmail: true });
         })
 
         .findByCssSelector('#fxa-confirm-header')
@@ -171,7 +171,7 @@ define([
       var self = this;
       return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
         .then(function () {
-          return fillOutSignUp(self, email, PASSWORD, false, false);
+          return fillOutSignUp(self, email, PASSWORD, { optInToMarketingEmail: false });
         })
 
         .findByCssSelector('#fxa-confirm-header')

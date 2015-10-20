@@ -285,7 +285,7 @@ define([
 
         .then(function () {
           return FunctionalHelpers.fillOutSignUp(
-              self, email, PASSWORD, true);
+              self, email, PASSWORD, { customizeSync: true });
         })
 
         .then(function () {
