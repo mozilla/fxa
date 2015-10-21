@@ -11,6 +11,7 @@ addons:
 env:
   global:
     - DISABLE_ROUTE_LOGGING=true
+    - DISABLE_CLIENT_METRICS_STDERR=true
 
 sudo: false
 

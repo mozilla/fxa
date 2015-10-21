@@ -48,6 +48,13 @@ var conf = module.exports = convict({
     default: path.resolve(__dirname, '..', '..', 'cert.pem'),
     doc: 'The location of the SSL certificate in pem format'
   },
+  client_metrics: {
+    stderr_collector_disabled: {
+      default: false,
+      doc: 'disable client metrics output to stderr',
+      env: 'DISABLE_CLIENT_METRICS_STDERR'
+    }
+  },
   client_sessions: {
     cookie_name: 'session',
     duration: {
