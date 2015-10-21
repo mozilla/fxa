@@ -15,6 +15,7 @@ define([
   './functional/firstrun_sign_in',
   './functional/fx_ios_v1_sign_in',
   './functional/fx_ios_v1_sign_up',
+  './functional/fx_ios_v2_sign_up',
   './functional/fx_fennec_v1_sign_in',
   './functional/fx_fennec_v1_force_auth',
   './functional/fx_fennec_v1_sign_up',

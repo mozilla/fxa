@@ -21,6 +21,7 @@ define([
   'models/auth_brokers/fx-desktop-v2',
   'models/auth_brokers/fx-fennec-v1',
   'models/auth_brokers/fx-ios-v1',
+  'models/auth_brokers/fx-ios-v2',
   'models/auth_brokers/iframe',
   'models/auth_brokers/redirect',
   'models/auth_brokers/web-channel',
@@ -41,7 +42,7 @@ define([
 function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
   Url, OAuthErrors, AuthErrors, Storage, BaseBroker, FirstrunBroker,
   FxDesktopV1Broker, FxDesktopV2Broker, FxFennecV1Broker, FxiOSV1Broker,
-  IframeBroker, RedirectBroker, WebChannelBroker, Notifications,
+  FxiOSV2Broker, IframeBroker, RedirectBroker, WebChannelBroker, Notifications,
   RefreshObserver, BaseRelier, SyncRelier, OAuthRelier, Relier, User,
   Metrics, StorageMetrics, WindowMock, RouterMock, HistoryMock, TestHelpers) {
   'use strict';
@@ -239,6 +240,16 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
           });
 
           return testExpectedBrokerCreated(FxiOSV1Broker);
+        });
+      });
+
+      describe('fx-ios-v2', function () {
+        it('returns an FxiOSV2 broker if `context=fx_ios_v2`', function () {
+          windowMock.location.search = Url.objToSearchString({
+            context: Constants.FX_IOS_V2_CONTEXT
+          });
+
+          return testExpectedBrokerCreated(FxiOSV2Broker);
         });
       });
 

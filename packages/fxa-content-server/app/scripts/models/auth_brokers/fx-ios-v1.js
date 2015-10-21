@@ -4,7 +4,7 @@
 
 /**
  * The auth broker to coordinate authenticating for Sync when
- * embedded in the Firefox firstrun flow.
+ * embedded in the Firefox for iOS 1.0 ... < 2.0.
  */
 
 define([
@@ -16,7 +16,7 @@ define([
 
   var proto = FxDesktopV1AuthenticationBroker.prototype;
 
-  var FxiOSAuthenticationBroker = FxDesktopV1AuthenticationBroker.extend({
+  var FxiOSV1AuthenticationBroker = FxDesktopV1AuthenticationBroker.extend({
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
       chooseWhatToSyncCheckbox: false,
       convertExternalLinksToText: true
@@ -35,5 +35,5 @@ define([
     }
   });
 
-  return FxiOSAuthenticationBroker;
+  return FxiOSV1AuthenticationBroker;
 });
