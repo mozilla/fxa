@@ -38,7 +38,7 @@ try {
 console.error('Generating keypair')
 
 cp.exec(
-  'openssl genrsa 2048 | ../node_modules/pem-jwk/bin/pem-jwk.js',
+  'openssl genrsa 2048 | ../node_modules/fxa-jwtool/node_modules/pem-jwk/bin/pem-jwk.js',
   {
     cwd: __dirname
   },
