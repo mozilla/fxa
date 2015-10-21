@@ -185,7 +185,7 @@
     },
     "fxa-auth-mailer": {
       "version": "1.0.8",
-      "from": "git+https://github.com/mozilla/fxa-auth-mailer.git#master",
+      "from": "git+https://github.com/mozilla/fxa-auth-mailer.git#83984f6789b8e998a1fea2a3907fa8ab40a9a2bd",
       "resolved": "git+https://github.com/mozilla/fxa-auth-mailer.git#83984f6789b8e998a1fea2a3907fa8ab40a9a2bd",
       "dependencies": {
         "bluebird": {
@@ -298,12 +298,12 @@
         },
         "fxa-content-server-l10n": {
           "version": "0.0.0",
-          "from": "git://github.com/mozilla/fxa-content-server-l10n.git",
-          "resolved": "git://github.com/mozilla/fxa-content-server-l10n.git#7a4405ce26c2c958630ff5dafa13cc4acc2f0746"
+          "from": "git://github.com/mozilla/fxa-content-server-l10n.git#c0ef71f6f00bacb9cf4c8bee5387a5a356b39c19",
+          "resolved": "git://github.com/mozilla/fxa-content-server-l10n.git#c0ef71f6f00bacb9cf4c8bee5387a5a356b39c19"
         },
         "grunt-nunjucks-2-html": {
           "version": "0.3.4",
-          "from": "vitkarpov/grunt-nunjucks-2-html#1900f91a756b2eaf900b20",
+          "from": "git://github.com/vitkarpov/grunt-nunjucks-2-html.git#1900f91a756b2eaf900b20ca7a28b10267ca55ba",
           "resolved": "git://github.com/vitkarpov/grunt-nunjucks-2-html.git#1900f91a756b2eaf900b20ca7a28b10267ca55ba",
           "dependencies": {
             "async": {
@@ -1701,9 +1701,9 @@
                           "resolved": "https://registry.npmjs.org/async/-/async-0.2.10.tgz"
                         },
                         "source-map": {
-                          "version": "0.5.1",
+                          "version": "0.5.2",
                           "from": "source-map@>=0.5.1 <0.6.0",
-                          "resolved": "https://registry.npmjs.org/source-map/-/source-map-0.5.1.tgz"
+                          "resolved": "https://registry.npmjs.org/source-map/-/source-map-0.5.2.tgz"
                         },
                         "uglify-to-browserify": {
                           "version": "1.0.2",
@@ -2300,6 +2300,11 @@
                   "resolved": "https://registry.npmjs.org/extsprintf/-/extsprintf-1.2.0.tgz"
                 }
               }
+            },
+            "dtrace-provider": {
+              "version": "0.2.8",
+              "from": "dtrace-provider@>=0.2.8 <0.3.0",
+              "resolved": "https://registry.npmjs.org/dtrace-provider/-/dtrace-provider-0.2.8.tgz"
             }
           }
         }
@@ -2329,6 +2334,35 @@
                   "version": "0.4.13",
                   "from": "iconv-lite@>=0.4.4 <0.5.0",
                   "resolved": "https://registry.npmjs.org/iconv-lite/-/iconv-lite-0.4.13.tgz"
+                }
+              }
+            }
+          }
+        },
+        "pem-jwk": {
+          "version": "1.5.1",
+          "from": "pem-jwk@1.5.1",
+          "resolved": "https://registry.npmjs.org/pem-jwk/-/pem-jwk-1.5.1.tgz",
+          "dependencies": {
+            "asn1.js": {
+              "version": "1.0.3",
+              "from": "asn1.js@1.0.3",
+              "resolved": "https://registry.npmjs.org/asn1.js/-/asn1.js-1.0.3.tgz",
+              "dependencies": {
+                "inherits": {
+                  "version": "2.0.1",
+                  "from": "inherits@>=2.0.1 <3.0.0",
+                  "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.1.tgz"
+                },
+                "minimalistic-assert": {
+                  "version": "1.0.0",
+                  "from": "minimalistic-assert@>=1.0.0 <2.0.0",
+                  "resolved": "https://registry.npmjs.org/minimalistic-assert/-/minimalistic-assert-1.0.0.tgz"
+                },
+                "bn.js": {
+                  "version": "1.3.0",
+                  "from": "bn.js@>=1.0.0 <2.0.0",
+                  "resolved": "https://registry.npmjs.org/bn.js/-/bn.js-1.3.0.tgz"
                 }
               }
             }
