@@ -17,7 +17,7 @@ function (Cocktail, FormView, Template, p,
   var View = FormView.extend({
     template: Template,
     className: 'gravatar-permissions',
-    screenName: 'settings.gravatar-permissions',
+    viewName: 'settings.gravatar-permissions',
 
     context: function () {
       var account = this.getSignedInAccount();
@@ -31,7 +31,7 @@ function (Cocktail, FormView, Template, p,
     beforeRender: function () {
       var account = this.getSignedInAccount();
       if (account.hasGrantedPermissions(View.GRAVATAR_MOCK_CLIENT_ID, View.PERMISSIONS)) {
-        this.logScreenEvent('already-accepted');
+        this.logViewEvent('already-accepted');
         this.navigate('settings/avatar/gravatar');
         return false;
       }
@@ -40,7 +40,7 @@ function (Cocktail, FormView, Template, p,
     submit: function () {
       var self = this;
       var account = self.getSignedInAccount();
-      self.logScreenEvent('accept');
+      self.logViewEvent('accept');
 
       return p().then(function () {
         account.saveGrantedPermissions(View.GRAVATAR_MOCK_CLIENT_ID, View.PERMISSIONS);

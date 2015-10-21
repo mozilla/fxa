@@ -37,7 +37,7 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
     var fxaClient;
     var metrics;
     var router;
-    var screenName = 'screen';
+    var viewName = 'view';
     var translator;
     var user;
     var view;
@@ -71,9 +71,9 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
         fxaClient: fxaClient,
         metrics: metrics,
         router: router,
-        screenName: screenName,
         translator: translator,
         user: user,
+        viewName: viewName,
         window: windowMock
       });
 
@@ -386,7 +386,7 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
       });
 
       it('adds an entry into the event stream', function () {
-        var err = AuthErrors.toError('INVALID_TOKEN', screenName);
+        var err = AuthErrors.toError('INVALID_TOKEN', viewName);
         view.displayError(err);
 
         assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
@@ -425,7 +425,7 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
       });
 
       it('adds an entry into the event stream', function () {
-        var err = AuthErrors.toError('INVALID_TOKEN', screenName);
+        var err = AuthErrors.toError('INVALID_TOKEN', viewName);
 
         view.displayError(err);
 
@@ -463,7 +463,7 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
       });
 
       it('logs an error if an error is passed in the options', function () {
-        var err = AuthErrors.toError('SESSION_EXPIRED', screenName);
+        var err = AuthErrors.toError('SESSION_EXPIRED', viewName);
         view.navigate('signin', {
           error: err
         });
@@ -589,19 +589,19 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
       });
     });
 
-    describe('logScreenEvent', function () {
+    describe('logViewEvent', function () {
       beforeEach(function () {
-        view.logScreenEvent('event1');
+        view.logViewEvent('event1');
       });
 
-      it('logs an event with the screen name as a prefix to the event stream', function () {
-        assert.isTrue(TestHelpers.isEventLogged(metrics, 'screen.event1'));
+      it('logs an event with the view name as a prefix to the event stream', function () {
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'view.event1'));
       });
     });
 
     describe('logError', function () {
       it('logs an error to the event stream', function () {
-        var err = AuthErrors.toError('INVALID_TOKEN', screenName);
+        var err = AuthErrors.toError('INVALID_TOKEN', viewName);
 
         view.logError(err);
         assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
@@ -622,7 +622,7 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
         view.metrics.events.clear();
         view.logError();
 
-        var err = AuthErrors.toError('UNEXPECTED_ERROR', screenName);
+        var err = AuthErrors.toError('UNEXPECTED_ERROR', viewName);
         assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
       });
 
@@ -630,7 +630,7 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
         view.metrics.events.clear();
         view.logError('foo');
         var err = new Error('foo');
-        err.context = view.getScreenName();
+        err.context = view.getViewName();
 
         assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
       });
@@ -702,40 +702,40 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
       });
     });
 
-    describe('getScreenName', function () {
-      describe('with a `screenName` on the view prototype', function () {
+    describe('getViewName', function () {
+      describe('with a `viewName` on the view prototype', function () {
         var view;
 
         before(function () {
-          var ScreenNameView = View.extend({
-            screenName: 'set on the prototype'
+          var ViewNameView = View.extend({
+            viewName: 'set on the prototype'
           });
 
-          view = new ScreenNameView({
-            screenName: 'set on creation'
+          view = new ViewNameView({
+            viewName: 'set on creation'
           });
         });
 
-        it('returns the `screenName` from the prototype', function () {
-          assert.equal(view.getScreenName(), 'set on the prototype');
+        it('returns the `viewName` from the prototype', function () {
+          assert.equal(view.getViewName(), 'set on the prototype');
         });
       });
 
-      describe('without a `screenName` on the view prototype', function () {
+      describe('without a `viewName` on the view prototype', function () {
         var view;
 
         before(function () {
-          var ScreenNameView = View.extend({
-            screenName: undefined
+          var ViewNameView = View.extend({
+            viewName: undefined
           });
 
-          view = new ScreenNameView({
-            screenName: 'set on creation'
+          view = new ViewNameView({
+            viewName: 'set on creation'
           });
         });
 
-        it('returns `screenName` passed in on creation', function () {
-          assert.equal(view.getScreenName(), 'set on creation');
+        it('returns `viewName` passed in on creation', function () {
+          assert.equal(view.getViewName(), 'set on creation');
         });
       });
     });

@@ -72,8 +72,8 @@ function (chai, $, sinon, p, View, CoppaAgeInput, Session, AuthErrors, Experimen
         notifications: notifications,
         relier: relier,
         router: router,
-        screenName: 'signup',
-        user: user
+        user: user,
+        viewName: 'signup'
       };
 
       if (options.window) {

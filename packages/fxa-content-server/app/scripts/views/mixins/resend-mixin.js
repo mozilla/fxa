@@ -46,7 +46,7 @@ define([
     _onMaxTriesReached: function () {
       var self = this;
       // Hide the button after too many attempts. Redisplay button after a delay.
-      self.logScreenEvent('too_many_attempts');
+      self.logViewEvent('too_many_attempts');
       self.$('#resend').hide();
       self.setTimeout(function () {
         self._emailResend.reset();

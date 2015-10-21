@@ -53,7 +53,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
 
     getPrefillEmail: function () {
       // formPrefill.email comes first because users can edit the email,
-      // go to another screen, edit the email again, and come back here. We
+      // go to another view, edit the email again, and come back here. We
       // want the last used email.
       return this._formPrefill.get('email') || this.relier.get('email');
     },
@@ -160,7 +160,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
       if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT') && ! this.isSignupDisabled()) {
         return self._suggestSignUp(err);
       } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
-        self.logScreenEvent('canceled');
+        self.logViewEvent('canceled');
         // if user canceled login, just stop
         return;
       } else if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
@@ -172,7 +172,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
 
     onSignInSuccess: function (account) {
       var self = this;
-      self.logScreenEvent('success');
+      self.logViewEvent('success');
       return self.invokeBrokerMethod('afterSignIn', account)
         .then(function () {
           self.navigate(self._redirectTo || 'settings');
@@ -221,7 +221,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
       this.user.removeAllAccounts();
       Session.clear();
       this._formPrefill.clear();
-      this.logScreenEvent('use-different-account');
+      this.logViewEvent('use-different-account');
 
       return this.render();
     }),
@@ -259,14 +259,14 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
     _suggestedAccountAskPassword: function (account) {
       // If there's no email, obviously we'll have to ask for the password.
       if (! account.get('email')) {
-        this.logScreenEvent('ask-password.shown.account-unknown');
+        this.logViewEvent('ask-password.shown.account-unknown');
         return true;
       }
 
       // If the relier wants keys, then the user must authenticate and the password must be requested.
       // This includes sync, which must skip the login chooser at all cost
       if (this.relier.wantsKeys()) {
-        this.logScreenEvent('ask-password.shown.keys-required');
+        this.logViewEvent('ask-password.shown.keys-required');
         return true;
       }
 
@@ -274,26 +274,26 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
       // Otherwise they aren't able to "fully" log out. Only Sync has a clear path to disconnect/log out
       // your account that invalidates your sessionToken.
       if (! this.user.isSyncAccount(account)) {
-        this.logScreenEvent('ask-password.shown.session-from-web');
+        this.logViewEvent('ask-password.shown.session-from-web');
         return true;
       }
 
       // Ask when 'chooserAskForPassword' is explicitly set.
       // This happens in response to an expired session token.
       if (this.chooserAskForPassword === true) {
-        this.logScreenEvent('ask-password.shown.session-expired');
+        this.logViewEvent('ask-password.shown.session-expired');
         return true;
       }
 
       // Ask when a prefill email does not match the account email.
       var prefillEmail = this.getPrefillEmail();
       if (prefillEmail && prefillEmail !== account.get('email')) {
-        this.logScreenEvent('ask-password.shown.email-mismatch');
+        this.logViewEvent('ask-password.shown.email-mismatch');
         return true;
       }
 
       // If none of that is true, it's safe to proceed without asking for the password.
-      this.logScreenEvent('ask-password.skipped');
+      this.logViewEvent('ask-password.skipped');
       return false;
     }
   });

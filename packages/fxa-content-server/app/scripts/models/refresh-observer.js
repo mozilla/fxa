@@ -16,8 +16,8 @@ define([
 ], function (Backbone, Storage) {
   'use strict';
 
-  function isRefresh (refreshMetrics, screenName) {
-    return refreshMetrics && refreshMetrics.view === screenName;
+  function isRefresh (refreshMetrics, viewName) {
+    return refreshMetrics && refreshMetrics.view === viewName;
   }
 
   return Backbone.Model.extend({
@@ -35,29 +35,29 @@ define([
     },
 
     _onShowView: function (View, viewOptions) {
-      this.logIfRefresh(viewOptions.screenName);
+      this.logIfRefresh(viewOptions.viewName);
     },
 
     _onShowChildView: function (ChildView, ParentView, viewOptions) {
-      this.logIfRefresh(viewOptions.screenName);
+      this.logIfRefresh(viewOptions.viewName);
     },
 
     /**
-     * Log a `<screen_name>.refresh` event if `screenName` matches the
-     * previous screen name. This works across page reloads.
+     * Log a `<view_name>.refresh` event if `viewName` matches the
+     * previous view's name. Works across page reloads.
      *
-     * @param {string} screenName
+     * @param {string} viewName
      */
-    logIfRefresh: function (screenName) {
+    logIfRefresh: function (viewName) {
       var refreshMetrics = this._storage.get('last_page_loaded');
 
-      if (isRefresh(refreshMetrics, screenName)) {
-        this._metrics.logScreenEvent(screenName, 'refresh');
+      if (isRefresh(refreshMetrics, viewName)) {
+        this._metrics.logViewEvent(viewName, 'refresh');
       }
 
       refreshMetrics = {
         timestamp: Date.now(),
-        view: screenName
+        view: viewName
       };
 
       this._storage.set('last_page_loaded', refreshMetrics);

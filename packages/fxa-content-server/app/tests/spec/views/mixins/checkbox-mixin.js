@@ -28,7 +28,7 @@ define([
 
     beforeEach(function () {
       view = new View({
-        screenName: 'checkbox-view'
+        viewName: 'checkbox-view'
       });
 
       return view.render()
@@ -42,27 +42,27 @@ define([
     });
 
     it('logs when a checkbox is toggled on', function () {
-      sinon.spy(view, 'logScreenEvent');
+      sinon.spy(view, 'logViewEvent');
 
       view.$('#show-password').click();
 
-      assert.isTrue(view.logScreenEvent.calledWith('checkbox.change.show-password.checked'));
+      assert.isTrue(view.logViewEvent.calledWith('checkbox.change.show-password.checked'));
     });
 
     it('logs when a checkbox is toggled off', function () {
-      sinon.spy(view, 'logScreenEvent');
+      sinon.spy(view, 'logViewEvent');
 
       view.$('#show-password').attr('checked', 'checked').click();
 
-      assert.isTrue(view.logScreenEvent.calledWith('checkbox.change.show-password.unchecked'));
+      assert.isTrue(view.logViewEvent.calledWith('checkbox.change.show-password.unchecked'));
     });
 
     it('works if the element has a `name` but no `id`', function () {
-      sinon.spy(view, 'logScreenEvent');
+      sinon.spy(view, 'logViewEvent');
       view.$('input[name="named-checkbox"]').click().click();
 
-      assert.isTrue(view.logScreenEvent.calledWith('checkbox.change.named-checkbox.checked'));
-      assert.isTrue(view.logScreenEvent.calledWith('checkbox.change.named-checkbox.unchecked'));
+      assert.isTrue(view.logViewEvent.calledWith('checkbox.change.named-checkbox.checked'));
+      assert.isTrue(view.logViewEvent.calledWith('checkbox.change.named-checkbox.unchecked'));
     });
   });
 });

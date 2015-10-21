@@ -122,7 +122,7 @@ function (Cocktail, BaseView, FormView, Template, FloatingPlaceholderMixin,
         .then(function (updatedAccount) {
           self.interTabSend('login', updatedAccount.toJSON());
           // See the above note about notifying the original tab.
-          self.logScreenEvent('verification.success');
+          self.logViewEvent('verification.success');
           return self.invokeBrokerMethod(
                     'afterCompleteResetPassword', updatedAccount);
         })
@@ -141,7 +141,7 @@ function (Cocktail, BaseView, FormView, Template, FloatingPlaceholderMixin,
           if (AuthErrors.is(err, 'INVALID_TOKEN')) {
             self.logError(err);
             // The token has expired since the first check, re-render to
-            // show a screen that allows the user to receive a new link.
+            // show a view that allows the user to receive a new link.
             return self.render();
           }
 
@@ -160,7 +160,7 @@ function (Cocktail, BaseView, FormView, Template, FloatingPlaceholderMixin,
 
     resendResetEmail: function () {
       var self = this;
-      self.logScreenEvent('resend');
+      self.logViewEvent('resend');
       var email = self._verificationInfo.get('email');
       return self.fxaClient.passwordReset(
         email,

@@ -86,9 +86,9 @@ function (chai, $, sinon, p, View, Metrics, FxaClient, EphemeralMessages,
         metrics: metrics,
         relier: relier,
         router: routerMock,
-        screenName: 'permissions',
         type: type,
         user: user,
+        viewName: 'permissions',
         window: windowMock
       });
 

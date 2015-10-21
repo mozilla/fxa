@@ -85,7 +85,7 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
         })
         .then(function (updatedSessionData) {
           self.getAccount().set(updatedSessionData);
-          self.logScreenEvent('verification.success');
+          self.logViewEvent('verification.success');
 
           // the continuation path depends on the action that triggered
           // the account lockout notice. The only time the broker should
@@ -156,13 +156,13 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
     submit: function () {
       var self = this;
 
-      self.logScreenEvent('resend');
+      self.logViewEvent('resend');
       var email = self.getAccount().get('email');
       return self.fxaClient.sendAccountUnlockEmail(email, self.relier, {
         resume: self.getStringifiedResumeToken()
       })
       .then(function () {
-        self.logScreenEvent('resend.success');
+        self.logViewEvent('resend.success');
         self.displaySuccess();
       });
     }

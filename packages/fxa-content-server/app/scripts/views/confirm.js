@@ -104,7 +104,7 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
         .then(function () {
           return self._waitForConfirmation()
             .then(function () {
-              self.logScreenEvent('verification.success');
+              self.logViewEvent('verification.success');
               self.notify('verification.success');
               return self.invokeBrokerMethod(
                         'afterSignUpConfirmationPoll', self.getAccount());
@@ -157,7 +157,7 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
     submit: function () {
       var self = this;
 
-      self.logScreenEvent('resend');
+      self.logViewEvent('resend');
       return self.fxaClient.signUpResend(
         self.relier,
         self.getAccount().get('sessionToken'),

@@ -13,7 +13,7 @@ function (chai, sinon, NavigateBehavior) {
   var assert = chai.assert;
 
   describe('views/behaviors/navigate', function () {
-    it('navigates to the indicated screen, passing in success/error options', function () {
+    it('navigates to the indicated view, passing in success/error options', function () {
       var options = {
         error: 'error',
         success: 'success'

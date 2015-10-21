@@ -110,7 +110,7 @@ function (Cocktail, p, Template, FormView, BackMixin, CheckboxMixin,
 
       if (_.isArray(declinedEngines)) {
         declinedEngines.forEach(function (engine) {
-          self.logScreenEvent('engine-unchecked.' + engine);
+          self.logViewEvent('engine-unchecked.' + engine);
         });
       }
     }

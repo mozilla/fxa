@@ -218,9 +218,9 @@ function (
         profileClient: this.profileClient,
         relier: this.relier,
         router: this,
-        screenName: this.fragmentToScreenName(Backbone.history.fragment),
         sentryMetrics: this.sentryMetrics,
         user: this.user,
+        viewName: this.fragmentToViewName(Backbone.history.fragment),
         window: this.window
       }, options || {});
 
@@ -252,7 +252,7 @@ function (
       return Backbone.history.fragment;
     },
 
-    fragmentToScreenName: function (fragment) {
+    fragmentToViewName: function (fragment) {
       fragment = fragment || '';
       // strip leading /
       return fragment.replace(/^\//, '')

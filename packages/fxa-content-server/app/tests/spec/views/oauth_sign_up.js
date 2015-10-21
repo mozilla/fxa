@@ -123,8 +123,8 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
         oAuthClient: oAuthClient,
         relier: relier,
         router: router,
-        screenName: 'oauth.signup',
         user: user,
+        viewName: 'oauth.signup',
         window: windowMock
       });
 

@@ -37,7 +37,7 @@ define([
       var self = this;
       var account = self._lockedAccount;
       var email = account.get('email');
-      self.logScreenEvent('unlock-email.send');
+      self.logViewEvent('unlock-email.send');
       return self.fxaClient.sendAccountUnlockEmail(
         email,
         self.relier,
@@ -46,11 +46,11 @@ define([
         }
       )
       .then(function () {
-        self.logScreenEvent('unlock-email.send.success');
+        self.logViewEvent('unlock-email.send.success');
         self.navigate('confirm_account_unlock', {
           data: {
             account: account,
-            lockoutSource: self.getScreenName()
+            lockoutSource: self.getViewName()
           }
         });
       }, function (err) {

@@ -110,8 +110,8 @@ define([
     return isEventLogged(metrics, eventName);
   }
 
-  function isScreenLogged(metrics, screenName) {
-    var eventName = metrics.screenToId(screenName);
+  function isViewLogged(metrics, viewName) {
+    var eventName = metrics.viewToId(viewName);
     return isEventLogged(metrics, eventName);
   }
 
@@ -144,7 +144,7 @@ define([
     indexOfEvent: indexOfEvent,
     isErrorLogged: isErrorLogged,
     isEventLogged: isEventLogged,
-    isScreenLogged: isScreenLogged,
+    isViewLogged: isViewLogged,
     removeFxaClientSpy: removeFxaClientSpy,
     requiresFocus: requiresFocus,
     stubbedProfileClient: stubbedProfileClient,

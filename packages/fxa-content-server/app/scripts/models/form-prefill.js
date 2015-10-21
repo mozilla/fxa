@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // A model to hold form pre-fill values. If a user enters an
-// email address and password in the sign in screen, then goes to the
-// sign up screen, the values they entered in on the sign in screen
+// email address and password in the sign in view, then goes to the
+// sign up view, the values they entered in on the sign in view
 // should automatically be filled in.
 //
 // These values are not persisted across browser sessions.

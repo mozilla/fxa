@@ -58,11 +58,11 @@ define([
           if (profileImage.isDefault()) {
             self.$(wrapperClass).addClass('with-default');
             self.$(wrapperClass).html('<span></span>');
-            self.logScreenEvent('profile_image_not_shown');
+            self.logViewEvent('profile_image_not_shown');
           } else {
             self.$(wrapperClass).removeClass('with-default');
             self.$(wrapperClass).html(profileImage.get('img'));
-            self.logScreenEvent('profile_image_shown');
+            self.logViewEvent('profile_image_shown');
           }
         });
     },
@@ -87,9 +87,9 @@ define([
     logAccountImageChange: function (account) {
       // if the user already has an image set, then report a change event
       if (account.get('hadProfileImageSetBefore')) {
-        this.logScreenEvent('submit.change');
+        this.logViewEvent('submit.change');
       } else {
-        this.logScreenEvent('submit.new');
+        this.logViewEvent('submit.new');
       }
     },
 

@@ -37,7 +37,7 @@ function (FormView, CompleteAccountUnlockTemplate, AuthErrors,
 
       return this.fxaClient.completeAccountUnlock(uid, code)
         .then(function () {
-          self.logScreenEvent('verification.success');
+          self.logViewEvent('verification.success');
           self.navigate('account_unlock_complete');
           return false;
         })

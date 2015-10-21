@@ -379,7 +379,7 @@ define([
         .then(function () {
           // sign the user in, keeping the current sessionTokenContext. This
           // prevents sync users from seeing the `sign out` button on the
-          // settings screen.
+          // settings view.
           return fxaClient.signIn(
             email,
             newPassword,

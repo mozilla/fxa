@@ -102,7 +102,7 @@ define([
     },
 
     /**
-     * Called after the first screen is rendered. Can be used
+     * Called after the first view is rendered. Can be used
      * to notify the RP the system is loaded.
      */
     afterLoaded: function () {
@@ -147,7 +147,7 @@ define([
 
     /**
      * Called after the user has signed up but before the screen has
-     * transitioned to the "confirm your email" screen.
+     * transitioned to the "confirm your email" view.
      *
      * @return {promise}
      */

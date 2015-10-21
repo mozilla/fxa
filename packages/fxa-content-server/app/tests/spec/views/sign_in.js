@@ -89,8 +89,8 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
         metrics: metrics,
         relier: relier,
         router: routerMock,
-        screenName: 'signin',
         user: user,
+        viewName: 'signin',
         window: windowMock
       });
     }

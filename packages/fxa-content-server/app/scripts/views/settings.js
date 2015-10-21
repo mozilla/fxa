@@ -52,7 +52,7 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
     template: Template,
     className: 'settings',
     layoutClassName: 'settings',
-    screenName: 'settings',
+    viewName: 'settings',
 
     initialize: function (options) {
       options = options || {};
@@ -79,7 +79,7 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
         });
       }
 
-      this.logScreenEvent('communication-prefs-link.visible.' +
+      this.logViewEvent('communication-prefs-link.visible.' +
           String(areCommunicationPrefsVisible));
 
       return new SubPanels({
@@ -120,7 +120,7 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
         $.modal.close();
       }
       this.showEphemeralMessages();
-      this.logScreen();
+      this.logView();
       this._swapDisplayName();
     },
 
@@ -196,16 +196,16 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
       var self = this;
       var sessionToken = self.getSignedInAccount().get('sessionToken');
 
-      self.logScreenEvent('signout.submit');
+      self.logViewEvent('signout.submit');
       return self.fxaClient.signOut(sessionToken)
         .fail(function () {
           // ignore the error.
           // Clear the session, even on failure. Everything is A-OK.
           // See issue #616
-          self.logScreenEvent('signout.error');
+          self.logViewEvent('signout.error');
         })
         .fin(function () {
-          self.logScreenEvent('signout.success');
+          self.logViewEvent('signout.success');
           self.user.clearSignedInAccount();
           // The user has manually signed out, a pretty strong indicator
           // the user does not want any of their information pre-filled

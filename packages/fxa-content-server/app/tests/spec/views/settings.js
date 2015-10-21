@@ -74,9 +74,9 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
         panelViews: panelViews,
         relier: relier,
         router: routerMock,
-        screenName: 'settings',
         subPanels: subPanels,
-        user: user
+        user: user,
+        viewName: 'settings'
       });
     }
 
@@ -212,14 +212,14 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
 
       it('on navigate from childView', function () {
         sinon.spy(view, 'showEphemeralMessages');
-        sinon.spy(view, 'logScreen');
+        sinon.spy(view, 'logView');
         sinon.stub($.modal, 'isActive', function () {
           return true;
         });
         sinon.stub($.modal, 'close', function () { });
         notifications.trigger('navigate-from-child-view');
         assert.isTrue(view.showEphemeralMessages.called);
-        assert.isTrue(view.logScreen.called);
+        assert.isTrue(view.logView.called);
         assert.isTrue($.modal.isActive.called);
         assert.isTrue($.modal.close.called);
         $.modal.isActive.restore();

@@ -75,8 +75,8 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
         metrics: metrics,
         relier: relier,
         router: routerMock,
-        screenName: 'confirm',
         user: user,
+        viewName: 'confirm',
         window: windowMock
       });
 

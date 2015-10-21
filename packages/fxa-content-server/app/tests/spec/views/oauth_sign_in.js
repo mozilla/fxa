@@ -87,8 +87,8 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
         profileClient: profileClientMock,
         relier: relier,
         router: router,
-        screenName: 'oauth.signin',
         user: user,
+        viewName: 'oauth.signin',
         window: windowMock
       });
     }

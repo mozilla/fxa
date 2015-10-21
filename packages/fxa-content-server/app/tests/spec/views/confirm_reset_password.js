@@ -87,9 +87,9 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
         metrics: metrics,
         relier: relier,
         router: routerMock,
-        screenName: 'confirm_reset_password',
         user: user,
         verificationPollMS: VERIFICATION_POLL_TIMEOUT_MS,
+        viewName: 'confirm_reset_password',
         window: windowMock
       });
     }

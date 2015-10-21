@@ -170,26 +170,26 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView,
       });
     });
 
-    describe('pathToScreenName', function () {
+    describe('pathToViewName', function () {
       it('strips leading /', function () {
-        assert.equal(router.fragmentToScreenName('/signin'), 'signin');
+        assert.equal(router.fragmentToViewName('/signin'), 'signin');
       });
 
       it('strips trailing /', function () {
-        assert.equal(router.fragmentToScreenName('signup/'), 'signup');
+        assert.equal(router.fragmentToViewName('signup/'), 'signup');
       });
 
       it('converts middle / to .', function () {
-        assert.equal(router.fragmentToScreenName('/legal/tos/'), 'legal.tos');
+        assert.equal(router.fragmentToViewName('/legal/tos/'), 'legal.tos');
       });
 
       it('converts _ to -', function () {
-        assert.equal(router.fragmentToScreenName('complete_sign_up'),
+        assert.equal(router.fragmentToViewName('complete_sign_up'),
             'complete-sign-up');
       });
 
       it('strips search parameters', function () {
-        assert.equal(router.fragmentToScreenName('complete_sign_up?email=testuser@testuser.com'),
+        assert.equal(router.fragmentToViewName('complete_sign_up?email=testuser@testuser.com'),
             'complete-sign-up');
       });
 

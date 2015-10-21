@@ -545,20 +545,20 @@ function (chai, $, p, Metrics, AuthErrors, Environment, sinon, _, WindowMock, Te
       });
     });
 
-    describe('logScreen', function () {
+    describe('logView', function () {
       it('logs the screen', function () {
-        metrics.logScreen('signup');
-        assert.isTrue(TestHelpers.isScreenLogged(metrics, 'signup'));
+        metrics.logView('signup');
+        assert.isTrue(TestHelpers.isViewLogged(metrics, 'signup'));
       });
     });
 
-    describe('logScreenEvent', function () {
+    describe('logViewEvent', function () {
       beforeEach(function () {
-        metrics.logScreenEvent('screen', 'event1');
+        metrics.logViewEvent('view-name', 'event1');
       });
 
-      it('logs an event with the screen name as a prefix to the event stream', function () {
-        assert.isTrue(TestHelpers.isEventLogged(metrics, 'screen.event1'));
+      it('logs an event with the view name as a prefix to the event stream', function () {
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'view-name.event1'));
       });
     });
 

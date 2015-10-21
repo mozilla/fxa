@@ -73,8 +73,8 @@ function (chai, $, sinon, p, View, Metrics, FxaClient, EphemeralMessages,
         fxaClient: fxaClient,
         metrics: metrics,
         router: routerMock,
-        screenName: 'choose-what-to-sync',
         user: user,
+        viewName: 'choose-what-to-sync',
         window: windowMock
       });
 

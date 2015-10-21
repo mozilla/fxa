@@ -330,32 +330,39 @@ define([
     },
 
     /**
-     * Log a screen
+     * Log a view
+     *
+     * @param {string} viewName
      */
-    logScreen: function (screenName) {
-      this.logEvent(this.screenToId(screenName));
+    logView: function (viewName) {
+      this.logEvent(this.viewToId(viewName));
     },
 
     /**
-     * Log an event with the screen name as a prefix
+     * Log an event with the view name as a prefix
      *
-     * @param {string} screenName
+     * @param {string} viewName
      * @param {string} eventName
      */
-    logScreenEvent: function (screenName, eventName) {
-      var event = Strings.interpolate('%(screenName)s.%(eventName)s', {
+    logViewEvent: function (viewName, eventName) {
+      var event = Strings.interpolate('%(viewName)s.%(eventName)s', {
         eventName: eventName,
-        screenName: screenName,
+        viewName: viewName,
       });
 
       this.logEvent(event);
     },
 
     /**
-     * Convert a screenName an identifier
+     * Convert a viewName to an identifier used in metrics.
+     *
+     * @param {string} viewName
+     * @return {string} identifier
      */
-    screenToId: function (screenName) {
-      return 'screen.' + screenName;
+    viewToId: function (viewName) {
+      // `screen.` is a legacy artifact from when each View was a screen.
+      // The idenifier is kept to avoid updating all metrics queries.
+      return 'screen.' + viewName;
     },
 
     /**

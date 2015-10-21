@@ -33,7 +33,7 @@ define([
       windowMock = new WindowMock();
 
       void new View({
-        screenName: 'loading-view',
+        viewName: 'loading-view',
         window: windowMock
       });
     });

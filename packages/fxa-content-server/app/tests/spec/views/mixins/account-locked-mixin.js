@@ -53,7 +53,7 @@ define([
         metrics: metrics,
         relier: relier,
         router: routerMock,
-        screenName: 'delete-account'  // just an example name
+        viewName: 'delete-account'  // just an example name
       });
       return view.render();
     });

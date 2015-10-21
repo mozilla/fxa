@@ -37,7 +37,7 @@ function (chai, sinon, $, WindowMock, TestHelpers, p, Metrics,
       view = new View({
         broker: broker,
         metrics: metrics,
-        screenName: 'signup',
+        viewName: 'signup',
         window: windowMock
       });
     });
@@ -79,7 +79,7 @@ function (chai, sinon, $, WindowMock, TestHelpers, p, Metrics,
         return view.close()
           .then(function () {
             assert.isTrue(TestHelpers.isErrorLogged(
-                  metrics, OAuthErrors.toError('USER_CANCELED_OAUTH_LOGIN', view.getScreenName())));
+                  metrics, OAuthErrors.toError('USER_CANCELED_OAUTH_LOGIN', view.getViewName())));
           });
       });
 
