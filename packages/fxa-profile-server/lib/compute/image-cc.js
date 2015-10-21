@@ -22,8 +22,8 @@ function processImage(src, width, height) {
     //
     // The '>' modifier does this.
     // See more: http://www.graphicsmagick.org/GraphicsMagick.html
-    gm(src)
-      .resize(width, height, '>')
+    limit(gm(src)
+      .resize(width, height, '>'))
       .noProfile()
       .toBuffer('png', function(err, buf) {
         if (err) {
@@ -33,6 +33,17 @@ function processImage(src, width, height) {
         }
       });
   });
+}
+
+function limit(gm) {
+  var limits = config.get('img.gm.limits');
+  var props = Object.keys(limits);
+  logger.verbose('gm.limit', limits);
+  for (var i = 0, len = props.length; i < len; i++) {
+    var prop = props[i];
+    gm = gm.limit(prop, limits[prop]);
+  }
+  return gm;
 }
 
 function compute(msg, callback) {
