@@ -18,7 +18,7 @@ module.exports = require('rc')(
       syncUrl: 'https://www.mozilla.org/en-US/firefox/sync/',
       androidUrl: 'https://www.mozilla.org/en-US/firefox/android/',
       iosUrl: 'https://www.mozilla.org/en-US/firefox/ios/',
-      supportUrl: 'https://support.mozilla.org'
+      supportUrl: 'https://support.mozilla.org/kb/im-having-problems-with-my-firefox-account'
     }
   }
 )
