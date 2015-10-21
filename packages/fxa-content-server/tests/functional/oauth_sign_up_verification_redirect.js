@@ -81,7 +81,10 @@ define([
 
         // should redirect back to 123done
         .findByCssSelector('#loggedin')
-        .end();
+        .end()
+
+        .closeCurrentWindow()
+        .switchToWindow('');
     },
 
     'signup, same browser different window, verification_redirect=always': function () {
