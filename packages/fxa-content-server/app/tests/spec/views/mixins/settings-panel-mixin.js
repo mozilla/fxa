@@ -31,7 +31,7 @@ define([
 
       view = new SettingsPanelView({
         metrics: metrics,
-        superView: {
+        parentView: {
           displaySuccess: sinon.spy()
         }
       });
@@ -80,7 +80,7 @@ define([
       it('displaySuccess', function () {
         sinon.stub(view, 'closePanel', function () {});
         view.displaySuccess('hi');
-        assert.isTrue(view.superView.displaySuccess.calledWith('hi'));
+        assert.isTrue(view.parentView.displaySuccess.calledWith('hi'));
         assert.isTrue(view.closePanel.called);
       });
     });

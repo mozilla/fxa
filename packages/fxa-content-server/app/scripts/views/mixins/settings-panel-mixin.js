@@ -13,7 +13,7 @@ define([
 
   return {
     initialize: function (options) {
-      this.superView = options.superView;
+      this.parentView = options.parentView;
     },
     events: {
       'click .cancel': BaseView.preventDefaultThen('_closePanelReturnToSettings'),
@@ -46,10 +46,10 @@ define([
 
     displaySuccess: function (msg) {
       var self = this;
-      if (! self.superView) {
+      if (! self.parentView) {
         return;
       }
-      self.superView.displaySuccess(msg);
+      self.parentView.displaySuccess(msg);
       self.closePanel();
     }
   };

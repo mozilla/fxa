@@ -16,7 +16,7 @@ define([
     isModal: true,
 
     initialize: function (options) {
-      this.superView = options.superView;
+      this.parentView = options.parentView;
     },
 
     events: {
@@ -51,7 +51,7 @@ define([
 
     displaySuccess: function (msg) {
       var self = this;
-      self.superView.displaySuccess(msg);
+      self.parentView.displaySuccess(msg);
     }
   };
 });
