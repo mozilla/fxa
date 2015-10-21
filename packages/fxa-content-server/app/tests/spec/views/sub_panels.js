@@ -79,128 +79,128 @@ function (chai, $, sinon, Cocktail, View, BaseView,
       routerMock = null;
     });
 
-    describe('subviews', function () {
-      it('renders non-modal subviews on render', function () {
-        sinon.spy(view, '_createSubViewIfNeeded', function (View) {
-          var subview = new View();
-          return subview;
+    describe('childViews', function () {
+      it('renders non-modal childViews on render', function () {
+        sinon.spy(view, '_createChildViewIfNeeded', function (View) {
+          var childView = new View();
+          return childView;
         });
 
         return view.render()
           .then(function () {
-            assert.isTrue(view._createSubViewIfNeeded.calledTwice, 'is only called for the non-modal views');
-            assert.equal(view._createSubViewIfNeeded.args[0][0], SettingsPanelView);
-            assert.equal(view._createSubViewIfNeeded.args[1][0], SettingsPanelView2);
+            assert.isTrue(view._createChildViewIfNeeded.calledTwice, 'is only called for the non-modal views');
+            assert.equal(view._createChildViewIfNeeded.args[0][0], SettingsPanelView);
+            assert.equal(view._createChildViewIfNeeded.args[1][0], SettingsPanelView2);
           });
       });
 
     });
 
-    describe('_createSubViewIfNeeded', function () {
-      it('creates, tracks, and renders a subview', function () {
-        sinon.spy(view, 'trackSubview');
-        sinon.spy(view, 'renderSubView');
+    describe('_createChildViewIfNeeded', function () {
+      it('creates, tracks, and renders a childView', function () {
+        sinon.spy(view, 'trackChildView');
+        sinon.spy(view, 'renderChildView');
 
-        return view._createSubViewIfNeeded(SettingsPanelView)
-          .then(function (subView) {
-            assert.ok(subView);
-            assert.isTrue(view.trackSubview.calledWith(subView));
-            assert.isTrue(view.renderSubView.calledWith(subView));
+        return view._createChildViewIfNeeded(SettingsPanelView)
+          .then(function (childView) {
+            assert.ok(childView);
+            assert.isTrue(view.trackChildView.calledWith(childView));
+            assert.isTrue(view.renderChildView.calledWith(childView));
           });
       });
 
       it('only creates view once', function () {
-        var firstSubView;
-        return view._createSubViewIfNeeded(SettingsPanelView)
-          .then(function (subView) {
-            firstSubView = subView;
-            return view._createSubViewIfNeeded(SettingsPanelView);
+        var firstChildView;
+        return view._createChildViewIfNeeded(SettingsPanelView)
+          .then(function (childView) {
+            firstChildView = childView;
+            return view._createChildViewIfNeeded(SettingsPanelView);
           })
-          .then(function (secondSubView) {
-            assert.ok(secondSubView);
-            assert.strictEqual(firstSubView, secondSubView);
+          .then(function (secondChildView) {
+            assert.ok(secondChildView);
+            assert.strictEqual(firstChildView, secondChildView);
           });
       });
 
     });
 
-    describe('showSubView', function () {
+    describe('showChildView', function () {
       it('with non-subpanel view returns', function () {
-        return view.showSubView(BaseView)
+        return view.showChildView(BaseView)
           .then(function (shownView) {
             assert.isNull(shownView);
           });
       });
 
-      it('showSubView renders and opens', function () {
-        sinon.stub(view, '_createSubViewIfNeeded', function (View) {
-          var subview = new View();
-          sinon.stub(subview, 'openPanel', function () { });
-          return p(subview);
+      it('showChildView renders and opens', function () {
+        sinon.stub(view, '_createChildViewIfNeeded', function (View) {
+          var childView = new View();
+          sinon.stub(childView, 'openPanel', function () { });
+          return p(childView);
         });
 
         return view.render()
           .then(function () {
             $('#container').append(view.el);
-            return view.showSubView(SettingsPanelView);
+            return view.showChildView(SettingsPanelView);
           })
-          .then(function (subView) {
+          .then(function (childView) {
             assert.isTrue(
-                view._createSubViewIfNeeded.calledWith(SettingsPanelView));
-            assert.isTrue(subView.openPanel.called);
+                view._createChildViewIfNeeded.calledWith(SettingsPanelView));
+            assert.isTrue(childView.openPanel.called);
           });
       });
 
-      it('showSubView destroys previous modal view', function () {
-        sinon.stub(view, '_createSubViewIfNeeded', function (View) {
-          var subview = new View();
-          sinon.stub(subview, 'openPanel', function () { });
-          return p(subview);
+      it('showChildView destroys previous modal view', function () {
+        sinon.stub(view, '_createChildViewIfNeeded', function (View) {
+          var childView = new View();
+          sinon.stub(childView, 'openPanel', function () { });
+          return p(childView);
         });
 
-        var modalSubView;
-        return view.showSubView(ModalSettingsPanelView)
-          .then(function (subView) {
-            modalSubView = subView;
-            sinon.stub(subView, 'closePanel', function () { });
-            return view.showSubView(SettingsPanelView);
+        var modalChildView;
+        return view.showChildView(ModalSettingsPanelView)
+          .then(function (childView) {
+            modalChildView = childView;
+            sinon.stub(childView, 'closePanel', function () { });
+            return view.showChildView(SettingsPanelView);
           })
-          .then(function (subView) {
-            assert.isTrue(modalSubView.closePanel.called);
+          .then(function (childView) {
+            assert.isTrue(modalChildView.closePanel.called);
           });
       });
     });
 
-    describe('renderSubView', function () {
-      it('calls render and afterVisible on subview', function () {
-        var subview = new View();
-        sinon.stub(subview, 'render', function () {
+    describe('renderChildView', function () {
+      it('calls render and afterVisible on childView', function () {
+        var childView = new View();
+        sinon.stub(childView, 'render', function () {
           return p(true);
         });
-        sinon.spy(subview, 'afterVisible');
+        sinon.spy(childView, 'afterVisible');
 
-        return view.renderSubView(subview)
-          .then(function (renderedSubview) {
-            assert.strictEqual(renderedSubview, subview);
-            assert.isTrue(subview.render.called);
-            assert.isTrue(subview.afterVisible.called);
+        return view.renderChildView(childView)
+          .then(function (renderedChildView) {
+            assert.strictEqual(renderedChildView, childView);
+            assert.isTrue(childView.render.called);
+            assert.isTrue(childView.afterVisible.called);
           });
       });
 
-      it('destroys subview if render fails', function () {
-        var subview = new View();
-        sinon.stub(subview, 'render', function () {
+      it('destroys childView if render fails', function () {
+        var childView = new View();
+        sinon.stub(childView, 'render', function () {
           return p(false);
         });
-        sinon.spy(subview, 'afterVisible');
-        sinon.spy(subview, 'destroy');
+        sinon.spy(childView, 'afterVisible');
+        sinon.spy(childView, 'destroy');
 
-        return view.renderSubView(subview)
-          .then(function (renderedSubview) {
-            assert.isUndefined(renderedSubview);
-            assert.isTrue(subview.render.called);
-            assert.isFalse(subview.afterVisible.called);
-            assert.isTrue(subview.destroy.calledWith(true));
+        return view.renderChildView(childView)
+          .then(function (renderedChildView) {
+            assert.isUndefined(renderedChildView);
+            assert.isTrue(childView.render.called);
+            assert.isFalse(childView.afterVisible.called);
+            assert.isTrue(childView.destroy.calledWith(true));
           });
       });
     });

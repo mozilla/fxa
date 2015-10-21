@@ -49,7 +49,7 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
     var account;
     var formPrefill;
     var fxaClient;
-    var initialSubView;
+    var initialChildView;
     var metrics;
     var notifications;
     var panelViews;
@@ -66,6 +66,7 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
     function createView () {
       view = new View({
         able: able,
+        childView: initialChildView,
         formPrefill: formPrefill,
         fxaClient: fxaClient,
         metrics: metrics,
@@ -75,7 +76,6 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
         router: routerMock,
         screenName: 'settings',
         subPanels: subPanels,
-        subView: initialSubView,
         user: user
       });
     }
@@ -210,14 +210,14 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
           });
       });
 
-      it('on navigate from subview', function () {
+      it('on navigate from childView', function () {
         sinon.spy(view, 'showEphemeralMessages');
         sinon.spy(view, 'logScreen');
         sinon.stub($.modal, 'isActive', function () {
           return true;
         });
         sinon.stub($.modal, 'close', function () { });
-        notifications.trigger('navigate-from-subview');
+        notifications.trigger('navigate-from-child-view');
         assert.isTrue(view.showEphemeralMessages.called);
         assert.isTrue(view.logScreen.called);
         assert.isTrue($.modal.isActive.called);
@@ -449,14 +449,14 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
         });
       });
 
-      it('it calls showSubView on subPanels', function () {
-        sinon.stub(subPanels, 'showSubView', function () {
+      it('it calls showChildView on subPanels', function () {
+        sinon.stub(subPanels, 'showChildView', function () {
           return p();
         });
 
-        return view.showSubView(SettingsPanelView)
+        return view.showChildView(SettingsPanelView)
           .then(function () {
-            assert.isTrue(subPanels.showSubView.calledWith(SettingsPanelView));
+            assert.isTrue(subPanels.showChildView.calledWith(SettingsPanelView));
           });
       });
 
@@ -468,7 +468,7 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
           ];
           sinon.stub(SubPanels.prototype, 'initialize', function () {
           });
-          initialSubView = SettingsPanelView;
+          initialChildView = SettingsPanelView;
         });
 
         afterEach(function () {
@@ -485,7 +485,7 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
           assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
           assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.communication-prefs-link.visible.true'));
           assert.isTrue(SubPanels.prototype.initialize.calledWith({
-            initialSubView: SettingsPanelView,
+            initialChildView: SettingsPanelView,
             panelViews: panelViews,
             parent: view,
             router: routerMock
@@ -502,7 +502,7 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
           assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
           assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.communication-prefs-link.visible.false'));
           assert.isTrue(SubPanels.prototype.initialize.calledWith({
-            initialSubView: SettingsPanelView,
+            initialChildView: SettingsPanelView,
             panelViews: [SettingsPanelView],
             parent: view,
             router: routerMock
@@ -516,7 +516,7 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
           assert.isFalse(able.choose.called);
           assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.communication-prefs-link.visible.false'));
           assert.isTrue(SubPanels.prototype.initialize.calledWith({
-            initialSubView: SettingsPanelView,
+            initialChildView: SettingsPanelView,
             panelViews: [SettingsPanelView],
             parent: view,
             router: routerMock

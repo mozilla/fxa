@@ -249,7 +249,7 @@ body.settings #main-content.card {
   }
 }
 
-.settings-subview {
+.settings-child-view {
   &:first-child .settings-unit {
   
     @include respond-to('big') {

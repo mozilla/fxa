@@ -86,7 +86,7 @@ function (Cocktail, p, BaseView, FormView, Template, AuthErrors, mailcheck,
 
       return coppaView.render()
         .then(function () {
-          self.trackSubview(coppaView);
+          self.trackChildView(coppaView);
           coppaView.on('submit', self.validateAndSubmit.bind(self));
 
           self._coppa = coppaView;

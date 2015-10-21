@@ -21,7 +21,7 @@ define([
       this._notifications = options.notifications;
 
       this._notifications.on('show-view', this.showView.bind(this));
-      this._notifications.on('show-sub-view', this.showSubView.bind(this));
+      this._notifications.on('show-child-view', this.showChildView.bind(this));
     },
 
     events: {
@@ -69,9 +69,9 @@ define([
         if (currentView) {
           if (currentView instanceof View) {
             // if the View to display is the same as the current view, then
-            // the user is navigating from a subview back to the parent view.
+            // the user is navigating from a childView back to the parent view.
             // No need to re-render, but notify interested parties of the event.
-            self._notifications.trigger('navigate-from-subview', options);
+            self._notifications.trigger('navigate-from-child-view', options);
             self.setTitle(currentView.titleFromView());
 
             return currentView;
@@ -132,33 +132,33 @@ define([
     },
 
     /**
-     * Show a SubView
+     * Show a ChildView
      *
-     * @param {function} SubView - constructor of subview to show.
-     * @param {function} ParentView - constructor of the subview's parent.
+     * @param {function} ChildView - constructor of childView to show.
+     * @param {function} ParentView - constructor of the childView's parent.
      * @param {object} options used to create the ParentView as well as
-     *        display the sub view.
+     *        display the child view.
      */
-    showSubView: function (SubView, ParentView, options) {
+    showChildView: function (ChildView, ParentView, options) {
       var self = this;
       // If currentView is of the ParentView type, simply show the subView
       return p().then(function () {
         if (! (self._currentView instanceof ParentView)) {
           // Create the ParentView; its initialization method should
-          // handle the subView option.
+          // handle the childView option.
           return self.showView(ParentView, options);
         }
       })
       .then(function () {
-        return self._currentView.showSubView(SubView, options);
+        return self._currentView.showChildView(ChildView, options);
       })
-      .then(function (subView) {
+      .then(function (childView) {
         // Use the super view's title as the base title
-        var title = subView.titleFromView(self._currentView.titleFromView());
+        var title = childView.titleFromView(self._currentView.titleFromView());
         self.setTitle(title);
-        subView.logScreen();
+        childView.logScreen();
 
-        return subView;
+        return childView;
       });
     },
 

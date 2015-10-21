@@ -125,7 +125,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
       this.metrics = options.metrics || nullMetrics;
       this.relier = options.relier;
       this.sentryMetrics = options.sentryMetrics || Raven;
-      this.subviews = [];
+      this.childViews = [];
       this.user = options.user;
       this.window = options.window || window;
 
@@ -134,7 +134,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
       this.translator = options.translator || this.window.translator;
 
       /**
-       * Prefer the `screenName` set on the object prototype. Subviews
+       * Prefer the `screenName` set on the object prototype. ChildViews
        * define their screenName on the prototype to avoid taking the
        * name of the parent view. This is a terrible hack, but workable
        * until a better solution arises. See #3029
@@ -182,7 +182,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
           }
 
           return p().then(function () {
-            self.destroySubviews();
+            self.destroyChildViews();
 
             // force a re-load of the context every time the
             // view is rendered or else stale data may
@@ -431,34 +431,34 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
 
       this.$(this.window).off('beforeunload', this._boundDisableErrors);
 
-      this.destroySubviews();
+      this.destroyChildViews();
 
       this.trigger('destroyed');
     },
 
-    trackSubview: function (view) {
-      if (! _.contains(this.subviews, view)) {
-        this.subviews.push(view);
-        view.on('destroyed', _.bind(this.untrackSubview, this, view));
+    trackChildView: function (view) {
+      if (! _.contains(this.childViews, view)) {
+        this.childViews.push(view);
+        view.on('destroyed', _.bind(this.untrackChildView, this, view));
       }
 
       return view;
     },
 
-    untrackSubview: function (view) {
-      this.subviews = _.without(this.subviews, view);
+    untrackChildView: function (view) {
+      this.childViews = _.without(this.childViews, view);
 
       return view;
     },
 
-    destroySubviews: function () {
-      _.invoke(this.subviews, 'destroy');
+    destroyChildViews: function () {
+      _.invoke(this.childViews, 'destroy');
 
-      this.subviews = [];
+      this.childViews = [];
     },
 
-    isSubviewTracked: function (view) {
-      return _.indexOf(this.subviews, view) > -1;
+    isChildViewTracked: function (view) {
+      return _.indexOf(this.childViews, view) > -1;
     },
 
     /**
@@ -721,9 +721,9 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
     },
 
     /**
-     * Shows the SubView, creating and rendering it if needed.
+     * Shows the ChildView, creating and rendering it if needed.
      */
-    showSubView: function (/* SubView */) {
+    showChildView: function (/* ChildView */) {
       // Implement in subclasses
     },
 

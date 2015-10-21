@@ -84,9 +84,9 @@ function (
     };
   }
 
-  function createSubViewHandler(SubView, ParentView, options) {
+  function createChildViewHandler(ChildView, ParentView, options) {
     return function () {
-      return this.showSubView(SubView, ParentView, options);
+      return this.showChildView(ChildView, ParentView, options);
     };
   }
 
@@ -117,15 +117,15 @@ function (
       'reset_password(/)': createViewHandler(ResetPasswordView),
       'reset_password_complete(/)': createViewHandler(ReadyView, { type: 'reset_password' }),
       'settings(/)': createViewHandler(SettingsView),
-      'settings/avatar/camera(/)': createSubViewHandler(AvatarCameraView, SettingsView),
-      'settings/avatar/change(/)': createSubViewHandler(AvatarChangeView, SettingsView),
-      'settings/avatar/crop(/)': createSubViewHandler(AvatarCropView, SettingsView),
-      'settings/avatar/gravatar(/)': createSubViewHandler(AvatarGravatarView, SettingsView),
-      'settings/avatar/gravatar_permissions(/)': createSubViewHandler(GravatarPermissionsView, SettingsView),
-      'settings/change_password(/)': createSubViewHandler(ChangePasswordView, SettingsView),
-      'settings/communication_preferences(/)': createSubViewHandler(CommunicationPreferencesView, SettingsView),
-      'settings/delete_account(/)': createSubViewHandler(DeleteAccountView, SettingsView),
-      'settings/display_name(/)': createSubViewHandler(DisplayNameView, SettingsView),
+      'settings/avatar/camera(/)': createChildViewHandler(AvatarCameraView, SettingsView),
+      'settings/avatar/change(/)': createChildViewHandler(AvatarChangeView, SettingsView),
+      'settings/avatar/crop(/)': createChildViewHandler(AvatarCropView, SettingsView),
+      'settings/avatar/gravatar(/)': createChildViewHandler(AvatarGravatarView, SettingsView),
+      'settings/avatar/gravatar_permissions(/)': createChildViewHandler(GravatarPermissionsView, SettingsView),
+      'settings/change_password(/)': createChildViewHandler(ChangePasswordView, SettingsView),
+      'settings/communication_preferences(/)': createChildViewHandler(CommunicationPreferencesView, SettingsView),
+      'settings/delete_account(/)': createChildViewHandler(DeleteAccountView, SettingsView),
+      'settings/display_name(/)': createChildViewHandler(DisplayNameView, SettingsView),
       'signin(/)': createViewHandler(SignInView),
       'signin_complete(/)': createViewHandler(ReadyView, { type: 'sign_in' }),
       'signin_permissions(/)': createViewHandler(PermissionsView, { type: 'sign_in' }),
@@ -278,16 +278,16 @@ function (
     },
 
     /**
-     * Notify the system a new SubView should be shown.
+     * Notify the system a new ChildView should be shown.
      *
-     * @param {function} SubView - view constructor
+     * @param {function} ChildView - view constructor
      * @param {function} ParentView - view constructor,
-     *     the parent of the SubView
+     *     the parent of the ChildView
      * @param {object} [options]
      */
-    showSubView: function (SubView, ParentView, options) {
+    showChildView: function (ChildView, ParentView, options) {
       this.notifications.trigger(
-          'show-sub-view', SubView, ParentView, this.getViewOptions(options));
+          'show-child-view', ChildView, ParentView, this.getViewOptions(options));
     },
 
     /**
@@ -300,16 +300,16 @@ function (
     createViewHandler: createViewHandler,
 
     /**
-     * Create a route handler that is used to display a SubView inside of
+     * Create a route handler that is used to display a ChildView inside of
      * a ParentView. Views will be created as needed.
      *
-     * @param {function} SubView - constructor of SubView to show
+     * @param {function} ChildView - constructor of ChildView to show
      * @param {function} ParentView - constructor of ParentView to show
-     * @param {object} [options] - options to pass to SubView &
+     * @param {object} [options] - options to pass to ChildView &
      *     ParentView constructors
      * @returns {function} - a function that can be given to the router.
      */
-    createSubViewHandler: createSubViewHandler
+    createChildViewHandler: createChildViewHandler
   });
 
   return Router;

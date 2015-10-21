@@ -182,7 +182,7 @@ function (Cocktail, Constants, Url, Template, FormView, MarketingSnippet,
         marketingSnippet = new MarketingSnippet(marketingSnippetOpts);
       }
 
-      this.trackSubview(marketingSnippet);
+      this.trackChildView(marketingSnippet);
 
       return marketingSnippet.render();
     },

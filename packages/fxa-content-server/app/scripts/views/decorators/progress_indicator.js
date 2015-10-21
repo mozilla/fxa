@@ -53,7 +53,7 @@ function (p, ProgressIndicator) {
     var progressIndicator = target.data('progressIndicator');
     if (! progressIndicator) {
       progressIndicator = new ProgressIndicator();
-      context.trackSubview(progressIndicator);
+      context.trackChildView(progressIndicator);
 
       // store a reference to the progress indicator on the button
       // itself. This allows a view's button to be updated and allow

@@ -83,9 +83,9 @@ function (chai, Metrics, WindowMock, Notifications, RefreshObserver, sinon) {
         });
       });
 
-      describe('show-sub-view', function () {
+      describe('show-child-view', function () {
         beforeEach(function () {
-          notifications.trigger('show-sub-view', ViewMock, ViewMock, { screenName: 'screen1' });
+          notifications.trigger('show-child-view', ViewMock, ViewMock, { screenName: 'screen1' });
         });
 
         it('calls `logIfRefresh', function () {
