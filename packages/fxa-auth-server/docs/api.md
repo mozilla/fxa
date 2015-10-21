@@ -342,7 +342,7 @@ curl -v \
 
 A valid request will return a 200 response, with JSON containing the `redirect` to follow. It will include the following query parameters:
 
-- `code`: A string that the client will trade with the [token][] endpoint. Codes have a configurable expiration value, default is 15 minutes.
+- `code`: A string that the client will trade with the [token][] endpoint. Codes have a configurable expiration value, default is 15 minutes. Codes are single use only.
 - `state`: The same value as was passed as a request parameter.
 
 **Example:**
