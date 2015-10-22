@@ -15,54 +15,107 @@ function (chai, NullChannel, FxiOSAuthenticationBroker, Relier, WindowMock) {
   var assert = chai.assert;
 
   describe('models/auth_brokers/fx-ios-v1', function () {
-    var broker;
     var channel;
     var relier;
     var windowMock;
 
     function createBroker () {
-      broker = new FxiOSAuthenticationBroker({
+      return new FxiOSAuthenticationBroker({
         channel: channel,
         relier: relier,
         window: windowMock
       });
     }
 
-    beforeEach(function () {
+    before(function () {
       channel = new NullChannel();
       relier = new Relier();
       windowMock = new WindowMock();
     });
 
-    describe('`signup` capability', function () {
-      it('returns `false` if `exclude_signup=1` is specified, a reason is provided', function () {
-        windowMock.location.search = '?exclude_signup=1';
-        createBroker();
+    describe('`exclude_signup` parameter is set', function () {
+      var broker;
 
-        return broker.fetch()
-          .then(function () {
-            assert.isFalse(broker.hasCapability('signup'));
-            assert.ok(broker.SIGNUP_DISABLED_REASON);
-          });
+      before(function () {
+        windowMock.location.search = '?exclude_signup=1';
+        broker = createBroker();
       });
 
-      it('returns `true` otherwise', function () {
+      after(function () {
         windowMock.location.search = '';
-        createBroker();
+      });
 
-        return broker.fetch()
-          .then(function () {
-            assert.isTrue(broker.hasCapability('signup'));
-          });
+      it('has the `signup` capability by default', function () {
+        assert.isTrue(broker.hasCapability('signup'));
+      });
+
+      it('has the `handleSignedInNotification` capability by default', function () {
+        assert.isTrue(broker.hasCapability('handleSignedInNotification'));
+      });
+
+      it('has the `emailVerificationMarketingSnippet` capability by default', function () {
+        assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
+      });
+
+      it('does not have the `syncPreferencesNotification` capability by default', function () {
+        assert.isFalse(broker.hasCapability('syncPreferencesNotification'));
+      });
+
+      describe('`broker.fetch` is called', function () {
+        before(function () {
+          return broker.fetch();
+        });
+
+        it('does not have the `signup` capability', function () {
+          assert.isFalse(broker.hasCapability('signup'));
+        });
+
+        it('`broker.SIGNUP_DISABLED_REASON` is set', function () {
+          assert.instanceOf(broker.SIGNUP_DISABLED_REASON, Error);
+        });
       });
     });
 
-    it('disables the `chooseWhatToSyncCheckbox` capability', function () {
-      createBroker();
-      return broker.fetch()
-        .then(function () {
+    describe('`exclude_signup` parameter is not set', function () {
+      var broker;
+
+      before(function () {
+        broker = createBroker();
+      });
+
+      it('has the `signup` capability by default', function () {
+        assert.isTrue(broker.hasCapability('signup'));
+      });
+
+      it('has the `handleSignedInNotification` capability by default', function () {
+        assert.isTrue(broker.hasCapability('handleSignedInNotification'));
+      });
+
+      it('has the `emailVerificationMarketingSnippet` capability by default', function () {
+        assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
+      });
+
+      it('does not have the `syncPreferencesNotification` capability by default', function () {
+        assert.isFalse(broker.hasCapability('syncPreferencesNotification'));
+      });
+
+      describe('`broker.fetch` is called', function () {
+        before(function () {
+          return broker.fetch();
+        });
+
+        it('has the `signup` capability', function () {
+          assert.isTrue(broker.hasCapability('signup'));
+        });
+
+        it('`broker.SIGNUP_DISABLED_REASON` is not set', function () {
+          assert.isUndefined(broker.SIGNUP_DISABLED_REASON);
+        });
+
+        it('does not have the `chooseWhatToSyncCheckbox` capability', function () {
           assert.isFalse(broker.hasCapability('chooseWhatToSyncCheckbox'));
         });
+      });
     });
   });
 });

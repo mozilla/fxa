@@ -74,6 +74,8 @@ define([
 
         // back to the original window
         .switchToWindow('')
+
+        .findByCssSelector('#fxa-settings-header')
         .end()
 
         .then(FunctionalHelpers.testSuccessWasShown(this));
@@ -389,6 +391,76 @@ define([
             // check the password address was cleared
             assert.equal(resultText, '');
           })
+        .end();
+    },
+
+    'sign up, open sign-in in second tab, verify in third tab': function () {
+      var windowName = 'sign-up inter-tab functional test';
+      var self = this;
+      return fillOutSignUp(this, email, PASSWORD)
+        .then(function () {
+          return testAtConfirmScreen(self, email);
+        })
+        .then(function () {
+          return FunctionalHelpers.openSignInInNewTab(self, windowName);
+        })
+        .switchToWindow(windowName)
+
+        .findByCssSelector('#fxa-signin-header')
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.openVerificationLinkInNewTab(self, email, 0);
+        })
+        .switchToWindow('newwindow')
+
+        .findByCssSelector('#fxa-settings-header')
+        .end()
+
+        .closeCurrentWindow()
+        .switchToWindow(windowName)
+
+        .findByCssSelector('#fxa-settings-header')
+        .end()
+
+        .closeCurrentWindow()
+        .switchToWindow('')
+
+        .findByCssSelector('#fxa-settings-header')
+        .end();
+    },
+
+    'sign up, open sign-up in second tab, verify in original tab': function () {
+      var windowName = 'sign-up inter-tab functional test';
+      var self = this;
+      return fillOutSignUp(this, email, PASSWORD)
+        .then(function () {
+          return testAtConfirmScreen(self, email);
+        })
+        .then(function () {
+          return FunctionalHelpers.openSignUpInNewTab(self, windowName);
+        })
+        .switchToWindow(windowName)
+
+        .findByCssSelector('#fxa-signup-header')
+        .end()
+
+        .switchToWindow('')
+        .then(function () {
+          return FunctionalHelpers.getVerificationLink(email, 0);
+        })
+        .then(function (verificationLink) {
+          return self.remote.get(require.toUrl(verificationLink));
+        })
+        .switchToWindow(windowName)
+
+        .findByCssSelector('#fxa-settings-header')
+        .end()
+
+        .closeCurrentWindow()
+        .switchToWindow('')
+
+        .findByCssSelector('#fxa-settings-header')
         .end();
     }
   });

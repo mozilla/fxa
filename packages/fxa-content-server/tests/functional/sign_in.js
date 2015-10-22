@@ -217,6 +217,69 @@ define([
               })
             .end();
         });
+    },
+
+    'sign in with a second sign-in tab open': function () {
+      var windowName = 'sign-in inter-tab functional test';
+      var self = this;
+      return verifyUser(email, 0)
+        .then(function () {
+          return FunctionalHelpers.openSignInInNewTab(self, windowName);
+        })
+        .then(function () {
+          return self.remote
+            .switchToWindow(windowName)
+            .findById('fxa-signin-header')
+            .end();
+        })
+        .then(function () {
+          return fillOutSignIn(self, email, PASSWORD);
+        })
+        .then(function () {
+          return self.remote
+            .findById('fxa-settings-header')
+            .end()
+
+            .closeCurrentWindow()
+            .switchToWindow('')
+
+            .findById('fxa-settings-header')
+            .end();
+        });
+    },
+
+    'sign in with a second sign-up tab open': function () {
+      var windowName = 'sign-in inter-tab functional test';
+      var self = this;
+      return verifyUser(email, 0)
+        .then(function () {
+          return FunctionalHelpers.openSignUpInNewTab(self, windowName);
+        })
+        .then(function () {
+          return self.remote
+            .switchToWindow(windowName)
+
+            .findById('fxa-signup-header')
+            .end()
+
+            .switchToWindow('');
+        })
+        .then(function () {
+          return fillOutSignIn(self, email, PASSWORD);
+        })
+        .then(function () {
+          return self.remote
+            .switchToWindow(windowName)
+
+            .findById('fxa-settings-header')
+            .end()
+
+            .closeCurrentWindow()
+            .switchToWindow('')
+
+            .findById('fxa-settings-header')
+            .end();
+        });
     }
   });
 

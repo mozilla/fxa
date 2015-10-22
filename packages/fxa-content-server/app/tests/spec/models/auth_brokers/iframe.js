@@ -46,6 +46,22 @@ function (chai, sinon, $, IframeAuthenticationBroker, Relier, p, NullChannel,
       }
     });
 
+    it('has the `signup` capability by default', function () {
+      assert.isTrue(broker.hasCapability('signup'));
+    });
+
+    it('does not have the `handleSignedInNotification` capability by default', function () {
+      assert.isFalse(broker.hasCapability('handleSignedInNotification'));
+    });
+
+    it('has the `emailVerificationMarketingSnippet` capability by default', function () {
+      assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
+    });
+
+    it('does not have the `syncPreferencesNotification` capability by default', function () {
+      assert.isFalse(broker.hasCapability('syncPreferencesNotification'));
+    });
+
     describe('sendOAuthResultToRelier', function () {
       it('sends an `oauth_complete` message', function () {
         sinon.stub(broker, 'send', function () {

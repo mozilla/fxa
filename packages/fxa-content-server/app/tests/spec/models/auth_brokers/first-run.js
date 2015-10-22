@@ -35,6 +35,22 @@ function (chai, sinon, NullChannel, Account, FirstRunAuthenticationBroker, Relie
       });
     });
 
+    it('has the `signup` capability by default', function () {
+      assert.isTrue(broker.hasCapability('signup'));
+    });
+
+    it('has the `handleSignedInNotification` capability by default', function () {
+      assert.isTrue(broker.hasCapability('handleSignedInNotification'));
+    });
+
+    it('has the `emailVerificationMarketingSnippet` capability by default', function () {
+      assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
+    });
+
+    it('does not have the `syncPreferencesNotification` capability by default', function () {
+      assert.isFalse(broker.hasCapability('syncPreferencesNotification'));
+    });
+
     describe('afterLoaded', function () {
       it('notifies the iframe channel', function () {
         sinon.spy(iframeChannel, 'send');

@@ -189,8 +189,7 @@ define([
       });
 
       it('call onProfileUpdate after notification', function () {
-        notifications.profileUpdated.restore();
-        notifications.profileUpdated({});
+        notifications.trigger(notifications.EVENTS.PROFILE_CHANGE, {});
         assert.isTrue(spy.called);
       });
     });

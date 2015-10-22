@@ -43,25 +43,25 @@ function (chai, sinon, Notifications, NullChannel) {
     });
 
     it('emits events received from other tabs', function (done) {
+      var message = {
+        data: { uid: '123' },
+        event: NOTIFICATION
+      };
       notifications.on(NOTIFICATION, function (data) {
         try {
-          assert.equal(data.uid, '123');
+          assert.deepEqual(data, message);
         } catch (e) {
           return done(e);
         }
         done();
       });
-      var message = {
-        data: { uid: '123' },
-        event: NOTIFICATION
-      };
       var callback = tabChannelMock.on.args[0][1];
       // manually trigger the event callback
       callback(message);
     });
 
     describe('broadcast', function () {
-      it('broabcasts to all channels', function () {
+      it('broadcasts to all channels and triggers self', function () {
         var ev = 'some event';
         var data = { foo: 'bar' };
         var spy = sinon.spy();
@@ -96,20 +96,21 @@ function (chai, sinon, Notifications, NullChannel) {
         assert.isTrue(tabChannelMock.send.calledWith(ev, data));
         assert.isTrue(iframeChannelMock.send.calledWith(ev, data));
       });
-
-      it('notifies account logouts', function () {
-        var ev = notifications.EVENTS.LOGOUT;
-        var data = { foo: 'bar' };
-
-        notifications.loggedOut(data);
-
-        assert.isTrue(webChannelMock.send.calledWith(ev, data));
-        assert.isTrue(tabChannelMock.send.calledWith(ev, data));
-        assert.isTrue(iframeChannelMock.send.calledWith(ev, data));
-      });
     });
 
+    it('triggerRemote sends to all channels but does not trigger self', function () {
+      var ev = 'some other event';
+      var data = { baz: 'qux' };
+      var spy = sinon.spy();
+
+      notifications.on(ev, spy);
+      notifications.triggerRemote(ev, data);
+
+      assert.isTrue(webChannelMock.send.calledWith(ev, data));
+      assert.isTrue(tabChannelMock.send.calledWith(ev, data));
+      assert.isTrue(iframeChannelMock.send.calledWith(ev, data));
+      assert.isFalse(spy.called);
+    });
   });
 });
-
 

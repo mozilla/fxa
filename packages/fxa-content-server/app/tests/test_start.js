@@ -125,6 +125,8 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/migration-mixin',
     '../tests/spec/views/mixins/modal-settings-panel-mixin',
     '../tests/spec/views/mixins/settings-panel-mixin',
+    '../tests/spec/views/mixins/signed-in-notification-mixin',
+    '../tests/spec/views/mixins/signed-out-notification-mixin',
     '../tests/spec/views/mixins/signup-enabled-mixin',
     '../tests/spec/views/openid/login',
     '../tests/spec/views/openid/start',

@@ -13,14 +13,16 @@ define([
   'lib/metrics',
   'models/reliers/oauth',
   'models/auth_brokers/oauth',
-  'models/user',
   'models/form-prefill',
+  'models/notifications',
+  'models/user',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
 function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
-      OAuthBroker, User, FormPrefill, WindowMock, RouterMock, TestHelpers) {
+  OAuthBroker, FormPrefill, Notifications, User, WindowMock, RouterMock,
+  TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -37,6 +39,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
     var profileClientMock;
     var user;
     var formPrefill;
+    var notifications;
 
     var CLIENT_ID = 'dcdb5ae7add825d2';
     var STATE = '123';
@@ -59,11 +62,13 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
       });
       fxaClient = new FxaClient();
       user = new User({
-        fxaClient: fxaClient
+        fxaClient: fxaClient,
+        notifications: notifications
       });
       metrics = new Metrics();
       profileClientMock = TestHelpers.stubbedProfileClient();
       formPrefill = new FormPrefill();
+      notifications = new Notifications();
 
       initView();
       return view.render()
@@ -84,6 +89,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
         formPrefill: formPrefill,
         fxaClient: fxaClient,
         metrics: metrics,
+        notifications: notifications,
         profileClient: profileClientMock,
         relier: relier,
         router: router,

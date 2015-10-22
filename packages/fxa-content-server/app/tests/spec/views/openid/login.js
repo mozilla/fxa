@@ -7,13 +7,15 @@ define([
   'sinon',
   'lib/promise',
   'lib/fxa-client',
+  'models/notifications',
   'models/user',
   'models/auth_brokers/base',
   'views/openid/login',
   '../../../mocks/window',
   '../../../mocks/router',
 ],
-function (chai, sinon, p, FxaClient, User, Broker, View, WindowMock, RouterMock) {
+function (chai, sinon, p, FxaClient, Notifications, User, Broker, View,
+  WindowMock, RouterMock) {
   'use strict';
 
   var assert = chai.assert;
@@ -23,6 +25,7 @@ function (chai, sinon, p, FxaClient, User, Broker, View, WindowMock, RouterMock)
     var windowMock;
     var routerMock;
     var fxaClient;
+    var notifications;
     var user;
     var broker;
 
@@ -31,8 +34,10 @@ function (chai, sinon, p, FxaClient, User, Broker, View, WindowMock, RouterMock)
       windowMock = new WindowMock();
       routerMock = new RouterMock();
       fxaClient = new FxaClient();
+      notifications = new Notifications();
       user = new User({
-        fxaClient: fxaClient
+        fxaClient: fxaClient,
+        notifications: notifications
       });
       broker = new Broker();
 

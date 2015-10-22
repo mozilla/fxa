@@ -206,13 +206,16 @@ function (
                     // fxaClient depends on the relier and
                     // inter tab communication.
                     .then(_.bind(this.initializeFxaClient, this))
+                    // depends on iframeChannel and interTabChannel
+                    .then(_.bind(this.initializeNotifications, this))
                     // assertionLibrary depends on fxaClient
                     .then(_.bind(this.initializeAssertionLibrary, this))
                     // profileClient depends on fxaClient and assertionLibrary
                     .then(_.bind(this.initializeProfileClient, this))
                     // marketingEmailClient depends on config
                     .then(_.bind(this.initializeMarketingEmailClient, this))
-                    // user depends on the profileClient, oAuthClient, and assertionLibrary.
+                    // user depends on the profileClient, oAuthClient,
+                    // assertionLibrary and notifications.
                     .then(_.bind(this.initializeUser, this))
                     // broker relies on the user, relier, fxaClient,
                     // assertionLibrary, and metrics
@@ -226,8 +229,6 @@ function (
 
                     // depends on nothing
                     .then(_.bind(this.initializeFormPrefill, this))
-                    // depends on iframeChannel and interTabChannel
-                    .then(_.bind(this.initializeNotifications, this))
                     // depends on notifications, metrics
                     .then(_.bind(this.initializeRefreshObserver, this))
                     // router depends on all of the above
@@ -529,6 +530,7 @@ function (
           assertion: this._assertionLibrary,
           fxaClient: this._fxaClient,
           marketingEmailClient: this._marketingEmailClient,
+          notifications: this._notifications,
           oAuthClient: this._oAuthClient,
           oAuthClientId: this._config.oAuthClientId,
           profileClient: this._profileClient,

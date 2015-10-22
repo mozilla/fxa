@@ -14,8 +14,9 @@ define([
 
   var EVENTS = {
     DELETE: 'fxaccounts:delete',
-    LOGOUT: 'fxaccounts:logout',
-    PROFILE_CHANGE: 'profile:change'
+    PROFILE_CHANGE: 'profile:change',
+    SIGNED_IN: 'fxaccounts:login',
+    SIGNED_OUT: 'fxaccounts:logout'
   };
 
   var Notifications = Backbone.Model.extend({
@@ -40,18 +41,18 @@ define([
     },
 
     broadcast: function (event, data) {
+      this.triggerRemote(event, data);
+      this.trigger(event, data);
+    },
+
+    triggerRemote: function (event, data) {
       this._channels.forEach(function (channel) {
         channel.send(event, data);
       });
-      this.trigger(event, data);
     },
 
     profileUpdated: function (data) {
       this.broadcast(EVENTS.PROFILE_CHANGE, data);
-    },
-
-    loggedOut: function (data) {
-      this.broadcast(EVENTS.LOGOUT, data);
     },
 
     accountDeleted: function (data) {
@@ -62,12 +63,8 @@ define([
     _listen: function (tabChannel) {
       var self = this;
       _.each(EVENTS, function (name) {
-        tabChannel.on(name, self._handleNotification.bind(self));
+        tabChannel.on(name, self.trigger.bind(self, name));
       });
-    },
-
-    _handleNotification: function (message) {
-      this.trigger(message.event, message.data);
     }
   }, Backbone.Events);
 

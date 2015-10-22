@@ -91,6 +91,21 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
       };
     }
 
+    it('has the `signup` capability by default', function () {
+      assert.isTrue(broker.hasCapability('signup'));
+    });
+
+    it('does not have the `handleSignedInNotification` capability by default', function () {
+      assert.isFalse(broker.hasCapability('handleSignedInNotification'));
+    });
+
+    it('has the `emailVerificationMarketingSnippet` capability by default', function () {
+      assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
+    });
+
+    it('does not have the `syncPreferencesNotification` capability by default', function () {
+      assert.isFalse(broker.hasCapability('syncPreferencesNotification'));
+    });
 
     describe('fetch', function () {
       describe('for the signin/signup flow', function () {

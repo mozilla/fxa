@@ -618,6 +618,7 @@ function (chai, $, sinon, p, View, CoppaAgeInput, Session, AuthErrors, Experimen
         var revisitView = new View({
           able: able,
           fxaClient: fxaClient,
+          notifications: notifications,
           relier: relier,
           router: revisitRouter
         });

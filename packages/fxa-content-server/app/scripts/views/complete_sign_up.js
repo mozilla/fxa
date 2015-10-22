@@ -45,6 +45,8 @@ function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
       // cache the email in case we need to attempt to resend the
       // verification link
       this._email = this._account.get('email');
+
+      this._notifications = options.notifications;
     },
 
     getAccount: function () {
@@ -89,12 +91,16 @@ function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
                       'afterCompleteSignUp', self.getAccount());
           })
           .then(function () {
+            var account = self.getAccount();
+
+            self._notifications.triggerRemote(self._notifications.EVENTS.SIGNED_IN, account.toJSON());
+
             if (! self.relier.isDirectAccess()) {
               self.navigate('signup_complete');
               return false;
             }
 
-            return self.getAccount().isSignedIn()
+            return account.isSignedIn()
               .then(function (isSignedIn) {
                 if (isSignedIn) {
                   self.navigate('settings', {

@@ -189,8 +189,33 @@ define([
         })
         .findById('avatar-options')
         .end();
-    }
+    },
 
+    'sign in, open settings in a second tab, sign out': function () {
+      var windowName = 'sign-out inter-tab functional test';
+      var self = this;
+      return FunctionalHelpers.fillOutSignIn(this, email, FIRST_PASSWORD)
+        .then(function () {
+          return FunctionalHelpers.openSettingsInNewTab(self, windowName);
+        })
+        .switchToWindow(windowName)
+
+        .findById('fxa-settings-header')
+        .end()
+
+        .findById('signout')
+          .click()
+        .end()
+
+        .findById('fxa-signin-header')
+        .end()
+
+        .closeCurrentWindow()
+        .switchToWindow('')
+
+        .findById('fxa-signin-header')
+        .end();
+    }
   });
 
   registerSuite({

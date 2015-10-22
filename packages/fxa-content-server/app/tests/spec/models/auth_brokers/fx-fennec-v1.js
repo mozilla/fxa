@@ -46,6 +46,22 @@ function (chai, NullChannel, FxFennecV1AuthenticationBroker, Relier,
       sinon.spy(broker, 'send');
     });
 
+    it('has the `signup` capability by default', function () {
+      assert.isTrue(broker.hasCapability('signup'));
+    });
+
+    it('has the `handleSignedInNotification` capability by default', function () {
+      assert.isTrue(broker.hasCapability('handleSignedInNotification'));
+    });
+
+    it('does not have the `emailVerificationMarketingSnippet` capability by default', function () {
+      assert.isFalse(broker.hasCapability('emailVerificationMarketingSnippet'));
+    });
+
+    it('has the `syncPreferencesNotification` capability by default', function () {
+      assert.isTrue(broker.hasCapability('syncPreferencesNotification'));
+    });
+
     it('disables the `chooseWhatToSyncCheckbox` capability', function () {
       return broker.fetch()
         .then(function () {

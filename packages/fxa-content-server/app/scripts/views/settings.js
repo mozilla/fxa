@@ -4,12 +4,16 @@
 
 /* exceptsPaths: modal */
 define([
+  'cocktail',
   'jquery',
   'modal',
-  'cocktail',
-  'lib/session',
+  'stache!templates/settings',
   'views/base',
+  'views/decorators/allow_only_one_submit',
   'views/mixins/avatar-mixin',
+  'views/mixins/loading-mixin',
+  'views/mixins/settings-mixin',
+  'views/mixins/signed-out-notification-mixin',
   'views/settings/avatar',
   'views/settings/avatar_change',
   'views/settings/avatar_crop',
@@ -20,20 +24,14 @@ define([
   'views/settings/change_password',
   'views/settings/delete_account',
   'views/settings/display_name',
-  'views/sub_panels',
-  'views/mixins/settings-mixin',
-  'views/mixins/loading-mixin',
-  'views/decorators/allow_only_one_submit',
-  'stache!templates/settings'
+  'views/sub_panels'
 ],
-function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
-  AvatarView, AvatarChangeView, AvatarCropView, AvatarCameraView, GravatarView,
-  GravatarPermissionsView, CommunicationPreferencesView, ChangePasswordView,
-  DeleteAccountView, DisplayNameView, SubPanels, SettingsMixin, LoadingMixin,
-  allowOnlyOneSubmit, Template) {
+function (Cocktail, $, modal, Template, BaseView, allowOnlyOneSubmit, AvatarMixin,
+  LoadingMixin, SettingsMixin, SignedOutNotificationMixin, AvatarView, AvatarChangeView,
+  AvatarCropView, AvatarCameraView, GravatarView, GravatarPermissionsView,
+  CommunicationPreferencesView, ChangePasswordView, DeleteAccountView,
+  DisplayNameView, SubPanels) {
   'use strict';
-
-  var t = BaseView.t;
 
   var PANEL_VIEWS = [
     AvatarView,
@@ -206,22 +204,8 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
         })
         .fin(function () {
           self.logViewEvent('signout.success');
-          // Unset uid otherwise it will henceforth be impossible
-          // to sign in to different accounts inside this tab.
-          self.relier.unset('uid');
-          self.relier.unset('email');
-          self.relier.unset('preVerifyToken');
           self.user.clearSignedInAccount();
-          // The user has manually signed out, a pretty strong indicator
-          // the user does not want any of their information pre-filled
-          // on the signin page. Clear any remaining formPrefill info
-          // to ensure their data isn't sticking around in memory.
-          self._formPrefill.clear();
-          Session.clear();
-          self.navigate('signin', {
-            clearQueryParams: true,
-            success: t('Signed out successfully')
-          });
+          self.clearSessionAndNavigateToSignIn();
         });
     }),
 
@@ -250,7 +234,8 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
     View,
     AvatarMixin,
     LoadingMixin,
-    SettingsMixin
+    SettingsMixin,
+    SignedOutNotificationMixin
   );
 
   return View;

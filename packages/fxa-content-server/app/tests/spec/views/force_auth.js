@@ -13,14 +13,15 @@ define([
   'lib/auth-errors',
   'models/reliers/relier',
   'models/auth_brokers/base',
-  'models/user',
   'models/form-prefill',
+  'models/notifications',
+  'models/user',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
 function (chai, $, sinon, View, SignInView, FxaClient, p, AuthErrors, Relier,
-  Broker, User, FormPrefill, WindowMock, RouterMock, TestHelpers) {
+  Broker, FormPrefill, Notifications, User, WindowMock, RouterMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -30,6 +31,7 @@ function (chai, $, sinon, View, SignInView, FxaClient, p, AuthErrors, Relier,
     var email;
     var formPrefill;
     var fxaClient;
+    var notifications;
     var relier;
     var router;
     var user;
@@ -40,15 +42,19 @@ function (chai, $, sinon, View, SignInView, FxaClient, p, AuthErrors, Relier,
       broker = new Broker();
       formPrefill = new FormPrefill();
       fxaClient = new FxaClient();
+      notifications = new Notifications();
       relier = new Relier();
       router = new RouterMock();
-      user = new User();
+      user = new User({
+        notifications: notifications
+      });
       windowMock = new WindowMock();
 
       view = new View({
         broker: broker,
         formPrefill: formPrefill,
         fxaClient: fxaClient,
+        notifications: notifications,
         relier: relier,
         router: router,
         user: user,

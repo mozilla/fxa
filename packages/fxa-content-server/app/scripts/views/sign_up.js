@@ -3,27 +3,28 @@
 
 define([
   'cocktail',
+  'lib/auth-errors',
   'lib/promise',
+  'lib/mailcheck',
+  'stache!templates/sign_up',
   'views/base',
   'views/form',
-  'stache!templates/sign_up',
-  'lib/auth-errors',
-  'lib/mailcheck',
+  'views/coppa/coppa-age-input',
+  'views/mixins/checkbox-mixin',
   'views/mixins/experiment-mixin',
+  'views/mixins/migration-mixin',
   'views/mixins/password-mixin',
   'views/mixins/password-strength-mixin',
-  'views/mixins/service-mixin',
-  'views/mixins/checkbox-mixin',
   'views/mixins/resume-token-mixin',
-  'views/mixins/migration-mixin',
+  'views/mixins/service-mixin',
+  'views/mixins/signed-in-notification-mixin',
   'views/mixins/signup-disabled-mixin',
-  'views/mixins/signup-success-mixin',
-  'views/coppa/coppa-age-input'
+  'views/mixins/signup-success-mixin'
 ],
-function (Cocktail, p, BaseView, FormView, Template, AuthErrors, mailcheck,
-  ExperimentMixin, PasswordMixin, PasswordStrengthMixin, ServiceMixin,
-  CheckboxMixin, ResumeTokenMixin, MigrationMixin, SignupDisabledMixin,
-  SignupSuccessMixin, CoppaAgeInput) {
+function (Cocktail, AuthErrors, p, mailcheck, Template, BaseView, FormView,
+  CoppaAgeInput, CheckboxMixin, ExperimentMixin, MigrationMixin, PasswordMixin,
+  PasswordStrengthMixin, ResumeTokenMixin, ServiceMixin, SignedInNotificationMixin,
+  SignupDisabledMixin, SignupSuccessMixin) {
   'use strict';
 
   var t = BaseView.t;
@@ -360,6 +361,7 @@ function (Cocktail, p, BaseView, FormView, Template, AuthErrors, mailcheck,
     PasswordStrengthMixin,
     ResumeTokenMixin,
     ServiceMixin,
+    SignedInNotificationMixin,
     SignupDisabledMixin,
     SignupSuccessMixin
   );
