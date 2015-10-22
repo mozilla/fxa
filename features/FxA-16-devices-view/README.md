@@ -9,14 +9,17 @@ As a Firefox Accounts user when using Firefox, I want to know the devices and se
 ## Collapsed View
 ![Collapsed View](devices1-collapsed.png)
 
-## Expanded View
+## Minimal View (no rename)
+![Collapsed View](devices6-disconnect-and-refresh-only.png)
+
+## Expanded View (with rename)
 ![Expanded View](devices2-expanded.png)
 
-## Refreshing View
+## Refreshing View (with rename)
 ![Refreshing View](devices3-refreshing.png)
 
-## Reviewing View
+## Reviewing View (with rename)
 ![Reviewing View](devices4-reviewing.png)
 
-## Renaming View
+## Renaming View (with rename)
 ![Renaming View](devices5-renaming.png)
