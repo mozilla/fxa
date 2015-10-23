@@ -50,8 +50,8 @@ define([
     describe('isValid', function () {
       it('returns false if model is marked as damaged', function () {
         var model = new Model({
-          code: 'ho',
-          uid: 'hi'
+          code: 'a-code',
+          uid: 'a-uid'
         });
         model.markDamaged();
         assert.isFalse(model.isValid());
@@ -60,15 +60,15 @@ define([
       it('returns false if `validate` explodes', function () {
         var model = new Model({
           code: null,
-          uid: 'hi'
+          uid: 'a-uid'
         });
         assert.isFalse(model.isValid());
       });
 
       it('returns true otherwise', function () {
         var model = new Model({
-          code: 'ho',
-          uid: 'hi'
+          code: 'a-code',
+          uid: 'a-uid'
         });
         assert.isTrue(model.isValid());
       });
@@ -77,8 +77,8 @@ define([
     describe('markExpired/isExpired', function () {
       it('marks the link as expired', function () {
         var model = new Model({
-          code: 'ho',
-          uid: 'hi'
+          code: 'a-code',
+          uid: 'a-uid'
         });
 
         assert.isFalse(model.isExpired());
@@ -90,8 +90,8 @@ define([
     describe('markDamaged/isDamaged', function () {
       it('marks the link as damaged', function () {
         var model = new Model({
-          code: 'ho',
-          uid: 'hi'
+          code: 'a-code',
+          uid: 'a-uid'
         });
 
         assert.isFalse(model.isDamaged());
@@ -101,4 +101,3 @@ define([
     });
   });
 });
-

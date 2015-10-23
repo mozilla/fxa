@@ -23,26 +23,26 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
   var assert = chai.assert;
 
   describe('models/auth_brokers/web-channel', function () {
+    var account;
     var broker;
-    var windowMock;
-    var relierMock;
     var channelMock;
     var fxaClientMock;
-    var view;
+    var relierMock;
     var user;
-    var account;
+    var view;
+    var windowMock;
 
     beforeEach(function () {
-      windowMock = new WindowMock();
+      channelMock = new NullChannel();
       relierMock = new Relier();
       user = new User();
+      windowMock = new WindowMock();
 
       account = user.initAccount({
         sessionToken: 'abc123',
         uid: 'uid'
       });
 
-      channelMock = new NullChannel();
       sinon.spy(channelMock, 'send');
 
       fxaClientMock = new FxaClientWrapper({
@@ -214,7 +214,7 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
         account.set('keyFetchToken', 'keyFetchToken');
         account.set('unwrapBKey', 'unwrapBKey');
 
-        return broker.persist()
+        return broker.persistVerificationData(account)
           .then(function () {
             return broker.beforeSignUpConfirmationPoll(account);
           })
@@ -230,7 +230,7 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
           return true;
         });
 
-        return broker.persist()
+        return broker.persistVerificationData(account)
           .then(function () {
             account.set('keyFetchToken', 'keyFetchToken');
             account.set('unwrapBKey', 'unwrapBKey');
@@ -246,7 +246,7 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
     describe('afterCompleteSignUp', function () {
       it('calls sendOAuthResultToRelier if there is session data present', function () {
         setupCompletesOAuthTest();
-        return broker.persist()
+        return broker.persistVerificationData(account)
           .then(function () {
             return broker.afterCompleteSignUp(account);
           })
@@ -260,7 +260,7 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
 
       it('doesn\'t call sendOAuthResultToRelier if there is no session data', function () {
         setupCompletesOAuthTest();
-        return broker.persist()
+        return broker.persistVerificationData(account)
           .then(function () {
             broker.session.clear('oauth');
             return broker.afterCompleteSignUp(account);
@@ -276,7 +276,7 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
           return true;
         });
 
-        return broker.persist()
+        return broker.persistVerificationData(account)
           .then(function () {
             account.set('keyFetchToken', 'keyFetchToken');
             account.set('unwrapBKey', 'unwrapBKey');
@@ -298,7 +298,7 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
     describe('afterSignUpConfirmationPoll', function () {
       it('calls sendOAuthResultToRelier if there is session data present', function () {
         setupCompletesOAuthTest();
-        return broker.persist()
+        return broker.persistVerificationData(account)
           .then(function () {
             return broker.afterSignUpConfirmationPoll(account);
           })
@@ -312,7 +312,7 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
 
       it('doesn\'t call sendOAuthResultToRelier if there is no session data', function () {
         setupCompletesOAuthTest();
-        return broker.persist()
+        return broker.persistVerificationData(account)
           .then(function () {
             broker.session.clear('oauth');
             return broker.afterSignUpConfirmationPoll(account);
@@ -327,7 +327,7 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
       it('calls sendOAuthResultToRelier if there is session data present', function () {
         setupCompletesOAuthTest();
 
-        return broker.persist()
+        return broker.persistVerificationData(account)
           .then(function () {
             return broker.afterCompleteResetPassword(account);
           })
@@ -341,7 +341,7 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
 
       it('doesn\'t call sendOAuthResultToRelier if there is no session data', function () {
         setupCompletesOAuthTest();
-        return broker.persist()
+        return broker.persistVerificationData(account)
           .then(function () {
             broker.session.clear('oauth');
             return broker.afterCompleteResetPassword(account);
@@ -356,7 +356,7 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
       it('calls sendOAuthResultToRelier if there is session data present', function () {
         setupCompletesOAuthTest();
 
-        return broker.persist()
+        return broker.persistVerificationData(account)
           .then(function () {
             return broker.afterResetPasswordConfirmationPoll(account);
           })
@@ -370,7 +370,7 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
 
       it('doesn\'t call sendOAuthResultToRelier if there is no session data', function () {
         setupCompletesOAuthTest();
-        return broker.persist()
+        return broker.persistVerificationData(account)
           .then(function () {
             broker.session.clear('oauth');
             return broker.afterResetPasswordConfirmationPoll(account);

@@ -60,6 +60,7 @@ define([
   'models/auth_brokers/iframe',
   'models/unique-user-id',
   'models/user',
+  'models/verification/same-browser',
   'models/form-prefill',
   'models/notifications',
   'models/refresh-observer',
@@ -111,6 +112,7 @@ function (
   IframeAuthenticationBroker,
   UniqueUserId,
   User,
+  SameBrowserVerificationModel,
   FormPrefill,
   Notifications,
   RefreshObserver,
@@ -708,7 +710,35 @@ function (
     },
 
     _getContext: function () {
-      return this._searchParam('context') || Constants.DIRECT_CONTEXT;
+      if (this._isVerification()) {
+        this._context = this._getVerificationContext();
+      } else {
+        this._context = this._searchParam('context') || Constants.DIRECT_CONTEXT;
+      }
+
+      return this._context;
+    },
+
+    _getVerificationContext: function () {
+      // Users that verify in the same browser use the same context that
+      // was used to sign up to allow the verification tab to have
+      // the same capabilities as the signup tab.
+      // If verifying in a separate browser, fall back to the default context.
+      var verificationInfo = this._getSameBrowserVerificationModel('context');
+      return verificationInfo.get('context') || Constants.DIRECT_CONTEXT;
+    },
+
+    _getSameBrowserVerificationModel: function (namespace) {
+      var urlVerificationInfo = Url.searchParams(this._window.location.search);
+
+      var verificationInfo = new SameBrowserVerificationModel({}, {
+        email: urlVerificationInfo.email,
+        namespace: namespace,
+        uid: urlVerificationInfo.uid
+      });
+      verificationInfo.load();
+
+      return verificationInfo;
     },
 
     _isSignUpOrAccountUnlockVerification: function () {

@@ -138,7 +138,7 @@ function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
         });
     },
 
-    persist: function () {
+    persistVerificationData: function (account) {
       var self = this;
       return p().then(function () {
         var relier = self.relier;
@@ -151,6 +151,8 @@ function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
           state: relier.get('state'),
           webChannelId: self.get('webChannelId')
         });
+
+        return proto.persistVerificationData.call(self, account);
       });
     },
 

@@ -96,7 +96,7 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
       // prevented by the broker. An example is Firefox Desktop where the
       // browser is already performing a poll, so a second poll is not needed.
 
-      return self.broker.persist()
+      return self.broker.persistVerificationData(self.getAccount())
         .then(function () {
           return self.invokeBrokerMethod(
                     'beforeSignUpConfirmationPoll', self.getAccount());

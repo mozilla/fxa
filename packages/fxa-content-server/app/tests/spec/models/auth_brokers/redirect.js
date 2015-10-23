@@ -21,23 +21,22 @@ function (chai, sinon, p, Constants, Session, RedirectAuthenticationBroker,
   var REDIRECT_TO = 'https://redirect.here';
 
   describe('models/auth_brokers/redirect', function () {
-    var relier;
-    var broker;
-    var windowMock;
-    var user;
     var account;
+    var broker;
     var metrics;
+    var relier;
+    var user;
+    var windowMock;
 
     beforeEach(function () {
-      windowMock = new WindowMock();
+      metrics = { flush: sinon.spy(p) };
       relier = new Relier();
       user = new User();
+      windowMock = new WindowMock();
+
       account = user.initAccount({
         sessionToken: 'abc123'
       });
-
-      metrics = { flush: sinon.spy(p) };
-
       broker = new RedirectAuthenticationBroker({
         metrics: metrics,
         relier: relier,
@@ -128,9 +127,9 @@ function (chai, sinon, p, Constants, Session, RedirectAuthenticationBroker,
       });
     });
 
-    describe('persist', function () {
+    describe('persistVerificationData', function () {
       it('sets the Original Tab marker', function () {
-        return broker.persist()
+        return broker.persistVerificationData(account)
           .then(function () {
             assert.isTrue(broker.isOriginalTab());
           });
@@ -149,7 +148,7 @@ function (chai, sinon, p, Constants, Session, RedirectAuthenticationBroker,
           return p();
         });
 
-        return broker.persist()
+        return broker.persistVerificationData(account)
           .then(function () {
             return broker.finishOAuthFlow(account);
           })
@@ -162,7 +161,7 @@ function (chai, sinon, p, Constants, Session, RedirectAuthenticationBroker,
 
     describe('afterCompleteSignUp', function () {
       it('finishes the oauth flow if the user verifies in the original tab', function () {
-        return broker.persist()
+        return broker.persistVerificationData(account)
           .then(function () {
             return broker.afterCompleteSignUp(account);
           })
@@ -183,7 +182,7 @@ function (chai, sinon, p, Constants, Session, RedirectAuthenticationBroker,
 
     describe('afterCompleteResetPassword', function () {
       it('finishes the oauth flow if the user verifies in the original tab', function () {
-        return broker.persist()
+        return broker.persistVerificationData(account)
           .then(function () {
             return broker.afterCompleteResetPassword(account);
           })

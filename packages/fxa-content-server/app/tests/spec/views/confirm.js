@@ -132,7 +132,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
 
     describe('afterVisible', function () {
       it('notifies the broker before the confirmation', function () {
-        sinon.spy(broker, 'persist');
+        sinon.spy(broker, 'persistVerificationData');
 
         sinon.stub(broker, 'beforeSignUpConfirmationPoll', function (account) {
           assert.isTrue(account.get('customizeSync'));
@@ -141,7 +141,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
 
         return view.afterVisible()
           .then(function () {
-            assert.isTrue(broker.persist.called);
+            assert.isTrue(broker.persistVerificationData.called);
             assert.isTrue(
                 broker.beforeSignUpConfirmationPoll.calledWith(account));
           });

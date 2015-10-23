@@ -158,17 +158,21 @@ function (_, OAuthAuthenticationBroker, ChannelMixin, p,
       // The slight delay here is to allow the functional tests time to
       // bind event handlers before the flow completes.
       var self = this;
-      return p().delay(100).then(function () {
-        if (self.hasPendingOAuthFlow()) {
-          // This tab won't have access to key-fetching material, so
-          // retreive it from the session if necessary.
-          if (self.relier.wantsKeys()) {
-            account.set('keyFetchToken', self.session.oauth.keyFetchToken);
-            account.set('unwrapBKey', self.session.oauth.unwrapBKey);
+      return proto.afterCompleteSignUp.call(self, account)
+        .delay(100)
+        .then(function (behavior) {
+          if (self.hasPendingOAuthFlow()) {
+            // This tab won't have access to key-fetching material, so
+            // retreive it from the session if necessary.
+            if (self.relier.wantsKeys()) {
+              account.set('keyFetchToken', self.session.oauth.keyFetchToken);
+              account.set('unwrapBKey', self.session.oauth.unwrapBKey);
+            }
+            return self.finishOAuthSignUpFlow(account);
           }
-          return self.finishOAuthSignUpFlow(account);
-        }
-      });
+
+          return behavior;
+        });
     },
 
     afterResetPasswordConfirmationPoll: function (account) {
@@ -185,11 +189,15 @@ function (_, OAuthAuthenticationBroker, ChannelMixin, p,
       // The slight delay here is to allow the functional tests time to
       // bind event handlers before the flow completes.
       var self = this;
-      return p().delay(100).then(function () {
-        if (self.hasPendingOAuthFlow()) {
-          return self.finishOAuthSignInFlow(account);
-        }
-      });
+      return proto.afterCompleteResetPassword.call(self, account)
+        .delay(100)
+        .then(function (behavior) {
+          if (self.hasPendingOAuthFlow()) {
+            return self.finishOAuthSignInFlow(account);
+          }
+
+          return behavior;
+        });
     },
 
     // used by the ChannelMixin to get a channel.
