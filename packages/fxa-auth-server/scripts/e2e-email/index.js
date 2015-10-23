@@ -121,9 +121,6 @@ function signinAsSecondDevice(client) {
   }
 
   return Client.login(program.authServer, email, password, opts)
-    .then(function(client) {
-      return fetchNotificationEmail(email, client)
-    })
 }
 
 function changePassword(client) {
