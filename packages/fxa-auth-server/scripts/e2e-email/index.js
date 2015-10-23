@@ -258,6 +258,7 @@ function main() {
       }
     }).catch(function(err) {
       log(log.ERROR, err.stack || err)
+      process.exit(1)
     })
 }
 
