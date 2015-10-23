@@ -13,6 +13,10 @@ As a Firefox Accounts user when using Firefox, I want to know the devices and se
 ## Collapsed View
 ![Collapsed View](devices1-collapsed.png)
 
+## Fetching Devices View
+Disable button and resize the existing spinner in half while fetching devices.
+![Collapsed View](devices7-fetching-devices.png)
+
 ## Minimal View (no rename)
 ![Collapsed View](devices6-disconnect-and-refresh-only.png)
 
