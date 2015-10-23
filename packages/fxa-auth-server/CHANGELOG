@@ -1,3 +1,6 @@
+train-48.2
+  * fix(deps): shrinkwrap also missing hawk, simplesmtp, wtf?
+
 train-48.1
   * fix(deps): shrinkwrap excludes fxa-jwtool->pem-jwk dep if pem-jwk is a devDep #1085
 
