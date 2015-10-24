@@ -30,3 +30,4 @@ fxa-password-strength-checker
 browserid-verifier
 browserid-local-verify
 fxa-checkbox
+fxa-retention-metrics
