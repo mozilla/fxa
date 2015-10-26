@@ -7,8 +7,9 @@
 define([
   'underscore',
   'jquery',
-  'views/base'
-], function (_, $, BaseView) {
+  'views/base',
+  'lib/key-codes'
+], function (_, $, BaseView, KeyCodes) {
   'use strict';
 
   var displayedTooltip;
@@ -26,14 +27,6 @@ define([
       this.message = options.message || '';
       this.dismissible  = options.dismissible || false;
       this.extraClassNames = options.extraClassNames || '';
-
-      // Event codes for the keyboard keys.
-      this.DOWN_ARROW_KEY_CODE = 40;
-      this.ENTER_KEY_CODE = 13;
-      this.LEFT_ARROW_KEY_CODE = 37;
-      this.RIGHT_ARROW_KEY_CODE = 39;
-      this.TAB_KEY_CODE = 9;
-      this.UP_ARROW_KEY_CODE = 38;
 
       // the tooltip has to be attached to an element.
       // By default, the tooltip is displayed just above the
@@ -123,7 +116,7 @@ define([
 
       // destroy when dismissed
       this.$el.find('.dismiss').one('click keypress', function (e) {
-        if (e.type === 'click' || e.which === this.ENTER_KEY_CODE) {
+        if (e.type === 'click' || e.which === KeyCodes.ENTER) {
           var metricsEvent = 'tooltip.' + this.type + '-dismissed';
           this.logEvent(metricsEvent);
           this._destroy();

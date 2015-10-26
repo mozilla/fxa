@@ -7,9 +7,10 @@
 /* exceptsPaths: mailcheck */
 define([
   'views/tooltip',
+  'lib/key-codes',
   'mailcheck'
 ],
-function (Tooltip) {
+function (Tooltip, KeyCodes) {
   'use strict';
 
   var DOMAINS = [];
@@ -74,7 +75,7 @@ function (Tooltip) {
             tooltip.$el.on('click keypress', 'span', function (e) {
               // if a click event is triggered or an enter key is pressed, destroy
               // the tooltip.
-              if (e.type === 'click' || e.which === 13) {
+              if (e.type === 'click' || e.which === KeyCodes.ENTER) {
                 element.val(suggestion.full);
                 // the user has used the suggestion
                 view.notify('mailcheck.clicked');

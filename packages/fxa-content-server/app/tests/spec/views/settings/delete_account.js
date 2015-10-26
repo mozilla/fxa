@@ -17,10 +17,11 @@ define([
   'models/user',
   'models/notifications',
   '../../../mocks/router',
-  '../../../lib/helpers'
+  '../../../lib/helpers',
+  'lib/key-codes'
 ],
 function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics, NullChannel,
-    Relier, Broker, User, Notifications, RouterMock, TestHelpers) {
+    Relier, Broker, User, Notifications, RouterMock, TestHelpers, KeyCodes) {
   'use strict';
 
   var assert = chai.assert;
@@ -130,7 +131,7 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics, NullChannel,
       it('has floating labels on input', function () {
         view.$('#password').val('a');
         var event = new $.Event('input');
-        event.which = 13;
+        event.which = KeyCodes.ENTER;
 
         assert.isFalse(view.$('.label-helper').text().length > 0);
         view.$('#password').trigger(event);

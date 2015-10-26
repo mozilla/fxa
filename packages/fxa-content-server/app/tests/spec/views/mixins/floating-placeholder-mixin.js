@@ -8,8 +8,9 @@ define([
   'jquery',
   'stache!templates/test_template',
   'views/form',
-  'views/mixins/floating-placeholder-mixin'
-], function (chai, Cocktail, $, Template, FormView, FloatingPlaceholderMixin) {
+  'views/mixins/floating-placeholder-mixin',
+  'lib/key-codes'
+], function (chai, Cocktail, $, Template, FormView, FloatingPlaceholderMixin, KeyCodes) {
   'use strict';
 
   var assert = chai.assert;
@@ -34,7 +35,7 @@ define([
     describe('keyboard input', function () {
       it('no action if enter is pressed with no other input', function () {
         var event = new $.Event('input');
-        event.which = 13;
+        event.which = KeyCodes.ENTER;
 
         view.$('#float_me').trigger(event);
 
@@ -46,7 +47,7 @@ define([
         view.$('#float_me').val('a');
 
         var event = new $.Event('input');
-        event.which = 13;
+        event.which = KeyCodes.ENTER;
 
         view.$('#float_me').trigger(event);
 
