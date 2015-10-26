@@ -270,7 +270,8 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
 
           windowMock.location.search = Url.objToSearchString({
             code: 'code',
-            service: 'client id'
+            service: 'client id',
+            uid: 'users id'
           });
 
           return testExpectedBrokerCreated(WebChannelBroker);
@@ -310,7 +311,8 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
         it('returns a Redirect broker if both `code` and `service` are available - for verification flows', function () {
           windowMock.location.search = Url.objToSearchString({
             code: 'the code',
-            service: 'the service'
+            service: 'the service',
+            uid: 'users id'
           });
 
           return testExpectedBrokerCreated(RedirectBroker);
@@ -332,6 +334,16 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
       describe('base', function () {
         it('returns a Base broker if the user directly browses to any other page', function () {
           windowMock.location.href = '/settings';
+
+          return testExpectedBrokerCreated(BaseBroker);
+        });
+
+        it('returns a BaseBroker if verifying a Sync signup', function () {
+          windowMock.location.search = Url.objToSearchString({
+            code: 'the code',
+            service: Constants.SYNC_SERVICE,
+            uid: 'users id'
+          });
 
           return testExpectedBrokerCreated(BaseBroker);
         });
@@ -362,7 +374,7 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
       });
 
       it('creates an SyncRelier if Sync', function () {
-        sinon.stub(appStart, '_isSync', function () {
+        sinon.stub(appStart, '_isServiceSync', function () {
           return true;
         });
 
@@ -622,7 +634,7 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
           return true;
         });
 
-        sinon.stub(appStart, '_isSync', function () {
+        sinon.stub(appStart, '_isServiceSync', function () {
           return true;
         });
 

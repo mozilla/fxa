@@ -299,7 +299,7 @@ function (
     _getAllowedParentOrigins: function () {
       if (! this._isInAnIframe()) {
         return [];
-      } else if (this._isSync()) {
+      } else if (this._isServiceSync()) {
         // If in an iframe for sync, the origin is checked against
         // a pre-defined set of origins sent from the server.
         return this._config.allowedParentOrigins;
@@ -377,7 +377,7 @@ function (
       if (! this._relier) {
         var relier;
 
-        if (this._isSync()) {
+        if (this._isServiceSync()) {
           // Use the SyncRelier for sync verification so that
           // the service name is translated correctly.
           relier = new SyncRelier({
@@ -659,16 +659,28 @@ function (
       return Storage.factory('localStorage', this._window);
     },
 
-    _isSync: function () {
-      return this._searchParam('service') === Constants.SYNC_SERVICE;
+    _isServiceSync: function () {
+      return this._isService(Constants.SYNC_SERVICE);
+    },
+
+    _isServiceOAuth: function () {
+      var service = this._searchParam('service');
+      // any service that is not the sync service is automatically
+      // considered an OAuth service
+      return service && ! this._isServiceSync();
+    },
+
+    _isService: function (compareToService) {
+      var service = this._searchParam('service');
+      return !! (service && compareToService && service === compareToService);
     },
 
     _isFxFennecV1: function () {
-      return this._searchParam('context') === Constants.FX_FENNEC_V1_CONTEXT;
+      return this._isContext(Constants.FX_FENNEC_V1_CONTEXT);
     },
 
     _isFxDesktopV1: function () {
-      return this._searchParam('context') === Constants.FX_DESKTOP_V1_CONTEXT;
+      return this._isContext(Constants.FX_DESKTOP_V1_CONTEXT);
     },
 
     _isFxDesktopV2: function () {
@@ -677,16 +689,39 @@ function (
       //
       // A check for context=fx_desktop_v2 can be added when about:accounts
       // is converted to use WebChannels.
-      return (this._isSync() && this._isIframeContext()) ||
-             (this._searchParam('context') === Constants.FX_DESKTOP_V2_CONTEXT);
+      return (this._isServiceSync() && this._isIframeContext()) ||
+             (this._isContext(Constants.FX_DESKTOP_V2_CONTEXT));
     },
 
     _isFxiOSV1: function () {
-      return this._searchParam('context') === Constants.FX_IOS_V1_CONTEXT;
+      return this._isContext(Constants.FX_IOS_V1_CONTEXT);
     },
 
     _isFxiOSV2: function () {
-      return this._searchParam('context') === Constants.FX_IOS_V2_CONTEXT;
+      return this._isContext(Constants.FX_IOS_V2_CONTEXT);
+    },
+
+    _isContext: function (contextName) {
+      return this._getContext() === contextName;
+    },
+
+    _getContext: function () {
+      return this._searchParam('context') || Constants.DIRECT_CONTEXT;
+    },
+
+    _isSignUpOrAccountUnlockVerification: function () {
+      return this._searchParam('code') &&
+             this._searchParam('uid');
+    },
+
+    _isPasswordResetVerification: function () {
+      return this._searchParam('code') &&
+             this._searchParam('token');
+    },
+
+    _isVerification: function () {
+      return this._isSignUpOrAccountUnlockVerification() ||
+             this._isPasswordResetVerification();
     },
 
     _isFirstRun: function () {
@@ -704,7 +739,7 @@ function (
     },
 
     _isIframeContext: function () {
-      return this._searchParam('context') === Constants.IFRAME_CONTEXT;
+      return this._isContext(Constants.IFRAME_CONTEXT);
     },
 
     _isIframe: function () {
@@ -712,18 +747,26 @@ function (
     },
 
     _isOAuth: function () {
-      // for /force_auth
+      // signin/signup/force_auth
       return !! (this._searchParam('client_id') ||
-                 // for verification flows
-                 (this._searchParam('code') && this._searchParam('service')) ||
-                 // for /oauth/signin or /oauth/signup
-                 /oauth/.test(this._window.location.href));
+                 // verification
+                 this._isOAuthVerificationSameBrowser()) ||
+                 this._isOAuthVerificationDifferentBrowser() ||
+                 // any URL with oauth in it
+                 /oauth/.test(this._window.location.href);
+    },
+
+    _getSavedClientId: function () {
+      return Session.oauth && Session.oauth.client_id;
     },
 
     _isOAuthVerificationSameBrowser: function () {
-      var savedClientId = Session.oauth && Session.oauth.client_id;
-      return !! (this._searchParam('code') &&
-                (this._searchParam('service') === savedClientId));
+      return this._isVerification() &&
+             this._isService(this._getSavedClientId());
+    },
+
+    _isOAuthVerificationDifferentBrowser: function () {
+      return this._isVerification() && this._isServiceOAuth();
     },
 
     _searchParam: function (name) {
