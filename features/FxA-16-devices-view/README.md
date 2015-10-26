@@ -11,23 +11,25 @@ As a Firefox Accounts user when using Firefox, I want to know the devices and se
 ![PC Icon](device-icon-mobile.png)
 
 ## Collapsed View
-![Collapsed View](devices1-collapsed.png)
-
-## Minimal View (no rename)
-![Collapsed View](devices6-disconnect-and-refresh-only.png)
-
-## Expanded View (with rename)
-![Expanded View](devices2-expanded.png)
-
-## Refreshing View (with rename)
-![Refreshing View](devices3-refreshing.png)
-
-## Reviewing View (with rename)
-![Reviewing View](devices4-reviewing.png)
-
-## Renaming View (with rename)
-![Renaming View](devices5-renaming.png)
+When the user is syncing one or more devices, a **Devices** section appears in the settings section above the **Password** section.
+![Collapsed View](devices-collapsed.png)
 
 ## Fetching Devices View
-Disable button and resize the existing spinner in half while fetching devices.
-![Collapsed View](devices7-fetching-devices.png)
+When the user clicks the **Show** button, and the server has to fetch the images, the **Show** button becomes disabled and is replaced with a spinning wheel (halved in size from full size spinning wheel).
+![Collapsed View](devices-fetching-devices.png)
+
+## Minimal View (no rename)
+When the user expands the **Device** section, the Firefox profiles that are syncing through this account are presented with the relative time they last authenticated to sync, with a **Disconnect** button beside each.
+![Collapsed View](devices-disconnect-and-refresh-only.png)
+
+## Expanded View (with rename)
+![Expanded View](devices-expanded.png)
+
+## Refreshing View (with rename)
+![Refreshing View](devices-refreshing.png)
+
+## Reviewing View (with rename)
+![Reviewing View](devices-reviewing.png)
+
+## Renaming View (with rename)
+![Renaming View](devices-renaming.png)
