@@ -4,6 +4,12 @@ train-48.2
 train-48.1
   * fix(deps): shrinkwrap excludes fxa-jwtool->pem-jwk dep if pem-jwk is a devDep #1085
 
+train-48
+  * fix(email): stop sending new sync device emails #1084
+  * refactor(basket): move basket event processing into separate repo #1073
+  * feat(server): support stricter access-control origin on most endpoints #1078
+  * updated dependencies
+
 train-47.1
  * chore(e2e-email): updates for train-47 state of l10n
  * chore(l10n): language value in l10n file changed from "sr" to "sr-Latn"
