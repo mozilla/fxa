@@ -1,3 +1,6 @@
+train-48
+  * feat(db): add device registration and management endpoints #110
+
 train-46
   * feat(db): add endpoint to return a user's sessions #102
   * feat(db): return accountCreatedAt from sessionToken stored procedure #105
