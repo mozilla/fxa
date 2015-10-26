@@ -48,6 +48,7 @@
     "grunt-contrib-cssmin": "0.14.0",
     "grunt-contrib-htmlmin": "0.5.0",
     "grunt-contrib-uglify": "0.9.2",
+    "grunt-githash": "0.1.1",
     "grunt-marked": "git://github.com/zaach/grunt-marked.git#1a8ed1346c",
     "grunt-po2json": "git://github.com/shane-tomlinson/grunt-po2json.git#aa276503e",
     "grunt-requirejs": "0.4.2",

@@ -6,6 +6,7 @@ module.exports = function (grunt) {
   grunt.registerTask('build', [
     // Clean files and folders from any previous build
     'clean',
+    'githash',
 
     // Select 'dist' configuration files for the running environment.
     'selectconfig:dist',
