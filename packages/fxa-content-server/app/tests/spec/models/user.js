@@ -8,6 +8,8 @@ define(function (require, exports, module) {
   var AuthErrors = require('lib/auth-errors');
   var chai = require('chai');
   var Constants = require('lib/constants');
+  var Device = require('models/device');
+  var Devices = require('models/devices');
   var FxaClient = require('lib/fxa-client');
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
@@ -117,7 +119,7 @@ define(function (require, exports, module) {
           assert.equal(user.getAccountByUid('uid').get('uid'), 'uid');
           assert.equal(notifier.triggerRemote.callCount, 1);
           var args = notifier.triggerRemote.args[0];
-          assert.lengthOf(args, 1);
+          assert.lengthOf(args, 2);
           assert.equal(args[0], notifier.EVENTS.SIGNED_OUT);
         });
     });
@@ -520,6 +522,88 @@ define(function (require, exports, module) {
       it('returns the uniqueUserId', function () {
         var resumeTokenInfo = user.pickResumeTokenInfo();
         assert.equal(resumeTokenInfo.uniqueUserId, UUID);
+      });
+    });
+
+    describe('fetchAccountDevices', function () {
+      var account;
+      var devices;
+
+      beforeEach(function () {
+        account = user.initAccount({});
+        sinon.stub(account, 'fetchDevices', function () {
+          return p();
+        });
+
+        devices = new Devices([], {
+          notifier: {
+            on: sinon.spy()
+          }
+        });
+
+        return user.fetchAccountDevices(account, devices);
+      });
+
+      it('delegates to the account to fetch devices', function () {
+        assert.isTrue(account.fetchDevices.calledWith(devices));
+      });
+    });
+
+    describe('destroyAccountDevice', function () {
+      var account;
+      var device;
+
+      beforeEach(function () {
+        account = user.initAccount({
+          email: 'a@a.com',
+          sessionToken: 'session token',
+          uid: 'the uid'
+        });
+
+        sinon.stub(account, 'destroyDevice', function () {
+          return p();
+        });
+
+        sinon.stub(account, 'fetch', function () {
+          return p();
+        });
+
+
+        sinon.spy(user, 'clearSignedInAccount');
+
+        device = new Device({
+          id: 'device-1',
+          name: 'alpha',
+          sessionToken: 'session token'
+        });
+
+        return user.destroyAccountDevice(account, device);
+      });
+
+      it('delegates to the account to destroy the device', function () {
+        assert.isTrue(account.destroyDevice.calledWith(device));
+      });
+
+      describe('with a remote device', function () {
+        it('does not sign out the current user', function () {
+          assert.isFalse(user.clearSignedInAccount.called);
+        });
+      });
+
+
+      describe('with the current account\'s current device', function () {
+        beforeEach(function () {
+          device.set('isCurrentDevice', true);
+
+          return user.setSignedInAccount(account)
+            .then(function () {
+              return user.destroyAccountDevice(account, device);
+            });
+        });
+
+        it('signs out the current account', function () {
+          assert.isTrue(user.clearSignedInAccount.called);
+        });
       });
     });
   });

@@ -854,6 +854,33 @@ define(function (require, exports, module) {
         });
       });
     });
+
+    describe('deviceList', function () {
+      beforeEach(function () {
+        sinon.stub(realClient, 'deviceList', function () {
+          return p();
+        });
+        return client.deviceList('session token');
+      });
+
+      it('calls `deviceList` of the realClient', function () {
+        assert.isTrue(realClient.deviceList.calledWith('session token'));
+      });
+    });
+
+    describe('deviceDestroy', function () {
+      beforeEach(function () {
+        sinon.stub(realClient, 'deviceDestroy', function () {
+          return p();
+        });
+        return client.deviceDestroy('session token', 'device id');
+      });
+
+      it('calls `deviceDestroy` of the realClient', function () {
+        assert.isTrue(
+          realClient.deviceDestroy.calledWith('session token', 'device id'));
+      });
+    });
   });
 });
 

@@ -470,6 +470,20 @@ define(function (require, exports, module) {
         .then(function (client) {
           return client.accountKeys(keyFetchToken, unwrapBKey);
         });
+    },
+
+    deviceList: function (sessionToken) {
+      return this._getClient()
+        .then(function (client) {
+          return client.deviceList(sessionToken);
+        });
+    },
+
+    deviceDestroy: function (sessionToken, deviceId) {
+      return this._getClient()
+        .then(function (client) {
+          return client.deviceDestroy(sessionToken, deviceId);
+        });
     }
   };
 

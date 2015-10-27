@@ -29,6 +29,10 @@ define(function (require, exports, module) {
       // to ensure their data isn't sticking around in memory.
       this._formPrefill.clear();
       Session.clear();
+      this.navigateToSignIn();
+    },
+
+    navigateToSignIn: function () {
       this.navigate('signin', {
         clearQueryParams: true,
         success: BaseView.t('Signed out successfully')

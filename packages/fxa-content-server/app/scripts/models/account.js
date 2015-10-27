@@ -328,6 +328,10 @@ define(function (require, exports, module) {
         });
     },
 
+    signOut: function () {
+      return this._fxaClient.signOut(this.get('sessionToken'));
+    },
+
     saveGrantedPermissions: function (clientId, clientPermissions) {
       var permissions = this.get('grantedPermissions') || {};
       permissions[clientId] = clientPermissions;
@@ -414,6 +418,38 @@ define(function (require, exports, module) {
         })
         .then(function (updatedSessionData) {
           self.set(updatedSessionData);
+        });
+    },
+
+    /**
+     * Fetch the account's device list and populate the `devices` collection.
+     *
+     * @param {object} devices - Devices collection
+     * @returns {promise} - resolves when complete
+     */
+    fetchDevices: function (devices) {
+      var sessionToken = this.get('sessionToken');
+
+      return this._fxaClient.deviceList(sessionToken)
+        .then(devices.set.bind(devices));
+    },
+
+    /**
+     * Delete the device from the account
+     *
+     * @param {object} device - Device model to remove
+     * @returns {promise} - resolves when complete
+     *
+     * @param {object} devices - Devices collection
+     * @returns {promise} - resolves when complete
+     */
+    destroyDevice: function (device) {
+      var deviceId = device.get('id');
+      var sessionToken = this.get('sessionToken');
+
+      return this._fxaClient.deviceDestroy(sessionToken, deviceId)
+        .then(function () {
+          device.destroy();
         });
     }
   });

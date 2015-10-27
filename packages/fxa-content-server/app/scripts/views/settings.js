@@ -17,6 +17,7 @@ define(function (require, exports, module) {
   var Cocktail = require('cocktail');
   var CommunicationPreferencesView = require('views/settings/communication_preferences');
   var DeleteAccountView = require('views/settings/delete_account');
+  var DevicesView = require('views/settings/devices');
   var DisplayNameView = require('views/settings/display_name');
   var GravatarPermissionsView = require('views/settings/gravatar_permissions');
   var GravatarView = require('views/settings/avatar_gravatar');
@@ -30,6 +31,7 @@ define(function (require, exports, module) {
   var PANEL_VIEWS = [
     AvatarView,
     DisplayNameView,
+    DevicesView,
     CommunicationPreferencesView,
     ChangePasswordView,
     DeleteAccountView,
@@ -187,19 +189,16 @@ define(function (require, exports, module) {
 
     signOut: allowOnlyOneSubmit(function () {
       var self = this;
-      var sessionToken = self.getSignedInAccount().get('sessionToken');
+      var accountToSignOut = self.getSignedInAccount();
 
       self.logViewEvent('signout.submit');
-      return self.fxaClient.signOut(sessionToken)
+      return self.user.signOutAccount(accountToSignOut)
         .fail(function () {
-          // ignore the error.
-          // Clear the session, even on failure. Everything is A-OK.
-          // See issue #616
+          // log and ignore the error.
           self.logViewEvent('signout.error');
         })
         .fin(function () {
           self.logViewEvent('signout.success');
-          self.user.clearSignedInAccount();
           self.clearSessionAndNavigateToSignIn();
         });
     }),
