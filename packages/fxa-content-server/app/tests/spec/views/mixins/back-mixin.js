@@ -9,13 +9,13 @@ define([
   '../../../mocks/window',
   'views/mixins/back-mixin',
   'views/base',
-  'stache!templates/test_template'
+  'stache!templates/test_template',
+  'lib/key-codes'
 ], function (Cocktail, Chai, sinon, WindowMock,
-        BackMixin, BaseView, TestTemplate) {
+        BackMixin, BaseView, TestTemplate, KeyCodes) {
   'use strict';
 
   var assert = Chai.assert;
-  var ENTER_BUTTON_CODE = 13;
 
   var View = BaseView.extend({
     template: TestTemplate
@@ -54,7 +54,7 @@ define([
 
     describe('backOnEnter', function () {
       it('calls window.history.back if user presses ENTER key', function () {
-        view.backOnEnter({ which: ENTER_BUTTON_CODE });
+        view.backOnEnter({ which: KeyCodes.ENTER });
         assert.isTrue(windowMock.history.back.called);
       });
 
@@ -64,7 +64,7 @@ define([
           return true;
         });
 
-        view.backOnEnter({ which: ENTER_BUTTON_CODE + 1});
+        view.backOnEnter({ which: KeyCodes.ENTER + 1});
         assert.isFalse(windowMock.history.back.called);
       });
     });

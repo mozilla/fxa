@@ -9,11 +9,10 @@
  */
 
 define([
-  'views/base'
-], function (BaseView) {
+  'views/base',
+  'lib/key-codes'
+], function (BaseView, KeyCodes) {
   'use strict';
-
-  var ENTER_BUTTON_CODE = 13;
 
   var BackMixin = {
     _canGoBack: false,
@@ -62,7 +61,7 @@ define([
      * @param {Object} event
      */
     backOnEnter: function (event) {
-      if (event.which === ENTER_BUTTON_CODE) {
+      if (event.which === KeyCodes.ENTER) {
         this.back();
       }
     },
@@ -80,4 +79,3 @@ define([
 
   return BackMixin;
 });
-

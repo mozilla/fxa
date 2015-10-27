@@ -7,8 +7,9 @@ define([
   'lib/auth-errors',
   'stache!templates/partial/coppa-age-input',
   'views/form',
-  'views/mixins/floating-placeholder-mixin'
-], function (Cocktail, AuthErrors, Template, FormView, FloatingPlaceholderMixin) {
+  'views/mixins/floating-placeholder-mixin',
+  'lib/key-codes'
+], function (Cocktail, AuthErrors, Template, FormView, FloatingPlaceholderMixin, KeyCodes) {
   'use strict';
 
   var CUTOFF_AGE = 13;
@@ -73,7 +74,7 @@ define([
     },
 
     submitOnEnter: function (event) {
-      if (event.which === 13) {
+      if (event.which === KeyCodes.ENTER) {
         this.trigger('submit');
       }
     },

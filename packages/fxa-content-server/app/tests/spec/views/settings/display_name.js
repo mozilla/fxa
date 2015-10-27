@@ -13,9 +13,10 @@ define([
   'models/reliers/relier',
   'models/user',
   '../../../mocks/router',
-  '../../../lib/helpers'
+  '../../../lib/helpers',
+  'lib/key-codes'
 ],
-function (chai, $, sinon, p, View, Metrics, Notifications, Relier, User, RouterMock, TestHelpers) {
+function (chai, $, sinon, p, View, Metrics, Notifications, Relier, User, RouterMock, TestHelpers, KeyCodes) {
   'use strict';
 
   var assert = chai.assert;
@@ -112,7 +113,7 @@ function (chai, $, sinon, p, View, Metrics, Notifications, Relier, User, RouterM
           .then(function () {
             view.$('.display-name').val('a');
             var event = new $.Event('input');
-            event.which = 13;
+            event.which = KeyCodes.ENTER;
 
             assert.isFalse(view.$('.label-helper').text().length > 0);
             view.$('.display-name').trigger(event);
