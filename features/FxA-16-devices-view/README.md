@@ -22,6 +22,10 @@ When the user clicks the **Show** button, and the server has to fetch the images
 When the user expands the **Device** section, the Firefox profiles that are syncing through this account are presented with the relative time they last authenticated to sync, with a **Disconnect** button beside each.
 ![Collapsed View](devices-disconnect-and-refresh-only.png)
 
+## Disconnecting View (no rename)
+When the user clicks and releases the **Disconnect** button, the row is overtaken by the area beneath it.
+![Disconnecting View](devices-disconnecting.gif)
+
 ## Expanded View (with rename)
 ![Expanded View](devices-expanded.png)
 
