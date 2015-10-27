@@ -25,15 +25,3 @@ When the user expands the **Device** section, the Firefox profiles that are sync
 ## Disconnecting View (no rename)
 When the user clicks and releases the **Disconnect** button, the row is overtaken by the area beneath it.
 ![Disconnecting View](devices-disconnecting.gif)
-
-## Expanded View (with rename)
-![Expanded View](devices-expanded.png)
-
-## Refreshing View (with rename)
-![Refreshing View](devices-refreshing.png)
-
-## Reviewing View (with rename)
-![Reviewing View](devices-reviewing.png)
-
-## Renaming View (with rename)
-![Renaming View](devices-renaming.png)
