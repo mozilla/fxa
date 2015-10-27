@@ -649,7 +649,10 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
         this.ephemeralMessages.set('data', options.data);
       }
 
-      this.router.navigate(page, { trigger: true });
+      this.router.navigate(page, {
+        clearQueryParams: options.clearQueryParams,
+        trigger: true
+      });
     },
 
     /**

@@ -356,6 +356,8 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
             return p();
           });
           sinon.spy(user, 'clearSignedInAccount');
+          sinon.spy(relier, 'unset');
+          sinon.spy(view, 'navigate');
 
           formPrefill.set('email', 'testuser@testuser.com');
           formPrefill.set('password', 'password');
@@ -363,6 +365,27 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
           return view.signOut()
             .then(function () {
               assert.isTrue(user.clearSignedInAccount.called);
+
+              assert.equal(relier.unset.callCount, 3);
+              var args = relier.unset.args[0];
+              assert.lengthOf(args, 1);
+              assert.equal(args[0], 'uid');
+              args = relier.unset.args[1];
+              assert.lengthOf(args, 1);
+              assert.equal(args[0], 'email');
+              args = relier.unset.args[2];
+              assert.lengthOf(args, 1);
+              assert.equal(args[0], 'preVerifyToken');
+
+              assert.equal(view.navigate.callCount, 1);
+              args = view.navigate.args[0];
+              assert.lengthOf(args, 2);
+              assert.equal(args[0], 'signin');
+              assert.deepEqual(args[1], {
+                clearQueryParams: true,
+                success: 'Signed out successfully'
+              });
+
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.submit'));
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.success'));
               assert.isFalse(TestHelpers.isEventLogged(metrics, 'settings.signout.error'));

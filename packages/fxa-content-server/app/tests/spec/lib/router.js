@@ -97,13 +97,35 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView,
         assert.equal(navigateUrl, '/signin');
         assert.deepEqual(navigateOptions, { trigger: true });
       });
+    });
 
-      it('preserves window search parameters across screen transition', function () {
+    describe('set query params', function () {
+      beforeEach(function () {
         windowMock.location.search = '?context=' + Constants.FX_DESKTOP_V1_CONTEXT;
-        router.navigate('/forgot');
-        assert.equal(navigateUrl, '/forgot?context=' + Constants.FX_DESKTOP_V1_CONTEXT);
-        assert.deepEqual(navigateOptions, { trigger: true });
       });
+
+      describe('navigate with default options', function () {
+        beforeEach(function () {
+          router.navigate('/forgot');
+        });
+
+        it('preserves query params', function () {
+          assert.equal(navigateUrl, '/forgot?context=' + Constants.FX_DESKTOP_V1_CONTEXT);
+          assert.deepEqual(navigateOptions, { trigger: true });
+        });
+      });
+
+      describe('navigate with clearQueryParams option set', function () {
+        beforeEach(function () {
+          router.navigate('/forgot', { clearQueryParams: true });
+        });
+
+        it('clears the query params if clearQueryString option is set', function () {
+          assert.equal(navigateUrl, '/forgot');
+          assert.deepEqual(navigateOptions, { clearQueryParams: true });
+        });
+      });
+
     });
 
     describe('redirectToSignupOrSettings', function () {
