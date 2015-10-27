@@ -55,6 +55,10 @@ fxaProfile.setPreference('devtools.chrome.enabled', true);
 fxaProfile.setPreference('devtools.debugger.remote-enabled', true);
 fxaProfile.setPreference('devtools.debugger.prompt-connection', false);
 
+// disable signed extensions
+// the WebDriver extension will not work in Nightly because signed extensions are forced
+fxaProfile.setPreference('xpinstall.signatures.required', false);
+
 fxaProfile.setPreference('webdriver.log.browser.file', BROWSER_LOG);
 fxaProfile.setPreference('webdriver.log.driver.file', DRIVER_LOG);
 
