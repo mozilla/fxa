@@ -356,6 +356,7 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
             return p();
           });
           sinon.spy(user, 'clearSignedInAccount');
+          sinon.spy(relier, 'unset');
           sinon.spy(view, 'navigate');
 
           formPrefill.set('email', 'testuser@testuser.com');
@@ -365,8 +366,19 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
             .then(function () {
               assert.isTrue(user.clearSignedInAccount.called);
 
+              assert.equal(relier.unset.callCount, 3);
+              var args = relier.unset.args[0];
+              assert.lengthOf(args, 1);
+              assert.equal(args[0], 'uid');
+              args = relier.unset.args[1];
+              assert.lengthOf(args, 1);
+              assert.equal(args[0], 'email');
+              args = relier.unset.args[2];
+              assert.lengthOf(args, 1);
+              assert.equal(args[0], 'preVerifyToken');
+
               assert.equal(view.navigate.callCount, 1);
-              var args = view.navigate.args[0];
+              args = view.navigate.args[0];
               assert.lengthOf(args, 2);
               assert.equal(args[0], 'signin');
               assert.deepEqual(args[1], {

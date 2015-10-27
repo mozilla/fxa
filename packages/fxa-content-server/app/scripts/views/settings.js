@@ -206,6 +206,11 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
         })
         .fin(function () {
           self.logViewEvent('signout.success');
+          // Unset uid otherwise it will henceforth be impossible
+          // to sign in to different accounts inside this tab.
+          self.relier.unset('uid');
+          self.relier.unset('email');
+          self.relier.unset('preVerifyToken');
           self.user.clearSignedInAccount();
           // The user has manually signed out, a pretty strong indicator
           // the user does not want any of their information pre-filled

@@ -120,6 +120,66 @@ define([
         .end();
     },
 
+    'sign up, verify and sign out of two accounts, all in the same tab, then sign in to the first account': function () {
+      // https://github.com/mozilla/fxa-content-server/issues/2209
+      var secondEmail = TestHelpers.createEmail();
+      var self = this;
+      return fillOutSignUp(this, email, PASSWORD)
+        .then(function () {
+          return testAtConfirmScreen(self, email);
+        })
+        .then(function () {
+          return FunctionalHelpers.getVerificationLink(email, 0);
+        })
+        .then(function (verificationLink) {
+          return self.remote.get(require.toUrl(verificationLink));
+        })
+
+        .findByCssSelector('#fxa-settings-header')
+        .end()
+
+        .then(FunctionalHelpers.testSuccessWasShown(self))
+
+        .findByCssSelector('#signout')
+          .click()
+        .end()
+
+        .findByCssSelector('#fxa-signin-header')
+        .end()
+
+        .then(function () {
+          return fillOutSignUp(self, secondEmail, PASSWORD);
+        })
+        .then(function () {
+          return testAtConfirmScreen(self, secondEmail);
+        })
+        .then(function () {
+          return FunctionalHelpers.getVerificationLink(secondEmail, 0);
+        })
+        .then(function (verificationLink) {
+          return self.remote.get(require.toUrl(verificationLink));
+        })
+
+        .findByCssSelector('#fxa-settings-header')
+        .end()
+
+        .then(FunctionalHelpers.testSuccessWasShown(self))
+
+        .findByCssSelector('#signout')
+          .click()
+        .end()
+
+        .findByCssSelector('#fxa-signin-header')
+        .end()
+
+        .then(function () {
+          return fillOutSignIn(self, email, PASSWORD);
+        })
+
+        .findByCssSelector('#fxa-settings-header')
+        .end();
+    },
+
     'sign up, verify same browser by replacing the original tab': function () {
       var self = this;
       return fillOutSignUp(this, email, PASSWORD)
