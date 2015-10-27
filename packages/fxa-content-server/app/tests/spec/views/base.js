@@ -478,6 +478,15 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
 
         assert.equal(view.ephemeralData(), 'foo');
       });
+
+      it('propagates the clearQueryParams option', function () {
+        sinon.spy(view.router, 'navigate');
+        view.navigate('signin', { clearQueryParams: true });
+        assert.equal(view.router.navigate.callCount, 1);
+        var args = view.router.navigate.args[0];
+        assert.deepEqual(args[1], { clearQueryParams: true, trigger: true });
+        view.router.navigate.restore();
+      });
     });
 
     describe('focus', function () {

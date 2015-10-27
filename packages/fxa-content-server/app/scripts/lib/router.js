@@ -158,16 +158,15 @@ function (
     },
 
     navigate: function (url, options) {
-      // Only add search parameters if they do not already exist.
-      // Search parameters are added to the URLs because they are sometimes
-      // used to pass state from the browser to the screens. Perhaps we should
-      // take the search parameters on startup, toss them into Session, and
-      // forget about this malarky?
-      if (! /\?/.test(url)) {
+      options = options || { trigger: true };
+
+      // If the caller has not asked us to clear the query params
+      // and the new URL does not contain query params, propagate
+      // the current query params to the next view.
+      if (! options.clearQueryParams && ! /\?/.test(url)) {
         url = url + this.window.location.search;
       }
 
-      options = options || { trigger: true };
       return Backbone.Router.prototype.navigate.call(this, url, options);
     },
 

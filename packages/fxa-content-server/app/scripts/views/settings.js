@@ -214,6 +214,7 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
           self._formPrefill.clear();
           Session.clear();
           self.navigate('signin', {
+            clearQueryParams: true,
             success: t('Signed out successfully')
           });
         });
