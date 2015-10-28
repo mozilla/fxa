@@ -40,6 +40,8 @@ module.exports = function (
     )
   ]
 
+  var verificationReminder = require('../verification-reminders')(log, db)
+
   function isOpenIdProviderAllowed(id) {
     if (typeof(id) !== 'string') { return false }
     var hostname = url.parse(id).hostname
@@ -223,7 +225,16 @@ module.exports = function (
               redirectTo: form.redirectTo,
               resume: form.resume,
               acceptLanguage: request.app.acceptLanguage
-            }).catch(function (err) {
+            })
+            .then(function () {
+              // only create reminder if sendVerifyCode succeeds
+              verificationReminder.create({
+                uid: account.uid.toString('hex')
+              }).catch(function (err) {
+                log.error({ op: 'Account.verificationReminder.create', err: err })
+              })
+            })
+            .catch(function (err) {
               log.error({ op: 'mailer.sendVerifyCode.1', err: err })
             })
           }
@@ -1081,6 +1092,12 @@ module.exports = function (
 
               // send a push notification to all devices that the account changed
               push.notifyUpdate(uid, 'accountVerify')
+              // remove verification reminders
+              verificationReminder.delete({
+                uid: account.uid.toString('hex')
+              }).catch(function (err) {
+                log.error({ op: 'Account.RecoveryEmailVerify', err: err })
+              })
 
               return db.verifyEmail(account)
                 .then(

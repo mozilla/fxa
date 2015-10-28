@@ -758,6 +758,26 @@ module.exports = function (
     )
   }
 
+  // VERIFICATION REMINDERS
+
+  DB.prototype.createVerificationReminder = function (reminderData) {
+    log.trace({
+      op: 'DB.createVerificationReminder',
+      reminderData: reminderData
+    })
+
+    return this.pool.post('/verificationReminders', reminderData)
+  }
+
+  DB.prototype.deleteVerificationReminder = function (reminderData) {
+    log.trace({
+      op: 'DB.deleteVerificationReminder',
+      reminderData: reminderData
+    })
+
+    return this.pool.del('/verificationReminders', reminderData)
+  }
+
   return DB
 }
 
