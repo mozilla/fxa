@@ -95,6 +95,13 @@ module.exports = function (grunt) {
           // Copy strings from hi_IN to hi
           expand: true,
           src: ['**/*.po']
+        },
+        {
+          cwd: '<%= yeoman.strings_src %>/pt_PT',
+          dest: '<%= yeoman.strings_dist %>/pt',
+          // Copy strings from pt_PT to pt
+          expand: true,
+          src: ['**/*.po']
         }
       ]
     },
