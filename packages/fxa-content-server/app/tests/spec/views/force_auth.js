@@ -7,6 +7,7 @@ define([
   'jquery',
   'sinon',
   'views/force_auth',
+  'views/sign_in',
   'lib/fxa-client',
   'lib/promise',
   'lib/auth-errors',
@@ -18,31 +19,31 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, sinon, View, FxaClient, p, AuthErrors, Relier, Broker,
-      User, FormPrefill, WindowMock, RouterMock, TestHelpers) {
+function (chai, $, sinon, View, SignInView, FxaClient, p, AuthErrors, Relier,
+  Broker, User, FormPrefill, WindowMock, RouterMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
 
   describe('/views/force_auth', function () {
+    var broker;
     var email;
-    var view;
-    var router;
-    var windowMock;
+    var formPrefill;
     var fxaClient;
     var relier;
-    var broker;
+    var router;
     var user;
-    var formPrefill;
+    var view;
+    var windowMock;
 
     function initDeps() {
-      windowMock = new WindowMock();
-      relier = new Relier();
       broker = new Broker();
-      fxaClient = new FxaClient();
-      user = new User();
-      router = new RouterMock();
       formPrefill = new FormPrefill();
+      fxaClient = new FxaClient();
+      relier = new Relier();
+      router = new RouterMock();
+      user = new User();
+      windowMock = new WindowMock();
 
       view = new View({
         broker: broker,
@@ -61,7 +62,7 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Relier, Broker,
       router = view = null;
     });
 
-    describe('missing email address', function () {
+    describe('with missing email address', function () {
       beforeEach(function () {
         initDeps();
         return view.render();
@@ -86,44 +87,188 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Relier, Broker,
           });
       });
 
-      describe('submit', function () {
-        it('is able to submit the form on click', function (done) {
-          sinon.stub(user, 'signInAccount', function () {
-            done();
-          });
-          view.$('#submit-btn').click();
+      describe('rendering', function () {
+        it('does not print an error message', function () {
+          assert.equal(view.$('.error').text(), '');
         });
 
-        it('submits the sign in', function () {
-          var password = 'password';
-          sinon.stub(user, 'signInAccount', function (account) {
-            account.set('verified', true);
-            return p(account);
+        it('email input is hidden for the Firefox Password manager', function () {
+          assert.equal(view.$('input[type=email]').hasClass('hidden'), 1);
+        });
+
+        it('prefills password', function () {
+          assert.equal(view.$('input[type=password]').val(), 'password');
+        });
+
+        it('user cannot create an account', function () {
+          assert.equal(view.$('a[href="/signup"]').length, 0);
+        });
+      });
+
+      describe('avatar rendering', function () {
+        describe('if there is not account', function () {
+          beforeEach(function () {
+            relier.set('email', 'a@a.com');
+
+            sinon.stub(user, 'getAccountByEmail', function () {
+              return user.initAccount();
+            });
+
+            return view.render()
+              .then(function () {
+                return view.afterVisible();
+              });
           });
+
+          it('does not show the profile image', function () {
+            assert.lengthOf(view.$('.avatar-view img'), 0);
+          });
+
+          it('shows a placeholder instead', function () {
+            assert.lengthOf(view.$('.avatar-view span'), 1);
+          });
+        });
+
+        describe('if account.email and relier.email match', function () {
+          beforeEach(function () {
+            relier.set('email', 'a@a.com');
+            var account = user.initAccount({
+              email: 'a@a.com'
+            });
+            var imgUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
+
+            sinon.stub(account, 'getAvatar', function () {
+              return p({ avatar: imgUrl, id: 'foo' });
+            });
+
+            sinon.stub(user, 'getAccountByEmail', function () {
+              return account;
+            });
+
+            return view.render()
+              .then(function () {
+                return view.afterVisible();
+              });
+          });
+
+          it('shows the user\'s avatar', function () {
+            assert.lengthOf(view.$('.avatar-view img'), 1);
+          });
+        });
+
+        describe('if Session.email and relier.email do not match', function () {
+          beforeEach(function () {
+            relier.set('email', 'a@a.com');
+            var account = user.initAccount({
+              email: 'b@b.com'
+            });
+
+            sinon.stub(account, 'getAvatar', function () {
+              return p({ avatar: 'avatar.jpg', id: 'foo' });
+            });
+
+            sinon.stub(user, 'getAccountByEmail', function () {
+              return account;
+            });
+
+            return view.render()
+              .then(function () {
+                return view.afterVisible();
+              });
+          });
+
+          it('shows no avatar', function () {
+            assert.lengthOf(view.$('.avatar-view img'), 0);
+          });
+        });
+      });
+
+      describe('submit', function () {
+        var password = 'password';
+
+        beforeEach(function () {
+          sinon.stub(view, '_signIn', function (account) {
+            return p();
+          });
+
           view.$('input[type=password]').val(password);
 
-          return view.submit()
-            .then(function () {
-              assert.equal(user.signInAccount.args[0][0].get('email'), email);
-              assert.equal(user.signInAccount.args[0][0].get('password'), password);
-            });
+          return view.submit();
+        });
+
+        it('calls view._signIn with the expected data', function () {
+          var account = view._signIn.args[0][0];
+          assert.equal(account.get('email'), email);
+          assert.equal(account.get('password'), password);
         });
       });
 
-      it('does not print an error message', function () {
-        assert.equal(view.$('.error').text(), '');
+      describe('onSignInSuccess', function () {
+        var account;
+
+        beforeEach(function () {
+          account = user.initAccount({
+            email: 'testuser@testuser.com',
+            password: 'password'
+          });
+
+          sinon.spy(broker, 'afterForceAuth');
+          sinon.spy(view, 'navigate');
+
+          return view.onSignInSuccess(account);
+        });
+
+        it('invokes `afterForceAuth` on the broker', function () {
+          assert.isTrue(broker.afterForceAuth.calledWith(account));
+        });
+
+        it('navigates to the `settings` page and clears the query parameters', function () {
+          assert.isTrue(view.navigate.calledWith('settings', { clearQueryParams: true }));
+        });
       });
 
-      it('email input is hidden for the Firefox Password manager', function () {
-        assert.equal(view.$('input[type=email]').hasClass('hidden'), 1);
-      });
+      describe('onSignInError', function () {
+        var account;
+        var err;
 
-      it('prefills password', function () {
-        assert.equal(view.$('input[type=password]').val(), 'password');
-      });
+        beforeEach(function () {
+          account = user.initAccount({
+            email: 'testuser@testuser.com',
+            password: 'password'
+          });
+        });
 
-      it('user cannot create an account', function () {
-        assert.equal(view.$('a[href="/signup"]').length, 0);
+        describe('with an unknown account', function () {
+          beforeEach(function () {
+            err = AuthErrors.toError('UNKNOWN_ACCOUNT');
+
+            sinon.spy(view, 'displayError');
+
+            return view.onSignInError(account, err);
+          });
+
+          it('does not allow the user to sign up', function () {
+            assert.isTrue(view.displayError.calledWith(err));
+          });
+        });
+
+        describe('all other errors', function () {
+          beforeEach(function () {
+            err = AuthErrors.toError('UNEXPECTED_ERROR');
+
+            sinon.stub(SignInView.prototype, 'onSignInError', sinon.spy());
+
+            view.onSignInError(account, err);
+          });
+
+          afterEach(function () {
+            SignInView.prototype.onSignInError.restore();
+          });
+
+          it('are delegated to the prototype', function () {
+            assert.isTrue(SignInView.prototype.onSignInError.calledWith(account, err));
+          });
+        });
       });
 
       it('isValid is successful when the password is filled out', function () {
@@ -131,105 +276,57 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Relier, Broker,
         assert.isTrue(view.isValid());
       });
 
-      it('forgot password request redirects directly to confirm_reset_password', function () {
+      describe('resetPasswordNow', function () {
         var passwordForgotToken = 'foo';
-        sinon.stub(view.fxaClient, 'passwordReset', function () {
-          return p({ passwordForgotToken: passwordForgotToken });
-        });
-        sinon.stub(view, 'getStringifiedResumeToken', function () {
-          return 'resume token';
-        });
 
-        relier.set('email', email);
-
-        return view.resetPasswordNow()
-          .then(function () {
-
-            assert.equal(router.page, 'confirm_reset_password');
-            assert.equal(view.ephemeralMessages.get('data').passwordForgotToken, passwordForgotToken);
-            assert.isTrue(view.fxaClient.passwordReset.calledWith(
-              email,
-              relier,
-              {
-                resume: 'resume token'
-              }
-            ));
+        beforeEach(function () {
+          sinon.stub(view.fxaClient, 'passwordReset', function () {
+            return p({ passwordForgotToken: passwordForgotToken });
           });
+          sinon.stub(view, 'getStringifiedResumeToken', function () {
+            return 'resume token';
+          });
+
+          sinon.stub(view, 'navigate');
+
+          relier.set('email', email);
+
+          return view.resetPasswordNow();
+        });
+
+        it('calls the fxaClient with the expected data', function () {
+          assert.isTrue(view.fxaClient.passwordReset.calledWith(
+            email,
+            relier,
+            {
+              resume: 'resume token'
+            }
+          ));
+        });
+
+        it('sends user to `/confirm_reset_password` and clears the query params', function () {
+          var args = view.navigate.args[0];
+          assert.equal(args[0], 'confirm_reset_password');
+          assert.isTrue(args[1].clearQueryParams);
+        });
+
+        it('sends expected data', function () {
+          var args = view.navigate.args[0][1];
+          var data = args.data;
+
+          assert.equal(data.email, email);
+          assert.equal(data.passwordForgotToken, passwordForgotToken);
+        });
+
+        it('only one forget password request at a time', function () {
+          view.resetPasswordNow();
+          return view.resetPasswordNow()
+            .then(assert.fail, function (err) {
+              assert.equal(err.message, 'submit already in progress');
+            });
+        });
       });
 
-      it('only one forget password request at a time', function () {
-        var event = $.Event('click');
-
-        view.resetPasswordNow(event);
-        return view.resetPasswordNow(event)
-          .then(assert.fail, function (err) {
-            assert.equal(err.message, 'submit already in progress');
-          });
-      });
-
-      it('shows no avatar if there is no account', function () {
-        relier.set('email', 'a@a.com');
-
-        sinon.stub(user, 'getAccountByEmail', function () {
-          return user.initAccount();
-        });
-
-        return view.render()
-          .then(function () {
-            return view.afterVisible();
-          })
-          .then(function () {
-            assert.notOk(view.$('.avatar-view img').length, 'does not show a profile image');
-            assert.ok(view.$('.avatar-view span').length, 'shows a placeholder if avatar is not available');
-          });
-      });
-
-      it('shows avatar when account.email and relier.email match', function () {
-        relier.set('email', 'a@a.com');
-        var account = user.initAccount({
-          email: 'a@a.com'
-        });
-        var imgUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
-
-        sinon.stub(account, 'getAvatar', function () {
-          return p({ avatar: imgUrl, id: 'foo' });
-        });
-
-        sinon.stub(user, 'getAccountByEmail', function () {
-          return account;
-        });
-
-        return view.render()
-          .then(function () {
-            return view.afterVisible();
-          })
-          .then(function () {
-            assert.ok(view.$('.avatar-view img').length);
-          });
-      });
-
-      it('shows no avatar when Session.email and relier.email do not match', function () {
-        relier.set('email', 'a@a.com');
-        var account = user.initAccount({
-          email: 'b@b.com'
-        });
-
-        sinon.stub(account, 'getAvatar', function () {
-          return p({ avatar: 'avatar.jpg', id: 'foo' });
-        });
-
-        sinon.stub(user, 'getAccountByEmail', function () {
-          return account;
-        });
-
-        return view.render()
-          .then(function () {
-            return view.afterVisible();
-          })
-          .then(function () {
-            assert.notOk(view.$('.avatar-view img').length);
-          });
-      });
     });
 
     describe('with unregistered email', function () {
@@ -285,14 +382,14 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Relier, Broker,
 
         relier.set('email', TestHelpers.createEmail());
 
-        return view.render();
+        return view.render()
+          .then(function () {
+            view.$('.password').val('password');
+            view.beforeDestroy();
+          });
       });
 
       it('saves the form info to formPrefill', function () {
-        view.$('.password').val('password');
-
-        view.beforeDestroy();
-
         assert.equal(formPrefill.get('password'), 'password');
       });
     });

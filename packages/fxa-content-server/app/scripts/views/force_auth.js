@@ -89,7 +89,9 @@ function (Cocktail, p, BaseView, FormView, SignInView, PasswordMixin,
       self.logViewEvent('success');
       return self.invokeBrokerMethod('afterForceAuth', account)
         .then(function () {
-          self.navigate(self._redirectTo || 'settings');
+          self.navigate(self._redirectTo || 'settings', {
+            clearQueryParams: true
+          });
         });
     },
 
@@ -114,6 +116,7 @@ function (Cocktail, p, BaseView, FormView, SignInView, PasswordMixin,
         .then(function (result) {
           self._isSubmitting = false;
           self.navigate('confirm_reset_password', {
+            clearQueryParams: true,
             data: {
               email: email,
               passwordForgotToken: result.passwordForgotToken
