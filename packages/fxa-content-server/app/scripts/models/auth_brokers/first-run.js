@@ -9,8 +9,9 @@
 
 define([
   'models/auth_brokers/fx-desktop-v2',
-  'views/behaviors/halt'
-], function (FxDesktopV2AuthenticationBroker, HaltBehavior) {
+  'views/behaviors/halt',
+  'underscore'
+], function (FxDesktopV2AuthenticationBroker, HaltBehavior, _) {
   'use strict';
 
   var proto = FxDesktopV2AuthenticationBroker.prototype;
@@ -22,6 +23,11 @@ define([
       SIGNUP_MUST_VERIFY: 'signup_must_verify',
       VERIFICATION_COMPLETE: 'verification_complete'
     },
+
+    defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
+      chooseWhatToSyncCheckbox: true,
+      chooseWhatToSyncWebV1: false
+    }),
 
     initialize: function (options) {
       options = options || {};

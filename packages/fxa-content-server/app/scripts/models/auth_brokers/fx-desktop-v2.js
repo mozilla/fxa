@@ -13,12 +13,43 @@
 define([
   './fx-sync',
   'lib/channels/web',
-  'lib/constants'
-
-], function (FxSyncAuthenticationBroker, WebChannel, Constants) {
+  'lib/constants',
+  'lib/promise',
+  'underscore',
+  'views/behaviors/navigate'
+], function (FxSyncAuthenticationBroker, WebChannel, Constants, p, _, NavigateBehavior) {
   'use strict';
 
+  var proto = FxSyncAuthenticationBroker.prototype;
+
   var FxDesktopV2AuthenticationBroker = FxSyncAuthenticationBroker.extend({
+    afterSignUp: function (account) {
+      var self = this;
+      return p().then(function () {
+        if (self.hasCapability('chooseWhatToSyncWebV1')) {
+          return new NavigateBehavior('choose_what_to_sync', {
+            data: {
+              account: account
+            }
+          });
+        }
+      });
+    },
+
+    defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
+      chooseWhatToSyncCheckbox: false,
+      chooseWhatToSyncWebV1: {
+        engines: [
+          'bookmarks',
+          'history',
+          'passwords',
+          'tabs',
+          'desktop-addons',
+          'desktop-preferences'
+        ]
+      }
+    }),
+
     type: 'fx-desktop-v2',
 
     commands: {
