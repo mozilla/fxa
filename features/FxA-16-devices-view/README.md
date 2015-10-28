@@ -54,43 +54,51 @@ Details
 
 #### What is a "device"?
 
-By "device" here we mean "an instance of Firefox".
+By "device" here we mean roughly
+"a browser with an active FxA session token".
 There is no separate notion of having multiple "browsers" on a single "device".
-Technically the concept is closer to "profiles"
-but this is not a good name to present the users.
+Technically the concept is closer to "sessions" or "profiles"
+but these are not good names to present to users.
 
-* When I use a desktop machine
-  and connect both Firefox Release and Firefox Nightly to my account,
-  they appear as two separate devices.
-  There will be no indicatiion that they're on the same physical machine
-  apart from similarity in their auto-generated name and their UA details.
+Newer versions of Firefox
+may explicitly register themselves via the devices API
+and provide a custom name, push endpoint, etc.
+But we have many older devices in the wild
+that do not know how to register themselves explicitly,
+and we only know about them through their session token.
 
-* When I use Firefox for Android or Firefox for iOS...
-  TODO what exactly do we expect to happen?
-
-* When I use a FirefoxOS device,
-  it appears in the view as a single device
-  since the connetion is managed at the system level.
-  Also, TODO do we care at this stage?
-
-For the initial version, only things that connect to sync count as devices.
-
-* When I log in to Marketplace with my Firefox Account,
-  using the web-based flow in a browser that is not connected to my account,
-  the resulting session does *not* appear in the list of devices.
-
-* When I log in to Pocket with my Firefox Account
-  using non-Firefox web browser,
-  the resulting session does *not* appear in the list of devices.
+* When I sign in to Firefox on my desktop machine
+  to connect it to sync
+  that instance of Firefox will appear in the devices view.
 
 * When I have existing Firefox instances
   that are already connected to sync,
   they will appear in the devices view automatically.
 
-* TODO this also means that FirefoxOS should not be in the list
-  because it doesn't connect to sync yet.
-  It will soon though and it's something for us to think about.
-  
+* When I use a desktop machine
+  and connect both Firefox Release and Firefox Dev Edition to my account,
+  they appear as two separate devices
+  because they use two seaprate local profiles.
+  There will be no indicatiion that they're on the same physical machine
+  apart from similarity in their auto-generated name and their UA details.
+
+* When I use Firefox for Android or Firefox for iOS,
+  it appears in the view as a single device
+  since I typically only have one Firefox profile per mobile device.
+
+* When I use a FirefoxOS device,
+  it appears in the view as a single device
+  since the connection to FxA is managed at the system level.
+
+* When I log in to Marketplace with my Firefox Account,
+  using the web-based flow in a browser that is not connected to my account,
+  the resulting session appears in the list of devices
+  representing the browser from which I logged in.
+
+* When I log in to Pocket with my Firefox Account
+  using a non-Firefox web browser,
+  the resulting session appears in the list of devices
+  and can be identified based on browser and platform data.
 
 
 #### What details do we show about the device?
@@ -114,6 +122,37 @@ For each device we will show:
   (it could be  in the "need to re-authenticate" state after password reset).
 
 * Whether it is the device currently viewing the devices view.
+
+
+#### Device naming and editing
+
+When I connect a new device to my account
+and it is running a sufficiently new version of Firefox,
+the device may allow me to customize its human-readable name
+and register that value with Firefox Accounts.
+The devices view will show that custom name.
+
+When I connect a new device to my account
+and it is running an older version of Firefox
+without support for the FxA device registration API,
+it will appear in the devices view
+with a generic auto-generated name
+based on its browser and platform details.
+This name may not match the device name
+that it uses to identify itself in the "synced tabs" view,
+but still gives me a reasonable chance of identifying it.
+
+Thus, for older devices,
+the device name presented in the devices view
+may not match the name presented in the browser's native UI
+for features such as "synced tabs".
+This is an acceptable tradeoff
+while we wait for device registration support
+to propagate to all clients.
+
+I cannot edit the names of my devices
+through the web view
+in the initial version of this feature.
 
 
 #### Disconnecting devices
@@ -162,37 +201,6 @@ that had its session token invalidated,
 it will appear in the devices view
 with the same name and details that it previously had.
 It will *not* appear as an additional device.
-
-
-#### Device naming and editing
-
-When I connect a new device to my account
-that runs a sufficiently new version of Firefox,
-the device may allow me to customize its human-readable name
-and register that value with Firefox Accounts.
-The devices view will show that custom name.
-
-When I connect a new device to my account
-that is running an older version of Firefox
-without support for the FxA device registration API,
-it will appear in the devices view
-with a generic auto-generated name
-based on its browser and platform details.
-This name may not match the device name
-that it uses to identify itself in the "synced tabs" view,
-but still gives me a reasonable chance of identifying it.
-
-Thus, for older devices,
-the device name presented in the devices view
-may not match the name presented in the browser's native UI
-for features such as "synced tabs".
-This is an acceptable tradeoff
-while we wait for device registration support
-to propagate to all clients.
-
-I cannot edit the names of my devices
-through the web view
-in the initial version of this feature.
 
 
 #### Real-time updates
