@@ -109,10 +109,10 @@ define([
 
     describe('interTabClear', function () {
       it('clears inter tab channel data', function () {
-        sinon.spy(interTabChannel, 'clearMessages');
+        sinon.spy(interTabChannel, 'clear');
 
         view.interTabClear();
-        assert.isTrue(interTabChannel.clearMessages.called);
+        assert.isTrue(interTabChannel.clear.called);
       });
     });
   });

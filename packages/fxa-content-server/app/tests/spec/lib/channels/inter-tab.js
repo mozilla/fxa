@@ -5,93 +5,273 @@
 define([
   'chai',
   'sinon',
+  '../../../mocks/broadcast-channel',
   '../../../mocks/crosstab',
+  '../../../mocks/window',
   'lib/channels/inter-tab'
-], function (chai, sinon, CrossTabMock, InterTabChannel) {
+], function (chai, sinon, BroadcastChannelMock, CrossTabMock, WindowMock,
+  InterTabChannel) {
   'use strict';
 
+  var assert = chai.assert;
+
   describe('lib/channels/inter-tab', function () {
-    var assert = chai.assert;
+    describe('InterTabChannel', function () {
+      var interTabChannel;
 
-    var interTabChannel;
-    var crossTabMock;
+      describe('instantiation', function () {
+        describe('with `BroadcastChannel` support', function () {
+          beforeEach(function () {
+            var windowMock = new WindowMock();
+            windowMock.BroadcastChannel = BroadcastChannelMock;
 
-    beforeEach(function () {
-      crossTabMock = new CrossTabMock();
+            interTabChannel = new InterTabChannel({
+              window: windowMock
+            });
+          });
 
-      interTabChannel = new InterTabChannel({
-        crosstab: crossTabMock
-      });
-    });
-
-    afterEach(function () {
-    });
-
-    describe('send', function () {
-      it('does not send a message if no other tab is ready', function () {
-        sinon.stub(crossTabMock.util, 'tabCount', function () {
-          return 1;
+          it('creates a BroadcastChannelAdapter', function () {
+            assert.instanceOf(interTabChannel._adapter,
+                        InterTabChannel.BroadcastChannelAdapter);
+          });
         });
 
-        sinon.spy(crossTabMock, 'broadcast');
+        describe('without `BroadcastChannel` support', function () {
+          beforeEach(function () {
+            var windowMock = new WindowMock();
 
-        interTabChannel.send('message');
-        assert.isFalse(crossTabMock.broadcast.called);
+            interTabChannel = new InterTabChannel({
+              window: windowMock
+            });
+          });
+
+          it('creates a LocalStorageAdapter', function () {
+            assert.instanceOf(interTabChannel._adapter,
+                        InterTabChannel.LocalStorageAdapter);
+          });
+        });
       });
 
-      it('send a message if another tab is ready', function () {
-        sinon.stub(crossTabMock.util, 'tabCount', function () {
-          return 2;
+      describe('public methods', function () {
+        var adapter;
+
+        beforeEach(function () {
+          adapter = {
+            clear: sinon.spy(),
+            off: sinon.spy(),
+            on: sinon.spy(),
+            send: sinon.spy()
+          };
+
+          interTabChannel = new InterTabChannel({
+            adapter: adapter
+          });
         });
 
-        sinon.spy(crossTabMock, 'broadcast');
+        describe('send', function () {
+          beforeEach(function () {
+            interTabChannel.send('name', { key: 'value' });
+          });
 
-        interTabChannel.send('message');
-        assert.isTrue(crossTabMock.broadcast.called);
-      });
-
-      it('does not blow up if the browser is not supported', function () {
-        sinon.stub(crossTabMock.util, 'tabCount', function () {
-          return 2;
+          it('delegates to the adapter', function () {
+            assert.isTrue(adapter.send.calledWith('name', { key: 'value' }));
+          });
         });
 
-        sinon.stub(crossTabMock, 'broadcast', function () {
-          throw new Error('unsupported browser');
+        describe('on', function () {
+          var callback = function () {};
+
+          beforeEach(function () {
+            interTabChannel.on('name', callback);
+          });
+
+          it('delegates to the adapter', function () {
+            assert.isTrue(adapter.on.calledWith('name', callback));
+          });
         });
 
-        interTabChannel.send('message');
+        describe('off', function () {
+          var callback = function () {};
+
+          beforeEach(function () {
+            interTabChannel.off('name', callback);
+          });
+
+          it('delegates to the adapter', function () {
+            assert.isTrue(adapter.off.calledWith('name', callback));
+          });
+        });
+
+        describe('clear', function () {
+          beforeEach(function () {
+            interTabChannel.clear();
+          });
+
+          it('delegates to the adapter', function () {
+            assert.isTrue(adapter.clear.called);
+          });
+        });
       });
     });
 
-    describe('on', function () {
-      it('register a callback to be called when a message is sent', function () {
-        sinon.spy(crossTabMock.util.events, 'on');
-        var key = interTabChannel.on('message', function () {});
 
-        assert.isTrue(crossTabMock.util.events.on.called);
-        assert.ok(key);
+    describe('LocalStorageAdapter', function () {
+      var localStorageAdapter;
+      var crossTabMock;
+
+      beforeEach(function () {
+        crossTabMock = new CrossTabMock();
+
+        localStorageAdapter = new InterTabChannel.LocalStorageAdapter({
+          crosstab: crossTabMock
+        });
+      });
+
+      describe('send', function () {
+        describe('with no other tab is ready', function () {
+          beforeEach(function () {
+            sinon.stub(crossTabMock.util, 'tabCount', function () {
+              return 1;
+            });
+
+            sinon.spy(crossTabMock, 'broadcast');
+
+            localStorageAdapter.send('message');
+          });
+
+          it('does not send a message', function () {
+            assert.isFalse(crossTabMock.broadcast.called);
+          });
+        });
+
+        describe('if another tab is ready', function () {
+          beforeEach(function () {
+            sinon.stub(crossTabMock.util, 'tabCount', function () {
+              return 2;
+            });
+
+            sinon.spy(crossTabMock, 'broadcast');
+
+            localStorageAdapter.send('message');
+          });
+
+          it('sends a message', function () {
+            assert.isTrue(crossTabMock.broadcast.called);
+          });
+        });
+
+        describe('if browser is not supported', function () {
+          beforeEach(function () {
+            sinon.stub(crossTabMock.util, 'tabCount', function () {
+              return 2;
+            });
+
+            sinon.stub(crossTabMock, 'broadcast', function () {
+              throw new Error('unsupported browser');
+            });
+          });
+
+          it('does not blow up', function () {
+            localStorageAdapter.send('message');
+          });
+        });
+      });
+
+      describe('on', function () {
+        var key;
+
+        beforeEach(function () {
+          sinon.spy(crossTabMock.util.events, 'on');
+          key = localStorageAdapter.on('message', function () {});
+        });
+
+        it('register a callback to be called when a message is sent', function () {
+          assert.isTrue(crossTabMock.util.events.on.called);
+          assert.ok(key);
+        });
+      });
+
+      describe('off', function () {
+        var key;
+
+        beforeEach(function () {
+          sinon.spy(crossTabMock.util.events, 'off');
+
+          var callback = function () {};
+          key = localStorageAdapter.on('message', callback);
+          localStorageAdapter.off('message', key);
+        });
+
+        it('unregister a callback to be called when a message is sent', function () {
+          assert.isTrue(
+            crossTabMock.util.events.off.calledWith('message', key));
+        });
+      });
+
+      describe('clear', function () {
+        beforeEach(function () {
+          sinon.spy(crossTabMock.util, 'clearMessages');
+          localStorageAdapter.clear();
+        });
+
+        it('clears all stored messages', function () {
+          assert.isTrue(crossTabMock.util.clearMessages.called);
+        });
       });
     });
 
-    describe('off', function () {
-      it('unregister a callback to be called when a message is sent', function () {
-        sinon.spy(crossTabMock.util.events, 'off');
+    describe('BroadcastChannelAdapter', function () {
+      var broadcastChannelAdapter;
+      var broadcastChannel;
+      var windowMock;
 
-        var callback = function () {};
-        var key = interTabChannel.on('message', callback);
-        interTabChannel.off('message', key);
+      beforeEach(function () {
+        windowMock = new WindowMock();
+        windowMock.BroadcastChannel = BroadcastChannelMock;
 
-        assert.isTrue(
-          crossTabMock.util.events.off.calledWith('message', key));
+        broadcastChannelAdapter = new InterTabChannel.BroadcastChannelAdapter({
+          window: windowMock
+        });
+
+        broadcastChannel = broadcastChannelAdapter._broadcastChannel;
       });
-    });
 
-    describe('clearMessages', function () {
-      it('clears all stored messages', function () {
-        sinon.spy(crossTabMock.util, 'clearMessages');
-        interTabChannel.clearMessages();
+      describe('send', function () {
+        beforeEach(function () {
+          broadcastChannelAdapter.send('message', { key: 'value' });
+        });
 
-        assert.isTrue(crossTabMock.util.clearMessages.called);
+        it('send a message to the broadcast channel', function () {
+          var serializedMessage =
+            broadcastChannelAdapter.stringify('message', { key: 'value' });
+
+          assert.isTrue(
+            broadcastChannel.postMessage.calledWith(serializedMessage));
+        });
+      });
+
+      describe('onMessage', function () {
+        beforeEach(function () {
+          sinon.spy(broadcastChannelAdapter, 'trigger');
+
+          broadcastChannelAdapter.onMessage({
+            data: JSON.stringify({
+              data: {
+                key: 'value'
+              },
+              name: 'message'
+            })
+          });
+        });
+
+        it('triggers a message with the event and data', function () {
+          assert.isTrue(
+            broadcastChannelAdapter.trigger.calledWith('message', {
+              data: {
+                key: 'value'
+              }
+            }));
+        });
       });
     });
   });

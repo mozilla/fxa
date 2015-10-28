@@ -69,18 +69,20 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
     }
 
     beforeEach(function () {
-      routerMock = new RouterMock();
-      metrics = new Metrics();
-      relier = new Relier();
       broker = new Broker();
       fxaClient = new FxaClient();
-      interTabChannel = new InterTabChannel();
+      metrics = new Metrics();
+      relier = new Relier();
+      routerMock = new RouterMock();
       user = new User({
         fxaClient: fxaClient
       });
-
       windowMock = new WindowMock();
       windowMock.location.search = '?code=dea0fae1abc2fab3bed4dec5eec6ace7&email=testuser@testuser.com&token=feed';
+
+      interTabChannel = new InterTabChannel({
+        window: windowMock
+      });
 
       initView();
 

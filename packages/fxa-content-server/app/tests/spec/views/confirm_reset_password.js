@@ -59,7 +59,9 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
         relier: relier
       });
       fxaClient = new FxaClient();
-      interTabChannel = new InterTabChannel();
+      interTabChannel = new InterTabChannel({
+        window: windowMock
+      });
       ephemeralMessages = new EphemeralMessages();
       user = new User({
         storage: Storage.factory('localStorage')
