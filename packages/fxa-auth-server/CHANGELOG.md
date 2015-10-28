@@ -1,3 +1,12 @@
+<a name"0.48.1"></a>
+### 0.48.1 (2015-10-28)
+
+
+#### Bug Fixes
+
+* **docs:** note that codes are single use ([6fe39f7b](https://github.com/mozilla/fxa-oauth-server/commit/6fe39f7b), closes [#214](https://github.com/mozilla/fxa-oauth-server/issues/214))
+
+
 <a name"0.48.0"></a>
 ## 0.48.0 (2015-10-20)
 
