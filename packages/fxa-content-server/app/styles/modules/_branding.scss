@@ -77,13 +77,14 @@
   @include hidpi-background-image('choose_what_to_sync_devices', 200px 91px, 'jpg');
   background-position: center top;
   background-repeat: no-repeat;
-  height: 110px;
-  margin: 0 auto;
+  height: 100px;
+  margin: 10px auto 0 auto;
   width: 200px;
 
   @include respond-to('big') {
     background-size: 300px 138px;
-    height: 165px;
+    height: 155px;
+    margin: 20px auto 0 auto;
     width: 300px;
   }
 }

@@ -110,7 +110,7 @@ function (chai, $, sinon, p, View, Metrics, FxaClient, EphemeralMessages,
             $('.customize-sync').first().click();
             var declined = view._getDeclinedEngines();
             assert.equal(declined.length, 1, 'has declined engines');
-            assert.equal(declined[0], 'bookmarks', 'has engine value');
+            assert.equal(declined[0], 'tabs', 'has engine value');
           });
       });
     });
@@ -130,9 +130,9 @@ function (chai, $, sinon, p, View, Metrics, FxaClient, EphemeralMessages,
               .then(function () {
                 var declined = account.get('declinedSyncEngines');
                 assert.equal(declined.length, 1, 'has declined engines');
-                assert.equal(declined[0], 'bookmarks', 'has engine value');
+                assert.equal(declined[0], 'tabs', 'has engine value');
                 assert.isTrue(account.get('customizeSync'), 'sync customization is on');
-                assert.isTrue(TestHelpers.isEventLogged(metrics, 'choose-what-to-sync.engine-unchecked.bookmarks'), 'tracks unchecked');
+                assert.isTrue(TestHelpers.isEventLogged(metrics, 'choose-what-to-sync.engine-unchecked.tabs'), 'tracks unchecked');
                 assert.isTrue(user.setAccount.calledWith(account), 'user called with account');
                 assert.isTrue(view.navigate.calledWith('confirm', {
                   data: { account: account }

@@ -9,7 +9,7 @@
   padding: 1px;
   text-align: center;
 
-  + .privacy-links {
+  + .extra-links {
     margin: 20px 0 15px 0;
   }
 
@@ -46,17 +46,21 @@ ul.links {
   }
 }
 
-.privacy-links,
-.privacy-links a {
+.extra-links,
+.extra-links a {
   color: $input-placeholder-color;
   margin-top: 20px;
   transition-duration: $short-transition;
 }
 
-.privacy-links a:active,
-.privacy-links a:hover,
-.privacy-links a:focus {
+.extra-links a:active,
+.extra-links a:hover,
+.extra-links a:focus {
   color: $link-color;
+}
+
+.extra-links-choose-what-to-sync {
+  margin-top: 0;
 }
 
 .verification-email-message,
@@ -71,7 +75,7 @@ ul.links {
 
 .marketing-email-optin-row {
   color: $input-placeholder-color;
-  
+
   @include respond-to('small') {
     margin: 10px 0;
   }
@@ -82,12 +86,13 @@ ul.links {
 }
 
 .choose-what-to-sync-row {
+
   label {
     display: block;
     text-align: left;
 
     .fxa-checkbox__box-outline {
-      // The default is 2px, but leaves the checkbox 
+      // The default is 2px, but leaves the checkbox
       // too high in comparison to the text.
       top: 5px;
     }
@@ -108,8 +113,8 @@ ul.links {
 }
 
 @include respond-to('small') {
-  .privacy-links,
-  .links + .privacy-links {
+  .extra-links,
+  .links + .extra-links {
     font-size: $small-font;
     margin: 10px auto;
     max-width: 340px;
@@ -131,12 +136,12 @@ ul.links {
     margin: 0;
   }
 
-  .privacy-links,
-  .links + .privacy-links {
+  .extra-links,
+  .links + .extra-links {
     margin: 5px auto;
   }
 
-  .privacy-links +
+  .extra-links +
   .button-row {
     margin: 0;
   }
@@ -182,5 +187,18 @@ ul.permission-links {
   li {
     margin:  0;
     padding: 0;
+  }
+}
+
+.two-col-items {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 20px 0 10px 0;
+
+  .two-col-block {
+    min-width: 49%;
+    > div {
+      margin-bottom: 10px;
+    }
   }
 }
