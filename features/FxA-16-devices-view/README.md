@@ -12,7 +12,7 @@ I want to know the devices that are connected to my Firefox Account,
 and important information about the status of those devices.
 
 I want my FF devices to be logically named
-so I recognize them and have the ability to rename them.
+so that I recognize them.
 I want to easily see the type and browser details of the each device,
 and to be able to identify the device I am currently using.
 
@@ -97,8 +97,9 @@ For the initial version, only things that connect to sync count as devices.
 
 For each device we will show:
 
-* The human-readable name for the device,
-  either an auto-generated one or one provided by the user.
+* A human-readable name for the device,
+  either provided by the device itself if it registers a custom name,
+  or auto-generated from the device's browser and platform data if not.
 
 * The time it was last seen,
   i.e. the times at which it last used its session token
@@ -166,31 +167,44 @@ It will *not* appear as an additional device.
 #### Device naming and editing
 
 When I connect a new device to my account
-it will receive a default human-readable name
-that gives me a reasonable chance of identifying it.
+that runs a sufficiently new version of Firefox,
+the device may allow me to customize its human-readable name
+and register that value with Firefox Accounts.
+The devices view will show that custom name.
 
-I can edit the name of the device
-on the web through the devices view
-as well as in the browser's native UI
-in the sync preferences page.
-Changes made in one location are reflected in the other.
+When I connect a new device to my account
+that is running an older version of Firefox
+without support for the FxA device registration API,
+it will appear in the devices view
+with a generic auto-generated name
+based on its browser and platform details.
+This name may not match the device name
+that it uses to identify itself in the "synced tabs" view,
+but still gives me a reasonable chance of identifying it.
 
-The device name presented in the devices view
-will match the device name presented in the browser's native UI
+Thus, for older devices,
+the device name presented in the devices view
+may not match the name presented in the browser's native UI
 for features such as "synced tabs".
+This is an acceptable tradeoff
+while we wait for device registration support
+to propagate to all clients.
+
+I cannot edit the names of my devices
+through the web view
+in the initial version of this feature.
 
 
 #### Real-time updates
 
-When I have the devices view is open in Firefox
+When I have the devices view open in Firefox
 and I change any device-related state through that device,
 the devices view updates to reflect the change in realtime,
 regardless of whether the change originated in web content
 or through the browser's native UI.
 
-When I have the devices view is open in Firefox
+When I have the devices view open in Firefox
 and I change any device-related state through a different device,
 the devices view does not need to update in realtime,
 but it can be manully refreshed by the user
 in order to view the latest state of the account.
->>>>>>> First draft of detailed requirements for "FxA-16: devices view"
