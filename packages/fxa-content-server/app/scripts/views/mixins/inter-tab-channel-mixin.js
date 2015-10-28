@@ -37,16 +37,10 @@ define([
      * @param {function} callback
      */
     interTabOn: function (eventName, callback) {
-      // The interTabChannel returns a key that can be used
-      // to unregister a callback. Save a reference to this to
-      // unregister. All other event emitters allow a function
-      // to be used to unregister, so we allow that too by saving
-      // a reference to both the key and the function.
-      var key = this._interTabChannel.on(eventName, callback);
+      this._interTabChannel.on(eventName, callback);
 
       this._interTabMessages.push({
         callback: callback,
-        key: key,
         name: eventName
       });
     },
@@ -63,7 +57,7 @@ define([
       this._interTabMessages.forEach(function (envelope, index) {
         if (envelope.name === eventName && envelope.callback === callback) {
           this._interTabMessages.splice(index, 1);
-          this._interTabChannel.off(envelope.name, envelope.key);
+          this._interTabChannel.off(envelope.name, envelope.callback);
         }
       }, this);
     },
@@ -75,7 +69,7 @@ define([
      */
     interTabOffAll: function () {
       this._interTabMessages.forEach(function (envelope) {
-        this._interTabChannel.off(envelope.name, envelope.key);
+        this._interTabChannel.off(envelope.name, envelope.callback);
       }, this);
       this._interTabMessages = [];
     },

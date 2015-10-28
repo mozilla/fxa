@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'backbone',
   'chai',
   'sinon',
   'lib/promise',
@@ -10,7 +11,6 @@ define([
   'views/confirm_reset_password',
   'lib/metrics',
   'lib/ephemeral-messages',
-  'lib/channels/inter-tab',
   'lib/storage',
   '../../mocks/fxa-client',
   'models/reliers/relier',
@@ -20,8 +20,8 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
-  InterTabChannel, Storage, FxaClient, Relier, Broker, User,
+function (Backbone, chai, sinon, p, AuthErrors, View, Metrics,
+  EphemeralMessages, Storage, FxaClient, Relier, Broker, User,
   RouterMock, WindowMock, TestHelpers) {
   'use strict';
 
@@ -59,9 +59,13 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
         relier: relier
       });
       fxaClient = new FxaClient();
-      interTabChannel = new InterTabChannel({
-        window: windowMock
-      });
+
+      // Use Backbone.Events as an interTabChannel mock. We need a way
+      // to send events to the same tab.
+      interTabChannel = Object.create(Backbone.Events);
+      interTabChannel.send = interTabChannel.trigger;
+      interTabChannel.clear = sinon.spy();
+
       ephemeralMessages = new EphemeralMessages();
       user = new User({
         storage: Storage.factory('localStorage')
@@ -308,7 +312,10 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
 
         setTimeout(function () {
           interTabChannel.send('login', {
-            sessionToken: 'sessiontoken'
+            data: {
+              sessionToken: 'sessiontoken'
+            },
+            event: 'login'
           });
         }, VERIFICATION_POLL_TIMEOUT_MS * 4);
 
@@ -333,7 +340,10 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
 
         setTimeout(function () {
           interTabChannel.send('login', {
-            sessionToken: 'sessiontoken'
+            data: {
+              sessionToken: 'sessiontoken'
+            },
+            event: 'login'
           });
         }, VERIFICATION_POLL_TIMEOUT_MS * 4);
 

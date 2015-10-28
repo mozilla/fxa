@@ -294,8 +294,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
 
         // expect the intertab channel to be notified of login so the
         // starting window can complete the signin process.
-        var loginSpy = sinon.spy();
-        interTabChannel.on('login', loginSpy);
+        sinon.spy(interTabChannel, 'send');
 
         return view.validateAndSubmit()
             .then(function () {
@@ -308,7 +307,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
                   { reason: view.fxaClient.SIGNIN_REASON.PASSWORD_RESET }
               ));
               assert.equal(routerMock.page, 'reset_password_complete');
-              assert.isTrue(loginSpy.called);
+              assert.isTrue(interTabChannel.send.calledWith('login'));
               assert.isTrue(TestHelpers.isEventLogged(
                       metrics, 'complete_reset_password.verification.success'));
               return user.setSignedInAccount.returnValues[0].then(function (returnValue) {
