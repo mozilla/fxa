@@ -363,8 +363,8 @@ MysqlStore.prototype = {
   },
   generateAccessToken: function generateAccessToken(vals) {
     var t = {
-      clientId: buf(vals.clientId),
-      userId: buf(vals.userId),
+      clientId: vals.clientId,
+      userId: vals.userId,
       email: vals.email,
       scope: Scope(vals.scope),
       token: unique.token(),

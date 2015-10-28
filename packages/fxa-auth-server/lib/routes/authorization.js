@@ -99,7 +99,11 @@ module.exports = {
   validate: {
     payload: {
       client_id: validators.clientId,
-      assertion: validators.assertion
+      assertion: Joi.string()
+        // taken from mozilla/persona/lib/validate.js
+        .min(50)
+        .max(10240)
+        .regex(/^[a-zA-Z0-9_\-\.~=]+$/)
         .required(),
       redirect_uri: Joi.string()
         .max(256),
