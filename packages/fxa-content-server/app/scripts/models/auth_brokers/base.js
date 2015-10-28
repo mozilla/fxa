@@ -112,8 +112,11 @@ define([
 
     /**
      * Called before sign in. Can be used to prevent sign in.
+     *
+     * @param {object} account
+     * @return {promise}
      */
-    beforeSignIn: function () {
+    beforeSignIn: function (/* account */) {
       return p(this.getBehavior('beforeSignIn'));
     },
 
@@ -121,18 +124,20 @@ define([
      * Called after sign in. Can be used to notify the RP that the user
      * has signed in or signed up with a valid preVerifyToken.
      *
+     * @param {object} account
      * @return {promise}
      */
-    afterSignIn: function () {
+    afterSignIn: function (/* account */) {
       return p(this.getBehavior('afterSignIn'));
     },
 
     /**
      * Called after a force auth.
      *
+     * @param {object} account
      * @return {promise}
      */
-    afterForceAuth: function () {
+    afterForceAuth: function (/* account */) {
       return p(this.getBehavior('afterForceAuth'));
     },
 
@@ -140,6 +145,8 @@ define([
      * Called before confirmation polls to persist any data that is needed
      * for email verification. Useful for storing data that may be needed
      * by the verification tab.
+     *
+     * @return {promise}
      */
     persist: function () {
       return p();
@@ -149,9 +156,10 @@ define([
      * Called after the user has signed up but before the screen has
      * transitioned to the "confirm your email" view.
      *
+     * @param {object} account
      * @return {promise}
      */
-    afterSignUp: function () {
+    afterSignUp: function (/* account */) {
       return p(this.getBehavior('afterSignUp'));
     },
 
@@ -160,9 +168,10 @@ define([
      * to notify the RP that the user has successfully signed up but
      * has not yet completed verification.
      *
+     * @param {object} account
      * @return {promise}
      */
-    beforeSignUpConfirmationPoll: function () {
+    beforeSignUpConfirmationPoll: function (/* account */) {
       return p(this.getBehavior('beforeSignUpConfirmationPoll'));
     },
 
@@ -171,18 +180,20 @@ define([
      * to notify the RP that the user has successfully signed up and
      * completed verification.
      *
+     * @param {object} account
      * @return {promise}
      */
-    afterSignUpConfirmationPoll: function () {
+    afterSignUpConfirmationPoll: function (/* account */) {
       return p(this.getBehavior('afterSignUpConfirmationPoll'));
     },
 
     /**
      * Called after signup email verification, in the verification tab.
      *
+     * @param {object} account
      * @return {promise}
      */
-    afterCompleteSignUp: function () {
+    afterCompleteSignUp: function (/* account */) {
       return p(this.getBehavior('afterCompleteSignUp'));
     },
 
@@ -191,36 +202,40 @@ define([
      * Can be used to notify the RP that the user has sucessfully reset their
      * password.
      *
+     * @param {object} account
      * @return {promise}
      */
-    afterResetPasswordConfirmationPoll: function () {
+    afterResetPasswordConfirmationPoll: function (/* account */) {
       return p(this.getBehavior('afterResetPasswordConfirmationPoll'));
     },
 
     /**
      * Called after password reset email verification, in the verification tab.
      *
+     * @param {object} account
      * @return {promise}
      */
-    afterCompleteResetPassword: function () {
+    afterCompleteResetPassword: function (/* account */) {
       return p(this.getBehavior('afterCompleteResetPassword'));
     },
 
     /**
      * Called after a user has changed their password.
      *
+     * @param {object} account
      * @return {promise}
      */
-    afterChangePassword: function () {
+    afterChangePassword: function (/* account */) {
       return p(this.getBehavior('afterChangePassword'));
     },
 
     /**
      * Called after a user has deleted their account.
      *
+     * @param {object} account
      * @return {promise}
      */
-    afterDeleteAccount: function () {
+    afterDeleteAccount: function (/* account */) {
       return p(this.getBehavior('afterDeleteAccount'));
     },
 
