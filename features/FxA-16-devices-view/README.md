@@ -162,11 +162,6 @@ the session token belonging to that device is destroyed
 and all information about the device is removed from the server.
 It no longer appears in the devices view.
 
-When I view the devices list from a device that is connected to my account,
-I do not have the ability to disconnect that device,
-because this would be a confusing user experience.
-I must disconnect it through the device's native UI.
-
 When I disconnect a device through the devices view,
 the session token belonging to that device is destroyed,
 all information about the device is removed from the server,
@@ -183,6 +178,13 @@ The device responds by:
 * If it is a newer version of Firefox,
   it will respond to the push notification of its disconnection
   by immediately returning to the "not connected to sync" state.
+
+If the device that was disconnected
+was the current device
+then I am logged out of FxA
+and redirected to the "sign in to sync" screen
+from which I can easily re-connect the device.
+I do not have the ability to disconnect that device,
 
 
 #### Interaction with Password Reset
