@@ -20,3 +20,12 @@ The data types become a single column.
 
 ![](design1-translation.png)
 
+### Update 1 - 2015-10-28
+
+The proper 2 column order for the data types: 
+
+Column 1: Tabs, Bookmarks, Passwords 
+
+Column 2: History, Add-ons, Preferences
+
+Ref: https://github.com/mozilla/fxa-content-server/pull/3211#issuecomment-151884730
