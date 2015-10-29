@@ -145,20 +145,77 @@ define([
         });
 
         describe('if another tab is ready', function () {
-          beforeEach(function () {
-            sinon.stub(crossTabMock.util, 'tabCount', function () {
-              return 2;
+          describe('from the current tab\'s P.O.V.', function () {
+            var handler;
+            beforeEach(function () {
+              handler = sinon.spy();
+
+              sinon.stub(crossTabMock.util, 'tabCount', function () {
+                return 2;
+              });
+
+              // synthesize crosstab's behavior to send messages to
+              // the tab that sent the message.
+              var registeredHandler;
+              sinon.stub(crossTabMock, 'broadcast', function (event, data) {
+                registeredHandler({
+                  data: data,
+                  event: event
+                });
+              });
+
+              sinon.stub(crossTabMock.util.events, 'on', function (event, _registeredHandler) {
+                registeredHandler = _registeredHandler;
+              });
+
+              localStorageAdapter.on('message', handler);
+              localStorageAdapter.send('message');
             });
 
-            sinon.spy(crossTabMock, 'broadcast');
+            it('sends a message', function () {
+              assert.isTrue(crossTabMock.broadcast.called);
+            });
 
-            localStorageAdapter.send('message');
+            it('does not trigger a callback for this tab', function () {
+              assert.isFalse(handler.called);
+            });
           });
 
-          it('sends a message', function () {
-            assert.isTrue(crossTabMock.broadcast.called);
+          describe('from the remote tab\'s P.O.V.', function () {
+            var handler;
+            beforeEach(function () {
+              handler = sinon.spy();
+
+              var registeredHandler;
+              sinon.stub(crossTabMock.util.events, 'on', function (event, _registeredHandler) {
+                registeredHandler = _registeredHandler;
+              });
+
+              localStorageAdapter.on('message', handler);
+
+              // synthesize crosstab calling the registered handler
+              registeredHandler({
+                data: {
+                  data: {
+                    field: 'value'
+                  },
+                  id: 1
+                },
+                event: 'message',
+              });
+            });
+
+            it('triggers the callback for this tab', function () {
+              assert.isTrue(handler.calledWith({
+                data: {
+                  field: 'value'
+                },
+                event: 'message'
+              }));
+            });
           });
         });
+
 
         describe('if browser is not supported', function () {
           beforeEach(function () {
@@ -178,33 +235,30 @@ define([
       });
 
       describe('on', function () {
-        var key;
-
+        var callback = function () {};
         beforeEach(function () {
           sinon.spy(crossTabMock.util.events, 'on');
-          key = localStorageAdapter.on('message', function () {});
+          localStorageAdapter.on('message', callback);
         });
 
         it('register a callback to be called when a message is sent', function () {
-          assert.isTrue(crossTabMock.util.events.on.called);
-          assert.ok(key);
+          assert.isTrue(crossTabMock.util.events.on.calledWith('message'));
         });
       });
 
       describe('off', function () {
-        var key;
-
         beforeEach(function () {
           sinon.spy(crossTabMock.util.events, 'off');
 
-          var callback = function () {};
-          key = localStorageAdapter.on('message', callback);
-          localStorageAdapter.off('message', key);
+          var handler = function () {};
+
+          localStorageAdapter.on('message', handler);
+          localStorageAdapter.off('message', handler);
         });
 
         it('unregister a callback to be called when a message is sent', function () {
           assert.isTrue(
-            crossTabMock.util.events.off.calledWith('message', key));
+            crossTabMock.util.events.off.calledWith('message'));
         });
       });
 
@@ -269,7 +323,8 @@ define([
             broadcastChannelAdapter.trigger.calledWith('message', {
               data: {
                 key: 'value'
-              }
+              },
+              event: 'message'
             }));
         });
       });
