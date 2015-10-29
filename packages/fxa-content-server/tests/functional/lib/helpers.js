@@ -241,7 +241,7 @@ define([
     };
   }
 
-  function openVerificationLinkSameBrowser(context, email, index, windowName) {
+  function openVerificationLinkInNewTab(context, email, index, windowName) {
     var user = TestHelpers.emailToUser(email);
     windowName = windowName || 'newwindow';
 
@@ -774,7 +774,7 @@ define([
     openPasswordResetLinkDifferentBrowser: openPasswordResetLinkDifferentBrowser,
     openUnlockLinkDifferentBrowser: openUnlockLinkDifferentBrowser,
     openVerificationLinkDifferentBrowser: openVerificationLinkDifferentBrowser,
-    openVerificationLinkSameBrowser: openVerificationLinkSameBrowser,
+    openVerificationLinkInNewTab: openVerificationLinkInNewTab,
     pollUntil: pollUntil,
     respondToWebChannelMessage: respondToWebChannelMessage,
     testAreEventsLogged: testAreEventsLogged,

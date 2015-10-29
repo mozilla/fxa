@@ -122,7 +122,7 @@ define([
 
       return initiateLockedAccountDeleteAccount(self)
         .then(function () {
-          return FunctionalHelpers.openVerificationLinkSameBrowser(
+          return FunctionalHelpers.openVerificationLinkInNewTab(
                       self, email, 0);
         })
 
@@ -156,7 +156,7 @@ define([
         .then(FunctionalHelpers.openExternalSite(self))
 
         .then(function () {
-          return FunctionalHelpers.openVerificationLinkSameBrowser(
+          return FunctionalHelpers.openVerificationLinkInNewTab(
                       self, email, 0);
         })
 
