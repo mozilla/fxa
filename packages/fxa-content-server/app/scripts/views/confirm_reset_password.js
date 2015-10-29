@@ -223,9 +223,7 @@ function (Cocktail, ConfirmView, BaseView, Template, p, Session, AuthErrors,
       var deferred = p.defer();
 
       this._isWaitingForLoginMessage = true;
-      this.interTabOn('login', function (event) {
-        deferred.resolve(event && event.data);
-      });
+      this.interTabOn('login', deferred.resolve.bind(deferred));
 
       return deferred.promise;
     },

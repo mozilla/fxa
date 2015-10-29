@@ -207,10 +207,7 @@ define([
 
             it('triggers the callback for this tab', function () {
               assert.isTrue(handler.calledWith({
-                data: {
-                  field: 'value'
-                },
-                event: 'message'
+                field: 'value'
               }));
             });
           });
@@ -321,10 +318,7 @@ define([
         it('triggers a message with the event and data', function () {
           assert.isTrue(
             broadcastChannelAdapter.trigger.calledWith('message', {
-              data: {
-                key: 'value'
-              },
-              event: 'message'
+              key: 'value'
             }));
         });
       });
