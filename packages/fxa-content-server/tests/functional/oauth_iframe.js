@@ -117,7 +117,7 @@ define([
         .end()
 
         .then(function () {
-          return FunctionalHelpers.openVerificationLinkSameBrowser(
+          return FunctionalHelpers.openVerificationLinkInNewTab(
                       self, email, 0);
         })
         .switchToWindow('newwindow')
@@ -158,7 +158,7 @@ define([
         .end()
 
         .then(function () {
-          return FunctionalHelpers.openVerificationLinkSameBrowser(
+          return FunctionalHelpers.openVerificationLinkInNewTab(
                       self, email, 0);
         })
 
@@ -270,7 +270,7 @@ define([
         .end()
 
         .then(function () {
-          return FunctionalHelpers.openVerificationLinkSameBrowser(
+          return FunctionalHelpers.openVerificationLinkInNewTab(
                       self, email, 0);
         })
 
@@ -331,7 +331,7 @@ define([
         .end()
 
         .then(function () {
-          return FunctionalHelpers.openVerificationLinkSameBrowser(
+          return FunctionalHelpers.openVerificationLinkInNewTab(
                       self, email, 0);
         })
 

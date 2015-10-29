@@ -103,7 +103,7 @@ define([
             .end()
 
             .then(function () {
-              return FunctionalHelpers.openVerificationLinkSameBrowser(
+              return FunctionalHelpers.openVerificationLinkInNewTab(
                           self, email2, 0);
             })
 

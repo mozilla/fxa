@@ -98,7 +98,7 @@ define([
         }))
         // verify the user
         .then(function () {
-          return FunctionalHelpers.openVerificationLinkSameBrowser(
+          return FunctionalHelpers.openVerificationLinkInNewTab(
                 self, email, 0);
         })
         .switchToWindow('newwindow')

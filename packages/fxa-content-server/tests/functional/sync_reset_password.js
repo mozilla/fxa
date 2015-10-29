@@ -76,7 +76,7 @@ define([
         .end()
 
         .then(function () {
-          return FunctionalHelpers.openVerificationLinkSameBrowser(
+          return FunctionalHelpers.openVerificationLinkInNewTab(
                 self, email, 0);
         })
         .switchToWindow('newwindow')
@@ -131,7 +131,7 @@ define([
         .then(FunctionalHelpers.openExternalSite(self))
 
         .then(function () {
-          return FunctionalHelpers.openVerificationLinkSameBrowser(
+          return FunctionalHelpers.openVerificationLinkInNewTab(
                       self, email, 0);
         })
 
