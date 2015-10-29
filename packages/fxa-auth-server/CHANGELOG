@@ -1,3 +1,6 @@
+train-48.3
+  * fix(startup): if error on startup, log and exit
+
 train-48.2
   * fix(deps): shrinkwrap also missing hawk, simplesmtp, wtf?
 
