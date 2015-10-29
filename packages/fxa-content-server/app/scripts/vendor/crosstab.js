@@ -378,7 +378,6 @@
     var lastNewValue;
     var lastOldValue;
     function onStorageEvent(event) {
-      console.log('storage event');
         // Only handle crosstab events
         if (!event || !(event.key in util.storageEventKeys)) {
             return;
@@ -405,7 +404,6 @@
             var message = eventValue.data;
             // only handle if this message was meant for this tab.
             if (!message.destination || message.destination === crosstab.id) {
-              console.log('message', message);
                 eventHandler.emit(message.event, message);
             }
         } else if (event.key === util.keys.FROZEN_TAB_ENVIRONMENT) {
