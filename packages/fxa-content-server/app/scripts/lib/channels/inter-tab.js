@@ -40,10 +40,7 @@ define([
   BroadcastChannelAdapter.prototype = {
     onMessage: function (event) {
       var envelope = JSON.parse(event.data);
-      this.trigger(envelope.name, {
-        data: envelope.data,
-        event: envelope.name
-      });
+      this.trigger(envelope.name, envelope.data);
     },
 
     send: function (name, data) {
@@ -142,10 +139,7 @@ define([
       var id = envelope.id;
 
       if (! sentMessageIds[id]) {
-        callback({
-          data: envelope.data,
-          event: event.event
-        });
+        callback(envelope.data);
       } else {
         // The event is only triggered once, no need to continue to keep
         // track of the sent message ids.

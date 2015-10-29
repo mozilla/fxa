@@ -312,10 +312,7 @@ function (Backbone, chai, sinon, p, AuthErrors, View, Metrics,
 
         setTimeout(function () {
           interTabChannel.send('login', {
-            data: {
-              sessionToken: 'sessiontoken'
-            },
-            event: 'login'
+            sessionToken: 'sessiontoken'
           });
         }, VERIFICATION_POLL_TIMEOUT_MS * 4);
 
@@ -340,10 +337,7 @@ function (Backbone, chai, sinon, p, AuthErrors, View, Metrics,
 
         setTimeout(function () {
           interTabChannel.send('login', {
-            data: {
-              sessionToken: 'sessiontoken'
-            },
-            event: 'login'
+            sessionToken: 'sessiontoken'
           });
         }, VERIFICATION_POLL_TIMEOUT_MS * 4);
 
