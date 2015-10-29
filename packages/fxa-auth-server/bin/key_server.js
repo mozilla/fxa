@@ -88,8 +88,14 @@ function main() {
               server = Server.create(log, error, config, routes, db)
 
               server.start(
-                function () {
-                  log.info({ op: 'server.start.1', msg: 'running on ' + server.info.uri })
+                function (err) {
+                  if (err) {
+                    log.error({ op: 'server.start.1', msg: 'failed startup with error',
+                                err: { message: err.message } })
+                    process.exit(1)
+                  } else {
+                    log.info({ op: 'server.start.1', msg: 'running on ' + server.info.uri })
+                  }
                 }
               )
               statsInterval = setInterval(logStatInfo, 15000)
