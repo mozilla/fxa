@@ -20,16 +20,23 @@ TestServer.start(config)
       var email = server.uniqueEmail()
       var password = 'abcdef'
       // Two shall enter, only one shall survive!
+      var r1 = Client.create(config.publicUrl, email, password, server.mailbox)
+      var r2 = Client.create(config.publicUrl, email, password, server.mailbox)
       return P.all(
-        [
-          Client.create(config.publicUrl, email, password, server.mailbox),
-          Client.create(config.publicUrl, email, password, server.mailbox)
-        ]
+        [r1, r2]
       )
       .then(
         t.fail.bind(t, 'created both accounts'),
         function (err) {
           t.equal(err.errno, 101, 'account exists')
+          // Note that P.all fails fast when one of the requests fails,
+          // but we have to wait for *both* to complete before tearing
+          // down the test infrastructure.  Bleh.
+          if (!r1.isRejected()) {
+            return r1
+          } else {
+            return r2
+          }
         }
       )
     }
