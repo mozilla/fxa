@@ -6,18 +6,18 @@ define([
   'chai',
   'lib/metrics',
   '../../mocks/window',
-  'models/notifications',
+  'lib/channels/notifier',
   'models/refresh-observer',
   'sinon'
 ],
-function (chai, Metrics, WindowMock, Notifications, RefreshObserver, sinon) {
+function (chai, Metrics, WindowMock, Notifier, RefreshObserver, sinon) {
   'use strict';
 
   var assert = chai.assert;
 
   describe('models/refresh-observer', function () {
     var metrics;
-    var notifications;
+    var notifier;
     var refreshObserver;
     var windowMock;
 
@@ -25,12 +25,12 @@ function (chai, Metrics, WindowMock, Notifications, RefreshObserver, sinon) {
 
     function createDeps () {
       metrics = new Metrics();
-      notifications = new Notifications();
+      notifier = new Notifier();
       windowMock = new WindowMock();
 
       refreshObserver = new RefreshObserver({
         metrics: metrics,
-        notifications: notifications,
+        notifier: notifier,
         window: windowMock
       });
     }
@@ -75,7 +75,7 @@ function (chai, Metrics, WindowMock, Notifications, RefreshObserver, sinon) {
 
       describe('show-view', function () {
         beforeEach(function () {
-          notifications.trigger('show-view', ViewMock, { viewName: 'view1' });
+          notifier.trigger('show-view', ViewMock, { viewName: 'view1' });
         });
 
         it('calls `logIfRefresh', function () {
@@ -85,7 +85,7 @@ function (chai, Metrics, WindowMock, Notifications, RefreshObserver, sinon) {
 
       describe('show-child-view', function () {
         beforeEach(function () {
-          notifications.trigger('show-child-view', ViewMock, ViewMock, { viewName: 'view1' });
+          notifier.trigger('show-child-view', ViewMock, ViewMock, { viewName: 'view1' });
         });
 
         it('calls `logIfRefresh', function () {

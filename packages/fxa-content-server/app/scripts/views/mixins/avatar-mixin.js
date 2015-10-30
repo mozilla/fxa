@@ -8,17 +8,14 @@ define([
   'underscore',
   'lib/auth-errors',
   'lib/profile-errors',
+  'lib/channels/notifier',
   'models/profile-image'
-], function (_, AuthErrors, ProfileErrors, ProfileImage) {
+], function (_, AuthErrors, ProfileErrors, Notifier, ProfileImage) {
   'use strict';
 
-  return {
-    initialize: function (options) {
-      var notifications = this.notifications = options.notifications;
-      if (notifications) {
-        notifications.on(notifications.EVENTS.PROFILE_CHANGE,
-          _.bind(this.onProfileUpdate, this));
-      }
+  var Mixin = {
+    notifications: {
+      // populated below using event name aliases
     },
 
     onProfileUpdate: function (/* data */) {
@@ -118,9 +115,13 @@ define([
     },
 
     _notifyProfileUpdate: function (uid) {
-      this.notifications.profileUpdated({
+      this.notifier.triggerAll(Notifier.PROFILE_CHANGE, {
         uid: uid
       });
     }
   };
+
+  Mixin.notifications[Notifier.PROFILE_CHANGE] = 'onProfileUpdate';
+
+  return Mixin;
 });

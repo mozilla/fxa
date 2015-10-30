@@ -25,7 +25,7 @@ define([
   'models/auth_brokers/iframe',
   'models/auth_brokers/redirect',
   'models/auth_brokers/web-channel',
-  'models/notifications',
+  'lib/channels/notifier',
   'models/refresh-observer',
   'models/reliers/base',
   'models/reliers/sync',
@@ -43,7 +43,7 @@ define([
 function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
   Url, OAuthErrors, AuthErrors, Storage, BaseBroker, FirstrunBroker,
   FxDesktopV1Broker, FxDesktopV2Broker, FxFennecV1Broker, FxiOSV1Broker,
-  FxiOSV2Broker, IframeBroker, RedirectBroker, WebChannelBroker, Notifications,
+  FxiOSV2Broker, IframeBroker, RedirectBroker, WebChannelBroker, Notifier,
   RefreshObserver, BaseRelier, SyncRelier, OAuthRelier, Relier,
   SameBrowserVerificationModel, User, Metrics, StorageMetrics, WindowMock,
   RouterMock, HistoryMock, TestHelpers) {
@@ -57,7 +57,7 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
     var appStart;
     var brokerMock;
     var historyMock;
-    var notifications;
+    var notifier;
     var routerMock;
     var userMock;
     var windowMock;
@@ -65,7 +65,7 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
     beforeEach(function () {
       brokerMock = new BaseBroker();
       historyMock = new HistoryMock();
-      notifications = new Notifications();
+      notifier = new Notifier();
       routerMock = new RouterMock();
       userMock = new User();
 
@@ -519,7 +519,7 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
         appStart = new AppStart({
           broker: brokerMock,
           history: historyMock,
-          notifications: notifications,
+          notifier: notifier,
           window: windowMock
         });
         appStart.useConfig({});
@@ -737,7 +737,7 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
     describe('initializeRefreshObserver', function () {
       beforeEach(function () {
         appStart = new AppStart({
-          notifications: notifications,
+          notifier: notifier,
           window: windowMock
         });
       });
@@ -773,7 +773,7 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
       describe('in a verification flow', function () {
         beforeEach(function () {
           appStart = new AppStart({
-            notifications: notifications,
+            notifier: notifier,
             window: windowMock
           });
 
@@ -797,7 +797,7 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
             windowMock.location.search = '?context=fx_ios_v1';
 
             appStart = new AppStart({
-              notifications: notifications,
+              notifier: notifier,
               window: windowMock
             });
 
@@ -817,7 +817,7 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
             windowMock.location.search = '?';
 
             appStart = new AppStart({
-              notifications: notifications,
+              notifier: notifier,
               window: windowMock
             });
 
@@ -837,7 +837,7 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
       describe('with a stored `context`', function () {
         beforeEach(function () {
           appStart = new AppStart({
-            notifications: notifications,
+            notifier: notifier,
             window: windowMock
           });
 
@@ -864,7 +864,7 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
       describe('without a stored `context`', function () {
         beforeEach(function () {
           appStart = new AppStart({
-            notifications: notifications,
+            notifier: notifier,
             window: windowMock
           });
 
@@ -887,7 +887,7 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
     describe('_getSameBrowserVerificationModel', function () {
       beforeEach(function () {
         appStart = new AppStart({
-          notifications: notifications,
+          notifier: notifier,
           window: windowMock
         });
       });

@@ -15,13 +15,13 @@ define([
   'models/reliers/relier',
   'models/auth_brokers/base',
   'models/user',
-  'models/notifications',
+  'lib/channels/notifier',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
 function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
-      MarketingEmailErrors, Relier, Broker, User, Notifications, RouterMock,
+      MarketingEmailErrors, Relier, Broker, User, Notifier, RouterMock,
       WindowMock, TestHelpers) {
   'use strict';
 
@@ -37,7 +37,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
     var relier;
     var broker;
     var user;
-    var notifications;
+    var notifier;
     var account;
     var validCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH);
     var validUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
@@ -75,7 +75,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
         broker: broker,
         fxaClient: fxaClient,
         metrics: metrics,
-        notifications: notifications,
+        notifier: notifier,
         relier: relier,
         router: routerMock,
         user: user,
@@ -92,7 +92,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
       broker = new Broker();
       fxaClient = new FxaClient();
       user = new User();
-      notifications = new Notifications();
+      notifier = new Notifier();
 
       verificationError = null;
       sinon.stub(fxaClient, 'verifyCode', function () {

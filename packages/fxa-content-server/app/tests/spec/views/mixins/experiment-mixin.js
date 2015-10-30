@@ -5,17 +5,16 @@
 define([
   'cocktail',
   'chai',
-  'sinon',
   '../../../mocks/window',
   'views/mixins/experiment-mixin',
   'views/base',
   'stache!templates/test_template',
   'models/user',
-  'models/notifications',
+  'lib/channels/notifier',
   'lib/able',
   'lib/metrics'
-], function (Cocktail, Chai, sinon, WindowMock, Mixin, BaseView, TestTemplate, User,
-  Notifications, Able, Metrics) {
+], function (Cocktail, Chai, WindowMock, Mixin, BaseView, TestTemplate, User,
+  Notifier, Able, Metrics) {
   'use strict';
 
   var assert = Chai.assert;
@@ -31,28 +30,29 @@ define([
   };
 
   describe('views/mixins/experiment-mixin', function () {
-    var view;
-    var windowMock;
-    var metrics;
-    var able;
-    var notifications;
-    var user;
     var UUID = 'a mock uuid';
 
+    var able;
+    var metrics;
+    var notifier;
+    var user;
+    var view;
+    var windowMock;
+
     beforeEach(function () {
-      windowMock = new WindowMock();
-      windowMock.navigator.userAgent = 'mocha';
       able = new Able();
       metrics = new Metrics();
+      notifier = new Notifier();
       user = new User({
         uniqueUserId: UUID
       });
-      notifications = new Notifications();
+      windowMock = new WindowMock();
+      windowMock.navigator.userAgent = 'mocha';
 
       view = new View({
         able: able,
         metrics: metrics,
-        notifications: notifications,
+        notifier: notifier,
         user: user,
         window: windowMock
       });
@@ -107,20 +107,5 @@ define([
         assert.isFalse(view.isInExperimentGroup('fakeExperiment', 'control'));
       });
     });
-
-    describe('notify', function () {
-      it('does not trigger if there is no event name', function () {
-        sinon.spy(view.experiments.notifications, 'trigger');
-        view.notify();
-        assert.isTrue(view.experiments.notifications.trigger.notCalled);
-      });
-
-      it('triggers notifications', function () {
-        sinon.spy(view.experiments.notifications, 'trigger');
-        view.notify('notifications');
-        assert.isTrue(view.experiments.notifications.trigger.called);
-      });
-    });
-
   });
 });

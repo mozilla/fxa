@@ -9,14 +9,14 @@ define([
   'lib/promise',
   'views/settings/display_name',
   'lib/metrics',
-  'models/notifications',
+  'lib/channels/notifier',
   'models/reliers/relier',
   'models/user',
   '../../../mocks/router',
   '../../../lib/helpers',
   'lib/key-codes'
 ],
-function (chai, $, sinon, p, View, Metrics, Notifications, Relier, User, RouterMock, TestHelpers, KeyCodes) {
+function (chai, $, sinon, p, View, Metrics, Notifier, Relier, User, RouterMock, TestHelpers, KeyCodes) {
   'use strict';
 
   var assert = chai.assert;
@@ -29,7 +29,7 @@ function (chai, $, sinon, p, View, Metrics, Notifications, Relier, User, RouterM
     var email;
     var account;
     var relier;
-    var notifications;
+    var notifier;
 
     beforeEach(function () {
       email = TestHelpers.createEmail();
@@ -37,7 +37,7 @@ function (chai, $, sinon, p, View, Metrics, Notifications, Relier, User, RouterM
       metrics = new Metrics();
       user = new User();
       relier = new Relier();
-      notifications = new Notifications();
+      notifier = new Notifier();
       account = user.initAccount({
         email: email,
         sessionToken: 'fake session token',
@@ -58,7 +58,7 @@ function (chai, $, sinon, p, View, Metrics, Notifications, Relier, User, RouterM
     function initView () {
       view = new View({
         metrics: metrics,
-        notifications: notifications,
+        notifier: notifier,
         relier: relier,
         router: routerMock,
         user: user

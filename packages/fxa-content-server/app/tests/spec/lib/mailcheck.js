@@ -27,23 +27,22 @@ function (sinon, chai, $, mailcheck) {
       logEvent: function () {
       }
     };
-    var metricsStub;
-    var mockView = {
-      notify: function () {},
-      isInExperimentGroup: function () {
-        return true;
-      }
-    };
+    var mockView;
 
     beforeEach(function () {
+      mockView = {
+        isInExperimentGroup: function () {
+          return true;
+        },
+        notifier: {
+          trigger: sinon.spy(function () {})
+        }
+      };
       $('body').append('<div class="input-row test-input"><input type=text id="' + MAILCHECK_ID + '"/></div>');
-      metricsStub = sinon.stub(mockView, 'notify', function () {
-      });
     });
 
     afterEach(function () {
       $('.test-input').remove();
-      metricsStub.restore();
     });
 
     it('skips mailcheck if element cannot be found', function (done) {
@@ -61,7 +60,7 @@ function (sinon, chai, $, mailcheck) {
 
 
       $(MAILCHECK_SELECTOR).val(BAD_EMAIL).blur();
-      assert.isTrue(mockView.notify.calledTwice, 'called notify twice');
+      assert.isTrue(mockView.notifier.trigger.calledTwice, 'called trigger twice');
 
       // wait for tooltip
       setTimeout(function () {
@@ -69,7 +68,7 @@ function (sinon, chai, $, mailcheck) {
         $(TOOLTIP_SELECTOR).find('span').first().click();
         // email should be corrected
         assert.equal($(MAILCHECK_SELECTOR).val(), CORRECTED_EMAIL);
-        assert.isTrue(mockView.notify.calledThrice, 'called notify thrice');
+        assert.isTrue(mockView.notifier.trigger.calledThrice, 'called trigger thrice');
         done();
       }, 50);
     });
@@ -80,7 +79,7 @@ function (sinon, chai, $, mailcheck) {
       });
 
       $(MAILCHECK_SELECTOR).val(BAD_EMAIL).blur();
-      assert.isTrue(mockView.notify.calledTwice, 'called notify twice');
+      assert.isTrue(mockView.notifier.trigger.calledTwice, 'called trigger twice');
 
       // wait for tooltip
       setTimeout(function () {
@@ -88,7 +87,7 @@ function (sinon, chai, $, mailcheck) {
         $(TOOLTIP_SELECTOR).find('span').eq(1).click();
         // email should NOT be corrected
         assert.equal($(MAILCHECK_SELECTOR).val(), BAD_EMAIL);
-        assert.isFalse(mockView.notify.calledThrice, 'called notify thrice');
+        assert.isFalse(mockView.notifier.trigger.calledThrice, 'called trigger thrice');
         done();
       }, 50);
     });

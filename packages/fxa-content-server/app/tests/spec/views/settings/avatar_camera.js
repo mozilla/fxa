@@ -12,6 +12,7 @@ define([
   '../../../mocks/canvas',
   '../../../mocks/profile',
   '../../../lib/helpers',
+  'lib/channels/notifier',
   'models/user',
   'models/reliers/relier',
   'models/auth_brokers/base',
@@ -20,7 +21,8 @@ define([
   'lib/metrics'
 ],
 function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
-    ProfileMock, TestHelpers, User, Relier, AuthBroker, p, AuthErrors, Metrics) {
+    ProfileMock, TestHelpers, Notifier, User, Relier, AuthBroker, p,
+    AuthErrors, Metrics) {
   'use strict';
 
   var assert = chai.assert;
@@ -34,29 +36,33 @@ function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
   }
 
   describe('views/settings/avatar/camera', function () {
-    var view;
-    var routerMock;
-    var windowMock;
-    var profileClientMock;
-    var user;
     var account;
-    var relier;
     var broker;
     var metrics;
+    var notifier;
+    var profileClientMock;
+    var relier;
+    var routerMock;
+    var user;
+    var view;
+    var windowMock;
 
     beforeEach(function () {
-      routerMock = new RouterMock();
-      windowMock = new WindowMock();
-      user = new User();
+      metrics = new Metrics();
+      notifier = new Notifier();
       relier = new Relier();
+      routerMock = new RouterMock();
+      user = new User();
+      windowMock = new WindowMock();
+
       broker = new AuthBroker({
         relier: relier
       });
-      metrics = new Metrics();
 
       view = new View({
         broker: broker,
         metrics: metrics,
+        notifier: notifier,
         relier: relier,
         router: routerMock,
         user: user,
@@ -200,6 +206,7 @@ function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
           displayLength: 240,
           exportLength: 600,
           metrics: metrics,
+          notifier: notifier,
           relier: relier,
           router: routerMock,
           user: user,

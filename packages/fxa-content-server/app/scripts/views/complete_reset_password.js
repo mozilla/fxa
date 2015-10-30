@@ -8,17 +8,17 @@ define([
   'views/form',
   'stache!templates/complete_reset_password',
   'views/mixins/floating-placeholder-mixin',
-  'views/mixins/inter-tab-channel-mixin',
   'views/mixins/password-mixin',
   'views/mixins/resume-token-mixin',
   'views/mixins/service-mixin',
+  'lib/channels/notifier',
   'models/verification/reset-password',
   'lib/auth-errors',
   'lib/url'
 ],
 function (Cocktail, BaseView, FormView, Template, FloatingPlaceholderMixin,
-  InterTabChannelMixin, PasswordMixin, ResumeTokenMixin, ServiceMixin,
-  VerificationInfo, AuthErrors, Url) {
+  PasswordMixin, ResumeTokenMixin, ServiceMixin,
+  Notifier, VerificationInfo, AuthErrors, Url) {
 
   'use strict';
 
@@ -65,7 +65,7 @@ function (Cocktail, BaseView, FormView, Template, FloatingPlaceholderMixin,
     afterRender: function () {
       // The originating tab will start listening for `login` events once
       // it knows the complete reset password tab is open in the same browser.
-      this.interTabSend('complete_reset_password_tab_open');
+      this.notifier.triggerRemote(Notifier.COMPLETE_RESET_PASSWORD_TAB_OPEN);
     },
 
     context: function () {
@@ -120,7 +120,8 @@ function (Cocktail, BaseView, FormView, Template, FloatingPlaceholderMixin,
           self.relier
         )
         .then(function (updatedAccount) {
-          self.interTabSend('login', updatedAccount.toJSON());
+          self.notifier.triggerRemote(
+              Notifier.SIGNED_IN, updatedAccount.toJSON());
           // See the above note about notifying the original tab.
           self.logViewEvent('verification.success');
           return self.invokeBrokerMethod(
@@ -184,7 +185,6 @@ function (Cocktail, BaseView, FormView, Template, FloatingPlaceholderMixin,
   Cocktail.mixin(
     View,
     FloatingPlaceholderMixin,
-    InterTabChannelMixin,
     PasswordMixin,
     ResumeTokenMixin,
     ServiceMixin

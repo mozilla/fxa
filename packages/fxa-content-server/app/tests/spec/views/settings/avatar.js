@@ -10,32 +10,36 @@ define([
   '../../../mocks/router',
   '../../../mocks/fxa-client',
   'lib/promise',
+  'lib/channels/notifier',
   'models/reliers/relier',
   'models/user'
 ],
 function (chai, $, sinon, View, RouterMock, FxaClientMock,
-    p, Relier, User) {
+    p, Notifier, Relier, User) {
   'use strict';
 
   var assert = chai.assert;
   var IMG_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
   describe('views/settings/avatar', function () {
-    var view;
-    var routerMock;
-    var fxaClientMock;
-    var relierMock;
-    var user;
     var account;
+    var fxaClientMock;
+    var notifier;
+    var relierMock;
+    var routerMock;
+    var user;
+    var view;
 
     beforeEach(function () {
-      routerMock = new RouterMock();
       fxaClientMock = new FxaClientMock();
+      notifier = new Notifier();
       relierMock = new Relier();
+      routerMock = new RouterMock();
       user = new User();
 
       view = new View({
         fxaClient: fxaClientMock,
+        notifier: notifier,
         relier: relierMock,
         router: routerMock,
         user: user

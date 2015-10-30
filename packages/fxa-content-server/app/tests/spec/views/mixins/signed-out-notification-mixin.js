@@ -6,10 +6,10 @@ define([
   'chai',
   'cocktail',
   'sinon',
-  'models/notifications',
+  'lib/channels/notifier',
   'views/base',
   'views/mixins/signed-out-notification-mixin'
-], function (chai, Cocktail, sinon, Notifications, BaseView,
+], function (chai, Cocktail, sinon, Notifier, BaseView,
   SignedOutNotificationMixin) {
   'use strict';
 
@@ -21,19 +21,19 @@ define([
   describe('views/mixins/signed-out-notification-mixin', function () {
     it('exports correct interface', function () {
       assert.lengthOf(Object.keys(SignedOutNotificationMixin), 2);
-      assert.isFunction(SignedOutNotificationMixin.initialize);
-      assert.isFunction(SignedOutNotificationMixin.destroy);
+      assert.isObject(SignedOutNotificationMixin.notifications);
+      assert.isFunction(SignedOutNotificationMixin.clearSessionAndNavigateToSignIn);
     });
 
     describe('new View', function () {
-      var notifications;
+      var notifier;
       var view;
 
       before(function () {
-        notifications = new Notifications();
-        notifications.on = sinon.spy();
+        notifier = new Notifier();
+        notifier.on = sinon.spy();
         view = new View({
-          notifications: notifications
+          notifier: notifier
         });
       });
 
@@ -41,11 +41,11 @@ define([
         view.destroy();
       });
 
-      it('calls notifications.on correctly', function () {
-        assert.equal(notifications.on.callCount, 1);
-        var args = notifications.on.args[0];
+      it('calls notifier.on correctly', function () {
+        assert.equal(notifier.on.callCount, 1);
+        var args = notifier.on.args[0];
         assert.lengthOf(args, 2);
-        assert.equal(args[0], 'fxaccounts:logout');
+        assert.equal(args[0], Notifier.SIGNED_OUT);
         assert.isFunction(args[1]);
       });
 
@@ -61,8 +61,8 @@ define([
             clear: sinon.spy()
           };
           view.navigate = sinon.spy();
-          notifications.triggerAll = sinon.spy();
-          notifications.on.args[0][1]();
+          notifier.triggerAll = sinon.spy();
+          notifier.on.args[0][1]();
         });
 
         it('calls relier.unset correctly', function () {
@@ -101,23 +101,8 @@ define([
           assert.equal(args[1].success, 'Signed out successfully');
         });
 
-        it('does not call notifications.triggerAll', function () {
-          assert.equal(notifications.triggerAll.callCount, 0);
-        });
-      });
-
-      describe('destroy', function () {
-        beforeEach(function () {
-          notifications.off = sinon.spy();
-          view.destroy();
-        });
-
-        it('calls notifications.off correctly', function () {
-          assert.equal(notifications.off.callCount, 1);
-          var args = notifications.off.args[0];
-          assert.lengthOf(args, 2);
-          assert.equal(args[0], notifications.EVENTS.SIGNED_OUT);
-          assert.equal(args[1], notifications.on.args[0][1]);
+        it('does not call notifier.triggerAll', function () {
+          assert.equal(notifier.triggerAll.callCount, 0);
         });
       });
     });

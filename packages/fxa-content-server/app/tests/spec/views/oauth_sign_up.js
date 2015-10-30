@@ -18,13 +18,13 @@ define([
   'models/auth_brokers/oauth',
   'models/user',
   'models/form-prefill',
-  'models/notifications',
+  'lib/channels/notifier',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
 function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
-      Assertion, Able, OAuthRelier, OAuthBroker, User, FormPrefill, Notifications, WindowMock,
+      Assertion, Able, OAuthRelier, OAuthBroker, User, FormPrefill, Notifier, WindowMock,
       RouterMock, TestHelpers) {
   'use strict';
 
@@ -67,7 +67,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
     var user;
     var formPrefill;
     var able;
-    var notifications;
+    var notifier;
 
     beforeEach(function () {
       Session.clear();
@@ -110,7 +110,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
       });
       formPrefill = new FormPrefill();
       able = new Able();
-      notifications = new Notifications();
+      notifier = new Notifier();
 
       view = new View({
         able: able,
@@ -119,7 +119,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
         formPrefill: formPrefill,
         fxaClient: fxaClient,
         metrics: metrics,
-        notifications: notifications,
+        notifier: notifier,
         oAuthClient: oAuthClient,
         relier: relier,
         router: router,

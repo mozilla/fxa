@@ -28,7 +28,7 @@ define([
       this._fxaClient = options.fxaClient;
       this._marketingEmailClient = options.marketingEmailClient;
       this._assertion = options.assertion;
-      this._notifications = options.notifications;
+      this._notifier = options.notifier;
       this._storage = options.storage || Storage.factory();
 
       // For now, the uniqueUserId is passed in from app-start instead of
@@ -154,7 +154,7 @@ define([
     // Used to clear the current account, but keeps the account details
     clearSignedInAccount: function () {
       this.clearSignedInAccountUid();
-      this._notifications.triggerRemote(this._notifications.EVENTS.SIGNED_OUT);
+      this._notifier.triggerRemote(this._notifier.EVENTS.SIGNED_OUT);
     },
 
     removeAllAccounts: function () {
@@ -277,7 +277,7 @@ define([
           }
           return self.setSignedInAccount(account)
             .then(function (account) {
-              self._notifications.triggerRemote(self._notifications.EVENTS.SIGNED_IN, account.toJSON());
+              self._notifier.triggerRemote(self._notifier.EVENTS.SIGNED_IN, account.toJSON());
               return account;
             });
         });

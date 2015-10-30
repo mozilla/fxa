@@ -10,6 +10,7 @@ define([
   '../../../mocks/router',
   '../../../mocks/profile',
   '../../../lib/helpers',
+  'lib/channels/notifier',
   'models/user',
   'models/reliers/relier',
   'models/auth_brokers/base',
@@ -18,8 +19,9 @@ define([
   'lib/metrics',
   'lib/profile-client'
 ],
-function (chai, $, sinon, View, RouterMock, ProfileMock, TestHelpers, User,
-    Relier, AuthBroker, AuthErrors, p, Metrics, ProfileClient) {
+function (chai, $, sinon, View, RouterMock, ProfileMock, TestHelpers,
+  Notifier, User, Relier, AuthBroker, AuthErrors, p, Metrics,
+  ProfileClient) {
   'use strict';
 
   var assert = chai.assert;
@@ -28,27 +30,31 @@ function (chai, $, sinon, View, RouterMock, ProfileMock, TestHelpers, User,
   var email = 'MyEmailAddress@example.com  ';
 
   describe('views/settings/avatar/gravatar', function () {
-    var view;
-    var routerMock;
-    var profileClientMock;
-    var user;
     var account;
-    var relier;
     var broker;
     var metrics;
+    var notifier;
+    var profileClientMock;
+    var relier;
+    var routerMock;
+    var user;
+    var view;
 
     beforeEach(function () {
+      metrics = new Metrics();
+      notifier = new Notifier();
+      relier = new Relier();
       routerMock = new RouterMock();
       user = new User();
-      relier = new Relier();
+
       broker = new AuthBroker({
         relier: relier
       });
-      metrics = new Metrics();
 
       view = new View({
         broker: broker,
         metrics: metrics,
+        notifier: notifier,
         relier: relier,
         router: routerMock,
         user: user

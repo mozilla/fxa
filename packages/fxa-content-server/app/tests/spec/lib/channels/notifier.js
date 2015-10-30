@@ -3,34 +3,41 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'backbone',
   'chai',
-  'sinon',
-  'models/notifications',
-  'lib/channels/null'
+  'lib/channels/null',
+  'lib/channels/notifier',
+  'sinon'
 ],
-function (chai, sinon, Notifications, NullChannel) {
+function (Backbone, chai, NullChannel, Notifier, sinon) {
   'use strict';
 
   var assert = chai.assert;
 
-  describe('models/notifications', function () {
-    var NOTIFICATION = 'fxaccounts:delete';
-    var notifications;
-    var webChannelMock;
-    var tabChannelMock;
+  describe('lib/channels/notifier', function () {
+    var NOTIFICATION = Notifier.COMPLETE_RESET_PASSWORD_TAB_OPEN;
+
     var iframeChannelMock;
+    var notifier;
+    var tabChannelMock;
+    var webChannelMock;
 
     beforeEach(function () {
-      webChannelMock = new NullChannel();
-      tabChannelMock = new NullChannel();
       iframeChannelMock = new NullChannel();
-      sinon.spy(webChannelMock, 'send');
-      sinon.spy(tabChannelMock, 'send');
       sinon.spy(iframeChannelMock, 'send');
 
+      webChannelMock = new NullChannel();
+      sinon.spy(webChannelMock, 'send');
+
+      // Use a Backbone.Events based stub object so events
+      // can be triggered on the mock for the tests. This will
+      // require that `send` is mocked in.
+      tabChannelMock = Object.create(Backbone.Events);
+      tabChannelMock.send = sinon.spy();
       sinon.spy(tabChannelMock, 'on');
 
-      notifications = new Notifications({
+
+      notifier = new Notifier({
         iframeChannel: iframeChannelMock,
         tabChannel: tabChannelMock,
         webChannel: webChannelMock
@@ -38,8 +45,8 @@ function (chai, sinon, Notifications, NullChannel) {
     });
 
     it('listens on initialization', function () {
-      assert.isTrue(tabChannelMock.on.called);
-      assert.equal(tabChannelMock.on.args[0][0], NOTIFICATION);
+      assert.equal(tabChannelMock.on.callCount,
+                   Object.keys(Notifier.prototype.EVENTS).length);
     });
 
     it('emits events received from other tabs', function (done) {
@@ -47,7 +54,8 @@ function (chai, sinon, Notifications, NullChannel) {
         data: { uid: '123' },
         event: NOTIFICATION
       };
-      notifications.on(NOTIFICATION, function (data) {
+
+      notifier.on(NOTIFICATION, function (data) {
         try {
           assert.deepEqual(data, message);
         } catch (e) {
@@ -55,9 +63,8 @@ function (chai, sinon, Notifications, NullChannel) {
         }
         done();
       });
-      var callback = tabChannelMock.on.args[0][1];
-      // manually trigger the event callback
-      callback(message);
+
+      tabChannelMock.trigger(NOTIFICATION, message);
     });
 
     describe('triggerAll', function () {
@@ -66,35 +73,13 @@ function (chai, sinon, Notifications, NullChannel) {
         var data = { foo: 'bar' };
         var spy = sinon.spy();
 
-        notifications.on(ev, spy);
-        notifications.triggerAll(ev, data);
+        notifier.on(ev, spy);
+        notifier.triggerAll(ev, data);
 
         assert.isTrue(webChannelMock.send.calledWith(ev, data));
         assert.isTrue(tabChannelMock.send.calledWith(ev, data));
         assert.isTrue(iframeChannelMock.send.calledWith(ev, data));
         assert.isTrue(spy.called);
-      });
-
-      it('notifies profile image change', function () {
-        var ev = notifications.EVENTS.PROFILE_CHANGE;
-        var data = { foo: 'bar' };
-
-        notifications.profileUpdated(data);
-
-        assert.isTrue(webChannelMock.send.calledWith(ev, data));
-        assert.isTrue(tabChannelMock.send.calledWith(ev, data));
-        assert.isTrue(iframeChannelMock.send.calledWith(ev, data));
-      });
-
-      it('notifies account deletions', function () {
-        var ev = notifications.EVENTS.DELETE;
-        var data = { foo: 'bar' };
-
-        notifications.accountDeleted(data);
-
-        assert.isTrue(webChannelMock.send.calledWith(ev, data));
-        assert.isTrue(tabChannelMock.send.calledWith(ev, data));
-        assert.isTrue(iframeChannelMock.send.calledWith(ev, data));
       });
     });
 
@@ -103,8 +88,8 @@ function (chai, sinon, Notifications, NullChannel) {
       var data = { baz: 'qux' };
       var spy = sinon.spy();
 
-      notifications.on(ev, spy);
-      notifications.triggerRemote(ev, data);
+      notifier.on(ev, spy);
+      notifier.triggerRemote(ev, data);
 
       assert.isTrue(webChannelMock.send.calledWith(ev, data));
       assert.isTrue(tabChannelMock.send.calledWith(ev, data));

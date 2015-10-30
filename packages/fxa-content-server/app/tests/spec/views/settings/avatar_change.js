@@ -12,15 +12,16 @@ define([
   '../../../mocks/profile',
   '../../../mocks/window',
   '../../../lib/helpers',
-  'models/user',
+  'lib/channels/notifier',
   'models/reliers/relier',
+  'models/user',
   'lib/profile-client',
   'lib/promise',
   'lib/auth-errors',
   'lib/metrics'
 ],
 function (chai, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
-            WindowMock, TestHelpers, User, Relier, ProfileClient, p, AuthErrors, Metrics) {
+            WindowMock, TestHelpers, Notifier, Relier, User, ProfileClient, p, AuthErrors, Metrics) {
   'use strict';
 
   var assert = chai.assert;
@@ -28,25 +29,28 @@ function (chai, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
                '/r25IQAEAAAAAAAAAAAAAAAAAAADvBkCAAAEehacTAAAAAElFTkSuQmCC';
 
   describe('views/settings/avatar_change', function () {
-    var view;
-    var routerMock;
-    var profileClientMock;
-    var windowMock;
-    var user;
     var account;
-    var relier;
     var metrics;
+    var notifier;
+    var profileClientMock;
+    var relier;
+    var routerMock;
+    var user;
+    var view;
+    var windowMock;
 
     beforeEach(function () {
+      metrics = new Metrics();
+      notifier = new Notifier();
+      profileClientMock = new ProfileMock();
+      relier = new Relier();
       routerMock = new RouterMock();
       user = new User();
-      profileClientMock = new ProfileMock();
       windowMock = new WindowMock();
-      relier = new Relier();
-      metrics = new Metrics();
 
       view = new View({
         metrics: metrics,
+        notifier: notifier,
         relier: relier,
         router: routerMock,
         user: user,
@@ -67,6 +71,7 @@ function (chai, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
       beforeEach(function () {
         view = new View({
           metrics: metrics,
+          notifier: notifier,
           relier: relier,
           router: routerMock,
           user: user,

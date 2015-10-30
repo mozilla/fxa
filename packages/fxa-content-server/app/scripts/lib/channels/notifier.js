@@ -13,36 +13,38 @@ define([
   'use strict';
 
   var EVENTS = {
+    COMPLETE_RESET_PASSWORD_TAB_OPEN: 'fxaccounts:complete_reset_password_tab_open',
     DELETE: 'fxaccounts:delete',
     PROFILE_CHANGE: 'profile:change',
     SIGNED_IN: 'fxaccounts:login',
     SIGNED_OUT: 'fxaccounts:logout'
   };
 
-  var Notifications = Backbone.Model.extend({
+  var Notifer = Backbone.Model.extend({
     EVENTS: EVENTS,
-
-    defaults: {
-    },
 
     initialize: function (options) {
       options = options || {};
       this._channels = [];
+
       if (options.iframeChannel) {
         this._channels.push(options.iframeChannel);
       }
+
       if (options.webChannel) {
         this._channels.push(options.webChannel);
       }
+
       if (options.tabChannel) {
+        this._tabChannel = options.tabChannel;
         this._channels.push(options.tabChannel);
         this._listen(options.tabChannel);
       }
     },
 
-    triggerAll: function (event, data) {
+    triggerAll: function (event, data, context) {
       this.triggerRemote(event, data);
-      this.trigger(event, data);
+      this.trigger(event, data, context);
     },
 
     triggerRemote: function (event, data) {
@@ -51,22 +53,20 @@ define([
       });
     },
 
-    profileUpdated: function (data) {
-      this.triggerAll(EVENTS.PROFILE_CHANGE, data);
-    },
-
-    accountDeleted: function (data) {
-      this.triggerAll(EVENTS.DELETE, data);
-    },
-
     // Listen for notifications from other fxa tabs or frames
     _listen: function (tabChannel) {
       var self = this;
       _.each(EVENTS, function (name) {
         tabChannel.on(name, self.trigger.bind(self, name));
       });
-    }
-  }, Backbone.Events);
+    },
 
-  return Notifications;
+    clear: function () {
+      if (this._tabChannel) {
+        this._tabChannel.clear();
+      }
+    }
+  }, EVENTS);
+
+  return Notifer;
 });

@@ -54,7 +54,7 @@ function (Backbone, _, Storage, Url) {
              options &&
              options.able &&
              options.metrics &&
-             options.notifications &&
+             options.notifier &&
              options.user &&
              options.window)) {
         return false;
@@ -64,7 +64,7 @@ function (Backbone, _, Storage, Url) {
       this.extraAbleOptions = options.extraAbleOptions || {};
       this.metrics = options.metrics;
       this._name = name;
-      this._notifications = options.notifications;
+      this._notifier = options.notifier;
       this.storage = options.storage || storage;
       this.user = options.user;
       this.window = options.window;
@@ -107,7 +107,7 @@ function (Backbone, _, Storage, Url) {
         }
 
         if (_.isFunction(method)) {
-          this._notifications.on(notificationName, method.bind(this));
+          this._notifier.on(notificationName, method.bind(this));
         }
       }
     },

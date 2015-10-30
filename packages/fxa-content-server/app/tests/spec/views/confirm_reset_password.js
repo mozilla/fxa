@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  'backbone',
   'chai',
   'sinon',
   'lib/promise',
@@ -13,6 +12,7 @@ define([
   'lib/ephemeral-messages',
   'lib/storage',
   '../../mocks/fxa-client',
+  'lib/channels/notifier',
   'models/reliers/relier',
   'models/auth_brokers/base',
   'models/user',
@@ -20,51 +20,46 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (Backbone, chai, sinon, p, AuthErrors, View, Metrics,
-  EphemeralMessages, Storage, FxaClient, Relier, Broker, User,
-  RouterMock, WindowMock, TestHelpers) {
+function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
+  Storage, FxaClient, Notifier, Relier, Broker, User, RouterMock,
+  WindowMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
 
   describe('views/confirm_reset_password', function () {
     var EMAIL = 'testuser@testuser.com';
-    var PASSWORD_FORGOT_TOKEN = 'fake password reset token';
-    var view;
-    var routerMock;
-    var windowMock;
-    var metrics;
-    var fxaClient;
-    var relier;
-    var broker;
-    var interTabChannel;
-    var ephemeralMessages;
-    var user;
-
     var LOGIN_MESSAGE_TIMEOUT_MS = 300;
+    var PASSWORD_FORGOT_TOKEN = 'fake password reset token';
     var VERIFICATION_POLL_TIMEOUT_MS = 100;
+
+    var broker;
+    var ephemeralMessages;
+    var fxaClient;
+    var metrics;
+    var notifier;
+    var relier;
+    var routerMock;
+    var user;
+    var view;
+    var windowMock;
 
     function createDeps() {
       destroyView();
 
+      fxaClient = new FxaClient();
+      metrics = new Metrics();
+      notifier = new Notifier();
+      relier = new Relier();
       routerMock = new RouterMock();
       windowMock = new WindowMock();
 
       sinon.stub(windowMock, 'setTimeout', window.setTimeout.bind(window));
       sinon.stub(windowMock, 'clearTimeout', window.clearTimeout.bind(window));
 
-      metrics = new Metrics();
-      relier = new Relier();
       broker = new Broker({
         relier: relier
       });
-      fxaClient = new FxaClient();
-
-      // Use Backbone.Events as an interTabChannel mock. We need a way
-      // to send events to the same tab.
-      interTabChannel = Object.create(Backbone.Events);
-      interTabChannel.send = interTabChannel.trigger;
-      interTabChannel.clear = sinon.spy();
 
       ephemeralMessages = new EphemeralMessages();
       user = new User({
@@ -88,9 +83,9 @@ function (Backbone, chai, sinon, p, AuthErrors, View, Metrics,
         broker: broker,
         ephemeralMessages: ephemeralMessages,
         fxaClient: fxaClient,
-        interTabChannel: interTabChannel,
         loginMessageTimeoutMS: LOGIN_MESSAGE_TIMEOUT_MS,
         metrics: metrics,
+        notifier: notifier,
         relier: relier,
         router: routerMock,
         user: user,
@@ -298,12 +293,12 @@ function (Backbone, chai, sinon, p, AuthErrors, View, Metrics,
           });
       });
 
-      it('waits for the `login` message if a `complete_reset_password_tab_open` message is received while an XHR request is outstanding', function () {
+      it('waits for the `SIGNED_IN` if a `COMPLETE_RESET_PASSWORD_TAB_OPEN` is received while an XHR request is outstanding', function () {
         sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
           // synthesize the message received while the 2nd XHR request is
           // outstanding.
           if (fxaClient.isPasswordResetComplete.callCount === 2) {
-            interTabChannel.send('complete_reset_password_tab_open');
+            notifier.trigger(Notifier.COMPLETE_RESET_PASSWORD_TAB_OPEN);
             return p(false).delay(100);
           }
 
@@ -311,7 +306,7 @@ function (Backbone, chai, sinon, p, AuthErrors, View, Metrics,
         });
 
         setTimeout(function () {
-          interTabChannel.send('login', {
+          notifier.trigger(Notifier.SIGNED_IN, {
             sessionToken: 'sessiontoken'
           });
         }, VERIFICATION_POLL_TIMEOUT_MS * 4);
@@ -323,12 +318,12 @@ function (Backbone, chai, sinon, p, AuthErrors, View, Metrics,
           });
       });
 
-      it('waits for the `login` message if a `complete_reset_password_tab_open` message is received', function () {
+      it('waits for the `SIGNED_IN` notification if a `COMPLETE_RESET_PASSWORD_TAB_OPEN` notification is received', function () {
         sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
           if (fxaClient.isPasswordResetComplete.callCount === 2) {
             // synthesize message sent afterr response received.
             setTimeout(function () {
-              interTabChannel.send('complete_reset_password_tab_open');
+              notifier.trigger(Notifier.COMPLETE_RESET_PASSWORD_TAB_OPEN);
             }, 10);
           }
 
@@ -336,7 +331,7 @@ function (Backbone, chai, sinon, p, AuthErrors, View, Metrics,
         });
 
         setTimeout(function () {
-          interTabChannel.send('login', {
+          notifier.trigger(Notifier.SIGNED_IN, {
             sessionToken: 'sessiontoken'
           });
         }, VERIFICATION_POLL_TIMEOUT_MS * 4);

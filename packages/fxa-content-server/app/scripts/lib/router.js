@@ -146,13 +146,13 @@ function (
       this.interTabChannel = options.interTabChannel;
       this.language = options.language;
       this.metrics = options.metrics;
-      this.notifications = options.notifications;
+      this.notifier = options.notifier;
       this.relier = options.relier;
       this.sentryMetrics = options.sentryMetrics;
       this.user = options.user;
       this.window = options.window || window;
 
-      this.notifications.once('view-shown', this._afterFirstViewHasRendered.bind(this));
+      this.notifier.once('view-shown', this._afterFirstViewHasRendered.bind(this));
 
       this.storage = Storage.factory('sessionStorage', this.window);
     },
@@ -213,7 +213,7 @@ function (
         interTabChannel: this.interTabChannel,
         language: this.language,
         metrics: this.metrics,
-        notifications: this.notifications,
+        notifier: this.notifier,
         profileClient: this.profileClient,
         relier: this.relier,
         router: this,
@@ -272,7 +272,7 @@ function (
      * @param {object} [options]
      */
     showView: function (View, options) {
-      this.notifications.trigger(
+      this.notifier.trigger(
           'show-view', View, this.getViewOptions(options));
     },
 
@@ -285,7 +285,7 @@ function (
      * @param {object} [options]
      */
     showChildView: function (ChildView, ParentView, options) {
-      this.notifications.trigger(
+      this.notifier.trigger(
           'show-child-view', ChildView, ParentView, this.getViewOptions(options));
     },
 

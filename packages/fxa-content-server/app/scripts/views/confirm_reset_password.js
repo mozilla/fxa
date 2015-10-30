@@ -10,13 +10,13 @@ define([
   'lib/promise',
   'lib/session',
   'lib/auth-errors',
-  'views/mixins/inter-tab-channel-mixin',
+  'lib/channels/notifier',
   'views/mixins/resend-mixin',
   'views/mixins/resume-token-mixin',
   'views/mixins/service-mixin'
 ],
 function (Cocktail, ConfirmView, BaseView, Template, p, Session, AuthErrors,
-  InterTabChannelMixin, ResendMixin, ResumeTokenMixin, ServiceMixin) {
+  Notifier, ResendMixin, ResumeTokenMixin, ServiceMixin) {
   'use strict';
 
   var t = BaseView.t;
@@ -133,7 +133,7 @@ function (Cocktail, ConfirmView, BaseView, Template, p, Session, AuthErrors,
        *
        * Once the `login` message has arrived, notify the browser. BOOM.
        */
-      this.interTabOn('complete_reset_password_tab_open', function () {
+      this.notifier.on(Notifier.COMPLETE_RESET_PASSWORD_TAB_OPEN, function () {
         if (! self._isWaitingForLoginMessage) {
           self._waitForLoginMessage().then(onComplete, onError);
           self._stopWaitingForServerConfirmation();
@@ -223,17 +223,18 @@ function (Cocktail, ConfirmView, BaseView, Template, p, Session, AuthErrors,
       var deferred = p.defer();
 
       this._isWaitingForLoginMessage = true;
-      this.interTabOn('login', deferred.resolve.bind(deferred));
+      this.notifier.on(
+          Notifier.SIGNED_IN, deferred.resolve.bind(deferred));
 
       return deferred.promise;
     },
 
     _stopListeningForInterTabMessages: function () {
       this._isWaitingForLoginMessage = false;
-      this.interTabOffAll();
+      this.notifier.off();
       // Sensitive data is passed between tabs using localStorage.
       // Delete the data from storage as soon as possible.
-      this.interTabClear();
+      this.notifier.clear();
     },
 
     _stopWaiting: function () {
@@ -275,7 +276,6 @@ function (Cocktail, ConfirmView, BaseView, Template, p, Session, AuthErrors,
 
   Cocktail.mixin(
     View,
-    InterTabChannelMixin,
     ResendMixin,
     ResumeTokenMixin,
     ServiceMixin

@@ -11,24 +11,24 @@ define([
   'lib/promise',
   '../../mocks/router',
   '../../mocks/window',
-  'models/notifications',
+  'lib/channels/notifier',
   'sinon',
   'views/app'
 ], function (Backbone, chai, $, AuthErrors, Environment, p, RouterMock,
-  WindowMock, Notifications, sinon, AppView) {
+  WindowMock, Notifier, sinon, AppView) {
   'use strict';
 
   var assert = chai.assert;
 
   describe('views/app', function () {
     var environment;
-    var notifications;
+    var notifier;
     var router;
     var view;
     var windowMock;
 
     function createDeps() {
-      notifications = new Notifications();
+      notifier = new Notifier();
       router = new RouterMock();
       windowMock = new WindowMock();
       environment = new Environment(windowMock);
@@ -37,7 +37,7 @@ define([
       view = new AppView({
         el: $('#container'),
         environment: environment,
-        notifications: notifications,
+        notifier: notifier,
         router: router,
         window: windowMock
       });
@@ -187,7 +187,7 @@ define([
         before(function () {
           createDeps();
 
-          sinon.spy(notifications, 'trigger');
+          sinon.spy(notifier, 'trigger');
           sinon.spy(view, 'setTitle');
 
           return view.showView(ViewThatRenders, {})
@@ -217,7 +217,7 @@ define([
         });
 
         it('triggers a `view-shown` message with the view', function () {
-          assert.isTrue(notifications.trigger.calledWith(
+          assert.isTrue(notifier.trigger.calledWith(
               'view-shown', displayedView));
         });
       });
@@ -253,7 +253,7 @@ define([
         before(function () {
           createDeps();
 
-          sinon.spy(notifications, 'trigger');
+          sinon.spy(notifier, 'trigger');
           sinon.spy(view, 'setTitle');
 
           return view.showView(FirstViewThatRenders, {})
@@ -303,7 +303,7 @@ define([
         before(function () {
           createDeps();
 
-          sinon.spy(notifications, 'trigger');
+          sinon.spy(notifier, 'trigger');
           sinon.spy(view, 'setTitle');
 
           return view.showView(ViewThatRenders, {})
@@ -326,7 +326,7 @@ define([
 
         it('triggers the `navigate-from-child-view` message', function () {
           assert.isTrue(
-            notifications.trigger.calledWith('navigate-from-child-view'));
+            notifier.trigger.calledWith('navigate-from-child-view'));
         });
 
         it('sets the title', function () {
@@ -400,10 +400,10 @@ define([
       before(function () {
         createDeps();
 
-        sinon.spy(notifications, 'trigger');
+        sinon.spy(notifier, 'trigger');
         sinon.spy(view, 'setTitle');
         sinon.spy(view, 'showView');
-        notifications.on('view-shown', function (_parentView) {
+        notifier.on('view-shown', function (_parentView) {
           parentView = _parentView;
         });
 

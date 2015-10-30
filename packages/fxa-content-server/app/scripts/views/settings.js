@@ -58,9 +58,10 @@ function (Cocktail, $, modal, Template, BaseView, allowOnlyOneSubmit, AvatarMixi
       this._able = options.able;
       this._subPanels = options.subPanels || this._initializeSubPanels(options);
       this._formPrefill = options.formPrefill;
-      this._notifications = options.notifications;
+    },
 
-      this._notifications.on('navigate-from-child-view', this._onNavigateFromChildView.bind(this));
+    notifications: {
+      'navigate-from-child-view': '_onNavigateFromChildView'
     },
 
     _initializeSubPanels: function (options) {

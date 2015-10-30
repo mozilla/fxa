@@ -6,13 +6,13 @@ define([
   'chai',
   'cocktail',
   'sinon',
-  'models/notifications',
+  'lib/channels/notifier',
   'models/user',
   'models/reliers/relier',
   'stache!templates/test_template',
   'views/base',
   'views/mixins/settings-mixin'
-], function (chai, Cocktail, sinon, Notifications, User, Relier, TestTemplate,
+], function (chai, Cocktail, sinon, Notifier, User, Relier, TestTemplate,
   BaseView, SettingsMixin) {
   'use strict';
 
@@ -29,7 +29,7 @@ define([
     var sandbox;
     var user;
     var view;
-    var notifications;
+    var notifier;
 
     function createView() {
       view = new SettingsView({
@@ -40,9 +40,9 @@ define([
 
     beforeEach(function () {
       relier = new Relier();
-      notifications = new Notifications();
+      notifier = new Notifier();
       user = new User({
-        notifications: notifications
+        notifier: notifier
       });
 
       sandbox = new sinon.sandbox.create();

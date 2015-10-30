@@ -12,10 +12,11 @@ define([
   'lib/auth-errors',
   'lib/ephemeral-messages',
   'lib/null-metrics',
+  'views/mixins/notifier-mixin',
   'views/mixins/timer-mixin'
 ],
 function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
-      EphemeralMessages, NullMetrics, TimerMixin) {
+      EphemeralMessages, NullMetrics, NotifierMixin, TimerMixin) {
   'use strict';
 
   var DEFAULT_TITLE = window.document.title;
@@ -144,6 +145,12 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
       }
 
       Backbone.View.call(this, options);
+
+      // The mixin's initialize is called directly instead of the normal
+      // override the `initialize` function because not all sub-classes
+      // call the parent's `initialize`. w/o the call to the parent,
+      // the mixin does not initialize correctly.
+      NotifierMixin.initialize.call(this, options);
 
       // Prevent errors from being displayed by aborted XHR requests.
       this._boundDisableErrors = _.bind(this.disableErrors, this);

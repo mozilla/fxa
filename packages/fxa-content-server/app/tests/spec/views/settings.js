@@ -23,7 +23,7 @@ define([
   'lib/able',
   'lib/metrics',
   'models/form-prefill',
-  'models/notifications',
+  'lib/channels/notifier',
   'models/reliers/relier',
   'models/profile-image',
   'models/user',
@@ -32,7 +32,7 @@ define([
 function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
   CommunicationPreferencesView, SettingsPanelMixin, RouterMock, TestHelpers,
   FxaClient, p, ProfileClient, ProfileErrors, AuthErrors, Able, Metrics,
-  FormPrefill, Notifications, Relier, ProfileImage, User, TestTemplate) {
+  FormPrefill, Notifier, Relier, ProfileImage, User, TestTemplate) {
   'use strict';
 
   var assert = chai.assert;
@@ -51,7 +51,7 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
     var fxaClient;
     var initialChildView;
     var metrics;
-    var notifications;
+    var notifier;
     var panelViews;
     var profileClient;
     var relier;
@@ -70,7 +70,7 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
         formPrefill: formPrefill,
         fxaClient: fxaClient,
         metrics: metrics,
-        notifications: notifications,
+        notifier: notifier,
         panelViews: panelViews,
         relier: relier,
         router: routerMock,
@@ -87,10 +87,10 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
       fxaClient = new FxaClient();
       profileClient = new ProfileClient();
 
-      notifications = new Notifications();
+      notifier = new Notifier();
       user = new User({
         fxaClient: fxaClient,
-        notifications: notifications,
+        notifier: notifier,
         profileClient: profileClient
       });
 
@@ -218,7 +218,7 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
           return true;
         });
         sinon.stub($.modal, 'close', function () { });
-        notifications.trigger('navigate-from-child-view');
+        notifier.trigger('navigate-from-child-view');
         assert.isTrue(view.showEphemeralMessages.called);
         assert.isTrue(view.logView.called);
         assert.isTrue($.modal.isActive.called);

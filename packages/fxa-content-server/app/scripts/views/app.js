@@ -18,10 +18,11 @@ define([
       options = options || {};
 
       this._environment = options.environment;
-      this._notifications = options.notifications;
+    },
 
-      this._notifications.on('show-view', this.showView.bind(this));
-      this._notifications.on('show-child-view', this.showChildView.bind(this));
+    notifications: {
+      'show-child-view': 'showChildView',
+      'show-view': 'showView'
     },
 
     events: {
@@ -71,7 +72,7 @@ define([
             // if the View to display is the same as the current view, then
             // the user is navigating from a childView back to the parent view.
             // No need to re-render, but notify interested parties of the event.
-            self._notifications.trigger('navigate-from-child-view', options);
+            self.notifier.trigger('navigate-from-child-view', options);
             self.setTitle(currentView.titleFromView());
 
             return currentView;
@@ -118,7 +119,7 @@ define([
 
             $('#fox-logo').addClass('fade-in-forward').css('opacity', 1);
 
-            self._notifications.trigger('view-shown', viewToShow);
+            self.notifier.trigger('view-shown', viewToShow);
 
             return viewToShow;
           });

@@ -5,38 +5,32 @@
 // Handle signed-in notifications.
 
 define([
-  'lib/promise'
+  'lib/promise',
+  'lib/channels/notifier'
 ],
-function (p) {
+function (p, Notifier) {
   'use strict';
 
-  function navigateToSignedInView (event) {
-    if (this.broker.hasCapability('handleSignedInNotification')) {
-      var self = this;
-      return this.user.setSignedInAccount(event)
-        .then(function () {
-          self.navigate(self._redirectTo || 'settings');
-        });
-    }
-
-    return p();
-  }
-
-  return {
-    initialize: function (options) {
-      this._notifications = options.notifications;
-      this._navigateToSignedInView = navigateToSignedInView.bind(this);
-      this._notifications.on(
-        this._notifications.EVENTS.SIGNED_IN,
-        this._navigateToSignedInView
-      );
+  var Mixin = {
+    notifications: {
+      // populated below using event name aliases
     },
 
-    destroy: function () {
-      this._notifications.off(
-        this._notifications.EVENTS.SIGNED_IN,
-        this._navigateToSignedInView
-      );
+    _navigateToSignedInView: function (event) {
+      if (this.broker.hasCapability('handleSignedInNotification')) {
+        var self = this;
+        return this.user.setSignedInAccount(event)
+          .then(function () {
+            self.navigate(self._redirectTo || 'settings');
+          });
+      }
+
+      return p();
     }
   };
+
+  Mixin.notifications[Notifier.SIGNED_IN] =
+              '_navigateToSignedInView';
+
+  return Mixin;
 });

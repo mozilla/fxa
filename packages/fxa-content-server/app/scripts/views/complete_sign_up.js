@@ -12,13 +12,14 @@ define([
   'views/mixins/resend-mixin',
   'views/mixins/loading-mixin',
   'views/mixins/resume-token-mixin',
+  'lib/channels/notifier',
   'models/verification/sign-up',
   'lib/url',
   'lib/constants'
 ],
 function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
-  AuthErrors, ExperimentMixin, ResendMixin, LoadingMixin, ResumeTokenMixin, VerificationInfo,
-  Url, Constants) {
+  AuthErrors, ExperimentMixin, ResendMixin, LoadingMixin, ResumeTokenMixin,
+  Notifier, VerificationInfo, Url, Constants) {
   'use strict';
 
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
@@ -45,8 +46,6 @@ function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
       // cache the email in case we need to attempt to resend the
       // verification link
       this._email = this._account.get('email');
-
-      this._notifications = options.notifications;
     },
 
     getAccount: function () {
@@ -68,7 +67,7 @@ function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
       return self.fxaClient.verifyCode(uid, code)
           .then(function () {
             self.logViewEvent('verification.success');
-            self.notify('verification.success');
+            self.notifier.trigger('verification.success');
             var account = self.getAccount();
 
             if (account.get('needsOptedInToMarketingEmail')) {
@@ -93,7 +92,7 @@ function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
           .then(function () {
             var account = self.getAccount();
 
-            self._notifications.triggerRemote(self._notifications.EVENTS.SIGNED_IN, account.toJSON());
+            self.notifier.triggerRemote(Notifier.SIGNED_IN, account.toJSON());
 
             if (! self.relier.isDirectAccess()) {
               self.navigate('signup_complete');

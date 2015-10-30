@@ -8,12 +8,12 @@ define([
   'lib/experiments/base',
   'lib/metrics',
   'lib/storage',
-  'models/notifications',
+  'lib/channels/notifier',
   'models/user',
   'sinon',
   '../../../mocks/window'
 ],
-function (chai, Able, Experiment, Metrics, Storage, Notifications,
+function (chai, Able, Experiment, Metrics, Storage, Notifier,
   User, sinon, WindowMock) {
   'use strict';
 
@@ -22,7 +22,7 @@ function (chai, Able, Experiment, Metrics, Storage, Notifications,
   var experiment;
   var expOptions;
   var metrics;
-  var notifications;
+  var notifier;
   var storage;
   var user;
   var UUID = 'a mock uuid';
@@ -35,7 +35,7 @@ function (chai, Able, Experiment, Metrics, Storage, Notifications,
         return 'treatment';
       });
       metrics = new Metrics();
-      notifications = new Notifications();
+      notifier = new Notifier();
       storage = new Storage();
       user = new User({
         uniqueUserId: UUID
@@ -46,7 +46,7 @@ function (chai, Able, Experiment, Metrics, Storage, Notifications,
       expOptions = {
         able: able,
         metrics: metrics,
-        notifications: notifications,
+        notifier: notifier,
         storage: storage,
         user: user,
         window: windowMock
@@ -171,11 +171,11 @@ function (chai, Able, Experiment, Metrics, Storage, Notifications,
         assert.isTrue(experiment.delegateNotifications.called, 'delegate called');
 
         assert.isTrue(experiment.saveState.calledOnce, 'enrolled');
-        experiment._notifications.trigger('one');
+        notifier.trigger('one');
         assert.isTrue(experiment.saveState.calledTwice, 'notification');
 
-        experiment._notifications.trigger('two');
-        experiment._notifications.trigger('three');
+        notifier.trigger('two');
+        notifier.trigger('three');
       });
     });
   });

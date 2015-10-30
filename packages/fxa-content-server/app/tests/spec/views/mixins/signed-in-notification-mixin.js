@@ -7,10 +7,10 @@ define([
   'cocktail',
   'sinon',
   'lib/promise',
-  'models/notifications',
+  'lib/channels/notifier',
   'views/base',
   'views/mixins/signed-in-notification-mixin'
-], function (chai, Cocktail, sinon, p, Notifications, BaseView,
+], function (chai, Cocktail, sinon, p, Notifier, BaseView,
   SignedInNotificationMixin) {
   'use strict';
 
@@ -22,19 +22,19 @@ define([
   describe('views/mixins/signed-in-notification-mixin', function () {
     it('exports correct interface', function () {
       assert.lengthOf(Object.keys(SignedInNotificationMixin), 2);
-      assert.isFunction(SignedInNotificationMixin.initialize);
-      assert.isFunction(SignedInNotificationMixin.destroy);
+      assert.isObject(SignedInNotificationMixin.notifications);
+      assert.isFunction(SignedInNotificationMixin._navigateToSignedInView);
     });
 
     describe('new View', function () {
-      var notifications;
+      var notifier;
       var view;
 
       before(function () {
-        notifications = new Notifications();
-        notifications.on = sinon.spy();
+        notifier = new Notifier();
+        notifier.on = sinon.spy();
         view = new View({
-          notifications: notifications
+          notifier: notifier
         });
       });
 
@@ -42,11 +42,11 @@ define([
         view.destroy();
       });
 
-      it('calls notifications.on correctly', function () {
-        assert.equal(notifications.on.callCount, 1);
-        var args = notifications.on.args[0];
+      it('calls notifier.on correctly', function () {
+        assert.equal(notifier.on.callCount, 1);
+        var args = notifier.on.args[0];
         assert.lengthOf(args, 2);
-        assert.equal(args[0], notifications.EVENTS.SIGNED_IN);
+        assert.equal(args[0], notifier.EVENTS.SIGNED_IN);
         assert.isFunction(args[1]);
       });
 
@@ -63,8 +63,8 @@ define([
             })
           };
           view.navigate = sinon.spy();
-          notifications.triggerAll = sinon.spy();
-          return notifications.on.args[0][1]({
+          notifier.triggerAll = sinon.spy();
+          return notifier.on.args[0][1]({
             data: 'foo'
           });
         });
@@ -94,8 +94,8 @@ define([
           assert.equal(args[0], 'settings');
         });
 
-        it('does not call notifications.triggerAll', function () {
-          assert.equal(notifications.triggerAll.callCount, 0);
+        it('does not call notifier.triggerAll', function () {
+          assert.equal(notifier.triggerAll.callCount, 0);
         });
       });
 
@@ -112,7 +112,7 @@ define([
             })
           };
           view.navigate = sinon.spy();
-          notifications.on.args[0][1]({
+          notifier.on.args[0][1]({
             data: 'foo'
           });
         });
@@ -144,7 +144,7 @@ define([
           };
           view.navigate = sinon.spy();
           view._redirectTo = 'foo';
-          return notifications.on.args[0][1]({
+          return notifier.on.args[0][1]({
             data: 'bar'
           });
         });
@@ -166,16 +166,16 @@ define([
 
       describe('destroy', function () {
         beforeEach(function () {
-          notifications.off = sinon.spy();
+          notifier.off = sinon.spy();
           view.destroy();
         });
 
-        it('calls notifications.off correctly', function () {
-          assert.equal(notifications.off.callCount, 1);
-          var args = notifications.off.args[0];
+        it('calls notifier.off correctly', function () {
+          assert.equal(notifier.off.callCount, 1);
+          var args = notifier.off.args[0];
           assert.lengthOf(args, 2);
-          assert.equal(args[0], notifications.EVENTS.SIGNED_IN);
-          assert.equal(args[1], notifications.on.args[0][1]);
+          assert.equal(args[0], notifier.EVENTS.SIGNED_IN);
+          assert.equal(args[1], notifier.on.args[0][1]);
         });
       });
     });

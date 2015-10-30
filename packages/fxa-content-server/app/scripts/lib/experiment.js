@@ -28,7 +28,7 @@ define([
     if (! (options &&
            options.able &&
            options.metrics &&
-           options.notifications &&
+           options.notifier &&
            options.user &&
            options.window)) {
       this.initialized = false;
@@ -49,7 +49,7 @@ define([
     this.able = options.able;
     this.account = options.account;
     this.metrics = options.metrics;
-    this.notifications = options.notifications;
+    this.notifier = options.notifier;
     this.translator = options.translator;
     this.user = options.user;
 
@@ -112,7 +112,7 @@ define([
             able: this.able,
             account: this.account,
             metrics: this.metrics,
-            notifications: this.notifications,
+            notifier: this.notifier,
             translator: this.translator,
             user: this.user,
             window: this.window

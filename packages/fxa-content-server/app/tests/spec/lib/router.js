@@ -14,7 +14,7 @@ define([
   'lib/constants',
   'lib/environment',
   'lib/metrics',
-  'models/notifications',
+  'lib/channels/notifier',
   'models/reliers/relier',
   'models/user',
   'models/form-prefill',
@@ -23,7 +23,7 @@ define([
   '../../lib/helpers'
 ],
 function (chai, sinon, Backbone, Router, BaseView, DisplayNameView,
-  SettingsView, Able, Constants, Environment, Metrics, Notifications,
+  SettingsView, Able, Constants, Environment, Metrics, Notifier,
   Relier, User, FormPrefill, NullBroker, WindowMock, TestHelpers) {
   'use strict';
 
@@ -37,7 +37,7 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView,
     var metrics;
     var navigateOptions;
     var navigateUrl;
-    var notifications;
+    var notifier;
     var relier;
     var router;
     var user;
@@ -51,7 +51,7 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView,
       able = new Able();
       formPrefill = new FormPrefill();
       metrics = new Metrics();
-      notifications = new Notifications();
+      notifier = new Notifier();
       user = new User();
       windowMock = new WindowMock();
 
@@ -71,7 +71,7 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView,
         environment: environment,
         formPrefill: formPrefill,
         metrics: metrics,
-        notifications: notifications,
+        notifier: notifier,
         relier: relier,
         user: user,
         window: windowMock
@@ -219,24 +219,24 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView,
 
     describe('showView', function () {
       it('triggers a `show-view` notification', function () {
-        sinon.spy(notifications, 'trigger');
+        sinon.spy(notifier, 'trigger');
 
         var options = { key: 'value' };
 
         router.showView(BaseView, options);
         assert.isTrue(
-          notifications.trigger.calledWith('show-view', BaseView));
+          notifier.trigger.calledWith('show-view', BaseView));
       });
     });
 
     describe('showChildView', function () {
       it('triggers a `show-child-view` notification', function () {
-        sinon.spy(notifications, 'trigger');
+        sinon.spy(notifier, 'trigger');
 
         var options = { key: 'value' };
 
         router.showChildView(DisplayNameView, SettingsView, options);
-        assert.isTrue(notifications.trigger.calledWith(
+        assert.isTrue(notifier.trigger.calledWith(
             'show-child-view', DisplayNameView, SettingsView));
       });
     });
@@ -252,7 +252,7 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView,
           broker: broker,
           formPrefill: formPrefill,
           metrics: metrics,
-          notifications: notifications,
+          notifier: notifier,
           relier: relier,
           user: user,
           window: windowMock
