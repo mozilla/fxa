@@ -18,9 +18,11 @@ define([
 ], function (Backbone, _) {
   'use strict';
 
+  var proto = Backbone.Model.prototype;
+
   var VerificationInfo = Backbone.Model.extend({
     initialize: function (options) {
-      Backbone.Model.prototype.initialize.call(this, options);
+      proto.initialize.call(this, options);
 
       // clean up any whitespace that was probably added by an MUA.
       _.each(this.defaults, function (value, key) {
@@ -35,11 +37,15 @@ define([
       }, this);
     },
 
+    defaults: {},
+    validation: {},
+
     /**
      * Check if the model is valid.
      *
      * @method isValid
-     * @returns `false` if a `validationError` is set, or if `validate` either throws or returns false. `true` otherwise.
+     * @returns {boolean} `false` if a `validationError` is set, or if
+     *   `validate` either throws or returns false. `true` otherwise.
      */
     isValid: function () {
       var isValid;
@@ -50,7 +56,7 @@ define([
 
       try {
         // super's isValid throws if invalid.
-        isValid = Backbone.Model.prototype.isValid.call(this);
+        isValid = proto.isValid.call(this);
       } catch (e) {
         isValid = false;
       }
@@ -86,7 +92,7 @@ define([
      * Check if the verification info is expired
      *
      * @method isExpired
-     * @returns {Boolen} `true` if expired, `false` otw.
+     * @returns {boolean} `true` if expired, `false` otw.
      */
     isExpired: function () {
       return !! this._isExpired;
@@ -105,7 +111,7 @@ define([
      * Check if the verification info is damaged
      *
      * @method isDamaged
-     * @returns {Boolen} `true` if damaged, `false` otw.
+     * @returns {boolean} `true` if damaged, `false` otw.
      */
     isDamaged: function () {
       return !! this._isDamaged;
