@@ -193,11 +193,11 @@ DB.connect(config)
           })
         }
       )
-/*
+
       test(
         'processUnpublishedEvents should accept ack of only some events',
         function (t) {
-          t.plan(7)
+          t.plan(8)
           var user = fake.newUserDataBuffer()
           user.account.emailVerified = true
           // Logs a 'create' and a 'verify' event.
@@ -229,7 +229,7 @@ DB.connect(config)
           })
         }
       )
-*/
+
       test(
         'teardown',
         function (t) {
