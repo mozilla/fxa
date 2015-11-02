@@ -38,12 +38,12 @@ function (chai, sinon, Session, p, Constants, OAuthClient, Assertion, AuthErrors
   var INVALID_OAUTH_CODE_REDIRECT_URL = 'https://127.0.0.1:8080?code=code&state=state';
 
   describe('models/auth_brokers/oauth', function () {
+    var account;
+    var assertionLibrary;
     var broker;
     var oAuthClient;
-    var assertionLibrary;
     var relier;
     var user;
-    var account;
 
     beforeEach(function () {
       oAuthClient = new OAuthClient();
@@ -140,9 +140,9 @@ function (chai, sinon, Session, p, Constants, OAuthClient, Assertion, AuthErrors
       });
     });
 
-    describe('persist', function () {
+    describe('persistVerificationData', function () {
       it('saves OAuth params to session', function () {
-        return broker.persist()
+        return broker.persistVerificationData(account)
           .then(function () {
             assert.ok(!! Session.oauth);
           });

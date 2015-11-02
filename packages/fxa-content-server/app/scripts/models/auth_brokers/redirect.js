@@ -13,6 +13,8 @@ define([
 ], function (p, Constants, Url, OAuthAuthenticationBroker, HaltBehavior) {
   'use strict';
 
+  var proto = OAuthAuthenticationBroker.prototype;
+
   var RedirectAuthenticationBroker = OAuthAuthenticationBroker.extend({
     type: 'redirect',
     initialize: function (options) {
@@ -20,7 +22,7 @@ define([
 
       this._metrics = options.metrics;
 
-      return OAuthAuthenticationBroker.prototype.initialize.call(this, options);
+      return proto.initialize.call(this, options);
     },
 
     sendOAuthResultToRelier: function (result) {
@@ -56,13 +58,13 @@ define([
       this.window.sessionStorage.removeItem('originalTab');
     },
 
-    persist: function () {
+    persistVerificationData: function (account) {
       // If the user replaces the current tab with the verification url,
       // finish the OAuth flow.
       var self = this;
       return p().then(function () {
         self.setOriginalTabMarker();
-        return OAuthAuthenticationBroker.prototype.persist.call(self);
+        return proto.persistVerificationData.call(self, account);
       });
     },
 
@@ -73,8 +75,7 @@ define([
         // cleared in the a tab other than the original. Always clear it just
         // to make sure the bases are covered.
         self.clearOriginalTabMarker();
-        return OAuthAuthenticationBroker.prototype
-          .finishOAuthFlow.call(self, account, additionalResultData);
+        return proto.finishOAuthFlow.call(self, account, additionalResultData);
       });
     },
 
@@ -86,14 +87,17 @@ define([
       // event handlers before the flow completes.
       var self = this;
 
-      return p().delay(100).then(function () {
-        if (self.isOriginalTab() || self.canVerificationRedirect()) {
-          return self.finishOAuthSignUpFlow(account)
-            .then(function () {
-              return new HaltBehavior();
-            });
-        }
-      });
+      return proto.afterCompleteSignUp.call(self, account)
+        .delay(100)
+        .then(function (behavior) {
+          if (self.isOriginalTab() || self.canVerificationRedirect()) {
+            return self.finishOAuthSignUpFlow(account)
+              .then(function () {
+                return new HaltBehavior();
+              });
+          }
+          return behavior;
+        });
     },
 
     canVerificationRedirect: function () {
@@ -108,14 +112,17 @@ define([
       // The user may have replaced the original tab with the verification
       // tab. If this is the case, send the OAuth result to the RP.
       var self = this;
-      return p().then(function () {
-        if (self.isOriginalTab()) {
-          return self.finishOAuthSignInFlow(account)
-            .then(function () {
-              return new HaltBehavior();
-            });
-        }
-      });
+      return proto.afterCompleteResetPassword.call(self, account)
+        .then(function (behavior) {
+          if (self.isOriginalTab()) {
+            return self.finishOAuthSignInFlow(account)
+              .then(function () {
+                return new HaltBehavior();
+              });
+          }
+
+          return behavior;
+        });
     }
   });
 

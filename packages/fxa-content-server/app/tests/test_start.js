@@ -160,8 +160,9 @@ function (Translator, Session) {
     '../tests/spec/models/auth_brokers/redirect',
     '../tests/spec/models/auth_brokers/web-channel',
     '../tests/spec/models/verification/base',
+    '../tests/spec/models/verification/reset-password',
+    '../tests/spec/models/verification/same-browser',
     '../tests/spec/models/verification/sign-up',
-    '../tests/spec/models/verification/reset-password'
   ];
 
   // The translator is expected to be on the window object.

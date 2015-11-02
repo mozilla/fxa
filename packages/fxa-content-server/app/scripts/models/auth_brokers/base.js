@@ -11,9 +11,11 @@ define([
   'backbone',
   'lib/promise',
   'models/mixins/search-param',
+  'models/verification/same-browser',
   'views/behaviors/null',
   'underscore',
-], function (Backbone, p, SearchParamMixin, NullBehavior, _) {
+], function (Backbone, p, SearchParamMixin, SameBrowserVerificationModel,
+  NullBehavior, _) {
   'use strict';
 
   var BaseAuthenticationBroker = Backbone.Model.extend({
@@ -38,6 +40,7 @@ define([
      */
     defaultBehaviors: {
       afterChangePassword: new NullBehavior(),
+      afterCompleteAccountUnlock: new NullBehavior(),
       afterCompleteResetPassword: new NullBehavior(),
       afterCompleteSignUp: new NullBehavior(),
       afterDeleteAccount: new NullBehavior(),
@@ -146,10 +149,38 @@ define([
      * for email verification. Useful for storing data that may be needed
      * by the verification tab.
      *
+     * @param {object} account
      * @return {promise}
      */
-    persist: function () {
-      return p();
+    persistVerificationData: function (account) {
+      var self = this;
+
+      return p().then(function () {
+        // verification info is persisted to localStorage so that
+        // the same `context` is used if the user verifies in the same browser.
+        // If the user verifies in a different browser, the
+        // default (direct access) context will be used.
+        var verificationInfo =
+              createSameBrowserVerificationModel(account, 'context');
+
+        verificationInfo.set({
+          context: self.relier.get('context')
+        });
+
+        return verificationInfo.persist();
+      });
+    },
+
+    /**
+     * Clear persisted verification data for the account
+     *
+     * @param {object} account
+     * @return {promise}
+     */
+    unpersistVerificationData: function (account) {
+      return p().then(function () {
+        clearSameBrowserVerificationModel(account, 'context');
+      });
     },
 
     /**
@@ -193,8 +224,12 @@ define([
      * @param {object} account
      * @return {promise}
      */
-    afterCompleteSignUp: function (/* account */) {
-      return p(this.getBehavior('afterCompleteSignUp'));
+    afterCompleteSignUp: function (account) {
+      var self = this;
+      return self.unpersistVerificationData(account)
+        .then(function () {
+          return self.getBehavior('afterCompleteSignUp');
+        });
     },
 
     /**
@@ -215,8 +250,12 @@ define([
      * @param {object} account
      * @return {promise}
      */
-    afterCompleteResetPassword: function (/* account */) {
-      return p(this.getBehavior('afterCompleteResetPassword'));
+    afterCompleteResetPassword: function (account) {
+      var self = this;
+      return self.unpersistVerificationData(account)
+        .then(function () {
+          return self.getBehavior('afterCompleteResetPassword');
+        });
     },
 
     /**
@@ -237,6 +276,20 @@ define([
      */
     afterDeleteAccount: function (/* account */) {
       return p(this.getBehavior('afterDeleteAccount'));
+    },
+
+    /**
+     * Called after an account is unlocked, in the verification tab.
+     *
+     * @param {object} account
+     * @return {promise}
+     */
+    afterCompleteAccountUnlock: function (account) {
+      var self = this;
+      return self.unpersistVerificationData(account)
+        .then(function () {
+          return self.getBehavior('afterCompleteAccountUnlock');
+        });
     },
 
     /**
@@ -341,6 +394,21 @@ define([
       return this._capabilities.get(capabilityName);
     }
   });
+
+  function createSameBrowserVerificationModel (account, namespace) {
+    return new SameBrowserVerificationModel({}, {
+      email: account.get('email'),
+      namespace: namespace,
+      uid: account.get('uid')
+    });
+  }
+
+  function clearSameBrowserVerificationModel (account, namespace) {
+    var verificationInfo =
+            createSameBrowserVerificationModel(account, namespace);
+
+    verificationInfo.clear();
+  }
 
   _.extend(BaseAuthenticationBroker.prototype, SearchParamMixin);
 

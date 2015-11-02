@@ -111,6 +111,19 @@ define([
           })
         .end()
 
+          // user can open sync preferences in new tab.
+        .then(FunctionalHelpers.noSuchBrowserNotification(self, 'fxaccounts:sync_preferences'))
+
+        // user should be able to open sync preferences
+        .findByCssSelector('#sync-preferences')
+          // user wants to open sync preferences.
+          .click()
+        .end()
+
+        // browser is notified of desire to open Sync preferences
+        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:sync_preferences'))
+
+
         .closeCurrentWindow()
         .switchToWindow('')
         .end()
@@ -120,7 +133,7 @@ define([
 
         .then(FunctionalHelpers.noSuchBrowserNotification(self, 'fxaccounts:sync_preferences'))
 
-        // user should be able to open sync preferences
+        // user can open sync preferences in original tab.
         .findByCssSelector('#sync-preferences')
           // user wants to open sync preferences.
           .click()

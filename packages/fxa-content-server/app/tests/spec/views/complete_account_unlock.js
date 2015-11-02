@@ -26,15 +26,15 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
   var assert = chai.assert;
 
   describe('views/complete_account_unlock', function () {
-    var view;
-    var routerMock;
-    var windowMock;
     var accountUnlockError;
-    var metrics;
-    var fxaClient;
-    var relier;
     var broker;
+    var fxaClient;
+    var metrics;
+    var relier;
+    var routerMock;
     var user;
+    var view;
+    var windowMock;
     var validCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH);
     var invalidCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH - 1);
     var validUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
@@ -79,13 +79,13 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
     }
 
     beforeEach(function () {
-      routerMock = new RouterMock();
-      windowMock = new WindowMock();
-      metrics = new Metrics();
-      relier = new Relier();
       broker = new Broker();
       fxaClient = new FxaClient();
+      metrics = new Metrics();
+      relier = new Relier();
+      routerMock = new RouterMock();
       user = new User();
+      windowMock = new WindowMock();
 
       accountUnlockError = null;
       sinon.stub(fxaClient, 'completeAccountUnlock', function () {
@@ -95,6 +95,8 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
           return p();
         }
       });
+
+      sinon.spy(broker, 'afterCompleteAccountUnlock');
 
       initView();
     });
@@ -208,6 +210,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
         return view.render()
           .then(function () {
             assert.isTrue(view.fxaClient.completeAccountUnlock.calledWith(validUid, validCode));
+            assert.isTrue(broker.afterCompleteAccountUnlock.called);
             assert.equal(routerMock.page, 'account_unlock_complete');
             assert.isTrue(TestHelpers.isEventLogged(
                     metrics, 'complete-account-unlock.verification.success'));

@@ -38,6 +38,15 @@ function (FormView, CompleteAccountUnlockTemplate, AuthErrors,
       return this.fxaClient.completeAccountUnlock(uid, code)
         .then(function () {
           self.logViewEvent('verification.success');
+          var account = self.user.initAccount({
+            code: code,
+            uid: uid
+          });
+
+          return self.invokeBrokerMethod(
+                    'afterCompleteAccountUnlock', account);
+        })
+        .then(function () {
           self.navigate('account_unlock_complete');
           return false;
         })

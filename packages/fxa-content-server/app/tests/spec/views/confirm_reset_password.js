@@ -119,7 +119,7 @@ function (Backbone, chai, sinon, p, AuthErrors, View, Metrics,
       beforeEach(function () {
         createDeps();
 
-        sinon.spy(broker, 'persist');
+        sinon.spy(broker, 'persistVerificationData');
 
         return view.render()
           .then(function () {
@@ -197,7 +197,7 @@ function (Backbone, chai, sinon, p, AuthErrors, View, Metrics,
       beforeEach(function () {
         createDeps();
 
-        sinon.spy(broker, 'persist');
+        sinon.spy(broker, 'persistVerificationData');
       });
 
       afterEach(function () {
@@ -217,7 +217,7 @@ function (Backbone, chai, sinon, p, AuthErrors, View, Metrics,
 
         return view.afterVisible()
           .then(function () {
-            assert.isTrue(broker.persist.called);
+            assert.isTrue(broker.persistVerificationData.called);
             assert.isTrue(
               view._finishPasswordResetSameBrowser.calledWith(sessionInfo));
             assert.isTrue(TestHelpers.isEventLogged(
@@ -237,7 +237,7 @@ function (Backbone, chai, sinon, p, AuthErrors, View, Metrics,
 
         return view.afterVisible()
           .then(function () {
-            assert.isTrue(broker.persist.called);
+            assert.isTrue(broker.persistVerificationData.called);
             assert.isTrue(
               view._finishPasswordResetDifferentBrowser.called);
             assert.isTrue(TestHelpers.isEventLogged(
@@ -257,7 +257,7 @@ function (Backbone, chai, sinon, p, AuthErrors, View, Metrics,
             var err = view.displayError.args[0][0];
             assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
 
-            assert.isTrue(broker.persist.called);
+            assert.isTrue(broker.persistVerificationData.called);
             assert.isFalse(TestHelpers.isEventLogged(
               metrics, 'confirm_reset_password.verification.success'));
           });

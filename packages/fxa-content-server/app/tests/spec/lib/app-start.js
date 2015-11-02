@@ -31,6 +31,7 @@ define([
   'models/reliers/sync',
   'models/reliers/oauth',
   'models/reliers/relier',
+  'models/verification/same-browser',
   'models/user',
   'lib/metrics',
   'lib/storage-metrics',
@@ -43,8 +44,9 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
   Url, OAuthErrors, AuthErrors, Storage, BaseBroker, FirstrunBroker,
   FxDesktopV1Broker, FxDesktopV2Broker, FxFennecV1Broker, FxiOSV1Broker,
   FxiOSV2Broker, IframeBroker, RedirectBroker, WebChannelBroker, Notifications,
-  RefreshObserver, BaseRelier, SyncRelier, OAuthRelier, Relier, User,
-  Metrics, StorageMetrics, WindowMock, RouterMock, HistoryMock, TestHelpers) {
+  RefreshObserver, BaseRelier, SyncRelier, OAuthRelier, Relier,
+  SameBrowserVerificationModel, User, Metrics, StorageMetrics, WindowMock,
+  RouterMock, HistoryMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -764,6 +766,137 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
         windowMock.location.pathname = 'signup';
         appStart.allResourcesReady();
         assert.equal(windowMock.location.hash, 'signup');
+      });
+    });
+
+    describe('_getContext', function () {
+      describe('in a verification flow', function () {
+        beforeEach(function () {
+          appStart = new AppStart({
+            notifications: notifications,
+            window: windowMock
+          });
+
+          sinon.stub(appStart, '_isVerification', function () {
+            return true;
+          });
+
+          sinon.spy(appStart, '_getVerificationContext');
+
+          appStart._getContext();
+        });
+
+        it('calls `_getVerificationContext`', function () {
+          assert.isTrue(appStart._getVerificationContext.called);
+        });
+      });
+
+      describe('in a non-verification flow', function () {
+        describe('with a `context` in the query parameters', function () {
+          beforeEach(function () {
+            windowMock.location.search = '?context=fx_ios_v1';
+
+            appStart = new AppStart({
+              notifications: notifications,
+              window: windowMock
+            });
+
+            sinon.stub(appStart, '_isVerification', function () {
+              return false;
+            });
+
+          });
+
+          it('returns the `context` from the query parameters', function () {
+            assert.equal(appStart._getContext(), 'fx_ios_v1');
+          });
+        });
+
+        describe('without a `context` in the query parameters', function () {
+          beforeEach(function () {
+            windowMock.location.search = '?';
+
+            appStart = new AppStart({
+              notifications: notifications,
+              window: windowMock
+            });
+
+            sinon.stub(appStart, '_isVerification', function () {
+              return false;
+            });
+          });
+
+          it('returns the `direct` context', function () {
+            assert.equal(appStart._getContext(), Constants.DIRECT_CONTEXT);
+          });
+        });
+      });
+    });
+
+    describe('_getVerificationContext', function () {
+      describe('with a stored `context`', function () {
+        beforeEach(function () {
+          appStart = new AppStart({
+            notifications: notifications,
+            window: windowMock
+          });
+
+          sinon.stub(appStart, '_getSameBrowserVerificationModel', function () {
+            return {
+              get: function () {
+                return 'fx_ios_v2';
+              }
+            };
+          });
+
+          appStart._getVerificationContext();
+        });
+
+        it('calls _getSameBrowserVerificationModel', function () {
+          assert.isTrue(appStart._getSameBrowserVerificationModel.called);
+        });
+
+        it('returns the stored context', function () {
+          assert.equal(appStart._getVerificationContext(), 'fx_ios_v2');
+        });
+      });
+
+      describe('without a stored `context`', function () {
+        beforeEach(function () {
+          appStart = new AppStart({
+            notifications: notifications,
+            window: windowMock
+          });
+
+          sinon.stub(appStart, '_getSameBrowserVerificationModel', function () {
+            return {
+              get: function () {
+                return undefined;
+              }
+            };
+          });
+        });
+
+        it('returns the `direct` context', function () {
+          assert.equal(appStart._getVerificationContext(),
+              Constants.DIRECT_CONTEXT);
+        });
+      });
+    });
+
+    describe('_getSameBrowserVerificationModel', function () {
+      beforeEach(function () {
+        appStart = new AppStart({
+          notifications: notifications,
+          window: windowMock
+        });
+      });
+
+      it('gets a `SameBrowserVerificationModel` instance', function () {
+        assert.instanceOf(
+          appStart._getSameBrowserVerificationModel('context'),
+          SameBrowserVerificationModel
+        );
       });
     });
   });

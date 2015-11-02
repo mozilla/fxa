@@ -4,27 +4,30 @@
 
 define([
   'chai',
+  'models/account',
   'models/reliers/relier',
   'models/auth_brokers/base',
-  'views/base',
-  '../../../mocks/window'
+  'models/verification/same-browser',
+  '../../../mocks/window',
+  'sinon'
 ],
-function (chai, Relier, BaseAuthenticationBroker,
-  BaseView, WindowMock) {
+function (chai, Account, Relier, BaseAuthenticationBroker,
+  SameBrowserVerificationModel, WindowMock, sinon) {
   'use strict';
 
   var assert = chai.assert;
 
   describe('models/auth_brokers/base', function () {
-    var relier;
+    var account;
     var broker;
-    var view;
+    var relier;
     var windowMock;
 
-    before(function () {
-      view = new BaseView();
+    beforeEach(function () {
+      account = new Account({ uid: 'users_uid' });
+      relier = new Relier({ context: 'fx_fennec_v1' });
       windowMock = new WindowMock();
-      relier = new Relier();
+
       broker = new BaseAuthenticationBroker({
         relier: relier,
         window: windowMock
@@ -51,81 +54,133 @@ function (chai, Relier, BaseAuthenticationBroker,
       });
     });
 
-    describe('persist', function () {
-      it('returns a promise', function () {
-        return broker.persist(view)
-          .then(assert.pass);
+    describe('persistVerificationData', function () {
+      var verificationInfo;
+
+      beforeEach(function () {
+        return broker.persistVerificationData(account)
+          .then(function () {
+            verificationInfo = new SameBrowserVerificationModel({}, {
+              namespace: 'context',
+              uid: 'users_uid'
+            });
+            verificationInfo.load();
+          });
+      });
+
+      it('persist the relier\'s `context` to localStorage', function () {
+        assert.equal(verificationInfo.get('context'), 'fx_fennec_v1');
       });
     });
 
+    describe('unpersistVerificationData', function () {
+      var verificationInfo;
+
+      beforeEach(function () {
+        return broker.persistVerificationData(account)
+          .then(function () {
+            return broker.unpersistVerificationData(account);
+          })
+          .then(function () {
+            verificationInfo = new SameBrowserVerificationModel({}, {
+              namespace: 'context',
+              uid: 'users_uid'
+            });
+            verificationInfo.load();
+          });
+      });
+
+      it('delete\'s the stored `context` from localStorage', function () {
+        assert.isFalse(verificationInfo.has('context'));
+      });
+    });
 
     describe('afterChangePassword', function () {
       it('returns a promise', function () {
-        return broker.afterChangePassword(view)
+        return broker.afterChangePassword(account)
           .then(testDoesNotHalt);
       });
     });
 
     describe('afterCompleteResetPassword', function () {
-      it('returns a promise', function () {
-        return broker.afterCompleteResetPassword(view)
-          .then(testDoesNotHalt);
+      beforeEach(function () {
+        sinon.spy(broker, 'unpersistVerificationData');
+        return broker.afterCompleteResetPassword(account);
+      });
+
+      it('unpersistVerificationDatas data', function () {
+        assert.isTrue(broker.unpersistVerificationData.calledWith(account));
       });
     });
 
     describe('afterCompleteSignUp', function () {
-      it('returns a promise', function () {
-        return broker.afterCompleteSignUp(view)
-          .then(testDoesNotHalt);
+      beforeEach(function () {
+        sinon.spy(broker, 'unpersistVerificationData');
+        return broker.afterCompleteSignUp(account);
+      });
+
+      it('unpersistVerificationDatas data', function () {
+        assert.isTrue(broker.unpersistVerificationData.calledWith(account));
       });
     });
 
     describe('afterDeleteAccount', function () {
       it('returns a promise', function () {
-        return broker.afterDeleteAccount(view)
+        return broker.afterDeleteAccount(account)
           .then(testDoesNotHalt);
       });
     });
 
     describe('afterResetPasswordConfirmationPoll', function () {
       it('returns a promise', function () {
-        return broker.afterResetPasswordConfirmationPoll(view)
+        return broker.afterResetPasswordConfirmationPoll(account)
           .then(testDoesNotHalt);
       });
     });
 
     describe('afterSignIn', function () {
       it('returns a promise', function () {
-        return broker.afterSignIn(view)
+        return broker.afterSignIn(account)
           .then(testDoesNotHalt);
       });
     });
 
     describe('afterForceAuth', function () {
       it('returns a promise', function () {
-        return broker.afterForceAuth(view)
+        return broker.afterForceAuth(account)
           .then(testDoesNotHalt);
       });
     });
 
     describe('beforeSignIn', function () {
       it('returns a promise', function () {
-        return broker.beforeSignIn(view)
+        return broker.beforeSignIn(account)
           .then(testDoesNotHalt);
       });
     });
 
     describe('afterSignUpConfirmationPoll', function () {
       it('returns a promise', function () {
-        return broker.afterSignUpConfirmationPoll(view)
+        return broker.afterSignUpConfirmationPoll(account)
           .then(testDoesNotHalt);
       });
     });
 
     describe('beforeSignUpConfirmationPoll', function () {
       it('returns a promise', function () {
-        return broker.beforeSignUpConfirmationPoll(view)
+        return broker.beforeSignUpConfirmationPoll(account)
           .then(testDoesNotHalt);
+      });
+    });
+
+    describe('afterCompleteAccountUnlock', function () {
+      beforeEach(function () {
+        sinon.spy(broker, 'unpersistVerificationData');
+        return broker.afterCompleteAccountUnlock(account);
+      });
+
+      it('unpersistVerificationDatas data', function () {
+        assert.isTrue(broker.unpersistVerificationData.calledWith(account));
       });
     });
 

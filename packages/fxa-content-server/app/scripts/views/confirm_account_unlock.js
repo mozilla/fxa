@@ -79,7 +79,7 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
 
     afterVisible: function () {
       var self = this;
-      return self.broker.persist()
+      return self.broker.persistVerificationData(self.getAccount())
         .then(function () {
           return self._waitForConfirmation();
         })
