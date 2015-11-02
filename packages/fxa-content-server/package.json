@@ -92,7 +92,6 @@
     "grunt-jscs": "2.0.0",
     "grunt-jsonlint": "1.0.4",
     "grunt-newer": "1.1.1",
-    "grunt-nsp-shrinkwrap": "0.0.3",
     "grunt-todo": "0.5.0",
     "husky": "0.9.2",
     "intern": "3.0.0",
