@@ -15,6 +15,13 @@ var DEFAULTS = {
 
 var TOO_LARGE = /^Payload (?:content length|size) greater than maximum allowed/
 
+var BAD_SIGNATURE_ERRORS = [
+  'Bad mac',
+  'Unknown algorithm',
+  'Missing required payload hash',
+  'Payload is invalid'
+]
+
 function AppError(options, extra, headers) {
   this.message = options.message || DEFAULTS.message
   this.isBoom = true
@@ -71,8 +78,11 @@ AppError.translate = function (response) {
     else if (payload.message === 'Invalid nonce') {
       error = AppError.invalidNonce()
     }
-    else {
+    else if (BAD_SIGNATURE_ERRORS.indexOf(payload.message) !== -1) {
       error = AppError.invalidSignature(payload.message)
+    }
+    else {
+      error = AppError.invalidToken(payload.message)
     }
   }
   else if (payload.validation) {
@@ -237,12 +247,12 @@ AppError.invalidSignature = function (message) {
   })
 }
 
-AppError.invalidToken = function () {
+AppError.invalidToken = function (message) {
   return new AppError({
     code: 401,
     error: 'Unauthorized',
     errno: 110,
-    message: 'Invalid authentication token in request signature'
+    message: message || 'Invalid authentication token in request signature'
   })
 }
 

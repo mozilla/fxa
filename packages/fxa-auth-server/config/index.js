@@ -292,6 +292,14 @@ var conf = convict({
     env: 'LOCKOUT_ENABLED',
     default: false
   },
+  oauth: {
+    url: {
+      format: 'url',
+      doc: 'URL at which to verify OAuth tokens',
+      default: 'http://localhost:9010',
+      env: 'OAUTH_URL'
+    }
+  },
   openIdProviders: {
     doc: 'root urls of allowed OpenID providers',
     format: Array,

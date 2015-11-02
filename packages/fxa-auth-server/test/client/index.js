@@ -281,6 +281,19 @@ Client.prototype.sessionStatus = function () {
     )
 }
 
+Client.prototype.accountProfile = function (oauthToken) {
+  if (oauthToken) {
+    return this.api.accountProfile(null, { Authorization: 'Bearer ' + oauthToken })
+  } else {
+    var o = this.sessionToken ? P.resolve(null) : this.login()
+    return o.then(
+      function () {
+        return this.api.accountProfile(this.sessionToken)
+      }.bind(this)
+    )
+  }
+}
+
 Client.prototype.destroyAccount = function () {
   return this.api.accountDestroy(this.email, this.authPW)
     .then(this._clear.bind(this))
