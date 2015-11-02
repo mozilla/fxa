@@ -1,3 +1,39 @@
+<a name="0.49.0"></a>
+# 0.49.0 (2015-11-02)
+
+
+### Bug Fixes
+
+* **client:** Do not use the OAuth Redirect broker to verify Sync sign ups. ([f419efd](https://github.com/mozilla/fxa-content-server/commit/f419efd)), closes [#3215](https://github.com/mozilla/fxa-content-server/issues/3215)
+* **client:** Remove /force_auth query params upon successful signin. ([bb3da5e](https://github.com/mozilla/fxa-content-server/commit/bb3da5e)), closes [#2071](https://github.com/mozilla/fxa-content-server/issues/2071)
+* **client:** clear query params on sign-out ([0f73d4c](https://github.com/mozilla/fxa-content-server/commit/0f73d4c))
+* **client:** clear relier uid on sign-out ([aff6073](https://github.com/mozilla/fxa-content-server/commit/aff6073))
+* **client:** remove debug logging from crosstab ([568518b](https://github.com/mozilla/fxa-content-server/commit/568518b))
+* **cwts:** update "choose what to sync" design. ([d05147c](https://github.com/mozilla/fxa-content-server/commit/d05147c)), closes [#3183](https://github.com/mozilla/fxa-content-server/issues/3183)
+* **cwts:** update column design to properly align the data types ([ae578e4](https://github.com/mozilla/fxa-content-server/commit/ae578e4)), closes [#3246](https://github.com/mozilla/fxa-content-server/issues/3246)
+* **design:** update "Choose what to sync" image r=vladikoff ([32797fd](https://github.com/mozilla/fxa-content-server/commit/32797fd))
+* **l10n:** copy pt_PT to pt in l10n ([ef70dac](https://github.com/mozilla/fxa-content-server/commit/ef70dac))
+* **tests:** Disable `grunt validate-shrinkwrap` for now. ([3c86c84](https://github.com/mozilla/fxa-content-server/commit/3c86c84)), closes [#3237](https://github.com/mozilla/fxa-content-server/issues/3237)
+* **tests:** close unclosed window in functional test ([fdebd27](https://github.com/mozilla/fxa-content-server/commit/fdebd27))
+
+### Features
+
+* **build:** Add the git sha used in the build to the production JS. ([998dfac](https://github.com/mozilla/fxa-content-server/commit/998dfac)), closes [#2625](https://github.com/mozilla/fxa-content-server/issues/2625)
+* **client:** Show the  button on verification tab in Fennec ([5accebb](https://github.com/mozilla/fxa-content-server/commit/5accebb)), closes [#3140](https://github.com/mozilla/fxa-content-server/issues/3140)
+* **client:** Use the `BroadcastChannel` instead of `crosstab` if available. ([774ce7c](https://github.com/mozilla/fxa-content-server/commit/774ce7c))
+* **client:** Use the newest crosstab, which presents a more sane API. ([3f2199f](https://github.com/mozilla/fxa-content-server/commit/3f2199f))
+* **client:** synchronise signed-in state across tabs ([ecebd94](https://github.com/mozilla/fxa-content-server/commit/ecebd94))
+* **cwts:** add Choose what to sync to fx_desktop_v2 ([e9b05ec](https://github.com/mozilla/fxa-content-server/commit/e9b05ec)), closes [#3213](https://github.com/mozilla/fxa-content-server/issues/3213)
+* **docs:** Document all base authentication broker method parameters. ([0143f04](https://github.com/mozilla/fxa-content-server/commit/0143f04))
+* **ios:** add choose what to sync for Firefox for iOS 2 ([8d797c6](https://github.com/mozilla/fxa-content-server/commit/8d797c6)), closes [#3139](https://github.com/mozilla/fxa-content-server/issues/3139)
+
+### Refactor
+
+* **client:** Unify callback data in InterTabChannel and Backbone.Events ([9136ab5](https://github.com/mozilla/fxa-content-server/commit/9136ab5)), closes [#3229](https://github.com/mozilla/fxa-content-server/issues/3229)
+* **client:** extract hard coded key codes ([b5a584b](https://github.com/mozilla/fxa-content-server/commit/b5a584b)), closes [#3163](https://github.com/mozilla/fxa-content-server/issues/3163)
+
+
+
 <a name="0.48.0"></a>
 # 0.48.0 (2015-10-20)
 
