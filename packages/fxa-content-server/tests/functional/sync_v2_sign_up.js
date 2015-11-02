@@ -87,7 +87,7 @@ define([
         // has been cleared.
         .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:login', function (data) {
           assert.isTrue(data.customizeSync);
-          assert.deepEqual(data.declinedSyncEngines, ['passwords', 'addons']);
+          assert.deepEqual(data.declinedSyncEngines, ['addons', 'passwords']);
           assert.equal(data.email, email);
           assert.ok(data.keyFetchToken);
           assert.ok(data.sessionToken);
