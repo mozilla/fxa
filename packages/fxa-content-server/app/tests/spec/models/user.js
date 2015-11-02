@@ -10,21 +10,26 @@ define([
   'lib/session',
   'lib/fxa-client',
   'lib/auth-errors',
+  'models/notifications',
   'models/user'
 ],
-function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
+function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors,
+  Notifications, User) {
   'use strict';
 
   var assert = chai.assert;
+  var UUID = 'a mock uuid';
 
   describe('models/user', function () {
-    var user;
     var fxaClientMock;
-    var UUID = 'a mock uuid';
+    var notifications;
+    var user;
 
     beforeEach(function () {
       fxaClientMock = new FxaClient();
+      notifications = new Notifications();
       user = new User({
+        notifications: notifications,
         uniqueUserId: UUID
       });
     });
@@ -106,11 +111,16 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
     });
 
     it('clearSignedInAccount', function () {
+      sinon.spy(notifications, 'triggerRemote');
       return user.setSignedInAccount({ email: 'email', uid: 'uid' })
         .then(function () {
           user.clearSignedInAccount();
           assert.isTrue(user.getSignedInAccount().isDefault());
           assert.equal(user.getAccountByUid('uid').get('uid'), 'uid');
+          assert.equal(notifications.triggerRemote.callCount, 1);
+          var args = notifications.triggerRemote.args[0];
+          assert.lengthOf(args, 1);
+          assert.equal(args[0], 'fxaccounts:logout');
         });
     });
 
@@ -141,9 +151,11 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
     });
 
     it('setSignedInAccount', function () {
+      sinon.spy(notifications, 'triggerRemote');
       return user.setSignedInAccount({ email: 'email', uid: 'uid' })
         .then(function () {
           assert.equal(user.getSignedInAccount().get('uid'), 'uid');
+          assert.equal(notifications.triggerRemote.callCount, 0);
         });
     });
 
@@ -241,13 +253,14 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
 
     it('setSignedInAccountByUid works if account is already cached', function () {
       var uid = 'abc123';
-
+      sinon.spy(notifications, 'triggerRemote');
       return user.setSignedInAccount({ email: 'email', uid: 'uid' })
         .then(function () {
           return user.setAccount({ email: 'email', uid: uid })
             .then(function () {
               user.setSignedInAccountByUid(uid);
               assert.equal(user.getSignedInAccount().get('uid'), uid);
+              assert.equal(notifications.triggerRemote.callCount, 0);
             });
         });
     });
@@ -389,8 +402,9 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
         return p();
       });
       sinon.stub(user, 'setSignedInAccount', function () {
-        return p();
+        return p(account);
       });
+      sinon.spy(notifications, 'triggerRemote');
 
       return user.signInAccount(account, relierMock, { resume: 'resume token'})
         .then(function () {
@@ -401,6 +415,11 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
             }
           ));
           assert.isTrue(user.setSignedInAccount.calledWith(account));
+          assert.equal(notifications.triggerRemote.callCount, 1);
+          var args = notifications.triggerRemote.args[0];
+          assert.lengthOf(args, 2);
+          assert.equal(args[0], 'fxaccounts:login');
+          assert.deepEqual(args[1], account.toJSON());
         });
     });
 
@@ -412,7 +431,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors, User) {
         return p();
       });
       sinon.stub(user, 'setSignedInAccount', function () {
-        return p();
+        return p(account);
       });
       sinon.stub(user, 'getAccountByUid', function () {
         return oldAccount;

@@ -286,6 +286,10 @@ define([
        */
       emailVerificationMarketingSnippet: true,
       /**
+       * Should the view handle signed-in notifications from other tabs?
+       */
+      handleSignedInNotification: true,
+      /**
        * Is signup supported? the fx_ios_v1 broker can disable it.
        */
       signup: true,

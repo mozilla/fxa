@@ -58,6 +58,22 @@ define([
       createAuthBroker();
     });
 
+    it('has the `signup` capability by default', function () {
+      assert.isTrue(broker.hasCapability('signup'));
+    });
+
+    it('has the `handleSignedInNotification` capability by default', function () {
+      assert.isTrue(broker.hasCapability('handleSignedInNotification'));
+    });
+
+    it('has the `emailVerificationMarketingSnippet` capability by default', function () {
+      assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
+    });
+
+    it('does not have the `syncPreferencesNotification` capability by default', function () {
+      assert.isFalse(broker.hasCapability('syncPreferencesNotification'));
+    });
+
     describe('afterLoaded', function () {
       it('sends a `loaded` message', function () {
         return broker.afterLoaded()

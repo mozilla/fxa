@@ -4,18 +4,19 @@
 
 define([
   'cocktail',
+  'lib/auth-errors',
   'lib/promise',
+  'lib/session',
+  'stache!templates/force_auth',
   'views/base',
   'views/form',
   'views/sign_in',
   'views/mixins/password-mixin',
   'views/mixins/resume-token-mixin',
-  'stache!templates/force_auth',
-  'lib/session',
-  'lib/auth-errors'
+  'views/mixins/signed-in-notification-mixin'
 ],
-function (Cocktail, p, BaseView, FormView, SignInView, PasswordMixin,
-    ResumeTokenMixin, Template, Session, AuthErrors) {
+function (Cocktail, AuthErrors, p, Session, Template, BaseView, FormView,
+  SignInView, PasswordMixin, ResumeTokenMixin, SignedInNotificationMixin) {
   'use strict';
 
   function getFatalErrorMessage(self, fatalError) {
@@ -149,7 +150,8 @@ function (Cocktail, p, BaseView, FormView, SignInView, PasswordMixin,
   Cocktail.mixin(
     View,
     PasswordMixin,
-    ResumeTokenMixin
+    ResumeTokenMixin,
+    SignedInNotificationMixin
   );
 
   return View;

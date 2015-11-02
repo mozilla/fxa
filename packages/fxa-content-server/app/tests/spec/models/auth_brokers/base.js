@@ -21,7 +21,7 @@ function (chai, Relier, BaseAuthenticationBroker,
     var view;
     var windowMock;
 
-    beforeEach(function () {
+    before(function () {
       view = new BaseView();
       windowMock = new WindowMock();
       relier = new Relier();
@@ -196,6 +196,18 @@ function (chai, Relier, BaseAuthenticationBroker,
 
         it('returns `true` for `signup` by default', function () {
           assert.isTrue(broker.hasCapability('signup'));
+        });
+
+        it('returns `true` for `handleSignedInNotification` by default', function () {
+          assert.isTrue(broker.hasCapability('handleSignedInNotification'));
+        });
+
+        it('returns `true` for `emailVerificationMarketingSnippet` by default', function () {
+          assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
+        });
+
+        it('returns `false` for `syncPreferencesNotification` by default', function () {
+          assert.isFalse(broker.hasCapability('syncPreferencesNotification'));
         });
       });
 

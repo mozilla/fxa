@@ -15,17 +15,18 @@ define([
   'lib/fxa-client',
   'lib/constants',
   'lib/ephemeral-messages',
+  'models/auth_brokers/base',
+  'models/form-prefill',
+  'models/notifications',
   'models/reliers/relier',
   'models/user',
-  'models/form-prefill',
-  'models/auth_brokers/base',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
 function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
-      FxaClient, Constants, EphemeralMessages, Relier, User, FormPrefill, Broker,
-      WindowMock, RouterMock, TestHelpers) {
+  FxaClient, Constants, EphemeralMessages, Broker, FormPrefill, Notifications,
+  Relier, User, WindowMock, RouterMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -43,6 +44,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
     var user;
     var formPrefill;
     var ephemeralMessages;
+    var notifications;
 
     beforeEach(function () {
       email = TestHelpers.createEmail();
@@ -58,10 +60,12 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
       });
       fxaClient = new FxaClient();
       user = new User({
-        fxaClient: fxaClient
+        fxaClient: fxaClient,
+        notifications: notifications
       });
       formPrefill = new FormPrefill();
       ephemeralMessages = new EphemeralMessages();
+      notifications = new Notifications();
 
       initView();
 
@@ -87,6 +91,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
         formPrefill: formPrefill,
         fxaClient: fxaClient,
         metrics: metrics,
+        notifications: notifications,
         relier: relier,
         router: routerMock,
         user: user,

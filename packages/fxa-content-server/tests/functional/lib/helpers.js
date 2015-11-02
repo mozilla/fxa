@@ -22,6 +22,7 @@ define([
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
   var SIGNUP_URL = config.fxaContentRoot + 'signup';
   var RESET_PASSWORD_URL = config.fxaContentRoot + 'reset_password';
+  var SETTINGS_URL = config.fxaContentRoot + 'settings';
 
   var EXTERNAL_SITE_URL = 'http://example.com';
   var EXTERNAL_SITE_LINK_TEXT = 'More information';
@@ -247,39 +248,40 @@ define([
 
     return getVerificationLink(user, index)
       .then(function (verificationLink) {
-        return context.remote
-          .execute(function (verificationLink, windowName) {
-            var newWindow = window.open(verificationLink, windowName);
-
-            // Hook up the new window to listen for WebChannel messages.
-            // XXX TODO: this is pretty gross to do universally like this...
-            // XXX TODO: it will go away if we can make the original tab
-            //           reliably be the one to complete the oauth flow.
-            newWindow.addEventListener('WebChannelMessageToChrome', function (e) {
-              var command = e.detail.message.command;
-              var data = e.detail.message.data;
-              var element = newWindow.document.createElement('div');
-              element.setAttribute('id', 'message-' + command.replace(/:/g, '-'));
-              element.innerText = JSON.stringify(data);
-              newWindow.document.body.appendChild(element);
-            });
-
-            // from http://dev.w3.org/html5/webstorage/
-            // When a new top-level browsing context is created by a script in
-            // an existing browsing context, then the session storage area of
-            // the origin of that Document must be copied into the new
-            // browsing context when it is created. From that point on,
-            // however, the two session storage areas must be considered
-            // separate, not affecting each other in any way.
-            //
-            // We want to pretend this is a new tab that the user opened using
-            // CTRL-T, which does NOT copy sessionStorage over. Wipe
-            // sessionStorage in this new context;
-            newWindow.sessionStorage.clear();
-
-            return true;
-          }, [ verificationLink, windowName ]);
+        return context.remote.execute(openWindow, [ verificationLink, windowName ]);
       });
+  }
+
+  function openWindow (url, name) {
+    var newWindow = window.open(url, name);
+
+    // Hook up the new window to listen for WebChannel messages.
+    // XXX TODO: this is pretty gross to do universally like this...
+    // XXX TODO: it will go away if we can make the original tab
+    //           reliably be the one to complete the oauth flow.
+    newWindow.addEventListener('WebChannelMessageToChrome', function (e) {
+      var command = e.detail.message.command;
+      var data = e.detail.message.data;
+      var element = newWindow.document.createElement('div');
+      element.setAttribute('id', 'message-' + command.replace(/:/g, '-'));
+      element.innerText = JSON.stringify(data);
+      newWindow.document.body.appendChild(element);
+    });
+
+    // from http://dev.w3.org/html5/webstorage/
+    // When a new top-level browsing context is created by a script in
+    // an existing browsing context, then the session storage area of
+    // the origin of that Document must be copied into the new
+    // browsing context when it is created. From that point on,
+    // however, the two session storage areas must be considered
+    // separate, not affecting each other in any way.
+    //
+    // We want to pretend this is a new tab that the user opened using
+    // CTRL-T, which does NOT copy sessionStorage over. Wipe
+    // sessionStorage in this new context;
+    newWindow.sessionStorage.clear();
+
+    return true;
   }
 
   function openVerificationLinkDifferentBrowser(client, email) {
@@ -312,6 +314,18 @@ define([
       .then(function (result) {
         return client.accountReset(email, password, result.accountResetToken);
       });
+  }
+
+  function openSettingsInNewTab(context, windowName) {
+    return context.remote.execute(openWindow, [ SETTINGS_URL, windowName ]);
+  }
+
+  function openSignInInNewTab(context, windowName) {
+    return context.remote.execute(openWindow, [ SIGNIN_URL, windowName ]);
+  }
+
+  function openSignUpInNewTab(context, windowName) {
+    return context.remote.execute(openWindow, [ SIGNUP_URL, windowName ]);
   }
 
   function openUnlockLinkDifferentBrowser(client, email) {
@@ -772,6 +786,9 @@ define([
     openFxaFromUntrustedRp: openFxaFromUntrustedRp,
     openPage: openPage,
     openPasswordResetLinkDifferentBrowser: openPasswordResetLinkDifferentBrowser,
+    openSettingsInNewTab: openSettingsInNewTab,
+    openSignInInNewTab: openSignInInNewTab,
+    openSignUpInNewTab: openSignUpInNewTab,
     openUnlockLinkDifferentBrowser: openUnlockLinkDifferentBrowser,
     openVerificationLinkDifferentBrowser: openVerificationLinkDifferentBrowser,
     openVerificationLinkInNewTab: openVerificationLinkInNewTab,

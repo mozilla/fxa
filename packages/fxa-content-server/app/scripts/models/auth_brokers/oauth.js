@@ -61,6 +61,13 @@ function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
       afterSignIn: new HaltBehavior()
     }),
 
+    defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
+      // Disable signed-in notifications for OAuth due to the potential for
+      // unintended consequences from redirecting to a relier URL more than
+      // once.
+      handleSignedInNotification: false
+    }),
+
     initialize: function (options) {
       options = options || {};
 

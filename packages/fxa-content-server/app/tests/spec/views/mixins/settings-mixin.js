@@ -5,13 +5,14 @@
 define([
   'chai',
   'cocktail',
-  'models/reliers/relier',
-  'models/user',
   'sinon',
+  'models/notifications',
+  'models/user',
+  'models/reliers/relier',
   'stache!templates/test_template',
   'views/base',
   'views/mixins/settings-mixin'
-], function (chai, Cocktail, Relier, User, sinon, TestTemplate,
+], function (chai, Cocktail, sinon, Notifications, User, Relier, TestTemplate,
   BaseView, SettingsMixin) {
   'use strict';
 
@@ -28,6 +29,7 @@ define([
     var sandbox;
     var user;
     var view;
+    var notifications;
 
     function createView() {
       view = new SettingsView({
@@ -38,7 +40,10 @@ define([
 
     beforeEach(function () {
       relier = new Relier();
-      user = new User();
+      notifications = new Notifications();
+      user = new User({
+        notifications: notifications
+      });
 
       sandbox = new sinon.sandbox.create();
       sandbox.spy(user, 'setSignedInAccountByUid');

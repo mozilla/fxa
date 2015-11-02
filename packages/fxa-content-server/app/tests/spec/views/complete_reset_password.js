@@ -307,7 +307,13 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
                   { reason: view.fxaClient.SIGNIN_REASON.PASSWORD_RESET }
               ));
               assert.equal(routerMock.page, 'reset_password_complete');
-              assert.isTrue(interTabChannel.send.calledWith('login'));
+
+              assert.equal(interTabChannel.send.callCount, 1);
+              var args = interTabChannel.send.args[0];
+              assert.lengthOf(args, 2);
+              assert.equal(args[0], 'login');
+              assert.isObject(args[1]);
+
               assert.isTrue(TestHelpers.isEventLogged(
                       metrics, 'complete_reset_password.verification.success'));
               return user.setSignedInAccount.returnValues[0].then(function (returnValue) {

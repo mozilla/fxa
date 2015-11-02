@@ -87,11 +87,12 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
       fxaClient = new FxaClient();
       profileClient = new ProfileClient();
 
+      notifications = new Notifications();
       user = new User({
         fxaClient: fxaClient,
+        notifications: notifications,
         profileClient: profileClient
       });
-      notifications = new Notifications();
 
       formPrefill = new FormPrefill();
 

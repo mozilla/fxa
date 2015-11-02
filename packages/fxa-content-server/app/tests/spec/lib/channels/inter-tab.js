@@ -232,14 +232,43 @@ define([
       });
 
       describe('on', function () {
-        var callback = function () {};
+        var handler;
+
         beforeEach(function () {
+          sinon.stub(crossTabMock.util, 'tabCount', function () {
+            return 2;
+          });
+          sinon.stub(crossTabMock.util, 'generateId', function () {
+            return 'wibble';
+          });
           sinon.spy(crossTabMock.util.events, 'on');
-          localStorageAdapter.on('message', callback);
+          sinon.spy(crossTabMock.util.events, 'off');
+          sinon.spy(crossTabMock, 'broadcast');
+          handler = function () {};
+          localStorageAdapter.on('message', handler);
         });
 
-        it('register a callback to be called when a message is sent', function () {
-          assert.isTrue(crossTabMock.util.events.on.calledWith('message'));
+        it('calls crosstab.util.events.on correctly', function () {
+          assert.equal(crossTabMock.util.events.on.callCount, 1);
+          var args = crossTabMock.util.events.on.args[0];
+          assert.lengthOf(args, 2);
+          assert.equal(args[0], 'message');
+          assert.isFunction(args[1]);
+        });
+
+        describe('send', function () {
+          beforeEach(function () {
+            localStorageAdapter.send('message', 'data');
+          });
+
+          it('calls crosstab.broadcast correctly', function () {
+            assert.equal(crossTabMock.broadcast.callCount, 1);
+            var args = crossTabMock.broadcast.args[0];
+            assert.lengthOf(args, 3);
+            assert.equal(args[0], 'message');
+            assert.deepEqual(args[1], { data: 'data', id: 'wibble' });
+            assert.isNull(args[2]);
+          });
         });
       });
 

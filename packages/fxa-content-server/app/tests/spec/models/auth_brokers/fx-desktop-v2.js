@@ -23,7 +23,7 @@ define([
     var user;
     var windowMock;
 
-    beforeEach(function () {
+    before(function () {
       windowMock = new WindowMock();
       channelMock = new NullChannel();
       channelMock.send = sinon.spy(function () {
@@ -41,6 +41,22 @@ define([
         channel: channelMock,
         window: windowMock
       });
+    });
+
+    it('has the `signup` capability by default', function () {
+      assert.isTrue(broker.hasCapability('signup'));
+    });
+
+    it('has the `handleSignedInNotification` capability by default', function () {
+      assert.isTrue(broker.hasCapability('handleSignedInNotification'));
+    });
+
+    it('has the `emailVerificationMarketingSnippet` capability by default', function () {
+      assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
+    });
+
+    it('does not have the `syncPreferencesNotification` capability by default', function () {
+      assert.isFalse(broker.hasCapability('syncPreferencesNotification'));
     });
 
     describe('createChannel', function () {
@@ -116,6 +132,10 @@ define([
     });
 
     describe('afterSignUp', function () {
+      afterEach(function () {
+        broker.hasCapability.restore();
+      });
+
       it('causes a redirect to `/choose_what_to_sync` if `chooseWhatToSyncWebV1` capability is supported', function () {
         sinon.stub(broker, 'hasCapability', function (capabilityName) {
           return capabilityName === 'chooseWhatToSyncWebV1';
@@ -128,7 +148,7 @@ define([
       });
 
       it('does nothing if `chooseWhatToSyncWebV1` capability is unsupported', function () {
-        sinon.stub(broker, 'hasCapability', function (capabilityName) {
+        sinon.stub(broker, 'hasCapability', function () {
           return false;
         });
 

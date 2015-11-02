@@ -50,6 +50,22 @@ function (chai, sinon, p, Constants, Session, RedirectAuthenticationBroker,
       });
     });
 
+    it('has the `signup` capability by default', function () {
+      assert.isTrue(broker.hasCapability('signup'));
+    });
+
+    it('does not have the `handleSignedInNotification` capability by default', function () {
+      assert.isFalse(broker.hasCapability('handleSignedInNotification'));
+    });
+
+    it('has the `emailVerificationMarketingSnippet` capability by default', function () {
+      assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
+    });
+
+    it('does not have the `syncPreferencesNotification` capability by default', function () {
+      assert.isFalse(broker.hasCapability('syncPreferencesNotification'));
+    });
+
     describe('sendOAuthResultToRelier', function () {
       describe('with no error', function () {
         it('prepares window to be closed', function () {

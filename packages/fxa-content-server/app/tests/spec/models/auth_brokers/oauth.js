@@ -83,6 +83,22 @@ function (chai, sinon, Session, p, Constants, OAuthClient, Assertion, AuthErrors
       sinon.spy(broker, 'finishOAuthFlow');
     });
 
+    it('has the `signup` capability by default', function () {
+      assert.isTrue(broker.hasCapability('signup'));
+    });
+
+    it('does not have the `handleSignedInNotification` capability by default', function () {
+      assert.isFalse(broker.hasCapability('handleSignedInNotification'));
+    });
+
+    it('has the `emailVerificationMarketingSnippet` capability by default', function () {
+      assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
+    });
+
+    it('does not have the `syncPreferencesNotification` capability by default', function () {
+      assert.isFalse(broker.hasCapability('syncPreferencesNotification'));
+    });
+
     describe('sendOAuthResultToRelier', function () {
       it('must be overridden', function () {
         return broker.sendOAuthResultToRelier()
