@@ -70,6 +70,11 @@ define([
             lang = 'hi-IN';
           }
 
+          // pt is a straight copy of pt-PT, so adjust the expected value.
+          if (lang === 'pt') {
+            lang = 'pt-PT';
+          }
+
           assert.equal(lang, language);
         }
       }, dfd.reject.bind(dfd)));
