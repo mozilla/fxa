@@ -1,3 +1,12 @@
+<a name="0.49.0"></a>
+## 0.49.0 (2015-11-03)
+
+
+#### Bug Fixes
+
+* **avatars:** graphicsmagick processing limits ([93edc141](https://github.com/mozilla/fxa-profile-server/commit/93edc14170d0acb1d47f1d6ec3bf8d5948d6e2e5), closes [#57](https://github.com/mozilla/fxa-profile-server/issues/57))
+
+
 <a name="0.48.0"></a>
 ## 0.48.0 (2015-10-20)
 
