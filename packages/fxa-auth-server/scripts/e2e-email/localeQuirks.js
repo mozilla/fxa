@@ -42,7 +42,6 @@ var translationQuirks = {
     'ko',
     'lt',
     'nb-NO',
-    'sr',
     'sr-LATN',
     'sv',
   ],
