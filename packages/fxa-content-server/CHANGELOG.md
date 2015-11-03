@@ -1,3 +1,15 @@
+<a name="0.49.1"></a>
+## 0.49.1 (2015-11-03)
+
+
+### Bug Fixes
+
+* **client:** rename broadcast to triggerAll ([98b383d](https://github.com/mozilla/fxa-content-server/commit/98b383d))
+* **experiments:** update experiments to latest branch ([93111f6](https://github.com/mozilla/fxa-content-server/commit/93111f6))
+* **tests:** fix server test for the pt locale ([95ea6b6](https://github.com/mozilla/fxa-content-server/commit/95ea6b6)), closes [#3254](https://github.com/mozilla/fxa-content-server/issues/3254)
+
+
+
 <a name="0.49.0"></a>
 # 0.49.0 (2015-11-02)
 
