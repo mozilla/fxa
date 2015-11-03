@@ -20,5 +20,6 @@ define([
   'tests/lib/misc',
   'tests/lib/errors',
   'tests/lib/headerLang',
-  'tests/lib/uriVersion'
+  'tests/lib/uriVersion',
+  'tests/lib/device'
 ], function () {});

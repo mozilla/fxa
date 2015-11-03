@@ -3,7 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 //jscs:disable maximumLineLength
-define(['client/lib/errors'], function (ERRORS) {
+define([
+  'client/lib/errors',
+  'tests/lib/push-constants'
+], function (ERRORS, PushTestConstants) {
+
+  var DEVICE_CALLBACK = PushTestConstants.DEVICE_CALLBACK;
+  var DEVICE_ID = PushTestConstants.DEVICE_ID;
+  var DEVICE_NAME = PushTestConstants.DEVICE_NAME;
+  var DEVICE_NAME_2 = PushTestConstants.DEVICE_NAME_2;
+  var DEVICE_PUBLIC_KEY = PushTestConstants.DEVICE_PUBLIC_KEY;
+  var DEVICE_TYPE = PushTestConstants.DEVICE_TYPE;
+
   return {
     signUp: {
       status: 200,
@@ -157,6 +168,46 @@ define(['client/lib/errors'], function (ERRORS) {
     accountUnlockVerifyCode: {
       status: 200,
       body: '{}'
+    },
+    deviceDestroy: {
+      status: 200,
+      body: '{}'
+    },
+    deviceList: {
+      status: 200,
+      body: JSON.stringify([
+        {
+          id: DEVICE_ID,
+          name: DEVICE_NAME,
+          type: DEVICE_TYPE,
+          pushCallback: DEVICE_CALLBACK,
+          pushPublicKey: DEVICE_PUBLIC_KEY
+        }
+      ])
+    },
+    deviceRegister: {
+      status: 200,
+      body: JSON.stringify(
+        {
+          id: DEVICE_ID,
+          name: DEVICE_NAME,
+          type: DEVICE_TYPE,
+          pushCallback: DEVICE_CALLBACK,
+          pushPublicKey: DEVICE_PUBLIC_KEY
+        }
+      )
+    },
+    deviceUpdate: {
+      status: 200,
+      body: JSON.stringify(
+        {
+          id: DEVICE_ID,
+          name: DEVICE_NAME_2,
+          type: DEVICE_TYPE,
+          pushCallback: DEVICE_CALLBACK,
+          pushPublicKey: DEVICE_PUBLIC_KEY
+        }
+      )
     }
   };
 });
