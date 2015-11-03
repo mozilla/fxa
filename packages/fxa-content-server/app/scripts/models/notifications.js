@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * The notifier broadcasts messages across multiple channels (iframe, tabs, browsers, etc).
+ * The notifier triggers events on multiple channels (iframe, tabs, browsers, etc).
  */
 
 define([
@@ -40,7 +40,7 @@ define([
       }
     },
 
-    broadcast: function (event, data) {
+    triggerAll: function (event, data) {
       this.triggerRemote(event, data);
       this.trigger(event, data);
     },
@@ -52,11 +52,11 @@ define([
     },
 
     profileUpdated: function (data) {
-      this.broadcast(EVENTS.PROFILE_CHANGE, data);
+      this.triggerAll(EVENTS.PROFILE_CHANGE, data);
     },
 
     accountDeleted: function (data) {
-      this.broadcast(EVENTS.DELETE, data);
+      this.triggerAll(EVENTS.DELETE, data);
     },
 
     // Listen for notifications from other fxa tabs or frames

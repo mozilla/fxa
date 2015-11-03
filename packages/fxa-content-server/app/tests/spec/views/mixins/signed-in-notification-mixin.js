@@ -63,7 +63,7 @@ define([
             })
           };
           view.navigate = sinon.spy();
-          notifications.broadcast = sinon.spy();
+          notifications.triggerAll = sinon.spy();
           return notifications.on.args[0][1]({
             data: 'foo'
           });
@@ -94,8 +94,8 @@ define([
           assert.equal(args[0], 'settings');
         });
 
-        it('does not call notifications.broadcast', function () {
-          assert.equal(notifications.broadcast.callCount, 0);
+        it('does not call notifications.triggerAll', function () {
+          assert.equal(notifications.triggerAll.callCount, 0);
         });
       });
 

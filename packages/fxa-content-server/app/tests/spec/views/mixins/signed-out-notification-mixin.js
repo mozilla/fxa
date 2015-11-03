@@ -61,6 +61,7 @@ define([
             clear: sinon.spy()
           };
           view.navigate = sinon.spy();
+          notifications.triggerAll = sinon.spy();
           notifications.on.args[0][1]();
         });
 
@@ -98,6 +99,10 @@ define([
           assert.lengthOf(Object.keys(args[1]), 2);
           assert.isTrue(args[1].clearQueryParams);
           assert.equal(args[1].success, 'Signed out successfully');
+        });
+
+        it('does not call notifications.triggerAll', function () {
+          assert.equal(notifications.triggerAll.callCount, 0);
         });
       });
 

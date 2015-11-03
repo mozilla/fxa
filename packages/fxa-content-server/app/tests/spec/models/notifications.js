@@ -60,14 +60,14 @@ function (chai, sinon, Notifications, NullChannel) {
       callback(message);
     });
 
-    describe('broadcast', function () {
-      it('broadcasts to all channels and triggers self', function () {
+    describe('triggerAll', function () {
+      it('triggers events on all channels and self', function () {
         var ev = 'some event';
         var data = { foo: 'bar' };
         var spy = sinon.spy();
 
         notifications.on(ev, spy);
-        notifications.broadcast(ev, data);
+        notifications.triggerAll(ev, data);
 
         assert.isTrue(webChannelMock.send.calledWith(ev, data));
         assert.isTrue(tabChannelMock.send.calledWith(ev, data));
@@ -98,7 +98,7 @@ function (chai, sinon, Notifications, NullChannel) {
       });
     });
 
-    it('triggerRemote sends to all channels but does not trigger self', function () {
+    it('triggerRemote triggers events on remote channels but not self', function () {
       var ev = 'some other event';
       var data = { baz: 'qux' };
       var spy = sinon.spy();
