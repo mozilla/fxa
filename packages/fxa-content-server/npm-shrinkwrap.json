@@ -4727,7 +4727,7 @@
             "github-url-to-object": {
               "version": "1.5.2",
               "from": "git://github.com/vladikoff/github-url-to-object.git#clone_url",
-              "resolved": "git://github.com/vladikoff/github-url-to-object.git#7c9cdaf36253b26afc05f8ab14935897a1bb5413",
+              "resolved": "git://github.com/vladikoff/github-url-to-object.git#b8cb2d6747556a9ead1716b3f2212df20545296b",
               "dependencies": {
                 "is-url": {
                   "version": "1.2.1",
