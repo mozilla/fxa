@@ -57,7 +57,31 @@ module.exports = function (
             service: isA.string().max(16).alphanum().optional(),
             redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
             resume: isA.string().max(2048).optional(),
-            preVerifyToken: isA.string().max(2048).regex(BASE64_JWT).optional()
+            preVerifyToken: isA.string().max(2048).regex(BASE64_JWT).optional(),
+            device: isA.object({
+              name: isA.string().max(255).optional(),
+              type: isA.string().max(16).required(),
+              pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
+              pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow('')
+            })
+            .optional()
+          }
+        },
+        response: {
+          schema: {
+            uid: isA.string().regex(HEX_STRING).required(),
+            sessionToken: isA.string().regex(HEX_STRING).required(),
+            keyFetchToken: isA.string().regex(HEX_STRING).optional(),
+            authAt: isA.number().integer(),
+            device: isA.object({
+              id: isA.string().length(32).regex(HEX_STRING).required(),
+              createdAt: isA.number().positive().required(),
+              name: isA.string().max(255).optional(),
+              type: isA.string().max(16).required(),
+              pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
+              pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow('')
+            })
+            .optional()
           }
         }
       },
@@ -71,7 +95,7 @@ module.exports = function (
         var locale = request.app.acceptLanguage
         var userAgentString = request.headers['user-agent']
         var service = form.service || request.query.service
-        var preVerified, password, verifyHash, account, sessionToken
+        var preVerified, password, verifyHash, account, sessionToken, device
 
         customs.check(request.app.clientAddress, email, 'accountCreate')
           .then(db.emailRecord.bind(db, email))
@@ -81,8 +105,9 @@ module.exports = function (
           .then(createAccount)
           .then(createSessionToken)
           .then(sendVerifyCode)
+          .then(createDevice)
           .then(createResponse)
-          .done(sendResponse, reply)
+          .done(reply, reply)
 
         function deleteAccount (emailRecord) {
           if (emailRecord.emailVerified) {
@@ -199,12 +224,35 @@ module.exports = function (
           }
         }
 
+        function createDevice () {
+          if (! form.device) {
+            return P.resolve()
+          }
+
+          return db.createDevice(account.uid, sessionToken.tokenId, form.device)
+            .then(
+              function (result) {
+                device = result
+              },
+              function (err) {
+                log.error({ op: 'account.create.device', err: err })
+              }
+            )
+        }
+
         function createResponse () {
+          var response = {
+            uid: account.uid.toString('hex'),
+            sessionToken: sessionToken.data.toString('hex'),
+            authAt: sessionToken.lastAuthAt()
+          }
+
+          if (device) {
+            response.device = butil.unbuffer(device)
+          }
+
           if (request.query.keys !== 'true') {
-            return P.resolve({
-              account: account,
-              sessionToken: sessionToken
-            })
+            return P.resolve(response)
           }
 
           return password.unwrap(account.wrapWrapKb)
@@ -220,23 +268,10 @@ module.exports = function (
             )
             .then(
               function (keyFetchToken) {
-                return {
-                  account: account,
-                  sessionToken: sessionToken,
-                  keyFetchToken: keyFetchToken
-                }
+                response.keyFetchToken = keyFetchToken.data.toString('hex')
+                return response
               }
             )
-        }
-
-        function sendResponse (response) {
-          reply({
-            uid: account.uid.toString('hex'),
-            sessionToken: response.sessionToken.data.toString('hex'),
-            keyFetchToken: response.keyFetchToken ?
-              response.keyFetchToken.data.toString('hex') : undefined,
-            authAt: response.sessionToken.lastAuthAt()
-          })
         }
       }
     },
@@ -249,7 +284,15 @@ module.exports = function (
             email: validators.email().required(),
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
             service: isA.string().max(16).alphanum().optional(),
-            reason: isA.string().max(16).optional()
+            reason: isA.string().max(16).optional(),
+            device: isA.object({
+              id: isA.string().length(32).regex(HEX_STRING).optional(),
+              name: isA.string().max(255).optional(),
+              type: isA.string().max(16).optional(),
+              pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
+              pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow('')
+            })
+            .optional()
           }
         },
         response: {
@@ -258,7 +301,16 @@ module.exports = function (
             sessionToken: isA.string().regex(HEX_STRING).required(),
             keyFetchToken: isA.string().regex(HEX_STRING).optional(),
             verified: isA.boolean().required(),
-            authAt: isA.number().integer()
+            authAt: isA.number().integer(),
+            device: isA.object({
+              id: isA.string().length(32).regex(HEX_STRING).required(),
+              createdAt: isA.number().positive().optional(),
+              name: isA.string().max(255).optional(),
+              type: isA.string().max(16).optional(),
+              pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
+              pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow('')
+            })
+            .optional()
           }
         }
       },
@@ -269,14 +321,15 @@ module.exports = function (
         var email = form.email
         var authPW = Buffer(form.authPW, 'hex')
         var service = request.payload.service || request.query.service
-        var emailRecord, sessionToken
+        var emailRecord, sessionToken, device
 
         customs.check(request.app.clientAddress, email, 'accountLogin')
           .then(readEmailRecord)
           .then(createSessionToken)
+          .then(upsertDevice)
           .then(emitSyncLoginEvent)
           .then(createResponse)
-          .done(sendResponse, reply)
+          .done(reply, reply)
 
         function readEmailRecord (result) {
           return db.emailRecord(email)
@@ -323,35 +376,20 @@ module.exports = function (
             )
         }
 
-        function createResponse () {
-          if (request.query.keys !== 'true') {
-            return P.resolve({
-              sessionToken: sessionToken
-            })
+        function upsertDevice () {
+          if (! form.device) {
+            return P.resolve()
           }
 
-          var password = new Password(
-            authPW,
-            emailRecord.authSalt,
-            emailRecord.verifierVersion
-          )
-          return password.unwrap(emailRecord.wrapWrapKb)
+          var operation = form.device.id ? 'updateDevice' : 'createDevice'
+
+          return db[operation](emailRecord.uid, sessionToken.tokenId, form.device)
             .then(
-              function (wrapKb) {
-                return db.createKeyFetchToken({
-                  uid: emailRecord.uid,
-                  kA: emailRecord.kA,
-                  wrapKb: wrapKb,
-                  emailVerified: emailRecord.emailVerified
-                })
-              }
-            )
-            .then(
-              function (keyFetchToken) {
-                return {
-                  sessionToken: sessionToken,
-                  keyFetchToken: keyFetchToken
-                }
+              function (result) {
+                device = result
+              },
+              function (err) {
+                log.error({ op: 'account.login.device', err: err })
               }
             )
         }
@@ -373,15 +411,44 @@ module.exports = function (
           }
         }
 
-        function sendResponse (response) {
-          reply({
-            uid: response.sessionToken.uid.toString('hex'),
-            sessionToken: response.sessionToken.data.toString('hex'),
-            keyFetchToken: response.keyFetchToken ?
-              response.keyFetchToken.data.toString('hex') : undefined,
-            verified: response.sessionToken.emailVerified,
-            authAt: response.sessionToken.lastAuthAt()
-          })
+        function createResponse () {
+          var response = {
+            uid: sessionToken.uid.toString('hex'),
+            sessionToken: sessionToken.data.toString('hex'),
+            verified: sessionToken.emailVerified,
+            authAt: sessionToken.lastAuthAt()
+          }
+
+          if (device) {
+            response.device = butil.unbuffer(device)
+          }
+
+          if (request.query.keys !== 'true') {
+            return P.resolve(response)
+          }
+
+          var password = new Password(
+            authPW,
+            emailRecord.authSalt,
+            emailRecord.verifierVersion
+          )
+          return password.unwrap(emailRecord.wrapWrapKb)
+            .then(
+              function (wrapKb) {
+                return db.createKeyFetchToken({
+                  uid: emailRecord.uid,
+                  kA: emailRecord.kA,
+                  wrapKb: wrapKb,
+                  emailVerified: emailRecord.emailVerified
+                })
+              }
+            )
+            .then(
+              function (keyFetchToken) {
+                response.keyFetchToken = keyFetchToken.data.toString('hex')
+                return response
+              }
+            )
         }
       }
     },
@@ -644,6 +711,99 @@ module.exports = function (
             }
           )
           .done(reply, reply)
+      }
+    },
+    {
+      method: 'POST',
+      path: '/account/device',
+      config: {
+        auth: {
+          strategy: 'sessionToken'
+        },
+        validate: {
+          payload: isA.object({
+            id: isA.string().length(32).regex(HEX_STRING).optional(),
+            name: isA.string().max(255).optional(),
+            type: isA.string().max(16).optional(),
+            pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
+            pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow('')
+          })
+        },
+        response: {
+          schema: {
+            id: isA.string().length(32).regex(HEX_STRING).required(),
+            createdAt: isA.number().positive().optional(),
+            name: isA.string().max(255).optional(),
+            type: isA.string().max(16).optional(),
+            pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
+            pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow('')
+          }
+        }
+      },
+      handler: function (request, reply) {
+        log.begin('Account.device', request)
+        var payload = request.payload
+        var sessionToken = request.auth.credentials
+        var operation = payload.id ? 'updateDevice' : 'createDevice'
+        db[operation](sessionToken.uid, sessionToken.tokenId, payload).then(
+          function (device) {
+            reply(butil.unbuffer(device))
+          },
+          reply
+        )
+      }
+    },
+    {
+      method: 'GET',
+      path: '/account/devices',
+      config: {
+        auth: {
+          strategy: 'sessionToken'
+        },
+        response: {
+          schema: isA.array().items(isA.object({
+            id: isA.string().length(32).regex(HEX_STRING).required(),
+            sessionToken: isA.string().length(64).regex(HEX_STRING).required(),
+            name: isA.string().max(255).required().allow(''),
+            type: isA.string().max(16).required(),
+            pushCallback: isA.string().uri({ scheme: 'https' }).max(255).required().allow(''),
+            pushPublicKey: isA.string().length(64).regex(HEX_STRING).required()
+          }))
+        }
+      },
+      handler: function (request, reply) {
+        log.begin('Account.devices', request)
+        var sessionToken = request.auth.credentials
+        var uid = sessionToken.uid
+        db.devices(uid).then(
+          function (devices) {
+            reply(devices.map(butil.unbuffer))
+          },
+          reply
+        )
+      }
+    },
+    {
+      method: 'POST',
+      path: '/account/device/destroy',
+      config: {
+        auth: {
+          strategy: 'sessionToken'
+        },
+        validate: {
+          payload: {
+            id: isA.string().length(32).regex(HEX_STRING).required()
+          }
+        },
+        response: {
+          schema: {}
+        }
+      },
+      handler: function (request, reply) {
+        log.begin('Account.deviceDestroy', request)
+        var sessionToken = request.auth.credentials
+        var uid = sessionToken.uid
+        db.deleteDevice(uid, request.payload.id).then(reply, reply)
       }
     },
     {

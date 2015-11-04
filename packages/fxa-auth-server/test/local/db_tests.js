@@ -5,6 +5,7 @@
 require('ass')
 var test = require('../ptaptest')
 var uuid = require('uuid')
+var crypto = require('crypto')
 var log = { trace: console.log, info: console.log }
 
 var config = require('../../config').getProperties()
@@ -201,6 +202,120 @@ test(
         var msg = 'Error: Invalid authentication token in request signature'
         t.equal(msg, '' + err, 'sessionToken() fails with the correct message')
       })
+    })
+  }
+)
+
+test(
+  'device registration',
+  function (t) {
+    var sessionTokenId
+    var deviceInfo = {
+      id: crypto.randomBytes(16),
+      name: '',
+      type: 'mobile',
+      pushCallback: 'https://foo/bar',
+      pushPublicKey: crypto.randomBytes(32)
+    }
+    return dbConn.then(function (db) {
+      return db.emailRecord(ACCOUNT.email)
+        .then(function (emailRecord) {
+          return db.createSessionToken(emailRecord, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:44.0) Gecko/20100101 Firefox/44.0')
+        })
+        .then(function (sessionToken) {
+          sessionTokenId = sessionToken.tokenId
+          return db.updateDevice(ACCOUNT.uid, sessionTokenId, deviceInfo)
+            .then(function () {
+              t.fail('updating a non-existent device should have failed')
+            }, function (err) {
+              t.pass('updating a non-existent device failed')
+              t.equal(err.errno, 123, 'err.errno === 123')
+            })
+        })
+        .then(function () {
+          return db.deleteDevice(ACCOUNT.uid, deviceInfo.id)
+            .then(function () {
+              t.fail('deleting a non-existent device should have failed')
+            }, function (err) {
+              t.pass('deleting a non-existent device failed')
+              t.equal(err.errno, 123, 'err.errno === 123')
+            })
+        })
+        .then(function () {
+          return db.devices(ACCOUNT.uid)
+            .catch(function () {
+              t.fail('getting devices should not have failed')
+            })
+        })
+        .then(function (devices) {
+          t.ok(Array.isArray(devices), 'devices is array')
+          t.equal(devices.length, 0, 'devices array is empty')
+          return db.createDevice(ACCOUNT.uid, sessionTokenId, deviceInfo)
+            .catch(function (err) {
+              t.fail('adding a new device should not have failed')
+            })
+        })
+        .then(function (device) {
+          t.ok(Buffer.isBuffer(device.id), 'device.id is set')
+          t.ok(device.createdAt > 0, 'device.createdAt is set')
+          t.equal(device.name, deviceInfo.name, 'device.name is correct')
+          t.equal(device.type, deviceInfo.type, 'device.type is correct')
+          t.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
+          t.deepEqual(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
+          return db.createDevice(ACCOUNT.uid, sessionTokenId, deviceInfo)
+            .then(function () {
+              t.fail('adding a device with a duplicate session token should have failed')
+            }, function (err) {
+              t.pass('adding a device with a duplicate session token failed')
+              t.equal(err.errno, 124, 'err.errno')
+            })
+        })
+        .then(function () {
+          return db.devices(ACCOUNT.uid)
+        })
+        .then(function (devices) {
+          t.equal(devices.length, 1, 'devices array contains one item')
+          return devices[0]
+        })
+        .then(function (device) {
+          t.ok(Buffer.isBuffer(device.id), 'device.id is set')
+          t.equal(device.name, deviceInfo.name, 'device.name is correct')
+          t.equal(device.type, deviceInfo.type, 'device.type is correct')
+          t.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
+          t.deepEqual(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
+          deviceInfo.id = device.id
+          deviceInfo.name = 'wibble'
+          deviceInfo.type = 'desktop'
+          deviceInfo.pushCallback = ''
+          deviceInfo.pushPublicKey = ''
+          return db.updateDevice(ACCOUNT.uid, sessionTokenId, deviceInfo)
+            .catch(function (err) {
+              t.fail('updating a new device should not have failed')
+            })
+        })
+        .then(function (device) {
+          return db.devices(ACCOUNT.uid)
+        })
+        .then(function (devices) {
+          t.equal(devices.length, 1, 'devices array contains one item')
+          return devices[0]
+        })
+        .then(function (device) {
+          t.equal(device.name, deviceInfo.name, 'device.name is correct')
+          t.equal(device.type, deviceInfo.type, 'device.type is correct')
+          t.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
+          t.deepEqual(device.pushPublicKey, zeroBuffer32, 'device.pushPublicKey is correct')
+          return db.deleteDevice(ACCOUNT.uid, deviceInfo.id)
+            .catch(function () {
+              t.fail('deleting a device should not have failed')
+            })
+        })
+        .then(function () {
+          return db.devices(ACCOUNT.uid)
+        })
+        .then(function (devices) {
+          t.equal(devices.length, 0, 'devices array is empty')
+        })
     })
   }
 )

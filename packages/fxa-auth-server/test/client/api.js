@@ -112,7 +112,8 @@ ClientApi.prototype.accountCreate = function (email, authPW, options) {
       service: options.service || undefined,
       redirectTo: options.redirectTo || undefined,
       resume: options.resume || undefined,
-      preVerifyToken: options.preVerifyToken || undefined
+      preVerifyToken: options.preVerifyToken || undefined,
+      device: options.device || undefined
     },
     {
       'accept-language': options.lang
@@ -132,7 +133,8 @@ ClientApi.prototype.accountLogin = function (email, authPW, opts) {
       email: email,
       authPW: authPW.toString('hex'),
       service: opts.service || undefined,
-      reason: opts.reason || undefined
+      reason: opts.reason || undefined,
+      device: opts.device || undefined
     },
     {
       'accept-language': opts.lang
@@ -148,6 +150,49 @@ ClientApi.prototype.accountKeys = function (keyFetchTokenHex) {
           'GET',
           this.baseURL + '/account/keys',
           token
+        )
+      }.bind(this)
+    )
+}
+
+ClientApi.prototype.accountDevices = function (sessionTokenHex) {
+  return tokens.SessionToken.fromHex(sessionTokenHex)
+    .then(
+      function (token) {
+        return this.doRequest(
+          'GET',
+          this.baseURL + '/account/devices',
+          token
+        )
+      }.bind(this)
+    )
+}
+
+ClientApi.prototype.accountDevice = function (sessionTokenHex, info) {
+  return tokens.SessionToken.fromHex(sessionTokenHex)
+    .then(
+      function (token) {
+        return this.doRequest(
+          'POST',
+          this.baseURL + '/account/device',
+          token,
+          info
+        )
+      }.bind(this)
+    )
+}
+
+ClientApi.prototype.deviceDestroy = function (sessionTokenHex, id) {
+  return tokens.SessionToken.fromHex(sessionTokenHex)
+    .then(
+      function (token) {
+        return this.doRequest(
+          'POST',
+          this.baseURL + '/account/device/destroy',
+          token,
+          {
+            id: id
+          }
         )
       }.bind(this)
     )

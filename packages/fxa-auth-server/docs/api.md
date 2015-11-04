@@ -82,6 +82,8 @@ The currently-defined error responses are:
 * status code 400, errno 120:  incorrect email case
 * status code 400, errno 121:  account is locked
 * status code 400, errno 122:  account is not locked
+* status code 400, errno 123:  unknown device
+* status code 400, errno 124:  session already registered by another device
 * status code 503, errno 201:  service temporarily unavailable to due high load (see [backoff protocol](#backoff-protocol))
 * any status code, errno 999:  unknown error
 
@@ -137,6 +139,11 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
     * [POST /v1/password/forgot/verify_code (:lock: passwordForgotToken)](#post-v1passwordforgotverify_code)
     * [GET /v1/password/forgot/status (:lock: passwordForgotToken)](#get-v1passwordforgotstatus)
 
+* Device registration
+    * [POST /v1/account/device (:lock: sessionToken)](#post-v1accountdevice)
+    * [GET /v1/account/devices (:lock: sessionToken)](#get-v1accountdevices)
+    * [POST /v1/account/device/destroy (:lock: sessionToken)](#post-v1accountdevicedestroy)
+
 * Miscellaneous
     * [POST /v1/get_random_bytes](#post-v1get_random_bytes)
 
@@ -157,6 +164,7 @@ ___Parameters___
 * redirectTo - (optional) a URL that the client should be redirected to after handling the request
 * resume - (optional) opaque url-encoded string that will be included in the verification link as a querystring parameter, useful for continuing an OAuth flow for example.
 * preVerifyToken - (optional) see below
+* device - (optional, experimental, **DO NOT USE**) object containing fields for device registration
 
 ### Request
 
@@ -274,6 +282,7 @@ ___Parameters___
 * authPW - the PBKDF2/HKDF stretched password as a hex string
 * service - (optional) opaque alphanumeric token to be included in verification links
 * reason - (optional) alphanumeric string indicating the reason for establishing a new session; may be "login" (the default) or "reconnect"
+* device - (optional, experimental, **DO NOT USE**) object containing fields for device registration
 
 ### Request
 
@@ -1172,6 +1181,168 @@ Failing requests may be due to the following errors:
 * status code 401, errno 111:  invalid authentication timestamp
 * status code 401, errno 115:  invalid authentication nonce
 
+## POST /v1/account/device
+
+:lock: HAWK-authenticated with the sessionToken.
+
+Either registers a new device for this user/session
+(if a device `id` is not specified)
+or updates existing device details for this user/session
+(if a device `id` is specified).
+
+### Request
+
+___Headers___
+
+The request must include a Hawk header that authenticates the request
+using a `sessionToken` received from `/v1/account/create` or `/v1/account/login`.
+
+#### Registering a new device
+
+```sh
+curl -v \
+-X POST \
+-H "Host: api-accounts.dev.lcip.org" \
+-H "Content-Type: application/json" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+https://api-accounts.dev.lcip.org/v1/account/device \
+-d '{
+  "name": "My Phone",
+  "type": "mobile",
+  "pushCallback": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
+  "pushPublicKey": "468601214f60f4828b6cd5d51d9d99d212e7c73657978955f0f5a5b7e2fa1370"
+}'
+```
+
+#### Updating an existing device
+
+```sh
+curl -v \
+-X POST \
+-H "Host: api-accounts.dev.lcip.org" \
+-H "Content-Type: application/json" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+https://api-accounts.dev.lcip.org/v1/account/device \
+-d '{
+  "id": "0f7aa00356e5416e82b3bef7bc409eef",
+  "name": "My Old Phone"
+}'
+```
+
+### Response
+
+Successful requests will return a `200 OK` response
+with an object that contains the device id in the JSON body:
+
+```json
+{
+  "id": "0f7aa00356e5416e82b3bef7bc409eef",
+  "createdAt": 1447755864288,
+  "name": "My Phone",
+  "type": "mobile",
+  "pushCallback": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
+  "pushPublicKey": "468601214f60f4828b6cd5d51d9d99d212e7c73657978955f0f5a5b7e2fa1370"
+}
+```
+
+Failing requests may return the following errors:
+
+* status code 400, errno 123: unknown device
+* status code 400, errno 124: session already registered by another device
+
+## GET /v1/account/devices
+
+:lock: HAWK-authenticated with the sessionToken.
+
+Returns the list of all registered devices
+for the authenticated user.
+
+### Request
+
+___Headers___
+
+The request must include a Hawk header that authenticates the request
+using a `sessionToken` received from `/v1/account/create` or `/v1/account/login`.
+
+```sh
+curl -v \
+-X GET \
+-H "Host: api-accounts.dev.lcip.org" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+https://api-accounts.dev.lcip.org/v1/account/devices
+```
+
+### Response
+
+Successful requests will return a `200 OK` response
+with an array of device details in the JSON body:
+
+```json
+[
+  {
+    "id": "0f7aa00356e5416e82b3bef7bc409eef",
+    "sessionToken": "27cd4f4a4aa03d7d186a2ec81cbf19d5c8a604713362df9ee15c4f4a4aa03d7d",
+    "name": "My Phone",
+    "type": "mobile",
+    "pushCallback": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
+    "pushPublicKey": "468601214f60f4828b6cd5d51d9d99d212e7c73657978955f0f5a5b7e2fa1370"
+  },
+  {
+    "id": "0f7aa00356e5416e82b3bef7bc409eef",
+    "sessionToken": null,
+    "name": "My Desktop",
+    "type": null,
+    "pushCallback": "https://updates.push.services.mozilla.com/update/d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c75",
+    "pushPublicKey": "468601214f60f4828b6cd5d51d9d99d212e7c73657978955f0f5a5b7e2fa1370"
+  }
+]
+```
+
+Failing requests may return the following error:
+
+* status code 400, errno 102: unknown account
+
+## POST /v1/account/device/destroy
+
+:lock: HAWK-authenticated with the sessionToken.
+
+Destroys an existing device record
+and its associated sessionToken
+for the authenticated user.
+The identified device must sign in again
+to use the API after this request has succeeded.
+
+### Request
+
+___Headers___
+
+The request must include a Hawk header that authenticates the request
+using a `sessionToken` received from `/v1/account/create` or `/v1/account/login`.
+
+```sh
+curl -v \
+-X POST \
+-H "Host: api-accounts.dev.lcip.org" \
+-H "Content-Type: application/json" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+https://api-accounts.dev.lcip.org/v1/account/device/destroy \
+-d '{
+  "id": "0f7aa00356e5416e82b3bef7bc409eef"
+}'
+```
+
+### Response
+
+Successful requests will return a `200 OK` response
+with an empty object in the JSON body:
+
+```json
+{}
+```
+
+Failing requests may return the following error:
+
+* status code 400, errno 123: unknown device
 
 ## POST /v1/get_random_bytes
 
@@ -1209,12 +1380,14 @@ There are no standard failure modes for this endpoint.
 * `POST /recovery_email/verify_code`
 * `GET /account/keys`
 * `POST /certificate/sign`
+* `POST /account/device`
 
 ## Attach a new device
 
 * `POST /account/login?keys=true`
 * `GET /account/keys`
 * `POST /certificate/sign`
+* `POST /account/device`
 
 ## Forgot password
 

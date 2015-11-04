@@ -125,6 +125,7 @@ Client.prototype.create = function () {
       this.authAt = a.authAt
       this.sessionToken = a.sessionToken
       this.keyFetchToken = a.keyFetchToken
+      this.device = a.device
       return this
     }.bind(this)
   )
@@ -154,6 +155,7 @@ Client.prototype.auth = function (opts) {
         this.keyFetchToken = data.keyFetchToken || null
         this.emailVerified = data.verified
         this.authAt = data.authAt
+        this.device = data.device
         return this
       }.bind(this)
     )
@@ -270,6 +272,46 @@ Client.prototype.keys = function () {
         throw err
       }.bind(this)
     )
+}
+
+Client.prototype.devices = function () {
+  var o = this.sessionToken ? P.resolve(null) : this.login()
+  return o.then(
+    function () {
+      return this.api.accountDevices(this.sessionToken)
+    }.bind(this)
+  )
+}
+
+Client.prototype.updateDevice = function (info) {
+  var o = this.sessionToken ? P.resolve(null) : this.login()
+  return o.then(
+    function () {
+      return this.api.accountDevice(this.sessionToken, info)
+    }.bind(this)
+  )
+  .then(
+    function (device) {
+      if (! this.device || this.device.id === device.id) {
+        this.device = device
+      }
+      return device
+    }.bind(this)
+  )
+}
+
+Client.prototype.destroyDevice = function (id) {
+  var o = this.sessionToken ? P.resolve(null) : this.login()
+  return o.then(
+    function () {
+      return this.api.deviceDestroy(this.sessionToken, id)
+    }.bind(this)
+  )
+  .then(
+    function () {
+      delete this.sessionToken
+    }.bind(this)
+  )
 }
 
 Client.prototype.sessionStatus = function () {
