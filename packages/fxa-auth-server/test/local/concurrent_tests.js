@@ -38,6 +38,10 @@ TestServer.start(config)
             return r2
           }
         }
+      ).then(
+        function () {
+          return server.mailbox.waitForEmail(email)
+        }
       )
     }
   )
