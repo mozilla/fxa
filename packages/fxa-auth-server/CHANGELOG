@@ -1,3 +1,10 @@
+train-49
+  * feat(profile): Add oauth-authenticated /account/profile endpoint
+  * fix(tests): Eliminate race condition in teardown of concurrent_tests
+  * fix(tests): wait for email delivery in concurrent_tests
+  * fix(e2e-email): update for sr localization of subject
+  * chore(build): Switch to grunt-nsp
+
 train-48.3
   * fix(startup): if error on startup, log and exit
 
@@ -78,7 +85,7 @@ train-42
 train-41
   * chore(travis): Tell Travis to use #fxa-bots - #971
   * chore(shrinkwrap): update shrinkwrap, mostly for auth-{db-server,db-mem,mailer} and content-server-l10n - #975
-  
+
 train-40
   * feat(email): issue 875 notification emails - #876
   * fix(password): check for 400 from check password - #964
