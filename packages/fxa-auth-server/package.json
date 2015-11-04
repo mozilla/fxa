@@ -58,7 +58,7 @@
     "grunt-cli": "0.1.13",
     "grunt-copyright": "0.2.0",
     "grunt-eslint": "15.0.0",
-    "grunt-nsp-shrinkwrap": "0.0.3",
+    "grunt-nsp": "2.1.2",
     "hawk": "2.3.1",
     "jws": "3.0.0",
     "load-grunt-tasks": "3.1.0",

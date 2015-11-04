@@ -35,4 +35,4 @@ before_install:
 script:
   - if [ $DB == "mysql" ]; then echo '~*~ Starting auth-db-mysql'; (./scripts/start-local-test-mysql.sh &>/dev/null &); fi
   - npm test
-  - grunt validate-shrinkwrap --force
+  - grunt nsp --force
