@@ -29,3 +29,9 @@ Column 1: Tabs, Bookmarks, Passwords
 Column 2: History, Add-ons, Preferences
 
 Ref: https://github.com/mozilla/fxa-content-server/pull/3211#issuecomment-151884730
+
+### Update 2 - 2015-11-04
+
+We decided to show all sync datatypes in all clients as it is a account-level setting.
+
+The "add-ons and preferences do not sync on mobile devices" disclaimer makes this clear for mobile users.
