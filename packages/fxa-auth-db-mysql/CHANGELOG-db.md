@@ -1,3 +1,6 @@
+train-49
+  * reverted some dependencies to previous versions due to #113
+
 train-48
   * feat(db): add device registration and management endpoints #110
 
@@ -16,7 +19,7 @@ train-45
   * chore(metrics): add scripts for perf-testing metrics queries - #88
 
 train-44
-  * There are no longer separate fxa-auth-db-mysql and fxa-auth-db-server repositories - assemble all db repos - #56 
+  * There are no longer separate fxa-auth-db-mysql and fxa-auth-db-server repositories - assemble all db repos - #56
   * preliminary support for authenticating with OpenID - #78
   * feat(db): add script for reporting metrics #80
   * feat(db): store user agent and last-access time in sessionTokens - #65
@@ -40,14 +43,14 @@ train-42
 train-41
   * feat(api): Return the account email address on passwordChangeToken - #59
   * chore(travis): Tell Travis to use #fxa-bots - #60
-  
+
 train-40
   * fix(notifications): always return a promise from db.processUnpublishedEvents, fixes #49 - #52
   * fix(npm): Update npm-shrinkwrap to include the last version of fxa-auth-db-server - #50
   * chore(cleanup): Fixed some syntax errors reported by ESLint - #55
   * fix(db): Return 400 on incorrect password - #53
   * refactor(db): Remove old stored procedures that are no longer used - #57
-  
+
 train-39
   * fix(npm): Update npm-shrinkwrap to include the last version of fxa-auth-db-server - #50
   * Added checkPassword_1 stored procedure - #45
