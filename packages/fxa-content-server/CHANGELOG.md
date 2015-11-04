@@ -1,3 +1,18 @@
+<a name="0.49.2"></a>
+## 0.49.2 (2015-11-04)
+
+
+### Bug Fixes
+
+* **build:** adjust shrinkwrap due to a failing SHA ([56e346f](https://github.com/mozilla/fxa-content-server/commit/56e346f))
+* **config:** switch default config to use consistent server values ([0a6fa42](https://github.com/mozilla/fxa-content-server/commit/0a6fa42)), closes [#1543](https://github.com/mozilla/fxa-content-server/issues/1543)
+
+### Features
+
+* **docs:** Document WebChannel communication with the browser. ([bd91b48](https://github.com/mozilla/fxa-content-server/commit/bd91b48)), closes [#1262](https://github.com/mozilla/fxa-content-server/issues/1262)
+
+
+
 <a name="0.49.1"></a>
 ## 0.49.1 (2015-11-03)
 
