@@ -7,5 +7,5 @@ module.exports = function (grunt) {
     output: 'summary',
     package: grunt.file.readJSON('package.json'),
     shrinkwrap: grunt.file.readJSON('npm-shrinkwrap.json')
-  });
-};
+  })
+}
