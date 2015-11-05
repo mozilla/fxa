@@ -8,20 +8,20 @@ define([
   'lib/experiments/sync-checkbox',
   'lib/metrics',
   'lib/storage',
-  'models/notifications',
+  'lib/channels/notifier',
   'models/user',
   'sinon',
   '../../../lib/helpers',
   '../../../mocks/window'
 ],
-function (chai, Able, Experiment, Metrics, Storage, Notifications, User,
+function (chai, Able, Experiment, Metrics, Storage, Notifier, User,
   sinon, TestHelpers, WindowMock) {
   'use strict';
 
   var able;
   var assert = chai.assert;
   var experiment;
-  var notifications;
+  var notifier;
   var metrics;
   var storage;
   var user;
@@ -36,7 +36,7 @@ function (chai, Able, Experiment, Metrics, Storage, Notifications, User,
       });
 
       metrics = new Metrics();
-      notifications = new Notifications();
+      notifier = new Notifier();
       storage = new Storage();
       user = new User({
         uniqueUserId: UUID
@@ -47,7 +47,7 @@ function (chai, Able, Experiment, Metrics, Storage, Notifications, User,
       experiment.initialize('syncCheckbox', {
         able: able,
         metrics: metrics,
-        notifications: notifications,
+        notifier: notifier,
         storage: storage,
         user: user,
         window: windowMock,
@@ -61,7 +61,7 @@ function (chai, Able, Experiment, Metrics, Storage, Notifications, User,
       });
     });
 
-    describe('notifications', function () {
+    describe('notifier', function () {
       it('properly logs events', function () {
         sinon.spy(experiment, 'saveState');
         sinon.spy(experiment.metrics, 'logEvent');
@@ -70,19 +70,19 @@ function (chai, Able, Experiment, Metrics, Storage, Notifications, User,
         assert.equal(metrics.getFilteredData().events.length, 1, 'should log the events that happened');
         assert.isFalse(TestHelpers.isEventLogged(metrics, 'experiment.treatment.syncCheckbox.clicked'), 'not clicked');
         assert.isFalse(TestHelpers.isEventLogged(metrics, 'experiment.treatment.syncCheckbox.triggered'), 'not triggered');
-        experiment._notifications.trigger('syncCheckbox.triggered');
+        notifier.trigger('syncCheckbox.triggered');
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.syncCheckbox.triggered'), 'triggered');
 
-        experiment._notifications.trigger('syncCheckbox.clicked');
+        notifier.trigger('syncCheckbox.clicked');
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.syncCheckbox.clicked'), 'clicked');
 
-        experiment._notifications.trigger('verification.success');
+        notifier.trigger('verification.success');
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.syncCheckbox.verified'), 'verified');
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.syncCheckbox.triggered.verified'), 'triggered.verified');
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.syncCheckbox.clicked.verified'), 'clicked.verified');
 
         assert.equal(metrics.getFilteredData().events.length, 6, 'should log the events that happened');
-        experiment._notifications.trigger('verification.success');
+        notifier.trigger('verification.success');
         assert.equal(metrics.getFilteredData().events.length, 6, 'should not log events that already happened');
       });
     });

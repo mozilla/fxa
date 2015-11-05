@@ -10,11 +10,11 @@ define([
   'lib/session',
   'lib/fxa-client',
   'lib/auth-errors',
-  'models/notifications',
+  'lib/channels/notifier',
   'models/user'
 ],
 function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors,
-  Notifications, User) {
+  Notifier, User) {
   'use strict';
 
   var assert = chai.assert;
@@ -22,14 +22,14 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors,
 
   describe('models/user', function () {
     var fxaClientMock;
-    var notifications;
+    var notifier;
     var user;
 
     beforeEach(function () {
       fxaClientMock = new FxaClient();
-      notifications = new Notifications();
+      notifier = new Notifier();
       user = new User({
-        notifications: notifications,
+        notifier: notifier,
         uniqueUserId: UUID
       });
     });
@@ -111,14 +111,14 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors,
     });
 
     it('clearSignedInAccount', function () {
-      sinon.spy(notifications, 'triggerRemote');
+      sinon.spy(notifier, 'triggerRemote');
       return user.setSignedInAccount({ email: 'email', uid: 'uid' })
         .then(function () {
           user.clearSignedInAccount();
           assert.isTrue(user.getSignedInAccount().isDefault());
           assert.equal(user.getAccountByUid('uid').get('uid'), 'uid');
-          assert.equal(notifications.triggerRemote.callCount, 1);
-          var args = notifications.triggerRemote.args[0];
+          assert.equal(notifier.triggerRemote.callCount, 1);
+          var args = notifier.triggerRemote.args[0];
           assert.lengthOf(args, 1);
           assert.equal(args[0], 'fxaccounts:logout');
         });
@@ -151,11 +151,11 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors,
     });
 
     it('setSignedInAccount', function () {
-      sinon.spy(notifications, 'triggerRemote');
+      sinon.spy(notifier, 'triggerRemote');
       return user.setSignedInAccount({ email: 'email', uid: 'uid' })
         .then(function () {
           assert.equal(user.getSignedInAccount().get('uid'), 'uid');
-          assert.equal(notifications.triggerRemote.callCount, 0);
+          assert.equal(notifier.triggerRemote.callCount, 0);
         });
     });
 
@@ -253,14 +253,14 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors,
 
     it('setSignedInAccountByUid works if account is already cached', function () {
       var uid = 'abc123';
-      sinon.spy(notifications, 'triggerRemote');
+      sinon.spy(notifier, 'triggerRemote');
       return user.setSignedInAccount({ email: 'email', uid: 'uid' })
         .then(function () {
           return user.setAccount({ email: 'email', uid: uid })
             .then(function () {
               user.setSignedInAccountByUid(uid);
               assert.equal(user.getSignedInAccount().get('uid'), uid);
-              assert.equal(notifications.triggerRemote.callCount, 0);
+              assert.equal(notifier.triggerRemote.callCount, 0);
             });
         });
     });
@@ -404,7 +404,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors,
       sinon.stub(user, 'setSignedInAccount', function () {
         return p(account);
       });
-      sinon.spy(notifications, 'triggerRemote');
+      sinon.spy(notifier, 'triggerRemote');
 
       return user.signInAccount(account, relierMock, { resume: 'resume token'})
         .then(function () {
@@ -415,8 +415,8 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors,
             }
           ));
           assert.isTrue(user.setSignedInAccount.calledWith(account));
-          assert.equal(notifications.triggerRemote.callCount, 1);
-          var args = notifications.triggerRemote.args[0];
+          assert.equal(notifier.triggerRemote.callCount, 1);
+          var args = notifier.triggerRemote.args[0];
           assert.lengthOf(args, 2);
           assert.equal(args[0], 'fxaccounts:login');
           assert.deepEqual(args[1], account.toJSON());

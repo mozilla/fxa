@@ -11,12 +11,11 @@ define([
     initialize: function (options) {
       options = options || {};
 
-      this.notifications = options.notifications;
       this.experiments = new ExperimentInterface({
         able: options.able,
         account: this._account,
         metrics: this.metrics,
-        notifications: options.notifications,
+        notifier: options.notifier,
         user: options.user,
         window: this.window
       });
@@ -43,19 +42,6 @@ define([
      */
     isInExperimentGroup: function (experimentName, groupName) {
       return this.experiments.isInExperimentGroup(experimentName, groupName);
-    },
-
-    /**
-     * Pass along both the data and a reference to the view
-     * so the experiment can query the view for any additional info.
-     *
-     * @param eventName
-     * @param data
-     */
-    notify: function (eventName, data) {
-      if (eventName && this.notifications) {
-        this.notifications.trigger(eventName, data, this);
-      }
     }
   };
 });

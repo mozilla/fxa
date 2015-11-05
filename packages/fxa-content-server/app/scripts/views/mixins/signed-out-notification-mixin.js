@@ -6,45 +6,39 @@
 
 define([
   'lib/session',
+  'lib/channels/notifier',
   'views/base'
 ],
-function (Session, BaseView) {
+function (Session, Notifier, BaseView) {
   'use strict';
 
-  function clearSessionAndNavigateToSignIn () {
-    // Unset uid otherwise it will henceforth be impossible
-    // to sign in to different accounts inside this tab.
-    this.relier.unset('uid');
-    this.relier.unset('email');
-    this.relier.unset('preVerifyToken');
-    this.user.clearSignedInAccountUid();
-    // The user has manually signed out, a pretty strong indicator
-    // the user does not want any of their information pre-filled
-    // on the signin page. Clear any remaining formPrefill info
-    // to ensure their data isn't sticking around in memory.
-    this._formPrefill.clear();
-    Session.clear();
-    this.navigate('signin', {
-      clearQueryParams: true,
-      success: BaseView.t('Signed out successfully')
-    });
-  }
-
-  return {
-    initialize: function (options) {
-      this._notifications = options.notifications;
-      this.clearSessionAndNavigateToSignIn = clearSessionAndNavigateToSignIn.bind(this);
-      this._notifications.on(
-        this._notifications.EVENTS.SIGNED_OUT,
-        this.clearSessionAndNavigateToSignIn
-      );
+  var Mixin = {
+    notifications: {
+      // populated below using event name aliases
     },
 
-    destroy: function () {
-      this._notifications.off(
-        this._notifications.EVENTS.SIGNED_OUT,
-        this.clearSessionAndNavigateToSignIn
-      );
+    clearSessionAndNavigateToSignIn: function () {
+      // Unset uid otherwise it will henceforth be impossible
+      // to sign in to different accounts inside this tab.
+      this.relier.unset('uid');
+      this.relier.unset('email');
+      this.relier.unset('preVerifyToken');
+      this.user.clearSignedInAccountUid();
+      // The user has manually signed out, a pretty strong indicator
+      // the user does not want any of their information pre-filled
+      // on the signin page. Clear any remaining formPrefill info
+      // to ensure their data isn't sticking around in memory.
+      this._formPrefill.clear();
+      Session.clear();
+      this.navigate('signin', {
+        clearQueryParams: true,
+        success: BaseView.t('Signed out successfully')
+      });
     }
   };
+
+  Mixin.notifications[Notifier.SIGNED_OUT] =
+              'clearSessionAndNavigateToSignIn';
+
+  return Mixin;
 });

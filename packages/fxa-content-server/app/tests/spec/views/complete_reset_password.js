@@ -9,8 +9,8 @@ define([
   'lib/auth-errors',
   'lib/metrics',
   'lib/fxa-client',
-  'lib/channels/inter-tab',
   'views/complete_reset_password',
+  'lib/channels/notifier',
   'models/reliers/relier',
   'models/auth_brokers/base',
   'models/user',
@@ -18,32 +18,32 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
-  View, Relier, Broker, User, RouterMock, WindowMock, TestHelpers) {
+function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Notifier,
+  Relier, Broker, User, RouterMock, WindowMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/complete_reset_password', function () {
-    var view;
-    var routerMock;
-    var windowMock;
-    var isPasswordResetComplete;
-    var metrics;
-    var fxaClient;
-    var interTabChannel;
-    var relier;
-    var broker;
-    var user;
-
-    var EMAIL = 'testuser@testuser.com';
-    var PASSWORD = 'password';
-    var TOKEN = 'feed';
-    var CODE = 'dea0fae1abc2fab3bed4dec5eec6ace7';
     var ACCOUNT_DATA = {
       sessionToken: 'abc123'
     };
+    var CODE = 'dea0fae1abc2fab3bed4dec5eec6ace7';
+    var EMAIL = 'testuser@testuser.com';
+    var PASSWORD = 'password';
+    var TOKEN = 'feed';
+
+    var broker;
+    var fxaClient;
+    var isPasswordResetComplete;
+    var metrics;
+    var notifier;
+    var relier;
+    var routerMock;
+    var user;
+    var view;
+    var windowMock;
 
     function testEventNotLogged(eventName) {
       assert.isFalse(TestHelpers.isEventLogged(metrics, eventName));
@@ -58,8 +58,8 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
       view = new View({
         broker: broker,
         fxaClient: fxaClient,
-        interTabChannel: interTabChannel,
         metrics: metrics,
+        notifier: notifier,
         relier: relier,
         router: routerMock,
         user: user,
@@ -72,6 +72,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
       broker = new Broker();
       fxaClient = new FxaClient();
       metrics = new Metrics();
+      notifier = new Notifier();
       relier = new Relier();
       routerMock = new RouterMock();
       user = new User({
@@ -80,17 +81,15 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
       windowMock = new WindowMock();
       windowMock.location.search = '?code=dea0fae1abc2fab3bed4dec5eec6ace7&email=testuser@testuser.com&token=feed';
 
-      interTabChannel = new InterTabChannel({
-        window: windowMock
-      });
-
-      initView();
 
       // mock in isPasswordResetComplete
       isPasswordResetComplete = false;
-      view.fxaClient.isPasswordResetComplete = function () {
+
+      initView();
+
+      sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
         return p(isPasswordResetComplete);
-      };
+      });
 
       return view.render();
     });
@@ -292,9 +291,9 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
           return false;
         });
 
-        // expect the intertab channel to be notified of login so the
+        // expect the notifier to be notified of login so the
         // starting window can complete the signin process.
-        sinon.spy(interTabChannel, 'send');
+        sinon.spy(view.notifier, 'triggerRemote');
 
         return view.validateAndSubmit()
             .then(function () {
@@ -308,10 +307,10 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
               ));
               assert.equal(routerMock.page, 'reset_password_complete');
 
-              assert.equal(interTabChannel.send.callCount, 1);
-              var args = interTabChannel.send.args[0];
+              assert.equal(view.notifier.triggerRemote.callCount, 1);
+              var args = view.notifier.triggerRemote.args[0];
               assert.lengthOf(args, 2);
-              assert.equal(args[0], 'login');
+              assert.equal(args[0], Notifier.SIGNED_IN);
               assert.isObject(args[1]);
 
               assert.isTrue(TestHelpers.isEventLogged(
@@ -353,9 +352,9 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
 
         // isPasswordResetComplete needs to be overridden as well for when
         // render is re-loaded the token needs to be expired.
-        sinon.stub(view.fxaClient, 'isPasswordResetComplete', function () {
+        view.fxaClient.isPasswordResetComplete = function () {
           return p(true);
-        });
+        };
 
         return view.validateAndSubmit()
             .then(function () {

@@ -14,36 +14,41 @@ define([
   'lib/ephemeral-messages',
   'views/settings/avatar_crop',
   'models/cropper-image',
-  'models/user',
-  'models/reliers/relier'
+  'lib/channels/notifier',
+  'models/reliers/relier',
+  'models/user'
 ],
-function (chai, sinon, jQuerySimulate, RouterMock, CanvasMock, p, Cropper, EphemeralMessages, View,
-    CropperImage, User, Relier) {
+function (chai, sinon, jQuerySimulate, RouterMock, CanvasMock, p, Cropper,
+  EphemeralMessages, View, CropperImage, Notifier, Relier, User) {
   'use strict';
 
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
   describe('lib/cropper', function () {
-    var view;
-    var routerMock;
     var ephemeralMessages;
-    var user;
+    var notifier;
     var relier;
+    var routerMock;
+    var user;
+    var view;
 
     beforeEach(function () {
-      routerMock = new RouterMock();
       ephemeralMessages = new EphemeralMessages();
+      notifier = new Notifier();
+      relier = new Relier();
+      routerMock = new RouterMock();
+      user = new User();
+
       ephemeralMessages.set('data', {
         cropImg: new CropperImage({
           src: pngSrc
         })
       });
-      user = new User();
-      relier = new Relier();
 
       view = new View({
         ephemeralMessages: ephemeralMessages,
+        notifier: notifier,
         relier: relier,
         router: routerMock,
         user: user

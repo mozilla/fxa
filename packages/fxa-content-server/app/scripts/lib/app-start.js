@@ -62,7 +62,7 @@ define([
   'models/user',
   'models/verification/same-browser',
   'models/form-prefill',
-  'models/notifications',
+  'lib/channels/notifier',
   'models/refresh-observer',
   'views/app',
   'views/close_button'
@@ -114,7 +114,7 @@ function (
   User,
   SameBrowserVerificationModel,
   FormPrefill,
-  Notifications,
+  Notifier,
   RefreshObserver,
   AppView,
   CloseButtonView
@@ -127,7 +127,7 @@ function (
     this._authenticationBroker = options.broker;
     this._configLoader = new ConfigLoader();
     this._history = options.history || Backbone.history;
-    this._notifications = options.notifications;
+    this._notifier = options.notifier;
     this._refreshObserver = options.refreshObserver;
     this._relier = options.relier;
     this._router = options.router;
@@ -209,7 +209,7 @@ function (
                     // inter tab communication.
                     .then(_.bind(this.initializeFxaClient, this))
                     // depends on iframeChannel and interTabChannel
-                    .then(_.bind(this.initializeNotifications, this))
+                    .then(_.bind(this.initializeNotifier, this))
                     // assertionLibrary depends on fxaClient
                     .then(_.bind(this.initializeAssertionLibrary, this))
                     // profileClient depends on fxaClient and assertionLibrary
@@ -217,7 +217,7 @@ function (
                     // marketingEmailClient depends on config
                     .then(_.bind(this.initializeMarketingEmailClient, this))
                     // user depends on the profileClient, oAuthClient,
-                    // assertionLibrary and notifications.
+                    // assertionLibrary and notifier.
                     .then(_.bind(this.initializeUser, this))
                     // broker relies on the user, relier, fxaClient,
                     // assertionLibrary, and metrics
@@ -231,7 +231,7 @@ function (
 
                     // depends on nothing
                     .then(_.bind(this.initializeFormPrefill, this))
-                    // depends on notifications, metrics
+                    // depends on notifier, metrics
                     .then(_.bind(this.initializeRefreshObserver, this))
                     // router depends on all of the above
                     .then(_.bind(this.initializeRouter, this))
@@ -532,7 +532,7 @@ function (
           assertion: this._assertionLibrary,
           fxaClient: this._fxaClient,
           marketingEmailClient: this._marketingEmailClient,
-          notifications: this._notifications,
+          notifier: this._notifier,
           oAuthClient: this._oAuthClient,
           oAuthClientId: this._config.oAuthClientId,
           profileClient: this._profileClient,
@@ -542,13 +542,13 @@ function (
       }
     },
 
-    initializeNotifications: function () {
-      if (! this._notifications) {
+    initializeNotifier: function () {
+      if (! this._notifier) {
         var notificationWebChannel =
               new WebChannel(Constants.ACCOUNT_UPDATES_WEBCHANNEL_ID);
         notificationWebChannel.initialize();
 
-        this._notifications = new Notifications({
+        this._notifier = new Notifier({
           iframeChannel: this._iframeChannel,
           tabChannel: this._interTabChannel,
           webChannel: notificationWebChannel
@@ -560,7 +560,7 @@ function (
       if (! this._refreshObserver) {
         this._refreshObserver = new RefreshObserver({
           metrics: this._metrics,
-          notifications: this._notifications,
+          notifier: this._notifier,
           window: this._window
         });
       }
@@ -596,7 +596,7 @@ function (
           interTabChannel: this._interTabChannel,
           language: this._config.language,
           metrics: this._metrics,
-          notifications: this._notifications,
+          notifier: this._notifier,
           relier: this._relier,
           sentryMetrics: this._sentryMetrics,
           session: Session,
@@ -611,7 +611,7 @@ function (
         this._appView = new AppView({
           el: 'body',
           environment: new Environment(this._window),
-          notifications: this._notifications,
+          notifier: this._notifier,
           router: this._router,
           window: this._window
         });

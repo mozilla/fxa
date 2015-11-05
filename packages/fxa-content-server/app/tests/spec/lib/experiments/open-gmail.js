@@ -9,13 +9,13 @@ define([
   'lib/metrics',
   'lib/storage',
   'models/account',
-  'models/notifications',
+  'lib/channels/notifier',
   'models/user',
   'sinon',
   '../../../lib/helpers',
   '../../../mocks/window'
 ],
-function (chai, Able, Experiment, Metrics, Storage, Account, Notifications,
+function (chai, Able, Experiment, Metrics, Storage, Account, Notifier,
   User, sinon, TestHelpers, WindowMock) {
   'use strict';
 
@@ -24,7 +24,7 @@ function (chai, Able, Experiment, Metrics, Storage, Account, Notifications,
   var assert = chai.assert;
   var experiment;
   var metrics;
-  var notifications;
+  var notifier;
   var storage;
   var user;
   var UUID = 'a mock uuid';
@@ -40,7 +40,7 @@ function (chai, Able, Experiment, Metrics, Storage, Account, Notifications,
         email: 'some@gmail.com'
       });
       metrics = new Metrics();
-      notifications = new Notifications();
+      notifier = new Notifier();
       storage = new Storage();
       user = new User({
         uniqueUserId: UUID
@@ -52,7 +52,7 @@ function (chai, Able, Experiment, Metrics, Storage, Account, Notifications,
         able: able,
         account: account,
         metrics: metrics,
-        notifications: notifications,
+        notifier: notifier,
         storage: storage,
         user: user,
         window: windowMock
@@ -69,7 +69,7 @@ function (chai, Able, Experiment, Metrics, Storage, Account, Notifications,
         var initResult = experiment.initialize('openGmail', {
           able: able,
           metrics: metrics,
-          notifications: notifications,
+          notifier: notifier,
           storage: storage,
           user: user,
           window: windowMock,
@@ -85,13 +85,13 @@ function (chai, Able, Experiment, Metrics, Storage, Account, Notifications,
         sinon.spy(experiment.metrics, 'logEvent');
 
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.openGmail.enrolled'));
-        experiment._notifications.trigger('verification.success');
+        notifier.trigger('verification.success');
 
         assert.isTrue(experiment.saveState.called);
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.openGmail.verified'));
 
-        experiment._notifications.trigger('verification.success');
-        experiment._notifications.trigger('verification.success');
+        notifier.trigger('verification.success');
+        notifier.trigger('verification.success');
 
         assert.isTrue(experiment.metrics.logEvent.calledOnce, 'verification event logged');
       });
@@ -104,19 +104,19 @@ function (chai, Able, Experiment, Metrics, Storage, Account, Notifications,
         assert.equal(metrics.getFilteredData().events.length, 1, 'should log the events that happened');
         assert.isFalse(TestHelpers.isEventLogged(metrics, 'experiment.treatment.openGmail.clicked'), 'not clicked');
         assert.isFalse(TestHelpers.isEventLogged(metrics, 'experiment.treatment.openGmail.triggered'), 'not triggered');
-        experiment._notifications.trigger('openGmail.triggered');
+        notifier.trigger('openGmail.triggered');
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.openGmail.triggered'), 'triggered');
 
-        experiment._notifications.trigger('openGmail.clicked');
+        notifier.trigger('openGmail.clicked');
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.openGmail.clicked'), 'clicked');
 
-        experiment._notifications.trigger('verification.success');
+        notifier.trigger('verification.success');
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.openGmail.verified'), 'verified');
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.openGmail.triggered.verified'), 'triggered.verified');
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.openGmail.clicked.verified'), 'clicked.verified');
 
         assert.equal(metrics.getFilteredData().events.length, 6, 'should log the events that happened');
-        experiment._notifications.trigger('verification.success');
+        notifier.trigger('verification.success');
         assert.equal(metrics.getFilteredData().events.length, 6, 'should not log events that already happened');
       });
     });

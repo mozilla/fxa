@@ -41,7 +41,7 @@ function (Tooltip, KeyCodes) {
 
     // check if the text value was changed before showing the tooltip
     if (element.data('previousValue') !== element.val() && element.val().length > MIN_CHARS) {
-      view.notify('mailcheck.triggered');
+      view.notifier.trigger('mailcheck.triggered');
 
       element.mailcheck({
         domains: DOMAINS,
@@ -57,7 +57,7 @@ function (Tooltip, KeyCodes) {
           }
 
           // user got a suggestion to check their email input
-          view.notify('mailcheck.suggested');
+          view.notifier.trigger('mailcheck.suggested');
           if (view.isInExperimentGroup('mailcheck', 'treatment')) {
             var tooltip = new Tooltip({
               dismissible: true,
@@ -78,7 +78,7 @@ function (Tooltip, KeyCodes) {
               if (e.type === 'click' || e.which === KeyCodes.ENTER) {
                 element.val(suggestion.full);
                 // the user has used the suggestion
-                view.notify('mailcheck.clicked');
+                view.notifier.trigger('mailcheck.clicked');
                 tooltip._destroy();
               }
             });

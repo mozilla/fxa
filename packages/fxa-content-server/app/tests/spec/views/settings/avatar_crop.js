@@ -12,6 +12,7 @@ define([
   'views/settings/avatar_crop',
   '../../../mocks/router',
   '../../../mocks/profile',
+  'lib/channels/notifier',
   'models/user',
   'models/cropper-image',
   'models/reliers/relier',
@@ -22,8 +23,9 @@ define([
   'lib/metrics',
   '../../../lib/helpers'
 ],
-function (chai, $, ui, sinon, jQuerySimulate, View, RouterMock, ProfileMock, User, CropperImage,
-    Relier, AuthBroker, p, EphemeralMessages, AuthErrors, Metrics, TestHelpers) {
+function (chai, $, ui, sinon, jQuerySimulate, View, RouterMock, ProfileMock,
+  Notifier, User, CropperImage, Relier, AuthBroker, p,
+  EphemeralMessages, AuthErrors, Metrics, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -31,22 +33,25 @@ function (chai, $, ui, sinon, jQuerySimulate, View, RouterMock, ProfileMock, Use
                '/r25IQAEAAAAAAAAAAAAAAAAAAADvBkCAAAEehacTAAAAAElFTkSuQmCC';
 
   describe('views/settings/avatar/crop', function () {
-    var view;
-    var routerMock;
-    var profileClientMock;
-    var ephemeralMessages;
-    var user;
     var account;
-    var relier;
     var broker;
+    var ephemeralMessages;
     var metrics;
+    var notifier;
+    var profileClientMock;
+    var relier;
+    var routerMock;
+    var user;
+    var view;
 
     beforeEach(function () {
-      routerMock = new RouterMock();
-      metrics = new Metrics();
-      user = new User();
       ephemeralMessages = new EphemeralMessages();
+      metrics = new Metrics();
+      notifier = new Notifier();
       relier = new Relier();
+      routerMock = new RouterMock();
+      user = new User();
+
       broker = new AuthBroker({
         relier: relier
       });
@@ -54,6 +59,7 @@ function (chai, $, ui, sinon, jQuerySimulate, View, RouterMock, ProfileMock, Use
       view = new View({
         broker: broker,
         ephemeralMessages: ephemeralMessages,
+        notifier: notifier,
         relier: relier,
         router: routerMock,
         user: user
@@ -111,6 +117,7 @@ function (chai, $, ui, sinon, jQuerySimulate, View, RouterMock, ProfileMock, Use
           view = new View({
             ephemeralMessages: ephemeralMessages,
             metrics: metrics,
+            notifier: notifier,
             relier: relier,
             router: routerMock,
             user: user

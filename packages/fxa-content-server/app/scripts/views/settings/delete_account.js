@@ -9,6 +9,7 @@ define([
   'stache!templates/settings/delete_account',
   'lib/session',
   'lib/auth-errors',
+  'lib/channels/notifier',
   'views/mixins/password-mixin',
   'views/mixins/service-mixin',
   'views/mixins/settings-panel-mixin',
@@ -16,7 +17,7 @@ define([
   'views/mixins/floating-placeholder-mixin'
 ],
 function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
-      PasswordMixin, SettingsPanelMixin, ServiceMixin,
+      Notifier, PasswordMixin, SettingsPanelMixin, ServiceMixin,
       AccountLockedMixin, FloatingPlaceholderMixin) {
   'use strict';
 
@@ -26,10 +27,6 @@ function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
     template: Template,
     className: 'delete-account',
     viewName: 'settings.delete-account',
-
-    initialize: function (options) {
-      this.notifications = options.notifications;
-    },
 
     context: function () {
       return {
@@ -46,7 +43,7 @@ function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
         .then(function () {
           Session.clear();
           self.user.removeAccount(account);
-          self.notifications.accountDeleted({
+          self.notifier.triggerAll(Notifier.DELETE, {
             uid: account.get('uid')
           });
 

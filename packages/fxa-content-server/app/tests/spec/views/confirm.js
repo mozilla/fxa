@@ -12,6 +12,7 @@ define([
   'lib/fxa-client',
   'lib/ephemeral-messages',
   'views/confirm',
+  'lib/channels/notifier',
   'models/reliers/relier',
   'models/auth_brokers/base',
   'models/user',
@@ -20,39 +21,43 @@ define([
   '../../lib/helpers'
 ],
 function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
-      EphemeralMessages, View, Relier, BaseBroker, User,
-      WindowMock, RouterMock, TestHelpers) {
+  EphemeralMessages, View, Notifier, Relier, BaseBroker, User,
+  WindowMock, RouterMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
 
   describe('views/confirm', function () {
-    var view;
-    var routerMock;
-    var windowMock;
-    var metrics;
-    var fxaClient;
-    var relier;
-    var broker;
-    var user;
     var account;
+    var broker;
     var ephemeralMessages;
+    var fxaClient;
+    var metrics;
+    var notifier;
+    var relier;
+    var routerMock;
+    var user;
+    var view;
+    var windowMock;
 
     beforeEach(function () {
-      routerMock = new RouterMock();
-      windowMock = new WindowMock();
+      ephemeralMessages = new EphemeralMessages();
+      fxaClient = new FxaClient();
       metrics = new Metrics();
+      notifier = new Notifier();
+      routerMock = new RouterMock();
+      user = new User();
+      windowMock = new WindowMock();
+
       relier = new Relier({
         window: windowMock
       });
+
       broker = new BaseBroker({
         relier: relier,
         session: Session,
         window: windowMock
       });
-      fxaClient = new FxaClient();
-      ephemeralMessages = new EphemeralMessages();
-      user = new User();
 
       account = user.initAccount({
         customizeSync: true,
@@ -60,6 +65,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
         sessionToken: 'fake session token',
         uid: 'uid'
       });
+
       ephemeralMessages.set('data', {
         account: account
       });
@@ -73,6 +79,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
         ephemeralMessages: ephemeralMessages,
         fxaClient: fxaClient,
         metrics: metrics,
+        notifier: notifier,
         relier: relier,
         router: routerMock,
         user: user,
@@ -117,14 +124,14 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
       });
 
       it('triggers the experiment', function () {
-        sinon.spy(view, 'notify');
+        sinon.spy(view.notifier, 'trigger');
         view.isInExperiment = function () {
           return true;
         };
 
         return view.render()
           .then(function () {
-            assert.isTrue(view.notify.called);
+            assert.isTrue(view.notifier.trigger.called);
           });
       });
     });
@@ -148,7 +155,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
       });
 
       it('notifies the broker after the account is confirmed', function () {
-        var notifySpy = sinon.spy(view, 'notify');
+        var notifySpy = sinon.spy(view.notifier, 'trigger');
 
         sinon.stub(broker, 'beforeSignUpConfirmationPoll', function () {
           return p();
@@ -345,9 +352,9 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
 
     describe('_gmailTabOpened', function () {
       it('triggers gmail tab opening', function () {
-        sinon.spy(view, 'notify');
+        sinon.spy(view.notifier, 'trigger');
         view._gmailTabOpened();
-        assert.isTrue(view.notify.called);
+        assert.isTrue(view.notifier.trigger.called);
       });
     });
   });

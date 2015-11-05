@@ -20,32 +20,32 @@ define([
   'models/auth_brokers/base',
   'models/user',
   'models/form-prefill',
-  'models/notifications',
+  'lib/channels/notifier',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
 function (chai, $, sinon, p, View, CoppaAgeInput, Session, AuthErrors, ExperimentInterface, Metrics,
       FxaClient, EphemeralMessages, Able, Relier, Broker, User, FormPrefill,
-      Notifications, RouterMock, WindowMock, TestHelpers) {
+      Notifier, RouterMock, WindowMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
 
   describe('views/sign_up', function () {
-    var view;
-    var router;
-    var email;
-    var metrics;
-    var fxaClient;
-    var relier;
-    var broker;
-    var ephemeralMessages;
-    var user;
-    var formPrefill;
-    var coppa;
     var able;
-    var notifications;
+    var broker;
+    var coppa;
+    var email;
+    var ephemeralMessages;
+    var formPrefill;
+    var fxaClient;
+    var metrics;
+    var notifier;
+    var relier;
+    var router;
+    var user;
+    var view;
 
     function fillOutSignUp(email, password, isCoppaValid) {
       view.$('[type=email]').val(email);
@@ -69,7 +69,7 @@ function (chai, $, sinon, p, View, CoppaAgeInput, Session, AuthErrors, Experimen
         formPrefill: formPrefill,
         fxaClient: fxaClient,
         metrics: metrics,
-        notifications: notifications,
+        notifier: notifier,
         relier: relier,
         router: router,
         user: user,
@@ -83,24 +83,26 @@ function (chai, $, sinon, p, View, CoppaAgeInput, Session, AuthErrors, Experimen
     }
 
     beforeEach(function () {
-      email = TestHelpers.createEmail();
       document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
+
+      able = new Able();
+      coppa = new CoppaAgeInput();
+      email = TestHelpers.createEmail();
+      ephemeralMessages = new EphemeralMessages();
+      formPrefill = new FormPrefill();
+      fxaClient = new FxaClient();
+      metrics = new Metrics();
+      notifier = new Notifier();
+      relier = new Relier();
       router = new RouterMock();
 
-      metrics = new Metrics();
-      relier = new Relier();
       broker = new Broker({
         relier: relier
       });
-      fxaClient = new FxaClient();
-      ephemeralMessages = new EphemeralMessages();
+
       user = new User({
         fxaClient: fxaClient
       });
-      formPrefill = new FormPrefill();
-      coppa = new CoppaAgeInput();
-      able = new Able();
-      notifications = new Notifications();
 
       createView();
 
@@ -618,7 +620,7 @@ function (chai, $, sinon, p, View, CoppaAgeInput, Session, AuthErrors, Experimen
         var revisitView = new View({
           able: able,
           fxaClient: fxaClient,
-          notifications: notifications,
+          notifier: notifier,
           relier: relier,
           router: revisitRouter
         });
@@ -762,7 +764,7 @@ function (chai, $, sinon, p, View, CoppaAgeInput, Session, AuthErrors, Experimen
         });
 
         it('passes customize sync option to the experiment', function () {
-          sinon.spy(view, 'notify');
+          sinon.spy(view.notifier, 'trigger');
           sinon.stub(view, 'isInExperiment', function () {
             return true;
           });
@@ -772,7 +774,7 @@ function (chai, $, sinon, p, View, CoppaAgeInput, Session, AuthErrors, Experimen
 
           return setupCustomizeSyncTest('sync', true)
             .then(function () {
-              assert.isTrue(view.notify.called);
+              assert.isTrue(view.notifier.trigger.called);
             });
         });
 
@@ -888,7 +890,7 @@ function (chai, $, sinon, p, View, CoppaAgeInput, Session, AuthErrors, Experimen
         view.experiments = new ExperimentInterface({
           able: mockAble,
           metrics: metrics,
-          notifications: notifications,
+          notifier: notifier,
           user: user,
           window: windowMock
         });
@@ -911,7 +913,7 @@ function (chai, $, sinon, p, View, CoppaAgeInput, Session, AuthErrors, Experimen
         view.experiments = new ExperimentInterface({
           able: mockAble,
           metrics: metrics,
-          notifications: notifications,
+          notifier: notifier,
           user: user,
           window: windowMock
         });

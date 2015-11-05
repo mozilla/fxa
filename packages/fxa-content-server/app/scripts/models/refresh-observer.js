@@ -25,13 +25,13 @@ define([
       options = options || {};
 
       this._metrics = options.metrics;
-      this._notifications = options.notifications;
+      this._notifier = options.notifier;
       this._window = options.window || window;
 
       this._storage = Storage.factory('sessionStorage', this._window);
 
-      this._notifications.on('show-view', this._onShowView.bind(this));
-      this._notifications.on('show-child-view', this._onShowChildView.bind(this));
+      this._notifier.on('show-view', this._onShowView.bind(this));
+      this._notifier.on('show-child-view', this._onShowChildView.bind(this));
     },
 
     _onShowView: function (View, viewOptions) {

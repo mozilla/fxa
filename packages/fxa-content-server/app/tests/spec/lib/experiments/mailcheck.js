@@ -8,20 +8,20 @@ define([
   'lib/experiments/mailcheck',
   'lib/metrics',
   'lib/storage',
-  'models/notifications',
+  'lib/channels/notifier',
   'models/user',
   'sinon',
   '../../../lib/helpers',
   '../../../mocks/window'
 ],
-function (chai, Able, Experiment, Metrics, Storage, Notifications, User,
+function (chai, Able, Experiment, Metrics, Storage, Notifier, User,
   sinon, TestHelpers, WindowMock) {
   'use strict';
 
   var able;
   var assert = chai.assert;
   var experiment;
-  var notifications;
+  var notifier;
   var metrics;
   var storage;
   var user;
@@ -35,7 +35,7 @@ function (chai, Able, Experiment, Metrics, Storage, Notifications, User,
         return 'treatment';
       });
       metrics = new Metrics();
-      notifications = new Notifications();
+      notifier = new Notifier();
       storage = new Storage();
       user = new User({
         uniqueUserId: UUID
@@ -46,7 +46,7 @@ function (chai, Able, Experiment, Metrics, Storage, Notifications, User,
       experiment.initialize('mailcheck', {
         able: able,
         metrics: metrics,
-        notifications: notifications,
+        notifier: notifier,
         storage: storage,
         user: user,
         window: windowMock
@@ -75,7 +75,7 @@ function (chai, Able, Experiment, Metrics, Storage, Notifications, User,
             }
           }
         };
-        experiment._notifications.trigger('signup.submit', {}, mockView);
+        notifier.trigger('signup.submit', {}, mockView);
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.mailcheck.corrected'));
       });
 
@@ -94,7 +94,7 @@ function (chai, Able, Experiment, Metrics, Storage, Notifications, User,
             }
           }
         };
-        experiment._notifications.trigger('signup.submit', {}, mockView);
+        notifier.trigger('signup.submit', {}, mockView);
         assert.isFalse(TestHelpers.isEventLogged(metrics, 'experiment.treatment.mailcheck.corrected'));
       });
     });
@@ -105,13 +105,13 @@ function (chai, Able, Experiment, Metrics, Storage, Notifications, User,
         sinon.spy(experiment.metrics, 'logEvent');
 
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.mailcheck.enrolled'));
-        experiment._notifications.trigger('verification.success');
+        notifier.trigger('verification.success');
 
         assert.isTrue(experiment.saveState.called);
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.mailcheck.verified'));
 
-        experiment._notifications.trigger('verification.success');
-        experiment._notifications.trigger('verification.success');
+        notifier.trigger('verification.success');
+        notifier.trigger('verification.success');
 
         assert.isTrue(experiment.metrics.logEvent.calledOnce, 'verification event logged');
       });
@@ -124,19 +124,19 @@ function (chai, Able, Experiment, Metrics, Storage, Notifications, User,
         assert.equal(metrics.getFilteredData().events.length, 1, 'should log the events that happened');
         assert.isFalse(TestHelpers.isEventLogged(metrics, 'experiment.treatment.mailcheck.clicked'), 'not clicked');
         assert.isFalse(TestHelpers.isEventLogged(metrics, 'experiment.treatment.mailcheck.triggered'), 'not triggered');
-        experiment._notifications.trigger('mailcheck.triggered');
+        notifier.trigger('mailcheck.triggered');
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.mailcheck.triggered'), 'triggered');
 
-        experiment._notifications.trigger('mailcheck.clicked');
+        notifier.trigger('mailcheck.clicked');
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.mailcheck.clicked'), 'clicked');
 
-        experiment._notifications.trigger('verification.success');
+        notifier.trigger('verification.success');
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.mailcheck.verified'), 'verified');
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.mailcheck.triggered.verified'), 'triggered.verified');
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.mailcheck.clicked.verified'), 'clicked.verified');
 
         assert.equal(metrics.getFilteredData().events.length, 6, 'should log the events that happened');
-        experiment._notifications.trigger('verification.success');
+        notifier.trigger('verification.success');
         assert.equal(metrics.getFilteredData().events.length, 6, 'should not log events that already happened');
       });
     });

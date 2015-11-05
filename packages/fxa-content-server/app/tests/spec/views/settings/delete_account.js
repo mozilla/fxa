@@ -15,52 +15,54 @@ define([
   'models/reliers/relier',
   'models/auth_brokers/base',
   'models/user',
-  'models/notifications',
+  'lib/channels/notifier',
   '../../../mocks/router',
   '../../../lib/helpers',
   'lib/key-codes'
 ],
 function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics, NullChannel,
-    Relier, Broker, User, Notifications, RouterMock, TestHelpers, KeyCodes) {
+    Relier, Broker, User, Notifier, RouterMock, TestHelpers, KeyCodes) {
   'use strict';
 
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
-  describe('views/delete_account', function () {
-    var view;
-    var routerMock;
-    var email;
-    var password = 'password';
-    var fxaClient;
-    var broker;
-    var tabChannelMock;
-    var notifications;
-    var relier;
-    var user;
-    var account;
-    var metrics;
+  describe('views/settings/delete_account', function () {
     var UID = '123';
+    var account;
+    var broker;
+    var email;
+    var fxaClient;
+    var metrics;
+    var notifier;
+    var password = 'password';
+    var relier;
+    var routerMock;
+    var tabChannelMock;
+    var user;
+    var view;
 
     beforeEach(function () {
-      routerMock = new RouterMock();
+      fxaClient = new FxaClient();
+      metrics = new Metrics();
       relier = new Relier();
+      routerMock = new RouterMock();
+      tabChannelMock = new NullChannel();
+      user = new User();
+
       broker = new Broker({
         relier: relier
       });
-      tabChannelMock = new NullChannel();
-      notifications = new Notifications({
+
+      notifier = new Notifier({
         tabChannel: tabChannelMock
       });
-      fxaClient = new FxaClient();
-      user = new User();
-      metrics = new Metrics();
 
       view = new View({
         broker: broker,
         fxaClient: fxaClient,
         metrics: metrics,
-        notifications: notifications,
+        notifier: notifier,
         relier: relier,
         router: routerMock,
         user: user
@@ -91,7 +93,7 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics, NullChannel,
         sinon.stub(view, 'getSignedInAccount', function () {
           return account;
         });
-        sinon.stub(notifications, 'accountDeleted', function () { });
+        sinon.spy(notifier, 'trigger', function () { });
 
         return view.render()
           .then(function () {
@@ -163,7 +165,7 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics, NullChannel,
                 assert.isTrue(user.removeAccount.calledWith(account));
                 assert.isTrue(broker.afterDeleteAccount.calledWith(account));
                 assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.delete-account.deleted'));
-                assert.isTrue(notifications.accountDeleted.calledWith({ uid: UID }));
+                assert.isTrue(notifier.trigger.calledWith(Notifier.DELETE, { uid: UID }));
               });
         });
 

@@ -174,7 +174,7 @@ function (Cocktail, AuthErrors, p, mailcheck, Template, BaseView, FormView,
       };
 
       if (isSync && this.isInExperiment('syncCheckbox')) {
-        this.notify('syncCheckbox.triggered');
+        this.notifier.trigger('syncCheckbox.triggered');
         if (this.isInExperimentGroup('syncCheckbox', 'treatment')) {
           context.isSyncTop = isSync;
           context.isSync = null;
@@ -223,11 +223,11 @@ function (Cocktail, AuthErrors, p, mailcheck, Template, BaseView, FormView,
       return p()
         .then(function () {
           if (! self._isUserOldEnough()) {
-            self.notify('signup.tooyoung');
+            self.notifier.trigger('signup.tooyoung');
 
             return self._cannotCreateAccount();
           }
-          self.notify('signup.submit');
+          self.notifier.trigger('signup.submit');
 
           return self._initAccount();
         });
@@ -297,7 +297,7 @@ function (Cocktail, AuthErrors, p, mailcheck, Template, BaseView, FormView,
         self.logViewEvent('customizeSync.' + String(customizeSync));
 
         if (customizeSync && self.isInExperiment('syncCheckbox')) {
-          self.notify('syncCheckbox.clicked');
+          self.notifier.trigger('syncCheckbox.clicked');
         }
       }
 

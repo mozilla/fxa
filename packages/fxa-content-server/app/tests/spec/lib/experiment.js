@@ -10,17 +10,17 @@ define([
   'lib/able',
   'lib/metrics',
   'models/user',
-  'models/notifications',
+  'lib/channels/notifier',
   'lib/experiment'
 ],
 function (chai, sinon, WindowMock, Session, Able,
-          Metrics, User, Notifications, ExperimentInterface) {
+          Metrics, User, Notifier, ExperimentInterface) {
   'use strict';
 
   var assert = chai.assert;
   var expInt;
   var expOptions;
-  var notifications;
+  var notifier;
   var windowMock;
   var able;
   var metrics;
@@ -45,11 +45,11 @@ function (chai, sinon, WindowMock, Session, Able,
         uniqueUserId: UUID
       });
 
-      notifications = new Notifications();
+      notifier = new Notifier();
       expOptions = {
         able: able,
         metrics: metrics,
-        notifications: notifications,
+        notifier: notifier,
         user: user,
         window: windowMock
       };

@@ -7,14 +7,14 @@ define([
   'sinon',
   'lib/promise',
   'lib/fxa-client',
-  'models/notifications',
+  'lib/channels/notifier',
   'models/user',
   'models/auth_brokers/base',
   'views/openid/login',
   '../../../mocks/window',
   '../../../mocks/router',
 ],
-function (chai, sinon, p, FxaClient, Notifications, User, Broker, View,
+function (chai, sinon, p, FxaClient, Notifier, User, Broker, View,
   WindowMock, RouterMock) {
   'use strict';
 
@@ -25,7 +25,7 @@ function (chai, sinon, p, FxaClient, Notifications, User, Broker, View,
     var windowMock;
     var routerMock;
     var fxaClient;
-    var notifications;
+    var notifier;
     var user;
     var broker;
 
@@ -34,10 +34,10 @@ function (chai, sinon, p, FxaClient, Notifications, User, Broker, View,
       windowMock = new WindowMock();
       routerMock = new RouterMock();
       fxaClient = new FxaClient();
-      notifications = new Notifications();
+      notifier = new Notifier();
       user = new User({
         fxaClient: fxaClient,
-        notifications: notifications
+        notifier: notifier
       });
       broker = new Broker();
 

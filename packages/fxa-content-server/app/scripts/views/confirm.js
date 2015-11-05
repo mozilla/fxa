@@ -43,7 +43,7 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
 
     context: function () {
       if (this.isInExperiment('openGmail')) {
-        this.notify('openGmail.triggered');
+        this.notifier.trigger('openGmail.triggered');
       }
 
       var email = this.getAccount().get('email');
@@ -71,7 +71,7 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
     },
 
     _gmailTabOpened: function () {
-      this.notify('openGmail.clicked');
+      this.notifier.trigger('openGmail.clicked');
     },
 
     beforeRender: function () {
@@ -105,7 +105,7 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
           return self._waitForConfirmation()
             .then(function () {
               self.logViewEvent('verification.success');
-              self.notify('verification.success');
+              self.notifier.trigger('verification.success');
               return self.invokeBrokerMethod(
                         'afterSignUpConfirmationPoll', self.getAccount());
             })

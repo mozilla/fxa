@@ -8,7 +8,7 @@ define([
   'cocktail',
   'views/mixins/avatar-mixin',
   'views/base',
-  'models/notifications',
+  'lib/channels/notifier',
   'models/reliers/relier',
   'models/user',
   'models/account',
@@ -19,7 +19,7 @@ define([
   'lib/promise',
   'lib/channels/null',
   '../../../lib/helpers'
-], function (Chai, sinon, Cocktail, AvatarMixin, BaseView, Notifications, Relier,
+], function (Chai, sinon, Cocktail, AvatarMixin, BaseView, Notifier, Relier,
     User, Account, ProfileImage, Metrics, AuthErrors, ProfileErrors, p, NullChannel,
     TestHelpers) {
   'use strict';
@@ -31,23 +31,23 @@ define([
   Cocktail.mixin(SettingsView, AvatarMixin);
 
   describe('views/mixins/avatar-mixin', function () {
-    var view;
-    var user;
-    var account;
-    var relier;
-    var metrics;
-    var tabChannelMock;
-    var notifications;
     var UID = '123';
+    var account;
+    var metrics;
+    var notifier;
+    var relier;
+    var tabChannelMock;
+    var user;
+    var view;
 
     beforeEach(function () {
-      user = new User();
       account = new Account();
-      relier = new Relier();
       metrics = new Metrics();
+      relier = new Relier();
       tabChannelMock = new NullChannel();
+      user = new User();
 
-      notifications = new Notifications({
+      notifier = new Notifier({
         tabChannel: tabChannelMock
       });
 
@@ -55,7 +55,7 @@ define([
 
       view = new SettingsView({
         metrics: metrics,
-        notifications: notifications,
+        notifier: notifier,
         relier: relier,
         user: user
       });
@@ -64,7 +64,7 @@ define([
       });
       sinon.spy(user, 'setAccount');
 
-      sinon.stub(notifications, 'profileUpdated', function () { });
+      sinon.spy(notifier, 'trigger');
     });
 
     afterEach(function () {
@@ -134,7 +134,7 @@ define([
           .then(function () {
             assert.equal(account.get('profileImageUrl'), 'url');
             assert.isTrue(user.setAccount.calledWith(account));
-            assert.isTrue(notifications.profileUpdated.calledWith({ uid: UID }));
+            assert.isTrue(notifier.trigger.calledWith(Notifier.PROFILE_CHANGE, { uid: UID }));
           });
       });
 
@@ -155,7 +155,7 @@ define([
             assert.isTrue(account.deleteAvatar.calledWith('foo'));
             assert.isFalse(account.has('profileImageUrl'));
             assert.isTrue(user.setAccount.calledWith(account));
-            assert.isTrue(notifications.profileUpdated.calledWith({ uid: UID }));
+            assert.isTrue(notifier.trigger.calledWith(Notifier.PROFILE_CHANGE, { uid: UID }));
           });
       });
     });
@@ -167,7 +167,7 @@ define([
             assert.equal(account.get('displayName'), 'joe');
             assert.isTrue(view.getSignedInAccount.called);
             assert.isTrue(user.setAccount.calledWith(account));
-            assert.isTrue(notifications.profileUpdated.calledWith({ uid: UID }));
+            assert.isTrue(notifier.trigger.calledWith(Notifier.PROFILE_CHANGE, { uid: UID }));
           });
       });
     });
@@ -178,7 +178,7 @@ define([
         spy = sinon.spy(SettingsView.prototype, 'onProfileUpdate');
         view = new SettingsView({
           metrics: metrics,
-          notifications: notifications,
+          notifier: notifier,
           relier: relier,
           user: user
         });
@@ -189,7 +189,7 @@ define([
       });
 
       it('call onProfileUpdate after notification', function () {
-        notifications.trigger(notifications.EVENTS.PROFILE_CHANGE, {});
+        notifier.trigger(notifier.EVENTS.PROFILE_CHANGE, {});
         assert.isTrue(spy.called);
       });
     });
