@@ -63,6 +63,7 @@ module.exports = function (
       },
       handler: function accountCreate(request, reply) {
         log.begin('Account.create', request)
+
         var form = request.payload
         var email = form.email
         var authSalt = crypto.randomBytes(32)
@@ -70,158 +71,173 @@ module.exports = function (
         var locale = request.app.acceptLanguage
         var userAgentString = request.headers['user-agent']
         var service = form.service || request.query.service
-        customs.check(
-          request.app.clientAddress,
-          email,
-          'accountCreate'
-          )
+        var preVerified, password, verifyHash, account, sessionToken
+
+        customs.check(request.app.clientAddress, email, 'accountCreate')
           .then(db.emailRecord.bind(db, email))
-          .then(
-            function (emailRecord) {
-              // account exists
-              if (emailRecord.emailVerified) { throw error.accountExists(email) }
-              request.app.accountRecreated = true
-              return db.deleteAccount(emailRecord)
-            },
-            function (err) {
-              // unknown account
-              if (err.errno !== 102) { throw err }
-            }
-          )
-          .then(isPreVerified.bind(null, form.email, form.preVerifyToken))
-          .then(
-            function (preverified) {
-              var password = new Password(authPW, authSalt, config.verifierVersion)
-              return password.verifyHash()
-              .then(
-                function (verifyHash) {
-                  // We're seeing a surprising number of accounts created
-                  // without a proper locale.  Log details to help debug this.
-                  if (!locale) {
-                    log.info({
-                      op: 'account.create.emptyLocale',
-                      email: email,
-                      locale: locale,
-                      agent: userAgentString
-                    })
-                  }
-                  return db.createAccount(
-                    {
-                      uid: uuid.v4('binary'),
-                      createdAt: Date.now(),
-                      email: email,
-                      emailCode: crypto.randomBytes(16),
-                      emailVerified: form.preVerified || preverified,
-                      kA: crypto.randomBytes(32),
-                      wrapWrapKb: crypto.randomBytes(32),
-                      accountResetToken: null,
-                      passwordForgotToken: null,
-                      authSalt: authSalt,
-                      verifierVersion: password.version,
-                      verifyHash: verifyHash,
-                      verifierSetAt: Date.now(),
-                      locale: locale
-                    }
-                  )
-                  .then(
-                    function (account) {
-                      log.activityEvent('account.created', request, {
-                        uid: account.uid.toString('hex')
-                      })
-                      if (account.emailVerified) {
-                        log.event('verified', { email: account.email, uid: account.uid, locale: account.locale })
-                      }
-                      if (service === 'sync') {
-                        log.event('login', {
-                          service: 'sync',
-                          uid: account.uid,
-                          email: account.email,
-                          deviceCount: 1,
-                          userAgent: request.headers['user-agent']
-                        })
-                      }
-                      return db.createSessionToken(
-                        {
-                          uid: account.uid,
-                          email: account.email,
-                          emailCode: account.emailCode,
-                          emailVerified: account.emailVerified,
-                          verifierSetAt: account.verifierSetAt
-                        },
-                        userAgentString
-                      )
-                      .then(
-                        function (sessionToken) {
-                          if (request.query.keys !== 'true') {
-                            return P.resolve({
-                              account: account,
-                              sessionToken: sessionToken
-                            })
-                          }
-                          return password.unwrap(account.wrapWrapKb)
-                            .then(
-                              function (wrapKb) {
-                                return db.createKeyFetchToken(
-                                  {
-                                    uid: account.uid,
-                                    kA: account.kA,
-                                    wrapKb: wrapKb,
-                                    emailVerified: account.emailVerified
-                                  }
-                                )
-                              }
-                            )
-                            .then(
-                              function (keyFetchToken) {
-                                return {
-                                  account: account,
-                                  sessionToken: sessionToken,
-                                  keyFetchToken: keyFetchToken
-                                }
-                              }
-                            )
-                        }
-                      )
-                    }
-                  )
-                }
-              )
-            }
-          )
-          .then(
-            function (response) {
-              if (!response.account.emailVerified) {
-                mailer.sendVerifyCode(response.account, response.account.emailCode, {
-                  service: form.service || request.query.service,
-                  redirectTo: form.redirectTo,
-                  resume: form.resume,
-                  acceptLanguage: request.app.acceptLanguage
-                })
-                .catch(
-                  function (err) {
-                    log.error({ op: 'mailer.sendVerifyCode.1', err: err })
-                  }
-                )
+          .then(deleteAccount, ignoreUnknownAccountError)
+          .then(checkPreVerified)
+          .then(createPassword)
+          .then(createAccount)
+          .then(createSessionToken)
+          .then(sendVerifyCode)
+          .then(createResponse)
+          .done(sendResponse, reply)
+
+        function deleteAccount (emailRecord) {
+          if (emailRecord.emailVerified) {
+            throw error.accountExists(email)
+          }
+
+          request.app.accountRecreated = true
+          return db.deleteAccount(emailRecord)
+        }
+
+        function ignoreUnknownAccountError (err) {
+          if (err.errno !== 102) {
+            throw err
+          }
+        }
+
+        function checkPreVerified () {
+          return isPreVerified(form.email, form.preVerifyToken)
+            .then(
+              function (result) {
+                preVerified = result
               }
-              return response
+            )
+        }
+
+        function createPassword () {
+          password = new Password(authPW, authSalt, config.verifierVersion)
+          return password.verifyHash()
+            .then(
+              function (result) {
+                verifyHash = result
+              }
+            )
+        }
+
+        function createAccount () {
+          if (!locale) {
+            // We're seeing a surprising number of accounts created
+            // without a proper locale. Log details to help debug this.
+            log.info({
+              op: 'account.create.emptyLocale',
+              email: email,
+              locale: locale,
+              agent: userAgentString
+            })
+          }
+
+          return db.createAccount({
+            uid: uuid.v4('binary'),
+            createdAt: Date.now(),
+            email: email,
+            emailCode: crypto.randomBytes(16),
+            emailVerified: form.preVerified || preVerified,
+            kA: crypto.randomBytes(32),
+            wrapWrapKb: crypto.randomBytes(32),
+            accountResetToken: null,
+            passwordForgotToken: null,
+            authSalt: authSalt,
+            verifierVersion: password.version,
+            verifyHash: verifyHash,
+            verifierSetAt: Date.now(),
+            locale: locale
+          })
+          .then(
+            function (result) {
+              account = result
+
+              log.activityEvent('account.created', request, {
+                uid: account.uid.toString('hex')
+              })
+
+              if (account.emailVerified) {
+                log.event('verified', { email: account.email, uid: account.uid, locale: account.locale })
+              }
+
+              if (service === 'sync') {
+                log.event('login', {
+                  service: 'sync',
+                  uid: account.uid,
+                  email: account.email,
+                  deviceCount: 1,
+                  userAgent: request.headers['user-agent']
+                })
+              }
             }
           )
-          .done(
-            function (response) {
-              var account = response.account
-              reply(
-                {
-                  uid: account.uid.toString('hex'),
-                  sessionToken: response.sessionToken.data.toString('hex'),
-                  keyFetchToken: response.keyFetchToken ?
-                    response.keyFetchToken.data.toString('hex')
-                    : undefined,
-                  authAt: response.sessionToken.lastAuthAt()
+        }
+
+        function createSessionToken () {
+          return db.createSessionToken({
+            uid: account.uid,
+            email: account.email,
+            emailCode: account.emailCode,
+            emailVerified: account.emailVerified,
+            verifierSetAt: account.verifierSetAt
+          }, userAgentString)
+            .then(
+              function (result) {
+                sessionToken = result
+              }
+            )
+        }
+
+        function sendVerifyCode () {
+          if (! account.emailVerified) {
+            mailer.sendVerifyCode(account, account.emailCode, {
+              service: form.service || request.query.service,
+              redirectTo: form.redirectTo,
+              resume: form.resume,
+              acceptLanguage: request.app.acceptLanguage
+            }).catch(function (err) {
+              log.error({ op: 'mailer.sendVerifyCode.1', err: err })
+            })
+          }
+        }
+
+        function createResponse () {
+          if (request.query.keys !== 'true') {
+            return P.resolve({
+              account: account,
+              sessionToken: sessionToken
+            })
+          }
+
+          return password.unwrap(account.wrapWrapKb)
+            .then(
+              function (wrapKb) {
+                return db.createKeyFetchToken({
+                  uid: account.uid,
+                  kA: account.kA,
+                  wrapKb: wrapKb,
+                  emailVerified: account.emailVerified
+                })
+              }
+            )
+            .then(
+              function (keyFetchToken) {
+                return {
+                  account: account,
+                  sessionToken: sessionToken,
+                  keyFetchToken: keyFetchToken
                 }
-              )
-            },
-            reply
-          )
+              }
+            )
+        }
+
+        function sendResponse (response) {
+          reply({
+            uid: account.uid.toString('hex'),
+            sessionToken: response.sessionToken.data.toString('hex'),
+            keyFetchToken: response.keyFetchToken ?
+              response.keyFetchToken.data.toString('hex') : undefined,
+            authAt: response.sessionToken.lastAuthAt()
+          })
+        }
       }
     },
     {
@@ -248,116 +264,125 @@ module.exports = function (
       },
       handler: function (request, reply) {
         log.begin('Account.login', request)
+
         var form = request.payload
         var email = form.email
         var authPW = Buffer(form.authPW, 'hex')
         var service = request.payload.service || request.query.service
-        customs.check(
-          request.app.clientAddress,
-          email,
-          'accountLogin')
-          .then(db.emailRecord.bind(db, email))
-          .then(
-            function (emailRecord) {
-              if(email !== emailRecord.email) {
-                throw error.incorrectPassword(emailRecord.email, email)
-              }
-              if (emailRecord.lockedAt) {
-                throw error.lockedAccount()
-              }
-              return checkPassword(emailRecord, authPW, request.app.clientAddress)
-                .then(
-                  function (match) {
-                    if (!match) {
-                      throw error.incorrectPassword(emailRecord.email, email)
-                    }
-                    var uid = emailRecord.uid.toString('hex')
-                    log.activityEvent('account.login', request, {
-                      uid: uid
-                    })
-                    return db.createSessionToken(
-                      {
-                        uid: emailRecord.uid,
-                        email: emailRecord.email,
-                        emailCode: emailRecord.emailCode,
-                        emailVerified: emailRecord.emailVerified,
-                        verifierSetAt: emailRecord.verifierSetAt
-                      },
-                      request.headers['user-agent']
-                    )
-                  }
-                )
-                .then(
-                  function (sessionToken) {
-                    if (request.query.keys !== 'true') {
-                      return P.resolve({
-                        sessionToken: sessionToken
-                      })
-                    }
-                    var password = new Password(
-                      authPW,
-                      emailRecord.authSalt,
-                      emailRecord.verifierVersion
-                    )
-                    return password.unwrap(emailRecord.wrapWrapKb)
-                    .then(
-                      function (wrapKb) {
-                        return db.createKeyFetchToken(
-                          {
-                            uid: emailRecord.uid,
-                            kA: emailRecord.kA,
-                            wrapKb: wrapKb,
-                            emailVerified: emailRecord.emailVerified
-                          }
-                        )
-                      }
-                    )
-                    .then(
-                      function (keyFetchToken) {
-                        return {
-                          sessionToken: sessionToken,
-                          keyFetchToken: keyFetchToken
-                        }
-                      }
-                    )
-                  }
-              )
-              .then(
-                function (tokens) {
-                  if (service === 'sync' && request.payload.reason === 'signin') {
-                    db.sessions(emailRecord.uid)
-                      .then(function (sessions) {
-                        log.event('login', {
-                          service: 'sync',
-                          uid: emailRecord.uid,
-                          email: emailRecord.email,
-                          deviceCount: sessions.length,
-                          userAgent: request.headers['user-agent']
-                        })
-                      })
-                  }
+        var emailRecord, sessionToken
 
-                  return tokens
+        customs.check(request.app.clientAddress, email, 'accountLogin')
+          .then(readEmailRecord)
+          .then(createSessionToken)
+          .then(emitSyncLoginEvent)
+          .then(createResponse)
+          .done(sendResponse, reply)
+
+        function readEmailRecord (result) {
+          return db.emailRecord(email)
+            .then(
+              function (result) {
+                emailRecord = result
+
+                if(email !== emailRecord.email) {
+                  throw error.incorrectPassword(emailRecord.email, email)
+                }
+
+                if (emailRecord.lockedAt) {
+                  throw error.lockedAccount()
+                }
+
+                return checkPassword(emailRecord, authPW, request.app.clientAddress)
+                  .then(
+                    function (match) {
+                      if (! match) {
+                        throw error.incorrectPassword(emailRecord.email, email)
+                      }
+                    }
+                  )
+              }
+            )
+        }
+
+        function createSessionToken () {
+          log.activityEvent('account.login', request, {
+            uid: emailRecord.uid.toString('hex')
+          })
+
+          return db.createSessionToken({
+            uid: emailRecord.uid,
+            email: emailRecord.email,
+            emailCode: emailRecord.emailCode,
+            emailVerified: emailRecord.emailVerified,
+            verifierSetAt: emailRecord.verifierSetAt
+          }, request.headers['user-agent'])
+            .then(
+              function (result) {
+                sessionToken = result
+              }
+            )
+        }
+
+        function createResponse () {
+          if (request.query.keys !== 'true') {
+            return P.resolve({
+              sessionToken: sessionToken
+            })
+          }
+
+          var password = new Password(
+            authPW,
+            emailRecord.authSalt,
+            emailRecord.verifierVersion
+          )
+          return password.unwrap(emailRecord.wrapWrapKb)
+            .then(
+              function (wrapKb) {
+                return db.createKeyFetchToken({
+                  uid: emailRecord.uid,
+                  kA: emailRecord.kA,
+                  wrapKb: wrapKb,
+                  emailVerified: emailRecord.emailVerified
+                })
+              }
+            )
+            .then(
+              function (keyFetchToken) {
+                return {
+                  sessionToken: sessionToken,
+                  keyFetchToken: keyFetchToken
+                }
+              }
+            )
+        }
+
+        function emitSyncLoginEvent () {
+          if (service === 'sync' && request.payload.reason === 'signin') {
+            db.sessions(emailRecord.uid)
+              .then(
+                function (sessions) {
+                  log.event('login', {
+                    service: 'sync',
+                    uid: emailRecord.uid,
+                    email: emailRecord.email,
+                    deviceCount: sessions.length,
+                    userAgent: request.headers['user-agent']
+                  })
                 }
               )
-            }
-          )
-          .done(
-            function (tokens) {
-              reply(
-                {
-                  uid: tokens.sessionToken.uid.toString('hex'),
-                  sessionToken: tokens.sessionToken.data.toString('hex'),
-                  keyFetchToken: tokens.keyFetchToken ?
-                    tokens.keyFetchToken.data.toString('hex')
-                    : undefined,
-                  verified: tokens.sessionToken.emailVerified,
-                  authAt: tokens.sessionToken.lastAuthAt()
-                }
-              )
-            },
-            reply
-          )
+          }
+        }
+
+        function sendResponse (response) {
+          reply({
+            uid: response.sessionToken.uid.toString('hex'),
+            sessionToken: response.sessionToken.data.toString('hex'),
+            keyFetchToken: response.keyFetchToken ?
+              response.keyFetchToken.data.toString('hex') : undefined,
+            verified: response.sessionToken.emailVerified,
+            authAt: response.sessionToken.lastAuthAt()
+          })
+        }
       }
     },
     {
