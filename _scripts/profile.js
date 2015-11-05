@@ -34,7 +34,7 @@ var CONFIGS = {
   'stage': {
     auth: 'https://api-accounts.stage.mozaws.net/v1',
     content: 'https://accounts.stage.mozaws.net/',
-    token: 'https://token.dev.lcip.org/1.0/sync/1.5',
+    token: 'https://token.stage.mozaws.net/1.0/sync/1.5',
     oauth: 'https://oauth.stage.mozaws.net/v1',
     profile: 'https://profile.stage.mozaws.net/v1'
   }
