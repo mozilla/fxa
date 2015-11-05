@@ -3,7 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = function (grunt) {
-  grunt.config('validate-shrinkwrap', {
-    // no options.
+  grunt.config('nsp', {
+    output: 'summary',
+    package: grunt.file.readJSON('package.json'),
+    shrinkwrap: grunt.file.readJSON('npm-shrinkwrap.json')
   });
 };
