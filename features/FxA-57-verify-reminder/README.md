@@ -12,7 +12,20 @@ As a new Firefox Accounts user,
  The first email arrives after 48 hours since sign up.
  
  The second email arrives after 168 hours since sign up.
- 
+
+## Success criteria
+
+We are planning to get the results from the following metrics:
+
+- Measure number of people that verify using the first email and second email.
+We would use the total number of emails sent vs verified.
+We will calculate success based on the verification percentage from number of emails we sent as part of
+ verification reminders.
+
+- The ultimate measure of success for this feature is if the user connects to sync.
+We will use the retention metrics pipeline to measure "account.signed" events that happened
+ after the user **acted on**  "verification reminder" emails.
+
 ## Basic Email Template
 
 > This is just a visual guide, please see detailed email content below
