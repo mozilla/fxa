@@ -45,7 +45,7 @@ define([
         assert.equal(notifications.on.callCount, 1);
         var args = notifications.on.args[0];
         assert.lengthOf(args, 2);
-        assert.equal(args[0], 'fxaccounts:logout');
+        assert.equal(args[0], notifications.EVENTS.SIGNED_OUT);
         assert.isFunction(args[1]);
       });
 
