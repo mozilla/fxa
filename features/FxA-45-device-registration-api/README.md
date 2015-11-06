@@ -1,0 +1,375 @@
+# Device registration API
+
+https://mozilla.aha.io/features/FXA-45
+
+* [Stories](#stories)
+  * [As an API consumer](#as-an-api-consumer)
+  * [As a user](#as-a-user)
+* [Data](#data)
+* [API](#api)
+  * [POST /v1/account/create](#post-v1accountcreate)
+  * [POST /v1/account/login](#post-v1accountlogin)
+  * [POST /v1/account/device](#post-v1accountdevice)
+  * [GET /v1/account/devices](#get-v1accountdevices)
+  * [POST /v1/account/device/destroy](#post-v1accountdevicedestroy)
+* [Details](#details)
+  * [How are unrecognised devices handled?](#how-are-unrecognised-devices-handled)
+  * [What is a disconnected device?](#what-is-a-disconnected-device)
+
+## Stories
+
+### As an API consumer
+
+* As an API consumer,
+  I want to create an account with the auth server
+  using new device details
+  and receive the newly-registered device id in the response.
+
+* As an API consumer,
+  I want to log in to an auth server account
+  using new device details
+  and receive the newly-registered device id in the response.
+
+* As an API consumer,
+  I want to log in to an auth server account
+  using a registered device id.
+
+* As a logged-in API consumer,
+  I want to register new device details
+  and receive the newly-registered device id in the response.
+
+* As a logged-in API consumer,
+  I want to update the details for a registered device.
+
+* As a logged-in API consumer,
+  I want to get a list of all the registered device details.
+
+* As a logged-in API consumer,
+  I want to deregister a registered device
+  and remove all of its details from the server.
+
+* As a logged-in API consumer,
+  I want to receive a `"new sync device"` push notification
+  when a new device is registered.
+
+* As a logged-in API consumer,
+  I want to receive a `"device name changed"` push notification
+  when a registered device is renamed.
+
+* As a logged-in API consumer,
+  I want to receive a `"password changed"` push notification
+  when the password is changed.
+
+* As a logged-in API consumer,
+  I want to receive a `"password reset"` push notification
+  when the password is reset.
+
+* As a logged-in API consumer,
+  I want to receive a `"disconnected"` push notification
+  when a registered device transitions to the disconnected state.
+
+### As a user
+
+* As a new user,
+  I want to sign up
+  and see the device I signed up with
+  when I navigate to the devices view.
+
+* As an existing user,
+  I want to sign in on a device
+  and see all my signed-in devices
+  when I navigate to the devices view.
+
+* As an existing user,
+  I want to sign in on a device
+  and see the newly signed-in device
+  automatically appear in all open instances of the devices view.
+
+* As a signed-in user,
+  I want to sign out on a device
+  and see the newly signed-out device
+  automatically disappear in all open instances of the devices view.
+
+* As a signed-in user,
+  I want to disconnect a device from the devices view
+  and be signed out of that device.
+
+* As a signed-in user,
+  I want to change my password
+  and be signed out of other devices,
+  not including the current device.
+
+* As a signed-in user,
+  I want to reset my password
+  and be signed out of all devices,
+  including the current device.
+
+* As a signed-in user,
+  I want to update my device details
+  and see the newly-changed details
+  automatically reflected in all open instances of the devices view.
+
+## Data
+
+The following details will be stored on the server
+for each registered device:
+
+```js
+{
+  // The user this device belongs to
+  "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
+
+  // The active session for this device
+  "sessionToken": "27cd4f4a4aa03d7d186a2ec81cbf19d5c8a604713362df9ee15c4f4a4aa03d7d",
+
+  // A server-assigned identifier for this device
+  "id": "0f7aa00356e5416e82b3bef7bc409eef",
+
+  // A human identifier for this devices. Able to be updated by the user
+  "name": "My Phone",
+
+  // General type of device. Useful for device list icons and demographic metrics
+  "type": "mobile",
+
+  // Timestamp of when the device was first created, à la Date.now()
+  "createdAt": 1442785364807,
+
+  // The push notification endpoint for this device/user
+  "pushCallback": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
+
+  // The public key for encrypting messages to the push endpoint
+  "pushPublicKey": "468601214f60f4828b6cd5d51d9d99d212e7c73657978955f0f5a5b7e2fa1370"
+```
+
+## API
+
+### POST /v1/account/create
+
+#### Request
+
+```
+curl -v \
+-X POST \
+-H "Content-Type: application/json" \
+"https://api-accounts.dev.lcip.org/v1/account/create?keys=true" \
+-d '{
+  "email": "me@example.com",
+  "authPW": "996bc6b1aa63cd69856a2ec81cbf19d5c8a604713362df9ee15c2bf07128efab",
+  "device": {
+    "name": "My Phone",
+    "type": "mobile",
+    "pushCallback": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
+    "pushPublicKey": "468601214f60f4828b6cd5d51d9d99d212e7c73657978955f0f5a5b7e2fa1370"
+  }
+}'
+```
+
+#### Response
+
+```
+{
+  "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
+  "sessionToken": "27cd4f4a4aa03d7d186a2ec81cbf19d5c8a604713362df9ee15c4f4a4aa03d7d",
+  "keyFetchToken": "7d1893d950b8cd69856a2ec81cbfd7d1893d950b3362df9e56a2ec81cbf19d5c",
+  "authAt": 1392144866,
+  "device": {
+    "id": "0f7aa00356e5416e82b3bef7bc409eef",
+    "name": "My Phone",
+    "type": "mobile",
+    "pushCallback": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
+    "pushPublicKey": "468601214f60f4828b6cd5d51d9d99d212e7c73657978955f0f5a5b7e2fa1370"
+  }
+}
+```
+
+### POST /v1/account/login
+
+#### Requests
+
+##### New device
+
+```
+curl -v \
+-X POST \
+-H "Host: api-accounts.dev.lcip.org" \
+-H "Content-Type: application/json" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+https://api-accounts.dev.lcip.org/v1/account/device \
+-d '{
+  "name": "My Phone",
+  "type": "mobile",
+  "pushCallback": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
+  "pushPublicKey": "468601214f60f4828b6cd5d51d9d99d212e7c73657978955f0f5a5b7e2fa1370"
+}'
+```
+
+##### Registered device
+
+```
+curl -v \
+-X POST \
+-H "Host: api-accounts.dev.lcip.org" \
+-H "Content-Type: application/json" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+https://api-accounts.dev.lcip.org/v1/account/device \
+-d '{
+  "id": "0f7aa00356e5416e82b3bef7bc409eef",
+  "name": "My Old Phone"
+}'
+```
+
+#### Response
+
+```
+{
+  "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
+  "sessionToken": "27cd4f4a4aa03d7d186a2ec81cbf19d5c8a604713362df9ee15c4f4a4aa03d7d",
+  "keyFetchToken": "7d1893d950b8cd69856a2ec81cbfd7d1893d950b3362df9e56a2ec81cbf19d5c",
+  "verified": true,
+  "authAt": 1392144866,
+  "device": {
+    "id": "3d7d",
+    "name": "My Phone",
+    "type": "mobile",
+    "pushCallback": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef"
+  }
+}
+```
+
+### POST /v1/account/device
+
+Authenticated with session token or OAuth.
+
+#### Requests
+
+##### New device
+
+```
+curl -v \
+-X POST \
+-H "Host: api-accounts.dev.lcip.org" \
+-H "Content-Type: application/json" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+https://api-accounts.dev.lcip.org/v1/account/device \
+-d '{
+  "name": "My Phone",
+  "type": "mobile",
+  "pushCallback": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
+  "pushPublicKey": "468601214f60f4828b6cd5d51d9d99d212e7c73657978955f0f5a5b7e2fa1370"
+}'
+```
+
+##### Registered device
+
+If the session is associated with a different device id,
+a 400 error will be returned.
+
+```
+curl -v \
+-X POST \
+-H "Host: api-accounts.dev.lcip.org" \
+-H "Content-Type: application/json" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+https://api-accounts.dev.lcip.org/v1/account/device \
+-d '{
+  "id": "0f7aa00356e5416e82b3bef7bc409eef",
+  "name": "My Old Phone"
+}'
+```
+
+#### Response
+
+```
+{
+  "id": "0f7aa00356e5416e82b3bef7bc409eef",
+  "name": "My Phone",
+  "type": "mobile",
+  "pushCallback": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
+  "pushPublicKey": "468601214f60f4828b6cd5d51d9d99d212e7c73657978955f0f5a5b7e2fa1370"
+}
+```
+
+### GET /v1/account/devices
+
+Authenticated with session token or OAuth.
+
+#### Request
+
+```
+curl -v \
+-X GET \
+-H "Host: api-accounts.dev.lcip.org" \
+-H "Content-Type: application/json" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+https://api-accounts.dev.lcip.org/v1/account/devices
+```
+
+#### Response
+
+If the `sessionToken` field is `null`,
+it means the device is disconnected.
+
+```
+[
+  {
+    "id": "0f7aa00356e5416e82b3bef7bc409eef",
+    "sessionToken": "27cd4f4a4aa03d7d186a2ec81cbf19d5c8a604713362df9ee15c4f4a4aa03d7d",
+    "name": "My Phone",
+    "type": "mobile",
+    "pushCallback": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
+    "pushPublicKey": "468601214f60f4828b6cd5d51d9d99d212e7c73657978955f0f5a5b7e2fa1370"
+  },
+  {
+    "id": "0f7aa00356e5416e82b3bef7bc409eef",
+    "sessionToken": null,
+    "name": "My Desktop",
+    "type": null,
+    "pushCallback": "https://updates.push.services.mozilla.com/update/d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c75",
+    "pushPublicKey": "468601214f60f4828b6cd5d51d9d99d212e7c73657978955f0f5a5b7e2fa1370"
+  }
+]
+```
+
+### POST /v1/account/device/destroy
+
+Authenticated with session token or OAuth.
+
+If the session is associated with a different device id,
+a 400 error will be returned.
+
+#### Request
+
+```
+curl -v \
+-X POST \
+-H "Host: api-accounts.dev.lcip.org" \
+-H "Content-Type: application/json" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+https://api-accounts.dev.lcip.org/v1/account/device/destroy \
+-d '{
+  "id": "0f7aa00356e5416e82b3bef7bc409eef"
+}'
+```
+
+#### Response
+
+```
+{}
+```
+
+## Details
+
+### How are unrecognised devices handled?
+
+If a request to `/v1/account/login` or `/v1/account/device`
+specifies an unknown device id,
+a new device record will be created in the database
+and the newly-generated device id will be returned in the response.
+
+## What is a disconnected device?
+
+A disconnected device is one that does not have a session token.
+This situation can arise when a user's password is reset,
+as the session tokens are deleted from the database
+but the devices are not.
+
