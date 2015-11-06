@@ -18,6 +18,47 @@ https://mozilla.aha.io/features/FXA-45
 
 ## Stories
 
+### As a user
+
+* As a new user,
+  I want to sign up
+  and see the device I signed up with
+  when I navigate to the devices view.
+
+* As an existing user,
+  I want to sign in on a device
+  and see all my signed-in devices
+  when I navigate to the devices view.
+
+* As an existing user,
+  I want to sign in on a device
+  and see the newly signed-in device
+  automatically appear in all open instances of the devices view.
+
+* As a signed-in user,
+  I want to sign out on a device
+  and see the newly signed-out device
+  automatically disappear in all open instances of the devices view.
+
+* As a signed-in user,
+  I want to disconnect a device from the devices view
+  and be signed out of that device.
+
+* As a signed-in user,
+  I want to change my password
+  and be signed out of other devices,
+  not including the current device.
+
+* As a signed-in user,
+  I want to reset my password
+  and be signed out of all devices,
+  including the current device.
+
+* As a signed-in user,
+  I want to update my device details
+  and see the newly-changed details
+  automatically reflected in all open instances of the devices view.
+
 ### As an API consumer
 
 * As an API consumer,
@@ -67,47 +108,6 @@ https://mozilla.aha.io/features/FXA-45
 * As a logged-in API consumer,
   I want to receive a `"disconnected"` push notification
   when a registered device transitions to the disconnected state.
-
-### As a user
-
-* As a new user,
-  I want to sign up
-  and see the device I signed up with
-  when I navigate to the devices view.
-
-* As an existing user,
-  I want to sign in on a device
-  and see all my signed-in devices
-  when I navigate to the devices view.
-
-* As an existing user,
-  I want to sign in on a device
-  and see the newly signed-in device
-  automatically appear in all open instances of the devices view.
-
-* As a signed-in user,
-  I want to sign out on a device
-  and see the newly signed-out device
-  automatically disappear in all open instances of the devices view.
-
-* As a signed-in user,
-  I want to disconnect a device from the devices view
-  and be signed out of that device.
-
-* As a signed-in user,
-  I want to change my password
-  and be signed out of other devices,
-  not including the current device.
-
-* As a signed-in user,
-  I want to reset my password
-  and be signed out of all devices,
-  including the current device.
-
-* As a signed-in user,
-  I want to update my device details
-  and see the newly-changed details
-  automatically reflected in all open instances of the devices view.
 
 ## Data
 
