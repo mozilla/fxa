@@ -29,10 +29,10 @@
  * when the module is destroyed.
  */
 
-define([
-  'underscore'
-], function (_) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
 
   function NotifierProxy(options) {
     options = options || {};
@@ -163,6 +163,6 @@ define([
     }
   };
 
-  return NotifierMixin;
+  module.exports = NotifierMixin;
 });
 

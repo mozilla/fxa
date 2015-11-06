@@ -2,15 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'lib/channels/null',
-  'models/auth_brokers/fx-ios-v1',
-  'models/reliers/relier',
-  '../../../mocks/window'
-],
-function (chai, NullChannel, FxiOSAuthenticationBroker, Relier, WindowMock) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var FxiOSAuthenticationBroker = require('models/auth_brokers/fx-ios-v1');
+  var NullChannel = require('lib/channels/null');
+  var Relier = require('models/reliers/relier');
+  var WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

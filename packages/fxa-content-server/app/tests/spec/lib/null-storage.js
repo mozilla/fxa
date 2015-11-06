@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'lib/null-storage'
-],
-function (chai, NullStorage) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var NullStorage = require('lib/null-storage');
 
   var assert = chai.assert;
 

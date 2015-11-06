@@ -9,12 +9,12 @@
  * fields that are saved to and populated from the ResumeToken.
  */
 
-define([
-  'models/resume-token'
-], function (ResumeToken) {
+define(function (require, exports, module) {
   'use strict';
 
-  return {
+  var ResumeToken = require('models/resume-token');
+
+  module.exports = {
     /**
      * Get an object of values that should be stored in a ResumeToken
      *

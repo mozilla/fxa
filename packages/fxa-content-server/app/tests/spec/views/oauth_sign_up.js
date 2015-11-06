@@ -2,31 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'jquery',
-  'sinon',
-  'views/sign_up',
-  'lib/promise',
-  'lib/session',
-  'lib/fxa-client',
-  'lib/metrics',
-  'lib/oauth-client',
-  'lib/assertion',
-  'lib/able',
-  'models/reliers/oauth',
-  'models/auth_brokers/oauth',
-  'models/user',
-  'models/form-prefill',
-  'lib/channels/notifier',
-  '../../mocks/window',
-  '../../mocks/router',
-  '../../lib/helpers'
-],
-function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
-      Assertion, Able, OAuthRelier, OAuthBroker, User, FormPrefill, Notifier, WindowMock,
-      RouterMock, TestHelpers) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var Able = require('lib/able');
+  var Assertion = require('lib/assertion');
+  var chai = require('chai');
+  var FormPrefill = require('models/form-prefill');
+  var FxaClient = require('lib/fxa-client');
+  var Metrics = require('lib/metrics');
+  var Notifier = require('lib/channels/notifier');
+  var OAuthBroker = require('models/auth_brokers/oauth');
+  var OAuthClient = require('lib/oauth-client');
+  var OAuthRelier = require('models/reliers/oauth');
+  var p = require('lib/promise');
+  var RouterMock = require('../../mocks/router');
+  var Session = require('lib/session');
+  var sinon = require('sinon');
+  var TestHelpers = require('../../lib/helpers');
+  var User = require('models/user');
+  var View = require('views/sign_up');
+  var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

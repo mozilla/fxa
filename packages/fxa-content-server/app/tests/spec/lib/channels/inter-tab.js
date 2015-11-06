@@ -2,16 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  '../../../mocks/broadcast-channel',
-  '../../../mocks/crosstab',
-  '../../../mocks/window',
-  'lib/channels/inter-tab'
-], function (chai, sinon, BroadcastChannelMock, CrossTabMock, WindowMock,
-  InterTabChannel) {
+define(function (require, exports, module) {
   'use strict';
+
+  var BroadcastChannelMock = require('../../../mocks/broadcast-channel');
+  var chai = require('chai');
+  var CrossTabMock = require('../../../mocks/crosstab');
+  var InterTabChannel = require('lib/channels/inter-tab');
+  var sinon = require('sinon');
+  var WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

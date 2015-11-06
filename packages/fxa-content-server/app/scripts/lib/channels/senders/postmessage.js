@@ -20,10 +20,10 @@
  * `data` is an object with any extra data.
  */
 
-define([
-  'lib/promise'
-], function (p) {
+define(function (require, exports, module) {
   'use strict';
+
+  var p = require('lib/promise');
 
   function PostMessageSender() {
     // nothing to do here.
@@ -57,7 +57,7 @@ define([
     });
   }
 
-  return PostMessageSender;
+  module.exports = PostMessageSender;
 });
 
 

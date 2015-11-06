@@ -4,13 +4,12 @@
 
 // provides functions to work with errors returned by the auth server.
 
-define([
-  'underscore',
-  'lib/errors',
-  'lib/strings'
-],
-function (_, Errors, Strings) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Errors = require('lib/errors');
+  var Strings = require('lib/strings');
 
   var t = function (msg) {
     return msg;
@@ -109,7 +108,7 @@ function (_, Errors, Strings) {
   };
   /*eslint-enable sorting/sort-object-props*/
 
-  return _.extend({}, Errors, {
+  module.exports = _.extend({}, Errors, {
     ERRORS: ERRORS,
     NAMESPACE: 'oauth',
 

@@ -7,12 +7,12 @@
  * or for unit tests.
  */
 
-define([
-  'underscore',
-  'lib/promise',
-  'lib/metrics'
-], function (_, p, Metrics) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Metrics = require('lib/metrics');
+  var p = require('lib/promise');
 
   function NullMetrics () {
     // do nothing
@@ -33,7 +33,7 @@ define([
     return false;
   };
 
-  return NullMetrics;
+  module.exports = NullMetrics;
 });
 
 

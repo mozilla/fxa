@@ -7,18 +7,17 @@
  * to clear browser storage state between tests.
  */
 
-define([
-  'views/base',
-  'stache!templates/unexpected_error'
-],
-function (BaseView, Template) {
+define(function (require, exports, module) {
   'use strict';
+
+  var BaseView = require('views/base');
+  var Template = require('stache!templates/unexpected_error');
 
   var View = BaseView.extend({
     className: 'unexpected-error',
     template: Template
   });
 
-  return View;
+  module.exports = View;
 });
 

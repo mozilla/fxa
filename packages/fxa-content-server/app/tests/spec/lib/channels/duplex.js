@@ -2,16 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'lib/channels/duplex',
-  'lib/channels/senders/null',
-  'lib/channels/receivers/null',
-  '../../../mocks/window'
-],
-function (chai, sinon, DuplexChannel, NullSender, NullReceiver, WindowMock) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var DuplexChannel = require('lib/channels/duplex');
+  var NullReceiver = require('lib/channels/receivers/null');
+  var NullSender = require('lib/channels/senders/null');
+  var sinon = require('sinon');
+  var WindowMock = require('../../../mocks/window');
 
   var channel;
   var windowMock;

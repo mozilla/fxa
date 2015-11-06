@@ -2,25 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exceptsPaths: vendor/jwcrypto/lib/algs/rs */
-define([
-  'chai',
-  'jquery',
-  '../../lib/helpers',
-  'lib/promise',
-  'lib/config-loader',
-  'lib/assertion',
-  'lib/fxa-client',
-  'models/reliers/relier',
-  'vendor/jwcrypto',
-  'vendor/jwcrypto/lib/algs/rs'
-],
-// FxaClientWrapper is the object that is used in
-// fxa-content-server views. It wraps FxaClient to
-// take care of some app-specific housekeeping.
-function (chai, $, TestHelpers, p, ConfigLoader, Assertion, FxaClientWrapper,
-      Relier, jwcrypto) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var Assertion = require('lib/assertion');
+  var chai = require('chai');
+  var ConfigLoader = require('lib/config-loader');
+  var FxaClientWrapper = require('lib/fxa-client');
+  var jwcrypto = require('vendor/jwcrypto');
+  var p = require('lib/promise');
+  var Relier = require('models/reliers/relier');
+  var rs = require('vendor/jwcrypto/lib/algs/rs'); //eslint-disable-line no-unused-vars
+  var TestHelpers = require('../../lib/helpers');
 
   var assert = chai.assert;
   var AUDIENCE = 'http://123done.org';

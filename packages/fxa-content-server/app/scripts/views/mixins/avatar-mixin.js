@@ -4,14 +4,14 @@
 
 // helper functions for views with a profile image. Meant to be mixed into views.
 
-define([
-  'underscore',
-  'lib/auth-errors',
-  'lib/profile-errors',
-  'lib/channels/notifier',
-  'models/profile-image'
-], function (_, AuthErrors, ProfileErrors, Notifier, ProfileImage) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var AuthErrors = require('lib/auth-errors');
+  var Notifier = require('lib/channels/notifier');
+  var ProfileErrors = require('lib/profile-errors');
+  var ProfileImage = require('models/profile-image');
 
   var Mixin = {
     notifications: {
@@ -123,5 +123,5 @@ define([
 
   Mixin.notifications[Notifier.PROFILE_CHANGE] = 'onProfileUpdate';
 
-  return Mixin;
+  module.exports = Mixin;
 });

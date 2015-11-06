@@ -4,9 +4,9 @@
 
 // stub out the router object for testing.
 
-define([
-], function () {
+define(function (require, exports, module) {
   'use strict';
+
 
   function CanvasMock() {
     // nothing to do here.
@@ -36,5 +36,5 @@ define([
     }
   };
 
-  return CanvasMock;
+  module.exports = CanvasMock;
 });

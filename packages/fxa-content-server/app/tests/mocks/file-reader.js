@@ -4,9 +4,9 @@
 
 // mock out a FileReader
 
-define([
-], function () {
+define(function (require, exports, module) {
   'use strict';
+
 
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAACZJREFUeNrtwQEBAAAAgiD' +
                '/r25IQAEAAAAAAAAAAAAAAAAAAADvBkCAAAEehacTAAAAAElFTkSuQmCC';
@@ -55,6 +55,6 @@ define([
     }
   };
 
-  return FileReaderMock;
+  module.exports = FileReaderMock;
 });
 

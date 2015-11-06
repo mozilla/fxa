@@ -5,14 +5,14 @@
 // helper functions for views with passwords. Meant to be mixed into views.
 // Note, this mixin overrides beforeSubmit and is incompatible with Cocktail.
 
-define([
-  'models/email-resend'
-], function (EmailResend) {
+define(function (require, exports, module) {
   'use strict';
+
+  var EmailResend = require('models/email-resend');
 
   var SHOW_RESEND_IN_MS = 5 * 60 * 1000; // 5 minutes.
 
-  return {
+  module.exports = {
 
     initialize: function () {
       this._emailResend = new EmailResend();

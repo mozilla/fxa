@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'models/reliers/sync',
-  'lib/translator',
-  '../../../mocks/window',
-  '../../../lib/helpers'
-], function (chai, Relier, Translator, WindowMock, TestHelpers) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var Relier = require('models/reliers/sync');
+  var TestHelpers = require('../../../lib/helpers');
+  var Translator = require('lib/translator');
+  var WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

@@ -6,12 +6,12 @@
  * The outermost view of the system. Handles window level interactions.
  */
 
-define([
-  'jquery',
-  'lib/promise',
-  'views/base'
-], function ($, p, BaseView) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var BaseView = require('views/base');
+  var p = require('lib/promise');
 
   var AppView = BaseView.extend({
     initialize: function (options) {
@@ -174,6 +174,6 @@ define([
 
   });
 
-  return AppView;
+  module.exports = AppView;
 });
 

@@ -4,12 +4,12 @@
 
 // Finishes the OAuth flow by redirecting the window.
 
-define([
-  'underscore',
-  'models/auth_brokers/oauth',
-  'models/auth_brokers/mixins/channel'
-], function (_, OAuthAuthenticationBroker, ChannelMixin) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var ChannelMixin = require('models/auth_brokers/mixins/channel');
+  var OAuthAuthenticationBroker = require('models/auth_brokers/oauth');
 
   var IframeAuthenticationBroker = OAuthAuthenticationBroker.extend({
     type: 'iframe',
@@ -48,5 +48,5 @@ define([
 
   _.extend(IframeAuthenticationBroker.prototype, ChannelMixin);
 
-  return IframeAuthenticationBroker;
+  module.exports = IframeAuthenticationBroker;
 });

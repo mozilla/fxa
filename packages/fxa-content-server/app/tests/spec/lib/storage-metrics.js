@@ -4,15 +4,14 @@
 
 // test the metrics library
 
-define([
-  'chai',
-  'lib/storage-metrics',
-  'lib/metrics',
-  'lib/storage',
-  '../../mocks/window'
-],
-function (chai, StorageMetrics, Metrics, Storage, WindowMock) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var Metrics = require('lib/metrics');
+  var Storage = require('lib/storage');
+  var StorageMetrics = require('lib/storage-metrics');
+  var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

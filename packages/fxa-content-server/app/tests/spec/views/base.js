@@ -2,29 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'jquery',
-  'sinon',
-  'views/base',
-  'lib/promise',
-  'lib/translator',
-  'lib/ephemeral-messages',
-  'lib/metrics',
-  'lib/auth-errors',
-  'lib/fxa-client',
-  'models/auth_brokers/base',
-  'models/user',
-  'stache!templates/test_template',
-  '../../mocks/dom-event',
-  '../../mocks/router',
-  '../../mocks/window',
-  '../../lib/helpers'
-],
-function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
-  AuthErrors, FxaClient, BaseBroker, User, Template, DOMEventMock, RouterMock,
-  WindowMock, TestHelpers) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var AuthErrors = require('lib/auth-errors');
+  var BaseBroker = require('models/auth_brokers/base');
+  var BaseView = require('views/base');
+  var chai = require('chai');
+  var DOMEventMock = require('../../mocks/dom-event');
+  var EphemeralMessages = require('lib/ephemeral-messages');
+  var FxaClient = require('lib/fxa-client');
+  var Metrics = require('lib/metrics');
+  var p = require('lib/promise');
+  var RouterMock = require('../../mocks/router');
+  var sinon = require('sinon');
+  var Template = require('stache!templates/test_template');
+  var TestHelpers = require('../../lib/helpers');
+  var Translator = require('lib/translator');
+  var User = require('models/user');
+  var WindowMock = require('../../mocks/window');
 
   var requiresFocus = TestHelpers.requiresFocus;
   var wrapAssertion = TestHelpers.wrapAssertion;

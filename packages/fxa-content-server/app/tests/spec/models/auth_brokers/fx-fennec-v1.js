@@ -2,18 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'lib/channels/null',
-  'models/auth_brokers/fx-fennec-v1',
-  'models/reliers/relier',
-  'models/user',
-  'sinon',
-  '../../../mocks/window'
-],
-function (chai, NullChannel, FxFennecV1AuthenticationBroker, Relier,
-  User, sinon, WindowMock) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var FxFennecV1AuthenticationBroker = require('models/auth_brokers/fx-fennec-v1');
+  var NullChannel = require('lib/channels/null');
+  var Relier = require('models/reliers/relier');
+  var sinon = require('sinon');
+  var User = require('models/user');
+  var WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'lib/validate',
-  'lib/constants',
-  '../../lib/helpers'
-],
-function (chai, Validate, Constants, TestHelpers) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var Constants = require('lib/constants');
+  var TestHelpers = require('../../lib/helpers');
+  var Validate = require('lib/validate');
 
   var assert = chai.assert;
 

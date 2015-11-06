@@ -2,22 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'p-promise',
-  'cocktail',
-  'views/form',
-  'views/mixins/avatar-mixin',
-  'views/mixins/modal-settings-panel-mixin',
-  'stache!templates/settings/avatar_crop',
-  'lib/constants',
-  'lib/cropper',
-  'lib/auth-errors',
-  'models/cropper-image',
-  'models/profile-image'
-],
-function (p, Cocktail, FormView, AvatarMixin, ModalSettingsPanelMixin,
-    Template, Constants, Cropper, AuthErrors, CropperImage, ProfileImage) {
+define(function (require, exports, module) {
   'use strict';
+
+  var AuthErrors = require('lib/auth-errors');
+  var AvatarMixin = require('views/mixins/avatar-mixin');
+  var Cocktail = require('cocktail');
+  var Constants = require('lib/constants');
+  var Cropper = require('lib/cropper');
+  var CropperImage = require('models/cropper-image');
+  var FormView = require('views/form');
+  var ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
+  var p = require('p-promise');
+  var ProfileImage = require('models/profile-image');
+  var Template = require('stache!templates/settings/avatar_crop');
 
   var HORIZONTAL_GUTTER = 90;
   var VERTICAL_GUTTER = 0;
@@ -143,5 +141,5 @@ function (p, Cocktail, FormView, AvatarMixin, ModalSettingsPanelMixin,
     ModalSettingsPanelMixin
   );
 
-  return View;
+  module.exports = View;
 });

@@ -2,20 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'lib/xss',
-  'lib/constants',
-  'lib/marketing-email-errors',
-  'lib/metrics',
-  'views/base',
-  'views/form',
-  'views/mixins/settings-panel-mixin',
-  'stache!templates/settings/communication_preferences'
-],
-function (Cocktail, Xss, Constants, MarketingEmailErrors, Metrics, BaseView, FormView,
-  SettingsPanelMixin, Template) {
+define(function (require, exports, module) {
   'use strict';
+
+  var BaseView = require('views/base');
+  var Cocktail = require('cocktail');
+  var Constants = require('lib/constants');
+  var FormView = require('views/form');
+  var MarketingEmailErrors = require('lib/marketing-email-errors');
+  var Metrics = require('lib/metrics');
+  var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
+  var Template = require('stache!templates/settings/communication_preferences');
+  var Xss = require('lib/xss');
 
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
   var t = BaseView.t;
@@ -124,6 +122,6 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, Metrics, BaseView, For
     SettingsPanelMixin
   );
 
-  return View;
+  module.exports = View;
 });
 

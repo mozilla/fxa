@@ -4,13 +4,12 @@
 
 // test the metrics library
 
-define([
-  'chai',
-  'lib/null-metrics',
-  'lib/metrics'
-],
-function (chai, NullMetrics, Metrics) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var Metrics = require('lib/metrics');
+  var NullMetrics = require('lib/null-metrics');
 
   var assert = chai.assert;
 

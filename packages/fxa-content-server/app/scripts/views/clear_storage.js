@@ -7,12 +7,11 @@
  * to clear browser storage state between tests.
  */
 
-define([
-  'views/base',
-  'stache!templates/clear_storage'
-],
-function (BaseView, Template) {
+define(function (require, exports, module) {
   'use strict';
+
+  var BaseView = require('views/base');
+  var Template = require('stache!templates/clear_storage');
 
   var View = BaseView.extend({
     template: Template,
@@ -28,6 +27,6 @@ function (BaseView, Template) {
     }
   });
 
-  return View;
+  module.exports = View;
 });
 

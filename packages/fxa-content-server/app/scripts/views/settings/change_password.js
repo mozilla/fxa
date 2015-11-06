@@ -2,23 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'views/base',
-  'views/form',
-  'lib/auth-errors',
-  'stache!templates/settings/change_password',
-  'views/mixins/password-mixin',
-  'views/mixins/floating-placeholder-mixin',
-  'views/mixins/settings-panel-mixin',
-  'views/mixins/service-mixin',
-  'views/mixins/back-mixin',
-  'views/mixins/account-locked-mixin'
-],
-function (Cocktail, BaseView, FormView, AuthErrors, Template, PasswordMixin,
-  FloatingPlaceholderMixin, SettingsPanelMixin, ServiceMixin,
-  BackMixin, AccountLockedMixin) {
+define(function (require, exports, module) {
   'use strict';
+
+  var AccountLockedMixin = require('views/mixins/account-locked-mixin');
+  var AuthErrors = require('lib/auth-errors');
+  var BackMixin = require('views/mixins/back-mixin');
+  var BaseView = require('views/base');
+  var Cocktail = require('cocktail');
+  var FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
+  var FormView = require('views/form');
+  var PasswordMixin = require('views/mixins/password-mixin');
+  var ServiceMixin = require('views/mixins/service-mixin');
+  var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
+  var Template = require('stache!templates/settings/change_password');
 
   var t = BaseView.t;
 
@@ -78,5 +75,5 @@ function (Cocktail, BaseView, FormView, AuthErrors, Template, PasswordMixin,
     AccountLockedMixin
   );
 
-  return View;
+  module.exports = View;
 });

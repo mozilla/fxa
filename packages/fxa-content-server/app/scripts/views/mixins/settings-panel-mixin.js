@@ -5,13 +5,13 @@
 // This is a mixin used by views that are childViews of Settings
 // Modal childViews of Settings use modal-settings-panel-mixin instead.
 
-define([
-  'jquery',
-  'views/base'
-], function ($, BaseView) {
+define(function (require, exports, module) {
   'use strict';
 
-  return {
+  var $ = require('jquery');
+  var BaseView = require('views/base');
+
+  module.exports = {
     initialize: function (options) {
       this.parentView = options.parentView;
     },

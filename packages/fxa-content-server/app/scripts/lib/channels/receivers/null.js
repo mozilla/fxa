@@ -6,11 +6,11 @@
  * A null receiver. Doesn't actually receive any messages
  */
 
-define([
-  'backbone',
-  'underscore'
-], function (Backbone, _) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Backbone = require('backbone');
 
   function NullReceiver() {
     // nothing to do
@@ -23,6 +23,6 @@ define([
     }
   });
 
-  return NullReceiver;
+  module.exports = NullReceiver;
 });
 

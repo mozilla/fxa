@@ -2,16 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'lib/storage',
-  'lib/url',
-  'models/resume-token',
-  'models/unique-user-id',
-  '../../mocks/window'
-],
-function (chai, Storage, Url, ResumeToken, UniqueUserId, WindowMock) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var ResumeToken = require('models/resume-token');
+  var Storage = require('lib/storage');
+  var UniqueUserId = require('models/unique-user-id');
+  var Url = require('lib/url');
+  var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

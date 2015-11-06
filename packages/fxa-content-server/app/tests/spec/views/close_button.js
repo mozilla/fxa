@@ -2,21 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'jquery',
-  '../../mocks/window',
-  '../../lib/helpers',
-  'lib/promise',
-  'lib/metrics',
-  'lib/oauth-errors',
-  'views/close_button',
-  'models/auth_brokers/oauth'
-],
-function (chai, sinon, $, WindowMock, TestHelpers, p, Metrics,
-      OAuthErrors, View, OAuthBroker) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var chai = require('chai');
+  var Metrics = require('lib/metrics');
+  var OAuthBroker = require('models/auth_brokers/oauth');
+  var OAuthErrors = require('lib/oauth-errors');
+  var p = require('lib/promise');
+  var sinon = require('sinon');
+  var TestHelpers = require('../../lib/helpers');
+  var View = require('views/close_button');
+  var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

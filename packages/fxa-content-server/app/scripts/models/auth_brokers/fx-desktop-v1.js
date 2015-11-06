@@ -6,15 +6,14 @@
  * V1 of the broker to communicate with Fx Desktop when signing in to Sync.
  */
 
-define([
-  'lib/channels/fx-desktop-v1',
-  'lib/url',
-  'models/auth_brokers/fx-sync',
-  'underscore',
-  'views/behaviors/halt'
-], function (FxDesktopChannel, Url, FxSyncAuthenticationBroker, _,
-  HaltBehavior) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var FxDesktopChannel = require('lib/channels/fx-desktop-v1');
+  var FxSyncAuthenticationBroker = require('models/auth_brokers/fx-sync');
+  var HaltBehavior = require('views/behaviors/halt');
+  var Url = require('lib/url');
 
   var proto = FxSyncAuthenticationBroker.prototype;
 
@@ -66,6 +65,6 @@ define([
     }
   });
 
-  return FxDesktopV1AuthenticationBroker;
+  module.exports = FxDesktopV1AuthenticationBroker;
 });
 

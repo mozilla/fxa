@@ -6,10 +6,10 @@
  * Send a message to the browser using a FirefoxAccountsCommand.
  */
 
-define([
-  'lib/promise'
-], function (p) {
+define(function (require, exports, module) {
   'use strict';
+
+  var p = require('lib/promise');
 
   function FxDesktopV1Sender() {
     // nothing to do here.
@@ -51,7 +51,7 @@ define([
     });
   }
 
-  return FxDesktopV1Sender;
+  module.exports = FxDesktopV1Sender;
 });
 
 

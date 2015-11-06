@@ -5,10 +5,10 @@
 // an ephemeral messages model. Ephemeral messages are allowed
 // a single `get` and no more.
 
-define([
-  'backbone'
-], function (Backbone) {
+define(function (require, exports, module) {
   'use strict';
+
+  var Backbone = require('backbone');
 
   var Model = Backbone.Model.extend({
     get: function (attribute) {
@@ -21,6 +21,6 @@ define([
     }
   });
 
-  return Model;
+  module.exports = Model;
 });
 

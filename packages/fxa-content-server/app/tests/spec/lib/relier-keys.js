@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'lib/relier-keys'
-], function (chai, RelierKeys) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var RelierKeys = require('lib/relier-keys');
 
   var assert = chai.assert;
 

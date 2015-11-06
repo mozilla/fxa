@@ -8,11 +8,10 @@
  * Requires the invokeHandler function.
  */
 
-define([
-  'lib/promise'
-],
-function (p) {
+define(function (require, exports, module) {
   'use strict';
+
+  var p = require('lib/promise');
 
   function allowOnlyOneSubmit(handler) {
     return function () {
@@ -42,5 +41,5 @@ function (p) {
     };
   }
 
-  return allowOnlyOneSubmit;
+  module.exports = allowOnlyOneSubmit;
 });

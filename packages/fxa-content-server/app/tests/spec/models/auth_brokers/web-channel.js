@@ -2,23 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'models/auth_brokers/web-channel',
-  'models/reliers/relier',
-  'models/user',
-  'lib/fxa-client',
-  'lib/promise',
-  'lib/constants',
-  'lib/channels/null',
-  'lib/session',
-  'views/base',
-  '../../../mocks/window'
-],
-function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWrapper,
-      p, Constants, NullChannel, Session, BaseView, WindowMock) {
+define(function (require, exports, module) {
   'use strict';
+
+  var BaseView = require('views/base');
+  var chai = require('chai');
+  var Constants = require('lib/constants');
+  var FxaClientWrapper = require('lib/fxa-client');
+  var NullChannel = require('lib/channels/null');
+  var p = require('lib/promise');
+  var Relier = require('models/reliers/relier');
+  var Session = require('lib/session');
+  var sinon = require('sinon');
+  var User = require('models/user');
+  var WebChannelAuthenticationBroker = require('models/auth_brokers/web-channel');
+  var WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

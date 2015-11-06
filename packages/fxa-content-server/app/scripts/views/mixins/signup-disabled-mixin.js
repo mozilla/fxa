@@ -4,10 +4,11 @@
 
 // View mixin with signup enabled/disabled behaviors.
 
-define([], function () {
+define(function (require, exports, module) {
   'use strict';
 
-  return {
+
+  module.exports = {
     isSignupDisabled: function () {
       return ! this.broker.hasCapability('signup');
     },

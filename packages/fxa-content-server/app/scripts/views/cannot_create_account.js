@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'views/base',
-  'stache!templates/cannot_create_account'
-],
-function (BaseView, CannotCreateAccountTemplate) {
+define(function (require, exports, module) {
   'use strict';
+
+  var BaseView = require('views/base');
+  var CannotCreateAccountTemplate = require('stache!templates/cannot_create_account');
 
   var CannotCreateAccountView = BaseView.extend({
     template: CannotCreateAccountTemplate,
@@ -22,6 +21,6 @@ function (BaseView, CannotCreateAccountTemplate) {
 
   });
 
-  return CannotCreateAccountView;
+  module.exports = CannotCreateAccountView;
 });
 

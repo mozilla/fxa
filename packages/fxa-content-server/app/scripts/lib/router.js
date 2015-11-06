@@ -2,81 +2,44 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'backbone',
-  './storage',
-  'underscore',
-  '../views/cannot_create_account',
-  '../views/choose_what_to_sync',
-  '../views/clear_storage',
-  '../views/complete_account_unlock',
-  '../views/complete_reset_password',
-  '../views/complete_sign_up',
-  '../views/confirm',
-  '../views/confirm_account_unlock',
-  '../views/confirm_reset_password',
-  '../views/cookies_disabled',
-  '../views/force_auth',
-  '../views/legal',
-  '../views/openid/login',
-  '../views/openid/start',
-  '../views/permissions',
-  '../views/pp',
-  '../views/ready',
-  '../views/reset_password',
-  '../views/settings',
-  '../views/settings/avatar_camera',
-  '../views/settings/avatar_change',
-  '../views/settings/avatar_crop',
-  '../views/settings/avatar_gravatar',
-  '../views/settings/change_password',
-  '../views/settings/communication_preferences',
-  '../views/settings/delete_account',
-  '../views/settings/display_name',
-  '../views/settings/gravatar_permissions',
-  '../views/sign_in',
-  '../views/sign_up',
-  '../views/tos',
-  '../views/unexpected_error'
-],
-function (
-  Backbone,
-  Storage,
-  _,
-  CannotCreateAccountView,
-  ChooseWhatToSyncView,
-  ClearStorageView,
-  CompleteAccountUnlockView,
-  CompleteResetPasswordView,
-  CompleteSignUpView,
-  ConfirmView,
-  ConfirmAccountUnlockView,
-  ConfirmResetPasswordView,
-  CookiesDisabledView,
-  ForceAuthView,
-  LegalView,
-  OpenIdLoginView,
-  OpenIdStartView,
-  PermissionsView,
-  PpView,
-  ReadyView,
-  ResetPasswordView,
-  SettingsView,
-  AvatarCameraView,
-  AvatarChangeView,
-  AvatarCropView,
-  AvatarGravatarView,
-  ChangePasswordView,
-  CommunicationPreferencesView,
-  DeleteAccountView,
-  DisplayNameView,
-  GravatarPermissionsView,
-  SignInView,
-  SignUpView,
-  TosView,
-  UnexpectedErrorView
-) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var AvatarCameraView = require('../views/settings/avatar_camera');
+  var AvatarChangeView = require('../views/settings/avatar_change');
+  var AvatarCropView = require('../views/settings/avatar_crop');
+  var AvatarGravatarView = require('../views/settings/avatar_gravatar');
+  var Backbone = require('backbone');
+  var CannotCreateAccountView = require('../views/cannot_create_account');
+  var ChangePasswordView = require('../views/settings/change_password');
+  var ChooseWhatToSyncView = require('../views/choose_what_to_sync');
+  var ClearStorageView = require('../views/clear_storage');
+  var CommunicationPreferencesView = require('../views/settings/communication_preferences');
+  var CompleteAccountUnlockView = require('../views/complete_account_unlock');
+  var CompleteResetPasswordView = require('../views/complete_reset_password');
+  var CompleteSignUpView = require('../views/complete_sign_up');
+  var ConfirmAccountUnlockView = require('../views/confirm_account_unlock');
+  var ConfirmResetPasswordView = require('../views/confirm_reset_password');
+  var ConfirmView = require('../views/confirm');
+  var CookiesDisabledView = require('../views/cookies_disabled');
+  var DeleteAccountView = require('../views/settings/delete_account');
+  var DisplayNameView = require('../views/settings/display_name');
+  var ForceAuthView = require('../views/force_auth');
+  var GravatarPermissionsView = require('../views/settings/gravatar_permissions');
+  var LegalView = require('../views/legal');
+  var OpenIdLoginView = require('../views/openid/login');
+  var OpenIdStartView = require('../views/openid/start');
+  var PermissionsView = require('../views/permissions');
+  var PpView = require('../views/pp');
+  var ReadyView = require('../views/ready');
+  var ResetPasswordView = require('../views/reset_password');
+  var SettingsView = require('../views/settings');
+  var SignInView = require('../views/sign_in');
+  var SignUpView = require('../views/sign_up');
+  var Storage = require('./storage');
+  var TosView = require('../views/tos');
+  var UnexpectedErrorView = require('../views/unexpected_error');
 
   function createViewHandler(View, options) {
     return function () {
@@ -311,5 +274,5 @@ function (
     createChildViewHandler: createChildViewHandler
   });
 
-  return Router;
+  module.exports = Router;
 });

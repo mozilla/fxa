@@ -1,31 +1,27 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'lib/auth-errors',
-  'lib/promise',
-  'lib/mailcheck',
-  'stache!templates/sign_up',
-  'views/base',
-  'views/form',
-  'views/coppa/coppa-age-input',
-  'views/mixins/checkbox-mixin',
-  'views/mixins/experiment-mixin',
-  'views/mixins/migration-mixin',
-  'views/mixins/password-mixin',
-  'views/mixins/password-strength-mixin',
-  'views/mixins/resume-token-mixin',
-  'views/mixins/service-mixin',
-  'views/mixins/signed-in-notification-mixin',
-  'views/mixins/signup-disabled-mixin',
-  'views/mixins/signup-success-mixin'
-],
-function (Cocktail, AuthErrors, p, mailcheck, Template, BaseView, FormView,
-  CoppaAgeInput, CheckboxMixin, ExperimentMixin, MigrationMixin, PasswordMixin,
-  PasswordStrengthMixin, ResumeTokenMixin, ServiceMixin, SignedInNotificationMixin,
-  SignupDisabledMixin, SignupSuccessMixin) {
+define(function (require, exports, module) {
   'use strict';
+
+  var AuthErrors = require('lib/auth-errors');
+  var BaseView = require('views/base');
+  var CheckboxMixin = require('views/mixins/checkbox-mixin');
+  var Cocktail = require('cocktail');
+  var CoppaAgeInput = require('views/coppa/coppa-age-input');
+  var ExperimentMixin = require('views/mixins/experiment-mixin');
+  var FormView = require('views/form');
+  var mailcheck = require('lib/mailcheck');
+  var MigrationMixin = require('views/mixins/migration-mixin');
+  var p = require('lib/promise');
+  var PasswordMixin = require('views/mixins/password-mixin');
+  var PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
+  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  var ServiceMixin = require('views/mixins/service-mixin');
+  var SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
+  var SignupDisabledMixin = require('views/mixins/signup-disabled-mixin');
+  var SignupSuccessMixin = require('views/mixins/signup-success-mixin');
+  var Template = require('stache!templates/sign_up');
 
   var t = BaseView.t;
 
@@ -366,5 +362,5 @@ function (Cocktail, AuthErrors, p, mailcheck, Template, BaseView, FormView,
     SignupSuccessMixin
   );
 
-  return View;
+  module.exports = View;
 });

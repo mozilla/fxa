@@ -2,27 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'jquery',
-  'sinon',
-  'views/settings/avatar_change',
-  '../../../mocks/router',
-  '../../../mocks/file-reader',
-  '../../../mocks/profile',
-  '../../../mocks/window',
-  '../../../lib/helpers',
-  'lib/channels/notifier',
-  'models/reliers/relier',
-  'models/user',
-  'lib/profile-client',
-  'lib/promise',
-  'lib/auth-errors',
-  'lib/metrics'
-],
-function (chai, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
-            WindowMock, TestHelpers, Notifier, Relier, User, ProfileClient, p, AuthErrors, Metrics) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var AuthErrors = require('lib/auth-errors');
+  var chai = require('chai');
+  var FileReaderMock = require('../../../mocks/file-reader');
+  var Metrics = require('lib/metrics');
+  var Notifier = require('lib/channels/notifier');
+  var p = require('lib/promise');
+  var ProfileClient = require('lib/profile-client');
+  var ProfileMock = require('../../../mocks/profile');
+  var Relier = require('models/reliers/relier');
+  var RouterMock = require('../../../mocks/router');
+  var sinon = require('sinon');
+  var TestHelpers = require('../../../lib/helpers');
+  var User = require('models/user');
+  var View = require('views/settings/avatar_change');
+  var WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAACZJREFUeNrtwQEBAAAAgiD' +

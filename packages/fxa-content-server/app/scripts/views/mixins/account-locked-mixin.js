@@ -8,13 +8,13 @@
  * @class AccountLockedMixin
  */
 
-define([
-  'underscore',
-  'lib/auth-errors',
-  'views/base',
-  'views/mixins/resume-token-mixin'
-], function (_, AuthErrors, BaseView, ResumeTokenMixin) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var AuthErrors = require('lib/auth-errors');
+  var BaseView = require('views/base');
+  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
 
   var t = BaseView.t;
 
@@ -67,6 +67,6 @@ define([
     // because the AccountLockedMixin depends on the ResumeTokenMixin.
   }, ResumeTokenMixin);
 
-  return AccountLockedMixin;
+  module.exports = AccountLockedMixin;
 });
 

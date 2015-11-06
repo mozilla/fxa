@@ -4,11 +4,11 @@
 
 // helper functions for views with passwords. Meant to be mixed into views.
 
-define([
-], function () {
+define(function (require, exports, module) {
   'use strict';
 
-  return {
+
+  module.exports = {
     events: {
       'change .show-password': 'onPasswordVisibilityChange'
     },

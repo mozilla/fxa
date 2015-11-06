@@ -2,22 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'jquery',
-  'lib/promise',
-  'views/behaviors/halt',
-  'views/form',
-  'stache!templates/test_template',
-  'lib/constants',
-  'lib/metrics',
-  'lib/auth-errors',
-  '../../lib/helpers'
-],
-function (chai, sinon, $, p, HaltBehavior, FormView, Template, Constants, Metrics, AuthErrors,
-      TestHelpers) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var AuthErrors = require('lib/auth-errors');
+  var chai = require('chai');
+  var Constants = require('lib/constants');
+  var FormView = require('views/form');
+  var HaltBehavior = require('views/behaviors/halt');
+  var Metrics = require('lib/metrics');
+  var p = require('lib/promise');
+  var sinon = require('sinon');
+  var Template = require('stache!templates/test_template');
+  var TestHelpers = require('../../lib/helpers');
 
   var assert = chai.assert;
 

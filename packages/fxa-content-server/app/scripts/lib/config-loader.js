@@ -4,18 +4,13 @@
 
 // fetch config from the backend and provide some helper functions.
 
-define([
-  'lib/errors',
-  'lib/promise',
-  'lib/xhr',
-  'underscore'
-], function (
-  Errors,
-  p,
-  xhr,
-  _
-) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Errors = require('lib/errors');
+  var p = require('lib/promise');
+  var xhr = require('lib/xhr');
 
   function ConfigLoader(options) {
     options = options || {};
@@ -85,6 +80,6 @@ define([
     NAMESPACE: 'config'
   });
 
-  return ConfigLoader;
+  module.exports = ConfigLoader;
 });
 

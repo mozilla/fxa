@@ -4,13 +4,13 @@
 
 // This model abstracts profile images
 
-define([
-  'backbone',
-  'lib/promise',
-  'lib/image-loader',
-  'lib/profile-errors'
-], function (Backbone, p, ImageLoader, ProfileErrors) {
+define(function (require, exports, module) {
   'use strict';
+
+  var Backbone = require('backbone');
+  var ImageLoader = require('lib/image-loader');
+  var p = require('lib/promise');
+  var ProfileErrors = require('lib/profile-errors');
 
   var ProfileImage = Backbone.Model.extend({
     defaults: {
@@ -40,5 +40,5 @@ define([
     }
   });
 
-  return ProfileImage;
+  module.exports = ProfileImage;
 });

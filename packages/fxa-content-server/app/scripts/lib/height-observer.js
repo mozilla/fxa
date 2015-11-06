@@ -7,11 +7,11 @@
  * if the element's height changes.
  */
 
-define([
-  'backbone',
-  'underscore'
-], function (Backbone, _) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Backbone = require('backbone');
 
   function HeightObserver (options) {
     options = options || {};
@@ -77,6 +77,6 @@ define([
     }
   });
 
-  return HeightObserver;
+  module.exports = HeightObserver;
 });
 

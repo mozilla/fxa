@@ -5,10 +5,10 @@
 // Session saves session information about the user. Data is automatically
 // saved to sessionStorage and automatically loaded from sessionStorage on startup.
 
-define([
-  'underscore'
-], function (_) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
 
   var NAMESPACE = '__fxa_session';
 
@@ -185,5 +185,5 @@ define([
 
 
   // session is a singleton
-  return new Session();
+  module.exports = new Session();
 });

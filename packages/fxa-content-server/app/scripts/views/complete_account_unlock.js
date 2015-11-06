@@ -2,16 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'views/form',
-  'stache!templates/complete_account_unlock',
-  'lib/auth-errors',
-  'lib/url',
-  'models/verification/account-unlock'
-],
-function (FormView, CompleteAccountUnlockTemplate, AuthErrors,
-    Url, VerificationInfo) {
+define(function (require, exports, module) {
   'use strict';
+
+  var AuthErrors = require('lib/auth-errors');
+  var CompleteAccountUnlockTemplate = require('stache!templates/complete_account_unlock');
+  var FormView = require('views/form');
+  var Url = require('lib/url');
+  var VerificationInfo = require('models/verification/account-unlock');
 
   var CompleteAccountUnlockView = FormView.extend({
     template: CompleteAccountUnlockTemplate,
@@ -81,5 +79,5 @@ function (FormView, CompleteAccountUnlockTemplate, AuthErrors,
     }
   });
 
-  return CompleteAccountUnlockView;
+  module.exports = CompleteAccountUnlockView;
 });

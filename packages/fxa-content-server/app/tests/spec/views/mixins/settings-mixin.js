@@ -2,19 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'cocktail',
-  'sinon',
-  'lib/channels/notifier',
-  'models/user',
-  'models/reliers/relier',
-  'stache!templates/test_template',
-  'views/base',
-  'views/mixins/settings-mixin'
-], function (chai, Cocktail, sinon, Notifier, User, Relier, TestTemplate,
-  BaseView, SettingsMixin) {
+define(function (require, exports, module) {
   'use strict';
+
+  var BaseView = require('views/base');
+  var chai = require('chai');
+  var Cocktail = require('cocktail');
+  var Notifier = require('lib/channels/notifier');
+  var Relier = require('models/reliers/relier');
+  var SettingsMixin = require('views/mixins/settings-mixin');
+  var sinon = require('sinon');
+  var TestTemplate = require('stache!templates/test_template');
+  var User = require('models/user');
 
   var assert = chai.assert;
 

@@ -2,24 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'underscore',
-  'chai',
-  'sinon',
-  'lib/promise',
-  'lib/auth-errors',
-  'lib/metrics',
-  'lib/fxa-client',
-  'views/reset_password',
-  'models/reliers/relier',
-  'models/auth_brokers/base',
-  'models/form-prefill',
-  '../../mocks/router',
-  '../../lib/helpers'
-],
-function (_, chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
-      Broker, FormPrefill, RouterMock, TestHelpers) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var AuthErrors = require('lib/auth-errors');
+  var Broker = require('models/auth_brokers/base');
+  var chai = require('chai');
+  var FormPrefill = require('models/form-prefill');
+  var FxaClient = require('lib/fxa-client');
+  var Metrics = require('lib/metrics');
+  var p = require('lib/promise');
+  var Relier = require('models/reliers/relier');
+  var RouterMock = require('../../mocks/router');
+  var sinon = require('sinon');
+  var TestHelpers = require('../../lib/helpers');
+  var View = require('views/reset_password');
 
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;

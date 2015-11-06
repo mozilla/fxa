@@ -4,11 +4,11 @@
 
 // This model limits the number of emails a component can send
 
-define([
-  'backbone',
-  'lib/constants'
-], function (Backbone, Constants) {
+define(function (require, exports, module) {
   'use strict';
+
+  var Backbone = require('backbone');
+  var Constants = require('lib/constants');
 
   function shouldResend (tries, maxTries) {
     return tries === 1 || tries === maxTries;
@@ -42,5 +42,5 @@ define([
     }
   });
 
-  return EmailResend;
+  module.exports = EmailResend;
 });

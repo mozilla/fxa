@@ -17,16 +17,15 @@
  * If not in localStorage either, create a new uniqueUserId.
  */
 
-define([
-  'backbone',
-  'cocktail',
-  'lib/storage',
-  'models/mixins/resume-token',
-  'models/mixins/search-param',
-  'uuid'
-], function (Backbone, Cocktail, Storage, ResumeTokenMixin, SearchParamMixin,
-  uuid) {
+define(function (require, exports, module) {
   'use strict';
+
+  var Backbone = require('backbone');
+  var Cocktail = require('cocktail');
+  var ResumeTokenMixin = require('models/mixins/resume-token');
+  var SearchParamMixin = require('models/mixins/search-param');
+  var Storage = require('lib/storage');
+  var uuid = require('uuid');
 
   var Model = Backbone.Model.extend({
     initialize: function (options) {
@@ -79,5 +78,5 @@ define([
     SearchParamMixin
   );
 
-  return Model;
+  module.exports = Model;
 });

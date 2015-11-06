@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'lib/promise',
-  'lib/require-on-demand',
-  'sinon'
-], function (chai, p, requireOnDemand, sinon) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var p = require('lib/promise');
+  var requireOnDemand = require('lib/require-on-demand');
+  var sinon = require('sinon');
 
   var assert = chai.assert;
 

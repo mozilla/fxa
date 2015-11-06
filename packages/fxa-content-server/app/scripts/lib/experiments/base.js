@@ -7,14 +7,13 @@
   It helps keep the state, organize testing groups and log experiment metrics.
  */
 
-define([
-  'backbone',
-  'underscore',
-  'lib/storage',
-  'lib/url'
-],
-function (Backbone, _, Storage, Url) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Backbone = require('backbone');
+  var Storage = require('lib/storage');
+  var Url = require('lib/url');
 
   var FORCE_GROUP_TYPE = 'forceExperimentGroup';
   var storage = Storage.factory('localStorage');
@@ -207,5 +206,5 @@ function (Backbone, _, Storage, Url) {
 
   BaseExperiment.extend = Backbone.Model.extend;
 
-  return BaseExperiment;
+  module.exports = BaseExperiment;
 });

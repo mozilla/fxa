@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'lib/xhr',
-  'views/base',
-  'views/mixins/back-mixin'
-],
-function (Cocktail, xhr, BaseView, BackMixin) {
+define(function (require, exports, module) {
   'use strict';
+
+  var BackMixin = require('views/mixins/back-mixin');
+  var BaseView = require('views/base');
+  var Cocktail = require('cocktail');
+  var xhr = require('lib/xhr');
 
   // A view to fetch and render legal copy. Sub-classes must provide
   // a `copyUrl` where the copy template can be fetched, as well a
@@ -87,6 +86,6 @@ function (Cocktail, xhr, BaseView, BackMixin) {
     BackMixin
   );
 
-  return View;
+  module.exports = View;
 });
 

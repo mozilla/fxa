@@ -2,24 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'jquery',
-  'sinon',
-  'cocktail',
-  'views/sub_panels',
-  'views/base',
-  'views/mixins/modal-settings-panel-mixin',
-  'views/mixins/settings-panel-mixin',
-  '../../mocks/router',
-  'lib/promise',
-  'lib/metrics',
-  'stache!templates/test_template',
-],
-function (chai, $, sinon, Cocktail, View, BaseView,
-  ModalSettingsPanelMixin, SettingsPanelMixin, RouterMock, p,
-  Metrics, TestTemplate) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var BaseView = require('views/base');
+  var chai = require('chai');
+  var Cocktail = require('cocktail');
+  var Metrics = require('lib/metrics');
+  var ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
+  var p = require('lib/promise');
+  var RouterMock = require('../../mocks/router');
+  var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
+  var sinon = require('sinon');
+  var TestTemplate = require('stache!templates/test_template');
+  var View = require('views/sub_panels');
 
   var assert = chai.assert;
 

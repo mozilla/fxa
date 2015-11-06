@@ -4,13 +4,12 @@
 
 // test the service-name library
 
-define([
-  'chai',
-  'lib/translator',
-  'lib/service-name'
-],
-function (chai, Translator, ServiceName) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var ServiceName = require('lib/service-name');
+  var Translator = require('lib/translator');
 
   var assert = chai.assert;
   var serviceName;

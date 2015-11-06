@@ -2,22 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'underscore',
-  'backbone',
-  'raven',
-  'jquery',
-  'lib/promise',
-  'lib/auth-errors',
-  'lib/ephemeral-messages',
-  'lib/null-metrics',
-  'views/mixins/notifier-mixin',
-  'views/mixins/timer-mixin'
-],
-function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
-      EphemeralMessages, NullMetrics, NotifierMixin, TimerMixin) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var _ = require('underscore');
+  var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
+  var Cocktail = require('cocktail');
+  var EphemeralMessages = require('lib/ephemeral-messages');
+  var NotifierMixin = require('views/mixins/notifier-mixin');
+  var NullMetrics = require('lib/null-metrics');
+  var p = require('lib/promise');
+  var Raven = require('raven');
+  var TimerMixin = require('views/mixins/timer-mixin');
 
   var DEFAULT_TITLE = window.document.title;
   var EPHEMERAL_MESSAGE_ANIMATION_MS = 150;
@@ -827,5 +825,5 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
     TimerMixin
   );
 
-  return BaseView;
+  module.exports = BaseView;
 });

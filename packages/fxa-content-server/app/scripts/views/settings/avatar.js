@@ -2,15 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'views/form',
-  'stache!templates/settings/avatar',
-  'views/mixins/avatar-mixin',
-  'views/mixins/settings-panel-mixin'
-],
-function (Cocktail, FormView, Template, AvatarMixin, SettingsPanelMixin) {
+define(function (require, exports, module) {
   'use strict';
+
+  var AvatarMixin = require('views/mixins/avatar-mixin');
+  var Cocktail = require('cocktail');
+  var FormView = require('views/form');
+  var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
+  var Template = require('stache!templates/settings/avatar');
 
   var View = FormView.extend({
     template: Template,
@@ -32,5 +31,5 @@ function (Cocktail, FormView, Template, AvatarMixin, SettingsPanelMixin) {
 
   Cocktail.mixin(View, AvatarMixin, SettingsPanelMixin);
 
-  return View;
+  module.exports = View;
 });

@@ -12,10 +12,10 @@
  * instance
  */
 
-define([
-  'lib/promise'
-], function (p) {
+define(function (require, exports, module) {
   'use strict';
+
+  var p = require('lib/promise');
 
   // normalize the channel action. New channels return promises, old
   // channels use NodeJS style callbacks. Convert the old channel style
@@ -65,6 +65,6 @@ define([
     }
   };
 
-  return ChannelMixin;
+  module.exports = ChannelMixin;
 });
 

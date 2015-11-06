@@ -6,13 +6,13 @@
 // a CustomEvent sender and a postMessage receiver. This is
 // the v1 way of communicating with the browser for Sync.
 
-define([
-  'underscore',
-  'lib/channels/duplex',
-  'lib/channels/senders/fx-desktop-v1',
-  'lib/channels/receivers/postmessage'
-], function (_, DuplexChannel, FxDesktopV1Sender, PostMessageReceiver) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var DuplexChannel = require('lib/channels/duplex');
+  var FxDesktopV1Sender = require('lib/channels/senders/fx-desktop-v1');
+  var PostMessageReceiver = require('lib/channels/receivers/postmessage');
 
   function FxDesktopV1Channel() {
   }
@@ -69,7 +69,7 @@ define([
     }
   });
 
-  return FxDesktopV1Channel;
+  module.exports = FxDesktopV1Channel;
 });
 
 

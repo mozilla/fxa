@@ -6,14 +6,14 @@
  * Log when checkbox values are changed, if the checkbox has an id.
  */
 
-define([
-  'fxaCheckbox',
-  'jquery',
-  'lib/strings'
-], function (FxaCheckbox, $, Strings) {
+define(function (require, exports, module) {
   'use strict';
 
-  return {
+  var $ = require('jquery');
+  var FxaCheckbox = require('fxaCheckbox');
+  var Strings = require('lib/strings');
+
+  module.exports = {
     events: {
       'change input[type=checkbox]': 'logCheckboxChange'
     },

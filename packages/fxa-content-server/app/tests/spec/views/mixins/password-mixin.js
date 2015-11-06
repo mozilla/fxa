@@ -2,20 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'jquery',
-  'chai',
-  'sinon',
-  'underscore',
-  'lib/metrics',
-  'views/mixins/password-mixin',
-  'views/base',
-  'models/reliers/relier',
-  'stache!templates/test_template',
-  '../../../lib/helpers'
-], function ($, chai, sinon, _, Metrics, PasswordMixin, BaseView, Relier,
-  TestTemplate, TestHelpers) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var _ = require('underscore');
+  var BaseView = require('views/base');
+  var chai = require('chai');
+  var Metrics = require('lib/metrics');
+  var PasswordMixin = require('views/mixins/password-mixin');
+  var Relier = require('models/reliers/relier');
+  var sinon = require('sinon');
+  var TestHelpers = require('../../../lib/helpers');
+  var TestTemplate = require('stache!templates/test_template');
 
   var assert = chai.assert;
 

@@ -23,12 +23,12 @@
  * is found after a short period, return `null`.
  */
 
-define([
-  'lib/promise',
-  'lib/channels/iframe',
-  'raven'
-], function (p, IFrameChannel, Raven) {
+define(function (require, exports, module) {
   'use strict';
+
+  var IFrameChannel = require('lib/channels/iframe');
+  var p = require('lib/promise');
+  var Raven = require('raven');
 
   // This timeout needs to be long enough for slow machines to able to respond to
   // See https://github.com/mozilla/fxa-content-server/issues/2946 for details
@@ -116,7 +116,7 @@ define([
     }
   };
 
-  return OriginCheck;
+  module.exports = OriginCheck;
 });
 
 

@@ -4,12 +4,11 @@
 
 // This module handles communication with the fxa-profile-server.
 
-define([
-  'lib/xhr',
-  'lib/profile-errors'
-],
-function (xhr, ProfileErrors) {
+define(function (require, exports, module) {
   'use strict';
+
+  var ProfileErrors = require('lib/profile-errors');
+  var xhr = require('lib/xhr');
 
   function ProfileClient(options) {
     options = options || {};
@@ -79,6 +78,6 @@ function (xhr, ProfileErrors) {
 
   ProfileClient.Errors = ProfileErrors;
 
-  return ProfileClient;
+  module.exports = ProfileClient;
 });
 

@@ -6,13 +6,13 @@
  * A model to hold sign up verification data
  */
 
-define([
-  './base',
-  'lib/validate'
-], function (VerificationInfo, Validate) {
+define(function (require, exports, module) {
   'use strict';
 
-  return VerificationInfo.extend({
+  var Validate = require('lib/validate');
+  var VerificationInfo = require('./base');
+
+  module.exports = VerificationInfo.extend({
     defaults: {
       code: null,
       uid: null

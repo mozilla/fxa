@@ -2,23 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'lib/session',
-  'lib/promise',
-  'lib/constants',
-  'lib/oauth-client',
-  'lib/assertion',
-  'lib/auth-errors',
-  'lib/oauth-errors',
-  'models/reliers/relier',
-  'models/user',
-  'models/auth_brokers/oauth'
-],
-function (chai, sinon, Session, p, Constants, OAuthClient, Assertion, AuthErrors,
-      OAuthErrors, Relier, User, OAuthAuthenticationBroker) {
+define(function (require, exports, module) {
   'use strict';
+
+  var Assertion = require('lib/assertion');
+  var AuthErrors = require('lib/auth-errors');
+  var chai = require('chai');
+  var Constants = require('lib/constants');
+  var OAuthAuthenticationBroker = require('models/auth_brokers/oauth');
+  var OAuthClient = require('lib/oauth-client');
+  var OAuthErrors = require('lib/oauth-errors');
+  var p = require('lib/promise');
+  var Relier = require('models/reliers/relier');
+  var Session = require('lib/session');
+  var sinon = require('sinon');
+  var User = require('models/user');
 
   var assert = chai.assert;
 

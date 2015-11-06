@@ -9,12 +9,12 @@
  * variant, which is needed for JWTs.
  */
 
-define([
-  'sjcl'
-], function (sjcl) {
+define(function (require, exports, module) {
   'use strict';
 
-  return {
+  var sjcl = require('sjcl');
+
+  module.exports = {
 
     encode: function (bits) {
       return sjcl.codec.base64.fromBits(bits)

@@ -6,15 +6,15 @@
  * An OAuth Relier - holds OAuth information.
  */
 
-define([
-  'underscore',
-  'models/reliers/relier',
-  'lib/oauth-errors',
-  'lib/relier-keys',
-  'lib/url',
-  'lib/constants'
-], function (_, Relier, OAuthErrors, RelierKeys, Url, Constants) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Constants = require('lib/constants');
+  var OAuthErrors = require('lib/oauth-errors');
+  var Relier = require('models/reliers/relier');
+  var RelierKeys = require('lib/relier-keys');
+  var Url = require('lib/url');
 
   var RELIER_FIELDS_IN_RESUME_TOKEN = ['state', 'verificationRedirect'];
   // We only grant permissions that our UI currently prompts for. Others
@@ -208,5 +208,5 @@ define([
     });
   }
 
-  return OAuthRelier;
+  module.exports = OAuthRelier;
 });

@@ -4,12 +4,11 @@
 
 // test the interpolated library
 
-define([
-  'chai',
-  'lib/auth-errors'
-],
-function (chai, AuthErrors) {
+define(function (require, exports, module) {
   'use strict';
+
+  var AuthErrors = require('lib/auth-errors');
+  var chai = require('chai');
 
   var assert = chai.assert;
 

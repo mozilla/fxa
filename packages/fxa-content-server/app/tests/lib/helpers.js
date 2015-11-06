@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'sinon',
-  'lib/promise',
-  '../mocks/profile.js'
-], function (sinon, p, ProfileMock) {
+define(function (require, exports, module) {
   'use strict';
+
+  var p = require('lib/promise');
+  var ProfileMock = require('../mocks/profile.js');
+  var sinon = require('sinon');
 
   function requiresFocus(callback, done) {
     // Give the document focus
@@ -136,7 +136,7 @@ define([
     return profileClientMock;
   }
 
-  return {
+  module.exports = {
     addFxaClientSpy: addFxaClientSpy,
     createEmail: createEmail,
     createRandomHexString: createRandomHexString,

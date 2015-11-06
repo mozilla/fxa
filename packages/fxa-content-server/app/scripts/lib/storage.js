@@ -5,11 +5,11 @@
 // This module abstracts interaction with storage backends such as localStorage
 // or sessionStorage.
 
-define([
-  'lib/null-storage',
-  'lib/url'
-], function (NullStorage, Url) {
+define(function (require, exports, module) {
   'use strict';
+
+  var NullStorage = require('lib/null-storage');
+  var Url = require('lib/url');
 
   var NAMESPACE = '__fxa_storage';
 
@@ -94,5 +94,5 @@ define([
     return storage;
   };
 
-  return Storage;
+  module.exports = Storage;
 });

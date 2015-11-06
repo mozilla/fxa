@@ -4,14 +4,14 @@
 
 // Finishes the OAuth flow by redirecting the window.
 
-define([
-  'lib/promise',
-  'lib/constants',
-  'lib/url',
-  'models/auth_brokers/oauth',
-  'views/behaviors/halt'
-], function (p, Constants, Url, OAuthAuthenticationBroker, HaltBehavior) {
+define(function (require, exports, module) {
   'use strict';
+
+  var Constants = require('lib/constants');
+  var HaltBehavior = require('views/behaviors/halt');
+  var OAuthAuthenticationBroker = require('models/auth_brokers/oauth');
+  var p = require('lib/promise');
+  var Url = require('lib/url');
 
   var proto = OAuthAuthenticationBroker.prototype;
 
@@ -126,5 +126,5 @@ define([
     }
   });
 
-  return RedirectAuthenticationBroker;
+  module.exports = RedirectAuthenticationBroker;
 });

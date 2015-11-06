@@ -7,13 +7,13 @@
  * embedded in Firefox for Android.
  */
 
-define([
-  'lib/promise',
-  'models/auth_brokers/fx-desktop-v2',
-  'underscore',
-  'views/behaviors/navigate'
-], function (p, FxDesktopV2AuthenticationBroker, _, NavigateBehavior) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var FxDesktopV2AuthenticationBroker = require('models/auth_brokers/fx-desktop-v2');
+  var NavigateBehavior = require('views/behaviors/navigate');
+  var p = require('lib/promise');
 
   var proto = FxDesktopV2AuthenticationBroker.prototype;
 
@@ -68,5 +68,5 @@ define([
     }
   });
 
-  return FxFennecV1AuthenticationBroker;
+  module.exports = FxFennecV1AuthenticationBroker;
 });

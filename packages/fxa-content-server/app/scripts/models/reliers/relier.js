@@ -10,16 +10,15 @@
  * query parameter.
  */
 
-define([
-  'cocktail',
-  'models/reliers/base',
-  'models/mixins/resume-token',
-  'models/mixins/search-param',
-  'lib/promise',
-  'lib/constants'
-], function (Cocktail, BaseRelier, ResumeTokenMixin, SearchParamMixin, p,
-  Constants) {
+define(function (require, exports, module) {
   'use strict';
+
+  var BaseRelier = require('models/reliers/base');
+  var Cocktail = require('cocktail');
+  var Constants = require('lib/constants');
+  var p = require('lib/promise');
+  var ResumeTokenMixin = require('models/mixins/resume-token');
+  var SearchParamMixin = require('models/mixins/search-param');
 
   var RELIER_FIELDS_IN_RESUME_TOKEN = [
     'utmTerm',
@@ -123,5 +122,5 @@ define([
     SearchParamMixin
   );
 
-  return Relier;
+  module.exports = Relier;
 });

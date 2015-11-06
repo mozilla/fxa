@@ -8,14 +8,13 @@
  * to the parent that indicates "close me!"
  */
 
-define([
-  'views/base',
-  'lib/promise',
-  'lib/oauth-errors',
-  'stache!templates/partial/close-button'
-],
-function (BaseView, p, OAuthErrors, CloseTemplate) {
+define(function (require, exports, module) {
   'use strict';
+
+  var BaseView = require('views/base');
+  var CloseTemplate = require('stache!templates/partial/close-button');
+  var OAuthErrors = require('lib/oauth-errors');
+  var p = require('lib/promise');
 
   var View = BaseView.extend({
     template: CloseTemplate,
@@ -44,6 +43,6 @@ function (BaseView, p, OAuthErrors, CloseTemplate) {
     }
   });
 
-  return View;
+  module.exports = View;
 });
 

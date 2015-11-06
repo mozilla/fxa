@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'lib/oauth-errors'
-],
-function (chai, OAuthErrors) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var OAuthErrors = require('lib/oauth-errors');
 
   var assert = chai.assert;
 

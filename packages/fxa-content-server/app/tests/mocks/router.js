@@ -4,11 +4,11 @@
 
 // stub out the router object for testing.
 
-define([
-  'underscore',
-  'backbone'
-], function (_, Backbone) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Backbone = require('backbone');
 
   function RouterMock() {
     // nothing to do here.
@@ -30,5 +30,5 @@ define([
     }
   });
 
-  return RouterMock;
+  module.exports = RouterMock;
 });

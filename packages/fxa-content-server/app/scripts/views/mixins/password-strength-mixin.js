@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'lib/promise',
-  'lib/require-on-demand',
-  'lib/url',
-  'underscore'
-], function (p, requireOnDemand, Url, _) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var p = require('lib/promise');
+  var requireOnDemand = require('lib/require-on-demand');
+  var Url = require('lib/url');
 
   var PasswordStrengthMixin = {
     initialize: function (options) {
@@ -96,5 +96,5 @@ define([
       this.logViewEvent(eventName);
     }
   };
-  return PasswordStrengthMixin;
+  module.exports = PasswordStrengthMixin;
 });

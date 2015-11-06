@@ -7,12 +7,12 @@
  * embedded in the Firefox firstrun flow.
  */
 
-define([
-  'models/auth_brokers/fx-desktop-v2',
-  'views/behaviors/halt',
-  'underscore'
-], function (FxDesktopV2AuthenticationBroker, HaltBehavior, _) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var FxDesktopV2AuthenticationBroker = require('models/auth_brokers/fx-desktop-v2');
+  var HaltBehavior = require('views/behaviors/halt');
 
   var proto = FxDesktopV2AuthenticationBroker.prototype;
 
@@ -82,5 +82,5 @@ define([
     }
   });
 
-  return FirstRunAuthenticationBroker;
+  module.exports = FirstRunAuthenticationBroker;
 });

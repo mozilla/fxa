@@ -2,15 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'chai',
-  'sinon',
-  'views/mixins/checkbox-mixin',
-  'views/base',
-  'stache!templates/test_template'
-], function (Cocktail, Chai, sinon, CheckboxMixin, BaseView, Template) {
+define(function (require, exports, module) {
   'use strict';
+
+  var BaseView = require('views/base');
+  var Chai = require('chai');
+  var CheckboxMixin = require('views/mixins/checkbox-mixin');
+  var Cocktail = require('cocktail');
+  var sinon = require('sinon');
+  var Template = require('stache!templates/test_template');
 
   var assert = Chai.assert;
 

@@ -2,24 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'jquery',
-  'sinon',
-  'lib/promise',
-  'views/choose_what_to_sync',
-  'lib/metrics',
-  'lib/fxa-client',
-  'lib/ephemeral-messages',
-  'models/user',
-  'models/auth_brokers/fx-fennec-v1',
-  '../../mocks/window',
-  '../../mocks/router',
-  '../../lib/helpers'
-],
-function (chai, $, sinon, p, View, Metrics, FxaClient, EphemeralMessages,
-          User, Broker, WindowMock, RouterMock, TestHelpers) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var Broker = require('models/auth_brokers/fx-fennec-v1');
+  var chai = require('chai');
+  var EphemeralMessages = require('lib/ephemeral-messages');
+  var FxaClient = require('lib/fxa-client');
+  var Metrics = require('lib/metrics');
+  var p = require('lib/promise');
+  var RouterMock = require('../../mocks/router');
+  var sinon = require('sinon');
+  var TestHelpers = require('../../lib/helpers');
+  var User = require('models/user');
+  var View = require('views/choose_what_to_sync');
+  var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

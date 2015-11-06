@@ -4,13 +4,12 @@
 
 // Handle signed-out notifications.
 
-define([
-  'lib/session',
-  'lib/channels/notifier',
-  'views/base'
-],
-function (Session, Notifier, BaseView) {
+define(function (require, exports, module) {
   'use strict';
+
+  var BaseView = require('views/base');
+  var Notifier = require('lib/channels/notifier');
+  var Session = require('lib/session');
 
   var Mixin = {
     notifications: {
@@ -40,5 +39,5 @@ function (Session, Notifier, BaseView) {
   Mixin.notifications[Notifier.SIGNED_OUT] =
               'clearSessionAndNavigateToSignIn';
 
-  return Mixin;
+  module.exports = Mixin;
 });

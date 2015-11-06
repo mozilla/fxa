@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'underscore',
-  'lib/errors'
-], function (_, Errors) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Errors = require('lib/errors');
 
   var t = function (msg) {
     return msg;
@@ -45,7 +45,7 @@ define([
   };
   /*eslint-enable sorting/sort-object-props*/
 
-  return _.extend({}, Errors, {
+  module.exports = _.extend({}, Errors, {
     ERRORS: ERRORS,
     NAMESPACE: 'profile'
   });

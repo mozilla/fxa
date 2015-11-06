@@ -2,15 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'lib/auth-errors',
-  'stache!templates/partial/coppa-age-input',
-  'views/form',
-  'views/mixins/floating-placeholder-mixin',
-  'lib/key-codes'
-], function (Cocktail, AuthErrors, Template, FormView, FloatingPlaceholderMixin, KeyCodes) {
+define(function (require, exports, module) {
   'use strict';
+
+  var AuthErrors = require('lib/auth-errors');
+  var Cocktail = require('cocktail');
+  var FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
+  var FormView = require('views/form');
+  var KeyCodes = require('lib/key-codes');
+  var Template = require('stache!templates/partial/coppa-age-input');
 
   var CUTOFF_AGE = 13;
   var View = FormView.extend({
@@ -102,5 +102,5 @@ define([
     FloatingPlaceholderMixin
   );
 
-  return View;
+  module.exports = View;
 });

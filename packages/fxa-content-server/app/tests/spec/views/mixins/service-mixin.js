@@ -2,21 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'underscore',
-  '../../../mocks/window',
-  'views/mixins/service-mixin',
-  'views/base',
-  'lib/session',
-  'stache!templates/test_template',
-  'models/reliers/oauth',
-  'models/auth_brokers/base'
-], function (Chai, sinon, _, WindowMock,
-        ServiceMixin, BaseView, Session,
-        TestTemplate, OAuthRelier, NullBroker) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var BaseView = require('views/base');
+  var Chai = require('chai');
+  var NullBroker = require('models/auth_brokers/base');
+  var OAuthRelier = require('models/reliers/oauth');
+  var ServiceMixin = require('views/mixins/service-mixin');
+  var Session = require('lib/session');
+  var sinon = require('sinon');
+  var TestTemplate = require('stache!templates/test_template');
+  var WindowMock = require('../../../mocks/window');
 
   var assert = Chai.assert;
 

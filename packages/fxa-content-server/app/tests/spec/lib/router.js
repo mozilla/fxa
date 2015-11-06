@@ -2,30 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'backbone',
-  'lib/router',
-  'views/base',
-  'views/settings/display_name',
-  'views/settings',
-  'lib/able',
-  'lib/constants',
-  'lib/environment',
-  'lib/metrics',
-  'lib/channels/notifier',
-  'models/reliers/relier',
-  'models/user',
-  'models/form-prefill',
-  'models/auth_brokers/base',
-  '../../mocks/window',
-  '../../lib/helpers'
-],
-function (chai, sinon, Backbone, Router, BaseView, DisplayNameView,
-  SettingsView, Able, Constants, Environment, Metrics, Notifier,
-  Relier, User, FormPrefill, NullBroker, WindowMock, TestHelpers) {
+define(function (require, exports, module) {
   'use strict';
+
+  var Able = require('lib/able');
+  var Backbone = require('backbone');
+  var BaseView = require('views/base');
+  var chai = require('chai');
+  var Constants = require('lib/constants');
+  var DisplayNameView = require('views/settings/display_name');
+  var Environment = require('lib/environment');
+  var FormPrefill = require('models/form-prefill');
+  var Metrics = require('lib/metrics');
+  var Notifier = require('lib/channels/notifier');
+  var NullBroker = require('models/auth_brokers/base');
+  var Relier = require('models/reliers/relier');
+  var Router = require('lib/router');
+  var SettingsView = require('views/settings');
+  var sinon = require('sinon');
+  var TestHelpers = require('../../lib/helpers');
+  var User = require('models/user');
+  var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

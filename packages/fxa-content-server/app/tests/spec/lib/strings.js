@@ -4,12 +4,11 @@
 
 // test the interpolated library
 
-define([
-  'chai',
-  'lib/strings'
-],
-function (chai, Strings) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var Strings = require('lib/strings');
 
   var assert = chai.assert;
 

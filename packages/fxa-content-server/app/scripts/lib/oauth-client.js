@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'lib/xhr',
-  'lib/oauth-errors'
-],
-function (xhr, OAuthErrors) {
+define(function (require, exports, module) {
   'use strict';
+
+  var OAuthErrors = require('lib/oauth-errors');
+  var xhr = require('lib/xhr');
 
   var GET_CLIENT = '/v1/client/';
   var GET_CODE = '/v1/authorization';
@@ -55,6 +54,6 @@ function (xhr, OAuthErrors) {
     }
   };
 
-  return OAuthClient;
+  module.exports = OAuthClient;
 });
 

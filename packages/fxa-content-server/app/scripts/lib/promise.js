@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // monkey patch p to be able to convert jQuery XHR promises to our promises.
-define([
-  'p-promise'
-], function (p) {
+define(function (require, exports, module) {
   'use strict';
+
+  var p = require('p-promise');
 
   // for more background, read
   // https://github.com/kriskowal/q/wiki/Coming-from-jQuery
@@ -23,7 +23,7 @@ define([
     return defer.promise;
   };
 
-  return p;
+  module.exports = p;
 });
 
 

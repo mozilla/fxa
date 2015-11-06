@@ -8,12 +8,12 @@
  * loaded on demand, independently of account information.
  */
 
-define([
-  'underscore',
-  'backbone',
-  'lib/promise'
-], function (_, Backbone, p) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Backbone = require('backbone');
+  var p = require('lib/promise');
 
   var SCOPES = 'basket:write profile:email';
 
@@ -130,5 +130,5 @@ define([
     }
   });
 
-  return MarketingEmailPrefs;
+  module.exports = MarketingEmailPrefs;
 });

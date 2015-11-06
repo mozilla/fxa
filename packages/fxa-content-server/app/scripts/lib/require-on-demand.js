@@ -14,12 +14,12 @@
  *   });
  */
 
-define([
-  'lib/errors',
-  'lib/promise',
-  'underscore'
-], function (Errors, p, _) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Errors = require('lib/errors');
+  var p = require('lib/promise');
 
   var t = function (msg) {
     return msg;
@@ -79,6 +79,6 @@ define([
 
   requireOnDemand.Errors = RODErrors;
 
-  return requireOnDemand;
+  module.exports = requireOnDemand;
 });
 

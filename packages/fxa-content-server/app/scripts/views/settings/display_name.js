@@ -2,18 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'views/base',
-  'views/form',
-  'stache!templates/settings/display_name',
-  'views/mixins/settings-panel-mixin',
-  'views/mixins/avatar-mixin',
-  'views/mixins/floating-placeholder-mixin'
-],
-function (Cocktail, BaseView, FormView, Template,
-  SettingsPanelMixin, AvatarMixin, FloatingPlaceholderMixin) {
+define(function (require, exports, module) {
   'use strict';
+
+  var AvatarMixin = require('views/mixins/avatar-mixin');
+  var BaseView = require('views/base');
+  var Cocktail = require('cocktail');
+  var FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
+  var FormView = require('views/form');
+  var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
+  var Template = require('stache!templates/settings/display_name');
 
   var t = BaseView.t;
 
@@ -64,5 +62,5 @@ function (Cocktail, BaseView, FormView, Template,
     FloatingPlaceholderMixin
   );
 
-  return View;
+  module.exports = View;
 });

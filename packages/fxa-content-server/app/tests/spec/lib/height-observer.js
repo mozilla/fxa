@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  '../../mocks/window',
-  'lib/height-observer'
-],
-function (chai, sinon, WindowMock, HeightObserver) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var HeightObserver = require('lib/height-observer');
+  var sinon = require('sinon');
+  var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

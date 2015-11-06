@@ -2,36 +2,30 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exceptsPaths: modal */
-define([
-  'cocktail',
-  'jquery',
-  'modal',
-  'stache!templates/settings',
-  'views/base',
-  'views/decorators/allow_only_one_submit',
-  'views/mixins/avatar-mixin',
-  'views/mixins/loading-mixin',
-  'views/mixins/settings-mixin',
-  'views/mixins/signed-out-notification-mixin',
-  'views/settings/avatar',
-  'views/settings/avatar_change',
-  'views/settings/avatar_crop',
-  'views/settings/avatar_camera',
-  'views/settings/avatar_gravatar',
-  'views/settings/gravatar_permissions',
-  'views/settings/communication_preferences',
-  'views/settings/change_password',
-  'views/settings/delete_account',
-  'views/settings/display_name',
-  'views/sub_panels'
-],
-function (Cocktail, $, modal, Template, BaseView, allowOnlyOneSubmit, AvatarMixin,
-  LoadingMixin, SettingsMixin, SignedOutNotificationMixin, AvatarView, AvatarChangeView,
-  AvatarCropView, AvatarCameraView, GravatarView, GravatarPermissionsView,
-  CommunicationPreferencesView, ChangePasswordView, DeleteAccountView,
-  DisplayNameView, SubPanels) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
+  var AvatarCameraView = require('views/settings/avatar_camera');
+  var AvatarChangeView = require('views/settings/avatar_change');
+  var AvatarCropView = require('views/settings/avatar_crop');
+  var AvatarMixin = require('views/mixins/avatar-mixin');
+  var AvatarView = require('views/settings/avatar');
+  var BaseView = require('views/base');
+  var ChangePasswordView = require('views/settings/change_password');
+  var Cocktail = require('cocktail');
+  var CommunicationPreferencesView = require('views/settings/communication_preferences');
+  var DeleteAccountView = require('views/settings/delete_account');
+  var DisplayNameView = require('views/settings/display_name');
+  var GravatarPermissionsView = require('views/settings/gravatar_permissions');
+  var GravatarView = require('views/settings/avatar_gravatar');
+  var LoadingMixin = require('views/mixins/loading-mixin');
+  var modal = require('modal'); //eslint-disable-line no-unused-vars
+  var SettingsMixin = require('views/mixins/settings-mixin');
+  var SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
+  var SubPanels = require('views/sub_panels');
+  var Template = require('stache!templates/settings');
 
   var PANEL_VIEWS = [
     AvatarView,
@@ -239,5 +233,5 @@ function (Cocktail, $, modal, Template, BaseView, allowOnlyOneSubmit, AvatarMixi
     SignedOutNotificationMixin
   );
 
-  return View;
+  module.exports = View;
 });

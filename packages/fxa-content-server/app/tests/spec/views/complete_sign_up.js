@@ -2,28 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'lib/promise',
-  'views/complete_sign_up',
-  'lib/auth-errors',
-  'lib/metrics',
-  'lib/constants',
-  'lib/fxa-client',
-  'lib/marketing-email-errors',
-  'models/reliers/relier',
-  'models/auth_brokers/base',
-  'models/user',
-  'lib/channels/notifier',
-  '../../mocks/router',
-  '../../mocks/window',
-  '../../lib/helpers'
-],
-function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
-      MarketingEmailErrors, Relier, Broker, User, Notifier, RouterMock,
-      WindowMock, TestHelpers) {
+define(function (require, exports, module) {
   'use strict';
+
+  var AuthErrors = require('lib/auth-errors');
+  var Broker = require('models/auth_brokers/base');
+  var chai = require('chai');
+  var Constants = require('lib/constants');
+  var FxaClient = require('lib/fxa-client');
+  var MarketingEmailErrors = require('lib/marketing-email-errors');
+  var Metrics = require('lib/metrics');
+  var Notifier = require('lib/channels/notifier');
+  var p = require('lib/promise');
+  var Relier = require('models/reliers/relier');
+  var RouterMock = require('../../mocks/router');
+  var sinon = require('sinon');
+  var TestHelpers = require('../../lib/helpers');
+  var User = require('models/user');
+  var View = require('views/complete_sign_up');
+  var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

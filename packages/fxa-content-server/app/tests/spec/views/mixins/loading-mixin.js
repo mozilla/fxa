@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'jquery',
-  'cocktail',
-  'chai',
-  'views/mixins/loading-mixin',
-  'views/base',
-  'stache!templates/test_template',
-  '../../../mocks/window'
-], function ($, Cocktail, Chai, LoadingMixin, BaseView, Template, WindowMock) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var BaseView = require('views/base');
+  var Chai = require('chai');
+  var Cocktail = require('cocktail');
+  var LoadingMixin = require('views/mixins/loading-mixin');
+  var Template = require('stache!templates/test_template');
+  var WindowMock = require('../../../mocks/window');
 
   var assert = Chai.assert;
 

@@ -2,15 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'lib/auth-errors',
-  'lib/channels/iframe',
-  '../../../mocks/window'
-],
-function (chai, sinon, AuthErrors, IFrameChannel, WindowMock) {
+define(function (require, exports, module) {
   'use strict';
+
+  var AuthErrors = require('lib/auth-errors');
+  var chai = require('chai');
+  var IFrameChannel = require('lib/channels/iframe');
+  var sinon = require('sinon');
+  var WindowMock = require('../../../mocks/window');
 
   var channel;
   var windowMock;

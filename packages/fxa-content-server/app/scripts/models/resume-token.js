@@ -7,11 +7,11 @@
  * search parameters post-verification in the OAuth flow
  */
 
-define([
-  'backbone',
-  'underscore'
-], function (Backbone, _) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Backbone = require('backbone');
 
   var ResumeToken = Backbone.Model.extend({
     defaults: {
@@ -68,6 +68,6 @@ define([
     stringify: stringify
   });
 
-  return ResumeToken;
+  module.exports = ResumeToken;
 });
 

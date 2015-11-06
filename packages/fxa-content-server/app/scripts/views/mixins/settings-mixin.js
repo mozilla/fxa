@@ -5,12 +5,12 @@
 // View mixin the checks whether the uid specified by the relier is
 // is cached and valid.
 
-define([
-  'lib/session'
-], function (Session) {
+define(function (require, exports, module) {
   'use strict';
 
-  return {
+  var Session = require('lib/session');
+
+  module.exports = {
     // user must be authenticated and verified to see Settings pages
     mustVerify: true,
 
