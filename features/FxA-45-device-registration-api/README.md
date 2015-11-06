@@ -2,6 +2,7 @@
 
 https://mozilla.aha.io/features/FXA-45
 
+* [Overview](#overview)
 * [Stories](#stories)
   * [As an API consumer](#as-an-api-consumer)
   * [As a user](#as-a-user)
@@ -15,6 +16,26 @@ https://mozilla.aha.io/features/FXA-45
 * [Details](#details)
   * [How are unrecognised devices handled?](#how-are-unrecognised-devices-handled)
   * [What is a disconnected device?](#what-is-a-disconnected-device)
+
+## Overview
+
+The current Firefox Sync system
+has a notion of "all the devices connected to your account",
+but it is maintained in a special encrypted
+["clients" collection](https://docs.services.mozilla.com/sync/objectformats.html#clients)
+within the sync datastore.
+
+To make this system more robust
+and more useful to services other than sync,
+we will lift the notion of "connected devices"
+out of the user's sync data
+and into their core account data.
+
+Each connected device will get a unique device id.
+It can register a descriptive name
+and a webpush endpoint
+that we can use to build more real-time device experiences
+in the future.
 
 ## Stories
 
