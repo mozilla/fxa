@@ -238,7 +238,7 @@ https://api-accounts.dev.lcip.org/v1/account/device \
 
 ### POST /v1/account/device
 
-Authenticated with session token or OAuth.
+Authenticated with session token.
 
 #### Requests
 
@@ -291,7 +291,7 @@ https://api-accounts.dev.lcip.org/v1/account/device \
 
 ### GET /v1/account/devices
 
-Authenticated with session token or OAuth.
+Authenticated with session token.
 
 #### Request
 
@@ -332,7 +332,7 @@ it means the device is disconnected.
 
 ### POST /v1/account/device/destroy
 
-Authenticated with session token or OAuth.
+Authenticated with session token.
 
 If the session is associated with a different device id,
 a 400 error will be returned.
