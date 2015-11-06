@@ -90,6 +90,9 @@ fxaProfile.setPreference('identity.fxaccounts.remote.oauth.uri', fxaEnv.oauth);
 fxaProfile.setPreference('identity.fxaccounts.remote.profile.uri', fxaEnv.profile);
 
 fxaProfile.setPreference('identity.fxaccounts.settings.uri', fxaEnv.content + 'settings');
+
+// for some reason there are 2 settings for the token server
+fxaProfile.setPreference('identity.sync.tokenserver.uri', fxaEnv.token);
 fxaProfile.setPreference('services.sync.tokenServerURI', fxaEnv.token);
 
 // disable auto update
