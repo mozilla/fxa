@@ -12,12 +12,15 @@ define([
 ], function (Backbone, _) {
   'use strict';
 
+  // Events that have the 'internal:' namespace should only be
+  // handled by the content server. Other events may be handled
+  // both externally and internally to the content server.
   var EVENTS = {
     COMPLETE_RESET_PASSWORD_TAB_OPEN: 'fxaccounts:complete_reset_password_tab_open',
     DELETE: 'fxaccounts:delete',
     PROFILE_CHANGE: 'profile:change',
-    SIGNED_IN: 'fxaccounts:login',
-    SIGNED_OUT: 'fxaccounts:logout'
+    SIGNED_IN: 'internal:signed_in',
+    SIGNED_OUT: 'internal:signed_out'
   };
 
   var Notifer = Backbone.Model.extend({

@@ -120,7 +120,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors,
           assert.equal(notifier.triggerRemote.callCount, 1);
           var args = notifier.triggerRemote.args[0];
           assert.lengthOf(args, 1);
-          assert.equal(args[0], 'fxaccounts:logout');
+          assert.equal(args[0], notifier.EVENTS.SIGNED_OUT);
         });
     });
 
@@ -418,7 +418,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, AuthErrors,
           assert.equal(notifier.triggerRemote.callCount, 1);
           var args = notifier.triggerRemote.args[0];
           assert.lengthOf(args, 2);
-          assert.equal(args[0], 'fxaccounts:login');
+          assert.equal(args[0], notifier.EVENTS.SIGNED_IN);
           assert.deepEqual(args[1], account.toJSON());
         });
     });
