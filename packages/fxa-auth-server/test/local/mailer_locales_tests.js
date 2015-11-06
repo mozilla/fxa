@@ -61,9 +61,7 @@ require('../../lib/mailer')(config, log)
             [ 'es-AR,es;q=0.8,en-US;q=0.5,en;q=0.3', 'es-AR' ],
             [ 'es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3', 'es'    ],
             [ 'sv-SE,sv;q=0.8,en-US;q=0.5,en;q=0.3', 'sv-SE' ],
-            [ 'zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3', 'zh-CN' ],
-            // Yes, this line is the official accept-language in the nb-NO build
-            [ 'nb-NO,nb;q=0.9,no-NO;q=0.8,no;q=0.6,nn-NO;q=0.5,nn;q=0.4,en-US;q=0.3,en;q=0.1', 'nb-NO' ],
+            [ 'zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3', 'zh-CN' ]
           ]
 
           locales.forEach(function(lang) {
