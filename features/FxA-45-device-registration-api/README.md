@@ -16,6 +16,7 @@ https://mozilla.aha.io/features/FXA-45
 * [Details](#details)
   * [How are unrecognised devices handled?](#how-are-unrecognised-devices-handled)
   * [What is a disconnected device?](#what-is-a-disconnected-device)
+  * [Coordinating with legacy devices](#coordinating-with-legacy-devices)
 
 ## Overview
 
@@ -387,10 +388,39 @@ specifies an unknown device id,
 a new device record will be created in the database
 and the newly-generated device id will be returned in the response.
 
-## What is a disconnected device?
+### What is a disconnected device?
 
 A disconnected device is one that does not have a session token.
 This situation can arise when a user's password is reset,
 as the session tokens are deleted from the database
 but the devices are not.
 
+### Coordinating with legacy devices
+
+It's important for the user experience
+that the list of devices in Firefox Accounts
+is consistent with the list of devices
+in views such as "about:sync-tabs",
+even if some of the user's devices
+have not been updated to support FxA device registration.
+
+To ensure this, devices should maintain their details
+in both the FxA devices API *and* the sync "clients" collection
+and ensure that they are consistently represented in both places.
+
+In practice this will mean:
+* Using their FxA device ID as their sync client GUID.
+* Updating their name in the sync client record
+  when it is changed on the FxA server.
+* Writing an additional field into their sync client record
+  to indicate that they are device-registration-compatible.
+
+Legacy devices will thus treat them
+like any other sync peer,
+while newer devices will be able to easily tell
+which of their peers are registered
+and identify them by ID in both systems.
+
+The set of registered devices in FxA
+will be a consistent *subset*
+of the client information recorded in sync.
