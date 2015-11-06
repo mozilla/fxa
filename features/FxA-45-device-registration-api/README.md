@@ -4,8 +4,8 @@ https://mozilla.aha.io/features/FXA-45
 
 * [Overview](#overview)
 * [Stories](#stories)
-  * [As an API consumer](#as-an-api-consumer)
   * [As a user](#as-a-user)
+  * [As an API consumer](#as-an-api-consumer)
 * [Data](#data)
 * [API](#api)
   * [POST /v1/account/create](#post-v1accountcreate)
@@ -161,6 +161,7 @@ for each registered device:
 
   // The public key for encrypting messages to the push endpoint
   "pushPublicKey": "468601214f60f4828b6cd5d51d9d99d212e7c73657978955f0f5a5b7e2fa1370"
+}
 ```
 
 ## API
