@@ -1,14 +1,14 @@
-<h3>OAuth Client: <strong>{{name}}</strong></h3>
+<h3>OAuth Client: <strong>{{model.name}}</strong></h3>
 
 <table class="table">
   <tbody>
     <tr>
       <th>Client ID:</th>
-      <td>{{id}}</td>
+      <td>{{model.id}}</td>
     </tr>
     <tr>
       <th>Redirect URI</th>
-      <td>{{redirect_uri}}</td>
+      <td>{{model.redirect_uri}}</td>
     </tr>
     <tr>
       <td colspan="2">
@@ -29,7 +29,7 @@
   <div class="medium-6 columns">
     <ul class="inline-list right">
       <li>
-        <button class="small button " {{action 'update' id}}>Update Client</button>
+        <button class="small button " {{action 'update' model.id}}>Update Client</button>
       </li>
     </ul>
   </div>

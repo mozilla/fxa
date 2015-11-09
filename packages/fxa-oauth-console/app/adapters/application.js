@@ -6,6 +6,15 @@ import Ember from 'ember';
 import DS from 'ember-data';
 import config from '../config/environment';
 
+function fixUpRedirectUri (uri) {
+  if (! uri) {
+    // add some defaults, oauth server requires these fields
+    uri = 'http://';
+  }
+
+  return uri.trim();
+}
+
 export default DS.RESTAdapter.extend({
   /**
    * API Namespace
@@ -56,12 +65,9 @@ export default DS.RESTAdapter.extend({
 
     delete data.secret;
 
-    // add some defaults, oauth server requires these fields
-    if (! data.redirect_uri) {
-      data.redirect_uri = 'http://';
-    }
+    data.redirect_uri = fixUpRedirectUri(data.redirect_uri);
 
-    // post process the resuld of 'find'. Need to add the Model type 'client' into the response
+    // post process the result of 'find'. Need to add the Model type 'client' into the response
     return this.ajax(this.buildURL(type.typeKey, null, record), "POST", { data: data }).then(function (resp) {
       return { client: resp };
     });
@@ -82,6 +88,8 @@ export default DS.RESTAdapter.extend({
 
     delete data.secret;
     delete data.trusted;
+
+    data.redirect_uri = fixUpRedirectUri(data.redirect_uri);
 
     // set POST instead of PUT
     return this.ajax(this.buildURL(type.typeKey, id, record), "POST", { data: data }).then(function () {
