@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const config = require('./config').root();
+const config = require('./config').getProperties();
 const db = require('./db');
 const env = require('./env');
 const logger = require('./logging')('events');

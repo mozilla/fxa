@@ -5,7 +5,7 @@
 const Hapi = require('hapi');
 
 const AppError = require('../error');
-const config = require('../config').root();
+const config = require('../config').getProperties();
 const env = require('../env');
 const logger = require('../logging')('server');
 const hapiLogger = require('../logging')('server.hapi');
