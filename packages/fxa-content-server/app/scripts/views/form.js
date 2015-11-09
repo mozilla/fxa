@@ -17,21 +17,19 @@
  * See documentation for an explanation of each.
  */
 
-define([
-  'underscore',
-  'jquery',
-  'lib/promise',
-  'lib/validate',
-  'lib/auth-errors',
-  'views/base',
-  'views/tooltip',
-  'views/decorators/progress_indicator',
-  'views/decorators/notify_delayed_request',
-  'views/decorators/allow_only_one_submit'
-],
-function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
-    showButtonProgressIndicator, notifyDelayedRequest, allowOnlyOneSubmit) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var _ = require('underscore');
+  var allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
+  var AuthErrors = require('lib/auth-errors');
+  var BaseView = require('views/base');
+  var notifyDelayedRequest = require('views/decorators/notify_delayed_request');
+  var p = require('lib/promise');
+  var showButtonProgressIndicator = require('views/decorators/progress_indicator');
+  var Tooltip = require('views/tooltip');
+  var Validate = require('lib/validate');
 
   /**
    * Decorator that checks whether the form has changed, and if so, call
@@ -567,5 +565,5 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
     }
   });
 
-  return FormView;
+  module.exports = FormView;
 });

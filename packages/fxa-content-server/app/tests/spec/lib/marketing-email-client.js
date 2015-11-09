@@ -2,16 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'lib/marketing-email-client',
-  'lib/marketing-email-errors',
-  'lib/promise',
-  'lib/xhr'
-],
-function (chai, sinon, MarketingEmailClient, MarketingEmailErrors, p, xhr) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var MarketingEmailClient = require('lib/marketing-email-client');
+  var MarketingEmailErrors = require('lib/marketing-email-errors');
+  var p = require('lib/promise');
+  var sinon = require('sinon');
+  var xhr = require('lib/xhr');
 
   var assert = chai.assert;
 

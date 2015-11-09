@@ -2,31 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'lib/auth-errors',
-  'lib/promise',
-  'lib/session',
-  'stache!templates/sign_in',
-  'views/base',
-  'views/form',
-  'views/decorators/allow_only_one_submit',
-  'views/decorators/progress_indicator',
-  'views/mixins/account-locked-mixin',
-  'views/mixins/avatar-mixin',
-  'views/mixins/migration-mixin',
-  'views/mixins/password-mixin',
-  'views/mixins/resume-token-mixin',
-  'views/mixins/service-mixin',
-  'views/mixins/signed-in-notification-mixin',
-  'views/mixins/signup-disabled-mixin'
-],
-function (Cocktail, AuthErrors, p, Session, SignInTemplate, BaseView, FormView,
-  allowOnlyOneSubmit, showProgressIndicator, AccountLockedMixin, AvatarMixin,
-  MigrationMixin, PasswordMixin, ResumeTokenMixin, ServiceMixin,
-  SignedInNotificationMixin, SignupDisabledMixin) {
-
+define(function (require, exports, module) {
   'use strict';
+
+  var AccountLockedMixin = require('views/mixins/account-locked-mixin');
+  var allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
+  var AuthErrors = require('lib/auth-errors');
+  var AvatarMixin = require('views/mixins/avatar-mixin');
+  var BaseView = require('views/base');
+  var Cocktail = require('cocktail');
+  var FormView = require('views/form');
+  var MigrationMixin = require('views/mixins/migration-mixin');
+  var p = require('lib/promise');
+  var PasswordMixin = require('views/mixins/password-mixin');
+  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  var ServiceMixin = require('views/mixins/service-mixin');
+  var Session = require('lib/session');
+  var showProgressIndicator = require('views/decorators/progress_indicator');
+  var SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
+  var SignInTemplate = require('stache!templates/sign_in');
+  var SignupDisabledMixin = require('views/mixins/signup-disabled-mixin');
 
   var t = BaseView.t;
 
@@ -311,5 +306,5 @@ function (Cocktail, AuthErrors, p, Session, SignInTemplate, BaseView, FormView,
     SignupDisabledMixin
   );
 
-  return View;
+  module.exports = View;
 });

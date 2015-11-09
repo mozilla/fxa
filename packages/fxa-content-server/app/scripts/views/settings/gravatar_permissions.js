@@ -2,17 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'views/form',
-  'stache!templates/settings/gravatar_permissions',
-  'lib/promise',
-  'views/mixins/modal-settings-panel-mixin',
-  'views/mixins/service-mixin'
-],
-function (Cocktail, FormView, Template, p,
-  ModalSettingsPanelMixin, ServiceMixin) {
+define(function (require, exports, module) {
   'use strict';
+
+  var Cocktail = require('cocktail');
+  var FormView = require('views/form');
+  var ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
+  var p = require('lib/promise');
+  var ServiceMixin = require('views/mixins/service-mixin');
+  var Template = require('stache!templates/settings/gravatar_permissions');
 
   var View = FormView.extend({
     template: Template,
@@ -60,5 +58,5 @@ function (Cocktail, FormView, Template, p,
     ServiceMixin
   );
 
-  return View;
+  module.exports = View;
 });

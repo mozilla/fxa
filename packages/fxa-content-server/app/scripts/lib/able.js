@@ -11,8 +11,9 @@
  * will always return `undefined` and `report` will return an empty array.
  */
 
-define([], function () {
+define(function (require, exports, module) {
   'use strict';
+
 
   function AbleWrapper() {
     // nothing to do here.
@@ -34,5 +35,5 @@ define([], function () {
     }
   };
 
-  return AbleWrapper;
+  module.exports = AbleWrapper;
 });

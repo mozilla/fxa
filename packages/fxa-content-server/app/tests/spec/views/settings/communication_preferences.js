@@ -2,24 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'jquery',
-  'sinon',
-  'views/settings/communication_preferences',
-  'models/user',
-  'models/account',
-  'models/marketing-email-prefs',
-  'models/reliers/relier',
-  'lib/promise',
-  'lib/constants',
-  'lib/marketing-email-errors',
-  'lib/metrics',
-  '../../../lib/helpers'
-],
-function (chai, $, sinon, View, User, Account, MarketingEmailPrefs, Relier,
-  p, Constants, MarketingEmailErrors, Metrics, TestHelpers) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var Account = require('models/account');
+  var chai = require('chai');
+  var Constants = require('lib/constants');
+  var MarketingEmailErrors = require('lib/marketing-email-errors');
+  var MarketingEmailPrefs = require('models/marketing-email-prefs');
+  var Metrics = require('lib/metrics');
+  var p = require('lib/promise');
+  var Relier = require('models/reliers/relier');
+  var sinon = require('sinon');
+  var TestHelpers = require('../../../lib/helpers');
+  var User = require('models/user');
+  var View = require('views/settings/communication_preferences');
 
   var assert = chai.assert;
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;

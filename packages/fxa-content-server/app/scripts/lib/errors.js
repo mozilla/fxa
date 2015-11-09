@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'underscore',
-  'lib/strings'
-], function (_, Strings) {
+define(function (require, exports, module) {
   'use strict';
 
-  return {
+  var _ = require('underscore');
+  var Strings = require('lib/strings');
+
+  module.exports = {
     /**
      * Find an error in this.ERRORS. Searches by string, number,
      * or if searchFor contains errno, the errno.

@@ -2,20 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  '../../mocks/window',
-  'lib/session',
-  'lib/able',
-  'lib/metrics',
-  'models/user',
-  'lib/channels/notifier',
-  'lib/experiment'
-],
-function (chai, sinon, WindowMock, Session, Able,
-          Metrics, User, Notifier, ExperimentInterface) {
+define(function (require, exports, module) {
   'use strict';
+
+  var Able = require('lib/able');
+  var chai = require('chai');
+  var ExperimentInterface = require('lib/experiment');
+  var Metrics = require('lib/metrics');
+  var Notifier = require('lib/channels/notifier');
+  var Session = require('lib/session');
+  var sinon = require('sinon');
+  var User = require('models/user');
+  var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
   var expInt;

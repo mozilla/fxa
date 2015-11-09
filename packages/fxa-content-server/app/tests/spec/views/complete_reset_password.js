@@ -2,25 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'lib/promise',
-  'lib/auth-errors',
-  'lib/metrics',
-  'lib/fxa-client',
-  'views/complete_reset_password',
-  'lib/channels/notifier',
-  'models/reliers/relier',
-  'models/auth_brokers/base',
-  'models/user',
-  '../../mocks/router',
-  '../../mocks/window',
-  '../../lib/helpers'
-],
-function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Notifier,
-  Relier, Broker, User, RouterMock, WindowMock, TestHelpers) {
+define(function (require, exports, module) {
   'use strict';
+
+  var AuthErrors = require('lib/auth-errors');
+  var Broker = require('models/auth_brokers/base');
+  var chai = require('chai');
+  var FxaClient = require('lib/fxa-client');
+  var Metrics = require('lib/metrics');
+  var Notifier = require('lib/channels/notifier');
+  var p = require('lib/promise');
+  var Relier = require('models/reliers/relier');
+  var RouterMock = require('../../mocks/router');
+  var sinon = require('sinon');
+  var TestHelpers = require('../../lib/helpers');
+  var User = require('models/user');
+  var View = require('views/complete_reset_password');
+  var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;

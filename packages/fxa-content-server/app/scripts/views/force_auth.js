@@ -2,22 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'lib/auth-errors',
-  'lib/promise',
-  'lib/session',
-  'stache!templates/force_auth',
-  'views/base',
-  'views/form',
-  'views/sign_in',
-  'views/mixins/password-mixin',
-  'views/mixins/resume-token-mixin',
-  'views/mixins/signed-in-notification-mixin'
-],
-function (Cocktail, AuthErrors, p, Session, Template, BaseView, FormView,
-  SignInView, PasswordMixin, ResumeTokenMixin, SignedInNotificationMixin) {
+define(function (require, exports, module) {
   'use strict';
+
+  var AuthErrors = require('lib/auth-errors');
+  var BaseView = require('views/base');
+  var Cocktail = require('cocktail');
+  var FormView = require('views/form');
+  var p = require('lib/promise');
+  var PasswordMixin = require('views/mixins/password-mixin');
+  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  var Session = require('lib/session');
+  var SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
+  var SignInView = require('views/sign_in');
+  var Template = require('stache!templates/force_auth');
 
   function getFatalErrorMessage(self, fatalError) {
     if (fatalError) {
@@ -154,5 +152,5 @@ function (Cocktail, AuthErrors, p, Session, Template, BaseView, FormView,
     SignedInNotificationMixin
   );
 
-  return View;
+  module.exports = View;
 });

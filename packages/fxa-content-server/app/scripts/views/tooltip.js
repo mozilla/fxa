@@ -4,13 +4,13 @@
 
 // It's a tooltip!
 
-define([
-  'underscore',
-  'jquery',
-  'views/base',
-  'lib/key-codes'
-], function (_, $, BaseView, KeyCodes) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var _ = require('underscore');
+  var BaseView = require('views/base');
+  var KeyCodes = require('lib/key-codes');
 
   var displayedTooltip;
   var PADDING_BELOW_TOOLTIP_PX = 2;
@@ -125,5 +125,5 @@ define([
     }
   });
 
-  return Tooltip;
+  module.exports = Tooltip;
 });

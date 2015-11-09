@@ -2,19 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'lib/promise',
-  'stache!templates/choose_what_to_sync',
-  'views/form',
-  'views/mixins/back-mixin',
-  'views/mixins/checkbox-mixin',
-  'views/mixins/signup-success-mixin',
-  'underscore'
-],
-function (Cocktail, p, Template, FormView, BackMixin, CheckboxMixin,
-  SignupSuccessMixin, _) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var BackMixin = require('views/mixins/back-mixin');
+  var CheckboxMixin = require('views/mixins/checkbox-mixin');
+  var Cocktail = require('cocktail');
+  var FormView = require('views/form');
+  var p = require('lib/promise');
+  var SignupSuccessMixin = require('views/mixins/signup-success-mixin');
+  var Template = require('stache!templates/choose_what_to_sync');
 
   var View = FormView.extend({
     template: Template,
@@ -122,5 +120,5 @@ function (Cocktail, p, Template, FormView, BackMixin, CheckboxMixin,
     SignupSuccessMixin
   );
 
-  return View;
+  module.exports = View;
 });

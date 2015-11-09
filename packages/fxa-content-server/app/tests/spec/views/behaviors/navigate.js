@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'views/behaviors/navigate'
-],
-function (chai, sinon, NavigateBehavior) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var NavigateBehavior = require('views/behaviors/navigate');
+  var sinon = require('sinon');
 
   var assert = chai.assert;
 

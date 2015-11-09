@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'jquery',
-  'views/progress_indicator'
-],
-function (chai, sinon, $, ProgressIndicator) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var chai = require('chai');
+  var ProgressIndicator = require('views/progress_indicator');
+  var sinon = require('sinon');
 
   var assert = chai.assert;
   var progressIndicator;

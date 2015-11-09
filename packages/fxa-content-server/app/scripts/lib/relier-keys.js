@@ -6,14 +6,14 @@
  * Derive relier-specific encryption keys from account master keys.
  */
 
-define([
-  'sjcl',
-  'p-promise',
-  'lib/hkdf',
-  'lib/base64url',
-  'lib/constants'
-], function (sjcl, p, hkdf, base64url, Constants) {
+define(function (require, exports, module) {
   'use strict';
+
+  var base64url = require('lib/base64url');
+  var Constants = require('lib/constants');
+  var hkdf = require('lib/hkdf');
+  var p = require('p-promise');
+  var sjcl = require('sjcl');
 
   var KEY_CLASS_TAG_A = 'kAr';
   var KEY_CLASS_TAG_B = 'kBr';
@@ -115,7 +115,7 @@ define([
       });
   }
 
-  return {
+  module.exports = {
     deriveRelierKeys: deriveRelierKeys,
     generateDerivedKey: generateDerivedKey
   };

@@ -4,12 +4,10 @@
 
 module.exports = function (grunt) {
   grunt.config('amdcheck', {
-    app: {
+    tests: {
       files: [{
         expand: true,
         src: [
-          'app/{scripts,tests}/**/*.js',
-          'app/!scripts/vendor/**',
           'tests/functional/**/*.js'
         ]
       }],

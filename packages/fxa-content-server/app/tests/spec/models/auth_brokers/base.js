@@ -2,18 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'models/account',
-  'models/reliers/relier',
-  'models/auth_brokers/base',
-  'models/verification/same-browser',
-  '../../../mocks/window',
-  'sinon'
-],
-function (chai, Account, Relier, BaseAuthenticationBroker,
-  SameBrowserVerificationModel, WindowMock, sinon) {
+define(function (require, exports, module) {
   'use strict';
+
+  var Account = require('models/account');
+  var BaseAuthenticationBroker = require('models/auth_brokers/base');
+  var chai = require('chai');
+  var Relier = require('models/reliers/relier');
+  var SameBrowserVerificationModel = require('models/verification/same-browser');
+  var sinon = require('sinon');
+  var WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

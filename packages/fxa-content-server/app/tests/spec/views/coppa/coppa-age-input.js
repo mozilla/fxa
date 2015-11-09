@@ -2,18 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'jquery',
-  'lib/auth-errors',
-  'lib/metrics',
-  'models/form-prefill',
-  'sinon',
-  'views/coppa/coppa-age-input',
-  '../../../lib/helpers'
-],
-function (chai, $, AuthErrors, Metrics, FormPrefill, sinon, View, TestHelpers) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var AuthErrors = require('lib/auth-errors');
+  var chai = require('chai');
+  var FormPrefill = require('models/form-prefill');
+  var Metrics = require('lib/metrics');
+  var sinon = require('sinon');
+  var TestHelpers = require('../../../lib/helpers');
+  var View = require('views/coppa/coppa-age-input');
 
   var assert = chai.assert;
 

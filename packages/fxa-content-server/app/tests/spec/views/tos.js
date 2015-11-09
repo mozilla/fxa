@@ -2,15 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'views/tos',
-  'lib/promise',
-  '../../mocks/window'
-],
-function (chai, sinon, View, p, WindowMock) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var p = require('lib/promise');
+  var sinon = require('sinon');
+  var View = require('views/tos');
+  var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

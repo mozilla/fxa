@@ -2,52 +2,45 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'raven',
-  'lib/app-start',
-  'lib/session',
-  'lib/channels/null',
-  'lib/constants',
-  'lib/promise',
-  'lib/url',
-  'lib/oauth-errors',
-  'lib/auth-errors',
-  'lib/storage',
-  'models/auth_brokers/base',
-  'models/auth_brokers/first-run',
-  'models/auth_brokers/fx-desktop-v1',
-  'models/auth_brokers/fx-desktop-v2',
-  'models/auth_brokers/fx-fennec-v1',
-  'models/auth_brokers/fx-ios-v1',
-  'models/auth_brokers/fx-ios-v2',
-  'models/auth_brokers/iframe',
-  'models/auth_brokers/redirect',
-  'models/auth_brokers/web-channel',
-  'lib/channels/notifier',
-  'models/refresh-observer',
-  'models/reliers/base',
-  'models/reliers/sync',
-  'models/reliers/oauth',
-  'models/reliers/relier',
-  'models/verification/same-browser',
-  'models/user',
-  'lib/metrics',
-  'lib/storage-metrics',
-  '../../mocks/window',
-  '../../mocks/router',
-  '../../mocks/history',
-  '../../lib/helpers'
-],
-function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
-  Url, OAuthErrors, AuthErrors, Storage, BaseBroker, FirstrunBroker,
-  FxDesktopV1Broker, FxDesktopV2Broker, FxFennecV1Broker, FxiOSV1Broker,
-  FxiOSV2Broker, IframeBroker, RedirectBroker, WebChannelBroker, Notifier,
-  RefreshObserver, BaseRelier, SyncRelier, OAuthRelier, Relier,
-  SameBrowserVerificationModel, User, Metrics, StorageMetrics, WindowMock,
-  RouterMock, HistoryMock, TestHelpers) {
+define(function (require, exports, module) {
   'use strict';
+
+  var AppStart = require('lib/app-start');
+  var AuthErrors = require('lib/auth-errors');
+  var BaseBroker = require('models/auth_brokers/base');
+  var BaseRelier = require('models/reliers/base');
+  var chai = require('chai');
+  var Constants = require('lib/constants');
+  var FirstrunBroker = require('models/auth_brokers/first-run');
+  var FxDesktopV1Broker = require('models/auth_brokers/fx-desktop-v1');
+  var FxDesktopV2Broker = require('models/auth_brokers/fx-desktop-v2');
+  var FxFennecV1Broker = require('models/auth_brokers/fx-fennec-v1');
+  var FxiOSV1Broker = require('models/auth_brokers/fx-ios-v1');
+  var FxiOSV2Broker = require('models/auth_brokers/fx-ios-v2');
+  var HistoryMock = require('../../mocks/history');
+  var IframeBroker = require('models/auth_brokers/iframe');
+  var Metrics = require('lib/metrics');
+  var Notifier = require('lib/channels/notifier');
+  var NullChannel = require('lib/channels/null');
+  var OAuthErrors = require('lib/oauth-errors');
+  var OAuthRelier = require('models/reliers/oauth');
+  var p = require('lib/promise');
+  var Raven = require('raven');
+  var RedirectBroker = require('models/auth_brokers/redirect');
+  var RefreshObserver = require('models/refresh-observer');
+  var Relier = require('models/reliers/relier');
+  var RouterMock = require('../../mocks/router');
+  var SameBrowserVerificationModel = require('models/verification/same-browser');
+  var Session = require('lib/session');
+  var sinon = require('sinon');
+  var Storage = require('lib/storage');
+  var StorageMetrics = require('lib/storage-metrics');
+  var SyncRelier = require('models/reliers/sync');
+  var TestHelpers = require('../../lib/helpers');
+  var Url = require('lib/url');
+  var User = require('models/user');
+  var WebChannelBroker = require('models/auth_brokers/web-channel');
+  var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
   var FIRSTRUN_ORIGIN = 'https://firstrun.firefox.com';

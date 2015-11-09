@@ -2,22 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'models/reliers/oauth',
-  'models/user',
-  'lib/session',
-  'lib/oauth-client',
-  'lib/oauth-errors',
-  'lib/promise',
-  'lib/relier-keys',
-  'lib/url',
-  '../../../mocks/window',
-  '../../../lib/helpers'
-], function (chai, sinon, OAuthRelier, User, Session, OAuthClient, OAuthErrors,
-      p, RelierKeys, Url, WindowMock, TestHelpers) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var OAuthClient = require('lib/oauth-client');
+  var OAuthErrors = require('lib/oauth-errors');
+  var OAuthRelier = require('models/reliers/oauth');
+  var p = require('lib/promise');
+  var RelierKeys = require('lib/relier-keys');
+  var Session = require('lib/session');
+  var sinon = require('sinon');
+  var TestHelpers = require('../../../lib/helpers');
+  var Url = require('lib/url');
+  var User = require('models/user');
+  var WindowMock = require('../../../mocks/window');
 
   /*eslint-disable camelcase */
   var assert = chai.assert;

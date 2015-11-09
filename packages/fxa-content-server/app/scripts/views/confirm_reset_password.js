@@ -2,22 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'views/confirm',
-  'views/base',
-  'stache!templates/confirm_reset_password',
-  'lib/promise',
-  'lib/session',
-  'lib/auth-errors',
-  'lib/channels/notifier',
-  'views/mixins/resend-mixin',
-  'views/mixins/resume-token-mixin',
-  'views/mixins/service-mixin'
-],
-function (Cocktail, ConfirmView, BaseView, Template, p, Session, AuthErrors,
-  Notifier, ResendMixin, ResumeTokenMixin, ServiceMixin) {
+define(function (require, exports, module) {
   'use strict';
+
+  var AuthErrors = require('lib/auth-errors');
+  var BaseView = require('views/base');
+  var Cocktail = require('cocktail');
+  var ConfirmView = require('views/confirm');
+  var Notifier = require('lib/channels/notifier');
+  var p = require('lib/promise');
+  var ResendMixin = require('views/mixins/resend-mixin');
+  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  var ServiceMixin = require('views/mixins/service-mixin');
+  var Session = require('lib/session');
+  var Template = require('stache!templates/confirm_reset_password');
 
   var t = BaseView.t;
 
@@ -281,5 +279,5 @@ function (Cocktail, ConfirmView, BaseView, Template, p, Session, AuthErrors,
     ServiceMixin
   );
 
-  return View;
+  module.exports = View;
 });

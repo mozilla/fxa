@@ -5,10 +5,11 @@
 // Helper functions for views with migration-specific behaviour.
 // Meant to be mixed into views.
 
-define([], function () {
+define(function (require, exports, module) {
   'use strict';
 
-  return {
+
+  module.exports = {
     isMigration: function () {
       return this.relier.has('migration');
     }

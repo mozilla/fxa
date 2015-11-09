@@ -6,10 +6,10 @@
  * A behavior that halts the view flow.
  */
 
-define([
-  'lib/promise'
-], function (p) {
+define(function (require, exports, module) {
   'use strict';
+
+  var p = require('lib/promise');
 
   var HaltBehavior = function () {
     var behavior = function (view) {
@@ -23,6 +23,6 @@ define([
     return behavior;
   };
 
-  return HaltBehavior;
+  module.exports = HaltBehavior;
 });
 

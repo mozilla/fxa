@@ -7,21 +7,19 @@
  * to override `sendOAuthResultToRelier`
  */
 
-define([
-  'underscore',
-  'lib/constants',
-  'lib/url',
-  'lib/oauth-errors',
-  'lib/auth-errors',
-  'lib/promise',
-  'lib/validate',
-  'models/auth_brokers/base',
-  'views/behaviors/halt',
-  'views/behaviors/navigate'
-],
-function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
-      BaseAuthenticationBroker, HaltBehavior, NavigateBehavior) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var AuthErrors = require('lib/auth-errors');
+  var BaseAuthenticationBroker = require('models/auth_brokers/base');
+  var Constants = require('lib/constants');
+  var HaltBehavior = require('views/behaviors/halt');
+  var NavigateBehavior = require('views/behaviors/navigate');
+  var OAuthErrors = require('lib/oauth-errors');
+  var p = require('lib/promise');
+  var Url = require('lib/url');
+  var Validate = require('lib/validate');
 
   /**
    * Formats the OAuth "result.redirect" url into a {code, state} object
@@ -199,5 +197,5 @@ function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
     }
   });
 
-  return OAuthAuthenticationBroker;
+  module.exports = OAuthAuthenticationBroker;
 });

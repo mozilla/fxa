@@ -4,12 +4,11 @@
 
 // test the translation library
 
-define([
-  'chai',
-  'lib/translator'
-],
-function (chai, Translator) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var Translator = require('lib/translator');
 
   var assert = chai.assert;
 

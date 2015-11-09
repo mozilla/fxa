@@ -7,13 +7,13 @@
  * embedded in the Firefox for iOS 2.0.
  */
 
-define([
-  'lib/promise',
-  'models/auth_brokers/fx-desktop-v1',
-  'underscore',
-  'views/behaviors/navigate'
-], function (p, FxDesktopV1AuthenticationBroker, _, NavigateBehavior) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var FxDesktopV1AuthenticationBroker = require('models/auth_brokers/fx-desktop-v1');
+  var NavigateBehavior = require('views/behaviors/navigate');
+  var p = require('lib/promise');
 
   var proto = FxDesktopV1AuthenticationBroker.prototype;
 
@@ -49,5 +49,5 @@ define([
     type: 'fx-ios-v2'
   });
 
-  return FxiOSV2AuthenticationBroker;
+  module.exports = FxiOSV2AuthenticationBroker;
 });

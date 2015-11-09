@@ -2,25 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'jquery',
-  'sinon',
-  'fxaClient',
-  'lib/promise',
-  '../../lib/helpers',
-  'lib/fxa-client',
-  'lib/auth-errors',
-  'lib/constants',
-  'models/resume-token',
-  'models/reliers/oauth'
-],
-// FxaClientWrapper is the object that is used in
-// fxa-content-server views. It wraps FxaClient to
-// take care of some app-specific housekeeping.
-function (chai, $, sinon, FxaClient, p, testHelpers, FxaClientWrapper, AuthErrors,
-      Constants, ResumeToken, OAuthRelier) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var AuthErrors = require('lib/auth-errors');
+  var chai = require('chai');
+  var Constants = require('lib/constants');
+  var FxaClient = require('fxaClient');
+  var FxaClientWrapper = require('lib/fxa-client');
+  var OAuthRelier = require('models/reliers/oauth');
+  var p = require('lib/promise');
+  var ResumeToken = require('models/resume-token');
+  var sinon = require('sinon');
+  var testHelpers = require('../../lib/helpers');
 
   var STATE = 'state';
   var SERVICE = 'sync';

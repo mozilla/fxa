@@ -2,18 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'chai',
-  'sinon',
-  '../../../mocks/window',
-  'views/mixins/back-mixin',
-  'views/base',
-  'stache!templates/test_template',
-  'lib/key-codes'
-], function (Cocktail, Chai, sinon, WindowMock,
-        BackMixin, BaseView, TestTemplate, KeyCodes) {
+define(function (require, exports, module) {
   'use strict';
+
+  var BackMixin = require('views/mixins/back-mixin');
+  var BaseView = require('views/base');
+  var Chai = require('chai');
+  var Cocktail = require('cocktail');
+  var KeyCodes = require('lib/key-codes');
+  var sinon = require('sinon');
+  var TestTemplate = require('stache!templates/test_template');
+  var WindowMock = require('../../../mocks/window');
 
   var assert = Chai.assert;
 

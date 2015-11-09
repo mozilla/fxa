@@ -8,12 +8,12 @@
  * hooked up in `afterRender`
  */
 
-define([
-  'jquery'
-], function ($) {
+define(function (require, exports, module) {
   'use strict';
 
-  return {
+  var $ = require('jquery');
+
+  module.exports = {
     events: {
       'input input[placeholder]': 'floatingPlaceholderMixinOnInput'
     },

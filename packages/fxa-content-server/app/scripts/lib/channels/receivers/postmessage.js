@@ -6,12 +6,12 @@
  * Receive a message over postMessage.
  */
 
-define([
-  'backbone',
-  'underscore',
-  'lib/auth-errors'
-], function (Backbone, _, AuthErrors) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
 
 
   function PostMessageReceiver() {
@@ -75,6 +75,6 @@ define([
     }
   });
 
-  return PostMessageReceiver;
+  module.exports = PostMessageReceiver;
 });
 

@@ -2,24 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'cocktail',
-  'sinon',
-  'models/reliers/base',
-  'models/user',
-  'lib/fxa-client',
-  'lib/promise',
-  'lib/auth-errors',
-  'lib/metrics',
-  'views/mixins/account-locked-mixin',
-  'views/base',
-  'stache!templates/test_template',
-  '../../../mocks/router',
-  '../../../lib/helpers'
-], function (Chai, Cocktail, sinon, Relier, User, FxaClient, p, AuthErrors,
-    Metrics, AccountLockedMixin, BaseView, Template, RouterMock, TestHelpers) {
+define(function (require, exports, module) {
   'use strict';
+
+  var AccountLockedMixin = require('views/mixins/account-locked-mixin');
+  var AuthErrors = require('lib/auth-errors');
+  var BaseView = require('views/base');
+  var Chai = require('chai');
+  var Cocktail = require('cocktail');
+  var FxaClient = require('lib/fxa-client');
+  var Metrics = require('lib/metrics');
+  var p = require('lib/promise');
+  var Relier = require('models/reliers/base');
+  var RouterMock = require('../../../mocks/router');
+  var sinon = require('sinon');
+  var Template = require('stache!templates/test_template');
+  var TestHelpers = require('../../../lib/helpers');
+  var User = require('models/user');
 
   var assert = Chai.assert;
 

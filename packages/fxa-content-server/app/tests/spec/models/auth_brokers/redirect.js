@@ -2,20 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'lib/promise',
-  'lib/constants',
-  'lib/session',
-  'models/auth_brokers/redirect',
-  'models/reliers/base',
-  'models/user',
-  '../../../mocks/window'
-],
-function (chai, sinon, p, Constants, Session, RedirectAuthenticationBroker,
-    Relier, User, WindowMock) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var Constants = require('lib/constants');
+  var p = require('lib/promise');
+  var RedirectAuthenticationBroker = require('models/auth_brokers/redirect');
+  var Relier = require('models/reliers/base');
+  var Session = require('lib/session');
+  var sinon = require('sinon');
+  var User = require('models/user');
+  var WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
   var REDIRECT_TO = 'https://redirect.here';

@@ -6,11 +6,11 @@
  * The notifier triggers events on multiple channels (iframe, tabs, browsers, etc).
  */
 
-define([
-  'backbone',
-  'underscore'
-], function (Backbone, _) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Backbone = require('backbone');
 
   // Events that have the 'internal:' namespace should only be
   // handled by the content server. Other events may be handled
@@ -71,5 +71,5 @@ define([
     }
   }, EVENTS);
 
-  return Notifer;
+  module.exports = Notifer;
 });

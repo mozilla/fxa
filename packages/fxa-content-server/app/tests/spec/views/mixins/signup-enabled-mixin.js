@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'lib/auth-errors',
-  'views/mixins/signup-disabled-mixin',
-], function (chai, sinon, AuthErrors, SignupDisabledMixin) {
+define(function (require, exports, module) {
   'use strict';
+
+  var AuthErrors = require('lib/auth-errors');
+  var chai = require('chai');
+  var SignupDisabledMixin = require('views/mixins/signup-disabled-mixin');
+  var sinon = require('sinon');
 
   var assert = chai.assert;
 

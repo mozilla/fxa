@@ -5,19 +5,18 @@
 // This model abstracts interaction between the user's account
 // and the profile server and also handles (de)serialization.
 
-define([
-  'backbone',
-  'underscore',
-  'lib/promise',
-  'lib/auth-errors',
-  'lib/profile-client',
-  'lib/constants',
-  'models/profile-image',
-  'models/oauth-token',
-  'models/marketing-email-prefs'
-], function (Backbone, _, p, AuthErrors, ProfileClient, Constants,
-  ProfileImage, OAuthToken, MarketingEmailPrefs) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
+  var Constants = require('lib/constants');
+  var MarketingEmailPrefs = require('models/marketing-email-prefs');
+  var OAuthToken = require('models/oauth-token');
+  var p = require('lib/promise');
+  var ProfileClient = require('lib/profile-client');
+  var ProfileImage = require('models/profile-image');
 
   // Account attributes that can be persisted
   var PERSISTENT = {
@@ -460,5 +459,5 @@ define([
       };
     });
 
-  return Account;
+  module.exports = Account;
 });

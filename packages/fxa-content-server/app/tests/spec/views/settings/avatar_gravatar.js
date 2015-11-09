@@ -2,27 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'jquery',
-  'sinon',
-  'views/settings/avatar_gravatar',
-  '../../../mocks/router',
-  '../../../mocks/profile',
-  '../../../lib/helpers',
-  'lib/channels/notifier',
-  'models/user',
-  'models/reliers/relier',
-  'models/auth_brokers/base',
-  'lib/auth-errors',
-  'lib/promise',
-  'lib/metrics',
-  'lib/profile-client'
-],
-function (chai, $, sinon, View, RouterMock, ProfileMock, TestHelpers,
-  Notifier, User, Relier, AuthBroker, AuthErrors, p, Metrics,
-  ProfileClient) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var AuthBroker = require('models/auth_brokers/base');
+  var AuthErrors = require('lib/auth-errors');
+  var chai = require('chai');
+  var Metrics = require('lib/metrics');
+  var Notifier = require('lib/channels/notifier');
+  var p = require('lib/promise');
+  var ProfileClient = require('lib/profile-client');
+  var ProfileMock = require('../../../mocks/profile');
+  var Relier = require('models/reliers/relier');
+  var RouterMock = require('../../../mocks/router');
+  var sinon = require('sinon');
+  var TestHelpers = require('../../../lib/helpers');
+  var User = require('models/user');
+  var View = require('views/settings/avatar_gravatar');
 
   var assert = chai.assert;
   var GRAVATAR_URL = 'https://secure.gravatar.com/avatar/';

@@ -2,28 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'jquery',
-  'sinon',
-  'views/sign_in',
-  'lib/session',
-  'lib/fxa-client',
-  'lib/promise',
-  'lib/metrics',
-  'models/reliers/oauth',
-  'models/auth_brokers/oauth',
-  'models/form-prefill',
-  'lib/channels/notifier',
-  'models/user',
-  '../../mocks/window',
-  '../../mocks/router',
-  '../../lib/helpers'
-],
-function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
-  OAuthBroker, FormPrefill, Notifier, User, WindowMock, RouterMock,
-  TestHelpers) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var chai = require('chai');
+  var FormPrefill = require('models/form-prefill');
+  var FxaClient = require('lib/fxa-client');
+  var Metrics = require('lib/metrics');
+  var Notifier = require('lib/channels/notifier');
+  var OAuthBroker = require('models/auth_brokers/oauth');
+  var OAuthRelier = require('models/reliers/oauth');
+  var p = require('lib/promise');
+  var RouterMock = require('../../mocks/router');
+  var Session = require('lib/session');
+  var sinon = require('sinon');
+  var TestHelpers = require('../../lib/helpers');
+  var User = require('models/user');
+  var View = require('views/sign_in');
+  var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

@@ -9,14 +9,14 @@
  * signup for sync in Firefox Desktop.
  */
 
-define([
-  'cocktail',
-  'views/base',
-  'lib/constants',
-  'views/mixins/marketing-mixin',
-  'stache!templates/marketing_snippet'
-], function (Cocktail, BaseView, Constants, MarketingMixin, Template) {
+define(function (require, exports, module) {
   'use strict';
+
+  var BaseView = require('views/base');
+  var Cocktail = require('cocktail');
+  var Constants = require('lib/constants');
+  var MarketingMixin = require('views/mixins/marketing-mixin');
+  var Template = require('stache!templates/marketing_snippet');
 
   var View = BaseView.extend({
     template: Template,
@@ -65,7 +65,7 @@ define([
     MarketingMixin
   );
 
-  return View;
+  module.exports = View;
 });
 
 

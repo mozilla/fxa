@@ -7,11 +7,11 @@
  * depending on how you want to use it.
  */
 
-define([
-  'backbone',
-  'lib/promise'
-], function (Backbone, p) {
+define(function (require, exports, module) {
   'use strict';
+
+  var Backbone = require('backbone');
+  var p = require('lib/promise');
 
   var Relier = Backbone.Model.extend({
     defaults: {},
@@ -105,5 +105,5 @@ define([
     }
   });
 
-  return Relier;
+  module.exports = Relier;
 });

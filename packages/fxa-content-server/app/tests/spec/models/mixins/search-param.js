@@ -2,15 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'backbone',
-  'cocktail',
-  'models/mixins/search-param',
-  '../../../mocks/window',
-  '../../../lib/helpers'
-], function (chai, Backbone, Cocktail, SearchParamMixin, WindowMock, TestHelpers) {
+define(function (require, exports, module) {
   'use strict';
+
+  var Backbone = require('backbone');
+  var chai = require('chai');
+  var Cocktail = require('cocktail');
+  var SearchParamMixin = require('models/mixins/search-param');
+  var TestHelpers = require('../../../lib/helpers');
+  var WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

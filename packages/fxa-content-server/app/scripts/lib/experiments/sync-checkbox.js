@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'lib/experiments/base'
-], function (BaseExperiment) {
+define(function (require, exports, module) {
   'use strict';
+
+  var BaseExperiment = require('lib/experiments/base');
 
   var createSaveStateDelegate = BaseExperiment.createSaveStateDelegate;
 
@@ -29,5 +29,5 @@ define([
     }
   });
 
-  return SyncCheckboxExperiment;
+  module.exports = SyncCheckboxExperiment;
 });

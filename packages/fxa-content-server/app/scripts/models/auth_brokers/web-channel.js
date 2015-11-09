@@ -7,16 +7,14 @@
  * with the browser
  */
 
-define([
-  'underscore',
-  'models/auth_brokers/oauth',
-  'models/auth_brokers/mixins/channel',
-  'lib/promise',
-  'lib/channels/web'
-],
-function (_, OAuthAuthenticationBroker, ChannelMixin, p,
-      WebChannel) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var ChannelMixin = require('models/auth_brokers/mixins/channel');
+  var OAuthAuthenticationBroker = require('models/auth_brokers/oauth');
+  var p = require('lib/promise');
+  var WebChannel = require('lib/channels/web');
 
   var proto = OAuthAuthenticationBroker.prototype;
 
@@ -236,5 +234,5 @@ function (_, OAuthAuthenticationBroker, ChannelMixin, p,
   });
 
   _.extend(WebChannelAuthenticationBroker.prototype, ChannelMixin);
-  return WebChannelAuthenticationBroker;
+  module.exports = WebChannelAuthenticationBroker;
 });

@@ -15,111 +15,59 @@
  * 6) Start the app if cookies are enabled.
  */
 
-define([
-  'underscore',
-  'backbone',
-  'lib/promise',
-  'lib/router',
-  'lib/translator',
-  'lib/session',
-  'lib/url',
-  'lib/config-loader',
-  'lib/screen-info',
-  'lib/metrics',
-  'lib/sentry',
-  'lib/storage-metrics',
-  'lib/fxa-client',
-  'lib/assertion',
-  'lib/constants',
-  'lib/oauth-client',
-  'lib/oauth-errors',
-  'lib/auth-errors',
-  'lib/profile-client',
-  'lib/marketing-email-client',
-  'lib/channels/inter-tab',
-  'lib/channels/iframe',
-  'lib/channels/null',
-  'lib/channels/web',
-  'lib/storage',
-  'lib/able',
-  'lib/environment',
-  'lib/origin-check',
-  'lib/height-observer',
-  'models/reliers/relier',
-  'models/reliers/oauth',
-  'models/reliers/sync',
-  'models/auth_brokers/base',
-  'models/auth_brokers/fx-desktop-v1',
-  'models/auth_brokers/fx-desktop-v2',
-  'models/auth_brokers/fx-fennec-v1',
-  'models/auth_brokers/fx-ios-v1',
-  'models/auth_brokers/fx-ios-v2',
-  'models/auth_brokers/first-run',
-  'models/auth_brokers/web-channel',
-  'models/auth_brokers/redirect',
-  'models/auth_brokers/iframe',
-  'models/unique-user-id',
-  'models/user',
-  'models/verification/same-browser',
-  'models/form-prefill',
-  'lib/channels/notifier',
-  'models/refresh-observer',
-  'views/app',
-  'views/close_button'
-],
-function (
-  _,
-  Backbone,
-  p,
-  Router,
-  Translator,
-  Session,
-  Url,
-  ConfigLoader,
-  ScreenInfo,
-  Metrics,
-  SentryMetrics,
-  StorageMetrics,
-  FxaClient,
-  Assertion,
-  Constants,
-  OAuthClient,
-  OAuthErrors,
-  AuthErrors,
-  ProfileClient,
-  MarketingEmailClient,
-  InterTabChannel,
-  IframeChannel,
-  NullChannel,
-  WebChannel,
-  Storage,
-  Able,
-  Environment,
-  OriginCheck,
-  HeightObserver,
-  Relier,
-  OAuthRelier,
-  SyncRelier,
-  BaseAuthenticationBroker,
-  FxDesktopV1AuthenticationBroker,
-  FxDesktopV2AuthenticationBroker,
-  FxFennecV1AuthenticationBroker,
-  FxiOSV1AuthenticationBroker,
-  FxiOSV2AuthenticationBroker,
-  FirstRunAuthenticationBroker,
-  WebChannelAuthenticationBroker,
-  RedirectAuthenticationBroker,
-  IframeAuthenticationBroker,
-  UniqueUserId,
-  User,
-  SameBrowserVerificationModel,
-  FormPrefill,
-  Notifier,
-  RefreshObserver,
-  AppView,
-  CloseButtonView
-) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Able = require('lib/able');
+  var AppView = require('views/app');
+  var Assertion = require('lib/assertion');
+  var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
+  var BaseAuthenticationBroker = require('models/auth_brokers/base');
+  var CloseButtonView = require('views/close_button');
+  var ConfigLoader = require('lib/config-loader');
+  var Constants = require('lib/constants');
+  var Environment = require('lib/environment');
+  var FirstRunAuthenticationBroker = require('models/auth_brokers/first-run');
+  var FormPrefill = require('models/form-prefill');
+  var FxaClient = require('lib/fxa-client');
+  var FxDesktopV1AuthenticationBroker = require('models/auth_brokers/fx-desktop-v1');
+  var FxDesktopV2AuthenticationBroker = require('models/auth_brokers/fx-desktop-v2');
+  var FxFennecV1AuthenticationBroker = require('models/auth_brokers/fx-fennec-v1');
+  var FxiOSV1AuthenticationBroker = require('models/auth_brokers/fx-ios-v1');
+  var FxiOSV2AuthenticationBroker = require('models/auth_brokers/fx-ios-v2');
+  var HeightObserver = require('lib/height-observer');
+  var IframeAuthenticationBroker = require('models/auth_brokers/iframe');
+  var IframeChannel = require('lib/channels/iframe');
+  var InterTabChannel = require('lib/channels/inter-tab');
+  var MarketingEmailClient = require('lib/marketing-email-client');
+  var Metrics = require('lib/metrics');
+  var Notifier = require('lib/channels/notifier');
+  var NullChannel = require('lib/channels/null');
+  var OAuthClient = require('lib/oauth-client');
+  var OAuthErrors = require('lib/oauth-errors');
+  var OAuthRelier = require('models/reliers/oauth');
+  var OriginCheck = require('lib/origin-check');
+  var p = require('lib/promise');
+  var ProfileClient = require('lib/profile-client');
+  var RedirectAuthenticationBroker = require('models/auth_brokers/redirect');
+  var RefreshObserver = require('models/refresh-observer');
+  var Relier = require('models/reliers/relier');
+  var Router = require('lib/router');
+  var SameBrowserVerificationModel = require('models/verification/same-browser');
+  var ScreenInfo = require('lib/screen-info');
+  var SentryMetrics = require('lib/sentry');
+  var Session = require('lib/session');
+  var Storage = require('lib/storage');
+  var StorageMetrics = require('lib/storage-metrics');
+  var SyncRelier = require('models/reliers/sync');
+  var Translator = require('lib/translator');
+  var UniqueUserId = require('models/unique-user-id');
+  var Url = require('lib/url');
+  var User = require('models/user');
+  var WebChannel = require('lib/channels/web');
+  var WebChannelAuthenticationBroker = require('models/auth_brokers/web-channel');
 
   function Start(options) {
     options = options || {};
@@ -825,5 +773,5 @@ function (
     }
   };
 
-  return Start;
+  module.exports = Start;
 });

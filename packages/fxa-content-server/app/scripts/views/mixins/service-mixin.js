@@ -5,12 +5,12 @@
 // The service-mixin is used in views that know about services, which is mostly
 // OAuth services but also Sync.
 
-define([
-  'views/base'
-], function (BaseView) {
+define(function (require, exports, module) {
   'use strict';
 
-  return {
+  var BaseView = require('views/base');
+
+  module.exports = {
     transformLinks: function () {
       this.$('a[href~="/signin"]').attr('href',
           this.broker.transformLink('/signin'));

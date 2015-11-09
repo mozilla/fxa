@@ -6,10 +6,10 @@
  * A behavior that navigates to a new view.
  */
 
-define([
-  'lib/promise'
-], function (p) {
+define(function (require, exports, module) {
   'use strict';
+
+  var p = require('lib/promise');
 
   var NavigationBehavior = function (endpoint, options) {
     options = options || {};
@@ -32,6 +32,6 @@ define([
     return behavior;
   };
 
-  return NavigationBehavior;
+  module.exports = NavigationBehavior;
 });
 

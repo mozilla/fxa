@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'lib/storage',
-  'models/verification/same-browser',
-  'sinon'
-], function (chai, Storage, SameBrowserVerificationModel, sinon) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var SameBrowserVerificationModel = require('models/verification/same-browser');
+  var sinon = require('sinon');
+  var Storage = require('lib/storage');
 
   var assert = chai.assert;
 

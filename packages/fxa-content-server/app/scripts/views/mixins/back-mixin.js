@@ -8,11 +8,11 @@
  * @class BackMixin
  */
 
-define([
-  'views/base',
-  'lib/key-codes'
-], function (BaseView, KeyCodes) {
+define(function (require, exports, module) {
   'use strict';
+
+  var BaseView = require('views/base');
+  var KeyCodes = require('lib/key-codes');
 
   var BackMixin = {
     _canGoBack: false,
@@ -77,5 +77,5 @@ define([
     }
   };
 
-  return BackMixin;
+  module.exports = BackMixin;
 });

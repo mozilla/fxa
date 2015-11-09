@@ -6,8 +6,9 @@
  * A placeholder behavior, does nothing.
  */
 
-define([], function () {
+define(function (require, exports, module) {
   'use strict';
+
 
   var NullBehavior = function () {
     var behavior = function (/*view*/) {
@@ -17,6 +18,6 @@ define([], function () {
     return behavior;
   };
 
-  return NullBehavior;
+  module.exports = NullBehavior;
 });
 

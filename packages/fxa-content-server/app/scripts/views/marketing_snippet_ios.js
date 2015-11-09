@@ -9,12 +9,12 @@
  * signup for sync in Firefox Desktop.
  */
 
-define([
-  'underscore',
-  'views/marketing_snippet',
-  'stache!templates/marketing_snippet_ios'
-], function (_, MarketingSnippetView, Template) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var MarketingSnippetView = require('views/marketing_snippet');
+  var Template = require('stache!templates/marketing_snippet_ios');
 
   var playStoreImageLanguages = [
     'ca',
@@ -100,5 +100,5 @@ define([
     }
   });
 
-  return View;
+  module.exports = View;
 });

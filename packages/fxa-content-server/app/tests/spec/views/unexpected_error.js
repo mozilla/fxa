@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'lib/ephemeral-messages',
-  'views/unexpected_error',
-  '../../mocks/window'
-],
-function (chai, EphemeralMessages, View, WindowMock) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var EphemeralMessages = require('lib/ephemeral-messages');
+  var View = require('views/unexpected_error');
+  var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

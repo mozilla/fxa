@@ -2,17 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'lib/session',
-  'lib/profile-client'
-],
-// FxaClientWrapper is the object that is used in
-// fxa-content-server views. It wraps FxaClient to
-// take care of some app-specific housekeeping.
-function (chai, sinon, Session, ProfileClient) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var ProfileClient = require('lib/profile-client');
+  var Session = require('lib/session');
+  var sinon = require('sinon');
 
   var PROFILE_URL = 'http://127.0.0.1:1111';
   var assert = chai.assert;

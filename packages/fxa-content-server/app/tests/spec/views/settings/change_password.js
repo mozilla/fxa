@@ -2,25 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'jquery',
-  'sinon',
-  'lib/auth-errors',
-  'lib/fxa-client',
-  'lib/metrics',
-  'lib/promise',
-  'lib/ephemeral-messages',
-  'views/settings/change_password',
-  'models/reliers/relier',
-  'models/auth_brokers/base',
-  'models/user',
-  '../../../mocks/router',
-  '../../../lib/helpers'
-],
-function (chai, $, sinon, AuthErrors, FxaClient, Metrics, p,
-    EphemeralMessages, View, Relier, Broker, User, RouterMock, TestHelpers) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var AuthErrors = require('lib/auth-errors');
+  var Broker = require('models/auth_brokers/base');
+  var chai = require('chai');
+  var EphemeralMessages = require('lib/ephemeral-messages');
+  var FxaClient = require('lib/fxa-client');
+  var Metrics = require('lib/metrics');
+  var p = require('lib/promise');
+  var Relier = require('models/reliers/relier');
+  var RouterMock = require('../../../mocks/router');
+  var sinon = require('sinon');
+  var TestHelpers = require('../../../lib/helpers');
+  var User = require('models/user');
+  var View = require('views/settings/change_password');
 
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;

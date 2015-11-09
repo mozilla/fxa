@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'cocktail',
-  'jquery',
-  'stache!templates/test_template',
-  'views/form',
-  'views/mixins/floating-placeholder-mixin',
-  'lib/key-codes'
-], function (chai, Cocktail, $, Template, FormView, FloatingPlaceholderMixin, KeyCodes) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var chai = require('chai');
+  var Cocktail = require('cocktail');
+  var FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
+  var FormView = require('views/form');
+  var KeyCodes = require('lib/key-codes');
+  var Template = require('stache!templates/test_template');
 
   var assert = chai.assert;
 

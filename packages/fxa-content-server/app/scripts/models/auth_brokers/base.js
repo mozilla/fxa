@@ -7,16 +7,15 @@
  * the outside world.
  */
 
-define([
-  'backbone',
-  'lib/promise',
-  'models/mixins/search-param',
-  'models/verification/same-browser',
-  'views/behaviors/null',
-  'underscore',
-], function (Backbone, p, SearchParamMixin, SameBrowserVerificationModel,
-  NullBehavior, _) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Backbone = require('backbone');
+  var NullBehavior = require('views/behaviors/null');
+  var p = require('lib/promise');
+  var SameBrowserVerificationModel = require('models/verification/same-browser');
+  var SearchParamMixin = require('models/mixins/search-param');
 
   var BaseAuthenticationBroker = Backbone.Model.extend({
     type: 'base',
@@ -412,5 +411,5 @@ define([
 
   _.extend(BaseAuthenticationBroker.prototype, SearchParamMixin);
 
-  return BaseAuthenticationBroker;
+  module.exports = BaseAuthenticationBroker;
 });

@@ -2,21 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'jquery',
-  'sinon',
-  'views/settings/avatar',
-  '../../../mocks/router',
-  '../../../mocks/fxa-client',
-  'lib/promise',
-  'lib/channels/notifier',
-  'models/reliers/relier',
-  'models/user'
-],
-function (chai, $, sinon, View, RouterMock, FxaClientMock,
-    p, Notifier, Relier, User) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var chai = require('chai');
+  var FxaClientMock = require('../../../mocks/fxa-client');
+  var Notifier = require('lib/channels/notifier');
+  var p = require('lib/promise');
+  var Relier = require('models/reliers/relier');
+  var RouterMock = require('../../../mocks/router');
+  var sinon = require('sinon');
+  var User = require('models/user');
+  var View = require('views/settings/avatar');
 
   var assert = chai.assert;
   var IMG_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';

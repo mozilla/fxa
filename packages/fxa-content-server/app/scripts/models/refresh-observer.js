@@ -10,17 +10,17 @@
  * logged to metrics.
  */
 
-define([
-  'backbone',
-  'lib/storage'
-], function (Backbone, Storage) {
+define(function (require, exports, module) {
   'use strict';
+
+  var Backbone = require('backbone');
+  var Storage = require('lib/storage');
 
   function isRefresh (refreshMetrics, viewName) {
     return refreshMetrics && refreshMetrics.view === viewName;
   }
 
-  return Backbone.Model.extend({
+  module.exports = Backbone.Model.extend({
     initialize: function (options) {
       options = options || {};
 

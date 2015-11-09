@@ -10,11 +10,10 @@
  * the view.
  */
 
-define([
-  'underscore'
-],
-function (_) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
 
   var Mixin = {
     setTimeout: function (callback, timeoutMS) {
@@ -55,6 +54,6 @@ function (_) {
     this._timeouts = null;
   }
 
-  return Mixin;
+  module.exports = Mixin;
 });
 

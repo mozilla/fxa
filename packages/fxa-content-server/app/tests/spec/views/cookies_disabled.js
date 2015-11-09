@@ -2,16 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'jquery',
-  'chai',
-  'sinon',
-  'views/cookies_disabled',
-  '../../mocks/window',
-  'lib/storage'
-],
-function ($, chai, sinon, View, WindowMock, Storage) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var chai = require('chai');
+  var sinon = require('sinon');
+  var Storage = require('lib/storage');
+  var View = require('views/cookies_disabled');
+  var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

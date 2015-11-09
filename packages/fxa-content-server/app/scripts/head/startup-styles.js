@@ -15,7 +15,6 @@
 
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
-    /* exceptsPaths: lib/environment */
     define(['lib/environment'], factory);
   } else {
     // Browser globals

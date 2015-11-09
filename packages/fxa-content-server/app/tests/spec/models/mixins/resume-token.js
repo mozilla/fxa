@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'backbone',
-  'chai',
-  'cocktail',
-  'models/mixins/resume-token',
-  'models/resume-token'
-], function (Backbone, chai, Cocktail, ResumeTokenMixin, ResumeToken) {
+define(function (require, exports, module) {
   'use strict';
+
+  var Backbone = require('backbone');
+  var chai = require('chai');
+  var Cocktail = require('cocktail');
+  var ResumeToken = require('models/resume-token');
+  var ResumeTokenMixin = require('models/mixins/resume-token');
 
   var assert = chai.assert;
 

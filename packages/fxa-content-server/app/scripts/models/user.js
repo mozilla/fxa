@@ -8,16 +8,16 @@
 //
 // i.e. User hasMany Accounts.
 
-define([
-  'backbone',
-  'cocktail',
-  'underscore',
-  'lib/promise',
-  'lib/storage',
-  'models/account',
-  'models/mixins/resume-token'
-], function (Backbone, Cocktail, _, p, Storage, Account, ResumeTokenMixin) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Account = require('models/account');
+  var Backbone = require('backbone');
+  var Cocktail = require('cocktail');
+  var p = require('lib/promise');
+  var ResumeTokenMixin = require('models/mixins/resume-token');
+  var Storage = require('lib/storage');
 
   var User = Backbone.Model.extend({
     initialize: function (options) {
@@ -313,5 +313,5 @@ define([
     ResumeTokenMixin
   );
 
-  return User;
+  module.exports = User;
 });

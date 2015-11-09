@@ -20,12 +20,12 @@
  * sensitive data is erased as soon as it is consumed by the receiving tab.
  */
 
-define([
-  'backbone',
-  'crosstab',
-  'underscore'
-], function (Backbone, crosstab, _) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Backbone = require('backbone');
+  var crosstab = require('crosstab');
 
   var BROADCAST_CHANNEL_ID = 'firefox_accounts';
 
@@ -211,5 +211,5 @@ define([
   InterTabChannel.LocalStorageAdapter = LocalStorageAdapter;
 
 
-  return InterTabChannel;
+  module.exports = InterTabChannel;
 });

@@ -3,17 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-define([
-  'chai',
-  'sinon',
-  'jquery',
-  'lib/promise',
-  'views/base',
-  'views/progress_indicator',
-  'views/decorators/progress_indicator'
-],
-function (chai, sinon, $, p, BaseView, ProgressIndicator, showProgressIndicator) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var BaseView = require('views/base');
+  var chai = require('chai');
+  var p = require('lib/promise');
+  var ProgressIndicator = require('views/progress_indicator');
+  var showProgressIndicator = require('views/decorators/progress_indicator');
+  var sinon = require('sinon');
 
   var assert = chai.assert;
 

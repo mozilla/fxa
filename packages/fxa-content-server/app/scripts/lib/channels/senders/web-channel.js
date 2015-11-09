@@ -7,10 +7,10 @@
  * https://developer.mozilla.org/en-US/docs/Mozilla/JavaScript_code_modules/WebChannel.jsm
  */
 
-define([
-  'lib/promise'
-], function (p) {
+define(function (require, exports, module) {
   'use strict';
+
+  var p = require('lib/promise');
 
   function WebChannelSender() {
     // nothing to do here.
@@ -50,7 +50,7 @@ define([
     });
   }
 
-  return WebChannelSender;
+  module.exports = WebChannelSender;
 });
 
 

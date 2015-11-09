@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'lib/profile-errors',
-  'models/profile-image'
-],
-function (chai, ProfileErrors, ProfileImage) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var ProfileErrors = require('lib/profile-errors');
+  var ProfileImage = require('models/profile-image');
 
   var assert = chai.assert;
 

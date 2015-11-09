@@ -7,12 +7,11 @@
  * longer than expected
  */
 
-define([
-  'lib/promise',
-  'lib/auth-errors'
-],
-function (p, AuthErrors) {
+define(function (require, exports, module) {
   'use strict';
+
+  var AuthErrors = require('lib/auth-errors');
+  var p = require('lib/promise');
 
   function notifyDelayedRequest(handler) {
     return function () {
@@ -44,5 +43,5 @@ function (p, AuthErrors) {
     };
   }
 
-  return notifyDelayedRequest;
+  module.exports = notifyDelayedRequest;
 });

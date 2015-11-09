@@ -12,11 +12,11 @@
  * whose values are validation functions.
  */
 
-define([
-  'backbone',
-  'underscore'
-], function (Backbone, _) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Backbone = require('backbone');
 
   var proto = Backbone.Model.prototype;
 
@@ -118,6 +118,6 @@ define([
     }
   });
 
-  return VerificationInfo;
+  module.exports = VerificationInfo;
 });
 

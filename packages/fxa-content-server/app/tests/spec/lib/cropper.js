@@ -2,25 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exceptsPaths: jquery-simulate */
-define([
-  'chai',
-  'sinon',
-  'jquery-simulate',
-  '../../mocks/router',
-  '../../mocks/canvas',
-  'lib/promise',
-  'lib/cropper',
-  'lib/ephemeral-messages',
-  'views/settings/avatar_crop',
-  'models/cropper-image',
-  'lib/channels/notifier',
-  'models/reliers/relier',
-  'models/user'
-],
-function (chai, sinon, jQuerySimulate, RouterMock, CanvasMock, p, Cropper,
-  EphemeralMessages, View, CropperImage, Notifier, Relier, User) {
+define(function (require, exports, module) {
   'use strict';
+
+  var CanvasMock = require('../../mocks/canvas');
+  var chai = require('chai');
+  var Cropper = require('lib/cropper');
+  var CropperImage = require('models/cropper-image');
+  var EphemeralMessages = require('lib/ephemeral-messages');
+  var jQuerySimulate = require('jquery-simulate'); //eslint-disable-line no-unused-vars
+  var Notifier = require('lib/channels/notifier');
+  var p = require('lib/promise');
+  var Relier = require('models/reliers/relier');
+  var RouterMock = require('../../mocks/router');
+  var sinon = require('sinon');
+  var User = require('models/user');
+  var View = require('views/settings/avatar_crop');
 
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';

@@ -2,21 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'backbone',
-  'chai',
-  'jquery',
-  'lib/auth-errors',
-  'lib/environment',
-  'lib/promise',
-  '../../mocks/router',
-  '../../mocks/window',
-  'lib/channels/notifier',
-  'sinon',
-  'views/app'
-], function (Backbone, chai, $, AuthErrors, Environment, p, RouterMock,
-  WindowMock, Notifier, sinon, AppView) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var AppView = require('views/app');
+  var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
+  var chai = require('chai');
+  var Environment = require('lib/environment');
+  var Notifier = require('lib/channels/notifier');
+  var p = require('lib/promise');
+  var RouterMock = require('../../mocks/router');
+  var sinon = require('sinon');
+  var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

@@ -2,25 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'views/base',
-  'views/form',
-  'stache!templates/complete_reset_password',
-  'views/mixins/floating-placeholder-mixin',
-  'views/mixins/password-mixin',
-  'views/mixins/resume-token-mixin',
-  'views/mixins/service-mixin',
-  'lib/channels/notifier',
-  'models/verification/reset-password',
-  'lib/auth-errors',
-  'lib/url'
-],
-function (Cocktail, BaseView, FormView, Template, FloatingPlaceholderMixin,
-  PasswordMixin, ResumeTokenMixin, ServiceMixin,
-  Notifier, VerificationInfo, AuthErrors, Url) {
-
+define(function (require, exports, module) {
   'use strict';
+
+  var AuthErrors = require('lib/auth-errors');
+  var BaseView = require('views/base');
+  var Cocktail = require('cocktail');
+  var FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
+  var FormView = require('views/form');
+  var Notifier = require('lib/channels/notifier');
+  var PasswordMixin = require('views/mixins/password-mixin');
+  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  var ServiceMixin = require('views/mixins/service-mixin');
+  var Template = require('stache!templates/complete_reset_password');
+  var Url = require('lib/url');
+  var VerificationInfo = require('models/verification/reset-password');
 
   var t = BaseView.t;
   var View = FormView.extend({
@@ -190,5 +186,5 @@ function (Cocktail, BaseView, FormView, Template, FloatingPlaceholderMixin,
     ServiceMixin
   );
 
-  return View;
+  module.exports = View;
 });

@@ -8,15 +8,15 @@
  * and a `commands` object.
  */
 
-define([
-  'cocktail',
-  'underscore',
-  'models/auth_brokers/base',
-  'models/auth_brokers/mixins/channel',
-  'lib/auth-errors',
-  'lib/promise'
-], function (Cocktail, _, BaseAuthenticationBroker, ChannelMixin, AuthErrors, p) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var AuthErrors = require('lib/auth-errors');
+  var BaseAuthenticationBroker = require('models/auth_brokers/base');
+  var ChannelMixin = require('models/auth_brokers/mixins/channel');
+  var Cocktail = require('cocktail');
+  var p = require('lib/promise');
 
   var proto = BaseAuthenticationBroker.prototype;
 
@@ -232,6 +232,6 @@ define([
     ChannelMixin
   );
 
-  return FxSyncAuthenticationBroker;
+  module.exports = FxSyncAuthenticationBroker;
 });
 

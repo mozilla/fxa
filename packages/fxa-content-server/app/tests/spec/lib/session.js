@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'lib/session'
-],
-function (chai, Session) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var Session = require('lib/session');
 
   var assert = chai.assert;
 

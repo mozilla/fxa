@@ -7,10 +7,10 @@
  * and clicks.
  */
 
-define([
-  'jquery'
-], function ($) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
 
   var MarketingMixin = {
     events: {
@@ -48,6 +48,6 @@ define([
     }
   };
 
-  return MarketingMixin;
+  module.exports = MarketingMixin;
 });
 

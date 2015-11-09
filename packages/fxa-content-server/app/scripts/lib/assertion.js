@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'lib/promise',
-  'vendor/jwcrypto'
-],
-function (P, jwcrypto) {
+define(function (require, exports, module) {
   'use strict';
+
+  var jwcrypto = require('vendor/jwcrypto');
+  var P = require('lib/promise');
 
   var CERT_DURATION_MS = 1000 * 60 * 60 * 6; // 6hrs
   var ASSERTION_DURATION_MS = 1000 * 3600 * 24 * 365 * 25; // 25 years
@@ -88,5 +87,5 @@ function (P, jwcrypto) {
     generate: bundle
   };
 
-  return Assertion;
+  module.exports = Assertion;
 });

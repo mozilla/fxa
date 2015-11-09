@@ -7,12 +7,12 @@
  * embedded in the Firefox for iOS 1.0 ... < 2.0.
  */
 
-define([
-  'lib/auth-errors',
-  'models/auth_brokers/fx-desktop-v1',
-  'underscore'
-], function (AuthErrors, FxDesktopV1AuthenticationBroker, _) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var AuthErrors = require('lib/auth-errors');
+  var FxDesktopV1AuthenticationBroker = require('models/auth_brokers/fx-desktop-v1');
 
   var proto = FxDesktopV1AuthenticationBroker.prototype;
 
@@ -35,5 +35,5 @@ define([
     }
   });
 
-  return FxiOSV1AuthenticationBroker;
+  module.exports = FxiOSV1AuthenticationBroker;
 });

@@ -7,14 +7,13 @@
 // is chosen on the backend based on the user's `Accept-Language`
 // headers.
 
-define([
-  'underscore',
-  'jquery',
-  'lib/promise',
-  'lib/strings'
-],
-function (_, $, p, Strings) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var _ = require('underscore');
+  var p = require('lib/promise');
+  var Strings = require('lib/strings');
 
   var Translator = function () {
     this.translations = {};
@@ -88,5 +87,5 @@ function (_, $, p, Strings) {
     interpolate: Strings.interpolate
   };
 
-  return Translator;
+  module.exports = Translator;
 });

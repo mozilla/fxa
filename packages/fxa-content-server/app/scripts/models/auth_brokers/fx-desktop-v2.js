@@ -10,15 +10,15 @@
  * If Sync is iframed by web content, v2 of the protocol is assumed.
  */
 
-define([
-  './fx-sync',
-  'lib/channels/web',
-  'lib/constants',
-  'lib/promise',
-  'underscore',
-  'views/behaviors/navigate'
-], function (FxSyncAuthenticationBroker, WebChannel, Constants, p, _, NavigateBehavior) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Constants = require('lib/constants');
+  var FxSyncAuthenticationBroker = require('./fx-sync');
+  var NavigateBehavior = require('views/behaviors/navigate');
+  var p = require('lib/promise');
+  var WebChannel = require('lib/channels/web');
 
   var proto = FxSyncAuthenticationBroker.prototype;
 
@@ -70,6 +70,6 @@ define([
     }
   });
 
-  return FxDesktopV2AuthenticationBroker;
+  module.exports = FxDesktopV2AuthenticationBroker;
 });
 

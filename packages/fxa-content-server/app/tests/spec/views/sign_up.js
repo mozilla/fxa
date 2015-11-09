@@ -2,33 +2,30 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'jquery',
-  'sinon',
-  'lib/promise',
-  'views/sign_up',
-  'views/coppa/coppa-age-input',
-  'lib/session',
-  'lib/auth-errors',
-  'lib/experiment',
-  'lib/metrics',
-  'lib/fxa-client',
-  'lib/ephemeral-messages',
-  'lib/able',
-  'models/reliers/sync',
-  'models/auth_brokers/base',
-  'models/user',
-  'models/form-prefill',
-  'lib/channels/notifier',
-  '../../mocks/router',
-  '../../mocks/window',
-  '../../lib/helpers'
-],
-function (chai, $, sinon, p, View, CoppaAgeInput, Session, AuthErrors, ExperimentInterface, Metrics,
-      FxaClient, EphemeralMessages, Able, Relier, Broker, User, FormPrefill,
-      Notifier, RouterMock, WindowMock, TestHelpers) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var Able = require('lib/able');
+  var AuthErrors = require('lib/auth-errors');
+  var Broker = require('models/auth_brokers/base');
+  var chai = require('chai');
+  var CoppaAgeInput = require('views/coppa/coppa-age-input');
+  var EphemeralMessages = require('lib/ephemeral-messages');
+  var ExperimentInterface = require('lib/experiment');
+  var FormPrefill = require('models/form-prefill');
+  var FxaClient = require('lib/fxa-client');
+  var Metrics = require('lib/metrics');
+  var Notifier = require('lib/channels/notifier');
+  var p = require('lib/promise');
+  var Relier = require('models/reliers/sync');
+  var RouterMock = require('../../mocks/router');
+  var Session = require('lib/session');
+  var sinon = require('sinon');
+  var TestHelpers = require('../../lib/helpers');
+  var User = require('models/user');
+  var View = require('views/sign_up');
+  var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

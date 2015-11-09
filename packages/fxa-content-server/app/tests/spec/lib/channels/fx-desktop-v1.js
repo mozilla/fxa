@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'lib/channels/fx-desktop-v1',
-  '../../../mocks/window'
-],
-function (chai, FxDesktopV1Channel, WindowMock) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var FxDesktopV1Channel = require('lib/channels/fx-desktop-v1');
+  var WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

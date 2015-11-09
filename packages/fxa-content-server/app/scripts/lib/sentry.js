@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'underscore',
-  'raven',
-  'lib/url'
-], function (_, Raven, Url) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Raven = require('raven');
+  var Url = require('lib/url');
 
   var ALLOWED_QUERY_PARAMETERS = [
     'automatedBrowser',
@@ -169,6 +169,6 @@ define([
     __cleanUpQueryParam: cleanUpQueryParam
   };
 
-  return SentryMetrics;
+  module.exports = SentryMetrics;
 });
 

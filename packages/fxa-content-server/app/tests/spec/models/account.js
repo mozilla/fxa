@@ -2,26 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'lib/promise',
-  'lib/constants',
-  'lib/assertion',
-  'lib/profile-client',
-  'lib/oauth-client',
-  'lib/fxa-client',
-  'lib/auth-errors',
-  'lib/profile-errors',
-  'lib/marketing-email-client',
-  'models/account',
-  'models/oauth-token',
-  'models/reliers/relier'
-],
-function (chai, sinon, p, Constants, Assertion, ProfileClient,
-    OAuthClient, FxaClientWrapper, AuthErrors, ProfileErrors,
-    MarketingEmailClient, Account, OAuthToken, Relier) {
+define(function (require, exports, module) {
   'use strict';
+
+  var Account = require('models/account');
+  var Assertion = require('lib/assertion');
+  var AuthErrors = require('lib/auth-errors');
+  var chai = require('chai');
+  var Constants = require('lib/constants');
+  var FxaClientWrapper = require('lib/fxa-client');
+  var MarketingEmailClient = require('lib/marketing-email-client');
+  var OAuthClient = require('lib/oauth-client');
+  var OAuthToken = require('models/oauth-token');
+  var p = require('lib/promise');
+  var ProfileClient = require('lib/profile-client');
+  var ProfileErrors = require('lib/profile-errors');
+  var Relier = require('models/reliers/relier');
+  var sinon = require('sinon');
 
   var assert = chai.assert;
 

@@ -2,17 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'cocktail',
-  'models/reliers/relier',
-  'models/resume-token',
-  'stache!templates/test_template',
-  'views/base',
-  'views/mixins/resume-token-mixin',
-], function (chai, Cocktail, Relier, ResumeToken, TestTemplate,
-  BaseView, ResumeTokenMixin ) {
+define(function (require, exports, module) {
   'use strict';
+
+  var BaseView = require('views/base');
+  var chai = require('chai');
+  var Cocktail = require('cocktail');
+  var Relier = require('models/reliers/relier');
+  var ResumeToken = require('models/resume-token');
+  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  var TestTemplate = require('stache!templates/test_template');
 
   var assert = chai.assert;
 

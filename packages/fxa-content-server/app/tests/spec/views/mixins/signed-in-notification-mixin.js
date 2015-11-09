@@ -2,17 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'cocktail',
-  'sinon',
-  'lib/promise',
-  'lib/channels/notifier',
-  'views/base',
-  'views/mixins/signed-in-notification-mixin'
-], function (chai, Cocktail, sinon, p, Notifier, BaseView,
-  SignedInNotificationMixin) {
+define(function (require, exports, module) {
   'use strict';
+
+  var BaseView = require('views/base');
+  var chai = require('chai');
+  var Cocktail = require('cocktail');
+  var Notifier = require('lib/channels/notifier');
+  var p = require('lib/promise');
+  var SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
+  var sinon = require('sinon');
 
   var assert = chai.assert;
 

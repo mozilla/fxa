@@ -2,11 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'underscore'
-],
-function (_) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
 
   var DEFAULT_DISPLAY_LENGTH = 240;
   var DEFAULT_EXPORT_LENGTH = 480;
@@ -304,6 +303,6 @@ function (_) {
     return this.canvas.toBlob(cb, type, quality);
   };
 
-  return Cropper;
+  module.exports = Cropper;
 });
 

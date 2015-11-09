@@ -2,38 +2,34 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'jquery',
-  'sinon',
-  'cocktail',
-  'underscore',
-  'views/settings',
-  'views/base',
-  'views/sub_panels',
-  'views/settings/communication_preferences',
-  'views/mixins/settings-panel-mixin',
-  '../../mocks/router',
-  '../../lib/helpers',
-  'lib/fxa-client',
-  'lib/promise',
-  'lib/profile-client',
-  'lib/profile-errors',
-  'lib/auth-errors',
-  'lib/able',
-  'lib/metrics',
-  'models/form-prefill',
-  'lib/channels/notifier',
-  'models/reliers/relier',
-  'models/profile-image',
-  'models/user',
-  'stache!templates/test_template'
-],
-function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
-  CommunicationPreferencesView, SettingsPanelMixin, RouterMock, TestHelpers,
-  FxaClient, p, ProfileClient, ProfileErrors, AuthErrors, Able, Metrics,
-  FormPrefill, Notifier, Relier, ProfileImage, User, TestTemplate) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var _ = require('underscore');
+  var Able = require('lib/able');
+  var AuthErrors = require('lib/auth-errors');
+  var BaseView = require('views/base');
+  var chai = require('chai');
+  var Cocktail = require('cocktail');
+  var CommunicationPreferencesView = require('views/settings/communication_preferences');
+  var FormPrefill = require('models/form-prefill');
+  var FxaClient = require('lib/fxa-client');
+  var Metrics = require('lib/metrics');
+  var Notifier = require('lib/channels/notifier');
+  var p = require('lib/promise');
+  var ProfileClient = require('lib/profile-client');
+  var ProfileErrors = require('lib/profile-errors');
+  var ProfileImage = require('models/profile-image');
+  var Relier = require('models/reliers/relier');
+  var RouterMock = require('../../mocks/router');
+  var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
+  var sinon = require('sinon');
+  var SubPanels = require('views/sub_panels');
+  var TestHelpers = require('../../lib/helpers');
+  var TestTemplate = require('stache!templates/test_template');
+  var User = require('models/user');
+  var View = require('views/settings');
 
   var assert = chai.assert;
 

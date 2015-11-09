@@ -2,17 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'lib/channels/null',
-  'models/account',
-  'models/auth_brokers/first-run',
-  'models/reliers/relier',
-  '../../../mocks/window'
-],
-function (chai, sinon, NullChannel, Account, FirstRunAuthenticationBroker, Relier, WindowMock) {
+define(function (require, exports, module) {
   'use strict';
+
+  var Account = require('models/account');
+  var chai = require('chai');
+  var FirstRunAuthenticationBroker = require('models/auth_brokers/first-run');
+  var NullChannel = require('lib/channels/null');
+  var Relier = require('models/reliers/relier');
+  var sinon = require('sinon');
+  var WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

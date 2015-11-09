@@ -15,11 +15,11 @@
  * `email` is used in password reset verifications.
  */
 
-define([
-  'backbone',
-  'lib/storage'
-], function (Backbone, Storage) {
+define(function (require, exports, module) {
   'use strict';
+
+  var Backbone = require('backbone');
+  var Storage = require('lib/storage');
 
   var STORAGE_KEY = 'verificationInfo';
 
@@ -95,5 +95,5 @@ define([
     }
   });
 
-  return SameBrowserVerificationModel;
+  module.exports = SameBrowserVerificationModel;
 });

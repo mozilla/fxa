@@ -7,13 +7,13 @@
  * tests
  */
 
-define([
-  'underscore',
-  'lib/promise',
-  'lib/metrics',
-  'lib/storage'
-], function (_, p, Metrics, Storage) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Metrics = require('lib/metrics');
+  var p = require('lib/promise');
+  var Storage = require('lib/storage');
 
   var storage = Storage.factory('localStorage');
 
@@ -41,6 +41,6 @@ define([
     }
   });
 
-  return StorageMetrics;
+  module.exports = StorageMetrics;
 
 });

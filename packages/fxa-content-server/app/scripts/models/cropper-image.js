@@ -4,12 +4,12 @@
 
 // This model abstracts images used by the cropper view
 
-define([
-  'backbone',
-  'lib/constants',
-  'lib/auth-errors'
-], function (Backbone, Constants, AuthErrors) {
+define(function (require, exports, module) {
   'use strict';
+
+  var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
+  var Constants = require('lib/constants');
 
   // a 1x1 jpeg
   var jpegSrc = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAwYEBAMFBwYHBwcGBwcICQsJCAgKCAcHCg0KCgsMDAwMBwkODw0MDgsM' +
@@ -37,5 +37,5 @@ define([
     }
   });
 
-  return CropperImage;
+  module.exports = CropperImage;
 });

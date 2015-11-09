@@ -6,13 +6,13 @@
 // https://developer.mozilla.org/en-US/docs/Mozilla/JavaScript_code_modules/WebChannel.jsm
 // https://developer.mozilla.org/en-US/docs/Mozilla/JavaScript_code_modules/FxAccountsOAuthClient.jsm
 
-define([
-  'underscore',
-  'lib/channels/duplex',
-  'lib/channels/senders/web-channel',
-  'lib/channels/receivers/web-channel'
-], function (_, DuplexChannel, WebChannelSender, WebChannelReceiver) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var DuplexChannel = require('lib/channels/duplex');
+  var WebChannelReceiver = require('lib/channels/receivers/web-channel');
+  var WebChannelSender = require('lib/channels/senders/web-channel');
 
   function WebChannel(id) {
     if (! id) {
@@ -49,5 +49,5 @@ define([
     }
   });
 
-  return WebChannel;
+  module.exports = WebChannel;
 });

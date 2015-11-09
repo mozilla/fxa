@@ -4,15 +4,15 @@
 
 // Do some validation.
 
-define([
-  'lib/constants'
-], function (Constants) {
+define(function (require, exports, module) {
   'use strict';
+
+  var Constants = require('lib/constants');
 
   // taken from the fxa-auth-server
   var HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/;
 
-  return {
+  module.exports = {
     /**
      * Check if an email address is valid
      *

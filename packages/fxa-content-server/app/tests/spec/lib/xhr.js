@@ -2,16 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'jquery',
-  'underscore',
-  'lib/xhr',
-  'lib/promise'
-],
-function (chai, sinon, $, _, Xhr, p) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var _ = require('underscore');
+  var chai = require('chai');
+  var p = require('lib/promise');
+  var sinon = require('sinon');
+  var Xhr = require('lib/xhr');
 
   var assert = chai.assert;
 

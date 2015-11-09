@@ -4,9 +4,10 @@
 
 // utilities to deal with urls
 
-define(['underscore'],
-function (_) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
 
   function searchParams (str, whitelist) {
     var search = (typeof str === 'string' ? str : window.location.search).replace(/^\?/, '');
@@ -38,7 +39,7 @@ function (_) {
     return allowedTerms;
   }
 
-  return {
+  module.exports = {
     searchParams: searchParams,
     searchParam: function (name, str) {
       var terms = searchParams(str);

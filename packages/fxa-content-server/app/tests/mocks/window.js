@@ -4,14 +4,13 @@
 
 // stub out the window object for testing.
 
-define([
-  'backbone',
-  'sinon',
-  'underscore',
-  'lib/null-storage'
-],
-function (Backbone, sinon, _, NullStorage) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Backbone = require('backbone');
+  var NullStorage = require('lib/null-storage');
+  var sinon = require('sinon');
 
   function MutationObserver (notifier) {
     return {
@@ -165,5 +164,5 @@ function (Backbone, sinon, _, NullStorage) {
     }
   });
 
-  return WindowMock;
+  module.exports = WindowMock;
 });

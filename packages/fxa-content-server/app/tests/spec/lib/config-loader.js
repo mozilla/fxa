@@ -2,15 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'lib/config-loader',
-  'lib/promise',
-  'lib/xhr',
-  'sinon',
-],
-function (chai, ConfigLoader, p, Xhr, sinon) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var ConfigLoader = require('lib/config-loader');
+  var p = require('lib/promise');
+  var sinon = require('sinon');
+  var Xhr = require('lib/xhr');
 
   var assert = chai.assert;
 

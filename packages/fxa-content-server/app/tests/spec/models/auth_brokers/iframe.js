@@ -2,20 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'jquery',
-  'models/auth_brokers/iframe',
-  'models/reliers/relier',
-  'lib/promise',
-  'lib/channels/null',
-  'lib/session',
-  '../../../mocks/window'
-],
-function (chai, sinon, $, IframeAuthenticationBroker, Relier, p, NullChannel,
-      Session, WindowMock) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var chai = require('chai');
+  var IframeAuthenticationBroker = require('models/auth_brokers/iframe');
+  var NullChannel = require('lib/channels/null');
+  var p = require('lib/promise');
+  var Relier = require('models/reliers/relier');
+  var Session = require('lib/session');
+  var sinon = require('sinon');
+  var WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

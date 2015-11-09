@@ -2,20 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'chai',
-  '../../../mocks/window',
-  'views/mixins/experiment-mixin',
-  'views/base',
-  'stache!templates/test_template',
-  'models/user',
-  'lib/channels/notifier',
-  'lib/able',
-  'lib/metrics'
-], function (Cocktail, Chai, WindowMock, Mixin, BaseView, TestTemplate, User,
-  Notifier, Able, Metrics) {
+define(function (require, exports, module) {
   'use strict';
+
+  var Able = require('lib/able');
+  var BaseView = require('views/base');
+  var Chai = require('chai');
+  var Cocktail = require('cocktail');
+  var Metrics = require('lib/metrics');
+  var Mixin = require('views/mixins/experiment-mixin');
+  var Notifier = require('lib/channels/notifier');
+  var TestTemplate = require('stache!templates/test_template');
+  var User = require('models/user');
+  var WindowMock = require('../../../mocks/window');
 
   var assert = Chai.assert;
   var View = BaseView.extend({

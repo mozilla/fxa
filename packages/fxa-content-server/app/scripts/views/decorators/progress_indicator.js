@@ -12,12 +12,11 @@
  * Requires the invokeHandler function.
  */
 
-define([
-  'lib/promise',
-  'views/progress_indicator'
-],
-function (p, ProgressIndicator) {
+define(function (require, exports, module) {
   'use strict';
+
+  var p = require('lib/promise');
+  var ProgressIndicator = require('views/progress_indicator');
 
   function showProgressIndicator(handler, _el) {
     var el = _el || 'button[type=submit]';
@@ -64,5 +63,5 @@ function (p, ProgressIndicator) {
     return progressIndicator;
   }
 
-  return showProgressIndicator;
+  module.exports = showProgressIndicator;
 });

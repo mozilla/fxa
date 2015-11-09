@@ -3,8 +3,9 @@
  * Available via the MIT or new BSD license.
  */
 
-define([], function () {
+define(function (require, exports, module) {
   'use strict';
+
 
   function defaultBuster() {
     return Date.now();
@@ -31,5 +32,5 @@ define([], function () {
     }
   };
 
-  return nocache;
+  module.exports = nocache;
 });

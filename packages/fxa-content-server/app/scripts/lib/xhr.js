@@ -12,16 +12,16 @@
  *    a default data type. See issue #1786.
  */
 
-define([
-  'underscore',
-  'jquery',
-  'lib/promise'
-], function (_, $, p) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var _ = require('underscore');
+  var p = require('lib/promise');
 
   var DEFAULT_DATA_TYPE = 'json';
 
-  return {
+  module.exports = {
     /**
      * Low level ajax functionality, does not set a default data type.
      *

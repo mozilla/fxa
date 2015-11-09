@@ -8,11 +8,11 @@
  */
 
 
-define([
-  'backbone',
-  'underscore'
-], function (Backbone, _) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Backbone = require('backbone');
 
   function WebChannelReceiver() {
     // nothing to do
@@ -57,6 +57,6 @@ define([
     }
   });
 
-  return WebChannelReceiver;
+  module.exports = WebChannelReceiver;
 });
 

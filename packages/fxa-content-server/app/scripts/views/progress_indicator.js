@@ -16,13 +16,13 @@
 // is never shown. If `done` then `start` are called within HIDE_DELAY_MS, then
 // the progress indicator is not hidden.
 
-define([
-  'underscore',
-  'jquery',
-  'backbone',
-  'views/mixins/timer-mixin'
-], function (_, $, Backbone, TimerMixin) {
+define(function (require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var _ = require('underscore');
+  var Backbone = require('backbone');
+  var TimerMixin = require('views/mixins/timer-mixin');
 
   // The show and hide delays are to minimize flash.
   var SHOW_DELAY_MS = 100;
@@ -147,6 +147,6 @@ define([
 
   _.extend(View.prototype, TimerMixin);
 
-  return View;
+  module.exports = View;
 });
 

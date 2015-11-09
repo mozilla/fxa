@@ -2,15 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'lib/constants',
-  'models/reliers/relier',
-  'models/resume-token',
-  '../../../mocks/window',
-  '../../../lib/helpers'
-], function (chai, Constants, Relier, ResumeToken, WindowMock, TestHelpers) {
+define(function (require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var Constants = require('lib/constants');
+  var Relier = require('models/reliers/relier');
+  var ResumeToken = require('models/resume-token');
+  var TestHelpers = require('../../../lib/helpers');
+  var WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

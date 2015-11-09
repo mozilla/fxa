@@ -2,15 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'underscore',
-  'lib/experiments/mailcheck',
-  'lib/experiments/open-gmail',
-  'lib/experiments/sync-checkbox',
-  'lib/url'
-], function (_, MailcheckExperiment, OpenGmailExperiment,
-  SyncCheckboxExperiment, Url) {
+define(function (require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var MailcheckExperiment = require('lib/experiments/mailcheck');
+  var OpenGmailExperiment = require('lib/experiments/open-gmail');
+  var SyncCheckboxExperiment = require('lib/experiments/sync-checkbox');
+  var Url = require('lib/url');
 
   var CHOOSE_ABLE_EXPERIMENT = 'chooseAbExperiment';
   var FORCE_EXPERIMENT_PARAM = 'forceExperiment';
@@ -134,5 +133,5 @@ define([
     }
   });
 
-  return ExperimentInterface;
+  module.exports = ExperimentInterface;
 });

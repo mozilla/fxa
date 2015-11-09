@@ -6,12 +6,12 @@
  * A client to talk to the basket marketing email server
  */
 
-define([
-  'lib/constants',
-  'lib/xhr',
-  'lib/marketing-email-errors'
-], function (Constants, xhr, MarketingEmailErrors) {
+define(function (require, exports, module) {
   'use strict';
+
+  var Constants = require('lib/constants');
+  var MarketingEmailErrors = require('lib/marketing-email-errors');
+  var xhr = require('lib/xhr');
 
   function MarketingEmailClient(options) {
     options = options || {};
@@ -67,6 +67,6 @@ define([
     }
   };
 
-  return MarketingEmailClient;
+  module.exports = MarketingEmailClient;
 });
 

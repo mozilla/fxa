@@ -2,15 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'lib/auth-errors',
-  'lib/channels/receivers/postmessage',
-  '../../../../mocks/window'
-],
-function (chai, sinon, AuthErrors, PostMessageReceiver, WindowMock) {
+define(function (require, exports, module) {
   'use strict';
+
+  var AuthErrors = require('lib/auth-errors');
+  var chai = require('chai');
+  var PostMessageReceiver = require('lib/channels/receivers/postmessage');
+  var sinon = require('sinon');
+  var WindowMock = require('../../../../mocks/window');
 
   var windowMock;
   var receiver;

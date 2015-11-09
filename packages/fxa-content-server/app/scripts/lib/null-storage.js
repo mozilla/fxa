@@ -5,9 +5,9 @@
 // This is a memory store that's api compatible with localStorage/sessionStorage.
 // It's used for testing lib/storage.
 
-define([
-], function () {
+define(function (require, exports, module) {
   'use strict';
+
 
   function NullStorage () {
     this._storage = {};
@@ -35,5 +35,5 @@ define([
     this._storage = {};
   };
 
-  return NullStorage;
+  module.exports = NullStorage;
 });

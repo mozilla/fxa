@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'views/legal_copy',
-  'stache!templates/pp',
-  'lib/auth-errors'
-],
-function (LegalCopyView, Template, AuthErrors) {
+define(function (require, exports, module) {
   'use strict';
+
+  var AuthErrors = require('lib/auth-errors');
+  var LegalCopyView = require('views/legal_copy');
+  var Template = require('stache!templates/pp');
 
   var View = LegalCopyView.extend({
     className: 'pp',
@@ -21,6 +20,6 @@ function (LegalCopyView, Template, AuthErrors) {
     template: Template
   });
 
-  return View;
+  module.exports = View;
 });
 

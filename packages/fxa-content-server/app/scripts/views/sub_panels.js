@@ -3,13 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // This component renders multiple childViews
-define([
-  'lib/promise',
-  'views/base',
-  'stache!templates/sub_panels'
-],
-function (p, BaseView, Template) {
+define(function (require, exports, module) {
   'use strict';
+
+  var BaseView = require('views/base');
+  var p = require('lib/promise');
+  var Template = require('stache!templates/sub_panels');
 
   var View = BaseView.extend({
     template: Template,
@@ -112,5 +111,5 @@ function (p, BaseView, Template) {
     }
   });
 
-  return View;
+  module.exports = View;
 });

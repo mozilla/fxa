@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'views/base',
-  'stache!templates/openid/login',
-  'lib/session'
-],
-function (BaseView, Template, Session) {
+define(function (require, exports, module) {
   'use strict';
+
+  var BaseView = require('views/base');
+  var Session = require('lib/session');
+  var Template = require('stache!templates/openid/login');
 
   var View = BaseView.extend({
     template: Template,
@@ -54,5 +53,5 @@ function (BaseView, Template, Session) {
     }
   });
 
-  return View;
+  module.exports = View;
 });

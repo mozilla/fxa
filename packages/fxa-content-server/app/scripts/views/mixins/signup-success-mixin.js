@@ -4,10 +4,11 @@
 
 // `onSignUpSuccess` is shared amongst several views. This is the shared source.
 
-define([], function () {
+define(function (require, exports, module) {
   'use strict';
 
-  return {
+
+  module.exports = {
     onSignUpSuccess: function (account) {
       var self = this;
       if (account.get('verified')) {

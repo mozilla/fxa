@@ -2,17 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'views/base',
-  'lib/config-loader',
-  'lib/auth-errors',
-  'lib/storage',
-  'stache!templates/cookies_disabled',
-  'views/mixins/back-mixin'
-],
-function (Cocktail, BaseView, ConfigLoader, AuthErrors, Storage, Template, BackMixin) {
+define(function (require, exports, module) {
   'use strict';
+
+  var AuthErrors = require('lib/auth-errors');
+  var BackMixin = require('views/mixins/back-mixin');
+  var BaseView = require('views/base');
+  var Cocktail = require('cocktail');
+  var ConfigLoader = require('lib/config-loader');
+  var Storage = require('lib/storage');
+  var Template = require('stache!templates/cookies_disabled');
 
   var View = BaseView.extend({
     constructor: function (options) {
@@ -43,5 +42,5 @@ function (Cocktail, BaseView, ConfigLoader, AuthErrors, Storage, Template, BackM
     BackMixin
   );
 
-  return View;
+  module.exports = View;
 });
