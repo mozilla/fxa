@@ -32,7 +32,7 @@ before_script:
 
 script:
   - npm run outdated
-  - grunt validate-shrinkwrap test
+  - grunt test
 
 matrix:
   allow_failures:
