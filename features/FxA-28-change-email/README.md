@@ -43,11 +43,11 @@ As an FxA user when I lose control of the email account  that is my username in 
 ![](change-email-resent.png)
 
 ## Settings Confirmed & Authenticated
-* When the user verifies their email in a browser where they are still logged in, all signed-in tabs are taken to **Settings** where the email is updated, and a temporary success message appears.
+* When the user verifies their email in a browser where they are still logged in, all signed-in or verification-pending tabs are taken to **Settings** where the email is updated, and a temporary success message appears.
 
 ![](change-email-confirmed-authenticated.png)
 
 ## Settings Confirmed & Unauthenticated
-* When the user verifies their email in a browser where they are not logged in, they are taken to **Settings** and a temporary success message appears.
+* When the user verifies their email in a browser where they are not logged in, they are taken to a FxA login page, and a temporary success message appears.
 
 ![](change-email-confirmed-unauthenticated.png)
