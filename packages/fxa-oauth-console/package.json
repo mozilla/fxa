@@ -47,7 +47,6 @@
     "request": "2.51.0"
   },
   "devDependencies": {
-    "ember-cli": "1.13.8",
     "ember-cli-qunit": "1.0.0",
     "ember-cli-release": "0.2.3",
     "ember-cli-sri": "1.0.3",
