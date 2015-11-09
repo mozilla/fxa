@@ -1,3 +1,13 @@
+<a name="0.49.3"></a>
+## 0.49.3 (2015-11-06)
+
+
+### Bug Fixes
+
+* **client:** fix name clash with web-channel events ([8e23d6d](https://github.com/mozilla/fxa-content-server/commit/8e23d6d))
+
+
+
 <a name="0.49.2"></a>
 ## 0.49.2 (2015-11-04)
 
