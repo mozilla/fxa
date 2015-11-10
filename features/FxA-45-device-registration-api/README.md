@@ -286,6 +286,8 @@ https://api-accounts.dev.lcip.org/v1/account/device \
 
 If the session is associated with a different device id,
 a 400 error will be returned.
+If the device id is associated with a different session,
+the device record will be updated with the new session.
 
 ```
 curl -v \
