@@ -29,4 +29,5 @@ before_install:
 
 script:
   - npm run outdated
+  - grunt nsp --force # check for vulnerable modules via nodesecurity.io
   - grunt
