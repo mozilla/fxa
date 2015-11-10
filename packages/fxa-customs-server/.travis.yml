@@ -10,6 +10,8 @@ node_js:
  - '0.12'
  - iojs
 
+sudo: false
+
 services:
  - memcached
 
@@ -26,5 +28,6 @@ before_install:
   - npm config set spin false
 
 script:
+  - grunt nsp --force
   - npm run outdated
   - npm test
