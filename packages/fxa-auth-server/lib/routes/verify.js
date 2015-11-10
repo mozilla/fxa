@@ -4,13 +4,15 @@
 
 const Joi = require('joi');
 
+const logger = require('../logging')('routes.verify');
 const token = require('../token');
 const validators = require('../validators');
 
 module.exports = {
   validate: {
     payload: {
-      token: validators.token.required()
+      token: validators.token.required(),
+      email: Joi.boolean().default(true)
     }
   },
   response: {
@@ -22,6 +24,17 @@ module.exports = {
     }
   },
   handler: function verify(req, reply) {
-    token.verify(req.payload.token).done(reply, reply);
+    token.verify(req.payload.token).then(function(info) {
+      if (req.payload.email) {
+        logger.warn('email.requested', {
+          user: info.user,
+          client_id: info.client_id,
+          scope: info.scope
+        });
+      } else {
+        delete info.email;
+      }
+      return info;
+    }).done(reply, reply);
   }
 };
