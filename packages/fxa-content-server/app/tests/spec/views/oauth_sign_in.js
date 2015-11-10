@@ -14,7 +14,6 @@ define(function (require, exports, module) {
   var OAuthBroker = require('models/auth_brokers/oauth');
   var OAuthRelier = require('models/reliers/oauth');
   var p = require('lib/promise');
-  var RouterMock = require('../../mocks/router');
   var Session = require('lib/session');
   var sinon = require('sinon');
   var TestHelpers = require('../../lib/helpers');
@@ -27,7 +26,6 @@ define(function (require, exports, module) {
   describe('views/sign_in for /oauth/signin', function () {
     var view;
     var email;
-    var router;
     var windowMock;
     var fxaClient;
     var relier;
@@ -46,7 +44,6 @@ define(function (require, exports, module) {
     beforeEach(function () {
       Session.clear();
       email = TestHelpers.createEmail();
-      router = new RouterMock();
       windowMock = new WindowMock();
       windowMock.location.search = '?client_id=' + CLIENT_ID + '&state=' + STATE + '&scope=' + SCOPE;
 
@@ -89,7 +86,6 @@ define(function (require, exports, module) {
         notifier: notifier,
         profileClient: profileClientMock,
         relier: relier,
-        router: router,
         user: user,
         viewName: 'oauth.signin',
         window: windowMock
@@ -131,6 +127,7 @@ define(function (require, exports, module) {
         sinon.stub(broker, 'afterSignIn', function () {
           return p();
         });
+        sinon.spy(view, 'navigate');
 
         var password = 'password';
         $('.email').val(email);
@@ -144,7 +141,7 @@ define(function (require, exports, module) {
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                               'oauth.signin.success'));
             assert.isTrue(broker.afterSignIn.calledWith(account));
-            assert.equal(router.page, 'settings');
+            assert.isTrue(view.navigate.calledWith('settings'));
           });
       });
     });

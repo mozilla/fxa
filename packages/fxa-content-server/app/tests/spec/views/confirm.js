@@ -14,7 +14,6 @@ define(function (require, exports, module) {
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
-  var RouterMock = require('../../mocks/router');
   var Session = require('lib/session');
   var sinon = require('sinon');
   var TestHelpers = require('../../lib/helpers');
@@ -32,7 +31,6 @@ define(function (require, exports, module) {
     var metrics;
     var notifier;
     var relier;
-    var routerMock;
     var user;
     var view;
     var windowMock;
@@ -42,7 +40,6 @@ define(function (require, exports, module) {
       fxaClient = new FxaClient();
       metrics = new Metrics();
       notifier = new Notifier();
-      routerMock = new RouterMock();
       user = new User();
       windowMock = new WindowMock();
 
@@ -78,7 +75,6 @@ define(function (require, exports, module) {
         metrics: metrics,
         notifier: notifier,
         relier: relier,
-        router: routerMock,
         user: user,
         viewName: 'confirm',
         window: windowMock
@@ -110,13 +106,14 @@ define(function (require, exports, module) {
         });
         view = new View({
           ephemeralMessages: ephemeralMessages,
-          router: routerMock,
+          notifier: notifier,
           user: user,
           window: windowMock
         });
+        sinon.spy(view, 'navigate');
         return view.render()
           .then(function () {
-            assert.equal(routerMock.page, 'signup');
+            assert.isTrue(view.navigate.calledWith('signup'));
           });
       });
 
@@ -194,9 +191,10 @@ define(function (require, exports, module) {
           return p.reject(AuthErrors.toError('SIGNUP_EMAIL_BOUNCE'));
         });
 
+        sinon.spy(view, 'navigate');
         return view.afterVisible()
           .then(function () {
-            assert.equal(routerMock.page, 'signup');
+            assert.isTrue(view.navigate.calledWith('signup'));
             assert.isTrue(view.fxaClient.recoveryEmailStatus.called);
             assert.equal(
                 ephemeralMessages.get('bouncedEmail'), 'a@a.com');
@@ -234,9 +232,11 @@ define(function (require, exports, module) {
           return p.reject(AuthErrors.toError('INVALID_TOKEN'));
         });
 
+        sinon.spy(view, 'navigate');
+
         return view.submit()
               .then(function () {
-                assert.equal(routerMock.page, 'signup');
+                assert.isTrue(view.navigate.calledWith('signup'));
 
                 assert.isTrue(TestHelpers.isEventLogged(metrics,
                                   'confirm.resend'));

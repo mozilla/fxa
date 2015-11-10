@@ -5,14 +5,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Able = require('lib/able');
   var Backbone = require('backbone');
   var BaseView = require('views/base');
   var chai = require('chai');
   var Constants = require('lib/constants');
   var DisplayNameView = require('views/settings/display_name');
-  var Environment = require('lib/environment');
-  var FormPrefill = require('models/form-prefill');
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
   var NullBroker = require('models/auth_brokers/base');
@@ -27,10 +24,7 @@ define(function (require, exports, module) {
   var assert = chai.assert;
 
   describe('lib/router', function () {
-    var able;
     var broker;
-    var environment;
-    var formPrefill;
     var metrics;
     var navigateOptions;
     var navigateUrl;
@@ -43,16 +37,10 @@ define(function (require, exports, module) {
     beforeEach(function () {
       navigateUrl = navigateOptions = null;
 
-      $('#container').empty().html('<div id="stage"></div>');
-
-      able = new Able();
-      formPrefill = new FormPrefill();
       metrics = new Metrics();
       notifier = new Notifier();
       user = new User();
       windowMock = new WindowMock();
-
-      environment = new Environment(windowMock);
 
       relier = new Relier({
         window: windowMock
@@ -63,13 +51,9 @@ define(function (require, exports, module) {
       });
 
       router = new Router({
-        able: able,
         broker: broker,
-        environment: environment,
-        formPrefill: formPrefill,
         metrics: metrics,
         notifier: notifier,
-        relier: relier,
         user: user,
         window: windowMock
       });
@@ -84,7 +68,6 @@ define(function (require, exports, module) {
       metrics.destroy();
       windowMock = router = navigateUrl = navigateOptions = metrics = null;
       Backbone.Router.prototype.navigate.restore();
-      $('#container').empty();
     });
 
     describe('navigate', function () {
@@ -93,6 +76,25 @@ define(function (require, exports, module) {
         router.navigate('/signin');
         assert.equal(navigateUrl, '/signin');
         assert.deepEqual(navigateOptions, { trigger: true });
+      });
+    });
+
+    describe('`navigate` notifier message', function () {
+      beforeEach(function () {
+        sinon.spy(router, 'navigate');
+
+        notifier.trigger('navigate', {
+          clearQueryParams: true,
+          trigger: true,
+          url: 'signin'
+        });
+      });
+
+      it('calls `navigate` correctly', function () {
+        assert.isTrue(router.navigate.calledWith('signin', {
+          clearQueryParams: true,
+          trigger: true
+        }));
       });
     });
 
@@ -119,10 +121,9 @@ define(function (require, exports, module) {
 
         it('clears the query params if clearQueryString option is set', function () {
           assert.equal(navigateUrl, '/forgot');
-          assert.deepEqual(navigateOptions, { clearQueryParams: true });
+          assert.deepEqual(navigateOptions, { clearQueryParams: true, trigger: true });
         });
       });
-
     });
 
     describe('redirectToSignupOrSettings', function () {
@@ -247,10 +248,8 @@ define(function (require, exports, module) {
         windowMock.sessionStorage.setItem('canGoBack', true);
         router = new Router({
           broker: broker,
-          formPrefill: formPrefill,
           metrics: metrics,
           notifier: notifier,
-          relier: relier,
           user: user,
           window: windowMock
         });

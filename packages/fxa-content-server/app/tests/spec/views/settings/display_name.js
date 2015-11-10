@@ -12,7 +12,6 @@ define(function (require, exports, module) {
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
-  var RouterMock = require('../../../mocks/router');
   var sinon = require('sinon');
   var TestHelpers = require('../../../lib/helpers');
   var User = require('models/user');
@@ -22,7 +21,6 @@ define(function (require, exports, module) {
 
   describe('views/settings/display_name', function () {
     var view;
-    var routerMock;
     var metrics;
     var user;
     var email;
@@ -32,7 +30,6 @@ define(function (require, exports, module) {
 
     beforeEach(function () {
       email = TestHelpers.createEmail();
-      routerMock = new RouterMock();
       metrics = new Metrics();
       user = new User();
       relier = new Relier();
@@ -59,7 +56,6 @@ define(function (require, exports, module) {
         metrics: metrics,
         notifier: notifier,
         relier: relier,
-        router: routerMock,
         user: user
       });
 
@@ -137,6 +133,8 @@ define(function (require, exports, module) {
               return p();
             });
             sinon.spy(view, 'render');
+            sinon.spy(view, 'navigate');
+
             view.$('input.display-name').val(name);
             return view.submit();
           })
@@ -147,7 +145,7 @@ define(function (require, exports, module) {
             assert.isTrue(view.displaySuccess.called);
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                                   'settings.display-name.success'));
-            assert.equal(routerMock.page, 'settings');
+            assert.isTrue(view.navigate.calledWith('settings'));
           });
       });
 

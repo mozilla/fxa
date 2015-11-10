@@ -15,7 +15,6 @@ define(function (require, exports, module) {
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
-  var RouterMock = require('../../mocks/router');
   var sinon = require('sinon');
   var TestHelpers = require('../../lib/helpers');
   var User = require('models/user');
@@ -25,17 +24,17 @@ define(function (require, exports, module) {
   var assert = chai.assert;
 
   describe('views/complete_sign_up', function () {
-    var view;
-    var routerMock;
-    var windowMock;
-    var verificationError;
-    var metrics;
-    var fxaClient;
-    var relier;
-    var broker;
-    var user;
-    var notifier;
     var account;
+    var broker;
+    var fxaClient;
+    var metrics;
+    var notifier;
+    var relier;
+    var user;
+    var verificationError;
+    var view;
+    var windowMock;
+
     var validCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH);
     var validUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
 
@@ -74,7 +73,6 @@ define(function (require, exports, module) {
         metrics: metrics,
         notifier: notifier,
         relier: relier,
-        router: routerMock,
         user: user,
         viewName: 'complete_sign_up',
         window: windowMock
@@ -82,7 +80,6 @@ define(function (require, exports, module) {
     }
 
     beforeEach(function () {
-      routerMock = new RouterMock();
       windowMock = new WindowMock();
       metrics = new Metrics();
       relier = new Relier();
@@ -200,10 +197,12 @@ define(function (require, exports, module) {
           return false;
         });
 
+        sinon.spy(view, 'navigate');
+
         return view.render()
           .then(function () {
             assert.isTrue(view.fxaClient.verifyCode.calledWith(validUid, validCode));
-            assert.equal(routerMock.page, 'signup_complete');
+            assert.isTrue(view.navigate.calledWith('signup_complete'));
             assert.isTrue(broker.afterCompleteSignUp.calledWith(account));
             assert.isTrue(TestHelpers.isEventLogged(
                     metrics, 'complete_sign_up.verification.success'));
@@ -220,9 +219,11 @@ define(function (require, exports, module) {
           return p(true);
         });
 
+        sinon.spy(view, 'navigate');
+
         return view.render()
           .then(function () {
-            assert.equal(routerMock.page, 'settings');
+            assert.isTrue(view.navigate.calledWith('settings'));
           });
       });
 
@@ -236,9 +237,11 @@ define(function (require, exports, module) {
           return p(false);
         });
 
+        sinon.spy(view, 'navigate');
+
         return view.render()
           .then(function () {
-            assert.equal(routerMock.page, 'signup_complete');
+            assert.isTrue(view.navigate.calledWith('signup_complete'));
           });
       });
 
@@ -350,14 +353,16 @@ define(function (require, exports, module) {
           });
       });
 
-      it('sends the user to the signup page if the resend token is invalid', function () {
+      it('sends the user to the /signup page if the resend token is invalid', function () {
         sinon.stub(view.fxaClient, 'signUpResend', function () {
           return p.reject(AuthErrors.toError('INVALID_TOKEN'));
         });
 
+        sinon.spy(view, 'navigate');
+
         return view.submit()
           .then(function () {
-            assert.equal(routerMock.page, 'signup');
+            assert.isTrue(view.navigate.calledWith('signup'));
           });
       });
 

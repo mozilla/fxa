@@ -15,7 +15,6 @@ define(function (require, exports, module) {
   var ProfileClient = require('lib/profile-client');
   var ProfileMock = require('../../../mocks/profile');
   var Relier = require('models/reliers/relier');
-  var RouterMock = require('../../../mocks/router');
   var sinon = require('sinon');
   var TestHelpers = require('../../../lib/helpers');
   var User = require('models/user');
@@ -33,7 +32,6 @@ define(function (require, exports, module) {
     var notifier;
     var profileClientMock;
     var relier;
-    var routerMock;
     var user;
     var view;
 
@@ -41,7 +39,6 @@ define(function (require, exports, module) {
       metrics = new Metrics();
       notifier = new Notifier();
       relier = new Relier();
-      routerMock = new RouterMock();
       user = new User();
 
       broker = new AuthBroker({
@@ -53,7 +50,6 @@ define(function (require, exports, module) {
         metrics: metrics,
         notifier: notifier,
         relier: relier,
-        router: routerMock,
         user: user
       });
 
@@ -68,7 +64,6 @@ define(function (require, exports, module) {
       $(view.el).remove();
       view.destroy();
       view = null;
-      routerMock = null;
       profileClientMock = null;
     });
 
@@ -87,11 +82,12 @@ define(function (require, exports, module) {
       });
 
       it('not found', function () {
+        sinon.spy(view, 'navigate');
         return view.render()
           .then(function () {
             return view._showGravatar()
               .then(function () {
-                assert.equal(routerMock.page, 'settings/avatar/change');
+                assert.isTrue(view.navigate.calledWith('settings/avatar/change'));
                 assert.isTrue(AuthErrors.is(view.ephemeralMessages.get('error'), 'NO_GRAVATAR_FOUND'));
               });
           });
@@ -134,6 +130,8 @@ define(function (require, exports, module) {
             return p();
           });
 
+          sinon.spy(view, 'navigate');
+
           return view.render()
             .then(function () {
               return view.submit();
@@ -144,7 +142,7 @@ define(function (require, exports, module) {
               assert.equal(view.updateProfileImage.args[0][0].get('id'), 'foo');
               assert.equal(view.updateProfileImage.args[0][1], account);
               assert.equal(result.id, 'foo');
-              assert.equal(routerMock.page, 'settings');
+              assert.isTrue(view.navigate.calledWith('settings'));
               assert.equal(view.ephemeralMessages.get('successUnsafe'), 'Courtesy of <a href="https://www.gravatar.com">Gravatar</a>');
             });
         });

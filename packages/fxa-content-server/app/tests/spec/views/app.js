@@ -13,7 +13,6 @@ define(function (require, exports, module) {
   var Environment = require('lib/environment');
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
-  var RouterMock = require('../../mocks/router');
   var sinon = require('sinon');
   var WindowMock = require('../../mocks/window');
 
@@ -22,13 +21,11 @@ define(function (require, exports, module) {
   describe('views/app', function () {
     var environment;
     var notifier;
-    var router;
     var view;
     var windowMock;
 
     function createDeps() {
       notifier = new Notifier();
-      router = new RouterMock();
       windowMock = new WindowMock();
       environment = new Environment(windowMock);
 
@@ -37,7 +34,9 @@ define(function (require, exports, module) {
         el: $('#container'),
         environment: environment,
         notifier: notifier,
-        router: router,
+        createView: function (Constructor, options) {
+          return new Constructor(options);
+        },
         window: windowMock
       });
     }
@@ -50,12 +49,12 @@ define(function (require, exports, module) {
 
         event = $.Event('click');
         event.currentTarget = $('a[href="/signup"]');
-        sinon.spy(router, 'navigate');
+        sinon.spy(view, 'navigate');
       });
 
       function testNoNavigation() {
         view.onAnchorClick(event);
-        assert.isFalse(router.navigate.called);
+        assert.isFalse(view.navigate.called);
       }
 
       function setUpIFrameLink() {
@@ -114,7 +113,7 @@ define(function (require, exports, module) {
       it('navigates otherwise', function () {
         view.onAnchorClick(event);
 
-        assert.isTrue(router.navigate.calledWith('signup'));
+        assert.isTrue(view.navigate.calledWith('signup'));
       });
     });
 

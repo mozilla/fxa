@@ -17,7 +17,6 @@ define(function (require, exports, module) {
   var OAuthClient = require('lib/oauth-client');
   var OAuthRelier = require('models/reliers/oauth');
   var p = require('lib/promise');
-  var RouterMock = require('../../mocks/router');
   var Session = require('lib/session');
   var sinon = require('sinon');
   var TestHelpers = require('../../lib/helpers');
@@ -52,7 +51,6 @@ define(function (require, exports, module) {
 
   describe('views/sign_up for /oauth/signup', function () {
     var view;
-    var router;
     var email;
     var metrics;
     var windowMock;
@@ -70,7 +68,6 @@ define(function (require, exports, module) {
       Session.clear();
       email = TestHelpers.createEmail();
 
-      router = new RouterMock();
 
       windowMock = new WindowMock();
       metrics = new Metrics();
@@ -119,7 +116,6 @@ define(function (require, exports, module) {
         notifier: notifier,
         oAuthClient: oAuthClient,
         relier: relier,
-        router: router,
         user: user,
         viewName: 'oauth.signup',
         window: windowMock
@@ -149,7 +145,7 @@ define(function (require, exports, module) {
     });
 
     describe('submit without a preVerifyToken', function () {
-      it('redirects to confirm on success', function () {
+      it('redirects to /confirm on success', function () {
         fillOutSignUp(email, 'password', { context: view });
 
         sinon.stub(user, 'signUpAccount', function (account) {
@@ -160,11 +156,13 @@ define(function (require, exports, module) {
           return false;
         });
 
+        sinon.spy(view, 'navigate');
+
         return view.submit()
           .then(function () {
             assert.equal(user.signUpAccount.args[0][0].get('email'), email);
             assert.equal(user.signUpAccount.args[0][0].get('password'), 'password');
-            assert.equal(router.page, 'confirm');
+            assert.isTrue(view.navigate.calledWith('confirm'));
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                               'oauth.signup.success'));
           });
@@ -214,12 +212,13 @@ define(function (require, exports, module) {
         sinon.stub(relier, 'accountNeedsPermissions', function () {
           return false;
         });
+        sinon.spy(view, 'navigate');
 
         var password = 'password';
         fillOutSignUp(email, password, { context: view });
         return view.submit()
           .then(function () {
-            assert.equal(router.page, 'confirm');
+            assert.isTrue(view.navigate.calledWith('confirm'));
             assert.equal(user.signUpAccount.args[0][0].get('email'), email);
             assert.equal(user.signUpAccount.args[0][0].get('password'), password);
           });

@@ -12,9 +12,9 @@ define(function (require, exports, module) {
   var Cocktail = require('cocktail');
   var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
+  var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
   var Relier = require('models/reliers/base');
-  var RouterMock = require('../../../mocks/router');
   var sinon = require('sinon');
   var Template = require('stache!templates/test_template');
   var TestHelpers = require('../../../lib/helpers');
@@ -29,29 +29,27 @@ define(function (require, exports, module) {
   Cocktail.mixin(AccountLockedView, AccountLockedMixin);
 
   describe('views/mixins/account-locked-mixin', function () {
-    var view;
-    var routerMock;
-    var fxaClient;
     var account;
+    var fxaClient;
     var metrics;
+    var notifier;
     var relier;
+    var view;
 
     beforeEach(function () {
-      routerMock = new RouterMock();
-      fxaClient = new FxaClient();
-
       account = new User().initAccount({
         email: 'testuser@testuser.com'
       });
-
+      fxaClient = new FxaClient();
       metrics = new Metrics();
+      notifier = new Notifier();
       relier = new Relier();
 
       view = new AccountLockedView({
         fxaClient: fxaClient,
         metrics: metrics,
+        notifier: notifier,
         relier: relier,
-        router: routerMock,
         viewName: 'delete-account'  // just an example name
       });
       return view.render();
@@ -79,9 +77,10 @@ define(function (require, exports, module) {
         });
 
         view.notifyOfLockedAccount(account);
+        sinon.spy(view, 'navigate');
         return view.sendAccountLockedEmail()
           .then(function () {
-            assert.equal(routerMock.page, 'confirm_account_unlock');
+            assert.isTrue(view.navigate.calledWith('confirm_account_unlock'));
             assert.isTrue(fxaClient.sendAccountUnlockEmail.calledWith(
               'testuser@testuser.com',
               relier,
@@ -98,9 +97,10 @@ define(function (require, exports, module) {
         });
 
         view.notifyOfLockedAccount(account);
+        sinon.spy(view, 'navigate');
         return view.sendAccountLockedEmail()
           .then(function () {
-            assert.equal(routerMock.page, 'signup');
+            assert.isTrue(view.navigate.calledWith('signup'));
           });
       });
 

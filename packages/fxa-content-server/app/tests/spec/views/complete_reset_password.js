@@ -13,7 +13,6 @@ define(function (require, exports, module) {
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
-  var RouterMock = require('../../mocks/router');
   var sinon = require('sinon');
   var TestHelpers = require('../../lib/helpers');
   var User = require('models/user');
@@ -38,7 +37,6 @@ define(function (require, exports, module) {
     var metrics;
     var notifier;
     var relier;
-    var routerMock;
     var user;
     var view;
     var windowMock;
@@ -59,7 +57,6 @@ define(function (require, exports, module) {
         metrics: metrics,
         notifier: notifier,
         relier: relier,
-        router: routerMock,
         user: user,
         viewName: 'complete_reset_password',
         window: windowMock
@@ -72,7 +69,6 @@ define(function (require, exports, module) {
       metrics = new Metrics();
       notifier = new Notifier();
       relier = new Relier();
-      routerMock = new RouterMock();
       user = new User({
         fxaClient: fxaClient
       });
@@ -293,6 +289,8 @@ define(function (require, exports, module) {
         // starting window can complete the signin process.
         sinon.spy(view.notifier, 'triggerRemote');
 
+        sinon.spy(view, 'navigate');
+
         return view.validateAndSubmit()
             .then(function () {
               assert.isTrue(fxaClient.completePasswordReset.calledWith(
@@ -303,7 +301,7 @@ define(function (require, exports, module) {
                   relier,
                   { reason: view.fxaClient.SIGNIN_REASON.PASSWORD_RESET }
               ));
-              assert.equal(routerMock.page, 'reset_password_complete');
+              assert.isTrue(view.navigate.calledWith('reset_password_complete'));
 
               assert.equal(view.notifier.triggerRemote.callCount, 1);
               var args = view.notifier.triggerRemote.args[0];
@@ -334,10 +332,11 @@ define(function (require, exports, module) {
         sinon.stub(relier, 'isDirectAccess', function () {
           return true;
         });
+        sinon.spy(view, 'navigate');
 
         return view.validateAndSubmit()
           .then(function () {
-            assert.equal(routerMock.page, 'settings');
+            assert.isTrue(view.navigate.calledWith('settings'));
           });
       });
 
@@ -384,9 +383,11 @@ define(function (require, exports, module) {
           return 'resume token';
         });
 
+        sinon.spy(view, 'navigate');
+
         return view.resendResetEmail()
             .then(function () {
-              assert.equal(routerMock.page, 'confirm_reset_password');
+              assert.isTrue(view.navigate.calledWith('confirm_reset_password'));
               assert.isTrue(view.fxaClient.passwordReset.calledWith(
                 EMAIL,
                 relier,

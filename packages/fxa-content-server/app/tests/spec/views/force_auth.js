@@ -14,7 +14,6 @@ define(function (require, exports, module) {
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
-  var RouterMock = require('../../mocks/router');
   var SignInView = require('views/sign_in');
   var sinon = require('sinon');
   var TestHelpers = require('../../lib/helpers');
@@ -31,7 +30,6 @@ define(function (require, exports, module) {
     var fxaClient;
     var notifier;
     var relier;
-    var router;
     var user;
     var view;
     var windowMock;
@@ -42,7 +40,6 @@ define(function (require, exports, module) {
       fxaClient = new FxaClient();
       notifier = new Notifier();
       relier = new Relier();
-      router = new RouterMock();
       user = new User({
         notifier: notifier
       });
@@ -54,7 +51,6 @@ define(function (require, exports, module) {
         fxaClient: fxaClient,
         notifier: notifier,
         relier: relier,
-        router: router,
         user: user,
         window: windowMock
       });
@@ -63,7 +59,7 @@ define(function (require, exports, module) {
     afterEach(function () {
       view.remove();
       view.destroy();
-      router = view = null;
+      view = null;
     });
 
     describe('with missing email address', function () {

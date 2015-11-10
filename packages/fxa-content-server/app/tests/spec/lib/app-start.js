@@ -29,7 +29,6 @@ define(function (require, exports, module) {
   var RedirectBroker = require('models/auth_brokers/redirect');
   var RefreshObserver = require('models/refresh-observer');
   var Relier = require('models/reliers/relier');
-  var RouterMock = require('../../mocks/router');
   var SameBrowserVerificationModel = require('models/verification/same-browser');
   var Session = require('lib/session');
   var sinon = require('sinon');
@@ -59,7 +58,7 @@ define(function (require, exports, module) {
       brokerMock = new BaseBroker();
       historyMock = new HistoryMock();
       notifier = new Notifier();
-      routerMock = new RouterMock();
+      routerMock = { navigate: sinon.spy() };
       userMock = new User();
 
       windowMock = new WindowMock();
@@ -91,7 +90,6 @@ define(function (require, exports, module) {
       });
 
       it('does not redirect', function () {
-        sinon.spy(routerMock, 'navigate');
         return appStart.startApp()
           .then(function () {
             assert.isFalse(routerMock.navigate.called);
@@ -154,13 +152,12 @@ define(function (require, exports, module) {
         it('redirects to /cookies_disabled', function () {
           return appStart.startApp()
             .then(function () {
-              assert.equal(routerMock.page, 'cookies_disabled');
+              assert.isTrue(routerMock.navigate.calledWith('cookies_disabled'));
             });
         });
 
         it('does not redirect if path is already /cookies_disabled', function () {
           windowMock.location.pathname = '/cookies_disabled';
-          sinon.spy(routerMock, 'navigate');
           return appStart.startApp()
             .then(function () {
               assert.isFalse(routerMock.navigate.called);

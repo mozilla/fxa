@@ -18,6 +18,7 @@ define(function (require, exports, module) {
       options = options || {};
 
       this._environment = options.environment;
+      this._createView = options.createView;
     },
 
     notifications: {
@@ -81,7 +82,7 @@ define(function (require, exports, module) {
           currentView.destroy();
         }
 
-        var viewToShow = new View(options);
+        var viewToShow = self._createView(View, options);
         self._currentView = viewToShow;
 
         viewToShow.logView();

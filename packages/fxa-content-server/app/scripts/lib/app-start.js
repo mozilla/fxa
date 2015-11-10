@@ -534,21 +534,36 @@ define(function (require, exports, module) {
       return this._user.upgradeFromSession(Session, this._fxaClient);
     },
 
+    createView: function (Constructor, options) {
+      var self = this;
+      var viewOptions = _.extend({
+        able: self._able,
+        broker: self._authenticationBroker,
+        createView: self.createView.bind(self),
+        formPrefill: self._formPrefill,
+        fxaClient: self._fxaClient,
+        interTabChannel: self._interTabChannel,
+        language: self._config.language,
+        metrics: self._metrics,
+        notifier: self._notifier,
+        relier: self._relier,
+        sentryMetrics: self._sentryMetrics,
+        user: self._user,
+        window: self._window
+      }, self._router.getViewOptions(options || {}));
+
+      return new Constructor(viewOptions);
+    },
+
     initializeRouter: function () {
       if (! this._router) {
         this._router = new Router({
-          able: this._able,
           broker: this._authenticationBroker,
-          formPrefill: this._formPrefill,
-          fxaClient: this._fxaClient,
-          interTabChannel: this._interTabChannel,
-          language: this._config.language,
+          createView: this.createView.bind(this),
           metrics: this._metrics,
           notifier: this._notifier,
-          relier: this._relier,
-          sentryMetrics: this._sentryMetrics,
-          session: Session,
-          user: this._user
+          user: this._user,
+          window: this._window
         });
       }
       this._window.router = this._router;
@@ -557,6 +572,7 @@ define(function (require, exports, module) {
     initializeAppView: function () {
       if (! this._appView) {
         this._appView = new AppView({
+          createView: this.createView.bind(this),
           el: 'body',
           environment: new Environment(this._window),
           notifier: this._notifier,

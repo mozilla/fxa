@@ -11,7 +11,6 @@ define(function (require, exports, module) {
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
-  var RouterMock = require('../../../mocks/router');
   var sinon = require('sinon');
   var User = require('models/user');
   var View = require('views/settings/avatar');
@@ -24,7 +23,6 @@ define(function (require, exports, module) {
     var fxaClientMock;
     var notifier;
     var relierMock;
-    var routerMock;
     var user;
     var view;
 
@@ -32,14 +30,12 @@ define(function (require, exports, module) {
       fxaClientMock = new FxaClientMock();
       notifier = new Notifier();
       relierMock = new Relier();
-      routerMock = new RouterMock();
       user = new User();
 
       view = new View({
         fxaClient: fxaClientMock,
         notifier: notifier,
         relier: relierMock,
-        router: routerMock,
         user: user
       });
     });
@@ -48,7 +44,6 @@ define(function (require, exports, module) {
       $(view.el).remove();
       view.destroy();
       view = null;
-      routerMock = null;
       fxaClientMock = null;
     });
 

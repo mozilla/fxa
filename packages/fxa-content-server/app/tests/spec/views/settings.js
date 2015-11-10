@@ -22,7 +22,6 @@ define(function (require, exports, module) {
   var ProfileErrors = require('lib/profile-errors');
   var ProfileImage = require('models/profile-image');
   var Relier = require('models/reliers/relier');
-  var RouterMock = require('../../mocks/router');
   var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
   var sinon = require('sinon');
   var SubPanels = require('views/sub_panels');
@@ -51,7 +50,6 @@ define(function (require, exports, module) {
     var panelViews;
     var profileClient;
     var relier;
-    var routerMock;
     var subPanels;
     var user;
     var view;
@@ -59,38 +57,44 @@ define(function (require, exports, module) {
     var ACCESS_TOKEN = 'access token';
     var UID = 'uid';
 
-    function createView () {
+    function createView(Constructor, options) {
+      return new Constructor(options);
+    }
+
+    function createSettingsView () {
       view = new View({
         able: able,
         childView: initialChildView,
+        createView: createView,
         formPrefill: formPrefill,
         fxaClient: fxaClient,
         metrics: metrics,
         notifier: notifier,
         panelViews: panelViews,
         relier: relier,
-        router: routerMock,
         subPanels: subPanels,
         user: user,
         viewName: 'settings'
       });
+
+      sinon.spy(view, 'navigate');
     }
 
     beforeEach(function () {
-      routerMock = new RouterMock();
-      metrics = new Metrics();
-      relier = new Relier();
+      able = new Able();
+      formPrefill = new FormPrefill();
       fxaClient = new FxaClient();
-      profileClient = new ProfileClient();
-
+      metrics = new Metrics();
       notifier = new Notifier();
+      profileClient = new ProfileClient();
+      relier = new Relier();
+
       user = new User({
         fxaClient: fxaClient,
         notifier: notifier,
         profileClient: profileClient
       });
 
-      formPrefill = new FormPrefill();
 
       account = user.initAccount({
         email: 'a@a.com',
@@ -102,14 +106,12 @@ define(function (require, exports, module) {
         return p();
       });
 
-      able = new Able();
-
       subPanels = new SubPanels();
       sinon.stub(subPanels, 'render', function () {
         return p();
       });
 
-      createView();
+      createSettingsView();
 
       sinon.stub(user, 'getSignedInAccount', function () {
         return account;
@@ -120,7 +122,6 @@ define(function (require, exports, module) {
       $(view.el).remove();
       view.destroy();
       view = null;
-      routerMock = null;
     });
 
     describe('with no session', function () {
@@ -128,7 +129,7 @@ define(function (require, exports, module) {
         user.getSignedInAccount.restore();
         return view.render()
           .then(function () {
-            assert.equal(routerMock.page, 'signin');
+            assert.isTrue(view.navigate.calledWith('signin'));
           });
       });
     });
@@ -147,7 +148,7 @@ define(function (require, exports, module) {
         });
         account.set('accessToken', ACCESS_TOKEN);
 
-        createView();
+        createSettingsView();
         sinon.stub(view, 'isUserAuthorized', function () {
           return p(true);
         });
@@ -170,11 +171,10 @@ define(function (require, exports, module) {
         sinon.stub(user, 'clearSignedInAccount', function () {
         });
 
-        createView();
+        createSettingsView();
         sinon.stub(view, 'isUserAuthorized', function () {
           return p(false);
         });
-        sinon.stub(view, 'navigate', function () { });
 
         return view.render()
           .then(function () {
@@ -354,7 +354,6 @@ define(function (require, exports, module) {
           });
           sinon.spy(user, 'clearSignedInAccount');
           sinon.spy(relier, 'unset');
-          sinon.spy(view, 'navigate');
 
           formPrefill.set('email', 'testuser@testuser.com');
           formPrefill.set('password', 'password');
@@ -390,7 +389,7 @@ define(function (require, exports, module) {
               assert.isFalse(formPrefill.has('email'));
               assert.isFalse(formPrefill.has('password'));
 
-              assert.equal(routerMock.page, 'signin');
+              assert.isTrue(view.navigate.calledWith('signin'));
             });
         });
 
@@ -407,7 +406,7 @@ define(function (require, exports, module) {
               // track the error, but success is still finally called
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.error'));
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.success'));
-              assert.equal(routerMock.page, 'signin');
+              assert.isTrue(view.navigate.calledWith('signin'));
             });
         });
       });
@@ -434,7 +433,7 @@ define(function (require, exports, module) {
               return view.afterVisible();
             })
             .then(function () {
-              assert.equal(routerMock.page, 'settings/avatar/change');
+              assert.isTrue(view.navigate.calledWith('settings/avatar/change'));
             });
         });
       });
@@ -500,15 +499,15 @@ define(function (require, exports, module) {
           sinon.stub(able, 'choose', function () {
             return true;
           });
-          createView();
+          createSettingsView();
 
           assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
           assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.communication-prefs-link.visible.true'));
           assert.isTrue(SubPanels.prototype.initialize.calledWith({
+            createView: createView,
             initialChildView: SettingsPanelView,
             panelViews: panelViews,
-            parent: view,
-            router: routerMock
+            parent: view
           }));
         });
 
@@ -517,29 +516,29 @@ define(function (require, exports, module) {
           sinon.stub(able, 'choose', function () {
             return false;
           });
-          createView();
+          createSettingsView();
 
           assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
           assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.communication-prefs-link.visible.false'));
           assert.isTrue(SubPanels.prototype.initialize.calledWith({
+            createView: createView,
             initialChildView: SettingsPanelView,
             panelViews: [SettingsPanelView],
-            parent: view,
-            router: routerMock
+            parent: view
           }));
         });
 
         it('initialize SubPanels without CommunicationPreferencesView', function () {
           sinon.spy(able, 'choose');
-          createView();
+          createSettingsView();
 
           assert.isFalse(able.choose.called);
           assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.communication-prefs-link.visible.false'));
           assert.isTrue(SubPanels.prototype.initialize.calledWith({
+            createView: createView,
             initialChildView: SettingsPanelView,
             panelViews: [SettingsPanelView],
-            parent: view,
-            router: routerMock
+            parent: view
           }));
         });
       });

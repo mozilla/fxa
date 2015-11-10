@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   var Metrics = require('lib/metrics');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
-  var RouterMock = require('../../../mocks/router');
   var sinon = require('sinon');
   var TestHelpers = require('../../../lib/helpers');
   var User = require('models/user');
@@ -19,21 +18,21 @@ define(function (require, exports, module) {
   var assert = chai.assert;
 
   describe('views/settings/gravatar_permissions', function () {
-    var view;
-    var routerMock;
-    var metrics;
-    var user;
-    var email;
     var account;
+    var email;
+    var metrics;
     var relier;
+    var user;
+    var view;
+
     var SERVICE_NAME = 'Gravatar';
 
     beforeEach(function () {
       email = TestHelpers.createEmail();
-      routerMock = new RouterMock();
       metrics = new Metrics();
-      user = new User();
       relier = new Relier();
+      user = new User();
+
       account = user.initAccount({
         email: email,
         sessionToken: 'fake session token',
@@ -55,7 +54,6 @@ define(function (require, exports, module) {
       view = new View({
         metrics: metrics,
         relier: relier,
-        router: routerMock,
         user: user
       });
       sinon.stub(view, 'navigate', function () { });

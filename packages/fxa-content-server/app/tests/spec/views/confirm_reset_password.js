@@ -14,7 +14,6 @@ define(function (require, exports, module) {
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
-  var RouterMock = require('../../mocks/router');
   var sinon = require('sinon');
   var Storage = require('lib/storage');
   var TestHelpers = require('../../lib/helpers');
@@ -36,7 +35,6 @@ define(function (require, exports, module) {
     var metrics;
     var notifier;
     var relier;
-    var routerMock;
     var user;
     var view;
     var windowMock;
@@ -48,7 +46,6 @@ define(function (require, exports, module) {
       metrics = new Metrics();
       notifier = new Notifier();
       relier = new Relier();
-      routerMock = new RouterMock();
       windowMock = new WindowMock();
 
       sinon.stub(windowMock, 'setTimeout', window.setTimeout.bind(window));
@@ -84,7 +81,6 @@ define(function (require, exports, module) {
         metrics: metrics,
         notifier: notifier,
         relier: relier,
-        router: routerMock,
         user: user,
         verificationPollMS: VERIFICATION_POLL_TIMEOUT_MS,
         viewName: 'confirm_reset_password',
@@ -471,9 +467,11 @@ define(function (require, exports, module) {
           });
         });
 
+        sinon.spy(view, 'navigate');
+
         return view.submit()
               .then(function () {
-                assert.equal(routerMock.page, 'reset_password');
+                assert.isTrue(view.navigate.calledWith('reset_password'));
 
                 assert.isTrue(TestHelpers.isEventLogged(metrics,
                                   'confirm_reset_password.resend'));

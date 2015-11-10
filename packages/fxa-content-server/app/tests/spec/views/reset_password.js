@@ -12,9 +12,9 @@ define(function (require, exports, module) {
   var FormPrefill = require('models/form-prefill');
   var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
+  var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
-  var RouterMock = require('../../mocks/router');
   var sinon = require('sinon');
   var TestHelpers = require('../../lib/helpers');
   var View = require('views/reset_password');
@@ -23,13 +23,13 @@ define(function (require, exports, module) {
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/reset_password', function () {
-    var view;
-    var router;
-    var metrics;
-    var fxaClient;
-    var relier;
     var broker;
     var formPrefill;
+    var fxaClient;
+    var metrics;
+    var notifier;
+    var relier;
+    var view;
 
     function createView(options) {
       var viewOptions = _.extend({
@@ -38,21 +38,22 @@ define(function (require, exports, module) {
         formPrefill: formPrefill,
         fxaClient: fxaClient,
         metrics: metrics,
-        relier: relier,
-        router: router
+        notifier: notifier,
+        relier: relier
       }, options || {});
       return new View(viewOptions);
     }
 
     beforeEach(function () {
-      router = new RouterMock();
+      formPrefill = new FormPrefill();
+      fxaClient = new FxaClient();
       metrics = new Metrics();
+      notifier = new Notifier();
       relier = new Relier();
+
       broker = new Broker({
         relier: relier
       });
-      fxaClient = new FxaClient();
-      formPrefill = new FormPrefill();
 
       view = createView();
       return view.render()
@@ -68,7 +69,7 @@ define(function (require, exports, module) {
       view.destroy();
       $('#container').empty();
 
-      view = router = metrics = null;
+      view = metrics = null;
     });
 
     describe('render', function () {
@@ -147,9 +148,11 @@ define(function (require, exports, module) {
         var email = TestHelpers.createEmail();
         view.$('input[type=email]').val(email);
 
+        sinon.spy(view, 'navigate');
+
         return view.submit()
           .then(function () {
-            assert.equal(router.page, 'confirm_reset_password');
+            assert.isTrue(view.navigate.calledWith('confirm_reset_password'));
             assert.equal(view.ephemeralMessages.get('data').passwordForgotToken, 'foo');
             assert.isTrue(view.fxaClient.passwordReset.calledWith(
                 email, relier));

@@ -16,7 +16,6 @@ define(function (require, exports, module) {
   var NullChannel = require('lib/channels/null');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
-  var RouterMock = require('../../../mocks/router');
   var sinon = require('sinon');
   var TestHelpers = require('../../../lib/helpers');
   var User = require('models/user');
@@ -35,7 +34,6 @@ define(function (require, exports, module) {
     var notifier;
     var password = 'password';
     var relier;
-    var routerMock;
     var tabChannelMock;
     var user;
     var view;
@@ -44,7 +42,6 @@ define(function (require, exports, module) {
       fxaClient = new FxaClient();
       metrics = new Metrics();
       relier = new Relier();
-      routerMock = new RouterMock();
       tabChannelMock = new NullChannel();
       user = new User();
 
@@ -62,7 +59,6 @@ define(function (require, exports, module) {
         metrics: metrics,
         notifier: notifier,
         relier: relier,
-        router: routerMock,
         user: user
       });
     });
@@ -71,7 +67,6 @@ define(function (require, exports, module) {
       $(view.el).remove();
       view.destroy();
       view = null;
-      routerMock = null;
     });
 
     describe('with session', function () {

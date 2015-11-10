@@ -10,10 +10,10 @@ define(function (require, exports, module) {
   var EphemeralMessages = require('lib/ephemeral-messages');
   var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
+  var Notifier = require('lib/channels/notifier');
   var OAuthBroker = require('models/auth_brokers/oauth');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
-  var RouterMock = require('../../mocks/router');
   var Session = require('lib/session');
   var sinon = require('sinon');
   var TestHelpers = require('../../lib/helpers');
@@ -24,16 +24,16 @@ define(function (require, exports, module) {
   var assert = chai.assert;
 
   describe('views/confirm_account_unlock', function () {
-    var view;
-    var routerMock;
-    var windowMock;
-    var metrics;
-    var fxaClient;
-    var relier;
-    var broker;
-    var user;
     var account;
+    var broker;
     var ephemeralMessages;
+    var fxaClient;
+    var metrics;
+    var notifier;
+    var relier;
+    var user;
+    var view;
+    var windowMock;
     var EMAIL = 'testuser@testuser.com';
 
     function initView() {
@@ -42,8 +42,8 @@ define(function (require, exports, module) {
         ephemeralMessages: ephemeralMessages,
         fxaClient: fxaClient,
         metrics: metrics,
+        notifier: notifier,
         relier: relier,
-        router: routerMock,
         user: user,
         viewName: 'confirm-account-unlock',
         window: windowMock
@@ -52,12 +52,11 @@ define(function (require, exports, module) {
     }
 
     beforeEach(function () {
-      routerMock = new RouterMock();
-      windowMock = new WindowMock();
-
-      metrics = new Metrics();
-      relier = new Relier();
       fxaClient = new FxaClient();
+      metrics = new Metrics();
+      notifier = new Notifier();
+      relier = new Relier();
+      windowMock = new WindowMock();
 
       broker = new OAuthBroker({
         relier: relier,
@@ -99,9 +98,11 @@ define(function (require, exports, module) {
           return true;
         });
 
+        sinon.spy(view, 'navigate');
+
         return view.beforeRender()
           .then(function () {
-            assert.equal(routerMock.page, 'signup');
+            assert.isTrue(view.navigate.calledWith('signup'));
           });
       });
     });
@@ -186,10 +187,12 @@ define(function (require, exports, module) {
           return p();
         });
 
+        sinon.spy(view, 'navigate');
+
         return view.afterVisible()
           .then(function () {
             assert.isTrue(broker.afterSignIn.called);
-            assert.equal(routerMock.page, 'account_unlock_complete');
+            assert.isTrue(view.navigate.calledWith('account_unlock_complete'));
           });
       });
 
