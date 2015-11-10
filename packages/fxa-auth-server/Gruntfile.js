@@ -16,7 +16,7 @@ module.exports = function (grunt) {
     mainJsFiles: '{,lib/**/,scripts/**/,test/**/,tasks/**/,bin/**/}*.js'
   });
 
-  grunt.loadTasks('tasks');
+  grunt.loadTasks('grunttasks');
 
   grunt.registerTask('default', [
     'test'
