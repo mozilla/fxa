@@ -51,6 +51,17 @@ module.exports.newUserDataHex = function() {
     uaDeviceType: 'fake device type'
   }
 
+  // device
+  data.deviceId = hex16()
+  data.device = {
+    uid: data.accountId,
+    sessionTokenId: data.sessionTokenId,
+    createdAt: Date.now(),
+    name: 'fake device name',
+    type: 'fake device type',
+    callbackURL: 'fake callback URL'
+  }
+
   // keyFetchToken
   data.keyFetchTokenId = hex32()
   data.keyFetchToken = {

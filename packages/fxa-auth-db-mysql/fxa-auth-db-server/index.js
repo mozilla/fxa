@@ -120,7 +120,7 @@ function createServer(db) {
   api.get('/__heartbeat__', reply(db.ping))
 
   api.put(
-    '/account/:id/device/:deviceId',
+    '/account/:uid/device/:deviceId',
     function (req, res, next) {
       db.upsertDevice(req.params.uid, req.params.deviceId, req.body)
         .then(
