@@ -33,6 +33,7 @@ before_script:
 script:
   - npm run outdated
   - grunt test
+  - grunt nsp --force
 
 matrix:
   allow_failures:
