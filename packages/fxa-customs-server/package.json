@@ -15,7 +15,7 @@
     "start": "node bin/customs_server.js",
     "test": "scripts/test-local.sh",
     "outdated": "npm outdated --depth 0",
-    "shrinkwrap": "npm shrinkwrap && grunt validate-shrinkwrap"
+    "shrinkwrap": "npm shrinkwrap && grunt nsp"
   },
   "dependencies": {
     "aws-sdk": "2.0.0-rc.20",
@@ -33,7 +33,7 @@
     "grunt-cli": "0.1.13",
     "grunt-copyright": "0.1.0",
     "grunt-eslint": "16.0.0",
-    "grunt-nsp-shrinkwrap": "0.0.3",
+    "grunt-nsp": "2.1.2",
     "load-grunt-tasks": "3.1.0",
     "request": "2.40.0",
     "tap": "0.4.12",
