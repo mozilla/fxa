@@ -59,17 +59,17 @@ function checkDbPatchLevel(patcher) {
       logger.error('checkDbPatchLevel', err);
       return d.reject(err);
     }
-    // We are only guaranteed to run correctly if we're at the current
-    // patch level for this version of the code (the normal state of
-    // affairs) or the one immediately above it (during a deployment).
-    if (patcher.currentPatchLevel !== patch.level) {
-      if (patcher.currentPatchLevel !== patch.level + 1) {
-        err = 'unexpected db patch level: ' + patcher.currentPatchLevel;
-        logger.error('checkDbPatchLevel', err);
-        return d.reject(new Error(err));
-      }
+
+    // We can run if we're at or above some patch level.  Should be
+    // equal at initial deployment, and may be one or more higher
+    // later on, due to database changes in preparation for the next
+    // release.
+    if (patcher.currentPatchLevel >= patch.level) {
+      return d.resolve();
     }
-    d.resolve();
+
+    err = 'unexpected db patch level: ' + patcher.currentPatchLevel;
+    return d.reject(new Error(err));
   });
 
   return d.promise;
