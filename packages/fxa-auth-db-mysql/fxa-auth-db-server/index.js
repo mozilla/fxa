@@ -122,7 +122,18 @@ function createServer(db) {
   api.put(
     '/account/:uid/device/:deviceId',
     function (req, res, next) {
-      db.upsertDevice(req.params.uid, req.params.deviceId, req.body)
+      db.createDevice(req.params.uid, req.params.deviceId, req.body)
+        .then(
+          handleSuccess.bind(null, req, res),
+          handleError.bind(null, req, res)
+        )
+        .done(next, next)
+    }
+  )
+  api.post(
+    '/account/:uid/device/:deviceId/update',
+    function (req, res, next) {
+      db.updateDevice(req.params.uid, req.params.deviceId, req.body)
         .then(
           handleSuccess.bind(null, req, res),
           handleError.bind(null, req, res)

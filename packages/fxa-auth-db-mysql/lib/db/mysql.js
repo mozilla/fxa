@@ -271,11 +271,11 @@ module.exports = function (log, error) {
     )
   }
 
-  var UPSERT_DEVICE = 'CALL upsertDevice_1(?, ?, ?, ?, ?, ?, ?)'
+  var CREATE_DEVICE = 'CALL createDevice_1(?, ?, ?, ?, ?, ?, ?, ?)'
 
-  MySql.prototype.upsertDevice = function (uid, deviceId, deviceInfo) {
+  MySql.prototype.createDevice = function (uid, deviceId, deviceInfo) {
     return this.write(
-      UPSERT_DEVICE,
+      CREATE_DEVICE,
       [
         uid,
         deviceId,
@@ -283,8 +283,33 @@ module.exports = function (log, error) {
         deviceInfo.name,
         deviceInfo.type,
         deviceInfo.createdAt,
-        deviceInfo.callbackURL
+        deviceInfo.callbackURL,
+        deviceInfo.callbackPublicKey
       ]
+    )
+  }
+
+  var UPDATE_DEVICE = 'CALL updateDevice_1(?, ?, ?, ?, ?, ?, ?)'
+
+  MySql.prototype.updateDevice = function (uid, deviceId, deviceInfo) {
+    return this.write(
+      UPDATE_DEVICE,
+      [
+        uid,
+        deviceId,
+        deviceInfo.sessionTokenId,
+        deviceInfo.name,
+        deviceInfo.type,
+        deviceInfo.callbackURL,
+        deviceInfo.callbackPublicKey
+      ],
+      function (result) {
+        if (result.affectedRows === 0) {
+          log.error({ op: 'MySql.updateDevice', err: result })
+          throw error.notFound()
+        }
+        return {}
+      }
     )
   }
 
@@ -323,7 +348,7 @@ module.exports = function (log, error) {
   //          s.uaBrowser, s.uaBrowserVersion, s.uaOS, s.uaOSVersion,
   //          s.uaDeviceType, s.lastAccessTime
   // Where  : d.uid = $1
-  var ACCOUNT_DEVICES = 'CALL accountDevices_2(?)'
+  var ACCOUNT_DEVICES = 'CALL accountDevices_3(?)'
 
   MySql.prototype.accountDevices = function (uid) {
     return this.readOneFromFirstResult(ACCOUNT_DEVICES, [uid])
@@ -496,7 +521,17 @@ module.exports = function (log, error) {
   var DELETE_DEVICE = 'CALL deleteDevice_1(?, ?)'
 
   MySql.prototype.deleteDevice = function (uid, deviceId) {
-    return this.write(DELETE_DEVICE, [uid, deviceId])
+    return this.write(
+      DELETE_DEVICE,
+      [ uid, deviceId ],
+      function (result) {
+        if (result.affectedRows === 0) {
+          log.error({ op: 'MySql.deleteDevice', err: result })
+          throw error.notFound()
+        }
+        return {}
+      }
+    )
   }
 
   // BATCH
@@ -746,11 +781,14 @@ module.exports = function (log, error) {
       )
   }
 
-  MySql.prototype.write = function (sql, params) {
+  MySql.prototype.write = function (sql, params, resultHandler) {
     return this.singleQuery('MASTER', sql, params)
       .then(
         function (result) {
           log.trace({ op: 'MySql.write', sql: sql, result: result })
+          if (resultHandler) {
+            return resultHandler(result)
+          }
           return {}
         },
         function (err) {

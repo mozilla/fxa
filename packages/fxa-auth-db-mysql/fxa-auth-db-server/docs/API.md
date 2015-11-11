@@ -59,7 +59,8 @@ The following datatypes are used throughout this document:
     * sessions                  : `GET /account/:id/sessions`
     * devices                   : `GET /account/:id/devices`
 * Devices:
-    * upsertDevice              : `PUT /account/:id/device/:deviceId`
+    * createDevice              : `PUT /account/:id/device/:deviceId`
+    * updateDevice              : `POST /account/:id/device/:deviceId/update`
     * deleteDevice              : `DEL /account/:id/device/:deviceId`
 * Session Tokens:
     * sessionToken              : `GET /sessionToken/:id`
@@ -625,7 +626,8 @@ Content-Type: application/json
         "name": "My Phone",
         "type": "mobile"
         "createdAt": 1437992394186,
-        "callbackURL": "",
+        "callbackURL": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
+        "callbackPublicKey": "468601214f60f4828b6cd5d51d9d99d212e7c73657978955f0f5a5b7e2fa1370",
         "uaBrowser": "Firefox",
         "uaBrowserVersion": "42",
         "uaOS": "Android",
@@ -648,7 +650,7 @@ Content-Type: application/json
     * Content-Type : 'application/json'
     * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
-## upsertDevice : `PUT /account/<uid>/device/<deviceId>`
+## createDevice : `PUT /account/<uid>/device/<deviceId>`
 
 ### Example
 
@@ -664,7 +666,8 @@ curl \
       "name": "My Phone",
       "type": "mobile"
       "createdAt": 1437992394186,
-      "callbackURL": ""
+      "callbackURL": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
+      "callbackPublicKey": "468601214f60f4828b6cd5d51d9d99d212e7c73657978955f0f5a5b7e2fa1370"
     }'
 ```
 
@@ -680,6 +683,56 @@ Content-Type: application/json
 * Status Code : 200 OK
     * Content-Type : 'application/json'
     * Body : `[ ... <see example> ...]`
+* Status Code : 409 Conflict
+    * Conditions: if id already exists or sessionTokenId is already used by a different device
+    * Content-Type : 'application/json'
+    * Body : `{"errno":101",message":"Record already exists"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+## updateDevice : `POST /account/<uid>/device/<deviceId>/update`
+
+### Example
+
+```
+curl \
+    -v \
+    -X POST \
+    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/device/154c86dde08bfbb47415b9a216044916/update \
+    -d '{
+      "id": "154c86dde08bfbb47415b9a216044916",
+      "uid": "6044486dd15b42e08b1fb9167415b9ac",
+      "sessionTokenId": "9a15b9ad6044ce08bfbb4744b1604491686dd15b42e2154c86d08b1fb9167415",
+      "name": "My Phone",
+      "type": "mobile"
+      "createdAt": 1437992394186,
+      "callbackURL": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
+      "callbackPublicKey": "468601214f60f4828b6cd5d51d9d99d212e7c73657978955f0f5a5b7e2fa1370"
+    }'
+```
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `[ ... <see example> ...]`
+* Status Code : 409 Conflict
+    * Conditions: if sessionTokenId is already used by a different device
+    * Content-Type : 'application/json'
+    * Body : `{"errno":101",message":"Record already exists"}`
+* Status Code : 404 Not Found
+    * Conditions: if device(uid,id) is not found in the database
+    * Content-Type : 'application/json'
+    * Body : `{"errno":116,"message":"Not found"}`
 * Status Code : 500 Internal Server Error
     * Conditions: if something goes wrong on the server
     * Content-Type : 'application/json'
@@ -708,6 +761,10 @@ Content-Type: application/json
 * Status Code : 200 OK
     * Content-Type : 'application/json'
     * Body : `[ ... <see example> ...]`
+* Status Code : 404 Not Found
+    * Conditions: if device(uid,id) is not found in the database
+    * Content-Type : 'application/json'
+    * Body : `{"errno":116,"message":"Not found"}`
 * Status Code : 500 Internal Server Error
     * Conditions: if something goes wrong on the server
     * Content-Type : 'application/json'
