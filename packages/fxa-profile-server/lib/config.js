@@ -91,10 +91,10 @@ const conf = convict({
     gm: {
       limits: {
         // See http://www.graphicsmagick.org/GraphicsMagick.html#details-limit
-        disk: '2MB',
+        disk: '64MB',
         files: '8',
-        map: '2MB',
-        memory: '1MB',
+        map: '32MB',
+        memory: '64MB',
         pixels: '16K',
         threads: '8'
       }
