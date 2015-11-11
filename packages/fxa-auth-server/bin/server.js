@@ -4,20 +4,21 @@
 
 var restify = require('restify')
 var config = require('../config')
-var log = require('../log')(config.logLevel, 'fxa-auth-mailer')
+var logConfig = config.get('logging')
+var log = require('../log')(logConfig.level, logConfig.app)
 var packageJson = require('../package.json')
 var P = require('bluebird')
 var Mailer = require('../mailer')(log)
 
 P.all(
   [
-    require('../translator')(config.locales),
+    require('../translator')(config.get('locales')),
     require('../templates')()
   ]
 )
 .spread(
   function (translator, templates) {
-    var mailer = new Mailer(translator, templates, config.mail)
+    var mailer = new Mailer(translator, templates, config.get('mail'))
 
     var api = restify.createServer()
     api.use(restify.bodyParser())
@@ -60,7 +61,7 @@ P.all(
     api.listen(
       config.port,
       function () {
-        log.info({ op: 'listening', port: config.port })
+        log.info({ op: 'listening', port: config.get('port') })
       }
     )
   }
