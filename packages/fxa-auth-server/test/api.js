@@ -1694,6 +1694,22 @@ describe('/v1', function() {
       }).done(done, done);
     });
 
+    it('should not return the email if opted out', function() {
+      return newToken({ scope: 'profile:email' }).then(function(res) {
+        assert.equal(res.statusCode, 200);
+        return Server.api.post({
+          url: '/verify',
+          payload: {
+            token: res.result.access_token,
+            email: false
+          }
+        });
+      }).then(function(res) {
+        assert.equal(res.statusCode, 200);
+        assert.equal(res.result.email, undefined);
+      });
+    });
+
   });
 
   describe('/destroy', function() {
