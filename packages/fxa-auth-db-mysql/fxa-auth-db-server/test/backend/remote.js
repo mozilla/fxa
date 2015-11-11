@@ -308,6 +308,91 @@ module.exports = function(cfg, server) {
   )
 
   test(
+    'device handling',
+    function (t) {
+      t.plan(47)
+      var user = fake.newUserDataHex()
+      client.getThen('/account/' + user.accountId + '/devices')
+        .then(function(r) {
+          respOk(t, r)
+          t.ok(Array.isArray(r.obj), 'devices is array')
+          t.equal(r.obj.length, 0, 'devices is empty')
+          return client.putThen('/account/' + user.accountId, user.account)
+        })
+        .then(function() {
+          return client.putThen('/sessionToken/' + user.sessionTokenId, user.sessionToken)
+        })
+        .then(function() {
+          return client.getThen('/account/' + user.accountId + '/devices')
+        })
+        .then(function(r) {
+          t.equal(r.obj.length, 0, 'devices is empty')
+          return client.putThen('/account/' + user.accountId + '/device/' + user.deviceId, user.device)
+        })
+        .then(function(r) {
+          respOk(t, r)
+          return client.getThen('/account/' + user.accountId + '/devices')
+        })
+        .then(function(r) {
+          respOk(t, r)
+          var devices = r.obj
+          t.equal(devices.length, 1, 'devices contains one item')
+          t.equal(Object.keys(devices[0]).length, 13, 'device has thirteen properties')
+          t.equal(devices[0].uid, user.accountId, 'uid is correct')
+          t.equal(devices[0].id, user.deviceId, 'id is correct')
+          t.equal(devices[0].sessionTokenId, user.sessionTokenId, 'sessionTokenId is correct')
+          t.equal(devices[0].createdAt, user.device.createdAt, 'createdAt is correct')
+          t.equal(devices[0].name, user.device.name, 'name is correct')
+          t.equal(devices[0].type, user.device.type, 'type is correct')
+          t.equal(devices[0].callbackURL, user.device.callbackURL, 'callbackURL is correct')
+          t.equal(devices[0].uaBrowser, user.sessionToken.uaBrowser, 'uaBrowser is correct')
+          t.equal(devices[0].uaBrowserVersion, user.sessionToken.uaBrowserVersion, 'uaBrowserVersion is correct')
+          t.equal(devices[0].uaOS, user.sessionToken.uaOS, 'uaOS is correct')
+          t.equal(devices[0].uaOSVersion, user.sessionToken.uaOSVersion, 'uaOSVersion is correct')
+          t.equal(devices[0].uaDeviceType, user.sessionToken.uaDeviceType, 'uaDeviceType is correct')
+          t.equal(devices[0].lastAccessTime, user.sessionToken.createdAt, 'lastAccessTime is correct')
+          return client.putThen('/account/' + user.accountId + '/device/' + user.deviceId, {
+            name: 'wibble',
+            type: 'mobile',
+            callbackURL: ''
+          })
+        })
+        .then(function(r) {
+          respOk(t, r)
+          return client.getThen('/account/' + user.accountId + '/devices')
+        })
+        .then(function(r) {
+          respOk(t, r)
+          var devices = r.obj
+          t.equal(devices.length, 1, 'devices still contains one item')
+          t.equal(devices[0].uid, user.accountId, 'uid is correct')
+          t.equal(devices[0].id, user.deviceId, 'id is correct')
+          t.equal(devices[0].sessionTokenId, user.sessionTokenId, 'sessionTokenId is correct')
+          t.equal(devices[0].createdAt, user.device.createdAt, 'createdAt is correct')
+          t.equal(devices[0].name, 'wibble', 'name is correct')
+          t.equal(devices[0].type, 'mobile', 'type is correct')
+          t.equal(devices[0].callbackURL, '', 'callbackURL is correct')
+          t.equal(devices[0].uaBrowser, user.sessionToken.uaBrowser, 'uaBrowser is correct')
+          t.equal(devices[0].uaBrowserVersion, user.sessionToken.uaBrowserVersion, 'uaBrowserVersion is correct')
+          t.equal(devices[0].uaOS, user.sessionToken.uaOS, 'uaOS is correct')
+          t.equal(devices[0].uaOSVersion, user.sessionToken.uaOSVersion, 'uaOSVersion is correct')
+          t.equal(devices[0].uaDeviceType, user.sessionToken.uaDeviceType, 'uaDeviceType is correct')
+          t.equal(devices[0].lastAccessTime, user.sessionToken.createdAt, 'lastAccessTime is correct')
+          return client.delThen('/account/' + user.accountId + '/device/' + user.deviceId)
+        })
+        .then(function(r) {
+          respOk(t, r)
+          return client.getThen('/account/' + user.accountId + '/devices')
+        })
+        .then(function(r) {
+          respOk(t, r)
+          t.equal(r.obj.length, 0, 'devices is empty')
+          t.end()
+        })
+    }
+  )
+
+  test(
     'key fetch token handling',
     function (t) {
       t.plan(13)
