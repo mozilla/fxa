@@ -12,6 +12,12 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var APP_STORE_BUTTON = 'apple_app_store_button';
+  var PLAY_STORE_BUTTON = 'google_play_store_button';
+
+  var FORMAT_SVG = 'svg';
+  var FORMAT_PNG = 'png';
+
   var _ = require('underscore');
   var MarketingSnippetView = require('views/marketing_snippet');
   var Template = require('stache!templates/marketing_snippet_ios');
@@ -61,9 +67,11 @@ define(function (require, exports, module) {
       var shouldShowMarketing = this._shouldShowSignUpMarketing();
       var isIos = this._isIos();
       var isAndroid = this._isAndroid();
-      var playStoreImage = this._playStoreImage();
+      var playStoreImage = this._storeImage(PLAY_STORE_BUTTON, FORMAT_PNG);
+      var appStoreImage = this._storeImage(APP_STORE_BUTTON, FORMAT_SVG);
 
       return {
+        appStoreImage: appStoreImage,
         isAndroid: isAndroid,
         isIos: isIos,
         isOther: ! isIos && ! isAndroid,
@@ -82,15 +90,15 @@ define(function (require, exports, module) {
       return /android/i.test(this.window.navigator.userAgent);
     },
 
-    _playStoreImage: function () {
+    _storeImage: function (buttonDir, imageFormat) {
       var buttonPath = _.contains(playStoreImageLanguages, this._language) ?
                           this._language : 'en';
 
-      if (this._isHighRes()) {
+      if (this._isHighRes() && imageFormat === FORMAT_PNG) {
         buttonPath += '@2x';
       }
 
-      return '/images/google_play_store_button/' + buttonPath + '.png';
+      return '/images/' + buttonDir + '/' + buttonPath + '.' + imageFormat;
     },
 
     _isHighRes: function () {
