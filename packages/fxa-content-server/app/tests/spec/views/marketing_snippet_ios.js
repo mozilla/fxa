@@ -92,7 +92,7 @@ define(function (require, exports, module) {
             });
       });
 
-      it('shows localized buttons for supported langauges', function () {
+      it('shows localized buttons for supported languages', function () {
         createView({
           language: 'de'
         });
@@ -100,11 +100,11 @@ define(function (require, exports, module) {
         return view.render()
             .then(function () {
               // de.png for play store
-              assert.equal(view.$('img[src*="/de."]').length, 1);
+              assert.equal(view.$('img[src*="/de."]').length, 2);
             });
       });
 
-      it('shows en-US buttons for unsupported langauges', function () {
+      it('shows en-US buttons for unsupported languages', function () {
         createView({
           language: 'klingon'
         });
@@ -112,7 +112,7 @@ define(function (require, exports, module) {
         return view.render()
             .then(function () {
               // en.png for play store
-              assert.equal(view.$('img[src*="/en."]').length, 1);
+              assert.equal(view.$('img[src*="/en."]').length, 2);
             });
       });
 
