@@ -298,6 +298,10 @@ var conf = convict({
       doc: 'URL at which to verify OAuth tokens',
       default: 'http://localhost:9010',
       env: 'OAUTH_URL'
+    },
+    email: {
+      doc: 'Temporary extra parameter to prevent request recursion',
+      default: false
     }
   },
   openIdProviders: {
