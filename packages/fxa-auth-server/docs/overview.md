@@ -18,7 +18,7 @@ The user connects one or more **devices** to their account.  Each device perform
 
 Once connected, each device can fetch the user's **encryption keys**.  The server maintains two keys for each account, called **kA** and **kB**.  kA is known to the server, and is intended for encrypting data that must be recoverable in the event of password reset.  kB is stored encrypted by the user's password, and is intended for more secure encryption at the cost of unrecoverability when the password is forgotten.
 
-Each connected device can also request a **signed identity certificate**, which it can use to authenticate to other services via the [BrowserID protocl](https://login.persona.org/).  In this sense the Firefox Accounts server acts as a [BrowserID Identity Provider](https://developer.mozilla.org/en-US/Persona/Identity_Provider_Overview) for the user.
+Each connected device can also request a **signed identity certificate**, which it can use to authenticate to other services via the [BrowserID protocol](https://login.persona.org/).  In this sense the Firefox Accounts server acts as a [BrowserID Identity Provider](https://developer.mozilla.org/en-US/Persona/Identity_Provider_Overview) for the user.
 
 
 ## API
