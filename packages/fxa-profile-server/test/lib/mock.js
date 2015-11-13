@@ -24,6 +24,7 @@ module.exports = function mock(options) {
   const TOKEN_GOOD = JSON.stringify({
     user: options.userid,
     scope: ['profile'],
+    email: 'user@example.domain'
   });
 
   const MOCK_ID = new Array(33).join('f');
@@ -117,18 +118,14 @@ module.exports = function mock(options) {
     tokenGood: function tokenGood() {
       var parts = url.parse(config.get('oauth.url'));
       return nock(parts.protocol + '//' + parts.host)
-        .post(parts.path + '/verify', function(body) {
-          return body.email === false;
-        })
+        .post(parts.path + '/verify')
         .reply(200, TOKEN_GOOD);
     },
 
     token: function token(tok) {
       var parts = url.parse(config.get('oauth.url'));
       return nock(parts.protocol + '//' + parts.host)
-        .post(parts.path + '/verify', function(body) {
-          return body.email === false;
-        })
+        .post(parts.path + '/verify')
         .reply(200, JSON.stringify(tok));
     },
 
@@ -138,22 +135,6 @@ module.exports = function mock(options) {
         .post(parts.path + '/verify')
         .reply(500);
 
-    },
-
-    email: function mockEmail(email) {
-      var parts = url.parse(config.get('authServer.url'));
-      return nock(parts.protocol + '//' + parts.host)
-        .get(parts.path + '/account/profile')
-        .reply(200, {
-          email: email
-        });
-    },
-
-    emailFailure: function mockEmailFailure() {
-      var parts = url.parse(config.get('authServer.url'));
-      return nock(parts.protocol + '//' + parts.host)
-        .get(parts.path + '/account/profile')
-        .reply(500);
     },
 
     workerFailure: function workerFailure(action, bytes) {

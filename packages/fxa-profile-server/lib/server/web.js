@@ -54,13 +54,11 @@ exports.create = function createServer() {
         request.post({
           url: url,
           json: {
-            token: token,
-            email: false // disables email fetching of oauth server
+            token: token
           }
         }, function(err, resp, body) {
           if (err || resp.statusCode >= 500) {
             err = err || resp.statusMessage || 'unknown';
-            logger.error('oauth.error', err);
             return reply(AppError.oauthError(err));
           }
           if (body.code >= 400) {
@@ -69,8 +67,7 @@ exports.create = function createServer() {
           }
           logger.debug('auth.valid', body);
           reply(null, {
-            credentials: body,
-            token: token
+            credentials: body
           });
         });
       }

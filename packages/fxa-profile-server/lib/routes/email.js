@@ -5,11 +5,6 @@
 const Joi = require('joi');
 
 const AppError = require('../error');
-const config = require('../config');
-const logger = require('../logging')('routes.email');
-const request = require('../request');
-
-const AUTH_SERVER_URL = config.get('authServer.url') + '/account/profile';
 
 module.exports = {
   auth: {
@@ -22,30 +17,14 @@ module.exports = {
     }
   },
   handler: function email(req, reply) {
-    request.get(AUTH_SERVER_URL, {
-      headers: {
-        Authorization: 'Bearer ' + req.auth.token
-      },
-      json: true
-    }, function(err, res, body) {
-      if (err) {
-        logger.error('request.auth_server.network', err);
-        return reply(new AppError.authError('network error'));
-      }
-      if (res.statusCode >= 400) {
-        logger.error('request.auth_server.fail', { code: res.statusCode });
-        return reply(new AppError.authError('auth server error'));
-      }
-
-      if (!body || !body.email) {
-        return reply(
-          new AppError.authError('email field missing from auth response')
-        );
-      }
+    var email = req.auth.credentials.email;
+    if (email) {
       reply({
-        email: body.email
+        email: email
       });
-    });
+    } else {
+      reply(new AppError.oauthError('email field missing from oauth response'));
+    }
   }
 };
 

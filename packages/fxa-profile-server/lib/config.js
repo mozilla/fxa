@@ -14,14 +14,6 @@ const conf = convict({
       default: 1
     }
   },
-  authServer: {
-    url: {
-      doc: 'URL of fxa-auth-server',
-      env: 'AUTH_SERVER_URL',
-      format: 'url',
-      default: 'http://127.0.0.1:9000/v1'
-    }
-  },
   db: {
     driver: {
       env: 'DB',
