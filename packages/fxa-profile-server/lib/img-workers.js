@@ -30,13 +30,17 @@ exports.upload = function upload(id, payload, headers) {
     };
     logger.verbose('upload', url);
     payload.pipe(request.post(url, opts, function(err, res, body) {
+      var nestedError = null;
+      if (body && body[0] && body[0].error) {
+        nestedError = body[0].error;
+      }
       if (err) {
         logger.error('upload.network.error', err);
         reject(AppError.processingError(err));
         return;
       }
 
-      if (res.statusCode >= 400 || body.error) {
+      if (res.statusCode >= 400 || body.error || nestedError) {
         logger.error('upload.worker.error', body);
         reject(AppError.processingError(body));
         return;
