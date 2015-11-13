@@ -4293,9 +4293,9 @@
       }
     },
     "hapi-fxa-oauth": {
-      "version": "2.1.0",
-      "from": "https://registry.npmjs.org/hapi-fxa-oauth/-/hapi-fxa-oauth-2.1.0.tgz",
-      "resolved": "https://registry.npmjs.org/hapi-fxa-oauth/-/hapi-fxa-oauth-2.1.0.tgz",
+      "version": "2.2.0",
+      "from": "https://registry.npmjs.org/hapi-fxa-oauth/-/hapi-fxa-oauth-2.2.0.tgz",
+      "resolved": "https://registry.npmjs.org/hapi-fxa-oauth/-/hapi-fxa-oauth-2.2.0.tgz",
       "dependencies": {
         "boom": {
           "version": "2.6.1",
