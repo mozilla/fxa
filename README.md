@@ -117,8 +117,13 @@ sudo apt-get install build-essential git-core libgmp3-dev graphicsmagick redis-s
 ```
 
 #### Installing Node.js
+
+> NOTE: If you experienced with Node.js: Node.js 0.10 is old, use [nvm](https://github.com/creationix/nvm) to force node 0.10
+just for `fxa-local-dev` using `nvm use 0.10`. (Install it first with `nvm install 0.10`)
+
 ##### OS X
-Find the latest `node-v0.10.x.pkg` at [nodejs.org/dist/](http://nodejs.org/dist/) and install. Example [node-v0.10.38.pkg](http://nodejs.org/dist/v0.10.38/node-v0.10.38.pkg)
+Use this if you do not rely on other node.js programs on your system: Find the latest `node-v0.10.x.pkg` at [nodejs.org/dist/](http://nodejs.org/dist/) and install. Example [node-v0.10.38.pkg](http://nodejs.org/dist/v0.10.38/node-v0.10.38.pkg).
+
 
 ##### Ubuntu:
 
