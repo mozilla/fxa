@@ -11,6 +11,8 @@ define([
   'intern/dojo/node!proxyquire',
   'intern/dojo/node!sinon'
 ], function (intern, registerSuite, assert, initLogging, path, proxyquire, sinon) {
+  // ensure we don't get any module from the cache, but to load it fresh every time
+  proxyquire.noPreserveCache();
   var suite = {};
 
   suite['sanity check'] = function () {
@@ -200,6 +202,13 @@ define([
       metrics: proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-metrics'), {
         mozlog: function () {
           return mocks.logger;
+        },
+        '../configuration': {
+          get: function () {
+            return {
+              'stderr_collector_disabled': false
+            };
+          }
         },
         '../metrics-collector-stderr': function () {
           return mocks.metricsCollector;

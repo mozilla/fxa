@@ -6,10 +6,15 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'intern/dojo/node!../../server/lib/metrics-collector-stderr'
-], function (intern, registerSuite, assert, StdErrCollector) {
-  var und;
+  'intern/dojo/node!./helpers/init-logging',
+  'intern/dojo/node!../../server/lib/metrics-collector-stderr',
+  'intern/dojo/node!path',
+  'intern/dojo/node!proxyquire'
+], function (intern, registerSuite, assert, initLogging, StdErrCollector, path, proxyquire) {
+  // ensure we don't get any module from the cache, but to load it fresh every time
+  proxyquire.noPreserveCache();
 
+  var und;
   var suite = {
     name: 'metrics-collector-stderr'
   };
@@ -22,6 +27,16 @@ define([
   }
 
   var metricsCollector = new StdErrCollector();
+
+  var mockMetricsRequest = {
+    body: {
+      isSampledUser: true
+    },
+    'get': function () {}
+  };
+  var mockMetricsResponse = {
+    json: function () {}
+  };
 
   suite['writes formatted data to stderr'] = function () {
     var dfd = this.async(1000);
@@ -115,6 +130,61 @@ define([
       service: 'sync',
       'user-agent': 'Firefox 32.0'
     });
+  };
+
+
+  suite['it is enabled  with config options set to false'] = function () {
+    var dfd = this.async(1000);
+    var DISABLE_CLIENT_METRICS_STDERR = false;
+    var mocks = {
+      '../configuration': {
+        get: function () {
+          return {
+            'stderr_collector_disabled': DISABLE_CLIENT_METRICS_STDERR
+          };
+        }
+      },
+      '../metrics-collector-stderr': function () {
+        return {
+          write: function (data) {
+            assert.isTrue(data.isSampledUser);
+            dfd.resolve();
+          }
+        };
+      }
+    };
+    var postMetrics = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-metrics'), mocks)();
+    postMetrics.process(mockMetricsRequest, mockMetricsResponse);
+
+    return dfd.promise;
+  };
+
+  suite['it can be disabled with config options'] = function () {
+    var dfd = this.async(1000);
+    var DISABLE_CLIENT_METRICS_STDERR = true;
+    var mocks = {
+      '../configuration': {
+        get: function () {
+          return {
+            'stderr_collector_disabled': DISABLE_CLIENT_METRICS_STDERR
+          };
+        }
+      },
+      '../metrics-collector-stderr': function () {
+        return {
+          write: function () {
+            assert.notOk(true, 'this should not be called when stderr is disabled');
+          }
+        };
+      }
+    };
+    var postMetrics = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-metrics'), mocks)();
+    postMetrics.process(mockMetricsRequest, mockMetricsResponse);
+    // simulate request for metrics
+    setTimeout(function () {
+      dfd.resolve();
+    }, 150);
+    return dfd.promise;
   };
 
   registerSuite(suite);

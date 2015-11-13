@@ -3,10 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+var config = require('../configuration');
 var MetricsCollector = require('../metrics-collector-stderr');
 var StatsDCollector = require('../statsd-collector');
 var GACollector = require('../ga-collector');
 var logger = require('mozlog')('server.post-metrics');
+
+var DISABLE_CLIENT_METRICS_STDERR = config.get('client_metrics').stderr_collector_disabled;
 
 module.exports = function () {
   var metricsCollector = new MetricsCollector();
@@ -37,7 +40,9 @@ module.exports = function () {
         metrics.agent = req.get('user-agent');
 
         if (metrics.isSampledUser) {
-          metricsCollector.write(metrics);
+          if (! DISABLE_CLIENT_METRICS_STDERR) {
+            metricsCollector.write(metrics);
+          }
           // send the metrics body to the StatsD collector for processing
           statsd.write(metrics);
         }
