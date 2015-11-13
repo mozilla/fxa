@@ -27,6 +27,10 @@ module.exports = function (config, i18n) {
     require('./routes/get-config')(i18n),
     require('./routes/get-client.json')(i18n),
     require('./routes/post-metrics')(),
+    require('./routes/post-csp')({
+      path: config.get('csp.reportUri'),
+      reportSampleRate: config.get('csp.reportSampleRate')
+    }),
     require('./routes/get-metrics-errors')(),
     require('./routes/get-openid-login')(config),
     require('./routes/get-openid-authenticate')(config)
@@ -148,11 +152,6 @@ module.exports = function (config, i18n) {
     });
 
     if (config.get('env') === 'development') {
-      app.post('/_/csp-violation', function (req, res) {
-        logger.warn('Content-Security-Policy Violation Report:');
-        logger.warn(req.body);
-        res.json({result: 'ok'});
-      });
 
       app.get('/503.html', function (req, res) {
         res.removeHeader('x-frame-options');

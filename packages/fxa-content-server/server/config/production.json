@@ -3,6 +3,7 @@
   "static_directory": "dist",
   "page_template_subdirectory": "dist",
   "csp": {
-    "enabled": false
+    "enabled": true,
+    "reportOnly": true
   }
 }
