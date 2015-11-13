@@ -61,7 +61,6 @@ describe('/profile', function() {
 
   it('should return all of a profile', function() {
     mock.tokenGood();
-    mock.email('user@example.domain');
     return Server.api.get({
       url: '/profile',
       headers: {
@@ -75,12 +74,12 @@ describe('/profile', function() {
     });
   });
 
-  it('should handle auth server errors', function() {
+  it('should handle oauth errors', function() {
     mock.token({
       user: USERID,
       scope: ['profile:write']
+      // intentionally left off email
     });
-    mock.emailFailure();
 
     mock.log('server', function(rec) {
       return rec.levelname === 'ERROR'
@@ -99,11 +98,6 @@ describe('/profile', function() {
           && rec.args[1].path === '/v1/profile';
     });
 
-    mock.log('routes.email', function(rec) {
-      return rec.levelname === 'ERROR'
-          && rec.args[0] === 'request.auth_server.fail';
-    });
-
     return Server.api.get({
       url: '/profile',
       headers: {
@@ -111,7 +105,7 @@ describe('/profile', function() {
       }
     }).then(function(res) {
       assert.equal(res.statusCode, 503);
-      assert.equal(res.result.errno, 105);
+      assert.equal(res.result.errno, 104);
     });
   });
 
@@ -138,9 +132,9 @@ describe('/profile', function() {
   it('should return an avatar if selected', function() {
     mock.token({
       user: user,
+      email: 'user@example.domain',
       scope: ['profile']
     });
-    mock.email('user@example.domain');
     var aid = avatarId();
     var PROVIDER = 'gravatar';
     return db.addAvatar(aid, user, GRAVATAR, PROVIDER, true)
@@ -160,9 +154,9 @@ describe('/profile', function() {
   it('should return a display name if set', function() {
     mock.token({
       user: user,
+      email: 'user@example.domain',
       scope: ['profile']
     });
-    mock.email('user@example.domain');
     return db.setDisplayName(user, 'Spock')
     .then(function() {
       return Server.api.get({
@@ -180,9 +174,9 @@ describe('/profile', function() {
   it('should return filtered profile if smaller scope', function() {
     mock.token({
       user: USERID,
+      email: 'user@example.domain',
       scope: ['profile:email']
     });
-    mock.email('user@example.domain');
     return Server.api.get({
       url: '/profile',
       headers: {
@@ -198,6 +192,7 @@ describe('/profile', function() {
   it('should require a profile:* scope', function() {
     mock.token({
       user: USERID,
+      email: 'user@example.domain',
       scope: ['some:other:scope']
     });
     return Server.api.get({
@@ -213,9 +208,9 @@ describe('/profile', function() {
   it('should include an etag in the http response', function() {
     mock.token({
       user: user,
+      email: 'user@example.domain',
       scope: ['profile']
     });
-    mock.email('user@example.domain');
     return db.setDisplayName(user, 'Spock')
     .then(function() {
       return Server.api.get({
@@ -238,7 +233,6 @@ describe('/email', function() {
 
   it('should return an email', function() {
     mock.tokenGood();
-    mock.email('user@example.domain');
     return Server.api.get({
       url: '/email',
       headers: {
@@ -253,6 +247,7 @@ describe('/email', function() {
   it('should NOT return email if wrong scope', function() {
     mock.token({
       user: USERID,
+      email: 'user@example.domain',
       scope: ['profile:uid']
     });
     return Server.api.get({
@@ -285,6 +280,7 @@ describe('/uid', function() {
   it('should NOT return a uid if wrong scope', function() {
     mock.token({
       user: USERID,
+      email: 'user@example.domain',
       scope: ['profile:email']
     });
     return Server.api.get({
@@ -321,6 +317,7 @@ describe('/avatar', function() {
     it('should return selected avatar', function() {
       mock.token({
         user: user,
+        email: 'user@example.domain',
         scope: ['profile:avatar']
       });
       return Server.api.get({
@@ -337,6 +334,7 @@ describe('/avatar', function() {
     it('should include an etag in the http response', function() {
       mock.token({
         user: user,
+        email: 'user@example.domain',
         scope: ['profile:avatar']
       });
       return Server.api.get({
@@ -357,6 +355,7 @@ describe('/avatar', function() {
     it('should log an avatar.get activity event', function(done) {
       mock.token({
         user: user,
+        email: 'user@example.domain',
         scope: ['profile:avatar']
       });
 
@@ -382,6 +381,7 @@ describe('/avatar', function() {
     it('should post a new avatar url', function() {
       mock.token({
         user: USERID,
+        email: 'user@example.domain',
         scope: ['profile:avatar:write']
       });
       return Server.api.post({
@@ -401,6 +401,7 @@ describe('/avatar', function() {
     it('should log the avatar.post activity event', function(done) {
       mock.token({
         user: USERID,
+        email: 'user@example.domain',
         scope: ['profile:avatar:write']
       });
 
@@ -428,6 +429,7 @@ describe('/avatar', function() {
     it('should check url matches a provider', function() {
       mock.token({
         user: USERID,
+        email: 'user@example.domain',
         scope: ['profile:avatar:write']
       });
       return Server.api.post({
@@ -453,6 +455,7 @@ describe('/avatar', function() {
       this.timeout(3000);
       mock.token({
         user: USERID,
+        email: 'user@example.domain',
         scope: ['profile:avatar:write']
       });
       mock.image(imageData.length);
@@ -483,6 +486,7 @@ describe('/avatar', function() {
     it('should gracefully handle and report upload failures', function() {
       mock.token({
         user: USERID,
+        email: 'user@example.domain',
         scope: ['profile:avatar:write']
       });
       mock.workerFailure('post', imageData.length);
@@ -527,6 +531,7 @@ describe('/avatar', function() {
       it('should fail if not owned by user', function() {
         mock.token({
           user: uid(),
+          email: 'user@example.domain',
           scope: ['profile:avatar:write']
         });
         return Server.api.delete({
@@ -542,6 +547,7 @@ describe('/avatar', function() {
       it('should remove avatar from user', function() {
         mock.token({
           user: user,
+          email: 'user@example.domain',
           scope: ['profile:avatar:write']
         });
         return Server.api.delete({
@@ -564,6 +570,7 @@ describe('/avatar', function() {
       before(function() {
         mock.token({
           user: user,
+          email: 'user@example.domain',
           scope: ['profile:avatar:write']
         });
         mock.image(imageData.length);
@@ -584,6 +591,7 @@ describe('/avatar', function() {
       it('should remove avatar from db and s3', function() {
         mock.token({
           user: user,
+          email: 'user@example.domain',
           scope: ['profile:avatar:write']
         });
         mock.deleteImage();
@@ -634,6 +642,7 @@ describe('/avatars', function() {
   it('should return a list of avatars', function() {
     mock.token({
       user: user,
+      email: 'user@example.domain',
       scope: ['profile:avatar:write']
     });
     return Server.api.get({
@@ -666,6 +675,7 @@ describe('/display_name', function() {
     it('should return a displayName', function() {
       mock.token({
         user: USERID,
+        email: 'user@example.domain',
         scope: ['profile:display_name']
       });
 
@@ -687,6 +697,7 @@ describe('/display_name', function() {
       var userId = uid();
       mock.token({
         user: userId,
+        email: 'user@example.domain',
         scope: ['profile:display_name']
       });
 
@@ -704,6 +715,7 @@ describe('/display_name', function() {
     it('should NOT return a display_name if wrong scope', function() {
       mock.token({
         user: USERID,
+        email: 'user@example.domain',
         scope: ['profile:email']
       });
       return Server.api.get({
@@ -722,6 +734,7 @@ describe('/display_name', function() {
       var NAME = 'Spock';
       mock.token({
         user: USERID,
+        email: 'user@example.domain',
         scope: ['profile:display_name:write']
       });
       return Server.api.post({
@@ -744,6 +757,7 @@ describe('/display_name', function() {
       var NAME = 'Spock';
       mock.token({
         user: USERID,
+        email: 'user@example.domain',
         scope: ['profile:display_name:write']
       });
       return Server.api.post({
@@ -758,6 +772,7 @@ describe('/display_name', function() {
         assert.equal(res.statusCode, 200);
         mock.token({
           user: USERID,
+          email: 'user@example.domain',
           scope: ['profile:display_name:write']
         });
         return Server.api.post({
@@ -773,6 +788,7 @@ describe('/display_name', function() {
         assert.equal(res.statusCode, 200);
         mock.token({
           user: USERID,
+          email: 'user@example.domain',
           scope: ['profile:display_name']
         });
         return Server.api.get({
@@ -795,6 +811,7 @@ describe('/display_name', function() {
       return P.resolve(NAMES).each(function(NAME) {
         mock.token({
           user: USERID,
+          email: 'user@example.domain',
           scope: ['profile:display_name:write']
         });
         return Server.api.post({
@@ -809,6 +826,7 @@ describe('/display_name', function() {
           assert.equal(res.statusCode, 200);
           mock.token({
             user: USERID,
+            email: 'user@example.domain',
             scope: ['profile:display_name']
           });
           return Server.api.get({
@@ -840,6 +858,7 @@ describe('/display_name', function() {
       return P.resolve(NAMES).each(function(NAME) {
         mock.token({
           user: USERID,
+          email: 'user@example.domain',
           scope: ['profile:display_name:write']
         });
         return Server.api.post({
