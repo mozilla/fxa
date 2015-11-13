@@ -30,7 +30,7 @@ define([
 
   suite['it drops if no csp-report set'] = function () {
     var options = {
-      sampleRate: 100
+      reportSampleRate: 100
     };
     var postCsp = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'), {})(options);
     assert.isFalse(postCsp.process({
@@ -49,7 +49,7 @@ define([
 
   suite['it allows no messages with 0% sample rate '] = function () {
     var options = {
-      sampleRate: 0
+      reportSampleRate: 0
     };
     var postCsp = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'), {})(options);
 
@@ -63,7 +63,7 @@ define([
 
   suite['it allows all messages with 100% sample rate'] = function () {
     var options = {
-      sampleRate: 100
+      reportSampleRate: 100
     };
 
     var postCsp = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'), {})(options);

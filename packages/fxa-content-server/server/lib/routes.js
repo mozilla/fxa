@@ -27,7 +27,10 @@ module.exports = function (config, i18n) {
     require('./routes/get-config')(i18n),
     require('./routes/get-client.json')(i18n),
     require('./routes/post-metrics')(),
-    require('./routes/post-csp')(),
+    require('./routes/post-csp')({
+      path: config.get('csp.reportUri'),
+      reportSampleRate: config.get('csp.reportSampleRate')
+    }),
     require('./routes/get-metrics-errors')(),
     require('./routes/get-openid-login')(config),
     require('./routes/get-openid-authenticate')(config)

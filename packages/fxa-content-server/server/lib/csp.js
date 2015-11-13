@@ -42,7 +42,12 @@ var cspMiddleware = helmet.csp({
   ],
   mediaSrc: [BLOB],
   reportOnly: config.get('csp.reportOnly'),
-  reportUri: config.get('csp.reportUri')
+  reportUri: config.get('csp.reportUri'),
+  styleSrc: [
+    SELF,
+    // The sha of the embedded <style> tag in default-profile.svg.
+    "'sha256-9n6ek6ecEYlqel7uDyKLy6fdGNo3vw/uScXSq9ooQlk='"
+  ]
 });
 
 module.exports = function (req, res, next) {

@@ -6,38 +6,30 @@
  * Route to report CSP Violations to metrics
  */
 
-var DEFAULT_SAMPLE_RATE = 10;
-
 module.exports = function (options) {
   options = options || {};
 
   /**
-   * 'sampleRate' % of messages.
-   * @param sampleRate
+   * 'reportSampleRate' % of messages.
+   * @param reportSampleRate
    * @returns {boolean}
    */
-  function isSampledUser(sampleRate) {
-    var rateLimit = sampleRate;
-    // rate limit can be 0
-    if (typeof sampleRate === 'undefined') {
-      rateLimit = DEFAULT_SAMPLE_RATE;
-    }
-
+  function isSampledUser() {
     // random between 0 and 100, inclusive
     var rand = Math.floor(Math.random() * (100 + 1));
-    return rand <= rateLimit;
+    return rand <= options.reportSampleRate;
   }
 
   return {
     method: 'post',
-    path: '/_/csp-violation',
+    path: options.path,
     process: function (req, res) {
       res.json({result: 'ok'});
 
       // TODO: This is a temporary measure
       // Not sure how many CSP errors we will get, for now we rate limit this.
       // To avoid overflowing Heka logs rate limit the logging
-      if (! isSampledUser(options.sampleRate)) {
+      if (! isSampledUser()) {
         return false;
       }
 
