@@ -63,7 +63,7 @@ fi
 cd $FXDOWNLOAD_DIR && npm install
 
 for d in beta release esr; do
-  ./index.js --install-dir $CHANNELS_DIR --channel $d
+  ./fetch.js --install-dir $CHANNELS_DIR --channel $d
 done
 
 show_firefox_versions
