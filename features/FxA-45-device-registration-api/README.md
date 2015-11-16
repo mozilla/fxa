@@ -386,10 +386,9 @@ https://api-accounts.dev.lcip.org/v1/account/device/destroy \
 
 ### How are unrecognised devices handled?
 
-If a request to `/v1/account/login` or `/v1/account/device`
+If a POST to `/v1/account/login`, `/v1/account/device` or `/v1/account/device/destroy`
 specifies an unknown device id,
-a new device record will be created in the database
-and the newly-generated device id will be returned in the response.
+a 400 error will returned.
 
 ### What is a disconnected device?
 
