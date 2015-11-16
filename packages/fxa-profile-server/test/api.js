@@ -480,6 +480,40 @@ describe('/avatar', function() {
       });
     });
 
+    it('should fail with an error if image cannot be identified', function() {
+      this.slow(2000);
+      this.timeout(3000);
+
+      var dataLength = 2;
+      mock.token({
+        user: USERID,
+        email: 'user@example.domain',
+        scope: ['profile:avatar:write']
+      });
+      mock.log('img_workers', function(rec) {
+        if (rec.levelname === 'ERROR') {
+          return true;
+        }
+      });
+      mock.log('server', function(rec) {
+        if (rec.levelname === 'ERROR') {
+          return true;
+        }
+      });
+
+      return Server.api.post({
+        url: '/avatar/upload',
+        payload: Buffer('{}'),
+        headers: { authorization: 'Bearer ' + tok,
+          'content-type': 'image/png',
+          'content-length': dataLength
+        }
+      }).then(function(res) {
+        assert.equal(res.statusCode, 500);
+        assert.equal(res.result.message, 'Image processing error');
+      });
+    });
+
     it('should gracefully handle and report upload failures', function() {
       mock.token({
         user: USERID,

@@ -23,15 +23,23 @@ function processImage(src, width, height) {
     // The '>' modifier does this.
     // See more: http://www.graphicsmagick.org/GraphicsMagick.html
     limit(gm(src)
-      .resize(width, height, '>'))
-      .noProfile()
-      .toBuffer('png', function(err, buf) {
+      .identify(function (err) {
         if (err) {
-          reject(err);
-        } else {
-          resolve(buf);
+          // if gm cannot identify this image, then reject
+          return reject (err);
         }
-      });
+
+        limit(gm(src).resize(width, height, '>')
+          .noProfile()
+          .toBuffer('png', function(err, buf) {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(buf);
+            }
+          }));
+      })
+    );
   });
 }
 
