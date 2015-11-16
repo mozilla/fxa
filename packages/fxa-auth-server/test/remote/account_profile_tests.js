@@ -45,7 +45,7 @@ TestServer.start(config)
             return c.api.accountProfile(null, {
               Authorization: makeMockOAuthHeader({
                 user: c.uid,
-                scopes: ['profile']
+                scope: ['profile']
               })
             })
           }
@@ -96,7 +96,7 @@ TestServer.start(config)
             return c.api.accountProfile(null, {
               Authorization: makeMockOAuthHeader({
                 user: UNKNOWN_UID,
-                scopes: ['profile']
+                scope: ['profile']
               })
             })
           }
@@ -122,7 +122,7 @@ TestServer.start(config)
             return c.api.accountProfile(null, {
               Authorization: makeMockOAuthHeader({
                 user: c.uid,
-                scopes: ['readinglist', 'payments']
+                scope: ['readinglist', 'payments']
               })
             })
           }
@@ -146,7 +146,7 @@ TestServer.start(config)
             return client.api.accountProfile(null, {
               Authorization: makeMockOAuthHeader({
                 user: client.uid,
-                scopes: ['profile:email']
+                scope: ['profile:email']
               })
             })
           }
@@ -162,7 +162,7 @@ TestServer.start(config)
             return client.api.accountProfile(null, {
               Authorization: makeMockOAuthHeader({
                 user: client.uid,
-                scopes: ['profile:locale']
+                scope: ['profile:locale']
               })
             })
           }
@@ -187,7 +187,7 @@ TestServer.start(config)
             return client.api.accountProfile(null, {
               Authorization: makeMockOAuthHeader({
                 user: client.uid,
-                scopes: ['profile:write']
+                scope: ['profile:write']
               })
             })
           }
@@ -203,7 +203,7 @@ TestServer.start(config)
             return client.api.accountProfile(null, {
               Authorization: makeMockOAuthHeader({
                 user: client.uid,
-                scopes: ['profile:locale:write', 'readinglist']
+                scope: ['profile:locale:write', 'readinglist']
               })
             })
           }
@@ -219,7 +219,7 @@ TestServer.start(config)
             return client.api.accountProfile(null, {
               Authorization: makeMockOAuthHeader({
                 user: client.uid,
-                scopes: ['storage', 'profile:email:write']
+                scope: ['storage', 'profile:email:write']
               })
             })
           }

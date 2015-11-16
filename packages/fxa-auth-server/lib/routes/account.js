@@ -584,7 +584,7 @@ module.exports = function (
           if (auth.strategy === 'sessionToken') {
             return true
           }
-          var scopes = auth.credentials.scopes
+          var scopes = auth.credentials.scope
           for (var i = 0; i < scopes.length; i++) {
             if (scopes[i] === 'profile') {
               return true
