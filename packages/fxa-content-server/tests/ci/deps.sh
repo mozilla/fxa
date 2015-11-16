@@ -33,5 +33,5 @@ cd ../..
 npm i vladikoff/browserid-verifier#http
 cd node_modules/browserid-verifier
 npm i vladikoff/browserid-local-verify#http
-LOG_LEVEL=error PORT=5050 node server.js &
+PORT=5050 CONFIG_FILES=../../tests/ci/config_verifier.json node server.js &
 cd ../..
