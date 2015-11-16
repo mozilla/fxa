@@ -1,0 +1,4 @@
+### Ignore files generated in LC_MESSAGES directory
+### See https://github.com/mozilla/fxa-content-server/issues/3258 for details
+*
+!.gitignore
