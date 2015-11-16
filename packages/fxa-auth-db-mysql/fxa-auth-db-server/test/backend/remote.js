@@ -310,7 +310,7 @@ module.exports = function(cfg, server) {
   test(
     'device handling',
     function (t) {
-      t.plan(47)
+      t.plan(49)
       var user = fake.newUserDataHex()
       client.getThen('/account/' + user.accountId + '/devices')
         .then(function(r) {
@@ -337,7 +337,7 @@ module.exports = function(cfg, server) {
           respOk(t, r)
           var devices = r.obj
           t.equal(devices.length, 1, 'devices contains one item')
-          t.equal(Object.keys(devices[0]).length, 13, 'device has thirteen properties')
+          t.equal(Object.keys(devices[0]).length, 14, 'device has fourteen properties')
           t.equal(devices[0].uid, user.accountId, 'uid is correct')
           t.equal(devices[0].id, user.deviceId, 'id is correct')
           t.equal(devices[0].sessionTokenId, user.sessionTokenId, 'sessionTokenId is correct')
@@ -345,16 +345,18 @@ module.exports = function(cfg, server) {
           t.equal(devices[0].name, user.device.name, 'name is correct')
           t.equal(devices[0].type, user.device.type, 'type is correct')
           t.equal(devices[0].callbackURL, user.device.callbackURL, 'callbackURL is correct')
+          t.equal(devices[0].callbackPublicKey, user.device.callbackPublicKey, 'callbackPublicKey is correct')
           t.equal(devices[0].uaBrowser, user.sessionToken.uaBrowser, 'uaBrowser is correct')
           t.equal(devices[0].uaBrowserVersion, user.sessionToken.uaBrowserVersion, 'uaBrowserVersion is correct')
           t.equal(devices[0].uaOS, user.sessionToken.uaOS, 'uaOS is correct')
           t.equal(devices[0].uaOSVersion, user.sessionToken.uaOSVersion, 'uaOSVersion is correct')
           t.equal(devices[0].uaDeviceType, user.sessionToken.uaDeviceType, 'uaDeviceType is correct')
           t.equal(devices[0].lastAccessTime, user.sessionToken.createdAt, 'lastAccessTime is correct')
-          return client.putThen('/account/' + user.accountId + '/device/' + user.deviceId, {
+          return client.postThen('/account/' + user.accountId + '/device/' + user.deviceId + '/update', {
             name: 'wibble',
             type: 'mobile',
-            callbackURL: ''
+            callbackURL: '',
+            callbackPublicKey: null
           })
         })
         .then(function(r) {
@@ -372,6 +374,7 @@ module.exports = function(cfg, server) {
           t.equal(devices[0].name, 'wibble', 'name is correct')
           t.equal(devices[0].type, 'mobile', 'type is correct')
           t.equal(devices[0].callbackURL, '', 'callbackURL is correct')
+          t.equal(devices[0].callbackPublicKey, user.device.callbackPublicKey, 'callbackPublicKey is correct')
           t.equal(devices[0].uaBrowser, user.sessionToken.uaBrowser, 'uaBrowser is correct')
           t.equal(devices[0].uaBrowserVersion, user.sessionToken.uaBrowserVersion, 'uaBrowserVersion is correct')
           t.equal(devices[0].uaOS, user.sessionToken.uaOS, 'uaOS is correct')

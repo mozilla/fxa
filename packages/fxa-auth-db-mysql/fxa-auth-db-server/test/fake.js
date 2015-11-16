@@ -59,7 +59,8 @@ module.exports.newUserDataHex = function() {
     createdAt: Date.now(),
     name: 'fake device name',
     type: 'fake device type',
-    callbackURL: 'fake callback URL'
+    callbackURL: 'fake callback URL',
+    callbackPublicKey: hex32()
   }
 
   // keyFetchToken

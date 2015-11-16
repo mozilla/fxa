@@ -16,6 +16,24 @@ var passwordChangeTokens = {}
 var passwordForgotTokens = {}
 var accountUnlockCodes = {}
 
+var DEVICE_FIELDS = [
+  'sessionTokenId',
+  'name',
+  'type',
+  'createdAt',
+  'callbackURL',
+  'callbackPublicKey'
+]
+
+var SESSION_FIELDS = [
+  'uaBrowser',
+  'uaBrowserVersion',
+  'uaOS',
+  'uaOSVersion',
+  'uaDeviceType',
+  'lastAccessTime'
+]
+
 module.exports = function (log, error) {
 
   function Memory(db) {}
@@ -168,26 +186,80 @@ module.exports = function (log, error) {
     return P.resolve({})
   }
 
-  Memory.prototype.upsertDevice = function (uid, deviceId, deviceInfo) {
-    deviceInfo.uid = uid
-    deviceInfo.id = deviceId
+  Memory.prototype.createDevice = function (uid, deviceId, deviceInfo) {
     return getAccountByUid(uid)
       .then(
         function (account) {
-          var deviceKey = deviceInfo.id.toString('hex')
-          var sessionKey = (deviceInfo.sessionTokenId || '').toString('hex')
-          var device = extend(account.devices[deviceKey] || {}, deviceInfo)
-          var session = sessionTokens[sessionKey]
-          if (session) {
-            device.uaBrowser = session.uaBrowser
-            device.uaBrowserVersion = session.uaBrowserVersion
-            device.uaOS = session.uaOS
-            device.uaOSVersion = session.uaOSVersion
-            device.uaDeviceType = session.uaDeviceType
-            device.lastAccessTime = session.lastAccessTime
+          var deviceKey = deviceId.toString('hex')
+          if (account.devices[deviceKey]) {
+            throw error.duplicate()
           }
-          account.devices[deviceKey] = device
-          return device
+          var device = {
+            uid: uid,
+            id: deviceId
+          }
+          account.devices[deviceKey] = updateDeviceRecord(device, deviceInfo, deviceKey)
+          return {}
+        }
+      )
+  }
+
+  function updateDeviceRecord (device, deviceInfo, deviceKey) {
+    var session
+    var sessionKey = (deviceInfo.sessionTokenId || '').toString('hex')
+
+    if (sessionKey) {
+      session = sessionTokens[sessionKey]
+      if (session && session.deviceKey && session.deviceKey !== deviceKey) {
+        throw error.duplicate()
+      }
+    }
+
+    DEVICE_FIELDS.forEach(function (key) {
+      var field = deviceInfo[key]
+      if (field !== undefined && field !== null) {
+        if (key === 'callbackPublicKey' && field === '') {
+          field = new Buffer(32)
+          field.fill(0)
+        }
+        device[key] = field
+      }
+    })
+
+    if (session) {
+      SESSION_FIELDS.forEach(function (key) {
+        device[key] = session[key]
+      })
+      session.deviceKey = deviceKey
+    }
+
+    return device
+  }
+
+  Memory.prototype.updateDevice = function (uid, deviceId, deviceInfo) {
+    return getAccountByUid(uid)
+      .then(
+        function (account) {
+          var deviceKey = deviceId.toString('hex')
+          if (! account.devices[deviceKey]) {
+            throw error.notFound()
+          }
+          var device = account.devices[deviceKey]
+          if (device.sessionTokenId) {
+            if (deviceInfo.sessionTokenId) {
+              var oldSessionKey = device.sessionTokenId.toString('hex')
+              if (oldSessionKey !== deviceInfo.sessionTokenId.toString('hex')) {
+                var oldSession = sessionTokens[oldSessionKey]
+                if (oldSession) {
+                  oldSession.deviceKey = null
+                }
+              }
+            } else {
+              deviceInfo.sessionTokenId = device.sessionTokenId
+            }
+          }
+          account.devices[deviceKey] = updateDeviceRecord(device, deviceInfo, deviceKey)
+          return {}
         }
       )
   }
@@ -247,7 +319,10 @@ module.exports = function (log, error) {
     return getAccountByUid(uid)
       .then(
         function (account) {
-          var device = account.devices[deviceKey] || {}
+          if (! account.devices[deviceKey]) {
+            throw error.notFound()
+          }
+          var device = account.devices[deviceKey]
           var sessionKey = (device.sessionTokenId || '').toString('hex')
           delete sessionTokens[sessionKey]
           delete account.devices[deviceKey]
@@ -291,12 +366,9 @@ module.exports = function (log, error) {
               var sessionKey = (device.sessionTokenId || '').toString('hex')
               var session = sessionTokens[sessionKey]
               if (session) {
-                device.uaBrowser = session.uaBrowser
-                device.uaBrowserVersion = session.uaBrowserVersion
-                device.uaOS = session.uaOS
-                device.uaOSVersion = session.uaOSVersion
-                device.uaDeviceType = session.uaDeviceType
-                device.lastAccessTime = session.lastAccessTime
+                SESSION_FIELDS.forEach(function (key) {
+                  device[key] = session[key]
+                })
               }
               return device
             }
