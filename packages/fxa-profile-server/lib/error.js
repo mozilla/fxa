@@ -138,5 +138,16 @@ AppError.oauthError = function oauthError(err) {
   });
 };
 
+AppError.authError = function authError(err) {
+  return new AppError({
+    code: 503,
+    error: 'Service Unavailable',
+    errno: 105,
+    message: 'Auth server error'
+  }, {
+    cause: err
+  });
+};
+
 module.exports = AppError;
 
