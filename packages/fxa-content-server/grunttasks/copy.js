@@ -81,27 +81,6 @@ module.exports = function (grunt) {
           dest: '<%= yeoman.strings_dist %>',
           expand: true,
           src: ['**/*.po']
-        },
-        {
-          cwd: '<%= yeoman.strings_src %>/sv_SE',
-          dest: '<%= yeoman.strings_dist %>/sv',
-          // Copy strings from sv_SE to sv
-          expand: true,
-          src: ['**/*.po']
-        },
-        {
-          cwd: '<%= yeoman.strings_src %>/hi_IN',
-          dest: '<%= yeoman.strings_dist %>/hi',
-          // Copy strings from hi_IN to hi
-          expand: true,
-          src: ['**/*.po']
-        },
-        {
-          cwd: '<%= yeoman.strings_src %>/pt_PT',
-          dest: '<%= yeoman.strings_dist %>/pt',
-          // Copy strings from pt_PT to pt
-          expand: true,
-          src: ['**/*.po']
         }
       ]
     },
