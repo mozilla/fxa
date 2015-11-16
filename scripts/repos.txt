@@ -31,3 +31,4 @@ browserid-verifier
 browserid-local-verify
 fxa-checkbox
 fxa-retention-metrics
+fxa-bugzilla-mirror
