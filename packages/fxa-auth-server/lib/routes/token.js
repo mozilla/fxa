@@ -270,6 +270,10 @@ function confirmJwt(params) {
       throw AppError.invalidAssertion();
     }
 
+    // We can't know the email based on a service token,
+    // so we can't cache it locally.  Insert an empty string
+    // for now, while we complete the process of entirely
+    // removing the 'email' column from our database.
     return {
       clientId: client.id,
       userId: uid,
