@@ -1,3 +1,29 @@
+<a name="0.50.0"></a>
+# 0.50.0 (2015-11-17)
+
+
+### Bug Fixes
+
+* **avatars:** updated the avatar to the latest haired one ([327d67d](https://github.com/mozilla/fxa-content-server/commit/327d67d))
+* **client:** fix name clash with web-channel events ([7148184](https://github.com/mozilla/fxa-content-server/commit/7148184))
+* **client:** update Firefox for iOS marketing snippet ([1373e4c](https://github.com/mozilla/fxa-content-server/commit/1373e4c)), closes [#3280](https://github.com/mozilla/fxa-content-server/issues/3280)
+* **csp:** Fix the default-profile.svg CSP error. Code cleanup. ([4200976](https://github.com/mozilla/fxa-content-server/commit/4200976))
+* **experiments:** bump experiments to train 50 ([a4fdd11](https://github.com/mozilla/fxa-content-server/commit/a4fdd11))
+* **l10n:** remove locale copying ([e0387cf](https://github.com/mozilla/fxa-content-server/commit/e0387cf))
+* **l10n:** remove redundant l10n files ([b36f782](https://github.com/mozilla/fxa-content-server/commit/b36f782)), closes [#3258](https://github.com/mozilla/fxa-content-server/issues/3258)
+* **tests:** add a way to disable client metrics stderr ([64e79a5](https://github.com/mozilla/fxa-content-server/commit/64e79a5)), closes [#3158](https://github.com/mozilla/fxa-content-server/issues/3158)
+
+### Features
+
+* **csp:** enable report only CSP in production ([2fbe096](https://github.com/mozilla/fxa-content-server/commit/2fbe096)), closes [#1426](https://github.com/mozilla/fxa-content-server/issues/1426)
+
+### Refactor
+
+* **client:** Convert `app` to the Simplified CommonJS wrapper. ([6a4c81a](https://github.com/mozilla/fxa-content-server/commit/6a4c81a))
+* **client:** Replace interTabMixin with notifierMixin. ([2b4a3d7](https://github.com/mozilla/fxa-content-server/commit/2b4a3d7)), closes [#3244](https://github.com/mozilla/fxa-content-server/issues/3244)
+
+
+
 <a name="0.49.3"></a>
 ## 0.49.3 (2015-11-06)
 
