@@ -1,0 +1,19 @@
+---
+
+- name: install nave
+  sudo: true
+  get_url: url=https://raw.githubusercontent.com/dannycoates/nave/master/nave.sh
+           dest=/usr/bin/nave
+           mode=755
+
+- name: install node
+  sudo: true
+  command: /usr/bin/nave usemain 0.10
+  # TODO detect actual changes
+  changed_when: false
+
+- name: upgrade npm to npm@2.14.10
+  sudo: true
+  npm: name=npm global=true state=present version=2.14.10
+
+- meta: flush_handlers
