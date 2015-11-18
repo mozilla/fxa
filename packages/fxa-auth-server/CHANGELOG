@@ -1,3 +1,12 @@
+train-50
+  * fix(server): refactor account promise chains to named functions
+  * refactor(locale): sync new locale list
+  * fix(locale): reenable pt-PT locale
+  * fix(mail): update email support url
+  * feat(oauth): pass email=false when verifying oauth tokens
+  * fix(oauth): look for the correct 'scope' param in oauth response
+  * feat(server): implement device registration api
+
 train-49
   * feat(profile): Add oauth-authenticated /account/profile endpoint
   * fix(tests): Eliminate race condition in teardown of concurrent_tests
