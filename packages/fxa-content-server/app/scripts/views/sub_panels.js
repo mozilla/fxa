@@ -19,6 +19,7 @@ define(function (require, exports, module) {
 
       this._panelViews = options.panelViews || [];
       this._parent = options.parent;
+      this._createView = options.createView;
     },
 
     showChildView: function (ChildView) {
@@ -73,10 +74,10 @@ define(function (require, exports, module) {
 
       self.$('.child-views').append('<div class="settings-child-view ' + className + '"></div>');
 
-      var view = new ChildView(self.router.getViewOptions({
+      var view = self._createView(ChildView, {
         el: self.$(selector),
         parentView: self._parent
-      }));
+      });
 
       self.trackChildView(view);
 

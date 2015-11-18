@@ -17,7 +17,6 @@ define(function (require, exports, module) {
   var p = require('lib/promise');
   var ProfileMock = require('../../../mocks/profile');
   var Relier = require('models/reliers/relier');
-  var RouterMock = require('../../../mocks/router');
   var sinon = require('sinon');
   var TestHelpers = require('../../../lib/helpers');
   var ui = require('draggable'); //eslint-disable-line no-unused-vars
@@ -36,7 +35,6 @@ define(function (require, exports, module) {
     var notifier;
     var profileClientMock;
     var relier;
-    var routerMock;
     var user;
     var view;
 
@@ -45,7 +43,6 @@ define(function (require, exports, module) {
       metrics = new Metrics();
       notifier = new Notifier();
       relier = new Relier();
-      routerMock = new RouterMock();
       user = new User();
 
       broker = new AuthBroker({
@@ -57,7 +54,6 @@ define(function (require, exports, module) {
         ephemeralMessages: ephemeralMessages,
         notifier: notifier,
         relier: relier,
-        router: routerMock,
         user: user
       });
     });
@@ -67,7 +63,6 @@ define(function (require, exports, module) {
       view.destroy();
       metrics.destroy();
       view = null;
-      routerMock = null;
       profileClientMock = null;
       metrics = null;
     });
@@ -88,9 +83,10 @@ define(function (require, exports, module) {
       });
 
       it('has no cropper image', function () {
+        sinon.spy(view, 'navigate');
         return view.render()
           .then(function () {
-            assert.equal(routerMock.page, 'settings/avatar/change');
+            assert.isTrue(view.navigate.calledWith('settings/avatar/change'));
             assert.equal(ephemeralMessages.get('error'), AuthErrors.toMessage('UNUSABLE_IMAGE'));
           });
       });
@@ -115,7 +111,6 @@ define(function (require, exports, module) {
             metrics: metrics,
             notifier: notifier,
             relier: relier,
-            router: routerMock,
             user: user
           });
           view.isUserAuthorized = function () {
@@ -151,6 +146,8 @@ define(function (require, exports, module) {
             });
           });
 
+          sinon.spy(view, 'navigate');
+
           return view.render()
             .then(function () {
               return view.afterVisible();
@@ -163,7 +160,7 @@ define(function (require, exports, module) {
               assert.equal(view.updateProfileImage.args[0][1], account);
               assert.equal(result.url, 'test');
               assert.equal(result.id, 'foo');
-              assert.equal(routerMock.page, 'settings');
+              assert.isTrue(view.navigate.calledWith('settings'));
               assert.isTrue(TestHelpers.isEventLogged(metrics,
                 'settings.avatar.crop.submit.new'));
               assert.isFalse(TestHelpers.isEventLogged(metrics,

@@ -14,7 +14,6 @@ define(function (require, exports, module) {
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
-  var RouterMock = require('../../mocks/router');
   var sinon = require('sinon');
   var User = require('models/user');
   var View = require('views/settings/avatar_crop');
@@ -26,7 +25,6 @@ define(function (require, exports, module) {
     var ephemeralMessages;
     var notifier;
     var relier;
-    var routerMock;
     var user;
     var view;
 
@@ -34,7 +32,6 @@ define(function (require, exports, module) {
       ephemeralMessages = new EphemeralMessages();
       notifier = new Notifier();
       relier = new Relier();
-      routerMock = new RouterMock();
       user = new User();
 
       ephemeralMessages.set('data', {
@@ -47,7 +44,6 @@ define(function (require, exports, module) {
         ephemeralMessages: ephemeralMessages,
         notifier: notifier,
         relier: relier,
-        router: routerMock,
         user: user
       });
 

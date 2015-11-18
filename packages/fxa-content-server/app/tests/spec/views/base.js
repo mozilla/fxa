@@ -14,8 +14,8 @@ define(function (require, exports, module) {
   var EphemeralMessages = require('lib/ephemeral-messages');
   var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
+  var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
-  var RouterMock = require('../../mocks/router');
   var sinon = require('sinon');
   var Template = require('stache!templates/test_template');
   var TestHelpers = require('../../lib/helpers');
@@ -33,7 +33,7 @@ define(function (require, exports, module) {
     var ephemeralMessages;
     var fxaClient;
     var metrics;
-    var router;
+    var notifier;
     var viewName = 'view';
     var translator;
     var user;
@@ -58,7 +58,7 @@ define(function (require, exports, module) {
       ephemeralMessages = new EphemeralMessages();
       fxaClient = new FxaClient();
       metrics = new Metrics();
-      router = new RouterMock();
+      notifier = new Notifier();
       user = new User();
       windowMock = new WindowMock();
 
@@ -67,7 +67,7 @@ define(function (require, exports, module) {
         ephemeralMessages: ephemeralMessages,
         fxaClient: fxaClient,
         metrics: metrics,
-        router: router,
+        notifier: notifier,
         translator: translator,
         user: user,
         viewName: viewName,
@@ -88,7 +88,7 @@ define(function (require, exports, module) {
         $('#container').empty();
       }
 
-      view = router = windowMock = metrics = null;
+      view = windowMock = metrics = null;
     });
 
     describe('render', function () {
@@ -195,10 +195,11 @@ define(function (require, exports, module) {
         sinon.stub(view, 'isUserAuthorized', function () {
           return p(false);
         });
+        sinon.spy(view, 'navigate');
         return view.render()
           .then(function (result) {
             assert.isFalse(result);
-            assert.equal(router.page, 'signin');
+            assert.isTrue(view.navigate.calledWith('signin'));
           });
       });
 
@@ -218,9 +219,10 @@ define(function (require, exports, module) {
         sinon.stub(view, 'getSignedInAccount', function () {
           return account;
         });
+        sinon.spy(view, 'navigate');
         return view.render()
           .then(function () {
-            assert.equal(router.page, 'confirm');
+            assert.isTrue(view.navigate.calledWith('confirm'));
           });
       });
 
@@ -450,13 +452,17 @@ define(function (require, exports, module) {
     });
 
     describe('navigate', function () {
-      it('navigates to a page', function (done) {
-        router.on('navigate', function (newPage) {
-          wrapAssertion(function () {
-            assert.equal(newPage, 'signin');
-          }, done);
-        });
-        view.navigate('signin');
+      beforeEach(function () {
+        sinon.spy(notifier, 'trigger');
+      });
+
+      it('navigates to a page, propagates the clearQueryParams options', function () {
+        view.navigate('signin', { clearQueryParams: true });
+
+        assert.isTrue(notifier.trigger.calledWith('navigate', {
+          clearQueryParams: true,
+          url: 'signin'
+        }));
       });
 
       it('logs an error if an error is passed in the options', function () {
@@ -474,15 +480,6 @@ define(function (require, exports, module) {
         });
 
         assert.equal(view.ephemeralData(), 'foo');
-      });
-
-      it('propagates the clearQueryParams option', function () {
-        sinon.spy(view.router, 'navigate');
-        view.navigate('signin', { clearQueryParams: true });
-        assert.equal(view.router.navigate.callCount, 1);
-        var args = view.router.navigate.args[0];
-        assert.deepEqual(args[1], { clearQueryParams: true, trigger: true });
-        view.router.navigate.restore();
       });
     });
 

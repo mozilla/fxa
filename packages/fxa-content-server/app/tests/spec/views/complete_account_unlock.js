@@ -11,9 +11,9 @@ define(function (require, exports, module) {
   var Constants = require('lib/constants');
   var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
+  var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
-  var RouterMock = require('../../mocks/router');
   var sinon = require('sinon');
   var TestHelpers = require('../../lib/helpers');
   var Url = require('lib/url');
@@ -28,15 +28,16 @@ define(function (require, exports, module) {
     var broker;
     var fxaClient;
     var metrics;
+    var notifier;
     var relier;
-    var routerMock;
     var user;
     var view;
     var windowMock;
-    var validCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH);
+
     var invalidCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH - 1);
-    var validUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
     var invalidUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH - 1);
+    var validCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH);
+    var validUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
 
     function testShowsExpiredScreen(search) {
       windowMock.location.search = search;
@@ -68,8 +69,8 @@ define(function (require, exports, module) {
         broker: broker,
         fxaClient: fxaClient,
         metrics: metrics,
+        notifier: notifier,
         relier: relier,
-        router: routerMock,
         user: user,
         viewName: 'complete-account-unlock',
         window: windowMock
@@ -80,8 +81,8 @@ define(function (require, exports, module) {
       broker = new Broker();
       fxaClient = new FxaClient();
       metrics = new Metrics();
+      notifier = new Notifier();
       relier = new Relier();
-      routerMock = new RouterMock();
       user = new User();
       windowMock = new WindowMock();
 
@@ -205,11 +206,13 @@ define(function (require, exports, module) {
         });
         initView();
 
+        sinon.spy(view, 'navigate');
+
         return view.render()
           .then(function () {
             assert.isTrue(view.fxaClient.completeAccountUnlock.calledWith(validUid, validCode));
             assert.isTrue(broker.afterCompleteAccountUnlock.called);
-            assert.equal(routerMock.page, 'account_unlock_complete');
+            assert.isTrue(view.navigate.calledWith('account_unlock_complete'));
             assert.isTrue(TestHelpers.isEventLogged(
                     metrics, 'complete-account-unlock.verification.success'));
           });

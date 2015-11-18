@@ -12,7 +12,7 @@ define(function (require, exports, module) {
   var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
   var p = require('lib/promise');
-  var RouterMock = require('../../mocks/router');
+  var Notifier = require('lib/channels/notifier');
   var sinon = require('sinon');
   var TestHelpers = require('../../lib/helpers');
   var User = require('models/user');
@@ -28,7 +28,7 @@ define(function (require, exports, module) {
     var ephemeralMessages;
     var fxaClient;
     var metrics;
-    var routerMock;
+    var notifier;
     var user;
     var view;
     var windowMock;
@@ -39,7 +39,7 @@ define(function (require, exports, module) {
       ephemeralMessages = new EphemeralMessages();
       fxaClient = new FxaClient();
       metrics = new Metrics();
-      routerMock = new RouterMock();
+      notifier = new Notifier();
       windowMock = new WindowMock();
 
       user = new User({
@@ -70,11 +70,13 @@ define(function (require, exports, module) {
         ephemeralMessages: ephemeralMessages,
         fxaClient: fxaClient,
         metrics: metrics,
-        router: routerMock,
+        notifier: notifier,
         user: user,
         viewName: 'choose-what-to-sync',
         window: windowMock
       });
+
+      sinon.spy(view, 'navigate');
 
       return view.render()
         .then(function () {
@@ -87,7 +89,7 @@ define(function (require, exports, module) {
         account.clear('email');
         return initView()
           .then(function () {
-            assert.equal(routerMock.page, 'signup');
+            assert.isTrue(view.navigate.calledWith('signup'));
           });
       });
 
@@ -121,7 +123,6 @@ define(function (require, exports, module) {
       it('coming from sign up, redirects unverified users to the confirm page on success', function () {
         return initView()
           .then(function () {
-            sinon.spy(view, 'navigate');
             $('.customize-sync').first().click();
 
             return view.validateAndSubmit()
@@ -152,7 +153,7 @@ define(function (require, exports, module) {
               .then(function () {
                 assert.isTrue(user.setAccount.calledWith(account));
                 assert.isTrue(broker.afterSignIn.calledWith(account));
-                assert.equal(routerMock.page, 'signup_complete');
+                assert.isTrue(view.navigate.calledWith('signup_complete'));
               });
           });
       });

@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   var FxaClient = require('lib/fxa-client');
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
-  var RouterMock = require('../../../mocks/router');
   var sinon = require('sinon');
   var User = require('models/user');
   var View = require('views/openid/login');
@@ -19,30 +18,27 @@ define(function (require, exports, module) {
   var assert = chai.assert;
 
   describe('views/openid/login', function () {
-    var view;
-    var windowMock;
-    var routerMock;
+    var broker;
     var fxaClient;
     var notifier;
     var user;
-    var broker;
+    var view;
+    var windowMock;
 
     beforeEach(function () {
-
-      windowMock = new WindowMock();
-      routerMock = new RouterMock();
+      broker = new Broker();
       fxaClient = new FxaClient();
       notifier = new Notifier();
+      windowMock = new WindowMock();
+
       user = new User({
         fxaClient: fxaClient,
         notifier: notifier
       });
-      broker = new Broker();
 
       view = new View({
         broker: broker,
         fxaClient: fxaClient,
-        router: routerMock,
         user: user,
         window: windowMock
       });

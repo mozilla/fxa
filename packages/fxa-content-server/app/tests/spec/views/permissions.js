@@ -13,7 +13,7 @@ define(function (require, exports, module) {
   var Metrics = require('lib/metrics');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
-  var RouterMock = require('../../mocks/router');
+  var Notifier = require('lib/channels/notifier');
   var sinon = require('sinon');
   var TestHelpers = require('../../lib/helpers');
   var User = require('models/user');
@@ -23,40 +23,42 @@ define(function (require, exports, module) {
   var assert = chai.assert;
 
   describe('views/permissions', function () {
-    var view;
-    var routerMock;
-    var metrics;
-    var windowMock;
-    var fxaClient;
-    var relier;
+    var account;
     var broker;
-    var user;
     var email;
     var ephemeralMessages;
-    var account;
-    var SERVICE_NAME = 'Relier';
+    var fxaClient;
+    var metrics;
+    var notifier;
+    var relier;
+    var user;
+    var view;
+    var windowMock;
+
     var CLIENT_ID = 'relier';
-    var SERVICE_URI = 'relier.com';
     var PERMISSIONS = ['profile:email', 'profile:uid'];
+    var SERVICE_NAME = 'Relier';
+    var SERVICE_URI = 'relier.com';
 
     beforeEach(function () {
+      broker = new Broker();
       email = TestHelpers.createEmail();
-      routerMock = new RouterMock();
-      windowMock = new WindowMock();
+      ephemeralMessages = new EphemeralMessages();
+      fxaClient = new FxaClient();
       metrics = new Metrics();
+      notifier = new Notifier();
       relier = new Relier();
+      windowMock = new WindowMock();
+
       relier.set({
         clientId: CLIENT_ID,
         permissions: PERMISSIONS,
         serviceName: SERVICE_NAME,
         serviceUri: SERVICE_URI
       });
-      broker = new Broker();
-      fxaClient = new FxaClient();
       user = new User({
         fxaClient: fxaClient
       });
-      ephemeralMessages = new EphemeralMessages();
       account = user.initAccount({
         email: email,
         sessionToken: 'fake session token',
@@ -82,13 +84,15 @@ define(function (require, exports, module) {
         ephemeralMessages: ephemeralMessages,
         fxaClient: fxaClient,
         metrics: metrics,
+        notifier: notifier,
         relier: relier,
-        router: routerMock,
         type: type,
         user: user,
         viewName: 'permissions',
         window: windowMock
       });
+
+      sinon.spy(view, 'navigate');
 
       return view.render()
         .then(function () {
@@ -101,14 +105,14 @@ define(function (require, exports, module) {
         account.clear('sessionToken');
         return initView('sign_in')
           .then(function () {
-            assert.equal(routerMock.page, '/signin');
+            assert.isTrue(view.navigate.calledWith('/signin'));
           });
       });
       it('coming from sign up, redirects to /signup when session token missing', function () {
         account.clear('sessionToken');
         return initView('sign_up')
           .then(function () {
-            assert.equal(routerMock.page, '/signup');
+            assert.isTrue(view.navigate.calledWith('/signup'));
           });
       });
       it('renders relier info', function () {
@@ -131,7 +135,6 @@ define(function (require, exports, module) {
       it('coming from sign in, redirects unverified users to the confirm page on success', function () {
         return initView('sign_in')
           .then(function () {
-            sinon.spy(view, 'navigate');
 
             return view.submit()
               .then(function () {
@@ -147,7 +150,6 @@ define(function (require, exports, module) {
       it('coming from sign up, redirects unverified users to the confirm page on success', function () {
         return initView('sign_up')
           .then(function () {
-            sinon.spy(view, 'navigate');
 
             return view.submit()
               .then(function () {
@@ -175,7 +177,7 @@ define(function (require, exports, module) {
                 assert.isTrue(TestHelpers.isEventLogged(metrics,
                                   'permissions.success'));
                 assert.isTrue(broker.afterSignIn.calledWith(account));
-                assert.equal(routerMock.page, 'settings');
+                assert.isTrue(view.navigate.calledWith('settings'));
               });
           });
       });
@@ -193,7 +195,7 @@ define(function (require, exports, module) {
                 assert.isTrue(account.saveGrantedPermissions.calledWith(CLIENT_ID, PERMISSIONS));
                 assert.isTrue(user.setAccount.calledWith(account));
                 assert.isTrue(broker.afterSignIn.calledWith(account));
-                assert.equal(routerMock.page, 'signup_complete');
+                assert.isTrue(view.navigate.calledWith('signup_complete'));
               });
           });
       });

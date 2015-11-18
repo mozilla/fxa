@@ -102,26 +102,28 @@ define(function (require, exports, module) {
     initialize: function (options) {
       options = options || {};
 
-      this.able = options.able;
       this.broker = options.broker;
-      this.formPrefill = options.formPrefill;
-      this.fxaClient = options.fxaClient;
-      this.interTabChannel = options.interTabChannel;
-      this.language = options.language;
       this.metrics = options.metrics;
       this.notifier = options.notifier;
-      this.relier = options.relier;
-      this.sentryMetrics = options.sentryMetrics;
       this.user = options.user;
       this.window = options.window || window;
 
       this.notifier.once('view-shown', this._afterFirstViewHasRendered.bind(this));
+      this.notifier.on('navigate', this.onNavigate.bind(this));
 
       this.storage = Storage.factory('sessionStorage', this.window);
     },
 
+    onNavigate: function (data) {
+      this.navigate(data.url, _.omit(data, 'url'));
+    },
+
     navigate: function (url, options) {
-      options = options || { trigger: true };
+      options = options || {};
+
+      if (! options.hasOwnProperty('trigger')) {
+        options.trigger = true;
+      }
 
       // If the caller has not asked us to clear the query params
       // and the new URL does not contain query params, propagate
@@ -156,37 +158,29 @@ define(function (require, exports, module) {
     /**
      * Get the options to pass to a View constructor.
      *
-     * TODO - this only exists because this module used to create the views.
-     * There should be a View factory that takes ownership of this logic.
-     *
      * @param {object} options - additional options
      * @returns {object}
      */
     getViewOptions: function (options) {
       // passed in options block can override
       // default options.
-      var viewOptions = _.extend({
-        able: this.able,
-        broker: this.broker,
-        // back is enabled after the first view is rendered or
-        // if the user is re-starts the app.
-        canGoBack: this.storage.get('canGoBack') || false,
-        formPrefill: this.formPrefill,
-        fxaClient: this.fxaClient,
-        interTabChannel: this.interTabChannel,
-        language: this.language,
-        metrics: this.metrics,
-        notifier: this.notifier,
-        profileClient: this.profileClient,
-        relier: this.relier,
-        router: this,
-        sentryMetrics: this.sentryMetrics,
-        user: this.user,
-        viewName: this.fragmentToViewName(Backbone.history.fragment),
-        window: this.window
-      }, options || {});
+      return _.extend({
+        canGoBack: this.canGoBack(),
+        currentPage: this.getCurrentPage(),
+        viewName: this.getCurrentViewName()
+      }, options);
+    },
 
-      return viewOptions;
+    canGoBack: function () {
+      return !! this.storage.get('canGoBack');
+    },
+
+    getCurrentPage: function () {
+      return Backbone.history.fragment;
+    },
+
+    getCurrentViewName: function () {
+      return this.fragmentToViewName(this.getCurrentPage());
     },
 
     _afterFirstViewHasRendered: function () {
@@ -203,15 +197,6 @@ define(function (require, exports, module) {
       // back is enabled after the first view is rendered or
       // if the user re-starts the app.
       this.storage.set('canGoBack', true);
-    },
-
-    /**
-     * TODO - this is used by views/base to redirect unauthenticated users,
-     * pass the currentPage in getViewOptions so that views do not need
-     * to reach back into the router to get this information.
-     */
-    getCurrentPage: function () {
-      return Backbone.history.fragment;
     },
 
     fragmentToViewName: function (fragment) {

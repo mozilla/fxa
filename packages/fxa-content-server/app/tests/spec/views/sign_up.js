@@ -19,7 +19,6 @@ define(function (require, exports, module) {
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
   var Relier = require('models/reliers/sync');
-  var RouterMock = require('../../mocks/router');
   var Session = require('lib/session');
   var sinon = require('sinon');
   var TestHelpers = require('../../lib/helpers');
@@ -40,7 +39,6 @@ define(function (require, exports, module) {
     var metrics;
     var notifier;
     var relier;
-    var router;
     var user;
     var view;
 
@@ -68,7 +66,6 @@ define(function (require, exports, module) {
         metrics: metrics,
         notifier: notifier,
         relier: relier,
-        router: router,
         user: user,
         viewName: 'signup'
       };
@@ -91,7 +88,6 @@ define(function (require, exports, module) {
       metrics = new Metrics();
       notifier = new Notifier();
       relier = new Relier();
-      router = new RouterMock();
 
       broker = new Broker({
         relier: relier
@@ -116,7 +112,7 @@ define(function (require, exports, module) {
       view.destroy();
       document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
 
-      view = router = metrics = null;
+      view = metrics = null;
     });
 
     describe('render', function () {
@@ -603,38 +599,42 @@ define(function (require, exports, module) {
         sinon.stub(coppa, 'isUserOldEnough', function () {
           return false;
         });
+        sinon.spy(view, 'navigate');
 
         return view.submit()
           .then(function () {
-            assert.equal(router.page, 'cannot_create_account');
+            assert.isTrue(view.navigate.calledWith('cannot_create_account'));
           });
       });
 
       it('sends user to cannot_create_account when visiting sign up if they have already been sent there', function () {
         fillOutSignUp(email, 'password', true);
 
-        var revisitRouter = new RouterMock();
         var revisitView = new View({
           able: able,
           fxaClient: fxaClient,
           notifier: notifier,
-          relier: relier,
-          router: revisitRouter
+          relier: relier
         });
 
         sinon.stub(coppa, 'isUserOldEnough', function () {
           return false;
         });
 
+        sinon.spy(view, 'navigate');
+        sinon.spy(revisitView, 'navigate');
+
         return view.submit()
             .then(function () {
-              assert.equal(router.page, 'cannot_create_account');
+              assert.isTrue(view.navigate.calledOnce);
+              assert.isTrue(view.navigate.calledWith('cannot_create_account'));
             })
             .then(function () {
               // simulate user re-visiting the /signup page after being rejected
               return revisitView.render();
             }).then(function () {
-              assert.equal(revisitRouter.page, 'cannot_create_account');
+              assert.isTrue(revisitView.navigate.calledOnce);
+              assert.isTrue(revisitView.navigate.calledWith('cannot_create_account'));
             });
       });
 
@@ -668,9 +668,11 @@ define(function (require, exports, module) {
           return true;
         });
 
+        sinon.spy(view, 'navigate');
+
         return view.submit()
             .then(function () {
-              assert.equal(router.page, 'confirm');
+              assert.isTrue(view.navigate.calledWith('confirm'));
             });
       });
 

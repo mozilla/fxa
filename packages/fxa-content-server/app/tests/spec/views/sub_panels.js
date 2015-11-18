@@ -11,8 +11,8 @@ define(function (require, exports, module) {
   var Cocktail = require('cocktail');
   var Metrics = require('lib/metrics');
   var ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
+  var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
-  var RouterMock = require('../../mocks/router');
   var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
   var sinon = require('sinon');
   var TestTemplate = require('stache!templates/test_template');
@@ -42,23 +42,26 @@ define(function (require, exports, module) {
 
   describe('views/sub-panels', function () {
     var metrics;
+    var notifier;
     var panelViews;
     var parentView;
-    var routerMock;
     var view;
 
     function createView () {
       view = new View({
         metrics: metrics,
+        notifier: notifier,
         panelViews: panelViews,
         parentView: parentView,
-        router: routerMock
+        createView: function (Constructor, options) {
+          return new Constructor(options);
+        }
       });
     }
 
     beforeEach(function () {
-      routerMock = new RouterMock();
       metrics = new Metrics();
+      notifier = new Notifier();
 
       panelViews = [
         SettingsPanelView,
@@ -73,7 +76,6 @@ define(function (require, exports, module) {
       $(view.el).remove();
       view.destroy();
       view = null;
-      routerMock = null;
     });
 
     describe('childViews', function () {

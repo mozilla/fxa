@@ -76,10 +76,10 @@ define(function (require, exports, module) {
           String(areCommunicationPrefsVisible));
 
       return new SubPanels({
+        createView: options.createView,
         initialChildView: options.childView,
         panelViews: panelViews,
-        parent: this,
-        router: this.router
+        parent: this
       });
     },
 

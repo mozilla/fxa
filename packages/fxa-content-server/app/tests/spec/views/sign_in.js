@@ -18,7 +18,6 @@ define(function (require, exports, module) {
   var OAuthErrors = require('lib/oauth-errors');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
-  var RouterMock = require('../../mocks/router');
   var Session = require('lib/session');
   var sinon = require('sinon');
   var TestHelpers = require('../../lib/helpers');
@@ -32,7 +31,6 @@ define(function (require, exports, module) {
   describe('views/sign_in', function () {
     var view;
     var email;
-    var routerMock;
     var metrics;
     var windowMock;
     var fxaClient;
@@ -48,7 +46,6 @@ define(function (require, exports, module) {
 
       Session.clear();
 
-      routerMock = new RouterMock();
       windowMock = new WindowMock();
       metrics = new Metrics();
       relier = new Relier();
@@ -90,7 +87,6 @@ define(function (require, exports, module) {
         metrics: metrics,
         notifier: notifier,
         relier: relier,
-        router: routerMock,
         user: user,
         viewName: 'signin',
         window: windowMock
@@ -291,6 +287,7 @@ define(function (require, exports, module) {
           return 'resume token';
         });
 
+        sinon.spy(view, 'navigate');
         return view.submit()
           .then(function () {
             assert.isTrue(broker.beforeSignIn.calledWith(email));
@@ -301,7 +298,7 @@ define(function (require, exports, module) {
                 resume: 'resume token'
               }
             ));
-            assert.equal(routerMock.page, 'confirm');
+            assert.isTrue(view.navigate.calledWith('confirm'));
           });
       });
 
@@ -320,6 +317,8 @@ define(function (require, exports, module) {
           return p();
         });
 
+        sinon.spy(view, 'navigate');
+
         return view.submit()
           .then(function () {
             var account = user.initAccount.returnValues[0];
@@ -331,7 +330,7 @@ define(function (require, exports, module) {
                               'signin.success'));
             assert.isTrue(broker.afterSignIn.calledWith(account));
 
-            assert.equal(routerMock.page, 'settings');
+            assert.isTrue(view.navigate.calledWith('settings'));
           });
       });
 

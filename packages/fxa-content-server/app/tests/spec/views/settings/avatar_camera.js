@@ -15,7 +15,6 @@ define(function (require, exports, module) {
   var p = require('lib/promise');
   var ProfileMock = require('../../../mocks/profile');
   var Relier = require('models/reliers/relier');
-  var RouterMock = require('../../../mocks/router');
   var sinon = require('sinon');
   var TestHelpers = require('../../../lib/helpers');
   var User = require('models/user');
@@ -39,7 +38,6 @@ define(function (require, exports, module) {
     var notifier;
     var profileClientMock;
     var relier;
-    var routerMock;
     var user;
     var view;
     var windowMock;
@@ -48,7 +46,6 @@ define(function (require, exports, module) {
       metrics = new Metrics();
       notifier = new Notifier();
       relier = new Relier();
-      routerMock = new RouterMock();
       user = new User();
       windowMock = new WindowMock();
 
@@ -61,7 +58,6 @@ define(function (require, exports, module) {
         metrics: metrics,
         notifier: notifier,
         relier: relier,
-        router: routerMock,
         user: user,
         window: windowMock
       });
@@ -77,7 +73,6 @@ define(function (require, exports, module) {
       $(view.el).remove();
       view.destroy();
       view = null;
-      routerMock = null;
       windowMock = null;
       profileClientMock = null;
     });
@@ -205,7 +200,6 @@ define(function (require, exports, module) {
           metrics: metrics,
           notifier: notifier,
           relier: relier,
-          router: routerMock,
           user: user,
           window: windowMock
         });
@@ -232,6 +226,8 @@ define(function (require, exports, module) {
         sinon.stub(view, 'updateProfileImage', function () {
           return p();
         });
+
+        sinon.spy(view, 'navigate');
 
         view.render()
           .then(function () {
@@ -265,7 +261,7 @@ define(function (require, exports, module) {
                   assert.equal(view.canvas._context._args[7], view.exportLength);
                   assert.equal(view.canvas._context._args[8], view.exportLength);
 
-                  assert.equal(routerMock.page, 'settings');
+                  assert.isTrue(view.navigate.calledWith('settings'));
                   done();
                 }, done);
             });

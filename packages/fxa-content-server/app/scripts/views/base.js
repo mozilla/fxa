@@ -119,6 +119,7 @@ define(function (require, exports, module) {
       options = options || {};
 
       this.broker = options.broker;
+      this.currentPage = options.currentPage;
       this.ephemeralMessages = options.ephemeralMessages || ephemeralMessages;
       this.fxaClient = options.fxaClient;
       this.metrics = options.metrics || nullMetrics;
@@ -129,7 +130,6 @@ define(function (require, exports, module) {
       this.window = options.window || window;
 
       this.navigator = options.navigator || this.window.navigator || navigator;
-      this.router = options.router || this.window.router;
       this.translator = options.translator || this.window.translator;
 
       /**
@@ -215,7 +215,7 @@ define(function (require, exports, module) {
             // user is not authorized, make them sign in.
             var err = AuthErrors.toError('SESSION_EXPIRED');
             self.navigate(self._reAuthPage(), {
-              data: { redirectTo: self.router.getCurrentPage() },
+              data: { redirectTo: self.currentPage },
               error: err
             });
             return false;
@@ -654,9 +654,9 @@ define(function (require, exports, module) {
         this.ephemeralMessages.set('data', options.data);
       }
 
-      this.router.navigate(page, {
+      this.notifier.trigger('navigate', {
         clearQueryParams: options.clearQueryParams,
-        trigger: true
+        url: page
       });
     },
 

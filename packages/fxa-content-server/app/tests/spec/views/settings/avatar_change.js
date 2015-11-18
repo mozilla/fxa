@@ -15,12 +15,12 @@ define(function (require, exports, module) {
   var ProfileClient = require('lib/profile-client');
   var ProfileMock = require('../../../mocks/profile');
   var Relier = require('models/reliers/relier');
-  var RouterMock = require('../../../mocks/router');
   var sinon = require('sinon');
   var TestHelpers = require('../../../lib/helpers');
   var User = require('models/user');
   var View = require('views/settings/avatar_change');
   var WindowMock = require('../../../mocks/window');
+  var wrapAssertion = TestHelpers.wrapAssertion;
 
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAACZJREFUeNrtwQEBAAAAgiD' +
@@ -32,7 +32,6 @@ define(function (require, exports, module) {
     var notifier;
     var profileClientMock;
     var relier;
-    var routerMock;
     var user;
     var view;
     var windowMock;
@@ -42,7 +41,6 @@ define(function (require, exports, module) {
       notifier = new Notifier();
       profileClientMock = new ProfileMock();
       relier = new Relier();
-      routerMock = new RouterMock();
       user = new User();
       windowMock = new WindowMock();
 
@@ -50,7 +48,6 @@ define(function (require, exports, module) {
         metrics: metrics,
         notifier: notifier,
         relier: relier,
-        router: routerMock,
         user: user,
         window: windowMock
       });
@@ -60,7 +57,6 @@ define(function (require, exports, module) {
       $(view.el).remove();
       view.destroy();
       view = null;
-      routerMock = null;
       profileClientMock = null;
     });
 
@@ -71,10 +67,10 @@ define(function (require, exports, module) {
           metrics: metrics,
           notifier: notifier,
           relier: relier,
-          router: routerMock,
           user: user,
           window: windowMock
         });
+
         view.isUserAuthorized = function () {
           return p(true);
         };
@@ -105,6 +101,7 @@ define(function (require, exports, module) {
           return p();
         });
 
+        sinon.spy(view, 'navigate');
         return view.afterVisible()
           .then(function () {
             assert.equal(view.$('.avatar-wrapper img').length, 1);
@@ -112,7 +109,7 @@ define(function (require, exports, module) {
           })
           .then(function () {
             assert.isTrue(view.deleteDisplayedAccountProfileImage.called);
-            assert.equal(routerMock.page, 'settings');
+            assert.isTrue(view.navigate.calledWith('settings'));
           });
       });
 
@@ -121,6 +118,7 @@ define(function (require, exports, module) {
           return p.reject(ProfileClient.Errors.toError('IMAGE_PROCESSING_ERROR'));
         });
 
+        sinon.spy(view, 'navigate');
         return view.afterVisible()
           .then(function () {
             assert.equal(view.$('.avatar-wrapper img').length, 1);
@@ -131,7 +129,7 @@ define(function (require, exports, module) {
           }, function (err) {
             assert.isTrue(ProfileClient.Errors.is(err, 'IMAGE_PROCESSING_ERROR'));
             assert.isTrue(view.isErrorVisible(), 'error is visible');
-            assert.notEqual(routerMock.page, 'settings');
+            assert.isFalse(view.navigate.calledWith('settings'));
           });
       });
 
@@ -186,15 +184,13 @@ define(function (require, exports, module) {
             .then(function () {
               var ev = FileReaderMock._mockPngEvent();
 
-              view.router.on('navigate', function () {
-                try {
-                  var cropImg = view.ephemeralMessages.get('data').cropImg;
-                  assert.equal(routerMock.page, 'settings/avatar/crop');
+
+              sinon.stub(view, 'navigate', function (url, options) {
+                wrapAssertion(function () {
+                  assert.equal(url, 'settings/avatar/crop');
+                  var cropImg = options.data.cropImg;
                   assert.equal(cropImg.get('src'), pngSrc);
-                  done();
-                } catch (e) {
-                  return done(e);
-                }
+                }, done);
               });
 
               view.fileSet(ev);
@@ -210,14 +206,11 @@ define(function (require, exports, module) {
           .then(function () {
             var ev = FileReaderMock._mockPngEvent();
 
-            view.router.on('navigate', function () {
-              try {
+            sinon.stub(view, 'navigate', function () {
+              wrapAssertion(function () {
                 assert.isFalse(TestHelpers.isEventLogged(metrics, 'settings.avatar.change.submit.new'));
                 assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.avatar.change.submit.change'));
-                done();
-              } catch (e) {
-                return done(e);
-              }
+              }, done);
             });
 
             view.fileSet(ev);
@@ -237,14 +230,11 @@ define(function (require, exports, module) {
           .then(function () {
             var ev = FileReaderMock._mockPngEvent();
 
-            view.router.on('navigate', function () {
-              try {
+            sinon.stub(view, 'navigate', function () {
+              wrapAssertion(function () {
                 assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.avatar.change.submit.new'));
                 assert.isFalse(TestHelpers.isEventLogged(metrics, 'settings.avatar.change.submit.change'));
-                done();
-              } catch (e) {
-                return done(e);
-              }
+              }, done);
             });
 
             account.set('hadProfileImageSetBefore', false);
@@ -260,8 +250,6 @@ define(function (require, exports, module) {
             assert.isUndefined(relier.get('setting'));
           });
       });
-
     });
-
   });
 });

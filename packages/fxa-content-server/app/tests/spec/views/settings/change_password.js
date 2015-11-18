@@ -14,7 +14,6 @@ define(function (require, exports, module) {
   var Metrics = require('lib/metrics');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
-  var RouterMock = require('../../../mocks/router');
   var sinon = require('sinon');
   var TestHelpers = require('../../../lib/helpers');
   var User = require('models/user');
@@ -24,30 +23,31 @@ define(function (require, exports, module) {
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/change_password', function () {
-    var view;
-    var routerMock;
-    var fxaClient;
-    var relier;
-    var broker;
-    var user;
     var account;
+    var broker;
     var ephemeralMessages;
+    var fxaClient;
     var metrics;
+    var relier;
+    var user;
+    var view;
 
     beforeEach(function () {
-      routerMock = new RouterMock();
+      ephemeralMessages = new EphemeralMessages();
+      metrics = new Metrics();
       relier = new Relier();
+
       broker = new Broker({
         relier: relier
       });
+
       fxaClient = new FxaClient({
         broker: broker
       });
+
       user = new User({
         fxaClient: fxaClient
       });
-      ephemeralMessages = new EphemeralMessages();
-      metrics = new Metrics();
 
       view = new View({
         broker: broker,
@@ -55,7 +55,6 @@ define(function (require, exports, module) {
         fxaClient: fxaClient,
         metrics: metrics,
         relier: relier,
-        router: routerMock,
         user: user
       });
     });
@@ -64,7 +63,6 @@ define(function (require, exports, module) {
       $(view.el).remove();
       view.destroy();
       view = null;
-      routerMock = null;
     });
 
     describe('with session', function () {
