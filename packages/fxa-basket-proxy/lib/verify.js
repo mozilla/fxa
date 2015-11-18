@@ -10,6 +10,7 @@ var logger = require('./logging')('verify');
 var basket = require('./basket');
 
 var VERIFY_URL = config.get('oauth_url') + '/v1/verify';
+var PROFILE_URL = config.get('fxaccount_url') + '/v1/account/profile';
 var REQUIRED_SCOPE = 'basket:write';
 
 // Adds FxA OAuth token verification to an express app.
@@ -57,12 +58,6 @@ module.exports = function verifyOAuthToken() {
         return;
       }
 
-      if (! body.email) {
-        logger.error('auth.missing-email', body);
-        res.status(400).json(basket.errorResponse('missing email', basket.errors.AUTH_ERROR));
-        return;
-      }
-
       if (body.scope.indexOf(REQUIRED_SCOPE) === -1) {
         logger.error('auth.invalid-scope', body);
         res.status(400).json(basket.errorResponse('invalid scope', basket.errors.AUTH_ERROR));
@@ -70,10 +65,39 @@ module.exports = function verifyOAuthToken() {
       }
 
       logger.info('auth.valid', body);
-
       res.locals.creds = body;
 
-      next();
+      logger.info('auth.profile.starting');
+
+      request.get({
+        url: PROFILE_URL,
+        json: true,
+        headers: {
+          Authorization: authHeader
+        }
+      }, function (err, result, body) {
+        if (err) {
+          logger.error('auth.profile.error', err);
+          res.status(500).json(basket.errorResponse(err, basket.errors.UNKNOWN_ERROR));
+          return;
+        }
+
+        if (result.statusCode >= 400) {
+          logger.error('auth.profile.unauthorized', body);
+          res.status(result.statusCode).json(basket.errorResponse('unauthorized', basket.errors.AUTH_ERROR));
+          return;
+        }
+
+        if (! body.email) {
+          logger.error('auth.profile.missing-email', body);
+          res.status(400).json(basket.errorResponse('missing email', basket.errors.AUTH_ERROR));
+          return;
+        }
+
+        logger.info('auth.profile');
+        res.locals.creds.email = body.email;
+        next();
+      });
     });
   };
 };

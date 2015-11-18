@@ -19,8 +19,10 @@ describe('the /subscribe route', function () {
     var NEWSLETTERS = 'a,b,c';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      email: EMAIL,
       scope: 'basket:write'
+    });
+    mocks.mockProfileResponse().reply(200, {
+      email: EMAIL,
     });
     mocks.mockBasketResponse().post('/subscribe/', function (body) {
       assert.deepEqual(body, {
@@ -46,8 +48,10 @@ describe('the /subscribe route', function () {
     var NEWSLETTERS = 'a,b,c';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      email: EMAIL,
       scope: 'basket:write'
+    });
+    mocks.mockProfileResponse().reply(200, {
+      email: EMAIL,
     });
     mocks.mockBasketResponse().post('/subscribe/', function (body) {
       assert.deepEqual(body, {
@@ -90,8 +94,10 @@ describe('the /subscribe route', function () {
     var NEWSLETTERS = 'a,b,c';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      email: EMAIL,
       scope: 'basket:write'
+    });
+    mocks.mockProfileResponse().reply(200, {
+      email: EMAIL,
     });
     mocks.mockBasketResponse().post('/subscribe/', function (body) {
       assert.deepEqual(body, {
@@ -118,8 +124,10 @@ describe('the /subscribe route', function () {
     var ACCEPT_LANG = 'Accept-Language: de; q=1.0, en; q=0.5';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      email: EMAIL,
       scope: 'basket:write'
+    });
+    mocks.mockProfileResponse().reply(200, {
+      email: EMAIL,
     });
     mocks.mockBasketResponse().post('/subscribe/', function (body) {
       /*eslint-disable camelcase */
