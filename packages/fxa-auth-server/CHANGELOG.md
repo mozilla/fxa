@@ -1,3 +1,21 @@
+<a name"0.50.0"></a>
+## 0.50.0 (2015-11-18)
+
+
+#### Bug Fixes
+
+* **config:** update config to use getProperties ([c2ed6ebd](https://github.com/mozilla/fxa-oauth-server/commit/c2ed6ebd), closes [#349](https://github.com/mozilla/fxa-oauth-server/issues/349))
+* **db:** make schema.sql accuratley reflect latest patch state ([b17b0008](https://github.com/mozilla/fxa-oauth-server/commit/b17b0008))
+* **docs:** add git guidelines link ([a00167ce](https://github.com/mozilla/fxa-oauth-server/commit/a00167ce))
+* **travis:** remove broken validate shrinkwrap ([1729764f](https://github.com/mozilla/fxa-oauth-server/commit/1729764f))
+
+
+#### Features
+
+* **tokens:** allow using JWT grants from Service Clients ([55f88a9c](https://github.com/mozilla/fxa-oauth-server/commit/55f88a9c), closes [#328](https://github.com/mozilla/fxa-oauth-server/issues/328))
+* **verify:** add opt out parameter to verify endpoint ([e4c54ff6](https://github.com/mozilla/fxa-oauth-server/commit/e4c54ff6), closes [#358](https://github.com/mozilla/fxa-oauth-server/issues/358))
+
+
 <a name"0.48.1"></a>
 ### 0.48.1 (2015-10-28)
 
