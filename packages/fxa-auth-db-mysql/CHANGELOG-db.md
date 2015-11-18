@@ -1,3 +1,8 @@
+train-50
+  * chore(nsp): re-added shrinkwrap validation to travis
+  * fix(server): fix bad route parameter name
+  * feat(db): update devices to match new requirements
+
 train-49
   * reverted some dependencies to previous versions due to #113
 
