@@ -9,10 +9,15 @@ var config = require('../../lib/config');
 var API_KEY = config.get('basket.api_key');
 var API_URL = config.get('basket.api_url');
 var VERIFY_URL = config.get('oauth_url') + '/v1/verify';
+var PROFILE_URL = config.get('fxaccount_url') + '/v1/account/profile';
 
 
 module.exports.mockOAuthResponse = function mockOAuthResponse() {
   return nock(VERIFY_URL).post('');
+};
+
+module.exports.mockProfileResponse = function mockOAuthResponse() {
+  return nock(PROFILE_URL).get('');
 };
 
 module.exports.mockBasketResponse = function mockBasketResponse(opts) {

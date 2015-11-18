@@ -20,8 +20,10 @@ describe('the route /lookup-user', function () {
     var NEWSLETTERS = 'a,b,c';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      email: EMAIL,
       scope: 'basket:write'
+    });
+    mocks.mockProfileResponse().reply(200, {
+      email: EMAIL,
     });
     mocks.mockBasketResponse().get('/lookup-user/').query({email: EMAIL}).reply(200, {
       status: 'ok',
@@ -45,8 +47,10 @@ describe('the route /lookup-user', function () {
     var EMAIL = 'test@example.com';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      email: EMAIL,
       scope: 'basket:write'
+    });
+    mocks.mockProfileResponse().reply(200, {
+      email: EMAIL,
     });
     mocks.mockBasketResponse().get('/lookup-user/').query({email: EMAIL})
       .replyWithError('ruh-roh!');
@@ -103,27 +107,9 @@ describe('the route /lookup-user', function () {
       .end(done);
   });
 
-  it('returns an error if the oauth token has no associated email', function (done) {
-    mocks.mockOAuthResponse().reply(200, {
-      user: UID,
-    });
-    request(app)
-      .get('/lookup-user')
-      .set('authorization', 'Bearer TOKEN')
-      .expect('Content-Type', /json/)
-      .expect(400, {
-        status: 'error',
-        code: 7,
-        desc: 'missing email'
-      })
-      .end(done);
-  });
-
   it('returns an error if the oauth token has incorrect scope', function (done) {
-    var EMAIL = 'test@example.com';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      email: EMAIL,
       scope: 'profile'
     });
     request(app)
@@ -148,6 +134,80 @@ describe('the route /lookup-user', function () {
         status: 'error',
         code: 99,
         desc: 'Error: ruh-roh!'
+      })
+      .end(done);
+  });
+
+  it('returns an error if the auth server profile request errors out', function (done) {
+    mocks.mockOAuthResponse().reply(200, {
+      user: UID,
+      scope: 'basket:write'
+    });
+    mocks.mockProfileResponse().replyWithError('ruh-roh!');
+    request(app)
+      .get('/lookup-user')
+      .set('authorization', 'Bearer TOKEN')
+      .expect('Content-Type', /json/)
+      .expect(500, {
+        status: 'error',
+        code: 99,
+        desc: 'Error: ruh-roh!'
+      })
+      .end(done);
+  });
+
+  it('returns an error if the oauth response has no userid', function (done) {
+    mocks.mockOAuthResponse().reply(200, {
+      scope: 'basket:write profile:email'
+    });
+    request(app)
+      .get('/lookup-user')
+      .set('authorization', 'Bearer TOKEN')
+      .expect('Content-Type', /json/)
+      .expect(400, {
+        status: 'error',
+        code: 7,
+        desc: 'missing user'
+      })
+      .end(done);
+  });
+
+  it('returns an error if the auth server profile has no associated email', function (done) {
+    mocks.mockOAuthResponse().reply(200, {
+      user: UID,
+      scope: 'basket:write profile:locale'
+    });
+    mocks.mockProfileResponse().reply(200, {
+      locale: 'en-AU'
+    });
+    request(app)
+      .get('/lookup-user')
+      .set('authorization', 'Bearer TOKEN')
+      .expect('Content-Type', /json/)
+      .expect(400, {
+        status: 'error',
+        code: 7,
+        desc: 'missing email'
+      })
+      .end(done);
+  });
+
+  it('returns an error if the oauth token cant read profile data', function (done) {
+    mocks.mockOAuthResponse().reply(200, {
+      user: UID,
+      scope: 'basket:write'
+    });
+    mocks.mockProfileResponse().reply(401, {
+      message: 'unauthorized',
+    });
+    request(app)
+      .get('/lookup-user')
+      .set('authorization', 'Bearer TOKEN')
+      .expect('Content-Type', /json/)
+      .expect(401, {
+        status: 'error',
+        code: 7,
+        desc: 'unauthorized'
       })
       .end(done);
   });
