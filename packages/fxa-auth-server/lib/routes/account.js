@@ -59,7 +59,7 @@ module.exports = function (
             resume: isA.string().max(2048).optional(),
             preVerifyToken: isA.string().max(2048).regex(BASE64_JWT).optional(),
             device: isA.object({
-              name: isA.string().max(255).optional(),
+              name: isA.string().max(255).optional().allow(''),
               type: isA.string().max(16).required(),
               pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
               pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow('')
@@ -76,7 +76,7 @@ module.exports = function (
             device: isA.object({
               id: isA.string().length(32).regex(HEX_STRING).required(),
               createdAt: isA.number().positive().required(),
-              name: isA.string().max(255).optional(),
+              name: isA.string().max(255).optional().allow(''),
               type: isA.string().max(16).required(),
               pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
               pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow('')
@@ -287,7 +287,7 @@ module.exports = function (
             reason: isA.string().max(16).optional(),
             device: isA.object({
               id: isA.string().length(32).regex(HEX_STRING).optional(),
-              name: isA.string().max(255).optional(),
+              name: isA.string().max(255).optional().allow(''),
               type: isA.string().max(16).optional(),
               pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
               pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow('')
@@ -305,7 +305,7 @@ module.exports = function (
             device: isA.object({
               id: isA.string().length(32).regex(HEX_STRING).required(),
               createdAt: isA.number().positive().optional(),
-              name: isA.string().max(255).optional(),
+              name: isA.string().max(255).optional().allow(''),
               type: isA.string().max(16).optional(),
               pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
               pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow('')
@@ -723,7 +723,7 @@ module.exports = function (
         validate: {
           payload: isA.object({
             id: isA.string().length(32).regex(HEX_STRING).optional(),
-            name: isA.string().max(255).optional(),
+            name: isA.string().max(255).optional().allow(''),
             type: isA.string().max(16).optional(),
             pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
             pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow('')
@@ -733,7 +733,7 @@ module.exports = function (
           schema: {
             id: isA.string().length(32).regex(HEX_STRING).required(),
             createdAt: isA.number().positive().optional(),
-            name: isA.string().max(255).optional(),
+            name: isA.string().max(255).optional().allow(''),
             type: isA.string().max(16).optional(),
             pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
             pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow('')
@@ -764,10 +764,10 @@ module.exports = function (
           schema: isA.array().items(isA.object({
             id: isA.string().length(32).regex(HEX_STRING).required(),
             sessionToken: isA.string().length(64).regex(HEX_STRING).required(),
-            name: isA.string().max(255).required().allow(''),
+            name: isA.string().max(255).optional().allow(''),
             type: isA.string().max(16).required(),
-            pushCallback: isA.string().uri({ scheme: 'https' }).max(255).required().allow(''),
-            pushPublicKey: isA.string().length(64).regex(HEX_STRING).required()
+            pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
+            pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional()
           }))
         }
       },

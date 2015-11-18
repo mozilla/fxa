@@ -125,7 +125,7 @@ TestServer.start(config)
         .then(
           function (client) {
             var deviceInfo = {
-              name: 'test device',
+              name: '',
               type: 'mobile',
               pushCallback: '',
               pushPublicKey: ''
@@ -155,10 +155,58 @@ TestServer.start(config)
               .then(
                 function (devices) {
                   t.equal(devices.length, 1, 'devices returned one item')
-                  t.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
+                  t.equal(devices[0].name, '', 'devices returned empty name')
                   t.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
-                  t.equal(devices[0].pushCallback, deviceInfo.pushCallback, 'devices returned correct pushCallback')
+                  t.equal(devices[0].pushCallback, '', 'devices returned empty pushCallback')
                   t.deepEqual(devices[0].pushPublicKey, '0000000000000000000000000000000000000000000000000000000000000000', 'devices returned correct pushPublicKey')
+                  return client.destroyDevice(devices[0].id)
+                }
+              )
+          }
+        )
+    }
+  )
+
+  test(
+    'device registration without optional parameters',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (client) {
+            var deviceInfo = {
+              type: 'mobile'
+            }
+            return client.devices()
+              .then(
+                function (devices) {
+                  t.equal(devices.length, 0, 'devices returned no items')
+                  return client.updateDevice(deviceInfo)
+                }
+              )
+              .then(
+                function (device) {
+                  t.ok(device.id, 'device.id was set')
+                  t.ok(device.createdAt > 0, 'device.createdAt was set')
+                  t.equal(device.name, undefined, 'device.name is undefined')
+                  t.equal(device.type, deviceInfo.type, 'device.type is correct')
+                  t.equal(device.pushCallback, undefined, 'device.pushCallback is undefined')
+                  t.deepEqual(device.pushPublicKey, undefined, 'device.pushPublicKey is undefined')
+                }
+              )
+              .then(
+                function () {
+                  return client.devices()
+                }
+              )
+              .then(
+                function (devices) {
+                  t.equal(devices.length, 1, 'devices returned one item')
+                  t.equal(devices[0].name, undefined, 'devices returned undefined name')
+                  t.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
+                  t.equal(devices[0].pushCallback, undefined, 'devices returned undefined pushCallback')
+                  t.deepEqual(devices[0].pushPublicKey, undefined, 'devices returned undefined pushPublicKey')
                   return client.destroyDevice(devices[0].id)
                 }
               )
