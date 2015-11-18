@@ -1,3 +1,26 @@
+<a name="0.50.0"></a>
+## 0.50.0 (2015-11-18)
+
+
+#### Bug Fixes
+
+* **build:**
+  * add grunt-nsp ([6a62bdfe](https://github.com/mozilla/fxa-profile-server/commit/6a62bdfe06f95e584e2b3e705abb35d819bb9b7e), closes [#161](https://github.com/mozilla/fxa-profile-server/issues/161))
+  * remove shrinkwrap validate ([db93e4e0](https://github.com/mozilla/fxa-profile-server/commit/db93e4e0a971e9fc7bffbcaf24d92d4dc0f68b5c))
+* **config:** adjust lib gm limits for aws ([daff6c6f](https://github.com/mozilla/fxa-profile-server/commit/daff6c6fc1d3905b0718a55c8cc33945bd208023), closes [#167](https://github.com/mozilla/fxa-profile-server/issues/167))
+* **mysql:** fix patcher version check to enforce patch >= n ([8db250f7](https://github.com/mozilla/fxa-profile-server/commit/8db250f7f10c4ceb5083898812cd9c8467d5616e), closes [#131](https://github.com/mozilla/fxa-profile-server/issues/131))
+* **server:** set nodejs/request maxSockets to Infinity ([65efc72c](https://github.com/mozilla/fxa-profile-server/commit/65efc72ca615fc8f9f03ff697c483fc619bc4ede), closes [#102](https://github.com/mozilla/fxa-profile-server/issues/102))
+* **upload:** add gm image identification ([55b0744e](https://github.com/mozilla/fxa-profile-server/commit/55b0744e68d672d2385d8ef51a97072c19e777bd), closes [#96](https://github.com/mozilla/fxa-profile-server/issues/96))
+* **worker:** disable gzip encoding on requests to local worker ([40dfefd5](https://github.com/mozilla/fxa-profile-server/commit/40dfefd5fd66942057a9f532b7f6060b62484a7f), closes [#98](https://github.com/mozilla/fxa-profile-server/issues/98))
+
+
+#### Features
+
+* **email:**
+  * fetch email from auth-server /account/profile ([aa3a140b](https://github.com/mozilla/fxa-profile-server/commit/aa3a140bc1bb3b47bada13c29e5c85c4850f77db), closes [#165](https://github.com/mozilla/fxa-profile-server/issues/165))
+  * fetch email from auth-server /account/profile ([cc706457](https://github.com/mozilla/fxa-profile-server/commit/cc70645763332ab6b16acf5e122a1c82ce9831a1), closes [#165](https://github.com/mozilla/fxa-profile-server/issues/165))
+
+
 <a name="0.49.0"></a>
 ## 0.49.0 (2015-11-03)
 
