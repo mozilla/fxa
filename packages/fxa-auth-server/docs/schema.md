@@ -84,3 +84,15 @@
 * authTokens
 * accountResetToken
 * passwordForgotToken
+
+## Devices
+
+* uid
+* id
+* sessionTokenId
+* createdAt
+* name
+* type
+* pushCallback
+* pushPublicKey
+

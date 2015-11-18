@@ -364,8 +364,8 @@
     },
     "fxa-auth-db-mysql": {
       "version": "0.48.0",
-      "from": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#2130d4668a3e3586b8f4e5212beba1072217a369",
-      "resolved": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#2130d4668a3e3586b8f4e5212beba1072217a369",
+      "from": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#0b51afe1af7e969e5a515b9e81cb6067a0bf36aa",
+      "resolved": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#0b51afe1af7e969e5a515b9e81cb6067a0bf36aa",
       "dependencies": {
         "clone": {
           "version": "1.0.2",

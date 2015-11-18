@@ -424,6 +424,34 @@ module.exports = function (
       )
   }
 
+  DB.prototype.devices = function (uid) {
+    log.trace({ op: 'DB.devices', uid: uid })
+
+    return this.pool.get('/account/' + uid.toString('hex') + '/devices')
+      .then(
+        function (body) {
+          return body.map(function (item) {
+            return bufferize({
+              id: item.id,
+              sessionToken: item.sessionTokenId,
+              name: item.name,
+              type: item.type,
+              pushCallback: item.callbackURL,
+              pushPublicKey: item.callbackPublicKey
+            }, {
+              ignore: [ 'name', 'type', 'pushCallback' ]
+            })
+          })
+        },
+        function (err) {
+          if (isNotFoundError(err)) {
+            throw error.unknownAccount()
+          }
+          throw err
+        }
+      )
+  }
+
   // UPDATE
 
   DB.prototype.updatePasswordForgotToken = function (token) {
@@ -451,6 +479,83 @@ module.exports = function (
       uaDeviceType: token.uaDeviceType,
       lastAccessTime: token.lastAccessTime
     })
+  }
+
+  DB.prototype.createDevice = function (uid, sessionTokenId, deviceInfo) {
+    log.trace({ op: 'DB.createDevice', uid: uid, id: deviceInfo.id })
+    var self = this
+    deviceInfo.id = crypto.randomBytes(16)
+    deviceInfo.createdAt = Date.now()
+    return this.pool.put(
+      '/account/' + uid.toString('hex') +
+      '/device/' + deviceInfo.id.toString('hex'),
+      unbuffer({
+        sessionTokenId: sessionTokenId,
+        createdAt: deviceInfo.createdAt,
+        name: deviceInfo.name,
+        type: deviceInfo.type,
+        callbackURL: deviceInfo.pushCallback,
+        callbackPublicKey: deviceInfo.pushPublicKey
+      })
+    )
+    .then(
+      function () {
+        return deviceInfo
+      },
+      function (err) {
+        if (isRecordAlreadyExistsError(err)) {
+          return self.devices(uid)
+            .then(
+              // It's possible (but extraordinarily improbable) that we generated
+              // a duplicate device id, so check the devices for this account. If
+              // we find a duplicate, retry with a new id. If we don't find one,
+              // the problem was caused by the unique sessionToken constraint so
+              // return an appropriate error.
+              function (devices) {
+                var isDuplicateDeviceId = devices.reduce(function (is, device) {
+                  return is || device.id.toString('hex') === deviceInfo.id.toString('hex')
+                }, false)
+
+                if (isDuplicateDeviceId) {
+                  return self.createDevice(uid, sessionTokenId, deviceInfo)
+                }
+
+                throw error.deviceSessionConflict()
+              }
+            )
+        }
+        throw err
+      }
+    )
+  }
+
+  DB.prototype.updateDevice = function (uid, sessionTokenId, deviceInfo) {
+    log.trace({ op: 'DB.updateDevice', uid: uid, id: deviceInfo.id })
+    return this.pool.post(
+      '/account/' + uid.toString('hex') +
+      '/device/' + deviceInfo.id.toString('hex') + '/update',
+      unbuffer({
+        sessionTokenId: sessionTokenId,
+        name: deviceInfo.name,
+        type: deviceInfo.type,
+        callbackURL: deviceInfo.pushCallback,
+        callbackPublicKey: deviceInfo.pushPublicKey
+      })
+    )
+    .then(
+      function (result) {
+        return deviceInfo
+      },
+      function (err) {
+        if (isNotFoundError(err)) {
+          throw error.unknownDevice()
+        }
+        if (isRecordAlreadyExistsError(err)) {
+          throw error.deviceSessionConflict()
+        }
+        throw err
+      }
+    )
   }
 
   // DELETE
@@ -513,6 +618,27 @@ module.exports = function (
       }
     )
     return this.pool.del('/passwordChangeToken/' + passwordChangeToken.id)
+  }
+
+  DB.prototype.deleteDevice = function (uid, deviceId) {
+    log.trace(
+      {
+        op: 'DB.deleteDevice',
+        id: deviceId,
+        uid: uid
+      }
+    )
+    return this.pool.del(
+      '/account/' + uid.toString('hex') + '/device/' + deviceId.toString('hex')
+    )
+    .catch(
+      function (err) {
+        if (isNotFoundError(err)) {
+          throw error.unknownDevice()
+        }
+        throw err
+      }
+    )
   }
 
   // BATCH
@@ -617,4 +743,3 @@ function isIncorrectPasswordError (err) {
 function isNotFoundError (err) {
   return err.statusCode === 404 && err.errno === 116
 }
-

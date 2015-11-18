@@ -428,3 +428,41 @@
 	* PasswordForgotTokens
 	* AccountResetTokens
 	* Accounts
+
+## /account/device
+
+* input
+  * id
+  * name
+  * type
+  * pushCallback
+  * pushPublicKey
+* output
+  * id
+  * createdAt
+  * name
+  * type
+  * pushCallback
+  * pushPublicKey
+* db-write
+  * Devices
+
+## /account/devices
+
+* output
+  * array of objects
+    * id
+    * sessionToken
+    * name
+    * type
+    * pushCallback
+    * pushPublicKey
+
+## /account/device
+
+* input
+  * id
+* db-write
+  * Devices
+  * SessionTokens
+

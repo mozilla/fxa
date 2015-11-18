@@ -369,4 +369,26 @@ AppError.accountNotLocked = function (email) {
   )
 }
 
+AppError.unknownDevice = function () {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: 123,
+      message: 'Unknown device'
+    }
+  )
+}
+
+AppError.deviceSessionConflict = function () {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: 124,
+      message: 'Session already registered by another device'
+    }
+  )
+}
+
 module.exports = AppError
