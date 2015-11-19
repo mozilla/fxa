@@ -218,3 +218,13 @@ and I change any device-related state through a different device,
 the devices view does not need to update in realtime,
 but it can be manully refreshed by the user
 in order to view the latest state of the account.
+
+Work Breakdown
+------
+
+* [x] Add methods to communicate w/ auth server fxa-js-client - (https://github.com/mozilla/fxa-js-client/issues/176, PR https://github.com/mozilla/fxa-js-client/pull/177)
+* [ ] Add "devices" view in the /settings page. ([#3251](https://github.com/mozilla/fxa-content-server/issues/3251), PR [#3274](https://github.com/mozilla/fxa-content-server/issues/3274))
+* [ ] Add WebChannel communication to browser if user disconnects or changes the name of the current device. ([#3252](https://github.com/mozilla/fxa-content-server/issues/3252))
+  * [ ] Update the WebChannel doc
+* [ ] Handshake with browser to determine current device name and ID. ([#3252](https://github.com/mozilla/fxa-content-server/issues/3252))
+* [ ] Accept WebChannel messages from the browser to handle current device name change, disconnect. ([#3252](https://github.com/mozilla/fxa-content-server/issues/3252))
