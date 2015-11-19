@@ -7,6 +7,7 @@ var TestServer = require('../test_server')
 var Client = require('../client')
 var config = require('../../config').getProperties()
 var crypto = require('crypto')
+var P = require('../../lib/promise')
 
 TestServer.start(config)
 .then(function main(server) {
@@ -35,6 +36,7 @@ TestServer.start(config)
             .then(
               function (devices) {
                 t.equal(devices.length, 1, 'devices returned one item')
+                t.equal(devices[0].isCurrentDevice, true, 'devices returned true isCurrentDevice')
                 t.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
                 t.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
                 t.equal(devices[0].pushCallback, deviceInfo.pushCallback, 'devices returned correct pushCallback')
@@ -208,6 +210,64 @@ TestServer.start(config)
                   t.equal(devices[0].pushCallback, undefined, 'devices returned undefined pushCallback')
                   t.deepEqual(devices[0].pushPublicKey, undefined, 'devices returned undefined pushPublicKey')
                   return client.destroyDevice(devices[0].id)
+                }
+              )
+          }
+        )
+    }
+  )
+
+  test(
+    'device registration from a different session',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      var deviceInfo = [
+        {
+          name: 'first device',
+          type: 'mobile'
+        },
+        {
+          name: 'second device',
+          type: 'desktop'
+        }
+      ]
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+        .then(
+          function (client) {
+            return Client.login(config.publicUrl, email, password, { device: deviceInfo[0] })
+              .then(
+                function () {
+                  return client.devices()
+                }
+              )
+              .then(
+                function (devices) {
+                  t.equal(devices.length, 1, 'devices returned one item')
+                  t.equal(devices[0].isCurrentDevice, false, 'devices returned false isCurrentDevice')
+                  t.equal(devices[0].name, deviceInfo[0].name, 'devices returned correct name')
+                  t.equal(devices[0].type, deviceInfo[0].type, 'devices returned correct type')
+                  return client.updateDevice(deviceInfo[1])
+                }
+              )
+              .then(
+                function () {
+                  return client.devices()
+                }
+              )
+              .then(
+                function (devices) {
+                  t.equal(devices.length, 2, 'devices returned two items')
+                  t.equal(devices[0].isCurrentDevice, false, 'devices returned false isCurrentDevice for first item')
+                  t.equal(devices[0].name, deviceInfo[0].name, 'devices returned correct name for first item')
+                  t.equal(devices[0].type, deviceInfo[0].type, 'devices returned correct type for first item')
+                  t.equal(devices[1].isCurrentDevice, true, 'devices returned true isCurrentDevice for second item')
+                  t.equal(devices[1].name, deviceInfo[1].name, 'devices returned correct name for second item')
+                  t.equal(devices[1].type, deviceInfo[1].type, 'devices returned correct type for second item')
+                  return P.all([
+                    client.destroyDevice(devices[0].id),
+                    client.destroyDevice(devices[1].id)
+                  ])
                 }
               )
           }

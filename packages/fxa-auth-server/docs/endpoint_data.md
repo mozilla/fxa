@@ -452,7 +452,7 @@
 * output
   * array of objects
     * id
-    * sessionToken
+    * isCurrentDevice
     * name
     * type
     * pushCallback

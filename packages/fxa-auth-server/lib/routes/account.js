@@ -763,7 +763,7 @@ module.exports = function (
         response: {
           schema: isA.array().items(isA.object({
             id: isA.string().length(32).regex(HEX_STRING).required(),
-            sessionToken: isA.string().length(64).regex(HEX_STRING).required(),
+            isCurrentDevice: isA.boolean().required(),
             name: isA.string().max(255).optional().allow(''),
             type: isA.string().max(16).required(),
             pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
@@ -777,7 +777,12 @@ module.exports = function (
         var uid = sessionToken.uid
         db.devices(uid).then(
           function (devices) {
-            reply(devices.map(butil.unbuffer))
+            reply(devices.map(function (device) {
+              device.isCurrentDevice =
+                device.sessionToken.toString('hex') === sessionToken.tokenId.toString('hex')
+              delete device.sessionToken
+              return butil.unbuffer(device)
+            }))
           },
           reply
         )
