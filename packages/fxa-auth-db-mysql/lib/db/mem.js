@@ -217,13 +217,17 @@ module.exports = function (log, error) {
 
     DEVICE_FIELDS.forEach(function (key) {
       var field = deviceInfo[key]
-      if (field !== undefined && field !== null) {
-        if (key === 'callbackPublicKey' && field === '') {
-          field = new Buffer(32)
-          field.fill(0)
+      if (field === undefined || field === null) {
+        if (device[key] === undefined) {
+          device[key] = null
         }
-        device[key] = field
+        return
       }
+      if (field === '' && key === 'callbackPublicKey') {
+        field = new Buffer(32)
+        field.fill(0)
+      }
+      device[key] = field
     })
 
     if (session) {
