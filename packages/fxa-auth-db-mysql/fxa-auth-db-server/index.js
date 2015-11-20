@@ -9,6 +9,8 @@ var errors = require('./lib/error')
 
 function createServer(db) {
 
+  var implementation = db.constructor.name || '__anonymousconstructor__'
+
   function reply(fn) {
     return function (req, res, next) {
       fn.call(db, req.params.id, req.body)
@@ -156,7 +158,15 @@ function createServer(db) {
   api.get(
     '/',
     function (req, res, next) {
-      res.send({ version: version })
+      res.send({ version: version, implementation: implementation })
+      next()
+    }
+  )
+
+  api.get(
+    '/__version__',
+    function (req, res, next) {
+      res.send({ version: version, implementation: implementation })
       next()
     }
   )

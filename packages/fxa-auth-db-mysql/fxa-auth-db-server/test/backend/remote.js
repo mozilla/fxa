@@ -62,6 +62,24 @@ function captureFailureEvents(t, server) {
   server.on('failure', t.pass.bind(t, 'The server emitted the failure event'))
 }
 
+// Helper test that calls the version route and checks response that checks the version route response.
+//
+// Takes the client, and a route, either '/' or '/__version__'.
+//
+function testVersionResponse(client, route) {
+  return function (t) {
+    client.getThen(route)
+      .then(function (r) {
+        t.equal(r.res.statusCode, 200, 'version returns 200 OK')
+        t.ok(r.obj.version.match(/\d+\.\d+\.\d+/),
+             'Version has a semver version property')
+        t.ok(['Memory', 'MySql'].indexOf(r.obj.implementation) !== -1,
+             'Version has a known implementation  property')
+        t.end()
+      })
+  }
+}
+
 // To run these tests from a new backend, create a DB instance, start a test server
 // and pass the config containing the connection params to this function. The tests
 // will run against that server. Second argument is the restify server object, for
@@ -84,6 +102,9 @@ module.exports = function(cfg, server) {
         })
     }
   )
+
+  test('version', testVersionResponse(client, '/'))
+  test('version', testVersionResponse(client, '/__version__'))
 
   test(
     'account not found',
