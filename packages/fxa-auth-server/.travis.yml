@@ -30,9 +30,10 @@ notifications:
     skip_join: false
 
 before_install:
+  - npm install -g npm@2
   - npm config set spin false
 
 script:
-  - if [ $DB == "mysql" ]; then echo '~*~ Starting auth-db-mysql'; (./scripts/start-local-test-mysql.sh &>/dev/null &); fi
+  - if [ $DB == "mysql" ]; then ./scripts/start-travis-auth-db-mysql.sh; fi
   - npm test
   - grunt nsp --force
