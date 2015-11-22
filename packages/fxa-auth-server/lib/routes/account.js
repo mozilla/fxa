@@ -764,10 +764,10 @@ module.exports = function (
           schema: isA.array().items(isA.object({
             id: isA.string().length(32).regex(HEX_STRING).required(),
             isCurrentDevice: isA.boolean().required(),
-            name: isA.string().max(255).optional().allow(''),
+            name: isA.string().max(255).optional().allow('').allow(null),
             type: isA.string().max(16).required(),
-            pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
-            pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional()
+            pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow('').allow(null),
+            pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow(null)
           }))
         }
       },

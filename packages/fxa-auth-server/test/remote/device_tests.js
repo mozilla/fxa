@@ -205,10 +205,10 @@ TestServer.start(config)
               .then(
                 function (devices) {
                   t.equal(devices.length, 1, 'devices returned one item')
-                  t.equal(devices[0].name, undefined, 'devices returned undefined name')
+                  t.equal(devices[0].name, null, 'devices returned undefined name')
                   t.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
-                  t.equal(devices[0].pushCallback, undefined, 'devices returned undefined pushCallback')
-                  t.deepEqual(devices[0].pushPublicKey, undefined, 'devices returned undefined pushPublicKey')
+                  t.equal(devices[0].pushCallback, null, 'devices returned undefined pushCallback')
+                  t.deepEqual(devices[0].pushPublicKey, null, 'devices returned undefined pushPublicKey')
                   return client.destroyDevice(devices[0].id)
                 }
               )
@@ -258,6 +258,15 @@ TestServer.start(config)
               .then(
                 function (devices) {
                   t.equal(devices.length, 2, 'devices returned two items')
+                  if (devices[0].name === deviceInfo[1].name) {
+                    // database results are unordered, swap them if necessary
+                    var swap = {}
+                    Object.keys(devices[0]).forEach(function (key) {
+                      swap[key] = devices[0][key]
+                      devices[0][key] = devices[1][key]
+                      devices[1][key] = swap[key]
+                    })
+                  }
                   t.equal(devices[0].isCurrentDevice, false, 'devices returned false isCurrentDevice for first item')
                   t.equal(devices[0].name, deviceInfo[0].name, 'devices returned correct name for first item')
                   t.equal(devices[0].type, deviceInfo[0].type, 'devices returned correct type for first item')
