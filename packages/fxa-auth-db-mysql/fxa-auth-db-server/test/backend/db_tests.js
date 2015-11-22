@@ -812,12 +812,12 @@ module.exports = function(config, DB) {
         test(
           'db.accountDevices',
           function (t) {
-            t.plan(42)
+            t.plan(51)
             var deviceId = newUuid()
+            var sessionTokenId = hex32()
+            var createdAt = Date.now()
             var deviceInfo = {
-              sessionTokenId: SESSION_TOKEN_ID,
               name: 'test device',
-              createdAt: Date.now(),
               type: 'mobile',
               callbackURL: 'https://foo/bar',
               callbackPublicKey: hex32()
@@ -833,24 +833,30 @@ module.exports = function(config, DB) {
                 t.equal(err.errno, 116, 'err.errno')
               })
               .then(function () {
-                return db.createSessionToken(SESSION_TOKEN_ID, SESSION_TOKEN)
+                return db.createSessionToken(sessionTokenId, SESSION_TOKEN)
               })
               .then(function (sessionToken) {
-                return db.createDevice(ACCOUNT.uid, deviceId, deviceInfo)
+                return db.createDevice(ACCOUNT.uid, deviceId, {
+                  sessionTokenId: sessionTokenId,
+                  createdAt: createdAt
+                })
                 .catch(function () {
                   t.fail('adding a new device should not have failed')
                 })
               })
               .then(function (result) {
                 t.deepEqual(result, {}, 'returned empty object')
-                return db.createDevice(ACCOUNT.uid, deviceId, deviceInfo)
-                  .then(function () {
-                    t.fail('adding a duplicate device should have failed')
-                  }, function (err) {
-                    t.pass('adding a duplicate device failed')
-                    t.equal(err.code, 409, 'err.code')
-                    t.equal(err.errno, 101, 'err.errno')
-                  })
+                return db.createDevice(ACCOUNT.uid, deviceId, {
+                  sessionTokenId: newSessionTokenId,
+                  createdAt: Date.now()
+                })
+                .then(function () {
+                  t.fail('adding a duplicate device should have failed')
+                }, function (err) {
+                  t.pass('adding a duplicate device failed')
+                  t.equal(err.code, 409, 'err.code')
+                  t.equal(err.errno, 101, 'err.errno')
+                })
               })
               .then(function () {
                 return db.accountDevices(ACCOUNT.uid)
@@ -860,10 +866,34 @@ module.exports = function(config, DB) {
                 return devices[0]
               })
               .then(function (device) {
-                t.deepEqual(device.sessionTokenId, SESSION_TOKEN_ID, 'sessionTokenId')
+                t.deepEqual(device.sessionTokenId, sessionTokenId, 'sessionTokenId')
+                t.equal(device.name, null, 'name')
+                t.deepEqual(device.id, deviceId, 'id')
+                t.equal(device.createdAt, createdAt, 'createdAt')
+                t.equal(device.type, null, 'type')
+                t.equal(device.callbackURL, null, 'callbackURL')
+                t.deepEqual(device.callbackPublicKey, null, 'callbackPublicKey')
+                t.ok(device.lastAccessTime > 0, 'has a lastAccessTime')
+              })
+              .then(function () {
+                return db.updateDevice(ACCOUNT.uid, deviceId, deviceInfo)
+                  .catch(function () {
+                    t.fail('updating an existing device should not have failed')
+                  })
+              })
+              .then(function (result) {
+                t.deepEqual(result, {}, 'returned empty object')
+                return db.accountDevices(ACCOUNT.uid)
+              })
+              .then(function (devices) {
+                t.equal(devices.length, 1, 'devices length still 1')
+                return devices[0]
+              })
+              .then(function (device) {
+                t.deepEqual(device.sessionTokenId, sessionTokenId, 'sessionTokenId')
                 t.equal(device.name, deviceInfo.name, 'name')
                 t.deepEqual(device.id, deviceId, 'id')
-                t.equal(device.createdAt, deviceInfo.createdAt, 'createdAt')
+                t.equal(device.createdAt, createdAt, 'createdAt')
                 t.equal(device.type, deviceInfo.type, 'type')
                 t.equal(device.callbackURL, deviceInfo.callbackURL, 'callbackURL')
                 t.deepEqual(device.callbackPublicKey, deviceInfo.callbackPublicKey, 'callbackPublicKey')
@@ -880,8 +910,7 @@ module.exports = function(config, DB) {
                   t.fail('updating an existing device should not have failed')
                 })
               })
-              .then(function (result) {
-                t.deepEqual(result, {}, 'returned empty object')
+              .then(function () {
                 return db.accountDevices(ACCOUNT.uid)
               })
               .then(function (devices) {
@@ -938,7 +967,7 @@ module.exports = function(config, DB) {
               .then(function (devices) {
                 t.equal(devices.length, 1, 'devices length still 1')
                 return db.createDevice(ACCOUNT.uid, newDeviceId, {
-                  sessionTokenId: SESSION_TOKEN_ID,
+                  sessionTokenId: sessionTokenId,
                   name: 'second device',
                   createdAt: Date.now(),
                   type: 'desktop',
@@ -985,9 +1014,7 @@ module.exports = function(config, DB) {
               })
               .then(function (devices) {
                 t.equal(devices.length, 0, 'devices length 0')
-                return db.deleteSessionToken(SESSION_TOKEN_ID)
-              }
-            )
+              })
           }
         )
 
