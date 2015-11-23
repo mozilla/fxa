@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.50.0",
+  "version": "1.50.1",
   "dependencies": {
     "ass": {
       "version": "1.0.0",
@@ -363,9 +363,9 @@
       "resolved": "https://registry.npmjs.org/eslint-config-fxa/-/eslint-config-fxa-1.6.0.tgz"
     },
     "fxa-auth-db-mysql": {
-      "version": "0.50.0",
-      "from": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#939f04e1ab22a924ec328293bc62ea8e19caedb3",
-      "resolved": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#939f04e1ab22a924ec328293bc62ea8e19caedb3",
+      "version": "0.50.1",
+      "from": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#28e7f3dc468ed8ac8c8d775a325dd42a45d3c347",
+      "resolved": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#28e7f3dc468ed8ac8c8d775a325dd42a45d3c347",
       "dependencies": {
         "clone": {
           "version": "1.0.2",

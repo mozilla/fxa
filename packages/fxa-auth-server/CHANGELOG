@@ -1,3 +1,12 @@
+train-50.1
+  * fix(travis-ci): check that auth-db-mysql reports "MySql" as constructor class name #1127
+  * fix(auth-db-mysql): update to latest fxa-auth-db-mysql @ 939f04e #1127
+  * fix(tests): repair travis-ci mysql testing to ensure auth-db-mysql is used #1126
+  * fix(tests): ignore error on listen (when auth-db-mysql is already bound) #1126
+  * fix(server): permit null values in devices response #1124
+  * fix(tests): unskip tests now that they are translated (GH-995) #1122
+  * fix(server): return isCurrentDevice from /account/devices #1120
+
 train-50
   * fix(server): refactor account promise chains to named functions
   * refactor(locale): sync new locale list
