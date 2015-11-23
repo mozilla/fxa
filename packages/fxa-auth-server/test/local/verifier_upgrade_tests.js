@@ -25,6 +25,7 @@ var DB = require('../../lib/db')(
 createDBServer().then(
   function (db_server) {
     db_server.listen(config.httpdb.url.split(':')[2])
+    db_server.on('error', function () {})
 
     var email = Math.random() + '@example.com'
     var password = 'ok'
