@@ -157,7 +157,7 @@ define([
           })
           .then(function (resp) {
             var device = resp.device;
-            assert.equal(device.id, DEVICE_ID);
+            assert.ok(device.id);
             assert.equal(device.name, DEVICE_NAME);
             assert.equal(device.type, DEVICE_TYPE);
             assert.equal(device.pushCallback, DEVICE_CALLBACK);
@@ -177,15 +177,11 @@ define([
                 name: DEVICE_NAME
               },
               reason: 'signin'
-            }), RequestMocks.signInExistingDevice);
+            }), RequestMocks.signIn);
           })
           .then(function (resp) {
-            var device = resp.device;
-            assert.equal(device.id, DEVICE_ID);
-            assert.equal(device.name, DEVICE_NAME);
-            assert.equal(device.type, DEVICE_TYPE);
-            assert.equal(device.pushCallback, DEVICE_CALLBACK);
-            assert.equal(device.pushPublicKey, DEVICE_PUBLIC_KEY);
+            assert.ok(resp.uid);
+            assert.isUndefined(resp.device);
           });
       });
     });
