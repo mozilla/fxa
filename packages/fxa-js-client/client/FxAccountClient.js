@@ -75,6 +75,11 @@ define([
    *   example.
    *   @param {String} [options.lang]
    *   set the language for the 'Accept-Language' header
+   *   @param {Object} [options.device={}] Device registration information
+   *     @param {String} name Name of device
+   *     @param {String} type Type of device (mobile|desktop)
+   *     @param {string} [callback] Device's push endpoint.
+   *     @param {string} [publicKey] Public key used to encrypt push messages.
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.signUp = function (email, password, options) {
@@ -95,6 +100,21 @@ define([
           var requestOpts = {};
 
           if (options) {
+            if (options.device) {
+              data.device = {
+                name: options.device.name,
+                type: options.device.type
+              };
+
+              if (options.device.callback) {
+                data.device.pushCallback = options.device.callback;
+              }
+
+              if (options.device.publicKey) {
+                data.device.pushPublicKey = options.device.publicKey;
+              }
+            }
+
             if (options.service) {
               data.service = options.service;
             }
@@ -158,6 +178,12 @@ define([
    *   @param {String} [options.reason]
    *   Reason for sign in. Can be one of: `signin`, `password_check`,
    *   `password_change`, `password_reset`, `account_unlock`.
+   *   @param {Object} [options.device={}] Device registration information
+   *     @param {String} [id] User-unique identifier of device
+   *     @param {String} [name] Name of device
+   *     @param {String} [type] Type of device (mobile|desktop)
+   *     @param {string} [callback] Device's push endpoint.
+   *     @param {string} [publicKey] Public key used to encrypt push messages.
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.signIn = function (email, password, options) {
@@ -180,6 +206,30 @@ define([
             email: result.emailUTF8,
             authPW: sjcl.codec.hex.fromBits(result.authPW)
           };
+
+          if (options.device) {
+            data.device = {};
+
+            if (options.device.id) {
+              data.device.id = options.device.id;
+            }
+
+            if (options.device.name) {
+              data.device.name = options.device.name;
+            }
+
+            if (options.device.type) {
+              data.device.type = options.device.type;
+            }
+
+            if (options.device.callback) {
+              data.device.pushCallback = options.device.callback;
+            }
+
+            if (options.device.publicKey) {
+              data.device.pushPublicKey = options.device.publicKey;
+            }
+          }
 
           if (options.service) {
             data.service = options.service;

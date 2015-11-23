@@ -5,8 +5,15 @@
 define([
   'intern!tdd',
   'intern/chai!assert',
-  'tests/addons/environment'
-], function (tdd, assert, Environment) {
+  'tests/addons/environment',
+  'tests/lib/push-constants'
+], function (tdd, assert, Environment, PushTestConstants) {
+
+  var DEVICE_CALLBACK = PushTestConstants.DEVICE_CALLBACK;
+  var DEVICE_ID = PushTestConstants.DEVICE_ID;
+  var DEVICE_NAME = PushTestConstants.DEVICE_NAME;
+  var DEVICE_PUBLIC_KEY = PushTestConstants.DEVICE_PUBLIC_KEY;
+  var DEVICE_TYPE = PushTestConstants.DEVICE_TYPE;
 
   with (tdd) {
     suite('signIn', function () {
@@ -130,6 +137,56 @@ define([
               assert.equal(res.errno, 103);
             }
           );
+      });
+
+      test('#with new device', function () {
+        var email = 'test' + new Date().getTime() + '@restmail.net';
+        var password = 'iliketurtles';
+
+        return respond(client.signUp(email, password), RequestMocks.signUp)
+          .then(function () {
+            return respond(client.signIn(email, password, {
+              device: {
+                name: DEVICE_NAME,
+                type: DEVICE_TYPE,
+                callback: DEVICE_CALLBACK,
+                publicKey: DEVICE_PUBLIC_KEY
+              },
+              reason: 'signin'
+            }), RequestMocks.signInNewDevice);
+          })
+          .then(function (resp) {
+            var device = resp.device;
+            assert.equal(device.id, DEVICE_ID);
+            assert.equal(device.name, DEVICE_NAME);
+            assert.equal(device.type, DEVICE_TYPE);
+            assert.equal(device.pushCallback, DEVICE_CALLBACK);
+            assert.equal(device.pushPublicKey, DEVICE_PUBLIC_KEY);
+          });
+      });
+
+      test('#with existing device', function () {
+        var email = 'test' + new Date().getTime() + '@restmail.net';
+        var password = 'iliketurtles';
+
+        return respond(client.signUp(email, password), RequestMocks.signUp)
+          .then(function () {
+            return respond(client.signIn(email, password, {
+              device: {
+                id: DEVICE_ID,
+                name: DEVICE_NAME
+              },
+              reason: 'signin'
+            }), RequestMocks.signInExistingDevice);
+          })
+          .then(function (resp) {
+            var device = resp.device;
+            assert.equal(device.id, DEVICE_ID);
+            assert.equal(device.name, DEVICE_NAME);
+            assert.equal(device.type, DEVICE_TYPE);
+            assert.equal(device.pushCallback, DEVICE_CALLBACK);
+            assert.equal(device.pushPublicKey, DEVICE_PUBLIC_KEY);
+          });
       });
     });
   }
