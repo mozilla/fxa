@@ -16,6 +16,7 @@ nohup node ./node_modules/fxa-auth-db-mysql/bin/server.js &>>/var/tmp/db-mysql.o
 # Give auth-db-mysql a moment to start up
 sleep 5
 
-# This curl will cause a test fail if no connection
-# TODO: in the future, check that response contains "implementation: 'MySql'"
-curl http://127.0.0.1:8000/; echo
+# If either the curl fails to get a response, or the grep fails to match, this
+# script will exit non-zero and fail the test run.
+authdb_version=$(curl -s http://127.0.0.1:8000/__version__)
+echo $authdb_version | grep '"implementation":"MySql"'
