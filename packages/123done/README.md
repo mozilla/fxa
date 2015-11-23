@@ -48,3 +48,7 @@ What do these arguments do?
   * `-n 123done` sets *123done* as a human visible nickname for the VM
   * `-t m1.small` specifies a cheap VM that has enough oomph to run the service under load (like from automated tests running)
   * *(optional)* `--keydir` specifies a directory where all of the public keys of your colleages reside, so they can administer the VM while you're on vacation.
+   
+### Ansible Deployment
+
+See [fxa-dev 123done](https://github.com/mozilla/fxa-dev/tree/master/roles/rp) Ansible configuration for details.
