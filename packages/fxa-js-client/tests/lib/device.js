@@ -10,7 +10,6 @@ define([
 ], function (tdd, assert, Environment, PushTestConstants) {
 
   var DEVICE_CALLBACK = PushTestConstants.DEVICE_CALLBACK;
-  var DEVICE_ID = PushTestConstants.DEVICE_ID;
   var DEVICE_NAME = PushTestConstants.DEVICE_NAME;
   var DEVICE_NAME_2 = PushTestConstants.DEVICE_NAME_2;
   var DEVICE_PUBLIC_KEY = PushTestConstants.DEVICE_PUBLIC_KEY;
@@ -48,7 +47,7 @@ define([
           })
           .then(
             function(res) {
-              assert.equal(res.id, DEVICE_ID);
+              assert.ok(res.id);
               assert.equal(res.name, DEVICE_NAME);
               assert.equal(res.pushCallback, DEVICE_CALLBACK);
               assert.equal(res.pushPublicKey, DEVICE_PUBLIC_KEY);
@@ -88,11 +87,10 @@ define([
           })
           .then(
             function(res) {
-              assert.equal(res.id, DEVICE_ID);
+              assert.ok(res.id);
               assert.equal(res.name, DEVICE_NAME_2);
               assert.equal(res.pushCallback, DEVICE_CALLBACK);
               assert.equal(res.pushPublicKey, DEVICE_PUBLIC_KEY);
-              assert.equal(res.type, DEVICE_TYPE);
             },
             assert.notOk
           );
@@ -153,7 +151,7 @@ define([
               assert.equal(devices.length, 1);
 
               var device = devices[0];
-              assert.equal(device.id, DEVICE_ID);
+              assert.ok(device.id);
               assert.equal(device.name, DEVICE_NAME);
               assert.equal(device.pushCallback, DEVICE_CALLBACK);
               assert.equal(device.pushPublicKey, DEVICE_PUBLIC_KEY);
