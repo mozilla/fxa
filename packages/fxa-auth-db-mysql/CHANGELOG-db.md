@@ -1,3 +1,7 @@
+train-50.1
+  * fix(db): fix memory-store initialisation of device fields to null #117
+  * fix(version): print out constructor class name; adds /__version__ alias #118
+
 train-50
   * chore(nsp): re-added shrinkwrap validation to travis
   * fix(server): fix bad route parameter name
