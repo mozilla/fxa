@@ -26,6 +26,13 @@ define(function (require, exports, module) {
   t('Desktop Add-ons');
   t('Desktop Preferences');
 
+  // Allow translators to include "help" links in additional contexts.
+  // Including the string here means translators are free to use it
+  // without triggering errors from our l10n linting procedure.
+  // See e.g. https://bugzilla.mozilla.org/show_bug.cgi?id=1131472
+  // for why this could be necessary.
+  t('<a href="https://support.mozilla.org/kb/im-having-problems-with-my-firefox-account">Help</a>');
+
   /**
    * Replace instances of %s and %(name)s with their corresponding values in
    * the context
