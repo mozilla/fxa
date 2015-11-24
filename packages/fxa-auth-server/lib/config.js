@@ -52,6 +52,12 @@ const conf = convict({
       env: 'DB',
       format: ['mysql', 'memory'],
       default: 'memory'
+    },
+    autoUpdateClients: {
+      doc: 'If true, update clients from config file settings',
+      env: 'DB_AUTO_UPDATE_CLIENTS',
+      format: Boolean,
+      default: true
     }
   },
   encrypt: {
