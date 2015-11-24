@@ -17,7 +17,7 @@ const conf = convict({
   port: {
     env: 'MAILER_PORT',
     format: 'port',
-    default: 1810
+    default: 10136
   },
   logging: {
     app: {
@@ -124,7 +124,7 @@ const conf = convict({
   }
 })
 
-var envConfig = path.join(__dirname, '..', 'config', conf.get('env') + '.json')
+var envConfig = path.join(__dirname, 'config', conf.get('env') + '.json')
 var files = (envConfig + ',' + process.env.CONFIG_FILES)
   .split(',').filter(fs.existsSync)
 conf.loadFile(files)

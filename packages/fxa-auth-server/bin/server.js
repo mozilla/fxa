@@ -4,11 +4,18 @@
 
 var restify = require('restify')
 var config = require('../config')
-var logConfig = config.get('logging')
-var log = require('../log')(logConfig.level, logConfig.app)
+
+var log = require('../log')('server')
+var mailConfig = config.get('mail')
+
 var packageJson = require('../package.json')
 var P = require('bluebird')
-var Mailer = require('../mailer')(log)
+
+// NOTE: Mailer is also used by fxa-auth-server directly with an old logging interface
+// the legacy log module provides an interface to convert old logs to new mozlog logging.
+var mailerLog = require('../log')('mailer')
+var legacyMailerLog = require('../legacy_log')(mailerLog)
+var Mailer = require('../mailer')(legacyMailerLog)
 
 P.all(
   [
@@ -18,7 +25,9 @@ P.all(
 )
 .spread(
   function (translator, templates) {
-    var mailer = new Mailer(translator, templates, config.get('mail'))
+    var mailer = new Mailer(translator, templates, mailConfig)
+    log.info('config', mailConfig)
+    log.info('templates', Object.keys(templates))
 
     var api = restify.createServer()
     api.use(restify.bodyParser())
@@ -43,7 +52,7 @@ P.all(
           res.send(200)
         }
         else {
-          log.error({ op: 'send', err: { message: 'invalid type', body: req.body }})
+          log.error('send', { err: { message: 'invalid type', body: req.body }})
           res.send(400)
         }
         next()
@@ -61,14 +70,14 @@ P.all(
     api.listen(
       config.port,
       function () {
-        log.info({ op: 'listening', port: config.get('port') })
+        log.info('listening', { port: config.get('port') })
       }
     )
   }
 )
 .catch(
   function (err) {
-    log.fatal({ op: 'init', err: err })
+    log.error('init', err)
     process.exit(8)
   }
 )
