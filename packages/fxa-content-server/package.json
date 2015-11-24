@@ -26,7 +26,7 @@
   "dependencies": {
     "bluebird": "2.10.1",
     "body-parser": "1.14.0",
-    "bower": "1.5.3",
+    "bower": "1.6.5",
     "connect-cachify": "0.0.17",
     "connect-fonts-clearsans": "0.0.1",
     "connect-fonts-firasans": "0.0.4",
