@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+var fs = require('fs');
+
 var selenium = require('selenium-standalone');
 var webdriverio = require('webdriverio');
 var chalk = require('chalk');
@@ -11,6 +13,9 @@ selenium.install({
   // http://selenium-release.storage.googleapis.com/index.html
   version: '2.47.1',
 }, function() {
+  // clear previous logs 
+  fs.openSync('log-browser.log', 'w');
+  fs.openSync('log-driver.log', 'w');
 
   selenium.start({
     version: '2.47.1',
