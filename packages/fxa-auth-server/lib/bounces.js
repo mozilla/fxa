@@ -23,6 +23,11 @@ module.exports = function (log) {
             accountDeleted.bind(null, record.uid, record.email),
             gotError.bind(null, record.email)
           )
+      } else {
+        // A previously-verified email is now bouncing.
+        // We don't know what to do here, yet.
+        // But we can measure it!
+        log.increment('account.email_bounced.already_verified')
       }
     }
 
@@ -37,6 +42,7 @@ module.exports = function (log) {
       for (var i = 0; i < recipients.length; i++) {
         var email = recipients[i].emailAddress
         log.info({ op: 'handleBounce', email: email, bounce: !!message.bounce })
+        log.increment('account.email_bounced')
         db.emailRecord(email)
           .done(
             deleteAccountIfUnverified,
