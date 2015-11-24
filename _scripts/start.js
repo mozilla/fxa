@@ -52,7 +52,7 @@ selenium.install({
           webdriverio
             .remote(opts)
             .init()
-            .url('about:accounts')
+            .url('http://www.example.org')
       }, 3000);
     });
 
