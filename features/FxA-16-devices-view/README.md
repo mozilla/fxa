@@ -33,7 +33,7 @@ UI Mocks
 ![PC Icon](device-icon-mobile.png)
 
 ## Collapsed View
-When the user is syncing one or more devices, a **Devices** section appears in the settings section above the **Password** section.
+A **Devices** section appears in the settings section above the **Password** section.
 <img src="devices-collapsed.png" width="563" alt="Collapsed View">
 
 ## Fetching Devices View
