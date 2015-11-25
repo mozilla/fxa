@@ -34,19 +34,23 @@ UI Mocks
 
 ## Collapsed View
 When the user is syncing one or more devices, a **Devices** section appears in the settings section above the **Password** section.
-![Collapsed View](devices-collapsed.png)
+<img src="devices-collapsed.png" width="563" alt="Collapsed View">
 
 ## Fetching Devices View
 When the user clicks the **Show** button, and the server has to fetch the images, the **Show** button becomes disabled and is replaced with a spinning wheel (halved in size from full size spinning wheel).
-![Collapsed View](devices-fetching-devices.png)
+<img src="devices-fetching-devices.png" width="563" alt="Fetching Devices View">
+
+## No Devices View (no rename)
+When the user expands the **Device** section, and has no devices, they are shown no devices but are able to download Firefox and refresh the list.
+<img src="devices-none.png" width="563" alt="No Devices">
 
 ## Minimal View (no rename)
 When the user expands the **Device** section, the Firefox profiles that are syncing through this account are presented with the relative time they last authenticated to sync, with a **Disconnect** button beside each.
-![Collapsed View](devices-disconnect-and-refresh-only.png)
+<img src="devices-disconnect-and-refresh-only.png" width="563" alt="Minimal View">
 
 ## Disconnecting View (no rename)
 When the user clicks and releases the **Disconnect** button, the row is overtaken by the area beneath it.
-![Disconnecting View](devices-disconnecting.gif)
+<img src="devices-disconnecting.gif" width="563" alt="Disconnecting View">
 
 
 Details
@@ -78,8 +82,8 @@ and we only know about them through their session token.
 * When I use a desktop machine
   and connect both Firefox Release and Firefox Dev Edition to my account,
   they appear as two separate devices
-  because they use two seaprate local profiles.
-  There will be no indicatiion that they're on the same physical machine
+  because they use two separate local profiles.
+  There will be no indication that they're on the same physical machine
   apart from similarity in their auto-generated name and their UA details.
 
 * When I use Firefox for Android or Firefox for iOS,
@@ -216,7 +220,7 @@ or through the browser's native UI.
 When I have the devices view open in Firefox
 and I change any device-related state through a different device,
 the devices view does not need to update in realtime,
-but it can be manully refreshed by the user
+but it can be manually refreshed by the user
 in order to view the latest state of the account.
 
 Work Breakdown
