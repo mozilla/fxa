@@ -8,7 +8,6 @@ const P = require('../promise');
 
 const config = require('../config');
 const encrypt = require('../encrypt');
-const env = require('../env');
 const logger = require('../logging')('db');
 const klass = config.get('db.driver') === 'mysql' ?
   require('./mysql') : require('./memory');
@@ -81,9 +80,9 @@ function preClients() {
       c.trusted = !!c.trusted;
       c.canGrant = !!c.canGrant;
 
-      // Modification of the database at startup in production or stage is a
-      // footgun.
-      if (env.isProdLike()) {
+      // Modification of the database at startup in production and stage is
+      // not preferred. This option will be set to false on those stacks.
+      if (!config.get('db.autoUpdateClients')) {
         return P.resolve();
       }
 
