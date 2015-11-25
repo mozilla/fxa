@@ -12,22 +12,16 @@ As a Firefox Accounts user when using Firefox, I want to know the devices and se
 
 ## Collapsed View
 When the user is syncing one or more devices, a **Devices** section appears in the settings section above the **Password** section.
-![Collapsed View](devices-collapsed.png)
+<img src="devices-collapsed.png" width="563" alt="Collapsed View">
 
 ## Fetching Devices View
 When the user clicks the **Show** button, and the server has to fetch the images, the **Show** button becomes disabled and is replaced with a spinning wheel (halved in size from full size spinning wheel).
-![Collapsed View](devices-fetching-devices.png)
+<img src="devices-fetching-devices.png" width="563" alt="Fetching Devices View">
 
 ## Minimal View (no rename)
 When the user expands the **Device** section, the Firefox profiles that are syncing through this account are presented with the relative time they last authenticated to sync, with a **Disconnect** button beside each.
-![Collapsed View](devices-disconnect-and-refresh-only.png)
+<img src="devices-disconnect-and-refresh-only.png" width="563" alt="Minimal View">
 
 ## Disconnecting View (no rename)
 When the user clicks and releases the **Disconnect** button, the row is overtaken by the area beneath it.
-![Disconnecting View](devices-disconnecting.gif)
-<<<<<<< HEAD
-
-## Refreshing View (with rename)
-![Refreshing View](devices-refreshing.png)
-=======
->>>>>>> origin/rfeeley/device-controller
+<img src="devices-disconnecting.gif" width="563" alt="Disconnecting View">
