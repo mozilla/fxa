@@ -149,11 +149,12 @@ module.exports = function mock(options) {
         });
     },
 
-    emailFailure: function mockEmailFailure() {
+    emailFailure: function mockEmailFailure(body) {
+      body = body || {};
       var parts = url.parse(config.get('authServer.url'));
       return nock(parts.protocol + '//' + parts.host)
         .get(parts.path + '/account/profile')
-        .reply(500);
+        .reply(body.code || 500, body);
     },
 
     workerFailure: function workerFailure(action, bytes) {

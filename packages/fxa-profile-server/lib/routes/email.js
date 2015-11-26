@@ -33,13 +33,32 @@ module.exports = {
         return reply(new AppError.authError('network error'));
       }
       if (res.statusCode >= 400) {
-        logger.error('request.auth_server.fail', { code: res.statusCode });
-        return reply(new AppError.authError('auth server error'));
+        body = body && body.code ? body : { code: res.statusCode };
+        if (res.statusCode >= 500) {
+          logger.error('request.auth_server.fail', body);
+          return reply(new AppError.authError('auth-server server error'));
+        }
+        // Return Unauthorized if the token turned out to be invalid,
+        // or if the account has been deleted on the auth-server.
+        // (we can still have valid oauth tokens for deleted accounts,
+        // because distributed state).
+        if (body.code === 401 || body.errno === 102) {
+          logger.info('request.auth_server.fail', body);
+          return reply(new AppError.unauthorized(body.message));
+        }
+        // There should be no other 400-level errors, unless we're
+        // sending a badly-formed request of our own.  That warrants
+        // an "Internal Server Error" on our part.
+        logger.error('request.auth_server.fail', body);
+        return reply(new AppError({
+          code: 500,
+          message: 'error communicating with auth server'
+        }));
       }
 
       if (!body || !body.email) {
         return reply(
-          new AppError.authError('email field missing from auth response')
+          new AppError('email field missing from auth response')
         );
       }
       reply({

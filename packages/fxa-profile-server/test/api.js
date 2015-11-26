@@ -115,6 +115,93 @@ describe('/profile', function() {
     });
   });
 
+  it('should handle accounts deleted on auth server', function() {
+    mock.token({
+      user: USERID,
+      scope: ['profile:write']
+    });
+    mock.emailFailure({ code: 400, errno: 102 });
+
+    mock.log('batch', function(rec) {
+      return rec.levelname === 'ERROR'
+          && rec.args[0] === 'email.401';
+    });
+
+    mock.log('routes.email', function(rec) {
+      return rec.levelname === 'INFO'
+          && rec.args[0] === 'request.auth_server.fail'
+          && rec.args[1].errno === 102;
+    });
+
+    return Server.api.get({
+      url: '/profile',
+      headers: {
+        authorization: 'Bearer ' + tok
+      }
+    }).then(function(res) {
+      assert.equal(res.statusCode, 401);
+      assert.equal(res.result.errno, 100);
+    });
+  });
+
+  it('should handle unexpected 401 errors from auth server', function() {
+    mock.token({
+      user: USERID,
+      scope: ['profile:write']
+    });
+    mock.emailFailure({ code: 401 });
+
+    mock.log('batch', function(rec) {
+      return rec.levelname === 'ERROR'
+          && rec.args[0] === 'email.401';
+    });
+
+    mock.log('routes.email', function(rec) {
+      return rec.levelname === 'INFO'
+          && rec.args[0] === 'request.auth_server.fail'
+          && rec.args[1].code === 401;
+    });
+
+    return Server.api.get({
+      url: '/profile',
+      headers: {
+        authorization: 'Bearer ' + tok
+      }
+    }).then(function(res) {
+      assert.equal(res.statusCode, 401);
+      assert.equal(res.result.errno, 100);
+    });
+  });
+
+  it('should error our on unexpected 400s from auth server', function() {
+    mock.token({
+      user: USERID,
+      scope: ['profile:write']
+    });
+    mock.emailFailure({ code: 400, errno: 107 });
+
+    mock.log('batch', function(rec) {
+      return rec.levelname === 'ERROR'
+          && rec.args[0] === 'email.500';
+    });
+
+    mock.log('routes.email', function(rec) {
+      return rec.levelname === 'ERROR'
+          && rec.args[0] === 'request.auth_server.fail'
+          && rec.args[1].code === 400;
+    });
+
+    return Server.api.get({
+      url: '/profile',
+      headers: {
+        authorization: 'Bearer ' + tok
+      }
+    }).then(function(res) {
+      assert.equal(res.statusCode, 500);
+      assert.equal(res.result.errno, 999);
+    });
+  });
+
   it('should handle oauth server failure', function() {
     mock.tokenFailure();
 
