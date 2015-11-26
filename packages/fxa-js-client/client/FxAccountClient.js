@@ -941,7 +941,7 @@ define([
   /**
    * Update the name of an existing device
    *
-   * @method deviceRegister
+   * @method deviceUpdate
    * @param {String} sessionToken User session token
    * @param {String} deviceId User-unique identifier of device
    * @param {String} deviceName Name of device
