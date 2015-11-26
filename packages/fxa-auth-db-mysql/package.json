@@ -48,7 +48,7 @@
     "nock": "1.2.0",
     "proxyquire": "1.7.0",
     "sinon": "1.16.0",
-    "tap": "0.4.13"
+    "tap": "2.3.1"
   },
   "keywords": [
     "fxa",

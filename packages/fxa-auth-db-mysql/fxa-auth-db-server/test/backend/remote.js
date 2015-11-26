@@ -58,8 +58,13 @@ function testNotFound(t, err) {
 //
 // 1. the test object (t)
 // 2. the restify server object (server)
-function captureFailureEvents(t, server) {
-  server.on('failure', t.pass.bind(t, 'The server emitted the failure event'))
+//
+// Returns a promise to be resolved with failure event
+// when one is emitted by the server.
+function captureFailureEvent(t, server) {
+  return new P(function(resolve, reject) {
+    server.once('failure', resolve)
+  })
 }
 
 // Helper test that calls the version route and checks response that checks the version route response.
@@ -88,17 +93,14 @@ module.exports = function(cfg, server) {
 
   var d = P.defer()
 
-  console.log(cfg)
   var client = clientThen({ url : 'http://' + cfg.hostname + ':' + cfg.port })
-  console.log({ url : 'http://' + cfg.hostname + ':' + cfg.port })
 
   test(
     'heartbeat',
     function (t) {
-      client.getThen('/__heartbeat__')
+      return client.getThen('/__heartbeat__')
         .then(function (r) {
           t.deepEqual(r.obj, {}, 'Heartbeat contains an empty object and nothing unexpected')
-          t.end()
         })
     }
   )
@@ -110,13 +112,11 @@ module.exports = function(cfg, server) {
     'account not found',
     function (t) {
       t.plan(2)
-      client.getThen('/account/hello-world')
+      return client.getThen('/account/hello-world')
         .then(function(r) {
           t.fail('This request should have failed (instead it suceeded)')
-          t.end()
         }, function(err) {
           testNotFound(t, err)
-          t.end()
         })
     }
   )
@@ -126,7 +126,7 @@ module.exports = function(cfg, server) {
     function (t) {
       t.plan(35)
       var user = fake.newUserDataHex()
-      client.putThen('/account/' + user.accountId, user.account)
+      return client.putThen('/account/' + user.accountId, user.account)
         .then(function(r) {
           respOkEmpty(t, r)
           var randomPassword = Buffer(crypto.randomBytes(32)).toString('hex')
@@ -189,21 +189,15 @@ module.exports = function(cfg, server) {
           t.deepEqual(err.body, {}, 'Body contains nothing since this is a HEAD request')
           t.deepEqual(err.statusCode, 404, 'Status Code is 404')
         })
-        .done(function() {
-          t.end()
-        }, function(err) {
-          t.fail(err)
-          t.end()
-        })
     }
   )
 
   test(
     'session token handling',
     function (t) {
-      t.plan(60)
+      t.plan(65)
       var user = fake.newUserDataHex()
-      client.getThen('/account/' + user.accountId + '/sessions')
+      return client.getThen('/account/' + user.accountId + '/sessions')
         .then(function(r) {
           respOk(t, r)
           t.ok(Array.isArray(r.obj), 'sessions is array')
@@ -320,10 +314,8 @@ module.exports = function(cfg, server) {
         })
         .then(function(r) {
           t.fail('Fetching the non-existant sessionToken should have failed')
-          t.end()
         }, function(err) {
           testNotFound(t, err)
-          t.end()
         })
     }
   )
@@ -333,7 +325,7 @@ module.exports = function(cfg, server) {
     function (t) {
       t.plan(49)
       var user = fake.newUserDataHex()
-      client.getThen('/account/' + user.accountId + '/devices')
+      return client.getThen('/account/' + user.accountId + '/devices')
         .then(function(r) {
           respOk(t, r)
           t.ok(Array.isArray(r.obj), 'devices is array')
@@ -411,7 +403,6 @@ module.exports = function(cfg, server) {
         .then(function(r) {
           respOk(t, r)
           t.equal(r.obj.length, 0, 'devices is empty')
-          t.end()
         })
     }
   )
@@ -421,7 +412,7 @@ module.exports = function(cfg, server) {
     function (t) {
       t.plan(13)
       var user = fake.newUserDataHex()
-      client.putThen('/account/' + user.accountId, user.account)
+      return client.putThen('/account/' + user.accountId, user.account)
         .then(function() {
           return client.getThen('/keyFetchToken/' + user.keyFetchTokenId)
         })
@@ -456,10 +447,8 @@ module.exports = function(cfg, server) {
         })
         .then(function(r) {
           t.fail('Fetching the non-existant keyFetchToken should have failed')
-          t.end()
         }, function(err) {
           testNotFound(t, err)
-          t.end()
         })
     }
   )
@@ -469,7 +458,7 @@ module.exports = function(cfg, server) {
     function (t) {
       t.plan(11)
       var user = fake.newUserDataHex()
-      client.putThen('/account/' + user.accountId, user.account)
+      return client.putThen('/account/' + user.accountId, user.account)
         .then(function() {
           return client.getThen('/accountResetToken/' + user.accountResetTokenId)
         })
@@ -502,10 +491,8 @@ module.exports = function(cfg, server) {
         })
         .then(function(r) {
           t.fail('Fetching the non-existant accountResetToken should have failed')
-          t.end()
         }, function(err) {
           testNotFound(t, err)
-          t.end()
         })
     }
   )
@@ -515,7 +502,7 @@ module.exports = function(cfg, server) {
     function (t) {
       t.plan(11)
       var user = fake.newUserDataHex()
-      client.putThen('/account/' + user.accountId, user.account)
+      return client.putThen('/account/' + user.accountId, user.account)
         .then(function() {
           return client.getThen('/passwordChangeToken/' + user.passwordChangeTokenId)
         })
@@ -548,10 +535,8 @@ module.exports = function(cfg, server) {
         })
         .then(function(r) {
           t.fail('Fetching the non-existant passwordChangeToken should have failed')
-          t.end()
         }, function(err) {
           testNotFound(t, err)
-          t.end()
         })
     }
   )
@@ -559,9 +544,9 @@ module.exports = function(cfg, server) {
   test(
     'password forgot token handling',
     function (t) {
-      t.plan(19)
+      t.plan(23)
       var user = fake.newUserDataHex()
-      client.putThen('/account/' + user.accountId, user.account)
+      return client.putThen('/account/' + user.accountId, user.account)
         .then(function() {
           return client.getThen('/passwordForgotToken/' + user.passwordForgotTokenId)
         })
@@ -619,10 +604,8 @@ module.exports = function(cfg, server) {
         })
         .then(function(r) {
           t.fail('Fetching the non-existant passwordForgotToken should have failed')
-          t.end()
         }, function(err) {
           testNotFound(t, err)
-          t.end()
         })
     }
   )
@@ -632,7 +615,7 @@ module.exports = function(cfg, server) {
     function (t) {
       t.plan(16)
       var user = fake.newUserDataHex()
-      client.putThen('/account/' + user.accountId, user.account)
+      return client.putThen('/account/' + user.accountId, user.account)
         .then(function(r) {
           respOk(t, r)
           return client.putThen('/passwordForgotToken/' + user.passwordForgotTokenId, user.passwordForgotToken)
@@ -674,10 +657,6 @@ module.exports = function(cfg, server) {
         })
         .then(function(r) {
           t.pass('All password forgot token verified tests passed')
-          t.end()
-        }, function(err) {
-          t.fail(err)
-          t.end()
         })
     }
   )
@@ -686,7 +665,7 @@ module.exports = function(cfg, server) {
     'locale',
     function (t) {
       var user = fake.newUserDataHex()
-      client.putThen('/account/' + user.accountId, user.account)
+      return client.putThen('/account/' + user.accountId, user.account)
         .then(
           function (r) {
             respOk(t, r)
@@ -705,11 +684,10 @@ module.exports = function(cfg, server) {
             return client.getThen('/sessionToken/' + user.sessionTokenId)
           }
         )
-        .done(
+        .then(
           function (r) {
             respOk(t, r)
             t.equal('en-US', r.obj.locale, 'locale was set properly')
-            t.end()
           }
         )
     }
@@ -720,7 +698,7 @@ module.exports = function(cfg, server) {
     function (t) {
       var user = fake.newUserDataHex()
       var unlockCode = user.unlockCode
-      client.putThen('/account/' + user.accountId, user.account)
+      return client.putThen('/account/' + user.accountId, user.account)
         .then(
           function (r) {
             respOk(t, r)
@@ -745,7 +723,6 @@ module.exports = function(cfg, server) {
         .then(
           function (r) {
             respOk(t, r)
-            t.end()
           }
         )
     }
@@ -755,14 +732,15 @@ module.exports = function(cfg, server) {
     'GET an unknown path',
     function (t) {
       t.plan(3)
-      captureFailureEvents(t, server)
-      client.getThen('/foo')
+      var p = captureFailureEvent(t, server)
+      return client.getThen('/foo')
         .then(function(r) {
           t.fail('This request should have failed (instead it suceeded)')
-          t.end()
         }, function(err) {
           testNotFound(t, err)
-          t.end()
+          return p
+        }).then(function () {
+          t.ok('server emitted a failure event')
         })
     }
   )
@@ -771,14 +749,15 @@ module.exports = function(cfg, server) {
     'PUT an unknown path',
     function (t) {
       t.plan(3)
-      captureFailureEvents(t, server)
-      client.putThen('/bar', {})
+      var p = captureFailureEvent(t, server)
+      return client.putThen('/bar', {})
         .then(function(r) {
           t.fail('This request should have failed (instead it suceeded)')
-          t.end()
         }, function(err) {
           testNotFound(t, err)
-          t.end()
+          return p
+        }).then(function () {
+          t.ok('server emitted a failure event')
         })
     }
   )
@@ -787,14 +766,15 @@ module.exports = function(cfg, server) {
     'POST an unknown path',
     function (t) {
       t.plan(3)
-      captureFailureEvents(t, server)
-      client.postThen('/baz', {})
+      var p = captureFailureEvent(t, server)
+      return client.postThen('/baz', {})
         .then(function(r) {
           t.fail('This request should have failed (instead it suceeded)')
-          t.end()
         }, function(err) {
           testNotFound(t, err)
-          t.end()
+          return p
+        }).then(function () {
+          t.ok('server emitted a failure event')
         })
     }
   )
@@ -803,14 +783,15 @@ module.exports = function(cfg, server) {
     'DELETE an unknown path',
     function (t) {
       t.plan(3)
-      captureFailureEvents(t, server)
-      client.delThen('/qux')
+      var p = captureFailureEvent(t, server)
+      return client.delThen('/qux')
         .then(function(r) {
           t.fail('This request should have failed (instead it suceeded)')
-          t.end()
         }, function(err) {
           testNotFound(t, err)
-          t.end()
+          return p
+        }).then(function () {
+          t.ok('server emitted a failure event')
         })
     }
   )
@@ -819,14 +800,15 @@ module.exports = function(cfg, server) {
     'HEAD an unknown path',
     function (t) {
       t.plan(2)
-      captureFailureEvents(t, server)
-      client.headThen('/wibble')
+      var p = captureFailureEvent(t, server)
+      return client.headThen('/wibble')
         .then(function(r) {
           t.fail('This request should have failed (instead it suceeded)')
-          t.end()
         }, function(err) {
           t.deepEqual(err.body, {}, 'Body is empty since this is a HEAD request')
-          t.end()
+          return p
+        }).then(function () {
+          t.ok('server emitted a failure event')
         })
     }
   )

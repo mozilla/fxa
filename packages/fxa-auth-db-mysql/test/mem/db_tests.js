@@ -4,7 +4,7 @@
 require('ass')
 var dbServer = require('../../fxa-auth-db-server')
 var dbTests = require('../../fxa-auth-db-server/test/backend').dbTests
-var log = { trace: console.log, error: console.log, stat: console.log, info: console.log }
+var log = require('../lib/log')
 var DB = require('../../lib/db/mem')(log, dbServer.errors)
 var config = require('../../config')
 

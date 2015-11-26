@@ -5,7 +5,7 @@ require('ass')
 var fs = require('fs')
 var path = require('path')
 var url = require('url')
-var test = require('../ptaptest')
+var test = require('tap').test
 var nock = require('nock')
 var JWK = require('fxa-jwtool').JWK
 

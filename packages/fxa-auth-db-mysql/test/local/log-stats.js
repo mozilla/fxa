@@ -3,7 +3,7 @@
 
 require('ass')
 var dbServer = require('../../fxa-auth-db-server')
-var test = require('../ptaptest')
+var test = require('tap').test
 var P = require('../../lib/promise')
 var config = require('../../config')
 
