@@ -1,3 +1,8 @@
+# Device registration for clients
+
+Please read [FX-DESKTOP.md](FX-DESKTOP.md) to learn how Firefox clients
+ should behave with the device registration API.
+
 # Device registration API
 
 https://mozilla.aha.io/features/FXA-45
