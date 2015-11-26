@@ -54,12 +54,12 @@ When the user clicks and releases the **Disconnect** button, the row is overtake
 
 ### UI Details
 
-"Platform URLs" -
+"Platform URLs" - (See [comment](https://github.com/mozilla/fxa/pull/89#issuecomment-159730048))
 
-Let's use this URL for all devices. It will work for all OS and all languages.
-Make sure it has these UTM parameters and that it doesn't contain the locale in the URL.
-It will redirect to the right language and also provide a button for desktop, android and iOS.
-`https://www.mozilla.org/firefox/new/?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices`
+> Let's use this URL for all devices. It will work for all OS and all languages.
+> Make sure it has these UTM parameters and that it doesn't contain the locale in the URL.
+> It will redirect to the right language and also provide a button for desktop, android and iOS.
+> `https://www.mozilla.org/firefox/new/?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices`
 
 "Don't see all your devices?" -
 
