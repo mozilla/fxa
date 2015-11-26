@@ -52,6 +52,18 @@ When the user expands the **Device** section, the Firefox profiles that are sync
 When the user clicks and releases the **Disconnect** button, the row is overtaken by the area beneath it.
 <img src="devices-disconnecting.gif" width="563" alt="Disconnecting View">
 
+### UI Details
+
+"Platform URLs" -
+
+Let's use this URL for all devices. It will work for all OS and all languages.
+Make sure it has these UTM parameters and that it doesn't contain the locale in the URL.
+It will redirect to the right language and also provide a button for desktop, android and iOS.
+`https://www.mozilla.org/firefox/new/?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices`
+
+"Don't see all your devices?" -
+
+This links to a SUMO article, see bug [#1228078](https://bugzilla.mozilla.org/show_bug.cgi?id=1228078) for details.
 
 Details
 -------
