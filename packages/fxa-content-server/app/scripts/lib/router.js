@@ -24,6 +24,7 @@ define(function (require, exports, module) {
   var ConfirmView = require('../views/confirm');
   var CookiesDisabledView = require('../views/cookies_disabled');
   var DeleteAccountView = require('../views/settings/delete_account');
+  var DevicesView = require('../views/settings/devices');
   var DisplayNameView = require('../views/settings/display_name');
   var ForceAuthView = require('../views/force_auth');
   var GravatarPermissionsView = require('../views/settings/gravatar_permissions');
@@ -88,6 +89,7 @@ define(function (require, exports, module) {
       'settings/change_password(/)': createChildViewHandler(ChangePasswordView, SettingsView),
       'settings/communication_preferences(/)': createChildViewHandler(CommunicationPreferencesView, SettingsView),
       'settings/delete_account(/)': createChildViewHandler(DeleteAccountView, SettingsView),
+      'settings/devices(/)': createChildViewHandler(DevicesView, SettingsView),
       'settings/display_name(/)': createChildViewHandler(DisplayNameView, SettingsView),
       'signin(/)': createViewHandler(SignInView),
       'signin_complete(/)': createViewHandler(ReadyView, { type: 'sign_in' }),

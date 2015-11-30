@@ -19,7 +19,7 @@ define(function (require, exports, module) {
 
   describe('views/mixins/signed-out-notification-mixin', function () {
     it('exports correct interface', function () {
-      assert.lengthOf(Object.keys(SignedOutNotificationMixin), 2);
+      assert.lengthOf(Object.keys(SignedOutNotificationMixin), 3);
       assert.isObject(SignedOutNotificationMixin.notifications);
       assert.isFunction(SignedOutNotificationMixin.clearSessionAndNavigateToSignIn);
     });

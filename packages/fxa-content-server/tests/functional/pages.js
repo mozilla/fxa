@@ -53,6 +53,7 @@ define([
     'settings/change_password',
     'settings/communication_preferences',
     'settings/delete_account',
+    'settings/devices',
     'settings/display_name',
     'signin',
     'signin_complete',

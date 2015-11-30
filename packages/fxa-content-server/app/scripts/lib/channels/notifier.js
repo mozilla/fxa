@@ -20,7 +20,7 @@ define(function (require, exports, module) {
     DELETE: 'fxaccounts:delete',
     PROFILE_CHANGE: 'profile:change',
     SIGNED_IN: 'internal:signed_in',
-    SIGNED_OUT: 'internal:signed_out'
+    SIGNED_OUT: 'fxaccounts:logout'
   };
 
   var Notifer = Backbone.Model.extend({

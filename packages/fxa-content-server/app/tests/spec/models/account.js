@@ -10,6 +10,8 @@ define(function (require, exports, module) {
   var AuthErrors = require('lib/auth-errors');
   var chai = require('chai');
   var Constants = require('lib/constants');
+  var Device = require('models/device');
+  var Devices = require('models/devices');
   var FxaClientWrapper = require('lib/fxa-client');
   var MarketingEmailClient = require('lib/marketing-email-client');
   var OAuthClient = require('lib/oauth-client');
@@ -974,6 +976,70 @@ define(function (require, exports, module) {
             // ensure data returned from fxaClient.signIn updates the account
             assert.isTrue(account.get('verified'));
           });
+      });
+    });
+
+    describe('fetchDevices', function () {
+      var devices;
+
+      beforeEach(function () {
+        account.set('sessionToken', SESSION_TOKEN);
+
+        devices = new Devices([], {
+          notifier: {
+            on: sinon.spy()
+          }
+        });
+
+        sinon.stub(fxaClient, 'deviceList', function () {
+          return p([
+            {
+              id: 'device-1',
+              isCurrentDevice: false,
+              name: 'alpha'
+            },
+            {
+              id: 'device-2',
+              isCurrentDevice: true,
+              name: 'beta'
+            }
+          ]);
+        });
+
+        return account.fetchDevices(devices);
+      });
+
+      it('fetches the device list from the back end', function () {
+        assert.isTrue(fxaClient.deviceList.calledWith(SESSION_TOKEN));
+      });
+
+      it('populates the `devices` collection', function () {
+        assert.equal(devices.length, 2);
+      });
+    });
+
+    describe('destroyDevice', function () {
+      var device;
+
+      beforeEach(function () {
+        account.set('sessionToken', SESSION_TOKEN);
+
+        device = new Device({
+          id: 'device-1',
+          isCurrentDevice: true,
+          name: 'alpha'
+        });
+
+        sinon.stub(fxaClient, 'deviceDestroy', function () {
+          return p();
+        });
+
+        return account.destroyDevice(device);
+      });
+
+      it('tells the backend to destroy the device', function () {
+        assert.isTrue(
+          fxaClient.deviceDestroy.calledWith(SESSION_TOKEN, 'device-1'));
       });
     });
   });

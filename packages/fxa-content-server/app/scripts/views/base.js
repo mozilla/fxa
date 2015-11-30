@@ -198,6 +198,7 @@ define(function (require, exports, module) {
           .then(_.bind(self.afterRender, self))
           .then(function () {
             self.showEphemeralMessages();
+            self.trigger('rendered');
 
             return true;
           });

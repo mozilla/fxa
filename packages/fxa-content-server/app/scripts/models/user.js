@@ -115,6 +115,10 @@ define(function (require, exports, module) {
       return this._cachedSignedInAccount;
     },
 
+    isSignedInAccount: function (account) {
+      return account.get('uid') === this.getSignedInAccount().get('uid');
+    },
+
     setSignedInAccountByUid: function (uid) {
       if (this._accounts()[uid]) {
         this._setSignedInAccountUid(uid);
@@ -153,8 +157,11 @@ define(function (require, exports, module) {
 
     // Used to clear the current account, but keeps the account details
     clearSignedInAccount: function () {
+      var uid = this.getSignedInAccount().get('uid');
       this.clearSignedInAccountUid();
-      this._notifier.triggerRemote(this._notifier.EVENTS.SIGNED_OUT);
+      this._notifier.triggerRemote(this._notifier.EVENTS.SIGNED_OUT, {
+        uid: uid
+      });
     },
 
     removeAllAccounts: function () {
@@ -165,12 +172,13 @@ define(function (require, exports, module) {
     // Delete the account from storage
     removeAccount: function (accountData) {
       var account = this.initAccount(accountData);
-      var uid = account.get('uid');
-      var accounts = this._accounts();
 
-      if (uid === this.getSignedInAccount().get('uid')) {
+      if (this.isSignedInAccount(account)) {
         this.clearSignedInAccount();
       }
+
+      var accounts = this._accounts();
+      var uid = account.get('uid');
       delete accounts[uid];
       this._storage.set('accounts', accounts);
     },
@@ -291,6 +299,19 @@ define(function (require, exports, module) {
         });
     },
 
+    signOutAccount: function (account) {
+      var self = this;
+
+      return account.signOut()
+        .fin(function () {
+          // Clear the session, even on failure. Everything is A-OK.
+          // See issue #616
+          if (self.isSignedInAccount(account)) {
+            self.clearSignedInAccount();
+          }
+        });
+    },
+
     changeAccountPassword: function (account, oldPassword, newPassword, relier) {
       var self = this;
       return account.changePassword(oldPassword, newPassword, relier)
@@ -304,6 +325,36 @@ define(function (require, exports, module) {
       return account.completePasswordReset(token, code, relier)
         .then(function () {
           return self.setSignedInAccount(account);
+        });
+    },
+
+    /**
+     * Fetch the devices for the given account, populated the passed in
+     * Devices collection.
+     *
+     * @param {object} account - account for which device list is requested
+     * @param {object} devices - Devices collection used to store list.
+     * @returns {promise} resolves when the action completes
+     */
+    fetchAccountDevices: function (account, devices) {
+      return account.fetchDevices(devices);
+    },
+
+    /**
+     * Destroy a device on the given account. If the current device
+     * is destroyed, sign out the user.
+     *
+     * @param {object} account - account with the device
+     * @param {object} device - device to destroy
+     * @returns {promise} resolves when the action completes
+     */
+    destroyAccountDevice: function (account, device) {
+      var self = this;
+      return account.destroyDevice(device)
+        .then(function () {
+          if (self.isSignedInAccount(account) && device.get('isCurrentDevice')) {
+            self.clearSignedInAccount();
+          }
         });
     }
   });

@@ -96,6 +96,15 @@ define(function (require, exports, module) {
         assert.isTrue($('body').hasClass('layout'));
       });
 
+      it('triggers the `rendered` message when complete', function () {
+        var deferred = p.defer();
+
+        view.on('rendered', deferred.resolve.bind(deferred));
+        view.render();
+
+        return deferred.promise;
+      });
+
       it('updates the page title with the embedded h1 and h2 tags', function () {
         view.template = function () {
           return '<header><h1>Main title</h1><h2>Sub title</h2></header>';
