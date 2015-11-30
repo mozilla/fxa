@@ -37,6 +37,13 @@ var CONFIGS = {
     token: 'https://token.stage.mozaws.net/1.0/sync/1.5',
     oauth: 'https://oauth.stage.mozaws.net/v1',
     profile: 'https://profile.stage.mozaws.net/v1'
+  },
+  'prod': {
+    auth: 'https://api.accounts.firefox.com/v1',
+    content: 'https://accounts.firefox.com/',
+    token: 'https://token.services.mozilla.com/1.0/sync/1.5',
+    oauth: 'https://oauth.accounts.firefox.com/v1',
+    profile: 'https://profile.accounts.firefox.com/v1'
   }
 };
 
