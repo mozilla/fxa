@@ -33,37 +33,56 @@ UI Mocks
 ![PC Icon](device-icon-mobile.png)
 
 ## Collapsed View
-A **Devices** section appears in the settings section above the **Password** section.
+A **Devices** section appears in the settings section
+above the **Password** section.
 <img src="devices-collapsed.png" width="563" alt="Collapsed View">
 
 ## Fetching Devices View
-When the user clicks the **Show** button, and the server has to fetch the images, the **Show** button becomes disabled and is replaced with a spinning wheel (halved in size from full size spinning wheel).
+When the user clicks the **Show** button,
+and the server has to fetch the images,
+the **Show** button becomes disabled
+and is replaced with a spinning wheel
+(halved in size from full size spinning wheel).
+
 <img src="devices-fetching-devices.png" width="563" alt="Fetching Devices View">
 
 ## No Devices View (no rename)
-When the user expands the **Device** section, and has no devices, they are shown no devices but are able to download Firefox and refresh the list.
+When the user expands the **Device** section,
+and has no devices,
+they are shown no devices
+but are able to download Firefox and refresh the list.
+
 <img src="devices-none.png" width="563" alt="No Devices">
 
 ## Minimal View (no rename)
 When the user expands the **Device** section, the Firefox profiles that are syncing through this account are presented with the relative time they last authenticated to sync, with a **Disconnect** button beside each.
+
 <img src="devices-disconnect-and-refresh-only.png" width="563" alt="Minimal View">
 
 ## Disconnecting View (no rename)
-When the user clicks and releases the **Disconnect** button, the row is overtaken by the area beneath it.
+When the user clicks and releases the **Disconnect** button,
+the row is overtaken by the area beneath it.
+
 <img src="devices-disconnecting.gif" width="563" alt="Disconnecting View">
 
-### UI Details
+## Outgoing links
 
-"Platform URLs" - (See [comment](https://github.com/mozilla/fxa/pull/89#issuecomment-159730048))
+The links to download Firefox for different platforms
+should all go to the following URL,
+which works for all OSes and all languages:
 
-> Let's use this URL for all devices. It will work for all OS and all languages.
-> Make sure it has these UTM parameters and that it doesn't contain the locale in the URL.
-> It will redirect to the right language and also provide a button for desktop, android and iOS.
-> `https://www.mozilla.org/firefox/new/?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices`
+* https://www.mozilla.org/firefox/new/?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices
 
-"Don't see all your devices?" -
+It should contain the UTM parameters as specified
+and should not contain any locale in the URL.
+See [comment](https://github.com/mozilla/fxa/pull/89#issuecomment-159730048)
+for more information.
 
-This links to a SUMO article, see bug [#1228078](https://bugzilla.mozilla.org/show_bug.cgi?id=1228078) for details.
+The link labelled "Don't see all your devices?"
+will link to a SUMO article
+currently being developed
+in  bug [#1228078](https://bugzilla.mozilla.org/show_bug.cgi?id=1228078).
+
 
 Details
 -------
