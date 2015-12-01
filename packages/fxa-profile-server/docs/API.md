@@ -47,6 +47,7 @@ The currently-defined error responses are:
 - 400, 102: Unsupported image provider
 - 500, 103: Image processing error
 - 503, 104: OAuth service unavailable
+- 503, 105: Auth service unavailable
 - 500, 999: internal server error
 
 ## API Endpoints
