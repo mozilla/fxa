@@ -1,3 +1,12 @@
+<a name="0.50.1"></a>
+### 0.50.1 (2015-12-01)
+
+
+#### Bug Fixes
+
+* **email:** improve handling of 4XX errors from auth server. ([835f7244](https://github.com/mozilla/fxa-profile-server/commit/835f72442b81429c84e8a7cfb9cbb635d9e525d0))
+
+
 <a name="0.50.0"></a>
 ## 0.50.0 (2015-11-18)
 
