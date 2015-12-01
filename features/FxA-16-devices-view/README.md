@@ -90,24 +90,37 @@ Details
 #### What is a "device"?
 
 By "device" here we mean roughly
-"a browser with an active FxA session token".
+"a Firefox browser that is connected to Sync
+with an active FxA session token".
 There is no separate notion of having multiple "browsers" on a single "device".
 Technically the concept is closer to "sessions" or "profiles"
 but these are not good names to present to users.
 
-Newer versions of Firefox
-may explicitly register themselves via the devices API
-and provide a custom name, push endpoint, etc.
-But we have many older devices in the wild
-that do not know how to register themselves explicitly,
-and we only know about them through their session token.
+Each device is responsible for explicitly registering itself
+via the FxA devices API,
+and may provide a custom name.
+Only devices that register themselves in this way
+will appear in the devices list.
 
-* When I sign in to Firefox on my desktop machine
+Older versions of Firefox
+that do not include device registraton support
+will therefore not appear in the list.
+We will not attempt to create "stub" device records
+for older devices,
+because keeping their metadata up to date
+would be too fragile in practice.
+
+Some concrete examples:
+
+* When I sign in to the latest release of Firefox
+  on my desktop machine
   to connect it to sync
   that instance of Firefox will appear in the devices view.
 
 * When I have existing Firefox instances
   that are already connected to sync,
+  and they are updated to the latest version
+  with support for device registration,
   they will appear in the devices view automatically.
 
 * When I use a desktop machine
@@ -117,23 +130,31 @@ and we only know about them through their session token.
   There will be no indication that they're on the same physical machine
   apart from similarity in their auto-generated name and their UA details.
 
-* When I use Firefox for Android or Firefox for iOS,
-  it appears in the view as a single device
+* When I connect an older version of Firefox
+  that does not support device registration,
+  it does not show up in the list of devices
+  even though it is connected to sync.
+  I will have to upgrade
+  to the latest release of Firefox
+  in order for it to appear in the list.
+
+* When I connect Firefox for Android or Firefox for iOS
+  to my Account,
+  it will appear in the view as a single device
   since I typically only have one Firefox profile per mobile device.
 
-* When I use a FirefoxOS device,
-  it appears in the view as a single device
-  since the connection to FxA is managed at the system level.
+* When I sign in on a FirefoxOS device,
+  it will not appear in the devices list
+  because we have no plans to implement device registration support
+  on that platform.
 
 * When I log in to Marketplace with my Firefox Account,
   using the web-based flow in a browser that is not connected to my account,
-  the resulting session appears in the list of devices
-  representing the browser from which I logged in.
+  the resulting session does not appear in the list of devices.
 
 * When I log in to Pocket with my Firefox Account
   using a non-Firefox web browser,
-  the resulting session appears in the list of devices
-  and can be identified based on browser and platform data.
+  the resulting session does not appear in the list of devices.
 
 
 #### What details do we show about the device?
@@ -147,14 +168,19 @@ For each device we will show:
 * The time it was last seen,
   i.e. the times at which it last used its session token
   to interact with the FxA servers.
+  Since browsers only need to connect to the FxA servers
+  once every six hours,
+  this will be displayed as a coarse-grained timestamp
+  such as "Today" or "Five days ago".
+
+* The hardware platform type of the device,
+  such as whether it's a desktop or mobile device,
+  by means of an appropriate icon.
 
 * The browser type and version,
   and operating system platform and version,
   where this information is available in the user-agent string
   provided by the device.
-
-* Whether or not the device's login state is still valid
-  (it could be  in the "need to re-authenticate" state after password reset).
 
 * Whether it is the device currently viewing the devices view.
 
@@ -165,25 +191,10 @@ When I connect a new device to my account
 and it is running a sufficiently new version of Firefox,
 the device may allow me to customize its human-readable name
 and register that value with Firefox Accounts.
-The devices view will show that custom name.
-
-When I connect a new device to my account
-and it is running an older version of Firefox
-without support for the FxA device registration API,
-it will appear in the devices view
-with a generic auto-generated name
-based on its browser and platform details.
-This name may not match the device name
-that it uses to identify itself in the "synced tabs" view,
-but still gives me a reasonable chance of identifying it.
-
-Thus, for older devices,
-the device name presented in the devices view
-may not match the name presented in the browser's native UI
-for features such as "synced tabs".
-This is an acceptable tradeoff
-while we wait for device registration support
-to propagate to all clients.
+The devices view will show that custom name,
+and the device will ensure that this is the same name
+by which it identifies itself inside the encrypted
+"clients" collection in sync.
 
 I cannot edit the names of my devices
 through the web view
@@ -198,28 +209,19 @@ and all information about the device is removed from the server.
 It no longer appears in the devices view.
 
 When I disconnect a device through the devices view,
-the session token belonging to that device is destroyed,
-all information about the device is removed from the server,
-and if the device has registered a push endpoint
-then it receives a push notification from the server.
-The device responds by:
-
-* If it is an older version of Firefox,
-  it will only discover that it has been disconnected
-  when it next attempts to sync
-  and finds that its session token is invalid.
-  It will enter the "needs to reauthenticate" state.
-
-* If it is a newer version of Firefox,
-  it will respond to the push notification of its disconnection
-  by immediately returning to the "not connected to sync" state.
+the session token belonging to that device is destroyed
+and all information about the device is removed from the server.
+There is no push notification in the initial version of this feature;
+the device will discover it has been disconnected
+when it next attempts to use its session token,
+finds that it is invalid,
+and enters the "needs to reauthenticate" state.
 
 If the device that was disconnected
 was the current device
 then I am logged out of FxA
 and redirected to the "sign in to sync" screen
 from which I can easily re-connect the device.
-I do not have the ability to disconnect that device,
 
 
 #### Interaction with Password Reset
