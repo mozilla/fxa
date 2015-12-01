@@ -1766,7 +1766,7 @@ describe('/v1', function() {
       });
     });
 
-    it.skip('should reject expired tokens', function() {
+    it('should reject expired tokens', function() {
       this.slow(2200);
       return newToken({
         ttl: 1
