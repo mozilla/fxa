@@ -9,7 +9,6 @@ define(function (require, exports, module) {
   var Cocktail = require('cocktail');
   var Devices = require('models/devices');
   var FormView = require('views/form');
-  var Notifier = require('lib/channels/notifier');
   var preventDefaultThen = require('views/base').preventDefaultThen;
   var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
   var SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
@@ -41,9 +40,6 @@ define(function (require, exports, module) {
       var devices = this._devices;
       devices.on('add', this._onDeviceAdded.bind(this));
       devices.on('remove', this._onDeviceRemoved.bind(this));
-
-      var notifier = options.notifier;
-      notifier.on(Notifier.DEVICE_REFRESH, this._onRefreshDeviceList.bind(this));
     },
 
     context: function () {
@@ -92,11 +88,14 @@ define(function (require, exports, module) {
     },
 
     _onRefreshDeviceList: function () {
+      var self = this;
       if (this.isPanelOpen()) {
         this.logViewEvent('refresh');
         // only refresh devices if panel is visible
         // if panel is hidden there is no point of fetching devices
-        this._fetchDevices();
+        this._fetchDevices().then(function () {
+          self.render();
+        });
       }
     },
 

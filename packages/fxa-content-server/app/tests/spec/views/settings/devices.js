@@ -186,17 +186,35 @@ define(function (require, exports, module) {
           .then(function () {
             // click events require the view to be in the DOM
             $('#container').html(view.el);
-
-            sinon.stub(view, '_fetchDevices', function () {
-              return p();
-            });
-
           });
+      });
+
+      it('calls `render` when refreshed', function (done) {
+        sinon.spy(view, 'render');
+        sinon.stub(view, 'isPanelOpen', function () {
+          return true;
+        });
+
+        sinon.stub(view.user, 'fetchAccountDevices', function () {
+          return p();
+        });
+
+        $('.devices-refresh').click();
+        setTimeout(function () {
+          // render delayed by device request promises
+          assert.isTrue(view.render.called);
+          view.render.restore();
+          done();
+        }, 150);
       });
 
       it('calls `_fetchDevices` using a button', function () {
         sinon.stub(view, 'isPanelOpen', function () {
           return true;
+        });
+
+        sinon.stub(view, '_fetchDevices', function () {
+          return p();
         });
 
         $('.devices-refresh').click();

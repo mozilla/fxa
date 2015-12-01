@@ -23,6 +23,7 @@ define([
   var BROWSER_DEVICE_NAME = 'Browser Session Device';
   var BROWSER_DEVICE_TYPE = 'desktop';
   var TEST_DEVICE_NAME = 'Test Runner Session Device';
+  var TEST_DEVICE_NAME_UPDATED = 'Test Runner Session Device Updated';
   var TEST_DEVICE_TYPE = 'mobile';
   var email;
   var client;
@@ -63,6 +64,8 @@ define([
 
     'device panel works with query param, same device': function () {
       var self = this;
+      var testDeviceId;
+
       return FunctionalHelpers.openPage(this, SIGNIN_URL_DEVICE_LIST, '#fxa-signin-header')
         .then(function () {
           return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD);
@@ -86,6 +89,10 @@ define([
             TEST_DEVICE_NAME,
             TEST_DEVICE_TYPE
           );
+        })
+
+        .then(function (device) {
+          testDeviceId = device.id;
         })
 
         .findByCssSelector('.devices-refresh')
@@ -126,6 +133,34 @@ define([
           .getVisibleText()
           .then(function (val) {
             assert.equal(val, BROWSER_DEVICE_NAME + ' (current)', 'device name is correct');
+          })
+        .end()
+
+        // update external device from the test runner
+        .then(function () {
+          return client.deviceUpdate(
+            accountData.sessionToken,
+            testDeviceId,
+            TEST_DEVICE_NAME_UPDATED
+          );
+        })
+
+        // external update should show in the device list
+        .findByCssSelector('.devices-refresh')
+          .click()
+        .end()
+
+        // external text change is hard to track, use pollUntil
+        .then(FunctionalHelpers.pollUntil(function (newName) {
+          var deviceName = document.querySelectorAll('.device:nth-child(2) .device-name')[0].textContent.trim();
+
+          return deviceName === newName ? true : null;
+        }, [ TEST_DEVICE_NAME_UPDATED ], 10000))
+
+        .findByCssSelector('.device:nth-child(2) .device-name')
+          .getVisibleText()
+          .then(function (val) {
+            assert.equal(val, TEST_DEVICE_NAME_UPDATED, 'device name is correct');
           })
         .end()
 

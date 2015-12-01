@@ -38,6 +38,10 @@ if (profile) {
   // add a string to the Firefox UA to signal that this is a test runner
   myProfile.setPreference('general.useragent.override', UA_OVERRIDE);
 
+  // disable signed extensions
+  // the WebDriver extension will not work where signed extensions are forced
+  myProfile.setPreference('xpinstall.signatures.required', false);
+
   myProfile.updatePreferences();
 
   myProfile.encoded(function (encodedProfile) {
