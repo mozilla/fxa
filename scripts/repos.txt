@@ -33,3 +33,4 @@ fxa-checkbox
 fxa-retention-metrics
 fxa-bugzilla-mirror
 123done
+grunt-l10n-lint
