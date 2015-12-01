@@ -57,16 +57,6 @@ in the future.
   and see all my signed-in devices
   when I navigate to the devices view.
 
-* As an existing user,
-  I want to sign in on a device
-  and see the newly signed-in device
-  automatically appear in all open instances of the devices view.
-
-* As a signed-in user,
-  I want to sign out on a device
-  and see the newly signed-out device
-  automatically disappear in all open instances of the devices view.
-
 * As a signed-in user,
   I want to disconnect a device from the devices view
   and be signed out of that device.
@@ -80,11 +70,6 @@ in the future.
   I want to reset my password
   and be signed out of all devices,
   including the current device.
-
-* As a signed-in user,
-  I want to update my device details
-  and see the newly-changed details
-  automatically reflected in all open instances of the devices view.
 
 ### As an API consumer
 
@@ -115,26 +100,6 @@ in the future.
 * As a logged-in API consumer,
   I want to deregister a registered device
   and remove all of its details from the server.
-
-* As a logged-in API consumer,
-  I want to receive a `"new sync device"` push notification
-  when a new device is registered.
-
-* As a logged-in API consumer,
-  I want to receive a `"device name changed"` push notification
-  when a registered device is renamed.
-
-* As a logged-in API consumer,
-  I want to receive a `"password changed"` push notification
-  when the password is changed.
-
-* As a logged-in API consumer,
-  I want to receive a `"password reset"` push notification
-  when the password is reset.
-
-* As a logged-in API consumer,
-  I want to receive a `"disconnected"` push notification
-  when a registered device transitions to the disconnected state.
 
 ## Data
 
@@ -343,7 +308,7 @@ it means the device is disconnected.
 [
   {
     "id": "0f7aa00356e5416e82b3bef7bc409eef",
-    "sessionToken": "27cd4f4a4aa03d7d186a2ec81cbf19d5c8a604713362df9ee15c4f4a4aa03d7d",
+    "isCurrentDevice": true,
     "name": "My Phone",
     "type": "mobile",
     "pushCallback": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
@@ -351,7 +316,7 @@ it means the device is disconnected.
   },
   {
     "id": "0f7aa00356e5416e82b3bef7bc409eef",
-    "sessionToken": null,
+    "isCurrentDevice": false,
     "name": "My Desktop",
     "type": null,
     "pushCallback": "https://updates.push.services.mozilla.com/update/d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c75",
