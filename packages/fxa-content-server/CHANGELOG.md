@@ -1,3 +1,26 @@
+<a name="0.51.0"></a>
+# 0.51.0 (2015-12-02)
+
+
+### Bug Fixes
+
+* **devices:** improve testing coverage and clean up ([4163505](https://github.com/mozilla/fxa-content-server/commit/4163505))
+* **docs:** add browser support section ([cd3a975](https://github.com/mozilla/fxa-content-server/commit/cd3a975))
+* **experiments:** bump experiments to train-51 ([0de6c33](https://github.com/mozilla/fxa-content-server/commit/0de6c33))
+* **tests:** use bower@1.6.5 in teamcity tests ([b9ab071](https://github.com/mozilla/fxa-content-server/commit/b9ab071))
+
+### Features
+
+* **deps:** update fxa-js-client to v0.1.33 ([b77145b](https://github.com/mozilla/fxa-content-server/commit/b77145b))
+* **devices:** basic device UI for the settings panel ([20c305d](https://github.com/mozilla/fxa-content-server/commit/20c305d))
+* **l10n:** Add translatable string for a "Help" link. ([bdbf4b5](https://github.com/mozilla/fxa-content-server/commit/bdbf4b5))
+
+### Refactor
+
+* **client:** Move View creation logic out of router.js ([74556db](https://github.com/mozilla/fxa-content-server/commit/74556db))
+
+
+
 <a name="0.50.0"></a>
 # 0.50.0 (2015-11-17)
 
