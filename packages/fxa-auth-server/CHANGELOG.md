@@ -1,3 +1,17 @@
+<a name"0.51.0"></a>
+## 0.51.0 (2015-12-02)
+
+
+#### Bug Fixes
+
+* **config:** option autoUpdateClients, will be disable in prod/stage ([802a0b22](https://github.com/mozilla/fxa-oauth-server/commit/802a0b22))
+
+
+#### Features
+
+* **token:** reject expired tokens ([4f519ca0](https://github.com/mozilla/fxa-oauth-server/commit/4f519ca0), closes [#365](https://github.com/mozilla/fxa-oauth-server/issues/365))
+
+
 <a name"0.50.0"></a>
 ## 0.50.0 (2015-11-18)
 
