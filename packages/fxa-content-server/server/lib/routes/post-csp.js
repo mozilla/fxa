@@ -17,7 +17,7 @@ module.exports = function (options) {
   function isSampledUser() {
     // random between 0 and 100, inclusive
     var rand = Math.floor(Math.random() * (100 + 1));
-    return rand <= options.reportSampleRate;
+    return rand < options.reportSampleRate;
   }
 
   return {
