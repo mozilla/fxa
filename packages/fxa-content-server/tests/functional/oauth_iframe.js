@@ -93,9 +93,21 @@ define([
           return client.signUp(email, PASSWORD, { preVerified: true });
         })
 
-        .then(function () {
-          return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
-        })
+        .findByCssSelector('form input.email')
+          .click()
+          .clearValue()
+          .type(email)
+        .end()
+
+        .findByCssSelector('form input.password')
+          .click()
+          .clearValue()
+          .type(PASSWORD)
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+          .click()
+        .end()
 
         // user should be redirected back to 123done
         .switchToFrame(null)
