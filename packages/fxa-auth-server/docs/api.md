@@ -54,6 +54,7 @@ The currently-defined error responses are:
 
 
 - [GET /v1/authorization][redirect]
+- [GET /v1/jwks][jwks]
 - [POST /v1/authorization][authorization]
 - [POST /v1/token][token]
 - [POST /v1/destroy][delete]
@@ -283,7 +284,7 @@ content-server page.
 - `client_id`: The id returned from client registration.
 - `state`: A value that will be returned to the client as-is upon redirection, so that clients can verify the redirect is authentic.
 - `redirect_uri`: Optional. If supplied, a string URL of where to redirect afterwards. Must match URL from registration.
-- `scope`: Optional. A space-separated list of scopes that the user has authorized. This could be pruned by the user at the confirmation dialog.
+- `scope`: Optional. A space-separated list of scopes that the user has authorized. This could be pruned by the user at the confirmation dialog. If this includes the scope `openid`, this will be an OpenID Connect authentication request.
 - `access_type`: Optional. If provided, should be `online` or `offline`. `offline` will result in a refresh_token being provided, so that the access_token can be refreshed after it expires.
 - `action`: Optional. If provided, should be `signup`, `signin`, or `force_auth`. Send to improve the user experience, based on whether they clicked on a Sign In or Sign Up button. `force_auth` requires the user to sign in using the address specified in `email`. If unspecified then Firefox Accounts will try choose intelligently between `signin` and `signup` based on the user's browser state.
 - `email`: Optional if `action` is `signup` or `signin`. Required if `action`
@@ -415,6 +416,7 @@ A valid request will return a JSON response with these properties:
 - `expires_in`: **Seconds** until this access token will no longer be valid.
 - `token_type`: A string representing the token type. Currently will always be "bearer".
 - `auth_at`: An integer giving the time at which the user authenticated to the Firefox Accounts server when generating this token, as a UTC unix timestamp (i.e.  **seconds since epoch**).
+- `id_token`: (Optional) If the authorization was requested with `openid` scope, then this property will contain the OpenID Connect ID Token.
 
 **Example:**
 
@@ -496,6 +498,37 @@ A valid request will return JSON with these properties:
 }
 ```
 
+### GET /v1/jwks
+
+This endpoint returns the [JWKs](https://tools.ietf.org/html/rfc7517)
+that are used for signing OpenID Connect id tokens.
+
+#### Request
+
+```sh
+curl -v "https://oauth.accounts.firefox.com/v1/jwks"
+```
+
+#### Response
+
+A valid response will return JSON of the `keys`.
+
+**Example:**
+
+```json
+{
+  "keys": [
+    "alg": "RS256",
+    "use": "sig",
+    "kty": "RSA",
+    "kid": "2015.12.02-1",
+    "n":"xaQHsKpu1KSK-YEMoLzZS7Xxciy3esGrhrrqW_JBrq3IRmeGLaqlE80zcpIVnStyp9tbet2niYTemt8ug591YWO5Y-S0EgQyFTxnGjzNOvAL6Cd2iGie9QeSehfFLNyRPdQiadYw07fw-h5gweMpVJs8nTgS-Bcorlw9JQM6Il1cUpbP0Lt-F_5qrzlaOiTEAAb4JGOusVh0n-MZfKt7w0mikauMH5KfhflwQDn4YTzRkWJzlldXr1Cs0ZkYzOwS4Hcoku7vd6lqCUO0GgZvkuvCFqdVKzpa4CGboNdfIjcGVF4f1CTQaQ0ao51cwLzq1pgi5aWYhVH7lJcm6O_BQw",
+    "e":"AQAC"
+  ]
+}
+```
+
+
 [client]: #get-v1clientid
 [register]: #post-v1clientregister
 [clients]: #get-v1clients
@@ -507,5 +540,6 @@ A valid request will return JSON with these properties:
 [delete]: #post-v1destroy
 [verify]: #post-v1verify
 [developer-activate]: #post-v1developeractivate
+[jwks]: #get-v1jwks
 
 [Service Clients]: ./service-clients.md

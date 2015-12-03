@@ -91,5 +91,14 @@
   "logging": {
     "level": "ALL",
     "fmt": "pretty"
+  },
+  "openid": {
+    "key": {
+      "kty": "RSA",
+      "kid": "2015.12.02-1",
+      "n":"xaQHsKpu1KSK-YEMoLzZS7Xxciy3fsGrhrrqW_JBrq3IRmeGLaqlE80zcpIVnStyp9tbet2niYTemt8ug591YWO5Y-S0EgQyFTxnGjzNOvAL6Cd2iGie9QeSehfFLNyRPdQiadYw07fw-h5gweMpVJv8nTgS-Bcorlw9JQM6Il1cUpbP0Lt-F_5qrzlaOiTEAAb4JGOusVh0n-MZfKt7w0mikauMH5KfhflwQDn4YTzRkWJzlldXr1Cs0ZkYzOwS4Hcoku7vd6lqCUO0GgZvkuvCFqdVKzpa4CGboNdfIjcGVF4f1CTQaQ0ao51cwLzq1pgi5aWYhVH7lJcm6O_BQw",
+      "e":"AQAB",
+      "d":"EM21aavT6Hhk6Hm0XSYxQ2KguJhcsYY90yKpMlASjYtw76t1mQRdLKXRrfgFpms_QE5CJNwblnGZi4lWJxKzpCgaZwfW14FL0Mpl6bEpsc0e9goE5ewfN64BIihLN1k5cAxNMLppRFbrQhi7GUD7DpqEi8lss3Mknk5xVGhF1Q38i5wSPLaLNgdt7QUIRdCCsrVFwnj83e8Rmmchr2-LXg2P_2KbVwdKfLuDiaYgDr2OELiK3VZa3WMexLrQHXGf1bvuK9xg6DNQ5Oe3slNWe7a0cpNR5oPX8HjqREmKciCFxHSA5o0ogyu5YvVjvZuh4Fm1iAM1fJNzYpabd_D8IQ"
+    }
   }
 }

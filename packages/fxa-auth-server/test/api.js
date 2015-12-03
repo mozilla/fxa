@@ -1179,6 +1179,39 @@ describe('/v1', function() {
       });
     });
 
+    describe('?scope=openid', function() {
+
+      function decodeJWT(b64) {
+        var jwt = b64.split('.');
+        return {
+          header: JSON.parse(Buffer(jwt[0], 'base64').toString('utf-8')),
+          claims: JSON.parse(Buffer(jwt[1], 'base64').toString('utf-8'))
+        };
+      }
+
+      it('should return an id_token', function() {
+        return newToken({ scope: 'openid' }).then(function(res) {
+          assert.equal(res.statusCode, 200);
+          assert(res.result.access_token);
+          assert(res.result.id_token);
+          var jwt = decodeJWT(res.result.id_token);
+          var header = jwt.header;
+          var claims = jwt.claims;
+
+          assert.equal(header.alg, 'RS256');
+          assert.equal(header.kid, config.get('openid.key').kid);
+
+          assert.equal(claims.sub, USERID);
+          assert.equal(claims.aud, clientId);
+          assert.equal(claims.iss, config.get('openid.issuer'));
+          var now = Math.floor(Date.now() / 1000);
+          assert(claims.iat <= now);
+          assert(claims.exp > now);
+        });
+      });
+
+    });
+
   });
 
   describe('/client', function() {
@@ -1902,6 +1935,34 @@ describe('/v1', function() {
         });
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
+      });
+    });
+  });
+
+  describe('/jwks', function() {
+    it('should not include the private part of the key', function() {
+      return Server.api.get({
+        url: '/jwks'
+      }).then(function(res) {
+        assert.equal(res.statusCode, 200);
+
+        var key = res.result.keys[0];
+        assert(key.n);
+        assert(key.e);
+        assert(!key.d);
+      });
+    });
+
+    it('should include the oldKey if present', function() {
+      return Server.api.get({
+        url: '/jwks'
+      }).then(function(res) {
+        assert.equal(res.statusCode, 200);
+
+        var keys = res.result.keys;
+        assert.equal(keys.length, 2);
+        assert(!keys[1].d);
+        assert.notEqual(keys[0].kid, keys[1].kid);
       });
     });
   });

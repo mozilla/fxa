@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 
@@ -152,6 +153,27 @@ const conf = convict({
       default: 10
     }
   },
+  openid: {
+    key: {
+      doc: 'Private JWK to sign id_tokens',
+      default: {}
+    },
+    oldKey: {
+      doc: 'The previous public key that was used to sign id_tokens',
+      default: {}
+    },
+    issuer: {
+      // this should match `issuer` in the 'OpenID Provider Metadata' document
+      // from the fxa-content-server
+      doc: 'The value of the `iss` property of the id_token',
+      default: 'https://accounts.firefox.com'
+    },
+    ttl: {
+      doc: 'Number of milliseconds until id_token should expire',
+      default: '5 minutes',
+      format: 'duration'
+    }
+  },
   publicUrl: {
     format: 'url',
     env: 'PUBLIC_URL',
@@ -220,7 +242,6 @@ conf.validate(options);
 
 // custom validation, since we cant yet specify rules for inside arrays
 conf.get('serviceClients').forEach(function(client) {
-  const assert = require('assert');
   assert(client.id, 'client id required');
   assert.equal(client.id.length, 16, 'client id must be 16 hex digits');
   assert.equal(Buffer(client.id, 'hex').toString('hex'), client.id,
@@ -229,5 +250,23 @@ conf.get('serviceClients').forEach(function(client) {
   assert.equal(typeof client.scope, 'string', 'client scope required');
   assert.equal(typeof client.jku, 'string', 'client jku required');
 });
+
+var key = conf.get('openid.key');
+assert.equal(key.kty, 'RSA', 'openid.key.kty must be RSA');
+assert(key.kid, 'openid.key.kid is required');
+assert(key.n, 'openid.key.n is required');
+assert(key.e, 'openid.key.e is required');
+assert(key.d, 'openid.key.d is required');
+
+var oldKey = conf.get('openid.oldKey');
+if (Object.keys(oldKey).length) {
+  assert.equal(oldKey.kty, 'RSA', 'openid.oldKey.kty must be RSA');
+  assert(oldKey.kid, 'openid.oldKey.kid is required');
+  assert.notEqual(key.kid, oldKey.kid,
+    'openid.key.kid must differ from oldKey');
+  assert(oldKey.n, 'openid.oldKey.n is required');
+  assert(oldKey.e, 'openid.oldKey.e is required');
+  assert(!oldKey.d, 'openid.oldKey.d is forbidden');
+}
 
 module.exports = conf;
