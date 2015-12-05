@@ -1190,6 +1190,12 @@ Either registers a new device for this user/session
 or updates existing device details for this user/session
 (if a device `id` is specified).
 
+If no device `id` is specified,
+both `name` and `type` must be provided.
+If a device `id` is specified,
+at least one of `name`, `type`, `pushCallback` and `pushPublicKey`
+must be present.
+
 ### Request
 
 ___Headers___

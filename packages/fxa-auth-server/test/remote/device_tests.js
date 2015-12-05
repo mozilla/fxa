@@ -83,7 +83,7 @@ TestServer.start(config)
       var email = server.uniqueEmail()
       var password = 'test password'
       var deviceInfo = {
-        name: 'test device',
+        name: 'a different device name',
         type: 'mobile',
         pushCallback: '',
         pushPublicKey: ''
@@ -127,7 +127,7 @@ TestServer.start(config)
         .then(
           function (client) {
             var deviceInfo = {
-              name: '',
+              name: 'test device',
               type: 'mobile',
               pushCallback: '',
               pushPublicKey: ''
@@ -157,7 +157,7 @@ TestServer.start(config)
               .then(
                 function (devices) {
                   t.equal(devices.length, 1, 'devices returned one item')
-                  t.equal(devices[0].name, '', 'devices returned empty name')
+                  t.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
                   t.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
                   t.equal(devices[0].pushCallback, '', 'devices returned empty pushCallback')
                   t.deepEqual(devices[0].pushPublicKey, '0000000000000000000000000000000000000000000000000000000000000000', 'devices returned correct pushPublicKey')
@@ -178,6 +178,7 @@ TestServer.start(config)
         .then(
           function (client) {
             var deviceInfo = {
+              name: 'test device',
               type: 'mobile'
             }
             return client.devices()
@@ -191,7 +192,7 @@ TestServer.start(config)
                 function (device) {
                   t.ok(device.id, 'device.id was set')
                   t.ok(device.createdAt > 0, 'device.createdAt was set')
-                  t.equal(device.name, undefined, 'device.name is undefined')
+                  t.equal(device.name, deviceInfo.name, 'device.name is correct')
                   t.equal(device.type, deviceInfo.type, 'device.type is correct')
                   t.equal(device.pushCallback, undefined, 'device.pushCallback is undefined')
                   t.deepEqual(device.pushPublicKey, undefined, 'device.pushPublicKey is undefined')
@@ -205,11 +206,62 @@ TestServer.start(config)
               .then(
                 function (devices) {
                   t.equal(devices.length, 1, 'devices returned one item')
-                  t.equal(devices[0].name, null, 'devices returned undefined name')
+                  t.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
                   t.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
                   t.equal(devices[0].pushCallback, null, 'devices returned undefined pushCallback')
                   t.deepEqual(devices[0].pushPublicKey, null, 'devices returned undefined pushPublicKey')
                   return client.destroyDevice(devices[0].id)
+                }
+              )
+          }
+        )
+    }
+  )
+
+  test(
+    'device registration without required name parameter',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (client) {
+            return client.updateDevice({ type: 'mobile' })
+              .then(
+                function (r) {
+                  console.error('!!!!! PHIL !!!!! ' + Object.keys(r))
+                  t.fail('request should have failed')
+                }
+              )
+              .catch(
+                function (err) {
+                  t.equal(err.code, 400, 'err.code was 400')
+                  t.equal(err.errno, 108, 'err.errno was 108')
+                }
+              )
+          }
+        )
+    }
+  )
+
+  test(
+    'device registration without required type parameter',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (client) {
+            return client.updateDevice({ name: 'test device' })
+              .then(
+                function () {
+                  t.fail('request should have failed')
+                }
+              )
+              .catch(
+                function (err) {
+                  t.equal(err.code, 400, 'err.code was 400')
+                  t.equal(err.errno, 108, 'err.errno was 108')
                 }
               )
           }
