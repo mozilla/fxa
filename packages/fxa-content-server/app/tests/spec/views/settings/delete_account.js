@@ -72,16 +72,16 @@ define(function (require, exports, module) {
     describe('with session', function () {
       beforeEach(function () {
         email = TestHelpers.createEmail();
-        sinon.stub(view.fxaClient, 'isSignedIn', function () {
-          return true;
-        });
 
         account = user.initAccount({
           email: email,
           sessionToken: 'abc123',
+          uid: UID,
           verified: true
         });
-        account.set('uid', UID);
+        sinon.stub(account, 'isSignedIn', function () {
+          return p(true);
+        });
 
         sinon.stub(view, 'getSignedInAccount', function () {
           return account;

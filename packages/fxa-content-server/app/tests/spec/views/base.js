@@ -12,7 +12,6 @@ define(function (require, exports, module) {
   var chai = require('chai');
   var DOMEventMock = require('../../mocks/dom-event');
   var EphemeralMessages = require('lib/ephemeral-messages');
-  var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
@@ -31,7 +30,6 @@ define(function (require, exports, module) {
   describe('views/base', function () {
     var broker;
     var ephemeralMessages;
-    var fxaClient;
     var metrics;
     var notifier;
     var viewName = 'view';
@@ -56,7 +54,6 @@ define(function (require, exports, module) {
 
       broker = new BaseBroker();
       ephemeralMessages = new EphemeralMessages();
-      fxaClient = new FxaClient();
       metrics = new Metrics();
       notifier = new Notifier();
       user = new User();
@@ -65,7 +62,6 @@ define(function (require, exports, module) {
       view = new View({
         broker: broker,
         ephemeralMessages: ephemeralMessages,
-        fxaClient: fxaClient,
         metrics: metrics,
         notifier: notifier,
         translator: translator,
@@ -219,7 +215,7 @@ define(function (require, exports, module) {
           sessionToken: 'abc123',
           uid: 'uid'
         });
-        sinon.stub(fxaClient, 'sessionStatus', function () {
+        sinon.stub(account, 'isSignedIn', function () {
           return p(true);
         });
         sinon.stub(account, 'isVerified', function () {
@@ -242,7 +238,7 @@ define(function (require, exports, module) {
           sessionToken: 'abc123',
           uid: 'uid'
         });
-        sinon.stub(fxaClient, 'sessionStatus', function () {
+        sinon.stub(account, 'isSignedIn', function () {
           return p(true);
         });
         sinon.stub(account, 'isVerified', function () {
@@ -269,7 +265,7 @@ define(function (require, exports, module) {
           uid: 'uid',
           verified: true
         });
-        sinon.stub(fxaClient, 'sessionStatus', function () {
+        sinon.stub(account, 'isSignedIn', function () {
           return p(true);
         });
         sinon.stub(view, 'getSignedInAccount', function () {
