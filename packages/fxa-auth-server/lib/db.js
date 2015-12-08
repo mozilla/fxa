@@ -434,6 +434,7 @@ module.exports = function (
             return bufferize({
               id: item.id,
               sessionToken: item.sessionTokenId,
+              lastAccessTime: item.lastAccessTime,
               name: item.name,
               type: item.type,
               pushCallback: item.callbackURL,

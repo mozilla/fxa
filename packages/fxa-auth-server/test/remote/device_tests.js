@@ -37,6 +37,7 @@ TestServer.start(config)
               function (devices) {
                 t.equal(devices.length, 1, 'devices returned one item')
                 t.equal(devices[0].isCurrentDevice, true, 'devices returned true isCurrentDevice')
+                t.ok(devices[0].lastAccessTime > 0, 'devices returned positive lastAccessTime')
                 t.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
                 t.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
                 t.equal(devices[0].pushCallback, deviceInfo.pushCallback, 'devices returned correct pushCallback')

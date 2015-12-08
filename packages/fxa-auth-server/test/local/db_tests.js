@@ -279,6 +279,7 @@ test(
         })
         .then(function (device) {
           t.ok(Buffer.isBuffer(device.id), 'device.id is set')
+          t.ok(device.lastAccessTime > 0, 'device.lastAccessTime is set')
           t.equal(device.name, deviceInfo.name, 'device.name is correct')
           t.equal(device.type, deviceInfo.type, 'device.type is correct')
           t.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
