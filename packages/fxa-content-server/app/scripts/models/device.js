@@ -15,7 +15,7 @@ define(function (require, exports, module) {
     defaults: {
       id: null,
       isCurrentDevice: null,
-      lastConnected: null,
+      lastAccessTime: null,
       name: null,
       type: null
     },
