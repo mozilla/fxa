@@ -309,6 +309,7 @@ it means the device is disconnected.
   {
     "id": "0f7aa00356e5416e82b3bef7bc409eef",
     "isCurrentDevice": true,
+    "lastAccessTime": 1449235471335,
     "name": "My Phone",
     "type": "mobile",
     "pushCallback": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
@@ -317,6 +318,7 @@ it means the device is disconnected.
   {
     "id": "0f7aa00356e5416e82b3bef7bc409eef",
     "isCurrentDevice": false,
+    "lastAccessTime": 1417699471335,
     "name": "My Desktop",
     "type": null,
     "pushCallback": "https://updates.push.services.mozilla.com/update/d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c75",
