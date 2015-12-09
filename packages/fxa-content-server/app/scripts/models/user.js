@@ -183,6 +183,26 @@ define(function (require, exports, module) {
       this._storage.set('accounts', accounts);
     },
 
+    /**
+     * Delete the account from the server, notify all interested parties,
+     * delete the account from storage.
+     *
+     * @param {object} accountData
+     * @return {promise}
+     */
+    deleteAccount: function (accountData) {
+      var self = this;
+      var account = self.initAccount(accountData);
+
+      return account.destroy()
+        .then(function () {
+          self.removeAccount(account);
+          self._notifier.triggerAll(self._notifier.EVENTS.DELETE, {
+            uid: account.get('uid')
+          });
+        });
+    },
+
     // Stores a new account and sets it as the current account.
     setSignedInAccount: function (accountData) {
       var self = this;

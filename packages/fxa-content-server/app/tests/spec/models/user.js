@@ -124,16 +124,6 @@ define(function (require, exports, module) {
         });
     });
 
-    it('removeAccount', function () {
-      var account = { email: 'email', uid: 'uid' };
-      return user.setSignedInAccount(account)
-        .then(function () {
-          user.removeAccount(account);
-          assert.isTrue(user.getAccountByUid(account.uid).isDefault());
-          assert.isTrue(user.getSignedInAccount().isDefault());
-        });
-    });
-
     it('removeAllAccounts', function () {
       return user.setAccount({ email: 'email', uid: 'uid' })
         .then(function () {
@@ -144,6 +134,51 @@ define(function (require, exports, module) {
           assert.isTrue(user.getAccountByUid('uid').isDefault());
           assert.isTrue(user.getAccountByUid('uid2').isDefault());
         });
+    });
+
+    it('removeAccount', function () {
+      var account = { email: 'email', uid: 'uid' };
+      return user.setSignedInAccount(account)
+        .then(function () {
+          user.removeAccount(account);
+          assert.isTrue(user.getAccountByUid(account.uid).isDefault());
+          assert.isTrue(user.getSignedInAccount().isDefault());
+        });
+    });
+
+    describe('deleteAccount', function () {
+      var account;
+      beforeEach(function () {
+        account = user.initAccount({
+          email: 'testuser@testuser.com',
+          password: 'password',
+          uid: 'uid'
+        });
+
+        sinon.stub(account, 'destroy', function () {
+          return p();
+        });
+
+        sinon.spy(notifier, 'triggerAll');
+
+        user._persistAccount(account);
+
+        return user.deleteAccount(account);
+      });
+
+      it('should delegate to the account to remove itself', function () {
+        assert.isTrue(account.destroy.calledOnce);
+      });
+
+      it('should remove the account from storage', function () {
+        assert.isNull(user._getAccount(account.get('uid')));
+      });
+
+      it('should trigger a notification', function () {
+        assert.isTrue(notifier.triggerAll.calledWith(notifier.EVENTS.DELETE, {
+          uid: account.get('uid')
+        }));
+      });
     });
 
     it('setAccount', function () {

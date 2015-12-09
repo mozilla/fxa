@@ -298,6 +298,48 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('signOut', function () {
+      beforeEach(function () {
+        sinon.stub(fxaClient, 'signOut', function () {
+          return p();
+        });
+
+        account.set('sessionToken', SESSION_TOKEN);
+
+        return account.signOut();
+      });
+
+      it('calls the correct fxaClient method', function () {
+        assert.isTrue(fxaClient.signOut.calledOnce);
+        assert.isTrue(fxaClient.signOut.calledWith(SESSION_TOKEN));
+      });
+    });
+
+    describe('destroy', function () {
+      beforeEach(function () {
+        sinon.stub(fxaClient, 'deleteAccount', function () {
+          return p();
+        });
+
+        sinon.spy(account, 'trigger');
+
+        account.set({
+          email: EMAIL,
+          password: PASSWORD
+        });
+
+        return account.destroy();
+      });
+
+      it('calls the correct fxaClient method', function () {
+        assert.isTrue(fxaClient.deleteAccount.calledWith(EMAIL, PASSWORD));
+      });
+
+      it('triggers a `destroy` message when complete', function () {
+        assert.isTrue(account.trigger.calledWith('destroy', account));
+      });
+    });
+
     describe('createOAuthToken', function () {
       var accessToken = 'access token';
 

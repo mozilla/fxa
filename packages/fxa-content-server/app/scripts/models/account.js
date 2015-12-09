@@ -332,6 +332,20 @@ define(function (require, exports, module) {
       return this._fxaClient.signOut(this.get('sessionToken'));
     },
 
+    /**
+     * Destroy the account, remove it from the server
+     */
+    destroy: function () {
+      var self = this;
+      return self._fxaClient.deleteAccount(
+        self.get('email'),
+        self.get('password')
+      )
+      .then(function () {
+        self.trigger('destroy', self);
+      });
+    },
+
     saveGrantedPermissions: function (clientId, clientPermissions) {
       var permissions = this.get('grantedPermissions') || {};
       permissions[clientId] = clientPermissions;

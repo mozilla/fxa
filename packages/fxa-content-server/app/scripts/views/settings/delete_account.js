@@ -11,7 +11,6 @@ define(function (require, exports, module) {
   var Cocktail = require('cocktail');
   var FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
   var FormView = require('views/form');
-  var Notifier = require('lib/channels/notifier');
   var PasswordMixin = require('views/mixins/password-mixin');
   var ServiceMixin = require('views/mixins/settings-panel-mixin');
   var Session = require('lib/session');
@@ -34,16 +33,12 @@ define(function (require, exports, module) {
     submit: function () {
       var self = this;
       var account = self.getSignedInAccount();
-      var email = account.get('email');
       var password = self.getElementValue('.password');
-      return self.fxaClient.deleteAccount(email, password)
+      account.set('password', password);
+
+      return self.user.deleteAccount(account)
         .then(function () {
           Session.clear();
-          self.user.removeAccount(account);
-          self.notifier.triggerAll(Notifier.DELETE, {
-            uid: account.get('uid')
-          });
-
           return self.invokeBrokerMethod('afterDeleteAccount', account);
         })
         .then(function () {
@@ -51,13 +46,11 @@ define(function (require, exports, module) {
           self.logViewEvent('deleted');
 
           self.navigate('signup', {
+            clearQueryParams: true,
             success: t('Account deleted successfully')
           });
         }, function (err) {
           if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
-            // the password is needed to poll whether the account has
-            // been unlocked.
-            account.set('password', password);
             return self.notifyOfLockedAccount(account);
           }
 

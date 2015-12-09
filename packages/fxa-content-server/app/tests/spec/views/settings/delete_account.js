@@ -9,7 +9,6 @@ define(function (require, exports, module) {
   var AuthErrors = require('lib/auth-errors');
   var Broker = require('models/auth_brokers/base');
   var chai = require('chai');
-  var FxaClient = require('lib/fxa-client');
   var KeyCodes = require('lib/key-codes');
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
@@ -29,7 +28,6 @@ define(function (require, exports, module) {
     var account;
     var broker;
     var email;
-    var fxaClient;
     var metrics;
     var notifier;
     var password = 'password';
@@ -39,7 +37,6 @@ define(function (require, exports, module) {
     var view;
 
     beforeEach(function () {
-      fxaClient = new FxaClient();
       metrics = new Metrics();
       relier = new Relier();
       tabChannelMock = new NullChannel();
@@ -55,7 +52,6 @@ define(function (require, exports, module) {
 
       view = new View({
         broker: broker,
-        fxaClient: fxaClient,
         metrics: metrics,
         notifier: notifier,
         relier: relier,
@@ -134,62 +130,84 @@ define(function (require, exports, module) {
       });
 
       describe('submit', function () {
-        it('deletes the users account, redirect to signup', function () {
+        beforeEach(function () {
           $('form input[type=email]').val(email);
           $('form input[type=password]').val(password);
+        });
 
-          sinon.stub(view.fxaClient, 'deleteAccount', function () {
-            return p();
+        describe('success', function () {
+          beforeEach(function () {
+            sinon.stub(user, 'deleteAccount', function () {
+              return p();
+            });
+
+            sinon.spy(broker, 'afterDeleteAccount');
+            sinon.spy(view, 'logViewEvent');
+            sinon.spy(view, 'navigate');
+
+            return view.submit();
           });
 
-          sinon.stub(user, 'removeAccount', function () {
+          it('deletes the users account', function () {
+            assert.isTrue(user.deleteAccount.calledOnce);
+            assert.isTrue(user.deleteAccount.calledWith(account));
           });
 
-          sinon.spy(broker, 'afterDeleteAccount');
-          sinon.stub(view, 'navigate', function () {
+          it('notifies the broker', function () {
+            assert.isTrue(broker.afterDeleteAccount.calledOnce);
+            assert.isTrue(broker.afterDeleteAccount.calledWith(account));
           });
 
-          return view.submit()
-              .then(function () {
-                assert.equal(view.navigate.args[0][0], 'signup');
-                assert.ok(view.navigate.args[0][1].success);
-                assert.isTrue(view.fxaClient.deleteAccount
-                  .calledWith(email, password));
-                assert.isTrue(user.removeAccount.calledWith(account));
-                assert.isTrue(broker.afterDeleteAccount.calledWith(account));
-                assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.delete-account.deleted'));
-                assert.isTrue(notifier.trigger.calledWith(Notifier.DELETE, { uid: UID }));
+          it('redirects to signup, clearing query params', function () {
+            assert.equal(view.navigate.args[0][0], 'signup');
+
+            assert.isTrue(view.navigate.args[0][1].clearQueryParams);
+            assert.ok(view.navigate.args[0][1].success);
+          });
+
+          it('logs success', function () {
+            assert.isTrue(view.logViewEvent.calledOnce);
+            assert.isTrue(view.logViewEvent.calledWith('deleted'));
+          });
+        });
+
+        describe('locked out user', function () {
+          beforeEach(function () {
+            sinon.stub(user, 'deleteAccount', function () {
+              return p.reject(AuthErrors.toError('ACCOUNT_LOCKED'));
+            });
+
+            return view.submit();
+          });
+
+          it('shows error message to locked out users', function () {
+            assert.isTrue(view.isErrorVisible());
+            assert.include(view.$('.error').text().toLowerCase(), 'locked');
+          });
+
+          it('logs the error', function () {
+            var err = view._normalizeError(AuthErrors.toError('ACCOUNT_LOCKED'));
+            assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
+          });
+
+          it('retains the password in the account to poll for account unlock', function () {
+            assert.isTrue(account.has('password'));
+          });
+        });
+
+        describe('other errors', function () {
+          beforeEach(function () {
+            sinon.stub(user, 'deleteAccount', function () {
+              return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+            });
+          });
+
+          it('are re-thrown', function () {
+            return view.submit()
+              .then(assert.fail, function (err) {
+                assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
               });
-        });
-
-        it('shows error message to locked out users', function () {
-          sinon.stub(view.fxaClient, 'deleteAccount', function () {
-            return p.reject(AuthErrors.toError('ACCOUNT_LOCKED'));
           });
-
-          $('form input[type=email]').val(email);
-          $('form input[type=password]').val(password);
-          return view.submit()
-            .then(function () {
-              assert.isTrue(view.isErrorVisible());
-              assert.include(view.$('.error').text().toLowerCase(), 'locked');
-              var err = view._normalizeError(AuthErrors.toError('ACCOUNT_LOCKED'));
-              assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
-              assert.isTrue(account.has('password'));
-            });
-        });
-
-        it('re-throws other errors', function () {
-          sinon.stub(view.fxaClient, 'deleteAccount', function () {
-            return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
-          });
-
-          $('form input[type=email]').val(email);
-          $('form input[type=password]').val(password);
-          return view.submit()
-            .then(assert.fail, function (err) {
-              assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
-            });
         });
       });
 
