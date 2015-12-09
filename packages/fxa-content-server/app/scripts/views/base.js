@@ -282,13 +282,11 @@ define(function (require, exports, module) {
      */
     isUserAuthorized: function () {
       var self = this;
-      var sessionToken;
 
       return p()
         .then(function () {
           if (self.mustAuth || self.mustVerify) {
-            sessionToken = self.getSignedInAccount().get('sessionToken');
-            return !! sessionToken && self.fxaClient.isSignedIn(sessionToken);
+            return self.getSignedInAccount().isSignedIn();
           }
           return true;
         });

@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   var Broker = require('models/auth_brokers/base');
   var chai = require('chai');
   var EphemeralMessages = require('lib/ephemeral-messages');
-  var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
@@ -22,11 +21,10 @@ define(function (require, exports, module) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
-  describe('views/change_password', function () {
+  describe('views/settings/change_password', function () {
     var account;
     var broker;
     var ephemeralMessages;
-    var fxaClient;
     var metrics;
     var relier;
     var user;
@@ -41,18 +39,11 @@ define(function (require, exports, module) {
         relier: relier
       });
 
-      fxaClient = new FxaClient({
-        broker: broker
-      });
-
-      user = new User({
-        fxaClient: fxaClient
-      });
+      user = new User({});
 
       view = new View({
         broker: broker,
         ephemeralMessages: ephemeralMessages,
-        fxaClient: fxaClient,
         metrics: metrics,
         relier: relier,
         user: user
@@ -67,13 +58,13 @@ define(function (require, exports, module) {
 
     describe('with session', function () {
       beforeEach(function () {
-        sinon.stub(view.fxaClient, 'isSignedIn', function () {
-          return true;
-        });
         account = user.initAccount({
           email: 'a@a.com',
           sessionToken: 'abc123',
           verified: true
+        });
+        sinon.stub(account, 'isSignedIn', function () {
+          return p(true);
         });
 
         sinon.stub(view, 'getSignedInAccount', function () {
