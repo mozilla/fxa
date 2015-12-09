@@ -11,8 +11,8 @@ define(function (require, exports, module) {
   var ConfirmView = require('views/confirm');
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
+  var PasswordResetMixin = require('views/mixins/password-reset-mixin');
   var ResendMixin = require('views/mixins/resend-mixin');
-  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   var ServiceMixin = require('views/mixins/service-mixin');
   var Session = require('lib/session');
   var Template = require('stache!templates/confirm_reset_password');
@@ -244,13 +244,9 @@ define(function (require, exports, module) {
       var self = this;
       self.logViewEvent('resend');
 
-      return self.fxaClient.passwordResetResend(
+      return self.retryResetPassword(
         self._email,
-        self._passwordForgotToken,
-        self.relier,
-        {
-          resume: self.getStringifiedResumeToken()
-        }
+        self._passwordForgotToken
       )
       .then(function () {
         self.displaySuccess();
@@ -274,8 +270,8 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     View,
+    PasswordResetMixin,
     ResendMixin,
-    ResumeTokenMixin,
     ServiceMixin
   );
 

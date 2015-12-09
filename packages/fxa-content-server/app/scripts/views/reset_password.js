@@ -10,7 +10,7 @@ define(function (require, exports, module) {
   var BaseView = require('views/base');
   var Cocktail = require('cocktail');
   var FormView = require('views/form');
-  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  var PasswordResetMixin = require('views/mixins/password-reset-mixin');
   var ServiceMixin = require('views/mixins/service-mixin');
   var Session = require('lib/session');
   var Template = require('stache!templates/reset_password');
@@ -58,42 +58,28 @@ define(function (require, exports, module) {
       var email = this.getElementValue('.email');
 
       var self = this;
-      return self.fxaClient.passwordReset(
-        email,
-        self.relier,
-        {
-          resume: self.getStringifiedResumeToken()
-        }
-      )
-      .then(function (result) {
-        self.navigate('confirm_reset_password', {
-          data: {
-            email: email,
-            passwordForgotToken: result.passwordForgotToken
+      return self.resetPassword(email)
+        .fail(function (err) {
+          // clear oauth session
+          Session.clear('oauth');
+          if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
+            err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
+            return self.displayErrorUnsafe(err);
+          } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
+            self.logEvent('login.canceled');
+            // if user canceled login, just stop
+            return;
           }
+          // re-throw error, it will be handled at a lower level.
+          throw err;
         });
-      })
-      .fail(function (err) {
-        // clear oauth session
-        Session.clear('oauth');
-        if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
-          err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
-          return self.displayErrorUnsafe(err);
-        } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
-          self.logEvent('login.canceled');
-          // if user canceled login, just stop
-          return;
-        }
-        // re-throw error, it will be handled at a lower level.
-        throw err;
-      });
     }
   });
 
   Cocktail.mixin(
     View,
     BackMixin,
-    ResumeTokenMixin,
+    PasswordResetMixin,
     ServiceMixin
   );
 

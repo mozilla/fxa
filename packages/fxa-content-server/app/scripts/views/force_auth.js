@@ -5,13 +5,13 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
   var AuthErrors = require('lib/auth-errors');
   var BaseView = require('views/base');
   var Cocktail = require('cocktail');
   var FormView = require('views/form');
-  var p = require('lib/promise');
   var PasswordMixin = require('views/mixins/password-mixin');
-  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  var PasswordResetMixin = require('views/mixins/password-reset-mixin');
   var Session = require('lib/session');
   var SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
   var SignInView = require('views/sign_in');
@@ -94,45 +94,19 @@ define(function (require, exports, module) {
         });
     },
 
-    resetPasswordNow: function () {
+    resetPasswordNow: allowOnlyOneSubmit(function () {
       var self = this;
-      return p().then(function () {
-        // If the user is already making a request, ban submission.
-        if (self.isSubmitting()) {
-          throw new Error('submit already in progress');
-        }
+      var email = self.relier.get('email');
 
-        var email = self.relier.get('email');
-        self._isSubmitting = true;
-
-        return self.fxaClient.passwordReset(
-          email,
-          self.relier,
-          {
-            resume: self.getStringifiedResumeToken()
-          }
-        )
-        .then(function (result) {
-          self._isSubmitting = false;
-          self.navigate('confirm_reset_password', {
-            clearQueryParams: true,
-            data: {
-              email: email,
-              passwordForgotToken: result.passwordForgotToken
-            }
-          });
-        })
+      return self.resetPassword(email)
         .fail(function (err) {
-          self._isSubmitting = false;
           self.displayError(err);
         });
-      });
-    },
+    }),
 
     /**
      * Displays the account's avatar
      */
-
     afterVisible: function () {
       var email = this.relier.get('email');
       var account = this.user.getAccountByEmail(email);
@@ -148,7 +122,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     PasswordMixin,
-    ResumeTokenMixin,
+    PasswordResetMixin,
     SignedInNotificationMixin
   );
 

@@ -437,60 +437,47 @@ define(function (require, exports, module) {
       });
 
       it('resends the confirmation email, shows success message', function () {
-        sinon.stub(fxaClient, 'passwordResetResend', function () {
+        sinon.stub(view, 'retryResetPassword', function () {
           return p(true);
-        });
-
-        sinon.stub(view, 'getStringifiedResumeToken', function () {
-          return 'resume token';
         });
 
         return view.submit()
           .then(function () {
             assert.isTrue(view.$('.success').is(':visible'));
 
-            assert.isTrue(fxaClient.passwordResetResend.calledWith(
+            assert.isTrue(view.retryResetPassword.calledOnce);
+            assert.isTrue(view.retryResetPassword.calledWith(
               EMAIL,
-              PASSWORD_FORGOT_TOKEN,
-              relier,
-              {
-                resume: 'resume token'
-              }
+              PASSWORD_FORGOT_TOKEN
             ));
           });
       });
 
       it('redirects to `/reset_password` if the resend token is invalid', function () {
-        sinon.stub(fxaClient, 'passwordResetResend', function () {
-          return p().then(function () {
-            throw AuthErrors.toError('INVALID_TOKEN', 'Invalid token');
-          });
+        sinon.stub(view, 'retryResetPassword', function () {
+          return p.reject(AuthErrors.toError('INVALID_TOKEN', 'Invalid token'));
         });
 
         sinon.spy(view, 'navigate');
 
         return view.submit()
-              .then(function () {
-                assert.isTrue(view.navigate.calledWith('reset_password'));
+          .then(function () {
+            assert.isTrue(view.navigate.calledWith('reset_password'));
 
-                assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                  'confirm_reset_password.resend'));
-              });
+            assert.isTrue(TestHelpers.isEventLogged(metrics,
+                              'confirm_reset_password.resend'));
+          });
       });
 
       it('displays other error messages if there is a problem', function () {
-        sinon.stub(fxaClient, 'passwordResetResend', function () {
-          return p().then(function () {
-            throw new Error('synthesized error from auth server');
-          });
+        sinon.stub(view, 'retryResetPassword', function () {
+          return p.reject(new Error('synthesized error from auth server'));
         });
 
         return view.submit()
-              .then(function () {
-                assert(false, 'unexpected success');
-              }, function (err) {
-                assert.equal(err.message, 'synthesized error from auth server');
-              });
+          .then(assert.fail, function (err) {
+            assert.equal(err.message, 'synthesized error from auth server');
+          });
       });
     });
 
@@ -522,22 +509,22 @@ define(function (require, exports, module) {
       });
 
       it('debounces resend calls - submit on first and forth attempt', function () {
-        sinon.stub(fxaClient, 'passwordResetResend', function () {
+        sinon.stub(view, 'retryResetPassword', function () {
           return p(true);
         });
 
         return view.validateAndSubmit()
               .then(function () {
-                assert.equal(fxaClient.passwordResetResend.callCount, 1);
+                assert.equal(view.retryResetPassword.callCount, 1);
                 return view.validateAndSubmit();
               }).then(function () {
-                assert.equal(fxaClient.passwordResetResend.callCount, 1);
+                assert.equal(view.retryResetPassword.callCount, 1);
                 return view.validateAndSubmit();
               }).then(function () {
-                assert.equal(fxaClient.passwordResetResend.callCount, 1);
+                assert.equal(view.retryResetPassword.callCount, 1);
                 return view.validateAndSubmit();
               }).then(function () {
-                assert.equal(fxaClient.passwordResetResend.callCount, 2);
+                assert.equal(view.retryResetPassword.callCount, 2);
                 assert.equal(view.$('#resend:visible').length, 0);
 
                 assert.isTrue(TestHelpers.isEventLogged(metrics,

@@ -374,39 +374,27 @@ define(function (require, exports, module) {
     });
 
     describe('resendResetEmail', function () {
-      it('redirects to /confirm_reset_password if auth server is happy', function () {
-        sinon.stub(view.fxaClient, 'passwordReset', function () {
-          return p(true);
+      it('delegates to the `resetPassword` method', function () {
+        sinon.stub(view, 'resetPassword', function () {
+          return p();
         });
-
-        sinon.stub(view, 'getStringifiedResumeToken', function () {
-          return 'resume token';
-        });
-
-        sinon.spy(view, 'navigate');
 
         return view.resendResetEmail()
-            .then(function () {
-              assert.isTrue(view.navigate.calledWith('confirm_reset_password'));
-              assert.isTrue(view.fxaClient.passwordReset.calledWith(
-                EMAIL,
-                relier,
-                {
-                  resume: 'resume token'
-                }
-              ));
-            });
+          .then(function () {
+            assert.isTrue(view.resetPassword.calledOnce);
+            assert.isTrue(view.resetPassword.calledWith(EMAIL));
+          });
       });
 
       it('shows server response as an error otherwise', function () {
-        sinon.stub(view.fxaClient, 'passwordReset', function () {
+        sinon.stub(view, 'resetPassword', function () {
           return p.reject(new Error('server error'));
         });
 
         return view.resendResetEmail()
-            .then(function () {
-              assert.equal(view.$('.error').text(), 'server error');
-            });
+          .then(function () {
+            assert.equal(view.$('.error').text(), 'server error');
+          });
       });
     });
   });

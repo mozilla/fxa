@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   var Broker = require('models/auth_brokers/base');
   var chai = require('chai');
   var FormPrefill = require('models/form-prefill');
-  var FxaClient = require('lib/fxa-client');
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
@@ -27,7 +26,6 @@ define(function (require, exports, module) {
     var broker;
     var email;
     var formPrefill;
-    var fxaClient;
     var notifier;
     var relier;
     var user;
@@ -37,7 +35,6 @@ define(function (require, exports, module) {
     function initDeps() {
       broker = new Broker();
       formPrefill = new FormPrefill();
-      fxaClient = new FxaClient();
       notifier = new Notifier();
       relier = new Relier();
       user = new User({
@@ -48,7 +45,6 @@ define(function (require, exports, module) {
       view = new View({
         broker: broker,
         formPrefill: formPrefill,
-        fxaClient: fxaClient,
         notifier: notifier,
         relier: relier,
         user: user,
@@ -280,45 +276,20 @@ define(function (require, exports, module) {
         var passwordForgotToken = 'foo';
 
         beforeEach(function () {
-          sinon.stub(view.fxaClient, 'passwordReset', function () {
+          sinon.stub(view, 'resetPassword', function () {
             return p({ passwordForgotToken: passwordForgotToken });
           });
-          sinon.stub(view, 'getStringifiedResumeToken', function () {
-            return 'resume token';
-          });
-
-          sinon.stub(view, 'navigate');
 
           relier.set('email', email);
 
           return view.resetPasswordNow();
         });
 
-        it('calls the fxaClient with the expected data', function () {
-          assert.isTrue(view.fxaClient.passwordReset.calledWith(
-            email,
-            relier,
-            {
-              resume: 'resume token'
-            }
-          ));
+        it('delegates to `resetPassword` with the correct email address', function () {
+          assert.isTrue(view.resetPassword.calledWith(email));
         });
 
-        it('sends user to `/confirm_reset_password` and clears the query params', function () {
-          var args = view.navigate.args[0];
-          assert.equal(args[0], 'confirm_reset_password');
-          assert.isTrue(args[1].clearQueryParams);
-        });
-
-        it('sends expected data', function () {
-          var args = view.navigate.args[0][1];
-          var data = args.data;
-
-          assert.equal(data.email, email);
-          assert.equal(data.passwordForgotToken, passwordForgotToken);
-        });
-
-        it('only one forget password request at a time', function () {
+        it('allows only one forget password request at a time', function () {
           view.resetPasswordNow();
           return view.resetPasswordNow()
             .then(assert.fail, function (err) {
@@ -358,20 +329,21 @@ define(function (require, exports, module) {
       });
 
       describe('resetPasswordNow', function () {
-        it('prints an error message and does not allow the user to sign up', function () {
-          sinon.stub(view.fxaClient, 'passwordReset', function () {
+        beforeEach(function () {
+          sinon.stub(view, 'resetPassword', function () {
             return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
           });
 
           relier.set('email', email);
 
-          return view.resetPasswordNow()
-            .then(function () {
-              assert.isTrue(view.isErrorVisible());
-              assert.include(view.$('.error').text(), 'Unknown');
-              // no link to sign up.
-              assert.equal(view.$('.error').find('a').length, 0);
-            });
+          return view.resetPasswordNow();
+        });
+
+        it('prints an error message and does not allow the user to sign up', function () {
+          assert.isTrue(view.isErrorVisible());
+          assert.include(view.$('.error').text(), 'Unknown');
+          // no link to sign up.
+          assert.equal(view.$('.error').find('a').length, 0);
         });
       });
     });

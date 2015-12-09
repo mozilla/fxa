@@ -465,6 +465,48 @@ define(function (require, exports, module) {
         .then(function () {
           device.destroy();
         });
+    },
+
+    /**
+     * Initiate a password reset
+     *
+     * @param {object} relier
+     * @param {object} [options]
+     * @param {string} [options.resume] resume token
+     * @returns {promise}
+     */
+    resetPassword: function (relier, options) {
+      options = options || {};
+
+      return this._fxaClient.passwordReset(
+        this.get('email'),
+        relier,
+        {
+          resume: options.resume
+        }
+      );
+    },
+
+    /**
+     * Retry a password reset
+     *
+     * @param {string} passwordForgotToken
+     * @param {object} relier
+     * @param {object} [options]
+     * @param {string} [options.resume] resume token
+     * @returns {promise}
+     */
+    retryResetPassword: function (passwordForgotToken, relier, options) {
+      options = options || {};
+
+      return this._fxaClient.passwordResetResend(
+        this.get('email'),
+        passwordForgotToken,
+        relier,
+        {
+          resume: options.resume
+        }
+      );
     }
   });
 
