@@ -503,13 +503,11 @@
     },
     "generate-rsa-keypair": {
       "version": "0.1.0",
-      "from": "generate-rsa-keypair@>=0.1.0 <0.2.0",
-      "resolved": "https://registry.npmjs.org/generate-rsa-keypair/-/generate-rsa-keypair-0.1.0.tgz",
+      "resolved": "git://github.com/jrgm/node-generate-rsa-keypair.git#dce3504e0376920ebb4851eea42a3ee8cefa5a3f",
       "dependencies": {
         "nan": {
-          "version": "1.9.0",
-          "from": "nan@1.9.0",
-          "resolved": "https://registry.npmjs.org/nan/-/nan-1.9.0.tgz"
+          "version": "2.1.0",
+          "resolved": "https://registry.npmjs.org/nan/-/nan-2.1.0.tgz"
         }
       }
     },

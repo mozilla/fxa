@@ -3,9 +3,16 @@ language: node_js
 node_js:
   - '0.10'
   - '0.12'
-  - 'iojs'
+  - '4'
 
 sudo: false
+
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-4.8
 
 notifications:
   email:
@@ -25,6 +32,10 @@ before_install:
   - npm install -g npm@2
   - npm config set spin false
 
+install:
+  # use c++-11 with node4, default compiler on downlevel versions
+  - if [ $TRAVIS_NODE_VERSION == "4" ]; then CXX=g++-4.8 npm install; else npm install; fi
+
 before_script:
   - "mysql -NBe 'select version()'"
   - "mysql -e 'DROP DATABASE IF EXISTS fxa_oauth;'"
@@ -34,8 +45,3 @@ script:
   - npm run outdated
   - grunt test
   - grunt nsp --force
-
-matrix:
-  allow_failures:
-    - node_js: "iojs"
-  fast_finish: true
