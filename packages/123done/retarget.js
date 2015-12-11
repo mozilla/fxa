@@ -7,7 +7,7 @@
  * Host headers sent with the request.
  */
 var url = require('url'),
- crypto = require('crypto');
+  crypto = require('crypto');
 
 var pp = require('postprocess')(function(req, buf) {
   var re = new RegExp('https://login.persona.org', 'g');
@@ -18,13 +18,19 @@ module.exports = function(req, res, next) {
   // determine the URL of the browserid deployment we'll use
   req.headers.host = req.headers.host || '123done.org';
   var host = req.headers.host.split(':')[0].toString();
-  if (process.env['PERSONA_URL']) req.persona_url = process.env['PERSONA_URL'];
-  else if (host === 'www.123done.org') req.persona_url = 'https://login.persona.org';
-  else if (host === 'beta.123done.org') req.persona_url = 'https://login.anosrep.org';
-  else if (host === 'dev.123done.org') req.persona_url = 'https://login.dev.anosrep.org';
-  else if (host === 'firefoxos.123done.org') req.persona_url = 'https://firefoxos.persona.org';
-  else if (host === 'ffxosproxy.123done.org') req.persona_url = 'https://ffxosproxy.persona.org';
-  else if (/\.123done\.org$/.test(host)) {
+  if (process.env['PERSONA_URL']) {
+    req.persona_url = process.env['PERSONA_URL'];
+  } else if (host === 'www.123done.org') {
+    req.persona_url = 'https://login.persona.org';
+  } else if (host === 'beta.123done.org') {
+    req.persona_url = 'https://login.anosrep.org';
+  } else if (host === 'dev.123done.org') {
+    req.persona_url = 'https://login.dev.anosrep.org';
+  } else if (host === 'firefoxos.123done.org') {
+    req.persona_url = 'https://firefoxos.persona.org';
+  } else if (host === 'ffxosproxy.123done.org') {
+    req.persona_url = 'https://ffxosproxy.persona.org';
+  } else if (/\.123done\.org$/.test(host)) {
     req.persona_url = 'https://' + host.substr(0, host.length - 12) + '.personatest.org';
   } else {
     req.persona_url = 'https://login.persona.org';
@@ -38,8 +44,6 @@ module.exports = function(req, res, next) {
 
   // and determine the hostname of the verifier
   req.verifier_host = url.parse(req.persona_url).hostname;
-
-  console.log(req.deployment_id, req.persona_url, req.verifier_host);
 
   pp(req, res, next);
 };

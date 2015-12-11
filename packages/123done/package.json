@@ -1,7 +1,7 @@
 {
   "name": "123done",
-  "description": "A simple tasklist app that demonstrates Persona Sign-In",
-  "version": "0.0.1",
+  "description": "A simple tasklist app that demonstrates FxA Sign-In",
+  "version": "0.0.2",
   "author": {
     "name": "Mozilla",
     "url": "https://mozilla.org/"
@@ -28,19 +28,22 @@
     "connect-fonts-alegreyasans": "0.0.2",
     "connect-fonts-opensans": "0.0.5",
     "express": "3.5.x",
-    "fxa-crypto-utils": "shane-tomlinson/fxa-crypto-utils",
+    "fxa-crypto-utils": "vladikoff/fxa-crypto-utils",
     "postprocess": "0.2.4",
     "redis": "0.7.1",
     "request": "2.34.0"
   },
   "engines": {
-    "node": ">=0.8.0"
+    "node": ">=0.10.0"
   },
   "devDependencies": {
-    "awsbox": "0.7.0"
+    "awsbox": "0.7.0",
+    "eslint": "1.10.3",
+    "eslint-config-fxa": "2.0.0"
   },
   "scripts": {
     "postinstall": "bower install --config.interactive=false -s",
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "eslint ."
   }
 }
