@@ -3,15 +3,22 @@ language: node_js
 node_js:
   - "0.10"
   - "0.12"
+  - "4"
 
 addons:
   firefox: "40.0"
-  apt_packages:
-    - graphicsmagick
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - graphicsmagick
+      - g++-4.8
+
 env:
   global:
     - DISABLE_ROUTE_LOGGING=true
     - DISABLE_CLIENT_METRICS_STDERR=true
+    - CXX=g++-4.8
 
 sudo: false
 
