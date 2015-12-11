@@ -152,9 +152,11 @@ module.exports = function(app, db) {
           client_secret: config.client_secret
         }
       }, function(err, r, body) {
-        if (err) return res.send(r.status, err);
+        if (err) {
+          return res.send(r.status, err);
+        }
 
-        console.log(err, body);
+        console.log(err, body); //eslint-disable-line no-console
         req.session.scopes = body.scopes;
         req.session.token_type = body.token_type;
         var token = req.session.token = body.access_token;
@@ -168,7 +170,7 @@ module.exports = function(app, db) {
             Authorization: 'Bearer ' + token
           }
         }, function (err, r, body) {
-          console.log(err, body);
+          console.log(err, body); //eslint-disable-line no-console
           if (err || r.status >= 400) {
             return res.send(r ? r.status : 400, err || body);
           }
@@ -192,7 +194,9 @@ module.exports = function(app, db) {
     } else {
 
       var msg = 'Bad request ';
-      if (!code) msg += ' - missing code';
+      if (!code) {
+        msg += ' - missing code';
+      }
 
       if (!state) {
         msg += ' - missing state';
@@ -201,8 +205,6 @@ module.exports = function(app, db) {
       } else if (state !== req.session.state) {
         msg += ' - state cookie doesn\'t match';
       }
-
-      console.error('msg', msg);
 
       res.send(400, msg);
     }

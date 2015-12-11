@@ -20,24 +20,24 @@
    keypair.
 */
 
-const jwcrypto = require("browserid-crypto")
-const fs = require('fs')
-const assert = require("assert")
-const config = require('../config')
+const jwcrypto = require('browserid-crypto');
+const fs = require('fs');
+const assert = require('assert');
+const config = require('../config');
 
-const pubKeyFile = config.publicKeyFile
-const secretKeyFile = config.secretKeyFile
+const pubKeyFile = config.publicKeyFile;
+const secretKeyFile = config.secretKeyFile;
 
-require("browserid-crypto/lib/algs/rs")
+require('browserid-crypto/lib/algs/rs');
 
 try {
-  var keysExist = fs.existsSync(pubKeyFile) && fs.existsSync(secretKeyFile)
-  assert(!keysExist, "keys already exists")
+  var keysExist = fs.existsSync(pubKeyFile) && fs.existsSync(secretKeyFile);
+  assert(!keysExist, 'keys already exists');
 } catch(e) {
-  process.exit()
+  process.exit();
 }
 
-console.log("Generating keypair. (install libgmp if this takes more than a second)")
+console.log('Generating keypair. (install libgmp if this takes more than a second)'); //eslint-disable-line no-console
 
 // wondering about `keysize: 256`?
 // well, 257 = 2048bit key
@@ -48,22 +48,22 @@ function main(cb) {
     { algorithm: 'RS', keysize: 256 },
     function(err, keypair) {
 
-      var pubKey = keypair.publicKey.serialize()
-      var secretKey = keypair.secretKey.serialize()
+      var pubKey = keypair.publicKey.serialize();
+      var secretKey = keypair.secretKey.serialize();
 
 
-      fs.writeFileSync(pubKeyFile, pubKey)
-      console.log("Public Key saved:", pubKeyFile)
+      fs.writeFileSync(pubKeyFile, pubKey);
+      console.log('Public Key saved:', pubKeyFile); //eslint-disable-line no-console
 
-      fs.writeFileSync(secretKeyFile, secretKey)
-      console.log("Secret Key saved:", secretKeyFile)
-      cb()
+      fs.writeFileSync(secretKeyFile, secretKey);
+      console.log('Secret Key saved:', secretKeyFile); //eslint-disable-line no-console
+      cb();
     }
-  )
+  );
 }
 
-module.exports = main
+module.exports = main;
 
 if (require.main === module) {
-  main(function () {})
+  main(function () {});
 }

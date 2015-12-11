@@ -1,23 +1,20 @@
 var express       = require('express'),
-    https         = require('https'),
-    sessions      = require('client-sessions'),
-    redis         = require('redis'),
-    fonts         = require('connect-fonts'),
-    font_opensans = require('connect-fonts-opensans'),
-    font_alegreyasans
-                  = require('connect-fonts-alegreyasans'),
-    url           = require('url'),
-    oauth         = require('./oauth'),
-    config        = require('./config');
-
+  sessions      = require('client-sessions'),
+  redis         = require('redis'),
+  fonts         = require('connect-fonts'),
+  font_opensans = require('connect-fonts-opensans'),
+  font_alegreyasans = require('connect-fonts-alegreyasans'),
+  url           = require('url'),
+  oauth         = require('./oauth'),
+  config        = require('./config');
 
 
 // create a connection to the redis datastore
 var db = redis.createClient();
 
-db.on("error", function (err) {
+db.on('error', function (err) {
   db = null;
-  console.log("redis error!  the server won't actually store anything!  this is just fine for local dev");
+  console.log('redis error!  the server won\'t actually store anything!  this is just fine for local dev'); //eslint-disable-line no-console
 });
 
 var app = express();
@@ -29,7 +26,7 @@ app.use(
 
 //app.use(require('./retarget.js'));
 
-var allowOrigin = "*";
+var allowOrigin = '*';
 try {
   // a bit of a dirty hack. Use the redirect_uri to find
   // out what this server's public host is.
@@ -39,7 +36,7 @@ try {
 
 app.use(fonts.setup({
   allow_origin: allowOrigin,
-  ua: "all",
+  ua: 'all',
   fonts: [ font_opensans, font_alegreyasans ]
 }));
 
@@ -67,7 +64,7 @@ oauth(app, db);
 // a function to verify that the current user is authenticated
 function checkAuth(req, res, next) {
   if (!req.session.email) {
-    res.send("authentication required\n", 401);
+    res.send('authentication required\n', 401);
   } else {
     next();
   }
@@ -76,7 +73,7 @@ function checkAuth(req, res, next) {
 // auth status reports who the currently logged in user is on this
 // session
 app.get('/api/auth_status', function(req, res) {
-  console.log(req.session);
+  console.log(req.session); //eslint-disable-line no-console
 
   res.send(JSON.stringify({
     email: req.session.email || null,
@@ -91,7 +88,9 @@ app.post('/api/logout', checkAuth, function(req, res) {
 
 // the 'todo/save' api saves a todo list
 app.post('/api/todos/save', checkAuth, function(req, res) {
-  if (db) db.set(req.session.user, JSON.stringify(req.body));
+  if (db) {
+    db.set(req.session.user, JSON.stringify(req.body));
+  }
   res.send(200);
 });
 
@@ -117,7 +116,7 @@ app.get(/^\/iframe(:?\/(?:index.html)?)?$/, function (req, res, next) {
   next();
 });
 
-app.use(express.static(__dirname + "/static"));
+app.use(express.static(__dirname + '/static'));
 var port = process.env['PORT'] || config.port || 8080;
 app.listen(port, '0.0.0.0');
-console.log('123done started on port', port);
+console.log('123done started on port', port); //eslint-disable-line no-console
