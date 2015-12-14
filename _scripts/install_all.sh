@@ -18,7 +18,6 @@ git clone https://github.com/mozilla/fxa-basket-proxy.git &
 
 git clone https://github.com/mozilla/123done.git -b oauth &
 
-git clone https://github.com/mozilla-services/loop-server.git &
 
 git clone https://github.com/mozilla-services/syncserver.git &
 
@@ -42,8 +41,6 @@ cd fxa-profile-server; npm i; mkdir -p var/public/; cd ..
 cd fxa-basket-proxy; npm i; cd ..
 
 cd 123done; npm i; CONFIG_123DONE=./config-local.json node ./scripts/gen_keys.js; cd ..
-
-cd loop-server; npm i; cd ..
 
 cd syncserver; make build; cd ..
 
