@@ -1,3 +1,7 @@
+train-51:
+  * fix(travis): build and test on 0.10, 0.12 and 4.x, and allow failure on >= 5.x
+  * chore(shrinkwrap): update npm-shrinkwrap.json
+
 train-50.1
   * fix(db): fix memory-store initialisation of device fields to null #117
   * fix(version): print out constructor class name; adds /__version__ alias #118
