@@ -28,8 +28,7 @@ env:
 
 matrix:
   allow_failures:
-    - env: TRAVIS_NODE_VERSION="0.12"
-    - env: TRAVIS_NODE_VERSION="4"
+    - os: osx
     - fast_finish: true
 
 before_install:

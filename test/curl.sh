@@ -1,3 +1,5 @@
+#!/bin/bash -ex
+
 # content
 curl 127.0.0.1:3030
 curl 127.0.0.1:1114
@@ -20,9 +22,6 @@ curl 127.0.0.1:10139
 curl 127.0.0.1:1111
 curl 127.0.0.1:1112
 curl 127.0.0.1:5050
-
-# loop server
-curl 127.0.0.1:10222
 
 # sync server
 curl 127.0.0.1:5000
