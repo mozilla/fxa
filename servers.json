@@ -148,25 +148,6 @@
       "min_uptime": "2m" 
     },
     {
-      "name": "redis-server PORT 6379",
-      "script": "redis.sh",
-      "cwd": "_scripts",
-      "max_restarts": "1",
-      "min_uptime": "2m"
-    },
-    {
-      "name": "loop-server PORT 10222",
-      "script": "loop/index.js",
-      "cwd": "loop-server",
-      "env": {   
-        "NODE_ENV": "test",
-        "PORT": "10222",
-        "CONFIG_FILES": "../_scripts/configs/loop.json"
-      },
-      "max_restarts": "1",
-      "min_uptime": "2m"
-    },
-    {
       "name": "sync server PORT 5000",
       "script": "../_scripts/syncserver.sh",
       "cwd": "syncserver",
