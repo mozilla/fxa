@@ -1,3 +1,9 @@
+train-51
+  * feat(metrics): send email-bounce-related metrics to statsd. #1121
+  * fix(server): require device name to be set explicitly #1130
+  * fix(server): add missing lastAccessTime field to devices response #1131
+  * fix(travis): install/use g++-4.8 for node 4.x build of scrypt-hash #1133 
+
 train-50.1
   * fix(travis-ci): check that auth-db-mysql reports "MySql" as constructor class name #1127
   * fix(auth-db-mysql): update to latest fxa-auth-db-mysql @ 939f04e #1127
