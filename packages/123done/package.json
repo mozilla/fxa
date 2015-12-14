@@ -22,7 +22,6 @@
   "dependencies": {
     "bower": "*",
     "browserid-crypto": "0.7.0",
-    "browserid-verify": "0.1.2",
     "client-sessions": "0.6.x",
     "connect-fonts": "2.0.2",
     "connect-fonts-alegreyasans": "0.0.2",
