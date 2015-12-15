@@ -1,3 +1,28 @@
+<a name="0.52.0"></a>
+# 0.52.0 (2015-12-15)
+
+
+### Bug Fixes
+
+* **devices:** rename lastConnected to lastAccessTime ([9ec1ff6](https://github.com/mozilla/fxa-content-server/commit/9ec1ff6))
+* **openid:** add lint and tests to openid routes ([d63f8ed](https://github.com/mozilla/fxa-content-server/commit/d63f8ed))
+* **server:** fix server test for post-csp ([315340e](https://github.com/mozilla/fxa-content-server/commit/315340e)), closes [#3300](https://github.com/mozilla/fxa-content-server/issues/3300)
+* **tests:** add openid .well-known endpoint test ([dd68356](https://github.com/mozilla/fxa-content-server/commit/dd68356))
+* **tests:** fix functional test iframe failure ([fad077c](https://github.com/mozilla/fxa-content-server/commit/fad077c)), closes [#3306](https://github.com/mozilla/fxa-content-server/issues/3306)
+* **tests:** remove special rules for copied locales ([28a8396](https://github.com/mozilla/fxa-content-server/commit/28a8396))
+* **travis:** build and test on 0.10, 0.12 and 4.x ([ba4d829](https://github.com/mozilla/fxa-content-server/commit/ba4d829))
+
+### Features
+
+* **openid:** add /.well-known/openid-configuration route ([8cf2ec5](https://github.com/mozilla/fxa-content-server/commit/8cf2ec5)), closes [#3299](https://github.com/mozilla/fxa-content-server/issues/3299)
+
+### Refactor
+
+* **client:** Move deleteAccount logic from view to user.js/account.js ([dbc531c](https://github.com/mozilla/fxa-content-server/commit/dbc531c))
+* **client:** Use the Account's isSignedIn method in base.js ([f6bf420](https://github.com/mozilla/fxa-content-server/commit/f6bf420))
+
+
+
 <a name="0.51.0"></a>
 # 0.51.0 (2015-12-02)
 
