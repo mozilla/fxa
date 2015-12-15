@@ -22,7 +22,6 @@ var translationQuirks = {
     'he',
     'ko',
     'lt',
-    'sv',
   ],
 
   'Firefox Account Verified': [
@@ -34,11 +33,8 @@ var translationQuirks = {
     'ff',
     'he',
     'hi-IN',
-    'hu',
     'ko',
     'lt',
-    'sr-LATN',
-    'sv',
   ],
 
   'Reset your Firefox Account password': [
@@ -51,7 +47,6 @@ var translationQuirks = {
     'he',
     'ko',
     'lt',
-    'sv',
   ],
 
   'Re-verify your Firefox Account': [
@@ -64,7 +59,6 @@ var translationQuirks = {
     'he',
     'ko',
     'lt',
-    'sv',
   ],
 
   'New sign-in to Firefox': [
@@ -85,7 +79,6 @@ var translationQuirks = {
     'sq',
     'sr',
     'sr-LATN',
-    'sv',
     'tr',
   ],
 
@@ -99,7 +92,6 @@ var translationQuirks = {
     'he',
     'ko',
     'lt',
-    'sv',
   ],
 
   'Your Firefox Account password has been reset': [
@@ -112,7 +104,6 @@ var translationQuirks = {
     'he',
     'ko',
     'lt',
-    'sv',
   ],
 }
 
