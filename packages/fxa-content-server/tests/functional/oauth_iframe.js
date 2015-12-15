@@ -31,7 +31,7 @@ define([
   var client;
   function openFxaFromRp(context, page) {
     return context.remote
-      .get(require.toUrl(IFRAME_OAUTH_APP))
+      .get(require.toUrl(IFRAME_OAUTH_APP + '#' + page))
       .setFindTimeout(intern.config.pageLoadTimeout)
 
       .findByCssSelector('#splash .' + page)
@@ -275,7 +275,9 @@ define([
         .end()
 
         .then(function () {
-          return FunctionalHelpers.fillOutResetPassword(self, email);
+          return FunctionalHelpers.fillOutResetPassword(self, email, {
+            skipPageRedirect: true
+          });
         })
 
         .findByCssSelector('#fxa-confirm-reset-password-header')
@@ -331,7 +333,9 @@ define([
         .end()
 
         .then(function () {
-          return FunctionalHelpers.fillOutResetPassword(self, email);
+          return FunctionalHelpers.fillOutResetPassword(self, email, {
+            skipPageRedirect: true
+          });
         })
 
         .findByCssSelector('#fxa-confirm-reset-password-header')
@@ -379,7 +383,9 @@ define([
         .end()
 
         .then(function () {
-          return FunctionalHelpers.fillOutResetPassword(self, email);
+          return FunctionalHelpers.fillOutResetPassword(self, email, {
+            skipPageRedirect: true
+          });
         })
 
         .findByCssSelector('#fxa-confirm-reset-password-header')
@@ -414,7 +420,9 @@ define([
         .end()
 
         .then(function () {
-          return FunctionalHelpers.fillOutResetPassword(self, email);
+          return FunctionalHelpers.fillOutResetPassword(self, email, {
+            skipPageRedirect: true
+          });
         })
 
         .findByCssSelector('#fxa-confirm-reset-password-header')
@@ -461,7 +469,9 @@ define([
         .end()
 
         .then(function () {
-          return FunctionalHelpers.fillOutResetPassword(self, email);
+          return FunctionalHelpers.fillOutResetPassword(self, email, {
+            skipPageRedirect: true
+          });
         })
 
         .findByCssSelector('#fxa-confirm-reset-password-header')
