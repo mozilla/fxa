@@ -88,6 +88,18 @@ curl -v \
 }
 ```
 
+#### OpenID Connect UserInfo Endpoint
+
+Per the [OpenID Connect Core
+spec](http://openid.net/specs/openid-connect-core-1_0.html#UserInfo),
+this endpoint also acts as the "UserInfo" endpoint. Any requests with a
+token that include the `openid` scope will include the `sub` claim, an
+alias to the `uid`.
+
+Additional scopes supported for OpenID Connect:
+
+- `email`
+
 ### GET /v1/email
 
 - scope: `profile:email`
