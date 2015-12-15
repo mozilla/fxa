@@ -110,6 +110,7 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
     * [POST /v1/account/create](#post-v1accountcreate)
     * [GET  /v1/account/status](#get-v1accountstatus)
     * [GET  /v1/account/keys (:lock: keyFetchToken) (verf-required)](#get-v1accountkeys)
+    * [GET  /v1/account/profile (:lock: oauthBearerToken)](#get-v1accountprofile)
     * [POST /v1/account/reset (:lock: accountResetToken)](#post-v1accountreset)
     * [POST /v1/account/destroy](#post-v1accountdestroy)
     * [POST /v1/account/lock](#post-v1accountlock)
@@ -372,6 +373,45 @@ Failing requests may be due to the following errors:
 * status code 401, errno 111:  invalid authentication timestamp
 * status code 401, errno 115:  invalid authentication nonce
 
+## GET /v1/account/profile
+
+:lock: OAuth Bearer token, or HAWK-authenticated with sessionToken
+
+Get the email and locale of a user.
+
+If an OAuth Bearer token is used, the values returned depend on the
+scopes that the token is authorized for.
+
+- `email` requires `profile:email` scope
+- `locale` require `profile:locale` scope
+
+The `profile` scope includes both of the above sub-scopes.
+
+### Request
+
+___Headers___
+
+The request must include an OAuth Bearer token, or a HAWK header that authenticates the request using a `sessionToken` received from `/account/login`.
+
+```sh
+curl -v \
+-X GET \
+-H "Host: api-accounts.dev.lcip.org" \
+-H "Content-Type: application/json" \
+-H 'Authorization: Bearer d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d' \
+https://api-accounts.dev.lcip.org/v1/account/keys \
+```
+
+### Response
+
+Successful requests will produce a "200 OK" response with data returned as JSON:
+
+```json
+{
+  "email": "me@example.com",
+  "locale": "hi-IN"
+}
+```
 
 ## POST /v1/account/reset
 
