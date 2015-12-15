@@ -91,13 +91,13 @@ If you get an `error` status for any of the servers please verify that you insta
 ### Dependencies
 > Required dependencies:
 [Git](http://git-scm.com/book/en/v2/Getting-Started-Installing-Git),
-[node.js **0.10** with npm 2.4+](http://nodejs.org/),
+[node.js **0.10 or 4.2.3+**, with npm 2.4+](http://nodejs.org/),
 [Python 2.6+](https://www.python.org/),
 [Redis](http://redis.io/),
 [libgmp](https://gmplib.org/),
 [graphicsmagick](http://www.graphicsmagick.org/).
 
-**Note:** Node.js 0.12 is not currently supported. Please use Node.js 0.10.
+**Note:** Node.js 5 is not currently supported. Please use Node.js 0.10 or 4.2.3+.
 
 ##### OS X (with [Brew](http://brew.sh/)):
 
@@ -118,18 +118,22 @@ sudo apt-get install build-essential git-core libgmp3-dev graphicsmagick redis-s
 
 #### Installing Node.js
 
-> NOTE: If you experienced with Node.js: Node.js 0.10 is old, use [nvm](https://github.com/creationix/nvm) to force node 0.10
-just for `fxa-local-dev` using `nvm use 0.10`. (Install it first with `nvm install 0.10`)
+> NOTE: If you are experienced with Node.js: Use [nvm](https://github.com/creationix/nvm) to force node 4.2.3+
+just for `fxa-local-dev` using `nvm use 4`. (Install it first with `nvm install 4`)
 
 ##### OS X
-Use this if you do not rely on other node.js programs on your system: Find the latest `node-v0.10.x.pkg` at [nodejs.org/dist/](http://nodejs.org/dist/) and install. Example [node-v0.10.38.pkg](http://nodejs.org/dist/v0.10.38/node-v0.10.38.pkg).
+Use this if you do not rely on other node.js programs on your system: Find the latest Node 4 LTS `.pkg` download at [nodejs.org/en/download/](https://nodejs.org/en/download/) and install it.
 
-
-##### Ubuntu:
+##### Ubuntu / Debian:
 
 ```
-curl -sL https://deb.nodesource.com/setup_0.10 | sudo bash -
+# Using Ubuntu
+curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
 sudo apt-get install -y nodejs
+
+# Using Debian, as root
+curl -sL https://deb.nodesource.com/setup_4.x | bash -
+apt-get install -y nodejs
 ```
 
 #### Updating NPM
