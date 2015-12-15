@@ -19,6 +19,7 @@ define(function (require, exports, module) {
   var ProfileImage = require('models/profile-image');
   var Relier = require('models/reliers/relier');
   var sinon = require('sinon');
+
   var TestHelpers = require('../../../lib/helpers');
   var User = require('models/user');
 
@@ -109,6 +110,84 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('displayAccountProfileImage with spinner', function () {
+      var spinnerView;
+      var SpinnerView = SettingsView.extend({
+        template: function () {
+          return '<div class="avatar-wrapper"></div>';
+        }
+      });
+
+      beforeEach(function () {
+        spinnerView = new SpinnerView({
+          notifier: notifier,
+          user: user
+        });
+        sinon.stub(account, 'fetchCurrentProfileImage', function () {
+          return p(new ProfileImage({ id: 'foo', img: new Image(), url: 'url' }));
+        });
+        sinon.stub(spinnerView, '_shouldShowDefaultProfileImage', function () {
+          return false;
+        });
+        return spinnerView.render();
+      });
+
+      it('shows the spinner while fetching the profile image', function () {
+        spinnerView.displayAccountProfileImage(account, { spinner: true, wrapperClass: '.avatar-wrapper' });
+        assert.equal(spinnerView.$('.avatar-spinner').length, 1,
+          'missing .avatar-spinner element');
+        assert.equal(spinnerView.$('.avatar-wrapper.with-spinner').length, 1,
+          'expected .avatar-wrapper to also have the .with-spinner class');
+      });
+
+      it('resolves and removes the spinner after the completion transition has ended', function () {
+        // Expect this to complete within a time shorter than the spinner timeout
+        this.timeout(300);
+
+        var displayPromise = spinnerView.displayAccountProfileImage(account, {
+          spinner: true,
+          wrapperClass: '.avatar-wrapper'
+        });
+        var spinnerEl = spinnerView.$('.avatar-spinner');
+        assert.equal(spinnerEl.parents('.avatar-wrapper').length, 1);
+
+        // Trigger transitionend events, which would usually be fired via CSS
+        setTimeout(function () {
+          // Fire one transitionend event for spinner element
+          spinnerEl.trigger('transitionend');
+          // And another for the spinner's pseudo element, using jQuery.Event
+          // this time, so we can set originalEvent
+          spinnerEl.trigger(jQuery.Event('transitionend', {
+            originalEvent: {
+              pseudoElement: '::after'
+            }
+          }));
+        }, 1);
+
+        return displayPromise.then(function () {
+          assert.equal(spinnerEl.parents('.avatar-wrapper').length, 0);
+        });
+      });
+
+      it('resolves and removes the spinner after a timeout, if the transition somehow never ends', function () {
+        this.timeout(300); // If this times out, it will do so within 300ms
+        sinon.stub(spinnerView, 'setTimeout', function (callback) {
+          callback();
+        });
+
+        var displayPromise = spinnerView.displayAccountProfileImage(account, {
+          spinner: true,
+          wrapperClass: '.avatar-wrapper'
+        });
+        var spinnerEl = spinnerView.$('.avatar-spinner');
+        assert.equal(spinnerEl.parents('.avatar-wrapper').length, 1, 'expected to find a spinner');
+
+        return displayPromise.then(function () {
+          assert.equal(spinnerEl.parents('.avatar-wrapper').length, 0);
+        });
+      });
+    });
+
     it('displayAccountProfileImage updates the cached account data', function () {
       var image = new ProfileImage({ id: 'foo', img: new Image(), url: 'url' });
 
@@ -193,4 +272,3 @@ define(function (require, exports, module) {
     });
   });
 });
-

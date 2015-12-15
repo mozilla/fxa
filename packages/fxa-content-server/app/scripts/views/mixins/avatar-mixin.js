@@ -10,8 +10,11 @@ define(function (require, exports, module) {
   var _ = require('underscore');
   var AuthErrors = require('lib/auth-errors');
   var Notifier = require('lib/channels/notifier');
+  var p = require('lib/promise');
   var ProfileErrors = require('lib/profile-errors');
   var ProfileImage = require('models/profile-image');
+
+  var MAX_SPINNER_COMPLETE_TIME = 400; // ms
 
   var Mixin = {
     notifications: {
@@ -22,16 +25,30 @@ define(function (require, exports, module) {
       // implement in view
     },
 
-    displayAccountProfileImage: function (account, wrapperClass) {
+    /**
+     * Adds a profile image for the account to the view, or a default image
+     * if none is available.
+     *
+     * @param {object} account - The account whose profile image will be shown.
+     * @param {object} [options]
+     *   @param {string} [options.wrapperClass] - The class for the element into
+     *                 which the profile image will be inserted.
+     *   @param {boolean} [options.spinner] - When true, show a spinner while
+     *                    the profile image is loading.
+     */
+    displayAccountProfileImage: function (account, options) {
+      options = options || {};
+
+      var avatarWrapperEl = this.$(options.wrapperClass || '.avatar-wrapper');
       var self = this;
-      if (! wrapperClass) {
-        wrapperClass = '.avatar-wrapper';
-      }
+      var spinnerEl;
 
       // We'll optimize the UI for the case that the account
       // doesn't have a profile image if it's not cached
       if (self._shouldShowDefaultProfileImage(account)) {
-        self.$(wrapperClass).addClass('with-default');
+        avatarWrapperEl.addClass('with-default');
+      } else if (options.spinner) {
+        spinnerEl = self._addLoadingSpinner(avatarWrapperEl);
       }
 
       return account.fetchCurrentProfileImage()
@@ -49,16 +66,22 @@ define(function (require, exports, module) {
           // default image if displayed
           return new ProfileImage();
         })
+        .fin(function () {
+          return self._completeLoadingSpinner(spinnerEl);
+        })
         .then(function (profileImage) {
           self._displayedProfileImage = profileImage;
+          avatarWrapperEl.find(':not(.avatar-spinner)').remove();
 
           if (profileImage.isDefault()) {
-            self.$(wrapperClass).addClass('with-default');
-            self.$(wrapperClass).html('<span></span>');
+            avatarWrapperEl
+              .addClass('with-default')
+              .append('<span></span>');
             self.logViewEvent('profile_image_not_shown');
           } else {
-            self.$(wrapperClass).removeClass('with-default');
-            self.$(wrapperClass).html(profileImage.get('img'));
+            avatarWrapperEl
+              .removeClass('with-default')
+              .append($(profileImage.get('img')).addClass('profile-image'));
             self.logViewEvent('profile_image_shown');
           }
         });
@@ -79,6 +102,44 @@ define(function (require, exports, module) {
 
     _shouldShowDefaultProfileImage: function (account) {
       return ! account.has('profileImageUrl');
+    },
+
+    _addLoadingSpinner: function (spinnerWrapperEl) {
+      if (spinnerWrapperEl) {
+        return $('<span class="avatar-spinner"></span>').appendTo(spinnerWrapperEl.addClass('with-spinner'));
+      }
+    },
+
+    // "Completes" the spinner, transitioning the semi-circle to a circle, and
+    // then removes the spinner element.
+    _completeLoadingSpinner: function (spinnerEl) {
+      if (_.isUndefined(spinnerEl)) {
+        return p();
+      }
+
+      var deferred = p.defer();
+      spinnerEl
+        .addClass('completed')
+        .on('transitionend', function (event) {
+          // The first transitionend event will resolve the promise, but the spinner will have
+          // subsequent transitions, so we'll also hook on the transitionend event of the
+          // ::after pseudoelement, which "expands" to hide the spinner.
+          deferred.resolve();
+
+          if (event.originalEvent && event.originalEvent.pseudoElement === '::after') {
+            spinnerEl.remove();
+          }
+        });
+
+      // Always resolve and remove the spinner after MAX_SPINNER_COMPLETE_TIME,
+      // in case we don't receive the expected transitionend events, such as in
+      // the case of IE.
+      this.setTimeout(function transitionMaxTime () {
+        deferred.resolve();
+        spinnerEl.remove();
+      }, MAX_SPINNER_COMPLETE_TIME);
+
+      return deferred.promise;
     },
 
     logAccountImageChange: function (account) {

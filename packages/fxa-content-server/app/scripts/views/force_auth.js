@@ -117,7 +117,7 @@ define(function (require, exports, module) {
       // display a profile image for the "suggested" account.
       FormView.prototype.afterVisible.call(this);
       // Display the profile image if possible, otherwise show a placeholder.
-      return this.displayAccountProfileImage(account);
+      return this.displayAccountProfileImage(account, { spinner: true });
     }
   });
 
