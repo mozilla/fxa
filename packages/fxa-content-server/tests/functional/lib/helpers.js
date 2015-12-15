@@ -512,7 +512,9 @@ define([
       });
   }
 
-  function fillOutResetPassword(context, email) {
+  function fillOutResetPassword(context, email, options) {
+    options = options || {};
+
     return context.remote
       .getCurrentUrl()
       .then(function (currentUrl) {
@@ -520,7 +522,7 @@ define([
         // the reset_password page.
         // the leading [\/#] allows for either the standard redirect or iframe
         // flow. The iframe flow must use the window hash for routing.
-        if (! /[\/#]reset_password(?:$|\?)/.test(currentUrl)) {
+        if (! /[\/#]reset_password(?:$|\?)/.test(currentUrl) && ! options.skipPageRedirect) {
           return context.remote
             .get(require.toUrl(RESET_PASSWORD_URL))
             .setFindTimeout(intern.config.pageLoadTimeout);
