@@ -50,29 +50,9 @@ define([
           var language = JSON.parse(res.body)[''].language;
           language = language.replace('_', '-'); // e.g., pt_BR -> pt-BR
 
-          // sr-LATN is a mechanical translation of sr, but doesn't change the
-          // language setting in the generated PO file. So adjust the expected.
+          // A quirk of i18n normalization. Whatever.
           if (lang === 'sr-LATN') {
-            lang = 'sr';
-          }
-
-          // sv is a straight copy of sv-SV, so adjust the expected value.
-          // https://github.com/mozilla/fxa-content-server/blob/\
-          //   558e5e6c788fbf87b880bc9e36649bdb74cb2096/grunttasks/copy.js#L16
-          if (lang === 'sv') {
-            lang = 'sv-SE';
-          }
-
-          // hi is a straight copy of hi-IN, so adjust the expected value.
-          // https://github.com/mozilla/fxa-content-server/blob/\
-          //   c45edce0fe1cc3a1fd8f95abfd958ce6a1ea0634/grunttasks/copy.js#L24
-          if (lang === 'hi') {
-            lang = 'hi-IN';
-          }
-
-          // pt is a straight copy of pt-PT, so adjust the expected value.
-          if (lang === 'pt') {
-            lang = 'pt-PT';
+            lang = 'sr-Latn';
           }
 
           assert.equal(lang, language);
