@@ -370,6 +370,20 @@ var conf = module.exports = convict({
     env: 'FXA_OAUTH_URL',
     format: 'url'
   },
+  openid_configuration: {
+    claims_supported: [
+      'aud',
+      'exp',
+      'iat',
+      'iss',
+      'sub'
+    ],
+    id_token_signing_alg_values_supported: ['RS256'],
+    response_types_supported: ['code', 'token'],
+    scopes_supported: ['openid'],
+    subject_types_supported: ['public'],
+    token_endpoint_auth_methods_supported: ['client_secret_post'],
+  },
   page_template_root: {
     default: path.resolve(__dirname, '..', 'templates', 'pages'),
     doc: 'The root path of server-rendered page templates'
