@@ -35,7 +35,7 @@ git show --summary
 npm config set cache ~/.fxacache
 export npm_config_cache=~/.fxacache
 export npm_config_tmp=~/fxatemp
-npm install intern@3.0.0 bower@1.6.5 \
+npm install intern@3.0.6 bower@1.6.5 \
   zaach/node-XMLHttpRequest.git#onerror firefox-profile@0.3.3 request@2.40.0 \
   sync-exec@0.5.0 convict@0.8.0 mozlog@1.0.1 node-statsd@0.1.1 ua-parser@0.3.5 \
   proxyquire@1.6.0 sinon@1.15.4 extend@3.0.0 universal-analytics@0.3.9

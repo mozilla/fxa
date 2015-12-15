@@ -94,7 +94,7 @@
     "grunt-nsp": "2.1.0",
     "grunt-todo": "0.5.0",
     "husky": "0.9.2",
-    "intern": "3.0.0",
+    "intern": "3.0.6",
     "jscs-jsdoc": "1.1.0",
     "proxyquire": "1.6.0",
     "sinon": "1.15.4",
