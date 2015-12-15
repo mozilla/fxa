@@ -12,6 +12,7 @@ var tokenEndpoint = config.get('oauth_url') + '/v1/token';
 var userInfoEndpoint = config.get('profile_url') + '/v1/profile';
 
 var openidConfig = {
+  /*eslint-disable camelcase */
   authorization_endpoint: authorizationEndpoint,
   issuer: issuer,
   jwks_uri: jwksEndpoint,
