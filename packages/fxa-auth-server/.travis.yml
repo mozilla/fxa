@@ -2,8 +2,17 @@ language: node_js
 
 node_js:
  - "0.10"
+ - "0.12"
+ - "4"
 
 sudo: false
+
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-4.8
 
 notifications:
   irc:
@@ -15,8 +24,11 @@ notifications:
 before_install:
   - npm config set spin false
 
+install:
+  # use c++-11 with node4, default compiler on downlevel versions
+  - if [ $TRAVIS_NODE_VERSION == "4" ]; then CXX=g++-4.8 npm install; else npm install; fi
+
 script:
-  - npm run outdated
-  - grunt lint
+  - npm outdated --depth 0
   - grunt templates
   - npm test

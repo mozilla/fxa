@@ -108,9 +108,9 @@ module.exports = function (log) {
 
   Mailer.prototype.verifyEmail = function (message) {
     var query = {
-        uid: message.uid,
-        code: message.code
-      }
+      uid: message.uid,
+      code: message.code
+    }
 
     if (message.service) { query.service = message.service }
     if (message.redirectTo) { query.redirectTo = message.redirectTo }
@@ -145,10 +145,10 @@ module.exports = function (log) {
 
   Mailer.prototype.recoveryEmail = function (message) {
     var query = {
-        token: message.token,
-        code: message.code,
-        email: message.email
-      }
+      token: message.token,
+      code: message.code,
+      email: message.email
+    }
     if (message.service) { query.service = message.service }
     if (message.redirectTo) { query.redirectTo = message.redirectTo }
     if (message.resume) { query.resume = message.resume }
@@ -178,9 +178,9 @@ module.exports = function (log) {
 
   Mailer.prototype.unlockEmail = function (message) {
     var query = {
-        uid: message.uid,
-        code: message.code
-      }
+      uid: message.uid,
+      code: message.code
+    }
     if (message.service) { query.service = message.service }
     if (message.redirectTo) { query.redirectTo = message.redirectTo }
     if (message.resume) { query.resume = message.resume }
@@ -235,7 +235,6 @@ module.exports = function (log) {
   }
 
   Mailer.prototype.passwordResetEmail = function (message) {
-
     var link = this.createPasswordResetLink(message.email)
 
     return this.send({
@@ -306,9 +305,9 @@ module.exports = function (log) {
   Mailer.prototype.verificationReminderEmail = function (message) {
     log.trace({ op: 'mailer.verificationReminderEmail', email: message.email, uid: message.uid })
     var query = {
-        uid: message.uid,
-        code: message.code
-      }
+      uid: message.uid,
+      code: message.code
+    }
 
     if (message.service) { query.service = message.service }
     if (message.redirectTo) { query.redirectTo = message.redirectTo }

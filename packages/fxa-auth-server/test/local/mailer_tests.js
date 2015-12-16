@@ -34,7 +34,7 @@ P.all(
   function (translator, templates) {
     messageTypes.forEach(
       function (type) {
-        var mailer = new Mailer(translator, templates, config.mail)
+        var mailer = new Mailer(translator, templates, config.get('mail'))
 
         var message = {
           email: 'a@b.com',
@@ -43,8 +43,8 @@ P.all(
           service: 'service',
         }
 
-        var supportHtmlLink = new RegExp('<a href="' + config.mail.supportUrl + '" style="color: #0095dd; text-decoration: none; font-family: sans-serif;">Mozilla Support</a>')
-        var supportTextLink = config.mail.supportUrl
+        var supportHtmlLink = new RegExp('<a href="' + config.get('mail').supportUrl + '" style="color: #0095dd; text-decoration: none; font-family: sans-serif;">Mozilla Support</a>')
+        var supportTextLink = config.get('mail').supportUrl
 
         test(
           'test support link is in email template output for ' + type,
