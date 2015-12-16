@@ -120,7 +120,8 @@ define(function (require, exports, module) {
     _submitForSyncPreferences: function () {
       var self = this;
       return this.metrics.flush().then(function () {
-        return self.broker.openSyncPreferences();
+        var entryPoint = 'fxa:' + self.getViewName();
+        return self.broker.openSyncPreferences(entryPoint);
       });
     },
 

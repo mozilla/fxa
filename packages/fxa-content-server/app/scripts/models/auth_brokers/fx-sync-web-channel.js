@@ -22,7 +22,8 @@ define(function (require, exports, module) {
       CHANGE_PASSWORD: 'fxaccounts:change_password',
       DELETE_ACCOUNT: 'fxaccounts:delete_account',
       LOADED: 'fxaccounts:loaded',
-      LOGIN: 'fxaccounts:login'
+      LOGIN: 'fxaccounts:login',
+      SYNC_PREFERENCES: 'fxaccounts:sync_preferences'
     },
 
     createChannel: function () {

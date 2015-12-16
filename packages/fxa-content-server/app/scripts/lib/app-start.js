@@ -34,6 +34,7 @@ define(function (require, exports, module) {
   var FxaClient = require('lib/fxa-client');
   var FxDesktopV1AuthenticationBroker = require('models/auth_brokers/fx-desktop-v1');
   var FxDesktopV2AuthenticationBroker = require('models/auth_brokers/fx-desktop-v2');
+  var FxDesktopV3AuthenticationBroker = require('models/auth_brokers/fx-desktop-v3');
   var FxFennecV1AuthenticationBroker = require('models/auth_brokers/fx-fennec-v1');
   var FxiOSV1AuthenticationBroker = require('models/auth_brokers/fx-ios-v1');
   var FxiOSV2AuthenticationBroker = require('models/auth_brokers/fx-ios-v2');
@@ -372,6 +373,11 @@ define(function (require, exports, module) {
             relier: this._relier,
             window: this._window
           });
+        } else if (this._isFxDesktopV3()) {
+          this._authenticationBroker = new FxDesktopV3AuthenticationBroker({
+            relier: this._relier,
+            window: this._window
+          });
         } else if (this._isFxDesktopV2()) {
           this._authenticationBroker = new FxDesktopV2AuthenticationBroker({
             relier: this._relier,
@@ -649,6 +655,10 @@ define(function (require, exports, module) {
 
     _isFxDesktopV1: function () {
       return this._isContext(Constants.FX_DESKTOP_V1_CONTEXT);
+    },
+
+    _isFxDesktopV3: function () {
+      return this._isContext(Constants.FX_DESKTOP_V3_CONTEXT);
     },
 
     _isFxDesktopV2: function () {

@@ -34,7 +34,8 @@ define(function (require, exports, module) {
           CHANGE_PASSWORD: 'change_password',
           DELETE_ACCOUNT: 'delete_account',
           LOADED: 'loaded',
-          LOGIN: 'login'
+          LOGIN: 'login',
+          SYNC_PREFERENCES: 'sync_preferences'
         },
         window: windowMock
       }, options));
@@ -326,6 +327,40 @@ define(function (require, exports, module) {
 
       it('returns a command specified', function () {
         assert.equal(broker.getCommand('LOGIN'), 'login');
+      });
+    });
+
+    describe('openSyncPreferences', function () {
+      beforeEach(function () {
+        broker.unsetCapability('syncPreferencesNotification');
+        sinon.spy(broker, 'send');
+      });
+
+      describe('without the `syncPreferencesNotification` capability', function () {
+        beforeEach(function () {
+          return broker.openSyncPreferences('fxa:signup-complete');
+        });
+
+        it('does not send the `sync_preferences` message', function () {
+          assert.isFalse(broker.send.calledWith('sync_preferences'));
+        });
+      });
+
+      describe('with the `syncPreferencesNotification` capability', function () {
+        beforeEach(function () {
+          broker.setCapability('syncPreferencesNotification', true);
+
+          return broker.openSyncPreferences('fxa:signup-complete');
+        });
+
+        it('sends the `sync_preferences` message', function () {
+          assert.isTrue(broker.send.calledWith(
+            'sync_preferences',
+            {
+              entryPoint: 'fxa:signup-complete'
+            }
+          ));
+        });
       });
     });
   });
