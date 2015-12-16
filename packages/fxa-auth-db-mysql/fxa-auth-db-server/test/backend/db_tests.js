@@ -1,7 +1,7 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var test = require('../ptaptest')
+var test = require('tap').test
 var crypto = require('crypto')
 
 var zeroBuffer16 = Buffer('00000000000000000000000000000000', 'hex')
@@ -690,7 +690,7 @@ module.exports = function(config, DB) {
         test(
           'db.forgotPasswordVerified',
           function (t) {
-            t.plan(18)
+            t.plan(19)
             // for this test, we are creating a new account with a different email address
             // so that we can check that emailVerified turns from false to true (since
             // we already set it to true earlier)

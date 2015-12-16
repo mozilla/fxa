@@ -5,8 +5,7 @@ require('ass')
 var dbServer = require('../../fxa-auth-db-server')
 var backendTests = require('../../fxa-auth-db-server/test/backend')
 var config = require('../../config')
-var noop = function () {}
-var log = { trace: noop, error: noop, stat: noop, info: noop }
+var log = require('../lib/log')
 var DB = require('../../lib/db/mem')(log, dbServer.errors)
 var P = require('bluebird')
 

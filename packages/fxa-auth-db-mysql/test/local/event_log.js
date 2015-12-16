@@ -3,8 +3,8 @@
 
 require('ass')
 var dbServer = require('../../fxa-auth-db-server')
-var test = require('../ptaptest')
-var log = { trace: console.log, error: console.log, info: console.log }
+var test = require('tap').test
+var log = require('../lib/log')
 var DB = require('../../lib/db/mysql')(log, dbServer.errors)
 var fake = require('../../fxa-auth-db-server/test/fake')
 var config = require('../../config')
@@ -118,7 +118,7 @@ DB.connect(config)
       test(
         'processUnpublishedEvents should mark events published on success',
         function (t) {
-          t.plan(5)
+          t.plan(6)
           var user = fake.newUserDataBuffer()
           // Logs a 'create' event.
           return db.createAccount(user.accountId, user.account)
@@ -146,6 +146,8 @@ DB.connect(config)
                 return P.resolve()
               }
             )
+          }).then(function () {
+            t.pass('ensure processUnpublishedEvents has a chance to complete')
           })
         }
       )
@@ -153,7 +155,7 @@ DB.connect(config)
       test(
         'processUnpublishedEvents should leave events unpublished on error',
         function (t) {
-          t.plan(6)
+          t.plan(7)
           var user = fake.newUserDataBuffer()
           var numEvents
           // Logs a 'create' event.
@@ -186,6 +188,8 @@ DB.connect(config)
                 return P.resolve()
               }
             )
+          }).then(function () {
+            t.pass('ensure processUnpublishedEvents has a chance to complete')
           })
         }
       )
@@ -193,7 +197,7 @@ DB.connect(config)
       test(
         'processUnpublishedEvents should accept ack of only some events',
         function (t) {
-          t.plan(7)
+          t.plan(8)
           var user = fake.newUserDataBuffer()
           user.account.emailVerified = true
           // Logs a 'create' and a 'verify' event.
@@ -220,6 +224,8 @@ DB.connect(config)
                 return P.resolve()
               }
             )
+          }).then(function () {
+            t.pass('ensure processUnpublishedEvents has a chance to complete')
           })
         }
       )

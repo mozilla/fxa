@@ -2,7 +2,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 require('ass')
-var test = require('../ptaptest')
+var test = require('tap').test
 var sinon = require('sinon')
 
 test(

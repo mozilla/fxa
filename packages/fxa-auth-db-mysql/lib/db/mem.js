@@ -169,10 +169,6 @@ module.exports = function (log, error) {
   Memory.prototype.createAccountResetToken = function (tokenId, accountResetToken) {
     tokenId = tokenId.toString('hex')
 
-    if ( accountResetTokens[tokenId] ) {
-      return P.reject(error.duplicate())
-    }
-
     // Delete any accountResetTokens for this uid (since we're only
     // allowed one at a time).
     deleteByUid(accountResetToken.uid.toString('hex'), accountResetTokens)

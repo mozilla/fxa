@@ -3,10 +3,10 @@
 
 require('ass')
 var dbServer = require('../../fxa-auth-db-server')
-var log = { trace: console.log, error: console.log, stat: console.log, info: console.log }
+var log = require('../lib/log')
 var DB = require('../../lib/db/mysql')(log, dbServer.errors)
 var config = require('../../config')
-var test = require('../ptaptest')
+var test = require('tap').test
 var P = require('../../lib/promise')
 
 DB.connect(config)
@@ -139,15 +139,13 @@ DB.connect(config)
               )
           }
 
-          db.retryable_(writer, [ 1146 ])
+          return db.retryable_(writer, [ 1146 ])
             .then(
               function(result) {
                 t.fail('This should never happen, even with a retry ' + callCount)
-                t.end()
               },
               function(err) {
                 t.equal(callCount, 2, 'the function was retried')
-                t.end()
               }
             )
         }
@@ -175,7 +173,7 @@ DB.connect(config)
 
           t.plan(5)
 
-          db.write(dropProcedure, [])
+          return db.write(dropProcedure, [])
             .then(function() {
               t.pass('Drop procedure was successful')
               return db.write(ensureProcedure, [])
@@ -198,7 +196,6 @@ DB.connect(config)
             })
             .then(function() {
               t.fail('The call to the stored prodcedure should have failed')
-              t.end()
             }, function(err) {
               t.pass('The call to the stored procedure failed as expected')
               t.equal(err.code, 500, 'error code is correct')
@@ -215,7 +212,6 @@ DB.connect(config)
                 }
               })
               t.ok(matchedError, 'error message and errno are correct')
-              t.end()
             })
         }
       )
@@ -270,18 +266,16 @@ DB.connect(config)
         'readMultiple with error in query',
         function (t) {
           t.plan(1)
-          db.readMultiple([
+          return db.readMultiple([
             { sql: 'SELECT nonsense FROM gibberish' },
             { sql: 'SELECT * FROM accounts LIMIT 1' }
           ], { sql: 'SELECT * FROM accounts LIMIT 1' })
           .then(
             function(results) {
               t.fail('should have failed')
-              t.end()
             },
             function(err) {
               t.pass('failed correctly')
-              t.end()
             }
           )
         }
@@ -291,18 +285,16 @@ DB.connect(config)
         'readMultiple with error in final query',
         function (t) {
           t.plan(1)
-          db.readMultiple([
+          return db.readMultiple([
             { sql: 'SELECT * FROM accounts LIMIT 1' },
             { sql: 'SELECT * FROM accounts LIMIT 1' }
           ], { sql: 'SELECT nonsense FROM gibberish' })
           .then(
             function(results) {
               t.fail('should have failed')
-              t.end()
             },
             function(err) {
               t.pass('failed correctly')
-              t.end()
             }
           )
         }

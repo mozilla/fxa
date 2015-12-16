@@ -2,10 +2,10 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 require('ass')
-var log = { trace: console.log, error: console.log, stat: console.log, info: console.log }
+var log = require('../lib/log')
 var DB = require('../../lib/db/mysql')(log, require('../../fxa-auth-db-server').errors)
 var config = require('../../config')
-var test = require('../ptaptest')
+var test = require('tap').test
 var P = require('../../lib/promise')
 var crypto = require('crypto')
 var path = require('path')
@@ -26,7 +26,7 @@ DB.connect(config)
         var times = [
           Date.now()
         ]
-        t.plan(35)
+        t.plan(36)
 
         t.equal(typeof metrics.run, 'function', 'run function was exported')
         t.equal(typeof metrics.countAccounts, 'string', 'countAccounts string was exported')
@@ -156,6 +156,9 @@ DB.connect(config)
           t.ok(results[1].count === lastResults[1].count - 1, '3+ device account count was decremented by one')
           t.ok(results[2].count === lastResults[2].count - 1, 'mobile device account count was decremented by one')
           return deleteAccount(uid)
+        })
+        .then(function () {
+          t.ok('account was deleted')
         })
       }
     )
