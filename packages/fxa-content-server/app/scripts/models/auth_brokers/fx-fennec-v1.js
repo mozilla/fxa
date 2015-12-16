@@ -11,13 +11,13 @@ define(function (require, exports, module) {
   'use strict';
 
   var _ = require('underscore');
-  var FxDesktopV2AuthenticationBroker = require('models/auth_brokers/fx-desktop-v2');
+  var FxSyncWebChannelAuthenticationBroker = require('models/auth_brokers/fx-sync-web-channel');
   var NavigateBehavior = require('views/behaviors/navigate');
   var p = require('lib/promise');
 
-  var proto = FxDesktopV2AuthenticationBroker.prototype;
+  var proto = FxSyncWebChannelAuthenticationBroker.prototype;
 
-  var FxFennecV1AuthenticationBroker = FxDesktopV2AuthenticationBroker.extend({
+  var FxFennecV1AuthenticationBroker = FxSyncWebChannelAuthenticationBroker.extend({
     type: 'fx-fennec-v1',
 
     commands: _.extend({}, proto.commands, {
