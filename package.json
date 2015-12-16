@@ -31,5 +31,8 @@
     "selenium-standalone": "4.4.0",
     "tail": "0.4.0",
     "webdriverio": "2.4.5"
+  },
+  "devDependencies": {
+    "v8-profiler": "5.5.0"
   }
 }
