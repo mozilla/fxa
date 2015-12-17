@@ -318,6 +318,27 @@ describe('/profile', function() {
       });
     });
   });
+
+  it('should support openid-connect "email" scope', function() {
+    mock.token({
+      user: USERID,
+      scope: ['openid', 'email']
+    });
+    mock.email('user@example.domain');
+    return Server.api.get({
+      url: '/profile',
+      headers: {
+        authorization: 'Bearer ' + tok
+      }
+    }).then(function(res) {
+      assert.equal(res.statusCode, 200);
+      assert.equal(res.result.email, 'user@example.domain');
+      assert.equal(res.result.sub, USERID);
+      assert.equal(Object.keys(res.result).length, 2);
+    });
+
+  });
+
 });
 
 describe('/email', function() {

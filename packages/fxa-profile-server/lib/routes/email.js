@@ -14,7 +14,7 @@ const AUTH_SERVER_URL = config.get('authServer.url') + '/account/profile';
 module.exports = {
   auth: {
     strategy: 'oauth',
-    scope: ['profile', 'profile:email']
+    scope: ['profile', 'profile:email', /* openid-connect scope */'email' ]
   },
   response: {
     schema: {
