@@ -28,6 +28,11 @@ module.exports = {
     redirect.pathname += actionToPathname(req.query.action);
     delete req.query.action;
 
+    if (req.query.login_hint && !req.query.email) {
+      req.query.email = req.query.login_hint;
+      delete req.query.login_hint;
+    }
+
     redirect.query = req.query;
 
     delete redirect.search;

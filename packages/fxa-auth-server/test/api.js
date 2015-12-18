@@ -249,6 +249,21 @@ describe('/v1', function() {
         }).done(done, done);
       });
 
+      it('rewrites `login_hint=foo` to `email=foo`', function(done) {
+        var endpoint = '/authorization?action=signin&login_hint=' +
+          encodeURIComponent(VEMAIL);
+        Server.api.get(endpoint)
+        .then(function(res) {
+          assert.equal(res.statusCode, 302);
+          var redirect = url.parse(res.headers.location, true);
+
+          var target = url.parse(config.get('contentUrl'), true);
+          assert.equal(redirect.pathname, target.pathname + 'signin');
+          assert.equal(redirect.host, target.host);
+          assert.equal(redirect.query.email, VEMAIL);
+        }).done(done, done);
+      });
+
       it('should fail for invalid action', function(done) {
         Server.api
         .get('/authorization?client_id=123&state=321&scope=1&action=something_invalid&a=b')
