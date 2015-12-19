@@ -30,7 +30,6 @@ app/bower_components
 !.jshintrc
 !.npmignore
 !.travis.yml
-!.awsbox.json
 *~
 
 
