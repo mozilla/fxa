@@ -74,7 +74,6 @@
     "universal-analytics": "0.3.9"
   },
   "devDependencies": {
-    "awsbox": "0.7.0",
     "coveralls": "2.11.3",
     "eslint-config-fxa": "2.0.0",
     "eslint-plugin-sorting": "git://github.com/shane-tomlinson/eslint-plugin-sorting.git#bcacb99d",

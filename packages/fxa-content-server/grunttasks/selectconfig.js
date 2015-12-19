@@ -8,7 +8,6 @@ module.exports = function (grunt) {
   var CONFIG_ROOT = path.join(__dirname, '..', 'server', 'config');
   var TARGET_TO_CONFIG = {
     app: path.join(CONFIG_ROOT, 'local.json'),
-    aws: path.join(CONFIG_ROOT, 'awsbox.json'),
     dist: path.join(CONFIG_ROOT, 'production.json'),
     test: path.join(CONFIG_ROOT, 'local.json')
   };
@@ -19,8 +18,7 @@ module.exports = function (grunt) {
     }
 
     // Config files specified in CONFIG_FILES env variable override everything
-    // else. awsbox instances use this variable to specify ephemeral
-    // configuration like public_url.
+    // else.
     if (! process.env.CONFIG_FILES) {
       process.env.CONFIG_FILES = TARGET_TO_CONFIG[target];
     }
