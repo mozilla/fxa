@@ -298,6 +298,73 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('retrySignUp', function () {
+      beforeEach(function () {
+        account.set('sessionToken', SESSION_TOKEN);
+        sinon.stub(fxaClient, 'signUpResend', function () {
+          return p();
+        });
+
+        return account.retrySignUp(relier, { resume: 'resume token' });
+      });
+
+      it('delegates to the fxaClient', function () {
+        assert.isTrue(fxaClient.signUpResend.calledWith(
+          relier,
+          SESSION_TOKEN,
+          {
+            resume: 'resume token'
+          }
+        ));
+      });
+    });
+
+    describe('verifySignUp', function () {
+      describe('without email opt-in', function () {
+        beforeEach(function () {
+          sinon.stub(fxaClient, 'verifyCode', function () {
+            return p();
+          });
+
+          account.set('uid', UID);
+          return account.verifySignUp('CODE');
+        });
+
+        it('delegates to the fxaClient', function () {
+          assert.isTrue(fxaClient.verifyCode.calledWith(UID, 'CODE'));
+        });
+      });
+
+      describe('with email opt-in', function () {
+        var mockEmailPrefs;
+
+        beforeEach(function () {
+          sinon.stub(fxaClient, 'verifyCode', function () {
+            return p();
+          });
+
+          mockEmailPrefs = {
+            optIn: sinon.spy()
+          };
+
+          sinon.stub(account, 'getMarketingEmailPrefs', function () {
+            return mockEmailPrefs;
+          });
+
+          account.set({
+            needsOptedInToMarketingEmail: true,
+            uid: UID
+          });
+
+          return account.verifySignUp('CODE');
+        });
+
+        it('delegates to the marketing email prefs', function () {
+          assert.isTrue(mockEmailPrefs.optIn.called);
+        });
+      });
+    });
+
     describe('signOut', function () {
       beforeEach(function () {
         sinon.stub(fxaClient, 'signOut', function () {

@@ -8,6 +8,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var AuthErrors = require('lib/auth-errors');
+  var MarketingEmailErrors = require('lib/marketing-email-errors');
   var chai = require('chai');
 
   var assert = chai.assert;
@@ -135,6 +136,22 @@ define(function (require, exports, module) {
             assert.isTrue(AuthErrors.is({ errno: 102 }, 'UNKNOWN_ACCOUNT'));
             assert.isFalse(AuthErrors.is({ errno: 103 }, 'UNKNOWN_ACCOUNT'));
           });
+    });
+
+    describe('created', function () {
+      describe('if module created error', function () {
+        it('returns true', function () {
+          var error = AuthErrors.toError('UNKNOWN_ACCONT');
+          assert.isTrue(AuthErrors.created(error));
+        });
+      });
+
+      describe('if module did not create error', function () {
+        it('returns false', function () {
+          var error = MarketingEmailErrors.toError('INVALID_NEWSLETTER');
+          assert.isFalse(AuthErrors.created(error));
+        });
+      });
     });
 
     describe('normalizeXHRError', function () {

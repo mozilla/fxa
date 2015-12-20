@@ -156,9 +156,9 @@ define(function (require, exports, module) {
       var self = this;
 
       self.logViewEvent('resend');
-      return self.fxaClient.signUpResend(
+
+      return self.getAccount().retrySignUp(
         self.relier,
-        self.getAccount().get('sessionToken'),
         {
           resume: self.getStringifiedResumeToken()
         }

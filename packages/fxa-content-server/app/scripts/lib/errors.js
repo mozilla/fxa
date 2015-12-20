@@ -136,6 +136,16 @@ define(function (require, exports, module) {
       return error.errno === code;
     },
 
+    /**
+     * Check if an error was created by this module.
+     *
+     * @param {object} error - error to check
+     * @returns {boolean} - true if from this module, false otw.
+     */
+    created: function (error) {
+      return error.namespace === this.NAMESPACE;
+    },
+
     normalizeXHRError: function (xhr) {
       var err;
 

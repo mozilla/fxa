@@ -9,17 +9,16 @@ define(function (require, exports, module) {
   var BaseView = require('views/base');
   var Cocktail = require('cocktail');
   var CompleteSignUpTemplate = require('stache!templates/complete_sign_up');
-  var Constants = require('lib/constants');
   var ExperimentMixin = require('views/mixins/experiment-mixin');
   var FormView = require('views/form');
   var LoadingMixin = require('views/mixins/loading-mixin');
+  var MarketingEmailErrors = require('lib/marketing-email-errors');
   var Notifier = require('lib/channels/notifier');
   var ResendMixin = require('views/mixins/resend-mixin');
   var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   var Url = require('lib/url');
   var VerificationInfo = require('models/verification/sign-up');
 
-  var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
   var t = BaseView.t;
 
   var CompleteSignUpView = FormView.extend({
@@ -38,7 +37,15 @@ define(function (require, exports, module) {
       this._verificationInfo = new VerificationInfo(searchParams);
       var uid = this._verificationInfo.get('uid');
 
-      this._account = options.account || this.user.getAccountByUid(uid);
+      var account = options.account || this.user.getAccountByUid(uid);
+      // the account will not exist if verifying in a second browser, and the
+      // default account will be returned. Add the uid to the account so
+      // verification can still occur.
+      if (account.isDefault()) {
+        account.set('uid', uid);
+      }
+
+      this._account = account;
 
       // cache the email in case we need to attempt to resend the
       // verification link
@@ -59,32 +66,28 @@ define(function (require, exports, module) {
         return true;
       }
 
-      var uid = verificationInfo.get('uid');
       var code = verificationInfo.get('code');
-      return self.fxaClient.verifyCode(uid, code)
-          .then(function () {
-            self.logViewEvent('verification.success');
-            self.notifier.trigger('verification.success');
-            var account = self.getAccount();
-
-            if (account.get('needsOptedInToMarketingEmail')) {
-              account.unset('needsOptedInToMarketingEmail');
-              self.user.setAccount(account);
-
-              var emailPrefs = account.getMarketingEmailPrefs();
-              return emailPrefs.optIn(NEWSLETTER_ID)
-                .fail(function (err) {
-                  // A basket error should not prevent the
-                  // sign up verification from completing, nor
-                  // should an error be displayed to the user.
-                  // Log the error and nothing else.
-                  self.logError(err);
-                });
+      return self.getAccount().verifySignUp(code)
+          .fail(function (err) {
+            if (MarketingEmailErrors.created(err)) {
+              // A basket error should not prevent the
+              // sign up verification from completing, nor
+              // should an error be displayed to the user.
+              // Log the error and nothing else.
+              self.logError(err);
+            } else {
+              throw err;
             }
           })
           .then(function () {
-            return self.invokeBrokerMethod(
-                      'afterCompleteSignUp', self.getAccount());
+            self.logViewEvent('verification.success');
+            self.notifier.trigger('verification.success');
+
+            // Update the stored account data in case it was
+            // updated by verifySignUp.
+            var account = self.getAccount();
+            self.user.setAccount(account);
+            return self.invokeBrokerMethod('afterCompleteSignUp', account);
           })
           .then(function () {
             var account = self.getAccount();
@@ -108,7 +111,7 @@ define(function (require, exports, module) {
                 return false;
               });
           })
-          .then(null, function (err) {
+          .fail(function (err) {
             if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
               verificationInfo.markExpired();
               err = AuthErrors.toError('EXPIRED_VERIFICATION_LINK');
@@ -161,9 +164,9 @@ define(function (require, exports, module) {
 
       self.logViewEvent('resend');
 
-      return self.fxaClient.signUpResend(
+      var account = this.user.getAccountByEmail(this._email);
+      return account.retrySignUp(
         self.relier,
-        self._getResendSessionToken(),
         {
           resume: self.getStringifiedResumeToken()
         }

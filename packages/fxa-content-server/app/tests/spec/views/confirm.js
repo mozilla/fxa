@@ -40,7 +40,9 @@ define(function (require, exports, module) {
       fxaClient = new FxaClient();
       metrics = new Metrics();
       notifier = new Notifier();
-      user = new User();
+      user = new User({
+        fxaClient: fxaClient
+      });
       windowMock = new WindowMock();
 
       relier = new Relier({
@@ -204,7 +206,7 @@ define(function (require, exports, module) {
 
     describe('submit', function () {
       it('resends the confirmation email, shows success message, logs the event', function () {
-        sinon.stub(view.fxaClient, 'signUpResend', function () {
+        sinon.stub(account, 'retrySignUp', function () {
           return p();
         });
         sinon.stub(view, 'getStringifiedResumeToken', function () {
@@ -217,9 +219,8 @@ define(function (require, exports, module) {
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                               'confirm.resend'));
 
-            assert.isTrue(view.fxaClient.signUpResend.calledWith(
+            assert.isTrue(account.retrySignUp.calledWith(
               relier,
-              account.get('sessionToken'),
               {
                 resume: 'resume token'
               }
@@ -227,31 +228,44 @@ define(function (require, exports, module) {
           });
       });
 
-      it('redirects to `/signup` if the resend token is invalid', function () {
-        sinon.stub(view.fxaClient, 'signUpResend', function () {
-          return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+      describe('with an invalid resend token', function () {
+        beforeEach(function () {
+          sinon.stub(account, 'retrySignUp', function () {
+            return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+          });
+
+          sinon.spy(view, 'navigate');
+
+          return view.submit();
         });
 
-        sinon.spy(view, 'navigate');
+        it('redirects to /signup', function () {
+          assert.isTrue(view.navigate.calledWith('signup'));
+        });
 
-        return view.submit()
-              .then(function () {
-                assert.isTrue(view.navigate.calledWith('signup'));
-
-                assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                  'confirm.resend'));
-              });
+        it('logs an event', function () {
+          assert.isTrue(TestHelpers.isEventLogged(metrics,
+                            'confirm.resend'));
+        });
       });
 
-      it('displays other error messages if there is a problem', function () {
-        sinon.stub(view.fxaClient, 'signUpResend', function () {
-          return p.reject(new Error('synthesized error from auth server'));
+      describe('that causes other errors', function () {
+        var error;
+
+        beforeEach(function () {
+          sinon.stub(account, 'retrySignUp', function () {
+            return p.reject(new Error('synthesized error from auth server'));
+          });
+
+          return view.submit()
+            .then(assert.fail, function (err) {
+              error = err;
+            });
         });
 
-        return view.submit()
-              .then(assert.fail, function (err) {
-                assert.equal(err.message, 'synthesized error from auth server');
-              });
+        it('displays the error', function () {
+          assert.equal(error.message, 'synthesized error from auth server');
+        });
       });
     });
 
@@ -262,7 +276,7 @@ define(function (require, exports, module) {
           count++;
         };
 
-        sinon.stub(view.fxaClient, 'signUpResend', function () {
+        sinon.stub(account, 'retrySignUp', function () {
           return p();
         });
 
@@ -276,7 +290,7 @@ define(function (require, exports, module) {
       it('debounces resend calls - submit on first and forth attempt', function () {
         var count = 0;
 
-        sinon.stub(fxaClient, 'signUpResend', function () {
+        sinon.stub(account, 'retrySignUp', function () {
           count++;
           return p(true);
         });
