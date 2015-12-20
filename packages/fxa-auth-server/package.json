@@ -36,7 +36,6 @@
     "request": "^2.54.0"
   },
   "devDependencies": {
-    "awsbox": "^0.7.0",
     "blanket": "^1.1.9",
     "eslint-config-fxa": "^1.8.0",
     "generate-rsa-keypair": "git://github.com/jrgm/node-generate-rsa-keypair.git#dce3504e0376920ebb4851eea42a3ee8cefa5a3f",
