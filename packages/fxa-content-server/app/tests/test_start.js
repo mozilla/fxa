@@ -117,6 +117,7 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/service-mixin',
     '../tests/spec/views/mixins/settings-mixin',
     '../tests/spec/views/mixins/password-mixin',
+    '../tests/spec/views/mixins/password-reset-mixin',
     '../tests/spec/views/mixins/password-strength-mixin',
     '../tests/spec/views/mixins/avatar-mixin',
     '../tests/spec/views/mixins/back-mixin',

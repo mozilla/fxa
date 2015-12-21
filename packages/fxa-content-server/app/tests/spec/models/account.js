@@ -1084,5 +1084,64 @@ define(function (require, exports, module) {
           fxaClient.deviceDestroy.calledWith(SESSION_TOKEN, 'device-1'));
       });
     });
+
+    describe('resetPassword', function () {
+      var relier;
+
+      beforeEach(function () {
+        account.set('email', EMAIL);
+
+        relier = {};
+
+        sinon.stub(fxaClient, 'passwordReset', function () {
+          return p();
+        });
+
+        return account.resetPassword(relier, {
+          resume: 'resume token'
+        });
+      });
+
+      it('delegates to the fxaClient', function () {
+        assert.isTrue(fxaClient.passwordReset.calledOnce);
+        assert.isTrue(fxaClient.passwordReset.calledWith(
+          EMAIL,
+          relier,
+          {
+            resume: 'resume token'
+          }
+        ));
+      });
+    });
+
+    describe('retryResetPassword', function () {
+      var relier;
+
+      beforeEach(function () {
+        account.set('email', EMAIL);
+
+        relier = {};
+
+        sinon.stub(fxaClient, 'passwordResetResend', function () {
+          return p();
+        });
+
+        return account.retryResetPassword('password forgot token', relier, {
+          resume: 'resume token'
+        });
+      });
+
+      it('delegates to the fxaClient', function () {
+        assert.isTrue(fxaClient.passwordResetResend.calledOnce);
+        assert.isTrue(fxaClient.passwordResetResend.calledWith(
+          EMAIL,
+          'password forgot token',
+          relier,
+          {
+            resume: 'resume token'
+          }
+        ));
+      });
+    });
   });
 });

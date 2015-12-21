@@ -12,7 +12,7 @@ define(function (require, exports, module) {
   var FormView = require('views/form');
   var Notifier = require('lib/channels/notifier');
   var PasswordMixin = require('views/mixins/password-mixin');
-  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  var PasswordResetMixin = require('views/mixins/password-reset-mixin');
   var ServiceMixin = require('views/mixins/service-mixin');
   var Template = require('stache!templates/complete_reset_password');
   var Url = require('lib/url');
@@ -159,22 +159,8 @@ define(function (require, exports, module) {
       var self = this;
       self.logViewEvent('resend');
       var email = self._verificationInfo.get('email');
-      return self.fxaClient.passwordReset(
-        email,
-        self.relier,
-        {
-          resume: self.getStringifiedResumeToken()
-        }
-      )
-      .then(function (result) {
-        self.navigate('confirm_reset_password', {
-          data: {
-            email: email,
-            passwordForgotToken: result.passwordForgotToken
-          }
-        });
-      })
-      .fail(self.displayError.bind(self));
+      return self.resetPassword(email)
+        .fail(self.displayError.bind(self));
     }
   });
 
@@ -182,7 +168,7 @@ define(function (require, exports, module) {
     View,
     FloatingPlaceholderMixin,
     PasswordMixin,
-    ResumeTokenMixin,
+    PasswordResetMixin,
     ServiceMixin
   );
 

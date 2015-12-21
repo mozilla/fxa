@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   var Broker = require('models/auth_brokers/base');
   var chai = require('chai');
   var FormPrefill = require('models/form-prefill');
-  var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
@@ -25,7 +24,6 @@ define(function (require, exports, module) {
   describe('views/reset_password', function () {
     var broker;
     var formPrefill;
-    var fxaClient;
     var metrics;
     var notifier;
     var relier;
@@ -36,7 +34,6 @@ define(function (require, exports, module) {
         broker: broker,
         canGoBack: true,
         formPrefill: formPrefill,
-        fxaClient: fxaClient,
         metrics: metrics,
         notifier: notifier,
         relier: relier
@@ -46,7 +43,6 @@ define(function (require, exports, module) {
 
     beforeEach(function () {
       formPrefill = new FormPrefill();
-      fxaClient = new FxaClient();
       metrics = new Metrics();
       notifier = new Notifier();
       relier = new Relier();
@@ -140,29 +136,28 @@ define(function (require, exports, module) {
     });
 
     describe('submit with valid input', function () {
-      it('submits the email address', function () {
-        sinon.stub(view.fxaClient, 'passwordReset', function () {
+      var email;
+      beforeEach(function () {
+        sinon.stub(view, 'resetPassword', function () {
           return p({ passwordForgotToken: 'foo' });
         });
 
-        var email = TestHelpers.createEmail();
+        email = TestHelpers.createEmail();
         view.$('input[type=email]').val(email);
 
         sinon.spy(view, 'navigate');
 
-        return view.submit()
-          .then(function () {
-            assert.isTrue(view.navigate.calledWith('confirm_reset_password'));
-            assert.equal(view.ephemeralMessages.get('data').passwordForgotToken, 'foo');
-            assert.isTrue(view.fxaClient.passwordReset.calledWith(
-                email, relier));
-          });
+        return view.submit();
+      });
+
+      it('submits the email address', function () {
+        assert.isTrue(view.resetPassword.calledWith(email));
       });
     });
 
     describe('submit with unknown email address', function () {
       it('shows an error message', function () {
-        sinon.stub(view.fxaClient, 'passwordReset', function () {
+        sinon.stub(view, 'resetPassword', function () {
           return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
         });
 
@@ -178,7 +173,7 @@ define(function (require, exports, module) {
 
     describe('submit when user cancelled login', function () {
       it('logs an error', function () {
-        sinon.stub(view.fxaClient, 'passwordReset', function () {
+        sinon.stub(view, 'resetPassword', function () {
           return p.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
         });
 
@@ -197,7 +192,7 @@ define(function (require, exports, module) {
 
     describe('submit with other error', function () {
       it('passes other errors along', function () {
-        sinon.stub(view.fxaClient, 'passwordReset', function () {
+        sinon.stub(view, 'resetPassword', function () {
           return p.reject(AuthErrors.toError('INVALID_JSON'));
         });
 
