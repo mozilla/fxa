@@ -88,15 +88,15 @@ fxaProfile.setPreference('services.sync.log.appender.dump', 'Debug');
 fxaProfile.setPreference('services.sync.log.appender.file.logOnSuccess', true);
 fxaProfile.setPreference('identity.fxaccounts.auth.uri', fxaEnv.auth);
 fxaProfile.setPreference('identity.fxaccounts.allowHttp', true);
-fxaProfile.setPreference('identity.fxaccounts.remote.force_auth.uri', fxaEnv.content + 'force_auth?service=sync&context=fx_desktop_v1');
-fxaProfile.setPreference('identity.fxaccounts.remote.signin.uri', fxaEnv.content + 'signin?service=sync&context=fx_desktop_v1');
-fxaProfile.setPreference('identity.fxaccounts.remote.signup.uri', fxaEnv.content + 'signup?service=sync&context=fx_desktop_v1');
+fxaProfile.setPreference('identity.fxaccounts.remote.force_auth.uri', fxaEnv.content + 'force_auth?service=sync&context=fx_desktop_v2');
+fxaProfile.setPreference('identity.fxaccounts.remote.signin.uri', fxaEnv.content + 'signin?service=sync&context=fx_desktop_v2');
+fxaProfile.setPreference('identity.fxaccounts.remote.signup.uri', fxaEnv.content + 'signup?service=sync&context=fx_desktop_v2');
 fxaProfile.setPreference('identity.fxaccounts.remote.webchannel.uri', fxaEnv.content);
 
 fxaProfile.setPreference('identity.fxaccounts.remote.oauth.uri', fxaEnv.oauth);
 fxaProfile.setPreference('identity.fxaccounts.remote.profile.uri', fxaEnv.profile);
 
-fxaProfile.setPreference('identity.fxaccounts.settings.uri', fxaEnv.content + 'settings');
+fxaProfile.setPreference('identity.fxaccounts.settings.uri', fxaEnv.content + 'settings&service=sync&context=fx_desktop_v2');
 
 // for some reason there are 2 settings for the token server
 fxaProfile.setPreference('identity.sync.tokenserver.uri', fxaEnv.token);
