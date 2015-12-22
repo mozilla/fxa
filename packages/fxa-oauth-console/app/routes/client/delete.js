@@ -8,7 +8,6 @@ import AuthenticatedRouteMixin from 'simple-auth/mixins/authenticated-route-mixi
 export default Ember.Route.extend(AuthenticatedRouteMixin, {
   actions: {
     remove: function (model) {
-      console.log(model);
       var self = this;
 
       return this.store.find('client', model.id).then(function (client) {

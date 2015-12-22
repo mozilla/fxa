@@ -4,8 +4,6 @@
 /* global require, module */
 
 module.exports = function (grunt) {
-  'use strict';
-
   require('load-grunt-tasks')(grunt);
 
   grunt.initConfig({
@@ -14,5 +12,5 @@ module.exports = function (grunt) {
   });
 
   grunt.loadTasks('tasks');
-  grunt.registerTask('lint', [ 'copyright', 'jshint', 'jscs' ]);
+  grunt.registerTask('lint', [ 'copyright', 'eslint' ]);
 };

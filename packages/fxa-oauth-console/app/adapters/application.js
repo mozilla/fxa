@@ -65,10 +65,10 @@ export default DS.RESTAdapter.extend({
 
     delete data.secret;
 
-    data.redirect_uri = fixUpRedirectUri(data.redirect_uri);
+    data.redirect_uri = fixUpRedirectUri(data.redirect_uri); //eslint-disable-line camelcase
 
     // post process the result of 'find'. Need to add the Model type 'client' into the response
-    return this.ajax(this.buildURL(type.typeKey, null, record), "POST", { data: data }).then(function (resp) {
+    return this.ajax(this.buildURL(type.typeKey, null, record), 'POST', { data: data }).then(function (resp) {
       return { client: resp };
     });
   },
@@ -89,10 +89,10 @@ export default DS.RESTAdapter.extend({
     delete data.secret;
     delete data.trusted;
 
-    data.redirect_uri = fixUpRedirectUri(data.redirect_uri);
+    data.redirect_uri = fixUpRedirectUri(data.redirect_uri); //eslint-disable-line camelcase
 
     // set POST instead of PUT
-    return this.ajax(this.buildURL(type.typeKey, id, record), "POST", { data: data }).then(function () {
+    return this.ajax(this.buildURL(type.typeKey, id, record), 'POST', { data: data }).then(function () {
       data.id = id;
 
       return { client: data };

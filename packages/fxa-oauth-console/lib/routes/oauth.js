@@ -15,7 +15,6 @@ var config = require('../config');
 var baseUrl = config.get('base_url');
 var fxaOAuthConfig = config.get('fxaOAuth');
 var log = require('mozlog')('server.oauth');
-
 // oauth flows are stored in memory
 var oauthFlows = { };
 var GENERATE_OAUTH_TOKEN_STATE = 'GENERATE_OAUTH_TOKEN';
@@ -81,6 +80,10 @@ router.get('/redirect', function (req, res) {
 
   if (state && state === GENERATE_OAUTH_TOKEN_STATE) {
     requestToken(code, function (err, r, body) {
+      if (err) {
+        return res.send(400, err);
+      }
+
       log.verbose(GENERATE_OAUTH_TOKEN_STATE, body);
 
       return res.redirect(baseUrl + 'clients/token?' +

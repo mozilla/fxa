@@ -9,7 +9,7 @@ const path = require('path');
 const opn = require('opn');
 
 var config = require('../lib/config').get('server');
-console.log(config);
+console.log(config); //eslint-disable-line no-console
 
 var emberBuild = cp.spawn(path.join(__dirname, '..', 'node_modules', '.bin', 'ember'), ['build', '--watch'], { stdio: 'inherit' });
 emberBuild.on('exit', process.exit);
