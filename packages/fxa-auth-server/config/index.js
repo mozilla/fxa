@@ -25,7 +25,6 @@ var conf = convict({
   },
   publicUrl: {
     format: 'url',
-    // the real url is set by awsbox
     default: 'http://127.0.0.1:9000',
     env: 'PUBLIC_URL'
   },

@@ -63,34 +63,8 @@ https://github.com/mozilla/fxa-js-client
 
 ## Dev Deployment
 
-There is a development server running the moz-svc-dev AWS environment, at the following address:
+Refer to https://github.com/mozilla/fxa-dev.git.
 
-    https://api-accounts.dev.lcip.org/
-
-It is managed using [awsbox](http://awsbox.org/).  You can force-push a particular version of the code by doing:
-
-    $> git remote add api-dev-lcip-org app@api-accounts.dev.lcip.org:git
-    $> git push api-dev-lcip-org HEAD:master
-
-
-The dev deployment is configured to send emails via Amazon SES.  If you need to re-create, or want to stand up a similar server, you will need to:
-
-  1.  Obtain the SES SMTP credentials; ping @rfk or @zaach for details.
-  2.  Deploy the new machine using awsbox.
-  3.  Configure postfix to use the SES credentials:
-      1.  Edit /etc/postfix/sasl_passwd to insert the SES credentials.
-      2.  Run `/usr/sbin/postmap /etc/postfix/sasl_passwd` to compile them.
-      3.  Edit /etc/postfix/main.cf to change 'relayhost' to the SES SMTP host
-          (typically "email-smtp.us-east-1.amazonaws.com:587").
-      4.  Run `service postfix restart` to restart postfix.
-
-
-There is also a "bleeding edge" development server that is configured to
-auto-update itself from the latest github master.  It may be useful for testing
-out new protocol changes, but should be considered unstable for general
-development use:
-
-    https://api-accounts-latest.dev.lcip.org/
 
 ## Configuration
 
