@@ -91,10 +91,10 @@ ul.links {
     display: block;
     text-align: left;
 
-    .fxa-checkbox__box-outline {
-      // The default is 2px, but leaves the checkbox
-      // too high in comparison to the text.
-      top: 5px;
+    .fxa-checkbox__label {
+      // The default is 0px, but -3px sets the label
+      // properly in comparison to the checkbox.
+      margin-top: -3px;
     }
   }
 }
