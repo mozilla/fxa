@@ -6,8 +6,8 @@ import DS from 'ember-data';
 
 export default DS.Model.extend({
   name: DS.attr('string'),
-  redirect_uri: DS.attr('string'),
+  redirect_uri: DS.attr('string'), //eslint-disable-line camelcase
   secret: DS.attr('string'),
-  can_grant: DS.attr('boolean'),
+  can_grant: DS.attr('boolean'), //eslint-disable-line camelcase
   trusted: DS.attr('boolean')
 });

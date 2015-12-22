@@ -37,11 +37,11 @@ var CustomAuthenticator = Base.extend({
    * @returns {Rx.Promise}
    */
   authenticate: function () {
-    var _this = this;
+    var self = this;
 
     return new Ember.RSVP.Promise(function (resolve, reject) {
       Ember.$.ajax({
-        url: _this.tokenEndpoint + '/status',
+        url: self.tokenEndpoint + '/status',
         type: 'GET',
         contentType: 'application/json'
       }).then(function (response) {
@@ -85,11 +85,11 @@ var CustomAuthenticator = Base.extend({
    * @returns {Rx.Promise}
    */
   invalidate: function () {
-    var _this = this;
+    var self = this;
 
     return new Ember.RSVP.Promise(function(resolve) {
       Ember.$.ajax({
-        url: _this.tokenEndpoint + '/logout',
+        url: self.tokenEndpoint + '/logout',
         type: 'GET'
       }).always(function() {
         return resolve();

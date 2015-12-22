@@ -13,9 +13,6 @@ var fxaOAuthConfig = config.get('fxaOAuth');
  * @param {Object} obj
  * @returns {string}
  */
-
-
-
 function toQueryString(obj) {
   var fields = Object.keys(obj).map(function (key) {
     return key + '=' + obj[key];

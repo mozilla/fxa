@@ -34,7 +34,7 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
       this.transitionTo('clients');
     },
     cancel: function (model) {
-      Ember.run(model, "destroy");
+      Ember.run(model, 'destroy');
       this.storage.refresh(Client);
       this.transitionTo('clients');
     },

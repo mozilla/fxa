@@ -55,6 +55,9 @@ function getCommitHashFromGit() {
   var cmd = util.format('git %s rev-parse HEAD', gitDir ? '--git-dir=' + gitDir : '');
 
   child_process.exec(cmd, function (err, stdout) {
+    if (err) {
+      logger.err(err);
+    }
     deferred.resolve(stdout.replace(/\s+/, ''));
   });
 

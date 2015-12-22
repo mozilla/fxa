@@ -22,7 +22,7 @@
   "dependencies": {
     "bluebird": "2.3.11",
     "body-parser": "1.14.1",
-    "bower": "1.5.3",
+    "bower": "*",
     "broccoli-asset-rev": "^2.1.2",
     "broccoli-ember-hbs-template-compiler": "1.7.0",
     "broccoli-sass": "0.6.7",
@@ -51,22 +51,23 @@
     "ember-cli-release": "0.2.3",
     "ember-cli-sri": "1.0.3",
     "ember-cli-uglify": "1.2.0",
+    "eslint-config-fxa": "2.0.0",
     "grunt": "^0.4.5",
     "grunt-cli": "^0.1.13",
     "grunt-concurrent": "^1.0.0",
     "grunt-contrib-jshint": "0.11.3",
-    "grunt-copyright": "^0.1.0",
+    "grunt-copyright": "0.2.0",
+    "grunt-eslint": "17.3.1",
     "grunt-jscs": "2.1.0",
     "intern": "^2.2.2",
     "load-grunt-tasks": "3.3.0",
     "nodemon": "^1.2.1",
     "opn": "^1.0.0",
-    "selenium-standalone": "^2.44.0-1",
     "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
   },
   "engines": {
-    "node": "0.10.0",
-    "npm": ">=1.4"
+    "node": ">=0.10.0",
+    "npm": ">=2.4"
   },
   "readmeFilename": "README.md"
 }

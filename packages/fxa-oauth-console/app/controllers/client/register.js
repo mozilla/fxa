@@ -6,6 +6,6 @@ import Ember from 'ember';
 import config from '../../config/environment';
 
 export default Ember.Controller.extend({
-  oauth_uri: config.servers.oauthUriParsed.href,
-  profile_uri: config.servers.profileUriParsed.href
+  oauth_uri: config.servers.oauthUriParsed.href, //eslint-disable-line camelcase
+  profile_uri: config.servers.profileUriParsed.href //eslint-disable-line camelcase
 });

@@ -4,14 +4,13 @@
 /* global module */
 
 module.exports = function (grunt) {
-  'use strict';
 
-  grunt.config('jshint', {
-    options: {
-      jshintrc: '.jshintrc'
-    },
-    app: [
-      '<%= mainJsFiles %>'
-    ]
+  grunt.config('eslint', {
+    app: {
+      options: { eslintrc: '.eslintrc' },
+      src: [
+        '<%= mainJsFiles %>'
+      ]
+    }
   });
 };

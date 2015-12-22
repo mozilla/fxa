@@ -16,4 +16,5 @@ node_js:
 
 script:
   - npm i
+  - grunt lint
   - node_modules/.bin/ember test
