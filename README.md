@@ -173,3 +173,20 @@ FIREFOX_IOS_HOME=<path_to_firefox_ios_project> npm run config-fxios
 After the script you need to rebuild *firefox-ios*.
 
 *******
+
+
+### OAuth Console Developer Accounts
+
+> Skip this if you are not working on managing OAuth clients or working on the OAuth console.
+
+To use the [fxa-oauth-console](https://github.com/mozilla/fxa-oauth-console) to manage OAuth clients you currently need to run the fxa-oauth-server in MySQL mode (`./pm2` runs the memory database and that does not support the OAuth console at this time). First, stop the fxa-oauth-server using `./pm2` and start MySql locally. Then `cd fxa-oauth-server` and run the 2 servers:
+
+```
+NODE_ENV=dev DB=mysql node bin/server.js
+```
+and 
+```
+NODE_ENV=dev DB=mysql node bin/internal.js
+``` 
+
+*******
