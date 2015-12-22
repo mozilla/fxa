@@ -21,7 +21,7 @@
     width: 33px;
 
     @include respond-to('small') {
-      top: -2px;
+      top: -1px;
     }
 
     @include respond-to('trustedUI') {
