@@ -30,7 +30,7 @@
     "fxa-crypto-utils": "vladikoff/fxa-crypto-utils",
     "postprocess": "0.2.4",
     "redis": "0.7.1",
-    "request": "2.34.0"
+    "request": "2.67.0"
   },
   "engines": {
     "node": ">=0.10.0"
