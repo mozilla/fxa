@@ -48,36 +48,47 @@ define(function (require, exports, module) {
 
     describe('hasGetUserMedia', function () {
       beforeEach(function () {
+        windowMock.navigator.mediaDevices = null;
+        delete windowMock.navigator.mediaDevices;
+
         windowMock.navigator.getUserMedia = null;
         delete windowMock.navigator.getUserMedia;
       });
 
 
-      it('adds `getusermedia` if UA supports getUserMedia', function () {
+      it('returns `true` if UA supports mediaDevices', function () {
+        windowMock.navigator.mediaDevices = {
+          getUserMedia: sinon.spy()
+        };
+
+        assert.isTrue(environment.hasGetUserMedia());
+      });
+
+      it('returns `true` if UA supports getUserMedia', function () {
         windowMock.navigator.getUserMedia = sinon.spy();
 
         assert.isTrue(environment.hasGetUserMedia());
       });
 
-      it('adds `getusermedia` if UA supports webkitGetUserMedia', function () {
+      it('returns `true` if UA supports webkitGetUserMedia', function () {
         windowMock.navigator.webkitGetUserMedia = sinon.spy();
 
         assert.isTrue(environment.hasGetUserMedia());
       });
 
-      it('adds `getusermedia` if UA supports mozGetUserMedia', function () {
+      it('returns `true` if UA supports mozGetUserMedia', function () {
         windowMock.navigator.mozGetUserMedia = sinon.spy();
 
         assert.isTrue(environment.hasGetUserMedia());
       });
 
-      it('adds `getusermedia` if UA supports msGetUserMedia', function () {
+      it('returns `true` if UA supports msGetUserMedia', function () {
         windowMock.navigator.msGetUserMedia = sinon.spy();
 
         assert.isTrue(environment.hasGetUserMedia());
       });
 
-      it('adds `no-getusermedia` if UA does not support getUserMedia', function () {
+      it('returns false otw', function () {
         assert.isFalse(environment.hasGetUserMedia());
       });
     });

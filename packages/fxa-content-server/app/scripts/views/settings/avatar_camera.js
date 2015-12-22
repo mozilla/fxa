@@ -18,6 +18,7 @@ define(function (require, exports, module) {
   var ProfileImage = require('models/profile-image');
   var ProgressIndicator = require('views/progress_indicator');
   var Template = require('stache!templates/settings/avatar_camera');
+  var WebRTC = require('webrtc');
 
   // a blank 1x1 png
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
@@ -50,7 +51,7 @@ define(function (require, exports, module) {
         var ARTIFICIAL_DELAY = 3000; // 3 seconds
         // mock some things out for automated browser testing
         self.streaming = true;
-        self._getMedia = function () {
+        self.startStream = function () {
           self.enableSubmitIfValid();
         };
         self.stream = {
@@ -61,30 +62,19 @@ define(function (require, exports, module) {
       }
     },
 
-    _getMedia: function () {
+    startStream: function () {
       var self = this;
-      var nav = self.window.navigator;
 
-      var getUserMedia = nav.getUserMedia ||
-                             nav.webkitGetUserMedia ||
-                             nav.mozGetUserMedia ||
-                             nav.msGetUserMedia;
+      var constraints = {
+        audio: false,
+        video: true
+      };
 
-      var getMedia = _.bind(getUserMedia, nav);
-
-      getMedia(
-        {
-          audio: false,
-          video: true
-        },
-        function (stream) {
+      // navigator.mediaDevices is polyfilled by WebRTC for older browsers.
+      return this.window.navigator.mediaDevices.getUserMedia(constraints)
+        .then(function (stream) {
           self.stream = stream;
-          if (nav.mozGetUserMedia) {
-            self.video.mozSrcObject = stream;
-          } else {
-            var vendorURL = self.window.URL || self.window.webkitURL;
-            self.video.src = vendorURL.createObjectURL(stream);
-          }
+          WebRTC.attachMediaStream(self.video, stream);
           self.video.play();
         },
         function () {
@@ -92,6 +82,30 @@ define(function (require, exports, module) {
           self.displayError(AuthErrors.toError('NO_CAMERA'));
         }
       );
+    },
+
+    stopAndDestroyStream: function () {
+      if (this.stream) {
+        var stream = this.stream;
+        var previewEl = this.video;
+
+        // The newest spec stops individual tracks, older specs
+        // stops streams, and Fx18 is just bonkers.
+        if (stream.getTracks) {
+          stream.getTracks().forEach(function (track) {
+            track.stop();
+          });
+        } else if (stream.stop) {
+          stream.stop();
+        } else if (previewEl.pause && 'mozSrcObject' in previewEl) {
+          // Fx18 streams do not support stop. Disabling the camera
+          // is done via the preview element.
+          previewEl.pause();
+          previewEl.mozSrcObject = null;
+        }
+
+        delete this.stream;
+      }
     },
 
     beforeRender: function () {
@@ -106,7 +120,7 @@ define(function (require, exports, module) {
     },
 
     afterRender: function () {
-      this._getMedia();
+      this.startStream();
 
       this._avatarProgressIndicator = new ProgressIndicator();
       this.wrapper = this.$('#avatar-camera-wrapper');
@@ -168,8 +182,7 @@ define(function (require, exports, module) {
           return account.uploadAvatar(data);
         })
         .then(function (result) {
-          self.stream.stop();
-          delete self.stream;
+          self.stopAndDestroyStream();
 
           self.updateProfileImage(new ProfileImage(result), account);
           self.navigate('settings');
@@ -178,10 +191,7 @@ define(function (require, exports, module) {
     },
 
     beforeDestroy: function () {
-      if (this.stream) {
-        this.stream.stop();
-        delete this.stream;
-      }
+      this.stopAndDestroyStream();
     },
 
     takePicture: function takepicture() {

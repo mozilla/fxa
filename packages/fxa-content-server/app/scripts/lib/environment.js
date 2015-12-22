@@ -32,7 +32,8 @@
     hasGetUserMedia: function () {
       var nav = this.window.navigator;
 
-      return !! (nav.getUserMedia ||
+      return !! (nav.mediaDevices ||
+                 nav.getUserMedia ||
                  nav.webkitGetUserMedia ||
                  nav.mozGetUserMedia ||
                  nav.msGetUserMedia);

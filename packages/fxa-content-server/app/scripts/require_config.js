@@ -46,7 +46,8 @@ require.config({
     stache: '../bower_components/requirejs-mustache/stache',
     text: '../bower_components/requirejs-text/text',
     underscore: '../bower_components/underscore/underscore',
-    uuid: '../bower_components/node-uuid/uuid'
+    uuid: '../bower_components/node-uuid/uuid',
+    webrtc: '../bower_components/webrtc-adapter/adapter'
   },
   shim: {
     backbone: {
