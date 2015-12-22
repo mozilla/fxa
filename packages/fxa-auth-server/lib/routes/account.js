@@ -1087,11 +1087,18 @@ module.exports = function (
             }
           )
           .then(
-            function (accountRecord) {
+            function (account) {
               log.activityEvent('account.reset', request, {
-                uid: accountResetToken.uid.toString('hex')
+                uid: account.uid.toString('hex')
               })
-              return customs.reset(accountRecord.email)
+              log.event(
+                'reset',
+                {
+                  uid: account.uid.toString('hex') + '@' + config.domain,
+                  generation: account.verifierSetAt
+                }
+              )
+              return customs.reset(account.email)
             }
           )
           .then(
