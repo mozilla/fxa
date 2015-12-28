@@ -29,10 +29,18 @@ const GRANT_JWT = 'urn:ietf:params:oauth:grant-type:jwt-bearer';
 const JWT_AUD = config.get('publicUrl') + '/v1/token';
 
 const SERVICE_CLIENTS = {};
-const JWTOOL = new JwTool(config.get('serviceClients').map(function(client) {
+const SERVICE_JWTOOL = new JwTool(config.get('serviceClients').map(function(client) {
   SERVICE_CLIENTS[client.jku] = client;
   return client.jku;
 }));
+
+const SCOPE_OPENID = 'openid';
+
+const ID_TOKEN_EXPIRATION = Math.floor(config.get('openid.ttl') / 1000);
+const ID_TOKEN_ISSUER = config.get('openid.issuer');
+const ID_TOKEN_KEY = JwTool.JWK.fromObject(config.get('openid.key'), {
+  iss: ID_TOKEN_ISSUER
+});
 
 const PAYLOAD_SCHEMA = Joi.object({
 
@@ -123,6 +131,7 @@ module.exports = {
     schema: Joi.object().keys({
       access_token: validators.token.required(),
       refresh_token: validators.token,
+      id_token: validators.assertion,
       scope: Joi.string().required().allow(''),
       token_type: Joi.string().valid('bearer').required(),
       expires_in: Joi.number().max(MAX_TTL_S).required(),
@@ -152,6 +161,9 @@ module.exports = {
     })
     .then(function(vals) {
       vals.ttl = params.ttl;
+      if (vals.scope && Scope(vals.scope).has(SCOPE_OPENID)) {
+        vals.idToken = true;
+      }
       return vals;
     })
     .then(generateTokens)
@@ -233,7 +245,7 @@ function confirmJwt(params) {
   var assertion = params.assertion;
   logger.debug('jwt.confirm', assertion);
 
-  return JWTOOL.verify(assertion).catch(function(err) {
+  return SERVICE_JWTOOL.verify(assertion).catch(function(err) {
     logger.info('jwt.invalid.verify', err.message);
     throw AppError.invalidAssertion();
   }).then(function(payload) {
@@ -296,14 +308,35 @@ function _validateJwtSub(sub) {
   return sub;
 }
 
+function generateIdToken(options) {
+  var now = Math.floor(Date.now() / 1000);
+  var claims = {
+    sub: hex(options.userId),
+    aud: hex(options.clientId),
+    iss: ID_TOKEN_ISSUER,
+    iat: now,
+    exp: now + ID_TOKEN_EXPIRATION
+  };
+  return ID_TOKEN_KEY.sign(claims);
+}
+
 function generateTokens(options) {
   // we always are generating an access token here
   // but depending on options, we may also be generating a refresh_token
-  var promises = [db.generateAccessToken(options)];
+  var promises = {
+    access: db.generateAccessToken(options)
+  };
   if (options.offline) {
-    promises.push(db.generateRefreshToken(options));
+    promises.refresh = db.generateRefreshToken(options);
   }
-  return P.all(promises).spread(function(access, refresh) {
+  if (options.idToken) {
+    promises.idToken = generateIdToken(options);
+  }
+  return P.props(promises).then(function(result) {
+    var access = result.access;
+    var refresh = result.refresh;
+    var idToken = result.idToken;
+
     var json = {
       access_token: access.token.toString('hex'),
       token_type: access.type,
@@ -316,8 +349,10 @@ function generateTokens(options) {
     if (refresh) {
       json.refresh_token = refresh.token.toString('hex');
     }
+    if (idToken) {
+      json.id_token = idToken;
+    }
     return json;
   });
 }
-
 

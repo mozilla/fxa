@@ -61,6 +61,11 @@ exports.routes = [
     method: 'POST',
     path: v('/verify'),
     config: require('./routes/verify')
+  },
+  {
+    method: 'GET',
+    path: v('/jwks'),
+    config: require('./routes/jwks')
   }
 ];
 
