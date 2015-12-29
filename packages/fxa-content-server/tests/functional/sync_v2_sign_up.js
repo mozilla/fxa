@@ -66,6 +66,22 @@ define([
         .findByCssSelector('#fxa-choose-what-to-sync-header')
         .end()
 
+        // test that autofocus attribute has been applied sanely
+        .findByTagName('input')
+          .getAttribute('autofocus')
+          .then(function (value) {
+            assert.strictEqual(value, '');
+          })
+        .end()
+        .findAllByXpath('(//input)[position()>1]')
+          .getAttribute('autofocus')
+          .then(function (values) {
+            values.forEach(function (value) {
+              assert.isNull(value);
+            });
+          })
+        .end()
+
         // uncheck the passwords and history engines
         .findByCssSelector('input[value="passwords"]')
           .click()
