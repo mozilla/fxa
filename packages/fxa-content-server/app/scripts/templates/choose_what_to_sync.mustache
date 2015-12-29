@@ -18,7 +18,7 @@
             {{#hasTabSupport}}
               <div class="input-row choose-what-to-sync-row">
                 <label class="fxa-checkbox">
-                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="tabs">
+                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="tabs" autofocus>
               <span class="fxa-checkbox__label">
                 {{#t}}Tabs{{/t}}
               </span>
@@ -29,7 +29,7 @@
             {{#hasBookmarkSupport}}
               <div class="input-row choose-what-to-sync-row">
                 <label class="fxa-checkbox">
-                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="bookmarks">
+                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="bookmarks"{{^hasTabSupport}} autofocus{{/hasTabSupport}}>
               <span class="fxa-checkbox__label">
                 {{#t}}Bookmarks{{/t}}
               </span>
@@ -40,7 +40,7 @@
             {{#hasDesktopAddonSupport}}
               <div class="input-row choose-what-to-sync-row">
                 <label class="fxa-checkbox">
-                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="addons">
+                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="addons"{{^hasTabSupport}}{{^hasBookmarkSupport}} autofocus{{/hasBookmarkSupport}}{{/hasTabSupport}}>
                 <span class="fxa-checkbox__label">
                   {{#t}}Add-ons{{/t}}
                 </span>
@@ -52,7 +52,7 @@
             {{#hasPasswordSupport}}
               <div class="input-row choose-what-to-sync-row">
                 <label class="fxa-checkbox">
-                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="passwords">
+                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="passwords"{{^hasTabSupport}}{{^hasBookmarkSupport}}{{^hasDesktopAddonSupport}} autofocus{{/hasDesktopAddonSupport}}{{/hasBookmarkSupport}}{{/hasTabSupport}}>
               <span class="fxa-checkbox__label">
                 {{#t}}Passwords{{/t}}
               </span>
@@ -63,7 +63,7 @@
             {{#hasHistorySupport}}
               <div class="input-row choose-what-to-sync-row">
                 <label class="fxa-checkbox">
-                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="history">
+                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="history"{{^hasTabSupport}}{{^hasBookmarkSupport}}{{^hasDesktopAddonSupport}}{{^hasPasswordSupport}} autofocus{{/hasPasswordSupport}}{{/hasDesktopAddonSupport}}{{/hasBookmarkSupport}}{{/hasTabSupport}}>
               <span class="fxa-checkbox__label">
                 {{#t}}History{{/t}}
               </span>
@@ -74,7 +74,7 @@
             {{#hasDesktopPreferencesSupport}}
               <div class="input-row choose-what-to-sync-row">
                 <label class="fxa-checkbox">
-                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="prefs">
+                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="prefs"{{^hasTabSupport}}{{^hasBookmarkSupport}}{{^hasDesktopAddonSupport}}{{^hasPasswordSupport}}{{^hasDesktopPreferencesSupport}} autofocus{{/hasDesktopPreferencesSupport}}{{/hasPasswordSupport}}{{/hasDesktopAddonSupport}}{{/hasBookmarkSupport}}{{/hasTabSupport}}>
                 <span class="fxa-checkbox__label">
                   {{#t}}Preferences{{/t}}
                 </span>
