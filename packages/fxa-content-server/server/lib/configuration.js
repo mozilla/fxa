@@ -72,10 +72,6 @@ var conf = module.exports = convict({
       default: false,
       doc: 'Only send the "Content-Security-Policy-Report-Only" header'
     },
-    reportSampleRate: {
-      default: 10,
-      doc: 'Sample rate at which CSP violation reports should be logged'
-    },
     reportUri: {
       default: '/_/csp-violation',
       doc: 'Location of "report-uri"'

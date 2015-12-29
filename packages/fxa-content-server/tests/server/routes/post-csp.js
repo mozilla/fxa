@@ -22,51 +22,33 @@ define([
       'csp-report': {
         'blocked-uri': 'http://bing.com'
       }
-    }
+    },
+    'get': function () {}
   };
+
   var mockResponse = {
     json: function () {}
   };
 
   suite['it drops if no csp-report set'] = function () {
-    var options = {
-      reportSampleRate: 100
-    };
-    var postCsp = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'), {})(options);
+    var postCsp = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'), {})();
     assert.isFalse(postCsp.process({
-      body: {}
+      body: {},
+      'get': function () {}
     }, mockResponse));
 
     assert.isTrue(postCsp.process({
       body: {
         'csp-report': {}
-      }
+      },
+      'get': function () {}
     }, mockResponse));
 
     assert.isTrue(postCsp.process(mockRequest, mockResponse));
   };
 
-
-  suite['it allows no messages with 0% sample rate '] = function () {
-    var options = {
-      reportSampleRate: 0
-    };
-    var postCsp = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'), {})(options);
-
-    // check 5 times that all messages come through
-    assert.isFalse(postCsp.process(mockRequest, mockResponse));
-    assert.isFalse(postCsp.process(mockRequest, mockResponse));
-    assert.isFalse(postCsp.process(mockRequest, mockResponse));
-    assert.isFalse(postCsp.process(mockRequest, mockResponse));
-    assert.isFalse(postCsp.process(mockRequest, mockResponse));
-  };
-
-  suite['it allows all messages with 100% sample rate'] = function () {
-    var options = {
-      reportSampleRate: 100
-    };
-
-    var postCsp = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'), {})(options);
+  suite['it works with csp reports'] = function () {
+    var postCsp = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'), {})();
     // check 5 times that all messages drop
     assert.isTrue(postCsp.process(mockRequest, mockResponse));
     assert.isTrue(postCsp.process(mockRequest, mockResponse));
