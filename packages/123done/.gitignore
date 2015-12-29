@@ -3,4 +3,4 @@ secret-key.json
 /node_modules
 static/bower_components
 *~
-.DS_Store
+*.log
