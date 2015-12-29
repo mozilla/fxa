@@ -258,6 +258,12 @@ define(function (require, exports, module) {
         return true;
       }
 
+      // some users input a "@firefox" as the email field.
+      // this will never be a valid email, therefore we block the attempt.
+      if (String.prototype.hasOwnProperty('endsWith') && email.endsWith('@firefox')) {
+        return true;
+      }
+
       return false;
     },
 
