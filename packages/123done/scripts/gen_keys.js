@@ -20,15 +20,15 @@
    keypair.
 */
 
-const jwcrypto = require('browserid-crypto');
 const fs = require('fs');
 const assert = require('assert');
+
+const NodeRSA = require('node-rsa');
+
 const config = require('../config');
 
 const pubKeyFile = config.publicKeyFile;
 const secretKeyFile = config.secretKeyFile;
-
-require('browserid-crypto/lib/algs/rs');
 
 try {
   var keysExist = fs.existsSync(pubKeyFile) && fs.existsSync(secretKeyFile);
@@ -37,29 +37,30 @@ try {
   process.exit();
 }
 
-console.log('Generating keypair. (install libgmp if this takes more than a second)'); //eslint-disable-line no-console
-
-// wondering about `keysize: 256`?
-// well, 257 = 2048bit key
-// still confused? see: https://github.com/mozilla/jwcrypto/blob/master/lib/algs/ds.js#L37-L57
-
 function main(cb) {
-  jwcrypto.generateKeypair(
-    { algorithm: 'RS', keysize: 256 },
-    function(err, keypair) {
+  var key = new NodeRSA({b: 2048});
 
-      var pubKey = keypair.publicKey.serialize();
-      var secretKey = keypair.secretKey.serialize();
+  // Format according to "generate-keypair script bundled with jwcrypto."
+  // See https://developer.mozilla.org/en-US/Persona/Implementing_a_Persona_IdP#Creating_the_browserid_document
+  var pubKey = {
+    algorithm: 'RS',
+    n: key.keyPair.n.toString(),
+    e: key.keyPair.e.toString()
+  };
 
+  var secretKey = {
+    algorithm: 'RS',
+    n: key.keyPair.n.toString(),
+    e: key.keyPair.e.toString(),
+    d: key.keyPair.d.toString()
+  };
 
-      fs.writeFileSync(pubKeyFile, pubKey);
-      console.log('Public Key saved:', pubKeyFile); //eslint-disable-line no-console
+  fs.writeFileSync(pubKeyFile, JSON.stringify(pubKey));
+  console.log('Public Key saved:', pubKeyFile); //eslint-disable-line no-console
 
-      fs.writeFileSync(secretKeyFile, secretKey);
-      console.log('Secret Key saved:', secretKeyFile); //eslint-disable-line no-console
-      cb();
-    }
-  );
+  fs.writeFileSync(secretKeyFile, JSON.stringify(secretKey));
+  console.log('Secret Key saved:', secretKeyFile); //eslint-disable-line no-console
+  cb();
 }
 
 module.exports = main;

@@ -21,13 +21,13 @@
   "private": true,
   "dependencies": {
     "bower": "*",
-    "browserid-crypto": "0.7.0",
     "client-sessions": "0.6.x",
     "connect-fonts": "2.0.2",
     "connect-fonts-alegreyasans": "0.0.2",
     "connect-fonts-opensans": "0.0.5",
     "express": "3.5.x",
     "fxa-crypto-utils": "vladikoff/fxa-crypto-utils",
+    "node-rsa": "0.2.26",
     "postprocess": "0.2.4",
     "redis": "0.7.1",
     "request": "2.67.0"
