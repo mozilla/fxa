@@ -21,6 +21,11 @@ var conf = convict({
     level: {
       default: 'info',
       env: 'LOG_LEVEL'
+    },
+    fmt: {
+      format: ['heka', 'pretty'],
+      default: 'heka',
+      env: 'LOG_FORMAT'
     }
   },
   publicUrl: {
