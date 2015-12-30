@@ -1,3 +1,24 @@
+<a name="0.53.0"></a>
+# 0.53.0 (2015-12-30)
+
+
+### Bug Fixes
+
+* **client:** focus first input in choose_what_to_sync ([1196b27](https://github.com/mozilla/fxa-content-server/commit/1196b27d58ea6fb2afd55461a6d359e0bef77226))
+* **ux:** fix checkbox styling in the choose what to sync screen ([1653f9](https://github.com/mozilla/fxa-content-server/commit/1653f965ca2b0c864d21f9d63dc89a141485c20c))
+* **ux:** minor tweak to the button spinner in mobile view ([c5b40e1c](https://github.com/mozilla/fxa-content-server/commit/c5b40e1c7fa4ae5483d7cb67c437207aaf5d1aba))
+* **tests:** add config to run latest with node 4.x ([30fc761](https://github.com/mozilla/fxa-content-server/commit/30fc76184eb9651fa54caa8e691747dda4f05147))
+* **tests:** fix functional tests for oauth and password reset ([ca18a0c](https://github.com/mozilla/fxa-content-server/commit/ca18a0cd53c9afeee3e841388f73efb778057805))
+* **deps:** update to Intern 3.0.6 ([990a8d0](https://github.com/mozilla/fxa-content-server/commit/990a8d09a9197783eac40d27bb98d627d1853404))
+* **deps:** update prod dependencies ([7fd2b82](https://github.com/mozilla/fxa-content-server/commit/7fd2b823c58dbf52785307f8962cfbcfbe56bf0a))
+* **snippet:** remove extra Firefox for iOS string ([9f4a359](https://github.com/mozilla/fxa-content-server/commit/9f4a359a4894d35b9a92a57b3b318da46485b37c))
+
+### Refactor
+
+* **client:** Move some view based reset password logic to mixins/models ([9561faf](https://github.com/mozilla/fxa-content-server/commit/9561faf8ff61b60edebcc207d682977ca4b9af15))
+
+
+
 <a name="0.52.0"></a>
 # 0.52.0 (2015-12-15)
 
