@@ -6,6 +6,7 @@ var EventEmitter = require('events').EventEmitter
 var util = require('util')
 var mozlog = require('mozlog')
 
+var logConfig = require('../config').get('log')
 var StatsDCollector = require('./metrics/statsd')
 
 function unbuffer(object) {
@@ -25,7 +26,8 @@ function Lug(options) {
   mozlog.config({
     app: this.name,
     level: options.level,
-    stream: process.stderr
+    stream: process.stderr,
+    fmt: options.fmt
   })
   this.logger = mozlog()
 
@@ -143,7 +145,8 @@ module.exports = function (level, name) {
   var log = new Lug(
     {
       name: name,
-      level: level
+      level: level,
+      fmt: logConfig.fmt
     }
   )
 

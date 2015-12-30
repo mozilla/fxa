@@ -35,7 +35,7 @@ test(
     t.equal(mocks.mozlog.config.callCount, 1, 'mozlog.config was called once')
     var args = mocks.mozlog.config.args[0]
     t.equal(args.length, 1, 'mozlog.config was passed one argument')
-    t.equal(Object.keys(args[0]).length, 3, 'mozlog.config argument had with three properties')
+    t.equal(Object.keys(args[0]).length, 4, 'number of mozlog.config arguments was correct')
     t.equal(args[0].app, 'bar', 'app property was correct')
     t.equal(args[0].level, 'foo', 'level property was correct')
     t.equal(args[0].stream, process.stderr, 'stream property was correct')
