@@ -25,13 +25,6 @@ define(function (require, exports, module) {
       if (able) {
         return able.choose.apply(able, arguments);
       }
-    },
-    report: function () {
-      var able = window.able;
-      if (able) {
-        return able.report.apply(able, arguments);
-      }
-      return [];
     }
   };
 

@@ -197,9 +197,7 @@ define(function (require, exports, module) {
               assert.equal(windowMock.navigator.sendBeacon.getCall(0).args[0], '/metrics');
 
               var data = JSON.parse(windowMock.navigator.sendBeacon.getCall(0).args[1]);
-              assert.lengthOf(Object.keys(data), 24);
-              assert.isArray(data.ab);
-              assert.lengthOf(data.ab, 0);
+              assert.lengthOf(Object.keys(data), 23);
               assert.equal(data.broker, 'none');
               assert.equal(data.campaign, 'none');
               assert.equal(data.context, 'web');
@@ -301,7 +299,7 @@ define(function (require, exports, module) {
               assert.equal(settings.contentType, 'application/json');
 
               var data = JSON.parse(settings.data);
-              assert.lengthOf(Object.keys(data), 24);
+              assert.lengthOf(Object.keys(data), 23);
               assert.isArray(data.events);
               assert.lengthOf(data.events, 3);
               assert.equal(data.events[0].type, 'foo');
@@ -373,7 +371,7 @@ define(function (require, exports, module) {
             assert.isTrue(metrics._send.getCall(0).args[1]);
 
             var data = metrics._send.getCall(0).args[0];
-            assert.lengthOf(Object.keys(data), 24);
+            assert.lengthOf(Object.keys(data), 23);
             assert.equal(data.events[0].type, 'foo');
             assert.equal(data.events[1].type, 'bar');
             assert.equal(data.events[2].type, 'qux');
@@ -395,7 +393,7 @@ define(function (require, exports, module) {
             assert.isTrue(metrics._send.getCall(0).args[1]);
 
             var data = metrics._send.getCall(0).args[0];
-            assert.lengthOf(Object.keys(data), 24);
+            assert.lengthOf(Object.keys(data), 23);
             assert.lengthOf(data.events, 3);
             assert.equal(data.events[0].type, 'foo');
             assert.equal(data.events[1].type, 'bar');
@@ -464,64 +462,6 @@ define(function (require, exports, module) {
           assert.lengthOf(data.timers.foo, 1);
           assert.isObject(data.timers.foo[0]);
           assert.isTrue(data.timers.foo[0].elapsed >= 4);
-        });
-      });
-    });
-
-    describe('create and initialise metrics with ab data', function () {
-      var sandbox, xhr, environment;
-
-      beforeEach(function () {
-        metrics.destroy();
-
-        sandbox = sinon.sandbox.create();
-        xhr = { ajax: function () {} };
-        environment = new Environment(windowMock);
-        metrics = new Metrics({
-          able: {
-            report: function () {
-              return ['foo'];
-            }
-          },
-          environment: environment,
-          inactivityFlushMs: 100,
-          window: windowMock,
-          xhr: xhr
-        });
-
-        metrics.init();
-
-        sandbox.stub(environment, 'hasSendBeacon', function () {
-          return true;
-        });
-        sandbox.stub(windowMock.navigator, 'sendBeacon', function () {});
-      });
-
-      afterEach(function () {
-        sandbox.restore();
-      });
-
-      describe('flush, no events or timers', function () {
-        beforeEach(function () {
-          return metrics.flush();
-        });
-
-        it('sends data', function () {
-          assert.isTrue(windowMock.navigator.sendBeacon.calledOnce);
-          var data = JSON.parse(windowMock.navigator.sendBeacon.getCall(0).args[1]);
-          assert.isArray(data.ab);
-          assert.lengthOf(data.ab, 1);
-          assert.equal(data.ab[0], 'foo');
-        });
-
-        describe('flush, no events or timers', function () {
-          beforeEach(function () {
-            return metrics.flush();
-          });
-
-          it('does not send data', function () {
-            assert.isTrue(windowMock.navigator.sendBeacon.calledOnce);
-          });
         });
       });
     });

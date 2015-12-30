@@ -132,39 +132,6 @@ define([
     return dfd.promise;
   };
 
-  suite['properly collects metrics events with ab testing tags'] = function () {
-    var dfd = new Promise.Deferred();
-
-    var metricsCollector = new StatsDCollector();
-    metricsCollector.init();
-
-    var fixtureMessage = readFixture('statsd_body_ab.json');
-    var expectedEventBody = readExpectedData('statsd_event_body_ab.txt');
-
-    udpTest(function (message, server) {
-      message = statsdMessageToObject(message);
-
-      // navigationTiming timing data is sent if available, interfering
-      // with the test. Ignore navigationTiming data.
-      if (/navigationTiming\./.test(message.raw)) {
-        return;
-      }
-
-      assert.equal(message.raw, expectedEventBody);
-
-      // both types of message should have the normal tags.
-      assert.equal(message.tags['ab_mailcheck_is_enable_or_disabled_mailcheckenabled'], 'true');
-      metricsCollector.close();
-      server.close();
-      dfd.resolve();
-
-    }, function (){
-      metricsCollector.write(fixtureMessage);
-    });
-
-    return dfd.promise;
-
-  };
 
   registerSuite(suite);
 

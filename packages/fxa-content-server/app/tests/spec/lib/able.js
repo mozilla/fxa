@@ -46,22 +46,6 @@ define(function (require, exports, module) {
         assert.equal(window.able.choose.args[0][1].email, 'testuser@testuser.com');
       });
     });
-
-    describe('report', function () {
-      it('returns [] if window.able is not available', function () {
-        assert.deepEqual(able.report(), []);
-      });
-
-      it('defers to window.able.report if available', function () {
-        window.able = {
-          report: function () {
-            return ['value'];
-          }
-        };
-
-        assert.deepEqual(able.report(), ['value']);
-      });
-    });
   });
 });
 
