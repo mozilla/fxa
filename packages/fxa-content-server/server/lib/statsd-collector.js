@@ -34,7 +34,6 @@ function getGenericTags(body) {
     if (agent) {
       if (agent.ua) {
         tags = tags.concat([
-          'agent_ua_name:' + agent.ua.toString(), // -> "Safari 5.0.1"
           'agent_ua_family:' + agent.ua.family, // -> "Safari"
           'agent_ua_version:' + agent.ua.toVersionString(), // -> "5.0.1"
           'agent_ua_version_major:' + agent.ua.major // -> "5"
@@ -43,18 +42,12 @@ function getGenericTags(body) {
 
       if (agent.os) {
         tags = tags.concat([
-          'agent_os_name:' + agent.os.toString(), // -> "iOS 5.1"
           'agent_os_version:' + agent.os.toVersionString(), // -> "5.1"
           'agent_os_family:' + agent.os.family, // -> "iOS"
           'agent_os_major:' + agent.os.major // -> "5"
         ]);
       }
 
-      if (agent.device) {
-        tags = tags.concat([
-          'agent_device:' + agent.device.family // -> "iPhone"
-        ]);
-      }
     }
   }
 
