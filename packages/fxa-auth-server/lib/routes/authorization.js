@@ -5,7 +5,7 @@
 const buf = require('buf').hex;
 const hex = require('buf').to.hex;
 const Joi = require('joi');
-const URI = require('URIjs');
+const URI = require('urijs');
 
 const AppError = require('../error');
 const config = require('../config');

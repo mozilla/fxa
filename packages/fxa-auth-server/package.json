@@ -22,7 +22,7 @@
     "node": ">=0.10.0"
   },
   "dependencies": {
-    "URIjs": "^1.14.2",
+    "urijs": "^1.16.1",
     "bluebird": "^2.9.14",
     "buf": "0.1.0",
     "convict": "0.8",
