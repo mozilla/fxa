@@ -494,6 +494,19 @@ define(function (require, exports, module) {
         assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
       });
 
+      it('shows an error if the user provides an email that ends with @firefox', function () {
+        fillOutSignUp('user@firefox', 'password', true);
+
+        sinon.spy(view, 'showValidationError');
+        view.showValidationErrors();
+
+        assert.isTrue(view.showValidationError.called);
+
+        var err = AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN');
+        err.context = 'signup';
+        assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
+      });
+
       it('shows an error if the password is invalid', function () {
         fillOutSignUp('testuser@testuser.com', 'passwor', true);
 
