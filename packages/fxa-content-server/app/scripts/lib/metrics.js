@@ -32,7 +32,6 @@ define(function (require, exports, module) {
   SpeedTrap.prototype = speedTrap;
 
   var ALLOWED_FIELDS = [
-    'ab',
     'broker',
     'campaign',
     'context',
@@ -122,8 +121,6 @@ define(function (require, exports, module) {
     this._able = options.able;
     this._env = options.environment || new Environment(this._window);
 
-    this._lastAbLength = 0;
-
     // if navigationTiming is supported, the baseTime will be from
     // navigationTiming.navigationStart, otherwise Date.now().
     this._startTime = options.startTime || this._speedTrap.baseTime;
@@ -167,8 +164,6 @@ define(function (require, exports, module) {
         return p();
       }
 
-      this._lastAbLength = filteredData.ab.length;
-
       return this._send(filteredData, isPageUnloading)
         .then(function (sent) {
           if (sent) {
@@ -182,8 +177,7 @@ define(function (require, exports, module) {
 
     _isFlushRequired: function (data) {
       return data.events.length !== 0 ||
-        Object.keys(data.timers).length !== 0 ||
-        data.ab.length !== this._lastAbLength;
+        Object.keys(data.timers).length !== 0;
     },
 
     _clearInactivityFlushTimeout: function () {
@@ -210,7 +204,6 @@ define(function (require, exports, module) {
       var unloadData = this._speedTrap.getUnload();
 
       var allData = _.extend({}, loadData, unloadData, {
-        ab: this._able ? this._able.report() : [],
         broker: this._brokerType,
         campaign: this._campaign,
         context: this._context,
