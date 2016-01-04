@@ -68,7 +68,7 @@ define([
           function(res) {
             assert.ok(res);
 
-            return respond(mail.wait(user, 2), RequestMocks.resetMailWithServiceAndRedirect);
+            return respond(mail.wait(user, 2), RequestMocks.resetMailWithServiceAndRedirectNoSignup);
           })
           .then(
           function (emails) {
