@@ -1088,6 +1088,9 @@ module.exports = function (
           )
           .then(
             function (accountRecord) {
+              log.activityEvent('account.reset', request, {
+                uid: accountResetToken.uid.toString('hex')
+              })
               return customs.reset(accountRecord.email)
             }
           )
