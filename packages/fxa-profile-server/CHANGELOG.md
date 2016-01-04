@@ -1,3 +1,17 @@
+<a name="0.53.0"></a>
+## 0.53.0 (2016-01-04)
+
+
+#### Bug Fixes
+
+* **travis:** build and test on 0.10, 0.12 and 4.x ([41acdda1](https://github.com/mozilla/fxa-profile-server/commit/41acdda191b8c87744203d700a589d621fae0601))
+
+
+#### Features
+
+* **openid:** make /v1/profile act as the OIDC UserInfo endpoint ([a86d0d4d](https://github.com/mozilla/fxa-profile-server/commit/a86d0d4d3113e4529712cd66ab89855f4299d145), closes [#175](https://github.com/mozilla/fxa-profile-server/issues/175))
+
+
 <a name="0.50.1"></a>
 ### 0.50.1 (2015-12-01)
 
