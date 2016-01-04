@@ -1,3 +1,20 @@
+<a name"0.53.0"></a>
+## 0.53.0 (2016-01-04)
+
+
+#### Bug Fixes
+
+* **deps:** switch from URIjs to urijs ([ecdf31ed](https://github.com/mozilla/fxa-oauth-server/commit/ecdf31ed), closes [#347](https://github.com/mozilla/fxa-oauth-server/issues/347))
+* **travis:** build on node 0.10, 0.12, 4, no allowed failures ([6684e8c8](https://github.com/mozilla/fxa-oauth-server/commit/6684e8c8))
+
+
+#### Features
+
+* **openid:**
+  * Add support for OIDC `login_hint` query param. ([200ce433](https://github.com/mozilla/fxa-oauth-server/commit/200ce433))
+  * add initial OpenID Connect support ([93f87582](https://github.com/mozilla/fxa-oauth-server/commit/93f87582), closes [#362](https://github.com/mozilla/fxa-oauth-server/issues/362))
+
+
 <a name"0.51.0"></a>
 ## 0.51.0 (2015-12-02)
 
