@@ -11,12 +11,12 @@ define(function (require, exports, module) {
   'use strict';
 
   var _ = require('underscore');
-  var FxDesktopV2AuthenticationBroker = require('models/auth_brokers/fx-desktop-v2');
+  var FxSyncWebChannelAuthenticationBroker = require('models/auth_brokers/fx-sync-web-channel');
   var HaltBehavior = require('views/behaviors/halt');
 
-  var proto = FxDesktopV2AuthenticationBroker.prototype;
+  var proto = FxSyncWebChannelAuthenticationBroker.prototype;
 
-  var FirstRunAuthenticationBroker = FxDesktopV2AuthenticationBroker.extend({
+  var FirstRunAuthenticationBroker = FxSyncWebChannelAuthenticationBroker.extend({
     _iframeCommands: {
       LOADED: 'loaded',
       LOGIN: 'login',

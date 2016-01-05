@@ -84,11 +84,11 @@ define(function (require, exports, module) {
     });
 
     describe('beforeSignUpConfirmationPoll', function () {
-      it('notifies the channel with `fxaccounts:login`, does not halt', function () {
+      it('notifies the channel with `fxaccounts:login`, halts by default', function () {
         return broker.beforeSignUpConfirmationPoll(account)
           .then(function (result) {
             assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
-            assert.isUndefined(result.halt);
+            assert.isTrue(result.halt);
           });
       });
     });

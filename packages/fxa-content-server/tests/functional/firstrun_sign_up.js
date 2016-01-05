@@ -87,7 +87,7 @@ define([
         .end()
         .closeCurrentWindow()
 
-        // switch back to the original window, it should not transition.
+        // switch back to the original window, it should transition.
         .switchToWindow('')
         .end()
 
