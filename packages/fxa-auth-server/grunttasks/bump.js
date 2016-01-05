@@ -13,7 +13,7 @@ module.exports = function (grunt) {
       bumpVersion: true,
       commit: true,
       commitMessage: 'Release v%VERSION%',
-      commitFiles: ['package.json', 'npm-shrinkwrap.json', 'CHANGELOG'],
+      commitFiles: ['package.json', 'npm-shrinkwrap.json', 'CHANGELOG.md'],
       createTag: true,
       tagName: 'v%VERSION%',
       tagMessage: 'Version %VERSION%',
