@@ -57,8 +57,10 @@ module.exports = function (grunt) {
     // replaces the blocks by the file they reference,
     // and replaces all references to assets by their revisioned version if it is found on the disk
     'usemin',
-    // copy the non-minified scripts file for sourcemap purposes
+    // copy the non-minified main.js script file for sourcemap purposes
     'copy:build',
+    // copy the non-minified head.js script file for sourcemap purposes
+    'copy:head',
     // update the sourcemap path to match the hosted files
     'sourcemap-source',
 
