@@ -10,13 +10,19 @@ module.exports = function (grunt) {
    */
 
   var fs = require('fs');
-  var MAP_PATH = 'dist/scripts/main.js.map';
+
 
   grunt.registerTask('sourcemap-source', 'Adjusts the sourcemap source file to match the hosted path.', function () {
 
-    var existingMap = JSON.parse(fs.readFileSync(MAP_PATH));
+    var MAP_PATH_MAIN = 'dist/scripts/main.js.map';
+    var existingMap = JSON.parse(fs.readFileSync(MAP_PATH_MAIN));
     existingMap.sources = ['main.js'];
+    fs.writeFileSync(MAP_PATH_MAIN, JSON.stringify(existingMap));
 
-    fs.writeFileSync(MAP_PATH, JSON.stringify(existingMap));
+    var MAP_PATH_HEAD = 'dist/scripts/head.js.map';
+    var existingMapHead = JSON.parse(fs.readFileSync(MAP_PATH_HEAD));
+    existingMapHead.sources = ['head.js'];
+    fs.writeFileSync(MAP_PATH_HEAD, JSON.stringify(existingMapHead));
+
   });
 };
