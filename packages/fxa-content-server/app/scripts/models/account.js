@@ -18,6 +18,8 @@ define(function (require, exports, module) {
   var ProfileClient = require('lib/profile-client');
   var ProfileImage = require('models/profile-image');
 
+  var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
+
   // Account attributes that can be persisted
   var PERSISTENT = {
     displayName: undefined,
@@ -282,9 +284,9 @@ define(function (require, exports, module) {
       options = options || {};
 
       return p().then(function () {
+        var email = self.get('email');
         var password = self.get('password');
         var sessionToken = self.get('sessionToken');
-        var email = self.get('email');
 
         if (password) {
           return self._fxaClient.signIn(email, password, relier);
@@ -328,12 +330,60 @@ define(function (require, exports, module) {
         });
     },
 
+    /**
+     * Retry a sign up
+     *
+     * @param {object} relier
+     * @param {object} [options]
+     * @param {string} [options.resume] resume token
+     * @returns {promise}
+     */
+    retrySignUp: function (relier, options) {
+      options = options || {};
+
+      return this._fxaClient.signUpResend(
+        relier,
+        this.get('sessionToken'),
+        {
+          resume: options.resume
+        }
+      );
+    },
+
+    /**
+     * Verify the account using the verification code
+     *
+     * @param {string} code - the verification code
+     * @returns {promise}
+     */
+    verifySignUp: function (code) {
+      var self = this;
+      return self._fxaClient.verifyCode(
+        self.get('uid'),
+        code
+      )
+      .then(function () {
+        if (self.get('needsOptedInToMarketingEmail')) {
+          self.unset('needsOptedInToMarketingEmail');
+          var emailPrefs = self.getMarketingEmailPrefs();
+          return emailPrefs.optIn(NEWSLETTER_ID);
+        }
+      });
+    },
+
+    /**
+     * Sign out the user
+     *
+     * @returns {promise}
+     */
     signOut: function () {
       return this._fxaClient.signOut(this.get('sessionToken'));
     },
 
     /**
      * Destroy the account, remove it from the server
+     *
+     * @returns {promise}
      */
     destroy: function () {
       var self = this;
