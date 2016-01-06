@@ -41,7 +41,7 @@ to notify the device of account status changes.
 The WebPush specification allows messages to be sent
 with or without a payload.
 To keep things simple
-we will use an empty message to indicate
+we will use a message with no payload to indicate
 that there has been a change
 in the core account status information,
 without communicating any more precise details
@@ -52,10 +52,10 @@ without having to commit to and build
 all the details of a full notification/communication protocol.
 
 A future feature will define the semantics
-of push notifications with a non-empty payload.
+of push notifications with an encrypted payload.
 
 The fxa-auth-server will send a push notification
-with empty payload
+with no payload
 to all registered devices
 in response to the following actions:
 
@@ -63,9 +63,14 @@ in response to the following actions:
 * User deletes their account
 * User resets their password
 
+When the fxa-auth-server receives a `410 Gone`
+response from the Push server it should remove the device
+from the list of user's devices.
+This will allow the device to register again with the fxa-auth-server.
+
 When a connected device receives
 a push notification on its registered endpoint,
-and the notification has an empty payload,
+and the notification has no payload,
 the device should perform the following checks
 to update its view of the account status:
 
