@@ -19,7 +19,12 @@ FXA_TEST_NAME=$1
 source $DIRNAME/defaults.sh
 source $DIRNAME/$FXA_TEST_NAME
 
-GIT_COMMIT=$(curl -s "$FXA_CONTENT_ROOT/ver.json" | jsawk  "return this.commit")
+# optionally, GIT_COMMIT can be set in the environment to override
+if [ -z "$GIT_COMMIT" ]; then
+  GIT_COMMIT=$(curl -s "$FXA_CONTENT_ROOT/ver.json" | jsawk  "return this.commit")
+else
+  echo "Using GIT_COMMIT from the environment $GIT_COMMIT"
+fi
 
 echo "FXA_TEST_NAME      $FXA_TEST_NAME"
 echo "FXA_CONTENT_ROOT   $FXA_CONTENT_ROOT"
