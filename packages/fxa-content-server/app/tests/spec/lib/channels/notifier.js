@@ -82,18 +82,47 @@ define(function (require, exports, module) {
       });
     });
 
-    it('triggerRemote triggers events on remote channels but not self', function () {
-      var ev = 'some other event';
-      var data = { baz: 'qux' };
-      var spy = sinon.spy();
+    describe('triggerRemote', function () {
+      describe('with a global message', function () {
+        var data = { baz: 'qux' };
+        var ev = 'some other event';
+        var notifierSpy;
 
-      notifier.on(ev, spy);
-      notifier.triggerRemote(ev, data);
+        beforeEach(function () {
+          notifierSpy = sinon.spy();
 
-      assert.isTrue(webChannelMock.send.calledWith(ev, data));
-      assert.isTrue(tabChannelMock.send.calledWith(ev, data));
-      assert.isTrue(iframeChannelMock.send.calledWith(ev, data));
-      assert.isFalse(spy.called);
+          notifier.on(ev, notifierSpy);
+          notifier.triggerRemote(ev, data);
+        });
+
+        it('triggers events on remote channels but not self', function () {
+          assert.isTrue(webChannelMock.send.calledWith(ev, data));
+          assert.isTrue(tabChannelMock.send.calledWith(ev, data));
+          assert.isTrue(iframeChannelMock.send.calledWith(ev, data));
+          assert.isFalse(notifierSpy.called);
+        });
+      });
+
+      describe('with an `internal:` message', function () {
+        var data = { baz: 'qux' };
+        var ev = 'internal:message';
+        var notifierSpy;
+
+        beforeEach(function () {
+          notifierSpy = sinon.spy();
+
+          notifier.on(ev, notifierSpy);
+          notifier.triggerRemote(ev, data);
+        });
+
+        it('triggers events on tabChannel only', function () {
+          assert.isTrue(tabChannelMock.send.calledWith(ev, data));
+
+          assert.isFalse(webChannelMock.send.called);
+          assert.isFalse(iframeChannelMock.send.called);
+          assert.isFalse(notifierSpy.called);
+        });
+      });
     });
   });
 });

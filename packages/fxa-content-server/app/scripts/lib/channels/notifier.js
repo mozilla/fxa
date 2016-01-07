@@ -28,6 +28,11 @@ define(function (require, exports, module) {
 
     initialize: function (options) {
       options = options || {};
+
+      // internal:* messages are never sent outside of FxA. Messages
+      // with the "internal:" prefix are only sent to channels
+      // in the internalChannels list.
+      this._internalChannels = [];
       this._channels = [];
 
       if (options.iframeChannel) {
@@ -40,6 +45,7 @@ define(function (require, exports, module) {
 
       if (options.tabChannel) {
         this._tabChannel = options.tabChannel;
+        this._internalChannels.push(options.tabChannel);
         this._channels.push(options.tabChannel);
         this._listen(options.tabChannel);
       }
@@ -51,9 +57,18 @@ define(function (require, exports, module) {
     },
 
     triggerRemote: function (event, data) {
-      this._channels.forEach(function (channel) {
-        channel.send(event, data);
-      });
+
+      // internal:* messages are never sent outside of FxA. Ensure
+      // only internal channels receive internal:* messages.
+      if (/^internal:/.test(event)) {
+        this._internalChannels.forEach(function (channel) {
+          channel.send(event, data);
+        });
+      } else {
+        this._channels.forEach(function (channel) {
+          channel.send(event, data);
+        });
+      }
     },
 
     // Listen for notifications from other fxa tabs or frames
