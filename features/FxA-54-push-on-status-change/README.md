@@ -63,10 +63,12 @@ in response to the following actions:
 * User deletes their account
 * User resets their password
 
-When the fxa-auth-server receives a `410 Gone`
-response from the Push server it should remove the device
-from the list of user's devices.
+When the fxa-auth-server receives a `400` level
+error response from the Push server it should set all push related fields
+in the user's devices to an empty string.
 This will allow the device to register again with the fxa-auth-server.
+(Note that they need to be set to the empty string rather null, because the
+updateDevice stored procedure uses COALESCE on the inputs.)
 
 When a connected device receives
 a push notification on its registered endpoint,
