@@ -92,7 +92,11 @@ define(function (require, exports, module) {
     });
 
     describe('render', function () {
-      it('renders opted-in user corrected', function () {
+      it('adds the `basket-ready` class to the `#communications-preferences` element', function () {
+        assert.lengthOf(view.$('#communication-preferences.basket-ready'), 1);
+      });
+
+      it('renders opted-in user correctly', function () {
         sinon.stub(emailPrefsModel, 'isOptedIn', function () {
           return true;
         });

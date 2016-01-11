@@ -39,6 +39,14 @@ define(function (require, exports, module) {
       return self._marketingEmailPrefs;
     },
 
+    // The view is rendered twice to avoid delaying the settings page load.
+    // The first render is done without querying Basket for the user's email
+    // opt-in status. The second is after Basket is queried. Selenium tests
+    // should do their business after the second render. _isBasketReady is
+    // used to add a class to the #communication-preferences element that
+    // Selenium can proceed. See #3357 and #3061
+    _isBasketReady: false,
+
     afterVisible: function () {
       var self = this;
       var emailPrefs = self.getMarketingEmailPrefs();
@@ -47,12 +55,9 @@ define(function (require, exports, module) {
       // function so that the settings page render is not blocked while waiting
       // for Basket to respond.  See #3061
       return emailPrefs.fetch()
-        .then(function () {
-          return self.render();
-        },
-        function (err) {
+        .fail(function (err) {
           if (MarketingEmailErrors.is(err, 'UNKNOWN_EMAIL')) {
-            // user has not yet opted in to Basket yet. Ignore.
+            // user has not yet opted in to Basket yet. Ignore
             return;
           }
           if (MarketingEmailErrors.is(err, 'UNKNOWN_ERROR')) {
@@ -67,7 +72,9 @@ define(function (require, exports, module) {
           // 400 and 500
           errorString = errorString + '.' + err.code;
           self.logEvent(errorString);
-
+        })
+        .then(function () {
+          self._isBasketReady = true;
           return self.render();
         });
     },
@@ -80,6 +87,7 @@ define(function (require, exports, module) {
 
       return {
         error: self._error,
+        isBasketReady: !! self._isBasketReady,
         isOptedIn: isOptedIn,
         isPanelOpen: self.isPanelOpen(),
         // preferencesURL is only available if the user is already
