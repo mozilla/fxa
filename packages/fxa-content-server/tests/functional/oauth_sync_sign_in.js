@@ -124,10 +124,10 @@ define([
               .click()
             .end()
 
-            .then(FunctionalHelpers.visibleByQSA('#splash .signin'))
+            .then(FunctionalHelpers.visibleByQSA('.ready #splash .signin'))
             .end()
 
-            .findByCssSelector('#splash .signin')
+            .findByCssSelector('.ready #splash .signin')
               .click()
             .end()
 

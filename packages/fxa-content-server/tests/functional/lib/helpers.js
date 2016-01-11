@@ -378,8 +378,8 @@ define([
         });
     }
 
-    return openPage(context, app, '#splash .' + page)
-      .findByCssSelector('#splash .' + page)
+    return openPage(context, app, '.ready #splash .' + page)
+      .findByCssSelector('.ready #splash .' + page)
         .click()
       .end()
 

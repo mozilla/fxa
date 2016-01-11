@@ -34,7 +34,13 @@ define([
       .get(require.toUrl(IFRAME_OAUTH_APP + '#' + page))
       .setFindTimeout(intern.config.pageLoadTimeout)
 
-      .findByCssSelector('#splash .' + page)
+      .findByCssSelector('.ready')
+      .end()
+
+      // add extra sleep for iframe flow loading
+      .sleep(500)
+
+      .findByCssSelector('.ready-hash-' + page + ' #splash .' + page)
         .click()
       .end()
 
