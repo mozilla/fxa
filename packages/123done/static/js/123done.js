@@ -122,6 +122,6 @@ $(document).ready(function() {
     updateListArea(loggedInEmail);
     // display current saved state
     State.load();
-
+    $('body').addClass('ready');
   });
 });
