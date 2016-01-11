@@ -1,3 +1,7 @@
+train-53:
+  * chore(deps): Update mysql package dependency to latest version #112
+  * fix(tests): Upgrade test runner and fix some test declarations #112
+
 train-51:
   * fix(travis): build and test on 0.10, 0.12 and 4.x, and allow failure on >= 5.x
   * chore(shrinkwrap): update npm-shrinkwrap.json
