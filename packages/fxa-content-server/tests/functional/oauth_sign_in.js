@@ -131,11 +131,11 @@ define([
           .click()
         .end()
 
-        .then(FunctionalHelpers.visibleByQSA('#splash .signin'))
+        .then(FunctionalHelpers.visibleByQSA('.ready #splash .signin'))
         .end()
 
         // round 2 - with the cached credentials
-        .findByCssSelector('#splash .signin')
+        .findByCssSelector('.ready #splash .signin')
           .click()
         .end()
 
@@ -350,7 +350,7 @@ define([
         .setFindTimeout(intern.config.pageLoadTimeout)
 
         // use the 'Choose my sign-in flow for me' button
-        .findByCssSelector('#splash .sign-choose')
+        .findByCssSelector('.ready #splash .sign-choose')
         .click()
         .end()
 
@@ -368,7 +368,7 @@ define([
         // now suggest a cached login
         .get(require.toUrl(OAUTH_APP))
         // again, use the 'Choose my sign-in flow for me' button
-        .findByCssSelector('#splash .sign-choose')
+        .findByCssSelector('.ready #splash .sign-choose')
         .click()
         .end()
 
