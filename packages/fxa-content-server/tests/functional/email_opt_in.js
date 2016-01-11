@@ -87,7 +87,7 @@ define([
           return self.remote.get(require.toUrl(verificationLink));
         })
 
-        .findByCssSelector('#fxa-settings-header')
+        .findByCssSelector('#communication-preferences.basket-ready')
         .end()
 
         .then(waitForBasket(email))
@@ -119,7 +119,7 @@ define([
           return self.remote.get(require.toUrl(verificationLink));
         })
 
-        .findByCssSelector('#fxa-settings-header')
+        .findByCssSelector('#communication-preferences.basket-ready')
         .end()
 
         .then(waitForBasket(email))
@@ -139,7 +139,7 @@ define([
         // ensure the changes stick across refreshes
         .refresh()
 
-        .findByCssSelector('#fxa-settings-header')
+        .findByCssSelector('#communication-preferences.basket-ready')
         .end()
 
         .then(FunctionalHelpers.visibleByQSA('#communication-preferences .settings-unit-details'))
@@ -155,7 +155,7 @@ define([
         // ensure the opt-out sticks across refreshes
         .refresh()
 
-        .findByCssSelector('#fxa-settings-header')
+        .findByCssSelector('#communication-preferences.basket-ready')
         .end()
 
         .findByCssSelector('#communication-preferences .settings-unit-toggle')
@@ -184,7 +184,7 @@ define([
           return self.remote.get(require.toUrl(verificationLink));
         })
 
-        .findByCssSelector('#fxa-settings-header')
+        .findByCssSelector('#communication-preferences.basket-ready')
         .end()
 
         .findByCssSelector('#communication-preferences .settings-unit-toggle')
@@ -213,7 +213,7 @@ define([
         // ensure the opt-in sticks across refreshes
         .refresh()
 
-        .findByCssSelector('#fxa-settings-header')
+        .findByCssSelector('#communication-preferences.basket-ready')
         .end()
 
         .findByCssSelector('#communication-preferences .settings-unit-toggle')
