@@ -26,3 +26,12 @@ Each connected device can also request a **signed identity certificate**, which 
 All server functionality is exposed via a HTTP API.  It is JSON based and vaguely restful.  A detailed description is available [here](./api.md) and a prose overview of the design and cryptogaphic details is available [here](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol).
 
 
+## Logging
+
+We log several events for analytical and metrics purposes:
+
+### Activity Events
+
+* account.created - Account is created
+* account.signed - [Certificate Signed](api.md#post-v1certificatesign)
+* account.login - [Account login event](api.md#post-v1accountlogin)
