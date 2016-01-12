@@ -224,6 +224,21 @@ define(function (require, exports, module) {
       loginData.verified = !! loginData.verified;
       loginData.verifiedCanLinkAccount = !! this._verifiedCanLinkAccount;
       return loginData;
+    },
+
+    /**
+     * Notify the browser that it should open sync preferences
+     *
+     * @method openSyncPreferences
+     * @param {string} entryPoint - where Sync Preferences is opened from
+     * @returns {promise} resolves when notification is sent.
+     */
+    openSyncPreferences: function (entryPoint) {
+      if (this.hasCapability('syncPreferencesNotification')) {
+        return this.send(this.getCommand('SYNC_PREFERENCES'), {
+          entryPoint: entryPoint
+        });
+      }
     }
   });
 
