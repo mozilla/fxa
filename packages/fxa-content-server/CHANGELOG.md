@@ -1,3 +1,34 @@
+<a name="0.54.0"></a>
+# 0.54.0 (2016-01-12)
+
+
+### Bug Fixes
+
+* **client:** fx-desktop-v2 broker halts before signup confirmation poll. ([34c9728](https://github.com/mozilla/fxa-content-server/commit/34c9728)), closes [#3330](https://github.com/mozilla/fxa-content-server/issues/3330)
+* **client:** Only send `internal:*` messages across the InterTabChannel. ([1e169b8](https://github.com/mozilla/fxa-content-server/commit/1e169b8))
+* **csp:** make CSP reports more detailed, remove sample rate ([41d919c](https://github.com/mozilla/fxa-content-server/commit/41d919c)), closes [#3297](https://github.com/mozilla/fxa-content-server/issues/3297)
+* **docs:** remove outdated Docker docs ([4487573](https://github.com/mozilla/fxa-content-server/commit/4487573))
+* **metrics:** optimize StatsD tags for performance ([207556a](https://github.com/mozilla/fxa-content-server/commit/207556a)), closes [#3349](https://github.com/mozilla/fxa-content-server/issues/3349)
+* **signup:** disallow @firefox email field during sign up ([56465b2](https://github.com/mozilla/fxa-content-server/commit/56465b2)), closes [#3332](https://github.com/mozilla/fxa-content-server/issues/3332)
+* **sourcemap:** add head.js sourcemap ([fdb822c](https://github.com/mozilla/fxa-content-server/commit/fdb822c)), closes [#3355](https://github.com/mozilla/fxa-content-server/issues/3355)
+* **styles:** fixes avatar styling to be consistent with fx desktop, fixes #3276 ([e3bd998](https://github.com/mozilla/fxa-content-server/commit/e3bd998)), closes [#3276](https://github.com/mozilla/fxa-content-server/issues/3276)
+* **styles:** update age styles to work properly in latest Firefox ([c6da26c](https://github.com/mozilla/fxa-content-server/commit/c6da26c))
+* **teamcity:** allow GIT_COMMIT to be set via environment ([d2147c7](https://github.com/mozilla/fxa-content-server/commit/d2147c7))
+* **tests:** allow unset value of GIT_COMMIT ([1dd0fd7](https://github.com/mozilla/fxa-content-server/commit/1dd0fd7))
+* **tests:** Fix the communication preferences tests. ([ae1104f](https://github.com/mozilla/fxa-content-server/commit/ae1104f)), closes [#3357](https://github.com/mozilla/fxa-content-server/issues/3357)
+* **tests:** improve iframe functional tests ([969b0b9](https://github.com/mozilla/fxa-content-server/commit/969b0b9)), closes [#3361](https://github.com/mozilla/fxa-content-server/issues/3361)
+
+### Features
+
+* **client:** Add a "Sync Preferences" button for fx-desktop-v3 broker. ([7fd2855](https://github.com/mozilla/fxa-content-server/commit/7fd2855)), closes [#3079](https://github.com/mozilla/fxa-content-server/issues/3079)
+
+### Refactor
+
+* **client:** Add retrySignUp and verifySignUp to the Account model ([cf6700a](https://github.com/mozilla/fxa-content-server/commit/cf6700a))
+* **metrics:** remove unused metrics tags ([d086fa0](https://github.com/mozilla/fxa-content-server/commit/d086fa0)), closes [#3346](https://github.com/mozilla/fxa-content-server/issues/3346)
+
+
+
 <a name="0.53.0"></a>
 # 0.53.0 (2015-12-30)
 
