@@ -572,7 +572,7 @@ define(function (require, exports, module) {
 
             assert.equal(view.navigate.args[0][0], 'confirm');
             assert.isTrue(view.navigate.args[0][1].data.account.get('customizeSync'));
-            assert.isTrue(user.signUpAccount.calledWith(account, relier));
+            assert.isTrue(user.signUpAccount.calledWith(account, password, relier));
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                               'signup.success'));
           });

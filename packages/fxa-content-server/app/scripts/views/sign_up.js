@@ -282,12 +282,12 @@ define(function (require, exports, module) {
     _initAccount: function () {
       var self = this;
 
+      var password = self.getElementValue('.password');
       var preVerifyToken = self.relier.get('preVerifyToken');
       var account = self.user.initAccount({
         customizeSync: self.$('.customize-sync').is(':checked'),
         email: self.getElementValue('.email'),
-        needsOptedInToMarketingEmail: self.$('.marketing-email-optin').is(':checked'),
-        password: self.getElementValue('.password')
+        needsOptedInToMarketingEmail: self.$('.marketing-email-optin').is(':checked')
       });
 
       if (preVerifyToken) {
@@ -305,7 +305,7 @@ define(function (require, exports, module) {
 
       return self.invokeBrokerMethod('beforeSignIn', account.get('email'))
         .then(function () {
-          return self.user.signUpAccount(account, self.relier, {
+          return self.user.signUpAccount(account, password, self.relier, {
             resume: self.getStringifiedResumeToken()
           });
         })

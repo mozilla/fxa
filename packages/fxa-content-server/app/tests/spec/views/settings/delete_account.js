@@ -148,9 +148,9 @@ define(function (require, exports, module) {
             return view.submit();
           });
 
-          it('deletes the users account', function () {
+          it('delegates to the user model', function () {
             assert.isTrue(user.deleteAccount.calledOnce);
-            assert.isTrue(user.deleteAccount.calledWith(account));
+            assert.isTrue(user.deleteAccount.calledWith(account, password));
           });
 
           it('notifies the broker', function () {
@@ -177,21 +177,14 @@ define(function (require, exports, module) {
               return p.reject(AuthErrors.toError('ACCOUNT_LOCKED'));
             });
 
+            sinon.spy(view, 'notifyOfLockedAccount');
+
             return view.submit();
           });
 
-          it('shows error message to locked out users', function () {
-            assert.isTrue(view.isErrorVisible());
-            assert.include(view.$('.error').text().toLowerCase(), 'locked');
-          });
-
-          it('logs the error', function () {
-            var err = view._normalizeError(AuthErrors.toError('ACCOUNT_LOCKED'));
-            assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
-          });
-
-          it('retains the password in the account to poll for account unlock', function () {
-            assert.isTrue(account.has('password'));
+          it('notifies the user of the locked account', function () {
+            assert.isTrue(
+              view.notifyOfLockedAccount.calledWith(account, password));
           });
         });
 

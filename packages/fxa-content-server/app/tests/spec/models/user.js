@@ -148,10 +148,10 @@ define(function (require, exports, module) {
 
     describe('deleteAccount', function () {
       var account;
+
       beforeEach(function () {
         account = user.initAccount({
           email: 'testuser@testuser.com',
-          password: 'password',
           uid: 'uid'
         });
 
@@ -163,11 +163,12 @@ define(function (require, exports, module) {
 
         user._persistAccount(account);
 
-        return user.deleteAccount(account);
+        return user.deleteAccount(account, 'password');
       });
 
       it('should delegate to the account to remove itself', function () {
         assert.isTrue(account.destroy.calledOnce);
+        assert.isTrue(account.destroy.calledWith('password'));
       });
 
       it('should remove the account from storage', function () {
@@ -430,78 +431,119 @@ define(function (require, exports, module) {
     });
 
 
-    it('signInAccount', function () {
+    describe('signInAccount', function () {
+      var account;
       var relierMock = {};
-      var account = user.initAccount({ email: 'email', uid: 'uid' });
-      sinon.stub(account, 'signIn', function () {
-        return p();
-      });
-      sinon.stub(user, 'setSignedInAccount', function () {
-        return p(account);
-      });
-      sinon.spy(notifier, 'triggerRemote');
 
-      return user.signInAccount(account, relierMock, { resume: 'resume token'})
-        .then(function () {
+      describe('with a new account', function () {
+        beforeEach(function () {
+          account = user.initAccount({ email: 'email', uid: 'uid' });
+
+          sinon.stub(account, 'signIn', function () {
+            return p();
+          });
+
+          sinon.stub(user, 'setSignedInAccount', function () {
+            return p(account);
+          });
+
+          sinon.spy(notifier, 'triggerRemote');
+
+          return user.signInAccount(
+            account, 'password', relierMock, { resume: 'resume token'});
+        });
+
+        it('delegates to the account', function () {
           assert.isTrue(account.signIn.calledWith(
+            'password',
             relierMock,
             {
               resume: 'resume token'
             }
           ));
+        });
+
+        it('saves the account', function () {
           assert.isTrue(user.setSignedInAccount.calledWith(account));
+        });
+
+        it('notifies remote listeners of the signin', function () {
           assert.equal(notifier.triggerRemote.callCount, 1);
           var args = notifier.triggerRemote.args[0];
           assert.lengthOf(args, 2);
           assert.equal(args[0], notifier.EVENTS.SIGNED_IN);
           assert.deepEqual(args[1], account.toJSON());
         });
+      });
+
+      describe('with an already saved account', function () {
+        beforeEach(function () {
+          account = user.initAccount({
+            displayName: 'fx user',
+            email: 'email',
+            uid: 'uid'
+          });
+
+          var oldAccount = user.initAccount({
+            email: 'email',
+            grantedPermissions: { foo: ['bar'] },
+            uid: 'uid2'
+          });
+
+          sinon.stub(account, 'signIn', function () {
+            return p();
+          });
+
+          sinon.stub(user, 'setSignedInAccount', function () {
+            return p(account);
+          });
+
+          sinon.stub(user, 'getAccountByUid', function () {
+            return oldAccount;
+          });
+
+          return user.signInAccount(account, 'password', relierMock);
+        });
+
+        it('merges data with old and new account', function () {
+          var updatedAccount = user.setSignedInAccount.args[0][0];
+          assert.deepEqual(
+            updatedAccount.get('grantedPermissions').foo, ['bar']);
+          assert.equal(updatedAccount.get('displayName'), 'fx user');
+        });
+      });
     });
 
-    it('signInAccount with existing account keeps data', function () {
+    describe('signUpAccount', function () {
+      var account;
       var relierMock = {};
-      var account = user.initAccount({ email: 'email', password: 'foo', uid: 'uid' });
-      var oldAccount = user.initAccount({ email: 'email', grantedPermissions: { foo: ['bar'] }, uid: 'uid2' });
-      sinon.stub(account, 'signIn', function () {
-        return p();
-      });
-      sinon.stub(user, 'setSignedInAccount', function () {
-        return p(account);
-      });
-      sinon.stub(user, 'getAccountByUid', function () {
-        return oldAccount;
-      });
 
-      return user.signInAccount(account, relierMock)
-        .then(function () {
-          assert.isTrue(account.signIn.calledWith(relierMock));
-          assert.isTrue(user.getAccountByUid.calledWith(account.get('uid')));
-          assert.isTrue(user.setSignedInAccount.calledWith(oldAccount));
-          assert.deepEqual(user.setSignedInAccount.args[0][0].get('grantedPermissions').foo, ['bar']);
-          assert.equal(user.setSignedInAccount.args[0][0].get('password'), 'foo');
+      beforeEach(function () {
+        account = user.initAccount({ email: 'email', uid: 'uid' });
+        sinon.stub(account, 'signUp', function () {
+          return p();
         });
-    });
-
-    it('signUpAccount', function () {
-      var relierMock = {};
-      var account = user.initAccount({ email: 'email', uid: 'uid' });
-      sinon.stub(account, 'signUp', function () {
-        return p();
-      });
-      sinon.stub(user, 'setSignedInAccount', function () {
-        return p();
-      });
-
-      return user.signUpAccount(account, relierMock, { resume: 'resume token'})
-        .then(function () {
-          assert.isTrue(account.signUp.calledWith(
-            relierMock,
-            {
-              resume: 'resume token'
-            }
-          ));
-          assert.isTrue(user.setSignedInAccount.calledWith(account));
+        sinon.stub(user, 'setSignedInAccount', function () {
+          return p();
         });
+
+        return user.signUpAccount(
+          account, 'password', relierMock, { resume: 'resume token'});
+      });
+
+      it('delegates to the account', function () {
+        assert.isTrue(account.signUp.calledWith(
+          'password',
+          relierMock,
+          {
+            resume: 'resume token'
+          }
+        ));
+      });
+
+      it('stores the updated data', function () {
+        assert.isTrue(user.setSignedInAccount.calledWith(account));
+      });
     });
 
     it('changeAccountPassword changes the account password', function () {
@@ -530,27 +572,37 @@ define(function (require, exports, module) {
         });
     });
 
-    it('completeAccountPasswordReset completes the password reset', function () {
+    describe('completeAccountPasswordReset', function () {
+      var account;
       var relierMock = {};
-      var account = user.initAccount({ email: 'email', uid: 'uid' });
 
-      sinon.stub(account, 'completePasswordReset', function () {
-        return p();
-      });
-      sinon.stub(user, 'setSignedInAccount', function (account) {
-        return p(account);
-      });
+      beforeEach(function () {
+        account = user.initAccount({ email: 'email', uid: 'uid' });
 
-      return user.completeAccountPasswordReset(account, 'token', 'code', relierMock)
-        .then(function () {
-          assert.isTrue(account.completePasswordReset.calledWith(
-            'token',
-            'code',
-            relierMock
-          ));
-
-          assert.isTrue(user.setSignedInAccount.calledWith(account));
+        sinon.stub(account, 'completePasswordReset', function () {
+          return p();
         });
+
+        sinon.stub(user, 'setSignedInAccount', function (account) {
+          return p(account);
+        });
+
+        return user.completeAccountPasswordReset(
+          account, 'password', 'token', 'code', relierMock);
+      });
+
+      it('delegates to the account', function () {
+        assert.isTrue(account.completePasswordReset.calledWith(
+          'password',
+          'token',
+          'code',
+          relierMock
+        ));
+      });
+
+      it('saves the updated account data', function () {
+        assert.isTrue(user.setSignedInAccount.calledWith(account));
+      });
     });
 
     describe('pickResumeTokenInfo', function () {

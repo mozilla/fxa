@@ -56,77 +56,87 @@ define(function (require, exports, module) {
     });
 
     describe('notifyOfLockedAccount', function () {
-      it('displays an error with a `send unlock email` link, logs error', function () {
-        view.notifyOfLockedAccount(account);
+      beforeEach(function () {
+        sinon.spy(view, 'displayErrorUnsafe');
 
-        assert.isTrue(view.isErrorVisible());
-        assert.include(view.$('.error').text(), 'unlock');
+        view.notifyOfLockedAccount(account, 'password');
+      });
 
-        var err = view._normalizeError(AuthErrors.toError('ACCOUNT_LOCKED'));
-        assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
+      it('displays an error with a `send unlock email` link', function () {
+        assert.isTrue(view.displayErrorUnsafe.called);
+        var err = view.displayErrorUnsafe.args[0][0];
+        assert.isTrue(AuthErrors.is(err, 'ACCOUNT_LOCKED'));
+
+        assert.include(view.$('.error').html(), '/confirm_account_unlock');
       });
     });
 
     describe('sendAccountLockedEmail', function () {
-      it('sends an unlock email and redirects to `/confirm_account_unlock`', function () {
-        sinon.stub(fxaClient, 'sendAccountUnlockEmail', function () {
-          return p();
-        });
-        sinon.stub(view, 'getStringifiedResumeToken', function () {
-          return 'resume token';
+      describe('with a registered account', function () {
+        beforeEach(function () {
+          sinon.stub(fxaClient, 'sendAccountUnlockEmail', function () {
+            return p();
+          });
+
+          sinon.stub(view, 'getStringifiedResumeToken', function () {
+            return 'resume token';
+          });
+
+          view.notifyOfLockedAccount(account, 'password');
+          sinon.spy(view, 'navigate');
+          return view.sendAccountLockedEmail();
         });
 
-        view.notifyOfLockedAccount(account);
-        sinon.spy(view, 'navigate');
-        return view.sendAccountLockedEmail()
-          .then(function () {
-            assert.isTrue(view.navigate.calledWith('confirm_account_unlock'));
-            assert.isTrue(fxaClient.sendAccountUnlockEmail.calledWith(
-              'testuser@testuser.com',
-              relier,
-              {
-                resume: 'resume token'
-              }
-            ));
-          });
+        it('sends an unlock email', function () {
+          assert.isTrue(fxaClient.sendAccountUnlockEmail.calledWith(
+            'testuser@testuser.com',
+            relier,
+            {
+              resume: 'resume token'
+            }
+          ));
+        });
+
+        it('logs expected events', function () {
+          assert.isTrue(TestHelpers.isEventLogged(metrics, 'delete-account.unlock-email.send'));
+          assert.isTrue(TestHelpers.isEventLogged(metrics, 'delete-account.unlock-email.send.success'));
+        });
+
+        it('redirects to `/confirm_account_unlock', function () {
+          assert.isTrue(view.navigate.calledWith('confirm_account_unlock'));
+          // TODO check for account and password sent in data
+        });
       });
 
-      it('redirects to `/signup` if the account is unknown', function () {
-        sinon.stub(fxaClient, 'sendAccountUnlockEmail', function () {
-          return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
+      describe('with an unknown account', function () {
+        beforeEach(function () {
+          sinon.stub(fxaClient, 'sendAccountUnlockEmail', function () {
+            return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
+          });
+
+          view.notifyOfLockedAccount(account, 'password');
+          sinon.spy(view, 'navigate');
+          return view.sendAccountLockedEmail();
         });
 
-        view.notifyOfLockedAccount(account);
-        sinon.spy(view, 'navigate');
-        return view.sendAccountLockedEmail()
-          .then(function () {
-            assert.isTrue(view.navigate.calledWith('signup'));
-          });
+        it('redirects to the `/signup` page', function () {
+          assert.isTrue(view.navigate.calledWith('signup'));
+        });
       });
 
-      it('displays all other errors', function () {
-        sinon.stub(fxaClient, 'sendAccountUnlockEmail', function () {
-          return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+      describe('with errors', function () {
+        beforeEach(function () {
+          sinon.stub(fxaClient, 'sendAccountUnlockEmail', function () {
+            return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+          });
+
+          view.notifyOfLockedAccount(account, 'password');
+          return view.sendAccountLockedEmail();
         });
 
-        view.notifyOfLockedAccount(account);
-        return view.sendAccountLockedEmail()
-          .then(function () {
-            assert.isTrue(view.isErrorVisible());
-          });
-      });
-
-      it('logs expected events to metrics', function () {
-        sinon.stub(fxaClient, 'sendAccountUnlockEmail', function () {
-          return p();
+        it('displays the errors', function () {
+          assert.isTrue(view.isErrorVisible());
         });
-
-        view.notifyOfLockedAccount(account);
-        return view.sendAccountLockedEmail()
-          .then(function () {
-            assert.isTrue(TestHelpers.isEventLogged(metrics, 'delete-account.unlock-email.send'));
-            assert.isTrue(TestHelpers.isEventLogged(metrics, 'delete-account.unlock-email.send.success'));
-          });
       });
     });
   });

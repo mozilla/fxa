@@ -145,63 +145,85 @@ define(function (require, exports, module) {
       });
 
       describe('submit', function () {
-        it('prints returned error messages', function () {
-          $('#old_password').val('bad_password');
-          $('#new_password').val('bad_password');
-
-          sinon.stub(user, 'changeAccountPassword', function () {
-            return p.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
-          });
-
-          return view.submit()
-            .then(assert.fail, function (err) {
-              assert.isTrue(AuthErrors.is(err, 'INCORRECT_PASSWORD'));
-            });
-        });
-
-        it('shows error message to locked out users', function () {
-          sinon.stub(user, 'changeAccountPassword', function () {
-            return p.reject(AuthErrors.toError('ACCOUNT_LOCKED'));
-          });
-
-          $('#old_password').val('password');
-          $('#new_password').val('new_password');
-
-          return view.submit()
-            .then(function () {
-              assert.isTrue(view.isErrorVisible());
-              assert.include(view.$('.error').text().toLowerCase(), 'locked');
-
-              var err = view._normalizeError(AuthErrors.toError('ACCOUNT_LOCKED'));
-              assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
-
-              assert.isTrue(account.has('password'));
-            });
-        });
-
-        it('redirects user to /settings on success', function () {
+        describe('success', function () {
           var oldPassword = 'password';
           var newPassword = 'new_password';
-          $('#old_password').val(oldPassword);
-          $('#new_password').val(newPassword);
 
-          sinon.stub(user, 'changeAccountPassword', function () {
-            return p({});
+          beforeEach(function () {
+            $('#old_password').val(oldPassword);
+            $('#new_password').val(newPassword);
+
+            sinon.stub(user, 'changeAccountPassword', function () {
+              return p({});
+            });
+
+            sinon.stub(view, 'navigate', function () { });
+            sinon.stub(view, 'displaySuccess', function () { });
+
+            sinon.spy(broker, 'afterChangePassword');
+
+            return view.submit();
           });
 
-          sinon.stub(view, 'navigate', function () { });
-          sinon.stub(view, 'displaySuccess', function () { });
+          it('delegates to the user to change the password', function () {
+            assert.isTrue(user.changeAccountPassword.calledWith(
+                account, oldPassword, newPassword));
+          });
 
-          sinon.spy(broker, 'afterChangePassword');
+          it('informs the broker', function () {
+            assert.isTrue(broker.afterChangePassword.calledWith(account));
+          });
 
-          return view.submit()
-            .then(function () {
-              assert.equal(view.navigate.args[0][0], 'settings');
-              assert.isTrue(view.displaySuccess.called);
-              assert.isTrue(user.changeAccountPassword.calledWith(
-                  account, oldPassword, newPassword));
-              assert.isTrue(broker.afterChangePassword.calledWith(account));
+          it('redirects to the `/settings` screen', function () {
+            assert.equal(view.navigate.args[0][0], 'settings');
+          });
+
+          it('displays a success message', function () {
+            assert.isTrue(view.displaySuccess.called);
+          });
+        });
+
+
+        describe('error', function () {
+          var err;
+
+          beforeEach(function () {
+            $('#old_password').val('bad_password');
+            $('#new_password').val('bad_password');
+
+            sinon.stub(user, 'changeAccountPassword', function () {
+              return p.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
             });
+
+            return view.submit()
+              .then(assert.fail, function (_err) {
+                err = _err;
+              });
+          });
+
+          it('propagates the error', function () {
+            assert.isTrue(AuthErrors.is(err, 'INCORRECT_PASSWORD'));
+          });
+        });
+
+        describe('with an account that is locked', function () {
+          beforeEach(function () {
+            sinon.stub(user, 'changeAccountPassword', function () {
+              return p.reject(AuthErrors.toError('ACCOUNT_LOCKED'));
+            });
+
+            $('#old_password').val('password');
+            $('#new_password').val('new_password');
+
+            sinon.spy(view, 'notifyOfLockedAccount');
+
+            return view.submit();
+          });
+
+          it('notifies the user of the locked account', function () {
+            assert.isTrue(
+              view.notifyOfLockedAccount.calledWith(account, 'password'));
+          });
         });
       });
     });

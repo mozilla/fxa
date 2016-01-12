@@ -72,7 +72,8 @@ define(function (require, exports, module) {
       ephemeralMessages = new EphemeralMessages();
       ephemeralMessages.set('data', {
         account: account,
-        lockoutSource: 'signin'
+        lockoutSource: 'signin',
+        password: 'password'
       });
 
       initView();
@@ -93,17 +94,18 @@ define(function (require, exports, module) {
     });
 
     describe('beforeRender', function () {
-      it('redirects users who browse directly to the page to /signup', function () {
+      beforeEach(function () {
         sinon.stub(account, 'isDefault', function () {
           return true;
         });
 
         sinon.spy(view, 'navigate');
 
-        return view.beforeRender()
-          .then(function () {
-            assert.isTrue(view.navigate.calledWith('signup'));
-          });
+        return view.beforeRender();
+      });
+
+      it('redirects users who browse directly to the page to /signup', function () {
+        assert.isTrue(view.navigate.calledWith('signup'));
       });
     });
 
@@ -114,114 +116,136 @@ define(function (require, exports, module) {
     });
 
     describe('afterVisible', function () {
-      it('polls', function () {
-        var count = 0;
-        sinon.stub(fxaClient, 'signIn', function () {
-          if (count === 3) {
+      describe('for signin', function () {
+        beforeEach(function () {
+          var count = 0;
+          sinon.stub(fxaClient, 'signIn', function () {
+            if (count === 3) {
+              return p({
+                sessionToken: 'newSessionToken'
+              });
+            }
+
+            count++;
+            return p.reject(AuthErrors.toError('ACCOUNT_LOCKED'));
+          });
+
+          // we want the poll to happen.
+          windowMock.setTimeout = window.setTimeout.bind(window);
+
+          sinon.stub(broker, 'afterSignIn', function () {
+            return p({});
+          });
+
+          sinon.spy(view, 'navigate');
+
+          return view.afterVisible();
+        });
+
+        it('polls until complete', function () {
+          assert.equal(fxaClient.signIn.callCount, 4);
+          var args = fxaClient.signIn.args[0];
+
+          var signInEmail = args[0];
+          assert.equal(signInEmail, EMAIL);
+
+          var signInPassword = args[1];
+          assert.equal(signInPassword, 'password');
+
+          var signInRelier = args[2];
+          assert.strictEqual(signInRelier, relier);
+
+          var signInReason = args[3].reason;
+          assert.equal(signInReason, fxaClient.SIGNIN_REASON.ACCOUNT_UNLOCK);
+        });
+
+        it('if caused by signin, notifies the broker when complete', function () {
+          assert.isTrue(broker.afterSignIn.called);
+        });
+
+        it('redirects to `/account_unlock_complete`', function () {
+          assert.isTrue(view.navigate.calledWith('account_unlock_complete'));
+        });
+      });
+
+      describe('if not caused by signin', function () {
+        beforeEach(function () {
+          ephemeralMessages.set('data', {
+            account: account,
+            lockoutSource: 'change_password',
+            password: 'password'
+          });
+
+          initView();
+
+          sinon.stub(fxaClient, 'signIn', function () {
             return p({
               sessionToken: 'newSessionToken'
             });
-          }
+          });
 
-          count++;
-          return p.reject(AuthErrors.toError('ACCOUNT_LOCKED'));
+          sinon.spy(broker, 'afterSignIn');
+          sinon.spy(view, 'back');
+
+          return view.afterVisible();
         });
 
-        // we want the poll to happen.
-        windowMock.setTimeout = window.setTimeout.bind(window);
+        it('does not notify the broker', function () {
+          assert.isFalse(broker.afterSignIn.called);
+        });
 
-        return view.afterVisible()
-          .then(function () {
-            assert.equal(fxaClient.signIn.callCount, 4);
-          });
+        it('sets the success ephemeral message', function () {
+          assert.include(ephemeralMessages.get('success'), 'unlocked');
+        });
+
+        it('navigates back a view', function () {
+          assert.isTrue(view.back.called);
+        });
       });
 
-      it('if caused by signin, notifies the broker when complete', function () {
-        sinon.stub(fxaClient, 'signIn', function () {
-          return p({
-            sessionToken: 'newSessionToken'
+      describe('if user entered the wrong password', function () {
+        beforeEach(function () {
+          sinon.stub(fxaClient, 'signIn', function () {
+            return p.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
           });
+
+          sinon.spy(broker, 'afterSignIn');
+          sinon.spy(view, 'back');
+
+          return view.afterVisible();
         });
 
-        sinon.spy(broker, 'afterSignIn');
+        it('does not notify the broker', function () {
+          assert.isFalse(broker.afterSignIn.called);
+        });
 
-        return view.afterVisible()
-          .then(function () {
-            assert.isTrue(broker.afterSignIn.called);
-          });
+        it('sets the error ephemeral message', function () {
+          assert.isTrue(
+            AuthErrors.is(ephemeralMessages.get('error'), 'INCORRECT_PASSWORD'));
+        });
+
+        it('navigates back', function () {
+          assert.isTrue(view.back.called);
+        });
       });
 
-      it('if not caused by signin, sets the success ephemeral message and navigates back a view', function () {
-        ephemeralMessages.set('data', {
-          account: account,
-          lockoutSource: 'change_password'
+      describe('any other poll errors', function () {
+        beforeEach(function () {
+          sinon.stub(fxaClient, 'signIn', function () {
+            return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+          });
+
+          sinon.spy(view, 'displayError');
+
+          return view.afterVisible();
         });
 
-        initView();
+        it('are displayed verbatim', function () {
+          assert.isTrue(view.displayError.called);
 
-        sinon.stub(fxaClient, 'signIn', function () {
-          return p({
-            sessionToken: 'newSessionToken'
-          });
+          var err = view.displayError.args[0][0];
+          assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
         });
-
-        sinon.spy(broker, 'afterSignIn');
-        sinon.spy(view, 'back');
-
-        return view.afterVisible()
-          .then(function () {
-            assert.isFalse(broker.afterSignIn.called);
-            assert.include(ephemeralMessages.get('success'), 'unlocked');
-            assert.isTrue(view.back.called);
-          });
-      });
-
-      it('if caused by a signin, redirects to `/account_unlock_complete` if broker does not halt', function () {
-        sinon.stub(fxaClient, 'signIn', function () {
-          return p({
-            sessionToken: 'newSessionToken'
-          });
-        });
-
-        sinon.stub(broker, 'afterSignIn', function () {
-          return p();
-        });
-
-        sinon.spy(view, 'navigate');
-
-        return view.afterVisible()
-          .then(function () {
-            assert.isTrue(broker.afterSignIn.called);
-            assert.isTrue(view.navigate.calledWith('account_unlock_complete'));
-          });
-      });
-
-      it('navigates back if the user typed in the wrong password', function () {
-        sinon.stub(fxaClient, 'signIn', function () {
-          return p.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
-        });
-
-        sinon.spy(broker, 'afterSignIn');
-        sinon.spy(view, 'back');
-
-        return view.afterVisible()
-          .then(function () {
-            assert.isFalse(broker.afterSignIn.called);
-            assert.isTrue(
-                AuthErrors.is(ephemeralMessages.get('error'), 'INCORRECT_PASSWORD'));
-            assert.isTrue(view.back.called);
-          });
-      });
-
-      it('displays any other poll errors verbatim', function () {
-        sinon.stub(fxaClient, 'signIn', function () {
-          return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
-        });
-
-        return view.afterVisible()
-          .then(function () {
-            assert.isTrue(view.isErrorVisible());
-          });
       });
     });
 

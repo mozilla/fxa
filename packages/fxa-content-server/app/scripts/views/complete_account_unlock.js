@@ -37,7 +37,6 @@ define(function (require, exports, module) {
         .then(function () {
           self.logViewEvent('verification.success');
           var account = self.user.initAccount({
-            code: code,
             uid: uid
           });
 

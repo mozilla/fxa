@@ -39,32 +39,24 @@ define(function (require, exports, module) {
     var validCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH);
     var validUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
 
-    function testShowsExpiredScreen(search) {
-      windowMock.location.search = search;
-      initView();
-      return view.render()
-        .then(function () {
-          assert.ok(view.$('#fxa-account-unlock-link-expired-header').length);
-          testErrorLogged(AuthErrors.toError('EXPIRED_VERIFICATION_LINK'));
-        });
-    }
-
-    function testShowsDamagedScreen(search) {
-      windowMock.location.search = search;
-      initView();
-      return view.render()
-        .then(function () {
-          assert.ok(view.$('#fxa-account-unlock-link-damaged-header').length);
-          testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
-        });
-    }
-
     function testErrorLogged(error) {
       var normalizedError = view._normalizeError(error);
       assert.isTrue(TestHelpers.isErrorLogged(metrics, normalizedError));
     }
 
-    function initView () {
+    function testShowsExpiredScreen() {
+      assert.ok(view.$('#fxa-account-unlock-link-expired-header').length);
+      testErrorLogged(AuthErrors.toError('EXPIRED_VERIFICATION_LINK'));
+    }
+
+    function testShowsDamagedScreen() {
+      assert.ok(view.$('#fxa-account-unlock-link-damaged-header').length);
+      testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
+    }
+
+    function initView (search) {
+      windowMock.location.search = search;
+
       view = new View({
         broker: broker,
         fxaClient: fxaClient,
@@ -75,6 +67,10 @@ define(function (require, exports, module) {
         viewName: 'complete-account-unlock',
         window: windowMock
       });
+
+      sinon.spy(view, 'navigate');
+
+      return view.render();
     }
 
     beforeEach(function () {
@@ -96,8 +92,6 @@ define(function (require, exports, module) {
       });
 
       sinon.spy(broker, 'afterCompleteAccountUnlock');
-
-      initView();
     });
 
     afterEach(function () {
@@ -110,112 +104,160 @@ define(function (require, exports, module) {
     });
 
     describe('render', function () {
-      it('shows an error if uid is not available on the URL', function () {
-        return testShowsDamagedScreen(Url.objToSearchString({
-          code: validCode
-        }))
-        .then(function () {
+      describe('missing uid', function () {
+        beforeEach(function () {
+          return initView(Url.objToSearchString({
+            code: validCode
+          }));
+        });
+
+        it('does not delegate to the fxaClient', function () {
           assert.isFalse(view.fxaClient.completeAccountUnlock.called);
         });
+
+        it('displays the link damaged screen', function () {
+          testShowsDamagedScreen();
+        });
       });
 
-      it('shows an error if uid is invalid', function () {
-        return testShowsDamagedScreen(Url.objToSearchString({
-          code: validCode,
-          uid: invalidUid
-        }))
-        .then(function () {
+      describe('invalid uid', function () {
+        beforeEach(function () {
+          return initView(Url.objToSearchString({
+            code: validCode,
+            uid: invalidUid
+          }));
+        });
+
+        it('does not delegate to the fxaClient', function () {
           assert.isFalse(view.fxaClient.completeAccountUnlock.called);
         });
+
+        it('displays the link damaged screen', function () {
+          testShowsDamagedScreen();
+        });
       });
 
-      it('shows an error if code is not available on the URL', function () {
-        return testShowsDamagedScreen(Url.objToSearchString({
-          uid: validUid
-        }))
-        .then(function () {
+      describe('missing code', function () {
+        beforeEach(function () {
+          return initView(Url.objToSearchString({
+            uid: validUid
+          }));
+        });
+
+        it('does not delegate to the fxaClient', function () {
           assert.isFalse(view.fxaClient.completeAccountUnlock.called);
         });
+
+        it('displays the link damaged screen', function () {
+          testShowsDamagedScreen();
+        });
       });
 
-      it('shows an error if code is invalid', function () {
-        return testShowsDamagedScreen(Url.objToSearchString({
-          code: invalidCode,
-          uid: validUid
-        }))
-        .then(function () {
+      describe('invalid code', function () {
+        beforeEach(function () {
+          return initView(Url.objToSearchString({
+            code: invalidCode,
+            uid: validUid
+          }));
+        });
+
+        it('does not delegate to the fxaClient', function () {
           assert.isFalse(view.fxaClient.completeAccountUnlock.called);
         });
-      });
 
-      it('INVALID_PARAMETER error displays the verification link damaged screen', function () {
-        accountUnlockError = AuthErrors.toError('INVALID_PARAMETER', 'code');
-        return testShowsDamagedScreen(Url.objToSearchString({
-          code: validCode,
-          uid: validUid
-        }))
-        .then(function () {
-          assert.isTrue(view.fxaClient.completeAccountUnlock.called);
+        it('displays the link damaged screen', function () {
+          testShowsDamagedScreen();
         });
       });
 
-      it('UNKNOWN_ACCOUNT error displays the verification link expired screen', function () {
-        accountUnlockError = AuthErrors.toError(
-            'UNKNOWN_ACCOUNT', 'who are you?');
-        return testShowsExpiredScreen(Url.objToSearchString({
-          code: validCode,
-          uid: validUid
-        }))
-        .then(function () {
-          assert.isTrue(view.fxaClient.completeAccountUnlock.called);
+      describe('INVALID_PARAMETER error', function () {
+        beforeEach(function () {
+          accountUnlockError = AuthErrors.toError('INVALID_PARAMETER', 'code');
+          return initView(Url.objToSearchString({
+            code: validCode,
+            uid: validUid
+          }));
+        });
+
+        it('displays the link damaged screen', function () {
+          testShowsDamagedScreen();
         });
       });
 
-      it('INVALID_VERIFICATION_CODE error displays the verification link damaged screen', function () {
-        accountUnlockError = AuthErrors.toError(
-            'INVALID_VERIFICATION_CODE', 'this isn\'t a lottery');
-        return testShowsDamagedScreen(Url.objToSearchString({
-          code: validCode,
-          uid: validUid
-        }))
-        .then(function () {
-          assert.isTrue(view.fxaClient.completeAccountUnlock.called);
+      describe('UNKNOWN_ACCOUNT error', function () {
+        beforeEach(function () {
+          accountUnlockError = AuthErrors.toError(
+              'UNKNOWN_ACCOUNT', 'who are you?');
+
+          return initView(Url.objToSearchString({
+            code: validCode,
+            uid: validUid
+          }));
+        });
+
+        it('displays the link expired screen', function () {
+          testShowsExpiredScreen();
         });
       });
 
-      it('all other server errors are displayed verbatim', function () {
-        windowMock.location.search = Url.objToSearchString({
-          code: validCode,
-          uid: validUid
+      describe('INVALID_VERIFICATION_CODE error', function () {
+        beforeEach(function () {
+          accountUnlockError = AuthErrors.toError(
+              'INVALID_VERIFICATION_CODE', 'this isn\'t a lottery');
+          return initView(Url.objToSearchString({
+            code: validCode,
+            uid: validUid
+          }));
         });
-        initView();
 
-        accountUnlockError = new Error('account-unlock error');
-        return view.render()
-          .then(function () {
-            assert.isTrue(view.fxaClient.completeAccountUnlock.calledWith(validUid, validCode));
-            assert.ok(view.$('#fxa-account-unlock-error-header').length);
-            assert.equal(view.$('.error').text(), 'account-unlock error');
-          });
+        it('displays the verification linked damaged screen', function () {
+        });
       });
 
-      it('redirects to /account_unlock_complete if unlock successful', function () {
-        windowMock.location.search = Url.objToSearchString({
-          code: validCode,
-          uid: validUid
+      describe('all other errors', function () {
+        beforeEach(function () {
+          accountUnlockError = new Error('account-unlock error');
+
+          return initView(Url.objToSearchString({
+            code: validCode,
+            uid: validUid
+          }));
         });
-        initView();
 
-        sinon.spy(view, 'navigate');
+        it('are displayed verbatim', function () {
+          assert.ok(view.$('#fxa-account-unlock-error-header').length);
+          assert.equal(view.$('.error').text(), 'account-unlock error');
+        });
+      });
 
-        return view.render()
-          .then(function () {
-            assert.isTrue(view.fxaClient.completeAccountUnlock.calledWith(validUid, validCode));
-            assert.isTrue(broker.afterCompleteAccountUnlock.called);
-            assert.isTrue(view.navigate.calledWith('account_unlock_complete'));
-            assert.isTrue(TestHelpers.isEventLogged(
-                    metrics, 'complete-account-unlock.verification.success'));
-          });
+      describe('success', function () {
+        beforeEach(function () {
+          return initView(Url.objToSearchString({
+            code: validCode,
+            uid: validUid
+          }));
+        });
+
+        it('delegates to the fxaClient', function () {
+          assert.isTrue(
+            view.fxaClient.completeAccountUnlock.calledWith(
+              validUid, validCode));
+        });
+
+        it('notifies the broker', function () {
+          assert.isTrue(broker.afterCompleteAccountUnlock.called);
+          var account = broker.afterCompleteAccountUnlock.args[0][0];
+          assert.equal(account.get('uid'), validUid);
+        });
+
+        it('redirects to `/account_unlock_complete', function () {
+          assert.isTrue(view.navigate.calledWith('account_unlock_complete'));
+        });
+
+        it('logs a success event', function () {
+          assert.isTrue(TestHelpers.isEventLogged(
+              metrics, 'complete-account-unlock.verification.success'));
+        });
       });
     });
   });

@@ -195,7 +195,8 @@ define(function (require, exports, module) {
         it('calls view._signIn with the expected data', function () {
           var account = view._signIn.args[0][0];
           assert.equal(account.get('email'), email);
-          assert.equal(account.get('password'), password);
+          var signInPassword = view._signIn.args[0][1];
+          assert.equal(signInPassword, password);
         });
       });
 
@@ -204,8 +205,7 @@ define(function (require, exports, module) {
 
         beforeEach(function () {
           account = user.initAccount({
-            email: 'testuser@testuser.com',
-            password: 'password'
+            email: 'testuser@testuser.com'
           });
 
           sinon.spy(broker, 'afterForceAuth');
@@ -229,22 +229,7 @@ define(function (require, exports, module) {
 
         beforeEach(function () {
           account = user.initAccount({
-            email: 'testuser@testuser.com',
-            password: 'password'
-          });
-        });
-
-        describe('with an unknown account', function () {
-          beforeEach(function () {
-            err = AuthErrors.toError('UNKNOWN_ACCOUNT');
-
-            sinon.spy(view, 'displayError');
-
-            return view.onSignInError(account, err);
-          });
-
-          it('does not allow the user to sign up', function () {
-            assert.isTrue(view.displayError.calledWith(err));
+            email: 'testuser@testuser.com'
           });
         });
 
@@ -254,7 +239,7 @@ define(function (require, exports, module) {
 
             sinon.stub(SignInView.prototype, 'onSignInError', sinon.spy());
 
-            view.onSignInError(account, err);
+            view.onSignInError(account, 'password', err);
           });
 
           afterEach(function () {
@@ -262,7 +247,9 @@ define(function (require, exports, module) {
           });
 
           it('are delegated to the prototype', function () {
-            assert.isTrue(SignInView.prototype.onSignInError.calledWith(account, err));
+            assert.isTrue(
+              SignInView.prototype.onSignInError.calledWith(
+                account, 'password', err));
           });
         });
       });
@@ -313,18 +300,22 @@ define(function (require, exports, module) {
       });
 
       describe('submit', function () {
-        it('prints an error message and does not allow the user to sign up', function () {
+        beforeEach(function () {
           sinon.stub(user, 'signInAccount', function () {
             return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
           });
 
-          return view.submit()
-            .then(function () {
-              assert.isTrue(view.isErrorVisible());
-              assert.include(view.$('.error').text(), 'Unknown');
-              // no link to sign up.
-              assert.equal(view.$('.error').find('a').length, 0);
-            });
+          sinon.spy(view, 'displayError');
+
+          return view.submit();
+        });
+
+        it('prints an error message and does not allow the user to sign up', function () {
+          assert.isTrue(view.displayError.called);
+          var err = view.displayError.args[0][0];
+          assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
+          // no link to sign up.
+          assert.equal(view.$('.error').find('a').length, 0);
         });
       });
 
@@ -334,14 +325,17 @@ define(function (require, exports, module) {
             return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
           });
 
+          sinon.spy(view, 'displayError');
+
           relier.set('email', email);
 
           return view.resetPasswordNow();
         });
 
         it('prints an error message and does not allow the user to sign up', function () {
-          assert.isTrue(view.isErrorVisible());
-          assert.include(view.$('.error').text(), 'Unknown');
+          assert.isTrue(view.displayError.called);
+          var err = view.displayError.args[0][0];
+          assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
           // no link to sign up.
           assert.equal(view.$('.error').find('a').length, 0);
         });
