@@ -34,6 +34,8 @@ module.exports = function (
     )
   ]
 
+  var push = require('../push')(log, db)
+
   function isOpenIdProviderAllowed(id) {
     if (typeof(id) !== 'string') { return false }
     var hostname = url.parse(id).hostname
@@ -923,6 +925,10 @@ module.exports = function (
               log.timing('account.verified', Date.now() - account.createdAt)
               log.event('verified', { email: account.email, uid: account.uid, locale: account.locale })
               log.increment('account.verified')
+
+              // send a push notification to all devices that the account changed
+              push.notifyUpdate(uid)
+
               return db.verifyEmail(account)
                 .then(mailer.sendPostVerifyEmail.bind(
                     mailer,
