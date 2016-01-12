@@ -38,12 +38,18 @@
     }
   }
 
-  &.avatar-settings-view {
-    border: 1px solid $faint-text-color;
+  &.avatar-settings-view {    
     display: block;
     margin: 0 auto;
     position: relative;
 
+    &:hover{
+      box-shadow: 0px 0px 0px 1px #0095dd;
+    }
+
+    &:active{
+      box-shadow: 0px 0px 0px 1px #ff9500;
+    }
 
     @include respond-to('big') {
       height: 80px;
