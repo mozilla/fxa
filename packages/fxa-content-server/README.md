@@ -12,7 +12,7 @@ Follow the instructions on:
 The above link helps to install the following pre-requisites, and set up a development environment.
 
 ## Prerequisites
-* node 0.10.x
+* node 0.10.x or 4.2.3+
 * npm
 * Grunt
 * libgmp
