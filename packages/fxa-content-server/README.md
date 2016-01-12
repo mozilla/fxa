@@ -29,7 +29,7 @@ Note: If you have issues with `npm install` please update to npm 2.0+ using `npm
 
 #### Prerequisites:
   * Java JDK or JRE (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
-  * Selenium Server 2.46.0 ([Download](http://selenium-release.storage.googleapis.com/2.46/selenium-server-standalone-2.46.0.jar))
+  * Selenium Server 2.48.2 ([Download](http://selenium-release.storage.googleapis.com/2.48/selenium-server-standalone-2.48.2.jar))
 
 ### Setup
 
@@ -38,7 +38,7 @@ Note: If you have issues with `npm install` please update to npm 2.0+ using `npm
 e.g. in shell form:
 
 ```sh
-java -jar selenium-server-standalone-2.46.0.jar 
+java -jar selenium-server-standalone-2.48.2.jar 
 ```
 
 To run tests locally with Selenium:
@@ -75,7 +75,7 @@ To change the default auth server edit `server/config/*.json` on your deployed i
 ## Servers
 
 * latest development - https://latest.dev.lcip.org/
-* testing - https://nightly.dev.lcip.org/
+* stable - https://stable.dev.lcip.org/
 * stage - https://accounts.stage.mozaws.net/
 * production - https://accounts.firefox.com/
 
