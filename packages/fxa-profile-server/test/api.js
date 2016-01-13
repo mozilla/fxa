@@ -552,6 +552,24 @@ describe('/avatar', function() {
         assert.equal(res.result.message, 'Unsupported image provider');
       });
     });
+
+    it('should require :write scope', function() {
+      mock.token({
+        user: USERID,
+        scope: ['profile', 'profile:avatar']
+      });
+      return Server.api.post({
+        url: '/avatar',
+        payload: {
+          url: 'http://un.supported.domain/a/1.jpg'
+        },
+        headers: {
+          authorization: 'Bearer ' + tok
+        }
+      }).then(function(res) {
+        assert.equal(res.statusCode, 403);
+      });
+    });
   });
 
   describe('upload', function() {
@@ -655,10 +673,45 @@ describe('/avatar', function() {
         assert.equal(res.statusCode, 500);
       });
     });
+
+    it('should require :write scope', function() {
+      mock.token({
+        user: USERID,
+        scope: ['profile', 'profile:avatar']
+      });
+      return Server.api.post({
+        url: '/avatar/upload',
+        payload: imageData,
+        headers: {
+          authorization: 'Bearer ' + tok,
+          'content-type': 'image/png',
+          'content-length': imageData.length
+        }
+      }).then(function(res) {
+        assert.equal(res.statusCode, 403);
+      });
+    });
   });
 
   describe('DELETE', function() {
     var user = uid();
+
+
+    it('should require :write scope', function() {
+      mock.token({
+        user: user,
+        scope: ['profile', 'profile:avatar']
+      });
+      var id = avatarId();
+      return Server.api.delete({
+        url: '/avatar/' + id,
+        headers: {
+          authorization: 'Bearer ' + tok,
+        }
+      }).then(function(res) {
+        assert.equal(res.statusCode, 403);
+      });
+    });
 
     describe('gravatar', function() {
       var id = avatarId();
@@ -876,6 +929,28 @@ describe('/display_name', function() {
         }
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
+        return db.getDisplayName(USERID);
+      }).then(function(res) {
+        assert.equal(res.displayName, NAME);
+      });
+    });
+
+    it('should require :write scope', function() {
+      var NAME = 'Spock';
+      mock.token({
+        user: USERID,
+        scope: ['profile']
+      });
+      return Server.api.post({
+        url: '/display_name',
+        payload: {
+          displayName: NAME
+        },
+        headers: {
+          authorization: 'Bearer ' + tok
+        }
+      }).then(function(res) {
+        assert.equal(res.statusCode, 403);
         return db.getDisplayName(USERID);
       }).then(function(res) {
         assert.equal(res.displayName, NAME);

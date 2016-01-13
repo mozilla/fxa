@@ -92,8 +92,9 @@ exports.create = function createServer() {
     if (!scopes) {
       return;
     }
-    if (scopes.indexOf('profile') === -1) {
-      scopes.push('profile');
+    var profileScope = route.method === 'GET' ? 'profile' : 'profile:write';
+    if (scopes.indexOf(profileScope) === -1) {
+      scopes.push(profileScope);
     }
     for (var i = 0, len = scopes.length; i < len; i++) {
       var scope = scopes[i];
