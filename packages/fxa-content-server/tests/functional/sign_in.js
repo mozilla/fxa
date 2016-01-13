@@ -224,6 +224,9 @@ define([
       var self = this;
       return verifyUser(email, 0)
         .then(function () {
+          return FunctionalHelpers.openPage(self, PAGE_URL, '#fxa-signin-header');
+        })
+        .then(function () {
           return FunctionalHelpers.openSignInInNewTab(self, windowName);
         })
         .then(function () {
