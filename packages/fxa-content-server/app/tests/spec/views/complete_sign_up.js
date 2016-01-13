@@ -81,7 +81,9 @@ define(function (require, exports, module) {
       metrics = new Metrics();
       notifier = new Notifier();
       relier = new Relier();
-      user = new User();
+      user = new User({
+        notifier: notifier
+      });
       verificationError = null;
       windowMock = new WindowMock();
 

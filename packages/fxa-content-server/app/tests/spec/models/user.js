@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   var Device = require('models/device');
   var Devices = require('models/devices');
   var FxaClient = require('lib/fxa-client');
+  var MarketingEmailErrors = require('lib/marketing-email-errors');
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
   var Session = require('lib/session');
@@ -18,12 +19,26 @@ define(function (require, exports, module) {
   var User = require('models/user');
 
   var assert = chai.assert;
+  var CODE = 'verification code';
   var UUID = 'a mock uuid';
 
   describe('models/user', function () {
     var fxaClientMock;
     var notifier;
     var user;
+
+    function testRemoteSignInMessageSent(account) {
+      assert.equal(notifier.triggerRemote.callCount, 1);
+      var args = notifier.triggerRemote.args[0];
+      assert.lengthOf(args, 2);
+      assert.equal(args[0], notifier.EVENTS.SIGNED_IN);
+
+      // unwrapBKey and keyFetchToken are used in password reset
+      // to enable the original tab to send encryption keys
+      // to Firefox Hello.
+      assert.deepEqual(
+        args[1], account.pick('uid', 'unwrapBKey', 'keyFetchToken'));
+    }
 
     beforeEach(function () {
       fxaClientMock = new FxaClient();
@@ -38,13 +53,20 @@ define(function (require, exports, module) {
       user = null;
     });
 
-    it('creates an account', function () {
+    describe('initAccount', function () {
+      var account;
       var email = 'a@a.com';
-      var account = user.initAccount({
-        email: email
+
+      beforeEach(function () {
+        account = user.initAccount({
+          email: email
+        });
       });
-      assert.equal(account.get('email'), email);
-      assert.ok(account.toJSON());
+
+      it('creates an account', function () {
+        assert.equal(account.get('email'), email);
+        assert.deepEqual(account.pick('email'), { email: email });
+      });
     });
 
     it('isSyncAccount', function () {
@@ -468,11 +490,7 @@ define(function (require, exports, module) {
         });
 
         it('notifies remote listeners of the signin', function () {
-          assert.equal(notifier.triggerRemote.callCount, 1);
-          var args = notifier.triggerRemote.args[0];
-          assert.lengthOf(args, 2);
-          assert.equal(args[0], notifier.EVENTS.SIGNED_IN);
-          assert.deepEqual(args[1], account.toJSON());
+          testRemoteSignInMessageSent(account);
         });
       });
 
@@ -546,6 +564,98 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('completeAccountSignUp', function () {
+      var account;
+
+      beforeEach(function () {
+        account = user.initAccount({ email: 'email', uid: 'uid' });
+
+        sinon.spy(notifier, 'triggerRemote');
+      });
+
+      describe('without a basket error', function () {
+        beforeEach(function () {
+          account = user.initAccount({ email: 'email', uid: 'uid' });
+          sinon.stub(account, 'verifySignUp', function () {
+            return p();
+          });
+        });
+
+        describe('without a sessionToken', function () {
+          beforeEach(function () {
+            return user.completeAccountSignUp(account, CODE);
+          });
+
+          it('delegates to the account', function () {
+            assert.isTrue(account.verifySignUp.calledWith(CODE));
+          });
+
+          it('does not notify remotes of signin', function () {
+            assert.isFalse(notifier.triggerRemote.called);
+          });
+        });
+
+        describe('with a sessionToken', function () {
+          beforeEach(function () {
+            account.set('sessionToken', 'session token');
+            return user.completeAccountSignUp(account, CODE);
+          });
+
+          it('notifies remotes of signin', function () {
+            testRemoteSignInMessageSent(account);
+          });
+        });
+      });
+
+      describe('with a basket error', function () {
+        var err;
+
+        beforeEach(function () {
+          err = null;
+
+          account = user.initAccount({ email: 'email', uid: 'uid' });
+          sinon.stub(account, 'verifySignUp', function () {
+            return p.reject(MarketingEmailErrors.toError('USAGE_ERROR'));
+          });
+        });
+
+        describe('without a sessionToken', function () {
+          beforeEach(function () {
+            return user.completeAccountSignUp(account, CODE)
+              .then(assert.fail, function (_err) {
+                err = _err;
+              });
+          });
+
+          it('throws the error', function () {
+            assert.isTrue(MarketingEmailErrors.is(err, 'USAGE_ERROR'));
+          });
+
+          it('does not notify remotes of signin', function () {
+            assert.isFalse(notifier.triggerRemote.called);
+          });
+        });
+
+        describe('with a sessionToken', function () {
+          beforeEach(function () {
+            account.set('sessionToken', 'session token');
+            return user.completeAccountSignUp(account, CODE)
+              .then(assert.fail, function (_err) {
+                err = _err;
+              });
+          });
+
+          it('throws the error', function () {
+            assert.isTrue(MarketingEmailErrors.is(err, 'USAGE_ERROR'));
+          });
+
+          it('but still notifies remotes of signin', function () {
+            testRemoteSignInMessageSent(account);
+          });
+        });
+      });
+    });
+
     it('changeAccountPassword changes the account password', function () {
       var relierMock = {};
       var account = user.initAccount({ email: 'email', uid: 'uid' });
@@ -587,6 +697,8 @@ define(function (require, exports, module) {
           return p(account);
         });
 
+        sinon.spy(notifier, 'triggerRemote');
+
         return user.completeAccountPasswordReset(
           account, 'password', 'token', 'code', relierMock);
       });
@@ -602,6 +714,10 @@ define(function (require, exports, module) {
 
       it('saves the updated account data', function () {
         assert.isTrue(user.setSignedInAccount.calledWith(account));
+      });
+
+      it('notifies remote listeners', function () {
+        testRemoteSignInMessageSent(account);
       });
     });
 

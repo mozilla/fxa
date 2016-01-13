@@ -116,8 +116,6 @@ define(function (require, exports, module) {
           self.relier
         )
         .then(function (updatedAccount) {
-          self.notifier.triggerRemote(
-              Notifier.SIGNED_IN, updatedAccount.toJSON());
           // See the above note about notifying the original tab.
           self.logViewEvent('verification.success');
           return self.invokeBrokerMethod(

@@ -145,7 +145,25 @@ define(function (require, exports, module) {
 
     _finishPasswordResetSameBrowser: function (sessionInfo) {
       var self = this;
-      var account = self.user.initAccount(sessionInfo);
+      // Only the account UID, unwrapBKey and keyFetchToken are passed
+      // from the verification tab. Load other from localStorage
+      var account = self.user.getAccountByUid(sessionInfo.uid);
+
+      // keyFetchToken and unwrapBKey are sent from the verification tab,
+      // this tab has no idea what they are. The keyFetchToken and
+      // unwrapBKey are used to generate encryption keys for Hello
+      // that must be sent from this tab, otherwise Hello gets
+      // confused on where it should update it's UI.
+      if (sessionInfo.keyFetchToken && sessionInfo.unwrapBKey) {
+        account.set({
+          keyFetchToken: sessionInfo.keyFetchToken,
+          unwrapBKey: sessionInfo.unwrapBKey
+        });
+      }
+
+      if (account.isDefault()) {
+        return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+      }
 
       // The OAuth flow needs the sessionToken to finish the flow.
       return self.user.setSignedInAccount(account)
