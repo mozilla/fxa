@@ -154,6 +154,16 @@ const conf = convict({
     }
   },
   openid: {
+    keyFile: {
+      doc: 'Path to Private key JWK to sign id_tokens',
+      format: String,
+      default: ''
+    },
+    oldKeyFile: {
+      doc: 'Path to previous key that was used to sign id_tokens',
+      format: String,
+      default: ''
+    },
     key: {
       doc: 'Private JWK to sign id_tokens',
       default: {}
@@ -250,6 +260,15 @@ conf.get('serviceClients').forEach(function(client) {
   assert.equal(typeof client.scope, 'string', 'client scope required');
   assert.equal(typeof client.jku, 'string', 'client jku required');
 });
+
+// Replace openid key if file specified
+if (conf.get('openid.keyFile')){
+  conf.set('openid.key', require(conf.get('openid.keyFile')));
+}
+
+if (conf.get('openid.oldKeyFile')){
+  conf.set('openid.oldKey', require(conf.get('openid.oldKeyFile')));
+}
 
 var key = conf.get('openid.key');
 assert.equal(key.kty, 'RSA', 'openid.key.kty must be RSA');
