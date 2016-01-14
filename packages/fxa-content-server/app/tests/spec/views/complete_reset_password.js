@@ -317,27 +317,34 @@ define(function (require, exports, module) {
             });
       });
 
-      it('direct access signs the user in and redirects to `/settings` if broker does not say halt', function () {
-        view.$('[type=password]').val(PASSWORD);
+      describe('direct access', function () {
+        var account;
 
-        sinon.stub(fxaClient, 'signIn', function () {
-          return p(ACCOUNT_DATA);
-        });
-        sinon.stub(fxaClient, 'completePasswordReset', function () {
-          return p(true);
-        });
-        sinon.stub(user, 'setSignedInAccount', function (newAccount) {
-          return p(newAccount);
-        });
-        sinon.stub(relier, 'isDirectAccess', function () {
-          return true;
-        });
-        sinon.spy(view, 'navigate');
+        beforeEach(function () {
+          view.$('[type=password]').val(PASSWORD);
 
-        return view.validateAndSubmit()
-          .then(function () {
-            assert.isTrue(view.navigate.calledWith('settings'));
+          sinon.stub(user, 'completeAccountPasswordReset', function (_account) {
+            account = _account;
+            return p(account);
           });
+
+          sinon.stub(relier, 'isDirectAccess', function () {
+            return true;
+          });
+
+          sinon.spy(view, 'navigate');
+
+          return view.validateAndSubmit();
+        });
+
+        it('delegates to the user model', function () {
+          assert.isTrue(user.completeAccountPasswordReset.calledWith(
+            account, PASSWORD, TOKEN, CODE, relier));
+        });
+
+        it('redirects the user to `/settings`', function () {
+          assert.isTrue(view.navigate.calledWith('settings'));
+        });
       });
 
       it('reload view to allow user to resend an email on INVALID_TOKEN error', function () {

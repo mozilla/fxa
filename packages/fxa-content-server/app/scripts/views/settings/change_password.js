@@ -54,10 +54,7 @@ define(function (require, exports, module) {
           return self.render();
         }, function (err) {
           if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
-            // the password is needed to poll whether the account has
-            // been unlocked.
-            account.set('password', oldPassword);
-            return self.notifyOfLockedAccount(account);
+            return self.notifyOfLockedAccount(account, oldPassword);
           }
 
           throw err;

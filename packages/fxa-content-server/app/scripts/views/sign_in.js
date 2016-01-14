@@ -95,32 +95,35 @@ define(function (require, exports, module) {
 
     submit: function () {
       var account = this.user.initAccount({
-        email: this.getElementValue('.email'),
-        password: this.getElementValue('.password')
+        email: this.getElementValue('.email')
       });
 
-      return this._signIn(account);
+      var password = this.getElementValue('.password');
+
+      return this._signIn(account, password);
     },
 
     /**
+     * Sign in a user
      *
      * @param {Account} account
-     *     The account instance should either include a password or a sessionToken
-     *     @param {String} account.password
-     *     User password from the input
      *     @param {String} account.sessionToken
      *     Session token from the account
+     *     @param {string} [password] - the user's password. Can be null if
+     *     user is signing in with a sessionToken.
      * @private
      */
-    _signIn: function (account) {
+    _signIn: function (account, password) {
       var self = this;
-      if (! account || account.isDefault()) {
+      if (! account ||
+            account.isDefault() ||
+            (! account.has('sessionToken') && ! password)) {
         return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
       }
 
       return self.invokeBrokerMethod('beforeSignIn', account.get('email'))
         .then(function () {
-          return self.user.signInAccount(account, self.relier, {
+          return self.user.signInAccount(account, password, self.relier, {
             // a resume token is passed in to handle unverified users.
             resume: self.getStringifiedResumeToken()
           });
@@ -147,10 +150,10 @@ define(function (require, exports, module) {
 
           return self.onSignInUnverified(account);
         })
-        .fail(self.onSignInError.bind(self, account));
+        .fail(self.onSignInError.bind(self, account, password));
     },
 
-    onSignInError: function (account, err) {
+    onSignInError: function (account, password, err) {
       var self = this;
 
       if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT') && ! this.isSignupDisabled()) {
@@ -160,7 +163,7 @@ define(function (require, exports, module) {
         // if user canceled login, just stop
         return;
       } else if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
-        return self.notifyOfLockedAccount(account);
+        return self.notifyOfLockedAccount(account, password);
       }
       // re-throw error, it will be handled at a lower level.
       throw err;
@@ -196,7 +199,7 @@ define(function (require, exports, module) {
       var self = this;
       var account = this.getAccount();
 
-      return this._signIn(account)
+      return this._signIn(account, null)
         .fail(
           function () {
             self.chooserAskForPassword = true;

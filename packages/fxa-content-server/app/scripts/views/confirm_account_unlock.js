@@ -43,6 +43,12 @@ define(function (require, exports, module) {
         if (data.account) {
           accountData = data.account;
         }
+
+        // The password is needed to poll whether the user has
+        // unlocked their account.
+        if (data.password) {
+          this._password = data.password;
+        }
       }
 
       this._account = this.user.initAccount(accountData);
@@ -119,7 +125,7 @@ define(function (require, exports, module) {
       var self = this;
       var account = self.getAccount();
       var email = account.get('email');
-      var password = account.get('password');
+      var password = this._password;
 
       // try to sign the user in using the email/password that caused the
       // account to be locked. If the user has verified their email address,

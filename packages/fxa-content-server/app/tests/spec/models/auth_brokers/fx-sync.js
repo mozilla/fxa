@@ -205,7 +205,6 @@ define(function (require, exports, module) {
           customizeSync: true,
           declinedSyncEngines: ['bookmarks', 'passwords'],
           keyFetchToken: 'key_fetch_token',
-          notSent: 'not_sent',
           sessionToken: 'session_token',
           sessionTokenContext: 'sync',
           uid: 'uid',
@@ -258,7 +257,6 @@ define(function (require, exports, module) {
         account.set({
           customizeSync: true,
           keyFetchToken: 'key_fetch_token',
-          notSent: 'not_sent',
           sessionToken: 'session_token',
           sessionTokenContext: 'sync',
           uid: 'uid',
@@ -276,7 +274,6 @@ define(function (require, exports, module) {
             assert.equal(args[1].unwrapBKey, 'unwrap_b_key');
             assert.equal(args[1].customizeSync, true);
             assert.equal(args[1].verified, true);
-            assert.isFalse('notSent' in args[1]);
             assert.isUndefined(args[1].sessionTokenContext);
           });
       });

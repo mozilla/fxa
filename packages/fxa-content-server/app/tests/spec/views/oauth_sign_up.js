@@ -161,7 +161,7 @@ define(function (require, exports, module) {
         return view.submit()
           .then(function () {
             assert.equal(user.signUpAccount.args[0][0].get('email'), email);
-            assert.equal(user.signUpAccount.args[0][0].get('password'), 'password');
+            assert.equal(user.signUpAccount.args[0][1], 'password');
             assert.isTrue(view.navigate.calledWith('confirm'));
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                               'oauth.signup.success'));
@@ -220,7 +220,7 @@ define(function (require, exports, module) {
           .then(function () {
             assert.isTrue(view.navigate.calledWith('confirm'));
             assert.equal(user.signUpAccount.args[0][0].get('email'), email);
-            assert.equal(user.signUpAccount.args[0][0].get('password'), password);
+            assert.equal(user.signUpAccount.args[0][1], password);
           });
       });
     });

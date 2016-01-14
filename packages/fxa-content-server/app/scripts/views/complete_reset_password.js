@@ -105,12 +105,12 @@ define(function (require, exports, module) {
       // reset password complete poll completes in the original tab,
       // it will fetch the sessionToken from localStorage and go to town.
       var account = self.user.initAccount({
-        email: email,
-        password: password
+        email: email
       });
 
       return self.user.completeAccountPasswordReset(
           account,
+          password,
           token,
           code,
           self.relier

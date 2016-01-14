@@ -28,6 +28,7 @@ define(function (require, exports, module) {
     hadProfileImageSetBefore: undefined,
     lastLogin: undefined,
     needsOptedInToMarketingEmail: undefined,
+    // password field intentionally omitted to avoid unintentional leaks
     profileImageId: undefined,
     profileImageUrl: undefined,
     sessionToken: undefined,
@@ -51,7 +52,7 @@ define(function (require, exports, module) {
     customizeSync: undefined,
     declinedSyncEngines: undefined,
     keyFetchToken: undefined,
-    password: undefined,
+    // password field intentionally omitted to avoid unintentional leaks
     unwrapBKey: undefined
   }, PERSISTENT);
 
@@ -63,17 +64,9 @@ define(function (require, exports, module) {
   var Account = Backbone.Model.extend({
     defaults: DEFAULTS,
 
-    initialize: function (options) {
+    initialize: function (accountData, options) {
       options = options || {};
       var self = this;
-
-      if (options.accountData) {
-        ALLOWED_KEYS.forEach(function (key) {
-          if (typeof options.accountData[key] !== 'undefined') {
-            self.set(key, options.accountData[key]);
-          }
-        });
-      }
 
       self._oAuthClientId = options.oAuthClientId;
       self._oAuthClient = options.oAuthClient;
@@ -279,13 +272,22 @@ define(function (require, exports, module) {
         });
     },
 
-    signIn: function (relier, options) {
+    /**
+     * Sign in an existing user.
+     *
+     * @param {string} password - The user's password
+     * @param {object} relier - Relier being signed in to
+     * @param {object} [options]
+     * @param {string} [options.resume] - Resume token to send in verification
+     * email if user is unverified.
+     * @returns {promise} - resolves when complete
+     */
+    signIn: function (password, relier, options) {
       var self = this;
       options = options || {};
 
       return p().then(function () {
         var email = self.get('email');
-        var password = self.get('password');
         var sessionToken = self.get('sessionToken');
 
         if (password) {
@@ -313,13 +315,23 @@ define(function (require, exports, module) {
       });
     },
 
-    signUp: function (relier, options) {
+    /**
+     * Sign up a new user.
+     *
+     * @param {string} password - The user's password
+     * @param {object} relier - Relier being signed in to
+     * @param {object} [options]
+     * @param {string} [options.resume] - Resume token to send in verification
+     * email if user is unverified.
+     * @returns {promise} - resolves when complete
+     */
+    signUp: function (password, relier, options) {
       var self = this;
       options = options || {};
 
       return self._fxaClient.signUp(
         self.get('email'),
-        self.get('password'),
+        password,
         relier,
         {
           customizeSync: self.get('customizeSync'),
@@ -336,7 +348,7 @@ define(function (require, exports, module) {
      * @param {object} relier
      * @param {object} [options]
      * @param {string} [options.resume] resume token
-     * @returns {promise}
+     * @returns {promise} - resolves when complete
      */
     retrySignUp: function (relier, options) {
       options = options || {};
@@ -354,7 +366,7 @@ define(function (require, exports, module) {
      * Verify the account using the verification code
      *
      * @param {string} code - the verification code
-     * @returns {promise}
+     * @returns {promise} - resolves when complete
      */
     verifySignUp: function (code) {
       var self = this;
@@ -374,7 +386,7 @@ define(function (require, exports, module) {
     /**
      * Sign out the user
      *
-     * @returns {promise}
+     * @returns {promise} - resolves when complete
      */
     signOut: function () {
       return this._fxaClient.signOut(this.get('sessionToken'));
@@ -383,13 +395,14 @@ define(function (require, exports, module) {
     /**
      * Destroy the account, remove it from the server
      *
-     * @returns {promise}
+     * @param {string} password - The user's password
+     * @returns {promise} - resolves when complete
      */
-    destroy: function () {
+    destroy: function (password) {
       var self = this;
       return self._fxaClient.deleteAccount(
         self.get('email'),
-        self.get('password')
+        password
       )
       .then(function () {
         self.trigger('destroy', self);
@@ -462,12 +475,45 @@ define(function (require, exports, module) {
         });
     },
 
-    completePasswordReset: function (token, code, relier) {
+    /**
+     * Override set to only allow fields listed in ALLOWED_FIELDS
+     *
+     * @method set
+     */
+    set: _.wrap(Backbone.Model.prototype.set, function (func, attribute, value, options) {
+
+      var attributes;
+      // Handle both `"key", value` and `{key: value}` -style arguments.
+      if (_.isObject(attribute)) {
+        attributes = attribute;
+      } else {
+        attributes = {};
+        attributes[attribute] = value;
+      }
+
+      for (var key in attributes) {
+        if (! _.contains(ALLOWED_KEYS, key)) {
+          throw new Error(key + ' cannot be set on an Account');
+        }
+      }
+
+      return func.call(this, attribute, value, options);
+    }),
+
+    /**
+     * Complete a password reset
+     *
+     * @param {string} password - the user's new password
+     * @param {string} token - email verification token
+     * @param {string} code - email verification code
+     * @param {object} relier - relier being signed in to.
+     * @returns {promise} - resolves when complete
+     */
+    completePasswordReset: function (password, token, code, relier) {
       var self = this;
 
       var fxaClient = self._fxaClient;
       var email = self.get('email');
-      var password = self.get('password');
 
       return fxaClient.completePasswordReset(email, password, token, code)
         .then(function () {

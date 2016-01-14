@@ -67,19 +67,21 @@ define(function (require, exports, module) {
 
     submit: function () {
       var account = this.user.initAccount({
-        email:  this.relier.get('email'),
-        password: this.$('.password').val()
+        email:  this.relier.get('email')
       });
 
-      return this._signIn(account);
+      var password = this.getElementValue('.password');
+
+      return this._signIn(account, password);
     },
 
-    onSignInError: function (account, err) {
+    onSignInError: function (account, password, err) {
       if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
         // dead end, do not allow the user to sign up.
         this.displayError(err);
       } else {
-        return SignInView.prototype.onSignInError.call(this, account, err);
+        return SignInView.prototype.onSignInError.call(
+            this, account, password, err);
       }
     },
 

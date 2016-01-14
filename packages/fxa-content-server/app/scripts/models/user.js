@@ -92,8 +92,7 @@ define(function (require, exports, module) {
         return accountData;
       }
 
-      return new Account({
-        accountData: accountData,
+      return new Account(accountData, {
         assertion: this._assertion,
         fxaClient: this._fxaClient,
         marketingEmailClient: this._marketingEmailClient,
@@ -188,13 +187,14 @@ define(function (require, exports, module) {
      * delete the account from storage.
      *
      * @param {object} accountData
-     * @return {promise}
+     * @param {string} password - the user's password
+     * @return {promise} - resolves when complete
      */
-    deleteAccount: function (accountData) {
+    deleteAccount: function (accountData, password) {
       var self = this;
       var account = self.initAccount(accountData);
 
-      return account.destroy()
+      return account.destroy(password)
         .then(function () {
           self.removeAccount(account);
           self._notifier.triggerAll(self._notifier.EVENTS.DELETE, {
@@ -288,9 +288,18 @@ define(function (require, exports, module) {
         Session.cachedCredentials.email !== Session.email));
     },
 
-    signInAccount: function (account, relier, options) {
+    /**
+     * Sign in an account
+     *
+     * @param {object} account - account to sign in
+     * @param {string} password - the user's password
+     * @param {object} relier - relier being signed in to
+     * @param {object} [options] - options
+     * @returns {promise} - resolves when complete
+     */
+    signInAccount: function (account, password, relier, options) {
       var self = this;
-      return account.signIn(relier, options)
+      return account.signIn(password, relier, options)
         .then(function () {
           // If there's an account with the same uid in localStorage we merge
           // its attributes with the new account instance to retain state
@@ -311,9 +320,18 @@ define(function (require, exports, module) {
         });
     },
 
-    signUpAccount: function (account, relier, options) {
+    /**
+     * Sign up a new account
+     *
+     * @param {object} account - account to sign up
+     * @param {string} password - the user's password
+     * @param {object} relier - relier being signed in to
+     * @param {object} [options] - options
+     * @returns {promise} - resolves when complete
+     */
+    signUpAccount: function (account, password, relier, options) {
       var self = this;
-      return account.signUp(relier, options)
+      return account.signUp(password, relier, options)
         .then(function () {
           return self.setSignedInAccount(account);
         });
@@ -340,9 +358,19 @@ define(function (require, exports, module) {
         });
     },
 
-    completeAccountPasswordReset: function (account, token, code, relier) {
+    /**
+     * Complete a password reset for the account
+     *
+     * @param {object} account - account to sign up
+     * @param {string} password - the user's new password
+     * @param {string} token - email verification token
+     * @param {string} code - email verification code
+     * @param {object} relier - relier being signed in to
+     * @returns {promise} - resolves when complete
+     */
+    completeAccountPasswordReset: function (account, password, token, code, relier) {
       var self = this;
-      return account.completePasswordReset(token, code, relier)
+      return account.completePasswordReset(password, token, code, relier)
         .then(function () {
           return self.setSignedInAccount(account);
         });
