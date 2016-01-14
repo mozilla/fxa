@@ -25,14 +25,15 @@
       "script": "bin/key_server.js",
       "cwd": "fxa-auth-server",
       "env": {
-        "NODE_ENV": "dev"
+        "NODE_ENV": "dev",
+        "IP_ADDRESS": "0.0.0.0"
       },
       "max_restarts": "1",
       "min_uptime": "2m"
     },
     {
       "name": "content-server PORT 3030",
-      "script": "node_modules/.bin/grunt",
+      "script": "node_modules/grunt-cli/bin/grunt",
       "args": ["server"],
       "cwd": "fxa-content-server",
       "env": {
@@ -60,7 +61,8 @@
       "script": "bin/server.js",
       "cwd": "fxa-oauth-server",
       "env": {
-        "NODE_ENV": "dev"
+        "NODE_ENV": "dev",
+        "HOST" : "0.0.0.0"
       },
       "max_restarts": "1",
       "min_uptime": "2m"
@@ -70,7 +72,8 @@
       "script": "bin/internal.js",
       "cwd": "fxa-oauth-server",
       "env": {
-        "NODE_ENV": "dev"
+        "NODE_ENV": "dev",
+        "HOST_INTERNAL" : "0.0.0.0"
       },
       "max_restarts": "1",
       "min_uptime": "2m"
@@ -81,7 +84,8 @@
       "cwd": "fxa-profile-server",
       "max_restarts": "1",
       "env": {
-        "NODE_ENV": "dev"
+        "NODE_ENV": "dev",
+        "HOST": "0.0.0.0"
       },
       "min_uptime": "2m"
     },
@@ -101,7 +105,8 @@
       "cwd": "fxa-profile-server",
       "max_restarts": "1",
       "env": {
-        "NODE_ENV": "dev"
+        "NODE_ENV": "dev",
+        "WORKER_HOST": "0.0.0.0"
       },
       "min_uptime": "2m"
     },
@@ -132,7 +137,8 @@
       "script": "bin/server.js",
       "cwd": "fxa-oauth-console",
       "env": {
-        "NODE_ENV": "dev"
+        "NODE_ENV": "dev",
+        "HOST": "0.0.0.0"
       },
       "max_restarts": "1",
       "min_uptime": "2m"
@@ -142,10 +148,11 @@
       "script": "server.js",
       "cwd": "browserid-verifier",
       "env": {
-        "PORT": "5050"
+        "PORT": "5050",
+        "IP_ADDRESS": "0.0.0.0"
       },
       "max_restarts": "1",
-      "min_uptime": "2m" 
+      "min_uptime": "2m"
     },
     {
       "name": "sync server PORT 5000",
