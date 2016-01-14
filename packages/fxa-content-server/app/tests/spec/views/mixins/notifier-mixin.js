@@ -15,7 +15,7 @@ define(function (require, exports, module) {
   var assert = chai.assert;
 
   describe('views/mixins/notifier-mixin', function () {
-    var data = { token: 'token' };
+    var data = { uid: 'foo' };
     var functionHandlerSpy;
     var notifier;
     var view;
@@ -137,33 +137,33 @@ define(function (require, exports, module) {
     describe('notifier.trigger', function () {
       beforeEach(function () {
         sinon.spy(notifier, 'trigger');
-        view.notifier.trigger('message1', data);
+        view.notifier.trigger('fxaccounts:logout', data);
       });
 
       it('delegates to notifier.trigger', function () {
-        assert.isTrue(notifier.trigger.calledWith('message1', data, view));
+        assert.isTrue(notifier.trigger.calledWith('fxaccounts:logout', data, view));
       });
     });
 
     describe('notifier.triggerAll', function () {
       beforeEach(function () {
         sinon.spy(notifier, 'triggerAll');
-        view.notifier.triggerAll('message1', data);
+        view.notifier.triggerAll('fxaccounts:logout', data);
       });
 
       it('delegates to notifier.triggerAll', function () {
-        assert.isTrue(notifier.triggerAll.calledWith('message1', data, view));
+        assert.isTrue(notifier.triggerAll.calledWith('fxaccounts:logout', data, view));
       });
     });
 
     describe('notifier.triggerRemote', function () {
       beforeEach(function () {
         sinon.spy(notifier, 'triggerRemote');
-        view.notifier.triggerRemote('message1', data);
+        view.notifier.triggerRemote('fxaccounts:logout', data);
       });
 
       it('delegates to notifier.triggerRemote', function () {
-        assert.isTrue(notifier.triggerRemote.calledWith('message1', data));
+        assert.isTrue(notifier.triggerRemote.calledWith('fxaccounts:logout', data));
       });
     });
 

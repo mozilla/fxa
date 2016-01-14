@@ -266,7 +266,7 @@ define(function (require, exports, module) {
       });
 
       it('call onProfileUpdate after notification', function () {
-        notifier.trigger(notifier.EVENTS.PROFILE_CHANGE, {});
+        notifier.trigger(notifier.COMMANDS.PROFILE_CHANGE, {});
         assert.isTrue(spy.called);
       });
     });

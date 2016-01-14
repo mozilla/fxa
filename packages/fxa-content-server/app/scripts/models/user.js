@@ -162,7 +162,7 @@ define(function (require, exports, module) {
     clearSignedInAccount: function () {
       var uid = this.getSignedInAccount().get('uid');
       this.clearSignedInAccountUid();
-      this._notifier.triggerRemote(this._notifier.EVENTS.SIGNED_OUT, {
+      this._notifier.triggerRemote(this._notifier.COMMANDS.SIGNED_OUT, {
         uid: uid
       });
     },
@@ -207,7 +207,7 @@ define(function (require, exports, module) {
       return account.destroy(password)
         .then(function () {
           self.removeAccount(account);
-          self._notifier.triggerAll(self._notifier.EVENTS.DELETE, {
+          self._notifier.triggerAll(self._notifier.COMMANDS.DELETE, {
             uid: account.get('uid')
           });
         });
@@ -415,7 +415,7 @@ define(function (require, exports, module) {
       // Other tabs only need to know the account `uid` to load any
       // necessary info from localStorage
       this._notifier.triggerRemote(
-        this._notifier.EVENTS.SIGNED_IN, account.pick('uid', 'unwrapBKey', 'keyFetchToken'));
+        this._notifier.COMMANDS.SIGNED_IN, account.pick('uid', 'unwrapBKey', 'keyFetchToken'));
     },
 
     /**

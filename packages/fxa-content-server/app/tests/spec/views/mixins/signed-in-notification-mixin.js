@@ -45,7 +45,7 @@ define(function (require, exports, module) {
         assert.equal(notifier.on.callCount, 1);
         var args = notifier.on.args[0];
         assert.lengthOf(args, 2);
-        assert.equal(args[0], notifier.EVENTS.SIGNED_IN);
+        assert.equal(args[0], notifier.COMMANDS.SIGNED_IN);
         assert.isFunction(args[1]);
       });
 
@@ -171,7 +171,7 @@ define(function (require, exports, module) {
           assert.equal(notifier.off.callCount, 1);
           var args = notifier.off.args[0];
           assert.lengthOf(args, 2);
-          assert.equal(args[0], notifier.EVENTS.SIGNED_IN);
+          assert.equal(args[0], notifier.COMMANDS.SIGNED_IN);
           assert.equal(args[1], notifier.on.args[0][1]);
         });
       });

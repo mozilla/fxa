@@ -35,6 +35,7 @@ define(function (require, exports, module) {
         fxaClient: fxaClient,
         notifier: notifier
       });
+      user.getSignedInAccount().set('uid', 'foo');
 
       view = new View({
         broker: broker,

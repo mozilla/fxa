@@ -31,7 +31,7 @@ define(function (require, exports, module) {
       assert.equal(notifier.triggerRemote.callCount, 1);
       var args = notifier.triggerRemote.args[0];
       assert.lengthOf(args, 2);
-      assert.equal(args[0], notifier.EVENTS.SIGNED_IN);
+      assert.equal(args[0], notifier.COMMANDS.SIGNED_IN);
 
       // unwrapBKey and keyFetchToken are used in password reset
       // to enable the original tab to send encryption keys
@@ -142,7 +142,7 @@ define(function (require, exports, module) {
           assert.equal(notifier.triggerRemote.callCount, 1);
           var args = notifier.triggerRemote.args[0];
           assert.lengthOf(args, 2);
-          assert.equal(args[0], notifier.EVENTS.SIGNED_OUT);
+          assert.equal(args[0], notifier.COMMANDS.SIGNED_OUT);
         });
     });
 
@@ -198,7 +198,7 @@ define(function (require, exports, module) {
       });
 
       it('should trigger a notification', function () {
-        assert.isTrue(notifier.triggerAll.calledWith(notifier.EVENTS.DELETE, {
+        assert.isTrue(notifier.triggerAll.calledWith(notifier.COMMANDS.DELETE, {
           uid: account.get('uid')
         }));
       });

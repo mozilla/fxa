@@ -45,7 +45,7 @@ define(function (require, exports, module) {
 
     it('listens on initialization', function () {
       assert.equal(tabChannelMock.on.callCount,
-                   Object.keys(Notifier.prototype.EVENTS).length);
+                   Object.keys(Notifier.prototype.COMMANDS).length);
     });
 
     it('emits events received from other tabs', function (done) {
@@ -68,8 +68,8 @@ define(function (require, exports, module) {
 
     describe('triggerAll', function () {
       it('triggers events on all channels and self', function () {
-        var ev = 'some event';
-        var data = { foo: 'bar' };
+        var ev = 'fxaccounts:logout';
+        var data = { uid: 'foo' };
         var spy = sinon.spy();
 
         notifier.on(ev, spy);
@@ -84,8 +84,8 @@ define(function (require, exports, module) {
 
     describe('triggerRemote', function () {
       describe('with a global message', function () {
-        var data = { baz: 'qux' };
-        var ev = 'some other event';
+        var data = { uid: 'foo' };
+        var ev = 'fxaccounts:logout';
         var notifierSpy;
 
         beforeEach(function () {
@@ -104,8 +104,29 @@ define(function (require, exports, module) {
       });
 
       describe('with an `internal:` message', function () {
-        var data = { baz: 'qux' };
         var ev = 'internal:message';
+        var notifierSpy;
+
+        beforeEach(function () {
+          notifierSpy = sinon.spy();
+
+          notifier.on(ev, notifierSpy);
+          notifier.triggerRemote(ev);
+        });
+
+        it('triggers events on tabChannel only', function () {
+          assert.isTrue(tabChannelMock.send.calledWith(ev));
+
+          assert.isFalse(webChannelMock.send.called);
+          assert.isFalse(iframeChannelMock.send.called);
+          assert.isFalse(notifierSpy.called);
+        });
+      });
+
+      describe('with undefined properties', function () {
+        var data = { a: undefined, uid: 'foo', z: undefined };
+        var expectedData = { uid: 'foo' };
+        var ev = 'fxaccounts:logout';
         var notifierSpy;
 
         beforeEach(function () {
@@ -115,12 +136,93 @@ define(function (require, exports, module) {
           notifier.triggerRemote(ev, data);
         });
 
-        it('triggers events on tabChannel only', function () {
-          assert.isTrue(tabChannelMock.send.calledWith(ev, data));
+        it('triggers events on remote channels but not self', function () {
+          assert.equal(webChannelMock.send.args[0][0], ev);
+          assert.deepEqual(webChannelMock.send.args[0][1], expectedData);
+          assert.equal(tabChannelMock.send.args[0][0], ev);
+          assert.deepEqual(tabChannelMock.send.args[0][1], expectedData);
+          assert.equal(iframeChannelMock.send.args[0][0], ev);
+          assert.deepEqual(iframeChannelMock.send.args[0][1], expectedData);
+        });
+      });
 
-          assert.isFalse(webChannelMock.send.called);
-          assert.isFalse(iframeChannelMock.send.called);
-          assert.isFalse(notifierSpy.called);
+      it('throws if password is sent with fxaccounts:complete_reset_password_tab_open', function () {
+        assert.throws(function () {
+          notifier.triggerRemote('fxaccounts:complete_reset_password_tab_open', { password: 'foo' });
+        });
+      });
+
+      it('does not throw if password is not sent with fxaccounts:complete_reset_password_tab_open', function () {
+        assert.doesNotThrow(function () {
+          notifier.triggerRemote('fxaccounts:complete_reset_password_tab_open');
+        });
+      });
+
+      it('throws if password is sent with fxaccounts:delete', function () {
+        assert.throws(function () {
+          notifier.triggerRemote('fxaccounts:delete', { password: 'foo', uid: 'bar' });
+        });
+      });
+
+      it('does not throw if password is not sent with fxaccounts:delete', function () {
+        assert.doesNotThrow(function () {
+          notifier.triggerRemote('fxaccounts:delete', { uid: 'foo' });
+        });
+      });
+
+      it('throws if password is sent with profile:change', function () {
+        assert.throws(function () {
+          notifier.triggerRemote('profile:change', { password: 'foo', uid: 'bar' });
+        });
+      });
+
+      it('does not throw if password is not sent with profile:change', function () {
+        assert.doesNotThrow(function () {
+          notifier.triggerRemote('profile:change', { uid: 'foo' });
+        });
+      });
+
+      it('throws if password is sent with internal:signed_in', function () {
+        assert.throws(function () {
+          notifier.triggerRemote('internal:signed_in', {
+            keyFetchToken: 'foo',
+            password: 'bar',
+            uid: 'baz',
+            unwrapBKey: 'qux'
+          });
+        });
+      });
+
+      it('does not throw if password is not sent with internal:signed_in', function () {
+        assert.doesNotThrow(function () {
+          notifier.triggerRemote('internal:signed_in', {
+            keyFetchToken: 'foo',
+            uid: 'baz',
+            unwrapBKey: 'qux'
+          });
+        });
+      });
+
+      it('does not throw if undefined password is sent with internal:signed_in', function () {
+        assert.doesNotThrow(function () {
+          notifier.triggerRemote('internal:signed_in', {
+            keyFetchToken: 'foo',
+            password: undefined,
+            uid: 'baz',
+            unwrapBKey: 'qux'
+          });
+        });
+      });
+
+      it('throws if password is sent with fxaccounts:logout', function () {
+        assert.throws(function () {
+          notifier.triggerRemote('fxaccounts:logout', { password: 'foo', uid: 'bar' });
+        });
+      });
+
+      it('does not throw if password is not sent with fxaccounts:logout', function () {
+        assert.doesNotThrow(function () {
+          notifier.triggerRemote('fxaccounts:logout', { uid: 'foo' });
         });
       });
     });
