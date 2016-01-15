@@ -19,6 +19,7 @@ define(function (require, exports, module) {
   var TestHelpers = require('../../../lib/helpers');
   var User = require('models/user');
   var View = require('views/settings/avatar_camera');
+  var WebRTC = require('webrtc');
   var WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
@@ -87,51 +88,62 @@ define(function (require, exports, module) {
         });
       });
 
-      it('initializes', function () {
-        return view.render()
-          .then(function () {
-            assert.ok(view.video);
-            assert.isFalse(view.streaming);
+      describe('render', function () {
+        describe('without browser support', function () {
+          beforeEach(function () {
+            windowMock.navigator.getUserMedia = null;
+            windowMock.navigator.mediaDevices = null;
+
+            sinon.spy(view, 'navigate');
+
+            return view.render();
           });
-      });
 
-      it('error getting stream', function (done) {
-        windowMock.navigator._error = true;
-        view.render()
-          .then(function () {
-            windowMock.on('stream', function () {
-              assert.isTrue(view.isErrorVisible());
-              done();
-            });
-          })
-          .fail(done);
-      });
-
-      it('no browser support', function () {
-        windowMock.navigator.getUserMedia = null;
-
-        sinon.spy(view, 'navigate');
-
-        return view.render()
-          .then(function () {
+          it('redirects to `settings/avatar/change`', function () {
             assert.isTrue(view.navigate.calledWith('settings/avatar/change'));
           });
-      });
+        });
 
-      it('starts streaming', function (done) {
-        view.render()
-          .then(function () {
-            var ev = document.createEvent('HTMLEvents');
-            ev.initEvent('loadedmetadata', true, true);
+        describe('success', function () {
+          beforeEach(function () {
+            sinon.spy(view, 'startStream');
 
-            windowMock.on('stream', function () {
-              view.video.dispatchEvent(ev);
-              assert.ok(view.stream, 'stream is set');
-              assert.isTrue(view.streaming, 'is streaming');
-              done();
+            return view.render();
+          });
+
+          it('finds the video element', function () {
+            assert.ok(view.video);
+          });
+
+          it('attempts to start streaming', function () {
+            assert.isFalse(view.streaming);
+            assert.isTrue(view.startStream.called);
+          });
+
+          describe('when stream starts', function () {
+            beforeEach(function () {
+              var ev = document.createEvent('HTMLEvents');
+              ev.initEvent('loadedmetadata', true, true);
+
+              var deferred = p.defer();
+
+              windowMock.on('stream', function () {
+                view.video.dispatchEvent(ev);
+                deferred.resolve();
+              });
+
+              return deferred.promise;
             });
-          })
-          .fail(done);
+
+            it('sets the stream', function () {
+              assert.ok(view.stream, 'stream is set');
+            });
+
+            it('starts streaming', function () {
+              assert.isTrue(view.streaming, 'is streaming');
+            });
+          });
+        });
       });
 
       it('logs video dimension error', function () {
@@ -227,6 +239,8 @@ define(function (require, exports, module) {
           return p();
         });
 
+        sinon.stub(view, 'stopAndDestroyStream', sinon.spy());
+
         sinon.spy(view, 'navigate');
 
         view.render()
@@ -237,20 +251,16 @@ define(function (require, exports, module) {
             ev.initEvent('loadedmetadata', true, true);
 
             windowMock.on('stream', function () {
-              var stopped = false;
-
               view.video.dispatchEvent(ev);
               assert.ok(view.stream, 'stream is set');
 
-              view.stream.stop = function () {
-                stopped = true;
-              };
               view.submit()
                 .done(function (result) {
-                  assert.isTrue(stopped, 'stream stopped');
-                  assert.ok(! view.stream, 'stream is gone');
+                  assert.isTrue(view.stopAndDestroyStream.called);
+
                   assert.equal(result.url, 'test');
                   assert.equal(result.id, 'foo');
+
                   assert.isTrue(view.updateProfileImage.called);
                   assert.equal(view.updateProfileImage.args[0][0].get('url'), result.url);
                   assert.equal(view.updateProfileImage.args[0][1], account);
@@ -305,7 +315,149 @@ define(function (require, exports, module) {
             done();
           }, done);
       });
+    });
 
+    describe('startStream', function () {
+      beforeEach(function () {
+        return view.render();
+      });
+
+      describe('success', function () {
+        beforeEach(function () {
+          sinon.spy(windowMock.navigator.mediaDevices, 'getUserMedia');
+          sinon.spy(WebRTC, 'attachMediaStream');
+
+          view.video = mockVideo(1, 1);
+
+          return view.startStream();
+        });
+
+        afterEach(function () {
+          WebRTC.attachMediaStream.restore();
+        });
+
+        it('initializes the device camera', function () {
+          assert.isTrue(
+            windowMock.navigator.mediaDevices.getUserMedia.calledWith({
+              audio: false,
+              video: true
+            }));
+        });
+
+        it('stores the returned stream', function () {
+          assert.ok(view.stream);
+        });
+
+        it('attaches the media stream', function () {
+          assert.isTrue(
+            WebRTC.attachMediaStream.calledWith(view.video, view.stream));
+        });
+
+        it('starts playing the video', function () {
+          assert.isTrue(view.video.play.called);
+        });
+      });
+
+      describe('error', function () {
+        beforeEach(function () {
+          sinon.stub(windowMock.navigator.mediaDevices, 'getUserMedia', function () {
+            return p.reject(AuthErrors.toError('NO_CAMERA'));
+          });
+
+          sinon.spy(view, 'displayError');
+          sinon.spy(view._avatarProgressIndicator, 'done');
+
+          return view.startStream();
+        });
+
+        it('displays the `NO_CAMERA` error', function () {
+          var err = view.displayError.args[0][0];
+          assert.isTrue(AuthErrors.is(err, 'NO_CAMERA'));
+        });
+
+        it('hides the progress indicator', function () {
+          assert.isTrue(view._avatarProgressIndicator.done.called);
+        });
+      });
+    });
+
+    describe('stopAndDestroyStream', function () {
+      beforeEach(function () {
+        return view.render();
+      });
+
+      describe('with a stream that supports getTracks (newest spec)', function () {
+        var track;
+
+        beforeEach(function () {
+          track = {
+            stop: sinon.spy()
+          };
+
+          view.stream = {
+            getTracks: sinon.spy(function () {
+              return [track];
+            })
+          };
+
+          return view.stopAndDestroyStream();
+        });
+
+        it('stops each track', function () {
+          assert.isTrue(track.stop.called);
+        });
+      });
+
+      describe('with a stream that supports stop', function () {
+        var stream;
+
+        beforeEach(function () {
+          stream = {
+            stop: sinon.spy()
+          };
+
+          view.stream = stream;
+
+          return view.stopAndDestroyStream();
+        });
+
+        it('stops the stream', function () {
+          assert.isTrue(stream.stop.called);
+        });
+      });
+
+      describe('with a video element that supports pause and mozSrcObject (Fx 18)', function () {
+        beforeEach(function () {
+          view.video = {
+            mozSrcObject: {},
+            pause: sinon.spy()
+          };
+
+          view.stream = {};
+
+          return view.stopAndDestroyStream();
+        });
+
+        it('pauses the video', function () {
+          assert.isTrue(view.video.pause.called);
+        });
+
+        it('clears the mozSrcObject reference', function () {
+          assert.isNull(view.video.mozSrcObject);
+        });
+      });
+    });
+
+    describe('destroy', function () {
+      beforeEach(function () {
+        sinon.spy(view, 'stopAndDestroyStream');
+
+        return view.destroy();
+      });
+
+      it('stops the stream', function () {
+        assert.isTrue(view.stopAndDestroyStream.called);
+      });
     });
   });
 });

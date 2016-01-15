@@ -23,6 +23,23 @@ define(function (require, exports, module) {
     return defer.promise;
   };
 
+  // The WebRTC polyfill tries to use native promises which are not available
+  // in Firefox until Fx 27, but WebRTC is available in Fx 17. Polyfill
+  // window.Promise using p.
+  if (! window.Promise) {
+    window.Promise = function (callback) {
+      var deferred = p.defer();
+
+      try {
+        callback(deferred.resolve.bind(deferred), deferred.reject.bind(deferred));
+      } catch (e) {
+        deferred.reject(e);
+      }
+
+      return deferred.promise;
+    };
+  }
+
   module.exports = p;
 });
 

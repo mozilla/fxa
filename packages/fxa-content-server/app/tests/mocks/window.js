@@ -10,6 +10,7 @@ define(function (require, exports, module) {
   var _ = require('underscore');
   var Backbone = require('backbone');
   var NullStorage = require('lib/null-storage');
+  var p = require('lib/promise');
   var sinon = require('sinon');
 
   function MutationObserver (notifier) {
@@ -53,21 +54,31 @@ define(function (require, exports, module) {
 
     this.navigator = {
       userAgent: window.navigator.userAgent,
-      getUserMedia: function (options, cb, errb) {
-        var nav = this;
-        this._opts = options;
-        setTimeout(function () {
-          var stream = {
-            stop: function () {
+      mediaDevices: {
+        // simulate the API presented by the WebRTC polyfill
+        getUserMedia: function (options) {
+          var deferred = p.defer();
+
+          var nav = this;
+          this._opts = options;
+
+          setTimeout(function () {
+            var stream = {
+              stop: function () {
+              }
+            };
+            if (nav._error) {
+              deferred.reject(nav._error);
+            } else {
+              deferred.resolve(stream);
             }
-          };
-          if (nav._error) {
-            errb(nav._error);
-          } else {
-            cb(stream);
-          }
-          self.trigger('stream');
-        }, 0);
+            setTimeout(function () {
+              self.trigger('stream');
+            }, 0);
+          }, 0);
+
+          return deferred.promise;
+        }
       },
       sendBeacon: function () {}
     };
