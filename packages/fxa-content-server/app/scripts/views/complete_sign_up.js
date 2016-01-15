@@ -13,7 +13,6 @@ define(function (require, exports, module) {
   var FormView = require('views/form');
   var LoadingMixin = require('views/mixins/loading-mixin');
   var MarketingEmailErrors = require('lib/marketing-email-errors');
-  var Notifier = require('lib/channels/notifier');
   var ResendMixin = require('views/mixins/resend-mixin');
   var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   var Url = require('lib/url');
@@ -67,7 +66,7 @@ define(function (require, exports, module) {
       }
 
       var code = verificationInfo.get('code');
-      return self.getAccount().verifySignUp(code)
+      return self.user.completeAccountSignUp(self.getAccount(), code)
           .fail(function (err) {
             if (MarketingEmailErrors.created(err)) {
               // A basket error should not prevent the
@@ -91,8 +90,6 @@ define(function (require, exports, module) {
           })
           .then(function () {
             var account = self.getAccount();
-
-            self.notifier.triggerRemote(Notifier.SIGNED_IN, account.toJSON());
 
             if (! self.relier.isDirectAccess()) {
               self.navigate('signup_complete');

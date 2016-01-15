@@ -202,11 +202,20 @@ define(function (require, exports, module) {
     },
 
     toJSON: function () {
-      return _.pick(this.attributes, ALLOWED_KEYS);
+      /*
+       * toJSON is explicitly disabled because it fetches all attributes
+       * on the model, making accidental data exposure easier than it
+       * should be. Use the [pick](http:*underscorejs.org/#pick) method
+       * instead, which requires a list of attributes to get.
+       *
+       * e.g.:
+       * var accountData = account.pick('email', 'uid');
+       */
+      throw new Error('toJSON is explicitly disabled, use `.pick` instead');
     },
 
     toPersistentJSON: function () {
-      return _.pick(this.attributes, ALLOWED_PERSISTENT_KEYS);
+      return this.pick(ALLOWED_PERSISTENT_KEYS);
     },
 
     setProfileImage: function (profileImage) {
@@ -375,6 +384,8 @@ define(function (require, exports, module) {
         code
       )
       .then(function () {
+        self.set('verified', true);
+
         if (self.get('needsOptedInToMarketingEmail')) {
           self.unset('needsOptedInToMarketingEmail');
           var emailPrefs = self.getMarketingEmailPrefs();

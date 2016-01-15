@@ -11,7 +11,6 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
   var AuthErrors = require('lib/auth-errors');
   var BaseAuthenticationBroker = require('models/auth_brokers/base');
   var ChannelMixin = require('models/auth_brokers/mixins/channel');
@@ -216,11 +215,7 @@ define(function (require, exports, module) {
         'verified'
       ];
 
-      var loginData = {};
-      _.each(ALLOWED_FIELDS, function (field) {
-        loginData[field] = account.get(field);
-      });
-
+      var loginData = account.pick(ALLOWED_FIELDS);
       loginData.verified = !! loginData.verified;
       loginData.verifiedCanLinkAccount = !! this._verifiedCanLinkAccount;
       return loginData;

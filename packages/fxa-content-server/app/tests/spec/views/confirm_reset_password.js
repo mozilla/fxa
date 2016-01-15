@@ -365,60 +365,101 @@ define(function (require, exports, module) {
     describe('_finishPasswordResetSameBrowser', function () {
       beforeEach(function () {
         createDeps();
+
+        sinon.stub(broker, 'afterResetPasswordConfirmationPoll', function () {
+          return p();
+        });
+
+        sinon.stub(user, 'setSignedInAccount', function (account) {
+          return p(account);
+        });
+
+        sinon.stub(view, 'navigate', function () {
+          // nothing to do
+        });
+
+        var account = user.initAccount({
+          uid: 'uid'
+        });
+
+        return user.setAccount(account);
       });
 
       afterEach(function () {
         destroyView();
       });
 
-      it('Non direct access redirects to `/reset_password_complete`', function () {
-        sinon.stub(broker, 'afterResetPasswordConfirmationPoll', function () {
-          return p();
+      describe('with an unknown account uid', function () {
+        var err;
+
+        beforeEach(function () {
+          return view._finishPasswordResetSameBrowser({ uid: 'unknown uid' })
+            .then(assert.fail, function (_err) {
+              err = _err;
+            });
         });
 
-        sinon.stub(user, 'setSignedInAccount', function (account) {
-          return p();
+        it('throws', function () {
+          assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
         });
-
-        sinon.stub(relier, 'isDirectAccess', function () {
-          return false;
-        });
-
-        sinon.stub(view, 'navigate', function () {
-          // nothing to do
-        });
-
-        return view._finishPasswordResetSameBrowser()
-          .then(function () {
-            assert.isTrue(view.navigate.calledWith('reset_password_complete'));
-            assert.isTrue(user.setSignedInAccount.called);
-            assert.isTrue(broker.afterResetPasswordConfirmationPoll.called);
-          });
       });
 
-      it('direct access redirects to `/settings`', function () {
-        sinon.stub(broker, 'afterResetPasswordConfirmationPoll', function () {
-          return p();
-        });
-
-        sinon.stub(user, 'setSignedInAccount', function (account) {
-          return p();
-        });
-
-        sinon.stub(relier, 'isDirectAccess', function () {
-          return true;
-        });
-
-        sinon.stub(view, 'navigate', function () {
-          // nothing to do
-        });
-
-        return view._finishPasswordResetSameBrowser()
-          .then(function () {
-            assert.isTrue(view.navigate.calledWith('settings'));
-            assert.isTrue(user.setSignedInAccount.called);
-            assert.isTrue(broker.afterResetPasswordConfirmationPoll.called);
+      describe('non direct access', function () {
+        beforeEach(function () {
+          sinon.stub(relier, 'isDirectAccess', function () {
+            return false;
           });
+
+          user._persistAccount({
+            displayName: 'fx user',
+            email: 'a@a.com',
+            uid: 'uid'
+          });
+
+          return view._finishPasswordResetSameBrowser({
+            keyFetchToken: 'keyfetchtoken',
+            uid: 'uid',
+            unwrapBKey: 'unwrapbkey'
+          });
+        });
+
+        it('notifies the user model with the updated signed in account', function () {
+          assert.isTrue(user.setSignedInAccount.called);
+          var account = user.setSignedInAccount.args[0][0];
+
+          assert.deepEqual(
+            account.pick('displayName', 'email', 'keyFetchToken', 'uid', 'unwrapBKey'),
+            {
+              displayName: 'fx user',
+              email: 'a@a.com',
+              keyFetchToken: 'keyfetchtoken',
+              uid: 'uid',
+              unwrapBKey: 'unwrapbkey'
+            }
+          );
+        });
+
+        it('notifies the broker', function () {
+          assert.isTrue(broker.afterResetPasswordConfirmationPoll.called);
+        });
+
+        it('redirects to `/reset_password_complete`', function () {
+          assert.isTrue(view.navigate.calledWith('reset_password_complete'));
+        });
+      });
+
+      describe('direct access', function () {
+        beforeEach(function () {
+          sinon.stub(relier, 'isDirectAccess', function () {
+            return true;
+          });
+
+          return view._finishPasswordResetSameBrowser({ uid: 'uid' });
+        });
+
+        it('redirects to `/settings`', function () {
+          assert.isTrue(view.navigate.calledWith('settings'));
+        });
       });
     });
 

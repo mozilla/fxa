@@ -23,9 +23,6 @@ define(function (require, exports, module) {
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/complete_reset_password', function () {
-    var ACCOUNT_DATA = {
-      sessionToken: 'abc123'
-    };
     var CODE = 'dea0fae1abc2fab3bed4dec5eec6ace7';
     var EMAIL = 'testuser@testuser.com';
     var PASSWORD = 'password';
@@ -70,7 +67,8 @@ define(function (require, exports, module) {
       notifier = new Notifier();
       relier = new Relier();
       user = new User({
-        fxaClient: fxaClient
+        fxaClient: fxaClient,
+        notifier: notifier
       });
       windowMock = new WindowMock();
       windowMock.location.search = '?code=dea0fae1abc2fab3bed4dec5eec6ace7&email=testuser@testuser.com&token=feed';
@@ -268,53 +266,59 @@ define(function (require, exports, module) {
             });
       });
 
-      it('non-direct-access signs the user in and redirects to `/reset_password_complete` if broker does not say halt', function () {
-        view.$('[type=password]').val(PASSWORD);
+      describe('non-direct-access', function () {
+        beforeEach(function () {
+          view.$('[type=password]').val(PASSWORD);
 
-        sinon.stub(fxaClient, 'signIn', function () {
-          return p(ACCOUNT_DATA);
+          sinon.stub(user, 'completeAccountPasswordReset', function (account) {
+            return p(account);
+          });
+
+          sinon.stub(user, 'setSignedInAccount', function (newAccount) {
+            return p(newAccount);
+          });
+
+          sinon.spy(broker, 'afterCompleteResetPassword');
+
+          sinon.stub(relier, 'isDirectAccess', function () {
+            return false;
+          });
+
+          sinon.spy(view, 'navigate');
+
+          return view.validateAndSubmit();
         });
-        sinon.stub(fxaClient, 'completePasswordReset', function () {
-          return p(true);
+
+        it('delegates to the user', function () {
+          var args = user.completeAccountPasswordReset.args[0];
+          assert.isTrue(user.completeAccountPasswordReset.called);
+          var account = args[0];
+          assert.equal(account.get('email'), EMAIL);
+
+          var password = args[1];
+          assert.equal(password, PASSWORD);
+
+          var token = args[2];
+          assert.equal(token, TOKEN);
+
+          var code = args[3];
+          assert.equal(code, CODE);
         });
-        sinon.stub(user, 'setSignedInAccount', function (newAccount) {
-          return p(newAccount);
-        });
-        sinon.spy(broker, 'afterCompleteResetPassword');
-        sinon.stub(relier, 'isDirectAccess', function () {
-          return false;
+
+        it('logs success', function () {
+          assert.isTrue(TestHelpers.isEventLogged(
+            metrics, 'complete_reset_password.verification.success'));
         });
 
-        // expect the notifier to be notified of login so the
-        // starting window can complete the signin process.
-        sinon.spy(view.notifier, 'triggerRemote');
+        it('notifies the broker', function () {
+          return user.completeAccountPasswordReset.returnValues[0].then(function (returnValue) {
+            assert.isTrue(broker.afterCompleteResetPassword.calledWith(returnValue));
+          });
+        });
 
-        sinon.spy(view, 'navigate');
-
-        return view.validateAndSubmit()
-            .then(function () {
-              assert.isTrue(fxaClient.completePasswordReset.calledWith(
-                  EMAIL, PASSWORD, TOKEN, CODE));
-              assert.isTrue(fxaClient.signIn.calledWith(
-                  EMAIL,
-                  PASSWORD,
-                  relier,
-                  { reason: view.fxaClient.SIGNIN_REASON.PASSWORD_RESET }
-              ));
-              assert.isTrue(view.navigate.calledWith('reset_password_complete'));
-
-              assert.equal(view.notifier.triggerRemote.callCount, 1);
-              var args = view.notifier.triggerRemote.args[0];
-              assert.lengthOf(args, 2);
-              assert.equal(args[0], Notifier.SIGNED_IN);
-              assert.isObject(args[1]);
-
-              assert.isTrue(TestHelpers.isEventLogged(
-                      metrics, 'complete_reset_password.verification.success'));
-              return user.setSignedInAccount.returnValues[0].then(function (returnValue) {
-                assert.isTrue(broker.afterCompleteResetPassword.calledWith(returnValue));
-              });
-            });
+        it('redirects to `/reset_password_complete`', function () {
+          assert.isTrue(view.navigate.calledWith('reset_password_complete'));
+        });
       });
 
       describe('direct access', function () {

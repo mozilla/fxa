@@ -433,6 +433,10 @@ define(function (require, exports, module) {
         it('delegates to the fxaClient', function () {
           assert.isTrue(fxaClient.verifyCode.calledWith(UID, 'CODE'));
         });
+
+        it('sets the `verified` flag', function () {
+          assert.isTrue(account.get('verified'));
+        });
       });
 
       describe('with email opt-in', function () {
@@ -961,21 +965,13 @@ define(function (require, exports, module) {
       });
     });
 
-    it('toJSON returns data for the right keys', function () {
-      account = new Account({
-        email: EMAIL,
-        sessionToken: SESSION_TOKEN,
-        uid: UID
-      }, {
-        assertion: 'test'
+    describe('toJSON', function () {
+      it('is disabled and throws', function () {
+        // toJSOn is disabled to avoid unintentional data leaks. Use pick
+        assert.throws(function () {
+          account.toJSON();
+        });
       });
-
-      var data = account.toJSON();
-
-      assert.isUndefined(data.accountData);
-      assert.isUndefined(data.assertion);
-      assert.isUndefined(data.foo);
-      assert.ok(data.email);
     });
 
     it('toPersistentJSON returns data for the right keys', function () {
