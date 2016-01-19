@@ -25,7 +25,7 @@ var conf = module.exports = convict({
       format: String
     },
     api_timeout: {
-      default: 5 * 1000,  // 5 seconds
+      default: '5 seconds',
       doc: 'Timeout for talking to the Basket API server, in ms',
       format: Number
     },
@@ -451,7 +451,7 @@ var conf = module.exports = convict({
     format: String
   },
   static_max_age: {
-    default: 10 * 60 * 1000,  // 10 minutes
+    default: '10 minutes',
     doc: 'Cache max age for static assets, in ms',
     format: Number
   },
