@@ -1,0 +1,15 @@
+<fieldset class="checkbox-row {{^visible}}hidden{{/visible}}" {{#required}}disabled{{/required}}>
+  <label class="fxa-checkbox">
+    <input class="permission" name="{{ name }}" type="checkbox" checked="checked" value="{{ name }}" {{#required}}disabled{{/required}}/>
+
+    {{#valueVisible}}
+      <div class="fxa-checkbox__value">{{ value }}</div>
+      <div class="fxa-checkbox__label">{{ label }}</div>
+    {{/valueVisible}}
+
+    {{^valueVisible}}
+      <div class="fxa-checkbox__value">{{ label }}</div>
+    {{/valueVisible}}
+  </label>
+</fieldset>
+

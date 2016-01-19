@@ -390,43 +390,68 @@ define(function (require, exports, module) {
     });
 
     describe('accountNeedsPermissions', function () {
-      it('should not prompt when relier is trusted', function () {
-        sinon.stub(relier, 'isTrusted', function () {
-          return true;
+      var account;
+
+      beforeEach(function () {
+        account = user.initAccount();
+        account.set('email', 'testuser@testuser.com');
+
+        relier.set({
+          clientId: CLIENT_ID,
+          permissions: ['profile:email', 'profile:display_name']
         });
-        assert.isFalse(relier.accountNeedsPermissions(user.initAccount()));
-        assert.isTrue(relier.isTrusted.called);
       });
 
-      it('should not prompt when relier is untrusted and has permissions', function () {
-        var account = user.initAccount();
-        sinon.stub(relier, 'isTrusted', function () {
-          return false;
+      describe('a trusted relier', function () {
+        beforeEach(function () {
+          relier.set('trusted', true);
         });
-        sinon.stub(account, 'hasGrantedPermissions', function () {
-          return true;
+
+        it('should return false', function () {
+          assert.isFalse(relier.accountNeedsPermissions(account));
         });
-        relier.set('permissions', ['profile:email']);
-        assert.isFalse(relier.accountNeedsPermissions(account));
-        assert.isTrue(relier.isTrusted.called);
-        assert.isTrue(account.hasGrantedPermissions.calledWith(relier.get('clientId'), ['profile:email']));
       });
 
-      it('returns true when relier is untrusted and at least one permission is needed', function () {
-        var account = user.initAccount();
-        sinon.stub(relier, 'isTrusted', function () {
-          return false;
+      describe('an untrusted relier', function () {
+        beforeEach(function () {
+          relier.set('trusted', false);
         });
-        sinon.stub(account, 'hasGrantedPermissions', function () {
-          return false;
+
+        describe('account has seen all the permissions', function () {
+          beforeEach(function () {
+            sinon.stub(account, 'hasSeenPermissions', function () {
+              return true;
+            });
+          });
+
+          it('should return false', function () {
+            assert.isFalse(relier.accountNeedsPermissions(account));
+          });
+
+          it('should filter any permissions for which the account has no value', function () {
+            relier.accountNeedsPermissions(account);
+            assert.isTrue(account.hasSeenPermissions.calledWith(CLIENT_ID, ['profile:email']));
+          });
         });
-        relier.set('permissions', ['profile:email']);
-        assert.isTrue(relier.accountNeedsPermissions(account));
-        assert.isTrue(relier.isTrusted.called);
-        assert.isTrue(account.hasGrantedPermissions.calledWith(relier.get('clientId'), ['profile:email']));
+
+        describe('account has not seen all permissions', function () {
+          beforeEach(function () {
+            sinon.stub(account, 'hasSeenPermissions', function () {
+              return false;
+            });
+          });
+
+          it('should return true', function () {
+            assert.isTrue(relier.accountNeedsPermissions(account));
+          });
+
+          it('should filter any permissions for which the account has no value', function () {
+            relier.accountNeedsPermissions(account);
+            assert.isTrue(account.hasSeenPermissions.calledWith(CLIENT_ID, ['profile:email']));
+          });
+        });
       });
     });
-
   });
 });
 

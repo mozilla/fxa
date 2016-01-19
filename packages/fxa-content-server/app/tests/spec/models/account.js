@@ -27,18 +27,16 @@ define(function (require, exports, module) {
   describe('models/account', function () {
     var account;
     var assertion;
+    var fxaClient;
+    var marketingEmailClient;
     var oAuthClient;
     var profileClient;
     var relier;
-    var fxaClient;
-    var marketingEmailClient;
+
+    var CLIENT_ID = 'client_id';
     var EMAIL = 'user@example.domain';
     var PASSWORD = 'password';
-    var UID = '6d940dd41e636cc156074109b8092f96';
-    var URL = 'http://127.0.0.1:1112/avatar/example.jpg';
     var PNG_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
-    var CLIENT_ID = 'client_id';
-    var SESSION_TOKEN = 'abc123';
     var PROFILE_CLIENT_METHODS = [
       'getAvatar',
       'getAvatars',
@@ -46,13 +44,16 @@ define(function (require, exports, module) {
       'deleteAvatar',
       'uploadAvatar'
     ];
+    var SESSION_TOKEN = 'abc123';
+    var UID = '6d940dd41e636cc156074109b8092f96';
+    var URL = 'http://127.0.0.1:1112/avatar/example.jpg';
 
     beforeEach(function () {
       assertion = new Assertion();
-      oAuthClient = new OAuthClient();
-      profileClient = new ProfileClient();
       fxaClient = new FxaClientWrapper();
       marketingEmailClient = new MarketingEmailClient();
+      oAuthClient = new OAuthClient();
+      profileClient = new ProfileClient();
       relier = new Relier();
 
       account = new Account({
@@ -997,8 +998,10 @@ define(function (require, exports, module) {
       assert.isUndefined(data.foo);
       assert.isUndefined(data.accessToken);
       assert.ok(data.email);
-      assert.ok(data.grantedPermissions);
-      assert.equal(data.grantedPermissions['some-client-id'][0], 'profile:email');
+      // grantedPermissions are converted to permissions
+      assert.isUndefined(data.grantedPermissions);
+      assert.ok(data.permissions);
+      assert.isTrue(data.permissions['some-client-id']['profile:email']);
     });
 
     describe('isDefault', function () {
@@ -1140,27 +1143,6 @@ define(function (require, exports, module) {
           .then(function () {
             assert.equal(account.getProfile.callCount, 2);
           });
-      });
-    });
-
-    describe('permissions', function () {
-      it('saves permissions', function () {
-        var clientId = 'blah';
-        var scope = ['profile:email', 'profile:uid'];
-
-        assert.isTrue(account.hasGrantedPermissions(clientId), 'no scopes requested');
-        assert.isFalse(account.hasGrantedPermissions(clientId, ['profile:email']));
-
-        account.saveGrantedPermissions(clientId, scope);
-
-        assert.isTrue(account.hasGrantedPermissions(clientId, scope));
-        assert.isTrue(account.hasGrantedPermissions(clientId, ['profile:email']));
-        assert.isTrue(account.hasGrantedPermissions(clientId, ['profile:uid']));
-
-        assert.isFalse(account.hasGrantedPermissions(clientId, ['profile:avatar']));
-
-        assert.deepEqual(account.ungrantedPermissions(clientId, ['profile:avatar', 'profile:uid', 'profile:email', 'todolist:write']),
-          ['profile:avatar', 'todolist:write']);
       });
     });
 
@@ -1508,6 +1490,142 @@ define(function (require, exports, module) {
         it('resolves to the relier result', function () {
           assert.equal(result, 'relier keys');
         });
+      });
+    });
+
+    describe('setClientPermissions/getClientPermissions/getClientPermission', function () {
+      var savedPermissions = {
+        'profile:display_name': false,
+        'profile:email': true
+      };
+
+      beforeEach(function () {
+        account.setClientPermissions(CLIENT_ID, savedPermissions);
+      });
+
+      describe('getClientPermissions', function () {
+        var clientPermissions;
+
+        beforeEach(function () {
+          clientPermissions = account.getClientPermissions(CLIENT_ID);
+        });
+
+        it('returns the permissions for a client', function () {
+          assert.deepEqual(clientPermissions, savedPermissions);
+        });
+
+        it('returns `{}` if client has no permissions', function () {
+          assert.deepEqual(account.getClientPermissions('unknown'), {});
+        });
+      });
+
+      describe('getClientPermission', function () {
+        it('returns the permissions for a client', function () {
+          assert.isFalse(account.getClientPermission(
+                CLIENT_ID, 'profile:display_name'));
+          assert.isTrue(account.getClientPermission(
+                CLIENT_ID, 'profile:email'));
+        });
+
+        it('returns `undefined` if client has no permissions', function () {
+          assert.isUndefined(account.getClientPermission(
+                'unknown', 'profile:email'));
+        });
+
+        it('returns `undefined` if permissions is not found', function () {
+          assert.isUndefined(account.getClientPermission(
+                CLIENT_ID, 'unknown'));
+        });
+      });
+    });
+
+    describe('hasSeenPermissions', function () {
+      beforeEach(function () {
+        var savedPermissions = {
+          'profile:display_name': false,
+          'profile:email': true
+        };
+        account.setClientPermissions(CLIENT_ID, savedPermissions);
+      });
+
+      describe('if the client has seen all the permissions', function () {
+        it('returns true', function () {
+          assert.isTrue(account.hasSeenPermissions(CLIENT_ID, ['profile:display_name']));
+          assert.isTrue(account.hasSeenPermissions(CLIENT_ID, ['profile:display_name', 'profile:email']));
+        });
+      });
+
+      describe('if the client has not seen all the permissions', function () {
+        it('returns false', function () {
+          assert.isFalse(account.hasSeenPermissions(CLIENT_ID, ['profile:display_name', 'profile:email', 'profile:uid']));
+        });
+      });
+    });
+
+    describe('getPermissionsWithValues', function () {
+      var permissions;
+
+      beforeEach(function () {
+        account.clear();
+        account.set({
+          displayName: 'Test user',
+          email: 'testuser@testuser.com',
+          uid: 'users id'
+        });
+      });
+
+      describe('with known about permissions', function () {
+        beforeEach(function () {
+          permissions = account.getPermissionsWithValues([
+            'profile:email',
+            'profile:display_name',
+            'profile:avatar',
+            'profile:uid'
+          ]);
+        });
+
+        it('returns requested permissions if the account has a value', function () {
+          assert.equal(permissions.length, 3);
+
+          assert.equal(permissions[0], 'profile:email');
+          assert.equal(permissions[1], 'profile:display_name');
+          assert.equal(permissions[2], 'profile:uid');
+        });
+      });
+
+      describe('with an unknown permission', function () {
+        beforeEach(function () {
+          permissions =
+            account.getPermissionsWithValues([
+              'profile:email',
+              'profile:unknown'
+            ]);
+        });
+
+        it('filters the unknown permission', function () {
+          assert.lengthOf(permissions, 1);
+          assert.equal(permissions[0], 'profile:email');
+        });
+      });
+    });
+
+    describe('_upgradeGrantedPermissions', function () {
+      beforeEach(function () {
+        account.set('grantedPermissions', {
+          client_id: ['profile:email', 'profile:uid'] //eslint-disable-line camelcase
+        });
+        account._upgradeGrantedPermissions();
+      });
+
+      it('converts `grantedPermissions` to `permissions`', function () {
+        var permissions = account.getClientPermissions('client_id');
+        assert.lengthOf(Object.keys(permissions), 2);
+        assert.isTrue(permissions['profile:email']);
+        assert.isTrue(permissions['profile:uid']);
+      });
+
+      it('deletes `grantedPermissions`', function () {
+        assert.isFalse(account.has('grantedPermissions'));
       });
     });
   });

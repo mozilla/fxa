@@ -10,10 +10,7 @@
     <p id="permission-request">{{#t}}%(serviceName)s wants the following information from your account:{{/t}}</p>
 
     <form id="permissions" novalidate>
-      <div class="input-row">
-        <label class="small-label">{{#t}}Email{{/t}}</label>
-        <input type="email" class="email" value="{{ email }}" disabled/>
-      </div>
+      {{{ unsafePermissionsHTML }}}
 
       <div class="button-row">
         <button id="accept" type="submit">{{#t}}Accept{{/t}}</button>

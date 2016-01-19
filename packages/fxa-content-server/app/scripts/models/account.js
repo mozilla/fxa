@@ -29,6 +29,7 @@ define(function (require, exports, module) {
     lastLogin: undefined,
     needsOptedInToMarketingEmail: undefined,
     // password field intentionally omitted to avoid unintentional leaks
+    permissions: undefined,
     profileImageId: undefined,
     profileImageUrl: undefined,
     sessionToken: undefined,
@@ -61,6 +62,13 @@ define(function (require, exports, module) {
 
   var PROFILE_SCOPE = 'profile profile:write';
 
+  var PERMISSIONS_TO_KEYS = {
+    'profile:avatar': 'profileImageUrl',
+    'profile:display_name': 'displayName',
+    'profile:email': 'email',
+    'profile:uid': 'uid'
+  };
+
   var Account = Backbone.Model.extend({
     defaults: DEFAULTS,
 
@@ -81,6 +89,9 @@ define(function (require, exports, module) {
        * requests for the same sessionToken.
        */
       self._assertionPromises = {};
+
+      // upgrade old `grantedPermissions` to the new `permissions`.
+      self._upgradeGrantedPermissions();
 
       self._boundOnChange = self.onChange.bind(self);
       self.on('change', self._boundOnChange);
@@ -420,23 +431,124 @@ define(function (require, exports, module) {
       });
     },
 
-    saveGrantedPermissions: function (clientId, clientPermissions) {
-      var permissions = this.get('grantedPermissions') || {};
-      permissions[clientId] = clientPermissions;
-      this.set('grantedPermissions', permissions);
-    },
+    /**
+     * convert the old `grantedPermissions` field to the new
+     * `permissions` field. `grantedPermissions` was only filled
+     * with permissions that were granted. `permissions` contains
+     * each permission that the user has made a choice for, as
+     * well as its status.
+     *
+     * @private
+     */
+    _upgradeGrantedPermissions: function () {
+      if (this.has('grantedPermissions')) {
+        var grantedPermissions = this.get('grantedPermissions');
 
-    hasGrantedPermissions: function (clientId, scope) {
-      if (! scope) {
-        return true;
+        for (var clientId in grantedPermissions) {
+          var clientPermissions = {};
+          grantedPermissions[clientId].forEach(function (permissionName) {
+            // if the permission is in grantedPermissions, it's
+            // status is `true`
+            clientPermissions[permissionName] = true;
+          });
+
+          this.setClientPermissions(clientId, clientPermissions);
+        }
+
+        this.unset('grantedPermissions');
       }
-      return this.ungrantedPermissions(clientId, scope).length === 0;
     },
 
-    ungrantedPermissions: function (clientId, clientPermissions) {
-      var permissions = this.get('grantedPermissions') || {};
-      var clientGrantedPermissions = permissions[clientId] || [];
-      return _.difference(clientPermissions, clientGrantedPermissions);
+    /**
+     * Return the permissions the client has seen as well as their state.
+     *
+     * Example returned object:
+     * {
+     *   'profile:display_name': false,
+     *   'profile:email': true
+     * }
+     *
+     * @param {string} clientId
+     * @returns {object}
+     */
+    getClientPermissions: function (clientId) {
+      var permissions = this.get('permissions') || {};
+      return permissions[clientId] || {};
+    },
+
+    /**
+     * Get the value of a single permission
+     *
+     * @param {string} clientId
+     * @param {string} permissionName
+     * @returns {boolean}
+     */
+    getClientPermission: function (clientId, permissionName) {
+      var clientPermissions = this.getClientPermissions(clientId);
+      return clientPermissions[permissionName];
+    },
+
+    /**
+     * Set the permissions for a client. `permissions`
+     * should be an object with the following format:
+     * {
+     *   'profile:display_name': false,
+     *   'profile:email': true
+     * }
+     *
+     * @param {string} clientId
+     * @param {object} clientPermissions
+     */
+    setClientPermissions: function (clientId, clientPermissions) {
+      var allPermissions = this.get('permissions') || {};
+      allPermissions[clientId] = clientPermissions;
+      this.set('permissions', allPermissions);
+    },
+
+    /**
+     * Check whether all the passed in permissions have been
+     * seen previously.
+     *
+     * @param {string} clientId
+     * @param {array of strings} permissions
+     * @returns {boolean} `true` if client has seen all the permissions,
+     *  `false` otw.
+     */
+    hasSeenPermissions: function (clientId, permissions) {
+      var seenPermissions = Object.keys(this.getClientPermissions(clientId));
+      // without's signature is `array, *values)`,
+      // *values cannot be an array, so convert to a form without can use.
+      var args = [permissions].concat(seenPermissions);
+      var notSeen = _.without.apply(_, args);
+      return notSeen.length === 0;
+    },
+
+    /**
+     * Return a list of permissions that have
+     * corresponding account values.
+     *
+     * @param {array of strings} permissionNames
+     * @returns {array of strings}
+     */
+    getPermissionsWithValues: function (permissionNames) {
+      var self = this;
+      return permissionNames.map(function (permissionName) {
+        var accountKey = PERMISSIONS_TO_KEYS[permissionName];
+
+        // filter out permissions we do not know about
+        if (! accountKey) {
+          return null;
+        }
+
+        // filter out permissions for which the account does not have a value
+        if (! self.has(accountKey)) {
+          return null;
+        }
+
+        return permissionName;
+      }).filter(function (permissionName) {
+        return permissionName !== null;
+      });
     },
 
     getMarketingEmailPrefs: function () {
@@ -650,6 +762,8 @@ define(function (require, exports, module) {
           return relier.deriveRelierKeys(accountKeys, self.get('uid'));
         });
     }
+  }, {
+    PERMISSIONS_TO_KEYS: PERMISSIONS_TO_KEYS
   });
 
   [

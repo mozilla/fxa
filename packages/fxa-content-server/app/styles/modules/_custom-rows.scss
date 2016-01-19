@@ -85,7 +85,7 @@ ul.links {
   }
 }
 
-.choose-what-to-sync-row {
+.choose-what-to-sync-row, .checkbox-row {
 
   label {
     display: block;
@@ -171,15 +171,32 @@ ul.links {
 }
 
 #permissions {
-  .input-row {
-    text-align: left;
-    margin: 30px 0;
+  fieldset {
+    border: none;
   }
 
-  input[disabled] {
-    background-color: $input-background-disabled-color;
-    border-color: $input-border-disabled-color;
-    color: $input-disabled-color;
+  .avatar-wrapper {
+    height: 50px;
+    width: 50px;
+  }
+
+  .fxa-checkbox {
+    color: #8a9ba8;
+    height: auto;
+
+    .fxa-checkbox__label {
+      color: #8a9ba8;
+      font-size: 14px;
+      margin-top: auto;
+    }
+
+    .fxa-checkbox__value {
+      font-size: 18px;
+      line-height: 18px;
+      // email addresses can overflow the label and cause
+      // the screen to be very wide. Break the addresses.
+      word-break: break-all;
+    }
   }
 }
 

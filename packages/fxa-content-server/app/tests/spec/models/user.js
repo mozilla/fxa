@@ -108,13 +108,11 @@ define(function (require, exports, module) {
     it('getSignedInAccount', function () {
       var account = user.initAccount({
         email: 'email',
-        grantedPermissions: { 'someClientId': ['profile:email'] },
         uid: 'uid'
       });
       return user.setSignedInAccount(account)
         .then(function () {
           assert.equal(user.getSignedInAccount().get('uid'), account.get('uid'));
-          assert.deepEqual(user.getSignedInAccount().get('grantedPermissions')['someClientId'], ['profile:email']);
         });
     });
 
@@ -504,7 +502,7 @@ define(function (require, exports, module) {
 
           var oldAccount = user.initAccount({
             email: 'email',
-            grantedPermissions: { foo: ['bar'] },
+            permissions: { foo: { bar: true } },
             uid: 'uid2'
           });
 
@@ -526,7 +524,9 @@ define(function (require, exports, module) {
         it('merges data with old and new account', function () {
           var updatedAccount = user.setSignedInAccount.args[0][0];
           assert.deepEqual(
-            updatedAccount.get('grantedPermissions').foo, ['bar']);
+            updatedAccount.getClientPermissions('foo'), {
+              bar: true
+            });
           assert.equal(updatedAccount.get('displayName'), 'fx user');
         });
       });

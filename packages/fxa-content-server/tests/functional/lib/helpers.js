@@ -319,8 +319,12 @@ define([
       });
   }
 
-  function openSettingsInNewTab(context, windowName) {
-    return context.remote.execute(openWindow, [ SETTINGS_URL, windowName ]);
+  function openSettingsInNewTab(context, windowName, panel) {
+    var url = SETTINGS_URL;
+    if (panel) {
+      url += '/' + panel;
+    }
+    return context.remote.execute(openWindow, [ url, windowName ]);
   }
 
   function openSignInInNewTab(context, windowName) {
@@ -909,6 +913,14 @@ define([
     };
   }
 
+  function testElementExists(selector) {
+    return function () {
+      return this.parent
+        .findByCssSelector(selector)
+        .end();
+    };
+  }
+
   return {
     clearBrowserState: clearBrowserState,
     clearSessionStorage: clearSessionStorage,
@@ -942,6 +954,7 @@ define([
     pollUntil: pollUntil,
     respondToWebChannelMessage: respondToWebChannelMessage,
     testAreEventsLogged: testAreEventsLogged,
+    testElementExists: testElementExists,
     testElementValueEquals: testElementValueEquals,
     testErrorWasShown: testErrorWasShown,
     testIsBrowserNotified: testIsBrowserNotified,

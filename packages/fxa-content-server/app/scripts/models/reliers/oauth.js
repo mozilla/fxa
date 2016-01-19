@@ -19,7 +19,11 @@ define(function (require, exports, module) {
   var RELIER_FIELDS_IN_RESUME_TOKEN = ['state', 'verificationRedirect'];
   // We only grant permissions that our UI currently prompts for. Others
   // will be stripped.
-  var PERMISSION_WHITE_LIST = ['profile:uid', 'profile:email'];
+  var PERMISSION_WHITE_LIST = [
+    'profile:display_name',
+    'profile:email',
+    'profile:uid'
+  ];
 
   var OAuthRelier = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {
@@ -27,11 +31,14 @@ define(function (require, exports, module) {
       clientId: null,
       // whether to fetch and derive relier-specific keys
       keys: false,
+      // permissions are individual scopes
+      permissions: null,
       // redirectTo is for future use by the oauth flow. redirectTo
       // would have redirectUri as its base.
       redirectTo: null,
       // redirectUri is used by the oauth flow
       redirectUri: null,
+      // a rollup of all the permissions
       scope: null,
       // standard oauth parameters.
       state: null,
@@ -194,7 +201,12 @@ define(function (require, exports, module) {
         return false;
       }
 
-      return ! account.hasGrantedPermissions(this.get('clientId'), this.get('permissions'));
+      // only check permissions for which the account has a value.
+      var applicableProfilePermissions =
+        account.getPermissionsWithValues(this.get('permissions'));
+
+      return ! account.hasSeenPermissions(
+          this.get('clientId'), applicableProfilePermissions);
     }
   });
 
