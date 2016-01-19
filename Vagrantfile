@@ -19,7 +19,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.ssh.insert_key = false
 
   config.vm.provider "virtualbox" do |vb|
-    vb.memory = settings["memory"] ||= "1536"
+    vb.memory = settings["memory"] ||= "2048"
+    vb.cpus = 2
   end
 
   config.vm.define "dev", primary: true do |dev|
