@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([], function () {
+define([
+  'app/scripts/lib/constants'
+], function (Constants) {
 
   function createRandomHexString(length) {
     var str = '';
@@ -15,6 +17,10 @@ define([], function () {
     }
 
     return str;
+  }
+
+  function createUID () {
+    return createRandomHexString(Constants.UID_LENGTH);
   }
 
   function createEmail(template) {
@@ -31,6 +37,7 @@ define([], function () {
   return {
     createEmail: createEmail,
     createRandomHexString: createRandomHexString,
+    createUID: createUID,
     emailToUser: emailToUser
   };
 });

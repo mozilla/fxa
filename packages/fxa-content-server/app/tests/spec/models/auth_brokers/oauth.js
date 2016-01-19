@@ -282,6 +282,11 @@ define(function (require, exports, module) {
         var transformed = broker.transformLink('/signin');
         assert.equal(transformed, '/oauth/signin');
       });
+
+      it('adds necessary separator', function () {
+        var transformed = broker.transformLink('signin');
+        assert.equal(transformed, '/oauth/signin');
+      });
     });
 
   });

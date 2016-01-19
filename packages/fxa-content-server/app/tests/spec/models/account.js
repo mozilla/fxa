@@ -1628,5 +1628,38 @@ define(function (require, exports, module) {
         assert.isFalse(account.has('grantedPermissions'));
       });
     });
+
+    describe('checkUidExists', function () {
+      beforeEach(function () {
+        account.set('uid', UID);
+
+        sinon.stub(fxaClient, 'checkAccountExists', function () {
+          return p();
+        });
+
+        return account.checkUidExists();
+      });
+
+      it('delegates to the fxaClient', function () {
+        assert.isTrue(fxaClient.checkAccountExists.calledWith(UID));
+      });
+    });
+
+    describe('checkEmailExists', function () {
+      beforeEach(function () {
+        account.set('email', EMAIL);
+
+        sinon.stub(fxaClient, 'checkAccountExistsByEmail', function () {
+          return p();
+        });
+
+        return account.checkEmailExists();
+      });
+
+      it('delegates to the fxaClient', function () {
+        assert.isTrue(
+            fxaClient.checkAccountExistsByEmail.calledWith(EMAIL));
+      });
+    });
   });
 });

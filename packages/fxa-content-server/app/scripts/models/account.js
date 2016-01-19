@@ -406,13 +406,23 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Check if user exists by stored email.
+     * Check whether the account's email is registered.
      *
-     * @returns {promise} - resolves when complete
+     * @returns {promise} resolves to `true` if email is registered,
+     * `false` otw.
      */
-    checkAccountEmailExists: function () {
-      var email = this.get('email');
-      return this._fxaClient.checkAccountExistsByEmail(email);
+    checkEmailExists: function () {
+      return this._fxaClient.checkAccountExistsByEmail(this.get('email'));
+    },
+
+    /**
+     * Check whether the account's UID is registered.
+     *
+     * @returns {promise} resolves to `true` if the uid is registered,
+     * `false` otw.
+     */
+    checkUidExists: function () {
+      return this._fxaClient.checkAccountExists(this.get('uid'));
     },
 
     /**

@@ -20,7 +20,10 @@ define(function (require, exports, module) {
   var User = require('models/user');
 
   var assert = chai.assert;
+
   var CODE = 'verification code';
+  var EMAIL = 'a@a.com';
+  var SESSION_TOKEN = 'session token';
   var UUID = 'a mock uuid';
 
   describe('models/user', function () {
@@ -904,6 +907,78 @@ define(function (require, exports, module) {
         it('signs out the current account', function () {
           assert.isTrue(user.clearSignedInAccount.called);
         });
+      });
+    });
+
+    describe('checkAccountUidExists', function () {
+      var account;
+      var exists;
+
+      beforeEach(function () {
+        account = user.initAccount({
+          email: EMAIL,
+          sessionToken: SESSION_TOKEN,
+          uid: UUID
+        });
+
+        sinon.stub(account, 'checkUidExists', function () {
+          return p(false);
+        });
+
+        sinon.spy(user, 'removeAccount');
+
+        return user.checkAccountUidExists(account)
+          .then(function (_exists) {
+            exists = _exists;
+          });
+      });
+
+      it('delegates to the account model', function () {
+        assert.isTrue(account.checkUidExists.called);
+      });
+
+      it('removes the account if it does not exist', function () {
+        assert.isTrue(user.removeAccount.calledWith(account));
+      });
+
+      it('returns a promise that resolves to whether the account exists', function () {
+        assert.isFalse(exists);
+      });
+    });
+
+    describe('checkAccountEmailExists', function () {
+      var account;
+      var exists;
+
+      beforeEach(function () {
+        account = user.initAccount({
+          email: EMAIL,
+          sessionToken: SESSION_TOKEN,
+          uid: UUID
+        });
+
+        sinon.stub(account, 'checkEmailExists', function () {
+          return p(false);
+        });
+
+        sinon.spy(user, 'removeAccount');
+
+        return user.checkAccountEmailExists(account)
+          .then(function (_exists) {
+            exists = _exists;
+          });
+      });
+
+      it('delegates to the account model', function () {
+        assert.isTrue(account.checkEmailExists.called);
+      });
+
+      it('removes the account if it does not exist', function () {
+        assert.isTrue(user.removeAccount.calledWith(account));
+      });
+
+      it('returns a promise that resolves to whether the account exists', function () {
+        assert.isFalse(exists);
       });
     });
   });

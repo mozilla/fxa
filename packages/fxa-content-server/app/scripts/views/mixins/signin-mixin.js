@@ -61,12 +61,24 @@ define(function (require, exports, module) {
         });
       }
 
+      // If the account's uid changed, update the relier model or else
+      // the user can end up in a permanent "Session Expired" state
+      // when signing into Sync via force_auth. This occurs because
+      // Sync opens force_auth with a uid. The uid could have changed. We
+      // sign the user in here with the new uid, then attempt to do
+      // other operations with the old uid. Not all brokers support
+      // uid changes, so only make the update if the broker supports
+      // the change. See #3057 and #3283
+      if (account.get('uid') !== this.relier.get('uid') &&
+          this.broker.hasCapability('allowUidChange')) {
+        this.relier.set('uid', account.get('uid'));
+      }
+
       this.logViewEvent('success');
       this.logViewEvent('signin.success');
 
       var brokerMethod = this.afterSignInBrokerMethod || 'afterSignIn';
       var navigateData = this.afterSignInNavigateData || {};
-
 
       return this.invokeBrokerMethod(brokerMethod, account)
         .then(this.navigate.bind(this, this.model.get('redirectTo') || 'settings', {}, navigateData));

@@ -143,6 +143,26 @@ define(function (require, exports, module) {
           });
       });
 
+      describe('with model.forceEmail', function () {
+        beforeEach(function () {
+          model.set('forceEmail', 'testuser@testuser.com');
+
+          return view.render();
+        });
+
+        it('shows a readonly email', function () {
+          var $emailInputEl = view.$('[type=email]');
+          assert.equal($emailInputEl.val(), 'testuser@testuser.com');
+          assert.isTrue($emailInputEl.hasClass('hidden'));
+
+          assert.equal(view.$('.prefillEmail').text(), 'testuser@testuser.com');
+        });
+
+        it('does not allow `signin`', function () {
+          assert.equal(view.$('.sign-in').length, 0);
+        });
+      });
+
       it('prefills email with email from the relier if formPrefill.email is not set', function () {
         relier.set('email', 'testuser@testuser.com');
 

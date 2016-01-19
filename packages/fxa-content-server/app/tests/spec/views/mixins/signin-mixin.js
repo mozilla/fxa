@@ -8,6 +8,7 @@ define(function (require, exports, module) {
   var Account = require('models/account');
   var assert = require('chai').assert;
   var Backbone = require('backbone');
+  var AuthBroker = require('models/auth_brokers/base');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
   var SignInMixin = require('views/mixins/signin-mixin');
@@ -23,6 +24,7 @@ define(function (require, exports, module) {
 
     describe('signIn', function () {
       var account;
+      var broker;
       var model;
       var relier;
       var view;
@@ -32,6 +34,7 @@ define(function (require, exports, module) {
           email: 'testuser@testuser.com',
           verified: true
         });
+        broker = new AuthBroker();
         model = new Backbone.Model();
 
         relier = new Relier();
@@ -39,6 +42,7 @@ define(function (require, exports, module) {
           _formPrefill: {
             clear: sinon.spy()
           },
+          broker: broker,
           getStringifiedResumeToken: sinon.spy(),
           invokeBrokerMethod: sinon.spy(function () {
             return p();
