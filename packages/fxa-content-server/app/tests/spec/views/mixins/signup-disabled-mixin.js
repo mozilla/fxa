@@ -7,20 +7,20 @@ define(function (require, exports, module) {
 
   var AuthErrors = require('lib/auth-errors');
   var chai = require('chai');
-  var SignupDisabledMixin = require('views/mixins/signup-disabled-mixin');
+  var SignUpDisabledMixin = require('views/mixins/signup-disabled-mixin');
   var sinon = require('sinon');
 
   var assert = chai.assert;
 
   describe('views/mixins/signup-disabled-mixin', function () {
     it('exports correct interface', function () {
-      assert.lengthOf(Object.keys(SignupDisabledMixin), 2);
+      assert.lengthOf(Object.keys(SignUpDisabledMixin), 2);
       var publicInterface = [
         'isSignupDisabled',
         'getSignupDisabledReason'
       ];
       publicInterface.forEach(function (funcName) {
-        assert.isFunction(SignupDisabledMixin[funcName]);
+        assert.isFunction(SignUpDisabledMixin[funcName]);
       });
     });
 
@@ -35,7 +35,7 @@ define(function (require, exports, module) {
           })
         };
 
-        result = SignupDisabledMixin.isSignupDisabled.call({ broker: broker });
+        result = SignUpDisabledMixin.isSignupDisabled.call({ broker: broker });
       });
 
       it('calls this.broker.isSignupDisabled correctly', function () {
@@ -54,7 +54,7 @@ define(function (require, exports, module) {
           SIGNUP_DISABLED_REASON: AuthErrors.toError('IOS_SIGNUP_DISABLED')
         };
 
-        result = SignupDisabledMixin.getSignupDisabledReason.call({ broker: broker });
+        result = SignUpDisabledMixin.getSignupDisabledReason.call({ broker: broker });
       });
 
       it('reports the correct value', function () {

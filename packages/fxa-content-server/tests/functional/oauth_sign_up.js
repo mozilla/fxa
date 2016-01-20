@@ -22,6 +22,37 @@ define([
   var bouncedEmail;
   var fxaClient;
 
+  function signUpWithExistingAccount (context, email, firstPassword, secondPassword, options) {
+    return FunctionalHelpers.openFxaFromRp(context, 'signup')
+      .then(function () {
+        return FunctionalHelpers.fillOutSignUp(context, email, firstPassword);
+      })
+
+      .findByCssSelector('#fxa-confirm-header')
+      .end()
+      .then(function () {
+        return FunctionalHelpers.getVerificationLink(email, 0);
+      })
+      .then(function (verificationLink) {
+        return context.remote.get(require.toUrl(verificationLink));
+      })
+
+      .findByCssSelector('#loggedin')
+      .end()
+
+      .findByCssSelector('#logout')
+        .click()
+      .end()
+
+      .findByCssSelector('.sign-in-button.signup')
+        .click()
+      .end()
+
+      .then(function () {
+        return FunctionalHelpers.fillOutSignUp(context, email, secondPassword, options);
+      });
+  }
+
   registerSuite({
     name: 'oauth sign up',
 
@@ -222,6 +253,98 @@ define([
 
         // make sure the relier name is not a link
         .then(Test.noElementById(self, 'redirectTo'));
+    },
+
+    'sign up with existing account, coppa is valid': function () {
+      return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD)
+
+        // should have navigated to 123done
+        .findByCssSelector('#loggedin')
+        .end();
+    },
+
+    'sign up with existing account, coppa is valid, credentials are wrong': function () {
+      return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD)
+
+        // should have navigated to sign-in view
+        .findByCssSelector('#fxa-signin-header')
+        .end()
+
+        // should be /oauth/signin route
+        .getCurrentUrl()
+          .then(function (url) {
+            assert.ok(url.indexOf('/oauth/signin') > -1);
+          })
+        .end()
+
+        // an error should be visible
+        .then(FunctionalHelpers.testErrorWasShown(this))
+
+        // the email field should be populated
+        .findByCssSelector('input[type=email]')
+          .getAttribute('value')
+          .then(function (resultText) {
+            assert.equal(resultText, email);
+          })
+        .end()
+
+          // the password field should be populated
+        .findByCssSelector('input[type=password]')
+          .getAttribute('value')
+          .then(function (resultText) {
+            assert.equal(resultText, 'bad' + PASSWORD);
+          })
+        .end();
+    },
+
+    'sign up with existing account, coppa is empty': function () {
+      return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD, { age: ' ' })
+
+        // should have navigated to 123done
+        .findByCssSelector('#loggedin')
+        .end();
+    },
+
+    'sign up with existing account, coppa is empty, credentials are wrong': function () {
+      return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD, { age: ' ' })
+
+        // should have navigated to sign-in view
+        .findByCssSelector('#fxa-signin-header')
+        .end()
+
+        // should be /oauth/signin route
+        .getCurrentUrl()
+          .then(function (url) {
+            assert.ok(url.indexOf('/oauth/signin') > -1);
+          })
+        .end()
+
+        // an error should be visible
+        .then(FunctionalHelpers.testErrorWasShown(this))
+
+        // the email field should be populated
+        .findByCssSelector('input[type=email]')
+          .getAttribute('value')
+          .then(function (resultText) {
+            assert.equal(resultText, email);
+          })
+        .end()
+
+          // the password field should be populated
+        .findByCssSelector('input[type=password]')
+          .getAttribute('value')
+          .then(function (resultText) {
+            assert.equal(resultText, 'bad' + PASSWORD);
+          })
+        .end();
+    },
+
+    'sign up with existing account, coppa is too young': function () {
+      return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD, { age: 12 })
+
+        // should have navigated to 123done
+        .findByCssSelector('#loggedin')
+        .end();
     },
 
     'sign up, bounce email, allow user to restart flow but force a different email': function () {

@@ -187,6 +187,9 @@ define(function (require, exports, module) {
         sinon.stub(broker, 'afterSignIn', function () {
           return p();
         });
+        sinon.stub(relier, 'has', function () {
+          return true;
+        });
 
         return initView('sign_up')
           .then(function () {

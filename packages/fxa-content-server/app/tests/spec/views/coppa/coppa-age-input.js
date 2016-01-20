@@ -116,24 +116,45 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('isUserOldEnough', function () {
-      it('returns true if user is old enough', function () {
-        view.$('#age').val('14');
-        assert.isTrue(view.isUserOldEnough());
+    describe('value is old enough', function () {
+      beforeEach(function () {
         view.$('#age').val('13');
-        assert.isTrue(view.isUserOldEnough());
-        view.$('#age').val('56');
+      });
+
+      it('isUserOldEnough returns true', function () {
         assert.isTrue(view.isUserOldEnough());
       });
 
-      it('returns false if user is not old enough', function () {
-        assert.isFalse(view.isUserOldEnough());
+      it('hasValue returns true', function () {
+        assert.isTrue(view.hasValue());
+      });
+    });
+
+    describe('value is too young', function () {
+      beforeEach(function () {
         view.$('#age').val('12');
+      });
+
+      it('isUserOldEnough returns false', function () {
         assert.isFalse(view.isUserOldEnough());
-        view.$('#age').val('1');
+      });
+
+      it('hasValue returns true', function () {
+        assert.isTrue(view.hasValue());
+      });
+    });
+
+    describe('value is empty', function () {
+      beforeEach(function () {
+        view.$('#age').val('');
+      });
+
+      it('isUserOldEnough returns false', function () {
         assert.isFalse(view.isUserOldEnough());
-        view.$('#age').val('0');
-        assert.isFalse(view.isUserOldEnough());
+      });
+
+      it('hasValue returns false', function () {
+        assert.isFalse(view.hasValue());
       });
     });
 

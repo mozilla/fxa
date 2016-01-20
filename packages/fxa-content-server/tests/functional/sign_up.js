@@ -39,6 +39,35 @@ define([
       .end();
   }
 
+  function signUpWithExistingAccount (context, email, firstPassword, secondPassword, options) {
+    return fillOutSignUp(context, email, firstPassword)
+      .then(function () {
+        return testAtConfirmScreen(context, email);
+      })
+      .then(function () {
+        return FunctionalHelpers.getVerificationLink(email, 0);
+      })
+      .then(function (verificationLink) {
+        return context.remote.get(require.toUrl(verificationLink));
+      })
+
+      .findByCssSelector('#fxa-settings-header')
+      .end()
+
+      .then(FunctionalHelpers.testSuccessWasShown(context))
+
+      .findByCssSelector('#signout')
+        .click()
+      .end()
+
+      .findByCssSelector('#fxa-signin-header')
+      .end()
+
+      .then(function () {
+        return FunctionalHelpers.fillOutSignUp(context, email, secondPassword, options);
+      });
+  }
+
   registerSuite({
     name: 'sign_up',
 
@@ -289,41 +318,163 @@ define([
         .end();
     },
 
-    'coppa does not allow sign up if younger than 13 years old': function () {
-      return FunctionalHelpers.fillOutSignUp(this, email, PASSWORD, { age: 12 })
+    'sign up with existing account, coppa is valid, credentials are correct': function () {
+      return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD)
 
-        // Success is being redirected to the cannot create screen.
-        .findById('fxa-cannot-create-account-header')
+        // should have navigated to settings view
+        .findByCssSelector('#fxa-settings-header')
         .end();
     },
 
+    'sign up with existing account, coppa is valid, credentials are wrong': function () {
+      return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD)
 
-    'sign up with a verified account forces the user to sign in': function () {
+        // should have navigated to sign-in view
+        .findByCssSelector('#fxa-signin-header')
+        .end()
+
+        // should be /signin route
+        .getCurrentUrl()
+          .then(function (url) {
+            assert.ok(url.indexOf('/signin') > -1);
+            assert.equal(url.indexOf('/oauth/signin'), -1);
+          })
+        .end()
+
+        // an error should be visible
+        .then(FunctionalHelpers.testErrorWasShown(this))
+
+        // the email field should be populated
+        .findByCssSelector('input[type=email]')
+          .getAttribute('value')
+          .then(function (resultText) {
+            assert.equal(resultText, email);
+          })
+        .end()
+
+          // the password field should be populated
+        .findByCssSelector('input[type=password]')
+          .getAttribute('value')
+          .then(function (resultText) {
+            assert.equal(resultText, 'bad' + PASSWORD);
+          })
+        .end();
+    },
+
+    'sign up with existing account, coppa is empty, credentials are correct': function () {
+      return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD, { age: ' ' })
+
+        // should have navigated to settings view
+        .findByCssSelector('#fxa-settings-header')
+        .end();
+    },
+
+    'sign up with existing account, coppa is empty, credentials are wrong': function () {
+      return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD, { age: ' ' })
+
+        // should have navigated to sign-in view
+        .findByCssSelector('#fxa-signin-header')
+        .end()
+
+        // should be /signin route
+        .getCurrentUrl()
+          .then(function (url) {
+            assert.ok(url.indexOf('/signin') > -1);
+            assert.equal(url.indexOf('/oauth/signin'), -1);
+          })
+        .end()
+
+        // an error should be visible
+        .then(FunctionalHelpers.testErrorWasShown(this))
+
+        // the email field should be populated
+        .findByCssSelector('input[type=email]')
+          .getAttribute('value')
+          .then(function (resultText) {
+            assert.equal(resultText, email);
+          })
+        .end()
+
+          // the password field should be populated
+        .findByCssSelector('input[type=password]')
+          .getAttribute('value')
+          .then(function (resultText) {
+            assert.equal(resultText, 'bad' + PASSWORD);
+          })
+        .end();
+    },
+
+    'sign up with new account, coppa is empty': function () {
+      return FunctionalHelpers.fillOutSignUp(this, email, PASSWORD, { age: ' ' })
+
+        // navigation should not occur
+        .findByCssSelector('#fxa-signup-header')
+        .end()
+
+        // an error should be visible
+        .then(FunctionalHelpers.testErrorWasShown(this));
+    },
+
+    'sign up with existing account, coppa is too young, credentials are correct': function () {
+      return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD, { age: 12 })
+
+        // should have navigated to settings view
+        .findByCssSelector('#fxa-settings-header')
+        .end();
+    },
+
+    'sign up with existing account, coppa is too young, credentials are wrong': function () {
+      return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD, { age: 12 })
+
+        // should have navigated to sign-in view
+        .findByCssSelector('#fxa-signin-header')
+        .end()
+
+        // should be /signin route
+        .getCurrentUrl()
+          .then(function (url) {
+            assert.ok(url.indexOf('/signin') > -1);
+            assert.equal(url.indexOf('/oauth/signin'), -1);
+          })
+        .end()
+
+        // an error should be visible
+        .then(FunctionalHelpers.testErrorWasShown(this))
+
+        // the email field should be populated
+        .findByCssSelector('input[type=email]')
+          .getAttribute('value')
+          .then(function (resultText) {
+            assert.equal(resultText, email);
+          })
+        .end()
+
+          // the password field should be populated
+        .findByCssSelector('input[type=password]')
+          .getAttribute('value')
+          .then(function (resultText) {
+            assert.equal(resultText, 'bad' + PASSWORD);
+          })
+        .end();
+    },
+
+    'sign up with new account, coppa is too young': function () {
+      return FunctionalHelpers.fillOutSignUp(this, email, PASSWORD, { age: 12 })
+
+        // should have navigated to cannot-create-account view
+        .findByCssSelector('#fxa-cannot-create-account-header')
+        .end();
+    },
+
+    'sign up with a verified account signs the user in': function () {
       var self = this;
 
       return client.signUp(email, PASSWORD, { preVerified: true })
         .then(function () {
           return fillOutSignUp(self, email, PASSWORD)
-            // The error area shows a link to /signin
-            .then(FunctionalHelpers.visibleByQSA('.error a[href="/signin"]'))
-            .findByCssSelector('.error a[href="/signin"]')
-              .click()
-            .end()
 
-            .findByCssSelector('input[type=email]')
-              .getAttribute('value')
-              .then(function (resultText) {
-                // check the email address carried over.
-                assert.equal(resultText, email);
-              })
-            .end()
-
-            .findByCssSelector('input[type=password]')
-              .getAttribute('value')
-              .then(function (resultText) {
-                // check the password carried over.
-                assert.equal(resultText, PASSWORD);
-              })
+            // should have navigated to settings view
+            .findByCssSelector('#fxa-settings-header')
             .end();
         });
     },

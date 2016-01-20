@@ -7,15 +7,26 @@
 define(function (require, exports, module) {
   'use strict';
 
-
   module.exports = {
     onSignUpSuccess: function (account) {
+      this.logViewEvent('success');
+      if (this._formPrefill) {
+        this._formPrefill.clear();
+      }
       var self = this;
       if (account.get('verified')) {
-        // user was pre-verified, notify the broker.
         return self.invokeBrokerMethod('afterSignIn', account)
           .then(function () {
-            self.navigate('signup_complete');
+            if (self.relier.has('preVerifyToken')) {
+              // User was pre-verified.
+              self.logViewEvent('preverified.success');
+              return self.navigate('signup_complete');
+            }
+
+            // Account already existed. There was no need to create it,
+            // so we just signed the user in instead.
+            // https://github.com/mozilla/fxa-content-server/issues/2778
+            return self.navigate('settings');
           });
       } else {
         self.navigate('confirm', {

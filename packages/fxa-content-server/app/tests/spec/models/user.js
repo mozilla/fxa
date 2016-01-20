@@ -564,6 +564,91 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('signUpAccount, account already exists', function () {
+      var account;
+      var relierMock = {};
+
+      beforeEach(function () {
+        account = user.initAccount({ email: 'email', uid: 'uid' });
+        sinon.stub(account, 'signUp', function () {
+          return p.reject(AuthErrors.toError('ACCOUNT_ALREADY_EXISTS'));
+        });
+        sinon.stub(user, 'setSignedInAccount', function () {
+          return p();
+        });
+        sinon.stub(user, 'signInAccount', function () {
+          return p();
+        });
+
+        return user.signUpAccount(account, 'foo', relierMock, { resume: 'bar' });
+      });
+
+      afterEach(function () {
+        account.signUp.restore();
+        user.setSignedInAccount.restore();
+        user.signInAccount.restore();
+      });
+
+      it('does not call user.setSignedInAccount', function () {
+        assert.equal(user.setSignedInAccount.callCount, 0);
+      });
+
+      it('calls user.signInAccount correctly', function () {
+        assert.equal(user.signInAccount.callCount, 1);
+        assert.equal(user.signInAccount.thisValues[0], user);
+        var args = user.signInAccount.args[0];
+        assert.lengthOf(args, 4);
+        assert.equal(args[0], account);
+        assert.equal(args[1], 'foo');
+        assert.equal(args[2], relierMock);
+        assert.isObject(args[3]);
+        assert.lengthOf(Object.keys(args[3]), 1);
+        assert.equal(args[3].resume, 'bar');
+      });
+    });
+
+    describe('signUpAccount, some other error', function () {
+      var account;
+      var relierMock = {};
+      var failed;
+
+      beforeEach(function () {
+        account = user.initAccount({ email: 'email', uid: 'uid' });
+        sinon.stub(account, 'signUp', function () {
+          return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+        });
+        sinon.stub(user, 'setSignedInAccount', function () {
+          return p();
+        });
+        sinon.stub(user, 'signInAccount', function () {
+          return p();
+        });
+
+        return user.signUpAccount(account, 'foo', relierMock, { resume: 'bar' })
+          .fail(function (err) {
+            failed = err;
+          });
+      });
+
+      afterEach(function () {
+        account.signUp.restore();
+        user.setSignedInAccount.restore();
+        user.signInAccount.restore();
+      });
+
+      it('does not call user.setSignedInAccount', function () {
+        assert.equal(user.setSignedInAccount.callCount, 0);
+      });
+
+      it('does not call user.signInAccount', function () {
+        assert.equal(user.signInAccount.callCount, 0);
+      });
+
+      it('propagates the error', function () {
+        assert.isTrue(AuthErrors.is(failed, 'UNEXPECTED_ERROR'));
+      });
+    });
+
     describe('completeAccountSignUp', function () {
       var account;
 

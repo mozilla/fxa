@@ -11,8 +11,9 @@ define(function (require, exports, module) {
   var chai = require('chai');
   var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
-  var p = require('lib/promise');
   var Notifier = require('lib/channels/notifier');
+  var p = require('lib/promise');
+  var Relier = require('models/reliers/sync');
   var sinon = require('sinon');
   var TestHelpers = require('../../lib/helpers');
   var User = require('models/user');
@@ -29,6 +30,7 @@ define(function (require, exports, module) {
     var fxaClient;
     var metrics;
     var notifier;
+    var relier;
     var user;
     var view;
     var windowMock;
@@ -40,6 +42,7 @@ define(function (require, exports, module) {
       metrics = new Metrics();
       model = new Backbone.Model();
       notifier = new Notifier();
+      relier = new Relier();
       windowMock = new WindowMock();
 
       user = new User({
@@ -71,6 +74,7 @@ define(function (require, exports, module) {
         metrics: metrics,
         model: model,
         notifier: notifier,
+        relier: relier,
         user: user,
         viewName: 'choose-what-to-sync',
         window: windowMock
@@ -143,6 +147,9 @@ define(function (require, exports, module) {
       it('notifies the broker when a pre-verified user signs up', function () {
         sinon.stub(broker, 'afterSignIn', function () {
           return p();
+        });
+        sinon.stub(relier, 'has', function () {
+          return true;
         });
 
         return initView()

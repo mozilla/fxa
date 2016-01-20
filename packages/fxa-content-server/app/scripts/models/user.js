@@ -13,6 +13,7 @@ define(function (require, exports, module) {
 
   var _ = require('underscore');
   var Account = require('models/account');
+  var AuthErrors = require('lib/auth-errors');
   var Backbone = require('backbone');
   var Cocktail = require('cocktail');
   var MarketingEmailErrors = require('lib/marketing-email-errors');
@@ -342,6 +343,14 @@ define(function (require, exports, module) {
       return account.signUp(password, relier, options)
         .then(function () {
           return self.setSignedInAccount(account);
+        }, function (err) {
+          if (AuthErrors.is(err, 'ACCOUNT_ALREADY_EXISTS')) {
+            // If the account already exists, swallow the error
+            // and attempt to sign the user in instead.
+            return self.signInAccount(account, password, relier, options);
+          }
+
+          throw err;
         });
     },
 

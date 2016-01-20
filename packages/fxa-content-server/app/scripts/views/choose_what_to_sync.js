@@ -11,7 +11,7 @@ define(function (require, exports, module) {
   var Cocktail = require('cocktail');
   var FormView = require('views/form');
   var p = require('lib/promise');
-  var SignupSuccessMixin = require('views/mixins/signup-success-mixin');
+  var SignUpSuccessMixin = require('views/mixins/signup-success-mixin');
   var Template = require('stache!templates/choose_what_to_sync');
 
   var View = FormView.extend({
@@ -116,7 +116,7 @@ define(function (require, exports, module) {
     View,
     BackMixin,
     CheckboxMixin,
-    SignupSuccessMixin
+    SignUpSuccessMixin
   );
 
   module.exports = View;
