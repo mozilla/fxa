@@ -127,6 +127,7 @@ define(function (require, exports, module) {
       it('adds new device to list', function () {
         assert.lengthOf(view.$('li.device'), 3);
         assert.include(view.$('#device-3 .device-name').text().trim(), 'delta');
+        assert.isTrue(view.$('#device-3 .last-connected').text().trim().indexOf('years ago') >= 0, 'formats connected date');
       });
     });
 
