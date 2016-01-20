@@ -252,19 +252,9 @@ define(function (require, exports, module) {
     _isEmailFirefoxDomain: function () {
       var email = this.getElementValue('.email');
 
-      // some users input a "@firefox.com" email.
-      // this is not a valid email at this time, therefore we block the attempt.
-      if (email.indexOf('@firefox.com') >= 0) {
-        return true;
-      }
-
-      // some users input a "@firefox" as the email field.
-      // this will never be a valid email, therefore we block the attempt.
-      if (String.prototype.hasOwnProperty('endsWith') && email.endsWith('@firefox')) {
-        return true;
-      }
-
-      return false;
+      // "@firefox" or "@firefox.com" email addresses are not valid
+      // at this time, therefore block the attempt.
+      return /@firefox(\.com)?$/.test(email);
     },
 
     _cannotCreateAccount: function () {
