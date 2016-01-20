@@ -5,11 +5,11 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var Backbone = require('backbone');
   var CanvasMock = require('../../mocks/canvas');
   var chai = require('chai');
   var Cropper = require('lib/cropper');
   var CropperImage = require('models/cropper-image');
-  var EphemeralMessages = require('lib/ephemeral-messages');
   var jQuerySimulate = require('jquery-simulate'); //eslint-disable-line no-unused-vars
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
@@ -22,26 +22,22 @@ define(function (require, exports, module) {
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
   describe('lib/cropper', function () {
-    var ephemeralMessages;
+    var model;
     var notifier;
     var relier;
     var user;
     var view;
 
     beforeEach(function () {
-      ephemeralMessages = new EphemeralMessages();
+      model = new Backbone.Model();
       notifier = new Notifier();
       relier = new Relier();
       user = new User();
 
-      ephemeralMessages.set('data', {
-        cropImg: new CropperImage({
-          src: pngSrc
-        })
-      });
+      model.set('cropImg', new CropperImage({ src: pngSrc }));
 
       view = new View({
-        ephemeralMessages: ephemeralMessages,
+        model: model,
         notifier: notifier,
         relier: relier,
         user: user

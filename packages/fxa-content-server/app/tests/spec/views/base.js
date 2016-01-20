@@ -7,11 +7,11 @@ define(function (require, exports, module) {
 
   var $ = require('jquery');
   var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
   var BaseBroker = require('models/auth_brokers/base');
   var BaseView = require('views/base');
   var chai = require('chai');
   var DOMEventMock = require('../../mocks/dom-event');
-  var EphemeralMessages = require('lib/ephemeral-messages');
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
@@ -29,7 +29,7 @@ define(function (require, exports, module) {
 
   describe('views/base', function () {
     var broker;
-    var ephemeralMessages;
+    var model;
     var metrics;
     var notifier;
     var viewName = 'view';
@@ -53,7 +53,7 @@ define(function (require, exports, module) {
       });
 
       broker = new BaseBroker();
-      ephemeralMessages = new EphemeralMessages();
+      model = new Backbone.Model();
       metrics = new Metrics();
       notifier = new Notifier();
       user = new User();
@@ -61,8 +61,8 @@ define(function (require, exports, module) {
 
       view = new View({
         broker: broker,
-        ephemeralMessages: ephemeralMessages,
         metrics: metrics,
+        model: model,
         notifier: notifier,
         translator: translator,
         user: user,
@@ -143,25 +143,21 @@ define(function (require, exports, module) {
             });
       });
 
-      it('shows one time success messages', function () {
-        ephemeralMessages.set('success', 'success message');
+      it('shows success messages', function () {
+        model.set('success', 'success message');
         return view.render()
             .then(function () {
               assert.equal(view.$('.success').text(), 'success message');
 
               return view.render();
-            })
-            .then(function () {
-              // it's a one time message, no success message this time.
-              assert.equal(view.$('.success').text(), '');
             });
       });
 
-      it('logError is called for ephemeral error', function () {
+      it('logError is called for error', function () {
         var error = AuthErrors.toError('UNEXPECTED_ERROR');
         sinon.spy(view, 'logError');
-        ephemeralMessages.set('error', error);
-        view.showEphemeralMessages();
+        model.set('error', error);
+        view.displayStatusMessages();
         assert.isTrue(view.logError.called);
         assert.isTrue(error.logged);
       });
@@ -174,26 +170,14 @@ define(function (require, exports, module) {
         assert.isFalse(metrics.logError.called);
       });
 
-      it('shows one time error messages', function () {
-        ephemeralMessages.set('error', 'error message');
+      it('shows error messages', function () {
+        model.set('error', 'error message');
         return view.render()
             .then(function () {
               assert.equal(view.$('.error').text(), 'error message');
 
               return view.render();
-            })
-            .then(function () {
-              // it's a one time message, no error message this time.
-              assert.equal(view.$('.error').text(), '');
             });
-      });
-
-      it('has one time use data', function () {
-        var data = { foo: 'bar' };
-        ephemeralMessages.set('data', data);
-
-        assert.equal(view.ephemeralData().foo, 'bar');
-        assert.isUndefined(view.ephemeralData().foo);
       });
 
       it('redirects if the user is not authorized', function () {
@@ -462,10 +446,15 @@ define(function (require, exports, module) {
       });
 
       it('navigates to a page, propagates the clearQueryParams options', function () {
-        view.navigate('signin', { clearQueryParams: true });
+        view.navigate('signin', { key: 'value' }, { clearQueryParams: true });
 
         assert.isTrue(notifier.trigger.calledWith('navigate', {
-          clearQueryParams: true,
+          nextViewData: {
+            key: 'value'
+          },
+          routerOptions: {
+            clearQueryParams: true,
+          },
           url: 'signin'
         }));
       });
@@ -477,14 +466,6 @@ define(function (require, exports, module) {
         });
 
         assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
-      });
-
-      it('sets ephemeral data from navigate', function () {
-        view.navigate('signin', {
-          data: 'foo'
-        });
-
-        assert.equal(view.ephemeralData(), 'foo');
       });
     });
 

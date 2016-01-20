@@ -8,10 +8,10 @@ define(function (require, exports, module) {
   var $ = require('jquery');
   var Able = require('lib/able');
   var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
   var Broker = require('models/auth_brokers/base');
   var chai = require('chai');
   var CoppaAgeInput = require('views/coppa/coppa-age-input');
-  var EphemeralMessages = require('lib/ephemeral-messages');
   var ExperimentInterface = require('lib/experiment');
   var FormPrefill = require('models/form-prefill');
   var FxaClient = require('lib/fxa-client');
@@ -33,10 +33,10 @@ define(function (require, exports, module) {
     var broker;
     var coppa;
     var email;
-    var ephemeralMessages;
     var formPrefill;
     var fxaClient;
     var metrics;
+    var model;
     var notifier;
     var relier;
     var user;
@@ -60,10 +60,10 @@ define(function (require, exports, module) {
         able: options.able || able,
         broker: broker,
         coppa: coppa,
-        ephemeralMessages: ephemeralMessages,
         formPrefill: formPrefill,
         fxaClient: fxaClient,
         metrics: metrics,
+        model: model,
         notifier: notifier,
         relier: relier,
         user: user,
@@ -82,10 +82,10 @@ define(function (require, exports, module) {
       able = new Able();
       coppa = new CoppaAgeInput();
       email = TestHelpers.createEmail();
-      ephemeralMessages = new EphemeralMessages();
       formPrefill = new FormPrefill();
       fxaClient = new FxaClient();
       metrics = new Metrics();
+      model = new Backbone.Model();
       notifier = new Notifier();
       relier = new Relier();
 
@@ -269,9 +269,9 @@ define(function (require, exports, module) {
     });
 
     describe('afterVisible', function () {
-      it('shows a tooltip on the email element if ephemeralMessages.bouncedEmail is set', function (done) {
+      it('shows a tooltip on the email element if model.bouncedEmail is set', function (done) {
         sinon.spy(view, 'showValidationError');
-        ephemeralMessages.set('bouncedEmail', 'testuser@testuser.com');
+        model.set('bouncedEmail', 'testuser@testuser.com');
 
         return view.render()
           .then(function () {
@@ -337,7 +337,7 @@ define(function (require, exports, module) {
       });
 
       it('returns false if email is the same as the bounced email', function () {
-        ephemeralMessages.set('bouncedEmail', 'testuser@testuser.com');
+        model.set('bouncedEmail', 'testuser@testuser.com');
 
         return view.render()
           .then(function () {
@@ -467,7 +467,7 @@ define(function (require, exports, module) {
       });
 
       it('shows an error if the email is the same as the bounced email', function () {
-        ephemeralMessages.set('bouncedEmail', 'testuser@testuser.com');
+        model.set('bouncedEmail', 'testuser@testuser.com');
 
         return view.render()
           .then(function () {
@@ -571,7 +571,7 @@ define(function (require, exports, module) {
             var account = user.initAccount.returnValues[0];
 
             assert.equal(view.navigate.args[0][0], 'confirm');
-            assert.isTrue(view.navigate.args[0][1].data.account.get('customizeSync'));
+            assert.isTrue(view.navigate.args[0][1].account.get('customizeSync'));
             assert.isTrue(user.signUpAccount.calledWith(account, password, relier));
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                               'signup.success'));

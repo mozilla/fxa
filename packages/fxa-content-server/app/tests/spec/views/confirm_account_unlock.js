@@ -6,8 +6,8 @@ define(function (require, exports, module) {
   'use strict';
 
   var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
   var chai = require('chai');
-  var EphemeralMessages = require('lib/ephemeral-messages');
   var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
@@ -26,9 +26,9 @@ define(function (require, exports, module) {
   describe('views/confirm_account_unlock', function () {
     var account;
     var broker;
-    var ephemeralMessages;
     var fxaClient;
     var metrics;
+    var model;
     var notifier;
     var relier;
     var user;
@@ -39,9 +39,9 @@ define(function (require, exports, module) {
     function initView() {
       view = new View({
         broker: broker,
-        ephemeralMessages: ephemeralMessages,
         fxaClient: fxaClient,
         metrics: metrics,
+        model: model,
         notifier: notifier,
         relier: relier,
         user: user,
@@ -69,8 +69,7 @@ define(function (require, exports, module) {
         email: EMAIL
       });
 
-      ephemeralMessages = new EphemeralMessages();
-      ephemeralMessages.set('data', {
+      model = new Backbone.Model({
         account: account,
         lockoutSource: 'signin',
         password: 'password'
@@ -170,7 +169,7 @@ define(function (require, exports, module) {
 
       describe('if not caused by signin', function () {
         beforeEach(function () {
-          ephemeralMessages.set('data', {
+          model.set({
             account: account,
             lockoutSource: 'change_password',
             password: 'password'
@@ -194,12 +193,9 @@ define(function (require, exports, module) {
           assert.isFalse(broker.afterSignIn.called);
         });
 
-        it('sets the success ephemeral message', function () {
-          assert.include(ephemeralMessages.get('success'), 'unlocked');
-        });
-
         it('navigates back a view', function () {
           assert.isTrue(view.back.called);
+          assert.include(view.back.args[0][0].success, 'unlocked');
         });
       });
 
@@ -219,13 +215,10 @@ define(function (require, exports, module) {
           assert.isFalse(broker.afterSignIn.called);
         });
 
-        it('sets the error ephemeral message', function () {
-          assert.isTrue(
-            AuthErrors.is(ephemeralMessages.get('error'), 'INCORRECT_PASSWORD'));
-        });
-
         it('navigates back', function () {
           assert.isTrue(view.back.called);
+          assert.isTrue(
+            AuthErrors.is(view.back.args[0][0].error, 'INCORRECT_PASSWORD'));
         });
       });
 

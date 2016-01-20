@@ -161,8 +161,8 @@ define(function (require, exports, module) {
           it('redirects to signup, clearing query params', function () {
             assert.equal(view.navigate.args[0][0], 'signup');
 
-            assert.isTrue(view.navigate.args[0][1].clearQueryParams);
             assert.ok(view.navigate.args[0][1].success);
+            assert.isTrue(view.navigate.args[0][2].clearQueryParams);
           });
 
           it('logs success', function () {

@@ -5,21 +5,24 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var Backbone = require('backbone');
   var chai = require('chai');
-  var EphemeralMessages = require('lib/ephemeral-messages');
   var View = require('views/unexpected_error');
   var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 
   describe('views/unexpected_error', function () {
-    var view, windowMock, ephemeralMessages;
+    var model;
+    var view;
+    var windowMock;
 
     beforeEach(function () {
-      ephemeralMessages = new EphemeralMessages();
+      model = new Backbone.Model();
       windowMock = new WindowMock();
+
       view = new View({
-        ephemeralMessages: ephemeralMessages,
+        model: model,
         window: windowMock
       });
     });
@@ -31,7 +34,7 @@ define(function (require, exports, module) {
     });
 
     it('shows error', function () {
-      ephemeralMessages.set('error', 'boom');
+      model.set('error', 'boom');
 
       return view.render()
           .then(function () {

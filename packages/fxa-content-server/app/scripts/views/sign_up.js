@@ -59,7 +59,6 @@ define(function (require, exports, module) {
         return p(false);
       }
 
-      this._bouncedEmail = this.ephemeralMessages.get('bouncedEmail');
       return FormView.prototype.beforeRender.call(this);
     },
 
@@ -105,7 +104,7 @@ define(function (require, exports, module) {
     },
 
     afterVisible: function () {
-      if (this._bouncedEmail) {
+      if (this.model.get('bouncedEmail')) {
         this.showValidationError('input[type=email]',
                   AuthErrors.toError('SIGNUP_EMAIL_BOUNCE'));
       }
@@ -144,7 +143,7 @@ define(function (require, exports, module) {
       var prefillPassword = this._formPrefill.get('password');
 
       return selectAutoFocusEl(
-            this._bouncedEmail, prefillEmail, prefillPassword);
+            this.model.get('bouncedEmail'), prefillEmail, prefillPassword);
     },
 
     context: function () {
@@ -241,8 +240,10 @@ define(function (require, exports, module) {
     },
 
     _isEmailSameAsBouncedEmail: function () {
-      return (this._bouncedEmail &&
-             (this.getElementValue('input[type=email]') === this._bouncedEmail));
+      var bouncedEmail = this.model.get('bouncedEmail');
+
+      return bouncedEmail &&
+             bouncedEmail === this.getElementValue('input[type=email]');
     },
 
     _isUserOldEnough: function () {

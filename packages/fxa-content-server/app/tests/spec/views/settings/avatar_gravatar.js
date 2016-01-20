@@ -8,6 +8,7 @@ define(function (require, exports, module) {
   var $ = require('jquery');
   var AuthBroker = require('models/auth_brokers/base');
   var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
   var chai = require('chai');
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
@@ -29,6 +30,7 @@ define(function (require, exports, module) {
     var account;
     var broker;
     var metrics;
+    var model;
     var notifier;
     var profileClientMock;
     var relier;
@@ -37,6 +39,7 @@ define(function (require, exports, module) {
 
     beforeEach(function () {
       metrics = new Metrics();
+      model = new Backbone.Model();
       notifier = new Notifier();
       relier = new Relier();
       user = new User();
@@ -48,6 +51,7 @@ define(function (require, exports, module) {
       view = new View({
         broker: broker,
         metrics: metrics,
+        model: model,
         notifier: notifier,
         relier: relier,
         user: user
@@ -88,7 +92,8 @@ define(function (require, exports, module) {
             return view._showGravatar()
               .then(function () {
                 assert.isTrue(view.navigate.calledWith('settings/avatar/change'));
-                assert.isTrue(AuthErrors.is(view.ephemeralMessages.get('error'), 'NO_GRAVATAR_FOUND'));
+                assert.isTrue(
+                  AuthErrors.is(view.navigate.args[0][1].error, 'NO_GRAVATAR_FOUND'));
               });
           });
       });
@@ -143,7 +148,7 @@ define(function (require, exports, module) {
               assert.equal(view.updateProfileImage.args[0][1], account);
               assert.equal(result.id, 'foo');
               assert.isTrue(view.navigate.calledWith('settings'));
-              assert.equal(view.ephemeralMessages.get('successUnsafe'), 'Courtesy of <a href="https://www.gravatar.com">Gravatar</a>');
+              assert.equal(view.navigate.args[0][1].successUnsafe, 'Courtesy of <a href="https://www.gravatar.com">Gravatar</a>');
             });
         });
 

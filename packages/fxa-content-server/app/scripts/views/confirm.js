@@ -31,8 +31,7 @@ define(function (require, exports, module) {
       // It's important for Sync flows where account data holds
       // ephemeral properties like unwrapBKey and keyFetchToken
       // that need to be sent to the browser.
-      var data = this.ephemeralData();
-      this._account = data && this.user.initAccount(data.account);
+      this._account = this.user.initAccount(this.model.get('account'));
     },
 
     getAccount: function () {
@@ -64,8 +63,9 @@ define(function (require, exports, module) {
     },
 
     _bouncedEmailSignup: function () {
-      this.ephemeralMessages.set('bouncedEmail', this.getAccount().get('email'));
-      this.navigate('signup');
+      this.navigate('signup', {
+        bouncedEmail: this.getAccount().get('email')
+      });
     },
 
     _gmailTabOpened: function () {

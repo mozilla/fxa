@@ -36,8 +36,9 @@ define(function (require, exports, module) {
 
     navigateToSignIn: function () {
       this.navigate('signin', {
-        clearQueryParams: true,
         success: BaseView.t('Signed out successfully')
+      }, {
+        clearQueryParams: true
       });
     }
   };

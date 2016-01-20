@@ -208,14 +208,14 @@ define(function (require, exports, module) {
       });
 
       it('on navigate from childView', function () {
-        sinon.spy(view, 'showEphemeralMessages');
+        sinon.spy(view, 'displayStatusMessages');
         sinon.spy(view, 'logView');
         sinon.stub($.modal, 'isActive', function () {
           return true;
         });
         sinon.stub($.modal, 'close', function () { });
         notifier.trigger('navigate-from-child-view');
-        assert.isTrue(view.showEphemeralMessages.called);
+        assert.isTrue(view.displayStatusMessages.called);
         assert.isTrue(view.logView.called);
         assert.isTrue($.modal.isActive.called);
         assert.isTrue($.modal.close.called);
@@ -375,11 +375,13 @@ define(function (require, exports, module) {
 
               assert.equal(view.navigate.callCount, 1);
               args = view.navigate.args[0];
-              assert.lengthOf(args, 2);
+              assert.lengthOf(args, 3);
               assert.equal(args[0], 'signin');
               assert.deepEqual(args[1], {
-                clearQueryParams: true,
                 success: 'Signed out successfully'
+              });
+              assert.deepEqual(args[2], {
+                clearQueryParams: true,
               });
 
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.submit'));

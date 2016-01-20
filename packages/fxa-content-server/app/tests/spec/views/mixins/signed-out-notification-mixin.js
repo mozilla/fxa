@@ -92,12 +92,13 @@ define(function (require, exports, module) {
           assert.isTrue(view.navigate.calledAfter(view.user.clearSignedInAccountUid));
           assert.isTrue(view.navigate.calledAfter(view._formPrefill.clear));
           var args = view.navigate.args[0];
-          assert.lengthOf(args, 2);
+          assert.lengthOf(args, 3);
           assert.equal(args[0], 'signin');
           assert.isObject(args[1]);
-          assert.lengthOf(Object.keys(args[1]), 2);
-          assert.isTrue(args[1].clearQueryParams);
+          assert.lengthOf(Object.keys(args[1]), 1);
           assert.equal(args[1].success, 'Signed out successfully');
+          assert.lengthOf(Object.keys(args[2]), 1);
+          assert.isTrue(args[2].clearQueryParams);
         });
 
         it('does not call notifier.triggerAll', function () {

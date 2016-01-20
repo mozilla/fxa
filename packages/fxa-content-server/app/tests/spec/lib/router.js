@@ -84,8 +84,13 @@ define(function (require, exports, module) {
         sinon.spy(router, 'navigate');
 
         notifier.trigger('navigate', {
-          clearQueryParams: true,
-          trigger: true,
+          nextViewData: {
+            key: 'value'
+          },
+          routerOptions: {
+            clearQueryParams: true,
+            trigger: true
+          },
           url: 'signin'
         });
       });
@@ -95,6 +100,22 @@ define(function (require, exports, module) {
           clearQueryParams: true,
           trigger: true
         }));
+      });
+    });
+
+    describe('`navigate-back` notifier message', function () {
+      beforeEach(function () {
+        sinon.spy(router, 'navigateBack');
+
+        notifier.trigger('navigate-back', {
+          nextViewData: {
+            key: 'value'
+          }
+        });
+      });
+
+      it('calls `navigateBack` correctly', function () {
+        assert.isTrue(router.navigateBack.called);
       });
     });
 
@@ -123,6 +144,18 @@ define(function (require, exports, module) {
           assert.equal(navigateUrl, '/forgot');
           assert.deepEqual(navigateOptions, { clearQueryParams: true, trigger: true });
         });
+      });
+    });
+
+    describe('navigateBack', function () {
+      beforeEach(function () {
+        sinon.spy(windowMock.history, 'back');
+
+        router.navigateBack();
+      });
+
+      it('calls `window.history.back`', function () {
+        assert.isTrue(windowMock.history.back.called);
       });
     });
 

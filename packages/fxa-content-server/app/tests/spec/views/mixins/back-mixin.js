@@ -10,9 +10,9 @@ define(function (require, exports, module) {
   var Chai = require('chai');
   var Cocktail = require('cocktail');
   var KeyCodes = require('lib/key-codes');
+  var Notifier = require('lib/channels/notifier');
   var sinon = require('sinon');
   var TestTemplate = require('stache!templates/test_template');
-  var WindowMock = require('../../../mocks/window');
 
   var assert = Chai.assert;
 
@@ -22,49 +22,50 @@ define(function (require, exports, module) {
   Cocktail.mixin(View, BackMixin);
 
   describe('views/mixins/back-mixin', function () {
+    var notifier;
     var view;
-    var windowMock;
 
     beforeEach(function () {
-      windowMock = new WindowMock();
+      notifier = new Notifier();
 
       view = new View({
-        window: windowMock
+        notifier: notifier
       });
 
       return view.render();
     });
 
     describe('back', function () {
-      it('calls window.history.back', function () {
-        view.back();
-        assert.isTrue(windowMock.history.back.called);
-      });
+      it('triggers the `navigate-back` message on the notifier', function () {
+        sinon.spy(notifier, 'trigger');
 
-      it('calls event.preventDefault() if event is passed in', function () {
-        var event = {
-          preventDefault: sinon.spy()
-        };
+        view.back({ nextViewField: 'value' });
 
-        view.back(event);
-        assert.isTrue(event.preventDefault.called);
+        assert.isTrue(
+          notifier.trigger.calledWith('navigate-back', {
+            nextViewData: {
+              nextViewField: 'value'
+            }
+          }));
       });
     });
 
     describe('backOnEnter', function () {
-      it('calls window.history.back if user presses ENTER key', function () {
+      it('calls back if user presses ENTER key', function () {
+        sinon.spy(view, 'back');
+
         view.backOnEnter({ which: KeyCodes.ENTER });
-        assert.isTrue(windowMock.history.back.called);
+        assert.isTrue(view.back.called);
       });
 
-      it('does not call window.history.back if user presses any key besides ENTER', function () {
-        sinon.spy(windowMock.history, 'back');
+      it('does not call back if user presses any key besides ENTER', function () {
         sinon.stub(view, 'canGoBack', function () {
           return true;
         });
+        sinon.spy(view, 'back');
 
         view.backOnEnter({ which: KeyCodes.ENTER + 1});
-        assert.isFalse(windowMock.history.back.called);
+        assert.isFalse(view.back.called);
       });
     });
 

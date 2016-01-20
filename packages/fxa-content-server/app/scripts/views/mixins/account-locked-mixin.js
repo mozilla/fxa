@@ -63,13 +63,11 @@ define(function (require, exports, module) {
       .then(function () {
         self.logViewEvent('unlock-email.send.success');
         self.navigate('confirm_account_unlock', {
-          data: {
-            account: account,
-            lockoutSource: self.getViewName(),
-            // the password is used by the confirm_account_unlock screen
-            // to determine whether the account has been unlocked.
-            password: password
-          }
+          account: account,
+          lockoutSource: self.getViewName(),
+          // the password is used by the confirm_account_unlock screen
+          // to determine whether the account has been unlocked.
+          password: password
         });
       }, function (err) {
         if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {

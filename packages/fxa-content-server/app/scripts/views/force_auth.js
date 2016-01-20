@@ -90,7 +90,7 @@ define(function (require, exports, module) {
       self.logViewEvent('success');
       return self.invokeBrokerMethod('afterForceAuth', account)
         .then(function () {
-          self.navigate(self._redirectTo || 'settings', {
+          self.navigate(self._redirectTo || 'settings', {}, {
             clearQueryParams: true
           });
         });

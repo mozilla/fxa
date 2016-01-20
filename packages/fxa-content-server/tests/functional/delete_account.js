@@ -92,7 +92,9 @@ define([
 
         // success is going to the signup page
         .findById('fxa-signup-header')
-        .end();
+        .end()
+
+        .then(FunctionalHelpers.testSuccessWasShown(self));
     },
 
     'sign in, cancel delete account': function () {
@@ -143,7 +145,9 @@ define([
         })
 
         .findByCssSelector('#fxa-signup-header')
-        .end();
+        .end()
+
+        .then(FunctionalHelpers.testSuccessWasShown(self));
     },
 
     'locked account, verify same browser with original tab closed': function () {
@@ -199,7 +203,9 @@ define([
         })
 
         .findByCssSelector('#fxa-signup-header')
-        .end();
+        .end()
+
+        .then(FunctionalHelpers.testSuccessWasShown(self));
     },
 
     'locked account, verify different browser - from new browser\'s P.O.V.': function () {

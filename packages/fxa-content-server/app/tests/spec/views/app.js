@@ -285,6 +285,7 @@ define(function (require, exports, module) {
       describe('with the same view that is already visible', function () {
         var firstDisplayedView;
         var secondDisplayedView;
+        var secondViewModel;
 
         var ViewThatRenders = Backbone.View.extend({
           afterVisible: sinon.spy(),
@@ -299,6 +300,10 @@ define(function (require, exports, module) {
         });
 
         before(function () {
+          secondViewModel = new Backbone.Model({
+            key: 'value'
+          });
+
           createDeps();
 
           sinon.spy(notifier, 'trigger');
@@ -307,7 +312,10 @@ define(function (require, exports, module) {
           return view.showView(ViewThatRenders, {})
             .then(function (_firstDisplayedView) {
               firstDisplayedView = _firstDisplayedView;
-              return view.showView(ViewThatRenders, {});
+
+              return view.showView(ViewThatRenders, {
+                model: secondViewModel
+              });
             })
             .then(function (_secondDisplayedView) {
               secondDisplayedView = _secondDisplayedView;
@@ -320,6 +328,10 @@ define(function (require, exports, module) {
 
         it('only renders once', function () {
           assert.equal(firstDisplayedView.render.callCount, 1);
+        });
+
+        it('updates the view\'s model with data from the child', function () {
+          assert.equal(secondDisplayedView.model.get('key'), 'value');
         });
 
         it('triggers the `navigate-from-child-view` message', function () {
@@ -386,6 +398,7 @@ define(function (require, exports, module) {
       var ChildView = Backbone.View.extend({
         afterVisible: sinon.spy(),
         destroy: sinon.spy(),
+        displayStatusMessages: sinon.spy(),
         logView: sinon.spy(),
         render: sinon.spy(function () {
           return p(true);
@@ -405,10 +418,12 @@ define(function (require, exports, module) {
           parentView = _parentView;
         });
 
-        return view.showChildView(ChildView, ParentView, {})
-          .then(function (_childView) {
-            childView = _childView;
-          });
+        return view.showChildView(ChildView, ParentView, {
+          model: new Backbone.Model({ 'new-key': 'new-value' })
+        })
+        .then(function (_childView) {
+          childView = _childView;
+        });
       });
 
       it('creates the parent view', function () {
@@ -421,6 +436,14 @@ define(function (require, exports, module) {
 
       it('logs the child view', function () {
         assert.isTrue(childView.logView.called);
+      });
+
+      it('updates the child\'s model', function () {
+        assert.equal(childView.model.get('new-key'), 'new-value');
+      });
+
+      it('displays the child\'s status messages', function () {
+        assert.isTrue(childView.displayStatusMessages.called);
       });
 
       it('sets the title', function () {

@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var $ = require('jquery');
+  var Backbone = require('backbone');
   var BaseView = require('views/base');
   var chai = require('chai');
   var Cocktail = require('cocktail');
@@ -44,7 +45,7 @@ define(function (require, exports, module) {
     var metrics;
     var notifier;
     var panelViews;
-    var parentView;
+    var parent;
     var view;
 
     function createView () {
@@ -52,7 +53,7 @@ define(function (require, exports, module) {
         metrics: metrics,
         notifier: notifier,
         panelViews: panelViews,
-        parentView: parentView,
+        parent: parent,
         createView: function (Constructor, options) {
           return new Constructor(options);
         }
@@ -62,6 +63,9 @@ define(function (require, exports, module) {
     beforeEach(function () {
       metrics = new Metrics();
       notifier = new Notifier();
+      parent = {
+        model: new Backbone.Model()
+      };
 
       panelViews = [
         SettingsPanelView,

@@ -7,9 +7,9 @@ define(function (require, exports, module) {
 
   var $ = require('jquery');
   var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
   var Broker = require('models/auth_brokers/base');
   var chai = require('chai');
-  var EphemeralMessages = require('lib/ephemeral-messages');
   var Metrics = require('lib/metrics');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
@@ -24,14 +24,14 @@ define(function (require, exports, module) {
   describe('views/settings/change_password', function () {
     var account;
     var broker;
-    var ephemeralMessages;
+    var model;
     var metrics;
     var relier;
     var user;
     var view;
 
     beforeEach(function () {
-      ephemeralMessages = new EphemeralMessages();
+      model = new Backbone.Model();
       metrics = new Metrics();
       relier = new Relier();
 
@@ -43,8 +43,8 @@ define(function (require, exports, module) {
 
       view = new View({
         broker: broker,
-        ephemeralMessages: ephemeralMessages,
         metrics: metrics,
+        model: model,
         relier: relier,
         user: user
       });
