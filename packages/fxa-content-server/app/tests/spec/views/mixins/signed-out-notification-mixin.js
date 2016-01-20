@@ -28,12 +28,23 @@ define(function (require, exports, module) {
       var notifier;
       var view;
 
-      before(function () {
+      beforeEach(function () {
         notifier = new Notifier();
         notifier.on = sinon.spy();
         view = new View({
           notifier: notifier
         });
+        view.relier = {
+          unset: sinon.spy()
+        };
+        view.user = {
+          clearSignedInAccountUid: sinon.spy()
+        };
+        view._formPrefill = {
+          clear: sinon.spy()
+        };
+        view.navigate = sinon.spy();
+        notifier.triggerAll = sinon.spy();
       });
 
       afterEach(function () {
@@ -49,18 +60,7 @@ define(function (require, exports, module) {
       });
 
       describe('clearSessionAndNavigateToSignIn', function () {
-        before(function () {
-          view.relier = {
-            unset: sinon.spy()
-          };
-          view.user = {
-            clearSignedInAccountUid: sinon.spy()
-          };
-          view._formPrefill = {
-            clear: sinon.spy()
-          };
-          view.navigate = sinon.spy();
-          notifier.triggerAll = sinon.spy();
+        beforeEach(function () {
           notifier.on.args[0][1]();
         });
 
@@ -102,6 +102,18 @@ define(function (require, exports, module) {
 
         it('does not call notifier.triggerAll', function () {
           assert.equal(notifier.triggerAll.callCount, 0);
+        });
+      });
+
+      describe('delete _formPrefill', function () {
+        beforeEach(function () {
+          view._formPrefill = null;
+        });
+
+        it('clearSessionAndNavigateToSignIn does not throw', function () {
+          assert.doesNotThrow(function () {
+            notifier.on.args[0][1]();
+          });
         });
       });
     });

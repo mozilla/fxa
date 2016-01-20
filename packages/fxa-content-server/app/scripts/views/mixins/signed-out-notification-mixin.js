@@ -23,11 +23,13 @@ define(function (require, exports, module) {
       this.relier.unset('email');
       this.relier.unset('preVerifyToken');
       this.user.clearSignedInAccountUid();
-      // The user has manually signed out, a pretty strong indicator
-      // the user does not want any of their information pre-filled
-      // on the signin page. Clear any remaining formPrefill info
-      // to ensure their data isn't sticking around in memory.
-      this._formPrefill.clear();
+      if (this._formPrefill) {
+        // The user has manually signed out, a pretty strong indicator
+        // the user does not want any of their information pre-filled
+        // on the signin page. Clear any remaining formPrefill info
+        // to ensure their data isn't sticking around in memory.
+        this._formPrefill.clear();
+      }
       Session.clear();
       this.navigateToSignIn();
     },
