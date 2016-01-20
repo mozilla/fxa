@@ -516,7 +516,8 @@ define(function (require, exports, module) {
         sinon.stub(view, 'getAccount', function () {
           return user.initAccount({
             email: 'a@a.com',
-            sessionToken: 'abc123'
+            sessionToken: 'abc123',
+            uid: 'foo'
           });
         });
 
@@ -558,7 +559,8 @@ define(function (require, exports, module) {
       it('can switch to signin with the useDifferentAccount button', function () {
         var account = user.initAccount({
           email: 'a@a.com',
-          sessionToken: 'abc123'
+          sessionToken: 'abc123',
+          uid: 'foo'
         });
         sinon.stub(view, 'getAccount', function () {
           return account;

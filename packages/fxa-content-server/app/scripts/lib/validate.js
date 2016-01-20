@@ -7,6 +7,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var _ = require('underscore');
   var Constants = require('lib/constants');
 
   // taken from the fxa-auth-server
@@ -103,6 +104,48 @@ define(function (require, exports, module) {
       }
 
       return password.length >= Constants.PASSWORD_MIN_LENGTH;
+    },
+
+    /**
+     * Check whether data matches schema, depth-first.
+     * Compares using Object.prototype.toString. Prefix
+     * schema types with `?` to indicate optional.
+     *
+     * e.g.:
+     *   Validate.isDataValid(
+     *     { foo: 'bar', baz: { qux: [] } },
+     *     { foo: 'String', baz: { qux: 'Array', optional: '?String' } }
+     *   ); // returns true
+     *
+     *   Validate.isDataValid(
+     *     { foo: 'bar', baz: { qux: [] } },
+     *     { foo: 'String', baz: { qux: 'Array', required: 'String' } }
+     *   ); // returns false
+     */
+    isDataValid: function isDataValid (data, schema) {
+      if (! schema) {
+        return false;
+      }
+
+      if (_.isString(schema)) {
+        if (schema[0] === '?') {
+          if (_.isNull(data) || _.isUndefined(data)) {
+            return true;
+          }
+
+          schema = schema.substr(1);
+        }
+
+        return Object.prototype.toString.call(data) === '[object ' + schema + ']';
+      }
+
+      if (! data) {
+        return false;
+      }
+
+      return _.all(_.keys(data), function (key) {
+        return isDataValid(data[key], schema[key]);
+      });
     }
   };
 });

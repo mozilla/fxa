@@ -43,6 +43,7 @@ define(function (require, exports, module) {
       user = new User({
         notifier: notifier
       });
+      user.getSignedInAccount().set('uid', 'foo');
 
       sandbox = new sinon.sandbox.create();
       sandbox.spy(user, 'setSignedInAccountByUid');
