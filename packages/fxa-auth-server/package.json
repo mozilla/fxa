@@ -36,7 +36,7 @@
     "request": "^2.54.0"
   },
   "devDependencies": {
-    "blanket": "^1.1.9",
+    "blanket": "1.1.6",
     "eslint-config-fxa": "^1.8.0",
     "generate-rsa-keypair": "git://github.com/jrgm/node-generate-rsa-keypair.git#dce3504e0376920ebb4851eea42a3ee8cefa5a3f",
     "grunt": "^0.4.5",
