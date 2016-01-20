@@ -2,25 +2,30 @@
   "name": "fxa-oauth-server",
   "version": "0.53.1",
   "dependencies": {
-    "urijs": {
-      "version": "1.16.1",
-      "from": "urijs@1.16.1",
-      "resolved": "https://registry.npmjs.org/urijs/-/urijs-1.16.1.tgz"
-    },
     "blanket": {
-      "version": "1.1.9",
-      "from": "blanket@1.1.9",
-      "resolved": "https://registry.npmjs.org/blanket/-/blanket-1.1.9.tgz",
+      "version": "1.1.6",
+      "from": "blanket@1.1.6",
+      "resolved": "https://registry.npmjs.org/blanket/-/blanket-1.1.6.tgz",
       "dependencies": {
+        "esprima": {
+          "version": "1.0.4",
+          "from": "esprima@>=1.0.2 <1.1.0",
+          "resolved": "https://registry.npmjs.org/esprima/-/esprima-1.0.4.tgz"
+        },
         "falafel": {
-          "version": "0.3.1",
-          "from": "falafel@>=0.3.1 <0.4.0",
-          "resolved": "https://registry.npmjs.org/falafel/-/falafel-0.3.1.tgz",
+          "version": "0.1.6",
+          "from": "falafel@>=0.1.6 <0.2.0",
+          "resolved": "https://registry.npmjs.org/falafel/-/falafel-0.1.6.tgz"
+        },
+        "xtend": {
+          "version": "2.1.2",
+          "from": "xtend@>=2.1.1 <2.2.0",
+          "resolved": "https://registry.npmjs.org/xtend/-/xtend-2.1.2.tgz",
           "dependencies": {
-            "esprima": {
-              "version": "1.2.5",
-              "from": "esprima@>=1.0.0 <2.0.0",
-              "resolved": "https://registry.npmjs.org/esprima/-/esprima-1.2.5.tgz"
+            "object-keys": {
+              "version": "0.4.0",
+              "from": "object-keys@>=0.4.0 <0.5.0",
+              "resolved": "https://registry.npmjs.org/object-keys/-/object-keys-0.4.0.tgz"
             }
           }
         }
@@ -157,11 +162,6 @@
       "from": "eslint-config-fxa@1.8.1",
       "resolved": "https://registry.npmjs.org/eslint-config-fxa/-/eslint-config-fxa-1.8.1.tgz"
     },
-    "esprima": {
-      "version": "2.4.1",
-      "from": "esprima@>=2.4.1 <2.5.0",
-      "resolved": "https://registry.npmjs.org/esprima/-/esprima-2.4.1.tgz"
-    },
     "fxa-jwtool": {
       "version": "0.7.1",
       "from": "fxa-jwtool@>=0.7.1 <0.8.0",
@@ -255,10 +255,12 @@
     },
     "generate-rsa-keypair": {
       "version": "0.1.0",
+      "from": "git://github.com/jrgm/node-generate-rsa-keypair.git#dce3504e0376920ebb4851eea42a3ee8cefa5a3f",
       "resolved": "git://github.com/jrgm/node-generate-rsa-keypair.git#dce3504e0376920ebb4851eea42a3ee8cefa5a3f",
       "dependencies": {
         "nan": {
           "version": "2.1.0",
+          "from": "https://registry.npmjs.org/nan/-/nan-2.1.0.tgz",
           "resolved": "https://registry.npmjs.org/nan/-/nan-2.1.0.tgz"
         }
       }
@@ -4417,10 +4419,10 @@
         }
       }
     },
-    "xtend": {
-      "version": "4.0.1",
-      "from": "xtend@>=4.0.0 <4.1.0",
-      "resolved": "https://registry.npmjs.org/xtend/-/xtend-4.0.1.tgz"
+    "urijs": {
+      "version": "1.16.1",
+      "from": "https://registry.npmjs.org/urijs/-/urijs-1.16.1.tgz",
+      "resolved": "https://registry.npmjs.org/urijs/-/urijs-1.16.1.tgz"
     }
   }
 }
