@@ -19,6 +19,9 @@ their email after an account unlock.
 The user has successfully completed the signup form and must verify
 their email address.
 
+The `data` field contains:
+* `emailOptIn` {Boolean} - whether the user has opted in to receiving marketing email
+
 #### verification_complete
 The user has successfully verified their email address.
 
