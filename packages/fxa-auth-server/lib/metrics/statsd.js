@@ -3,9 +3,36 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var StatsD = require('node-statsd')
+var uaParser = require('ua-parser')
 
 var STATSD_PREFIX = 'fxa.auth.'
 var TIMING_SUFFIX = '.time'
+
+function getGenericTags(info) {
+  var tags = []
+  if (info.userAgent) {
+    var agent = uaParser.parse(info.userAgent)
+    if (agent) {
+      if (agent.ua) {
+        tags = tags.concat([
+            'agent_ua_family:' + agent.ua.family, // -> "Safari"
+            'agent_ua_version:' + agent.ua.toVersionString(), // -> "5.0.1"
+            'agent_ua_version_major:' + agent.ua.major // -> "5"
+        ])
+      }
+
+      if (agent.os) {
+        tags = tags.concat([
+            'agent_os_version:' + agent.os.toVersionString(), // -> "5.1"
+            'agent_os_family:' + agent.os.family, // -> "iOS"
+            'agent_os_major:' + agent.os.major // -> "5"
+        ])
+      }
+    }
+  }
+
+  return tags
+}
 
 function StatsDCollector(log) {
   if (! log) {
@@ -53,7 +80,8 @@ StatsDCollector.prototype = {
    * @param {Object} info
    */
   write: function (info) {
-    this.increment(info.event)
+    var tags = getGenericTags(info)
+    this.increment(info.event, tags)
   },
 
   increment: function (name, tags) {

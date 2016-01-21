@@ -51,7 +51,8 @@ test(
           t.equal(name, 'fxa.auth.some-event')
           t.equal(value, 1)
           t.ok(sampleRate)
-          t.notOk(tags)
+          t.equal(Array.isArray(tags), true)
+          t.equal(tags.length, 0)
           t.end()
         }
       }
@@ -68,6 +69,40 @@ test(
 )
 
 test(
+  'statsd write with tags',
+  function (t) {
+    function StatsDMock() {
+      return {
+        socket: {},
+        increment: function (name, value, sampleRate, tags) {
+          t.equal(name, 'fxa.auth.some-event')
+          t.equal(value, 1)
+          t.ok(sampleRate)
+          t.deepEquals(tags, [
+              'agent_ua_family:Firefox',
+              'agent_ua_version:43.0',
+              'agent_ua_version_major:43',
+              'agent_os_version:10.11',
+              'agent_os_family:Mac OS X',
+              'agent_os_major:10'
+          ])
+          t.end()
+        }
+      }
+    }
+
+    var statsd = new StatsDCollector(mockLog)
+    statsd.init()
+    statsd.client = new StatsDMock()
+    statsd.write({
+      event: 'some-event',
+      uid: 'id',
+      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:43.0) Gecko/20100101 Firefox/43.0'
+    })
+  }
+)
+
+test(
   'statsd write via log.increment',
   function (t) {
     function StatsDMock() {
@@ -77,7 +112,8 @@ test(
           t.equal(name, 'fxa.auth.some-event')
           t.equal(value, 1)
           t.ok(sampleRate)
-          t.notOk(tags)
+          t.equal(Array.isArray(tags), true)
+          t.equal(tags.length, 0)
           t.end()
         }
       }
@@ -191,5 +227,3 @@ test(
     t.end()
   }
 )
-
-
