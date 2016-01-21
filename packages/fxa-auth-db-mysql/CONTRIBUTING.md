@@ -28,6 +28,8 @@ When submitting a PR:
 - Add both your code and new tests if relevant.
 - Run `grunt eslint` and `npm test` to make sure your code passes linting and tests.
 - Please do not include merge commits in pull requests; include only commits with the new relevant code.
+- Your commit message must follow the
+[commit guidelines](https://github.com/mozilla/fxa/blob/master/CONTRIBUTING.md#git-commit-guidelines).
 
 After your PR is merged:
 - Add yourself to the [AUTHORS](/AUTHORS) file so we can publicly recognize your contribution.
