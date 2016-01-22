@@ -97,14 +97,26 @@ define(function (require, exports, module) {
     });
 
     describe('beforeSignUpConfirmationPoll', function () {
-      it('notifies the iframe channel, does not halt', function () {
+      var result;
+      beforeEach(function () {
         sinon.spy(iframeChannel, 'send');
 
+        account.set('needsOptedInToMarketingEmail', true);
+
         return broker.beforeSignUpConfirmationPoll(account)
-          .then(function (result) {
-            assert.isTrue(iframeChannel.send.calledWith(broker._iframeCommands.SIGNUP_MUST_VERIFY));
-            assert.isUndefined(result.halt);
+          .then(function (_result) {
+            result = _result;
           });
+      });
+
+      it('notifies the iframe channel', function () {
+        assert.isTrue(
+          iframeChannel.send.calledWith(
+            broker._iframeCommands.SIGNUP_MUST_VERIFY, { emailOptIn: true }));
+      });
+
+      it('does not halt', function () {
+        assert.isUndefined(result.halt);
       });
     });
 

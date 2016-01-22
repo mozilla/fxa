@@ -69,8 +69,10 @@ define(function (require, exports, module) {
       return proto.afterResetPasswordConfirmationPoll.apply(this, arguments);
     },
 
-    beforeSignUpConfirmationPoll: function () {
-      this._iframeChannel.send(this._iframeCommands.SIGNUP_MUST_VERIFY);
+    beforeSignUpConfirmationPoll: function (account) {
+      this._iframeChannel.send(this._iframeCommands.SIGNUP_MUST_VERIFY, {
+        emailOptIn: !! account.get('needsOptedInToMarketingEmail')
+      });
 
       return proto.beforeSignUpConfirmationPoll.apply(this, arguments);
     },
