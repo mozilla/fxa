@@ -589,23 +589,13 @@ define(function (require, exports, module) {
     },
 
     allResourcesReady: function () {
-      // The IFrame cannot use pushState or else a page transition
-      // would cause the parent frame to redirect.
-      var usePushState = ! this._isInAnIframe();
-
-      if (! usePushState) {
-        // If pushState cannot be used, Backbone falls back to using
-        // the hashchange. Put the initial pathname onto the hash
-        // so the correct page loads.
-        this._window.location.hash = this._window.location.pathname;
-      }
-
       // If a new start page is specified, do not attempt to render
       // the route displayed in the URL because the user is
       // immediately redirected
       var startPage = this._selectStartPage();
       var isSilent = !! startPage;
-      this._history.start({ pushState: usePushState, silent: isSilent });
+      // pushState must be specified or else no screen transitions occur.
+      this._history.start({ pushState: true, silent: isSilent });
       if (startPage) {
         this._router.navigate(startPage);
       }

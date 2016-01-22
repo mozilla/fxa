@@ -740,6 +740,8 @@ define(function (require, exports, module) {
 
     describe('allResourcesReady', function () {
       beforeEach(function () {
+        sinon.spy(historyMock, 'start');
+
         appStart = new AppStart({
           broker: brokerMock,
           history: historyMock,
@@ -747,15 +749,15 @@ define(function (require, exports, module) {
           user: userMock,
           window: windowMock
         });
+
+        appStart.allResourcesReady();
       });
 
-      it('should set the window hash if in an iframe', function () {
-        sinon.stub(appStart, '_isInAnIframe', function () {
-          return true;
-        });
-        windowMock.location.pathname = 'signup';
-        appStart.allResourcesReady();
-        assert.equal(windowMock.location.hash, 'signup');
+      it('should start history', function () {
+        assert.isTrue(historyMock.start.calledWith({
+          pushState: true,
+          silent: false
+        }));
       });
     });
 
