@@ -154,6 +154,46 @@ define(function (require, exports, module) {
         var resultData = sentry.__beforeSend(badData);
         assert.equal(resultData.request.headers.Referer, goodData.request.headers.Referer);
       });
+
+      it('properly converts stacktrace and culprit urls', function () {
+        var url = 'https://accounts.firefox.com/complete_reset_password';
+        var badFile = 'https://accounts.firefox.com/scripts/1a22742b.head.js';
+        var otherFile = 'https://accounts.firefox.com/experiments.bundle.js';
+        var badCulprit = 'https://accounts.firefox.com/scripts/57f6d4e4.main.js';
+        var goodFile = 'https://accounts.firefox.com/scripts/head.js';
+        var goodCulprit = 'https://accounts.firefox.com/scripts/main.js';
+        var data = {
+          culprit: badCulprit,
+          request: {
+            url: url
+          },
+          stacktrace: {
+            frames: [
+              {
+                filename: badFile
+              },
+              {
+                filename: otherFile
+              }
+            ]
+          }
+        };
+
+        var goodData = {
+          request: {
+            url: url
+          }
+        };
+
+        var sentry = new SentryMetrics(host);
+        var resultData = sentry.__beforeSend(data);
+
+        assert.equal(resultData.url, goodData.url);
+        assert.equal(resultData.culprit, goodCulprit);
+        assert.equal(resultData.stacktrace.frames[0].filename, goodFile, 'removes cache part');
+        assert.equal(resultData.stacktrace.frames[1].filename, otherFile, 'does not remove cache part');
+      });
+
     });
 
     describe('cleanUpQueryParam', function () {
