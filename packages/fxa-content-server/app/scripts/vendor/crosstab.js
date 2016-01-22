@@ -50,6 +50,10 @@
         setItemAllowed = false;
     }
 
+    // begin FxA addition
+    var hasBroadcastChannel = typeof window.BroadcastChannel === 'function';
+    // end FxA addition
+
     // Other reasons
     var frozenTabEnvironment = false;
 
@@ -72,6 +76,11 @@
         if (!setItemAllowed) {
             reasons.push('localStorage.setItem not allowed');
         }
+        // begin FxA addition
+        if (hasBroadcastChannel) {
+            reasons.push('BroadcastChannel is supported, use it instead');
+        }
+        // end FxA addition
 
         if (reasons.length > 0) {
             errorMsg += ': ' + reasons.join(', ');
@@ -640,7 +649,9 @@
     };
 
     crosstab.id = util.generateId();
-    crosstab.supported = !!localStorage && window.addEventListener && !isMobile && setItemAllowed;
+    // begin FxA addition (hasBroadcastChannel)
+    crosstab.supported = !!localStorage && window.addEventListener && !isMobile && setItemAllowed && ! hasBroadcastChannel;
+    // end FxA addition
     crosstab.util = util;
     crosstab.broadcast = broadcast;
     crosstab.broadcastMaster = broadcastMaster;
@@ -696,7 +707,19 @@
     var PING_TIMEOUT = 500;
 
     function getStoredTabs() {
-        var storedTabs = getLocalStorageItem(util.keys.TABS_KEY);
+        // begin FxA modification to add the try/catch
+        // the old code was:
+        // var storedTabs = getLocalStorageItem(util.keys.TABS_KEY);
+        var storedTabs;
+        try {
+            // crosstab.supported is not set on the initial call
+            // to getStoredTabs. An exception can occur if localStorage
+            // is supported but the accessor functions except.
+            storedTabs = getLocalStorageItem(util.keys.TABS_KEY);
+        } catch (e) {
+            // ignore error
+        }
+        // end FxA modification
         util.tabs = storedTabs || util.tabs || {};
         return util.tabs;
     }
