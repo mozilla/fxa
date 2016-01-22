@@ -64,6 +64,10 @@ module.exports = function (grunt) {
     // Add subresource integrity attributes to static resources.
     'sriify',
 
+    // Add FQDN to static resources referenced in the HTML so resources
+    // can be deployed to a CDN.
+    'cdnify',
+
     // Remove whitespace from the HTML
     'htmlmin',
 

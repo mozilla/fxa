@@ -111,7 +111,7 @@ var conf = module.exports = convict({
   },
   fxaccount_url: {
     default: 'http://127.0.0.1:9000',
-    doc: 'The url of the Firefox Account server',
+    doc: 'The url of the Firefox Account auth server',
     env: 'FXA_URL',
     format: 'url'
   },
@@ -455,6 +455,12 @@ var conf = module.exports = convict({
     doc: 'Cache max age for static assets, in ms',
     format: Number
   },
+  static_resource_url: {
+    default: undefined,
+    doc: 'The origin of the static resources',
+    env: 'STATIC_RESOURCE_URL',
+    format: 'url'
+  },
   statsd: {
     enabled: {
       default: true,
@@ -526,6 +532,9 @@ if (! conf.has('public_url')) {
   conf.set('public_url', 'https://' + conf.get('issuer'));
 }
 
+if (! conf.has('static_resource_url')) {
+  conf.set('static_resource_url', conf.get('public_url'));
+}
 
 // For ops consistency with Browserid, we support HTTP_PROXY
 // special handling of HTTP_PROXY env var

@@ -19,9 +19,11 @@ function isValidRoute(route) {
 
 module.exports = function (config, i18n) {
 
+  var STATIC_RESOURCE_URL = config.get('static_resource_url');
+
   var routes = [
     require('./routes/get-terms-privacy')(i18n),
-    require('./routes/get-index')(),
+    require('./routes/get-index')(config),
     require('./routes/get-ver.json'),
     require('./routes/get-version.json'),
     require('./routes/get-config')(i18n),
@@ -156,15 +158,14 @@ module.exports = function (config, i18n) {
     });
 
     if (config.get('env') === 'development') {
-
       app.get('/503.html', function (req, res) {
         res.removeHeader('x-frame-options');
-        return res.render('503');
+        return res.render('503', { staticResourceUrl: STATIC_RESOURCE_URL });
       });
 
       app.get('/502.html', function (req, res) {
         res.removeHeader('x-frame-options');
-        return res.render('502');
+        return res.render('502', { staticResourceUrl: STATIC_RESOURCE_URL });
       });
 
       // Add a route in dev mode to test 500 errors
@@ -185,7 +186,8 @@ module.exports = function (config, i18n) {
         param: req.query.param
       });
       return res.render('400', {
-        message: req.query.message
+        message: req.query.message,
+        staticResourceUrl: STATIC_RESOURCE_URL
       });
     });
 
@@ -197,7 +199,7 @@ module.exports = function (config, i18n) {
         message: req.query.message,
         namespace: req.query.namespace
       });
-      return res.render('500');
+      return res.render('500', { staticResourceUrl: STATIC_RESOURCE_URL });
     });
 
   };

@@ -5,12 +5,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+var bodyParser = require('body-parser');
+var consolidate = require('consolidate');
+var cookieParser = require('cookie-parser');
+var cors = require('cors');
+var express = require('express');
 var fs = require('fs');
+var helmet = require('helmet');
 var https = require('https');
 var path = require('path');
-var config = require('../lib/configuration');
-
+var serveStatic = require('serve-static');
 var mozlog = require('mozlog');
+
+var config = require('../lib/configuration');
 
 // This can't possibly be best way to librar-ify this module.
 var isMain = process.argv[1] === __filename;
@@ -23,12 +30,6 @@ mozlog.config(config.get('logging'));
 
 var logger = require('mozlog')('server.main');
 
-var helmet = require('helmet');
-var express = require('express');
-var consolidate = require('consolidate');
-var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser');
-var serveStatic = require('serve-static');
 
 var i18n = require('../lib/i18n')(config.get('i18n'));
 var routes = require('../lib/routes')(config, i18n);
@@ -102,6 +103,17 @@ function makeApp() {
 
   app.use(require('express-able')(ableOptions));
 
+  if (isCorsRequired()) {
+    // JS, CSS and web font resources served from a CDN
+    // will be ignored unless CORS headers are present.
+    var corsOptions = {
+      origin: config.get('public_url')
+    };
+
+    app.route(/\.(js|css|woff|ttf)$/)
+      .get(cors(corsOptions));
+  }
+
   routes(app);
 
   app.use(serveStatic(STATIC_DIRECTORY, {
@@ -173,6 +185,10 @@ function listenHttpRedirectApp(httpApp) {
   if (isMain) {
     logger.info('Firefox Account HTTP redirect server listening on port', httpPort);
   }
+}
+
+function isCorsRequired() {
+  return config.get('static_resource_url') !== config.get('public_url');
 }
 
 if (isMain) {

@@ -7,9 +7,12 @@ define([
   'intern!object',
   'intern/chai!assert',
   'intern/dojo/node!../../server/lib/configuration',
+  'intern/dojo/node!htmlparser2',
   'intern/dojo/node!request',
-  'intern/dojo/node!url'
-], function (intern, registerSuite, assert, config, request, url) {
+  'intern/dojo/node!url',
+  'intern/node_modules/dojo/Promise'
+], function (intern, registerSuite, assert, config, htmlparser2, request, url,
+  Promise) {
   var httpUrl, httpsUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
 
   if (intern.config.fxaProduction) {
@@ -116,20 +119,29 @@ define([
     suite['#https get ' + httpsUrl + route] = function () {
       var dfd = this.async(intern.config.asyncTimeout);
 
-      request(httpsUrl + route, requestOptions, dfd.callback(function (err, res) {
-        checkHeaders(route, res);
-        assert.equal(res.statusCode, expectedStatusCode);
-      }, dfd.reject.bind(dfd)));
+      makeRequest(httpsUrl + route, requestOptions)
+        .then(function (res) {
+          assert.equal(res.statusCode, expectedStatusCode);
+          checkHeaders(route, res);
+
+          return res;
+        })
+        .then(extractAndCheckUrls)
+        .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+
+      return dfd;
     };
 
     // test to ensure http->https redirection works as expected.
     suite['#http get ' + httpUrl + route] = function () {
       var dfd = this.async(intern.config.asyncTimeout);
 
-      request(httpUrl + route, requestOptions, dfd.callback(function (err, res) {
-        checkHeaders(route, res);
-        assert.equal(res.statusCode, expectedStatusCode);
-      }, dfd.reject.bind(dfd)));
+      makeRequest(httpUrl + route, requestOptions)
+        .then(function (res) {
+          checkHeaders(route, res);
+          assert.equal(res.statusCode, expectedStatusCode);
+        })
+        .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
     };
   }
 
@@ -144,6 +156,17 @@ define([
   });
 
   registerSuite(suite);
+
+  function makeRequest(url, requestOptions) {
+    return new Promise(function (resolve, reject) {
+      request(url, requestOptions, function (err, res) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(res);
+      });
+    });
+  }
 
   function checkHeaders(route, res) {
     var headers = res.headers;
@@ -169,4 +192,91 @@ define([
     assert.include(headers['strict-transport-security'], 'max-age=');
   }
 
+
+  /**
+   * Go through each of the HTML files, look for URLs, check that
+   * each URL exists, responds with a 200, and in the case of JS, CSS
+   * and fonts, that the correct CORS headers are set.
+   */
+  function extractAndCheckUrls(res) {
+    return extractUrls(res.body)
+      .then(checkUrls);
+  }
+
+  function extractUrls(body) {
+    return new Promise(function (resolve, reject) {
+      var dependencyUrls = [];
+
+      var parser = new htmlparser2.Parser({
+        onattribute: function (attrName, attrValue) {
+          if (attrName === 'href' || attrName === 'src') {
+            var depUrl;
+            if (isAbsoluteUrl(attrValue)) {
+              depUrl = attrValue;
+            } else {
+              depUrl = httpsUrl + attrValue;
+            }
+            dependencyUrls.push(depUrl);
+          }
+        },
+        onend: function () {
+          resolve(dependencyUrls);
+        }
+      });
+
+      parser.write(body);
+      parser.end();
+    });
+  }
+
+  // keep a cache of checked URLs to avoid duplicate tests and
+  // speed up the tests.
+  var checkedUrlPromises = {};
+
+  function checkUrls(urls) {
+    var requests = urls.map(function (url) {
+      if (checkedUrlPromises[url]) {
+        return checkedUrlPromises[url];
+      }
+
+      var promise = makeRequest(url, {})
+        .then(function (res) {
+          assert.equal(res.statusCode, 200);
+
+          var headers = res.headers;
+          var hasCORSHeaders = headers.hasOwnProperty('Access-Control-Allow-Origin');
+          if (doesURLRequireCORS(url)) {
+            assert.ok(hasCORSHeaders, url);
+          } else {
+            assert.notOk(hasCORSHeaders, url);
+          }
+        });
+
+      checkedUrlPromises[url] = promise;
+      return promise;
+    });
+
+    return Promise.all(requests);
+  }
+
+  function isAbsoluteUrl(url) {
+    return /^http/.test(url);
+  }
+
+  function doesURLRequireCORS(url) {
+    return isExternalUrl(url) && doesExtensionRequireCORS(url);
+  }
+
+  function isContentServerUrl(url) {
+    return url.indexOf(httpsUrl) === 0 ||
+           url.indexOf(httpUrl) === 0;
+  }
+
+  function isExternalUrl(url) {
+    return ! isContentServerUrl(url);
+  }
+
+  function doesExtensionRequireCORS(url) {
+    return /\.(js|css|woff|eot)/.test(url);
+  }
 });
