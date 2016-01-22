@@ -6,7 +6,8 @@
   "scripts": {
     "start": "grunt server --node-env=dev",
     "test": "grunt test --node-env=test",
-    "outdated": "npm outdated --depth 0"
+    "outdated": "npm outdated --depth 0",
+    "postinstall": "node scripts/gen_keys"
   },
   "repository": {
     "type": "git",
@@ -22,7 +23,6 @@
     "node": ">=0.10.0"
   },
   "dependencies": {
-    "urijs": "^1.16.1",
     "bluebird": "^2.9.14",
     "buf": "0.1.0",
     "convict": "0.8",
@@ -33,7 +33,8 @@
     "mozlog": "^2.0.2",
     "mysql": "^2.5.5",
     "mysql-patcher": "^0.7.0",
-    "request": "^2.54.0"
+    "request": "^2.54.0",
+    "urijs": "^1.16.1"
   },
   "devDependencies": {
     "blanket": "1.1.6",
@@ -53,6 +54,7 @@
     "load-grunt-tasks": "^3.1.0",
     "mocha-text-cov": "^0.1.0",
     "nock": "^1.2.1",
+    "node-rsa": "^0.2.30",
     "proxyquire": "^1.6.0",
     "read": "^1.0.5",
     "sinon": "^1.15.4",
