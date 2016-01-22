@@ -29,13 +29,14 @@ define(function (require, exports, module) {
   var ConfigLoader = require('lib/config-loader');
   var Constants = require('lib/constants');
   var Environment = require('lib/environment');
-  var FirstRunAuthenticationBroker = require('models/auth_brokers/first-run');
   var FormPrefill = require('models/form-prefill');
   var FxaClient = require('lib/fxa-client');
   var FxDesktopV1AuthenticationBroker = require('models/auth_brokers/fx-desktop-v1');
   var FxDesktopV2AuthenticationBroker = require('models/auth_brokers/fx-desktop-v2');
   var FxDesktopV3AuthenticationBroker = require('models/auth_brokers/fx-desktop-v3');
   var FxFennecV1AuthenticationBroker = require('models/auth_brokers/fx-fennec-v1');
+  var FxFirstrunV1AuthenticationBroker = require('models/auth_brokers/fx-firstrun-v1');
+  var FxFirstrunV2AuthenticationBroker = require('models/auth_brokers/fx-firstrun-v2');
   var FxiOSV1AuthenticationBroker = require('models/auth_brokers/fx-ios-v1');
   var FxiOSV2AuthenticationBroker = require('models/auth_brokers/fx-ios-v2');
   var HeightObserver = require('lib/height-observer');
@@ -277,7 +278,7 @@ define(function (require, exports, module) {
       var self = this;
       if (! self._isInAnIframe()) {
         // Create a NullChannel in case any dependencies require it, such
-        // as when the FirstRunAuthenticationBroker is used in functional
+        // as when the FxFirstrunV1AuthenticationBroker is used in functional
         // tests. The firstrun tests don't actually use an iframe, so the
         // real IframeChannel is not created.
         self._iframeChannel = new NullChannel();
@@ -362,8 +363,14 @@ define(function (require, exports, module) {
 
     initializeAuthenticationBroker: function () {
       if (! this._authenticationBroker) {
-        if (this._isFirstRun()) {
-          this._authenticationBroker = new FirstRunAuthenticationBroker({
+        if (this._isFxFirstrunV2()) {
+          this._authenticationBroker = new FxFirstrunV2AuthenticationBroker({
+            iframeChannel: this._iframeChannel,
+            relier: this._relier,
+            window: this._window
+          });
+        } else if (this._isFxFirstrunV1()) {
+          this._authenticationBroker = new FxFirstrunV1AuthenticationBroker({
             iframeChannel: this._iframeChannel,
             relier: this._relier,
             window: this._window
@@ -730,8 +737,12 @@ define(function (require, exports, module) {
              this._isPasswordResetVerification();
     },
 
-    _isFirstRun: function () {
+    _isFxFirstrunV1: function () {
       return this._isFxDesktopV2() && this._isIframeContext();
+    },
+
+    _isFxFirstrunV2: function () {
+      return this._isContext(Constants.FX_FIRSTRUN_V2_CONTEXT);
     },
 
     _isWebChannel: function () {

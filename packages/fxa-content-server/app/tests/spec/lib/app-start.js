@@ -11,10 +11,11 @@ define(function (require, exports, module) {
   var BaseRelier = require('models/reliers/base');
   var chai = require('chai');
   var Constants = require('lib/constants');
-  var FirstrunBroker = require('models/auth_brokers/first-run');
   var FxDesktopV1Broker = require('models/auth_brokers/fx-desktop-v1');
   var FxDesktopV2Broker = require('models/auth_brokers/fx-desktop-v2');
   var FxFennecV1Broker = require('models/auth_brokers/fx-fennec-v1');
+  var FxFirstrunV1Broker = require('models/auth_brokers/fx-firstrun-v1');
+  var FxFirstrunV2Broker = require('models/auth_brokers/fx-firstrun-v2');
   var FxiOSV1Broker = require('models/auth_brokers/fx-ios-v1');
   var FxiOSV2Broker = require('models/auth_brokers/fx-ios-v2');
   var HistoryMock = require('../../mocks/history');
@@ -184,14 +185,25 @@ define(function (require, exports, module) {
         appStart._metrics = new Metrics();
       });
 
-      describe('firstrun', function () {
-        it('returns a Firstrun broker if `service=sync&context=iframe`', function () {
+      describe('fx-firstrun-v1', function () {
+        it('returns a FxFirstrunV1 broker if `service=sync&context=iframe`', function () {
           windowMock.location.search = Url.objToSearchString({
             context: Constants.IFRAME_CONTEXT,
             service: Constants.SYNC_SERVICE
           });
 
-          return testExpectedBrokerCreated(FirstrunBroker);
+          return testExpectedBrokerCreated(FxFirstrunV1Broker);
+        });
+      });
+
+      describe('fx-firstrun-v2', function () {
+        it('returns a FxFirstrunV2 broker if `service=sync&context=fx_firstrun_v2`', function () {
+          windowMock.location.search = Url.objToSearchString({
+            context: Constants.FX_FIRSTRUN_V2_CONTEXT,
+            service: Constants.SYNC_SERVICE
+          });
+
+          return testExpectedBrokerCreated(FxFirstrunV2Broker);
         });
       });
 
