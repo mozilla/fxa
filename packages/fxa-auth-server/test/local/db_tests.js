@@ -22,6 +22,8 @@ var DB = require('../../lib/db')(
   Token.PasswordChangeToken
 )
 
+var TOKEN_FRESHNESS_THRESHOLD = require('../../lib/tokens/session_token').TOKEN_FRESHNESS_THRESHOLD
+
 var zeroBuffer16 = Buffer('00000000000000000000000000000000', 'hex')
 var zeroBuffer32 = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
 
@@ -154,7 +156,7 @@ test(
         return sessionToken
       })
       .then(function(sessionToken) {
-        sessionToken.lastAccessTime -= 60 * 60 * 1000
+        sessionToken.lastAccessTime -= TOKEN_FRESHNESS_THRESHOLD
         return db.updateSessionToken(sessionToken, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0')
       })
       .then(function() {

@@ -9,6 +9,8 @@ var log = { trace: function() {}, info: function () {} }
 var tokens = require('../../lib/tokens')(log)
 var SessionToken = tokens.SessionToken
 
+var TOKEN_FRESHNESS_THRESHOLD = require('../../lib/tokens/session_token').TOKEN_FRESHNESS_THREADHOLD
+
 var ACCOUNT = {
   uid: 'xxx',
   email: Buffer('test@example.com').toString('hex'),
@@ -193,8 +195,8 @@ test(
         uaOS: 'baz',
         uaOSVersion: 'qux',
         uaDeviceType: 'wibble',
-        lastAccessTime: 3600000
-      }), false, 'returns false when lastAccessTime is 3,600,000 milliseconds newer')
+        lastAccessTime: TOKEN_FRESHNESS_THRESHOLD
+      }), false, 'returns false when lastAccessTime is TOKEN_FRESHNESS_THRESHOLD milliseconds newer')
       t.equal(token.isFresh({
         uaBrowser: 'foo',
         uaBrowserVersion: 'bar',
