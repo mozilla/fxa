@@ -45,6 +45,7 @@ define(function (require, exports, module) {
           self.relier
         )
         .then(function () {
+          self.logViewEvent('success');
           return self.invokeBrokerMethod('afterChangePassword', account);
         })
         .then(function () {

@@ -180,6 +180,7 @@ define(function (require, exports, module) {
 
           it('displays a success message', function () {
             assert.isTrue(view.displaySuccess.called);
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.change-password.success'));
           });
         });
 

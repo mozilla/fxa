@@ -101,9 +101,11 @@ The event stream is a log of events and the time they occurred while the user is
 #### cannot_create_account
 
 #### change_password
-* error.change-password.auth.121 - account locked
-* change-password.unlock-email.send - user attempted to send unlock email
-* change-password.unlock-email.send.success - unlock email successfully sent
+* error.change_password.auth.103 - incorrect password
+* error.change_password.auth.121 - account locked
+* change_password.unlock-email.send - user attempted to send unlock email
+* change_password.unlock-email.send.success - unlock email successfully sent
+* change_password.success - password changed successfully
 
 #### choose_what_to_sync
 * choose-what-to-sync.engine-unchecked.`<engine_name>` - a Sync engine was unselected.
