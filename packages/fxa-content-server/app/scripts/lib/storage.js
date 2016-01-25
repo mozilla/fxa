@@ -17,6 +17,16 @@ define(function (require, exports, module) {
     return NAMESPACE + '.' + key;
   }
 
+  function normalizeError(error, type) {
+    error.context = 'storage';
+    error.namespace = type;
+    // Firefox localStorage errors contain a `name` field. Report that
+    // name if available, otherwise return the whole message.
+    error.errno = error.name || error.message;
+
+    return error;
+  }
+
   function Storage (backend) {
     this._backend = backend || new NullStorage();
   }
@@ -46,18 +56,26 @@ define(function (require, exports, module) {
     return this._backend instanceof NullStorage;
   };
 
-  Storage._isStorageEnabled = function (type, win) {
-    var testData = 'storage-test';
-    win = win || window;
-    var storage;
-
+  /**
+   * Test whether storage can be written to and removed from.
+   *
+   * @param {string} type - (localStorage|sessionStorage)
+   * @param [object] win - window object
+   * @throws browser generated errors, `disabled for tests` if disabled for
+   *   tests.
+   */
+  Storage.testStorage = function (type, win) {
     try {
+      var testData = 'storage-test';
+      win = win || window;
+      var storage;
+
       if (type === 'sessionStorage') {
         storage = win.sessionStorage;
       } else {
         // HACK: Allows the functional tests to simulate disabled local storage.
         if (Url.searchParam('disable_local_storage') === '1') {
-          throw null;
+          throw new Error('disabled for tests');
         }
 
         storage = win.localStorage;
@@ -65,18 +83,58 @@ define(function (require, exports, module) {
 
       storage.setItem(testData, testData);
       storage.removeItem(testData);
+    } catch (e) {
+      throw normalizeError(e, type);
+    }
+  };
+
+  /**
+   * Check if there are any problems accessing localStorage
+   *
+   * @param [object] win - window object
+   */
+  Storage.testLocalStorage = function (win) {
+    Storage.testStorage('localStorage', win);
+  };
+
+  /**
+   * Check if there are any problems accessing sessionStorage
+   *
+   * @param {object} win - window object
+   * @throws browser generated errors, `disabled for tests` if disabled for
+   *   tests.
+   */
+  Storage.testSessionStorage = function (win) {
+    Storage.testStorage('sessionStorage', win);
+  };
+
+  Storage._isStorageEnabled = function (type, win) {
+    try {
+      Storage.testStorage(type, win);
       return true;
-    } catch(e) {
+    } catch (e) {
       return false;
     }
   };
 
+  /**
+   * Check if localStorage is enabled
+   *
+   * @param [object] window object
+   * @returns {boolean}
+   */
   Storage.isLocalStorageEnabled = function (win) {
-    return this._isStorageEnabled('localStorage', win);
+    return Storage._isStorageEnabled('localStorage', win);
   };
 
+  /**
+   * Check if sessionStorage is enabled
+   *
+   * @param [object] window object
+   * @returns {boolean}
+   */
   Storage.isSessionStorageEnabled = function (win) {
-    return this._isStorageEnabled('sessionStorage', win);
+    return Storage._isStorageEnabled('sessionStorage', win);
   };
 
   Storage.factory = function (type, win) {

@@ -21,10 +21,20 @@ define(function (require, exports, module) {
     beforeEach(function () {
       nullStorage = new NullStorage();
       storage = new Storage(nullStorage);
+      windowMock = new WindowMock();
     });
+
     afterEach(function () {
       storage.clear();
     });
+
+    function generateAccessDenied() {
+      var lsError = new Error('access denied');
+      lsError.name = 'NS_ERROR_FILE_ACCESS_DENIED';
+
+      throw lsError;
+    }
+
     describe('get/set', function () {
       it('can take a key value pair', function () {
         storage.set('key', 'value');
@@ -71,6 +81,61 @@ define(function (require, exports, module) {
         storage.clear();
 
         assert.isUndefined(storage.get('key'));
+      });
+    });
+
+    describe('testLocalStorage', function () {
+      describe('if localStorage cannot be accessed', function () {
+        var err;
+
+        beforeEach(function () {
+          sinon.stub(windowMock.localStorage, 'setItem', generateAccessDenied);
+
+          try {
+            Storage.testLocalStorage(windowMock);
+          } catch (e) {
+            err = e;
+          }
+        });
+
+        it('throws a normalized error', function () {
+          assert.equal(err.context, 'storage');
+          assert.equal(err.errno, 'NS_ERROR_FILE_ACCESS_DENIED');
+          assert.equal(err.namespace, 'localStorage');
+        });
+      });
+
+      describe('if localStorage access is allowed', function () {
+        it('succeeds', function () {
+          Storage.testLocalStorage(windowMock);
+        });
+      });
+    });
+
+    describe('testSessionStorage', function () {
+      describe('if sessionStorage cannot be accessed', function () {
+        var err;
+
+        beforeEach(function () {
+          sinon.stub(windowMock.sessionStorage, 'setItem', generateAccessDenied);
+          try {
+            Storage.testSessionStorage(windowMock);
+          } catch (e) {
+            err = e;
+          }
+        });
+
+        it('throws a normalized error', function () {
+          assert.equal(err.context, 'storage');
+          assert.equal(err.errno, 'NS_ERROR_FILE_ACCESS_DENIED');
+          assert.equal(err.namespace, 'sessionStorage');
+        });
+      });
+
+      describe('if sessionStorage access is allowed', function () {
+        it('succeeds', function () {
+          Storage.testSessionStorage(windowMock);
+        });
       });
     });
 

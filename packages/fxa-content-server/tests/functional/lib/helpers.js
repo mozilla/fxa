@@ -691,7 +691,26 @@ define([
 
       // Wait until the `readySelector` element is found to return.
       .findByCssSelector(readySelector)
-      .end();
+      .end()
+
+      .then(null, function (err) {
+        return context.remote
+          .getCurrentUrl()
+            .then(function (resultUrl) {
+              console.log('Error fetching %s, now at %s', url, resultUrl);
+            })
+          .end()
+
+          .then(function () {
+            return context.remote.takeScreenshot();
+          })
+          .then(function (buffer) {
+            console.error('Error occurred, capturing base64 screenshot:');
+            console.error(buffer.toString('base64'));
+
+            throw err;
+          });
+      });
   }
 
   function fetchAllMetrics(context) {

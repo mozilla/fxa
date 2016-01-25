@@ -343,12 +343,13 @@ define(function (require, exports, module) {
 
       describe('broker errors', function () {
         it('are logged to metrics', function () {
-          sinon.spy(appStart._metrics, 'logError');
+          sinon.stub(appStart, 'captureError', sinon.spy());
+
           return appStart.initializeAuthenticationBroker()
             .then(function () {
               var err = new Error('test error');
               appStart._authenticationBroker.trigger('error', err);
-              assert.isTrue(appStart._metrics.logError.calledWith(err));
+              assert.isTrue(appStart.captureError.called);
             });
         });
       });
@@ -735,6 +736,77 @@ define(function (require, exports, module) {
       it('creates a RefreshObserver instance', function () {
         appStart.initializeRefreshObserver();
         assert.instanceOf(appStart._refreshObserver, RefreshObserver);
+      });
+    });
+
+    describe('testLocalStorage', function () {
+      describe('with localStorage disabled', function () {
+        var err;
+
+        beforeEach(function () {
+          err = new Error('NS_ERROR_FILE_ACCESS_DENIED');
+
+          appStart = new AppStart({
+            storage: {
+              testLocalStorage: sinon.spy(function () {
+                throw err;
+              })
+            }
+          });
+
+          sinon.stub(appStart, 'captureError', sinon.spy());
+
+          return appStart.testLocalStorage();
+        });
+
+        it('logs the error', function () {
+          assert.isTrue(appStart.captureError.calledWith(err));
+        });
+      });
+    });
+
+    describe('captureError', function () {
+      var err;
+      var metricsMock;
+      var sentryMock;
+
+      beforeEach(function () {
+        sinon.spy(historyMock, 'start');
+
+        err = new Error('NS_ERROR_FILE_ACCESS_DENIED');
+
+        metricsMock = {
+          flush: sinon.spy(function () {
+            return p();
+          }),
+          logError: sinon.spy()
+        };
+
+        sentryMock = {
+          captureException: sinon.spy()
+        };
+
+
+        appStart = new AppStart({
+          metrics: metricsMock,
+          sentryMetrics: sentryMock,
+          storage: {
+            testLocalStorage: sinon.spy(function () {
+              throw err;
+            })
+          }
+        });
+
+        return appStart.captureError(err);
+      });
+
+      it('logs the error to sentry', function () {
+        assert.isTrue(sentryMock.captureException.calledWith(err));
+      });
+
+      it('logs the error to metrics', function () {
+        assert.isTrue(metricsMock.logError.calledWith(err));
+        assert.isTrue(metricsMock.flush.called);
       });
     });
 
