@@ -9,7 +9,6 @@ define(function (require, exports, module) {
   var BackMixin = require('views/mixins/back-mixin');
   var BaseView = require('views/base');
   var Cocktail = require('cocktail');
-  var ConfigLoader = require('lib/config-loader');
   var Storage = require('lib/storage');
   var Template = require('stache!templates/cookies_disabled');
 
@@ -17,7 +16,6 @@ define(function (require, exports, module) {
     constructor: function (options) {
       BaseView.call(this, options);
 
-      this._configLoader = new ConfigLoader();
       this._Storage = options.Storage || Storage;
     },
 
