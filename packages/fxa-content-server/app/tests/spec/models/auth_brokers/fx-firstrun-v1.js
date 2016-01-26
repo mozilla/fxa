@@ -7,7 +7,7 @@ define(function (require, exports, module) {
 
   var Account = require('models/account');
   var chai = require('chai');
-  var FirstRunAuthenticationBroker = require('models/auth_brokers/first-run');
+  var FxFirstrunV1AuthenticationBroker = require('models/auth_brokers/fx-firstrun-v1');
   var NullChannel = require('lib/channels/null');
   var Relier = require('models/reliers/relier');
   var sinon = require('sinon');
@@ -15,7 +15,7 @@ define(function (require, exports, module) {
 
   var assert = chai.assert;
 
-  describe('models/auth_brokers/first-run', function () {
+  describe('models/auth_brokers/fx-firstrun-v1', function () {
     var account;
     var broker;
     var iframeChannel;
@@ -27,7 +27,7 @@ define(function (require, exports, module) {
       iframeChannel = new NullChannel();
       relier = new Relier();
       windowMock = new WindowMock();
-      broker = new FirstRunAuthenticationBroker({
+      broker = new FxFirstrunV1AuthenticationBroker({
         iframeChannel: iframeChannel,
         relier: relier,
         window: windowMock
@@ -79,7 +79,7 @@ define(function (require, exports, module) {
         sinon.spy(iframeChannel, 'send');
 
         windowMock.location.search = '?haltAfterSignIn=true';
-        broker = new FirstRunAuthenticationBroker({
+        broker = new FxFirstrunV1AuthenticationBroker({
           iframeChannel: iframeChannel,
           relier: relier,
           window: windowMock

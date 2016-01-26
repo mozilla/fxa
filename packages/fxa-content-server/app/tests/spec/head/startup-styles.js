@@ -98,6 +98,13 @@ define(function (require, exports, module) {
         assert.isTrue(/chromeless/.test(startupStyles.getClassName()));
       });
 
+      it('adds the `chromeless` style if service=sync&context=fx_firstrun_v2', function () {
+        windowMock.location.search = '?style=chromeless&service=sync&context=fx_firstrun_v2';
+
+        startupStyles.addSearchParamStyles();
+        assert.isTrue(/chromeless/.test(startupStyles.getClassName()));
+      });
+
       it('does not add the `chromeless` style if not allowed', function () {
         windowMock.location.search = '?style=chromeless&service=sync';
 

@@ -46,7 +46,8 @@
     // The 'chromeless' style is only opened up
     // to Sync when using an iframe.
     if (style === 'chromeless') {
-      return (service === 'sync' && context === 'iframe');
+      return (service === 'sync' &&
+               (context === 'iframe' || context === 'fx_firstrun_v2'));
     }
 
     return false;

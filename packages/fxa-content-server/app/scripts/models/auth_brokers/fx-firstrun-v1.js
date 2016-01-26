@@ -16,7 +16,9 @@ define(function (require, exports, module) {
 
   var proto = FxSyncWebChannelAuthenticationBroker.prototype;
 
-  var FirstRunAuthenticationBroker = FxSyncWebChannelAuthenticationBroker.extend({
+  var FxFirstrunV1AuthenticationBroker = FxSyncWebChannelAuthenticationBroker.extend({
+    type: 'fx-firstrun-v1',
+
     _iframeCommands: {
       LOADED: 'loaded',
       LOGIN: 'login',
@@ -84,5 +86,5 @@ define(function (require, exports, module) {
     }
   });
 
-  module.exports = FirstRunAuthenticationBroker;
+  module.exports = FxFirstrunV1AuthenticationBroker;
 });

@@ -1,6 +1,6 @@
 # FIRSTRUN channel protocol
 
-## v1
+## v1 & v2
 
 ### Commands
 A command is a postMessage sent from FxA to the parent IFRAME.
