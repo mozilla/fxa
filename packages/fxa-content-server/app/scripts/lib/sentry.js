@@ -43,6 +43,22 @@ define(function (require, exports, module) {
       if (data.request.headers && data.request.headers.Referer) {
         data.request.headers.Referer = cleanUpQueryParam(data.request.headers.Referer);
       }
+
+      // in production we remove cache busting file names from js files.
+      // replace any 'scripts/1a22742b.head.js' with 'scripts/head.js'
+      // this helps errors stay consistent across deploys
+      var removeRegex = /\/[0-9a-f]{8}\./gi;
+      var addPart = '/';
+      if (data.stacktrace && data.stacktrace.frames) {
+        _.each(data.stacktrace.frames, function (frame) {
+          frame.filename = frame.filename.replace(removeRegex, addPart);
+        });
+      }
+
+      if (data.culprit) {
+        data.culprit = data.culprit.replace(removeRegex, addPart);
+      }
+
     }
 
     return data;
