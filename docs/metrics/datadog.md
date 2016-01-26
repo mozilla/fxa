@@ -1,9 +1,3 @@
-# DataDog Documentation
+# DataDog
 
-These instructions are here to help you with DataDog metrics. 
-
-## FxA Content Server
-
-
-
-To view all available events 
+DataDog tutorial is available on the [Firefox Accounts Resources]( https://mana.mozilla.org/wiki/display/CLOUDSERVICES/Useful+Resources#UsefulResources-Screencasts)🔒 page.
