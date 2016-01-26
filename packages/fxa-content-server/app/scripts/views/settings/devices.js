@@ -5,13 +5,16 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var _ = require('underscore');
   var $ = require('jquery');
+  require('jquery-timeago');
   var Cocktail = require('cocktail');
   var Devices = require('models/devices');
   var FormView = require('views/form');
   var preventDefaultThen = require('views/base').preventDefaultThen;
   var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
   var SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
+  var t = require('views/base').t;
   var Template = require('stache!templates/settings/devices');
   var Url = require('lib/url');
 
@@ -19,6 +22,22 @@ define(function (require, exports, module) {
   var DEVICES_SUPPORT_URL = 'https://support.mozilla.org/kb/fxa-managing-devices';
   var FIREFOX_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/new/?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
   var FORCE_DEVICE_LIST_VIEW = 'forceDeviceList';
+
+  _.extend($.timeago.settings.strings, {
+    day: t('a day'),
+    days: t('%d days'),
+    hour: t('about an hour'),
+    hours: t('%d hours'),
+    minute: t('about a minute'),
+    minutes: t('%d minutes'),
+    month: t('about a month'),
+    months: t('%d months'),
+    seconds: t('a few seconds'),
+    suffixAgo: t('ago'),
+    suffixFromNow: t('from now'),
+    year: t('about a year'),
+    years: t('%d years')
+  });
 
   var View = FormView.extend({
     template: Template,
@@ -42,9 +61,16 @@ define(function (require, exports, module) {
       devices.on('remove', this._onDeviceRemoved.bind(this));
     },
 
+    _formatDevicesList: function (devices) {
+      return _.map(devices, function (device) {
+        device.lastAccessTime = $.timeago(Number(device.lastAccessTime));
+        return device;
+      });
+    },
+
     context: function () {
       return {
-        devices: this._devices.toJSON(),
+        devices: this._formatDevicesList(this._devices.toJSON()),
         devicesSupportUrl: DEVICES_SUPPORT_URL,
         isPanelEnabled: this._isPanelEnabled(),
         isPanelOpen: this.isPanelOpen(),
