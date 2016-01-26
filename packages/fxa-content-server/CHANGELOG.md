@@ -1,3 +1,47 @@
+<a name="0.55.0"></a>
+# 0.55.0 (2016-01-26)
+
+
+### Bug Fixes
+
+* **client:** enforce validation of notifier event data ([7002c76](https://github.com/mozilla/fxa-content-server/commit/7002c76))
+* **client:** Fix the browser back button in the firstrun flow. ([6c306e0](https://github.com/mozilla/fxa-content-server/commit/6c306e0)), closes [#3296](https://github.com/mozilla/fxa-content-server/issues/3296)
+* **client:** tolerate missing _formPrefill in signed-out-notification-mixin ([cf2c6c7](https://github.com/mozilla/fxa-content-server/commit/cf2c6c7))
+* **config:** switch to readable config values ([d9326cc](https://github.com/mozilla/fxa-content-server/commit/d9326cc)), closes [#2874](https://github.com/mozilla/fxa-content-server/issues/2874)
+* **devices:** format connected date ([20eb09a](https://github.com/mozilla/fxa-content-server/commit/20eb09a)), closes [#3377](https://github.com/mozilla/fxa-content-server/issues/3377)
+* **metrics:** Reduce the number of localStorage errors in Sentry. ([aedb762](https://github.com/mozilla/fxa-content-server/commit/aedb762))
+* **sentry:** adjust cache busting files for Sentry ([2a85d0a](https://github.com/mozilla/fxa-content-server/commit/2a85d0a)), closes [#3420](https://github.com/mozilla/fxa-content-server/issues/3420) [#3363](https://github.com/mozilla/fxa-content-server/issues/3363)
+* **template:** update cookies required message to include local storage ([59672c5](https://github.com/mozilla/fxa-content-server/commit/59672c5)), closes [#3129](https://github.com/mozilla/fxa-content-server/issues/3129)
+* **test:** Fix the 'sign in with a second sign-in tab open' test. ([8fd9ef5](https://github.com/mozilla/fxa-content-server/commit/8fd9ef5)), closes [#3380](https://github.com/mozilla/fxa-content-server/issues/3380)
+
+### chore
+
+* **client:** Remove the unused ConfigLoader dep from cookies disabled. ([5c33eb8](https://github.com/mozilla/fxa-content-server/commit/5c33eb8))
+* **deps:** update to latest fxa changelog ([675a95e](https://github.com/mozilla/fxa-content-server/commit/675a95e))
+* **docs:** update node version ([5a500c5](https://github.com/mozilla/fxa-content-server/commit/5a500c5))
+* **docs:** update servers and selenium version ([bf92684](https://github.com/mozilla/fxa-content-server/commit/bf92684))
+
+### docs
+
+* **contributing:** Mention git commit guidelines ([7f3cfcd](https://github.com/mozilla/fxa-content-server/commit/7f3cfcd))
+
+### Features
+
+* **client:** Log localStorage errors on startup. ([49aedc8](https://github.com/mozilla/fxa-content-server/commit/49aedc8))
+* **client:** Report email opt-in status to firstrun page. ([cd7fa8b](https://github.com/mozilla/fxa-content-server/commit/cd7fa8b)), closes [#3411](https://github.com/mozilla/fxa-content-server/issues/3411)
+* **client:** Support the newest navigator.mediaDevices API for fetching avatars ([3913f55](https://github.com/mozilla/fxa-content-server/commit/3913f55))
+* **docker:** Additional Dockerfile for self-hosting ([2db851c](https://github.com/mozilla/fxa-content-server/commit/2db851c))
+* **metric:** Add metric to track when user successfully changes their password ([14c3344](https://github.com/mozilla/fxa-content-server/commit/14c3344))
+* **sass:** Show a spinner while loading a ProfileImage. ([f360c9c](https://github.com/mozilla/fxa-content-server/commit/f360c9c))
+
+### Refactor
+
+* **client:** Better Account field sandboxing ([d432199](https://github.com/mozilla/fxa-content-server/commit/d432199))
+* **client:** Further data sandboxing ([afe52ee](https://github.com/mozilla/fxa-content-server/commit/afe52ee))
+* **client:** Simplify the _isEmailFirefoxDomain function. ([ea29e57](https://github.com/mozilla/fxa-content-server/commit/ea29e57))
+
+
+
 <a name="0.54.0"></a>
 # 0.54.0 (2016-01-12)
 
