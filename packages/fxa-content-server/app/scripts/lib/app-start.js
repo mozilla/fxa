@@ -76,10 +76,12 @@ define(function (require, exports, module) {
     this._authenticationBroker = options.broker;
     this._configLoader = new ConfigLoader();
     this._history = options.history || Backbone.history;
+    this._metrics = options.metrics;
     this._notifier = options.notifier;
     this._refreshObserver = options.refreshObserver;
     this._relier = options.relier;
     this._router = options.router;
+    this._sentryMetrics = options.sentryMetrics;
     this._storage = options.storage || Storage;
     this._user = options.user;
     this._window = options.window || window;
@@ -98,36 +100,16 @@ define(function (require, exports, module) {
         this.initializeL10n(),
         this.initializeInterTabChannel()
       ])
-      .then(_.bind(this.allResourcesReady, this))
-      .fail(function (err) {
-        if (console && console.error) {
-          console.error('Critical error:');
-          console.error(String(err));
-        }
-
-        // if there is no error metrics set that means there was probably an error with app start
-        // therefore force error reporting to get error information
-        if (! self._sentryMetrics) {
-          self.enableSentryMetrics();
-        }
-
-        self._sentryMetrics.captureException(err);
-
-        if (self._metrics) {
-          self._metrics.logError(err);
-        }
-
-        // give a bit of time to flush the Sentry error logs,
-        // otherwise Safari Mobile redirects too quickly.
-        return p().delay(self.ERROR_REDIRECT_TIMEOUT_MS)
-          .then(function () {
-            if (self._metrics) {
-              return self._metrics.flush();
-            }
-          })
+      .then(this.testLocalStorage.bind(this))
+      .then(this.allResourcesReady.bind(this))
+      .fail(function (error) {
+        return self.captureError(error)
+          // give a bit of time to flush the Sentry error logs,
+          // otherwise Safari Mobile redirects too quickly.
+          .delay(self.ERROR_REDIRECT_TIMEOUT_MS)
           .then(function () {
             //Something terrible happened. Let's bail.
-            var redirectTo = self._getErrorPage(err);
+            var redirectTo = self._getErrorPage(error);
             self._window.location.href = redirectTo;
           });
       });
@@ -432,15 +414,9 @@ define(function (require, exports, module) {
           });
         }
 
-        var metrics = this._metrics;
-        var win = this._window;
+        this._authenticationBroker.on('error', this.captureError.bind(this));
 
-        this._authenticationBroker.on('error', function (err) {
-          win.console.error('broker error', String(err));
-          metrics.logError(err);
-        });
-
-        metrics.setBrokerType(this._authenticationBroker.type);
+        this._metrics.setBrokerType(this._authenticationBroker.type);
 
         return this._authenticationBroker.fetch();
       }
@@ -586,6 +562,57 @@ define(function (require, exports, module) {
           window: this._window
         });
       }
+    },
+
+    /**
+     * Check whether there are any problems accessing localStorage.
+     * Errors are logged to Sentry and internal metrics.
+     *
+     * If there is a problem accessing localStorage, the user
+     * will be redirected to `/cookies_disabled` from _selectStartPage
+     */
+    testLocalStorage: function () {
+      var self = this;
+      return p().then(function () {
+        // only test localStorage if the user is not already at
+        // the cookies_disabled screen.
+        if (! self._isAtCookiesDisabled()) {
+          self._storage.testLocalStorage(self._window);
+        }
+      }).fail(self.captureError.bind(self));
+    },
+
+    /**
+     * Report an error to metrics. Send metrics report.
+     *
+     * @param {object} error
+     * @return {promise} resolves when complete
+     */
+    captureError: function (error) {
+      var self = this;
+
+      if (window.console && console.error) {
+        console.error(String(error));
+      }
+
+      if (! self._sentryMetrics) {
+        self.enableSentryMetrics();
+      }
+      // not wrapped in the below promise so that
+      // the call stack reported to Sentry correctly
+      // identifies where the error came from. Sentry
+      // only reports 5/6 levels deep, adding the promise
+      // to the stack ends w/ no meaningful information.
+      self._sentryMetrics.captureException(error);
+
+      return p().then(function () {
+        var metrics = self._metrics;
+        if (metrics) {
+          metrics.logError(error);
+
+          return metrics.flush();
+        }
+      });
     },
 
     allResourcesReady: function () {
@@ -752,6 +779,10 @@ define(function (require, exports, module) {
                  /oauth/.test(this._window.location.href);
     },
 
+    _isAtCookiesDisabled: function () {
+      return this._window.location.pathname === '/cookies_disabled';
+    },
+
     _getSavedClientId: function () {
       return Session.oauth && Session.oauth.client_id;
     },
@@ -770,7 +801,7 @@ define(function (require, exports, module) {
     },
 
     _selectStartPage: function () {
-      if (this._window.location.pathname !== '/cookies_disabled' &&
+      if (! this._isAtCookiesDisabled() &&
         ! this._storage.isLocalStorageEnabled(this._window)) {
         return 'cookies_disabled';
       }

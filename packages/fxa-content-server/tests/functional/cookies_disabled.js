@@ -5,9 +5,8 @@
 define([
   'intern',
   'intern!object',
-  'intern/chai!assert',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, FunctionalHelpers) {
+], function (intern, registerSuite, FunctionalHelpers) {
   // there is no way to disable cookies using wd. Add `disable_cookies`
   // to the URL to synthesize cookies being disabled.
   var config = intern.config;
@@ -24,6 +23,7 @@ define([
     name: 'cookies_disabled',
 
     'visit signup page with localStorage disabled': function () {
+      var self = this;
       return FunctionalHelpers.openPage(
             this, SIGNUP_COOKIES_DISABLED_URL, '#fxa-cookies-disabled-header')
         // try again, cookies are still disabled.
@@ -32,11 +32,7 @@ define([
         .end()
 
         // show an error message after second try
-        .then(FunctionalHelpers.visibleByQSA('#stage .error'))
-        .findByCssSelector('#stage .error').isDisplayed()
-        .then(function (isDisplayed) {
-          assert.equal(isDisplayed, true);
-        });
+        .then(FunctionalHelpers.testErrorWasShown(self));
     },
 
     'synthesize enabling cookies by visiting the sign up page, then cookies_disabled, then clicking "try again"': function () {
@@ -45,6 +41,7 @@ define([
       // manually seed history.
       return FunctionalHelpers.openPage(
             self, SIGNUP_COOKIES_ENABLED_URL, '#fxa-signup-header')
+
         .then(function () {
           return FunctionalHelpers.openPage(
               self, COOKIES_DISABLED_URL, '#fxa-cookies-disabled-header');
@@ -56,7 +53,8 @@ define([
         .end()
 
         // Should be redirected back to the signup page.
-        .findById('fxa-signup-header');
+        .findById('fxa-signup-header')
+        .end();
     },
 
     'visit verify page with localStorage disabled': function () {
