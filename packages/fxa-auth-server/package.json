@@ -53,7 +53,7 @@
     "commander": "2.8.1",
     "eslint-config-fxa": "1.6.0",
     "fxa-auth-db-mysql": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#master",
-    "fxa-conventional-changelog": "1.0.0",
+    "fxa-conventional-changelog": "1.1.0",
     "grunt": "0.4.5",
     "grunt-bump": "0.3.1",
     "grunt-cli": "0.1.13",
