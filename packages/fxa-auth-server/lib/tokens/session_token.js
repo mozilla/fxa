@@ -5,6 +5,10 @@
 var userAgent = require('../userAgent')
 var ONE_HOUR = 60 * 60 * 1000
 
+// Browsers ask for 6 hour duration on certificate sign,
+// so don't bother updating device info any more frequently than that.
+var TOKEN_FRESHNESS_THRESHOLD = 6 * ONE_HOUR
+
 module.exports = function (log, inherits, Token) {
 
   function SessionToken(keys, details) {
@@ -66,7 +70,7 @@ module.exports = function (log, inherits, Token) {
       this.uaOS === freshData.uaOS &&
       this.uaOSVersion === freshData.uaOSVersion &&
       this.uaDeviceType === freshData.uaDeviceType &&
-      this.lastAccessTime + ONE_HOUR > freshData.lastAccessTime
+      this.lastAccessTime + TOKEN_FRESHNESS_THRESHOLD > freshData.lastAccessTime
 
     log.info({
       op: 'SessionToken.isFresh',
