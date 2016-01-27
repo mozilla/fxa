@@ -118,9 +118,9 @@ MysqlStore.connect = function mysqlConnect(options) {
 
 const QUERY_CLIENT_REGISTER =
   'INSERT INTO clients ' +
-  '(id, name, imageUri, hashedSecret, redirectUri, termsUri,' +
+  '(id, name, imageUri, hashedSecret, hashedSecretPrevious, redirectUri, termsUri,' +
   'privacyUri, trusted, canGrant) ' +
-  'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);';
+  'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);';
 const QUERY_CLIENT_DEVELOPER_INSERT =
   'INSERT INTO clientDevelopers ' +
   '(rowId, developerId, clientId) ' +
@@ -149,6 +149,7 @@ const QUERY_CLIENT_LIST = 'SELECT id, name, redirectUri, imageUri, ' +
 const QUERY_CLIENT_UPDATE = 'UPDATE clients SET ' +
   'name=COALESCE(?, name), imageUri=COALESCE(?, imageUri), ' +
   'hashedSecret=COALESCE(?, hashedSecret), ' +
+  'hashedSecretPrevious=COALESCE(?, hashedSecretPrevious), ' +
   'redirectUri=COALESCE(?, redirectUri), ' +
   'termsUri=COALESCE(?, termsUri), privacyUri=COALESCE(?, privacyUri), ' +
   'trusted=COALESCE(?, trusted), canGrant=COALESCE(?, canGrant) ' +
@@ -218,6 +219,7 @@ MysqlStore.prototype = {
       client.name,
       client.imageUri || '',
       buf(client.hashedSecret),
+      client.hashedSecretPrevious ? buf(client.hashedSecretPrevious) : null,
       client.redirectUri,
       client.termsUri || '',
       client.privacyUri || '',
@@ -308,11 +310,17 @@ MysqlStore.prototype = {
     if (secret) {
       secret = buf(secret);
     }
+
+    var secretPrevious = client.hashedSecretPrevious;
+    if (secretPrevious) {
+      secretPrevious = buf(secretPrevious);
+    }
     return this._write(QUERY_CLIENT_UPDATE, [
       // VALUES
       client.name,
       client.imageUri,
       secret,
+      secretPrevious,
       client.redirectUri,
       client.termsUri,
       client.privacyUri,

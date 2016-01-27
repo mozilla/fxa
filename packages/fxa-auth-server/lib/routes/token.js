@@ -181,11 +181,23 @@ function confirmClient(id, secret) {
 
     var submitted = hex(encrypt.hash(buf(secret)));
     var stored = hex(client.hashedSecret);
+
     if (submitted !== stored) {
+      var storedPrevious;
+      if (client.hashedSecretPrevious) {
+        // Check if secret used is the current previous secret
+        storedPrevious = hex(client.hashedSecretPrevious);
+        if (submitted === storedPrevious) {
+          logger.info('client.matchSecretPrevious', { client: id });
+          return client;
+        }
+      }
+
       logger.info('client.mismatchSecret', { client: id });
       logger.verbose('client.mismatchSecret.details', {
         submitted: submitted,
-        db: stored
+        db: stored,
+        dbPrevious: storedPrevious
       });
       throw AppError.incorrectSecret(id);
     }

@@ -10,6 +10,7 @@
 CREATE TABLE IF NOT EXISTS clients (
   id BINARY(8) PRIMARY KEY,
   hashedSecret BINARY(32),
+  hashedSecretPrevious BINARY(32),
   name VARCHAR(256) NOT NULL,
   imageUri VARCHAR(256) NOT NULL,
   redirectUri VARCHAR(256) NOT NULL,

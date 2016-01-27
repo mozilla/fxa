@@ -79,6 +79,7 @@ var client;
 // this matches the hashed secret in config, an assert sanity checks
 // lower to make sure it matches
 var secret = 'b93ef8a8f3e553a430d7e5b904c6132b2722633af9f03128029201d24a97f2a8';
+var secretPrevious = 'ec62e3281e3b56e702fe7e82ca7b1fa59d6c2a6766d6d28cccbf8bfa8d5fc8a8';
 var badSecret;
 var clientId;
 var AN_ASSERTION;
@@ -172,6 +173,7 @@ describe('/v1', function() {
         client = clientByName('Mocha');
         clientId = client.id;
         assert.equal(encrypt.hash(secret).toString('hex'), client.hashedSecret);
+        assert.equal(encrypt.hash(secretPrevious).toString('hex'), client.hashedSecretPrevious);
         badSecret = Buffer(secret, 'hex').slice();
         badSecret[badSecret.length - 1] ^= 1;
         badSecret = badSecret.toString('hex');
@@ -702,6 +704,53 @@ describe('/v1', function() {
           assert.equal(res.statusCode, 400);
           assert.equal(res.result.message, 'Incorrect secret');
         }).done(done, done);
+      });
+
+      describe('previous secret', function() {
+        function getCode(clientId){
+          mockAssertion().reply(200, VERIFY_GOOD);
+          return Server.api.post({
+            url: '/authorization',
+            payload: authParams({
+              client_id: clientId
+            })
+          }).then(function(res) {
+            assert.equal(res.statusCode, 200);
+            return url.parse(res.result.redirect, true).query.code;
+          });
+        }
+
+        it('should get auth token with secret', function(done){
+          return getCode(clientId).then(function(code) {
+            return Server.api.post({
+              url: '/token',
+              payload: {
+                client_id: clientId,
+                client_secret: secret,
+                code: code
+              }
+            });
+          }).then(function(res) {
+            assert.equal(res.statusCode, 200);
+            assert.ok(res.result.access_token);
+          }).done(done, done);
+        });
+
+        it('should get auth token with previous secret', function(done){
+          return getCode(clientId).then(function(code) {
+            return Server.api.post({
+              url: '/token',
+              payload: {
+                client_id: clientId,
+                client_secret: secretPrevious,
+                code: code
+              }
+            });
+          }).then(function(res) {
+            assert.equal(res.statusCode, 200);
+            assert.ok(res.result.access_token);
+          }).done(done, done);
+        });
       });
     });
 
