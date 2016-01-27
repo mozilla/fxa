@@ -6,9 +6,9 @@ define(function (require, exports, module) {
   'use strict';
 
   var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
   var Broker = require('models/auth_brokers/base');
   var chai = require('chai');
-  var EphemeralMessages = require('lib/ephemeral-messages');
   var FxaClient = require('../../mocks/fxa-client');
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
@@ -30,9 +30,9 @@ define(function (require, exports, module) {
     var VERIFICATION_POLL_TIMEOUT_MS = 100;
 
     var broker;
-    var ephemeralMessages;
     var fxaClient;
     var metrics;
+    var model;
     var notifier;
     var relier;
     var user;
@@ -44,6 +44,7 @@ define(function (require, exports, module) {
 
       fxaClient = new FxaClient();
       metrics = new Metrics();
+      model = new Backbone.Model();
       notifier = new Notifier();
       relier = new Relier();
       windowMock = new WindowMock();
@@ -55,7 +56,6 @@ define(function (require, exports, module) {
         relier: relier
       });
 
-      ephemeralMessages = new EphemeralMessages();
       user = new User({
         storage: Storage.factory('localStorage')
       });
@@ -64,7 +64,7 @@ define(function (require, exports, module) {
         return p(true);
       });
 
-      ephemeralMessages.set('data', {
+      model.set({
         email: EMAIL,
         passwordForgotToken: PASSWORD_FORGOT_TOKEN
       });
@@ -75,10 +75,10 @@ define(function (require, exports, module) {
     function createView () {
       view = new View({
         broker: broker,
-        ephemeralMessages: ephemeralMessages,
         fxaClient: fxaClient,
         loginMessageTimeoutMS: LOGIN_MESSAGE_TIMEOUT_MS,
         metrics: metrics,
+        model: model,
         notifier: notifier,
         relier: relier,
         user: user,
@@ -120,9 +120,7 @@ define(function (require, exports, module) {
       });
 
       it('redirects to /reset_password if no passwordForgotToken', function () {
-        ephemeralMessages.set('data', {
-          email: EMAIL
-        });
+        model.unset('passwordForgotToken');
 
         createView();
 
@@ -166,7 +164,7 @@ define(function (require, exports, module) {
 
         var xssEmail = 'testuser@testuser.com" onclick="javascript:alert(1)"';
 
-        ephemeralMessages.set('data', {
+        model.set({
           email: xssEmail,
           passwordForgotToken: PASSWORD_FORGOT_TOKEN
         });

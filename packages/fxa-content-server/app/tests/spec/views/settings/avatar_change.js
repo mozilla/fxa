@@ -188,7 +188,7 @@ define(function (require, exports, module) {
               sinon.stub(view, 'navigate', function (url, options) {
                 wrapAssertion(function () {
                   assert.equal(url, 'settings/avatar/crop');
-                  var cropImg = options.data.cropImg;
+                  var cropImg = options.cropImg;
                   assert.equal(cropImg.get('src'), pngSrc);
                 }, done);
               });

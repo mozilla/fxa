@@ -220,7 +220,7 @@ define(function (require, exports, module) {
         });
 
         it('navigates to the `settings` page and clears the query parameters', function () {
-          assert.isTrue(view.navigate.calledWith('settings', { clearQueryParams: true }));
+          assert.isTrue(view.navigate.calledWith('settings', {}, { clearQueryParams: true }));
         });
       });
 

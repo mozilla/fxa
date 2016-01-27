@@ -28,8 +28,7 @@ define(function (require, exports, module) {
     initialize: function (options) {
       options = options || {};
 
-      var data = this.ephemeralData() || {};
-      this._cropImg = data.cropImg;
+      this._cropImg = this.model.get('cropImg');
 
       if (! this._cropImg && this.broker.isAutomatedBrowser()) {
         this._cropImg = new CropperImage();

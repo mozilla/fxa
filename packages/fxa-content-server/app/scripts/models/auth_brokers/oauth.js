@@ -175,9 +175,7 @@ define(function (require, exports, module) {
       return p().then(function () {
         if (relier.accountNeedsPermissions(account)) {
           return new NavigateBehavior('signup_permissions', {
-            data: {
-              account: account
-            }
+            account: account
           });
         }
       });

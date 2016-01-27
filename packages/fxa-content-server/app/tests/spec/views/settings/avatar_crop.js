@@ -8,9 +8,9 @@ define(function (require, exports, module) {
   var $ = require('jquery');
   var AuthBroker = require('models/auth_brokers/base');
   var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
   var chai = require('chai');
   var CropperImage = require('models/cropper-image');
-  var EphemeralMessages = require('lib/ephemeral-messages');
   var jQuerySimulate = require('jquery-simulate'); //eslint-disable-line no-unused-vars
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
@@ -30,8 +30,8 @@ define(function (require, exports, module) {
   describe('views/settings/avatar/crop', function () {
     var account;
     var broker;
-    var ephemeralMessages;
     var metrics;
+    var model;
     var notifier;
     var profileClientMock;
     var relier;
@@ -39,8 +39,8 @@ define(function (require, exports, module) {
     var view;
 
     beforeEach(function () {
-      ephemeralMessages = new EphemeralMessages();
       metrics = new Metrics();
+      model = new Backbone.Model();
       notifier = new Notifier();
       relier = new Relier();
       user = new User();
@@ -51,7 +51,7 @@ define(function (require, exports, module) {
 
       view = new View({
         broker: broker,
-        ephemeralMessages: ephemeralMessages,
+        model: model,
         notifier: notifier,
         relier: relier,
         user: user
@@ -87,7 +87,7 @@ define(function (require, exports, module) {
         return view.render()
           .then(function () {
             assert.isTrue(view.navigate.calledWith('settings/avatar/change'));
-            assert.equal(ephemeralMessages.get('error'), AuthErrors.toMessage('UNUSABLE_IMAGE'));
+            assert.equal(view.navigate.args[0][1].error, AuthErrors.toMessage('UNUSABLE_IMAGE'));
           });
       });
 
@@ -102,13 +102,13 @@ define(function (require, exports, module) {
           });
 
           profileClientMock = new ProfileMock();
-          ephemeralMessages.set('data', {
+          model.set({
             cropImg: cropImg
           });
 
           view = new View({
-            ephemeralMessages: ephemeralMessages,
             metrics: metrics,
+            model: model,
             notifier: notifier,
             relier: relier,
             user: user

@@ -33,10 +33,6 @@ define(function (require, exports, module) {
       options = options || {};
 
       this._formPrefill = options.formPrefill;
-      var data = this.ephemeralData();
-      if (data) {
-        this._redirectTo = data.redirectTo;
-      }
     },
 
     beforeRender: function () {
@@ -136,9 +132,7 @@ define(function (require, exports, module) {
 
           if (self.relier.accountNeedsPermissions(account)) {
             self.navigate('signin_permissions', {
-              data: {
-                account: account
-              }
+              account: account
             });
 
             return false;
@@ -174,15 +168,13 @@ define(function (require, exports, module) {
       self.logViewEvent('success');
       return self.invokeBrokerMethod('afterSignIn', account)
         .then(function () {
-          self.navigate(self._redirectTo || 'settings');
+          self.navigate(self.model.get('redirectTo') || 'settings');
         });
     },
 
     onSignInUnverified: function (account) {
       this.navigate('confirm', {
-        data: {
-          account: account
-        }
+        account: account
       });
     },
 

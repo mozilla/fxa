@@ -6,9 +6,9 @@ define(function (require, exports, module) {
   'use strict';
 
   var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
   var BaseBroker = require('models/auth_brokers/base');
   var chai = require('chai');
-  var EphemeralMessages = require('lib/ephemeral-messages');
   var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
@@ -26,9 +26,9 @@ define(function (require, exports, module) {
   describe('views/confirm', function () {
     var account;
     var broker;
-    var ephemeralMessages;
     var fxaClient;
     var metrics;
+    var model;
     var notifier;
     var relier;
     var user;
@@ -36,9 +36,9 @@ define(function (require, exports, module) {
     var windowMock;
 
     beforeEach(function () {
-      ephemeralMessages = new EphemeralMessages();
       fxaClient = new FxaClient();
       metrics = new Metrics();
+      model = new Backbone.Model();
       notifier = new Notifier();
       user = new User({
         fxaClient: fxaClient
@@ -62,7 +62,7 @@ define(function (require, exports, module) {
         uid: 'uid'
       });
 
-      ephemeralMessages.set('data', {
+      model.set({
         account: account
       });
 
@@ -72,9 +72,9 @@ define(function (require, exports, module) {
 
       view = new View({
         broker: broker,
-        ephemeralMessages: ephemeralMessages,
         fxaClient: fxaClient,
         metrics: metrics,
+        model: model,
         notifier: notifier,
         relier: relier,
         user: user,
@@ -103,11 +103,11 @@ define(function (require, exports, module) {
       });
 
       it('redirects to /signup if no account sessionToken', function () {
-        ephemeralMessages.set('data', {
+        model.set({
           account: user.initAccount()
         });
         view = new View({
-          ephemeralMessages: ephemeralMessages,
+          model: model,
           notifier: notifier,
           user: user,
           window: windowMock
@@ -196,10 +196,8 @@ define(function (require, exports, module) {
         sinon.spy(view, 'navigate');
         return view.afterVisible()
           .then(function () {
-            assert.isTrue(view.navigate.calledWith('signup'));
+            assert.isTrue(view.navigate.calledWith('signup', { bouncedEmail: 'a@a.com' }));
             assert.isTrue(view.fxaClient.recoveryEmailStatus.called);
-            assert.equal(
-                ephemeralMessages.get('bouncedEmail'), 'a@a.com');
           });
       });
     });

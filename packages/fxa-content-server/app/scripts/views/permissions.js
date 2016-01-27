@@ -19,8 +19,7 @@ define(function (require, exports, module) {
 
     initialize: function (options) {
       // Account data is passed in from sign up and sign in flows.
-      var data = this.ephemeralData();
-      this._account = data && this.user.initAccount(data.account);
+      this._account = this.user.initAccount(this.model.get('account'));
 
       this.type = options.type;
     },
@@ -77,9 +76,7 @@ define(function (require, exports, module) {
 
     onSignInUnverified: function (account) {
       this.navigate('confirm', {
-        data: {
-          account: account
-        }
+        account: account
       });
     },
 

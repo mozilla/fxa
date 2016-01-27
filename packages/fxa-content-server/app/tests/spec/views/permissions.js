@@ -6,9 +6,9 @@ define(function (require, exports, module) {
   'use strict';
 
   var $ = require('jquery');
+  var Backbone = require('backbone');
   var Broker = require('models/auth_brokers/base');
   var chai = require('chai');
-  var EphemeralMessages = require('lib/ephemeral-messages');
   var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
   var p = require('lib/promise');
@@ -26,9 +26,9 @@ define(function (require, exports, module) {
     var account;
     var broker;
     var email;
-    var ephemeralMessages;
     var fxaClient;
     var metrics;
+    var model;
     var notifier;
     var relier;
     var user;
@@ -43,9 +43,9 @@ define(function (require, exports, module) {
     beforeEach(function () {
       broker = new Broker();
       email = TestHelpers.createEmail();
-      ephemeralMessages = new EphemeralMessages();
       fxaClient = new FxaClient();
       metrics = new Metrics();
+      model = new Backbone.Model();
       notifier = new Notifier();
       relier = new Relier();
       windowMock = new WindowMock();
@@ -64,7 +64,7 @@ define(function (require, exports, module) {
         sessionToken: 'fake session token',
         uid: 'uid'
       });
-      ephemeralMessages.set('data', {
+      model.set({
         account: account
       });
     });
@@ -81,9 +81,9 @@ define(function (require, exports, module) {
     function initView (type) {
       view = new View({
         broker: broker,
-        ephemeralMessages: ephemeralMessages,
         fxaClient: fxaClient,
         metrics: metrics,
+        model: model,
         notifier: notifier,
         relier: relier,
         type: type,
@@ -132,6 +132,7 @@ define(function (require, exports, module) {
         sinon.spy(account, 'saveGrantedPermissions');
         sinon.spy(user, 'setAccount');
       });
+
       it('coming from sign in, redirects unverified users to the confirm page on success', function () {
         return initView('sign_in')
           .then(function () {
@@ -141,7 +142,7 @@ define(function (require, exports, module) {
                 assert.isTrue(account.saveGrantedPermissions.calledWith(CLIENT_ID, PERMISSIONS));
                 assert.isTrue(user.setAccount.calledWith(account));
                 assert.isTrue(view.navigate.calledWith('confirm', {
-                  data: { account: account }
+                  account: account
                 }));
               });
           });
@@ -156,7 +157,7 @@ define(function (require, exports, module) {
                 assert.isTrue(account.saveGrantedPermissions.calledWith(CLIENT_ID, PERMISSIONS));
                 assert.isTrue(user.setAccount.calledWith(account));
                 assert.isTrue(view.navigate.calledWith('confirm', {
-                  data: { account: account }
+                  account: account
                 }));
               });
           });

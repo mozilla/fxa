@@ -19,9 +19,7 @@ define(function (require, exports, module) {
           });
       } else {
         self.navigate('confirm', {
-          data: {
-            account: account
-          }
+          account: account
         });
       }
     }

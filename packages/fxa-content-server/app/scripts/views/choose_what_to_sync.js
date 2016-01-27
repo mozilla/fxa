@@ -20,8 +20,7 @@ define(function (require, exports, module) {
 
     initialize: function () {
       // Account data is passed in from sign up flow.
-      var data = this.ephemeralData();
-      this._account = data && this.user.initAccount(data.account);
+      this._account = this.user.initAccount(this.model.get('account'));
     },
 
     getAccount: function () {

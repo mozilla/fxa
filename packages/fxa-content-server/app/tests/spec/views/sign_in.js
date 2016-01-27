@@ -8,10 +8,10 @@ define(function (require, exports, module) {
   var $ = require('jquery');
   var Account = require('models/account');
   var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
   var Broker = require('models/auth_brokers/base');
   var chai = require('chai');
   var Constants = require('lib/constants');
-  var EphemeralMessages = require('lib/ephemeral-messages');
   var FormPrefill = require('models/form-prefill');
   var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
@@ -30,37 +30,39 @@ define(function (require, exports, module) {
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/sign_in', function () {
-    var view;
-    var email;
-    var metrics;
-    var windowMock;
-    var fxaClient;
-    var relier;
     var broker;
-    var user;
+    var email;
     var formPrefill;
-    var ephemeralMessages;
+    var fxaClient;
+    var metrics;
+    var model;
     var notifier;
+    var relier;
+    var user;
+    var view;
+    var windowMock;
 
     beforeEach(function () {
       email = TestHelpers.createEmail();
-
-      Session.clear();
-
-      windowMock = new WindowMock();
+      formPrefill = new FormPrefill();
+      fxaClient = new FxaClient();
       metrics = new Metrics();
+      model = new Backbone.Model();
+      notifier = new Notifier();
       relier = new Relier();
+      windowMock = new WindowMock();
+
       broker = new Broker({
         relier: relier
       });
-      fxaClient = new FxaClient();
+
       user = new User({
         fxaClient: fxaClient,
         notifier: notifier
       });
-      formPrefill = new FormPrefill();
-      ephemeralMessages = new EphemeralMessages();
-      notifier = new Notifier();
+
+      Session.clear();
+
 
       initView();
 
@@ -82,10 +84,10 @@ define(function (require, exports, module) {
     function initView () {
       view = new View({
         broker: broker,
-        ephemeralMessages: ephemeralMessages,
         formPrefill: formPrefill,
         fxaClient: fxaClient,
         metrics: metrics,
+        model: model,
         notifier: notifier,
         relier: relier,
         user: user,
@@ -309,9 +311,7 @@ define(function (require, exports, module) {
 
         it('redirects users to permissions page if relier needs permissions', function () {
           assert.isTrue(view.navigate.calledWith('signin_permissions', {
-            data: {
-              account: account
-            }
+            account: account
           }));
         });
       });
@@ -323,7 +323,7 @@ define(function (require, exports, module) {
             return p(account);
           });
 
-          ephemeralMessages.set('data', {
+          model.set({
             redirectTo: '/settings/avatar/change'
           });
 

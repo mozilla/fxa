@@ -27,10 +27,6 @@ define(function (require, exports, module) {
       options = options || {};
       this._verificationPollMS = options.verificationPollMS ||
               this.VERIFICATION_POLL_IN_MS;
-
-      var data = this.ephemeralData();
-      this._email = data.email;
-      this._passwordForgotToken = data.passwordForgotToken;
     },
 
     events: {
@@ -38,16 +34,18 @@ define(function (require, exports, module) {
     },
 
     context: function () {
+      var email = this.model.get('email');
+
       return {
-        email: this._email,
-        encodedEmail: encodeURIComponent(this._email),
+        email: email,
+        encodedEmail: encodeURIComponent(email),
         forceAuth: this.broker.isForceAuth()
       };
     },
 
     beforeRender: function () {
       // user cannot confirm if they have not initiated a reset password
-      if (! this._passwordForgotToken) {
+      if (! this.model.has('passwordForgotToken')) {
         this.navigate('reset_password');
         return false;
       }
@@ -56,7 +54,8 @@ define(function (require, exports, module) {
     afterVisible: function () {
       var self = this;
 
-      return self.broker.persistVerificationData(this.user.initAccount({ email: this._email }))
+      var account = this.user.initAccount({ email: this.model.get('email') });
+      return self.broker.persistVerificationData(account)
         .then(function () {
           return self._waitForConfirmation()
             .then(function (sessionInfo) {
@@ -206,7 +205,7 @@ define(function (require, exports, module) {
       var self = this;
       // only check if still waiting.
       this._isWaitingForServerConfirmation = true;
-      return self.fxaClient.isPasswordResetComplete(self._passwordForgotToken)
+      return self.fxaClient.isPasswordResetComplete(self.model.get('passwordForgotToken'))
         .then(function (isComplete) {
           if (! self._isWaitingForServerConfirmation) {
             // we no longer care about the response, the other tab has opened.
@@ -263,8 +262,8 @@ define(function (require, exports, module) {
       self.logViewEvent('resend');
 
       return self.retryResetPassword(
-        self._email,
-        self._passwordForgotToken
+        self.model.get('email'),
+        self.model.get('passwordForgotToken')
       )
       .then(function () {
         self.displaySuccess();

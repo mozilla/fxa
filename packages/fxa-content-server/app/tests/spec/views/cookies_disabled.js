@@ -56,8 +56,10 @@ define(function (require, exports, module) {
 
     describe('backIfLocalStorageEnabled', function () {
       it('goes back in history if localStorage is enabled and there is a page to go back to', function () {
+        sinon.stub(view, 'back', sinon.spy());
+
         view.backIfLocalStorageEnabled();
-        assert.isTrue(view.window.history.back.called);
+        assert.isTrue(view.back.called);
         assert.equal(view.$('.error').text(), '');
       });
 

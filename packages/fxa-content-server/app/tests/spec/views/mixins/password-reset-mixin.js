@@ -61,11 +61,10 @@ define(function (require, exports, module) {
 
       it('redirects to /confirm_reset_password if auth server is happy', function () {
         assert.isTrue(view.navigate.calledWith('confirm_reset_password', {
-          clearQueryParams: true,
-          data: {
-            email: 'testuser@testuser.com',
-            passwordForgotToken: 'password forgot token'
-          }
+          email: 'testuser@testuser.com',
+          passwordForgotToken: 'password forgot token'
+        }, {
+          clearQueryParams: true
         }));
       });
     });

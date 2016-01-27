@@ -27,9 +27,7 @@ define(function (require, exports, module) {
       return p().then(function () {
         if (self.hasCapability('chooseWhatToSyncWebV1')) {
           return new NavigateBehavior('choose_what_to_sync', {
-            data: {
-              account: account
-            }
+            account: account
           });
         }
       });

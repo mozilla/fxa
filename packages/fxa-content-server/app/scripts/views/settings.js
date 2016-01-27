@@ -114,7 +114,8 @@ define(function (require, exports, module) {
       if ($.modal.isActive()) {
         $.modal.close();
       }
-      this.showEphemeralMessages();
+      this.displayStatusMessages();
+
       this.logView();
       this._swapDisplayName();
     },

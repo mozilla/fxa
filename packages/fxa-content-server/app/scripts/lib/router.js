@@ -54,6 +54,10 @@ define(function (require, exports, module) {
     };
   }
 
+  function createViewModel(data) {
+    return new Backbone.Model(data || {});
+  }
+
   var Router = Backbone.Router.extend({
     routes: {
       '(/)': 'redirectToSignupOrSettings',
@@ -112,12 +116,19 @@ define(function (require, exports, module) {
 
       this.notifier.once('view-shown', this._afterFirstViewHasRendered.bind(this));
       this.notifier.on('navigate', this.onNavigate.bind(this));
+      this.notifier.on('navigate-back', this.onNavigateBack.bind(this));
 
       this.storage = Storage.factory('sessionStorage', this.window);
     },
 
-    onNavigate: function (data) {
-      this.navigate(data.url, _.omit(data, 'url'));
+    onNavigate: function (event) {
+      this._nextViewModel = createViewModel(event.nextViewData);
+      this.navigate(event.url, event.routerOptions);
+    },
+
+    onNavigateBack: function (event) {
+      this._nextViewModel = createViewModel(event.nextViewData);
+      this.navigateBack();
     },
 
     navigate: function (url, options) {
@@ -135,6 +146,10 @@ define(function (require, exports, module) {
       }
 
       return Backbone.Router.prototype.navigate.call(this, url, options);
+    },
+
+    navigateBack: function () {
+      this.window.history.back();
     },
 
     redirectToSignupOrSettings: function () {
@@ -169,6 +184,7 @@ define(function (require, exports, module) {
       return _.extend({
         canGoBack: this.canGoBack(),
         currentPage: this.getCurrentPage(),
+        model: this._nextViewModel,
         viewName: this.getCurrentViewName()
       }, options);
     },

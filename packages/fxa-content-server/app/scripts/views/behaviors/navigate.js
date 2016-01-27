@@ -15,11 +15,7 @@ define(function (require, exports, module) {
     options = options || {};
 
     var behavior = function (view) {
-      view.navigate(endpoint, {
-        data: options.data,
-        error: options.error,
-        success: options.success
-      });
+      view.navigate(endpoint, options);
 
       // halt the flow after navigating.
       return p.defer().promise;

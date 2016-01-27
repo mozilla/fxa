@@ -83,9 +83,7 @@ define(function (require, exports, module) {
           require(['draggable', 'touch-punch'], function () {
             var cropImg = new CropperImage();
             self.navigate('settings/avatar/crop', {
-              data: {
-                cropImg: cropImg
-              }
+              cropImg: cropImg
             });
           });
         }, 1000);
@@ -124,9 +122,7 @@ define(function (require, exports, module) {
               });
               require(['draggable', 'touch-punch'], function () {
                 self.navigate('settings/avatar/crop', {
-                  data: {
-                    cropImg: cropImg
-                  }
+                  cropImg: cropImg
                 });
               });
               defer.resolve();

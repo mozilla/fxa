@@ -35,11 +35,10 @@ define(function (require, exports, module) {
       )
       .then(function (result) {
         self.navigate('confirm_reset_password', {
+          email: email,
+          passwordForgotToken: result.passwordForgotToken
+        }, {
           clearQueryParams: true,
-          data: {
-            email: email,
-            passwordForgotToken: result.passwordForgotToken
-          }
         });
 
         return result;

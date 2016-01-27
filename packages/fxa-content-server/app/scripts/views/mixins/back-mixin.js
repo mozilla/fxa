@@ -24,7 +24,7 @@ define(function (require, exports, module) {
 
     events: {
       'click #back': 'back',
-      'keyup #back': 'backOnEnter'
+      'keyup #back': BaseView.preventDefaultThen('backOnEnter')
     },
 
     /**
@@ -49,10 +49,13 @@ define(function (require, exports, module) {
      * Go back to the last page.
      *
      * @method back
+     * @param {object} [nextViewData] - data to send to the next(last) view.
      */
-    back: BaseView.preventDefaultThen(function () {
-      this.window.history.back();
-    }),
+    back: function (nextViewData) {
+      this.notifier.trigger('navigate-back', {
+        nextViewData: nextViewData
+      });
+    },
 
     /**
      * Go back to the last page, if the user pressed the enter key.

@@ -45,8 +45,9 @@ define(function (require, exports, module) {
           self.logViewEvent('deleted');
 
           self.navigate('signup', {
-            clearQueryParams: true,
             success: t('Account deleted successfully')
+          }, {
+            clearQueryParams: true,
           });
         }, function (err) {
           if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {

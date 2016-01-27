@@ -32,26 +32,9 @@ define(function (require, exports, module) {
     VERIFICATION_POLL_IN_MS: Constants.VERIFICATION_POLL_IN_MS,
 
     initialize: function () {
-      var data = this.ephemeralData();
-      var accountData;
-
-      if (data) {
-        if (data.lockoutSource) {
-          this._lockoutSource = data.lockoutSource;
-        }
-
-        if (data.account) {
-          accountData = data.account;
-        }
-
-        // The password is needed to poll whether the user has
-        // unlocked their account.
-        if (data.password) {
-          this._password = data.password;
-        }
-      }
-
-      this._account = this.user.initAccount(accountData);
+      // The password is needed to poll whether the user has
+      // unlocked their account.
+      this._account = this.user.initAccount(this.model.get('account'));
     },
 
     getAccount: function () {
@@ -94,7 +77,7 @@ define(function (require, exports, module) {
           // the continuation path depends on the action that triggered
           // the account lockout notice. The only time the broker should
           // be notified is if the user was trying to sign in.
-          if (isLockoutSourceSignIn(self._lockoutSource)) {
+          if (isLockoutSourceSignIn(self.model.get('lockoutSource'))) {
             return self.invokeBrokerMethod('afterSignIn', self.getAccount())
               .then(function () {
                 self.navigate('account_unlock_complete');
@@ -102,9 +85,9 @@ define(function (require, exports, module) {
           }
 
           // return non-signin users back to where they came from.
-          self.ephemeralMessages.set(
-              'success', t('Account unlocked, please try again'));
-          self.back();
+          self.back({
+            success: t('Account unlocked, please try again')
+          });
         })
         .fail(function (err) {
           if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
@@ -113,8 +96,9 @@ define(function (require, exports, module) {
             // unlocked, but the user typed in their password incorrectly.
             // Boot the user back to where they came from to let them re-enter
             // their password.
-            self.ephemeralMessages.set('error', err);
-            self.back();
+            self.back({
+              error: err
+            });
             return;
           }
           self.displayError(err);
@@ -125,7 +109,7 @@ define(function (require, exports, module) {
       var self = this;
       var account = self.getAccount();
       var email = account.get('email');
-      var password = this._password;
+      var password = this.model.get('password');
 
       // try to sign the user in using the email/password that caused the
       // account to be locked. If the user has verified their email address,

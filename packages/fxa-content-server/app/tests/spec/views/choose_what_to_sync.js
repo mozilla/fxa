@@ -6,9 +6,9 @@ define(function (require, exports, module) {
   'use strict';
 
   var $ = require('jquery');
+  var Backbone = require('backbone');
   var Broker = require('models/auth_brokers/fx-fennec-v1');
   var chai = require('chai');
-  var EphemeralMessages = require('lib/ephemeral-messages');
   var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
   var p = require('lib/promise');
@@ -25,7 +25,7 @@ define(function (require, exports, module) {
     var account;
     var broker;
     var email;
-    var ephemeralMessages;
+    var model;
     var fxaClient;
     var metrics;
     var notifier;
@@ -36,9 +36,9 @@ define(function (require, exports, module) {
     beforeEach(function () {
       broker = new Broker();
       email = TestHelpers.createEmail();
-      ephemeralMessages = new EphemeralMessages();
       fxaClient = new FxaClient();
       metrics = new Metrics();
+      model = new Backbone.Model();
       notifier = new Notifier();
       windowMock = new WindowMock();
 
@@ -52,7 +52,7 @@ define(function (require, exports, module) {
         uid: 'uid'
       });
 
-      ephemeralMessages.set('data', {
+      model.set({
         account: account
       });
     });
@@ -67,9 +67,9 @@ define(function (require, exports, module) {
     function initView () {
       view = new View({
         broker: broker,
-        ephemeralMessages: ephemeralMessages,
         fxaClient: fxaClient,
         metrics: metrics,
+        model: model,
         notifier: notifier,
         user: user,
         viewName: 'choose-what-to-sync',
@@ -134,7 +134,7 @@ define(function (require, exports, module) {
                 assert.isTrue(TestHelpers.isEventLogged(metrics, 'choose-what-to-sync.engine-unchecked.tabs'), 'tracks unchecked');
                 assert.isTrue(user.setAccount.calledWith(account), 'user called with account');
                 assert.isTrue(view.navigate.calledWith('confirm', {
-                  data: { account: account }
+                  account: account
                 }), 'navigates to confirm');
               });
           });

@@ -6,6 +6,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var Backbone = require('backbone');
   var BaseView = require('views/base');
   var p = require('lib/promise');
   var Template = require('stache!templates/sub_panels');
@@ -76,6 +77,10 @@ define(function (require, exports, module) {
 
       var view = self._createView(ChildView, {
         el: self.$(selector),
+        // Each child view receives its own model on creation. The
+        // child view's model will be updated with the appropriate data
+        // when shown.
+        model: new Backbone.Model(),
         parentView: self._parent
       });
 
