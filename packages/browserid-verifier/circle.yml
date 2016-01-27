@@ -27,7 +27,7 @@ dependencies:
     - docker build -t app:build .
 
     # Clean up any old images and save the new one
-    - I="image-$(date +%j).tar"; mkdir -p ~/docker; rm ~/docker/*; docker save app:build > ~/docker/$I
+    - I="image-$(date +%j).tar"; mkdir -p ~/docker; rm ~/docker/*; docker save app:build > ~/docker/$I; ls -l ~/docker
 
 test:
   override:
