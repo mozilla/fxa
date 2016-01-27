@@ -1385,5 +1385,130 @@ define(function (require, exports, module) {
         ));
       });
     });
+
+    describe('accountKeys', function () {
+      function setup(accountData) {
+        account.clear();
+        account.set(accountData);
+
+        sinon.stub(fxaClient, 'accountKeys', function () {
+          return p('account keys');
+        });
+
+        return account.accountKeys();
+      }
+
+      describe('without a `keyFetchToken`', function () {
+        var result;
+
+        beforeEach(function () {
+          return setup({ unwrapBKey: 'unwrap b key' })
+            .then(function (_result) {
+              result = _result;
+            });
+        });
+
+        it('resolves to null', function () {
+          assert.isNull(result);
+        });
+
+        it('does not delegate to the fxaClient', function () {
+          assert.isFalse(fxaClient.accountKeys.called);
+        });
+      });
+
+      describe('without an `unwrapBKey`', function () {
+        var result;
+
+        beforeEach(function () {
+          return setup({ keyFetchToken: 'key fetch token' })
+            .then(function (_result) {
+              result = _result;
+            });
+        });
+
+        it('resolves to null', function () {
+          assert.isNull(result);
+        });
+
+        it('does not delegate to the fxaClient', function () {
+          assert.isFalse(fxaClient.accountKeys.called);
+        });
+      });
+
+      describe('with both a `keyFetchToken` and `unwrapBKey`', function () {
+        var result;
+
+        beforeEach(function () {
+          return setup({
+            keyFetchToken: 'key fetch token',
+            unwrapBKey: 'unwrap b key'
+          })
+          .then(function (_result) {
+            result = _result;
+          });
+        });
+
+        it('delegates to the fxaClient', function () {
+          assert.isTrue(
+            fxaClient.accountKeys.calledWith('key fetch token', 'unwrap b key'));
+        });
+
+        it('resolves to the fxaClient result', function () {
+          assert.equal(result, 'account keys');
+        });
+      });
+    });
+
+    describe('relierKeys', function () {
+      describe('account keys unavailable', function () {
+        var result;
+
+        beforeEach(function () {
+          sinon.stub(account, 'accountKeys', function () {
+            return p(null);
+          });
+
+          return account.relierKeys(relier)
+            .then(function (_result) {
+              result = _result;
+            });
+        });
+
+        it('returns null', function () {
+          assert.isNull(result);
+        });
+      });
+
+      describe('account keys available', function () {
+        var result;
+
+        beforeEach(function () {
+          sinon.stub(account, 'accountKeys', function () {
+            return p('account keys');
+          });
+
+          sinon.stub(relier, 'deriveRelierKeys', function () {
+            return p('relier keys');
+          });
+
+          account.set('uid', 'uid');
+
+          return account.relierKeys(relier)
+            .then(function (_result) {
+              result = _result;
+            });
+        });
+
+        it('delegates to the relier with the account keys', function () {
+          assert.isTrue(
+            relier.deriveRelierKeys.calledWith('account keys', 'uid'));
+        });
+
+        it('resolves to the relier result', function () {
+          assert.equal(result, 'relier keys');
+        });
+      });
+    });
   });
 });
