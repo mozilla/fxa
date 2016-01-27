@@ -10,17 +10,24 @@ machine:
     - docker
 
 dependencies:
+  # make sure to keep the docker cache dir
   cache_directories:
     - "~/docker"
+
   override:
     - docker info
     - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
     - "[ ! -z $DOCKERHUB_REPO ]"
 
     # build the container, use circleci's docker cache workaround
-    - if [[ -e ~/docker/image.tar ]]; then echo "Loading image.tar"; docker load -i ~/docker/image.tar; fi
+    # only use 1 image per day to keep the cache size from getting 
+    # too big and slowing down the build
+    - I="image-$(date +%j).tar"; if [[ -e ~/docker/$I ]]; then echo "Loading $I"; docker load -i ~/docker/$I; fi
+
     - docker build -t app:build .
-    - mkdir -p ~/docker; docker save app:build > ~/docker/image.tar
+
+    # Clean up any old images and save the new one
+    - I="image-$(date +%j).tar"; mkdir -p ~/docker; rm ~/docker/*; docker save app:build > ~/docker/$I
 
 test:
   override:
