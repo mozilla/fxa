@@ -60,7 +60,7 @@ join us in the following forums:
 We mostly follow a micro-services architecture, with each component of the system
 being developed in a separate repository.  The main components fit together like so:
 
-![High-level architecture diagram showing relationships between different FxA services](https://www.lucidchart.com/publicSegments/view/8760a3b3-77d1-4390-bc9b-e9ab309eca0f/image.png)
+[![High-level architecture diagram showing relationships between different FxA services](https://www.lucidchart.com/publicSegments/view/8760a3b3-77d1-4390-bc9b-e9ab309eca0f/image.png)](https://www.lucidchart.com/publicSegments/view/8760a3b3-77d1-4390-bc9b-e9ab309eca0f/image.png)
 
 [LucidChart View](https://www.lucidchart.com/invitations/accept/625ede3e-e619-4ed4-a78c-3c0c894003bc)
 
