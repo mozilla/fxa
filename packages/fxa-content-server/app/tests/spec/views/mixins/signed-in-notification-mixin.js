@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var Backbone = require('backbone');
   var BaseView = require('views/base');
   var chai = require('chai');
   var Cocktail = require('cocktail');
@@ -26,13 +27,16 @@ define(function (require, exports, module) {
     });
 
     describe('new View', function () {
+      var model;
       var notifier;
       var view;
 
       before(function () {
+        model = new Backbone.Model();
         notifier = new Notifier();
         notifier.on = sinon.spy();
         view = new View({
+          model: model,
           notifier: notifier
         });
       });
@@ -128,7 +132,8 @@ define(function (require, exports, module) {
       });
 
       describe('navigateToSignedInView with OAuth redirect URL', function () {
-        before(function () {
+
+        beforeEach(function () {
           view.broker = {
             hasCapability: sinon.spy(function () {
               return true;
@@ -140,24 +145,42 @@ define(function (require, exports, module) {
             })
           };
           view.navigate = sinon.spy();
-          view._redirectTo = 'foo';
-          return notifier.on.args[0][1]({
-            uid: 'uid'
+        });
+
+        describe('without model.redirectTo', function () {
+          beforeEach(function () {
+            return notifier.on.args[0][1]({
+              uid: 'uid'
+            });
+          });
+
+          it('calls broker.hasCapability', function () {
+            assert.equal(view.broker.hasCapability.callCount, 1);
+          });
+
+          it('calls user.setSignedInAccountByUid correctly', function () {
+            assert.equal(view.user.setSignedInAccountByUid.callCount, 1);
+            assert.isTrue(view.user.setSignedInAccountByUid.calledWith('uid'));
+          });
+
+          it('calls navigate correctly', function () {
+            assert.equal(view.navigate.callCount, 1);
+            assert.equal(view.navigate.args[0][0], 'settings');
           });
         });
 
-        it('calls broker.hasCapability', function () {
-          assert.equal(view.broker.hasCapability.callCount, 1);
-        });
+        describe('with model.redirectTo', function () {
+          beforeEach(function () {
+            model.set('redirectTo', 'foo');
+            return notifier.on.args[0][1]({
+              uid: 'uid'
+            });
+          });
 
-        it('calls user.setSignedInAccountByUid correctly', function () {
-          assert.equal(view.user.setSignedInAccountByUid.callCount, 1);
-          assert.isTrue(view.user.setSignedInAccountByUid.calledWith('uid'));
-        });
-
-        it('calls navigate correctly', function () {
-          assert.equal(view.navigate.callCount, 1);
-          assert.equal(view.navigate.args[0][0], 'foo');
+          it('calls navigate correctly', function () {
+            assert.equal(view.navigate.callCount, 1);
+            assert.equal(view.navigate.args[0][0], 'foo');
+          });
         });
       });
 

@@ -7,6 +7,7 @@ define(function (require, exports, module) {
 
   var $ = require('jquery');
   var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
   var Broker = require('models/auth_brokers/base');
   var chai = require('chai');
   var FormPrefill = require('models/form-prefill');
@@ -26,6 +27,7 @@ define(function (require, exports, module) {
     var broker;
     var email;
     var formPrefill;
+    var model;
     var notifier;
     var relier;
     var user;
@@ -35,6 +37,7 @@ define(function (require, exports, module) {
     function initDeps() {
       broker = new Broker();
       formPrefill = new FormPrefill();
+      model = new Backbone.Model();
       notifier = new Notifier();
       relier = new Relier();
       user = new User({
@@ -46,6 +49,7 @@ define(function (require, exports, module) {
       view = new View({
         broker: broker,
         formPrefill: formPrefill,
+        model: model,
         notifier: notifier,
         relier: relier,
         user: user,
@@ -211,16 +215,36 @@ define(function (require, exports, module) {
 
           sinon.spy(broker, 'afterForceAuth');
           sinon.spy(view, 'navigate');
-
-          return view.onSignInSuccess(account);
         });
 
-        it('invokes `afterForceAuth` on the broker', function () {
-          assert.isTrue(broker.afterForceAuth.calledWith(account));
+        describe('without model.redirectTo', function () {
+          beforeEach(function () {
+            return view.onSignInSuccess(account);
+          });
+
+          it('invokes `afterForceAuth` on the broker', function () {
+            assert.isTrue(broker.afterForceAuth.calledWith(account));
+          });
+
+          it('navigates to the `settings` page and clears the query parameters', function () {
+            assert.isTrue(view.navigate.calledWith('settings', {}, { clearQueryParams: true }));
+          });
         });
 
-        it('navigates to the `settings` page and clears the query parameters', function () {
-          assert.isTrue(view.navigate.calledWith('settings', {}, { clearQueryParams: true }));
+        describe('with model.redirectTo', function () {
+          beforeEach(function () {
+            model.set('redirectTo', 'foo');
+
+            return view.onSignInSuccess(account);
+          });
+
+          it('invokes `afterForceAuth` on the broker', function () {
+            assert.isTrue(broker.afterForceAuth.calledWith(account));
+          });
+
+          it('navigates to the `settings` page and clears the query parameters', function () {
+            assert.isTrue(view.navigate.calledWith('foo', {}, { clearQueryParams: true }));
+          });
         });
       });
 
