@@ -11,6 +11,8 @@ define([
   './functional/complete_sign_up',
   './functional/sync_sign_up',
   './functional/sync_v2_sign_up',
+  './functional/sync_v2_sign_in',
+  './functional/sync_v2_force_auth',
   './functional/sync_v3_sign_up',
   './functional/fx_firstrun_v1_sign_up',
   './functional/fx_firstrun_v1_sign_in',

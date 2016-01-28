@@ -42,19 +42,19 @@ define(function (require, exports, module) {
       });
     });
 
-    it('has the `signup` capability by default', function () {
+    it('has the `signup` capability', function () {
       assert.isTrue(broker.hasCapability('signup'));
     });
 
-    it('has the `handleSignedInNotification` capability by default', function () {
+    it('has the `handleSignedInNotification` capability', function () {
       assert.isTrue(broker.hasCapability('handleSignedInNotification'));
     });
 
-    it('has the `emailVerificationMarketingSnippet` capability by default', function () {
+    it('has the `emailVerificationMarketingSnippet` capability', function () {
       assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
     });
 
-    it('does not have the `syncPreferencesNotification` capability by default', function () {
+    it('does not have the `syncPreferencesNotification` capability', function () {
       assert.isFalse(broker.hasCapability('syncPreferencesNotification'));
     });
 
@@ -73,18 +73,28 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('afterForceAuth', function () {
+      it('notifies the channel with `fxaccounts:login`, halts', function () {
+        return broker.afterForceAuth(account)
+          .then(function (result) {
+            assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
+            assert.isTrue(result.halt);
+          });
+      });
+    });
+
     describe('afterSignIn', function () {
-      it('notifies the channel with `fxaccounts:login`, does not halt', function () {
+      it('notifies the channel with `fxaccounts:login`, halts', function () {
         return broker.afterSignIn(account)
           .then(function (result) {
             assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
-            assert.isUndefined(result.halt);
+            assert.isTrue(result.halt);
           });
       });
     });
 
     describe('beforeSignUpConfirmationPoll', function () {
-      it('notifies the channel with `fxaccounts:login`, halts by default', function () {
+      it('notifies the channel with `fxaccounts:login`, halts', function () {
         return broker.beforeSignUpConfirmationPoll(account)
           .then(function (result) {
             assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
@@ -94,11 +104,11 @@ define(function (require, exports, module) {
     });
 
     describe('afterResetPasswordConfirmationPoll', function () {
-      it('notifies the channel with `fxaccounts:login`, halts by default', function () {
+      it('notifies the channel with `fxaccounts:login`, halts', function () {
         return broker.afterResetPasswordConfirmationPoll(account)
           .then(function (result) {
             assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
-            assert.isUndefined(result.halt);
+            assert.isTrue(result.halt);
           });
       });
     });
