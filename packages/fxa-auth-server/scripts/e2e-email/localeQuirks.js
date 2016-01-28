@@ -19,7 +19,6 @@ var translationQuirks = {
     'es-AR',
     'ff',
     'he',
-    'ko',
     'lt',
   ],
 
@@ -31,7 +30,6 @@ var translationQuirks = {
     'ff',
     'he',
     'hi-IN',
-    'ko',
     'lt',
   ],
 
@@ -42,7 +40,6 @@ var translationQuirks = {
     'es-AR',
     'ff',
     'he',
-    'ko',
     'lt',
   ],
 
@@ -53,7 +50,6 @@ var translationQuirks = {
     'es-AR',
     'ff',
     'he',
-    'ko',
     'lt',
   ],
 
@@ -68,7 +64,6 @@ var translationQuirks = {
     'fy',
     'he',
     'hu',
-    'ko',
     'lt',
     'pa',
     'sq',
@@ -84,7 +79,6 @@ var translationQuirks = {
     'es-AR',
     'ff',
     'he',
-    'ko',
     'lt',
   ],
 
