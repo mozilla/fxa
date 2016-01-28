@@ -19,9 +19,9 @@ define(function (require, exports, module) {
   var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   var ServiceMixin = require('views/mixins/service-mixin');
   var SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
-  var SignInSuccessMixin = require('views/mixins/signin-success-mixin')();
+  var SignInMixin = require('views/mixins/signin-mixin');
   var SignUpDisabledMixin = require('views/mixins/signup-disabled-mixin');
-  var SignUpSuccessMixin = require('views/mixins/signup-success-mixin');
+  var SignUpMixin = require('views/mixins/signup-mixin');
   var Template = require('stache!templates/sign_up');
 
   var t = BaseView.t;
@@ -35,23 +35,6 @@ define(function (require, exports, module) {
       return 'password';
     }
     return null;
-  }
-
-  function signIn (account, password) {
-    return this.user.signInAccount(account, password, this.relier, {
-      resume: this.getStringifiedResumeToken()
-    })
-    .then(this.onSignInSuccess.bind(this, account))
-    .fail(this.onSignUpError.bind(this));
-  }
-
-  function signUp (account, password) {
-    return this.user.signUpAccount(account, password, this.relier, {
-      resume: this.getStringifiedResumeToken()
-    })
-    .then(this.invokeBrokerMethod.bind(this, 'afterSignUp'))
-    .then(this.onSignUpSuccess.bind(this, account))
-    .fail(this.onSignUpError.bind(this));
   }
 
   var View = FormView.extend({
@@ -233,31 +216,93 @@ define(function (require, exports, module) {
 
     submit: function () {
       var self = this;
+      this.notifier.trigger('signup.submit');
+      /**
+       * The semi-convoluted flow:
+       * 1. Check if the user has filled in COPPA and is old enough.
+       *   1a. If old enough, sign up the user.
+       *     1a1. If sign up succeeds, hooray!
+       *     1a2. If sign up fails with ACCOUNT_ALREADY_EXISTS,
+       *     attempt to sign in. Go to step 1b1.
+       *   1b. If the user is not old enough or hasn't filled in coppa,
+       *   try to sign in.
+       *     1b1. If sign in succeeds, hooray!
+       *     1b2. If INCORRECT_PASSWORD, send the user to /signin
+       *     1b3. If UNKNOWN_ACCOUNT, user has not filled in COPPA or is too
+       *     young.
+       *       1b3a. If not filled in, tell user to fill in age.
+       *       1b3b. If too young, go to the too young screen.
+       */
       return p()
         .then(function () {
+          var account = self._initAccount();
+          var password = self.getElementValue('.password');
+
           if (self._isUserOldEnough()) {
-            self.notifier.trigger('signup.submit');
-            return self._initAccount(signUp);
+            // User filled out COPPA, attempt a signup.
+            // If user already exists, they will be signed in.
+            return self._signUp(account, password);
           }
 
           // COPPA is not valid, but maybe this is an existing user
           // that wants to sign in. Let them try to sign in then, if
-          // that fails, come back here and show the COPPA error.
+          // that fails, show a COPPA error.
           // https://github.com/mozilla/fxa-content-server/issues/2778
-          return self._initAccount(signIn)
-            .fail(function (err) {
-              if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
-                if (self._coppa.hasValue()) {
-                  self.notifier.trigger('signup.tooyoung');
-                  return self._cannotCreateAccount();
-                }
+          return self._signIn(account, password);
+        })
+        .fail(function (err) {
+          if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
+            self.logEvent('login.canceled');
+            // if user canceled login, just stop
+            return;
+          }
 
-                return self.displayError(t('You must enter your age to sign up'));
-              }
-
-              throw err;
-            });
+          throw err;
         });
+    },
+
+    _signUp: function (account, password) {
+      return this.signUp(account, password)
+        .fail(this.onSignUpError.bind(this, account, password));
+    },
+
+    onSignUpError: function (account, password, err) {
+      if (AuthErrors.is(err, 'ACCOUNT_ALREADY_EXISTS')) {
+        // account exists and is verified,
+        // attempt to sign in the user.
+        return this._signIn(account, password);
+      }
+
+      // re-throw error, it will be handled at a lower level.
+      throw err;
+    },
+
+    _signIn: function (account, password) {
+      return this.signIn(account, password)
+        .fail(this.onSignInError.bind(this, account, password));
+    },
+
+    onSignInError: function (account, password, err) {
+      // only verified users who already have an account will see
+      // the INCORRECT_PASSWORD error.
+      if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
+        return this._suggestSignIn(err);
+      } else if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
+        // Users who correctly filled in COPPA and are of age
+        // were sent to sign up already. This is a user who was
+        // attempting to sign in. If the account is unknown,
+        // something is up with COPPA. Print the
+        // appropriate message.
+        if (this._coppa.hasValue()) {
+          this.notifier.trigger('signup.tooyoung');
+          return this._cannotCreateAccount();
+        } else {
+          throw AuthErrors.toError('AGE_REQUIRED');
+        }
+      }
+
+      // re-throw error, it will be handled at a lower level.
+      throw err;
     },
 
     onPasswordBlur: function () {
@@ -309,18 +354,16 @@ define(function (require, exports, module) {
       this.navigate('cannot_create_account');
     },
 
-    _initAccount: function (action) {
+    _initAccount: function () {
       var self = this;
 
-      var password = self.getElementValue('.password');
-      var preVerifyToken = self.relier.get('preVerifyToken');
       var account = self.user.initAccount({
         customizeSync: self.$('.customize-sync').is(':checked'),
         email: self.getElementValue('.email'),
         needsOptedInToMarketingEmail: self.$('.marketing-email-optin').is(':checked')
       });
 
-      if (preVerifyToken) {
+      if (self.relier.has('preVerifyToken')) {
         self.logViewEvent('preverified');
       }
 
@@ -333,29 +376,7 @@ define(function (require, exports, module) {
         }
       }
 
-      return self.invokeBrokerMethod('beforeSignIn', account.get('email'))
-        .then(action.bind(self, account, password));
-    },
-
-    onSignUpError: function (err) {
-      var self = this;
-      if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
-        // Account already exists, sign-in was attempted but password was wrong.
-        var redirectPath = '/signin';
-        if (self.relier.isOAuth()) {
-          redirectPath = '/oauth/signin';
-        }
-        return self.navigate(redirectPath, {
-          error: err
-        });
-      } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
-        self.logEvent('login.canceled');
-        // if user canceled login, just stop
-        return;
-      }
-
-      // re-throw error, it will be handled at a lower level.
-      throw err;
+      return account;
     },
 
     _suggestSignIn: function (err) {
@@ -379,10 +400,10 @@ define(function (require, exports, module) {
     PasswordStrengthMixin,
     ResumeTokenMixin,
     ServiceMixin,
-    SignedInNotificationMixin,
-    SignInSuccessMixin,
+    SignInMixin,
     SignUpDisabledMixin,
-    SignUpSuccessMixin
+    SignUpMixin,
+    SignedInNotificationMixin
   );
 
   module.exports = View;

@@ -6,13 +6,12 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/test',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, TestHelpers, Test, FunctionalHelpers) {
+], function (intern, registerSuite, assert, nodeXMLHttpRequest, FxaClient, TestHelpers, Test, FunctionalHelpers) {
   var config = intern.config;
   var SIGNUP_ROOT = config.fxaContentRoot + 'oauth/signup';
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
@@ -22,39 +21,32 @@ define([
   var bouncedEmail;
   var fxaClient;
 
+  var thenify = FunctionalHelpers.thenify;
+
+  var click = FunctionalHelpers.click;
+  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var createUser = FunctionalHelpers.createUser;
+  var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
+  var getVerificationLink = thenify(FunctionalHelpers.getVerificationLink);
+  var testErrorWasShown = FunctionalHelpers.testErrorWasShown;
+  var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
+  var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
+  var openPage = FunctionalHelpers.openPage;
+  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
+  var testUrlPathnameEquals = FunctionalHelpers.testUrlPathnameEquals;
+  var type = FunctionalHelpers.type;
+
   function signUpWithExistingAccount (context, email, firstPassword, secondPassword, options) {
-    return FunctionalHelpers.openFxaFromRp(context, 'signup')
+    return context.remote
+      .then(createUser(email, firstPassword, { preVerified: true }))
       .then(function () {
-        return FunctionalHelpers.fillOutSignUp(context, email, firstPassword);
+        return openFxaFromRp(context, 'signup');
       })
-
-      .findByCssSelector('#fxa-confirm-header')
-      .end()
-      .then(function () {
-        return FunctionalHelpers.getVerificationLink(email, 0);
-      })
-      .then(function (verificationLink) {
-        return context.remote.get(require.toUrl(verificationLink));
-      })
-
-      .findByCssSelector('#loggedin')
-      .end()
-
-      .findByCssSelector('#logout')
-        .click()
-      .end()
-
-      .findByCssSelector('.sign-in-button.signup')
-        .click()
-      .end()
-
-      .then(function () {
-        return FunctionalHelpers.fillOutSignUp(context, email, secondPassword, options);
-      });
+      .then(fillOutSignUp(context, email, secondPassword, options));
   }
 
   registerSuite({
-    name: 'oauth sign up',
+    name: 'oauth signup',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
@@ -66,32 +58,28 @@ define([
       // clear localStorage to avoid polluting other tests.
       // Without the clear, /signup tests fail because of the info stored
       // in prefillEmail
-      return FunctionalHelpers.clearBrowserState(this, {
-        '123done': true,
-        contentServer: true
-      });
-    },
-    'with missing client_id': function () {
-      return this.remote.get(require.toUrl(SIGNUP_ROOT + '?scope=profile'))
-        .findByCssSelector('#fxa-400-header')
-        .end();
+      return this.remote
+        .then(clearBrowserState(this, {
+          '123done': true,
+          contentServer: true
+        }));
     },
 
-    'with missing scope': function () {
-      return this.remote.get(require.toUrl(SIGNUP_ROOT + '?client_id=client_id'))
-        .findByCssSelector('#fxa-400-header')
-        .end();
+    'with missing client_id': function () {
+      return openPage(this, SIGNUP_ROOT + '?scope=profile', '#fxa-400-header');
     },
 
     'with invalid client_id': function () {
-      return this.remote.get(require.toUrl(SIGNUP_ROOT + '?client_id=invalid_client_id&scope=profile'))
-        .findByCssSelector('#fxa-400-header')
-        .end();
+      return openPage(this, SIGNUP_ROOT + '?client_id=invalid_client_id&scope=profile', '#fxa-400-header');
+    },
+
+    'with missing scope': function () {
+      return openPage(this, SIGNUP_ROOT + '?client_id=client_id', '#fxa-400-header');
     },
 
     'signup, verify same browser': function () {
       var self = this;
-      return FunctionalHelpers.openFxaFromRp(self, 'signup')
+      return openFxaFromRp(self, 'signup')
         .findByCssSelector('#fxa-signup-header .service')
         .end()
 
@@ -103,17 +91,12 @@ define([
         })
         .end()
 
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
+        .then(fillOutSignUp(self, email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
         .end()
 
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkInNewTab(
-                      self, email, 0);
-        })
+        .then(openVerificationLinkInNewTab(self, email, 0))
 
         .switchToWindow('newwindow')
         // wait for the verified window in the new tab
@@ -140,11 +123,9 @@ define([
     'signup, verify same browser with original tab closed': function () {
       var self = this;
 
-      return FunctionalHelpers.openFxaFromRp(self, 'signup')
+      return openFxaFromRp(self, 'signup')
 
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
+        .then(fillOutSignUp(self, email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
         .end()
@@ -154,10 +135,7 @@ define([
 
         .then(FunctionalHelpers.openExternalSite(self))
 
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkInNewTab(
-                      self, email, 0);
-        })
+        .then(openVerificationLinkInNewTab(self, email, 0))
 
         .switchToWindow('newwindow')
 
@@ -172,33 +150,24 @@ define([
     'signup, verify same browser by replacing the original tab': function () {
       var self = this;
 
-      return FunctionalHelpers.openFxaFromRp(self, 'signup')
+      return openFxaFromRp(self, 'signup')
 
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
+        .then(fillOutSignUp(self, email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
         .end()
 
-        .then(function () {
-          return FunctionalHelpers.getVerificationLink(email, 0);
-        })
+        .then(getVerificationLink(email, 0))
         .then(function (verificationLink) {
-          return self.remote.get(require.toUrl(verificationLink));
-        })
-
-        .findByCssSelector('#loggedin')
-        .end();
+          return openPage(self, verificationLink, '#loggedin');
+        });
     },
 
     'signup, verify different browser - from original tab\'s P.O.V.': function () {
       var self = this;
 
-      return FunctionalHelpers.openFxaFromRp(self, 'signup')
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
+      return openFxaFromRp(self, 'signup')
+        .then(fillOutSignUp(self, email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
         .end()
@@ -215,32 +184,24 @@ define([
     'signup, verify different browser - from new browser\'s P.O.V.': function () {
       var self = this;
 
-      return FunctionalHelpers.openFxaFromRp(self, 'signup')
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
+      return openFxaFromRp(self, 'signup')
+        .then(fillOutSignUp(self, email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
         .end()
 
-        .then(function () {
-          // clear browser state to simulate opening link in a new browser
-          return FunctionalHelpers.clearBrowserState(self, {
-            '123done': true,
-            contentServer: true
-          });
-        })
+        // clear browser state to simulate opening link in a new browser
+        .then(clearBrowserState(self, {
+          '123done': true,
+          contentServer: true
+        }))
 
-        .then(function () {
-          return FunctionalHelpers.getVerificationLink(email, 0);
-        })
+        .then(getVerificationLink(email, 0))
         .then(function (verificationLink) {
-          return self.remote.get(require.toUrl(verificationLink));
+          // new browser dead ends at the 'account verified' screen.
+          return openPage(self, verificationLink,
+            '#fxa-sign-up-complete-header');
         })
-
-        // new browser dead ends at the 'account verified' screen.
-        .findByCssSelector('#fxa-sign-up-complete-header')
-        .end()
 
         .findByCssSelector('.account-ready-service')
         .getVisibleText()
@@ -255,7 +216,7 @@ define([
         .then(Test.noElementById(self, 'redirectTo'));
     },
 
-    'sign up with existing account, coppa is valid': function () {
+    'signup with existing account, coppa is valid': function () {
       return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD)
 
         // should have navigated to 123done
@@ -263,41 +224,25 @@ define([
         .end();
     },
 
-    'sign up with existing account, coppa is valid, credentials are wrong': function () {
+    'signup with existing account, coppa is valid, credentials are wrong': function () {
       return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD)
+
+        .then(testErrorWasShown(this))
+        .then(click('.error a[href="/oauth/signin"]'))
 
         // should have navigated to sign-in view
         .findByCssSelector('#fxa-signin-header')
         .end()
 
         // should be /oauth/signin route
-        .getCurrentUrl()
-          .then(function (url) {
-            assert.ok(url.indexOf('/oauth/signin') > -1);
-          })
-        .end()
+        .then(testUrlPathnameEquals('/oauth/signin'))
 
-        // an error should be visible
-        .then(FunctionalHelpers.testErrorWasShown(this))
-
-        // the email field should be populated
-        .findByCssSelector('input[type=email]')
-          .getAttribute('value')
-          .then(function (resultText) {
-            assert.equal(resultText, email);
-          })
-        .end()
-
-          // the password field should be populated
-        .findByCssSelector('input[type=password]')
-          .getAttribute('value')
-          .then(function (resultText) {
-            assert.equal(resultText, 'bad' + PASSWORD);
-          })
-        .end();
+        // the email and password fields should be populated
+        .then(testElementValueEquals('input[type=email]', email))
+        .then(testElementValueEquals('input[type=password]', 'bad' + PASSWORD));
     },
 
-    'sign up with existing account, coppa is empty': function () {
+    'signup with existing account, coppa is empty': function () {
       return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD, { age: ' ' })
 
         // should have navigated to 123done
@@ -305,41 +250,25 @@ define([
         .end();
     },
 
-    'sign up with existing account, coppa is empty, credentials are wrong': function () {
+    'signup with existing account, coppa is empty, credentials are wrong': function () {
       return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD, { age: ' ' })
+
+        .then(testErrorWasShown(this))
+        .then(click('.error a[href="/oauth/signin"]'))
 
         // should have navigated to sign-in view
         .findByCssSelector('#fxa-signin-header')
         .end()
 
         // should be /oauth/signin route
-        .getCurrentUrl()
-          .then(function (url) {
-            assert.ok(url.indexOf('/oauth/signin') > -1);
-          })
-        .end()
+        .then(testUrlPathnameEquals('/oauth/signin'))
 
-        // an error should be visible
-        .then(FunctionalHelpers.testErrorWasShown(this))
-
-        // the email field should be populated
-        .findByCssSelector('input[type=email]')
-          .getAttribute('value')
-          .then(function (resultText) {
-            assert.equal(resultText, email);
-          })
-        .end()
-
-          // the password field should be populated
-        .findByCssSelector('input[type=password]')
-          .getAttribute('value')
-          .then(function (resultText) {
-            assert.equal(resultText, 'bad' + PASSWORD);
-          })
-        .end();
+        // the email and password fields should be populated
+        .then(testElementValueEquals('input[type=email]', email))
+        .then(testElementValueEquals('input[type=password]', 'bad' + PASSWORD));
     },
 
-    'sign up with existing account, coppa is too young': function () {
+    'signup with existing account, coppa is too young': function () {
       return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD, { age: 12 })
 
         // should have navigated to 123done
@@ -347,16 +276,14 @@ define([
         .end();
     },
 
-    'sign up, bounce email, allow user to restart flow but force a different email': function () {
+    'signup, bounce email, allow user to restart flow but force a different email': function () {
       var self = this;
       var client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
 
-      return FunctionalHelpers.openFxaFromRp(self, 'signup')
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, bouncedEmail, PASSWORD);
-        })
+      return openFxaFromRp(self, 'signup')
+        .then(fillOutSignUp(self, bouncedEmail, PASSWORD))
 
         .findById('fxa-confirm-header')
         .end()
@@ -375,23 +302,13 @@ define([
         .findByCssSelector('button[type="submit"].disabled')
         .end()
 
-        .findByCssSelector('input[type="email"]')
-          .clearValue()
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(type('input[type="email"]', email))
+        .then(click('button[type="submit"]'))
 
         .findById('fxa-confirm-header')
         .end()
 
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkInNewTab(
-                      self, email, 0);
-        })
+        .then(openVerificationLinkInNewTab(self, email, 0))
 
         .switchToWindow('newwindow')
         // wait for the verified window in the new tab

@@ -234,7 +234,7 @@ define(function (require, exports, module) {
     },
     AGE_REQUIRED: {
       errno: 1031,
-      message: t('Age is required')
+      message: t('You must enter your age to sign up')
     },
     NO_GRAVATAR_FOUND: {
       errno: 1032,

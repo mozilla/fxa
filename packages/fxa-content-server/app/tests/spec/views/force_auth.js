@@ -210,7 +210,8 @@ define(function (require, exports, module) {
 
         beforeEach(function () {
           account = user.initAccount({
-            email: 'testuser@testuser.com'
+            email: 'testuser@testuser.com',
+            verified: true
           });
 
           sinon.spy(broker, 'afterForceAuth');

@@ -20,56 +20,39 @@ define([
   var PASSWORD = '12345678';
   var client;
 
-  function fillOutSignUp(context, email, password) {
-    return FunctionalHelpers.fillOutSignUp(context, email, password);
-  }
+  var thenify = FunctionalHelpers.thenify;
 
-  function fillOutSignIn(context, email, password) {
-    return FunctionalHelpers.fillOutSignIn(context, email, password);
-  }
+  var click = FunctionalHelpers.click;
+  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var createUser = FunctionalHelpers.createUser;
+  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
+  var openPage = FunctionalHelpers.openPage;
+  var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
+  var testErrorWasShown = FunctionalHelpers.testErrorWasShown;
+  var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
-  function testAtConfirmScreen(context, email) {
-    return context.remote
-      .findByCssSelector('.verification-email-message')
-        .getVisibleText()
-        .then(function (resultText) {
-          // check the email address was written
-          assert.ok(resultText.indexOf(email) > -1);
-        })
-      .end();
+  function testAtConfirmScreen (email) {
+    return function () {
+      return this.parent
+        .findByCssSelector('.verification-email-message')
+          .getVisibleText()
+          .then(function (resultText) {
+            // check the email address was written
+            assert.ok(resultText.indexOf(email) > -1);
+          })
+        .end();
+    };
   }
 
   function signUpWithExistingAccount (context, email, firstPassword, secondPassword, options) {
-    return fillOutSignUp(context, email, firstPassword)
-      .then(function () {
-        return testAtConfirmScreen(context, email);
-      })
-      .then(function () {
-        return FunctionalHelpers.getVerificationLink(email, 0);
-      })
-      .then(function (verificationLink) {
-        return context.remote.get(require.toUrl(verificationLink));
-      })
-
-      .findByCssSelector('#fxa-settings-header')
-      .end()
-
-      .then(FunctionalHelpers.testSuccessWasShown(context))
-
-      .findByCssSelector('#signout')
-        .click()
-      .end()
-
-      .findByCssSelector('#fxa-signin-header')
-      .end()
-
-      .then(function () {
-        return FunctionalHelpers.fillOutSignUp(context, email, secondPassword, options);
-      });
+    return context.remote
+      .then(createUser(email, firstPassword, { preVerified: true }))
+      .then(fillOutSignUp(context, email, secondPassword, options));
   }
 
   registerSuite({
-    name: 'sign_up',
+    name: 'signup',
 
     beforeEach: function () {
       client = new FxaClient(AUTH_SERVER_ROOT, {
@@ -83,12 +66,11 @@ define([
       return FunctionalHelpers.clearBrowserState(this);
     },
 
-    'sign up, verify same browser': function () {
+    'signup, verify same browser': function () {
       var self = this;
-      return fillOutSignUp(this, email, PASSWORD)
-        .then(function () {
-          return testAtConfirmScreen(self, email);
-        })
+      return this.remote
+        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(testAtConfirmScreen(email))
         .then(function () {
           return FunctionalHelpers.openVerificationLinkInNewTab(self, email, 0);
         })
@@ -110,12 +92,11 @@ define([
         .then(FunctionalHelpers.testSuccessWasShown(this));
     },
 
-    'sign up, verify same browser with original tab closed, sign out': function () {
+    'signup, verify same browser with original tab closed, sign out': function () {
       var self = this;
-      return fillOutSignUp(this, email, PASSWORD)
-        .then(function () {
-          return testAtConfirmScreen(self, email);
-        })
+      return this.remote
+        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(testAtConfirmScreen(email))
 
         .then(FunctionalHelpers.openExternalSite(self))
 
@@ -132,16 +113,14 @@ define([
         // Ref https://github.com/mozilla/fxa-content-server/issues/3187
         // Ensure the signin screen shows if the user signs out after
         // verification.
-        .findByCssSelector('#signout')
-          .click()
-        .end()
+        .then(click('#signout'))
 
         .findByCssSelector('#fxa-signin-header')
         .end()
 
         // `visibleByQSA` is used to ensure visibility. With the bug in #3187
         // referenced above, the signin screen is drawn, but invisible
-        .then(FunctionalHelpers.visibleByQSA('#fxa-signin-header'))
+        .then(visibleByQSA('#fxa-signin-header'))
         .end()
 
         .closeCurrentWindow()
@@ -151,14 +130,13 @@ define([
         .end();
     },
 
-    'sign up, verify and sign out of two accounts, all in the same tab, then sign in to the first account': function () {
+    'signup, verify and sign out of two accounts, all in the same tab, then sign in to the first account': function () {
       // https://github.com/mozilla/fxa-content-server/issues/2209
       var secondEmail = TestHelpers.createEmail();
       var self = this;
-      return fillOutSignUp(this, email, PASSWORD)
-        .then(function () {
-          return testAtConfirmScreen(self, email);
-        })
+      return this.remote
+        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(testAtConfirmScreen(email))
         .then(function () {
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
@@ -171,19 +149,13 @@ define([
 
         .then(FunctionalHelpers.testSuccessWasShown(self))
 
-        .findByCssSelector('#signout')
-          .click()
-        .end()
+        .then(click('#signout'))
 
         .findByCssSelector('#fxa-signin-header')
         .end()
 
-        .then(function () {
-          return fillOutSignUp(self, secondEmail, PASSWORD);
-        })
-        .then(function () {
-          return testAtConfirmScreen(self, secondEmail);
-        })
+        .then(fillOutSignUp(self, secondEmail, PASSWORD))
+        .then(testAtConfirmScreen(secondEmail))
         .then(function () {
           return FunctionalHelpers.getVerificationLink(secondEmail, 0);
         })
@@ -196,27 +168,22 @@ define([
 
         .then(FunctionalHelpers.testSuccessWasShown(self))
 
-        .findByCssSelector('#signout')
-          .click()
-        .end()
+        .then(click('#signout'))
 
         .findByCssSelector('#fxa-signin-header')
         .end()
 
-        .then(function () {
-          return fillOutSignIn(self, email, PASSWORD);
-        })
+        .then(fillOutSignIn(self, email, PASSWORD))
 
         .findByCssSelector('#fxa-settings-header')
         .end();
     },
 
-    'sign up, verify same browser by replacing the original tab': function () {
+    'signup, verify same browser by replacing the original tab': function () {
       var self = this;
-      return fillOutSignUp(this, email, PASSWORD)
-        .then(function () {
-          return testAtConfirmScreen(self, email);
-        })
+      return this.remote
+        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(testAtConfirmScreen(email))
 
         .then(function () {
           return FunctionalHelpers.getVerificationLink(email, 0);
@@ -232,11 +199,9 @@ define([
     },
 
     'signup, verify different browser - from original tab\'s P.O.V.': function () {
-      var self = this;
-      return fillOutSignUp(self, email, PASSWORD)
-        .then(function () {
-          return testAtConfirmScreen(self, email);
-        })
+      return this.remote
+        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(testAtConfirmScreen(email))
 
         .then(function () {
           return FunctionalHelpers.openVerificationLinkDifferentBrowser(client, email);
@@ -252,16 +217,13 @@ define([
 
     'signup, verify different browser - from new browser\'s P.O.V.': function () {
       var self = this;
-      return fillOutSignUp(self, email, PASSWORD)
-        .then(function () {
-          return testAtConfirmScreen(self, email);
-        })
+      return this.remote
+        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(testAtConfirmScreen(email))
 
         // clear local/sessionStorage to synthesize continuing in
         // a separate browser.
-        .then(function () {
-          return FunctionalHelpers.clearBrowserState(self);
-        })
+        .then(clearBrowserState(self))
 
         // verify the user
         .then(function () {
@@ -272,53 +234,43 @@ define([
         })
 
         // user cannot be signed in and redirected to the settings page
-        // automatically, just show the sign up complete screen.
+        // automatically, just show the signup complete screen.
         .findById('fxa-sign-up-complete-header')
         .end();
     },
 
-    'sign up with email with leading whitespace on the email': function () {
+    'signup with email with leading whitespace on the email': function () {
       var emailWithoutSpace = email;
       var emailWithSpace = ('   ' + email);
       var self = this;
-      return fillOutSignUp(this, emailWithSpace, PASSWORD)
-        .then(function () {
-          return testAtConfirmScreen(self, emailWithoutSpace);
-        })
-        .then(function () {
-          return FunctionalHelpers.clearBrowserState(self);
-        })
-        .then(function () {
-          return fillOutSignIn(self, emailWithoutSpace, PASSWORD);
-        })
+      return this.remote
+        .then(fillOutSignUp(this, emailWithSpace, PASSWORD))
+        .then(testAtConfirmScreen(emailWithoutSpace))
+        .then(clearBrowserState(self))
+        .then(fillOutSignIn(self, emailWithoutSpace, PASSWORD))
 
         // user is not confirmed, success is seeing the confirm screen.
         .findById('fxa-confirm-header')
         .end();
     },
 
-    'sign up with email with trailing whitespace on the email': function () {
+    'signup with email with trailing whitespace on the email': function () {
       var emailWithoutSpace = email;
       var emailWithSpace = ('   ' + email);
 
       var self = this;
-      return fillOutSignUp(this, emailWithSpace, PASSWORD)
-        .then(function () {
-          return testAtConfirmScreen(self, emailWithoutSpace);
-        })
-        .then(function () {
-          return FunctionalHelpers.clearBrowserState(self);
-        })
-        .then(function () {
-          return fillOutSignIn(self, emailWithoutSpace, PASSWORD);
-        })
+      return this.remote
+        .then(fillOutSignUp(this, emailWithSpace, PASSWORD))
+        .then(testAtConfirmScreen(emailWithoutSpace))
+        .then(clearBrowserState(self))
+        .then(fillOutSignIn(self, emailWithoutSpace, PASSWORD))
 
         // user is not confirmed, success is seeing the confirm screen.
         .findById('fxa-confirm-header')
         .end();
     },
 
-    'sign up with existing account, coppa is valid, credentials are correct': function () {
+    'signup with existing account, coppa is valid, credentials are correct': function () {
       return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD)
 
         // should have navigated to settings view
@@ -326,42 +278,21 @@ define([
         .end();
     },
 
-    'sign up with existing account, coppa is valid, credentials are wrong': function () {
+    'signup with existing account, coppa is valid, credentials are wrong': function () {
       return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD)
 
-        // should have navigated to sign-in view
+        .then(testErrorWasShown(this))
+        .then(click('.error a[href="/signin"]'))
+
         .findByCssSelector('#fxa-signin-header')
         .end()
 
-        // should be /signin route
-        .getCurrentUrl()
-          .then(function (url) {
-            assert.ok(url.indexOf('/signin') > -1);
-            assert.equal(url.indexOf('/oauth/signin'), -1);
-          })
-        .end()
-
-        // an error should be visible
-        .then(FunctionalHelpers.testErrorWasShown(this))
-
-        // the email field should be populated
-        .findByCssSelector('input[type=email]')
-          .getAttribute('value')
-          .then(function (resultText) {
-            assert.equal(resultText, email);
-          })
-        .end()
-
-          // the password field should be populated
-        .findByCssSelector('input[type=password]')
-          .getAttribute('value')
-          .then(function (resultText) {
-            assert.equal(resultText, 'bad' + PASSWORD);
-          })
-        .end();
+        // the email and password fields should be populated
+        .then(testElementValueEquals('input[type=email]', email))
+        .then(testElementValueEquals('input[type=password]', 'bad' + PASSWORD));
     },
 
-    'sign up with existing account, coppa is empty, credentials are correct': function () {
+    'signup with existing account, coppa is empty, credentials are correct': function () {
       return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD, { age: ' ' })
 
         // should have navigated to settings view
@@ -369,43 +300,23 @@ define([
         .end();
     },
 
-    'sign up with existing account, coppa is empty, credentials are wrong': function () {
+    'signup with existing account, coppa is empty, credentials are wrong': function () {
       return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD, { age: ' ' })
 
-        // should have navigated to sign-in view
+        .then(testErrorWasShown(this))
+        .then(click('.error a[href="/signin"]'))
+
         .findByCssSelector('#fxa-signin-header')
         .end()
 
-        // should be /signin route
-        .getCurrentUrl()
-          .then(function (url) {
-            assert.ok(url.indexOf('/signin') > -1);
-            assert.equal(url.indexOf('/oauth/signin'), -1);
-          })
-        .end()
-
-        // an error should be visible
-        .then(FunctionalHelpers.testErrorWasShown(this))
-
-        // the email field should be populated
-        .findByCssSelector('input[type=email]')
-          .getAttribute('value')
-          .then(function (resultText) {
-            assert.equal(resultText, email);
-          })
-        .end()
-
-          // the password field should be populated
-        .findByCssSelector('input[type=password]')
-          .getAttribute('value')
-          .then(function (resultText) {
-            assert.equal(resultText, 'bad' + PASSWORD);
-          })
-        .end();
+        // the email and password fields should be populated
+        .then(testElementValueEquals('input[type=email]', email))
+        .then(testElementValueEquals('input[type=password]', 'bad' + PASSWORD));
     },
 
-    'sign up with new account, coppa is empty': function () {
-      return FunctionalHelpers.fillOutSignUp(this, email, PASSWORD, { age: ' ' })
+    'signup with new account, coppa is empty': function () {
+      return this.remote
+        .then(fillOutSignUp(this, email, PASSWORD, { age: ' ' }))
 
         // navigation should not occur
         .findByCssSelector('#fxa-signup-header')
@@ -415,7 +326,7 @@ define([
         .then(FunctionalHelpers.testErrorWasShown(this));
     },
 
-    'sign up with existing account, coppa is too young, credentials are correct': function () {
+    'signup with existing account, coppa is too young, credentials are correct': function () {
       return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD, { age: 12 })
 
         // should have navigated to settings view
@@ -423,78 +334,56 @@ define([
         .end();
     },
 
-    'sign up with existing account, coppa is too young, credentials are wrong': function () {
+    'signup with existing account, coppa is too young, credentials are wrong': function () {
       return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD, { age: 12 })
 
-        // should have navigated to sign-in view
+        .then(testErrorWasShown(this))
+        .then(click('.error a[href="/signin"]'))
+
         .findByCssSelector('#fxa-signin-header')
         .end()
 
-        // should be /signin route
-        .getCurrentUrl()
-          .then(function (url) {
-            assert.ok(url.indexOf('/signin') > -1);
-            assert.equal(url.indexOf('/oauth/signin'), -1);
-          })
-        .end()
-
-        // an error should be visible
-        .then(FunctionalHelpers.testErrorWasShown(this))
-
-        // the email field should be populated
-        .findByCssSelector('input[type=email]')
-          .getAttribute('value')
-          .then(function (resultText) {
-            assert.equal(resultText, email);
-          })
-        .end()
-
-          // the password field should be populated
-        .findByCssSelector('input[type=password]')
-          .getAttribute('value')
-          .then(function (resultText) {
-            assert.equal(resultText, 'bad' + PASSWORD);
-          })
-        .end();
+        .then(testElementValueEquals('input[type=email]', email))
+        .then(testElementValueEquals('input[type=password]', 'bad' + PASSWORD));
     },
 
-    'sign up with new account, coppa is too young': function () {
-      return FunctionalHelpers.fillOutSignUp(this, email, PASSWORD, { age: 12 })
+    'signup with new account, coppa is too young': function () {
+      return this.remote
+        .then(fillOutSignUp(this, email, PASSWORD, { age: 12 }))
 
         // should have navigated to cannot-create-account view
         .findByCssSelector('#fxa-cannot-create-account-header')
         .end();
     },
 
-    'sign up with a verified account signs the user in': function () {
+    'signup with a verified account signs the user in': function () {
       var self = this;
 
-      return client.signUp(email, PASSWORD, { preVerified: true })
-        .then(function () {
-          return fillOutSignUp(self, email, PASSWORD)
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(fillOutSignUp(self, email, PASSWORD))
 
-            // should have navigated to settings view
-            .findByCssSelector('#fxa-settings-header')
-            .end();
-        });
+        // should have navigated to settings view
+        .findByCssSelector('#fxa-settings-header')
+        .end();
     },
 
-    'sign up with an unverified account and different password re-signs up user': function () {
+    'signup with an unverified account and different password re-signs up user': function () {
 
       var self = this;
 
-      return client.signUp(email, PASSWORD)
-        .then(function () {
-          return fillOutSignUp(self, email, 'different password')
-            // Being pushed to the confirmation screen is success.
-            .findByCssSelector('.verification-email-message')
-              .getVisibleText()
-              .then(function (resultText) {
-                // check the email address was written
-                assert.ok(resultText.indexOf(email) > -1);
-              })
-            .end();
-        });
+      return this.remote
+        .then(createUser(email, PASSWORD))
+        .then(fillOutSignUp(self, email, 'different password'))
+
+        // Being pushed to the confirmation screen is success.
+        .findByCssSelector('.verification-email-message')
+          .getVisibleText()
+          .then(function (resultText) {
+            // check the email address was written
+            assert.ok(resultText.indexOf(email) > -1);
+          })
+        .end();
     },
 
     'visiting the pp links saves information for return': function () {
@@ -505,12 +394,11 @@ define([
       return testRepopulateFields.call(this, '/legal/privacy', 'fxa-pp-header');
     },
 
-    'form prefill information is cleared after sign up->sign out': function () {
+    'form prefill information is cleared after signup->sign out': function () {
       var self = this;
-      return fillOutSignUp(self, email, PASSWORD)
-        .then(function () {
-          return testAtConfirmScreen(self, email);
-        })
+      return this.remote
+        .then(fillOutSignUp(self, email, PASSWORD))
+        .then(testAtConfirmScreen(email))
 
         .then(function () {
           return FunctionalHelpers.openVerificationLinkDifferentBrowser(client, email);
@@ -521,37 +409,23 @@ define([
         .findByCssSelector('#fxa-settings-header')
         .end()
 
-        .findByCssSelector('#signout')
-          .click()
-        .end()
+        .then(click('#signout'))
 
         .findByCssSelector('#fxa-signin-header')
         .end()
 
-        .findByCssSelector('input[type=email]')
-          .getProperty('value')
-          .then(function (resultText) {
-            // check the email address was cleared
-            assert.equal(resultText, '');
-          })
-        .end()
-
-        .findByCssSelector('input[type=password]')
-          .getProperty('value')
-          .then(function (resultText) {
-            // check the password address was cleared
-            assert.equal(resultText, '');
-          })
-        .end();
+        // check the email address was cleared
+        .then(testElementValueEquals('input[type=email]', ''))
+        // check the password was cleared
+        .then(testElementValueEquals('input[type=password]', ''));
     },
 
-    'sign up, open sign-in in second tab, verify in third tab': function () {
+    'signup, open sign-in in second tab, verify in third tab': function () {
       var windowName = 'sign-up inter-tab functional test';
       var self = this;
-      return fillOutSignUp(this, email, PASSWORD)
-        .then(function () {
-          return testAtConfirmScreen(self, email);
-        })
+      return self.remote
+        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(testAtConfirmScreen(email))
         .then(function () {
           return FunctionalHelpers.openSignInInNewTab(self, windowName);
         })
@@ -581,13 +455,12 @@ define([
         .end();
     },
 
-    'sign up, open sign-up in second tab, verify in original tab': function () {
+    'signup, open sign-up in second tab, verify in original tab': function () {
       var windowName = 'sign-up inter-tab functional test';
       var self = this;
-      return fillOutSignUp(this, email, PASSWORD)
-        .then(function () {
-          return testAtConfirmScreen(self, email);
-        })
+      return this.remote
+        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(testAtConfirmScreen(email))
         .then(function () {
           return FunctionalHelpers.openSignUpInNewTab(self, windowName);
         })
@@ -619,45 +492,19 @@ define([
   function testRepopulateFields(dest, header) {
     var self = this;
 
-    return FunctionalHelpers.openPage(self, PAGE_URL, '#fxa-signup-header')
+    return openPage(self, PAGE_URL, '#fxa-signup-header')
 
-      .then(function () {
-        return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, { submit: false });
-      })
+      .then(fillOutSignUp(self, email, PASSWORD, { submit: false }))
 
-      .findByCssSelector('a[href="' + dest + '"]')
-        .click()
-      .end()
+      .then(click('a[href="' + dest + '"]'))
 
       .findById(header)
       .end()
 
-      .findByCssSelector('.back')
-        .click()
-      .end()
+      .then(click('.back'))
 
-      .findByCssSelector('input[type=email]')
-        .getProperty('value')
-        .then(function (resultText) {
-          // check the email address was re-populated
-          assert.equal(resultText, email);
-        })
-      .end()
-
-      .findByCssSelector('input[type=password]')
-        .getProperty('value')
-        .then(function (resultText) {
-          // check the email address was re-populated
-          assert.equal(resultText, PASSWORD);
-        })
-      .end()
-
-      .findByCssSelector('#age')
-        .getProperty('value')
-        .then(function (resultText) {
-          // check the email address was re-populated
-          assert.equal(resultText, '24');
-        })
-      .end();
+      .then(testElementValueEquals('input[type=email]', email))
+      .then(testElementValueEquals('input[type=password]', PASSWORD))
+      .then(testElementValueEquals('#age', '24'));
   }
 });

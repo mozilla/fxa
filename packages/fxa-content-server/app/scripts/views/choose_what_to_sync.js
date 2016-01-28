@@ -10,8 +10,6 @@ define(function (require, exports, module) {
   var CheckboxMixin = require('views/mixins/checkbox-mixin');
   var Cocktail = require('cocktail');
   var FormView = require('views/form');
-  var p = require('lib/promise');
-  var SignUpSuccessMixin = require('views/mixins/signup-success-mixin');
   var Template = require('stache!templates/choose_what_to_sync');
 
   var View = FormView.extend({
@@ -21,6 +19,11 @@ define(function (require, exports, module) {
     initialize: function () {
       // Account data is passed in from sign up flow.
       this._account = this.user.initAccount(this.model.get('account'));
+
+      // to keep the view from knowing too much about the state machine,
+      // a continuation function is passed in that should be called
+      // when submit has completed.
+      this.onSubmitComplete = this.model.get('onSubmitComplete');
     },
 
     getAccount: function () {
@@ -56,14 +59,13 @@ define(function (require, exports, module) {
 
       this._trackUncheckedEngines(declinedEngines);
 
-      account.set('declinedSyncEngines', declinedEngines);
-      account.set('customizeSync', true);
-
-      return p().then(function () {
-        self.user.setAccount(account);
-
-        return self.onSignUpSuccess(account);
+      account.set({
+        customizeSync: true,
+        declinedSyncEngines: declinedEngines
       });
+
+      return self.user.setAccount(account)
+        .then(self.onSubmitComplete);
     },
 
     /**
@@ -115,8 +117,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     BackMixin,
-    CheckboxMixin,
-    SignUpSuccessMixin
+    CheckboxMixin
   );
 
   module.exports = View;

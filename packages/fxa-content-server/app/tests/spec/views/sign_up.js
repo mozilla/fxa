@@ -7,6 +7,7 @@ define(function (require, exports, module) {
 
   var $ = require('jquery');
   var Able = require('lib/able');
+  var Account = require('models/account');
   var AuthErrors = require('lib/auth-errors');
   var Backbone = require('backbone');
   var Broker = require('models/auth_brokers/base');
@@ -42,13 +43,9 @@ define(function (require, exports, module) {
     var user;
     var view;
 
-    function fillOutSignUp(email, password, isCoppaValid) {
+    function fillOutSignUp(email, password) {
       view.$('[type=email]').val(email);
       view.$('[type=password]').val(password);
-
-      sinon.stub(coppa, 'isValid', function () {
-        return isCoppaValid;
-      });
 
       view.enableSubmitIfValid();
     }
@@ -116,6 +113,21 @@ define(function (require, exports, module) {
     });
 
     describe('render', function () {
+      describe('if signup is disabled', function () {
+        beforeEach(function () {
+          sinon.stub(view, 'isSignupDisabled', function () {
+            return true;
+          });
+          sinon.spy(view, 'navigate');
+
+          return view.render();
+        });
+
+        it('navigates to the signin screen', function () {
+          assert.isTrue(view.navigate.calledWith('signin'));
+        });
+      });
+
       it('prefills email, password if stored in formPrefill (user comes from signup with existing account)', function () {
         formPrefill.set('email', 'testuser@testuser.com');
         formPrefill.set('password', 'prefilled password');
@@ -336,18 +348,18 @@ define(function (require, exports, module) {
     });
 
     describe('isValid', function () {
-      it('returns true if email, password, and age are all valid', function () {
-        fillOutSignUp(email, 'password', true);
+      it('returns true if email and password are valid', function () {
+        fillOutSignUp(email, 'password');
         assert.isTrue(view.isValid());
       });
 
       it('returns false if email is empty', function () {
-        fillOutSignUp('', 'password', true);
+        fillOutSignUp('', 'password');
         assert.isFalse(view.isValid());
       });
 
       it('returns false if email is not an email address', function () {
-        fillOutSignUp('testuser', 'password', true);
+        fillOutSignUp('testuser', 'password');
         assert.isFalse(view.isValid());
       });
 
@@ -359,7 +371,7 @@ define(function (require, exports, module) {
             return view.afterVisible();
           })
           .then(function () {
-            fillOutSignUp('testuser@testuser.com', 'password', true);
+            fillOutSignUp('testuser@testuser.com', 'password');
           })
           .then(function () {
             assert.isFalse(view.isValid());
@@ -367,22 +379,22 @@ define(function (require, exports, module) {
       });
 
       it('returns true if email contains a one part TLD', function () {
-        fillOutSignUp('a@b', 'password', true);
+        fillOutSignUp('a@b', 'password');
         assert.isTrue(view.isValid());
       });
 
       it('returns true if email contains a two part TLD', function () {
-        fillOutSignUp('a@b.c', 'password', true);
+        fillOutSignUp('a@b.c', 'password');
         assert.isTrue(view.isValid());
       });
 
       it('returns true if email contain three part TLD', function () {
-        fillOutSignUp('a@b.c.d', 'password', true);
+        fillOutSignUp('a@b.c.d', 'password');
         assert.isTrue(view.isValid());
       });
 
       it('returns false if local side of email === 0 chars', function () {
-        fillOutSignUp('@testuser.com', 'password', true);
+        fillOutSignUp('@testuser.com', 'password');
         assert.isFalse(view.isValid());
       });
 
@@ -393,7 +405,7 @@ define(function (require, exports, module) {
         } while (email.length < 65);
 
         email += '@testuser.com';
-        fillOutSignUp(email, 'password', true);
+        fillOutSignUp(email, 'password');
         assert.isFalse(view.isValid());
       });
 
@@ -404,12 +416,12 @@ define(function (require, exports, module) {
         } while (email.length < 64);
 
         email += '@testuser.com';
-        fillOutSignUp(email, 'password', true);
+        fillOutSignUp(email, 'password');
         assert.isTrue(view.isValid());
       });
 
       it('returns false if domain side of email === 0 chars', function () {
-        fillOutSignUp('testuser@', 'password', true);
+        fillOutSignUp('testuser@', 'password');
         assert.isFalse(view.isValid());
       });
 
@@ -419,7 +431,7 @@ define(function (require, exports, module) {
           domain += 'a';
         } while (domain.length < 256);
 
-        fillOutSignUp('testuser@' + domain, 'password', true);
+        fillOutSignUp('testuser@' + domain, 'password');
         assert.isFalse(view.isValid());
       });
 
@@ -429,7 +441,7 @@ define(function (require, exports, module) {
           domain += 'a';
         } while (domain.length < 254);
 
-        fillOutSignUp('a@' + domain, 'password', true);
+        fillOutSignUp('a@' + domain, 'password');
         assert.isTrue(view.isValid());
       });
 
@@ -440,7 +452,7 @@ define(function (require, exports, module) {
         } while (domain.length < 254);
 
         // ab@ + 254 characters = 257 chars
-        fillOutSignUp('ab@' + domain, 'password', true);
+        fillOutSignUp('ab@' + domain, 'password');
         assert.isFalse(view.isValid());
       });
 
@@ -450,29 +462,29 @@ define(function (require, exports, module) {
           email += 'a';
         } while (email.length < 256);
 
-        fillOutSignUp(email, 'password', true);
+        fillOutSignUp(email, 'password');
         assert.isTrue(view.isValid());
       });
 
       it('returns false if password is empty', function () {
-        fillOutSignUp(email, '', true);
+        fillOutSignUp(email, '');
         assert.isFalse(view.isValid());
       });
 
       it('returns false if password is invalid', function () {
-        fillOutSignUp(email, 'passwor', true);
+        fillOutSignUp(email, 'passwor');
         assert.isFalse(view.isValid());
       });
 
       it('returns true if COPPA view returns false', function () {
-        fillOutSignUp(email, 'password', false);
+        fillOutSignUp(email, 'password');
         assert.isTrue(view.isValid());
       });
     });
 
     describe('showValidationErrors', function () {
       it('shows an error if the email is invalid', function () {
-        fillOutSignUp('testuser', 'password', true);
+        fillOutSignUp('testuser', 'password');
 
         sinon.spy(view, 'showValidationError');
 
@@ -486,7 +498,7 @@ define(function (require, exports, module) {
 
         return view.render()
           .then(function () {
-            fillOutSignUp('testuser@testuser.com', 'password', true);
+            fillOutSignUp('testuser@testuser.com', 'password');
 
             sinon.spy(view, 'showValidationError');
             view.showValidationErrors();
@@ -497,7 +509,7 @@ define(function (require, exports, module) {
       });
 
       it('shows an error if the user provides a @firefox.com email', function () {
-        fillOutSignUp('user@firefox.com', 'password', true);
+        fillOutSignUp('user@firefox.com', 'password');
 
         sinon.spy(view, 'showValidationError');
         view.showValidationErrors();
@@ -510,7 +522,7 @@ define(function (require, exports, module) {
       });
 
       it('shows an error if the user provides an email that ends with @firefox', function () {
-        fillOutSignUp('user@firefox', 'password', true);
+        fillOutSignUp('user@firefox', 'password');
 
         sinon.spy(view, 'showValidationError');
         view.showValidationErrors();
@@ -523,7 +535,7 @@ define(function (require, exports, module) {
       });
 
       it('shows an error if the password is invalid', function () {
-        fillOutSignUp('testuser@testuser.com', 'passwor', true);
+        fillOutSignUp('testuser@testuser.com', 'passwor');
 
         sinon.spy(view, 'showValidationError');
 
@@ -532,7 +544,7 @@ define(function (require, exports, module) {
       });
 
       it('does not call coppa\'s showValidationErrors if no other errors', function () {
-        fillOutSignUp('testuser@testuser.com', 'password', true);
+        fillOutSignUp('testuser@testuser.com', 'password');
 
         sinon.spy(coppa, 'showValidationError');
         view.showValidationErrors();
@@ -542,197 +554,85 @@ define(function (require, exports, module) {
     });
 
     describe('submit', function () {
-      it('clears formPrefill information on successful sign in', function () {
-        sinon.stub(user, 'signUpAccount', function (account) {
-          return p(account);
-        });
+      var failed;
+      var sandbox;
 
-        sinon.stub(view, '_isUserOldEnough', function () {
-          return true;
-        });
+      beforeEach(function () {
+        sandbox = sinon.sandbox.create();
 
-        sinon.stub(view, 'navigate', function () { });
+        sandbox.spy(notifier, 'trigger');
 
-        formPrefill.set('email', email);
-        formPrefill.set('password', 'password');
+        sandbox.spy(view, 'displayError');
+        sandbox.spy(view, 'displayErrorUnsafe');
+        sandbox.spy(view, 'logEvent');
+        sandbox.spy(view, 'navigate');
 
-        return view.submit()
-          .then(function () {
-            assert.isFalse(formPrefill.has('email'));
-            assert.isFalse(formPrefill.has('password'));
-          });
+        failed = false;
       });
 
-      it('sends the user to `/confirm` if form filled out, not pre-verified, passes COPPA', function () {
-        var password = 'password';
-
-        fillOutSignUp(email, password, true);
-        sinon.spy(user, 'initAccount');
-
-        sinon.stub(user, 'signUpAccount', function (account) {
-          account.set('verified', false);
-          account.set('customizeSync', true);
-          return p(account);
-        });
-
-        sinon.spy(view, 'navigate');
-
-        sinon.stub(coppa, 'isUserOldEnough', function () {
-          return true;
-        });
-
-        return view.submit()
-          .then(function () {
-            var account = user.initAccount.returnValues[0];
-
-            assert.equal(view.navigate.args[0][0], 'confirm');
-            assert.isTrue(view.navigate.args[0][1].account.get('customizeSync'));
-            assert.isTrue(user.signUpAccount.calledWith(account, password, relier));
-            assert.isTrue(TestHelpers.isEventLogged(metrics,
-                              'signup.success'));
-          });
-      });
-
-      it('notifies the broker if form filled out, pre-verified, passes COPPA', function () {
-        relier.set('preVerifyToken', 'preverifytoken');
-        var password = 'password';
-        fillOutSignUp(email, password, true);
-
-        sinon.stub(user, 'signUpAccount', function (account) {
-          account.set('verified', true);
-          account.set('customizeSync', true);
-          return p(account);
-        });
-
-        sinon.stub(broker, 'afterSignIn', function (account) {
-          assert.isTrue(account.get('customizeSync'), 'customizeSync option is passed to broker');
-          return p();
-        });
-
-        sinon.stub(coppa, 'isUserOldEnough', function () {
-          return true;
-        });
-
-        return view.submit()
-            .then(function () {
-              assert.isTrue(user.signUpAccount.called);
-              assert.isTrue(broker.afterSignIn.called);
-            });
+      afterEach(function () {
+        sandbox.restore();
       });
 
       describe('COPPA is not valid', function () {
-        var failed;
-
         beforeEach(function () {
-          fillOutSignUp(email, 'password', true);
+          fillOutSignUp(email, 'password');
 
-          sinon.stub(coppa, 'isUserOldEnough', function () {
+          sandbox.stub(coppa, 'isUserOldEnough', function () {
             return false;
           });
-          sinon.stub(view, 'getStringifiedResumeToken', function () {
-            return 'resume token';
-          });
-          sinon.stub(user, 'signUpAccount', function (account) {
-            return p(account);
-          });
-          sinon.stub(view, 'invokeBrokerMethod', function () {
+
+          sandbox.stub(view, 'signUp', function () {
             return p();
           });
-          sinon.stub(view, 'onSignUpSuccess', function () {
-            return p();
-          });
-          sinon.stub(view, 'onSignInSuccess', function () {
-            return p();
-          });
-          failed = false;
         });
 
-        afterEach(function () {
-          coppa.isUserOldEnough.restore();
-          view.getStringifiedResumeToken.restore();
-          user.signUpAccount.restore();
-          view.invokeBrokerMethod.restore();
-          view.onSignUpSuccess.restore();
-          view.onSignInSuccess.restore();
-        });
-
-        describe('sign-in succeeds', function () {
+        describe('signin succeeds', function () {
           beforeEach(function () {
-            sinon.stub(user, 'signInAccount', function () {
+            sandbox.stub(view, 'signIn', function () {
               return p();
             });
-            return view.submit()
-              .fail(function (err) {
-                failed = err;
-              });
+
+            return view.submit();
           });
 
-          afterEach(function () {
-            user.signInAccount.restore();
+          it('does not call view.signUp', function () {
+            assert.isFalse(view.signUp.called);
           });
 
-          it('does not call user.signUpAccount', function () {
-            assert.equal(user.signUpAccount.callCount, 0);
-          });
+          it('calls view.signIn correctly', function () {
+            assert.equal(view.signIn.callCount, 1);
 
-          it('calls user.signInAccount correctly', function () {
-            assert.equal(user.signInAccount.callCount, 1);
-            assert.equal(user.signInAccount.thisValues[0], user);
-            var args = user.signInAccount.args[0];
-            assert.lengthOf(args, 4);
-            assert.isObject(args[0]);
+            var args = view.signIn.args[0];
+            assert.instanceOf(args[0], Account);
             assert.equal(args[1], 'password');
-            assert.equal(args[2], view.relier);
-            assert.isObject(args[3]);
-            assert.equal(args[3].resume, 'resume token');
           });
 
-          it('calls view.invokeBrokerMethod correctly', function () {
-            assert.equal(view.invokeBrokerMethod.callCount, 1);
-            assert.equal(view.invokeBrokerMethod.thisValues[0], view);
-            var args = view.invokeBrokerMethod.args[0];
-            assert.lengthOf(args, 2);
-            assert.equal(args[0], 'beforeSignIn');
+          it('calls notifier.trigger correctly', function () {
+            assert.equal(notifier.trigger.callCount, 1);
+
+            assert.equal(notifier.trigger.thisValues[0], notifier);
+            var args = notifier.trigger.args[0];
+            assert.lengthOf(args, 3);
+            assert.equal(args[0], 'signup.submit');
           });
 
-          it('does not call view.onSignUpSuccess', function () {
-            assert.equal(view.onSignUpSuccess.callCount, 0);
-          });
-
-          it('calls view.onSignInSuccess correctly', function () {
-            assert.equal(view.onSignInSuccess.callCount, 1);
-            assert.equal(view.onSignInSuccess.thisValues[0], view);
-            var args = view.onSignInSuccess.args[0];
-            assert.lengthOf(args, 2);
-            assert.equal(args[0], user.signInAccount.args[0][0]);
-            assert.isUndefined(args[1]);
-          });
-
-          it('does not fail', function () {
-            assert.isFalse(failed);
+          it('does not display any errors', function () {
+            assert.isFalse(view.displayError.called);
+            assert.isFalse(view.displayErrorUnsafe.called);
           });
         });
 
-        describe('sign-in fails with UNKNOWN_ACCOUNT', function () {
+        describe('signin fails with UNKNOWN_ACCOUNT', function () {
           beforeEach(function () {
-            sinon.stub(user, 'signInAccount', function () {
+            sandbox.stub(view, 'signIn', function () {
               return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
             });
-            sinon.spy(notifier, 'trigger');
-            sinon.spy(view, 'navigate');
-            sinon.spy(view, 'displayError');
-          });
-
-          afterEach(function () {
-            user.signInAccount.restore();
-            notifier.trigger.reset();
-            view.navigate.reset();
-            view.displayError.reset();
           });
 
           describe('COPPA has no value', function () {
             beforeEach(function () {
-              sinon.stub(coppa, 'hasValue', function () {
+              sandbox.stub(coppa, 'hasValue', function () {
                 return false;
               });
               return view.submit()
@@ -741,96 +641,68 @@ define(function (require, exports, module) {
                 });
             });
 
-            afterEach(function () {
-              coppa.hasValue.restore();
+            it('does not call view.signUp', function () {
+              assert.isFalse(view.signUp.called);
             });
 
-            it('does not call user.signUpAccount', function () {
-              assert.equal(user.signUpAccount.callCount, 0);
+            it('calls view.signIn correctly', function () {
+              assert.equal(view.signIn.callCount, 1);
+
+              var args = view.signIn.args[0];
+              assert.instanceOf(args[0], Account);
+              assert.equal(args[1], 'password');
             });
 
-            it('calls user.signInAccount', function () {
-              assert.equal(user.signInAccount.callCount, 1);
+            it('calls notifier.trigger correctly', function () {
+              assert.equal(notifier.trigger.callCount, 1);
+
+              assert.equal(notifier.trigger.thisValues[0], notifier);
+              var args = notifier.trigger.args[0];
+              assert.lengthOf(args, 3);
+              assert.equal(args[0], 'signup.submit');
             });
 
-            it('calls view.invokeBrokerMethod', function () {
-              assert.equal(view.invokeBrokerMethod.callCount, 1);
-            });
-
-            it('does not call view.onSignUpSuccess', function () {
-              assert.equal(view.onSignUpSuccess.callCount, 0);
-            });
-
-            it('does not call view.onSignInSuccess', function () {
-              assert.equal(view.onSignInSuccess.callCount, 0);
-            });
-
-            it('does not call notifier.trigger', function () {
-              assert.equal(notifier.trigger.callCount, 0);
-            });
-
-            it('does not call view.navigate', function () {
-              assert.equal(view.navigate.callCount, 0);
-            });
-
-            it('calls view.displayError correctly', function () {
-              assert.equal(view.displayError.callCount, 1);
-              assert.equal(view.displayError.thisValues[0], view);
-              var args = view.displayError.args[0];
-              assert.lengthOf(args, 1);
-              assert.equal(args[0], 'You must enter your age to sign up');
-            });
-
-            it('does not fail', function () {
-              assert.isFalse(failed);
+            it('fails with the correct error', function () {
+              assert.isTrue(AuthErrors.is(failed, 'AGE_REQUIRED'));
             });
           });
 
           describe('COPPA is too young', function () {
             beforeEach(function () {
-              sinon.stub(coppa, 'hasValue', function () {
+              sandbox.stub(coppa, 'hasValue', function () {
                 return true;
               });
-              return view.submit()
-                .fail(function (err) {
-                  failed = err;
-                });
+
+              return view.submit();
             });
 
-            afterEach(function () {
-              coppa.hasValue.restore();
+            it('does not call view.signUp', function () {
+              assert.isFalse(view.signUp.called);
             });
 
-            it('does not call user.signUpAccount', function () {
-              assert.equal(user.signUpAccount.callCount, 0);
-            });
+            it('calls view.signIn correctly', function () {
+              assert.equal(view.signIn.callCount, 1);
 
-            it('calls user.signInAccount', function () {
-              assert.equal(user.signInAccount.callCount, 1);
-            });
-
-            it('calls view.invokeBrokerMethod', function () {
-              assert.equal(view.invokeBrokerMethod.callCount, 1);
-            });
-
-            it('does not call view.onSignUpSuccess', function () {
-              assert.equal(view.onSignUpSuccess.callCount, 0);
-            });
-
-            it('does not call view.onSignInSuccess', function () {
-              assert.equal(view.onSignInSuccess.callCount, 0);
+              var args = view.signIn.args[0];
+              assert.instanceOf(args[0], Account);
+              assert.equal(args[1], 'password');
             });
 
             it('calls notifier.trigger correctly', function () {
-              assert.equal(notifier.trigger.callCount, 2);
+              assert.equal(notifier.trigger.callCount, 3);
 
               assert.equal(notifier.trigger.thisValues[0], notifier);
               var args = notifier.trigger.args[0];
               assert.lengthOf(args, 3);
-              assert.equal(args[0], 'signup.tooyoung');
+              assert.equal(args[0], 'signup.submit');
 
               assert.equal(notifier.trigger.thisValues[1], notifier);
               args = notifier.trigger.args[1];
+              assert.lengthOf(args, 3);
+              assert.equal(args[0], 'signup.tooyoung');
+
+              assert.equal(notifier.trigger.thisValues[1], notifier);
+              args = notifier.trigger.args[2];
               assert.lengthOf(args, 3);
               assert.equal(args[0], 'navigate');
             });
@@ -843,362 +715,100 @@ define(function (require, exports, module) {
               assert.equal(args[0], 'cannot_create_account');
             });
 
-            it('does not call view.displayError', function () {
-              assert.equal(view.displayError.callCount, 0);
+            it('does not display any errors', function () {
+              assert.isFalse(view.displayError.called);
+              assert.isFalse(view.displayErrorUnsafe.called);
             });
 
-            it('does not fail', function () {
-              assert.isFalse(failed);
+            describe('when the user revisits', function () {
+              var revisitView;
+              beforeEach(function () {
+                revisitView = new View({
+                  able: able,
+                  fxaClient: fxaClient,
+                  notifier: notifier,
+                  relier: relier
+                });
+
+                sinon.spy(revisitView, 'navigate');
+
+                // simulate user re-visiting the /signup
+                // page after being rejected
+                return revisitView.render();
+              });
+
+              it('immediately sends them to `cannot_create_account`', function () {
+                assert.isTrue(revisitView.navigate.calledOnce);
+                assert.isTrue(revisitView.navigate.calledWith('cannot_create_account'));
+              });
             });
           });
         });
 
-        describe('sign-in fails with INCORRECT_PASSWORD', function () {
-          var error;
-
+        describe('signin fails with INCORRECT_PASSWORD', function () {
           beforeEach(function () {
-            error = AuthErrors.toError('INCORRECT_PASSWORD');
-            sinon.stub(user, 'signInAccount', function () {
-              return p.reject(error);
+            sandbox.stub(view, 'signIn', function () {
+              return p.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
             });
-            sinon.spy(notifier, 'trigger');
-            sinon.spy(view, 'navigate');
-            sinon.spy(view, 'displayError');
-            return view.submit()
-              .fail(function (err) {
-                failed = err;
-              });
+
+            return view.submit();
           });
 
-          afterEach(function () {
-            user.signInAccount.restore();
-            notifier.trigger.reset();
-            view.navigate.reset();
-            view.displayError.reset();
+          it('does not call view.signUp', function () {
+            assert.isFalse(view.signUp.called);
           });
 
-          it('does not call user.signUpAccount', function () {
-            assert.equal(user.signUpAccount.callCount, 0);
-          });
+          it('calls view.signIn correctly', function () {
+            assert.equal(view.signIn.callCount, 1);
 
-          it('calls user.signInAccount', function () {
-            assert.equal(user.signInAccount.callCount, 1);
-          });
-
-          it('calls view.invokeBrokerMethod', function () {
-            assert.equal(view.invokeBrokerMethod.callCount, 1);
-          });
-
-          it('does not call view.onSignUpSuccess', function () {
-            assert.equal(view.onSignUpSuccess.callCount, 0);
-          });
-
-          it('does not call view.onSignInSuccess', function () {
-            assert.equal(view.onSignInSuccess.callCount, 0);
+            var args = view.signIn.args[0];
+            assert.instanceOf(args[0], Account);
+            assert.equal(args[1], 'password');
           });
 
           it('calls notifier.trigger correctly', function () {
             assert.equal(notifier.trigger.callCount, 1);
+
             assert.equal(notifier.trigger.thisValues[0], notifier);
             var args = notifier.trigger.args[0];
             assert.lengthOf(args, 3);
-            assert.equal(args[0], 'navigate');
+            assert.equal(args[0], 'signup.submit');
           });
 
-          it('calls view.navigate correctly', function () {
-            assert.equal(view.navigate.callCount, 1);
-            assert.equal(view.navigate.thisValues[0], view);
-            var args = view.navigate.args[0];
-            assert.lengthOf(args, 2);
-            assert.equal(args[0], '/signin');
-            assert.isObject(args[1]);
-            assert.lengthOf(Object.keys(args[1]), 1);
-            assert.equal(args[1].error, error);
-          });
-
-          it('does not call view.displayError', function () {
-            assert.equal(view.displayError.callCount, 0);
-          });
-
-          it('does not fail', function () {
-            assert.isFalse(failed);
+          it('calls view.displayErrorUnsafe correctly', function () {
+            assert.equal(view.displayErrorUnsafe.callCount, 1);
+            var args = view.displayErrorUnsafe.args[0];
+            assert.lengthOf(args, 1);
+            var error = args[0];
+            assert.include(error.forceMessage, 'href="/signin"');
+            assert.isTrue(AuthErrors.is(error, 'INCORRECT_PASSWORD'));
           });
         });
 
-        describe('sign-in fails with some other error', function () {
+        describe('signin fails with USER_CANCELED_LOGIN', function () {
           beforeEach(function () {
-            sinon.stub(user, 'signInAccount', function () {
-              return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
-            });
-            sinon.spy(notifier, 'trigger');
-            sinon.spy(view, 'navigate');
-            sinon.spy(view, 'displayError');
-            return view.submit()
-              .fail(function (err) {
-                failed = err;
-              });
-          });
-
-          afterEach(function () {
-            user.signInAccount.restore();
-            notifier.trigger.reset();
-            view.navigate.reset();
-            view.displayError.reset();
-          });
-
-          it('does not call user.signUpAccount', function () {
-            assert.equal(user.signUpAccount.callCount, 0);
-          });
-
-          it('calls user.signInAccount', function () {
-            assert.equal(user.signInAccount.callCount, 1);
-          });
-
-          it('calls view.invokeBrokerMethod', function () {
-            assert.equal(view.invokeBrokerMethod.callCount, 1);
-          });
-
-          it('does not call view.onSignUpSuccess', function () {
-            assert.equal(view.onSignUpSuccess.callCount, 0);
-          });
-
-          it('does not call view.onSignInSuccess', function () {
-            assert.equal(view.onSignInSuccess.callCount, 0);
-          });
-
-          it('does not call notifier.trigger', function () {
-            assert.equal(notifier.trigger.callCount, 0);
-          });
-
-          it('does not call view.navigate', function () {
-            assert.equal(view.navigate.callCount, 0);
-          });
-
-          it('does not call view.displayError', function () {
-            assert.equal(view.displayError.callCount, 0);
-          });
-
-          it('fails correctly', function () {
-            assert.isTrue(AuthErrors.is(failed, 'UNEXPECTED_ERROR'));
-          });
-        });
-      });
-
-      describe('COPPA is valid', function () {
-        var account;
-        var failed;
-
-        beforeEach(function () {
-          fillOutSignUp(email, 'password', true);
-
-          sinon.stub(coppa, 'isUserOldEnough', function () {
-            return true;
-          });
-          sinon.stub(view, 'getStringifiedResumeToken', function () {
-            return 'resume token';
-          });
-          sinon.stub(user, 'signInAccount', function (a) {
-            account = a;
-            return p(account);
-          });
-          sinon.stub(view, 'invokeBrokerMethod', function () {
-            return p();
-          });
-          sinon.stub(view, 'onSignInSuccess', function () {
-            return p();
-          });
-          sinon.stub(view, 'onSignUpSuccess', function () {
-            return p();
-          });
-          sinon.spy(view, 'displayErrorUnsafe');
-          sinon.spy(view, 'logEvent');
-          sinon.spy(view, 'navigate');
-          failed = false;
-        });
-
-        afterEach(function () {
-          coppa.isUserOldEnough.restore();
-          view.getStringifiedResumeToken.restore();
-          user.signInAccount.restore();
-          view.invokeBrokerMethod.restore();
-          view.onSignInSuccess.restore();
-          view.onSignUpSuccess.restore();
-          view.displayErrorUnsafe.reset();
-          view.logEvent.reset();
-          view.navigate.reset();
-        });
-
-        describe('sign-up succeeds', function () {
-          beforeEach(function () {
-            sinon.stub(user, 'signUpAccount', function () {
-              return p();
-            });
-            return view.submit()
-              .fail(function (err) {
-                failed = err;
-              });
-          });
-
-          afterEach(function () {
-            user.signUpAccount.restore();
-          });
-
-          it('does not call user.signInAccount', function () {
-            assert.equal(user.signInAccount.callCount, 0);
-          });
-
-          it('calls user.signUpAccount correctly', function () {
-            assert.equal(user.signUpAccount.callCount, 1);
-            assert.equal(user.signUpAccount.thisValues[0], user);
-            var args = user.signUpAccount.args[0];
-            assert.lengthOf(args, 4);
-            assert.isObject(args[0]);
-            assert.equal(args[1], 'password');
-            assert.equal(args[2], view.relier);
-            assert.isObject(args[3]);
-            assert.equal(args[3].resume, 'resume token');
-          });
-
-          it('does not call view.onSignInSuccess', function () {
-            assert.equal(view.onSignInSuccess.callCount, 0);
-          });
-
-          it('calls view.invokeBrokerMethod correctly', function () {
-            assert.equal(view.invokeBrokerMethod.callCount, 2);
-
-            assert.equal(view.invokeBrokerMethod.thisValues[0], view);
-            var args = view.invokeBrokerMethod.args[0];
-            assert.lengthOf(args, 2);
-            assert.equal(args[0], 'beforeSignIn');
-
-            assert.equal(view.invokeBrokerMethod.thisValues[1], view);
-            args = view.invokeBrokerMethod.args[1];
-            assert.lengthOf(args, 2);
-            assert.equal(args[0], 'afterSignUp');
-            assert.equal(args[1], account);
-          });
-
-          it('calls view.onSignUpSuccess correctly', function () {
-            assert.equal(view.onSignUpSuccess.callCount, 1);
-            assert.equal(view.onSignUpSuccess.thisValues[0], view);
-            var args = view.onSignUpSuccess.args[0];
-            assert.lengthOf(args, 2);
-            assert.equal(args[0], user.signUpAccount.args[0][0]);
-            assert.isUndefined(args[1]);
-          });
-
-          it('does not call view.displayErrorUnsafe', function () {
-            assert.equal(view.displayErrorUnsafe.callCount, 0);
-          });
-
-          it('does not call view.logEvent', function () {
-            assert.equal(view.logEvent.callCount, 0);
-          });
-
-          it('does not fail', function () {
-            assert.isFalse(failed);
-          });
-        });
-
-        describe('sign-up fails with INCORRECT_PASSWORD', function () {
-          var error;
-
-          beforeEach(function () {
-            error = AuthErrors.toError('INCORRECT_PASSWORD');
-            sinon.stub(user, 'signUpAccount', function () {
-              return p.reject(error);
-            });
-            return view.submit()
-              .fail(function (err) {
-                failed = err;
-              });
-          });
-
-          afterEach(function () {
-            user.signUpAccount.restore();
-          });
-
-          it('does not call user.signInAccount', function () {
-            assert.equal(user.signInAccount.callCount, 0);
-          });
-
-          it('calls user.signUpAccount', function () {
-            assert.equal(user.signUpAccount.callCount, 1);
-          });
-
-          it('calls view.invokeBrokerMethod', function () {
-            assert.equal(view.invokeBrokerMethod.callCount, 1);
-          });
-
-          it('does not call view.onSignInSuccess', function () {
-            assert.equal(view.onSignInSuccess.callCount, 0);
-          });
-
-          it('does not call view.onSignUpSuccess', function () {
-            assert.equal(view.onSignUpSuccess.callCount, 0);
-          });
-
-          it('does not call view.displayErrorUnsafe', function () {
-            assert.equal(view.displayErrorUnsafe.callCount, 0);
-          });
-
-          it('calls view.navigate correctly', function () {
-            assert.equal(view.navigate.callCount, 1);
-            assert.equal(view.navigate.thisValues[0], view);
-            var args = view.navigate.args[0];
-            assert.lengthOf(args, 2);
-            assert.equal(args[0], '/signin');
-            assert.isObject(args[1]);
-            assert.lengthOf(Object.keys(args[1]), 1);
-            assert.equal(args[1].error, error);
-          });
-
-          it('does not call view.logEvent', function () {
-            assert.equal(view.logEvent.callCount, 0);
-          });
-
-          it('does not fail', function () {
-            assert.isFalse(failed);
-          });
-        });
-
-        describe('sign-up fails with USER_CANCELED_LOGIN', function () {
-          beforeEach(function () {
-            sinon.stub(user, 'signUpAccount', function () {
+            sinon.stub(view, 'signIn', function () {
               return p.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
             });
-            return view.submit()
-              .fail(function (err) {
-                failed = err;
-              });
+
+            return view.submit();
           });
 
-          afterEach(function () {
-            user.signUpAccount.restore();
+          it('does not call view.signUp', function () {
+            assert.isFalse(view.signUp.called);
           });
 
-          it('does not call user.signInAccount', function () {
-            assert.equal(user.signInAccount.callCount, 0);
+          it('calls view.signIn correctly', function () {
+            assert.equal(view.signIn.callCount, 1);
+
+            var args = view.signIn.args[0];
+            assert.instanceOf(args[0], Account);
+            assert.equal(args[1], 'password');
           });
 
-          it('calls user.signUpAccount', function () {
-            assert.equal(user.signUpAccount.callCount, 1);
-          });
-
-          it('calls view.invokeBrokerMethod', function () {
-            assert.equal(view.invokeBrokerMethod.callCount, 1);
-          });
-
-          it('does not call view.onSignInSuccess', function () {
-            assert.equal(view.onSignInSuccess.callCount, 0);
-          });
-
-          it('does not call view.onSignUpSuccess', function () {
-            assert.equal(view.onSignUpSuccess.callCount, 0);
-          });
-
-          it('does not call view.displayErrorUnsafe', function () {
-            assert.equal(view.displayErrorUnsafe.callCount, 0);
+          it('does not display any errors', function () {
+            assert.isFalse(view.displayError.called);
+            assert.isFalse(view.displayErrorUnsafe.called);
           });
 
           it('calls view.logEvent correctly', function () {
@@ -1208,53 +818,39 @@ define(function (require, exports, module) {
             assert.lengthOf(args, 1);
             assert.equal(args[0], 'login.canceled');
           });
-
-          it('does not fail', function () {
-            assert.isFalse(failed);
-          });
         });
 
-        describe('sign-up fails with some other error', function () {
+        describe('signin fails with some other error', function () {
           beforeEach(function () {
-            sinon.stub(user, 'signUpAccount', function () {
+            sandbox.stub(view, 'signIn', function () {
               return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
             });
+
             return view.submit()
               .fail(function (err) {
                 failed = err;
               });
           });
 
-          afterEach(function () {
-            user.signUpAccount.restore();
+          it('does not call view.signUp', function () {
+            assert.isFalse(view.signUp.called);
           });
 
-          it('does not call user.signInAccount', function () {
-            assert.equal(user.signInAccount.callCount, 0);
+          it('calls view.signIn correctly', function () {
+            assert.equal(view.signIn.callCount, 1);
+
+            var args = view.signIn.args[0];
+            assert.instanceOf(args[0], Account);
+            assert.equal(args[1], 'password');
           });
 
-          it('calls user.signUpAccount', function () {
-            assert.equal(user.signUpAccount.callCount, 1);
-          });
+          it('calls notifier.trigger correctly', function () {
+            assert.equal(notifier.trigger.callCount, 1);
 
-          it('calls view.invokeBrokerMethod', function () {
-            assert.equal(view.invokeBrokerMethod.callCount, 1);
-          });
-
-          it('does not call view.onSignInSuccess', function () {
-            assert.equal(view.onSignInSuccess.callCount, 0);
-          });
-
-          it('does not call view.onSignUpSuccess', function () {
-            assert.equal(view.onSignUpSuccess.callCount, 0);
-          });
-
-          it('does not call view.displayErrorUnsafe', function () {
-            assert.equal(view.displayErrorUnsafe.callCount, 0);
-          });
-
-          it('does not call view.logEvent', function () {
-            assert.equal(view.logEvent.callCount, 0);
+            assert.equal(notifier.trigger.thisValues[0], notifier);
+            var args = notifier.trigger.args[0];
+            assert.lengthOf(args, 3);
+            assert.equal(args[0], 'signup.submit');
           });
 
           it('fails correctly', function () {
@@ -1263,85 +859,140 @@ define(function (require, exports, module) {
         });
       });
 
-      it('sends user to cannot_create_account when visiting sign up if they have already been sent there', function () {
-        fillOutSignUp(email, 'password', true);
+      describe('COPPA is valid', function () {
+        beforeEach(function () {
+          fillOutSignUp(email, 'password');
 
-        var revisitView = new View({
-          able: able,
-          fxaClient: fxaClient,
-          notifier: notifier,
-          relier: relier
-        });
-
-        sinon.stub(user, 'signInAccount', function () {
-          throw AuthErrors.toError('UNKNOWN_ACCOUNT');
-        });
-        sinon.stub(coppa, 'isUserOldEnough', function () {
-          return false;
-        });
-        sinon.stub(coppa, 'hasValue', function () {
-          return true;
-        });
-
-        sinon.spy(view, 'navigate');
-        sinon.spy(revisitView, 'navigate');
-
-        return view.submit()
-            .then(function () {
-              assert.isTrue(view.navigate.calledOnce);
-              assert.isTrue(view.navigate.calledWith('cannot_create_account'));
-            })
-            .then(function () {
-              // simulate user re-visiting the /signup page after being rejected
-              return revisitView.render();
-            }).then(function () {
-              assert.isTrue(revisitView.navigate.calledOnce);
-              assert.isTrue(revisitView.navigate.calledWith('cannot_create_account'));
-            });
-      });
-
-      it('re-signs up unverified user with new password', function () {
-
-        sinon.stub(user, 'signUpAccount', function (account) {
-          return p(account);
-        });
-
-        fillOutSignUp(email, 'incorrect', true);
-
-        sinon.stub(coppa, 'isUserOldEnough', function () {
-          return true;
-        });
-
-        sinon.spy(view, 'navigate');
-
-        return view.submit()
-            .then(function () {
-              assert.isTrue(view.navigate.calledWith('confirm'));
-            });
-      });
-
-      it('re-throws any other errors for display', function () {
-        sinon.stub(user, 'signUpAccount', function () {
-          return p.reject(AuthErrors.toError('SERVER_BUSY'));
-        });
-
-        fillOutSignUp(email, 'password', true);
-
-        sinon.stub(coppa, 'isUserOldEnough', function () {
-          return true;
-        });
-
-        return view.submit()
-          .then(null, function (err) {
-            // The errorback will not be called if the submit
-            // succeeds, but the following callback always will
-            // be. To ensure the errorback was called, pass
-            // the error along and check its type.
-            return err;
-          })
-          .then(function (err) {
-            assert.isTrue(AuthErrors.is(err, 'SERVER_BUSY'));
+          sandbox.stub(coppa, 'isUserOldEnough', function () {
+            return true;
           });
+
+          sinon.stub(view, 'signIn', function () {
+            return p();
+          });
+        });
+
+        describe('signup succeeds', function () {
+          beforeEach(function () {
+            sinon.stub(view, 'signUp', function () {
+              return p();
+            });
+
+            return view.submit();
+          });
+
+          it('does not call view.signIn', function () {
+            assert.isFalse(view.signIn.called);
+          });
+
+          it('calls view.signUp correctly', function () {
+            assert.equal(view.signUp.callCount, 1);
+
+            var args = view.signUp.args[0];
+            assert.instanceOf(args[0], Account);
+            assert.equal(args[1], 'password');
+          });
+
+          it('does not display any errors', function () {
+            assert.isFalse(view.displayError.called);
+            assert.isFalse(view.displayErrorUnsafe.called);
+          });
+        });
+
+        describe('signup fails with ACCOUNT_ALREADY_EXISTS', function () {
+          beforeEach(function () {
+            sinon.stub(view, 'signUp', function () {
+              return p.reject(AuthErrors.toError('ACCOUNT_ALREADY_EXISTS'));
+            });
+
+            return view.submit();
+          });
+
+          it('calls view.signUp correctly', function () {
+            assert.equal(view.signUp.callCount, 1);
+
+            var args = view.signUp.args[0];
+            assert.instanceOf(args[0], Account);
+            assert.equal(args[1], 'password');
+          });
+
+          it('calls view.signIn correctly', function () {
+            assert.equal(view.signIn.callCount, 1);
+
+            var args = view.signIn.args[0];
+            assert.instanceOf(args[0], Account);
+            assert.equal(args[1], 'password');
+          });
+        });
+
+        describe('signup fails with USER_CANCELED_LOGIN', function () {
+          beforeEach(function () {
+            sinon.stub(view, 'signUp', function () {
+              return p.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
+            });
+
+            return view.submit();
+          });
+
+          it('calls view.signUp correctly', function () {
+            assert.equal(view.signUp.callCount, 1);
+
+            var args = view.signUp.args[0];
+            assert.instanceOf(args[0], Account);
+            assert.equal(args[1], 'password');
+          });
+
+          it('does not call view.signIn', function () {
+            assert.isFalse(view.signIn.called);
+          });
+
+          it('does not display any errors', function () {
+            assert.isFalse(view.displayError.called);
+            assert.isFalse(view.displayErrorUnsafe.called);
+          });
+
+          it('calls view.logEvent correctly', function () {
+            assert.equal(view.logEvent.callCount, 1);
+            assert.equal(view.logEvent.thisValues[0], view);
+            var args = view.logEvent.args[0];
+            assert.lengthOf(args, 1);
+            assert.equal(args[0], 'login.canceled');
+          });
+        });
+
+        describe('signup fails with some other error', function () {
+          beforeEach(function () {
+            sinon.stub(view, 'signUp', function () {
+              return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+            });
+
+            return view.submit()
+              .fail(function (err) {
+                failed = err;
+              });
+          });
+
+          it('calls view.signUp correctly', function () {
+            assert.equal(view.signUp.callCount, 1);
+
+            var args = view.signUp.args[0];
+            assert.instanceOf(args[0], Account);
+            assert.equal(args[1], 'password');
+          });
+
+          it('does not call view.signIn', function () {
+            assert.isFalse(view.signIn.called);
+          });
+
+          it('does not display any errors', function () {
+            assert.isFalse(view.displayError.called);
+            assert.isFalse(view.displayErrorUnsafe.called);
+          });
+
+          it('fails correctly', function () {
+            assert.isTrue(AuthErrors.is(failed, 'UNEXPECTED_ERROR'));
+          });
+        });
       });
 
       describe('customizeSync', function () {
@@ -1368,7 +1019,7 @@ define(function (require, exports, module) {
 
           return view.render()
             .then(function () {
-              fillOutSignUp(email, 'password', true);
+              fillOutSignUp(email, 'password');
 
               sinon.stub(coppa, 'isUserOldEnough', function () {
                 return true;
@@ -1541,7 +1192,7 @@ define(function (require, exports, module) {
         });
         view.experiments.chooseExperiments();
         // user puts wrong email first
-        fillOutSignUp('testuser@gnail.com', 'password', true);
+        fillOutSignUp('testuser@gnail.com', 'password');
         // mailcheck runs
         view.onEmailBlur();
         sinon.spy(user, 'initAccount');

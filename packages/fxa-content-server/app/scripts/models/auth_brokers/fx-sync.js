@@ -15,7 +15,6 @@ define(function (require, exports, module) {
   var BaseAuthenticationBroker = require('models/auth_brokers/base');
   var ChannelMixin = require('models/auth_brokers/mixins/channel');
   var Cocktail = require('cocktail');
-  var NavigateBehavior = require('views/behaviors/navigate');
   var p = require('lib/promise');
 
   var proto = BaseAuthenticationBroker.prototype;
@@ -129,17 +128,6 @@ define(function (require, exports, module) {
         .then(function () {
           return proto.beforeSignUpConfirmationPoll.call(self, account);
         });
-    },
-
-    afterSignUp: function (account) {
-      var self = this;
-      return p().then(function () {
-        if (self.hasCapability('chooseWhatToSyncWebV1')) {
-          return new NavigateBehavior('choose_what_to_sync', {
-            account: account
-          });
-        }
-      });
     },
 
     afterResetPasswordConfirmationPoll: function (account) {
