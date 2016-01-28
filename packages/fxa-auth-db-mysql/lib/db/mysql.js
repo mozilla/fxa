@@ -354,6 +354,12 @@ module.exports = function (log, error) {
     return this.readOneFromFirstResult(ACCOUNT_DEVICES, [uid])
   }
 
+  var SESSION_DEVICE = 'CALL sessionWithDevice_1(?)'
+
+  MySql.prototype.sessionWithDevice = function (id) {
+    return this.readFirstResult(SESSION_DEVICE, [id])
+  }
+
   // Select : sessionTokens
   // Fields : id, uid, createdAt, uaBrowser, uaBrowserVersion,
   //          uaOS, uaOSVersion, uaDeviceType, lastAccessTime

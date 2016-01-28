@@ -380,6 +380,33 @@ module.exports = function (log, error) {
       )
   }
 
+  Memory.prototype.sessionWithDevice = function (id) {
+    return this.sessionToken(id)
+      .then(
+        function (session) {
+          return this.accountDevices(session.uid)
+            .then(
+              function (devices) {
+                var device = devices.filter(
+                  function (d) {
+                    return d.sessionTokenId.toString('hex') === id.toString('hex')
+                  }
+                )[0]
+                if (device) {
+                  session.deviceId = device.id
+                  session.deviceName = device.name
+                  session.deviceType = device.type
+                  session.deviceCreatedAt = device.createdAt
+                  session.deviceCallbackURL = device.callbackURL
+                  session.deviceCallbackPublicKey = device.callbackPublicKey
+                }
+                return session
+              }
+            )
+        }.bind(this)
+      )
+  }
+
   // account():
   //
   // Takes:
