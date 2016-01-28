@@ -10,10 +10,8 @@ define(function (require, exports, module) {
   var BaseView = require('views/base');
   var Cocktail = require('cocktail');
   var FormView = require('views/form');
-  var PasswordMixin = require('views/mixins/password-mixin');
   var PasswordResetMixin = require('views/mixins/password-reset-mixin');
   var Session = require('lib/session');
-  var SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
   var SignInView = require('views/sign_in');
   var Template = require('stache!templates/force_auth');
 
@@ -123,9 +121,7 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     View,
-    PasswordMixin,
-    PasswordResetMixin,
-    SignedInNotificationMixin
+    PasswordResetMixin
   );
 
   module.exports = View;
