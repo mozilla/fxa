@@ -6,6 +6,18 @@ https://mozilla.aha.io/features/FXA-38
 
 As a developer of a relying service, I want to delegate authentication and user profile data to Firefox Accounts via a standard protocol with good documentation and library support, so that I can focus on building my service without learning about a bespoke authentication protocol.
 
+## Outcomes
+
+We shipped spec-compliant support for the OIDC 'code' flow in FxA train-53, in January 2016.
+
+The discovery URL mechanism has proven useful for new reliers integrating with Firefox Accounts,
+as they can avoid hard-coding multiple URLs in their application.
+
+Unfortunately, ecosystem/library support for OIDC does not seem to be very mature,
+and we did not see the hoped-for gains in "plug-and-play" integration using off-the-shelf
+libraries.  We will consider follow-up work on library support and potentially implementing
+additional flows in the future.
+
 ## Details
 
 ### `openid` Scope and `id_token`
