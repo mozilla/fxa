@@ -107,6 +107,14 @@ function create(log, error, config, routes, db) {
 
   server.register(require('hapi-auth-hawk'), function (err) {
     server.auth.strategy(
+      'sessionTokenWithDevice',
+      'hawk',
+      {
+        getCredentialsFunc: makeCredentialFn(db.sessionWithDevice.bind(db)),
+        hawk: hawkOptions
+      }
+    )
+    server.auth.strategy(
       'sessionToken',
       'hawk',
       {

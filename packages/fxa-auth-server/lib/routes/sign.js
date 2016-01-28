@@ -12,7 +12,7 @@ module.exports = function (log, isA, error, signer, db, domain) {
       path: '/certificate/sign',
       config: {
         auth: {
-          strategy: 'sessionToken',
+          strategy: 'sessionTokenWithDevice',
           payload: 'required'
         },
         validate: {
@@ -88,7 +88,10 @@ module.exports = function (log, isA, error, signer, db, domain) {
           }
         }
         var uid = sessionToken.uid.toString('hex')
-        signer.sign(
+        var deviceId = sessionToken.deviceId ?
+          sessionToken.deviceId.toString('hex') : null
+
+        return signer.sign(
           {
             email: uid + '@' + domain,
             publicKey: publicKey,
@@ -96,15 +99,25 @@ module.exports = function (log, isA, error, signer, db, domain) {
             duration: duration,
             generation: sessionToken.verifierSetAt,
             lastAuthAt: sessionToken.lastAuthAt(),
-            verifiedEmail: sessionToken.email
+            verifiedEmail: sessionToken.email,
+            deviceId: deviceId
           }
-        ).then(function(certResult) {
-          log.activityEvent('account.signed', request, {
-            uid: uid,
-            account_created_at: sessionToken.accountCreatedAt
-          })
-          reply(certResult)
-        }, reply)
+        )
+        .then(
+          function(certResult) {
+            log.activityEvent(
+              'account.signed',
+              request,
+              {
+                uid: uid,
+                account_created_at: sessionToken.accountCreatedAt,
+                device_id: deviceId
+              }
+            )
+            reply(certResult)
+          },
+          reply
+        )
       }
     }
   ]

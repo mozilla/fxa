@@ -14,7 +14,8 @@ module.exports = function (log, inherits, Token) {
 
   function SessionToken(keys, details) {
     Token.call(this, keys, details)
-    this.forceUpdate(details)
+    this.setUserAgentInfo(details)
+    this.setDeviceInfo(details)
     this.email = details.email || null
     this.emailCode = details.emailCode || null
     this.emailVerified = !!details.emailVerified
@@ -60,7 +61,7 @@ module.exports = function (log, inherits, Token) {
       return false
     }
 
-    this.forceUpdate(freshData)
+    this.setUserAgentInfo(freshData)
 
     return true
   }
@@ -83,13 +84,22 @@ module.exports = function (log, inherits, Token) {
     return result
   }
 
-  SessionToken.prototype.forceUpdate = function (data) {
+  SessionToken.prototype.setUserAgentInfo = function (data) {
     this.uaBrowser = data.uaBrowser
     this.uaBrowserVersion = data.uaBrowserVersion
     this.uaOS = data.uaOS
     this.uaOSVersion = data.uaOSVersion
     this.uaDeviceType = data.uaDeviceType
     this.lastAccessTime = data.lastAccessTime
+  }
+
+  SessionToken.prototype.setDeviceInfo = function (data) {
+    this.deviceId = data.deviceId
+    this.deviceName = data.deviceName
+    this.deviceType = data.deviceType
+    this.deviceCreatedAt = data.deviceCreatedAt
+    this.callbackURL = data.callbackURL
+    this.callbackPublicKey = data.callbackPublicKey
   }
 
   return SessionToken

@@ -26,7 +26,7 @@ test(
         t.equal(typeof token.lastAuthAt, 'function', 'lastAuthAt method is defined')
         t.equal(typeof token.update, 'function', 'update method is defined')
         t.equal(typeof token.isFresh, 'function', 'isFresh method is defined')
-        t.equal(typeof token.forceUpdate, 'function', 'forceUpdate method is defined')
+        t.equal(typeof token.setUserAgentInfo, 'function', 'setUserAgentInfo method is defined')
       })
   }
 )
@@ -81,11 +81,11 @@ test(
 )
 
 test(
-  'SessionToken.forceUpdate',
+  'SessionToken.setUserAgentInfo',
   function (t) {
     return SessionToken.create(ACCOUNT)
       .then(function (token) {
-        token.forceUpdate({
+        token.setUserAgentInfo({
           data: 'foo',
           tokenId: 'foo',
           authKey: 'foo',
@@ -217,7 +217,7 @@ test(
       sinon.stub(SessionToken.prototype, 'isFresh', function () {
         return true
       })
-      sinon.spy(SessionToken.prototype, 'forceUpdate')
+      sinon.spy(SessionToken.prototype, 'setUserAgentInfo')
 
       t.equal(
         token.update(
@@ -240,11 +240,11 @@ test(
       t.ok(isFreshData.lastAccessTime > Date.now() - 10000, 'lastAccessTime was greater than 10 seconds ago')
       t.ok(isFreshData.lastAccessTime < Date.now(), 'lastAccessTime was less then Date.now()')
 
-      t.equal(SessionToken.prototype.forceUpdate.callCount, 0, 'forceUpdate was not called')
+      t.equal(SessionToken.prototype.setUserAgentInfo.callCount, 0, 'setUserAgentInfo was not called')
     })
     .finally(function () {
       SessionToken.prototype.isFresh.restore()
-      SessionToken.prototype.forceUpdate.restore()
+      SessionToken.prototype.setUserAgentInfo.restore()
     })
   }
 )
@@ -257,7 +257,7 @@ test(
         sinon.stub(SessionToken.prototype, 'isFresh', function () {
           return false
         })
-        sinon.spy(SessionToken.prototype, 'forceUpdate')
+        sinon.spy(SessionToken.prototype, 'setUserAgentInfo')
 
         t.equal(
           token.update(
@@ -266,19 +266,18 @@ test(
         )
 
         t.equal(SessionToken.prototype.isFresh.callCount, 1, 'isFresh was called once')
-        var isFreshArgs = SessionToken.prototype.forceUpdate.args[0]
+        var isFreshArgs = SessionToken.prototype.setUserAgentInfo.args[0]
         t.equal(isFreshArgs.length, 1, 'isFresh was passed one argument')
 
-        t.equal(SessionToken.prototype.forceUpdate.callCount, 1, 'forceUpdate called once')
-        t.equal(SessionToken.prototype.forceUpdate.thisValues[0], token, 'forceUpdate context was token')
-        var forceUpdateArgs = SessionToken.prototype.forceUpdate.args[0]
-        t.equal(forceUpdateArgs.length, 1, 'forceUpdate was passed one argument')
-        t.deepEqual(forceUpdateArgs[0], isFreshArgs[0], 'forceUpdate was passed correct argument')
+        t.equal(SessionToken.prototype.setUserAgentInfo.callCount, 1, 'setUserAgentInfo called once')
+        t.equal(SessionToken.prototype.setUserAgentInfo.thisValues[0], token, 'setUserAgentInfo context was token')
+        var setUserAgentInfoArgs = SessionToken.prototype.setUserAgentInfo.args[0]
+        t.equal(setUserAgentInfoArgs.length, 1, 'setUserAgentInfo was passed one argument')
+        t.deepEqual(setUserAgentInfoArgs[0], isFreshArgs[0], 'setUserAgentInfo was passed correct argument')
       })
       .finally(function () {
         SessionToken.prototype.isFresh.restore()
-        SessionToken.prototype.forceUpdate.restore()
+        SessionToken.prototype.setUserAgentInfo.restore()
       })
   }
 )
-

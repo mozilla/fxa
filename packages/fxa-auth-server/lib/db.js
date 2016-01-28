@@ -453,6 +453,31 @@ module.exports = function (
       )
   }
 
+  DB.prototype.sessionWithDevice = function (id) {
+    log.trace({ op: 'DB.sessionWithDevice', id: id })
+    return this.pool.get('/sessionToken/' + id.toString('hex') + '/device')
+    .then(
+      function (body) {
+        var data = bufferize(body, {
+          ignore: [
+            'uaBrowser',
+            'uaBrowserVersion',
+            'uaOS',
+            'uaOSVersion',
+            'uaDeviceType'
+          ]
+        })
+        return SessionToken.fromHex(data.tokenData, data)
+      },
+      function (err) {
+        if (isNotFoundError(err)) {
+          err = error.invalidToken()
+        }
+        throw err
+      }
+    )
+  }
+
   // UPDATE
 
   DB.prototype.updatePasswordForgotToken = function (token) {
