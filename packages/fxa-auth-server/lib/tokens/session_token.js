@@ -93,3 +93,6 @@ module.exports = function (log, inherits, Token) {
 
   return SessionToken
 }
+
+// For use by the tests.
+module.exports.TOKEN_FRESHNESS_THRESHOLD = TOKEN_FRESHNESS_THRESHOLD
