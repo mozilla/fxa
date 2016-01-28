@@ -63,16 +63,6 @@ define(function (require, exports, module) {
       this._formPrefill.set('password', this.getElementValue('.password'));
     },
 
-    submit: function () {
-      var account = this.user.initAccount({
-        email:  this.relier.get('email')
-      });
-
-      var password = this.getElementValue('.password');
-
-      return this._signIn(account, password);
-    },
-
     onSignInError: function (account, password, err) {
       if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
         // dead end, do not allow the user to sign up.
