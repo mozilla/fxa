@@ -33,11 +33,10 @@ function clientEquals(configClient, dbClient) {
 
 function convertClientToConfigFormat(client) {
   var out = {};
+
   for (var key in client) {
-    if (key === 'createdAt') {
-      continue;
-    } else if (key === 'hashedSecret') {
-      out.hashedSecret = unbuf(client.hashedSecret);
+    if (key === 'hashedSecret' || key === 'hashedSecretPrevious') {
+      out[key] = unbuf(client[key]);
     } else if (key === 'trusted' || key === 'canGrant') {
       out[key] = !!client[key]; // db stores booleans as 0 or 1.
     } else if (key === 'termsUri' || key === 'privacyUri') {
