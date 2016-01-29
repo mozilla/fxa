@@ -148,56 +148,49 @@
 }
 
 .avatar-change {
-  .gravatar-logo {
-    background: image-url('gravatar.svg') no-repeat top center;
-    background-size: contain;
-    /* This reduces the size of the gravatar logo to match the other icons */
-    font-size: 30px;
-
-    /* Mimic the style of the fontello icons */
-    &:before {
-      content: ' ';
-      display: inline-block;
-      font-variant: normal;
-      line-height: 1em;
-      margin-left: 0.2em;
-      margin-right: 0.2em;
-      text-align: center;
-      text-decoration: inherit;
-      text-transform: none;
-      width: 1em;
-    }
-  }
-
   nav {
     margin: 0 -40px -40px -40px;
-    padding: 20px;
+    padding: 25px 20px 20px;
 
     a {
+      background: {
+        repeat: no-repeat;
+        size: 48%;
+      }
       display: inline-block;
       line-height: 1.1;
+      padding-top: 11%;
       text-decoration: none;
 
       @include respond-to('big') {
         height: 80px;
         margin: 5px;
         min-width: 80px;
-        padding: 11px;
       }
 
       @include respond-to('small') {
+        height: 52px;
         margin: 0 0 10px 0;
         min-width: 75px;
+        padding-top: 37px;
       }
 
-    }
+      &#camera, &#file, &#gravatar, &.remove {
+        background-position: 50% 22%;
+        background-size: 41%;
+      }
 
-    span {
-      font-size: 35px;
-
-      &:after {
-        content: '\A';
-        white-space: pre;
+      &#camera {
+        background-image: image-url('glyph-camera-32.svg');
+      }
+      &#file {
+        background-image: image-url('glyph-upload-32.svg');
+      }
+      &#gravatar {
+        background-image: image-url('glyph-gravatar-32.svg');
+      }
+      &.remove {
+        background-image: image-url('glyph-clear-32.svg');
       }
     }
   }
@@ -213,7 +206,7 @@
 
 section.avatar-panel {
   text-align: center;
-  
+
   .button-row {
     margin-bottom: 0;
     text-align: left;
