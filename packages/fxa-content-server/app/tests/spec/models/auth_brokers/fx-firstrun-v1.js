@@ -9,6 +9,7 @@ define(function (require, exports, module) {
   var chai = require('chai');
   var FxFirstrunV1AuthenticationBroker = require('models/auth_brokers/fx-firstrun-v1');
   var NullChannel = require('lib/channels/null');
+  var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
   var sinon = require('sinon');
   var WindowMock = require('../../../mocks/window');
@@ -18,16 +19,27 @@ define(function (require, exports, module) {
   describe('models/auth_brokers/fx-firstrun-v1', function () {
     var account;
     var broker;
+    var channelMock;
     var iframeChannel;
     var relier;
     var windowMock;
 
     beforeEach(function () {
-      account = new Account({});
+      account = new Account({
+        email: 'testuser@testuser.com',
+        keyFetchToken: 'key-fetch-token',
+        unwrapBKey: 'unwrap-b-key'
+      });
+      channelMock = new NullChannel();
+      channelMock.send = sinon.spy(function () {
+        return p();
+      });
       iframeChannel = new NullChannel();
       relier = new Relier();
       windowMock = new WindowMock();
+
       broker = new FxFirstrunV1AuthenticationBroker({
+        channel: channelMock,
         iframeChannel: iframeChannel,
         relier: relier,
         window: windowMock
@@ -62,37 +74,55 @@ define(function (require, exports, module) {
     });
 
     describe('afterSignIn', function () {
-      it('notifies the iframe channel, does not halt by default', function () {
-        sinon.spy(iframeChannel, 'send');
+      var result;
 
-        return broker.fetch()
-          .then(function () {
-            return broker.afterSignIn(account);
-          })
-          .then(function (result) {
-            assert.isTrue(iframeChannel.send.calledWith(broker._iframeCommands.LOGIN));
-            assert.isUndefined(result.halt);
-          });
-      });
+      describe('defaults', function () {
+        beforeEach(function () {
+          sinon.spy(iframeChannel, 'send');
 
-      it('halts if the `haltAfterSignIn` query parameter is set to `true`', function () {
-        sinon.spy(iframeChannel, 'send');
-
-        windowMock.location.search = '?haltAfterSignIn=true';
-        broker = new FxFirstrunV1AuthenticationBroker({
-          iframeChannel: iframeChannel,
-          relier: relier,
-          window: windowMock
+          return broker.fetch()
+            .then(function () {
+              return broker.afterSignIn(account);
+            })
+            .then(function (_result) {
+              result = _result;
+            });
         });
 
-        return broker.fetch()
-          .then(function () {
-            return broker.afterSignIn(account);
-          })
-          .then(function (result) {
-            assert.isTrue(iframeChannel.send.calledWith(broker._iframeCommands.LOGIN));
-            assert.isTrue(result.halt);
+        it('notifies the web channel', function () {
+          assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
+        });
+
+        it('notifies the iframe channel', function () {
+          assert.isTrue(iframeChannel.send.calledWith(broker._iframeCommands.LOGIN));
+        });
+
+        it('does not halt by default', function () {
+          assert.isUndefined(result.halt);
+        });
+      });
+
+      describe('with the `haltAfterSignIn` query parameter set to `true`', function () {
+        beforeEach(function () {
+          windowMock.location.search = '?haltAfterSignIn=true';
+          broker = new FxFirstrunV1AuthenticationBroker({
+            iframeChannel: iframeChannel,
+            relier: relier,
+            window: windowMock
           });
+
+          return broker.fetch()
+            .then(function () {
+              return broker.afterSignIn(account);
+            })
+            .then(function (_result) {
+              result = _result;
+            });
+        });
+
+        it('halts', function () {
+          assert.isTrue(result.halt);
+        });
       });
     });
 

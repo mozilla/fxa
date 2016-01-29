@@ -34,6 +34,15 @@ define(function (require, exports, module) {
     },
 
     defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
+      // about:accounts displays its own screen after sign in, no need
+      // to show anything.
+      afterForceAuth: new HaltBehavior(),
+      // about:accounts displays its own screen after password reset, no
+      // need to show anything.
+      afterResetPasswordConfirmationPoll: new HaltBehavior(),
+      // about:accounts displays its own screen after sign in, no need
+      // to show anything.
+      afterSignIn: new HaltBehavior(),
       // the browser is already polling, no need for the content server
       // code to poll as well, otherwise two sets of polls are going on
       // for the same user.
