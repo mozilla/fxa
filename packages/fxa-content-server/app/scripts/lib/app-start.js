@@ -390,7 +390,6 @@ define(function (require, exports, module) {
         } else if (this._isWebChannel()) {
           this._authenticationBroker = new WebChannelAuthenticationBroker({
             assertionLibrary: this._assertionLibrary,
-            fxaClient: this._fxaClient,
             oAuthClient: this._oAuthClient,
             relier: this._relier,
             session: Session,

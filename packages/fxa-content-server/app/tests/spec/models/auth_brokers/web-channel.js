@@ -8,7 +8,6 @@ define(function (require, exports, module) {
   var BaseView = require('views/base');
   var chai = require('chai');
   var Constants = require('lib/constants');
-  var FxaClientWrapper = require('lib/fxa-client');
   var NullChannel = require('lib/channels/null');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
@@ -24,7 +23,6 @@ define(function (require, exports, module) {
     var account;
     var broker;
     var channelMock;
-    var fxaClientMock;
     var relierMock;
     var user;
     var view;
@@ -43,12 +41,8 @@ define(function (require, exports, module) {
 
       sinon.spy(channelMock, 'send');
 
-      fxaClientMock = new FxaClientWrapper({
-        relier: relierMock
-      });
       broker = new WebChannelAuthenticationBroker({
         channel: channelMock,
-        fxaClient: fxaClientMock,
         relier: relierMock,
         session: Session,
         window: windowMock
@@ -389,38 +383,19 @@ define(function (require, exports, module) {
           });
       });
 
-      it('returns null keys when keyFetchToken is missing', function () {
+      it('delegates to the account to generate relier keys if keys are asked for', function () {
         setupGeneratesOAuthCode();
         sinon.stub(broker.relier, 'wantsKeys', function () {
           return true;
         });
 
-        return broker.getOAuthResult(account)
-          .then(function (result) {
-            assert.equal(result.keys, null);
-          });
-      });
-
-      it('derives keys when keyFetchToken is available', function () {
-        setupGeneratesOAuthCode();
-        sinon.stub(broker.relier, 'wantsKeys', function () {
-          return true;
-        });
-        sinon.stub(broker._fxaClient, 'accountKeys', function () {
-          return p('MASTER KEYS');
-        });
-        sinon.stub(broker.relier, 'deriveRelierKeys', function () {
+        sinon.stub(account, 'relierKeys', function () {
           return p('RELIER KEYS');
         });
-        account.set('keyFetchToken', 'keyFetchToken');
-        account.set('unwrapBKey', 'unwrapBKey');
 
         return broker.getOAuthResult(account)
           .then(function (result) {
-            assert.isTrue(
-                broker._fxaClient.accountKeys.calledWith('keyFetchToken', 'unwrapBKey'));
-            assert.isTrue(
-                broker.relier.deriveRelierKeys.calledWith('MASTER KEYS', 'uid'));
+            assert.isTrue(account.relierKeys.calledWith(broker.relier));
             assert.equal(result.keys, 'RELIER KEYS');
           });
       });

@@ -614,6 +614,41 @@ define(function (require, exports, module) {
           resume: options.resume
         }
       );
+    },
+
+    /**
+     * Fetch keys for the account. Requires account to have
+     * `keyFetchToken` and `unwrapBKey`
+     *
+     * @returns {promise} that resolves with the account keys, if they
+     *   can be generated, resolves with null otherwise.
+     */
+    accountKeys: function () {
+      if (! this.has('keyFetchToken') || ! this.has('unwrapBKey')) {
+        return p(null);
+      }
+
+      return this._fxaClient.accountKeys(
+          this.get('keyFetchToken'), this.get('unwrapBKey'));
+    },
+
+    /**
+     * Fetch keys that can be used by a relier.
+     *
+     * @param {object} relier
+     * @returns {promise} that resolves with the relier keys, if they
+     *   can be generated, resolves with null otherwise.
+     */
+    relierKeys: function (relier) {
+      var self = this;
+      return this.accountKeys()
+        .then(function (accountKeys) {
+          if (! accountKeys) {
+            return null;
+          }
+
+          return relier.deriveRelierKeys(accountKeys, self.get('uid'));
+        });
     }
   });
 
