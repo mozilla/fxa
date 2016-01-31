@@ -1,3 +1,7 @@
+0.55.0:
+  * feat(docker): Additional Dockerfile for self-hosting #121
+  * docs(contributing): Mention git commit guidelines #122
+
 train-53:
   * chore(deps): Update mysql package dependency to latest version #112
   * fix(tests): Upgrade test runner and fix some test declarations #112
