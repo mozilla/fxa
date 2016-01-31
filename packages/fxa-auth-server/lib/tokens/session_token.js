@@ -5,9 +5,10 @@
 var userAgent = require('../userAgent')
 var ONE_HOUR = 60 * 60 * 1000
 
-// Browsers ask for 6 hour duration on certificate sign,
-// so don't bother updating device info any more frequently than that.
-var TOKEN_FRESHNESS_THRESHOLD = 6 * ONE_HOUR
+// setting to "forever" to eliminate ~99% of the updates to sessionToken
+// (A small percentage do qualify as "fresh" due to changes in UA).
+// See https://github.com/mozilla/fxa-auth-server/pull/1169
+var TOKEN_FRESHNESS_THRESHOLD = 50 * 365 * 24 * ONE_HOUR // 50 years or post Y2038 ;-)
 
 module.exports = function (log, inherits, Token) {
 
