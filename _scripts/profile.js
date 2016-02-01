@@ -20,14 +20,14 @@ var CONFIGS = {
   'latest': {
     auth: 'https://latest.dev.lcip.org/auth/v1',
     content: 'https://latest.dev.lcip.org/',
-    token: 'https://token.dev.lcip.org/1.0/sync/1.5',
+    token: 'https://latest.dev.lcip.org/syncserver/token/1.0/sync/1.5',
     oauth: 'https://oauth-latest.dev.lcip.org/v1',
     profile: 'https://latest.dev.lcip.org/profile/v1'
   },
   'stable': {
     auth: 'https://stable.dev.lcip.org/auth/v1',
     content: 'https://stable.dev.lcip.org/',
-    token: 'https://token.dev.lcip.org/1.0/sync/1.5',
+    token: 'https://stable.dev.lcip.org/syncserver/token/1.0/sync/1.5',
     oauth: 'https://oauth-stable.dev.lcip.org/v1',
     profile: 'https://stable.dev.lcip.org/profile/v1'
   },
