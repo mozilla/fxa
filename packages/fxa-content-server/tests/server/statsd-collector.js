@@ -92,14 +92,78 @@ define([
   };
 
   suite['properly collects navigationTiming stats'] = function () {
+    return testStatsDEvents('statsd_body_1.json', 'statsd_navigation_timing_data_1.txt');
+  };
+
+  suite['properly filters out of range timing stats'] = function () {
+    return testStatsDEvents('statsd_body_filter_out_of_range.json', 'statsd_filter_out_of_range.txt');
+  };
+
+  registerSuite(suite);
+
+  /**
+   * Creates a test harness, that binds to an ephemeral port
+   * @param {Function} test The test to run, should take message as the argument
+   * @param {Function} callback The callback to call after the server is listening
+   * @private
+   */
+  function udpTest(test, callback){
+    var server = dgram.createSocket('udp4');
+    server.on('message', function (message){
+      test(message.toString(), server);
+    });
+
+    server.on('error', function (err) {
+      console.log('server error:\n' + err.stack);
+      server.close();
+    });
+
+    server.bind(STATSD_PORT, STATSD_HOST, function () {
+      callback(server);
+    });
+  }
+
+  /**
+   * Converts a UDP StatsD string into an object. Helps with assertions
+   * @param {String} message
+   */
+  function statsdMessageToObject(message) {
+    message = message.toString();
+    var split = message.split('#');
+    var name = split[0].split(':')[0];
+    var chunkTags = split[1];
+    var tags = chunkTags.split(',');
+    var obj = {
+      name: name,
+      raw: message,
+      tags: {}
+    };
+
+    tags.forEach(function (rawTag) {
+      var tagSplit = rawTag.split(':');
+      obj.tags[tagSplit[0]] = tagSplit[1];
+    });
+
+    return obj;
+  }
+
+  /**
+   * Tests to ensure StatsD events are collection as expected
+   *
+   * @param {string} fixtureFilename - JSON file to use as source info.
+   * @param {string} expectedFilename - txt file containing
+   *   expected StatsD messages.
+   * @returns {promise}
+   */
+  function testStatsDEvents(fixtureFilename, expectedFilename) {
     var dfd = new Promise.Deferred();
 
     var metricsCollector = new StatsDCollector();
     metricsCollector.init();
 
-    var fixtureMessage = readFixture('statsd_body_1.json');
+    var fixtureMessage = readFixture(fixtureFilename);
     // expectedEvents are written to disk in alphabetical order already.
-    var expectedEventBody = readExpectedData('statsd_navigation_timing_data_1.txt');
+    var expectedEventBody = readExpectedData(expectedFilename);
 
     var expectedEvents = expectedEventBody.split('\n');
     var receivedEvents = [];
@@ -130,54 +194,5 @@ define([
     });
 
     return dfd.promise;
-  };
-
-
-  registerSuite(suite);
-
-  /**
-   * Creates a test harness, that binds to an ephemeral port
-   * @param {Function} test The test to run, should take message as the argument
-   * @param {Function} callback The callback to call after the server is listening
-   * @private
-   */
-  function udpTest(test, callback){
-    var server = dgram.createSocket('udp4');
-    server.on('message', function (message){
-      test(message.toString(), server);
-    });
-
-    server.on('error', function (err) {
-      console.log('server error:\n' + err.stack);
-      server.close();
-    });
-
-    server.bind(STATSD_PORT, STATSD_HOST, function () {
-      callback(server);
-    });
   }
-  /**
-   * Converts a UDP StatsD string into an object. Helps with assertions
-   * @param {String} message
-   */
-  function statsdMessageToObject(message) {
-    message = message.toString();
-    var split = message.split('#');
-    var name = split[0].split(':')[0];
-    var chunkTags = split[1];
-    var tags = chunkTags.split(',');
-    var obj = {
-      name: name,
-      raw: message,
-      tags: {}
-    };
-
-    tags.forEach(function (rawTag) {
-      var tagSplit = rawTag.split(':');
-      obj.tags[tagSplit[0]] = tagSplit[1];
-    });
-
-    return obj;
-  }
-
 });
