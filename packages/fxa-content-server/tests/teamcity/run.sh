@@ -25,12 +25,26 @@ else
   echo "Using GIT_COMMIT from the environment $GIT_COMMIT"
 fi
 
-echo "FXA_TEST_NAME      $FXA_TEST_NAME"
-echo "FXA_CONTENT_ROOT   $FXA_CONTENT_ROOT"
-echo "FXA_AUTH_ROOT      $FXA_AUTH_ROOT"
-echo "FXA_OAUTH_APP_ROOT $FXA_OAUTH_APP_ROOT"
-echo "FXA_FIREFOX_BINARY $FXA_FIREFOX_BINARY"
-echo "GIT_COMMIT         $GIT_COMMIT"
+echo "FXA_TEST_NAME       $FXA_TEST_NAME"
+echo "FXA_CONTENT_ROOT    $FXA_CONTENT_ROOT"
+echo "FXA_AUTH_ROOT       $FXA_AUTH_ROOT"
+echo "FXA_OAUTH_APP_ROOT  $FXA_OAUTH_APP_ROOT"
+echo "FXA_FIREFOX_BINARY  $FXA_FIREFOX_BINARY"
+echo "GIT_COMMIT          $GIT_COMMIT"
+
+echo "FXA_CONTENT_VERSION $FXA_CONTENT_VERSION"
+echo "FXA_OAUTH_VERSION   $FXA_OAUTH_VERSION"
+echo "FXA_PROFILE_VERSION $FXA_PROFILE_VERSION"
+echo "FXA_AUTH_VERSION    $FXA_AUTH_VERSION"
+
+
+echo ""
+echo "Server versions:"
+curl -s $FXA_CONTENT_VERSION
+curl -s $FXA_OAUTH_VERSION
+curl -s $FXA_PROFILE_VERSION
+curl -s $FXA_AUTH_VERSION
+echo ""
 
 rm -rf fxa-content-server-"$FXA_TEST_NAME"
 git clone https://github.com/mozilla/fxa-content-server.git -b master fxa-content-server-"$FXA_TEST_NAME"
