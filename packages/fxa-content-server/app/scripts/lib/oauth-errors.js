@@ -47,7 +47,7 @@ define(function (require, exports, module) {
       errno: 108,
       message: t('Invalid token')
     },
-    INVALID_REQUEST_PARAMETER: {
+    INVALID_PARAMETER: {
       errno: 109,
       message: t('Invalid OAuth parameter: %(param)s')
     },
@@ -123,7 +123,7 @@ define(function (require, exports, module) {
           return {
             param: err.param
           };
-        } else if (this.is(err, 'INVALID_REQUEST_PARAMETER')) {
+        } else if (this.is(err, 'INVALID_PARAMETER')) {
           return {
             param: err.param || err.validation.keys.join(',')
           };

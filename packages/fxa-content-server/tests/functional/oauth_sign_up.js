@@ -13,7 +13,6 @@ define([
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, assert, nodeXMLHttpRequest, FxaClient, TestHelpers, Test, FunctionalHelpers) {
   var config = intern.config;
-  var SIGNUP_ROOT = config.fxaContentRoot + 'oauth/signup';
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
 
   var PASSWORD = 'password';
@@ -63,18 +62,6 @@ define([
           '123done': true,
           contentServer: true
         }));
-    },
-
-    'with missing client_id': function () {
-      return openPage(this, SIGNUP_ROOT + '?scope=profile', '#fxa-400-header');
-    },
-
-    'with invalid client_id': function () {
-      return openPage(this, SIGNUP_ROOT + '?client_id=invalid_client_id&scope=profile', '#fxa-400-header');
-    },
-
-    'with missing scope': function () {
-      return openPage(this, SIGNUP_ROOT + '?client_id=client_id', '#fxa-400-header');
     },
 
     'signup, verify same browser': function () {

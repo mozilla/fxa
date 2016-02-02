@@ -753,6 +753,26 @@ define([
   }
 
   /**
+   * Check whether an input element's text includes the expected value.
+   * Comparison is case insensitive
+   *
+   * @param {string} selector
+   * @param {string} expected
+   * @returns {promise} rejects if test fails.
+   */
+  function testElementTextInclude(selector, expected) {
+    return function () {
+      return this.parent
+        .findByCssSelector(selector)
+        .getVisibleText()
+        .then(function (resultText) {
+          assert.include(resultText.toLowerCase(), expected.toLowerCase());
+        })
+        .end();
+    };
+  }
+
+  /**
    * Check whether an input element's value equals the expected value
    *
    * @param {string} selector
@@ -974,6 +994,7 @@ define([
     respondToWebChannelMessage: respondToWebChannelMessage,
     testAreEventsLogged: testAreEventsLogged,
     testElementExists: testElementExists,
+    testElementTextInclude: testElementTextInclude,
     testElementValueEquals: testElementValueEquals,
     testErrorWasShown: testErrorWasShown,
     testIsBrowserNotified: testIsBrowserNotified,

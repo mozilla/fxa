@@ -17,6 +17,14 @@ define(function (require, exports, module) {
             assert.equal(Url.searchParam('color', '?color=green'), 'green');
           });
 
+      it('returns empty if parameter is empty', function () {
+        assert.equal(Url.searchParam('color', '?color='), '');
+      });
+
+      it('returns empty if parameter is a space', function () {
+        assert.equal(Url.searchParam('color', '?color= '), '');
+      });
+
       it('returns undefined if parameter does not exist', function () {
         assert.isUndefined(Url.searchParam('animal', '?color=green'));
       });

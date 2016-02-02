@@ -45,9 +45,10 @@ define(function (require, exports, module) {
      * @param {String} paramName - name of the search parameter
      * @param {String} [modelName] - name to set in model. If not specified,
      *      use the same value as `paramName`
-     * @throws {TypeError} if paramName is neither `true` nor `false`
+     * @param {Errors} Errors - corresponding Errors object
+     * @throws {error}
      */
-    importBooleanSearchParam: function (paramName, modelName) {
+    importBooleanSearchParam: function (paramName, modelName, Errors) {
       modelName = modelName || paramName;
       var self = this;
 
@@ -58,8 +59,31 @@ define(function (require, exports, module) {
         } else if (textValue === 'false') {
           self.set(modelName, false);
         } else {
-          throw new TypeError(paramName + ' must be `true` or `false`');
+          var err = Errors.toError('INVALID_PARAMETER');
+          err.param = paramName;
+          throw err;
         }
+      }
+    },
+
+    /**
+     * Set a value based on a value in window.location.search. Throws error
+     * if paramName param is not in window.location.search.
+     *
+     * Throws Error mapped to `MISSING_PARAMETER` in Errors object.
+     *
+     * @param {string} paramName - name of the search parameter
+     * @param {string} modelName - name to set in model
+     * @param {Errors} Errors - corresponding Errors object
+     * @throws {error}
+     */
+    importRequiredSearchParam: function (paramName, modelName, Errors) {
+      var self = this;
+      self.importSearchParam(paramName, modelName);
+      if (! self.has(modelName || paramName)) {
+        var err = Errors.toError('MISSING_PARAMETER');
+        err.param = paramName;
+        throw err;
       }
     }
   };

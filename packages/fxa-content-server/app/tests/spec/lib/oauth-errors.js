@@ -70,16 +70,23 @@ define(function (require, exports, module) {
         assert.equal(OAuthErrors.toInterpolationContext(err).param, 'param');
       });
 
-      it('`INVALID_REQUEST_PARAMETER` returns object w/ `param`', function () {
-        var err = OAuthErrors.toError('INVALID_REQUEST_PARAMETER');
+      it('`INVALID_PARAMETER` w/ server error returns object w/ param', function () {
+        var err = OAuthErrors.toError('INVALID_PARAMETER');
         err.validation = {
           keys: ['param']
         };
         assert.equal(OAuthErrors.toInterpolationContext(err).param, 'param');
       });
 
+      it('`INVALID_PARAMETER` w/ client error returns object w/ param', function () {
+        var err = OAuthErrors.toError('INVALID_PARAMETER');
+        err.param = 'param';
+
+        assert.equal(OAuthErrors.toInterpolationContext(err).param, 'param');
+      });
+
       it('malformed server responses are handled gracefully', function () {
-        var err = OAuthErrors.toError('INVALID_REQUEST_PARAMETER');
+        var err = OAuthErrors.toError('INVALID_PARAMETER');
         // validation should have a keys field that is an array.
         err.validation = {};
         assert.equal(Object.keys(OAuthErrors.toInterpolationContext(err)).length, 0);

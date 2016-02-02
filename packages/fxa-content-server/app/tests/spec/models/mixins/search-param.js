@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var AuthErrors = require('lib/auth-errors');
   var Backbone = require('backbone');
   var chai = require('chai');
   var Cocktail = require('cocktail');
@@ -59,6 +60,17 @@ define(function (require, exports, module) {
     });
 
     describe('importBooleanSearchParam', function () {
+      var err;
+
+      function importExpectFailure(searchParams, sourceName, destName) {
+        windowMock.location.search = TestHelpers.toSearchString(searchParams);
+        try {
+          model.importBooleanSearchParam(sourceName, destName, AuthErrors);
+        } catch (e) {
+          err = e;
+        }
+      }
+
       it('sets value to the boolean `true` if search param is `true`', function () {
         windowMock.location.search = TestHelpers.toSearchString({
           expectBoolean: true
@@ -77,14 +89,108 @@ define(function (require, exports, module) {
         assert.isFalse(model.get('expectBoolean'));
       });
 
-      it('throws if value is neither `true` nor `false`', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          expectBoolean: 'not a boolean'
+      describe('value is not boolean', function () {
+        beforeEach(function () {
+          importExpectFailure({ expectBoolean: 'not a boolean' }, 'expectBoolean');
         });
 
-        assert.throws(function () {
-          model.importBooleanSearchParam('expectBoolean');
-        }, 'expectBoolean must be `true` or `false`');
+        it('errors correctly', function () {
+          assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
+        });
+      });
+
+      describe('value is empty', function () {
+        beforeEach(function () {
+          importExpectFailure({ expectBoolean: '' }, 'expectBoolean');
+        });
+
+        it('errors correctly', function () {
+          assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
+        });
+      });
+
+      describe('value is a space', function () {
+        beforeEach(function () {
+          importExpectFailure({ expectBoolean: ' ' }, 'expectBoolean');
+        });
+
+        it('errors correctly', function () {
+          assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
+        });
+      });
+    });
+
+    describe('importRequiredSearchParam', function () {
+      var err;
+
+      function importExpectFailure(searchParams, sourceName, destName) {
+        windowMock.location.search = TestHelpers.toSearchString(searchParams);
+        try {
+          model.importRequiredSearchParam(sourceName, destName, AuthErrors);
+        } catch (e) {
+          err = e;
+        }
+      }
+
+      describe('missing', function () {
+        beforeEach(function () {
+          importExpectFailure({}, 'searchParam');
+        });
+
+        it('errors correctly', function () {
+          assert.isTrue(AuthErrors.is(err, 'MISSING_PARAMETER'));
+          assert.equal(err.param, 'searchParam');
+        });
+      });
+
+      describe('empty', function () {
+        beforeEach(function () {
+          importExpectFailure({searchParam: ''}, 'searchParam');
+        });
+
+        it('errors correctly', function () {
+          assert.isTrue(AuthErrors.is(err, 'MISSING_PARAMETER'));
+          assert.equal(err.param, 'searchParam');
+        });
+      });
+
+      describe('space', function () {
+        beforeEach(function () {
+          importExpectFailure({searchParam: ' '}, 'searchParam');
+        });
+
+        it('errors correctly', function () {
+          assert.isTrue(AuthErrors.is(err, 'MISSING_PARAMETER'));
+          assert.equal(err.param, 'searchParam');
+        });
+      });
+
+      describe('available', function () {
+        describe('without destName', function () {
+          beforeEach(function () {
+            windowMock.location.search = TestHelpers.toSearchString({ searchParam: 'value'});
+            model.importRequiredSearchParam('searchParam', 'searchParam', AuthErrors);
+          });
+
+          it('imports the value', function () {
+            assert.equal(model.get('searchParam'), 'value');
+          });
+        });
+
+        describe('with destName', function () {
+          beforeEach(function () {
+            windowMock.location.search = TestHelpers.toSearchString({ searchParam: 'value'});
+            model.importRequiredSearchParam('searchParam', 'key2', AuthErrors);
+          });
+
+          it('does not import to `sourceName`', function () {
+            assert.isFalse(model.has('searchParam'));
+          });
+
+          it('imports the value to `destName`', function () {
+            assert.equal(model.get('key2'), 'value');
+          });
+        });
       });
     });
   });
