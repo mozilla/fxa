@@ -41,12 +41,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('isFxDesktop', function () {
-      it('returns `false`', function () {
-        assert.isFalse(relier.isFxDesktop());
-      });
-    });
-
     describe('isSync', function () {
       it('returns `false`', function () {
         assert.isFalse(relier.isSync());

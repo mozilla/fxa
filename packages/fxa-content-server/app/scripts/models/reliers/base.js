@@ -40,13 +40,6 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Check if the relier is Firefox Desktop
-     */
-    isFxDesktop: function () {
-      return false;
-    },
-
-    /**
      * Check if the relier is Sync for Firefox Desktop
      */
     isSync: function () {
