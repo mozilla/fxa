@@ -97,7 +97,7 @@ define(function (require, exports, module) {
       }
 
       // Indicator is waiting to be shown, no need to show it anymore.
-      // Remove the timeout and ensure the indictor is nowhere to be found.
+      // Remove the timeout and ensure the indicator is nowhere to be found.
       if (self._showIndicatorTimeout) {
         self.clearTimeout(self._showIndicatorTimeout);
         self._showIndicatorTimeout = null;

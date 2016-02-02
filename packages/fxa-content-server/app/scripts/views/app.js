@@ -75,7 +75,7 @@ define(function (require, exports, module) {
           // child view->parent view
           //
           // No need to re-render, only notify parties of the event.
-          // update the curernt view's model with data sent from
+          // update the current view's model with data sent from
           // the child view.
           currentView.model.set(options.model.toJSON());
 

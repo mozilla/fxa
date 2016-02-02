@@ -62,7 +62,7 @@
         var errorMsg = 'crosstab not supported';
         var reasons = [];
         if (!localStorage) {
-            reasons.push('localStorage not availabe');
+            reasons.push('localStorage not available');
         }
         if (!window.addEventListener) {
             reasons.push('addEventListener not available');
