@@ -303,7 +303,7 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Get an element value, trimming the value of whitespace if necesary
+     * Get an element value, trimming the value of whitespace if necessary
      */
     getElementValue: function (el) {
       var value = this.$(el).val();
