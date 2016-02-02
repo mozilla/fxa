@@ -161,3 +161,44 @@ test(
     push.notifyUpdate(mockUid)
   }
 )
+
+test(
+  'notifyUpdate resets device push data when push server responds with a 400 level error',
+  function (t) {
+    var mockDb = {
+      devices: function (/* uid */) {
+        return P.resolve([
+          {
+            'id': 'foo',
+            'pushCallback': 'https://example.com',
+          }
+        ])
+      },
+      updateDevice: function () {
+        return P.resolve()
+      }
+    }
+
+    var thisMockLog = extend({}, mockLog)
+    thisMockLog.increment = function (log) {
+      if (log === 'push.reset_settings') {
+        // request failed
+        t.end()
+      }
+    }
+
+    var mocks = {
+      request: {
+        post: function (url, cb) {
+          return cb(new Error('Failed 400 level'), {
+            statusCode: 410
+          })
+        }
+      }
+    }
+
+    var push = proxyquire('../../lib/push', mocks)(thisMockLog, mockDb)
+    push.notifyUpdate(mockUid)
+  }
+)
+
