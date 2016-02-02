@@ -7,7 +7,6 @@ define(function (require, exports, module) {
 
   var _ = require('underscore');
   var MailcheckExperiment = require('lib/experiments/mailcheck');
-  var OpenGmailExperiment = require('lib/experiments/open-gmail');
   var SyncCheckboxExperiment = require('lib/experiments/sync-checkbox');
   var Url = require('lib/url');
 
@@ -19,7 +18,6 @@ define(function (require, exports, module) {
   // A/B testing purposes.
   var DEFAULT_EXPERIMENTS = {
     'mailcheck': MailcheckExperiment,
-    'openGmail': OpenGmailExperiment,
     'syncCheckbox': SyncCheckboxExperiment
   };
 

@@ -39,10 +39,6 @@ define(function (require, exports, module) {
     },
 
     context: function () {
-      if (this.isInExperiment('openGmail')) {
-        this.notifier.trigger('openGmail.triggered');
-      }
-
       var email = this.getAccount().get('email');
 
       return {
@@ -53,7 +49,9 @@ define(function (require, exports, module) {
     },
 
     _isOpenGmailButtonVisible: function () {
-      return this.isInExperimentGroup('openGmail', 'treatment');
+      // The "Open Gmail" is only visible in certain contexts
+      // we do not show it in mobile contexts because it performs worse on mobile
+      return this.broker.hasCapability('openGmailButtonVisible');
     },
 
     events: {
@@ -69,7 +67,7 @@ define(function (require, exports, module) {
     },
 
     _gmailTabOpened: function () {
-      this.notifier.trigger('openGmail.clicked');
+      this.logViewEvent('openGmail.clicked');
     },
 
     beforeRender: function () {

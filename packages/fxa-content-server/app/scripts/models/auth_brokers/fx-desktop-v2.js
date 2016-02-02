@@ -60,7 +60,8 @@ define(function (require, exports, module) {
           'desktop-addons',
           'desktop-preferences'
         ]
-      }
+      },
+      openGmailButtonVisible: true
     }),
 
     type: 'fx-desktop-v2'

@@ -28,7 +28,8 @@ define(function (require, exports, module) {
 
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
       chooseWhatToSyncCheckbox: true,
-      chooseWhatToSyncWebV1: false
+      chooseWhatToSyncWebV1: false,
+      openGmailButtonVisible: true
     }),
 
     initialize: function (options) {

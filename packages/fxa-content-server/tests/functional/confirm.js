@@ -14,6 +14,9 @@ define([
   var CONFIRM_URL = config.fxaContentRoot + 'confirm';
   var SIGNUP_URL = config.fxaContentRoot + 'signup';
 
+  var listenForFxaCommands = FunctionalHelpers.listenForWebChannelMessage;
+  var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
+
   registerSuite({
     name: 'confirm',
 
@@ -53,6 +56,9 @@ define([
           })
         .end()
 
+        .then(FunctionalHelpers.noSuchElement(self, '#open-gmail'))
+        .end()
+
         .findByCssSelector('#resend')
           .click()
         .end()
@@ -61,6 +67,46 @@ define([
         // we have to wait until the resent request completes and the
         // success notification is visible
         .then(FunctionalHelpers.testSuccessWasShown(this));
+    },
+
+    'sign up with a gmail address, get the open gmail button': function () {
+      var self = this;
+      var email = 'signin' + Math.random() + '@gmail.com';
+      var PASSWORD = '12345678';
+      var SIGNUP_URL = intern.config.fxaContentRoot + 'signup?context=fx_desktop_v2&service=sync';
+
+      return FunctionalHelpers.openPage(this, SIGNUP_URL, '#fxa-signup-header')
+        .execute(listenForFxaCommands)
+        .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: true } ))
+
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
+        })
+
+        .findByCssSelector('#choose-what-to-sync')
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        .findByCssSelector('#open-gmail')
+          .click()
+        .end()
+
+        .getAllWindowHandles()
+        .then(function (handles) {
+          return self.remote.switchToWindow(handles[1]);
+        })
+
+        .findByCssSelector('.google-header-bar')
+        .end()
+
+        .closeCurrentWindow()
+        .switchToWindow('')
+
+        .findByCssSelector('#fxa-confirm-header')
+        .end();
     }
   });
 });
