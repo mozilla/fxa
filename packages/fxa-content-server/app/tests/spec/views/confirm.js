@@ -118,18 +118,6 @@ define(function (require, exports, module) {
             assert.isTrue(view.navigate.calledWith('signup'));
           });
       });
-
-      it('triggers the experiment', function () {
-        sinon.spy(view.notifier, 'trigger');
-        view.isInExperiment = function () {
-          return true;
-        };
-
-        return view.render()
-          .then(function () {
-            assert.isTrue(view.notifier.trigger.called);
-          });
-      });
     });
 
 
@@ -363,7 +351,35 @@ define(function (require, exports, module) {
       it('triggers gmail tab opening', function () {
         sinon.spy(view.notifier, 'trigger');
         view._gmailTabOpened();
-        assert.isTrue(view.notifier.trigger.called);
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'confirm.openGmail.clicked'));
+      });
+    });
+
+    describe('openGmail feature', function () {
+      it('it is not visible in basic contexts', function () {
+        assert.notOk($('#open-gmail').length);
+      });
+
+      it('is visible if the broker supports the openGmailButtonVisible capability', function () {
+        broker.setCapability('openGmailButtonVisible', true);
+
+        view = new View({
+          broker: broker,
+          fxaClient: fxaClient,
+          metrics: metrics,
+          model: model,
+          notifier: notifier,
+          relier: relier,
+          user: user,
+          viewName: 'confirm',
+          window: windowMock
+        });
+
+        return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+            assert.lengthOf(view.$('#open-gmail'), 1);
+          });
       });
     });
   });

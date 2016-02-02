@@ -24,7 +24,6 @@ function (Translator, Session) {
     '../tests/spec/lib/channels/senders/web-channel',
     '../tests/spec/lib/experiments/base',
     '../tests/spec/lib/experiments/mailcheck',
-    '../tests/spec/lib/experiments/open-gmail',
     '../tests/spec/lib/experiments/sync-checkbox',
     '../tests/spec/lib/xss',
     '../tests/spec/lib/url',
