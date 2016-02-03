@@ -19,6 +19,19 @@ var conf = convict({
     format: 'port',
     default: 10136
   },
+  db: {
+    backend: {
+      default: 'httpdb',
+      env: 'DB_BACKEND'
+    }
+  },
+  httpdb: {
+    url: {
+      doc: 'database api url',
+      default: 'http://127.0.0.1:8000',
+      env: 'HTTPDB_URL'
+    }
+  },
   logging: {
     app: {
       default: 'fxa-auth-mailer'

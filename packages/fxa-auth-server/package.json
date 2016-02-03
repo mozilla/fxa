@@ -27,10 +27,14 @@
     "mozlog": "2.0.2",
     "nodemailer": "0.7.1",
     "po2json": "0.4.1",
-    "restify": "4.0.3"
+    "poolee": "1.0.0",
+    "request": "2.69.0",
+    "restify": "4.0.3",
+    "uuid": "1.4.1"
   },
   "devDependencies": {
     "eslint-config-fxa": "2.0.0",
+    "fxa-auth-db-mysql": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#master",
     "grunt": "0.4.5",
     "grunt-cli": "0.1.13",
     "grunt-contrib-copy": "0.8.2",
@@ -38,7 +42,9 @@
     "husky": "0.10.2",
     "jsxgettext-recursive": "0.0.5",
     "load-grunt-tasks": "3.3.0",
+    "proxyquire": "1.7.4",
     "simplesmtp": "0.3.32",
-    "tap": "2.3.2"
+    "sinon": "1.17.3",
+    "tap": "5.4.2"
   }
 }
