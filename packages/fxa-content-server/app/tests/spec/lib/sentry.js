@@ -233,6 +233,7 @@ define(function (require, exports, module) {
 
         var err = new Error('uh oh');
         err.code = 400;
+        err.context = '/signup';
         err.errno = 998;
         err.namespace = 'config';
         err.status = 401;
@@ -243,6 +244,7 @@ define(function (require, exports, module) {
         assert.isTrue(Raven.captureException.calledWith(err, {
           tags: {
             code: 400,
+            context: '/signup',
             errno: 998,
             namespace: 'config',
             status: 401
