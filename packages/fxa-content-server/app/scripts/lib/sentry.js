@@ -147,6 +147,7 @@ define(function (require, exports, module) {
      */
     _exceptionTags: [
       'code',
+      'context',
       'errno',
       'namespace',
       'status'
