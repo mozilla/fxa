@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const fs = require('fs')
-const path = require('path')
+var fs = require('fs')
+var path = require('path')
 
-const convict = require('convict')
+var convict = require('convict')
 
-const conf = convict({
+var conf = convict({
   env: {
     doc: 'The current node.js environment',
     default: 'prod',
