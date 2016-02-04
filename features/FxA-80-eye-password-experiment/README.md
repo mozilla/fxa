@@ -13,9 +13,9 @@ We would like to learn if users who show the password field are struggling less,
 ## Control UX
 Currently the show password toggles are synchronized. We should remove this for the experiment.
 
-![Current Masked](current-masked.png)
+<img alt="Current Masked" src="current-masked.png" width="525">
 
-![Current Unmasked](current-unmasked.png)
+<img alt="Current Unmasked" src="current-unmasked.png" width="525">
 
 ## Treatment UX
 
@@ -25,13 +25,13 @@ Currently the show password toggles are synchronized. We should remove this for 
 * When the user clicks the eye and the password is masked, the password becomes unmasked.
 * When the user clicks the eye and the password is unmasked, the password becomes masked.
 
-![Proposed Masked](proposed-masked.png)
+<img alt="Proposed Masked" src="proposed-masked.png" width="525">
 
-![Proposed Unmasked](proposed-unmasked.png)
+<img alt="Proposed Unmasked" src="proposed-unmasked.png" width="525">
 
 ## Success Criteria
 
-We will measure these errors (or create new ones) for both control and treatment groups.
+We will measure the show and hide actions as well as these errors (or create new ones) for both control and treatment groups.
 
 ```
 Incorrect password
