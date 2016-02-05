@@ -88,6 +88,10 @@ to update its view of the account status:
   If this reports that the account does exist,
   enter the "needs to reauthenticate" state.
 
+We are currently ignoring push notification TTLs.
+TTLs could become important when we move to messages with payload, 
+where we might want more reliable delivery. See [discussion](https://github.com/mozilla/fxa-auth-server/issues/1164).
+
 ## Open Questions
 
 * Do we need some fallback polling mechanism if the notification stuff
