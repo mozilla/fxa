@@ -29,6 +29,7 @@ install:
   - if [ $TRAVIS_NODE_VERSION == "4" ]; then CXX=g++-4.8 npm install; else npm install; fi
 
 script:
-  - npm outdated --depth 0
   - grunt templates
   - npm test
+  - npm outdated --depth 0
+  - grunt l10n-extract
