@@ -1,4 +1,4 @@
-FROM node:4.2.4
+FROM node:0.10.41
 
 # install libgmp-dev for fast crypto and 
 RUN apt update && \
@@ -6,11 +6,10 @@ RUN apt update && \
 
 # add a non-privileged user for installing and running
 # the application
-RUN groupadd --gid 1001 app && \
-    useradd --uid 1001 --gid 1001 --home /app --create-home app
+RUN groupadd --gid 10001 app && \
+    useradd --uid 10001 --gid 10001 --home /app --create-home app
 
 WORKDIR /app
-
 
 # Install node requirements and clean up unneeded cache data
 COPY package.json package.json
