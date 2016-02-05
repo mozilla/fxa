@@ -17,9 +17,6 @@ module.exports = function (grunt) {
     // with requirejs and usemin
     'l10n-generate-pages',
 
-    // use error pages from en as the static error pages
-    'copy:error_pages',
-
     // prepares the configuration to transform specific blocks
     // in the scrutinized file into a single line, targeting an optimized version of the files.
     'useminPrepare',
@@ -64,6 +61,14 @@ module.exports = function (grunt) {
     // update the sourcemap path to match the hosted files
     'sourcemap-source',
 
+    // Add subresource integrity attributes to static resources.
+    'sriify',
+
+    // Remove whitespace from the HTML
     'htmlmin',
+
+    // use error pages from en as the static error pages. Comes last
+    // to ensure static resources are loaded using cache busting URLs
+    'copy:error_pages'
   ]);
 };
