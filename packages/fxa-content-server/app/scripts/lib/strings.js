@@ -18,20 +18,15 @@ define(function (require, exports, module) {
   t('By proceeding, you agree to the <a id="service-tos" href="%(termsUri)s">Terms of Service</a> and' +
     '<a id="service-pp" href="%(privacyUri)s">Privacy Notice</a> of %(serviceName)s (%(serviceUri)s).');
 
-  // Needed for #2757
-  t('Bookmarks');
-  t('History');
-  t('Tabs');
-  t('Passwords');
-  t('Desktop Add-ons');
-  t('Desktop Preferences');
-
   // Allow translators to include "help" links in additional contexts.
   // Including the string here means translators are free to use it
   // without triggering errors from our l10n linting procedure.
   // See e.g. https://bugzilla.mozilla.org/show_bug.cgi?id=1131472
   // for why this could be necessary.
   t('<a href="https://support.mozilla.org/kb/im-having-problems-with-my-firefox-account">Help</a>');
+
+  // Needed for #3399
+  t('Have an account with a different email? <a href="%(signinUri)s">Sign in</a>');
 
   /**
    * Replace instances of %s and %(name)s with their corresponding values in
