@@ -1,11 +1,14 @@
-<div class="form-group">
-  <label for="inputTitle">Client Name</label>
-  {{input value=model.name id="inputTitle"}}
-</div>
-<div class="form-group">
-  <label for="inputRedirect">Redirect URI</label>
-  {{input value=model.redirect_uri id="inputRedirect"}}
-</div>
+{{#unless registrationSuccess}}
+  <div class="form-group">
+    <label for="inputTitle">Client Name</label>
+    {{input value=model.name id="inputTitle"}}
+  </div>
+  <div class="form-group">
+    <label for="inputRedirect">Redirect URI</label>
+    {{input value=model.redirect_uri id="inputRedirect"}}
+  </div>
+{{/unless}}
+
 <div class="form-group">
     <p>This client is {{#if model.trusted}}<strong>a trusted</strong>{{else}}<strong>not a trusted</strong>{{/if}} Mozilla Firefox Accounts client.</p>
 </div>

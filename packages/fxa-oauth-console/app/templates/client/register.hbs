@@ -6,9 +6,11 @@
     <legend>New Client</legend>
   {{/if}}
 
-  <div class="form-group">
-      <label for="trusted">Trusted Mozilla Client: {{input type="checkbox" name=model.trusted checked=model.trusted id="trusted"}}</label>
-  </div>
+  {{#unless registrationSuccess}}
+    <div class="form-group">
+        <label for="trusted">Trusted Mozilla Client: {{input type="checkbox" name=model.trusted checked=model.trusted id="trusted"}}</label>
+    </div>
+  {{/unless}}
 
   {{partial 'client/form'}}
 

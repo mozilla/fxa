@@ -16,6 +16,9 @@ function fixUpRedirectUri (uri) {
 }
 
 export default DS.RESTAdapter.extend({
+  _handleErrorResponse: function () {
+    this.get('session').invalidate();
+  },
   session: Ember.inject.service('session'),
   /**
    * API Namespace
@@ -52,7 +55,7 @@ export default DS.RESTAdapter.extend({
    * @returns {*}
    */
   findRecord: function(store, type, id, record) {
-    // post process the resuld of 'find'. Need to add the Model type 'client' into the response
+    // post process the resuld of 'findRecord'. Need to add the Model type 'client' into the response
     return this.ajax(this.buildURL(type.modelName, id, record), 'GET').then(function (resp) {
       return { client: resp };
     });
@@ -76,9 +79,15 @@ export default DS.RESTAdapter.extend({
     data.redirect_uri = fixUpRedirectUri(data.redirect_uri); //eslint-disable-line camelcase
 
     // post process the result of 'find'. Need to add the Model type 'client' into the response
-    return this.ajax(this.buildURL(type.modelName, null, record), 'POST', { data: data }).then(function (resp) {
-      return { client: resp };
-    });
+    return this.ajax(this.buildURL(type.modelName, null, record), 'POST', { data: data })
+      .then(
+        (resp) => {
+          return { client: resp };
+        },
+        () => {
+          this._handleErrorResponse()
+        }
+      );
   },
   /**
    * Overrides default RESTAdapter 'updateRecord'
@@ -100,11 +109,17 @@ export default DS.RESTAdapter.extend({
     data.redirect_uri = fixUpRedirectUri(data.redirect_uri); //eslint-disable-line camelcase
 
     // set POST instead of PUT
-    return this.ajax(this.buildURL(type.modelName, id, record), 'POST', { data: data }).then(function () {
-      data.id = id;
+    return this.ajax(this.buildURL(type.modelName, id, record), 'POST', { data: data })
+      .then(
+        () => {
+          data.id = id;
 
-      return { client: data };
-    });
+          return { client: data };
+        },
+        () => {
+          this._handleErrorResponse()
+        }
+      );
   },
   /**
   /**
