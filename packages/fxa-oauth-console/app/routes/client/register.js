@@ -27,6 +27,7 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
     controller.set('model', model);
   },
   model: function() {
+    this.controllerFor('client.register').set('registrationSuccess', false);
     return this.store.createRecord('client', {});
   },
   deactivate: function() {
