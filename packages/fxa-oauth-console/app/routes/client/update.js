@@ -17,5 +17,9 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
     cancel: function() {
       return this.transitionTo('clients');
     }
+  },
+  deactivate: function() {
+    var model = this.controllerFor('client.update').get('model');
+    model.rollbackAttributes();
   }
 });

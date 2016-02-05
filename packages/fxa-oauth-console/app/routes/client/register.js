@@ -25,5 +25,9 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
   },
   model: function() {
     return this.store.createRecord('client', {});
+  },
+  deactivate: function() {
+    var model = this.controllerFor('client.register').get('model');
+    model.rollbackAttributes();
   }
 });
