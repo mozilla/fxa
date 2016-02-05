@@ -130,6 +130,9 @@ Only available if `context` equals `fx_desktop_v1`, `fx_desktop_v2`, `fx_desktop
 * /signin
 * /signup
 
+#### Options
+* `sync11`
+
 ### `service`
 Specify which non-OAuth service a user is signing in to.
 
