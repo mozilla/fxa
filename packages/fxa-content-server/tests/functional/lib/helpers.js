@@ -616,20 +616,27 @@ define([
   }
 
   function listenForWebChannelMessage() {
-    // this event will fire once the account is confirmed, helping it
-    // redirect to the application. If the window redirect does not
-    // happen then the sign in page will hang on the confirmation screen
-    addEventListener('WebChannelMessageToChrome', function (e) {
-      var command = e.detail.message.command;
-      var data = e.detail.message.data;
+    // We start listening for web channel messages as soon as
+    // openPage is called, before the page is ready. Wait for
+    // the prerequisites, then attach.
+    function startListening() {
+      if (typeof window !== 'undefined' &&
+          typeof window.addEventListener === 'function') {
+        addEventListener('WebChannelMessageToChrome', function (e) {
+          var command = e.detail.message.command;
+          var data = e.detail.message.data;
 
-      var element = document.createElement('div');
-      element.setAttribute('id', 'message-' + command.replace(/:/g, '-'));
-      element.innerText = JSON.stringify(data);
-      document.body.appendChild(element);
-    });
+          var element = document.createElement('div');
+          element.setAttribute('id', 'message-' + command.replace(/:/g, '-'));
+          element.innerText = JSON.stringify(data);
+          document.body.appendChild(element);
+        });
+      } else {
+        setImmediate(startListening);
+      }
+    }
 
-    return true;
+    startListening();
   }
 
   function respondToWebChannelMessage(context, expectedCommand, response) {
@@ -680,7 +687,7 @@ define([
     };
   }
 
-  function noSuchBrowserNotification(context, command, cb) {
+  function noSuchBrowserNotification(context, command) {
     return noSuchElement(context, commandToCssSelector(command));
   }
 
@@ -688,6 +695,10 @@ define([
     return context.remote
       .get(require.toUrl(url))
       .setFindTimeout(config.pageLoadTimeout)
+
+      // WebChannel Messages can sometimes be sent before the page
+      // is rendered. Try to attach a listener as early as possible.
+      .execute(listenForWebChannelMessage)
 
       // Wait until the `readySelector` element is found to return.
       .findByCssSelector(readySelector)

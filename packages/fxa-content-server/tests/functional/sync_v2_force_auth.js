@@ -21,7 +21,7 @@ define([
   var PASSWORD = '12345678';
   var url;
 
-  var listenForFxaCommands = FunctionalHelpers.listenForWebChannelMessage;
+  var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
@@ -45,7 +45,8 @@ define([
       return client.signUp(email, PASSWORD, { preVerified: true })
         .then(function () {
           return FunctionalHelpers.openPage(self, url, '#fxa-force-auth-header')
-            .execute(listenForFxaCommands)
+            .then(noSuchBrowserNotification(self, 'fxaccounts:logout'))
+
             .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: true } ))
 
             .then(function () {

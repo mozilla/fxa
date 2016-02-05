@@ -11,7 +11,6 @@ define(function (require, exports, module) {
   var Cocktail = require('cocktail');
   var FormView = require('views/form');
   var PasswordResetMixin = require('views/mixins/password-reset-mixin');
-  var Session = require('lib/session');
   var SignInView = require('views/sign_in');
   var Template = require('stache!templates/force_auth');
 
@@ -23,21 +22,9 @@ define(function (require, exports, module) {
     return '';
   }
 
-
   var View = SignInView.extend({
     template: Template,
-    className: 'sign-in',
-
-    initialize: function (options) {
-      options = options || {};
-
-      this._formPrefill = options.formPrefill;
-
-      // forceAuth means a user must sign in as a specific user.
-      // kill the user's local session.
-      Session.clear();
-      this.user.clearSignedInAccount();
-    },
+    className: 'force-auth',
 
     context: function () {
       var fatalError = '';
