@@ -3,9 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Ember from 'ember';
-import config from '../config/environment';
 
 export default Ember.Controller.extend({
   session: Ember.inject.service('session'),
-  server: config.servers.oauth.replace('https://', '').replace('http://', '')
+  actions: {
+    invalidateSession() {
+      this.get('session').invalidate();
+    }
+  }
 });

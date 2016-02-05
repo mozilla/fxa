@@ -16,6 +16,7 @@ function fixUpRedirectUri (uri) {
 }
 
 export default DS.RESTAdapter.extend({
+  session: Ember.inject.service('session'),
   /**
    * API Namespace
    */
@@ -31,9 +32,16 @@ export default DS.RESTAdapter.extend({
    */
   headers: Ember.computed(function () {
     return {
-      'Authorization': 'Bearer ' + this.get('session.content.token')
+      'Authorization': 'Bearer ' + this.get('session.data.authenticated.token')
     };
   }),
+
+  shouldReloadAll() {
+    return true;
+  },
+  shouldBackgroundReloadRecord() {
+    return true;
+  },
   /**
    * Overrides default RESTAdapter 'find'.
    *
@@ -43,9 +51,9 @@ export default DS.RESTAdapter.extend({
    * @param record
    * @returns {*}
    */
-  find: function(store, type, id, record) {
+  findRecord: function(store, type, id, record) {
     // post process the resuld of 'find'. Need to add the Model type 'client' into the response
-    return this.ajax(this.buildURL(type.typeKey, id, record), 'GET').then(function (resp) {
+    return this.ajax(this.buildURL(type.modelName, id, record), 'GET').then(function (resp) {
       return { client: resp };
     });
   },
@@ -59,7 +67,7 @@ export default DS.RESTAdapter.extend({
    */
   createRecord: function(store, type, record) {
     var data = {};
-    var serializer = store.serializerFor(type.typeKey);
+    var serializer = store.serializerFor(type.modelName);
 
     serializer.serializeIntoHash(data, type, record, { includeId: true });
 
@@ -68,7 +76,7 @@ export default DS.RESTAdapter.extend({
     data.redirect_uri = fixUpRedirectUri(data.redirect_uri); //eslint-disable-line camelcase
 
     // post process the result of 'find'. Need to add the Model type 'client' into the response
-    return this.ajax(this.buildURL(type.typeKey, null, record), 'POST', { data: data }).then(function (resp) {
+    return this.ajax(this.buildURL(type.modelName, null, record), 'POST', { data: data }).then(function (resp) {
       return { client: resp };
     });
   },
@@ -81,7 +89,7 @@ export default DS.RESTAdapter.extend({
    */
   updateRecord: function(store, type, record) {
     var data = {};
-    var serializer = store.serializerFor(type.typeKey);
+    var serializer = store.serializerFor(type.modelName);
     serializer.serializeIntoHash(data, type, record);
 
     var id = record.id;
@@ -92,7 +100,7 @@ export default DS.RESTAdapter.extend({
     data.redirect_uri = fixUpRedirectUri(data.redirect_uri); //eslint-disable-line camelcase
 
     // set POST instead of PUT
-    return this.ajax(this.buildURL(type.typeKey, id, record), 'POST', { data: data }).then(function () {
+    return this.ajax(this.buildURL(type.modelName, id, record), 'POST', { data: data }).then(function () {
       data.id = id;
 
       return { client: data };

@@ -11,8 +11,8 @@
   </ul>
   <section class="top-bar-section">
     <ul class="right">
-      {{#if session.email}}
-        <li><a id="logout" {{ action 'invalidateSession' }}>Logout</a></li>
+      {{#if session.isAuthenticated}}
+        <li><button id="logout" {{ action 'invalidateSession' }}>Logout</button></li>
       {{/if}}
     </ul>
   </section>

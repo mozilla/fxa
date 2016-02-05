@@ -3,14 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Ember from 'ember';
-import Base from 'simple-auth/authenticators/base';
+import Base from 'ember-simple-auth/authenticators/base';
 import config from '../config/environment';
 
 /**
  * Custom Ember Simple Auth Authenticator
  * See docs: http://ember-simple-auth.simplabs.com/ember-simple-auth-api-docs.html
  */
-var CustomAuthenticator = Base.extend({
+export default Base.extend({
   /**
    * Token endpoint
    */
@@ -53,14 +53,13 @@ var CustomAuthenticator = Base.extend({
 
         Ember.run(function () {
           if (response && response.email && response.token) {
-
             return resolve({
               email: response.email,
               token: response.token
             });
           } else {
 
-            return reject('Respose missing credential data.');
+            return reject('Response missing credential data.');
           }
         });
       }, function (xhr/*, status, error*/) {
@@ -98,11 +97,3 @@ var CustomAuthenticator = Base.extend({
   }
 });
 
-export default {
-  name: 'authentication',
-  before: 'simple-auth',
-  initialize: function (container) {
-    // registers the custom authenticator
-    container.register('authenticator:custom', CustomAuthenticator);
-  }
-};
