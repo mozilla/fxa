@@ -7,6 +7,11 @@ var logger = require('mozlog')('server.statsd');
 var StatsD = require('node-statsd');
 var uaParser = require('ua-parser');
 
+// An arbitrary choice of 2 minutes. Nothing scientific, it just seems
+// pages can be reasonably expected to load in under 2 minutes.
+var NAVIGATION_TIMING_MAX_OFFSET = 2 * 60 * 1000;
+var USER_ACTION_MAX_OFFSET = Infinity;
+
 var STATSD_PREFIX = 'fxa.content.';
 var TIMING_POSTFIX = '.time';
 var TIMED_EVENTS = [
@@ -65,6 +70,20 @@ function isTimedEvent (event) {
   return TIMED_EVENTS.indexOf(event) >= 0;
 }
 
+function isEventOffsetValid(value) {
+  return typeof value === 'number';
+}
+
+function isEventOffsetInRange(value, min, max) {
+  return value >= min && value <= max;
+}
+
+function logOutOfRangeOffset(type, offset, min, max) {
+  logger.error('Out of range (%s): %s [%s, %s]',
+      type, offset, min, max);
+}
+
+
 function getImpressionTags(impression) {
   return [
     'marketing_campaign_id:' + impression.campaignId,
@@ -76,10 +95,17 @@ function getImpressionTags(impression) {
 function sendEvents(context, events, tags) {
   if (events && events.length > 0) {
     events.forEach(function (event) {
-      if (event.type) {
-        context.increment(event.type, tags);
-        if (isTimedEvent(event.type)) {
-          context.timing(event.type, event.offset, tags);
+      var type = event.type;
+      if (type) {
+        context.increment(type, tags);
+
+        var offset = event.offset;
+        if (isTimedEvent(type) && isEventOffsetValid(offset)) {
+          if (isEventOffsetInRange(offset, 0, USER_ACTION_MAX_OFFSET)) {
+            context.timing(type, offset, tags);
+          } else {
+            logOutOfRangeOffset(type, offset, 0, USER_ACTION_MAX_OFFSET);
+          }
         }
       }
     });
@@ -101,8 +127,16 @@ function sendMarketingImpressions(context, marketing, tags) {
 function sendNavigationTiming(context, navigationTiming, tags) {
   if (navigationTiming) {
     for (var key in navigationTiming) {
-      if (typeof navigationTiming[key] === 'number') {
-        context.timing('navigationTiming.' + key, navigationTiming[key], tags);
+      var offset = navigationTiming[key];
+
+      if (isEventOffsetValid(offset)) {
+        var type = 'navigationTiming.' + key;
+
+        if (isEventOffsetInRange(offset, 0, NAVIGATION_TIMING_MAX_OFFSET)) {
+          context.timing(type, offset, tags);
+        } else {
+          logOutOfRangeOffset(type, offset, 0, NAVIGATION_TIMING_MAX_OFFSET);
+        }
       }
     }
   }
