@@ -13,32 +13,63 @@ define(function (require, exports, module) {
 
   describe('views/mixins/migration-mixin', function () {
     it('exports correct interface', function () {
-      assert.lengthOf(Object.keys(MigrationMixin), 1);
-      assert.isFunction(MigrationMixin.isMigration);
+      assert.lengthOf(Object.keys(MigrationMixin), 2);
+      assert.isFunction(MigrationMixin.isSyncMigration);
+      assert.isFunction(MigrationMixin.isAmoMigration);
     });
 
-    describe('call isMigration', function () {
+    describe('call isSyncMigration', function () {
       var relier, result;
 
       beforeEach(function () {
         relier = {
+          get: sinon.spy(function () {
+            return 'sync11';
+          }),
           has: sinon.spy(function () {
             return 'foo';
           })
         };
-        result = MigrationMixin.isMigration.call({ relier: relier });
+        result = MigrationMixin.isSyncMigration.call({ relier: relier });
       });
 
-      it('calls this.relier.has correctly', function () {
-        assert.equal(relier.has.callCount, 1);
-
-        var args = relier.has.getCall(0).args;
+      it('calls isSyncMigration correctly', function () {
+        assert.equal(relier.get.callCount, 1);
+        var args = relier.get.getCall(0).args;
         assert.lengthOf(args, 1);
         assert.equal(args[0], 'migration');
       });
 
-      it('returns this.relier.has result', function () {
-        assert.equal(result, 'foo');
+      it('returns this.isSyncMigration result', function () {
+        assert.equal(result, true);
+      });
+    });
+
+    describe('call isAmoMigration', function () {
+      var relier, result;
+
+      beforeEach(function () {
+        relier = {
+          get: sinon.spy(function () {
+            return 'amo';
+          }),
+          has: sinon.spy(function () {
+            return 'foo';
+
+          })
+        };
+        result = MigrationMixin.isAmoMigration.call({ relier: relier });
+      });
+
+      it('calls isAmoMigration correctly', function () {
+        assert.equal(relier.get.callCount, 1);
+        var args = relier.get.getCall(0).args;
+        assert.lengthOf(args, 1);
+        assert.equal(args[0], 'migration');
+      });
+
+      it('returns this.isAmoMigration result', function () {
+        assert.equal(result, true);
       });
     });
   });

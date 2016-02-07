@@ -150,30 +150,41 @@ define(function (require, exports, module) {
               assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
             });
       });
+    });
 
-      it('displays a message if isMigration returns true', function () {
+    describe('migration', function () {
+      it('does not display migration message if no migration', function () {
         initView();
-        sinon.stub(view, 'isMigration', function (arg) {
+
+        return view.render()
+          .then(function () {
+            assert.lengthOf(view.$('.info.nudge'), 0);
+          });
+      });
+
+      it('displays migration message if isSyncMigration returns true', function () {
+        initView();
+        sinon.stub(view, 'isSyncMigration', function () {
           return true;
         });
 
         return view.render()
           .then(function () {
             assert.equal(view.$('.info.nudge').html(), 'Migrate your sync data by signing in to your Firefox&nbsp;Account.');
-            view.isMigration.restore();
+            view.isSyncMigration.restore();
           });
       });
 
-      it('does not display a message if isMigration returns false', function () {
+      it('does not display migration message if isSyncMigration returns false', function () {
         initView();
-        sinon.stub(view, 'isMigration', function (arg) {
+        sinon.stub(view, 'isSyncMigration', function () {
           return false;
         });
 
         return view.render()
           .then(function () {
             assert.lengthOf(view.$('.info.nudge'), 0);
-            view.isMigration.restore();
+            view.isSyncMigration.restore();
           });
       });
     });

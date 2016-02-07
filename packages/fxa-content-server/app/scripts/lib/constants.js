@@ -41,6 +41,8 @@ define(function (require, exports, module) {
 
     SYNC_SERVICE: 'sync',
 
+    SYNC11_MIGRATION: 'sync11',
+    AMO_MIGRATION: 'amo',
 
     VERIFICATION_POLL_IN_MS: 4000,
 

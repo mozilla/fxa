@@ -60,9 +60,9 @@ define(function (require, exports, module) {
         chooserAskForPassword: this._suggestedAccountAskPassword(suggestedAccount),
         email: email,
         error: this.error,
-        isMigration: this.isMigration(),
         isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
         isSignupDisabled: this.isSignupDisabled(),
+        isSyncMigration: this.isSyncMigration(),
         password: this._formPrefill.get('password'),
         serviceName: this.relier.get('serviceName'),
         suggestedAccount: hasSuggestedAccount

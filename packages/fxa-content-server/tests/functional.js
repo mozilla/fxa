@@ -49,5 +49,5 @@ define([
   './functional/avatar',
   './functional/alternative_styles',
   './functional/email_opt_in',
-  './functional/refreshes_metrics',
+  './functional/refreshes_metrics'
 ], function () {});

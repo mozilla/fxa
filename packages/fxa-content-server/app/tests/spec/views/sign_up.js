@@ -224,46 +224,61 @@ define(function (require, exports, module) {
             });
         });
       });
+    });
 
-      it('displays a message if isMigration returns true', function () {
-        sinon.stub(view, 'isMigration', function (arg) {
+    describe('migration', function () {
+      it('does not display migration message if no migration', function () {
+        return view.render()
+          .then(function () {
+            assert.lengthOf(view.$('.info.nudge'), 0);
+          });
+      });
+
+      it('displays migration message if isSyncMigration returns true', function () {
+        sinon.stub(view, 'isSyncMigration', function () {
           return true;
         });
 
         return view.render()
           .then(function () {
             assert.equal(view.$('.info.nudge').html(), 'Migrate your sync data by creating a new Firefox&nbsp;Account.');
-            view.isMigration.restore();
+            view.isSyncMigration.restore();
           });
       });
 
-      it('does not display a message if isMigration returns false', function () {
-        sinon.stub(view, 'isMigration', function (arg) {
+      it('does not display migration message if isSyncMigration returns false', function () {
+        sinon.stub(view, 'isSyncMigration', function () {
           return false;
         });
 
         return view.render()
           .then(function () {
             assert.lengthOf(view.$('.info.nudge'), 0);
-            view.isMigration.restore();
+            view.isSyncMigration.restore();
           });
       });
 
-      it('sends users to /signin if signup is disabled', function () {
-        sinon.stub(view, 'isSignupDisabled', function () {
+      it('displays migration message if isAmoMigration returns true', function () {
+        sinon.stub(view, 'isAmoMigration', function () {
           return true;
-        });
-
-        sinon.stub(view, 'navigate', sinon.spy());
-        sinon.stub(view, 'getSignupDisabledReason', function () {
-          return AuthErrors.toError('IOS_SIGNUP_DISABLED');
         });
 
         return view.render()
           .then(function () {
-            assert.isTrue(view.navigate.calledWith('signin'));
-            var err = view.navigate.args[0][1].error;
-            assert.isTrue(AuthErrors.is(err, 'IOS_SIGNUP_DISABLED'));
+            assert.equal(view.$('.info.nudge').html(), 'Have an account with a different email? <a href="/signin">Sign in</a>');
+            view.isAmoMigration.restore();
+          });
+      });
+
+      it('does not display migration message if isAmoMigration returns false', function () {
+        sinon.stub(view, 'isAmoMigration', function () {
+          return false;
+        });
+
+        return view.render()
+          .then(function () {
+            assert.lengthOf(view.$('.info.nudge'), 0);
+            view.isAmoMigration.restore();
           });
       });
     });
