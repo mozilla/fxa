@@ -360,8 +360,20 @@ define(function (require, exports, module) {
         assert.notOk($('#open-gmail').length);
       });
 
-      it('is visible if the broker supports the openGmailButtonVisible capability', function () {
+
+      it('is visible with the the openGmailButtonVisible capability and email is @gmail.com', function () {
         broker.setCapability('openGmailButtonVisible', true);
+
+        account = user.initAccount({
+          customizeSync: true,
+          email: 'a@gmail.com',
+          sessionToken: 'fake session token',
+          uid: 'uid'
+        });
+
+        model.set({
+          account: account
+        });
 
         view = new View({
           broker: broker,
@@ -379,6 +391,28 @@ define(function (require, exports, module) {
           .then(function () {
             $('#container').html(view.el);
             assert.lengthOf(view.$('#open-gmail'), 1);
+          });
+      });
+
+      it('is not visible with the the openGmailButtonVisible capability and email is not @gmail.com', function () {
+        broker.setCapability('openGmailButtonVisible', true);
+
+        view = new View({
+          broker: broker,
+          fxaClient: fxaClient,
+          metrics: metrics,
+          model: model,
+          notifier: notifier,
+          relier: relier,
+          user: user,
+          viewName: 'confirm',
+          window: windowMock
+        });
+
+        return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+            assert.lengthOf(view.$('#open-gmail'), 0);
           });
       });
     });
