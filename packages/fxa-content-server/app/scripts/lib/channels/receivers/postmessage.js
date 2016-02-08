@@ -28,6 +28,13 @@ define(function (require, exports, module) {
       this._window.addEventListener('message', this._boundReceiveEvent, false);
     },
 
+    isOriginIgnored: function (origin) {
+      // A lot of messages are sent with the origin `chrome://browser`, whether
+      // these are from Firefox or addons, we are not sure. Completely ignore
+      // these messages. See #3465
+      return origin === 'chrome://browser';
+    },
+
     isOriginTrusted: function (origin) {
       // `message` events that come from the Fx Desktop browser have an
       // origin of the string constant 'null'. See
@@ -50,7 +57,10 @@ define(function (require, exports, module) {
       }
 
       var origin = event.origin;
-      if (! this.isOriginTrusted(origin)) {
+      if (this.isOriginIgnored(origin)) {
+        this._window.console.error(
+          'postMessage received from %s, ignoring', origin);
+      } else if (! this.isOriginTrusted(origin)) {
         this._window.console.error(
           'postMessage received from %s, expected %s', origin, this._origin);
 

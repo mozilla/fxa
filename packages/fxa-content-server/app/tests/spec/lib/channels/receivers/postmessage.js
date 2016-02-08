@@ -30,6 +30,16 @@ define(function (require, exports, module) {
       receiver.teardown();
     });
 
+    describe('isOriginIgnored', function () {
+      it('returns `true` for `chrome://browser`', function () {
+        assert.isTrue(receiver.isOriginIgnored('chrome://browser'));
+      });
+
+      it('returns `false` by default', function () {
+        assert.isFalse(receiver.isOriginIgnored('https://accounts.firefox.com'));
+      });
+    });
+
     describe('isOriginTrusted', function () {
       it('accepts an origin of the string constant `null`', function () {
         // `message` events that come from the Fx Desktop browser have an
@@ -57,6 +67,23 @@ define(function (require, exports, module) {
     });
 
     describe('receiveEvent', function () {
+      it('ignores messages from an ignored origin', function () {
+        var errorSpy = sinon.spy();
+        receiver.on('error', errorSpy);
+
+        var messageSpy = sinon.spy();
+        receiver.on('message', messageSpy);
+
+        receiver.receiveEvent({
+          data: {},
+          origin: 'chrome://browser',
+          type: 'click'
+        });
+
+        assert.isFalse(errorSpy.called);
+        assert.isFalse(messageSpy.called);
+      });
+
       it('ignores messages with an incorrect type', function () {
         var errorSpy = sinon.spy();
         receiver.on('error', errorSpy);
