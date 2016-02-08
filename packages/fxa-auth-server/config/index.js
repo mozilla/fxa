@@ -303,9 +303,17 @@ var conf = convict({
       default: 'http://localhost:9010',
       env: 'OAUTH_URL'
     },
-    email: {
-      doc: 'Temporary extra parameter to prevent request recursion',
+    keepAlive: {
+      format: Boolean,
+      doc: 'Use HTTP keep-alive connections when talking to oauth server',
+      env: 'OAUTH_KEEPALIVE',
       default: false
+    },
+    extra: {
+      email: {
+        doc: 'Temporary extra parameter to prevent request recursion',
+        default: false
+      }
     }
   },
   openIdProviders: {
