@@ -17,7 +17,7 @@ Currently the show password toggles are synchronized. We should remove this for 
 
 <img alt="Current Unmasked" src="current-unmasked.png" width="525">
 
-## Treatment UX
+## Treatment 1 UX
 
 * When the user hovers over the eye icon and the password is masked, there should be a link title on the eye that says "Show password"
 * When the user hovers over the eye icon and the password is unmasked, there should be a link title on the eye that says "Hide password"
@@ -28,6 +28,34 @@ Currently the show password toggles are synchronized. We should remove this for 
 <img alt="Proposed Masked" src="proposed-masked.png" width="525">
 
 <img alt="Proposed Unmasked" src="proposed-unmasked.png" width="525">
+
+## Treatment 1b Variant UX
+
+* When the user hovers over the eye icon and the password is masked, there should be a link title on the eye that says "Show password"
+* Windows-style: Only while the user is clicking the eye, does the password become unmasked.
+
+<img alt="Proposed Unmasked" src="proposed-unmasked1b.png" width="525">
+
+## Treatment 2 UX
+
+* When the user hovers over the eyeglasses icon and the password is masked, there should be a link title on the eye that says "Show password"
+* When the user hovers over the eyeglasses icon and the password is unmasked, there should be a link title on the eye that says "Hide password"
+* The eye color matches our current smokey grey and blue colors.
+* When the user clicks the eyeglasses and the password is masked, the password becomes unmasked.
+* When the user clicks the eyeglasses and the password is unmasked, the password becomes masked.
+
+<img alt="Glasses" src="proposed2.jpg" width="658">
+
+## Treatment 3 UX
+
+* When the user hovers over the show password checkbox and label and the password is masked, there should be a link title on the eye that says "Show password"
+* When the user hovers over the show password checkbox and label and the password is unmasked, there should be a link title on the eye that says "Hide password"
+* The eye color matches our current smokey grey and blue colors.
+* When the user clicks the show password checkbox and label and the password is masked, the password becomes unmasked.
+* When the user clicks the show password checkbox and label and the password is unmasked, the password becomes masked.
+
+<img alt="Glasses" src="proposed3.png" width="974">
+
 
 ## Success Criteria
 
