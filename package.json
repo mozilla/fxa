@@ -4,6 +4,7 @@
   "description": "An easy way to contribute to Firefox Accounts",
   "scripts": {
     "postinstall": "_scripts/postinstall.sh",
+    "install-extras": "_scripts/install_extras.sh",
     "update": "./pm2 kill && _scripts/update_all.sh",
     "start": "node _scripts/start.js",
     "test": "node test/functional.js --suite=full",

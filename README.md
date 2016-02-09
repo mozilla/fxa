@@ -184,9 +184,30 @@ To use the [fxa-oauth-console](https://github.com/mozilla/fxa-oauth-console) to 
 ```
 NODE_ENV=dev DB=mysql node bin/server.js
 ```
-and 
+and
 ```
 NODE_ENV=dev DB=mysql node bin/internal.js
-``` 
+```
 
 *******
+
+### Hello/Loop Setup
+
+To get the Hello service setup and configured to run with a local version of Firefox Accounts, you need to run a couple commands after running `npm run postinstall` and `./pm2 start servers.json`.
+
+#### Install Hello Service
+```bash
+npm run install-extras
+```
+
+#### Start Hello service
+
+Note: The Hello Service currently only supports node version 0.10.
+
+```bash
+nvm install 0.10
+nvm exec 0.10 ./pm2 start servers_extra.json
+```
+
+#### Run
+Once services have started, run `npm start` to open Firefox with a local profile. Access the Hello service as you normally would.
