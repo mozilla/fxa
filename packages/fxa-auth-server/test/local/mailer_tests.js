@@ -57,6 +57,24 @@ P.all(
             mailer[type](message)
           }
         )
+
+        if (type === 'postVerifyEmail') {
+          test(
+            'test utm params for ' + type,
+            function (t) {
+              var utmParam = '?utm_source=email&utm_medium=email&utm_campaign=fx-account-verified'
+
+              mailer.mailer.sendMail = function (emailConfig) {
+                t.ok(emailConfig.html.indexOf(config.get('mail').androidUrl + utmParam) > 0)
+                t.ok(emailConfig.html.indexOf(config.get('mail').iosUrl + utmParam) > 0)
+                t.ok(emailConfig.html.indexOf(config.get('mail').syncUrl + utmParam) > 0)
+                t.end()
+              }
+              mailer[type](message)
+            }
+          )
+        }
+
       }
     )
   }
