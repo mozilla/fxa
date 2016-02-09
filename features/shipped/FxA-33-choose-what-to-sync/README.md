@@ -8,6 +8,29 @@ As a user, I want to choose what data types to sync as part
  of the account setup process, so that it's more obvious what
  functionality I'm signing up for.
 
+## Outcomes
+
+We first shipped "Choose What to Sync" (CWTS) in Q4 of 2015.
+This first release was limited to Firefox Nightly users only.
+The CWTS screen helps Firefox users understand what they are signing up for and
+which sync types are available. 
+
+We also completed work to support CWTS in future versions of Firefox for iOS v2.
+
+January 2016 - CWTS was enabled in Firefox for Android v44 stable release.
+
+February 2016 - CWTS is available for Firstrun users in Firefox Desktop.
+
+From our early metrics we saw good conversion rate (over 90%) on the CWTS screen.
+If possible we will be investigating the bounce rate in future milestones.
+
+
+![](release-desktop.png)
+> "Choose What to Sync" in Firefox Desktop
+
+![](release-fennec.png)
+> "Choose What to Sync" % of sign ups for those who see the the CWTS screen.
+
 ## Choose what to sync view (compact)
 
 ![](design1-compact.png)
