@@ -5,10 +5,37 @@
 var inherits = require('util').inherits
 var messages = require('joi/lib/language').errors
 
+var ERRNO = {
+  ACCOUNT_EXISTS: 101,
+  ACCOUNT_LOCKED: 121,
+  ACCOUNT_NOT_LOCKED: 122,
+  ACCOUNT_UNKNOWN: 102,
+  ACCOUNT_UNVERIFIED: 104,
+  DEVICE_UNKNOWN: 123,
+  DEVICE_CONFLICT: 124,
+  ENDPOINT_NOT_SUPPORTED: 116,
+  INCORRECT_EMAIL_CASE: 120,
+  INCORRECT_PASSWORD: 103,
+  INVALID_JSON: 106,
+  INVALID_NONCE: 115,
+  INVALID_PARAMETER: 107,
+  INVALID_REQUEST_SIGNATURE: 109,
+  INVALID_TIMESTAMP: 111,
+  INVALID_TOKEN: 110,
+  INVALID_VERIFICATION_CODE: 105,
+  MISSING_CONTENT_LENGTH_HEADER: 112,
+  MISSING_PARAMETER: 108,
+  REQUEST_TOO_LARGE: 113,
+  SERVER_BUSY: 201,
+  SERVER_CONFIG_ERROR: 100,
+  THROTTLED: 114,
+  UNEXPECTED_ERROR: 999
+}
+
 var DEFAULTS = {
   code: 500,
   error: 'Internal Server Error',
-  errno: 999,
+  errno: ERRNO.UNEXPECTED_ERROR,
   message: 'Unspecified error',
   info: 'https://github.com/mozilla/fxa-auth-server/blob/master/docs/api.md#response-format'
 }
@@ -115,7 +142,7 @@ AppError.dbIncorrectPatchLevel = function (level, levelRequired) {
     {
       code: 400,
       error: 'Server Startup',
-      errno: 100,
+      errno: ERRNO.SERVER_CONFIG_ERROR,
       message: 'Incorrect Database Patch Level'
     },
     {
@@ -130,7 +157,7 @@ AppError.accountExists = function (email) {
     {
       code: 400,
       error: 'Bad Request',
-      errno: 101,
+      errno: ERRNO.ACCOUNT_EXISTS,
       message: 'Account already exists'
     },
     {
@@ -144,7 +171,7 @@ AppError.unknownAccount = function (email) {
     {
       code: 400,
       error: 'Bad Request',
-      errno: 102,
+      errno: ERRNO.ACCOUNT_UNKNOWN,
       message: 'Unknown account'
     },
     {
@@ -159,7 +186,7 @@ AppError.incorrectPassword = function (dbEmail, requestEmail) {
       {
         code: 400,
         error: 'Bad Request',
-        errno: 120,
+        errno: ERRNO.INCORRECT_EMAIL_CASE,
         message: 'Incorrect email case'
       },
       {
@@ -171,7 +198,7 @@ AppError.incorrectPassword = function (dbEmail, requestEmail) {
     {
       code: 400,
       error: 'Bad Request',
-      errno: 103,
+      errno: ERRNO.INCORRECT_PASSWORD,
       message: 'Incorrect password'
     },
     {
@@ -184,7 +211,7 @@ AppError.unverifiedAccount = function () {
   return new AppError({
     code: 400,
     error: 'Bad Request',
-    errno: 104,
+    errno: ERRNO.ACCOUNT_UNVERIFIED,
     message: 'Unverified account'
   })
 }
@@ -194,7 +221,7 @@ AppError.invalidVerificationCode = function (details) {
     {
       code: 400,
       error: 'Bad Request',
-      errno: 105,
+      errno: ERRNO.INVALID_VERIFICATION_CODE,
       message: 'Invalid verification code'
     },
     details
@@ -205,7 +232,7 @@ AppError.invalidRequestBody = function () {
   return new AppError({
     code: 400,
     error: 'Bad Request',
-    errno: 106,
+    errno: ERRNO.INVALID_JSON,
     message: 'Invalid JSON in request body'
   })
 }
@@ -215,7 +242,7 @@ AppError.invalidRequestParameter = function (validation) {
     {
       code: 400,
       error: 'Bad Request',
-      errno: 107,
+      errno: ERRNO.INVALID_PARAMETER,
       message: 'Invalid parameter in request body'
     },
     {
@@ -229,7 +256,7 @@ AppError.missingRequestParameter = function (param) {
     {
       code: 400,
       error: 'Bad Request',
-      errno: 108,
+      errno: ERRNO.MISSING_PARAMETER,
       message: 'Missing parameter in request body' + (param ? ': ' + param : '')
     },
     {
@@ -242,7 +269,7 @@ AppError.invalidSignature = function (message) {
   return new AppError({
     code: 401,
     error: 'Unauthorized',
-    errno: 109,
+    errno: ERRNO.INVALID_REQUEST_SIGNATURE,
     message: message || 'Invalid request signature'
   })
 }
@@ -251,7 +278,7 @@ AppError.invalidToken = function (message) {
   return new AppError({
     code: 401,
     error: 'Unauthorized',
-    errno: 110,
+    errno: ERRNO.INVALID_TOKEN,
     message: message || 'Invalid authentication token in request signature'
   })
 }
@@ -261,7 +288,7 @@ AppError.invalidTimestamp = function () {
     {
       code: 401,
       error: 'Unauthorized',
-      errno: 111,
+      errno: ERRNO.INVALID_TIMESTAMP,
       message: 'Invalid timestamp in request signature'
     },
     {
@@ -274,7 +301,7 @@ AppError.invalidNonce = function () {
   return new AppError({
     code: 401,
     error: 'Unauthorized',
-    errno: 115,
+    errno: ERRNO.INVALID_NONCE,
     message: 'Invalid nonce in request signature'
   })
 }
@@ -283,7 +310,7 @@ AppError.missingContentLength = function () {
   return new AppError({
     code: 411,
     error: 'Length Required',
-    errno: 112,
+    errno: ERRNO.MISSING_CONTENT_LENGTH_HEADER,
     message: 'Missing content-length header'
   })
 }
@@ -292,7 +319,7 @@ AppError.requestBodyTooLarge = function () {
   return new AppError({
     code: 413,
     error: 'Request Entity Too Large',
-    errno: 113,
+    errno: ERRNO.REQUEST_TOO_LARGE,
     message: 'Request body too large'
   })
 }
@@ -305,7 +332,7 @@ AppError.tooManyRequests = function (retryAfter) {
     {
       code: 429,
       error: 'Too Many Requests',
-      errno: 114,
+      errno: ERRNO.THROTTLED,
       message: 'Client has sent too many requests'
     },
     {
@@ -325,7 +352,7 @@ AppError.serviceUnavailable = function (retryAfter) {
     {
       code: 503,
       error: 'Service Unavailable',
-      errno: 201,
+      errno: ERRNO.SERVER_BUSY,
       message: 'Service unavailable'
     },
     {
@@ -341,7 +368,7 @@ AppError.gone = function () {
   return new AppError({
     code: 410,
     error: 'Gone',
-    errno: 116,
+    errno: ERRNO.ENDPOINT_NOT_SUPPORTED,
     message: 'This endpoint is no longer supported'
   })
 }
@@ -350,7 +377,7 @@ AppError.lockedAccount = function () {
   return new AppError({
     code: 400,
     error: 'Bad Request',
-    errno: 121,
+    errno: ERRNO.ACCOUNT_LOCKED,
     message: 'Account is locked'
   })
 }
@@ -360,7 +387,7 @@ AppError.accountNotLocked = function (email) {
     {
       code: 400,
       error: 'Bad Request',
-      errno: 122,
+      errno: ERRNO.ACCOUNT_NOT_LOCKED,
       message: 'Account is not locked'
     },
     {
@@ -374,7 +401,7 @@ AppError.unknownDevice = function () {
     {
       code: 400,
       error: 'Bad Request',
-      errno: 123,
+      errno: ERRNO.DEVICE_UNKNOWN,
       message: 'Unknown device'
     }
   )
@@ -385,10 +412,11 @@ AppError.deviceSessionConflict = function () {
     {
       code: 400,
       error: 'Bad Request',
-      errno: 124,
+      errno: ERRNO.DEVICE_CONFLICT,
       message: 'Session already registered by another device'
     }
   )
 }
 
 module.exports = AppError
+module.exports.ERRNO = ERRNO
