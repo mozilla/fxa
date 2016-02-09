@@ -25,7 +25,6 @@ var translationQuirks = {
   'Firefox Account Verified': [
     'en',
     'en-GB',
-    'bg',
     'es-AR',
     'ff',
     'he',
