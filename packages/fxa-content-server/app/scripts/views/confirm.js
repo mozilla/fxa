@@ -49,9 +49,10 @@ define(function (require, exports, module) {
     },
 
     _isOpenGmailButtonVisible: function () {
+      var email = this.getAccount().get('email');
       // The "Open Gmail" is only visible in certain contexts
       // we do not show it in mobile contexts because it performs worse on mobile
-      return this.broker.hasCapability('openGmailButtonVisible');
+      return this.broker.hasCapability('openGmailButtonVisible') && email.indexOf('@gmail.com') > 0;
     },
 
     events: {
