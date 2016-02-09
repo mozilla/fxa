@@ -1022,6 +1022,26 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('onAmoSignIn', function () {
+      beforeEach(function () {
+        relier.set('email', email);
+        view.$('input[type=email]').val(email);
+
+        // simulate what happens when the user clicks the AMO sign in link
+        view.onAmoSignIn();
+        view.beforeDestroy();
+      });
+
+      // these two fields are cleared to prevent the email
+      // from being displayed on the signin screen.
+      it('unsets the email on the relier', function () {
+        assert.isFalse(relier.has('email'));
+      });
+
+      it('sets an empty email on formPrefill', function () {
+        assert.equal(formPrefill.get('email'), '');
+      });
+    });
   });
 });
 
