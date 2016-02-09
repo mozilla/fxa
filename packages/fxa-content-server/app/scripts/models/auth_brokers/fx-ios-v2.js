@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var _ = require('underscore');
+  var Constants = require('lib/constants');
   var FxDesktopV1AuthenticationBroker = require('models/auth_brokers/fx-desktop-v1');
 
   var proto = FxDesktopV1AuthenticationBroker.prototype;
@@ -19,12 +20,7 @@ define(function (require, exports, module) {
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
       chooseWhatToSyncCheckbox: false,
       chooseWhatToSyncWebV1: {
-        engines: [
-          'bookmarks',
-          'history',
-          'passwords',
-          'tabs'
-        ]
+        engines: Constants.DEFAULT_DECLINED_ENGINES
       },
       convertExternalLinksToText: true,
       emailVerificationMarketingSnippet: false,

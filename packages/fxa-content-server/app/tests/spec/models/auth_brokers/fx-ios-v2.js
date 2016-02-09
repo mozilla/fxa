@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var chai = require('chai');
+  var Constants = require('lib/constants');
   var FxiOSV2AuthenticationBroker = require('models/auth_brokers/fx-ios-v2');
   var NullChannel = require('lib/channels/null');
   var Relier = require('models/reliers/relier');
@@ -49,6 +50,10 @@ define(function (require, exports, module) {
         .then(function () {
           assert.isFalse(broker.hasCapability('chooseWhatToSyncCheckbox'));
         });
+    });
+
+    it('has all sync content types', function () {
+      assert.equal(broker.defaultCapabilities.chooseWhatToSyncWebV1.engines, Constants.DEFAULT_DECLINED_ENGINES);
     });
 
     describe('afterSignUp', function () {

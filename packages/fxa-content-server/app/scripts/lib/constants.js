@@ -86,7 +86,15 @@ define(function (require, exports, module) {
     ACCESS_TYPE_ONLINE: 'online',
     ACCESS_TYPE_OFFLINE: 'offline',
 
-    DEFAULT_XHR_TIMEOUT_MS: 2500
+    DEFAULT_XHR_TIMEOUT_MS: 2500,
+    DEFAULT_DECLINED_ENGINES: [
+      'bookmarks',
+      'history',
+      'passwords',
+      'tabs',
+      'desktop-addons',
+      'desktop-preferences'
+    ],
   };
   /*eslint-enable sorting/sort-object-props*/
 });

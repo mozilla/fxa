@@ -14,6 +14,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var _ = require('underscore');
+  var Constants = require('lib/constants');
   var FxSyncWebChannelAuthenticationBroker = require('./fx-sync-web-channel');
   var HaltBehavior = require('views/behaviors/halt');
 
@@ -39,14 +40,7 @@ define(function (require, exports, module) {
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
       chooseWhatToSyncCheckbox: false,
       chooseWhatToSyncWebV1: {
-        engines: [
-          'bookmarks',
-          'history',
-          'passwords',
-          'tabs',
-          'desktop-addons',
-          'desktop-preferences'
-        ]
+        engines: Constants.DEFAULT_DECLINED_ENGINES
       },
       openGmailButtonVisible: true
     }),

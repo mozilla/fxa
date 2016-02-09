@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var chai = require('chai');
+  var Constants = require('lib/constants');
   var FxFennecV1AuthenticationBroker = require('models/auth_brokers/fx-fennec-v1');
   var NullChannel = require('lib/channels/null');
   var Relier = require('models/reliers/relier');
@@ -58,6 +59,10 @@ define(function (require, exports, module) {
 
     it('has the `syncPreferencesNotification` capability by default', function () {
       assert.isTrue(broker.hasCapability('syncPreferencesNotification'));
+    });
+
+    it('has all sync content types', function () {
+      assert.equal(broker.defaultCapabilities.chooseWhatToSyncWebV1.engines, Constants.DEFAULT_DECLINED_ENGINES);
     });
 
     it('disables the `chooseWhatToSyncCheckbox` capability', function () {
