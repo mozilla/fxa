@@ -12,23 +12,10 @@ define(function (require, exports, module) {
 
   var _ = require('underscore');
   var FxDesktopV1AuthenticationBroker = require('models/auth_brokers/fx-desktop-v1');
-  var NavigateBehavior = require('views/behaviors/navigate');
-  var p = require('lib/promise');
 
   var proto = FxDesktopV1AuthenticationBroker.prototype;
 
   var FxiOSV2AuthenticationBroker = FxDesktopV1AuthenticationBroker.extend({
-    afterSignUp: function (account) {
-      var self = this;
-      return p().then(function () {
-        if (self.hasCapability('chooseWhatToSyncWebV1')) {
-          return new NavigateBehavior('choose_what_to_sync', {
-            account: account
-          });
-        }
-      });
-    },
-
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
       chooseWhatToSyncCheckbox: false,
       chooseWhatToSyncWebV1: {

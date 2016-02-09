@@ -13,12 +13,15 @@ define(function (require, exports, module) {
   var _ = require('underscore');
   var FxSyncWebChannelAuthenticationBroker = require('models/auth_brokers/fx-sync-web-channel');
   var NavigateBehavior = require('views/behaviors/navigate');
-  var p = require('lib/promise');
 
   var proto = FxSyncWebChannelAuthenticationBroker.prototype;
 
   var FxFennecV1AuthenticationBroker = FxSyncWebChannelAuthenticationBroker.extend({
-    type: 'fx-fennec-v1',
+    defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
+      afterForceAuth: new NavigateBehavior('force_auth_complete'),
+      afterSignIn: new NavigateBehavior('signin_complete'),
+      afterSignUpConfirmationPoll: new NavigateBehavior('signup_complete')
+    }),
 
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
       chooseWhatToSyncCheckbox: false,
@@ -34,22 +37,7 @@ define(function (require, exports, module) {
       syncPreferencesNotification: true
     }),
 
-    defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
-      afterForceAuth: new NavigateBehavior('force_auth_complete'),
-      afterSignIn: new NavigateBehavior('signin_complete'),
-      afterSignUpConfirmationPoll: new NavigateBehavior('signup_complete')
-    }),
-
-    afterSignUp: function (account) {
-      var self = this;
-      return p().then(function () {
-        if (self.hasCapability('chooseWhatToSyncWebV1')) {
-          return new NavigateBehavior('choose_what_to_sync', {
-            account: account
-          });
-        }
-      });
-    }
+    type: 'fx-fennec-v1'
   });
 
   module.exports = FxFennecV1AuthenticationBroker;

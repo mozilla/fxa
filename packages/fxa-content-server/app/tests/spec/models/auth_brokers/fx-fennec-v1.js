@@ -88,6 +88,13 @@ define(function (require, exports, module) {
     });
 
     describe('afterSignUp', function () {
+      it('has the `chooseWhatToSyncWebV1` capability by default', function () {
+        return broker.afterSignUp(account)
+          .then(function (behavior) {
+            assert.equal(behavior.endpoint, 'choose_what_to_sync');
+          });
+      });
+
       it('causes a redirect to `/choose_what_to_sync` if `chooseWhatToSyncWebV1` capability is supported', function () {
         sinon.stub(broker, 'hasCapability', function (capabilityName) {
           return capabilityName === 'chooseWhatToSyncWebV1';
