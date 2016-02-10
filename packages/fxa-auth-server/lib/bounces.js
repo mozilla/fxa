@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var eaddrs = require('email-addresses')
 var P = require('./promise')
 
 module.exports = function (log, error) {
@@ -14,6 +15,23 @@ module.exports = function (log, error) {
 
     function gotError(email, err) {
       log.error({ op: 'databaseError', email: email, err: err })
+    }
+
+    function findEmailRecord(email) {
+      return db.emailRecord(email)
+        .catch(function (err) {
+          // The mail agent may have mangled the email address
+          // that's being reported in the bounce notification.
+          // Try looking up by normalized form as well.
+          if (err.errno !== error.ERRNO.ACCOUNT_UNKNOWN) {
+            throw err
+          }
+          var normalizedEmail = eaddrs.parseOneAddress(email).address
+          if (normalizedEmail === email) {
+            throw err
+          }
+          return db.emailRecord(normalizedEmail)
+        })
     }
 
     function deleteAccountIfUnverified(record) {
@@ -39,23 +57,18 @@ module.exports = function (log, error) {
       else if (message.complaint && message.complaint.complaintFeedbackType === 'abuse') {
         recipients = message.complaint.complainedRecipients
       }
-      var p = P.resolve()
-      recipients.forEach(function(recipient) {
+      return P.each(recipients, function (recipient) {
         var email = recipient.emailAddress
-        p = p.then(
-          function () {
-            log.info({ op: 'handleBounce', email: email, bounce: !!message.bounce })
-            log.increment('account.email_bounced')
-            return db.emailRecord(email)
-              .then(
-                deleteAccountIfUnverified,
-                gotError.bind(null, email)
-              )
-          }
-        )
-      })
-      return p.then(
+        log.info({ op: 'handleBounce', email: email, bounce: !!message.bounce })
+        log.increment('account.email_bounced')
+        return findEmailRecord(email)
+          .then(
+            deleteAccountIfUnverified,
+            gotError.bind(null, email)
+          )
+      }).then(
         function () {
+          // We always delete the message, even if handling some addrs failed.
           message.del()
         }
       )
