@@ -28,7 +28,7 @@ function create(log, error, config, routes, db) {
     // the timestamp checks by setting it to a humongous value.
     timestampSkewSec: 20 * 365 * 24 * 60 * 60,  // 20 years, +/- a few days
 
-    nonceFunc: function nonceCheck(nonce, ts, cb) {
+    nonceFunc: function nonceCheck(key, nonce, ts, cb) {
       // Since we've disabled timestamp checks, there's not much point
       // keeping a nonce cache.  Instead we use this as an opportunity
       // to report on the clock skew values seen in the wild.

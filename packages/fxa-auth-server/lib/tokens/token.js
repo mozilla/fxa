@@ -149,6 +149,9 @@ module.exports = function (log, crypto, P, hkdf, Bundle, error) {
       },
       key: {
         get: function () { return this.authKey }
+      },
+      algorithm: {
+        get: function () { return 'sha256' }
       }
     }
   )
