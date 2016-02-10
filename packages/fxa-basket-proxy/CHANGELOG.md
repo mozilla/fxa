@@ -1,3 +1,13 @@
+<a name="0.56.0"></a>
+# [0.56.0](https://github.com/mozilla/fxa-basket-proxy/compare/v0.50.0...v0.56.0) (2016-02-10)
+
+
+### chore
+
+* **deps:** Update dependencies ([d21fdab](https://github.com/mozilla/fxa-basket-proxy/commit/d21fdab))
+
+
+
 <a name="0.50.0"></a>
 # 0.50.0 (2015-11-18)
 
