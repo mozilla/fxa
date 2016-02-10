@@ -1,3 +1,45 @@
+<a name="0.56.0"></a>
+# 0.56.0 (2016-02-10)
+
+
+### Bug Fixes
+
+* **client:** Do not sign out of Sync when visiting /force_auth ([f96672c](https://github.com/mozilla/fxa-content-server/commit/f96672c)), closes [#3431](https://github.com/mozilla/fxa-content-server/issues/3431)
+* **client:** Ensure status messages are shown on the signup page. ([dfeb53b](https://github.com/mozilla/fxa-content-server/commit/dfeb53b))
+* **client:** Ignore postMessages from `chrome://browser` ([7010bbd](https://github.com/mozilla/fxa-content-server/commit/7010bbd))
+* **client:** No more redirect to `signin_complete` w/ fx_desktop_v2 ([723da2b](https://github.com/mozilla/fxa-content-server/commit/723da2b)), closes [#3330](https://github.com/mozilla/fxa-content-server/issues/3330) [#3353](https://github.com/mozilla/fxa-content-server/issues/3353)
+* **client:** Update the `_redirectTo` stragglers, add tests. ([da5fbfe](https://github.com/mozilla/fxa-content-server/commit/da5fbfe))
+* **confirm:** fix openGmail button visibility ([aa122cb](https://github.com/mozilla/fxa-content-server/commit/aa122cb)), closes [#3487](https://github.com/mozilla/fxa-content-server/issues/3487)
+* **experiments:** update to train-55 experiments ([01459b6](https://github.com/mozilla/fxa-content-server/commit/01459b6))
+* **metrics:** Filter obviously invalid StatsD timings ([cdeac93](https://github.com/mozilla/fxa-content-server/commit/cdeac93))
+* **metrics:** Send an error's context as a Sentry report tag. ([8bdfd57](https://github.com/mozilla/fxa-content-server/commit/8bdfd57)), closes [#3470](https://github.com/mozilla/fxa-content-server/issues/3470)
+* **spelling:** fix a few typos ([8394a57](https://github.com/mozilla/fxa-content-server/commit/8394a57))
+* **teamcity:** record content,oauth,profile,auth __version__ ([f2672a0](https://github.com/mozilla/fxa-content-server/commit/f2672a0))
+* **test:** Fix the `attempt to use webcam for avatar` functional test. ([18b0c6d](https://github.com/mozilla/fxa-content-server/commit/18b0c6d)), closes [#3455](https://github.com/mozilla/fxa-content-server/issues/3455)
+* **travis:** lock node versions until new versions are supported ([ad92350](https://github.com/mozilla/fxa-content-server/commit/ad92350))
+
+### chore
+
+* **client:** Add a unit test for sign_up.js->onAmoSignIn ([d1364e2](https://github.com/mozilla/fxa-content-server/commit/d1364e2))
+* **client:** Add the AMO migration string to strings.js ([2f8c721](https://github.com/mozilla/fxa-content-server/commit/2f8c721))
+* **client:** Remove `submit` from ForceAuthView. ([d221aed](https://github.com/mozilla/fxa-content-server/commit/d221aed)), closes [#3438](https://github.com/mozilla/fxa-content-server/issues/3438)
+* **client:** Remove the extra mixins from the ForceAuthView. ([6316053](https://github.com/mozilla/fxa-content-server/commit/6316053)), closes [#3437](https://github.com/mozilla/fxa-content-server/issues/3437)
+* **docs:** Add `migration` possible values documentation. ([8d0e17a](https://github.com/mozilla/fxa-content-server/commit/8d0e17a))
+
+### Features
+
+* **client:** Enable "Sync Preferences" from the firstrun flow. ([539ed50](https://github.com/mozilla/fxa-content-server/commit/539ed50)), closes [#3417](https://github.com/mozilla/fxa-content-server/issues/3417)
+* **confirm:** promote "open gmail" to a feature ([833358d](https://github.com/mozilla/fxa-content-server/commit/833358d)), closes [#3368](https://github.com/mozilla/fxa-content-server/issues/3368)
+* **migration:** Updated to support AMO migration through the migration query param ([949f717](https://github.com/mozilla/fxa-content-server/commit/949f717))
+* **sass:** use custom SVGs for avatar upload buttons ([21c2821](https://github.com/mozilla/fxa-content-server/commit/21c2821))
+
+### Refactor
+
+* **client:** Extract `accountKeys`, `relierKeys` to the Account model. ([3fdef3f](https://github.com/mozilla/fxa-content-server/commit/3fdef3f))
+* **relier:** remove isFxDesktop(), it is not used ([888dd3f](https://github.com/mozilla/fxa-content-server/commit/888dd3f))
+
+
+
 <a name="0.55.0"></a>
 # 0.55.0 (2016-01-26)
 
