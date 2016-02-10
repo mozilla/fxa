@@ -1,6 +1,6 @@
 {
   "name": "fxa-oauth-server",
-  "version": "0.53.1",
+  "version": "0.56.0",
   "dependencies": {
     "blanket": {
       "version": "1.1.6",

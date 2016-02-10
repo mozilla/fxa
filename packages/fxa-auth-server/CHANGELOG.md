@@ -1,3 +1,18 @@
+<a name"0.56.0"></a>
+## 0.56.0 (2016-02-10)
+
+
+#### Bug Fixes
+
+* **openid:** Generate openid keys on npm postinstall to file ([5f15afaa](https://github.com/mozilla/fxa-oauth-server/commit/5f15afaa))
+
+
+#### Features
+
+* **clients:** Added initial support for using previous client secret ([4f9df20c](https://github.com/mozilla/fxa-oauth-server/commit/4f9df20c))
+* **docker:** Additional Dockerfile for self-hosting ([83a8b6c1](https://github.com/mozilla/fxa-oauth-server/commit/83a8b6c1))
+
+
 <a name"0.53.1"></a>
 ### 0.53.1 (2016-01-11)
 
