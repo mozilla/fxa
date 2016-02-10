@@ -128,7 +128,8 @@ define(function (require, exports, module) {
 
     events: {
       'blur input.email': 'onEmailBlur',
-      'blur input.password': 'onPasswordBlur'
+      'blur input.password': 'onPasswordBlur',
+      'click #amo-migration a': 'onAmoSignIn'
     },
 
     getPrefillEmail: function () {
@@ -157,15 +158,17 @@ define(function (require, exports, module) {
         chooseWhatToSyncCheckbox: this.broker.hasCapability('chooseWhatToSyncCheckbox'),
         email: prefillEmail,
         error: this.error,
+        isAmoMigration: this.isAmoMigration(),
         isCustomizeSyncChecked: relier.isCustomizeSyncChecked(),
         isEmailOptInVisible: this._isEmailOptInEnabled(),
-        isMigration: this.isMigration(),
         isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
         isSync: isSync,
+        isSyncMigration: this.isSyncMigration(),
         password: prefillPassword,
         serviceName: relier.get('serviceName'),
         shouldFocusEmail: autofocusEl === 'email',
-        shouldFocusPassword: autofocusEl === 'password'
+        shouldFocusPassword: autofocusEl === 'password',
+        signinUri: this.broker.transformLink('/signin')
       };
 
       if (isSync && this.isInExperiment('syncCheckbox')) {
@@ -237,6 +240,13 @@ define(function (require, exports, module) {
       if (this.isInExperiment('mailcheck')) {
         mailcheck(this.$el.find('.email'), this.metrics, this.translator, this);
       }
+    },
+
+    onAmoSignIn: function () {
+      // The user has chosen to sign in with a different email, clear the
+      // email from the relier so it's not used again on the signin page.
+      this.relier.unset('email');
+      this.$('input[type=email]').val('');
     },
 
     _isEmailSameAsBouncedEmail: function () {

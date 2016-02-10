@@ -19,9 +19,13 @@
     {{^error}}
     <div class="error"></div>
     <div class="success"></div>
-    {{#isMigration}}
+    {{#isSyncMigration}}
       <div class="info nudge">{{#t}}Migrate your sync data by creating a new Firefox&nbsp;Account.{{/t}}</div>
-    {{/isMigration}}
+    {{/isSyncMigration}}
+
+    {{#isAmoMigration}}
+        <div class="info nudge pad" id="amo-migration">{{#t}}Have an account with a different email? <a href="%(signinUri)s">Sign in</a>{{/t}}</div>
+    {{/isAmoMigration}}
 
     <form novalidate>
       <div class="input-row">

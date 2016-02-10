@@ -29,6 +29,10 @@
   /*Pull the message up to bring it closer to the header*/
   &.nudge {
     top: -10px;
+
+      &.pad {
+          padding: 10px;
+      }
   }
 }
 

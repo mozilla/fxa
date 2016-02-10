@@ -33,14 +33,14 @@ define(function (require, exports, module) {
         windowMock.location.search = TestHelpers.toSearchString({
           context: 'fx_desktop_v1',
           customizeSync: 'true',
-          migration: 'sync1.5',
+          migration: 'sync11',
           service: 'sync'
         });
 
         return relier.fetch()
           .then(function () {
             assert.equal(relier.get('context'), 'fx_desktop_v1');
-            assert.equal(relier.get('migration'), 'sync1.5');
+            assert.equal(relier.get('migration'), 'sync11');
             assert.equal(relier.get('service'), 'sync');
             assert.isTrue(relier.get('customizeSync'));
           });

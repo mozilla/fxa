@@ -102,6 +102,9 @@ define(function (require, exports, module) {
           } else {
             self.importSearchParam('email');
           }
+
+          self.importSearchParam('migration');
+
         });
     },
 

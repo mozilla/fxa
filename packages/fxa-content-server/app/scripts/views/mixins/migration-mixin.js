@@ -8,10 +8,15 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var Constants = require('lib/constants');
 
   module.exports = {
-    isMigration: function () {
-      return this.relier.has('migration');
+    isSyncMigration: function isSyncMigration () {
+      return this.relier.get('migration') === Constants.SYNC11_MIGRATION;
+    },
+
+    isAmoMigration: function isAmoMigration () {
+      return this.relier.get('migration') === Constants.AMO_MIGRATION;
     }
   };
 });

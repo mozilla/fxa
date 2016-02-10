@@ -36,7 +36,6 @@ define(function (require, exports, module) {
       return Relier.prototype.fetch.call(self)
         .then(function () {
           self.importSearchParam('context');
-          self.importSearchParam('migration');
 
           try {
             self.importBooleanSearchParam('customizeSync');

@@ -16,7 +16,7 @@ define([
         FxaClient, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v1&service=sync';
-  var PAGE_URL_WITH_MIGRATION = PAGE_URL + '&migration=wibble';
+  var PAGE_URL_WITH_MIGRATION = PAGE_URL + '&migration=sync11';
 
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
 

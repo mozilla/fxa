@@ -13,6 +13,17 @@ When authenticating a user for OAuth.
 * /oauth/signup
 * /oauth/force_auth
 
+### `migration`
+If the user is migrating their account, specify which service they are migrating from.
+
+#### When to specify
+When signing up a user.
+
+* /signup
+
+#### Options
+* `amo`
+
 ### `keys`
 Set to true to receive derived kA and kB keys that can be used to encrypt data.
 
@@ -79,6 +90,7 @@ The button provides a link to the relier using the `redirect_uri` without extra 
 
 #### When to specify
 When the relier supports being linked to its `redirect_uri` without extra OAuth parameters.
+
 
 ## Firefox/Sync parameters
 
