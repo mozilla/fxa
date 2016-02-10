@@ -6,22 +6,47 @@
  * Shared helpers for mocking things out in the tests.
  */
 
+var sinon = require('sinon')
+var extend = require('util')._extend
 
 // A logging mock that doesn't capture anything.
 // You can pass in an object of custom logging methods
-// if you need to e.g. capture messages.
+// if you need to e.g. make assertions about logged values.
 
+var LOG_METHOD_NAMES = ['trace', 'increment', 'info', 'error']
 
 var mockLog = function(methods) {
-  var log = {}
-  var noop = function () {}
-  methods = methods || {}
-  ;['trace', 'increment', 'info', 'error'].forEach(function(name) {
-    log[name] = (methods[name] || noop).bind(log)
+  var log = extend({}, methods)
+  LOG_METHOD_NAMES.forEach(function(name) {
+    if (!log[name]) {
+      log[name] = function() {}
+    }
   })
   return log
 }
 
+// A logging mock where all logging methods are sinon spys,
+// and we capture a log of all their calls in order.
+
+var spyLog = function(methods) {
+  methods = extend({}, methods)
+  methods.messages = methods.messages || []
+  LOG_METHOD_NAMES.forEach(function(name) {
+    if (!methods[name]) {
+      methods[name] = function() {
+        this.messages.push({
+          level: name,
+          args: Array.prototype.slice.call(arguments)
+        })
+      }
+    }
+    methods[name] = sinon.spy(methods[name])
+  })
+  return mockLog(methods)
+}
+
+
 module.exports = {
-  mockLog: mockLog
+  mockLog: mockLog,
+  spyLog: spyLog
 }

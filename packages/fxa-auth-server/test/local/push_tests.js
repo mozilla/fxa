@@ -4,7 +4,6 @@
 
 var tap = require('tap')
 var proxyquire = require('proxyquire')
-var extend = require('util')._extend
 
 var test = tap.test
 var P = require('../../lib/promise')

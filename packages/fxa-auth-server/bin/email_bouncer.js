@@ -6,7 +6,8 @@ var config = require('../config').getProperties()
 var log = require('../lib/log')(config.log.level, 'fxa-email-bouncer')
 var error = require('../lib/error')
 var Token = require('../lib/tokens')(log, config.tokenLifetimes)
-var bounces = require('../lib/bounces')(log)
+var SQSReceiver = require('../lib/sqs')(log)
+var bounces = require('../lib/bounces')(log, error)
 
 var DB = require('../lib/db')(
   config.db.backend,
@@ -19,9 +20,14 @@ var DB = require('../lib/db')(
   Token.PasswordChangeToken
 )
 
+var bounceQueue = new SQSReceiver(config.bounces.region, [
+  config.bounces.bounceQueueUrl,
+  config.bounces.complaintQueueUrl
+])
+
 DB.connect(config[config.db.backend])
   .done(
     function (db) {
-      bounces(config.bounces, db)
+      bounces(bounceQueue, db)
     }
   )
