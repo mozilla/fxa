@@ -1,3 +1,26 @@
+<a name="1.56.0"></a>
+# [1.56.0](https://github.com/mozilla/fxa-auth-server/compare/v1.55.1...v1.56.0) (2016-02-11)
+
+
+### Bug Fixes
+
+* **config:** Pass 'options.extra.email' to hapi-fxa-oauth, not 'options.email'. ([68572fa](https://github.com/mozilla/fxa-auth-server/commit/68572fa))
+* **e2e-email:** adjust expected query arguments for auth-mailer#118 ([b8b345c](https://github.com/mozilla/fxa-auth-server/commit/b8b345c))
+* **hawk:** Update to latest hapi-auth-hawk ([078ddc0](https://github.com/mozilla/fxa-auth-server/commit/078ddc0))
+* **tests:** Update tests for new fxa-auth-mailer behaviour ([0f25ddd](https://github.com/mozilla/fxa-auth-server/commit/0f25ddd))
+
+### Features
+
+* **config:** Add 'oauth.keepAlive' config option. ([f8abfe2](https://github.com/mozilla/fxa-auth-server/commit/f8abfe2))
+* **push:** respond to 400 level errors from the push server by clearing device push info ([b37dc91](https://github.com/mozilla/fxa-auth-server/commit/b37dc91)), closes [#1151](https://github.com/mozilla/fxa-auth-server/issues/1151)
+
+### chore
+
+* **e2e-email:** bg is now translated for 'Firefox Account Verified' ([e5baead](https://github.com/mozilla/fxa-auth-server/commit/e5baead))
+* **shrinkwrap:** update shrinkwrap to pick up fxa-auth-mailer#01f8ee75 ([64ca8c0](https://github.com/mozilla/fxa-auth-server/commit/64ca8c0))
+
+
+
 <a name="1.55.1"></a>
 ## [1.55.1](https://github.com/mozilla/fxa-auth-server/compare/v1.55.0...v1.55.1) (2016-01-31)
 
