@@ -36,7 +36,7 @@ var messageContentChecks = [
   {
     subject: 'Firefox Account Verified',
     pathname: '/en-US/firefox/sync/',
-    args: [],
+    args: [ 'utm_source', 'utm_medium', 'utm_campaign' ],
     xheaders: [],
   },
   {
@@ -111,7 +111,7 @@ function checkContent(mail, idx) {
   var args = JSON.stringify(contentChecks.args.sort())
   var queryArgs = JSON.stringify(Object.keys(xlink.query).sort())
   if (args !== queryArgs) {
-    reportError(lang, 'args mismatch ' + args + ' - ' + queryArgs)
+    reportError(lang, mail.headers['x-link'] + ' - args mismatch ' + args + ' - ' + queryArgs)
   }
 }
 
