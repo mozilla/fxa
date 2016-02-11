@@ -16,23 +16,10 @@ define(function (require, exports, module) {
   var _ = require('underscore');
   var FxSyncWebChannelAuthenticationBroker = require('./fx-sync-web-channel');
   var HaltBehavior = require('views/behaviors/halt');
-  var NavigateBehavior = require('views/behaviors/navigate');
-  var p = require('lib/promise');
 
   var proto = FxSyncWebChannelAuthenticationBroker.prototype;
 
   var FxDesktopV2AuthenticationBroker = FxSyncWebChannelAuthenticationBroker.extend({
-    afterSignUp: function (account) {
-      var self = this;
-      return p().then(function () {
-        if (self.hasCapability('chooseWhatToSyncWebV1')) {
-          return new NavigateBehavior('choose_what_to_sync', {
-            account: account
-          });
-        }
-      });
-    },
-
     defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
       // about:accounts displays its own screen after sign in, no need
       // to show anything.

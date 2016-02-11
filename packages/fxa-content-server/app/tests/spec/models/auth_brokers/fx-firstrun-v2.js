@@ -24,6 +24,13 @@ define(function (require, exports, module) {
     });
 
     describe('capabilities', function () {
+      it('has the `chooseWhatToSyncWebV1` capability by default', function () {
+        return broker.afterSignUp()
+          .then(function (behavior) {
+            assert.equal(behavior.endpoint, 'choose_what_to_sync');
+          });
+      });
+
       it('has the `syncPreferencesNotification` capability', function () {
         assert.isTrue(broker.hasCapability('syncPreferencesNotification'));
       });

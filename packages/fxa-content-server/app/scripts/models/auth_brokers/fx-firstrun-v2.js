@@ -18,6 +18,17 @@ define(function (require, exports, module) {
 
   var FxFirstrunV2AuthenticationBroker = FxFirstrunV1AuthenticationBroker.extend({
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
+      chooseWhatToSyncCheckbox: false,
+      chooseWhatToSyncWebV1: {
+        engines: [
+          'bookmarks',
+          'history',
+          'passwords',
+          'tabs',
+          'desktop-addons',
+          'desktop-preferences'
+        ]
+      },
       syncPreferencesNotification: true
     }),
 

@@ -59,7 +59,33 @@ define([
         })
 
         .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:login'))
+
+        .findByCssSelector('#fxa-choose-what-to-sync-header')
+        .end()
+
+        // uncheck the passwords and history engines
+        .findByCssSelector('input[value="passwords"]')
+          .click()
+        .end()
+
+        .findByCssSelector('input[value="addons"]')
+          .click()
+        .end()
+
+        .findByCssSelector('button[type=submit]')
+          .click()
+        .end()
+
+        // user should be transitioned to the "go confirm your address" page
+        .findByCssSelector('#fxa-confirm-header')
+        .end()
+
+        // the login message is only sent after the sync preferences screen
+        // has been cleared.
+        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:login', function (data) {
+          assert.isTrue(data.customizeSync);
+          assert.deepEqual(data.declinedSyncEngines, ['addons', 'passwords']);
+        }))
 
         // user should be transitioned to the "go confirm your address" page
         .findByCssSelector('#fxa-confirm-header')
