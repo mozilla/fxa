@@ -280,7 +280,10 @@ module.exports = function (log) {
   Mailer.prototype.postVerifyEmail = function (message) {
     log.trace({ op: 'mailer.postVerifyEmail', email: message.email, uid: message.uid })
 
-    var link = this.syncUrl
+    // special utm params, just for this email
+    // details at github.com/mozilla/fxa-auth-mailer/issues/110
+    var postVerifyUtmParams = '?utm_source=email&utm_medium=email&utm_campaign=fx-account-verified'
+    var link = this.syncUrl + postVerifyUtmParams
 
     return this.send({
       acceptLanguage: message.acceptLanguage,
@@ -292,8 +295,8 @@ module.exports = function (log) {
       template: 'postVerifyEmail',
       templateValues: {
         link: link,
-        androidUrl: this.androidUrl,
-        iosUrl: this.iosUrl,
+        androidUrl: this.androidUrl + postVerifyUtmParams,
+        iosUrl: this.iosUrl + postVerifyUtmParams,
         supportUrl: this.supportUrl,
         supportLinkAttributes: this._supportLinkAttributes(),
         passwordChangeLinkAttributes: this._initiatePasswordChange()
