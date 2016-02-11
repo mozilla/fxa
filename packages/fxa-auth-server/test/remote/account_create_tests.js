@@ -69,8 +69,8 @@ TestServer.start(config)
         .then(
           function (emailData) {
             t.equal(
-              emailData.headers['x-link'],
-              config.smtp.syncUrl,
+              emailData.headers['x-link'].indexOf(config.smtp.syncUrl),
+              0,
               'sync url present')
           }
         )
