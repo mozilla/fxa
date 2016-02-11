@@ -681,7 +681,7 @@ define([
     'open /reset_password page, enter unknown email, wait for error': function () {
       return fillOutResetPassword(this, email)
         // The error area shows a link to /signup
-        .then(FunctionalHelpers.visibleByQSA('.error a[href="/signup"]'))
+        .then(FunctionalHelpers.visibleByQSAErrorHeight('.error a[href="/signup"]'))
         .findByCssSelector('.error a[href="/signup"]')
           .click()
         .end()

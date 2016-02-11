@@ -40,7 +40,7 @@ define([
         return FunctionalHelpers.fillOutChangePassword(context, FIRST_PASSWORD, SECOND_PASSWORD);
       })
 
-      .then(FunctionalHelpers.visibleByQSA('a[href="/confirm_account_unlock"]'))
+      .then(FunctionalHelpers.visibleByQSAErrorHeight('a[href="/confirm_account_unlock"]'))
 
       .findByCssSelector('a[href="/confirm_account_unlock"]')
         .click()
