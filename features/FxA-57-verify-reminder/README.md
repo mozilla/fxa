@@ -54,3 +54,13 @@ A week ago you created a Firefox Account, but never verified it. We’re worried
 Firefox is available for Windows, Mac, Linux, Android and iOS.
 You can sync your Firefox passwords, bookmarks and history across all of them.
 Confirm this email address to activate your account and let us know you're okay.
+
+
+## Architecture
+
+This feature requires updating the fxa-auth-mailer to become a standalone process.
+fxa-auth-mailer must be running alongside fxa-auth-db-mysql to be able to query the account status.
+
+![](sqs-outline.png)
+
+[Edit Chart via LucidChart](https://www.lucidchart.com/documents/edit/ea989394-f165-4700-88a7-ebcd0c5d2ce3#)
