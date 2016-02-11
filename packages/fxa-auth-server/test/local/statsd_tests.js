@@ -6,9 +6,7 @@ var tap = require('tap')
 var test = tap.test
 
 var StatsDCollector = require('../../lib/metrics/statsd')
-var mockLog = {
-  error: function () {}
-}
+var mockLog = require('../mocks').mockLog()
 
 test(
   'statsd init failure cases',

@@ -121,7 +121,7 @@ module.exports = function (
         }
 
         function ignoreUnknownAccountError (err) {
-          if (err.errno !== 102) {
+          if (err.errno !== error.ERRNO.ACCOUNT_UNKNOWN) {
             throw err
           }
         }
@@ -481,7 +481,7 @@ module.exports = function (
                   return record
                 },
                 function (err) {
-                  if (err.errno !== 102) {
+                  if (err.errno !== error.ERRNO.ACCOUNT_UNKNOWN) {
                     throw err
                   }
                   var uid = uuid.v4('binary')
@@ -617,7 +617,7 @@ module.exports = function (
                 reply({ exists: true })
               },
               function (err) {
-                if (err.errno === 102) {
+                if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
                   return reply({ exists: false })
                 }
                 reply(err)

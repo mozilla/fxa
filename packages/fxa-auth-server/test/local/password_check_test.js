@@ -4,9 +4,9 @@
 
 var P = require('../../lib/promise')
 var test = require('../ptaptest')
-var MockLog = { info: function () { } }
+var mockLog = require('../mocks').mockLog()
 var config = { lockoutEnabled: true }
-var Password = require('../../lib/crypto/password')(MockLog, config)
+var Password = require('../../lib/crypto/password')(mockLog, config)
 
 var triggersLockout = false
 var MockCustoms = {
@@ -28,7 +28,7 @@ var MockDB = {
   }
 }
 
-var checkPassword = require('../../lib/routes/utils/password_check')(MockLog, config, Password, MockCustoms, MockDB)
+var checkPassword = require('../../lib/routes/utils/password_check')(mockLog, config, Password, MockCustoms, MockDB)
 
 test(
   'password check with correct password',

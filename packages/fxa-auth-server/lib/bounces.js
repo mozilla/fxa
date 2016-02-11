@@ -2,11 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log) {
+var eaddrs = require('email-addresses')
+var P = require('./promise')
 
-  var SQSReceiver = require('./sqs')(log)
+module.exports = function (log, error) {
 
-  return function start(config, db) {
+  return function start(bounceQueue, db) {
 
     function accountDeleted(uid, email) {
       log.info({ op: 'accountDeleted', uid: uid.toString('hex'), email: email })
@@ -16,10 +17,27 @@ module.exports = function (log) {
       log.error({ op: 'databaseError', email: email, err: err })
     }
 
+    function findEmailRecord(email) {
+      return db.emailRecord(email)
+        .catch(function (err) {
+          // The mail agent may have mangled the email address
+          // that's being reported in the bounce notification.
+          // Try looking up by normalized form as well.
+          if (err.errno !== error.ERRNO.ACCOUNT_UNKNOWN) {
+            throw err
+          }
+          var normalizedEmail = eaddrs.parseOneAddress(email).address
+          if (normalizedEmail === email) {
+            throw err
+          }
+          return db.emailRecord(normalizedEmail)
+        })
+    }
+
     function deleteAccountIfUnverified(record) {
       if (!record.emailVerified) {
-        db.deleteAccount(record)
-          .done(
+        return db.deleteAccount(record)
+          .then(
             accountDeleted.bind(null, record.uid, record.email),
             gotError.bind(null, record.email)
           )
@@ -39,22 +57,29 @@ module.exports = function (log) {
       else if (message.complaint && message.complaint.complaintFeedbackType === 'abuse') {
         recipients = message.complaint.complainedRecipients
       }
-      for (var i = 0; i < recipients.length; i++) {
-        var email = recipients[i].emailAddress
+      return P.each(recipients, function (recipient) {
+        var email = recipient.emailAddress
         log.info({ op: 'handleBounce', email: email, bounce: !!message.bounce })
         log.increment('account.email_bounced')
-        db.emailRecord(email)
-          .done(
+        return findEmailRecord(email)
+          .then(
             deleteAccountIfUnverified,
             gotError.bind(null, email)
           )
-      }
-      message.del()
+      }).then(
+        function () {
+          // We always delete the message, even if handling some addrs failed.
+          message.del()
+        }
+      )
     }
 
-    var bounceQueue = new SQSReceiver(config.region, [config.bounceQueueUrl, config.complaintQueueUrl])
     bounceQueue.on('data', handleBounce)
     bounceQueue.start()
-    return bounceQueue
+
+    return {
+      bounceQueue: bounceQueue,
+      handleBounce: handleBounce
+    }
   }
 }

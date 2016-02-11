@@ -733,6 +733,9 @@ module.exports = function (
   return DB
 }
 
+// Note that these errno's are defined in the fxa-auth-db-mysql repo
+// and don't necessarily match the errnos in this repo...
+
 function isRecordAlreadyExistsError (err) {
   return err.statusCode === 409 && err.errno === 101
 }
