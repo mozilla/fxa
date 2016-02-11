@@ -8,15 +8,8 @@ var extend = require('util')._extend
 
 var test = tap.test
 var P = require('../../lib/promise')
+var mockLog = require('../mocks').mockLog
 var mockUid = new Buffer('foo')
-var mockLog = {
-  error: function () {
-  },
-  increment: function () {
-  },
-  trace: function () {
-  }
-}
 
 var mockDbEmpty = {
   devices: function () {
@@ -52,12 +45,13 @@ var mockDbResult = {
 test(
   'notifyUpdate does not throw on empty device result',
   function (t) {
-    var thisMockLog = extend({}, mockLog)
-    thisMockLog.increment = function (log) {
-      if (log === 'push.success') {
-        t.fail('must not call push.success')
+    var thisMockLog = mockLog({
+      increment: function (name) {
+        if (name === 'push.success') {
+          t.fail('must not call push.success')
+        }
       }
-    }
+    })
 
     try {
       var push = require('../../lib/push')(thisMockLog, mockDbEmpty)
@@ -76,18 +70,19 @@ test(
   'notifyUpdate sends notifications',
   function (t) {
     var successCalled = 0
-    var thisMockLog = extend({}, mockLog)
-    thisMockLog.increment = function (log) {
-      if (log === 'push.success') {
-        // notification sent
-        successCalled++
-      }
+    var thisMockLog = mockLog({
+      increment: function (log) {
+        if (log === 'push.success') {
+          // notification sent
+          successCalled++
+        }
 
-      if (successCalled === 2) {
-        // we should send 2 notifications for 2 devices
-        t.end()
+        if (successCalled === 2) {
+          // we should send 2 notifications for 2 devices
+          t.end()
+        }
       }
-    }
+    })
 
     var mocks = {
       request: {
@@ -114,13 +109,14 @@ test(
       }
     }
 
-    var thisMockLog = extend({}, mockLog)
-    thisMockLog.increment = function (log) {
-      if (log === 'push.no_push_callback') {
-        // device had no push callback
-        t.end()
+    var thisMockLog = mockLog({
+      increment: function (log) {
+        if (log === 'push.no_push_callback') {
+          // device had no push callback
+          t.end()
+        }
       }
-    }
+    })
 
     var push = require('../../lib/push')(thisMockLog, mockDbNoCallback)
     push.notifyUpdate(mockUid)
@@ -141,13 +137,14 @@ test(
       }
     }
 
-    var thisMockLog = extend({}, mockLog)
-    thisMockLog.increment = function (log) {
-      if (log === 'push.failed') {
-        // request failed
-        t.end()
+    var thisMockLog = mockLog({
+      increment: function (log) {
+        if (log === 'push.failed') {
+          // request failed
+          t.end()
+        }
       }
-    }
+    })
 
     var mocks = {
       request: {
@@ -179,13 +176,14 @@ test(
       }
     }
 
-    var thisMockLog = extend({}, mockLog)
-    thisMockLog.increment = function (log) {
-      if (log === 'push.reset_settings') {
-        // request failed
-        t.end()
+    var thisMockLog = mockLog({
+      increment: function (log) {
+        if (log === 'push.reset_settings') {
+          // request failed
+          t.end()
+        }
       }
-    }
+    })
 
     var mocks = {
       request: {
