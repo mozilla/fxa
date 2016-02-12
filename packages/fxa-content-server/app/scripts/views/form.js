@@ -64,7 +64,19 @@ define(function (require, exports, module) {
     },
 
     afterRender: function () {
-      this.enableSubmitIfValid();
+      // Firefox has a strange issue where if the previous
+      // screen was submit using the keyboard, the `enter` key's
+      // `keyup` event fires here on the element that receives
+      // focus. Without seeding the initial form values, any
+      // errors passed from the previous screen are immediately
+      // hidden.
+      this.updateFormValueChanges();
+
+      // only enable submit if no error is passed
+      // from one screen to the next.
+      if (! this.model.has('error')) {
+        this.enableSubmitIfValid();
+      }
 
       BaseView.prototype.afterRender.call(this);
     },
@@ -92,14 +104,13 @@ define(function (require, exports, module) {
       return values;
     },
 
-    enableSubmitIfValid: function (event) {
+    enableSubmitIfValid: function () {
       // the change event can be called after the form is already
       // submitted if the user presses "enter" in the form. If the
       // form is in the midst of being submitted, bail out now.
       if (this.isSubmitting() || this.isHalted()) {
         return;
       }
-
 
       if (this.isValid()) {
         this.hideError();
