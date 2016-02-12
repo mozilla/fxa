@@ -7,6 +7,7 @@ define(function (require, exports, module) {
 
   var $ = require('jquery');
   var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
   var chai = require('chai');
   var Constants = require('lib/constants');
   var FormView = require('views/form');
@@ -19,73 +20,71 @@ define(function (require, exports, module) {
 
   var assert = chai.assert;
 
+  var View = FormView.extend({
+    template: Template,
+
+    // overridden in tests.
+    formIsValid: false,
+    isFormSubmitted: false,
+
+    isValid: function () {
+      return this.formIsValid;
+    },
+
+    showValidationErrors: function () {
+      return this.showValidationError('body', 'invalid form');
+    },
+
+    submit: function () {
+      this.isFormSubmitted = true;
+    }
+  });
+
   describe('views/form', function () {
-    var view, metrics;
-
-    var View = FormView.extend({
-      template: Template,
-
-      // overridden in tests.
-      formIsValid: false,
-      isFormSubmitted: false,
-
-      isValid: function () {
-        return this.formIsValid;
-      },
-
-      showValidationErrors: function () {
-        return this.showValidationError('body', 'invalid form');
-      },
-
-      submit: function () {
-        this.isFormSubmitted = true;
-      }
-    });
+    var metrics;
+    var model;
+    var view;
 
     function testErrorDisplayed(expectedMessage) {
       return view.validateAndSubmit()
-          .then(function () {
-            // success callback should not be called on failure.
-            assert.fail('unexpected success');
-          }, function (err) {
-            assert.equal(err, expectedMessage);
-            assert.isTrue(view.isErrorVisible());
-          });
+        .then(assert.fail, function (err) {
+          assert.equal(err, expectedMessage);
+          assert.isTrue(view.isErrorVisible());
+        });
     }
 
     function testValidationErrorDisplayed(expectedMessage) {
       return view.validateAndSubmit()
-          .then(function () {
-            // success callback should not be called on failure.
-            assert(false, 'unexpected success');
-          }, function (err) {
-            assert.equal(err, expectedMessage);
-          });
+        .then(assert.fail, function (err) {
+          assert.equal(err, expectedMessage);
+        });
     }
 
     function testFormSubmitted() {
       return view.validateAndSubmit()
-                  .then(function () {
-                    assert.isTrue(view.isFormSubmitted);
-                  });
+        .then(function () {
+          assert.isTrue(view.isFormSubmitted);
+        });
     }
 
     beforeEach(function () {
       metrics = new Metrics();
+      model = new Backbone.Model({});
       view = new View({
-        metrics: metrics
+        metrics: metrics,
+        model: model
       });
 
       return view.render()
-          .then(function () {
-            $('#container').html(view.el);
-          });
+        .then(function () {
+          $('#container').html(view.el);
+        });
     });
 
     afterEach(function () {
       if (view) {
+        view.remove();
         view.destroy();
-        $(view.el).remove();
         view = null;
       }
     });
@@ -708,6 +707,20 @@ define(function (require, exports, module) {
         });
 
         assert.isFalse(view.isValid());
+      });
+    });
+
+    describe('render with errors', function () {
+      beforeEach(function () {
+        model.set('error', AuthErrors.toError('INVALID_PASSWORD'));
+
+        sinon.spy(view, 'enableSubmitIfValid');
+
+        return view.render();
+      });
+
+      it('does not enable submit', function () {
+        assert.isFalse(view.enableSubmitIfValid.called);
       });
     });
   });
