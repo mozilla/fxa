@@ -30,7 +30,7 @@
     "fxa-notifier-aws": "1.0.0",
     "hapi": "7.5.3",
     "joi": "^4.7.0",
-    "mozlog": "^2.0.2",
+    "mozlog": "^2.0.3",
     "mysql": "^2.5.5",
     "mysql-patcher": "^0.7.0",
     "request": "^2.54.0",
