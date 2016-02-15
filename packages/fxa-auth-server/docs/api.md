@@ -109,6 +109,7 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
 * Account
     * [POST /v1/account/create](#post-v1accountcreate)
     * [GET  /v1/account/status](#get-v1accountstatus)
+    * [POST /v1/account/status](#post-v1accountstatus)
     * [GET  /v1/account/keys (:lock: keyFetchToken) (verf-required)](#get-v1accountkeys)
     * [GET  /v1/account/profile (:lock: oauthBearerToken)](#get-v1accountprofile)
     * [POST /v1/account/reset (:lock: accountResetToken)](#post-v1accountreset)
@@ -272,6 +273,41 @@ Failing requests may be due to the following errors:
 * status code 400, errno 107:  request query contains invalid parameters
 * status code 400, errno 108:  request query missing required parameters
 
+## POST /v1/account/status
+
+Gets the status of an account without exposing user data through query params. This
+endpoint is rate limited by the [fxa-customs-server]()
+
+___Parameters___
+
+* email - the primary email for this account
+
+### Request
+
+```sh
+curl -v \
+-X POST \
+-H "Content-Type: application/json" \
+"https://api-accounts.dev.lcip.org/v1/account/status" \
+-d '{
+  "email": "me@example.com"
+}'
+```
+
+### Response
+
+Successful requests will produce a "200 OK" response with the account status provided in the JSON body:
+
+```json
+{
+  "exists": true
+}
+```
+
+Failing requests may be due to the following errors:
+
+* status code 400, errno 107:  request query contains invalid parameters
+* status code 429, errno 114:  client has sent too many requests
 
 ## POST /v1/account/login
 

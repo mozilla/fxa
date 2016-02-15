@@ -26,7 +26,7 @@ module.exports = function (log, error) {
       {
         ip: ip,
         email: email,
-        action: action,
+        action: action
       }
     )
     .then(

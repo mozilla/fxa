@@ -198,6 +198,23 @@ ClientApi.prototype.deviceDestroy = function (sessionTokenHex, id) {
     )
 }
 
+
+ClientApi.prototype.accountStatusByEmail = function (email) {
+  if (email) {
+    return this.doRequest(
+      'POST',
+      this.baseURL + '/account/status',
+      null,
+      {
+        email: email
+      }
+    )
+  }
+  else {
+    return this.doRequest('POST', this.baseURL + '/account/status')
+  }
+}
+
 ClientApi.prototype.accountStatus = function (uid, sessionTokenHex) {
   if (sessionTokenHex) {
     return tokens.SessionToken.fromHex(sessionTokenHex)

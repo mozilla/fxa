@@ -97,6 +97,67 @@ TestServer.start(config)
   )
 
   test(
+    'account status by email with existing account',
+    function (t) {
+      var email = server.uniqueEmail()
+      return Client.create(config.publicUrl, email, 'password')
+        .then(
+          function (c) {
+            return c.api.accountStatusByEmail(email)
+          }
+        )
+        .then(
+          function (response) {
+            t.ok(response.exists, 'account exists')
+          }
+        )
+    }
+  )
+
+  test(
+    'account status by email with non-existing account',
+    function (t) {
+      var email = server.uniqueEmail()
+      return Client.create(config.publicUrl, email, 'password')
+        .then(
+          function (c) {
+            var nonExistEmail = server.uniqueEmail()
+            return c.api.accountStatusByEmail(nonExistEmail)
+          }
+        )
+        .then(
+          function (response) {
+            t.ok(!response.exists, 'account does not exist')
+          }
+        )
+    }
+  )
+
+  test(
+    'account status by email with invald email',
+    function (t) {
+      var email = server.uniqueEmail()
+      return Client.create(config.publicUrl, email, 'password')
+        .then(
+          function (c) {
+            var invalidEmail = 'notAnEmail'
+            return c.api.accountStatusByEmail(invalidEmail)
+          }
+        )
+        .then(
+          function () {
+            t.fail('should not have successful request')
+          },
+          function (err) {
+            t.equal(err.code, 400)
+            t.equal(err.errno, 107)
+            t.equal(err.message, 'Invalid parameter in request body')
+          }
+        )
+    }
+  )
+
+  test(
     'teardown',
     function (t) {
       server.stop()

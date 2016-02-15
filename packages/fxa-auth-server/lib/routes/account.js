@@ -630,6 +630,46 @@ module.exports = function (
       }
     },
     {
+      method: 'POST',
+      path: '/account/status',
+      config: {
+        validate: {
+          payload: {
+            email: validators.email().required()
+          }
+        },
+        response: {
+          schema: {
+            exists: isA.boolean().required()
+          }
+        }
+      },
+      handler: function (request, reply) {
+        var email = request.payload.email
+
+        customs.check(
+          request.app.clientAddress,
+          email,
+          'accountStatusCheck')
+          .then(
+            db.accountExists.bind(db, email)
+          )
+          .done(
+            function (exist) {
+              reply({
+                exists: exist
+              })
+            },
+            function (err) {
+              if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+                return reply({ exists: false })
+              }
+              reply(err)
+            }
+          )
+      }
+    },
+    {
       method: 'GET',
       path: '/account/profile',
       config: {

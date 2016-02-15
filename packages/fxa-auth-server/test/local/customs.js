@@ -180,6 +180,70 @@ test(
   }
 )
 
+test(
+  'can rate limit checkAccountStatus /check',
+  function (t) {
+    t.plan(12)
+
+    customsWithUrl = new Customs(CUSTOMS_URL_REAL)
+
+    t.ok(customsWithUrl, 'can rate limit checkAccountStatus /check')
+
+    var email = newEmail()
+    var ip = newIp()
+    var action = 'accountStatusCheck'
+
+    customsServer
+      .post('/check', {email: email, ip: ip, action: action}).reply(200, '{"block":false,"retryAfter":0}')
+      .post('/check', {email: email, ip: ip, action: action}).reply(200, '{"block":false,"retryAfter":0}')
+      .post('/check', {email: email, ip: ip, action: action}).reply(200, '{"block":false,"retryAfter":0}')
+      .post('/check', {email: email, ip: ip, action: action}).reply(200, '{"block":false,"retryAfter":0}')
+      .post('/check', {email: email, ip: ip, action: action}).reply(200, '{"block":false,"retryAfter":0}')
+      .post('/check', {email: email, ip: ip, action: action}).reply(200, '{"block":true,"retryAfter":10001}')
+
+    return customsWithUrl.check(ip, email, action)
+      .then(function(result) {
+        t.equal(result, undefined, 'Nothing is returned when /check succeeds')
+        return customsWithUrl.check(ip, email, action)
+      }, function(error) {
+        t.fail('We should not have failed here for /check : err=' + error)
+      })
+      .then(function(result) {
+        t.equal(result, undefined, 'Nothing is returned when /check succeeds')
+        return customsWithUrl.check(ip, email, action)
+      }, function(error) {
+        t.fail('We should not have failed here for /check : err=' + error)
+      })
+      .then(function(result) {
+        t.equal(result, undefined, 'Nothing is returned when /check succeeds')
+        return customsWithUrl.check(ip, email, action)
+      }, function(error) {
+        t.fail('We should not have failed here for /check : err=' + error)
+      })
+      .then(function(result) {
+        t.equal(result, undefined, 'Nothing is returned when /check succeeds')
+        return customsWithUrl.check(ip, email, action)
+      }, function(error) {
+        t.fail('We should not have failed here for /check : err=' + error)
+      })
+      .then(function() {
+        // request is blocked
+        return customsWithUrl.check(ip, email, action)
+      })
+      .then(function() {
+        t.fail('This should have failed the check since it should be blocked')
+      }, function(error) {
+        t.pass('Since we faked a block, we should have arrived here')
+        t.equal(error.errno, 114, 'Error number is correct')
+        t.equal(error.message, 'Client has sent too many requests', 'Error message is correct')
+        t.ok(error.isBoom, 'The error causes a boom')
+        t.equal(error.output.statusCode, 429, 'Status Code is correct')
+        t.equal(error.output.payload.retryAfter, 10001, 'retryAfter is correct')
+        t.equal(error.output.headers['retry-after'], 10001, 'retryAfter header is correct')
+      })
+  }
+)
+
 function newEmail() {
   return Math.random().toString().substr(2) + '@example.com'
 }
