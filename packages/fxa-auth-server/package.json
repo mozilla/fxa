@@ -39,7 +39,7 @@
     "hapi-fxa-oauth": "2.2.0",
     "hkdf": "0.0.2",
     "joi": "6.9.1",
-    "mozlog": "2.0.2",
+    "mozlog": "2.0.3",
     "node-statsd": "0.1.1",
     "openid": "1.0.0",
     "poolee": "1.0.0",
