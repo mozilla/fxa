@@ -5,7 +5,7 @@
 const Hapi = require('hapi');
 
 const AppError = require('../error');
-const config = require('../config').root();
+const config = require('../config').getProperties();
 const logger = require('../logging')('server.web');
 const request = require('../request');
 const summary = require('../logging/summary');
@@ -22,24 +22,29 @@ function set(arr) {
 // handles the whole Profile API.
 exports.create = function createServer() {
   var isProd = config.env === 'prod';
-  var server = Hapi.createServer(
-    config.server.host,
-    config.server.port,
-    {
-      cors: true,
-      debug: false,
-      security: {
-        hsts: {
-          maxAge: 15552000,
-          includeSubdomains: true
-        },
-        xframe: false,
-        xss: false,
-        noOpen: false,
-        noSniff: false
+  var server = new Hapi.Server({
+    debug: false,
+    connections: {
+      routes: {
+        cors: true,
+        security: {
+          hsts: {
+            maxAge: 15552000,
+            includeSubdomains: true
+          },
+          xframe: false,
+          xss: false,
+          noOpen: false,
+          noSniff: false
+        }
       }
     }
-  );
+  });
+
+  server.connection({
+    host: config.server.host,
+    port: config.server.port
+  });
 
   server.auth.scheme('oauth', function() {
     return {
@@ -69,7 +74,7 @@ exports.create = function createServer() {
           }
           logger.debug('auth.valid', body);
           body.token = token;
-          reply(null, {
+          reply.continue({
             credentials: body
           });
         });

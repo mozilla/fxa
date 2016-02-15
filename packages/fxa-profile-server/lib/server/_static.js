@@ -4,17 +4,18 @@
 
 const Hapi = require('hapi');
 
-const config = require('../config').root();
+const config = require('../config').getProperties();
 const logger = require('../logging')('server.static');
 
 exports.create = function() {
-  var server = Hapi.createServer(
-    config.server.host,
-    config.server.port + 1,
-    {
-      debug: false
-    }
-  );
+  var server = new Hapi.Server({
+    debug: false
+  });
+
+  server.connection({
+    host: config.server.host,
+    port: config.server.port + 1
+  });
 
   server.route({
     method: 'GET',

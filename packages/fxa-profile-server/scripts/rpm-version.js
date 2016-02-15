@@ -30,6 +30,6 @@ cp.exec(cmd, function (err, stdout) { // eslint-disable-line handle-callback-err
   var cmd = 'git config --get remote.origin.url';
   cp.exec(cmd, function (err, stdout) { // eslint-disable-line handle-callback-err
     info.version.source = (stdout && stdout.trim()) || '';
-    console.log(JSON.stringify(info, null, 2));
+    console.log(JSON.stringify(info, null, 2)); // eslint-disable-line no-console
   });
 });

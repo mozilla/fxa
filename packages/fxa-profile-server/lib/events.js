@@ -5,7 +5,7 @@
 const Sink = require('fxa-notifier-aws').Sink;
 const P = require('./promise');
 
-const config = require('./config').root();
+const config = require('./config').getProperties();
 const db = require('./db');
 const env = require('./env');
 const logger = require('./logging')('events');
@@ -30,7 +30,8 @@ exports.onData = function onData(message) {
         }));
       }),
       db.removeProfile(userId)
-    ]).done(function () {
+    ]).done(
+      function () {
         logger.info('delete', { uid: userId });
         message.del();
       },
@@ -38,7 +39,8 @@ exports.onData = function onData(message) {
         logger.error('removeUser', err);
         // The message visibility timeout (in SQS terms) will expire
         // and be reissued again.
-      });
+      }
+    );
   } else {
     message.del();
   }
