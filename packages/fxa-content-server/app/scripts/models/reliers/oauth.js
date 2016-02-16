@@ -15,15 +15,9 @@ define(function (require, exports, module) {
   var Relier = require('models/reliers/relier');
   var RelierKeys = require('lib/relier-keys');
   var Url = require('lib/url');
+  var Validate = require('lib/validate');
 
   var RELIER_FIELDS_IN_RESUME_TOKEN = ['state', 'verificationRedirect'];
-  // We only grant permissions that our UI currently prompts for. Others
-  // will be stripped.
-  var PERMISSION_WHITE_LIST = [
-    'profile:display_name',
-    'profile:email',
-    'profile:uid'
-  ];
 
   var OAuthRelier = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {
@@ -33,6 +27,8 @@ define(function (require, exports, module) {
       keys: false,
       // permissions are individual scopes
       permissions: null,
+      // whether the permissions prompt will be shown to trusted reliers
+      prompt: null,
       // redirectTo is for future use by the oauth flow. redirectTo
       // would have redirectUri as its base.
       redirectTo: null,
@@ -42,7 +38,8 @@ define(function (require, exports, module) {
       scope: null,
       // standard oauth parameters.
       state: null,
-      // verification redirect to the rp, useful during email verification signup flow
+      // verification redirect to the rp, useful during email
+      // verification signup flow
       verificationRedirect: Constants.VERIFICATION_REDIRECT_NO
     }),
 
@@ -73,17 +70,33 @@ define(function (require, exports, module) {
           if (! self.has('service')) {
             self.set('service', self.get('clientId'));
           }
-          return self._setupOAuthRPInfo()
-            .then(function () {
-              var permissions;
-              // Sanitize permissions for untrusted reliers
-              if (! self.isTrusted() && self.has('scope')) {
-                permissions = stripNonWhiteListedPermissions(scopeStrToArray(self.get('scope')));
-                self.set('scope', permissions.join(' '));
-                self.set('permissions', permissions);
-              }
-            });
+
+          return self._setupOAuthRPInfo();
+        })
+        .then(function () {
+          if (self.has('scope')) {
+            // normalization depends on `trusted` field set in
+            // setupOAuthRPInfo.
+            self._normalizeScopesAndPermissions();
+          }
         });
+    },
+
+    _normalizeScopesAndPermissions: function () {
+      var permissions = scopeStrToArray(this.get('scope'));
+      if (this.isTrusted()) {
+        // replace `profile` with the expanded permissions for trusted reliers
+        permissions = replaceItemInArray(
+          permissions,
+          Constants.OAUTH_TRUSTED_PROFILE_SCOPE,
+          Constants.OAUTH_TRUSTED_PROFILE_SCOPE_EXPANSION
+        );
+      } else {
+        permissions = sanitizeUntrustedPermissions(permissions);
+      }
+
+      this.set('scope', permissions.join(' '));
+      this.set('permissions', permissions);
     },
 
     isOAuth: function () {
@@ -144,14 +157,25 @@ define(function (require, exports, module) {
 
       // params listed in:
       // https://github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md#post-v1authorization
+      self.importSearchParam('access_type', 'accessType');
       self._importRequiredSearchParam('client_id', 'clientId');
+      self.importBooleanSearchParam('keys');
+      self.importSearchParam('prompt');
+      self._validatePrompt();
+      self.importSearchParam('redirectTo');
+      self.importSearchParam('redirect_uri', 'redirectUri');
       self._importRequiredSearchParam('scope', 'scope');
       self.importSearchParam('state');
-      self.importSearchParam('redirect_uri', 'redirectUri');
-      self.importSearchParam('access_type', 'accessType');
-      self.importSearchParam('redirectTo');
       self.importSearchParam('verification_redirect', 'verificationRedirect');
-      self.importBooleanSearchParam('keys');
+    },
+
+    _validatePrompt: function () {
+      var prompt = this.get('prompt');
+      if (! Validate.isPromptValid(prompt)) {
+        var err = OAuthErrors.toError('INVALID_REQUEST_PARAMETER', prompt);
+        err.param = 'prompt';
+        throw err;
+      }
     },
 
     _importRequiredSearchParam: function (sourceName, destName) {
@@ -196,8 +220,25 @@ define(function (require, exports, module) {
       return this.get('trusted');
     },
 
+    /**
+     * Return `true` if the relier sets `prompt=consent`
+     *
+     * @returns {boolean} `true` if relier asks for consent, false otw.
+     */
+    wantsConsent: function () {
+      return this.get('prompt') === Constants.OAUTH_PROMPT_CONSENT;
+    },
+
+    /**
+     * Check whether additional permissions are requested from
+     * the given account
+     *
+     * @param {object} account
+     * @returns {boolean} `true` if additional permissions
+     *   are needed, false otw.
+     */
     accountNeedsPermissions: function (account) {
-      if (this.isTrusted()) {
+      if (this.isTrusted() && ! this.wantsConsent()) {
         return false;
       }
 
@@ -210,14 +251,20 @@ define(function (require, exports, module) {
     }
   });
 
+  function replaceItemInArray(array, itemToReplace, replaceWith) {
+    var without = _.without(array, itemToReplace);
+    if (without.length !== array.length) {
+      return _.union(without, replaceWith);
+    }
+    return array;
+  }
+
   function scopeStrToArray(scopes) {
     return typeof scopes === 'string' ? _.uniq(scopes.split(/\s+/g)) : scopes;
   }
 
-  function stripNonWhiteListedPermissions(permissions) {
-    return permissions.filter(function (permission) {
-      return PERMISSION_WHITE_LIST.indexOf(permission) !== -1;
-    });
+  function sanitizeUntrustedPermissions(permissions) {
+    return _.intersection(permissions, Constants.OAUTH_UNTRUSTED_ALLOWED_PERMISSIONS);
   }
 
   module.exports = OAuthRelier;

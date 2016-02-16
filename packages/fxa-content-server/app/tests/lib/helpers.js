@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var _ = require('underscore');
   var p = require('lib/promise');
   var ProfileMock = require('../mocks/profile.js');
   var sinon = require('sinon');
@@ -120,7 +121,10 @@ define(function (require, exports, module) {
     var pairs = [];
 
     for (var key in obj) {
-      pairs.push(key + '=' + encodeURIComponent(obj[key]));
+      var value = obj[key];
+      if (! _.isUndefined(value)) {
+        pairs.push(key + '=' + encodeURIComponent(value));
+      }
     }
 
     return searchString + pairs.join('&');

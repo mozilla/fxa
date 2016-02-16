@@ -38,6 +38,23 @@ When authenticating a user for OAuth.
 * /oauth/signup
 * /oauth/force_auth
 
+### `prompt`
+Specifies whether the content server prompts for permissions consent. Only applicable for `trusted` reliers.
+Untrusted reliers always show the prompt.
+
+#### Options
+* `consent` - Show the permissions prompt if any additional
+  permissions are required.
+
+#### When to specify
+When authenticating a user for OAuth. Only applicable for `trusted` reliers.
+Untrusted reliers always show the prompt.
+
+* /oauth/signin
+* /oauth/signup
+* /oauth/force_auth
+
+
 ### `redirect_uri`
 Which URI should a user be redirected back to upon completion of the OAuth transaction.
 

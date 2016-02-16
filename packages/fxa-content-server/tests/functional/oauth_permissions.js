@@ -11,7 +11,7 @@ define([
 ], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
 
-  var OAUTH_APP = config.fxaUntrustedOauthApp;
+  var UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
   var PASSWORD = 'password';
 
   var email;
@@ -21,10 +21,12 @@ define([
 
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
+  var fillOutForceAuth = thenify(FunctionalHelpers.fillOutForceAuth);
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
   var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
   var getVerificationLink = thenify(FunctionalHelpers.getVerificationLink);
   var noSuchElement = FunctionalHelpers.noSuchElement;
+  var openFxaFromTrustedRp = FunctionalHelpers.openFxaFromRp;
   var openFxaFromUntrustedRp = FunctionalHelpers.openFxaFromUntrustedRp;
   var openPage = FunctionalHelpers.openPage;
   var openSettingsInNewTab = thenify(FunctionalHelpers.openSettingsInNewTab);
@@ -35,7 +37,7 @@ define([
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   registerSuite({
-    name: 'oauth permissions',
+    name: 'oauth permissions for untrusted reliers',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
@@ -61,7 +63,7 @@ define([
 
         .then(testElementExists('#loggedin'))
 
-        .then(testUrlEquals(OAUTH_APP));
+        .then(testUrlEquals(UNTRUSTED_OAUTH_APP));
     },
 
     're-signin verified, no additional permissions': function () {
@@ -77,7 +79,7 @@ define([
 
         .then(testElementExists('#loggedin'))
 
-        .then(testUrlEquals(OAUTH_APP))
+        .then(testUrlEquals(UNTRUSTED_OAUTH_APP))
 
         .then(click('#logout'))
         .then(click('.signin'))
@@ -91,7 +93,7 @@ define([
         .then(testElementExists('#loggedin'))
 
         // redirected back to the App without seeing the permissions screen.
-        .then(testUrlEquals(OAUTH_APP));
+        .then(testUrlEquals(UNTRUSTED_OAUTH_APP));
     },
 
     'signin unverified, acts like signup': function () {
@@ -166,7 +168,7 @@ define([
 
     'preverified signup': function () {
       var self = this;
-      var SIGNUP_URL = OAUTH_APP + 'api/preverified-signup?' +
+      var SIGNUP_URL = UNTRUSTED_OAUTH_APP + 'api/preverified-signup?' +
                         'email=' + encodeURIComponent(email);
 
       return openPage(self, SIGNUP_URL, '#fxa-signup-header')
@@ -241,7 +243,7 @@ define([
 
         .then(testElementExists('#loggedin'))
 
-        .then(testUrlEquals(OAUTH_APP));
+        .then(testUrlEquals(UNTRUSTED_OAUTH_APP));
     },
 
     'signin from signup page': function () {
@@ -261,7 +263,7 @@ define([
 
         .then(testElementExists('#loggedin'))
 
-        .then(testUrlEquals(OAUTH_APP));
+        .then(testUrlEquals(UNTRUSTED_OAUTH_APP));
     },
 
     'signin with new permission available b/c of new account information': function () {
@@ -280,7 +282,7 @@ define([
         .then(click('#accept'))
 
         .then(testElementExists('#loggedin'))
-        .then(testUrlEquals(OAUTH_APP))
+        .then(testUrlEquals(UNTRUSTED_OAUTH_APP))
 
         .then(click('#logout'))
 
@@ -339,7 +341,7 @@ define([
         .then(click('#accept'))
 
         .then(testElementExists('#loggedin'))
-        .then(testUrlEquals(OAUTH_APP))
+        .then(testUrlEquals(UNTRUSTED_OAUTH_APP))
 
         .then(click('#logout'))
         .then(click('.signin'))
@@ -396,6 +398,87 @@ define([
 
         .then(type('input[type=password', PASSWORD))
         .then(click('button[type=submit]'))
+
+        .then(testElementExists('#loggedin'));
+    }
+  });
+
+  registerSuite({
+    name: 'oauth permissions for trusted reliers',
+
+    beforeEach: function () {
+      email = TestHelpers.createEmail();
+      user = TestHelpers.emailToUser(email);
+
+      return FunctionalHelpers.clearBrowserState(this, {
+        '123done': true,
+        contentServer: true
+      });
+    },
+
+    'signup without `prompt=consent`': function () {
+      return openFxaFromTrustedRp(this, 'signup')
+
+        .then(fillOutSignUp(this, email, PASSWORD))
+
+        // no permissions asked for, straight to confirm
+        .then(testElementExists('#fxa-confirm-header'));
+    },
+
+    'signup with `prompt=consent`': function () {
+      return openFxaFromTrustedRp(this, 'signup', 'prompt=consent')
+
+        .then(fillOutSignUp(this, email, PASSWORD))
+
+        // permissions are asked for with `prompt=consent`
+        .then(testElementExists('#fxa-permissions-header'))
+        .then(click('#accept'))
+
+        .then(testElementExists('#fxa-confirm-header'));
+    },
+
+    'signin without `prompt=consent`': function () {
+      return openFxaFromTrustedRp(this, 'signin')
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+
+        .then(fillOutSignIn(this, email, PASSWORD))
+
+        // no permissions asked for, straight to relier
+        .then(testElementExists('#loggedin'));
+    },
+
+    'signin with `prompt=consent`': function () {
+      return openFxaFromTrustedRp(this, 'signin', 'prompt=consent')
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+
+        .then(fillOutSignIn(this, email, PASSWORD))
+
+        // permissions are asked for with `prompt=consent`
+        .then(testElementExists('#fxa-permissions-header'))
+        .then(click('#accept'))
+
+        .then(testElementExists('#loggedin'));
+    },
+
+    'force_auth without `prompt=consent`': function () {
+      return openFxaFromTrustedRp(this, 'force_auth', 'email=' + encodeURIComponent(email))
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+
+        .then(fillOutForceAuth(this, PASSWORD))
+
+        // no permissions asked for, straight to relier
+        .then(testElementExists('#loggedin'));
+    },
+
+    'force_auth with `prompt=consent`': function () {
+      return openFxaFromTrustedRp(this, 'force_auth', 'prompt=consent&email=' + encodeURIComponent(email))
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+
+        .then(fillOutForceAuth(this, PASSWORD))
+
+        // permissions are asked for with `prompt=consent`
+        .then(testElementExists('#fxa-permissions-header'))
+        .then(click('#accept'))
 
         .then(testElementExists('#loggedin'));
     }

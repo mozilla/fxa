@@ -540,6 +540,11 @@ define(function (require, exports, module) {
         assert.include(errorUrl, Constants.BAD_REQUEST_PAGE);
       });
 
+      it('returns BAD_REQUEST_PAGE for an invalid OAuth client', function () {
+        var errorUrl = appStart._getErrorPage(OAuthErrors.toError('INVALID_REQUEST_PARAMETER'));
+        assert.include(errorUrl, Constants.BAD_REQUEST_PAGE);
+      });
+
       it('returns BAD_REQUEST_PAGE for an unknown OAuth client', function () {
         var errorUrl = appStart._getErrorPage(OAuthErrors.toError('UNKNOWN_CLIENT'));
         assert.include(errorUrl, Constants.BAD_REQUEST_PAGE);

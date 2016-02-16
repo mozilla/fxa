@@ -636,6 +636,7 @@ define(function (require, exports, module) {
 
     _getErrorPage: function (err) {
       if (OAuthErrors.is(err, 'MISSING_PARAMETER') ||
+          OAuthErrors.is(err, 'INVALID_REQUEST_PARAMETER') ||
           OAuthErrors.is(err, 'UNKNOWN_CLIENT')) {
         var queryString = Url.objToSearchString({
           client_id: err.client_id, //eslint-disable-line camelcase

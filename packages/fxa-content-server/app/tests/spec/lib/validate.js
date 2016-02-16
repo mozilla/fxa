@@ -241,5 +241,25 @@ define(function (require, exports, module) {
 
       /*eslint-enable sorting/sort-object-props */
     });
+
+    describe('isPromptValid', function () {
+      describe('no value', function () {
+        it('returns true', function () {
+          assert.isTrue(Validate.isPromptValid());
+        });
+      });
+
+      describe('consent', function () {
+        it('returns true', function () {
+          assert.isTrue(Validate.isPromptValid('consent'));
+        });
+      });
+
+      describe('other values', function () {
+        it('returns false', function () {
+          assert.isFalse(Validate.isPromptValid('unrecognized'));
+        });
+      });
+    });
   });
 });

@@ -125,7 +125,7 @@ define(function (require, exports, module) {
           };
         } else if (this.is(err, 'INVALID_REQUEST_PARAMETER')) {
           return {
-            param: err.validation.keys.join(',')
+            param: err.param || err.validation.keys.join(',')
           };
         }
       } catch (e) {
