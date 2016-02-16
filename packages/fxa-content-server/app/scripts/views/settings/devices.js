@@ -22,21 +22,30 @@ define(function (require, exports, module) {
   var DEVICES_SUPPORT_URL = 'https://support.mozilla.org/kb/fxa-managing-devices';
   var FIREFOX_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/new/?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
   var FORCE_DEVICE_LIST_VIEW = 'forceDeviceList';
+  var TIMEAGO_DAYS = t('days ago');
+  var TIMEAGO_HOURS = t('hours ago');
+  var TIMEAGO_MINUTES = t('minutes ago');
+  var TIMEAGO_MONTHS = t('months ago');
+  var TIMEAGO_SECONDS = t('seconds ago');
+  var TIMEAGO_SUFFIX = '';
+  var TIMEAGO_WEEKS = t('weeks ago');
+  var TIMEAGO_YEARS = t('years ago');
 
   _.extend($.timeago.settings.strings, {
-    day: t('a day'),
-    days: t('%d days'),
-    hour: t('about an hour'),
-    hours: t('%d hours'),
-    minute: t('about a minute'),
-    minutes: t('%d minutes'),
-    month: t('about a month'),
-    months: t('%d months'),
-    seconds: t('a few seconds'),
-    suffixAgo: t('ago'),
-    suffixFromNow: t('from now'),
-    year: t('about a year'),
-    years: t('%d years')
+    day: TIMEAGO_DAYS,
+    days: TIMEAGO_DAYS,
+    hour: TIMEAGO_HOURS,
+    hours: TIMEAGO_HOURS,
+    minute: TIMEAGO_MINUTES,
+    minutes: TIMEAGO_MINUTES,
+    month: TIMEAGO_MONTHS,
+    months: TIMEAGO_MONTHS,
+    seconds: TIMEAGO_SECONDS,
+    suffixAgo: TIMEAGO_SUFFIX,
+    week: TIMEAGO_WEEKS,
+    weeks: TIMEAGO_WEEKS,
+    year: TIMEAGO_YEARS,
+    years: TIMEAGO_YEARS
   });
 
   var View = FormView.extend({
