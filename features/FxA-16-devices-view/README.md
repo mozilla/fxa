@@ -265,3 +265,10 @@ Work Breakdown
   * [ ] Update the WebChannel doc
 * [ ] Handshake with browser to determine current device name and ID. ([#3252](https://github.com/mozilla/fxa-content-server/issues/3252))
 * [ ] Accept WebChannel messages from the browser to handle current device name change, disconnect. ([#3252](https://github.com/mozilla/fxa-content-server/issues/3252))
+
+
+## Updates
+
+### Update 1 - February 16, 2016
+
+- [Removing plurals](https://github.com/mozilla/fxa-content-server/issues/3510) from the connected time of the device (approved by @ryanfeeley). 
