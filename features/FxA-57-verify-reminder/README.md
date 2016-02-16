@@ -35,6 +35,7 @@ We will use the retention metrics pipeline to measure "account.signed" events th
 
 ## Email 1
 
+### Subject: Firefox Account Reminder
 ### Header: Hello again.
 
 ### Content:
@@ -46,6 +47,7 @@ Simply confirm this email address to activate your account.
 
 ## Email 2
 
+### Subject: Firefox Account Verification Required
 ### Header: Still there?
 
 ### Content:
@@ -54,3 +56,10 @@ A week ago you created a Firefox Account, but never verified it. We’re worried
 Firefox is available for Windows, Mac, Linux, Android and iOS.
 You can sync your Firefox passwords, bookmarks and history across all of them.
 Confirm this email address to activate your account and let us know you're okay.
+
+
+## Updates
+
+### Update 1 - February 16, 2016
+
+- Added subject lines into the spec.
