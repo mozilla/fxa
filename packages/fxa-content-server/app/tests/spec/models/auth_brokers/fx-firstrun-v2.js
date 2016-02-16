@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var chai = require('chai');
+  var Constants = require('lib/constants');
   var FxFirstrunV2AuthenticationBroker = require('models/auth_brokers/fx-firstrun-v2');
   var WindowMock = require('../../../mocks/window');
 
@@ -21,6 +22,10 @@ define(function (require, exports, module) {
       broker = new FxFirstrunV2AuthenticationBroker({
         window: windowMock
       });
+    });
+
+    it('has all sync content types', function () {
+      assert.equal(broker.defaultCapabilities.chooseWhatToSyncWebV1.engines, Constants.DEFAULT_DECLINED_ENGINES);
     });
 
     describe('capabilities', function () {

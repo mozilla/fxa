@@ -7,7 +7,7 @@
     "blueimp-canvas-to-blob": "2.1.0",
     "chai": "1.8.1",
     "cocktail": "0.5.9",
-    "easteregg": "https://github.com/mozilla/fxa-easter-egg.git#71e61f05ab7c0b7c7fcef8ced12d1969503f5968",
+    "easteregg": "https://github.com/mozilla/fxa-easter-egg.git#ab20cd517cf8ae9feee115e48745189d28e13bc3",
     "fxa-checkbox": "mozilla/fxa-checkbox#96575e301a4d1d43efc8b2de0149aaafcbb3b37b",
     "fxa-content-server-l10n": "https://github.com/mozilla/fxa-content-server-l10n.git",
     "fxa-js-client": "https://github.com/mozilla/fxa-js-client.git#0.1.33",
