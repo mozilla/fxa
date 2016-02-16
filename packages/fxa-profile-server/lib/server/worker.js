@@ -8,20 +8,21 @@ const P = require('../promise');
 
 const AppError = require('../error');
 const compute = require('../compute');
-const config = require('../config').root();
+const config = require('../config').getProperties();
 const img = require('../img');
 const logger = require('../logging')('server.worker');
 
 const SIZES = img.SIZES;
 
 exports.create = function() {
-  var server = Hapi.createServer(
-    config.worker.host,
-    config.worker.port,
-    {
-      debug: false
-    }
-  );
+  var server = new Hapi.Server({
+    debug: false
+  });
+
+  server.connection({
+    host: config.worker.host,
+    port: config.worker.port
+  });
 
   server.route({
     method: 'GET',

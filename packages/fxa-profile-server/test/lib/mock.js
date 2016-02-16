@@ -44,7 +44,7 @@ module.exports = function mock(options) {
     var path = '';
     var headers = {
       'content-type': 'image/png',
-      'content-length': bytes
+      'content-length': '' + bytes
     };
     return nock(parts.protocol + '//' + parts.host, {
       reqheaders: headers
@@ -167,13 +167,13 @@ module.exports = function mock(options) {
       var parts = url.parse(config.get('worker.url'));
       var headers = action === 'post' ? {
         'content-type': 'image/png',
-        'content-length': bytes
+        'content-length': '' + bytes
       } : {};
       return nock(parts.protocol + '//' + parts.host, {
         reqheaders: headers
       })
         .filteringPath(/^\/a\/[0-9a-f]{32}$/g, '/a/' + MOCK_ID)
-        [action]('/a/' + MOCK_ID)
+        [action]('/a/' + MOCK_ID) // eslint-disable-line no-unexpected-multiline
         .reply(500, 'unexpected server error');
 
     },

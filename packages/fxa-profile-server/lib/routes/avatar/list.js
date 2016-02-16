@@ -26,7 +26,7 @@ module.exports = {
   },
   response: {
     schema: {
-      avatars: Joi.array().required().includes(Joi.object({
+      avatars: Joi.array().required().items(Joi.object({
         id: Joi.string().length(32).required(),
         url: Joi.string().required(),
         selected: Joi.boolean()
