@@ -5,7 +5,7 @@
 
 var logger = require('mozlog')('server.statsd');
 var StatsD = require('node-statsd');
-var uaParser = require('ua-parser');
+var uaParser = require('node-uap');
 
 // An arbitrary choice of 2 minutes. Nothing scientific, it just seems
 // pages can be reasonably expected to load in under 2 minutes.
