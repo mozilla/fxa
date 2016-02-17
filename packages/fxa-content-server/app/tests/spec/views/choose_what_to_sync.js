@@ -6,18 +6,17 @@ define(function (require, exports, module) {
   'use strict';
 
   var $ = require('jquery');
+  var Account = require('models/account');
   var Backbone = require('backbone');
   var Broker = require('models/auth_brokers/fx-fennec-v1');
   var chai = require('chai');
-  var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
-  var p = require('lib/promise');
   var Notifier = require('lib/channels/notifier');
+  var p = require('lib/promise');
   var sinon = require('sinon');
   var TestHelpers = require('../../lib/helpers');
   var User = require('models/user');
   var View = require('views/choose_what_to_sync');
-  var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 
@@ -26,34 +25,30 @@ define(function (require, exports, module) {
     var broker;
     var email;
     var model;
-    var fxaClient;
     var metrics;
     var notifier;
+    var onSubmitComplete;
     var user;
     var view;
-    var windowMock;
 
     beforeEach(function () {
       broker = new Broker();
       email = TestHelpers.createEmail();
-      fxaClient = new FxaClient();
       metrics = new Metrics();
       model = new Backbone.Model();
       notifier = new Notifier();
-      windowMock = new WindowMock();
+      onSubmitComplete = sinon.spy();
+      user = new User({});
 
-      user = new User({
-        fxaClient: fxaClient
-      });
-
-      account = user.initAccount({
+      account = new Account({
         email: email,
         sessionToken: 'fake session token',
         uid: 'uid'
       });
 
       model.set({
-        account: account
+        account: account,
+        onSubmitComplete: onSubmitComplete
       });
     });
 
@@ -67,13 +62,11 @@ define(function (require, exports, module) {
     function initView () {
       view = new View({
         broker: broker,
-        fxaClient: fxaClient,
         metrics: metrics,
         model: model,
         notifier: notifier,
         user: user,
-        viewName: 'choose-what-to-sync',
-        window: windowMock
+        viewName: 'choose-what-to-sync'
       });
 
       sinon.spy(view, 'navigate');
@@ -117,45 +110,35 @@ define(function (require, exports, module) {
 
     describe('submit', function () {
       beforeEach(function () {
-        sinon.spy(user, 'setAccount');
-      });
-
-      it('coming from sign up, redirects unverified users to the confirm page on success', function () {
-        return initView()
-          .then(function () {
-            $('.customize-sync').first().click();
-
-            return view.validateAndSubmit()
-              .then(function () {
-                var declined = account.get('declinedSyncEngines');
-                assert.equal(declined.length, 1, 'has declined engines');
-                assert.equal(declined[0], 'tabs', 'has engine value');
-                assert.isTrue(account.get('customizeSync'), 'sync customization is on');
-                assert.isTrue(TestHelpers.isEventLogged(metrics, 'choose-what-to-sync.engine-unchecked.tabs'), 'tracks unchecked');
-                assert.isTrue(user.setAccount.calledWith(account), 'user called with account');
-                assert.isTrue(view.navigate.calledWith('confirm', {
-                  account: account
-                }), 'navigates to confirm');
-              });
-          });
-      });
-
-      it('notifies the broker when a pre-verified user signs up', function () {
-        sinon.stub(broker, 'afterSignIn', function () {
-          return p();
+        sinon.stub(user, 'setAccount', function () {
+          return p(account);
         });
 
         return initView()
           .then(function () {
-            account.set('verified', true);
+            $('.customize-sync').first().click();
 
-            return view.submit()
-              .then(function () {
-                assert.isTrue(user.setAccount.calledWith(account));
-                assert.isTrue(broker.afterSignIn.calledWith(account));
-                assert.isTrue(view.navigate.calledWith('signup_complete'));
-              });
+            return view.validateAndSubmit();
           });
+      });
+
+      it('sets declinedSyncEngines', function () {
+        var declined = account.get('declinedSyncEngines');
+        assert.equal(declined.length, 1, 'has declined engines');
+        assert.equal(declined[0], 'tabs', 'has engine value');
+      });
+
+      it('calls onSubmitComplete with the account', function () {
+        assert.isTrue(view.onSubmitComplete.calledOnce);
+        assert.instanceOf(view.onSubmitComplete.args[0][0], Account);
+      });
+
+      it('logs the expected metrics', function () {
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'choose-what-to-sync.engine-unchecked.tabs'));
+      });
+
+      it('saves the account', function () {
+        assert.isTrue(user.setAccount.calledWith(account));
       });
     });
   });

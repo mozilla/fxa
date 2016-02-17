@@ -9,7 +9,6 @@ define(function (require, exports, module) {
   var Backbone = require('backbone');
   var Broker = require('models/auth_brokers/base');
   var chai = require('chai');
-  var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
@@ -26,10 +25,10 @@ define(function (require, exports, module) {
     var account;
     var broker;
     var email;
-    var fxaClient;
     var metrics;
     var model;
     var notifier;
+    var onSubmitComplete;
     var relier;
     var user;
     var view;
@@ -43,10 +42,10 @@ define(function (require, exports, module) {
     beforeEach(function () {
       broker = new Broker();
       email = TestHelpers.createEmail();
-      fxaClient = new FxaClient();
       metrics = new Metrics();
       model = new Backbone.Model();
       notifier = new Notifier();
+      onSubmitComplete = sinon.spy();
       relier = new Relier();
       windowMock = new WindowMock();
 
@@ -56,16 +55,15 @@ define(function (require, exports, module) {
         serviceName: SERVICE_NAME,
         serviceUri: SERVICE_URI
       });
-      user = new User({
-        fxaClient: fxaClient
-      });
+      user = new User({});
       account = user.initAccount({
         email: email,
         sessionToken: 'fake session token',
         uid: 'uid'
       });
       model.set({
-        account: account
+        account: account,
+        onSubmitComplete: onSubmitComplete
       });
     });
 
@@ -81,7 +79,6 @@ define(function (require, exports, module) {
     function initView (type) {
       view = new View({
         broker: broker,
-        fxaClient: fxaClient,
         metrics: metrics,
         model: model,
         notifier: notifier,
@@ -108,6 +105,7 @@ define(function (require, exports, module) {
             assert.isTrue(view.navigate.calledWith('/signin'));
           });
       });
+
       it('coming from sign up, redirects to /signup when session token missing', function () {
         account.clear('sessionToken');
         return initView('sign_up')
@@ -115,6 +113,7 @@ define(function (require, exports, module) {
             assert.isTrue(view.navigate.calledWith('/signup'));
           });
       });
+
       it('renders relier info', function () {
         return initView('sign_up')
           .then(function () {
@@ -130,77 +129,29 @@ define(function (require, exports, module) {
     describe('submit', function () {
       beforeEach(function () {
         sinon.spy(account, 'saveGrantedPermissions');
-        sinon.spy(user, 'setAccount');
-      });
-
-      it('coming from sign in, redirects unverified users to the confirm page on success', function () {
-        return initView('sign_in')
-          .then(function () {
-
-            return view.submit()
-              .then(function () {
-                assert.isTrue(account.saveGrantedPermissions.calledWith(CLIENT_ID, PERMISSIONS));
-                assert.isTrue(user.setAccount.calledWith(account));
-                assert.isTrue(view.navigate.calledWith('confirm', {
-                  account: account
-                }));
-              });
-          });
-      });
-
-      it('coming from sign up, redirects unverified users to the confirm page on success', function () {
-        return initView('sign_up')
-          .then(function () {
-
-            return view.submit()
-              .then(function () {
-                assert.isTrue(account.saveGrantedPermissions.calledWith(CLIENT_ID, PERMISSIONS));
-                assert.isTrue(user.setAccount.calledWith(account));
-                assert.isTrue(view.navigate.calledWith('confirm', {
-                  account: account
-                }));
-              });
-          });
-      });
-
-      it('notifies the broker when a verified user signs in', function () {
-        sinon.stub(broker, 'afterSignIn', function () {
-          return p();
+        sinon.stub(user, 'setAccount', function (account) {
+          return p(account);
         });
 
         return initView('sign_in')
           .then(function () {
-            account.set('verified', true);
-            return view.submit()
-              .then(function () {
-                assert.isTrue(account.saveGrantedPermissions.calledWith(CLIENT_ID, PERMISSIONS));
-                assert.isTrue(user.setAccount.calledWith(account));
-                assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                  'permissions.success'));
-                assert.isTrue(broker.afterSignIn.calledWith(account));
-                assert.isTrue(view.navigate.calledWith('settings'));
-              });
+
+            return view.submit();
           });
       });
 
-      it('notifies the broker when a pre-verified user signs up', function () {
-        sinon.stub(broker, 'afterSignIn', function () {
-          return p();
-        });
-
-        return initView('sign_up')
-          .then(function () {
-            account.set('verified', true);
-            return view.submit()
-              .then(function () {
-                assert.isTrue(account.saveGrantedPermissions.calledWith(CLIENT_ID, PERMISSIONS));
-                assert.isTrue(user.setAccount.calledWith(account));
-                assert.isTrue(broker.afterSignIn.calledWith(account));
-                assert.isTrue(view.navigate.calledWith('signup_complete'));
-              });
-          });
+      it('saves the granted permissions', function () {
+        assert.isTrue(
+          account.saveGrantedPermissions.calledWith(CLIENT_ID, PERMISSIONS));
       });
 
+      it('sets the account', function () {
+        assert.isTrue(user.setAccount.calledWith(account));
+      });
+
+      it('calls onSubmitComplete', function () {
+        assert.isTrue(onSubmitComplete.calledWith(account));
+      });
     });
 
   });

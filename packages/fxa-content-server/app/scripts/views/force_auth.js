@@ -26,6 +26,11 @@ define(function (require, exports, module) {
     template: Template,
     className: 'force-auth',
 
+    // used by the signin-mixin to decide which broker method to
+    // call with which data when signin is successful.
+    afterSignInBrokerMethod: 'afterForceAuth',
+    afterSignInNavigateData: { clearQueryParams: true },
+
     context: function () {
       var fatalError = '';
       var email = this.relier.get('email');
@@ -58,17 +63,6 @@ define(function (require, exports, module) {
         return SignInView.prototype.onSignInError.call(
             this, account, password, err);
       }
-    },
-
-    onSignInSuccess: function (account) {
-      var self = this;
-      self.logViewEvent('success');
-      return self.invokeBrokerMethod('afterForceAuth', account)
-        .then(function () {
-          self.navigate(self.model.get('redirectTo') || 'settings', {}, {
-            clearQueryParams: true
-          });
-        });
     },
 
     resetPasswordNow: allowOnlyOneSubmit(function () {

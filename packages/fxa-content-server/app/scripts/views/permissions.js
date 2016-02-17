@@ -8,9 +8,7 @@ define(function (require, exports, module) {
   var BackMixin = require('views/mixins/back-mixin');
   var Cocktail = require('cocktail');
   var FormView = require('views/form');
-  var p = require('lib/promise');
   var ServiceMixin = require('views/mixins/service-mixin');
-  var SignupSuccessMixin = require('views/mixins/signup-success-mixin');
   var Template = require('stache!templates/permissions');
 
   var View = FormView.extend({
@@ -22,6 +20,11 @@ define(function (require, exports, module) {
       this._account = this.user.initAccount(this.model.get('account'));
 
       this.type = options.type;
+
+      // to keep the view from knowing too much about the state machine,
+      // a continuation function is passed in that should be called
+      // when submit has completed.
+      this.onSubmitComplete = this.model.get('onSubmitComplete');
     },
 
     getAccount: function () {
@@ -52,32 +55,9 @@ define(function (require, exports, module) {
 
       self.logViewEvent('accept');
 
-      return p().then(function () {
-        account.saveGrantedPermissions(self.relier.get('clientId'), self.relier.get('permissions'));
-        self.user.setAccount(account);
-
-        if (self.is('sign_up')) {
-          return self.onSignUpSuccess(account);
-        } else if (account.get('verified')) {
-          return self.onSignInSuccess(account);
-        }
-        return self.onSignInUnverified(account);
-      });
-    },
-
-    onSignInSuccess: function (account) {
-      var self = this;
-      self.logViewEvent('success');
-      return self.invokeBrokerMethod('afterSignIn', account)
-        .then(function () {
-          self.navigate('settings');
-        });
-    },
-
-    onSignInUnverified: function (account) {
-      this.navigate('confirm', {
-        account: account
-      });
+      account.saveGrantedPermissions(self.relier.get('clientId'), self.relier.get('permissions'));
+      return self.user.setAccount(account)
+        .then(self.onSubmitComplete);
     },
 
     _previousView: function () {
@@ -93,8 +73,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     BackMixin,
-    ServiceMixin,
-    SignupSuccessMixin
+    ServiceMixin
   );
 
   module.exports = View;

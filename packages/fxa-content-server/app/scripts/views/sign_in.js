@@ -13,15 +13,15 @@ define(function (require, exports, module) {
   var Cocktail = require('cocktail');
   var FormView = require('views/form');
   var MigrationMixin = require('views/mixins/migration-mixin');
-  var p = require('lib/promise');
   var PasswordMixin = require('views/mixins/password-mixin');
   var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   var ServiceMixin = require('views/mixins/service-mixin');
   var Session = require('lib/session');
   var showProgressIndicator = require('views/decorators/progress_indicator');
   var SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
+  var SignInMixin = require('views/mixins/signin-mixin');
   var SignInTemplate = require('stache!templates/sign_in');
-  var SignupDisabledMixin = require('views/mixins/signup-disabled-mixin');
+  var SignUpDisabledMixin = require('views/mixins/signup-disabled-mixin');
 
   var t = BaseView.t;
 
@@ -105,46 +105,13 @@ define(function (require, exports, module) {
      * @param {Account} account
      *     @param {String} account.sessionToken
      *     Session token from the account
-     *     @param {string} [password] - the user's password. Can be null if
-     *     user is signing in with a sessionToken.
+     * @param {string} [password] - the user's password. Can be null if
+     *  user is signing in with a sessionToken.
      * @private
      */
     _signIn: function (account, password) {
-      var self = this;
-      if (! account ||
-            account.isDefault() ||
-            (! account.has('sessionToken') && ! password)) {
-        return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
-      }
-
-      return self.invokeBrokerMethod('beforeSignIn', account.get('email'))
-        .then(function () {
-          return self.user.signInAccount(account, password, self.relier, {
-            // a resume token is passed in to handle unverified users.
-            resume: self.getStringifiedResumeToken()
-          });
-        })
-        .then(function (account) {
-          // formPrefill information is no longer needed after the user
-          // has successfully signed in. Clear the info to ensure
-          // passwords aren't sticking around in memory.
-          self._formPrefill.clear();
-
-          if (self.relier.accountNeedsPermissions(account)) {
-            self.navigate('signin_permissions', {
-              account: account
-            });
-
-            return false;
-          }
-
-          if (account.get('verified')) {
-            return self.onSignInSuccess(account);
-          }
-
-          return self.onSignInUnverified(account);
-        })
-        .fail(self.onSignInError.bind(self, account, password));
+      return this.signIn(account, password)
+        .fail(this.onSignInError.bind(this, account, password));
     },
 
     onSignInError: function (account, password, err) {
@@ -161,21 +128,6 @@ define(function (require, exports, module) {
       }
       // re-throw error, it will be handled at a lower level.
       throw err;
-    },
-
-    onSignInSuccess: function (account) {
-      var self = this;
-      self.logViewEvent('success');
-      return self.invokeBrokerMethod('afterSignIn', account)
-        .then(function () {
-          self.navigate(self.model.get('redirectTo') || 'settings');
-        });
-    },
-
-    onSignInUnverified: function (account) {
-      this.navigate('confirm', {
-        account: account
-      });
     },
 
     _suggestSignUp: function (err) {
@@ -297,8 +249,9 @@ define(function (require, exports, module) {
     PasswordMixin,
     ResumeTokenMixin,
     ServiceMixin,
-    SignedInNotificationMixin,
-    SignupDisabledMixin
+    SignInMixin,
+    SignUpDisabledMixin,
+    SignedInNotificationMixin
   );
 
   module.exports = View;

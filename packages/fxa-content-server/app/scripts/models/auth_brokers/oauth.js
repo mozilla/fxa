@@ -15,7 +15,6 @@ define(function (require, exports, module) {
   var BaseAuthenticationBroker = require('models/auth_brokers/base');
   var Constants = require('lib/constants');
   var HaltBehavior = require('views/behaviors/halt');
-  var NavigateBehavior = require('views/behaviors/navigate');
   var OAuthErrors = require('lib/oauth-errors');
   var p = require('lib/promise');
   var Url = require('lib/url');
@@ -168,17 +167,6 @@ define(function (require, exports, module) {
         .then(function () {
           return proto.afterSignIn.call(self, account);
         });
-    },
-
-    afterSignUp: function (account) {
-      var relier = this.relier;
-      return p().then(function () {
-        if (relier.accountNeedsPermissions(account)) {
-          return new NavigateBehavior('signup_permissions', {
-            account: account
-          });
-        }
-      });
     },
 
     afterSignUpConfirmationPoll: function (account) {

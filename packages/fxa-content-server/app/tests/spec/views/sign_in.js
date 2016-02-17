@@ -13,10 +13,8 @@ define(function (require, exports, module) {
   var chai = require('chai');
   var Constants = require('lib/constants');
   var FormPrefill = require('models/form-prefill');
-  var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
-  var OAuthErrors = require('lib/oauth-errors');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
   var Session = require('lib/session');
@@ -33,7 +31,6 @@ define(function (require, exports, module) {
     var broker;
     var email;
     var formPrefill;
-    var fxaClient;
     var metrics;
     var model;
     var notifier;
@@ -45,7 +42,6 @@ define(function (require, exports, module) {
     beforeEach(function () {
       email = TestHelpers.createEmail();
       formPrefill = new FormPrefill();
-      fxaClient = new FxaClient();
       metrics = new Metrics();
       model = new Backbone.Model();
       notifier = new Notifier();
@@ -57,7 +53,6 @@ define(function (require, exports, module) {
       });
 
       user = new User({
-        fxaClient: fxaClient,
         notifier: notifier
       });
 
@@ -85,7 +80,6 @@ define(function (require, exports, module) {
       view = new View({
         broker: broker,
         formPrefill: formPrefill,
-        fxaClient: fxaClient,
         metrics: metrics,
         model: model,
         notifier: notifier,
@@ -210,8 +204,6 @@ define(function (require, exports, module) {
     });
 
     describe('submit', function () {
-      var account;
-
       beforeEach(function () {
         view.enableForm();
 
@@ -219,149 +211,33 @@ define(function (require, exports, module) {
         $('[type=password]').val('password');
       });
 
-      describe('with an unverified user', function () {
+      describe('with a user that successfully signs in', function () {
         beforeEach(function () {
-          sinon.stub(user, 'signInAccount', function (account) {
-            account.set('verified', false);
-            return p(account);
-          });
-
-          sinon.stub(relier, 'accountNeedsPermissions', function () {
-            return false;
-          });
-
-          sinon.stub(view, 'getStringifiedResumeToken', function () {
-            // the resume token is used post email verification.
-            return 'resume token';
-          });
-
-          sinon.spy(view, 'navigate');
-          return view.submit();
-        });
-
-        it('redirects the user to the `confirm` screen', function () {
-          assert.isTrue(view.navigate.calledWith('confirm'));
-        });
-      });
-
-      describe('with a verified user', function () {
-        beforeEach(function () {
-          sinon.spy(broker, 'beforeSignIn');
-          sinon.stub(broker, 'afterSignIn', function () {
+          sinon.stub(view, 'signIn', function () {
             return p();
           });
 
-          sinon.stub(user, 'signInAccount', function (_account) {
-            account = _account;
-            account.set('verified', true);
-            return p(account);
-          });
-
-          sinon.stub(relier, 'accountNeedsPermissions', function () {
-            return false;
-          });
-
-          sinon.stub(view, 'navigate', function () { });
-
-          formPrefill.set('email', email);
-          formPrefill.set('password', 'password');
-
           return view.submit();
         });
 
-        it('notifies the broker before sign in', function () {
-          assert.isTrue(broker.beforeSignIn.calledWith(email));
-        });
+        it('delegates to view.signIn', function () {
+          assert.isTrue(view.signIn.calledOnce);
 
-        it('notifies the broker after sign in', function () {
-          assert.isTrue(broker.afterSignIn.calledWith(account));
-        });
-
-        it('delegates to the user to sign in', function () {
-          assert.isTrue(user.signInAccount.called);
-          var args = user.signInAccount.args[0];
+          var args = view.signIn.args[0];
           var account = args[0];
-          var password = args[1];
-          assert.ok(account);
-          assert.equal(account.get('email'), email);
-
-          assert.equal(password, 'password');
-        });
-
-        it('logs success', function () {
-          assert.isTrue(TestHelpers.isEventLogged(metrics, 'signin.success'));
-        });
-
-        it('asks the relier if the account needs permissions', function () {
-          assert.isTrue(relier.accountNeedsPermissions.calledWith(account));
-        });
-
-        it('clears formPrefill information', function () {
-          assert.isFalse(formPrefill.has('email'));
-          assert.isFalse(formPrefill.has('password'));
-        });
-      });
-
-      describe('with a relier that needs permissions', function () {
-        beforeEach(function () {
-          var sessionToken = 'abc123';
-
-          sinon.stub(user, 'signInAccount', function (_account) {
-            account.set('sessionToken', sessionToken);
-            return p(account);
-          });
-
-          sinon.stub(relier, 'accountNeedsPermissions', function () {
-            return true;
-          });
-
-          sinon.stub(view, 'navigate', function () { });
-
-          return view.submit();
-        });
-
-        it('redirects users to permissions page if relier needs permissions', function () {
-          assert.isTrue(view.navigate.calledWith('signin_permissions', {
-            account: account
-          }));
-        });
-      });
-
-      describe('for a page requiring authentication', function () {
-        beforeEach(function () {
-          sinon.stub(user, 'signInAccount', function (account) {
-            account.set('verified', true);
-            return p(account);
-          });
-
-          model.set({
-            redirectTo: '/settings/avatar/change'
-          });
-
-          initView();
-          sinon.stub(view, 'navigate', function () { });
-
-          formPrefill.set('email', email);
-          formPrefill.set('password', 'password');
-
-          return view.render()
-            .then(view.submit.bind(view));
-        });
-
-        it('redirects users to the page they requested before getting redirected to signin', function () {
-          assert.isTrue(view.navigate.calledWith('/settings/avatar/change'));
+          assert.instanceOf(account, Account);
+          var lockedAccountPassword = args[1];
+          assert.equal(lockedAccountPassword, 'password');
         });
       });
 
       describe('with a locked out user', function () {
         beforeEach(function () {
-          sinon.stub(view.fxaClient, 'signIn', function () {
+          sinon.stub(view, 'signIn', function () {
             return p.reject(AuthErrors.toError('ACCOUNT_LOCKED'));
           });
 
           sinon.spy(view, 'notifyOfLockedAccount');
-
-          formPrefill.set('password', 'password');
 
           return view.submit();
         });
@@ -376,48 +252,22 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('with an invalid scope', function () {
-        var err;
-
-        beforeEach(function () {
-          sinon.stub(view.fxaClient, 'signIn', function () {
-            return p.reject(OAuthErrors.toError({ errno: 114 }));
-          });
-
-          sinon.spy(view, 'displayError');
-
-          // The submit handler does not special case INVALID_SCOPES and error
-          // generic handling logic is done by validateAndSubmit.
-          // Call validateAndSubmit to ensure the error message is displayed.
-          return view.validateAndSubmit()
-            .then(assert.fail, function (_err) {
-              err = _err;
-            });
-        });
-
-        it('shows and logs an error message', function () {
-          var displayedError = view.displayError.args[0][0];
-          assert.strictEqual(err, displayedError);
-          assert.isTrue(OAuthErrors.is(err, 'INVALID_SCOPES'));
-          assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
-        });
-      });
-
       describe('with a user that cancels login', function () {
         beforeEach(function () {
-          sinon.stub(broker, 'beforeSignIn', function () {
+          sinon.stub(view, 'signIn', function () {
             return p.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
           });
 
           return view.submit();
         });
 
-        it('logs but does not display an error', function () {
-          assert.isTrue(broker.beforeSignIn.calledWith(email));
-          assert.isFalse(view.isErrorVisible());
-
+        it('logs the error', function () {
           assert.isTrue(TestHelpers.isEventLogged(metrics,
                             'signin.canceled'));
+        });
+
+        it('does not display an error', function () {
+          assert.isFalse(view.isErrorVisible());
         });
       });
 
@@ -426,7 +276,7 @@ define(function (require, exports, module) {
           beforeEach(function () {
             broker.setCapability('signup', true);
 
-            sinon.stub(view.fxaClient, 'signIn', function () {
+            sinon.stub(view, 'signIn', function () {
               return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
             });
 
@@ -448,7 +298,7 @@ define(function (require, exports, module) {
           beforeEach(function () {
             broker.setCapability('signup', false);
 
-            sinon.stub(view.fxaClient, 'signIn', function () {
+            sinon.stub(view, 'signIn', function () {
               return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
             });
 
@@ -473,7 +323,7 @@ define(function (require, exports, module) {
         var err;
 
         beforeEach(function () {
-          sinon.stub(view.fxaClient, 'signIn', function () {
+          sinon.stub(view, 'signIn', function () {
             return p.reject(AuthErrors.toError('INVALID_JSON'));
           });
 

@@ -11,21 +11,24 @@ define([
   'intern/node_modules/dojo/lang',
   'intern/node_modules/dojo/node!url',
   'intern/node_modules/dojo/node!querystring',
-  'intern/chai!assert'
+  'intern/node_modules/dojo/node!xmlhttprequest',
+  'intern/chai!assert',
+  'app/bower_components/fxa-js-client/fxa-client',
 ], function (intern, require, restmail, TestHelpers, pollUntil,
-  lang, Url, Querystring, assert) {
+  lang, Url, Querystring, nodeXMLHttpRequest, assert, FxaClient) {
   var config = intern.config;
+
+  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var CONTENT_SERVER = config.fxaContentRoot;
-  var OAUTH_APP = config.fxaOauthApp;
-  var UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
-  var SIGNIN_URL = config.fxaContentRoot + 'signin';
-  var SIGNUP_URL = config.fxaContentRoot + 'signup';
+  var EXTERNAL_SITE_LINK_TEXT = 'More information';
+  var EXTERNAL_SITE_URL = 'http://example.com';
+  var OAUTH_APP = config.fxaOauthApp;
   var RESET_PASSWORD_URL = config.fxaContentRoot + 'reset_password';
   var SETTINGS_URL = config.fxaContentRoot + 'settings';
-
-  var EXTERNAL_SITE_URL = 'http://example.com';
-  var EXTERNAL_SITE_LINK_TEXT = 'More information';
+  var SIGNIN_URL = config.fxaContentRoot + 'signin';
+  var SIGNUP_URL = config.fxaContentRoot + 'signup';
+  var UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
 
   function clearBrowserState(context, options) {
     options = options || {};
@@ -409,21 +412,9 @@ define([
         }
       })
 
-      .findByCssSelector('form input.email')
-        .click()
-        .clearValue()
-        .type(email)
-      .end()
-
-      .findByCssSelector('form input.password')
-        .click()
-        .clearValue()
-        .type(password)
-      .end()
-
-      .findByCssSelector('button[type="submit"]')
-        .click()
-      .end();
+      .then(type('input[type=email]', email))
+      .then(type('input[type=password]', password))
+      .then(click('button[type="submit"]'));
   }
 
   function fillOutSignUp(context, email, password, options) {
@@ -447,67 +438,25 @@ define([
         }
       })
 
-      .findByCssSelector('form input.email')
-        .click()
-        .clearValue()
-        .type(email)
-      .end()
-
-      .findByCssSelector('form input.password')
-        .click()
-        .clearValue()
-        .type(password)
-      .end()
-
-
-      .then(function () {
-        // XXX: Bug in Selenium 2.47.1, if Firefox is out of focus it will just type 1 number,
-        // split the type commands for each character to avoid issues with the test runner
-        age = String(age || '24');
-        var index = 0;
-
-        function typeNext() {
-          if (index >= age.length) {
-            return;
-          }
-          var charToType = age.charAt(index);
-          index++;
-
-          return context.remote
-            .findByCssSelector('#age')
-              .type(charToType)
-            .end()
-
-            .then(typeNext);
-        }
-
-        return typeNext();
-      })
+      .then(type('input[type=email]', email))
+      .then(type('input[type=password]', password))
+      .then(type('#age', age || '24'))
 
       .then(function () {
         if (customizeSync) {
-          return context.remote
-            .findByCssSelector('form input.customize-sync')
-              .click()
-            .end();
+          return click('form input.customize-sync').call(this);
         }
       })
 
       .then(function () {
         if (optInToMarketingEmail) {
-          return context.remote
-            .findByCssSelector('form input.marketing-email-optin')
-              .click()
-            .end();
+          return click('form input.marketing-email-optin').call(this);
         }
       })
 
       .then(function () {
         if (submit) {
-          return context.remote
-            .findByCssSelector('button[type="submit"]')
-              .click()
-            .end();
+          return click('button[type="submit"]').call(this);
         }
       });
   }
@@ -780,6 +729,25 @@ define([
     return testElementWasShown(context, selector);
   }
 
+  /**
+   * Check whether an input element's value equals the expected value
+   *
+   * @param {string} selector
+   * @param {string} expected
+   * @returns {promise} rejects if test fails.
+   */
+  function testElementValueEquals(selector, expected) {
+    return function () {
+      return this.parent
+        .findByCssSelector(selector)
+        .getProperty('value')
+        .then(function (resultText) {
+          assert.equal(resultText, expected);
+        })
+        .end();
+    };
+  }
+
   function testElementWasShown(context, selector) {
     return function () {
       return context.remote
@@ -796,9 +764,156 @@ define([
     };
   }
 
+  /**
+   * Check whether the current URL matches the expected value
+   *
+   * @param {string} expected
+   * @returns {promise} fails if url does not equal expected value
+   */
+  function testUrlEquals(expected) {
+    return function () {
+      return this.parent
+        .getCurrentUrl()
+          .then(function (url) {
+            assert.equal(url, expected);
+          })
+        .end();
+    };
+  }
+
+  /**
+   * Check whether the current URL's pathname matches the expected value
+   *
+   * @param {string} expected
+   * @returns {promise} fails if url pathname does not equal expected value
+   */
+  function testUrlPathnameEquals(expected) {
+    return function () {
+      return this.parent
+        .getCurrentUrl()
+          .then(function (url) {
+            assert.equal(Url.parse(url).pathname, expected);
+          })
+        .end();
+    };
+  }
+
+  /**
+   * Create a user on the backend
+   *
+   * @param {string} email
+   * @param {string} password
+   * @param {object} [options]
+   * @param {object} [options.preVerified] pre-verify the user?
+   *   Defaults to false.
+   * @returns {promise} resolves with account info when complete.
+   */
+  function createUser (email, password, options) {
+    options = options || {};
+    return function () {
+      return this.parent.then(function () {
+        var client = new FxaClient(AUTH_SERVER_ROOT, {
+          xhr: nodeXMLHttpRequest.XMLHttpRequest
+        });
+
+        return client.signUp(
+            email, password, { preVerified: options.preVerified });
+      });
+    };
+  }
+
+  /**
+   * Convert a function to a form that can be used as a `then` callback.
+   *
+   * Example usage:
+   *
+   * var fillOutSignUp = FunctionalHelpers.thenify(FunctionalHelpers.fillOutSignUp)
+   *
+   * ...
+   * .then(fillOutSignUp(this, email, password))
+   * ...
+   *
+   * @param {function} callback - Function to convert
+   * @param {object} [context] - in which to call callback
+   * @returns {function} that can be used in a promise
+   */
+  function thenify(callback, context) {
+    return function () {
+      var args = arguments;
+      return function () {
+        return callback.apply(context || null, args);
+      };
+    };
+  }
+
+  /**
+   * Type text into an input element
+   *
+   * @param {string} selector
+   * @param {string} text
+   * @returns {promise}
+   */
+  function type(selector, text) {
+    return function () {
+      text = String(text);
+
+      return this.parent
+        .findByCssSelector(selector)
+          .click()
+          .clearValue()
+
+          .getAttribute('type')
+          .then(function (type) {
+            // xxx: bug in selenium 2.47.1, if firefox is out of
+            // focus it will just type 1 number, split the type
+            // commands for each character to avoid issues with the
+            // test runner
+            if (type === 'number') {
+              var index = 0;
+              var parent = this.parent;
+
+              var typeNext = function () {
+                if (index >= text.length) {
+                  return;
+                }
+                var charToType = text.charAt(index);
+                index++;
+
+                return parent
+                  .type(charToType)
+                  .then(typeNext);
+              };
+
+              return typeNext.call(this);
+            } else {
+              return this.parent.type(text);
+            }
+          })
+
+        .end();
+    };
+  }
+
+  /**
+   * Click an element
+   *
+   * @param {string} selector
+   * @returns {promise}
+   */
+  function click(selector) {
+    return function () {
+      return this.parent
+        .findByCssSelector(selector)
+          .click()
+        .end();
+    };
+  }
+
   return {
     clearBrowserState: clearBrowserState,
     clearSessionStorage: clearSessionStorage,
+    click: click,
+    createUser: createUser,
     fetchAllMetrics: fetchAllMetrics,
     fillOutChangePassword: fillOutChangePassword,
     fillOutCompleteResetPassword: fillOutCompleteResetPassword,
@@ -827,10 +942,15 @@ define([
     pollUntil: pollUntil,
     respondToWebChannelMessage: respondToWebChannelMessage,
     testAreEventsLogged: testAreEventsLogged,
+    testElementValueEquals: testElementValueEquals,
     testErrorWasShown: testErrorWasShown,
     testIsBrowserNotified: testIsBrowserNotified,
     testIsEventLogged: testIsEventLogged,
     testSuccessWasShown: testSuccessWasShown,
+    testUrlEquals: testUrlEquals,
+    testUrlPathnameEquals: testUrlPathnameEquals,
+    thenify: thenify,
+    type: type,
     visibleByQSA: visibleByQSA
   };
 });

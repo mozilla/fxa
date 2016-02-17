@@ -139,33 +139,5 @@ define(function (require, exports, module) {
           assert.isFalse(broker.hasCapability('chooseWhatToSyncCheckbox'));
         });
     });
-
-    describe('afterSignUp', function () {
-      afterEach(function () {
-        broker.hasCapability.restore();
-      });
-
-      it('causes a redirect to `/choose_what_to_sync` if `chooseWhatToSyncWebV1` capability is supported', function () {
-        sinon.stub(broker, 'hasCapability', function (capabilityName) {
-          return capabilityName === 'chooseWhatToSyncWebV1';
-        });
-
-        return broker.afterSignUp(account)
-          .then(function (behavior) {
-            assert.equal(behavior.endpoint, 'choose_what_to_sync');
-          });
-      });
-
-      it('does nothing if `chooseWhatToSyncWebV1` capability is unsupported', function () {
-        sinon.stub(broker, 'hasCapability', function () {
-          return false;
-        });
-
-        return broker.afterSignUp(account)
-          .then(function (behavior) {
-            assert.isUndefined(behavior);
-          });
-      });
-    });
   });
 });

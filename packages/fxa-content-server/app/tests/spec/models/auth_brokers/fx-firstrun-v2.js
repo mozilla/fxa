@@ -30,10 +30,7 @@ define(function (require, exports, module) {
 
     describe('capabilities', function () {
       it('has the `chooseWhatToSyncWebV1` capability by default', function () {
-        return broker.afterSignUp()
-          .then(function (behavior) {
-            assert.equal(behavior.endpoint, 'choose_what_to_sync');
-          });
+        assert.isTrue(broker.hasCapability('chooseWhatToSyncWebV1'));
       });
 
       it('has the `syncPreferencesNotification` capability', function () {

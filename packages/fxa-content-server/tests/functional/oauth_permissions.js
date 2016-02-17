@@ -6,21 +6,29 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
-  'intern/node_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
+
   var OAUTH_APP = config.fxaUntrustedOauthApp;
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
-
   var PASSWORD = 'password';
-  var user;
-  var email;
 
-  var client;
+  var email;
+  var user;
+
+  var thenify = FunctionalHelpers.thenify;
+
+  var click = FunctionalHelpers.click;
+  var createUser = FunctionalHelpers.createUser;
+  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
+  var getVerificationLink = thenify(FunctionalHelpers.getVerificationLink);
+  var openFxaFromUntrustedRp = FunctionalHelpers.openFxaFromUntrustedRp;
+  var openPage = FunctionalHelpers.openPage;
+  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
+  var testUrlEquals = FunctionalHelpers.testUrlEquals;
+  var type = FunctionalHelpers.type;
 
   registerSuite({
     name: 'oauth permissions',
@@ -28,9 +36,6 @@ define([
     beforeEach: function () {
       email = TestHelpers.createEmail();
       user = TestHelpers.emailToUser(email);
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
 
       return FunctionalHelpers.clearBrowserState(this, {
         '321done': true,
@@ -38,132 +43,88 @@ define([
       });
     },
 
-    'sign in verified': function () {
+    'signin verified': function () {
       var self = this;
 
-      return FunctionalHelpers.openFxaFromUntrustedRp(self, 'signin')
-        .then(function () {
-          return client.signUp(email, PASSWORD, { preVerified: true });
-        })
+      return openFxaFromUntrustedRp(self, 'signin')
+        .then(createUser(email, PASSWORD, { preVerified: true }))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
-        })
+        .then(fillOutSignIn(self, email, PASSWORD))
 
         .findByCssSelector('#fxa-permissions-header')
         .end()
 
-        .findByCssSelector('#accept')
-          .click()
-        .end()
+        .then(click('#accept'))
 
         .findByCssSelector('#loggedin')
-        .getCurrentUrl()
-        .then(function (url) {
-          // redirected back to the App
-          assert.ok(url.indexOf(OAUTH_APP) > -1);
-        })
-        .end();
+
+        .then(testUrlEquals(OAUTH_APP));
     },
 
-    're-sign in verified': function () {
+    're-signin verified': function () {
       var self = this;
 
-      return FunctionalHelpers.openFxaFromUntrustedRp(self, 'signin')
-        .then(function () {
-          return client.signUp(email, PASSWORD, { preVerified: true });
-        })
+      return openFxaFromUntrustedRp(self, 'signin')
+        .then(createUser(email, PASSWORD, { preVerified: true }))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
-        })
+        .then(fillOutSignIn(self, email, PASSWORD))
 
         .findByCssSelector('#fxa-permissions-header')
         .end()
 
-        .findByCssSelector('#accept')
-          .click()
-        .end()
+        .then(click('#accept'))
 
         .findByCssSelector('#loggedin')
-
-        .getCurrentUrl()
-        .then(function (url) {
-          // redirected back to the App
-          assert.ok(url.indexOf(OAUTH_APP) > -1);
-        })
         .end()
 
-        .findByCssSelector('#logout')
-          .click()
-        .end()
+        .then(testUrlEquals(OAUTH_APP))
 
-        .findByCssSelector('.signin')
-          .click()
-        .end()
+        .then(click('#logout'))
+        .then(click('.signin'))
 
         // user signed in previously and should not need to enter
         // their email address.
-        .findByCssSelector('input[type=password]')
-          .click()
-          .clearValue()
-          .type(PASSWORD)
-        .end()
+        .then(type('input[type=password]', PASSWORD))
 
-        .findByCssSelector('button[type=submit]')
-          .click()
-        .end()
+        .then(click('button[type=submit]'))
 
         .findByCssSelector('#loggedin')
-        .getCurrentUrl()
-        .then(function (url) {
-          // redirected back to the App without seeing the permissions screen.
-          assert.ok(url.indexOf(OAUTH_APP) > -1);
-        })
-        .end();
+
+        // redirected back to the App without seeing the permissions screen.
+        .then(testUrlEquals(OAUTH_APP));
     },
 
-    'sign in unverified, acts like signup': function () {
+    'signin unverified, acts like signup': function () {
       var self = this;
 
-      return FunctionalHelpers.openFxaFromUntrustedRp(self, 'signin')
-        .then(function () {
-          return client.signUp(email, PASSWORD, { preVerified: false });
-        })
+      return openFxaFromUntrustedRp(self, 'signin')
+        .then(createUser(email, PASSWORD, { preVerified: false }))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
-        })
+        .then(fillOutSignIn(self, email, PASSWORD))
 
         .findByCssSelector('#fxa-permissions-header')
         .end()
 
-        .findByCssSelector('#accept')
-          .click()
-        .end()
+        .then(click('#accept'))
 
         .findByCssSelector('#fxa-confirm-header')
+        .end()
 
-        .then(function () {
-          // get the second email, the first was sent on client.signUp w/
-          // preVerified: false above. The second email has the `service` and
-          // `resume` parameters.
-          return FunctionalHelpers.getVerificationLink(user, 1);
-        })
+        // get the second email, the first was sent on client.signUp w/
+        // preVerified: false above. The second email has the `service` and
+        // `resume` parameters.
+        .then(getVerificationLink(user, 1))
+
         .then(function (verifyUrl) {
-          return self.remote
-            // user verifies in the same tab, so they are logged in to the RP.
-            .get(require.toUrl(verifyUrl))
-
-            .findByCssSelector('#loggedin')
-            .end();
+          // user verifies in the same tab, so they are logged in to the RP.
+          return openPage(self, verifyUrl, '#loggedin');
         });
     },
 
 
     'signup, verify same browser': function () {
       var self = this;
-      return FunctionalHelpers.openFxaFromUntrustedRp(self, 'signup')
+      return openFxaFromUntrustedRp(self, 'signup')
         .findByCssSelector('#fxa-signup-header .service')
         .end()
 
@@ -175,23 +136,17 @@ define([
         })
         .end()
 
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
+        .then(fillOutSignUp(self, email, PASSWORD))
 
         .findByCssSelector('#fxa-permissions-header')
         .end()
-        .findByCssSelector('#accept')
-          .click()
-        .end()
+
+        .then(click('#accept'))
 
         .findByCssSelector('#fxa-confirm-header')
         .end()
 
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkInNewTab(
-                      self, email, 0);
-        })
+        .then(openVerificationLinkInNewTab(self, email, 0))
 
         .switchToWindow('newwindow')
         // wait for the verified window in the new tab
@@ -216,35 +171,21 @@ define([
         .end();
     },
 
-    'preverified sign up': function () {
+    'preverified signup': function () {
       var self = this;
       var SIGNUP_URL = OAUTH_APP + 'api/preverified-signup?' +
                         'email=' + encodeURIComponent(email);
 
-      return FunctionalHelpers.openPage(self, SIGNUP_URL, '#fxa-signup-header')
+      return openPage(self, SIGNUP_URL, '#fxa-signup-header')
 
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('#age')
-          // XXX: Bug in Selenium 2.47.1, if Firefox is out of focus it will just type 1 number,
-          // split the type commands for each character to avoid issues with the test runner
-          .type('2')
-          .type('4')
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(type('input[type=password]', PASSWORD))
+        .then(type('#age', 24))
+        .then(click('button[type="submit"]'))
 
         .findByCssSelector('#fxa-permissions-header')
         .end()
 
-        .findByCssSelector('#accept')
-          .click()
-        .end()
+        .then(click('#accept'))
 
         // user is redirected to 123done, wait for the footer first,
         // and then for the loggedin user to be visible. If we go
@@ -267,27 +208,20 @@ define([
         .end();
     },
 
-    'signup, then sign in': function () {
+    'signup, then signin': function () {
       var self = this;
-      return FunctionalHelpers.openFxaFromUntrustedRp(self, 'signup')
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
+      return openFxaFromUntrustedRp(self, 'signup')
+        .then(fillOutSignUp(self, email, PASSWORD))
 
         .findByCssSelector('#fxa-permissions-header')
         .end()
 
-        .findByCssSelector('#accept')
-          .click()
-        .end()
+        .then(click('#accept'))
 
         .findByCssSelector('#fxa-confirm-header')
         .end()
 
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkInNewTab(
-                      self, email, 0);
-        })
+        .then(openVerificationLinkInNewTab(self, email, 0))
 
         .switchToWindow('newwindow')
         // wait for the verified window in the new tab
@@ -311,34 +245,43 @@ define([
         .findByCssSelector('#loggedin')
         .end()
 
-        .findByCssSelector('#logout')
-          .click()
-        .end()
+        .then(click('#logout'))
 
-        .findByCssSelector('.signin')
-          .click()
-        .end()
+        .then(click('.signin'))
 
         // user signed in previously and should not need to enter
         // their email address.
-        .findByCssSelector('input[type=password]')
-          .click()
-          .clearValue()
-          .type(PASSWORD)
-        .end()
+        .then(type('input[type=password]', PASSWORD))
 
-        .findByCssSelector('button[type=submit]')
-          .click()
-        .end()
+        .then(click('button[type=submit]'))
 
         .findByCssSelector('#loggedin')
-        .getCurrentUrl()
-        .then(function (url) {
-          // redirected back to the App without seeing the permissions screen.
-          assert.ok(url.indexOf(OAUTH_APP) > -1);
-        })
-        .end();
-    }
+        .end()
+
+        .then(testUrlEquals(OAUTH_APP));
+    },
+
+    'signin from signup page': function () {
+      var self = this;
+
+      return openFxaFromUntrustedRp(self, 'signup')
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+
+        .then(type('input[type=email]', email))
+        .then(type('input[type=password]', PASSWORD))
+        // age not filled in, submit works anyways.
+        .then(click('button[type=submit]'))
+
+        .findByCssSelector('#fxa-permissions-header')
+        .end()
+
+        .then(click('#accept'))
+
+        .findByCssSelector('#loggedin')
+        .end()
+
+        .then(testUrlEquals(OAUTH_APP));
+    },
   });
 
 });
