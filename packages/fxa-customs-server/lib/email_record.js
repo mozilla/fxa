@@ -11,7 +11,7 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, BAD_LOGIN_
     accountCreate            : true,
     recoveryEmailResendCode  : true,
     passwordForgotSendCode   : true,
-    passwordForgotResendCode : true,
+    passwordForgotResendCode : true
   }
 
   function isEmailSendingAction(action) {

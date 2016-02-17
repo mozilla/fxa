@@ -10,7 +10,7 @@ function now() {
 }
 
 function simpleIpRecord() {
-  return new (ipRecord(120 * 1000, now))()
+  return new (ipRecord(120 * 1000, 1 * 1000, 1, now))()
 }
 
 test(
@@ -41,8 +41,21 @@ test(
   }
 )
 
+test('rate limit works',
+  function (t) {
+    var ir = simpleIpRecord()
+
+    t.equal(ir.isRateLimited(), false, 'record is not rate limited')
+    ir.rateLimit()
+    t.equal(ir.isRateLimited(), true, 'record is rate limited')
+    ir.rl = now() - 60 * 1000
+    t.equal(ir.isRateLimited(), false, 'record is not rate limited')
+    t.end()
+  }
+)
+
 test(
-  'retryAfter works',
+  'retryAfter block works',
   function (t) {
     var ir = simpleIpRecord()
 
@@ -62,22 +75,36 @@ test(
   function (t) {
     var ir = simpleIpRecord()
     t.equal(ir.shouldBlock(), false, 'original object is not blocked')
-    var irCopy1 = (ipRecord(120 * 1000, now)).parse(ir)
+    var irCopy1 = (ipRecord(120 * 1000, 90, 1, now)).parse(ir)
     t.equal(irCopy1.shouldBlock(), false, 'copied object is not blocked')
 
     ir.block()
     t.equal(ir.shouldBlock(), true, 'original object is now blocked')
-    var irCopy2 = (ipRecord(120 * 1000, now)).parse(ir)
+    var irCopy2 = (ipRecord(120 * 1000, 90, 1, now)).parse(ir)
     t.equal(irCopy2.shouldBlock(), true, 'copied object is blocked')
     t.end()
   }
 )
 
 test(
-  'update works',
+  'no action update works',
   function (t) {
     var ir = simpleIpRecord()
-    t.equal(ir.update(), 0, 'update does nothing')
+    t.equal(ir.update(), 0, 'update with no action does nothing')
+    t.end()
+  }
+)
+
+test(
+  'action accountStatusCheck rate-limit works',
+  function (t) {
+    var ir = simpleIpRecord()
+    ir.as = []
+
+    ir.update('accountStatusCheck')
+    t.equal(ir.retryAfter(), 0, 'rate-limit not exceeded')
+    ir.update('accountStatusCheck')
+    t.equal(ir.retryAfter(), 1, 'rate-limit exceeded')
     t.end()
   }
 )
