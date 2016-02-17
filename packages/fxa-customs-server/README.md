@@ -41,13 +41,13 @@ On Mac OS X, memcached must be manually started for the tests to run.
 
 Here are the main components of this project:
 
-- `bans/`: code implementing temporary bans of specific email or IP addresses and listening on the SQS API for requests
-- `bin/customs_server.js`: process listening on the network and responding to HTTP API calls
-- `config/config.js`: where all of the configuration options are defined
-- `email_record.js`, `ip_email_record.js` and `ip_record.js`: code implementing the various blocking and rate-limiting policies
-- `scripts`: helper scripts only used for development/testing
-- `test/local`: unit tests
-- `test/remote`: tests exercising the HTTP API
+- `./bin/customs_server.js`: process listening on the network and responding to HTTP API calls
+- `./lib/bans/`: code implementing temporary bans of specific email or IP addresses and listening on the SQS API for requests
+- `./lib/config/config.js`: where all of the configuration options are defined
+- `./lib/email_record.js`, `./lib/ip_email_record.js` and `./lib/ip_record.js`: code implementing the various blocking and rate-limiting policies
+- `./scripts`: helper scripts only used for development/testing
+- `./test/local`: unit tests
+- `./test/remote`: tests exercising the HTTP API
 
 ### API
 

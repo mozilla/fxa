@@ -3,7 +3,7 @@
 
 require('ass')
 var test = require('tap').test
-var banHandler = require('../../bans/handler')
+var banHandler = require('../../lib/bans/handler')
 var mcHelper = require('../memcache-helper')
 
 var log = {
