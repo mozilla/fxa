@@ -126,6 +126,7 @@ console.log(chalk.yellow('E10S Status:', e10s));
 console.log(chalk.yellow('FXA_ENV:', env));
 console.log(chalk.yellow('FIREFOX_BIN Binary:', process.env.FIREFOX_BIN || 'Default System Firefox binary'));
 console.log(chalk.yellow('FXA_DESKTOP_CONTEXT:', FXA_DESKTOP_CONTEXT));
+console.log(chalk.yellow('FIREFOX_DEBUGGER:', !! process.env.FIREFOX_DEBUGGER));
 
 module.exports = function (cb) {
   if (cb) fxaProfile.encoded(cb);

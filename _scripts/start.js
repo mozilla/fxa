@@ -48,10 +48,17 @@ selenium.install({
         opts.desiredCapabilities.firefox_binary = process.env.FIREFOX_BIN;
       }
 
+      var openDebuggerKeys = '';
+      if (process.env.FIREFOX_DEBUGGER === 'true' && process.platform === 'darwin') {
+        // ALT + COMMAND + SHIFT + I keyboard shortcut
+        openDebuggerKeys = '\uE008\uE03D\uE00AI';
+      }
+
       setTimeout(function () {
           webdriverio
             .remote(opts)
             .init()
+            .keys(openDebuggerKeys)
             .url('http://www.example.org')
       }, 3000);
     });
