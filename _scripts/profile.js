@@ -1,4 +1,5 @@
 var path = require('path');
+var chalk = require('chalk');
 
 var FirefoxProfile = require('firefox-profile');
 
@@ -48,7 +49,10 @@ var CONFIGS = {
 };
 
 var env = process.env.FXA_ENV || 'local';
+var FXA_DESKTOP_CONTEXT = process.env.FXA_DESKTOP_CONTEXT || 'fx_desktop_v2';
+var e10s = process.env.FXA_E10S === 'true';
 var fxaEnv = CONFIGS[env];
+
 
 // Configuration for local sync development
 
@@ -76,10 +80,12 @@ fxaProfile.setPreference('webdriver.log.driver.file', DRIVER_LOG);
 // enable pocket
 fxaProfile.setPreference('browser.pocket.enabled', true);
 
-// disable e10s
-fxaProfile.setPreference('browser.tabs.remote.autostart', false);
-fxaProfile.setPreference('browser.tabs.remote.autostart.1', false);
-fxaProfile.setPreference('browser.tabs.remote.autostart.2', false);
+if (! e10s) {
+  // disable e10s
+  fxaProfile.setPreference('browser.tabs.remote.autostart', false);
+  fxaProfile.setPreference('browser.tabs.remote.autostart.1', false);
+  fxaProfile.setPreference('browser.tabs.remote.autostart.2', false);
+}
 
 // enable avatars in pref pane
 fxaProfile.setPreference('identity.fxaccounts.profile_image.enabled', true);
@@ -92,15 +98,15 @@ fxaProfile.setPreference('services.sync.log.appender.dump', 'Debug');
 fxaProfile.setPreference('services.sync.log.appender.file.logOnSuccess', true);
 fxaProfile.setPreference('identity.fxaccounts.auth.uri', fxaEnv.auth);
 fxaProfile.setPreference('identity.fxaccounts.allowHttp', true);
-fxaProfile.setPreference('identity.fxaccounts.remote.force_auth.uri', fxaEnv.content + 'force_auth?service=sync&context=fx_desktop_v2');
-fxaProfile.setPreference('identity.fxaccounts.remote.signin.uri', fxaEnv.content + 'signin?service=sync&context=fx_desktop_v2');
-fxaProfile.setPreference('identity.fxaccounts.remote.signup.uri', fxaEnv.content + 'signup?service=sync&context=fx_desktop_v2');
+fxaProfile.setPreference('identity.fxaccounts.remote.force_auth.uri', fxaEnv.content + 'force_auth?service=sync&context=' + FXA_DESKTOP_CONTEXT);
+fxaProfile.setPreference('identity.fxaccounts.remote.signin.uri', fxaEnv.content + 'signin?service=sync&context=' + FXA_DESKTOP_CONTEXT);
+fxaProfile.setPreference('identity.fxaccounts.remote.signup.uri', fxaEnv.content + 'signup?service=sync&context=' + FXA_DESKTOP_CONTEXT);
 fxaProfile.setPreference('identity.fxaccounts.remote.webchannel.uri', fxaEnv.content);
 
 fxaProfile.setPreference('identity.fxaccounts.remote.oauth.uri', fxaEnv.oauth);
 fxaProfile.setPreference('identity.fxaccounts.remote.profile.uri', fxaEnv.profile);
 
-fxaProfile.setPreference('identity.fxaccounts.settings.uri', fxaEnv.content + 'settings&service=sync&context=fx_desktop_v2');
+fxaProfile.setPreference('identity.fxaccounts.settings.uri', fxaEnv.content + 'settings?service=sync&context=' + FXA_DESKTOP_CONTEXT);
 
 // for some reason there are 2 settings for the token server
 fxaProfile.setPreference('identity.sync.tokenserver.uri', fxaEnv.token);
@@ -114,6 +120,12 @@ fxaProfile.setPreference("app.update.staging.enabled", false);
 
 
 fxaProfile.updatePreferences();
+
+console.log(chalk.yellow('Configuration:', JSON.stringify(fxaEnv, null, 2)));
+console.log(chalk.yellow('E10S Status:', e10s));
+console.log(chalk.yellow('FXA_ENV:', env));
+console.log(chalk.yellow('FIREFOX_BIN Binary:', process.env.FIREFOX_BIN || 'Default System Firefox binary'));
+console.log(chalk.yellow('FXA_DESKTOP_CONTEXT:', FXA_DESKTOP_CONTEXT));
 
 module.exports = function (cb) {
   if (cb) fxaProfile.encoded(cb);
