@@ -3,7 +3,7 @@
 
 require('ass')
 var test = require('tap').test
-var ipEmailRecord = require('../../ip_email_record')
+var ipEmailRecord = require('../../lib/ip_email_record')
 
 function now() {
   return 1000 // old school
