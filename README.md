@@ -56,6 +56,8 @@
 Available options:
 
 * `FXA_ENV=local` or `latest` or `stable` or `stage` (NOTE: `local` is default).
+* `FXA_E10S=true` - add this flag to turn on E10S. (NOTE: off by default).
+* `FXA_DESKTOP_CONTEXT` - `context=` value. (NOTE: `fx_desktop_v2` is default).
 * `FIREFOX_BIN=/Applications/FirefoxNightly.app/Contents/MacOS/firefox-bin npm start`
 
 *******
