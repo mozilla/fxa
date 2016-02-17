@@ -164,6 +164,8 @@ sudo apt-get install oracle-java7-installer
 
 ### Firefox for iOS
 
+> Skip this if you are not working on Firefox for iOS and FxA.
+
 You can test sync locally in Firefox iOS using the XCode simulator.
 [Follow the steps at github.com/mozilla/firefox-ios and setup *firefox-ios* ](https://github.com/mozilla/firefox-ios) build locally.
 Currently there is no way to dynamically switch servers in Firefox for iOS, to use **local** servers you need to run the script below:
@@ -194,6 +196,8 @@ NODE_ENV=dev DB=mysql node bin/internal.js
 *******
 
 ### Hello/Loop Setup
+
+> Skip this if you are not working on testing Firefox Hello.
 
 To get the Hello service setup and configured to run with a local version of Firefox Accounts, you need to run a couple commands after running `npm run postinstall` and `./pm2 start servers.json`.
 
