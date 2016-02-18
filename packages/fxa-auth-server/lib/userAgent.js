@@ -4,7 +4,7 @@
 
 'use strict'
 
-var ua = require('ua-parser')
+var ua = require('node-uap')
 
 var MOBILE_OS_FAMILIES = {
   'Android': null,
