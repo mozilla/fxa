@@ -106,11 +106,11 @@ MysqlStore.connect = function mysqlConnect(options) {
     }
   }).then(function() {
     return checkDbPatchLevel(patcher);
-  }).then(function() {
-    return P.promisify(patcher.end, patcher)();
-  }, function(error) {
+  }).catch(function(error) {
     logger.error('checkDbPatchLevel', error);
-    patcher.end(process.exit.bind(process, 1));
+    throw error;
+  }).finally(function () {
+    return P.promisify(patcher.end, patcher)();
   }).then(function() {
     return new MysqlStore(options);
   });

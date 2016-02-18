@@ -16,6 +16,7 @@ db.ping().done(function() {
   events.start();
 }, function(err) {
   logger.critical('db.ping', err);
+  process.exit(1);
 });
 
 process.on('uncaughtException', function() {

@@ -61,19 +61,23 @@ function preClients() {
           + '\tuse hashedSecret="%s" instead',
           c.id,
           unbuf(encrypt.hash(c.secret)));
-        process.exit(1);
+        return P.reject(new Error('Do not keep client secrets in the config file.'));
       }
 
       // ensure the required keys are present.
+      var err = null;
       var REQUIRED_CLIENTS_KEYS = [ 'id', 'hashedSecret', 'name', 'imageUri',
                                     'redirectUri', 'trusted', 'canGrant' ];
       REQUIRED_CLIENTS_KEYS.forEach(function(key) {
         if (!(key in c)) {
           var data = { key: key, name: c.name || 'unknown' };
           logger.error('client.missing.keys', data);
-          process.exit(1);
+          err = new Error('Client config has missing keys');
         }
       });
+      if (err) {
+        return P.reject(err);
+      }
 
       // ensure booleans are boolean and not undefined
       c.trusted = !!c.trusted;
