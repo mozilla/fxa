@@ -44,7 +44,12 @@ module.exports = function (log, db) {
             if (device.pushCallback) {
               // send the push notification
               log.increment(LOG_UPDATE_INCREMENT_SEND)
-              request.post(device.pushCallback, function (err, response) {
+              request.post({
+                url: device.pushCallback,
+                headers: {
+                  'ttl': '0'
+                }
+              }, function (err, response) {
                 if (err) {
                   // 404 or 410 error from the push servers means
                   // the push settings need to be reset.
