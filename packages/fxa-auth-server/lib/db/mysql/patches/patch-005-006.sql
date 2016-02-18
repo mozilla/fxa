@@ -14,7 +14,7 @@ CREATE TABLE refreshTokens (
 
 -- Add expiresAt column for access tokens
 
-ALTER TABLE tokens ADD COLUMN expiresAt TIMESTAMP NOT NULL;
+ALTER TABLE tokens ADD COLUMN expiresAt TIMESTAMP NOT NULL DEFAULT "1980-01-01 00:00:00";
 UPDATE tokens SET expiresAt = DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 2 WEEK);
 
 -- Add offline column to codes
