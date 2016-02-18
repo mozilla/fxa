@@ -17,7 +17,7 @@ var uaParser = {
 }
 
 var userAgent = proxyquire('../../lib/userAgent', {
-  'ua-parser': uaParser
+  'node-uap': uaParser
 })
 
 test(

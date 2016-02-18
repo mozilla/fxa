@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var StatsD = require('node-statsd')
-var uaParser = require('ua-parser')
+var uaParser = require('node-uap')
 
 var STATSD_PREFIX = 'fxa.auth.'
 var TIMING_SUFFIX = '.time'
