@@ -107,7 +107,7 @@ module.exports = function (fs, path, url, convict) {
   // files to process, which will be overlayed in order, in the CONFIG_FILES
   // environment variable. By default, the ./config/<env>.json file is loaded.
 
-  var envConfig = path.join(__dirname, conf.get('env') + '.json')
+  var envConfig = path.join(path.dirname(path.dirname(__dirname)), 'config', conf.get('env') + '.json')
   var files = (envConfig + ',' + process.env.CONFIG_FILES)
                 .split(',').filter(fs.existsSync)
   conf.loadFile(files)
