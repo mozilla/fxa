@@ -18,6 +18,7 @@ There are a number of methods that a DB storage backend should implement:
     * .createSessionToken(tokenId, sessionToken)
     * .updateSessionToken(tokenId, sessionToken)
     * .sessionToken(id)
+    * .sessionWithDevice(tokenId)
     * .deleteSessionToken(tokenId)
 * Key Fetch Tokens
     * .createKeyFetchToken(tokenId, keyFetchToken)
@@ -379,5 +380,32 @@ Parameters:
     * data
     * uid
     * createdA
+
+## .sessionWithDevice(tokenId) ##
+
+Get the sessionToken with its matching device info.
+
+Parameters:
+
+* `tokenId` - (Buffer32) the id of the token to retrieve
+
+Returns:
+
+* resolves with:
+    * an object `{ ... }` with the relevant field (see below)
+* rejects with:
+    * `error.notFound()` if this token does not exist
+    * any error from the underlying storage system (wrapped in `error.wrap()`
+
+These fields are represented as `t.*` for a field from the token `a.*` for a
+field from the corresponding account and `d.*` for a field from devices.
+
+* sessionToken : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
+                 t.uaOS, t.uaOSVersion, t.uaDeviceType, t.lastAccessTime,
+                 a.emailVerified, a.email, a.emailCode, a.verifierSetAt,
+                 a.createdAt AS accountCreatedAt, d.id AS deviceId,
+                 d.name AS deviceName, d.type AS deviceType,
+                 d.createdAt AS deviceCreatedAt, d.callbackURL AS deviceCallbackURL,
+                 d.callbackPublicKey AS deviceCallbackPublicKey
 
 (Ends)
