@@ -21,7 +21,8 @@ module.exports = function (secretKeyFile, domain) {
           exp: now + data.duration,
           'fxa-generation': data.generation,
           'fxa-lastAuthAt': data.lastAuthAt,
-          'fxa-verifiedEmail': data.verifiedEmail
+          'fxa-verifiedEmail': data.verifiedEmail,
+          'fxa-deviceId': data.deviceId
         }
       )
       .then(
