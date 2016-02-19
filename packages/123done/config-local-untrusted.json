@@ -9,7 +9,7 @@
   "oauth_uri": "http://127.0.0.1:9010/v1",
   "content_uri": "http://127.0.0.1:3030",
   "profile_uri": "http://127.0.0.1:1111/v1",
-  "scopes": "profile:email profile:uid",
+  "scopes": "profile:display_name profile:email profile:uid",
   "preverify_email_audience": "127.0.0.1:9000",
   "preverify_email_jku": "http://127.0.0.1:10139/.well-known/public-keys"
 }
