@@ -58,8 +58,15 @@ define(function (require, exports, module) {
 
     afterRender: function () {
       // Wrapper hides the browser's file picker widget so we can use
-      // our own
-      var wrapper = $('<div/>').css({ height: 0, 'overflow': 'hidden', width: 0 });
+      // our own. Set the height/width to 1px by 1px so that Selenium
+      // can interact with the element. The element is not visible
+      // to the user.
+      var wrapper = $('<div/>').css({
+        height: 1,
+        opacity: 0,
+        overflow: 'hidden',
+        width: 1
+      });
       this.$(':file').wrap(wrapper);
     },
 
@@ -76,20 +83,7 @@ define(function (require, exports, module) {
     },
 
     filePicker: function () {
-      var self = this;
-      // skip the file picker if this is an automater browser
-      if (self.broker.isAutomatedBrowser()) {
-        setTimeout(function () {
-          require(['draggable', 'touch-punch'], function () {
-            var cropImg = new CropperImage();
-            self.navigate('settings/avatar/crop', {
-              cropImg: cropImg
-            });
-          });
-        }, 1000);
-        return;
-      }
-      self.$('#imageLoader').click();
+      this.$('#imageLoader').click();
     },
 
     fileSet: function (e) {

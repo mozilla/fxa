@@ -475,9 +475,10 @@ define(function (require, exports, module) {
           return p();
         });
 
-        return view.showChildView(SettingsPanelView)
+        var options = {};
+        return view.showChildView(SettingsPanelView, options)
           .then(function () {
-            assert.isTrue(subPanels.showChildView.calledWith(SettingsPanelView));
+            assert.isTrue(subPanels.showChildView.calledWith(SettingsPanelView, options));
           });
       });
 

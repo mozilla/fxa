@@ -7,17 +7,19 @@ define([
   'intern!object',
   'intern/chai!assert',
   'require',
+  'intern/node_modules/dojo/node!path',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, require, path, nodeXMLHttpRequest, FxaClient, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
   var SETTINGS_URL = config.fxaContentRoot + 'settings';
   var AVATAR_CHANGE_URL = config.fxaContentRoot + 'settings/avatar/change';
   var AVATAR_CHANGE_URL_AUTOMATED = config.fxaContentRoot + 'settings/avatar/change?automatedBrowser=true';
+  var UPLOAD_IMAGE_PATH = path.join(this.process.cwd(), 'app', 'apple-touch-icon-152x152.png');
 
   var PASSWORD = 'password';
   var email;
@@ -295,14 +297,11 @@ define([
 
     'upload a profile image': function () {
       return this.remote
-        .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
+        .get(require.toUrl(AVATAR_CHANGE_URL))
 
-        // go to change avatar
+        // Selenium's way of interacting with a file picker
         .findById('imageLoader')
-        .end()
-
-        .findById('file')
-          .click()
+          .type(UPLOAD_IMAGE_PATH)
         .end()
 
         .findByCssSelector('.cropper')
@@ -337,14 +336,11 @@ define([
 
     'cancel uploading a profile image': function () {
       return this.remote
-        .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
+        .get(require.toUrl(AVATAR_CHANGE_URL))
 
-        // go to change avatar
+        // Selenium's way of interacting with a file picker
         .findById('imageLoader')
-        .end()
-
-        .findById('file')
-          .click()
+          .type(UPLOAD_IMAGE_PATH)
         .end()
 
         .findByCssSelector('.cropper')
@@ -357,7 +353,6 @@ define([
         //success is returning to the avatar change page
         .findById('avatar-options')
         .end();
-
     }
 
   });
