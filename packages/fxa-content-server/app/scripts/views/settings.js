@@ -104,8 +104,8 @@ define(function (require, exports, module) {
       this._showAvatar();
     },
 
-    showChildView: function (ChildView) {
-      return this._subPanels.showChildView(ChildView);
+    showChildView: function (ChildView, options) {
+      return this._subPanels.showChildView(ChildView, options);
     },
 
     // When we navigate to settings from a childView

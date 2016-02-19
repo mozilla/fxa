@@ -23,7 +23,7 @@ define(function (require, exports, module) {
       this._createView = options.createView;
     },
 
-    showChildView: function (ChildView) {
+    showChildView: function (ChildView, options) {
       var self = this;
       if (self._panelViews.indexOf(ChildView) === -1) {
         console.warn('Tried to show a view that is not a subpanel');
@@ -35,7 +35,7 @@ define(function (require, exports, module) {
         self._currentChildView.closePanel();
       }
 
-      return self._createChildViewIfNeeded(ChildView)
+      return self._createChildViewIfNeeded(ChildView, options)
         .then(function (childView) {
           if (childView) {
             self._currentChildView = childView;
@@ -63,7 +63,9 @@ define(function (require, exports, module) {
     },
 
     // Render childView if an instance doesn't already exist
-    _createChildViewIfNeeded: function (ChildView) {
+    _createChildViewIfNeeded: function (ChildView, options) {
+      options = options || {};
+
       var self = this;
       var childView = self._childViewInstanceFromClass(ChildView);
       if (childView) {
@@ -75,12 +77,23 @@ define(function (require, exports, module) {
 
       self.$('.child-views').append('<div class="settings-child-view ' + className + '"></div>');
 
+      // Each child view receives its own model on creation. The
+      // child view's model will be updated with the appropriate data
+      // when shown. Sandboxed models prevent child views from sharing
+      // status messages and other data with each other and the parent.
+      // Without the sandbox, one child view can overwrite the model data
+      // of another child view.
+      var childModel = new Backbone.Model();
+
+      // If a model was passed in, immediately copy that data to the
+      // child in case the data is needed for the initial render
+      if (options.model) {
+        childModel.set(options.model.toJSON());
+      }
+
       var view = self._createView(ChildView, {
         el: self.$(selector),
-        // Each child view receives its own model on creation. The
-        // child view's model will be updated with the appropriate data
-        // when shown.
-        model: new Backbone.Model(),
+        model: childModel,
         parentView: self._parent
       });
 
