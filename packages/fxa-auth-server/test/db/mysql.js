@@ -124,10 +124,6 @@ describe('db/mysql:', function() {
           assert.equal(instances.logger.error.callCount, 0);
         });
 
-        it('did not call process.exit', function() {
-          assert.equal(process.exit.callCount, 0);
-        });
-
         it('returned an object', function () {
           assert.equal(typeof result, 'object');
           assert.notEqual(result, null);
@@ -135,9 +131,13 @@ describe('db/mysql:', function() {
       });
 
       describe('db patch level is bad:', function() {
+        var result;
+
         beforeEach(function() {
           instances.patcher.currentPatchLevel -= 2;
-          return mysql.connect({ logger: instances.logger });
+          return mysql.connect({ logger: instances.logger }).catch(function(err) {
+            result = err;
+          });
         });
 
         afterEach(function() {
@@ -157,21 +157,22 @@ describe('db/mysql:', function() {
           assert.equal(args[1].message, 'unexpected db patch level: ' + (dependencies['./patch'].level - 2));
         });
 
-        it('called process.exit', function() {
-          assert.equal(process.exit.callCount, 1);
-          var args = process.exit.getCall(0).args;
-          assert.equal(args.length, 1);
-          assert.equal(args[0], 1);
+        it('returned an error', function() {
+          assert.ok(result instanceof Error);
         });
       });
     });
 
     describe('readDbPatchLevel fails:', function() {
+      var result;
+
       beforeEach(function() {
         sandbox.stub(instances.patcher, 'readDbPatchLevel', function(callback) {
-          callback('foo');
+          callback(new Error('foo'));
         });
-        return mysql.connect({ logger: instances.logger });
+        return mysql.connect({ logger: instances.logger }).catch(function(err) {
+          result = err;
+        });
       });
 
       it('called patcher.end', function() {
@@ -182,14 +183,12 @@ describe('db/mysql:', function() {
         assert.equal(instances.logger.error.callCount, 1);
         var args = instances.logger.error.getCall(0).args;
         assert.equal(args[0], 'checkDbPatchLevel');
-        assert.equal(args[1], 'foo');
+        assert.ok(args[1] instanceof Error);
+        assert.equal(args[1].message, 'foo');
       });
 
-      it('called process.exit', function() {
-        assert.equal(process.exit.callCount, 1);
-        var args = process.exit.getCall(0).args;
-        assert.equal(args.length, 1);
-        assert.equal(args[0], 1);
+      it('returned an error', function() {
+        assert.ok(result instanceof Error);
       });
     });
   });

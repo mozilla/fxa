@@ -14,4 +14,5 @@ db.ping().done(function() {
   });
 }, function(err) {
   logger.critical('db.ping', err);
+  process.exit(1);
 });

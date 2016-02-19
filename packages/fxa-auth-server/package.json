@@ -54,7 +54,6 @@
     "load-grunt-tasks": "^3.1.0",
     "mocha-text-cov": "^0.1.0",
     "nock": "^1.2.1",
-    "node-rsa": "^0.2.30",
     "proxyquire": "^1.6.0",
     "read": "^1.0.5",
     "sinon": "^1.15.4",
