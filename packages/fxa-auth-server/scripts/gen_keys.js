@@ -21,8 +21,8 @@
 
 const fs = require('fs');
 const assert = require('assert');
-
-const NodeRSA = require('node-rsa');
+const generateRSAKeypair = require('generate-rsa-keypair');
+const JwTool = require('fxa-jwtool');
 
 const keyPath = './config/key.json';
 const oldKeyPath = './config/oldKey.json';
@@ -35,27 +35,16 @@ try {
 }
 
 function main(cb) {
-  var key = new NodeRSA({b: 2048});
-
-  var genKey = {
-    kty: 'RSA',
-    kid: '2015.12.16-1',
-    n: key.keyPair.n.toString(),
-    e: key.keyPair.e.toString(),
-    d: key.keyPair.d.toString()
-  };
-
-  var genOldKey = {
-    kty: 'RSA',
-    kid: '2015.12.16-2',
-    n: key.keyPair.n.toString(),
-    e: key.keyPair.e.toString()
-  };
-
-  fs.writeFileSync(keyPath, JSON.stringify(genKey));
+  var privKey = JwTool.JWK.fromPEM(generateRSAKeypair().private, {
+    kid: '2015.12.16-1'
+  });
+  fs.writeFileSync(keyPath, JSON.stringify(privKey.toJSON(), undefined, 2));
   console.log('Key saved:', keyPath); //eslint-disable-line no-console
 
-  fs.writeFileSync(oldKeyPath, JSON.stringify(genOldKey));
+  var pubKey = JwTool.JWK.fromPEM(generateRSAKeypair().public, {
+    kid: '2015.12.16-2'
+  });
+  fs.writeFileSync(oldKeyPath, JSON.stringify(pubKey.toJSON(), undefined, 2));
   console.log('OldKey saved:', oldKeyPath); //eslint-disable-line no-console
   cb();
 }
