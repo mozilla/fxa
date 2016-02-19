@@ -286,3 +286,22 @@ test(
   }
 )
 
+test(
+  'log.error removes PII from error objects',
+  function (t) {
+    var err = new Error()
+    err.email = 'test@example.com'
+    log.error({ op: 'unexpectedError', err: err })
+
+    t.equal(logger.error.callCount, 1, 'logger.error was called once')
+    var args = logger.error.args[0]
+    t.equal(args[0], 'unexpectedError', 'logger.error received "op" value')
+    t.equal(Object.keys(args[1]).length, 3, 'log info has three fields')
+    t.equal(args[1].email, 'test@example.com', 'email is reported in top-level fields')
+    t.notOk(args[1].err.email, 'email should not be reported in error object')
+
+    t.end()
+
+    logger.error.reset()
+  }
+)
