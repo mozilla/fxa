@@ -178,6 +178,12 @@
       &#camera, &#file, &#gravatar, &.remove {
         background-position: 50% 22%;
         background-size: 41%;
+        &:hover {
+          filter: hue-rotate(3deg) saturate(1.1) brightness(.85);
+        }
+        &:active {
+          filter: hue-rotate(3deg) saturate(1.1) brightness(.75);
+        }
       }
 
       &#camera {
