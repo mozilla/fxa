@@ -39,7 +39,7 @@
   "devDependencies": {
     "blanket": "1.1.6",
     "eslint-config-fxa": "^1.8.0",
-    "generate-rsa-keypair": "git://github.com/jrgm/node-generate-rsa-keypair.git#dce3504e0376920ebb4851eea42a3ee8cefa5a3f",
+    "generate-rsa-keypair": "0.1.1",
     "grunt": "^0.4.5",
     "grunt-bump": "0.3.1",
     "grunt-cli": "^0.1.13",
