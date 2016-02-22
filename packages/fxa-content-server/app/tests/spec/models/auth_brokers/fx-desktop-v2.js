@@ -22,10 +22,10 @@ define(function (require, exports, module) {
     var user;
     var windowMock;
 
-    before(function () {
+    beforeEach(function () {
       windowMock = new WindowMock();
       channelMock = new NullChannel();
-      channelMock.send = sinon.spy(function () {
+      sinon.stub(channelMock, 'send', function () {
         return p();
       });
 
@@ -104,12 +104,38 @@ define(function (require, exports, module) {
     });
 
     describe('afterResetPasswordConfirmationPoll', function () {
-      it('notifies the channel with `fxaccounts:login`, halts', function () {
+      var result;
+      beforeEach(function () {
         return broker.afterResetPasswordConfirmationPoll(account)
-          .then(function (result) {
-            assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
-            assert.isTrue(result.halt);
+          .then(function (_result) {
+            result = _result;
           });
+      });
+
+      it('does not notify the channel', function () {
+        assert.isFalse(channelMock.send.called);
+      });
+
+      it('halts', function () {
+        assert.isTrue(result.halt);
+      });
+    });
+
+    describe('afterCompleteResetPassword', function () {
+      var result;
+      beforeEach(function () {
+        return broker.afterCompleteResetPassword(account)
+          .then(function (_result) {
+            result = _result;
+          });
+      });
+
+      it('notifies the channel with `fxaccounts:login`', function () {
+        assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
+      });
+
+      it('does not halt', function () {
+        assert.isFalse(!! result.halt);
       });
     });
 
