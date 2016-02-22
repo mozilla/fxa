@@ -1,3 +1,13 @@
+<a name="0.56.1"></a>
+## [0.56.1](https://github.com/mozilla/fxa-basket-proxy/compare/v0.56.0...v0.56.1) (2016-02-22)
+
+
+### Bug Fixes
+
+* **version:** a script to record git version info during rpm build ([c0e242d](https://github.com/mozilla/fxa-basket-proxy/commit/c0e242d))
+
+
+
 <a name="0.56.0"></a>
 # [0.56.0](https://github.com/mozilla/fxa-basket-proxy/compare/v0.50.0...v0.56.0) (2016-02-10)
 
