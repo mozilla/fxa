@@ -7,6 +7,7 @@ var uaParser = require('node-uap')
 
 var STATSD_PREFIX = 'fxa.auth.'
 var TIMING_SUFFIX = '.time'
+var HISTOGRAM_SUFFIX = '.hist'
 
 function getGenericTags(info) {
   var tags = []
@@ -104,6 +105,18 @@ StatsDCollector.prototype = {
         this.sampleRate,
         tags,
         handleErrors(this, 'timing')
+      )
+    }
+  },
+
+  histogram: function (name, value, tags) {
+    if (this.client) {
+      this.client.histogram(
+        STATSD_PREFIX + name + HISTOGRAM_SUFFIX,
+        value,
+        this.sampleRate,
+        tags,
+        handleErrors(this, 'histogram')
       )
     }
   },
