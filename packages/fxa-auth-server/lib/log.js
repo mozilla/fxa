@@ -150,6 +150,10 @@ Lug.prototype.timing = function(name, timing, tags) {
   this.statsd.timing(name, timing, tags)
 }
 
+Lug.prototype.histogram = function(name, value, tags) {
+  this.statsd.histogram(name, value, tags)
+}
+
 module.exports = function (level, name) {
   var log = new Lug(
     {
