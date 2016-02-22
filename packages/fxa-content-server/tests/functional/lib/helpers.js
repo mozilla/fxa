@@ -262,29 +262,40 @@ define([
     // XXX TODO: this is pretty gross to do universally like this...
     // XXX TODO: it will go away if we can make the original tab
     //           reliably be the one to complete the oauth flow.
-    newWindow.addEventListener('WebChannelMessageToChrome', function (e) {
-      var command = e.detail.message.command;
-      var data = e.detail.message.data;
-      var element = newWindow.document.createElement('div');
-      element.setAttribute('id', 'message-' + command.replace(/:/g, '-'));
-      element.innerText = JSON.stringify(data);
-      newWindow.document.body.appendChild(element);
-    });
+    // We start listening for web channel messages as soon as
+    // openPage is called, before the page is ready. Wait for
+    // the prerequisites, then attach.
+    function startListening() {
+      if (typeof window !== 'undefined' &&
+          typeof window.addEventListener === 'function') {
+        newWindow.addEventListener('WebChannelMessageToChrome', function (e) {
+          var command = e.detail.message.command;
+          var data = e.detail.message.data;
 
-    // from http://dev.w3.org/html5/webstorage/
-    // When a new top-level browsing context is created by a script in
-    // an existing browsing context, then the session storage area of
-    // the origin of that Document must be copied into the new
-    // browsing context when it is created. From that point on,
-    // however, the two session storage areas must be considered
-    // separate, not affecting each other in any way.
-    //
-    // We want to pretend this is a new tab that the user opened using
-    // CTRL-T, which does NOT copy sessionStorage over. Wipe
-    // sessionStorage in this new context;
-    newWindow.sessionStorage.clear();
+          var element = document.createElement('div');
+          element.setAttribute('id', 'message-' + command.replace(/:/g, '-'));
+          element.innerText = JSON.stringify(data);
+          newWindow.document.body.appendChild(element);
+        });
 
-    return true;
+        // from http://dev.w3.org/html5/webstorage/
+        // When a new top-level browsing context is created by a script in
+        // an existing browsing context, then the session storage area of
+        // the origin of that Document must be copied into the new
+        // browsing context when it is created. From that point on,
+        // however, the two session storage areas must be considered
+        // separate, not affecting each other in any way.
+        //
+        // We want to pretend this is a new tab that the user opened using
+        // CTRL-T, which does NOT copy sessionStorage over. Wipe
+        // sessionStorage in this new context;
+        newWindow.sessionStorage.clear();
+      } else {
+        setTimeout(startListening, 0);
+      }
+    }
+
+    startListening();
   }
 
   function openVerificationLinkDifferentBrowser(client, email) {
@@ -581,7 +592,7 @@ define([
           document.body.appendChild(element);
         });
       } else {
-        setImmediate(startListening);
+        setTimeout(startListening, 0);
       }
     }
 
@@ -592,27 +603,35 @@ define([
     return function () {
       return context.remote
         .execute(function (expectedCommand, response) {
-          addEventListener('WebChannelMessageToChrome', function listener(e) {
-            removeEventListener('WebChannelMessageToChrome', listener);
+          function startListening() {
+            if (typeof window !== 'undefined' &&
+                typeof window.addEventListener === 'function') {
+              addEventListener('WebChannelMessageToChrome', function listener(e) {
+                var command = e.detail.message.command;
+                var messageId = e.detail.message.messageId;
 
-            var command = e.detail.message.command;
-            var messageId = e.detail.message.messageId;
+                if (command === expectedCommand) {
+                  removeEventListener('WebChannelMessageToChrome', listener);
+                  var event = new CustomEvent('WebChannelMessageToContent', {
+                    detail: {
+                      id: 'account_updates',
+                      message: {
+                        command: command,
+                        data: response,
+                        messageId: messageId
+                      }
+                    }
+                  });
 
-            if (command === expectedCommand) {
-              var event = new CustomEvent('WebChannelMessageToContent', {
-                detail: {
-                  id: 'account_updates',
-                  message: {
-                    command: command,
-                    data: response,
-                    messageId: messageId
-                  }
+                  dispatchEvent(event);
                 }
               });
-
-              dispatchEvent(event);
+            } else {
+              setTimeout(startListening, 0);
             }
-          });
+          }
+
+          startListening();
         }, [ expectedCommand, response ]);
     };
   }
