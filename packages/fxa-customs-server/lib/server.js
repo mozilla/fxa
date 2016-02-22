@@ -20,10 +20,11 @@ module.exports = function createServer(config, log) {
   var BLOCK_INTERVAL_MS = config.limits.blockIntervalSeconds * 1000
   var RATE_LIMIT_INTERVAL_MS = config.limits.rateLimitIntervalSeconds * 1000
   var BAD_LOGIN_LOCKOUT_INTERVAL_MS = config.limits.badLoginLockoutIntervalSeconds * 1000
+  var MAX_ACCOUNT_STATUS_CHECK = config.limits.maxAccountStatusCheck
 
   var IpEmailRecord = require('./ip_email_record')(RATE_LIMIT_INTERVAL_MS, config.limits.maxBadLogins)
   var EmailRecord = require('./email_record')(RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, BAD_LOGIN_LOCKOUT_INTERVAL_MS, config.limits.maxEmails, config.limits.badLoginLockout)
-  var IpRecord = require('./ip_record')(BLOCK_INTERVAL_MS)
+  var IpRecord = require('./ip_record')(BLOCK_INTERVAL_MS, RATE_LIMIT_INTERVAL_MS, MAX_ACCOUNT_STATUS_CHECK)
 
   var mc = new Memcached(
     config.memcache.address,
@@ -103,7 +104,7 @@ module.exports = function createServer(config, log) {
           function (emailRecord, ipRecord, ipEmailRecord) {
             var blockEmail = emailRecord.update(action)
             var blockIpEmail = ipEmailRecord.update(action)
-            var blockIp = ipRecord.update()
+            var blockIp = ipRecord.update(action)
 
             if (blockIpEmail && ipEmailRecord.unblockIfReset(emailRecord.pr)) {
               blockIpEmail = 0

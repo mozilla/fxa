@@ -61,6 +61,12 @@ module.exports = function (fs, path, url, convict) {
         format: 'nat',
         env: 'MAX_BAD_LOGINS'
       },
+      maxAccountStatusCheck: {
+        doc: 'Number of account status checks within rateLimitIntervalSeconds before throttling',
+        default: 5,
+        format: 'nat',
+        env: 'MAX_ACCOUNT_STATUS_CHECK'
+      },
       badLoginLockout: {
         doc: 'Number failed login attempts within badLoginLockoutIntervalSeconds before locking the account',
         default: 20,
