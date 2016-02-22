@@ -25,8 +25,11 @@ define(function (require, exports, module) {
   // for why this could be necessary.
   t('<a href="https://support.mozilla.org/kb/im-having-problems-with-my-firefox-account">Help</a>');
 
-  // Needed for #3399
-  t('Have an account with a different email? <a href="%(signinUri)s">Sign in</a>');
+  // Needed for PR #3426, issue #2477
+  t('Email address');
+  t('Display name');
+  t('Account picture');
+  t('%(permissionName)s (required)');
 
   /**
    * Replace instances of %s and %(name)s with their corresponding values in
