@@ -86,6 +86,7 @@ test(
     var mocks = {
       request: {
         post: function (url, cb) {
+          t.equal(url.headers.ttl, '0', 'sends the proper ttl header')
           return cb()
         }
       }
