@@ -12,6 +12,9 @@ define(function (require, exports, module) {
   var ServiceMixin = require('views/mixins/service-mixin');
   var Template = require('stache!templates/settings/gravatar_permissions');
 
+  var GRAVATAR_MOCK_CLIENT_ID = 'gravatar';
+  var GRAVATAR_PERMISSION = 'profile:email';
+
   var View = FormView.extend({
     template: Template,
     className: 'gravatar-permissions',
@@ -28,7 +31,7 @@ define(function (require, exports, module) {
 
     beforeRender: function () {
       var account = this.getSignedInAccount();
-      if (account.hasGrantedPermissions(View.GRAVATAR_MOCK_CLIENT_ID, View.PERMISSIONS)) {
+      if (account.getClientPermission(GRAVATAR_MOCK_CLIENT_ID, GRAVATAR_PERMISSION)) {
         this.logViewEvent('already-accepted');
         this.navigate('settings/avatar/gravatar');
         return false;
@@ -41,16 +44,18 @@ define(function (require, exports, module) {
       self.logViewEvent('accept');
 
       return p().then(function () {
-        account.saveGrantedPermissions(View.GRAVATAR_MOCK_CLIENT_ID, View.PERMISSIONS);
+        var permissions = {};
+        permissions[GRAVATAR_PERMISSION] = true;
+        account.setClientPermissions(GRAVATAR_MOCK_CLIENT_ID, permissions);
         self.user.setAccount(account);
         self.navigate('settings/avatar/gravatar');
       });
     }
-
+  }, {
+    GRAVATAR_MOCK_CLIENT_ID: GRAVATAR_MOCK_CLIENT_ID,
+    GRAVATAR_PERMISSION: GRAVATAR_PERMISSION
   });
 
-  View.PERMISSIONS = ['profile:email'];
-  View.GRAVATAR_MOCK_CLIENT_ID = 'gravatar';
 
   Cocktail.mixin(
     View,

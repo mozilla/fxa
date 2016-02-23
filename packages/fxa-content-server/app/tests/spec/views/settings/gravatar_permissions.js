@@ -26,6 +26,8 @@ define(function (require, exports, module) {
     var view;
 
     var SERVICE_NAME = 'Gravatar';
+    var GRAVATAR_MOCK_CLIENT_ID = View.GRAVATAR_MOCK_CLIENT_ID;
+    var GRAVATAR_PERMISSION = View.GRAVATAR_PERMISSION;
 
     beforeEach(function () {
       email = TestHelpers.createEmail();
@@ -74,13 +76,13 @@ define(function (require, exports, module) {
 
     describe('renders', function () {
       it('redirects to /settings/avatar/gravatar if permissions already granted', function () {
-        sinon.stub(account, 'hasGrantedPermissions', function () {
+        sinon.stub(account, 'getClientPermission', function () {
           return true;
         });
 
         return initView()
           .then(function () {
-            assert.isTrue(account.hasGrantedPermissions.calledWith(View.GRAVATAR_MOCK_CLIENT_ID, View.PERMISSIONS));
+            assert.isTrue(account.getClientPermission.calledWith(GRAVATAR_MOCK_CLIENT_ID, GRAVATAR_PERMISSION));
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                                   'settings.gravatar-permissions.already-accepted'));
             assert.isTrue(view.navigate.calledWith('settings/avatar/gravatar'));
@@ -88,13 +90,13 @@ define(function (require, exports, module) {
       });
 
       it('shows permission view if not granted', function () {
-        sinon.stub(account, 'hasGrantedPermissions', function () {
+        sinon.stub(account, 'getClientPermission', function () {
           return false;
         });
 
         return initView()
           .then(function () {
-            assert.isTrue(account.hasGrantedPermissions.calledWith(View.GRAVATAR_MOCK_CLIENT_ID, View.PERMISSIONS));
+            assert.isTrue(account.getClientPermission.calledWith(GRAVATAR_MOCK_CLIENT_ID, GRAVATAR_PERMISSION));
             assert.include(view.$el.html(), SERVICE_NAME);
           });
       });
@@ -110,7 +112,7 @@ define(function (require, exports, module) {
 
     describe('submit', function () {
       beforeEach(function () {
-        sinon.spy(account, 'saveGrantedPermissions');
+        sinon.spy(account, 'setClientPermissions');
         sinon.stub(user, 'setAccount', function () { });
       });
 
@@ -119,7 +121,10 @@ define(function (require, exports, module) {
           .then(function () {
             return view.submit()
               .then(function () {
-                assert.isTrue(account.saveGrantedPermissions.calledWith(View.GRAVATAR_MOCK_CLIENT_ID, View.PERMISSIONS));
+                var expectedPermissions = {};
+                expectedPermissions[GRAVATAR_PERMISSION] = true;
+                assert.isTrue(account.setClientPermissions.calledWith(
+                      GRAVATAR_MOCK_CLIENT_ID, expectedPermissions));
                 assert.isTrue(user.setAccount.calledWith(account));
                 assert.isTrue(TestHelpers.isEventLogged(metrics,
                                   'settings.gravatar-permissions.accept'));

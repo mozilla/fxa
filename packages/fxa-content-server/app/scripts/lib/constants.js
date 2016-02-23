@@ -55,6 +55,17 @@ define(function (require, exports, module) {
     OAUTH_ACTION_SIGNIN: 'signin',
     OAUTH_ACTION_SIGNUP: 'signup',
 
+    OAUTH_PROMPT_CONSENT: 'consent',
+    OAUTH_TRUSTED_PROFILE_SCOPE: 'profile',
+    OAUTH_TRUSTED_PROFILE_SCOPE_EXPANSION: ['profile:uid', 'profile:email', 'profile:display_name', 'profile:avatar'],
+    // We only grant permissions that our UI currently prompts for. Others
+    // will be stripped.
+    OAUTH_UNTRUSTED_ALLOWED_PERMISSIONS: [
+      'profile:display_name',
+      'profile:email',
+      'profile:uid'
+    ],
+
     RELIER_KEYS_LENGTH: 32,
     RELIER_KEYS_CONTEXT_INFO_PREFIX: 'identity.mozilla.com/picl/v1/oauth/',
 

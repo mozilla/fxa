@@ -13,6 +13,10 @@ define(function (require, exports, module) {
   // taken from the fxa-auth-server
   var HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/;
 
+  var VALID_PROMPT_VALUES = [
+    Constants.OAUTH_PROMPT_CONSENT
+  ];
+
   module.exports = {
     /**
      * Check if an email address is valid
@@ -146,6 +150,16 @@ define(function (require, exports, module) {
       return _.all(_.keys(data), function (key) {
         return isDataValid(data[key], schema[key]);
       });
+    },
+
+    /**
+     * Check whether the `prompt` OAuth value is valid
+     *
+     * @param {string} prompt
+     * @returns {boolean}
+     */
+    isPromptValid: function (prompt) {
+      return ! prompt || _.contains(VALID_PROMPT_VALUES, prompt);
     }
   };
 });

@@ -5,7 +5,9 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var _ = require('underscore');
   var chai = require('chai');
+  var Constants = require('lib/constants');
   var OAuthClient = require('lib/oauth-client');
   var OAuthErrors = require('lib/oauth-errors');
   var OAuthRelier = require('models/reliers/oauth');
@@ -22,23 +24,28 @@ define(function (require, exports, module) {
   var assert = chai.assert;
 
   describe('models/reliers/oauth', function () {
-    var relier;
     var oAuthClient;
-    var windowMock;
+    var relier;
+    var isTrusted;
     var user;
+    var windowMock;
 
-    var STATE = 'fakestatetoken';
+    var ACCESS_TYPE = 'offline';
+    var ACTION = 'signup';
+    var CLIENT_ID = 'dcdb5ae7add825d2';
+    var PERMISSIONS_EXPANDED_PROFILE = Constants.OAUTH_TRUSTED_PROFILE_SCOPE_EXPANSION;
+    var PERMISSIONS_WITH_UNRECOGNIZED = ['profile:email', 'profile:uid', 'profile:unrecognized'];
+    var PREVERIFY_TOKEN = 'abigtoken';
+    var PROMPT = Constants.OAUTH_PROMPT_CONSENT;
+    var REDIRECT_URI = 'http://redirect.here';
+    var SCOPE = 'profile:email profile:uid';
+    var SCOPE_PROFILE = Constants.OAUTH_TRUSTED_PROFILE_SCOPE;
+    var SCOPE_PROFILE_EXPANDED = Constants.OAUTH_TRUSTED_PROFILE_SCOPE_EXPANSION.join(' ');
+    var SCOPE_WITH_UNRECOGNIZED = 'profile:email profile:uid profile:unrecognized';
+    var SERVER_REDIRECT_URI = 'http://127.0.0.1:8080/api/oauth';
     var SERVICE = 'service';
     var SERVICE_NAME = '123Done';
-    var CLIENT_ID = 'dcdb5ae7add825d2';
-    var REDIRECT_URI = 'http://redirect.here';
-    var SERVER_REDIRECT_URI = 'http://127.0.0.1:8080/api/oauth';
-    var SCOPE = 'profile:email profile:uid';
-    var SCOPE_WITH_EXTRAS = 'profile:email profile:uid profile:non_whitelisted';
-    var PERMISSIONS = ['profile:email', 'profile:uid'];
-    var ACTION = 'signup';
-    var PREVERIFY_TOKEN = 'abigtoken';
-    var ACCESS_TYPE = 'offline';
+    var STATE = 'fakestatetoken';
 
     var RESUME_INFO = {
       access_type: ACCESS_TYPE,
@@ -48,14 +55,22 @@ define(function (require, exports, module) {
       state: STATE
     };
 
+    function testPermissionsEqual(permissions, expected) {
+      // permissions ordering is undetermined, sort before
+      // matching to give a determinate order.
+      assert.deepEqual(permissions.sort(), expected.sort());
+    }
+
     beforeEach(function () {
+      isTrusted = false;
       windowMock = new WindowMock();
       oAuthClient = new OAuthClient();
 
       sinon.stub(oAuthClient, 'getClientInfo', function () {
         return p({
           name: SERVICE_NAME,
-          redirect_uri: SERVER_REDIRECT_URI
+          redirect_uri: SERVER_REDIRECT_URI,
+          trusted: isTrusted
         });
       });
 
@@ -75,6 +90,7 @@ define(function (require, exports, module) {
           action: ACTION,
           client_id: CLIENT_ID,
           preVerifyToken: PREVERIFY_TOKEN,
+          prompt: PROMPT,
           redirect_uri: REDIRECT_URI,
           scope: SCOPE,
           service: SERVICE,
@@ -84,6 +100,7 @@ define(function (require, exports, module) {
         return relier.fetch()
           .then(function () {
             assert.equal(relier.get('preVerifyToken'), PREVERIFY_TOKEN);
+            assert.equal(relier.get('prompt'), PROMPT);
             assert.equal(relier.get('service'), SERVICE);
             assert.equal(relier.get('state'), STATE);
 
@@ -191,50 +208,66 @@ define(function (require, exports, module) {
           });
       });
 
-      it('populates permissions from scope', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          client_id: CLIENT_ID,
-          scope: SCOPE
-        });
+      describe('untrusted reliers', function () {
+        describe('unrecognized scopes', function () {
+          beforeEach(function () {
+            windowMock.location.search = TestHelpers.toSearchString({
+              client_id: CLIENT_ID,
+              scope: SCOPE_WITH_UNRECOGNIZED
+            });
 
-        return relier.fetch()
-          .then(function () {
-            assert.deepEqual(relier.get('permissions'), PERMISSIONS);
+            isTrusted = false;
+
+            return relier.fetch();
           });
+
+          it('are sanitized', function () {
+            var permissions = relier.get('permissions');
+            assert.equal(relier.get('scope'), permissions.join(' '));
+            assert.isFalse(_.contains(permissions, 'profile:unrecognized'));
+          });
+        });
       });
 
-      it('sanitizes the scope of untrusted reliers', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          client_id: CLIENT_ID,
-          scope: SCOPE_WITH_EXTRAS
+      describe('trusted reliers', function () {
+        beforeEach(function () {
+          isTrusted = true;
         });
 
-        sinon.stub(relier, 'isTrusted', function () {
-          return false;
-        });
+        describe('unrecognized scopes', function () {
+          beforeEach(function () {
+            windowMock.location.search = TestHelpers.toSearchString({
+              client_id: CLIENT_ID,
+              scope: SCOPE_WITH_UNRECOGNIZED
+            });
 
-        return relier.fetch()
-          .then(function () {
-            assert.equal(relier.get('scope'), SCOPE);
-            assert.deepEqual(relier.get('permissions'), PERMISSIONS);
+            return relier.fetch();
           });
-      });
 
-      it('does not sanitize the scope of trusted reliers', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          client_id: CLIENT_ID,
-          scope: SCOPE_WITH_EXTRAS
-        });
-
-        sinon.stub(relier, 'isTrusted', function () {
-          return true;
-        });
-
-        return relier.fetch()
-          .then(function () {
-            assert.equal(relier.get('scope'), SCOPE_WITH_EXTRAS);
-            assert.isFalse(relier.has('permissions'), 'permissions not set for trusted reliers');
+          it('are not sanitized', function () {
+            assert.equal(relier.get('scope'), SCOPE_WITH_UNRECOGNIZED);
+            testPermissionsEqual(
+              relier.get('permissions'), PERMISSIONS_WITH_UNRECOGNIZED);
           });
+        });
+
+        describe('`profile` scope', function () {
+          beforeEach(function () {
+            windowMock.location.search = TestHelpers.toSearchString({
+              client_id: CLIENT_ID,
+              scope: SCOPE_PROFILE
+            });
+
+            return relier.fetch();
+          });
+
+          it('is expanded to individual components', function () {
+            assert.equal(relier.get('scope'), SCOPE_PROFILE_EXPANDED);
+            testPermissionsEqual(
+              relier.get('permissions'), PERMISSIONS_EXPANDED_PROFILE);
+          });
+        });
+
       });
 
       it('errors if `client_id` is missing', function () {
@@ -284,42 +317,87 @@ define(function (require, exports, module) {
           });
       });
 
-      it('isTrusted when `trusted` is true', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          client_id: CLIENT_ID,
-          scope: SCOPE
-        });
-        oAuthClient.getClientInfo.restore();
-        sinon.stub(oAuthClient, 'getClientInfo', function () {
-          return p({
-            name: SERVICE_NAME,
-            redirect_uri: SERVER_REDIRECT_URI,
-            trusted: true
+      describe('prompt', function () {
+        function setupPromptTest(prompt) {
+          windowMock.location.search = TestHelpers.toSearchString({
+            client_id: CLIENT_ID,
+            prompt: prompt,
+            scope: SCOPE
+          });
+
+          return relier.fetch();
+        }
+
+        describe('not given', function () {
+          beforeEach(function () {
+            return setupPromptTest();
+          });
+
+          it('sets the correct prompt', function () {
+            assert.isFalse(relier.has('prompt'));
+            assert.isFalse(relier.wantsConsent());
           });
         });
-        return relier.fetch()
-          .then(function () {
-            assert.isTrue(relier.isTrusted());
+
+        describe('consent', function () {
+          beforeEach(function () {
+            return setupPromptTest(Constants.OAUTH_PROMPT_CONSENT);
           });
+
+          it('sets the correct prompt', function () {
+            assert.equal(relier.get('prompt'), Constants.OAUTH_PROMPT_CONSENT);
+            assert.isTrue(relier.wantsConsent());
+          });
+        });
+
+        describe('unrecognized', function () {
+          var err;
+
+          beforeEach(function () {
+            return setupPromptTest('unrecognized')
+              .fail(function (_err) {
+                err = _err;
+              });
+          });
+
+          it('throws the expected error', function () {
+            assert.isTrue(OAuthErrors.is(err, 'INVALID_REQUEST_PARAMETER'));
+            assert.equal(err.context, 'unrecognized');
+            assert.equal(err.param, 'prompt');
+          });
+        });
       });
 
-      it('! isTrusted when `trusted` is false', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          client_id: CLIENT_ID,
-          scope: SCOPE
-        });
-        oAuthClient.getClientInfo.restore();
-        sinon.stub(oAuthClient, 'getClientInfo', function () {
-          return p({
-            name: SERVICE_NAME,
-            redirect_uri: SERVER_REDIRECT_URI,
-            trusted: false
+      describe('isTrusted', function () {
+        beforeEach(function () {
+          isTrusted = false;
+          windowMock.location.search = TestHelpers.toSearchString({
+            client_id: CLIENT_ID,
+            scope: SCOPE
           });
         });
-        return relier.fetch()
-          .then(function () {
+
+        describe('when `trusted` is true', function () {
+          beforeEach(function () {
+            isTrusted = true;
+            return relier.fetch();
+          });
+
+          it('returns `true`', function () {
+            assert.isTrue(relier.isTrusted());
+          });
+        });
+
+        describe('when `trusted` is false', function () {
+          beforeEach(function () {
+            isTrusted = false;
+            return relier.fetch();
+          });
+
+          it('returns `true`', function () {
             assert.isFalse(relier.isTrusted());
           });
+        });
       });
     });
 
@@ -390,43 +468,103 @@ define(function (require, exports, module) {
     });
 
     describe('accountNeedsPermissions', function () {
-      it('should not prompt when relier is trusted', function () {
-        sinon.stub(relier, 'isTrusted', function () {
-          return true;
+      var account;
+      var hasSeenPermissions;
+
+      beforeEach(function () {
+        account = user.initAccount();
+        account.set('email', 'testuser@testuser.com');
+
+        hasSeenPermissions = false;
+
+        sinon.stub(account, 'hasSeenPermissions', function () {
+          return hasSeenPermissions;
         });
-        assert.isFalse(relier.accountNeedsPermissions(user.initAccount()));
-        assert.isTrue(relier.isTrusted.called);
+
+        relier.set({
+          clientId: CLIENT_ID,
+          permissions: ['profile:email', 'profile:display_name']
+        });
       });
 
-      it('should not prompt when relier is untrusted and has permissions', function () {
-        var account = user.initAccount();
-        sinon.stub(relier, 'isTrusted', function () {
-          return false;
+      describe('a trusted relier', function () {
+        beforeEach(function () {
+          relier.set('trusted', true);
         });
-        sinon.stub(account, 'hasGrantedPermissions', function () {
-          return true;
+
+        describe('without prompt=consent', function () {
+          beforeEach(function () {
+            relier.unset('prompt');
+          });
+
+          it('returns false', function () {
+            assert.isFalse(relier.accountNeedsPermissions(account));
+          });
         });
-        relier.set('permissions', ['profile:email']);
-        assert.isFalse(relier.accountNeedsPermissions(account));
-        assert.isTrue(relier.isTrusted.called);
-        assert.isTrue(account.hasGrantedPermissions.calledWith(relier.get('clientId'), ['profile:email']));
+
+        describe('with prompt=consent', function () {
+          beforeEach(function () {
+            relier.set('prompt', 'consent');
+          });
+
+          describe('account does not need additional permissions', function () {
+            beforeEach(function () {
+              hasSeenPermissions = true;
+            });
+
+            it('returns false', function () {
+              assert.isFalse(relier.accountNeedsPermissions(account));
+            });
+          });
+
+          describe('account needs additional permissions', function () {
+            beforeEach(function () {
+              hasSeenPermissions = false;
+            });
+
+            it('returns true', function () {
+              assert.isTrue(relier.accountNeedsPermissions(account));
+            });
+          });
+        });
       });
 
-      it('returns true when relier is untrusted and at least one permission is needed', function () {
-        var account = user.initAccount();
-        sinon.stub(relier, 'isTrusted', function () {
-          return false;
+      describe('an untrusted relier', function () {
+        beforeEach(function () {
+          relier.set('trusted', false);
         });
-        sinon.stub(account, 'hasGrantedPermissions', function () {
-          return false;
+
+        describe('account has seen all the permissions', function () {
+          beforeEach(function () {
+            hasSeenPermissions = true;
+          });
+
+          it('should return false', function () {
+            assert.isFalse(relier.accountNeedsPermissions(account));
+          });
+
+          it('should filter any permissions for which the account has no value', function () {
+            relier.accountNeedsPermissions(account);
+            assert.isTrue(account.hasSeenPermissions.calledWith(CLIENT_ID, ['profile:email']));
+          });
         });
-        relier.set('permissions', ['profile:email']);
-        assert.isTrue(relier.accountNeedsPermissions(account));
-        assert.isTrue(relier.isTrusted.called);
-        assert.isTrue(account.hasGrantedPermissions.calledWith(relier.get('clientId'), ['profile:email']));
+
+        describe('account has not seen all permissions', function () {
+          beforeEach(function () {
+            hasSeenPermissions = false;
+          });
+
+          it('should return true', function () {
+            assert.isTrue(relier.accountNeedsPermissions(account));
+          });
+
+          it('should filter any permissions for which the account has no value', function () {
+            relier.accountNeedsPermissions(account);
+            assert.isTrue(account.hasSeenPermissions.calledWith(CLIENT_ID, ['profile:email']));
+          });
+        });
       });
     });
-
   });
 });
 
