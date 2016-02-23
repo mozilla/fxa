@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var _ = require('underscore');
   var allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
   var AuthErrors = require('lib/auth-errors');
   var BaseView = require('views/base');
@@ -47,9 +48,9 @@ define(function (require, exports, module) {
       };
     },
 
-    events: {
+    events: _.extend(SignInView.prototype.events, {
       'click a[href="/confirm_reset_password"]': BaseView.cancelEventThen('resetPasswordNow')
-    },
+    }),
 
     beforeDestroy: function () {
       this._formPrefill.set('password', this.getElementValue('.password'));

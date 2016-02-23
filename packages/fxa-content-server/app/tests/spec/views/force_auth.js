@@ -310,7 +310,6 @@ define(function (require, exports, module) {
             });
         });
       });
-
     });
 
     describe('with unregistered email', function () {
@@ -364,6 +363,30 @@ define(function (require, exports, module) {
           assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
           // no link to sign up.
           assert.equal(view.$('.error').find('a').length, 0);
+        });
+      });
+    });
+
+    describe('password visibility', function () {
+      beforeEach(function () {
+        initDeps();
+
+        email = TestHelpers.createEmail();
+        relier.set('email', email);
+
+        return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+          });
+      });
+
+      describe('clicking the show button', function () {
+        it('toggles the password visibility state', function () {
+          view.$('.show-password').click();
+          assert.equal(view.$('#password').attr('type'), 'text');
+
+          view.$('#show-password').click();
+          assert.equal(view.$('#password').attr('type'), 'password');
         });
       });
     });
