@@ -1,8 +1,0 @@
-{{t "Hello again." }}
-
-{{t "Recently you created a Firefox Account, but never verified it. Please activate your account by confirming this email address." }}
-
-{{t "Activate Now:"}}: {{{ link }}}
-
-{{t "This is an automated email; if you received it in error, no action is required."}} {{t "For more information, please visit %(supportUrl)s"}}
-

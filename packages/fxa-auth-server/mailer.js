@@ -311,6 +311,14 @@ module.exports = function (log) {
 
   Mailer.prototype.verificationReminderEmail = function (message) {
     log.trace({ op: 'mailer.verificationReminderEmail', email: message.email, uid: message.uid })
+
+    var subject = gettext('Hello again.')
+    var template = 'verificationReminderFirstEmail'
+    if (message.type === 'second') {
+      subject = gettext('Still there?')
+      template = 'verificationReminderSecondEmail'
+    }
+
     var query = {
       uid: message.uid,
       code: message.code
@@ -333,8 +341,8 @@ module.exports = function (log) {
         'X-Uid': message.uid,
         'X-Verify-Code': message.code
       },
-      subject: gettext('Verify your Firefox Account'),
-      template: 'verificationReminderEmail',
+      subject: subject,
+      template: template,
       templateValues: {
         email: message.email,
         link: link,
