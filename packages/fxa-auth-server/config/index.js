@@ -172,17 +172,17 @@ var conf = convict({
     syncUrl: {
       doc: 'url to Sync product page',
       format: String,
-      default: 'https://www.mozilla.org/en-US/firefox/sync/'
+      default: 'https://www.mozilla.org/firefox/sync/'
     },
     androidUrl: {
       doc: 'url to Android product page',
       format: String,
-      default: 'https://www.mozilla.org/en-US/firefox/android/'
+      default: 'https://www.mozilla.org/firefox/android/'
     },
     iosUrl: {
       doc: 'url to IOS product page',
       format: String,
-      default: 'https://www.mozilla.org/en-US/firefox/ios/'
+      default: 'https://www.mozilla.org/firefox/ios/'
     },
     supportUrl: {
       doc: 'url to Mozilla Support product page',
