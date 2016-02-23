@@ -1,3 +1,43 @@
+<a name="0.57.0"></a>
+# 0.57.0 (2016-02-23)
+
+
+### Bug Fixes
+
+* **client:** Do not show the easter egg if in an iframe. ([b59e4fe](https://github.com/mozilla/fxa-content-server/commit/b59e4fe)), closes [#3483](https://github.com/mozilla/fxa-content-server/issues/3483)
+* **client:** Fix error message behavior post-screen transition. ([7da39a8](https://github.com/mozilla/fxa-content-server/commit/7da39a8)), closes [#3503](https://github.com/mozilla/fxa-content-server/issues/3503)
+* **client:** Fix password reset in e10s. ([2211306](https://github.com/mozilla/fxa-content-server/commit/2211306))
+* **client:** Fix show/hide password toggle on force_auth ([6033838](https://github.com/mozilla/fxa-content-server/commit/6033838)), closes [#3532](https://github.com/mozilla/fxa-content-server/issues/3532)
+* **client:** Fix uploading an avatar from file ([0d87a98](https://github.com/mozilla/fxa-content-server/commit/0d87a98)), closes [#3519](https://github.com/mozilla/fxa-content-server/issues/3519)
+* **client:** Focus the display name field when opening the panel. ([21634ba](https://github.com/mozilla/fxa-content-server/commit/21634ba)), closes [#3517](https://github.com/mozilla/fxa-content-server/issues/3517)
+* **cwts:** show all sync engine options to all clients ([98d1059](https://github.com/mozilla/fxa-content-server/commit/98d1059)), closes [#3494](https://github.com/mozilla/fxa-content-server/issues/3494)
+* **devices:** remove plural strings from connected date ([02d493b](https://github.com/mozilla/fxa-content-server/commit/02d493b)), closes [#3510](https://github.com/mozilla/fxa-content-server/issues/3510)
+* **metrics:** Report Windows 10 metrics reporting. ([045ad50](https://github.com/mozilla/fxa-content-server/commit/045ad50)), closes [#3445](https://github.com/mozilla/fxa-content-server/issues/3445)
+* **style:** Cleanup sync options styling ([6d8cd85](https://github.com/mozilla/fxa-content-server/commit/6d8cd85))
+* **teamcity:** record content,oauth,profile,auth __version__ (latest4) ([3190cb0](https://github.com/mozilla/fxa-content-server/commit/3190cb0))
+* **tests:** adjust case sensitive tests for sync v2 ([82946a2](https://github.com/mozilla/fxa-content-server/commit/82946a2))
+
+### chore
+
+* **client:** Add the strings for PR #3426 ([bc80f3a](https://github.com/mozilla/fxa-content-server/commit/bc80f3a))
+* **client:** signin from signup final touches ([7ef7ae9](https://github.com/mozilla/fxa-content-server/commit/7ef7ae9))
+* **install:** Sort the dependencies in package.json ([3c0d651](https://github.com/mozilla/fxa-content-server/commit/3c0d651))
+
+### Features
+
+* **build:** Add SRI `integrity` attributes to static resources. ([4b23a90](https://github.com/mozilla/fxa-content-server/commit/4b23a90)), closes [#3449](https://github.com/mozilla/fxa-content-server/issues/3449)
+* **client:** Add support for `prompt=consent` for OAuth reliers. ([041b9fa](https://github.com/mozilla/fxa-content-server/commit/041b9fa)), closes [#3505](https://github.com/mozilla/fxa-content-server/issues/3505)
+* **client:** allow users to sign in from sign-up view ([b513701](https://github.com/mozilla/fxa-content-server/commit/b513701))
+* **client:** Expand the permissions screen. ([851446a](https://github.com/mozilla/fxa-content-server/commit/851446a)), closes [#2477](https://github.com/mozilla/fxa-content-server/issues/2477)
+* **cwts:** enable choose what to sync in fx-firstrun-v2 and refactor other cwts auth_broker ([c5d28cc](https://github.com/mozilla/fxa-content-server/commit/c5d28cc)), closes [#3365](https://github.com/mozilla/fxa-content-server/issues/3365)
+* **sass:** add hover and active states for avatar upload dialog buttons ([fca16ac](https://github.com/mozilla/fxa-content-server/commit/fca16ac))
+
+### Refactor
+
+* **test:** Image uploader functional tests upload images. ([859b7c0](https://github.com/mozilla/fxa-content-server/commit/859b7c0))
+
+
+
 <a name="0.56.0"></a>
 # 0.56.0 (2016-02-10)
 
