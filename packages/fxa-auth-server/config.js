@@ -66,6 +66,38 @@ var conf = convict({
     format: String,
     default: 'en'
   },
+  verificationReminders: {
+    reminderTimeFirst: {
+      doc: 'Milliseconds since account creation after which the first reminder is sent',
+      default: '48 hours',
+      format: 'duration'
+    },
+    reminderTimeSecond: {
+      doc: 'Milliseconds since account creation after which the second reminder is sent',
+      default: '168 hours',
+      format: 'duration'
+    },
+    reminderTimeFirstOutdated: {
+      doc: 'Milliseconds since account creation after which the reminder should not be sent',
+      default: '167 hours',
+      format: 'duration'
+    },
+    reminderTimeSecondOutdated: {
+      doc: 'Milliseconds since account creation after which the reminder should not be sent',
+      default: '300 hours',
+      format: 'duration'
+    },
+    pollFetch: {
+      doc: 'Number of reminder record to fetch when polling.',
+      format: Number,
+      default: 20
+    },
+    pollTime: {
+      doc: 'Poll duration in milliseconds.',
+      format: 'duration',
+      default: '30 seconds'
+    }
+  },
   mail: {
     host: {
       doc: 'The ip address the server should bind',

@@ -5,11 +5,11 @@
 var tap = require('tap')
 var test = tap.test
 
+var P = require('../../lib/promise')
 var butil = require('../../lib/crypto/butil')
 var unbuffer = butil.unbuffer
 var config = require('../../config').getProperties()
 var TestServer = require('../test_server')
-
 var testHelpers = require('../helpers')
 
 var DB = require('../../lib/db')()
@@ -24,26 +24,8 @@ var dbConn = TestServer.start(config)
   )
 
 test(
-  'ping',
+  'fetchReminders',
   function (t) {
-    t.plan(1)
-    return dbConn
-      .then(function (db) {
-        return db.ping()
-      })
-      .then(function () {
-        t.pass('Got the ping ok')
-      }, function (err) {
-        throw err
-      })
-  }
-)
-
-test(
-  'get email record',
-  function (t) {
-    t.plan(1)
-
     var accountData
     var db
 
@@ -58,14 +40,48 @@ test(
         )
       })
       .then(function () {
-        return db.emailRecord(accountData.email)
+        var rem1 = db.createVerificationReminder({
+          type: 'first',
+          uid: accountData.uid.toString('hex')
+        })
+
+        var rem2 = db.createVerificationReminder({
+          type: 'second',
+          uid: accountData.uid.toString('hex')
+        })
+
+        return P.all([rem1, rem2]).catch(function (err) {
+          throw err
+        })
       })
-      .then(function (account) {
-        t.false(account.emailVerified, false)
-        t.end()
-      }, function (err) {
-        throw err
-      })
+      .then(
+        function () {
+          return db.fetchReminders({
+            // fetch reminders older than 'reminderTime'
+            reminderTime: 1,
+            reminderTimeOutdated: 5000,
+            type: 'first',
+            limit: 200
+          })
+        }
+      )
+      .then(
+        function (reminders) {
+          var reminderFound = false
+          reminders.some(function (reminder) {
+            if (reminder.uid === accountData.uid.toString('hex')) {
+              reminderFound = true
+              return true
+            }
+          })
+
+          t.ok(reminderFound, 'fetched the created reminder')
+          t.end()
+        },
+        function (err) {
+          throw err
+        }
+      )
   }
 )
 

@@ -447,7 +447,15 @@ module.exports = function (log) {
   }
 
   Mailer.prototype.verificationReminderEmail = function (message) {
-    log.trace({ op: 'mailer.verificationReminderEmail', email: message.email, uid: message.uid })
+    log.trace({ op: 'mailer.verificationReminderEmail', email: message.email, type: message.type })
+
+    if (! message || ! message.code || ! message.email) {
+      log.error({
+        op: 'mailer.verificationReminderEmail',
+        err: 'Missing code or email'
+      })
+      return
+    }
 
     var subject = gettext('Hello again.')
     var template = 'verificationReminderFirstEmail'
@@ -461,20 +469,15 @@ module.exports = function (log) {
       code: message.code
     }
 
-    if (message.service) { query.service = message.service }
-    if (message.redirectTo) { query.redirectTo = message.redirectTo }
-    if (message.resume) { query.resume = message.resume }
-
     var link = this.verificationUrl + '?' + qs.stringify(query)
     query.one_click = true
     var oneClickLink = this.verificationUrl + '?' + qs.stringify(query)
 
     return this.send({
-      acceptLanguage: message.acceptLanguage,
+      acceptLanguage: message.acceptLanguage || 'en',
       email: message.email,
       headers: {
         'X-Link': link,
-        'X-Service-ID': message.service,
         'X-Uid': message.uid,
         'X-Verify-Code': message.code
       },
