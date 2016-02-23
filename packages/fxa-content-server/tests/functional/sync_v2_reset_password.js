@@ -6,7 +6,7 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'intern/node_modules/dojo/promise',
+  'intern/node_modules/dojo/Promise',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
