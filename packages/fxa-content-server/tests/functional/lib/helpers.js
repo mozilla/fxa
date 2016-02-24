@@ -176,19 +176,28 @@ define([
    *
    * @param {String} selector
    *        QSA compatible selector string
+   * @param {Object} options
+   *        options include polling `timeout`, element `offsetWidth` and element `offsetHeight`
    */
-  function visibleByQSA(selector, timeout) {
-    timeout = timeout || 10000;
+  function visibleByQSA(selector, options) {
+    options = options || {};
+    var timeout = options.timeout || 10000;
 
-    return pollUntil(function (selector) {
+    return pollUntil(function (selector, options) {
+      var offsetHeight = options.offsetHeight || 0;
+      var offsetWidth = options.offsetWidth || 0;
       var match = document.querySelectorAll(selector);
 
       if (match.length > 1) {
         throw new Error('Multiple elements matched. Make a more precise selector');
       }
 
-      return match[0] && match[0].offsetWidth > 0 ? true : null;
-    }, [ selector ], timeout);
+      return match[0] && (match[0].offsetWidth > offsetWidth && match[0].offsetHeight > offsetHeight) ? true : null;
+    }, [ selector, options ], timeout);
+  }
+
+  function visibleByQSAErrorHeight(selector) {
+    return visibleByQSA(selector, {offsetHeight: 10});
   }
 
   function noSuchElement(context, selector) {
@@ -983,6 +992,7 @@ define([
     testUrlPathnameEquals: testUrlPathnameEquals,
     thenify: thenify,
     type: type,
-    visibleByQSA: visibleByQSA
+    visibleByQSA: visibleByQSA,
+    visibleByQSAErrorHeight: visibleByQSAErrorHeight
   };
 });
