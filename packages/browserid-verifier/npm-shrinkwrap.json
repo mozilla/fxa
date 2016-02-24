@@ -1,6 +1,6 @@
 {
   "name": "browserid-verifier",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "dependencies": {
     "ass": {
       "version": "1.0.0",
@@ -14,7 +14,7 @@
           "dependencies": {
             "esprima": {
               "version": "1.0.4",
-              "from": "esprima@>=1.0.4 <1.1.0",
+              "from": "esprima@>=1.0.2 <1.1.0",
               "resolved": "https://registry.npmjs.org/esprima/-/esprima-1.0.4.tgz"
             },
             "falafel": {
@@ -286,7 +286,7 @@
           "dependencies": {
             "wordwrap": {
               "version": "0.0.3",
-              "from": "wordwrap@>=0.0.2 <0.1.0",
+              "from": "wordwrap@>=0.0.1 <0.1.0",
               "resolved": "https://registry.npmjs.org/wordwrap/-/wordwrap-0.0.3.tgz"
             }
           }
@@ -413,9 +413,9 @@
       }
     },
     "browserid-local-verify": {
-      "version": "0.2.0",
-      "from": "browserid-local-verify@0.2.0",
-      "resolved": "https://registry.npmjs.org/browserid-local-verify/-/browserid-local-verify-0.2.0.tgz",
+      "version": "0.3.1",
+      "from": "browserid-local-verify@0.3.1",
+      "resolved": "https://registry.npmjs.org/browserid-local-verify/-/browserid-local-verify-0.3.1.tgz",
       "dependencies": {
         "browserid-crypto": {
           "version": "0.8.0",
@@ -439,7 +439,7 @@
                     },
                     "through": {
                       "version": "2.3.8",
-                      "from": "through@>=2.3.4 <2.4.0",
+                      "from": "through@>=2.2.7 <3.0.0",
                       "resolved": "https://registry.npmjs.org/through/-/through-2.3.8.tgz"
                     }
                   }
@@ -485,7 +485,7 @@
                         },
                         "source-map": {
                           "version": "0.1.43",
-                          "from": "source-map@>=0.1.7 <0.2.0",
+                          "from": "source-map@>=0.1.31 <0.2.0",
                           "resolved": "https://registry.npmjs.org/source-map/-/source-map-0.1.43.tgz",
                           "dependencies": {
                             "amdefine": {
@@ -704,9 +704,9 @@
                           "resolved": "https://registry.npmjs.org/parse-asn1/-/parse-asn1-5.0.0.tgz",
                           "dependencies": {
                             "asn1.js": {
-                              "version": "4.4.0",
+                              "version": "4.5.0",
                               "from": "asn1.js@>=4.0.0 <5.0.0",
-                              "resolved": "https://registry.npmjs.org/asn1.js/-/asn1.js-4.4.0.tgz",
+                              "resolved": "https://registry.npmjs.org/asn1.js/-/asn1.js-4.5.0.tgz",
                               "dependencies": {
                                 "minimalistic-assert": {
                                   "version": "1.0.0",
@@ -847,9 +847,9 @@
                           "resolved": "https://registry.npmjs.org/parse-asn1/-/parse-asn1-5.0.0.tgz",
                           "dependencies": {
                             "asn1.js": {
-                              "version": "4.4.0",
+                              "version": "4.5.0",
                               "from": "asn1.js@>=4.0.0 <5.0.0",
-                              "resolved": "https://registry.npmjs.org/asn1.js/-/asn1.js-4.4.0.tgz",
+                              "resolved": "https://registry.npmjs.org/asn1.js/-/asn1.js-4.5.0.tgz",
                               "dependencies": {
                                 "minimalistic-assert": {
                                   "version": "1.0.0",
@@ -1364,7 +1364,7 @@
                   "dependencies": {
                     "xtend": {
                       "version": "4.0.1",
-                      "from": "xtend@>=4.0.0 <5.0.0",
+                      "from": "xtend@>=4.0.0 <4.1.0-0",
                       "resolved": "https://registry.npmjs.org/xtend/-/xtend-4.0.1.tgz"
                     }
                   }
@@ -1605,11 +1605,6 @@
           "from": "dbug@0.4.1",
           "resolved": "https://registry.npmjs.org/dbug/-/dbug-0.4.1.tgz"
         },
-        "urlparse": {
-          "version": "0.0.1",
-          "from": "urlparse@0.0.1",
-          "resolved": "https://registry.npmjs.org/urlparse/-/urlparse-0.0.1.tgz"
-        },
         "optimist": {
           "version": "0.6.0",
           "from": "optimist@0.6.0",
@@ -1674,9 +1669,9 @@
               "resolved": "https://registry.npmjs.org/json-parse-helpfulerror/-/json-parse-helpfulerror-1.0.3.tgz",
               "dependencies": {
                 "jju": {
-                  "version": "1.2.1",
+                  "version": "1.3.0",
                   "from": "jju@>=1.1.0 <2.0.0",
-                  "resolved": "https://registry.npmjs.org/jju/-/jju-1.2.1.tgz"
+                  "resolved": "https://registry.npmjs.org/jju/-/jju-1.3.0.tgz"
                 }
               }
             }
