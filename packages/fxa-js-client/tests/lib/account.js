@@ -320,7 +320,40 @@ define([
 
         assert.throws(function() {
           client.accountStatus();
-        });
+        }, 'Missing uid');
+      });
+
+      test('#accountStatusByEmail', function () {
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (result) {
+
+            return respond(client.accountStatusByEmail(result.input.email), RequestMocks.accountStatus);
+          })
+          .then(
+            function (res) {
+              assert.equal(res.exists, true);
+            },
+            assert.notOk
+          );
+      });
+
+      test('#accountStatusByEmail with wrong email', function () {
+
+        return respond(client.accountStatusByEmail('invalid@email.com'), RequestMocks.accountStatusFalse)
+          .then(
+            function (res) {
+              assert.equal(res.exists, false);
+            },
+            assert.notOk
+          );
+      });
+
+      test('#accountStatusByEmail with no email', function () {
+
+        assert.throws(function() {
+          client.accountStatusByEmail();
+        }, 'Missing email');
       });
 
       test('#accountLock', function () {
