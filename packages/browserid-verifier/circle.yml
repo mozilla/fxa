@@ -16,8 +16,6 @@ dependencies:
 
   override:
     - docker info
-    - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-    - "[ ! -z $DOCKERHUB_REPO ]"
 
     # build the container, use circleci's docker cache workaround
     # only use 1 image per day to keep the cache size from getting 
@@ -41,6 +39,8 @@ deployment:
   hub_latest:
     branch: "master"
     commands:
+      - "[ ! -z $DOCKERHUB_REPO ]"
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
       - "docker tag app:build ${DOCKERHUB_REPO}:latest"
       - "docker push ${DOCKERHUB_REPO}:latest"
 
@@ -48,7 +48,8 @@ deployment:
     # push all tags
     tag: /.*/
     commands:
-      - "echo ${DOCKERHUB_REPO}:${CIRCLE_TAG}"
+      - "[ ! -z $DOCKERHUB_REPO ]"
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
       - "docker tag app:build ${DOCKERHUB_REPO}:${CIRCLE_TAG}"
       - "docker images"
       - "docker push ${DOCKERHUB_REPO}:${CIRCLE_TAG}"
