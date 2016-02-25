@@ -123,20 +123,17 @@ define(function (require, exports, module) {
     });
 
     describe('_notifyRelierOfLogin', function () {
-      it('does not send a `login` message to the channel if the account does not have a `keyFetchToken`', function () {
-        account.unset('keyFetchToken');
-        return broker._notifyRelierOfLogin(account)
-          .then(function () {
-            assert.isFalse(channelMock.send.called);
-          });
-      });
+      // verified will be auto-populated if not in the account.
+      var requiredAccountFields = _.without(FxSyncAuthenticationBroker.REQUIRED_LOGIN_FIELDS, 'verified');
 
-      it('does not send a `login` message to the channel if the account does not have a `unwrapBKey`', function () {
-        account.unset('unwrapBKey');
-        return broker._notifyRelierOfLogin(account)
-          .then(function () {
-            assert.isFalse(channelMock.send.called);
-          });
+      requiredAccountFields.forEach(function (fieldName) {
+        it('does not send a `login` message to the channel if the account does not have `' + fieldName + '`', function () {
+          account.unset(fieldName);
+          return broker._notifyRelierOfLogin(account)
+            .then(function () {
+              assert.isFalse(channelMock.send.called);
+            });
+        });
       });
 
       it('sends a `login` message to the channel using current account data', function () {

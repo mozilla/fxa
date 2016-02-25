@@ -11,6 +11,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var _ = require('underscore');
   var AuthErrors = require('lib/auth-errors');
   var BaseAuthenticationBroker = require('models/auth_brokers/base');
   var ChannelMixin = require('models/auth_brokers/mixins/channel');
@@ -194,13 +195,26 @@ define(function (require, exports, module) {
        * login. Since `unwrapBKey` and `keyFetchToken` are not persisted to
        * disk, the passed in account lacks these items. The browser can't
        * do anything without this data, so don't actually send the message.
+       *
+       * Also works around #3514. With e10s enabled, localStorage in
+       * about:accounts and localStorage in the verification page are not
+       * shared. This lack of shared state causes the original tab of
+       * a password reset from about:accounts to not have all the
+       * required data. The verification tab sends a WebChannel message
+       * already, so no need here too.
        */
-      if (! account.get('keyFetchToken') ||
-          ! account.get('unwrapBKey')) {
+      var loginData = this._getLoginData(account);
+      if (! this._hasRequiredLoginFields(loginData)) {
         return p();
       }
 
-      return this.send(this.getCommand('LOGIN'), this._getLoginData(account));
+      return this.send(this.getCommand('LOGIN'), loginData);
+    },
+
+    _hasRequiredLoginFields: function (loginData) {
+      var requiredFields = FxSyncAuthenticationBroker.REQUIRED_LOGIN_FIELDS;
+      var loginFields = Object.keys(loginData);
+      return ! _.difference(requiredFields, loginFields).length;
     },
 
     _getLoginData: function (account) {
@@ -235,6 +249,16 @@ define(function (require, exports, module) {
         });
       }
     }
+  }, {
+    REQUIRED_LOGIN_FIELDS: [
+      'customizeSync',
+      'email',
+      'keyFetchToken',
+      'sessionToken',
+      'uid',
+      'unwrapBKey',
+      'verified'
+    ]
   });
 
   Cocktail.mixin(
