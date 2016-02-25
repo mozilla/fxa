@@ -1,4 +1,4 @@
-FROM node:0.10.41
+FROM node:0.10.42
 
 # install libgmp-dev for fast crypto and 
 RUN apt update && \
