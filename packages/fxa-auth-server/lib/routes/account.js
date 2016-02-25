@@ -91,12 +91,13 @@ module.exports = function (
         log.begin('Account.create', request)
 
         var form = request.payload
+        var query = request.query
         var email = form.email
         var authSalt = crypto.randomBytes(32)
         var authPW = Buffer(form.authPW, 'hex')
         var locale = request.app.acceptLanguage
         var userAgentString = request.headers['user-agent']
-        var service = form.service || request.query.service
+        var service = form.service || query.service
         var preVerified, password, verifyHash, account, sessionToken, device
 
         customs.check(request.app.clientAddress, email, 'accountCreate')
@@ -204,7 +205,8 @@ module.exports = function (
             email: account.email,
             emailCode: account.emailCode,
             emailVerified: account.emailVerified,
-            verifierSetAt: account.verifierSetAt
+            verifierSetAt: account.verifierSetAt,
+            createdAt: optionallyOverrideCreatedAt()
           }, userAgentString)
             .then(
               function (result) {
@@ -213,10 +215,17 @@ module.exports = function (
             )
         }
 
+        function optionallyOverrideCreatedAt () {
+          var createdAt = parseInt(query._createdAt)
+          if (createdAt < Date.now() && ! config.isProduction) {
+            return createdAt
+          }
+        }
+
         function sendVerifyCode () {
           if (! account.emailVerified) {
             mailer.sendVerifyCode(account, account.emailCode, {
-              service: form.service || request.query.service,
+              service: form.service || query.service,
               redirectTo: form.redirectTo,
               resume: form.resume,
               acceptLanguage: request.app.acceptLanguage
@@ -253,7 +262,7 @@ module.exports = function (
             response.device = butil.unbuffer(device)
           }
 
-          if (request.query.keys !== 'true') {
+          if (query.keys !== 'true') {
             return P.resolve(response)
           }
 
@@ -814,7 +823,7 @@ module.exports = function (
           schema: isA.array().items(isA.object({
             id: isA.string().length(32).regex(HEX_STRING).required(),
             isCurrentDevice: isA.boolean().required(),
-            lastAccessTime: isA.number().positive(),
+            lastAccessTime: isA.number().min(0).required(),
             name: isA.string().max(255).required(),
             type: isA.string().max(16).required(),
             pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow('').allow(null),
