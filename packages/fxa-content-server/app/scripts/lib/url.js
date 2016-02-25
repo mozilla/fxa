@@ -20,7 +20,7 @@ define(function (require, exports, module) {
 
     _.each(pairs, function (pair) {
       var keyValue = pair.split('=');
-      terms[keyValue[0]] = decodeURIComponent(keyValue[1]);
+      terms[keyValue[0]] = decodeURIComponent(keyValue[1]).trim();
     });
 
     if (! whitelist) {
@@ -63,6 +63,10 @@ define(function (require, exports, module) {
     },
 
     getOrigin: function (url) {
+      if (! url) {
+        return '';
+      }
+
       // The URL API is only supported by new browsers, a workaround is used.
       var anchor = document.createElement('a');
 

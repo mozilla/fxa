@@ -96,8 +96,8 @@ define(function (require, exports, module) {
 
           // A relier can indicate they do not want to allow
           // cached credentials if they set email === 'blank'
-          if (self.getSearchParam('email') ===
-              Constants.DISALLOW_CACHED_CREDENTIALS) {
+          var email = self.getSearchParam('email');
+          if (email === Constants.DISALLOW_CACHED_CREDENTIALS) {
             self.set('allowCachedCredentials', false);
           } else {
             self.importSearchParam('email');

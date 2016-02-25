@@ -20,7 +20,7 @@ define(function (require, exports, module) {
 
     var SERVICE = 'service';
     var PREVERIFY_TOKEN = 'abigtoken';
-    var EMAIL = 'email';
+    var EMAIL = 'email@moz.org';
     var UID = 'uid';
     var ENTRYPOINT = 'preferences';
     var CAMPAIGN = 'fennec';

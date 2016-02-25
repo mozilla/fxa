@@ -13,11 +13,15 @@ define(function (require, exports, module) {
   // taken from the fxa-auth-server
   var HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/;
 
-  var VALID_PROMPT_VALUES = [
-    Constants.OAUTH_PROMPT_CONSENT
-  ];
+  // URL RegEx taken from http://blog.mattheworiordan.com/post/13174566389/url-regular-expression-for-links-with-or-without
+  // jscs:disable maximumLineLength
+  var urlRegEx = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/;
+  // jscs:enable maximumLineLength
 
-  module.exports = {
+  // URN Regex
+  var urnRegEx = /^urn:[a-zA-Z0-9][a-zA-Z0-9-]{1,31}:([a-zA-Z0-9()+,.:=@;$_!*'-]|%[0-9A-Fa-f]{2})+$/;
+
+  var self = {
     /**
      * Check if an email address is valid
      *
@@ -39,13 +43,13 @@ define(function (require, exports, module) {
       // IETF spec: http://tools.ietf.org/html/rfc5321#section-4.5.3.1.1
       // NOTE: this does *NOT* allow internationalized domain names.
       return (/^[\w.!#$%&'*+\-\/=?\^`{|}~]+@[a-z\d][a-z\d\-]*(?:\.[a-z\d][a-z\d\-]*)*$/i).test(email) &&
-             // total email allwed to be 256 bytes long
-             email.length <= 256 &&
-             // local side only allowed to be 64 bytes long
-             1 <= localLength && localLength <= 64 &&
-             // domain side allowed to be up to 255 bytes long which
-             // doesn't make much sense unless the local side has 0 length;
-             1 <= domainLength && domainLength <= 255;
+          // total email allwed to be 256 bytes long
+        email.length <= 256 &&
+          // local side only allowed to be 64 bytes long
+        1 <= localLength && localLength <= 64 &&
+          // domain side allowed to be up to 255 bytes long which
+          // doesn't make much sense unless the local side has 0 length;
+        1 <= domainLength && domainLength <= 255;
     },
 
     /**
@@ -58,7 +62,7 @@ define(function (require, exports, module) {
 
       // codes are fixed length hex strings.
       return code.length === Constants.CODE_LENGTH &&
-             HEX_STRING.test(code);
+        HEX_STRING.test(code);
     },
 
     /**
@@ -96,7 +100,7 @@ define(function (require, exports, module) {
 
       // uids are fixed length hex strings.
       return uid.length === Constants.UID_LENGTH &&
-             HEX_STRING.test(uid);
+        HEX_STRING.test(uid);
     },
 
     /**
@@ -126,7 +130,7 @@ define(function (require, exports, module) {
      *     { foo: 'String', baz: { qux: 'Array', required: 'String' } }
      *   ); // returns false
      */
-    isDataValid: function isDataValid (data, schema) {
+    isDataValid: function isDataValid(data, schema) {
       if (! schema) {
         return false;
       }
@@ -159,9 +163,85 @@ define(function (require, exports, module) {
      * @returns {boolean}
      */
     isPromptValid: function (prompt) {
-      return ! prompt || _.contains(VALID_PROMPT_VALUES, prompt);
+      var valid = [
+        Constants.OAUTH_PROMPT_CONSENT
+      ];
+
+      return _.contains(valid, prompt);
+    },
+
+    /**
+     * Check whether string is a url. Validates url with or
+     * without http(s) and trailing slash.
+     *
+     * http://blog.mattheworiordan.com/post/13174566389/url-regular-expression-for-links-with-or-without
+     *
+     * @param url  - url to check
+     * @returns {boolean}
+     */
+    isUrlValid: function isUrlValid(url) {
+      return urlRegEx.test(url);
+    },
+
+    /**
+     * Check if string is valid urn per RFC 2141.
+     *
+     * @param urn - urn to check
+     * @returns {boolean}
+     */
+    isUrnValid: function isUrnValid(urn) {
+      return urnRegEx.test(urn);
+    },
+
+    /**
+     * Check if string is valid uri.
+     *
+     * @param uri - uri to check
+     * @returns {boolean}
+     */
+    isUriValid: function isUriValid(uri) {
+      return self.isUrlValid(uri) || self.isUrnValid(uri);
+    },
+
+    /**
+     * Check if string is valid access type, either "online" or "offline".
+     *
+     * @param accessType
+     * @returns {boolean}
+     */
+    isAccessTypeValid: function isAccessTypeValid(accessType) {
+      var valid = [
+        Constants.ACCESS_TYPE_OFFLINE,
+        Constants.ACCESS_TYPE_ONLINE
+      ];
+      return _.contains(valid, accessType);
+    },
+
+    /**
+     * Checks if value is composed of only hex characters.
+     *
+     * @param value
+     * @returns {boolean}
+     */
+    isHexValid: function isHexValid(value) {
+      return HEX_STRING.test(value);
+    },
+
+    /**
+     * Check if the verification redirect value is valid
+     *
+     * @param value
+     * @returns {boolean}
+     */
+    isVerificationRedirectValid: function isVerificationRedirectValid(value) {
+      var valid = [
+        Constants.VERIFICATION_REDIRECT_ALWAYS,
+        Constants.VERIFICATION_REDIRECT_NO
+      ];
+
+      return _.contains(valid, value);
     }
   };
+
+  module.exports = self;
 });
-
-
