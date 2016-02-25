@@ -406,6 +406,16 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Check if user exists by stored email.
+     *
+     * @returns {promise} - resolves when complete
+     */
+    checkAccountEmailExists: function () {
+      var email = this.get('email');
+      return this._fxaClient.checkAccountExistsByEmail(email);
+    },
+
+    /**
      * Sign out the user
      *
      * @returns {promise} - resolves when complete

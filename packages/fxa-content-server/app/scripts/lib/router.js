@@ -31,6 +31,7 @@ define(function (require, exports, module) {
   var LegalView = require('../views/legal');
   var OpenIdLoginView = require('../views/openid/login');
   var OpenIdStartView = require('../views/openid/start');
+  var p = require('./promise');
   var PermissionsView = require('../views/permissions');
   var PpView = require('../views/pp');
   var ReadyView = require('../views/ready');
@@ -159,17 +160,57 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Redirect the user to the best suitable OAuth flow
+     * Redirect the user to the best suitable OAuth flow.
+     * If email parameter is available, it will check to see if an
+     * an account associated with it and navigate to signin/signup page.
      */
     redirectToBestOAuthChoice: function () {
-      var account = this.user.getChooserAccount();
-      var route = '/oauth/signin';
+      var self = this;
+      var route;
 
-      if (account.isDefault()) {
-        route = '/oauth/signup';
+      // Attempt to get email address from relier
+      var email = self.broker.relier.get('email');
+      var deferred = p.defer();
+
+      if (email) {
+        // Attempt to get account status of email and navigate
+        // to correct signin/signup page if exists.
+        var account = self.user.initAccount({ email: email });
+        account.checkAccountEmailExists()
+          .then(function (exists) {
+            if (exists) {
+              deferred.resolve('/oauth/signin');
+            } else {
+              deferred.resolve('/oauth/signup');
+            }
+          }, function (err) {
+            // The error here is a throttling error or server error (500). In either case,
+            // we don't want to stop the user from navigating to a signup/signin page.
+            // Instead, we fallback to choosing navigation page based on
+            // whether account is a default account. Swallow and log error.
+            self.logError(err);
+            deferred.resolve();
+          });
+      } else {
+        // If no email in relier, choose navigation page based on
+        // whether account is a default account.
+        deferred.resolve();
       }
 
-      return this.navigate(route, { replace: true, trigger: true });
+      return deferred.promise
+        .then(function (result) {
+          if (! result) {
+            if (self.user.getChooserAccount().isDefault()) {
+              route = '/oauth/signup';
+            } else {
+              route = '/oauth/signin';
+            }
+          } else {
+            route = result;
+          }
+
+          return self.navigate(route, { replace: true, trigger: true });
+        });
     },
 
     /**

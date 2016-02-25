@@ -22,11 +22,7 @@ define([
   var client;
 
   function verifyUser(user, index) {
-    return FunctionalHelpers.getVerificationHeaders(user, index)
-      .then(function (headers) {
-        var code = headers['x-verify-code'];
-        return client.verifyCode(accountData.uid, code);
-      });
+    return FunctionalHelpers.verifyUser(user,  index, client, accountData);
   }
 
   function fillOutSignIn(context, email, password) {

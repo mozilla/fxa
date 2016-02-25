@@ -112,6 +112,19 @@ define(function (require, exports, module) {
           });
     },
 
+    /**
+     * Check whether an account exists for the given email.
+     */
+    checkAccountExistsByEmail: function (email) {
+      return this._getClient()
+        .then(function (client) {
+          return client.accountStatusByEmail(email)
+            .then(function (status) {
+              return status.exists;
+            });
+        });
+    },
+
     _getUpdatedSessionData: function (email, relier, accountData, options) {
       var sessionTokenContext = options.sessionTokenContext;
       if (! sessionTokenContext && relier.isSync()) {
