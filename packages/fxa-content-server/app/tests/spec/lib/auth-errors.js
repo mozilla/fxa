@@ -32,6 +32,33 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('toInvalidParameterError', function () {
+      var err;
+
+      before(function () {
+        err = AuthErrors.toInvalidParameterError('param name', AuthErrors);
+      });
+
+      it('creates an INVALID_PARAMTER Error', function () {
+        assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
+        assert.equal(err.param, 'param name');
+      });
+    });
+
+    describe('toMissingParameterError', function () {
+      var err;
+
+      before(function () {
+        err = AuthErrors.toMissingParameterError('param name', AuthErrors);
+      });
+
+      it('creates an MISSING_PARAMTER Error', function () {
+        assert.isTrue(AuthErrors.is(err, 'MISSING_PARAMETER'));
+        assert.equal(err.param, 'param name');
+      });
+    });
+
+
     describe('toMessage', function () {
       it('converts a code to a message', function () {
         assert.equal(AuthErrors.toMessage(102), 'Unknown account');

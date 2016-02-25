@@ -34,6 +34,9 @@ define(function (require, exports, module) {
   //   * http://tools.ietf.org/html/rfc5321#section-4.5.3.1.1
   var emailRegex = /^[\w.!#$%&’*+/=?^`{|}~-]{1,64}@[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?(?:\.[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?)+$/i;
 
+  // A Base64 encoded JWT
+  var BASE64_JWT = /^(?:[a-zA-Z0-9-_]+[=]{0,2}\.){2}[a-zA-Z0-9-_]+[=]{0,2}$/;
+
   var self = {
     /**
      * Check if an email address is valid
@@ -233,7 +236,7 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Check if the verification redirect value is valid
+     * Check if the verification redirect value is valid.
      *
      * @param value
      * @returns {boolean}
@@ -245,6 +248,16 @@ define(function (require, exports, module) {
       ];
 
       return _.contains(valid, value);
+    },
+
+    /**
+     * Check if a JSON Web Token (JWT) is valid.
+     *
+     * @param value
+     * @returns {boolean}
+     */
+    isBase64JwtValid: function isJwtValid(value) {
+      return BASE64_JWT.test(value);
     }
   };
 

@@ -9,6 +9,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var Transform = require('lib/transform');
   var Url = require('lib/url');
 
   module.exports = {
@@ -16,75 +17,43 @@ define(function (require, exports, module) {
      * Get a value from the URL search parameter
      *
      * @param {String} paramName - name of the search parameter to get
+     * @returns {String}
      */
     getSearchParam: function (paramName) {
       return Url.searchParam(paramName, this.window.location.search);
     },
 
     /**
-     * Set a value based on a value in window.location.search. Only updates
-     * model if parameter exists in window.location.search.
+     * Get values from the URL search parameters.
      *
-     * @param {String} paramName - name of the search parameter
-     * @param {String} [modelName] - name to set in model. If not specified,
-     *      use the same value as `paramName`
+     * @param {array of Strings} paramNames - name of the search parameters
+     * to get
+     * @returns {Object}
      */
-    importSearchParam: function (paramName, modelName) {
-      modelName = modelName || paramName;
-
-      var value = this.getSearchParam(paramName);
-      if (typeof value !== 'undefined') {
-        this.set(modelName, value);
-      }
+    getSearchParams: function (paramNames) {
+      return Url.searchParams(this.window.location.search, paramNames);
     },
 
     /**
-     * Import a boolean search parameter. Search parameter must be `true`
-     * nor `false` or model item will not be set.
+     * Import search parameters defined in the schema. Parameters are
+     * transformed and validated based on the rules defined in the `schema`.
      *
-     * @param {String} paramName - name of the search parameter
-     * @param {String} [modelName] - name to set in model. If not specified,
-     *      use the same value as `paramName`
-     * @param {Errors} Errors - corresponding Errors object
-     * @throws {error}
+     * @param {Object} schema - schema used to define data to import
+     * and validate against
+     * @param {Object} Errors - errors object used to generate errors
+     * @throws
+     * If a required field is missing from the data, a
+     * `MISSING_ERROR` error is generated, with the error's
+     * `param` field set to the missing field's name.
+     *
+     * If a field does not pass validation, an
+     * `INVALID_PARAMETER` error is generated, with the error's
+     * `param` field set to the invalid field's name.
      */
-    importBooleanSearchParam: function (paramName, modelName, Errors) {
-      modelName = modelName || paramName;
-      var self = this;
-
-      var textValue = self.getSearchParam(paramName);
-      if (typeof textValue !== 'undefined') {
-        if (textValue === 'true') {
-          self.set(modelName, true);
-        } else if (textValue === 'false') {
-          self.set(modelName, false);
-        } else {
-          var err = Errors.toError('INVALID_PARAMETER');
-          err.param = paramName;
-          throw err;
-        }
-      }
-    },
-
-    /**
-     * Set a value based on a value in window.location.search. Throws error
-     * if paramName param is not in window.location.search.
-     *
-     * Throws Error mapped to `MISSING_PARAMETER` in Errors object.
-     *
-     * @param {string} paramName - name of the search parameter
-     * @param {string} modelName - name to set in model
-     * @param {Errors} Errors - corresponding Errors object
-     * @throws {error}
-     */
-    importRequiredSearchParam: function (paramName, modelName, Errors) {
-      var self = this;
-      self.importSearchParam(paramName, modelName);
-      if (! self.has(modelName || paramName)) {
-        var err = Errors.toError('MISSING_PARAMETER');
-        err.param = paramName;
-        throw err;
-      }
+    importSearchParamsUsingSchema: function (schema, Errors) {
+      var params = this.getSearchParams(Object.keys(schema));
+      var result = Transform.transformUsingSchema(params, schema, Errors);
+      this.set(result);
     }
   };
 });

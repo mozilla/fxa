@@ -48,6 +48,7 @@ require.config({
     text: '../bower_components/requirejs-text/text',
     underscore: '../bower_components/underscore/underscore',
     uuid: '../bower_components/node-uuid/uuid',
+    vat: '../bower_components/vat/vat',
     webrtc: '../bower_components/webrtc-adapter/adapter'
   },
   shim: {

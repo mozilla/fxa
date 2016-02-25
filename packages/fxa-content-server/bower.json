@@ -36,7 +36,8 @@
     "speed-trap": "0.0.5",
     "tos-pp": "https://github.com/mozilla/legal-docs.git",
     "underscore": "1.8.3",
-    "webrtc-adapter": "0.2.5"
+    "webrtc-adapter": "0.2.5",
+    "vat": "0.0.5"
   },
   "devDependencies": {
     "moment": "2.8.3"

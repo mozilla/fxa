@@ -10,12 +10,18 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
+  var AuthErrors = require('lib/auth-errors');
   var Backbone = require('backbone');
+  var Cocktail = require('cocktail');
   var NullBehavior = require('views/behaviors/null');
   var p = require('lib/promise');
   var SameBrowserVerificationModel = require('models/verification/same-browser');
   var SearchParamMixin = require('models/mixins/search-param');
+  var Vat = require('lib/vat');
+
+  var QUERY_PARAMETER_SCHEMA = {
+    automatedBrowser: Vat.boolean()
+  };
 
   var BaseAuthenticationBroker = Backbone.Model.extend({
     type: 'base',
@@ -85,7 +91,7 @@ define(function (require, exports, module) {
       return p()
         .then(function () {
           self._isForceAuth = self._isForceAuthUrl();
-          self.importBooleanSearchParam('automatedBrowser');
+          self.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
         });
     },
 
@@ -409,7 +415,10 @@ define(function (require, exports, module) {
     verificationInfo.clear();
   }
 
-  _.extend(BaseAuthenticationBroker.prototype, SearchParamMixin);
+  Cocktail.mixin(
+    BaseAuthenticationBroker,
+    SearchParamMixin
+  );
 
   module.exports = BaseAuthenticationBroker;
 });

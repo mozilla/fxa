@@ -61,6 +61,7 @@ function (Translator, Session) {
     '../tests/spec/lib/height-observer',
     '../tests/spec/lib/config-loader',
     '../tests/spec/lib/require-on-demand',
+    '../tests/spec/lib/transform',
     '../tests/spec/head/startup-styles',
     '../tests/spec/views/app',
     '../tests/spec/views/base',

@@ -11,12 +11,19 @@ define(function (require, exports, module) {
   'use strict';
 
   var _ = require('underscore');
+  var Cocktail = require('cocktail');
+  var OAuthErrors = require('lib/oauth-errors');
   var ChannelMixin = require('models/auth_brokers/mixins/channel');
   var OAuthAuthenticationBroker = require('models/auth_brokers/oauth');
   var p = require('lib/promise');
+  var Vat = require('lib/vat');
   var WebChannel = require('lib/channels/web');
 
   var proto = OAuthAuthenticationBroker.prototype;
+
+  var QUERY_PARAMETER_SCHEMA = {
+    webChannelId: Vat.string()
+  };
 
   var WebChannelAuthenticationBroker = OAuthAuthenticationBroker.extend({
     type: 'web-channel',
@@ -207,7 +214,7 @@ define(function (require, exports, module) {
     },
 
     _setupSigninSignupFlow: function () {
-      this.importSearchParam('webChannelId');
+      this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, OAuthErrors);
     },
 
     _setupVerificationFlow: function () {
@@ -223,6 +230,10 @@ define(function (require, exports, module) {
     }
   });
 
-  _.extend(WebChannelAuthenticationBroker.prototype, ChannelMixin);
+  Cocktail.mixin(
+    WebChannelAuthenticationBroker,
+    ChannelMixin
+  );
+
   module.exports = WebChannelAuthenticationBroker;
 });

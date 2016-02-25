@@ -536,19 +536,19 @@ define(function (require, exports, module) {
     });
 
     describe('_getErrorPage', function () {
-      it('returns BAD_REQUEST_PAGE for a missing OAuth parameter', function () {
-        var errorUrl = appStart._getErrorPage(OAuthErrors.toError('MISSING_PARAMETER'));
-        assert.include(errorUrl, Constants.BAD_REQUEST_PAGE);
-      });
+      var badRequestPageErrors = [
+        AuthErrors.toError('INVALID_PARAMETER'),
+        AuthErrors.toError('MISSING_PARAMETER'),
+        OAuthErrors.toError('INVALID_PARAMETER'),
+        OAuthErrors.toError('MISSING_PARAMETER'),
+        OAuthErrors.toError('UNKNOWN_CLIENT')
+      ];
 
-      it('returns BAD_REQUEST_PAGE for an invalid OAuth parameter', function () {
-        var errorUrl = appStart._getErrorPage(OAuthErrors.toError('INVALID_PARAMETER'));
-        assert.include(errorUrl, Constants.BAD_REQUEST_PAGE);
-      });
-
-      it('returns BAD_REQUEST_PAGE for an unknown OAuth client', function () {
-        var errorUrl = appStart._getErrorPage(OAuthErrors.toError('UNKNOWN_CLIENT'));
-        assert.include(errorUrl, Constants.BAD_REQUEST_PAGE);
+      badRequestPageErrors.forEach(function (err) {
+        it('redirects to BAD_REQUEST_PAGE for ' + err.message, function () {
+          var errorUrl = appStart._getErrorPage(OAuthErrors.toError('MISSING_PARAMETER'));
+          assert.include(errorUrl, Constants.BAD_REQUEST_PAGE);
+        });
       });
 
       it('returns INTERNAL_ERROR_PAGE by default', function () {
