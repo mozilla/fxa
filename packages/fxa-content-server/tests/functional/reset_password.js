@@ -5,7 +5,6 @@
 define([
   'intern',
   'intern!object',
-  'intern/chai!assert',
   'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
@@ -13,7 +12,7 @@ define([
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
   'tests/functional/lib/test'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest,
+], function (intern, registerSuite, require, nodeXMLHttpRequest,
       FxaClient, restmail, TestHelpers, FunctionalHelpers, Test) {
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
@@ -29,6 +28,11 @@ define([
   var code;
   var token;
   var client;
+
+  var click = FunctionalHelpers.click;
+  var testElementExists = FunctionalHelpers.testElementExists;
+  var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
+  var type = FunctionalHelpers.type;
 
   var createRandomHexString = TestHelpers.createRandomHexString;
 
@@ -138,32 +142,21 @@ define([
         .get(require.toUrl(SIGNIN_PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
 
-        .findByCssSelector('input[type="email"]')
-          .clearValue()
-          .click()
-          .type(email)
-        .end()
+        .then(type('input[type="email"]', email))
 
-        .findByCssSelector('a[href="/reset_password"]')
-          .click()
-        .end()
+        .then(click('a[href="/reset_password"]'))
 
         .findById('fxa-reset-password-header')
         .end()
 
-        // ensure there is a back button
-        .findById('back')
-        .end()
+        // ensure there is a signin button
+        .then(testElementExists('a[href="/signin"]'))
 
-        // email should be pre-filled
-        .findByCssSelector('input[type="email"]')
-          .getAttribute('value')
-          .then(function (resultText) {
-            // check the email address was written
-            assert.equal(resultText, email);
-          })
-        .end()
+        // ensure there is a link to `Learn how Sync works`
+        .then(testElementExists('a[href="https://support.mozilla.org/en-US/products/firefox/sync"]'))
 
+        // email should not be pre-filled
+        .then(testElementValueEquals('input[type="email"]', ''))
 
         .then(function () {
           return fillOutResetPassword(self, email);
@@ -181,26 +174,15 @@ define([
         .get(require.toUrl(SIGNIN_PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
 
-        .findByCssSelector('input[type=email]')
-          .click()
-          .clearValue()
-          .type(email)
-        .end()
+        .then(type('input[type=email]', email))
 
-        .findByCssSelector('a[href="/reset_password"]')
-          .click()
-        .end()
+        .then(click('a[href="/reset_password"]'))
 
         .findById('fxa-reset-password-header')
         .end()
 
-        .findByCssSelector('input[type=email]')
-          .getAttribute('value')
-          .then(function (resultText) {
-            // check the email address was written
-            assert.equal(resultText, email);
-          })
-        .end();
+        // Email should not be written
+        .then(testElementValueEquals('input[type=email]', ''));
     },
 
 
@@ -362,8 +344,7 @@ define([
 
       return FunctionalHelpers.fillOutResetPassword(self, email)
 
-        .findByCssSelector('#fxa-confirm-reset-password-header')
-        .end()
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
 
         // user browses to another site.
         .then(FunctionalHelpers.openExternalSite(self))
@@ -396,8 +377,7 @@ define([
 
       return FunctionalHelpers.fillOutResetPassword(self, email)
 
-        .findByCssSelector('#fxa-confirm-reset-password-header')
-        .end()
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
 
         .then(function () {
           return FunctionalHelpers.getVerificationLink(email, 0);
@@ -435,8 +415,7 @@ define([
 
         // user verified in a new browser, they have to enter
         // their updated credentials in the original tab.
-        .findByCssSelector('#fxa-signin-header')
-        .end()
+        .then(testElementExists('#fxa-signin-header'))
 
         .then(FunctionalHelpers.testSuccessWasShown(self))
 
@@ -444,13 +423,10 @@ define([
           .type(PASSWORD)
         .end()
 
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(click('button[type="submit"]'))
 
         // no success message, the user should have seen that above.
-        .findByCssSelector('#fxa-settings-header')
-        .end();
+        .then(testElementExists('#fxa-settings-header'));
     },
 
     'reset password, verify in a different browser, from the new browser\'s P.O.V.': function () {
@@ -461,7 +437,6 @@ define([
 
         .findById('fxa-confirm-reset-password-header')
         .end()
-
 
         .then(function () {
           // clear all browser state, simulate opening in a new
@@ -528,16 +503,13 @@ define([
 
             .then(FunctionalHelpers.testSuccessWasShown(self))
 
-            .findByCssSelector('#signout')
-              .click()
-            .end()
+            .then(click('#signout'))
 
             .then(function () {
               return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
             })
 
-            .findByCssSelector('#fxa-settings-header')
-            .end();
+            .then(testElementExists('#fxa-settings-header'));
         });
     }
   });
@@ -617,20 +589,17 @@ define([
       return this.remote
         .get(require.toUrl(url))
         .setFindTimeout(intern.config.pageLoadTimeout)
-        .findByCssSelector('form input.email')
-          .getAttribute('value')
-          .then(function (resultText) {
-            // email address should be pre-filled from the query param.
-            assert.equal(resultText, email);
-          })
-        .end()
+
+        // email address should not be pre-filled from the query param.
+        .then(testElementValueEquals('form input.email'), '')
 
         // ensure there is no back button when browsing directly to page
         .then(Test.noElementById(self, 'fxa-tos-back'))
 
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        // fill in email
+        .then(type('form input.email', email))
+
+        .then(click('button[type="submit"]'))
 
         .findById('fxa-confirm-reset-password-header')
         .end();
@@ -682,20 +651,14 @@ define([
       return fillOutResetPassword(this, email)
         // The error area shows a link to /signup
         .then(FunctionalHelpers.visibleByQSAErrorHeight('.error a[href="/signup"]'))
-        .findByCssSelector('.error a[href="/signup"]')
-          .click()
-        .end()
+
+        .then(click('.error a[href="/signup"]'))
 
         .findById('fxa-signup-header')
         .end()
 
-        .findByCssSelector('input[type=email]')
-          .getAttribute('value')
-          .then(function (resultText) {
-            // check the email address was written
-            assert.equal(resultText, email);
-          })
-        .end();
+        // check the email address was written
+        .then(testElementValueEquals('input[type=email]', email));
     }
   });
 });

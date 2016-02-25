@@ -46,7 +46,7 @@
       &:hover {
         border-color: $input-row-hover-border-color;
       }
-      
+
       &:focus {
         border-color: $input-row-focus-border-color;
       }
@@ -78,6 +78,10 @@
     color: $input-placeholder-color;
     margin-top: 6px;
     transition: opacity $medium-transition;
+
+    &.input-help-complete-password {
+      text-align: center;
+    }
 
     @include respond-to('small') {
       font-size: $small-font;

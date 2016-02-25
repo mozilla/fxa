@@ -41,7 +41,7 @@ define(function (require, exports, module) {
   t('Forgot password');
   t('When you reset your password, you will lose any Sync data that is not on one of your devices.');
   t('Learn how Sync works.');
-  t('Reset Password');
+  t('Reset password');
   t('Click the button within the next hour to set a new password for your Firefox Account.');
   t('You may need to enter your new password on other devices connected to Firefox Sync.');
   t('Your password has been reset.');
