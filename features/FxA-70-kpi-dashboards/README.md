@@ -298,12 +298,11 @@ by the FxA servers:
 * **account.created**: emitted when a signup is successfully completed
 * **account.login**: emitted when a signin is successfully completed
 * **account.verified**: emitted when the account email is successfully verified
+* **account.keyfetch**: emitted when encryption keys are successfully fetched
 * **account.reset**: emitted when an account reset is successfully completed
 * **account.deleted**: emitted when an account deletion is successfully completed
 * **account.signed**: emitted when a certificate is successfully signed
 * **device.created**: emitted when a device record is successfully created
-* **device.connected**: emitted when a device is successfully fetches encryption keys
-* **device.disconnected**: emitted when a device has its session token revoked
 * **device.deleted**: emitted when a device record is successfully deleted
 
 Some example event data
@@ -399,7 +398,7 @@ might look like the following:
     <td>1456434160275</td>
     <td>e17f606faf93812dfc45bdb308390119</td>
     <td>20412</td>
-    <td>device.connected</td>
+    <td>account.keyfetch</td>
     <td>1161b57840f20ad4ea19ea0a87a99632</td>
     <td>3ccdd1cb9c3bee8a2d1750c4754d00c6</td>
     <td>1</td>
@@ -536,9 +535,10 @@ of device connection:
       ) AS begun,
       (SELECT COUNT(\*)
        FROM events
-       WHERE type = 'device.connected'
+       WHERE type = 'account.keyfetch'
          AND timestamp > [previous UTC midnight]
          AND timestamp <= [current UTC midnight]
+         AND deviceId IS NOT NULL
          AND service = "sync"
       ) AS completed;
 
@@ -553,7 +553,7 @@ We'll need to:
       so that it can be emitted on subsequent activity events.
 * [ ] Generate reliable device ids for devices that don't explicitly register
       themselves with our API.
-* [ ] Add new 'device.connected' and 'device.disconnected' activity events.
+* [ ] Add new device-related activity events.
 * [ ] Work with ops and datapipeline team to get activity events into redshift.
 * [ ] Develop queries and ensure they get run on a daily basis.
 * [ ] Propose and get approval for retention policy of event data and aggregates.
