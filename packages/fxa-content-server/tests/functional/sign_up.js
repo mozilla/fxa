@@ -270,6 +270,21 @@ define([
         .end();
     },
 
+    'signup with invalid email address': function () {
+      return this.remote
+        .then(fillOutSignUp(this, email + '-', PASSWORD))
+
+        // wait five seconds to allow any errant navigation to occur
+        .sleep(5000)
+
+        // navigation should not occur
+        .findByCssSelector('#fxa-signup-header')
+        .end()
+
+        // the validation tooltip should be visible
+        .then(FunctionalHelpers.visibleByQSA('.tooltip'));
+    },
+
     'signup with existing account, coppa is valid, credentials are correct': function () {
       return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD)
 

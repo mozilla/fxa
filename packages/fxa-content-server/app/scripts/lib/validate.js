@@ -21,6 +21,19 @@ define(function (require, exports, module) {
   // URN Regex
   var urnRegEx = /^urn:[a-zA-Z0-9][a-zA-Z0-9-]{1,31}:([a-zA-Z0-9()+,.:=@;$_!*'-]|%[0-9A-Fa-f]{2})+$/;
 
+  // Email regex, accepts punycoded addresses. See:
+  //   * http://blog.gerv.net/2011/05/html5_email_address_regexp/
+  // Modifications:
+  //   * Use case-insensitive regex, delete explicit `A-Z` ranges
+  //   * Replace `0-9` ranges with `\d`
+  //   * Replace `a-z` range and `_` in local part with `\w`
+  //   * Replace `+` in local part with {1,64}
+  //   * Replace final domain part `*` with `+`, to enforce at least one period
+  //     in the domain (https://github.com/mozilla/fxa-content-server/issues/2199)
+  // IETF spec:
+  //   * http://tools.ietf.org/html/rfc5321#section-4.5.3.1.1
+  var emailRegex = /^[\w.!#$%&’*+/=?^`{|}~-]{1,64}@[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?(?:\.[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?)+$/i;
+
   var self = {
     /**
      * Check if an email address is valid
@@ -28,28 +41,20 @@ define(function (require, exports, module) {
      * @return true if email is valid, false otw.
      */
     isEmailValid: function (email) {
-      if (typeof email !== 'string') {
+      if (typeof email !== 'string' || email.length > 256) {
         return false;
       }
 
-      var parts = email.split('@');
+      // At this point, we could punycode the email and pass it to
+      // the regex, thus validating unicode addresses. However, doing
+      // that would break Firefox versions 45 and lower, because of
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=1243594. So, in
+      // order to support unicode email addresses in the future, we'll
+      // have to pass the punycoded address in all our dealings with
+      // the browser and the non-punycoded address in our dealings with
+      // the auth server. :-/
 
-      var localLength = parts[0] && parts[0].length;
-      var domainLength = parts[1] && parts[1].length;
-
-      // Original regexp from:
-      //  http://blog.gerv.net/2011/05/html5_email_address_regexp/
-      // Modified to remove the length checks, which are done later.
-      // IETF spec: http://tools.ietf.org/html/rfc5321#section-4.5.3.1.1
-      // NOTE: this does *NOT* allow internationalized domain names.
-      return (/^[\w.!#$%&'*+\-\/=?\^`{|}~]+@[a-z\d][a-z\d\-]*(?:\.[a-z\d][a-z\d\-]*)*$/i).test(email) &&
-          // total email allwed to be 256 bytes long
-        email.length <= 256 &&
-          // local side only allowed to be 64 bytes long
-        1 <= localLength && localLength <= 64 &&
-          // domain side allowed to be up to 255 bytes long which
-          // doesn't make much sense unless the local side has 0 length;
-        1 <= domainLength && domainLength <= 255;
+      return emailRegex.test(email);
     },
 
     /**

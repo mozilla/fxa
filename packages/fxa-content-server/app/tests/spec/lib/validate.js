@@ -16,16 +16,67 @@ define(function (require, exports, module) {
 
   describe('lib/validate', function () {
     describe('isEmailValid', function () {
-      it('returns false for email without a domain', function () {
-        assert.isFalse(Validate.isEmailValid('a'));
-      });
-
-      it('returns true for email with a one part domain', function () {
-        assert.isTrue(Validate.isEmailValid('a@b'));
-      });
-
       it('returns true for valid email', function () {
         assert.isTrue(Validate.isEmailValid('a@b.c'));
+      });
+
+      it('returns false for email without a local part', function () {
+        assert.isFalse(Validate.isEmailValid('@b.c'));
+      });
+
+      it('returns false for email without a domain', function () {
+        assert.isFalse(Validate.isEmailValid('a@'));
+      });
+
+      it('returns false for email with a single-part domain', function () {
+        assert.isFalse(Validate.isEmailValid('a@b'));
+      });
+
+      it('returns true for email with 64-character local part', function () {
+        assert.isTrue(Validate.isEmailValid(createRandomHexString(64) + '@b.c'));
+      });
+
+      it('returns false for email with 65-character local part', function () {
+        assert.isFalse(Validate.isEmailValid(createRandomHexString(65) + '@b.c'));
+      });
+
+      it('returns true for email with 256 characters', function () {
+        assert.isTrue(Validate.isEmailValid('a@' + createRandomHexString(252) + '.b'));
+      });
+
+      it('returns false for email with 257 characters', function () {
+        assert.isFalse(Validate.isEmailValid('a@' + createRandomHexString(253) + '.b'));
+      });
+
+      it('returns true for valid emails from auth server tests', function () {
+        [
+          'tim@tim-example.net',
+          'a+b+c@wibble.example.com',
+          '#!?-@t-e-s-t.c-o-m',
+          // The next two test cases are commented out until we support
+          // unicode email addresses in the content server.
+          //String.fromCharCode(1234) + '@example.com',
+          //'test@' + String.fromCharCode(5678) + '.com'
+        ].forEach(function (email) {
+          assert.isTrue(Validate.isEmailValid(email), email + ' should be valid');
+        });
+      });
+
+      it('returns false for invalid emails from auth server tests', function () {
+        [
+          'notAnEmailAddress',
+          '\n@example.com',
+          'me@hello world.com',
+          'me@hello+world.com',
+          'me@.example',
+          'me@example.com-',
+          'me@example..com',
+          'me@-example-.com',
+          'me@example-.com',
+          'me@example.-com'
+        ].forEach(function (email) {
+          assert.isFalse(Validate.isEmailValid(email), email + ' should not be valid');
+        });
       });
     });
 
