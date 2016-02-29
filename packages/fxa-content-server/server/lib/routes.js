@@ -129,7 +129,10 @@ module.exports = function (config, i18n) {
       '/oauth/': true,
       '/oauth/force_auth': true,
       '/oauth/signin': true,
-      '/oauth/signup': true
+      '/oauth/signup': true,
+      '/reset_password': true,
+      '/signin': true,
+      '/signup': true
     };
 
     FRONTEND_ROUTES.forEach(function (route) {

@@ -103,6 +103,10 @@ define([
     '/oauth/signin',
     '/oauth/signup',
     '/oauth/force_auth',
+    '/reset_password',
+    '/v1/reset_password',
+    '/signin',
+    '/signup',
     '/500.html',
     '/502.html',
     '/503.html'
