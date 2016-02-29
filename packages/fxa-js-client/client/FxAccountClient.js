@@ -16,7 +16,7 @@ define([
   var HKDF_SIZE = 2 * 32;
 
   function required(val, name) {
-    if (!val) {
+    if (!val || val === {}) {
       throw new Error('Missing ' + name);
     }
   }
@@ -610,7 +610,7 @@ define([
   };
 
   /**
-   * Gets the status of an account
+   * Gets the status of an account by uid.
    *
    * @method accountStatus
    * @param {String} uid User account id
@@ -620,6 +620,19 @@ define([
     required(uid, 'uid');
 
     return this.request.send('/account/status?uid=' + uid, 'GET');
+  };
+
+  /**
+   * Gets the status of an account by email.
+   *
+   * @method accountStatusByEmail
+   * @param {String} email User account email
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
+  FxAccountClient.prototype.accountStatusByEmail = function(email) {
+    required(email, 'email');
+
+    return this.request.send('/account/status', 'POST', null, {email: email});
   };
 
   /**
