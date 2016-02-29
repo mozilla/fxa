@@ -196,7 +196,7 @@ TestServer.start(config)
                   t.equal(device.name, deviceInfo.name, 'device.name is correct')
                   t.equal(device.type, deviceInfo.type, 'device.type is correct')
                   t.equal(device.pushCallback, undefined, 'device.pushCallback is undefined')
-                  t.deepEqual(device.pushPublicKey, undefined, 'device.pushPublicKey is undefined')
+                  t.equal(device.pushPublicKey, undefined, 'device.pushPublicKey is undefined')
                 }
               )
               .then(
@@ -210,7 +210,7 @@ TestServer.start(config)
                   t.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
                   t.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
                   t.equal(devices[0].pushCallback, null, 'devices returned undefined pushCallback')
-                  t.deepEqual(devices[0].pushPublicKey, null, 'devices returned undefined pushPublicKey')
+                  t.equal(devices[0].pushPublicKey, null, 'devices returned undefined pushPublicKey')
                   return client.destroyDevice(devices[0].id)
                 }
               )
@@ -230,7 +230,6 @@ TestServer.start(config)
             return client.updateDevice({ type: 'mobile' })
               .then(
                 function (r) {
-                  console.error('!!!!! PHIL !!!!! ' + Object.keys(r))
                   t.fail('request should have failed')
                 }
               )
@@ -334,6 +333,99 @@ TestServer.start(config)
               )
           }
         )
+    }
+  )
+
+  test(
+    // Regression test for https://github.com/mozilla/fxa-auth-server/issues/1197
+    'devices list, sessionToken.lastAccessTime === 0 (regression test for #1197)',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      var deviceInfo = {
+        name: 'test device',
+        type: 'mobile'
+      }
+      return Client.create(config.publicUrl, email, password, {
+        createdAt: '0',
+        device: deviceInfo
+      })
+      .then(
+        function (client) {
+          return client.devices()
+            .then(
+              function (devices) {
+                t.equal(devices.length, 1, 'devices returned one item')
+                t.strictEqual(devices[0].lastAccessTime, 0, 'devices returned correct lastAccessTime')
+                t.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
+                t.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
+                return client.destroyDevice(devices[0].id)
+              }
+            )
+        }
+      )
+    }
+  )
+
+  test(
+    'devices list, sessionToken.lastAccessTime === -1',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      var deviceInfo = {
+        name: 'test device',
+        type: 'mobile'
+      }
+      return Client.create(config.publicUrl, email, password, {
+        createdAt: '-1',
+        device: deviceInfo
+      })
+      .then(
+        function (client) {
+          return client.devices()
+            .then(
+              function (devices) {
+                t.equal(devices.length, 1, 'devices returned one item')
+                t.ok(devices[0].lastAccessTime > 0, 'devices returned correct lastAccessTime')
+                t.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
+                t.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
+                return client.destroyDevice(devices[0].id)
+              }
+            )
+        }
+      )
+    }
+  )
+
+  test(
+    'devices list, sessionToken.lastAccessTime === THE FUTURE',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      var deviceInfo = {
+        name: 'test device',
+        type: 'mobile'
+      }
+      var theFuture = Date.now() + 10000
+      return Client.create(config.publicUrl, email, password, {
+        createdAt: '' + theFuture,
+        device: deviceInfo
+      })
+      .then(
+        function (client) {
+          return client.devices()
+            .then(
+              function (devices) {
+                t.equal(devices.length, 1, 'devices returned one item')
+                t.ok(devices[0].lastAccessTime > 0, 'devices returned correct lastAccessTime')
+                t.ok(devices[0].lastAccessTime < theFuture, 'devices returned correct lastAccessTime')
+                t.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
+                t.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
+                return client.destroyDevice(devices[0].id)
+              }
+            )
+        }
+      )
     }
   )
 

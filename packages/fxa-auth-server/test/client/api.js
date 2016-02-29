@@ -547,7 +547,11 @@ function getQueryString (options) {
   }
 
   if (options.serviceQuery) {
-    qs += 'service=' + options.serviceQuery
+    qs += 'service=' + options.serviceQuery + '&'
+  }
+
+  if (options.createdAt) {
+    qs += '_createdAt=' + options.createdAt
   }
 
   return qs

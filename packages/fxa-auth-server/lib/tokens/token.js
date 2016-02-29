@@ -38,7 +38,7 @@ module.exports = function (log, crypto, P, hkdf, Bundle, error) {
     this.algorithm = 'sha256'
     this.uid = details.uid || null
     this.lifetime = details.lifetime || Infinity
-    this.createdAt = details.createdAt || Date.now()
+    this.createdAt = details.createdAt >= 0 ? details.createdAt : Date.now()
   }
 
   // Create a new token of the given type.
@@ -60,7 +60,6 @@ module.exports = function (log, crypto, P, hkdf, Bundle, error) {
           Token.deriveTokenKeys(TokenType, bytes)
             .then(
               function (keys) {
-                details.createdAt = Date.now()
                 d.resolve(new TokenType(keys, details || {}))
               }
             )
