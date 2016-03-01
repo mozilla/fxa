@@ -1,3 +1,8 @@
+0.57.0
+  * feat(api): Add check account status # 99
+  * fix(config): restore top-level "config" dir for $(NODE_ENV).json files. #100
+  * refactor(lib): Put all the code inside a "lib" subdirectory. #98
+
 0.55.0
   * chore(docs): remove misleading reference to awsbox #95
   * fix(travis): build and test on 0.10, 0.12 and 4.x #94
