@@ -1,3 +1,37 @@
+<a name="1.57.0"></a>
+# [1.57.0](https://github.com/mozilla/fxa-auth-server/compare/v1.56.0...v1.57.0) (2016-03-01)
+
+
+### Bug Fixes
+
+* **api:** permit lastAccessTime 0 in devices response ([4059323](https://github.com/mozilla/fxa-auth-server/commit/4059323))
+* **bounces:** Cope with quoted email addresses in bounce notifications. ([9b976e7](https://github.com/mozilla/fxa-auth-server/commit/9b976e7))
+* **config:** adjust localized post-verification links ([c7c73c9](https://github.com/mozilla/fxa-auth-server/commit/c7c73c9))
+* **deps:** Migrate to more up-to-date user-agent parsing lib. ([8106c8b](https://github.com/mozilla/fxa-auth-server/commit/8106c8b))
+* **e2e-email:** fix expected link s@/en-US/firefox/sync/@/firefox/sync/@ ([5396868](https://github.com/mozilla/fxa-auth-server/commit/5396868))
+* **logging:** Remove PII from logged error object details. ([9e4bcde](https://github.com/mozilla/fxa-auth-server/commit/9e4bcde))
+* **push:** add TTL to push requests ([ed98cc6](https://github.com/mozilla/fxa-auth-server/commit/ed98cc6)), closes [#1187](https://github.com/mozilla/fxa-auth-server/issues/1187)
+
+### Features
+
+* **api:** Add get account status by email endpoint ([5d7ca53](https://github.com/mozilla/fxa-auth-server/commit/5d7ca53))
+* **devices:** added fxa-deviceId to the signed certificate ([a866e8f](https://github.com/mozilla/fxa-auth-server/commit/a866e8f))
+* **logging:** Log hawk timestamp skew to statsd for easier analysis. ([0c153fb](https://github.com/mozilla/fxa-auth-server/commit/0c153fb))
+
+### Refactor
+
+* **bounces:** Make bounce-handling code testable, add some tests. ([a1da228](https://github.com/mozilla/fxa-auth-server/commit/a1da228))
+* **errors:** Define named constants for errno values. ([8680d22](https://github.com/mozilla/fxa-auth-server/commit/8680d22))
+* **tests:** Use a shared helper function for mocking out logging. ([52dc521](https://github.com/mozilla/fxa-auth-server/commit/52dc521))
+
+### chore
+
+* **dependencies:** upgrade mozlog to 2.0.3 ([afa5926](https://github.com/mozilla/fxa-auth-server/commit/afa5926))
+* **shrinkwrap:** update fxa-content-server-l10n to 4bf305a1 ([efeef25](https://github.com/mozilla/fxa-auth-server/commit/efeef25))
+* **test:** no need to test with node v0.12 ([3ae34da](https://github.com/mozilla/fxa-auth-server/commit/3ae34da))
+
+
+
 <a name="1.56.0"></a>
 # [1.56.0](https://github.com/mozilla/fxa-auth-server/compare/v1.55.1...v1.56.0) (2016-02-11)
 
