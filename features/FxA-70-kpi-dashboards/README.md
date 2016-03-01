@@ -246,12 +246,12 @@ All events will be generated server-side.
 
 All the events generated
 by a particular user interaction with FxA
-will be grouped into a "sequence"
+will be grouped into a "flow"
 via a shared random identifier.
 This will enable us to correlate events
 across time and across services.
 For example,
-a sequence might consist of individual events for
+a flow might consist of individual events for
 the user initiating a connection attempt,
 successfully creating an account,
 and successfully connecting their device.
@@ -261,8 +261,8 @@ into a single table
 with the following core event-data columns:
 
 * **timestamp**:  UTC timestamp at which the event occurred, in milliseconds
-* **seqId**:  a unique id for a particular user interaction sequence spanning multiple events
-* **seqTime**:  time in milliseconds between the beginning of the sequence and this event
+* **flowId**:  a unique id for a particular user interaction flow spanning multiple events
+* **flowTime**:  time in milliseconds between the beginning of the flow and this event
 * **type**:  event type; see below
 * **uid**:  user id that generated the event, if known
 * **deviceId**:  device id that generated the event, if known
@@ -284,7 +284,7 @@ on the redshift table:
 * **campaign**: marketing campaign identifier
 * **migration**: service migration identifier, e.g. 'sync11' or 'amo'
 
-All events in a sequence
+All events in a flow
 will have the same tags,
 but storing them as properties of each event
 makes queries easier.
@@ -294,7 +294,7 @@ in future.
 The following event types will be emitted
 by the FxA servers:
 
-* **sequence.begin**: emitted when the user begins interaction by requesting a page
+* **flow.begin**: emitted when the user begins interaction by requesting a page
 * **account.created**: emitted when a signup is successfully completed
 * **account.login**: emitted when a signin is successfully completed
 * **account.verified**: emitted when the account email is successfully verified
@@ -311,8 +311,8 @@ might look like the following:
 <table>
   <tr>
     <th>timestamp</th>
-    <th>seqId</th>
-    <th>seqTime</th>
+    <th>flowId</th>
+    <th>flowTime</th>
     <th>type</th>
     <th>uid</th>
     <th>deviceId</th>
@@ -330,7 +330,7 @@ might look like the following:
     <td>1456434139863</td>
     <td>e17f606faf93812dfc45bdb308390119</td>
     <td>0</td>
-    <td>sequence.begin</td>
+    <td>flow.begin</td>
     <td>NULL</td>
     <td>NULL</td>
     <td>0</td>
@@ -432,12 +432,12 @@ might look like the following:
 In this example,
 a new user creates and account
 and connects their first device
-as part of a single user-interaction sequence.
+as part of a single user-interaction flow.
 Once the device is connected
 it can start syncing,
 generating 'account.signed'
 events that are no longer
-connected to the same sequence id.
+connected to the same flow id.
 
 To protect potential PII,
 user and device ids will be HMACed with a secret key
@@ -510,9 +510,9 @@ Daily time to device connection percentiles:
 
     SELECT MIN(median)
     FROM (
-      SELECT seqTime,
+      SELECT flowTime,
         PERCENTILE_CONT([0.25|0.5|0.75])
-          WITHIN GROUP (ORDER BY seqTime) OVER() AS median
+          WITHIN GROUP (ORDER BY flowTime) OVER() AS median
       FROM events
       WHERE type = "device.connected"
         AND timestamp > [previous UTC midnight]
@@ -526,9 +526,9 @@ of device connection:
 
     SELECT
       100.0 * completed / begun as perc\_completed,
-      (SELECT COUNT(\*) 
+      (SELECT COUNT(\*)
        FROM events
-       WHERE type = 'sequence.begin'
+       WHERE type = 'flow.begin'
          AND timestamp > [previous UTC midnight]
          AND timestamp <= [current UTC midnight]
          AND service = "sync"
@@ -548,8 +548,8 @@ of device connection:
 We'll need to:
 
 * [ ] Get approval from data stewards for this new way of handling data.
-* [ ] Emit new "sequence.begin" activity event from fxa-content-server.
-* [ ] Tunnel seqId and associated metadata through to backend calls in fxa-auth-server,
+* [ ] Emit new "flow.begin" activity event from fxa-content-server.
+* [ ] Tunnel flowId and associated metadata through to backend calls in fxa-auth-server,
       so that it can be emitted on subsequent activity events.
 * [ ] Generate reliable device ids for devices that don't explicitly register
       themselves with our API.
