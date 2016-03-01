@@ -1,3 +1,7 @@
+0.57.0
+  * feat(devices): added sessionWithDevice endpoint
+  * chore(dependencies): upgrade mozlog to 2.0.3
+
 0.55.0:
   * feat(docker): Additional Dockerfile for self-hosting #121
   * docs(contributing): Mention git commit guidelines #122
