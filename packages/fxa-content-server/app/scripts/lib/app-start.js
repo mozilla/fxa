@@ -519,7 +519,14 @@ define(function (require, exports, module) {
     },
 
     upgradeStorageFormats: function () {
-      return this._user.upgradeFromSession(Session, this._fxaClient);
+      var user = this._user;
+
+      // upgradeFromUnfilteredAccountData comes first
+      // otherwise upgradeFromSession fails because it tries
+      // to read and create Accounts for unfiltered data.
+      // upgradeFromSession writes the new format, so this is safe.
+      return user.upgradeFromUnfilteredAccountData()
+        .then(user.upgradeFromSession.bind(user, Session, this._fxaClient));
     },
 
     createView: function (Constructor, options) {

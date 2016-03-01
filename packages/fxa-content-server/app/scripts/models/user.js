@@ -290,8 +290,30 @@ define(function (require, exports, module) {
         });
     },
 
-    // Add the last signed in account (if it's different from the Sync account).
-    // If the email is the same we assume it's the same account since users can't change email yet.
+    // Before a13f05f2 (18 Dec 2014), all kinds of extra
+    // data was written to the Account. This extra data hung
+    // arround even if the user signed in again. After d4321990
+    // (12 Jan 2016), only allowed fields are allowed to be
+    // set on an account, unexpected fields cause an error.
+    // Update any accounts with unexpected data.
+    upgradeFromUnfilteredAccountData: function () {
+      var self = this;
+      return p().then(function () {
+        var accountData = self._accounts();
+        for (var userid in accountData) {
+          var unfiltered = accountData[userid];
+          var filtered = _.pick(unfiltered, Account.ALLOWED_KEYS);
+
+          if (! _.isEqual(unfiltered, filtered)) {
+            self._persistAccount(filtered);
+          }
+        }
+      });
+    },
+
+    // Add the last signed in account (if it's different from the
+    // Sync account). If the email is the same we assume it's the
+    // same account since users can't change email yet.
     _shouldAddOldSessionAccount: function (Session) {
       return (Session.email && Session.sessionToken &&
         (! Session.cachedCredentials ||

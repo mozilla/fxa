@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var Account = require('models/account');
   var AuthErrors = require('lib/auth-errors');
   var chai = require('chai');
   var Constants = require('lib/constants');
@@ -450,6 +451,102 @@ define(function (require, exports, module) {
         });
     });
 
+    describe('upgradeFromFilteredData', function () {
+      describe('with old style account data', function () {
+        /*eslint-disable sorting/sort-object-props */
+        // data is taken from localStorage of a browser profile
+        // which suffered from #3466.
+        var unfilteredAccounts = {
+          'old-style': {
+            accountData: {
+              email: 'old-style@testuser.com',
+              sessionToken: '9643f74d37871a572a053628109fa90f2c0e00274185bc26f391be13b0f1053a',
+              sessionTokenContext: null,
+              uid: 'old-style'
+            },
+            assertion: {
+              _fxaClient: {
+                _client: {
+                  request: {
+                    baseUri: 'https://latest.dev.lcip.org/auth/v1',
+                    timeout: 30000
+                  }
+                },
+                _signUpResendCount: 0,
+                _passwordResetResendCount: 0,
+                _interTabChannel: {}
+              },
+              _audience: 'https://oauth-latest.dev.lcip.org'
+            },
+            oAuthClient: {},
+            profileClient: {
+              profileUrl: 'https://latest.dev.lcip.org/profile'
+            },
+            fxaClient: {
+              _client: {
+                request: {
+                  baseUri: 'https://latest.dev.lcip.org/auth/v1',
+                  timeout: 30000
+                }
+              },
+              _signUpResendCount: 0,
+              _passwordResetResendCount: 0,
+              _interTabChannel: {}
+            },
+            oAuthClientId: 'ea3ca969f8c6bb0d',
+            uid: 'old-style',
+            email: 'old-style@testuser.com',
+            sessionToken: '9643f74d37871a572a053628109fa90f2c0e00274185bc26f391be13b0f1053a',
+            sessionTokenContext: null,
+            lastLogin: 1416927764004
+          },
+          'new-style': {
+            email: 'new-style@testuser.com',
+            sessionToken: '9643f74d37871a572a053628109fa90f2c0e00274185bc26f391be13b0f1053b',
+            sessionTokenContext: null,
+            uid: 'new-style'
+          }
+          /*eslint-enable sorting/sort-object-props */
+        };
+
+        beforeEach(function () {
+          user._storage.set('accounts', unfilteredAccounts);
+
+          sinon.spy(user, '_persistAccount');
+
+          return user.upgradeFromUnfilteredAccountData();
+        });
+
+        it('only persists accounts that need to be persisted', function () {
+          assert.equal(user._persistAccount.callCount, 1);
+        });
+
+        it('filters banned keys from old style account', function () {
+          var upgraded = user._accounts()['old-style'];
+          var bannedKeys = [
+            'accountData',
+            'assertion',
+            'fxaClient',
+            'oAuthClient',
+            'profileClient'
+          ];
+
+          bannedKeys.forEach(function (bannedKey) {
+            assert.notProperty(upgraded, bannedKey);
+          });
+        });
+
+        it('saves allowed keys from old style account', function () {
+          var upgraded = user._accounts()['old-style'];
+          var allowedKeys = Account.ALLOWED_KEYS;
+
+          allowedKeys.forEach(function (allowedKey) {
+            assert.equal(
+              upgraded[allowedKey], unfilteredAccounts['old-style'][allowedKey]);
+          });
+        });
+      });
+    });
 
     describe('signInAccount', function () {
       var account;

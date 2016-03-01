@@ -773,6 +773,7 @@ define(function (require, exports, module) {
         });
     }
   }, {
+    ALLOWED_KEYS: ALLOWED_KEYS,
     PERMISSIONS_TO_KEYS: PERMISSIONS_TO_KEYS
   });
 
