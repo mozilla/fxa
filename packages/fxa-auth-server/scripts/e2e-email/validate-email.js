@@ -35,7 +35,7 @@ var messageContentChecks = [
   },
   {
     subject: 'Firefox Account Verified',
-    pathname: '/en-US/firefox/sync/',
+    pathname: '/firefox/sync/',
     args: [ 'utm_source', 'utm_medium', 'utm_campaign' ],
     xheaders: [],
   },
