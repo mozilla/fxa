@@ -950,8 +950,8 @@
         },
         "fxa-content-server-l10n": {
           "version": "0.0.0",
-          "from": "git://github.com/mozilla/fxa-content-server-l10n.git#3c8aba408bb4334a701b91c694ca493c1fc4f784",
-          "resolved": "git://github.com/mozilla/fxa-content-server-l10n.git#3c8aba408bb4334a701b91c694ca493c1fc4f784"
+          "from": "git://github.com/mozilla/fxa-content-server-l10n.git#4bf305a1fdeec9fa4f7bec84f2797f4aeb5fbcd3",
+          "resolved": "git://github.com/mozilla/fxa-content-server-l10n.git#4bf305a1fdeec9fa4f7bec84f2797f4aeb5fbcd3"
         },
         "grunt-nunjucks-2-html": {
           "version": "0.3.4",
