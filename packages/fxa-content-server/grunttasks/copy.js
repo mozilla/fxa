@@ -62,7 +62,7 @@ module.exports = function (grunt) {
     error_pages: { //eslint-disable-line camelcase
       files: [{
         cwd: '<%= yeoman.page_template_dist %>',
-        dest: '<%= yeoman.app %>',
+        dest: '<%= yeoman.dist %>',
         dot: true,
         expand: true,
         flatten: true,
