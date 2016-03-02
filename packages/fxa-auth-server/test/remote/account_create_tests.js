@@ -378,6 +378,21 @@ TestServer.start(config)
   )
 
   test(
+    'account creation works with unicode email address',
+    function (t) {
+      var email = server.uniqueUnicodeEmail()
+      return Client.create(config.publicUrl, email, 'foo')
+        .then(function (client) {
+          t.ok(client, 'created account')
+          return server.mailbox.waitForEmail(email)
+        })
+        .then(function (emailData) {
+          t.ok(emailData, 'received email')
+        })
+    }
+  )
+
+  test(
     'teardown',
     function (t) {
       server.stop()

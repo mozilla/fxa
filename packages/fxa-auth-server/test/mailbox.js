@@ -25,7 +25,7 @@ module.exports = function (host, port) {
   }
 
   function loop(name, tries, cb) {
-    var url = 'http://' + host + ':' + port + '/mail/' + name
+    var url = 'http://' + host + ':' + port + '/mail/' + encodeURIComponent(name)
     console.log('checking mail', url)
     request({ url: url, method: 'GET' },
       function (err, res, body) {

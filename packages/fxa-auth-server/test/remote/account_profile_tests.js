@@ -234,6 +234,24 @@ TestServer.start(config)
   )
 
   test(
+    'account profile works with unicode email address',
+    function (t) {
+      var email = server.uniqueUnicodeEmail()
+      return Client.create(config.publicUrl, email, 'password')
+        .then(
+          function (c) {
+            return c.api.accountProfile(c.sessionToken)
+          }
+        )
+        .then(
+          function (response) {
+            t.equal(response.email, email, 'email address is returned')
+          }
+        )
+    }
+  )
+
+  test(
     'teardown',
     function (t) {
       server.stop()

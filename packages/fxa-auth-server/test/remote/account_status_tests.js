@@ -158,6 +158,24 @@ TestServer.start(config)
   )
 
   test(
+    'account status by email works with unicode email address',
+    function (t) {
+      var email = server.uniqueUnicodeEmail()
+      return Client.create(config.publicUrl, email, 'password')
+        .then(
+          function (c) {
+            return c.api.accountStatusByEmail(email)
+          }
+        )
+        .then(
+          function (response) {
+            t.ok(response.exists, 'account exists')
+          }
+        )
+    }
+  )
+
+  test(
     'teardown',
     function (t) {
       server.stop()
