@@ -126,6 +126,25 @@ TestServer.start(config)
   )
 
   test(
+    'login works with unicode email address',
+    function (t) {
+      var email = server.uniqueUnicodeEmail()
+      var password = 'wibble'
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+        .then(
+          function () {
+            return Client.login(config.publicUrl, email, password)
+          }
+        )
+        .then(
+          function (client) {
+            t.ok(client, 'logged in to account')
+          }
+        )
+    }
+  )
+
+  test(
     'teardown',
     function (t) {
       server.stop()
