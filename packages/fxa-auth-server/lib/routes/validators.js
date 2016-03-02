@@ -71,9 +71,11 @@ module.exports.isValidEmailAddress = function(value) {
   if (domain[0] === '.' || domain[0] === '-') {
     return false
   }
+  var hasDot = false
   // The domain portion must be a valid punycode domain.
   for (i = 0; i < domain.length; i++) {
     if (domain[i] === '.') {
+      hasDot = true
       // A dot can't follow a dot or a dash.
       if (domain[i - 1] === '.' || domain[i - 1] === '-') {
         return false
@@ -89,7 +91,9 @@ module.exports.isValidEmailAddress = function(value) {
       return false
     }
   }
-  return true
+  // Even though the RFC doesn't require it, we need a dot. See:
+  // https://github.com/mozilla/fxa-auth-server/issues/1193
+  return hasDot
 }
 
 module.exports.redirectTo = function (base) {
