@@ -22,6 +22,8 @@ define([
     'tests/server/metrics-unit',
     'tests/server/configuration',
     'tests/server/statsd-collector',
+    'tests/server/activity-event',
+    'tests/server/routes/get-index',
     'tests/server/routes/post-csp'
   ];
 

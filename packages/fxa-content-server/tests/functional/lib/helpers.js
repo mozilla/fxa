@@ -1039,6 +1039,51 @@ define([
     };
   }
 
+  /**
+   * Assert the value of an attribute
+   *
+   * @param {string} elementSelector CSS selector for the element
+   * @param {string} attributeName Name of attribute
+   * @param {string} assertion Name of the chai assertion to invoke
+   * @param {string} value Expected value of the attribute
+   * @returns {promise}
+   */
+  function testAttribute (elementSelector, attributeName, assertion, value) {
+    return function () {
+      return this.parent
+        .findByCssSelector(elementSelector)
+          .getAtribute(attributeName)
+          .then(function (attributeValue) {
+            assert[assertion](attributeValue, value);
+          })
+        .end();
+    };
+  }
+
+  /**
+   * Assert that an attribute value === expected value
+   *
+   * @param {string} elementSelector CSS selector for the element
+   * @param {string} attributeName Name of attribute
+   * @param {string} value Expected value of the attribute
+   * @returns {promise}
+   */
+  function testAttributeEquals (elementSelector, attributeName, value) {
+    return testAttribute(elementSelector, attributeName, 'strictEqual', value);
+  }
+
+  /**
+   * Assert that an attribute value matches a regex
+   *
+   * @param {string} elementSelector CSS selector for the element
+   * @param {string} attributeName Name of attribute
+   * @param {regex} regex Expression for the attribute value to be matched against
+   * @returns {promise}
+   */
+  function testAttributeMatches (elementSelector, attributeName, regex) {
+    return testAttribute(elementSelector, attributeName, 'match', regex);
+  }
+
   function testElementExists(selector) {
     return function () {
       return this.parent
@@ -1090,6 +1135,9 @@ define([
     pollUntil: pollUntil,
     respondToWebChannelMessage: respondToWebChannelMessage,
     testAreEventsLogged: testAreEventsLogged,
+    testAttribute: testAttribute,
+    testAttributeEquals: testAttributeEquals,
+    testAttributeMatches: testAttributeMatches,
     testElementExists: testElementExists,
     testElementTextInclude: testElementTextInclude,
     testElementValueEquals: testElementValueEquals,

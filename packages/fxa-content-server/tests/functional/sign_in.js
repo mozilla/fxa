@@ -21,6 +21,8 @@ define([
   var accountData;
   var client;
 
+  var testAttributeMatches = FunctionalHelpers.testAttributeMatches;
+
   function verifyUser(user, index) {
     return FunctionalHelpers.verifyUser(user,  index, client, accountData);
   }
@@ -279,6 +281,12 @@ define([
             .findById('fxa-settings-header')
             .end();
         });
+    },
+
+    'flow data attributes are set': function () {
+      this.remote
+        .then(testAttributeMatches('body', 'data-flow-id', /^[0-9a-f]{64}$/))
+        .then(testAttributeMatches('body', 'data-flow-begin', /^[1-9][0-9]{13,}$/));
     }
   });
 

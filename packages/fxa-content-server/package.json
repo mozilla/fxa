@@ -64,6 +64,7 @@
     "i18n-abide": "0.0.23",
     "jsxgettext-recursive": "0.0.5",
     "load-grunt-tasks": "3.2.0",
+    "lodash": "4.6.1",
     "marked": "0.3.5",
     "mkdirp": "0.5.1",
     "morgan": "1.6.1",

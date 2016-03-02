@@ -22,6 +22,12 @@ module.exports = function (grunt) {
   var templateSrc;
   var templateDest;
 
+  var PROPAGATED_TEMPLATE_FIELDS = [
+    'flowBeginTime',
+    'flowId',
+    'message'
+  ];
+
   // Legal templates for each locale, key'ed by languages, e.g.
   // templates['en'] = { terms: ..., privacy: ... }
   var legalTemplates = {
@@ -111,19 +117,21 @@ module.exports = function (grunt) {
         var terms = legalTemplates[context.lang].terms || legalTemplates[defaultLegalLang].terms;
         var privacy = legalTemplates[context.lang].privacy || legalTemplates[defaultLegalLang].privacy;
         var template = Handlebars.compile(contents);
-        var out = template({
+        var data = {
           fontSupportDisabled: context.fontSupportDisabled,
           l10n: context,
           lang: context.lang,
           lang_dir: context.lang_dir, //eslint-disable-line camelcase
           locale: context.locale,
-          // Re-insert the message tag to allow the node server
-          // to render the error message at render time.
-          message: '{{ message }}',
           privacy: privacy,
           terms: terms
+        };
+        // Propagate any tags that are required for data
+        // to be rendered dynamically by the server.
+        PROPAGATED_TEMPLATE_FIELDS.forEach(function (field) {
+          data[field] = '{{' + field + '}}';
         });
-        return out;
+        return template(data);
       }
     });
   }
