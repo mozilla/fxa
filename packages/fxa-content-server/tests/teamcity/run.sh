@@ -20,7 +20,7 @@ source $DIRNAME/$FXA_TEST_NAME
 
 # optionally, GIT_COMMIT can be set in the environment to override
 if [ -z "$GIT_COMMIT" ]; then
-  GIT_COMMIT=$(curl -s "$FXA_CONTENT_ROOT/ver.json" | jsawk  "return this.commit")
+  GIT_COMMIT=$(curl -s "$FXA_CONTENT_VERSION" | jsawk  "return this.commit" | perl -pe 's/^OUT: //')
 else
   echo "Using GIT_COMMIT from the environment $GIT_COMMIT"
 fi
@@ -49,14 +49,22 @@ echo ""
 rm -rf fxa-content-server-"$FXA_TEST_NAME"
 git clone https://github.com/mozilla/fxa-content-server.git -b master fxa-content-server-"$FXA_TEST_NAME"
 cd fxa-content-server-"$FXA_TEST_NAME"
-git checkout "$GIT_COMMIT"
+git checkout $GIT_COMMIT
 git show --summary
 
 npm config set cache ~/.fxacache
 export npm_config_cache=~/.fxacache
 export npm_config_tmp=~/fxatemp
-npm install intern@3.0.6 bower@1.6.5 zaach/node-XMLHttpRequest.git#onerror \
-  firefox-profile@0.3.3 request@2.40.0 sync-exec@0.5.0 convict@0.8.0
+
+npm install              \
+  bower@1.7.1            \
+  convict@1.0.2          \
+  firefox-profile@0.3.11 \
+  intern@3.0.6           \
+  request@2.67.0         \
+  sync-exec@0.6.1        \
+  zaach/node-XMLHttpRequest.git#onerror
+
 node_modules/.bin/bower install --config.interactive=false
 
 set -o xtrace # echo the following commands
