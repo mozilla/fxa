@@ -23,6 +23,7 @@ TestServer.start(config)
         'me@hello world.com',
         'me@hello+world.com',
         'me@.example',
+        'me@example',
         'me@example.com-',
         'me@example..com',
         'me@example-.com',
