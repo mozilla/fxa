@@ -50,7 +50,7 @@ WORKDIR=fxa-content-server-"$FXA_TEST_NAME"-server
 rm -rf "$WORKDIR"
 git clone https://github.com/mozilla/fxa-content-server.git -b master "$WORKDIR"
 cd "$WORKDIR"
-git checkout "$GIT_COMMIT"
+git checkout $GIT_COMMIT
 git show --summary
 
 npm config set cache ~/.fxacache
