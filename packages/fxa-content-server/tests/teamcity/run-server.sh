@@ -20,7 +20,7 @@ source $DIRNAME/$FXA_TEST_NAME
 
 # optionally, GIT_COMMIT can be set in the environment to override
 if [ -z "$GIT_COMMIT" ]; then
-  GIT_COMMIT=$(curl -s "$FXA_CONTENT_ROOT/ver.json" | jsawk  "return this.commit")
+  GIT_COMMIT=$(curl -s "$FXA_CONTENT_VERSION" | jsawk  "return this.commit" | perl -pe 's/^OUT: //')
 else
   echo "Using GIT_COMMIT from the environment $GIT_COMMIT"
 fi
@@ -29,6 +29,7 @@ echo "FXA_TEST_NAME       $FXA_TEST_NAME"
 echo "FXA_CONTENT_ROOT    $FXA_CONTENT_ROOT"
 echo "FXA_AUTH_ROOT       $FXA_AUTH_ROOT"
 echo "FXA_OAUTH_APP_ROOT  $FXA_OAUTH_APP_ROOT"
+echo "FXA_DEV_BOX         $FXA_DEV_BOX"
 echo "FXA_FIREFOX_BINARY  $FXA_FIREFOX_BINARY"
 echo "GIT_COMMIT          $GIT_COMMIT"
 
@@ -77,4 +78,5 @@ set -o xtrace # echo the following commands
   config=tests/intern_server \
   fxaContentRoot="$FXA_CONTENT_ROOT" \
   fxaProduction="true" \
+  fxaDevBox="$FXA_DEV_BOX" \
   asyncTimeout=10000
