@@ -31,6 +31,22 @@ define(function (require, exports, module) {
   t('Account picture');
   t('%(permissionName)s (required)');
 
+  // Needed for Password flow update PR #3559
+  t('Enter new password');
+  t('Once you submit your new password, you will lose any Sync data that is not on one of your devices.');
+  t('Must be at least 8 characters');
+  t('Submit new password');
+  t('Click on the link we\'ve emailed you at %(email)s within the next hour to create a new password.');
+  t('Remember password? Sign in.');
+  t('Forgot password');
+  t('When you reset your password, you will lose any Sync data that is not on one of your devices.');
+  t('Learn how Sync works.');
+  t('Reset Password');
+  t('Click the button within the next hour to set a new password for your Firefox Account.');
+  t('You may need to enter your new password on other devices connected to Firefox Sync.');
+  t('Your password has been reset.');
+  t('Your Firefox Account password has changed. If you did not change it, please <a href="%(resetPasswordUri)s">reset your password</a> now.');
+
   /**
    * Replace instances of %s and %(name)s with their corresponding values in
    * the context
