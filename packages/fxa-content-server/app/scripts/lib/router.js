@@ -166,51 +166,45 @@ define(function (require, exports, module) {
      */
     redirectToBestOAuthChoice: function () {
       var self = this;
-      var route;
 
       // Attempt to get email address from relier
       var email = self.broker.relier.get('email');
-      var deferred = p.defer();
 
-      if (email) {
-        // Attempt to get account status of email and navigate
-        // to correct signin/signup page if exists.
-        var account = self.user.initAccount({ email: email });
-        account.checkAccountEmailExists()
-          .then(function (exists) {
-            if (exists) {
-              deferred.resolve('/oauth/signin');
-            } else {
-              deferred.resolve('/oauth/signup');
-            }
-          }, function (err) {
-            // The error here is a throttling error or server error (500). In either case,
-            // we don't want to stop the user from navigating to a signup/signin page.
-            // Instead, we fallback to choosing navigation page based on
-            // whether account is a default account. Swallow and log error.
-            self.logError(err);
-            deferred.resolve();
-          });
-      } else {
+      return p().then(function () {
+        if (email) {
+          // Attempt to get account status of email and navigate
+          // to correct signin/signup page if exists.
+          var account = self.user.initAccount({ email: email });
+          return account.checkAccountEmailExists()
+            .then(function (exists) {
+              if (exists) {
+                return '/oauth/signin';
+              } else {
+                return '/oauth/signup';
+              }
+            }, function (err) {
+              // The error here is a throttling error or server error (500).
+              // In either case, we don't want to stop the user from
+              // navigating to a signup/signin page. Instead, we fallback
+              // to choosing navigation page based on whether account is
+              // a default account. Swallow and log error.
+              self.metrics.logError(err);
+            });
+        }
         // If no email in relier, choose navigation page based on
         // whether account is a default account.
-        deferred.resolve();
-      }
-
-      return deferred.promise
-        .then(function (result) {
-          if (! result) {
-            if (self.user.getChooserAccount().isDefault()) {
-              route = '/oauth/signup';
-            } else {
-              route = '/oauth/signin';
-            }
+      })
+      .then(function (route) {
+        if (! route) {
+          if (self.user.getChooserAccount().isDefault()) {
+            route = '/oauth/signup';
           } else {
-            route = result;
+            route = '/oauth/signin';
           }
+        }
 
-          return self.navigate(route, { replace: true, trigger: true });
-        });
+        return self.navigate(route, { replace: true, trigger: true });
+      });
     },
 
     /**

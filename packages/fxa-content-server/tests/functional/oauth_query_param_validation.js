@@ -6,9 +6,8 @@ define([
   'intern',
   'intern!object',
   'intern/node_modules/dojo/node!querystring',
-  'intern/node_modules/dojo/node!url',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, Querystring, Url, FunctionalHelpers) {
+], function (intern, registerSuite, Querystring, FunctionalHelpers) {
   var config = intern.config;
 
   var SIGNUP_ROOT = config.fxaContentRoot + 'oauth/signup';
@@ -21,6 +20,7 @@ define([
 
 
   var thenify = FunctionalHelpers.thenify;
+  var getQueryParamValue = FunctionalHelpers.getQueryParamValue;
   var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
   var openFxaFromUntrustedRp = thenify(FunctionalHelpers.openFxaFromUntrustedRp);
   var openPage = FunctionalHelpers.openPage;
@@ -44,18 +44,6 @@ define([
     return testElementTextInclude('.error', expected);
   };
 
-  var getClientId = function () {
-    return function () {
-      return this.parent
-        .getCurrentUrl()
-        .then(function (url) {
-          var parsedUrl = Url.parse(url);
-          var parsedQueryString = Querystring.parse(parsedUrl.query);
-          return parsedQueryString.client_id;
-        });
-    };
-  };
-
   /*eslint-disable camelcase */
   registerSuite({
     name: 'oauth query parameter validation',
@@ -68,12 +56,12 @@ define([
       var self = this;
       return this.remote
         .then(openFxaFromRp(this, 'signup'))
-        .then(getClientId())
+        .then(getQueryParamValue('client_id'))
         .then(function (clientId) {
           TRUSTED_CLIENT_ID = clientId;
         })
         .then(openFxaFromUntrustedRp(self, 'signup'))
-        .then(getClientId())
+        .then(getQueryParamValue('client_id'))
         .then(function (clientId) {
           UNTRUSTED_CLIENT_ID = clientId;
         });
