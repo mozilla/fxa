@@ -147,9 +147,9 @@ define(function (require, exports, module) {
         relier.set('email', 'testuser@testuser.com');
 
         return view.render()
-            .then(function () {
-              assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
-            });
+          .then(function () {
+            assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+          });
       });
 
       it('shows unchecked `customize sync` checkbox when service is sync even after session is cleared', function () {
@@ -157,10 +157,10 @@ define(function (require, exports, module) {
         Session.clear();
 
         return view.render()
-            .then(function () {
-              assert.equal(view.$('#customize-sync').length, 1);
-              assert.isFalse(view.$('#customize-sync').is(':checked'));
-            });
+          .then(function () {
+            assert.equal(view.$('#customize-sync').length, 1);
+            assert.isFalse(view.$('#customize-sync').is(':checked'));
+          });
       });
 
       it('shows syncCheckbox experiment treatment', function () {
@@ -186,9 +186,9 @@ define(function (require, exports, module) {
         relier.set('customizeSync', true);
 
         return view.render()
-            .then(function () {
-              assert.isTrue(view.$('#customize-sync').is(':checked'));
-            });
+          .then(function () {
+            assert.isTrue(view.$('#customize-sync').is(':checked'));
+          });
       });
 
       it('uses input COPPA', function () {
@@ -1055,9 +1055,9 @@ define(function (require, exports, module) {
           return setupCustomizeSyncTest('hello')
             .then(function () {
               assert.isFalse(TestHelpers.isEventLogged(metrics,
-                                'signup.customizeSync.true'));
+                'signup.customizeSync.true'));
               assert.isFalse(TestHelpers.isEventLogged(metrics,
-                                'signup.customizeSync.false'));
+                'signup.customizeSync.false'));
             });
         });
 
@@ -1065,9 +1065,9 @@ define(function (require, exports, module) {
           return setupCustomizeSyncTest('sync', false)
             .then(function () {
               assert.isFalse(TestHelpers.isEventLogged(metrics,
-                                'signup.customizeSync.true'));
+                'signup.customizeSync.true'));
               assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                'signup.customizeSync.false'));
+                'signup.customizeSync.false'));
             });
         });
 
@@ -1075,7 +1075,7 @@ define(function (require, exports, module) {
           return setupCustomizeSyncTest('sync', true)
             .then(function () {
               assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                'signup.customizeSync.true'));
+                'signup.customizeSync.true'));
             });
         });
 

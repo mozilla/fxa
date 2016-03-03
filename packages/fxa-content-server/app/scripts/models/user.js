@@ -88,7 +88,7 @@ define(function (require, exports, module) {
       this._storage.set('accounts', accounts);
     },
 
-    // A conveinience method that initializes an account instance from
+    // A convenience method that initializes an account instance from
     // raw account data.
     initAccount: function (accountData) {
       if (accountData instanceof Account) {

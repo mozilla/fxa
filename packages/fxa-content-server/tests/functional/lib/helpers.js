@@ -222,6 +222,24 @@ define([
     };
   }
 
+  /**
+   * Get the value of a query parameter
+   *
+   * @param {paramName}
+   * @returns {promise} that resolves to the query parameter's value
+   */
+  function getQueryParamValue(paramName) {
+    return function () {
+      return this.parent
+        .getCurrentUrl()
+        .then(function (url) {
+          var parsedUrl = Url.parse(url);
+          var parsedQueryString = Querystring.parse(parsedUrl.query);
+          return parsedQueryString[paramName];
+        });
+    };
+  }
+
   function getVerificationLink(user, index) {
     if (/@/.test(user)) {
       user = TestHelpers.emailToUser(user);
@@ -969,6 +987,14 @@ define([
     };
   }
 
+  function verifyUser(user, index, client, accountData) {
+    return getVerificationHeaders(user, index)
+      .then(function (headers) {
+        var code = headers['x-verify-code'];
+        return client.verifyCode(accountData.uid, code);
+      });
+  }
+
   return {
     clearBrowserState: clearBrowserState,
     clearSessionStorage: clearSessionStorage,
@@ -982,6 +1008,7 @@ define([
     fillOutResetPassword: fillOutResetPassword,
     fillOutSignIn: fillOutSignIn,
     fillOutSignUp: fillOutSignUp,
+    getQueryParamValue: getQueryParamValue,
     getVerificationHeaders: getVerificationHeaders,
     getVerificationLink: getVerificationLink,
     imageLoadedByQSA: imageLoadedByQSA,
@@ -1013,6 +1040,7 @@ define([
     testUrlPathnameEquals: testUrlPathnameEquals,
     thenify: thenify,
     type: type,
+    verifyUser: verifyUser,
     visibleByQSA: visibleByQSA,
     visibleByQSAErrorHeight: visibleByQSAErrorHeight
   };

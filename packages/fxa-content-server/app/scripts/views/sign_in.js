@@ -50,11 +50,17 @@ define(function (require, exports, module) {
       return this._formPrefill.get('email') || this.relier.get('email');
     },
 
+    getEmail: function () {
+      var suggestedAccount = this.getAccount();
+      var hasSuggestedAccount = suggestedAccount.get('email');
+      return hasSuggestedAccount ?
+        suggestedAccount.get('email') : this.getPrefillEmail();
+    },
+
     context: function () {
       var suggestedAccount = this.getAccount();
       var hasSuggestedAccount = suggestedAccount.get('email');
-      var email = hasSuggestedAccount ?
-                    suggestedAccount.get('email') : this.getPrefillEmail();
+      var email = this.getEmail();
 
       return {
         chooserAskForPassword: this._suggestedAccountAskPassword(suggestedAccount),
