@@ -378,9 +378,9 @@ define(function (require, exports, module) {
           });
       });
 
-      it('returns true if email contains a one part TLD', function () {
+      it('returns false if email contains a one part TLD', function () {
         fillOutSignUp('a@b', 'password');
-        assert.isTrue(view.isValid());
+        assert.isFalse(view.isValid());
       });
 
       it('returns true if email contains a two part TLD', function () {
@@ -510,19 +510,6 @@ define(function (require, exports, module) {
 
       it('shows an error if the user provides a @firefox.com email', function () {
         fillOutSignUp('user@firefox.com', 'password');
-
-        sinon.spy(view, 'showValidationError');
-        view.showValidationErrors();
-
-        assert.isTrue(view.showValidationError.called);
-
-        var err = AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN');
-        err.context = 'signup';
-        assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
-      });
-
-      it('shows an error if the user provides an email that ends with @firefox', function () {
-        fillOutSignUp('user@firefox', 'password');
 
         sinon.spy(view, 'showValidationError');
         view.showValidationErrors();
