@@ -26,8 +26,13 @@ A metrics funnel we can use to measure success is:
 ## Details
 
 On Firefox Desktop, after a user successfully signs up to a new account,
-we will show a small form prompting the user to enter their telephone
-number to be texted a link to install Firefox Mobile.
+we will show a small form *embedded in the post verification screen* prompting
+the user to enter their telephone number to be texted a link to install
+Firefox Mobile.
+
+Based on numbers collected from [metrics][] of February 2016, the post
+verification screen is viewed in a 5:3 ratio of desktop:mobile. This implies
+that a 62.5% of users could see this and benefit.
 
 The SMS capability currently exists in the [Basket API][], allowing us
 to essentially SMS a user via `POST /news/subscribe_sms`. It is used for
@@ -48,3 +53,4 @@ provider behind Basket only allows US phone numbers.
 - Work in Basket repo to customize text message with our link
 
 [Basket API]: https://github.com/mozilla/basket/blob/d3a284a8f35b4ac9ed0eb3942861be38f2911aa1/news/views.py#L336
+[metrics]: https://app.datadoghq.com/dash/54206/fxa-content-server---registration
