@@ -46,6 +46,7 @@ module.exports = function (log) {
     this.androidUrl = config.androidUrl
     this.iosUrl = config.iosUrl
     this.supportUrl = config.supportUrl
+    this.signInUrl = config.signInUrl
     this.translator = translator
     this.templates = templates
   }
@@ -168,6 +169,7 @@ module.exports = function (log) {
         code: message.code,
         email: message.email,
         link: link,
+        signInUrl: this.signInUrl,
         supportUrl: this.supportUrl,
         supportLinkAttributes: this._supportLinkAttributes(),
         passwordChangeLinkAttributes: this._initiatePasswordChange()
@@ -228,6 +230,7 @@ module.exports = function (log) {
         resetLink: link,
         supportUrl: this.supportUrl,
         supportLinkAttributes: this._supportLinkAttributes(),
+        signInUrl: this.signInUrl,
         passwordChangeLinkAttributes: this._initiatePasswordChange()
       },
       uid: message.uid
@@ -249,6 +252,7 @@ module.exports = function (log) {
         resetLink: link,
         supportUrl: this.supportUrl,
         supportLinkAttributes: this._supportLinkAttributes(),
+        resetPasswordUrl: this.signInUrl,
         passwordChangeLinkAttributes: this._initiatePasswordChange()
       },
       uid: message.uid
