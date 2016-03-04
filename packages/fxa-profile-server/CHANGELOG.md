@@ -1,3 +1,17 @@
+<a name="0.57.0"></a>
+## 0.57.0 (2016-03-05)
+
+
+#### Bug Fixes
+
+* **display_name:** Disallow astral characters in display_name. ([b2c9e1d6](https://github.com/mozilla/fxa-profile-server/commit/b2c9e1d6076f735951c30871296b8b966fd246e0))
+
+
+#### Features
+
+* **docker:** Additional Dockerfile for self-hosting ([f493869b](https://github.com/mozilla/fxa-profile-server/commit/f493869bcdae79a3254e5df5e3a2e4692976e678))
+
+
 <a name="0.53.1"></a>
 ### 0.53.1 (2016-01-13)
 
