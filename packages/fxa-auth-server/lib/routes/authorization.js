@@ -103,8 +103,7 @@ module.exports = {
         .required(),
       redirect_uri: Joi.string()
         .max(256),
-      scope: Joi.string()
-        .max(256),
+      scope: validators.scope,
       response_type: Joi.string()
         .valid(CODE, TOKEN)
         .default(CODE),
