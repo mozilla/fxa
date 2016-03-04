@@ -1,5 +1,5 @@
 ## fxa-local-dev [![Build Status](https://travis-ci.org/mozilla/fxa-local-dev.svg?branch=master)](https://travis-ci.org/mozilla/fxa-local-dev) ![](https://img.shields.io/badge/tested_on-OS%20X%20and_Ubuntu-brightgreen.svg)
-> An easy way to contribute to Firefox Accounts
+> An easy way to contribute to Firefox Accounts. If you have issues please ask in `#fxa` on Mozilla IRC.
 
 ### Getting Started
 
