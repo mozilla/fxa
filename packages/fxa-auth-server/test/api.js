@@ -500,6 +500,17 @@ describe('/v1', function() {
           assert(res.result.redirect);
         }).done(done, done);
       });
+      it('is restricted to expected characters', function(done) {
+        mockAssertion().reply(200, VERIFY_GOOD);
+        Server.api.post({
+          url: '/authorization',
+          payload: authParams({
+            scope: 'profile:\u2603'
+          })
+        }).then(function(res) {
+          assert.equal(res.statusCode, 400);
+        }).done(done, done);
+      });
     });
 
     describe('?response_type', function() {
