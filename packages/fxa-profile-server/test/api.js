@@ -1053,6 +1053,7 @@ describe('/display_name', function() {
         'paragraph \u2028 separator',
         'private \uE005 use \uF8FF block',
         'specials \uFFFB annotation terminator',
+        'pile of \uD83D\uDCA9 lol'
       ];
       return P.resolve(NAMES).each(function(NAME) {
         mock.token({
