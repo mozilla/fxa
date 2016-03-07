@@ -41,6 +41,9 @@ function main(cb) {
   fs.writeFileSync(keyPath, JSON.stringify(privKey.toJSON(), undefined, 2));
   console.log('Key saved:', keyPath); //eslint-disable-line no-console
 
+  // The "old key" is not used to sign anything, so we don't need to store
+  // the private component, we just need to serve the public component
+  // so that old signatures can be verified correctly.
   var pubKey = JwTool.JWK.fromPEM(generateRSAKeypair().public, {
     kid: '2015.12.16-2'
   });
