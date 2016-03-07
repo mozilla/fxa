@@ -349,6 +349,35 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('writeToDOM', function () {
+      var content = '<div id="stage-child">stage child content</div>';
+      beforeEach(function () {
+        $('#container').html('<div id="stage">stage content</div>');
+      });
+
+      describe('with text', function () {
+        beforeEach(function () {
+          view.writeToDOM(content);
+        });
+
+        it('overwrite #stage with the html', function () {
+          assert.notInclude($('#stage').html(), 'stage content');
+          assert.include($('#stage').html(), 'stage child content');
+        });
+      });
+
+      describe('with a jQuery element', function () {
+        beforeEach(function () {
+          view.writeToDOM($(content));
+        });
+
+        it('overwrite #stage with the html', function () {
+          assert.notInclude($('#stage').html(), 'stage content');
+          assert.include($('#stage').html(), 'stage child content');
+        });
+      });
+    });
+
     describe('displayError/isErrorVisible/hideError', function () {
       it('translates and display an error in the .error element', function () {
         var msg = view.displayError('the error message');
