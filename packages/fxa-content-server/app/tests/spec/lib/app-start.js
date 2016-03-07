@@ -115,14 +115,15 @@ define(function (require, exports, module) {
           });
       });
 
-      it('updates old sessions', function () {
-        sinon.stub(userMock, 'upgradeFromSession', function () {
+      it('updates old storage formats', function () {
+        sinon.stub(appStart, 'upgradeStorageFormats', function () {
+          return p();
         });
 
         return appStart.startApp()
-                    .then(function () {
-                      assert.isTrue(userMock.upgradeFromSession.calledOnce);
-                    });
+          .then(function () {
+            assert.isTrue(appStart.upgradeStorageFormats.calledOnce);
+          });
       });
 
       it('uses storage metrics when an automated browser is detected', function () {
@@ -978,6 +979,28 @@ define(function (require, exports, module) {
           appStart._getSameBrowserVerificationModel('context'),
           SameBrowserVerificationModel
         );
+      });
+    });
+
+    describe('upgradeStorageFormats', function () {
+      beforeEach(function () {
+        appStart = new AppStart({
+          user: userMock,
+          window: windowMock
+        });
+
+        sinon.spy(userMock, 'upgradeFromUnfilteredAccountData');
+        sinon.spy(userMock, 'upgradeFromSession');
+
+        return appStart.upgradeStorageFormats();
+      });
+
+      it('upgrades unfiltered account data', function () {
+        assert.isTrue(userMock.upgradeFromUnfilteredAccountData.called);
+      });
+
+      it('upgrades from Session data', function () {
+        assert.isTrue(userMock.upgradeFromSession.called);
       });
     });
   });
