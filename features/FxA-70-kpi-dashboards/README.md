@@ -281,8 +281,12 @@ on the redshift table:
 * **service**: service or oauth client identifier
 * **context**: auth-broker context identifier
 * **entrypoint**: service or oauth client identifier
-* **campaign**: marketing campaign identifier
 * **migration**: service migration identifier, e.g. 'sync11' or 'amo'
+* **utm_campaign**: marketing campaign identifier
+* **utm_content**: marketing campaign content identifier
+* **utm_medium**: marketing campaign medium
+* **utm_source**: marketing campaign source
+* **utm_term**: marketing campaign search term
 
 All events in a flow
 will have the same tags,
@@ -323,8 +327,12 @@ might look like the following:
     <th>service</th>
     <th>context</th>
     <th>entrypoint</th>
-    <th>campaign</th>
     <th>migration</th>
+    <th>utm_campaign</th>
+    <th>utm_content</th>
+    <th>utm_medium</th>
+    <th>utm_source</th>
+    <th>utm_term</th>
   </tr>
   <tr>
     <td>1456434139863</td>
@@ -340,6 +348,10 @@ might look like the following:
     <td>sync</td>
     <th>fx_desktop_v2</th>
     <td>firstrun</td>
+    <td>NULL</td>
+    <td>NULL</td>
+    <td>NULL</td>
+    <td>NULL</td>
     <td>NULL</td>
     <td>NULL</td>
   </tr>
@@ -359,6 +371,10 @@ might look like the following:
     <td>firstrun</td>
     <td>NULL</td>
     <td>NULL</td>
+    <td>NULL</td>
+    <td>NULL</td>
+    <td>NULL</td>
+    <td>NULL</td>
   </tr>
   <tr>
     <td>1456434152525</td>
@@ -374,6 +390,10 @@ might look like the following:
     <td>sync</td>
     <th>fx_desktop_v2</th>
     <td>firstrun</td>
+    <td>NULL</td>
+    <td>NULL</td>
+    <td>NULL</td>
+    <td>NULL</td>
     <td>NULL</td>
     <td>NULL</td>
   </tr>
@@ -393,6 +413,10 @@ might look like the following:
     <td>firstrun</td>
     <td>NULL</td>
     <td>NULL</td>
+    <td>NULL</td>
+    <td>NULL</td>
+    <td>NULL</td>
+    <td>NULL</td>
   </tr>
   <tr>
     <td>1456434160275</td>
@@ -410,6 +434,10 @@ might look like the following:
     <td>firstrun</td>
     <td>NULL</td>
     <td>NULL</td>
+    <td>NULL</td>
+    <td>NULL</td>
+    <td>NULL</td>
+    <td>NULL</td>
   </tr>
   <tr>
     <td>1456434161650</td>
@@ -423,6 +451,10 @@ might look like the following:
     <td>40</td>
     <td>Windows 7</td>
     <td>sync</td>
+    <td>NULL</td>
+    <td>NULL</td>
+    <td>NULL</td>
+    <td>NULL</td>
     <td>NULL</td>
     <td>NULL</td>
     <td>NULL</td>
