@@ -54,6 +54,7 @@ function (Translator, Session) {
     '../tests/spec/lib/sentry',
     '../tests/spec/lib/relier-keys',
     '../tests/spec/lib/able',
+    '../tests/spec/lib/logger',
     '../tests/spec/lib/environment',
     '../tests/spec/lib/base64url',
     '../tests/spec/lib/origin-check',
