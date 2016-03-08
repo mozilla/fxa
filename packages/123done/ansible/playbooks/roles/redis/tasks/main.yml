@@ -1,0 +1,14 @@
+---
+
+- name: install redis and hiredis
+  sudo: true
+  yum: name={{ item }} state=present enablerepo=epel
+  with_items:
+    - redis
+    - hiredis
+
+- name: start redis
+  sudo: true
+  service: name=redis enabled=yes state=started
+
+- meta: flush_handlers
