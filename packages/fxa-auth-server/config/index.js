@@ -184,6 +184,11 @@ var conf = convict({
       format: String,
       default: 'https://www.mozilla.org/firefox/ios/'
     },
+    signInUrl: {
+      doc: 'Deprecated. uses contentServer.url',
+      format: String,
+      default: 'undefined'
+    },
     supportUrl: {
       doc: 'url to Mozilla Support product page',
       format: String,
@@ -364,6 +369,7 @@ conf.validate({ strict: true })
 conf.set('domain', url.parse(conf.get('publicUrl')).host)
 
 // derive fxa-auth-mailer configuration from our content-server url
+conf.set('smtp.signInUrl', conf.get('contentServer.url') + '/signin')
 conf.set('smtp.verificationUrl', conf.get('contentServer.url') + '/v1/verify_email')
 conf.set('smtp.passwordResetUrl', conf.get('contentServer.url') + '/v1/complete_reset_password')
 conf.set('smtp.accountUnlockUrl', conf.get('contentServer.url') + '/v1/complete_unlock_account')
