@@ -65,17 +65,11 @@ define(function (require, exports, module) {
     });
 
     it('has a `Learn More` link converted to text with `convertExternalLinksToText` capability', function () {
-      sinon.stub(broker, 'hasCapability', function (capability) {
-        if (capability === 'convertExternalLinksToText') {
-          return true;
-        }
-
-        return false;
-      });
+      broker.setCapability('convertExternalLinksToText', true);
 
       return view.render()
         .then(function () {
-          assert.lengthOf(view.$('.show-visible-url'), 1);
+          assert.lengthOf(view.$('.visible-url'), 1);
         });
     });
   });

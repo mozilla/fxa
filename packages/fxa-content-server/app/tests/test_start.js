@@ -111,6 +111,7 @@ function (Translator, Session) {
     '../tests/spec/views/behaviors/null',
     '../tests/spec/views/mixins/floating-placeholder-mixin',
     '../tests/spec/views/mixins/experiment-mixin',
+    '../tests/spec/views/mixins/external-links-mixin',
     '../tests/spec/views/mixins/timer-mixin',
     '../tests/spec/views/mixins/resume-token-mixin',
     '../tests/spec/views/mixins/service-mixin',
