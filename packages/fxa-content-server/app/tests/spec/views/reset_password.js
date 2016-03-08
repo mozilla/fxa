@@ -81,6 +81,18 @@ define(function (require, exports, module) {
             assert.equal(view.$('a[href="/signin"]').length, 1);
           });
       });
+
+      describe('with broker that supports `convertExternalLinksToText`', function () {
+        beforeEach(function () {
+          broker.setCapability('convertExternalLinksToText', true);
+
+          return view.render();
+        });
+
+        it('converts the `learn more` link', function () {
+          assert.lengthOf(view.$('.visible-url'), 1);
+        });
+      });
     });
 
     describe('isValid', function () {

@@ -87,6 +87,15 @@
   a {
     color: $reset-pw-text-color;
   }
+
+  a[href^=http].visible-url {
+    color: $reset-pw-text-color;
+  }
+
+  a[data-visible-url^=http]:after,
+  a[data-visible-url^=http]::after {
+    border-bottom: 1px solid $reset-pw-text-background-color;
+  }
 }
 
 // Put a margin on top when the error messages follow a div

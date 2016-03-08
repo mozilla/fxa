@@ -7,6 +7,8 @@ define(function (require, exports, module) {
 
   var BaseView = require('views/base');
   var CannotCreateAccountTemplate = require('stache!templates/cannot_create_account');
+  var Cocktail = require('cocktail');
+  var ExternalLinksMixin = require('views/mixins/external-links-mixin');
 
   var CannotCreateAccountView = BaseView.extend({
     template: CannotCreateAccountTemplate,
@@ -14,12 +16,16 @@ define(function (require, exports, module) {
 
     context: function () {
       return {
-        convertExternalLinksToText: this.broker.hasCapability('convertExternalLinksToText'),
         isSync: this.relier.isSync()
       };
     }
 
   });
+
+  Cocktail.mixin(
+    CannotCreateAccountView,
+    ExternalLinksMixin
+  );
 
   module.exports = CannotCreateAccountView;
 });
