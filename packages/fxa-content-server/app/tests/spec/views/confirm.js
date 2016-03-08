@@ -188,6 +188,36 @@ define(function (require, exports, module) {
             assert.isTrue(view.fxaClient.recoveryEmailStatus.called);
           });
       });
+
+      it('displays an error when an unknown error occurs', function () {
+        var unknownError = 'Something failed';
+        sinon.stub(view.fxaClient, 'recoveryEmailStatus', function () {
+          return p.reject(new Error(unknownError));
+        });
+
+        sinon.spy(view, 'navigate');
+        return view.afterVisible()
+          .then(function () {
+            assert.isTrue(view.fxaClient.recoveryEmailStatus.called);
+            assert.equal(view.$('.error').text(), unknownError);
+          });
+      });
+
+      it('does not display an error to the user when unexpected error occurs', function () {
+        sinon.stub(view.fxaClient, 'recoveryEmailStatus', function () {
+          return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+        });
+
+        sinon.spy(view, 'navigate');
+        sinon.spy(view.sentryMetrics, 'captureException');
+        return view.afterVisible()
+          .then(function () {
+            assert.isTrue(view.fxaClient.recoveryEmailStatus.called, 'called recoveryEmailStatus');
+            assert.isTrue(view.sentryMetrics.captureException.called, 'called captureException');
+            assert.equal(view.$('.error').text(), '');
+          });
+      });
+
     });
 
     describe('submit', function () {
