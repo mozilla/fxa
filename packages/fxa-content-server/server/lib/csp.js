@@ -7,15 +7,25 @@
 // exception for the /tests/index.html path, which are the frontend unit
 // tests.
 
-var helmet = require('helmet');
 var config = require('./configuration');
+var helmet = require('helmet');
 var url = require('url');
-var SELF = "'self'";
-var DATA = 'data:';
-var BLOB = 'blob:';
-var GRAVATAR = 'https://secure.gravatar.com';
 
-function requiresCsp(req) {
+var BLOB = 'blob:';
+var CDN_URL = config.get('static_resource_url');
+var DATA = 'data:';
+var GRAVATAR = 'https://secure.gravatar.com';
+var PUBLIC_URL = config.get('public_url');
+var SELF = "'self'";
+
+function addCdnRuleIfRequired(target) {
+  if (CDN_URL !== PUBLIC_URL) {
+    target.push(CDN_URL);
+  }
+  return target;
+}
+
+function isCspRequired(req) {
   // is the user running tests? No CSP.
   return req.path !== '/tests/index.html';
 }
@@ -34,24 +44,30 @@ var cspMiddleware = helmet.csp({
     config.get('marketing_email.api_url')
   ],
   defaultSrc: [SELF],
-  imgSrc: [
+  fontSrc: addCdnRuleIfRequired([
+    SELF
+  ]),
+  imgSrc: addCdnRuleIfRequired([
     SELF,
     DATA,
     GRAVATAR,
     config.get('profile_images_url')
-  ],
+  ]),
   mediaSrc: [BLOB],
   reportOnly: config.get('csp.reportOnly'),
   reportUri: config.get('csp.reportUri'),
-  styleSrc: [
+  scriptSrc: addCdnRuleIfRequired([
+    SELF
+  ]),
+  styleSrc: addCdnRuleIfRequired([
     SELF,
     // The sha of the embedded <style> tag in default-profile.svg.
     "'sha256-9n6ek6ecEYlqel7uDyKLy6fdGNo3vw/uScXSq9ooQlk='"
-  ]
+  ])
 });
 
 module.exports = function (req, res, next) {
-  if (! requiresCsp(req)) {
+  if (! isCspRequired(req)) {
     return next();
   }
 

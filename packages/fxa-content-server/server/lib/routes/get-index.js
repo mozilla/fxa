@@ -3,13 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-module.exports = function () {
+module.exports = function (config) {
+  var STATIC_RESOURCE_URL = config.get('static_resource_url');
+
   var route = {};
   route.method = 'get';
   route.path = '/';
 
   route.process = function (req, res) {
-    res.render('index');
+    res.render('index', {
+      staticResourceUrl: STATIC_RESOURCE_URL
+    });
   };
 
   return route;
