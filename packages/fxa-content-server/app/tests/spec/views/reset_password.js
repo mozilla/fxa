@@ -73,34 +73,12 @@ define(function (require, exports, module) {
         assert.ok($('#fxa-reset-password-header').length);
       });
 
-      it('pre-fills email addresses from formPrefill.email', function () {
-        formPrefill.set('email', 'prefilled@testuser.com');
-        return view.render()
-          .then(function () {
-            assert.equal(view.$('.email').val(), 'prefilled@testuser.com');
-            assert.equal(view.$('.email').attr('spellcheck'), 'false');
-          });
-      });
-
-      it('shows the back button if back is enabled', function () {
-        view = createView({
-          canGoBack: true
-        });
+      it('shows the signin button', function () {
+        view = createView();
 
         return view.render()
           .then(function () {
-            assert.equal(view.$('#back').length, 1);
-          });
-      });
-
-      it('does not show the back button if back is disabled', function () {
-        view = createView({
-          canGoBack: false
-        });
-
-        return view.render()
-          .then(function () {
-            assert.equal(view.$('#back').length, 0);
+            assert.equal(view.$('a[href="/signin"]').length, 1);
           });
       });
     });
@@ -247,8 +225,8 @@ define(function (require, exports, module) {
       $('#container').empty();
     });
 
-    it('pre-fills email address', function () {
-      assert.equal(view.$('.email').val(), 'testuser@testuser.com');
+    it('does not pre-fills email address', function () {
+      assert.equal(view.$('.email').val(), '');
     });
 
     it('removes the back button - the user probably browsed here directly', function () {

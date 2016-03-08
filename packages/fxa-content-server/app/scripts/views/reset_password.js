@@ -6,7 +6,6 @@ define(function (require, exports, module) {
   'use strict';
 
   var AuthErrors = require('lib/auth-errors');
-  var BackMixin = require('views/mixins/back-mixin');
   var BaseView = require('views/base');
   var Cocktail = require('cocktail');
   var FormView = require('views/form');
@@ -27,22 +26,7 @@ define(function (require, exports, module) {
       this._formPrefill = options.formPrefill;
     },
 
-    _getPrefillEmail: function () {
-      return this.relier.get('email') || this._formPrefill.get('email') || '';
-    },
-
-    context: function () {
-      return {
-        email: this._getPrefillEmail()
-      };
-    },
-
     afterRender: function () {
-      var value = this.$('.email').val();
-      if (value) {
-        this.focus('.email');
-      }
-
       if (this.relier.isOAuth()) {
         this.transformLinks();
       }
@@ -78,7 +62,6 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     View,
-    BackMixin,
     PasswordResetMixin,
     ServiceMixin
   );

@@ -73,8 +73,20 @@
 }
 
 .reset-warning {
-  font-size: $small-font;
+  background-color: $reset-pw-text-background-color;
+  color: $reset-pw-text-color;
+  font-size: $base-font;
   font-weight: normal;
+  margin-top: 0px;
+  padding: 5px;
+
+  &.reset-warning-complete-password {
+    margin-bottom: 25px;
+  }
+
+  a {
+    color: $reset-pw-text-color;
+  }
 }
 
 // Put a margin on top when the error messages follow a div

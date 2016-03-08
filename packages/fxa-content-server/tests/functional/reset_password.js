@@ -5,16 +5,13 @@
 define([
   'intern',
   'intern!object',
-  'intern/chai!assert',
-  'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/restmail',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/test'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest,
-      FxaClient, restmail, TestHelpers, FunctionalHelpers, Test) {
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, nodeXMLHttpRequest,
+      FxaClient, restmail, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
@@ -25,10 +22,24 @@ define([
 
   var PASSWORD = 'password';
   var TIMEOUT = 90 * 1000;
-  var email;
-  var code;
-  var token;
+
   var client;
+  var code;
+  var email;
+  var token;
+
+  var thenify = FunctionalHelpers.thenify;
+
+  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var click = FunctionalHelpers.click;
+  var createUser = FunctionalHelpers.createUser;
+  var fillOutCompleteResetPassword = thenify(FunctionalHelpers.fillOutCompleteResetPassword);
+  var fillOutResetPassword = FunctionalHelpers.fillOutResetPassword;
+  var noSuchElement = FunctionalHelpers.noSuchElement;
+  var openPage = FunctionalHelpers.openPage;
+  var testElementExists = FunctionalHelpers.testElementExists;
+  var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
+  var type = FunctionalHelpers.type;
 
   var createRandomHexString = TestHelpers.createRandomHexString;
 
@@ -44,13 +55,6 @@ define([
   }
 
   /**
-   * Fill out the reset password form
-   */
-  function fillOutResetPassword(context, email) {
-    return FunctionalHelpers.fillOutResetPassword(context, email);
-  }
-
-  /**
    * Programatically initiate a reset password using the
    * FxA Client. Saves the token and code.
    */
@@ -61,7 +65,7 @@ define([
       });
   }
 
-  function openCompleteResetPassword(context, email, token, code) {
+  var openCompleteResetPassword = thenify(function (context, email, token, code, header) {
     var url = COMPLETE_PAGE_URL_ROOT + '?';
 
     var queryParams = [];
@@ -78,9 +82,8 @@ define([
     }
 
     url += queryParams.join('&');
-    return context.remote.get(require.toUrl(url))
-      .setFindTimeout(intern.config.pageLoadTimeout);
-  }
+    return openPage(context, url, header);
+  });
 
   function testAtSettingsWithVerifiedMessage(context) {
     return context.remote
@@ -102,136 +105,76 @@ define([
   }
 
   registerSuite({
-    name: 'reset_password flow',
+    name: 'reset password',
 
     beforeEach: function () {
       // timeout after 90 seconds
       this.timeout = 90000;
 
-      var self = this;
       email = TestHelpers.createEmail();
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
-      return client.signUp(email, PASSWORD, { preVerified: true })
-          .then(function () {
-            // clear localStorage to avoid pollution from other tests.
-            return FunctionalHelpers.clearBrowserState(self);
-          });
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(clearBrowserState(this));
     },
 
     'visit confirmation screen without initiating reset_password, user is redirected to /reset_password': function () {
-      return this.remote
-        .get(require.toUrl(CONFIRM_PAGE_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-
-        // user is immediately redirected to /reset_password if they have no
-        // sessionToken.
-        // Success is showing the screen
-        .findById('fxa-reset-password-header')
-        .end();
+      // user is immediately redirected to /reset_password if they have no
+      // sessionToken.
+      // Success is showing the screen
+      return openPage(this, CONFIRM_PAGE_URL, '#fxa-reset-password-header');
     },
 
     'open /reset_password page from /signin': function () {
       var self = this;
-      return this.remote
-        .get(require.toUrl(SIGNIN_PAGE_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
+      return openPage(this, SIGNIN_PAGE_URL, '#fxa-signin-header')
 
-        .findByCssSelector('input[type="email"]')
-          .clearValue()
-          .click()
-          .type(email)
-        .end()
+        .then(type('input[type=email]', email))
 
-        .findByCssSelector('a[href="/reset_password"]')
-          .click()
-        .end()
+        .then(click('a[href="/reset_password"]'))
 
-        .findById('fxa-reset-password-header')
-        .end()
+        .then(testElementExists('#fxa-reset-password-header'))
 
-        // ensure there is a back button
-        .findById('back')
-        .end()
+        // ensure there is a signin button
+        .then(testElementExists('a[href="/signin"]'))
 
-        // email should be pre-filled
-        .findByCssSelector('input[type="email"]')
-          .getAttribute('value')
-          .then(function (resultText) {
-            // check the email address was written
-            assert.equal(resultText, email);
-          })
-        .end()
+        // ensure there is a link to `Learn how Sync works`
+        .then(testElementExists('a[href="https://support.mozilla.org/products/firefox/sync"]'))
 
+        // email should not be pre-filled
+        .then(testElementValueEquals('input[type=email]', ''))
 
         .then(function () {
           return fillOutResetPassword(self, email);
         })
 
-        .findById('fxa-confirm-reset-password-header')
-        .end();
+        .then(testElementExists('#fxa-confirm-reset-password-header'));
     },
-
-    'open /reset_password from /signin with partial email': function () {
-      var self = this;
-      email = 'partial';
-
-      return self.remote
-        .get(require.toUrl(SIGNIN_PAGE_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-
-        .findByCssSelector('input[type=email]')
-          .click()
-          .clearValue()
-          .type(email)
-        .end()
-
-        .findByCssSelector('a[href="/reset_password"]')
-          .click()
-        .end()
-
-        .findById('fxa-reset-password-header')
-        .end()
-
-        .findByCssSelector('input[type=email]')
-          .getAttribute('value')
-          .then(function (resultText) {
-            // check the email address was written
-            assert.equal(resultText, email);
-          })
-        .end();
-    },
-
 
     'enter an email with leading whitespace': function () {
       return fillOutResetPassword(this, '   ' + email)
-        .findById('fxa-confirm-reset-password-header')
-        .end();
+        .then(testElementExists('#fxa-confirm-reset-password-header'));
     },
 
     'enter an email with trailing whitespace': function () {
       return fillOutResetPassword(this, email + '   ')
-        .findById('fxa-confirm-reset-password-header')
-        .end();
+        .then(testElementExists('#fxa-confirm-reset-password-header'));
     },
 
     'open confirm_reset_password page, click resend': function () {
       var user = TestHelpers.emailToUser(email);
       return fillOutResetPassword(this, email)
-        .findById('resend')
-          .click()
-        .end()
+        .then(click('#resend'))
 
         .then(restmail(EMAIL_SERVER_ROOT + '/mail/' + user, 2))
 
         // Success is showing the success message
         .then(FunctionalHelpers.testSuccessWasShown(this))
 
-        .findById('resend')
-          .click()
-          .click()
-        .end()
+        .then(click('#resend'))
+        .then(click('#resend'))
 
         // Stills shows success message
         //
@@ -242,81 +185,56 @@ define([
     },
 
     'open complete page with missing token shows damaged screen': function () {
-      var self = this;
       return initiateResetPassword(this, email, 0)
-        .then(function () {
-          return openCompleteResetPassword(self, email, null, code)
-            .findById('fxa-reset-link-damaged-header')
-            .end();
-        });
+        .then(openCompleteResetPassword(
+          this, email, null, code, '#fxa-reset-link-damaged-header'
+        ));
 
     },
 
     'open complete page with malformed token shows damaged screen': function () {
-      var self = this;
+      var malformedToken = createRandomHexString(token.length - 1);
       return initiateResetPassword(this, email, 0)
-        .then(function () {
-          var malformedToken = createRandomHexString(token.length - 1);
-          return openCompleteResetPassword(self, email, malformedToken, code)
-            .findById('fxa-reset-link-damaged-header')
-            .end()
-
-            .then(FunctionalHelpers.noSuchElement(self, '#fxa-reset-link-expired-header'));
-        });
+        .then(openCompleteResetPassword(
+          this, email, malformedToken, code, '#fxa-reset-link-damaged-header'
+        ));
     },
 
     'open complete page with invalid token shows expired screen': function () {
-      var self = this;
+      var invalidToken = createRandomHexString(token.length);
       return initiateResetPassword(this, email, 0)
-        .then(function () {
-          var invalidToken = createRandomHexString(token.length);
-          return openCompleteResetPassword(self, email, invalidToken, code)
-            .findById('fxa-reset-link-expired-header')
-            .end()
-
-            .then(FunctionalHelpers.noSuchElement(self, '#fxa-reset-link-damaged-header'));
-        });
+        .then(openCompleteResetPassword(
+          this, email, invalidToken, code, '#fxa-reset-link-expired-header'
+        ));
     },
 
     'open complete page with missing code shows damaged screen': function () {
-      var self = this;
       return initiateResetPassword(this, email, 0)
-        .then(function () {
-          return openCompleteResetPassword(self, email, token, null)
-            .findById('fxa-reset-link-damaged-header')
-            .end();
-        });
+        .then(openCompleteResetPassword(
+          this, email, token, null, '#fxa-reset-link-damaged-header'
+        ));
     },
 
     'open complete page with malformed code shows damanged screen': function () {
-      var self = this;
+      var malformedCode = createRandomHexString(code.length - 1);
       return initiateResetPassword(this, email, 0)
-        .then(function () {
-          var malformedCode = createRandomHexString(code.length - 1);
-          return openCompleteResetPassword(self, email, token, malformedCode)
-            .findById('fxa-reset-link-damaged-header')
-            .end();
-        });
+        .then(openCompleteResetPassword(
+          this, email, token, malformedCode, '#fxa-reset-link-damaged-header'
+        ));
     },
 
     'open complete page with missing email shows damaged screen': function () {
-      var self = this;
       return initiateResetPassword(this, email, 0)
-        .then(function () {
-          return openCompleteResetPassword(self, null, token, code)
-            .findById('fxa-reset-link-damaged-header')
-            .end();
-        });
+        .then(openCompleteResetPassword(
+          this, null, token, code, '#fxa-reset-link-damaged-header'
+        ));
     },
 
     'open complete page with malformed email shows damaged screen': function () {
-      var self = this;
       return initiateResetPassword(this, email, 0)
-        .then(function () {
-          return openCompleteResetPassword(self, 'invalidemail', token, code)
-            .findById('fxa-reset-link-damaged-header')
-            .end();
-        });
+        .then(openCompleteResetPassword(
+          this, 'invalidemail', token, code, '#fxa-reset-link-damaged-header'
+        ));
     },
 
     'reset password, verify same browser': function () {
@@ -325,8 +243,7 @@ define([
 
       return FunctionalHelpers.fillOutResetPassword(self, email)
 
-        .findById('fxa-confirm-reset-password-header')
-        .end()
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
 
         .then(function () {
           return FunctionalHelpers.openVerificationLinkInNewTab(
@@ -336,12 +253,9 @@ define([
         // Complete the reset password in the new tab
         .switchToWindow('newwindow')
 
-        .findById('fxa-complete-reset-password-header')
-        .end()
+        .then(testElementExists('#fxa-complete-reset-password-header'))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutCompleteResetPassword(self, PASSWORD, PASSWORD);
-        })
+        .then(fillOutCompleteResetPassword(self, PASSWORD, PASSWORD))
 
         // this tab's success is seeing the reset password complete header.
         .then(function () {
@@ -362,8 +276,7 @@ define([
 
       return FunctionalHelpers.fillOutResetPassword(self, email)
 
-        .findByCssSelector('#fxa-confirm-reset-password-header')
-        .end()
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
 
         // user browses to another site.
         .then(FunctionalHelpers.openExternalSite(self))
@@ -375,10 +288,7 @@ define([
 
         .switchToWindow('newwindow')
 
-        .then(function () {
-          return FunctionalHelpers.fillOutCompleteResetPassword(
-              self, PASSWORD, PASSWORD);
-        })
+        .then(fillOutCompleteResetPassword(self, PASSWORD, PASSWORD))
 
         // this tab's success is seeing the reset password complete header.
         .then(function () {
@@ -396,22 +306,16 @@ define([
 
       return FunctionalHelpers.fillOutResetPassword(self, email)
 
-        .findByCssSelector('#fxa-confirm-reset-password-header')
-        .end()
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
 
         .then(function () {
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (verificationLink) {
-          return self.remote
-            .get(require.toUrl(verificationLink))
-            .setFindTimeout(intern.config.pageLoadTimeout);
+          return openPage(self, verificationLink, '#fxa-complete-reset-password-header');
         })
 
-        .then(function () {
-          return FunctionalHelpers.fillOutCompleteResetPassword(
-              self, PASSWORD, PASSWORD);
-        })
+        .then(fillOutCompleteResetPassword(self, PASSWORD, PASSWORD))
 
         // this tab's success is seeing the reset password complete header.
         .then(function () {
@@ -425,8 +329,7 @@ define([
 
       return FunctionalHelpers.fillOutResetPassword(self, email)
 
-        .findById('fxa-confirm-reset-password-header')
-        .end()
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
 
         .then(function () {
           return FunctionalHelpers.openPasswordResetLinkDifferentBrowser(
@@ -435,22 +338,16 @@ define([
 
         // user verified in a new browser, they have to enter
         // their updated credentials in the original tab.
-        .findByCssSelector('#fxa-signin-header')
-        .end()
+        .then(testElementExists('#fxa-signin-header'))
 
         .then(FunctionalHelpers.testSuccessWasShown(self))
 
-        .findByCssSelector('#password')
-          .type(PASSWORD)
-        .end()
+        .then(type('input[type=password]', PASSWORD))
 
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(click('button[type="submit"]'))
 
         // no success message, the user should have seen that above.
-        .findByCssSelector('#fxa-settings-header')
-        .end();
+        .then(testElementExists('#fxa-settings-header'));
     },
 
     'reset password, verify in a different browser, from the new browser\'s P.O.V.': function () {
@@ -459,31 +356,20 @@ define([
       self.timeout = 90 * 1000;
       return FunctionalHelpers.fillOutResetPassword(self, email)
 
-        .findById('fxa-confirm-reset-password-header')
-        .end()
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
 
-
-        .then(function () {
-          // clear all browser state, simulate opening in a new
-          // browser
-          return FunctionalHelpers.clearBrowserState(self, {
-            contentServer: true
-          });
-        })
+        // clear all browser state, simulate opening in
+        // a new browser
+        .then(clearBrowserState(this, { contentServer: true }))
 
         .then(function () {
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (verificationLink) {
-          return self.remote
-            .get(require.toUrl(verificationLink))
-            .setFindTimeout(intern.config.pageLoadTimeout);
+          return openPage(self, verificationLink, '#fxa-complete-reset-password-header');
         })
 
-        .then(function () {
-          return FunctionalHelpers.fillOutCompleteResetPassword(
-                      self, PASSWORD, PASSWORD);
-        })
+        .then(fillOutCompleteResetPassword(self, PASSWORD, PASSWORD))
 
         .then(function () {
           return testAtSettingsWithVerifiedMessage(self);
@@ -496,8 +382,7 @@ define([
       return client.accountLock(email, PASSWORD)
         .then(function () {
           return FunctionalHelpers.fillOutResetPassword(self, email)
-            .findById('fxa-confirm-reset-password-header')
-            .end()
+            .then(testElementExists('#fxa-confirm-reset-password-header'))
 
             .then(function () {
               return FunctionalHelpers.openVerificationLinkInNewTab(
@@ -507,12 +392,9 @@ define([
             // Complete the reset password in the new tab
             .switchToWindow('newwindow')
 
-            .findById('fxa-complete-reset-password-header')
-            .end()
+            .then(testElementExists('#fxa-complete-reset-password-header'))
 
-            .then(function () {
-              return FunctionalHelpers.fillOutCompleteResetPassword(self, PASSWORD, PASSWORD);
-            })
+            .then(fillOutCompleteResetPassword(self, PASSWORD, PASSWORD))
 
             // this tab's success is seeing the reset password complete header.
             .then(function () {
@@ -523,21 +405,17 @@ define([
             // switch to the original window
             .switchToWindow('')
 
-            .findByCssSelector('#fxa-settings-header')
-            .end()
+            .then(testElementExists('#fxa-settings-header'))
 
             .then(FunctionalHelpers.testSuccessWasShown(self))
 
-            .findByCssSelector('#signout')
-              .click()
-            .end()
+            .then(click('#signout'))
 
             .then(function () {
               return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
             })
 
-            .findByCssSelector('#fxa-settings-header')
-            .end();
+            .then(testElementExists('#fxa-settings-header'));
         });
     }
   });
@@ -550,19 +428,14 @@ define([
       // timeout after 90 seconds
       this.timeout = 90000;
       email = TestHelpers.createEmail();
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
 
       var self = this;
-      return client.signUp(email, PASSWORD, { preVerified: true })
+      return this.remote
+          .then(createUser(email, PASSWORD, { preVerified: true }))
           .then(function () {
             return initiateResetPassword(self, email, 0);
           })
-          .then(function () {
-            // clear localStorage to avoid pollution from other tests.
-            return FunctionalHelpers.clearBrowserState(self);
-          });
+          .then(clearBrowserState(this));
     },
 
     'complete reset, then re-open verification link, click resend': function () {
@@ -570,27 +443,21 @@ define([
       this.timeout = 90000;
 
       var self = this;
-      return openCompleteResetPassword(self, email, token, code)
-        .then(function () {
-          return FunctionalHelpers.fillOutCompleteResetPassword(self, PASSWORD, PASSWORD);
-        })
+      return this.remote
+        .then(openCompleteResetPassword(
+          this, email, token, code, '#fxa-complete-reset-password-header'
+        ))
+        .then(fillOutCompleteResetPassword(self, PASSWORD, PASSWORD))
 
-        .findById('fxa-settings-header')
-        .end()
+        .then(testElementExists('#fxa-settings-header'))
 
-        .then(function () {
-          return openCompleteResetPassword(self, email, token, code);
-        })
+        .then(openCompleteResetPassword(
+          this, email, token, code, '#fxa-reset-link-expired-header'
+        ))
 
-        .findById('fxa-reset-link-expired-header')
-        .end()
+        .then(click('#resend'))
 
-        .findById('resend')
-          .click()
-        .end()
-
-        .findById('fxa-confirm-reset-password-header')
-        .end();
+        .then(testElementExists('#fxa-confirm-reset-password-header'));
     }
   });
 
@@ -600,40 +467,27 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      var client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
-      var self = this;
-      return client.signUp(email, PASSWORD, { preVerified: true })
-        .then(function () {
-          // clear localStorage to avoid pollution from other tests.
-          return FunctionalHelpers.clearBrowserState(self);
-        });
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(clearBrowserState(this));
     },
 
     'browse directly to page with email on query params': function () {
       var url = RESET_PAGE_URL + '?email=' + email;
-      var self = this;
-      return this.remote
-        .get(require.toUrl(url))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .findByCssSelector('form input.email')
-          .getAttribute('value')
-          .then(function (resultText) {
-            // email address should be pre-filled from the query param.
-            assert.equal(resultText, email);
-          })
-        .end()
+      return openPage(this, url, '#fxa-reset-password-header')
+
+        // email address should not be pre-filled from the query param.
+        .then(testElementValueEquals('input[type=email]', ''))
 
         // ensure there is no back button when browsing directly to page
-        .then(Test.noElementById(self, 'fxa-tos-back'))
+        .then(noSuchElement(this, '#fxa-tos-back'))
 
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        // fill in email
+        .then(type('input[type=email]', email))
 
-        .findById('fxa-confirm-reset-password-header')
-        .end();
+        .then(click('button[type="submit"]'))
+
+        .then(testElementExists('#fxa-confirm-reset-password-header'));
     }
   });
 
@@ -648,25 +502,20 @@ define([
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
 
-      var self = this;
-      return client.signUp(email, PASSWORD, { preVerified: true })
-        .then(function () {
-          // clear localStorage to avoid pollution from other tests.
-          return FunctionalHelpers.clearBrowserState(self);
-        });
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(clearBrowserState(this));
     },
 
     'original page transitions after completion': function () {
       return fillOutResetPassword(this, email)
-        .findById('fxa-confirm-reset-password-header')
-        .end()
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
 
         .then(function () {
           return client.passwordChange(email, PASSWORD, 'newpassword');
         })
 
-        .findById('fxa-signin-header')
-        .end();
+        .then(testElementExists('#fxa-signin-header'));
     }
   });
 
@@ -675,27 +524,21 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote
+        .then(clearBrowserState(this));
     },
 
     'open /reset_password page, enter unknown email, wait for error': function () {
       return fillOutResetPassword(this, email)
         // The error area shows a link to /signup
         .then(FunctionalHelpers.visibleByQSAErrorHeight('.error a[href="/signup"]'))
-        .findByCssSelector('.error a[href="/signup"]')
-          .click()
-        .end()
 
-        .findById('fxa-signup-header')
-        .end()
+        .then(click('.error a[href="/signup"]'))
 
-        .findByCssSelector('input[type=email]')
-          .getAttribute('value')
-          .then(function (resultText) {
-            // check the email address was written
-            assert.equal(resultText, email);
-          })
-        .end();
+        .then(testElementExists('#fxa-signup-header'))
+
+        // check the email address was written
+        .then(testElementValueEquals('input[type=email]', email));
     }
   });
 });
