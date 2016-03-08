@@ -56,21 +56,22 @@ git show --summary
 npm config set cache ~/.fxacache
 export npm_config_cache=~/.fxacache
 export npm_config_tmp=~/fxatemp
-npm install intern@3.0.6     \
+npm install                  \
   bower@1.7.1                \
-  zaach/node-XMLHttpRequest.git#onerror \
-  firefox-profile@0.3.11     \
-  request@2.67.0             \
-  sync-exec@0.6.1            \
   convict@1.0.2              \
+  extend@3.0.0               \
+  firefox-profile@0.3.11     \
+  htmlparser2@3.9.0          \
+  intern@3.0.6               \
   mozlog@2.0.2               \
   node-statsd@0.1.1          \
   proxyquire@1.6.0           \
+  request@2.67.0             \
   shane-tomlinson/node-uap.git#13fa830e8 \
   sinon@1.15.4               \
-  extend@3.0.0               \
-  universal-analytics@0.3.9
-
+  sync-exec@0.6.1            \
+  universal-analytics@0.3.9  \
+  zaach/node-XMLHttpRequest.git#onerror
 
 set -o xtrace # echo the following commands
 
