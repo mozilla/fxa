@@ -27,11 +27,6 @@ define(function (require, exports, module) {
     },
 
     afterRender: function () {
-      var value = this.$('.email').val();
-      if (value) {
-        this.focus('.email');
-      }
-
       if (this.relier.isOAuth()) {
         this.transformLinks();
       }
