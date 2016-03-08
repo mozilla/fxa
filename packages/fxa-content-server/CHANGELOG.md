@@ -1,3 +1,42 @@
+<a name="0.58.0"></a>
+# 0.58.0 (2016-03-08)
+
+
+### Bug Fixes
+
+* **build:** copy error pages into dist, not app ([118e2c8](https://github.com/mozilla/fxa-content-server/commit/118e2c8))
+* **client:** forbid single-part domains in email addresses ([4c42f47](https://github.com/mozilla/fxa-content-server/commit/4c42f47))
+* **client:** Handle old accounts that contain `accountData` ([479b7dd](https://github.com/mozilla/fxa-content-server/commit/479b7dd)), closes [#3466](https://github.com/mozilla/fxa-content-server/issues/3466)
+* **client:** Only send login notices to Fx if all data is available. ([53fe05f](https://github.com/mozilla/fxa-content-server/commit/53fe05f)), closes [#3514](https://github.com/mozilla/fxa-content-server/issues/3514)
+* **server:** Allow the /signin, /signup, /reset_pasword to be framed ([f513fb2](https://github.com/mozilla/fxa-content-server/commit/f513fb2)), closes [#3518](https://github.com/mozilla/fxa-content-server/issues/3518)
+* **test:** Ensure `addEventListener` exists before invoking. ([918cf7b](https://github.com/mozilla/fxa-content-server/commit/918cf7b)), closes [#3408](https://github.com/mozilla/fxa-content-server/issues/3408)
+* **tests:** allow setting fxaDevBox with teamcity run-server.sh ([62b8b58](https://github.com/mozilla/fxa-content-server/commit/62b8b58))
+* **tests:** don't quote commit value (might have leading spaces) ([d25225b](https://github.com/mozilla/fxa-content-server/commit/d25225b))
+* **tests:** Fix test timeout with selenium 51 ([9021c28](https://github.com/mozilla/fxa-content-server/commit/9021c28))
+* **tests:** handle OUT: garbage from jsawk ([6b268ea](https://github.com/mozilla/fxa-content-server/commit/6b268ea))
+* **tests:** update modules to match package.json, and jsawk fix ([d36f285](https://github.com/mozilla/fxa-content-server/commit/d36f285))
+* **tests:** update teamcity server test driver ([902195c](https://github.com/mozilla/fxa-content-server/commit/902195c))
+* **validation:** Add validation to optional params in models and reliers ([46cc1ad](https://github.com/mozilla/fxa-content-server/commit/46cc1ad)), closes [#2025](https://github.com/mozilla/fxa-content-server/issues/2025) [#3490](https://github.com/mozilla/fxa-content-server/issues/3490) [#3452](https://github.com/mozilla/fxa-content-server/issues/3452)
+
+### chore
+
+* **client:** Update fxa-js-client to 0.1.34 ([fdd9f4e](https://github.com/mozilla/fxa-content-server/commit/fdd9f4e))
+* **git:** Remove built app based error pages from .gitignore ([ebf464c](https://github.com/mozilla/fxa-content-server/commit/ebf464c))
+* **strings:** Add strings needed for update password reset flow ([fb5087c](https://github.com/mozilla/fxa-content-server/commit/fb5087c))
+* **tests:** latest4 is also an fxa-dev box ([8b57f1e](https://github.com/mozilla/fxa-content-server/commit/8b57f1e))
+* **tests:** Pre-merge cleanup of tests and HTML. ([5844134](https://github.com/mozilla/fxa-content-server/commit/5844134))
+* **tests:** Remove hard coded client_id from `oauth choose redirect` tests. ([5064b69](https://github.com/mozilla/fxa-content-server/commit/5064b69))
+
+### Features
+
+* **amo:** Signin/Signup based on email query param with existing account ([d30d508](https://github.com/mozilla/fxa-content-server/commit/d30d508))
+* **build:** Prepare to serve static content from a CDN. ([93209b2](https://github.com/mozilla/fxa-content-server/commit/93209b2)), closes [#3447](https://github.com/mozilla/fxa-content-server/issues/3447) [#3462](https://github.com/mozilla/fxa-content-server/issues/3462) [#3463](https://github.com/mozilla/fxa-content-server/issues/3463)
+* **client:** Add a mixin to handle updating external URLs on Fx for iOS ([f2f7fc1](https://github.com/mozilla/fxa-content-server/commit/f2f7fc1))
+* **server:** add hard crash maintenance mode template ([b168cf2](https://github.com/mozilla/fxa-content-server/commit/b168cf2)), closes [#3103](https://github.com/mozilla/fxa-content-server/issues/3103)
+* **styles:** Updated password reset flow ([822ab77](https://github.com/mozilla/fxa-content-server/commit/822ab77))
+
+
+
 <a name="0.57.0"></a>
 # 0.57.0 (2016-02-23)
 
