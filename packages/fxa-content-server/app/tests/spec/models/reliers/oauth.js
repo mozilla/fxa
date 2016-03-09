@@ -323,9 +323,27 @@ define(function (require, exports, module) {
             testInvalidQueryParams('scope', invalidValues);
           });
 
-          describe('trusted reliers', function () {
+          describe('trusted reliers that dont ask for consent', function () {
             beforeEach(function () {
               sinon.stub(relier, 'isTrusted', function () {
+                return true;
+              });
+              sinon.stub(relier, 'wantsConsent', function () {
+                return false;
+              });
+            });
+
+            var validValues = [SCOPE_WITH_EXTRAS, SCOPE_PROFILE, 'profile:unrecognized'];
+            var expectedValues = [SCOPE_WITH_EXTRAS, SCOPE_PROFILE, 'profile:unrecognized'];
+            testValidQueryParams('scope', validValues, 'scope', expectedValues);
+          });
+
+          describe('trusted reliers that ask for consent', function () {
+            beforeEach(function () {
+              sinon.stub(relier, 'isTrusted', function () {
+                return true;
+              });
+              sinon.stub(relier, 'wantsConsent', function () {
                 return true;
               });
             });

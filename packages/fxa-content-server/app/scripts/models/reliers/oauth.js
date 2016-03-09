@@ -95,12 +95,15 @@ define(function (require, exports, module) {
     _normalizeScopesAndPermissions: function () {
       var permissions = scopeStrToArray(this.get('scope'));
       if (this.isTrusted()) {
-        // replace `profile` with the expanded permissions for trusted reliers
-        permissions = replaceItemInArray(
-          permissions,
-          Constants.OAUTH_TRUSTED_PROFILE_SCOPE,
-          Constants.OAUTH_TRUSTED_PROFILE_SCOPE_EXPANSION
-        );
+        // We have to normalize `profile` into is expanded sub-scopes
+        // in order to show the consent screen.
+        if (this.wantsConsent()) {
+          permissions = replaceItemInArray(
+            permissions,
+            Constants.OAUTH_TRUSTED_PROFILE_SCOPE,
+            Constants.OAUTH_TRUSTED_PROFILE_SCOPE_EXPANSION
+          );
+        }
       } else {
         permissions = sanitizeUntrustedPermissions(permissions);
       }
