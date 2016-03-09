@@ -9,7 +9,7 @@ define(function (require, exports, module) {
 
   var _ = require('underscore');
 
-  function searchParams (str, whitelist) {
+  function searchParams (str, allowedFields) {
     var search = (typeof str === 'string' ? str : window.location.search).replace(/^\?/, '');
     if (! search) {
       return {};
@@ -23,20 +23,11 @@ define(function (require, exports, module) {
       terms[keyValue[0]] = decodeURIComponent(keyValue[1]).trim();
     });
 
-    if (! whitelist) {
+    if (! allowedFields) {
       return terms;
     }
 
-    // whitelist is in effect.
-    var allowedTerms = {};
-
-    _.each(whitelist, function (allowedTerm) {
-      if (allowedTerm in terms) {
-        allowedTerms[allowedTerm] = terms[allowedTerm];
-      }
-    });
-
-    return allowedTerms;
+    return _.pick(terms, allowedFields);
   }
 
   module.exports = {
