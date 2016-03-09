@@ -113,7 +113,8 @@ ClientApi.prototype.accountCreate = function (email, authPW, options) {
       redirectTo: options.redirectTo || undefined,
       resume: options.resume || undefined,
       preVerifyToken: options.preVerifyToken || undefined,
-      device: options.device || undefined
+      device: options.device || undefined,
+      metricsContext: options.metricsContext || undefined
     },
     {
       'accept-language': options.lang
@@ -134,7 +135,8 @@ ClientApi.prototype.accountLogin = function (email, authPW, opts) {
       authPW: authPW.toString('hex'),
       service: opts.service || undefined,
       reason: opts.reason || undefined,
-      device: opts.device || undefined
+      device: opts.device || undefined,
+      metricsContext: opts.metricsContext || undefined
     },
     {
       'accept-language': opts.lang
@@ -240,7 +242,8 @@ ClientApi.prototype.accountStatus = function (uid, sessionTokenHex) {
   }
 }
 
-ClientApi.prototype.accountReset = function (accountResetTokenHex, authPW, headers) {
+ClientApi.prototype.accountReset = function (accountResetTokenHex, authPW, headers, options) {
+  options = options || {}
   return tokens.AccountResetToken.fromHex(accountResetTokenHex)
     .then(
       function (token) {
@@ -249,7 +252,8 @@ ClientApi.prototype.accountReset = function (accountResetTokenHex, authPW, heade
           this.baseURL + '/account/reset',
           token,
           {
-            authPW: authPW.toString('hex')
+            authPW: authPW.toString('hex'),
+            metricsContext: options.metricsContext || undefined
           },
           headers
         )
@@ -317,7 +321,8 @@ ClientApi.prototype.recoveryEmailVerifyCode = function (uid, code, options) {
   )
 }
 
-ClientApi.prototype.certificateSign = function (sessionTokenHex, publicKey, duration, locale) {
+ClientApi.prototype.certificateSign = function (sessionTokenHex, publicKey, duration, locale, options) {
+  options = options || {}
   return tokens.SessionToken.fromHex(sessionTokenHex)
     .then(
       function (token) {
@@ -327,7 +332,8 @@ ClientApi.prototype.certificateSign = function (sessionTokenHex, publicKey, dura
           token,
           {
             publicKey: publicKey,
-            duration: duration
+            duration: duration,
+            metricsContext: options.metricsContext || undefined
           },
           {
             'accept-language': locale

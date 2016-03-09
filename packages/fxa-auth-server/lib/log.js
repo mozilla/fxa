@@ -8,6 +8,7 @@ var mozlog = require('mozlog')
 
 var logConfig = require('../config').get('log')
 var StatsDCollector = require('./metrics/statsd')
+var metricsContext = require('./metrics/context')
 
 function unbuffer(object) {
   var keys = Object.keys(object)
@@ -77,21 +78,17 @@ Lug.prototype.event = function (name, data) {
   process.stdout.write(JSON.stringify(e) + '\n')
 }
 
-Lug.prototype.activityEvent = function(event, request, data) {
+Lug.prototype.activityEvent = function (event, request, data) {
   if (! data || ! data.uid) {
     return this.error({ op: 'log.activityEvent', data: data })
   }
-  var info = {
-    event: event
-  }
-  if (request.headers['user-agent']) {
-    info.userAgent = request.headers['user-agent']
-  }
-  try {
-    // request.payload and request.query are not always set in the unit tests
-    info.service = request.payload.service || request.query.service
-  } catch (err) {
-  }
+
+  var info = metricsContext.add({
+    event: event,
+    userAgent: request.headers['user-agent']
+  }, request.payload.metricsContext, request.headers.dnt === '1')
+  optionallySetService(info, request)
+
   Object.keys(data).forEach(function (key) {
     info[key] = data[key]
   })
@@ -100,6 +97,18 @@ Lug.prototype.activityEvent = function(event, request, data) {
   this.statsd.write(info)
 }
 
+function optionallySetService (data, request) {
+  // don't overwrite service if it is specified in metricsContext
+  if (data.service) {
+    return
+  }
+
+  try {
+    data.service = request.payload.service || request.query.service
+  } catch (err) {
+    // request.payload and request.query are not always set in the unit tests
+  }
+}
 
 Lug.prototype.increment = function(event) {
   this.statsd.write({

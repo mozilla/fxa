@@ -201,11 +201,11 @@ Client.prototype.requestVerifyEmail = function () {
   )
 }
 
-Client.prototype.sign = function (publicKey, duration) {
+Client.prototype.sign = function (publicKey, duration, locale, options) {
   var o = this.sessionToken ? P.resolve(null) : this.login()
   return o.then(
       function () {
-        return this.api.certificateSign(this.sessionToken, publicKey, duration)
+        return this.api.certificateSign(this.sessionToken, publicKey, duration, locale, options)
       }.bind(this)
     )
     .then(
@@ -376,7 +376,7 @@ Client.prototype.verifyAccountUnlockCode = function (uid, code) {
   return this.api.accountUnlockVerifyCode(uid, code)
 }
 
-Client.prototype.resetPassword = function (newPassword, headers) {
+Client.prototype.resetPassword = function (newPassword, headers, options) {
   if (!this.accountResetToken) {
     throw new Error('call verifyPasswordResetCode before calling resetPassword')
   }
@@ -387,7 +387,8 @@ Client.prototype.resetPassword = function (newPassword, headers) {
         return this.api.accountReset(
           this.accountResetToken,
           this.authPW,
-          headers
+          headers,
+          options
         )
       }.bind(this)
     )

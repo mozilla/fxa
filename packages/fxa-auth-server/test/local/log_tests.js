@@ -18,6 +18,11 @@ var statsd = {
   init: sinon.spy(),
   write: sinon.spy()
 }
+var metricsContext = {
+  add: sinon.spy(function (data, context) {
+    return context
+  })
+}
 var mocks = {
   mozlog: sinon.spy(function () {
     return logger
@@ -27,6 +32,7 @@ mocks.mozlog.config = sinon.spy()
 mocks[path.resolve(__dirname, '../../lib') + '/./metrics/statsd'] = function () {
   return statsd
 }
+mocks[path.resolve(__dirname, '../../lib') + '/./metrics/context'] = metricsContext
 var log = proxyquire('../../lib/log', mocks)('foo', 'bar')
 
 test(
@@ -48,6 +54,7 @@ test(
     t.equal(statsd.init.args[0].length, 0, 'statsd.init was passed no arguments')
 
     t.equal(statsd.write.callCount, 0, 'statsd.write was not called')
+    t.equal(metricsContext.add.callCount, 0, 'metricsContext.add was not called')
     t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
     t.equal(logger.error.callCount, 0, 'logger.error was not called')
     t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
@@ -73,19 +80,35 @@ test(
 test(
   'log.activityEvent',
   function (t) {
-    log.activityEvent('wibble', {
-      headers: {}
+    var payload = { metricsContext: {} }
+    log.activityEvent('foo', {
+      headers: {
+        'user-agent': 'bar'
+      },
+      payload: payload
     }, {
-      uid: 42
+      uid: 'baz'
     })
 
+    t.equal(metricsContext.add.callCount, 1, 'metricsContext.add was called once')
+    var args = metricsContext.add.args[0]
+    t.equal(args.length, 3, 'metricsContext.add was passed three arguments')
+    t.equal(typeof args[0], 'object', 'first argument was object')
+    t.notEqual(args[0], null, 'first argument was not null')
+    t.equal(Object.keys(args[0]).length, 2, 'first argument had two properties')
+    t.equal(args[0].event, 'foo', 'event property was correct')
+    t.equal(args[0].userAgent, 'bar', 'userAgent property was correct')
+    t.equal(args[1], payload.metricsContext, 'second argument was metricsContext payload')
+    t.equal(args[2], false, 'third argument was correct')
+
     t.equal(logger.info.callCount, 1, 'logger.info was called once')
-    var args = logger.info.args[0]
+    args = logger.info.args[0]
     t.equal(args.length, 2, 'logger.info was passed two arguments')
     t.equal(args[0], 'activityEvent', 'first argument was correct')
-    t.equal(Object.keys(args[1]).length, 2, 'second argument had two properties')
-    t.equal(args[1].event, 'wibble', 'event property was correct')
-    t.equal(args[1].uid, 42, 'uid property was correct')
+    t.equal(typeof args[1], 'object', 'second argument was object')
+    t.notEqual(args[1], null, 'second argument was not null')
+    t.equal(Object.keys(args[1]).length, 1, 'second argument had one property')
+    t.equal(args[1].uid, 'baz', 'uid property was correct')
 
     t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
     args = statsd.write.args[0]
@@ -99,39 +122,7 @@ test(
 
     t.end()
 
-    logger.info.reset()
-    statsd.write.reset()
-  }
-)
-
-test(
-  'log.activityEvent with User-Agent request header',
-  function (t) {
-    log.activityEvent('foo', {
-      headers: {
-        'user-agent': 'bar'
-      }
-    }, {
-      uid: 'baz'
-    })
-
-    t.equal(logger.info.callCount, 1, 'logger.info was called once')
-    var args = logger.info.args[0]
-    t.equal(Object.keys(args[1]).length, 3, 'second argument had three properties')
-    t.equal(args[1].event, 'foo', 'event property was correct')
-    t.equal(args[1].userAgent, 'bar', 'userAgent property was correct')
-    t.equal(args[1].uid, 'baz', 'uid property was correct')
-
-    t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
-    t.equal(statsd.write.args[0][0], args[1], 'statsd.write argument was correct')
-
-    t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
-    t.equal(logger.error.callCount, 0, 'logger.error was not called')
-    t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
-    t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-    t.end()
-
+    metricsContext.add.reset()
     logger.info.reset()
     statsd.write.reset()
   }
@@ -140,19 +131,27 @@ test(
 test(
   'log.activityEvent with service payload parameter',
   function (t) {
-    log.activityEvent('foo', {
+    log.activityEvent('wibble', {
       headers: {},
       payload: {
-        service: 'bar'
+        metricsContext: {},
+        service: 'blee'
       }
     }, {
-      uid: 'baz'
+      uid: 'ugg'
     })
 
+    t.equal(metricsContext.add.callCount, 1, 'metricsContext.add was called once')
+    var args = metricsContext.add.args[0]
+    t.equal(args[0].event, 'wibble', 'event property was correct')
+    t.equal(args[0].userAgent, undefined, 'userAgent property was undefined')
+    t.equal(typeof args[1], 'object', 'second argument was object')
+    t.notEqual(args[1], null, 'second argument was not null')
+
     t.equal(logger.info.callCount, 1, 'logger.info was called once')
-    var args = logger.info.args[0]
-    t.equal(Object.keys(args[1]).length, 3, 'second argument had three properties')
-    t.equal(args[1].service, 'bar', 'service property was correct')
+    args = logger.info.args[0]
+    t.equal(Object.keys(args[1]).length, 2, 'second argument had two properties')
+    t.equal(args[1].service, 'blee', 'service property was correct')
 
     t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
     t.equal(statsd.write.args[0][0], args[1], 'statsd.write argument was correct')
@@ -164,6 +163,7 @@ test(
 
     t.end()
 
+    metricsContext.add.reset()
     logger.info.reset()
     statsd.write.reset()
   }
@@ -174,21 +174,24 @@ test(
   function (t) {
     log.activityEvent('foo', {
       headers: {},
-      payload: {},
+      payload: {
+        metricsContext: {}
+      },
       query: {
-        service: 'wibble'
+        service: 'bar'
       }
     }, {
-      uid: 'bar'
+      uid: 'baz'
     })
 
+    t.equal(metricsContext.add.callCount, 1, 'metricsContext.add was called once')
+    t.equal(metricsContext.add.args[0][0].event, 'foo', 'event property was correct')
+
     t.equal(logger.info.callCount, 1, 'logger.info was called once')
-    var args = logger.info.args[0]
-    t.equal(Object.keys(args[1]).length, 3, 'second argument had three properties')
-    t.equal(args[1].service, 'wibble', 'service property was correct')
+    t.equal(logger.info.args[0][1].service, 'bar', 'service property was correct')
 
     t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
-    t.equal(statsd.write.args[0][0], args[1], 'statsd.write argument was correct')
+    t.equal(statsd.write.args[0][0], logger.info.args[0][1], 'statsd.write argument was correct')
 
     t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
     t.equal(logger.error.callCount, 0, 'logger.error was not called')
@@ -197,6 +200,43 @@ test(
 
     t.end()
 
+    metricsContext.add.reset()
+    logger.info.reset()
+    statsd.write.reset()
+  }
+)
+
+test(
+  'log.activityEvent with service metricsContext property and service payload parameter',
+  function (t) {
+    log.activityEvent('foo', {
+      headers: {},
+      payload: {
+        metricsContext: {
+          service: 'bar'
+        },
+        service: 'baz'
+      }
+    }, {
+      uid: 'qux'
+    })
+
+    t.equal(metricsContext.add.callCount, 1, 'metricsContext.add was called once')
+
+    t.equal(logger.info.callCount, 1, 'logger.info was called once')
+    t.equal(logger.info.args[0][1].service, 'bar', 'service property was correct')
+
+    t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
+    t.equal(statsd.write.args[0][0], logger.info.args[0][1], 'statsd.write argument was correct')
+
+    t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
+    t.equal(logger.error.callCount, 0, 'logger.error was not called')
+    t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
+    t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
+
+    t.end()
+
+    metricsContext.add.reset()
     logger.info.reset()
     statsd.write.reset()
   }
@@ -206,18 +246,26 @@ test(
   'log.activityEvent with extra data',
   function (t) {
     log.activityEvent('foo', {
-      headers: {}
+      headers: {
+        'user-agent': 'bar'
+      },
+      payload: {
+        metricsContext: {}
+      }
     }, {
-      bar: 'baz',
+      baz: 'qux',
       uid: 42,
-      qux: 'wibble'
+      wibble: 'blee'
     })
+
+    t.equal(metricsContext.add.callCount, 1, 'metricsContext.add was called once')
+    t.equal(Object.keys(metricsContext.add.args[0][0]).length, 2, 'first argument had two properties')
 
     t.equal(logger.info.callCount, 1, 'logger.info was called once')
     var args = logger.info.args[0]
-    t.equal(Object.keys(args[1]).length, 4, 'second argument had four properties')
-    t.equal(args[1].bar, 'baz', 'first extra data property was correct')
-    t.equal(args[1].qux, 'wibble', 'second extra data property was correct')
+    t.equal(Object.keys(args[1]).length, 3, 'second argument had three properties')
+    t.equal(args[1].baz, 'qux', 'first extra data property was correct')
+    t.equal(args[1].wibble, 'blee', 'second extra data property was correct')
 
     t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
     t.equal(statsd.write.args[0][0], args[1], 'statsd.write argument was correct')
@@ -229,6 +277,41 @@ test(
 
     t.end()
 
+    metricsContext.add.reset()
+    logger.info.reset()
+    statsd.write.reset()
+  }
+)
+
+test(
+  'log.activityEvent with DNT header',
+  function (t) {
+    log.activityEvent('foo', {
+      headers: {
+        'dnt': '1'
+      },
+      payload: {
+        metricsContext: {}
+      }
+    }, {
+      uid: 42
+    })
+
+    t.equal(metricsContext.add.callCount, 1, 'metricsContext.add was called once')
+    t.equal(metricsContext.add.args[0][2], true, 'third argument was correct')
+
+    t.equal(logger.info.callCount, 1, 'logger.info was called once')
+
+    t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
+
+    t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
+    t.equal(logger.error.callCount, 0, 'logger.error was not called')
+    t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
+    t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
+
+    t.end()
+
+    metricsContext.add.reset()
     logger.info.reset()
     statsd.write.reset()
   }
@@ -238,7 +321,10 @@ test(
   'log.activityEvent with no data',
   function (t) {
     log.activityEvent('foo', {
-      headers: {}
+      headers: {},
+      payload: {
+        metricsContext: {}
+      }
     })
 
     t.equal(logger.error.callCount, 1, 'logger.error was called once')
@@ -248,6 +334,7 @@ test(
     t.equal(Object.keys(args[1]).length, 2, 'second argument had two properties')
     t.equal(args[1].data, undefined, 'data property was undefined')
 
+    t.equal(metricsContext.add.callCount, 0, 'metricsContext.add was not called')
     t.equal(statsd.write.callCount, 0, 'statsd.write was not called')
     t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
     t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
@@ -264,7 +351,10 @@ test(
   'log.activityEvent with no uid',
   function (t) {
     log.activityEvent('foo', {
-      headers: {}
+      headers: {},
+      payload: {
+        metricsContext: {}
+      }
     }, {
       foo: 'bar'
     })
@@ -274,6 +364,7 @@ test(
     t.equal(Object.keys(args[1].data).length, 1, 'data property had one property')
     t.equal(args[1].data.foo, 'bar', 'data property had correct property')
 
+    t.equal(metricsContext.add.callCount, 0, 'metricsContext.add was not called')
     t.equal(statsd.write.callCount, 0, 'statsd.write was not called')
     t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
     t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
