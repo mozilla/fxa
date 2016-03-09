@@ -117,6 +117,9 @@ module.exports = function (grunt) {
           lang: context.lang,
           lang_dir: context.lang_dir, //eslint-disable-line camelcase
           locale: context.locale,
+          // Re-insert the message tag to allow the node server
+          // to render the error message at render time.
+          message: '{{ message }}',
           privacy: privacy,
           terms: terms
         });
