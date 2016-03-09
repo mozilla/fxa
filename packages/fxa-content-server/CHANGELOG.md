@@ -1,3 +1,24 @@
+<a name="0.58.1"></a>
+## 0.58.1 (2016-03-09)
+
+
+### Bug Fixes
+
+* **build:** Fix `grunt build` exception if server template open in vim ([d6c9661](https://github.com/mozilla/fxa-content-server/commit/d6c9661)), closes [#3581](https://github.com/mozilla/fxa-content-server/issues/3581)
+* **client:** Only normalize scopes for trusted reliers when prompting for consent. ([8aa23fe](https://github.com/mozilla/fxa-content-server/commit/8aa23fe))
+* **server:** Ensure the 400 page prints error messages in production. ([1279cff](https://github.com/mozilla/fxa-content-server/commit/1279cff)), closes [#2070](https://github.com/mozilla/fxa-content-server/issues/2070) [#3572](https://github.com/mozilla/fxa-content-server/issues/3572)
+* **tests:** add htmlparser2 dependency to teamcity/run-server.sh ([26d33af](https://github.com/mozilla/fxa-content-server/commit/26d33af))
+
+### chore
+
+* **tests:** Functional test for trusted relier that prompts for consent ([c89ceb1](https://github.com/mozilla/fxa-content-server/commit/c89ceb1))
+
+### Refactor
+
+* **client:** Simplify url.js->searchParams ([ed3c190](https://github.com/mozilla/fxa-content-server/commit/ed3c190))
+
+
+
 <a name="0.58.0"></a>
 # 0.58.0 (2016-03-08)
 
