@@ -184,6 +184,28 @@ define([
             assert.isUndefined(resp.device);
           });
       });
+
+      test('#with metricsContext metadata', function () {
+        var email = 'test' + new Date().getTime() + '@restmail.net';
+        var password = 'iliketurtles';
+
+        return respond(client.signUp(email, password), RequestMocks.signUp)
+          .then(function () {
+            return respond(
+              client.signIn(email, password, {
+                metricsContext: {},
+                reason: 'signin'
+              }),
+              RequestMocks.signIn
+            );
+          })
+          .then(
+            function (resp) {
+              assert.ok(resp);
+            },
+            assert.notOk
+          );
+      });
     });
   }
 });

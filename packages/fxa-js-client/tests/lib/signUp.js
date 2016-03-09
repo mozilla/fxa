@@ -256,6 +256,27 @@ define([
         });
       });
 
+      test('#with metricsContext metadata', function () {
+        var email = 'test' + new Date().getTime() + '@restmail.net';
+        var password = 'iliketurtles';
+
+        return respond(
+          client.signUp(email, password, {
+            metricsContext: {
+              flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+              flowBeginTime: Date.now(),
+              forbiddenProperty: 666
+            }
+          }),
+          RequestMocks.signUp
+        )
+        .then(
+          function (resp) {
+            assert.ok(resp);
+          },
+          assert.notOk
+        );
+      });
     });
   }
 });
