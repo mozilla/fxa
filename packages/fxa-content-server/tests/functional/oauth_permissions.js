@@ -11,6 +11,7 @@ define([
 ], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
 
+  var TRUSTED_OAUTH_APP = config.fxaOauthApp;
   var UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
   var PASSWORD = 'password';
 
@@ -459,6 +460,36 @@ define([
 
         .then(testElementExists('#loggedin'));
     },
+
+    'signin without `prompt=consent`, then re-signin with `prompt=consent`': function () {
+      var self = this;
+      return openFxaFromTrustedRp(this, 'signin')
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+
+        .then(fillOutSignIn(this, email, PASSWORD))
+
+        // no permissions asked for, straight to relier
+        .then(testElementExists('#loggedin'))
+
+        .then(testUrlEquals(TRUSTED_OAUTH_APP))
+
+        .then(click('#logout'))
+
+        .then(function () {
+          // relier changes to request consent
+          return openFxaFromTrustedRp(self, 'signin', '?prompt=consent');
+        })
+
+        .then(type('input[type=password', PASSWORD))
+        .then(click('button[type=submit]'))
+
+        // since consent is now requested, user should see prompt
+        .then(testElementExists('#fxa-permissions-header'))
+        .then(click('#accept'))
+
+        .then(testElementExists('#loggedin'));
+    },
+
 
     'force_auth without `prompt=consent`': function () {
       return openFxaFromTrustedRp(this, 'force_auth', 'email=' + encodeURIComponent(email))
