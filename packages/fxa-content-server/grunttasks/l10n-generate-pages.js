@@ -91,11 +91,16 @@ module.exports = function (grunt) {
     var destRoot = path.join(templateDest, locale);
     var context = i18n.localizationContext(language);
 
-    grunt.file.recurse(templateSrc,
-                    function (srcPath, rootDir, subDir, fileName) {
-                      var destPath = path.join(destRoot, (subDir || ''), fileName);
-                      generatePage(srcPath, destPath, context);
-                    });
+    // only worry about html files. Things like .swp files
+    // for editors should be ignored.
+    var templates = grunt.file.expand({
+      cwd: templateSrc
+    }, '**/*.html');
+    templates.forEach(function (fileName) {
+      var srcPath = path.join(templateSrc, fileName);
+      var destPath = path.join(destRoot, fileName);
+      generatePage(srcPath, destPath, context);
+    });
   }
 
   function generatePage(srcPath, destPath, context) {
