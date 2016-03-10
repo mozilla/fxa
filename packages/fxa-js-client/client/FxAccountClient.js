@@ -76,10 +76,10 @@ define([
    *   @param {String} [options.lang]
    *   set the language for the 'Accept-Language' header
    *   @param {Object} [options.device={}] Device registration information
-   *     @param {String} name Name of device
-   *     @param {String} type Type of device (mobile|desktop)
-   *     @param {string} [callback] Device's push endpoint.
-   *     @param {string} [publicKey] Public key used to encrypt push messages.
+   *     @param {String} options.device.name Name of device
+   *     @param {String} options.device.type Type of device (mobile|desktop)
+   *     @param {string} [options.device.callback] Device's push endpoint
+   *     @param {string} [options.device.publicKey] Public key used to encrypt push messages
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.signUp = function (email, password, options) {
@@ -179,11 +179,11 @@ define([
    *   Reason for sign in. Can be one of: `signin`, `password_check`,
    *   `password_change`, `password_reset`, `account_unlock`.
    *   @param {Object} [options.device={}] Device registration information
-   *     @param {String} [id] User-unique identifier of device
-   *     @param {String} [name] Name of device
-   *     @param {String} [type] Type of device (mobile|desktop)
-   *     @param {string} [callback] Device's push endpoint.
-   *     @param {string} [publicKey] Public key used to encrypt push messages.
+   *     @param {String} [options.device.id] User-unique identifier of device
+   *     @param {String} [options.device.name] Name of device
+   *     @param {String} [options.device.type] Type of device (mobile|desktop)
+   *     @param {string} [options.device.callback] Device's push endpoint
+   *     @param {string} [options.device.publicKey] Public key used to encrypt push messages
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.signIn = function (email, password, options) {
