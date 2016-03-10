@@ -1,9 +1,9 @@
 language: node_js
 
 node_js:
-  - "0.10.41"
-  - "0.12.9"
-  - "4.2"
+  - "0.10"
+  - "0.12"
+  - "4"
 
 addons:
   firefox: "40.0"
