@@ -129,6 +129,11 @@ var conf = convict({
       format: String,
       default: 'https://www.mozilla.org/firefox/ios/'
     },
+    signInUrl: {
+      doc: 'Signin url',
+      format: String,
+      default: 'https://accounts.firefox.com/signin'
+    },
     supportUrl: {
       doc: 'url to Mozilla Support product page',
       format: String,
