@@ -10,6 +10,7 @@ var config = require('../configuration');
 var sentryConfig = config.get('sentry');
 
 var API_KEY = sentryConfig.api_key;
+var STACK_TRACE_LENGTH = 20;
 var CONTENT_SERVER_VERSION = require('../../../package.json').version;
 
 /**
@@ -29,6 +30,15 @@ function setExtraSentryData(data) {
   if (sentryData) {
     sentryData.release = CONTENT_SERVER_VERSION;
 
+    if (sentryData.stacktrace && sentryData.stacktrace.frames) {
+      // the limit for the sentryRequest is controlled by nginx,
+      // by default the request url should not be greater than ~8000 characters.
+      // nginx will throw a '414 Request-URI Too Large' if the sentryRequest is too long.
+      // Cut the stacktrace frames to 20 calls maximum, otherwise the sentryRequest will be too long.
+      // Details at github.com/mozilla/fxa-content-server/issues/3167
+
+      sentryData.stacktrace.frames = sentryData.stacktrace.frames.slice(0, STACK_TRACE_LENGTH);
+    }
     return JSON.stringify(sentryData);
   } else {
     return data;
