@@ -25,6 +25,7 @@
   "dependencies": {
     "bluebird": "^2.9.14",
     "buf": "0.1.0",
+    "commander": "^2.9.0",
     "convict": "0.8",
     "fxa-jwtool": "^0.7.1",
     "fxa-notifier-aws": "1.0.0",

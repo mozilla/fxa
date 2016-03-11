@@ -4,7 +4,8 @@ node_js:
   - '0.10'
   - '4'
 
-sudo: false
+dist: trusty
+sudo: true
 
 addons:
   apt:
@@ -12,6 +13,9 @@ addons:
     - ubuntu-toolchain-r-test
     packages:
     - g++-4.8
+    - mysql-server-5.6
+    - mysql-client-core-5.6
+    - mysql-client-5.6
 
 notifications:
   email:
@@ -36,9 +40,9 @@ install:
   - if [ $TRAVIS_NODE_VERSION == "4" ]; then CXX=g++-4.8 npm install; else npm install; fi
 
 before_script:
-  - "mysql -NBe 'select version()'"
-  - "mysql -e 'DROP DATABASE IF EXISTS fxa_oauth;'"
-  - "mysql -e 'CREATE DATABASE fxa_oauth;'"
+  - "mysql -u root -NBe 'select version()'"
+  - "mysql -u root -e 'DROP DATABASE IF EXISTS fxa_oauth;'"
+  - "mysql -u root -e 'CREATE DATABASE fxa_oauth CHARACTER SET utf8 COLLATE utf8_unicode_ci;'"
 
 script:
   - npm run outdated
