@@ -32,6 +32,13 @@ var conf = convict({
       env: 'HTTPDB_URL'
     }
   },
+  contentServer: {
+    url: {
+      doc: 'The url of the corresponding fxa-content-server instance',
+      default: 'http://127.0.0.1:3030',
+      env: 'CONTENT_SERVER_URL'
+    }
+  },
   logging: {
     app: {
       default: 'fxa-auth-mailer'
@@ -84,35 +91,29 @@ var conf = convict({
       env: 'SMTP_SENDER'
     },
     verificationUrl: {
-      doc: 'Verify email url',
+      doc: 'Deprecated. uses contentServer.url',
       format: String,
-      default: 'https://accounts.firefox.com/verify_email',
-      env: 'VERIFY_URL',
-      arg: 'verify-url'
+      default: undefined
     },
     passwordResetUrl: {
-      doc: 'Reset password url',
+      doc: 'Deprecated. uses contentServer.url',
       format: String,
-      default: 'https://accounts.firefox.com/complete_reset_password',
-      env: 'RESET_URL',
-      arg: 'reset-url'
+      default: undefined
     },
     accountUnlockUrl: {
-      doc: 'Unlocked account url',
+      doc: 'Deprecated. uses contentServer.url',
       format: String,
-      default: 'https://accounts.firefox.com/complete_unlock_account',
-      env: 'UNLOCK_URL',
-      arg: 'unlock-url'
+      default: undefined
     },
     initiatePasswordResetUrl: {
-      doc: 'Password reset url',
+      doc: 'Deprecated. uses contentServer.url',
       format: String,
-      default: 'https://accounts.firefox.com/reset_password'
+      default: undefined
     },
     initiatePasswordChangeUrl: {
-      doc: 'Password change url',
+      doc: 'Deprecated. uses contentServer.url',
       format: String,
-      default: 'https://accounts.firefox.com/settings/change_password'
+      default: undefined
     },
     syncUrl: {
       doc: 'url to Sync product page',
@@ -130,9 +131,9 @@ var conf = convict({
       default: 'https://www.mozilla.org/firefox/ios/'
     },
     signInUrl: {
-      doc: 'Signin url',
+      doc: 'Deprecated. uses contentServer.url',
       format: String,
-      default: 'https://accounts.firefox.com/signin'
+      default: undefined
     },
     supportUrl: {
       doc: 'url to Mozilla Support product page',
@@ -154,5 +155,12 @@ var options = {
 }
 
 conf.validate(options)
+
+conf.set('mail.signInUrl', conf.get('contentServer.url') + '/signin')
+conf.set('mail.verificationUrl', conf.get('contentServer.url') + '/v1/verify_email')
+conf.set('mail.passwordResetUrl', conf.get('contentServer.url') + '/v1/complete_reset_password')
+conf.set('mail.accountUnlockUrl', conf.get('contentServer.url') + '/v1/complete_unlock_account')
+conf.set('mail.initiatePasswordResetUrl', conf.get('contentServer.url') + '/reset_password')
+conf.set('mail.initiatePasswordChangeUrl', conf.get('contentServer.url') + '/settings/change_password')
 
 module.exports = conf
