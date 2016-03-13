@@ -139,6 +139,8 @@ curl -sL https://deb.nodesource.com/setup_4.x | bash -
 apt-get install -y nodejs
 ```
 
+> NOTE: Node 4 and greater require C++11, that [does not come by default on Ubuntu 12](https://github.com/nodesource/distributions/blob/master/OLDER_DISTROS.md).
+
 #### Updating NPM
 > Check your npm version using `npm --version`. If it is lower than 2.4 then please upgrade.
 
