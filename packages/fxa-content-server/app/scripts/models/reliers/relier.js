@@ -13,22 +13,49 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var AuthErrors = require('lib/auth-errors');
   var BaseRelier = require('models/reliers/base');
   var Cocktail = require('cocktail');
   var Constants = require('lib/constants');
   var p = require('lib/promise');
   var ResumeTokenMixin = require('models/mixins/resume-token');
   var SearchParamMixin = require('models/mixins/search-param');
+  var Vat = require('lib/vat');
 
   var RELIER_FIELDS_IN_RESUME_TOKEN = [
-    'utmTerm',
-    'utmSource',
-    'utmMedium',
-    'utmContent',
-    'utmCampaign',
     'campaign',
-    'entrypoint'
+    'entrypoint',
+    'utmCampaign',
+    'utmContent',
+    'utmMedium',
+    'utmSource',
+    'utmTerm'
   ];
+
+  /*eslint-disable camelcase*/
+  var QUERY_PARAMETER_SCHEMA = {
+    campaign: Vat.string(),
+    // `email` will be further validated by views to
+    // show the appropriate error message
+    email: Vat.string().allow(Constants.DISALLOW_CACHED_CREDENTIALS),
+    // FxDesktop declares both `entryPoint` (capital P) and
+    // `entrypoint` (lowcase p). Normalize to `entrypoint`.
+    entryPoint: Vat.string(),
+    entrypoint: Vat.string(),
+    migration: Vat.string().valid(Constants.AMO_MIGRATION, Constants.SYNC11_MIGRATION),
+    preVerifyToken: Vat.base64jwt(),
+    service: Vat.string(),
+    setting: Vat.string(),
+    // `uid` will be further validated by the views to
+    // show the appropriate error message
+    uid: Vat.string(),
+    utm_campaign: Vat.string().renameTo('utmCampaign'),
+    utm_content: Vat.string().renameTo('utmContent'),
+    utm_medium: Vat.string().renameTo('utmMedium'),
+    utm_source: Vat.string().renameTo('utmSource'),
+    utm_term: Vat.string().renameTo('utmTerm')
+  };
+  /*eslint-enable camelcase*/
 
   var Relier = BaseRelier.extend({
     defaults: {
@@ -36,8 +63,11 @@ define(function (require, exports, module) {
       campaign: null,
       email: null,
       entrypoint: null,
+      migration: null,
       preVerifyToken: null,
       service: null,
+      setting: null,
+      uid: null,
       utmCampaign: null,
       utmContent: null,
       utmMedium: null,
@@ -75,36 +105,20 @@ define(function (require, exports, module) {
           // query parameters and server provided data override
           // resume provided data.
           self.populateFromStringifiedResumeToken(self.getSearchParam('resume'));
+          // TODO - validate data coming from the resume token
 
-          self.importSearchParam('service');
-          self.importSearchParam('preVerifyToken');
-          self.importSearchParam('uid');
-          self.importSearchParam('setting');
-          self.importSearchParam('entrypoint');
-          if (! self.has('entrypoint')) {
-            // FxDesktop declares both `entryPoint` (capital P) and
-            // `entrypoint` (lowcase p). Normalize to `entrypoint`.
-            self.importSearchParam('entryPoint', 'entrypoint');
+          self.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
+
+          // FxDesktop declares both `entryPoint` (capital P) and
+          // `entrypoint` (lowcase p). Normalize to `entrypoint`.
+          if (self.has('entryPoint') && ! self.has('entrypoint')) {
+            self.set('entrypoint', self.get('entryPoint'));
           }
-          self.importSearchParam('campaign');
 
-          self.importSearchParam('utm_campaign', 'utmCampaign');
-          self.importSearchParam('utm_content', 'utmContent');
-          self.importSearchParam('utm_medium', 'utmMedium');
-          self.importSearchParam('utm_source', 'utmSource');
-          self.importSearchParam('utm_term', 'utmTerm');
-
-          // A relier can indicate they do not want to allow
-          // cached credentials if they set email === 'blank'
-          var email = self.getSearchParam('email');
-          if (email === Constants.DISALLOW_CACHED_CREDENTIALS) {
+          if (self.get('email') === Constants.DISALLOW_CACHED_CREDENTIALS) {
+            self.unset('email');
             self.set('allowCachedCredentials', false);
-          } else {
-            self.importSearchParam('email');
           }
-
-          self.importSearchParam('migration');
-
         });
     },
 

@@ -89,6 +89,18 @@ define(function (require, exports, module) {
     return email.split('@')[0];
   }
 
+  function getValueLabel(value) {
+    if (_.isUndefined(value)) {
+      return 'not set';
+    } else if (value === '') {
+      return 'empty';
+    } else if (/^\s+$/.test(value)) {
+      return 'whitespace only';
+    }
+
+    return value;
+  }
+
   function indexOfEvent(metrics, eventName) {
     var events = metrics.getFilteredData().events;
 
@@ -145,6 +157,7 @@ define(function (require, exports, module) {
     createEmail: createEmail,
     createRandomHexString: createRandomHexString,
     emailToUser: emailToUser,
+    getValueLabel: getValueLabel,
     indexOfEvent: indexOfEvent,
     isErrorLogged: isErrorLogged,
     isEventLogged: isEventLogged,

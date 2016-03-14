@@ -5,6 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var _ = require('underscore');
+  var AuthErrors = require('lib/auth-errors');
   var chai = require('chai');
   var Constants = require('lib/constants');
   var Relier = require('models/reliers/relier');
@@ -13,18 +15,19 @@ define(function (require, exports, module) {
   var WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
+  var getValueLabel = TestHelpers.getValueLabel;
 
   describe('models/reliers/relier', function () {
     var relier;
     var windowMock;
 
-    var SERVICE = 'service';
-    var PREVERIFY_TOKEN = 'abigtoken';
-    var EMAIL = 'email@moz.org';
-    var UID = 'uid';
-    var ENTRYPOINT = 'preferences';
     var CAMPAIGN = 'fennec';
+    var EMAIL = 'email@moz.org';
+    var ENTRYPOINT = 'preferences';
+    var PREVERIFY_TOKEN = 'a=.big==.token==';
+    var SERVICE = 'sync';
     var SETTING = 'avatar';
+    var UID = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
     var UTM_CAMPAIGN = 'utm_campaign';
     var UTM_CONTENT = 'utm_content';
     var UTM_MEDIUM = 'utm_medium';
@@ -116,6 +119,46 @@ define(function (require, exports, module) {
           .then(function () {
             assert.equal(relier.get('entrypoint'), ENTRYPOINT);
           });
+      });
+    });
+
+    describe('preVerifyToken', function () {
+      describe('invalid', function () {
+        var invalidTokens = ['', ' ', 'invalid token'];
+        invalidTokens.forEach(function (value) {
+          describe(getValueLabel(value), function () {
+            testInvalidQueryParam('preVerifyToken', value);
+          });
+        });
+      });
+
+      describe('valid', function () {
+        var validTokens = [undefined, PREVERIFY_TOKEN];
+        validTokens.forEach(function (value) {
+          describe(getValueLabel(value), function () {
+            testValidQueryParam('preVerifyToken', value, 'preVerifyToken', value);
+          });
+        });
+      });
+    });
+
+    describe('migration', function () {
+      describe('invalid', function () {
+        var invalidMigrations = ['', ' ', 'invalid migration'];
+        invalidMigrations.forEach(function (token) {
+          describe(getValueLabel(token), function () {
+            testInvalidQueryParam('migration', token);
+          });
+        });
+      });
+
+      describe('valid', function () {
+        var validMigrations = [undefined, Constants.AMO_MIGRATION, Constants.SYNC11_MIGRATION];
+        validMigrations.forEach(function (value) {
+          describe(getValueLabel(value), function () {
+            testValidQueryParam('migration', value, 'migration', value);
+          });
+        });
       });
     });
 
@@ -225,6 +268,56 @@ define(function (require, exports, module) {
           });
       });
     });
+
+    function testInvalidQueryParam(paramName, value) {
+      var err;
+
+      beforeEach(function () {
+        var params = {};
+
+        if (! _.isUndefined(value)) {
+          params[paramName] = value;
+        } else {
+          delete params[paramName];
+        }
+
+        windowMock.location.search = TestHelpers.toSearchString(params);
+
+        return relier.fetch()
+          .then(assert.fail, function (_err) {
+            err = _err;
+          });
+      });
+
+      it('errors correctly', function () {
+        assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
+        assert.equal(err.param, paramName);
+      });
+    }
+
+    function testValidQueryParam(paramName, paramValue, modelName, expectedValue) {
+      beforeEach(function () {
+        var params = {};
+
+        if (! _.isUndefined(paramValue)) {
+          params[paramName] = paramValue;
+        } else {
+          delete params[paramName];
+        }
+
+        windowMock.location.search = TestHelpers.toSearchString(params);
+
+        return relier.fetch();
+      });
+
+      it('is successful', function () {
+        if (_.isUndefined(expectedValue)) {
+          assert.isFalse(relier.has(modelName));
+        } else {
+          assert.equal(relier.get(modelName), expectedValue);
+        }
+      });
+    }
   });
 });
 

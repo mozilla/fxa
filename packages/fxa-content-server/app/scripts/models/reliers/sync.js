@@ -13,14 +13,24 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var AuthErrors = require('lib/auth-errors');
   var _ = require('underscore');
   var Relier = require('models/reliers/relier');
   var ServiceNameTranslator = require('lib/service-name');
+  var Vat = require('lib/vat');
+
+  /*eslint-disable camelcase*/
+  var QUERY_PARAMETER_SCHEMA = {
+    // context is not available when verifying.
+    context: Vat.string().min(1),
+    customizeSync: Vat.boolean()
+  };
+  /*eslint-enable camelcase*/
 
   var SyncRelier = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {
       context: null,
-      migration: null
+      customizeSync: false
     }),
 
     initialize: function (options) {
@@ -35,19 +45,7 @@ define(function (require, exports, module) {
       var self = this;
       return Relier.prototype.fetch.call(self)
         .then(function () {
-          self.importSearchParam('context');
-
-          try {
-            self.importBooleanSearchParam('customizeSync');
-          } catch (e) {
-            // ignore it for now.
-            // TODO - handle the error whenever startup error handling is
-            // complete - see #1982. This includes logging the error.
-            // Use something like:
-            // var err  = AuthErrors.toError('INVALID_PARAMETER')
-            // err.param = 'customizeSync';
-            // throw err;
-          }
+          self.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
 
           self._setupServiceName();
         });

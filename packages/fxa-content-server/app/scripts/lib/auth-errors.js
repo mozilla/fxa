@@ -260,7 +260,7 @@ define(function (require, exports, module) {
       try {
         if (this.is(err, 'INVALID_PARAMETER')) {
           return {
-            param: err.validation.keys
+            param: err.param || err.validation.keys
           };
         } else if (this.is(err, 'MISSING_PARAMETER')) {
           return {

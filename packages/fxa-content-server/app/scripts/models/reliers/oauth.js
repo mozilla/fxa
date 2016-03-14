@@ -14,10 +14,51 @@ define(function (require, exports, module) {
   var OAuthErrors = require('lib/oauth-errors');
   var Relier = require('models/reliers/relier');
   var RelierKeys = require('lib/relier-keys');
+  var Transform = require('lib/transform');
   var Url = require('lib/url');
   var Validate = require('lib/validate');
+  var Vat = require('lib/vat');
 
   var RELIER_FIELDS_IN_RESUME_TOKEN = ['state', 'verificationRedirect'];
+
+  /*eslint-disable camelcase*/
+  var CLIENT_INFO_SCHEMA = {
+    id: Vat.hex().required().renameTo('clientId'),
+    image_uri: Vat.url().allow('').renameTo('imageUri'),
+    name: Vat.string().required().min(1).renameTo('serviceName'),
+    privacy_uri: Vat.url().allow('').renameTo('privacyUri'),
+    redirect_uri: Vat.uri().required().renameTo('redirectUri'),
+    terms_uri: Vat.url().allow('').renameTo('termsUri'),
+    trusted: Vat.boolean().required()
+  };
+
+  var SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA = {
+    access_type: Vat.string().test(Validate.isAccessTypeValid).renameTo('accessType'),
+    client_id: Vat.hex().required().renameTo('clientId'),
+    keys: Vat.boolean(),
+    prompt: Vat.string().test(Validate.isPromptValid),
+    redirectTo: Vat.uri(),
+    redirect_uri: Vat.uri().renameTo('redirectUri'),
+    scope: Vat.string().required().min(1),
+    service: Vat.string(),
+    state: Vat.string(),
+    verification_redirect: Vat.string().test(Validate.isVerificationRedirectValid).renameTo('verificationRedirect')
+  };
+
+  var VERIFICATION_INFO_SCHEMA = {
+    access_type: Vat.string().test(Validate.isAccessTypeValid).renameTo('accessType'),
+    action: Vat.string().min(1),
+    client_id: Vat.hex().required().renameTo('clientId'),
+    keys: Vat.boolean(),
+    prompt: Vat.string().test(Validate.isPromptValid),
+    redirect_uri: Vat.uri().renameTo('redirectUri'),
+    // scopes are optional when verifying, user could be verifying in a 2nd browser
+    scope: Vat.string().min(1),
+    service: Vat.string().min(1),
+    state: Vat.string().min(1)
+  };
+  /*eslint-enable camelcase*/
+
 
   var OAuthRelier = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {
@@ -74,16 +115,6 @@ define(function (require, exports, module) {
           return self._setupOAuthRPInfo();
         })
         .then(function () {
-          if (! self.get('clientId')) {
-            throw toMissingParameterError('client_id');
-          } else if (! self.get('redirectUri')) {
-            // Guard against a possible empty redirect_uri
-            // sent by the server. redirect_uri is not required
-            // by the OAuth server, but if it's missing, we redirect
-            // to ourselves. See issue #3452
-            throw toMissingParameterError('redirect_uri');
-          }
-
           if (self.has('scope')) {
             // normalization depends on `trusted` field set in
             // setupOAuthRPInfo.
@@ -109,7 +140,7 @@ define(function (require, exports, module) {
       }
 
       if (! permissions.length) {
-        throw toInvalidParameterError('scope');
+        throw OAuthErrors.toInvalidParameterError('scope');
       }
 
       this.set('scope', permissions.join(' '));
@@ -153,90 +184,17 @@ define(function (require, exports, module) {
         };
       }
 
-      this._validateOAuthValues(resumeObj);
+      var result = Transform.transformUsingSchema(
+        resumeObj, VERIFICATION_INFO_SCHEMA, OAuthErrors);
 
-      self.set({
-        accessType: resumeObj.access_type,
-        clientId: resumeObj.client_id,
-        keys: resumeObj.keys,
-        redirectUri: resumeObj.redirect_uri,
-        scope: resumeObj.scope,
-        state: resumeObj.state
-      });
+      self.set(result);
     },
 
     _setupSignInSignUpFlow: function () {
-      var self = this;
-      /*eslint-disable camelcase*/
-      var oauthOptions = {
-        access_type: self.getSearchParam('access_type'),
-        client_id: self.getSearchParam('client_id'),
-        prompt: self.getSearchParam('prompt'),
-        redirectTo: self.getSearchParam('redirectTo'),
-        redirect_uri: self.getSearchParam('redirect_uri'),
-        verification_redirect: self.getSearchParam('verification_redirect'),
-      };
-      /*eslint-enable camelcase*/
-
-      this._validateOAuthValues(oauthOptions);
-
       // params listed in:
       // https://github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md#post-v1authorization
-      self.importSearchParam('access_type', 'accessType');
-      self.importRequiredSearchParam('client_id', 'clientId', OAuthErrors);
-      self.importBooleanSearchParam('keys', 'keys', OAuthErrors);
-      self.importSearchParam('prompt');
-      self.importSearchParam('redirectTo');
-      self.importSearchParam('redirect_uri', 'redirectUri');
-      self.importRequiredSearchParam('scope', 'scope', OAuthErrors);
-      self.importSearchParam('state');
-      self.importSearchParam('verification_redirect', 'verificationRedirect');
-    },
-
-    _validateOAuthValues: function (options) {
-      var accessType = options.access_type;
-      var clientId = options.client_id;
-      var prompt = options.prompt;
-      var redirectUri = options.redirect_uri;
-      var redirectTo = options.redirectTo;
-      var termsUri = options.terms_uri;
-      var privacyUri = options.privacy_uri;
-      var verificationRedirect = options.verification_redirect;
-
-      if (isDefined(accessType) && ! Validate.isAccessTypeValid(accessType)) {
-        throw toInvalidParameterError('access_type');
-      }
-
-      if (isDefined(clientId) && ! Validate.isHexValid(clientId)) {
-        throw toInvalidParameterError('client_id');
-      }
-
-      // privacyUri is allowed to be ``
-      if (privacyUri && ! Validate.isUriValid(privacyUri)) {
-        throw toInvalidParameterError('privacy_uri');
-      }
-
-      if (isDefined(prompt) && ! Validate.isPromptValid(prompt)) {
-        throw toInvalidParameterError('prompt');
-      }
-
-      if (isDefined(redirectTo) && ! Validate.isUriValid(redirectTo)) {
-        throw toInvalidParameterError('redirectTo');
-      }
-
-      if (isDefined(redirectUri) && ! Validate.isUriValid(redirectUri)) {
-        throw toInvalidParameterError('redirect_uri');
-      }
-
-      // termsUri is allowed to be ``
-      if (termsUri && ! Validate.isUriValid(termsUri)) {
-        throw toInvalidParameterError('terms_uri');
-      }
-
-      if (isDefined(verificationRedirect) &&
-          ! Validate.isVerificationRedirectValid(verificationRedirect)) {
-        throw toInvalidParameterError('verification_redirect');
-      }
+      this.importSearchParamsUsingSchema(
+          SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA, OAuthErrors);
     },
 
     _setupOAuthRPInfo: function () {
@@ -245,15 +203,9 @@ define(function (require, exports, module) {
 
       return self._oAuthClient.getClientInfo(clientId)
         .then(function (serviceInfo) {
-          self.set('serviceName', serviceInfo.name);
-
-          self._validateOAuthValues(serviceInfo);
-
-          // server version always takes precedent over the search parameter
-          self.set('redirectUri', serviceInfo.redirect_uri);
-          self.set('termsUri', serviceInfo.terms_uri);
-          self.set('privacyUri', serviceInfo.privacy_uri);
-          self.set('trusted', serviceInfo.trusted);
+          var result = Transform.transformUsingSchema(
+            serviceInfo, CLIENT_INFO_SCHEMA, OAuthErrors);
+          self.set(result);
           self.set('origin', Url.getOrigin(serviceInfo.redirect_uri));
         }, function (err) {
           // the server returns an invalid request parameter for an
@@ -328,24 +280,6 @@ define(function (require, exports, module) {
 
   function sanitizeUntrustedPermissions(permissions) {
     return _.intersection(permissions, Constants.OAUTH_UNTRUSTED_ALLOWED_PERMISSIONS);
-  }
-
-  function toInvalidParameterError(param) {
-    return toOAuthParameterError('INVALID_PARAMETER', param);
-  }
-
-  function toMissingParameterError(param) {
-    return toOAuthParameterError('MISSING_PARAMETER', param);
-  }
-
-  function toOAuthParameterError(type, param) {
-    var err = OAuthErrors.toError(type);
-    err.param = param;
-    return err;
-  }
-
-  function isDefined(value) {
-    return ! _.isUndefined(value);
   }
 
   module.exports = OAuthRelier;

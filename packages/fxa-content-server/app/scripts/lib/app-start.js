@@ -642,14 +642,16 @@ define(function (require, exports, module) {
     },
 
     _getErrorPage: function (err) {
-      if (OAuthErrors.is(err, 'MISSING_PARAMETER') ||
+      if (AuthErrors.is(err, 'INVALID_PARAMETER') ||
+          AuthErrors.is(err, 'MISSING_PARAMETER') ||
           OAuthErrors.is(err, 'INVALID_PARAMETER') ||
+          OAuthErrors.is(err, 'MISSING_PARAMETER') ||
           OAuthErrors.is(err, 'UNKNOWN_CLIENT')) {
         var queryString = Url.objToSearchString({
           client_id: err.client_id, //eslint-disable-line camelcase
           context: err.context,
           errno: err.errno,
-          message: OAuthErrors.toInterpolatedMessage(err, this._translator),
+          message: err.errorModule.toInterpolatedMessage(err, this._translator),
           namespace: err.namespace,
           param: err.param
         });

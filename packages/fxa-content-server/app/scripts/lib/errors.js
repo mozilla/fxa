@@ -129,6 +129,34 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Create an INVALID_PARAMETER error. The returned
+     * error will contain a `param` key with the parameter
+     * name
+     *
+     * @param {String} paramName
+     * @returns {Error}
+     */
+    toInvalidParameterError: function (paramName) {
+      var err = this.toError('INVALID_PARAMETER');
+      err.param = paramName;
+      return err;
+    },
+
+    /**
+     * Create a MISSING_PARAMETER error. The returned
+     * error will contain a `param` key with the parameter
+     * name
+     *
+     * @param {String} paramName
+     * @returns {Error}
+     */
+    toMissingParameterError: function (paramName) {
+      var err = this.toError('MISSING_PARAMETER');
+      err.param = paramName;
+      return err;
+    },
+
+    /**
      * Check if an error is of the given type
      */
     is: function (error, type) {
