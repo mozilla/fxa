@@ -80,6 +80,9 @@ define(function (require, exports, module) {
 
     INTERNAL_ERROR_PAGE: '/500.html',
     BAD_REQUEST_PAGE: '/400.html',
+    // delay before redirecting to the error page to
+    // ensure metrics are reported to the backend.
+    ERROR_REDIRECT_TIMEOUT_MS: 1000,
 
     // A relier can indicate they do not want to allow
     // cached credentials if they set email === 'blank'

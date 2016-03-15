@@ -22,7 +22,6 @@ define(function (require, exports, module) {
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
   var NullChannel = require('lib/channels/null');
-  var OAuthErrors = require('lib/oauth-errors');
   var OAuthRelier = require('models/reliers/oauth');
   var p = require('lib/promise');
   var Raven = require('raven');
@@ -103,8 +102,6 @@ define(function (require, exports, module) {
 
           return p.reject(new Error('boom!'));
         });
-
-        appStart.ERROR_REDIRECT_TIMEOUT_MS = 10;
 
         return appStart.startApp()
           .then(function () {
@@ -530,28 +527,6 @@ define(function (require, exports, module) {
       it('creates a router', function () {
         appStart.initializeRouter();
         assert.isDefined(appStart._router);
-      });
-    });
-
-    describe('_getErrorPage', function () {
-      var badRequestPageErrors = [
-        AuthErrors.toError('INVALID_PARAMETER'),
-        AuthErrors.toError('MISSING_PARAMETER'),
-        OAuthErrors.toError('INVALID_PARAMETER'),
-        OAuthErrors.toError('MISSING_PARAMETER'),
-        OAuthErrors.toError('UNKNOWN_CLIENT')
-      ];
-
-      badRequestPageErrors.forEach(function (err) {
-        it('redirects to BAD_REQUEST_PAGE for ' + err.message, function () {
-          var errorUrl = appStart._getErrorPage(OAuthErrors.toError('MISSING_PARAMETER'));
-          assert.include(errorUrl, Constants.BAD_REQUEST_PAGE);
-        });
-      });
-
-      it('returns INTERNAL_ERROR_PAGE by default', function () {
-        var errorUrl = appStart._getErrorPage(OAuthErrors.toError('INVALID_ASSERTION'));
-        assert.include(errorUrl, Constants.INTERNAL_ERROR_PAGE);
       });
     });
 

@@ -10,6 +10,7 @@ define(function (require, exports, module) {
   var AuthErrors = require('lib/auth-errors');
   var Backbone = require('backbone');
   var Cocktail = require('cocktail');
+  var ErrorUtils = require('lib/error-utils');
   var NotifierMixin = require('views/mixins/notifier-mixin');
   var NullMetrics = require('lib/null-metrics');
   var Logger = require('lib/logger');
@@ -578,10 +579,20 @@ define(function (require, exports, module) {
       }
       err.logged = true;
 
-      this.logger.error(err);
+      ErrorUtils.captureError(err, this.sentryMetrics, this.metrics);
+    },
 
-      this.sentryMetrics.captureException(err);
-      this.metrics.logError(err);
+
+    /**
+     * Handle a fatal error. Logs and reports the error, then redirects
+     * to the appropriate error page.
+     *
+     * @param {Error} error
+     * @returns {promise}
+     */
+    fatalError: function (err) {
+      return ErrorUtils.fatalError(
+        err, this.sentryMetrics, this.metrics, this.window, this.translator);
     },
 
     /**

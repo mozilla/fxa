@@ -29,6 +29,7 @@ define(function (require, exports, module) {
   var ConfigLoader = require('lib/config-loader');
   var Constants = require('lib/constants');
   var Environment = require('lib/environment');
+  var ErrorUtils = require('lib/error-utils');
   var FormPrefill = require('models/form-prefill');
   var FxaClient = require('lib/fxa-client');
   var FxDesktopV1AuthenticationBroker = require('models/auth_brokers/fx-desktop-v1');
@@ -42,13 +43,11 @@ define(function (require, exports, module) {
   var HeightObserver = require('lib/height-observer');
   var IframeChannel = require('lib/channels/iframe');
   var InterTabChannel = require('lib/channels/inter-tab');
-  var Logger = require('lib/logger');
   var MarketingEmailClient = require('lib/marketing-email-client');
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
   var NullChannel = require('lib/channels/null');
   var OAuthClient = require('lib/oauth-client');
-  var OAuthErrors = require('lib/oauth-errors');
   var OAuthRelier = require('models/reliers/oauth');
   var OriginCheck = require('lib/origin-check');
   var p = require('lib/promise');
@@ -86,16 +85,10 @@ define(function (require, exports, module) {
     this._storage = options.storage || Storage;
     this._user = options.user;
     this._window = options.window || window;
-    this._logger = new Logger(this._window);
   }
 
   Start.prototype = {
-    // delay before redirecting to the error page to
-    // ensure metrics are reported to the backend.
-    ERROR_REDIRECT_TIMEOUT_MS: 1000,
     startApp: function () {
-      var self = this;
-
       // fetch both config and translations in parallel to speed up load.
       return p.all([
         this.initializeConfig(),
@@ -104,17 +97,7 @@ define(function (require, exports, module) {
       ])
       .then(this.testLocalStorage.bind(this))
       .then(this.allResourcesReady.bind(this))
-      .fail(function (error) {
-        return self.captureError(error)
-          // give a bit of time to flush the Sentry error logs,
-          // otherwise Safari Mobile redirects too quickly.
-          .delay(self.ERROR_REDIRECT_TIMEOUT_MS)
-          .then(function () {
-            //Something terrible happened. Let's bail.
-            var redirectTo = self._getErrorPage(error);
-            self._window.location.href = redirectTo;
-          });
-      });
+      .fail(this.fatalError.bind(this));
     },
 
     initializeInterTabChannel: function () {
@@ -584,6 +567,23 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Handle a fatal error. Logs and reports the error, then redirects
+     * to the appropriate error page.
+     *
+     * @param {Error} error
+     * @returns {promise}
+     */
+    fatalError: function (error) {
+      var self = this;
+      if (! self._sentryMetrics) {
+        self.enableSentryMetrics();
+      }
+
+      return ErrorUtils.fatalError(error,
+        self._sentryMetrics, self._metrics, self._window, self._translator);
+    },
+
+    /**
      * Report an error to metrics. Send metrics report.
      *
      * @param {object} error
@@ -592,26 +592,12 @@ define(function (require, exports, module) {
     captureError: function (error) {
       var self = this;
 
-      self._logger.error(error);
-
       if (! self._sentryMetrics) {
         self.enableSentryMetrics();
       }
-      // not wrapped in the below promise so that
-      // the call stack reported to Sentry correctly
-      // identifies where the error came from. Sentry
-      // only reports 5/6 levels deep, adding the promise
-      // to the stack ends w/ no meaningful information.
-      self._sentryMetrics.captureException(error);
 
-      return p().then(function () {
-        var metrics = self._metrics;
-        if (metrics) {
-          metrics.logError(error);
-
-          return metrics.flush();
-        }
-      });
+      return ErrorUtils.captureAndFlushError(
+        error, self._sentryMetrics, self._metrics, self._window);
     },
 
     allResourcesReady: function () {
@@ -625,27 +611,6 @@ define(function (require, exports, module) {
       if (startPage) {
         this._router.navigate(startPage);
       }
-    },
-
-    _getErrorPage: function (err) {
-      if (AuthErrors.is(err, 'INVALID_PARAMETER') ||
-          AuthErrors.is(err, 'MISSING_PARAMETER') ||
-          OAuthErrors.is(err, 'INVALID_PARAMETER') ||
-          OAuthErrors.is(err, 'MISSING_PARAMETER') ||
-          OAuthErrors.is(err, 'UNKNOWN_CLIENT')) {
-        var queryString = Url.objToSearchString({
-          client_id: err.client_id, //eslint-disable-line camelcase
-          context: err.context,
-          errno: err.errno,
-          message: err.errorModule.toInterpolatedMessage(err, this._translator),
-          namespace: err.namespace,
-          param: err.param
-        });
-
-        return Constants.BAD_REQUEST_PAGE + queryString;
-      }
-
-      return Constants.INTERNAL_ERROR_PAGE;
     },
 
     _getStorageInstance: function () {
