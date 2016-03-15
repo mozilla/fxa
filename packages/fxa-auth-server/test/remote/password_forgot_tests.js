@@ -6,7 +6,7 @@ var test = require('../ptaptest')
 var url = require('url')
 var Client = require('../client')
 var TestServer = require('../test_server')
-
+var crypto = require('crypto')
 
 var config = require('../../config').getProperties()
 
@@ -355,6 +355,64 @@ TestServer.start(config)
           var query = url.parse(link, true).query
           t.equal(query.service, options.serviceQuery, 'service is in link')
         })
+    }
+  )
+
+  test(
+    'forgot password, then get device list',
+    function (t) {
+      var email = server.uniqueEmail()
+      var newPassword = 'foo'
+      var client
+      return Client.createAndVerify(config.publicUrl, email, 'bar', server.mailbox, {
+        device: {
+          name: 'baz',
+          type: 'mobile',
+          pushCallback: 'https://example.com/qux',
+          pushPublicKey: crypto.randomBytes(32).toString('hex')
+        }
+      })
+        .then(
+          function (c) {
+            client = c
+            return client.devices()
+          }
+        )
+        .then(
+          function (devices) {
+            t.equal(devices.length, 1, 'devices list contains 1 item')
+          }
+        )
+        .then(
+          function () {
+            return client.forgotPassword()
+          }
+        )
+        .then(
+          function () {
+            return server.mailbox.waitForCode(email)
+          }
+        )
+        .then(
+          function (code) {
+            return resetPassword(client, code, newPassword)
+          }
+        )
+        .then(
+          function () {
+            return Client.login(config.publicUrl, email, newPassword)
+          }
+        )
+        .then(
+          function (client) {
+            return client.devices()
+          }
+        )
+        .then(
+          function (devices) {
+            t.equal(devices.length, 0, 'devices list is empty')
+          }
+        )
     }
   )
 
