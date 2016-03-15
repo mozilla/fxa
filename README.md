@@ -83,7 +83,11 @@ After installing **fxa-local-dev** the servers should automatically start up. Us
 To avoid wasting computer resources while not working on FxA make sure to stop the servers using `./pm2 kill`.
 Once you are back working on FxA just use the `./pm2 start servers.json` command to bring the servers back up. Keep in mind that the memory store will restart and all your database data will be brand new.
 
-Use the `./pm2 logs` command to get the logs of all servers. You may also use `./pm2 logs [id]` to just see the logs for that particular server. When you signup for an account using the form on `127.0.0.1:3030/signup` the `fxa-auth-server` logs will print out the verification link that you need to copy paste into your browser to verify your account:
+#### Verifying email and viewing logs
+
+Use the `./pm2 logs` command to get the logs of all servers. You may also use `./pm2 logs [id]` to just see the logs for that particular server. 
+
+When you signup for an account using the form on `127.0.0.1:3030/signup` the (mailer) logs will print out the verification link that you need to copy paste into your browser to verify your account locally:
 
 ![](http://i.imgur.com/oGYXSPl.png)
 
