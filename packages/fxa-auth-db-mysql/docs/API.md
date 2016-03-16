@@ -153,7 +153,7 @@ Returns:
 ## .resetAccount(uid, data) ##
 
 Resets the account specified by `uid` using the fields provided in `data`. Deletes all tokens
-related to this account.
+and devices related to this account.
 
 Parameters:
 

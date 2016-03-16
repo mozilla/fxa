@@ -1036,7 +1036,7 @@ module.exports = function(config, DB) {
         test(
           'db.resetAccount',
           function (t) {
-            t.plan(9)
+            t.plan(10)
             var uid = ACCOUNT.uid
             var lockedAt = Date.now()
             var unlockCode = hex16()
@@ -1044,6 +1044,13 @@ module.exports = function(config, DB) {
             return db.createSessionToken(SESSION_TOKEN_ID, SESSION_TOKEN)
               .then(function(sessionToken) {
                 t.pass('.createSessionToken() did not error')
+                return db.createDevice(ACCOUNT.uid, newUuid(), {
+                  sessionTokenId: SESSION_TOKEN_ID,
+                  createdAt: lockedAt
+                })
+              })
+              .then(function() {
+                t.pass('.createDevice() did not error')
                 return db.createAccountResetToken(ACCOUNT_RESET_TOKEN_ID, ACCOUNT_RESET_TOKEN)
               })
               .then(function() {
