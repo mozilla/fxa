@@ -823,7 +823,7 @@ module.exports = function (
           schema: isA.array().items(isA.object({
             id: isA.string().length(32).regex(HEX_STRING).required(),
             isCurrentDevice: isA.boolean().required(),
-            lastAccessTime: isA.number().min(0).required(),
+            lastAccessTime: isA.number().min(0).required().allow(null),
             name: isA.string().max(255).required(),
             type: isA.string().max(16).required(),
             pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow('').allow(null),
