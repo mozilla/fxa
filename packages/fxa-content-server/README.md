@@ -3,11 +3,11 @@
 [![Build Status: Travis](https://travis-ci.org/mozilla/fxa-content-server.svg?branch=master)](https://travis-ci.org/mozilla/fxa-content-server)
 [![Coverage Status](https://img.shields.io/coveralls/mozilla/fxa-content-server.svg)](https://coveralls.io/r/mozilla/fxa-content-server)
 
-Static server that hosts Firefox Account sign up, sign in, email verification, etc. flows.
+Static server that hosts [Firefox Account sign up](https://accounts.firefox.com), sign in, email verification, etc. flows.
 
 
 Follow the instructions on:
-	[fxa-local-dev](https://github.com/mozilla/fxa-local-dev)
+	[fxa-local-dev](https://github.com/mozilla/fxa-local-dev) to get a local version running.
 	
 The above link helps to install the following pre-requisites, and set up a development environment.
 
