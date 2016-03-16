@@ -947,5 +947,82 @@ module.exports = function (log, error) {
       )
   }
 
+  // Utility method for logging connection config at startup
+  MySql.prototype._connectionConfig = function (poolName) {
+    var exclude = [
+      'pool',
+      'password',
+      'user',
+      'host',
+      'port'
+    ]
+
+    return this.getConnection(poolName)
+      .then(
+        function (connection) {
+          return query(connection, 'SELECT 1')
+            .then(
+              function (result) {
+                var config = {}
+                Object.keys(connection.config).sort().forEach(function(key) {
+                  if (exclude.indexOf(key) === -1) {
+                    config[key] = connection.config[key]
+                  }
+                })
+                connection.release()
+                return config
+              },
+              function (err) {
+                connection.release()
+                throw err
+              }
+            )
+        }
+      )
+  }
+
+  // Utility method for logging charset/collation and other variables at startup
+  MySql.prototype._showVariables = function (poolName) {
+    var include = [
+      'character_set_client',
+      'character_set_connection',
+      'character_set_database',
+      'character_set_filesystem',
+      'character_set_results',
+      'character_set_server',
+      'character_set_system',
+      'collation_connection',
+      'collation_database',
+      'collation_server',
+      'max_connections',
+      'version',
+      'wait_timeout'
+    ]
+
+    return this.getConnection(poolName)
+      .then(
+        function (connection) {
+          return query(connection, 'SHOW VARIABLES')
+            .then(
+              function(variables) {
+                var vars = {}
+                variables.forEach(function(v) {
+                  var name = v.Variable_name
+                  if (include.indexOf(name) !== -1) {
+                    vars[name] = v.Value
+                  }
+                })
+                connection.release()
+                return vars
+              },
+              function(err) {
+                connection.release()
+                throw err
+              }
+            )
+        }
+      )
+  }
+
   return MySql
 }
