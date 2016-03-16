@@ -401,12 +401,14 @@ define([
       });
   }
 
-  function openFxaFromUntrustedRp(context, page, options) {
-    options = options || {};
-    options.untrusted = true;
-    return openFxaFromRp(context, page, options);
-  }
-
+  /**
+   * Open the force auth page
+   *
+   * @param {object} [options]
+   * @param {string} [options.header] - element selector that indicates
+   *  "page is loaded". Defaults to `#fxa-force-auth-header`
+   * @param {object} [options.query] - query strings to open page with
+   */
   function openForceAuth(options) {
     return function () {
       options = options || {};
@@ -430,6 +432,34 @@ define([
       });
   }
 
+  /**
+   * Open FxA from the untrusted OAuth relier.
+   *
+   * @param {object} context
+   * @param {string} page - page to open
+   * @param {object} [options]
+   * @param {string} [options.header] - element selector that indicates
+   *  "page is loaded". Defaults to `#fxa-force-auth-header`
+   * @param {object} [options.query] - query strings to open page with
+   */
+  function openFxaFromUntrustedRp(context, page, options) {
+    options = options || {};
+    options.untrusted = true;
+    return openFxaFromRp(context, page, options);
+  }
+
+  /**
+   * Open FxA from an OAuth relier.
+   *
+   * @param {object} context
+   * @param {string} page - page to open
+   * @param {object} [options]
+   * @param {string} [options.header] - element selector that indicates
+   *  "page is loaded". Defaults to `#fxa-force-auth-header`
+   * @param {object} [options.query] - query strings to open page with
+   * @param {boolean} [options.untrusted] - if `true`, opens the Untrusted
+   * relier. Defaults to `true`
+   */
   function openFxaFromRp(context, page, options) {
     options = options || {};
     var app = options.untrusted ? UNTRUSTED_OAUTH_APP : OAUTH_APP;
@@ -565,6 +595,11 @@ define([
       .end();
   }
 
+  /**
+   * Fill out and submit the force auth page.
+   *
+   * @param {string} password
+   */
   function fillOutForceAuth(password) {
     return function () {
       return this.parent
@@ -729,7 +764,7 @@ define([
       .end()
 
       .then(null, function (err) {
-        return context.remote
+        return remote
           .getCurrentUrl()
             .then(function (resultUrl) {
               console.log('Error fetching %s, now at %s', url, resultUrl);
@@ -737,7 +772,7 @@ define([
           .end()
 
           .then(function () {
-            return context.remote.takeScreenshot();
+            return remote.takeScreenshot();
           })
           .then(function (buffer) {
             console.error('Error occurred, capturing base64 screenshot:');
