@@ -12,130 +12,131 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
-  'intern/node_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
   'tests/functional/lib/fx-desktop',
   'tests/functional/lib/webchannel-helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest,
-        FxaClient, TestHelpers, FunctionalHelpers, FxDesktopHelpers, WebChannelHelpers) {
+], function (intern, registerSuite, assert,
+        TestHelpers, FunctionalHelpers, FxDesktopHelpers, WebChannelHelpers) {
   var config = intern.config;
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var SYNC_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
 
   var PASSWORD = 'password';
   var email;
-  var client;
   var ANIMATION_DELAY_MS = 1000;
   var CHANNEL_DELAY = 4000; // how long it takes for the WebChannel indicator to appear
   var TIMEOUT = 90 * 1000;
 
-  var listenForSyncCommands = FxDesktopHelpers.listenForFxaCommands;
-  var testIsBrowserNotifiedOfSyncLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
-  var testIsBrowserNotifiedOfLogin = WebChannelHelpers.testIsBrowserNotifiedOfLoginWithKeys;
+  var thenify = FunctionalHelpers.thenify;
 
-  function openFxaFromRpAndRequestKeys(context, page) {
-    return WebChannelHelpers.openFxaFromRp(context, page, {
+  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var click = FunctionalHelpers.click;
+  var createUser = FunctionalHelpers.createUser;
+  var fillOutCompleteResetPassword = thenify(FunctionalHelpers.fillOutCompleteResetPassword);
+  var fillOutResetPassword = thenify(FunctionalHelpers.fillOutResetPassword);
+  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
+  var getVerificationLink = thenify(FunctionalHelpers.getVerificationLink);
+  var listenForWebChannelMessage = FunctionalHelpers.listenForWebChannelMessage;
+  var listenForSyncCommands = FxDesktopHelpers.listenForFxaCommands;
+  var openExternalSite = FunctionalHelpers.openExternalSite;
+  var openPage = FunctionalHelpers.openPage;
+  var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
+  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
+  var openPasswordResetLinkDifferentBrowser = thenify(FunctionalHelpers.openPasswordResetLinkDifferentBrowser);
+  var testElementExists = FunctionalHelpers.testElementExists;
+  var testIsBrowserNotifiedOfLogin = WebChannelHelpers.testIsBrowserNotifiedOfLoginWithKeys;
+  var testIsBrowserNotifiedOfSyncLogin = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfLogin);
+  var type = FunctionalHelpers.type;
+
+  var openFxaFromRp = thenify(function (page) {
+    return WebChannelHelpers.openFxaFromRp(this.parent, page, { query: {
       keys: true
-    });
-  }
+    }});
+  });
+
+  var waitForBrowserLoginNotification = thenify(function (context) {
+    var found = false;
+    return this.parent
+      .setFindTimeout(CHANNEL_DELAY)
+      .then(testIsBrowserNotifiedOfLogin(context, { shouldCloseTab: false }))
+      .then(function () {
+        found = true;
+      }, function () {
+        found = false;
+      })
+      .setFindTimeout(config.pageLoadTimeout)
+      .then(function () {
+        return found;
+      });
+  });
 
   registerSuite({
     name: 'oauth webchannel keys',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
 
-      return FunctionalHelpers.clearBrowserState(this, {
-        '123done': true,
-        contentServer: true
-      });
+      return this.remote
+        .then(clearBrowserState(this, {
+          '123done': true,
+          contentServer: true
+        }));
     },
 
     'signup, verify same browser, in a different tab, with original tab open': function () {
-      var self = this;
-      self.timeout = TIMEOUT;
+      this.timeout = TIMEOUT;
 
       var messageReceived = false;
 
-      return openFxaFromRpAndRequestKeys(self, 'signup')
-        .execute(FunctionalHelpers.listenForWebChannelMessage)
+      return this.remote
+        .then(openFxaFromRp('signup'))
+        .then(fillOutSignUp(this, email, PASSWORD))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
+        .then(testElementExists('#fxa-confirm-header'))
+        .then(openVerificationLinkInNewTab(this, email, 0))
 
-        .findByCssSelector('#fxa-confirm-header')
-        .end()
-
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkInNewTab(
-                      self, email, 0);
-        })
         .switchToWindow('newwindow')
-        .execute(FunctionalHelpers.listenForWebChannelMessage)
-        // wait for the verified window in the new tab
-        .findById('fxa-sign-up-complete-header')
-        .setFindTimeout(CHANNEL_DELAY)
-        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
-        .end()
-        .then(function () {
-          messageReceived = true;
-        }, function () {
-          // element was not found
-        })
+        .execute(listenForWebChannelMessage)
+        .then(testElementExists('#fxa-sign-up-complete-header'))
 
+        .then(waitForBrowserLoginNotification(this))
+        .then(function (result) {
+          messageReceived = result;
+        })
         .closeCurrentWindow()
+
         // switch to the original window
         .switchToWindow('')
-        .setFindTimeout(CHANNEL_DELAY)
-        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
-        .then(function () {
-          messageReceived = true;
-        }, function () {
-          // element was not found
+        .then(waitForBrowserLoginNotification(this))
+        .then(function (result) {
+          messageReceived = messageReceived || result;
         })
 
         .then(function () {
           assert.isTrue(messageReceived, 'expected to receive a WebChannel event in either tab');
         })
-        .setFindTimeout(config.pageLoadTimeout)
 
-        .findById('fxa-sign-up-complete-header')
-        .end();
+        .then(testElementExists('#fxa-sign-up-complete-header'));
     },
 
     'signup, verify same browser, original tab closed navigated to another page': function () {
-      var self = this;
-      self.timeout = TIMEOUT;
+      this.timeout = TIMEOUT;
 
-      return openFxaFromRpAndRequestKeys(self, 'signup')
+      return this.remote
+        .then(openFxaFromRp('signup'))
+        .then(fillOutSignUp(this, email, PASSWORD))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
+        .then(testElementExists('#fxa-confirm-header'))
+        .then(openExternalSite(this))
 
-        .findByCssSelector('#fxa-confirm-header')
-        .end()
-
-        .then(FunctionalHelpers.openExternalSite(self))
-
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkInNewTab(self, email, 0);
-        })
+        .then(openVerificationLinkInNewTab(this, email, 0))
 
         .switchToWindow('newwindow')
-        .execute(FunctionalHelpers.listenForWebChannelMessage)
+        .execute(listenForWebChannelMessage)
+        .then(testIsBrowserNotifiedOfLogin(this, { shouldCloseTab: false }))
 
-        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
-
-        .findById('fxa-sign-up-complete-header')
-        .end()
+        .then(testElementExists('#fxa-sign-up-complete-header'))
 
         .closeCurrentWindow()
         // switch to the original window
@@ -143,105 +144,66 @@ define([
     },
 
     'signup, verify same browser, replace original tab': function () {
-      var self = this;
-      self.timeout = TIMEOUT;
+      this.timeout = TIMEOUT;
 
-      return openFxaFromRpAndRequestKeys(self, 'signup')
+      return this.remote
+        .then(openFxaFromRp('signup'))
+        .then(fillOutSignUp(this, email, PASSWORD))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
+        .then(testElementExists('#fxa-confirm-header'))
 
-        .findByCssSelector('#fxa-confirm-header')
-        .end()
-
-        .then(function () {
-          return FunctionalHelpers.getVerificationLink(email, 0);
-        })
+        .then(getVerificationLink(email, 0))
         .then(function (verificationLink) {
-          return self.remote.get(require.toUrl(verificationLink))
-            .execute(FunctionalHelpers.listenForWebChannelMessage);
+          return openPage(this.parent, verificationLink, '#fxa-sign-up-complete-header');
         })
 
-        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
-
-        .findById('fxa-sign-up-complete-header')
-        .end();
+        .then(testIsBrowserNotifiedOfLogin(this, { shouldCloseTab: false }));
     },
 
     'signup, verify different browser, from original tab\'s P.O.V.': function () {
-      var self = this;
-      self.timeout = TIMEOUT;
+      this.timeout = TIMEOUT;
 
-      return openFxaFromRpAndRequestKeys(self, 'signup')
-        .execute(FunctionalHelpers.listenForWebChannelMessage)
+      return this.remote
+        .then(openFxaFromRp('signup'))
+        .then(fillOutSignUp(this, email, PASSWORD))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
+        .then(testElementExists('#fxa-confirm-header'))
 
-        .findByCssSelector('#fxa-confirm-header')
-        .end()
+        .then(openVerificationLinkDifferentBrowser(email))
 
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkDifferentBrowser(client, email);
-        })
+        .then(testIsBrowserNotifiedOfLogin(this, { shouldCloseTab: false }))
 
-        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
-
-        .findById('fxa-sign-up-complete-header')
-        .end();
+        .then(testElementExists('#fxa-sign-up-complete-header'));
     },
 
     'reset password, verify same browser': function () {
-      var self = this;
-      self.timeout = TIMEOUT;
+      this.timeout = TIMEOUT;
 
       var messageReceived = false;
 
-      return openFxaFromRpAndRequestKeys(self, 'signin')
-        .execute(FunctionalHelpers.listenForWebChannelMessage)
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openFxaFromRp('signin'))
+        .then(click('.reset-password'))
 
-        .then(function () {
-          return client.signUp(email, PASSWORD, { preVerified: true });
-        })
+        .then(fillOutResetPassword(this, email))
 
-        .findByCssSelector('.reset-password')
-          .click()
-        .end()
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutResetPassword(self, email);
-        })
-
-        .findByCssSelector('#fxa-confirm-reset-password-header')
-        .end()
-
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkInNewTab(
-                      self, email, 0);
-        })
+        .then(openVerificationLinkInNewTab(this, email, 0))
 
         // Complete the reset password in the new tab
         .switchToWindow('newwindow')
         .execute(FunctionalHelpers.listenForWebChannelMessage)
 
-        .then(function () {
-          return FunctionalHelpers.fillOutCompleteResetPassword(
-              self, PASSWORD, PASSWORD);
-        })
+        .then(fillOutCompleteResetPassword(this, PASSWORD, PASSWORD))
 
         // this tab should get the reset password complete header.
-        .findByCssSelector('#fxa-reset-password-complete-header')
-        .end()
+        .then(testElementExists('#fxa-reset-password-complete-header'))
 
-        .setFindTimeout(CHANNEL_DELAY)
-        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
-        .end()
-        .then(function () {
-          messageReceived = true;
-        }, function () {
-          // element was not found
+        .then(waitForBrowserLoginNotification(this))
+        .then(function (result) {
+          messageReceived = result;
         })
 
         .sleep(ANIMATION_DELAY_MS)
@@ -255,63 +217,40 @@ define([
         .closeCurrentWindow()
         // switch to the original window
         .switchToWindow('')
-        .setFindTimeout(CHANNEL_DELAY)
-        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
-        .then(function () {
-          messageReceived = true;
-        }, function () {
-          // element was not found
+        .then(waitForBrowserLoginNotification(this))
+        .then(function (result) {
+          messageReceived = messageReceived || result;
         })
 
         .then(function () {
           assert.isTrue(messageReceived, 'expected to receive a WebChannel event in either tab');
         })
-        .setFindTimeout(config.pageLoadTimeout)
 
         // the original tab should automatically sign in
-        .findByCssSelector('#fxa-reset-password-complete-header')
-        .end();
+        .then(testElementExists('#fxa-reset-password-complete-header'));
     },
 
     'reset password, verify same browser, original tab closed': function () {
-      var self = this;
-      self.timeout = TIMEOUT;
+      this.timeout = TIMEOUT;
 
-      return openFxaFromRpAndRequestKeys(self, 'signin')
-        .then(function () {
-          return client.signUp(email, PASSWORD, { preVerified: true });
-        })
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openFxaFromRp('signin'))
+        .then(click('.reset-password'))
 
-        .findByCssSelector('.reset-password')
-          .click()
-        .end()
+        .then(fillOutResetPassword(this, email))
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutResetPassword(self, email);
-        })
-
-        .findByCssSelector('#fxa-confirm-reset-password-header')
-        .end()
-
-        .then(FunctionalHelpers.openExternalSite(self))
-
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkInNewTab(self, email, 0);
-        })
+        .then(openExternalSite(this))
+        .then(openVerificationLinkInNewTab(this, email, 0))
 
         .switchToWindow('newwindow')
         .execute(FunctionalHelpers.listenForWebChannelMessage)
-
-        .then(function () {
-          return FunctionalHelpers.fillOutCompleteResetPassword(
-              self, PASSWORD, PASSWORD);
-        })
+        .then(fillOutCompleteResetPassword(this, PASSWORD, PASSWORD))
 
         // the tab should automatically sign in
-        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
-
-        .findByCssSelector('#fxa-reset-password-complete-header')
-        .end()
+        .then(testIsBrowserNotifiedOfLogin(this, { shouldCloseTab: false }))
+        .then(testElementExists('#fxa-reset-password-complete-header'))
 
         .closeCurrentWindow()
         // switch to the original window
@@ -319,142 +258,77 @@ define([
     },
 
     'reset password, verify same browser, replace original tab': function () {
-      var self = this;
-      self.timeout = TIMEOUT;
+      this.timeout = TIMEOUT;
 
-      return openFxaFromRpAndRequestKeys(self, 'signin')
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openFxaFromRp('signin'))
+        .then(click('.reset-password'))
 
-        .then(function () {
-          return client.signUp(email, PASSWORD, { preVerified: true });
-        })
+        .then(fillOutResetPassword(this, email))
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
 
-        .findByCssSelector('.reset-password')
-          .click()
-        .end()
-
-        .then(function () {
-          return FunctionalHelpers.fillOutResetPassword(self, email);
-        })
-
-        .findByCssSelector('#fxa-confirm-reset-password-header')
-        .end()
-
-        .then(function () {
-          return FunctionalHelpers.getVerificationLink(email, 0);
-        })
+        .then(getVerificationLink(email, 0))
         .then(function (verificationLink) {
-          return self.remote.get(require.toUrl(verificationLink))
-            .execute(FunctionalHelpers.listenForWebChannelMessage);
+          return openPage(this.parent, verificationLink, '#fxa-complete-reset-password-header');
         })
 
-        .then(function () {
-          return FunctionalHelpers.fillOutCompleteResetPassword(
-              self, PASSWORD, PASSWORD);
-        })
+        .then(fillOutCompleteResetPassword(this, PASSWORD, PASSWORD))
 
         // the tab should automatically sign in
-        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
+        .then(testIsBrowserNotifiedOfLogin(this, { shouldCloseTab: false }))
 
-        .findByCssSelector('#fxa-reset-password-complete-header')
-        .end();
+        .then(testElementExists('#fxa-reset-password-complete-header'));
     },
 
     'reset password, verify in different browser, from the original tab\'s P.O.V.': function () {
-      var self = this;
-      self.timeout = TIMEOUT;
+      this.timeout = TIMEOUT;
 
-      return openFxaFromRpAndRequestKeys(self, 'signin')
-        .execute(FunctionalHelpers.listenForWebChannelMessage)
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openFxaFromRp('signin'))
+        .then(click('.reset-password'))
 
-        .then(function () {
-          return client.signUp(email, PASSWORD, { preVerified: true });
-        })
+        .then(fillOutResetPassword(this, email))
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
 
-        .findByCssSelector('.reset-password')
-          .click()
-        .end()
-
-        .then(function () {
-          return FunctionalHelpers.fillOutResetPassword(self, email);
-        })
-
-        .findByCssSelector('#fxa-confirm-reset-password-header')
-        .end()
-
-        .then(function () {
-          return FunctionalHelpers.openPasswordResetLinkDifferentBrowser(
-              client, email, PASSWORD);
-        })
+        .then(openPasswordResetLinkDifferentBrowser(email, PASSWORD))
 
         // user verified in a new browser, they have to enter
         // their updated credentials in the original tab.
-        .findByCssSelector('#fxa-signin-header')
-        .end()
-
-        .then(FunctionalHelpers.testSuccessWasShown(self))
-
-        .findByCssSelector('#password')
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type=submit]')
-          .click()
-        .end()
+        .then(testElementExists('#fxa-signin-header'))
+        .then(FunctionalHelpers.testSuccessWasShown(this))
+        .then(type('#password', PASSWORD))
+        .then(click('button[type=submit]'))
 
         // user is signed in
-        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: true }))
+        .then(testIsBrowserNotifiedOfLogin(this, { shouldCloseTab: true }))
 
         // no screen transition, Loop will close this screen.
-        .findByCssSelector('#fxa-signin-header')
-        .end();
+        .then(testElementExists('#fxa-signin-header'));
     },
 
     'signin a verified account and requesting keys after signing in to sync': function () {
-      var self = this;
-      self.timeout = TIMEOUT;
+      this.timeout = TIMEOUT;
 
-      return client.signUp(email, PASSWORD, { preVerified: true })
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(function () {
-          return self.remote
-            .get(require.toUrl(SYNC_URL))
-            .setFindTimeout(intern.config.pageLoadTimeout)
-            .execute(listenForSyncCommands)
+          return openPage(this.parent, SYNC_URL, '#fxa-signin-header');
+        })
+        .execute(listenForSyncCommands)
 
-            .findByCssSelector('#fxa-signin-header')
-            .end()
+        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(testIsBrowserNotifiedOfSyncLogin(this, email, { checkVerified: true }))
 
-            .then(function () {
-              return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
-            })
-
-            .then(function () {
-              return testIsBrowserNotifiedOfSyncLogin(self, email, { checkVerified: true });
-            })
-
-            .then(function () {
-              return openFxaFromRpAndRequestKeys(self, 'signin');
-            })
-
-            .findByCssSelector('#fxa-signin-header')
-            .end()
-
-            .execute(FunctionalHelpers.listenForWebChannelMessage)
-
-            // In a keyless oauth flow, the user could just click to confirm
-            // without re-entering their password.  Since we need the password
-            // to derive the keys, this flow must prompt for it.
-            .findByCssSelector('input[type=password]')
-              .click()
-              .clearValue()
-              .type(PASSWORD)
-            .end()
-
-            .findByCssSelector('button[type="submit"]')
-              .click()
-            .end()
-
-            .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: true }));
-        });
+        .then(openFxaFromRp('signin'))
+        .then(testElementExists('#fxa-signin-header'))
+        // In a keyless oauth flow, the user could just click to confirm
+        // without re-entering their password.  Since we need the password
+        // to derive the keys, this flow must prompt for it.
+        .then(type('input[type=password]', PASSWORD))
+        .then(click('button[type="submit"]'))
+        .then(testIsBrowserNotifiedOfLogin(this, { shouldCloseTab: true }));
     }
   });
 

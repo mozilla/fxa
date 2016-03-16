@@ -4,11 +4,23 @@
 
 define([
   'intern!object',
-  'intern/chai!assert',
   'tests/functional/lib/helpers'
-], function (registerSuite, assert, FunctionalHelpers) {
+], function (registerSuite, FunctionalHelpers) {
 
-  var MIGRATE_PARAMS = 'state=state&migration=amo&scope=profile&email=fakeemail@restmail.com';
+  var QUERY_PARAMS = {
+    email: 'fakeemail@restmail.com',
+    migration: 'amo',
+    scope: 'profile',
+    state: 'state'
+  };
+
+  var thenify = FunctionalHelpers.thenify;
+
+  var click = FunctionalHelpers.click;
+  var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
+  var testElementExists = FunctionalHelpers.testElementExists;
+  var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
+  var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   registerSuite({
     name: 'oauth amo sign up',
@@ -18,22 +30,13 @@ define([
     },
 
     'as a migrating user': function () {
-      return FunctionalHelpers.openFxaFromRp(this, 'signup', MIGRATE_PARAMS)
-        .then(FunctionalHelpers.visibleByQSA('.info.nudge'))
-        .findByCssSelector('.info.nudge a')
-          .click()
-        .end()
+      return this.remote
+        .then(openFxaFromRp(this, 'signup', { query: QUERY_PARAMS }))
+        .then(visibleByQSA('.info.nudge'))
+        .then(click('.info.nudge a'))
 
-        .findByCssSelector('#fxa-signin-header')
-        .end()
-
-        .findByCssSelector('input[type="email"]')
-        .getAttribute('value')
-        .then(function (resultText) {
-          // check the email address is empty
-          assert.equal(resultText, '');
-        })
-        .end();
+        .then(testElementExists('#fxa-signin-header'))
+        .then(testElementValueEquals('input[type="email"]', ''));
     }
   });
 });

@@ -3,26 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  'app/bower_components/fxa-js-client/fxa-client',
-  'intern',
   'intern!object',
-  'intern/node_modules/dojo/node!xmlhttprequest',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (FxaClient, intern, registerSuite, nodeXMLHttpRequest,
-  TestHelpers, FunctionalHelpers) {
-  var config = intern.config;
-
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
-  var FORCE_AUTH_URL = config.fxaContentRoot + 'force_auth?context=fx_desktop_v2&service=sync';
-
-  var client;
+], function (registerSuite, TestHelpers, FunctionalHelpers) {
   var email;
   var PASSWORD = '12345678';
-  var url;
 
+  var createUser = FunctionalHelpers.createUser;
+  var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
+  var openForceAuth = FunctionalHelpers.openForceAuth;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
+  var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
   registerSuite({
@@ -30,39 +23,29 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      url = FORCE_AUTH_URL + '&email=' + encodeURIComponent(email);
-
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
 
       return FunctionalHelpers.clearBrowserState(this);
     },
 
     'verified': function () {
-      var self = this;
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openForceAuth({ query: {
+          context: 'fx_desktop_v2',
+          email: email,
+          service: 'sync'
+        }}))
+        .then(noSuchBrowserNotification(this, 'fxaccounts:logout'))
+        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(fillOutForceAuth(PASSWORD))
 
-      return client.signUp(email, PASSWORD, { preVerified: true })
-        .then(function () {
-          return FunctionalHelpers.openPage(self, url, '#fxa-force-auth-header')
-            .then(noSuchBrowserNotification(self, 'fxaccounts:logout'))
+        // add a slight delay to ensure the page does not transition
+        .sleep(2000)
 
-            .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: true } ))
-
-            .then(function () {
-              return FunctionalHelpers.fillOutForceAuth(self, PASSWORD);
-            })
-
-            // add a slight delay to ensure the page does not transition
-            .sleep(2000)
-
-            // the page does not transition.
-            .findByCssSelector('#fxa-force-auth-header')
-            .end()
-
-            .then(testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
-            .then(testIsBrowserNotified(self, 'fxaccounts:login'));
-        });
+        // the page does not transition.
+        .then(testElementExists('#fxa-force-auth-header'))
+        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'));
     }
   });
 });

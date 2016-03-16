@@ -8,16 +8,15 @@
 
 define([
   'intern/chai!assert',
-  'intern/node_modules/dojo/node!querystring',
   'tests/functional/lib/helpers',
-], function (assert, queryString, FunctionalHelpers) {
+], function (assert, FunctionalHelpers) {
 
-  function openFxaFromRp(context, page, queryParams) {
-    queryParams = queryParams || {};
-    queryParams.webChannelId = 'test';
-    var searchString = '?' + queryString.stringify(queryParams);
+  function openFxaFromRp(context, page, options) {
+    options = options || {};
+    options.query = options.query || {};
+    options.query.webChannelId = 'test';
 
-    return FunctionalHelpers.openFxaFromRp(context, page, searchString);
+    return FunctionalHelpers.openFxaFromRp(context, page, options);
   }
 
   function testIsBrowserNotifiedOfLogin(context, options) {

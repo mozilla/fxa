@@ -3,67 +3,54 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  'intern',
   'intern!object',
-  'intern/node_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, nodeXMLHttpRequest, FxaClient, TestHelpers, FunctionalHelpers) {
-  var config = intern.config;
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
-  var FORCE_AUTH_URL = config.fxaContentRoot + 'force_auth?context=fx_fennec_v1&service=sync';
+], function (registerSuite, TestHelpers, FunctionalHelpers) {
+  var thenify = FunctionalHelpers.thenify;
+
+  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var click = FunctionalHelpers.click;
+  var createUser = FunctionalHelpers.createUser;
+  var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
+  var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
+  var openForceAuth = FunctionalHelpers.openForceAuth;
+  var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
+  var testElementExists = FunctionalHelpers.testElementExists;
+  var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
   var PASSWORD = 'password';
   var email;
-  var client;
-
-  var listenForFxaCommands = FunctionalHelpers.listenForWebChannelMessage;
-  var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
 
   registerSuite({
     name: 'Fx Fennec Sync v1 force_auth',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
-      var self = this;
-      return client.signUp(email, PASSWORD, { preVerified: true })
-        .then(function () {
-          // clear localStorage to avoid polluting other tests.
-          return FunctionalHelpers.clearBrowserState(self);
-        });
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(clearBrowserState(this));
     },
 
     'sign in via force-auth': function () {
-      var self = this;
-      var url = FORCE_AUTH_URL + '&email=' + encodeURIComponent(email);
-      return FunctionalHelpers.openPage(self, url, '#fxa-force-auth-header')
-        .execute(listenForFxaCommands)
-        .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: true } ))
+      return this.remote
+        .then(openForceAuth({ query: {
+          context: 'fx_fennec_v1',
+          email: email,
+          service: 'sync'
+        }}))
+        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(fillOutForceAuth(PASSWORD))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutForceAuth(self, PASSWORD);
-        })
-
-        .findById('fxa-force-auth-complete-header')
-        .end()
-
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:login'))
-
-        .then(FunctionalHelpers.noSuchBrowserNotification(self, 'fxaccounts:sync_preferences'))
-
-        // user should be able to open sync preferences
-        .findByCssSelector('#sync-preferences')
-          // user wants to open sync preferences.
-          .click()
-        .end()
+        .then(testElementExists('#fxa-force-auth-complete-header'))
+        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(noSuchBrowserNotification(this, 'fxaccounts:sync_preferences'))
+        // user wants to open sync preferences.
+        .then(click('#sync-preferences'))
 
         // browser is notified of desire to open Sync preferences
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:sync_preferences'));
+        .then(testIsBrowserNotified(this, 'fxaccounts:sync_preferences'));
     }
   });
 });

@@ -53,14 +53,13 @@ define([
       // FxA from the reliers. This is done instead of hard coding
       // the values because the client_ids change depending on
       // the environment.
-      var self = this;
       return this.remote
         .then(openFxaFromRp(this, 'signup'))
         .then(getQueryParamValue('client_id'))
         .then(function (clientId) {
           TRUSTED_CLIENT_ID = clientId;
         })
-        .then(openFxaFromUntrustedRp(self, 'signup'))
+        .then(openFxaFromUntrustedRp(this, 'signup'))
         .then(getQueryParamValue('client_id'))
         .then(function (clientId) {
           UNTRUSTED_CLIENT_ID = clientId;

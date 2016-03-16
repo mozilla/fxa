@@ -3,108 +3,73 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  'intern',
   'intern!object',
-  'intern/chai!assert',
-  'intern/node_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, nodeXMLHttpRequest, FxaClient,
-  TestHelpers, FunctionalHelpers) {
-  var config = intern.config;
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
-  var FORCE_AUTH_URL = config.fxaContentRoot + 'force_auth';
+], function (registerSuite, TestHelpers, FunctionalHelpers) {
+  var thenify = FunctionalHelpers.thenify;
+
+  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var click = FunctionalHelpers.click;
+  var createUser = FunctionalHelpers.createUser;
+  var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
+  var openForceAuth = FunctionalHelpers.openForceAuth;
+  var testElementExists = FunctionalHelpers.testElementExists;
+  var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
+  var type = FunctionalHelpers.type;
+  var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   var PASSWORD = 'password';
   var email;
-  var client;
-
-  function openFxa(context, email) {
-    var url = FORCE_AUTH_URL + '?email=' + encodeURIComponent(email);
-    return FunctionalHelpers.openPage(context, url, '#fxa-force-auth-header');
-  }
 
   registerSuite({
     name: 'force_auth with an existing user',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
-      var self = this;
-      return client.signUp(email, PASSWORD, { preVerified: true })
-        .then(function () {
-          // clear localStorage to avoid polluting other tests.
-          return FunctionalHelpers.clearBrowserState(self);
-        });
+
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(clearBrowserState(this));
     },
 
     'sign in via force_auth': function () {
-      var self = this;
-      return openFxa(self, email)
+      return this.remote
+        .then(openForceAuth({ query: { email: email }}))
+        .then(fillOutForceAuth(PASSWORD))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutForceAuth(self, PASSWORD);
-        })
-
-        .findById('fxa-settings-header')
-        .end();
+        .then(testElementExists('#fxa-settings-header'));
     },
 
     'forgot password flow via force-auth goes directly to confirm email screen': function () {
-      var self = this;
-      return openFxa(self, email)
-        .findByCssSelector('.reset-password')
-          .click()
-        .end()
+      return this.remote
+        .then(openForceAuth({ query: { email: email }}))
+        .then(click('.reset-password'))
 
-        .findById('fxa-confirm-reset-password-header')
-        .end()
-
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
         // user remembers her password, clicks the "sign in" link. They
         // should go back to the /force_auth screen.
-        .findByClassName('sign-in')
-          .click()
-        .end()
+        .then(click('.sign-in'))
 
-        .findById('fxa-force-auth-header');
+        .then(testElementExists('#fxa-force-auth-header'));
     },
 
     'visiting the tos/pp links saves information for return': function () {
-      var self = this;
-      return testRepopulateFields.call(self, '/legal/terms', 'fxa-tos-header')
-        .then(function () {
-          return testRepopulateFields.call(self, '/legal/privacy', 'fxa-pp-header');
-        });
+      return this.remote
+        .then(testRepopulateFields('/legal/terms', 'fxa-tos-header'))
+        .then(testRepopulateFields('/legal/privacy', 'fxa-pp-header'));
     },
 
     'form prefill information is cleared after sign in->sign out': function () {
-      var self = this;
-      return openFxa(self, email)
+      return this.remote
+        .then(openForceAuth({ query: { email: email }}))
+        .then(fillOutForceAuth(PASSWORD))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutForceAuth(self, PASSWORD);
-        })
+        .then(testElementExists('#fxa-settings-header'))
+        .then(click('#signout'))
 
-        .findById('fxa-settings-header')
-        .end()
-
-        .findByCssSelector('#signout')
-          .click()
-        .end()
-
-        .findByCssSelector('#fxa-signin-header')
-        .end()
-
-        .findByCssSelector('input[type=password]')
-          .getProperty('value')
-          .then(function (resultText) {
-            // check the password address was cleared
-            assert.equal(resultText, '');
-          })
-        .end();
+        .then(testElementExists('#fxa-signin-header'))
+        .then(testElementValueEquals('input[type=password]', ''));
     }
   });
 
@@ -113,66 +78,41 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      // clear localStorage to avoid polluting other tests.
-      return FunctionalHelpers.clearBrowserState(this);
+
+      return this.remote
+        .then(clearBrowserState(this));
     },
 
     'sign in shows an error message': function () {
       var self = this;
-      return openFxa(self, email)
-
-        .then(function () {
-          return FunctionalHelpers.fillOutForceAuth(self, PASSWORD);
-        })
-
-        .then(FunctionalHelpers.visibleByQSA('.error'))
-        .end();
+      return this.remote
+        .then(openForceAuth({ query: { email: email }}))
+        .then(fillOutForceAuth(self, PASSWORD))
+        .then(visibleByQSA('.error'));
     },
 
     'reset password shows an error message': function () {
-      var self = this;
-      return openFxa(self, email)
-        .findByCssSelector('a[href="/confirm_reset_password"]')
-          .click()
-        .end()
-
-        .then(FunctionalHelpers.visibleByQSA('.error'))
-        .end();
+      return this.remote
+        .then(openForceAuth({ query: { email: email }}))
+        .then(click('a[href="/confirm_reset_password"]'))
+        .then(visibleByQSA('.error'));
     }
   });
 
 
   function testRepopulateFields(dest, header) {
-    var self = this;
+    return function () {
+      return this.parent
+        .then(openForceAuth({ query: { email: email }}))
+        .then(type('input[type=password]', PASSWORD))
+        .then(click('a[href="' + dest + '"]'))
 
-    return openFxa(self, email)
+        .then(testElementExists('#' + header))
+        .then(click('.back'))
 
-      .findByCssSelector('input[type=password]')
-        .clearValue()
-        .click()
-        .type(PASSWORD)
-      .end()
-
-      .findByCssSelector('a[href="' + dest + '"]')
-        .click()
-      .end()
-
-      .findById(header)
-      .end()
-
-      .findByCssSelector('.back')
-        .click()
-      .end()
-
-      .findById('fxa-force-auth-header')
-      .end()
-
-      .findByCssSelector('input[type=password]')
-        .getProperty('value')
-        .then(function (resultText) {
-          // check the email address was re-populated
-          assert.equal(resultText, PASSWORD);
-        })
-      .end();
+        .then(testElementExists('#fxa-force-auth-header'))
+        // check the email address was re-populated
+        .then(testElementValueEquals('input[type=password]', PASSWORD));
+    };
   }
 });
