@@ -16,10 +16,5 @@ module.exports = function lookup(req, res) {
 
   var email = encodeURIComponent(res.locals.creds.email);
 
-  basket.request('/lookup-user/?email=' + email, { method: 'get' })
-    .on('error', function (error) {
-      logger.error('error', error);
-      res.status(500).json(basket.errorResponse(error, basket.errors.UNKNOWN_ERROR));
-    })
-    .pipe(res);
+  basket.proxy('/lookup-user/?email=' + email, { method: 'get' }, res);
 };

@@ -20,10 +20,5 @@ module.exports = function sms(req, res) {
     userAgent: req.headers['user-agent'] || undefined,
   });
 
-  basket.request('/subscribe_sms/', { method: 'post', form: params })
-    .on('error', function (error) {
-      logger.error('error', error);
-      res.status(500).json(basket.errorResponse(error, basket.errors.UNKNOWN_ERROR));
-    })
-    .pipe(res);
+  basket.proxy('/subscribe_sms/', { method: 'post', form: params }, res);
 };
