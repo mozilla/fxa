@@ -9,6 +9,7 @@ var BASE64_JWT = validators.BASE64_JWT
 var butil = require('../crypto/butil')
 var openid = require('openid')
 var url = require('url')
+var metricsContext = require('../metrics/context')
 
 module.exports = function (
   log,
@@ -66,7 +67,8 @@ module.exports = function (
               pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
               pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow('')
             })
-            .optional()
+            .optional(),
+            metricsContext: metricsContext.schema
           }
         },
         response: {
@@ -303,7 +305,8 @@ module.exports = function (
               pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
               pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow('')
             })
-            .optional()
+            .optional(),
+            metricsContext: metricsContext.schema
           }
         },
         response: {
@@ -1112,7 +1115,8 @@ module.exports = function (
         },
         validate: {
           payload: {
-            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required()
+            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
+            metricsContext: metricsContext.schema
           }
         }
       },
@@ -1271,3 +1275,4 @@ module.exports = function (
 
   return routes
 }
+

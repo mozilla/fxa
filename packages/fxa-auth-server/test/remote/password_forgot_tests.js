@@ -417,6 +417,46 @@ TestServer.start(config)
   )
 
   test(
+    'reset password with minimal metricsContext metadata',
+    function (t) {
+      var email = server.uniqueEmail()
+      var client
+      return Client.createAndVerify(config.publicUrl, email, 'foo', server.mailbox)
+        .then(
+          function (c) {
+            client = c
+            return client.forgotPassword()
+          }
+        )
+        .then(
+          function () {
+            return server.mailbox.waitForCode(email)
+          }
+        )
+        .then(
+          function (code) {
+            return resetPassword(client, code, 'bar', {
+              metricsContext: {
+                flowId: 'deadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00d',
+                flowBeginTime: 1
+              }
+            })
+          }
+        )
+        .then(
+          function () {
+            return Client.login(config.publicUrl, email, 'bar')
+          }
+        )
+        .then(
+          function (c) {
+            t.ok(c, 'reset password')
+          }
+        )
+    }
+  )
+
+  test(
     'teardown',
     function (t) {
       server.stop()
@@ -425,9 +465,9 @@ TestServer.start(config)
   )
 })
 
-function resetPassword(client, code, newPassword) {
+function resetPassword(client, code, newPassword, options) {
   return client.verifyPasswordResetCode(code)
     .then(function() {
-      return client.resetPassword(newPassword)
+      return client.resetPassword(newPassword, {}, options)
     })
 }
