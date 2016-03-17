@@ -13,7 +13,8 @@ var NOTIFICATION_SERVER = 'http://notify.me'
 
 var log = { records: [] }
 log.debug = log.error = function(msg) {
-  log.records.push(msg)
+  var args = Array.prototype.slice.call(arguments, 0)
+  log.records.push(args)
 }
 
 var config = require('../../config')
@@ -49,7 +50,7 @@ test(
     return notifier.publish(events)
       .then(function (numPublished) {
         t.equal(numPublished, 2)
-        t.equal(log.records[0].op, 'Notifier.publish')
+        t.equal(log.records[0][0], 'Notifier.publish')
         mock.done()
         t.equal(jwts.length, 2)
         var evt1 = publicKey.verifySync(jwts[0])
