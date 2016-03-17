@@ -60,10 +60,10 @@ module.exports = function (log, error) {
     function prune() {
       this.pruneTokens().done(
         function() {
-          log.info({ op: 'db.pruneTokens', msg: 'Finished' })
+          log.info('MySql.pruneTokens', { msg: 'Finished' })
         },
         function(err) {
-          log.error({ op: 'db.pruneTokens', err: err })
+          log.error('MySql.pruneTokens', { err: err })
         }
       )
 
@@ -305,7 +305,7 @@ module.exports = function (log, error) {
       ],
       function (result) {
         if (result.affectedRows === 0) {
-          log.error({ op: 'MySql.updateDevice', err: result })
+          log.error('MySql.updateDevice', { err: result })
           throw error.notFound()
         }
         return {}
@@ -532,7 +532,7 @@ module.exports = function (log, error) {
       [ uid, deviceId ],
       function (result) {
         if (result.affectedRows === 0) {
-          log.error({ op: 'MySql.deleteDevice', err: result })
+          log.error('MySql.deleteDevice', { err: result })
           throw error.notFound()
         }
         return {}
@@ -721,7 +721,7 @@ module.exports = function (log, error) {
                 )
                 .catch(
                   function (err) {
-                    log.error({ op: 'MySql.transaction', err: err })
+                    log.error('MySql.transaction', { err: err })
                     return query(connection, 'ROLLBACK')
                       .then(function () { throw err })
                   }
@@ -771,7 +771,7 @@ module.exports = function (log, error) {
     return this.singleQuery('SLAVE*', sql, params)
       .catch(
         function (err) {
-          log.error({ op: 'MySql.read', sql: sql, id: params, err: err })
+          log.error('MySql.read', { sql: sql, id: params, err: err })
           throw error.wrap(err)
         }
       )
@@ -781,7 +781,7 @@ module.exports = function (log, error) {
     return this.multipleQueries('SLAVE*', queries, finalQuery)
       .catch(
         function (err) {
-          log.error({ op: 'MySql.readMultiple', err: err })
+          log.error('MySql.readMultiple', { err: err })
           throw error.wrap(err)
         }
       )
@@ -791,14 +791,14 @@ module.exports = function (log, error) {
     return this.singleQuery('MASTER', sql, params)
       .then(
         function (result) {
-          log.trace({ op: 'MySql.write', sql: sql, result: result })
+          log.trace('MySql.write', { sql: sql, result: result })
           if (resultHandler) {
             return resultHandler(result)
           }
           return {}
         },
         function (err) {
-          log.error({ op: 'MySql.write', sql: sql, err: err })
+          log.error('MySql.write', { sql: sql, err: err })
           if (err.errno === ER_DUP_ENTRY) {
             err = error.duplicate()
           }
@@ -836,7 +836,7 @@ module.exports = function (log, error) {
     }
     function failure(err) {
       var errno = err.cause ? err.cause.errno : err.errno
-      log.error({ op: 'MySql.retryable', err: err })
+      log.error('MySql.retryable', { err: err })
       if (errnos.indexOf(errno) === -1) {
         throw err
       }
@@ -850,7 +850,7 @@ module.exports = function (log, error) {
 
   var PRUNE = 'CALL prune(?, ?)'
   MySql.prototype.pruneTokens = function () {
-    log.info({  op : 'MySql.pruneTokens' })
+    log.info('MySql.pruneTokens')
 
     var now = Date.now()
     var pruneBefore = now - this.options.pruneEvery
@@ -937,10 +937,7 @@ module.exports = function (log, error) {
                 if (err instanceof EventQueueLockedError) {
                   connection.release()
                 } else {
-                  log.error({
-                    op: 'MySql.processUnpublishedEvents',
-                    err: err
-                  })
+                  log.error('MySql.processUnpublishedEvents', { err: err })
                   connection.destroy()
                 }
                 throw err
