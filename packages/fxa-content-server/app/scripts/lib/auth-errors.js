@@ -243,6 +243,10 @@ define(function (require, exports, module) {
     INVALID_CAMERA_DIMENSIONS: {
       errno: 1033,
       message: UNEXPECTED_ERROR_MESSAGE
+    },
+    DELETED_ACCOUNT: {
+      errno: 1034,
+      message: t('Account no longer exists.')
     }
   };
   /*eslint-enable sorting/sort-object-props*/

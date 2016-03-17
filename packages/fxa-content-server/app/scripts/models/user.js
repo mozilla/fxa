@@ -488,6 +488,42 @@ define(function (require, exports, module) {
             self.clearSignedInAccount();
           }
         });
+    },
+
+    /**
+     * Check whether an Account's `uid` is registered. Removes the account
+     * from storage if account no longer exists on the server.
+     *
+     * @param {object} account - account to check
+     * @returns {promise} resolves to `true` if an account exists, `false` otw.
+     */
+    checkAccountUidExists: function (account) {
+      var self = this;
+      return account.checkUidExists()
+        .then(function (exists) {
+          if (! exists) {
+            self.removeAccount(account);
+          }
+          return exists;
+        });
+    },
+
+    /**
+     * Check whether an Account's `email` is registered. Removes the account
+     * from storage if account no longer exists on the server.
+     *
+     * @param {object} account - account to check
+     * @returns {promise} resolves to `true` if an account exists, `false` otw.
+     */
+    checkAccountEmailExists: function (account) {
+      var self = this;
+      return account.checkEmailExists()
+        .then(function (exists) {
+          if (! exists) {
+            self.removeAccount(account);
+          }
+          return exists;
+        });
     }
   });
 

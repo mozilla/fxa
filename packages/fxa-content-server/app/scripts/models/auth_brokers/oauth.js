@@ -179,6 +179,10 @@ define(function (require, exports, module) {
     },
 
     transformLink: function (link) {
+      if (link[0] !== '/') {
+        link = '/' + link;
+      }
+
       return '/oauth' + link;
     }
   });

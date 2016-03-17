@@ -332,6 +332,12 @@ define(function (require, exports, module) {
      */
     defaultCapabilities: {
       /**
+       * If the provided UID no longer exists on the auth server, can
+       * the user sign up/in with the same email address but a different
+       * uid?
+       */
+      allowUidChange: false,
+      /**
        * Should the signup page show the `Choose what to sync` checkbox
        */
       chooseWhatToSyncCheckbox: true,

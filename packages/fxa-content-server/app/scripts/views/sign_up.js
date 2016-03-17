@@ -60,6 +60,11 @@ define(function (require, exports, module) {
         return p(false);
       }
 
+      var error = this.model.get('error');
+      if (error && AuthErrors.is(error, 'DELETED_ACCOUNT')) {
+        error.forceMessage = t('Account no longer exists. Recreate it?');
+      }
+
       return FormView.prototype.beforeRender.call(this);
     },
 
@@ -141,7 +146,7 @@ define(function (require, exports, module) {
     },
 
     _selectAutoFocusEl: function () {
-      var prefillEmail = this.getPrefillEmail();
+      var prefillEmail = this.model.get('forceEmail') || this.getPrefillEmail();
       var prefillPassword = this._formPrefill.get('password');
 
       return selectAutoFocusEl(
@@ -149,20 +154,24 @@ define(function (require, exports, module) {
     },
 
     context: function () {
+      var autofocusEl = this._selectAutoFocusEl();
+      var forceEmail = this.model.get('forceEmail');
       var prefillEmail = this.getPrefillEmail();
       var prefillPassword = this._formPrefill.get('password');
-      var autofocusEl = this._selectAutoFocusEl();
 
       var relier = this.relier;
       var isSync = relier.isSync();
+
       var context = {
         chooseWhatToSyncCheckbox: this.broker.hasCapability('chooseWhatToSyncCheckbox'),
         email: prefillEmail,
         error: this.error,
+        forceEmail: forceEmail,
         isAmoMigration: this.isAmoMigration(),
         isCustomizeSyncChecked: relier.isCustomizeSyncChecked(),
         isEmailOptInVisible: this._isEmailOptInEnabled(),
         isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
+        isSignInEnabled: ! forceEmail,
         isSync: isSync,
         isSyncMigration: this.isSyncMigration(),
         password: prefillPassword,

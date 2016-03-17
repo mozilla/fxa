@@ -840,6 +840,39 @@ define([
   }
 
   /**
+   * Check to ensure an element has a `disabled` attribute.
+   *
+   * @param {string} selector
+   * @returns {promise} rejects if test fails
+   */
+  function testElementDisabled(selector) {
+    return function () {
+      return this.parent
+        .findByCssSelector(selector)
+          .getAttribute('disabled')
+          .then(function (disabledValue) {
+            // attribute value is null if it does not exist
+            assert.notStrictEqual(disabledValue, null);
+          })
+        .end();
+    };
+  }
+
+  /**
+   * Check to ensure an element exists
+   *
+   * @param {string} selector
+   * @returns {promise} rejects if element does not exist
+   */
+  function testElementExists(selector) {
+    return function () {
+      return this.parent
+        .findByCssSelector(selector)
+        .end();
+    };
+  }
+
+  /**
    * Check whether an input element's text includes the expected value.
    * Comparison is case insensitive
    *
@@ -1084,14 +1117,6 @@ define([
     return testAttribute(elementSelector, attributeName, 'match', regex);
   }
 
-  function testElementExists(selector) {
-    return function () {
-      return this.parent
-        .findByCssSelector(selector)
-        .end();
-    };
-  }
-
   function verifyUser(user, index, client, accountData) {
     return getVerificationHeaders(user, index)
       .then(function (headers) {
@@ -1138,6 +1163,7 @@ define([
     testAttribute: testAttribute,
     testAttributeEquals: testAttributeEquals,
     testAttributeMatches: testAttributeMatches,
+    testElementDisabled: testElementDisabled,
     testElementExists: testElementExists,
     testElementTextInclude: testElementTextInclude,
     testElementValueEquals: testElementValueEquals,

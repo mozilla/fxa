@@ -215,20 +215,12 @@ define(function (require, exports, module) {
         beforeEach(function () {
           accountExists = false;
 
-          sinon.stub(user, 'initAccount', function () {
-            var account = new Account({
-              sessionToken: 'abc123'
-            });
-
-            account.checkAccountEmailExists = function () {
-              if (accountExists instanceof Error) {
-                return p.reject(accountExists);
-              } else {
-                return p(accountExists);
-              }
-            };
-
-            return account;
+          sinon.stub(user, 'checkAccountEmailExists', function () {
+            if (accountExists instanceof Error) {
+              return p.reject(accountExists);
+            } else {
+              return p(accountExists);
+            }
           });
 
           relier.set('email', 'test@email.com');

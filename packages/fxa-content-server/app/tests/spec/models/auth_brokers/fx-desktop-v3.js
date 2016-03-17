@@ -27,6 +27,10 @@ define(function (require, exports, module) {
       it('has the `syncPreferencesNotification` capability', function () {
         assert.isTrue(broker.hasCapability('syncPreferencesNotification'));
       });
+
+      it('has the `allowUidChange` capability', function () {
+        assert.isTrue(broker.hasCapability('allowUidChange'));
+      });
     });
   });
 });

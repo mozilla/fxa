@@ -175,7 +175,7 @@ define(function (require, exports, module) {
           // Attempt to get account status of email and navigate
           // to correct signin/signup page if exists.
           var account = self.user.initAccount({ email: email });
-          return account.checkAccountEmailExists()
+          return self.user.checkAccountEmailExists(account)
             .then(function (exists) {
               if (exists) {
                 return '/oauth/signin';
