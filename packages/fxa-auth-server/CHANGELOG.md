@@ -1,3 +1,19 @@
+<a name="1.58.0"></a>
+# [1.58.0](https://github.com/mozilla/fxa-auth-server/compare/v1.57.0...v1.58.0) (2016-03-17)
+
+
+### Bug Fixes
+
+* **api:** permit null lastAccessTime in devices response ([474032d](https://github.com/mozilla/fxa-auth-server/commit/474032d))
+* **api:** reject emails without a dot in the domain ([434e460](https://github.com/mozilla/fxa-auth-server/commit/434e460))
+* **tests:** sanely handle unicode email addresses in account tests ([71e4126](https://github.com/mozilla/fxa-auth-server/commit/71e4126))
+
+### chore
+
+* **api:** Add signin config value ([0beade7](https://github.com/mozilla/fxa-auth-server/commit/0beade7))
+
+
+
 <a name="1.57.0"></a>
 # [1.57.0](https://github.com/mozilla/fxa-auth-server/compare/v1.56.0...v1.57.0) (2016-03-01)
 
