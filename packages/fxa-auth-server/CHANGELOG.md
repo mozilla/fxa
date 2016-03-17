@@ -1,3 +1,13 @@
+<a name="1.57.1"></a>
+## [1.57.1](https://github.com/mozilla/fxa-auth-server/compare/v1.57.0...v1.57.1) (2016-03-04)
+
+
+### Bug Fixes
+
+* **email:** Restrict unicode chars allowed in email addresses. ([81a42de](https://github.com/mozilla/fxa-auth-server/commit/81a42de))
+
+
+
 <a name="1.57.0"></a>
 # [1.57.0](https://github.com/mozilla/fxa-auth-server/compare/v1.56.0...v1.57.0) (2016-03-01)
 
