@@ -1,3 +1,6 @@
+0.58.0
+  *  fix(db): expunge devices in resetAccount sproc #128
+
 0.57.0
   * feat(devices): added sessionWithDevice endpoint
   * chore(dependencies): upgrade mozlog to 2.0.3
