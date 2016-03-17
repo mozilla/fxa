@@ -24,11 +24,15 @@ Remove the unmasking functionality from both new and old password fields.
 
 <img alt="No Show" src="eye-password-noshow.png" width="525">
 
+
 ## Toggle
+
+Likely more usable, but more revealing, is the toggle treatment. We should run this interaction with all of the available designs. Deprecated eye in animation for position only.
 
 <img alt="Toggle" src="eye-password-toggle.gif" width="525">
 
-Likely more usable, but more revealing, is the toggle treatment. We should run this interaction with all of the available designs. Deprecated eye in animation for position only.
+### Acceptance Criteria
+
 * When the user hovers over the control and the password is masked, there should be a tooltip that says "Show password"
 * When the user hovers over the control and the password is unmasked, there should be a (more subtle) link title on the control that says "Hide password"
 * When the user clicks the control and the password is masked, the password becomes unmasked.
@@ -36,9 +40,12 @@ Likely more usable, but more revealing, is the toggle treatment. We should run t
 
 ## Press & Hold Down
 
+Possibly more familiar to Windows users, we can only show the password when the user presses and holds down on the icon (deprecated eye in animation for position only)
+
 <img alt="Press and Hold Down" src="eye-password-press.gif" width="525">
 
-Possibly more familiar to Windows users, we can only show the password when the user presses and holds down on the icon (deprecated eye in animation for position only)
+### Acceptance Criteria
+
 * When the user hovers over the control and the password is masked, there should be a tooltip on the eye that says "Show password".
 * Windows-style: Only while the user is clicking the eye, does the password become unmasked.
 
