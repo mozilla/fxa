@@ -32,8 +32,8 @@ function create(log, error, config, routes, db) {
       // Since we've disabled timestamp checks, there's not much point
       // keeping a nonce cache.  Instead we use this as an opportunity
       // to report on the clock skew values seen in the wild.
-      var skew = Math.abs((Date.now() / 1000) - (+ts))
-      log.histogram('server.hawkTimestampSkew', skew)
+      var skew = (Date.now() / 1000) - (+ts)
+      log.trace({ op: 'server.nonceFunc', skew: skew })
       return cb()
     }
   }
