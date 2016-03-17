@@ -43,14 +43,14 @@ module.exports = function (log, config) {
             }
           }, function(err, resp) {
             if (err) {
-              log.error({ op: 'Notifier.publishErr', err: err })
+              log.error('Notifier.publishErr', { err: err })
               return reject(err)
             }
             if (resp.statusCode >= 400) {
-              log.error({ op: 'Notifier.publishErr', err: resp })
+              log.error('Notifier.publishErr', { err: resp })
               return reject(resp)
             }
-            log.debug({ op: 'Notifier.publish' })
+            log.debug('Notifier.publish')
             resolve(events.length)
           })
         })
