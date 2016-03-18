@@ -24,7 +24,6 @@ module.exports = function (grunt) {
 
   var PROPAGATED_TEMPLATE_FIELDS = [
     'flowBeginTime',
-    'flowId',
     'message'
   ];
 
