@@ -8,6 +8,8 @@ Firefox Account users are struggling immensely when changing their passwords.
 
 ![Change Password Statistics](change-password-stats.png)
 
+[View Live Chart](https://app.datadoghq.com/graph/embed?token=f39f21f7fb65ebbd224d49e88dd365b817e869d68d2a9e384f56e908e0df666b&height=500&width=1000&legend=true)
+
 We would like to learn how we can help them struggle less by experimenting with different password unmasking treatments. We may use these results to inform a choice about unmasking passwords in platform.
 
 # Control
@@ -48,6 +50,19 @@ Possibly more familiar to Windows users, we can only show the password when the 
 
 * When the user hovers over the control and the password is masked, there should be a tooltip on the eye that says "Show password".
 * Windows-style: Only while the user is clicking the eye, does the password become unmasked.
+
+## Unmasked by Default
+
+A radical proposal that we should probably only test with the **Checkbox**  design.
+
+### Acceptance Criteria
+
+* The password fields are unmasked by default
+* When the user hovers over the control and the password is unmasked, there should be a tooltip that says "Hide password"
+* When the user hovers over the control and the password is unmasked, there should be a tooltip that says "Hide password"
+* When the user clicks the control and the password is masked, the password becomes unmasked.
+* When the user clicks the control and the password is unmasked, the password becomes masked.
+
 
 # Affordances
 ### Checkbox
@@ -100,12 +115,6 @@ fxa.content.error.settings.change_password.auth.103
 
 Your account has been locked for security reasons
 fxa.content.error.settings.change_password.auth.121
-
-UNEXPECTED_ERROR_MESSAGE
-fxa.content.error.settings.change_password.auth.999
-
-Working…
-fxa.content.error.settings.change_password.auth.1005
 
 Your new password must be different
 fxa.content.error.settings.change_password.auth.1008
