@@ -117,7 +117,7 @@ fxa.content.screen.settings.change_password
 Our goal is for users to not be weirded out by unmasking passwords. A signal for this is feedback on social media and user input.
 
 ## Engagement
-Our goal is for users to unmask their passwords. A signal for this is that which design attracts the most usage.
+Our goal is for users to realize they can unmask their passwords. A signal for this is counting which design is used as intended most (unmasking, entering a password, optionally hiding and then submitting the form).
 
 ## Retention
 Our goal is for users to better remember their password on subsequent visits. A signal for this is new users remembering their passwords more when logging in the first time.
