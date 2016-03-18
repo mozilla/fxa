@@ -107,26 +107,40 @@ The eye color matches our current smokey grey and blue colors.
 
 # Success Criteria
 
-We will measure the show and hide actions as well as these errors (or create new ones) for both control and treatment groups.
-
+We will measure the events relative to the views of the Change Password section.
 ```
-Incorrect password
-fxa.content.error.settings.change_password.auth.103
+Settings › Change Password
+fxa.content.screen.settings.change_password
+```
 
-Your account has been locked for security reasons
-fxa.content.error.settings.change_password.auth.121
+## Happiness
+Our goal is for users to not be weirded out by unmasking passwords. A signal for this is feedback on social media and user input.
 
+## Engagement
+Our goal is for users to unmask their passwords. A signal for this is that which design attracts the most usage.
+
+## Retention
+Our goal is for users to better remember their password on subsequent visits. A signal for this is new users remembering their passwords more when logging in the first time.
+
+## Task Success
+Our goal is for users to better notice the password field. A signal for this is relatively fewer instances of the following error.
+```
+Valid password required
+fxa.content.error.settings.change_password.auth.1010
+```
+Our goal is for users to enter the passwords correctly. A signal for this is fewer of the following errors:
+```
 Your new password must be different
 fxa.content.error.settings.change_password.auth.1008
 
 Must be at least 8 characters
 fxa.content.error.settings.change_password.auth.1009
 
-Valid password required
-fxa.content.error.settings.change_password.auth.1010
+Incorrect password
+fxa.content.error.settings.change_password.auth.103
 
-Change Password section in Settings
-fxa.content.screen.settings.change_password
+Your account has been locked for security reasons
+fxa.content.error.settings.change_password.auth.121
 ```
 
 # Assets
