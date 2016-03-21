@@ -1,3 +1,37 @@
+<a name="0.59.0"></a>
+# 0.59.0 (2016-03-21)
+
+
+### Bug Fixes
+
+* **confirm:** do not show errors during confirmation polling ([944fc5e](https://github.com/mozilla/fxa-content-server/commit/944fc5e)), closes [#2638](https://github.com/mozilla/fxa-content-server/issues/2638)
+* **metrics:** limit Sentry stack frames ([293ab07](https://github.com/mozilla/fxa-content-server/commit/293ab07)), closes [#3167](https://github.com/mozilla/fxa-content-server/issues/3167)
+* **tests:** server tests now require bluebird and lodash ([39461dd](https://github.com/mozilla/fxa-content-server/commit/39461dd))
+
+### chore
+
+* **docs:** add a link to prod content server ([659bd3c](https://github.com/mozilla/fxa-content-server/commit/659bd3c))
+* **docs:** Document helper functions added in #3595 ([2255991](https://github.com/mozilla/fxa-content-server/commit/2255991))
+* **tests:** Add a missing unit test for views/confirm.js ([5ac2347](https://github.com/mozilla/fxa-content-server/commit/5ac2347))
+* **travis:** unlock node.js versions ([0cf6289](https://github.com/mozilla/fxa-content-server/commit/0cf6289)), closes [#3586](https://github.com/mozilla/fxa-content-server/issues/3586)
+
+### Features
+
+* **client:** Better handling of deleted accounts on /force_auth ([485433f](https://github.com/mozilla/fxa-content-server/commit/485433f)), closes [#3057](https://github.com/mozilla/fxa-content-server/issues/3057) [#3283](https://github.com/mozilla/fxa-content-server/issues/3283)
+* **client:** joi like validation of query parameters ([d9e18ea](https://github.com/mozilla/fxa-content-server/commit/d9e18ea))
+* **referer:** Only send origin in referer header, not whole URL. ([f12b67b](https://github.com/mozilla/fxa-content-server/commit/f12b67b))
+* **server:** emit the new flow.begin activity event ([5b74706](https://github.com/mozilla/fxa-content-server/commit/5b74706))
+
+### Refactor
+
+* **tests:** Overhaul the force_auth tests. ([89de5cd](https://github.com/mozilla/fxa-content-server/commit/89de5cd))
+
+### Reverts
+
+* **server:** remove server-generated flowId and flow.begin event ([83f0503](https://github.com/mozilla/fxa-content-server/commit/83f0503))
+
+
+
 <a name="0.58.1"></a>
 ## 0.58.1 (2016-03-09)
 
