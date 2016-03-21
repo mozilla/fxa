@@ -283,9 +283,8 @@ define([
         });
     },
 
-    'flow data attributes are set': function () {
+    'data-flow-begin attribute is set': function () {
       this.remote
-        .then(testAttributeMatches('body', 'data-flow-id', /^[0-9a-f]{64}$/))
         .then(testAttributeMatches('body', 'data-flow-begin', /^[1-9][0-9]{13,}$/));
     }
   });
