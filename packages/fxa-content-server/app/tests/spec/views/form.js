@@ -103,6 +103,20 @@ define(function (require, exports, module) {
         assert.isFalse(view.isErrorVisible());
       });
 
+      it('hides messages when input value is changed', function () {
+        view.displayError('this is an error');
+        assert.isTrue(view.isErrorVisible());
+        view.$('#email').val('some@email.com');
+        view.enableSubmitIfValid();
+        assert.isFalse(view.isErrorVisible());
+
+        view.displaySuccess('the success message');
+        assert.isTrue(view.isSuccessVisible());
+        view.$('#email').val('some@email.com');
+        view.enableSubmitIfValid();
+        assert.isFalse(view.isSuccessVisible());
+      });
+
       it('disabled submit button if isValid returns false', function () {
         view.formIsValid = false;
         view.enableSubmitIfValid();

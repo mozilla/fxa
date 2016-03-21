@@ -112,8 +112,10 @@ define(function (require, exports, module) {
         return;
       }
 
+      // hide success and error messages after user changes the form
+      this.hideError();
+      this.hideSuccess();
       if (this.isValid()) {
-        this.hideError();
         this.enableForm();
       } else {
         this.disableForm();
