@@ -133,9 +133,13 @@ define(function (require, exports, module) {
             // Report errors to Sentry, but not the user.
             // Details: github.com/mozilla/fxa-content-server/issues/2638.
             self.sentryMetrics.captureException(err);
+            var deferred = p.defer();
+
             self.setTimeout(function () {
-              self._startPolling();
+              deferred.resolve(self._startPolling());
             }, self.VERIFICATION_POLL_IN_MS);
+
+            return deferred.promise;
           } else {
             self.displayError(err);
           }
