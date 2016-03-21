@@ -20,16 +20,30 @@ Currently we use a simple “show” toggle. Both password field toggles are syn
 <img alt="Current Unmasked" src="current-unmasked.png" width="525">
 
 # Treatments
-## No Show
+## Match 1 - Control vs. No Show
 
-Remove the unmasking functionality from both new and old password fields.
+We believe that removing the unmasking functionality from both new and old password fields for people changing their passwords will achieve more errors and bounces. We will know this is true when we see an increase in bounces to the section, and Task Success errors outlined below.
 
 <img alt="No Show" src="eye-password-noshow.png" width="525">
 
+## Match 2 - Control vs. Checkbox
 
-## Toggle
+We believe that adding a checkbox to the Show control for users changing their password
+will achieve greater engagement. We will know this is true when we see this greater amounts of unmasking, entering a password, optionally hiding and then submitting the form.
 
-Likely more usable, but more revealing, is the toggle treatment. We should run this interaction with all of the available designs. Deprecated eye in animation for position only.
+<img alt="Checkbox Masked" src="eye-password-checkbox1.png" width="380">
+
+<img alt="Checkbox Unmasked" src="eye-password-checkbox2.png" width="380">
+
+## Match 3 - Checkbox vs. Eyeball
+
+We believe that using an Eye icon with a tooltip to the Show control for users changing their password will achieve greater engagement. We will know this is true when we see this greater amounts of unmasking, entering a password, optionally hiding and then submitting the form.
+
+<img alt="Eyeball Masked" src="eye-password-eyeball1.png" width="380">
+
+<img alt="Eyeball Unmasked" src="eye-password-eyeball2.png" width="380">
+
+The eye color matches our current smokey grey and blue colors. We should use use a tooltip so that users know what the eye does. The deprecated eye in animation for position only.
 
 <img alt="Toggle" src="eye-password-toggle.gif" width="525">
 
@@ -40,9 +54,9 @@ Likely more usable, but more revealing, is the toggle treatment. We should run t
 * When the user clicks the control and the password is masked, the password becomes unmasked.
 * When the user clicks the control and the password is unmasked, the password becomes masked.
 
-## Press & Hold Down
+## Match 4 - Toggle Eyeball vs. Press & Hold Down Eyeball
 
-Possibly more familiar to Windows users, we can only show the password when the user presses and holds down on the icon (deprecated eye in animation for position only)
+We believe that only showing the password on press à la Windows will achieve greater security without sacrificing performance. We will know this is true when the Task Success metrics below are the same or better as with Toggle. Deprecated eye in animation for position only.
 
 <img alt="Press and Hold Down" src="eye-password-press.gif" width="525">
 
@@ -51,9 +65,9 @@ Possibly more familiar to Windows users, we can only show the password when the 
 * When the user hovers over the control and the password is masked, there should be a tooltip on the eye that says "Show password".
 * Windows-style: Only while the user is clicking the eye, does the password become unmasked.
 
-## Unmasked by Default
+## Match 5 - Checkbox vs. Unmasked Checkbox by Default
 
-A radical proposal that we should probably only test with the **Checkbox**  design.
+We believe that unmasking the Checkbox design by default for users changing their password will achieve greater task success and increased happiness. We will know this is true when we see an increase in bounces to the section, and Task Success errors outlined below. A radical proposal that we should probably only test with the **Checkbox** design.
 
 ### Acceptance Criteria
 
@@ -62,48 +76,6 @@ A radical proposal that we should probably only test with the **Checkbox**  desi
 * When the user hovers over the control and the password is unmasked, there should be a tooltip that says "Hide password"
 * When the user clicks the control and the password is masked, the password becomes unmasked.
 * When the user clicks the control and the password is unmasked, the password becomes masked.
-
-
-# Affordances
-### Checkbox
-
-<img alt="Checkbox Masked" src="eye-password-checkbox1.png" width="380">
-
-<img alt="Checkbox Unmasked" src="eye-password-checkbox2.png" width="380">
-
-### Eyeball
-
-<img alt="Eyeball Masked" src="eye-password-eyeball1.png" width="380">
-
-<img alt="Eyeball Unmasked" src="eye-password-eyeball2.png" width="380">
-
-The eye color matches our current smokey grey and blue colors.
-
-### Shades
-
-<img alt="Shades Masked" src="eye-password-shades1.png" width="380">
-
-<img alt="Shades Unmasked" src="eye-password-shades2.png" width="380">
-
-### Smiley
-
-<img alt="Smiley Masked" src="eye-password-smiley1.png" width="380">
-
-<img alt="Smiley Unmasked" src="eye-password-smiley2.png" width="380">
-
-
-### Monkey
-
-<img alt="Monkey Masked" src="eye-password-monkey1.png" width="380">
-
-<img alt="Monkey Unmasked" src="eye-password-monkey2.png" width="380">
-
-### Sunglasses
-
-<img alt="Sunglasses Masked" src="eye-password-sunglasses1.png" width="380">
-
-<img alt="Sunglasses Unmasked" src="eye-password-sunglasses2.png" width="380">
-
 
 # Success Criteria
 
@@ -114,7 +86,7 @@ fxa.content.screen.settings.change_password
 ```
 
 ## Happiness
-Our goal is for users to not be weirded out by unmasking passwords. A signal for this is feedback on social media and user input.
+Our goal is for users to not be weirded out by unmasking passwords. A signal of them being weirded out is an increased bounce rate on the Change Password section (i.e. closed without any user interaction).
 
 ## Engagement
 Our goal is for users to realize they can unmask their passwords. A signal for this is counting which design is used as intended most (unmasking, entering a password, optionally hiding and then submitting the form).
