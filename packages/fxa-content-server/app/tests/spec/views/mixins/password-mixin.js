@@ -12,7 +12,6 @@ define(function (require, exports, module) {
   var Metrics = require('lib/metrics');
   var PasswordMixin = require('views/mixins/password-mixin');
   var Relier = require('models/reliers/relier');
-  var sinon = require('sinon');
   var TestHelpers = require('../../../lib/helpers');
   var TestTemplate = require('stache!templates/test_template');
 
@@ -54,7 +53,6 @@ define(function (require, exports, module) {
         view.$('#show-password').attr('checked', 'checked');
         view.setPasswordVisibilityFromButton('#show-password');
         assert.equal(view.$('#password').attr('type'), 'text');
-        assert.equal(view.$('#password').attr('autocomplete'), 'off');
         assert.equal(view.$('#password').attr('autocapitalize'), 'off');
         assert.equal(view.$('#password').attr('autocorrect'), 'off');
       });
@@ -63,24 +61,8 @@ define(function (require, exports, module) {
         view.$('#show-password').removeAttr('checked');
         view.setPasswordVisibilityFromButton('#show-password');
         assert.equal(view.$('#password').attr('type'), 'password');
-        assert.isUndefined(view.$('#password').attr('autocomplete'));
         assert.isUndefined(view.$('#password').attr('autocapitalize'));
         assert.isUndefined(view.$('#password').attr('autocorrect'));
-      });
-
-      it('always sets the `autocomplete=off` attribute if the relier is sync', function () {
-        // sync users should never be allowed to save their password. If they
-        // were, it would end in this weird situation where sync users ask to
-        // save their sync password to sync before sync is setup.
-
-        sinon.stub(relier, 'isSync', function () {
-          return true;
-        });
-
-        view.$('#show-password').removeAttr('checked');
-        view.setPasswordVisibilityFromButton('#show-password');
-        assert.equal(view.$('#password').attr('type'), 'password');
-        assert.equal(view.$('#password').attr('autocomplete'), 'off');
       });
     });
 

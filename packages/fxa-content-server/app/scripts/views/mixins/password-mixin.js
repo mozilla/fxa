@@ -23,13 +23,6 @@ define(function (require, exports, module) {
       this.focus(controlsSelector);
     },
 
-    isPasswordAutoCompleteDisabled: function () {
-      // Sync users should never be allowed to save their password. If they
-      // were, it would end in this weird situation where sync users ask to
-      // save their sync password to sync before sync is setup.
-      return this.relier.isSync();
-    },
-
     setPasswordVisibilityFromButton: function (button) {
       var isVisible = this.$(button).is(':checked');
       this.setPasswordVisibility(isVisible);
@@ -44,12 +37,8 @@ define(function (require, exports, module) {
           this.logViewEvent('password.visible');
         } else {
           passwordField.attr('type', 'password');
-          if (this.isPasswordAutoCompleteDisabled()) {
-            passwordField.attr('autocomplete', 'off');
-          } else {
-            passwordField.removeAttr('autocomplete')
+          passwordField.removeAttr('autocomplete')
               .removeAttr('autocorrect').removeAttr('autocapitalize');
-          }
           this.logViewEvent('password.hidden');
         }
       } catch(e) {
