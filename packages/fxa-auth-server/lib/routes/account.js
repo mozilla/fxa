@@ -883,7 +883,9 @@ module.exports = function (
         },
         response: {
           schema: {
-            email: validators.email().required(),
+            // There's code in the handler that checks for a valid email,
+            // no point adding overhead by doing it again here.
+            email: isA.string().required(),
             verified: isA.boolean().required()
           }
         }
@@ -891,12 +893,37 @@ module.exports = function (
       handler: function (request, reply) {
         log.begin('Account.RecoveryEmailStatus', request)
         var sessionToken = request.auth.credentials
-        reply(
-          {
-            email: sessionToken.email,
-            verified: sessionToken.emailVerified
+
+        cleanUpIfAccountInvalid()
+          .then(createResponse)
+          .done(reply, reply)
+
+        function cleanUpIfAccountInvalid() {
+          // Some historical bugs mean we've allowed creation
+          // of accounts with invalid email addresses. These
+          // can never be verified, so the best we can do is
+          // to delete them so the browser will stop polling.
+          if (!sessionToken.emailVerified) {
+            if (!validators.isValidEmailAddress(sessionToken.email)) {
+              return db.deleteAccount(sessionToken)
+                .then(
+                  function () {
+                    // Act as though we deleted the account asynchronously
+                    // and caused the sessionToken to become invalid.
+                    throw error.invalidToken()
+                  }
+                )
+            }
           }
-        )
+          return P.resolve()
+        }
+
+        function createResponse() {
+          return {
+             email: sessionToken.email,
+             verified: sessionToken.emailVerified
+           }
+        }
       }
     },
     {
