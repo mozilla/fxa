@@ -15,6 +15,7 @@ var crypto = require('crypto')
 var isA = require('joi')
 var error = require('../../lib/error')
 
+var TEST_EMAIL = 'foo@gmail.com'
 var TEST_EMAIL_INVALID = 'example@dotless-domain'
 
 var makeRoutes = function (options) {
@@ -119,5 +120,39 @@ test(
         verified: true
       })
     })
+  }
+)
+
+test(
+  '/recovery_email/status logs query reason',
+  function (t) {
+    var pushCalled = false
+    var mockLog = mocks.mockLog({
+      increment: function (name) {
+        if (name === 'recovery_email_reason.push') {
+          pushCalled = true
+        }
+      }
+    })
+    var mockRequest = {
+      auth: {
+        credentials: {
+          email: TEST_EMAIL,
+          emailVerified: true
+        }
+      },
+      query: {
+        reason: 'push'
+      }
+    }
+    var accountRoutes = makeRoutes({
+      log: mockLog
+    })
+
+    getRoute(accountRoutes, '/recovery_email/status')
+      .handler(mockRequest, function() {
+        t.equal(pushCalled, true)
+        t.end()
+      })
   }
 )
