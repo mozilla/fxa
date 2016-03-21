@@ -188,6 +188,66 @@ define(function (require, exports, module) {
             assert.isTrue(view.fxaClient.recoveryEmailStatus.called);
           });
       });
+
+      it('displays an error when an unknown error occurs', function () {
+        var unknownError = 'Something failed';
+        sinon.stub(view.fxaClient, 'recoveryEmailStatus', function () {
+          return p.reject(new Error(unknownError));
+        });
+
+        sinon.spy(view, 'navigate');
+        return view.afterVisible()
+          .then(function () {
+            assert.isTrue(view.fxaClient.recoveryEmailStatus.called);
+            assert.equal(view.$('.error').text(), unknownError);
+          });
+      });
+
+      describe('with an unexpected error', function () {
+        var sandbox;
+
+        beforeEach(function () {
+          sandbox = sinon.sandbox.create();
+          sandbox.stub(view.fxaClient, 'recoveryEmailStatus', function () {
+            var callCount = view.fxaClient.recoveryEmailStatus.callCount;
+            if (callCount < 2) {
+              return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+            } else {
+              return p({ verified: true });
+            }
+          });
+
+          sandbox.spy(view, 'navigate');
+          sandbox.spy(view.sentryMetrics, 'captureException');
+          sandbox.spy(view, '_startPolling');
+
+          sandbox.stub(view, 'setTimeout', function (callback) {
+            callback();
+          });
+
+          return view.afterVisible();
+        });
+
+        afterEach(function () {
+          sandbox.restore();
+        });
+
+        it('polls the auth server', function () {
+          assert.equal(view.fxaClient.recoveryEmailStatus.callCount, 2);
+        });
+
+        it('captures the exception to Sentry', function () {
+          assert.isTrue(view.sentryMetrics.captureException.called);
+        });
+
+        it('does not display an error to the user when unexpected error occurs', function () {
+          assert.equal(view.$('.error').text(), '');
+        });
+
+        it('restarts polling when an unexpected error occurs', function () {
+          assert.equal(view._startPolling.callCount, 2);
+        });
+      });
     });
 
     describe('submit', function () {

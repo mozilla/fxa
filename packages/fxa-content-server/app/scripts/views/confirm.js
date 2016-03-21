@@ -99,13 +99,19 @@ define(function (require, exports, module) {
                     'beforeSignUpConfirmationPoll', self.getAccount());
         })
         .then(function () {
-          return self._waitForConfirmation()
-            .then(function () {
-              self.logViewEvent('verification.success');
-              self.notifier.trigger('verification.success');
-              return self.invokeBrokerMethod(
-                        'afterSignUpConfirmationPoll', self.getAccount());
-            })
+          return self._startPolling();
+        });
+    },
+
+    _startPolling: function () {
+      var self = this;
+
+      return self._waitForConfirmation()
+        .then(function () {
+          self.logViewEvent('verification.success');
+          self.notifier.trigger('verification.success');
+          return self.invokeBrokerMethod(
+            'afterSignUpConfirmationPoll', self.getAccount())
             .then(function () {
               // the user is definitely authenticated here.
               if (self.relier.isDirectAccess()) {
@@ -115,15 +121,28 @@ define(function (require, exports, module) {
               } else {
                 self.navigate('signup_complete');
               }
-            }, function (err) {
-              // The user's email may have bounced because it was invalid.
-              // Redirect them to the sign up page with an error notice.
-              if (AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE')) {
-                self._bouncedEmailSignup();
-              } else {
-                self.displayError(err);
-              }
             });
+        }, function (err) {
+          // The user's email may have bounced because it was invalid.
+          // Redirect them to the sign up page with an error notice.
+          if (AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE')) {
+            self._bouncedEmailSignup();
+          } else if (AuthErrors.is(err, 'UNEXPECTED_ERROR')) {
+            // Hide the error from the user if it is an unexpected error.
+            // an error may happen here if the status api is overloaded or if the user is switching networks.
+            // Report errors to Sentry, but not the user.
+            // Details: github.com/mozilla/fxa-content-server/issues/2638.
+            self.sentryMetrics.captureException(err);
+            var deferred = p.defer();
+
+            self.setTimeout(function () {
+              deferred.resolve(self._startPolling());
+            }, self.VERIFICATION_POLL_IN_MS);
+
+            return deferred.promise;
+          } else {
+            self.displayError(err);
+          }
         });
     },
 
