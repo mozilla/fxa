@@ -55,7 +55,8 @@ module.exports = function () {
       'password_reset',
       'new_sync_device',
       'post_verify',
-      'verification_reminder'
+      'verification_reminder_first',
+      'verification_reminder_second'
     ].map(loadTemplates)
   )
   .then(
