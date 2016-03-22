@@ -3,7 +3,7 @@
 
 ### Getting Started
 
-1. Manually install the system [dependencies](#dependencies).
+1. **Manually install the system [dependencies](#dependencies) for OS X or Ubuntu.**
 
 2. Clone this repository.
 
