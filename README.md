@@ -8,7 +8,7 @@
 2. Clone this repository.
 
    ```sh
-   git clone git@github.com:mozilla/fxa-local-dev.git
+   git clone https://github.com/mozilla/fxa-local-dev.git
    ```
 
 3. Run `npm install`.
