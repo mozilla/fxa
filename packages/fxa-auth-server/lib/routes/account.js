@@ -881,6 +881,11 @@ module.exports = function (
         auth: {
           strategy: 'sessionToken'
         },
+        validate: {
+          query: {
+            reason: isA.string().max(16).optional()
+          }
+        },
         response: {
           schema: {
             // There's code in the handler that checks for a valid email,
@@ -893,6 +898,10 @@ module.exports = function (
       handler: function (request, reply) {
         log.begin('Account.RecoveryEmailStatus', request)
         var sessionToken = request.auth.credentials
+        if (request.query && request.query.reason === 'push') {
+          // only log recovery_email requests with 'push' to avoid sending too many requests.
+          log.increment('recovery_email_reason.push')
+        }
 
         cleanUpIfAccountInvalid()
           .then(createResponse)
