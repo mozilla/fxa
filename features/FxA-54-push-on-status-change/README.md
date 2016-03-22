@@ -21,7 +21,7 @@ of system load in production.
 ## Success Criteria
 
 This feature will be successful if
-we successfully eliminate polling for account verification
+we successfully reduce polling for account verification
 from the browser code on Desktop.
 Mobile browsers are not in scope
 for the initial version of this feature.
@@ -29,6 +29,11 @@ for the initial version of this feature.
 As a concrete metric
 we can measure the number of calls to `/recovery_email/status`
 and check that it decreases as this feature rolls out.
+
+We will also add additional metrics to signal when Desktop verifies 
+via Push. We will compare the number of notifications sent and number
+of verifications used by Desktop. In the future iterations we will try to compare that number
+against users who verify accounts quickly.
 
 ## Details
 
