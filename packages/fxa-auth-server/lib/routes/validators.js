@@ -7,10 +7,27 @@ var punycode = require('punycode')
 var isA = require('joi')
 
 // Match any non-empty hex-encoded string.
-
 module.exports.HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
+// Match an encoded JWT.
 module.exports.BASE64_JWT = /^(?:[a-zA-Z0-9-_]+[=]{0,2}\.){2}[a-zA-Z0-9-_]+[=]{0,2}$/
+
+// Match display-safe unicode characters.
+// We're pretty liberal with what's allowed in a unicode string,
+// but we exclude the following classes of characters:
+//
+//   \u0000-\u001F  - C0 (ascii) control characters
+//   \u007F         - ascii DEL character
+//   \u0080-\u009F  - C1 (ansi escape) control characters
+//   \u2028-\u2029  - unicode line/paragraph separator
+//   \uD800-\uDFFF  - non-BMP surrogate pairs
+//   \uE000-\uF8FF  - BMP private use area
+//   \uFFF9-\uFFFF  - unicode "specials" block
+//
+// We might tweak this list in future.
+
+const DISPLAY_SAFE_UNICODE = /^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uD800-\uDFFF\uE000-\uF8FF\uFFF9-\uFFFF])*$/
+module.exports.DISPLAY_SAFE_UNICODE = DISPLAY_SAFE_UNICODE
 
 
 // Joi validator to match any valid email address.
@@ -18,7 +35,7 @@ module.exports.BASE64_JWT = /^(?:[a-zA-Z0-9-_]+[=]{0,2}\.){2}[a-zA-Z0-9-_]+[=]{0
 // requires a custom validation function.
 
 module.exports.email = function() {
-  var email = isA.string().max(255)
+  var email = isA.string().max(255).regex(DISPLAY_SAFE_UNICODE)
   // Imma add a custom test to this Joi object using internal
   // properties because I can't find a nice API to do that.
   email._tests.push({ func: function(value, state, options) {

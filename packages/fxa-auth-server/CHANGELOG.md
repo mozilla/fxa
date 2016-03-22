@@ -1,3 +1,12 @@
+<a name="1.58.1"></a>
+## [1.58.1](https://github.com/mozilla/fxa-auth-server/compare/v1.58.0...v1.58.1) (2016-03-17)
+
+
+### chore
+
+* **deps:** fix shrinkwrap for latest auth-db-mysql version ([2880e67](https://github.com/mozilla/fxa-auth-server/commit/2880e67))
+
+
 <a name="1.58.0"></a>
 # [1.58.0](https://github.com/mozilla/fxa-auth-server/compare/v1.57.0...v1.58.0) (2016-03-17)
 
@@ -11,6 +20,15 @@
 ### chore
 
 * **api:** Add signin config value ([0beade7](https://github.com/mozilla/fxa-auth-server/commit/0beade7))
+
+
+
+<a name="1.57.1"></a>
+## [1.57.1](https://github.com/mozilla/fxa-auth-server/compare/v1.57.0...v1.57.1) (2016-03-04)
+
+
+### Bug Fixes
+* **email:** Restrict unicode chars allowed in email addresses. ([81a42de](https://github.com/mozilla/fxa-auth-server/commit/81a42de))
 
 
 
