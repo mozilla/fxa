@@ -1,3 +1,18 @@
+<a name"0.57.0"></a>
+## 0.57.0 (2016-03-05)
+
+
+#### Bug Fixes
+
+* **db:** Fix an old db patch to apply cleanly in local dev. ([c7fa6336](https://github.com/mozilla/fxa-oauth-server/commit/c7fa6336))
+* **dependencies:** switch back to main generate-rsa-keypair now that my fix to it was merged ([1c1268b0](https://github.com/mozilla/fxa-oauth-server/commit/1c1268b0))
+* **shrinkwrap:** restore deleted npm-shrinkwrap.json ([63834811](https://github.com/mozilla/fxa-oauth-server/commit/63834811))
+* **tests:**
+  * More reliable generation of RSA keys for tests ([981d0b7c](https://github.com/mozilla/fxa-oauth-server/commit/981d0b7c))
+  * Refactor use of process.exit() to be outside of code under test. ([47f4f176](https://github.com/mozilla/fxa-oauth-server/commit/47f4f176))
+* **validation:** Restrict characters allowed in 'scope' parameter. ([7dd2a391](https://github.com/mozilla/fxa-oauth-server/commit/7dd2a391))
+
+
 <a name"0.56.0"></a>
 ## 0.56.0 (2016-02-10)
 

@@ -68,7 +68,7 @@ const PAYLOAD_SCHEMA = Joi.object({
 
   scope: Joi.alternatives().when('grant_type', {
     is: GRANT_REFRESH_TOKEN,
-    then: Joi.string(),
+    then: validators.scope,
     otherwise: Joi.forbidden()
   }),
 
@@ -132,7 +132,7 @@ module.exports = {
       access_token: validators.token.required(),
       refresh_token: validators.token,
       id_token: validators.assertion,
-      scope: Joi.string().required().allow(''),
+      scope: validators.scope.required().allow(''),
       token_type: Joi.string().valid('bearer').required(),
       expires_in: Joi.number().max(MAX_TTL_S).required(),
       auth_at: Joi.number(),
