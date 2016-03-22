@@ -29,6 +29,7 @@ module.exports = function initApp() {
   app.get('/lookup-user', routes.lookup);
   app.post('/subscribe', routes.subscribe);
   app.post('/unsubscribe', routes.unsubscribe);
+  app.post('/subscribe_sms', routes.sms);
 
   return app;
 };

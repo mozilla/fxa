@@ -46,11 +46,6 @@ module.exports = function unsubscribe(req, res) {
     params.email = creds.email;
     logger.info('params', params);
 
-    basket.request('/unsubscribe/' + responseData.token + '/', { method: 'post', form: params })
-      .on('error', function (error) {
-        logger.error('error', error);
-        res.status(500).json(basket.errorResponse(error, basket.errors.UNKNOWN_ERROR));
-      })
-      .pipe(res);
+    basket.proxy('/unsubscribe/' + responseData.token + '/', { method: 'post', form: params }, res);
   });
 };
