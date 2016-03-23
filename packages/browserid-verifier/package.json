@@ -27,7 +27,6 @@
   },
   "devDependencies": {
     "ass": "git://github.com/jrgm/ass.git#5be99ee7abc9fcf63f9ebcc37b151b9c822146d1",
-    "awsbox": "0.7.0",
     "jshint": "2.5.1",
     "mocha": "1.20.0",
     "request": "2.36.0",
