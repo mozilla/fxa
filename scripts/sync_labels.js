@@ -27,8 +27,7 @@ var STANDARD_LABELS = {
   // Issue lifecycle management labels, for waffle.
   'waffle:backlog': { color: COLORS.STATUS },
   'waffle:next': { color: COLORS.STATUS },
-  'waffle:now': { color: COLORS.STATUS },
-  'waffle:progress': { color: COLORS.STATUS },
+  'waffle:active': { color: COLORS.STATUS },
   'waffle:review': { color: COLORS.STATUS },
   'waffle:blocked': { color: COLORS.ALERT },
   // Issue deathcycle management labels, for reporting purposes.
@@ -55,21 +54,22 @@ var STANDARD_LABELS = {
 var WAFFLE_LABEL_ORDER = [
   'waffle:backlog',
   'waffle:next',
-  'waffle:now',
-  'waffle:progress',
+  'waffle:active',
   'waffle:review',
   'waffle:blocked'
 ]
 
 
-var OBSOLETE_LABELS = [
-  '❤❤',
-  'z-later',
-  'wontfix',
-  'backlog',
-  'good first bug',
-  'strings'
-]
+var OBSOLETE_LABELS = {
+  '❤❤': null,
+  'z-later': null,
+  'wontfix': null,
+  'backlog': null,
+  'good first bug': 'good-first-bug',
+  'strings': null,
+  'waffle:now': 'waffle:active',
+  'waffle:progress': 'waffle:active'
+}
 
 
 module.exports = {
@@ -84,7 +84,7 @@ module.exports = {
         curLabels[labelInfo.name] = labelInfo
       })
       var p = P.resolve(null);
-      // Create an standard labels that are missing.
+      // Create any standard labels that are missing.
       Object.keys(STANDARD_LABELS).forEach(function(label) {
         if (! (label in curLabels)) {
           p = p.then(function() {
@@ -106,34 +106,7 @@ module.exports = {
           })
         }
       })
-      // Delete any labels that should no longer be there.
-      Object.keys(curLabels).forEach(function(label) {
-        if (! (label in STANDARD_LABELS)) {
-          var obsolete = false;
-          // Waffle columns that no longer exist.
-          if (label.indexOf('waffle:') === 0) {
-            obsolete = true;
-          }
-          // Old Fx4X labels
-          if (label.indexOf('Fx4') === 0) {
-            obsolete = true;
-          }
-          // Old priority/status labels
-          if (OBSOLETE_LABELS.indexOf(label) !== -1) {
-            obsolete = true;
-          }
-          if (obsolete) {
-            p = p.then(function() {
-              console.log("Deleting '" + label + "' on " + repo)
-              return gh.issues.deleteLabel({
-                repo: repo,
-                name: label
-              })
-            })
-          }
-        }
-      })
-      return p
+      return p;
     })
   },
 
@@ -142,6 +115,40 @@ module.exports = {
 
   fixupStandardLabels: function fixupStandardLabels(gh, repo) {
     var p = P.resolve(null);
+    // Migrate any obsolete labels to their updated equivalent, if present.
+    Object.keys(OBSOLETE_LABELS).forEach(function(oldLabel) {
+      var newLabel = OBSOLETE_LABELS[oldLabel];
+      if (newLabel) {
+        p = p.then(function() {
+          return gh.issues.repoIssues({
+            repo: repo,
+            labels: oldLabel,
+            filter: 'all',
+            state: 'open'
+          }).each(function (issue) {
+            var labels = [];
+            var hasNewLabel = false;
+            issue.labels.forEach(function(labelInfo) {
+              if (labelInfo.name !== oldLabel) {
+                labels.push(labelInfo.name)
+              }
+              if (labelInfo.name === newLabel) {
+                hasNewLabel = true;
+              }
+            })
+            if (!hasNewLabel) {
+              labels.push(newLabel);
+              console.log("Updating " + oldLabel + " to " + newLabel + " on " + repo + " #" + issue.number);
+              return gh.issues.edit({
+                repo: repo,
+                number: issue.number,
+                labels: labels
+              })
+            }
+          })
+        })
+      }
+    });
     // Clear duplicate waffle labels, to ensure issues are only on 1 column.
     for (var i = WAFFLE_LABEL_ORDER.length - 1; i >= 0; i--) {
       p = p.then((function(i) {
@@ -175,6 +182,44 @@ module.exports = {
       })(i))
     }
     return p;
+  },
+
+  removeObsoleteLabels: function removeObsoleteLabels(gh, repo) {
+    return gh.issues.getLabels({ repo: repo }).then(function(labels) {
+      var curLabels = {}
+      labels.forEach(function(labelInfo) {
+        curLabels[labelInfo.name] = labelInfo
+      })
+      var p = P.resolve(null);
+      // Delete any labels that should no longer be there.
+      Object.keys(curLabels).forEach(function(label) {
+        if (! (label in STANDARD_LABELS)) {
+          var obsolete = false;
+          // Waffle columns that no longer exist.
+          if (label.indexOf('waffle:') === 0) {
+            obsolete = true;
+          }
+          // Old Fx4X labels
+          if (label.indexOf('Fx4') === 0) {
+            obsolete = true;
+          }
+          // Old priority/status labels
+          if (label in OBSOLETE_LABELS) {
+            obsolete = true;
+          }
+          if (obsolete) {
+            p = p.then(function() {
+              console.log("Deleting '" + label + "' on " + repo)
+              return gh.issues.deleteLabel({
+                repo: repo,
+                name: label
+              });
+            })
+          }
+        }
+      })
+      return p
+    })
   }
 
 }
@@ -186,6 +231,9 @@ if (require.main == module) {
     return module.exports.makeStandardLabels(gh, repo)
       .then(function() {
         return module.exports.fixupStandardLabels(gh, repo)
+      })
+      .then(function() {
+        return module.exports.removeObsoleteLabels(gh, repo)
       })
   }).catch(function(err) {
     console.log(err)
