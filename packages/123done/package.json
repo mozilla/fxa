@@ -36,7 +36,6 @@
     "node": ">=0.10.0"
   },
   "devDependencies": {
-    "awsbox": "0.7.0",
     "eslint": "1.10.3",
     "eslint-config-fxa": "2.0.0"
   },
