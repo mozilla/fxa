@@ -863,8 +863,8 @@
     },
     "fxa-auth-mailer": {
       "version": "1.0.8",
-      "from": "git+https://github.com/mozilla/fxa-auth-mailer.git#058557d4bcc4a90845f7c4bcb6788abf9f325e6e",
-      "resolved": "git+https://github.com/mozilla/fxa-auth-mailer.git#058557d4bcc4a90845f7c4bcb6788abf9f325e6e",
+      "from": "git+https://github.com/mozilla/fxa-auth-mailer.git#f4098f9f58c98e47058157f84de63a1394275bc4",
+      "resolved": "git+https://github.com/mozilla/fxa-auth-mailer.git#f4098f9f58c98e47058157f84de63a1394275bc4",
       "dependencies": {
         "bluebird": {
           "version": "2.9.34",
@@ -950,8 +950,8 @@
         },
         "fxa-content-server-l10n": {
           "version": "0.0.0",
-          "from": "git://github.com/mozilla/fxa-content-server-l10n.git#4bf305a1fdeec9fa4f7bec84f2797f4aeb5fbcd3",
-          "resolved": "git://github.com/mozilla/fxa-content-server-l10n.git#4bf305a1fdeec9fa4f7bec84f2797f4aeb5fbcd3"
+          "from": "git://github.com/mozilla/fxa-content-server-l10n.git#b61acfa33bc05ceef647abd39b3fdb1a8274f2e4",
+          "resolved": "git://github.com/mozilla/fxa-content-server-l10n.git#b61acfa33bc05ceef647abd39b3fdb1a8274f2e4"
         },
         "grunt-nunjucks-2-html": {
           "version": "0.3.4",
