@@ -18,6 +18,31 @@ if (process.env.ASS_CODE_COVERAGE) {
   process.on('SIGINT', shutdown)
 }
 
+function logCharsetInfo(db, poolName) {
+  // Record some information about mysql connection configuration and
+  // charset at startup.
+  db._showVariables(poolName)
+    .then(
+      function(variables) {
+        logger.info([ 'variables', poolName ].join('.'), variables)
+      }
+    )
+    .then(
+      function() { 
+        return db._connectionConfig(poolName)
+      }
+    )
+    .then(
+      function(config) {
+        logger.info([ 'connectionConfig', poolName ].join('.'), config)
+      }
+    ).catch(
+      function(err) {
+        logger.error('error', { error: err })
+      }
+    )
+}
+
 DB.connect(config)
   .done(function (db) {
     // Serve the HTTP API.
@@ -42,6 +67,11 @@ DB.connect(config)
     server.on('mem', function (stats) {
       logger.info('mem', stats)
     })
+
+    // Log connection config and charset info 
+    logCharsetInfo(db, 'MASTER')
+    logCharsetInfo(db, 'SLAVE')
+
     // Publish notifications via simple background loop.
     if (config.notifications.publishUrl) {
       var publish = function () {

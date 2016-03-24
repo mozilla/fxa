@@ -301,6 +301,39 @@ DB.connect(config)
       )
 
       test(
+        '_connectionConfig returns a plausible config object',
+        function (t) {
+          t.plan(4)
+          return db._connectionConfig('MASTER')
+            .then(
+              function(config) {
+                t.isa(config, 'object')
+                // slightly opinionated
+                t.equal(config.protocol41, true, 'protocol41 is true')
+                t.equal(config.charsetNumber, 33, 'charsetNumber should be 33 (utf8)')
+                t.equal(config.multipleStatements, false, 'multipleStatements should normally be false')
+              }
+            )
+        }
+      )
+
+      test(
+        '_showVariables returns a plausible set of values',
+        function (t) {
+          t.plan(3)
+          return db._showVariables('MASTER')
+            .then(
+              function(vars) {
+                t.isa(vars, 'object')
+                // Not doing a hardcore enumeration (yet) (or utfmb4)
+                t.equal(vars['character_set_client'], 'utf8', 'character_set_connection is utf8')
+                t.equal(vars['character_set_connection'], 'utf8', 'character_set_client is utf8')
+              }
+            )
+        }
+      )
+
+      test(
         'teardown',
         function (t) {
           return db.close()
