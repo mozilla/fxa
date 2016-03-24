@@ -164,6 +164,56 @@ define([
           );
       });
 
+      test('#reset password with metricsContext metadata', function () {
+        var account, passwordForgotToken;
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (a) {
+            account = a;
+            return respond(
+              client.passwordForgotSendCode(account.input.email),
+              RequestMocks.passwordForgotSendCode
+            );
+          })
+          .then(function (result) {
+            passwordForgotToken = result.passwordForgotToken;
+            return respond(mail.wait(account.input.user, 2), RequestMocks.resetMail);
+          })
+          .then(function (emails) {
+            var code = emails[1].html.match(/code=([A-Za-z0-9]+)/)[1];
+            return respond(
+              client.passwordForgotVerifyCode(code, passwordForgotToken),
+              RequestMocks.passwordForgotVerifyCode
+            );
+          })
+          .then(function (result) {
+            return respond(
+              client.accountReset(account.input.email, 'newpassword', result.accountResetToken),
+              RequestMocks.accountReset,
+              {
+                context: 'foo',
+                entrypoint: 'bar',
+                flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+                flowBeginTime: Date.now(),
+                forbiddenProperty: 'baz',
+                migration: 'qux',
+                service: 'wibble',
+                utmCampaign: 'blee',
+                utmContent: 'ugg',
+                utmMedium: 'fring',
+                utmSource: 'groz',
+                utmTerm: 'tarb'
+              }
+            );
+          })
+          .then(
+            function (result) {
+              assert.ok(result);
+            },
+            assert.notOk
+          );
+      });
+
       test('#passwordForgotSendCode with service, redirectTo, and resume', function () {
         var account;
         var opts = {

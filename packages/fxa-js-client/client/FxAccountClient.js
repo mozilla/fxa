@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 define([
-  './lib/request',
   'sjcl',
   'p',
   './lib/credentials',
+  './lib/errors',
   './lib/hawkCredentials',
-  './lib/errors'
-], function (Request, sjcl, P, credentials, hawkCredentials, ERRORS) {
+  './lib/metricsContext',
+  './lib/request',
+], function (sjcl, P, credentials, ERRORS, hawkCredentials, metricsContext, Request) {
   'use strict';
 
   var VERSION = 'v1';
@@ -80,6 +81,18 @@ define([
    *     @param {String} options.device.type Type of device (mobile|desktop)
    *     @param {string} [options.device.callback] Device's push endpoint
    *     @param {string} [options.device.publicKey] Public key used to encrypt push messages
+   *   @param {Object} [options.metricsContext={}] Metrics context metadata
+   *     @param {String} options.metricsContext.flowId identifier for the current event flow
+   *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
+   *     @param {String} [options.metricsContext.context] context identifier
+   *     @param {String} [options.metricsContext.entrypoint] entrypoint identifier
+   *     @param {String} [options.metricsContext.migration] migration identifier
+   *     @param {String} [options.metricsContext.service] service identifier
+   *     @param {String} [options.metricsContext.utmCampaign] marketing campaign identifier
+   *     @param {String} [options.metricsContext.utmContent] marketing campaign content identifier
+   *     @param {String} [options.metricsContext.utmMedium] marketing campaign medium
+   *     @param {String} [options.metricsContext.utmSource] marketing campaign source
+   *     @param {String} [options.metricsContext.utmTerm] marketing campaign search term
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.signUp = function (email, password, options) {
@@ -91,7 +104,7 @@ define([
     return credentials.setup(email, password)
       .then(
         function (result) {
-          /*eslint complexity: [2, 12] */
+          /*eslint complexity: [2, 13] */
           var endpoint = '/account/create';
           var data = {
             email: result.emailUTF8,
@@ -149,6 +162,10 @@ define([
                 'Accept-Language': options.lang
               };
             }
+
+            if (options.metricsContext) {
+              data.metricsContext = metricsContext.marshall(options.metricsContext);
+            }
           }
 
           return self.request.send(endpoint, 'POST', null, data, requestOpts)
@@ -184,6 +201,18 @@ define([
    *     @param {String} [options.device.type] Type of device (mobile|desktop)
    *     @param {string} [options.device.callback] Device's push endpoint
    *     @param {string} [options.device.publicKey] Public key used to encrypt push messages
+   *   @param {Object} [options.metricsContext={}] Metrics context metadata
+   *     @param {String} options.metricsContext.flowId identifier for the current event flow
+   *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
+   *     @param {String} [options.metricsContext.context] context identifier
+   *     @param {String} [options.metricsContext.entrypoint] entrypoint identifier
+   *     @param {String} [options.metricsContext.migration] migration identifier
+   *     @param {String} [options.metricsContext.service] service identifier
+   *     @param {String} [options.metricsContext.utmCampaign] marketing campaign identifier
+   *     @param {String} [options.metricsContext.utmContent] marketing campaign content identifier
+   *     @param {String} [options.metricsContext.utmMedium] marketing campaign medium
+   *     @param {String} [options.metricsContext.utmSource] marketing campaign source
+   *     @param {String} [options.metricsContext.utmTerm] marketing campaign search term
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.signIn = function (email, password, options) {
@@ -237,6 +266,10 @@ define([
 
           if (options.reason) {
             data.reason = options.reason;
+          }
+
+          if (options.metricsContext) {
+            data.metricsContext = metricsContext.marshall(options.metricsContext);
           }
 
           return self.request.send(endpoint, 'POST', null, data)
@@ -499,11 +532,30 @@ define([
    * @param {String} email
    * @param {String} newPassword
    * @param {String} accountResetToken
+   * @param {Object} [options={}] Options
+   *   @param {Object} [options.metricsContext={}] Metrics context metadata
+   *     @param {String} options.metricsContext.flowId identifier for the current event flow
+   *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
+   *     @param {String} [options.metricsContext.context] context identifier
+   *     @param {String} [options.metricsContext.entrypoint] entrypoint identifier
+   *     @param {String} [options.metricsContext.migration] migration identifier
+   *     @param {String} [options.metricsContext.service] service identifier
+   *     @param {String} [options.metricsContext.utmCampaign] marketing campaign identifier
+   *     @param {String} [options.metricsContext.utmContent] marketing campaign content identifier
+   *     @param {String} [options.metricsContext.utmMedium] marketing campaign medium
+   *     @param {String} [options.metricsContext.utmSource] marketing campaign source
+   *     @param {String} [options.metricsContext.utmTerm] marketing campaign search term
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
-  FxAccountClient.prototype.accountReset = function(email, newPassword, accountResetToken) {
+  FxAccountClient.prototype.accountReset = function(email, newPassword, accountResetToken, options) {
     var self = this;
-    var authPW;
+    var data = {};
+
+    options = options || {};
+
+    if (options.metricsContext) {
+      data.metricsContext = metricsContext.marshall(options.metricsContext);
+    }
 
     required(email, 'email');
     required(newPassword, 'new password');
@@ -512,15 +564,13 @@ define([
     return credentials.setup(email, newPassword)
       .then(
         function (result) {
-          authPW = sjcl.codec.hex.fromBits(result.authPW);
+          data.authPW = sjcl.codec.hex.fromBits(result.authPW);
 
           return hawkCredentials(accountResetToken, 'accountResetToken',  HKDF_SIZE);
         }
       ).then(
         function (creds) {
-          return self.request.send('/account/reset', 'POST', creds, {
-            authPW: authPW
-          });
+          return self.request.send('/account/reset', 'POST', creds, data);
         }
       );
   };
@@ -678,9 +728,22 @@ define([
    * @param {String} sessionToken User session token
    * @param {Object} publicKey The key to sign
    * @param {int} duration Time interval from now when the certificate will expire in milliseconds
+   * @param {Object} [options={}] Options
+   *   @param {Object} [options.metricsContext={}] Metrics context metadata
+   *     @param {String} options.metricsContext.flowId identifier for the current event flow
+   *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
+   *     @param {String} [options.metricsContext.context] context identifier
+   *     @param {String} [options.metricsContext.entrypoint] entrypoint identifier
+   *     @param {String} [options.metricsContext.migration] migration identifier
+   *     @param {String} [options.metricsContext.service] service identifier
+   *     @param {String} [options.metricsContext.utmCampaign] marketing campaign identifier
+   *     @param {String} [options.metricsContext.utmContent] marketing campaign content identifier
+   *     @param {String} [options.metricsContext.utmMedium] marketing campaign medium
+   *     @param {String} [options.metricsContext.utmSource] marketing campaign source
+   *     @param {String} [options.metricsContext.utmTerm] marketing campaign search term
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
-  FxAccountClient.prototype.certificateSign = function(sessionToken, publicKey, duration) {
+  FxAccountClient.prototype.certificateSign = function(sessionToken, publicKey, duration, options) {
     var self = this;
     var data = {
       publicKey: publicKey,
@@ -690,6 +753,12 @@ define([
     required(sessionToken, 'sessionToken');
     required(publicKey, 'publicKey');
     required(duration, 'duration');
+
+    options = options || {};
+
+    if (options.metricsContext) {
+      data.metricsContext = metricsContext.marshall(options.metricsContext);
+    }
 
     return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
       .then(function(creds) {
@@ -1030,5 +1099,4 @@ define([
 
   return FxAccountClient;
 });
-
 
