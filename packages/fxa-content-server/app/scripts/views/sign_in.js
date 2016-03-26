@@ -66,7 +66,6 @@ define(function (require, exports, module) {
         chooserAskForPassword: this._suggestedAccountAskPassword(suggestedAccount),
         email: email,
         error: this.error,
-        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
         isSignupDisabled: this.isSignupDisabled(),
         isSyncMigration: this.isSyncMigration(),
         password: this._formPrefill.get('password'),

@@ -73,8 +73,7 @@ define(function (require, exports, module) {
       return {
         isLinkDamaged: ! doesLinkValidate,
         isLinkExpired: isLinkExpired,
-        isLinkValid: doesLinkValidate && ! isLinkExpired,
-        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled()
+        isLinkValid: doesLinkValidate && ! isLinkExpired
       };
     },
 

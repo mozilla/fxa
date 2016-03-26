@@ -132,7 +132,6 @@ define(function (require, exports, module) {
       return {
         email: this.relier.get('email'),
         fatalError: getFatalErrorMessage(this, this._fatalError),
-        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
         password: this._formPrefill.get('password')
       };
     },

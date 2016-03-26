@@ -24,12 +24,6 @@ define(function (require, exports, module) {
     className: 'change-password',
     viewName: 'settings.change-password',
 
-    context: function () {
-      return {
-        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled()
-      };
-    },
-
     submit: function () {
       var self = this;
       var account = self.getSignedInAccount();
