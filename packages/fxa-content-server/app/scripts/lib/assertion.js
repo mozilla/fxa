@@ -5,11 +5,12 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var Duration = require('duration');
   var jwcrypto = require('vendor/jwcrypto');
   var P = require('lib/promise');
 
-  var CERT_DURATION_MS = 1000 * 60 * 60 * 6; // 6hrs
-  var ASSERTION_DURATION_MS = 1000 * 3600 * 24 * 365 * 25; // 25 years
+  var CERT_DURATION_MS =  new Duration('6h').milliseconds();
+  var ASSERTION_DURATION_MS = new Duration('52w').milliseconds() * 25; //25 years
 
   function ensureCryptoIsSeeded() {
     // The jwcrypto RNG needs to be seeded with entropy. If the browser

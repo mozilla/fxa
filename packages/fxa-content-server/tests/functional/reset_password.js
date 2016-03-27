@@ -108,8 +108,7 @@ define([
     name: 'reset password',
 
     beforeEach: function () {
-      // timeout after 90 seconds
-      this.timeout = 90000;
+      this.timeout = TIMEOUT;
 
       email = TestHelpers.createEmail();
       client = new FxaClient(AUTH_SERVER_ROOT, {
@@ -425,8 +424,7 @@ define([
 
 
     beforeEach: function () {
-      // timeout after 90 seconds
-      this.timeout = 90000;
+      this.timeout = TIMEOUT;
       email = TestHelpers.createEmail();
 
       var self = this;
@@ -439,8 +437,7 @@ define([
     },
 
     'complete reset, then re-open verification link, click resend': function () {
-      // timeout after 90 seconds
-      this.timeout = 90000;
+      this.timeout = TIMEOUT;
 
       var self = this;
       return this.remote

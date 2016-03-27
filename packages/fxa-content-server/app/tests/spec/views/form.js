@@ -10,6 +10,7 @@ define(function (require, exports, module) {
   var Backbone = require('backbone');
   var chai = require('chai');
   var Constants = require('lib/constants');
+  var Duration = require('duration');
   var FormView = require('views/form');
   var HaltBehavior = require('views/behaviors/halt');
   var Metrics = require('lib/metrics');
@@ -574,7 +575,7 @@ define(function (require, exports, module) {
     describe('notifyDelayedRequest', function () {
       it('shows a notification when the response takes too long then hides it', function () {
         // override expectation
-        view.LONGER_THAN_EXPECTED = 200;
+        view.LONGER_THAN_EXPECTED = new Duration('200ms').milliseconds();
         view.formIsValid = true;
         view.enableSubmitIfValid();
 
@@ -601,7 +602,7 @@ define(function (require, exports, module) {
 
       it('shows a notification when the response takes too long, switches when an error is thrown', function () {
         // override expectation
-        view.LONGER_THAN_EXPECTED = 200;
+        view.LONGER_THAN_EXPECTED = new Duration('200ms').milliseconds();
         view.formIsValid = true;
         view.enableSubmitIfValid();
 

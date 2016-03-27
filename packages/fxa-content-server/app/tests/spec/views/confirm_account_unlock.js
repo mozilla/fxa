@@ -8,6 +8,7 @@ define(function (require, exports, module) {
   var AuthErrors = require('lib/auth-errors');
   var Backbone = require('backbone');
   var chai = require('chai');
+  var Duration = require('duration');
   var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
@@ -48,7 +49,7 @@ define(function (require, exports, module) {
         viewName: 'confirm-account-unlock',
         window: windowMock
       });
-      view.VERIFICATION_POLL_IN_MS = 10;
+      view.VERIFICATION_POLL_IN_MS = new Duration('10ms').milliseconds();
     }
 
     beforeEach(function () {

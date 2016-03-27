@@ -25,6 +25,7 @@ define(function (require, exports, module) {
   var allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
   var AuthErrors = require('lib/auth-errors');
   var BaseView = require('views/base');
+  var Duration = require('duration');
   var notifyDelayedRequest = require('views/decorators/notify_delayed_request');
   var p = require('lib/promise');
   var showButtonProgressIndicator = require('views/decorators/progress_indicator');
@@ -47,7 +48,7 @@ define(function (require, exports, module) {
   var FormView = BaseView.extend({
 
     // Time to wait for a request to finish before showing a notice
-    LONGER_THAN_EXPECTED: 10000, // 10 seconds
+    LONGER_THAN_EXPECTED: new Duration('10s').milliseconds(),
 
     constructor: function (options) {
       BaseView.call(this, options);

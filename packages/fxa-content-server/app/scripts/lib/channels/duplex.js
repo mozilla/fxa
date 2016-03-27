@@ -16,8 +16,9 @@ define(function (require, exports, module) {
   var _ = require('underscore');
   var BaseChannel = require('lib/channels/base');
   var p = require('lib/promise');
+  var Duration = require('duration');
 
-  var DEFAULT_SEND_TIMEOUT_LENGTH_MS = 90 * 1000;
+  var DEFAULT_SEND_TIMEOUT_LENGTH_MS = new Duration('90s').milliseconds();
 
   function OutstandingRequests(options) {
     this._window = options.window;

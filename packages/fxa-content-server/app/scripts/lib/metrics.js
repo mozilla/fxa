@@ -20,6 +20,7 @@ define(function (require, exports, module) {
   var $ = require('jquery');
   var _ = require('underscore');
   var Backbone = require('backbone');
+  var Duration = require('duration');
   var Environment = require('lib/environment');
   var p = require('lib/promise');
   var speedTrap = require('speedTrap');
@@ -57,7 +58,7 @@ define(function (require, exports, module) {
     'utm_term'
   ];
 
-  var DEFAULT_INACTIVITY_TIMEOUT_MS = 2 * 60 * 1000;
+  var DEFAULT_INACTIVITY_TIMEOUT_MS = new Duration('2m').milliseconds();
   var NOT_REPORTED_VALUE = 'none';
   var UNKNOWN_CAMPAIGN_ID = 'unknown';
 

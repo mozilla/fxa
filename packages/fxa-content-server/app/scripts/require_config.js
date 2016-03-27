@@ -27,6 +27,7 @@ require.config({
     chai: '../bower_components/chai/chai',
     cocktail: '../bower_components/cocktail/Cocktail',
     crosstab: 'vendor/crosstab',
+    duration: '../bower_components/Duration.js/duration',
     fxaCheckbox: '../bower_components/fxa-checkbox/checkbox',
     fxaClient: '../bower_components/fxa-js-client/fxa-client',
     jquery: '../bower_components/jquery/dist/jquery',
