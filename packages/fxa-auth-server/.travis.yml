@@ -22,7 +22,15 @@ notifications:
     skip_join: false
 
 before_install:
+  - if [ "$TRAVIS_NODE_VERSION" == "0.10" ]; then npm install -g npm@2; fi
   - npm config set spin false
+
+env:
+  global:
+    - NODE_ENV=test
+  matrix:
+    - DB=memory
+    - DB=mysql
 
 install:
   # use c++-11 with node4, default compiler on downlevel versions
@@ -30,6 +38,7 @@ install:
 
 script:
   - grunt templates
+  - if [ $DB == "mysql" ]; then ./scripts/start-travis-auth-db-mysql.sh; fi
   - npm test
   - npm outdated --depth 0
   - grunt l10n-extract
