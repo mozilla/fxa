@@ -1,3 +1,28 @@
+<a name="1.59.0"></a>
+# [1.59.0](https://github.com/mozilla/fxa-auth-server/compare/v1.58.1...v1.59.0) (2016-03-28)
+
+
+### Bug Fixes
+
+* **email:** Clean up accounts with invalid emails on status poll. ([5233391](https://github.com/mozilla/fxa-auth-server/commit/5233391))
+
+### Features
+
+* **logging:** add metrics context metadata to activity events ([09d3851](https://github.com/mozilla/fxa-auth-server/commit/09d3851))
+* **metrics:** track push email status checks ([eb3920e](https://github.com/mozilla/fxa-auth-server/commit/eb3920e)), closes [#1220](https://github.com/mozilla/fxa-auth-server/issues/1220)
+
+### Reverts
+
+* **metrics:** disable logging hask skew to datadog ([7a1bc82](https://github.com/mozilla/fxa-auth-server/commit/7a1bc82)), closes [#1215](https://github.com/mozilla/fxa-auth-server/issues/1215)
+
+### chore
+
+* **changelog:** Remove duplicate changelog entries ([18b8899](https://github.com/mozilla/fxa-auth-server/commit/18b8899))
+* **shrinkwrap:** bump to auth-mailer#f4098f9 and content-l10n#b61acfa and no other changes ([72b5d55](https://github.com/mozilla/fxa-auth-server/commit/72b5d55))
+* **shrinkwrap:** bump to fxa-auth-db-mysql#v0.59.0 ([bf01283](https://github.com/mozilla/fxa-auth-server/commit/bf01283))
+
+
+
 <a name="1.58.1"></a>
 ## [1.58.1](https://github.com/mozilla/fxa-auth-server/compare/v1.58.0...v1.58.1) (2016-03-17)
 
