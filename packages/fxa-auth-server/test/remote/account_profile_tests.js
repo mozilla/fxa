@@ -8,7 +8,7 @@ var TestServer = require('../test_server')
 var Client = require('../client')
 
 process.env.CONFIG_FILES = path.join(__dirname, '../config/mock_oauth.json')
-var config = require('../../config').root()
+var config = require('../../config').getProperties()
 
 function makeMockOAuthHeader(opts) {
   var token = new Buffer(JSON.stringify(opts)).toString('hex')
