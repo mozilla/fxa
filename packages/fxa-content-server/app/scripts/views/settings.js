@@ -19,6 +19,7 @@ define(function (require, exports, module) {
   var DeleteAccountView = require('views/settings/delete_account');
   var DevicesView = require('views/settings/devices');
   var DisplayNameView = require('views/settings/display_name');
+  var Duration = require('duration');
   var GravatarPermissionsView = require('views/settings/gravatar_permissions');
   var GravatarView = require('views/settings/avatar_gravatar');
   var LoadingMixin = require('views/mixins/loading-mixin');
@@ -204,7 +205,7 @@ define(function (require, exports, module) {
         });
     }),
 
-    SUCCESS_MESSAGE_DELAY_MS: 5000, // show success message for 5 seconds
+    SUCCESS_MESSAGE_DELAY_MS: new Duration('5s').milliseconds(),
 
     displaySuccess: function () {
       var self = this;

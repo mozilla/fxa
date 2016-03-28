@@ -9,6 +9,7 @@ define(function (require, exports, module) {
   var Assertion = require('lib/assertion');
   var chai = require('chai');
   var ConfigLoader = require('lib/config-loader');
+  var Duration = require('duration');
   var FxaClientWrapper = require('lib/fxa-client');
   var jwcrypto = require('vendor/jwcrypto');
   var p = require('lib/promise');
@@ -27,7 +28,7 @@ define(function (require, exports, module) {
   var sessionToken;
   var config;
 
-  var LONG_LIVED_ASSERTION_DURATION = 1000 * 3600 * 24 * 365 * 25; // 25 years
+  var LONG_LIVED_ASSERTION_DURATION = new Duration('52w').milliseconds() * 25;// 25 years
 
   describe('lib/assertion', function () {
     before(function () {

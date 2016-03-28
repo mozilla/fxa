@@ -9,8 +9,9 @@ define(function (require, exports, module) {
   'use strict';
 
   var EmailResend = require('models/email-resend');
+  var Duration = require('duration');
 
-  var SHOW_RESEND_IN_MS = 5 * 60 * 1000; // 5 minutes.
+  var SHOW_RESEND_IN_MS = new Duration('5m').milliseconds();
 
   module.exports = {
 

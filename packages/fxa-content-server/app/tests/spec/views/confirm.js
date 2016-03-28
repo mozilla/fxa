@@ -9,6 +9,7 @@ define(function (require, exports, module) {
   var Backbone = require('backbone');
   var BaseBroker = require('models/auth_brokers/base');
   var chai = require('chai');
+  var Duration = require('duration');
   var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
@@ -164,7 +165,7 @@ define(function (require, exports, module) {
           callback();
         });
 
-        view.VERIFICATION_POLL_IN_MS = 100;
+        view.VERIFICATION_POLL_IN_MS = new Duration('100ms').milliseconds();
         return view.afterVisible()
           .then(function () {
             assert.isTrue(user.setAccount.called);

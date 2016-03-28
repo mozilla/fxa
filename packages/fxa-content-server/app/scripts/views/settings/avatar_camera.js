@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   var canvasToBlob = require('canvasToBlob'); //eslint-disable-line no-unused-vars
   var Cocktail = require('cocktail');
   var Constants = require('lib/constants');
+  var Duration = require('duration');
   var Environment = require('lib/environment');
   var FormView = require('views/form');
   var ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
@@ -48,7 +49,7 @@ define(function (require, exports, module) {
 
 
       if (self.broker.isAutomatedBrowser()) {
-        var ARTIFICIAL_DELAY = 3000; // 3 seconds
+        var ARTIFICIAL_DELAY = new Duration('3s').milliseconds();
         // mock some things out for automated browser testing
         self.streaming = true;
         self.startStream = function () {
