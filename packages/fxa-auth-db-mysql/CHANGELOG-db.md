@@ -1,3 +1,9 @@
+0.59.0
+  * fix(logging): log connection config and charset info at startup #131
+  * fix(tests): adjust notifier tests monkeypatching to accept mozlog signature #130
+  * fix(logging): adjust logging method calls to use mozlog signature #130
+  * fix(tests): enforce mozlog rules in test logger #130
+
 0.58.0
   *  fix(db): expunge devices in resetAccount sproc #128
 
