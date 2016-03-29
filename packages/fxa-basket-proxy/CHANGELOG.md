@@ -1,3 +1,17 @@
+<a name="0.59.0"></a>
+# [0.59.0](https://github.com/mozilla/fxa-basket-proxy/compare/v0.56.1...v0.59.0) (2016-03-29)
+
+
+### Bug Fixes
+
+* **errors:** move common error handling into a basket.proxy() method ([21ff37f](https://github.com/mozilla/fxa-basket-proxy/commit/21ff37f))
+
+### Features
+
+* **sms:** add /subscribe_sms route ([575b848](https://github.com/mozilla/fxa-basket-proxy/commit/575b848)), closes [#21](https://github.com/mozilla/fxa-basket-proxy/issues/21)
+
+
+
 <a name="0.56.1"></a>
 ## [0.56.1](https://github.com/mozilla/fxa-basket-proxy/compare/v0.56.0...v0.56.1) (2016-02-22)
 
