@@ -294,8 +294,7 @@ define([
     // openPage is called, before the page is ready. Wait for
     // the prerequisites, then attach.
     function startListening() {
-      if (typeof window !== 'undefined' &&
-          typeof window.addEventListener === 'function') {
+      try {
         newWindow.addEventListener('WebChannelMessageToChrome', function (e) {
           var command = e.detail.message.command;
           var data = e.detail.message.data;
@@ -318,7 +317,8 @@ define([
         // CTRL-T, which does NOT copy sessionStorage over. Wipe
         // sessionStorage in this new context;
         newWindow.sessionStorage.clear();
-      } else {
+      } catch (e) {
+        // problem adding the listener, window may not be ready, try again.
         setTimeout(startListening, 0);
       }
     }
@@ -670,8 +670,7 @@ define([
     // openPage is called, before the page is ready. Wait for
     // the prerequisites, then attach.
     function startListening() {
-      if (typeof window !== 'undefined' &&
-          typeof window.addEventListener === 'function') {
+      try {
         addEventListener('WebChannelMessageToChrome', function (e) {
           var command = e.detail.message.command;
           var data = e.detail.message.data;
@@ -681,7 +680,8 @@ define([
           element.innerText = JSON.stringify(data);
           document.body.appendChild(element);
         });
-      } else {
+      } catch(e) {
+        // problem adding the listener, window may not be ready, try again.
         setTimeout(startListening, 0);
       }
     }
@@ -694,8 +694,7 @@ define([
       return context.remote
         .execute(function (expectedCommand, response) {
           function startListening() {
-            if (typeof window !== 'undefined' &&
-                typeof window.addEventListener === 'function') {
+            try {
               addEventListener('WebChannelMessageToChrome', function listener(e) {
                 var command = e.detail.message.command;
                 var messageId = e.detail.message.messageId;
@@ -716,7 +715,9 @@ define([
                   dispatchEvent(event);
                 }
               });
-            } else {
+            } catch (e) {
+              // problem adding the listener, window may not be
+              // ready, try again.
               setTimeout(startListening, 0);
             }
           }
