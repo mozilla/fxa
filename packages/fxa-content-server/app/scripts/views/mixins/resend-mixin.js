@@ -8,8 +8,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var EmailResend = require('models/email-resend');
   var Duration = require('duration');
+  var EmailResend = require('models/email-resend');
 
   var SHOW_RESEND_IN_MS = new Duration('5m').milliseconds();
 
