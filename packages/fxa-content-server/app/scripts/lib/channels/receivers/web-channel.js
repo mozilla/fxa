@@ -13,6 +13,7 @@ define(function (require, exports, module) {
 
   var _ = require('underscore');
   var Backbone = require('backbone');
+  var Logger = require('lib/logger');
 
   function WebChannelReceiver() {
     // nothing to do
@@ -25,6 +26,7 @@ define(function (require, exports, module) {
       this._boundReceiveMessage = this.receiveMessage.bind(this);
       this._window.addEventListener('WebChannelMessageToContent', this._boundReceiveMessage, true);
       this._webChannelId = options.webChannelId;
+      this._logger = new Logger(this._window);
     },
 
     receiveMessage: function (event) {
@@ -32,7 +34,7 @@ define(function (require, exports, module) {
 
       if (! (detail && detail.id)) {
         // malformed message
-        this._window.console.error('malformed WebChannelMessageToContent event', JSON.stringify(detail));
+        this._logger.error('malformed WebChannelMessageToContent event', JSON.stringify(detail));
         return;
       }
 

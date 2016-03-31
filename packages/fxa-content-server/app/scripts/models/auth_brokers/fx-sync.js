@@ -17,6 +17,7 @@ define(function (require, exports, module) {
   var ChannelMixin = require('models/auth_brokers/mixins/channel');
   var Cocktail = require('cocktail');
   var p = require('lib/promise');
+  var Logger = require('lib/logger');
 
   var proto = BaseAuthenticationBroker.prototype;
 
@@ -62,6 +63,8 @@ define(function (require, exports, module) {
       options = options || {};
       var self = this;
 
+      self._logger = new Logger();
+
       // channel can be passed in for testing.
       self._channel = options.channel;
 
@@ -95,7 +98,7 @@ define(function (require, exports, module) {
           self._verifiedCanLinkAccount = true;
           return proto.beforeSignIn.call(self, email);
         }, function (err) {
-          console.error('beforeSignIn failed with', err);
+          self._logger.error('beforeSignIn failed with', err);
           // If the browser doesn't implement this command, then it will
           // handle prompting the relink warning after sign in completes.
           // This can likely be changed to 'reject' after Fx31 hits nightly,

@@ -16,6 +16,7 @@ define(function (require, exports, module) {
   var _ = require('underscore');
   var BaseChannel = require('lib/channels/base');
   var Duration = require('duration');
+  var Logger = require('lib/logger');
   var p = require('lib/promise');
 
   var DEFAULT_SEND_TIMEOUT_LENGTH_MS = new Duration('90s').milliseconds();
@@ -24,6 +25,7 @@ define(function (require, exports, module) {
     this._window = options.window;
     this._sendTimeoutLength = options.sendTimeoutLength || DEFAULT_SEND_TIMEOUT_LENGTH_MS;
     this._requests = {};
+    this._logger = new Logger(this._window);
   }
 
   OutstandingRequests.prototype = {
@@ -32,7 +34,7 @@ define(function (require, exports, module) {
       this.remove(messageId);
 
       request.timeout = this._window.setTimeout(function (command) {
-        this._window.console.error('Response not received for: ' + command);
+        this._logger.error('Response not received for: ' + command);
       }.bind(this, request.command), this._sendTimeoutLength);
 
       this._requests[messageId] = request;

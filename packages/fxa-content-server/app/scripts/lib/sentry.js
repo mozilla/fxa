@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var _ = require('underscore');
+  var Logger = require('lib/logger');
   var Raven = require('raven');
   var Url = require('lib/url');
 
@@ -106,6 +107,8 @@ define(function (require, exports, module) {
    * @constructor
    */
   function SentryMetrics (host) {
+    this._logger = new Logger();
+
     if (host) {
       // use __API_KEY__ instead of the real API key because raven.js requires it
       // we can configure the real API key on the server using our local endpoint instead.
@@ -113,7 +116,7 @@ define(function (require, exports, module) {
 
       this._endpoint = '//__API_KEY__@' + host + '/metrics-errors';
     } else {
-      console.error('No Sentry host provided');
+      this._logger.error('No Sentry host provided');
       return;
     }
 
@@ -122,7 +125,7 @@ define(function (require, exports, module) {
       Raven.debug = false;
     } catch (e) {
       Raven.uninstall();
-      console.error(e);
+      this._logger.error(e);
     }
   }
 

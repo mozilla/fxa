@@ -8,6 +8,7 @@ define(function (require, exports, module) {
 
   var Backbone = require('backbone');
   var BaseView = require('views/base');
+  var Logger = require('lib/logger');
   var p = require('lib/promise');
   var Template = require('stache!templates/sub_panels');
 
@@ -21,12 +22,13 @@ define(function (require, exports, module) {
       this._panelViews = options.panelViews || [];
       this._parent = options.parent;
       this._createView = options.createView;
+      this._logger = new Logger();
     },
 
     showChildView: function (ChildView, options) {
       var self = this;
       if (self._panelViews.indexOf(ChildView) === -1) {
-        console.warn('Tried to show a view that is not a subpanel');
+        self._logger.warn('Tried to show a view that is not a subpanel');
         return p(null);
       }
 

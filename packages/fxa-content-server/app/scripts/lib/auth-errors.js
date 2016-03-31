@@ -9,6 +9,8 @@ define(function (require, exports, module) {
 
   var _ = require('underscore');
   var Errors = require('lib/errors');
+  var Logger = require('lib/logger');
+  var logger = new Logger();
 
   var t = function (msg) {
     return msg;
@@ -273,9 +275,7 @@ define(function (require, exports, module) {
         }
       } catch (e) {
         // handle invalid/unexpected data from the backend.
-        if (window.console && console.error) {
-          console.error('Error in errors.js->toInterpolationContext: %s', String(e));
-        }
+        logger.error('Error in errors.js->toInterpolationContext: %s', String(e));
       }
 
       return {};

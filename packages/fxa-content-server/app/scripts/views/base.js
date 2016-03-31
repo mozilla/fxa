@@ -12,6 +12,7 @@ define(function (require, exports, module) {
   var Cocktail = require('cocktail');
   var NotifierMixin = require('views/mixins/notifier-mixin');
   var NullMetrics = require('lib/null-metrics');
+  var Logger = require('lib/logger');
   var p = require('lib/promise');
   var Raven = require('raven');
   var TimerMixin = require('views/mixins/timer-mixin');
@@ -49,7 +50,7 @@ define(function (require, exports, module) {
     // Errors are disabled on page unload to supress errors
     // caused by aborted XHR requests.
     if (! this._areErrorsEnabled) {
-      console.error('Error ignored: %s', JSON.stringify(err));
+      this.logger.error('Error ignored: %s', JSON.stringify(err));
       return;
     }
 
@@ -123,6 +124,7 @@ define(function (require, exports, module) {
       this.childViews = [];
       this.user = options.user;
       this.window = options.window || window;
+      this.logger = new Logger(this.window);
 
       this.navigator = options.navigator || this.window.navigator || navigator;
       this.translator = options.translator || this.window.translator;
@@ -576,9 +578,8 @@ define(function (require, exports, module) {
       }
       err.logged = true;
 
-      if (typeof console !== 'undefined' && console) {
-        console.error(err.message || err);
-      }
+      this.logger.error(err);
+
       this.sentryMetrics.captureException(err);
       this.metrics.logError(err);
     },
@@ -599,9 +600,7 @@ define(function (require, exports, module) {
         // user and show a console trace to help us debug.
         err = errors.toError('UNEXPECTED_ERROR');
 
-        if (this.window.console && this.window.console.trace) {
-          this.window.console.trace();
-        }
+        this.logger.trace();
       }
 
       if (_.isString(err)) {

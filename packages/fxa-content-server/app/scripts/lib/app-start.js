@@ -43,6 +43,7 @@ define(function (require, exports, module) {
   var IframeAuthenticationBroker = require('models/auth_brokers/iframe');
   var IframeChannel = require('lib/channels/iframe');
   var InterTabChannel = require('lib/channels/inter-tab');
+  var Logger = require('lib/logger');
   var MarketingEmailClient = require('lib/marketing-email-client');
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
@@ -86,6 +87,7 @@ define(function (require, exports, module) {
     this._storage = options.storage || Storage;
     this._user = options.user;
     this._window = options.window || window;
+    this._logger = new Logger(this._window);
   }
 
   Start.prototype = {
@@ -604,9 +606,7 @@ define(function (require, exports, module) {
     captureError: function (error) {
       var self = this;
 
-      if (window.console && console.error) {
-        console.error(String(error));
-      }
+      self._logger.error(error);
 
       if (! self._sentryMetrics) {
         self.enableSentryMetrics();
