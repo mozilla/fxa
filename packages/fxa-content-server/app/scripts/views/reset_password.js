@@ -27,6 +27,12 @@ define(function (require, exports, module) {
       this._formPrefill = options.formPrefill;
     },
 
+    context: function () {
+      return {
+        forceEmail: this.model.get('forceEmail')
+      };
+    },
+
     afterRender: function () {
       if (this.relier.isOAuth()) {
         this.transformLinks();

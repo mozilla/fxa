@@ -164,18 +164,37 @@ define([
         .then(testAccountNoLongerExistsErrorShown);
     },
 
-    'forgot password flow via force-auth goes directly to confirm email screen': function () {
+    'forgot password flow via force_auth': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openForceAuth({ query: { email: email }}))
         .then(click('.reset-password'))
 
-        .then(testElementExists('#fxa-confirm-reset-password-header'))
-        // user remembers her password, clicks the "sign in" link. They
-        // should go back to the /force_auth screen.
+        .then(testElementExists('#fxa-reset-password-header'))
+        .then(testElementValueEquals('input[type=email]', email))
+        .then(testElementDisabled('input[type=email]'))
+        .then(testElementTextInclude('.prefillEmail', email))
+
+        // User thinks they have remembered their password, clicks the
+        // "sign in" link. Go back to /force_auth.
         .then(click('.sign-in'))
 
-        .then(testElementExists('#fxa-force-auth-header'));
+        .then(testElementExists('#fxa-force-auth-header'))
+        // User goes back to reset password to submit.
+        .then(click('.reset-password'))
+
+        .then(testElementExists('#fxa-reset-password-header'))
+        .then(click('button[type=submit]'))
+
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
+        // User has remembered their password, for real this time.
+        // Go back to /force_auth.
+        .then(click('.sign-in'))
+
+        .then(testElementExists('#fxa-force-auth-header'))
+        .then(testElementValueEquals('input[type=email]', email))
+        .then(testElementDisabled('input[type=email]'))
+        .then(testElementTextInclude('.prefillEmail', email));
     },
 
     'visiting the tos/pp links saves information for return': function () {

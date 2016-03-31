@@ -14,7 +14,7 @@
     </div>
     <form novalidate>
       <p class="prefillEmail">{{ email }}</p>
-      <input type="email" class="email hidden" value="{{ email }}" />
+      <input type="email" class="email hidden" value="{{ email }}" disabled />
       <div class="input-row password-row">
         <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" required pattern=".{8,}" value="{{ password }}" required {{#email}}autofocus{{/email}} />
 
@@ -30,7 +30,7 @@
     </form>
 
     <div class="links">
-      <a href="/confirm_reset_password" class="reset-password">{{#t}}Forgot password?{{/t}}</a>
+      <a href="/reset_password" class="reset-password">{{#t}}Forgot password?{{/t}}</a>
     </div>
 
     <div class="extra-links">

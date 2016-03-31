@@ -6,7 +6,6 @@ define(function (require, exports, module) {
   'use strict';
 
   var _ = require('underscore');
-  var allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
   var AuthErrors = require('lib/auth-errors');
   var BaseView = require('views/base');
   var Cocktail = require('cocktail');
@@ -152,6 +151,12 @@ define(function (require, exports, module) {
       });
     },
 
+    _navigateToForceResetPassword: function () {
+      return this.navigate(this.broker.transformLink('reset_password'), {
+        forceEmail: this.relier.get('email')
+      });
+    },
+
     context: function () {
       return {
         email: this.relier.get('email'),
@@ -160,8 +165,8 @@ define(function (require, exports, module) {
       };
     },
 
-    events: _.extend(SignInView.prototype.events, {
-      'click a[href="/confirm_reset_password"]': BaseView.cancelEventThen('resetPasswordNow')
+    events: _.extend({}, SignInView.prototype.events, {
+      'click a[href="/reset_password"]': BaseView.cancelEventThen('_navigateToForceResetPassword')
     }),
 
     beforeDestroy: function () {
@@ -183,20 +188,6 @@ define(function (require, exports, module) {
 
       return proto.onSignInError.call(this, account, password, error);
     },
-
-    resetPasswordNow: allowOnlyOneSubmit(function () {
-      var self = this;
-      var email = self.relier.get('email');
-
-      return self.resetPassword(email)
-        .fail(function (error) {
-          if (AuthErrors.is(error, 'UNKNOWN_ACCOUNT')) {
-            error = AuthErrors.toError('DELETED_ACCOUNT');
-          }
-
-          self.displayError(error);
-        });
-    }),
 
     /**
      * Displays the account's avatar
