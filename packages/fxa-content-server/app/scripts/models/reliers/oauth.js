@@ -15,7 +15,6 @@ define(function (require, exports, module) {
   var Relier = require('models/reliers/relier');
   var RelierKeys = require('lib/relier-keys');
   var Transform = require('lib/transform');
-  var Url = require('lib/url');
   var Validate = require('lib/validate');
   var Vat = require('lib/vat');
 
@@ -206,7 +205,6 @@ define(function (require, exports, module) {
           var result = Transform.transformUsingSchema(
             serviceInfo, CLIENT_INFO_SCHEMA, OAuthErrors);
           self.set(result);
-          self.set('origin', Url.getOrigin(serviceInfo.redirect_uri));
         }, function (err) {
           // the server returns an invalid request parameter for an
           // invalid/unknown client_id

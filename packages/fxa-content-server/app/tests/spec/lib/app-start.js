@@ -19,7 +19,6 @@ define(function (require, exports, module) {
   var FxiOSV1Broker = require('models/auth_brokers/fx-ios-v1');
   var FxiOSV2Broker = require('models/auth_brokers/fx-ios-v2');
   var HistoryMock = require('../../mocks/history');
-  var IframeBroker = require('models/auth_brokers/iframe');
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
   var NullChannel = require('lib/channels/null');
@@ -44,7 +43,6 @@ define(function (require, exports, module) {
 
   var assert = chai.assert;
   var FIRSTRUN_ORIGIN = 'https://firstrun.firefox.com';
-  var HELLO_ORIGIN = 'https://hello.firefox.com';
 
   describe('lib/app-start', function () {
     var appStart;
@@ -283,15 +281,15 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('iframe', function () {
-        it('returns an Iframe broker if `context=iframe` is present and in an iframe', function () {
+      describe('deprecated oauth iframe support', function () {
+        it('returns an Redirect broker if `context=iframe` is present and in an iframe', function () {
           windowMock.top = new WindowMock();
           windowMock.location.search = Url.objToSearchString({
             client_id: 'client id', //eslint-disable-line camelcase
             context: Constants.IFRAME_CONTEXT
           });
 
-          return testExpectedBrokerCreated(IframeBroker);
+          return testExpectedBrokerCreated(RedirectBroker);
         });
 
         it('returns a Redirect broker if `context=iframe` is not present and in an iframe - for Marketplace on Android', function () {
@@ -655,21 +653,6 @@ define(function (require, exports, module) {
         var allowedOrigins = appStart._getAllowedParentOrigins();
         assert.equal(allowedOrigins.length, 1);
         assert.equal(allowedOrigins[0], FIRSTRUN_ORIGIN);
-      });
-
-      it('returns the relier\'s origin if an oauth flow', function () {
-        sinon.stub(appStart, '_isInAnIframe', function () {
-          return true;
-        });
-
-        sinon.stub(appStart, '_isOAuth', function () {
-          return true;
-        });
-
-        relierMock.set('origin', HELLO_ORIGIN);
-        var allowedOrigins = appStart._getAllowedParentOrigins();
-        assert.equal(allowedOrigins.length, 1);
-        assert.equal(allowedOrigins[0], HELLO_ORIGIN);
       });
 
       it('returns an empty array otherwise', function () {

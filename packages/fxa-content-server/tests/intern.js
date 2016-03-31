@@ -17,7 +17,6 @@ function (intern, topic, firefoxProfile) {
   var fxaEmailRoot = args.fxaEmailRoot || 'http://127.0.0.1:9001';
   var fxaOauthApp = args.fxaOauthApp || 'http://127.0.0.1:8080/';
   var fxaUntrustedOauthApp = args.fxaUntrustedOauthApp || 'http://127.0.0.1:10139/';
-  var fxaIframeOauthApp = args.fxaIframeOauthApp || 'http://127.0.0.1:8080/iframe';
 
   // "fxaProduction" is a little overloaded in how it is used in the tests.
   // Sometimes it means real "stage" or real production configuration, but
@@ -50,7 +49,6 @@ function (intern, topic, firefoxProfile) {
     fxaContentRoot: fxaContentRoot,
     fxaDevBox: fxaDevBox,
     fxaEmailRoot: fxaEmailRoot,
-    fxaIframeOauthApp: fxaIframeOauthApp,
     fxaOauthApp: fxaOauthApp,
     fxaProduction: fxaProduction,
     fxaToken: fxaToken,
