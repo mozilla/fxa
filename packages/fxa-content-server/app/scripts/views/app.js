@@ -12,6 +12,8 @@ define(function (require, exports, module) {
   var $ = require('jquery');
   var Backbone = require('backbone');
   var BaseView = require('views/base');
+  var Cocktail = require('cocktail');
+  var LoadingMixin = require('views/mixins/loading-mixin');
   var p = require('lib/promise');
 
   var AppView = BaseView.extend({
@@ -113,17 +115,9 @@ define(function (require, exports, module) {
 
             self.setTitle(viewToShow.titleFromView());
 
-            // Render the new view while stage is invisible then fade it in
-            // using css animations to catch problems with an explicit
-            // opacity rule after class is added.
-            $('#stage').html(viewToShow.el).addClass('fade-in-forward').css('opacity', 1);
+            self.writeToDOM(viewToShow.el);
+
             viewToShow.afterVisible();
-
-            // The user may be scrolled part way down the page
-            // on view transition. Force them to the top of the page.
-            self.window.scrollTo(0, 0);
-
-            $('#fox-logo').addClass('fade-in-forward').css('opacity', 1);
 
             self.notifier.trigger('view-shown', viewToShow);
 
@@ -185,6 +179,11 @@ define(function (require, exports, module) {
     }
 
   });
+
+  Cocktail.mixin(
+    AppView,
+    LoadingMixin
+  );
 
   module.exports = AppView;
 });

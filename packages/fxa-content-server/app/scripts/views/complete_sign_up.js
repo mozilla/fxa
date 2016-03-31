@@ -11,7 +11,6 @@ define(function (require, exports, module) {
   var CompleteSignUpTemplate = require('stache!templates/complete_sign_up');
   var ExperimentMixin = require('views/mixins/experiment-mixin');
   var FormView = require('views/form');
-  var LoadingMixin = require('views/mixins/loading-mixin');
   var MarketingEmailErrors = require('lib/marketing-email-errors');
   var ResendMixin = require('views/mixins/resend-mixin');
   var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
@@ -191,7 +190,6 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     CompleteSignUpView,
     ExperimentMixin,
-    LoadingMixin,
     ResendMixin,
     ResumeTokenMixin
   );

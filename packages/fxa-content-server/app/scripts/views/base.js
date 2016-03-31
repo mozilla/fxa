@@ -200,6 +200,31 @@ define(function (require, exports, module) {
         });
     },
 
+
+    /**
+     * Write content to the DOM
+     *
+     * @param {string || element} content
+     */
+    writeToDOM: function (content) {
+      $('#loading-spinner').hide();
+
+      // Two notes:
+      // 1. Render the new view while stage is invisible then fade it in
+      // using css animations to catch problems with an explicit
+      // opacity rule after class is added.
+      // 2. The html is written directly into #stage instead
+      // of this.$el because overwriting this.$el has a nasty side effect
+      // where the view's DOM event handlers do hook up properly.
+      $('#stage').html(content).addClass('fade-in-forward').css('opacity', 1);
+
+      // The user may be scrolled part way down the page
+      // on view transition. Force them to the top of the page.
+      this.window.scrollTo(0, 0);
+
+      $('#fox-logo').addClass('fade-in-forward').css('opacity', 1);
+    },
+
     // Checks that the user's current account exists and is
     // verified. Returns either true or false.
     _checkUserAuthorization: function () {
