@@ -206,10 +206,13 @@ define(function (require, exports, module) {
       errno: 1023,
       message: t('Valid email required')
     },
+    /*
+    Removed in issue #3040
     FORCE_AUTH_EMAIL_REQUIRED: {
       errno: 1024,
       message: t('/force_auth requires an email')
     },
+    */
     EXPIRED_VERIFICATION_LINK: {
       errno: 1025,
       message: t('The link you clicked to verify your email is expired.')

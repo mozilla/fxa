@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var _ = require('underscore');
+  var Constants = require('lib/constants');
   var p = require('lib/promise');
   var ProfileMock = require('../mocks/profile.js');
   var sinon = require('sinon');
@@ -79,6 +80,10 @@ define(function (require, exports, module) {
     }
 
     return str;
+  }
+
+  function createUid() {
+    return createRandomHexString(Constants.UID_LENGTH);
   }
 
   function createEmail() {
@@ -156,6 +161,7 @@ define(function (require, exports, module) {
     addFxaClientSpy: addFxaClientSpy,
     createEmail: createEmail,
     createRandomHexString: createRandomHexString,
+    createUid: createUid,
     emailToUser: emailToUser,
     getValueLabel: getValueLabel,
     indexOfEvent: indexOfEvent,

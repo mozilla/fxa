@@ -12,6 +12,7 @@ define(function (require, exports, module) {
   var BaseView = require('views/base');
   var chai = require('chai');
   var DOMEventMock = require('../../mocks/dom-event');
+  var ErrorUtils = require('lib/error-utils');
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
@@ -661,6 +662,29 @@ define(function (require, exports, module) {
 
         assert.isTrue(view.window.console.trace.calledOnce);
         view.window.console.trace.restore();
+      });
+    });
+
+    describe('fatalError', function () {
+      var err;
+      var sandbox;
+
+      beforeEach(function () {
+        sandbox = sinon.sandbox.create();
+        sandbox.spy(ErrorUtils, 'fatalError');
+
+        err = AuthErrors.toError('UNEXPECTED_ERROR');
+
+        return view.fatalError(err);
+      });
+
+      afterEach(function () {
+        sandbox.restore();
+      });
+
+      it('delegates to the ErrorUtils.fatalError', function () {
+        assert.isTrue(ErrorUtils.fatalError.calledWith(
+          err, view.sentryMetrics, metrics, windowMock, translator));
       });
     });
 
