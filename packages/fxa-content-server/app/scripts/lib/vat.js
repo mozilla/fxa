@@ -11,7 +11,9 @@ define(function (require, exports, module) {
   var Vat = require('vat');
 
   Vat.register('base64jwt', Vat.string().test(Validate.isBase64JwtValid));
+  Vat.register('email', Vat.string().test(Validate.isEmailValid));
   Vat.register('hex', Vat.string().test(Validate.isHexValid));
+  Vat.register('uid', Vat.string().test(Validate.isUidValid));
   Vat.register('uri', Vat.string().test(Validate.isUriValid));
   Vat.register('url', Vat.string().test(Validate.isUrlValid));
   Vat.register('urn', Vat.string().test(Validate.isUrnValid));

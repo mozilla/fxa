@@ -24,6 +24,7 @@ define(function (require, exports, module) {
 
   var assert = chai.assert;
 
+
   describe('/views/force_auth', function () {
     var broker;
     var email;
@@ -73,6 +74,7 @@ define(function (require, exports, module) {
       });
 
       sinon.spy(view, 'navigate');
+      sinon.spy(view, 'fatalError');
     }
 
     beforeEach(function () {
@@ -88,14 +90,39 @@ define(function (require, exports, module) {
     });
 
     describe('render', function () {
-      describe('with missing email address', function () {
+      describe('with a missing email address', function () {
         beforeEach(function () {
           relier.unset('email');
+
           return view.render();
         });
 
-        it('prints an error message', function () {
-          assert.include(view.$('.error').text(), 'requires an email');
+        it('delegates to fatalError', function () {
+          assert.isTrue(view.fatalError.called);
+        });
+      });
+
+      describe('with an invalid email address', function () {
+        beforeEach(function () {
+          relier.set('email', 'not an email');
+
+          return view.render();
+        });
+
+        it('delegates to fatalError', function () {
+          assert.isTrue(view.fatalError.called);
+        });
+      });
+
+      describe('with an invalid uid', function () {
+        beforeEach(function () {
+          relier.set('uid', 'invalid uid');
+
+          return view.render();
+        });
+
+        it('delegates to fatalError', function () {
+          assert.isTrue(view.fatalError.called);
         });
       });
 
@@ -118,7 +145,7 @@ define(function (require, exports, module) {
       describe('with registered email, registered uid', function () {
         beforeEach(function () {
           relier.set({
-            uid: 'registered_uid'
+            uid: TestHelpers.createUid()
           });
 
           isEmailRegistered = isUidRegistered = true;
@@ -138,7 +165,7 @@ define(function (require, exports, module) {
       describe('with registered email, unregistered uid', function () {
         beforeEach(function () {
           relier.set({
-            uid: 'unregistered_uid'
+            uid: TestHelpers.createUid()
           });
 
           isEmailRegistered = true;
@@ -189,7 +216,7 @@ define(function (require, exports, module) {
       describe('with unregistered email, registered uid', function () {
         beforeEach(function () {
           relier.set({
-            uid: 'registered_uid'
+            uid: TestHelpers.createUid()
           });
 
           isEmailRegistered = false;
@@ -227,7 +254,7 @@ define(function (require, exports, module) {
       describe('with unregistered email, unregistered uid', function () {
         beforeEach(function () {
           relier.set({
-            uid: 'unregistered_uid'
+            uid: TestHelpers.createUid()
           });
 
           isEmailRegistered = isUidRegistered = false;

@@ -21,6 +21,10 @@ define([
   var type = FunctionalHelpers.type;
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
+  var testErrorInclude = function (expected) {
+    return testElementTextInclude('.error', expected);
+  };
+
   function testAccountNoLongerExistsErrorShown() {
     return this.parent
       .then(testElementTextInclude('.error', 'no longer exists'));
@@ -38,16 +42,25 @@ define([
       return FunctionalHelpers.clearBrowserState(this);
     },
 
+    'with a missing email': function () {
+      return this.remote
+        .then(openForceAuth({
+          header: '#fxa-400-header'
+        }))
+        .then(testErrorInclude('missing'))
+        .then(testErrorInclude('email'));
+    },
+
     'with an invalid email': function () {
       return this.remote
         .then(openForceAuth({
-          // TODO - this is a discrepancy and should go to the 400 page,
-          // but that's for another PR.
-          header: '#fxa-unexpected-error-header',
+          header: '#fxa-400-header',
           query: {
             email: 'invalid'
           }
-        }));
+        }))
+        .then(testErrorInclude('invalid'))
+        .then(testErrorInclude('email'));
     },
 
     'with a registered email, no uid': function () {
@@ -64,15 +77,15 @@ define([
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(function (accountInfo) {
           return openForceAuth({
-            // TODO - this is a discrepancy and should go to the 400 page,
-            // but that's for another PR.
-            header: '#fxa-unexpected-error-header',
+            header: '#fxa-400-header',
             query: {
               email: email,
               uid: 'a' + accountInfo.uid
             }
           }).call(this);
-        });
+        })
+        .then(testErrorInclude('invalid'))
+        .then(testErrorInclude('uid'));
     },
 
     'with a registered email, registered uid': function () {

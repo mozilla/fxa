@@ -16,6 +16,8 @@ define(function (require, exports, module) {
   var PasswordResetMixin = require('views/mixins/password-reset-mixin');
   var SignInView = require('views/sign_in');
   var Template = require('stache!templates/force_auth');
+  var Transform = require('lib/transform');
+  var Vat = require('lib/vat');
 
   function getFatalErrorMessage(self, fatalError) {
     if (fatalError) {
@@ -24,6 +26,11 @@ define(function (require, exports, module) {
 
     return '';
   }
+
+  var RELIER_DATA_SCHEMA = {
+    email: Vat.email().required(),
+    uid: Vat.uid().allow(null)
+  };
 
   var proto = SignInView.prototype;
 
@@ -38,13 +45,30 @@ define(function (require, exports, module) {
 
     _fatalError: null,
 
-    beforeRender: function () {
-      var self = this;
+    _getAndValidateAccountData: function () {
+      var fieldsToPick = ['email', 'uid'];
+      var accountData = {};
       var relier = this.relier;
 
-      if (! relier.has('email')) {
-        this._fatalError = AuthErrors.toError('FORCE_AUTH_EMAIL_REQUIRED');
-        return;
+      fieldsToPick.forEach(function (fieldName) {
+        if (relier.has(fieldName)) {
+          accountData[fieldName] = relier.get(fieldName);
+        }
+      });
+
+      return Transform.transformUsingSchema(
+          accountData, RELIER_DATA_SCHEMA, AuthErrors);
+    },
+
+    beforeRender: function () {
+      var self = this;
+      var accountData;
+
+      try {
+        accountData = this._getAndValidateAccountData();
+      } catch (err) {
+        this.fatalError(err);
+        return false;
       }
 
       /**
@@ -56,11 +80,11 @@ define(function (require, exports, module) {
        * and do not allow the user to continue.
        */
       var account = this.user.initAccount({
-        email: relier.get('email'),
-        uid: relier.get('uid')
+        email: accountData.email,
+        uid: accountData.uid
       });
 
-      if (relier.has('uid')) {
+      if (accountData.uid) {
         return p.all([
           this.user.checkAccountEmailExists(account),
           this.user.checkAccountUidExists(account)
