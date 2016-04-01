@@ -151,7 +151,7 @@ section p {
   }
 
 
-  &.prefill {
+  &.prefillEmail {
     word-wrap: break-word;
 
     @include respond-to('reasonableUI') {

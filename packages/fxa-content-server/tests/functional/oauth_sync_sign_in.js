@@ -149,7 +149,7 @@ define([
               return FunctionalHelpers.openFxaFromRp(self, 'signin');
             })
 
-            .findByCssSelector('.prefill')
+            .findByCssSelector('.prefillEmail')
               .getVisibleText()
               .then(function (text) {
                 // We should see the email we signed up for Sync with

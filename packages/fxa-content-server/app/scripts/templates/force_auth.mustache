@@ -13,7 +13,7 @@
     <div class="avatar-wrapper avatar-view">
     </div>
     <form novalidate>
-      <p class="prefill">{{ email }}</p>
+      <p class="prefillEmail">{{ email }}</p>
       <input type="email" class="email hidden" value="{{ email }}" />
       <div class="input-row password-row">
         <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" required pattern=".{8,}" value="{{ password }}" required {{#email}}autofocus{{/email}} />

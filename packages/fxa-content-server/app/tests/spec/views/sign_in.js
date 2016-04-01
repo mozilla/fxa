@@ -130,7 +130,7 @@ define(function (require, exports, module) {
         return view.render()
             .then(function () {
               assert.ok($('#fxa-signin-header').length);
-              assert.equal(view.$('.prefill').html(), 'a@a.com');
+              assert.equal(view.$('.prefillEmail').html(), 'a@a.com');
               assert.equal(view.$('[type=password]').val(), '');
             });
       });
