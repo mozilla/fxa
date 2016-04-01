@@ -402,7 +402,7 @@ define([
         // testing to make sure cached signin comes back after a refresh
         .get(require.toUrl(PAGE_SIGNIN))
 
-        .findByCssSelector('.prefill')
+        .findByCssSelector('.prefillEmail')
         .getVisibleText()
         .then(function (text) {
           // confirm prefilled email
@@ -484,7 +484,7 @@ define([
         // testing to make sure cached signin comes back after a refresh
         .get(require.toUrl(PAGE_SIGNIN))
 
-        .findByCssSelector('.prefill')
+        .findByCssSelector('.prefillEmail')
         .getVisibleText()
         .then(function (text) {
           // confirm prefilled email
