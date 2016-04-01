@@ -40,7 +40,6 @@ define(function (require, exports, module) {
   var FxiOSV1AuthenticationBroker = require('models/auth_brokers/fx-ios-v1');
   var FxiOSV2AuthenticationBroker = require('models/auth_brokers/fx-ios-v2');
   var HeightObserver = require('lib/height-observer');
-  var IframeAuthenticationBroker = require('models/auth_brokers/iframe');
   var IframeChannel = require('lib/channels/iframe');
   var InterTabChannel = require('lib/channels/inter-tab');
   var Logger = require('lib/logger');
@@ -240,9 +239,6 @@ define(function (require, exports, module) {
         // If in an iframe for sync, the origin is checked against
         // a pre-defined set of origins sent from the server.
         return this._config.allowedParentOrigins;
-      } else if (this._isOAuth()) {
-        // If in oauth, the relier has the allowed parent origin.
-        return [this._relier.get('origin')];
       }
 
       return [];
@@ -392,16 +388,6 @@ define(function (require, exports, module) {
         } else if (this._isWebChannel()) {
           this._authenticationBroker = new WebChannelAuthenticationBroker({
             assertionLibrary: this._assertionLibrary,
-            oAuthClient: this._oAuthClient,
-            relier: this._relier,
-            session: Session,
-            window: this._window
-          });
-        } else if (this._isIframe()) {
-          this._authenticationBroker = new IframeAuthenticationBroker({
-            assertionLibrary: this._assertionLibrary,
-            channel: this._iframeChannel,
-            metrics: this._metrics,
             oAuthClient: this._oAuthClient,
             relier: this._relier,
             session: Session,
@@ -783,10 +769,6 @@ define(function (require, exports, module) {
 
     _isIframeContext: function () {
       return this._isContext(Constants.IFRAME_CONTEXT);
-    },
-
-    _isIframe: function () {
-      return this._isInAnIframe() && this._isIframeContext();
     },
 
     _isOAuth: function () {

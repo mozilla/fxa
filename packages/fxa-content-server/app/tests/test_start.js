@@ -165,7 +165,6 @@ function (Translator, Session) {
     '../tests/spec/models/auth_brokers/fx-ios-v1',
     '../tests/spec/models/auth_brokers/fx-ios-v2',
     '../tests/spec/models/auth_brokers/fx-sync',
-    '../tests/spec/models/auth_brokers/iframe',
     '../tests/spec/models/auth_brokers/oauth',
     '../tests/spec/models/auth_brokers/redirect',
     '../tests/spec/models/auth_brokers/web-channel',

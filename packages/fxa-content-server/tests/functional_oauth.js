@@ -14,7 +14,6 @@ define([
   './functional/oauth_webchannel_force_auth',
   './functional/oauth_webchannel_keys',
   './functional/oauth_preverified_sign_up',
-  './functional/oauth_iframe',
   './functional/oauth_force_auth',
   './functional/oauth_permissions'
 ], function () {});

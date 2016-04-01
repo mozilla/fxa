@@ -16,7 +16,6 @@ define(function (require, exports, module) {
   var Session = require('lib/session');
   var sinon = require('sinon');
   var TestHelpers = require('../../../lib/helpers');
-  var Url = require('lib/url');
   var User = require('models/user');
   var WindowMock = require('../../../mocks/window');
 
@@ -111,7 +110,7 @@ define(function (require, exports, module) {
           });
       });
 
-      it('sets serviceName, redirectUri, and origin from parameters returned by the server', function () {
+      it('sets serviceName, and redirectUri from parameters returned by the server', function () {
         windowMock.location.search = TestHelpers.toSearchString({
           action: ACTION,
           client_id: CLIENT_ID,
@@ -126,7 +125,6 @@ define(function (require, exports, module) {
           .then(function () {
             assert.equal(relier.get('serviceName'), SERVICE_NAME);
             assert.equal(relier.get('redirectUri'), SERVER_REDIRECT_URI);
-            assert.equal(relier.get('origin'), Url.getOrigin(SERVER_REDIRECT_URI));
           });
       });
 
