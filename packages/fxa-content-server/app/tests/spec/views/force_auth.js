@@ -508,51 +508,15 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('resetPasswordNow', function () {
-      var err;
-      var passwordForgotToken = 'foo';
-
+    describe('_navigateToForceResetPassword', function () {
       beforeEach(function () {
-        sinon.stub(view, 'resetPassword', function () {
-          if (err) {
-            return p.reject(err);
-          } else {
-            return p({ passwordForgotToken: passwordForgotToken });
-          }
-        });
-
-        view.$('input[type=password]').val('password');
-        sinon.spy(view, 'displayError');
-
-        return view.resetPasswordNow();
+        return view._navigateToForceResetPassword();
       });
 
-      it('delegates to `resetPassword` with the correct email address', function () {
-        assert.isTrue(view.resetPassword.calledWith(email));
-      });
-
-      it('allows only one forget password request at a time', function () {
-        view.resetPasswordNow();
-        return view.resetPasswordNow()
-          .then(assert.fail, function (err) {
-            assert.equal(err.message, 'submit already in progress');
-          });
-      });
-
-      describe('with email that is deleted while page is open', function () {
-        beforeEach(function () {
-          err = AuthErrors.toError('UNKNOWN_ACCOUNT');
-
-          return view.resetPasswordNow();
-        });
-
-        it('prints an error message and does not allow the user to sign up', function () {
-          assert.isTrue(view.displayError.called);
-          var err = view.displayError.args[0][0];
-          assert.isTrue(AuthErrors.is(err, 'DELETED_ACCOUNT'));
-          // no link to sign up.
-          assert.equal(view.$('.error').find('a').length, 0);
-        });
+      it('navigates to `/reset_password` with the expected email', function () {
+        assert.isTrue(view.navigate.calledWith('reset_password', {
+          forceEmail: email
+        }));
       });
     });
 
