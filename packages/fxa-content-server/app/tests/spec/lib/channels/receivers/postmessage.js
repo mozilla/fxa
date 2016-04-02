@@ -77,7 +77,7 @@ define(function (require, exports, module) {
         receiver.receiveEvent({
           data: {},
           origin: 'chrome://browser',
-          type: 'click'
+          type: 'message'
         });
 
         assert.isFalse(errorSpy.called);

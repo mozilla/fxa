@@ -69,14 +69,11 @@ define(function (require, exports, module) {
         err.context = origin;
 
         this.trigger('error', err);
-        return;
+      } else if (! event.data) {
+        this.trigger('error', new Error('malformed event'));
+      } else {
+        this.trigger('message', event.data);
       }
-
-      if (! event.data) {
-        return this.trigger('error', new Error('malformed event'));
-      }
-
-      this.trigger('message', event.data);
     },
 
     teardown: function () {
