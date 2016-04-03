@@ -93,7 +93,7 @@ module.exports = function createServer(config, log) {
 
       if (!email || !ip || !action) {
         var err = {code: 'MissingParameters', message: 'email, ip and action are all required'}
-        log.error({ op: 'request.failedLoginAttempt', email: email, ip: ip, action: action, err: err })
+        log.error({ op: 'request.check', email: email, ip: ip, action: action, err: err })
         res.send(400, err)
         return next()
       }

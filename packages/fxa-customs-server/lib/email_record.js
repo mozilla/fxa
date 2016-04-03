@@ -129,7 +129,7 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, BAD_LOGIN_
       }
       this.addHit()
       if (this.isOverEmailLimit()) {
-        // They're not over the limit, rate-limit and tell them to retry.
+        // They're now over the limit, rate-limit and tell them to retry.
         this.rateLimit()
         return this.retryAfter()
       }
