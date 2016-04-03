@@ -67,13 +67,13 @@ module.exports = function (fs, path, url, convict) {
         format: 'nat',
         env: 'MAX_BAD_LOGINS_PER_IP'
       },
-      maxBadLoginsIntervalSeconds: {
+      ipRateLimitIntervalSeconds: {
         doc: 'Duration of automatic throttling for IPs',
         default: 60 * 15,
         format: 'nat',
         env: 'IP_RATE_LIMIT_INTERVAL_SECONDS'
       },
-      maxBadLoginsBanDurationSeconds: {
+      ipRateLimitBanDurationSeconds: {
         doc: 'Duration of automatic ban for throttled IPs',
         default: 60 * 15,
         format: 'nat',

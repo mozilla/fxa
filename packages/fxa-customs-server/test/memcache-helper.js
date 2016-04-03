@@ -16,8 +16,8 @@ var config = {
     maxEmails: 3,
     maxBadLogins: 2,
     maxBadLoginsPerIp: Number(process.env.MAX_BAD_LOGINS_PER_IP) || 3,
-    maxBadLoginsIntervalSeconds: Number(process.env.IP_RATE_LIMIT_INTERVAL_SECONDS) || 60 * 15,
-    maxBadLoginsBanDurationSeconds: Number(process.env.IP_RATE_LIMIT_BAN_DURATION_SECONDS) || 60 * 15,
+    ipRateLimitIntervalSeconds: Number(process.env.IP_RATE_LIMIT_INTERVAL_SECONDS) || 60 * 15,
+    ipRateLimitBanDurationSeconds: Number(process.env.IP_RATE_LIMIT_BAN_DURATION_SECONDS) || 60 * 15,
     badLoginLockout: 3,
     badLoginLockoutIntervalSeconds: 20
   }
@@ -44,8 +44,8 @@ var EmailRecord = require('../lib/email_record')(config.limits.rateLimitInterval
 var IpEmailRecord = require('../lib/ip_email_record')(config.limits.rateLimitIntervalSeconds * 1000, config.limits.maxBadLogins)
 var IpRecord = require('../lib/ip_record')(
   config.limits.blockIntervalSeconds * 1000,
-  config.limits.maxBadLoginsIntervalSeconds * 1000,
-  config.limits.maxBadLoginsBanDurationSeconds * 1000,
+  config.limits.ipRateLimitIntervalSeconds * 1000,
+  config.limits.ipRateLimitBanDurationSeconds * 1000,
   config.limits.maxBadLoginsPerIp,
   config.limits.maxAccountStatusCheck)
 
