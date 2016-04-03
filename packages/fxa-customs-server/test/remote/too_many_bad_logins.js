@@ -15,7 +15,8 @@ var config = {
   },
   limits: {
     rateLimitIntervalSeconds: 1,
-    badLoginLockoutIntervalSeconds: 1
+    badLoginLockoutIntervalSeconds: 1,
+    maxBadLoginsPerIp: 8
   }
 }
 
@@ -49,7 +50,7 @@ var client = restify.createJsonClient({
 })
 
 test(
-  'too many failed logins from the same IP',
+  'too many failed logins from the same IP, against the same email',
   function (t) {
     client.post('/failedLoginAttempt', { email: TEST_EMAIL, ip: TEST_IP },
       function (err, req, res, obj) {
@@ -119,7 +120,7 @@ test(
 )
 
 test(
-  'too many failed logins from different IPs',
+  'too many failed logins from different IPs, against the same email',
   function (t) {
     client.post('/failedLoginAttempt', { email: TEST_EMAIL, ip: '192.0.2.10' },
       function (err, req, res, obj) {
@@ -253,6 +254,100 @@ test(
                                                     )
                                                   }
                                                 )
+                                              }
+                                            )
+                                          }
+                                        )
+                                      }
+                                    )
+                                  }
+                                )
+                              }
+                            )
+                          }
+                        )
+                      }
+                    )
+                  }
+                )
+              }
+            )
+          }
+        )
+      }
+    )
+  }
+)
+
+test(
+  'clear everything',
+  function (t) {
+    mcHelper.clearEverything(
+      function (err) {
+        t.notOk(err, 'no errors were returned')
+        t.end()
+      }
+    )
+  }
+)
+
+test('too many failed logins from the same IP, against different emails',
+  function (t) {
+    client.post('/failedLoginAttempt', { email: 'one-' + TEST_EMAIL, ip: TEST_IP },
+      function (err, req, res, obj) {
+        t.equal(res.statusCode, 200, 'failed login 1')
+        t.equal(obj.lockout, false, 'not locked out')
+
+        client.post('/failedLoginAttempt', { email: 'two-' + TEST_EMAIL, ip: TEST_IP },
+          function (err, req, res, obj) {
+            t.equal(res.statusCode, 200, 'failed login 2')
+            t.equal(obj.lockout, false, 'not locked out')
+
+            client.post('/failedLoginAttempt', { email: 'three-' + TEST_EMAIL, ip: TEST_IP },
+              function (err, req, res, obj) {
+                t.equal(res.statusCode, 200, 'failed login 3')
+                t.equal(obj.lockout, false, 'not locked out')
+
+                client.post('/failedLoginAttempt', { email: 'four-' + TEST_EMAIL, ip: TEST_IP },
+                  function (err, req, res, obj) {
+                    t.equal(res.statusCode, 200, 'failed login 4')
+                    t.equal(obj.lockout, false, 'not locked out')
+
+                    client.post('/failedLoginAttempt', { email: 'five-' + TEST_EMAIL, ip: TEST_IP },
+                      function (err, req, res, obj) {
+                        t.equal(res.statusCode, 200, 'failed login 5')
+                        t.equal(obj.lockout, false, 'locked out')
+
+                        client.post('/failedLoginAttempt', { email: 'six-' + TEST_EMAIL, ip: TEST_IP },
+                          function (err, req, res, obj) {
+                            t.equal(res.statusCode, 200, 'failed login 6')
+                            t.equal(obj.lockout, false, 'locked out')
+
+                            client.post('/failedLoginAttempt', { email: 'seven-' + TEST_EMAIL, ip: TEST_IP },
+                              function (err, req, res, obj) {
+                                t.equal(res.statusCode, 200, 'failed login 7')
+                                t.equal(obj.lockout, false, 'not locked out')
+
+                                client.post('/failedLoginAttempt', { email: 'eight-' + TEST_EMAIL, ip: TEST_IP },
+                                  function (err, req, res, obj) {
+                                    t.equal(res.statusCode, 200, 'failed login 8')
+                                    t.equal(obj.lockout, false, 'not locked out')
+
+                                    client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'accountLogin' },
+                                      function (err, req, res, obj) {
+                                        t.equal(res.statusCode, 200, 'check succeeded')
+                                        t.equal(obj.block, false, 'not blocked')
+
+                                        client.post('/failedLoginAttempt', { email: 'nine-' + TEST_EMAIL, ip: TEST_IP },
+                                          function (err, req, res, obj) {
+                                            t.equal(res.statusCode, 200, 'failed login 9')
+                                            t.equal(obj.lockout, false, 'not locked out')
+
+                                            client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'accountLogin' },
+                                              function (err, req, res, obj) {
+                                                t.equal(res.statusCode, 200, 'check succeeded')
+                                                t.equal(obj.lockout, false, 'blocked')
+                                                t.end()
                                               }
                                             )
                                           }

@@ -2,20 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var actions = require('./actions')
+
 // Keep track of events tied to both email and IP addresses
 module.exports = function (RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS, now) {
 
   now = now || Date.now
-
-  var PASSWORD_CHECKING_ACTION = {
-    accountLogin   : true,
-    accountDestroy : true,
-    passwordChange : true,
-  }
-
-  function isPasswordCheckingAction(action) {
-    return PASSWORD_CHECKING_ACTION[action]
-  }
 
   function IpEmailRecord() {
     this.lf = []
@@ -83,7 +75,7 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS, now) {
   IpEmailRecord.prototype.update = function (action) {
     // if this is not an action that allows checking password,
     // then all ok (no block)
-    if ( !isPasswordCheckingAction(action) ) {
+    if ( !actions.isPasswordCheckingAction(action) ) {
       return 0
     }
 

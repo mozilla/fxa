@@ -10,7 +10,7 @@ function now() {
 }
 
 function simpleIpRecord() {
-  return new (ipRecord(120 * 1000, 1 * 1000, 1, now))()
+  return new (ipRecord(120 * 1000, 1 * 1000, 2, 1, now))()
 }
 
 test(
@@ -75,12 +75,12 @@ test(
   function (t) {
     var ir = simpleIpRecord()
     t.equal(ir.shouldBlock(), false, 'original object is not blocked')
-    var irCopy1 = (ipRecord(120 * 1000, 90, 1, now)).parse(ir)
+    var irCopy1 = (ipRecord(120 * 1000, 90, 2, 1, now)).parse(ir)
     t.equal(irCopy1.shouldBlock(), false, 'copied object is not blocked')
 
     ir.block()
     t.equal(ir.shouldBlock(), true, 'original object is now blocked')
-    var irCopy2 = (ipRecord(120 * 1000, 90, 1, now)).parse(ir)
+    var irCopy2 = (ipRecord(120 * 1000, 90, 2, 1, now)).parse(ir)
     t.equal(irCopy2.shouldBlock(), true, 'copied object is blocked')
     t.end()
   }

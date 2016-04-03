@@ -2,32 +2,50 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var actions = require('./actions')
+
 // Keep track of events related to just IP addresses
-module.exports = function (BLOCK_INTERVAL_MS, RATE_LIMIT_INTERVAL_MS, MAX_ACCOUNT_STATUS_CHECK, now) {
+module.exports = function (BLOCK_INTERVAL_MS, RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS, MAX_ACCOUNT_STATUS_CHECK, now) {
 
   now = now || Date.now
 
-  var ACCOUNT_STATUS_ACTION = {
-    accountStatusCheck       : true
-  }
-
-  function IpRecord() {}
-
-  function isAccountStatusAction(action) {
-    return ACCOUNT_STATUS_ACTION[action]
+  function IpRecord() {
+    this.lf = []
+    this.as = []
   }
 
   IpRecord.parse = function (object) {
     var rec = new IpRecord()
     object = object || {}
     rec.bk = object.bk // timestamp when the account was blocked
+    rec.lf = object.lf || []  // timestamps when failed login attempts occurred
     rec.as = object.as || []  // timestamps when account status check occurred
     rec.rl = object.rl  // timestamp when the account was rate-limited
     return rec
   }
 
+  IpRecord.prototype.isOverBadLogins = function () {
+    this.trimBadLogins(now())
+    return this.lf.length > MAX_BAD_LOGINS
+  }
+
   IpRecord.prototype.isOverAccountStatusCheck = function () {
+    this.trimAccountStatus(now())
     return this.as.length > MAX_ACCOUNT_STATUS_CHECK
+  }
+
+  IpRecord.prototype.trimBadLogins = function (now) {
+    if (this.lf.length === 0) { return }
+    // lf is naturally ordered from oldest to newest
+    // and we only need to keep up to MAX_BAD_LOGINS + 1
+    var i = this.lf.length - 1
+    var n = 0
+    var login = this.lf[i]
+    while (login > (now - RATE_LIMIT_INTERVAL_MS) && n <= MAX_BAD_LOGINS) {
+      login = this.lf[--i]
+      n++
+    }
+    this.lf = this.lf.slice(i + 1)
   }
 
   IpRecord.prototype.trimAccountStatus = function (now) {
@@ -43,6 +61,11 @@ module.exports = function (BLOCK_INTERVAL_MS, RATE_LIMIT_INTERVAL_MS, MAX_ACCOUN
       n++
     }
     this.as = this.as.slice(i + 1)
+  }
+
+  IpRecord.prototype.addBadLogin = function () {
+    this.trimBadLogins(now())
+    this.lf.push(now())
   }
 
   IpRecord.prototype.addAccountStatusCheck = function () {
@@ -79,9 +102,16 @@ module.exports = function (BLOCK_INTERVAL_MS, RATE_LIMIT_INTERVAL_MS, MAX_ACCOUN
 
   IpRecord.prototype.update = function (action) {
     // Increment account status check and throttle if needed
-    if (isAccountStatusAction(action)) {
+    if (actions.isAccountStatusAction(action)) {
       this.addAccountStatusCheck()
       if (this.isOverAccountStatusCheck() && !this.isRateLimited()){
+        this.rateLimit()
+      }
+    }
+
+    // Throttle password-checking attempts if too many failed logins
+    if (actions.isPasswordCheckingAction(action)) {
+      if (this.isOverBadLogins() && !this.isRateLimited()) {
         this.rateLimit()
       }
     }

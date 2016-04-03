@@ -20,11 +20,13 @@ module.exports = function createServer(config, log) {
   var BLOCK_INTERVAL_MS = config.limits.blockIntervalSeconds * 1000
   var RATE_LIMIT_INTERVAL_MS = config.limits.rateLimitIntervalSeconds * 1000
   var BAD_LOGIN_LOCKOUT_INTERVAL_MS = config.limits.badLoginLockoutIntervalSeconds * 1000
+  var MAX_BAD_LOGINS = config.limits.maxBadLogins
+  var MAX_BAD_LOGINS_PER_IP = config.limits.maxBadLoginsPerIp
   var MAX_ACCOUNT_STATUS_CHECK = config.limits.maxAccountStatusCheck
 
-  var IpEmailRecord = require('./ip_email_record')(RATE_LIMIT_INTERVAL_MS, config.limits.maxBadLogins)
+  var IpEmailRecord = require('./ip_email_record')(RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS)
   var EmailRecord = require('./email_record')(RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, BAD_LOGIN_LOCKOUT_INTERVAL_MS, config.limits.maxEmails, config.limits.badLoginLockout)
-  var IpRecord = require('./ip_record')(BLOCK_INTERVAL_MS, RATE_LIMIT_INTERVAL_MS, MAX_ACCOUNT_STATUS_CHECK)
+  var IpRecord = require('./ip_record')(BLOCK_INTERVAL_MS, RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS_PER_IP, MAX_ACCOUNT_STATUS_CHECK)
 
   var mc = new Memcached(
     config.memcache.address,
@@ -153,6 +155,7 @@ module.exports = function createServer(config, log) {
         .spread(
           function (emailRecord, ipRecord, ipEmailRecord) {
             emailRecord.addBadLogin()
+            ipRecord.addBadLogin()
             ipEmailRecord.addBadLogin()
             return setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord)
               .then(
