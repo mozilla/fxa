@@ -7,6 +7,8 @@ var config = require('../config').root()
 var LIFETIME = config.memcache.recordLifetimeSeconds
 var BLOCK_INTERVAL_MS = config.limits.blockIntervalSeconds * 1000
 var RATE_LIMIT_INTERVAL_MS = config.limits.rateLimitIntervalSeconds * 1000
+var IP_RATE_LIMIT_INTERVAL_MS = config.limits.maxBadLoginsIntervalSeconds * 1000
+var IP_RATE_LIMIT_BAN_DURATION_MS = config.limits.maxBadLoginsBanDurationSeconds * 1000
 var MAX_EMAILS = config.limits.emails
 var BAD_LOGIN_LOCKOUT = config.limits.badLoginLockout
 var BAD_LOGIN_LOCKOUT_INTERVAL_MS = config.limits.badLoginLockoutIntervalSeconds * 1000
@@ -14,7 +16,7 @@ var MAX_BAD_LOGINS_PER_IP = config.limits.maxBadLoginsPerIp
 var MAX_ACCOUNT_STATUS_CHECK = config.limits.maxAccountStatusCheck
 
 var EmailRecord = require('../email_record')(RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, BAD_LOGIN_LOCKOUT_INTERVAL_MS, MAX_EMAILS, BAD_LOGIN_LOCKOUT)
-var IpRecord = require('../ip_record')(BLOCK_INTERVAL_MS, RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS_PER_IP, MAX_ACCOUNT_STATUS_CHECK)
+var IpRecord = require('../ip_record')(BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE_LIMIT_BAN_DURATION_MS, MAX_BAD_LOGINS_PER_IP, MAX_ACCOUNT_STATUS_CHECK)
 
 module.exports = function (mc, log) {
 
