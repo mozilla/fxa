@@ -12,8 +12,10 @@ var config = {
   limits: {
     blockIntervalSeconds: 1,
     rateLimitIntervalSeconds: 1,
+    maxAccountStatusCheck: Number(process.env.MAX_ACCOUNT_STATUS_CHECK) || 5,
     maxEmails: 3,
     maxBadLogins: 2,
+    maxBadLoginsPerIp: Number(process.env.MAX_BAD_LOGINS_PER_IP) || 3,
     badLoginLockout: 3,
     badLoginLockoutIntervalSeconds: 20
   }
