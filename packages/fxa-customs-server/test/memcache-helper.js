@@ -16,6 +16,8 @@ var config = {
     maxEmails: 3,
     maxBadLogins: 2,
     maxBadLoginsPerIp: Number(process.env.MAX_BAD_LOGINS_PER_IP) || 3,
+    maxBadLoginsIntervalSeconds: Number(process.env.IP_RATE_LIMIT_INTERVAL_SECONDS) || 60 * 15,
+    maxBadLoginsBanDurationSeconds: Number(process.env.IP_RATE_LIMIT_BAN_DURATION_SECONDS) || 60 * 15,
     badLoginLockout: 3,
     badLoginLockoutIntervalSeconds: 20
   }
@@ -40,7 +42,12 @@ var TEST_IP = '192.0.2.1'
 
 var EmailRecord = require('../lib/email_record')(config.limits.rateLimitIntervalSeconds * 1000, config.limits.blockIntervalSeconds * 1000, config.limits.badLoginLockoutIntervalSeconds * 1000, config.limits.maxEmails, config.limits.badLoginLockout)
 var IpEmailRecord = require('../lib/ip_email_record')(config.limits.rateLimitIntervalSeconds * 1000, config.limits.maxBadLogins)
-var IpRecord = require('../lib/ip_record')(config.limits.blockIntervalSeconds * 1000, config.limits.rateLimitIntervalSeconds * 1000, config.limits.maxBadLoginsPerIp, config.limits.maxAccountStatusCheck)
+var IpRecord = require('../lib/ip_record')(
+  config.limits.blockIntervalSeconds * 1000,
+  config.limits.maxBadLoginsIntervalSeconds * 1000,
+  config.limits.maxBadLoginsBanDurationSeconds * 1000,
+  config.limits.maxBadLoginsPerIp,
+  config.limits.maxAccountStatusCheck)
 
 function blockedEmailCheck(cb) {
   setTimeout( // give memcache time to flush the writes

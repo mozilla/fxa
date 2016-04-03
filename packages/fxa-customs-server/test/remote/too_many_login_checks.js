@@ -3,7 +3,8 @@
 
 // Override limit values for testing
 process.env.MAX_BAD_LOGINS_PER_IP = 2
-process.env.RATE_LIMIT_INTERVAL_SECONDS = 2
+process.env.IP_RATE_LIMIT_INTERVAL_SECONDS = 2
+process.env.IP_RATE_LIMIT_BAN_DURATION_SECONDS = 2
 
 var test = require('tap').test
 var TestServer = require('../test_server')
@@ -84,16 +85,16 @@ test(
       .spread(function(req, res, obj){
         t.equal(res.statusCode, 200, 'returns a 200')
         t.equal(obj.block, true, 'ip is now rate limited')
-        t.equal(obj.retryAfter, 2, 'rate limit retry amount')
+        t.ok(obj.retryAfter > 0, 'rate limit retry amount')
 
         return client.postAsync('/check', { ip: TEST_IP, email: 'test3@example.com', action: ACCOUNT_LOGIN })
       })
       // IP should be now blocked
       .spread(function(req, res, obj){
         t.equal(res.statusCode, 200, 'returns a 200')
-        t.equal(obj.block, true, 'ip is now rate limited')
+        t.equal(obj.block, true, 'ip is still rate limited')
 
-        // Delay ~2s for rate limit to go away
+        // Delay ~3s for rate limit to go away
         return Promise.delay(3010)
       })
       // IP should be now unblocked
@@ -102,7 +103,7 @@ test(
       })
       .spread(function(req, res, obj){
         t.equal(res.statusCode, 200, 'returns a 200')
-        t.equal(obj.block, false, 'is not rate limited after RATE_LIMIT_INTERVAL_SECONDS')
+        t.equal(obj.block, false, 'is not rate limited after IP_RATE_LIMIT_INTERVAL_SECONDS')
         t.end()
       })
       .catch(function(err){

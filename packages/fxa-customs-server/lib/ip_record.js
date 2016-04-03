@@ -5,7 +5,7 @@
 var actions = require('./actions')
 
 // Keep track of events related to just IP addresses
-module.exports = function (BLOCK_INTERVAL_MS, RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS, MAX_ACCOUNT_STATUS_CHECK, now) {
+module.exports = function (BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE_LIMIT_BAN_DURATION_MS, MAX_BAD_LOGINS_PER_IP, MAX_ACCOUNT_STATUS_CHECK, now) {
 
   now = now || Date.now
 
@@ -26,7 +26,7 @@ module.exports = function (BLOCK_INTERVAL_MS, RATE_LIMIT_INTERVAL_MS, MAX_BAD_LO
 
   IpRecord.prototype.isOverBadLogins = function () {
     this.trimBadLogins(now())
-    return this.lf.length > MAX_BAD_LOGINS
+    return this.lf.length > MAX_BAD_LOGINS_PER_IP
   }
 
   IpRecord.prototype.isOverAccountStatusCheck = function () {
@@ -37,11 +37,11 @@ module.exports = function (BLOCK_INTERVAL_MS, RATE_LIMIT_INTERVAL_MS, MAX_BAD_LO
   IpRecord.prototype.trimBadLogins = function (now) {
     if (this.lf.length === 0) { return }
     // lf is naturally ordered from oldest to newest
-    // and we only need to keep up to MAX_BAD_LOGINS + 1
+    // and we only need to keep up to MAX_BAD_LOGINS_PER_IP + 1
     var i = this.lf.length - 1
     var n = 0
     var login = this.lf[i]
-    while (login > (now - RATE_LIMIT_INTERVAL_MS) && n <= MAX_BAD_LOGINS) {
+    while (login > (now - IP_RATE_LIMIT_INTERVAL_MS) && n <= MAX_BAD_LOGINS_PER_IP) {
       login = this.lf[--i]
       n++
     }
@@ -56,7 +56,7 @@ module.exports = function (BLOCK_INTERVAL_MS, RATE_LIMIT_INTERVAL_MS, MAX_BAD_LO
     var i = this.as.length - 1
     var n = 0
     var hit = this.as[i]
-    while (hit > (now - RATE_LIMIT_INTERVAL_MS) && n <= MAX_ACCOUNT_STATUS_CHECK) {
+    while (hit > (now - IP_RATE_LIMIT_INTERVAL_MS) && n <= MAX_ACCOUNT_STATUS_CHECK) {
       hit = this.as[--i]
       n++
     }
@@ -82,7 +82,7 @@ module.exports = function (BLOCK_INTERVAL_MS, RATE_LIMIT_INTERVAL_MS, MAX_BAD_LO
   }
 
   IpRecord.prototype.isRateLimited = function () {
-    return !!(this.rl && (now() - this.rl < RATE_LIMIT_INTERVAL_MS))
+    return !!(this.rl && (now() - this.rl < IP_RATE_LIMIT_BAN_DURATION_MS))
   }
 
   IpRecord.prototype.block = function () {
@@ -95,7 +95,7 @@ module.exports = function (BLOCK_INTERVAL_MS, RATE_LIMIT_INTERVAL_MS, MAX_BAD_LO
   }
 
   IpRecord.prototype.retryAfter = function () {
-    var rateLimitAfter = Math.floor(((this.rl || 0) + RATE_LIMIT_INTERVAL_MS - now()) / 1000)
+    var rateLimitAfter = Math.floor(((this.rl || 0) + IP_RATE_LIMIT_BAN_DURATION_MS - now()) / 1000)
     var banAfter = Math.floor(((this.bk || 0) + BLOCK_INTERVAL_MS - now()) / 1000)
     return Math.max(0, rateLimitAfter, banAfter)
   }
