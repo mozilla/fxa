@@ -131,7 +131,7 @@ test(
       })
       .spread(function(req, res, obj){
         t.equal(res.statusCode, 200, 'returns a 200')
-        t.ok(obj.retryAfter, 5, 'rate limit retry amount')
+        t.equal(obj.retryAfter, 5, 'rate limit retry amount')
         t.equal(obj.block, true, 'ip is now rate limited')
         // delay by 3 seconds
         return Promise.delay(3000)
@@ -140,7 +140,7 @@ test(
         return client.postAsync('/check', { ip: TEST_IP, email: 'test3@example.com', action: ACCOUNT_LOGIN })
       })
       .spread(function(req, res, obj){
-        t.ok(obj.retryAfter, 5, 'rate limit is renewed')
+        t.equal(obj.retryAfter, 5, 'rate limit is renewed')
         t.equal(obj.block, true, 'ip is still rate limited')
         t.end()
       })
