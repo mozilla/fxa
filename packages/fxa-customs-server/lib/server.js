@@ -54,8 +54,9 @@ module.exports = function createServer(config, log) {
   var api = restify.createServer()
   api.use(restify.bodyParser())
 
-  function ignore(err) {
+  function logError(err) {
     log.error({ op: 'memcachedError', err: err })
+    throw err
   }
 
   function fetchRecords(email, ip) {
@@ -71,8 +72,7 @@ module.exports = function createServer(config, log) {
 
   function setRecord(key, record) {
     var lifetime = Math.max(LIFETIME_SEC, record.getMinLifetimeMS() / 1000)
-    // store record ignoring errors
-    return mc.setAsync(key, record, lifetime).catch(ignore)
+    return mc.setAsync(key, record, lifetime)
   }
 
   function setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord) {
@@ -138,7 +138,17 @@ module.exports = function createServer(config, log) {
           },
           function (err) {
             log.error({ op: 'request.check', email: email, ip: ip, action: action, err: err })
-            res.send(500, err)
+
+            // Temporarily block request if memcache related error
+            if( err.name && err.name === 'RejectionError' ) {
+              log.error({ op: 'memcachedError', err: err })
+              res.send({
+                block: true,
+                retryAfter: config.limits.rateLimitIntervalSeconds
+              })
+            } else  {
+              res.send(500, err)
+            }
           }
         )
         .done(next, next)
@@ -205,7 +215,7 @@ module.exports = function createServer(config, log) {
         .then(
           function (emailRecord) {
             emailRecord.passwordReset()
-            return setRecord(email, emailRecord).catch(ignore)
+            return setRecord(email, emailRecord).catch(logError)
           }
         )
         .then(
