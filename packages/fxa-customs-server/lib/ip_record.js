@@ -115,7 +115,8 @@ module.exports = function (BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE
       if (this.isRateLimited() || this.isOverBadLogins()) {
         // attempt a password-checking action leads to a bad attempt
         this.addBadLogin()
-        // we also re-rate-limit this attempt
+        // we also re-rate-limit this attempt.
+        // this extends the duration of the ban.
         this.rateLimit()
       }
     }

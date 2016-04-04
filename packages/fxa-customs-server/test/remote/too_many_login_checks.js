@@ -127,9 +127,6 @@ test(
         return client.postAsync('/failedLoginAttempt', { ip: TEST_IP, email: 'test-fail3@example.com', action: ACCOUNT_LOGIN })
       })
       .spread(function(req, res, obj){
-        return client.postAsync('/failedLoginAttempt', { ip: TEST_IP, email: 'test-fail4@example.com', action: ACCOUNT_LOGIN })
-      })
-      .spread(function(req, res, obj){
         return client.postAsync('/check', { ip: TEST_IP, email: 'test2@example.com', action: ACCOUNT_LOGIN })
       })
       .spread(function(req, res, obj){
@@ -140,10 +137,7 @@ test(
         return Promise.delay(3000)
       })
       .spread(function(req, res, obj){
-        return client.postAsync('/failedLoginAttempt', { ip: TEST_IP, email: 'test-fail5@example.com', action: ACCOUNT_LOGIN })
-      })
-      .spread(function(req, res, obj){
-        return client.postAsync('/check', { ip: TEST_IP, email: 'test2@example.com', action: ACCOUNT_LOGIN })
+        return client.postAsync('/check', { ip: TEST_IP, email: 'test3@example.com', action: ACCOUNT_LOGIN })
       })
       .spread(function(req, res, obj){
         t.ok(obj.retryAfter, 5, 'rate limit is renewed')
