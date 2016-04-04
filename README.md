@@ -20,7 +20,7 @@
 
 4. Visit [127.0.0.1:3030](http://127.0.0.1:3030/).
 
-5. Use the [PM2 tool](https://github.com/Unitech/PM2#main-features) to stop and start the servers, and read server logs.
+Use the [PM2 tool](https://github.com/Unitech/PM2#main-features) to stop and start the servers, and read server logs.
 
    The most common commands are:
 
@@ -42,7 +42,7 @@
 
    - More commands in the [PM2 Readme](https://github.com/Unitech/PM2#main-features).
 
-6. When you want to [fetch the latest changes](_scripts/update_all.sh) to all servers:
+When you want to [fetch the latest changes](_scripts/update_all.sh) to all servers:
 
    ```sh
    npm run update
