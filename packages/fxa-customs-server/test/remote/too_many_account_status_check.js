@@ -19,7 +19,8 @@ var config = {
 
 // Override limit values for testing
 process.env.MAX_ACCOUNT_STATUS_CHECK = 2
-process.env.RATE_LIMIT_INTERVAL_SECONDS = 1
+process.env.IP_RATE_LIMIT_INTERVAL_SECONDS = 1
+process.env.IP_RATE_LIMIT_BAN_DURATION_SECONDS = 1
 
 var testServer = new TestServer(config)
 

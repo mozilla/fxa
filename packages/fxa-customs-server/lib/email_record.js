@@ -2,21 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var actions = require('./actions')
+
 // Keep track of events tied to just email addresses
 module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, BAD_LOGIN_LOCKOUT_INTERVAL_MS, MAX_EMAILS, BAD_LOGIN_LOCKOUT, now) {
 
   now = now || Date.now
-
-  var EMAIL_ACTION = {
-    accountCreate            : true,
-    recoveryEmailResendCode  : true,
-    passwordForgotSendCode   : true,
-    passwordForgotResendCode : true
-  }
-
-  function isEmailSendingAction(action) {
-    return EMAIL_ACTION[action]
-  }
 
   function EmailRecord() {
     this.xs = []
@@ -121,7 +112,7 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, BAD_LOGIN_
     }
 
     // For email-sending actions, we may need to rate-limit.
-    if (isEmailSendingAction(action)) {
+    if (actions.isEmailSendingAction(action)) {
       // If they're already being blocked then don't count any more hits,
       // and tell them to retry.
       if (this.shouldBlock()) {
@@ -129,7 +120,7 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, BAD_LOGIN_
       }
       this.addHit()
       if (this.isOverEmailLimit()) {
-        // They're not over the limit, rate-limit and tell them to retry.
+        // They're now over the limit, rate-limit and tell them to retry.
         this.rateLimit()
         return this.retryAfter()
       }

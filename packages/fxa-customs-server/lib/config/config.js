@@ -61,6 +61,24 @@ module.exports = function (fs, path, url, convict) {
         format: 'nat',
         env: 'MAX_BAD_LOGINS'
       },
+      maxBadLoginsPerIp: {
+        doc: 'Number failed login attempts within rateLimitIntervalSeconds on a single IP before throttling',
+        default: 3,
+        format: 'nat',
+        env: 'MAX_BAD_LOGINS_PER_IP'
+      },
+      ipRateLimitIntervalSeconds: {
+        doc: 'Duration of automatic throttling for IPs',
+        default: 60 * 15,
+        format: 'nat',
+        env: 'IP_RATE_LIMIT_INTERVAL_SECONDS'
+      },
+      ipRateLimitBanDurationSeconds: {
+        doc: 'Duration of automatic ban for throttled IPs',
+        default: 60 * 15,
+        format: 'nat',
+        env: 'IP_RATE_LIMIT_BAN_DURATION_SECONDS'
+      },
       maxAccountStatusCheck: {
         doc: 'Number of account status checks within rateLimitIntervalSeconds before throttling',
         default: 5,
