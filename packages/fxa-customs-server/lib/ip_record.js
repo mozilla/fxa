@@ -113,9 +113,11 @@ module.exports = function (BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE
     // Rate-limited login attempts still count towards your quota.
     if (actions.isPasswordCheckingAction(action)) {
       if (this.isRateLimited()) {
+        // attempt a password-checking action leads to a bad attempt
         this.addBadLogin()
+        // we also re-rate-limit this attempt
+        this.rateLimit()
       } else if (this.isOverBadLogins()) {
-        this.addBadLogin()
         this.rateLimit()
       }
     }
