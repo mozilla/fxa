@@ -73,9 +73,9 @@ module.exports = function createServer(config, log) {
     return P.all(
       [
         // store records ignoring errors
-        mc.setAsync(email, emailRecord, LIFETIME).catch(ignore),
-        mc.setAsync(ip, ipRecord, LIFETIME).catch(ignore),
-        mc.setAsync(ip + email, ipEmailRecord, LIFETIME).catch(ignore)
+        mc.setAsync(email, emailRecord, LIFETIME),
+        mc.setAsync(ip, ipRecord, LIFETIME),
+        mc.setAsync(ip + email, ipEmailRecord, LIFETIME)
       ]
     )
   }
@@ -133,7 +133,17 @@ module.exports = function createServer(config, log) {
           },
           function (err) {
             log.error({ op: 'request.check', email: email, ip: ip, action: action, err: err })
-            res.send(500, err)
+
+            // Temporarily block request if memcache related error
+            if( err.name && err.name === 'RejectionError' ) {
+              log.error({ op: 'memcachedError', err: err })
+              res.send({
+                block: true,
+                retryAfter: LIFETIME // A very big number
+              })
+            } else  {
+              res.send(500, err)
+            }
           }
         )
         .done(next, next)
