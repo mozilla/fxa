@@ -1211,7 +1211,7 @@ module.exports = function (
             },
             function (err) {
               if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
-                customs.flag(request.app.clientAddress, email)
+                customs.flag(request.app.clientAddress, form.email)
               }
               throw err
             }
