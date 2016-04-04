@@ -1219,7 +1219,11 @@ module.exports = function (
         log.begin('Account.destroy', request)
         var form = request.payload
         var authPW = Buffer(form.authPW, 'hex')
-        db.emailRecord(form.email)
+        customs.check(
+          request.app.clientAddress,
+          form.email,
+          'accountDestroy')
+          .then(db.emailRecord.bind(db, form.email))
           .then(
             function (emailRecord) {
               if (emailRecord.lockedAt) {

@@ -44,7 +44,11 @@ module.exports = function (
         var form = request.payload
         var oldAuthPW = Buffer(form.oldAuthPW, 'hex')
 
-        db.emailRecord(form.email)
+        customs.check(
+          request.app.clientAddress,
+          form.email,
+          'passwordChange')
+          .then(db.emailRecord.bind(db, form.email))
           .then(
             function (emailRecord) {
               if (emailRecord.lockedAt) {
