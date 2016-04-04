@@ -25,10 +25,11 @@ module.exports = function createServer(config, log) {
   var MAX_BAD_LOGINS = config.limits.maxBadLogins
   var MAX_BAD_LOGINS_PER_IP = config.limits.maxBadLoginsPerIp
   var MAX_ACCOUNT_STATUS_CHECK = config.limits.maxAccountStatusCheck
+  var MAX_UNKNOWN_LOGINS_PER_IP = config.limits.maxUnknownLoginsPerIp
 
   var IpEmailRecord = require('./ip_email_record')(RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS)
   var EmailRecord = require('./email_record')(RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, BAD_LOGIN_LOCKOUT_INTERVAL_MS, config.limits.maxEmails, config.limits.badLoginLockout)
-  var IpRecord = require('./ip_record')(BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE_LIMIT_BAN_DURATION_MS, MAX_BAD_LOGINS_PER_IP, MAX_ACCOUNT_STATUS_CHECK)
+  var IpRecord = require('./ip_record')(BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE_LIMIT_BAN_DURATION_MS, MAX_BAD_LOGINS_PER_IP, MAX_ACCOUNT_STATUS_CHECK, MAX_UNKNOWN_LOGINS_PER_IP)
 
   var mc = new Memcached(
     config.memcache.address,
@@ -150,6 +151,7 @@ module.exports = function createServer(config, log) {
     function (req, res, next) {
       var email = req.body.email
       var ip = req.body.ip
+      var errno = Number(req.body.errno) || 999
       if (!email || !ip) {
         var err = {code: 'MissingParameters', message: 'email and ip are both required'}
         log.error({ op: 'request.failedLoginAttempt', email: email, ip: ip, err: err })
@@ -162,7 +164,7 @@ module.exports = function createServer(config, log) {
         .spread(
           function (emailRecord, ipRecord, ipEmailRecord) {
             emailRecord.addBadLogin()
-            ipRecord.addBadLogin()
+            ipRecord.addBadLogin(errno)
             ipEmailRecord.addBadLogin()
             return setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord)
               .then(
@@ -176,7 +178,7 @@ module.exports = function createServer(config, log) {
         )
         .then(
           function (result) {
-            log.info({ op: 'request.failedLoginAttempt', email: email, ip: ip })
+            log.info({ op: 'request.failedLoginAttempt', email: email, ip: ip, errno: errno })
             res.send(result)
           },
           function (err) {
