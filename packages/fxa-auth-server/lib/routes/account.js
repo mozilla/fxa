@@ -349,7 +349,7 @@ module.exports = function (
                 emailRecord = result
 
                 if(email !== emailRecord.email) {
-                  customs.flag(request.app.clientAddress, email)
+                  customs.flag(request.app.clientAddress, { email: email })
                   throw error.incorrectPassword(emailRecord.email, email)
                 }
 
@@ -368,7 +368,7 @@ module.exports = function (
               },
               function (err) {
                 if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
-                  customs.flag(request.app.clientAddress, email)
+                  customs.flag(request.app.clientAddress, { email: email })
                 }
                 throw err
               }
@@ -1211,7 +1211,7 @@ module.exports = function (
             },
             function (err) {
               if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
-                customs.flag(request.app.clientAddress, form.email)
+                customs.flag(request.app.clientAddress, { email: form.email })
               }
               throw err
             }
