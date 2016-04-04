@@ -191,3 +191,12 @@ test(
     t.end()
   }
 )
+
+test(
+  'getMinLifetimeMS works',
+  function (t) {
+    var ier = new (ipEmailRecord(10, 2, now))()
+    t.equal(ier.getMinLifetimeMS(), 10, 'lifetime = rl interval')
+    t.end()
+  }
+)

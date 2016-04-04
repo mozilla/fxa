@@ -69,13 +69,18 @@ module.exports = function createServer(config, log) {
     )
   }
 
+  function setRecord(key, record) {
+    var lifetime = Math.max(LIFETIME, record.getMinLifetimeMS() / 1000)
+    // store record ignoring errors
+    return mc.setAsync(key, record, lifetime).catch(ignore)
+  }
+
   function setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord) {
     return P.all(
       [
-        // store records ignoring errors
-        mc.setAsync(email, emailRecord, LIFETIME).catch(ignore),
-        mc.setAsync(ip, ipRecord, LIFETIME).catch(ignore),
-        mc.setAsync(ip + email, ipEmailRecord, LIFETIME).catch(ignore)
+        setRecord(email, emailRecord),
+        setRecord(ip, ipRecord),
+        setRecord(ip + email, ipEmailRecord)
       ]
     )
   }
