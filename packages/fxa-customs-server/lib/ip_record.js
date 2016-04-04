@@ -109,9 +109,13 @@ module.exports = function (BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE
       }
     }
 
-    // Throttle password-checking attempts if too many failed logins
+    // Throttle password-checking attempts if too many failed logins.
+    // Rate-limited login attempts still count towards your quota.
     if (actions.isPasswordCheckingAction(action)) {
-      if (this.isOverBadLogins() && !this.isRateLimited()) {
+      if (this.isRateLimited()) {
+        this.addBadLogin()
+      } else if (this.isOverBadLogins()) {
+        this.addBadLogin()
         this.rateLimit()
       }
     }
