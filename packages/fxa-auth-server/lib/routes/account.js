@@ -352,6 +352,10 @@ module.exports = function (
                 emailRecord = result
 
                 if(email !== emailRecord.email) {
+                  customs.flag(request.app.clientAddress, {
+                    email: email,
+                    errno: error.ERRNO.INCORRECT_PASSWORD
+                  })
                   throw error.incorrectPassword(emailRecord.email, email)
                 }
 
@@ -367,6 +371,15 @@ module.exports = function (
                       }
                     }
                   )
+              },
+              function (err) {
+                if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+                  customs.flag(request.app.clientAddress, {
+                    email: email,
+                    errno: err.errno
+                  })
+                }
+                throw err
               }
             )
         }
@@ -1245,6 +1258,15 @@ module.exports = function (
                     return {}
                   }
                 )
+            },
+            function (err) {
+              if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+                customs.flag(request.app.clientAddress, {
+                  email: form.email,
+                  errno: err.errno
+                })
+              }
+              throw err
             }
           )
           .done(reply, reply)
