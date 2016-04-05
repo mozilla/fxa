@@ -48,8 +48,9 @@ module.exports = function (BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE
   }
 
   IpRecord.prototype.addBadLogin = function (info) {
+    info = info || {}
     var t = now()
-    var errno = info.errno
+    var errno = info.errno || 999
     this.trimBadLogins(t)
     this.lf.push({ t: t, e: Number(errno) })
   }
@@ -137,7 +138,7 @@ module.exports = function (BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE
     if (actions.isPasswordCheckingAction(action)) {
       if (this.isRateLimited() || this.isOverBadLogins()) {
         // attempt a password-checking action leads to a bad attempt
-        this.addBadLogin()
+        this.addBadLogin({ errno: 114 })
         // we also re-rate-limit this attempt.
         // this extends the duration of the ban.
         this.rateLimit()
