@@ -139,16 +139,11 @@ module.exports = function createServer(config, log) {
           function (err) {
             log.error({ op: 'request.check', email: email, ip: ip, action: action, err: err })
 
-            // Temporarily block request if memcache related error
-            if( err.name && err.name === 'RejectionError' ) {
-              log.error({ op: 'memcachedError', err: err })
-              res.send({
-                block: true,
-                retryAfter: config.limits.rateLimitIntervalSeconds
-              })
-            } else  {
-              res.send(500, err)
-            }
+            // Default is to block request on any server based error
+            res.send({
+              block: true,
+              retryAfter: config.limits.rateLimitIntervalSeconds
+            })
           }
         )
         .done(next, next)
