@@ -47,7 +47,7 @@ module.exports = function (log, error) {
 
   Customs.prototype.flag = function (ip, info) {
     var email = info.email
-    var errno = info.errno || 999
+    var errno = info.errno || error.ERRNO.UNEXPECTED_ERROR
     log.trace({ op: 'customs.flag', ip: ip, email: email, errno: errno })
     return this.pool.post(
       '/failedLoginAttempt',
