@@ -16,7 +16,7 @@ P.promisifyAll(Memcached.prototype)
 
 module.exports = function createServer(config, log) {
 
-  var LIFETIME = config.memcache.recordLifetimeSeconds
+  var LIFETIME_SEC = config.memcache.recordLifetimeSeconds
   var BLOCK_INTERVAL_MS = config.limits.blockIntervalSeconds * 1000
   var RATE_LIMIT_INTERVAL_MS = config.limits.rateLimitIntervalSeconds * 1000
   var IP_RATE_LIMIT_INTERVAL_MS = config.limits.ipRateLimitIntervalSeconds * 1000
@@ -70,7 +70,7 @@ module.exports = function createServer(config, log) {
   }
 
   function setRecord(key, record) {
-    var lifetime = Math.max(LIFETIME, record.getMinLifetimeMS() / 1000)
+    var lifetime = Math.max(LIFETIME_SEC, record.getMinLifetimeMS() / 1000)
     // store record ignoring errors
     return mc.setAsync(key, record, lifetime).catch(ignore)
   }
@@ -205,7 +205,7 @@ module.exports = function createServer(config, log) {
         .then(
           function (emailRecord) {
             emailRecord.passwordReset()
-            return mc.setAsync(email, emailRecord, LIFETIME).catch(ignore)
+            return setRecord(email, emailRecord).catch(ignore)
           }
         )
         .then(
