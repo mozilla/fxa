@@ -4,7 +4,7 @@
 
 var config = require('../config').root()
 
-var LIFETIME = config.memcache.recordLifetimeSeconds
+var LIFETIME_SEC = config.memcache.recordLifetimeSeconds
 var BLOCK_INTERVAL_MS = config.limits.blockIntervalSeconds * 1000
 var RATE_LIMIT_INTERVAL_MS = config.limits.rateLimitIntervalSeconds * 1000
 var IP_RATE_LIMIT_INTERVAL_MS = config.limits.ipRateLimitIntervalSeconds * 1000
@@ -31,7 +31,8 @@ module.exports = function (mc, log) {
         log.info({ op: 'handleBan.blockIp', ip: ip })
         var ir = IpRecord.parse(data)
         ir.block()
-        mc.set(ip, ir, LIFETIME,
+        var lifetime = Math.max(LIFETIME_SEC, ir.getMinLifetimeMS() / 1000)
+        mc.set(ip, ir, lifetime,
           function (err) {
             if (err) {
               log.error({ op: 'memcachedError', err: err })
@@ -56,7 +57,8 @@ module.exports = function (mc, log) {
         log.info({ op: 'handleBan.blockEmail', email: email })
         var er = EmailRecord.parse(data)
         er.block()
-        mc.set(email, er, LIFETIME,
+        var lifetime = Math.max(LIFETIME_SEC, er.getMinLifetimeMS() / 1000)
+        mc.set(email, er, lifetime,
           function (err) {
             if (err) {
               log.error({ op: 'memcachedError', err: err })

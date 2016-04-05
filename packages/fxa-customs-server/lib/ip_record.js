@@ -24,6 +24,14 @@ module.exports = function (BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE
     return rec
   }
 
+  IpRecord.prototype.getMinLifetimeMS = function () {
+    return Math.max(
+      BLOCK_INTERVAL_MS,
+      IP_RATE_LIMIT_INTERVAL_MS,
+      IP_RATE_LIMIT_BAN_DURATION_MS
+    )
+  }
+
   IpRecord.prototype.isOverBadLogins = function () {
     this.trimBadLogins(now())
     return this.lf.length > MAX_BAD_LOGINS_PER_IP

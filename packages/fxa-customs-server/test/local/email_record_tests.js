@@ -226,3 +226,16 @@ test(
     t.end()
   }
 )
+
+test(
+  'getMinLifetimeMS works',
+  function (t) {
+    var er = new (emailRecord(10, 15, 20, 2, 5, now))()
+    t.equal(er.getMinLifetimeMS(), 20, 'lifetime >= lockout interval')
+    er = new (emailRecord(11, 21, 15, 2, 5, now))()
+    t.equal(er.getMinLifetimeMS(), 21, 'lifetime >= block interval')
+    er = new (emailRecord(22, 15, 12, 2, 5, now))()
+    t.equal(er.getMinLifetimeMS(), 22, 'lifetime >= rate limit internal')
+    t.end()
+  }
+)
