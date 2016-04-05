@@ -164,7 +164,7 @@ module.exports = function createServer(config, log) {
         .spread(
           function (emailRecord, ipRecord, ipEmailRecord) {
             emailRecord.addBadLogin()
-            ipRecord.addBadLogin(errno)
+            ipRecord.addBadLogin({ errno: errno })
             ipEmailRecord.addBadLogin()
             return setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord)
               .then(
