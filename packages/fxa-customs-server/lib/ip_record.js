@@ -5,7 +5,9 @@
 var actions = require('./actions')
 
 // Keep track of events related to just IP addresses
-module.exports = function (BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE_LIMIT_BAN_DURATION_MS, MAX_BAD_LOGINS_PER_IP, MAX_ACCOUNT_STATUS_CHECK, now) {
+module.exports = function (BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE_LIMIT_BAN_DURATION_MS, MAX_BAD_LOGINS_PER_IP, MAX_ACCOUNT_STATUS_CHECK, MAX_UNKNOWN_LOGINS_PER_IP, now) {
+
+  var UNKNOWN_ACCOUNT_ERRNO = 102
 
   now = now || Date.now
 
@@ -18,7 +20,7 @@ module.exports = function (BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE
     var rec = new IpRecord()
     object = object || {}
     rec.bk = object.bk // timestamp when the account was blocked
-    rec.lf = object.lf || []  // timestamps when failed login attempts occurred
+    rec.lf = object.lf || []  // timestamps and errnos when failed login attempts occurred
     rec.as = object.as || []  // timestamps when account status check occurred
     rec.rl = object.rl  // timestamp when the account was rate-limited
     return rec
@@ -34,7 +36,23 @@ module.exports = function (BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE
 
   IpRecord.prototype.isOverBadLogins = function () {
     this.trimBadLogins(now())
-    return this.lf.length > MAX_BAD_LOGINS_PER_IP
+    if (this.lf.length === 0) {
+      return false
+    } else if (this.lf.length > MAX_BAD_LOGINS_PER_IP) {
+      return true
+    } else {
+      return this.lf.reduce(function (prev, curr) {
+        return curr.e === UNKNOWN_ACCOUNT_ERRNO ? prev + 1 : prev
+      }, 0) > MAX_UNKNOWN_LOGINS_PER_IP
+    }
+  }
+
+  IpRecord.prototype.addBadLogin = function (info) {
+    info = info || {}
+    var t = now()
+    var errno = info.errno || 999
+    this.trimBadLogins(t)
+    this.lf.push({ t: t, e: Number(errno) })
   }
 
   IpRecord.prototype.isOverAccountStatusCheck = function () {
@@ -49,9 +67,12 @@ module.exports = function (BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE
     var i = this.lf.length - 1
     var n = 0
     var login = this.lf[i]
-    while (login > (now - IP_RATE_LIMIT_INTERVAL_MS) && n <= MAX_BAD_LOGINS_PER_IP) {
+    while (login.t > (now - IP_RATE_LIMIT_INTERVAL_MS) && n <= MAX_BAD_LOGINS_PER_IP) {
       login = this.lf[--i]
       n++
+      if (i === -1) {
+        break
+      }
     }
     this.lf = this.lf.slice(i + 1)
   }
@@ -69,11 +90,6 @@ module.exports = function (BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE
       n++
     }
     this.as = this.as.slice(i + 1)
-  }
-
-  IpRecord.prototype.addBadLogin = function () {
-    this.trimBadLogins(now())
-    this.lf.push(now())
   }
 
   IpRecord.prototype.addAccountStatusCheck = function () {
@@ -122,7 +138,7 @@ module.exports = function (BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE
     if (actions.isPasswordCheckingAction(action)) {
       if (this.isRateLimited() || this.isOverBadLogins()) {
         // attempt a password-checking action leads to a bad attempt
-        this.addBadLogin()
+        this.addBadLogin({ errno: 114 })
         // we also re-rate-limit this attempt.
         // this extends the duration of the ban.
         this.rateLimit()

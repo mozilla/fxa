@@ -67,6 +67,12 @@ module.exports = function (fs, path, url, convict) {
         format: 'nat',
         env: 'MAX_BAD_LOGINS_PER_IP'
       },
+      maxUnknownLoginsPerIp: {
+        doc: 'Number failed login attempts where email is unknown within rateLimitIntervalSeconds on a single IP before throttling',
+        default: 2,
+        format: 'nat',
+        env: 'MAX_UNKNOWN_LOGINS_PER_IP'
+      },
       ipRateLimitIntervalSeconds: {
         doc: 'Duration of automatic throttling for IPs',
         default: 60 * 15,

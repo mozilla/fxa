@@ -14,8 +14,9 @@ function simpleIpRecord() {
     120 * 1000,
     1 * 1000,
     1 * 1000,
-    2,
+    3,
     1,
+    2,
     now))()
 }
 
@@ -81,12 +82,12 @@ test(
   function (t) {
     var ir = simpleIpRecord()
     t.equal(ir.shouldBlock(), false, 'original object is not blocked')
-    var irCopy1 = (ipRecord(120 * 1000, 90, 90, 2, 1, now)).parse(ir)
+    var irCopy1 = (ipRecord(120 * 1000, 90, 90, 2, 1, 1, now)).parse(ir)
     t.equal(irCopy1.shouldBlock(), false, 'copied object is not blocked')
 
     ir.block()
     t.equal(ir.shouldBlock(), true, 'original object is now blocked')
-    var irCopy2 = (ipRecord(120 * 1000, 90, 90, 2, 1, now)).parse(ir)
+    var irCopy2 = (ipRecord(120 * 1000, 90, 90, 2, 1, 1, now)).parse(ir)
     t.equal(irCopy2.shouldBlock(), true, 'copied object is blocked')
     t.end()
   }
@@ -125,6 +126,26 @@ test(
     t.equal(ir.getMinLifetimeMS(), 21, 'lifetime >= rl tracking interval')
     ir = new (ipRecord(22, 15, 12, 2, 5, now))()
     t.equal(ir.getMinLifetimeMS(), 22, 'lifetime >= block internal')
+    t.end()
+  }
+)
+
+test(
+  'addBadLogins works per IP',
+  function (t) {
+    var ir = simpleIpRecord()
+    ir.addBadLogin({ errno: 999 })
+    t.equal(ir.isOverBadLogins(), false, 'one record is not over')
+    ir.addBadLogin({ errno: 555 })
+    ir.addBadLogin({ errno: 444 })
+    t.equal(ir.isOverBadLogins(), false, 'three records is not over')
+
+    var ir2 = simpleIpRecord()
+    ir2.addBadLogin({ errno: 102 })
+    ir2.addBadLogin({ errno: 102 })
+    t.equal(ir2.isOverBadLogins(), false, 'two unknown records is not over')
+    ir2.addBadLogin({ errno: 102 })
+    t.equal(ir2.isOverBadLogins(), true, 'three unknown records is over')
     t.end()
   }
 )
