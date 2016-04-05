@@ -4,7 +4,7 @@
 // Override limit values for testing
 process.env.MAX_BAD_LOGINS_PER_IP = 2
 process.env.IP_RATE_LIMIT_INTERVAL_SECONDS = 2
-process.env.IP_RATE_LIMIT_BAN_DURATION_SECONDS = 2
+process.env.IP_RATE_LIMIT_BAN_DURATION_SECONDS = 5
 
 var test = require('tap').test
 var TestServer = require('../test_server')
@@ -95,7 +95,7 @@ test(
         t.equal(obj.block, true, 'ip is still rate limited')
 
         // Delay ~3s for rate limit to go away
-        return Promise.delay(3010)
+        return Promise.delay(5010)
       })
       // IP should be now unblocked
       .then(function(){
@@ -112,6 +112,45 @@ test(
       })
   }
 )
+
+
+test(
+  '/check `accountLogin` with different emails - bad logins extend retry limit',
+  function (t) {
+
+    // Send requests until throttled
+    return client.postAsync('/failedLoginAttempt', { ip: TEST_IP, email: 'test-fail1@example.com', action: ACCOUNT_LOGIN })
+      .spread(function(req, res, obj){
+        return client.postAsync('/failedLoginAttempt', { ip: TEST_IP, email: 'test-fail2@example.com', action: ACCOUNT_LOGIN })
+      })
+      .spread(function(req, res, obj){
+        return client.postAsync('/failedLoginAttempt', { ip: TEST_IP, email: 'test-fail3@example.com', action: ACCOUNT_LOGIN })
+      })
+      .spread(function(req, res, obj){
+        return client.postAsync('/check', { ip: TEST_IP, email: 'test2@example.com', action: ACCOUNT_LOGIN })
+      })
+      .spread(function(req, res, obj){
+        t.equal(res.statusCode, 200, 'returns a 200')
+        t.equal(obj.retryAfter, 5, 'rate limit retry amount')
+        t.equal(obj.block, true, 'ip is now rate limited')
+        // delay by 3 seconds
+        return Promise.delay(3000)
+      })
+      .spread(function(req, res, obj){
+        return client.postAsync('/check', { ip: TEST_IP, email: 'test3@example.com', action: ACCOUNT_LOGIN })
+      })
+      .spread(function(req, res, obj){
+        t.equal(obj.retryAfter, 5, 'rate limit is renewed')
+        t.equal(obj.block, true, 'ip is still rate limited')
+        t.end()
+      })
+      .catch(function(err){
+        t.fail(err)
+        t.end()
+      })
+  }
+)
+
 
 test(
   'teardown',

@@ -114,3 +114,17 @@ test(
     t.end()
   }
 )
+
+
+test(
+  'getMinLifetimeMS works',
+  function (t) {
+    var ir = new (ipRecord(10, 15, 20, 2, 5, now))()
+    t.equal(ir.getMinLifetimeMS(), 20, 'lifetime >= rl ban duration')
+    ir = new (ipRecord(11, 21, 15, 2, 5, now))()
+    t.equal(ir.getMinLifetimeMS(), 21, 'lifetime >= rl tracking interval')
+    ir = new (ipRecord(22, 15, 12, 2, 5, now))()
+    t.equal(ir.getMinLifetimeMS(), 22, 'lifetime >= block internal')
+    t.end()
+  }
+)

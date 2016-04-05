@@ -25,6 +25,14 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, BAD_LOGIN_
     return rec
   }
 
+  EmailRecord.prototype.getMinLifetimeMS = function () {
+    return Math.max(
+      RATE_LIMIT_INTERVAL_MS,
+      BLOCK_INTERVAL_MS,
+      BAD_LOGIN_LOCKOUT_INTERVAL_MS
+    )
+  }
+
   EmailRecord.prototype.isOverEmailLimit = function () {
     this.trimHits(now())
     return this.xs.length > MAX_EMAILS

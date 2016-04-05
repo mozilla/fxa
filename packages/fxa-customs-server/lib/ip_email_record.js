@@ -21,6 +21,10 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS, now) {
     return rec
   }
 
+  IpEmailRecord.prototype.getMinLifetimeMS = function () {
+    return RATE_LIMIT_INTERVAL_MS
+  }
+
   IpEmailRecord.prototype.isOverBadLogins = function () {
     this.trimBadLogins(now())
     return this.lf.length > MAX_BAD_LOGINS
