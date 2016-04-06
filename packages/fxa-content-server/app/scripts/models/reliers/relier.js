@@ -44,6 +44,7 @@ define(function (require, exports, module) {
     entrypoint: Vat.string(),
     migration: Vat.string().valid(Constants.AMO_MIGRATION, Constants.SYNC11_MIGRATION),
     preVerifyToken: Vat.base64jwt(),
+    reset_password_confirm: Vat.boolean().renameTo('resetPasswordConfirm'),
     service: Vat.string(),
     setting: Vat.string(),
     // `uid` will be further validated by the views to
@@ -65,6 +66,7 @@ define(function (require, exports, module) {
       entrypoint: null,
       migration: null,
       preVerifyToken: null,
+      resetPasswordConfirm: true,
       service: null,
       setting: null,
       uid: null,
