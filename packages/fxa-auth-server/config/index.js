@@ -354,6 +354,12 @@ var conf = convict({
     format: String,
     env: 'CORS_ORIGIN',
     default: '*'
+  },
+  clientAddressDepth: {
+    doc: 'location of the client ip address in the remote address chain',
+    format: Number,
+    env: 'CLIENT_ADDRESS_DEPTH',
+    default: 3
   }
 })
 
