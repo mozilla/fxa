@@ -339,6 +339,7 @@ module.exports = function (
           .then(createSessionToken)
           .then(upsertDevice)
           .then(emitSyncLoginEvent)
+          .then(sendNewSyncDeviceNotification)
           .then(createResponse)
           .done(reply, reply)
 
@@ -420,6 +421,8 @@ module.exports = function (
 
         function emitSyncLoginEvent () {
           if (service === 'sync' && request.payload.reason === 'signin') {
+            // The response doesn't have to wait for this,
+            // so we don't return the promise.
             db.sessions(emailRecord.uid)
               .then(
                 function (sessions) {
@@ -435,6 +438,19 @@ module.exports = function (
           }
         }
 
+        function sendNewSyncDeviceNotification () {
+          if (wantsKeys(request)) {
+            // The response doesn't have to wait for this,
+            // so we don't return the promise.
+            mailer.sendNewSyncDeviceNotification(
+              emailRecord.email,
+              {
+                acceptLanguage: request.app.acceptLanguage
+              }
+            )
+          }
+        }
+
         function createResponse () {
           var response = {
             uid: sessionToken.uid.toString('hex'),
@@ -447,7 +463,7 @@ module.exports = function (
             response.device = butil.unbuffer(device)
           }
 
-          if (request.query.keys !== 'true') {
+          if (! wantsKeys(request)) {
             return P.resolve(response)
           }
 
@@ -544,7 +560,7 @@ module.exports = function (
                   )
                   .then(
                     function (sessionToken) {
-                      if (request.query.keys !== 'true') {
+                      if (! wantsKeys(request)) {
                         return P.resolve({
                           sessionToken: sessionToken
                         })
@@ -1296,4 +1312,8 @@ module.exports = function (
   }
 
   return routes
+
+  function wantsKeys (request) {
+    return request.query.keys === 'true'
+  }
 }
