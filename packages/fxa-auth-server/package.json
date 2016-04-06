@@ -35,7 +35,7 @@
   "devDependencies": {
     "eslint-config-fxa": "2.0.0",
     "fxa-auth-db-mysql": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#master",
-    "grunt": "0.4.5",
+    "grunt": "1.0.1",
     "grunt-cli": "0.1.13",
     "grunt-contrib-copy": "0.8.2",
     "grunt-eslint": "17.3.1",
