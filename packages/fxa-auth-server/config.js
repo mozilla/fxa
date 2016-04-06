@@ -95,6 +95,11 @@ var conf = convict({
       format: String,
       default: undefined
     },
+    verifyLoginUrl: {
+      doc: 'Deprecated. uses contentServer.url',
+      format: String,
+      default: undefined
+    },
     passwordResetUrl: {
       doc: 'Deprecated. uses contentServer.url',
       format: String,
@@ -156,11 +161,13 @@ var options = {
 
 conf.validate(options)
 
-conf.set('mail.signInUrl', conf.get('contentServer.url') + '/signin')
-conf.set('mail.verificationUrl', conf.get('contentServer.url') + '/v1/verify_email')
-conf.set('mail.passwordResetUrl', conf.get('contentServer.url') + '/v1/complete_reset_password')
-conf.set('mail.accountUnlockUrl', conf.get('contentServer.url') + '/v1/complete_unlock_account')
-conf.set('mail.initiatePasswordResetUrl', conf.get('contentServer.url') + '/reset_password')
-conf.set('mail.initiatePasswordChangeUrl', conf.get('contentServer.url') + '/settings/change_password')
+var contentServerUrl = conf.get('contentServer.url')
+conf.set('mail.signInUrl', contentServerUrl + '/signin')
+conf.set('mail.verificationUrl', contentServerUrl + '/v1/verify_email')
+conf.set('mail.passwordResetUrl', contentServerUrl + '/v1/complete_reset_password')
+conf.set('mail.accountUnlockUrl', contentServerUrl + '/v1/complete_unlock_account')
+conf.set('mail.initiatePasswordResetUrl', contentServerUrl + '/reset_password')
+conf.set('mail.initiatePasswordChangeUrl', contentServerUrl + '/settings/change_password')
+conf.set('mail.verifyLoginUrl', contentServerUrl + '/complete_signin')
 
 module.exports = conf

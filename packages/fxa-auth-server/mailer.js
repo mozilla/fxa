@@ -44,6 +44,7 @@ module.exports = function (log) {
     this.mailer = sender || nodemailer.createTransport('SMTP', options)
     this.sender = config.sender
     this.verificationUrl = config.verificationUrl
+    this.verifyLoginUrl = config.verifyLoginUrl
     this.initiatePasswordResetUrl = config.initiatePasswordResetUrl
     this.initiatePasswordChangeUrl = config.initiatePasswordChangeUrl
     this.passwordResetUrl = config.passwordResetUrl
@@ -143,6 +144,8 @@ module.exports = function (log) {
   }
 
   Mailer.prototype.verifyEmail = function (message) {
+    log.trace({ op: 'mailer.verifyEmail', email: message.email, uid: message.uid })
+
     var query = {
       uid: message.uid,
       code: message.code
@@ -174,6 +177,45 @@ module.exports = function (log) {
         supportUrl: this.supportUrl,
         supportLinkAttributes: this._supportLinkAttributes(),
         passwordChangeLinkAttributes: this._initiatePasswordChange()
+      },
+      uid: message.uid
+    })
+  }
+
+  Mailer.prototype.verifyLoginEmail = function (message) {
+    log.trace({ op: 'mailer.verifyLoginEmail', email: message.email, uid: message.uid })
+
+    var query = {
+      code: message.code,
+      uid: message.uid
+    }
+
+    if (message.service) { query.service = message.service }
+    if (message.redirectTo) { query.redirectTo = message.redirectTo }
+    if (message.resume) { query.resume = message.resume }
+
+    var link = this.verifyLoginUrl + '?' + qs.stringify(query)
+    query.one_click = true
+    var oneClickLink = this.verifyLoginUrl + '?' + qs.stringify(query)
+
+    return this.send({
+      acceptLanguage: message.acceptLanguage,
+      email: message.email,
+      headers: {
+        'X-Link': link,
+        'X-Service-ID': message.service,
+        'X-Uid': message.uid,
+        'X-Verify-Code': message.code
+      },
+      subject: gettext('Confirm new sign-in to Firefox'),
+      template: 'verifyLoginEmail',
+      templateValues: {
+        email: message.email,
+        device: this._formatUserAgentInfo(message),
+        link: link,
+        oneClickLink: oneClickLink,
+        supportUrl: this.supportUrl,
+        supportLinkAttributes: linkAttributes(this.supportUrl)
       },
       uid: message.uid
     })
