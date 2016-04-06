@@ -98,6 +98,11 @@ var conf = convict({
       env: 'CONTENT_SERVER_URL'
     }
   },
+  contentTokenKey: {
+    default: 'YOU MUST CHANGE ME',
+    doc: 'Content Token used with the auth server',
+    format: String
+  },
   smtp: {
     api: {
       host: {

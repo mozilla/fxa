@@ -8,6 +8,7 @@ var BASE64_JWT = validators.BASE64_JWT
 
 var butil = require('../crypto/butil')
 var openid = require('openid')
+var nodeCrypto = require('crypto')
 var url = require('url')
 
 module.exports = function (
@@ -294,6 +295,7 @@ module.exports = function (
           payload: {
             email: validators.email().required(),
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
+            contentToken: isA.string().min(40).max(40).regex(HEX_STRING).optional(),
             service: isA.string().max(16).alphanum().optional(),
             reason: isA.string().max(16).optional(),
             device: isA.object({
@@ -335,6 +337,7 @@ module.exports = function (
         var emailRecord, sessionToken, device
 
         customs.check(request.app.clientAddress, email, 'accountLogin')
+          .then(validateContentToken)
           .then(readEmailRecord)
           .then(createSessionToken)
           .then(upsertDevice)
@@ -342,7 +345,29 @@ module.exports = function (
           .then(createResponse)
           .done(reply, reply)
 
-        function readEmailRecord (result) {
+        function validateContentToken() {
+          var contentToken = form.contentToken
+          var CONTENT_TOKEN_KEY = config.contentTokenKey
+          var contentTokenContentValidation = request.app.clientAddress + request.headers['user-agent']
+          var contentTokenValidation = nodeCrypto.createHmac('sha1', CONTENT_TOKEN_KEY).update(contentTokenContentValidation).digest('hex')
+
+          var valid = true
+          if (contentToken !== contentTokenValidation) {
+            valid = false
+          }
+
+          return P.resolve(valid)
+        }
+
+        function readEmailRecord (tokenValid) {
+          if (! tokenValid) {
+            log.error({
+              op: 'account.login.content_token',
+              err: new Error('Invalid content token')
+            })
+            throw error.unknownAccount(email)
+          }
+
           return db.emailRecord(email)
             .then(
               function (result) {
