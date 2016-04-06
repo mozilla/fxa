@@ -8,6 +8,7 @@ var BASE64_JWT = validators.BASE64_JWT
 
 var butil = require('../crypto/butil')
 var openid = require('openid')
+var userAgent = require('../userAgent')
 var url = require('url')
 
 module.exports = function (
@@ -339,7 +340,7 @@ module.exports = function (
           .then(createSessionToken)
           .then(upsertDevice)
           .then(emitSyncLoginEvent)
-          .then(sendNewSyncDeviceNotification)
+          .then(sendNewDeviceLoginNotification)
           .then(createResponse)
           .done(reply, reply)
 
@@ -438,15 +439,16 @@ module.exports = function (
           }
         }
 
-        function sendNewSyncDeviceNotification () {
+        function sendNewDeviceLoginNotification () {
           if (wantsKeys(request)) {
             // The response doesn't have to wait for this,
             // so we don't return the promise.
-            mailer.sendNewSyncDeviceNotification(
+            mailer.sendNewDeviceLoginNotification(
               emailRecord.email,
-              {
-                acceptLanguage: request.app.acceptLanguage
-              }
+              userAgent.call({
+                acceptLanguage: request.app.acceptLanguage,
+                timestamp: Date.now()
+              }, request.headers['user-agent'])
             )
           }
         }
