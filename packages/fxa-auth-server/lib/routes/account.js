@@ -361,6 +361,10 @@ module.exports = function (
               op: 'account.login.content_token',
               err: new Error('Invalid content token')
             })
+            customs.flag(request.app.clientAddress, {
+              email: email,
+              errno: 125
+            })
             throw error.badContentToken(email)
           }
 
