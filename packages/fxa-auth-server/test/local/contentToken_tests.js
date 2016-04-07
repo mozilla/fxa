@@ -138,7 +138,7 @@ test(
     }
 
     var config = extend({}, defaultConfig)
-    config.allowedUARegex = [/\((?:Mobile|Tablet|TV);.+Firefox/]
+    config.allowedUARegex = ['\\((?:Mobile|Tablet|TV);.+Firefox']
 
     return contentToken(DEFAULT_TOKEN, TEST_IP, HEADERS, config)
       .then(
@@ -157,7 +157,7 @@ test(
     }
 
     var config = extend({}, defaultConfig)
-    config.allowedUARegex = [/\((?:Mobile|Tablet|TV);.+Firefox/]
+    config.allowedUARegex = ['\\((?:Mobile|Tablet|TV);.+Firefox']
 
     return contentToken(DEFAULT_TOKEN, TEST_IP, HEADERS, config)
       .then(
