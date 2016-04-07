@@ -27,6 +27,14 @@ module.exports = function createServer(config, log) {
   var MAX_ACCOUNT_STATUS_CHECK = config.limits.maxAccountStatusCheck
   var MAX_UNKNOWN_LOGINS_PER_IP = config.limits.maxUnknownLoginsPerIp
 
+  // Make allowedIPs into an object for faster lookup on each check.
+  var ALLOWED_IPS = {}
+  if (config.allowedIPs) {
+    config.allowedIPs.forEach(function(ip) {
+      ALLOWED_IPS[ip] = true
+    })
+  }
+
   var IpEmailRecord = require('./ip_email_record')(RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS)
   var EmailRecord = require('./email_record')(RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, BAD_LOGIN_LOCKOUT_INTERVAL_MS, config.limits.maxEmails, config.limits.badLoginLockout)
   var IpRecord = require('./ip_record')(BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE_LIMIT_BAN_DURATION_MS, MAX_BAD_LOGINS_PER_IP, MAX_ACCOUNT_STATUS_CHECK, MAX_UNKNOWN_LOGINS_PER_IP)
@@ -118,6 +126,9 @@ module.exports = function createServer(config, log) {
 
             if (blockIpEmail && ipEmailRecord.unblockIfReset(emailRecord.pr)) {
               blockIpEmail = 0
+            }
+            if (ip in ALLOWED_IPS) {
+              blockIp = 0
             }
             var retryAfter = [blockEmail, blockIpEmail, blockIp].reduce(max)
 
