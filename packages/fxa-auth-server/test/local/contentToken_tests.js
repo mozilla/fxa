@@ -7,10 +7,8 @@ var extend = require('util')._extend
 var test = require('../ptaptest')
 var contentToken = require('../../lib/crypto/contentToken')
 
-var EXPIRY_30_MINUTES = 1000 * 60 * 30
-var TEST_IP = '127.0.0.1'
 // Token generated from default settings
-var DEFAULT_TOKEN = '31343539393831323734393931dffbe6f5beefa2ead4427c5de811a570a8e539d6'
+var DEFAULT_TOKEN = '3134353939393439353832393581370469b241f38edcd281c3b69bc835ba1b9810'
 var HEADERS = {
   'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36'
 }
@@ -24,10 +22,11 @@ var defaultConfig = {
 test(
   'contentToken basic',
   function (t) {
-    return contentToken(DEFAULT_TOKEN, TEST_IP, HEADERS, defaultConfig)
+    return contentToken(DEFAULT_TOKEN, HEADERS, defaultConfig)
       .then(
-        function (valid) {
-          t.ok(valid, 'token is valid')
+        function (result) {
+          t.ok(result.valid, 'token is valid')
+          t.equal(result.reason, 'Valid HMAC')
         }
       )
   }
@@ -39,10 +38,11 @@ test(
     var HEADERS = {
       'user-agent': 'MSIE'
     }
-    return contentToken(DEFAULT_TOKEN, TEST_IP, HEADERS, defaultConfig)
+    return contentToken(DEFAULT_TOKEN, HEADERS, defaultConfig)
       .then(
-        function (valid) {
-          t.notOk(valid, 'token is not valid')
+        function (result) {
+          t.notOk(result.valid, 'token is not valid')
+          t.equal(result.reason, 'Invalid HMAC')
         }
       )
   }
@@ -54,12 +54,13 @@ test(
     var HEADERS = {
       'user-agent': 'MSIE'
     }
-    return contentToken(DEFAULT_TOKEN, TEST_IP, HEADERS, {
+    return contentToken(DEFAULT_TOKEN, HEADERS, {
       required: false
     })
     .then(
-      function (valid) {
-        t.ok(valid, 'token is valid, feature is disabled')
+      function (result) {
+        t.ok(result.valid, 'token is valid, feature is disabled')
+        t.equal(result.reason, 'Token verification not enabled')
       }
     )
   }
@@ -68,24 +69,11 @@ test(
 test(
   'contentToken fails if token is bad length',
   function (t) {
-    return contentToken(DEFAULT_TOKEN.substr(0, 3), TEST_IP, HEADERS, defaultConfig)
-      .then(
-        function (valid) {
-          t.notOk(valid, 'token is not valid')
-        }
-      )
-  }
-)
-
-test(
-  'contentToken is not valid for wrong ip',
-  function (t) {
-    return contentToken(DEFAULT_TOKEN, '127.0.2.2', HEADERS, defaultConfig)
-      .then(
-        function (valid) {
-          t.notOk(valid, 'token is not valid for bad ip')
-        }
-      )
+    return contentToken(DEFAULT_TOKEN.substr(0, 3), HEADERS, defaultConfig)
+      .then(function (result) {
+        t.notOk(result.valid, 'token is not valid')
+        t.equal(result.reason, 'Bad request or token length')
+      })
   }
 )
 
@@ -94,12 +82,11 @@ test(
   function (t) {
     var config = extend({}, defaultConfig)
     config.key = 'something else'
-    return contentToken(DEFAULT_TOKEN, TEST_IP, HEADERS, config)
-      .then(
-        function (valid) {
-          t.notOk(valid, 'token is not valid for bad key')
-        }
-      )
+    return contentToken(DEFAULT_TOKEN, HEADERS, config)
+      .then(function (result) {
+        t.notOk(result.valid, 'token is not valid for bad key')
+        t.equal(result.reason, 'Invalid HMAC')
+      })
   }
 )
 
@@ -107,26 +94,24 @@ test(
   'contentToken if timestamp is NaN',
   function (t) {
     var config = extend({}, defaultConfig)
-    config.expiry = EXPIRY_30_MINUTES
+    config.expiry = 1
 
-    return contentToken(DEFAULT_TOKEN, TEST_IP, HEADERS, config)
-      .then(
-        function (valid) {
-          t.notOk(valid, 'token is not valid, it expired')
-        }
-      )
+    return contentToken(DEFAULT_TOKEN, HEADERS, config)
+      .then(function (result) {
+        t.notOk(result.valid, 'token is not valid, it expired')
+        t.equal(result.reason, 'Content token expired or bad duration')
+      })
   }
 )
 
 test(
   'contentToken fails if wrong token',
   function (t) {
-    return contentToken('31343539393831323734393931f00f00f00eefa2ead4427c5de811a570a8e539d6', TEST_IP, HEADERS, defaultConfig)
-      .then(
-        function (valid) {
-          t.notOk(valid, 'token is not valid for bad key')
-        }
-      )
+    return contentToken('31343539393831323734393931f00f00f00eefa2ead4427c5de811a570a8e539d6', HEADERS, defaultConfig)
+      .then(function (result) {
+        t.notOk(result.valid, 'token is not valid for bad key')
+        t.equal(result.reason, 'Invalid HMAC')
+      })
   }
 )
 
@@ -139,13 +124,15 @@ test(
 
     var config = extend({}, defaultConfig)
     config.allowedUARegex = ['\\((?:Mobile|Tablet|TV);.+Firefox']
+    config.compiledRegexList = config.allowedUARegex.map(function(re) {
+      return new RegExp(re)
+    })
 
-    return contentToken(DEFAULT_TOKEN, TEST_IP, HEADERS, config)
-      .then(
-        function (valid) {
-          t.ok(valid, 'token is valid')
-        }
-      )
+    return contentToken(DEFAULT_TOKEN, HEADERS, config)
+      .then(function (result) {
+        t.ok(result.valid, 'token is valid')
+        t.equal(result.reason, 'Allowed user agent')
+      })
   }
 )
 
@@ -158,12 +145,14 @@ test(
 
     var config = extend({}, defaultConfig)
     config.allowedUARegex = ['\\((?:Mobile|Tablet|TV);.+Firefox']
+    config.compiledRegexList = config.allowedUARegex.map(function(re) {
+      return new RegExp(re)
+    })
 
-    return contentToken(DEFAULT_TOKEN, TEST_IP, HEADERS, config)
-      .then(
-        function (valid) {
-          t.notOk(valid, 'token is valid')
-        }
-      )
+    return contentToken(DEFAULT_TOKEN, HEADERS, config)
+      .then(function (result) {
+        t.notOk(result.valid, 'token is valid')
+        t.equal(result.reason, 'Invalid HMAC')
+      })
   }
 )

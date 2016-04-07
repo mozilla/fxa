@@ -27,11 +27,18 @@ module.exports = function (
   checkPassword
   ) {
 
-  var HAPI_CONTENT_TOKEN_RULE = isA.string().min(66).max(66).regex(HEX_STRING).optional();
+
+  // Content token rules and regexes
+  var HAPI_CONTENT_TOKEN_RULE = isA.string().min(66).max(66).regex(HEX_STRING).optional()
   if (config.contentToken.required === true) {
-    HAPI_CONTENT_TOKEN_RULE = isA.string().min(66).max(66).regex(HEX_STRING).required();
+    HAPI_CONTENT_TOKEN_RULE = isA.string().min(66).max(66).regex(HEX_STRING).required()
   }
 
+  config.contentToken.compiledRegexList = config.contentToken.allowedUARegex.map(function(re) {
+    return new RegExp(re)
+  })
+
+  // Open Id extensions
   var OPENID_EXTENSIONS = [
     new openid.AttributeExchange(
       {
@@ -351,23 +358,35 @@ module.exports = function (
           .done(reply, reply)
 
         function checkContentToken() {
-          return validateContentToken(form.contentToken, request.app.clientAddress,
-            request.headers, config.contentToken)
+          return validateContentToken(form.contentToken, request.headers, config.contentToken)
+            .then(function (result) {
+              if (! result.valid) {
+                // if token not valid
+                // log the reason why
+                log.error({
+                  op: 'account.login.content_token',
+                  err: new Error('Invalid token:' + result.reason)
+                })
+
+                // flag as bad attempt
+                customs.flag(request.app.clientAddress, {
+                  email: email,
+                  errno: 125
+                })
+
+                throw error.badContentToken(email)
+
+              } else {
+                // record good token validations
+                log.info({
+                  op: 'account.login.content_token',
+                  reason: result.reason
+                })
+              }
+            })
         }
 
-        function readEmailRecord(tokenValid) {
-          if (! tokenValid) {
-            log.error({
-              op: 'account.login.content_token',
-              err: new Error('Invalid content token')
-            })
-            customs.flag(request.app.clientAddress, {
-              email: email,
-              errno: 125
-            })
-            throw error.badContentToken(email)
-          }
-
+        function readEmailRecord() {
           return db.emailRecord(email)
             .then(
               function (result) {
