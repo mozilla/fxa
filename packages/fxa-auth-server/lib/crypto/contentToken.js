@@ -12,7 +12,8 @@ var TOKEN_LENGTH = 66
  * @param {String} token Hex content token
  * @param {Object} headers Request headers
  * @param {Object} contentTokenConfig Configuration object for the content token
- * @returns {Promise} resolve to 'true' if token is valid, 'false' if not.
+ * @returns {Promise} resolves Object 'valid' and 'reason'
+ *
  */
 function validateContentToken(token, headers, contentTokenConfig) {
   // if contentToken check is not required then we say check is valid
