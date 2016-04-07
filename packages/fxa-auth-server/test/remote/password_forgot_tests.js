@@ -31,6 +31,11 @@ TestServer.start(config)
         .then(
           function (x) {
             client = x
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function () {
             return client.keys()
           }
         )
@@ -54,6 +59,18 @@ TestServer.start(config)
         )
         .then(
           function () {
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            var link = emailData.headers['x-link']
+            var query = url.parse(link, true).query
+            t.ok(query.email, 'email is in the link')
+          }
+        )
+        .then(
+          function () {
             return client.keys()
           }
         )
@@ -71,25 +88,9 @@ TestServer.start(config)
           }
         )
         .then(
-          function (x) {
-            client = x
-            return client.keys()
-          }
-        )
-        .then(
-          function (keys) {
-            t.ok(Buffer.isBuffer(keys.kA), 'kA exists, login after password reset')
-            t.ok(Buffer.isBuffer(keys.wrapKb), 'wrapKb exists, login after password reset')
-            t.equal(client.kB.length, 32, 'kB exists, has the right length')
-
+          function () {
+            // clear new-login notification email
             return server.mailbox.waitForEmail(email)
-          }
-        )
-        .then(
-          function (emailData) {
-            var link = emailData.headers['x-link']
-            var query = url.parse(link, true).query
-            t.ok(query.email, 'email is in the link')
           }
         )
     }
