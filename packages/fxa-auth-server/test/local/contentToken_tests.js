@@ -49,24 +49,6 @@ test(
 )
 
 test(
-  'contentToken returns valid if feature disabled',
-  function (t) {
-    var HEADERS = {
-      'user-agent': 'MSIE'
-    }
-    return contentToken(DEFAULT_TOKEN, HEADERS, {
-      required: false
-    })
-    .then(
-      function (result) {
-        t.ok(result.valid, 'token is valid, feature is disabled')
-        t.equal(result.reason, 'Token verification not enabled')
-      }
-    )
-  }
-)
-
-test(
   'contentToken fails if token is bad length',
   function (t) {
     return contentToken(DEFAULT_TOKEN.substr(0, 3), HEADERS, defaultConfig)
