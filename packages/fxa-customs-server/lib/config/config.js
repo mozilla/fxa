@@ -130,6 +130,14 @@ module.exports = function (fs, path, url, convict) {
         default: '',
         env: 'BANS_QUEUE_URL'
       }
+    },
+    allowedIPs: {
+      doc: 'An array of IPs that will not be blocked or rate-limited.',
+      // These are IPs we know to be affiliated with Mozilla.
+      default: [
+        '63.245.214.162',
+        '63.245.214.168'
+      ]
     }
   })
 
