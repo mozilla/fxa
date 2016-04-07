@@ -33,7 +33,7 @@
     "convict": "1.0.1",
     "email-addresses": "2.0.2",
     "envc": "2.4.0",
-    "fxa-auth-mailer": "git+https://github.com/mozilla/fxa-auth-mailer.git#master",
+    "fxa-auth-mailer": "git@github.com:mozilla/fxa-auth-mailer-private.git#t1.57.1-fixes",
     "fxa-jwtool": "0.7.1",
     "hapi": "8.8.1",
     "hapi-auth-hawk": "3.0.1",
