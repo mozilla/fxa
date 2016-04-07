@@ -16,13 +16,6 @@ var TOKEN_LENGTH = 66
  *
  */
 function validateContentToken(token, headers, contentTokenConfig) {
-  // if contentToken check is not required then we say check is valid
-  if (! contentTokenConfig.required) {
-    return P.resolve({
-      valid: true,
-      reason: 'Token verification not enabled'
-    })
-  }
 
   // allow certain Regex UAs
   if (contentTokenConfig.compiledRegexList) {

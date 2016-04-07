@@ -370,14 +370,15 @@ module.exports = function (
                   err: new Error('Invalid token:' + result.reason)
                 })
 
-                // flag as bad attempt
-                customs.flag(request.app.clientAddress, {
-                  email: email,
-                  errno: 125
-                })
-
-                throw error.badContentToken(email)
-
+                // if contentToken check is not required then
+                // we still allow the request to proceed
+                if (config.contentToken.required) {
+                  customs.flag(request.app.clientAddress, {
+                    email: email,
+                    errno: 125
+                  })
+                  throw error.badContentToken(email)
+                }
               } else {
                 // record good token validations
                 log.info({
