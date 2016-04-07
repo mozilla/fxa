@@ -440,7 +440,7 @@ module.exports = function (
         }
 
         function sendNewDeviceLoginNotification () {
-          if (wantsKeys(request)) {
+          if (config.newLoginNotificationEnabled && wantsKeys(request)) {
             // The response doesn't have to wait for this,
             // so we don't return the promise.
             mailer.sendNewDeviceLoginNotification(
