@@ -7,8 +7,8 @@ var HEX_STRING = validators.HEX_STRING
 var BASE64_JWT = validators.BASE64_JWT
 
 var butil = require('../crypto/butil')
+var validateContentToken = require('../crypto/contentToken')
 var openid = require('openid')
-var nodeCrypto = require('crypto')
 var url = require('url')
 
 module.exports = function (
@@ -26,6 +26,11 @@ module.exports = function (
   isPreVerified,
   checkPassword
   ) {
+
+  var HAPI_CONTENT_TOKEN_RULE = isA.string().min(66).max(66).regex(HEX_STRING).optional();
+  if (config.contentToken.required === true) {
+    HAPI_CONTENT_TOKEN_RULE = isA.string().min(66).max(66).regex(HEX_STRING).required();
+  }
 
   var OPENID_EXTENSIONS = [
     new openid.AttributeExchange(
@@ -295,7 +300,7 @@ module.exports = function (
           payload: {
             email: validators.email().required(),
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
-            contentToken: isA.string().min(40).max(40).regex(HEX_STRING).optional(),
+            contentToken: HAPI_CONTENT_TOKEN_RULE,
             service: isA.string().max(16).alphanum().optional(),
             reason: isA.string().max(16).optional(),
             device: isA.object({
@@ -337,7 +342,7 @@ module.exports = function (
         var emailRecord, sessionToken, device
 
         customs.check(request.app.clientAddress, email, 'accountLogin')
-          .then(validateContentToken)
+          .then(checkContentToken)
           .then(readEmailRecord)
           .then(createSessionToken)
           .then(upsertDevice)
@@ -345,27 +350,18 @@ module.exports = function (
           .then(createResponse)
           .done(reply, reply)
 
-        function validateContentToken() {
-          var contentToken = form.contentToken
-          var CONTENT_TOKEN_KEY = config.contentTokenKey
-          var contentTokenContentValidation = request.app.clientAddress + request.headers['user-agent']
-          var contentTokenValidation = nodeCrypto.createHmac('sha1', CONTENT_TOKEN_KEY).update(contentTokenContentValidation).digest('hex')
-
-          var valid = true
-          if (contentToken !== contentTokenValidation) {
-            valid = false
-          }
-
-          return P.resolve(valid)
+        function checkContentToken() {
+          return validateContentToken(form.contentToken, request.app.clientAddress,
+            request.headers, config.contentToken)
         }
 
-        function readEmailRecord (tokenValid) {
+        function readEmailRecord(tokenValid) {
           if (! tokenValid) {
             log.error({
               op: 'account.login.content_token',
               err: new Error('Invalid content token')
             })
-            throw error.unknownAccount(email)
+            throw error.badContentToken(email)
           }
 
           return db.emailRecord(email)

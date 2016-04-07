@@ -98,10 +98,28 @@ var conf = convict({
       env: 'CONTENT_SERVER_URL'
     }
   },
-  contentTokenKey: {
-    default: 'YOU MUST CHANGE ME',
-    doc: 'Content Token used with the auth server',
-    format: String
+  contentToken: {
+    key: {
+      default: 'YOU MUST CHANGE ME',
+      doc: 'Content Token HMAC Key',
+      format: String
+    },
+    required: {
+      doc: 'Is content token validation required',
+      format: Boolean,
+      env: 'CONTENT_TOKEN_REQUIRED',
+      default: false
+    },
+    expiry: {
+      doc: 'Time after the content token is considered expired (milliseconds)',
+      format: 'duration',
+      default: '30 minutes'
+    },
+    allowedUARegex: {
+      doc: 'An array of STRING regexes. Passing any one will get through.',
+      //default: [/\((?:Mobile|Tablet|TV);.+Firefox/]
+      default: []
+    }
   },
   smtp: {
     api: {

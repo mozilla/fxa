@@ -14,6 +14,7 @@ var ERRNO = {
   DEVICE_UNKNOWN: 123,
   DEVICE_CONFLICT: 124,
   ENDPOINT_NOT_SUPPORTED: 116,
+  BAD_CONTENT_TOKEN: 125,
   INCORRECT_EMAIL_CASE: 120,
   INCORRECT_PASSWORD: 103,
   INVALID_JSON: 106,
@@ -172,6 +173,20 @@ AppError.unknownAccount = function (email) {
       code: 400,
       error: 'Bad Request',
       errno: ERRNO.ACCOUNT_UNKNOWN,
+      message: 'Unknown account'
+    },
+    {
+      email: email
+    }
+  )
+}
+
+AppError.badContentToken = function (email) {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.BAD_CONTENT_TOKEN,
       message: 'Unknown account'
     },
     {
