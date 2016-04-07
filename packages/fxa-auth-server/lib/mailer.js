@@ -73,11 +73,16 @@ module.exports = function (config, log) {
           }
         ))
       }
-      mailer.sendNewSyncDeviceNotification = function (email, opts) {
-        return P.resolve(mailer.newSyncDeviceEmail(
+      mailer.sendNewDeviceLoginNotification = function (email, opts) {
+        return P.resolve(mailer.newDeviceLoginEmail(
           {
             email: email,
-            acceptLanguage: opts.acceptLanguage || defaultLanguage
+            acceptLanguage: opts.acceptLanguage || defaultLanguage,
+            uaBrowser: opts.uaBrowser,
+            uaBrowserVersion: opts.uaBrowserVersion,
+            uaOS: opts.uaOS,
+            uaOSVersion: opts.uaOSVersion,
+            timestamp: opts.timestamp
           }
         ))
       }

@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var Client = require('../client')
+var crypto = require('crypto')
 var test = require('../ptaptest')
 var TestServer = require('../test_server')
-var crypto = require('crypto')
-var Client = require('../client')
-
+var url = require('url')
 
 var config = require('../../config').getProperties()
 
@@ -120,6 +120,35 @@ TestServer.start(config)
             t.equal(err.error, 'Bad Request')
             t.equal(err.errno, 121)
             t.equal(err.message, 'Account is locked')
+          }
+        )
+    }
+  )
+
+  test(
+    'signin sends an email if keys are requested',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'abcdef'
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+        .then(
+          function () {
+            return Client.login(config.publicUrl, email, password, { keys: 'true' })
+          }
+        )
+        .then(
+          function () {
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            var changeUrl = url.parse(emailData.headers['x-link'], true)
+            t.strictEqual(
+              changeUrl.href.indexOf(config.smtp.initiatePasswordChangeUrl), 0,
+              'links to change password'
+            )
+            t.equal(changeUrl.query.email, email, 'with email querystring')
           }
         )
     }

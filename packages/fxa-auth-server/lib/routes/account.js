@@ -8,6 +8,7 @@ var BASE64_JWT = validators.BASE64_JWT
 
 var butil = require('../crypto/butil')
 var openid = require('openid')
+var userAgent = require('../userAgent')
 var url = require('url')
 
 module.exports = function (
@@ -339,6 +340,7 @@ module.exports = function (
           .then(createSessionToken)
           .then(upsertDevice)
           .then(emitSyncLoginEvent)
+          .then(sendNewDeviceLoginNotification)
           .then(createResponse)
           .done(reply, reply)
 
@@ -420,6 +422,8 @@ module.exports = function (
 
         function emitSyncLoginEvent () {
           if (service === 'sync' && request.payload.reason === 'signin') {
+            // The response doesn't have to wait for this,
+            // so we don't return the promise.
             db.sessions(emailRecord.uid)
               .then(
                 function (sessions) {
@@ -435,6 +439,20 @@ module.exports = function (
           }
         }
 
+        function sendNewDeviceLoginNotification () {
+          if (config.newLoginNotificationEnabled && wantsKeys(request)) {
+            // The response doesn't have to wait for this,
+            // so we don't return the promise.
+            mailer.sendNewDeviceLoginNotification(
+              emailRecord.email,
+              userAgent.call({
+                acceptLanguage: request.app.acceptLanguage,
+                timestamp: Date.now()
+              }, request.headers['user-agent'])
+            )
+          }
+        }
+
         function createResponse () {
           var response = {
             uid: sessionToken.uid.toString('hex'),
@@ -447,7 +465,7 @@ module.exports = function (
             response.device = butil.unbuffer(device)
           }
 
-          if (request.query.keys !== 'true') {
+          if (! wantsKeys(request)) {
             return P.resolve(response)
           }
 
@@ -544,7 +562,7 @@ module.exports = function (
                   )
                   .then(
                     function (sessionToken) {
-                      if (request.query.keys !== 'true') {
+                      if (! wantsKeys(request)) {
                         return P.resolve({
                           sessionToken: sessionToken
                         })
@@ -1296,4 +1314,8 @@ module.exports = function (
   }
 
   return routes
+
+  function wantsKeys (request) {
+    return request.query.keys === 'true'
+  }
 }
