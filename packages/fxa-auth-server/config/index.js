@@ -301,6 +301,12 @@ var conf = convict({
     env: 'LOCKOUT_ENABLED',
     default: false
   },
+  newLoginNotificationEnabled: {
+    doc: 'Is the new-login notification email enabled',
+    format: Boolean,
+    env: 'NEW_LOGIN_NOTIFICATION_ENABLED',
+    default: true
+  },
   oauth: {
     url: {
       format: 'url',
