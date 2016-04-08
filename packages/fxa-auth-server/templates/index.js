@@ -48,15 +48,17 @@ function loadTemplates(name) {
 module.exports = function () {
   return P.all(
     [
-      'verify',
-      'reset',
-      'unlock',
+      'new_sync_device',
       'password_changed',
       'password_reset',
-      'new_sync_device',
+      'password_reset_required',
       'post_verify',
+      'reset',
+      'suspicious_location',
+      'unlock',
       'verification_reminder_first',
-      'verification_reminder_second'
+      'verification_reminder_second',
+      'verify'
     ].map(loadTemplates)
   )
   .then(

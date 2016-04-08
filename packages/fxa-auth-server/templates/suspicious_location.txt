@@ -1,0 +1,22 @@
+{{{t "Did you sign in to your Firefox Account from any of the following locations in the last 60 days? If you don’t recognize these locations, someone else may have accessed your Firefox Account."}}}
+{{#each locations}}
+
+{{{t "Date & Time:" }}} {{ timestamp }}
+{{{t "Device:" }}} {{ device }}
+{{{t "Location:" }}} {{ location }}
+{{/each}}
+
+{{{t "If you don’t recognize the activity above:" }}}
+{{{t "First, change your Firefox Account password."}}} {{{ resetLink }}}
+
+{{{t "Second, if Firefox stores passwords to websites, you should change those passwords as well. Attackers may have access to those passwords, so you should check those accounts for suspicious activity." }}} {{{t "Learn how to see what passwords Firefox is storing for you."}}} https://support.mozilla.org/kb/password-manager-remember-delete-change-and-import#w_viewing-and-deleting-passwords
+
+{{{t "Why are you receiving this email?" }}}
+{{{t "We recently noticed Firefox Account logins from unusual locations. We’re notifying you as a precaution." }}}
+
+{{{t "Best," }}}
+{{{t "The Firefox Accounts team" }}}
+
+Mozilla
+331 E. Evelyn Avenue Mountain View, CA 94041
+{{{t "Mozilla Privacy Policy" }}} https://www.mozilla.org/privacy
