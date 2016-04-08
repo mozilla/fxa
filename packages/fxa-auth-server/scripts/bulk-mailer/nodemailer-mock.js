@@ -8,26 +8,13 @@ var path = require('path')
 module.exports = function (config) {
   var messageId = 0;
 
-  function ensureOutputDirExists(outputDir) {
-    var dirStats
-    try {
-      dirStats = fs.statSync(config.outputDir)
-    } catch (e) {
-      fs.mkdirSync(outputDir);
-      return;
-    }
-
-    if (! dirStats.isDirectory()) {
-      console.error(outputDir + ' is not a directory');
-      process.exit(1)
-    }
+  if (config.outputDir) {
+    ensureOutputDirExists(config.outputDir)
   }
 
   return {
     sendMail: function (emailConfig, callback) {
       if (config.outputDir) {
-
-        ensureOutputDirExists(config.outputDir)
 
         var language = emailConfig.headers['Content-Language']
 
@@ -54,3 +41,18 @@ module.exports = function (config) {
     close: function () {}
   };
 };
+
+function ensureOutputDirExists(outputDir) {
+  var dirStats
+  try {
+    dirStats = fs.statSync(outputDir)
+  } catch (e) {
+    fs.mkdirSync(outputDir);
+    return;
+  }
+
+  if (! dirStats.isDirectory()) {
+    console.error(outputDir + ' is not a directory');
+    process.exit(1)
+  }
+}
