@@ -79,7 +79,6 @@ P.resolve()
     })
   })
   .then(null, function (error) {
-    console.error('error', error)
     log.error({
       op: 'send.abort',
       err: error
@@ -89,8 +88,7 @@ P.resolve()
   .then(writeErrors)
   .then(writeUnsent)
   .then(function () {
-    console.log('bye bye!')
-    process.exit(runningError ? 1 : 0)
+    process.exit(runningError || errorCount ? 1 : 0)
   })
 
 var fakeEmailCount = 0

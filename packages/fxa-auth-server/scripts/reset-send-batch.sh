@@ -28,11 +28,13 @@ fi
 echo ${BATCH}
 
 node must-reset.js -i ${BATCH}
+rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
 
 ### TODO If we need more delay in between the batches the bulk-mailer itself sends, add a `-d <seconds> to the below line. 
 ### If instead of sending 10 emails at a time, the mailer should send 5 (or some other number), -b <batch_size>
 ### TODO Finally, when sending for real for real, the --send option needs to be added.
 node bulk-mailer.js -i ${BATCH} -t password_reset_required -e ${ERRORS_OUTPUT} -u ${UNSENT_OUTPUT} --real 
+rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
 
 
 # once the batch is completed, remove the batch file to
