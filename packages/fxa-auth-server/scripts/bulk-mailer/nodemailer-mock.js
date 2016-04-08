@@ -18,7 +18,7 @@ module.exports = function (config) {
 
         var language = emailConfig.headers['Content-Language']
 
-        var outputPath = path.join(config.outputDir, language + '.' + emailConfig.to)
+        var outputPath = path.join(config.outputDir, emailConfig.to)
 
         var textPath = outputPath + '.txt'
         fs.writeFileSync(textPath, emailConfig.text)
