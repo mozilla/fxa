@@ -4,6 +4,8 @@
 
 var HEX = /^(?:[a-fA-F0-9]{2})+$/
 
+module.exports.ONES = Buffer('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'hex')
+
 module.exports.buffersAreEqual = function buffersAreEqual(buffer1, buffer2) {
   var mismatch = buffer1.length - buffer2.length
   if (mismatch) {

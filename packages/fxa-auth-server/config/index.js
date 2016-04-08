@@ -383,6 +383,12 @@ var conf = convict({
     format: Number,
     env: 'CLIENT_ADDRESS_DEPTH',
     default: 3
+  },
+  resetUids: {
+    doc: 'path to uid file for must-reset.js',
+    format: String,
+    env: 'RESET_UIDS',
+    default: path.resolve(__dirname, '../must-reset.json')
   }
 })
 
