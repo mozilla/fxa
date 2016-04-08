@@ -238,7 +238,7 @@ function templateToMailerFunctionName(templateName) {
 
 function createMailer () {
   var sender = commandLineOptions.send ? null : nodeMailerMock({
-    failureRate: 0.01,
+    failureRate: 0,
     outputDir: commandLineOptions.write ? path.resolve(commandLineOptions.write) : null
   })
 
