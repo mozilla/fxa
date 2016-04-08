@@ -17,10 +17,10 @@ var path = require('path')
 commandLineOptions
   .option('-b, --batchsize [size]', 'Number of emails to send in a batch. Defaults to 10', parseInt)
   .option('-d, --delay [seconds]', 'Delay in seconds between batches. Defaults to 5', parseInt)
-  .option('-e, --errors <filename>', 'JSON output file that contains errored emails')
+  .option('-e, --errors [filename]', 'JSON output file that contains errored emails. Defaults to ./errors.json')
   .option('-i, --input <filename>', 'JSON input file')
   .option('-t, --template <template>', 'Template filename to render')
-  .option('-u, --unsent <filename>', 'JSON output file that contains emails that were not sent')
+  .option('-u, --unsent [filename]', 'JSON output file that contains emails that were not sent. Defaults to ./unsent.json')
   .option('-w, --write [directory]', 'Directory where emails should be stored')
   .option('--real', 'Use real email addresses, fake ones are used by default')
   .option('--send', 'Send emails, for real. *** THIS REALLY SENDS ***')
@@ -29,11 +29,12 @@ commandLineOptions
 var BATCH_DELAY = typeof commandLineOptions.delay === "undefined" ? 5 : commandLineOptions.delay
 var BATCH_SIZE = commandLineOptions.batchsize || 10
 
+var ERRORS_REPORT_FILENAME = path.resolve(commandLineOptions.errors || 'errors.json')
+var UNSENT_REPORT_FILENAME = path.resolve(commandLineOptions.unsent || 'unsent.json')
+
 var requiredOptions = [
-  'errors',
   'input',
-  'template',
-  'unsent'
+  'template'
 ]
 
 requiredOptions.forEach(checkRequiredOption)
@@ -116,6 +117,7 @@ function normalizeRecords(records) {
     } else {
       var translator = mailer.translator(record.acceptLanguage)
       var language = translator.language
+      record.language = language
 
       record.locations.forEach(function (location) {
         var timestamp = new Date(location.timestamp || location.date)
@@ -158,6 +160,9 @@ function nextBatch() {
 
   return sendBatch(currentBatch)
     .then(function () {
+      currentBatch = []
+    })
+    .then(function () {
       if (emailQueue.length) {
         return P.delay(BATCH_DELAY * 1000)
           .then(nextBatch)
@@ -199,20 +204,17 @@ function handleEmailError(emailConfig, error) {
 // output format should be identical to the input format. This makes it
 // possible to use the error output as input to another test run.
 function writeErrors() {
-  var outputFileName = path.resolve(commandLineOptions.errors)
-  fs.writeFileSync(outputFileName, JSON.stringify(cleanEmailConfigsConfigs(erroredEmailConfigs), null, 2))
+  fs.writeFileSync(ERRORS_REPORT_FILENAME, JSON.stringify(cleanEmailConfigsConfigs(erroredEmailConfigs), null, 2))
 }
 
 function writeUnsent() {
-  var outputFileName = path.resolve(commandLineOptions.unsent)
-
   // consider all emails in the current batch +
   // all emails in the emailQueue as unsent.
   // If there was an error sending the current batch,
   // we aren't fully sure which are sent, and which aren't.
   var unsentEmails = [].concat(currentBatch).concat(emailQueue)
 
-  fs.writeFileSync(outputFileName, JSON.stringify(cleanEmailConfigsConfigs(unsentEmails), null, 2))
+  fs.writeFileSync(UNSENT_REPORT_FILENAME, JSON.stringify(cleanEmailConfigsConfigs(unsentEmails), null, 2))
 }
 
 function cleanEmailConfigsConfigs(erroredEmailConfigs) {
