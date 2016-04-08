@@ -29,11 +29,10 @@ echo ${BATCH}
 
 node must-reset.js -i ${BATCH}
 
-### TODO We need to know which template to send! It'll either be "suspicious_location" OR "password_reset_required"
 ### TODO If we need more delay in between the batches the bulk-mailer itself sends, add a `-d <seconds> to the below line. 
 ### If instead of sending 10 emails at a time, the mailer should send 5 (or some other number), -b <batch_size>
 ### TODO Finally, when sending for real for real, the --send option needs to be added.
-node bulk-mailer.js -i ${BATCH} -t suspicious_location -e ${ERRORS_OUTPUT} -u ${UNSENT_OUTPUT} --real 
+node bulk-mailer.js -i ${BATCH} -t password_reset_required -e ${ERRORS_OUTPUT} -u ${UNSENT_OUTPUT} --real 
 
 
 # once the batch is completed, remove the batch file to
