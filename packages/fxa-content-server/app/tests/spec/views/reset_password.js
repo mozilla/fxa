@@ -320,7 +320,7 @@ define(function (require, exports, module) {
         relier: relier
       });
 
-      sinon.stub(view, '_resetPassword', function () {
+      sinon.stub(view, 'resetPassword', function () {
         return p();
       });
 
@@ -334,8 +334,7 @@ define(function (require, exports, module) {
     });
 
     it('submits the email address automatically', function () {
-      assert.isTrue(view._resetPassword.calledWith('testuser@testuser.com'));
+      assert.isTrue(view.resetPassword.calledWith('testuser@testuser.com'));
     });
-
   });
 });

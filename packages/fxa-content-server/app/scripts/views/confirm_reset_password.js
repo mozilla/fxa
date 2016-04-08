@@ -35,11 +35,13 @@ define(function (require, exports, module) {
 
     context: function () {
       var email = this.model.get('email');
+      var isSignInEnabled = this.relier.get('resetPasswordConfirm');
 
       return {
         email: email,
         encodedEmail: encodeURIComponent(email),
-        forceAuth: this.broker.isForceAuth()
+        forceAuth: this.broker.isForceAuth(),
+        isSignInEnabled: isSignInEnabled
       };
     },
 

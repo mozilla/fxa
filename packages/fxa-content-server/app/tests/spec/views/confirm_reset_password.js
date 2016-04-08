@@ -177,6 +177,30 @@ define(function (require, exports, module) {
             assert.isFalse(!! view.$('a.sign-in').attr('onclick'));
           });
       });
+
+      describe('sign-in button', function () {
+        describe('with relier.resetPasswordConfirm===true', function () {
+          beforeEach(function () {
+            relier.set('resetPasswordConfirm', true);
+            return view.render();
+          });
+
+          it('is visible', function () {
+            assert.ok(view.$('.sign-in').length);
+          });
+        });
+
+        describe('with relier.resetPasswordConfirm===false', function () {
+          beforeEach(function () {
+            relier.set('resetPasswordConfirm', false);
+            return view.render();
+          });
+
+          it('is not visible', function () {
+            assert.equal(view.$('.sign-in').length, 0);
+          });
+        });
+      });
     });
 
     describe('afterVisible', function () {

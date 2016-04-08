@@ -68,12 +68,14 @@ define(function (require, exports, module) {
       var verificationInfo = this._verificationInfo;
       var doesLinkValidate = verificationInfo.isValid();
       var isLinkExpired = verificationInfo.isExpired();
+      var showSyncWarning = this.relier.get('resetPasswordConfirm');
 
       // damaged and expired links have special messages.
       return {
         isLinkDamaged: ! doesLinkValidate,
         isLinkExpired: isLinkExpired,
-        isLinkValid: doesLinkValidate && ! isLinkExpired
+        isLinkValid: doesLinkValidate && ! isLinkExpired,
+        showSyncWarning: showSyncWarning
       };
     },
 

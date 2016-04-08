@@ -21,6 +21,7 @@ define(function (require, exports, module) {
     entrypoint: ENTRYPOINT,
     state: STATE,
     uniqueUserId: UNIQUE_USER_ID,
+    resetPasswordConfirm: false,
     verificationRedirect: VERIFICATION_REDIRECT
   };
 

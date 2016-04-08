@@ -197,7 +197,23 @@ define(function (require, exports, module) {
             assert.ok(view.$('#fxa-reset-link-expired-header').length);
           });
       });
+
+      it('shows the Sync warning by default', function () {
+        return view.render()
+          .then(function () {
+            assert.ok(view.$('.reset-warning').length);
+          });
+      });
+
+      it('does not show the Sync warning if relier.resetPasswordConfirm === false', function () {
+        relier.set('resetPasswordConfirm', false);
+        return view.render()
+          .then(function () {
+            assert.equal(view.$('.reset-warning').length, 0);
+          });
+      });
     });
+
 
     describe('isValid', function () {
       it('returns true if password & vpassword valid and the same', function () {

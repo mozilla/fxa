@@ -25,6 +25,7 @@ define(function (require, exports, module) {
   var RELIER_FIELDS_IN_RESUME_TOKEN = [
     'campaign',
     'entrypoint',
+    'resetPasswordConfirm',
     'utmCampaign',
     'utmContent',
     'utmMedium',
