@@ -69,6 +69,7 @@ DB.connect(config[config.db.backend])
           )
           .catch(function (err) {
             log.error({ op: 'reset.failed', uid: uid, err: err })
+            process.exit(1)
           })
         }
         ))
