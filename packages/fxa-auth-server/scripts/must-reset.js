@@ -8,30 +8,33 @@
 
 Usage:
 
-RESET_UIDS=./reset.json node scripts/must-reset.js
+node scripts/must-reset.js -i ./reset.json
 
 This script is used to put user accounts into a "must reset" state. It uses the
 same config file as key_server.js so should be run from a production instance.
 
-The RESET_UIDS env variable is the path to json file of uids to reset.
-It defaults to 'must-reset.json' in the project root directory.
-
-The RESET_UIDS json file should look something like the following:
-
-["3D6D8002E5819D54916477CBDEC9A7ED","A065335EE7694671A3E72699F773A912"]
-
-Its just a bare json array of hex uid strings and not case sensitive.
-
 /*/
 
-var path = require('path')
-var crypto = require('crypto')
 var butil = require('../lib/crypto/butil')
-var P = require('../lib/promise')
+var commandLineOptions = require('commander')
 var config = require('../config').getProperties()
-var log = require('../lib/log')(config.log.level)
+var crypto = require('crypto')
 var error = require('../lib/error')
+var log = require('../lib/log')(config.log.level)
+var P = require('../lib/promise')
+var path = require('path')
 var Token = require('../lib/tokens')(log, config.tokenLifetimes)
+
+commandLineOptions
+  .option('-i, --input <filename>', 'JSON input file')
+  .parse(process.argv)
+
+var requiredOptions = [
+  'input'
+]
+
+requiredOptions.forEach(checkRequiredOption)
+
 
 var DB = require('../lib/db')(
   config.db.backend,
@@ -47,8 +50,11 @@ var DB = require('../lib/db')(
 DB.connect(config[config.db.backend])
   .then(
     function (db) {
-      var json = require(path.resolve(config.resetUids))
-      var uids = butil.bufferize(json, {inplace: true})
+      var json = require(path.resolve(commandLineOptions.input))
+
+      var uids = butil.bufferize(json.map(function (entry) {
+        return entry.uid
+      }), {inplace: true})
 
       return P.all(uids.map(
         function (uid) {
@@ -61,6 +67,10 @@ DB.connect(config[config.db.backend])
               verifierVersion: 1
             }
           )
+          .catch(function (err) {
+            log.error({ op: 'reset.failed', uid: uid, err: err })
+            process.exit(1)
+          })
         }
       ))
       .then(
@@ -74,3 +84,10 @@ DB.connect(config[config.db.backend])
       .then(db.close.bind(db))
     }
   )
+
+function checkRequiredOption(optionName) {
+  if (! commandLineOptions[optionName]) {
+    console.error('--' + optionName + ' required')
+    process.exit(1)
+  }
+}
