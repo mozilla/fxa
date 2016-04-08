@@ -67,6 +67,9 @@ DB.connect(config[config.db.backend])
               verifierVersion: 1
             }
           )
+          .catch(function (err) {
+            log.error({ op: 'reset.failed', uid: uid, err: err })
+          })
         }
         ))
         .then(

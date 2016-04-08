@@ -11,7 +11,7 @@ var leftpad = require('leftpad')
 var log = require('../lib/log')(config.log.level, 'bulk-mailer')
 var Mailer = require('fxa-auth-mailer')
 var nodeMailerMock = require('./bulk-mailer/nodemailer-mock')
-var P = require('bluebird')
+var P = require('../lib/promise')
 var path = require('path')
 
 commandLineOptions

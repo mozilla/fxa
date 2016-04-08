@@ -6,7 +6,7 @@
 
 var commandLineOptions = require('commander')
 var fs = require('fs')
-var P = require('bluebird')
+var P = require('../lib/promise')
 var path = require('path')
 
 commandLineOptions
@@ -110,4 +110,3 @@ function ensureOutputDirExists(outputDir) {
     process.exit(1)
   }
 }
-
