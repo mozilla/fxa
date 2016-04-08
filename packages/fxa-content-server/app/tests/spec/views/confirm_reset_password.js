@@ -255,6 +255,25 @@ define(function (require, exports, module) {
           });
       });
 
+      it('sets the `resetPasswordConfirm` flag back to `true` after the reset completes', function () {
+        sinon.stub(view, '_waitForConfirmation', function () {
+          return p(null);
+        });
+
+        sinon.stub(view, '_finishPasswordResetDifferentBrowser', function () {
+          return p();
+        });
+
+        relier.set('resetPasswordConfirm', false);
+
+        return view.afterVisible()
+          .then(function () {
+            assert.equal(relier.get('resetPasswordConfirm'), true);
+            assert.isTrue(TestHelpers.isEventLogged(
+              metrics, 'confirm_reset_password.verification.success'));
+          });
+      });
+
       it('displays errors if `_waitForConfirmation` returns an error', function () {
         sinon.stub(view, '_waitForConfirmation', function () {
           return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));

@@ -19,9 +19,9 @@ define(function (require, exports, module) {
   var TOKEN_OBJ = {
     campaign: CAMPAIGN,
     entrypoint: ENTRYPOINT,
+    resetPasswordConfirm: false,
     state: STATE,
     uniqueUserId: UNIQUE_USER_ID,
-    resetPasswordConfirm: false,
     verificationRedirect: VERIFICATION_REDIRECT
   };
 

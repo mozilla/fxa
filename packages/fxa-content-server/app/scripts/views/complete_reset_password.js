@@ -117,6 +117,8 @@ define(function (require, exports, module) {
           self.relier
         )
         .then(function (updatedAccount) {
+          // The password was reset, future attempts should ask confirmation.
+          self.relier.set('resetPasswordConfirm', true);
           // See the above note about notifying the original tab.
           self.logViewEvent('verification.success');
           return self.invokeBrokerMethod(

@@ -62,6 +62,8 @@ define(function (require, exports, module) {
           return self._waitForConfirmation()
             .then(function (sessionInfo) {
               self.logViewEvent('verification.success');
+              // The password was reset, future attempts should ask confirmation.
+              self.relier.set('resetPasswordConfirm', true);
               // The original window should finish the flow if the user
               // completes verification in the same browser and has sessionInfo
               // passed over from tab 2.

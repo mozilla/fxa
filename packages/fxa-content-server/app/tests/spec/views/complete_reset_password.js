@@ -367,6 +367,32 @@ define(function (require, exports, module) {
         });
       });
 
+      describe('access with `resetPasswordConfirm` set to `false`', function () {
+        beforeEach(function () {
+          relier.set('resetPasswordConfirm', false);
+
+          view.$('[type=password]').val(PASSWORD);
+
+          sinon.stub(user, 'completeAccountPasswordReset', function (account) {
+            return p(account);
+          });
+
+          sinon.stub(user, 'setSignedInAccount', function (newAccount) {
+            return p(newAccount);
+          });
+
+          sinon.stub(relier, 'isDirectAccess', function () {
+            return false;
+          });
+
+          return view.validateAndSubmit();
+        });
+
+        it('sets `resetPasswordConfirm` back to `true` when the reset completes', function () {
+          assert.equal(relier.get('resetPasswordConfirm'), true);
+        });
+      });
+
       it('reload view to allow user to resend an email on INVALID_TOKEN error', function () {
         view.$('[type=password]').val('password');
 
