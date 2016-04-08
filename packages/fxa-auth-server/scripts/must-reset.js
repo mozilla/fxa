@@ -4,6 +4,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/*/
+
+Usage:
+
+RESET_UIDS=./reset.json node scripts/must-reset.js
+
+This script is used to put user accounts into a "must reset" state. It uses the
+same config file as key_server.js so should be run from a production instance.
+
+The RESET_UIDS env variable is the path to json file of uids to reset.
+It defaults to 'must-reset.json' in the project root directory.
+
+The RESET_UIDS json file should look something like the following:
+
+["3D6D8002E5819D54916477CBDEC9A7ED","A065335EE7694671A3E72699F773A912"]
+
+Its just a bare json array of hex uid strings and not case sensitive.
+
+/*/
+
 var path = require('path')
 var crypto = require('crypto')
 var butil = require('../lib/crypto/butil')
