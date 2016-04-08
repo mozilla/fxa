@@ -125,6 +125,11 @@ module.exports = function (BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE
   }
 
   IpRecord.prototype.update = function (action) {
+    // Don't block email-sending on IP address alone.
+    if (actions.isEmailSendingAction(action)) {
+      return 0
+    }
+
     // Increment account status check and throttle if needed
     if (actions.isAccountStatusAction(action)) {
       this.addAccountStatusCheck()
