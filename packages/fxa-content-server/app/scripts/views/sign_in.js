@@ -14,6 +14,7 @@ define(function (require, exports, module) {
   var FormView = require('views/form');
   var MigrationMixin = require('views/mixins/migration-mixin');
   var PasswordMixin = require('views/mixins/password-mixin');
+  var PasswordResetMixin = require('views/mixins/password-reset-mixin');
   var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   var ServiceMixin = require('views/mixins/service-mixin');
   var Session = require('lib/session');
@@ -76,7 +77,8 @@ define(function (require, exports, module) {
 
     events: {
       'click .use-different': 'useDifferentAccount',
-      'click .use-logged-in': 'useLoggedInAccount'
+      'click .use-logged-in': 'useLoggedInAccount',
+      'click a[href="/confirm_reset_password"]': 'resetPasswordNow'
     },
 
     afterRender: function () {
@@ -130,6 +132,8 @@ define(function (require, exports, module) {
         return;
       } else if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
         return self.notifyOfLockedAccount(account, password);
+      } else if (AuthErrors.is(err, 'ACCOUNT_RESET')) {
+        return self._suggestReset(err);
       }
       // re-throw error, it will be handled at a lower level.
       throw err;
@@ -138,6 +142,23 @@ define(function (require, exports, module) {
     _suggestSignUp: function (err) {
       err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
       return this.displayErrorUnsafe(err);
+    },
+
+    _suggestReset: function (err) {
+      this.email = err.email;
+      var msg = t('Your account has been locked for security reasons') + '<br>' +
+        '<a href="/confirm_reset_password">' + t('Reset password') + '</a>';
+      err.forceMessage = msg;
+      return this.displayErrorUnsafe(err);
+    },
+
+    resetPasswordNow: function () {
+      var self = this;
+      return self.resetPassword(self.email)
+        .fail(function (err) {
+          Session.clear('oauth');
+          throw err;
+        });
     },
 
     /**
@@ -252,6 +273,7 @@ define(function (require, exports, module) {
     AvatarMixin,
     MigrationMixin,
     PasswordMixin,
+    PasswordResetMixin,
     ResumeTokenMixin,
     ServiceMixin,
     SignInMixin,
