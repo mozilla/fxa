@@ -28,13 +28,6 @@ module.exports = function (
   checkPassword
   ) {
 
-
-  // Content token rules and regexes
-  var HAPI_CONTENT_TOKEN_RULE = isA.string().min(66).max(66).regex(HEX_STRING).optional()
-  if (config.contentToken.required === true) {
-    HAPI_CONTENT_TOKEN_RULE = isA.string().min(66).max(66).regex(HEX_STRING).required()
-  }
-
   config.contentToken.compiledRegexList = config.contentToken.allowedUARegex.map(function(re) {
     return new RegExp(re)
   })
@@ -308,7 +301,10 @@ module.exports = function (
           payload: {
             email: validators.email().required(),
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
-            contentToken: HAPI_CONTENT_TOKEN_RULE,
+            // Ideally contentToken would be this:
+            //   isA.string().min(66).max(66).regex(HEX_STRING).required()
+            // But then Hapi gives away too much information about it.
+            contentToken: isA.string().optional(),
             service: isA.string().max(16).alphanum().optional(),
             reason: isA.string().max(16).optional(),
             device: isA.object({
