@@ -226,6 +226,7 @@ define(function (require, exports, module) {
           campaign: CAMPAIGN,
           entrypoint: ENTRYPOINT,
           notPassed: 'this should not be picked',
+          resetPasswordConfirm: true,
           utmCampaign: CAMPAIGN,
           utmContent: ITEM,
           utmMedium: ITEM,
@@ -236,6 +237,7 @@ define(function (require, exports, module) {
         assert.deepEqual(relier.pickResumeTokenInfo(), {
           campaign: CAMPAIGN,
           entrypoint: ENTRYPOINT,
+          resetPasswordConfirm: true,
           utmCampaign: CAMPAIGN,
           utmContent: ITEM,
           utmMedium: ITEM,
@@ -252,7 +254,8 @@ define(function (require, exports, module) {
         var resumeData = {
           campaign: CAMPAIGN,
           entrypoint: ENTRYPOINT,
-          notImported: 'this should not be picked'
+          notImported: 'this should not be picked',
+          resetPasswordConfirm: false
         };
         var resumeToken = ResumeToken.stringify(resumeData);
 
@@ -265,6 +268,7 @@ define(function (require, exports, module) {
             assert.equal(relier.get('campaign'), CAMPAIGN);
             assert.equal(relier.get('entrypoint'), ENTRYPOINT);
             assert.isUndefined(relier.get('notImported'), 'only allow specific resume token values');
+            assert.isFalse(relier.get('resetPasswordConfirm'));
           });
       });
     });

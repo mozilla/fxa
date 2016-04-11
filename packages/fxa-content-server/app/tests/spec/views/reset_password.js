@@ -265,6 +265,8 @@ define(function (require, exports, module) {
         relier: relier
       });
 
+      sinon.spy(view, '_resetPassword');
+
       return view.render();
     });
 
@@ -284,6 +286,55 @@ define(function (require, exports, module) {
 
     it('has a link back to /force_auth', function () {
       assert.ok(view.$('a[href="/force_auth"]').length);
+    });
+
+    it('does not submit the email address automatically', function () {
+      assert.isFalse(view._resetPassword.called);
+    });
+
+    it('removes the back button - the user probably browsed here directly', function () {
+      assert.equal(view.$('#back').length, 0);
+    });
+  });
+
+  describe('views/reset_password with reset_password_confirm=false', function () {
+    var view;
+    var relier;
+    var broker;
+    var formPrefill;
+
+    beforeEach(function () {
+      relier = new Relier();
+      relier.set('email', 'testuser@testuser.com');
+      relier.set('resetPasswordConfirm', false);
+
+      broker = new Broker({
+        relier: relier
+      });
+
+      formPrefill = new FormPrefill();
+
+      view = new View({
+        broker: broker,
+        formPrefill: formPrefill,
+        relier: relier
+      });
+
+      sinon.stub(view, 'resetPassword', function () {
+        return p();
+      });
+
+      return view.render();
+    });
+
+    afterEach(function () {
+      view.destroy();
+      view = null;
+      $('#container').empty();
+    });
+
+    it('submits the email address automatically', function () {
+      assert.isTrue(view.resetPassword.calledWith('testuser@testuser.com'));
     });
   });
 });

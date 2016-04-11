@@ -457,6 +457,7 @@ define(function (require, exports, module) {
           campaign: CAMPAIGN,
           entrypoint: ENTRYPOINT,
           notPassed: 'this should not be picked',
+          resetPasswordConfirm: false,
           state: STATE,
           utmCampaign: CAMPAIGN,
           utmContent: ITEM,
@@ -471,6 +472,7 @@ define(function (require, exports, module) {
           // the Relier are still passed.
           campaign: CAMPAIGN,
           entrypoint: ENTRYPOINT,
+          resetPasswordConfirm: false,
           state: STATE,
           utmCampaign: CAMPAIGN,
           utmContent: ITEM,

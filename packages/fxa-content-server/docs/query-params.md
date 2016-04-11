@@ -344,6 +344,16 @@ If the "mailcheck" feature should be used.
 * /signup
 * /oauth/signup
 
+## Reset Password parameters
 
+### `reset_password_confirm`
+Used to skip the confirmation form to reset a password
 
+#### Options
+* `true` (default)
+* `false`
+
+#### When to use
+Should not be used by reliers.
+Should only be used for accounts that must be reset.
 

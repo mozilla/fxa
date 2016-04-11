@@ -17,6 +17,7 @@ define(function (require, exports, module) {
     defaults: {
       campaign: undefined,
       entrypoint: undefined,
+      resetPasswordConfirm: undefined,
       state: undefined,
       uniqueUserId: undefined,
       utmCampaign: null,

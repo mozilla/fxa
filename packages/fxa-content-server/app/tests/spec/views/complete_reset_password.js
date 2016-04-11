@@ -197,7 +197,23 @@ define(function (require, exports, module) {
             assert.ok(view.$('#fxa-reset-link-expired-header').length);
           });
       });
+
+      it('shows the Sync warning by default', function () {
+        return view.render()
+          .then(function () {
+            assert.ok(view.$('.reset-warning').length);
+          });
+      });
+
+      it('does not show the Sync warning if relier.resetPasswordConfirm === false', function () {
+        relier.set('resetPasswordConfirm', false);
+        return view.render()
+          .then(function () {
+            assert.equal(view.$('.reset-warning').length, 0);
+          });
+      });
     });
+
 
     describe('isValid', function () {
       it('returns true if password & vpassword valid and the same', function () {
@@ -348,6 +364,32 @@ define(function (require, exports, module) {
 
         it('redirects the user to `/settings`', function () {
           assert.isTrue(view.navigate.calledWith('settings'));
+        });
+      });
+
+      describe('access with `resetPasswordConfirm` set to `false`', function () {
+        beforeEach(function () {
+          relier.set('resetPasswordConfirm', false);
+
+          view.$('[type=password]').val(PASSWORD);
+
+          sinon.stub(user, 'completeAccountPasswordReset', function (account) {
+            return p(account);
+          });
+
+          sinon.stub(user, 'setSignedInAccount', function (newAccount) {
+            return p(newAccount);
+          });
+
+          sinon.stub(relier, 'isDirectAccess', function () {
+            return false;
+          });
+
+          return view.validateAndSubmit();
+        });
+
+        it('sets `resetPasswordConfirm` back to `true` when the reset completes', function () {
+          assert.equal(relier.get('resetPasswordConfirm'), true);
         });
       });
 

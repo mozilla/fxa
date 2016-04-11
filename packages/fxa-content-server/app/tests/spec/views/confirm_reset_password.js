@@ -177,6 +177,30 @@ define(function (require, exports, module) {
             assert.isFalse(!! view.$('a.sign-in').attr('onclick'));
           });
       });
+
+      describe('sign-in button', function () {
+        describe('with relier.resetPasswordConfirm===true', function () {
+          beforeEach(function () {
+            relier.set('resetPasswordConfirm', true);
+            return view.render();
+          });
+
+          it('is visible', function () {
+            assert.ok(view.$('.sign-in').length);
+          });
+        });
+
+        describe('with relier.resetPasswordConfirm===false', function () {
+          beforeEach(function () {
+            relier.set('resetPasswordConfirm', false);
+            return view.render();
+          });
+
+          it('is not visible', function () {
+            assert.equal(view.$('.sign-in').length, 0);
+          });
+        });
+      });
     });
 
     describe('afterVisible', function () {
@@ -226,6 +250,25 @@ define(function (require, exports, module) {
             assert.isTrue(broker.persistVerificationData.called);
             assert.isTrue(
               view._finishPasswordResetDifferentBrowser.called);
+            assert.isTrue(TestHelpers.isEventLogged(
+              metrics, 'confirm_reset_password.verification.success'));
+          });
+      });
+
+      it('sets the `resetPasswordConfirm` flag back to `true` after the reset completes', function () {
+        sinon.stub(view, '_waitForConfirmation', function () {
+          return p(null);
+        });
+
+        sinon.stub(view, '_finishPasswordResetDifferentBrowser', function () {
+          return p();
+        });
+
+        relier.set('resetPasswordConfirm', false);
+
+        return view.afterVisible()
+          .then(function () {
+            assert.equal(relier.get('resetPasswordConfirm'), true);
             assert.isTrue(TestHelpers.isEventLogged(
               metrics, 'confirm_reset_password.verification.success'));
           });
