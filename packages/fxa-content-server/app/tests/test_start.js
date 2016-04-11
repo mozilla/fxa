@@ -125,6 +125,7 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/avatar-mixin',
     '../tests/spec/views/mixins/back-mixin',
     '../tests/spec/views/mixins/account-locked-mixin',
+    '../tests/spec/views/mixins/account-reset-mixin',
     '../tests/spec/views/mixins/checkbox-mixin',
     '../tests/spec/views/mixins/notifier-mixin',
     '../tests/spec/views/mixins/loading-mixin',

@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var AccountLockedMixin = require('views/mixins/account-locked-mixin');
+  var AccountResetMixin = require('views/mixins/account-reset-mixin');
   var allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
   var AuthErrors = require('lib/auth-errors');
   var AvatarMixin = require('views/mixins/avatar-mixin');
@@ -77,8 +78,7 @@ define(function (require, exports, module) {
 
     events: {
       'click .use-different': 'useDifferentAccount',
-      'click .use-logged-in': 'useLoggedInAccount',
-      'click a[href="/confirm_reset_password"]': 'resetPasswordNow'
+      'click .use-logged-in': 'useLoggedInAccount'
     },
 
     afterRender: function () {
@@ -133,7 +133,7 @@ define(function (require, exports, module) {
       } else if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
         return self.notifyOfLockedAccount(account, password);
       } else if (AuthErrors.is(err, 'ACCOUNT_RESET')) {
-        return self._suggestReset(err);
+        return self.notifyOfResetAccount(account);
       }
       // re-throw error, it will be handled at a lower level.
       throw err;
@@ -142,23 +142,6 @@ define(function (require, exports, module) {
     _suggestSignUp: function (err) {
       err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
       return this.displayErrorUnsafe(err);
-    },
-
-    _suggestReset: function (err) {
-      this.email = err.email;
-      var msg = t('Your account has been locked for security reasons') + '<br>' +
-        '<a href="/confirm_reset_password">' + t('Reset password') + '</a>';
-      err.forceMessage = msg;
-      return this.displayErrorUnsafe(err);
-    },
-
-    resetPasswordNow: function () {
-      var self = this;
-      return self.resetPassword(self.email)
-        .fail(function (err) {
-          Session.clear('oauth');
-          throw err;
-        });
     },
 
     /**
@@ -270,6 +253,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     AccountLockedMixin,
+    AccountResetMixin,
     AvatarMixin,
     MigrationMixin,
     PasswordMixin,

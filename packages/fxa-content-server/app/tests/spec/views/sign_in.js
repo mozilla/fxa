@@ -231,7 +231,7 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('with a locked out user', function () {
+      describe('with a locked out account', function () {
         beforeEach(function () {
           sinon.stub(view, 'signIn', function () {
             return p.reject(AuthErrors.toError('ACCOUNT_LOCKED'));
@@ -249,6 +249,25 @@ define(function (require, exports, module) {
           assert.instanceOf(account, Account);
           var lockedAccountPassword = args[1];
           assert.equal(lockedAccountPassword, 'password');
+        });
+      });
+
+      describe('with a reset account', function () {
+        beforeEach(function () {
+          sinon.stub(view, 'signIn', function () {
+            return p.reject(AuthErrors.toError('ACCOUNT_RESET'));
+          });
+
+          sinon.spy(view, 'notifyOfResetAccount');
+
+          return view.submit();
+        });
+
+        it('notifies the user of the reset account', function () {
+          assert.isTrue(view.notifyOfResetAccount.called);
+          var args = view.notifyOfResetAccount.args[0];
+          var account = args[0];
+          assert.instanceOf(account, Account);
         });
       });
 

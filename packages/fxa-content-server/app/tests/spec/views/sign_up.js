@@ -827,6 +827,70 @@ define(function (require, exports, module) {
           });
         });
 
+        describe('signin fails with a locked out account', function () {
+          beforeEach(function () {
+            sinon.stub(view, 'signIn', function () {
+              return p.reject(AuthErrors.toError('ACCOUNT_LOCKED'));
+            });
+
+            sinon.spy(view, 'notifyOfLockedAccount');
+
+            return view.submit();
+          });
+
+          it('does not call view.signUp', function () {
+            assert.isFalse(view.signUp.called);
+          });
+
+          it('calls view.signIn correctly', function () {
+            assert.equal(view.signIn.callCount, 1);
+
+            var args = view.signIn.args[0];
+            assert.instanceOf(args[0], Account);
+            assert.equal(args[1], 'password');
+          });
+
+          it('notifies the user of the locked account', function () {
+            assert.isTrue(view.notifyOfLockedAccount.called);
+            var args = view.notifyOfLockedAccount.args[0];
+            var account = args[0];
+            assert.instanceOf(account, Account);
+            var lockedAccountPassword = args[1];
+            assert.equal(lockedAccountPassword, 'password');
+          });
+        });
+
+        describe('signin failse with a reset accont', function () {
+          beforeEach(function () {
+            sinon.stub(view, 'signIn', function () {
+              return p.reject(AuthErrors.toError('ACCOUNT_RESET'));
+            });
+
+            sinon.spy(view, 'notifyOfResetAccount');
+
+            return view.submit();
+          });
+
+          it('does not call view.signUp', function () {
+            assert.isFalse(view.signUp.called);
+          });
+
+          it('calls view.signIn correctly', function () {
+            assert.equal(view.signIn.callCount, 1);
+
+            var args = view.signIn.args[0];
+            assert.instanceOf(args[0], Account);
+            assert.equal(args[1], 'password');
+          });
+
+          it('notifies the user of the reset account', function () {
+            assert.isTrue(view.notifyOfResetAccount.called);
+            var args = view.notifyOfResetAccount.args[0];
+            var account = args[0];
+            assert.instanceOf(account, Account);
+          });
+        });
+
         describe('signin fails with some other error', function () {
           beforeEach(function () {
             sandbox.stub(view, 'signIn', function () {
