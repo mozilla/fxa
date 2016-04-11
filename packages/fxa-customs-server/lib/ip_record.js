@@ -5,9 +5,7 @@
 var actions = require('./actions')
 
 // Keep track of events related to just IP addresses
-module.exports = function (BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE_LIMIT_BAN_DURATION_MS, MAX_BAD_LOGINS_PER_IP, MAX_ACCOUNT_STATUS_CHECK, MAX_UNKNOWN_LOGINS_PER_IP, now) {
-
-  var UNKNOWN_ACCOUNT_ERRNO = 102
+module.exports = function (BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE_LIMIT_BAN_DURATION_MS, MAX_BAD_LOGINS_PER_IP, BAD_LOGIN_ERRNO_WEIGHTS, MAX_ACCOUNT_STATUS_CHECK, now) {
 
   now = now || Date.now
 
@@ -36,15 +34,9 @@ module.exports = function (BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE
 
   IpRecord.prototype.isOverBadLogins = function () {
     this.trimBadLogins(now())
-    if (this.lf.length === 0) {
-      return false
-    } else if (this.lf.length > MAX_BAD_LOGINS_PER_IP) {
-      return true
-    } else {
-      return this.lf.reduce(function (prev, curr) {
-        return curr.e === UNKNOWN_ACCOUNT_ERRNO ? prev + 1 : prev
-      }, 0) > MAX_UNKNOWN_LOGINS_PER_IP
-    }
+    return this.lf.reduce(function (prev, curr) {
+      return prev + (BAD_LOGIN_ERRNO_WEIGHTS[curr.e] || 1)
+    }, 0) > MAX_BAD_LOGINS_PER_IP
   }
 
   IpRecord.prototype.addBadLogin = function (info) {
