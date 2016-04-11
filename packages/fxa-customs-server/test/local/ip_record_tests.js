@@ -108,10 +108,12 @@ test(
     var ir = simpleIpRecord()
     ir.as = []
 
-    ir.update('accountStatusCheck')
+    ir.update('accountStatusCheck', 'test1@example.com')
     t.equal(ir.retryAfter(), 0, 'rate-limit not exceeded')
-    ir.update('accountStatusCheck')
-    t.equal(ir.retryAfter(), 1, 'rate-limit exceeded')
+    ir.update('accountStatusCheck', 'test1@example.com')
+    t.equal(ir.retryAfter(), 0, 'rate-limit not exceeded using same email')
+    ir.update('accountStatusCheck', 'test2@example.com')
+    t.equal(ir.retryAfter(), 1, 'rate-limit exceeded using different email')
     t.end()
   }
 )
