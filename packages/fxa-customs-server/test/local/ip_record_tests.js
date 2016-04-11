@@ -15,8 +15,8 @@ function simpleIpRecord() {
     1 * 1000,
     1 * 1000,
     3,
+    { '102': 2 },
     1,
-    2,
     now))()
 }
 
@@ -82,12 +82,12 @@ test(
   function (t) {
     var ir = simpleIpRecord()
     t.equal(ir.shouldBlock(), false, 'original object is not blocked')
-    var irCopy1 = (ipRecord(120 * 1000, 90, 90, 2, 1, 1, now)).parse(ir)
+    var irCopy1 = (ipRecord(120 * 1000, 90, 90, 2, {}, 1, now)).parse(ir)
     t.equal(irCopy1.shouldBlock(), false, 'copied object is not blocked')
 
     ir.block()
     t.equal(ir.shouldBlock(), true, 'original object is now blocked')
-    var irCopy2 = (ipRecord(120 * 1000, 90, 90, 2, 1, 1, now)).parse(ir)
+    var irCopy2 = (ipRecord(120 * 1000, 90, 90, 2, {}, 1, now)).parse(ir)
     t.equal(irCopy2.shouldBlock(), true, 'copied object is blocked')
     t.end()
   }
@@ -120,11 +120,11 @@ test(
 test(
   'getMinLifetimeMS works',
   function (t) {
-    var ir = new (ipRecord(10, 15, 20, 2, 5, now))()
+    var ir = new (ipRecord(10, 15, 20, 2, {}, 5, now))()
     t.equal(ir.getMinLifetimeMS(), 20, 'lifetime >= rl ban duration')
-    ir = new (ipRecord(11, 21, 15, 2, 5, now))()
+    ir = new (ipRecord(11, 21, 15, 2, {}, 5, now))()
     t.equal(ir.getMinLifetimeMS(), 21, 'lifetime >= rl tracking interval')
-    ir = new (ipRecord(22, 15, 12, 2, 5, now))()
+    ir = new (ipRecord(22, 15, 12, 2, {}, 5, now))()
     t.equal(ir.getMinLifetimeMS(), 22, 'lifetime >= block internal')
     t.end()
   }
@@ -139,13 +139,14 @@ test(
     ir.addBadLogin({ errno: 555 })
     ir.addBadLogin({ errno: 444 })
     t.equal(ir.isOverBadLogins(), false, 'three records is not over')
+    ir.addBadLogin({ errno: 777 })
+    t.equal(ir.isOverBadLogins(), true, 'four records is over')
 
     var ir2 = simpleIpRecord()
     ir2.addBadLogin({ errno: 102 })
+    t.equal(ir2.isOverBadLogins(), false, 'one unknown record is not over')
     ir2.addBadLogin({ errno: 102 })
-    t.equal(ir2.isOverBadLogins(), false, 'two unknown records is not over')
-    ir2.addBadLogin({ errno: 102 })
-    t.equal(ir2.isOverBadLogins(), true, 'three unknown records is over')
+    t.equal(ir2.isOverBadLogins(), true, 'two unknown records is over')
     t.end()
   }
 )

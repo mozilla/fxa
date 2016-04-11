@@ -24,8 +24,8 @@ module.exports = function createServer(config, log) {
   var BAD_LOGIN_LOCKOUT_INTERVAL_MS = config.limits.badLoginLockoutIntervalSeconds * 1000
   var MAX_BAD_LOGINS = config.limits.maxBadLogins
   var MAX_BAD_LOGINS_PER_IP = config.limits.maxBadLoginsPerIp
+  var BAD_LOGIN_ERRNO_WEIGHTS = config.limits.badLoginErrnoWeights
   var MAX_ACCOUNT_STATUS_CHECK = config.limits.maxAccountStatusCheck
-  var MAX_UNKNOWN_LOGINS_PER_IP = config.limits.maxUnknownLoginsPerIp
 
   // Make allowedIPs into an object for faster lookup on each check.
   var ALLOWED_IPS = {}
@@ -37,7 +37,7 @@ module.exports = function createServer(config, log) {
 
   var IpEmailRecord = require('./ip_email_record')(RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS)
   var EmailRecord = require('./email_record')(RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, BAD_LOGIN_LOCKOUT_INTERVAL_MS, config.limits.maxEmails, config.limits.badLoginLockout)
-  var IpRecord = require('./ip_record')(BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE_LIMIT_BAN_DURATION_MS, MAX_BAD_LOGINS_PER_IP, MAX_ACCOUNT_STATUS_CHECK, MAX_UNKNOWN_LOGINS_PER_IP)
+  var IpRecord = require('./ip_record')(BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE_LIMIT_BAN_DURATION_MS, MAX_BAD_LOGINS_PER_IP, BAD_LOGIN_ERRNO_WEIGHTS, MAX_ACCOUNT_STATUS_CHECK)
 
   var mc = new Memcached(
     config.memcache.address,

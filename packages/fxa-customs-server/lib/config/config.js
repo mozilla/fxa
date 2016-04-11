@@ -67,11 +67,14 @@ module.exports = function (fs, path, url, convict) {
         format: 'nat',
         env: 'MAX_BAD_LOGINS_PER_IP'
       },
-      maxUnknownLoginsPerIp: {
-        doc: 'Number failed login attempts where email is unknown within rateLimitIntervalSeconds on a single IP before throttling',
-        default: 2,
-        format: 'nat',
-        env: 'MAX_UNKNOWN_LOGINS_PER_IP'
+      badLoginErrnoWeights: {
+        doc: 'Maps bad-login errnos to a weight multipler, because some bad logins are badder than others',
+        format: Object,
+        env: 'BAD_LOGIN_ERRNO_WEIGHTS',
+        default: {
+          '102': 2,
+          '125': 4
+        }
       },
       ipRateLimitIntervalSeconds: {
         doc: 'Duration of automatic throttling for IPs',

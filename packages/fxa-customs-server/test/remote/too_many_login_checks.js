@@ -133,14 +133,24 @@ test(
         t.equal(res.statusCode, 200, 'returns a 200')
         t.equal(obj.retryAfter, 5, 'rate limit retry amount')
         t.equal(obj.block, true, 'ip is now rate limited')
-        // delay by 3 seconds
-        return Promise.delay(3000)
+        // delay by 1 second, do another action within rl interval
+        return Promise.delay(1000)
       })
       .spread(function(req, res, obj){
         return client.postAsync('/check', { ip: TEST_IP, email: 'test3@example.com', action: ACCOUNT_LOGIN })
       })
       .spread(function(req, res, obj){
-        t.equal(obj.retryAfter, 5, 'rate limit is renewed')
+        t.equal(res.statusCode, 200, 'returns a 200')
+        t.equal(obj.retryAfter, 5, 'rate limit duration is renewed')
+        t.equal(obj.block, true, 'ip is still rate limited')
+        // delay by 3 seconds, to escape the rl interval
+        return Promise.delay(3000)
+      })
+      .spread(function(req, res, obj){
+        return client.postAsync('/check', { ip: TEST_IP, email: 'test4@example.com', action: ACCOUNT_LOGIN })
+      })
+      .spread(function(req, res, obj){
+        t.ok(obj.retryAfter < 3, 'rate limit duration is not renewed')
         t.equal(obj.block, true, 'ip is still rate limited')
         t.end()
       })
