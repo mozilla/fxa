@@ -48,7 +48,7 @@ function loadTemplates(name) {
 module.exports = function () {
   return P.all(
     [
-      'new_sync_device',
+      'new_device_login',
       'password_changed',
       'password_reset',
       'password_reset_required',
