@@ -58,11 +58,11 @@ define([
         .end()
 
         // uncheck the passwords and history engines
-        .findByCssSelector('input[value="passwords"]')
+        .findByCssSelector('div.two-col-block:nth-child(2) > div:nth-child(1) > label:nth-child(1)')
           .click()
         .end()
 
-        .findByCssSelector('input[value="history"]')
+        .findByCssSelector('div.two-col-block:nth-child(2) > div:nth-child(2) > label:nth-child(1)')
           .click()
         .end()
 
