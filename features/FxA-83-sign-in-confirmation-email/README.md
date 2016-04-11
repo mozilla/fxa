@@ -1,0 +1,160 @@
+# Sign-in confirmation email
+
+## Problem statement
+
+It is possible for attackers
+armed with a list of known email/password pairs
+to maliciously access users’ Firefox Accounts.
+In such cases,
+attackers would have full access
+to the user’s Sync data,
+including passwords, history, bookmarks and
+the ability to force-install malicious add-ons.
+
+## Outcomes
+
+If an attack occurs,
+we would like fewer accounts to be compromised
+without negatively impacting
+the number of signed-in users
+or our overall FxA engagement rate.
+
+## Hypothesis
+
+If we introduce an additional email confirmation step
+for Sync sign-ins,
+fewer accounts will be compromised.
+We will know this to be true if,
+in the event of an attack,
+the number of successful sign-ins remains constant
+and the count of 104 (unverified account) errors
+from protected endpoints
+increases in line with any wider increase in traffic.
+
+## Assumptions
+
+* The `/account/login` endpoint
+  is solely responsible for initiating
+  the confirmation process.
+
+* The following endpoints should be protected:
+  * `/certificate/sign`
+  * `/account/keys`
+  * `/account/delete`
+  * `/password/change/start`
+
+* In most cases,
+  attackers do not have access
+  to our users' email accounts.
+  Users that do have a compromised email account
+  are out of scope for this feature.
+
+## Constraints
+
+* In light of the recent attack,
+  the solution should be quick to implement.
+
+* The solution must work across all clients,
+  without patches landing in client code.
+
+* The solution must not affect existing sessions
+  from the user's point of view.
+
+* The solution must work from
+  regular Sync sign-in,
+  `/force_auth` and
+  when signing-in to Sync from `/signup`.
+
+## Proposed solution
+
+Add a notion of “verified”
+to sessionTokens and keyFetchTokens.
+Tokens that are unverified have reduced powers.
+Token verification is achieved
+by following a link sent by email.
+
+## User stories
+
+* As a Sync user,
+  when signing in to my Firefox Account,
+  I want my identity confirmed
+  via my email account.
+
+* As a user of an OAuth relier,
+  when signing in to my Firefox Account,
+  I do not want an extra confirmation step.
+
+## Work breakdown
+
+### fxa-content-server
+
+- [ ] Add strings to `strings.js`
+  to get localization done quicker.
+- [ ] Implement "confirm your email" screen.
+- [ ] Implement confirmation landing screen.
+- [ ] Add handling for `verified` and `challenge` fields
+  in `/account/login` response.
+
+### fxa-auth-server
+
+- [ ] Add method to `mailer.js`
+  for sending confirmation email.
+- [ ] Modify `/account/login`
+  to send verification status to db,
+  initiate verification email
+  and set `challenge` on response.
+- [ ] In `/account/delete`,
+  fail with 102 (unverified user) error
+  if sessionToken is not verified.
+- [ ] In `/certificate/sign`,
+  fail with 102 (unverified user) error
+  if sessionToken is not verified.
+- [ ] In `/account/keys`,
+  fail with 102 (unverified user) error
+  if keyFetchToken is not verified.
+- [ ] In `/password/change/start`,
+  require a sessionToken
+  and fail with 102 (unverified user) error
+  if sessionToken is not verified.
+- [ ] Add a new endpoint for token verification.
+
+### fxa-auth-db-mysql
+
+- [ ] Create `tokenVerifications` table
+  and associated stored procedures.
+- [ ] Update token-creation stored procedures
+  to also insert into `tokenVerifications`
+  as part of the same transaction.
+- [ ] Update `PUT /sessionToken/:id` endpoint
+  to accept verification state.
+- [ ] Update `PUT /keyFetchToken/:id` endpoint
+  to always create token unverified.
+- [ ] Add `/token/verify` endpoint for verifying tokens.
+- [ ] Add stored procedure and endpoint
+  that returns token joined to its `tokenVerifications` row
+  for callers that need to check token verification state.
+
+### fxa-auth-mailer
+
+- [ ] Add confirmation email templates and methods
+
+## Mock-ups
+
+### Confirm this sign-in screen
+
+![Mock-up of the "Confirm this sign-in" screen](confirm-this-sign-in.png)
+
+### Confirmation email
+
+![Mock-up of the confirmation email](confirmation-email.png)
+
+### Sign-in confirmed screen
+
+#### On the signed-in device
+
+![Mock-up of the "Sign-in confirmed" screen, on the signed-in device](sign-in-confirmed-on-device.png)
+
+#### Off the signed-in device
+
+![Mock-up of the "Sign-in confirmed" screen, not on the signed-in device](sign-in-confirmed-off-device.png)
+
