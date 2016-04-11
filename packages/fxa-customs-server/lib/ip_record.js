@@ -9,6 +9,8 @@ module.exports = function (BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE
 
   now = now || Date.now
 
+  var ERRNO_THROTTLED = 114
+
   function IpRecord() {
     this.lf = []
     this.as = []
@@ -122,22 +124,23 @@ module.exports = function (BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE
       return 0
     }
 
-    // Increment account status check and throttle if needed
+    // Increment account-status-check count and throttle if needed
     if (actions.isAccountStatusAction(action)) {
       this.addAccountStatusCheck()
-      if (this.isOverAccountStatusCheck() && !this.isRateLimited()){
+      if (this.isOverAccountStatusCheck()){
+        // If you do more checks while rate-limited, this can extend the ban.
         this.rateLimit()
       }
     }
 
-    // Throttle password-checking attempts if too many failed logins.
-    // Rate-limited login attempts still count towards your quota.
+    // Increment password-check count and throttle if needed
     if (actions.isPasswordCheckingAction(action)) {
       if (this.isRateLimited() || this.isOverBadLogins()) {
-        // attempt a password-checking action leads to a bad attempt
-        this.addBadLogin({ errno: 114 })
-        // we also re-rate-limit this attempt.
-        // this extends the duration of the ban.
+        // If we block an attempt, it still counts as a bad login.
+        this.addBadLogin({ errno: ERRNO_THROTTLED })
+      }
+      if (this.isOverBadLogins()) {
+        // If you attempt more logins while rate-limited, this can extend the ban.
         this.rateLimit()
       }
     }
