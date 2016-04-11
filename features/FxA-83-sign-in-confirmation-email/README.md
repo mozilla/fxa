@@ -33,15 +33,15 @@ increases in line with any wider increase in traffic.
 
 ## Assumptions
 
-* The `/account/login` endpoint
-  is solely responsible for initiating
+* The `/account/login`
+  and `/password/change/start` endpoints
+  are responsible for initiating
   the confirmation process.
 
 * The following endpoints should be protected:
   * `/certificate/sign`
   * `/account/keys`
   * `/account/delete`
-  * `/password/change/start`
 
 * In most cases,
   attackers do not have access
@@ -95,21 +95,19 @@ by following a link sent by email.
 - [ ] Implement "confirm your email" screen.
 - [ ] Implement confirmation landing screen.
 - [ ] Add handling for `verified` and `challenge` fields
-  in `/account/login` response.
+  in `/account/login`
+  and `/password/change/start` responses.
 - [ ] Add handling for 102 errors
   in `/certificate/sign`,
-  `/account/keys`,
-  `/account/delete`
-  and `/password/change/start`
-  responses.
-- [ ] Ensure we never request `/password/change/start`
-  without a session token.
+  `/account/keys`
+  and `/account/delete`.
 
 ### fxa-auth-server
 
 - [ ] Add method to `mailer.js`
   for sending confirmation email.
 - [ ] Modify `/account/login`
+  and `/password/change/start`
   to send verification status to db,
   initiate verification email
   and set `challenge` on response.
@@ -127,8 +125,6 @@ by following a link sent by email.
   use new `verifiedSessionToken` auth strategy.
 - [ ] In `/account/keys`,
   use new `verifiedKeyFetchToken` auth strategy.
-- [ ] In `/password/change/start`,
-  use new `verifiedSessionToken` auth strategy.
 - [ ] Add a new endpoint for token verification.
 
 ### fxa-auth-db-mysql
