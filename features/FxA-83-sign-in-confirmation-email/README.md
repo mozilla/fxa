@@ -69,7 +69,9 @@ increases in line with any wider increase in traffic.
 
 Add a notion of “verified”
 to sessionTokens and keyFetchTokens.
-Tokens that are unverified have reduced powers.
+Tokens that are unverified have reduced powers,
+meaning that requests to protected endpoints will fail
+with error number 102 (unverified user).
 Token verification is achieved
 by following a link sent by email.
 
@@ -94,6 +96,12 @@ by following a link sent by email.
 - [ ] Implement confirmation landing screen.
 - [ ] Add handling for `verified` and `challenge` fields
   in `/account/login` response.
+- [ ] Add handling for 102 errors
+  in `/certificate/sign`,
+  `/account/keys`,
+  `/account/delete`
+  and `/password/change/start`
+  responses.
 
 ### fxa-auth-server
 
