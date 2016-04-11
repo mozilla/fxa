@@ -5,7 +5,7 @@
 var P = require('bluebird')
 var createMailer = require('./mailer')
 
-module.exports = function (log, config) {
+module.exports = function (log, config, sender) {
   var Mailer = createMailer(log)
   return P.all(
     [
@@ -15,7 +15,7 @@ module.exports = function (log, config) {
   )
   .spread(
     function (translator, templates) {
-      return new Mailer(translator, templates, config.mail)
+      return new Mailer(translator, templates, config.mail, sender)
     }
   )
 }

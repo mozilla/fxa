@@ -20,8 +20,14 @@ module.exports = function (log) {
     return txt
   }
 
+  function linkAttributes(url) {
+    // Not very nice to have presentation code in here, but this is to help l10n
+    // contributors not deal with extraneous noise in strings.
+    return 'href="' + url + '" style="color: #0095dd; text-decoration: none; font-family: sans-serif;"'
+  }
 
-  function Mailer(translator, templates, config) {
+
+  function Mailer(translator, templates, config, sender) {
     var options = {
       host: config.host,
       secureConnection: config.secure,
@@ -35,7 +41,7 @@ module.exports = function (log) {
       }
     }
 
-    this.mailer = nodemailer.createTransport('SMTP', options)
+    this.mailer = sender || nodemailer.createTransport('SMTP', options)
     this.sender = config.sender
     this.verificationUrl = config.verificationUrl
     this.initiatePasswordResetUrl = config.initiatePasswordResetUrl
@@ -56,34 +62,41 @@ module.exports = function (log) {
   }
 
   Mailer.prototype._supportLinkAttributes = function () {
-    // Not very nice to have presentation code in here, but this is to help l10n
-    // contributors not deal with extraneous noise in strings.
-    return 'href="' + this.supportUrl + '" style="color: #0095dd; text-decoration: none; font-family: sans-serif;"'
+    return linkAttributes(this.supportUrl)
   }
 
   Mailer.prototype._initiatePasswordChange = function () {
-    // Not very nice to have presentation code in here, but this is to help l10n
-    // contributors not deal with extraneous noise in strings.
-    return 'href="' + this.initiatePasswordChangeUrl + '" style="color: #0095dd; text-decoration: none; font-family: sans-serif;"'
+    return linkAttributes(this.initiatePasswordChangeUrl)
   }
 
-  Mailer.prototype.send = function (message) {
-    log.trace({ op: 'mailer.' + message.template, email: message.email, uid: message.uid })
-
+  Mailer.prototype.localize = function (message) {
     var translator = this.translator(message.acceptLanguage)
 
     var localized = this.templates[message.template](extend({
       translator: translator
     }, message.templateValues))
 
+    return {
+      html: localized.html,
+      language: translator.language,
+      subject: translator.gettext(message.subject),
+      text: localized.text,
+    }
+  }
+
+  Mailer.prototype.send = function (message) {
+    log.trace({ op: 'mailer.' + message.template, email: message.email, uid: message.uid })
+
+    var localized = this.localize(message)
+
     var emailConfig = {
       sender: this.sender,
       to: message.email,
-      subject: translator.gettext(message.subject),
+      subject: localized.subject,
       text: localized.text,
       html: localized.html,
       headers: extend({
-        'Content-Language': translator.language
+        'Content-Language': localized.language
       }, message.headers)
     }
 
@@ -211,8 +224,15 @@ module.exports = function (log) {
     })
   }
 
-  Mailer.prototype.createPasswordResetLink = function(email) {
-    return this.initiatePasswordResetUrl + '?' + qs.stringify({ email: email })
+  Mailer.prototype.createPasswordResetLink = function (email, extraQueryParams) {
+    var queryParams = { email: email }
+    extraQueryParams = extraQueryParams || {}
+
+    for (var key in extraQueryParams) {
+      queryParams[key] = extraQueryParams[key]
+    }
+
+    return this.initiatePasswordResetUrl + '?' + qs.stringify(queryParams)
   }
 
   Mailer.prototype.passwordChangedEmail = function (message) {
@@ -259,8 +279,27 @@ module.exports = function (log) {
     })
   }
 
+  Mailer.prototype.passwordResetRequiredEmail = function (message) {
+    var link = this.createPasswordResetLink(message.email, { reset_password_confirm: false })
+
+    return this.send({
+      acceptLanguage: message.acceptLanguage,
+      email: message.email,
+      headers: {
+        'X-Link': link
+      },
+      subject: gettext('Firefox Account password reset required'),
+      template: 'passwordResetRequiredEmail',
+      templateValues: {
+        resetLink: link
+      },
+      uid: message.uid
+    })
+  }
+
   Mailer.prototype.newSyncDeviceEmail = function (message) {
     log.trace({ op: 'mailer.newSyncDeviceEmail', email: message.email, uid: message.uid })
+
     var link = this.initiatePasswordChangeUrl + '?' + qs.stringify({ email: message.email })
 
     return this.send({
@@ -306,6 +345,36 @@ module.exports = function (log) {
         passwordChangeLinkAttributes: this._initiatePasswordChange()
       },
       uid: message.uid
+    })
+  }
+
+  Mailer.prototype.suspiciousLocationEmail = function (message) {
+    log.trace({ op: 'mailer.suspiciousLocationEmail', email: message.email, uid: message.uid })
+
+    var link = this.createPasswordResetLink(message.email, { reset_password_confirm: false })
+
+    // the helper function `t` references `this.translator`. Because of
+    // the way Handlebars `each` loops work, a translator instance must be
+    // added to each entry or else no translator is available when translating
+    // the entry.
+    var translator = this.translator(message.acceptLanguage)
+
+    message.locations.forEach(function (entry) {
+      entry.translator = translator
+    })
+
+    return this.send({
+      acceptLanguage: message.acceptLanguage,
+      email: message.email,
+      headers: {
+        'X-Link': link
+      },
+      subject: gettext('Suspicious activity with your Firefox Account'),
+      template: 'suspiciousLocationEmail',
+      templateValues: {
+        locations: message.locations,
+        resetLink: link
+      }
     })
   }
 

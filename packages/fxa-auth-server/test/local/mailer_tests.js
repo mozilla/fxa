@@ -14,15 +14,37 @@ var config = require('../../config')
 var Mailer = require('../../mailer')(nullLog)
 
 var messageTypes = [
-  'verifyEmail',
-  'recoveryEmail',
-  'unlockEmail',
+  'newSyncDeviceEmail',
   'passwordChangedEmail',
   'passwordResetEmail',
-  'newSyncDeviceEmail',
+  'passwordResetRequiredEmail',
   'postVerifyEmail',
-  'verificationReminderEmail'
+  'recoveryEmail',
+  'suspiciousLocationEmail',
+  'unlockEmail',
+  'verificationReminderEmail',
+  'verifyEmail'
 ]
+
+var typesWithSupportLinks = [
+  'newDeviceLoginEmail',
+  'passwordChangedEmail',
+  'passwordResetEmail',
+  'postVerifyEmail',
+  'recoveryEmail',
+  'unlockEmail',
+  'verificationReminderEmail',
+  'verifyEmail'
+]
+
+var typesContainConfirmlessPasswordResetLinks = [
+  'passwordResetRequiredEmail',
+  'suspiciousLocationEmail'
+]
+
+function includes(haystack, needle) {
+  return (haystack.indexOf(needle) > -1)
+}
 
 P.all(
   [
@@ -37,26 +59,45 @@ P.all(
         var mailer = new Mailer(translator, templates, config.get('mail'))
 
         var message = {
-          email: 'a@b.com',
-          uid: 'uid',
           code: 'abc123',
+          email: 'a@b.com',
+          locations: [],
           service: 'service',
+          uid: 'uid',
         }
 
         var supportHtmlLink = new RegExp('<a href="' + config.get('mail').supportUrl + '" style="color: #0095dd; text-decoration: none; font-family: sans-serif;">Mozilla Support</a>')
         var supportTextLink = config.get('mail').supportUrl
 
-        test(
-          'test support link is in email template output for ' + type,
-          function (t) {
-            mailer.mailer.sendMail = function (emailConfig) {
-              t.equal(!! emailConfig.html.match(supportHtmlLink), true)
-              t.equal(!! emailConfig.text.match(supportTextLink), true)
-              t.end()
+        if (includes(typesWithSupportLinks, type)) {
+          test(
+            'test support link is in email template output for ' + type,
+            function (t) {
+              mailer.mailer.sendMail = function (emailConfig) {
+                t.equal(!! emailConfig.html.match(supportHtmlLink), true)
+                t.equal(!! emailConfig.text.match(supportTextLink), true)
+                t.end()
+              }
+              mailer[type](message)
             }
-            mailer[type](message)
-          }
-        )
+          )
+        }
+
+        if (includes(typesContainConfirmlessPasswordResetLinks, type)) {
+          var confirmlessResetPasswordLink = mailer.createPasswordResetLink(message.email, { reset_password_confirm: false })
+
+          test(
+            'reset password link is in email template output for ' + type,
+            function (t) {
+              mailer.mailer.sendMail = function (emailConfig) {
+                t.ok(includes(emailConfig.html, confirmlessResetPasswordLink))
+                t.ok(includes(emailConfig.text, confirmlessResetPasswordLink))
+                t.end()
+              }
+              mailer[type](message)
+            }
+          )
+        }
 
         if (type === 'postVerifyEmail') {
           test(
@@ -73,8 +114,45 @@ P.all(
               mailer[type](message)
             }
           )
-        }
+        } else if (type === 'suspiciousLocationEmail') {
+          var locations = [
+            {
+              device: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:48.0) Gecko/20100101 Firefox/48.0',
+              location: 'Mountain View, CA',
+              timestamp: (new Date()).toString()
+            },
+            {
+              device: 'MSIE 10',
+              location: 'London, United Kingdom',
+              timestamp: (new Date()).toString()
+            }
+          ]
 
+          message = {
+            email: 'a@b.com',
+            locations: locations
+          }
+
+          test(
+            'test suspicious location entries are added for ' + type,
+            function (t) {
+              mailer.mailer.sendMail = function (emailConfig) {
+                locations.forEach(function (location) {
+                  t.ok(includes(emailConfig.html, location.device))
+                  t.ok(includes(emailConfig.html, location.location))
+                  t.ok(includes(emailConfig.html, location.timestamp))
+
+                  t.ok(includes(emailConfig.text, location.device))
+                  t.ok(includes(emailConfig.text, location.location))
+                  t.ok(includes(emailConfig.text, location.timestamp))
+                })
+
+                t.end()
+              }
+              mailer[type](message)
+            }
+          )
+        }
       }
     )
   }
