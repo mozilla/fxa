@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var server = require('../lib/server')
-var config = require('../lib/config').root()
+var config = require('../lib/config').getProperties()
 var log = require('../lib/log')(config.log.level, 'customs-server')
 
 function shutdown() {

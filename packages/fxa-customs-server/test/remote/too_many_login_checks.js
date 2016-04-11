@@ -27,7 +27,7 @@ var client = restify.createJsonClient({
   url: 'http://127.0.0.1:' + config.listen.port
 })
 
-Promise.promisifyAll(client)
+Promise.promisifyAll(client, { multiArgs: true })
 
 test(
   'startup',
@@ -136,7 +136,7 @@ test(
         // delay by 1 second, do another action within rl interval
         return Promise.delay(1000)
       })
-      .spread(function(req, res, obj){
+      .then(function(){
         return client.postAsync('/check', { ip: TEST_IP, email: 'test3@example.com', action: ACCOUNT_LOGIN })
       })
       .spread(function(req, res, obj){
@@ -146,7 +146,7 @@ test(
         // delay by 3 seconds, to escape the rl interval
         return Promise.delay(3000)
       })
-      .spread(function(req, res, obj){
+      .then(function(){
         return client.postAsync('/check', { ip: TEST_IP, email: 'test4@example.com', action: ACCOUNT_LOGIN })
       })
       .spread(function(req, res, obj){
