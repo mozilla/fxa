@@ -56,7 +56,8 @@ module.exports.newUserDataHex = function() {
     uaBrowserVersion: 'fake browser version',
     uaOS: 'fake OS',
     uaOSVersion: 'fake OS version',
-    uaDeviceType: 'fake device type'
+    uaDeviceType: 'fake device type',
+    tokenVerificationId: hex16()
   }
 
   // device
@@ -78,7 +79,8 @@ module.exports.newUserDataHex = function() {
     authKey : hex32(),
     uid : data.accountId,
     keyBundle : hex96(),
-    createdAt: Date.now()
+    createdAt: Date.now(),
+    tokenVerificationId: hex16()
   }
 
   // accountResetToken

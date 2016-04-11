@@ -195,30 +195,60 @@ module.exports = function(cfg, server) {
   test(
     'session token handling',
     function (t) {
-      t.plan(65)
+      t.plan(87)
       var user = fake.newUserDataHex()
+      var badUser = fake.newUserDataHex()
+      delete badUser.sessionToken.tokenVerificationId
+
+      // Fetch all of the session tokens for the account
       return client.getThen('/account/' + user.accountId + '/sessions')
         .then(function(r) {
           respOk(t, r)
           t.ok(Array.isArray(r.obj), 'sessions is array')
           t.equal(r.obj.length, 0, 'sessions is empty')
+
+          // Create an account
           return client.putThen('/account/' + user.accountId, user.account)
         })
         .then(function() {
+          // Fetch all of the session tokens for the account
           return client.getThen('/account/' + user.accountId + '/sessions')
         })
         .then(function(r) {
           t.equal(r.obj.length, 0, 'sessions is empty')
+
+          // Attempt to fetch a non-existent session token
           return client.getThen('/sessionToken/' + user.sessionTokenId)
         })
         .then(function(r) {
-          t.fail('A non-existant session token should not have returned anything')
+          t.fail('A non-existent session token should not have returned anything')
         }, function(err) {
-          t.pass('No session token exists yet')
+          testNotFound(t, err)
+
+          // Attempt to fetch a non-existent session token with its verification state
+          return client.getThen('/sessionToken/' + user.sessionTokenId + '/verified')
+        })
+        .then(function(r) {
+          t.fail('A non-existent session token should not have returned anything')
+        }, function(err) {
+          testNotFound(t, err)
+
+          // Attempt to create a session token with no tokenVerificationId
+          return client.putThen('/sessionToken/' + badUser.sessionTokenId, badUser.sessionToken)
+        })
+        .then(function () {
+          t.fail('Should have failed to create a session token with no tokenVerificationId')
+        }, function (err) {
+          t.pass('Correctly failed to create a session token with no tokenVerificationId')
+        })
+        .then(function () {
+          // Create a session token
           return client.putThen('/sessionToken/' + user.sessionTokenId, user.sessionToken)
         })
         .then(function(r) {
           respOk(t, r)
+
+          // Fetch all of the session tokens for the account
           return client.getThen('/account/' + user.accountId + '/sessions')
         })
         .then(function(r) {
@@ -235,6 +265,8 @@ module.exports = function(cfg, server) {
           t.equal(sessions[0].uaOSVersion, user.sessionToken.uaOSVersion, 'uaOSVersion is correct')
           t.equal(sessions[0].uaDeviceType, user.sessionToken.uaDeviceType, 'uaDeviceType is correct')
           t.equal(sessions[0].lastAccessTime, user.sessionToken.createdAt, 'lastAccessTime is correct')
+
+          // Fetch the session token
           return client.getThen('/sessionToken/' + user.sessionTokenId)
         })
         .then(function(r) {
@@ -255,8 +287,49 @@ module.exports = function(cfg, server) {
           t.deepEqual(token.emailCode, user.account.emailCode, 'token emailCode same as account emailCode')
           t.ok(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
           t.ok(token.accountCreatedAt > 0, 'accountCreatedAt is positive number')
+          t.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
 
-          // update the session token
+          // Fetch the session token with its verification state
+          return client.getThen('/sessionToken/' + user.sessionTokenId + '/verified')
+        })
+        .then(function(r) {
+          var token = r.obj
+
+          t.deepEqual(token.tokenData, user.sessionToken.data, 'token data matches')
+          t.deepEqual(token.uid, user.accountId, 'token belongs to this account')
+          t.equal(token.createdAt, user.sessionToken.createdAt, 'createdAt matches')
+          t.equal(token.uaBrowser, user.sessionToken.uaBrowser, 'uaBrowser matches')
+          t.equal(token.uaBrowserVersion, user.sessionToken.uaBrowserVersion, 'uaBrowserVersion matches')
+          t.equal(token.uaOS, user.sessionToken.uaOS, 'uaOS matches')
+          t.equal(token.uaOSVersion, user.sessionToken.uaOSVersion, 'uaOSVersion matches')
+          t.equal(token.uaDeviceType, user.sessionToken.uaDeviceType, 'uaDeviceType matches')
+          t.equal(token.lastAccessTime, token.createdAt, 'lastAccessTime was set')
+          t.equal(!!token.emailVerified, user.account.emailVerified, 'emailVerified same as account emailVerified')
+          t.equal(token.email, user.account.email, 'token.email same as account email')
+          t.deepEqual(token.emailCode, user.account.emailCode, 'token emailCode same as account emailCode')
+          t.ok(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
+          t.ok(token.accountCreatedAt > 0, 'accountCreatedAt is positive number')
+          t.equal(token.tokenVerificationId, user.sessionToken.tokenVerificationId, 'tokenVerificationId is correct')
+
+          // Verify the session token
+          return client.postThen('/token/' + user.sessionToken.tokenVerificationId + '/verify', {
+            uid: user.accountId
+          })
+        })
+        .then(function() {
+          // Fetch the session token
+          return client.getThen('/sessionToken/' + user.sessionTokenId)
+        })
+        .then(function(r) {
+          t.equal(r.obj.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
+
+          // Fetch the session token with its verification state
+          return client.getThen('/sessionToken/' + user.sessionTokenId + '/verified')
+        })
+        .then(function(r) {
+          t.equal(r.obj.tokenVerificationId, null, 'tokenVerificationId is null')
+
+          // Update the session token
           return client.postThen('/sessionToken/' + user.sessionTokenId + '/update', {
             uaBrowser: 'different browser',
             uaBrowserVersion: 'different browser version',
@@ -268,6 +341,8 @@ module.exports = function(cfg, server) {
         })
         .then(function(r) {
           respOk(t, r)
+
+          // Fetch all of the session tokens for the account
           return client.getThen('/account/' + user.accountId + '/sessions')
         })
         .then(function(r) {
@@ -283,6 +358,8 @@ module.exports = function(cfg, server) {
           t.equal(sessions[0].uaOSVersion, 'different OS version', 'uaOSVersion is correct')
           t.equal(sessions[0].uaDeviceType, 'different device type', 'uaDeviceType is correct')
           t.equal(sessions[0].lastAccessTime, 42, 'lastAccessTime is correct')
+
+          // Fetch the session token
           return client.getThen('/sessionToken/' + user.sessionTokenId)
         })
         .then(function(r) {
@@ -299,17 +376,20 @@ module.exports = function(cfg, server) {
           t.equal(token.uaDeviceType, 'different device type', 'uaDeviceType was updated')
           t.equal(token.lastAccessTime, 42, 'lastAccessTime was updated')
 
-          // delete the session token
+          // Delete the session token
           return client.delThen('/sessionToken/' + user.sessionTokenId)
         })
         .then(function(r) {
           respOk(t, r)
+
+          // Fetch all of the session tokens for the account
           return client.getThen('/account/' + user.accountId + '/sessions')
         })
         .then(function(r) {
           respOk(t, r)
           t.equal(r.obj.length, 0, 'sessions is empty')
-          // now make sure the token no longer exists
+
+          // Attempt to fetch the deleted session token
           return client.getThen('/sessionToken/' + user.sessionTokenId)
         })
         .then(function(r) {
@@ -413,20 +493,46 @@ module.exports = function(cfg, server) {
   test(
     'key fetch token handling',
     function (t) {
-      t.plan(13)
+      t.plan(27)
       var user = fake.newUserDataHex()
+      var badUser = fake.newUserDataHex()
+      delete badUser.keyFetchToken.tokenVerificationId
+
+      // Create an account
       return client.putThen('/account/' + user.accountId, user.account)
         .then(function() {
+          // Attempt to fetch a non-existent key fetch token
           return client.getThen('/keyFetchToken/' + user.keyFetchTokenId)
         })
         .then(function(r) {
-          t.fail('A non-existant session token should not have returned anything')
+          t.fail('A non-existent keyFetchToken should not have returned anything')
         }, function(err) {
-          t.pass('No session token exists yet')
+          testNotFound(t, err)
+
+          // Attempt to fetch a non-existent key fetch token with its verification state
+          return client.getThen('/keyFetchToken/' + user.keyFetchTokenId + '/verified')
+        })
+        .then(function(r) {
+          t.fail('A non-existent keyFetchToken should not have returned anything')
+        }, function(err) {
+          testNotFound(t, err)
+
+          // Attempt to create a key fetch token with no tokenVerificationId
+          return client.putThen('/keyFetchToken/' + badUser.keyFetchTokenId, badUser.keyFetchToken)
+        })
+        .then(function () {
+          t.fail('Should have failed to create a key fetch token with no tokenVerificationId')
+        }, function (err) {
+          t.pass('Correctly failed to create a key fetch token with no tokenVerificationId')
+        })
+        .then(function () {
+          // Create a key fetch token
           return client.putThen('/keyFetchToken/' + user.keyFetchTokenId, user.keyFetchToken)
         })
         .then(function(r) {
           respOk(t, r)
+
+          // Fetch the key fetch token
           return client.getThen('/keyFetchToken/' + user.keyFetchTokenId)
         })
         .then(function(r) {
@@ -439,13 +545,47 @@ module.exports = function(cfg, server) {
           t.ok(token.createdAt, 'Got a createdAt')
           t.equal(!!token.emailVerified, user.account.emailVerified)
           t.ok(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
+          t.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
 
-          // now delete it
+          // Fetch the key fetch token with its verification state
+          return client.getThen('/keyFetchToken/' + user.keyFetchTokenId + '/verified')
+        })
+        .then(function(r) {
+          var token = r.obj
+
+          t.deepEqual(token.uid, user.accountId, 'token belongs to this account')
+          t.deepEqual(token.authKey, user.keyFetchToken.authKey, 'authKey matches')
+          t.deepEqual(token.keyBundle, user.keyFetchToken.keyBundle, 'keyBundle matches')
+          t.ok(token.createdAt, 'Got a createdAt')
+          t.equal(!!token.emailVerified, user.account.emailVerified)
+          t.ok(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
+          t.equal(token.tokenVerificationId, user.keyFetchToken.tokenVerificationId, 'tokenVerificationId is correct')
+
+          // Verify the key fetch token
+          return client.postThen('/token/' + user.keyFetchToken.tokenVerificationId + '/verify', {
+            uid: user.accountId
+          })
+        })
+        .then(function() {
+          // Fetch the key fetch token
+          return client.getThen('/keyFetchToken/' + user.keyFetchTokenId)
+        })
+        .then(function(r) {
+          t.equal(r.obj.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
+
+          // Fetch the key fetch token with its verification state
+          return client.getThen('/keyFetchToken/' + user.keyFetchTokenId + '/verified')
+        })
+        .then(function(r) {
+          t.equal(r.obj.tokenVerificationId, null, 'tokenVerificationId is null')
+
+          // Delete the key fetch token
           return client.delThen('/keyFetchToken/' + user.keyFetchTokenId)
         })
         .then(function(r) {
           respOk(t, r)
-          // now make sure the token no longer exists
+
+          // Attempt to fetch the deleted key fetch token
           return client.getThen('/keyFetchToken/' + user.keyFetchTokenId)
         })
         .then(function(r) {

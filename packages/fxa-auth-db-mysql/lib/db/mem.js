@@ -11,6 +11,7 @@ var uidByNormalizedEmail = {}
 var uidByOpenId = {}
 var sessionTokens = {}
 var keyFetchTokens = {}
+var unverifiedTokens = {}
 var accountResetTokens = {}
 var passwordChangeTokens = {}
 var passwordForgotTokens = {}
@@ -93,6 +94,13 @@ module.exports = function (log, error) {
       return P.reject(error.duplicate())
     }
 
+    if (! sessionToken.tokenVerificationId) {
+      var err = new Error()
+      err.code = 'ER_BAD_NULL_ERROR'
+      err.errno = 1048
+      return P.reject(error.wrap(err))
+    }
+
     sessionTokens[tokenId] = {
       data: sessionToken.data,
       uid: sessionToken.uid,
@@ -105,6 +113,11 @@ module.exports = function (log, error) {
       lastAccessTime: sessionToken.createdAt
     }
 
+    unverifiedTokens[tokenId] = {
+      tokenVerificationId: sessionToken.tokenVerificationId,
+      uid: sessionToken.uid.toString('hex')
+    }
+
     return P.resolve({})
   }
 
@@ -115,11 +128,23 @@ module.exports = function (log, error) {
       return P.reject(error.duplicate())
     }
 
+    if (! keyFetchToken.tokenVerificationId) {
+      var err = new Error()
+      err.code = 'ER_BAD_NULL_ERROR'
+      err.errno = 1048
+      return P.reject(error.wrap(err))
+    }
+
     keyFetchTokens[tokenId] = {
       authKey: keyFetchToken.authKey,
       uid: keyFetchToken.uid,
       keyBundle: keyFetchToken.keyBundle,
       createdAt: keyFetchToken.createdAt,
+    }
+
+    unverifiedTokens[tokenId] = {
+      tokenVerificationId: keyFetchToken.tokenVerificationId,
+      uid: keyFetchToken.uid.toString('hex')
     }
 
     return P.resolve({})
@@ -282,17 +307,32 @@ module.exports = function (log, error) {
   Memory.prototype.deleteSessionToken = function (tokenId) {
     tokenId = tokenId.toString('hex')
 
-    if ( !sessionTokens[tokenId] ) {
-      return P.resolve({})
-    }
-
+    delete unverifiedTokens[tokenId]
     delete sessionTokens[tokenId]
 
     return P.resolve({})
   }
 
   Memory.prototype.deleteKeyFetchToken = function (tokenId) {
-    delete keyFetchTokens[tokenId.toString('hex')]
+    tokenId = tokenId.toString('hex')
+
+    delete unverifiedTokens[tokenId]
+    delete keyFetchTokens[tokenId]
+
+    return P.resolve({})
+  }
+
+  Memory.prototype.verifyToken = function (tokenVerificationId, token) {
+    tokenVerificationId = tokenVerificationId.toString('hex')
+    var uid = token.uid.toString('hex')
+
+    Object.keys(unverifiedTokens).forEach(function (tokenId) {
+      var t = unverifiedTokens[tokenId]
+      if (t.tokenVerificationId.toString('hex') === tokenVerificationId && t.uid === uid) {
+        delete unverifiedTokens[tokenId]
+      }
+    })
+
     return P.resolve({})
   }
 
@@ -378,7 +418,7 @@ module.exports = function (log, error) {
   }
 
   Memory.prototype.sessionWithDevice = function (id) {
-    return this.sessionToken(id)
+    return this.sessionTokenVerified(id)
       .then(
         function (session) {
           return this.accountDevices(session.uid)
@@ -501,6 +541,17 @@ module.exports = function (log, error) {
     return P.resolve(item)
   }
 
+  Memory.prototype.sessionTokenVerified = function (tokenId) {
+    tokenId = tokenId.toString('hex')
+
+    return this.sessionToken(tokenId)
+      .then(function (sessionToken) {
+        sessionToken.tokenVerificationId = unverifiedTokens[tokenId] ?
+          unverifiedTokens[tokenId].tokenVerificationId : null
+        return sessionToken
+      })
+  }
+
   Memory.prototype.keyFetchToken = function (id) {
     id = id.toString('hex')
 
@@ -522,6 +573,17 @@ module.exports = function (log, error) {
     item.verifierSetAt = account.verifierSetAt
 
     return P.resolve(item)
+  }
+
+  Memory.prototype.keyFetchTokenVerified = function (tokenId) {
+    tokenId = tokenId.toString('hex')
+
+    return this.keyFetchToken(tokenId)
+      .then(function (keyFetchToken) {
+        keyFetchToken.tokenVerificationId = unverifiedTokens[tokenId] ?
+          unverifiedTokens[tokenId].tokenVerificationId : null
+        return keyFetchToken
+      })
   }
 
   Memory.prototype.passwordForgotToken = function (id) {

@@ -183,9 +183,9 @@ module.exports = function (log, error) {
 
   // Insert : sessionTokens
   // Values : tokenId = $1, tokenData = $2, uid = $3, createdAt = $4,
-  //          uaBrowser = $5, uaBrowserVersion = $6, uaOS = $7,
-  //          uaOSVersion = $8, uaDeviceType = $9
-  var CREATE_SESSION_TOKEN = 'CALL createSessionToken_2(?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  //          uaBrowser = $5, uaBrowserVersion = $6, uaOS = $7, uaOSVersion = $8,
+  //          uaDeviceType = $9, tokenVerificationId = $10
+  var CREATE_SESSION_TOKEN = 'CALL createSessionToken_3(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createSessionToken = function (tokenId, sessionToken) {
     return this.write(
@@ -199,14 +199,16 @@ module.exports = function (log, error) {
         sessionToken.uaBrowserVersion,
         sessionToken.uaOS,
         sessionToken.uaOSVersion,
-        sessionToken.uaDeviceType
+        sessionToken.uaDeviceType,
+        sessionToken.tokenVerificationId
       ]
     )
   }
 
   // Insert : keyFetchTokens
-  // Values : tokenId = $1, authKey = $2, uid = $3, keyBundle = $4, createdAt = $5
-  var CREATE_KEY_FETCH_TOKEN = 'CALL createKeyFetchToken_1(?, ?, ?, ?, ?)'
+  // Values : tokenId = $1, authKey = $2, uid = $3, keyBundle = $4, createdAt = $5,
+  //          tokenVerificationId = $6
+  var CREATE_KEY_FETCH_TOKEN = 'CALL createKeyFetchToken_2(?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createKeyFetchToken = function (tokenId, keyFetchToken) {
     return this.write(
@@ -216,7 +218,8 @@ module.exports = function (log, error) {
         keyFetchToken.authKey,
         keyFetchToken.uid,
         keyFetchToken.keyBundle,
-        keyFetchToken.createdAt
+        keyFetchToken.createdAt,
+        keyFetchToken.tokenVerificationId
       ]
     )
   }
@@ -356,7 +359,17 @@ module.exports = function (log, error) {
     return this.readOneFromFirstResult(ACCOUNT_DEVICES, [uid])
   }
 
-  var SESSION_DEVICE = 'CALL sessionWithDevice_2(?)'
+  // Select : sessionTokens t, accounts a, devices d, unverifiedTokens ut
+  // Fields : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion, t.uaOS,
+  //          t.uaOSVersion, t.uaDeviceType, t.lastAccessTime, a.emailVerified, a.email,
+  //          a.emailCode, a.verifierSetAt, a.locale, a.createdAt AS accountCreatedAt,
+  //          d.id AS deviceId, d.name AS deviceName, d.type AS deviceType, d.createdAt
+  //          AS deviceCreatedAt, d.callbackURL AS deviceCallbackURL, d.callbackPublicKey
+  //          AS deviceCallbackPublicKey, d.callbackAuthKey AS deviceCallbackAuthKey,
+  //          ut.tokenVerificationId
+  // Where  : t.tokenId = $1 AND t.uid = a.uid AND t.tokenId = d.sessionTokenId AND
+  //          t.uid = d.uid AND t.tokenId = u.tokenId
+  var SESSION_DEVICE = 'CALL sessionWithDevice_3(?)'
 
   MySql.prototype.sessionWithDevice = function (id) {
     return this.readFirstResult(SESSION_DEVICE, [id])
@@ -384,6 +397,18 @@ module.exports = function (log, error) {
     return this.readFirstResult(SESSION_TOKEN, [id])
   }
 
+  // Select : sessionTokens t, accounts a, unverifiedTokens ut
+  // Fields : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
+  //          t.uaOS, t.uaOSVersion, t.uaDeviceType, t.lastAccessTime,
+  //          a.emailVerified, a.email, a.emailCode, a.verifierSetAt, a.locale,
+  //          a.createdAt AS accountCreatedAt, ut.tokenVerificationId
+  // Where  : t.tokenId = $1 AND t.uid = a.uid AND t.tokenId = u.tokenId
+  var SESSION_TOKEN_VERIFIED = 'CALL sessionTokenVerified_1(?)'
+
+  MySql.prototype.sessionTokenVerified = function (tokenId) {
+    return this.readFirstResult(SESSION_TOKEN_VERIFIED, [tokenId])
+  }
+
   // Select : keyFetchTokens t, accounts a
   // Fields : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified, a.verifierSetAt
   // Where  : t.tokenId = $1 AND t.uid = a.uid
@@ -391,6 +416,16 @@ module.exports = function (log, error) {
 
   MySql.prototype.keyFetchToken = function (id) {
     return this.readFirstResult(KEY_FETCH_TOKEN, [id])
+  }
+
+  // Select : keyFetchTokens t, accounts a, unverifiedTokens ut
+  // Fields : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified, a.verifierSetAt,
+  //          ut.tokenVerificationId
+  // Where  : t.tokenId = $1 AND t.uid = a.uid AND t.tokenId = u.tokenId
+  var KEY_FETCH_TOKEN_VERIFIED = 'CALL keyFetchTokenVerified_1(?)'
+
+  MySql.prototype.keyFetchTokenVerified = function (tokenId) {
+    return this.readFirstResult(KEY_FETCH_TOKEN_VERIFIED, [tokenId])
   }
 
   // Select : accountResetTokens t, accounts a
@@ -486,20 +521,28 @@ module.exports = function (log, error) {
     return this.write(DELETE_ACCOUNT, [uid])
   }
 
-  // Delete : sessionTokens
+  // Delete : sessionTokens, unverifiedTokens
   // Where  : tokenId = $1
-  var DELETE_SESSION_TOKEN = 'CALL deleteSessionToken_1(?)'
+  var DELETE_SESSION_TOKEN = 'CALL deleteSessionToken_2(?)'
 
   MySql.prototype.deleteSessionToken = function (tokenId) {
     return this.write(DELETE_SESSION_TOKEN, [tokenId])
   }
 
-  // Delete : keyFetchTokens
+  // Delete : keyFetchTokens, unverifiedTokens
   // Where  : tokenId = $1
-  var DELETE_KEY_FETCH_TOKEN = 'CALL deleteKeyFetchToken_1(?)'
+  var DELETE_KEY_FETCH_TOKEN = 'CALL deleteKeyFetchToken_2(?)'
 
   MySql.prototype.deleteKeyFetchToken = function (tokenId) {
     return this.write(DELETE_KEY_FETCH_TOKEN, [tokenId])
+  }
+
+  // Delete : unverifiedTokens
+  // Where  : tokenVerificationId = $1, uid = $2
+  var VERIFY_TOKEN = 'CALL verifyToken_1(?, ?)'
+
+  MySql.prototype.verifyToken = function (tokenVerificationId, token) {
+    return this.write(VERIFY_TOKEN, [tokenVerificationId, token.uid])
   }
 
   // Delete : accountResetTokens

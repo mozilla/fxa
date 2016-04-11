@@ -18,12 +18,16 @@ There are a number of methods that a DB storage backend should implement:
     * .createSessionToken(tokenId, sessionToken)
     * .updateSessionToken(tokenId, sessionToken)
     * .sessionToken(id)
+    * .sessionTokenVerified(tokenId)
     * .sessionWithDevice(tokenId)
     * .deleteSessionToken(tokenId)
 * Key Fetch Tokens
     * .createKeyFetchToken(tokenId, keyFetchToken)
     * .keyFetchToken(id)
+    * .keyFetchTokenVerified(tokenId)
     * .deleteKeyFetchToken(tokenId)
+* Unverified session tokens and key fetch tokens
+    * .verifyToken(tokenVerificationId)
 * Password Forgot Tokens
     * .createPasswordForgotToken(tokenId, passwordForgotToken)
     * .deletePasswordForgotToken(tokenId)
@@ -269,8 +273,9 @@ Parameters.
 
 Each token takes the following fields for it's create method respectively:
 
-* sessionToken : data, uid, createdAt, uaBrowser, uaBrowserVersion, uaOS, uaOSVersion, uaDeviceType
-* keyFetchToken : authKey, uid, keyBundle, createdAt
+* sessionToken : data, uid, createdAt, uaBrowser, uaBrowserVersion, uaOS, uaOSVersion, uaDeviceType,
+                 tokenVerificationId
+* keyFetchToken : authKey, uid, keyBundle, createdAt, tokenVerificationId
 * passwordChangeToken : data, uid, createdAt
 * passwordForgotToken : data, uid, passCode, createdAt, triesxb
 * accountResetToken : data, uid, createdAt
@@ -288,7 +293,9 @@ Note: for some tokens there should only ever be one row per `uid`. This applies 
 should do something equivalent with your storage backend.
 
 ### .sessionToken(tokenId) ###
+### .sessionTokenVerified(tokenId) ###
 ### .keyFetchToken(tokenId) ###
+### .keyFetchTokenVerified(tokenId) ###
 ### .passwordChangeToken(tokenId) ###
 ### .passwordForgotToken(tokenId) ###
 ### .accountResetToken(tokenId) ###
@@ -312,7 +319,13 @@ from the token and `a.*` for a field from the corresponding account.
                  t.uaOS, t.uaOSVersion, t.uaDeviceType, t.lastAccessTime,
                  a.emailVerified, a.email, a.emailCode, a.verifierSetAt,
                  a.createdAt AS accountCreatedAt
+* sessionTokenVerified : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
+                         t.uaOS, t.uaOSVersion, t.uaDeviceType, t.lastAccessTime,
+                         a.emailVerified, a.email, a.emailCode, a.verifierSetAt,
+                         a.createdAt AS accountCreatedAt, ut.tokenVerificationId
 * keyFetchToken : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified, a.verifierSetAt
+* keyFetchTokenVerified : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified,
+                          a.verifierSetAt, ut.tokenVerificationId
 * passwordChangeToken : t.tokenData, t.uid, t.createdAt, a.verifierSetAt
 * passwordForgotToken : t.tokenData, t.uid, t.createdAt, t.passCode, t.tries, a.email, a.verifierSetAt
 * accountResetToken : t.uid, t.tokenData, t.createdAt, a.verifierSetAt
@@ -364,6 +377,21 @@ Returns:
 * rejects with:
     * any error from the underlying storage system (wrapped in `error.wrap()`)
 
+## .verifyToken(tokenVerificationId, token)
+
+Verifies sessionTokens and keyFetchTokens.
+Note that it takes the tokenVerificationId
+specified when creating the token,
+NOT the tokenId.
+
+Returns a promise that:
+
+* resolves with an object `{}`
+  (whether a row was updated or not,
+  i.e. even if `tokenVerificationId` does not exist).
+* rejects with any error from the underlying storage system
+  (wrapped in `error.wrap()`).
+
 ## .forgotPasswordVerified(tokenId, accountResetToken) ##
 
 An extra function for `passwordForgotTokens`. This performs three operations:
@@ -383,7 +411,9 @@ Parameters:
 
 ## .sessionWithDevice(tokenId) ##
 
-Get the sessionToken with its matching device info.
+Get the sessionToken
+with its verification state
+amd matching device info.
 
 Parameters:
 
@@ -409,6 +439,6 @@ The deviceCallbackPublicKey and deviceCallbackAuthKey fields are urlsafe-base64 
                  d.name AS deviceName, d.type AS deviceType,
                  d.createdAt AS deviceCreatedAt, d.callbackURL AS deviceCallbackURL,
                  d.callbackPublicKey AS deviceCallbackPublicKey,
-                 d.callbackAuthKey AS deviceCallbackAuthKey
+                 d.callbackAuthKey AS deviceCallbackAuthKey, ut.tokenVerificationId
 
 (Ends)

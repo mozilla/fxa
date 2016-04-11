@@ -344,7 +344,8 @@ DB.connect(config)
         uaBrowserVersion: 'bar',
         uaOS: 'baz',
         uaOSVersion: 'qux',
-        uaDeviceType: uaDeviceType
+        uaDeviceType: uaDeviceType,
+        tokenVerificationId: hex(16)
       })
     }
 
