@@ -102,6 +102,8 @@ by following a link sent by email.
   `/account/delete`
   and `/password/change/start`
   responses.
+- [ ] Ensure we never request `/password/change/start`
+  without a session token.
 
 ### fxa-auth-server
 
@@ -111,19 +113,22 @@ by following a link sent by email.
   to send verification status to db,
   initiate verification email
   and set `challenge` on response.
-- [ ] In `/account/delete`,
-  fail with 102 (unverified user) error
+- [ ] Create a `verifiedSessionToken`
+  auth strategy for Hapi
+  that fails with 102 (unverified user) error
   if sessionToken is not verified.
-- [ ] In `/certificate/sign`,
-  fail with 102 (unverified user) error
-  if sessionToken is not verified.
-- [ ] In `/account/keys`,
-  fail with 102 (unverified user) error
+- [ ] Create a `verifiedKeyFetchToken`
+  auth strategy for Hapi
+  that fails with 102 (unverified user) error
   if keyFetchToken is not verified.
+- [ ] In `/account/delete`,
+  use new `verifiedSessionToken` auth strategy.
+- [ ] In `/certificate/sign`,
+  use new `verifiedSessionToken` auth strategy.
+- [ ] In `/account/keys`,
+  use new `verifiedKeyFetchToken` auth strategy.
 - [ ] In `/password/change/start`,
-  require a sessionToken
-  and fail with 102 (unverified user) error
-  if sessionToken is not verified.
+  use new `verifiedSessionToken` auth strategy.
 - [ ] Add a new endpoint for token verification.
 
 ### fxa-auth-db-mysql
