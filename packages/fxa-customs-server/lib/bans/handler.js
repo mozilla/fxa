@@ -4,15 +4,20 @@
 
 var config = require('../config').root()
 
-var LIFETIME = config.memcache.recordLifetimeSeconds
+var LIFETIME_SEC = config.memcache.recordLifetimeSeconds
 var BLOCK_INTERVAL_MS = config.limits.blockIntervalSeconds * 1000
 var RATE_LIMIT_INTERVAL_MS = config.limits.rateLimitIntervalSeconds * 1000
+var IP_RATE_LIMIT_INTERVAL_MS = config.limits.ipRateLimitIntervalSeconds * 1000
+var IP_RATE_LIMIT_BAN_DURATION_MS = config.limits.ipRateLimitBanDurationSeconds * 1000
 var MAX_EMAILS = config.limits.emails
 var BAD_LOGIN_LOCKOUT = config.limits.badLoginLockout
 var BAD_LOGIN_LOCKOUT_INTERVAL_MS = config.limits.badLoginLockoutIntervalSeconds * 1000
+var MAX_BAD_LOGINS_PER_IP = config.limits.maxBadLoginsPerIp
+var BAD_LOGIN_ERRNO_WEIGHTS = config.limits.badLoginErrnoWeights
+var MAX_ACCOUNT_STATUS_CHECK = config.limits.maxAccountStatusCheck
 
 var EmailRecord = require('../email_record')(RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, BAD_LOGIN_LOCKOUT_INTERVAL_MS, MAX_EMAILS, BAD_LOGIN_LOCKOUT)
-var IpRecord = require('../ip_record')(BLOCK_INTERVAL_MS)
+var IpRecord = require('../ip_record')(BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE_LIMIT_BAN_DURATION_MS, MAX_BAD_LOGINS_PER_IP, BAD_LOGIN_ERRNO_WEIGHTS, MAX_ACCOUNT_STATUS_CHECK)
 
 module.exports = function (mc, log) {
 
@@ -27,7 +32,8 @@ module.exports = function (mc, log) {
         log.info({ op: 'handleBan.blockIp', ip: ip })
         var ir = IpRecord.parse(data)
         ir.block()
-        mc.set(ip, ir, LIFETIME,
+        var lifetime = Math.max(LIFETIME_SEC, ir.getMinLifetimeMS() / 1000)
+        mc.set(ip, ir, lifetime,
           function (err) {
             if (err) {
               log.error({ op: 'memcachedError', err: err })
@@ -52,7 +58,8 @@ module.exports = function (mc, log) {
         log.info({ op: 'handleBan.blockEmail', email: email })
         var er = EmailRecord.parse(data)
         er.block()
-        mc.set(email, er, LIFETIME,
+        var lifetime = Math.max(LIFETIME_SEC, er.getMinLifetimeMS() / 1000)
+        mc.set(email, er, lifetime,
           function (err) {
             if (err) {
               log.error({ op: 'memcachedError', err: err })

@@ -61,6 +61,33 @@ module.exports = function (fs, path, url, convict) {
         format: 'nat',
         env: 'MAX_BAD_LOGINS'
       },
+      maxBadLoginsPerIp: {
+        doc: 'Number failed login attempts within rateLimitIntervalSeconds on a single IP before throttling',
+        default: 3,
+        format: 'nat',
+        env: 'MAX_BAD_LOGINS_PER_IP'
+      },
+      badLoginErrnoWeights: {
+        doc: 'Maps bad-login errnos to a weight multipler, because some bad logins are badder than others',
+        format: Object,
+        env: 'BAD_LOGIN_ERRNO_WEIGHTS',
+        default: {
+          '102': 2,
+          '125': 4
+        }
+      },
+      ipRateLimitIntervalSeconds: {
+        doc: 'Duration of automatic throttling for IPs',
+        default: 60 * 15,
+        format: 'nat',
+        env: 'IP_RATE_LIMIT_INTERVAL_SECONDS'
+      },
+      ipRateLimitBanDurationSeconds: {
+        doc: 'Duration of automatic ban for throttled IPs',
+        default: 60 * 15,
+        format: 'nat',
+        env: 'IP_RATE_LIMIT_BAN_DURATION_SECONDS'
+      },
       maxAccountStatusCheck: {
         doc: 'Number of account status checks within rateLimitIntervalSeconds before throttling',
         default: 5,
@@ -106,6 +133,16 @@ module.exports = function (fs, path, url, convict) {
         default: '',
         env: 'BANS_QUEUE_URL'
       }
+    },
+    allowedIPs: {
+      doc: 'An array of IPs that will not be blocked or rate-limited.',
+      format: Array,
+      env: 'ALLOWED_IPS',
+      // These are IPs we know to be affiliated with Mozilla.
+      default: [
+        '63.245.214.162',
+        '63.245.214.168'
+      ]
     }
   })
 

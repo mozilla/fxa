@@ -16,15 +16,28 @@ P.promisifyAll(Memcached.prototype)
 
 module.exports = function createServer(config, log) {
 
-  var LIFETIME = config.memcache.recordLifetimeSeconds
+  var LIFETIME_SEC = config.memcache.recordLifetimeSeconds
   var BLOCK_INTERVAL_MS = config.limits.blockIntervalSeconds * 1000
   var RATE_LIMIT_INTERVAL_MS = config.limits.rateLimitIntervalSeconds * 1000
+  var IP_RATE_LIMIT_INTERVAL_MS = config.limits.ipRateLimitIntervalSeconds * 1000
+  var IP_RATE_LIMIT_BAN_DURATION_MS = config.limits.ipRateLimitBanDurationSeconds * 1000
   var BAD_LOGIN_LOCKOUT_INTERVAL_MS = config.limits.badLoginLockoutIntervalSeconds * 1000
+  var MAX_BAD_LOGINS = config.limits.maxBadLogins
+  var MAX_BAD_LOGINS_PER_IP = config.limits.maxBadLoginsPerIp
+  var BAD_LOGIN_ERRNO_WEIGHTS = config.limits.badLoginErrnoWeights
   var MAX_ACCOUNT_STATUS_CHECK = config.limits.maxAccountStatusCheck
 
-  var IpEmailRecord = require('./ip_email_record')(RATE_LIMIT_INTERVAL_MS, config.limits.maxBadLogins)
+  // Make allowedIPs into an object for faster lookup on each check.
+  var ALLOWED_IPS = {}
+  if (config.allowedIPs) {
+    config.allowedIPs.forEach(function(ip) {
+      ALLOWED_IPS[ip] = true
+    })
+  }
+
+  var IpEmailRecord = require('./ip_email_record')(RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS)
   var EmailRecord = require('./email_record')(RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, BAD_LOGIN_LOCKOUT_INTERVAL_MS, config.limits.maxEmails, config.limits.badLoginLockout)
-  var IpRecord = require('./ip_record')(BLOCK_INTERVAL_MS, RATE_LIMIT_INTERVAL_MS, MAX_ACCOUNT_STATUS_CHECK)
+  var IpRecord = require('./ip_record')(BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE_LIMIT_BAN_DURATION_MS, MAX_BAD_LOGINS_PER_IP, BAD_LOGIN_ERRNO_WEIGHTS, MAX_ACCOUNT_STATUS_CHECK)
 
   var mc = new Memcached(
     config.memcache.address,
@@ -50,8 +63,9 @@ module.exports = function createServer(config, log) {
   var api = restify.createServer()
   api.use(restify.bodyParser())
 
-  function ignore(err) {
+  function logError(err) {
     log.error({ op: 'memcachedError', err: err })
+    throw err
   }
 
   function fetchRecords(email, ip) {
@@ -65,13 +79,17 @@ module.exports = function createServer(config, log) {
     )
   }
 
+  function setRecord(key, record) {
+    var lifetime = Math.max(LIFETIME_SEC, record.getMinLifetimeMS() / 1000)
+    return mc.setAsync(key, record, lifetime)
+  }
+
   function setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord) {
     return P.all(
       [
-        // store records ignoring errors
-        mc.setAsync(email, emailRecord, LIFETIME).catch(ignore),
-        mc.setAsync(ip, ipRecord, LIFETIME).catch(ignore),
-        mc.setAsync(ip + email, ipEmailRecord, LIFETIME).catch(ignore)
+        setRecord(email, emailRecord),
+        setRecord(ip, ipRecord),
+        setRecord(ip + email, ipEmailRecord)
       ]
     )
   }
@@ -93,7 +111,7 @@ module.exports = function createServer(config, log) {
 
       if (!email || !ip || !action) {
         var err = {code: 'MissingParameters', message: 'email, ip and action are all required'}
-        log.error({ op: 'request.failedLoginAttempt', email: email, ip: ip, action: action, err: err })
+        log.error({ op: 'request.check', email: email, ip: ip, action: action, err: err })
         res.send(400, err)
         return next()
       }
@@ -108,6 +126,9 @@ module.exports = function createServer(config, log) {
 
             if (blockIpEmail && ipEmailRecord.unblockIfReset(emailRecord.pr)) {
               blockIpEmail = 0
+            }
+            if (ip in ALLOWED_IPS) {
+              blockIp = 0
             }
             var retryAfter = [blockEmail, blockIpEmail, blockIp].reduce(max)
 
@@ -129,7 +150,12 @@ module.exports = function createServer(config, log) {
           },
           function (err) {
             log.error({ op: 'request.check', email: email, ip: ip, action: action, err: err })
-            res.send(500, err)
+
+            // Default is to block request on any server based error
+            res.send({
+              block: true,
+              retryAfter: config.limits.rateLimitIntervalSeconds
+            })
           }
         )
         .done(next, next)
@@ -141,6 +167,7 @@ module.exports = function createServer(config, log) {
     function (req, res, next) {
       var email = req.body.email
       var ip = req.body.ip
+      var errno = Number(req.body.errno) || 999
       if (!email || !ip) {
         var err = {code: 'MissingParameters', message: 'email and ip are both required'}
         log.error({ op: 'request.failedLoginAttempt', email: email, ip: ip, err: err })
@@ -153,6 +180,7 @@ module.exports = function createServer(config, log) {
         .spread(
           function (emailRecord, ipRecord, ipEmailRecord) {
             emailRecord.addBadLogin()
+            ipRecord.addBadLogin({ errno: errno })
             ipEmailRecord.addBadLogin()
             return setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord)
               .then(
@@ -166,7 +194,7 @@ module.exports = function createServer(config, log) {
         )
         .then(
           function (result) {
-            log.info({ op: 'request.failedLoginAttempt', email: email, ip: ip })
+            log.info({ op: 'request.failedLoginAttempt', email: email, ip: ip, errno: errno })
             res.send(result)
           },
           function (err) {
@@ -195,7 +223,7 @@ module.exports = function createServer(config, log) {
         .then(
           function (emailRecord) {
             emailRecord.passwordReset()
-            return mc.setAsync(email, emailRecord, LIFETIME).catch(ignore)
+            return setRecord(email, emailRecord).catch(logError)
           }
         )
         .then(
