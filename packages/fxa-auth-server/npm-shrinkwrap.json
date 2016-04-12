@@ -863,8 +863,8 @@
     },
     "fxa-auth-mailer": {
       "version": "1.0.8",
-      "from": "git+https://github.com/mozilla/fxa-auth-mailer.git#f4098f9f58c98e47058157f84de63a1394275bc4",
-      "resolved": "git+https://github.com/mozilla/fxa-auth-mailer.git#f4098f9f58c98e47058157f84de63a1394275bc4",
+      "from": "git+https://github.com/mozilla/fxa-auth-mailer.git#83d97f32500c846a3cbfb188550463b4969ca836",
+      "resolved": "git+https://github.com/mozilla/fxa-auth-mailer.git#83d97f32500c846a3cbfb188550463b4969ca836",
       "dependencies": {
         "bluebird": {
           "version": "2.9.34",
