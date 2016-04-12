@@ -24,24 +24,32 @@ or our overall FxA engagement rate.
 If we introduce an additional email confirmation step
 for Sync sign-ins,
 fewer accounts will be compromised.
+
 We will know this to be true if,
 in the event of an attack,
 the number of successful sign-ins remains constant
 and the count of 104 (unverified account) errors
 from protected endpoints
 increases in line with any wider increase in traffic.
+Further, we can measure that
+the confirmation step is not affecting
+legitimate users
+by monitoring the success rate
+of connecting to Sync
+before and after deployment.
 
 ## Assumptions
 
-* The `/account/login`
-  and `/password/change/start` endpoints
-  are responsible for initiating
-  the confirmation process.
+* The `/account/login` endpoint
+  is solely responsible for
+  initiating the confirmation process.
 
-* The following endpoints should be protected:
-  * `/certificate/sign`
-  * `/account/keys`
-  * `/account/delete`
+* The `/certificate/sign` and `/account/keys` endpoints
+  should be protected.
+
+* A future iteration
+  should implement protection of
+  the `/password/change/start` and `/account/destroy` endpoints.
 
 * In most cases,
   attackers do not have access
@@ -92,22 +100,20 @@ by following a link sent by email.
 
 - [ ] Add strings to `strings.js`
   to get localization done quicker.
+  This task is the highest immediate priority.
 - [ ] Implement "confirm your email" screen.
 - [ ] Implement confirmation landing screen.
 - [ ] Add handling for `verified` and `challenge` fields
-  in `/account/login`
-  and `/password/change/start` responses.
+  in `/account/login` response.
 - [ ] Add handling for 102 errors
-  in `/certificate/sign`,
-  `/account/keys`
-  and `/account/delete`.
+  from `/certificate/sign`
+  and `/account/keys` endpoints.
 
 ### fxa-auth-server
 
 - [ ] Add method to `mailer.js`
   for sending confirmation email.
 - [ ] Modify `/account/login`
-  and `/password/change/start`
   to send verification status to db,
   initiate verification email
   and set `challenge` on response.
@@ -119,8 +125,6 @@ by following a link sent by email.
   auth strategy for Hapi
   that fails with 102 (unverified user) error
   if keyFetchToken is not verified.
-- [ ] In `/account/delete`,
-  use new `verifiedSessionToken` auth strategy.
 - [ ] In `/certificate/sign`,
   use new `verifiedSessionToken` auth strategy.
 - [ ] In `/account/keys`,
@@ -138,7 +142,7 @@ by following a link sent by email.
   to accept verification state.
 - [ ] Update `PUT /keyFetchToken/:id` endpoint
   to always create token unverified.
-- [ ] Add `/token/verify` endpoint for verifying tokens.
+- [ ] Add `/token/:id/verify` endpoint for verifying tokens.
 - [ ] Add stored procedure and endpoint
   that returns token joined to its `tokenVerifications` row
   for callers that need to check token verification state.
