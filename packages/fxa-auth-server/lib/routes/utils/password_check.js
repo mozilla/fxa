@@ -10,8 +10,14 @@
  * returning an error to the user.
  */
 
+var butil = require('../../crypto/butil')
+var error = require('../../error')
+
 module.exports = function (log, config, Password, customs, db) {
   return function (emailRecord, authPW, clientAddress) {
+    if (butil.buffersAreEqual(emailRecord.authSalt, butil.ONES)) {
+      throw error.mustResetAccount(emailRecord.email)
+    }
     var password = new Password(
       authPW,
       emailRecord.authSalt,
@@ -53,4 +59,3 @@ module.exports = function (log, config, Password, customs, db) {
       )
   }
 }
-

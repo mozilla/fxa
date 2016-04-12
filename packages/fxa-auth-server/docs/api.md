@@ -84,6 +84,7 @@ The currently-defined error responses are:
 * status code 400, errno 122:  account is not locked
 * status code 400, errno 123:  unknown device
 * status code 400, errno 124:  session already registered by another device
+* status code 400, errno 126:  account must be reset
 * status code 503, errno 201:  service temporarily unavailable to due high load (see [backoff protocol](#backoff-protocol))
 * any status code, errno 999:  unknown error
 
@@ -361,7 +362,7 @@ Failing requests may be due to the following errors:
 * status code 413, errno 113:  request body too large
 * status code 400, errno 120:  incorrect email case
 * status code 400, errno 121:  account is locked
-
+* status code 400, errno 126:  account must be reset
 
 ## GET /v1/account/keys
 
@@ -546,6 +547,7 @@ Failing requests may be due to the following errors:
 * status code 401, errno 115:  invalid authentication nonce
 * status code 400, errno 120:  incorrect email case
 * status code 400, errno 121:  account is locked
+* status code 400, errno 126:  account must be reset
 
 ## POST /v1/account/lock
 
@@ -588,6 +590,7 @@ Failing requests may be due to the following errors:
 * status code 400, errno 108:  request body missing required parameters
 * status code 411, errno 112:  content-length header was not provided
 * status code 413, errno 113:  request body too large
+* status code 400, errno 126:  account must be reset
 
 ## POST /v1/account/unlock/resend_code
 
@@ -1013,6 +1016,7 @@ Failing requests may be due to the following errors:
 * status code 413, errno 113:  request body too large
 * status code 400, errno 120:  incorrect email case
 * status code 400, errno 121:  account is locked
+* status code 400, errno 126:  account must be reset
 
 
 ## POST /v1/password/change/finish
