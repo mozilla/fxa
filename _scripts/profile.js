@@ -1,14 +1,6 @@
 var path = require('path');
 var chalk = require('chalk');
 
-var FirefoxProfile = require('firefox-profile');
-
-var fxaProfile = new FirefoxProfile();
-
-var LOG_DIR = path.join(__dirname, '..');
-var BROWSER_LOG = path.join(LOG_DIR, 'log-browser.log');
-var DRIVER_LOG = path.join(LOG_DIR, 'log-driver.log');
-
 var CONFIGS = {
   'local': {
     auth: 'http://127.0.0.1:9000/v1',
@@ -53,73 +45,58 @@ var FXA_DESKTOP_CONTEXT = process.env.FXA_DESKTOP_CONTEXT || 'fx_desktop_v2';
 var e10s = process.env.FXA_E10S === 'true';
 var fxaEnv = CONFIGS[env];
 
+var fxaProfile = {
+  // enable debugger and toolbox
+  'devtools.chrome.enabled': true,
+  'devtools.debugger.remote-enabled': true,
+  'devtools.debugger.prompt-connection': false,
+  // disable signed extensions
+  // the WebDriver extension will not work in Nightly because signed extensions are forced
+  'xpinstall.signatures.required': false,
+  'xpinstall.whitelist.required': false,
+  'services.sync.prefs.sync.xpinstall.whitelist.required': false,
+  'extensions.checkCompatibility.nightly': false,
+  // enable pocket
+  'browser.pocket.enabled': true,
+  // identity logs
+  'identity.fxaccounts.log.appender.dump': 'Debug',
+  'identity.fxaccounts.loglevel': 'Debug',
+  'services.sync.log.appender.file.logOnSuccess': true,
+  'services.sync.log.appender.console': 'Debug',
+  'services.sync.log.appender.dump': 'Debug',
+  'identity.fxaccounts.auth.uri': fxaEnv.auth,
+  'identity.fxaccounts.allowHttp': true,
+  'identity.fxaccounts.remote.force_auth.uri': fxaEnv.content + 'force_auth?service=sync&context=' + FXA_DESKTOP_CONTEXT,
+  'identity.fxaccounts.remote.signin.uri': fxaEnv.content + 'signin?service=sync&context=' + FXA_DESKTOP_CONTEXT,
+  'identity.fxaccounts.remote.signup.uri': fxaEnv.content + 'signup?service=sync&context=' + FXA_DESKTOP_CONTEXT,
+  'identity.fxaccounts.remote.webchannel.uri': fxaEnv.content,
+  'identity.fxaccounts.remote.oauth.uri': fxaEnv.oauth,
+  'identity.fxaccounts.remote.profile.uri': fxaEnv.profile,
+  'identity.fxaccounts.settings.uri': fxaEnv.content + 'settings?service=sync&context=' + FXA_DESKTOP_CONTEXT,
+  // for some reason there are 2 settings for the token server
+  'identity.sync.tokenserver.uri': fxaEnv.token,
+  'services.sync.tokenServerURI': fxaEnv.token,
+  // disable auto update
+  'app.update.auto': false,
+  'app.update.enabled': false,
+  'app.update.silent': false,
+  'app.update.staging.enabled': false,
+};
+
 
 // Configuration for local sync development
 
 // The loop server is either production or local, nothing on stable or latest
 if (fxaEnv.loop) {
-  fxaProfile.setPreference('loop.server', fxaEnv.loop);
+  fxaProfile['loop.server'] = fxaEnv.loop;
 }
-
-// enable debugger and toolbox
-fxaProfile.setPreference('devtools.chrome.enabled', true);
-fxaProfile.setPreference('devtools.debugger.remote-enabled', true);
-fxaProfile.setPreference('devtools.debugger.prompt-connection', false);
-
-// disable signed extensions
-// the WebDriver extension will not work in Nightly because signed extensions are forced
-fxaProfile.setPreference('xpinstall.signatures.required', false);
-fxaProfile.setPreference('xpinstall.whitelist.required', false);
-fxaProfile.setPreference('services.sync.prefs.sync.xpinstall.whitelist.required', false);
-fxaProfile.setPreference('extensions.checkCompatibility.nightly', false);
-
-
-fxaProfile.setPreference('webdriver.log.browser.file', BROWSER_LOG);
-fxaProfile.setPreference('webdriver.log.driver.file', DRIVER_LOG);
-
-// enable pocket
-fxaProfile.setPreference('browser.pocket.enabled', true);
 
 if (! e10s) {
   // disable e10s
-  fxaProfile.setPreference('browser.tabs.remote.autostart', false);
-  fxaProfile.setPreference('browser.tabs.remote.autostart.1', false);
-  fxaProfile.setPreference('browser.tabs.remote.autostart.2', false);
+  fxaProfile['browser.tabs.remote.autostart'] = false;
+  fxaProfile['browser.tabs.remote.autostart.1'] = false;
+  fxaProfile['browser.tabs.remote.autostart.2'] = false;
 }
-
-// enable avatars in pref pane
-fxaProfile.setPreference('identity.fxaccounts.profile_image.enabled', true);
-
-fxaProfile.setPreference('identity.fxaccounts.log.appender.dump', 'Debug');
-fxaProfile.setPreference('identity.fxaccounts.loglevel', 'Debug');
-fxaProfile.setPreference('services.sync.log.appender.file.logOnSuccess', true);
-fxaProfile.setPreference('services.sync.log.appender.console', 'Debug');
-fxaProfile.setPreference('services.sync.log.appender.dump', 'Debug');
-fxaProfile.setPreference('services.sync.log.appender.file.logOnSuccess', true);
-fxaProfile.setPreference('identity.fxaccounts.auth.uri', fxaEnv.auth);
-fxaProfile.setPreference('identity.fxaccounts.allowHttp', true);
-fxaProfile.setPreference('identity.fxaccounts.remote.force_auth.uri', fxaEnv.content + 'force_auth?service=sync&context=' + FXA_DESKTOP_CONTEXT);
-fxaProfile.setPreference('identity.fxaccounts.remote.signin.uri', fxaEnv.content + 'signin?service=sync&context=' + FXA_DESKTOP_CONTEXT);
-fxaProfile.setPreference('identity.fxaccounts.remote.signup.uri', fxaEnv.content + 'signup?service=sync&context=' + FXA_DESKTOP_CONTEXT);
-fxaProfile.setPreference('identity.fxaccounts.remote.webchannel.uri', fxaEnv.content);
-
-fxaProfile.setPreference('identity.fxaccounts.remote.oauth.uri', fxaEnv.oauth);
-fxaProfile.setPreference('identity.fxaccounts.remote.profile.uri', fxaEnv.profile);
-
-fxaProfile.setPreference('identity.fxaccounts.settings.uri', fxaEnv.content + 'settings?service=sync&context=' + FXA_DESKTOP_CONTEXT);
-
-// for some reason there are 2 settings for the token server
-fxaProfile.setPreference('identity.sync.tokenserver.uri', fxaEnv.token);
-fxaProfile.setPreference('services.sync.tokenServerURI', fxaEnv.token);
-
-// disable auto update
-fxaProfile.setPreference("app.update.auto", false);
-fxaProfile.setPreference("app.update.enabled", false);
-fxaProfile.setPreference("app.update.silent", false);
-fxaProfile.setPreference("app.update.staging.enabled", false);
-
-
-fxaProfile.updatePreferences();
 
 console.log(chalk.yellow('Configuration:', JSON.stringify(fxaEnv, null, 2)));
 console.log(chalk.yellow('E10S Status:', e10s));
@@ -128,6 +105,4 @@ console.log(chalk.yellow('FIREFOX_BIN Binary:', process.env.FIREFOX_BIN || 'Defa
 console.log(chalk.yellow('FXA_DESKTOP_CONTEXT:', FXA_DESKTOP_CONTEXT));
 console.log(chalk.yellow('FIREFOX_DEBUGGER:', !! process.env.FIREFOX_DEBUGGER));
 
-module.exports = function (cb) {
-  if (cb) fxaProfile.encoded(cb);
-};
+module.exports = fxaProfile;
