@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var AccountLockedMixin = require('views/mixins/account-locked-mixin');
+  var AccountResetMixin = require('views/mixins/account-reset-mixin');
   var allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
   var AuthErrors = require('lib/auth-errors');
   var AvatarMixin = require('views/mixins/avatar-mixin');
@@ -14,6 +15,7 @@ define(function (require, exports, module) {
   var FormView = require('views/form');
   var MigrationMixin = require('views/mixins/migration-mixin');
   var PasswordMixin = require('views/mixins/password-mixin');
+  var PasswordResetMixin = require('views/mixins/password-reset-mixin');
   var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   var ServiceMixin = require('views/mixins/service-mixin');
   var Session = require('lib/session');
@@ -130,6 +132,8 @@ define(function (require, exports, module) {
         return;
       } else if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
         return self.notifyOfLockedAccount(account, password);
+      } else if (AuthErrors.is(err, 'ACCOUNT_RESET')) {
+        return self.notifyOfResetAccount(account);
       }
       // re-throw error, it will be handled at a lower level.
       throw err;
@@ -249,9 +253,11 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     AccountLockedMixin,
+    AccountResetMixin,
     AvatarMixin,
     MigrationMixin,
     PasswordMixin,
+    PasswordResetMixin,
     ResumeTokenMixin,
     ServiceMixin,
     SignInMixin,

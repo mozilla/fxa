@@ -514,6 +514,7 @@ define(function (require, exports, module) {
         notifier: self._notifier,
         relier: self._relier,
         sentryMetrics: self._sentryMetrics,
+        session: Session,
         user: self._user,
         window: self._window
       }, self._router.getViewOptions(options || {}));

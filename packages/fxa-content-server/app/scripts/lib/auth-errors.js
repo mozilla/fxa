@@ -96,6 +96,10 @@ define(function (require, exports, module) {
       errno: 122,
       message: UNEXPECTED_ERROR_MESSAGE
     },
+    ACCOUNT_RESET: {
+      errno: 126,
+      message: t('Your account has been locked for security reasons')
+    },
     SERVER_BUSY: {
       errno: 201,
       message: t('Server busy, try again soon')
