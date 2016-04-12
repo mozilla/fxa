@@ -2,6 +2,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var crypto = require('crypto')
+var base64url = require('base64url')
 
 function hex(len) {
   return crypto.randomBytes(len).toString('hex')
@@ -10,6 +11,13 @@ function hex16() { return hex(16) }
 function hex32() { return hex(32) }
 // function hex64() { return hex(64) }
 function hex96() { return hex(96) }
+
+function base64(len) {
+  return base64url(crypto.randomBytes(len))
+}
+
+function base64_16() { return base64(16) }
+function base64_65() { return base64(65) }
 
 function buf(len) {
   return Buffer(crypto.randomBytes(len))
@@ -60,7 +68,8 @@ module.exports.newUserDataHex = function() {
     name: 'fake device name',
     type: 'fake device type',
     callbackURL: 'fake callback URL',
-    callbackPublicKey: hex32()
+    callbackPublicKey: base64_65(),
+    callbackAuthKey: base64_16()
   }
 
   // keyFetchToken

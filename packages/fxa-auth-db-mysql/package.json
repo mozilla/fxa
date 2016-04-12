@@ -26,6 +26,7 @@
   },
   "license": "MPL-2.0",
   "dependencies": {
+    "base64url": "1.0.6",
     "bluebird": "2.1.3",
     "clone": "0.2.0",
     "convict": "1.0.1",
