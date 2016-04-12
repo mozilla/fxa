@@ -25,12 +25,10 @@
   "dependencies": {
     "bluebird": "2.10.2",
     "chalk": "1.1.1",
-    "firefox-profile": "0.3.11",
+    "foxfire": "1.0.1",
     "minimist": "1.1.1",
     "pm2": "0.15.10",
     "replace-in-file": "0.2.1",
-    "selenium-standalone": "4.4.0",
-    "tail": "0.4.0",
-    "webdriverio": "2.4.5"
+    "selenium-standalone": "4.4.0"
   }
 }
