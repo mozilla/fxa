@@ -29,7 +29,7 @@ P.resolve()
   .then(createBatches)
   .then(writeBatches)
   .then(function (batches) {
-    var msg = batches.length + ' batch' + (batches.length === 1 ? '' : 'es') + ' created';
+    var msg = batches.length + ' batch' + (batches.length === 1 ? '' : 'es') + ' created'
     console.log(msg)
     process.exit(0)
   })
@@ -74,7 +74,7 @@ function readRecords() {
 }
 
 function createBatches(records) {
-  var batches = [];
+  var batches = []
 
   while (records.length) {
     var batch = records.splice(0, BATCH_SIZE)
@@ -101,12 +101,12 @@ function ensureOutputDirExists(outputDir) {
   try {
     dirStats = fs.statSync(outputDir)
   } catch (e) {
-    fs.mkdirSync(outputDir);
-    return;
+    fs.mkdirSync(outputDir)
+    return
   }
 
   if (! dirStats.isDirectory()) {
-    console.error(outputDir + ' is not a directory');
+    console.error(outputDir + ' is not a directory')
     process.exit(1)
   }
 }

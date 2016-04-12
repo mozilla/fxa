@@ -6,7 +6,7 @@ var fs = require('fs')
 var path = require('path')
 
 module.exports = function (config) {
-  var messageId = 0;
+  var messageId = 0
 
   if (config.outputDir) {
     ensureOutputDirExists(config.outputDir)
@@ -15,8 +15,6 @@ module.exports = function (config) {
   return {
     sendMail: function (emailConfig, callback) {
       if (config.outputDir) {
-
-        var language = emailConfig.headers['Content-Language']
 
         var outputPath = path.join(config.outputDir, emailConfig.to)
 
@@ -39,20 +37,20 @@ module.exports = function (config) {
     },
 
     close: function () {}
-  };
-};
+  }
+}
 
 function ensureOutputDirExists(outputDir) {
   var dirStats
   try {
     dirStats = fs.statSync(outputDir)
   } catch (e) {
-    fs.mkdirSync(outputDir);
-    return;
+    fs.mkdirSync(outputDir)
+    return
   }
 
   if (! dirStats.isDirectory()) {
-    console.error(outputDir + ' is not a directory');
+    console.error(outputDir + ' is not a directory')
     process.exit(1)
   }
 }

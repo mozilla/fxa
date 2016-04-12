@@ -26,7 +26,7 @@ commandLineOptions
   .option('--send', 'Send emails, for real. *** THIS REALLY SENDS ***')
   .parse(process.argv)
 
-var BATCH_DELAY = typeof commandLineOptions.delay === "undefined" ? 5 : commandLineOptions.delay
+var BATCH_DELAY = typeof commandLineOptions.delay === 'undefined' ? 5 : commandLineOptions.delay
 var BATCH_SIZE = commandLineOptions.batchsize || 10
 
 var ERRORS_REPORT_FILENAME = path.resolve(commandLineOptions.errors || 'errors.json')
@@ -39,7 +39,7 @@ var requiredOptions = [
 
 requiredOptions.forEach(checkRequiredOption)
 
-var mailer;
+var mailer
 var mailerFunctionName = templateToMailerFunctionName(commandLineOptions.template)
 
 var currentBatch = []
@@ -123,7 +123,7 @@ function normalizeRecords(records) {
 
         // first, try to generate a localized locality
         if (! location.location && location.citynames && location.countrynames) {
-          var parts = [];
+          var parts = []
 
           var localizedCityName = location.citynames[language]
           if (localizedCityName) {
