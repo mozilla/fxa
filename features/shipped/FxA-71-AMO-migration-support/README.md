@@ -31,6 +31,27 @@ who enter the FxA login flow from AMO.
 
 These metrics are already available
 since we track them for other reliers.
+The specific query in datadog will be:
+
+* `login-attempts` = `fxa.content.screen.oauth.signin` + `fxa.content.screen.oauth.signup`
+* `successful-logins` = `fxa.content.screen.oauth.signin.success` + `fxa.content.screen.oauth.signup.success`
+* `completion-rate` = 100 * `successful-logins` / `login-attempts`
+
+## Outcomes
+
+We shipped all outstanding work for this feature
+as of FxA train-58,
+which was shipped to production on 15 March 2016.
+As of the 23rd of March
+the completion rate for AMO logins is around 60%,
+while the combined completion rate for all oauth reliers
+is around 40%:
+
+![](completion_rate_screenshot.png)
+
+Ongoing metrics can be viewed at the
+[datadog dashboard](https://app.datadoghq.com/dash/110231/fxa-content-server---amo)
+for the AMO integration.
 
 
 ## UX Mocks
@@ -188,18 +209,18 @@ or the sign-up page if not.
 
 ## Work breakdown
 
-* [ ] Implement generalized migration indicator in fxa-content-server.
-* [ ] Add support and tests for `prompt=consent`
+* [x] Implement generalized migration indicator in fxa-content-server.
+* [x] Add support and tests for `prompt=consent`
       in fxa-oauth-server redirection endpoint.
-* [ ] Implement UX for `profile:display_name`
+* [x] Implement UX for `profile:display_name`
       and `profile:avatar` permission prompt.
-* [ ] Implement `prompt=consent` and scope restriction support
+* [x] Implement `prompt=consent` and scope restriction support
       in fxa-content-server.
-* [ ] Add support for query email address in `/v1/account/status`
+* [x] Add support for query by email address in `/v1/account/status`
       in fxa-auth-server.
-* [ ] Enhance rate-limiting support for `/v1/account/status`
+* [x] Enhance rate-limiting support for `/v1/account/status`
       in fxa-customs-server.
-* [ ] Add logic to fxa-content-server to query account status
+* [x] Add logic to fxa-content-server to query account status
       when no signup/signin action is explicitly requested.
-* [ ] Coordinate with AMO developers to send appropriate query params
+* [x] Coordinate with AMO developers to send appropriate query params
       once the features are in production.
