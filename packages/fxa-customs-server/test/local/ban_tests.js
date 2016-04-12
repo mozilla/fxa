@@ -3,13 +3,21 @@
 
 require('ass')
 var test = require('tap').test
-var banHandler = require('../../lib/bans/handler')
-var mcHelper = require('../memcache-helper')
-
 var log = {
   info: function () {},
   error: function () {}
 }
+var limits = {
+  rateLimitIntervalMs: 1000,
+  blockIntervalMs: 1000,
+  badLoginLockoutIntervalMs: 1000,
+  ipRateLimitIntervalMs: 1000,
+  ipRateLimitBanDurationMs: 1000
+}
+var mcHelper = require('../memcache-helper')
+var EmailRecord = require('../../lib/email_record')(limits)
+var IpRecord = require('../../lib/ip_record')(limits)
+var banHandler = require('../../lib/bans/handler')
 
 var config = {
   limits: {
@@ -41,7 +49,7 @@ test(
         ip: TEST_IP
       }
     }
-    banHandler(mcHelper.mc, log)(message,
+    banHandler(10, mcHelper.mc, EmailRecord, IpRecord, log)(message,
       function (err) {
         t.notOk(err, 'no errors were returned')
 
@@ -81,7 +89,7 @@ test(
         email: TEST_EMAIL
       }
     }
-    banHandler(mcHelper.mc, log)(message,
+    banHandler(10, mcHelper.mc, EmailRecord, IpRecord, log)(message,
       function (err) {
         t.notOk(err, 'no errors were returned')
 
@@ -120,7 +128,7 @@ test(
       ban: {
       }
     }
-    banHandler(mcHelper.mc, log)(message,
+    banHandler(10, mcHelper.mc, EmailRecord, IpRecord, log)(message,
       function (err) {
         t.equal(err, 'invalid message')
         t.end()
@@ -134,7 +142,7 @@ test(
   function (t) {
     var message = {
     }
-    banHandler(mcHelper.mc, log)(message,
+    banHandler(10, mcHelper.mc, EmailRecord, IpRecord, log)(message,
       function (err) {
         t.equal(err, 'invalid message')
         t.end()

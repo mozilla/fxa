@@ -16,29 +16,6 @@ P.promisifyAll(Memcached.prototype)
 
 module.exports = function createServer(config, log) {
 
-  var LIFETIME_SEC = config.memcache.recordLifetimeSeconds
-  var BLOCK_INTERVAL_MS = config.limits.blockIntervalSeconds * 1000
-  var RATE_LIMIT_INTERVAL_MS = config.limits.rateLimitIntervalSeconds * 1000
-  var IP_RATE_LIMIT_INTERVAL_MS = config.limits.ipRateLimitIntervalSeconds * 1000
-  var IP_RATE_LIMIT_BAN_DURATION_MS = config.limits.ipRateLimitBanDurationSeconds * 1000
-  var BAD_LOGIN_LOCKOUT_INTERVAL_MS = config.limits.badLoginLockoutIntervalSeconds * 1000
-  var MAX_BAD_LOGINS = config.limits.maxBadLogins
-  var MAX_BAD_LOGINS_PER_IP = config.limits.maxBadLoginsPerIp
-  var BAD_LOGIN_ERRNO_WEIGHTS = config.limits.badLoginErrnoWeights
-  var MAX_ACCOUNT_STATUS_CHECK = config.limits.maxAccountStatusCheck
-
-  // Make allowedIPs into an object for faster lookup on each check.
-  var ALLOWED_IPS = {}
-  if (config.allowedIPs) {
-    config.allowedIPs.forEach(function(ip) {
-      ALLOWED_IPS[ip] = true
-    })
-  }
-
-  var IpEmailRecord = require('./ip_email_record')(RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS)
-  var EmailRecord = require('./email_record')(RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, BAD_LOGIN_LOCKOUT_INTERVAL_MS, config.limits.maxEmails, config.limits.badLoginLockout)
-  var IpRecord = require('./ip_record')(BLOCK_INTERVAL_MS, IP_RATE_LIMIT_INTERVAL_MS, IP_RATE_LIMIT_BAN_DURATION_MS, MAX_BAD_LOGINS_PER_IP, BAD_LOGIN_ERRNO_WEIGHTS, MAX_ACCOUNT_STATUS_CHECK)
-
   var mc = new Memcached(
     config.memcache.address,
     {
@@ -51,7 +28,21 @@ module.exports = function createServer(config, log) {
     }
   )
 
-  var handleBan = P.promisify(require('./bans/handler')(mc, log))
+  var limits = require('./limits')(config, mc, log)
+  var allowedIPs = require('./allowed_ips')(config, mc, log)
+
+  if (config.updatePollIntervalSeconds) {
+    limits.refresh({ pushOnMissing: true })
+    limits.pollForUpdates()
+    allowedIPs.refresh({ pushOnMissing: true })
+    allowedIPs.pollForUpdates()
+  }
+
+  var IpEmailRecord = require('./ip_email_record')(limits)
+  var EmailRecord = require('./email_record')(limits)
+  var IpRecord = require('./ip_record')(limits)
+
+  var handleBan = P.promisify(require('./bans/handler')(config.memcache.recordLifetimeSeconds, mc, EmailRecord, IpRecord, log))
 
   // optional SQS-based IP/email banning API
   if (config.bans.region && config.bans.queueUrl) {
@@ -80,7 +71,7 @@ module.exports = function createServer(config, log) {
   }
 
   function setRecord(key, record) {
-    var lifetime = Math.max(LIFETIME_SEC, record.getMinLifetimeMS() / 1000)
+    var lifetime = Math.max(config.memcache.recordLifetimeSeconds, record.getMinLifetimeMS() / 1000)
     return mc.setAsync(key, record, lifetime)
   }
 
@@ -127,7 +118,7 @@ module.exports = function createServer(config, log) {
             if (blockIpEmail && ipEmailRecord.unblockIfReset(emailRecord.pr)) {
               blockIpEmail = 0
             }
-            if (ip in ALLOWED_IPS) {
+            if (ip in allowedIPs.ips) {
               blockIp = 0
             }
             var retryAfter = [blockEmail, blockIpEmail, blockIp].reduce(max)
@@ -154,7 +145,7 @@ module.exports = function createServer(config, log) {
             // Default is to block request on any server based error
             res.send({
               block: true,
-              retryAfter: config.limits.rateLimitIntervalSeconds
+              retryAfter: limits.rateLimitIntervalSeconds
             })
           }
         )
@@ -301,6 +292,22 @@ module.exports = function createServer(config, log) {
     '/',
     function (req, res, next) {
       res.send({ version: packageJson.version })
+      next()
+    }
+  )
+
+  api.get(
+    '/limits',
+    function (req, res, next) {
+      res.send(limits)
+      next()
+    }
+  )
+
+  api.get(
+    '/allowedIPs',
+    function (req, res, next) {
+      res.send(Object.keys(allowedIPs.ips))
       next()
     }
   )

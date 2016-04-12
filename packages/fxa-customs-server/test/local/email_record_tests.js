@@ -10,7 +10,14 @@ function now() {
 }
 
 function simpleEmailRecord() {
-  return new (emailRecord(500, 800, 1600, 2, 5, now))()
+  var limits = {
+    rateLimitIntervalMs: 500,
+    blockIntervalMs: 800,
+    badLoginLockoutIntervalMs: 1600,
+    maxEmails: 2,
+    badLoginLockout: 5
+  }
+  return new (emailRecord(limits, now))()
 }
 
 test(
@@ -135,7 +142,14 @@ test(
 test(
   'retryAfter works',
   function (t) {
-    var er = new (emailRecord(5000, 8000, 16000, 2, 5, function () {
+    var limits = {
+      rateLimitIntervalMs: 5000,
+      blockIntervalMs: 8000,
+      badLoginLockoutIntervalMs: 16000,
+      maxEmails: 2,
+      badLoginLockout: 5
+    }
+    var er = new (emailRecord(limits, function () {
       return 10000
     }))()
 
@@ -177,8 +191,14 @@ test(
     var er = simpleEmailRecord()
     t.equal(er.shouldBlock(), false, 'original object is not blocked')
     t.equal(er.xs.length, 0, 'original object has no hits')
-
-    var erCopy1 = (emailRecord(50, 50, 100, 2, 5, now)).parse(er)
+    var limits = {
+      rateLimitIntervalMs: 50,
+      blockIntervalMs: 50,
+      badLoginLockoutIntervalMs: 100,
+      maxEmails: 2,
+      badLoginLockout: 5
+    }
+    var erCopy1 = (emailRecord(limits, now)).parse(er)
     t.equal(erCopy1.shouldBlock(), false, 'copied object is not blocked')
     t.equal(erCopy1.xs.length, 0, 'copied object has no hits')
 
@@ -187,7 +207,7 @@ test(
     t.equal(er.shouldBlock(), true, 'original object is now blocked')
     t.equal(er.xs.length, 1, 'original object now has one hit')
 
-    var erCopy2 = (emailRecord(50, 50, 100, 2, 5, now)).parse(er)
+    var erCopy2 = (emailRecord(limits, now)).parse(er)
     t.equal(erCopy2.shouldBlock(), true, 'copied object is blocked')
     t.equal(erCopy2.xs.length, 1, 'copied object has one hit')
     t.end()
@@ -230,11 +250,32 @@ test(
 test(
   'getMinLifetimeMS works',
   function (t) {
-    var er = new (emailRecord(10, 15, 20, 2, 5, now))()
+    var limits = {
+      rateLimitIntervalMs: 10,
+      blockIntervalMs: 15,
+      badLoginLockoutIntervalMs: 20,
+      maxEmails: 2,
+      badLoginLockout: 5
+    }
+    var er = new (emailRecord(limits, now))()
     t.equal(er.getMinLifetimeMS(), 20, 'lifetime >= lockout interval')
-    er = new (emailRecord(11, 21, 15, 2, 5, now))()
+    limits = {
+      rateLimitIntervalMs: 11,
+      blockIntervalMs: 21,
+      badLoginLockoutIntervalMs: 15,
+      maxEmails: 2,
+      badLoginLockout: 5
+    }
+    er = new (emailRecord(limits, now))()
     t.equal(er.getMinLifetimeMS(), 21, 'lifetime >= block interval')
-    er = new (emailRecord(22, 15, 12, 2, 5, now))()
+    limits = {
+      rateLimitIntervalMs: 22,
+      blockIntervalMs: 15,
+      badLoginLockoutIntervalMs: 12,
+      maxEmails: 2,
+      badLoginLockout: 5
+    }
+    er = new (emailRecord(limits, now))()
     t.equal(er.getMinLifetimeMS(), 22, 'lifetime >= rate limit internal')
     t.end()
   }

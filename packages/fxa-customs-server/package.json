@@ -22,6 +22,7 @@
     "bluebird": "3.3.4",
     "bunyan": "1.8.0",
     "convict": "1.2.0",
+    "deep-equal": "1.0.1",
     "memcached": "2.2.1",
     "restify": "4.0.4"
   },
