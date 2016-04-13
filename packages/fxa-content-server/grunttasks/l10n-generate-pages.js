@@ -42,7 +42,6 @@ module.exports = function (grunt) {
     } else {
       return this.l10n.format(this.l10n.gettext(string), this);
     }
-    return string;
   });
 
   grunt.registerTask('l10n-generate-pages', ['l10n-create-json', 'l10n-generate-tos-pp', 'l10n-compile-templates']);

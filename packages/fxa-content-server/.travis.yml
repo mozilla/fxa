@@ -26,7 +26,9 @@ cache:
   directories:
     - node_modules
     - app/bower_components
-    - fxa-auth-server/node_modules
+    - deps/node_modules/fxa-auth-server/node_modules
+    - deps/node_modules/fxa-profile-server/node_modules
+    - deps/node_modules/fxa-oauth-server/node_modules
 
 notifications:
   irc:
