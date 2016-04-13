@@ -24,7 +24,7 @@
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL-2.0",
   "dependencies": {
-    "bluebird": "2.10.1",
+    "bluebird": "3.3.5",
     "body-parser": "1.14.1",
     "bower": "1.7.1",
     "connect-cachify": "0.0.17",

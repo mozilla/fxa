@@ -24,49 +24,47 @@ module.exports = function (i18n, root) {
     // Filenames are normalized to locale, not language.
     var locale = i18n.localeFrom(lang);
     var templatePath = path.join(getRoot(type), locale + '.html');
-    var resolver = Promise.defer();
 
-    // cache the promises to avoid multiple concurrent checks for
-    // the same template due to async calls to the file system.
-    if (templateCache[templatePath]) {
-      resolver.resolve(templateCache[templatePath]);
-      return resolver.promise;
-    }
-
-    fs.exists(templatePath, function (exists) {
-      if (! exists) {
-        var bestLang = i18n.bestLanguage(i18n.parseAcceptLanguage(lang));
-        // If bestLang resolves to the default lang, replace it with
-        // the default legal lang since they may differ. E.g. en-US
-        // is the legal default while en is the general default.
-        if (bestLang === defaultLang) {
-          bestLang = defaultLegalLang;
-        }
-
-        if (locale === DEFAULT_LOCALE) {
-          var err = new Error(type + ' missing `' + DEFAULT_LOCALE + '` template: ' + templatePath);
-          return resolver.reject(err);
-        } else if (lang !== bestLang) {
-          logger.warn('`%s` does not exist, trying next best `%s`', lang, bestLang);
-          return resolver.resolve(getTemplate(type, bestLang, defaultLang));
-        }
-
-
-        templateCache[templatePath] = null;
-        return resolver.resolve(null);
+    return new Promise(function (resolve, reject) {
+      // cache the promises to avoid multiple concurrent checks for
+      // the same template due to async calls to the file system.
+      if (templateCache[templatePath]) {
+        return resolve(templateCache[templatePath]);
       }
 
-      fs.readFile(templatePath, 'utf8', function (err, data) {
-        if (err) {
-          return resolver.reject(err);
+      fs.exists(templatePath, function (exists) {
+        if (! exists) {
+          var bestLang = i18n.bestLanguage(i18n.parseAcceptLanguage(lang));
+          // If bestLang resolves to the default lang, replace it with
+          // the default legal lang since they may differ. E.g. en-US
+          // is the legal default while en is the general default.
+          if (bestLang === defaultLang) {
+            bestLang = defaultLegalLang;
+          }
+
+          if (locale === DEFAULT_LOCALE) {
+            var err = new Error(type + ' missing `' + DEFAULT_LOCALE + '` template: ' + templatePath);
+            return reject(err);
+          } else if (lang !== bestLang) {
+            logger.warn('`%s` does not exist, trying next best `%s`', lang, bestLang);
+            return resolve(getTemplate(type, bestLang, defaultLang));
+          }
+
+
+          templateCache[templatePath] = null;
+          return resolve(null);
         }
 
-        templateCache[templatePath] = data;
-        resolver.resolve(data);
+        fs.readFile(templatePath, 'utf8', function (err, data) {
+          if (err) {
+            return reject(err);
+          }
+
+          templateCache[templatePath] = data;
+          resolve(data);
+        });
       });
     });
-
-    return resolver.promise;
   }
 
   return getTemplate;
