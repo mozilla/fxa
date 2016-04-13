@@ -117,7 +117,7 @@ var conf = convict({
     },
     allowedUARegex: {
       doc: 'An array of STRING regexes. Passing any one will get through.',
-      default: ['\\((?:Mobile|Tablet|TV);.+Firefox']
+      default: ['\\((?:Mobile|Tablet|TV|FreeBSD; Viera);.+Firefox']
     }
   },
   smtp: {
