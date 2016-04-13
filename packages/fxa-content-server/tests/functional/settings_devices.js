@@ -18,7 +18,6 @@ define([
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
   var SIGNIN_URL_DEVICE_LIST = SIGNIN_URL + '?forceDeviceList=1';
 
-  var ANIMATION_TIME = 1000;
   var FIRST_PASSWORD = 'password';
   var BROWSER_DEVICE_NAME = 'Browser Session Device';
   var BROWSER_DEVICE_TYPE = 'desktop';
@@ -64,6 +63,7 @@ define([
 
     'device panel works with query param, same device': function () {
       var self = this;
+      self.timeout = 90 * 1000;
       var testDeviceId;
 
       return FunctionalHelpers.openPage(this, SIGNIN_URL_DEVICE_LIST, '#fxa-signin-header')
@@ -176,17 +176,27 @@ define([
           .click()
         .end()
 
-        .sleep(ANIMATION_TIME)
+        // disconnect waits until successful AJAX device delete
+        .then(FunctionalHelpers.pollUntil(function (newName) {
+          var numberOfDevices = document.querySelectorAll('.device-list .device').length;
+
+          return numberOfDevices === 1 ? true : null;
+        }, [ TEST_DEVICE_NAME_UPDATED ], 10000))
 
         .findByCssSelector('.devices-refresh')
-        .click()
+          .click()
         .end()
 
-        .then(FunctionalHelpers.noSuchElement(this, '.device:nth-child(2)'))
+        // should still have 1 device after refresh
+        .then(FunctionalHelpers.pollUntil(function (newName) {
+          var numberOfDevices = document.querySelectorAll('.device-list .device').length;
+
+          return numberOfDevices === 1 ? true : null;
+        }, [ TEST_DEVICE_NAME_UPDATED ], 10000))
 
         // clicking disconnect on the current device should sign you out
         .findByCssSelector('.device:nth-child(1) .device-disconnect')
-        .click()
+          .click()
         .end()
 
         .findByCssSelector('#fxa-signin-header')
