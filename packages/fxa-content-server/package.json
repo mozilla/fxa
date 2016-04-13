@@ -98,7 +98,7 @@
     "grunt-todo": "0.5.0",
     "htmlparser2": "3.9.0",
     "husky": "0.9.2",
-    "intern": "3.0.6",
+    "intern": "3.1.1",
     "jscs-jsdoc": "1.1.0",
     "proxyquire": "1.6.0",
     "sinon": "1.15.4",
