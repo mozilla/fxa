@@ -1,5 +1,9 @@
 #!/bin/bash -ex
 
+# Create a separate store for deps to avoid dependency issues with the content server
+mkdir -p deps/node_modules
+cd deps
+
 # Auth
 npm i mozilla/fxa-auth-server
 cd node_modules/fxa-auth-server
@@ -14,17 +18,14 @@ cd ../..
 
 npm i mozilla/fxa-oauth-server
 cd node_modules/fxa-oauth-server
-# issue https://github.com/mozilla/fxa-oauth-server/issues/345
-npm i fxa-jwtool@^0.7.1
 LOG_LEVEL=error NODE_ENV=dev node ./bin/server.js &
 cd ../..
 
 # Profile
+
 npm i mozilla/fxa-profile-server
 cd node_modules/fxa-profile-server
 npm i
-# issue https://github.com/mozilla/fxa-profile-server/issues/138
-npm i rimraf@^2.2.8
 LOG_LEVEL=error NODE_ENV=dev npm start &
 cd ../..
 
@@ -33,5 +34,8 @@ cd ../..
 npm i vladikoff/browserid-verifier#http
 cd node_modules/browserid-verifier
 npm i vladikoff/browserid-local-verify#http
-PORT=5050 CONFIG_FILES=../../tests/ci/config_verifier.json node server.js &
+PORT=5050 CONFIG_FILES=../../../tests/ci/config_verifier.json node server.js &
 cd ../..
+
+# Leave "deps"
+cd ..
