@@ -6,6 +6,7 @@ var validators = require('./validators')
 var HEX_STRING = validators.HEX_STRING
 var BASE64_JWT = validators.BASE64_JWT
 var DISPLAY_SAFE_UNICODE = validators.DISPLAY_SAFE_UNICODE
+var URLSAFEBASE64 = validators.URLSAFEBASE64
 
 var butil = require('../crypto/butil')
 var openid = require('openid')
@@ -66,9 +67,9 @@ module.exports = function (
               name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE).required(),
               type: isA.string().max(16).required(),
               pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
-              // We're not yet ready to store pubkey values, don't let clients submit them.
-              pushPublicKey: isA.string().length(64).regex(HEX_STRING).allow('').forbidden()
-            })
+              pushPublicKey: isA.string().max(88).regex(URLSAFEBASE64).optional().allow(''),
+              pushAuthKey: isA.string().max(24).regex(URLSAFEBASE64).optional().allow('')
+            }).and('pushPublicKey', 'pushAuthKey')
             .optional(),
             metricsContext: metricsContext.schema
           }
@@ -85,8 +86,9 @@ module.exports = function (
               name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE).required(),
               type: isA.string().max(16).required(),
               pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
-              pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow('')
-            })
+              pushPublicKey: isA.string().max(88).regex(URLSAFEBASE64).optional().allow(''),
+              pushAuthKey: isA.string().max(24).regex(URLSAFEBASE64).optional().allow('')
+            }).and('pushPublicKey', 'pushAuthKey')
             .optional()
           }
         }
@@ -305,9 +307,9 @@ module.exports = function (
               name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE).optional(),
               type: isA.string().max(16).optional(),
               pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
-              // We're not yet ready to store pubkey values, don't let clients submit them.
-              pushPublicKey: isA.string().length(64).regex(HEX_STRING).allow('').forbidden()
-            })
+              pushPublicKey: isA.string().max(88).regex(URLSAFEBASE64).optional().allow(''),
+              pushAuthKey: isA.string().max(24).regex(URLSAFEBASE64).optional().allow('')
+            }).and('pushPublicKey', 'pushAuthKey')
             .optional(),
             metricsContext: metricsContext.schema
           }
@@ -325,8 +327,9 @@ module.exports = function (
               name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE).optional(),
               type: isA.string().max(16).optional(),
               pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
-              pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow('')
-            })
+              pushPublicKey: isA.string().max(88).regex(URLSAFEBASE64).optional().allow(''),
+              pushAuthKey: isA.string().max(24).regex(URLSAFEBASE64).optional().allow('')
+            }).and('pushPublicKey', 'pushAuthKey')
             .optional()
           }
         }
@@ -814,20 +817,20 @@ module.exports = function (
               name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE).optional(),
               type: isA.string().max(16).optional(),
               pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
-              // We're not yet ready to store pubkey values, don't let clients submit them.
-              pushPublicKey: isA.string().length(64).regex(HEX_STRING).allow('').forbidden()
-            }).or('name', 'type', 'pushCallback', 'pushPublicKey'),
+              pushPublicKey: isA.string().max(88).regex(URLSAFEBASE64).optional().allow(''),
+              pushAuthKey: isA.string().max(24).regex(URLSAFEBASE64).optional().allow('')
+            }).or('name', 'type', 'pushCallback', 'pushPublicKey', 'pushAuthKey').and('pushPublicKey', 'pushAuthKey'),
             isA.object({
               name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE).required(),
               type: isA.string().max(16).required(),
               pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
-              // We're not yet ready to store pubkey values, don't let clients submit them.
-              pushPublicKey: isA.string().length(64).regex(HEX_STRING).allow('').forbidden()
-            })
+              pushPublicKey: isA.string().max(88).regex(URLSAFEBASE64).optional().allow(''),
+              pushAuthKey: isA.string().max(24).regex(URLSAFEBASE64).optional().allow('')
+            }).and('pushPublicKey', 'pushAuthKey')
           )
         },
         response: {
-          schema: {
+          schema: isA.object({
             id: isA.string().length(32).regex(HEX_STRING).required(),
             createdAt: isA.number().positive().optional(),
             // We previously allowed devices to register with arbitrry unicode names,
@@ -835,8 +838,9 @@ module.exports = function (
             name: isA.string().max(255).optional(),
             type: isA.string().max(16).optional(),
             pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
-            pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow('')
-          }
+            pushPublicKey: isA.string().max(88).regex(URLSAFEBASE64).optional().allow(''),
+            pushAuthKey: isA.string().max(24).regex(URLSAFEBASE64).optional().allow('')
+          }).and('pushPublicKey', 'pushAuthKey')
         }
       },
       handler: function (request, reply) {
@@ -854,6 +858,10 @@ module.exports = function (
           if (config.deviceUpdatesEnabled === false) {
             throw error.featureNotEnabled()
           }
+        }
+        if (payload.pushCallback && (!payload.pushPublicKey || !payload.pushAuthKey)) {
+          payload.pushPublicKey = ''
+          payload.pushAuthKey = ''
         }
         var operation = payload.id ? 'updateDevice' : 'createDevice'
         db[operation](sessionToken.uid, sessionToken.tokenId, payload).then(
@@ -910,8 +918,9 @@ module.exports = function (
             name: isA.string().max(255).required(),
             type: isA.string().max(16).required(),
             pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow('').allow(null),
-            pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow(null)
-          }))
+            pushPublicKey: isA.string().max(88).regex(URLSAFEBASE64).optional().allow('').allow(null),
+            pushAuthKey: isA.string().max(24).regex(URLSAFEBASE64).optional().allow('').allow(null)
+          }).and('pushPublicKey', 'pushAuthKey'))
         }
       },
       handler: function (request, reply) {

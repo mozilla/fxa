@@ -6,6 +6,7 @@ require('ass')
 var test = require('../ptaptest')
 var uuid = require('uuid')
 var crypto = require('crypto')
+var base64url = require('base64url')
 var log = { trace: console.log, info: console.log }
 
 var config = require('../../config').getProperties()
@@ -217,7 +218,8 @@ test(
       name: '',
       type: 'mobile',
       pushCallback: 'https://foo/bar',
-      pushPublicKey: crypto.randomBytes(32)
+      pushPublicKey: base64url(Buffer.concat([new Buffer('\x04'), crypto.randomBytes(64)])),
+      pushAuthKey: base64url(crypto.randomBytes(16))
     }
     return dbConn.then(function (db) {
       return db.emailRecord(ACCOUNT.email)
@@ -263,7 +265,8 @@ test(
           t.equal(device.name, deviceInfo.name, 'device.name is correct')
           t.equal(device.type, deviceInfo.type, 'device.type is correct')
           t.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
-          t.deepEqual(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
+          t.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
+          t.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
           return db.createDevice(ACCOUNT.uid, sessionTokenId, deviceInfo)
             .then(function () {
               t.fail('adding a device with a duplicate session token should have failed')
@@ -285,12 +288,14 @@ test(
           t.equal(device.name, deviceInfo.name, 'device.name is correct')
           t.equal(device.type, deviceInfo.type, 'device.type is correct')
           t.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
-          t.deepEqual(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
+          t.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
+          t.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
           deviceInfo.id = device.id
           deviceInfo.name = 'wibble'
           deviceInfo.type = 'desktop'
           deviceInfo.pushCallback = ''
           deviceInfo.pushPublicKey = ''
+          deviceInfo.pushAuthKey = ''
           return db.updateDevice(ACCOUNT.uid, sessionTokenId, deviceInfo)
             .catch(function (err) {
               t.fail('updating a new device should not have failed')
@@ -307,7 +312,8 @@ test(
           t.equal(device.name, deviceInfo.name, 'device.name is correct')
           t.equal(device.type, deviceInfo.type, 'device.type is correct')
           t.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
-          t.deepEqual(device.pushPublicKey, zeroBuffer32, 'device.pushPublicKey is correct')
+          t.equal(device.pushPublicKey, '', 'device.pushPublicKey is correct')
+          t.equal(device.pushAuthKey, '', 'device.pushAuthKey is correct')
           return db.deleteDevice(ACCOUNT.uid, deviceInfo.id)
             .catch(function () {
               t.fail('deleting a device should not have failed')

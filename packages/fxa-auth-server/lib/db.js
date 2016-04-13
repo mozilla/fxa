@@ -438,9 +438,10 @@ module.exports = function (
               name: item.name,
               type: item.type,
               pushCallback: item.callbackURL,
-              pushPublicKey: item.callbackPublicKey
+              pushPublicKey: item.callbackPublicKey,
+              pushAuthKey: item.callbackAuthKey
             }, {
-              ignore: [ 'name', 'type', 'pushCallback' ]
+              ignore: [ 'name', 'type', 'pushCallback', 'pushPublicKey', 'pushAuthKey' ]
             })
           })
         },
@@ -521,7 +522,8 @@ module.exports = function (
         name: deviceInfo.name,
         type: deviceInfo.type,
         callbackURL: deviceInfo.pushCallback,
-        callbackPublicKey: deviceInfo.pushPublicKey
+        callbackPublicKey: deviceInfo.pushPublicKey,
+        callbackAuthKey: deviceInfo.pushAuthKey
       })
     )
     .then(
@@ -565,7 +567,8 @@ module.exports = function (
         name: deviceInfo.name,
         type: deviceInfo.type,
         callbackURL: deviceInfo.pushCallback,
-        callbackPublicKey: deviceInfo.pushPublicKey
+        callbackPublicKey: deviceInfo.pushPublicKey,
+        callbackAuthKey: deviceInfo.pushAuthKey
       })
     )
     .then(
