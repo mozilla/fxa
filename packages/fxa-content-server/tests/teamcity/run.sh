@@ -60,7 +60,7 @@ npm install              \
   bower@1.7.1            \
   convict@1.0.2          \
   firefox-profile@0.3.11 \
-  intern@3.0.6           \
+  intern@3.1.1           \
   request@2.67.0         \
   sync-exec@0.6.1        \
   zaach/node-XMLHttpRequest.git#onerror

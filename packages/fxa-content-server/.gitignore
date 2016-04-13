@@ -16,6 +16,7 @@ results
 
 npm-debug.log*
 node_modules
+browser_modules
 
 ### Bower ###
 app/bower_components

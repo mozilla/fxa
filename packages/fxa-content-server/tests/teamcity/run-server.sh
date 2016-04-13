@@ -63,7 +63,7 @@ npm install                  \
   extend@3.0.0               \
   firefox-profile@0.3.11     \
   htmlparser2@3.9.0          \
-  intern@3.0.6               \
+  intern@3.1.1               \
   lodash@4.6.1               \
   mozlog@2.0.2               \
   node-statsd@0.1.1          \
