@@ -3,10 +3,14 @@
 * [Problem statement](#problem-statement)
 * [Outcomes](#outcomes)
 * [Hypothesis](#hypothesis)
+* [User stories](#user-stories)
 * [Constraints](#constraints)
 * [Proposed solution](#proposed-solution)
-  * [What happens when a user signs in?](#what-happens-when-a-user-signs-in)
-* [User stories](#user-stories)
+  * [What happens when a Sync user signs in?](#what-happens-when-a-sync-user-signs-in)
+  * [What happens when an OAuth user signs in?](#what-happens-when-an-oauth-user-signs-in)
+  * [What happens when an unverified client requests `/certificate/sign`?](#what-happens-when-an-unverified-client-requests-certificatesign)
+  * [What happens when an unverified client requests `/account/keys`?](#what-happens-when-an-unverified-client-requests-accountkeys)
+  * [How does this affect users on legacy clients?](#how-does-this-affect-users-on-legacy-clients)
 * [Work breakdown](#work-breakdown)
   * [fxa-content-server](#fxa-content-server)
   * [fxa-auth-server](#fxa-auth-server)
@@ -57,6 +61,19 @@ by monitoring the success rate
 of connecting to Sync
 before and after deployment.
 
+## User stories
+
+* As a Sync user,
+  when signing in to my Firefox Account,
+  I want to confirm my identity
+  via my email account
+  and I want my account access to be limited
+  until my identity has been confirmed.
+
+* As a user of an OAuth relier,
+  when signing in to my Firefox Account,
+  I do not want an extra confirmation step.
+
 ## Constraints
 
 * In light of the recent attack,
@@ -75,19 +92,18 @@ before and after deployment.
 
 ## Proposed solution
 
-Add a notion of “verified”
+Add a notion of verification
 to sessionTokens and keyFetchTokens.
-Tokens that are unverified have reduced powers.
+Tokens that are unverified
+have reduced powers (see below).
 Token verification is achieved
 by following a link sent by email.
 
-### What happens when a user signs in?
-
-![Diagram showing sign-in flow](sign-in-flow.png)
+### What happens when a Sync user signs in?
 
 1. User submits form.
 
-2. Content server requests `POST /account/login`.
+2. Content server requests `POST /account/login?keys=true`.
 
 3. Auth server generates `tokenVerificationId`
    and sends it with `tokenVerified:false`
@@ -123,7 +139,7 @@ by following a link sent by email.
 10. Content server requests `POST /token/verify`.
 
 11. Auth server requests `POST /token/:tokenVerificationId/verify`.
-    Both keys are verified in the database.
+    Both tokens are verified in the database.
 
 12. Concurrently:
 
@@ -135,16 +151,58 @@ by following a link sent by email.
 
 13. Content server navigates to settings view.
 
-## User stories
+### What happens when an OAuth user signs in?
 
-* As a Sync user,
-  when signing in to my Firefox Account,
-  I want my identity confirmed
-  via my email account.
+1. User submits form.
 
-* As a user of an OAuth relier,
-  when signing in to my Firefox Account,
-  I do not want an extra confirmation step.
+2. Content server requests `POST /account/login`.
+
+3. Auth server generates `tokenVerificationId`
+   and sends it with `tokenVerified:false`
+   in request to `PUT /sessionToken/:tokenId`.
+
+4. Auth server sends same `tokenVerificationId`
+   and `tokenVerified:false`
+   in request to `PUT /keyFetchToken/:tokenId`.
+
+5. Auth server sends response back to content server,
+   including in the data:
+   ```
+   {
+     "sessionToken": sessionTokenId,
+     "keyFetchToken": keyFetchTokenId,
+     "tokenVerified": false
+   }
+   ```
+
+6. Content server navigates to settings view.
+
+### What happens when an unverified client requests `/certificate/sign`?
+
+If the sessionToken is unverified,
+the request will succeed.
+However, the verification status is stored
+in the certificate as `fxa-tokenVerified`,
+alongside other `fxa-` properties.
+The Sync server can subsequently reject assertions
+where `fxa-tokenVerified` is `false`.
+
+### What happens when an unverified client requests `/account/keys`?
+
+If the keyFetchToken is unverified,
+the request will fail with errno 102.
+
+### How does this affect users on legacy clients?
+
+They will receive the confirmation email,
+but they will not see the sign-in confirmation screen.
+Subsequent operations may fail with token errors
+until the confirm their email.
+
+**Shane, I wrote the above
+based on hazy recollection of what you said
+while I was only half-concentrating.
+Can you do fix this bit up?**
 
 ## Work breakdown
 
@@ -166,7 +224,7 @@ by following a link sent by email.
 - [ ] Add method to `mailer.js`
   for sending confirmation email.
 - [ ] Modify `/account/login`
-  to send appropriate verification status to db,
+  to create keys unverified,
   initiate verification email
   and set `challenge` on response.
 - [ ] Modify `/account/create`, `/account/openid/login` and `/password/change/start`
@@ -180,7 +238,8 @@ by following a link sent by email.
   that fails with 102 (unverified user) error
   if keyFetchToken is not verified.
 - [ ] In `/certificate/sign`,
-  use new `verifiedSessionToken` auth strategy.
+  encode the sessionToken verification state
+  on the certificate as `fxa-tokenVerified`.
 - [ ] In `/account/keys`,
   use new `verifiedKeyFetchToken` auth strategy.
 - [ ] Add a `/token/verify` endpoint for token verification.
@@ -204,11 +263,10 @@ by following a link sent by email.
 - [ ] Update `PUT /sessionToken/:id` endpoint
   to accept verification state.
 - [ ] Update `PUT /keyFetchToken/:id` endpoint
-  to always create token unverified.
+  to accept verification state.
 - [ ] Add `/token/:id/verify` endpoint for verifying tokens.
 - [ ] Add stored procedure and endpoint
-  that returns token joined to its `tokenVerifications` row
-  for callers that need to check token verification state.
+  that returns token joined to its `tokenVerified` state.
 
 ### fxa-auth-mailer
 
