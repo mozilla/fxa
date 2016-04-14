@@ -38,25 +38,6 @@ by monitoring the success rate
 of connecting to Sync
 before and after deployment.
 
-## Assumptions
-
-* The `/account/login` endpoint
-  is solely responsible for
-  initiating the confirmation process.
-
-* The `/certificate/sign` and `/account/keys` endpoints
-  should be protected.
-
-* A future iteration
-  should implement protection of
-  the `/password/change/start` and `/account/destroy` endpoints.
-
-* In most cases,
-  attackers do not have access
-  to our users' email accounts.
-  Users that do have a compromised email account
-  are out of scope for this feature.
-
 ## Constraints
 
 * In light of the recent attack,
