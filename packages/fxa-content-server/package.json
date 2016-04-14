@@ -70,7 +70,7 @@
     "morgan": "1.6.1",
     "mozlog": "2.0.2",
     "node-statsd": "0.1.1",
-    "node-uap": "git://github.com/shane-tomlinson/node-uap.git#13fa830e8",
+    "node-uap": "git://github.com/vladikoff/node-uap.git#9cdd16247",
     "openid": "1.0.0",
     "request": "2.67.0",
     "serve-static": "1.10.0",
