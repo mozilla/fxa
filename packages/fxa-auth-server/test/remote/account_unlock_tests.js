@@ -28,6 +28,12 @@ TestServer.start(config)
         .then(
           function (c) {
             client = c
+            // clear the new-login notification email
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function () {
             return client.lockAccount(email, password)
           }
         )
@@ -144,6 +150,12 @@ TestServer.start(config)
         .then(
           function (c) {
             client = c
+            // clear the new-login notification email
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function () {
             return client.lockAccount(email, password)
           }
         )
@@ -188,6 +200,12 @@ TestServer.start(config)
         .then(
           function (c) {
             client = c
+            // clear the new-login notification email
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function () {
             return client.lockAccount(email, password)
           }
         )
@@ -235,6 +253,12 @@ TestServer.start(config)
         .then(
           function (c) {
             client = c
+            // clear the new-login notification email
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function () {
             return client.lockAccount(email, password)
           }
         )

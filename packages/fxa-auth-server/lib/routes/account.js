@@ -8,6 +8,7 @@ var BASE64_JWT = validators.BASE64_JWT
 
 var butil = require('../crypto/butil')
 var openid = require('openid')
+var userAgent = require('../userAgent')
 var url = require('url')
 var metricsContext = require('../metrics/context')
 
@@ -342,6 +343,7 @@ module.exports = function (
           .then(createSessionToken)
           .then(upsertDevice)
           .then(emitSyncLoginEvent)
+          .then(sendNewDeviceLoginNotification)
           .then(createResponse)
           .done(reply, reply)
 
@@ -352,6 +354,10 @@ module.exports = function (
                 emailRecord = result
 
                 if(email !== emailRecord.email) {
+                  customs.flag(request.app.clientAddress, {
+                    email: email,
+                    errno: error.ERRNO.INCORRECT_PASSWORD
+                  })
                   throw error.incorrectPassword(emailRecord.email, email)
                 }
 
@@ -367,6 +373,15 @@ module.exports = function (
                       }
                     }
                   )
+              },
+              function (err) {
+                if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+                  customs.flag(request.app.clientAddress, {
+                    email: email,
+                    errno: err.errno
+                  })
+                }
+                throw err
               }
             )
         }
@@ -410,6 +425,8 @@ module.exports = function (
 
         function emitSyncLoginEvent () {
           if (service === 'sync' && request.payload.reason === 'signin') {
+            // The response doesn't have to wait for this,
+            // so we don't return the promise.
             db.sessions(emailRecord.uid)
               .then(
                 function (sessions) {
@@ -425,6 +442,20 @@ module.exports = function (
           }
         }
 
+        function sendNewDeviceLoginNotification () {
+          if (config.newLoginNotificationEnabled && wantsKeys(request)) {
+            // The response doesn't have to wait for this,
+            // so we don't return the promise.
+            mailer.sendNewDeviceLoginNotification(
+              emailRecord.email,
+              userAgent.call({
+                acceptLanguage: request.app.acceptLanguage,
+                timestamp: Date.now()
+              }, request.headers['user-agent'])
+            )
+          }
+        }
+
         function createResponse () {
           var response = {
             uid: sessionToken.uid.toString('hex'),
@@ -437,7 +468,7 @@ module.exports = function (
             response.device = butil.unbuffer(device)
           }
 
-          if (request.query.keys !== 'true') {
+          if (! wantsKeys(request)) {
             return P.resolve(response)
           }
 
@@ -534,7 +565,7 @@ module.exports = function (
                   )
                   .then(
                     function (sessionToken) {
-                      if (request.query.keys !== 'true') {
+                      if (! wantsKeys(request)) {
                         return P.resolve({
                           sessionToken: sessionToken
                         })
@@ -1219,7 +1250,11 @@ module.exports = function (
         log.begin('Account.destroy', request)
         var form = request.payload
         var authPW = Buffer(form.authPW, 'hex')
-        db.emailRecord(form.email)
+        customs.check(
+          request.app.clientAddress,
+          form.email,
+          'accountDestroy')
+          .then(db.emailRecord.bind(db, form.email))
           .then(
             function (emailRecord) {
               if (emailRecord.lockedAt) {
@@ -1241,6 +1276,15 @@ module.exports = function (
                     return {}
                   }
                 )
+            },
+            function (err) {
+              if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+                customs.flag(request.app.clientAddress, {
+                  email: form.email,
+                  errno: err.errno
+                })
+              }
+              throw err
             }
           )
           .done(reply, reply)
@@ -1310,5 +1354,9 @@ module.exports = function (
   }
 
   return routes
+
+  function wantsKeys (request) {
+    return request.query.keys === 'true'
+  }
 }
 

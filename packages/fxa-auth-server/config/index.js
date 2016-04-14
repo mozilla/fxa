@@ -301,6 +301,12 @@ var conf = convict({
     env: 'LOCKOUT_ENABLED',
     default: false
   },
+  newLoginNotificationEnabled: {
+    doc: 'Is the new-login notification email enabled',
+    format: Boolean,
+    env: 'NEW_LOGIN_NOTIFICATION_ENABLED',
+    default: true
+  },
   oauth: {
     url: {
       format: 'url',
@@ -354,6 +360,12 @@ var conf = convict({
     format: String,
     env: 'CORS_ORIGIN',
     default: '*'
+  },
+  clientAddressDepth: {
+    doc: 'location of the client ip address in the remote address chain',
+    format: Number,
+    env: 'CLIENT_ADDRESS_DEPTH',
+    default: 3
   }
 })
 
