@@ -1,5 +1,24 @@
 # Sign-in confirmation email
 
+* [Problem statement](#problem-statement)
+* [Outcomes](#outcomes)
+* [Hypothesis](#hypothesis)
+* [Constraints](#constraints)
+* [Proposed solution](#proposed-solution)
+  * [What happens when a user signs in?](#what-happens-when-a-user-signs-in)
+* [User stories](#user-stories)
+* [Work breakdown](#work-breakdown)
+  * [fxa-content-server](#fxa-content-server)
+  * [fxa-auth-server](#fxa-auth-server)
+  * [fxa-auth-db-mysql](#fxa-auth-db-mysql)
+  * [fxa-auth-mailer](#fxa-auth-mailer)
+* [Mock-ups](#mock-ups)
+  * [Confirm this sign-in screen](#confirm-this-sign-in-screen)
+  * [Confirmation email](#confirmation-email)
+  * [Sign-in confirmed screen](#sign-in-confirmed-screen)
+    * [On the signed-in device](#on-the-signed-in-device)
+    * [Off the signed-in device](#off-the-signed-in-device)
+
 ## Problem statement
 
 It is possible for attackers
