@@ -114,9 +114,11 @@ by following a link sent by email.
 - [ ] Add method to `mailer.js`
   for sending confirmation email.
 - [ ] Modify `/account/login`
-  to send verification status to db,
+  to send appropriate verification status to db,
   initiate verification email
   and set `challenge` on response.
+- [ ] Modify `/account/create`, `/account/openid/login` and `/password/change/start`
+  to always create their keys in the verified state.
 - [ ] Create a `verifiedSessionToken`
   auth strategy for Hapi
   that fails with 102 (unverified user) error
