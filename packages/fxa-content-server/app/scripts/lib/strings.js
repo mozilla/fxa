@@ -29,7 +29,7 @@ define(function (require, exports, module) {
   t('Confirm new sign-in to Firefox');
   t('You signed in to Firefox from %(device)s, %(location)s.');
   t('You signed in to Firefox from %(device)s.');
-  t('For added security, please confirm this sign-in to begin syncing with %(device).');
+  t('For added security, please confirm this sign-in to begin syncing with %(device)s.');
   t('Alternatively:');
   t('This is an automated email; if you received it in error, no action is required.');
   t('For more information, please visit <a %(supportLinkAttributes)s>Mozilla Support</a>');
