@@ -132,6 +132,9 @@ by following a link sent by email.
 - [ ] In `/account/keys`,
   use new `verifiedKeyFetchToken` auth strategy.
 - [ ] Add a new endpoint for token verification.
+- [ ] Modify the `/recovery_email/resend_status` endpoint
+  to handle both account verification and token verification emails
+  (and know the difference).
 
 ### fxa-auth-db-mysql
 
