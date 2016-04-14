@@ -42,21 +42,20 @@ function getCommitHash () {
     /* ignore, shell out to `git` for hash */
   }
 
-  var deferred = Promise.defer();
+  return new Promise(function (resolve) {
+    var gitDir = path.resolve(__dirname, '..', '..', '.git');
+    var cmd = util.format('git --git-dir=%s rev-parse HEAD', gitDir);
+    cp.exec(cmd, function (err, stdout) {
+      if (err) {
+        // ignore the error
+        resolve(UNKNOWN);
+        return;
+      }
 
-  var gitDir = path.resolve(__dirname, '..', '..', '.git');
-  var cmd = util.format('git --git-dir=%s rev-parse HEAD', gitDir);
-  cp.exec(cmd, function (err, stdout) {
-    if (err) {
-      // ignore the error
-      deferred.resolve(UNKNOWN);
-      return;
-    }
-
-    deferred.resolve((stdout && stdout.trim()) || UNKNOWN);
+      resolve((stdout && stdout.trim()) || UNKNOWN);
+    });
   });
 
-  return deferred.promise;
 }
 
 function getSourceRepo () {
@@ -68,21 +67,19 @@ function getSourceRepo () {
     /* ignore, shell out to `git` for repo */
   }
 
-  var deferred = Promise.defer();
-
-  var gitDir = path.resolve(__dirname, '..', '..', '.git');
-  var configPath = path.join(gitDir, 'config');
-  var cmd = util.format('git config --file %s --get remote.origin.url', configPath);
-  cp.exec(cmd, function (err, stdout) {
-    if (err) {
-      // ignore the error
-      deferred.resolve(UNKNOWN);
-      return;
-    }
-    deferred.resolve((stdout && stdout.trim()) || UNKNOWN);
+  return new Promise(function (resolve) {
+    var gitDir = path.resolve(__dirname, '..', '..', '.git');
+    var configPath = path.join(gitDir, 'config');
+    var cmd = util.format('git config --file %s --get remote.origin.url', configPath);
+    cp.exec(cmd, function (err, stdout) {
+      if (err) {
+        // ignore the error
+        return resolve(UNKNOWN);
+      }
+      resolve((stdout && stdout.trim()) || UNKNOWN);
+    });
   });
 
-  return deferred.promise;
 }
 
 function getL10nVersion () {
