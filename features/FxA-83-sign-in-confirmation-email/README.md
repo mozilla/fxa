@@ -87,7 +87,7 @@ by following a link sent by email.
 
 1. User submits form.
 
-2. Content server requests `POST /account/login?keys=true`.
+2. Content server requests `POST /account/login`.
 
 3. Auth server generates `tokenVerificationId`
    and sends it with `tokenVerified:false`
