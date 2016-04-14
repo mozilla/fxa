@@ -131,7 +131,13 @@ by following a link sent by email.
   use new `verifiedSessionToken` auth strategy.
 - [ ] In `/account/keys`,
   use new `verifiedKeyFetchToken` auth strategy.
-- [ ] Add a new endpoint for token verification.
+- [ ] Add a `/token/verify` endpoint for token verification.
+  The `tokenVerificationId` should be sent in the payload
+  as `code`, for consistency with `/recovery_email/verify_code`.
+- [ ] Modify the `/recovery_email/verify_code` endpoint
+  to also verify tokens.
+  This is in case an unverified user signs in,
+  we need their comfirmation to verify everything.
 - [ ] Modify the `/recovery_email/resend_status` endpoint
   to handle both account verification and token verification emails
   (and know the difference).
