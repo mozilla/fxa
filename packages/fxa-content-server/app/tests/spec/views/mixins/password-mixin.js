@@ -66,6 +66,17 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('clicking on unsynched/synched show buttons', function () {
+      it('gets pwd inputs to be shown', function () {
+        var targets = view.getAffectedPasswordInputs('#show-password');
+        assert.equal(targets.length, 1);
+
+        view.$('#show-password').data('synchronize-show', 'true');
+        targets = view.getAffectedPasswordInputs('#show-password');
+        assert.equal(targets.length, 2);
+      });
+    });
+
     describe('clicking on the show button', function () {
       it('pw field set to text when clicked', function () {
         view.$('.show-password').click();
