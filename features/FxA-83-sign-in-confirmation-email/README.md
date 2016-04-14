@@ -77,11 +77,63 @@ before and after deployment.
 
 Add a notion of “verified”
 to sessionTokens and keyFetchTokens.
-Tokens that are unverified have reduced powers,
-meaning that requests to protected endpoints will fail
-with error number 102 (unverified user).
+Tokens that are unverified have reduced powers.
 Token verification is achieved
 by following a link sent by email.
+
+### What happens when a user signs in?
+
+![Diagram showing sign-in flow](sign-in-flow.png)
+
+1. User submits form.
+
+2. Content server requests `POST /account/login?keys=true`.
+
+3. Auth server generates `tokenVerificationId`
+   and sends it with `tokenVerified:false`
+   in request to `PUT /sessionToken/:tokenId`.
+
+4. Auth server sends same `tokenVerificationId`
+   and `tokenVerified:false`
+   in request to `PUT /keyFetchToken/:tokenId`.
+
+5. Auth server invokes the mailer
+   to send a confirmation email,
+   which includes `tokenVerificationId` in the URL.
+
+6. Auth server sends response back to content server,
+   including in the data:
+   ```
+   {
+     "sessionToken": sessionTokenId,
+     "keyFetchToken": keyFetchTokenId,
+     "tokenVerified": false,
+     "challengeReason": "signin",
+     "challengeMethod": "email"
+   }
+   ```
+
+7. Content server navigates to confirm-signin view.
+
+8. Content server starts polling
+   on `GET /token/:tokenId/status`.
+
+9. User clicks link in confirmation email.
+
+10. Content server requests `POST /token/verify`.
+
+11. Auth server requests `POST /token/:tokenVerificationId/verify`.
+    Both keys are verified in the database.
+
+12. Concurrently:
+
+    * Auth server responds to verification request,
+      including verified tokens in the data.
+
+    * Auth server changes polling request responses,
+      including verified tokens in the data.
+
+13. Content server navigates to settings view.
 
 ## User stories
 
