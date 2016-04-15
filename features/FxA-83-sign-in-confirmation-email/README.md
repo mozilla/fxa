@@ -161,11 +161,9 @@ by following a link sent by email.
 2. Content server requests `POST /account/login`.
 
 3. Auth server generates `tokenVerificationId`
-   and sends it with `tokenVerified:false`
-   in request to `PUT /sessionToken/:tokenId`.
+   and sends it in request to `PUT /sessionToken/:tokenId`.
 
 4. Auth server sends same `tokenVerificationId`
-   and `tokenVerified:false`
    in request to `PUT /keyFetchToken/:tokenId`.
 
 5. Auth server sends response back to content server.
@@ -239,9 +237,6 @@ against unverified tokens.
   on the certificate as `fxa-tokenVerified`.
 - [ ] In `/account/keys`,
   use new `verifiedKeyFetchToken` auth strategy.
-- [ ] Add a `/token/verify` endpoint for token verification.
-  The `tokenVerificationId` should be sent in the payload
-  as `code`, for consistency with `/recovery_email/verify_code`.
 - [ ] Modify the `/recovery_email/verify_code` endpoint
   to also verify tokens.
   This allows legacy clients to work correctly
@@ -255,16 +250,16 @@ against unverified tokens.
 
 - [ ] Create `tokenVerifications` table
   and associated stored procedures.
-- [ ] Update token-creation stored procedures
+- [ ] Update token-creation endpoints and stored procedures
   to also insert into `tokenVerifications`
   as part of the same transaction.
-- [ ] Update `PUT /sessionToken/:id` endpoint
-  to accept verification state.
-- [ ] Update `PUT /keyFetchToken/:id` endpoint
-  to accept verification state.
-- [ ] Add `/token/:id/verify` endpoint for verifying tokens.
-- [ ] Add stored procedure and endpoint
-  that returns token joined to its `tokenVerified` state.
+- [ ] Update token-deletion endpoints and stored procedures
+  to also delete from `tokenVerifications`
+  as part of the same transaction.
+- [ ] Add `/token/:id/verify` endpoint and stored procedure
+  for verifying tokens.
+- [ ] Add endpoints and stored procedures
+  that return tokens joined to its `tokenVerified` state.
 
 ### fxa-auth-mailer
 
