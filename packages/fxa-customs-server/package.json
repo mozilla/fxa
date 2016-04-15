@@ -18,12 +18,13 @@
     "shrinkwrap": "npm shrinkwrap && grunt nsp"
   },
   "dependencies": {
-    "aws-sdk": "2.0.0-rc.20",
-    "bluebird": "1.2.2",
-    "bunyan": "0.23.1",
-    "convict": "0.8.0",
-    "memcached": "0.2.8",
-    "restify": "2.8.2"
+    "aws-sdk": "2.3.3",
+    "bluebird": "3.3.4",
+    "bunyan": "1.8.0",
+    "convict": "1.2.0",
+    "deep-equal": "1.0.1",
+    "memcached": "2.2.1",
+    "restify": "4.0.4"
   },
   "devDependencies": {
     "ass": "git://github.com/jrgm/ass.git#5be99ee7abc9fcf63f9ebcc37b151b9c822146d1",

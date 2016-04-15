@@ -28,7 +28,7 @@ var client = restify.createJsonClient({
   url: 'http://127.0.0.1:' + config.listen.port
 })
 
-Promise.promisifyAll(client)
+Promise.promisifyAll(client, { multiArgs: true })
 
 test(
   'startup',

@@ -5,7 +5,7 @@
 var actions = require('./actions')
 
 // Keep track of events tied to just email addresses
-module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, BAD_LOGIN_LOCKOUT_INTERVAL_MS, MAX_EMAILS, BAD_LOGIN_LOCKOUT, now) {
+module.exports = function (limits, now) {
 
   now = now || Date.now
 
@@ -27,31 +27,31 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, BAD_LOGIN_
 
   EmailRecord.prototype.getMinLifetimeMS = function () {
     return Math.max(
-      RATE_LIMIT_INTERVAL_MS,
-      BLOCK_INTERVAL_MS,
-      BAD_LOGIN_LOCKOUT_INTERVAL_MS
+      limits.rateLimitIntervalMs,
+      limits.blockIntervalMs,
+      limits.badLoginLockoutIntervalMs
     )
   }
 
   EmailRecord.prototype.isOverEmailLimit = function () {
     this.trimHits(now())
-    return this.xs.length > MAX_EMAILS
+    return this.xs.length > limits.maxEmails
   }
 
   EmailRecord.prototype.isWayOverBadLogins = function () {
     this.trimBadLogins(now())
-    return this.lf.length > BAD_LOGIN_LOCKOUT
+    return this.lf.length > limits.badLoginLockout
   }
 
   EmailRecord.prototype.trimHits = function (now) {
     if (this.xs.length === 0) { return }
     // xs is naturally ordered from oldest to newest
-    // and we only need to keep up to MAX_EMAILS + 1
+    // and we only need to keep up to limits.maxEmails + 1
 
     var i = this.xs.length - 1
     var n = 0
     var hit = this.xs[i]
-    while (hit > (now - RATE_LIMIT_INTERVAL_MS) && n <= MAX_EMAILS) {
+    while (hit > (now - limits.rateLimitIntervalMs) && n <= limits.maxEmails) {
       hit = this.xs[--i]
       n++
     }
@@ -61,12 +61,12 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, BAD_LOGIN_
   EmailRecord.prototype.trimBadLogins = function (now) {
     if (this.lf.length === 0) { return }
     // lf is naturally ordered from oldest to newest
-    // and we only need to keep up to BAD_LOGIN_LOCKOUT + 1
+    // and we only need to keep up to limits.badLoginLockout + 1
 
     var i = this.lf.length - 1
     var n = 0
     var login = this.lf[i]
-    while (login > (now - BAD_LOGIN_LOCKOUT_INTERVAL_MS) && n <= BAD_LOGIN_LOCKOUT) {
+    while (login > (now - limits.badLoginLockoutIntervalMs) && n <= limits.badLoginLockout) {
       login = this.lf[--i]
       n++
     }
@@ -87,11 +87,11 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, BAD_LOGIN_
   }
 
   EmailRecord.prototype.isRateLimited = function () {
-    return !!(this.rl && (now() - this.rl < RATE_LIMIT_INTERVAL_MS))
+    return !!(this.rl && (now() - this.rl < limits.rateLimitIntervalMs))
   }
 
   EmailRecord.prototype.isBlocked = function () {
-    return !!(this.bk && (now() - this.bk < BLOCK_INTERVAL_MS))
+    return !!(this.bk && (now() - this.bk < limits.blockIntervalMs))
   }
 
   EmailRecord.prototype.block = function () {
@@ -108,8 +108,8 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, BAD_LOGIN_
   }
 
   EmailRecord.prototype.retryAfter = function () {
-    var rateLimitAfter = Math.floor(((this.rl || 0) + RATE_LIMIT_INTERVAL_MS - now()) / 1000)
-    var banAfter = Math.floor(((this.bk || 0) + BLOCK_INTERVAL_MS - now()) / 1000)
+    var rateLimitAfter = Math.floor(((this.rl || 0) + limits.rateLimitIntervalMs - now()) / 1000)
+    var banAfter = Math.floor(((this.bk || 0) + limits.blockIntervalMs - now()) / 1000)
     return Math.max(0, rateLimitAfter, banAfter)
   }
 

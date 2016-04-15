@@ -5,7 +5,7 @@
 var actions = require('./actions')
 
 // Keep track of events tied to both email and IP addresses
-module.exports = function (RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS, now) {
+module.exports = function (limits, now) {
 
   now = now || Date.now
 
@@ -22,12 +22,12 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS, now) {
   }
 
   IpEmailRecord.prototype.getMinLifetimeMS = function () {
-    return RATE_LIMIT_INTERVAL_MS
+    return limits.rateLimitIntervalMs
   }
 
   IpEmailRecord.prototype.isOverBadLogins = function () {
     this.trimBadLogins(now())
-    return this.lf.length > MAX_BAD_LOGINS
+    return this.lf.length > limits.maxBadLogins
   }
 
   IpEmailRecord.prototype.addBadLogin = function () {
@@ -38,12 +38,12 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS, now) {
   IpEmailRecord.prototype.trimBadLogins = function (now) {
     if (this.lf.length === 0) { return }
     // lf is naturally ordered from oldest to newest
-    // and we only need to keep up to MAX_BAD_LOGINS + 1
+    // and we only need to keep up to limits.maxBadLogins + 1
 
     var i = this.lf.length - 1
     var n = 0
     var login = this.lf[i]
-    while (login > (now - RATE_LIMIT_INTERVAL_MS) && n <= MAX_BAD_LOGINS) {
+    while (login > (now - limits.rateLimitIntervalMs) && n <= limits.maxBadLogins) {
       login = this.lf[--i]
       n++
     }
@@ -55,7 +55,7 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS, now) {
   }
 
   IpEmailRecord.prototype.isRateLimited = function () {
-    return !!(this.rl && (now() - this.rl < RATE_LIMIT_INTERVAL_MS))
+    return !!(this.rl && (now() - this.rl < limits.rateLimitIntervalMs))
   }
 
   IpEmailRecord.prototype.rateLimit = function () {
@@ -73,7 +73,7 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS, now) {
   }
 
   IpEmailRecord.prototype.retryAfter = function () {
-    return Math.max(0, Math.floor(((this.rl || 0) + RATE_LIMIT_INTERVAL_MS - now()) / 1000))
+    return Math.max(0, Math.floor(((this.rl || 0) + limits.rateLimitIntervalMs - now()) / 1000))
   }
 
   IpEmailRecord.prototype.update = function (action) {

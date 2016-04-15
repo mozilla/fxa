@@ -10,14 +10,15 @@ function now() {
 }
 
 function simpleIpRecord() {
-  return new (ipRecord(
-    120 * 1000,
-    1 * 1000,
-    1 * 1000,
-    3,
-    { '102': 2 },
-    1,
-    now))()
+  var limits = {
+    blockIntervalMs: 120000,
+    ipRateLimitIntervalMs: 1000,
+    ipRateLimitBanDurationMs: 1000,
+    maxBadLoginsPerIp: 3,
+    maxAccountStatusCheck: 1,
+    badLoginErrnoWeights: { '102': 2 }
+  }
+  return new (ipRecord(limits, now))()
 }
 
 test(
@@ -82,12 +83,20 @@ test(
   function (t) {
     var ir = simpleIpRecord()
     t.equal(ir.shouldBlock(), false, 'original object is not blocked')
-    var irCopy1 = (ipRecord(120 * 1000, 90, 90, 2, {}, 1, now)).parse(ir)
+    var limits = {
+      blockIntervalMs: 120000,
+      ipRateLimitIntervalMs: 90,
+      ipRateLimitBanDurationMs: 90,
+      maxBadLoginsPerIp: 2,
+      maxAccountStatusCheck: 1,
+      badLoginErrnoWeights: {}
+    }
+    var irCopy1 = (ipRecord(limits, now)).parse(ir)
     t.equal(irCopy1.shouldBlock(), false, 'copied object is not blocked')
 
     ir.block()
     t.equal(ir.shouldBlock(), true, 'original object is now blocked')
-    var irCopy2 = (ipRecord(120 * 1000, 90, 90, 2, {}, 1, now)).parse(ir)
+    var irCopy2 = (ipRecord(limits, now)).parse(ir)
     t.equal(irCopy2.shouldBlock(), true, 'copied object is blocked')
     t.end()
   }
@@ -120,11 +129,35 @@ test(
 test(
   'getMinLifetimeMS works',
   function (t) {
-    var ir = new (ipRecord(10, 15, 20, 2, {}, 5, now))()
+    var limits = {
+      blockIntervalMs: 10,
+      ipRateLimitIntervalMs: 15,
+      ipRateLimitBanDurationMs: 20,
+      maxBadLoginsPerIp: 2,
+      maxAccountStatusCheck: 5,
+      badLoginErrnoWeights: {}
+    }
+    var ir = new (ipRecord(limits, now))()
     t.equal(ir.getMinLifetimeMS(), 20, 'lifetime >= rl ban duration')
-    ir = new (ipRecord(11, 21, 15, 2, {}, 5, now))()
+    limits = {
+      blockIntervalMs: 11,
+      ipRateLimitIntervalMs: 21,
+      ipRateLimitBanDurationMs: 15,
+      maxBadLoginsPerIp: 2,
+      maxAccountStatusCheck: 5,
+      badLoginErrnoWeights: {}
+    }
+    ir = new (ipRecord(limits, now))()
     t.equal(ir.getMinLifetimeMS(), 21, 'lifetime >= rl tracking interval')
-    ir = new (ipRecord(22, 15, 12, 2, {}, 5, now))()
+    limits = {
+      blockIntervalMs: 22,
+      ipRateLimitIntervalMs: 15,
+      ipRateLimitBanDurationMs: 12,
+      maxBadLoginsPerIp: 2,
+      maxAccountStatusCheck: 5,
+      badLoginErrnoWeights: {}
+    }
+    ir = new (ipRecord(limits, now))()
     t.equal(ir.getMinLifetimeMS(), 22, 'lifetime >= block internal')
     t.end()
   }

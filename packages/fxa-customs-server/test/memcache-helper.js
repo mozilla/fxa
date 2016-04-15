@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var P = require('bluebird')
 var Memcached = require('memcached')
+P.promisifyAll(Memcached.prototype)
 
 var config = {
   memcache: {
@@ -40,14 +42,13 @@ module.exports.mc = mc
 var TEST_EMAIL = 'test@example.com'
 var TEST_IP = '192.0.2.1'
 
-var EmailRecord = require('../lib/email_record')(config.limits.rateLimitIntervalSeconds * 1000, config.limits.blockIntervalSeconds * 1000, config.limits.badLoginLockoutIntervalSeconds * 1000, config.limits.maxEmails, config.limits.badLoginLockout)
-var IpEmailRecord = require('../lib/ip_email_record')(config.limits.rateLimitIntervalSeconds * 1000, config.limits.maxBadLogins)
-var IpRecord = require('../lib/ip_record')(
-  config.limits.blockIntervalSeconds * 1000,
-  config.limits.ipRateLimitIntervalSeconds * 1000,
-  config.limits.ipRateLimitBanDurationSeconds * 1000,
-  config.limits.maxBadLoginsPerIp,
-  config.limits.maxAccountStatusCheck)
+var limits = require('../lib/limits')(config, mc, console)
+var allowedIPs = require('../lib/allowed_ips')(config, mc, console)
+var EmailRecord = require('../lib/email_record')(limits)
+var IpEmailRecord = require('../lib/ip_email_record')(limits)
+var IpRecord = require('../lib/ip_record')(limits)
+
+module.exports.limits = limits
 
 function blockedEmailCheck(cb) {
   setTimeout( // give memcache time to flush the writes
@@ -84,24 +85,18 @@ module.exports.blockedIpCheck = blockedIpCheck
 function badLoginCheck(cb) {
   setTimeout( // give memcache time to flush the writes
     function () {
-      mc.get(TEST_IP + TEST_EMAIL,
-        function (err, data1) {
-          var ier = IpEmailRecord.parse(data1)
-
-          mc.get(TEST_EMAIL,
-            function (err, data2) {
-              var er = EmailRecord.parse(data2)
-              mc.get(TEST_IP,
-                function (err, data3) {
-                  var ir = IpRecord.parse(data3)
-                  mc.end()
-                  cb(ier.isOverBadLogins(), er.isWayOverBadLogins(), ir.isOverBadLogins())
-                }
-              )
-            }
-          )
-        }
-      )
+      P.all([
+        mc.getAsync(TEST_IP + TEST_EMAIL),
+        mc.getAsync(TEST_EMAIL),
+        mc.getAsync(TEST_IP)
+      ])
+      .spread(function (d1, d2, d3) {
+        var ier = IpEmailRecord.parse(d1)
+        var er = EmailRecord.parse(d2)
+        var ir = IpRecord.parse(d3)
+        mc.end()
+        cb(ier.isOverBadLogins(), er.isWayOverBadLogins(), ir.isOverBadLogins())
+      })
     }
   )
 }
@@ -109,55 +104,44 @@ function badLoginCheck(cb) {
 module.exports.badLoginCheck = badLoginCheck
 
 function clearEverything(cb) {
-  mc.del(TEST_EMAIL,
-    function (err) {
-      if (err) {
-        return cb(err)
-      }
-
-      blockedEmailCheck(
-        function (isBlocked) {
-          if (isBlocked) {
-            return cb('email was not unblocked')
-          }
-
-          mc.del(TEST_IP + TEST_EMAIL,
-            function (err) {
-              if (err) {
-                return cb(err)
-              }
-
-              badLoginCheck(
-                function (isOverBadLogins, isWayOverBadLogins) {
-                  if (isOverBadLogins || isWayOverBadLogins) {
-                    return cb('there are still some bad logins')
-                  }
-
-                  mc.del(TEST_IP,
-                    function (err) {
-                      if (err) {
-                        return cb(err)
-                      }
-
-                      blockedIpCheck(
-                        function (isBlocked) {
-                          if (isBlocked) {
-                            return cb('IP was not unblocked')
-                          }
-
-                          return cb(null)
-                        }
-                      )
-                    }
-                  )
-                }
-              )
-            }
-          )
-        }
-      )
-    }
-  )
+  P.all([
+    mc.delAsync('limits'),
+    mc.delAsync('allowedIPs'),
+    mc.delAsync(TEST_EMAIL),
+    mc.delAsync(TEST_IP + TEST_EMAIL),
+    mc.delAsync(TEST_IP)
+  ])
+  .then(function () {
+    mc.end()
+    cb()
+  },
+  cb)
 }
 
 module.exports.clearEverything = clearEverything
+
+function setLimits(settings) {
+  var keys = Object.keys(settings)
+  for (var i = 0; i < keys.length; i++) {
+    var k = keys[i]
+    limits[k] = settings[k]
+  }
+  return limits.push().
+    then(function (s) {
+      mc.end()
+      return s
+    })
+}
+
+module.exports.setLimits = setLimits
+
+function setAllowedIPs(ips) {
+  allowedIPs.setAll(ips)
+  return allowedIPs.push()
+    .then(function (ips) {
+      mc.end()
+      return ips
+    })
+}
+
+module.exports.setAllowedIPs = setAllowedIPs

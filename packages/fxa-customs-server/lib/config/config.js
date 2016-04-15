@@ -36,6 +36,12 @@ module.exports = function (fs, path, url, convict) {
         env: 'PORT'
       }
     },
+    updatePollIntervalSeconds: {
+      doc: 'interval to check cache for new limits / allowedIPs. 0 is off',
+      default: 0,
+      format: 'nat',
+      env: 'UPDATE_POLL_INTERVAL_SECONDS'
+    },
     limits: {
       blockIntervalSeconds: {
         doc: 'Duration of a manual ban',

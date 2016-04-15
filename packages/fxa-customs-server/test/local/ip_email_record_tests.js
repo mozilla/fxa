@@ -10,7 +10,11 @@ function now() {
 }
 
 function simpleIpEmailRecord() {
-  return new (ipEmailRecord(500, 2, now))()
+  var limits = {
+    rateLimitIntervalMs: 500,
+    maxBadLogins: 2
+  }
+  return new (ipEmailRecord(limits, now))()
 }
 
 test(
@@ -156,8 +160,11 @@ test(
     var ier = simpleIpEmailRecord()
     t.equal(ier.shouldBlock(), false, 'original object is not blocked')
     t.equal(ier.lf.length, 0, 'original object has no bad logins')
-
-    var ierCopy1 = (ipEmailRecord(50, 2, now)).parse(ier)
+    var limits = {
+      rateLimitIntervalMs: 50,
+      maxBadLogins: 2
+    }
+    var ierCopy1 = (ipEmailRecord(limits, now)).parse(ier)
     t.equal(ierCopy1.shouldBlock(), false, 'copied object is not blocked')
     t.equal(ierCopy1.lf.length, 0, 'copied object has no bad logins')
 
@@ -166,7 +173,7 @@ test(
     t.equal(ier.shouldBlock(), true, 'original object is now blocked')
     t.equal(ier.lf.length, 1, 'original object now has one bad login')
 
-    var ierCopy2 = (ipEmailRecord(50, 2, now)).parse(ier)
+    var ierCopy2 = (ipEmailRecord(limits, now)).parse(ier)
     t.equal(ierCopy2.shouldBlock(), true, 'copied object is blocked')
     t.equal(ierCopy2.lf.length, 1, 'copied object has one bad login')
     t.end()
@@ -195,7 +202,11 @@ test(
 test(
   'getMinLifetimeMS works',
   function (t) {
-    var ier = new (ipEmailRecord(10, 2, now))()
+    var limits = {
+      rateLimitIntervalMs: 10,
+      maxBadLogins: 2
+    }
+    var ier = new (ipEmailRecord(limits, now))()
     t.equal(ier.getMinLifetimeMS(), 10, 'lifetime = rl interval')
     t.end()
   }
