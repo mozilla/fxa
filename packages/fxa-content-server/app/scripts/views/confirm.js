@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   var Constants = require('lib/constants');
   var ExperimentMixin = require('views/mixins/experiment-mixin');
   var FormView = require('views/form');
+  var OpenGmailMixin = require('views/mixins/open-gmail-mixin');
   var p = require('lib/promise');
   var ResendMixin = require('views/mixins/resend-mixin');
   var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
@@ -43,20 +44,12 @@ define(function (require, exports, module) {
 
       return {
         email: email,
-        isOpenGmailButtonVisible: this._isOpenGmailButtonVisible(),
-        safeEmail: encodeURIComponent(email)
+        gmailLink: this.getGmailUrl(email),
+        isOpenGmailButtonVisible: this.isOpenGmailButtonVisible(email)
       };
     },
 
-    _isOpenGmailButtonVisible: function () {
-      var email = this.getAccount().get('email');
-      // The "Open Gmail" is only visible in certain contexts
-      // we do not show it in mobile contexts because it performs worse on mobile
-      return this.broker.hasCapability('openGmailButtonVisible') && email.indexOf('@gmail.com') > 0;
-    },
-
     events: {
-      'click #open-gmail': '_gmailTabOpened',
       // validateAndSubmit is used to prevent multiple concurrent submissions.
       'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
     },
@@ -204,6 +197,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     ExperimentMixin,
+    OpenGmailMixin,
     ResendMixin,
     ResumeTokenMixin,
     ServiceMixin
