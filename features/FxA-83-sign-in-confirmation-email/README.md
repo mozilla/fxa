@@ -106,11 +106,9 @@ by following a link sent by email.
 2. Content server requests `POST /account/login?keys=true`.
 
 3. Auth server generates `tokenVerificationId`
-   and sends it with `tokenVerified:false`
-   in request to `PUT /sessionToken/:tokenId`.
+   and sends it in request to `PUT /sessionToken/:tokenId`.
 
 4. Auth server sends same `tokenVerificationId`
-   and `tokenVerified:false`
    in request to `PUT /keyFetchToken/:tokenId`.
 
 5. Auth server invokes the mailer
