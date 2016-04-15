@@ -123,25 +123,29 @@ by following a link sent by email.
    {
      "sessionToken": sessionTokenId,
      "keyFetchToken": keyFetchTokenId,
-     "tokenVerified": false,
      "challengeReason": "signin",
      "challengeMethod": "email"
    }
    ```
 
-7. Content server navigates to confirm-signin view.
+7. Content server sends web channel message
+   notifying the browser of successful sign-in.
 
-8. Content server starts polling
+8. Content server navigates to confirm-signin view.
+
+9. Content server starts polling
    on `GET /token/:tokenId/status`.
 
-9. User clicks link in confirmation email.
+10. User clicks link in confirmation email.
 
-10. Content server requests `POST /token/verify`.
+11. Content server requests `POST /token/verify`.
 
-11. Auth server requests `POST /token/:tokenVerificationId/verify`.
+12. Auth server requests `POST /token/:tokenVerificationId/verify`.
     Both tokens are verified in the database.
+	If the account is unverified,
+	that also gets verified here.
 
-12. Concurrently:
+13. Concurrently:
 
     * Auth server responds to verification request,
       including verified tokens in the data.
@@ -149,7 +153,7 @@ by following a link sent by email.
     * Auth server changes polling request responses,
       including verified tokens in the data.
 
-13. Content server navigates to settings view.
+14. Content server navigates to about:accounts.
 
 ### What happens when an OAuth user signs in?
 
@@ -165,17 +169,9 @@ by following a link sent by email.
    and `tokenVerified:false`
    in request to `PUT /keyFetchToken/:tokenId`.
 
-5. Auth server sends response back to content server,
-   including in the data:
-   ```
-   {
-     "sessionToken": sessionTokenId,
-     "keyFetchToken": keyFetchTokenId,
-     "tokenVerified": false
-   }
-   ```
+5. Auth server sends response back to content server.
 
-6. Content server navigates to settings view.
+6. Content server redirects to OAuth relier.
 
 ### What happens when an unverified client requests `/certificate/sign`?
 
