@@ -123,6 +123,7 @@ by following a link sent by email.
    {
      "sessionToken": sessionTokenId,
      "keyFetchToken": keyFetchTokenId,
+     "verified" false,
      "challengeReason": "signin",
      "challengeMethod": "email"
    }
@@ -142,8 +143,8 @@ by following a link sent by email.
 
 12. Auth server requests `POST /token/:tokenVerificationId/verify`.
     Both tokens are verified in the database.
-	If the account is unverified,
-	that also gets verified here.
+    If the account is unverified,
+    that also gets verified here.
 
 13. Concurrently:
 
@@ -190,15 +191,17 @@ the request will fail with errno 102.
 
 ### How does this affect users on legacy clients?
 
-They will receive the confirmation email,
-but they will not see the sign-in confirmation screen.
-Subsequent operations may fail with token errors
-until the confirm their email.
+The proposal should work smoothly for them.
 
-**Shane, I wrote the above
-based on hazy recollection of what you said
-while I was only half-concentrating.
-Can you do fix this bit up?**
+Because the `/account/login` endpoint
+returns `"verified":false` in the response,
+legacy users will receive the confirmation email
+and be redirected to the existing
+"confirm your email" screen.
+The legacy code for polling
+and account verification
+will work the same way
+against unverified tokens.
 
 ## Work breakdown
 
@@ -243,11 +246,12 @@ Can you do fix this bit up?**
   as `code`, for consistency with `/recovery_email/verify_code`.
 - [ ] Modify the `/recovery_email/verify_code` endpoint
   to also verify tokens.
-  This is in case an unverified user signs in,
-  we need their comfirmation to verify everything.
+  This allows legacy clients to work correctly
+  and also handles the case of
+  unverified users signing in.
 - [ ] Modify the `/recovery_email/resend_status` endpoint
-  to handle both account verification and token verification emails
-  (and know the difference).
+  to also return `"verified":false`
+  if tokens are unverified.
 
 ### fxa-auth-db-mysql
 
