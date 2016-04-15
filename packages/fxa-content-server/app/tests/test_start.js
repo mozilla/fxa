@@ -131,6 +131,7 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/loading-mixin',
     '../tests/spec/views/mixins/migration-mixin',
     '../tests/spec/views/mixins/modal-settings-panel-mixin',
+    '../tests/spec/views/mixins/open-gmail-mixin',
     '../tests/spec/views/mixins/settings-panel-mixin',
     '../tests/spec/views/mixins/signed-in-notification-mixin',
     '../tests/spec/views/mixins/signed-out-notification-mixin',
