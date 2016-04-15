@@ -33,7 +33,7 @@
     },
     {
       "name": "content-server PORT 3030",
-      "script": "node_modules/grunt-cli/bin/grunt",
+      "script": "node_modules/.bin/grunt",
       "args": ["server"],
       "cwd": "fxa-content-server",
       "env": {
