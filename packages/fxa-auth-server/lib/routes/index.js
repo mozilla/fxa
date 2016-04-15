@@ -24,6 +24,7 @@ module.exports = function (
   var defaults = require('./defaults')(log, P, db, error)
   var idp = require('./idp')(log, serverPublicKeys)
   var checkPassword = require('./utils/password_check')(log, config, Password, customs, db)
+  var push = require('../push')(log, db)
   var account = require('./account')(
     log,
     crypto,
@@ -37,7 +38,8 @@ module.exports = function (
     config,
     customs,
     isPreVerified,
-    checkPassword
+    checkPassword,
+    push
   )
   var password = require('./password')(
     log,
@@ -49,7 +51,8 @@ module.exports = function (
     mailer,
     config.verifierVersion,
     customs,
-    checkPassword
+    checkPassword,
+    push
   )
   var session = require('./session')(log, isA, error, db)
   var sign = require('./sign')(log, isA, error, signer, db, config.domain)

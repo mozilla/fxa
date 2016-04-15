@@ -8,6 +8,7 @@ var sinon = require('sinon')
 
 var test = require('../ptaptest')
 var mocks = require('../mocks')
+var getRoute = require('../routes_helpers').getRoute
 
 var P = require('../../lib/promise')
 var uuid = require('uuid')
@@ -22,10 +23,16 @@ var makeRoutes = function (options) {
   options = options || {}
 
   var config = options.config || {
+    verifierVersion: 0,
     smtp: {}
   }
   var log = options.log || mocks.mockLog()
   var Password = require('../../lib/crypto/password')(log, config)
+  var db = options.db || {}
+  var isPreVerified = require('../../lib/preverifier')(error, config)
+  var customs = options.customs || {}
+  var checkPassword = require('../../lib/routes/utils/password_check')(log, config, Password, customs, db)
+  var push = options.push || require('../../lib/push')(log, db)
   return require('../../lib/routes/account')(
     log,
     crypto,
@@ -33,24 +40,15 @@ var makeRoutes = function (options) {
     uuid,
     isA,
     error,
-    options.db || {},
+    db,
     options.mailer || {},
     Password,
-    config
+    config,
+    customs,
+    isPreVerified,
+    checkPassword,
+    push
   )
-}
-
-var getRoute = function (routes, path) {
-  var route = null
-
-  routes.some(function (r) {
-    if (r.path === path) {
-      route = r
-      return true
-    }
-  })
-
-  return route
 }
 
 test(
@@ -154,5 +152,63 @@ test(
         t.equal(pushCalled, true)
         t.end()
       })
+  }
+)
+
+test(
+  'device should be notified when the account is reset',
+  function (t) {
+    var uid = uuid.v4('binary')
+    var mockRequest = {
+      auth: {
+        credentials: {
+          uid: uid.toString('hex')
+        }
+      },
+      payload: {
+        authPW: crypto.randomBytes(32).toString('hex')
+      }
+    }
+    var mockDB = {
+      resetAccount: sinon.spy(function () {
+        return P.resolve()
+      }),
+      account: sinon.spy(function () {
+        return P.resolve({
+          uid: uid,
+          verifierSetAt: 0,
+          email: TEST_EMAIL
+        })
+      })
+    }
+    var mockCustoms = {
+      reset: sinon.spy(function (email) {
+        return P.resolve()
+      })
+    }
+    var mockPush = {
+      notifyUpdate: sinon.spy(function () {})
+    }
+    var accountRoutes = makeRoutes({
+      db: mockDB,
+      customs: mockCustoms,
+      push: mockPush
+    })
+
+    return new P(function(resolve) {
+      getRoute(accountRoutes, '/account/reset')
+        .handler(mockRequest, function(response) {
+          resolve(response)
+        })
+    })
+    .then(function(response) {
+      t.equal(mockDB.resetAccount.callCount, 1)
+
+      t.equal(mockPush.notifyUpdate.callCount, 1)
+      t.equal(mockPush.notifyUpdate.firstCall.args[0], uid.toString('hex'))
+
+      t.equal(mockDB.account.callCount, 1)
+      t.equal(mockCustoms.reset.callCount, 1)
+    })
   }
 )
