@@ -203,12 +203,12 @@ against unverified tokens.
 
 ### fxa-content-server
 
-- [*] Add strings to `strings.js`
+- [x] Add strings to `strings.js`
   to get localization done quicker.
   This task is the highest immediate priority.
 - [ ] Update `/signin`, `/force_auth`, `/signup` to redirect to
-    `/confirm_signin` if response to `/account/login` contains
-    `challengeType: 'signin'` and `challengeMethod: 'email'`.
+  `/confirm_signin` if response to `/account/login` contains
+  `challengeType: 'signin'` and `challengeMethod: 'email'`.
 - [ ] Update `/confirm` to display "Confirm this sign-in"
   instead of signup messaging.
 - [ ] Implement `/complete_signin` - Calls verification function
@@ -219,12 +219,12 @@ against unverified tokens.
 - [ ] Add handling for 102 errors
   from `/certificate/sign`
   and `/account/keys` endpoints.
-- Update user and account models to call
+- [ ] Update user and account models to call
   existing fxa-client methods to:
   - [ ] resend signin verification email
   - [ ] check session status
   - [ ] verify signin
-- Ensure functional test exist for:
+- [ ] Ensure functional test exist for:
   - [ ] Sync sign in of existing verified account (re-verification required)
   - [ ] Hello sign in of existing verified account (re-verification required)
   - [ ] OAuth sign in of existing verified account (no re-verification required)
@@ -237,12 +237,12 @@ against unverified tokens.
   to create keys unverified,
   initiate verification email
   and set `challengeType` and `challengeMethod` on response.
-- [ ] Modify `/account/login`
+- [x] Modify `/account/login`
   to stop sending new device connected emails.
-- [ ] Create a `sessionTokenVerified`
+- [x] Create a `sessionTokenVerified`
   auth strategy for Hapi
   that fetches teh sessionToken with verification state.
-- [ ] Create a `keyFetchTokenVerified`
+- [x] Create a `keyFetchTokenVerified`
   auth strategy for Hapi
   that fetches the keyFetchToken with verification state
   and fails with 102 (unverified user) error
@@ -251,7 +251,7 @@ against unverified tokens.
   use new `sessionTokenVerified` auth strategy and
   encode the sessionToken verification state
   on the certificate as `fxa-tokenVerified`.
-- [ ] In `/account/keys`,
+- [x] In `/account/keys`,
   use new `keyFetchTokenVerified` auth strategy.
 - [ ] Modify the `/recovery_email/verify_code` endpoint
   to also verify tokens.
@@ -261,25 +261,27 @@ against unverified tokens.
 - [ ] Modify the `/recovery_email/resend_status` endpoint
   to also return `"verified":false`
   if tokens are unverified.
+- [ ] Tests.
 
 ### fxa-auth-db-mysql
 
-- [ ] Create `tokenVerifications` table
+- [x] Create `tokenVerifications` table
   and associated stored procedures.
-- [ ] Update token-creation endpoints and stored procedures
+- [x] Update token-creation endpoints and stored procedures
   to also insert into `tokenVerifications`
   as part of the same transaction.
-- [ ] Update token-deletion endpoints and stored procedures
+- [x] Update token-deletion endpoints and stored procedures
   to also delete from `tokenVerifications`
   as part of the same transaction.
-- [ ] Add `/token/:id/verify` endpoint and stored procedure
+- [x] Add `/token/:id/verify` endpoint and stored procedure
   for verifying tokens.
-- [ ] Add endpoints and stored procedures
-  that return tokens joined to its `tokenVerified` state.
+- [x] Add endpoints and stored procedures
+  that return tokens joined to their `tokenVerified` state.
+- [x] Tests.
 
 ### fxa-auth-mailer
 
-- [ ] Add confirmation email templates and methods
+- [x] Add confirmation email templates and methods
 
 ## Mock-ups
 
