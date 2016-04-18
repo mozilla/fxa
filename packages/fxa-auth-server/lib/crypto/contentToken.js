@@ -17,6 +17,13 @@ var TOKEN_LENGTH = 66
  */
 function validateContentToken(token, headers, contentTokenConfig) {
 
+  if (! contentTokenConfig || ! headers) {
+    return P.resolve({
+      valid: false,
+      reason: 'Missing token config or headers'
+    })
+  }
+
   // allow certain Regex UAs
   if (contentTokenConfig.compiledRegexList) {
     var allowed = contentTokenConfig.compiledRegexList.some(function(re) {
@@ -31,21 +38,34 @@ function validateContentToken(token, headers, contentTokenConfig) {
     }
   }
 
-  if (! token || token.length !== TOKEN_LENGTH || ! headers || ! contentTokenConfig) {
+  if (! token) {
     return P.resolve({
       valid: false,
-      reason: 'Bad request or token length'
+      reason: 'Missing token'
+    })
+  }
+
+  if (token.length !== TOKEN_LENGTH) {
+    return P.resolve({
+      valid: false,
+      reason: 'Incorrect token length'
     })
   }
 
   // the first 26 chars are the timestamp
   var timestampString = new Buffer(token.substring(0, 26), 'hex').toString('utf8')
-
-  // check if token is expired
-  if (isNaN(Number(timestampString)) || (Date.now() - Number(timestampString) > contentTokenConfig.expiry)) {
+  if (isNaN(Number(timestampString))) {
     return P.resolve({
       valid: false,
-      reason: 'Content token expired or bad duration'
+      reason: 'Invalid token duration'
+    })
+  }
+
+  // check if token is expired
+  if ((Date.now() - Number(timestampString) > contentTokenConfig.expiry)) {
+    return P.resolve({
+      valid: false,
+      reason: 'Token expired'
     })
   }
 

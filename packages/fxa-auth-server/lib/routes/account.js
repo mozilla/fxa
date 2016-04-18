@@ -361,9 +361,10 @@ module.exports = function (
               if (! result.valid) {
                 // if token not valid
                 // log the reason why
-                log.error({
+                log.warn({
                   op: 'account.login.content_token',
-                  err: new Error('Invalid token:' + result.reason)
+                  reason: result.reason,
+                  agent: request.headers['user-agent']
                 })
 
                 // if contentToken check is not required then

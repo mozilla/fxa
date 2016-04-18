@@ -55,7 +55,7 @@ test(
     return contentToken(DEFAULT_TOKEN.substr(0, 3), HEADERS, testConfig)
       .then(function (result) {
         t.notOk(result.valid, 'token is not valid')
-        t.equal(result.reason, 'Bad request or token length')
+        t.equal(result.reason, 'Incorrect token length')
       })
   }
 )
@@ -74,7 +74,7 @@ test(
 )
 
 test(
-  'contentToken if timestamp is NaN',
+  'contentToken if timestamp expired',
   function (t) {
     var config = extend({}, testConfig)
     config.expiry = 1
@@ -82,7 +82,7 @@ test(
     return contentToken(DEFAULT_TOKEN, HEADERS, config)
       .then(function (result) {
         t.notOk(result.valid, 'token is not valid, it expired')
-        t.equal(result.reason, 'Content token expired or bad duration')
+        t.equal(result.reason, 'Token expired')
       })
   }
 )
