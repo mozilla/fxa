@@ -203,16 +203,31 @@ against unverified tokens.
 
 ### fxa-content-server
 
-- [ ] Add strings to `strings.js`
+- [*] Add strings to `strings.js`
   to get localization done quicker.
   This task is the highest immediate priority.
-- [ ] Implement "confirm your email" screen.
-- [ ] Implement confirmation landing screen.
-- [ ] Add handling for `verified` and `challenge` fields
-  in `/account/login` response.
+- [ ] Update `/signin`, `/force_auth`, `/signup` to redirect to
+    `/confirm_signin` if response to `/account/login` contains
+    `challengeType: 'signin'` and `challengeMethod: 'email'`.
+- [ ] Update `/confirm` to display "Confirm this sign-in"
+  instead of signup messaging.
+- [ ] Implement `/complete_signin` - Calls verification function
+- [ ] Update `/signin_complete` to displays "This sign-in is verified"
+  instead of standard message.
+- [ ] Add handling for `verified`, `challengeType` and
+  `challengeMethod` fields in `/account/login` response.
 - [ ] Add handling for 102 errors
   from `/certificate/sign`
   and `/account/keys` endpoints.
+- Update user and account models to call
+  existing fxa-client methods to:
+  - [ ] resend signin verification email
+  - [ ] check session status
+  - [ ] verify signin
+- Ensure functional test exist for:
+  - [ ] Sync sign in of existing verified account (re-verification required)
+  - [ ] Hello sign in of existing verified account (re-verification required)
+  - [ ] OAuth sign in of existing verified account (no re-verification required)
 
 ### fxa-auth-server
 
@@ -221,7 +236,9 @@ against unverified tokens.
 - [ ] Modify `/account/login`
   to create keys unverified,
   initiate verification email
-  and set `challenge` on response.
+  and set `challengeType` and `challengeMethod` on response.
+- [ ] Modify `/account/login`
+  to stop sending new device connected emails.
 - [ ] Create a `sessionTokenVerified`
   auth strategy for Hapi
   that fetches teh sessionToken with verification state.
