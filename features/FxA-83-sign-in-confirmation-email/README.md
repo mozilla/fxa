@@ -273,9 +273,9 @@ against unverified tokens.
 - [x] Update token-deletion endpoints and stored procedures
   to also delete from `tokenVerifications`
   as part of the same transaction.
-- [x] Add `/token/:id/verify` endpoint and stored procedure
+- [ ] Add `/token/:id/verify` endpoint and stored procedure
   for verifying tokens.
-- [x] Add endpoints and stored procedures
+- [ ] Add endpoints and stored procedures
   that return tokens joined to their `tokenVerified` state.
 - [x] Tests.
 
