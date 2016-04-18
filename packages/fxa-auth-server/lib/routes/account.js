@@ -28,7 +28,10 @@ module.exports = function (
   checkPassword
   ) {
 
-  config.contentToken.compiledRegexList = config.contentToken.allowedUARegex.map(function(re) {
+  config.contentToken.compiledUARegexList = config.contentToken.allowedUARegex.map(function(re) {
+    return new RegExp(re)
+  })
+  config.contentToken.compiledEmailRegexList = config.contentToken.allowedEmailRegex.map(function(re) {
     return new RegExp(re)
   })
 
@@ -356,6 +359,37 @@ module.exports = function (
           .done(reply, reply)
 
         function checkContentToken() {
+          // Certain requests are allowed to omit the content-token
+          if (! form.contentToken) {
+            var allowed = false
+            if (config.contentToken.compiledUARegexList) {
+              allowed = config.contentToken.compiledUARegexList.some(function(re) {
+                return re.test(request.headers['user-agent'])
+              })
+            }
+            if (allowed) {
+              log.info({
+                op: 'account.login.content_token',
+                valid: true,
+                reason: 'Allowed user agent'
+              })
+              return true
+            }
+            if (config.contentToken.compiledEmailRegexList) {
+              allowed = config.contentToken.compiledEmailRegexList.some(function(re) {
+                return re.test(email)
+              })
+            }
+            if (allowed) {
+              log.info({
+                op: 'account.login.content_token',
+                valid: true,
+                reason: 'Allowed email'
+              })
+              return true
+            }
+          }
+          // Otherwise, they must present a valid content-token
           return validateContentToken(form.contentToken, request.headers, config.contentToken)
             .then(function (result) {
               if (! result.valid) {
@@ -363,6 +397,7 @@ module.exports = function (
                 // log the reason why
                 log.warn({
                   op: 'account.login.content_token',
+                  valid: false,
                   reason: result.reason,
                   agent: request.headers['user-agent']
                 })
@@ -380,8 +415,10 @@ module.exports = function (
                 // record good token validations
                 log.info({
                   op: 'account.login.content_token',
+                  valid: true,
                   reason: result.reason
                 })
+                return true
               }
             })
         }

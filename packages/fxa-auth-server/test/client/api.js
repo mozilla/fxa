@@ -17,6 +17,7 @@ function ClientApi(origin) {
   this.origin = origin
   this.baseURL = origin + '/v1'
   this.timeOffset = 0
+  this.defaultHeaders = {}
 }
 
 ClientApi.prototype.Token = tokens
@@ -40,18 +41,20 @@ ClientApi.prototype.doRequest = function (method, url, token, payload, headers) 
   if (typeof headers === 'undefined') {
     headers = {}
   }
-  // We do a shallow clone to avoid tainting the caller's copy of `headers`.
-  headers = JSON.parse(JSON.stringify(headers))
-  if (token && !headers.Authorization) {
-    headers.Authorization = hawkHeader(token, method, url, payload, this.timeOffset)
+  var reqHeaders = JSON.parse(JSON.stringify(this.defaultHeaders))
+  Object.keys(headers).forEach(function(name) {
+    reqHeaders[name] = headers[name]
+  })
+  if (token && !reqHeaders.Authorization) {
+    reqHeaders.Authorization = hawkHeader(token, method, url, payload, this.timeOffset)
   }
   var options = {
     url: url,
     method: method,
-    headers: headers,
+    headers: reqHeaders,
     json: payload || true
   }
-  if (headers['accept-language'] === undefined) { delete headers['accept-language']}
+  if (reqHeaders['accept-language'] === undefined) { delete reqHeaders['accept-language']}
   this.emit('startRequest', options)
   request(options, function (err, res, body) {
     if (res && res.headers.timestamp) {
