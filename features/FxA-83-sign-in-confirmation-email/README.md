@@ -222,21 +222,20 @@ against unverified tokens.
   to create keys unverified,
   initiate verification email
   and set `challenge` on response.
-- [ ] Modify `/account/create`, `/account/openid/login` and `/password/change/start`
-  to always create their keys in the verified state.
-- [ ] Create a `verifiedSessionToken`
+- [ ] Create a `sessionTokenVerified`
   auth strategy for Hapi
-  that fails with 102 (unverified user) error
-  if sessionToken is not verified.
-- [ ] Create a `verifiedKeyFetchToken`
+  that fetches teh sessionToken with verification state.
+- [ ] Create a `keyFetchTokenVerified`
   auth strategy for Hapi
-  that fails with 102 (unverified user) error
+  that fetches the keyFetchToken with verification state
+  and fails with 102 (unverified user) error
   if keyFetchToken is not verified.
 - [ ] In `/certificate/sign`,
+  use new `sessionTokenVerified` auth strategy and
   encode the sessionToken verification state
   on the certificate as `fxa-tokenVerified`.
 - [ ] In `/account/keys`,
-  use new `verifiedKeyFetchToken` auth strategy.
+  use new `keyFetchTokenVerified` auth strategy.
 - [ ] Modify the `/recovery_email/verify_code` endpoint
   to also verify tokens.
   This allows legacy clients to work correctly
