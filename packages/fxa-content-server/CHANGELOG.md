@@ -1,3 +1,50 @@
+<a name="0.60.0"></a>
+# 0.60.0 (2016-04-19)
+
+
+### Bug Fixes
+
+* **client:** Clear `resetPasswordConfirm` flag after successful reset. ([b72c27c](https://github.com/mozilla/fxa-content-server/commit/b72c27c))
+* **client:** Do not skip "reset password" screen in force_auth. ([b22eeb4](https://github.com/mozilla/fxa-content-server/commit/b22eeb4)), closes [#3477](https://github.com/mozilla/fxa-content-server/issues/3477)
+* **client:** Reduce the number of `parseMessage` errors. ([37e8f04](https://github.com/mozilla/fxa-content-server/commit/37e8f04)), closes [#3594](https://github.com/mozilla/fxa-content-server/issues/3594)
+* **client:** Remove support for Iframed OAuth flows. ([5d19757](https://github.com/mozilla/fxa-content-server/commit/5d19757)), closes [#3628](https://github.com/mozilla/fxa-content-server/issues/3628)
+* **client:** Sign out messages disappear when user starts typing ([198070e](https://github.com/mozilla/fxa-content-server/commit/198070e))
+* **client:** isPasswordAutocompleteDisabled removed ([7fb7dae](https://github.com/mozilla/fxa-content-server/commit/7fb7dae))
+* **deps:** update most prod deps ([a5ae334](https://github.com/mozilla/fxa-content-server/commit/a5ae334))
+* **deps:** update node-uap version ([b43ecdd](https://github.com/mozilla/fxa-content-server/commit/b43ecdd))
+* **deps:** update to bluebird 3 promises ([b5f5f17](https://github.com/mozilla/fxa-content-server/commit/b5f5f17))
+* **strings:** fix device string ([c4a85c8](https://github.com/mozilla/fxa-content-server/commit/c4a85c8))
+* **tests:** Fix the failure on addEventListener. ([371f091](https://github.com/mozilla/fxa-content-server/commit/371f091)), closes [#3408](https://github.com/mozilla/fxa-content-server/issues/3408)
+* **tests:** adjust checkbox test to click on labels properly ([fd3c658](https://github.com/mozilla/fxa-content-server/commit/fd3c658)), closes [#3618](https://github.com/mozilla/fxa-content-server/issues/3618)
+* **tests:** update device tests to wait for device delete request ([84a34df](https://github.com/mozilla/fxa-content-server/commit/84a34df)), closes [#3405](https://github.com/mozilla/fxa-content-server/issues/3405)
+
+### Features
+
+* **client:** Show a startup spinner on startup ([e8f3252](https://github.com/mozilla/fxa-content-server/commit/e8f3252)), closes [#2980](https://github.com/mozilla/fxa-content-server/issues/2980)
+* **client:** Smooth out the "reset_password_confirm=false" flow. ([17e27c1](https://github.com/mozilla/fxa-content-server/commit/17e27c1))
+* **client:** Strict validation of email and uid on force_auth ([f666c8b](https://github.com/mozilla/fxa-content-server/commit/f666c8b)), closes [#3040](https://github.com/mozilla/fxa-content-server/issues/3040)
+* **reset:** add reset_password_confirm parameter to allow auto submit ([59bfb5f](https://github.com/mozilla/fxa-content-server/commit/59bfb5f))
+* **signin:** handle new account must reset error (126) ([b2908af](https://github.com/mozilla/fxa-content-server/commit/b2908af))
+
+### Refactor
+
+* **client:** Convert durations into duration-js ([8795b14](https://github.com/mozilla/fxa-content-server/commit/8795b14)), closes [#1657](https://github.com/mozilla/fxa-content-server/issues/1657)
+* **client:** Extract account reset logic into a mixin to be shared. ([7bc28f6](https://github.com/mozilla/fxa-content-server/commit/7bc28f6))
+* **client:** Extract open-gmail logic into a mixin to be shared. ([007d470](https://github.com/mozilla/fxa-content-server/commit/007d470))
+* **client:** In siginin, rename `.prefill` to `.prefillEmail`. ([489a80f](https://github.com/mozilla/fxa-content-server/commit/489a80f))
+* **client:** Move error reporting from app-start a shared module. ([ea12cc5](https://github.com/mozilla/fxa-content-server/commit/ea12cc5))
+* **logging:** Add error module ([13858f3](https://github.com/mozilla/fxa-content-server/commit/13858f3))
+
+### chore
+
+* **ci:** add circleci scripts into tests ([235e20d](https://github.com/mozilla/fxa-content-server/commit/235e20d))
+* **client:** Add the strings needed for the email reconfirmation feature. ([efb639f](https://github.com/mozilla/fxa-content-server/commit/efb639f))
+* **client:** Alphabetize a couple of out of order dependencies. ([39dd282](https://github.com/mozilla/fxa-content-server/commit/39dd282))
+* **deps:** update devDeps ([b7a2862](https://github.com/mozilla/fxa-content-server/commit/b7a2862))
+* **deps:** update to Intern 3.1.1 ([aa14ce6](https://github.com/mozilla/fxa-content-server/commit/aa14ce6))
+
+
+
 <a name="0.59.0"></a>
 # 0.59.0 (2016-03-21)
 
