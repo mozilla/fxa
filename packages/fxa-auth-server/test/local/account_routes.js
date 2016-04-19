@@ -22,7 +22,11 @@ var makeRoutes = function (options) {
   options = options || {}
 
   var config = options.config || {
-    smtp: {}
+    smtp: {},
+    contentToken: {
+      allowedUARegex: [],
+      allowedEmailRegex: []
+    }
   }
   var log = options.log || mocks.mockLog()
   var Password = require('../../lib/crypto/password')(log, config)
