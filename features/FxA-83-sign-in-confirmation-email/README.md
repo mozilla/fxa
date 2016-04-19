@@ -222,16 +222,18 @@ against unverified tokens.
 - [x] Add strings to `strings.js`
   to get localization done quicker.
   This task is the highest immediate priority.
-- [ ] Update `/signin`, `/force_auth`, `/signup` to redirect to
-  `/confirm_signin` if response to `/account/login` contains
-  `challengeType: 'signin'` and `challengeMethod: 'email'`.
-- [ ] Update `/confirm` to display "Confirm this sign-in"
+- [ ] Update `/signin`, `/force_auth`, `/signup`
+  to redirect to `/confirm_signin`
+  if response to `/account/login` contains
+  `"challengeReason":"signin","challengeMethod":"email"`.
+- [ ] Update `/confirm`
+  to display "Confirm this sign-in"
   instead of signup messaging.
 - [ ] Implement `/complete_signin` - Calls verification function
 - [ ] Update `/signin_complete` to displays "This sign-in is verified"
   instead of standard message.
-- [ ] Add handling for `verified`, `challengeType` and
-  `challengeMethod` fields in `/account/login` response.
+- [ ] Add handling for `verified`, `challengeReason` and `challengeMethod` fields
+  in `/account/login` response.
 - [ ] Add handling for 102 errors
   from `/certificate/sign`
   and `/account/keys` endpoints.
@@ -252,7 +254,7 @@ against unverified tokens.
 - [ ] Modify `/account/login`
   to create keys unverified,
   initiate verification email
-  and set `challengeType` and `challengeMethod` on response.
+  and set `challengeReason` and `challengeMethod` on response.
 - [x] Modify `/account/login`
   to stop sending new device connected emails.
 - [x] Create a `sessionTokenVerified`
