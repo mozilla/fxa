@@ -7,6 +7,7 @@ var HEX_STRING = validators.HEX_STRING
 var BASE64_JWT = validators.BASE64_JWT
 
 var butil = require('../crypto/butil')
+var validateContentToken = require('../crypto/contentToken')
 var openid = require('openid')
 var userAgent = require('../userAgent')
 var url = require('url')
@@ -28,6 +29,11 @@ module.exports = function (
   checkPassword
   ) {
 
+  config.contentToken.compiledRegexList = config.contentToken.allowedUARegex.map(function(re) {
+    return new RegExp(re)
+  })
+
+  // Open Id extensions
   var OPENID_EXTENSIONS = [
     new openid.AttributeExchange(
       {
@@ -297,6 +303,10 @@ module.exports = function (
           payload: {
             email: validators.email().required(),
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
+            // Ideally contentToken would be this:
+            //   isA.string().min(66).max(66).regex(HEX_STRING).required()
+            // But then Hapi gives away too much information about it.
+            contentToken: isA.string().optional(),
             service: isA.string().max(16).alphanum().optional(),
             reason: isA.string().max(16).optional(),
             device: isA.object({
@@ -339,6 +349,7 @@ module.exports = function (
         var emailRecord, sessionToken, device
 
         customs.check(request.app.clientAddress, email, 'accountLogin')
+          .then(checkContentToken)
           .then(readEmailRecord)
           .then(createSessionToken)
           .then(upsertDevice)
@@ -347,7 +358,38 @@ module.exports = function (
           .then(createResponse)
           .done(reply, reply)
 
-        function readEmailRecord (result) {
+        function checkContentToken() {
+          return validateContentToken(form.contentToken, request.headers, config.contentToken)
+            .then(function (result) {
+              if (! result.valid) {
+                // if token not valid
+                // log the reason why
+                log.warn({
+                  op: 'account.login.content_token',
+                  reason: result.reason,
+                  agent: request.headers['user-agent']
+                })
+
+                // if contentToken check is not required then
+                // we still allow the request to proceed
+                if (config.contentToken.required) {
+                  customs.flag(request.app.clientAddress, {
+                    email: email,
+                    errno: 125
+                  })
+                  throw error.badContentToken(email)
+                }
+              } else {
+                // record good token validations
+                log.info({
+                  op: 'account.login.content_token',
+                  reason: result.reason
+                })
+              }
+            })
+        }
+
+        function readEmailRecord() {
           return db.emailRecord(email)
             .then(
               function (result) {
