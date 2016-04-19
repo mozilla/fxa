@@ -170,7 +170,7 @@ module.exports = function (
           .then(
             function () {
               // Notify all devices that the account has changed.
-              push.notifyUpdate(passwordChangeToken.uid)
+              push.notifyUpdate(passwordChangeToken.uid, 'passwordChange')
 
               return db.account(passwordChangeToken.uid)
                 .then(

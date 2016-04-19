@@ -102,6 +102,7 @@ test(
 
       t.equal(mockPush.notifyUpdate.callCount, 1)
       t.equal(mockPush.notifyUpdate.firstCall.args[0], uid.toString('hex'))
+      t.equal(mockPush.notifyUpdate.firstCall.args[1], 'passwordChange')
 
       t.equal(mockDB.account.callCount, 1)
       t.equal(mockMailer.sendPasswordChangedNotification.callCount, 1)

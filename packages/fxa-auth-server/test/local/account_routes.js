@@ -206,6 +206,7 @@ test(
 
       t.equal(mockPush.notifyUpdate.callCount, 1)
       t.equal(mockPush.notifyUpdate.firstCall.args[0], uid.toString('hex'))
+      t.equal(mockPush.notifyUpdate.firstCall.args[1], 'passwordReset')
 
       t.equal(mockDB.account.callCount, 1)
       t.equal(mockCustoms.reset.callCount, 1)

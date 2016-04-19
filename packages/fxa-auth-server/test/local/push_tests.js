@@ -93,7 +93,7 @@ test(
     }
 
     var push = proxyquire('../../lib/push', mocks)(thisMockLog, mockDbResult)
-    push.notifyUpdate(mockUid)
+    push.notifyUpdate(mockUid, 'accountVerify')
   }
 )
 
@@ -119,7 +119,7 @@ test(
     })
 
     var push = require('../../lib/push')(thisMockLog, mockDbNoCallback)
-    push.notifyUpdate(mockUid)
+    push.notifyUpdate(mockUid, 'accountVerify')
   }
 )
 
@@ -155,7 +155,7 @@ test(
     }
 
     var push = proxyquire('../../lib/push', mocks)(thisMockLog, mockDb)
-    push.notifyUpdate(mockUid)
+    push.notifyUpdate(mockUid, 'accountVerify')
   }
 )
 
@@ -196,7 +196,7 @@ test(
     }
 
     var push = proxyquire('../../lib/push', mocks)(thisMockLog, mockDb)
-    push.notifyUpdate(mockUid)
+    push.notifyUpdate(mockUid, 'accountVerify')
   }
 )
 

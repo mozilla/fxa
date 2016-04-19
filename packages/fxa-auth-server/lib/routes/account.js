@@ -1045,7 +1045,7 @@ module.exports = function (
               log.increment('account.verified')
 
               // send a push notification to all devices that the account changed
-              push.notifyUpdate(uid)
+              push.notifyUpdate(uid, 'accountVerify')
 
               return db.verifyEmail(account)
                 .then(mailer.sendPostVerifyEmail.bind(
@@ -1209,7 +1209,7 @@ module.exports = function (
           .then(
             function () {
               // Notify all devices that the account has changed.
-              push.notifyUpdate(accountResetToken.uid)
+              push.notifyUpdate(accountResetToken.uid, 'passwordReset')
 
               return db.account(accountResetToken.uid)
             }
