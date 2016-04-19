@@ -1,3 +1,24 @@
+<a name="1.60.1"></a>
+## [1.60.1](https://github.com/mozilla/fxa-auth-server/compare/v1.60.0...v1.60.1) (2016-04-19)
+
+
+### Bug Fixes
+
+* **contentToken:** don't let hapi give validation errors about contentToken ([5725061](https://github.com/mozilla/fxa-auth-server/commit/5725061))
+* **contentToken:** fix docs ([dd68374](https://github.com/mozilla/fxa-auth-server/commit/dd68374))
+* **contentToken:** update metrics, remove ip ([89dd85b](https://github.com/mozilla/fxa-auth-server/commit/89dd85b))
+* **errors:** move bad content error up ([e67990c](https://github.com/mozilla/fxa-auth-server/commit/e67990c))
+* **token:** Allow certain emails to bypass the content-token restriction (#27) ([2a162e6](https://github.com/mozilla/fxa-auth-server/commit/2a162e6))
+* **token:** Allow the UA for a specific partner device. ([6401431](https://github.com/mozilla/fxa-auth-server/commit/6401431))
+* **token:** Fix test bustage from missing contentToken config ([6924d5c](https://github.com/mozilla/fxa-auth-server/commit/6924d5c))
+* **token:** More diagnostic logging for content-token errors. (#25) ([33f6307](https://github.com/mozilla/fxa-auth-server/commit/33f6307))
+* **token:** Validate and log metrics on content-tokens even when they're optional ([002219b](https://github.com/mozilla/fxa-auth-server/commit/002219b))
+
+### Features
+
+* **login:** add content token support ([a2ac3ad](https://github.com/mozilla/fxa-auth-server/commit/a2ac3ad))
+
+
 <a name="1.60.0"></a>
 # [1.60.0](https://github.com/mozilla/fxa-auth-server/compare/v1.59.0...v1.60.0) (2016-04-19)
 
