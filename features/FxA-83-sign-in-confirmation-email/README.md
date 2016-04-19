@@ -61,6 +61,22 @@ by monitoring the success rate
 of connecting to Sync
 before and after deployment.
 
+Sync sign-in success rate
+for the last month
+at time of writing
+is shown in the following graph:
+
+![Graph showing the sync sign-in success rate](sync-sign-in-success.png)
+
+Prior to the attack
+at the start of April,
+the success rate
+was in the range
+of 42% to 52%.
+The 10-day moving average
+was in the range
+of 46% to 50%.
+
 ## User stories
 
 * As a Sync user,
@@ -248,7 +264,7 @@ against unverified tokens.
   and fails with 102 (unverified user) error
   if keyFetchToken is not verified.
 - [ ] In `/certificate/sign`,
-  use new `sessionTokenVerified` auth strategy and
+  use updated `sessionWithDevice` auth strategy and
   encode the sessionToken verification state
   on the certificate as `fxa-tokenVerified`.
 - [x] In `/account/keys`,
@@ -273,9 +289,9 @@ against unverified tokens.
 - [x] Update token-deletion endpoints and stored procedures
   to also delete from `tokenVerifications`
   as part of the same transaction.
-- [ ] Add `/token/:id/verify` endpoint and stored procedure
+- [x] Add `/token/:id/verify` endpoint and stored procedure
   for verifying tokens.
-- [ ] Add endpoints and stored procedures
+- [x] Add endpoints and stored procedures
   that return tokens joined to their `tokenVerified` state.
 - [x] Tests.
 
