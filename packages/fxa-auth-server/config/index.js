@@ -117,7 +117,14 @@ var conf = convict({
     },
     allowedUARegex: {
       doc: 'An array of STRING regexes. Passing any one will get through.',
-      default: ['\\((?:Mobile|Tablet|TV|FreeBSD; Viera);.+Firefox']
+      default: [
+        // Generic FirefoxOS devices
+        '\\((?:Mobile|Tablet|TV);.+Firefox',
+        // Some specific partner devices with custom UAs
+        '\\(FreeBSD; Viera;.+Firefox',
+        'Mozilla.+SamsungBrowser.+Mobile',
+        'Firefox.+AndroidSync.+SBrowser'
+      ]
     },
     allowedEmailRegex: {
       doc: 'An array of STRING regexes. Passing any one will get through.',
