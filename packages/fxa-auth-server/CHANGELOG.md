@@ -1,3 +1,13 @@
+<a name="1.60.2"></a>
+## [1.60.2](https://github.com/mozilla/fxa-auth-server/compare/v1.60.1...v1.60.2) (2016-04-19)
+
+
+### Bug Fixes
+
+* **token:** Add samsung user-agents to content-token allow list ([96f2190](https://github.com/mozilla/fxa-auth-server/commit/96f2190))
+
+
+
 <a name="1.60.1"></a>
 ## [1.60.1](https://github.com/mozilla/fxa-auth-server/compare/v1.60.0...v1.60.1) (2016-04-19)
 
