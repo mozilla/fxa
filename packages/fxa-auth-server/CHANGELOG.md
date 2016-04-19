@@ -1,3 +1,38 @@
+<a name="1.60.0"></a>
+# [1.60.0](https://github.com/mozilla/fxa-auth-server/compare/v1.59.0...v1.60.0) (2016-04-19)
+
+
+### Bug Fixes
+
+* **bulk-mailer:** Remove the locale prefix on filenames w/ --write ([1c0959d](https://github.com/mozilla/fxa-auth-server/commit/1c0959d))
+* **bulk-mailer:** Set error rate to 0, we are done testing. ([897de10](https://github.com/mozilla/fxa-auth-server/commit/897de10))
+* **clientAddress:** allow location of the client ip address in forward headers to be specified in co ([517fbff](https://github.com/mozilla/fxa-auth-server/commit/517fbff))
+* **customs:** Check more password-related actions with customs-server. ([8ceedb6](https://github.com/mozilla/fxa-auth-server/commit/8ceedb6))
+* **deps:** fix node-uap commit sha ([e2aa184](https://github.com/mozilla/fxa-auth-server/commit/e2aa184))
+* **email:** Add feature-flag for new-login notification email. ([3d4d5f9](https://github.com/mozilla/fxa-auth-server/commit/3d4d5f9))
+* **email:** Point to latest auth-mailer ([17123ee](https://github.com/mozilla/fxa-auth-server/commit/17123ee))
+* **email:** reinstate new sync device emails ([93a78de](https://github.com/mozilla/fxa-auth-server/commit/93a78de))
+* **email:** send additional template data for new-login email. ([177e192](https://github.com/mozilla/fxa-auth-server/commit/177e192))
+* **must-reset:** exit code 1 on reset account error ([c100a48](https://github.com/mozilla/fxa-auth-server/commit/c100a48))
+* **tests:** Build and test fixes for latest fxa-auth-mailer update. ([493f917](https://github.com/mozilla/fxa-auth-server/commit/493f917))
+
+### Features
+
+* **bulk-mailer:** `--errors` and `--unsent` now have defaults. ([eec2e72](https://github.com/mozilla/fxa-auth-server/commit/eec2e72))
+* **customs:** include errno in customs flags and merge fixes ([3dcdaf8](https://github.com/mozilla/fxa-auth-server/commit/3dcdaf8))
+* **reset:** Ability to put a users account in a "must reset" state, per dannycoates (PATCH) ([d7638a6](https://github.com/mozilla/fxa-auth-server/commit/d7638a6))
+* **scripts:** Add a bulk mailer ([296f152](https://github.com/mozilla/fxa-auth-server/commit/296f152))
+
+### chore
+
+* **bulk-mailer:** Settle on the "password_reset_required" template ([f02e292](https://github.com/mozilla/fxa-auth-server/commit/f02e292))
+* **bulk-mailer:** Stop all processing on error. ([de8e355](https://github.com/mozilla/fxa-auth-server/commit/de8e355))
+* **convict:** use convict .getProperties(), not deprecated .root() ([4fa61c0](https://github.com/mozilla/fxa-auth-server/commit/4fa61c0))
+* **customs:** use named error constant for UNEXPECTED_ERROR ([d417644](https://github.com/mozilla/fxa-auth-server/commit/d417644))
+* **docs:** Add more docs to the reset-send-batch script. ([107062a](https://github.com/mozilla/fxa-auth-server/commit/107062a))
+
+
+
 <a name="1.59.0"></a>
 # [1.59.0](https://github.com/mozilla/fxa-auth-server/compare/v1.58.1...v1.59.0) (2016-03-28)
 
