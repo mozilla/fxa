@@ -149,11 +149,11 @@ by following a link sent by email.
 8. Content server navigates to confirm-signin view.
 
 9. Content server starts polling
-   on `GET /token/:tokenId/status`.
+   on `GET /recovery_email/status`.
 
 10. User clicks link in confirmation email.
 
-11. Content server requests `POST /token/verify`.
+11. Content server requests `POST /recovery_email/verify_code`.
 
 12. Auth server requests `POST /token/:tokenVerificationId/verify`.
     Both tokens are verified in the database.
