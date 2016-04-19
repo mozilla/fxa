@@ -4,6 +4,7 @@
 
 var Client = require('../client')
 var test = require('../ptaptest')
+var P = require('../../lib/promise')
 var TestServer = require('../test_server')
 
 process.env.CONTENT_TOKEN_REQUIRED = '1'
@@ -58,23 +59,29 @@ TestServer.start(config)
   )
 
   test(
-    'contentToken default config allows a specific partner device',
+    'contentToken default config allows some specific partner devices',
     function (t) {
-      // Make it a non-restmail.net address, since those get allowed by default
-      var email = server.uniqueEmail() + '.com'
-      var password = 'abcdef'
-      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
-        .then(
-          function (c) {
-            c.api.defaultHeaders['user-agent'] = 'Mozilla/5.0 (FreeBSD; Viera; rv:44.0) Gecko/20100101 Firefox/44.0'
-            return c.auth()
-          }
-        )
-        .then(
-          function () {
-            t.ok('login should be allowed without content-token')
-          }
-        )
+      return P.each([
+        'Mozilla/5.0 (FreeBSD; Viera; rv:44.0) Gecko/20100101 Firefox/44.0',
+        'Mozilla/5.0 (Linux; Android 5.0.1; SAMSUNG SM-N910F Build/LRX22C) AppleWebKit/537.36(KHTML, like Gecko) SamsungBrowser/3.0 Chrome/38.0.2125.102 Mobile Safari/537.36',
+        'Firefox AndroidSync 1.40.0 (SBrowser)'
+      ], function (userAgent) {
+        // Make it a non-restmail.net address, since those get allowed by default
+        var email = server.uniqueEmail() + '.com'
+        var password = 'abcdef'
+        return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+          .then(
+            function (c) {
+              c.api.defaultHeaders['user-agent'] = userAgent
+              return c.auth()
+            }
+          )
+          .then(
+            function () {
+              t.ok('login should be allowed without content-token')
+            }
+          )
+      })
     }
   )
 
