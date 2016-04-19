@@ -118,6 +118,10 @@ var conf = convict({
     allowedUARegex: {
       doc: 'An array of STRING regexes. Passing any one will get through.',
       default: ['\\((?:Mobile|Tablet|TV|FreeBSD; Viera);.+Firefox']
+    },
+    allowedEmailRegex: {
+      doc: 'An array of STRING regexes. Passing any one will get through.',
+      default: ['.+@restmail.net$', '.+@mockmyid.com']
     }
   },
   smtp: {

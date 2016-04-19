@@ -24,20 +24,6 @@ function validateContentToken(token, headers, contentTokenConfig) {
     })
   }
 
-  // allow certain Regex UAs
-  if (contentTokenConfig.compiledRegexList) {
-    var allowed = contentTokenConfig.compiledRegexList.some(function(re) {
-      return re.test(headers['user-agent'])
-    })
-
-    if (allowed) {
-      return P.resolve({
-        valid: true,
-        reason: 'Allowed user agent'
-      })
-    }
-  }
-
   if (! token) {
     return P.resolve({
       valid: false,
