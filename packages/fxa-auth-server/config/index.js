@@ -128,7 +128,7 @@ var conf = convict({
     },
     allowedEmailRegex: {
       doc: 'An array of STRING regexes. Passing any one will get through.',
-      default: ['.+@restmail.net$', '.+@mockmyid.com']
+      default: ['.+@restmail.net$', '.+@mockmyid.com$']
     }
   },
   smtp: {
