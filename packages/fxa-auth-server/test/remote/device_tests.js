@@ -19,8 +19,7 @@ TestServer.start(config)
       var deviceInfo = {
         name: 'test device',
         type: 'desktop',
-        pushCallback: 'https://foo/bar',
-        pushPublicKey: crypto.randomBytes(32).toString('hex')
+        pushCallback: 'https://foo/bar'
       }
       return Client.create(config.publicUrl, email, password, { device: deviceInfo })
       .then(
@@ -31,7 +30,6 @@ TestServer.start(config)
           t.equal(client.device.name, deviceInfo.name, 'device.name is correct')
           t.equal(client.device.type, deviceInfo.type, 'device.type is correct')
           t.equal(client.device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
-          t.deepEqual(client.device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
           return client.devices()
             .then(
               function (devices) {
@@ -41,7 +39,6 @@ TestServer.start(config)
                 t.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
                 t.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
                 t.equal(devices[0].pushCallback, deviceInfo.pushCallback, 'devices returned correct pushCallback')
-                t.deepEqual(devices[0].pushPublicKey, deviceInfo.pushPublicKey, 'devices returned correct pushPublicKey')
                 return client.updateDevice({
                   id: client.device.id,
                   name: 'new name'
@@ -59,7 +56,6 @@ TestServer.start(config)
                 t.equal(devices[0].name, 'new name', 'devices returned correct name')
                 t.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
                 t.equal(devices[0].pushCallback, deviceInfo.pushCallback, 'devices returned correct pushCallback')
-                t.deepEqual(devices[0].pushPublicKey, deviceInfo.pushPublicKey, 'devices returned correct pushPublicKey')
                 return client.destroyDevice(devices[0].id)
               }
             )
@@ -86,8 +82,7 @@ TestServer.start(config)
       var deviceInfo = {
         name: 'a different device name',
         type: 'mobile',
-        pushCallback: '',
-        pushPublicKey: ''
+        pushCallback: ''
       }
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
@@ -102,7 +97,6 @@ TestServer.start(config)
             t.equal(client.device.name, deviceInfo.name, 'device.name is correct')
             t.equal(client.device.type, deviceInfo.type, 'device.type is correct')
             t.equal(client.device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
-            t.deepEqual(client.device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
             return client.devices()
               .then(
                 function (devices) {
@@ -110,7 +104,6 @@ TestServer.start(config)
                   t.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
                   t.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
                   t.equal(devices[0].pushCallback, deviceInfo.pushCallback, 'devices returned correct pushCallback')
-                  t.deepEqual(devices[0].pushPublicKey, '0000000000000000000000000000000000000000000000000000000000000000', 'devices returned correct pushPublicKey')
                   return client.destroyDevice(devices[0].id)
                 }
               )
@@ -130,8 +123,7 @@ TestServer.start(config)
             var deviceInfo = {
               name: 'test device',
               type: 'mobile',
-              pushCallback: '',
-              pushPublicKey: ''
+              pushCallback: ''
             }
             return client.devices()
               .then(
@@ -147,7 +139,6 @@ TestServer.start(config)
                   t.equal(device.name, deviceInfo.name, 'device.name is correct')
                   t.equal(device.type, deviceInfo.type, 'device.type is correct')
                   t.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
-                  t.deepEqual(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
                 }
               )
               .then(
@@ -161,7 +152,6 @@ TestServer.start(config)
                   t.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
                   t.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
                   t.equal(devices[0].pushCallback, '', 'devices returned empty pushCallback')
-                  t.deepEqual(devices[0].pushPublicKey, '0000000000000000000000000000000000000000000000000000000000000000', 'devices returned correct pushPublicKey')
                   return client.destroyDevice(devices[0].id)
                 }
               )
@@ -196,7 +186,6 @@ TestServer.start(config)
                   t.equal(device.name, deviceInfo.name, 'device.name is correct')
                   t.equal(device.type, deviceInfo.type, 'device.type is correct')
                   t.equal(device.pushCallback, undefined, 'device.pushCallback is undefined')
-                  t.equal(device.pushPublicKey, undefined, 'device.pushPublicKey is undefined')
                 }
               )
               .then(
@@ -210,7 +199,6 @@ TestServer.start(config)
                   t.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
                   t.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
                   t.equal(devices[0].pushCallback, null, 'devices returned undefined pushCallback')
-                  t.equal(devices[0].pushPublicKey, null, 'devices returned undefined pushPublicKey')
                   return client.destroyDevice(devices[0].id)
                 }
               )
@@ -262,6 +250,39 @@ TestServer.start(config)
                 function (err) {
                   t.equal(err.code, 400, 'err.code was 400')
                   t.equal(err.errno, 108, 'err.errno was 108')
+                }
+              )
+          }
+        )
+    }
+  )
+
+  test(
+    'device registration with the net-yet-accepted pushPublicKey field',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (client) {
+            var deviceInfo = {
+              id: crypto.randomBytes(16).toString('hex'),
+              name: 'test device',
+              type: 'mobile',
+              pushCallback: 'https://some.fake.url',
+              pushPublicKey: crypto.randomBytes(32).toString('hex')
+            }
+            return client.updateDevice(deviceInfo)
+              .then(
+                function () {
+                  t.fail('request should have failed')
+                }
+              )
+              .catch(
+                function (err) {
+                  t.equal(err.code, 400, 'err.code was 400')
+                  t.equal(err.errno, 107, 'err.errno was 107')
+                  t.equal(err.validation.keys[0], 'pushPublicKey', 'pushPublicKey was rejected')
                 }
               )
           }

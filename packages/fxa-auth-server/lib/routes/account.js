@@ -66,7 +66,8 @@ module.exports = function (
               name: isA.string().max(255).required(),
               type: isA.string().max(16).required(),
               pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
-              pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow('')
+              // We're not yet ready to store pubkey values, don't let clients submit them.
+              pushPublicKey: isA.string().length(64).regex(HEX_STRING).allow('').forbidden()
             })
             .optional(),
             metricsContext: metricsContext.schema
@@ -304,7 +305,8 @@ module.exports = function (
               name: isA.string().max(255).optional(),
               type: isA.string().max(16).optional(),
               pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
-              pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow('')
+              // We're not yet ready to store pubkey values, don't let clients submit them.
+              pushPublicKey: isA.string().length(64).regex(HEX_STRING).allow('').forbidden()
             })
             .optional(),
             metricsContext: metricsContext.schema
@@ -812,13 +814,15 @@ module.exports = function (
               name: isA.string().max(255).optional(),
               type: isA.string().max(16).optional(),
               pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
-              pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow('')
+              // We're not yet ready to store pubkey values, don't let clients submit them.
+              pushPublicKey: isA.string().length(64).regex(HEX_STRING).allow('').forbidden()
             }).or('name', 'type', 'pushCallback', 'pushPublicKey'),
             isA.object({
               name: isA.string().max(255).required(),
               type: isA.string().max(16).required(),
               pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
-              pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow('')
+              // We're not yet ready to store pubkey values, don't let clients submit them.
+              pushPublicKey: isA.string().length(64).regex(HEX_STRING).allow('').forbidden()
             })
           )
         },
