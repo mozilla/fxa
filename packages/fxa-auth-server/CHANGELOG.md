@@ -1,3 +1,13 @@
+<a name="1.60.3"></a>
+## [1.60.3](https://github.com/mozilla/fxa-auth-server/compare/v1.60.2...v1.60.3) (2016-04-20)
+
+
+### Bug Fixes
+
+* **token:** Add end-of-string anchor in contenttoken email regex. ([c1aae28](https://github.com/mozilla/fxa-auth-server/commit/c1aae28))
+
+
+
 <a name="1.60.2"></a>
 ## [1.60.2](https://github.com/mozilla/fxa-auth-server/compare/v1.60.1...v1.60.2) (2016-04-19)
 
