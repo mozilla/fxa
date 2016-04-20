@@ -8,7 +8,6 @@ var restify = Promise.promisifyAll(require('restify'))
 var mcHelper = require('../memcache-helper')
 
 var TEST_IP = '192.0.2.1'
-var EMAIL = 'asdf@asfd.com'
 var ACCOUNT_STATUS_CHECK = 'accountStatusCheck'
 
 var config = {
@@ -58,16 +57,22 @@ test(
   function (t) {
 
     // Send requests until throttled
-    return client.postAsync('/check', { ip: TEST_IP, email: EMAIL, action: ACCOUNT_STATUS_CHECK })
+    return client.postAsync('/check', { ip: TEST_IP, email: 'test1@example.com', action: ACCOUNT_STATUS_CHECK })
       .spread(function(req, res, obj){
         t.equal(res.statusCode, 200, 'returns a 200')
         t.equal(obj.block, false, 'not rate limited')
-        return client.postAsync('/check', { ip: TEST_IP, email: EMAIL, action: ACCOUNT_STATUS_CHECK })
+        return client.postAsync('/check', { ip: TEST_IP, email: 'test2@example.com', action: ACCOUNT_STATUS_CHECK })
       })
       .spread(function(req, res, obj){
         t.equal(res.statusCode, 200, 'returns a 200')
         t.equal(obj.block, false, 'not rate limited')
-        return client.postAsync('/check', { ip: TEST_IP, email: EMAIL, action: ACCOUNT_STATUS_CHECK })
+        // Try a previous email again, should not be counted twice
+        return client.postAsync('/check', { ip: TEST_IP, email: 'test1@example.com', action: ACCOUNT_STATUS_CHECK })
+      })
+      .spread(function(req, res, obj){
+        t.equal(res.statusCode, 200, 'returns a 200')
+        t.equal(obj.block, false, 'not rate limited')
+        return client.postAsync('/check', { ip: TEST_IP, email: 'test3@example.com', action: ACCOUNT_STATUS_CHECK })
       })
       .spread(function(req, res, obj){
         t.equal(res.statusCode, 200, 'returns a 200')
@@ -80,17 +85,17 @@ test(
 
       // Reissue requests to verify that throttling is disabled
       .then(function(){
-        return client.postAsync('/check', { ip: TEST_IP, email: EMAIL, action: ACCOUNT_STATUS_CHECK })
+        return client.postAsync('/check', { ip: TEST_IP, email: 'test1@example.com', action: ACCOUNT_STATUS_CHECK })
       })
       .spread(function(req, res, obj){
         t.equal(res.statusCode, 200, 'returns a 200')
         t.equal(obj.block, false, 'not rate limited')
-        return client.postAsync('/check', { ip: TEST_IP, email: EMAIL, action: ACCOUNT_STATUS_CHECK })
+        return client.postAsync('/check', { ip: TEST_IP, email: 'test2@example.com', action: ACCOUNT_STATUS_CHECK })
       })
       .spread(function(req, res, obj){
         t.equal(res.statusCode, 200, 'returns a 200')
         t.equal(obj.block, false, 'not rate limited')
-        return client.postAsync('/check', { ip: TEST_IP, email: EMAIL, action: ACCOUNT_STATUS_CHECK })
+        return client.postAsync('/check', { ip: TEST_IP, email: 'test3@example.com', action: ACCOUNT_STATUS_CHECK })
       })
       .spread(function(req, res, obj){
         t.equal(res.statusCode, 200, 'returns a 200')

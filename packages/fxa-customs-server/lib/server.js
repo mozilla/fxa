@@ -113,7 +113,7 @@ module.exports = function createServer(config, log) {
           function (emailRecord, ipRecord, ipEmailRecord) {
             var blockEmail = emailRecord.update(action)
             var blockIpEmail = ipEmailRecord.update(action)
-            var blockIp = ipRecord.update(action)
+            var blockIp = ipRecord.update(action, email)
 
             if (blockIpEmail && ipEmailRecord.unblockIfReset(emailRecord.pr)) {
               blockIpEmail = 0
@@ -171,7 +171,7 @@ module.exports = function createServer(config, log) {
         .spread(
           function (emailRecord, ipRecord, ipEmailRecord) {
             emailRecord.addBadLogin()
-            ipRecord.addBadLogin({ errno: errno })
+            ipRecord.addBadLogin({ email: email, errno: errno })
             ipEmailRecord.addBadLogin()
             return setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord)
               .then(
