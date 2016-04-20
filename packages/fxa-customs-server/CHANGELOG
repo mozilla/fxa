@@ -1,3 +1,29 @@
+
+v0.60.1
+ * feat(ip): Count IP rate limits based on unique emails only.
+
+v0.60.0
+ * some *sharp* tools for updating the configs in memcache
+ * feat(config): Allow config to be udpated via memcached
+ * chore(deps): updated deps
+ * fix(ip): Pass updated config params to ip_record in the ban-handling script.
+ * fix(ip): Be less aggressive about extending IP rate-limit duration.
+ * feat(login): Allow different bad-login errnos to have different weights.
+ * fix(ip): Don't rate-limit email sending based on IP address alone.
+ * fix(ips): Add ALLOWED_IPS environment variable for config.
+ * feat(ip): Add config option for list of allowed ips.
+ * feat(iprecord): record errno and ratelimit when errno is 102
+ * fix(blocking): Send block for all requests if memcache is down
+ * fix(lifetime): ensure memcache lifetime is set in more places
+ * fix(lifetime): Ensure records are written with sufficient ttls in memcache.
+ * fix(logins): combine limiting for bad logins and rate
+ * feat(logins): Count rate-limited login attempts as failed logins.
+ * fix(check): Include more action names in various checks.
+ * fix(config): add more config to ip rate limits
+ * fix(lock): add ip lock test
+ *  block bad logins per ip
+ * fix(style): Fix some typos
+
 0.57.0
   * feat(api): Add check account status # 99
   * fix(config): restore top-level "config" dir for $(NODE_ENV).json files. #100
