@@ -541,8 +541,13 @@ module.exports = function (log, error) {
   // Where  : tokenVerificationId = $1, uid = $2
   var VERIFY_TOKEN = 'CALL verifyToken_1(?, ?)'
 
-  MySql.prototype.verifyToken = function (tokenVerificationId, token) {
-    return this.write(VERIFY_TOKEN, [tokenVerificationId, token.uid])
+  MySql.prototype.verifyToken = function (tokenVerificationId, tokenData) {
+    return this.read(VERIFY_TOKEN, [tokenVerificationId, tokenData.uid])
+      .then(function (result) {
+        if (result.affectedRows === 0) {
+          throw error.notFound()
+        }
+      })
   }
 
   // Delete : accountResetTokens

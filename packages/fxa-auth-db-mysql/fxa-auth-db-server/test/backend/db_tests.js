@@ -217,7 +217,7 @@ module.exports = function(config, DB) {
         test(
           'session token handling',
           function (t) {
-            t.plan(77)
+            t.plan(79)
 
             // Fetch all of the sessions tokens for the account
             return db.sessions(ACCOUNT.uid)
@@ -356,6 +356,11 @@ module.exports = function(config, DB) {
                 // Attempt to verify session token with invalid tokenVerificationId
                 return db.verifyToken(hex16(), { uid: ACCOUNT.uid })
               })
+              .then(function () {
+                t.fail('Verifying session token with invalid tokenVerificationId should have failed')
+              }, function () {
+                t.pass('Verifying session token with invalid tokenVerificationId failed as expected')
+              })
               .then(function() {
 
                 // Fetch the session token with its verification state
@@ -366,6 +371,11 @@ module.exports = function(config, DB) {
 
                 // Attempt to verify session token with invalid uid
                 return db.verifyToken(SESSION_TOKEN.tokenVerificationId, { uid: hex16() })
+              })
+              .then(function () {
+                t.fail('Verifying session token with invalid uid should have failed')
+              }, function () {
+                t.pass('Verifying session token with invalid uid failed as expected')
               })
               .then(function() {
                 // Fetch the session token with its verification state
@@ -416,7 +426,7 @@ module.exports = function(config, DB) {
         test(
           'key fetch token handling',
           function (t) {
-            t.plan(20)
+            t.plan(22)
 
             // Attempt to create a key fetch token with no tokenVerificationId
             return db.createKeyFetchToken(KEY_FETCH_TOKEN_ID, {
@@ -465,6 +475,11 @@ module.exports = function(config, DB) {
                 // Attempt to verify key fetch token with invalid tokenVerificationId
                 return db.verifyToken(hex16(), { uid: KEY_FETCH_TOKEN.uid })
               })
+              .then(function () {
+                t.fail('Verifying key fetch token with invalid tokenVerificationId should have failed')
+              }, function () {
+                t.pass('Verifying key fetch token with invalid tokenVerificationId failed as expected')
+              })
               .then(function() {
                 // Fetch the key fetch token with its verification state
                 return db.keyFetchTokenVerified(KEY_FETCH_TOKEN_ID)
@@ -474,6 +489,11 @@ module.exports = function(config, DB) {
 
                 // Attempt to verify key fetch token with invalid uid
                 return db.verifyToken(KEY_FETCH_TOKEN.tokenVerificationId, { uid: hex16() })
+              })
+              .then(function () {
+                t.fail('Verifying key fetch token with invalid uid should have failed')
+              }, function () {
+                t.pass('Verifying key fetch token with invalid uid failed as expected')
               })
               .then(function() {
                 // Fetch the key fetch token with its verification state

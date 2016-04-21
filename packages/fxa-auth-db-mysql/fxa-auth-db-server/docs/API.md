@@ -1754,6 +1754,10 @@ Content-Length: 2
 * Status Code : 200 OK
     * Content-Type : 'application/json'
     * Body : {}
+* Status Code : 404 Not Found
+    * Conditions: if no unverified tokens exist for `tokenVerificationId` and `uid`
+    * Content-Type : 'application/json'
+    * Body : `{"message":"Not Found"}`
 * Status Code : 500 Internal Server Error
     * Conditions: if something goes wrong on the server
     * Content-Type : 'application/json'

@@ -322,16 +322,23 @@ module.exports = function (log, error) {
     return P.resolve({})
   }
 
-  Memory.prototype.verifyToken = function (tokenVerificationId, token) {
+  Memory.prototype.verifyToken = function (tokenVerificationId, tokenData) {
     tokenVerificationId = tokenVerificationId.toString('hex')
-    var uid = token.uid.toString('hex')
+    var uid = tokenData.uid.toString('hex')
 
-    Object.keys(unverifiedTokens).forEach(function (tokenId) {
+    var tokenCount = Object.keys(unverifiedTokens).reduce(function (count, tokenId) {
       var t = unverifiedTokens[tokenId]
-      if (t.tokenVerificationId.toString('hex') === tokenVerificationId && t.uid === uid) {
-        delete unverifiedTokens[tokenId]
+      if (t.tokenVerificationId.toString('hex') !== tokenVerificationId || t.uid !== uid) {
+        return count
       }
-    })
+
+      delete unverifiedTokens[tokenId]
+      return count + 1
+    }, 0)
+
+    if (tokenCount === 0) {
+      return P.reject(error.notFound())
+    }
 
     return P.resolve({})
   }

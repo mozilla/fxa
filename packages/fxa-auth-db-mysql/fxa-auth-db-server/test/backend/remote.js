@@ -195,7 +195,7 @@ module.exports = function(cfg, server) {
   test(
     'session token handling',
     function (t) {
-      t.plan(87)
+      t.plan(91)
       var user = fake.newUserDataHex()
       var badUser = fake.newUserDataHex()
       delete badUser.sessionToken.tokenVerificationId
@@ -310,6 +310,26 @@ module.exports = function(cfg, server) {
           t.ok(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
           t.ok(token.accountCreatedAt > 0, 'accountCreatedAt is positive number')
           t.equal(token.tokenVerificationId, user.sessionToken.tokenVerificationId, 'tokenVerificationId is correct')
+
+          // Attempt to verify a non-existent session token
+          return client.postThen('/token/' + crypto.randomBytes(16).toString('hex') + '/verify', {
+            uid: user.accountId
+          })
+        })
+        .then(function(r) {
+          t.fail('Verifying a non-existent token should fail')
+        }, function(err) {
+          testNotFound(t, err)
+
+          // Attempt to verify a session token with the wrong uid
+          return client.postThen('/token/' + user.sessionToken.tokenVerificationId + '/verify', {
+            uid: crypto.randomBytes(16).toString('hex')
+          })
+        })
+        .then(function(r) {
+          t.fail('Verifying a non-existent token should fail')
+        }, function(err) {
+          testNotFound(t, err)
 
           // Verify the session token
           return client.postThen('/token/' + user.sessionToken.tokenVerificationId + '/verify', {
@@ -493,7 +513,7 @@ module.exports = function(cfg, server) {
   test(
     'key fetch token handling',
     function (t) {
-      t.plan(27)
+      t.plan(31)
       var user = fake.newUserDataHex()
       var badUser = fake.newUserDataHex()
       delete badUser.keyFetchToken.tokenVerificationId
@@ -560,6 +580,26 @@ module.exports = function(cfg, server) {
           t.equal(!!token.emailVerified, user.account.emailVerified)
           t.ok(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
           t.equal(token.tokenVerificationId, user.keyFetchToken.tokenVerificationId, 'tokenVerificationId is correct')
+
+          // Attempt to verify a non-existent key fetch token
+          return client.postThen('/token/' + crypto.randomBytes(16).toString('hex') + '/verify', {
+            uid: user.accountId
+          })
+        })
+        .then(function(r) {
+          t.fail('Verifying a non-existent token should fail')
+        }, function(err) {
+          testNotFound(t, err)
+
+          // Attempt to verify a key fetch token with the wrong uid
+          return client.postThen('/token/' + user.keyFetchToken.tokenVerificationId + '/verify', {
+            uid: crypto.randomBytes(16).toString('hex')
+          })
+        })
+        .then(function(r) {
+          t.fail('Verifying a non-existent token should fail')
+        }, function(err) {
+          testNotFound(t, err)
 
           // Verify the key fetch token
           return client.postThen('/token/' + user.keyFetchToken.tokenVerificationId + '/verify', {
