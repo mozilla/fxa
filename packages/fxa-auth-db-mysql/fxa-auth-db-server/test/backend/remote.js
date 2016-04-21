@@ -312,7 +312,7 @@ module.exports = function(cfg, server) {
           t.equal(token.tokenVerificationId, user.sessionToken.tokenVerificationId, 'tokenVerificationId is correct')
 
           // Attempt to verify a non-existent session token
-          return client.postThen('/token/' + crypto.randomBytes(16).toString('hex') + '/verify', {
+          return client.postThen('/tokens/' + crypto.randomBytes(16).toString('hex') + '/verify', {
             uid: user.accountId
           })
         })
@@ -322,7 +322,7 @@ module.exports = function(cfg, server) {
           testNotFound(t, err)
 
           // Attempt to verify a session token with the wrong uid
-          return client.postThen('/token/' + user.sessionToken.tokenVerificationId + '/verify', {
+          return client.postThen('/tokens/' + user.sessionToken.tokenVerificationId + '/verify', {
             uid: crypto.randomBytes(16).toString('hex')
           })
         })
@@ -332,7 +332,7 @@ module.exports = function(cfg, server) {
           testNotFound(t, err)
 
           // Verify the session token
-          return client.postThen('/token/' + user.sessionToken.tokenVerificationId + '/verify', {
+          return client.postThen('/tokens/' + user.sessionToken.tokenVerificationId + '/verify', {
             uid: user.accountId
           })
         })
@@ -582,7 +582,7 @@ module.exports = function(cfg, server) {
           t.equal(token.tokenVerificationId, user.keyFetchToken.tokenVerificationId, 'tokenVerificationId is correct')
 
           // Attempt to verify a non-existent key fetch token
-          return client.postThen('/token/' + crypto.randomBytes(16).toString('hex') + '/verify', {
+          return client.postThen('/tokens/' + crypto.randomBytes(16).toString('hex') + '/verify', {
             uid: user.accountId
           })
         })
@@ -592,7 +592,7 @@ module.exports = function(cfg, server) {
           testNotFound(t, err)
 
           // Attempt to verify a key fetch token with the wrong uid
-          return client.postThen('/token/' + user.keyFetchToken.tokenVerificationId + '/verify', {
+          return client.postThen('/tokens/' + user.keyFetchToken.tokenVerificationId + '/verify', {
             uid: crypto.randomBytes(16).toString('hex')
           })
         })
@@ -602,7 +602,7 @@ module.exports = function(cfg, server) {
           testNotFound(t, err)
 
           // Verify the key fetch token
-          return client.postThen('/token/' + user.keyFetchToken.tokenVerificationId + '/verify', {
+          return client.postThen('/tokens/' + user.keyFetchToken.tokenVerificationId + '/verify', {
             uid: user.accountId
           })
         })

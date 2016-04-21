@@ -250,7 +250,7 @@ BEGIN
 END;
 
 -- Add stored procedure for deleting unverifiedTokens.
-CREATE PROCEDURE `verifyToken_1` (
+CREATE PROCEDURE `verifyTokens_1` (
   IN tokenVerificationIdArg BINARY(16),
   IN uidArg BINARY(16)
 )

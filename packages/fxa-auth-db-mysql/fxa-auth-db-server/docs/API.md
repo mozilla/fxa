@@ -89,7 +89,7 @@ The following datatypes are used throughout this document:
     * updatePasswordForgotToken : `POST /passwordForgotToken/:id/update`
     * forgotPasswordVerified    : `POST /passwordForgotToken/:id/verified`
 * Unverified tokens:
-    * verifyToken               : `POST /token/:tokenVerificationId/verify`
+    * verifyTokens              : `POST /token/:tokenVerificationId/verify`
 
 ## Ping : `GET /`
 
@@ -1715,7 +1715,7 @@ Content-Length: 2
     * Body : {"code":"InternalError","message":"...<message related to the error>..."}
 ```
 
-## verifyToken : `POST /token/<tokenVerificationId>/verify`
+## verifyTokens : `POST /token/<tokenVerificationId>/verify`
 
 This method verifies sessionTokens and keyFetchTokens.
 Note that it takes the tokenVerificationId

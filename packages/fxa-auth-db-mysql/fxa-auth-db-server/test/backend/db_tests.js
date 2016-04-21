@@ -354,7 +354,7 @@ module.exports = function(config, DB) {
                 t.deepEqual(token.tokenVerificationId, SESSION_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
 
                 // Attempt to verify session token with invalid tokenVerificationId
-                return db.verifyToken(hex16(), { uid: ACCOUNT.uid })
+                return db.verifyTokens(hex16(), { uid: ACCOUNT.uid })
               })
               .then(function () {
                 t.fail('Verifying session token with invalid tokenVerificationId should have failed')
@@ -370,7 +370,7 @@ module.exports = function(config, DB) {
                 t.deepEqual(token.tokenVerificationId, SESSION_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
 
                 // Attempt to verify session token with invalid uid
-                return db.verifyToken(SESSION_TOKEN.tokenVerificationId, { uid: hex16() })
+                return db.verifyTokens(SESSION_TOKEN.tokenVerificationId, { uid: hex16() })
               })
               .then(function () {
                 t.fail('Verifying session token with invalid uid should have failed')
@@ -385,7 +385,7 @@ module.exports = function(config, DB) {
                 t.deepEqual(token.tokenVerificationId, SESSION_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
 
                 // Verify the session token
-                return db.verifyToken(SESSION_TOKEN.tokenVerificationId, { uid: ACCOUNT.uid })
+                return db.verifyTokens(SESSION_TOKEN.tokenVerificationId, { uid: ACCOUNT.uid })
               })
               .then(function() {
                 // Fetch the session token
@@ -473,7 +473,7 @@ module.exports = function(config, DB) {
                 t.deepEqual(token.tokenVerificationId, KEY_FETCH_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
 
                 // Attempt to verify key fetch token with invalid tokenVerificationId
-                return db.verifyToken(hex16(), { uid: KEY_FETCH_TOKEN.uid })
+                return db.verifyTokens(hex16(), { uid: KEY_FETCH_TOKEN.uid })
               })
               .then(function () {
                 t.fail('Verifying key fetch token with invalid tokenVerificationId should have failed')
@@ -488,7 +488,7 @@ module.exports = function(config, DB) {
                 t.deepEqual(token.tokenVerificationId, KEY_FETCH_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
 
                 // Attempt to verify key fetch token with invalid uid
-                return db.verifyToken(KEY_FETCH_TOKEN.tokenVerificationId, { uid: hex16() })
+                return db.verifyTokens(KEY_FETCH_TOKEN.tokenVerificationId, { uid: hex16() })
               })
               .then(function () {
                 t.fail('Verifying key fetch token with invalid uid should have failed')
@@ -503,7 +503,7 @@ module.exports = function(config, DB) {
                 t.deepEqual(token.tokenVerificationId, KEY_FETCH_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
 
                 // Verify the key fetch token
-                return db.verifyToken(KEY_FETCH_TOKEN.tokenVerificationId, { uid: SESSION_TOKEN.uid })
+                return db.verifyTokens(KEY_FETCH_TOKEN.tokenVerificationId, { uid: SESSION_TOKEN.uid })
               })
               .then(function() {
                 // Fetch the key fetch token
@@ -1095,7 +1095,7 @@ module.exports = function(config, DB) {
               })
               .then(function () {
                 // Verify the session token
-                return db.verifyToken(SESSION_TOKEN.tokenVerificationId, { uid: SESSION_TOKEN.uid })
+                return db.verifyTokens(SESSION_TOKEN.tokenVerificationId, { uid: SESSION_TOKEN.uid })
               })
               .then(function () {
                 // Fetch the session token with its verification state and device info

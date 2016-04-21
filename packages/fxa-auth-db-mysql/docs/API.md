@@ -27,7 +27,7 @@ There are a number of methods that a DB storage backend should implement:
     * .keyFetchTokenVerified(tokenId)
     * .deleteKeyFetchToken(tokenId)
 * Unverified session tokens and key fetch tokens
-    * .verifyToken(tokenVerificationId)
+    * .verifyTokens(tokenVerificationId)
 * Password Forgot Tokens
     * .createPasswordForgotToken(tokenId, passwordForgotToken)
     * .deletePasswordForgotToken(tokenId)
@@ -377,7 +377,7 @@ Returns:
 * rejects with:
     * any error from the underlying storage system (wrapped in `error.wrap()`)
 
-## .verifyToken(tokenVerificationId, token)
+## .verifyTokens(tokenVerificationId, token)
 
 Verifies sessionTokens and keyFetchTokens.
 Note that it takes the tokenVerificationId

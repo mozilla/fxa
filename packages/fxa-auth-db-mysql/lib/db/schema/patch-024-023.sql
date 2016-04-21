@@ -1,4 +1,4 @@
--- DROP PROCEDURE `verifyToken_1`;
+-- DROP PROCEDURE `verifyTokens_1`;
 -- DROP PROCEDURE `keyFetchTokenVerified_1`;
 -- DROP PROCEDURE `sessionWithDevice_3`;
 -- DROP PROCEDURE `sessionTokenVerified_1`;

@@ -322,7 +322,7 @@ module.exports = function (log, error) {
     return P.resolve({})
   }
 
-  Memory.prototype.verifyToken = function (tokenVerificationId, tokenData) {
+  Memory.prototype.verifyTokens = function (tokenVerificationId, tokenData) {
     tokenVerificationId = tokenVerificationId.toString('hex')
     var uid = tokenData.uid.toString('hex')
 
