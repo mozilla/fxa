@@ -25,12 +25,20 @@ define(function (require, exports, module) {
 
     setPasswordVisibilityFromButton: function (button) {
       var isVisible = this.$(button).is(':checked');
-      this.setPasswordVisibility(isVisible);
+      var targets = this.getAffectedPasswordInputs(button);
+      this.setPasswordVisibility(isVisible, targets);
     },
 
-    setPasswordVisibility: function (isVisible) {
+    getAffectedPasswordInputs: function (button) {
+      var passwordField = this.$(button).siblings('.password');
+      if (this.$(button).data('synchronizeShow')) {
+        passwordField = this.$('.password');
+      }
+      return passwordField;
+    },
+
+    setPasswordVisibility: function (isVisible, passwordField) {
       try {
-        var passwordField = this.$('.password');
         if (isVisible) {
           passwordField.attr('type', 'text').attr('autocomplete', 'off')
             .attr('autocorrect', 'off').attr('autocapitalize', 'off');
