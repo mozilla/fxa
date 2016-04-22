@@ -8,7 +8,8 @@ define([], function () {
     DEVICE_ID: '0f7aa00356e5416e82b3bef7bc409eef',
     DEVICE_NAME: 'My Phone',
     DEVICE_NAME_2: 'My Android Phone',
-    DEVICE_PUBLIC_KEY: '468601214f60f4828b6cd5d51d9d99d212e7c73657978955f0f5a5b7e2fa1370',
+    DEVICE_PUBLIC_KEY: 'BBXOKjUb84pzws1wionFpfCBjDuCh4-s_1b52WA46K5wYL2gCWEOmFKWn_NkS5nmJwTBuO8qxxdjAIDtNeklvQc',
+    DEVICE_AUTH_KEY: 'GSsIiaD2Mr83iPqwFNK4rw',
     DEVICE_TYPE: 'mobile'
   };
 });

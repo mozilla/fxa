@@ -12,6 +12,7 @@ define([
   var DEVICE_CALLBACK = PushTestConstants.DEVICE_CALLBACK;
   var DEVICE_NAME = PushTestConstants.DEVICE_NAME;
   var DEVICE_PUBLIC_KEY = PushTestConstants.DEVICE_PUBLIC_KEY;
+  var DEVICE_AUTH_KEY = PushTestConstants.DEVICE_AUTH_KEY;
   var DEVICE_TYPE = PushTestConstants.DEVICE_TYPE;
 
   with (tdd) {
@@ -243,7 +244,8 @@ define([
             name: DEVICE_NAME,
             type: DEVICE_TYPE,
             callback: DEVICE_CALLBACK,
-            publicKey: DEVICE_PUBLIC_KEY
+            publicKey: DEVICE_PUBLIC_KEY,
+            authKey: DEVICE_AUTH_KEY
           }
         }), RequestMocks.signUpNewDevice)
         .then(function (resp) {
@@ -253,6 +255,7 @@ define([
           assert.equal(device.type, DEVICE_TYPE);
           assert.equal(device.pushCallback, DEVICE_CALLBACK);
           assert.equal(device.pushPublicKey, DEVICE_PUBLIC_KEY);
+          assert.equal(device.pushAuthKey, DEVICE_AUTH_KEY);
         });
       });
 

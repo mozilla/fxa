@@ -81,6 +81,7 @@ define([
    *     @param {String} options.device.type Type of device (mobile|desktop)
    *     @param {string} [options.device.callback] Device's push endpoint
    *     @param {string} [options.device.publicKey] Public key used to encrypt push messages
+   *     @param {string} [options.device.authKey] Authentication secret used to encrypt push messages
    *   @param {Object} [options.metricsContext={}] Metrics context metadata
    *     @param {String} options.metricsContext.flowId identifier for the current event flow
    *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
@@ -123,8 +124,9 @@ define([
                 data.device.pushCallback = options.device.callback;
               }
 
-              if (options.device.publicKey) {
+              if (options.device.publicKey && options.device.authKey) {
                 data.device.pushPublicKey = options.device.publicKey;
+                data.device.pushAuthKey = options.device.authKey;
               }
             }
 
@@ -201,6 +203,7 @@ define([
    *     @param {String} [options.device.type] Type of device (mobile|desktop)
    *     @param {string} [options.device.callback] Device's push endpoint
    *     @param {string} [options.device.publicKey] Public key used to encrypt push messages
+   *     @param {string} [options.device.authKey] Authentication secret used to encrypt push messages
    *   @param {Object} [options.metricsContext={}] Metrics context metadata
    *     @param {String} options.metricsContext.flowId identifier for the current event flow
    *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
@@ -255,8 +258,9 @@ define([
               data.device.pushCallback = options.device.callback;
             }
 
-            if (options.device.publicKey) {
+            if (options.device.publicKey && options.device.authKey) {
               data.device.pushPublicKey = options.device.publicKey;
+              data.device.pushAuthKey = options.device.authKey;
             }
           }
 
@@ -995,6 +999,7 @@ define([
    * @param {Object} [options={}] Options
    *   @param {string} [options.deviceCallback] Device's push endpoint.
    *   @param {string} [options.devicePublicKey] Public key used to encrypt push messages.
+   *   @param {string} [options.deviceAuthKey] Authentication secret used to encrypt push messages.
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.deviceRegister = function (sessionToken, deviceName, deviceType, options) {
@@ -1012,9 +1017,13 @@ define([
           type: deviceType
         };
 
-        if (options.deviceCallback && options.devicePublicKey) {
+        if (options.deviceCallback) {
           data.pushCallback = options.deviceCallback;
+        }
+
+        if (options.devicePublicKey && options.deviceAuthKey) {
           data.pushPublicKey = options.devicePublicKey;
+          data.pushAuthKey = options.deviceAuthKey;
         }
 
         return request.send('/account/device', 'POST', creds, data);
@@ -1031,6 +1040,7 @@ define([
    * @param {Object} [options={}] Options
    *   @param {string} [options.deviceCallback] Device's push endpoint.
    *   @param {string} [options.devicePublicKey] Public key used to encrypt push messages.
+   *   @param {string} [options.deviceAuthKey] Authentication secret used to encrypt push messages.
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.deviceUpdate = function (sessionToken, deviceId, deviceName, options) {
@@ -1048,9 +1058,13 @@ define([
           name: deviceName
         };
 
-        if (options.deviceCallback && options.devicePublicKey) {
+        if (options.deviceCallback) {
           data.pushCallback = options.deviceCallback;
+        }
+
+        if (options.devicePublicKey && options.deviceAuthKey) {
           data.pushPublicKey = options.devicePublicKey;
+          data.pushAuthKey = options.deviceAuthKey;
         }
 
         return request.send('/account/device', 'POST', creds, data);

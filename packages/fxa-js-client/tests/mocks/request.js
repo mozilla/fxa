@@ -13,6 +13,7 @@ define([
   var DEVICE_NAME = PushTestConstants.DEVICE_NAME;
   var DEVICE_NAME_2 = PushTestConstants.DEVICE_NAME_2;
   var DEVICE_PUBLIC_KEY = PushTestConstants.DEVICE_PUBLIC_KEY;
+  var DEVICE_AUTH_KEY = PushTestConstants.DEVICE_AUTH_KEY;
   var DEVICE_TYPE = PushTestConstants.DEVICE_TYPE;
 
   return {
@@ -30,7 +31,8 @@ define([
           name: DEVICE_NAME,
           type: DEVICE_TYPE,
           pushCallback: DEVICE_CALLBACK,
-          pushPublicKey: DEVICE_PUBLIC_KEY
+          pushPublicKey: DEVICE_PUBLIC_KEY,
+          pushAuthKey: DEVICE_AUTH_KEY
         },
         sessionToken:'6544062365c5ebee16e3c5e15448139851583b5f5f7b6bd6d4a37bac41665e8a',
         uid:'9c8e5cf6915949c1b063b88fa0c53d05',
@@ -51,7 +53,8 @@ define([
           name: DEVICE_NAME,
           type: DEVICE_TYPE,
           pushCallback: DEVICE_CALLBACK,
-          pushPublicKey: DEVICE_PUBLIC_KEY
+          pushPublicKey: DEVICE_PUBLIC_KEY,
+          pushAuthKey: DEVICE_AUTH_KEY
         },
         sessionToken:'6544062365c5ebee16e3c5e15448139851583b5f5f7b6bd6d4a37bac41665e8a',
         uid:'9c8e5cf6915949c1b063b88fa0c53d05',
@@ -72,7 +75,8 @@ define([
           name: DEVICE_NAME,
           type: DEVICE_TYPE,
           pushCallback: DEVICE_CALLBACK,
-          pushPublicKey: DEVICE_PUBLIC_KEY
+          pushPublicKey: DEVICE_PUBLIC_KEY,
+          pushAuthKey: DEVICE_AUTH_KEY
         },
         sessionToken:'6544062365c5ebee16e3c5e15448139851583b5f5f7b6bd6d4a37bac41665e8a',
         uid:'9c8e5cf6915949c1b063b88fa0c53d05',
@@ -93,7 +97,8 @@ define([
           name: DEVICE_NAME,
           type: DEVICE_TYPE,
           pushCallback: DEVICE_CALLBACK,
-          pushPublicKey: DEVICE_PUBLIC_KEY
+          pushPublicKey: DEVICE_PUBLIC_KEY,
+          pushAuthKey: DEVICE_AUTH_KEY
         },
         sessionToken:'6544062365c5ebee16e3c5e15448139851583b5f5f7b6bd6d4a37bac41665e8a',
         uid:'9c8e5cf6915949c1b063b88fa0c53d05',
@@ -249,7 +254,8 @@ define([
           name: DEVICE_NAME,
           type: DEVICE_TYPE,
           pushCallback: DEVICE_CALLBACK,
-          pushPublicKey: DEVICE_PUBLIC_KEY
+          pushPublicKey: DEVICE_PUBLIC_KEY,
+          pushAuthKey: DEVICE_AUTH_KEY
         }
       ])
     },
@@ -261,7 +267,8 @@ define([
           name: DEVICE_NAME,
           type: DEVICE_TYPE,
           pushCallback: DEVICE_CALLBACK,
-          pushPublicKey: DEVICE_PUBLIC_KEY
+          pushPublicKey: DEVICE_PUBLIC_KEY,
+          pushAuthKey: DEVICE_AUTH_KEY
         }
       )
     },
@@ -273,7 +280,8 @@ define([
           name: DEVICE_NAME_2,
           type: DEVICE_TYPE,
           pushCallback: DEVICE_CALLBACK,
-          pushPublicKey: DEVICE_PUBLIC_KEY
+          pushPublicKey: DEVICE_PUBLIC_KEY,
+          pushAuthKey: DEVICE_AUTH_KEY
         }
       )
     }
