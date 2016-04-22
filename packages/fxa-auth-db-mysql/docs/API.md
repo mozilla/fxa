@@ -413,7 +413,7 @@ Parameters:
 
 Get the sessionToken
 with its verification state
-amd matching device info.
+and matching device info.
 
 Parameters:
 
