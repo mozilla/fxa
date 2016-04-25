@@ -13,7 +13,8 @@ var extend = require('util')._extend
 // You can pass in an object of custom logging methods
 // if you need to e.g. make assertions about logged values.
 
-var LOG_METHOD_NAMES = ['trace', 'increment', 'info', 'error', 'begin']
+var LOG_METHOD_NAMES = ['trace', 'increment', 'info', 'error', 'begin', 'warn',
+                        'activityEvent', 'event']
 
 var mockLog = function(methods) {
   var log = extend({}, methods)

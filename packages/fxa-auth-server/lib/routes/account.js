@@ -25,7 +25,8 @@ module.exports = function (
   config,
   customs,
   isPreVerified,
-  checkPassword
+  checkPassword,
+  push
   ) {
 
   var OPENID_EXTENSIONS = [
@@ -35,8 +36,6 @@ module.exports = function (
       }
     )
   ]
-
-  var push = require('../push')(log, db)
 
   function isOpenIdProviderAllowed(id) {
     if (typeof(id) !== 'string') { return false }
@@ -1050,7 +1049,7 @@ module.exports = function (
               log.increment('account.verified')
 
               // send a push notification to all devices that the account changed
-              push.notifyUpdate(uid)
+              push.notifyUpdate(uid, 'accountVerify')
 
               return db.verifyEmail(account)
                 .then(mailer.sendPostVerifyEmail.bind(
@@ -1213,6 +1212,9 @@ module.exports = function (
           )
           .then(
             function () {
+              // Notify all devices that the account has changed.
+              push.notifyUpdate(accountResetToken.uid, 'passwordReset')
+
               return db.account(accountResetToken.uid)
             }
           )
