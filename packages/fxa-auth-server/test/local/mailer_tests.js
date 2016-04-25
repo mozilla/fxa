@@ -23,7 +23,8 @@ var messageTypes = [
   'suspiciousLocationEmail',
   'unlockEmail',
   'verificationReminderEmail',
-  'verifyEmail'
+  'verifyEmail',
+  'verifyLoginEmail'
 ]
 
 var typesWithSupportLinks = [
@@ -100,7 +101,25 @@ P.all(
           )
         }
 
-        if (type === 'postVerifyEmail') {
+        if (type === 'verifyLoginEmail') {
+          test(
+            'test verify token email',
+            function (t) {
+              mailer.mailer.sendMail = function (emailConfig) {
+                var verifyLoginUrl = config.get('mail').verifyLoginUrl
+                t.ok(emailConfig.html.indexOf(verifyLoginUrl) > 0)
+                t.ok(emailConfig.text.indexOf(verifyLoginUrl) > 0)
+
+                var supportLinkUrl = 'support.mozilla.org'
+                t.ok(emailConfig.html.indexOf(supportLinkUrl) > 0, true)
+                t.ok(emailConfig.text.indexOf(supportLinkUrl) > 0, true)
+
+                t.end()
+              }
+              mailer[type](message)
+            }
+          )
+        } else if (type === 'postVerifyEmail') {
           test(
             'test utm params for ' + type,
             function (t) {

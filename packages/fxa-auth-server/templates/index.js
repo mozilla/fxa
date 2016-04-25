@@ -58,7 +58,8 @@ module.exports = function () {
       'unlock',
       'verification_reminder_first',
       'verification_reminder_second',
-      'verify'
+      'verify',
+      'verify_login'
     ].map(loadTemplates)
   )
   .then(
