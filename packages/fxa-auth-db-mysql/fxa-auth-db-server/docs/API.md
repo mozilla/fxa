@@ -64,7 +64,7 @@ The following datatypes are used throughout this document:
     * deleteDevice              : `DEL /account/:id/device/:deviceId`
 * Session Tokens:
     * sessionToken              : `GET /sessionToken/:id`
-    * sessionTokenVerified      : `GET /sessionToken/:id/verified`
+    * sessionTokenWithVerificationStatus : `GET /sessionToken/:id/verified`
     * sessionWithDevice         : `GET /sessionToken/:id/device`
     * deleteSessionToken        : `DEL /sessionToken/:id`
     * createSessionToken        : `PUT /sessionToken/:id`
@@ -75,7 +75,7 @@ The following datatypes are used throughout this document:
     * createAccountResetToken   : `PUT /accountResetToken/:id`
 * Key Fetch Tokens:
     * keyFetchToken             : `GET /keyFetchToken/:id`
-    * keyFetchTokenVerified     : `GET /keyFetchToken/:id/verified`
+    * keyFetchTokenWithVerificationStatus : `GET /keyFetchToken/:id/verified`
     * deleteKeyFetchToken       : `DEL /keyFetchToken/:id`
     * createKeyFetchToken       : `PUT /keyFetchToken/:id`
 * Password Change Tokens:
@@ -837,7 +837,7 @@ Content-Length: 285
     * Content-Type : 'application/json'
     * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
-## sessionTokenVerified : `GET /sessionToken/<tokenId>/verified`
+## sessionTokenWithVerificationStatus : `GET /sessionToken/<tokenId>/verified`
 
 ### Example
 
@@ -1243,7 +1243,7 @@ Content-Length: 399
     * Content-Type : 'application/json'
     * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
-## keyFetchTokenVerified : `GET /keyFetchToken/<tokenId>/verified`
+## keyFetchTokenWithVerificationStatus : `GET /keyFetchToken/<tokenId>/verified`
 
 ### Example
 

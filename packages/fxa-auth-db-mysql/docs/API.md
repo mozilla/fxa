@@ -18,13 +18,13 @@ There are a number of methods that a DB storage backend should implement:
     * .createSessionToken(tokenId, sessionToken)
     * .updateSessionToken(tokenId, sessionToken)
     * .sessionToken(id)
-    * .sessionTokenVerified(tokenId)
+    * .sessionTokenWithVerificationStatus(tokenId)
     * .sessionWithDevice(tokenId)
     * .deleteSessionToken(tokenId)
 * Key Fetch Tokens
     * .createKeyFetchToken(tokenId, keyFetchToken)
     * .keyFetchToken(id)
-    * .keyFetchTokenVerified(tokenId)
+    * .keyFetchTokenWithVerificationStatus(tokenId)
     * .deleteKeyFetchToken(tokenId)
 * Unverified session tokens and key fetch tokens
     * .verifyTokens(tokenVerificationId)
@@ -293,9 +293,9 @@ Note: for some tokens there should only ever be one row per `uid`. This applies 
 should do something equivalent with your storage backend.
 
 ### .sessionToken(tokenId) ###
-### .sessionTokenVerified(tokenId) ###
+### .sessionTokenWithVerificationStatus(tokenId) ###
 ### .keyFetchToken(tokenId) ###
-### .keyFetchTokenVerified(tokenId) ###
+### .keyFetchTokenWithVerificationStatus(tokenId) ###
 ### .passwordChangeToken(tokenId) ###
 ### .passwordForgotToken(tokenId) ###
 ### .accountResetToken(tokenId) ###
@@ -319,13 +319,13 @@ from the token and `a.*` for a field from the corresponding account.
                  t.uaOS, t.uaOSVersion, t.uaDeviceType, t.lastAccessTime,
                  a.emailVerified, a.email, a.emailCode, a.verifierSetAt,
                  a.createdAt AS accountCreatedAt
-* sessionTokenVerified : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
-                         t.uaOS, t.uaOSVersion, t.uaDeviceType, t.lastAccessTime,
-                         a.emailVerified, a.email, a.emailCode, a.verifierSetAt,
-                         a.createdAt AS accountCreatedAt, ut.tokenVerificationId
+* sessionTokenWithVerificationStatus : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
+                                       t.uaOS, t.uaOSVersion, t.uaDeviceType, t.lastAccessTime,
+                                       a.emailVerified, a.email, a.emailCode, a.verifierSetAt,
+                                       a.createdAt AS accountCreatedAt, ut.tokenVerificationId
 * keyFetchToken : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified, a.verifierSetAt
-* keyFetchTokenVerified : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified,
-                          a.verifierSetAt, ut.tokenVerificationId
+* keyFetchTokenWithVerificationStatus : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified,
+                                        a.verifierSetAt, ut.tokenVerificationId
 * passwordChangeToken : t.tokenData, t.uid, t.createdAt, a.verifierSetAt
 * passwordForgotToken : t.tokenData, t.uid, t.createdAt, t.passCode, t.tries, a.email, a.verifierSetAt
 * accountResetToken : t.uid, t.tokenData, t.createdAt, a.verifierSetAt

@@ -334,7 +334,7 @@ module.exports = function(config, DB) {
                 t.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
 
                 // Fetch the session token with its verification state
-                return db.sessionTokenVerified(SESSION_TOKEN_ID)
+                return db.sessionTokenWithVerificationStatus(SESSION_TOKEN_ID)
               })
               .then(function (token) {
                 t.deepEqual(token.tokenData, SESSION_TOKEN.data, 'token data matches')
@@ -364,7 +364,7 @@ module.exports = function(config, DB) {
               .then(function() {
 
                 // Fetch the session token with its verification state
-                return db.sessionTokenVerified(SESSION_TOKEN_ID)
+                return db.sessionTokenWithVerificationStatus(SESSION_TOKEN_ID)
               })
               .then(function (token) {
                 t.deepEqual(token.tokenVerificationId, SESSION_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
@@ -379,7 +379,7 @@ module.exports = function(config, DB) {
               })
               .then(function() {
                 // Fetch the session token with its verification state
-                return db.sessionTokenVerified(SESSION_TOKEN_ID)
+                return db.sessionTokenWithVerificationStatus(SESSION_TOKEN_ID)
               })
               .then(function (token) {
                 t.deepEqual(token.tokenVerificationId, SESSION_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
@@ -395,7 +395,7 @@ module.exports = function(config, DB) {
                 t.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
 
                 // Fetch the session token with its verification state
-                return db.sessionTokenVerified(SESSION_TOKEN_ID)
+                return db.sessionTokenWithVerificationStatus(SESSION_TOKEN_ID)
               })
               .then(function (token) {
                 t.equal(token.tokenVerificationId, null, 'tokenVerificationId is null')
@@ -462,7 +462,7 @@ module.exports = function(config, DB) {
                 t.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
 
                 // Fetch the key fetch token with its verification state
-                return db.keyFetchTokenVerified(KEY_FETCH_TOKEN_ID)
+                return db.keyFetchTokenWithVerificationStatus(KEY_FETCH_TOKEN_ID)
               })
               .then(function(token) {
                 t.deepEqual(token.authKey, KEY_FETCH_TOKEN.authKey, 'authKey matches')
@@ -482,7 +482,7 @@ module.exports = function(config, DB) {
               })
               .then(function() {
                 // Fetch the key fetch token with its verification state
-                return db.keyFetchTokenVerified(KEY_FETCH_TOKEN_ID)
+                return db.keyFetchTokenWithVerificationStatus(KEY_FETCH_TOKEN_ID)
               })
               .then(function (token) {
                 t.deepEqual(token.tokenVerificationId, KEY_FETCH_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
@@ -497,7 +497,7 @@ module.exports = function(config, DB) {
               })
               .then(function() {
                 // Fetch the key fetch token with its verification state
-                return db.keyFetchTokenVerified(KEY_FETCH_TOKEN_ID)
+                return db.keyFetchTokenWithVerificationStatus(KEY_FETCH_TOKEN_ID)
               })
               .then(function (token) {
                 t.deepEqual(token.tokenVerificationId, KEY_FETCH_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
@@ -513,7 +513,7 @@ module.exports = function(config, DB) {
                 t.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
 
                 // Fetch the key fetch token with its verification state
-                return db.keyFetchTokenVerified(KEY_FETCH_TOKEN_ID)
+                return db.keyFetchTokenWithVerificationStatus(KEY_FETCH_TOKEN_ID)
               })
               .then(function(token) {
                 t.equal(token.tokenVerificationId, null, 'tokenVerificationId is null')

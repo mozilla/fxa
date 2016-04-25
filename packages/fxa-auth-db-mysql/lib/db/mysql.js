@@ -403,9 +403,9 @@ module.exports = function (log, error) {
   //          a.emailVerified, a.email, a.emailCode, a.verifierSetAt, a.locale,
   //          a.createdAt AS accountCreatedAt, ut.tokenVerificationId
   // Where  : t.tokenId = $1 AND t.uid = a.uid AND t.tokenId = u.tokenId
-  var SESSION_TOKEN_VERIFIED = 'CALL sessionTokenVerified_1(?)'
+  var SESSION_TOKEN_VERIFIED = 'CALL sessionTokenWithVerificationStatus_1(?)'
 
-  MySql.prototype.sessionTokenVerified = function (tokenId) {
+  MySql.prototype.sessionTokenWithVerificationStatus = function (tokenId) {
     return this.readFirstResult(SESSION_TOKEN_VERIFIED, [tokenId])
   }
 
@@ -422,9 +422,9 @@ module.exports = function (log, error) {
   // Fields : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified, a.verifierSetAt,
   //          ut.tokenVerificationId
   // Where  : t.tokenId = $1 AND t.uid = a.uid AND t.tokenId = u.tokenId
-  var KEY_FETCH_TOKEN_VERIFIED = 'CALL keyFetchTokenVerified_1(?)'
+  var KEY_FETCH_TOKEN_VERIFIED = 'CALL keyFetchTokenWithVerificationStatus_1(?)'
 
-  MySql.prototype.keyFetchTokenVerified = function (tokenId) {
+  MySql.prototype.keyFetchTokenWithVerificationStatus = function (tokenId) {
     return this.readFirstResult(KEY_FETCH_TOKEN_VERIFIED, [tokenId])
   }
 

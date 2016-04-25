@@ -101,8 +101,8 @@ function createServer(db) {
   api.del('/keyFetchToken/:id', reply(db.deleteKeyFetchToken))
   api.put('/keyFetchToken/:id', reply(db.createKeyFetchToken))
 
-  api.get('/sessionToken/:id/verified', reply(db.sessionTokenVerified))
-  api.get('/keyFetchToken/:id/verified', reply(db.keyFetchTokenVerified))
+  api.get('/sessionToken/:id/verified', reply(db.sessionTokenWithVerificationStatus))
+  api.get('/keyFetchToken/:id/verified', reply(db.keyFetchTokenWithVerificationStatus))
   api.post('/tokens/:id/verify', reply(db.verifyTokens))
 
   api.get('/accountResetToken/:id', reply(db.accountResetToken))

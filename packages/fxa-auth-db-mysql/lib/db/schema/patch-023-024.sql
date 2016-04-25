@@ -157,8 +157,8 @@ BEGIN
 END;
 
 -- Add stored procedure for fetching sessionToken
--- with its verified state.
-CREATE PROCEDURE `sessionTokenVerified_1` (
+-- with its verification status.
+CREATE PROCEDURE `sessionTokenWithVerificationStatus_1` (
   IN tokenIdArg BINARY(32)
 )
 BEGIN
@@ -188,7 +188,7 @@ BEGIN
 END;
 
 -- Update sessionWithDevice stored procedure to
--- fetch sessionToken verification state.
+-- fetch sessionToken verification status.
 CREATE PROCEDURE `sessionWithDevice_3` (
   IN tokenIdArg BINARY(32)
 )
@@ -228,8 +228,8 @@ BEGIN
 END;
 
 -- Add stored procedure for fetching keyFetchToken
--- with its verified state.
-CREATE PROCEDURE `keyFetchTokenVerified_1` (
+-- with its verification status.
+CREATE PROCEDURE `keyFetchTokenWithVerificationStatus_1` (
   IN tokenIdArg BINARY(32)
 )
 BEGIN

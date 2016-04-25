@@ -425,7 +425,7 @@ module.exports = function (log, error) {
   }
 
   Memory.prototype.sessionWithDevice = function (id) {
-    return this.sessionTokenVerified(id)
+    return this.sessionTokenWithVerificationStatus(id)
       .then(
         function (session) {
           return this.accountDevices(session.uid)
@@ -548,7 +548,7 @@ module.exports = function (log, error) {
     return P.resolve(item)
   }
 
-  Memory.prototype.sessionTokenVerified = function (tokenId) {
+  Memory.prototype.sessionTokenWithVerificationStatus = function (tokenId) {
     tokenId = tokenId.toString('hex')
 
     return this.sessionToken(tokenId)
@@ -582,7 +582,7 @@ module.exports = function (log, error) {
     return P.resolve(item)
   }
 
-  Memory.prototype.keyFetchTokenVerified = function (tokenId) {
+  Memory.prototype.keyFetchTokenWithVerificationStatus = function (tokenId) {
     tokenId = tokenId.toString('hex')
 
     return this.keyFetchToken(tokenId)
