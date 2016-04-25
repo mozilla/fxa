@@ -541,8 +541,8 @@ module.exports = function (log, error) {
   // Where  : tokenVerificationId = $1, uid = $2
   var VERIFY_TOKEN = 'CALL verifyTokens_1(?, ?)'
 
-  MySql.prototype.verifyTokens = function (tokenVerificationId, tokenData) {
-    return this.read(VERIFY_TOKEN, [tokenVerificationId, tokenData.uid])
+  MySql.prototype.verifyTokens = function (tokenVerificationId, accountData) {
+    return this.read(VERIFY_TOKEN, [tokenVerificationId, accountData.uid])
       .then(function (result) {
         if (result.affectedRows === 0) {
           throw error.notFound()

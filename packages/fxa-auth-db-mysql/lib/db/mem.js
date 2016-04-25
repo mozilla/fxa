@@ -322,9 +322,9 @@ module.exports = function (log, error) {
     return P.resolve({})
   }
 
-  Memory.prototype.verifyTokens = function (tokenVerificationId, tokenData) {
+  Memory.prototype.verifyTokens = function (tokenVerificationId, accountData) {
     tokenVerificationId = tokenVerificationId.toString('hex')
-    var uid = tokenData.uid.toString('hex')
+    var uid = accountData.uid.toString('hex')
 
     var tokenCount = Object.keys(unverifiedTokens).reduce(function (count, tokenId) {
       var t = unverifiedTokens[tokenId]

@@ -27,7 +27,7 @@ There are a number of methods that a DB storage backend should implement:
     * .keyFetchTokenWithVerificationStatus(tokenId)
     * .deleteKeyFetchToken(tokenId)
 * Unverified session tokens and key fetch tokens
-    * .verifyTokens(tokenVerificationId)
+    * .verifyTokens(tokenVerificationId, accountData)
 * Password Forgot Tokens
     * .createPasswordForgotToken(tokenId, passwordForgotToken)
     * .deletePasswordForgotToken(tokenId)
@@ -377,12 +377,14 @@ Returns:
 * rejects with:
     * any error from the underlying storage system (wrapped in `error.wrap()`)
 
-## .verifyTokens(tokenVerificationId, token)
+## .verifyTokens(tokenVerificationId, accountData)
 
 Verifies sessionTokens and keyFetchTokens.
 Note that it takes the tokenVerificationId
 specified when creating the token,
 NOT the tokenId.
+`accountData` is an object
+with a `uid` property.
 
 Returns a promise that:
 
