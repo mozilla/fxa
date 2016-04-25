@@ -115,7 +115,7 @@ module.exports = function (log, error) {
 
     unverifiedTokens[tokenId] = {
       tokenVerificationId: sessionToken.tokenVerificationId,
-      uid: sessionToken.uid.toString('hex')
+      uid: sessionToken.uid
     }
 
     return P.resolve({})
@@ -144,7 +144,7 @@ module.exports = function (log, error) {
 
     unverifiedTokens[tokenId] = {
       tokenVerificationId: keyFetchToken.tokenVerificationId,
-      uid: keyFetchToken.uid.toString('hex')
+      uid: keyFetchToken.uid
     }
 
     return P.resolve({})
@@ -328,7 +328,10 @@ module.exports = function (log, error) {
 
     var tokenCount = Object.keys(unverifiedTokens).reduce(function (count, tokenId) {
       var t = unverifiedTokens[tokenId]
-      if (t.tokenVerificationId.toString('hex') !== tokenVerificationId || t.uid !== uid) {
+      if (
+        t.tokenVerificationId.toString('hex') !== tokenVerificationId ||
+        t.uid.toString('hex') !== uid
+      ) {
         return count
       }
 
