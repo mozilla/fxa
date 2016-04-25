@@ -39,7 +39,7 @@ define(function (require, exports, module) {
         err = AuthErrors.toInvalidParameterError('param name', AuthErrors);
       });
 
-      it('creates an INVALID_PARAMTER Error', function () {
+      it('creates an INVALID_PARAMETER Error', function () {
         assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
         assert.equal(err.param, 'param name');
       });
@@ -52,12 +52,37 @@ define(function (require, exports, module) {
         err = AuthErrors.toMissingParameterError('param name', AuthErrors);
       });
 
-      it('creates an MISSING_PARAMTER Error', function () {
+      it('creates an MISSING_PARAMETER Error', function () {
         assert.isTrue(AuthErrors.is(err, 'MISSING_PARAMETER'));
         assert.equal(err.param, 'param name');
       });
     });
 
+    describe('toInvalidResumeTokenPropertyError', function () {
+      var err;
+
+      before(function () {
+        err = AuthErrors.toInvalidResumeTokenPropertyError('foo', AuthErrors);
+      });
+
+      it('creates an INVALID_RESUME_TOKEN_PROPERTY Error', function () {
+        assert.isTrue(AuthErrors.is(err, 'INVALID_RESUME_TOKEN_PROPERTY'));
+        assert.equal(err.property, 'foo');
+      });
+    });
+
+    describe('toMissingResumeTokenPropertyError', function () {
+      var err;
+
+      before(function () {
+        err = AuthErrors.toMissingResumeTokenPropertyError('bar', AuthErrors);
+      });
+
+      it('creates an MISSING_RESUME_TOKEN_PROPERTY Error', function () {
+        assert.isTrue(AuthErrors.is(err, 'MISSING_RESUME_TOKEN_PROPERTY'));
+        assert.equal(err.property, 'bar');
+      });
+    });
 
     describe('toMessage', function () {
       it('converts a code to a message', function () {

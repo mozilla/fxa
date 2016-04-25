@@ -256,6 +256,14 @@ define(function (require, exports, module) {
     DELETED_ACCOUNT: {
       errno: 1034,
       message: t('Account no longer exists.')
+    },
+    INVALID_RESUME_TOKEN_PROPERTY: {
+      errno: 1035,
+      message: t('Invalid property in resume token: %(property)s')
+    },
+    MISSING_RESUME_TOKEN_PROPERTY: {
+      errno: 1036,
+      message: t('Missing property in resume token: %(property)s')
     }
   };
   /*eslint-enable sorting/sort-object-props*/
@@ -278,6 +286,14 @@ define(function (require, exports, module) {
         } else if (this.is(err, 'MISSING_PARAMETER')) {
           return {
             param: err.param
+          };
+        } else if (this.is(err, 'INVALID_RESUME_TOKEN_PROPERTY')) {
+          return {
+            property: err.property
+          };
+        } else if (this.is(err, 'MISSING_RESUME_TOKEN_PROPERTY')) {
+          return {
+            property: err.property
           };
         }
       } catch (e) {

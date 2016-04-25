@@ -5,14 +5,23 @@
 /**
  * A model mixin to work with ResumeTokens.
  *
- * A model should set the array `resumeTokenFields` to add/change
- * fields that are saved to and populated from the ResumeToken.
+ * Expects the following properties on `this`:
+ *
+ *   - resumeTokenFields: array of fields that are serialized to and
+ *                        parsed from the resume token.
+ *
+ *   - resumeTokenSchema: array of vat validators that will be applied
+ *                        when parsing from the resume token.
+ *
+ *   - sentryMetrics: object for reporting validation errors to Sentry.
  */
 
 define(function (require, exports, module) {
   'use strict';
 
+  var authErrors = require('lib/auth-errors');
   var ResumeToken = require('models/resume-token');
+  var vat = require('lib/vat');
 
   module.exports = {
     /**
@@ -28,8 +37,9 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Sets model properties from a stringified ResumeToken. A stringified
-     * ResumeToken is generally one passed in the `resume` query parameter.
+     * Sets model properties from a stringified ResumeToken, unless said token
+     * is invalid according to `this.resumeTokenSchema`. A stringified ResumeToken
+     * is generally one passed in the `resume` query parameter.
      *
      * @method populateFromStringifiedResumeToken
      * @param {String} stringifiedResumeToken
@@ -44,16 +54,44 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Sets model properties from a ResumeToken.
+     * Sets model properties from a ResumeToken, unless said token
+     * is invalid according to `this.resumeTokenSchema`.
      *
      * @method populateFromResumeToken
      * @param {ResumeToken} resumeToken
      */
     populateFromResumeToken: function (resumeToken) {
       if (this.resumeTokenFields) {
-        this.set(resumeToken.pick(this.resumeTokenFields));
+        var pickedResumeToken = resumeToken.pick(this.resumeTokenFields);
+
+        var error = validateResumeToken.call(this, pickedResumeToken);
+        if (error) {
+          return reportValidationError.call(this, error);
+        }
+
+        this.set(pickedResumeToken);
       }
     }
   };
+
+  function validateResumeToken (resumeToken) {
+    if (this.resumeTokenSchema) {
+      return vat.validate(resumeToken, this.resumeTokenSchema).error;
+    }
+  }
+
+  function reportValidationError (error) {
+    if (error instanceof ReferenceError) {
+      error = authErrors.toMissingResumeTokenPropertyError(error.key);
+    } else {
+      error = authErrors.toInvalidResumeTokenPropertyError(error.key);
+    }
+
+    // HACK: Interpolate the invalid property name into the error
+    //       message. One day this will be handled automagically.
+    error.message = authErrors.toInterpolatedMessage(error);
+
+    this.sentryMetrics.captureException(error);
+  }
 });
 

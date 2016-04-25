@@ -157,6 +157,34 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Create an INVALID_RESUME_TOKEN_PROPERTY error.
+     * The returned error will have `property` set to
+     * the property name.
+     *
+     * @property {String} propertyName
+     * @returns {Error}
+     */
+    toInvalidResumeTokenPropertyError: function (propertyName) {
+      var err = this.toError('INVALID_RESUME_TOKEN_PROPERTY');
+      err.property = propertyName;
+      return err;
+    },
+
+    /**
+     * Create a MISSING_RESUME_TOKEN_PROPERTY error.
+     * The returned error will have `property` set to
+     * the property name.
+     *
+     * @property {String} propertyName
+     * @returns {Error}
+     */
+    toMissingResumeTokenPropertyError: function (propertyName) {
+      var err = this.toError('MISSING_RESUME_TOKEN_PROPERTY');
+      err.property = propertyName;
+      return err;
+    },
+
+    /**
      * Check if an error is of the given type
      */
     is: function (error, type) {
