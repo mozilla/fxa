@@ -6,9 +6,8 @@ define([
   'intern!object',
   'intern/chai!assert',
   'intern/dojo/node!../../server/lib/activity-event',
-  'intern/dojo/node!path',
   'intern/dojo/node!sinon',
-], function (registerSuite, assert, activityEvent, path, sinon) {
+], function (registerSuite, assert, activityEvent, sinon) {
   var write;
 
   registerSuite({
@@ -57,9 +56,8 @@ define([
 
         var eventData = JSON.parse(args[0].substr(14));
         assert.isObject(eventData);
-        assert.lengthOf(Object.keys(eventData), 14);
+        assert.lengthOf(Object.keys(eventData), 13);
         assert.equal(eventData.event, 'mock event');
-        assert.equal(eventData.path, 'bar');
         assert.equal(eventData.userAgent, 'foo');
         assert.equal(eventData.a, 'b');
         assert.equal(eventData.c, 'd');
@@ -99,9 +97,8 @@ define([
         assert.equal(process.stderr.write.callCount, 1);
 
         var eventData = JSON.parse(process.stderr.write.args[0][0].substr(14));
-        assert.lengthOf(Object.keys(eventData), 4);
+        assert.lengthOf(Object.keys(eventData), 3);
         assert.equal(eventData.event, 'wibble');
-        assert.equal(eventData.path, '/');
         assert.equal(eventData.userAgent, 'blee');
         assert.equal(eventData.service, 'mock client id');
       }
@@ -130,7 +127,7 @@ define([
         assert.equal(process.stderr.write.callCount, 1);
 
         var eventData = JSON.parse(process.stderr.write.args[0][0].substr(14));
-        assert.lengthOf(Object.keys(eventData), 4);
+        assert.lengthOf(Object.keys(eventData), 3);
         assert.equal(eventData.service, 'mock service');
       }
     },
@@ -157,9 +154,8 @@ define([
         assert.equal(process.stderr.write.callCount, 1);
 
         var eventData = JSON.parse(process.stderr.write.args[0][0].substr(14));
-        assert.lengthOf(Object.keys(eventData), 4);
+        assert.lengthOf(Object.keys(eventData), 3);
         assert.equal(eventData.event, 'wibble');
-        assert.equal(eventData.path, '/');
         assert.equal(eventData.userAgent, 'blee');
         assert.equal(eventData.entrypoint, 'mock entryPoint');
       }
@@ -188,7 +184,7 @@ define([
         assert.equal(process.stderr.write.callCount, 1);
 
         var eventData = JSON.parse(process.stderr.write.args[0][0].substr(14));
-        assert.lengthOf(Object.keys(eventData), 4);
+        assert.lengthOf(Object.keys(eventData), 3);
         assert.equal(eventData.entrypoint, 'mock entrypoint');
       }
     },
@@ -327,40 +323,13 @@ define([
         assert.equal(process.stderr.write.callCount, 1);
 
         var eventData = JSON.parse(process.stderr.write.args[0][0].substr(14));
-        assert.lengthOf(Object.keys(eventData), 7);
+        assert.lengthOf(Object.keys(eventData), 6);
         assert.equal(eventData.event, 'mock event');
-        assert.equal(eventData.path, 'bar');
         assert.equal(eventData.userAgent, 'foo');
         assert.equal(eventData.context, 'mock context');
         assert.equal(eventData.entrypoint, 'mock entrypoint');
         assert.equal(eventData.migration, 'mock migration');
         assert.equal(eventData.service, 'mock service');
-      }
-    },
-
-    'call activityEvent with query params in originalUrl': {
-      setup: function () {
-        write = process.stderr.write;
-        process.stderr.write = sinon.spy();
-        return activityEvent('mock event', {}, {
-          headers: { 'user-agent': 'foo' },
-          originalUrl: 'bar?client_id=baz&utm_campaign=qux',
-          query: { zignore: 'ignore me' }
-        });
-      },
-
-      teardown: function () {
-        process.stderr.write = write;
-      },
-
-      'process.stderr.write was called correctly': function () {
-        assert.equal(process.stderr.write.callCount, 1);
-
-        var eventData = JSON.parse(process.stderr.write.args[0][0].substr(14));
-        assert.lengthOf(Object.keys(eventData), 3);
-        assert.equal(eventData.event, 'mock event');
-        assert.equal(eventData.path, 'bar');
-        assert.equal(eventData.userAgent, 'foo');
       }
     }
   });

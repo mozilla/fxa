@@ -39,6 +39,8 @@ define(function (require, exports, module) {
     'duration',
     'entrypoint',
     'events',
+    'flowBeginTime',
+    'flowId',
     'flushTime',
     'isSampledUser',
     'lang',
@@ -209,6 +211,8 @@ define(function (require, exports, module) {
         campaign: this._campaign,
         context: this._context,
         entrypoint: this._entrypoint,
+        flowBeginTime: this._flowBeginTime,
+        flowId: this._flowId,
         flushTime: Date.now(),
         isSampledUser: this._isSampledUser,
         lang: this._lang,
@@ -407,6 +411,15 @@ define(function (require, exports, module) {
 
     isCollectionEnabled: function () {
       return this._isSampledUser;
+    },
+
+    logFlowBegin: function (flowId, flowBeginTime) {
+      // Don't emit a new flow.begin event unless flowId has changed.
+      if (flowId !== this._flowId) {
+        this._flowId = flowId;
+        this._flowBeginTime = flowBeginTime;
+        this.logEvent('flow.begin');
+      }
     }
   });
 

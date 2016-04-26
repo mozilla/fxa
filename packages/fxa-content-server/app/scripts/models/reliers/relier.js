@@ -81,6 +81,7 @@ define(function (require, exports, module) {
     initialize: function (options) {
       options = options || {};
 
+      this.sentryMetrics = options.sentryMetrics;
       this.window = options.window || window;
     },
 

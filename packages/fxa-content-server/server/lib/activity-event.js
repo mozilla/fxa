@@ -26,7 +26,6 @@ module.exports = function (event, data, request) {
 
   var eventData = _.assign({
     event: event,
-    path: removeQueryString(request.originalUrl),
     userAgent: request.headers['user-agent']
   }, data, _.mapValues(queryParams, limitLength));
 
@@ -44,16 +43,6 @@ module.exports = function (event, data, request) {
 
 function isDNT (request) {
   return request.headers.dnt === '1';
-}
-
-function removeQueryString (url) {
-  var index = url.indexOf('?');
-
-  if (index === -1) {
-    return url;
-  }
-
-  return url.substr(0, index);
 }
 
 function limitLength (param) {

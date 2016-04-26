@@ -21,6 +21,9 @@ define(function (require, exports, module) {
   // URN Regex
   var urnRegEx = /^urn:[a-zA-Z0-9][a-zA-Z0-9-]{1,31}:([a-zA-Z0-9()+,.:=@;$_!*'-]|%[0-9A-Fa-f]{2})+$/;
 
+  // Matches a UUID, e.g.: 12345678-1234-1234-1234-1234567890ab
+  var uuidRegEx = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
   // Email regex, accepts punycoded addresses. See:
   //   * http://blog.gerv.net/2011/05/html5_email_address_regexp/
   // Modifications:
@@ -209,6 +212,16 @@ define(function (require, exports, module) {
      */
     isUriValid: function isUriValid(uri) {
       return self.isUrlValid(uri) || self.isUrnValid(uri);
+    },
+
+    /**
+     * Check if string is valid UUID.
+     *
+     * @param uuid - uuid to check
+     * @returns {boolean}
+     */
+    isUuidValid: function (uuid) {
+      return uuidRegEx.test(uuid);
     },
 
     /**

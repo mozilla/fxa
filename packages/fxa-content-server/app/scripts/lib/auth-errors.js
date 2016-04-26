@@ -264,6 +264,10 @@ define(function (require, exports, module) {
     MISSING_RESUME_TOKEN_PROPERTY: {
       errno: 1036,
       message: t('Missing property in resume token: %(property)s')
+    },
+    INVALID_DATA_FLOW_BEGIN_ATTR: {
+      errno: 1037,
+      message: t('Invalid data-flow-begin attribute')
     }
   };
   /*eslint-enable sorting/sort-object-props*/

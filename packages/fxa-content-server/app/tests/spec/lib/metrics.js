@@ -165,7 +165,8 @@ define(function (require, exports, module) {
       describe('log events', function () {
         beforeEach(function () {
           metrics.logEvent('foo');
-          metrics.logEvent('bar');
+          metrics.logFlowBegin('bar', 'baz');
+          metrics.logEvent('qux');
         });
 
         describe('has sendBeacon', function () {
@@ -197,16 +198,19 @@ define(function (require, exports, module) {
               assert.equal(windowMock.navigator.sendBeacon.getCall(0).args[0], '/metrics');
 
               var data = JSON.parse(windowMock.navigator.sendBeacon.getCall(0).args[1]);
-              assert.lengthOf(Object.keys(data), 23);
+              assert.lengthOf(Object.keys(data), 25);
               assert.equal(data.broker, 'none');
               assert.equal(data.campaign, 'none');
               assert.equal(data.context, 'web');
               assert.isNumber(data.duration);
               assert.equal(data.entrypoint, 'none');
               assert.isArray(data.events);
-              assert.lengthOf(data.events, 2);
+              assert.lengthOf(data.events, 3);
               assert.equal(data.events[0].type, 'foo');
-              assert.equal(data.events[1].type, 'bar');
+              assert.equal(data.events[1].type, 'flow.begin');
+              assert.equal(data.events[2].type, 'qux');
+              assert.equal(data.flowId, 'bar');
+              assert.equal(data.flowBeginTime, 'baz');
               assert.equal(data.isSampledUser, false);
               assert.equal(data.lang, 'unknown');
               assert.isArray(data.marketing);
@@ -233,6 +237,24 @@ define(function (require, exports, module) {
             it('clears the event stream', function () {
               assert.equal(metrics.getFilteredData().events.length, 0);
             });
+
+            describe('log a second flow.begin event with same flowId', function () {
+              beforeEach(function () {
+                metrics.logFlowBegin('bar', 'blee');
+                metrics.logEvent('wibble');
+                return metrics.flush();
+              });
+
+              it('calls sendBeacon correctly', function () {
+                assert.equal(windowMock.navigator.sendBeacon.callCount, 2);
+                var data = JSON.parse(windowMock.navigator.sendBeacon.args[1][1]);
+                assert.isArray(data.events);
+                assert.lengthOf(data.events, 1);
+                assert.equal(data.events[0].type, 'wibble');
+                assert.equal(data.flowId, 'bar');
+                assert.equal(data.flowBeginTime, 'baz');
+              });
+            });
           });
 
           describe('flush, sendBeacon fails', function () {
@@ -257,7 +279,7 @@ define(function (require, exports, module) {
             });
 
             it('does not clear the event stream', function () {
-              assert.equal(metrics.getFilteredData().events.length, 2);
+              assert.equal(metrics.getFilteredData().events.length, 3);
             });
           });
         });
@@ -299,12 +321,13 @@ define(function (require, exports, module) {
               assert.equal(settings.contentType, 'application/json');
 
               var data = JSON.parse(settings.data);
-              assert.lengthOf(Object.keys(data), 23);
+              assert.lengthOf(Object.keys(data), 25);
               assert.isArray(data.events);
-              assert.lengthOf(data.events, 3);
+              assert.lengthOf(data.events, 4);
               assert.equal(data.events[0].type, 'foo');
-              assert.equal(data.events[1].type, 'bar');
-              assert.equal(data.events[2].type, 'baz');
+              assert.equal(data.events[1].type, 'flow.begin');
+              assert.equal(data.events[2].type, 'qux');
+              assert.equal(data.events[3].type, 'baz');
             });
 
             it('resolves to true', function () {
@@ -351,7 +374,7 @@ define(function (require, exports, module) {
             });
 
             it('does not clear the event stream', function () {
-              assert.equal(metrics.getFilteredData().events.length, 2);
+              assert.equal(metrics.getFilteredData().events.length, 3);
             });
           });
         });
@@ -361,7 +384,7 @@ define(function (require, exports, module) {
             sandbox.stub(metrics, '_send', function () {
               done();
             });
-            metrics.logEvent('qux');
+            metrics.logEvent('wibble');
             $(windowMock).trigger('unload');
           });
 
@@ -371,10 +394,12 @@ define(function (require, exports, module) {
             assert.isTrue(metrics._send.getCall(0).args[1]);
 
             var data = metrics._send.getCall(0).args[0];
-            assert.lengthOf(Object.keys(data), 23);
+            assert.lengthOf(Object.keys(data), 25);
+            assert.lengthOf(data.events, 4);
             assert.equal(data.events[0].type, 'foo');
-            assert.equal(data.events[1].type, 'bar');
+            assert.equal(data.events[1].type, 'flow.begin');
             assert.equal(data.events[2].type, 'qux');
+            assert.equal(data.events[3].type, 'wibble');
           });
         });
 
@@ -383,7 +408,7 @@ define(function (require, exports, module) {
             sandbox.stub(metrics, '_send', function () {
               done();
             });
-            metrics.logEvent('qux');
+            metrics.logEvent('blee');
             $(windowMock).trigger('blur');
           });
 
@@ -393,11 +418,12 @@ define(function (require, exports, module) {
             assert.isTrue(metrics._send.getCall(0).args[1]);
 
             var data = metrics._send.getCall(0).args[0];
-            assert.lengthOf(Object.keys(data), 23);
-            assert.lengthOf(data.events, 3);
+            assert.lengthOf(Object.keys(data), 25);
+            assert.lengthOf(data.events, 4);
             assert.equal(data.events[0].type, 'foo');
-            assert.equal(data.events[1].type, 'bar');
+            assert.equal(data.events[1].type, 'flow.begin');
             assert.equal(data.events[2].type, 'qux');
+            assert.equal(data.events[3].type, 'blee');
           });
         });
 

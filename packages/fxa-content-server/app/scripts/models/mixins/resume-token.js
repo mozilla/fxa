@@ -19,7 +19,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var authErrors = require('lib/auth-errors');
+  var AuthErrors = require('lib/auth-errors');
   var ResumeToken = require('models/resume-token');
   var vat = require('lib/vat');
 
@@ -82,14 +82,14 @@ define(function (require, exports, module) {
 
   function reportValidationError (error) {
     if (error instanceof ReferenceError) {
-      error = authErrors.toMissingResumeTokenPropertyError(error.key);
+      error = AuthErrors.toMissingResumeTokenPropertyError(error.key);
     } else {
-      error = authErrors.toInvalidResumeTokenPropertyError(error.key);
+      error = AuthErrors.toInvalidResumeTokenPropertyError(error.key);
     }
 
     // HACK: Interpolate the invalid property name into the error
     //       message. One day this will be handled automagically.
-    error.message = authErrors.toInterpolatedMessage(error);
+    error.message = AuthErrors.toInterpolatedMessage(error);
 
     this.sentryMetrics.captureException(error);
   }

@@ -297,17 +297,20 @@ define(function (require, exports, module) {
           // Use the SyncRelier for sync verification so that
           // the service name is translated correctly.
           relier = new SyncRelier({
+            sentryMetrics: this._sentryMetrics,
             translator: this._translator,
             window: this._window
           });
         } else if (this._isOAuth()) {
           relier = new OAuthRelier({
             oAuthClient: this._oAuthClient,
+            sentryMetrics: this._sentryMetrics,
             session: Session,
             window: this._window
           });
         } else {
           relier = new Relier({
+            sentryMetrics: this._sentryMetrics,
             window: this._window
           });
         }
@@ -443,6 +446,7 @@ define(function (require, exports, module) {
           oAuthClient: this._oAuthClient,
           oAuthClientId: this._config.oAuthClientId,
           profileClient: this._profileClient,
+          sentryMetrics: this._sentryMetrics,
           storage: this._getStorageInstance(),
           uniqueUserId: this._getUniqueUserId()
         });
@@ -482,6 +486,7 @@ define(function (require, exports, module) {
          * for A/B testing or metrics.
          */
         this._uniqueUserId = new UniqueUserId({
+          sentryMetrics: this._sentryMetrics,
           window: this._window
         }).get('uniqueUserId');
       }

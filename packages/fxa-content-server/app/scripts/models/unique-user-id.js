@@ -30,6 +30,8 @@ define(function (require, exports, module) {
   var Model = Backbone.Model.extend({
     initialize: function (options) {
       options = options || {};
+
+      this.sentryMetrics = options.sentryMetrics;
       this.window = options.window || window;
 
       this.fetch();

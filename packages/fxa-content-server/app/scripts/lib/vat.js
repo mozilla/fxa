@@ -17,6 +17,7 @@ define(function (require, exports, module) {
   Vat.register('uri', Vat.string().test(Validate.isUriValid));
   Vat.register('url', Vat.string().test(Validate.isUrlValid));
   Vat.register('urn', Vat.string().test(Validate.isUrnValid));
+  Vat.register('uuid', Vat.string().test(Validate.isUuidValid));
 
   return Vat;
 });

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+var activityEvent = require('../activity-event');
 var config = require('../configuration');
 var MetricsCollector = require('../metrics-collector-stderr');
 var StatsDCollector = require('../statsd-collector');
@@ -21,6 +22,8 @@ module.exports = function () {
     method: 'post',
     path: '/metrics',
     process: function (req, res) {
+      var requestReceivedTime = Date.now();
+
       // don't wait around to send a response.
       res.json({ success: true });
 
@@ -47,7 +50,51 @@ module.exports = function () {
           statsd.write(metrics);
         }
         ga.write(metrics);
+
+        optionallyLogFlowBeginEvent(req, metrics, requestReceivedTime);
       });
     }
   };
 };
+
+function optionallyLogFlowBeginEvent (req, metrics, requestReceivedTime) {
+  if (DISABLE_CLIENT_METRICS_STDERR) {
+    return;
+  }
+
+  var events = metrics.events || [];
+  var hasFlowBeginEvent = events.some(function (event) {
+    if (event.type === 'flow.begin') {
+      if (! metrics.flowBeginTime) {
+        // This will only kick in if something clobbered the data-flow-begin
+        // attribute in the DOM, i.e. hopefully never.
+        metrics.flowBeginTime = estimateFlowBeginTime({
+          /*eslint-disable sorting/sort-object-props*/
+          start: metrics.startTime,
+          offset: event.offset,
+          sent: metrics.flushTime,
+          received: requestReceivedTime
+          /*eslint-enable sorting/sort-object-props*/
+        });
+      }
+
+      return true;
+    }
+
+    return false;
+  });
+
+  if (hasFlowBeginEvent) {
+    activityEvent('flow.begin', {
+      flow_id: metrics.flowId, //eslint-disable-line camelcase
+      flow_time: 0, //eslint-disable-line camelcase
+      time: metrics.flowBeginTime
+    }, req);
+  }
+}
+
+function estimateFlowBeginTime (times) {
+  var skew = times.received - times.sent;
+  return times.start + times.offset + skew;
+}
+

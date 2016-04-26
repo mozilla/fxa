@@ -62,7 +62,7 @@ define(function (require, exports, module) {
       var err;
 
       before(function () {
-        err = AuthErrors.toInvalidResumeTokenPropertyError('foo', AuthErrors);
+        err = AuthErrors.toInvalidResumeTokenPropertyError('foo');
       });
 
       it('creates an INVALID_RESUME_TOKEN_PROPERTY Error', function () {
