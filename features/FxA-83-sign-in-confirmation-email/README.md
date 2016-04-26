@@ -73,7 +73,8 @@ at the start of April,
 the success rate
 was in the range
 of 42% to 52%.
-The 10-day moving average
+The exponential moving average
+with a span of 10 (`ewma_10`)
 was in the range
 of 46% to 50%.
 
