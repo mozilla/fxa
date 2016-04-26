@@ -31,6 +31,23 @@ module.exports = function (config, log) {
           }
         ))
       }
+      mailer.sendVerifyLoginEmail = function (account, code, opts) {
+        return P.resolve(mailer.verifyLoginEmail(
+          {
+            acceptLanguage: opts.acceptLanguage || defaultLanguage,
+            code: code.toString('hex'),
+            email: account.email,
+            redirectTo: opts.redirectTo,
+            resume: opts.resume,
+            service: opts.service,
+            uaBrowser: account.uaBrowser,
+            uaBrowserVersion: account.uaBrowserVersion,
+            uaOS: account.uaOS,
+            uaOSVersion: account.uaOSVersion,
+            uid: account.uid.toString('hex')
+          }
+        ))
+      }
       mailer.sendRecoveryCode = function (token, code, opts) {
         return P.resolve(mailer.recoveryEmail(
           {
