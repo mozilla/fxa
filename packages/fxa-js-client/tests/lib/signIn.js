@@ -18,19 +18,21 @@ define([
 
   with (tdd) {
     suite('signIn', function () {
-      var accountHelper;
-      var respond;
-      var client;
-      var RequestMocks;
       var ErrorMocks;
+      var RequestMocks;
+      var accountHelper;
+      var client;
+      var mail;
+      var respond;
 
       beforeEach(function () {
         var env = new Environment();
-        accountHelper = env.accountHelper;
-        respond = env.respond;
-        client = env.client;
-        RequestMocks = env.RequestMocks;
         ErrorMocks = env.ErrorMocks;
+        RequestMocks = env.RequestMocks;
+        accountHelper = env.accountHelper;
+        client = env.client;
+        mail = env.mail;
+        respond = env.respond;
       });
 
       test('#basic', function () {
@@ -87,6 +89,64 @@ define([
             return respond(client.signIn(email, password, {reason: 'password_change'}), RequestMocks.signIn);
           });
       });
+
+      test('#with redirectTo', function () {
+        var user = 'test' + new Date().getTime();
+        var email = user + '@restmail.net';
+        var password = 'iliketurtles';
+        var opts = {
+          keys: true,
+          redirectTo: 'http://sync.firefox.com/after_reset',
+          service: 'sync'
+        };
+
+        return respond(client.signIn(email, password, opts), RequestMocks.signIn)
+          .then(function (res) {
+            assert.ok(res.uid);
+            return respond(mail.wait(user), RequestMocks.mailServiceAndRedirect);
+          })
+          .then(
+            function (emails) {
+              var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
+              var redirectTo = emails[0].html.match(/redirectTo=([A-Za-z0-9]+)/)[1];
+
+              assert.ok(code, 'code is returned');
+              assert.ok(redirectTo, 'redirectTo is returned');
+
+            },
+            assert.notOk
+          );
+      });
+
+      test('#with resume', function () {
+        var user = 'test' + new Date().getTime();
+        var email = user + '@restmail.net';
+        var password = 'iliketurtles';
+        var opts = {
+          keys: true,
+          redirectTo: 'http://sync.firefox.com/after_reset',
+          resume: 'resumejwt',
+          service: 'sync'
+        };
+
+        return respond(client.signIn(email, password, opts), RequestMocks.signIn)
+          .then(function (res) {
+            assert.ok(res.uid);
+            return respond(mail.wait(user), RequestMocks.mailServiceAndRedirect);
+          })
+          .then(
+            function (emails) {
+              var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
+              var resume = emails[0].html.match(/resume=([A-Za-z0-9]+)/)[1];
+
+              assert.ok(code, 'code is returned');
+              assert.ok(resume, 'resume is returned');
+
+            },
+            assert.notOk
+          );
+      });
+
 
       test('#incorrect email case', function () {
 
