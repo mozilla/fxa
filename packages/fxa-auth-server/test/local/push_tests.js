@@ -5,11 +5,16 @@
 var tap = require('tap')
 var proxyquire = require('proxyquire')
 var sinon = require('sinon')
+var ajv = require('ajv')()
+var fs = require('fs')
+var path = require('path')
 
 var test = tap.test
 var P = require('../../lib/promise')
 var mockLog = require('../mocks').mockLog
 var mockUid = new Buffer('foo')
+
+var PUSH_PAYLOADS_SCHEMA_PATH = '../../docs/pushpayloads.schema.json'
 
 var mockDbEmpty = {
   devices: function () {
@@ -311,6 +316,44 @@ test(
         t.ok(push.pushToDevices.calledOnce, 'pushToDevices was called')
         t.equal(push.pushToDevices.getCall(0).args[0], mockUid)
         t.equal(push.pushToDevices.getCall(0).args[1], 'accountVerify')
+        push.pushToDevices.restore()
+        t.end()
+      })
+    } catch (e) {
+      t.fail('must not throw')
+    }
+  }
+)
+
+test(
+  'notifyDeviceConnected calls pushToDevices',
+  function (t) {
+    try {
+      var push = require('../../lib/push')(mockLog(), mockDbEmpty)
+      sinon.spy(push, 'pushToDevices')
+      var deviceId = 'gjfkd5434jk5h5fd'
+      var deviceName = 'My phone'
+      var expectedData = {
+        version: 1,
+        command: 'fxaccounts:device_connected',
+        data: {
+          deviceName: deviceName
+        }
+      }
+      push.notifyDeviceConnected(mockUid, deviceName, deviceId).catch(function (err) {
+        t.fail('must not throw')
+        throw err
+      })
+      .then(function() {
+        t.ok(push.pushToDevices.calledOnce, 'pushToDevices was called')
+        t.equal(push.pushToDevices.getCall(0).args[0], mockUid)
+        t.equal(push.pushToDevices.getCall(0).args[1], 'deviceConnected')
+        var payload = JSON.parse(push.pushToDevices.getCall(0).args[2].toString('utf8'))
+        t.deepEqual(payload, expectedData)
+        var schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH)
+        var schema = JSON.parse(fs.readFileSync(schemaPath))
+        t.ok(ajv.validate(schema, payload))
+        t.deepEqual(push.pushToDevices.getCall(0).args[3], [deviceId])
         push.pushToDevices.restore()
         t.end()
       })

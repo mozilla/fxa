@@ -24,13 +24,13 @@
     {
       "type":"object",
       "anyOf":[
-        { "$ref":"#/definitions/newDevice" },
-        { "$ref":"#/definitions/collectionChanged" }
+        { "$ref":"#/definitions/deviceConnected" },
+        { "$ref":"#/definitions/collectionsChanged" }
       ]
     }
   ],
   "definitions":{
-    "newDevice":{
+    "deviceConnected":{
       "type":"object",
       "required":[
         "data"
@@ -38,7 +38,7 @@
       "properties":{
         "command":{
           "enum":[
-            "fxaccounts:new_device"
+            "fxaccounts:device_connected"
           ]
         },
         "data":{

@@ -53,6 +53,7 @@
     "web-push": "2.1.1"
   },
   "devDependencies": {
+    "ajv": "4.0.5",
     "ass": "git://github.com/jrgm/ass.git#5be99ee7abc9fcf63f9ebcc37b151b9c822146d1",
     "commander": "2.8.1",
     "eslint-config-fxa": "1.6.0",
