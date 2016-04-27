@@ -12,8 +12,6 @@ define([
   var DEVICE_CALLBACK = PushTestConstants.DEVICE_CALLBACK;
   var DEVICE_NAME = PushTestConstants.DEVICE_NAME;
   var DEVICE_NAME_2 = PushTestConstants.DEVICE_NAME_2;
-  var DEVICE_PUBLIC_KEY = PushTestConstants.DEVICE_PUBLIC_KEY;
-  var DEVICE_AUTH_KEY = PushTestConstants.DEVICE_AUTH_KEY;
   var DEVICE_TYPE = PushTestConstants.DEVICE_TYPE;
 
   with (tdd) {
@@ -41,9 +39,7 @@ define([
               DEVICE_NAME,
               DEVICE_TYPE,
               {
-                deviceCallback: DEVICE_CALLBACK,
-                devicePublicKey: DEVICE_PUBLIC_KEY,
-                deviceAuthKey: DEVICE_AUTH_KEY
+                deviceCallback: DEVICE_CALLBACK
               }
             ), RequestMocks.deviceRegister);
           })
@@ -52,11 +48,12 @@ define([
               assert.ok(res.id);
               assert.equal(res.name, DEVICE_NAME);
               assert.equal(res.pushCallback, DEVICE_CALLBACK);
-              assert.equal(res.pushPublicKey, DEVICE_PUBLIC_KEY);
-              assert.equal(res.pushAuthKey, DEVICE_AUTH_KEY);
               assert.equal(res.type, DEVICE_TYPE);
             },
-            assert.notOk
+            function (err) {
+              console.log(err);
+              assert.notOk();
+            }
           );
       });
 
@@ -70,9 +67,7 @@ define([
               DEVICE_NAME,
               DEVICE_TYPE,
               {
-                deviceCallback: DEVICE_CALLBACK,
-                devicePublicKey: DEVICE_PUBLIC_KEY,
-                deviceAuthKey: DEVICE_AUTH_KEY
+                deviceCallback: DEVICE_CALLBACK
               }
             ), RequestMocks.deviceRegister)
 
@@ -83,9 +78,7 @@ define([
                 device.id,
                 DEVICE_NAME_2,
                 {
-                  deviceCallback: DEVICE_CALLBACK,
-                  devicePublicKey: DEVICE_PUBLIC_KEY,
-                  deviceAuthKey: DEVICE_AUTH_KEY
+                  deviceCallback: DEVICE_CALLBACK
                 }
               ), RequestMocks.deviceUpdate);
             });
@@ -95,8 +88,6 @@ define([
               assert.ok(res.id);
               assert.equal(res.name, DEVICE_NAME_2);
               assert.equal(res.pushCallback, DEVICE_CALLBACK);
-              assert.equal(res.pushPublicKey, DEVICE_PUBLIC_KEY);
-              assert.equal(res.pushAuthKey, DEVICE_AUTH_KEY);
             },
             assert.notOk
           );
@@ -112,9 +103,7 @@ define([
               DEVICE_NAME,
               DEVICE_TYPE,
               {
-                deviceCallback: DEVICE_CALLBACK,
-                devicePublicKey: DEVICE_PUBLIC_KEY,
-                deviceAuthKey: DEVICE_AUTH_KEY
+                deviceCallback: DEVICE_CALLBACK
               }
             ), RequestMocks.deviceRegister)
 
@@ -144,9 +133,7 @@ define([
               DEVICE_NAME,
               DEVICE_TYPE,
               {
-                deviceCallback: DEVICE_CALLBACK,
-                devicePublicKey: DEVICE_PUBLIC_KEY,
-                deviceAuthKey: DEVICE_AUTH_KEY
+                deviceCallback: DEVICE_CALLBACK
               }
             ), RequestMocks.deviceRegister)
 
@@ -162,8 +149,6 @@ define([
               assert.ok(device.id);
               assert.equal(device.name, DEVICE_NAME);
               assert.equal(device.pushCallback, DEVICE_CALLBACK);
-              assert.equal(device.pushPublicKey, DEVICE_PUBLIC_KEY);
-              assert.equal(device.pushAuthKey, DEVICE_AUTH_KEY);
               assert.equal(device.type, DEVICE_TYPE);
             });
           });

@@ -25,7 +25,7 @@ define([
         RequestMocks = env.RequestMocks;
       });
 
-      test('#recoveryEmailResendCode', function () {
+      test('#recoveryEmail - recoveryEmailResendCode', function () {
         var user;
 
         return accountHelper.newUnverifiedAccount()
@@ -38,12 +38,12 @@ define([
           function(res) {
             assert.ok(res);
 
-            return respond(mail.wait(user, 2), RequestMocks.resetMail);
+            return respond(mail.wait(user, 3), RequestMocks.resetMailrecoveryEmailResendCode);
           })
           .then(
             function (emails) {
               // second email, the code is resent.
-              var code = emails[1].html.match(/code=([A-Za-z0-9]+)/)[1];
+              var code = emails[2].html.match(/code=([A-Za-z0-9]+)/)[1];
               assert.ok(code, 'code is returned');
             },
             assert.notOk
@@ -68,18 +68,18 @@ define([
           function(res) {
             assert.ok(res);
 
-            return respond(mail.wait(user, 2), RequestMocks.resetMailWithServiceAndRedirectNoSignup);
+            return respond(mail.wait(user, 3), RequestMocks.resetMailWithServiceAndRedirectNoSignup);
           })
           .then(
           function (emails) {
             // second email, the code is resent.
-            var code = emails[1].html.match(/code=([A-Za-z0-9]+)/);
+            var code = emails[2].html.match(/code=([A-Za-z0-9]+)/);
             assert.ok(code, 'code found');
-            var service = emails[1].html.match(/service=([A-Za-z0-9]+)/);
+            var service = emails[2].html.match(/service=([A-Za-z0-9]+)/);
             assert.ok(service, 'service found');
-            var redirectTo = emails[1].html.match(/redirectTo=([A-Za-z0-9]+)/);
+            var redirectTo = emails[2].html.match(/redirectTo=([A-Za-z0-9]+)/);
             assert.ok(redirectTo, 'redirectTo found');
-            var resume = emails[1].html.match(/resume=([A-Za-z0-9]+)/);
+            var resume = emails[2].html.match(/resume=([A-Za-z0-9]+)/);
             assert.ok(resume, 'resume found');
 
             assert.ok(code[1], 'code is returned');

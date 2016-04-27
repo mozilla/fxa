@@ -12,8 +12,6 @@ define([
   var DEVICE_CALLBACK = PushTestConstants.DEVICE_CALLBACK;
   var DEVICE_ID = PushTestConstants.DEVICE_ID;
   var DEVICE_NAME = PushTestConstants.DEVICE_NAME;
-  var DEVICE_PUBLIC_KEY = PushTestConstants.DEVICE_PUBLIC_KEY;
-  var DEVICE_AUTH_KEY = PushTestConstants.DEVICE_AUTH_KEY;
   var DEVICE_TYPE = PushTestConstants.DEVICE_TYPE;
 
   with (tdd) {
@@ -210,22 +208,24 @@ define([
               device: {
                 name: DEVICE_NAME,
                 type: DEVICE_TYPE,
-                callback: DEVICE_CALLBACK,
-                publicKey: DEVICE_PUBLIC_KEY,
-                authKey: DEVICE_AUTH_KEY
+                callback: DEVICE_CALLBACK
               },
               reason: 'signin'
             }), RequestMocks.signInNewDevice);
           })
-          .then(function (resp) {
-            var device = resp.device;
-            assert.ok(device.id);
-            assert.equal(device.name, DEVICE_NAME);
-            assert.equal(device.type, DEVICE_TYPE);
-            assert.equal(device.pushCallback, DEVICE_CALLBACK);
-            assert.equal(device.pushPublicKey, DEVICE_PUBLIC_KEY);
-            assert.equal(device.pushAuthKey, DEVICE_AUTH_KEY);
-          });
+          .then(
+            function (resp) {
+              var device = resp.device;
+              assert.ok(device.id);
+              assert.equal(device.name, DEVICE_NAME);
+              assert.equal(device.type, DEVICE_TYPE);
+              assert.equal(device.pushCallback, DEVICE_CALLBACK);
+            },
+            function (err) {
+              console.log(err);
+              assert.notOk();
+            }
+          );
       });
 
       test('#with existing device', function () {

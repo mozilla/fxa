@@ -6,6 +6,9 @@ env:
     # please get your own free key if you want to test yourself
     - SAUCE_USERNAME: fxa-client
     - SAUCE_ACCESS_KEY: 863203af-38fd-4f1d-9332-adc8f60f157b
+  matrix:
+    - SERVER=mock
+    - SERVER=local
 
 sudo: false
 
@@ -28,4 +31,6 @@ branches:
     - /^.*-docs$/
 
 install: npm run-script setup
-script: grunt travis
+script:
+  - if [ $SERVER == "mock" ]; then grunt travis; fi
+  - if [ $SERVER == "local" ]; then ./tests/ci/travis-auth-server-test.sh; fi

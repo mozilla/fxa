@@ -132,19 +132,27 @@ define([
     },
     resetMail: {
       status: 200,
+      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}]'
+    },
+    resetMailrecoveryEmailResendCode: {
+      status: 200,
+      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}]'
+    },
+    resetMailpasswordForgotresetMail: {
+      status: 200,
       body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}]'
     },
     resetMailUnlock: {
       status: 200,
-      body: '[{"html":"Mocked code=9001"}, {"html":"Account Ready"}, {"html":"Mocked code=9001"}]'
+      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}, {"html":"Account Ready"}, {"html":"Mocked code=9001"}]'
     },
     resetMailWithServiceAndRedirectNoSignup: {
       status: 200,
-      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001 service=sync redirectTo=https resume=resumejwt"}]'
+      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}, {"html":"Mocked code=9001 service=sync redirectTo=https resume=resumejwt"}]'
     },
     resetMailWithServiceAndRedirect: {
       status: 200,
-      body: '[{"html":"Mocked code=9001"}, {"html":"Account Ready"}, {"html":"Mocked code=9001 service=sync redirectTo=https resume=resumejwt"}]'
+      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}, {"html":"Account Ready"}, {"html":"Mocked code=9001 service=sync redirectTo=https resume=resumejwt"}]'
     },
     resetMailResendWithServiceAndRedirect: {
       status: 200,
@@ -152,7 +160,7 @@ define([
     },
     resetMailLang: {
       status: 200,
-      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001","headers": {"content-language": "zh-CN" }}]'
+      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}, {"html":"Mocked code=9001","headers": {"content-language": "zh-CN" }}]'
     },
     recoveryEmailUnverified: {
       status: 200,

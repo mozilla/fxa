@@ -65,12 +65,12 @@ define([
             passwordForgotToken = result.passwordForgotToken;
             assert.ok(passwordForgotToken, 'passwordForgotToken is returned');
 
-            return respond(mail.wait(account.input.user, 2), RequestMocks.resetMailLang);
+            return respond(mail.wait(account.input.user, 3), RequestMocks.resetMailLang);
           })
           .then(
             function (emails) {
-              assert.property(emails[1], 'headers');
-              assert.equal(emails[1].headers['content-language'], 'zh-CN');
+              assert.property(emails[2], 'headers');
+              assert.equal(emails[2].headers['content-language'], 'zh-CN');
             },
             assert.notOk
           );
@@ -92,12 +92,12 @@ define([
           function(res) {
             assert.ok(res);
 
-            return respond(mail.wait(user, 2), RequestMocks.resetMailLang);
+            return respond(mail.wait(user, 3), RequestMocks.resetMailLang);
           })
           .then(
             function (emails) {
-              assert.property(emails[1], 'headers');
-              assert.equal(emails[1].headers['content-language'], 'zh-CN');
+              assert.property(emails[2], 'headers');
+              assert.equal(emails[2].headers['content-language'], 'zh-CN');
             },
             assert.notOk
           );
