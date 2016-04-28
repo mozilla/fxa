@@ -29,14 +29,24 @@ module.exports = function (config, i18n) {
     require('./routes/get-config')(i18n),
     require('./routes/get-client.json')(i18n),
     require('./routes/post-metrics')(),
-    require('./routes/post-csp')({
-      path: config.get('csp.reportUri')
-    }),
     require('./routes/get-metrics-errors')(),
     require('./routes/get-openid-login')(config),
     require('./routes/get-openid-authenticate')(config),
     require('./routes/get-openid-configuration')(config)
   ];
+
+  if (config.get('csp.enabled')) {
+    routes.push(require('./routes/post-csp')({
+      path: config.get('csp.reportUri')
+    }));
+  }
+
+  if (config.get('csp.reportOnlyEnabled')) {
+    routes.push(require('./routes/post-csp')({
+      op: 'server.csp.report-only',
+      path: config.get('csp.reportOnlyUri')
+    }));
+  }
 
   function addVersionPrefix(unversionedUrl) {
     return VERSION_PREFIX + unversionedUrl;

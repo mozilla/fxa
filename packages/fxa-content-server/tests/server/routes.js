@@ -7,12 +7,13 @@ define([
   'intern!object',
   'intern/chai!assert',
   'intern/dojo/node!../../server/lib/configuration',
+  'intern/dojo/node!../../server/lib/csp',
   'intern/dojo/node!htmlparser2',
   'intern/dojo/node!request',
   'intern/dojo/node!url',
   'intern/node_modules/dojo/Promise'
-], function (intern, registerSuite, assert, config, htmlparser2, request, url,
-  Promise) {
+], function (intern, registerSuite, assert, config, csp,
+  htmlparser2, request, url, Promise) {
   var httpUrl, httpsUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
 
   if (intern.config.fxaProduction) {
@@ -178,14 +179,10 @@ define([
     }
 
     // fxa-dev boxes currently do not set CSP headers (but should - GH-2155)
-    if (! intern.config.fxaDevBox) {
-      if (intern.config.fxaProduction) {
-        assert.ok(headers.hasOwnProperty('content-security-policy-report-only'));
-      } else if (config.get('env') === 'development' &&
-                 // the front end tests do not get CSP headers.
-                 url.parse(route).pathname !== '/tests/index.html') {
-        assert.ok(headers.hasOwnProperty('content-security-policy'));
-      }
+    var routePathname = url.parse(route).pathname;
+    if (csp.isCspRequired(routePathname)) {
+      assert.ok(headers.hasOwnProperty('content-security-policy-report-only'));
+      assert.ok(headers.hasOwnProperty('content-security-policy'));
     }
 
     assert.equal(headers['x-content-type-options'], 'nosniff');

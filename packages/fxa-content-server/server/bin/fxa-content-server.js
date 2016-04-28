@@ -41,6 +41,8 @@ var fourOhFour = require('../lib/404');
 var serverErrorHandler = require('../lib/500');
 var localizedRender = require('../lib/localized-render');
 var csp = require('../lib/csp');
+var cspRulesBlocking = require('../lib/csp/blocking')(config);
+var cspRulesReportOnly = require('../lib/csp/report-only')(config);
 
 
 var STATIC_DIRECTORY =
@@ -75,7 +77,10 @@ function makeApp() {
   app.use(helmet.nosniff());
 
   if (config.get('csp.enabled')) {
-    app.use(csp);
+    app.use(csp({ rules: cspRulesBlocking }));
+  }
+  if (config.get('csp.reportOnlyEnabled')) {
+    app.use(csp({ rules: cspRulesReportOnly }));
   }
 
   app.disable('x-powered-by');

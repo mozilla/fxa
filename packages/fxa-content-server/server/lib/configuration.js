@@ -68,14 +68,24 @@ var conf = module.exports = convict({
       default: false,
       doc: 'Send "Content-Security-Policy" header'
     },
-    reportOnly: {
-      default: false,
-      doc: 'Only send the "Content-Security-Policy-Report-Only" header'
-    },
+    /*eslint-disable sorting/sort-object-props*/
     reportUri: {
       default: '/_/csp-violation',
-      doc: 'Location of "report-uri"'
+      doc: 'Location of "report-uri" for full, blocking CSP rules'
+    },
+    reportOnly: {
+      default: false,
+      doc: 'DEPRECATED - Only send the "Content-Security-Policy-Report-Only" header'
+    },
+    reportOnlyEnabled: {
+      default: false,
+      doc: 'Send "Content-Security-Policy-Report-Only" header'
+    },
+    reportOnlyUri: {
+      default: '/_/csp-violation-report-only',
+      doc: 'Location of "report-uri" for report-only CSP rules'
     }
+    /*eslint-enable sorting/sort-object-props*/
   },
   disable_locale_check: {
     default: false,

@@ -35,7 +35,7 @@ module.exports = function (options) {
         blocked: report['blocked-uri'],
         column: report['column-number'],
         line: report['line-number'],
-        op: 'server.csp',
+        op: options.op || 'server.csp',
         referrer: stripPIIFromUrl(report['referrer']),
         sample: report['script-sample'],
         source: stripPIIFromUrl(report['source-file']),
