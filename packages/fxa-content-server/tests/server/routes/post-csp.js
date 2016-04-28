@@ -113,6 +113,28 @@ define([
     assert.equal(entry.source, 'https://accounts.firefox.com/settings?notaffected=1');
   };
 
+  suite['does not fail with invalid referrer or source-file urls'] = function () {
+    var mockRequest = {
+      body: {
+        'csp-report': {
+          'blocked-uri': 'http://bing.com',
+          'referrer': {},
+          'source-file': 'not-a-url'
+        }
+      },
+      'get': function () {}
+    };
+
+    var writer = sinon.spy();
+    var postCsp = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'), {})({ write: writer });
+
+    postCsp.process(mockRequest, mockResponse);
+
+    var entry = writer.args[0][0];
+    assert.equal(entry.referrer, '');
+    assert.equal(entry.source, 'not-a-url');
+  };
+
   suite['works correctly if no query params'] = function () {
     var mockRequest = {
       body: {

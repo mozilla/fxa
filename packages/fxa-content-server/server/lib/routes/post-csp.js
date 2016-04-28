@@ -6,10 +6,15 @@
  * Route to report CSP Violations to metrics
  */
 
+var _ = require('lodash');
 var url = require('url');
 
 module.exports = function (options) {
   options = options || {};
+
+  var write = options.write || function (entry) {
+    process.stderr.write(JSON.stringify(entry) + '\n');
+  };
 
   return {
     method: 'post',
@@ -17,7 +22,7 @@ module.exports = function (options) {
     process: function (req, res) {
       res.json({result: 'ok'});
 
-      if (! req.body || ! req.body['csp-report'] || ! Object.keys(req.body['csp-report']).length) {
+      if (! isValidCspReportRequest(req)) {
         return false;
       }
 
@@ -38,18 +43,32 @@ module.exports = function (options) {
         violated: report['violated-directive'],
       };
 
-      options.write(entry);
+      write(entry);
 
       return true;
     }
   };
 };
 
+function isValidCspReportRequest(req) {
+  return req.body &&
+         req.body['csp-report'] &&
+         Object.keys(req.body['csp-report']).length;
+}
+
 function stripPIIFromUrl(urlToScrub) {
-  if (! urlToScrub) {
+  if (! urlToScrub || ! _.isString(urlToScrub)) {
     return '';
   }
-  var parsedUrl = url.parse(urlToScrub, true);
+
+  var parsedUrl;
+
+  try {
+    parsedUrl = url.parse(urlToScrub, true);
+  } catch(e) {
+    //
+    return '';
+  }
 
   if (! parsedUrl.query.email && ! parsedUrl.query.uid) {
     return urlToScrub;
