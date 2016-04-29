@@ -190,6 +190,9 @@ define(function (require, exports, module) {
           .then(function (result) {
             assert.isFalse(result);
             assert.isTrue(view.navigate.calledWith('signin'));
+            assert.isTrue(TestHelpers.isErrorLogged(metrics,
+              AuthErrors.toError('SESSION_EXPIRED', viewName)), 'Session expired error logged');
+            assert.equal(view.$('.error').html(), '', 'Session expired error not visible to the user');
           });
       });
 

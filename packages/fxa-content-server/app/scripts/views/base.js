@@ -237,9 +237,8 @@ define(function (require, exports, module) {
         .then(function (isUserAuthorized) {
           if (! isUserAuthorized) {
             // user is not authorized, make them sign in.
-            var err = AuthErrors.toError('SESSION_EXPIRED');
+            self.logError(AuthErrors.toError('SESSION_EXPIRED'));
             self.navigate(self._reAuthPage(), {
-              error: err,
               redirectTo: self.currentPage
             });
             return false;
