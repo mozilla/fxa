@@ -882,7 +882,7 @@ module.exports = function (
       path: '/account/device',
       config: {
         auth: {
-          strategy: 'sessionToken'
+          strategy: 'sessionTokenWithDevice'
         },
         validate: {
           payload: isA.alternatives().try(
@@ -916,6 +916,18 @@ module.exports = function (
         log.begin('Account.device', request)
         var payload = request.payload
         var sessionToken = request.auth.credentials
+        // Clients have been known to send spurious device updates,
+        // which generates lots of unnecessary database load.
+        // Don't write out the update if nothing has actually changed.
+        if (payload.id && sessionToken.deviceId &&
+          payload.id === sessionToken.deviceId.toString('hex') &&
+          (! payload.name || payload.name === sessionToken.deviceName) &&
+          (! payload.type || payload.type === sessionToken.deviceType) &&
+          (! payload.pushCallback || payload.pushCallback === sessionToken.deviceCallbackURL) &&
+          (! payload.pushPublicKey || payload.pushPublicKey === sessionToken.deviceCallbackPublicKey)) {
+          log.info({ op: 'Account.device.spuriousUpdate' })
+          return reply(payload)
+        }
         var operation = payload.id ? 'updateDevice' : 'createDevice'
         db[operation](sessionToken.uid, sessionToken.tokenId, payload).then(
           function (device) {
