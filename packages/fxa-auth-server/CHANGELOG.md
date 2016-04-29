@@ -1,3 +1,14 @@
+<a name="1.60.4"></a>
+## [1.60.4](https://github.com/mozilla/fxa-auth-server/compare/v1.60.3...v1.60.4) (2016-04-29)
+
+
+### Bug Fixes
+
+* **devices:** Avoid spurious writes to device record if nothing has changed ([5017913](https://github.com/mozilla/fxa-auth-server/commit/5017913))
+* **token:** Tweak regex for samsung user-agents in content-token allow list ([13e13b2](https://github.com/mozilla/fxa-auth-server/commit/13e13b2))
+
+
+
 <a name="1.60.3"></a>
 ## [1.60.3](https://github.com/mozilla/fxa-auth-server/compare/v1.60.2...v1.60.3) (2016-04-20)
 
