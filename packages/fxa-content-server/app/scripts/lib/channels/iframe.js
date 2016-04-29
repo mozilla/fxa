@@ -55,6 +55,8 @@ define(function (require, exports, module) {
         return IFrameChannel.parse(message);
       } catch (e) {
         // invalid message, drop it on the ground.
+        // we must return an empty message if parsing fails.
+        return {};
       }
     }
   });

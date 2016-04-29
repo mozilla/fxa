@@ -127,6 +127,12 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('parseMessage', function () {
+      it('can handle a malformed message', function () {
+        assert.equal(JSON.stringify(channel.parseMessage('{')), '{}');
+      });
+    });
+
     describe('the full cycle', function () {
       it('calls the callback with the data received from the parentWindow', function () {
         sinon.stub(windowMock.parent, 'postMessage', function (message) {
