@@ -6,12 +6,31 @@ var request = require('request')
 
 var ERR_NO_PUSH_CALLBACK = 'No Push Callback'
 
-var LOG_UPDATE_INCREMENT_SEND = 'push.send'
-var LOG_UPDATE_INCREMENT_SUCCESS = 'push.success'
-var LOG_UPDATE_INCREMENT_RESET_SETTINGS = 'push.reset_settings'
-var LOG_UPDATE_INCREMENT_FAIL = 'push.failed'
-var LOG_UPDATE_INCREMENT_NO_CALLBACK = 'push.no_push_callback'
 var LOG_OP_NOTIFY_UPDATE = 'push.notifyUpdate'
+
+var reasonToEvents = {
+  accountVerify: {
+    send: 'push.send',
+    success: 'push.success',
+    resetSettings: 'push.reset_settings',
+    failed: 'push.failed',
+    noCallback: 'push.no_push_callback'
+  },
+  passwordReset: {
+    send: 'push.password_reset.send',
+    success: 'push.password_reset.success',
+    resetSettings: 'push.password_reset.reset_settings',
+    failed: 'push.password_reset.failed',
+    noCallback: 'push.password_reset.no_push_callback'
+  },
+  passwordChange: {
+    send: 'push.password_change.send',
+    success: 'push.password_change.success',
+    resetSettings: 'push.password_change.reset_settings',
+    failed: 'push.password_change.failed',
+    noCallback: 'push.password_change.no_push_callback'
+  }
+}
 
 module.exports = function (log, db) {
   function reportPushError(err, deviceId) {
@@ -29,7 +48,8 @@ module.exports = function (log, db) {
      * @param uid
      * @promise
      */
-    notifyUpdate: function notifyUpdate(uid) {
+    notifyUpdate: function notifyUpdate(uid, reason) {
+      var events = reasonToEvents[reason] || reasonToEvents.accountVerify
       return db.devices(uid).then(
         function (devices) {
           devices.forEach(function (device) {
@@ -43,7 +63,7 @@ module.exports = function (log, db) {
 
             if (device.pushCallback) {
               // send the push notification
-              log.increment(LOG_UPDATE_INCREMENT_SEND)
+              log.increment(events.send)
               request.post({
                 url: device.pushCallback,
                 headers: {
@@ -62,20 +82,20 @@ module.exports = function (log, db) {
                     db.updateDevice(uid, device.id, device).catch(function (err) {
                       reportPushError(err, deviceId)
                     })
-                    log.increment(LOG_UPDATE_INCREMENT_RESET_SETTINGS)
+                    log.increment(events.resetSettings)
 
                   } else {
                     reportPushError(err, deviceId)
-                    log.increment(LOG_UPDATE_INCREMENT_FAIL)
+                    log.increment(events.failed)
                   }
                 } else {
-                  log.increment(LOG_UPDATE_INCREMENT_SUCCESS)
+                  log.increment(events.success)
                 }
               })
             } else {
               // keep track if there are any devices with no push urls.
               reportPushError(new Error(ERR_NO_PUSH_CALLBACK), deviceId)
-              log.increment(LOG_UPDATE_INCREMENT_NO_CALLBACK)
+              log.increment(events.noCallback)
             }
           })
         })
