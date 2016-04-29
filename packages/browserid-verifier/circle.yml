@@ -22,10 +22,22 @@ dependencies:
     # too big and slowing down the build
     - I="image-$(date +%j).tar"; if [[ -e ~/docker/$I ]]; then echo "Loading $I"; docker load -i ~/docker/$I; fi
 
-    # write a version.json, note $CIRCLE_TAG will be used if it exists
-    # otherwise $CIRCLE_BRANCH is used
-    - printf '{"commit":"%s","version":"%s","source":"https://github.com/%s/%s"}\n' "$CIRCLE_SHA1" "${CIRCLE_TAG-$CIRCLE_BRANCH}" "$CIRCLE_PROJECT_USERNAME" "$CIRCLE_PROJECT_REPONAME" > version.json
+    # create version.json
+    - >
+        printf '{"commit":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}\n' 
+        "$CIRCLE_SHA1" 
+        "$CIRCLE_TAG" 
+        "$CIRCLE_PROJECT_USERNAME" 
+        "$CIRCLE_PROJECT_REPONAME" 
+        "$CIRCLE_BUILD_URL"
+        > version.json
+    - cp version.json $CIRCLE_ARTIFACTS
+
     - docker build -t app:build .
+    - >
+        docker images --no-trunc | 
+        awk '/^app/ {print $3}' | 
+        tee $CIRCLE_ARTIFACTS/docker-image-shasum256.txt
 
     # Clean up any old images and save the new one
     - I="image-$(date +%j).tar"; mkdir -p ~/docker; rm ~/docker/*; docker save app:build > ~/docker/$I; ls -l ~/docker
