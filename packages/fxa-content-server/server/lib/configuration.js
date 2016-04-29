@@ -449,6 +449,11 @@ var conf = module.exports = convict({
       doc: 'Sentry API key',
       format: String
     },
+    api_secret: {
+      default: undefined,
+      doc: 'Sentry API secret',
+      format: String
+    },
     endpoint: {
       default: undefined,
       doc: 'Remote Sentry endpoint',

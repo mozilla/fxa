@@ -36,7 +36,7 @@ define([
     }, dfd.reject.bind(dfd)));
   };
 
-  suite['#get /metrics-errors - returns 200 without query'] = function () {
+  suite['#get deprecated /metrics-errors endpoint - returns 200'] = function () {
     var dfd = this.async(intern.config.asyncTimeout);
 
     request.get(serverUrl + '/metrics-errors', dfd.callback(function (err, res) {
@@ -44,10 +44,29 @@ define([
     }, dfd.reject.bind(dfd)));
   };
 
-  suite['#get /metrics-errors - returns 200 with an error query'] = function () {
+  suite['#post /metrics-errors - returns 200 without query'] = function () {
     var dfd = this.async(intern.config.asyncTimeout);
 
-    request.get(serverUrl + '/metrics-errors?sentry_version=4', dfd.callback(function (err, res) {
+    request.post(serverUrl + '/metrics-errors', dfd.callback(function (err, res) {
+      assert.equal(res.statusCode, 200);
+    }, dfd.reject.bind(dfd)));
+  };
+
+  suite['#post /metrics-errors - returns 200 with an error query'] = function () {
+    var dfd = this.async(intern.config.asyncTimeout);
+
+    request.post(serverUrl + '/metrics-errors?sentry_version=4', dfd.callback(function (err, res) {
+      assert.equal(res.statusCode, 200);
+    }, dfd.reject.bind(dfd)));
+  };
+
+  suite['#post /metrics-errors - returns 200 with an error query and a body'] = function () {
+    var dfd = this.async(intern.config.asyncTimeout);
+
+    request.post({
+      body: JSON.stringify({ logger: 'javascript', project: 'metrics-errors' }),
+      url: serverUrl + '/metrics-errors?sentry_version=4'
+    }, dfd.callback(function (err, res) {
       assert.equal(res.statusCode, 200);
     }, dfd.reject.bind(dfd)));
   };
@@ -72,7 +91,7 @@ define([
       var mocks = {
         'request': requestMock
       };
-      var metricsRoute = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'get-metrics-errors'), mocks);
+      var metricsRoute = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-metrics-errors'), mocks);
       var route = metricsRoute().process;
       var mockQuery = JSON.parse(fs.readFileSync('tests/server/fixtures/sentry_query.json'));
       var req = {
@@ -101,7 +120,7 @@ define([
       var mocks = {
         'request': requestMock
       };
-      var metricsRoute = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'get-metrics-errors'), mocks);
+      var metricsRoute = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-metrics-errors'), mocks);
       var route = metricsRoute().process;
       var mockQuery = JSON.parse(fs.readFileSync('tests/server/fixtures/sentry_query_long_trace.json'));
       var req = {

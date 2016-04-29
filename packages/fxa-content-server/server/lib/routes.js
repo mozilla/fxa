@@ -25,14 +25,15 @@ module.exports = function (config, i18n) {
     require('./routes/get-terms-privacy')(i18n),
     require('./routes/get-index')(config),
     require('./routes/get-ver.json'),
-    require('./routes/get-version.json'),
-    require('./routes/get-config')(i18n),
     require('./routes/get-client.json')(i18n),
-    require('./routes/post-metrics')(),
+    require('./routes/get-config')(i18n),
     require('./routes/get-metrics-errors')(),
-    require('./routes/get-openid-login')(config),
     require('./routes/get-openid-authenticate')(config),
-    require('./routes/get-openid-configuration')(config)
+    require('./routes/get-openid-configuration')(config),
+    require('./routes/get-openid-login')(config),
+    require('./routes/get-version.json'),
+    require('./routes/post-metrics')(),
+    require('./routes/post-metrics-errors')()
   ];
 
   if (config.get('csp.enabled')) {
