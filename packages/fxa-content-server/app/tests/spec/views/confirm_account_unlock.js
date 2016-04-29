@@ -17,6 +17,7 @@ define(function (require, exports, module) {
   var Relier = require('models/reliers/relier');
   var Session = require('lib/session');
   var sinon = require('sinon');
+  var SIGN_IN_REASONS = require('lib/sign-in-reasons');
   var TestHelpers = require('../../lib/helpers');
   var User = require('models/user');
   var View = require('views/confirm_account_unlock');
@@ -64,7 +65,9 @@ define(function (require, exports, module) {
         session: Session,
         window: windowMock
       });
-      user = new User();
+      user = new User({
+        fxaClient: fxaClient
+      });
 
       account = user.initAccount({
         email: EMAIL
@@ -156,7 +159,7 @@ define(function (require, exports, module) {
           assert.strictEqual(signInRelier, relier);
 
           var signInReason = args[3].reason;
-          assert.equal(signInReason, fxaClient.SIGNIN_REASON.ACCOUNT_UNLOCK);
+          assert.equal(signInReason, SIGN_IN_REASONS.ACCOUNT_UNLOCK);
         });
 
         it('if caused by signin, notifies the broker when complete', function () {

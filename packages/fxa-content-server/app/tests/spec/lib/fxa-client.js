@@ -15,6 +15,7 @@ define(function (require, exports, module) {
   var p = require('lib/promise');
   var ResumeToken = require('models/resume-token');
   var sinon = require('sinon');
+  var SIGN_IN_REASONS = require('lib/sign-in-reasons');
   var testHelpers = require('../../lib/helpers');
 
   var STATE = 'state';
@@ -353,7 +354,7 @@ define(function (require, exports, module) {
           .then(function (sessionData) {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
               keys: true,
-              reason: client.SIGNIN_REASON.SIGN_IN,
+              reason: SIGN_IN_REASONS.SIGN_IN,
               service: 'sync'
             }));
 
@@ -376,7 +377,7 @@ define(function (require, exports, module) {
           .then(function (sessionData) {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
               keys: false,
-              reason: client.SIGNIN_REASON.SIGN_IN,
+              reason: SIGN_IN_REASONS.SIGN_IN,
               service: 'chronicle'
             }));
 
@@ -403,7 +404,7 @@ define(function (require, exports, module) {
           .then(function (sessionData) {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
               keys: true,
-              reason: client.SIGNIN_REASON.SIGN_IN,
+              reason: SIGN_IN_REASONS.SIGN_IN,
               service: 'chronicle'
             }));
 
@@ -431,7 +432,7 @@ define(function (require, exports, module) {
           .then(function (result) {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
               keys: true,
-              reason: client.SIGNIN_REASON.SIGN_IN,
+              reason: SIGN_IN_REASONS.SIGN_IN,
               service: 'sync'
             }));
 
@@ -448,11 +449,11 @@ define(function (require, exports, module) {
           return p({});
         });
 
-        return client.signIn(email, password, relier, { reason: client.SIGNIN_REASON.PASSWORD_CHANGE })
+        return client.signIn(email, password, relier, { reason: SIGN_IN_REASONS.PASSWORD_CHANGE })
           .then(function () {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
               keys: true,
-              reason: client.SIGNIN_REASON.PASSWORD_CHANGE,
+              reason: SIGN_IN_REASONS.PASSWORD_CHANGE,
               service: 'sync'
             }));
           });
@@ -606,7 +607,7 @@ define(function (require, exports, module) {
               email,
               password,
               {
-                reason: client.SIGNIN_REASON.PASSWORD_CHECK
+                reason: SIGN_IN_REASONS.PASSWORD_CHECK
               }
             ));
             assert.isFalse(realClient.sessionDestroy.called);
@@ -632,7 +633,7 @@ define(function (require, exports, module) {
               email,
               password,
               {
-                reason: client.SIGNIN_REASON.PASSWORD_CHECK
+                reason: SIGN_IN_REASONS.PASSWORD_CHECK
               }
             ));
             assert.isTrue(realClient.sessionDestroy.calledWith('session token'));

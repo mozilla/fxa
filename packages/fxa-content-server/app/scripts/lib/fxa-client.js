@@ -15,6 +15,7 @@ define(function (require, exports, module) {
   var FxaClient = require('fxaClient');
   var p = require('lib/promise');
   var Session = require('lib/session');
+  var SIGN_IN_REASONS = require('lib/sign-in-reasons');
 
   function trim(str) {
     return $.trim(str);
@@ -82,11 +83,10 @@ define(function (require, exports, module) {
      * Check the user's current password without affecting session state.
      */
     checkPassword: function (email, password) {
-      var self = this;
       return this._getClient()
         .then(function (client) {
           return client.signIn(email, password, {
-            reason: self.SIGNIN_REASON.PASSWORD_CHECK
+            reason: SIGN_IN_REASONS.PASSWORD_CHECK
           })
           .then(function (sessionInfo) {
             // a session was created on the backend to check the user's
@@ -150,20 +150,6 @@ define(function (require, exports, module) {
       return updatedSessionData;
     },
 
-
-    /**
-     * Signin reasons are indicators to the backend that the signin
-     * is to complete a particular action. The backend can choose
-     * to perform actions, e.g., send emails, based on the reason.
-     */
-    SIGNIN_REASON: { //eslint-disable-line sorting/sort-object-props
-      ACCOUNT_UNLOCK: 'account_unlock',
-      PASSWORD_CHANGE: 'password_change',
-      PASSWORD_CHECK: 'password_check',
-      PASSWORD_RESET: 'password_reset',
-      SIGN_IN: 'signin',
-    },
-
     /**
      * Authenticate a user.
      *
@@ -172,9 +158,8 @@ define(function (require, exports, module) {
      * @param {String} password
      * @param {Releir} relier
      * @param {Object} [options]
-     *   @param {String} [options.reason] - reason for the sign in. Can be
-     *                   one of the values defined in SIGNIN_REASON.
-     *                   Defaults to SIGNIN_REASON.SIGN_IN.
+     *   @param {String} [options.reason] - Reason for the sign in. See definitons
+     *                   in sign-in-reasons.js. Defaults to SIGN_IN_REASONS.SIGN_IN.
      *   @param {Boolean} [options.customizeSync] - If the relier is Sync,
      *                   whether the user wants to customize which items will
      *                   be synced. Defaults to `false`
@@ -191,7 +176,7 @@ define(function (require, exports, module) {
         .then(function (client) {
           var signInOptions = {
             keys: relier.wantsKeys(),
-            reason: options.reason || self.SIGNIN_REASON.SIGN_IN
+            reason: options.reason || SIGN_IN_REASONS.SIGN_IN
           };
 
           // `service` is sent on signIn to notify users when a new service

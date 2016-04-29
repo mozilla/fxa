@@ -369,6 +369,11 @@ define(function (require, exports, module) {
       var self = this;
       return account.signIn(password, relier, options)
         .then(function () {
+          if (! account.get('verified')) {
+            return account.retrySignUp(relier, options);
+          }
+        })
+        .then(function () {
           // If there's an account with the same uid in localStorage we merge
           // its attributes with the new account instance to retain state
           // used across sign-ins, such as granted permissions.

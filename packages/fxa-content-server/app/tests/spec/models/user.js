@@ -570,6 +570,18 @@ define(function (require, exports, module) {
             return p();
           });
 
+          sinon.stub(account, 'get', function (property) {
+            if (property === 'verified') {
+              return true;
+            }
+
+            return property;
+          });
+
+          sinon.stub(account, 'retrySignUp', function () {
+            return p();
+          });
+
           sinon.stub(user, 'setSignedInAccount', function () {
             return p(account);
           });
@@ -597,6 +609,10 @@ define(function (require, exports, module) {
         it('notifies remote listeners of the signin', function () {
           testRemoteSignInMessageSent(account);
         });
+
+        it('did not call account.retrySignUp', function () {
+          assert.strictEqual(account.retrySignUp.callCount, 0);
+        });
       });
 
       describe('with an already saved account', function () {
@@ -614,6 +630,18 @@ define(function (require, exports, module) {
           });
 
           sinon.stub(account, 'signIn', function () {
+            return p();
+          });
+
+          sinon.stub(account, 'get', function (property) {
+            if (property === 'verified') {
+              return true;
+            }
+
+            return property;
+          });
+
+          sinon.stub(account, 'retrySignUp', function () {
             return p();
           });
 
@@ -635,6 +663,67 @@ define(function (require, exports, module) {
               bar: true
             });
           assert.equal(updatedAccount.get('displayName'), 'fx user');
+        });
+
+        it('did not call account.retrySignUp', function () {
+          assert.strictEqual(account.retrySignUp.callCount, 0);
+        });
+      });
+
+      describe('with an unverified account', function () {
+        beforeEach(function () {
+          account = user.initAccount({ email: 'email', uid: 'uid' });
+
+          sinon.stub(account, 'signIn', function () {
+            return p();
+          });
+
+          sinon.stub(account, 'get', function (property) {
+            if (property === 'verified') {
+              return false;
+            }
+
+            return property;
+          });
+
+          sinon.stub(account, 'retrySignUp', function () {
+            return p();
+          });
+
+          sinon.stub(user, 'setSignedInAccount', function () {
+            return p(account);
+          });
+
+          sinon.spy(notifier, 'triggerRemote');
+
+          return user.signInAccount(
+            account, 'password', relierMock, { resume: 'resume token'});
+        });
+
+        it('delegates to the account', function () {
+          assert.isTrue(account.signIn.calledWith(
+            'password',
+            relierMock,
+            {
+              resume: 'resume token'
+            }
+          ));
+        });
+
+        it('called account.retrySignUp correctly', function () {
+          assert.strictEqual(account.retrySignUp.callCount, 1);
+          var args = account.retrySignUp.args[0];
+          assert.lengthOf(args, 2);
+          assert.equal(args[0], relierMock);
+          assert.deepEqual(args[1], { resume: 'resume token' });
+        });
+
+        it('saves the account', function () {
+          assert.isTrue(user.setSignedInAccount.calledWith(account));
+        });
+
+        it('notifies remote listeners of the signin', function () {
+          testRemoteSignInMessageSent(account);
         });
       });
     });

@@ -21,6 +21,7 @@ define(function (require, exports, module) {
   var ProfileErrors = require('lib/profile-errors');
   var Relier = require('models/reliers/relier');
   var sinon = require('sinon');
+  var SIGN_IN_REASONS = require('lib/sign-in-reasons');
 
   var assert = chai.assert;
 
@@ -192,7 +193,7 @@ define(function (require, exports, module) {
 
     describe('signIn', function () {
       describe('with a password', function () {
-        describe('unverified', function () {
+        describe('unverified, reason === undefined', function () {
           beforeEach(function () {
             sinon.stub(fxaClient, 'signIn', function () {
               return p({ sessionToken: SESSION_TOKEN, verified: false });
@@ -209,14 +210,38 @@ define(function (require, exports, module) {
             assert.isTrue(fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier));
           });
 
-          it('delegates to the fxaClient to resend a signUp email', function () {
-            assert.isTrue(fxaClient.signUpResend.calledWith(
-              relier,
-              SESSION_TOKEN,
-              {
-                resume: 'resume token'
-              }
-            ));
+          it('does not resend a signUp email', function () {
+            assert.isFalse(fxaClient.signUpResend.called);
+          });
+
+          it('updates the account with the returned data', function () {
+            assert.isFalse(account.get('verified'));
+            assert.equal(account.get('sessionToken'), SESSION_TOKEN);
+          });
+        });
+
+        describe('unverified, reason === ACCOUNT_UNLOCK', function () {
+          beforeEach(function () {
+            sinon.stub(fxaClient, 'signIn', function () {
+              return p({ sessionToken: SESSION_TOKEN, verified: false });
+            });
+
+            sinon.stub(fxaClient, 'signUpResend', function () {
+              return p();
+            });
+
+            return account.signIn(PASSWORD, relier, {
+              reason: SIGN_IN_REASONS.ACCOUNT_UNLOCK,
+              resume: 'resume token'
+            });
+          });
+
+          it('delegates to the fxaClient', function () {
+            assert.isTrue(fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier));
+          });
+
+          it('does not resend a signUp email', function () {
+            assert.isFalse(fxaClient.signUpResend.called);
           });
 
           it('updates the account with the returned data', function () {
@@ -292,9 +317,8 @@ define(function (require, exports, module) {
               fxaClient.recoveryEmailStatus.calledWith(SESSION_TOKEN));
           });
 
-          it('delegates to the fxaClient to resend a signUp email', function () {
-            assert.isTrue(
-              fxaClient.signUpResend.calledWith(relier, SESSION_TOKEN));
+          it('does not resend a signUp email', function () {
+            assert.isFalse(fxaClient.signUpResend.called);
           });
 
           it('updates the account with the returned data', function () {
@@ -1204,7 +1228,7 @@ define(function (require, exports, module) {
               newPassword,
               relier,
               {
-                reason: fxaClient.SIGNIN_REASON.PASSWORD_CHANGE,
+                reason: SIGN_IN_REASONS.PASSWORD_CHANGE,
                 sessionTokenContext: 'foo'
               }
             ));
@@ -1236,7 +1260,7 @@ define(function (require, exports, module) {
               PASSWORD,
               relier,
               {
-                reason: fxaClient.SIGNIN_REASON.PASSWORD_RESET
+                reason: SIGN_IN_REASONS.PASSWORD_RESET
               }
             ));
             // ensure data returned from fxaClient.signIn updates the account

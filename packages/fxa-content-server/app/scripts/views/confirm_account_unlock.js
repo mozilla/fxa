@@ -15,6 +15,7 @@ define(function (require, exports, module) {
   var ResendMixin = require('views/mixins/resend-mixin');
   var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   var ServiceMixin = require('views/mixins/service-mixin');
+  var SIGN_IN_REASONS = require('lib/sign-in-reasons');
   var Template = require('stache!templates/confirm_account_unlock');
 
   var t = BaseView.t;
@@ -108,7 +109,6 @@ define(function (require, exports, module) {
     _waitForConfirmation: function () {
       var self = this;
       var account = self.getAccount();
-      var email = account.get('email');
       var password = this.model.get('password');
 
       // try to sign the user in using the email/password that caused the
@@ -116,12 +116,9 @@ define(function (require, exports, module) {
       // the sign in will successfully complete. If they have not verified
       // their address, the sign in call will fail with the ACCOUNT_LOCKED
       // error, and we poll again.
-      return self.fxaClient.signIn(
-          email,
-          password,
-          self.relier,
-          { reason: self.fxaClient.SIGNIN_REASON.ACCOUNT_UNLOCK }
-        )
+      return account.signIn(password, self.relier, {
+        reason: SIGN_IN_REASONS.ACCOUNT_UNLOCK
+      })
         .fail(function (err) {
           if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
             // user has not yet verified, poll again.

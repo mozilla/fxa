@@ -17,6 +17,7 @@ define(function (require, exports, module) {
   var p = require('lib/promise');
   var ProfileClient = require('lib/profile-client');
   var ProfileImage = require('models/profile-image');
+  var SIGN_IN_REASONS = require('lib/sign-in-reasons');
 
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
 
@@ -311,7 +312,9 @@ define(function (require, exports, module) {
         var sessionToken = self.get('sessionToken');
 
         if (password) {
-          return self._fxaClient.signIn(email, password, relier);
+          return self._fxaClient.signIn(email, password, relier, {
+            reason: options.reason
+          });
         } else if (sessionToken) {
           // We have a cached Sync session so just check that it hasn't expired.
           // The result includes the latest verified state
@@ -322,16 +325,7 @@ define(function (require, exports, module) {
       })
       .then(function (updatedSessionData) {
         self.set(updatedSessionData);
-
-        if (! self.get('verified')) {
-          return self._fxaClient.signUpResend(
-            relier,
-            self.get('sessionToken'),
-            {
-              resume: options.resume
-            }
-          );
-        }
+        return updatedSessionData;
       });
     },
 
@@ -608,7 +602,7 @@ define(function (require, exports, module) {
             newPassword,
             relier,
             {
-              reason: fxaClient.SIGNIN_REASON.PASSWORD_CHANGE,
+              reason: SIGN_IN_REASONS.PASSWORD_CHANGE,
               sessionTokenContext: self.get('sessionTokenContext')
             }
           );
@@ -665,7 +659,7 @@ define(function (require, exports, module) {
             password,
             relier,
             {
-              reason: fxaClient.SIGNIN_REASON.PASSWORD_RESET
+              reason: SIGN_IN_REASONS.PASSWORD_RESET
             }
           );
         })

@@ -56,6 +56,7 @@ function (Translator, Session) {
     '../tests/spec/lib/sentry',
     '../tests/spec/lib/service-name',
     '../tests/spec/lib/session',
+    '../tests/spec/lib/sign-in-reasons',
     '../tests/spec/lib/storage',
     '../tests/spec/lib/storage-metrics',
     '../tests/spec/lib/strings',
