@@ -291,6 +291,37 @@ TestServer.start(config)
   )
 
   test(
+    'device registration with unsupported characters in the name',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (client) {
+            var deviceInfo = {
+              id: crypto.randomBytes(16).toString('hex'),
+              name: 'unicodepooforyou: \uD83D\uDCA9',
+              type: 'mobile',
+            }
+            return client.updateDevice(deviceInfo)
+              .then(
+                function () {
+                  t.fail('request should have failed')
+                }
+              )
+              .catch(
+                function (err) {
+                  t.equal(err.code, 400, 'err.code was 400')
+                  t.equal(err.errno, 107, 'err.errno was 107')
+                  t.equal(err.validation.keys[0], 'name', 'name was rejected')
+                }
+              )
+          }
+        )
+    }
+  )
+
+  test(
     'device registration from a different session',
     function (t) {
       var email = server.uniqueEmail()
