@@ -258,7 +258,7 @@ TestServer.start(config)
   )
 
   test(
-    'device registration with the net-yet-accepted pushPublicKey field',
+    'device registration with the not-yet-accepted pushPublicKey field',
     function (t) {
       var email = server.uniqueEmail()
       var password = 'test password'
