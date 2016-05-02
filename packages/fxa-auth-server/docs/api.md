@@ -86,6 +86,7 @@ The currently-defined error responses are:
 * status code 400, errno 124:  session already registered by another device
 * status code 400, errno 126:  account must be reset
 * status code 503, errno 201:  service temporarily unavailable to due high load (see [backoff protocol](#backoff-protocol))
+* status code 503, errno 202:  feature has been disabled for operational reasons
 * any status code, errno 999:  unknown error
 
 The follow error responses include additional parameters:

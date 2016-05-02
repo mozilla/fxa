@@ -843,17 +843,17 @@ module.exports = function (
         log.begin('Account.device', request)
         var payload = request.payload
         var sessionToken = request.auth.credentials
-        // Clients have been known to send spurious device updates,
-        // which generates lots of unnecessary database load.
-        // Don't write out the update if nothing has actually changed.
-        if (payload.id && sessionToken.deviceId &&
-          payload.id === sessionToken.deviceId.toString('hex') &&
-          (! payload.name || payload.name === sessionToken.deviceName) &&
-          (! payload.type || payload.type === sessionToken.deviceType) &&
-          (! payload.pushCallback || payload.pushCallback === sessionToken.deviceCallbackURL) &&
-          (! payload.pushPublicKey || payload.pushPublicKey === sessionToken.deviceCallbackPublicKey)) {
-          log.info({ op: 'Account.device.spuriousUpdate' })
-          return reply(payload)
+        if (payload.id) {
+          // Don't write out the update if nothing has actually changed.
+          if (isSpuriousUpdate(payload, sessionToken)) {
+            log.increment('device.update.spurious')
+            return reply(payload)
+          }
+          // We also reserve the right to disable updates until
+          // we're confident clients are behaving correctly.
+          if (config.deviceUpdatesEnabled === false) {
+            throw error.featureNotEnabled()
+          }
         }
         var operation = payload.id ? 'updateDevice' : 'createDevice'
         db[operation](sessionToken.uid, sessionToken.tokenId, payload).then(
@@ -862,6 +862,35 @@ module.exports = function (
           },
           reply
         )
+
+        // Clients have been known to send spurious device updates,
+        // which generates lots of unnecessary database load.
+        // Check if anything has actually changed, and log lots metrics on what.
+        function isSpuriousUpdate(paylad, token) {
+          var spurious = true
+          if(! token.deviceId || payload.id !== token.deviceId.toString('hex')) {
+            spurious = false
+            log.increment('device.update.sessionToken')
+          }
+          if (payload.name && payload.name !== token.deviceName) {
+            spurious = false
+            log.increment('device.update.name')
+          }
+          if (payload.type && payload.type !== token.deviceType) {
+            spurious = false
+            log.increment('device.update.type')
+          }
+          if (payload.pushCallback && payload.pushCallback !== token.deviceCallbackURL) {
+            spurious = false
+            log.increment('device.update.pushCallback')
+          }
+          if (payload.pushPublicKey && payload.pushPublicKey !== token.deviceCallbackPublicKey) {
+            spurious = false
+            log.increment('device.update.pushPublicKey')
+          }
+          return spurious
+        }
+
       }
     },
     {
