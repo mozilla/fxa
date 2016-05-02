@@ -65,7 +65,7 @@ module.exports = function (grunt) {
       'output-dir': __dirname,
       'output': 'server.pot',
       'join-existing': true,
-      'keyword': 't',
+      'keyword': ['t'],
       parsers: {
         '.txt': 'handlebars',
         '.html': 'handlebars'
@@ -83,7 +83,7 @@ module.exports = function (grunt) {
         'output-dir': __dirname,
         'output': 'server.pot',
         'join-existing': true,
-        'keyword': 'translator.gettext',
+        'keyword': ['gettext'],
         parsers: {
           '.js': 'javascript'
         }
