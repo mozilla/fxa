@@ -29,7 +29,7 @@ Note: If you have issues with `npm install` please update to npm 2.0+ using `npm
 
 #### Prerequisites:
   * Java JDK or JRE (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
-  * Selenium Server 2.48.2 ([Download](http://selenium-release.storage.googleapis.com/2.48/selenium-server-standalone-2.48.2.jar))
+  * Selenium Server 2.53.0 ([Download](http://selenium-release.storage.googleapis.com/2.53/selenium-server-standalone-2.53.0.jar))
 
 ### Setup
 
@@ -38,7 +38,7 @@ Note: If you have issues with `npm install` please update to npm 2.0+ using `npm
 e.g. in shell form:
 
 ```sh
-java -jar selenium-server-standalone-2.48.2.jar 
+java -jar selenium-server-standalone-2.53.0.jar 
 ```
 
 To run tests locally with Selenium:
