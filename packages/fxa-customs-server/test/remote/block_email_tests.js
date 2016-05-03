@@ -7,6 +7,7 @@ var TestServer = require('../test_server')
 var mcHelper = require('../memcache-helper')
 
 var TEST_EMAIL = 'test@example.com'
+var ALLOWED_EMAIL = 'test@restmail.net'
 var TEST_IP = '192.0.2.1'
 
 var config = {
@@ -75,6 +76,34 @@ test(
               function (err, req, res, obj) {
                 t.equal(res.statusCode, 200, 'check worked')
                 t.equal(obj.block, true, 'request was blocked')
+                t.end()
+              }
+            )
+          }
+        )
+      }
+    )
+  }
+)
+
+test(
+  'allowed email is not blocked',
+  function (t) {
+    client.post('/check', { email: ALLOWED_EMAIL, ip: TEST_IP, action: 'accountLogin' },
+      function (err, req, res, obj) {
+        t.equal(res.statusCode, 200, 'check worked')
+        t.equal(obj.block, false, 'request was not blocked')
+
+        client.post('/blockEmail', { email: ALLOWED_EMAIL },
+          function (err, req, res, obj) {
+            t.notOk(err, 'block request is successful')
+            t.equal(res.statusCode, 200, 'block request returns a 200')
+            t.ok(obj, 'got an obj, make jshint happy')
+
+            client.post('/check', { email: ALLOWED_EMAIL, ip: TEST_IP, action: 'accountLogin' },
+              function (err, req, res, obj) {
+                t.equal(res.statusCode, 200, 'check worked')
+                t.equal(obj.block, false, 'request was still not blocked')
                 t.end()
               }
             )

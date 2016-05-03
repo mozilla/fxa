@@ -105,6 +105,34 @@ test(
 )
 
 test(
+  'change allowedEmailDomains',
+  function (t) {
+    var x = ['restmail.net']
+    return client.getAsync('/allowedEmailDomains')
+      .spread(function (req, res, obj) {
+        t.ok(Array.isArray(obj))
+        t.notDeepEqual(x, obj, 'allowedEmailDomains are different')
+        return mcHelper.setAllowedEmailDomains(x)
+      })
+      .then(function (ips) {
+        t.deepEqual(x, ips, 'helper sees the change')
+        return Promise.delay(1010)
+      })
+      .then(function() {
+        return client.getAsync('/allowedEmailDomains')
+      })
+      .spread(function (req, res, obj) {
+        t.deepEqual(x, obj, 'server sees the change')
+        t.end()
+      })
+      .catch(function (err) {
+        t.fail(err)
+        t.end()
+      })
+  }
+)
+
+test(
   'teardown',
   function (t) {
     testServer.stop()

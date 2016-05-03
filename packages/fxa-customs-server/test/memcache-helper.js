@@ -44,6 +44,7 @@ var TEST_IP = '192.0.2.1'
 
 var limits = require('../lib/limits')(config, mc, console)
 var allowedIPs = require('../lib/allowed_ips')(config, mc, console)
+var allowedEmailDomains = require('../lib/allowed_email_domains')(config, mc, console)
 var EmailRecord = require('../lib/email_record')(limits)
 var IpEmailRecord = require('../lib/ip_email_record')(limits)
 var IpRecord = require('../lib/ip_record')(limits)
@@ -107,6 +108,7 @@ function clearEverything(cb) {
   P.all([
     mc.delAsync('limits'),
     mc.delAsync('allowedIPs'),
+    mc.delAsync('allowedEmailDomains'),
     mc.delAsync(TEST_EMAIL),
     mc.delAsync(TEST_IP + TEST_EMAIL),
     mc.delAsync(TEST_IP)
@@ -145,3 +147,14 @@ function setAllowedIPs(ips) {
 }
 
 module.exports.setAllowedIPs = setAllowedIPs
+
+function setAllowedEmailDomains(domains) {
+  allowedEmailDomains.setAll(domains)
+  return allowedEmailDomains.push()
+    .then(function (domains) {
+      mc.end()
+      return domains
+    })
+}
+
+module.exports.setAllowedEmailDomains = setAllowedEmailDomains

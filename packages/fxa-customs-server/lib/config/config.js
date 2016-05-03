@@ -149,6 +149,16 @@ module.exports = function (fs, path, url, convict) {
         '63.245.214.162',
         '63.245.214.168'
       ]
+    },
+    allowedEmailDomains: {
+      doc: 'An array of email domains that will not be blocked or rate-limited.',
+      format: Array,
+      env: 'ALLOWED_EMAIL_DOMAINS',
+      // These are emails frequently used for testing purposes
+      default: [
+        'restmail.net',
+        'mockmyid.com'
+      ]
     }
   })
 
