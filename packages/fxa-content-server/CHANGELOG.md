@@ -1,3 +1,38 @@
+<a name="0.61.0"></a>
+# 0.61.0 (2016-05-03)
+
+
+### Bug Fixes
+
+* **channels:** fix iframe message parsing ([a7c7ca2](https://github.com/mozilla/fxa-content-server/commit/a7c7ca2)), closes [#3602](https://github.com/mozilla/fxa-content-server/issues/3602)
+* **client:** update to fxa-js-client 0.1.37 (#3690) ([d9ab90c](https://github.com/mozilla/fxa-content-server/commit/d9ab90c))
+* **metrics:** Scrub PII from CSP reports ([1549c87](https://github.com/mozilla/fxa-content-server/commit/1549c87)), closes [#3689](https://github.com/mozilla/fxa-content-server/issues/3689)
+* **signup:** Update button text on signup and CWTS pages. ([203f905](https://github.com/mozilla/fxa-content-server/commit/203f905)), closes [#3623](https://github.com/mozilla/fxa-content-server/issues/3623)
+* **views:** do not show session expired warnings in views (#3700) r=vbudhram ([6103a64](https://github.com/mozilla/fxa-content-server/commit/6103a64)), closes [#3222](https://github.com/mozilla/fxa-content-server/issues/3222)
+
+### chore
+
+* **docs:** update comment ([49a4477](https://github.com/mozilla/fxa-content-server/commit/49a4477))
+* **docs:** update README with new Selenium versions (#3701) ([cf9de81](https://github.com/mozilla/fxa-content-server/commit/cf9de81))
+* **nsp:** Add .nsprc config file to ignore NSP warnings ([db49863](https://github.com/mozilla/fxa-content-server/commit/db49863))
+* **tests:** Sort the front end unit tests alphabetically. ([2d7ffc9](https://github.com/mozilla/fxa-content-server/commit/2d7ffc9))
+* **travis:** drop node 0.12 support ([6af6274](https://github.com/mozilla/fxa-content-server/commit/6af6274))
+
+### Features
+
+* **client:** implement resume token validation (#3682) ([148f42a](https://github.com/mozilla/fxa-content-server/commit/148f42a))
+* **client:** Remove synchronization of unmasking on change password fields ([cd782c3](https://github.com/mozilla/fxa-content-server/commit/cd782c3))
+* **metrics:** emit flow.begin event from metrics endpoint (#3683) ([8942991](https://github.com/mozilla/fxa-content-server/commit/8942991))
+* **metrics:** update to support Sentry 8 and new raven.js (#3695) r=shane-tomlinson ([e302894](https://github.com/mozilla/fxa-content-server/commit/e302894)), closes [#3599](https://github.com/mozilla/fxa-content-server/issues/3599)
+* **server:** Enable CSP! (#3627) ([bc714b0](https://github.com/mozilla/fxa-content-server/commit/bc714b0))
+
+### Refactor
+
+* **client:** move fxaClient access out of view (#3696) ([dc579de](https://github.com/mozilla/fxa-content-server/commit/dc579de))
+* **csp-reports:** Updates based on @vladikoff's feedback ([864deb5](https://github.com/mozilla/fxa-content-server/commit/864deb5))
+
+
+
 <a name="0.60.0"></a>
 # 0.60.0 (2016-04-19)
 
