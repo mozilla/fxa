@@ -1,3 +1,12 @@
+<a name="0.61.0"></a>
+## 0.61.0 (2016-05-04)
+
+
+#### Bug Fixes
+
+* **avatars:** protect graphicsmagick from CVE-2016-3714 ([51d35cd5](https://github.com/mozilla/fxa-profile-server/commit/51d35cd5adf8e263182156aef2f0dd4c2080a54d))
+
+
 <a name="0.59.0"></a>
 ## 0.59.0 (2016-03-30)
 
