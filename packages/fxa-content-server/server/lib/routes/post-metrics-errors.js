@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var _ = require('lodash');
 var logger = require('mozlog')('server.metrics-errors');
 var request = require('request');
 var querystring = require('querystring');
@@ -49,13 +50,13 @@ function setExtraSentryData(data) {
 
 /**
  * Reports errors to Sentry
- * @param {String} query
+ * @param {Object} query
  *          Query from the error request.
  * @param {String} body
  *          Body of the error request.
  */
 function reportError(query, body) {
-  if (! query || ! body || ! Object.keys(body).length) {
+  if (! query || ! body || ! _.isObject(query) || ! _.isString(body)) {
     return;
   }
 
