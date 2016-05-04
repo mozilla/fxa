@@ -94,13 +94,6 @@ module.exports = function (log, error) {
       return P.reject(error.duplicate())
     }
 
-    if (! sessionToken.tokenVerificationId) {
-      var err = new Error()
-      err.code = 'ER_BAD_NULL_ERROR'
-      err.errno = 1048
-      return P.reject(error.wrap(err))
-    }
-
     sessionTokens[tokenId] = {
       data: sessionToken.data,
       uid: sessionToken.uid,
@@ -113,9 +106,11 @@ module.exports = function (log, error) {
       lastAccessTime: sessionToken.createdAt
     }
 
-    unverifiedTokens[tokenId] = {
-      tokenVerificationId: sessionToken.tokenVerificationId,
-      uid: sessionToken.uid
+    if (sessionToken.tokenVerificationId) {
+      unverifiedTokens[tokenId] = {
+        tokenVerificationId: sessionToken.tokenVerificationId,
+        uid: sessionToken.uid
+      }
     }
 
     return P.resolve({})

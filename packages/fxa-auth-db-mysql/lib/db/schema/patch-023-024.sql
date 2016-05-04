@@ -53,16 +53,18 @@ BEGIN
     createdAt
   );
 
-  INSERT INTO unverifiedTokens(
-    tokenId,
-    tokenVerificationId,
-    uid
-  )
-  VALUES(
-    tokenId,
-    tokenVerificationId,
-    uid
-  );
+  IF tokenVerificationId IS NOT NULL THEN
+    INSERT INTO unverifiedTokens(
+      tokenId,
+      tokenVerificationId,
+      uid
+    )
+    VALUES(
+      tokenId,
+      tokenVerificationId,
+      uid
+    );
+  END IF;
 
   COMMIT;
 END;

@@ -216,32 +216,15 @@ module.exports = function(config, DB) {
         test(
           'session token handling',
           function (t) {
-            t.plan(79)
+            t.plan(98)
+
+            var VERIFIED_SESSION_TOKEN_ID = hex32()
 
             // Fetch all of the sessions tokens for the account
             return db.sessions(ACCOUNT.uid)
               .then(function(sessions) {
                 t.ok(Array.isArray(sessions), 'sessions is an array')
                 t.equal(sessions.length, 0, 'sessions is empty')
-
-                // Attempt to create a session token with no tokenVerificationId
-                return db.createSessionToken(SESSION_TOKEN_ID, {
-                  data: hex32(),
-                  uid: ACCOUNT.uid,
-                  createdAt: Date.now(),
-                  uaBrowser: 'foo',
-                  uaBrowserVersion: 'bar',
-                  uaOS: 'baz',
-                  uaOSVersion: 'qux',
-                  uaDeviceType: 'wibble'
-                })
-              })
-              .then(function () {
-                t.fail('Should have failed to create session token with no tokenVerificationId')
-              }, function (err) {
-                t.pass('Correctly failed to create session token with no tokenVerificationId')
-              })
-              .then(function () {
                 // Create a session token
                 return db.createSessionToken(SESSION_TOKEN_ID, SESSION_TOKEN)
               })
@@ -352,6 +335,57 @@ module.exports = function(config, DB) {
                 t.equal(token.accountCreatedAt, ACCOUNT.createdAt, 'accountCreatedAt is correct')
                 t.deepEqual(token.tokenVerificationId, SESSION_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
 
+                // Create a verified session token
+                return db.createSessionToken(VERIFIED_SESSION_TOKEN_ID, {
+                  data: hex32(),
+                  uid: ACCOUNT.uid,
+                  createdAt: Date.now(),
+                  uaBrowser: 'a',
+                  uaBrowserVersion: 'b',
+                  uaOS: 'c',
+                  uaOSVersion: 'd',
+                  uaDeviceType: 'e'
+                })
+              })
+              .then(function (result) {
+                t.deepEqual(result, {}, 'Returned an empty object on session token creation')
+
+                // Fetch all of the sessions tokens for the account
+                return db.sessions(ACCOUNT.uid)
+              })
+              .then(function (sessions) {
+                t.equal(sessions.length, 2, 'sessions contains one item')
+                var index = 0
+                if (sessions[0].tokenId.toString('hex') === SESSION_TOKEN_ID.toString('hex')) {
+                  index = 1
+                }
+                t.equal(sessions[index].tokenId.toString('hex'), VERIFIED_SESSION_TOKEN_ID.toString('hex'), 'tokenId is correct')
+                t.equal(sessions[index].uid.toString('hex'), ACCOUNT.uid.toString('hex'), 'uid is correct')
+                t.equal(sessions[index].uaBrowser, 'a', 'uaBrowser is correct')
+                t.equal(sessions[index].uaBrowserVersion, 'b', 'uaBrowserVersion is correct')
+                t.equal(sessions[index].uaOS, 'c', 'uaOS is correct')
+                t.equal(sessions[index].uaOSVersion, 'd', 'uaOSVersion is correct')
+                t.equal(sessions[index].uaDeviceType, 'e', 'uaDeviceType is correct')
+
+                // Fetch the verified session token
+                return db.sessionToken(VERIFIED_SESSION_TOKEN_ID)
+              })
+              .then(function(token) {
+                t.deepEqual(token.uid, ACCOUNT.uid, 'token belongs to this account')
+                t.equal(token.uaBrowser, 'a', 'uaBrowser is correct')
+                t.equal(token.uaBrowserVersion, 'b', 'uaBrowserVersion is correct')
+                t.equal(token.uaOS, 'c', 'uaOS is correct')
+                t.equal(token.uaOSVersion, 'd', 'uaOSVersion is correct')
+                t.equal(token.uaDeviceType, 'e', 'uaDeviceType is correct')
+                t.equal(!!token.emailVerified, ACCOUNT.emailVerified, 'token emailVerified is same as account emailVerified')
+                t.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
+
+                // Fetch the verified session token with its verification state
+                return db.sessionTokenWithVerificationStatus(VERIFIED_SESSION_TOKEN_ID)
+              })
+              .then(function (token) {
+                t.equal(token.tokenVerificationId, null, 'tokenVerificationId is null')
+
                 // Attempt to verify session token with invalid tokenVerificationId
                 return db.verifyToken(hex16(), { uid: ACCOUNT.uid })
               })
@@ -361,8 +395,7 @@ module.exports = function(config, DB) {
                 t.pass('Verifying session token with invalid tokenVerificationId failed as expected')
               })
               .then(function() {
-
-                // Fetch the session token with its verification state
+                // Fetch the unverified session token with its verification state
                 return db.sessionTokenWithVerificationStatus(SESSION_TOKEN_ID)
               })
               .then(function (token) {
@@ -377,7 +410,7 @@ module.exports = function(config, DB) {
                 t.pass('Verifying session token with invalid uid failed as expected')
               })
               .then(function() {
-                // Fetch the session token with its verification state
+                // Fetch the unverified session token with its verification state
                 return db.sessionTokenWithVerificationStatus(SESSION_TOKEN_ID)
               })
               .then(function (token) {
@@ -387,23 +420,29 @@ module.exports = function(config, DB) {
                 return db.verifyToken(SESSION_TOKEN.tokenVerificationId, { uid: ACCOUNT.uid })
               })
               .then(function() {
-                // Fetch the session token
+                // Fetch the newly verified session token
                 return db.sessionToken(SESSION_TOKEN_ID)
               })
               .then(function(token) {
                 t.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
 
-                // Fetch the session token with its verification state
+                // Fetch the newly verified session token with its verification state
                 return db.sessionTokenWithVerificationStatus(SESSION_TOKEN_ID)
               })
               .then(function (token) {
                 t.equal(token.tokenVerificationId, null, 'tokenVerificationId is null')
 
-                // Delete the session token
-                return db.deleteSessionToken(SESSION_TOKEN_ID)
+                // Delete both session tokens
+                return Promise.all([
+                  db.deleteSessionToken(SESSION_TOKEN_ID),
+                  db.deleteSessionToken(VERIFIED_SESSION_TOKEN_ID)
+                ])
               })
-              .then(function(result) {
-                t.deepEqual(result, {}, 'Returned an empty object on forgot key fetch token deletion')
+              .then(function(results) {
+                t.equal(results.length, 2)
+                results.forEach(function (result) {
+                  t.deepEqual(result, {}, 'Returned an empty object on forgot session token deletion')
+                })
 
                 // Fetch all of the sessions tokens for the account
                 return db.sessions(ACCOUNT.uid)
@@ -411,7 +450,7 @@ module.exports = function(config, DB) {
               .then(function (sessions) {
                 t.equal(sessions.length, 0, 'sessions is empty')
 
-                // Attempt to fetch the deleted session token
+                // Attempt to fetch a deleted session token
                 return db.sessionToken(SESSION_TOKEN_ID)
               })
               .then(function(token) {
