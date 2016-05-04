@@ -271,7 +271,7 @@ module.exports = function (log, error) {
     )
   }
 
-  var CREATE_DEVICE = 'CALL createDevice_1(?, ?, ?, ?, ?, ?, ?, ?)'
+  var CREATE_DEVICE = 'CALL createDevice_2(?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createDevice = function (uid, deviceId, deviceInfo) {
     return this.write(
@@ -284,12 +284,13 @@ module.exports = function (log, error) {
         deviceInfo.type,
         deviceInfo.createdAt,
         deviceInfo.callbackURL,
-        deviceInfo.callbackPublicKey
+        deviceInfo.callbackPublicKey,
+        deviceInfo.callbackAuthKey
       ]
     )
   }
 
-  var UPDATE_DEVICE = 'CALL updateDevice_1(?, ?, ?, ?, ?, ?, ?)'
+  var UPDATE_DEVICE = 'CALL updateDevice_2(?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.updateDevice = function (uid, deviceId, deviceInfo) {
     return this.write(
@@ -301,7 +302,8 @@ module.exports = function (log, error) {
         deviceInfo.name,
         deviceInfo.type,
         deviceInfo.callbackURL,
-        deviceInfo.callbackPublicKey
+        deviceInfo.callbackPublicKey,
+        deviceInfo.callbackAuthKey
       ],
       function (result) {
         if (result.affectedRows === 0) {
@@ -345,16 +347,16 @@ module.exports = function (log, error) {
 
   // Select : devices d, sessionTokens s
   // Fields : d.uid, d.id, d.sessionTokenId, d.name, d.type, d.createdAt, d.callbackURL,
-  //          s.uaBrowser, s.uaBrowserVersion, s.uaOS, s.uaOSVersion,
-  //          s.uaDeviceType, s.lastAccessTime
+  //          d.callbackPublicKey, d.callbackAuthKey, s.uaBrowser, s.uaBrowserVersion,
+  //          s.uaOS, s.uaOSVersion, s.uaDeviceType, s.lastAccessTime
   // Where  : d.uid = $1
-  var ACCOUNT_DEVICES = 'CALL accountDevices_3(?)'
+  var ACCOUNT_DEVICES = 'CALL accountDevices_4(?)'
 
   MySql.prototype.accountDevices = function (uid) {
     return this.readOneFromFirstResult(ACCOUNT_DEVICES, [uid])
   }
 
-  var SESSION_DEVICE = 'CALL sessionWithDevice_1(?)'
+  var SESSION_DEVICE = 'CALL sessionWithDevice_2(?)'
 
   MySql.prototype.sessionWithDevice = function (id) {
     return this.readFirstResult(SESSION_DEVICE, [id])

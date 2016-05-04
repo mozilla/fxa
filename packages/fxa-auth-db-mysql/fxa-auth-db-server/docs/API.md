@@ -614,6 +614,8 @@ curl \
 
 ### Response
 
+Note: The deviceCallbackPublicKey and deviceCallbackAuthKey fields are urlsafe-base64 strings, you can learn more about their format [here](https://developers.google.com/web/updates/2016/03/web-push-encryption).
+
 ```
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -627,7 +629,8 @@ Content-Type: application/json
         "type": "mobile"
         "createdAt": 1437992394186,
         "callbackURL": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
-        "callbackPublicKey": "468601214f60f4828b6cd5d51d9d99d212e7c73657978955f0f5a5b7e2fa1370",
+        "callbackPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
+        "callbackAuthKey": "w3b14Zjc-Afj2SDOLOyong",
         "uaBrowser": "Firefox",
         "uaBrowserVersion": "42",
         "uaOS": "Android",
@@ -667,7 +670,8 @@ curl \
       "type": "mobile"
       "createdAt": 1437992394186,
       "callbackURL": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
-      "callbackPublicKey": "468601214f60f4828b6cd5d51d9d99d212e7c73657978955f0f5a5b7e2fa1370"
+      "callbackPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
+      "callbackAuthKey": "w3b14Zjc-Afj2SDOLOyong"
     }'
 ```
 
@@ -709,7 +713,8 @@ curl \
       "type": "mobile"
       "createdAt": 1437992394186,
       "callbackURL": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
-      "callbackPublicKey": "468601214f60f4828b6cd5d51d9d99d212e7c73657978955f0f5a5b7e2fa1370"
+      "callbackPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
+      "callbackAuthKey": "w3b14Zjc-Afj2SDOLOyong"
     }'
 ```
 

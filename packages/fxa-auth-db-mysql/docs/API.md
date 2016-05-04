@@ -400,12 +400,15 @@ Returns:
 These fields are represented as `t.*` for a field from the token `a.*` for a
 field from the corresponding account and `d.*` for a field from devices.
 
+The deviceCallbackPublicKey and deviceCallbackAuthKey fields are urlsafe-base64 strings, you can learn more about their format [here](https://developers.google.com/web/updates/2016/03/web-push-encryption).
+
 * sessionToken : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
                  t.uaOS, t.uaOSVersion, t.uaDeviceType, t.lastAccessTime,
                  a.emailVerified, a.email, a.emailCode, a.verifierSetAt,
                  a.createdAt AS accountCreatedAt, d.id AS deviceId,
                  d.name AS deviceName, d.type AS deviceType,
                  d.createdAt AS deviceCreatedAt, d.callbackURL AS deviceCallbackURL,
-                 d.callbackPublicKey AS deviceCallbackPublicKey
+                 d.callbackPublicKey AS deviceCallbackPublicKey,
+                 d.callbackAuthKey AS deviceCallbackAuthKey
 
 (Ends)

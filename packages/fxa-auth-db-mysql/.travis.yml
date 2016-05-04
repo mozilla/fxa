@@ -6,10 +6,18 @@ node_js:
  - "4"
  - "stable"
 
-services:
- - mysql
+dist: trusty
+sudo: required
 
-sudo: false
+addons:
+  apt:
+    packages:
+    - mysql-server-5.6
+    - mysql-client-core-5.6
+    - mysql-client-5.6
+
+services:
+  - mysql
 
 notifications:
   email:
@@ -23,11 +31,11 @@ notifications:
     skip_join: false
 
 before_install:
-  - npm install -g npm@2
+  - if [ "$TRAVIS_NODE_VERSION" == "0.10" ]; then npm install -g npm@2; fi
   - npm config set spin false
 
 before_script:
-  - mysql -e 'DROP DATABASE IF EXISTS fxa'
+  - mysql -u root -e 'DROP DATABASE IF EXISTS fxa'
   - npm i grunt-cli -g
   - npm run outdated
   - grunt nsp --force

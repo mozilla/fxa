@@ -22,7 +22,8 @@ var DEVICE_FIELDS = [
   'type',
   'createdAt',
   'callbackURL',
-  'callbackPublicKey'
+  'callbackPublicKey',
+  'callbackAuthKey'
 ]
 
 var SESSION_FIELDS = [
@@ -219,10 +220,6 @@ module.exports = function (log, error) {
         }
         return
       }
-      if (field === '' && key === 'callbackPublicKey') {
-        field = new Buffer(32)
-        field.fill(0)
-      }
       device[key] = field
     })
 
@@ -399,6 +396,7 @@ module.exports = function (log, error) {
                   session.deviceCreatedAt = device.createdAt
                   session.deviceCallbackURL = device.callbackURL
                   session.deviceCallbackPublicKey = device.callbackPublicKey
+                  session.deviceCallbackAuthKey = device.callbackAuthKey
                 }
                 return session
               }
