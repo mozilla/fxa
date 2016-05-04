@@ -5,6 +5,7 @@
 var validators = require('./validators')
 var HEX_STRING = validators.HEX_STRING
 var BASE64_JWT = validators.BASE64_JWT
+var DISPLAY_SAFE_UNICODE = validators.DISPLAY_SAFE_UNICODE
 
 var butil = require('../crypto/butil')
 var validateContentToken = require('../crypto/contentToken')
@@ -71,7 +72,7 @@ module.exports = function (
             resume: isA.string().max(2048).optional(),
             preVerifyToken: isA.string().max(2048).regex(BASE64_JWT).optional(),
             device: isA.object({
-              name: isA.string().max(255).required(),
+              name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE).required(),
               type: isA.string().max(16).required(),
               pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
               // We're not yet ready to store pubkey values, don't let clients submit them.
@@ -90,7 +91,7 @@ module.exports = function (
             device: isA.object({
               id: isA.string().length(32).regex(HEX_STRING).required(),
               createdAt: isA.number().positive().required(),
-              name: isA.string().max(255).required(),
+              name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE).required(),
               type: isA.string().max(16).required(),
               pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
               pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow('')
@@ -314,7 +315,7 @@ module.exports = function (
             reason: isA.string().max(16).optional(),
             device: isA.object({
               id: isA.string().length(32).regex(HEX_STRING).optional(),
-              name: isA.string().max(255).optional(),
+              name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE).optional(),
               type: isA.string().max(16).optional(),
               pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
               // We're not yet ready to store pubkey values, don't let clients submit them.
@@ -334,7 +335,7 @@ module.exports = function (
             device: isA.object({
               id: isA.string().length(32).regex(HEX_STRING).required(),
               createdAt: isA.number().positive().optional(),
-              name: isA.string().max(255).optional(),
+              name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE).optional(),
               type: isA.string().max(16).optional(),
               pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
               pushPublicKey: isA.string().length(64).regex(HEX_STRING).optional().allow('')
@@ -889,14 +890,14 @@ module.exports = function (
           payload: isA.alternatives().try(
             isA.object({
               id: isA.string().length(32).regex(HEX_STRING).required(),
-              name: isA.string().max(255).optional(),
+              name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE).optional(),
               type: isA.string().max(16).optional(),
               pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
               // We're not yet ready to store pubkey values, don't let clients submit them.
               pushPublicKey: isA.string().length(64).regex(HEX_STRING).allow('').forbidden()
             }).or('name', 'type', 'pushCallback', 'pushPublicKey'),
             isA.object({
-              name: isA.string().max(255).required(),
+              name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE).required(),
               type: isA.string().max(16).required(),
               pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
               // We're not yet ready to store pubkey values, don't let clients submit them.
@@ -908,6 +909,8 @@ module.exports = function (
           schema: {
             id: isA.string().length(32).regex(HEX_STRING).required(),
             createdAt: isA.number().positive().optional(),
+            // We previously allowed devices to register with arbitrry unicode names,
+            // so we can't assert DISPLAY_SAFE_UNICODE in the response schema.
             name: isA.string().max(255).optional(),
             type: isA.string().max(16).optional(),
             pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
@@ -919,17 +922,17 @@ module.exports = function (
         log.begin('Account.device', request)
         var payload = request.payload
         var sessionToken = request.auth.credentials
-        // Clients have been known to send spurious device updates,
-        // which generates lots of unnecessary database load.
-        // Don't write out the update if nothing has actually changed.
-        if (payload.id && sessionToken.deviceId &&
-          payload.id === sessionToken.deviceId.toString('hex') &&
-          (! payload.name || payload.name === sessionToken.deviceName) &&
-          (! payload.type || payload.type === sessionToken.deviceType) &&
-          (! payload.pushCallback || payload.pushCallback === sessionToken.deviceCallbackURL) &&
-          (! payload.pushPublicKey || payload.pushPublicKey === sessionToken.deviceCallbackPublicKey)) {
-          log.info({ op: 'Account.device.spuriousUpdate' })
-          return reply(payload)
+        if (payload.id) {
+          // Don't write out the update if nothing has actually changed.
+          if (isSpuriousUpdate(payload, sessionToken)) {
+            log.increment('device.update.spurious')
+            return reply(payload)
+          }
+          // We also reserve the right to disable updates until
+          // we're confident clients are behaving correctly.
+          if (config.deviceUpdatesEnabled === false) {
+            throw error.featureNotEnabled()
+          }
         }
         var operation = payload.id ? 'updateDevice' : 'createDevice'
         db[operation](sessionToken.uid, sessionToken.tokenId, payload).then(
@@ -938,6 +941,35 @@ module.exports = function (
           },
           reply
         )
+
+        // Clients have been known to send spurious device updates,
+        // which generates lots of unnecessary database load.
+        // Check if anything has actually changed, and log lots metrics on what.
+        function isSpuriousUpdate(paylad, token) {
+          var spurious = true
+          if(! token.deviceId || payload.id !== token.deviceId.toString('hex')) {
+            spurious = false
+            log.increment('device.update.sessionToken')
+          }
+          if (payload.name && payload.name !== token.deviceName) {
+            spurious = false
+            log.increment('device.update.name')
+          }
+          if (payload.type && payload.type !== token.deviceType) {
+            spurious = false
+            log.increment('device.update.type')
+          }
+          if (payload.pushCallback && payload.pushCallback !== token.deviceCallbackURL) {
+            spurious = false
+            log.increment('device.update.pushCallback')
+          }
+          if (payload.pushPublicKey && payload.pushPublicKey !== token.deviceCallbackPublicKey) {
+            spurious = false
+            log.increment('device.update.pushPublicKey')
+          }
+          return spurious
+        }
+
       }
     },
     {
@@ -952,6 +984,8 @@ module.exports = function (
             id: isA.string().length(32).regex(HEX_STRING).required(),
             isCurrentDevice: isA.boolean().required(),
             lastAccessTime: isA.number().min(0).required().allow(null),
+            // We previously allowed devices to register with arbitrry unicode names,
+            // so we can't assert DISPLAY_SAFE_UNICODE in the response schema.
             name: isA.string().max(255).required(),
             type: isA.string().max(16).required(),
             pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow('').allow(null),

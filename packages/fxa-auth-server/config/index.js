@@ -347,6 +347,14 @@ var conf = convict({
     env: 'NEW_LOGIN_NOTIFICATION_ENABLED',
     default: true
   },
+  // A safety switch to disable device metadata updates,
+  // in case problems with the client logic cause server overload.
+  deviceUpdatesEnabled: {
+    doc: 'Are updates to device metadata enabled?',
+    format: Boolean,
+    env: 'DEVICE_UPDATES_ENABLED',
+    default: true
+  },
   oauth: {
     url: {
       format: 'url',

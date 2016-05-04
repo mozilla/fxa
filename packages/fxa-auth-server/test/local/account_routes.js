@@ -22,14 +22,14 @@ var TEST_EMAIL_INVALID = 'example@dotless-domain'
 var makeRoutes = function (options) {
   options = options || {}
 
-  var config = options.config || {
-    verifierVersion: 0,
-    smtp: {},
-    contentToken: {
-      allowedUARegex: [],
-      allowedEmailRegex: []
-    }
+  var config = options.config || {}
+  config.verifierVersion = config.verifierVersion || 0
+  config.smtp = config.smtp ||  {}
+  config.contentToken = config.contentToken || {
+    allowedUARegex: [],
+    allowedEmailRegex: []
   }
+
   var log = options.log || mocks.mockLog()
   var Password = require('../../lib/crypto/password')(log, config)
   var db = options.db || {}
@@ -215,5 +215,148 @@ test(
       t.equal(mockDB.account.callCount, 1)
       t.equal(mockCustoms.reset.callCount, 1)
     })
+  }
+)
+
+test(
+  'device updates dont write to the db if nothing has changed',
+  function (t) {
+    var uid = uuid.v4('binary')
+    var deviceId = crypto.randomBytes(16)
+    var mockRequest = {
+      auth: {
+        credentials: {
+          uid: uid.toString('hex'),
+          deviceId: deviceId,
+          deviceName: 'my awesome device',
+          deviceType: 'desktop',
+          deviceCallbackURL: '',
+          deviceCallbackPublicKey: '',
+        }
+      },
+      payload: {
+        id: deviceId.toString('hex'),
+        name: 'my awesome device'
+      }
+    }
+    var mockDB = {
+      updateDevice: sinon.spy(function () {
+        return P.resolve()
+      })
+    }
+    var mockLog = mocks.spyLog()
+    var accountRoutes = makeRoutes({
+      db: mockDB,
+      log: mockLog
+    })
+    return new P(function(resolve) {
+      getRoute(accountRoutes, '/account/device')
+        .handler(mockRequest, function(response) {
+          resolve(response)
+        })
+    })
+    .then(function(response) {
+      t.equal(mockDB.updateDevice.callCount, 0, 'updateDevice was not called')
+
+      t.equal(mockLog.increment.callCount, 1, 'a counter was incremented')
+      t.equal(mockLog.increment.firstCall.args[0], 'device.update.spurious')
+
+      t.deepEqual(response, mockRequest.payload)
+    })
+  }
+)
+
+test(
+  'device updates log metrics about what has changed',
+  function (t) {
+    var uid = uuid.v4('binary')
+    var deviceId = crypto.randomBytes(16)
+    var mockRequest = {
+      auth: {
+        credentials: {
+          uid: uid.toString('hex'),
+          tokenId: 'lookmumasessiontoken',
+          deviceId: 'aDifferentDeviceId',
+          deviceName: 'my awesome device',
+          deviceType: 'desktop',
+          deviceCallbackURL: '',
+          deviceCallbackPublicKey: '',
+        }
+      },
+      payload: {
+        id: deviceId.toString('hex'),
+        name: 'my even awesomer device',
+        type: 'phone',
+        pushCallback: 'https://push.services.mozilla.com/123456',
+        pushPublicKey: 'SomeEncodedBinaryStuffThatDoesntGetValidedByThisTest'
+      }
+    }
+    var mockDB = {
+      updateDevice: sinon.spy(function (uid, sessionTokenId, deviceInfo) {
+        return P.resolve(deviceInfo)
+      })
+    }
+    var mockLog = mocks.spyLog()
+    var accountRoutes = makeRoutes({
+      db: mockDB,
+      log: mockLog
+    })
+    return new P(function(resolve) {
+      getRoute(accountRoutes, '/account/device')
+        .handler(mockRequest, function(response) {
+          resolve(response)
+        })
+    })
+    .then(function() {
+      t.equal(mockDB.updateDevice.callCount, 1, 'updateDevice was called')
+
+      t.equal(mockLog.increment.callCount, 5, 'the counters were incremented')
+      t.equal(mockLog.increment.getCall(0).args[0], 'device.update.sessionToken')
+      t.equal(mockLog.increment.getCall(1).args[0], 'device.update.name')
+      t.equal(mockLog.increment.getCall(2).args[0], 'device.update.type')
+      t.equal(mockLog.increment.getCall(3).args[0], 'device.update.pushCallback')
+      t.equal(mockLog.increment.getCall(4).args[0], 'device.update.pushPublicKey')
+    })
+  }
+)
+
+test(
+  'device updates can be disabled via config',
+  function (t) {
+    var uid = uuid.v4('binary')
+    var deviceId = crypto.randomBytes(16)
+    var mockRequest = {
+      auth: {
+        credentials: {
+          uid: uid.toString('hex'),
+          deviceId: deviceId
+        }
+      },
+      payload: {
+        id: deviceId.toString('hex'),
+        name: 'new device name'
+      }
+    }
+    var accountRoutes = makeRoutes({
+      config: {
+        deviceUpdatesEnabled: false
+      }
+    })
+
+    return new P(function(resolve) {
+      getRoute(accountRoutes, '/account/device')
+        .handler(mockRequest, function(response) {
+          resolve(response)
+        })
+    })
+    .then(
+      function(response) {
+        t.fail('should have thrown')
+      },
+      function(err) {
+        t.equal(err.output.statusCode, 503, 'correct status code is returned')
+        t.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED, 'correct errno is returned')
+      }
+    )
   }
 )

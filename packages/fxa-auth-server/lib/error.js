@@ -16,6 +16,7 @@ var ERRNO = {
   DEVICE_UNKNOWN: 123,
   DEVICE_CONFLICT: 124,
   ENDPOINT_NOT_SUPPORTED: 116,
+  FEATURE_NOT_ENABLED: 202,
   INCORRECT_EMAIL_CASE: 120,
   INCORRECT_PASSWORD: 103,
   INVALID_JSON: 106,
@@ -369,6 +370,26 @@ AppError.serviceUnavailable = function (retryAfter) {
       code: 503,
       error: 'Service Unavailable',
       errno: ERRNO.SERVER_BUSY,
+      message: 'Service unavailable'
+    },
+    {
+      retryAfter: retryAfter
+    },
+    {
+      'retry-after': retryAfter
+    }
+  )
+}
+
+AppError.featureNotEnabled = function (retryAfter) {
+  if (!retryAfter) {
+    retryAfter = 30
+  }
+  return new AppError(
+    {
+      code: 503,
+      error: 'Feature not enabled',
+      errno: ERRNO.FEATURE_NOT_ENABLED,
       message: 'Service unavailable'
     },
     {
