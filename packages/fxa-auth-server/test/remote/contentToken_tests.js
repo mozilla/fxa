@@ -64,7 +64,7 @@ TestServer.start(config)
       return P.each([
         'Mozilla/5.0 (FreeBSD; Viera; rv:44.0) Gecko/20100101 Firefox/44.0',
         'Mozilla/5.0 (Linux; Android 5.0.1; SAMSUNG SM-N910F Build/LRX22C) AppleWebKit/537.36(KHTML, like Gecko) SamsungBrowser/3.0 Chrome/38.0.2125.102 Mobile Safari/537.36',
-        'Firefox AndroidSync 1.40.0 (SBrowser)'
+        'Firefox-Android-FxAccounts/45 (SBrowser)'
       ], function (userAgent) {
         // Make it a non-restmail.net address, since those get allowed by default
         var email = server.uniqueEmail() + '.com'

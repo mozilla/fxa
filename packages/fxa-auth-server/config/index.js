@@ -123,7 +123,7 @@ var conf = convict({
         // Some specific partner devices with custom UAs
         '\\(FreeBSD; Viera;.+Firefox',
         'Mozilla.+SamsungBrowser.+Mobile',
-        'Firefox.+AndroidSync.+SBrowser'
+        'Firefox.+SBrowser'
       ]
     },
     allowedEmailRegex: {
