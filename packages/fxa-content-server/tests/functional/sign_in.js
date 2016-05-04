@@ -111,7 +111,7 @@ define([
       var email = TestHelpers.createEmail();
       return fillOutSignIn(this, email, PASSWORD)
         // The error area shows a link to /signup
-        .then(FunctionalHelpers.visibleByQSAErrorHeight('.error a[href="/signup"]'))
+        .then(FunctionalHelpers.visibleByQSA('.error'))
         .findByCssSelector('.error a[href="/signup"]')
           .click()
         .end()

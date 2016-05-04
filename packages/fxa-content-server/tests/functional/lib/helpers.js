@@ -173,32 +173,42 @@ define([
    * Use document.querySelectorAll to find visible elements
    * used for error and success notification animations.
    *
+   *
    * Usage:  ".then(FunctionalHelpers.visibleByQSA('.success'))"
    *
    * @param {String} selector
    *        QSA compatible selector string
    * @param {Object} options
-   *        options include polling `timeout`, element `offsetWidth` and element `offsetHeight`
+   *        options include polling `timeout`
    */
   function visibleByQSA(selector, options) {
     options = options || {};
     var timeout = options.timeout || 10000;
 
     return pollUntil(function (selector, options) {
-      var offsetHeight = options.offsetHeight || 0;
-      var offsetWidth = options.offsetWidth || 0;
-      var match = document.querySelectorAll(selector);
+      var $matchingEl = $(selector);
 
-      if (match.length > 1) {
-        throw new Error('Multiple elements matched. Make a more precise selector');
+      if ($matchingEl.length === 0) {
+        return null;
       }
 
-      return match[0] && (match[0].offsetWidth > offsetWidth && match[0].offsetHeight > offsetHeight) ? true : null;
-    }, [ selector, options ], timeout);
-  }
+      if ($matchingEl.length > 1) {
+        throw new Error('Multiple elements matched. Make a more precise selector - ' + selector);
+      }
 
-  function visibleByQSAErrorHeight(selector) {
-    return visibleByQSA(selector, {offsetHeight: 10});
+      if (! $matchingEl.is(':visible')) {
+        return null;
+      }
+
+      if ($matchingEl.is(':animated')) {
+        // If the element is animating, try again after a delay. Clicks
+        // do not always register if the element is in the midst of
+        // an animation.
+        return null;
+      }
+
+      return true;
+    }, [ selector, options ], timeout);
   }
 
   function noSuchElement(context, selector) {
@@ -1177,7 +1187,6 @@ define([
     thenify: thenify,
     type: type,
     verifyUser: verifyUser,
-    visibleByQSA: visibleByQSA,
-    visibleByQSAErrorHeight: visibleByQSAErrorHeight
+    visibleByQSA: visibleByQSA
   };
 });

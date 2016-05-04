@@ -39,7 +39,7 @@ define([
         return FunctionalHelpers.fillOutSignIn(context, email, PASSWORD);
       })
 
-      .then(FunctionalHelpers.visibleByQSAErrorHeight('.error a[href="/confirm_account_unlock"]'))
+      .then(FunctionalHelpers.visibleByQSA('.error'))
       .end()
 
       .findByCssSelector('a[href="/confirm_account_unlock"]')

@@ -40,7 +40,7 @@ define([
         return FunctionalHelpers.fillOutDeleteAccount(context, PASSWORD);
       })
 
-      .then(FunctionalHelpers.visibleByQSAErrorHeight('#delete-account .error a[href="/confirm_account_unlock"]'))
+      .then(FunctionalHelpers.visibleByQSA('#delete-account .error'))
       .end()
 
       .findByCssSelector('a[href="/confirm_account_unlock"]')

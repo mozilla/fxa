@@ -27,13 +27,13 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
   var getVerificationLink = thenify(FunctionalHelpers.getVerificationLink);
-  var testErrorWasShown = FunctionalHelpers.testErrorWasShown;
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
   var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
   var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
   var testUrlPathnameEquals = FunctionalHelpers.testUrlPathnameEquals;
   var type = FunctionalHelpers.type;
+  var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   function signUpWithExistingAccount (context, email, firstPassword, secondPassword, options) {
     return context.remote
@@ -214,7 +214,7 @@ define([
     'signup with existing account, coppa is valid, credentials are wrong': function () {
       return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD)
 
-        .then(testErrorWasShown(this))
+        .then(visibleByQSA('.error'))
         .then(click('.error a[href="/oauth/signin"]'))
 
         // should have navigated to sign-in view
@@ -240,7 +240,7 @@ define([
     'signup with existing account, coppa is empty, credentials are wrong': function () {
       return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD, { age: ' ' })
 
-        .then(testErrorWasShown(this))
+        .then(visibleByQSA('.error'))
         .then(click('.error a[href="/oauth/signin"]'))
 
         // should have navigated to sign-in view
