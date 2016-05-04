@@ -1,6 +1,6 @@
 {
   "name": "fxa-customs-server",
-  "version": "0.60.1",
+  "version": "0.61.0",
   "dependencies": {
     "abbrev": {
       "version": "1.0.7",
