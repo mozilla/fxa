@@ -1,3 +1,8 @@
+<a name"0.61.0"></a>
+## 0.61.0 (2016-05-04)
+
+* **travis:** drop node 0.12 support ([b4eba468](https://github.com/mozilla/fxa-oauth-server/commit/b4eba468))
+
 <a name"0.59.0"></a>
 ## 0.59.0 (2016-03-30)
 
