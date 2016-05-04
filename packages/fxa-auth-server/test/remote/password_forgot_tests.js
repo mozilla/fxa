@@ -6,6 +6,9 @@ var test = require('../ptaptest')
 var url = require('url')
 var Client = require('../client')
 var TestServer = require('../test_server')
+var crypto = require('crypto')
+var base64url = require('base64url')
+
 
 var config = require('../../config').getProperties()
 
@@ -368,7 +371,9 @@ TestServer.start(config)
         device: {
           name: 'baz',
           type: 'mobile',
-          pushCallback: 'https://example.com/qux'
+          pushCallback: 'https://example.com/qux',
+          pushPublicKey: base64url(Buffer.concat([new Buffer('\x04'), crypto.randomBytes(64)])),
+          pushAuthKey: base64url(crypto.randomBytes(16))
         }
       })
         .then(

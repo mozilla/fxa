@@ -12,6 +12,8 @@ module.exports.HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 // Match an encoded JWT.
 module.exports.BASE64_JWT = /^(?:[a-zA-Z0-9-_]+[=]{0,2}\.){2}[a-zA-Z0-9-_]+[=]{0,2}$/
 
+module.exports.URLSAFEBASE64 = /^[a-zA-Z0-9-_]*$/
+
 // Match display-safe unicode characters.
 // We're pretty liberal with what's allowed in a unicode string,
 // but we exclude the following classes of characters:
