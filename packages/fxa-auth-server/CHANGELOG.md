@@ -1,3 +1,28 @@
+<a name="1.61.0"></a>
+# [1.61.0](https://github.com/mozilla/fxa-auth-server/compare/v1.60.0...v1.61.0) (2016-05-04)
+
+
+### Bug Fixes
+
+* **device:** Restrict device name to display-safe unicode characters ([79acb18](https://github.com/mozilla/fxa-auth-server/commit/79acb18))
+* **devices:** Avoid spurious writes to device record if nothing has changed ([4330f2d](https://github.com/mozilla/fxa-auth-server/commit/4330f2d))
+* **push:** Disallow storing of public-key values until we're ready to use them. ([12265c3](https://github.com/mozilla/fxa-auth-server/commit/12265c3))
+* **tests:** Fix typo in test name ([dbc0de0](https://github.com/mozilla/fxa-auth-server/commit/dbc0de0))
+
+### Features
+
+* **devices:** Add metrics on device updates, and a flag to disable them ([af748be](https://github.com/mozilla/fxa-auth-server/commit/af748be))
+* **log:** includes uid in summary for account create and login ([1232f95](https://github.com/mozilla/fxa-auth-server/commit/1232f95)), closes [#1225](https://github.com/mozilla/fxa-auth-server/issues/1225)
+* **mailer:** Add "re-confirm your email" templates. ([f7508cb](https://github.com/mozilla/fxa-auth-server/commit/f7508cb))
+* **push:** Add event logging for password changes and resets. ([0db73f5](https://github.com/mozilla/fxa-auth-server/commit/0db73f5))
+* **push:** Notify devices when the password is changed or reset. ([77e53bf](https://github.com/mozilla/fxa-auth-server/commit/77e53bf))
+
+### chore
+
+* **nsp:** Update convict, add .nsprc file to silence some NSP warnings ([038f46e](https://github.com/mozilla/fxa-auth-server/commit/038f46e))
+
+
+
 <a name="1.60.0"></a>
 # [1.60.0](https://github.com/mozilla/fxa-auth-server/compare/v1.59.0...v1.60.0) (2016-04-19)
 
