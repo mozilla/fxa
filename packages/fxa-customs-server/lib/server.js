@@ -30,12 +30,15 @@ module.exports = function createServer(config, log) {
 
   var limits = require('./limits')(config, mc, log)
   var allowedIPs = require('./allowed_ips')(config, mc, log)
+  var allowedEmailDomains = require('./allowed_email_domains')(config, mc, log)
 
   if (config.updatePollIntervalSeconds) {
     limits.refresh({ pushOnMissing: true })
     limits.pollForUpdates()
     allowedIPs.refresh({ pushOnMissing: true })
     allowedIPs.pollForUpdates()
+    allowedEmailDomains.refresh({ pushOnMissing: true })
+    allowedEmailDomains.pollForUpdates()
   }
 
   var IpEmailRecord = require('./ip_email_record')(limits)
@@ -118,10 +121,17 @@ module.exports = function createServer(config, log) {
             if (blockIpEmail && ipEmailRecord.unblockIfReset(emailRecord.pr)) {
               blockIpEmail = 0
             }
-            if (ip in allowedIPs.ips) {
-              blockIp = 0
-            }
+
             var retryAfter = [blockEmail, blockIpEmail, blockIp].reduce(max)
+
+            if (retryAfter > 0) {
+              if (ip in allowedIPs.ips) {
+                retryAfter = 0
+              }
+              if (allowedEmailDomains.isAllowed(email)) {
+                retryAfter = 0
+              }
+            }
 
             return setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord)
               .then(
@@ -308,6 +318,14 @@ module.exports = function createServer(config, log) {
     '/allowedIPs',
     function (req, res, next) {
       res.send(Object.keys(allowedIPs.ips))
+      next()
+    }
+  )
+
+  api.get(
+    '/allowedEmailDomains',
+    function (req, res, next) {
+      res.send(Object.keys(allowedEmailDomains.domains))
       next()
     }
   )
