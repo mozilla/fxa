@@ -12,6 +12,14 @@ const config = require('../config');
 const logger = require('../logging')('compute');
 const P  = require('../promise');
 
+const FILE_SIGS = (function() {
+  var types = config.get('img.uploads.types');
+  var sigs = [];
+  for (var type in types) {
+    sigs = sigs.concat(types[type]);
+  }
+  return sigs;
+})();
 const MAX_PROCESSES = config.get('img.compute.maxProcesses');
 const SIZES = require('../img').SIZES;
 
@@ -64,6 +72,29 @@ exports.image = function image(id, payload) {
         return reject(err);
       }
       var buf = Buffer.concat(arr);
+      var bufLen = buf.length;
+
+      var validSignature = false;
+
+      // check magic bytes before ordering a bunch of variants
+      sigs: for (var i = 0, sigsLen = FILE_SIGS.length; i < sigsLen; i++) {
+        var sig = FILE_SIGS[i];
+
+        if (sig.length < bufLen) {
+          for (var s = 0, len = sig.length; s < len; s++) {
+            if (sig[s] !== buf[s]) {
+              continue sigs;
+            }
+          }
+          validSignature = true;
+          break sigs;
+        }
+      }
+
+      if (!validSignature) {
+        return reject(AppError.processingError('unknown file signature'));
+      }
+
 
       resolve(P.all(Object.keys(SIZES).map(function(variant) {
         var size = SIZES[variant];

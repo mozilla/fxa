@@ -80,6 +80,20 @@ const conf = convict({
       maxSize: {
         doc: 'Maximum bytes allow for uploads',
         default: 1024 * 1024 * 1 // 1MB
+      },
+      types: {
+        doc: 'A mapping of allowed mime types and their file signatures',
+        default: {
+          // see https://en.wikipedia.org/wiki/List_of_file_signatures
+          'image/jpeg': [
+            [0xFF, 0xD8, 0xFF, 0xDB],
+            [0xFF, 0xD8, 0xFF, 0xE0],
+            [0xFF, 0xD8, 0xFF, 0xE1]
+          ],
+          'image/png': [
+            [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]
+          ]
+        }
       }
     },
     compute: {
