@@ -68,8 +68,7 @@ var KEY_FETCH_TOKEN = {
   authKey : hex32(),
   uid : ACCOUNT.uid,
   keyBundle : hex96(),
-  createdAt : now + 2,
-  tokenVerificationId : hex16()
+  createdAt : now + 2
 }
 
 var PASSWORD_FORGOT_TOKEN_ID = hex32()
@@ -354,7 +353,7 @@ module.exports = function(config, DB) {
                 t.deepEqual(token.tokenVerificationId, SESSION_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
 
                 // Attempt to verify session token with invalid tokenVerificationId
-                return db.verifyTokens(hex16(), { uid: ACCOUNT.uid })
+                return db.verifyToken(hex16(), { uid: ACCOUNT.uid })
               })
               .then(function () {
                 t.fail('Verifying session token with invalid tokenVerificationId should have failed')
@@ -370,7 +369,7 @@ module.exports = function(config, DB) {
                 t.deepEqual(token.tokenVerificationId, SESSION_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
 
                 // Attempt to verify session token with invalid uid
-                return db.verifyTokens(SESSION_TOKEN.tokenVerificationId, { uid: hex16() })
+                return db.verifyToken(SESSION_TOKEN.tokenVerificationId, { uid: hex16() })
               })
               .then(function () {
                 t.fail('Verifying session token with invalid uid should have failed')
@@ -385,7 +384,7 @@ module.exports = function(config, DB) {
                 t.deepEqual(token.tokenVerificationId, SESSION_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
 
                 // Verify the session token
-                return db.verifyTokens(SESSION_TOKEN.tokenVerificationId, { uid: ACCOUNT.uid })
+                return db.verifyToken(SESSION_TOKEN.tokenVerificationId, { uid: ACCOUNT.uid })
               })
               .then(function() {
                 // Fetch the session token
@@ -426,24 +425,10 @@ module.exports = function(config, DB) {
         test(
           'key fetch token handling',
           function (t) {
-            t.plan(22)
+            t.plan(8)
 
-            // Attempt to create a key fetch token with no tokenVerificationId
-            return db.createKeyFetchToken(KEY_FETCH_TOKEN_ID, {
-              authKey: hex32(),
-              uid: ACCOUNT.uid,
-              keyBundle: hex96(),
-              createdAt: Date.now()
-            })
-              .then(function () {
-                t.fail('Should have failed to create key fetch token with no tokenVerificationId')
-              }, function (err) {
-                t.pass('Correctly failed to create key fetch token with no tokenVerificationId')
-              })
-              .then(function () {
-                // Create a key fetch token
-                return db.createKeyFetchToken(KEY_FETCH_TOKEN_ID, KEY_FETCH_TOKEN)
-              })
+            // Create a key fetch token
+            return db.createKeyFetchToken(KEY_FETCH_TOKEN_ID, KEY_FETCH_TOKEN)
               .then(function(result) {
                 t.deepEqual(result, {}, 'Returned an empty object on key fetch token creation')
 
@@ -459,64 +444,6 @@ module.exports = function(config, DB) {
                 // email is not returned
                 // emailCode is not returned
                 t.equal(token.verifierSetAt, ACCOUNT.verifierSetAt, 'verifierSetAt is correct')
-                t.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
-
-                // Fetch the key fetch token with its verification state
-                return db.keyFetchTokenWithVerificationStatus(KEY_FETCH_TOKEN_ID)
-              })
-              .then(function(token) {
-                t.deepEqual(token.authKey, KEY_FETCH_TOKEN.authKey, 'authKey matches')
-                t.deepEqual(token.uid, ACCOUNT.uid, 'token belongs to this account')
-                t.equal(token.createdAt, KEY_FETCH_TOKEN.createdAt, 'createdAt is ok')
-                t.equal(!!token.emailVerified, ACCOUNT.emailVerified, 'emailVerified is correct')
-                t.equal(token.verifierSetAt, ACCOUNT.verifierSetAt, 'verifierSetAt is correct')
-                t.deepEqual(token.tokenVerificationId, KEY_FETCH_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
-
-                // Attempt to verify key fetch token with invalid tokenVerificationId
-                return db.verifyTokens(hex16(), { uid: KEY_FETCH_TOKEN.uid })
-              })
-              .then(function () {
-                t.fail('Verifying key fetch token with invalid tokenVerificationId should have failed')
-              }, function () {
-                t.pass('Verifying key fetch token with invalid tokenVerificationId failed as expected')
-              })
-              .then(function() {
-                // Fetch the key fetch token with its verification state
-                return db.keyFetchTokenWithVerificationStatus(KEY_FETCH_TOKEN_ID)
-              })
-              .then(function (token) {
-                t.deepEqual(token.tokenVerificationId, KEY_FETCH_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
-
-                // Attempt to verify key fetch token with invalid uid
-                return db.verifyTokens(KEY_FETCH_TOKEN.tokenVerificationId, { uid: hex16() })
-              })
-              .then(function () {
-                t.fail('Verifying key fetch token with invalid uid should have failed')
-              }, function () {
-                t.pass('Verifying key fetch token with invalid uid failed as expected')
-              })
-              .then(function() {
-                // Fetch the key fetch token with its verification state
-                return db.keyFetchTokenWithVerificationStatus(KEY_FETCH_TOKEN_ID)
-              })
-              .then(function (token) {
-                t.deepEqual(token.tokenVerificationId, KEY_FETCH_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
-
-                // Verify the key fetch token
-                return db.verifyTokens(KEY_FETCH_TOKEN.tokenVerificationId, { uid: SESSION_TOKEN.uid })
-              })
-              .then(function() {
-                // Fetch the key fetch token
-                return db.keyFetchToken(KEY_FETCH_TOKEN_ID)
-              })
-              .then(function(token) {
-                t.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
-
-                // Fetch the key fetch token with its verification state
-                return db.keyFetchTokenWithVerificationStatus(KEY_FETCH_TOKEN_ID)
-              })
-              .then(function(token) {
-                t.equal(token.tokenVerificationId, null, 'tokenVerificationId is null')
 
                 // Delete the key fetch token
                 return db.deleteKeyFetchToken(KEY_FETCH_TOKEN_ID)
@@ -1095,7 +1022,7 @@ module.exports = function(config, DB) {
               })
               .then(function () {
                 // Verify the session token
-                return db.verifyTokens(SESSION_TOKEN.tokenVerificationId, { uid: SESSION_TOKEN.uid })
+                return db.verifyToken(SESSION_TOKEN.tokenVerificationId, { uid: SESSION_TOKEN.uid })
               })
               .then(function () {
                 // Fetch the session token with its verification state and device info

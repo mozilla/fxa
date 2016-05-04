@@ -128,23 +128,11 @@ module.exports = function (log, error) {
       return P.reject(error.duplicate())
     }
 
-    if (! keyFetchToken.tokenVerificationId) {
-      var err = new Error()
-      err.code = 'ER_BAD_NULL_ERROR'
-      err.errno = 1048
-      return P.reject(error.wrap(err))
-    }
-
     keyFetchTokens[tokenId] = {
       authKey: keyFetchToken.authKey,
       uid: keyFetchToken.uid,
       keyBundle: keyFetchToken.keyBundle,
       createdAt: keyFetchToken.createdAt,
-    }
-
-    unverifiedTokens[tokenId] = {
-      tokenVerificationId: keyFetchToken.tokenVerificationId,
-      uid: keyFetchToken.uid
     }
 
     return P.resolve({})
@@ -314,15 +302,11 @@ module.exports = function (log, error) {
   }
 
   Memory.prototype.deleteKeyFetchToken = function (tokenId) {
-    tokenId = tokenId.toString('hex')
-
-    delete unverifiedTokens[tokenId]
-    delete keyFetchTokens[tokenId]
-
+    delete keyFetchTokens[tokenId.toString('hex')]
     return P.resolve({})
   }
 
-  Memory.prototype.verifyTokens = function (tokenVerificationId, accountData) {
+  Memory.prototype.verifyToken = function (tokenVerificationId, accountData) {
     tokenVerificationId = tokenVerificationId.toString('hex')
     var uid = accountData.uid.toString('hex')
 
@@ -583,17 +567,6 @@ module.exports = function (log, error) {
     item.verifierSetAt = account.verifierSetAt
 
     return P.resolve(item)
-  }
-
-  Memory.prototype.keyFetchTokenWithVerificationStatus = function (tokenId) {
-    tokenId = tokenId.toString('hex')
-
-    return this.keyFetchToken(tokenId)
-      .then(function (keyFetchToken) {
-        keyFetchToken.tokenVerificationId = unverifiedTokens[tokenId] ?
-          unverifiedTokens[tokenId].tokenVerificationId : null
-        return keyFetchToken
-      })
   }
 
   Memory.prototype.passwordForgotToken = function (id) {

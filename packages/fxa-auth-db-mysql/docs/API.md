@@ -21,13 +21,11 @@ There are a number of methods that a DB storage backend should implement:
     * .sessionTokenWithVerificationStatus(tokenId)
     * .sessionWithDevice(tokenId)
     * .deleteSessionToken(tokenId)
+    * .verifyToken(tokenVerificationId, accountData)
 * Key Fetch Tokens
     * .createKeyFetchToken(tokenId, keyFetchToken)
     * .keyFetchToken(id)
-    * .keyFetchTokenWithVerificationStatus(tokenId)
     * .deleteKeyFetchToken(tokenId)
-* Unverified session tokens and key fetch tokens
-    * .verifyTokens(tokenVerificationId, accountData)
 * Password Forgot Tokens
     * .createPasswordForgotToken(tokenId, passwordForgotToken)
     * .deletePasswordForgotToken(tokenId)
@@ -275,7 +273,7 @@ Each token takes the following fields for it's create method respectively:
 
 * sessionToken : data, uid, createdAt, uaBrowser, uaBrowserVersion, uaOS, uaOSVersion, uaDeviceType,
                  tokenVerificationId
-* keyFetchToken : authKey, uid, keyBundle, createdAt, tokenVerificationId
+* keyFetchToken : authKey, uid, keyBundle, createdAt
 * passwordChangeToken : data, uid, createdAt
 * passwordForgotToken : data, uid, passCode, createdAt, triesxb
 * accountResetToken : data, uid, createdAt
@@ -295,7 +293,6 @@ should do something equivalent with your storage backend.
 ### .sessionToken(tokenId) ###
 ### .sessionTokenWithVerificationStatus(tokenId) ###
 ### .keyFetchToken(tokenId) ###
-### .keyFetchTokenWithVerificationStatus(tokenId) ###
 ### .passwordChangeToken(tokenId) ###
 ### .passwordForgotToken(tokenId) ###
 ### .accountResetToken(tokenId) ###
@@ -324,8 +321,6 @@ from the token and `a.*` for a field from the corresponding account.
                                        a.emailVerified, a.email, a.emailCode, a.verifierSetAt,
                                        a.createdAt AS accountCreatedAt, ut.tokenVerificationId
 * keyFetchToken : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified, a.verifierSetAt
-* keyFetchTokenWithVerificationStatus : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified,
-                                        a.verifierSetAt, ut.tokenVerificationId
 * passwordChangeToken : t.tokenData, t.uid, t.createdAt, a.verifierSetAt
 * passwordForgotToken : t.tokenData, t.uid, t.createdAt, t.passCode, t.tries, a.email, a.verifierSetAt
 * accountResetToken : t.uid, t.tokenData, t.createdAt, a.verifierSetAt
@@ -377,9 +372,9 @@ Returns:
 * rejects with:
     * any error from the underlying storage system (wrapped in `error.wrap()`)
 
-## .verifyTokens(tokenVerificationId, accountData)
+## .verifyToken(tokenVerificationId, accountData)
 
-Verifies sessionTokens and keyFetchTokens.
+Verifies sessionTokens.
 Note that it takes the tokenVerificationId
 specified when creating the token,
 NOT the tokenId.

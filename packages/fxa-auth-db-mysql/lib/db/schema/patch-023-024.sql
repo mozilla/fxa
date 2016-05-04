@@ -1,5 +1,4 @@
--- Add table for storing unverified sessionTokens
--- and keyFetchTokens.
+-- Add table for storing unverified sessionTokens.
 CREATE TABLE `unverifiedTokens` (
   tokenId BINARY(32) NOT NULL PRIMARY KEY,
   tokenVerificationId BINARY(16) NOT NULL,
@@ -68,54 +67,6 @@ BEGIN
   COMMIT;
 END;
 
--- Update createKeyFetchToken stored procedure to
--- insert into unverifiedTokens.
-CREATE PROCEDURE `createKeyFetchToken_2` (
-  IN tokenId BINARY(32),
-  IN authKey BINARY(32),
-  IN uid BINARY(16),
-  IN keyBundle BINARY(96),
-  IN createdAt BIGINT UNSIGNED,
-  IN tokenVerificationId BINARY(16)
-)
-BEGIN
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
-  BEGIN
-    ROLLBACK;
-    RESIGNAL;
-  END;
-
-  START TRANSACTION;
-
-  INSERT INTO keyFetchTokens(
-    tokenId,
-    authKey,
-    uid,
-    keyBundle,
-    createdAt
-  )
-  VALUES(
-    tokenId,
-    authKey,
-    uid,
-    keyBundle,
-    createdAt
-  );
-
-  INSERT INTO unverifiedTokens(
-    tokenId,
-    tokenVerificationId,
-    uid
-  )
-  VALUES(
-    tokenId,
-    tokenVerificationId,
-    uid
-  );
-
-  COMMIT;
-END;
-
 -- Update deleteSessionToken stored procedure to
 -- delete from unverifiedTokens.
 CREATE PROCEDURE `deleteSessionToken_2` (
@@ -131,26 +82,6 @@ BEGIN
   START TRANSACTION;
 
   DELETE FROM sessionTokens WHERE tokenId = tokenIdArg;
-  DELETE FROM unverifiedTokens WHERE tokenId = tokenIdArg;
-
-  COMMIT;
-END;
-
--- Update deleteKeyFetchToken stored procedure to
--- delete from unverifiedTokens.
-CREATE PROCEDURE `deleteKeyFetchToken_2` (
-  IN tokenIdArg BINARY(32)
-)
-BEGIN
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
-  BEGIN
-    ROLLBACK;
-    RESIGNAL;
-  END;
-
-  START TRANSACTION;
-
-  DELETE FROM keyFetchTokens WHERE tokenId = tokenIdArg;
   DELETE FROM unverifiedTokens WHERE tokenId = tokenIdArg;
 
   COMMIT;
@@ -227,30 +158,8 @@ BEGIN
   WHERE t.tokenId = tokenIdArg;
 END;
 
--- Add stored procedure for fetching keyFetchToken
--- with its verification status.
-CREATE PROCEDURE `keyFetchTokenWithVerificationStatus_1` (
-  IN tokenIdArg BINARY(32)
-)
-BEGIN
-  SELECT
-    t.authKey,
-    t.uid,
-    t.keyBundle,
-    t.createdAt,
-    a.emailVerified,
-    a.verifierSetAt,
-    ut.tokenVerificationId
-  FROM keyFetchTokens AS t
-  LEFT JOIN accounts AS a
-    ON t.uid = a.uid
-  LEFT JOIN unverifiedTokens AS ut
-    ON t.tokenId = ut.tokenId
-  WHERE t.tokenId = tokenIdArg;
-END;
-
 -- Add stored procedure for deleting unverifiedTokens.
-CREATE PROCEDURE `verifyTokens_1` (
+CREATE PROCEDURE `verifyToken_1` (
   IN tokenVerificationIdArg BINARY(16),
   IN uidArg BINARY(16)
 )

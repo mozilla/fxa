@@ -79,8 +79,7 @@ module.exports.newUserDataHex = function() {
     authKey : hex32(),
     uid : data.accountId,
     keyBundle : hex96(),
-    createdAt: Date.now(),
-    tokenVerificationId: hex16()
+    createdAt: Date.now()
   }
 
   // accountResetToken

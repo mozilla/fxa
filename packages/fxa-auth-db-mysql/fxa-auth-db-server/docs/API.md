@@ -69,13 +69,13 @@ The following datatypes are used throughout this document:
     * deleteSessionToken        : `DEL /sessionToken/:id`
     * createSessionToken        : `PUT /sessionToken/:id`
     * updateSessionToken        : `POST /sessionToken/:id/update`
+    * verifyToken               : `POST /token/:tokenVerificationId/verify`
 * Account Reset Tokens:
     * accountResetToken         : `GET /accountResetToken/:id`
     * deleteAccountResetToken   : `DEL /accountResetToken/:id`
     * createAccountResetToken   : `PUT /accountResetToken/:id`
 * Key Fetch Tokens:
     * keyFetchToken             : `GET /keyFetchToken/:id`
-    * keyFetchTokenWithVerificationStatus : `GET /keyFetchToken/:id/verified`
     * deleteKeyFetchToken       : `DEL /keyFetchToken/:id`
     * createKeyFetchToken       : `PUT /keyFetchToken/:id`
 * Password Change Tokens:
@@ -88,8 +88,6 @@ The following datatypes are used throughout this document:
     * createPasswordForgotToken : `PUT /passwordForgotToken/:id`
     * updatePasswordForgotToken : `POST /passwordForgotToken/:id/update`
     * forgotPasswordVerified    : `POST /passwordForgotToken/:id/verified`
-* Unverified tokens:
-    * verifyTokens              : `POST /token/:tokenVerificationId/verify`
 
 ## Ping : `GET /`
 
@@ -610,6 +608,55 @@ Content-Length: 2
     * Conditions: if something goes wrong on the server
     * Content-Type : 'application/json'
     * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+## verifyToken : `POST /token/<tokenVerificationId>/verify`
+
+This method verifies sessionTokens.
+Note that it takes the tokenVerificationId
+specified when creating the token,
+NOT the tokenId.
+
+### Example
+
+```
+curl \
+    -v \
+    -X POST \
+    -H "Content-Type: application/json" \
+    -d '{"uid":"fdea27c8188b3d980a28917bc1399e47"}' \
+    http://localhost:8000/token/266fd690895c8b0086bb2c83e4b3b41c128746125f28b5429938765279673d62/verify
+```
+
+### Request
+
+* Method : POST
+* Path : `/token/<tokenVerificationId>/verify`
+    * tokenVerificationId : hex128
+* Params:
+    * uid : hex128
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : {}
+* Status Code : 404 Not Found
+    * Conditions: if no unverified tokens exist for `tokenVerificationId` and `uid`
+    * Content-Type : 'application/json'
+    * Body : `{"message":"Not Found"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : {"code":"InternalError","message":"...<message related to the error>..."}
+```
 
 ## accountDevices : `GET /account/<uid>/devices`
 
@@ -1154,8 +1201,7 @@ curl \
         "uid"       : "6044486dd15b42e08b1fb9167415b9ac",
         "authKey"   : "b034061cc2886a3c3c08bd4e9bbc8afc4bc3fc9bca12d5b5d0aa7e0a7f78b9ce",
         "keyBundle" : "83333269c64eb43219f8b5807d37ac2391fc77295562685a5239674e2b0215920c45e2295c0d92fa7d69cb58d1e3c6010e1281f6d6c0df694b134815358110ae22a7b4c348a4f426bef3783b0493b3a531b649c0e2f19848d9563a61cd0f7eb8",
-        "createdAt" : 1425004396952,
-        "tokenVerificationId" : "a6062c21560edad350e6a654bdd9fd4f"
+        "createdAt" : 1425004396952
     }' \
     http://localhost:8000/keyFetchToken/4c17443c1bcf5e509bc90904905ea1974900120d3dd34e7061f182cb063f976a
 ```
@@ -1171,7 +1217,6 @@ curl \
     * authKey : hex256
     * keyBundle : hex768
     * createdAt : epoch
-    * tokenVerificationId : hex128
 
 ### Response
 
@@ -1236,54 +1281,6 @@ Content-Length: 399
     * Body : `[ ... <see example> ...]`
 * Status Code : 404 Not Found
     * Conditions: if this session `tokenId` doesn't exist
-    * Content-Type : 'application/json'
-    * Body : `{"message":"Not Found"}`
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
-
-## keyFetchTokenWithVerificationStatus : `GET /keyFetchToken/<tokenId>/verified`
-
-### Example
-
-```
-curl \
-    -v \
-    -X GET \
-    http://localhost:8000/keyFetchToken/4c17443c1bcf5e509bc90904905ea1974900120d3dd34e7061f182cb063f976a/verified
-```
-
-### Request
-
-* Method : GET
-* Path : `/keyFetchToken/<tokenId>/verified`
-    * tokenId : hex256
-* Params: none
-
-### Response
-
-```
-HTTP/1.1 200 OK
-Content-Type: application/json
-Content-Length: 399
-
-{
-    "authKey":"b034061cc2886a3c3c08bd4e9bbc8afc4bc3fc9bca12d5b5d0aa7e0a7f78b9ce",
-    "uid":"6044486dd15b42e08b1fb9167415b9ac",
-    "keyBundle":"83333269c64eb43219f8b5807d37ac2391fc77295562685a5239674e2b0215920c45e2295c0d92fa7d69cb58d1e3c6010e1281f6d6c0df694b134815358110ae22a7b4c348a4f426bef3783b0493b3a531b649c0e2f19848d9563a61cd0f7eb8",
-    "createdAt":1460548810011,
-    "emailVerified":0,
-    "verifierSetAt":1460548810011,
-    "tokenVerificationId":"12c41fac80fd6149f3f695e188b5f846"
-}
-```
-
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : `[ ... <see example> ...]`
-* Status Code : 404 Not Found
-    * Conditions: if the keyFetchToken `tokenId` doesn't exist
     * Content-Type : 'application/json'
     * Body : `{"message":"Not Found"}`
 * Status Code : 500 Internal Server Error
@@ -1707,55 +1704,6 @@ Content-Length: 2
     * Body : {}
 * Status Code : 404 Not Found
     * Conditions: if this session `tokenId` doesn't exist
-    * Content-Type : 'application/json'
-    * Body : `{"message":"Not Found"}`
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : {"code":"InternalError","message":"...<message related to the error>..."}
-```
-
-## verifyTokens : `POST /token/<tokenVerificationId>/verify`
-
-This method verifies sessionTokens and keyFetchTokens.
-Note that it takes the tokenVerificationId
-specified when creating the token,
-NOT the tokenId.
-
-### Example
-
-```
-curl \
-    -v \
-    -X POST \
-    -H "Content-Type: application/json" \
-    -d '{"uid":"fdea27c8188b3d980a28917bc1399e47"}' \
-    http://localhost:8000/token/266fd690895c8b0086bb2c83e4b3b41c128746125f28b5429938765279673d62/verify
-```
-
-### Request
-
-* Method : POST
-* Path : `/token/<tokenVerificationId>/verify`
-    * tokenVerificationId : hex128
-* Params:
-    * uid : hex128
-
-### Response
-
-```
-HTTP/1.1 200 OK
-Content-Type: application/json
-Content-Length: 2
-
-{}
-```
-
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : {}
-* Status Code : 404 Not Found
-    * Conditions: if no unverified tokens exist for `tokenVerificationId` and `uid`
     * Content-Type : 'application/json'
     * Body : `{"message":"Not Found"}`
 * Status Code : 500 Internal Server Error
