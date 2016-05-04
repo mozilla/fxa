@@ -30,7 +30,6 @@ define([
   var openPage = FunctionalHelpers.openPage;
   var testAttributeMatches = FunctionalHelpers.testAttributeMatches;
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
-  var testErrorWasShown = FunctionalHelpers.testErrorWasShown;
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   function testAtConfirmScreen (email) {
@@ -283,7 +282,7 @@ define([
         .end()
 
         // the validation tooltip should be visible
-        .then(FunctionalHelpers.visibleByQSA('.tooltip'));
+        .then(visibleByQSA('.tooltip'));
     },
 
     'signup with existing account, coppa is valid, credentials are correct': function () {
@@ -297,7 +296,7 @@ define([
     'signup with existing account, coppa is valid, credentials are wrong': function () {
       return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD)
 
-        .then(testErrorWasShown(this))
+        .then(visibleByQSA('.error'))
         .then(click('.error a[href="/signin"]'))
 
         .findByCssSelector('#fxa-signin-header')
@@ -319,7 +318,7 @@ define([
     'signup with existing account, coppa is empty, credentials are wrong': function () {
       return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD, { age: ' ' })
 
-        .then(testErrorWasShown(this))
+        .then(visibleByQSA('.error'))
         .then(click('.error a[href="/signin"]'))
 
         .findByCssSelector('#fxa-signin-header')
@@ -339,7 +338,7 @@ define([
         .end()
 
         // an error should be visible
-        .then(FunctionalHelpers.testErrorWasShown(this));
+        .then(visibleByQSA('.error'));
     },
 
     'signup with existing account, coppa is too young, credentials are correct': function () {
@@ -353,7 +352,7 @@ define([
     'signup with existing account, coppa is too young, credentials are wrong': function () {
       return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD, { age: 12 })
 
-        .then(testErrorWasShown(this))
+        .then(visibleByQSA('.error'))
         .then(click('.error a[href="/signin"]'))
 
         .findByCssSelector('#fxa-signin-header')
