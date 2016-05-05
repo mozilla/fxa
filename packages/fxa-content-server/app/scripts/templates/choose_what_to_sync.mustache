@@ -18,7 +18,7 @@
             {{#hasTabSupport}}
               <div class="input-row choose-what-to-sync-row">
                 <label class="fxa-checkbox">
-                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="tabs" autofocus>
+                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="tabs" tabindex="5">
               <span class="fxa-checkbox__label">
                 {{#t}}Tabs{{/t}}
               </span>
@@ -29,7 +29,7 @@
             {{#hasBookmarkSupport}}
               <div class="input-row choose-what-to-sync-row">
                 <label class="fxa-checkbox">
-                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="bookmarks"{{^hasTabSupport}} autofocus{{/hasTabSupport}}>
+                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="bookmarks" tabindex="10">
               <span class="fxa-checkbox__label">
                 {{#t}}Bookmarks{{/t}}
               </span>
@@ -40,7 +40,7 @@
             {{#hasDesktopAddonSupport}}
               <div class="input-row choose-what-to-sync-row">
                 <label class="fxa-checkbox">
-                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="addons"{{^hasTabSupport}}{{^hasBookmarkSupport}} autofocus{{/hasBookmarkSupport}}{{/hasTabSupport}}>
+                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="addons" tabindex="15">
                 <span class="fxa-checkbox__label">
                   {{#t}}Add-ons{{/t}}
                 </span>
@@ -52,7 +52,7 @@
             {{#hasPasswordSupport}}
               <div class="input-row choose-what-to-sync-row">
                 <label class="fxa-checkbox">
-                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="passwords"{{^hasTabSupport}}{{^hasBookmarkSupport}}{{^hasDesktopAddonSupport}} autofocus{{/hasDesktopAddonSupport}}{{/hasBookmarkSupport}}{{/hasTabSupport}}>
+                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="passwords" tabindex="20">
               <span class="fxa-checkbox__label">
                 {{#t}}Passwords{{/t}}
               </span>
@@ -63,7 +63,7 @@
             {{#hasHistorySupport}}
               <div class="input-row choose-what-to-sync-row">
                 <label class="fxa-checkbox">
-                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="history"{{^hasTabSupport}}{{^hasBookmarkSupport}}{{^hasDesktopAddonSupport}}{{^hasPasswordSupport}} autofocus{{/hasPasswordSupport}}{{/hasDesktopAddonSupport}}{{/hasBookmarkSupport}}{{/hasTabSupport}}>
+                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="history" tabindex="25">
               <span class="fxa-checkbox__label">
                 {{#t}}History{{/t}}
               </span>
@@ -74,7 +74,7 @@
             {{#hasDesktopPreferencesSupport}}
               <div class="input-row choose-what-to-sync-row">
                 <label class="fxa-checkbox">
-                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="prefs"{{^hasTabSupport}}{{^hasBookmarkSupport}}{{^hasDesktopAddonSupport}}{{^hasPasswordSupport}}{{^hasDesktopPreferencesSupport}} autofocus{{/hasDesktopPreferencesSupport}}{{/hasPasswordSupport}}{{/hasDesktopAddonSupport}}{{/hasBookmarkSupport}}{{/hasTabSupport}}>
+                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="prefs" tabindex="30">
                 <span class="fxa-checkbox__label">
                   {{#t}}Preferences{{/t}}
                 </span>
@@ -85,7 +85,7 @@
         </div>
         <div class="extra-links extra-links-choose-what-to-sync">{{#t}}Add-ons and Preferences do not currently sync on mobile devices.{{/t}}</div>
         <div class="button-row">
-          <button id="submit-btn" type="submit">{{#t}}Save settings{{/t}}</button>
+          <button id="submit-btn" type="submit" tabindex="1" autofocus>{{#t}}Save settings{{/t}}</button>
         </div>
     </form>
 

@@ -1086,16 +1086,16 @@ define([
   /**
    * Assert the value of an attribute
    *
-   * @param {string} elementSelector CSS selector for the element
+   * @param {string} selector CSS selector for the element
    * @param {string} attributeName Name of attribute
    * @param {string} assertion Name of the chai assertion to invoke
    * @param {string} value Expected value of the attribute
    * @returns {promise}
    */
-  function testAttribute (elementSelector, attributeName, assertion, value) {
+  function testAttribute (selector, attributeName, assertion, value) {
     return function () {
       return this.parent
-        .findByCssSelector(elementSelector)
+        .findByCssSelector(selector)
           .getAtribute(attributeName)
           .then(function (attributeValue) {
             assert[assertion](attributeValue, value);
@@ -1107,25 +1107,44 @@ define([
   /**
    * Assert that an attribute value === expected value
    *
-   * @param {string} elementSelector CSS selector for the element
+   * @param {string} selector CSS selector for the element
    * @param {string} attributeName Name of attribute
    * @param {string} value Expected value of the attribute
    * @returns {promise}
    */
-  function testAttributeEquals (elementSelector, attributeName, value) {
-    return testAttribute(elementSelector, attributeName, 'strictEqual', value);
+  function testAttributeEquals (selector, attributeName, value) {
+    return testAttribute(selector, attributeName, 'strictEqual', value);
   }
 
   /**
    * Assert that an attribute value matches a regex
    *
-   * @param {string} elementSelector CSS selector for the element
+   * @param {string} selector CSS selector for the element
    * @param {string} attributeName Name of attribute
    * @param {regex} regex Expression for the attribute value to be matched against
    * @returns {promise}
    */
-  function testAttributeMatches (elementSelector, attributeName, regex) {
-    return testAttribute(elementSelector, attributeName, 'match', regex);
+  function testAttributeMatches (selector, attributeName, regex) {
+    return testAttribute(selector, attributeName, 'match', regex);
+  }
+
+  /**
+   * Check that an element has an attribute
+   *
+   * @param {string} selector CSS selector for the element
+   * @param {string} attributeName Name of attribute
+   * @returns {promise} resolves to true if attribute exists, false otw.
+   */
+  function testAttributeExists (selector, attributeName) {
+    return function () {
+      return this.parent
+        .findByCssSelector(selector)
+          .getAttribute(attributeName)
+          .then(function (attributeValue) {
+            assert.notStrictEqual(attributeValue, null);
+          })
+        .end();
+    };
   }
 
   function verifyUser(user, index, client, accountData) {
@@ -1173,6 +1192,7 @@ define([
     testAreEventsLogged: testAreEventsLogged,
     testAttribute: testAttribute,
     testAttributeEquals: testAttributeEquals,
+    testAttributeExists: testAttributeExists,
     testAttributeMatches: testAttributeMatches,
     testElementDisabled: testElementDisabled,
     testElementExists: testElementExists,
