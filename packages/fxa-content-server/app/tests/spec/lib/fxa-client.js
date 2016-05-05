@@ -272,6 +272,137 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('recoveryEmailStatus', function () {
+      var accountInfo;
+      var clientMock;
+      var err;
+
+      beforeEach(function () {
+        clientMock = {
+          accountStatus: function () {},
+          recoveryEmailStatus: function () {}
+        };
+
+        accountInfo = err = null;
+
+        sinon.stub(client, '_getClient', function () {
+          return p(clientMock);
+        });
+      });
+
+      describe('with a sessionToken only', function () {
+        describe('valid session', function () {
+          beforeEach(function () {
+            sinon.stub(clientMock, 'recoveryEmailStatus', function () {
+              return p({ verified: true });
+            });
+
+            return client.recoveryEmailStatus('session token')
+              .then(function (_accountInfo) {
+                accountInfo = _accountInfo;
+              });
+          });
+
+          it('resolves with the status information', function () {
+            assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
+            assert.isTrue(accountInfo.verified);
+          });
+        });
+
+        describe('invalid session', function () {
+          beforeEach(function () {
+            sinon.stub(clientMock, 'recoveryEmailStatus', function () {
+              return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+            });
+
+            sinon.spy(clientMock, 'accountStatus');
+
+            return client.recoveryEmailStatus('session token')
+              .then(assert.fail, function (_err) {
+                err = _err;
+              });
+          });
+
+          it('rejects with an INVALID_TOKEN error', function () {
+            assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+          });
+
+          it('does not call accountStatus', function () {
+            assert.isFalse(clientMock.accountStatus.called);
+          });
+        });
+      });
+
+      describe('both a sessionToken and uid', function () {
+        describe('valid session', function () {
+          beforeEach(function () {
+            sinon.stub(clientMock, 'recoveryEmailStatus', function () {
+              return p({ verified: true });
+            });
+
+            return client.recoveryEmailStatus('session token', 'uid')
+              .then(function (_accountInfo) {
+                accountInfo = _accountInfo;
+              });
+          });
+
+          it('resolves with the status information', function () {
+            assert.isTrue(accountInfo.verified);
+          });
+        });
+
+        describe('invalid session', function () {
+          beforeEach(function () {
+            sinon.stub(clientMock, 'recoveryEmailStatus', function () {
+              return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+            });
+          });
+
+          describe('account exists', function () {
+            beforeEach(function () {
+              sinon.stub(clientMock, 'accountStatus', function () {
+                return p({ exists: true });
+              });
+
+              return client.recoveryEmailStatus('session token', 'uid')
+                .then(assert.fail, function (_err) {
+                  err = _err;
+                });
+            });
+
+            it('rejects with an INVALID_TOKEN error', function () {
+              assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+            });
+
+            it('calls accountStatus', function () {
+              assert.isTrue(clientMock.accountStatus.called);
+            });
+          });
+
+          describe('account does not exist', function () {
+            beforeEach(function () {
+              sinon.stub(clientMock, 'accountStatus', function () {
+                return p({ exists: false });
+              });
+
+              return client.recoveryEmailStatus('session token', 'uid')
+                .then(assert.fail, function (_err) {
+                  err = _err;
+                });
+            });
+
+            it('rejects with an SIGNUP_EMAIL_BOUNCE error', function () {
+              assert.isTrue(AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE'));
+            });
+
+            it('calls accountStatus', function () {
+              assert.isTrue(clientMock.accountStatus.called);
+            });
+          });
+        });
+      });
+    });
+
     describe('signUpResend', function () {
       it('resends the validation email', function () {
         var sessionToken = 'session token';

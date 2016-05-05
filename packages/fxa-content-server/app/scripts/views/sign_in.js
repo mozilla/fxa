@@ -39,7 +39,20 @@ define(function (require, exports, module) {
     },
 
     beforeRender: function () {
-      this._account = this._suggestedAccount();
+      var self = this;
+      self._account = self._suggestedAccount();
+
+      self._account.on('change:accessToken', function () {
+        // if no access token and password is not visible we need to show the password field.
+        if (! self._account.has('accessToken') && self.$('.password').is(':hidden')) {
+          // accessToken could be changed async by an external request after render
+          // If the ProfileClient fails to get an OAuth token with the current token then reset the view
+          self.chooserAskForPassword = true;
+          return self.render().then(function () {
+            self.setDefaultPlaceholderAvatar();
+          });
+        }
+      });
     },
 
     getAccount: function () {

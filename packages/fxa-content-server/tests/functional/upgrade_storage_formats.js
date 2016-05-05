@@ -74,19 +74,22 @@ define([
 
     'Upgrade from Session w/ cached Sync credentials': function () {
       return this.remote
-        .execute(function (email) {
-          var userData = {
-            cachedCredentials: {
-              email: email,
-              sessionToken: 'another fake session token',
-              sessionTokenContext: 'sync',
-              uid: 'users id'
-            },
-            email: 'oauth@testuser.com',
-            sessionToken: 'a fake session token'
-          };
-          localStorage.setItem('__fxa_session', JSON.stringify(userData));
-        }, [ email ])
+        .then(createUser(email, 'password', { preVerified: true }))
+        .then(function (accountInfo) {
+          return this.parent.execute(function (email, sessionToken) {
+            var userData = {
+              cachedCredentials: {
+                email: email,
+                sessionToken: sessionToken,
+                sessionTokenContext: 'sync',
+                uid: 'users id'
+              },
+              email: 'oauth@testuser.com',
+              sessionToken: 'a fake session token'
+            };
+            localStorage.setItem('__fxa_session', JSON.stringify(userData));
+          }, [ email, accountInfo.sessionToken ]);
+        })
         .then(openPage(this, SIGNIN_PAGE_URL, '#fxa-signin-header'))
 
         // Sync creds take precedence

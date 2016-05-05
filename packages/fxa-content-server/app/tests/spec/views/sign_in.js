@@ -144,6 +144,47 @@ define(function (require, exports, module) {
               assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
             });
       });
+
+      describe('with a cached account whose accessToken is invalidated after render', function () {
+        beforeEach(function () {
+          initView();
+
+          var account = user.initAccount({
+            accessToken: 'access token',
+            email: 'a@a.com',
+            sessionToken: 'session token',
+            sessionTokenContext: Constants.SYNC_SERVICE
+          });
+
+          sinon.stub(view, '_suggestedAccount', function () {
+            return account;
+          });
+
+          sinon.spy(view, 'render');
+
+          return view.render()
+            .then(function () {
+              account.set({
+                accessToken: null,
+                sessionToken: null,
+                sessionTokenContext: null
+              });
+            });
+        });
+
+        it('re-renders', function () {
+          assert.equal(view.render.callCount, 2);
+        });
+
+        it('keeps the original email', function () {
+          assert.equal(view.$('.prefillEmail').text(), 'a@a.com');
+          assert.equal(view.$('input[type=email]').val(), 'a@a.com');
+        });
+
+        it('forces the user to enter their password', function () {
+          assert.lengthOf(view.$('input[type=password]'), 1);
+        });
+      });
     });
 
     describe('migration', function () {

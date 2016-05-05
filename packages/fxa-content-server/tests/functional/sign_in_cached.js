@@ -25,12 +25,12 @@ define([
   // The automatedBrowser query param tells signin/up to stub parts of the flow
   // that require a functioning desktop channel
   var PAGE_SIGNIN = config.fxaContentRoot + 'signin';
+  var PAGE_TERMS = config.fxaContentRoot + 'legal/terms';
   var PAGE_SIGNIN_DESKTOP = PAGE_SIGNIN + '?context=' + FX_DESKTOP_V1_CONTEXT + '&service=sync';
   var PAGE_SIGNIN_NO_CACHED_CREDS = PAGE_SIGNIN + '?email=blank';
   var PAGE_SIGNUP = config.fxaContentRoot + 'signup';
   var PAGE_SIGNUP_DESKTOP = config.fxaContentRoot + 'signup?context=' + FX_DESKTOP_V1_CONTEXT + '&service=sync';
   var PAGE_SETTINGS = config.fxaContentRoot + 'settings';
-
 
   var PASSWORD = 'password';
   var email;
@@ -180,12 +180,13 @@ define([
         .click()
         .end()
 
-        // the form should not be prefilled
+        .then(FunctionalHelpers.pollUntil(function () {
+          // the form should not be prefilled
+          /* global $ */
+          return $('.email').val().length === 0 ? true : null;
+        }, [], 10000))
+
         .findByCssSelector('form input.email')
-        .getAttribute('value')
-        .then(function (val) {
-          assert.equal(val, '');
-        })
         .click()
         .type(email2)
         .end()
@@ -249,29 +250,24 @@ define([
               accounts[uid].sessionToken = 'eeead2b45791360e00b162ed37f118abbdae6ee8d3997f4eb48ee31dbdf53802';
               localStorage.setItem('__fxa_storage.accounts', JSON.stringify(accounts));
 
+              // navigate away from the sign in form once done
               window.location.href = URL;
             }
+            return true;
           });
-          return true;
-        }, [ email, FX_DESKTOP_V1_CONTEXT, PAGE_SIGNIN ])
-
+        }, [ email, FX_DESKTOP_V1_CONTEXT, PAGE_TERMS ])
 
         .findByCssSelector('button[type="submit"]')
         .click()
         .end()
 
-        .findByCssSelector('.use-logged-in')
-        .click()
+        .findByCssSelector('#fxa-tos-header')
         .end()
 
-        // Session expired error should show.
-        .then(FunctionalHelpers.visibleByQSA('.error'))
+        .get(require.toUrl(PAGE_SIGNIN_DESKTOP))
+        .execute(listenForFxaCommands)
 
-        .findByCssSelector('.error').isDisplayed()
-        .then(function (isDisplayed) {
-          assert.isTrue(isDisplayed);
-        })
-        .end()
+        .then(FunctionalHelpers.visibleByQSA('form input.password'))
 
         .findByCssSelector('form input.password')
         .click()

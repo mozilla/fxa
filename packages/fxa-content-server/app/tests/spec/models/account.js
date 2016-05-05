@@ -148,6 +148,27 @@ define(function (require, exports, module) {
           });
       });
 
+      describe('with an invalid sessionToken', function () {
+        beforeEach(function () {
+          account.set({
+            accessToken: 'access token',
+            sessionToken: SESSION_TOKEN,
+            sessionTokenContext: Constants.SYNC_SERVICE
+          });
+
+          sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
+            return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+          });
+
+          return account.fetch();
+        });
+
+        it('invalidates the session and access tokens', function () {
+          assert.isFalse(account.has('accessToken'));
+          assert.isFalse(account.has('sessionToken'));
+          assert.isFalse(account.has('sessionTokenContext'));
+        });
+      });
     });
 
     describe('isVerified', function () {
@@ -768,7 +789,7 @@ define(function (require, exports, module) {
       PROFILE_CLIENT_METHODS.forEach(function (method) {
         it('retries on ' + method, function () {
           sinon.stub(profileClient, method, function () {
-            return p.reject(ProfileClient.Errors.toError('UNAUTHORIZED'));
+            return p.reject(ProfileErrors.toError('UNAUTHORIZED'));
           });
           return account[method]()
             .then(
@@ -776,7 +797,7 @@ define(function (require, exports, module) {
               function (err) {
                 assert.isTrue(account.createOAuthToken.calledTwice);
                 assert.isTrue(profileClient[method].calledTwice);
-                assert.isTrue(ProfileClient.Errors.is(err, 'UNAUTHORIZED'));
+                assert.isTrue(ProfileErrors.is(err, 'UNAUTHORIZED'));
                 assert.isUndefined(account.get('accessToken'));
               }
             );
@@ -785,7 +806,7 @@ define(function (require, exports, module) {
         it('retries and succeeds on ' + method, function () {
           sinon.stub(profileClient, method, function (token) {
             if (token === 'token1') {
-              return p.reject(ProfileClient.Errors.toError('UNAUTHORIZED'));
+              return p.reject(ProfileErrors.toError('UNAUTHORIZED'));
             } else {
               return p();
             }
@@ -802,18 +823,76 @@ define(function (require, exports, module) {
 
         it('throws other errors on ' + method, function () {
           sinon.stub(profileClient, method, function () {
-            return p.reject(ProfileClient.Errors.toError('UNKNOWN_ACCOUNT'));
+            return p.reject(ProfileErrors.toError('UNKNOWN_ACCOUNT'));
           });
           return account[method]()
             .then(
               assert.fail,
               function (err) {
-                assert.isTrue(ProfileClient.Errors.is(err, 'UNKNOWN_ACCOUNT'));
+                assert.isTrue(ProfileErrors.is(err, 'UNKNOWN_ACCOUNT'));
                 assert.isTrue(account.createOAuthToken.calledOnce);
                 assert.isTrue(profileClient[method].calledOnce);
                 assert.equal(account.get('accessToken'), 'token1');
               }
             );
+        });
+      });
+    });
+
+    describe('with an invalid sessionToken', function () {
+      PROFILE_CLIENT_METHODS.forEach(function (method) {
+        describe(method, function () {
+          var err;
+          var accessTokenChangeSpy;
+          var sessionTokenChangeSpy;
+          var sessionTokenContextChangeSpy;
+
+          beforeEach(function () {
+            sinon.stub(account, 'fetch', function () {
+              return p();
+            });
+
+            account.set({
+              accessToken: 'access token',
+              sessionToken: 'session token',
+              sessionTokenContext: 'session token context',
+              verified: true
+            });
+
+            sinon.stub(profileClient, method, function () {
+              return p.reject(ProfileErrors.toError('INVALID_TOKEN'));
+            });
+
+            accessTokenChangeSpy = sinon.spy();
+            account.on('change:accessToken', accessTokenChangeSpy);
+
+            sessionTokenChangeSpy = sinon.spy();
+            account.on('change:sessionToken', sessionTokenChangeSpy);
+
+            sessionTokenContextChangeSpy = sinon.spy();
+            account.on('change:sessionTokenContext', sessionTokenContextChangeSpy);
+
+            return account[method]()
+              .then(assert.fail, function (_err) {
+                err = _err;
+              });
+          });
+
+          it('unsets the expected fields ' + method, function () {
+            assert.isFalse(account.has('accessToken'));
+            assert.isFalse(account.has('sessionToken'));
+            assert.isFalse(account.has('sessionTokenContext'));
+          });
+
+          it('triggers the `change` event on the expected fields', function () {
+            assert.isTrue(accessTokenChangeSpy.called);
+            assert.isTrue(sessionTokenChangeSpy.called);
+            assert.isTrue(sessionTokenContextChangeSpy.called);
+          });
+
+          it('rejects with the correct error', function () {
+            assert.isTrue(ProfileErrors.is(err, 'INVALID_TOKEN'));
+          });
         });
       });
     });
@@ -826,7 +905,7 @@ define(function (require, exports, module) {
         account.set('verified', true);
 
         sinon.stub(account, 'createOAuthToken', function () {
-          return p.reject(ProfileClient.Errors.toError('UNAUTHORIZED'));
+          return p.reject(ProfileErrors.toError('UNAUTHORIZED'));
         });
       });
 
@@ -839,7 +918,7 @@ define(function (require, exports, module) {
               function (err) {
                 assert.isTrue(account.createOAuthToken.calledTwice);
                 assert.isFalse(spy.called);
-                assert.isTrue(ProfileClient.Errors.is(err, 'UNAUTHORIZED'));
+                assert.isTrue(ProfileErrors.is(err, 'UNAUTHORIZED'));
                 assert.isUndefined(account.get('accessToken'));
               }
             );

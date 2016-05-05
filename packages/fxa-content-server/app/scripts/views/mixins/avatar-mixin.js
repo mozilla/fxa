@@ -46,7 +46,7 @@ define(function (require, exports, module) {
       // We'll optimize the UI for the case that the account
       // doesn't have a profile image if it's not cached
       if (self._shouldShowDefaultProfileImage(account)) {
-        avatarWrapperEl.addClass('with-default');
+        self.setDefaultPlaceholderAvatar(avatarWrapperEl);
       } else if (options.spinner) {
         spinnerEl = self._addLoadingSpinner(avatarWrapperEl);
       }
@@ -89,6 +89,11 @@ define(function (require, exports, module) {
 
     hasDisplayedAccountProfileImage: function () {
       return this._displayedProfileImage && ! this._displayedProfileImage.isDefault();
+    },
+
+    setDefaultPlaceholderAvatar: function (avatarWrapperEl) {
+      avatarWrapperEl = avatarWrapperEl || $('.avatar-wrapper');
+      avatarWrapperEl.addClass('with-default');
     },
 
     // Makes sure the account has an up-to-date image cache.

@@ -18,6 +18,10 @@ define(function (require, exports, module) {
       errno: 100,
       message: t('Unauthorized')
     },
+    INVALID_TOKEN: {
+      errno: 110,
+      message: t('Invalid Token')
+    },
     INVALID_PARAMETER: {
       errno: 101,
       message: t('Invalid parameter in request body: %(param)s')
