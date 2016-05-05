@@ -13,6 +13,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var _ = require('underscore');
   var AuthErrors = require('lib/auth-errors');
   var BaseRelier = require('models/reliers/base');
   var Cocktail = require('cocktail');
@@ -36,9 +37,7 @@ define(function (require, exports, module) {
   /*eslint-disable camelcase*/
   var QUERY_PARAMETER_SCHEMA = {
     campaign: Vat.string(),
-    // `email` will be further validated by views to
-    // show the appropriate error message
-    email: Vat.string().allow(Constants.DISALLOW_CACHED_CREDENTIALS),
+    email: Vat.email().allow(Constants.DISALLOW_CACHED_CREDENTIALS),
     // FxDesktop declares both `entryPoint` (capital P) and
     // `entrypoint` (lowcase p). Normalize to `entrypoint`.
     entryPoint: Vat.string(),
@@ -48,15 +47,24 @@ define(function (require, exports, module) {
     reset_password_confirm: Vat.boolean().renameTo('resetPasswordConfirm'),
     service: Vat.string(),
     setting: Vat.string(),
-    // `uid` will be further validated by the views to
-    // show the appropriate error message
-    uid: Vat.string(),
+    uid: Vat.uid(),
     utm_campaign: Vat.string().renameTo('utmCampaign'),
     utm_content: Vat.string().renameTo('utmContent'),
     utm_medium: Vat.string().renameTo('utmMedium'),
     utm_source: Vat.string().renameTo('utmSource'),
     utm_term: Vat.string().renameTo('utmTerm')
   };
+
+  var VERIFICATION_QUERY_PARAMETER_SCHEMA = _.extend({}, QUERY_PARAMETER_SCHEMA, {
+    // Verication links are sometimes broken by mail user-agents.
+    // The rules on the following fields are relaxed for startup,
+    // and then further validated by the views that use them. If
+    // the fields are invalid, context specific help text is displayed
+    // that helps the user remedy the problem.
+    email: Vat.string().allow(Constants.DISALLOW_CACHED_CREDENTIALS),
+    uid: Vat.string()
+  });
+
   /*eslint-enable camelcase*/
 
   var Relier = BaseRelier.extend({
@@ -80,6 +88,9 @@ define(function (require, exports, module) {
 
     initialize: function (options) {
       options = options || {};
+
+      this._queryParameterSchema = options.isVerification ?
+        VERIFICATION_QUERY_PARAMETER_SCHEMA : QUERY_PARAMETER_SCHEMA;
 
       this.sentryMetrics = options.sentryMetrics;
       this.window = options.window || window;
@@ -111,7 +122,7 @@ define(function (require, exports, module) {
           self.populateFromStringifiedResumeToken(self.getSearchParam('resume'));
           // TODO - validate data coming from the resume token
 
-          self.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
+          self.importSearchParamsUsingSchema(self._queryParameterSchema, AuthErrors);
 
           // FxDesktop declares both `entryPoint` (capital P) and
           // `entrypoint` (lowcase p). Normalize to `entrypoint`.

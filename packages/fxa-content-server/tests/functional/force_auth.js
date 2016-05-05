@@ -18,16 +18,13 @@ define([
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
+  var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
   var type = FunctionalHelpers.type;
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
-  var testErrorInclude = function (expected) {
-    return testElementTextInclude('.error', expected);
-  };
-
   function testAccountNoLongerExistsErrorShown() {
     return this.parent
-      .then(testElementTextInclude('.error', 'no longer exists'));
+      .then(testErrorTextInclude('no longer exists'));
   }
 
   var PASSWORD = 'password';
@@ -47,8 +44,8 @@ define([
         .then(openForceAuth({
           header: '#fxa-400-header'
         }))
-        .then(testErrorInclude('missing'))
-        .then(testErrorInclude('email'));
+        .then(testErrorTextInclude('missing'))
+        .then(testErrorTextInclude('email'));
     },
 
     'with an invalid email': function () {
@@ -59,8 +56,8 @@ define([
             email: 'invalid'
           }
         }))
-        .then(testErrorInclude('invalid'))
-        .then(testErrorInclude('email'));
+        .then(testErrorTextInclude('invalid'))
+        .then(testErrorTextInclude('email'));
     },
 
     'with a registered email, no uid': function () {
@@ -84,8 +81,8 @@ define([
             }
           }).call(this);
         })
-        .then(testErrorInclude('invalid'))
-        .then(testErrorInclude('uid'));
+        .then(testErrorTextInclude('invalid'))
+        .then(testErrorTextInclude('uid'));
     },
 
     'with a registered email, registered uid': function () {
@@ -123,7 +120,7 @@ define([
           query: { email: email }
         }))
         .then(visibleByQSA('.error'))
-        .then(testElementTextInclude('.error', 'recreate'))
+        .then(testErrorTextInclude('recreate'))
 
         // ensure the email is filled in, and not editible.
         .then(testElementValueEquals('input[type=email]', email))

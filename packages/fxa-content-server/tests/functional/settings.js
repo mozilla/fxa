@@ -22,8 +22,9 @@ define([
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
   var SETTINGS_URL = config.fxaContentRoot + 'settings';
 
+  var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
+
   var FIRST_PASSWORD = 'password';
-  var SECOND_PASSWORD = 'new_password';
   var email;
   var client;
   var accountData;
@@ -49,6 +50,30 @@ define([
 
     afterEach: function () {
       return FunctionalHelpers.clearBrowserState(this);
+    },
+
+    'with an invalid email': function () {
+      return FunctionalHelpers.openPage(this, SETTINGS_URL + '?email=invalid', '#fxa-400-header')
+        .then(testErrorTextInclude('invalid'))
+        .then(testErrorTextInclude('email'));
+    },
+
+    'with an empty email': function () {
+      return FunctionalHelpers.openPage(this, SETTINGS_URL + '?email=', '#fxa-400-header')
+        .then(testErrorTextInclude('invalid'))
+        .then(testErrorTextInclude('email'));
+    },
+
+    'with an invalid uid': function () {
+      return FunctionalHelpers.openPage(this, SETTINGS_URL + '?uid=invalid', '#fxa-400-header')
+        .then(testErrorTextInclude('invalid'))
+        .then(testErrorTextInclude('uid'));
+    },
+
+    'with an empty uid': function () {
+      return FunctionalHelpers.openPage(this, SETTINGS_URL + '?uid=', '#fxa-400-header')
+        .then(testErrorTextInclude('invalid'))
+        .then(testErrorTextInclude('uid'));
     },
 
     'sign in, go to settings, sign out': function () {
@@ -92,43 +117,6 @@ define([
 
         // make sure the sign out element doesn't exist
         .then(FunctionalHelpers.noSuchElement(self, '#signout'));
-    },
-
-    'visit settings page with an invalid sessionToken redirects to signin': function () {
-      // Changing the password invalidates the current sessionToken
-      var self = this;
-
-      return FunctionalHelpers.clearBrowserState(self)
-        .then(function () {
-          return client.passwordChange(email, FIRST_PASSWORD, SECOND_PASSWORD);
-        })
-        .then(function () {
-          // Expect to get redirected to sign in since the sessionToken is invalid
-          return FunctionalHelpers.openPage(self, SETTINGS_URL, '#fxa-signin-header');
-        });
-    },
-
-    'visit settings page with an unknown uid parameter redirects to signin': function () {
-      var self = this;
-      return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD, true)
-        .findById('fxa-settings-header')
-        .end()
-
-        .then(function () {
-          // Expect to get redirected to sign in since the uid is unknown
-          return FunctionalHelpers.openPage(self, SETTINGS_URL + '?uid=baduid', '#fxa-signin-header');
-        });
-    },
-
-    'visit settings page with a known uid does not redirect': function () {
-      var self = this;
-      return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD, true)
-        .findById('fxa-settings-header')
-        .end()
-
-        .then(function () {
-          return FunctionalHelpers.openPage(self, SETTINGS_URL + '?uid=' + accountData.uid, '#fxa-settings-header');
-        });
     },
 
     'sign in, go to settings with setting param set to avatar redirects to avatar change page ': function () {

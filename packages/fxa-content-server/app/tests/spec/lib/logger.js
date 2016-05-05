@@ -170,7 +170,7 @@ define(function (require, exports, module) {
         var error = AuthErrors.toMissingParameterError('param name', AuthErrors);
         logger.error(error);
 
-        assert.equal(window.console.error.args[0][0], 'Missing parameter in request body: param name');
+        assert.equal(window.console.error.args[0][0], 'Missing parameter: param name');
         assert.isNotNull(window.console.error.thisValues[0]);
       });
 

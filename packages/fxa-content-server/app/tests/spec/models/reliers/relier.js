@@ -162,6 +162,128 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('email', function () {
+      describe('non-verification flow', function () {
+        beforeEach(function () {
+          relier.set('isVerification', false);
+        });
+
+        describe('invalid', function () {
+          var invalidEmails = ['', ' ', 'invalid email'];
+          invalidEmails.forEach(function (email) {
+            describe(getValueLabel(email), function () {
+              testInvalidQueryParam('email', email);
+            });
+          });
+        });
+
+        describe('valid', function () {
+          var validEmails = [
+            'testuser@testuser.com',
+            'testuser@testuser.co.uk'
+          ];
+
+          validEmails.forEach(function (value) {
+            describe(getValueLabel(value), function () {
+              testValidQueryParam('email', value, 'email', value);
+            });
+          });
+        });
+      });
+
+      describe('verification flow', function () {
+        beforeEach(function () {
+          relier = new Relier({
+            isVerification: true,
+            window: windowMock
+          });
+        });
+
+        describe('valid', function () {
+          var validEmails = [
+            // the non-email strings will cause a validation error in
+            // the consuming views.
+            '',
+            ' ',
+            'invalid email',
+            'testuser@testuser.com',
+            'testuser@testuser.co.uk'
+          ];
+
+          validEmails.forEach(function (value) {
+            describe(getValueLabel(value), function () {
+              testValidQueryParam('email', value, 'email', value.trim());
+            });
+          });
+        });
+      });
+
+      describe('email=blank', function () {
+        it('sets allowCachedCredentials to false', function () {
+          testValidQueryParam('email', Constants.DISALLOW_CACHED_CREDENTIALS, 'allowCachedCredentials', false);
+        });
+      });
+    });
+
+    describe('uid', function () {
+      describe('non-verification flow', function () {
+        beforeEach(function () {
+          relier.set('isVerification', false);
+        });
+
+        describe('invalid', function () {
+          var invalidUid = ['', ' ', 'invalid uid'];
+          invalidUid.forEach(function (uid) {
+            describe(getValueLabel(uid), function () {
+              testInvalidQueryParam('uid', uid);
+            });
+          });
+        });
+
+        describe('valid', function () {
+          var validUid = [ UID ];
+
+          validUid.forEach(function (value) {
+            describe(getValueLabel(value), function () {
+              testValidQueryParam('uid', value, 'uid', value);
+            });
+          });
+        });
+      });
+
+      describe('verification flow', function () {
+        beforeEach(function () {
+          relier = new Relier({
+            isVerification: true,
+            window: windowMock
+          });
+        });
+
+        describe('valid', function () {
+          var validUid = [
+            // the non-uid strings will cause a validation error in
+            // the consuming views.
+            '',
+            ' ',
+            'invalid uid',
+            UID
+          ];
+
+          validUid.forEach(function (value) {
+            describe(getValueLabel(value), function () {
+              testValidQueryParam('uid', value, 'uid', value.trim());
+            });
+          });
+        });
+      });
+
+      describe('email=blank', function () {
+        it('sets allowCachedCredentials to false', function () {
+          testValidQueryParam('email', Constants.DISALLOW_CACHED_CREDENTIALS, 'allowCachedCredentials', false);
+        });
+      });
+    });
+
     describe('isOAuth', function () {
       it('returns `false`', function () {
         assert.isFalse(relier.isOAuth());

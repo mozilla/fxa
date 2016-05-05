@@ -904,6 +904,16 @@ define([
   }
 
   /**
+   * Check whether the `.error` element includes the expected text
+   *
+   * @param {string} expected
+   * @returns {promise} rejects if test fails.
+   */
+  function testErrorTextInclude(expected) {
+    return testElementTextInclude('.error', expected);
+  }
+
+  /**
    * Check whether an input element's value equals the expected value
    *
    * @param {string} selector
@@ -1198,6 +1208,7 @@ define([
     testElementExists: testElementExists,
     testElementTextInclude: testElementTextInclude,
     testElementValueEquals: testElementValueEquals,
+    testErrorTextInclude: testErrorTextInclude,
     testErrorWasShown: testErrorWasShown,
     testIsBrowserNotified: testIsBrowserNotified,
     testIsEventLogged: testIsEventLogged,

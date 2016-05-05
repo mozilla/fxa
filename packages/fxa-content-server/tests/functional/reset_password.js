@@ -188,7 +188,6 @@ define([
         .then(openCompleteResetPassword(
           this, email, null, code, '#fxa-reset-link-damaged-header'
         ));
-
     },
 
     'open complete page with malformed token shows damaged screen': function () {
@@ -207,10 +206,24 @@ define([
         ));
     },
 
+    'open complete page with empty token shows damaged screen': function () {
+      return initiateResetPassword(this, email, 0)
+        .then(openCompleteResetPassword(
+          this, email, '', code, '#fxa-reset-link-damaged-header'
+        ));
+    },
+
     'open complete page with missing code shows damaged screen': function () {
       return initiateResetPassword(this, email, 0)
         .then(openCompleteResetPassword(
           this, email, token, null, '#fxa-reset-link-damaged-header'
+        ));
+    },
+
+    'open complete page with empty code shows damaged screen': function () {
+      return initiateResetPassword(this, email, 0)
+        .then(openCompleteResetPassword(
+          this, email, token, '', '#fxa-reset-link-damaged-header'
         ));
     },
 
@@ -226,6 +239,13 @@ define([
       return initiateResetPassword(this, email, 0)
         .then(openCompleteResetPassword(
           this, null, token, code, '#fxa-reset-link-damaged-header'
+        ));
+    },
+
+    'open complete page with empty email shows damaged screen': function () {
+      return initiateResetPassword(this, email, 0)
+        .then(openCompleteResetPassword(
+          this, '', token, code, '#fxa-reset-link-damaged-header'
         ));
     },
 

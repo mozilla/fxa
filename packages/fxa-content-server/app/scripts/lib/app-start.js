@@ -297,12 +297,14 @@ define(function (require, exports, module) {
           // Use the SyncRelier for sync verification so that
           // the service name is translated correctly.
           relier = new SyncRelier({
+            isVerification: this._isVerification(),
             sentryMetrics: this._sentryMetrics,
             translator: this._translator,
             window: this._window
           });
         } else if (this._isOAuth()) {
           relier = new OAuthRelier({
+            isVerification: this._isVerification(),
             oAuthClient: this._oAuthClient,
             sentryMetrics: this._sentryMetrics,
             session: Session,
@@ -310,6 +312,7 @@ define(function (require, exports, module) {
           });
         } else {
           relier = new Relier({
+            isVerification: this._isVerification(),
             sentryMetrics: this._sentryMetrics,
             window: this._window
           });

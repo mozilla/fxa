@@ -66,11 +66,11 @@ define(function (require, exports, module) {
     },
     INVALID_PARAMETER: {
       errno: 107,
-      message: t('Invalid parameter in request body: %(param)s')
+      message: t('Invalid parameter: %(param)s')
     },
     MISSING_PARAMETER: {
       errno: 108,
-      message: t('Missing parameter in request body: %(param)s')
+      message: t('Missing parameter: %(param)s')
     },
     INVALID_REQUEST_SIGNATURE: {
       errno: 109,

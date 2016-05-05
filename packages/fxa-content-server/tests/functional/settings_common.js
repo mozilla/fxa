@@ -102,7 +102,6 @@ define([
 
   function verifiedAccountTest (suite, page, pageHeader) {
     var url = SETTINGS_URL + page;
-
     suite['visit settings' + page + ' with an invalid sessionToken redirects to signin'] = function () {
       // Changing the password invalidates the current sessionToken
       var self = this;
@@ -132,7 +131,7 @@ define([
         .findById('fxa-settings-header')
         .end()
 
-        .get(require.toUrl(url + '?uid=baduid'))
+        .get(require.toUrl(url + '?uid=' + TestHelpers.createUID()))
         // Expect to get redirected to sign in since the uid is unknown
         .findById('fxa-signin-header')
         .end();

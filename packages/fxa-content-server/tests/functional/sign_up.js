@@ -30,6 +30,7 @@ define([
   var openPage = FunctionalHelpers.openPage;
   var testAttributeMatches = FunctionalHelpers.testAttributeMatches;
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
+  var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   function testAtConfirmScreen (email) {
@@ -64,6 +65,18 @@ define([
 
     afterEach: function () {
       return FunctionalHelpers.clearBrowserState(this);
+    },
+
+    'with an invalid email': function () {
+      return FunctionalHelpers.openPage(this, PAGE_URL + '?email=invalid', '#fxa-400-header')
+        .then(testErrorTextInclude('invalid'))
+        .then(testErrorTextInclude('email'));
+    },
+
+    'with an empty email': function () {
+      return FunctionalHelpers.openPage(this, PAGE_URL + '?email=', '#fxa-400-header')
+        .then(testErrorTextInclude('invalid'))
+        .then(testErrorTextInclude('email'));
     },
 
     'signup, verify same browser': function () {

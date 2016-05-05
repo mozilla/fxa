@@ -22,6 +22,7 @@ define([
   var client;
 
   var testAttributeMatches = FunctionalHelpers.testAttributeMatches;
+  var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
 
   function verifyUser(user, index) {
     return FunctionalHelpers.verifyUser(user,  index, client, accountData);
@@ -51,6 +52,12 @@ define([
 
     afterEach: function () {
       return FunctionalHelpers.clearBrowserState(this);
+    },
+
+    'with an invalid email': function () {
+      return FunctionalHelpers.openPage(this, PAGE_URL + '?email=invalid', '#fxa-400-header')
+        .then(testErrorTextInclude('invalid'))
+        .then(testErrorTextInclude('email'));
     },
 
     'sign in unverified': function () {
