@@ -4,6 +4,7 @@
 var test = require('tap').test
 var crypto = require('crypto')
 var base64url = require('base64url')
+var P = require('bluebird')
 
 var zeroBuffer16 = Buffer('00000000000000000000000000000000', 'hex')
 var zeroBuffer32 = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
@@ -433,7 +434,7 @@ module.exports = function(config, DB) {
                 t.equal(token.tokenVerificationId, null, 'tokenVerificationId is null')
 
                 // Delete both session tokens
-                return Promise.all([
+                return P.all([
                   db.deleteSessionToken(SESSION_TOKEN_ID),
                   db.deleteSessionToken(VERIFIED_SESSION_TOKEN_ID)
                 ])

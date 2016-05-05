@@ -208,7 +208,7 @@ module.exports = function(cfg, server) {
           t.equal(r.obj.length, 0, 'sessions is empty')
 
           // Create accounts
-          return Promise.all([
+          return P.all([
             client.putThen('/account/' + user.accountId, user.account),
             client.putThen('/account/' + verifiedUser.accountId, verifiedUser.account)
           ])
@@ -439,7 +439,7 @@ module.exports = function(cfg, server) {
           t.equal(token.lastAccessTime, 42, 'lastAccessTime was updated')
 
           // Delete both session tokens
-          return Promise.all([
+          return P.all([
             client.delThen('/sessionToken/' + user.sessionTokenId),
             client.delThen('/sessionToken/' + verifiedUser.sessionTokenId)
           ])
