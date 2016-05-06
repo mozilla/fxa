@@ -2,10 +2,10 @@ language: node_js
 
 node_js:
  - "0.10"
- - "0.12"
  - "4"
 
-sudo: false
+dist: trusty
+sudo: required
 
 addons:
   apt:
@@ -13,6 +13,9 @@ addons:
     - ubuntu-toolchain-r-test
     packages:
     - g++-4.8
+    - mysql-server-5.6
+    - mysql-client-core-5.6
+    - mysql-client-5.6
 
 notifications:
   irc:
@@ -33,6 +36,8 @@ env:
     - DB=mysql
 
 install:
+  # if node 0.120 then update npm
+  - if [ "$TRAVIS_NODE_VERSION" == "0.10" ]; then npm install -g npm@2; fi
   # use c++-11 with node4, default compiler on downlevel versions
   - if [ $TRAVIS_NODE_VERSION == "4" ]; then CXX=g++-4.8 npm install; else npm install; fi
 
