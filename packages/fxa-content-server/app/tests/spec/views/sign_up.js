@@ -367,6 +367,37 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('afterRender', function () {
+      beforeEach(function () {
+        sinon.stub(user, 'get', function (attribute) {
+          if (attribute === 'flowId') {
+            return 'wibble';
+          }
+          return 'mock ' + attribute;
+        });
+        $('body').attr('data-flow-begin', '3.14159265');
+        sinon.spy(metrics, 'setActivityEventMetadata');
+        sinon.spy(metrics, 'logFlowBegin');
+        return view.afterRender();
+      });
+
+      it('called metrics.setActivityEventMetadata correctly', function () {
+        assert.equal(metrics.setActivityEventMetadata.callCount, 1);
+        var args = metrics.setActivityEventMetadata.args[0];
+        assert.lengthOf(args, 2);
+        assert.equal(args[0], 'flowBeginTime');
+        assert.equal(args[1], 3);
+      });
+
+      it('called metrics.logFlowBegin correctly', function () {
+        assert.equal(metrics.logFlowBegin.callCount, 1);
+        var args = metrics.logFlowBegin.args[0];
+        assert.lengthOf(args, 2);
+        assert.equal(args[0], 'wibble');
+        assert.equal(args[1], 3);
+      });
+    });
+
     describe('isValid', function () {
       it('returns true if email and password are valid', function () {
         fillOutSignUp(email, 'password');

@@ -83,6 +83,7 @@ define(function (require, exports, module) {
       self._profileClient = options.profileClient;
       self._fxaClient = options.fxaClient;
       self._marketingEmailClient = options.marketingEmailClient;
+      self._metrics = options.metrics;
 
       /**
        * Keeps track of outstanding assertion generation requests, keyed
@@ -331,6 +332,7 @@ define(function (require, exports, module) {
 
         if (password) {
           return self._fxaClient.signIn(email, password, relier, {
+            metricsContext: self._metrics.getActivityEventMetadata(),
             reason: options.reason
           });
         } else if (sessionToken) {
@@ -367,6 +369,7 @@ define(function (require, exports, module) {
         relier,
         {
           customizeSync: self.get('customizeSync'),
+          metricsContext: self._metrics.getActivityEventMetadata(),
           resume: options.resume
         })
         .then(function (updatedSessionData) {

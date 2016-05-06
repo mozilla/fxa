@@ -30,6 +30,7 @@ define(function (require, exports, module) {
     var assertion;
     var fxaClient;
     var marketingEmailClient;
+    var metrics;
     var oAuthClient;
     var profileClient;
     var relier;
@@ -53,6 +54,14 @@ define(function (require, exports, module) {
       assertion = new Assertion();
       fxaClient = new FxaClientWrapper();
       marketingEmailClient = new MarketingEmailClient();
+      metrics = {
+        getActivityEventMetadata: function () {
+          return {
+            baz: 'qux',
+            foo: 'bar'
+          };
+        }
+      };
       oAuthClient = new OAuthClient();
       profileClient = new ProfileClient();
       relier = new Relier();
@@ -64,6 +73,7 @@ define(function (require, exports, module) {
         assertion: assertion,
         fxaClient: fxaClient,
         marketingEmailClient: marketingEmailClient,
+        metrics: metrics,
         oAuthClient: oAuthClient,
         oAuthClientId: CLIENT_ID,
         profileClient: profileClient
@@ -228,7 +238,13 @@ define(function (require, exports, module) {
           });
 
           it('delegates to the fxaClient', function () {
-            assert.isTrue(fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier));
+            assert.isTrue(fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier, {
+              metricsContext: {
+                baz: 'qux',
+                foo: 'bar'
+              },
+              reason: undefined
+            }));
           });
 
           it('does not resend a signUp email', function () {
@@ -281,7 +297,13 @@ define(function (require, exports, module) {
           });
 
           it('delegates to the fxaClient', function () {
-            assert.isTrue(fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier));
+            assert.isTrue(fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier, {
+              metricsContext: {
+                baz: 'qux',
+                foo: 'bar'
+              },
+              reason: undefined
+            }));
           });
 
           it('updates the account with the returned data', function () {
@@ -433,6 +455,10 @@ define(function (require, exports, module) {
           relier,
           {
             customizeSync: true,
+            metricsContext: {
+              baz: 'qux',
+              foo: 'bar'
+            },
             resume: 'resume token'
           }
         ));

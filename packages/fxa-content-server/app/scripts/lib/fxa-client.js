@@ -185,6 +185,8 @@ define(function (require, exports, module) {
             signInOptions.service = relier.get('service');
           }
 
+          setMetricsContext(signInOptions, options);
+
           return client.signIn(email, password, signInOptions);
         })
         .then(function (accountData) {
@@ -222,6 +224,8 @@ define(function (require, exports, module) {
           if (options.resume) {
             signUpOptions.resume = options.resume;
           }
+
+          setMetricsContext(signUpOptions, options);
 
           return client.signUp(email, password, signUpOptions)
             .then(function (accountData) {
@@ -486,5 +490,11 @@ define(function (require, exports, module) {
   };
 
   module.exports = FxaClientWrapper;
+
+  function setMetricsContext (serverOptions, options) {
+    if (options.metricsContext) {
+      serverOptions.metricsContext = options.metricsContext;
+    }
+  }
 });
 

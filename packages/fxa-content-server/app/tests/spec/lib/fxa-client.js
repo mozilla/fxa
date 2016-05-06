@@ -270,6 +270,28 @@ define(function (require, exports, module) {
             assert.equal(realClient.signUp.callCount, 2);
           });
       });
+
+      it('passes along an optional `metricsContext`', function () {
+        sinon.stub(realClient, 'signUp', function () {
+          return p({});
+        });
+
+        relier.set('service', 'chronicle');
+
+        return client.signUp(email, password, relier, {
+          metricsContext: { foo: 'bar' },
+          resume: resumeToken
+        })
+        .then(function () {
+          assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
+            keys: false,
+            metricsContext: { foo: 'bar' },
+            redirectTo: REDIRECT_TO,
+            resume: resumeToken,
+            service: 'chronicle'
+          }));
+        });
+      });
     });
 
     describe('recoveryEmailStatus', function () {
@@ -588,6 +610,26 @@ define(function (require, exports, module) {
               service: 'sync'
             }));
           });
+      });
+
+      it('passes along an optional `metricsContext`', function () {
+        sinon.stub(realClient, 'signIn', function () {
+          return p({});
+        });
+
+        relier.set('service', 'chronicle');
+
+        return client.signIn(email, password, relier, {
+          metricsContext: { foo: 'bar' }
+        })
+        .then(function () {
+          assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
+            keys: false,
+            metricsContext: { foo: 'bar' },
+            reason: 'signin',
+            service: 'chronicle'
+          }));
+        });
       });
     });
 

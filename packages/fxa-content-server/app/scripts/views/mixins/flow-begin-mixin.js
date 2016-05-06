@@ -20,6 +20,7 @@ define(function (require, exports, module) {
         this.sentryMetrics.captureException(AuthErrors.toError('INVALID_DATA_FLOW_BEGIN_ATTR'));
       }
 
+      this.metrics.setActivityEventMetadata('flowBeginTime', flowBeginTime);
       this.metrics.logFlowBegin(flowId, flowBeginTime);
     }
   };

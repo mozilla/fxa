@@ -22,7 +22,8 @@ define(function (require, exports, module) {
     describe('afterRender', function () {
       beforeEach(function () {
         flowBeginMixin.metrics = {
-          logFlowBegin: sinon.spy()
+          logFlowBegin: sinon.spy(),
+          setActivityEventMetadata: sinon.spy()
         };
         flowBeginMixin.user = {
           get: sinon.spy(function () {
@@ -43,6 +44,14 @@ define(function (require, exports, module) {
         assert.strictEqual(args[0], 'flowId');
       });
 
+      it('called metrics.setActivityEventMetadata correctly', function () {
+        assert.strictEqual(flowBeginMixin.metrics.setActivityEventMetadata.callCount, 1);
+        var args = flowBeginMixin.metrics.setActivityEventMetadata.args[0];
+        assert.lengthOf(args, 2);
+        assert.strictEqual(args[0], 'flowBeginTime');
+        assert.strictEqual(args[1], 42);
+      });
+
       it('called metrics.logFlowBegin correctly', function () {
         assert.strictEqual(flowBeginMixin.metrics.logFlowBegin.callCount, 1);
         var args = flowBeginMixin.metrics.logFlowBegin.args[0];
@@ -59,7 +68,8 @@ define(function (require, exports, module) {
     describe('afterRender with invalid data-flow-begin attribute', function () {
       beforeEach(function () {
         flowBeginMixin.metrics = {
-          logFlowBegin: sinon.spy()
+          logFlowBegin: sinon.spy(),
+          setActivityEventMetadata: sinon.spy()
         };
         flowBeginMixin.user = {
           get: sinon.spy(function () {
@@ -78,6 +88,14 @@ define(function (require, exports, module) {
         var args = flowBeginMixin.user.get.args[0];
         assert.strictEqual(args.length, 1);
         assert.strictEqual(args[0], 'flowId');
+      });
+
+      it('called metrics.set correctly', function () {
+        assert.strictEqual(flowBeginMixin.metrics.setActivityEventMetadata.callCount, 1);
+        var args = flowBeginMixin.metrics.setActivityEventMetadata.args[0];
+        assert.lengthOf(args, 2);
+        assert.strictEqual(args[0], 'flowBeginTime');
+        assert.isUndefined(args[1]);
       });
 
       it('called metrics.logFlowBegin correctly', function () {

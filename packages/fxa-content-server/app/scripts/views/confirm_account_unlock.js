@@ -10,6 +10,7 @@ define(function (require, exports, module) {
   var BaseView = require('views/base');
   var Cocktail = require('cocktail');
   var Constants = require('lib/constants');
+  var FlowBeginMixin = require('views/mixins/flow-begin-mixin');
   var FormView = require('views/form');
   var p = require('lib/promise');
   var ResendMixin = require('views/mixins/resend-mixin');
@@ -156,6 +157,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     BackMixin,
+    FlowBeginMixin,
     ResendMixin,
     ResumeTokenMixin,
     ServiceMixin

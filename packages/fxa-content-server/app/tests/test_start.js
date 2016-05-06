@@ -67,6 +67,7 @@ function (Translator, Session) {
     '../tests/spec/lib/xhr',
     '../tests/spec/lib/xss',
     '../tests/spec/models/account',
+    '../tests/spec/models/activity-event-metadata',
     '../tests/spec/models/auth_brokers/base',
     '../tests/spec/models/auth_brokers/fx-desktop-v1',
     '../tests/spec/models/auth_brokers/fx-desktop-v2',

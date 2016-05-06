@@ -19,6 +19,7 @@ define(function (require, exports, module) {
 
   var $ = require('jquery');
   var _ = require('underscore');
+  var ActivityEventMetadata = require('models/activity-event-metadata');
   var Backbone = require('backbone');
   var Duration = require('duration');
   var Environment = require('lib/environment');
@@ -116,6 +117,7 @@ define(function (require, exports, module) {
     this._utmMedium = options.utmMedium || NOT_REPORTED_VALUE;
     this._utmSource = options.utmSource || NOT_REPORTED_VALUE;
     this._utmTerm = options.utmTerm || NOT_REPORTED_VALUE;
+    this._activityEventMetadata = new ActivityEventMetadata(options);
 
     this._inactivityFlushMs = options.inactivityFlushMs || DEFAULT_INACTIVITY_TIMEOUT_MS;
 
@@ -420,6 +422,14 @@ define(function (require, exports, module) {
         this._flowBeginTime = flowBeginTime;
         this.logEvent('flow.begin');
       }
+    },
+
+    getActivityEventMetadata: function () {
+      return this._activityEventMetadata.attributes;
+    },
+
+    setActivityEventMetadata: function () {
+      this._activityEventMetadata.set.apply(this._activityEventMetadata, arguments);
     }
   });
 

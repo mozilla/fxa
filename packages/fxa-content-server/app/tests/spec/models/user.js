@@ -32,6 +32,7 @@ define(function (require, exports, module) {
 
   describe('models/user', function () {
     var fxaClientMock;
+    var metrics;
     var notifier;
     var sentryMetrics;
     var user;
@@ -51,9 +52,13 @@ define(function (require, exports, module) {
 
     beforeEach(function () {
       fxaClientMock = new FxaClient();
+      metrics = {
+        setActivityEventMetadata: sinon.spy()
+      };
       notifier = new Notifier();
       sentryMetrics = new SentryMetrics();
       user = new User({
+        metrics: metrics,
         notifier: notifier,
         sentryMetrics: sentryMetrics,
         uniqueUserId: UUID
@@ -1122,6 +1127,14 @@ define(function (require, exports, module) {
         assert.isTrue(user.has('flowId'));
         assert.strictEqual(user.get('flowId'), VALID_FLOW_ID);
       });
+
+      it('called metrics.setActivityEventMetadata correctly', function () {
+        assert.strictEqual(metrics.setActivityEventMetadata.callCount, 2);
+        var args = metrics.setActivityEventMetadata.args[1];
+        assert.lengthOf(args, 2);
+        assert.strictEqual(args[0], 'flowId');
+        assert.strictEqual(args[1], VALID_FLOW_ID);
+      });
     });
 
     describe('fetch without flowId', function () {
@@ -1151,6 +1164,14 @@ define(function (require, exports, module) {
       it('set a new flowId', function () {
         assert.isTrue(user.has('flowId'));
         assert.match(user.get('flowId'), /^[0-9a-f]{64}$/i);
+      });
+
+      it('called metrics.setActivityEventMetadata correctly', function () {
+        assert.strictEqual(metrics.setActivityEventMetadata.callCount, 2);
+        var args = metrics.setActivityEventMetadata.args[1];
+        assert.lengthOf(args, 2);
+        assert.strictEqual(args[0], 'flowId');
+        assert.strictEqual(args[1], user.get('flowId'));
       });
     });
 

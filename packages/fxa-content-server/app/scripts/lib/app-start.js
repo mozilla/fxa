@@ -445,6 +445,7 @@ define(function (require, exports, module) {
           assertion: this._assertionLibrary,
           fxaClient: this._fxaClient,
           marketingEmailClient: this._marketingEmailClient,
+          metrics: this._metrics,
           notifier: this._notifier,
           oAuthClient: this._oAuthClient,
           oAuthClientId: this._config.oAuthClientId,
