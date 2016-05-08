@@ -14,10 +14,10 @@ define(function (require, exports, module) {
   var k = '00001111222233334444555566667777';
   var uid = 'someUID';
   var clientId = 'aabbcc';
-  var kArID = 'kAr-5t_ELVYhhKZWsPTg7F4nLJo6w-LOKWn8yPlpqQ4cYVQ=';
-  var kArBytes = 'XJrppZMmhiF1u-leMgLubr83fTRwAjtiPi8IPW2TP0E=';
-  var kBrID = 'kBr-XOmlEIxDGu8QVwmVq1qdle0W6qv4c4zNzby8hbJElPY=';
-  var kBrBytes = 'OAIJKvOKVMv20T_JXJO9jiRNeUEHuGSVUcgTrFbjzq0=';
+  var kArID = 'kAr-5t_ELVYhhKZWsPTg7F4nLJo6w-LOKWn8yPlpqQ4cYVQ';
+  var kArBytes = 'XJrppZMmhiF1u-leMgLubr83fTRwAjtiPi8IPW2TP0E';
+  var kBrID = 'kBr-XOmlEIxDGu8QVwmVq1qdle0W6qv4c4zNzby8hbJElPY';
+  var kBrBytes = 'OAIJKvOKVMv20T_JXJO9jiRNeUEHuGSVUcgTrFbjzq0';
 
   describe('lib/relier-keys', function () {
     describe('deriveRelierKeys', function () {

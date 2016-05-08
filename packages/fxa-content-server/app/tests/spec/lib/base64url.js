@@ -16,9 +16,11 @@ define(function (require, exports, module) {
       // Test string chosen to encode to a value with "-" and "_" in it.
       // Raw bytes are '\xFA\xAB?!'.
       var raw = sjcl.codec.hex.toBits('faab3f21');
-      var encoded = '-qs_IQ==';
+      var encoded = '-qs_IQ';
       assert.equal(base64url.encode(raw), encoded);
       assert.deepEqual(base64url.decode(encoded), raw);
+      // Should ignore trailing padding.
+      assert.deepEqual(base64url.decode(encoded + '=='), raw);
     });
   });
 });
