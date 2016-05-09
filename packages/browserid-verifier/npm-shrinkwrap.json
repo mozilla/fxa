@@ -1,6 +1,6 @@
 {
   "name": "browserid-verifier",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "dependencies": {
     "ass": {
       "version": "1.0.0",
@@ -165,9 +165,9 @@
       "resolved": "https://registry.npmjs.org/async/-/async-0.9.0.tgz"
     },
     "browserid-local-verify": {
-      "version": "0.3.2",
-      "from": "browserid-local-verify@0.3.2",
-      "resolved": "https://registry.npmjs.org/browserid-local-verify/-/browserid-local-verify-0.3.2.tgz",
+      "version": "0.4.0",
+      "from": "browserid-local-verify@0.4.0",
+      "resolved": "https://registry.npmjs.org/browserid-local-verify/-/browserid-local-verify-0.4.0.tgz",
       "dependencies": {
         "browserid-crypto": {
           "version": "0.8.0",
