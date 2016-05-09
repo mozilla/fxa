@@ -38,12 +38,36 @@ var reasonToEvents = {
 }
 
 module.exports = function (log, db) {
+  /**
+   * Reports push errors to logs
+   *
+   * @param err
+   * Error object
+   * @param deviceId
+   * The device id
+   */
   function reportPushError(err, deviceId) {
     log.error({
       op: LOG_OP_PUSH_TO_DEVICES,
       deviceId: deviceId,
       err: err
     })
+  }
+
+  /**
+   * Reports push increment actions to logs
+   *
+   * @param name
+   * Name of the push action
+   */
+  function incrementPushAction(name) {
+    if (name) {
+      log.info({
+        op: LOG_OP_PUSH_TO_DEVICES,
+        name: name
+      })
+      log.increment(name)
+    }
   }
 
   return {
@@ -87,12 +111,12 @@ module.exports = function (log, db) {
 
               if (device.pushCallback) {
                 // send the push notification
-                log.increment(events.send)
+                incrementPushAction(events.send)
                 var pushParams = { 'TTL': '0' }
                 if (data) {
                   if (!device.pushPublicKey || !device.pushAuthKey) {
                     reportPushError(new Error(ERR_DATA_BUT_NO_KEYS), deviceId)
-                    log.increment(events.noKeys)
+                    incrementPushAction(events.noKeys)
                     return
                   }
                   pushParams.userPublicKey = device.pushPublicKey
@@ -102,7 +126,7 @@ module.exports = function (log, db) {
                 return webpush.sendNotification(device.pushCallback, pushParams)
                 .then(
                   function () {
-                    log.increment(events.success)
+                    incrementPushAction(events.success)
                   },
                   function (err) {
                     // 404 or 410 error from the push servers means
@@ -117,18 +141,18 @@ module.exports = function (log, db) {
                       return db.updateDevice(uid, device.id, device).catch(function (err) {
                         reportPushError(err, deviceId)
                       }).then(function() {
-                        log.increment(events.resetSettings)
+                        incrementPushAction(events.resetSettings)
                       })
                     } else {
                       reportPushError(err, deviceId)
-                      log.increment(events.failed)
+                      incrementPushAction(events.failed)
                     }
                   }
                 )
               } else {
                 // keep track if there are any devices with no push urls.
                 reportPushError(new Error(ERR_NO_PUSH_CALLBACK), deviceId)
-                log.increment(events.noCallback)
+                incrementPushAction(events.noCallback)
               }
             }))
         })

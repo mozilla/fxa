@@ -47,6 +47,8 @@ var mockLog = {
   increment: function () {
   },
   trace: function () {
+  },
+  info: function () {
   }
 }
 
