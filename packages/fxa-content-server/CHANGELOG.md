@@ -1,3 +1,14 @@
+<a name="0.61.1"></a>
+## 0.61.1 (2016-05-09)
+
+
+### Bug Fixes
+
+* **server:** add extra body check for report error (#3709) ([f10868d](https://github.com/mozilla/fxa-content-server/commit/f10868d)), closes [#3708](https://github.com/mozilla/fxa-content-server/issues/3708)
+* **tests:** Fix the failing functional test. (#3706) r=vladikoff ([2b6f3d7](https://github.com/mozilla/fxa-content-server/commit/2b6f3d7)), closes [(#3706](https://github.com/(/issues/3706)
+
+
+
 <a name="0.61.0"></a>
 # 0.61.0 (2016-05-03)
 
