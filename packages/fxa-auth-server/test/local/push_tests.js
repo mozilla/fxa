@@ -48,8 +48,8 @@ test(
   'pushToDevices does not throw on empty device result',
   function (t) {
     var thisMockLog = mockLog({
-      increment: function (name) {
-        if (name === 'push.account_verify.success') {
+      info: function (log) {
+        if (log.name === 'push.account_verify.success') {
           t.fail('must not call push.success')
         }
       }
@@ -73,8 +73,8 @@ test(
   function (t) {
     var successCalled = 0
     var thisMockLog = mockLog({
-      increment: function (log) {
-        if (log === 'push.account_verify.success') {
+      info: function (log) {
+        if (log.name === 'push.account_verify.success') {
           // notification sent
           successCalled++
         }
@@ -158,8 +158,8 @@ test(
     }
 
     var thisMockLog = mockLog({
-      increment: function (log) {
-        if (log === 'push.account_verify.data_but_no_keys') {
+      info: function (log) {
+        if (log.name === 'push.account_verify.data_but_no_keys') {
           // data detected but device had no keys
           t.end()
         }
@@ -184,8 +184,8 @@ test(
     }
 
     var thisMockLog = mockLog({
-      increment: function (log) {
-        if (log === 'push.account_verify.no_push_callback') {
+      info: function (log) {
+        if (log.name === 'push.account_verify.no_push_callback') {
           // device had no push callback
           t.end()
         }
@@ -212,8 +212,8 @@ test(
     }
 
     var thisMockLog = mockLog({
-      increment: function (log) {
-        if (log === 'push.account_verify.failed') {
+      info: function (log) {
+        if (log.name === 'push.account_verify.failed') {
           // web-push failed
           t.end()
         }
@@ -251,8 +251,8 @@ test(
     }
 
     var thisMockLog = mockLog({
-      increment: function (log) {
-        if (log === 'push.account_verify.reset_settings') {
+      info: function (log) {
+        if (log.name === 'push.account_verify.reset_settings') {
           // web-push failed
           t.end()
         }

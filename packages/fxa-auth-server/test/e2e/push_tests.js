@@ -40,8 +40,8 @@ test(
       }
 
       var thisMockLog = mockLog({
-        increment: function (log) {
-          if (log === 'push.account_verify.success') {
+        info: function (log) {
+          if (log.name === 'push.account_verify.success') {
             t.end()
           }
         }
