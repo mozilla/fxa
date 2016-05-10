@@ -410,6 +410,10 @@ define([
         .then(testElementExists('#loggedin'))
         .then(testUrlEquals(TRUSTED_OAUTH_APP))
         .then(click('#logout'))
+        // currently there is no way to tell when 123done fully logged out
+        // give the logout request some time to complete
+        .sleep(1000)
+        .then(visibleByQSA('#splash .signup'))
 
         // relier changes to request consent
         .then(openFxaFromTrustedRp(this, 'signin', { query: { prompt: 'consent' }}))
