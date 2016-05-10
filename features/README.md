@@ -23,3 +23,6 @@ Want to propose a new feature?
 Open a PR adding its description
 to the "proposed" directory,
 and we can chat about it in the issue.
+
+You can use the [TEMPLATE.md](TEMPLATE.md) and [TEMPLATE_CLEAN.md](TEMPLATE_CLEAN.md)
+from this directory to quickly get started.
