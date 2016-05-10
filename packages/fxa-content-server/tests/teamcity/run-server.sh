@@ -62,6 +62,7 @@ npm install                  \
   convict@1.0.2              \
   extend@3.0.0               \
   firefox-profile@0.3.11     \
+  helmet@0.12.0              \
   htmlparser2@3.9.0          \
   intern@3.1.1               \
   lodash@4.6.1               \
