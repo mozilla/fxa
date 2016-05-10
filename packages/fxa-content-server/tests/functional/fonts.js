@@ -30,7 +30,7 @@ define([
         .findByCssSelector('body')
           .getComputedStyle('font-family')
           .then(function (value) {
-            assert.ok(value.indexOf('Clear Sans') > -1);
+            assert.ok(value.indexOf('Fira Sans') > -1);
           })
         .end();
     },
@@ -50,7 +50,7 @@ define([
         .findByCssSelector('body')
           .getComputedStyle('font-family')
           .then(function (value) {
-            assert.ok(value.indexOf('Clear Sans') === -1);
+            assert.ok(value.indexOf('Fira Sans') === -1);
           })
         .end();
     }

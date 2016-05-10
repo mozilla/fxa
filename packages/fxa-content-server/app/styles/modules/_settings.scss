@@ -1,4 +1,4 @@
-// this needs to be overridden, 
+// this needs to be overridden,
 // or done in a way that doesn't kill these everywhere
 body.settings #fox-logo,
 body.settings #about-mozilla,
@@ -251,7 +251,7 @@ body.settings #main-content.card {
 
 .settings-child-view {
   &:first-child .settings-unit {
-  
+
     @include respond-to('big') {
       padding: 0 0 20px;
     }
@@ -313,7 +313,6 @@ body.settings #main-content.card {
 
   .settings-unit-title {
     color: $text-color;
-    font-weight: normal;
     line-height: 19px;
     margin: 0;
 

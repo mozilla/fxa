@@ -12,12 +12,10 @@ module.exports = function (grunt) {
   var i18n = require('i18n-abide');
 
   var fontPacks = [
-    'connect-fonts-clearsans',
     'connect-fonts-firasans'
   ];
 
   var fontNamesNeeded = [
-    'clearsans-regular',
     'firasans-regular',
     'firasans-light'
   ];
