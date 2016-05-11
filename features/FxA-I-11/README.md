@@ -5,6 +5,17 @@ Part of the [Eye Password Experiment](https://github.com/mozilla/fxa/blob/rfeele
 
 Idea in AHA: https://mozilla.aha.io/ideas/ideas/FXA-I-11
 
+## Problem Summary
+
+There are a lot of errors related to password entry.
+
+### Assumptions
+
+- Users use this functionality on Android more.
+- The "Show" password button is useful.
+
+****
+
 ## Outcomes
 
 The success of this feature is being able to answer the question:
@@ -12,43 +23,13 @@ The success of this feature is being able to answer the question:
 "Is the 'Show' password button useful in its current form?".
 "Does it reduce the number of errors the users make on the change password page?"
 
-## Assumptions
-
-- Users use this functionality on Android more.
-- We believe the "Show" password button is useful.
-
-## Problem Statement
-
-The change password flow can be improved in the current system.
-
 ## Hypothesis
 
-We believe that removing the unmasking functionality from both new and old password fields for people changing their passwords will achieve more errors and bounces.
+We believe that the unmasking functionality helps users to reduce errors when entering their password. We will know this is true if password forms offering the unmasking functionality result in fewer password related errors compared to password forms that don't contain the unmasking functionality.
 
 We will know this is true when we see an increase in bounces to the section, and Task Success errors outlined below.
 
-### Measure
-
-We will build at least **eight** graphs.
-
-The four main graphs are:
-
-1. "Flame chart" for those who do not have an opportunity to use "Show" password.
-2. "Flame chart" for those who can "Show Password"
-3. Change password submission for control
-4. Change password submission for treatment
-
-The other 4 are the same as above but just for **Android**.
-
-Example of graph 1) and 2):
-
-![](metrics-example.png)
-
-Example of graph 3) and 4):
-
-![](metrics-change-submit.png)
-
-### Metrics Events
+## Metrics
 
 Here are **proposed** metrics events:
 
@@ -111,11 +92,30 @@ Proposed DataDog query for submission rate of change password (Graphs 3) and 4):
 }
 ```
 
-### Expected Result
 
-We expect to determine if the "Show" password feature is useful to users.
+We will build at least **eight** graphs.
 
-## Feature Description
+The four main graphs are:
+
+1. "Flame chart" for those who do not have an opportunity to use "Show" password.
+2. "Flame chart" for those who can "Show Password"
+3. Change password submission for control
+4. Change password submission for treatment
+
+The other 4 are the same as above but just for **Android**.
+
+Example of graph 1) and 2):
+
+![](metrics-example.png)
+
+Example of graph 3) and 4):
+
+![](metrics-change-submit.png)
+
+****
+
+## Detailed design
+
 
 Below are the defined Control vs Treatment designs:
 
@@ -126,3 +126,5 @@ Below are the defined Control vs Treatment designs:
 ### Treatment
 
 ![](eye-password-noshow.png)
+
+****
