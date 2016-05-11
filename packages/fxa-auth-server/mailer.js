@@ -66,8 +66,8 @@ module.exports = function (log) {
     return linkAttributes(this.supportUrl)
   }
 
-  Mailer.prototype._initiatePasswordChange = function () {
-    return linkAttributes(this.initiatePasswordChangeUrl)
+  Mailer.prototype._initiatePasswordChange = function (email) {
+    return linkAttributes(this.createPasswordChangeLink(email))
   }
 
   Mailer.prototype._formatUserAgentInfo = function (message) {
@@ -175,8 +175,7 @@ module.exports = function (log) {
         link: link,
         oneClickLink: oneClickLink,
         supportUrl: this.supportUrl,
-        supportLinkAttributes: this._supportLinkAttributes(),
-        passwordChangeLinkAttributes: this._initiatePasswordChange()
+        supportLinkAttributes: this._supportLinkAttributes()
       },
       uid: message.uid
     })
@@ -210,12 +209,14 @@ module.exports = function (log) {
       subject: gettext('Confirm new sign-in to Firefox'),
       template: 'verifyLoginEmail',
       templateValues: {
-        email: message.email,
         device: this._formatUserAgentInfo(message),
+        email: message.email,
         link: link,
         oneClickLink: oneClickLink,
-        supportUrl: this.supportUrl,
-        supportLinkAttributes: linkAttributes(this.supportUrl)
+        passwordChangeLink: this.createPasswordChangeLink(message.email),
+        passwordChangeLinkAttributes: this._initiatePasswordChange(message.email),
+        supportLinkAttributes: linkAttributes(this.supportUrl),
+        supportUrl: this.supportUrl
       },
       uid: message.uid
     })
@@ -248,8 +249,7 @@ module.exports = function (log) {
         link: link,
         signInUrl: this.signInUrl,
         supportUrl: this.supportUrl,
-        supportLinkAttributes: this._supportLinkAttributes(),
-        passwordChangeLinkAttributes: this._initiatePasswordChange()
+        supportLinkAttributes: this._supportLinkAttributes()
       },
       uid: message.uid
     })
@@ -281,26 +281,14 @@ module.exports = function (log) {
         email: message.email,
         link: link,
         supportUrl: this.supportUrl,
-        supportLinkAttributes: this._supportLinkAttributes(),
-        passwordChangeLinkAttributes: this._initiatePasswordChange()
+        supportLinkAttributes: this._supportLinkAttributes()
       },
       uid: message.uid
     })
   }
 
-  Mailer.prototype.createPasswordResetLink = function (email, extraQueryParams) {
-    var queryParams = { email: email }
-    extraQueryParams = extraQueryParams || {}
-
-    for (var key in extraQueryParams) {
-      queryParams[key] = extraQueryParams[key]
-    }
-
-    return this.initiatePasswordResetUrl + '?' + qs.stringify(queryParams)
-  }
-
   Mailer.prototype.passwordChangedEmail = function (message) {
-    var link = this.createPasswordResetLink(message.email)
+    var link = this.createPasswordChangeLink(message.email)
 
     return this.send({
       acceptLanguage: message.acceptLanguage,
@@ -311,11 +299,11 @@ module.exports = function (log) {
       subject: gettext('Your Firefox Account password has been changed'),
       template: 'passwordChangedEmail',
       templateValues: {
+        passwordChangeLinkAttributes: this._initiatePasswordChange(message.email),
         resetLink: link,
-        supportUrl: this.supportUrl,
-        supportLinkAttributes: this._supportLinkAttributes(),
         signInUrl: this.signInUrl,
-        passwordChangeLinkAttributes: this._initiatePasswordChange()
+        supportLinkAttributes: this._supportLinkAttributes(),
+        supportUrl: this.supportUrl
       },
       uid: message.uid
     })
@@ -336,8 +324,7 @@ module.exports = function (log) {
         resetLink: link,
         supportUrl: this.supportUrl,
         supportLinkAttributes: this._supportLinkAttributes(),
-        resetPasswordUrl: this.signInUrl,
-        passwordChangeLinkAttributes: this._initiatePasswordChange()
+        resetPasswordUrl: this.signInUrl
       },
       uid: message.uid
     })
@@ -363,7 +350,7 @@ module.exports = function (log) {
 
   Mailer.prototype.newDeviceLoginEmail = function (message) {
     log.trace({ op: 'mailer.newDeviceLoginEmail', email: message.email, uid: message.uid })
-    var link = this.initiatePasswordChangeUrl + '?' + qs.stringify({ email: message.email })
+    var link = this.createPasswordChangeLink(message.email)
 
     // Make a human-readable timestamp string.
     // For now it's always in UTC.
@@ -381,11 +368,11 @@ module.exports = function (log) {
       template: 'newDeviceLoginEmail',
       templateValues: {
         device: this._formatUserAgentInfo(message),
-        timestamp: timestampStr,
+        passwordChangeLinkAttributes: this._initiatePasswordChange(message.email),
         resetLink: link,
-        supportUrl: this.supportUrl,
         supportLinkAttributes: this._supportLinkAttributes(),
-        passwordChangeLinkAttributes: this._initiatePasswordChange()
+        supportUrl: this.supportUrl,
+        timestamp: timestampStr
       },
       uid: message.uid
     })
@@ -412,8 +399,7 @@ module.exports = function (log) {
         androidUrl: this.androidUrl + postVerifyUtmParams,
         iosUrl: this.iosUrl + postVerifyUtmParams,
         supportUrl: this.supportUrl,
-        supportLinkAttributes: this._supportLinkAttributes(),
-        passwordChangeLinkAttributes: this._initiatePasswordChange()
+        supportLinkAttributes: this._supportLinkAttributes()
       },
       uid: message.uid
     })
@@ -488,11 +474,27 @@ module.exports = function (log) {
         link: link,
         oneClickLink: oneClickLink,
         supportUrl: this.supportUrl,
-        supportLinkAttributes: this._supportLinkAttributes(),
-        passwordChangeLinkAttributes: this._initiatePasswordChange()
+        supportLinkAttributes: this._supportLinkAttributes()
       },
       uid: message.uid
     })
+  }
+
+  Mailer.prototype.createPasswordResetLink = function (email, extraQueryParams) {
+    var queryParams = { email: email }
+    extraQueryParams = extraQueryParams || {}
+
+    for (var key in extraQueryParams) {
+      queryParams[key] = extraQueryParams[key]
+    }
+
+    return this.initiatePasswordResetUrl + '?' + qs.stringify(queryParams)
+  }
+
+  Mailer.prototype.createPasswordChangeLink = function (email) {
+    var queryParams = { email: email }
+
+    return this.initiatePasswordChangeUrl + '?' + qs.stringify(queryParams)
   }
 
   return Mailer
