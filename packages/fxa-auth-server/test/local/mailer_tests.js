@@ -38,7 +38,9 @@ var typesWithSupportLinks = [
   'verifyEmail'
 ]
 
-var typesContainConfirmlessPasswordResetLinks = [
+var typesContainPasswordResetLinks = [
+  'passwordChangedEmail',
+  'passwordResetEmail',
   'passwordResetRequiredEmail',
   'suspiciousLocationEmail'
 ]
@@ -90,15 +92,15 @@ P.all(
           )
         }
 
-        if (includes(typesContainConfirmlessPasswordResetLinks, type)) {
-          var confirmlessResetPasswordLink = mailer.createPasswordResetLink(message.email, { reset_password_confirm: false })
+        if (includes(typesContainPasswordResetLinks, type)) {
+          var resetPasswordLink = mailer.createPasswordResetLink(message.email)
 
           test(
             'reset password link is in email template output for ' + type,
             function (t) {
               mailer.mailer.sendMail = function (emailConfig) {
-                t.ok(includes(emailConfig.html, confirmlessResetPasswordLink))
-                t.ok(includes(emailConfig.text, confirmlessResetPasswordLink))
+                t.ok(includes(emailConfig.html, resetPasswordLink))
+                t.ok(includes(emailConfig.text, resetPasswordLink))
                 t.end()
               }
               mailer[type](message)
