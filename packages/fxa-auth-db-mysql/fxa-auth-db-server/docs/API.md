@@ -624,7 +624,7 @@ curl \
     -X POST \
     -H "Content-Type: application/json" \
     -d '{"uid":"fdea27c8188b3d980a28917bc1399e47"}' \
-    http://localhost:8000/token/266fd690895c8b0086bb2c83e4b3b41c128746125f28b5429938765279673d62/verify
+    http://localhost:8000/token/8e8c27b704dbf6a5dc556453c92e7506/verify
 ```
 
 ### Request
