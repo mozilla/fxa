@@ -139,8 +139,8 @@ by following a link sent by email.
      "sessionToken": sessionTokenId,
      "keyFetchToken": keyFetchTokenId,
      "verified" false,
-     "challengeReason": "signin",
-     "challengeMethod": "email"
+     "verificationReason": "login",
+     "verificationMethod": "email"
    }
    ```
 
@@ -223,10 +223,10 @@ against unverified tokens.
 - [x] Add strings to `strings.js`
   to get localization done quicker.
   This task is the highest immediate priority.
-- [ ] Update `/signin`, `/force_auth`, `/signup`
+- [x] Update `/signin`, `/force_auth`, `/signup`
   to redirect to `/confirm_signin`
   if response to `/account/login` contains
-  `"challengeReason":"signin","challengeMethod":"email"`.
+  `"verificationReason":"login","verificationMethod":"email"`.
 - [ ] Update `/confirm`
   to display "Confirm this sign-in"
   instead of signup messaging.
@@ -250,37 +250,35 @@ against unverified tokens.
 
 ### fxa-auth-server
 
-- [ ] Add method to `mailer.js`
+- [x] Add method to `mailer.js`
   for sending confirmation email.
-- [ ] Modify `/account/login`
+- [x] Modify `/account/login`
   to create keys unverified,
   initiate verification email
-  and set `challengeReason` and `challengeMethod` on response.
+  and set `verificationReason` and `verificationMethod` on response.
 - [x] Modify `/account/login`
   to stop sending new device connected emails.
 - [x] Create a `sessionTokenVerified`
   auth strategy for Hapi
   that fetches teh sessionToken with verification state.
-- [x] Create a `keyFetchTokenVerified`
-  auth strategy for Hapi
-  that fetches the keyFetchToken with verification state
-  and fails with 102 (unverified user) error
-  if keyFetchToken is not verified.
-- [ ] In `/certificate/sign`,
+- [x] In `/certificate/sign`,
   use updated `sessionWithDevice` auth strategy and
   encode the sessionToken verification state
   on the certificate as `fxa-tokenVerified`.
 - [x] In `/account/keys`,
   use new `keyFetchTokenVerified` auth strategy.
-- [ ] Modify the `/recovery_email/verify_code` endpoint
+- [x] Modify the `/recovery_email/verify_code` endpoint
   to also verify tokens.
   This allows legacy clients to work correctly
   and also handles the case of
   unverified users signing in.
-- [ ] Modify the `/recovery_email/resend_status` endpoint
-  to also return `"verified":false`
-  if tokens are unverified.
-- [ ] Tests.
+- [x] Modify the `/recovery_email/resend_code` to resend verification code depending on whether it is an email or sign-in verification.
+- [x] Modify the `/account/status` endpoint
+  to also return `"verified":false` if tokens are unverified. In addition, it returns `"emailVerified:false", "sessionVerified:false"` to show the reason for verification state.
+- [x] Modify the `/password/change/finish` endpoint to accept `sessionToken` and `keys`. If `keys=true`, return a `keyFetchToken` in addition to a verified `sessionToken, verified`.
+- [x] Modify the `/account/reset` endpoint to accept `sessionToken` and `keys`. If `keys=true`, return a `keyFetchToken` in addition to a verified `sessionToken, verified`.
+- [x] Add ability to enable/disable sign-in confirmation and perform a rollout of feature.
+- [x] Tests.
 
 ### fxa-auth-db-mysql
 
@@ -321,4 +319,3 @@ against unverified tokens.
 #### Off the signed-in device
 
 ![Mock-up of the "Sign-in confirmed" screen, not on the signed-in device](sign-in-confirmed-off-device.png)
-
