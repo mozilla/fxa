@@ -191,19 +191,23 @@ define([
     },
 
     'open complete page with malformed token shows damaged screen': function () {
-      var malformedToken = createRandomHexString(token.length - 1);
+      var self = this;
       return initiateResetPassword(this, email, 0)
-        .then(openCompleteResetPassword(
-          this, email, malformedToken, code, '#fxa-reset-link-damaged-header'
-        ));
+        .then(function () {
+          var malformedToken = createRandomHexString(token.length - 1);
+          return openCompleteResetPassword(
+            self, email, malformedToken, code, '#fxa-reset-link-damaged-header')();
+        });
     },
 
     'open complete page with invalid token shows expired screen': function () {
-      var invalidToken = createRandomHexString(token.length);
+      var self = this;
       return initiateResetPassword(this, email, 0)
-        .then(openCompleteResetPassword(
-          this, email, invalidToken, code, '#fxa-reset-link-expired-header'
-        ));
+        .then(function () {
+          var invalidToken = createRandomHexString(token.length);
+          return openCompleteResetPassword(
+            self, email, invalidToken, code, '#fxa-reset-link-expired-header')();
+        });
     },
 
     'open complete page with empty token shows damaged screen': function () {
@@ -227,12 +231,13 @@ define([
         ));
     },
 
-    'open complete page with malformed code shows damanged screen': function () {
-      var malformedCode = createRandomHexString(code.length - 1);
+    'open complete page with malformed code shows damaged screen': function () {
       return initiateResetPassword(this, email, 0)
-        .then(openCompleteResetPassword(
-          this, email, token, malformedCode, '#fxa-reset-link-damaged-header'
-        ));
+        .then(function () {
+          var malformedCode = createRandomHexString(code.length - 1);
+          return openCompleteResetPassword(
+            this, email, token, malformedCode, '#fxa-reset-link-damaged-header');
+        });
     },
 
     'open complete page with missing email shows damaged screen': function () {
