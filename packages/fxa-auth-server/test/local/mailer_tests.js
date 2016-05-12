@@ -43,6 +43,11 @@ var typesContainConfirmlessPasswordResetLinks = [
   'suspiciousLocationEmail'
 ]
 
+var typesContainPasswordChangeLinks = [
+  'newDeviceLoginEmail',
+  'verifyLoginEmail'
+]
+
 function includes(haystack, needle) {
   return (haystack.indexOf(needle) > -1)
 }
@@ -101,6 +106,21 @@ P.all(
           )
         }
 
+        if (includes(typesContainPasswordChangeLinks, type)) {
+          var passwordChangeLink = mailer.createPasswordChangeLink(message.email)
+          test(
+            'password change link is in email template output for ' + type,
+            function (t) {
+              mailer.mailer.sendMail = function (emailConfig) {
+                t.ok(includes(emailConfig.html, passwordChangeLink))
+                t.ok(includes(emailConfig.text, passwordChangeLink))
+                t.end()
+              }
+              mailer[type](message)
+            }
+          )
+        }
+
         if (type === 'verifyLoginEmail') {
           test(
             'test verify token email',
@@ -109,10 +129,6 @@ P.all(
                 var verifyLoginUrl = config.get('mail').verifyLoginUrl
                 t.ok(emailConfig.html.indexOf(verifyLoginUrl) > 0)
                 t.ok(emailConfig.text.indexOf(verifyLoginUrl) > 0)
-
-                var supportLinkUrl = 'support.mozilla.org'
-                t.ok(emailConfig.html.indexOf(supportLinkUrl) > 0, true)
-                t.ok(emailConfig.text.indexOf(supportLinkUrl) > 0, true)
 
                 t.end()
               }
