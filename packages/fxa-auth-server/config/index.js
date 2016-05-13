@@ -370,6 +370,18 @@ var conf = convict({
       env: 'STATSD_SAMPLE_RATE'
     }
   },
+  metrics: {
+    flow_id_key: {
+      default: 'YOU MUST CHANGE ME',
+      doc: 'FlowId validation key, as used by content-server',
+      format: String
+    },
+    flow_id_expiry: {
+      doc: 'Time after which flowIds are considered stale.',
+      format: 'duration',
+      default: '30 minutes'
+    }
+  },
   corsOrigin: {
     doc: 'Value for the Access-Control-Allow-Origin response header',
     format: String,

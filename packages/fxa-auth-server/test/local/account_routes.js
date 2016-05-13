@@ -36,6 +36,7 @@ var makeRoutes = function (options) {
   }
   var checkPassword = options.checkPassword || require('../../lib/routes/utils/password_check')(log, config, Password, customs, db)
   var push = options.push || require('../../lib/push')(log, db)
+  var metricsContext = options.metricsContext || log.metricsContext || require('../../lib/metrics/context')(log, config)
   return require('../../lib/routes/account')(
     log,
     crypto,
@@ -50,7 +51,8 @@ var makeRoutes = function (options) {
     customs,
     isPreVerified,
     checkPassword,
-    push
+    push,
+    metricsContext
   )
 }
 
@@ -671,5 +673,112 @@ test(
         t.fail('should have succeeded', err)
       }
     )
+  }
+)
+
+test(
+  '/account/create validates metrics context data',
+  function (t) {
+    var mockRequest = {
+      app: {
+        acceptLangage: 'en-US'
+      },
+      headers: {
+        'user-agent': 'test-user-agent'
+      },
+      payload: {
+        email: TEST_EMAIL,
+        authPW: crypto.randomBytes(32).toString('hex'),
+        service: 'sync',
+        metricsContext: {
+          flowBeginTime: Date.now(),
+          flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+          entrypoint: 'preferences'
+        }
+      }
+    }
+    var mockLog = mocks.mockLog()
+    mockLog.metricsContext = mocks.mockMetricsContext()
+    var mockDB = {
+      emailRecord: sinon.spy(function () {
+        return P.resolve({})
+      })
+    }
+    var accountRoutes = makeRoutes({
+      log: mockLog,
+      db: mockDB
+    })
+    return new P(function (resolve, reject) {
+      getRoute(accountRoutes, '/account/create')
+        .handler(mockRequest, function(response) {
+          resolve(response)
+        })
+    })
+    .then(function () {
+      t.equal(mockLog.metricsContext.validate.callCount, 1, 'metricsContext.validate was called')
+      var call = mockLog.metricsContext.validate.getCall(0)
+      t.equal(call.args.length, 1, 'validate was called with a single argument')
+      t.deepEqual(call.args[0], mockRequest, 'validate was called with the request')
+    })
+  }
+)
+
+test(
+  '/account/login validates metrics context data',
+  function (t) {
+    var mockRequest = {
+      app: {
+        acceptLangage: 'en-US'
+      },
+      headers: {
+        'user-agent': 'test-user-agent'
+      },
+      query: {
+        keys: false
+      },
+      payload: {
+        email: TEST_EMAIL,
+        authPW: crypto.randomBytes(32).toString('hex'),
+        service: 'sync',
+        reason: 'signin',
+        metricsContext: {
+          flowBeginTime: Date.now(),
+          flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+          entrypoint: 'preferences'
+        }
+      }
+    }
+    var mockDB = {
+      emailRecord: sinon.spy(function () {
+        return P.resolve({})
+      }),
+      createSessionToken: sinon.spy(function () {
+        return P.resolve({})
+      }),
+      sessions: sinon.spy(function () {
+        return P.resolve([{}, {}, {}])
+      })
+    }
+    var mockLog = mocks.mockLog()
+    mockLog.metricsContext = mocks.mockMetricsContext()
+    var accountRoutes = makeRoutes({
+      db: mockDB,
+      log: mockLog,
+      checkPassword: function () {
+        return P.resolve(true)
+      }
+    })
+    return new P(function (resolve) {
+      getRoute(accountRoutes, '/account/login')
+        .handler(mockRequest, function(response) {
+          resolve(response)
+        })
+    })
+    .then(function () {
+      t.equal(mockLog.metricsContext.validate.callCount, 1, 'metricsContext.validate was called')
+      var call = mockLog.metricsContext.validate.getCall(0)
+      t.equal(call.args.length, 1, 'validate was called with a single argument')
+      t.deepEqual(call.args[0], mockRequest, 'validate was called with the request')
+    })
   }
 )
