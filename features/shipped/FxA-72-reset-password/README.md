@@ -27,6 +27,10 @@ which remains at around 10%:
 
 ![](reset_as_percent_of_signin_apr2016.png)
 
+Additionally, there appears to be a slight drop off of password resets after seeing the updated reset warning message.
+
+![](reset_dropoff_after_warning.png)
+
 ----------------
 
 ## Current/Proposed UX
@@ -50,4 +54,3 @@ As at end of January 2016 this rate is around 10%:
 If some users are encouraged to "try harder" to remember their password
 as a result of this improved messaging,
 then we may observe a decrease in this percentage.
-
