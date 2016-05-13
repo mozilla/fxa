@@ -22,6 +22,7 @@ module.exports = [
   'et',
   'fa',
   'ff',
+  'fi',
   'fr',
   'fy',
   'he',
