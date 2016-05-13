@@ -96,6 +96,10 @@ define(function (require, exports, module) {
       errno: 122,
       message: UNEXPECTED_ERROR_MESSAGE
     },
+    REQUEST_BLOCKED: {
+      errno: 125,
+      message: t('The request was blocked for security reasons')
+    },
     ACCOUNT_RESET: {
       errno: 126,
       message: t('Your account has been locked for security reasons')
