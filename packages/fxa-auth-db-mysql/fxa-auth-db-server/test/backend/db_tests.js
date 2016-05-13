@@ -217,7 +217,7 @@ module.exports = function(config, DB) {
         test(
           'session token handling',
           function (t) {
-            t.plan(98)
+            t.plan(100)
 
             var VERIFIED_SESSION_TOKEN_ID = hex32()
 
@@ -392,8 +392,9 @@ module.exports = function(config, DB) {
               })
               .then(function () {
                 t.fail('Verifying session token with invalid tokenVerificationId should have failed')
-              }, function () {
-                t.pass('Verifying session token with invalid tokenVerificationId failed as expected')
+              }, function (err) {
+                t.equal(err.errno, 116, 'err.errno is correct')
+                t.equal(err.code, 404, 'err.code is correct')
               })
               .then(function() {
                 // Fetch the unverified session token with its verification state
@@ -407,8 +408,9 @@ module.exports = function(config, DB) {
               })
               .then(function () {
                 t.fail('Verifying session token with invalid uid should have failed')
-              }, function () {
-                t.pass('Verifying session token with invalid uid failed as expected')
+              }, function (err) {
+                t.equal(err.errno, 116, 'err.errno is correct')
+                t.equal(err.code, 404, 'err.code is correct')
               })
               .then(function() {
                 // Fetch the unverified session token with its verification state
