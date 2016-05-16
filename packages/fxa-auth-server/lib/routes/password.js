@@ -132,7 +132,8 @@ module.exports = function (
         validate: {
           payload: {
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
-            wrapKb: isA.string().min(64).max(64).regex(HEX_STRING).required()
+            wrapKb: isA.string().min(64).max(64).regex(HEX_STRING).required(),
+            sessionToken: isA.string().min(64).max(64).regex(HEX_STRING).optional()
           }
         }
       },
