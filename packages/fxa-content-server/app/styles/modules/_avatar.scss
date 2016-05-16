@@ -38,17 +38,17 @@
     }
   }
 
-  &.avatar-settings-view {    
+  &.avatar-settings-view {
     display: block;
     margin: 0 auto;
     position: relative;
 
-    &:hover{
-      box-shadow: 0px 0px 0px 1px #0095dd;
+    &:hover {
+      box-shadow: 0 0 0 1px #0095dd;
     }
 
-    &:active{
-      box-shadow: 0px 0px 0px 1px #ff9500;
+    &:active {
+      box-shadow: 0 0 0 1px #ff9500;
     }
 
     @include respond-to('big') {
@@ -175,12 +175,17 @@
         padding-top: 37px;
       }
 
-      &#camera, &#file, &#gravatar, &.remove {
+      &#camera,
+      &#file,
+      &#gravatar,
+      &.remove {
         background-position: 50% 22%;
         background-size: 41%;
+
         &:hover {
           filter: hue-rotate(3deg) saturate(1.1) brightness(.85);
         }
+
         &:active {
           filter: hue-rotate(3deg) saturate(1.1) brightness(.75);
         }
@@ -189,12 +194,15 @@
       &#camera {
         background-image: image-url('glyph-camera-32.svg');
       }
+
       &#file {
         background-image: image-url('glyph-upload-32.svg');
       }
+
       &#gravatar {
         background-image: image-url('glyph-gravatar-32.svg');
       }
+
       &.remove {
         background-image: image-url('glyph-clear-32.svg');
       }

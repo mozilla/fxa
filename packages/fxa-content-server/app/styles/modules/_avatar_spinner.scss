@@ -1,4 +1,6 @@
 .avatar-spinner {
+  @extend %fill-avatar;
+
   $arc-width: 3%; // Percent that the center overlay should be shrunk by, revealing the spinner band.
   $center-expand-delay: 200ms;
   $center-expand-duration: 200ms;
@@ -7,8 +9,6 @@
   $fade-in-duration: 200ms;
   $rotation-period: 2s; // Time for the spinner to make a single rotation
   $solid-part-width: 75%;
-
-  @extend %fill-avatar;
 
   // Fade in the spinner, to try to reduce flash, in addition to its
   // continual rotation.
@@ -67,6 +67,7 @@
       timing-function: cubic-bezier(0.6, 0.04, 0.98, 0.335); // easeInCirc
     }
   }
+
   &.completed::before {
     transform: rotate(90deg);
   }
@@ -88,6 +89,7 @@
       timing-function: ease-in-out;
     }
   }
+
   &.completed::after {
     transform: scale(1.001);
   }

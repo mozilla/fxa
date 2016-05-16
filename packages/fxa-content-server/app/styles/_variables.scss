@@ -1,6 +1,6 @@
 //Font Family Variables
-$default-font: "Fira Sans", Helvetica, Arial, sans-serif;
-$header-font: "Fira Sans", Helvetica, Arial, sans-serif;
+$default-font: 'Fira Sans', Helvetica, Arial, sans-serif;
+$header-font: 'Fira Sans', Helvetica, Arial, sans-serif;
 
 //Color Variables
 $button-background-color: #0095dd;
@@ -77,8 +77,8 @@ $fox-logo-zindex: 999;
 $close-button-color: #c5cdd4;
 $close-button-zindex: $fox-logo-zindex + 1;
 
-$image-url-path: "/images/" !default;
+$image-url-path: '/images/' !default;
 
 @function image-url($url) {
-  @return url("#{$image-url-path}#{$url}");
+  @return url('#{$image-url-path}#{$url}');
 }

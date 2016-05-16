@@ -10,7 +10,8 @@ module.exports = function (grunt) {
     'eslint',
     'jsonlint:app',
     'jscs',
-    'amdcheck'
+    'amdcheck',
+    'sasslint'
   ];
 
   grunt.registerTask('lint', 'lint all the things', SUBTASKS);

@@ -68,7 +68,8 @@
 
   // Links to external sites cannot be opened when signing in
   // to Sync on Firefox for iOS
-  .chromeless &, .fx-ios-sync & {
+  .chromeless &,
+  .fx-ios-sync & {
     display: none;
   }
 }

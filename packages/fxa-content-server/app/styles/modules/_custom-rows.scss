@@ -85,7 +85,8 @@ ul.links {
   }
 }
 
-.choose-what-to-sync-row, .checkbox-row {
+.choose-what-to-sync-row,
+.checkbox-row {
 
   label {
     display: block;
@@ -177,7 +178,7 @@ ul.links {
 
 #permissions {
   fieldset {
-    border: none;
+    border: 0;
   }
 
   .avatar-wrapper {
@@ -219,6 +220,7 @@ ul.permission-links {
 
   .two-col-block {
     min-width: 49%;
+
     > div {
       margin-bottom: 10px;
     }

@@ -30,6 +30,7 @@ app/bower_components
 !.editorconfig
 !.npmignore
 !.travis.yml
+!.sass-lint.yml
 *~
 
 

@@ -43,6 +43,7 @@
     &[type='number'],
     &[type='password'] {
       @include input-element();
+
       &:hover {
         border-color: $input-row-hover-border-color;
       }

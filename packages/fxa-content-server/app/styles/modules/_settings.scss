@@ -401,26 +401,23 @@ body.settings #main-content.card {
   position: relative;
 
   .settings-button {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 20%;
     height: 35px;
-  }
-
-  .device-name {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 20%;
   }
 
   .last-connected {
-    font-size: 12px;
     color: #909ca8;
+    font-size: 12px;
   }
 }
 
 .device.desktop {
-  background-image: url(/images/device-icon-pc.png);
+  background-image: url('/images/device-icon-pc.png');
 }
 
 .device.mobile {
-  background-image: url(/images/device-icon-mobile.png);
+  background-image: url('/images/device-icon-mobile.png');
 }

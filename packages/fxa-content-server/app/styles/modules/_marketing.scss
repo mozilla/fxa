@@ -86,9 +86,9 @@
 
       // For the firstrun flow only, pull the marketing box
       // out to the sides to get rid of the padding.
-      margin: 0px -20px;
-      position: relative;
       bottom: -20px;
+      margin: 0 -20px;
+      position: relative;
     }
   }
 }

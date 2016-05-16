@@ -8,7 +8,6 @@
   top: -32px;
   z-index: 5;
 
-
   /* tooltip caret */
   &:before,
   &::before {
@@ -28,19 +27,23 @@
 
   &.tooltip-suggest {
     background: $info-background-color;
+
     &:before,
     &::before {
       background-color: $info-background-color;
     }
+
     > span {
       cursor: pointer;
       text-decoration: underline;
+
       &:focus {
-        border-color: #FFFFFF;
+        border-color: #fff;
         border-style: dotted;
         border-width: 1px;
-        color: #FFFFFF;
+        color: #fff;
       }
+
       &.dismiss {
         margin-left: 5px;
         text-decoration: none;

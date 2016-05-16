@@ -103,7 +103,8 @@ header {
       margin-bottom: 10px;
     }
 
-    .service, .email {
+    .service,
+    .email {
       display: block;
 
       @include respond-to('big') {
@@ -208,6 +209,6 @@ a[href^=http].visible-url {
 a[data-visible-url^=http]:after,
 a[data-visible-url^=http]::after {
   border-bottom: 1px solid $content-background-color;
-  content: " (" attr(href) ") ";
+  content: ' (' attr(href) ') ';
   word-break: break-all;
 }

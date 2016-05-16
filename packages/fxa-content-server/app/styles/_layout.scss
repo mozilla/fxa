@@ -39,7 +39,7 @@
 
   @include respond-to('trustedUI') {
     background: none;
-    border: none;
+    border: 0;
     margin: 10px auto 0 auto;
     min-width: 250px;
     padding: 0;
@@ -48,7 +48,7 @@
   }
 
   .chromeless & {
-    border: none;
+    border: 0;
     box-shadow: none;
     margin-top: 0;
   }
@@ -91,8 +91,8 @@
 
   @include respond-to('compressedLandscape') {
     max-width: 750px;
-    width: 94%;
     padding: 0;
+    width: 94%;
   }
 }
 
