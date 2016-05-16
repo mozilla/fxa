@@ -301,6 +301,8 @@ module.exports = function (
             email: validators.email().required(),
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
             service: isA.string().max(16).alphanum().optional(),
+            redirectTo: isA.string().uri().optional(),
+            resume: isA.string().optional(),
             reason: isA.string().max(16).optional(),
             device: isA.object({
               id: isA.string().length(32).regex(HEX_STRING).optional(),
@@ -319,6 +321,8 @@ module.exports = function (
             uid: isA.string().regex(HEX_STRING).required(),
             sessionToken: isA.string().regex(HEX_STRING).required(),
             keyFetchToken: isA.string().regex(HEX_STRING).optional(),
+            verificationMethod: isA.string().optional(),
+            verificationReason: isA.string().optional(),
             verified: isA.boolean().required(),
             authAt: isA.number().integer(),
             device: isA.object({
@@ -980,7 +984,9 @@ module.exports = function (
             // There's code in the handler that checks for a valid email,
             // no point adding overhead by doing it again here.
             email: isA.string().required(),
-            verified: isA.boolean().required()
+            verified: isA.boolean().required(),
+            sessionVerified: isA.boolean().optional(),
+            emailVerified: isA.boolean().optional()
           }
         }
       },
