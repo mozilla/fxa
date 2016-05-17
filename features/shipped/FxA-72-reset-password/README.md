@@ -6,6 +6,33 @@ https://mozilla.aha.io/features/FXA-72
 
 So that I can avoid inadvertently losing all my Sync data, as a forgetful Firefox Accounts user, I want to understand more clearly what will happen when I reset my password.
 
+## Outcomes
+
+The revised password reset UX
+went live in FxA train-58
+in mid-March 2016.
+
+While it's difficult to measure
+or attribute with any certainty,
+the support team does note
+a decrease in the number of complaints
+related to password reset
+and the data loss that ensues.
+
+There does not appear to have been
+any meaningful change
+in the rate of password resets
+as a percentage of successul logins,
+which remains at around 10%:
+
+![](reset_as_percent_of_signin_apr2016.png)
+
+Additionally, there appears to be a slight drop off of password resets after seeing the updated reset warning message.
+
+![](reset_dropoff_after_warning.png)
+
+----------------
+
 ## Current/Proposed UX
 ![password-reset-ux](password_reset_ux.png)
 
@@ -27,4 +54,3 @@ As at end of January 2016 this rate is around 10%:
 If some users are encouraged to "try harder" to remember their password
 as a result of this improved messaging,
 then we may observe a decrease in this percentage.
-
