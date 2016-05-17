@@ -2,22 +2,23 @@
 CREATE TABLE `unverifiedTokens` (
   tokenId BINARY(32) NOT NULL PRIMARY KEY,
   tokenVerificationId BINARY(16) NOT NULL,
-  uid BINARY(16) NOT NULL
+  uid BINARY(16) NOT NULL,
+  INDEX unverifiedToken_uid_tokenVerificationId (uid, tokenVerificationId)
 ) ENGINE=InnoDB;
 
 -- Update createSessionToken stored procedure to
 -- insert into unverifiedTokens.
 CREATE PROCEDURE `createSessionToken_3` (
-  IN tokenId BINARY(32),
-  IN tokenData BINARY(32),
-  IN uid BINARY(16),
-  IN createdAt BIGINT UNSIGNED,
-  IN uaBrowser VARCHAR(255),
-  IN uaBrowserVersion VARCHAR(255),
-  IN uaOS VARCHAR(255),
-  IN uaOSVersion VARCHAR(255),
-  IN uaDeviceType VARCHAR(255),
-  IN tokenVerificationId BINARY(16)
+  IN `tokenId` BINARY(32),
+  IN `tokenData` BINARY(32),
+  IN `uid` BINARY(16),
+  IN `createdAt` BIGINT UNSIGNED,
+  IN `uaBrowser` VARCHAR(255),
+  IN `uaBrowserVersion` VARCHAR(255),
+  IN `uaOS` VARCHAR(255),
+  IN `uaOSVersion` VARCHAR(255),
+  IN `uaDeviceType` VARCHAR(255),
+  IN `tokenVerificationId` BINARY(16)
 )
 BEGIN
   DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -72,7 +73,7 @@ END;
 -- Update deleteSessionToken stored procedure to
 -- delete from unverifiedTokens.
 CREATE PROCEDURE `deleteSessionToken_2` (
-  IN tokenIdArg BINARY(32)
+  IN `tokenIdArg` BINARY(32)
 )
 BEGIN
   DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -89,10 +90,109 @@ BEGIN
   COMMIT;
 END;
 
+-- Update deleteDevice stored procedure to
+-- delete from unverifiedTokens.
+CREATE PROCEDURE `deleteDevice_2` (
+  IN `uidArg` BINARY(16),
+  IN `idArg` BINARY(16)
+)
+BEGIN
+  DELETE devices, sessionTokens, unverifiedTokens
+  FROM devices
+  LEFT JOIN sessionTokens
+    ON devices.sessionTokenId = sessionTokens.tokenId
+  LEFT JOIN unverifiedTokens
+    ON sessionTokens.tokenId = unverifiedTokens.tokenId
+  WHERE devices.uid = uidArg
+    AND devices.id = idArg;
+END;
+
+-- Update deleteAccount stored procedure to
+-- delete from unverifiedTokens.
+CREATE PROCEDURE `deleteAccount_7` (
+  IN `uidArg` BINARY(16)
+)
+BEGIN
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    ROLLBACK;
+    RESIGNAL;
+  END;
+
+  START TRANSACTION;
+
+  DELETE FROM sessionTokens WHERE uid = uidArg;
+  DELETE FROM keyFetchTokens WHERE uid = uidArg;
+  DELETE FROM accountResetTokens WHERE uid = uidArg;
+  DELETE FROM passwordChangeTokens WHERE uid = uidArg;
+  DELETE FROM passwordForgotTokens WHERE uid = uidArg;
+  DELETE FROM accountUnlockCodes WHERE uid = uidArg;
+  DELETE FROM accounts WHERE uid = uidArg;
+  DELETE FROM openids WHERE uid = uidArg;
+  DELETE FROM devices WHERE uid = uidArg;
+  DELETE FROM unverifiedTokens WHERE uid = uidArg;
+
+  INSERT INTO eventLog(
+    uid,
+    typ,
+    iat
+  )
+  VALUES(
+    uidArg,
+    "delete",
+    UNIX_TIMESTAMP()
+  );
+
+  COMMIT;
+END;
+
+-- Update resetAccount stored procedure to
+-- delete from unverifiedTokens.
+CREATE PROCEDURE `resetAccount_6` (
+  IN `uidArg` BINARY(16),
+  IN `verifyHashArg` BINARY(32),
+  IN `authSaltArg` BINARY(32),
+  IN `wrapWrapKbArg` BINARY(32),
+  IN `verifierSetAtArg` BIGINT UNSIGNED,
+  IN `VerifierVersionArg` TINYINT UNSIGNED
+)
+BEGIN
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    ROLLBACK;
+    RESIGNAL;
+  END;
+
+  START TRANSACTION;
+
+  DELETE FROM sessionTokens WHERE uid = uidArg;
+  DELETE FROM keyFetchTokens WHERE uid = uidArg;
+  DELETE FROM accountResetTokens WHERE uid = uidArg;
+  DELETE FROM passwordChangeTokens WHERE uid = uidArg;
+  DELETE FROM passwordForgotTokens WHERE uid = uidArg;
+  DELETE FROM accountUnlockCodes WHERE uid = uidArg;
+  DELETE FROM devices WHERE uid = uidArg;
+  DELETE FROM unverifiedTokens WHERE uid = uidArg;
+
+  UPDATE accounts
+  SET
+    verifyHash = verifyHashArg,
+    authSalt = authSaltArg,
+    wrapWrapKb = wrapWrapKbArg,
+    verifierSetAt = verifierSetAtArg,
+    verifierVersion = verifierVersionArg
+  WHERE uid = uidArg;
+
+  INSERT INTO eventLog(uid, typ, iat)
+  VALUES(uidArg, "reset", UNIX_TIMESTAMP());
+
+  COMMIT;
+END;
+
 -- Add stored procedure for fetching sessionToken
 -- with its verification status.
 CREATE PROCEDURE `sessionTokenWithVerificationStatus_1` (
-  IN tokenIdArg BINARY(32)
+  IN `tokenIdArg` BINARY(32)
 )
 BEGIN
   SELECT
@@ -123,7 +223,7 @@ END;
 -- Update sessionWithDevice stored procedure to
 -- fetch sessionToken verification status.
 CREATE PROCEDURE `sessionWithDevice_3` (
-  IN tokenIdArg BINARY(32)
+  IN `tokenIdArg` BINARY(32)
 )
 BEGIN
   SELECT
@@ -162,8 +262,8 @@ END;
 
 -- Add stored procedure for deleting unverifiedTokens.
 CREATE PROCEDURE `verifyToken_1` (
-  IN tokenVerificationIdArg BINARY(16),
-  IN uidArg BINARY(16)
+  IN `tokenVerificationIdArg` BINARY(16),
+  IN `uidArg` BINARY(16)
 )
 BEGIN
   DELETE FROM unverifiedTokens

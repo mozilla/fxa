@@ -501,9 +501,10 @@ module.exports = function (log, error) {
 
   // DELETE
 
-  // Delete : sessionTokens, keyFetchTokens, accountResetTokens, passwordChangeTokens, passwordForgotTokens, accountUnlockCodes, accounts
+  // Delete : sessionTokens, keyFetchTokens, accountResetTokens, passwordChangeTokens,
+  //          passwordForgotTokens, accountUnlockCodes, accounts, devices, unverifiedTokens
   // Where  : uid = $1
-  var DELETE_ACCOUNT = 'CALL deleteAccount_6(?)'
+  var DELETE_ACCOUNT = 'CALL deleteAccount_7(?)'
 
   MySql.prototype.deleteAccount = function (uid) {
     return this.write(DELETE_ACCOUNT, [uid])
@@ -562,7 +563,9 @@ module.exports = function (log, error) {
     return this.write(DELETE_PASSWORD_CHANGE_TOKEN, [tokenId])
   }
 
-  var DELETE_DEVICE = 'CALL deleteDevice_1(?, ?)'
+  // Delete : devices, sessionTokens, unverifiedTokens
+  // Where  : uid = $1
+  var DELETE_DEVICE = 'CALL deleteDevice_2(?, ?)'
 
   MySql.prototype.deleteDevice = function (uid, deviceId) {
     return this.write(
@@ -581,14 +584,15 @@ module.exports = function (log, error) {
   // BATCH
 
   // Step   : 1
-  // Delete : sessionTokens, keyFetchTokens, accountResetTokens, passwordChangeTokens, passwordForgotTokens, accountUnlockCodes
+  // Delete : sessionTokens, keyFetchTokens, accountResetTokens, passwordChangeTokens,
+  //          passwordForgotTokens, accountUnlockCodes, devices, unverifiedTokens
   // Where  : uid = $1
   //
   // Step   : 2
   // Update : accounts
   // Set    : verifyHash = $2, authSalt = $3, wrapWrapKb = $4, verifierSetAt = $5, verifierVersion = $6
   // Where  : uid = $1
-  var RESET_ACCOUNT = 'CALL resetAccount_5(?, ?, ?, ?, ?, ?)'
+  var RESET_ACCOUNT = 'CALL resetAccount_6(?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.resetAccount = function (uid, data) {
     return this.write(

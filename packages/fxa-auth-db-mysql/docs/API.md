@@ -351,7 +351,7 @@ Parameters.
 Returns:
 
 * resolves with:
-    * an object `{}` (whether a row was updated or not, ie. even if `tokenId` does not exist.)
+    * an object `{}` (regardless of whether a row was updated or not, ie. even if `tokenId` does not exist.)
 * rejects with:
     * any error from the underlying storage system (wrapped in `error.wrap()`)
 
@@ -368,7 +368,7 @@ Parameters.
 Returns:
 
 * resolves with:
-    * an object `{}` (whether a row was updated or not, ie. even if `tokenId` does not exist.)
+    * an object `{}` (regardless of whether a row was updated or not, ie. even if `tokenId` does not exist.)
 * rejects with:
     * any error from the underlying storage system (wrapped in `error.wrap()`)
 
@@ -383,10 +383,12 @@ with a `uid` property.
 
 Returns a promise that:
 
-* resolves with an object `{}`
-  (whether a row was updated or not,
-  i.e. even if `tokenVerificationId` does not exist).
-* rejects with any error from the underlying storage system
+* Resolves with an object `{}`
+  if a token was verified.
+* Rejects with error `{ code: 404, errno: 116 }`
+  if there was no matching token.
+* Rejects with any error
+  from the underlying storage system
   (wrapped in `error.wrap()`).
 
 ## .forgotPasswordVerified(tokenId, accountResetToken) ##
@@ -424,8 +426,11 @@ Returns:
     * `error.notFound()` if this token does not exist
     * any error from the underlying storage system (wrapped in `error.wrap()`
 
-These fields are represented as `t.*` for a field from the token `a.*` for a
-field from the corresponding account and `d.*` for a field from devices.
+These fields are represented as
+`t.*` for a field from the token,
+`a.*` for a field from the corresponding account,
+`d.*` for a field from `devices` and
+`ut.*` for a field from `unverifiedTokens`.
 
 The deviceCallbackPublicKey and deviceCallbackAuthKey fields are urlsafe-base64 strings, you can learn more about their format [here](https://developers.google.com/web/updates/2016/03/web-push-encryption).
 

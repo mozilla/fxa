@@ -217,9 +217,21 @@ module.exports = function(config, DB) {
         test(
           'session token handling',
           function (t) {
-            t.plan(100)
+            t.plan(103)
 
             var VERIFIED_SESSION_TOKEN_ID = hex32()
+            var UNVERIFIED_SESSION_TOKEN_ID = hex32()
+            var UNVERIFIED_SESSION_TOKEN = {
+              data: hex32(),
+              uid: ACCOUNT.uid,
+              createdAt: Date.now(),
+              uaBrowser: 'foo',
+              uaBrowserVersion: 'bar',
+              uaOS: 'baz',
+              uaOSVersion: 'qux',
+              uaDeviceType: 'wibble',
+              tokenVerificationId: hex16()
+            }
 
             // Fetch all of the sessions tokens for the account
             return db.sessions(ACCOUNT.uid)
@@ -435,18 +447,33 @@ module.exports = function(config, DB) {
               .then(function (token) {
                 t.equal(token.tokenVerificationId, null, 'tokenVerificationId is null')
 
-                // Delete both session tokens
+                // Create an unverified session token
+                return db.createSessionToken(UNVERIFIED_SESSION_TOKEN_ID, UNVERIFIED_SESSION_TOKEN)
+              })
+              .then(function(results) {
+                // Delete all three session tokens
                 return P.all([
                   db.deleteSessionToken(SESSION_TOKEN_ID),
-                  db.deleteSessionToken(VERIFIED_SESSION_TOKEN_ID)
+                  db.deleteSessionToken(VERIFIED_SESSION_TOKEN_ID),
+                  db.deleteSessionToken(UNVERIFIED_SESSION_TOKEN_ID)
                 ])
               })
               .then(function(results) {
-                t.equal(results.length, 2)
+                t.equal(results.length, 3)
                 results.forEach(function (result) {
                   t.deepEqual(result, {}, 'Returned an empty object on forgot session token deletion')
                 })
 
+                // Attempt to verify deleted unverified session token
+                return db.verifyToken(UNVERIFIED_SESSION_TOKEN.tokenVerificationId, { uid: ACCOUNT.uid })
+              })
+              .then(function () {
+                t.fail('Verifying deleted unverified session token should have failed')
+              }, function (err) {
+                t.equal(err.errno, 116, 'err.errno is correct')
+                t.equal(err.code, 404, 'err.code is correct')
+              })
+              .then(function() {
                 // Fetch all of the sessions tokens for the account
                 return db.sessions(ACCOUNT.uid)
               })
@@ -971,7 +998,7 @@ module.exports = function(config, DB) {
         test(
           'db.accountDevices',
           function (t) {
-            t.plan(65)
+            t.plan(71)
             var deviceId = newUuid()
             var sessionTokenId = hex32()
             var createdAt = Date.now()
@@ -984,6 +1011,7 @@ module.exports = function(config, DB) {
             }
             var newDeviceId = newUuid()
             var newSessionTokenId = hex32()
+            var newTokenVerificationId = hex16()
 
             // Attempt to update non-existent device
             return db.updateDevice(ACCOUNT.uid, deviceId, deviceInfo)
@@ -1232,6 +1260,28 @@ module.exports = function(config, DB) {
               .then(function (devices) {
                 t.equal(devices.length, 1, 'devices length 1')
 
+                // Attempt to fetch the session token that was associated with the deleted device
+                return db.sessionWithDevice(newSessionTokenId)
+              })
+              .then(function () {
+                t.fail('deleting the device should have deleted the session token')
+              }, function (err) {
+                t.pass('deleting the device also deleted the session token')
+                t.equal(err.code, 404, 'err.code')
+                t.equal(err.errno, 116, 'err.errno')
+              })
+              .then(function () {
+                // Attempt to verify the session token that was associated with the deleted device
+                return db.verifyToken(newTokenVerificationId, { uid: ACCOUNT.uid })
+              })
+              .then(function () {
+                t.fail('deleting the device should have deleted the unverified token')
+              }, function (err) {
+                t.pass('deleting the device also deleted the unverified token')
+                t.equal(err.code, 404, 'err.code')
+                t.equal(err.errno, 116, 'err.errno')
+              })
+              .then(function () {
                 // Delete the second device
                 return db.deleteDevice(ACCOUNT.uid, newDeviceId)
               })
@@ -1248,7 +1298,7 @@ module.exports = function(config, DB) {
         test(
           'db.resetAccount',
           function (t) {
-            t.plan(10)
+            t.plan(14)
             var uid = ACCOUNT.uid
             var lockedAt = Date.now()
             var unlockCode = hex16()
@@ -1285,6 +1335,27 @@ module.exports = function(config, DB) {
               .then(function(devices) {
                 t.pass('.accountDevices() did not error')
                 t.equal(devices.length, 0, 'The devices length should be zero')
+
+                // Attempt to verify the session token
+                return db.verifyToken(SESSION_TOKEN.tokenVerificationId, { uid: uid })
+              })
+              .then(function () {
+                t.fail('Verifying deleted token should have failed')
+              }, function (err) {
+                t.equal(err.errno, 116, 'err.errno is correct')
+                t.equal(err.code, 404, 'err.code is correct')
+              })
+              .then(function() {
+              })
+              .then(function() {
+                // Attempt to fetch the session token
+                return db.sessionToken(SESSION_TOKEN_ID)
+              })
+              .then(function () {
+                t.fail('Fetching deleted token should have failed')
+              }, function (err) {
+                t.equal(err.errno, 116, 'err.errno is correct')
+                t.equal(err.code, 404, 'err.code is correct')
               })
               .then(function() {
                 // account should STILL exist for this email address
@@ -1308,7 +1379,7 @@ module.exports = function(config, DB) {
         test(
           'account deletion',
           function (t) {
-            t.plan(3)
+            t.plan(7)
             var uid = ACCOUNT.uid
             var lockedAt = Date.now()
             var unlockCode = hex16()
@@ -1340,6 +1411,30 @@ module.exports = function(config, DB) {
                 t.deepEqual(result, {}, 'Returned an empty object for unlockAccount')
               }, function(err) {
                 t.fail('We should not have failed this .unlockAccount() request')
+              })
+              .then(function () {
+                // Fetch the session token with its verification state
+                return db.sessionTokenWithVerificationStatus(SESSION_TOKEN_ID)
+              })
+              .then(function () {
+                // Attempt to verify session token
+                return db.verifyToken(SESSION_TOKEN.tokenVerificationId, { uid: uid })
+              })
+              .then(function () {
+                t.fail('Verifying deleted token should have failed')
+              }, function (err) {
+                t.equal(err.errno, 116, 'err.errno is correct')
+                t.equal(err.code, 404, 'err.code is correct')
+              })
+              .then(function() {
+                // Attempt to fetch session token
+                return db.sessionToken(SESSION_TOKEN_ID)
+              })
+              .then(function () {
+                t.fail('Fetching deleted token should have failed')
+              }, function (err) {
+                t.equal(err.errno, 116, 'err.errno is correct')
+                t.equal(err.code, 404, 'err.code is correct')
               })
           }
         )

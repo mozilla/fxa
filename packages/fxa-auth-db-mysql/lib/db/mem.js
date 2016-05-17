@@ -348,11 +348,11 @@ module.exports = function (log, error) {
           if (! account.devices[deviceKey]) {
             throw error.notFound()
           }
+
           var device = account.devices[deviceKey]
-          var sessionKey = (device.sessionTokenId || '').toString('hex')
-          delete sessionTokens[sessionKey]
           delete account.devices[deviceKey]
-          return {}
+
+          return Memory.prototype.deleteSessionToken(device.sessionTokenId)
         }
       )
   }
@@ -665,6 +665,7 @@ module.exports = function (log, error) {
           deleteByUid(uid, passwordChangeTokens)
           deleteByUid(uid, passwordForgotTokens)
           deleteByUid(uid, accountUnlockCodes)
+          deleteByUid(uid, unverifiedTokens)
 
           account.verifyHash = data.verifyHash
           account.authSalt = data.authSalt
@@ -688,6 +689,7 @@ module.exports = function (log, error) {
           deleteByUid(uid, passwordChangeTokens)
           deleteByUid(uid, passwordForgotTokens)
           deleteByUid(uid, accountUnlockCodes)
+          deleteByUid(uid, unverifiedTokens)
 
           delete uidByNormalizedEmail[account.normalizedEmail]
           delete uidByOpenId[account.openId]
