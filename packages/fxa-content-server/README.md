@@ -22,7 +22,7 @@ The above link helps to install the following pre-requisites, and set up a devel
 
 Make sure that fxa-local-dev servers are running. The fxa-content-server will listen on <http://127.0.0.1:3030> by default.
 
-Note: If you have issues with `npm install` please update to npm 2.0+ using `npm install -g npm@2` 
+Note: If you have issues with `npm install` please update to npm 2.4+ using `npm install -g npm@2` 
 ([Issue #1594](https://github.com/mozilla/fxa-content-server/issues/1594))
 
 ## Testing
