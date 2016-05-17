@@ -26,6 +26,11 @@ module.exports = [
   },
   {
     method: 'GET',
+    path: '/__lbheartbeat__',
+    config: require('./routes/lbheartbeat')
+  },
+  {
+    method: 'GET',
     path: v('/profile'),
     config: require('./routes/profile')
   },

@@ -50,5 +50,13 @@ describe('server', function() {
       });
     });
   });
+
+  describe('/__lbheartbeat__', function() {
+    it('should succeed', function() {
+      return Server.get('/__lbheartbeat__').then(function(res) {
+        assert.equal(res.statusCode, 200);
+      });
+    });
+  });
 });
 
