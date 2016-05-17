@@ -59,9 +59,24 @@ define(function (require, exports, module) {
     describe('showFloatingPlaceholder', function () {
       it('forces the display of a floating placeholder', function () {
         view.showFloatingPlaceholder('#float_me');
-        assert.equal(view.$('#float_me').attr('placeholder'), 'placeholder text');
-        assert.equal(view.$('.label-helper').text(), '');
+        assert.equal(typeof view.$('#float_me').attr('placeholder'), 'undefined');
+        assert.equal(view.$('.label-helper').text(), 'placeholder text');
       });
     });
+
+    describe('focusFloatingPlaceholder', function () {
+      it('focuses the floating placeholder by adding the "focused" class', function () {
+        view.focusFloatingPlaceholder('#float_me');
+        assert.isTrue(view.$('#float_me').prev('.label-helper').hasClass('focused'));
+      });
+    });
+
+    describe('unfocusFloatingPlaceholder', function () {
+      it('unfocuses the floating placeholder by removing the "focused" class', function () {
+        view.unfocusFloatingPlaceholder('#float_me');
+        assert.isFalse(view.$('#float_me').prev('.label-helper').hasClass('focused'));
+      });
+    });
+
   });
 });

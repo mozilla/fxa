@@ -102,6 +102,15 @@
   input:focus ~ .input-help-focused,
   label:active ~ .input-help-focused,
   label:focus ~ .input-help-focused {
+    color: $input-row-focus-border-color;
     opacity: 1;
+  }
+
+  .label-helper {
+    color: $input-row-border-color;
+  }
+
+  .label-helper.focused {
+    color: $input-row-focus-border-color;
   }
 }

@@ -15,6 +15,8 @@ define(function (require, exports, module) {
 
   module.exports = {
     events: {
+      'blur input': 'onInputBlur',
+      'focus input': 'onInputFocus',
       'input input[placeholder]': 'floatingPlaceholderMixinOnInput'
     },
 
@@ -30,15 +32,24 @@ define(function (require, exports, module) {
      *        should be shown.
      */
     showFloatingPlaceholder: function (inputEl) {
-      var $inputEl = $(inputEl);
-      var placeholder = $inputEl.attr('placeholder');
+      var placeholder = this.$el.find(inputEl).attr('placeholder');
 
       // If the placeholder for the element was already converted, no
       // further conversion will occur.
-      if (placeholder !== '') {
-        $inputEl.removeAttr('placeholder');
-        $inputEl.prev('.label-helper').text(placeholder).animate( {'top': '-17px'}, 400);
+      // The check for existence is because of the strict equality check,
+      // if placeholder is undefined, then it should not go into the block
+      if (placeholder && placeholder !== '') {
+        this.$el.find(inputEl).removeAttr('placeholder');
+        this.$el.find(inputEl).prev('.label-helper').text(placeholder).css({'top': '-17px'});
       }
+    },
+
+    focusFloatingPlaceholder: function (inputEl) {
+      this.$el.find(inputEl).prev('.label-helper').addClass('focused');
+    },
+
+    unfocusFloatingPlaceholder: function (inputEl) {
+      this.$el.find(inputEl).prev('.label-helper').removeClass('focused');
     },
 
     /**
@@ -55,6 +66,15 @@ define(function (require, exports, module) {
       }
 
       this.showFloatingPlaceholder($inputEl);
+      this.focusFloatingPlaceholder($inputEl);
+    },
+
+    onInputFocus: function (event) {
+      this.focusFloatingPlaceholder($(event.currentTarget));
+    },
+
+    onInputBlur: function (event) {
+      this.unfocusFloatingPlaceholder($(event.currentTarget));
     }
   };
 });

@@ -163,6 +163,22 @@ ul.links {
   margin: 0 10px;
 }
 
+.show-password-label {
+  background-color: $show-password-background-color;
+  color: $show-password-label-color;
+  transition: background-color 450ms,
+              color 450ms;
+}
+
+.password:focus ~ .show-password-label {
+  color: $input-row-focus-border-color;
+}
+
+.password[type=text]:focus ~ .show-password-label {
+  background-color: $input-row-focus-border-color;
+  color: $show-password-focus-label-color;
+}
+
 .modal {
   .small-label,
   .label-helper {
@@ -173,6 +189,8 @@ ul.links {
 .label-helper {
   position: absolute;
   top: 0;
+  transition: top 400ms,
+              color 450ms;
   z-index: 1;
 }
 
