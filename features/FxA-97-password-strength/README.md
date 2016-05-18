@@ -45,19 +45,19 @@ We believe that these changes will result in us collecting only the data that be
 
 [comment]: # (This is the bulk of the RFC. Explain the design in enough detail for somebody familiar with the language to understand. This should get into specifics and corner-cases, and include examples of how the feature is used.)
 
-<img src="password-strength.png" width="563" alt="No Devices">
+![Password Strength](password-strength.png)
 
-### Focus
+#### Password field give focus
 When the user gives focus to the password field on the registration form, show instructions below that say:
 * A strong, unique password will keep your Firefox data safe from intruders. <u>More info</u>.
 
-<u>More info</u> will link to a modal dialog containing concise instructions on creating a strong password based on [this SUMO article](https://support.mozilla.org/en-US/kb/create-secure-passwords-keep-your-identity-safe)
+"More info" will link to a modal dialog containing concise instructions on creating a strong password based on [this SUMO article](https://support.mozilla.org/en-US/kb/create-secure-passwords-keep-your-identity-safe)
 
-### Character entered
+#### User enters characters
 When the user enters any characters, the instructions change to become:
 * 8 characters minimum, but longer if you plan to sync passwords. <u>More info</u>.
 
-### Password is on our blocklist
+#### Submitted password is on our blocklist
 When the user enters a password that is on our blocklist, the UI will behave as if the password field were empty, and show the following error:
 * This is a common password; please consider another one.  <u>More info</u>.
 
