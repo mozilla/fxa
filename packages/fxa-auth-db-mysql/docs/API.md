@@ -18,8 +18,10 @@ There are a number of methods that a DB storage backend should implement:
     * .createSessionToken(tokenId, sessionToken)
     * .updateSessionToken(tokenId, sessionToken)
     * .sessionToken(id)
+    * .sessionTokenWithVerificationStatus(tokenId)
     * .sessionWithDevice(tokenId)
     * .deleteSessionToken(tokenId)
+    * .verifyToken(tokenVerificationId, accountData)
 * Key Fetch Tokens
     * .createKeyFetchToken(tokenId, keyFetchToken)
     * .keyFetchToken(id)
@@ -269,7 +271,8 @@ Parameters.
 
 Each token takes the following fields for it's create method respectively:
 
-* sessionToken : data, uid, createdAt, uaBrowser, uaBrowserVersion, uaOS, uaOSVersion, uaDeviceType
+* sessionToken : data, uid, createdAt, uaBrowser, uaBrowserVersion, uaOS, uaOSVersion, uaDeviceType,
+                 tokenVerificationId
 * keyFetchToken : authKey, uid, keyBundle, createdAt
 * passwordChangeToken : data, uid, createdAt
 * passwordForgotToken : data, uid, passCode, createdAt, triesxb
@@ -288,6 +291,7 @@ Note: for some tokens there should only ever be one row per `uid`. This applies 
 should do something equivalent with your storage backend.
 
 ### .sessionToken(tokenId) ###
+### .sessionTokenWithVerificationStatus(tokenId) ###
 ### .keyFetchToken(tokenId) ###
 ### .passwordChangeToken(tokenId) ###
 ### .passwordForgotToken(tokenId) ###
@@ -312,6 +316,10 @@ from the token and `a.*` for a field from the corresponding account.
                  t.uaOS, t.uaOSVersion, t.uaDeviceType, t.lastAccessTime,
                  a.emailVerified, a.email, a.emailCode, a.verifierSetAt,
                  a.createdAt AS accountCreatedAt
+* sessionTokenWithVerificationStatus : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
+                                       t.uaOS, t.uaOSVersion, t.uaDeviceType, t.lastAccessTime,
+                                       a.emailVerified, a.email, a.emailCode, a.verifierSetAt,
+                                       a.createdAt AS accountCreatedAt, ut.tokenVerificationId
 * keyFetchToken : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified, a.verifierSetAt
 * passwordChangeToken : t.tokenData, t.uid, t.createdAt, a.verifierSetAt
 * passwordForgotToken : t.tokenData, t.uid, t.createdAt, t.passCode, t.tries, a.email, a.verifierSetAt
@@ -343,7 +351,7 @@ Parameters.
 Returns:
 
 * resolves with:
-    * an object `{}` (whether a row was updated or not, ie. even if `tokenId` does not exist.)
+    * an object `{}` (regardless of whether a row was updated or not, ie. even if `tokenId` does not exist.)
 * rejects with:
     * any error from the underlying storage system (wrapped in `error.wrap()`)
 
@@ -360,9 +368,28 @@ Parameters.
 Returns:
 
 * resolves with:
-    * an object `{}` (whether a row was updated or not, ie. even if `tokenId` does not exist.)
+    * an object `{}` (regardless of whether a row was updated or not, ie. even if `tokenId` does not exist.)
 * rejects with:
     * any error from the underlying storage system (wrapped in `error.wrap()`)
+
+## .verifyToken(tokenVerificationId, accountData)
+
+Verifies sessionTokens.
+Note that it takes the tokenVerificationId
+specified when creating the token,
+NOT the tokenId.
+`accountData` is an object
+with a `uid` property.
+
+Returns a promise that:
+
+* Resolves with an object `{}`
+  if a token was verified.
+* Rejects with error `{ code: 404, errno: 116 }`
+  if there was no matching token.
+* Rejects with any error
+  from the underlying storage system
+  (wrapped in `error.wrap()`).
 
 ## .forgotPasswordVerified(tokenId, accountResetToken) ##
 
@@ -383,7 +410,9 @@ Parameters:
 
 ## .sessionWithDevice(tokenId) ##
 
-Get the sessionToken with its matching device info.
+Get the sessionToken
+with its verification state
+and matching device info.
 
 Parameters:
 
@@ -397,8 +426,11 @@ Returns:
     * `error.notFound()` if this token does not exist
     * any error from the underlying storage system (wrapped in `error.wrap()`
 
-These fields are represented as `t.*` for a field from the token `a.*` for a
-field from the corresponding account and `d.*` for a field from devices.
+These fields are represented as
+`t.*` for a field from the token,
+`a.*` for a field from the corresponding account,
+`d.*` for a field from `devices` and
+`ut.*` for a field from `unverifiedTokens`.
 
 The deviceCallbackPublicKey and deviceCallbackAuthKey fields are urlsafe-base64 strings, you can learn more about their format [here](https://developers.google.com/web/updates/2016/03/web-push-encryption).
 
@@ -409,6 +441,6 @@ The deviceCallbackPublicKey and deviceCallbackAuthKey fields are urlsafe-base64 
                  d.name AS deviceName, d.type AS deviceType,
                  d.createdAt AS deviceCreatedAt, d.callbackURL AS deviceCallbackURL,
                  d.callbackPublicKey AS deviceCallbackPublicKey,
-                 d.callbackAuthKey AS deviceCallbackAuthKey
+                 d.callbackAuthKey AS deviceCallbackAuthKey, ut.tokenVerificationId
 
 (Ends)

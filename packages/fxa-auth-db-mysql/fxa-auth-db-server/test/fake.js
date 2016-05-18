@@ -56,7 +56,8 @@ module.exports.newUserDataHex = function() {
     uaBrowserVersion: 'fake browser version',
     uaOS: 'fake OS',
     uaOSVersion: 'fake OS version',
-    uaDeviceType: 'fake device type'
+    uaDeviceType: 'fake device type',
+    tokenVerificationId: hex16()
   }
 
   // device

@@ -11,6 +11,7 @@ var uidByNormalizedEmail = {}
 var uidByOpenId = {}
 var sessionTokens = {}
 var keyFetchTokens = {}
+var unverifiedTokens = {}
 var accountResetTokens = {}
 var passwordChangeTokens = {}
 var passwordForgotTokens = {}
@@ -103,6 +104,13 @@ module.exports = function (log, error) {
       uaOSVersion: sessionToken.uaOSVersion,
       uaDeviceType: sessionToken.uaDeviceType,
       lastAccessTime: sessionToken.createdAt
+    }
+
+    if (sessionToken.tokenVerificationId) {
+      unverifiedTokens[tokenId] = {
+        tokenVerificationId: sessionToken.tokenVerificationId,
+        uid: sessionToken.uid
+      }
     }
 
     return P.resolve({})
@@ -282,10 +290,7 @@ module.exports = function (log, error) {
   Memory.prototype.deleteSessionToken = function (tokenId) {
     tokenId = tokenId.toString('hex')
 
-    if ( !sessionTokens[tokenId] ) {
-      return P.resolve({})
-    }
-
+    delete unverifiedTokens[tokenId]
     delete sessionTokens[tokenId]
 
     return P.resolve({})
@@ -293,6 +298,30 @@ module.exports = function (log, error) {
 
   Memory.prototype.deleteKeyFetchToken = function (tokenId) {
     delete keyFetchTokens[tokenId.toString('hex')]
+    return P.resolve({})
+  }
+
+  Memory.prototype.verifyToken = function (tokenVerificationId, accountData) {
+    tokenVerificationId = tokenVerificationId.toString('hex')
+    var uid = accountData.uid.toString('hex')
+
+    var tokenCount = Object.keys(unverifiedTokens).reduce(function (count, tokenId) {
+      var t = unverifiedTokens[tokenId]
+      if (
+        t.tokenVerificationId.toString('hex') !== tokenVerificationId ||
+        t.uid.toString('hex') !== uid
+      ) {
+        return count
+      }
+
+      delete unverifiedTokens[tokenId]
+      return count + 1
+    }, 0)
+
+    if (tokenCount === 0) {
+      return P.reject(error.notFound())
+    }
+
     return P.resolve({})
   }
 
@@ -319,11 +348,11 @@ module.exports = function (log, error) {
           if (! account.devices[deviceKey]) {
             throw error.notFound()
           }
+
           var device = account.devices[deviceKey]
-          var sessionKey = (device.sessionTokenId || '').toString('hex')
-          delete sessionTokens[sessionKey]
           delete account.devices[deviceKey]
-          return {}
+
+          return Memory.prototype.deleteSessionToken(device.sessionTokenId)
         }
       )
   }
@@ -378,7 +407,7 @@ module.exports = function (log, error) {
   }
 
   Memory.prototype.sessionWithDevice = function (id) {
-    return this.sessionToken(id)
+    return this.sessionTokenWithVerificationStatus(id)
       .then(
         function (session) {
           return this.accountDevices(session.uid)
@@ -499,6 +528,17 @@ module.exports = function (log, error) {
     item.accountCreatedAt = account.createdAt
 
     return P.resolve(item)
+  }
+
+  Memory.prototype.sessionTokenWithVerificationStatus = function (tokenId) {
+    tokenId = tokenId.toString('hex')
+
+    return this.sessionToken(tokenId)
+      .then(function (sessionToken) {
+        sessionToken.tokenVerificationId = unverifiedTokens[tokenId] ?
+          unverifiedTokens[tokenId].tokenVerificationId : null
+        return sessionToken
+      })
   }
 
   Memory.prototype.keyFetchToken = function (id) {
@@ -625,6 +665,7 @@ module.exports = function (log, error) {
           deleteByUid(uid, passwordChangeTokens)
           deleteByUid(uid, passwordForgotTokens)
           deleteByUid(uid, accountUnlockCodes)
+          deleteByUid(uid, unverifiedTokens)
 
           account.verifyHash = data.verifyHash
           account.authSalt = data.authSalt
@@ -648,6 +689,7 @@ module.exports = function (log, error) {
           deleteByUid(uid, passwordChangeTokens)
           deleteByUid(uid, passwordForgotTokens)
           deleteByUid(uid, accountUnlockCodes)
+          deleteByUid(uid, unverifiedTokens)
 
           delete uidByNormalizedEmail[account.normalizedEmail]
           delete uidByOpenId[account.openId]

@@ -4,6 +4,7 @@
 var test = require('tap').test
 var crypto = require('crypto')
 var base64url = require('base64url')
+var P = require('bluebird')
 
 var zeroBuffer16 = Buffer('00000000000000000000000000000000', 'hex')
 var zeroBuffer32 = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
@@ -59,7 +60,8 @@ var SESSION_TOKEN = {
   uaBrowserVersion : 'mock browser version',
   uaOS : 'mock OS',
   uaOSVersion : 'mock OS version',
-  uaDeviceType : 'mock device type'
+  uaDeviceType : 'mock device type',
+  tokenVerificationId : hex16()
 }
 
 var KEY_FETCH_TOKEN_ID = hex32()
@@ -67,7 +69,7 @@ var KEY_FETCH_TOKEN = {
   authKey : hex32(),
   uid : ACCOUNT.uid,
   keyBundle : hex96(),
-  createdAt: now + 2
+  createdAt : now + 2
 }
 
 var PASSWORD_FORGOT_TOKEN_ID = hex32()
@@ -215,15 +217,34 @@ module.exports = function(config, DB) {
         test(
           'session token handling',
           function (t) {
-            t.plan(56)
+            t.plan(103)
+
+            var VERIFIED_SESSION_TOKEN_ID = hex32()
+            var UNVERIFIED_SESSION_TOKEN_ID = hex32()
+            var UNVERIFIED_SESSION_TOKEN = {
+              data: hex32(),
+              uid: ACCOUNT.uid,
+              createdAt: Date.now(),
+              uaBrowser: 'foo',
+              uaBrowserVersion: 'bar',
+              uaOS: 'baz',
+              uaOSVersion: 'qux',
+              uaDeviceType: 'wibble',
+              tokenVerificationId: hex16()
+            }
+
+            // Fetch all of the sessions tokens for the account
             return db.sessions(ACCOUNT.uid)
               .then(function(sessions) {
                 t.ok(Array.isArray(sessions), 'sessions is an array')
                 t.equal(sessions.length, 0, 'sessions is empty')
+                // Create a session token
                 return db.createSessionToken(SESSION_TOKEN_ID, SESSION_TOKEN)
               })
               .then(function(result) {
                 t.deepEqual(result, {}, 'Returned an empty object on session token creation')
+
+                // Fetch all of the sessions tokens for the account
                 return db.sessions(ACCOUNT.uid)
               })
               .then(function (sessions) {
@@ -238,6 +259,8 @@ module.exports = function(config, DB) {
                 t.equal(sessions[0].uaOSVersion, SESSION_TOKEN.uaOSVersion, 'uaOSVersion is correct')
                 t.equal(sessions[0].uaDeviceType, SESSION_TOKEN.uaDeviceType, 'uaDeviceType is correct')
                 t.equal(sessions[0].lastAccessTime, SESSION_TOKEN.createdAt, 'lastAccessTime is correct')
+
+                // Fetch the session token
                 return db.sessionToken(SESSION_TOKEN_ID)
               })
               .then(function(token) {
@@ -256,8 +279,8 @@ module.exports = function(config, DB) {
                 t.deepEqual(token.emailCode, ACCOUNT.emailCode, 'token emailCode same as account emailCode')
                 t.equal(token.verifierSetAt, ACCOUNT.verifierSetAt, 'verifierSetAt is correct')
                 t.equal(token.accountCreatedAt, ACCOUNT.createdAt, 'accountCreatedAt is correct')
-              })
-              .then(function() {
+
+                // Update the session token
                 return db.updateSessionToken(SESSION_TOKEN_ID, {
                   uaBrowser: 'foo',
                   uaBrowserVersion: '1',
@@ -269,6 +292,8 @@ module.exports = function(config, DB) {
               })
               .then(function(result) {
                 t.deepEqual(result, {}, 'Returned an empty object on session token update')
+
+                // Fetch all of the sessions tokens for the account
                 return db.sessions(ACCOUNT.uid)
               })
               .then(function (sessions) {
@@ -282,6 +307,8 @@ module.exports = function(config, DB) {
                 t.equal(sessions[0].uaOSVersion, '2', 'uaOSVersion is correct')
                 t.equal(sessions[0].uaDeviceType, 'baz', 'uaDeviceType is correct')
                 t.equal(sessions[0].lastAccessTime, 42, 'lastAccessTime is correct')
+
+                // Fetch the session token
                 return db.sessionToken(SESSION_TOKEN_ID)
               })
               .then(function(token) {
@@ -299,16 +326,161 @@ module.exports = function(config, DB) {
                 t.deepEqual(token.emailCode, ACCOUNT.emailCode, 'token emailCode same as account emailCode')
                 t.equal(token.verifierSetAt, ACCOUNT.verifierSetAt, 'verifierSetAt is correct')
                 t.equal(token.accountCreatedAt, ACCOUNT.createdAt, 'accountCreatedAt is correct')
+                t.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
+
+                // Fetch the session token with its verification state
+                return db.sessionTokenWithVerificationStatus(SESSION_TOKEN_ID)
+              })
+              .then(function (token) {
+                t.deepEqual(token.tokenData, SESSION_TOKEN.data, 'token data matches')
+                t.deepEqual(token.uid, ACCOUNT.uid, 'token belongs to this account')
+                t.equal(token.createdAt, SESSION_TOKEN.createdAt, 'createdAt is correct')
+                t.equal(token.uaBrowser, 'foo', 'uaBrowser is correct')
+                t.equal(token.uaBrowserVersion, '1', 'uaBrowserVersion is correct')
+                t.equal(token.uaOS, 'bar', 'uaOS is correct')
+                t.equal(token.uaOSVersion, '2', 'uaOSVersion is correct')
+                t.equal(token.uaDeviceType, 'baz', 'uaDeviceType is correct')
+                t.equal(token.lastAccessTime, 42, 'lastAccessTime is correct')
+                t.equal(!!token.emailVerified, ACCOUNT.emailVerified, 'token emailVerified is same as account emailVerified')
+                t.equal(token.email, ACCOUNT.email, 'token email same as account email')
+                t.deepEqual(token.emailCode, ACCOUNT.emailCode, 'token emailCode same as account emailCode')
+                t.equal(token.verifierSetAt, ACCOUNT.verifierSetAt, 'verifierSetAt is correct')
+                t.equal(token.accountCreatedAt, ACCOUNT.createdAt, 'accountCreatedAt is correct')
+                t.deepEqual(token.tokenVerificationId, SESSION_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
+
+                // Create a verified session token
+                return db.createSessionToken(VERIFIED_SESSION_TOKEN_ID, {
+                  data: hex32(),
+                  uid: ACCOUNT.uid,
+                  createdAt: Date.now(),
+                  uaBrowser: 'a',
+                  uaBrowserVersion: 'b',
+                  uaOS: 'c',
+                  uaOSVersion: 'd',
+                  uaDeviceType: 'e'
+                })
+              })
+              .then(function (result) {
+                t.deepEqual(result, {}, 'Returned an empty object on session token creation')
+
+                // Fetch all of the sessions tokens for the account
+                return db.sessions(ACCOUNT.uid)
+              })
+              .then(function (sessions) {
+                t.equal(sessions.length, 2, 'sessions contains one item')
+                var index = 0
+                if (sessions[0].tokenId.toString('hex') === SESSION_TOKEN_ID.toString('hex')) {
+                  index = 1
+                }
+                t.equal(sessions[index].tokenId.toString('hex'), VERIFIED_SESSION_TOKEN_ID.toString('hex'), 'tokenId is correct')
+                t.equal(sessions[index].uid.toString('hex'), ACCOUNT.uid.toString('hex'), 'uid is correct')
+                t.equal(sessions[index].uaBrowser, 'a', 'uaBrowser is correct')
+                t.equal(sessions[index].uaBrowserVersion, 'b', 'uaBrowserVersion is correct')
+                t.equal(sessions[index].uaOS, 'c', 'uaOS is correct')
+                t.equal(sessions[index].uaOSVersion, 'd', 'uaOSVersion is correct')
+                t.equal(sessions[index].uaDeviceType, 'e', 'uaDeviceType is correct')
+
+                // Fetch the verified session token
+                return db.sessionToken(VERIFIED_SESSION_TOKEN_ID)
+              })
+              .then(function(token) {
+                t.deepEqual(token.uid, ACCOUNT.uid, 'token belongs to this account')
+                t.equal(token.uaBrowser, 'a', 'uaBrowser is correct')
+                t.equal(token.uaBrowserVersion, 'b', 'uaBrowserVersion is correct')
+                t.equal(token.uaOS, 'c', 'uaOS is correct')
+                t.equal(token.uaOSVersion, 'd', 'uaOSVersion is correct')
+                t.equal(token.uaDeviceType, 'e', 'uaDeviceType is correct')
+                t.equal(!!token.emailVerified, ACCOUNT.emailVerified, 'token emailVerified is same as account emailVerified')
+                t.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
+
+                // Fetch the verified session token with its verification state
+                return db.sessionTokenWithVerificationStatus(VERIFIED_SESSION_TOKEN_ID)
+              })
+              .then(function (token) {
+                t.equal(token.tokenVerificationId, null, 'tokenVerificationId is null')
+
+                // Attempt to verify session token with invalid tokenVerificationId
+                return db.verifyToken(hex16(), { uid: ACCOUNT.uid })
+              })
+              .then(function () {
+                t.fail('Verifying session token with invalid tokenVerificationId should have failed')
+              }, function (err) {
+                t.equal(err.errno, 116, 'err.errno is correct')
+                t.equal(err.code, 404, 'err.code is correct')
               })
               .then(function() {
-                return db.deleteSessionToken(SESSION_TOKEN_ID)
+                // Fetch the unverified session token with its verification state
+                return db.sessionTokenWithVerificationStatus(SESSION_TOKEN_ID)
               })
-              .then(function(result) {
-                t.deepEqual(result, {}, 'Returned an empty object on forgot key fetch token deletion')
+              .then(function (token) {
+                t.deepEqual(token.tokenVerificationId, SESSION_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
+
+                // Attempt to verify session token with invalid uid
+                return db.verifyToken(SESSION_TOKEN.tokenVerificationId, { uid: hex16() })
+              })
+              .then(function () {
+                t.fail('Verifying session token with invalid uid should have failed')
+              }, function (err) {
+                t.equal(err.errno, 116, 'err.errno is correct')
+                t.equal(err.code, 404, 'err.code is correct')
+              })
+              .then(function() {
+                // Fetch the unverified session token with its verification state
+                return db.sessionTokenWithVerificationStatus(SESSION_TOKEN_ID)
+              })
+              .then(function (token) {
+                t.deepEqual(token.tokenVerificationId, SESSION_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
+
+                // Verify the session token
+                return db.verifyToken(SESSION_TOKEN.tokenVerificationId, { uid: ACCOUNT.uid })
+              })
+              .then(function() {
+                // Fetch the newly verified session token
+                return db.sessionToken(SESSION_TOKEN_ID)
+              })
+              .then(function(token) {
+                t.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
+
+                // Fetch the newly verified session token with its verification state
+                return db.sessionTokenWithVerificationStatus(SESSION_TOKEN_ID)
+              })
+              .then(function (token) {
+                t.equal(token.tokenVerificationId, null, 'tokenVerificationId is null')
+
+                // Create an unverified session token
+                return db.createSessionToken(UNVERIFIED_SESSION_TOKEN_ID, UNVERIFIED_SESSION_TOKEN)
+              })
+              .then(function(results) {
+                // Delete all three session tokens
+                return P.all([
+                  db.deleteSessionToken(SESSION_TOKEN_ID),
+                  db.deleteSessionToken(VERIFIED_SESSION_TOKEN_ID),
+                  db.deleteSessionToken(UNVERIFIED_SESSION_TOKEN_ID)
+                ])
+              })
+              .then(function(results) {
+                t.equal(results.length, 3)
+                results.forEach(function (result) {
+                  t.deepEqual(result, {}, 'Returned an empty object on forgot session token deletion')
+                })
+
+                // Attempt to verify deleted unverified session token
+                return db.verifyToken(UNVERIFIED_SESSION_TOKEN.tokenVerificationId, { uid: ACCOUNT.uid })
+              })
+              .then(function () {
+                t.fail('Verifying deleted unverified session token should have failed')
+              }, function (err) {
+                t.equal(err.errno, 116, 'err.errno is correct')
+                t.equal(err.code, 404, 'err.code is correct')
+              })
+              .then(function() {
+                // Fetch all of the sessions tokens for the account
                 return db.sessions(ACCOUNT.uid)
               })
               .then(function (sessions) {
                 t.equal(sessions.length, 0, 'sessions is empty')
+
+                // Attempt to fetch a deleted session token
                 return db.sessionToken(SESSION_TOKEN_ID)
               })
               .then(function(token) {
@@ -323,9 +495,13 @@ module.exports = function(config, DB) {
           'key fetch token handling',
           function (t) {
             t.plan(8)
+
+            // Create a key fetch token
             return db.createKeyFetchToken(KEY_FETCH_TOKEN_ID, KEY_FETCH_TOKEN)
               .then(function(result) {
                 t.deepEqual(result, {}, 'Returned an empty object on key fetch token creation')
+
+                // Fetch the key fetch token
                 return db.keyFetchToken(KEY_FETCH_TOKEN_ID)
               })
               .then(function(token) {
@@ -337,12 +513,14 @@ module.exports = function(config, DB) {
                 // email is not returned
                 // emailCode is not returned
                 t.equal(token.verifierSetAt, ACCOUNT.verifierSetAt, 'verifierSetAt is correct')
-              })
-              .then(function() {
+
+                // Delete the key fetch token
                 return db.deleteKeyFetchToken(KEY_FETCH_TOKEN_ID)
               })
               .then(function(result) {
                 t.deepEqual(result, {}, 'Returned an empty object on forgot key fetch token deletion')
+
+                // Attempt to fetch the deleted key fetch token
                 return db.keyFetchToken(KEY_FETCH_TOKEN_ID)
               })
               .then(function(token) {
@@ -820,7 +998,7 @@ module.exports = function(config, DB) {
         test(
           'db.accountDevices',
           function (t) {
-            t.plan(63)
+            t.plan(71)
             var deviceId = newUuid()
             var sessionTokenId = hex32()
             var createdAt = Date.now()
@@ -833,6 +1011,9 @@ module.exports = function(config, DB) {
             }
             var newDeviceId = newUuid()
             var newSessionTokenId = hex32()
+            var newTokenVerificationId = hex16()
+
+            // Attempt to update non-existent device
             return db.updateDevice(ACCOUNT.uid, deviceId, deviceInfo)
               .then(function () {
                 t.fail('updating a non-existent device should have failed')
@@ -842,9 +1023,11 @@ module.exports = function(config, DB) {
                 t.equal(err.errno, 116, 'err.errno')
               })
               .then(function () {
+                // Create a session token
                 return db.createSessionToken(sessionTokenId, SESSION_TOKEN)
               })
               .then(function (sessionToken) {
+                // Create a device
                 return db.createDevice(ACCOUNT.uid, deviceId, {
                   sessionTokenId: sessionTokenId,
                   createdAt: createdAt
@@ -855,6 +1038,8 @@ module.exports = function(config, DB) {
               })
               .then(function (result) {
                 t.deepEqual(result, {}, 'returned empty object')
+
+                // Attempt to create a duplicate device
                 return db.createDevice(ACCOUNT.uid, deviceId, {
                   sessionTokenId: newSessionTokenId,
                   createdAt: Date.now()
@@ -868,6 +1053,7 @@ module.exports = function(config, DB) {
                 })
               })
               .then(function () {
+                // Fetch all of the devices for the account
                 return db.accountDevices(ACCOUNT.uid)
               })
               .then(function (devices) {
@@ -884,6 +1070,8 @@ module.exports = function(config, DB) {
                 t.equal(device.callbackPublicKey, null, 'callbackPublicKey')
                 t.equal(device.callbackAuthKey, null, 'callbackAuthKey')
                 t.ok(device.lastAccessTime > 0, 'has a lastAccessTime')
+
+                // Fetch the session token with its verification state and device info
                 return db.sessionWithDevice(sessionTokenId)
                   .then(
                     function (s) {
@@ -895,6 +1083,7 @@ module.exports = function(config, DB) {
                       t.equal(s.deviceCallbackURL, device.callbackURL, 'callbackURL')
                       t.equal(s.deviceCallbackPublicKey, device.callbackPublicKey, 'callbackPublicKey')
                       t.equal(s.deviceCallbackAuthKey, device.callbackAuthKey, 'callbackAuthKey')
+                      t.deepEqual(s.tokenVerificationId, SESSION_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
                     },
                     function (e) {
                       t.fail('getting the sessionWithDevice should not have failed')
@@ -902,6 +1091,17 @@ module.exports = function(config, DB) {
                   )
               })
               .then(function () {
+                // Verify the session token
+                return db.verifyToken(SESSION_TOKEN.tokenVerificationId, { uid: SESSION_TOKEN.uid })
+              })
+              .then(function () {
+                // Fetch the session token with its verification state and device info
+                return db.sessionWithDevice(sessionTokenId)
+              })
+              .then(function (s) {
+                t.equal(s.tokenVerificationId, null, 'tokenVerificationId is null')
+
+                // Update the device
                 return db.updateDevice(ACCOUNT.uid, deviceId, deviceInfo)
                   .catch(function () {
                     t.fail('updating an existing device should not have failed')
@@ -909,6 +1109,8 @@ module.exports = function(config, DB) {
               })
               .then(function (result) {
                 t.deepEqual(result, {}, 'returned empty object')
+
+                // Fetch all of the devices for the account
                 return db.accountDevices(ACCOUNT.uid)
               })
               .then(function (devices) {
@@ -925,9 +1127,12 @@ module.exports = function(config, DB) {
                 t.equal(device.callbackPublicKey, deviceInfo.callbackPublicKey, 'callbackPublicKey')
                 t.equal(device.callbackAuthKey, deviceInfo.callbackAuthKey, 'callbackAuthKey')
                 t.ok(device.lastAccessTime > 0, 'has a lastAccessTime')
+
+                // Create a second session token
                 return db.createSessionToken(newSessionTokenId, SESSION_TOKEN)
               })
               .then(function () {
+                // Update the device
                 return db.updateDevice(ACCOUNT.uid, deviceId, {
                   sessionTokenId: newSessionTokenId,
                   name: 'updated name',
@@ -938,6 +1143,7 @@ module.exports = function(config, DB) {
                 })
               })
               .then(function () {
+                // Fetch all of the devices for the account
                 return db.accountDevices(ACCOUNT.uid)
               })
               .then(function (devices) {
@@ -962,6 +1168,7 @@ module.exports = function(config, DB) {
                 })
               })
               .then(function (result) {
+                // Fetch all of the devices for the account
                 return db.accountDevices(ACCOUNT.uid)
               })
               .then(function (devices) {
@@ -975,6 +1182,8 @@ module.exports = function(config, DB) {
                 t.equal(device.callbackURL, '', 'callbackURL updated')
                 t.equal(device.callbackPublicKey, '', 'callbackPublicKey updated')
                 t.equal(device.callbackAuthKey, '', 'callbackAuthKey updated')
+
+                // Attempt to create a second device with the same session token
                 return db.createDevice(ACCOUNT.uid, newUuid(), {
                   sessionTokenId: newSessionTokenId,
                   name: 'second device',
@@ -993,10 +1202,13 @@ module.exports = function(config, DB) {
                 })
               })
               .then(function () {
+                // Fetch all of the devices for the account
                 return db.accountDevices(ACCOUNT.uid)
               })
               .then(function (devices) {
                 t.equal(devices.length, 1, 'devices length still 1')
+
+                // Create a second device
                 return db.createDevice(ACCOUNT.uid, newDeviceId, {
                   sessionTokenId: sessionTokenId,
                   name: 'second device',
@@ -1013,18 +1225,25 @@ module.exports = function(config, DB) {
                 })
               })
               .then(function () {
+                // Fetch all of the devices for the account
                 return db.accountDevices(ACCOUNT.uid)
               })
               .then(function (devices) {
                 t.equal(devices.length, 2, 'devices length 2')
+
+                // Delete the first device
                 return db.deleteDevice(ACCOUNT.uid, deviceId)
               })
               .then(function (result) {
                 t.deepEqual(result, {}, 'returned empty object')
+
+                // Fetch all of the devices for the account
                 return db.accountDevices(ACCOUNT.uid)
               })
               .then(function (devices) {
                 t.equal(devices.length, 1, 'devices length 1')
+
+                // Attempt to delete the first device again
                 return db.deleteDevice(ACCOUNT.uid, deviceId)
                   .then(function () {
                     t.fail('deleting a non-existent device should have failed')
@@ -1035,13 +1254,39 @@ module.exports = function(config, DB) {
                   })
               })
               .then(function () {
+                // Fetch all of the devices for the account
                 return db.accountDevices(ACCOUNT.uid)
               })
               .then(function (devices) {
                 t.equal(devices.length, 1, 'devices length 1')
+
+                // Attempt to fetch the session token that was associated with the deleted device
+                return db.sessionWithDevice(newSessionTokenId)
+              })
+              .then(function () {
+                t.fail('deleting the device should have deleted the session token')
+              }, function (err) {
+                t.pass('deleting the device also deleted the session token')
+                t.equal(err.code, 404, 'err.code')
+                t.equal(err.errno, 116, 'err.errno')
+              })
+              .then(function () {
+                // Attempt to verify the session token that was associated with the deleted device
+                return db.verifyToken(newTokenVerificationId, { uid: ACCOUNT.uid })
+              })
+              .then(function () {
+                t.fail('deleting the device should have deleted the unverified token')
+              }, function (err) {
+                t.pass('deleting the device also deleted the unverified token')
+                t.equal(err.code, 404, 'err.code')
+                t.equal(err.errno, 116, 'err.errno')
+              })
+              .then(function () {
+                // Delete the second device
                 return db.deleteDevice(ACCOUNT.uid, newDeviceId)
               })
               .then(function () {
+                // Fetch all of the devices for the account
                 return db.accountDevices(ACCOUNT.uid)
               })
               .then(function (devices) {
@@ -1053,7 +1298,7 @@ module.exports = function(config, DB) {
         test(
           'db.resetAccount',
           function (t) {
-            t.plan(10)
+            t.plan(14)
             var uid = ACCOUNT.uid
             var lockedAt = Date.now()
             var unlockCode = hex16()
@@ -1090,6 +1335,27 @@ module.exports = function(config, DB) {
               .then(function(devices) {
                 t.pass('.accountDevices() did not error')
                 t.equal(devices.length, 0, 'The devices length should be zero')
+
+                // Attempt to verify the session token
+                return db.verifyToken(SESSION_TOKEN.tokenVerificationId, { uid: uid })
+              })
+              .then(function () {
+                t.fail('Verifying deleted token should have failed')
+              }, function (err) {
+                t.equal(err.errno, 116, 'err.errno is correct')
+                t.equal(err.code, 404, 'err.code is correct')
+              })
+              .then(function() {
+              })
+              .then(function() {
+                // Attempt to fetch the session token
+                return db.sessionToken(SESSION_TOKEN_ID)
+              })
+              .then(function () {
+                t.fail('Fetching deleted token should have failed')
+              }, function (err) {
+                t.equal(err.errno, 116, 'err.errno is correct')
+                t.equal(err.code, 404, 'err.code is correct')
               })
               .then(function() {
                 // account should STILL exist for this email address
@@ -1113,7 +1379,7 @@ module.exports = function(config, DB) {
         test(
           'account deletion',
           function (t) {
-            t.plan(3)
+            t.plan(7)
             var uid = ACCOUNT.uid
             var lockedAt = Date.now()
             var unlockCode = hex16()
@@ -1145,6 +1411,30 @@ module.exports = function(config, DB) {
                 t.deepEqual(result, {}, 'Returned an empty object for unlockAccount')
               }, function(err) {
                 t.fail('We should not have failed this .unlockAccount() request')
+              })
+              .then(function () {
+                // Fetch the session token with its verification state
+                return db.sessionTokenWithVerificationStatus(SESSION_TOKEN_ID)
+              })
+              .then(function () {
+                // Attempt to verify session token
+                return db.verifyToken(SESSION_TOKEN.tokenVerificationId, { uid: uid })
+              })
+              .then(function () {
+                t.fail('Verifying deleted token should have failed')
+              }, function (err) {
+                t.equal(err.errno, 116, 'err.errno is correct')
+                t.equal(err.code, 404, 'err.code is correct')
+              })
+              .then(function() {
+                // Attempt to fetch session token
+                return db.sessionToken(SESSION_TOKEN_ID)
+              })
+              .then(function () {
+                t.fail('Fetching deleted token should have failed')
+              }, function (err) {
+                t.equal(err.errno, 116, 'err.errno is correct')
+                t.equal(err.code, 404, 'err.code is correct')
               })
           }
         )
