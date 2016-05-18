@@ -6,7 +6,7 @@
 
 Users possess varying levels of understanding of what they are signing up for, and what is at risk. When syncing Firefox data (namely passwords) to a cloud-based account, reusing a password for their account puts them at greater risk to online attacks.
 
-### Assumptions (optional)
+### Assumptions
 
 [comment]: # (This is where you talk about what you assume to be true. This could include assumptions around what users are doing, errors, gaps, etc., based on anecdotes, opinions, testing, or data.)
 
