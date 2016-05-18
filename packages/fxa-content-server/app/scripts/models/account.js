@@ -17,7 +17,6 @@ define(function (require, exports, module) {
   var p = require('lib/promise');
   var ProfileErrors = require('lib/profile-errors');
   var ProfileImage = require('models/profile-image');
-  var SIGN_IN_REASONS = require('lib/sign-in-reasons');
 
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
 
@@ -318,6 +317,8 @@ define(function (require, exports, module) {
      * @param {string} password - The user's password
      * @param {object} relier - Relier being signed in to
      * @param {object} [options]
+     * @param {String} [options.reason] - Reason for the sign in. See definitons
+     * in sign-in-reasons.js. Defaults to SIGN_IN_REASONS.SIGN_IN.
      * @param {string} [options.resume] - Resume token to send in verification
      * email if user is unverified.
      * @returns {promise} - resolves when complete
@@ -597,6 +598,14 @@ define(function (require, exports, module) {
       return emailPrefs;
     },
 
+    /**
+     * Change the user's password
+     *
+     * @param {string} oldPassword
+     * @param {string} newPassword
+     * @param {object} relier
+     * @returns {promise}
+     */
     changePassword: function (oldPassword, newPassword, relier) {
       // Try to sign the user in before checking whether the
       // passwords are the same. If the user typed the incorrect old
@@ -612,25 +621,16 @@ define(function (require, exports, module) {
             throw AuthErrors.toError('PASSWORDS_MUST_BE_DIFFERENT');
           }
 
-          return fxaClient.changePassword(email, oldPassword, newPassword);
-        })
-        .then(function () {
-          // sign the user in, keeping the current sessionTokenContext. This
-          // prevents sync users from seeing the `sign out` button on the
-          // settings view.
-          return fxaClient.signIn(
+          return fxaClient.changePassword(
             email,
+            oldPassword,
             newPassword,
-            relier,
-            {
-              reason: SIGN_IN_REASONS.PASSWORD_CHANGE,
-              sessionTokenContext: self.get('sessionTokenContext')
-            }
+            self.get('sessionToken'),
+            self.get('sessionTokenContext'),
+            relier
           );
         })
-        .then(function (updatedSessionData) {
-          self.set(updatedSessionData);
-        });
+        .then(self.set.bind(self));
     },
 
     /**
@@ -668,25 +668,14 @@ define(function (require, exports, module) {
      * @returns {promise} - resolves when complete
      */
     completePasswordReset: function (password, token, code, relier) {
-      var self = this;
-
-      var fxaClient = self._fxaClient;
-      var email = self.get('email');
-
-      return fxaClient.completePasswordReset(email, password, token, code)
-        .then(function () {
-          return fxaClient.signIn(
-            email,
-            password,
-            relier,
-            {
-              reason: SIGN_IN_REASONS.PASSWORD_RESET
-            }
-          );
-        })
-        .then(function (updatedSessionData) {
-          self.set(updatedSessionData);
-        });
+      return this._fxaClient.completePasswordReset(
+        this.get('email'),
+        password,
+        token,
+        code,
+        relier
+      )
+      .then(this.set.bind(this));
     },
 
     /**

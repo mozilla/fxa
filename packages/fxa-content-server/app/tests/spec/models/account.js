@@ -21,7 +21,7 @@ define(function (require, exports, module) {
   var ProfileErrors = require('lib/profile-errors');
   var Relier = require('models/reliers/relier');
   var sinon = require('sinon');
-  var SIGN_IN_REASONS = require('lib/sign-in-reasons');
+  var SignInReasons = require('lib/sign-in-reasons');
 
   var assert = chai.assert;
 
@@ -268,7 +268,7 @@ define(function (require, exports, module) {
             });
 
             return account.signIn(PASSWORD, relier, {
-              reason: SIGN_IN_REASONS.ACCOUNT_UNLOCK,
+              reason: SignInReasons.ACCOUNT_UNLOCK,
               resume: 'resume token'
             });
           });
@@ -282,8 +282,8 @@ define(function (require, exports, module) {
           });
 
           it('updates the account with the returned data', function () {
-            assert.isFalse(account.get('verified'));
             assert.equal(account.get('sessionToken'), SESSION_TOKEN);
+            assert.isFalse(account.get('verified'));
           });
         });
 
@@ -1307,68 +1307,64 @@ define(function (require, exports, module) {
       it('changes from old to new password', function () {
         var oldPassword = 'password';
         var newPassword = 'new_password';
-        account.set('sessionTokenContext', 'foo');
+
+        account.set({
+          sessionToken: 'sessionToken',
+          sessionTokenContext: 'foo'
+        });
 
         sinon.stub(fxaClient, 'checkPassword', function () {
           return p();
         });
 
         sinon.stub(fxaClient, 'changePassword', function () {
-          return p();
+          return p({
+            keyFetchToken: 'new keyFetchToken',
+            sessionToken: 'new sessionToken',
+            uid: 'uid',
+            verified: true
+          });
         });
-
-        sinon.stub(fxaClient, 'signIn', function () {
-          return p({});
-        });
-
 
         return account.changePassword(oldPassword, newPassword, relier)
           .then(function () {
             assert.isTrue(fxaClient.checkPassword.calledWith(
               EMAIL, oldPassword));
             assert.isTrue(fxaClient.changePassword.calledWith(
-              EMAIL, oldPassword, newPassword));
-            assert.isTrue(fxaClient.signIn.calledWith(
-              EMAIL,
-              newPassword,
-              relier,
-              {
-                reason: SIGN_IN_REASONS.PASSWORD_CHANGE,
-                sessionTokenContext: 'foo'
-              }
-            ));
+              EMAIL, oldPassword, newPassword, 'sessionToken', 'foo', relier));
+
+            assert.equal(account.get('keyFetchToken'), 'new keyFetchToken');
+            assert.equal(account.get('sessionToken'), 'new sessionToken');
+            assert.equal(account.get('sessionTokenContext'), 'foo');
+            assert.equal(account.get('uid'), 'uid');
+            assert.isTrue(account.get('verified'));
           });
       });
     });
 
     describe('completePasswordReset', function () {
-      it('completes the password reset, signs the user in', function () {
+      it('completes the password reset', function () {
         account.set('email', EMAIL);
         var token = 'token';
         var code = 'code';
 
-        sinon.stub(fxaClient, 'signIn', function () {
+        sinon.stub(fxaClient, 'completePasswordReset', function () {
           return p({
+            keyFetchToken: 'new keyFetchToken',
+            sessionToken: 'new sessionToken',
+            uid: 'uid',
             verified: true
           });
-        });
-        sinon.stub(fxaClient, 'completePasswordReset', function () {
-          return p(true);
         });
 
         return account.completePasswordReset(PASSWORD, token, code, relier)
           .then(function () {
             assert.isTrue(fxaClient.completePasswordReset.calledWith(
-              EMAIL, PASSWORD, token, code));
-            assert.isTrue(fxaClient.signIn.calledWith(
-              EMAIL,
-              PASSWORD,
-              relier,
-              {
-                reason: SIGN_IN_REASONS.PASSWORD_RESET
-              }
-            ));
-            // ensure data returned from fxaClient.signIn updates the account
+              EMAIL, PASSWORD, token, code, relier));
+
+            assert.ok(account.get('keyFetchToken'), 'new keyFetchToken');
+            assert.equal(account.get('sessionToken'), 'new sessionToken');
+            assert.equal(account.get('uid'), 'uid');
             assert.isTrue(account.get('verified'));
           });
       });

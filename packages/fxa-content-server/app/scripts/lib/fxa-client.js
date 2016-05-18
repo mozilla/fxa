@@ -15,7 +15,7 @@ define(function (require, exports, module) {
   var FxaClient = require('fxaClient');
   var p = require('lib/promise');
   var Session = require('lib/session');
-  var SIGN_IN_REASONS = require('lib/sign-in-reasons');
+  var SignInReasons = require('lib/sign-in-reasons');
 
   function trim(str) {
     return $.trim(str);
@@ -86,7 +86,7 @@ define(function (require, exports, module) {
       return this._getClient()
         .then(function (client) {
           return client.signIn(email, password, {
-            reason: SIGN_IN_REASONS.PASSWORD_CHECK
+            reason: SignInReasons.PASSWORD_CHECK
           })
           .then(function (sessionInfo) {
             // a session was created on the backend to check the user's
@@ -126,6 +126,7 @@ define(function (require, exports, module) {
     },
 
     _getUpdatedSessionData: function (email, relier, accountData, options) {
+      options = options || {};
       var sessionTokenContext = options.sessionTokenContext;
       if (! sessionTokenContext && relier.isSync()) {
         sessionTokenContext = Constants.SESSION_TOKEN_USED_FOR_SYNC;
@@ -156,13 +157,15 @@ define(function (require, exports, module) {
      * @method signIn
      * @param {String} originalEmail
      * @param {String} password
-     * @param {Releir} relier
+     * @param {Relier} relier
      * @param {Object} [options]
      *   @param {String} [options.reason] - Reason for the sign in. See definitons
      *                   in sign-in-reasons.js. Defaults to SIGN_IN_REASONS.SIGN_IN.
      *   @param {Boolean} [options.customizeSync] - If the relier is Sync,
      *                   whether the user wants to customize which items will
      *                   be synced. Defaults to `false`
+     *   @param {String} [options.metricsContext] - context metadata for use in
+     *                   activity events
      *   @param {String} [options.sessionTokenContext] - The context for which
      *                   the session token is being created. Defaults to the
      *                   relier's context.
@@ -176,7 +179,7 @@ define(function (require, exports, module) {
         .then(function (client) {
           var signInOptions = {
             keys: relier.wantsKeys(),
-            reason: options.reason || SIGN_IN_REASONS.SIGN_IN
+            reason: options.reason || SignInReasons.SIGN_IN
           };
 
           // `service` is sent on signIn to notify users when a new service
@@ -194,6 +197,25 @@ define(function (require, exports, module) {
         });
     },
 
+    /**
+     * Sign up a user
+     *
+     * @method signUp
+     * @param {String} originalEmail
+     * @param {String} password
+     * @param {Relier} relier
+     * @param {Object} [options]
+     *   @param {Boolean}[options.preVerified] - is the user preVerified
+     *   @param {String} [options.resume] - Resume token, passed in the
+     *                   verification link if the user must verify their email.
+     *   @param {Boolean} [options.customizeSync] - If the relier is Sync,
+     *                   whether the user wants to customize which items will
+     *                   be synced. Defaults to `false`
+     *   @param {String} [options.metricsContext] - Metrics context metadata
+     *   @param {String} [options.sessionTokenContext] - The context for which
+     *                   the session token is being created. Defaults to the
+     *                   relier's context.
+     */
     signUp: function (originalEmail, password, relier, options) {
       var email = trim(originalEmail);
       var self = this;
@@ -278,6 +300,19 @@ define(function (require, exports, module) {
               });
     },
 
+    /**
+     * Initiate a password reset
+     *
+     * @method signUp
+     * @param {String} originalEmail
+     * @param {Relier} relier
+     * @param {Object} [options]
+     *   @param {String} [options.resume] - Resume token, passed in the
+     *                   verification link if the user must verify their email.
+     *   @param {Boolean} [options.customizeSync] - If the relier is Sync,
+     *                   whether the user wants to customize which items will
+     *                   be synced. Defaults to `false`
+     */
     passwordReset: function (originalEmail, relier, options) {
       var email = trim(originalEmail);
       options = options || {};
@@ -326,19 +361,48 @@ define(function (require, exports, module) {
         });
     },
 
-    completePasswordReset: function (originalEmail, newPassword, token, code) {
+    completePasswordReset: function (originalEmail, newPassword, token, code, relier) {
+      var self = this;
       var email = trim(originalEmail);
       var client;
 
-      return this._getClient()
+      return self._getClient()
               .then(function (_client) {
                 client = _client;
                 return client.passwordForgotVerifyCode(code, token);
               })
               .then(function (result) {
                 return client.accountReset(email,
-                           newPassword,
-                           result.accountResetToken);
+                  newPassword,
+                  result.accountResetToken,
+                  {
+                    keys: relier.wantsKeys()
+                  }
+                );
+              })
+              .then(function (accountData) {
+                // BEGIN TRANSITION CODE
+                // only return updated account data if account data is
+                // returned. This is to ensure the content server and auth
+                // server can be updated independently whenever the signin
+                // confirmation feature is released. Hopefully after a couple
+                // of trains the check can be removed and all calls return
+                // new account data.
+                if (accountData && accountData.sessionToken) {
+                  // END TRANSITION CODE
+                  return self._getUpdatedSessionData(email, relier, accountData);
+                  // BEGIN TRANSITION CODE
+                } else {
+                  return self.signIn(
+                    email,
+                    newPassword,
+                    relier,
+                    {
+                      reason: SignInReasons.PASSWORD_RESET
+                    }
+                  );
+                }
+                // END TRANSITION CODE
               });
     },
 
@@ -388,11 +452,58 @@ define(function (require, exports, module) {
         });
     },
 
-    changePassword: function (originalEmail, oldPassword, newPassword) {
+    /**
+     * Change the user's password
+     *
+     * @param {String} originalEmail
+     * @param {String} oldPassword
+     * @param {String} newPassword
+     * @param {String} sessionToken
+     * @param {String} sessionTokenContext
+     * @param {Relier} relier
+     * @returns {Promise} resolves with new session information on success.
+     */
+    changePassword: function (originalEmail, oldPassword, newPassword, sessionToken, sessionTokenContext, relier) {
       var email = trim(originalEmail);
-      return this._getClient()
+      var self = this;
+      return self._getClient()
         .then(function (client) {
-          return client.passwordChange(email, oldPassword, newPassword);
+          return client.passwordChange(
+            email,
+            oldPassword,
+            newPassword,
+            {
+              keys: relier.wantsKeys(),
+              sessionToken: sessionToken
+            }
+          );
+        })
+        .then(function (accountData) {
+          // BEGIN TRANSITION CODE
+          // only return updated account data if account data is
+          // returned. This is to ensure the content server and auth
+          // server can be updated independently whenever the signin
+          // confirmation feature is released. Hopefully after a couple
+          // of trains the check can be removed and all calls return
+          // new account data.
+          if (accountData && accountData.sessionToken) {
+            // END TRANSITION CODE
+            return self._getUpdatedSessionData(email, relier, accountData, {
+              sessionTokenContext: sessionTokenContext
+            });
+            // BEGIN TRANSITION CODE
+          } else {
+            return self.signIn(
+              email,
+              newPassword,
+              relier,
+              {
+                reason: SignInReasons.PASSWORD_CHANGE,
+                sessionTokenContext: sessionTokenContext
+              }
+            );
+          }
+          // END TRANSITION CODE
         });
     },
 
