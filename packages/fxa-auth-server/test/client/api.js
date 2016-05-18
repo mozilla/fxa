@@ -313,7 +313,8 @@ ClientApi.prototype.recoveryEmailVerifyCode = function (uid, code, options) {
     null,
     {
       uid: uid,
-      code: code
+      code: code,
+      service: options.service || undefined
     },
     {
       'accept-language': options.lang
