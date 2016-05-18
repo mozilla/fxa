@@ -79,4 +79,5 @@ $FXA_FIREFOX_BINARY --version 2>/dev/null # squelch annoying 'GLib-CRITICAL **' 
     fxaUntrustedOauthApp="$FXA_UNTRUSTED_OAUTH_APP_ROOT" \
     fxaEmailRoot="http://restmail.net" \
     fxaProduction="true" \
-    firefoxBinary="$FXA_FIREFOX_BINARY"
+    firefoxBinary="$FXA_FIREFOX_BINARY" \
+    useTeamCityReporter=true
