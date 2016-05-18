@@ -24,7 +24,6 @@ define([
   var PASSWORD = 'password';
   var email;
   var ANIMATION_DELAY_MS = 1000;
-  var CHANNEL_DELAY = 4000; // how long it takes for the WebChannel indicator to appear
   var TIMEOUT = 90 * 1000;
 
   var thenify = FunctionalHelpers.thenify;
@@ -58,7 +57,6 @@ define([
   var waitForBrowserLoginNotification = thenify(function (context) {
     var found = false;
     return this.parent
-      .setFindTimeout(CHANNEL_DELAY)
       .then(testIsBrowserNotifiedOfLogin(context, { shouldCloseTab: false }))
       .then(function () {
         found = true;

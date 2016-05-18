@@ -740,19 +740,33 @@ define([
   function testIsBrowserNotified(context, command, cb) {
     return function () {
       return context.remote
-        .execute(function (command) {
-          var storedEvents;
-          try {
-            storedEvents = JSON.parse(sessionStorage.getItem('webChannelEvents')) || [];
-          } catch (e) {
-            storedEvents = [];
+        // Allow 5 seconds for the event to come through.
+        .setExecuteAsyncTimeout(5000)
+        .executeAsync(function (command, done) {
+          function check() {
+            var storedEvents;
+            try {
+              storedEvents = JSON.parse(sessionStorage.getItem('webChannelEvents')) || [];
+            } catch (e) {
+              storedEvents = [];
+            }
+
+            if (storedEvents.indexOf(command) > -1) {
+              done();
+            } else {
+              setTimeout(check, 50);
+            }
           }
 
-          return storedEvents.indexOf(command) > -1;
+          check();
         }, [command])
-        .then(function (result) {
-          if (! result) {
-            throw new Error('Browser is not notified of ' + command);
+        .then(null, function (err) {
+          if (/ScriptTimeout/.test(String(err))) {
+            var noSuchNotificationError = new Error('NoSuchBrowserNotification');
+            noSuchNotificationError.command = command;
+            throw noSuchNotificationError;
+          } else {
+            throw err;
           }
         });
     };
@@ -762,9 +776,11 @@ define([
     return function () {
       return testIsBrowserNotified(context, command)()
         .then(function () {
-          throw new Error('Browser should not have been notified of ' + command);
+          var unexpectedNotificationError = new Error('UnexpectedBrowserNotification');
+          unexpectedNotificationError.command = command;
+          throw unexpectedNotificationError;
         }, function (err) {
-          if (err.message !== 'Browser is not notified of ' + command) {
+          if (! /NoSuchBrowserNotification/.test(String(err))) {
             throw err;
           }
         });

@@ -21,7 +21,6 @@ define([
   var email;
   var client;
   var ANIMATION_DELAY_MS = 1000;
-  var CHANNEL_DELAY = 4000; // how long it takes for the WebChannel indicator to appear
   var TIMEOUT = 90 * 1000;
 
   /**
@@ -113,9 +112,9 @@ define([
 
         // wait for the verified window in the new tab
         .findById('fxa-sign-up-complete-header')
-        .setFindTimeout(CHANNEL_DELAY)
-        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
         .end()
+
+        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
         .then(function () {
           messageReceived = true;
         }, function () {
@@ -125,14 +124,12 @@ define([
         .closeCurrentWindow()
         // switch to the original window
         .switchToWindow('')
-        .setFindTimeout(CHANNEL_DELAY)
         .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
         .then(function () {
           messageReceived = true;
         }, function () {
           // element was not found
         })
-        .setFindTimeout(config.pageLoadTimeout)
 
         .then(function () {
           assert.isTrue(messageReceived, 'expected to receive a WebChannel event in either tab');
@@ -299,7 +296,6 @@ define([
         .findByCssSelector('#fxa-reset-password-complete-header')
         .end()
 
-        .setFindTimeout(CHANNEL_DELAY)
         .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
         .then(function () {
           messageReceived = true;
@@ -318,7 +314,6 @@ define([
         .closeCurrentWindow()
         // switch to the original window
         .switchToWindow('')
-        .setFindTimeout(CHANNEL_DELAY)
         .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
         .then(function () {
           messageReceived = true;
@@ -329,7 +324,6 @@ define([
         .then(function () {
           assert.isTrue(messageReceived, 'expected to receive a WebChannel event in either tab');
         })
-        .setFindTimeout(config.pageLoadTimeout)
         // the original tab should automatically sign in
         .findByCssSelector('#fxa-reset-password-complete-header')
         .end();
