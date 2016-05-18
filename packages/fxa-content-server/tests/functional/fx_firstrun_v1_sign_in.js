@@ -22,6 +22,14 @@ define([
 
   var listenForFxaCommands = FunctionalHelpers.listenForWebChannelMessage;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
+  var testIsBrowserNotified = function (context, message) {
+    message = message.replace(/:/g, '-');
+    return function () {
+      return context.remote
+       .findByCssSelector('#message-' + message)
+       .end();
+    };
+  };
 
   registerSuite({
     name: 'Firstrun sign_in',
@@ -56,11 +64,11 @@ define([
           return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
         })
 
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:login'))
-
         .findByCssSelector('#fxa-settings-header')
         .end()
+
+        .then(testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified(self, 'fxaccounts:login'))
 
         // user should be unable to sign out.
         .then(FunctionalHelpers.noSuchElement(self, '#signout'))
@@ -80,8 +88,8 @@ define([
           return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
         })
 
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:login'))
+        .then(testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified(self, 'fxaccounts:login'))
 
         .then(FunctionalHelpers.noSuchElement(self, '#fxa-settings-header'))
         .end();
@@ -99,7 +107,7 @@ define([
           return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
         })
 
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
 
         // user should not transition to the next screen
         .then(FunctionalHelpers.noSuchElement(self, '#fxa-settings-header'))

@@ -76,17 +76,9 @@ define([
 
         // the login message is only sent after the sync preferences screen
         // has been cleared.
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'login', function (data) {
-          assert.isTrue(data.customizeSync);
-          assert.deepEqual(data.declinedSyncEngines, ['passwords', 'history']);
-          assert.equal(data.email, email);
-          assert.ok(data.keyFetchToken);
-          assert.ok(data.sessionToken);
-          assert.ok(data.uid);
-          assert.ok(data.unwrapBKey);
-          assert.isFalse(data.verified);
-          assert.isTrue(data.verifiedCanLinkAccount);
-        }))
+        .then(function () {
+          return FxDesktopHelpers.testIsBrowserNotifiedOfLogin(self, email);
+        })
 
         // verify the user
         .then(function () {

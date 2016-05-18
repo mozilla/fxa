@@ -58,11 +58,12 @@ define([
           return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
 
+        .findByCssSelector('#fxa-confirm-header')
+        .end()
+
         .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
         .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:login'))
 
-        .findByCssSelector('#fxa-confirm-header')
-        .end()
 
         // verify the user
         .then(function () {

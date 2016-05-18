@@ -737,27 +737,38 @@ define([
     };
   }
 
-  function commandToCssSelector(command) {
-    return '#message-' + command.replace(/:/g, '-');
-  }
-
   function testIsBrowserNotified(context, command, cb) {
     return function () {
       return context.remote
-        .findByCssSelector(commandToCssSelector(command))
-          .getProperty('innerText')
-          .then(function (innerText) {
-            var data = JSON.parse(innerText);
-            if (cb) {
-              cb(data);
-            }
-          })
-        .end();
+        .execute(function (command) {
+          var storedEvents;
+          try {
+            storedEvents = JSON.parse(sessionStorage.getItem('webChannelEvents')) || [];
+          } catch (e) {
+            storedEvents = [];
+          }
+
+          return storedEvents.indexOf(command) > -1;
+        }, [command])
+        .then(function (result) {
+          if (! result) {
+            throw new Error('Browser is not notified of ' + command);
+          }
+        });
     };
   }
 
   function noSuchBrowserNotification(context, command) {
-    return noSuchElement(context, commandToCssSelector(command));
+    return function () {
+      return testIsBrowserNotified(context, command)()
+        .then(function () {
+          throw new Error('Browser should not have been notified of ' + command);
+        }, function (err) {
+          if (err.message !== 'Browser is not notified of ' + command) {
+            throw err;
+          }
+        });
+    };
   }
 
   function openPage(context, url, readySelector) {

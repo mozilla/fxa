@@ -115,7 +115,6 @@ define([
             service: 'sync'
           }
         }))
-        .then(noSuchBrowserNotification(this, 'fxaccounts:logout'))
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
         .then(visibleByQSA('.error'))
         .then(testElementTextInclude('.error', 'recreate'))

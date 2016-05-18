@@ -27,6 +27,9 @@ define(function (require, exports, module) {
     send: function (command, data, messageId) {
       var self = this;
       return p().then(function () {
+        // save command name for testing purposes
+        self._saveEventName(command);
+
         var event = createEvent(
           self._window, self._webChannelId, command, data, messageId);
         self._window.dispatchEvent(event);
@@ -34,6 +37,21 @@ define(function (require, exports, module) {
     },
 
     teardown: function () {
+    },
+
+    _saveEventName: function (command) {
+      var storedEvents;
+      try {
+        storedEvents = JSON.parse(this._window.sessionStorage.getItem('webChannelEvents')) || [];
+      } catch (e) {
+        storedEvents = [];
+      }
+
+      storedEvents.push(command);
+      try {
+        this._window.sessionStorage.setItem('webChannelEvents', JSON.stringify(storedEvents));
+      } catch (e) {
+      }
     }
   };
 

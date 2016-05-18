@@ -50,5 +50,14 @@ define(function (require, exports, module) {
           });
       });
     });
+
+    describe('_saveEventName', function () {
+      it('saves a dispatched command into sessionStorage', function () {
+        sender._saveEventName('some:test');
+        assert.equal(windowMock.sessionStorage.getItem('webChannelEvents'), '["some:test"]');
+        sender._saveEventName('some:othertest');
+        assert.equal(windowMock.sessionStorage.getItem('webChannelEvents'), '["some:test","some:othertest"]');
+      });
+    });
   });
 });
