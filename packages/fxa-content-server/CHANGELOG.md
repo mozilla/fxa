@@ -1,3 +1,42 @@
+<a name="0.62.0"></a>
+# 0.62.0 (2016-05-18)
+
+
+### Bug Fixes
+
+* **base64url:** Trim padding per RFC 7515. (#3713) r=vladikoff,rfk ([585520d](https://github.com/mozilla/fxa-content-server/commit/585520d))
+* **client:** handle async invalid token on signin (#3681) r=shane-tomlinson ([e484bd4](https://github.com/mozilla/fxa-content-server/commit/e484bd4))
+* **server:** add extra body check for report error (#3709) ([c65cbcd](https://github.com/mozilla/fxa-content-server/commit/c65cbcd)), closes [#3708](https://github.com/mozilla/fxa-content-server/issues/3708)
+* **server:** add extra body check for report error (#3709) ([f10868d](https://github.com/mozilla/fxa-content-server/commit/f10868d)), closes [#3708](https://github.com/mozilla/fxa-content-server/issues/3708)
+* **style:** Autofocus on submit button and added tabindex (#3703) ([322902c](https://github.com/mozilla/fxa-content-server/commit/322902c))
+* **styles:** change focused fields color scheme (#3727) ([fdae81a](https://github.com/mozilla/fxa-content-server/commit/fdae81a))
+* **styles:** increase bottom margin for old password field (#3724) ([eac3bee](https://github.com/mozilla/fxa-content-server/commit/eac3bee))
+* **styles:** replace clear sans with fira sans (#3685) r=shane-tomlinson,ryanfeeley ([4798131](https://github.com/mozilla/fxa-content-server/commit/4798131))
+* **teamcity:** use optional TeamCity reporter (#3749) r=vladikoff ([abc2e0b](https://github.com/mozilla/fxa-content-server/commit/abc2e0b))
+* **tests:** add missing test runner dependency: helmet (#3723) r=vladikoff ([0e92554](https://github.com/mozilla/fxa-content-server/commit/0e92554))
+* **tests:** adjust oauth 123done tests for logout (#3722) r=vbudhram ([e6bd768](https://github.com/mozilla/fxa-content-server/commit/e6bd768)), closes [#3721](https://github.com/mozilla/fxa-content-server/issues/3721)
+* **tests:** Fix the failing functional test. (#3706) r=vladikoff ([2b6f3d7](https://github.com/mozilla/fxa-content-server/commit/2b6f3d7)), closes [(#3706](https://github.com/(/issues/3706)
+* **tests:** Fix the failing functional test. (#3706) r=vladikoff ([8747e0d](https://github.com/mozilla/fxa-content-server/commit/8747e0d)), closes [(#3706](https://github.com/(/issues/3706)
+* **tests:** some functional tests are not cross-dependent anymore (#3719) r=vladikoff,shane- ([f4fd9cf](https://github.com/mozilla/fxa-content-server/commit/f4fd9cf)), closes [#3716](https://github.com/mozilla/fxa-content-server/issues/3716)
+* **tests:** speed up the relier unit tests (#3717) ([8bb3edf](https://github.com/mozilla/fxa-content-server/commit/8bb3edf))
+* **tests:** use sessionstorage for testing webchannel messages (#3741) r=shane-tomlinson ([b750cd5](https://github.com/mozilla/fxa-content-server/commit/b750cd5))
+
+### chore
+
+* **cleanup:** cleanup gitignore (#3734) ([297e00a](https://github.com/mozilla/fxa-content-server/commit/297e00a)), closes [#3733](https://github.com/mozilla/fxa-content-server/issues/3733)
+* **docs:** update npm version in README ([5c62196](https://github.com/mozilla/fxa-content-server/commit/5c62196))
+* **sass-lint:** add sass linting (#3732) r=vladikoff,pdehaan ([c4d2def](https://github.com/mozilla/fxa-content-server/commit/c4d2def))
+
+### Features
+
+* **client:** Fully validate `email` and `uid` in the relier. (#3711) ([298be44](https://github.com/mozilla/fxa-content-server/commit/298be44))
+* **client:** pass metrics context metadata to the back end (#3702) r=vladikoff ([2ebc49a](https://github.com/mozilla/fxa-content-server/commit/2ebc49a))
+* **errors:** Add messaging for new "request blocked" errno 125. (#3735) ([aae3c5c](https://github.com/mozilla/fxa-content-server/commit/aae3c5c))
+* **locale:** add Arabic locale support (#3726) r=vbudhram ([4450796](https://github.com/mozilla/fxa-content-server/commit/4450796))
+* **locale:** enable Finnish locale (#3738) r=vbudhram ([0ef9621](https://github.com/mozilla/fxa-content-server/commit/0ef9621)), closes [#3737](https://github.com/mozilla/fxa-content-server/issues/3737)
+
+
+
 <a name="0.61.1"></a>
 ## 0.61.1 (2016-05-09)
 
