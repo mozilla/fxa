@@ -419,9 +419,9 @@ module.exports = function (
                 if (config.contentToken.required) {
                   customs.flag(request.app.clientAddress, {
                     email: email,
-                    errno: 125
+                    errno: error.ERRNO.REQUEST_BLOCKED
                   })
-                  throw error.badContentToken(email)
+                  throw error.requestBlocked()
                 }
               } else {
                 // record good token validations
