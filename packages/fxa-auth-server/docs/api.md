@@ -84,6 +84,7 @@ The currently-defined error responses are:
 * status code 400, errno 122:  account is not locked
 * status code 400, errno 123:  unknown device
 * status code 400, errno 124:  session already registered by another device
+* status code 400, errno 125:  request blocked for security reasons
 * status code 400, errno 126:  account must be reset
 * status code 503, errno 201:  service temporarily unavailable to due high load (see [backoff protocol](#backoff-protocol))
 * status code 503, errno 202:  feature has been disabled for operational reasons
