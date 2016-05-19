@@ -100,6 +100,7 @@ module.exports = function (log, inherits, Token) {
     this.deviceCreatedAt = data.deviceCreatedAt
     this.callbackURL = data.callbackURL
     this.callbackPublicKey = data.callbackPublicKey
+    this.callbackAuthKey = data.callbackAuthKey
   }
 
   return SessionToken

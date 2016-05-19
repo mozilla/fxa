@@ -1,3 +1,26 @@
+<a name="1.62.0"></a>
+# [1.62.0](https://github.com/mozilla/fxa-auth-server/compare/v1.61.0...v1.62.0) (2016-05-19)
+
+
+### Bug Fixes
+
+* **clientAddress:** Cope better with X-Forwarded-For having fewer items than expected. ([fd85359](https://github.com/mozilla/fxa-auth-server/commit/fd85359))
+* **push:** adjust metrics increment logs ([8120c76](https://github.com/mozilla/fxa-auth-server/commit/8120c76)), closes [#1253](https://github.com/mozilla/fxa-auth-server/issues/1253)
+
+### Features
+
+* **errors:** Add API and docs for new "request blocked" errno 125. ([d7edef8](https://github.com/mozilla/fxa-auth-server/commit/d7edef8))
+* **locale:** add Arabic locale support ([a13e32a](https://github.com/mozilla/fxa-auth-server/commit/a13e32a))
+* **locale:** add Finnish locale ([8646591](https://github.com/mozilla/fxa-auth-server/commit/8646591))
+* **push:** document the format of the push payloads ([9fa65ce](https://github.com/mozilla/fxa-auth-server/commit/9fa65ce))
+* **push:** Prepare codebase for data payloads ([b60c464](https://github.com/mozilla/fxa-auth-server/commit/b60c464))
+
+### Refactor
+
+* **reset:** Adds sessionToken as an optional param for /account/reset (#1265) ([8b796b3](https://github.com/mozilla/fxa-auth-server/commit/8b796b3))
+
+
+
 <a name="1.61.0"></a>
 # [1.61.0](https://github.com/mozilla/fxa-auth-server/compare/v1.60.0...v1.61.0) (2016-05-04)
 

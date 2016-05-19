@@ -437,6 +437,7 @@
   * type
   * pushCallback
   * pushPublicKey
+  * pushAuthKey
 * output
   * id
   * createdAt
@@ -444,6 +445,7 @@
   * type
   * pushCallback
   * pushPublicKey
+  * pushAuthKey
 * db-write
   * Devices
 
@@ -457,6 +459,7 @@
     * type
     * pushCallback
     * pushPublicKey
+    * pushAuthKey
 
 ## /account/device
 

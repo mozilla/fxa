@@ -95,4 +95,5 @@
 * type
 * pushCallback
 * pushPublicKey
+* pushAuthKey
 

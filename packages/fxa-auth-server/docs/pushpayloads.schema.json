@@ -1,0 +1,90 @@
+{
+  "title":"FxA Push Payload schema",
+  "description":"This schema defines what is acceptable to send as a payload data with the Push API from the FxA servers to a device connected to FxA",
+  "$schema":"http://json-schema.org/draft-04/schema#",
+  "type":"object",
+  "allOf":[
+    {
+      "type":"object",
+      "required":[
+        "version",
+        "command"
+      ],
+      "properties":{
+        "version":{
+          "type":"integer",
+          "description":"The version of this push payload data instance. Bump this if you make changes to any part of this schema."
+        },
+        "command":{
+          "type":"string",
+          "description":"Helps the receiving device discriminate payloads"
+        }
+      }
+    },
+    {
+      "type":"object",
+      "anyOf":[
+        { "$ref":"#/definitions/newDevice" },
+        { "$ref":"#/definitions/collectionChanged" }
+      ]
+    }
+  ],
+  "definitions":{
+    "newDevice":{
+      "type":"object",
+      "required":[
+        "data"
+      ],
+      "properties":{
+        "command":{
+          "enum":[
+            "fxaccounts:new_device"
+          ]
+        },
+        "data":{
+          "type":"object",
+          "required":[
+            "deviceName"
+          ],
+          "properties":{
+            "deviceName":{
+              "type":"string",
+              "description":"The name of the device who joined this account"
+            }
+          }
+        }
+      }
+    },
+    "collectionsChanged":{
+      "type":"object",
+      "required":[
+        "data"
+      ],
+      "properties":{
+        "command":{
+          "enum":[
+            "sync:collection_changed"
+          ]
+        },
+        "data":{
+          "type":"object",
+          "required":[
+            "collections"
+          ],
+          "properties":{
+            "collections":{
+              "type":"array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "description":"A list of collections that were changed",
+              "items": {
+                "enum": [ "addons", "bookmarks", "history", "forms", "prefs",
+                  "tabs", "passwords", "clients" ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

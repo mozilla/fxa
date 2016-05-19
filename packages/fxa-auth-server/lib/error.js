@@ -29,6 +29,7 @@ var ERRNO = {
   MISSING_CONTENT_LENGTH_HEADER: 112,
   MISSING_PARAMETER: 108,
   REQUEST_TOO_LARGE: 113,
+  REQUEST_BLOCKED: 125,
   SERVER_BUSY: 201,
   SERVER_CONFIG_ERROR: 100,
   THROTTLED: 114,
@@ -359,6 +360,15 @@ AppError.tooManyRequests = function (retryAfter) {
       'retry-after': retryAfter
     }
   )
+}
+
+AppError.requestBlocked = function () {
+  return new AppError({
+    code: 400,
+    error: 'Request blocked',
+    errno: ERRNO.REQUEST_BLOCKED,
+    message: 'The request was blocked for security reasons'
+  })
 }
 
 AppError.serviceUnavailable = function (retryAfter) {

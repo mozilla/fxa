@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.61.0",
+  "version": "1.62.0",
   "description": "Firefox Accounts, an identity provider for Mozilla cloud services",
   "bin": {
     "fxa-auth": "./bin/key_server.js"
@@ -28,6 +28,7 @@
   "readmeFilename": "README.md",
   "dependencies": {
     "aws-sdk": "2.2.10",
+    "base64url": "1.0.6",
     "binary-split": "0.1.2",
     "bluebird": "2.10.2",
     "convict": "1.3.0",
@@ -48,7 +49,8 @@
     "request": "2.65.0",
     "scrypt-hash": "1.1.13",
     "through": "2.3.8",
-    "uuid": "1.4.1"
+    "uuid": "1.4.1",
+    "web-push": "2.1.1"
   },
   "devDependencies": {
     "ass": "git://github.com/jrgm/ass.git#5be99ee7abc9fcf63f9ebcc37b151b9c822146d1",

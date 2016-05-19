@@ -18,7 +18,7 @@ var pushManager = new PushManager({
 })
 
 test(
-  'notifyUpdate sends notifications using a real push server',
+  'pushToDevices sends notifications using a real push server',
   function (t) {
 
     pushManager.getSubscription().then(function (subscription) {
@@ -31,22 +31,24 @@ test(
               'lastAccessTime': 1449235471335,
               'name': 'My Phone',
               'type': 'mobile',
-              'pushCallback': subscription.endpoint
+              'pushCallback': subscription.endpoint,
+              'pushPublicKey': 'BBXOKjUb84pzws1wionFpfCBjDuCh4-s_1b52WA46K5wYL2gCWEOmFKWn_NkS5nmJwTBuO8qxxdjAIDtNeklvQc',
+              'pushAuthKey': 'GSsIiaD2Mr83iPqwFNK4rw'
             }
           ])
         }
       }
 
       var thisMockLog = mockLog({
-        increment: function (log) {
-          if (log === 'push.success') {
+        info: function (log) {
+          if (log.name === 'push.account_verify.success') {
             t.end()
           }
         }
       })
 
       var push = proxyquire('../../lib/push', {})(thisMockLog, mockDbResult)
-      push.notifyUpdate(mockUid)
+      push.pushToDevices(mockUid, 'accountVerify', new Buffer('foodata'))
 
     })
   }

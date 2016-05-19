@@ -84,6 +84,7 @@ The currently-defined error responses are:
 * status code 400, errno 122:  account is not locked
 * status code 400, errno 123:  unknown device
 * status code 400, errno 124:  session already registered by another device
+* status code 400, errno 125:  request blocked for security reasons
 * status code 400, errno 126:  account must be reset
 * status code 503, errno 201:  service temporarily unavailable to due high load (see [backoff protocol](#backoff-protocol))
 * status code 503, errno 202:  feature has been disabled for operational reasons
@@ -1274,8 +1275,10 @@ or updates existing device details for this user/session
 If no device `id` is specified,
 both `name` and `type` must be provided.
 If a device `id` is specified,
-at least one of `name`, `type`, `pushCallback` and `pushPublicKey`
+at least one of `name`, `type`, `pushCallback` or the tuple (`pushCallback`, `pushPublicKey` and `pushAuthKey`)
 must be present.
+Beware that if you provide `pushCallback` without the couple (`pushPublicKey` and `pushAuthKey`), both of
+the keys will be reset to an empty string.
 
 ### Request
 
@@ -1297,7 +1300,8 @@ https://api-accounts.dev.lcip.org/v1/account/device \
   "name": "My Phone",
   "type": "mobile",
   "pushCallback": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
-  "pushPublicKey": "468601214f60f4828b6cd5d51d9d99d212e7c73657978955f0f5a5b7e2fa1370"
+  "pushPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
+  "pushAuthKey": "w3b14Zjc-Afj2SDOLOyong"
 }'
 ```
 
@@ -1328,7 +1332,8 @@ with an object that contains the device id in the JSON body:
   "name": "My Phone",
   "type": "mobile",
   "pushCallback": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
-  "pushPublicKey": "468601214f60f4828b6cd5d51d9d99d212e7c73657978955f0f5a5b7e2fa1370"
+  "pushPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
+  "pushAuthKey": "w3b14Zjc-Afj2SDOLOyong"
 }
 ```
 
@@ -1373,7 +1378,8 @@ with an array of device details in the JSON body:
     "name": "My Phone",
     "type": "mobile",
     "pushCallback": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
-    "pushPublicKey": "468601214f60f4828b6cd5d51d9d99d212e7c73657978955f0f5a5b7e2fa1370"
+    "pushPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
+    "pushAuthKey": "w3b14Zjc-Afj2SDOLOyong"
   },
   {
     "id": "0f7aa00356e5416e82b3bef7bc409eef",
@@ -1382,7 +1388,8 @@ with an array of device details in the JSON body:
     "name": "My Desktop",
     "type": null,
     "pushCallback": "https://updates.push.services.mozilla.com/update/d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c75",
-    "pushPublicKey": "468601214f60f4828b6cd5d51d9d99d212e7c73657978955f0f5a5b7e2fa1370"
+    "pushPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
+    "pushAuthKey": "w3b14Zjc-Afj2SDOLOyong"
   }
 ]
 ```

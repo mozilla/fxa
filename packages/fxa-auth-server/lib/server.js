@@ -194,10 +194,16 @@ function create(log, error, config, routes, db) {
       // Construct source-ip-address chain for logging.
       var xff = (request.headers['x-forwarded-for'] || '').split(/\s*,\s*/)
       xff.push(request.info.remoteAddress)
-      var clientAddressIndex = xff.length - (config.clientAddressDepth || 1)
       // Remove empty items from the list, in case of badly-formed header.
-      request.app.remoteAddressChain = xff.filter(function(x){ return x })
-      request.app.clientAddress = request.app.remoteAddressChain[clientAddressIndex]
+      xff = xff.filter(function(x){ return x })
+      // Skip over entries for our own infra, loadbalancers, etc.
+      var clientAddressIndex = xff.length - (config.clientAddressDepth || 1)
+      if (clientAddressIndex < 0) {
+        clientAddressIndex = 0
+      }
+      request.app.remoteAddressChain = xff
+      request.app.clientAddress = xff[clientAddressIndex]
+
       request.app.acceptLanguage = trimLocale(request.headers['accept-language'])
 
       if (request.headers.authorization) {
