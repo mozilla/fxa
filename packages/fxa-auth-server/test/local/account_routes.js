@@ -15,6 +15,7 @@ var uuid = require('uuid')
 var crypto = require('crypto')
 var isA = require('joi')
 var error = require('../../lib/error')
+var log = require('../../lib/log')
 
 var TEST_EMAIL = 'foo@gmail.com'
 var TEST_EMAIL_INVALID = 'example@dotless-domain'
@@ -30,8 +31,10 @@ var makeRoutes = function (options) {
   var Password = require('../../lib/crypto/password')(log, config)
   var db = options.db || {}
   var isPreVerified = require('../../lib/preverifier')(error, config)
-  var customs = options.customs || {}
-  var checkPassword = require('../../lib/routes/utils/password_check')(log, config, Password, customs, db)
+  var customs = options.customs || {
+    check: function () { return P.resolve(true) }
+  }
+  var checkPassword = options.checkPassword || require('../../lib/routes/utils/password_check')(log, config, Password, customs, db)
   var push = options.push || require('../../lib/push')(log, db)
   return require('../../lib/routes/account')(
     log,
@@ -354,5 +357,162 @@ test(
         t.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED, 'correct errno is returned')
       }
     )
+  }
+)
+
+test(
+  'login event from /account/create includes metrics context data',
+  function (t) {
+    var mockRequest = {
+      app: {
+        acceptLangage: 'en-US'
+      },
+      headers: {
+        'user-agent': 'test-user-agent'
+      },
+      payload: {
+        email: TEST_EMAIL,
+        authPW: crypto.randomBytes(32).toString('hex'),
+        service: 'sync',
+        metricsContext: {
+          entrypoint: 'preferences',
+          utmContent: 'some-content-string'
+        }
+      }
+    }
+    var mockDB = {
+      emailRecord: sinon.spy(function () {
+        return P.reject(new error.unknownAccount())
+      }),
+      createAccount: sinon.spy(function () {
+        return P.resolve({
+          uid: uuid.v4('binary'),
+          email: TEST_EMAIL,
+          emailVerified: false
+        })
+      })
+    }
+    // We want to test what's actually written to stdout by the logger.
+    var mockLog = log('ERROR', 'test', {
+      stdout: {
+        on: sinon.spy(),
+        write: sinon.spy()
+      },
+      stderr: {
+        on: sinon.spy(),
+        write: sinon.spy()
+      }
+    })
+    var accountRoutes = makeRoutes({
+      db: mockDB,
+      log: mockLog
+    })
+    return new P(function (resolve) {
+      getRoute(accountRoutes, '/account/create')
+        .handler(mockRequest, function(response) {
+          resolve(response)
+        })
+    })
+    .then(function () {
+      t.equal(mockDB.createAccount.callCount, 1, 'createAccount was called')
+
+      t.equal(mockLog.stdout.write.callCount, 1, 'an sqs event was logged')
+      var eventData = JSON.parse(mockLog.stdout.write.getCall(0).args[0])
+      t.equal(eventData.event, 'login', 'it was a login event')
+      t.equal(eventData.data.service, 'sync', 'it was for sync')
+      t.equal(eventData.data.email, TEST_EMAIL, 'it was for the correct email')
+      t.equal(eventData.data.metricsContext.entrypoint, 'preferences', 'it contained the entrypoint metrics field')
+      t.equal(eventData.data.metricsContext.utm_content, 'some-content-string', 'it contained the utm_content metrics field')
+
+    }).finally(function () {
+      mockLog.close()
+    })
+  }
+)
+
+test(
+  'login event from /account/login includes metrics context data',
+  function (t) {
+    var mockRequest = {
+      app: {
+        acceptLangage: 'en-US'
+      },
+      headers: {
+        'user-agent': 'test-user-agent'
+      },
+      query: {
+        keys: false
+      },
+      payload: {
+        email: TEST_EMAIL,
+        authPW: crypto.randomBytes(32).toString('hex'),
+        service: 'sync',
+        reason: 'signin',
+        metricsContext: {
+          entrypoint: 'preferences',
+          utmContent: 'some-content-string'
+        }
+      }
+    }
+    var uid = uuid.v4('binary')
+    var mockDB = {
+      emailRecord: sinon.spy(function () {
+        return P.resolve({
+          uid: uid,
+          email: TEST_EMAIL,
+          emailVerified: true
+        })
+      }),
+      createSessionToken: sinon.spy(function () {
+        return P.resolve({
+          uid: uid,
+          email: TEST_EMAIL,
+          emailVerified: true,
+          lastAuthAt: function () { return 0 }
+        })
+      }),
+      sessions: sinon.spy(function () {
+        return P.resolve([{}, {}, {}])
+      })
+    }
+    // We want to test what's actually written to stdout by the logger.
+    var mockLog = log('ERROR', 'test', {
+      stdout: {
+        on: sinon.spy(),
+        write: sinon.spy()
+      },
+      stderr: {
+        on: sinon.spy(),
+        write: sinon.spy()
+      }
+    })
+    var accountRoutes = makeRoutes({
+      db: mockDB,
+      log: mockLog,
+      checkPassword: function () {
+        return P.resolve(true)
+      }
+    })
+    return new P(function (resolve) {
+      getRoute(accountRoutes, '/account/login')
+        .handler(mockRequest, function(response) {
+          resolve(response)
+        })
+    })
+    .then(function () {
+      t.equal(mockDB.emailRecord.callCount, 1, 'db.emailRecord was called')
+      t.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called')
+      t.equal(mockDB.sessions.callCount, 1, 'db.sessions was called')
+
+      t.equal(mockLog.stdout.write.callCount, 1, 'an sqs event was logged')
+      var eventData = JSON.parse(mockLog.stdout.write.getCall(0).args[0])
+      t.equal(eventData.event, 'login', 'it was a login event')
+      t.equal(eventData.data.service, 'sync', 'it was for sync')
+      t.equal(eventData.data.email, TEST_EMAIL, 'it was for the correct email')
+      t.equal(eventData.data.metricsContext.entrypoint, 'preferences', 'it contained the entrypoint metrics field')
+      t.equal(eventData.data.metricsContext.utm_content, 'some-content-string', 'it contained the utm_content metrics field')
+    }).finally(function () {
+      mockLog.close()
+    })
   }
 )

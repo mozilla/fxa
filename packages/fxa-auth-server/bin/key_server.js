@@ -8,7 +8,11 @@ var jwtool = require('fxa-jwtool')
 function main() {
   var log = require('../lib/log')(config.log.level)
 
-  log.event('config', config)
+  process.stdout.write(JSON.stringify({
+    event: 'config',
+    data: config
+  }) + '\n')
+
   if (config.env !== 'prod') {
     log.info(config, 'starting config')
   }
