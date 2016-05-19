@@ -11,11 +11,6 @@
   * [What happens when an unverified client requests `/certificate/sign`?](#what-happens-when-an-unverified-client-requests-certificatesign)
   * [What happens when an unverified client requests `/account/keys`?](#what-happens-when-an-unverified-client-requests-accountkeys)
   * [How does this affect users on legacy clients?](#how-does-this-affect-users-on-legacy-clients)
-* [Work breakdown](#work-breakdown)
-  * [fxa-content-server](#fxa-content-server)
-  * [fxa-auth-server](#fxa-auth-server)
-  * [fxa-auth-db-mysql](#fxa-auth-db-mysql)
-  * [fxa-auth-mailer](#fxa-auth-mailer)
 * [Mock-ups](#mock-ups)
   * [Confirm this sign-in screen](#confirm-this-sign-in-screen)
   * [Confirmation email](#confirmation-email)
@@ -110,9 +105,10 @@ of 46% to 50%.
 ## Proposed solution
 
 Add a notion of verification
-to sessionTokens and keyFetchTokens.
-Tokens that are unverified
-have reduced powers (see below).
+to session tokens.
+Session tokens that are unverified
+have reduced powers
+(see [below](#what-happens-when-an-unverified-client-requests-accountkeys)).
 Token verification is achieved
 by following a link sent by email.
 
@@ -125,43 +121,39 @@ by following a link sent by email.
 3. Auth server generates `tokenVerificationId`
    and sends it in request to `PUT /sessionToken/:tokenId`.
 
-4. Auth server sends same `tokenVerificationId`
-   in request to `PUT /keyFetchToken/:tokenId`.
-
-5. Auth server invokes the mailer
+4. Auth server invokes the mailer
    to send a confirmation email,
    which includes `tokenVerificationId` in the URL.
 
-6. Auth server sends response back to content server,
+5. Auth server sends response back to content server,
    including in the data:
    ```
    {
-     "sessionToken": sessionTokenId,
-     "keyFetchToken": keyFetchTokenId,
+     "sessionToken": sessionToken.data,
      "verified" false,
      "verificationReason": "login",
      "verificationMethod": "email"
    }
    ```
 
-7. Content server sends web channel message
+6. Content server sends web channel message
    notifying the browser of successful sign-in.
 
-8. Content server navigates to confirm-signin view.
+7. Content server navigates to confirm-signin view.
 
-9. Content server starts polling
+8. Content server starts polling
    on `GET /recovery_email/status`.
 
-10. User clicks link in confirmation email.
+9. User clicks link in confirmation email.
 
-11. Content server requests `POST /recovery_email/verify_code`.
+10. Content server requests `POST /recovery_email/verify_code`.
 
-12. Auth server requests `POST /token/:tokenVerificationId/verify`.
-    Both tokens are verified in the database.
+11. Auth server requests `POST /token/:tokenVerificationId/verify`.
+    The session token is verified in the database.
     If the account is unverified,
     that also gets verified here.
 
-13. Concurrently:
+12. Concurrently:
 
     * Auth server responds to verification request,
       including verified tokens in the data.
@@ -169,7 +161,7 @@ by following a link sent by email.
     * Auth server changes polling request responses,
       including verified tokens in the data.
 
-14. Content server navigates to about:accounts.
+13. Content server navigates to about:accounts.
 
 ### What happens when an OAuth user signs in?
 
@@ -180,12 +172,9 @@ by following a link sent by email.
 3. Auth server generates `tokenVerificationId`
    and sends it in request to `PUT /sessionToken/:tokenId`.
 
-4. Auth server sends same `tokenVerificationId`
-   in request to `PUT /keyFetchToken/:tokenId`.
+4. Auth server sends response back to content server.
 
-5. Auth server sends response back to content server.
-
-6. Content server redirects to OAuth relier.
+5. Content server redirects to OAuth relier.
 
 ### What happens when an unverified client requests `/certificate/sign`?
 
@@ -194,13 +183,8 @@ the request will succeed.
 However, the verification status is stored
 in the certificate as `fxa-tokenVerified`,
 alongside other `fxa-` properties.
-The Sync server can subsequently reject assertions
+The token server will reject assertions
 where `fxa-tokenVerified` is `false`.
-
-### What happens when an unverified client requests `/account/keys`?
-
-If the keyFetchToken is unverified,
-the request will fail with errno 102.
 
 ### How does this affect users on legacy clients?
 
@@ -215,90 +199,6 @@ The legacy code for polling
 and account verification
 will work the same way
 against unverified tokens.
-
-## Work breakdown
-
-### fxa-content-server
-
-- [x] Add strings to `strings.js`
-  to get localization done quicker.
-  This task is the highest immediate priority.
-- [x] Update `/signin`, `/force_auth`, `/signup`
-  to redirect to `/confirm_signin`
-  if response to `/account/login` contains
-  `"verificationReason":"login","verificationMethod":"email"`.
-- [ ] Update `/confirm`
-  to display "Confirm this sign-in"
-  instead of signup messaging.
-- [ ] Implement `/complete_signin` - Calls verification function
-- [ ] Update `/signin_complete` to displays "This sign-in is verified"
-  instead of standard message.
-- [ ] Add handling for `verified`, `challengeReason` and `challengeMethod` fields
-  in `/account/login` response.
-- [ ] Add handling for 102 errors
-  from `/certificate/sign`
-  and `/account/keys` endpoints.
-- [ ] Update user and account models to call
-  existing fxa-client methods to:
-  - [ ] resend signin verification email
-  - [ ] check session status
-  - [ ] verify signin
-- [ ] Ensure functional test exist for:
-  - [ ] Sync sign in of existing verified account (re-verification required)
-  - [ ] Hello sign in of existing verified account (re-verification required)
-  - [ ] OAuth sign in of existing verified account (no re-verification required)
-
-### fxa-auth-server
-
-- [x] Add method to `mailer.js`
-  for sending confirmation email.
-- [x] Modify `/account/login`
-  to create keys unverified,
-  initiate verification email
-  and set `verificationReason` and `verificationMethod` on response.
-- [x] Modify `/account/login`
-  to stop sending new device connected emails.
-- [x] Create a `sessionTokenVerified`
-  auth strategy for Hapi
-  that fetches teh sessionToken with verification state.
-- [x] In `/certificate/sign`,
-  use updated `sessionWithDevice` auth strategy and
-  encode the sessionToken verification state
-  on the certificate as `fxa-tokenVerified`.
-- [x] In `/account/keys`,
-  use new `keyFetchTokenVerified` auth strategy.
-- [x] Modify the `/recovery_email/verify_code` endpoint
-  to also verify tokens.
-  This allows legacy clients to work correctly
-  and also handles the case of
-  unverified users signing in.
-- [x] Modify the `/recovery_email/resend_code` to resend verification code depending on whether it is an email or sign-in verification.
-- [x] Modify the `/account/status` endpoint
-  to also return `"verified":false` if tokens are unverified. In addition, it returns `"emailVerified:false", "sessionVerified:false"` to show the reason for verification state.
-- [x] Modify the `/password/change/finish` endpoint to accept `sessionToken` and `keys`. If `keys=true`, return a `keyFetchToken` in addition to a verified `sessionToken, verified`.
-- [x] Modify the `/account/reset` endpoint to accept `sessionToken` and `keys`. If `keys=true`, return a `keyFetchToken` in addition to a verified `sessionToken, verified`.
-- [x] Add ability to enable/disable sign-in confirmation and perform a rollout of feature.
-- [x] Tests.
-
-### fxa-auth-db-mysql
-
-- [x] Create `tokenVerifications` table
-  and associated stored procedures.
-- [x] Update token-creation endpoints and stored procedures
-  to also insert into `tokenVerifications`
-  as part of the same transaction.
-- [x] Update token-deletion endpoints and stored procedures
-  to also delete from `tokenVerifications`
-  as part of the same transaction.
-- [x] Add `/token/:id/verify` endpoint and stored procedure
-  for verifying tokens.
-- [x] Add endpoints and stored procedures
-  that return tokens joined to their `tokenVerified` state.
-- [x] Tests.
-
-### fxa-auth-mailer
-
-- [x] Add confirmation email templates and methods
 
 ## Mock-ups
 
