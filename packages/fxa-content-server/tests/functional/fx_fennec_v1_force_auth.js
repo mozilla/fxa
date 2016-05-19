@@ -22,35 +22,51 @@ define([
   var PASSWORD = 'password';
   var email;
 
+  var setupTest = thenify(function (context, preVerified) {
+    return this.parent
+      .then(clearBrowserState(context))
+      .then(createUser(email, PASSWORD, { preVerified: preVerified }))
+      .then(openForceAuth({ query: {
+        context: 'fx_fennec_v1',
+        email: email,
+        service: 'sync'
+      }}))
+      .then(noSuchBrowserNotification(context, 'fxaccounts:logout'))
+      .then(respondToWebChannelMessage(context, 'fxaccounts:can_link_account', { ok: true } ))
+      .then(fillOutForceAuth(PASSWORD));
+  });
+
   registerSuite({
     name: 'Fx Fennec Sync v1 force_auth',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(clearBrowserState(this));
     },
 
-    'sign in via force-auth': function () {
+    'verified': function () {
       return this.remote
-        .then(openForceAuth({ query: {
-          context: 'fx_fennec_v1',
-          email: email,
-          service: 'sync'
-        }}))
-        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
-        .then(fillOutForceAuth(PASSWORD))
+        .then(setupTest(this, true))
 
         .then(testElementExists('#fxa-force-auth-complete-header'))
         .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+
         .then(noSuchBrowserNotification(this, 'fxaccounts:sync_preferences'))
         // user wants to open sync preferences.
         .then(click('#sync-preferences'))
 
         // browser is notified of desire to open Sync preferences
         .then(testIsBrowserNotified(this, 'fxaccounts:sync_preferences'));
+    },
+
+    'unverified': function () {
+      return this.remote
+        .then(setupTest(this, false))
+
+        .then(testElementExists('#fxa-confirm-header'))
+
+        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'));
     }
   });
 });

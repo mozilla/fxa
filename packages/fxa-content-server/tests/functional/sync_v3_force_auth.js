@@ -9,7 +9,6 @@ define([
 ], function (registerSuite, TestHelpers, FunctionalHelpers) {
   var email;
   var PASSWORD = '12345678';
-  var POST_SIGNIN_DELAY = 2000;
 
   var thenify = FunctionalHelpers.thenify;
 
@@ -17,6 +16,7 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
   var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
+  var noPageTransition = FunctionalHelpers.noPageTransition;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openForceAuth = FunctionalHelpers.openForceAuth;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
@@ -32,26 +32,25 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-
-      return FunctionalHelpers.clearBrowserState(this);
     },
 
     'with a registered email, no uid': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openForceAuth( {
-          query: {
-            context: 'fx_desktop_v3',
-            email: email,
-            service: 'sync'
-          }
-        }))
+        .then(function (accountInfo) {
+          return openForceAuth({
+            query: {
+              context: 'fx_desktop_v3',
+              email: email,
+              service: 'sync'
+            }
+          }).call(this);
+        })
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutForceAuth(PASSWORD))
-        // add a slight delay to ensure the page does not transition
-        .sleep(POST_SIGNIN_DELAY)
-        // the page does not transition.
-        .then(testElementExists('#fxa-force-auth-header'))
+
+        // about:accounts will take over, no transition
+        .then(noPageTransition('#fxa-force-auth-header'))
         .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'));
     },
@@ -71,10 +70,9 @@ define([
         })
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutForceAuth(PASSWORD))
-        // add a slight delay to ensure the page does not transition
-        .sleep(POST_SIGNIN_DELAY)
-        // the page does not transition.
-        .then(testElementExists('#fxa-force-auth-header'))
+
+        // about:accounts will take over, no transition
+        .then(noPageTransition('#fxa-force-auth-header'))
         .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'));
     },
@@ -93,10 +91,8 @@ define([
         .then(noSuchBrowserNotification(this, 'fxaccounts:logout'))
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutForceAuth(PASSWORD))
-        // add a slight delay to ensure the page does not transition
-        .sleep(POST_SIGNIN_DELAY)
-        // the page does not transition.
-        .then(testElementExists('#fxa-force-auth-header'))
+        // about:accounts will take over, no transition
+        .then(noPageTransition('#fxa-force-auth-header'))
         // user is able to sign in, browser notified of new uid
         .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'));

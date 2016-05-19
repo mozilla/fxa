@@ -5,12 +5,11 @@
 define([
   'intern',
   'intern!object',
-  'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, require, nodeXMLHttpRequest, FxaClient,
+], function (intern, registerSuite, nodeXMLHttpRequest, FxaClient,
       TestHelpers, FunctionalHelpers) {
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
@@ -18,11 +17,18 @@ define([
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
   var AUTOMATED = '&automatedBrowser=true';
 
-  var FIRST_PASSWORD = 'password';
-  var SECOND_PASSWORD = 'new_password';
+  var PASSWORD = 'password';
   var email;
   var client;
   var accountData;
+
+  var thenify = FunctionalHelpers.thenify;
+
+  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var createUser = FunctionalHelpers.createUser;
+  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var openPage = thenify(FunctionalHelpers.openPage);
+  var testElementExists = FunctionalHelpers.testElementExists;
 
   var SETTINGS_PAGES = {
     '': 'fxa-settings-header',
@@ -44,36 +50,22 @@ define([
     beforeEach: function () {
       email = TestHelpers.createEmail();
 
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
-
-      var self = this;
-      return client.signUp(email, FIRST_PASSWORD)
-              .then(function () {
-                return FunctionalHelpers.clearBrowserState(self);
-              });
-    },
-
-    afterEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote
+        .then(clearBrowserState(this))
+        .then(createUser(email, PASSWORD));
     }
   };
 
   function unverifiedAccountTest (suite, page) {
     suite['visit settings' + page + ' with an unverified account redirects to confirm'] = function () {
-      var self = this;
       var url = SETTINGS_URL + page;
 
-      return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD)
+      return this.remote
+        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(testElementExists('#fxa-confirm-header'))
 
-        .findById('fxa-confirm-header')
-        .end()
-
-        .get(require.toUrl(url))
         // Expect to get redirected to confirm since the account is unverified
-        .findById('fxa-confirm-header')
-        .end();
+        .then(openPage(this, url, '#fxa-confirm-header'));
     };
   }
 
@@ -87,72 +79,49 @@ define([
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
 
-      var self = this;
-      return client.signUp(email, FIRST_PASSWORD, { preVerified: true })
-              .then(function (result) {
-                accountData = result;
-                return FunctionalHelpers.clearBrowserState(self);
-              });
-    },
-
-    afterEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote
+        .then(clearBrowserState(this))
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(function (result) {
+          accountData = result;
+        });
     }
   };
 
   function verifiedAccountTest (suite, page, pageHeader) {
     var url = SETTINGS_URL + page;
     suite['visit settings' + page + ' with an invalid sessionToken redirects to signin'] = function () {
-      // Changing the password invalidates the current sessionToken
-      var self = this;
-
-      return FunctionalHelpers.clearBrowserState(self)
+      return this.remote
+        .then(clearBrowserState(this))
         .then(function () {
-          return client.passwordChange(email, FIRST_PASSWORD, SECOND_PASSWORD);
+          // invalidate the session token
+          return client.sessionDestroy(accountData.sessionToken);
         })
-        .then(function () {
-          return self.remote
-            .get(require.toUrl(url))
-            // Expect to get redirected to sign in since the sessionToken is invalid
-            .findById('fxa-signin-header')
-            .end();
-        });
+        // Expect to get redirected to sign in since the
+        // sessionToken is invalid
+        .then(openPage(this, url, '#fxa-signin-header'));
     };
 
     suite['visit settings' + page + ' with an unknown uid parameter redirects to signin'] = function () {
-      var self = this;
+      return this.remote
+        .then(openPage(this, SIGNIN_URL, '#fxa-signin-header'))
+        .then(fillOutSignIn(this, email, PASSWORD))
 
-      return self.remote
-        .get(require.toUrl(SIGNIN_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .then(function () {
-          return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD);
-        })
-        .findById('fxa-settings-header')
-        .end()
+        .then(testElementExists('#fxa-settings-header'))
 
-        .get(require.toUrl(url + '?uid=' + TestHelpers.createUID()))
         // Expect to get redirected to sign in since the uid is unknown
-        .findById('fxa-signin-header')
-        .end();
+        .then(openPage(this, url + '?uid=' + TestHelpers.createUID(), '#fxa-signin-header'));
     };
 
     suite['visit settings' + page + ' with a known uid does not redirect'] = function () {
-      var self = this;
+      return this.remote
+        .then(openPage(this, SIGNIN_URL, '#fxa-signin-header'))
+        .then(fillOutSignIn(this, email, PASSWORD))
 
-      return self.remote
-        .get(require.toUrl(SIGNIN_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .then(function () {
-          return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD);
-        })
+        .then(testElementExists('#fxa-settings-header'))
 
-        .findById('fxa-settings-header')
-        .end()
-
-        .get(require.toUrl(url + '?uid=' + accountData.uid + AUTOMATED))
-        .findById(pageHeader)
-        .end();
+        // Expect to get redirected to sign in since the uid is unknown
+        .then(openPage(this, url + '?uid=' + accountData.uid + AUTOMATED, '#' + pageHeader));
     };
   }
 

@@ -27,6 +27,7 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
   var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
+  var noPageTransition = FunctionalHelpers.noPageTransition;
   var openPage = FunctionalHelpers.openPage;
   var testAttributeMatches = FunctionalHelpers.testAttributeMatches;
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
@@ -288,11 +289,7 @@ define([
         .then(fillOutSignUp(this, email + '-', PASSWORD))
 
         // wait five seconds to allow any errant navigation to occur
-        .sleep(5000)
-
-        // navigation should not occur
-        .findByCssSelector('#fxa-signup-header')
-        .end()
+        .then(noPageTransition('#fxa-signup-header', 5000))
 
         // the validation tooltip should be visible
         .then(visibleByQSA('.tooltip'));

@@ -15,6 +15,8 @@ define([
   './functional/sync_v2_reset_password',
   './functional/sync_v2_force_auth',
   './functional/sync_v3_sign_up',
+  './functional/sync_v3_sign_in',
+  './functional/sync_v3_settings',
   './functional/sync_v3_force_auth',
   './functional/fx_firstrun_v1_sign_up',
   './functional/fx_firstrun_v1_sign_in',

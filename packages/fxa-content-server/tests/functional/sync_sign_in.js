@@ -5,112 +5,68 @@
 define([
   'intern',
   'intern!object',
-  'require',
-  'intern/node_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
   'tests/functional/lib/fx-desktop'
-], function (intern, registerSuite, require, nodeXMLHttpRequest, FxaClient,
-        TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers,
+  FxDesktopHelpers) {
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
   var PAGE_URL_WITH_MIGRATION = PAGE_URL + '&migration=sync11';
 
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
-
-  var client;
   var email;
   var PASSWORD = '12345678';
-  var accountData;
 
+  var thenify = FunctionalHelpers.thenify;
+
+  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var createUser = FunctionalHelpers.createUser;
+  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
-  var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
-
-  function verifyUser(user, index) {
-    return FunctionalHelpers.getVerificationHeaders(user, index)
-      .then(function (headers) {
-        var code = headers['x-verify-code'];
-        return client.verifyCode(accountData.uid, code);
-      });
-  }
+  var noPageTransition = FunctionalHelpers.noPageTransition;
+  var openPage = thenify(FunctionalHelpers.openPage);
+  var testElementExists = FunctionalHelpers.testElementExists;
+  var testIsBrowserNotifiedOfLogin = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfLogin);
+  var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   registerSuite({
-    name: 'Firefox Desktop Sync sign_in',
+    name: 'Firefox Desktop Sync v1 sign_in',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
-      var self = this;
-      return client.signUp(email, PASSWORD)
-        .then(function (result) {
-          accountData = result;
-          return result;
-        })
-        .then(function () {
-          // clear localStorage to avoid pollution from other tests.
-          return FunctionalHelpers.clearBrowserState(self);
-        });
+      return this.remote
+        .then(clearBrowserState(this));
     },
 
-    afterEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
-    },
+    'verified': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .execute(listenForFxaCommands)
 
-    'sign in verified': function () {
-      var self = this;
-      return verifyUser(email, 0)
-        .then(function () {
-          return self.remote
-            .get(require.toUrl(PAGE_URL))
-            .setFindTimeout(intern.config.pageLoadTimeout)
-            .execute(listenForFxaCommands)
+        .then(fillOutSignIn(this, email, PASSWORD))
 
-            .findByCssSelector('#fxa-signin-header')
-            .end()
-
-            .then(function () {
-              return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
-            })
-
-            .then(function () {
-              return testIsBrowserNotifiedOfLogin(self, email, { checkVerified: true });
-            });
-        });
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-signin-header'));
     },
 
     'unverified': function () {
-      var self = this;
-
-      return self.remote
-        .get(require.toUrl(PAGE_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: false }))
+        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
         .execute(listenForFxaCommands)
 
-        .findByCssSelector('#fxa-signin-header')
-        .end()
+        .then(fillOutSignIn(this, email, PASSWORD))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
-        })
+        .then(testElementExists('#fxa-confirm-header'))
 
-        .findByCssSelector('#fxa-confirm-header')
-        .end()
-
-        .then(function () {
-          return testIsBrowserNotifiedOfLogin(self, email);
-        });
+        .then(testIsBrowserNotifiedOfLogin(this, email));
     },
 
     'as a migrating user': function () {
       return this.remote
-        .get(require.toUrl(PAGE_URL_WITH_MIGRATION))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .execute(listenForFxaCommands)
-        .then(FunctionalHelpers.visibleByQSA('.info.nudge'))
-        .end();
+        .then(openPage(this, PAGE_URL_WITH_MIGRATION, '#fxa-signin-header'))
+        .then(visibleByQSA('.info.nudge'));
     }
   });
 });

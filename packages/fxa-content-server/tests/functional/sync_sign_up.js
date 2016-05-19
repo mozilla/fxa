@@ -27,6 +27,7 @@ define([
   var PASSWORD = '12345678';
 
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
+  var noPageTransition = FunctionalHelpers.noPageTransition;
   var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
 
   registerSuite({
@@ -113,10 +114,7 @@ define([
         // We do not expect the verification poll to occur. The poll
         // will take a few seconds to complete if it erroneously occurs.
         // Add an affordance just in case the poll happens unexpectedly.
-        .sleep(5000)
-
-        .then(FunctionalHelpers.visibleByQSA('#fxa-confirm-header'))
-        .end();
+        .then(noPageTransition('#fxa-confirm-header', 5000));
     },
 
     'signup, verify same browser with original tab closed': function () {

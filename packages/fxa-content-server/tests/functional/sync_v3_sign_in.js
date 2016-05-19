@@ -9,7 +9,7 @@ define([
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
-  var PAGE_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v2&service=sync';
+  var PAGE_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v3&service=sync';
 
   var email;
   var PASSWORD = '12345678';
@@ -20,44 +20,47 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
   var noPageTransition = FunctionalHelpers.noPageTransition;
-  var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openPage = thenify(FunctionalHelpers.openPage);
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
-  var setupTest = thenify(function (context, isUserVerified) {
-    return this.parent
-      .then(clearBrowserState(context))
-      .then(createUser(email, PASSWORD, { preVerified: isUserVerified }))
-      .then(openPage(context, PAGE_URL, '#fxa-signin-header'))
-      .then(noSuchBrowserNotification(context, 'fxaccounts:logout'))
-      .then(respondToWebChannelMessage(context, 'fxaccounts:can_link_account', { ok: true } ))
-      .then(fillOutSignIn(context, email, PASSWORD))
-
-      .then(testIsBrowserNotified(context, 'fxaccounts:can_link_account'))
-      .then(testIsBrowserNotified(context, 'fxaccounts:login'));
-  });
-
   registerSuite({
-    name: 'Firefox Desktop Sync v2 sign_in',
+    name: 'Firefox Desktop Sync v3 sign_in',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
+
+      return this.remote
+        .then(clearBrowserState(this));
     },
 
     'verified': function () {
       return this.remote
-        .then(setupTest(this, true))
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
 
+        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+
+        // about:accounts will take, no transition
         .then(noPageTransition('#fxa-signin-header'));
     },
 
     'unverified': function () {
       return this.remote
-        .then(setupTest(this, false))
+        .then(createUser(email, PASSWORD, { preVerified: false }))
+        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
 
-        .then(testElementExists('#fxa-confirm-header'));
+        .then(fillOutSignIn(this, email, PASSWORD))
+
+        .then(testElementExists('#fxa-confirm-header'))
+
+        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'));
     }
   });
 });

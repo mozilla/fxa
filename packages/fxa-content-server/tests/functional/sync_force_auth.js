@@ -14,13 +14,14 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
+  var noPageTransition = FunctionalHelpers.noPageTransition;
   var openForceAuth = FunctionalHelpers.openForceAuth;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfMessage);
+  var testIsBrowserNotifiedOfLogin = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfLogin);
 
   var PASSWORD = 'password';
   var email;
-
 
   var setupTest = thenify(function (context, isUserVerified) {
     return this.parent
@@ -32,11 +33,13 @@ define([
         service: 'sync'
       }}))
       .execute(listenForFxaCommands)
-      .then(fillOutForceAuth(PASSWORD));
+      .then(fillOutForceAuth(PASSWORD))
+      .then(testIsBrowserNotified(context, 'can_link_account'))
+      .then(testIsBrowserNotifiedOfLogin(context, email, { checkVerified: isUserVerified }));
   });
 
   registerSuite({
-    name: 'Firefox Desktop Sync force_auth',
+    name: 'Firefox Desktop Sync v1 force_auth',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
@@ -46,22 +49,14 @@ define([
       return this.remote
         .then(setupTest(this, true))
 
-        // add a slight delay to ensure the page does not transition
-        .sleep(1000)
-
-        // the page does not transition.
-        .then(testElementExists('#fxa-force-auth-header'))
-        .then(testIsBrowserNotified(this, 'can_link_account'))
-        .then(testIsBrowserNotified(this, 'login'));
+        .then(noPageTransition('#fxa-force-auth-header'));
     },
 
     'unverified': function () {
       return this.remote
         .then(setupTest(this, false))
 
-        .then(testElementExists('#fxa-confirm-header'))
-        .then(testIsBrowserNotified(this, 'can_link_account'))
-        .then(testIsBrowserNotified(this, 'login'));
+        .then(testElementExists('#fxa-confirm-header'));
     }
   });
 });

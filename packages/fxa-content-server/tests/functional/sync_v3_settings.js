@@ -6,10 +6,8 @@ define([
   'intern',
   'intern!object',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/fx-desktop'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers,
-  FxDesktopHelpers) {
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
   var thenify = FunctionalHelpers.thenify;
 
   var click = FunctionalHelpers.click;
@@ -18,17 +16,16 @@ define([
   var fillOutChangePassword = thenify(FunctionalHelpers.fillOutChangePassword);
   var fillOutDeleteAccount = thenify(FunctionalHelpers.fillOutDeleteAccount);
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
-  var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = thenify(FunctionalHelpers.openPage);
+  var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
-  var testIsBrowserNotifiedOfLogin = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfLogin);
-  var testIsBrowserNotifiedOfMessage = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfMessage);
+  var testIsBrowserNotified = thenify(FunctionalHelpers.testIsBrowserNotified);
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   var config = intern.config;
-  var SIGNIN_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
-  var SETTINGS_URL = config.fxaContentRoot + 'settings?context=fx_desktop_v1&service=sync';
+  var SIGNIN_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v3&service=sync';
+  var SETTINGS_URL = config.fxaContentRoot + 'settings?context=fx_desktop_v3&service=sync';
 
   var FIRST_PASSWORD = 'password';
   var SECOND_PASSWORD = 'new_password';
@@ -36,7 +33,7 @@ define([
 
 
   registerSuite({
-    name: 'Firefox Desktop Sync v1 settings',
+    name: 'Firefox Desktop Sync v3 settings',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
@@ -45,11 +42,14 @@ define([
         .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
         .then(clearBrowserState(this))
         .then(openPage(this, SIGNIN_URL, '#fxa-signin-header'))
-        .execute(listenForFxaCommands)
+        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+
         .then(fillOutSignIn(this, email, FIRST_PASSWORD))
-        .then(testIsBrowserNotifiedOfLogin(this, email, { checkVerified: true }))
-        .then(openPage(this, SETTINGS_URL, '#fxa-settings-header'))
-        .execute(listenForFxaCommands);
+
+        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+
+        .then(openPage(this, SETTINGS_URL, '#fxa-settings-header'));
     },
 
 
@@ -59,7 +59,7 @@ define([
         .then(visibleByQSA('#change-password .settings-unit-details'))
 
         .then(fillOutChangePassword(this, FIRST_PASSWORD, SECOND_PASSWORD))
-        .then(testIsBrowserNotifiedOfMessage(this, 'change_password'));
+        .then(testIsBrowserNotified(this, 'fxaccounts:change_password'));
     },
 
     'sign in, delete the account': function () {
@@ -68,7 +68,7 @@ define([
         .then(visibleByQSA('#delete-account .settings-unit-details'))
 
         .then(fillOutDeleteAccount(this, FIRST_PASSWORD))
-        .then(testIsBrowserNotifiedOfMessage(this, 'delete_account'))
+        .then(testIsBrowserNotified(this, 'delete_account'))
 
         .then(testElementExists('#fxa-signup-header'));
     },

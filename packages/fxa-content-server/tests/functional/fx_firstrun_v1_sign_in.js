@@ -5,113 +5,86 @@
 define([
   'intern',
   'intern!object',
-  'intern/node_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, nodeXMLHttpRequest, FxaClient,
-  TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var PAGE_URL = config.fxaContentRoot + 'signin?context=iframe&service=sync';
   var NO_REDIRECT_URL = PAGE_URL + '&haltAfterSignIn=true';
 
   var email;
   var PASSWORD = '12345678';
-  var client;
 
-  var listenForFxaCommands = FunctionalHelpers.listenForWebChannelMessage;
+  var thenify = FunctionalHelpers.thenify;
+
+  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var createUser = FunctionalHelpers.createUser;
+  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var noPageTransition = FunctionalHelpers.noPageTransition;
+  var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
+  var noSuchElement = FunctionalHelpers.noSuchElement;
+  var openPage = thenify(FunctionalHelpers.openPage);
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
-  var testIsBrowserNotified = function (context, message) {
-    message = message.replace(/:/g, '-');
-    return function () {
-      return context.remote
-       .findByCssSelector('#message-' + message)
-       .end();
-    };
-  };
+  var testElementExists = FunctionalHelpers.testElementExists;
+  var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
+
+  var setupTest = thenify(function (context, preVerified, options) {
+    options = options || {};
+
+    return this.parent
+      .then(clearBrowserState(context))
+      .then(createUser(email, PASSWORD, { preVerified: preVerified }))
+      .then(openPage(context, options.pageUrl || PAGE_URL, '#fxa-signin-header'))
+      .then(respondToWebChannelMessage(context, 'fxaccounts:can_link_account', { ok: options.canLinkAccountResponse !== false }))
+      .then(fillOutSignIn(context, email, PASSWORD))
+      .then(testIsBrowserNotified(context, 'fxaccounts:can_link_account'));
+  });
 
   registerSuite({
-    name: 'Firstrun sign_in',
+    name: 'Firstrun v1 sign_in',
 
     beforeEach: function () {
-      var self = this;
       email = TestHelpers.createEmail();
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
 
-      return client.signUp(email, PASSWORD, { preVerified: true })
-        .then(function () {
-          return FunctionalHelpers.clearBrowserState(self);
-        });
+      return this.remote
+        .then(clearBrowserState(this));
     },
 
-    afterEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
+    'verified': function () {
+      return this.remote
+        .then(setupTest(this, true))
+
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(testElementExists('#fxa-settings-header'))
+        // the user should be unable to sign out.
+        .then(noSuchElement(this, '#signout'));
     },
 
-    'sign in with an already existing account': function () {
-      var self = this;
+    'unverified': function () {
+      return this.remote
+        .then(setupTest(this, false))
 
-      return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signin-header')
-        .execute(listenForFxaCommands)
-
-        .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: true } ))
-
-
-        .then(function () {
-          return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
-        })
-
-        .findByCssSelector('#fxa-settings-header')
-        .end()
-
-        .then(testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified(self, 'fxaccounts:login'))
-
-        // user should be unable to sign out.
-        .then(FunctionalHelpers.noSuchElement(self, '#signout'))
-        .end();
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(testElementExists('#fxa-confirm-header'));
     },
 
-    'sign in with an existing account with the `haltAfterSignIn=true` query parameter': function () {
-      var self = this;
+    'with an existing account with the `haltAfterSignIn=true` query parameter': function () {
+      return this.remote
+        .then(setupTest(this, true, { pageUrl: NO_REDIRECT_URL }))
 
-      return FunctionalHelpers.openPage(this, NO_REDIRECT_URL, '#fxa-signin-header')
-        .execute(listenForFxaCommands)
-
-        .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: true } ))
-
-
-        .then(function () {
-          return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
-        })
-
-        .then(testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified(self, 'fxaccounts:login'))
-
-        .then(FunctionalHelpers.noSuchElement(self, '#fxa-settings-header'))
-        .end();
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(noPageTransition('#fxa-signin-header'));
     },
 
-    'sign in, cancel merge warning': function () {
-      var self = this;
-      return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signin-header')
-        .execute(listenForFxaCommands)
+    'signin, cancel merge warning': function () {
+      return this.remote
+        .then(setupTest(this, true, { canLinkAccountResponse: false }))
 
-        .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: false } ))
-
-
-        .then(function () {
-          return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
-        })
-
-        .then(testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
+        .then(noSuchBrowserNotification(this, 'fxaccounts:login'))
 
         // user should not transition to the next screen
-        .then(FunctionalHelpers.noSuchElement(self, '#fxa-settings-header'))
-        .end();
+        .then(noPageTransition('#fxa-signin-header'));
     }
   });
 });

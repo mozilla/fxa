@@ -49,7 +49,7 @@ define([
     return context.remote
       .then(function () {
         if (options.contentServer) {
-          return clearContentServerState(context);
+          return clearContentServerState(context, options);
         }
       })
       .then(function () {
@@ -64,7 +64,8 @@ define([
       });
   }
 
-  function clearContentServerState(context) {
+  function clearContentServerState(context, options) {
+    options = options || {};
     // clear localStorage to avoid polluting other tests.
     return context.remote
       // always go to the content server so the browser state is cleared,
@@ -76,7 +77,7 @@ define([
       .then(function (url) {
         // only load up the content server if we aren't
         // already at the content server.
-        if (url.indexOf(CONTENT_SERVER) === -1) {
+        if (url.indexOf(CONTENT_SERVER) === -1 || options.force) {
           return context.remote.get(require.toUrl(CONTENT_SERVER + 'clear'))
                     .setFindTimeout(config.pageLoadTimeout)
                     .findById('fxa-clear-storage-header');
@@ -336,8 +337,9 @@ define([
     startListening();
   }
 
-  function openVerificationLinkDifferentBrowser(client, email) {
+  function openVerificationLinkDifferentBrowser(client, email, emailNumber) {
     if (typeof client === 'string') {
+      emailNumber = email;
       email = client;
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
@@ -346,7 +348,7 @@ define([
 
     var user = TestHelpers.emailToUser(email);
 
-    return getVerificationHeaders(user, 0)
+    return getVerificationHeaders(user, emailNumber || 0)
       .then(function (headers) {
         var uid = headers['x-uid'];
         var code = headers['x-verify-code'];
@@ -787,6 +789,27 @@ define([
     };
   }
 
+  /**
+   * Check to ensure the page does not transition
+   *
+   * @param {String} selector
+   * @param {Number} [timeout] time to wait in ms. Defaults to 2000ms
+   * @returns {promise} that resolves if the selector is found
+   * before and after the timeout.
+   */
+  function noPageTransition(selector, timeout) {
+    return function () {
+      return this.parent
+        .findByCssSelector(selector)
+        .end()
+
+        .sleep(timeout || 2000)
+
+        .findByCssSelector(selector)
+        .end();
+    };
+  }
+
   function openPage(context, url, readySelector) {
     var remote = context.get ? context : context.remote;
     return remote
@@ -809,16 +832,25 @@ define([
             })
           .end()
 
-          .then(function () {
-            return remote.takeScreenshot();
-          })
-          .then(function (buffer) {
-            console.error('Error occurred, capturing base64 screenshot:');
-            console.error(buffer.toString('base64'));
+          .then(takeScreenshot())
 
+          .then(function () {
             throw err;
           });
       });
+  }
+
+  /**
+   * Take a screen shot, write a base64 encoded image to the console
+   */
+  function takeScreenshot() {
+    return function () {
+      return this.parent.takeScreenshot()
+        .then(function (buffer) {
+          console.error('Capturing base64 screenshot:');
+          console.error(buffer.toString('base64'));
+        });
+    };
   }
 
   function fetchAllMetrics(context) {
@@ -910,6 +942,25 @@ define([
     };
   }
 
+  /**
+   * Check whether an input element's text equals the expected value.
+   * Comparison is case sensitive
+   *
+   * @param {string} selector
+   * @param {string} expected
+   * @returns {promise} rejects if test fails.
+   */
+  function testElementTextEquals(selector, expected) {
+    return function () {
+      return this.parent
+        .findByCssSelector(selector)
+        .getVisibleText()
+        .then(function (resultText) {
+          assert.equal(resultText, expected);
+        })
+        .end();
+    };
+  }
   /**
    * Check whether an input element's text includes the expected value.
    * Comparison is case insensitive
@@ -1210,6 +1261,7 @@ define([
     getVerificationLink: getVerificationLink,
     imageLoadedByQSA: imageLoadedByQSA,
     listenForWebChannelMessage: listenForWebChannelMessage,
+    noPageTransition: noPageTransition,
     noSuchBrowserNotification: noSuchBrowserNotification,
     noSuchElement: noSuchElement,
     openExternalSite: openExternalSite,
@@ -1226,6 +1278,7 @@ define([
     openVerificationLinkInNewTab: openVerificationLinkInNewTab,
     pollUntil: pollUntil,
     respondToWebChannelMessage: respondToWebChannelMessage,
+    takeScreenshot: takeScreenshot,
     testAreEventsLogged: testAreEventsLogged,
     testAttribute: testAttribute,
     testAttributeEquals: testAttributeEquals,
@@ -1233,6 +1286,7 @@ define([
     testAttributeMatches: testAttributeMatches,
     testElementDisabled: testElementDisabled,
     testElementExists: testElementExists,
+    testElementTextEquals: testElementTextEquals,
     testElementTextInclude: testElementTextInclude,
     testElementValueEquals: testElementValueEquals,
     testErrorTextInclude: testErrorTextInclude,

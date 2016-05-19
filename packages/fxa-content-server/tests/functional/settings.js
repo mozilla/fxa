@@ -8,14 +8,10 @@ define([
   'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
-  'app/scripts/lib/constants',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/fx-desktop'
+  'tests/functional/lib/helpers'
 ], function (intern, registerSuite, require, nodeXMLHttpRequest,
-      FxaClient, Constants, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
-  var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
-  var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
+      FxaClient, TestHelpers, FunctionalHelpers) {
 
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
@@ -94,29 +90,6 @@ define([
         // success is going to the signin page
         .findById('fxa-signin-header')
         .end();
-    },
-
-    'sign in to desktop context, go to settings, no way to sign out': function () {
-      var self = this;
-      var url = SIGNIN_URL + '?context=' + Constants.FX_DESKTOP_V1_CONTEXT + '&service=sync';
-
-      return FunctionalHelpers.openPage(self, url, '#fxa-signin-header')
-        .execute(listenForFxaCommands)
-
-        .then(function () {
-          return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD);
-        })
-
-        .then(function () {
-          return testIsBrowserNotifiedOfLogin(self, email, { checkVerified: true });
-        })
-
-        .then(function () {
-          return FunctionalHelpers.openPage(self, SETTINGS_URL, '#fxa-settings-header');
-        })
-
-        // make sure the sign out element doesn't exist
-        .then(FunctionalHelpers.noSuchElement(self, '#signout'));
     },
 
     'sign in, go to settings with setting param set to avatar redirects to avatar change page ': function () {
