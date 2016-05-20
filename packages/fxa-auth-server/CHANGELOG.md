@@ -1,3 +1,13 @@
+<a name="1.62.1"></a>
+## [1.62.1](https://github.com/mozilla/fxa-auth-server/compare/v1.62.0...v1.62.1) (2016-05-20)
+
+
+### Bug Fixes
+
+* **deps:** Update to auth-db-mysql train-62 ([685054d](https://github.com/mozilla/fxa-auth-server/commit/685054d))
+
+
+
 <a name="1.62.0"></a>
 # [1.62.0](https://github.com/mozilla/fxa-auth-server/compare/v1.61.0...v1.62.0) (2016-05-19)
 
