@@ -1,7 +1,7 @@
 {{t "Forgot your password?"}}
 
 {{{t "Click the button within the next hour to set a new password for your Firefox Account." }}}
-{{t "Remember password? Sign in."}}
+{{t "Remember password? Sign in."}} {{{ signInUrl }}}
 {{t "Reset password"}} {{{link}}}
 
 {{t "This is an automated email; if you received it in error, no action is required."}} {{t "For more information, please visit %(supportUrl)s"}}

@@ -50,6 +50,10 @@ var typesContainPasswordChangeLinks = [
   'verifyLoginEmail'
 ]
 
+var typesContainSignInLinks = [
+  'recoveryEmail'
+]
+
 function includes(haystack, needle) {
   return (haystack.indexOf(needle) > -1)
 }
@@ -116,6 +120,21 @@ P.all(
               mailer.mailer.sendMail = function (emailConfig) {
                 t.ok(includes(emailConfig.html, passwordChangeLink))
                 t.ok(includes(emailConfig.text, passwordChangeLink))
+                t.end()
+              }
+              mailer[type](message)
+            }
+          )
+        }
+
+        if (includes(typesContainSignInLinks, type)) {
+          var signInLink = mailer.createSignInLink(message.email)
+          test(
+            'sign in link is in email template output for ' + type,
+            function (t) {
+              mailer.mailer.sendMail = function (emailConfig) {
+                t.ok(includes(emailConfig.html, signInLink))
+                t.ok(includes(emailConfig.text, signInLink))
                 t.end()
               }
               mailer[type](message)

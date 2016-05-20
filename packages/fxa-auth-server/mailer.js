@@ -251,7 +251,7 @@ module.exports = function (log) {
         code: message.code,
         email: message.email,
         link: link,
-        signInUrl: this.signInUrl,
+        signInUrl: this.createSignInLink(message.email),
         supportUrl: this.supportUrl,
         supportLinkAttributes: this._supportLinkAttributes()
       },
@@ -305,7 +305,6 @@ module.exports = function (log) {
       templateValues: {
         resetLink: link,
         resetLinkAttributes: this._passwordResetLinkAttributes(message.email),
-        signInUrl: this.signInUrl,
         supportLinkAttributes: this._supportLinkAttributes(),
         supportUrl: this.supportUrl
       },
@@ -494,6 +493,12 @@ module.exports = function (log) {
     var queryParams = { email: email }
 
     return this.initiatePasswordChangeUrl + '?' + qs.stringify(queryParams)
+  }
+
+  Mailer.prototype.createSignInLink = function (email) {
+    var queryParams = { email: email }
+
+    return this.signInUrl + '?' + qs.stringify(queryParams)
   }
 
   return Mailer
