@@ -12,6 +12,7 @@ var butil = require('../crypto/butil')
 var openid = require('openid')
 var userAgent = require('../userAgent')
 var url = require('url')
+var requestHelper = require('../routes/utils/request_helper')
 var metricsContext = require('../metrics/context')
 
 module.exports = function (
@@ -452,7 +453,7 @@ module.exports = function (
         }
 
         function sendNewDeviceLoginNotification () {
-          if (config.newLoginNotificationEnabled && wantsKeys(request)) {
+          if (config.newLoginNotificationEnabled && requestHelper.wantsKeys(request)) {
             // The response doesn't have to wait for this,
             // so we don't return the promise.
             mailer.sendNewDeviceLoginNotification(
@@ -477,7 +478,7 @@ module.exports = function (
             response.device = butil.unbuffer(device)
           }
 
-          if (! wantsKeys(request)) {
+          if (! requestHelper.wantsKeys(request)) {
             return P.resolve(response)
           }
 
@@ -574,7 +575,7 @@ module.exports = function (
                   )
                   .then(
                     function (sessionToken) {
-                      if (! wantsKeys(request)) {
+                      if (! requestHelper.wantsKeys(request)) {
                         return P.resolve({
                           sessionToken: sessionToken
                         })
@@ -1258,49 +1259,130 @@ module.exports = function (
         var authPW = Buffer(request.payload.authPW, 'hex')
         var authSalt = crypto.randomBytes(32)
         var password = new Password(authPW, authSalt, config.verifierVersion)
-        return password.verifyHash()
-          .then(
-            function (verifyHash) {
-              return db.resetAccount(
-                accountResetToken,
-                {
-                  authSalt: authSalt,
-                  verifyHash: verifyHash,
-                  wrapWrapKb: crypto.randomBytes(32),
-                  verifierVersion: password.version
-                }
-              )
-            }
-          )
-          .then(
-            function () {
-              // Notify all devices that the account has changed.
-              push.notifyUpdate(accountResetToken.uid, 'passwordReset')
+        var account, sessionToken, keyFetchToken, verifyHash, wrapKb
+        var hasSessionToken = request.payload.sessionToken
 
-              return db.account(accountResetToken.uid)
+        return resetAccountData()
+          .then(createSessionToken)
+          .then(createKeyFetchToken)
+          .then(createResponse)
+          .done(reply, reply)
+
+        function resetAccountData () {
+          return password.verifyHash()
+            .then(
+              function (verifyHashData) {
+                verifyHash = verifyHashData
+
+                return db.resetAccount(
+                  accountResetToken,
+                  {
+                    authSalt: authSalt,
+                    verifyHash: verifyHash,
+                    wrapWrapKb: crypto.randomBytes(32),
+                    verifierVersion: password.version
+                  }
+                )
+              }
+            )
+            .then(
+              function () {
+                // Notify all devices that the account has changed.
+                push.notifyUpdate(accountResetToken.uid, 'passwordReset')
+
+                return db.account(accountResetToken.uid)
+              }
+            )
+            .then(
+              function (accountData) {
+                account = accountData
+                log.activityEvent('account.reset', request, {
+                  uid: account.uid.toString('hex')
+                })
+                log.event(
+                  'reset',
+                  {
+                    uid: account.uid.toString('hex') + '@' + config.domain,
+                    generation: account.verifierSetAt
+                  }
+                )
+                return customs.reset(account.email)
+              }
+            )
+            .then(
+              function () {
+                return password.unwrap(account.wrapWrapKb)
+              }
+            )
+            .then(
+              function (wrapKbData) {
+                wrapKb = wrapKbData
+              }
+            )
+        }
+
+        function createSessionToken () {
+          if (hasSessionToken) {
+            // Create a sessionToken so that the client does
+            // not have to re-login
+            var sessionTokenOptions = {
+              uid: account.uid,
+              email: account.email,
+              emailCode: account.emailCode,
+              emailVerified: account.emailVerified,
+              verifierSetAt: account.verifierSetAt
             }
-          )
-          .then(
-            function (account) {
-              log.activityEvent('account.reset', request, {
-                uid: account.uid.toString('hex')
-              })
-              log.event(
-                'reset',
-                {
-                  uid: account.uid.toString('hex') + '@' + config.domain,
-                  generation: account.verifierSetAt
+
+            return db.createSessionToken(sessionTokenOptions, request.headers['user-agent'])
+              .then(
+                function (result) {
+                  sessionToken = result
                 }
               )
-              return customs.reset(account.email)
+          }
+        }
+
+        function createKeyFetchToken () {
+          if (requestHelper.wantsKeys(request)) {
+            if (!hasSessionToken) {
+              // Sanity-check: any client requesting keys,
+              // should also be requesting a sessionToken.
+              throw error.missingRequestParameter('sessionToken')
             }
-          )
-          .then(
-            function () {
-              return {}
-            }
-          )
-          .done(reply, reply)
+            return db.createKeyFetchToken({
+                uid: account.uid,
+                kA: account.kA,
+                wrapKb: wrapKb,
+                emailVerified: account.emailVerified
+              })
+              .then(
+                function (result) {
+                  keyFetchToken = result
+                }
+              )
+          }
+        }
+
+        function createResponse () {
+          // If no sessionToken, this could be a legacy client
+          // attempting to reset an account password, return legacy response.
+          if (!hasSessionToken) {
+            return {}
+          }
+
+          var response = {
+            uid: sessionToken.uid.toString('hex'),
+            sessionToken: sessionToken.data.toString('hex'),
+            verified: sessionToken.emailVerified,
+            authAt: sessionToken.lastAuthAt()
+          }
+
+          if (requestHelper.wantsKeys(request)) {
+            response.keyFetchToken = keyFetchToken.data.toString('hex')
+          }
+
+          return response
+        }
       }
     },
     {
@@ -1422,9 +1504,5 @@ module.exports = function (
   }
 
   return routes
-
-  function wantsKeys (request) {
-    return request.query.keys === 'true'
-  }
 }
 

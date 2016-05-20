@@ -244,16 +244,25 @@ ClientApi.prototype.accountStatus = function (uid, sessionTokenHex) {
 
 ClientApi.prototype.accountReset = function (accountResetTokenHex, authPW, headers, options) {
   options = options || {}
+  var qs = getQueryString(options)
+
+  // Default behavior is to request sessionToken
+  if (options.sessionToken === undefined) {
+    options.sessionToken = true
+  }
+
+
   return tokens.AccountResetToken.fromHex(accountResetTokenHex)
     .then(
       function (token) {
         return this.doRequest(
           'POST',
-          this.baseURL + '/account/reset',
+          this.baseURL + '/account/reset' + qs,
           token,
           {
             authPW: authPW.toString('hex'),
-            metricsContext: options.metricsContext || undefined
+            metricsContext: options.metricsContext || undefined,
+            sessionToken: options.sessionToken
           },
           headers
         )
@@ -363,18 +372,27 @@ ClientApi.prototype.passwordChangeStart = function (email, oldAuthPW, headers) {
   )
 }
 
-ClientApi.prototype.passwordChangeFinish = function (passwordChangeTokenHex, authPW, wrapKb, headers) {
+ClientApi.prototype.passwordChangeFinish = function (passwordChangeTokenHex, authPW, wrapKb, headers, sessionToken) {
+  var options = {}
   return tokens.PasswordChangeToken.fromHex(passwordChangeTokenHex)
     .then(
       function (token) {
+        var requestData = {
+          authPW: authPW.toString('hex'),
+          wrapKb: wrapKb.toString('hex')
+        }
+
+        if (sessionToken) {
+          // Support legacy clients and new clients
+          requestData.sessionToken = sessionToken
+          options.keys = true
+        }
+
         return this.doRequest(
           'POST',
-          this.baseURL + '/password/change/finish',
+          this.baseURL + '/password/change/finish' + getQueryString(options),
           token,
-          {
-            authPW: authPW.toString('hex'),
-            wrapKb: wrapKb.toString('hex')
-          },
+          requestData,
           headers
         )
       }.bind(this)

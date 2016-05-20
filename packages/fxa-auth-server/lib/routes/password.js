@@ -7,6 +7,7 @@ var HEX_STRING = validators.HEX_STRING
 
 var crypto = require('crypto')
 var butil = require('../crypto/butil')
+var requestHelper = require('../routes/utils/request_helper')
 
 module.exports = function (
   log,
@@ -143,56 +144,120 @@ module.exports = function (
         var authPW = Buffer(request.payload.authPW, 'hex')
         var wrapKb = Buffer(request.payload.wrapKb, 'hex')
         var authSalt = crypto.randomBytes(32)
+        var sessionTokenId = request.payload.sessionToken
         var password = new Password(authPW, authSalt, verifierVersion)
-        db.deletePasswordChangeToken(passwordChangeToken)
-          .then(
-            function () {
-              return password.verifyHash()
-                .then(
-                  function (verifyHash) {
-                    return password.wrap(wrapKb)
-                      .then(
-                        function (wrapWrapKb) {
-                          return db.resetAccount(
-                            passwordChangeToken,
-                            {
-                              verifyHash: verifyHash,
-                              authSalt: authSalt,
-                              wrapWrapKb: wrapWrapKb,
-                              verifierVersion: password.version
-                            }
-                          )
-                        }
-                      )
-                  }
-                )
-            }
-          )
-          .then(
-            function () {
-              // Notify all devices that the account has changed.
-              push.notifyUpdate(passwordChangeToken.uid, 'passwordChange')
+        var wantsKeys = requestHelper.wantsKeys(request)
+        var account, verifyHash, sessionToken, keyFetchToken
 
-              return db.account(passwordChangeToken.uid)
-                .then(
-                  function (account) {
-                    return mailer.sendPasswordChangedNotification(
-                      account.email,
-                      {
-                        acceptLanguage: request.app.acceptLanguage
-
-                      }
-                    )
-                  }
-                )
-            }
-          )
-          .then(
-            function () {
-              return {}
-            }
-          )
+        return changePassword()
+          .then(notifyAccount)
+          .then(createSessionToken)
+          .then(createKeyFetchToken)
+          .then(createResponse)
           .done(reply, reply)
+
+        function changePassword() {
+          return db.deletePasswordChangeToken(passwordChangeToken)
+            .then(
+              function () {
+                return password.verifyHash()
+              }
+            )
+            .then(
+              function (hash) {
+                verifyHash = hash
+                return password.wrap(wrapKb)
+              }
+            )
+            .then(
+              function (wrapWrapKb) {
+                // Reset account, delete all sessions and tokens
+                return db.resetAccount(
+                  passwordChangeToken,
+                  {
+                    verifyHash: verifyHash,
+                    authSalt: authSalt,
+                    wrapWrapKb: wrapWrapKb,
+                    verifierVersion: password.version
+                  }
+                )
+              }
+            )
+        }
+
+        function notifyAccount() {
+          // Notify all devices that the account has changed.
+          push.notifyUpdate(passwordChangeToken.uid, 'passwordChange')
+
+          return db.account(passwordChangeToken.uid)
+            .then(
+              function (accountData) {
+                account = accountData
+                return mailer.sendPasswordChangedNotification(
+                  account.email,
+                  {
+                    acceptLanguage: request.app.acceptLanguage
+                  }
+                )
+              }
+            )
+        }
+
+        function createSessionToken() {
+          if (sessionTokenId) {
+            var sessionTokenOptions = {
+              uid: account.uid,
+              email: account.email,
+              emailCode: account.emailCode,
+              emailVerified: account.emailVerified,
+              verifierSetAt: account.verifierSetAt
+            }
+
+            return db.createSessionToken(sessionTokenOptions, request.headers['user-agent'])
+              .then(
+                function (result) {
+                  sessionToken = result
+                }
+              )
+          }
+        }
+
+        function createKeyFetchToken() {
+          if (wantsKeys) {
+            return db.createKeyFetchToken({
+                uid: account.uid,
+                kA: account.kA,
+                wrapKb: wrapKb,
+                emailVerified: account.emailVerified
+              })
+              .then(
+                function (result) {
+                  keyFetchToken = result
+                }
+              )
+          }
+        }
+
+        function createResponse () {
+          // If no sessionToken, this could be a legacy client
+          // attempting to change password, return legacy response.
+          if (!sessionTokenId) {
+            return {}
+          }
+
+          var response = {
+            uid: sessionToken.uid.toString('hex'),
+            sessionToken: sessionToken.data.toString('hex'),
+            verified: sessionToken.emailVerified,
+            authAt: sessionToken.lastAuthAt()
+          }
+
+          if (wantsKeys) {
+            response.keyFetchToken = keyFetchToken.data.toString('hex')
+          }
+
+          return response
+        }
       }
     },
     {

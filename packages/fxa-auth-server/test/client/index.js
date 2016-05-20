@@ -215,13 +215,12 @@ Client.prototype.sign = function (publicKey, duration, locale, options) {
   )
 }
 
-Client.prototype.changePassword = function (newPassword, headers) {
+Client.prototype.changePassword = function (newPassword, headers, sessionToken) {
   return this.api.passwordChangeStart(this.email, this.authPW, headers)
     .then(
       function (json) {
         this.keyFetchToken = json.keyFetchToken
         this.passwordChangeToken = json.passwordChangeToken
-        return this.keys()
       }.bind(this)
     )
     .then(
@@ -232,12 +231,19 @@ Client.prototype.changePassword = function (newPassword, headers) {
     .then(
       function () {
         this.wrapKb = butil.xorBuffers(this.kB, this.unwrapBKey)
-        return this.api.passwordChangeFinish(this.passwordChangeToken, this.authPW, this.wrapKb, headers)
+        return this.api.passwordChangeFinish(this.passwordChangeToken, this.authPW, this.wrapKb, headers, sessionToken)
       }.bind(this)
     )
     .then(
-      function () {
+      function (res) {
         this._clear()
+
+        // Update to new tokens if needed
+        this.sessionToken = res.sessionToken ? res.sessionToken : this.sessionToken
+        this.authAt = res.authAt ? res.authAt : this.authAt
+        this.keyFetchToken = res.keyFetchToken ? res.keyFetchToken : this.keyFetchToken
+
+        return res
       }.bind(this)
     )
 }
@@ -342,7 +348,7 @@ Client.prototype.destroyAccount = function () {
 }
 
 Client.prototype.forgotPassword = function (lang) {
-  this._clear()
+
   return this.api.passwordForgotSendCode(this.email, this.options, lang)
     .then(
       function (x) {
@@ -390,6 +396,14 @@ Client.prototype.resetPassword = function (newPassword, headers, options) {
           headers,
           options
         )
+          .then(function (response) {
+            // Update to the new verified tokens
+            this.sessionToken = response.sessionToken
+            this.keyFetchToken = response.keyFetchToken
+
+            return response
+          })
+
       }.bind(this)
     )
 }

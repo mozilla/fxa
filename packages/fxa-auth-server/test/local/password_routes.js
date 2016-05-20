@@ -57,7 +57,11 @@ test(
       },
       payload: {
         authPW: crypto.randomBytes(32).toString('hex'),
-        wrapKb: crypto.randomBytes(32).toString('hex')
+        wrapKb: crypto.randomBytes(32).toString('hex'),
+        sessionToken: crypto.randomBytes(32).toString('hex')
+      },
+      query: {
+        keys: 'true'
       },
       app: {}
     }
