@@ -6284,6 +6284,18 @@
       "from": "hkdf@0.0.2",
       "resolved": "https://registry.npmjs.org/hkdf/-/hkdf-0.0.2.tgz"
     },
+    "husky": {
+      "version": "0.11.4",
+      "from": "husky@0.11.4",
+      "resolved": "https://registry.npmjs.org/husky/-/husky-0.11.4.tgz",
+      "dependencies": {
+        "normalize-path": {
+          "version": "1.0.0",
+          "from": "normalize-path@>=1.0.0 <2.0.0",
+          "resolved": "https://registry.npmjs.org/normalize-path/-/normalize-path-1.0.0.tgz"
+        }
+      }
+    },
     "joi": {
       "version": "6.9.1",
       "from": "joi@6.9.1",

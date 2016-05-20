@@ -13,4 +13,5 @@ module.exports = function (grunt) {
         '{,bin/,config/,grunttasks/,lib/**/,scripts/**/,test/**/}*.js'
       ]
   })
+  grunt.registerTask('quicklint', 'lint the modified files', 'newer:eslint')
 }
