@@ -27,7 +27,7 @@ var messageTypes = [
   'verifyLoginEmail'
 ]
 
-var typesWithSupportLinks = [
+var typesContainSupportLinks = [
   'newDeviceLoginEmail',
   'passwordChangedEmail',
   'passwordResetEmail',
@@ -38,7 +38,9 @@ var typesWithSupportLinks = [
   'verifyEmail'
 ]
 
-var typesContainConfirmlessPasswordResetLinks = [
+var typesContainPasswordResetLinks = [
+  'passwordChangedEmail',
+  'passwordResetEmail',
   'passwordResetRequiredEmail',
   'suspiciousLocationEmail'
 ]
@@ -46,6 +48,18 @@ var typesContainConfirmlessPasswordResetLinks = [
 var typesContainPasswordChangeLinks = [
   'newDeviceLoginEmail',
   'verifyLoginEmail'
+]
+
+var typesContainSignInLinks = [
+  'recoveryEmail'
+]
+
+var typesContainAndroidStoreLinks = [
+  'postVerifyEmail'
+]
+
+var typesContainIOSStoreLinks = [
+  'postVerifyEmail'
 ]
 
 function includes(haystack, needle) {
@@ -76,7 +90,7 @@ P.all(
         var supportHtmlLink = new RegExp('<a href="' + config.get('mail').supportUrl + '" style="color: #0095dd; text-decoration: none; font-family: sans-serif;">Mozilla Support</a>')
         var supportTextLink = config.get('mail').supportUrl
 
-        if (includes(typesWithSupportLinks, type)) {
+        if (includes(typesContainSupportLinks, type)) {
           test(
             'test support link is in email template output for ' + type,
             function (t) {
@@ -90,15 +104,15 @@ P.all(
           )
         }
 
-        if (includes(typesContainConfirmlessPasswordResetLinks, type)) {
-          var confirmlessResetPasswordLink = mailer.createPasswordResetLink(message.email, { reset_password_confirm: false })
+        if (includes(typesContainPasswordResetLinks, type)) {
+          var resetPasswordLink = mailer.createPasswordResetLink(message.email)
 
           test(
             'reset password link is in email template output for ' + type,
             function (t) {
               mailer.mailer.sendMail = function (emailConfig) {
-                t.ok(includes(emailConfig.html, confirmlessResetPasswordLink))
-                t.ok(includes(emailConfig.text, confirmlessResetPasswordLink))
+                t.ok(includes(emailConfig.html, resetPasswordLink))
+                t.ok(includes(emailConfig.text, resetPasswordLink))
                 t.end()
               }
               mailer[type](message)
@@ -114,6 +128,53 @@ P.all(
               mailer.mailer.sendMail = function (emailConfig) {
                 t.ok(includes(emailConfig.html, passwordChangeLink))
                 t.ok(includes(emailConfig.text, passwordChangeLink))
+                t.end()
+              }
+              mailer[type](message)
+            }
+          )
+        }
+
+        if (includes(typesContainAndroidStoreLinks, type)) {
+          var androidStoreLink = mailer.androidUrl
+
+          test(
+            'Android store link is in email template output for ' + type,
+            function (t) {
+              mailer.mailer.sendMail = function (emailConfig) {
+                t.ok(includes(emailConfig.html, androidStoreLink))
+                // only the html email contains links to the store
+                t.end()
+              }
+              mailer[type](message)
+            }
+          )
+        }
+
+        if (includes(typesContainIOSStoreLinks, type)) {
+          var iosStoreLink = mailer.iosUrl
+
+          test(
+            'IOS store link is in email template output for ' + type,
+            function (t) {
+              mailer.mailer.sendMail = function (emailConfig) {
+                t.ok(includes(emailConfig.html, iosStoreLink))
+                // only the html email contains links to the store
+                t.end()
+              }
+              mailer[type](message)
+            }
+          )
+        }
+
+        if (includes(typesContainSignInLinks, type)) {
+          var signInLink = mailer.createSignInLink(message.email)
+          test(
+            'sign in link is in email template output for ' + type,
+            function (t) {
+              mailer.mailer.sendMail = function (emailConfig) {
+                t.ok(includes(emailConfig.html, signInLink))
+                t.ok(includes(emailConfig.text, signInLink))
                 t.end()
               }
               mailer[type](message)
