@@ -388,6 +388,8 @@ module.exports = function (log) {
     // details at github.com/mozilla/fxa-auth-mailer/issues/110
     var postVerifyUtmParams = '?utm_source=email&utm_medium=email&utm_campaign=fx-account-verified'
     var link = this.syncUrl + postVerifyUtmParams
+    var anrdoidLink = this.androidUrl + postVerifyUtmParams
+    var iosLink = this.iosUrl + postVerifyUtmParams
 
     return this.send({
       acceptLanguage: message.acceptLanguage,
@@ -399,8 +401,10 @@ module.exports = function (log) {
       template: 'postVerifyEmail',
       templateValues: {
         link: link,
-        androidUrl: this.androidUrl + postVerifyUtmParams,
-        iosUrl: this.iosUrl + postVerifyUtmParams,
+        androidUrl: anrdoidLink,
+        androidLinkAttributes: linkAttributes(anrdoidLink),
+        iosUrl: iosLink,
+        iosLinkAttributes: linkAttributes(iosLink),
         supportUrl: this.supportUrl,
         supportLinkAttributes: this._supportLinkAttributes()
       },
