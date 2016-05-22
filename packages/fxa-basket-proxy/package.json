@@ -4,7 +4,7 @@
   "description": "Firefox Accounts Basket Proxy Server",
   "scripts": {
     "start": "grunt server --node-env=dev",
-    "test": "LOG_LEVEL=critical grunt test --node-env=test"
+    "test": "LOG_LEVEL=info grunt test --node-env=test"
   },
   "repository": {
     "type": "git",
