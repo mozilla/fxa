@@ -62,7 +62,8 @@ function create(log, error, config, routes, db) {
       routes: {
         cors: {
           additionalExposedHeaders: ['Timestamp', 'Accept-Language'],
-          origin: [config.corsOrigin]
+          isOriginExposed: false,
+          origin: config.corsOrigin
         },
         security: {
           hsts: {

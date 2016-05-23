@@ -372,9 +372,9 @@ var conf = convict({
   },
   corsOrigin: {
     doc: 'Value for the Access-Control-Allow-Origin response header',
-    format: String,
+    format: Array,
     env: 'CORS_ORIGIN',
-    default: '*'
+    default: ['*']
   },
   clientAddressDepth: {
     doc: 'location of the client ip address in the remote address chain',
