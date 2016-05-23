@@ -87,10 +87,10 @@ ul.links {
 
 .choose-what-to-sync-row,
 .checkbox-row {
+  text-align: left;
 
   label {
-    display: block;
-    text-align: left;
+    display: inline;
 
     .fxa-checkbox__label {
       // The default is 0px, but -3px sets the label
