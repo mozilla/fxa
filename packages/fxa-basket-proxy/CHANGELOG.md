@@ -1,3 +1,14 @@
+<a name="0.62.0"></a>
+# [0.62.0](https://github.com/mozilla/fxa-basket-proxy/compare/v0.59.0...v0.62.0) (2016-05-23)
+
+
+### chore
+
+* **mozlog:** update to mozlog 2.0.4 ([4bb5a24](https://github.com/mozilla/fxa-basket-proxy/commit/4bb5a24))
+* **travis:** stop running travis on node@0.12 ([8bada17](https://github.com/mozilla/fxa-basket-proxy/commit/8bada17))
+
+
+
 <a name="0.59.0"></a>
 # [0.59.0](https://github.com/mozilla/fxa-basket-proxy/compare/v0.56.1...v0.59.0) (2016-03-29)
 
