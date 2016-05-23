@@ -17,7 +17,7 @@ define(function (require, exports, module) {
 
       if (! flowBeginTime) {
         flowBeginTime = undefined;
-        this.sentryMetrics.captureException(AuthErrors.toError('INVALID_DATA_FLOW_BEGIN_ATTR'));
+        this.logError(AuthErrors.toError('INVALID_DATA_FLOW_BEGIN_ATTR'));
       }
 
       this.metrics.setActivityEventMetadata('flowBeginTime', flowBeginTime);

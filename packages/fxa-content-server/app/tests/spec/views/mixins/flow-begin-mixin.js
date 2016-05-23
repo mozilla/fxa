@@ -30,9 +30,7 @@ define(function (require, exports, module) {
             return 'foo';
           })
         };
-        flowBeginMixin.sentryMetrics = {
-          captureException: sinon.spy()
-        };
+        flowBeginMixin.logError = sinon.spy();
         $('body').attr('data-flow-begin', '42');
         flowBeginMixin.afterRender();
       });
@@ -60,8 +58,8 @@ define(function (require, exports, module) {
         assert.strictEqual(args[1], 42);
       });
 
-      it('did not call sentryMetrics.captureException', function () {
-        assert.strictEqual(flowBeginMixin.sentryMetrics.captureException.callCount, 0);
+      it('did not call view.logError', function () {
+        assert.strictEqual(flowBeginMixin.logError.callCount, 0);
       });
     });
 
@@ -76,9 +74,7 @@ define(function (require, exports, module) {
             return 'wibble';
           })
         };
-        flowBeginMixin.sentryMetrics = {
-          captureException: sinon.spy()
-        };
+        flowBeginMixin.logError = sinon.spy();
         $('body').attr('data-flow-begin', 'bar');
         flowBeginMixin.afterRender();
       });
@@ -106,9 +102,9 @@ define(function (require, exports, module) {
         assert.isUndefined(args[1]);
       });
 
-      it('called sentryMetrics.captureException correctly', function () {
-        assert.strictEqual(flowBeginMixin.sentryMetrics.captureException.callCount, 1);
-        var args = flowBeginMixin.sentryMetrics.captureException.args[0];
+      it('called view.logError correctly', function () {
+        assert.strictEqual(flowBeginMixin.logError.callCount, 1);
+        var args = flowBeginMixin.logError.args[0];
         assert.lengthOf(args, 1);
         assert.instanceOf(args[0], Error);
         assert.equal(args[0].message, 'Invalid data-flow-begin attribute');

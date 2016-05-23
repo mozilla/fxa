@@ -61,7 +61,11 @@ define(function (require, exports, module) {
       var logger = new Logger(win);
       logger.error(error);
 
+      // Ensure the message is interpolated before sending to
+      // sentry and metrics.
+      error.message = this.getErrorMessage(error);
       sentryMetrics.captureException(error);
+
       if (metrics) {
         metrics.logError(error);
       }
@@ -107,6 +111,20 @@ define(function (require, exports, module) {
           var errorPageUrl = self.getErrorPageUrl(error, translator);
           win.location.href = errorPageUrl;
         });
+    },
+
+    /**
+     * Get the error message, performing any interpolation.
+     *
+     * @param {string} err - an error object
+     * @return {string} interpolated error text.
+     */
+    getErrorMessage: function (error) {
+      if (error && error.errorModule) {
+        return error.errorModule.toInterpolatedMessage(error);
+      }
+
+      return error.message;
     }
   };
 });

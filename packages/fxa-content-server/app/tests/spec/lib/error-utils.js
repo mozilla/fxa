@@ -66,8 +66,11 @@ define(function (require, exports, module) {
     });
 
     describe('captureError', function () {
+      var origMessage;
+
       beforeEach(function () {
-        err = AuthErrors.toError('UNEXPECTED_ERROR');
+        err = AuthErrors.toMissingParameterError('email');
+        origMessage = err.message;
         return ErrorUtils.captureError(err, sentry, metrics, windowMock);
       });
 
@@ -78,6 +81,38 @@ define(function (require, exports, module) {
 
       it('writes an error message to the console', function () {
         assert.isTrue(windowMock.console.error.called);
+      });
+
+      it('interpolates errors before sending to Sentry', function () {
+        assert.notEqual(origMessage, err.message);
+        assert.equal(err.message, 'Missing parameter: email');
+      });
+    });
+
+    describe('getErrorMessage', function () {
+
+      describe('from a module that can interpolate', function () {
+        var err;
+
+        before(function () {
+          err = AuthErrors.toMissingParameterError('email');
+        });
+
+        it('interpolates the message', function () {
+          assert.equal(ErrorUtils.getErrorMessage(err), 'Missing parameter: email');
+        });
+      });
+
+      describe('from a module that cannot interpolate', function () {
+        var err;
+
+        before(function () {
+          err = new Error('uh oh');
+        });
+
+        it('does not interpolate the message', function () {
+          assert.equal(ErrorUtils.getErrorMessage(err), 'uh oh');
+        });
       });
     });
 
