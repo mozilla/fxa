@@ -33,6 +33,7 @@ define([
     '/cannot_create_account': { statusCode: 200 },
     '/choose_what_to_sync': { statusCode: 200 },
     '/complete_reset_password': { statusCode: 200 },
+    '/complete_signin': { statusCode: 200 },
     '/complete_unlock_account': { statusCode: 200 },
     '/config': {
       headerAccept: 'application/json',

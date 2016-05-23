@@ -67,6 +67,7 @@ define(function (require, exports, module) {
       'choose_what_to_sync(/)': createViewHandler(ChooseWhatToSyncView),
       'clear(/)': createViewHandler(ClearStorageView),
       'complete_reset_password(/)': createViewHandler(CompleteResetPasswordView),
+      'complete_signin(/)': createViewHandler(CompleteSignUpView),
       'complete_unlock_account(/)': createViewHandler(CompleteAccountUnlockView),
       'confirm(/)': createViewHandler(ConfirmView),
       'confirm_account_unlock(/)': createViewHandler(ConfirmAccountUnlockView),

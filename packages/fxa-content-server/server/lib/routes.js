@@ -101,6 +101,7 @@ module.exports = function (config, i18n) {
       '/choose_what_to_sync',
       '/clear',
       '/complete_reset_password',
+      '/complete_signin',
       '/complete_unlock_account',
       '/confirm',
       '/confirm_account_unlock',
