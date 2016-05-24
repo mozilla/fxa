@@ -65,7 +65,7 @@ test(
     t.ok(result.flow_time > 0, 'result.flow_time is greater than zero')
     t.ok(result.flow_time < time, 'result.flow_time is less than the current time')
     t.equal(result.context, 'mock context', 'result.context is correct')
-    t.equal(result.entrypoint, 'mock entry point', 'result.entry point is correct')
+    t.equal(result.entrypoint, 'mock entry point', 'result.entrypoint is correct')
     t.equal(result.migration, 'mock migration', 'result.migration is correct')
     t.equal(result.service, 'mock service', 'result.service is correct')
     t.equal(result.utm_campaign, 'mock utm_campaign', 'result.utm_campaign is correct')

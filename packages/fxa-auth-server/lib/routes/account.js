@@ -190,11 +190,15 @@ module.exports = function (
               })
 
               if (account.emailVerified) {
-                log.event('verified', { email: account.email, uid: account.uid, locale: account.locale })
+                log.event('verified', request, {
+                  email: account.email,
+                  uid: account.uid,
+                  locale: account.locale
+                })
               }
 
               if (service === 'sync') {
-                log.event('login', {
+                log.event('login', request, {
                   service: 'sync',
                   uid: account.uid,
                   email: account.email,
@@ -435,12 +439,10 @@ module.exports = function (
 
         function emitSyncLoginEvent () {
           if (service === 'sync' && request.payload.reason === 'signin') {
-            // The response doesn't have to wait for this,
-            // so we don't return the promise.
-            db.sessions(emailRecord.uid)
+            return db.sessions(emailRecord.uid)
               .then(
                 function (sessions) {
-                  log.event('login', {
+                  log.event('login', request, {
                     service: 'sync',
                     uid: emailRecord.uid,
                     email: emailRecord.email,
@@ -1107,7 +1109,11 @@ module.exports = function (
                 throw error.invalidVerificationCode()
               }
               log.timing('account.verified', Date.now() - account.createdAt)
-              log.event('verified', { email: account.email, uid: account.uid, locale: account.locale })
+              log.event('verified', request, {
+                email: account.email,
+                uid: account.uid,
+                locale: account.locale
+              })
               log.increment('account.verified')
 
               // send a push notification to all devices that the account changed
@@ -1299,13 +1305,10 @@ module.exports = function (
                 log.activityEvent('account.reset', request, {
                   uid: account.uid.toString('hex')
                 })
-                log.event(
-                  'reset',
-                  {
-                    uid: account.uid.toString('hex') + '@' + config.domain,
-                    generation: account.verifierSetAt
-                  }
-                )
+                log.event('reset', request, {
+                  uid: account.uid.toString('hex') + '@' + config.domain,
+                  generation: account.verifierSetAt
+                })
                 return customs.reset(account.email)
               }
             )
@@ -1422,7 +1425,9 @@ module.exports = function (
                 )
                 .then(
                   function () {
-                    log.event('delete', { uid: emailRecord.uid.toString('hex') + '@' + config.domain })
+                    log.event('delete', request, {
+                      uid: emailRecord.uid.toString('hex') + '@' + config.domain
+                    })
                     return {}
                   }
                 )
