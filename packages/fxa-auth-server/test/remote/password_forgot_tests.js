@@ -367,18 +367,21 @@ TestServer.start(config)
       var email = server.uniqueEmail()
       var newPassword = 'foo'
       var client
-      return Client.createAndVerify(config.publicUrl, email, 'bar', server.mailbox, {
-        device: {
-          name: 'baz',
-          type: 'mobile',
-          pushCallback: 'https://example.com/qux',
-          pushPublicKey: base64url(Buffer.concat([new Buffer('\x04'), crypto.randomBytes(64)])),
-          pushAuthKey: base64url(crypto.randomBytes(16))
-        }
-      })
+      return Client.createAndVerify(config.publicUrl, email, 'bar', server.mailbox)
         .then(
           function (c) {
             client = c
+            return client.updateDevice({
+              name: 'baz',
+              type: 'mobile',
+              pushCallback: 'https://example.com/qux',
+              pushPublicKey: base64url(Buffer.concat([new Buffer('\x04'), crypto.randomBytes(64)])),
+              pushAuthKey: base64url(crypto.randomBytes(16))
+            })
+          }
+        )
+        .then(
+          function () {
             return client.devices()
           }
         )
