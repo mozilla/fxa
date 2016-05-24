@@ -13,121 +13,6 @@ var P = require('../../lib/promise')
 TestServer.start(config)
 .then(function main(server) {
   test(
-    'device registration during account creation',
-    function (t) {
-      var email = server.uniqueEmail()
-      var password = 'test password'
-      var deviceInfo = {
-        name: 'test device',
-        type: 'desktop',
-        pushCallback: 'https://foo/bar',
-        pushPublicKey: base64url(Buffer.concat([new Buffer('\x04'), crypto.randomBytes(64)])),
-        pushAuthKey: base64url(crypto.randomBytes(16))
-      }
-      return Client.create(config.publicUrl, email, password, { device: deviceInfo })
-      .then(
-        function (client) {
-          t.ok(client.authAt, 'authAt was set')
-          t.ok(client.device.id, 'device.id was set')
-          t.ok(client.device.createdAt > 0, 'device.createdAt was set')
-          t.equal(client.device.name, deviceInfo.name, 'device.name is correct')
-          t.equal(client.device.type, deviceInfo.type, 'device.type is correct')
-          t.equal(client.device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
-          t.equal(client.device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
-          t.equal(client.device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
-          return client.devices()
-            .then(
-              function (devices) {
-                t.equal(devices.length, 1, 'devices returned one item')
-                t.equal(devices[0].isCurrentDevice, true, 'devices returned true isCurrentDevice')
-                t.ok(devices[0].lastAccessTime > 0, 'devices returned positive lastAccessTime')
-                t.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
-                t.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
-                t.equal(devices[0].pushCallback, deviceInfo.pushCallback, 'devices returned correct pushCallback')
-                t.equal(devices[0].pushPublicKey, deviceInfo.pushPublicKey, 'devices returned correct pushPublicKey')
-                t.equal(devices[0].pushAuthKey, deviceInfo.pushAuthKey, 'devices returned correct pushAuthKey')
-                return client.updateDevice({
-                  id: client.device.id,
-                  name: 'new name'
-                })
-              }
-            )
-            .then(
-              function () {
-                return client.devices()
-              }
-            )
-            .then(
-              function (devices) {
-                t.equal(devices.length, 1, 'devices returned one item')
-                t.equal(devices[0].name, 'new name', 'devices returned correct name')
-                t.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
-                t.equal(devices[0].pushCallback, deviceInfo.pushCallback, 'devices returned correct pushCallback')
-                t.equal(devices[0].pushPublicKey, deviceInfo.pushPublicKey, 'devices returned correct pushPublicKey')
-                t.equal(devices[0].pushAuthKey, deviceInfo.pushAuthKey, 'devices returned correct pushAuthKey')
-                return client.destroyDevice(devices[0].id)
-              }
-            )
-            .then(
-              function () {
-                return client.devices()
-              }
-            )
-            .then(
-              function (devices) {
-                t.equal(devices.length, 0, 'devices returned no items')
-              }
-            )
-        }
-      )
-    }
-  )
-
-  test(
-    'device registration during account login',
-    function (t) {
-      var email = server.uniqueEmail()
-      var password = 'test password'
-      var deviceInfo = {
-        name: 'a different device name',
-        type: 'mobile',
-        pushCallback: '',
-        pushPublicKey: '',
-        pushAuthKey: ''
-      }
-      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
-        .then(
-          function () {
-            return Client.login(config.publicUrl, email, password, { device: deviceInfo })
-          }
-        )
-        .then(
-          function (client) {
-            t.ok(client.device.id, 'device.id was set')
-            t.ok(client.device.createdAt > 0, 'device.createdAt was set')
-            t.equal(client.device.name, deviceInfo.name, 'device.name is correct')
-            t.equal(client.device.type, deviceInfo.type, 'device.type is correct')
-            t.equal(client.device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
-            t.equal(client.device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
-            t.equal(client.device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
-            return client.devices()
-              .then(
-                function (devices) {
-                  t.equal(devices.length, 1, 'devices returned one item')
-                  t.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
-                  t.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
-                  t.equal(devices[0].pushCallback, deviceInfo.pushCallback, 'devices returned correct pushCallback')
-                  t.equal(devices[0].pushPublicKey, '', 'devices returned correct pushPublicKey')
-                  t.equal(devices[0].pushAuthKey, '', 'devices returned correct pushAuthKey')
-                  return client.destroyDevice(devices[0].id)
-                }
-              )
-          }
-        )
-    }
-  )
-
-  test(
     'device registration after account creation',
     function (t) {
       var email = server.uniqueEmail()
@@ -331,7 +216,12 @@ TestServer.start(config)
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function (client) {
-            return Client.login(config.publicUrl, email, password, { device: deviceInfo[0] })
+            return Client.login(config.publicUrl, email, password)
+              .then(
+                function (secondClient) {
+                  return secondClient.updateDevice(deviceInfo[0])
+                }
+              )
               .then(
                 function () {
                   return client.devices()
@@ -392,10 +282,15 @@ TestServer.start(config)
         pushPublicKey: base64url(Buffer.concat([new Buffer('\x04'), crypto.randomBytes(64)])),
         pushAuthKey: base64url(crypto.randomBytes(16))
       }
-      return Client.create(config.publicUrl, email, password, { device: deviceInfo })
+      return Client.create(config.publicUrl, email, password)
       .then(
         function (client) {
-          return client.devices()
+          return client.updateDevice(deviceInfo)
+            .then(
+              function () {
+                return client.devices()
+              }
+            )
             .then(
               function (devices) {
                 t.equal(devices[0].pushCallback, deviceInfo.pushCallback, 'devices returned correct pushCallback')
@@ -435,12 +330,16 @@ TestServer.start(config)
         type: 'mobile'
       }
       return Client.create(config.publicUrl, email, password, {
-        createdAt: '0',
-        device: deviceInfo
+        createdAt: '0'
       })
       .then(
         function (client) {
-          return client.devices()
+          return client.updateDevice(deviceInfo)
+            .then(
+              function () {
+                return client.devices()
+              }
+            )
             .then(
               function (devices) {
                 t.equal(devices.length, 1, 'devices returned one item')
@@ -465,12 +364,16 @@ TestServer.start(config)
         type: 'mobile'
       }
       return Client.create(config.publicUrl, email, password, {
-        createdAt: '-1',
-        device: deviceInfo
+        createdAt: '-1'
       })
       .then(
         function (client) {
-          return client.devices()
+          return client.updateDevice(deviceInfo)
+            .then(
+              function () {
+                return client.devices()
+              }
+            )
             .then(
               function (devices) {
                 t.equal(devices.length, 1, 'devices returned one item')
@@ -496,12 +399,16 @@ TestServer.start(config)
       }
       var theFuture = Date.now() + 10000
       return Client.create(config.publicUrl, email, password, {
-        createdAt: '' + theFuture,
-        device: deviceInfo
+        createdAt: '' + theFuture
       })
       .then(
         function (client) {
-          return client.devices()
+          return client.updateDevice(deviceInfo)
+            .then(
+              function () {
+                return client.devices()
+              }
+            )
             .then(
               function (devices) {
                 t.equal(devices.length, 1, 'devices returned one item')

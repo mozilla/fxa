@@ -169,7 +169,6 @@ ___Parameters___
 * redirectTo - (optional) a URL that the client should be redirected to after handling the request
 * resume - (optional) opaque url-encoded string that will be included in the verification link as a querystring parameter, useful for continuing an OAuth flow for example.
 * preVerifyToken - (optional) see below
-* device - (optional, experimental, **DO NOT USE**) object containing fields for device registration
 
 ### Request
 
@@ -322,7 +321,6 @@ ___Parameters___
 * authPW - the PBKDF2/HKDF stretched password as a hex string
 * service - (optional) opaque alphanumeric token to be included in verification links
 * reason - (optional) alphanumeric string indicating the reason for establishing a new session; may be "login" (the default) or "reconnect"
-* device - (optional, experimental, **DO NOT USE**) object containing fields for device registration
 
 ### Request
 
@@ -1507,18 +1505,18 @@ There are no standard failure modes for this endpoint.
 * `POST /get_random_bytes`
 * `POST /account/create`
 * `POST /account/login?keys=true`
+* `POST /account/device`
 * `GET /recovery_email/status`
 * `POST /recovery_email/verify_code`
 * `GET /account/keys`
 * `POST /certificate/sign`
-* `POST /account/device`
 
 ## Attach a new device
 
 * `POST /account/login?keys=true`
+* `POST /account/device`
 * `GET /account/keys`
 * `POST /certificate/sign`
-* `POST /account/device`
 
 ## Forgot password
 

@@ -64,14 +64,6 @@ module.exports = function (
             redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
             resume: isA.string().max(2048).optional(),
             preVerifyToken: isA.string().max(2048).regex(BASE64_JWT).optional(),
-            device: isA.object({
-              name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE).required(),
-              type: isA.string().max(16).required(),
-              pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
-              pushPublicKey: isA.string().max(88).regex(URLSAFEBASE64).optional().allow(''),
-              pushAuthKey: isA.string().max(24).regex(URLSAFEBASE64).optional().allow('')
-            }).and('pushPublicKey', 'pushAuthKey')
-            .optional(),
             metricsContext: metricsContext.schema
           }
         },
@@ -80,17 +72,7 @@ module.exports = function (
             uid: isA.string().regex(HEX_STRING).required(),
             sessionToken: isA.string().regex(HEX_STRING).required(),
             keyFetchToken: isA.string().regex(HEX_STRING).optional(),
-            authAt: isA.number().integer(),
-            device: isA.object({
-              id: isA.string().length(32).regex(HEX_STRING).required(),
-              createdAt: isA.number().positive().required(),
-              name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE).required(),
-              type: isA.string().max(16).required(),
-              pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
-              pushPublicKey: isA.string().max(88).regex(URLSAFEBASE64).optional().allow(''),
-              pushAuthKey: isA.string().max(24).regex(URLSAFEBASE64).optional().allow('')
-            }).and('pushPublicKey', 'pushAuthKey')
-            .optional()
+            authAt: isA.number().integer()
           }
         }
       },
@@ -105,7 +87,7 @@ module.exports = function (
         var locale = request.app.acceptLanguage
         var userAgentString = request.headers['user-agent']
         var service = form.service || query.service
-        var preVerified, password, verifyHash, account, sessionToken, device
+        var preVerified, password, verifyHash, account, sessionToken
 
         customs.check(request.app.clientAddress, email, 'accountCreate')
           .then(db.emailRecord.bind(db, email))
@@ -115,7 +97,6 @@ module.exports = function (
           .then(createAccount)
           .then(createSessionToken)
           .then(sendVerifyCode)
-          .then(createDevice)
           .then(createResponse)
           .done(reply, reply)
 
@@ -246,31 +227,11 @@ module.exports = function (
           }
         }
 
-        function createDevice () {
-          if (! form.device) {
-            return P.resolve()
-          }
-
-          return db.createDevice(account.uid, sessionToken.tokenId, form.device)
-            .then(
-              function (result) {
-                device = result
-              },
-              function (err) {
-                log.error({ op: 'account.create.device', err: err })
-              }
-            )
-        }
-
         function createResponse () {
           var response = {
             uid: account.uid.toString('hex'),
             sessionToken: sessionToken.data.toString('hex'),
             authAt: sessionToken.lastAuthAt()
-          }
-
-          if (device) {
-            response.device = butil.unbuffer(device)
           }
 
           if (query.keys !== 'true') {
@@ -309,15 +270,6 @@ module.exports = function (
             redirectTo: isA.string().uri().optional(),
             resume: isA.string().optional(),
             reason: isA.string().max(16).optional(),
-            device: isA.object({
-              id: isA.string().length(32).regex(HEX_STRING).optional(),
-              name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE).optional(),
-              type: isA.string().max(16).optional(),
-              pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
-              pushPublicKey: isA.string().max(88).regex(URLSAFEBASE64).optional().allow(''),
-              pushAuthKey: isA.string().max(24).regex(URLSAFEBASE64).optional().allow('')
-            }).and('pushPublicKey', 'pushAuthKey')
-            .optional(),
             metricsContext: metricsContext.schema
           }
         },
@@ -329,17 +281,7 @@ module.exports = function (
             verificationMethod: isA.string().optional(),
             verificationReason: isA.string().optional(),
             verified: isA.boolean().required(),
-            authAt: isA.number().integer(),
-            device: isA.object({
-              id: isA.string().length(32).regex(HEX_STRING).required(),
-              createdAt: isA.number().positive().optional(),
-              name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE).optional(),
-              type: isA.string().max(16).optional(),
-              pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
-              pushPublicKey: isA.string().max(88).regex(URLSAFEBASE64).optional().allow(''),
-              pushAuthKey: isA.string().max(24).regex(URLSAFEBASE64).optional().allow('')
-            }).and('pushPublicKey', 'pushAuthKey')
-            .optional()
+            authAt: isA.number().integer()
           }
         }
       },
@@ -350,12 +292,11 @@ module.exports = function (
         var email = form.email
         var authPW = Buffer(form.authPW, 'hex')
         var service = request.payload.service || request.query.service
-        var emailRecord, sessionToken, device
+        var emailRecord, sessionToken
 
         customs.check(request.app.clientAddress, email, 'accountLogin')
           .then(readEmailRecord)
           .then(createSessionToken)
-          .then(upsertDevice)
           .then(emitSyncLoginEvent)
           .then(sendNewDeviceLoginNotification)
           .then(createResponse)
@@ -419,27 +360,6 @@ module.exports = function (
             )
         }
 
-        function upsertDevice () {
-          if (! form.device) {
-            return P.resolve()
-          }
-
-          var operation = form.device.id ? 'updateDevice' : 'createDevice'
-
-          return db[operation](emailRecord.uid, sessionToken.tokenId, form.device)
-            .then(
-              function (result) {
-                device = result
-                process.nextTick(function() {
-                  push.notifyDeviceConnected(emailRecord.uid, device.name, device.id.toString('hex'))
-                })
-              },
-              function (err) {
-                log.error({ op: 'account.login.device', err: err })
-              }
-            )
-        }
-
         function emitSyncLoginEvent () {
           if (service === 'sync' && request.payload.reason === 'signin') {
             return db.sessions(emailRecord.uid)
@@ -477,10 +397,6 @@ module.exports = function (
             sessionToken: sessionToken.data.toString('hex'),
             verified: sessionToken.emailVerified,
             authAt: sessionToken.lastAuthAt()
-          }
-
-          if (device) {
-            response.device = butil.unbuffer(device)
           }
 
           if (! requestHelper.wantsKeys(request)) {
