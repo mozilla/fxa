@@ -565,3 +565,111 @@ test(
     })
   }
 )
+
+test(
+  'device creation emits SNS event',
+  function (t) {
+    var uid = uuid.v4('binary')
+    var deviceId = crypto.randomBytes(16).toString('hex')
+    var mockLog = mocks.mockLog({
+      event: sinon.spy()
+    })
+    var timestamp = Date.now()
+    var mockDB = {
+      createDevice: sinon.spy(function (uid, sessionTokenId, deviceInfo) {
+        deviceInfo.createdAt = timestamp
+        deviceInfo.id = deviceId
+        return P.resolve(deviceInfo)
+      })
+    }
+    var mockRequest = {
+      auth: {
+        credentials: {
+          uid: uid.toString('hex'),
+        }
+      },
+      payload: {
+        name: 'new device name',
+        type: 'phone',
+      }
+    }
+    var accountRoutes = makeRoutes({
+      db: mockDB,
+      log: mockLog
+    })
+
+    return new P(function(resolve) {
+      getRoute(accountRoutes, '/account/device')
+        .handler(mockRequest, function(response) {
+          resolve(response)
+        })
+    })
+    .then(
+      function(response) {
+        t.equal(mockLog.event.callCount, 1)
+        t.equal(mockLog.event.args[0].length, 3)
+        t.equal(mockLog.event.args[0][0], 'device:create')
+        t.deepEqual(mockLog.event.args[0][2], {
+          uid: uid.toString('hex'),
+          id: deviceId,
+          type: 'phone',
+          timestamp: timestamp
+        })
+      },
+      function(err) {
+        t.fail('should have succeeded', err)
+      }
+    )
+  }
+)
+
+test(
+  'device deletion emits SNS event',
+  function (t) {
+    var uid = uuid.v4('binary')
+    var deviceId = crypto.randomBytes(16).toString('hex')
+    var mockLog = mocks.mockLog({
+      event: sinon.spy()
+    })
+    var mockDB = {
+      deleteDevice: sinon.spy(function (uid, sessionTokenId) {
+        return P.resolve(true)
+      })
+    }
+    var mockRequest = {
+      auth: {
+        credentials: {
+          uid: uid.toString('hex'),
+        }
+      },
+      payload: {
+        id: deviceId
+      }
+    }
+    var accountRoutes = makeRoutes({
+      db: mockDB,
+      log: mockLog
+    })
+
+    return new P(function(resolve) {
+      getRoute(accountRoutes, '/account/device/destroy')
+        .handler(mockRequest, function(response) {
+          resolve(response)
+        })
+    })
+    .then(
+      function(response) {
+        t.equal(mockLog.event.callCount, 1)
+        t.equal(mockLog.event.args[0].length, 3)
+        t.equal(mockLog.event.args[0][0], 'device:delete')
+        var details = mockLog.event.args[0][2]
+        t.equal(details.uid, uid.toString('hex'))
+        t.equal(details.id, deviceId)
+        t.ok(Date.now() - details.timestamp < 100)
+      },
+      function(err) {
+        t.fail('should have succeeded', err)
+      }
+    )
+  }
+)
