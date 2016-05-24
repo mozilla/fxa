@@ -128,12 +128,12 @@ var conf = convict({
     androidUrl: {
       doc: 'url to Android product page',
       format: String,
-      default: 'https://www.mozilla.org/firefox/android/'
+      default: 'https://app.adjust.com/2uo1qc?campaign=fxa-conf-email&adgroup=android&creative=button'
     },
     iosUrl: {
       doc: 'url to IOS product page',
       format: String,
-      default: 'https://www.mozilla.org/firefox/ios/'
+      default: 'https://app.adjust.com/2uo1qc?campaign=fxa-conf-email&adgroup=ios&creative=button&fallback=https%3A%2F%2Fitunes.apple.com%2Fapp%2Fapple-store%2Fid989804926%3Fpt%3D373246%26ct%3Dadjust_tracker%26mt%3D8'
     },
     signInUrl: {
       doc: 'Deprecated. uses contentServer.url',
