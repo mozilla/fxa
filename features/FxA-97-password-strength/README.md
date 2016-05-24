@@ -10,7 +10,7 @@ Users possess varying levels of understanding of what they are signing up for, a
 
 [comment]: # (This is where you talk about what you assume to be true. This could include assumptions around what users are doing, errors, gaps, etc., based on anecdotes, opinions, testing, or data.)
 
-Since account registration has appeared during First Run in an iframe, we are receiving are more users, but with less of an understanding of the significance of making an account. Since the Choose What To Sync screen has launched, we've noticed that First Run users are twice as likely to abandon during sign-up than users from other entry points.
+Since account registration has appeared during First Run in an iframe, we are receiving more users, but with less of an understanding of the significance of making an account. Since the Choose What To Sync screen has launched, we've noticed that First Run users are twice as likely to abandon during sign-up than users from other entry points.
 
 ## Outcomes
 
