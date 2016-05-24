@@ -1,8 +1,13 @@
 {
   "exceptions": [
+    // moment
+    "https://nodesecurity.io/advisories/55",
+
+    // uglify-js
     "https://nodesecurity.io/advisories/39",
     "https://nodesecurity.io/advisories/48",
 
+    // hapi
     "https://nodesecurity.io/advisories/45",
     "https://nodesecurity.io/advisories/63",
     "https://nodesecurity.io/advisories/65"
