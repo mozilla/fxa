@@ -1,3 +1,9 @@
+<a name="1.62.4"></a>
+## [1.62.4](https://github.com/mozilla/fxa-auth-server/compare/v1.62.3...v1.62.4) (2016-05-24)
+
+
+
+
 <a name="1.62.3"></a>
 ## [1.62.3](https://github.com/mozilla/fxa-auth-server/compare/v1.62.2...v1.62.3) (2016-05-24)
 
