@@ -1,3 +1,13 @@
+<a name="1.62.3"></a>
+## [1.62.3](https://github.com/mozilla/fxa-auth-server/compare/v1.62.2...v1.62.3) (2016-05-24)
+
+
+### chore
+
+* **shrinkwrap:** update auth-mailer/content-server-l10n on v1.62.2 ([3e1027a](https://github.com/mozilla/fxa-auth-server/commit/3e1027a))
+
+
+
 <a name="1.62.2"></a>
 ## [1.62.2](https://github.com/mozilla/fxa-auth-server/compare/v1.62.1...v1.62.2) (2016-05-20)
 
