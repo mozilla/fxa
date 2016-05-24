@@ -896,17 +896,21 @@ module.exports = function (
         var sessionToken = request.auth.credentials
         var uid = sessionToken.uid
         var id = request.payload.id
-        db.deleteDevice(uid, id).then(
-          function (result) {
-            log.event('device:delete', request, {
-              uid: uid,
-              id: id,
-              timestamp: Date.now()
-            })
-            reply(result)
-          },
-          reply
-        )
+        push.notifyDeviceDisconnected(uid, id).then(deleteDbDevice, deleteDbDevice)
+
+        function deleteDbDevice() {
+          db.deleteDevice(uid, id).then(
+            function (result) {
+              log.event('device:delete', request, {
+                uid: uid,
+                id: id,
+                timestamp: Date.now()
+              })
+              reply(result)
+            },
+            reply
+          )
+        }
       }
     },
     {

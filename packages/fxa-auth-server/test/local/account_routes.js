@@ -296,9 +296,13 @@ test(
       })
     }
     var mockLog = mocks.spyLog()
+    var mockPush = {
+      notifyDeviceConnected: sinon.spy(function () {})
+    }
     var accountRoutes = makeRoutes({
       db: mockDB,
-      log: mockLog
+      log: mockLog,
+      push: mockPush
     })
 
     return new P(function(resolve) {
@@ -364,6 +368,52 @@ test(
       t.equal(mockPush.notifyDeviceConnected.firstCall.args[0], mockRequest.auth.credentials.uid)
       t.equal(mockPush.notifyDeviceConnected.firstCall.args[1], device.name)
       t.equal(mockPush.notifyDeviceConnected.firstCall.args[2], device.id.toString('hex'))
+    })
+  }
+)
+
+test(
+  'device should be notified when it is remotely disconnected',
+  function (t) {
+    var deviceId = 'deviceId'
+    var uid = uuid.v4('binary')
+    var mockRequest = {
+      auth: {
+        credentials: {
+          uid: uid.toString('hex')
+        }
+      },
+      payload: {
+        id: deviceId
+      }
+    }
+    var mockDB = {
+      deleteDevice: sinon.spy(function () {
+        return P.resolve({})
+      })
+    }
+    var mockPush = {
+      notifyDeviceDisconnected: sinon.spy(function () {
+        return P.resolve(true)
+      })
+    }
+    var accountRoutes = makeRoutes({
+      db: mockDB,
+      push: mockPush
+    })
+
+    return new P(function(resolve) {
+      getRoute(accountRoutes, '/account/device/destroy')
+        .handler(mockRequest, function(response) {
+          resolve(response)
+        })
+    })
+    .then(function(response) {
+      t.equal(mockDB.deleteDevice.callCount, 1)
+
+      t.equal(mockPush.notifyDeviceDisconnected.callCount, 1)
+      t.equal(mockPush.notifyDeviceDisconnected.firstCall.args[0], mockRequest.auth.credentials.uid)
+      t.equal(mockPush.notifyDeviceDisconnected.firstCall.args[1], deviceId)
     })
   }
 )
@@ -580,6 +630,9 @@ test(
         deviceInfo.createdAt = timestamp
         deviceInfo.id = deviceId
         return P.resolve(deviceInfo)
+      }),
+      devices: sinon.spy(function () {
+        return P.resolve([])
       })
     }
     var mockRequest = {
@@ -634,7 +687,14 @@ test(
     var mockDB = {
       deleteDevice: sinon.spy(function (uid, sessionTokenId) {
         return P.resolve(true)
-      })
+      }),
+      devices: sinon.spy(function () {
+        return P.resolve([{
+          id: deviceId,
+          name: 'My Phone',
+          type: 'mobile'
+        }])
+      }),
     }
     var mockRequest = {
       auth: {
