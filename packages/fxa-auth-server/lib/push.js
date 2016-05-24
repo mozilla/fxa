@@ -10,6 +10,11 @@ var ERR_DATA_BUT_NO_KEYS = 'Data payload present but missing key(s)'
 
 var LOG_OP_PUSH_TO_DEVICES = 'push.pushToDevices'
 
+var PUSH_PAYLOAD_SCHEMA_VERSION = 1
+var PUSH_COMMANDS = {
+  DEVICE_CONNECTED: 'fxaccounts:device_connected'
+}
+
 var reasonToEvents = {
   accountVerify: {
     send: 'push.account_verify.send',
@@ -34,6 +39,14 @@ var reasonToEvents = {
     failed: 'push.password_change.failed',
     noCallback: 'push.password_change.no_push_callback',
     noKeys: 'push.password_change.data_but_no_keys'
+  },
+  deviceConnected: {
+    send: 'push.device_connected.send',
+    success: 'push.device_connected.success',
+    resetSettings: 'push.device_connected.reset_settings',
+    failed: 'push.device_connected.failed',
+    noCallback: 'push.device_connected.no_push_callback',
+    noKeys: 'push.device_connected.data_but_no_keys'
   }
 }
 
@@ -80,6 +93,25 @@ module.exports = function (log, db) {
     notifyUpdate: function notifyUpdate(uid, reason) {
       reason = reason || 'accountVerify'
       return this.pushToDevices(uid, reason)
+    },
+
+    /**
+     *  Notifies all devices (except the one who joined) that a new device joined the account
+     *
+     * @param uid
+     * @param deviceName
+     * @param currentDeviceId
+     * @promise
+     */
+    notifyDeviceConnected: function notifyDeviceConnected(uid, deviceName, currentDeviceId) {
+      var data = new Buffer(JSON.stringify({
+        version: PUSH_PAYLOAD_SCHEMA_VERSION,
+        command: PUSH_COMMANDS.DEVICE_CONNECTED,
+        data: {
+          deviceName: deviceName
+        }
+      }))
+      return this.pushToDevices(uid, 'deviceConnected', data, [currentDeviceId])
     },
 
     /**

@@ -300,6 +300,7 @@ test(
       db: mockDB,
       log: mockLog
     })
+
     return new P(function(resolve) {
       getRoute(accountRoutes, '/account/device')
         .handler(mockRequest, function(response) {
@@ -315,6 +316,54 @@ test(
       t.equal(mockLog.increment.getCall(2).args[0], 'device.update.type')
       t.equal(mockLog.increment.getCall(3).args[0], 'device.update.pushCallback')
       t.equal(mockLog.increment.getCall(4).args[0], 'device.update.pushPublicKey')
+    })
+  }
+)
+
+test(
+  'device should be notified when another device is registered',
+  function (t) {
+    var device = {
+      name: 'My Phone',
+      type: 'mobile',
+      pushCallback: 'https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef'
+    }
+    var uid = uuid.v4('binary')
+    var mockRequest = {
+      auth: {
+        credentials: {
+          uid: uid.toString('hex')
+        }
+      },
+      payload: device
+    }
+    var mockDB = {
+      createDevice: sinon.spy(function () {
+        device.id = crypto.randomBytes(16)
+        return P.resolve(device)
+      })
+    }
+    var mockPush = {
+      notifyDeviceConnected: sinon.spy(function () {})
+    }
+    var accountRoutes = makeRoutes({
+      db: mockDB,
+      push: mockPush
+    })
+
+    return new P(function(resolve) {
+      getRoute(accountRoutes, '/account/device')
+        .handler(mockRequest, function(response) {
+          resolve(response)
+        })
+    })
+    .then(function(response) {
+      t.equal(mockDB.createDevice.callCount, 1)
+
+      t.equal(mockPush.notifyDeviceConnected.callCount, 1)
+      t.equal(mockPush.notifyDeviceConnected.firstCall.args[0], mockRequest.auth.credentials.uid)
+      t.equal(mockPush.notifyDeviceConnected.firstCall.args[1], device.name)
+      t.equal(mockPush.notifyDeviceConnected.firstCall.args[2], device.id.toString('hex'))
     })
   }
 )

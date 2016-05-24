@@ -430,6 +430,9 @@ module.exports = function (
             .then(
               function (result) {
                 device = result
+                process.nextTick(function() {
+                  push.notifyDeviceConnected(emailRecord.uid, device.name, device.id.toString('hex'))
+                })
               },
               function (err) {
                 log.error({ op: 'account.login.device', err: err })
@@ -874,6 +877,7 @@ module.exports = function (
         db[operation](sessionToken.uid, sessionToken.tokenId, payload).then(
           function (device) {
             reply(butil.unbuffer(device))
+            push.notifyDeviceConnected(sessionToken.uid, device.name, device.id.toString('hex'))
           },
           reply
         )
