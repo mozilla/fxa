@@ -26,6 +26,8 @@ Developing a service that needs Firefox Accounts authentication?  Head on over t
 Interested in contributing to the development of Firefox Accounts?  Great!
 Head over to the [FxA developer documentation](http://fxa.readthedocs.org) on readthedocs.org (which is actually the same content as the local [docs](/docs/index.md) directory, but in a nice pre-rendered HTML view).
 
+Please review and understand the [Mozilla Community Participation Guidelines](https://www.mozilla.org/en-US/about/governance/policies/participation/) before contributing to this project.
+
 ##### Bugs List: [waffle.io/mozilla/fxa](https://waffle.io/mozilla/fxa)
 
 ## Building this Documentation
