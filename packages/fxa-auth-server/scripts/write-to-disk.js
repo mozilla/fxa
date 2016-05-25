@@ -32,14 +32,12 @@ var config = require('../config')
 var createMailer = require('../index')
 var fs = require('fs')
 var log = require('../log')('server')
+var mkdirp = require('mkdirp')
 var path = require('path')
 
 var OUTPUT_DIRECTORY = path.join(__dirname, '..', '.mail_output')
 
-function getEmailOutputPath(subject, extension) {
-  var outputFilename = subject.replace(/\s+/g, '_') + '.' + extension
-  return path.join(OUTPUT_DIRECTORY, outputFilename)
-}
+var messageToSend = process.argv[2] || ''
 
 var mailSender = {
   sendMail: function (emailConfig,  done) {
@@ -50,45 +48,29 @@ var mailSender = {
     fs.writeFileSync(textOutputPath, emailConfig.text)
 
     done(null)
-  }
+  },
+
+  close: function () {}
 }
 
-
-var MESSAGE_TYPES = [
-  'newDeviceLoginEmail',
-  'passwordChangedEmail',
-  'passwordResetEmail',
-  'passwordResetRequiredEmail',
-  'postVerifyEmail',
-  'recoveryEmail',
-  'suspiciousLocationEmail',
-  'unlockEmail',
-  'verificationReminderEmail:first',
-  'verificationReminderEmail:second',
-  'verifyEmail',
-  'verifyLoginEmail'
-]
-
-var messageToSend = process.argv[2] || ''
-if (MESSAGE_TYPES.indexOf(messageToSend) === -1 && messageToSend !== 'all') {
-  log.error('invalid message name' + messageToSend)
-  process.exit(1)
-}
-
-var messagesToSend
-if (messageToSend === 'all') {
-  messagesToSend = MESSAGE_TYPES
-} else {
-  messagesToSend = [messageToSend]
-}
 
 createMailer(log, config.getProperties(), mailSender)
   .then((mailer) => {
-    return sendMails(mailer, messagesToSend)
+    checkMessageType(mailer, messageToSend)
+
+    ensureTargetDirectoryExists()
+
+    return sendMails(mailer, getMessageTypesToWrite(mailer, messageToSend))
   })
   .then(() => {
-    log.info('done')
+    console.info('done') //eslint-disable-line no-console
   })
+
+function getEmailOutputPath(subject, extension) {
+  var outputFilename = subject.replace(/\s+/g, '_') + '.' + extension
+  return path.join(OUTPUT_DIRECTORY, outputFilename)
+}
+
 
 function sendMails(mailer, messagesToSend) {
   return P.all(messagesToSend.map(sendMail.bind(null, mailer)))
@@ -119,3 +101,38 @@ function sendMail(mailer, messageToSend) {
   return mailer[messageType](message)
 }
 
+function checkMessageType(mailer, messageToSend) {
+  var messageTypes = getMailerMessageTypes(mailer)
+  messageTypes.push('all')
+
+  if (messageTypes.indexOf(messageToSend) === -1) {
+    console.error('invalid message name: `' + messageToSend + '`\n' + //eslint-disable-line no-console
+              'choose from: ' + messageTypes.join(', '))
+    process.exit(1)
+  }
+}
+
+
+function getMailerMessageTypes(mailer) {
+  var messageTypes = []
+
+  for (var key in mailer) {
+    if (typeof mailer[key] === 'function' && ! /^_/.test(key) && /Email$/.test(key)) {
+      messageTypes.push(key)
+    }
+  }
+
+  return messageTypes.sort()
+}
+
+function getMessageTypesToWrite(mailer, messageToSend) {
+  if (messageToSend === 'all') {
+    return getMailerMessageTypes(mailer)
+  } else {
+    return [messageToSend]
+  }
+}
+
+function ensureTargetDirectoryExists() {
+  mkdirp.sync(OUTPUT_DIRECTORY)
+}
