@@ -1,3 +1,4 @@
 node_modules
 server.pot
 *.log
+.mail_output

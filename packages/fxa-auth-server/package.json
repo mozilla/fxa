@@ -42,6 +42,7 @@
     "husky": "0.10.2",
     "jsxgettext-recursive": "0.0.5",
     "load-grunt-tasks": "3.3.0",
+    "mkdirp": "0.5.1",
     "proxyquire": "1.7.4",
     "simplesmtp": "0.3.32",
     "sinon": "1.17.3",

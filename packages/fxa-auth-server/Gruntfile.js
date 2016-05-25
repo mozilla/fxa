@@ -79,7 +79,7 @@ module.exports = function (grunt) {
          * Gruntfile causes an error and should contain no strings
          * bin/server.js extracts "/", so it is excluded.
          */
-        exclude: /(node_modules|test|Gruntfile|bin)/,
+        exclude: /(node_modules|test|Gruntfile|bin|scripts)/,
         'output-dir': __dirname,
         'output': 'server.pot',
         'join-existing': true,
