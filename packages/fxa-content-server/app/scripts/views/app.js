@@ -123,13 +123,7 @@ define(function (require, exports, module) {
 
             return viewToShow;
           });
-      }).fail(function (err) {
-        // uh oh, bad jiji. There was an error somewhere, send the user to
-        // unexpected_error where the error will be logged.
-        return self.navigate('unexpected_error', {
-          error: err
-        });
-      });
+      }).fail(self.fatalError.bind(self));
     },
 
     /**

@@ -82,7 +82,7 @@ define([
 
     'signup, verify same browser': function () {
       var self = this;
-      return this.remote
+      return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
         .then(fillOutSignUp(this, email, PASSWORD))
         .then(testAtConfirmScreen(email))
         .then(function () {

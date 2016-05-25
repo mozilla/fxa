@@ -62,7 +62,6 @@ define([
     'signup',
     'signup_complete',
     'signup_permissions',
-    'unexpected_error',
     'verify_email',
     'v1/complete_reset_password',
     'v1/complete_unlock_account',

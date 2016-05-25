@@ -41,7 +41,6 @@ define(function (require, exports, module) {
   var SignUpView = require('../views/sign_up');
   var Storage = require('./storage');
   var TosView = require('../views/tos');
-  var UnexpectedErrorView = require('../views/unexpected_error');
 
   function createViewHandler(View, options) {
     return function () {
@@ -103,7 +102,6 @@ define(function (require, exports, module) {
       'signup(/)': createViewHandler(SignUpView),
       'signup_complete(/)': createViewHandler(ReadyView, { type: 'sign_up' }),
       'signup_permissions(/)': createViewHandler(PermissionsView, { type: 'sign_up' }),
-      'unexpected_error(/)': createViewHandler(UnexpectedErrorView),
       'verify_email(/)': createViewHandler(CompleteSignUpView)
     },
 

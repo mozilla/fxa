@@ -73,7 +73,6 @@ define([
     '/signup': { statusCode: 200 },
     '/signup_complete': { statusCode: 200 },
     '/signup_permissions': { statusCode: 200 },
-    '/unexpected_error': { statusCode: 200 },
     // the following have a version prefix
     '/v1/complete_reset_password': { statusCode: 200 },
     '/v1/complete_unlock_account': { statusCode: 200 },

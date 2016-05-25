@@ -30,6 +30,7 @@ function (Translator, Session) {
     '../tests/spec/lib/channels/web',
     '../tests/spec/lib/config-loader',
     '../tests/spec/lib/cropper',
+    '../tests/spec/lib/dom-writer',
     '../tests/spec/lib/environment',
     '../tests/spec/lib/error-utils',
     '../tests/spec/lib/experiment',
@@ -176,8 +177,7 @@ function (Translator, Session) {
     '../tests/spec/views/sign_up',
     '../tests/spec/views/sub_panels',
     '../tests/spec/views/tooltip',
-    '../tests/spec/views/tos',
-    '../tests/spec/views/unexpected_error',
+    '../tests/spec/views/tos'
   ];
 
   // The translator is expected to be on the window object.

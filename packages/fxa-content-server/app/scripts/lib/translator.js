@@ -84,7 +84,23 @@ define(function (require, exports, module) {
       return this.interpolate(translation, context);
     },
 
-    interpolate: Strings.interpolate
+    interpolate: Strings.interpolate,
+
+    /**
+     * Return a helper function to be used by the template engine
+     * to translate a string
+     *
+     * @param {string} [forceText] - text to translate
+     * @param {object} [context] - context to pass to translator
+     * @returns {function}
+     */
+    translateInTemplate: function (forceText, context) {
+      var self = this;
+      return function (templateText) {
+        return self.get(forceText || templateText, context);
+      };
+    }
+
   };
 
   module.exports = Translator;

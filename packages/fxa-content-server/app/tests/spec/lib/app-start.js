@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   var BaseRelier = require('models/reliers/base');
   var chai = require('chai');
   var Constants = require('lib/constants');
+  var ErrorUtils = require('lib/error-utils');
   var FxDesktopV1Broker = require('models/auth_brokers/fx-desktop-v1');
   var FxDesktopV2Broker = require('models/auth_brokers/fx-desktop-v2');
   var FxFennecV1Broker = require('models/auth_brokers/fx-fennec-v1');
@@ -67,6 +68,43 @@ define(function (require, exports, module) {
       Raven.uninstall();
     });
 
+    describe('fatalError', function () {
+      var err;
+      var sandbox;
+
+
+      beforeEach(function () {
+        sandbox = sinon.sandbox.create();
+
+        appStart = new AppStart({
+          broker: brokerMock,
+          history: historyMock,
+          router: routerMock,
+          storage: Storage,
+          user: userMock,
+          window: windowMock
+        });
+
+        sandbox.spy(appStart, 'enableSentryMetrics');
+        sandbox.stub(ErrorUtils, 'fatalError', function () {});
+
+        err = new Error('boom');
+        return appStart.fatalError(err);
+      });
+
+      afterEach(function () {
+        sandbox.restore();
+      });
+
+      it('enables sentry if not already enabled', function () {
+        assert.isTrue(appStart.enableSentryMetrics.called);
+      });
+
+      it('delegates to ErrorUtils', function () {
+        assert.isTrue(ErrorUtils.fatalError.calledWith(err));
+      });
+    });
+
     describe('startApp', function () {
       beforeEach(function () {
         appStart = new AppStart({
@@ -94,19 +132,17 @@ define(function (require, exports, module) {
           });
       });
 
-      it('redirects to the `INTERNAL_ERROR_PAGE` if an error occurs', function () {
+      it('delegates to `fatalError` if an error occurs', function () {
+        var err = new Error('boom');
         sinon.stub(appStart, 'allResourcesReady', function () {
-          sinon.stub(appStart._metrics, 'flush', function () {
-            return p();
-          });
-
-          return p.reject(new Error('boom!'));
+          return p.reject(err);
         });
+
+        sinon.stub(appStart, 'fatalError', function () {});
 
         return appStart.startApp()
           .then(function () {
-            assert.equal(windowMock.location.href, Constants.INTERNAL_ERROR_PAGE);
-            assert.equal(appStart._metrics.flush.callCount, 1);
+            assert.isTrue(appStart.fatalError.calledWith(err));
           });
       });
 

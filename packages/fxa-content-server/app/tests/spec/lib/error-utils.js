@@ -5,12 +5,16 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var $ = require('jquery');
   var AuthErrors = require('lib/auth-errors');
   var chai = require('chai');
-  var Constants = require('lib/constants');
+  var domWriter = require('lib/dom-writer');
   var ErrorUtils = require('lib/error-utils');
+  var FiveHundredTemplate = require('stache!templates/500');
+  var FourHundredTemplate = require('stache!templates/400');
   var OAuthErrors = require('lib/oauth-errors');
   var sinon = require('sinon');
+  var Translator = require('lib/translator');
   var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
@@ -20,10 +24,13 @@ define(function (require, exports, module) {
     var metrics;
     var sentry;
     var sandbox;
+    var translator;
     var windowMock;
 
     beforeEach(function () {
       sandbox = sinon.sandbox.create();
+
+      sandbox.spy(domWriter, 'write');
 
       metrics = {
         flush: sinon.spy(),
@@ -34,6 +41,8 @@ define(function (require, exports, module) {
         captureException: sinon.spy()
       };
 
+      translator = new Translator();
+
       windowMock = new WindowMock();
       sandbox.spy(windowMock.console, 'error');
     });
@@ -42,7 +51,7 @@ define(function (require, exports, module) {
       sandbox.restore();
     });
 
-    describe('getErrorPageUrl', function () {
+    describe('getErrorPageTemplate', function () {
       var badRequestPageErrors = [
         AuthErrors.toInvalidParameterError('paramName'),
         AuthErrors.toMissingParameterError('paramName'),
@@ -52,16 +61,16 @@ define(function (require, exports, module) {
       ];
 
       badRequestPageErrors.forEach(function (err) {
-        it('redirects to BAD_REQUEST_PAGE for ' + err.message, function () {
-          var errorPageUrl = ErrorUtils.getErrorPageUrl(err);
-          assert.include(errorPageUrl, Constants.BAD_REQUEST_PAGE);
+        it('400 template returned for ' + err.message, function () {
+          var errorPageTemplate = ErrorUtils.getErrorPageTemplate(err);
+          assert.strictEqual(errorPageTemplate, FourHundredTemplate);
         });
       });
 
-      it('returns INTERNAL_ERROR_PAGE by default', function () {
-        var errorPageUrl =
-          ErrorUtils.getErrorPageUrl(OAuthErrors.toError('INVALID_ASSERTION'));
-        assert.include(errorPageUrl, Constants.INTERNAL_ERROR_PAGE);
+      it('500 template returned by default', function () {
+        var errorPageTemplate =
+          ErrorUtils.getErrorPageTemplate(OAuthErrors.toError('INVALID_ASSERTION'));
+        assert.strictEqual(errorPageTemplate, FiveHundredTemplate);
       });
     });
 
@@ -137,14 +146,41 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('renderError', function () {
+      describe('with a translator', function () {
+        beforeEach(function () {
+          $('#container').html('<div id="stage"></div>');
+          err = AuthErrors.toInvalidParameterError('email');
+          ErrorUtils.renderError(err, windowMock, translator);
+        });
+
+        it('renders an error message to the DOM', function () {
+          assert.isTrue(domWriter.write.called);
+          assert.include(
+              $('#stage').text().toLowerCase(), 'invalid parameter: email');
+        });
+      });
+
+      describe('without a translator', function () {
+        beforeEach(function () {
+          $('#container').html('<div id="stage"></div>');
+          err = AuthErrors.toInvalidParameterError('email');
+          ErrorUtils.renderError(err, windowMock);
+        });
+
+        it('renders an error message to the DOM', function () {
+          assert.isTrue(domWriter.write.called);
+          assert.include(
+              $('#stage').text().toLowerCase(), 'invalid parameter: email');
+        });
+      });
+    });
+
     describe('fatalError', function () {
-      var translator;
-
       beforeEach(function () {
-        err = AuthErrors.toError('UNEXPECTED_ERROR');
+        $('#container').html('<div id="stage"></div>');
+        err = AuthErrors.toInvalidParameterError('email');
 
-        // set the timeout to 0 to speed up the tests.
-        ErrorUtils.ERROR_REDIRECT_TIMEOUT_MS = 0;
         return ErrorUtils.fatalError(
           err, sentry, metrics, windowMock, translator);
       });
@@ -162,8 +198,10 @@ define(function (require, exports, module) {
         assert.isTrue(metrics.flush.called);
       });
 
-      it('redirects the user to the error page', function () {
-        assert.include(windowMock.location.href, '500.html');
+      it('renders the error', function () {
+        assert.isTrue(domWriter.write.called);
+        assert.include(
+            $('#stage').text().toLowerCase(), 'invalid parameter: email');
       });
     });
   });

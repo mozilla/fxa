@@ -61,7 +61,11 @@ define([
     },
 
     'sign in unverified': function () {
-      return fillOutSignIn(this, email, PASSWORD)
+      var self = this;
+      return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signin-header')
+        .then(function () {
+          return fillOutSignIn(self, email, PASSWORD);
+        })
         .findByCssSelector('.verification-email-message')
           .getVisibleText()
           .then(function (resultText) {

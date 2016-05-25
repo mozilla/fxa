@@ -362,16 +362,13 @@ define(function (require, exports, module) {
         before(function () {
           createDeps();
 
-          sinon.spy(view, 'navigate');
+          sinon.spy(view, 'fatalError');
 
           return view.showView(ViewThatErrors, {});
         });
 
-        it('navigates to `unexpected_error` with the error', function () {
-          assert.isTrue(
-            view.navigate.calledWith('unexpected_error', {
-              error: renderError
-            }));
+        it('writes the error to the DOM', function () {
+          assert.isTrue(view.fatalError.calledWith(renderError));
         });
       });
     });
