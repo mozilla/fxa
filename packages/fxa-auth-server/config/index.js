@@ -206,12 +206,6 @@ var conf = convict({
       format: String,
       default: 'firefox.com',
       env: 'REDIRECT_DOMAIN'
-    },
-    resendBlackoutPeriod: {
-      doc: 'Blackout period for resending verification emails (milliseconds)',
-      format: 'duration',
-      env: 'RESEND_BLACKOUT_PERIOD',
-      default: '10 minutes'
     }
   },
   maxEventLoopDelay: {

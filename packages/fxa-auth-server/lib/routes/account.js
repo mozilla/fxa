@@ -972,8 +972,7 @@ module.exports = function (
         log.begin('Account.RecoveryEmailResend', request)
         var sessionToken = request.auth.credentials
         var service = request.payload.service || request.query.service
-        if (sessionToken.emailVerified ||
-            Date.now() - sessionToken.verifierSetAt < config.smtp.resendBlackoutPeriod) {
+        if (sessionToken.emailVerified) {
           return reply({})
         }
         customs.check(
