@@ -49,6 +49,12 @@ define([
         .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
 
+        // wait until account data is in localstorage before redirecting
+        .then(FunctionalHelpers.pollUntil(function () {
+          var accounts = Object.keys(JSON.parse(localStorage.getItem('__fxa_storage.accounts')) || {});
+          return accounts.length === 1 ? true : null;
+        }, [], 10000))
+
         .then(openPage(this, SETTINGS_URL, '#fxa-settings-header'));
     },
 
