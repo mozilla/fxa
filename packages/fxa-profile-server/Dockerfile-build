@@ -11,6 +11,7 @@ RUN apt-get update && \
 
 USER app
 
+COPY scripts/check_gm.sh scripts/check_gm.sh
 COPY package.json package.json
 
 RUN npm install && \
