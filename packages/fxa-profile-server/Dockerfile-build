@@ -1,7 +1,5 @@
 FROM node:0.10.45
 
-WORKDIR /app
-
 RUN groupadd --gid 10001 app && \
     useradd --uid 10001 --gid 10001 --home /app --create-home app
 
@@ -10,6 +8,8 @@ RUN apt-get update && \
     apt-get clean
 
 USER app
+
+WORKDIR /app
 
 COPY scripts/check_gm.sh scripts/check_gm.sh
 COPY package.json package.json
