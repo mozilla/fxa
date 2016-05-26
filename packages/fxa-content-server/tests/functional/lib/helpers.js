@@ -294,6 +294,20 @@ define([
       });
   }
 
+  function openVerificationLinkInSameTab(email, index) {
+    var user = TestHelpers.emailToUser(email);
+
+    return function () {
+      return this.parent
+        .then(function () {
+          return getVerificationLink(user, index);
+        })
+        .then(function (verificationLink) {
+          return this.parent.get(require.toUrl(verificationLink));
+        });
+    };
+  }
+
   function openWindow (url, name) {
     var newWindow = window.open(url, name);
 
@@ -1276,6 +1290,7 @@ define([
     openUnlockLinkDifferentBrowser: openUnlockLinkDifferentBrowser,
     openVerificationLinkDifferentBrowser: openVerificationLinkDifferentBrowser,
     openVerificationLinkInNewTab: openVerificationLinkInNewTab,
+    openVerificationLinkInSameTab: openVerificationLinkInSameTab,
     pollUntil: pollUntil,
     respondToWebChannelMessage: respondToWebChannelMessage,
     takeScreenshot: takeScreenshot,
