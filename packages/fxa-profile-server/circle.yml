@@ -13,7 +13,7 @@ dependencies:
     - docker info
 
     - >
-        printf '{"commit":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}\n'
+        printf '{"version":{"hash":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}}\n'
         "$CIRCLE_SHA1"
         "$CIRCLE_TAG"
         "$CIRCLE_PROJECT_USERNAME"
