@@ -9,6 +9,8 @@
 
 var helmet = require('helmet');
 
+var utils = require('./utils');
+
 function isCspRequired(req) {
   if (req.method !== 'GET') {
     return false;
@@ -20,11 +22,8 @@ function isCspRequired(req) {
     return false;
   }
 
-  // Only HTML files need CSP headers. Our convention is either .html
-  // extensions or extensionless requests are HTML files. We can't check
-  // the response's Content-Type header yet because the response
-  // hasn't yet been rendered.
-  return /\.html$/.test(path) || ! /\.[a-zA-Z0-9]+$/.test(path);
+  // Only HTML files need CSP headers.
+  return utils.isHTMLPage(path);
 }
 
 module.exports = function (config) {

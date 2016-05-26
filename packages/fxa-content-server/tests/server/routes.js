@@ -185,6 +185,11 @@ define([
       assert.ok(headers.hasOwnProperty('content-security-policy'));
     }
 
+    // All non-json routes in this test should have an x-robots-tag header.
+    if (routes[routePathname].headerAccept !== 'application/json') {
+      assert.equal(headers['x-robots-tag'], 'noindex,nofollow');
+    }
+
     assert.equal(headers['x-content-type-options'], 'nosniff');
     assert.include(headers['strict-transport-security'], 'max-age=');
   }

@@ -37,6 +37,7 @@ var routes = require('../lib/routes')(config, i18n);
 // Side effect - Adds default_fxa and dev_fxa to express.logger formats
 var routeLogging = require('../lib/logging/route_logging');
 
+var noindex = require('../lib/noindex');
 var fourOhFour = require('../lib/404');
 var serverErrorHandler = require('../lib/500');
 var localizedRender = require('../lib/localized-render');
@@ -118,6 +119,8 @@ function makeApp() {
     app.route(/\.(js|css|woff|ttf)$/)
       .get(cors(corsOptions));
   }
+
+  app.use(noindex);
 
   routes(app);
 

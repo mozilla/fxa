@@ -21,6 +21,7 @@ define([
     'tests/server/metrics-errors',
     'tests/server/metrics-ga',
     'tests/server/metrics-unit',
+    'tests/server/noindex',
     'tests/server/configuration',
     'tests/server/statsd-collector',
     'tests/server/activity-event',

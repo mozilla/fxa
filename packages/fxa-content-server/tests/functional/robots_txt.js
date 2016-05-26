@@ -13,7 +13,7 @@ define([
   registerSuite({
     name: 'robots.txt',
 
-    'should disallow root': function () {
+    'should allow bots to access all pages': function () {
 
       return this.remote
         .get(require.toUrl(url))
@@ -21,7 +21,7 @@ define([
         .findByTagName('body')
         .getVisibleText()
         .then(function (source) {
-          assert.isTrue(/Disallow: \//g.test(source));
+          assert.isTrue(/^Allow:/mg.test(source));
         })
         .end();
     }
