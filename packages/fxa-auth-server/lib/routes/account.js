@@ -792,6 +792,14 @@ module.exports = function (
         var operation = payload.id ? 'updateDevice' : 'createDevice'
         db[operation](sessionToken.uid, sessionToken.tokenId, payload).then(
           function (device) {
+            if (operation === 'createDevice') {
+              log.event('device:create', request, {
+                uid: sessionToken.uid,
+                id: device.id,
+                type: device.type,
+                timestamp: device.createdAt
+              })
+            }
             reply(butil.unbuffer(device))
             push.notifyDeviceConnected(sessionToken.uid, device.name, device.id.toString('hex'))
           },
@@ -887,7 +895,18 @@ module.exports = function (
         log.begin('Account.deviceDestroy', request)
         var sessionToken = request.auth.credentials
         var uid = sessionToken.uid
-        db.deleteDevice(uid, request.payload.id).then(reply, reply)
+        var id = request.payload.id
+        db.deleteDevice(uid, id).then(
+          function (result) {
+            log.event('device:delete', request, {
+              uid: uid,
+              id: id,
+              timestamp: Date.now()
+            })
+            reply(result)
+          },
+          reply
+        )
       }
     },
     {
