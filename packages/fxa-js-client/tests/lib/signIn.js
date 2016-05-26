@@ -9,11 +9,6 @@ define([
   'tests/lib/push-constants'
 ], function (tdd, assert, Environment, PushTestConstants) {
 
-  var DEVICE_CALLBACK = PushTestConstants.DEVICE_CALLBACK;
-  var DEVICE_ID = PushTestConstants.DEVICE_ID;
-  var DEVICE_NAME = PushTestConstants.DEVICE_NAME;
-  var DEVICE_TYPE = PushTestConstants.DEVICE_TYPE;
-
   with (tdd) {
     suite('signIn', function () {
       var ErrorMocks;
@@ -196,56 +191,6 @@ define([
               assert.equal(res.errno, 103);
             }
           );
-      });
-
-      test('#with new device', function () {
-        var email = 'test' + new Date().getTime() + '@restmail.net';
-        var password = 'iliketurtles';
-
-        return respond(client.signUp(email, password), RequestMocks.signUp)
-          .then(function () {
-            return respond(client.signIn(email, password, {
-              device: {
-                name: DEVICE_NAME,
-                type: DEVICE_TYPE,
-                callback: DEVICE_CALLBACK
-              },
-              reason: 'signin'
-            }), RequestMocks.signInNewDevice);
-          })
-          .then(
-            function (resp) {
-              var device = resp.device;
-              assert.ok(device.id);
-              assert.equal(device.name, DEVICE_NAME);
-              assert.equal(device.type, DEVICE_TYPE);
-              assert.equal(device.pushCallback, DEVICE_CALLBACK);
-            },
-            function (err) {
-              console.log(err);
-              assert.notOk();
-            }
-          );
-      });
-
-      test('#with existing device', function () {
-        var email = 'test' + new Date().getTime() + '@restmail.net';
-        var password = 'iliketurtles';
-
-        return respond(client.signUp(email, password), RequestMocks.signUp)
-          .then(function () {
-            return respond(client.signIn(email, password, {
-              device: {
-                id: DEVICE_ID,
-                name: DEVICE_NAME
-              },
-              reason: 'signin'
-            }), RequestMocks.signIn);
-          })
-          .then(function (resp) {
-            assert.ok(resp.uid);
-            assert.isUndefined(resp.device);
-          });
       });
 
       test('#with metricsContext metadata', function () {

@@ -9,10 +9,6 @@ define([
   'tests/lib/push-constants'
 ], function (tdd, assert, Environment, PushTestConstants) {
 
-  var DEVICE_CALLBACK = PushTestConstants.DEVICE_CALLBACK;
-  var DEVICE_NAME = PushTestConstants.DEVICE_NAME;
-  var DEVICE_TYPE = PushTestConstants.DEVICE_TYPE;
-
   with (tdd) {
     suite('signUp', function () {
       var accountHelper;
@@ -231,26 +227,6 @@ define([
             assert.equal(err.errno, 101);
           }
         );
-      });
-
-      test('#with new device', function () {
-        var email = 'test' + new Date().getTime() + '@restmail.net';
-        var password = 'iliketurtles';
-
-        return respond(client.signUp(email, password, {
-          device: {
-            name: DEVICE_NAME,
-            type: DEVICE_TYPE,
-            callback: DEVICE_CALLBACK
-          }
-        }), RequestMocks.signUpNewDevice)
-        .then(function (resp) {
-          var device = resp.device;
-          assert.ok(device.id);
-          assert.equal(device.name, DEVICE_NAME);
-          assert.equal(device.type, DEVICE_TYPE);
-          assert.equal(device.pushCallback, DEVICE_CALLBACK);
-        });
       });
 
       test('#with metricsContext metadata', function () {
