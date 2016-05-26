@@ -76,12 +76,6 @@ define([
    *   example.
    *   @param {String} [options.lang]
    *   set the language for the 'Accept-Language' header
-   *   @param {Object} [options.device={}] Device registration information
-   *     @param {String} options.device.name Name of device
-   *     @param {String} options.device.type Type of device (mobile|desktop)
-   *     @param {string} [options.device.callback] Device's push endpoint
-   *     @param {string} [options.device.publicKey] Public key used to encrypt push messages
-   *     @param {string} [options.device.authKey] Authentication secret used to encrypt push messages
    *   @param {Object} [options.metricsContext={}] Metrics context metadata
    *     @param {String} options.metricsContext.flowId identifier for the current event flow
    *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
@@ -114,22 +108,6 @@ define([
           var requestOpts = {};
 
           if (options) {
-            if (options.device) {
-              data.device = {
-                name: options.device.name,
-                type: options.device.type
-              };
-
-              if (options.device.callback) {
-                data.device.pushCallback = options.device.callback;
-              }
-
-              if (options.device.publicKey && options.device.authKey) {
-                data.device.pushPublicKey = options.device.publicKey;
-                data.device.pushAuthKey = options.device.authKey;
-              }
-            }
-
             if (options.service) {
               data.service = options.service;
             }
@@ -197,19 +175,6 @@ define([
    *   @param {String} [options.reason]
    *   Reason for sign in. Can be one of: `signin`, `password_check`,
    *   `password_change`, `password_reset`, `account_unlock`.
-   *   @param {String} [options.redirectTo]
-   *   a URL that the client should be redirected to after handling the request
-   *   @param {String} [options.resume]
-   *   Opaque url-encoded string that will be included in the verification link
-   *   as a querystring parameter, useful for continuing an OAuth flow for
-   *   example.
-   *   @param {Object} [options.device={}] Device registration information
-   *     @param {String} [options.device.id] User-unique identifier of device
-   *     @param {String} [options.device.name] Name of device
-   *     @param {String} [options.device.type] Type of device (mobile|desktop)
-   *     @param {string} [options.device.callback] Device's push endpoint
-   *     @param {string} [options.device.publicKey] Public key used to encrypt push messages
-   *     @param {string} [options.device.authKey] Authentication secret used to encrypt push messages
    *   @param {Object} [options.metricsContext={}] Metrics context metadata
    *     @param {String} options.metricsContext.flowId identifier for the current event flow
    *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
@@ -245,49 +210,16 @@ define([
             authPW: sjcl.codec.hex.fromBits(result.authPW)
           };
 
-          if (options.device) {
-            data.device = {};
-
-            if (options.device.id) {
-              data.device.id = options.device.id;
-            }
-
-            if (options.device.name) {
-              data.device.name = options.device.name;
-            }
-
-            if (options.device.type) {
-              data.device.type = options.device.type;
-            }
-
-            if (options.device.callback) {
-              data.device.pushCallback = options.device.callback;
-            }
-
-            if (options.device.publicKey && options.device.authKey) {
-              data.device.pushPublicKey = options.device.publicKey;
-              data.device.pushAuthKey = options.device.authKey;
-            }
-          }
-
-          if (options.metricsContext) {
-            data.metricsContext = metricsContext.marshall(options.metricsContext);
+          if (options.service) {
+            data.service = options.service;
           }
 
           if (options.reason) {
             data.reason = options.reason;
           }
 
-          if (options.redirectTo) {
-            data.redirectTo = options.redirectTo;
-          }
-
-          if (options.resume) {
-            data.resume = options.resume;
-          }
-
-          if (options.service) {
-            data.service = options.service;
+          if (options.metricsContext) {
+            data.metricsContext = metricsContext.marshall(options.metricsContext);
           }
 
           return self.request.send(endpoint, 'POST', null, data)
