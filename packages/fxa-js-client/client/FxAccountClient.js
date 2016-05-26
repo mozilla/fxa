@@ -484,7 +484,8 @@ define([
    * @param {String} accountResetToken
    * @param {Object} [options={}] Options
    *   @param {Boolean} [options.keys]
-   *   If `true`, a new `keyFetchToken` is provisioned.
+   *   If `true`, a new `keyFetchToken` is provisioned. `options.sessionToken`
+   *   is required if `options.keys` is true.
    *   @param {Boolean} [options.sessionToken]
    *   If `true`, a new `sessionToken` is provisioned.
    *   @param {Object} [options.metricsContext={}] Metrics context metadata
@@ -519,6 +520,10 @@ define([
     required(email, 'email');
     required(newPassword, 'new password');
     required(accountResetToken, 'accountResetToken');
+
+    if (options.keys) {
+      required(options.sessionToken, 'sessionToken');
+    }
 
     return credentials.setup(email, newPassword)
       .then(
@@ -898,7 +903,7 @@ define([
           sessionToken: options.sessionToken
         })
         .then(function (accountData) {
-          if (options && options.keys && accountData.keyFetchToken) {
+          if (options.keys && accountData.keyFetchToken) {
             accountData.unwrapBKey = sjcl.codec.hex.fromBits(newCreds.unwrapBKey);
           }
           return accountData;
