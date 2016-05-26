@@ -35,7 +35,7 @@ deployment:
     branch: "master"
     commands:
       - "[ ! -z $DOCKERHUB_REPO ]"
-      - "docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS"
+      - docker login -e "$DOCKER_EMAIL" -u "$DOCKER_USER" -p "$DOCKER_PASS"
       - "docker tag app:build ${DOCKERHUB_REPO}:latest"
       - "docker push ${DOCKERHUB_REPO}:latest"
 
@@ -44,7 +44,7 @@ deployment:
     tag: /.*/
     commands:
       - "[ ! -z $DOCKERHUB_REPO ]"
-      - "docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS"
+      - docker login -e "$DOCKER_EMAIL" -u "$DOCKER_USER" -p "$DOCKER_PASS"
       - "echo ${DOCKERHUB_REPO}:${CIRCLE_TAG}"
       - "docker tag app:build ${DOCKERHUB_REPO}:${CIRCLE_TAG}"
       - "docker images"
