@@ -483,6 +483,11 @@ define([
    * @param {String} newPassword
    * @param {String} accountResetToken
    * @param {Object} [options={}] Options
+   *   @param {Boolean} [options.keys]
+   *   If `true`, a new `keyFetchToken` is provisioned. `options.sessionToken`
+   *   is required if `options.keys` is true.
+   *   @param {Boolean} [options.sessionToken]
+   *   If `true`, a new `sessionToken` is provisioned.
    *   @param {Object} [options.metricsContext={}] Metrics context metadata
    *     @param {String} options.metricsContext.flowId identifier for the current event flow
    *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
@@ -500,6 +505,7 @@ define([
   FxAccountClient.prototype.accountReset = function(email, newPassword, accountResetToken, options) {
     var self = this;
     var data = {};
+    var unwrapBKey;
 
     options = options || {};
 
@@ -507,20 +513,47 @@ define([
       data.metricsContext = metricsContext.marshall(options.metricsContext);
     }
 
+    if (options.sessionToken) {
+      data.sessionToken = options.sessionToken;
+    }
+
     required(email, 'email');
     required(newPassword, 'new password');
     required(accountResetToken, 'accountResetToken');
 
+    if (options.keys) {
+      required(options.sessionToken, 'sessionToken');
+    }
+
     return credentials.setup(email, newPassword)
       .then(
         function (result) {
+          if (options.keys) {
+            unwrapBKey = sjcl.codec.hex.fromBits(result.unwrapBKey);
+          }
+
           data.authPW = sjcl.codec.hex.fromBits(result.authPW);
 
           return hawkCredentials(accountResetToken, 'accountResetToken',  HKDF_SIZE);
         }
       ).then(
         function (creds) {
-          return self.request.send('/account/reset', 'POST', creds, data);
+          var queryParams = '';
+          if (options.keys) {
+            queryParams = '?keys=true';
+          }
+
+          var endpoint = '/account/reset' + queryParams;
+          return self.request.send(endpoint, 'POST', creds, data)
+            .then(
+              function(accountData) {
+                if (options.keys && accountData.keyFetchToken) {
+                  accountData.unwrapBKey = unwrapBKey;
+                }
+
+                return accountData;
+              }
+            );
         }
       );
   };
@@ -723,10 +756,17 @@ define([
    * @param {String} email
    * @param {String} oldPassword
    * @param {String} newPassword
+   * @param {Object} [options={}] Options
+   *   @param {Boolean} [options.keys]
+   *   If `true`, calls the API with `?keys=true` to get a new keyFetchToken
+   *   @param {String} [options.sessionToken]
+   *   If a `sessionToken` is passed, a new sessionToken will be returned
+   *   with the same `verified` status as the existing sessionToken.
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
-  FxAccountClient.prototype.passwordChange = function(email, oldPassword, newPassword) {
+  FxAccountClient.prototype.passwordChange = function(email, oldPassword, newPassword, options) {
     var self = this;
+    options = options || {};
 
     required(email, 'email');
     required(oldPassword, 'old password');
@@ -740,7 +780,7 @@ define([
         return self._passwordChangeKeys(oldCreds)
           .then(function (keys) {
 
-            return self._passwordChangeFinish(email, newPassword, oldCreds, keys);
+            return self._passwordChangeFinish(email, newPassword, oldCreds, keys, options);
           });
       });
 
@@ -822,9 +862,16 @@ define([
    * @param {String} newPassword
    * @param {Object} oldCreds This object should consists of `oldUnwrapBKey`, `keyFetchToken` and `passwordChangeToken`.
    * @param {Object} keys This object should contain the unbundled keys
+   * @param {Object} [options={}] Options
+   *   @param {Boolean} [options.keys]
+   *   If `true`, calls the API with `?keys=true` to get the keyFetchToken
+   *   @param {String} [options.sessionToken]
+   *   If a `sessionToken` is passed, a new sessionToken will be returned
+   *   with the same `verified` status as the existing sessionToken.
    * @return {Promise} A promise that will be fulfilled with JSON of `xhr.responseText`
    */
-  FxAccountClient.prototype._passwordChangeFinish = function(email, newPassword, oldCreds, keys) {
+  FxAccountClient.prototype._passwordChangeFinish = function(email, newPassword, oldCreds, keys, options) {
+    options = options || {};
     var self = this;
 
     required(email, 'email');
@@ -845,9 +892,21 @@ define([
           )
         );
 
-        return self.request.send('/password/change/finish', 'POST', hawkCreds, {
+        var queryParams = '';
+        if (options.keys) {
+          queryParams = '?keys=true';
+        }
+
+        return self.request.send('/password/change/finish' + queryParams, 'POST', hawkCreds, {
           wrapKb: newWrapKb,
-          authPW: sjcl.codec.hex.fromBits(newCreds.authPW)
+          authPW: sjcl.codec.hex.fromBits(newCreds.authPW),
+          sessionToken: options.sessionToken
+        })
+        .then(function (accountData) {
+          if (options.keys && accountData.keyFetchToken) {
+            accountData.unwrapBKey = sjcl.codec.hex.fromBits(newCreds.unwrapBKey);
+          }
+          return accountData;
         });
       });
   };
