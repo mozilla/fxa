@@ -1,0 +1,24 @@
+FROM node:0.10.45
+
+WORKDIR /app
+
+RUN groupadd --gid 10001 app && \
+    useradd --uid 10001 --gid 10001 --home /app --create-home app
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y install graphicsmagick && \
+    apt-get clean
+
+USER app
+
+COPY package.json package.json
+
+RUN npm install && \
+    npm cache clear && \
+    rm -rf ~app/.node-gyp && \
+    rm -rf ~app/.npm
+
+COPY . /app
+
+ENTRYPOINT ["npm"]
+CMD ["start"]

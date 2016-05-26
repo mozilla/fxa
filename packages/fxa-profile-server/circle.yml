@@ -1,0 +1,51 @@
+# These environment variables must be set in CircleCI UI
+#
+# DOCKERHUB_REPO - docker hub repo, format: <username>/<repo>
+# DOCKER_EMAIL   - login info for docker hub
+# DOCKER_USER
+# DOCKER_PASS
+#
+machine:
+  services:
+    - docker
+dependencies:
+  override:
+    - docker info
+
+    - >
+        printf '{"commit":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}\n'
+        "$CIRCLE_SHA1"
+        "$CIRCLE_TAG"
+        "$CIRCLE_PROJECT_USERNAME"
+        "$CIRCLE_PROJECT_REPONAME"
+        "$CIRCLE_BUILD_URL"
+        > config/version.json
+
+    - docker build -f Dockerfile-build -t app:build .
+
+    - docker images --no-trunc | awk '/^app:build/ {print $3}' | tee $CIRCLE_ARTIFACTS/docker-image-shasum256.txt
+
+test:
+  override:
+    - docker run app:build test
+
+# appropriately tag and push the container to dockerhub
+deployment:
+  hub_latest:
+    branch: "master"
+    commands:
+      - "[ ! -z $DOCKERHUB_REPO ]"
+      - "docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS"
+      - "docker tag app:build ${DOCKERHUB_REPO}:latest"
+      - "docker push ${DOCKERHUB_REPO}:latest"
+
+  hub_releases:
+    # push all tags
+    tag: /.*/
+    commands:
+      - "[ ! -z $DOCKERHUB_REPO ]"
+      - "docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS"
+      - "echo ${DOCKERHUB_REPO}:${CIRCLE_TAG}"
+      - "docker tag app:build ${DOCKERHUB_REPO}:${CIRCLE_TAG}"
+      - "docker images"
+      - "docker push ${DOCKERHUB_REPO}:${CIRCLE_TAG}"
