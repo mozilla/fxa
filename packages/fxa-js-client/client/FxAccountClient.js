@@ -175,12 +175,6 @@ define([
    *   @param {String} [options.reason]
    *   Reason for sign in. Can be one of: `signin`, `password_check`,
    *   `password_change`, `password_reset`, `account_unlock`.
-   *   @param {String} [options.redirectTo]
-   *   a URL that the client should be redirected to after handling the request
-   *   @param {String} [options.resume]
-   *   Opaque url-encoded string that will be included in the verification link
-   *   as a querystring parameter, useful for continuing an OAuth flow for
-   *   example.
    *   @param {Object} [options.metricsContext={}] Metrics context metadata
    *     @param {String} options.metricsContext.flowId identifier for the current event flow
    *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
@@ -216,24 +210,16 @@ define([
             authPW: sjcl.codec.hex.fromBits(result.authPW)
           };
 
-          if (options.metricsContext) {
-            data.metricsContext = metricsContext.marshall(options.metricsContext);
+          if (options.service) {
+            data.service = options.service;
           }
 
           if (options.reason) {
             data.reason = options.reason;
           }
 
-          if (options.redirectTo) {
-            data.redirectTo = options.redirectTo;
-          }
-
-          if (options.resume) {
-            data.resume = options.resume;
-          }
-
-          if (options.service) {
-            data.service = options.service;
+          if (options.metricsContext) {
+            data.metricsContext = metricsContext.marshall(options.metricsContext);
           }
 
           return self.request.send(endpoint, 'POST', null, data)
