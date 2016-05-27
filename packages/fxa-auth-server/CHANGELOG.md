@@ -1,3 +1,13 @@
+<a name="1.62.5"></a>
+## [1.62.5](https://github.com/mozilla/fxa-auth-server/compare/v1.62.4...v1.62.5) (2016-05-27)
+
+
+### Bug Fixes
+
+* **l10n:** update to fix broken lt locale ([512576d](https://github.com/mozilla/fxa-auth-server/commit/512576d))
+
+
+
 <a name="1.62.4"></a>
 ## [1.62.4](https://github.com/mozilla/fxa-auth-server/compare/v1.62.3...v1.62.4) (2016-05-24)
 
