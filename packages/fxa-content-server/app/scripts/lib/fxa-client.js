@@ -376,7 +376,8 @@ define(function (require, exports, module) {
                   newPassword,
                   result.accountResetToken,
                   {
-                    keys: relier.wantsKeys()
+                    keys: relier.wantsKeys(),
+                    sessionToken: true
                   }
                 );
               })

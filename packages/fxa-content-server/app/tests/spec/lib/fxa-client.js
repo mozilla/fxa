@@ -730,7 +730,7 @@ define(function (require, exports, module) {
             assert.isTrue(realClient.passwordForgotVerifyCode.calledWith(
                 code, token));
             assert.isTrue(realClient.accountReset.calledWith(
-                trim(email), password, 'reset_token', { keys: true }));
+                trim(email), password, 'reset_token', { keys: true, sessionToken: true }));
 
             assert.equal(sessionData.email, trim(email));
             assert.equal(sessionData.keyFetchToken, 'new keyFetchToken');
@@ -783,7 +783,7 @@ define(function (require, exports, module) {
             assert.isTrue(realClient.passwordForgotVerifyCode.calledWith(
                 code, token));
             assert.isTrue(realClient.accountReset.calledWith(
-                trim(email), password, 'reset_token', { keys: true }));
+                trim(email), password, 'reset_token', { keys: true, sessionToken: true }));
             assert.isTrue(realClient.signIn.calledWith(
                 trim(email), password, {
                   keys: true,
