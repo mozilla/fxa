@@ -89,6 +89,10 @@
     }
   }
 
+  .input-help-forgot-pw {
+    text-align: left;
+  }
+
   .input-help-focused {
     @include respond-to('reasonableUI') {
       opacity: 0;

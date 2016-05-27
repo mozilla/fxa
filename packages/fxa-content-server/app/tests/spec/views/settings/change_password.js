@@ -83,6 +83,7 @@ define(function (require, exports, module) {
           assert.ok($('.reset-password').length);
           assert.ok($('#new_password').length);
           assert.isTrue($('.input-help').length === 2);
+          assert.isTrue($('.input-help-forgot-pw').length === 1);
         });
       });
 
@@ -142,6 +143,7 @@ define(function (require, exports, module) {
 
           view.showValidationErrors();
         });
+
       });
 
       describe('submit', function () {

@@ -6,9 +6,9 @@ define(function (require, exports, module) {
   'use strict';
 
   var $ = require('jquery');
-  var _ = require('underscore');
   var BaseView = require('views/base');
   var chai = require('chai');
+  var Cocktail = require('cocktail');
   var Metrics = require('lib/metrics');
   var PasswordMixin = require('views/mixins/password-mixin');
   var Relier = require('models/reliers/relier');
@@ -18,10 +18,12 @@ define(function (require, exports, module) {
   var assert = chai.assert;
 
   var PasswordView = BaseView.extend({
-    events: { 'change .show-password': 'onPasswordVisibilityChange' },
     template: TestTemplate
   });
-  _.extend(PasswordView.prototype, PasswordMixin);
+  Cocktail.mixin(
+    PasswordView,
+    PasswordMixin
+  );
 
   describe('views/mixins/password-mixin', function () {
     var view;
@@ -114,6 +116,22 @@ define(function (require, exports, module) {
         view.$('.show-password').click();
         assert.isTrue(TestHelpers.isEventLogged(metrics,
                           'password-view.password.hidden'));
+      });
+    });
+
+    describe('show passwordHelper', function () {
+      it('set warning opacity to 1 if password length is less than 8', function () {
+        view.$('.password').val('1234');
+        view.showPasswordHelper();
+        assert.equal(view.$('.input-help').css('opacity'), '1');
+      });
+    });
+
+    describe('hide passwordHelper', function () {
+      it('set warning opacity to 0 if password length is greater than or equal 8', function () {
+        view.$('.password').val('12344456');
+        view.hidePasswordHelper();
+        assert.equal(view.$('.input-help').css('opacity'), '0');
       });
     });
   });
