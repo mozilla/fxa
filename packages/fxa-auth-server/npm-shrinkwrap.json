@@ -1125,7 +1125,7 @@
         "fxa-content-server-l10n": {
           "version": "0.0.0",
           "from": "git://github.com/mozilla/fxa-content-server-l10n.git",
-          "resolved": "git://github.com/mozilla/fxa-content-server-l10n.git#31bc52e4193fd0c2899b91a2dc57774b239af7ee"
+          "resolved": "git://github.com/mozilla/fxa-content-server-l10n.git#02a1c4c05aec60ac3ffc5b841448c275e18ac14c"
         },
         "grunt-nunjucks-2-html": {
           "version": "0.3.4",
