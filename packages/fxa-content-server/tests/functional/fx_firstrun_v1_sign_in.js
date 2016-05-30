@@ -32,9 +32,8 @@ define([
     options = options || {};
 
     return this.parent
-      .then(clearBrowserState(context))
       .then(createUser(email, PASSWORD, { preVerified: preVerified }))
-      .then(openPage(context, options.pageUrl || PAGE_URL, '#fxa-signin-header'))
+      .then(openPage(context, options.pageUrl || PAGE_URL, '.email'))
       .then(respondToWebChannelMessage(context, 'fxaccounts:can_link_account', { ok: options.canLinkAccountResponse !== false }))
       // delay for the webchannel message
       .sleep(500)
@@ -49,7 +48,9 @@ define([
       email = TestHelpers.createEmail();
 
       return this.remote
-        .then(clearBrowserState(this));
+        .then(clearBrowserState(this, {
+          force: true
+        }));
     },
 
     'verified': function () {
