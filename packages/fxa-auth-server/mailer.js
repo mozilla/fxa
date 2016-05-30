@@ -127,7 +127,11 @@ module.exports = function (log) {
       }, message.headers)
     }
 
-    log.info({ op: 'mailer.send', email: message.email })
+    log.info({
+      email: message.email,
+      op: 'mailer.send',
+      template: message.template
+    })
 
     var d = P.defer()
     this.mailer.sendMail(
