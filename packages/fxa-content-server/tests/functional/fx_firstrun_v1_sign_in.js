@@ -36,6 +36,8 @@ define([
       .then(createUser(email, PASSWORD, { preVerified: preVerified }))
       .then(openPage(context, options.pageUrl || PAGE_URL, '#fxa-signin-header'))
       .then(respondToWebChannelMessage(context, 'fxaccounts:can_link_account', { ok: options.canLinkAccountResponse !== false }))
+      // delay for the webchannel message
+      .sleep(500)
       .then(fillOutSignIn(context, email, PASSWORD))
       .then(testIsBrowserNotified(context, 'fxaccounts:can_link_account'));
   });
