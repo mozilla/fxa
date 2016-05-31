@@ -223,6 +223,13 @@ section.avatar-panel {
 
   .button-row {
     margin-bottom: 0;
-    text-align: left;
+
+    html[dir=ltr] & {
+      text-align: left;
+    }
+
+    html[dir=rtl] & {
+      text-align: right;
+    }
   }
 }
