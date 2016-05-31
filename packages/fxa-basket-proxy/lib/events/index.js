@@ -47,7 +47,8 @@ function onLogin (message, cb) {
     service: message.service,
     fxa_id: message.uid,
     first_device: message.deviceCount === 1,
-    user_agent: message.userAgent
+    user_agent: message.userAgent,
+    metrics_context: message.metricsContext || {}
   }, 'json');
 }
 

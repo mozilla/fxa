@@ -53,7 +53,8 @@ describe('the handleEvent() function', function () {
         service: SERVICE,
         fxa_id: UID,
         first_device: true,
-        user_agent: USER_AGENT
+        user_agent: USER_AGENT,
+        metrics_context: {}
       });
       return true;
     }).reply(200, {
@@ -81,7 +82,8 @@ describe('the handleEvent() function', function () {
         service: SERVICE,
         fxa_id: UID,
         first_device: false,
-        user_agent: USER_AGENT
+        user_agent: USER_AGENT,
+        metrics_context: {}
       });
       return true;
     }).reply(200, {
@@ -94,6 +96,42 @@ describe('the handleEvent() function', function () {
       email: EMAIL,
       deviceCount: 2,
       userAgent: USER_AGENT,
+      del: function () {
+        done();
+      }
+    });
+  });
+
+  it('calls /fxa-activity with metrics context data', function (done) {
+    mocks.mockBasketResponse({
+      reqheaders: { 'content-type': 'application/json' }
+    }).post('/fxa-activity/', function (body) {
+      assert.deepEqual(body, {
+        activity: 'account.login',
+        service: SERVICE,
+        fxa_id: UID,
+        first_device: false,
+        user_agent: USER_AGENT,
+        metrics_context: {
+          utm_campaign: 'test-campaign',
+          utm_source: 'firstrun'
+        }
+      });
+      return true;
+    }).reply(200, {
+      status: 'ok'
+    });
+    events.handleEvent({
+      event: 'login',
+      service: SERVICE,
+      uid: UID,
+      email: EMAIL,
+      deviceCount: 2,
+      userAgent: USER_AGENT,
+      metricsContext: {
+        utm_campaign: 'test-campaign',
+        utm_source: 'firstrun'
+      },
       del: function () {
         done();
       }
