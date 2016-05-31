@@ -15,16 +15,16 @@
 
   .left {
     float: left;
+    max-width: 50%;
     padding: 0 4% 0 0;
     text-align: left;
-    width: 50%;
   }
 
   .right {
     float: right;
+    max-width: 50%;
     padding: 0 0 0 4%;
     text-align: right;
-    width: 50%;
   }
 
   a {
@@ -131,9 +131,9 @@ ul.links {
     display: block;
     float: none;
     margin: 5px 0;
+    max-width: 100%;
     padding: 0;
     text-align: center;
-    width: 100%;
   }
 }
 
