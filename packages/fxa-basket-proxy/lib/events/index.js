@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var url = require('url');
 var Promise = require('bluebird');
 var basket = require('../basket');
 var logger = require('../logging')('events');
@@ -16,6 +17,9 @@ var NEWSLETTER_CAMPAIGN_IDS = config.get('basket.newsletter_campaign_ids')
     setOfIds[id] = true;
     return setOfIds;
   }, {});
+
+var SOURCE_URL_BASE = config.get('basket.source_url');
+
 
 var messageHandlers = {
   verified: onVerified,
@@ -59,17 +63,22 @@ function onLogin (message, cb) {
     // subscribing to the newsletter identified in utm_content.
     if (metrics.utm_campaign in NEWSLETTER_CAMPAIGN_IDS) {
       var newsletter = metrics.utm_content;
-      logger.info('campaign-subscribe', {
+      var source_url = url.parse(SOURCE_URL_BASE, true);
+      for (var key in metrics) {
+        if (key.indexOf('utm_') === 0) {
+          source_url.query[key] = metrics[key];
+        }
+      }
+      var params = {
         email: message.email,
-        newsletter: newsletter
-      });
+        newsletters: newsletter,
+        source_url: url.format(source_url)
+      };
+      logger.info('campaign-subscribe', params);
       return new Promise(function (resolve, reject) {
         var req = {
           method: 'post',
-          form: {
-            email: message.email,
-            newsletters: newsletter
-          }
+          form: params
         };
         basket.request('/subscribe/', req, function (err, res, body) {
           // Reject on network-level errors, causing the event to be retried.

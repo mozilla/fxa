@@ -56,6 +56,12 @@ var conf = module.exports = convict({
       default: ['test-newsletter-campaign'],
       env: 'BASKET_NEWSLETTER_CAMPAIGN_IDS'
     },
+    source_url: {
+      doc: 'The source_url value to report to basket in subscription requests',
+      format: String,
+      default: 'https://accounts.firefox.com',
+      env: 'BASKET_SOURCE_URL'
+    },
     sqs: {
       region: {
         doc: 'The region where the queues live, e.g. us-east-1, us-west-2',

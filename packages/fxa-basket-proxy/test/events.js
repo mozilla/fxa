@@ -253,10 +253,12 @@ describe('the handleEvent() function', function () {
   it('subscribes to newsletters when given specific utm params', function (done) {
     var EMAIL = 'test@example.com';
     var NEWSLETTER = 'campaign1';
+    var SOURCE_URL = 'https://accounts.firefox.com/?utm_campaign=test-newsletter-campaign&utm_source=firstrun&utm_content=campaign1';
     mocks.mockBasketResponse().post('/subscribe/', function (body) {
       assert.deepEqual(body, {
         email: EMAIL,
-        newsletters: NEWSLETTER
+        newsletters: NEWSLETTER,
+        source_url: SOURCE_URL
       });
       return true;
     }).reply(200, {
@@ -302,12 +304,14 @@ describe('the handleEvent() function', function () {
   it('does not delete events on network-level error in campaign subscription', function (done) {
     var EMAIL = 'test@example.com';
     var NEWSLETTER = 'campaign1';
+    var SOURCE_URL = 'https://accounts.firefox.com/?utm_campaign=test-newsletter-campaign&utm_source=firstrun&utm_content=campaign1';
     mocks.mockBasketResponse({
       reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
     }).post('/subscribe/', function (body) {
       assert.deepEqual(body, {
         email: EMAIL,
-        newsletters: NEWSLETTER
+        newsletters: NEWSLETTER,
+        source_url: SOURCE_URL
       });
       return true;
     }).replyWithError('ruh-roh!');
@@ -335,12 +339,14 @@ describe('the handleEvent() function', function () {
   it('does delete events on HTTP-level error in campaign subscription', function (done) {
     var EMAIL = 'test@example.com';
     var NEWSLETTER = 'campaign1';
+    var SOURCE_URL = 'https://accounts.firefox.com/?utm_campaign=test-newsletter-campaign&utm_source=firstrun&utm_content=campaign1';
     mocks.mockBasketResponse({
       reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
     }).post('/subscribe/', function (body) {
       assert.deepEqual(body, {
         email: EMAIL,
-        newsletters: NEWSLETTER
+        newsletters: NEWSLETTER,
+        source_url: SOURCE_URL
       });
       return true;
     }).reply(500, {
