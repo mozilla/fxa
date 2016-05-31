@@ -180,7 +180,7 @@ describe('the handleEvent() function', function () {
       del: function () {
         assert.fail('should not delete the message from the queue');
       }
-    }, done);
+    }).then(done, function () { assert.fail('unhandled error'); });
   });
 
   it('does delete events if a HTTP-level error occurs', function (done) {
