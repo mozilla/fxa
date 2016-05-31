@@ -42,6 +42,7 @@ define([
             query: {
               context: 'fx_desktop_v3',
               email: email,
+              forceAboutAccounts: 'true',
               service: 'sync'
             }
           }).call(this);
@@ -63,6 +64,7 @@ define([
             query: {
               context: 'fx_desktop_v3',
               email: email,
+              forceAboutAccounts: 'true',
               service: 'sync',
               uid: accountInfo.uid
             }
@@ -84,6 +86,7 @@ define([
           query: {
             context: 'fx_desktop_v3',
             email: email,
+            forceAboutAccounts: 'true',
             service: 'sync',
             uid: TestHelpers.createUID()
           }
@@ -108,6 +111,7 @@ define([
           query: {
             context: 'fx_desktop_v3',
             email: email,
+            forceAboutAccounts: 'true',
             service: 'sync'
           }
         }))
@@ -143,6 +147,7 @@ define([
             query: {
               context: 'fx_desktop_v3',
               email: unregisteredEmail,
+              forceAboutAccounts: 'true',
               service: 'sync',
               uid: accountInfo.uid
             }
@@ -165,6 +170,7 @@ define([
           query: {
             context: 'fx_desktop_v3',
             email: email,
+            forceAboutAccounts: 'true',
             service: 'sync',
             uid: TestHelpers.createUID()
           }

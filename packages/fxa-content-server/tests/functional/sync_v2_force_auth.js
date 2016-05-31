@@ -22,15 +22,22 @@ define([
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
-  var setupTest = thenify(function (context, isUserVerified) {
+  var setupTest = thenify(function (context, options) {
+    options = options || {};
+    var forceAuthOptions = { query: {
+      context: 'fx_desktop_v2',
+      email: email,
+      service: 'sync'
+    }};
+
+    if (options.forceAboutAccounts) {
+      forceAuthOptions.query.forceAboutAccounts = 'true';
+    }
+
     return this.parent
       .then(clearBrowserState(context))
-      .then(createUser(email, PASSWORD, { preVerified: isUserVerified }))
-      .then(openForceAuth({ query: {
-        context: 'fx_desktop_v2',
-        email: email,
-        service: 'sync'
-      }}))
+      .then(createUser(email, PASSWORD, { preVerified: options.isUserVerified }))
+      .then(openForceAuth(forceAuthOptions))
       .then(noSuchBrowserNotification(context, 'fxaccounts:logout'))
       .then(respondToWebChannelMessage(context, 'fxaccounts:can_link_account', { ok: true } ))
       .then(fillOutForceAuth(PASSWORD))
@@ -46,9 +53,12 @@ define([
       email = TestHelpers.createEmail();
     },
 
-    'verified': function () {
+    'verified - about:accounts': function () {
       return this.remote
-        .then(setupTest(this, true))
+        .then(setupTest(this, {
+          forceAboutAccounts: true,
+          isUserVerified: true
+        }))
 
         // about:accounts will take over post-verification, no transition
         .then(noPageTransition('#fxa-force-auth-header'))
@@ -56,9 +66,33 @@ define([
         .then(testIsBrowserNotified(this, 'fxaccounts:login'));
     },
 
-    'unverified': function () {
+    'unverified - about:accounts': function () {
       return this.remote
-        .then(setupTest(this, false))
+        .then(setupTest(this,  {
+          forceAboutAccounts: true,
+          isUserVerified: false
+        }))
+        .then(testElementExists('#fxa-confirm-header'))
+
+        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'));
+    },
+
+    'verified - web flow': function () {
+      return this.remote
+        .then(setupTest(this, {
+          isUserVerified: true
+        }))
+        .then(testElementExists('#fxa-settings-header'))
+        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'));
+    },
+
+    'unverified - web flow': function () {
+      return this.remote
+        .then(setupTest(this,  {
+          isUserVerified: false
+        }))
         .then(testElementExists('#fxa-confirm-header'))
 
         .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))

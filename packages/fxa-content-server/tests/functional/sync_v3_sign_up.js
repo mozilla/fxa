@@ -11,7 +11,7 @@ define([
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, assert, require, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
-  var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v3&service=sync';
+  var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v3&service=sync&forceAboutAccounts=true';
 
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
 

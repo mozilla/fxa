@@ -165,5 +165,35 @@ define(function (require, exports, module) {
           assert.isFalse(broker.hasCapability('chooseWhatToSyncCheckbox'));
         });
     });
+
+    describe('fetch', function () {
+      it('uses halt behavior with about:accounts', function () {
+        sinon.stub(broker.environment, 'isAboutAccounts', function () {
+          return true;
+        });
+
+        return broker.fetch()
+          .then(function () {
+            assert.equal(broker.getBehavior('afterForceAuth').type, 'halt');
+            assert.equal(broker.getBehavior('afterResetPasswordConfirmationPoll').type, 'halt');
+            assert.equal(broker.getBehavior('afterSignIn').type, 'halt');
+            assert.equal(broker.getBehavior('beforeSignUpConfirmationPoll').type, 'halt');
+          });
+      });
+
+      it('uses null behavior with web flow', function () {
+        sinon.stub(broker.environment, 'isAboutAccounts', function () {
+          return false;
+        });
+
+        return broker.fetch()
+          .then(function () {
+            assert.equal(broker.getBehavior('afterForceAuth').type, 'null');
+            assert.equal(broker.getBehavior('afterResetPasswordConfirmationPoll').type, 'null');
+            assert.equal(broker.getBehavior('afterSignIn').type, 'null');
+            assert.equal(broker.getBehavior('beforeSignUpConfirmationPoll').type, 'null');
+          });
+      });
+    });
   });
 });

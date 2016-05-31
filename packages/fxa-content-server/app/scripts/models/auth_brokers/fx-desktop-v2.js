@@ -17,6 +17,7 @@ define(function (require, exports, module) {
   var Constants = require('lib/constants');
   var FxSyncWebChannelAuthenticationBroker = require('./fx-sync-web-channel');
   var HaltBehavior = require('views/behaviors/halt');
+  var NullBehavior = require('views/behaviors/null');
   var p = require('lib/promise');
 
   var proto = FxSyncWebChannelAuthenticationBroker.prototype;
@@ -63,6 +64,24 @@ define(function (require, exports, module) {
       return self._notifyRelierOfLogin(account)
         .then(function () {
           return proto.afterCompleteResetPassword.call(self, account);
+        });
+    },
+
+    fetch: function () {
+      var self = this;
+      return proto.fetch.call(self)
+        .then(function () {
+          if (! self.environment.isAboutAccounts()) {
+            // The default behavior of FxDesktop brokers is to halt before
+            // the signup confirmation poll because about:accounts takes care
+            // of polling and updating the UI. However if we are not in about:accounts
+            // we do not want the halting behavior.
+            self._behaviors.keys().forEach(function (behaviorName) {
+              if (self.getBehavior(behaviorName).type === 'halt') {
+                self.setBehavior(behaviorName, new NullBehavior());
+              }
+            });
+          }
         });
     }
   });

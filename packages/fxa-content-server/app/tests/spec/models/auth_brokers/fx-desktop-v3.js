@@ -7,6 +7,7 @@ define(function (require, exports, module) {
 
   var chai = require('chai');
   var FxDesktopV3AuthenticationBroker = require('models/auth_brokers/fx-desktop-v3');
+  var sinon = require('sinon');
   var WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
@@ -15,7 +16,7 @@ define(function (require, exports, module) {
     var broker;
     var windowMock;
 
-    before(function () {
+    beforeEach(function () {
       windowMock = new WindowMock();
 
       broker = new FxDesktopV3AuthenticationBroker({
@@ -30,6 +31,36 @@ define(function (require, exports, module) {
 
       it('has the `allowUidChange` capability', function () {
         assert.isTrue(broker.hasCapability('allowUidChange'));
+      });
+    });
+
+    describe('fetch', function () {
+      it('uses halt behavior with about:accounts', function () {
+        sinon.stub(broker.environment, 'isAboutAccounts', function () {
+          return true;
+        });
+
+        return broker.fetch()
+          .then(function () {
+            assert.equal(broker.getBehavior('afterForceAuth').type, 'halt');
+            assert.equal(broker.getBehavior('afterResetPasswordConfirmationPoll').type, 'halt');
+            assert.equal(broker.getBehavior('afterSignIn').type, 'halt');
+            assert.equal(broker.getBehavior('beforeSignUpConfirmationPoll').type, 'halt');
+          });
+      });
+
+      it('uses null behavior with web flow', function () {
+        sinon.stub(broker.environment, 'isAboutAccounts', function () {
+          return false;
+        });
+
+        return broker.fetch()
+          .then(function () {
+            assert.equal(broker.getBehavior('afterForceAuth').type, 'null');
+            assert.equal(broker.getBehavior('afterResetPasswordConfirmationPoll').type, 'null');
+            assert.equal(broker.getBehavior('afterSignIn').type, 'null');
+            assert.equal(broker.getBehavior('beforeSignUpConfirmationPoll').type, 'null');
+          });
       });
     });
   });

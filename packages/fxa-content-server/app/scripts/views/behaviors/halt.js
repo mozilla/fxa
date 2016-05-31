@@ -19,6 +19,7 @@ define(function (require, exports, module) {
 
     // used by form.afterSubmit to keep a form disabled.
     behavior.halt = true;
+    behavior.type = 'halt';
 
     return behavior;
   };

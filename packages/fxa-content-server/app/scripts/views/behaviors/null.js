@@ -14,6 +14,7 @@ define(function (require, exports, module) {
     var behavior = function (/*view*/) {
       // do nothing
     };
+    behavior.type = 'null';
 
     return behavior;
   };

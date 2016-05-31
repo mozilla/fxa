@@ -13,6 +13,7 @@ define(function (require, exports, module) {
   var AuthErrors = require('lib/auth-errors');
   var Backbone = require('backbone');
   var Cocktail = require('cocktail');
+  var Environment = require('lib/environment');
   var NullBehavior = require('views/behaviors/null');
   var p = require('lib/promise');
   var SameBrowserVerificationModel = require('models/verification/same-browser');
@@ -31,6 +32,7 @@ define(function (require, exports, module) {
 
       this.relier = options.relier;
       this.window = options.window || window;
+      this.environment = new Environment(this.window);
 
       this._behaviors = new Backbone.Model(this.defaultBehaviors);
       this._capabilities = new Backbone.Model(this.defaultCapabilities);

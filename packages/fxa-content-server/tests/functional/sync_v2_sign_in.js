@@ -9,7 +9,7 @@ define([
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
-  var PAGE_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v2&service=sync';
+  var PAGE_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v2&service=sync&forceAboutAccounts=true';
 
   var email;
   var PASSWORD = '12345678';

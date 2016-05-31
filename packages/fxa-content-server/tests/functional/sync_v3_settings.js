@@ -24,8 +24,8 @@ define([
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   var config = intern.config;
-  var SIGNIN_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v3&service=sync';
-  var SETTINGS_URL = config.fxaContentRoot + 'settings?context=fx_desktop_v3&service=sync';
+  var SIGNIN_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v3&service=sync&forceAboutAccounts=true';
+  var SETTINGS_URL = config.fxaContentRoot + 'settings?context=fx_desktop_v3&service=sync&forceAboutAccounts=true';
 
   var FIRST_PASSWORD = 'password';
   var SECOND_PASSWORD = 'new_password';

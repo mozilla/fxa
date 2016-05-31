@@ -24,6 +24,7 @@ define(function (require, exports, module) {
     // used for testing
     behavior.endpoint = endpoint;
     behavior.halt = true;
+    behavior.type = 'navigate';
 
     return behavior;
   };
