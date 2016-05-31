@@ -50,6 +50,12 @@ var conf = module.exports = convict({
       format: 'duration',
       default: '5 seconds'
     },
+    newsletter_campaign_ids: {
+      doc: 'Values of utm_campaign that identify a newsletter campaign',
+      format: Array,
+      default: ['test-newsletter-campaign'],
+      env: 'BASKET_NEWSLETTER_CAMPAIGN_IDS'
+    },
     sqs: {
       region: {
         doc: 'The region where the queues live, e.g. us-east-1, us-west-2',

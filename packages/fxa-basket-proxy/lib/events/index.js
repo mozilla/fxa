@@ -6,6 +6,17 @@ var Promise = require('bluebird');
 var basket = require('../basket');
 var logger = require('../logging')('events');
 
+var config = require('../config');
+
+// Certain special values of the utm_campaign metrics parameters
+// are used to indicate a newsletter campaign, and cause us to
+// auto-subscribe the user to a particular newsletter.
+var NEWSLETTER_CAMPAIGN_IDS = config.get('basket.newsletter_campaign_ids')
+  .reduce(function (setOfIds, id) {
+    setOfIds[id] = true;
+    return setOfIds;
+  }, {});
+
 var messageHandlers = {
   verified: onVerified,
   login: onLogin
@@ -42,23 +53,63 @@ function onVerified (message) {
 
 // For each new login, inform basket so it can build up a user model.
 function onLogin (message, cb) {
-  return forwardEvent(message, '/fxa-activity/', {
-    activity: 'account.login',
-    service: message.service,
-    fxa_id: message.uid,
-    first_device: message.deviceCount === 1,
-    user_agent: message.userAgent,
-    metrics_context: message.metricsContext || {}
-  }, 'json');
+  var metrics = message.metricsContext || {};
+  return Promise.resolve().then(function () {
+    // If utm_campaign indicates it's a newsletter campaign, flag it by
+    // subscribing to the newsletter identified in utm_content.
+    if (metrics.utm_campaign in NEWSLETTER_CAMPAIGN_IDS) {
+      var newsletter = metrics.utm_content;
+      logger.info('campaign-subscribe', {
+        email: message.email,
+        newsletter: newsletter
+      });
+      return new Promise(function (resolve, reject) {
+        var req = {
+          method: 'post',
+          form: {
+            email: message.email,
+            newsletters: newsletter
+          }
+        };
+        basket.request('/subscribe/', req, function (err, res, body) {
+          // Reject on network-level errors, causing the event to be retried.
+          if (err) {
+            message.err = err;
+            logger.error('campaign-subscribe.error.network', message);
+            return reject(err);
+          }
+          // If the request was received and understood by basket,
+          // but got rejected, then log it and ignore.  There's no
+          // point retrying it as we'd just get the same result again.
+          if (res.statusCode < 200 || res.statusCode >= 300) {
+            message.status = res.statusCode;
+            message.body = body;
+            logger.error('campaign-subscribe.error.http', message);
+          }
+          return resolve();
+        });
+      });
+    }
+  }).then(function () {
+    // Pass on all logins to basket, for metrics and analysis purposes.
+    return forwardEvent(message, '/fxa-activity/', {
+      activity: 'account.login',
+      service: message.service,
+      fxa_id: message.uid,
+      first_device: message.deviceCount === 1,
+      user_agent: message.userAgent,
+      metrics_context: metrics
+    }, 'json');
+  });
 }
 
 /* eslint-enable camelcase */
 
 function forwardEvent (message, endpoint, data, dataFormat) {
-  return new Promise(function (cb) {
+  return new Promise(function (resolve, reject) {
     // Ignore email addresses that are clearly from dev testing.
     if (shouldIgnoreEmail(message.email)) {
-      message.del(cb);
+      message.del(resolve);
       return;
     }
 
@@ -72,7 +123,7 @@ function forwardEvent (message, endpoint, data, dataFormat) {
       if (err) {
         message.err = err;
         logger.error('forward-event.error.network', message);
-        return cb();
+        return reject(err);
       }
 
       message.status = res.statusCode;
@@ -85,7 +136,7 @@ function forwardEvent (message, endpoint, data, dataFormat) {
         logger.info('forward-event', message);
       }
 
-      message.del(cb);
+      message.del(resolve);
     });
   });
 }
