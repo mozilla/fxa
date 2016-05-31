@@ -2,18 +2,19 @@
   background: $error-background-color;
   border-radius: $small-border-radius;
   color: $message-text-color;
-  
-  html[dir=ltr] & {
-  	left: 3px;
-  }
-  
-  html[dir=rtl] & {
-  	right: 3px;
-  }
   padding: 5px 12px;
   position: absolute;
   top: -32px;
   z-index: 5;
+
+  html[dir=ltr] & {
+    left: 3px;
+  }
+
+  html[dir=rtl] & {
+    right: 3px;
+  }
+
 
   /* tooltip caret */
   &:before,
@@ -22,14 +23,6 @@
     bottom: -8px;
     content: '.';
     height: 16px;
-    
-    html[dir=ltr] & {
-      left: 12px;
-    }
-    
-    html[dir=rtl] & {
-  	  right: 12px;
-  	}
     position: absolute;
     text-indent: -999px;
     transform: rotate(45deg);
@@ -37,6 +30,14 @@
     width: 16px;
     // The z-index must be -1 or else the caret is displayed on top of the tooltip text
     z-index: -1;
+
+    html[dir=ltr] & {
+      left: 12px;
+    }
+
+    html[dir=rtl] & {
+      right: 12px;
+    }
   }
 
   &.tooltip-suggest {
