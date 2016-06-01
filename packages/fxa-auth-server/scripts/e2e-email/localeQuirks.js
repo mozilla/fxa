@@ -15,6 +15,7 @@ var translationQuirks = {
   'Verify your Firefox Account': [
     'en',
     'en-GB',
+    'ar',
     'bg',
     'es-AR',
     'ff',
@@ -25,6 +26,7 @@ var translationQuirks = {
   'Firefox Account Verified': [
     'en',
     'en-GB',
+    'ar',
     'es-AR',
     'ff',
     'he',
@@ -35,6 +37,7 @@ var translationQuirks = {
   'Reset your Firefox Account password': [
     'en',
     'en-GB',
+    'ar',
     'bg',
     'es-AR',
     'ff',
@@ -45,6 +48,7 @@ var translationQuirks = {
   'Re-verify your Firefox Account': [
     'en',
     'en-GB',
+    'ar',
     'bg',
     'es-AR',
     'ff',
@@ -55,6 +59,7 @@ var translationQuirks = {
   'New sign-in to Firefox': [
     'en',
     'en-GB',
+    'ar',
     'bg',
     'es',
     'es-AR',
@@ -74,6 +79,7 @@ var translationQuirks = {
   'Your Firefox Account password has been changed': [
     'en',
     'en-GB',
+    'ar',
     'bg',
     'es-AR',
     'ff',
@@ -84,6 +90,7 @@ var translationQuirks = {
   'Your Firefox Account password has been reset': [
     'en',
     'en-GB',
+    'ar',
     'bg',
     'es-AR',
     'ff',
