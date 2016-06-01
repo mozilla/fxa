@@ -942,6 +942,11 @@ module.exports = function (
         if (request.query && request.query.reason === 'push') {
           // only log recovery_email requests with 'push' to avoid sending too many requests.
           log.increment('recovery_email_reason.push')
+          // log to the push namespace that account was verified via push
+          log.info({
+            op: 'push.pushToDevices',
+            name: 'recovery_email_reason.push'
+          })
         }
 
         cleanUpIfAccountInvalid()
