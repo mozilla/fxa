@@ -1040,7 +1040,8 @@ module.exports = function (
         validate: {
           payload: {
             uid: isA.string().max(32).regex(HEX_STRING).required(),
-            code: isA.string().min(32).max(32).regex(HEX_STRING).required()
+            code: isA.string().min(32).max(32).regex(HEX_STRING).required(),
+            service: isA.string().max(16).alphanum().optional()
           }
         }
       },
@@ -1048,6 +1049,7 @@ module.exports = function (
         log.begin('Account.RecoveryEmailVerify', request)
         var uid = request.payload.uid
         var code = Buffer(request.payload.code, 'hex')
+        var service = request.payload.service || request.query.service
         db.account(Buffer(uid, 'hex'))
           .then(
             function (account) {
@@ -1072,13 +1074,21 @@ module.exports = function (
               push.notifyUpdate(uid, 'accountVerify')
 
               return db.verifyEmail(account)
-                .then(mailer.sendPostVerifyEmail.bind(
-                    mailer,
-                    account.email,
-                    {
-                      acceptLanguage: request.app.acceptLanguage
+                .then(
+                  function() {
+                    // Our post-verification email is very specific to sync,
+                    // so don't send it if we're sure this is not for sync.
+                    // Older clients will not send a 'service' param here
+                    // so we can't always be sure.
+                    if (! service || service === 'sync') {
+                      return mailer.sendPostVerifyEmail(
+                        account.email,
+                        {
+                          acceptLanguage: request.app.acceptLanguage
+                        }
+                      )
                     }
-                  )
+                  }
                 )
             }
           )
