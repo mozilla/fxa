@@ -40,6 +40,12 @@ var messageContentChecks = [
     xheaders: [],
   },
   {
+    subject: 'New sign-in to Sync',
+    pathname: '/settings/change_password',
+    args: [ 'email' ],
+    xheaders: [],
+  },
+  {
     subject: 'Your Firefox Account password has been changed',
     pathname: '/reset_password',
     args: [ 'email' ],
@@ -123,7 +129,7 @@ function ensureNonZeroContent(body, errmsg, lang) {
 
 function verifyMailbox(mbox) {
   var lang = langFromEmail(mbox[0].headers.to)
-  if (mbox.length !== 6) {
+  if (mbox.length !== 7) {
     return reportError(lang, 'Missing email response, count: ' + mbox.length)
   }
 
