@@ -20,14 +20,7 @@ define(function (require, exports, module) {
   var ResumeTokenMixin = require('models/mixins/resume-token');
   var SearchParamMixin = require('models/mixins/search-param');
   var Storage = require('lib/storage');
-  var uuid = require('uuid');
   var vat = require('lib/vat');
-
-  function createHex32 () {
-    // Compose a random 32-byte hex value from two UUIDs
-    // concatenated with the hyphens stripped out.
-    return (uuid.v4() + uuid.v4()).replace(/-/g, '');
-  }
 
   var User = Backbone.Model.extend({
     initialize: function (options) {
@@ -58,16 +51,13 @@ define(function (require, exports, module) {
     },
 
     defaults: {
-      // flowId identifies an event flow, which may span across multiple devices.
-      flowId: null,
       // uniqueUserId is a stable identifier for this User on this computer.
       uniqueUserId: null
     },
 
-    resumeTokenFields: ['flowId', 'uniqueUserId'],
+    resumeTokenFields: ['uniqueUserId'],
 
     resumeTokenSchema: {
-      flowId: vat.hex().len(64),
       uniqueUserId: vat.uuid()
     },
 
@@ -78,12 +68,6 @@ define(function (require, exports, module) {
       return p()
         .then(function () {
           self.populateFromStringifiedResumeToken(self.getSearchParam('resume'));
-          if (! self.has('flowId')) {
-            // Only create a new flowId if one hasn't
-            // been passed to us in the resume token.
-            self.set('flowId', createHex32());
-          }
-          self._metrics.setActivityEventMetadata('flowId', self.get('flowId'));
         });
     },
 
@@ -416,7 +400,6 @@ define(function (require, exports, module) {
 
       return account.signOut()
         .fin(function () {
-          self.unset('flowId');
           // Clear the session, even on failure. Everything is A-OK.
           // See issue #616
           if (self.isSignedInAccount(account)) {

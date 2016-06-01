@@ -103,7 +103,6 @@ define(function (require, exports, module) {
     this.sessionStorage = new NullStorage();
     this.top = this;
 
-
     this.MutationObserver = MutationObserver;
   }
 

@@ -269,9 +269,13 @@ define(function (require, exports, module) {
       errno: 1036,
       message: t('Missing property in resume token: %(property)s')
     },
-    INVALID_DATA_FLOW_BEGIN_ATTR: {
+    INVALID_DATA_ATTRIBUTE: {
       errno: 1037,
-      message: t('Invalid data-flow-begin attribute')
+      message: t('Invalid data attribute: %(property)s')
+    },
+    MISSING_DATA_ATTRIBUTE: {
+      errno: 1038,
+      message: t('Missing data attribute: %(property)s')
     }
   };
   /*eslint-enable sorting/sort-object-props*/
@@ -300,6 +304,14 @@ define(function (require, exports, module) {
             property: err.property
           };
         } else if (this.is(err, 'MISSING_RESUME_TOKEN_PROPERTY')) {
+          return {
+            property: err.property
+          };
+        } else if (this.is(err, 'INVALID_DATA_ATTRIBUTE')) {
+          return {
+            property: err.property
+          };
+        } else if (this.is(err, 'MISSING_DATA_ATTRIBUTE')) {
           return {
             property: err.property
           };

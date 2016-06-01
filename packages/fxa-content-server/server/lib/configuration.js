@@ -119,6 +119,11 @@ var conf = module.exports = convict({
       doc: 'poll the experiments git repo for changes'
     }
   },
+  flow_id_key: {
+    default: 'YOU MUST CHANGE ME',
+    doc: 'HMAC key used to verify flow event data',
+    format: String
+  },
   fxaccount_url: {
     default: 'http://127.0.0.1:9000',
     doc: 'The url of the Firefox Account auth server',

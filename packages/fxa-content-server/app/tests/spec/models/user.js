@@ -15,7 +15,6 @@ define(function (require, exports, module) {
   var MarketingEmailErrors = require('lib/marketing-email-errors');
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
-  var ResumeToken = require('models/resume-token');
   var Session = require('lib/session');
   var SentryMetrics = require('lib/sentry');
   var sinon = require('sinon');
@@ -27,8 +26,6 @@ define(function (require, exports, module) {
   var EMAIL = 'a@a.com';
   var SESSION_TOKEN = 'session token';
   var UUID = '12345678-1234-1234-1234-1234567890ab';
-  var VALID_FLOW_ID = '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
-  var INVALID_FLOW_ID = VALID_FLOW_ID + '1';
 
   describe('models/user', function () {
     var fxaClientMock;
@@ -1080,133 +1077,6 @@ define(function (require, exports, module) {
 
       it('returns a promise that resolves to whether the account exists', function () {
         assert.isFalse(exists);
-      });
-    });
-
-    describe('fetch with valid flowId', function () {
-      var resumeToken, result;
-
-      beforeEach(function () {
-        resumeToken = new ResumeToken({
-          flowId: VALID_FLOW_ID,
-          uniqueUserId: UUID
-        });
-        sinon.stub(user, 'getSearchParam', function () {
-          return resumeToken.stringify();
-        });
-        sinon.spy(user, 'populateFromStringifiedResumeToken');
-        result = user.fetch();
-        return result;
-      });
-
-      afterEach(function () {
-        user.populateFromStringifiedResumeToken.reset();
-        user.getSearchParam.restore();
-      });
-
-      it('returned a promise', function () {
-        assert.isObject(result);
-        assert.strictEqual(result.constructor.name, 'Promise');
-      });
-
-      it('called self.getSearchParam correctly', function () {
-        assert.strictEqual(user.getSearchParam.callCount, 2);
-        var args = user.getSearchParam.args[1];
-        assert.lengthOf(args, 1);
-        assert.strictEqual(args[0], 'resume');
-      });
-
-      it('called self.populateFromStringifiedResumeToken correctly', function () {
-        assert.strictEqual(user.populateFromStringifiedResumeToken.callCount, 2);
-        var args = user.populateFromStringifiedResumeToken.args[1];
-        assert.lengthOf(args, 1);
-        assert.strictEqual(args[0], resumeToken.stringify());
-      });
-
-      it('maintained the same flowId', function () {
-        assert.isTrue(user.has('flowId'));
-        assert.strictEqual(user.get('flowId'), VALID_FLOW_ID);
-      });
-
-      it('called metrics.setActivityEventMetadata correctly', function () {
-        assert.strictEqual(metrics.setActivityEventMetadata.callCount, 2);
-        var args = metrics.setActivityEventMetadata.args[1];
-        assert.lengthOf(args, 2);
-        assert.strictEqual(args[0], 'flowId');
-        assert.strictEqual(args[1], VALID_FLOW_ID);
-      });
-    });
-
-    describe('fetch without flowId', function () {
-      beforeEach(function () {
-        sinon.stub(user, 'getSearchParam', function () {
-          return (new ResumeToken({
-            uniqueUserId: UUID
-          })).stringify();
-        });
-        sinon.spy(user, 'populateFromStringifiedResumeToken');
-        return user.fetch();
-      });
-
-      afterEach(function () {
-        user.populateFromStringifiedResumeToken.reset();
-        user.getSearchParam.restore();
-      });
-
-      it('called self.getSearchParam', function () {
-        assert.strictEqual(user.getSearchParam.callCount, 2);
-      });
-
-      it('called self.populateFromStringifiedResumeToken', function () {
-        assert.strictEqual(user.populateFromStringifiedResumeToken.callCount, 2);
-      });
-
-      it('set a new flowId', function () {
-        assert.isTrue(user.has('flowId'));
-        assert.match(user.get('flowId'), /^[0-9a-f]{64}$/i);
-      });
-
-      it('called metrics.setActivityEventMetadata correctly', function () {
-        assert.strictEqual(metrics.setActivityEventMetadata.callCount, 2);
-        var args = metrics.setActivityEventMetadata.args[1];
-        assert.lengthOf(args, 2);
-        assert.strictEqual(args[0], 'flowId');
-        assert.strictEqual(args[1], user.get('flowId'));
-      });
-    });
-
-    describe('fetch with invalid flowId', function () {
-      var resumeToken;
-
-      beforeEach(function () {
-        resumeToken = new ResumeToken({
-          flowId: INVALID_FLOW_ID,
-          uniqueUserId: UUID
-        });
-        sinon.stub(user, 'getSearchParam', function () {
-          return resumeToken.stringify();
-        });
-        sinon.spy(user, 'populateFromStringifiedResumeToken');
-        return user.fetch();
-      });
-
-      afterEach(function () {
-        user.populateFromStringifiedResumeToken.reset();
-        user.getSearchParam.restore();
-      });
-
-      it('called self.getSearchParam', function () {
-        assert.strictEqual(user.getSearchParam.callCount, 2);
-      });
-
-      it('called self.populateFromStringifiedResumeToken', function () {
-        assert.strictEqual(user.populateFromStringifiedResumeToken.callCount, 2);
-      });
-
-      it('set a new flowId', function () {
-        assert.isTrue(user.has('flowId'));
-        assert.notEqual(user.get('flowId'), INVALID_FLOW_ID);
-        assert.match(user.get('flowId'), /^[0-9a-f]{64}$/i);
       });
     });
   });

@@ -20,94 +20,44 @@ define(function (require, exports, module) {
     });
 
     describe('afterRender', function () {
+      var FLOW_ID = 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103';
+
       beforeEach(function () {
         flowBeginMixin.metrics = {
           logFlowBegin: sinon.spy(),
           setActivityEventMetadata: sinon.spy()
         };
-        flowBeginMixin.user = {
-          get: sinon.spy(function () {
-            return 'foo';
-          })
-        };
         flowBeginMixin.logError = sinon.spy();
-        $('body').attr('data-flow-begin', '42');
+        $('body').data('flowId', FLOW_ID);
+        $('body').data('flowBegin', 42);
         flowBeginMixin.afterRender();
       });
 
-      it('called user.get correctly', function () {
-        assert.strictEqual(flowBeginMixin.user.get.callCount, 1);
-        var args = flowBeginMixin.user.get.args[0];
-        assert.strictEqual(args.length, 1);
-        assert.strictEqual(args[0], 'flowId');
+      it('correctly created a Flow model instance', function () {
+        assert.ok(flowBeginMixin.flow);
+        assert.strictEqual(flowBeginMixin.flow.get('flowId'), FLOW_ID);
+        assert.strictEqual(flowBeginMixin.flow.get('flowBegin'), 42);
       });
 
       it('called metrics.setActivityEventMetadata correctly', function () {
         assert.strictEqual(flowBeginMixin.metrics.setActivityEventMetadata.callCount, 1);
         var args = flowBeginMixin.metrics.setActivityEventMetadata.args[0];
-        assert.lengthOf(args, 2);
-        assert.strictEqual(args[0], 'flowBeginTime');
-        assert.strictEqual(args[1], 42);
+        assert.lengthOf(args, 1);
+        assert.lengthOf(Object.keys(args[0]), 2);
+        assert.strictEqual(args[0].flowId, FLOW_ID);
+        assert.strictEqual(args[0].flowBeginTime, 42);
       });
 
       it('called metrics.logFlowBegin correctly', function () {
         assert.strictEqual(flowBeginMixin.metrics.logFlowBegin.callCount, 1);
         var args = flowBeginMixin.metrics.logFlowBegin.args[0];
         assert.lengthOf(args, 2);
-        assert.strictEqual(args[0], 'foo');
+        assert.strictEqual(args[0], FLOW_ID);
         assert.strictEqual(args[1], 42);
       });
 
       it('did not call view.logError', function () {
         assert.strictEqual(flowBeginMixin.logError.callCount, 0);
-      });
-    });
-
-    describe('afterRender with invalid data-flow-begin attribute', function () {
-      beforeEach(function () {
-        flowBeginMixin.metrics = {
-          logFlowBegin: sinon.spy(),
-          setActivityEventMetadata: sinon.spy()
-        };
-        flowBeginMixin.user = {
-          get: sinon.spy(function () {
-            return 'wibble';
-          })
-        };
-        flowBeginMixin.logError = sinon.spy();
-        $('body').attr('data-flow-begin', 'bar');
-        flowBeginMixin.afterRender();
-      });
-
-      it('called user.get correctly', function () {
-        assert.strictEqual(flowBeginMixin.user.get.callCount, 1);
-        var args = flowBeginMixin.user.get.args[0];
-        assert.strictEqual(args.length, 1);
-        assert.strictEqual(args[0], 'flowId');
-      });
-
-      it('called metrics.set correctly', function () {
-        assert.strictEqual(flowBeginMixin.metrics.setActivityEventMetadata.callCount, 1);
-        var args = flowBeginMixin.metrics.setActivityEventMetadata.args[0];
-        assert.lengthOf(args, 2);
-        assert.strictEqual(args[0], 'flowBeginTime');
-        assert.isUndefined(args[1]);
-      });
-
-      it('called metrics.logFlowBegin correctly', function () {
-        assert.strictEqual(flowBeginMixin.metrics.logFlowBegin.callCount, 1);
-        var args = flowBeginMixin.metrics.logFlowBegin.args[0];
-        assert.lengthOf(args, 2);
-        assert.strictEqual(args[0], 'wibble');
-        assert.isUndefined(args[1]);
-      });
-
-      it('called view.logError correctly', function () {
-        assert.strictEqual(flowBeginMixin.logError.callCount, 1);
-        var args = flowBeginMixin.logError.args[0];
-        assert.lengthOf(args, 1);
-        assert.instanceOf(args[0], Error);
-        assert.equal(args[0].message, 'Invalid data-flow-begin attribute');
       });
     });
   });

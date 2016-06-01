@@ -7,21 +7,25 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var AuthErrors = require('lib/auth-errors');
+  var Flow = require('models/flow');
 
   module.exports = {
     afterRender: function () {
-      var flowId = this.user.get('flowId');
-      var flowBeginTime = parseInt($('body').attr('data-flow-begin'), 10);
+      var self = this;
 
-      if (! flowBeginTime) {
-        flowBeginTime = undefined;
-        this.logError(AuthErrors.toError('INVALID_DATA_FLOW_BEGIN_ATTR'));
-      }
+      self.flow = new Flow({
+        sentryMetrics: self.sentryMetrics,
+        window: self.window
+      });
 
-      this.metrics.setActivityEventMetadata('flowBeginTime', flowBeginTime);
-      this.metrics.logFlowBegin(flowId, flowBeginTime);
+      var flowId = self.flow.get('flowId');
+      var flowBegin = self.flow.get('flowBegin');
+
+      self.metrics.setActivityEventMetadata({
+        flowBeginTime: flowBegin,
+        flowId: flowId
+      });
+      self.metrics.logFlowBegin(flowId, flowBegin);
     }
   };
 });

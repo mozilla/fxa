@@ -48,7 +48,7 @@ define([
 
       'route.process': {
         setup: function () {
-          request = {};
+          request = { headers: {} };
           response = { render: sinon.spy() };
           instance.process(request, response);
         },
@@ -62,7 +62,8 @@ define([
           assert.equal(args[0], 'index');
 
           assert.isObject(args[1]);
-          assert.lengthOf(Object.keys(args[1]), 2);
+          assert.lengthOf(Object.keys(args[1]), 3);
+          assert.ok(/[0-9a-f]{64}/.exec(args[1].flowId));
           assert.isAbove(args[1].flowBeginTime, 0);
           assert.equal(args[1].staticResourceUrl, 'foo');
         }

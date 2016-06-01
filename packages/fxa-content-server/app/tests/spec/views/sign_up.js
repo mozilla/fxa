@@ -368,14 +368,11 @@ define(function (require, exports, module) {
     });
 
     describe('afterRender', function () {
+      var FLOW_ID = 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103';
+
       beforeEach(function () {
-        sinon.stub(user, 'get', function (attribute) {
-          if (attribute === 'flowId') {
-            return 'wibble';
-          }
-          return 'mock ' + attribute;
-        });
-        $('body').attr('data-flow-begin', '3.14159265');
+        $('body').data('flowId', FLOW_ID);
+        $('body').data('flowBegin', 3);
         sinon.spy(metrics, 'setActivityEventMetadata');
         sinon.spy(metrics, 'logFlowBegin');
         return view.afterRender();
@@ -384,16 +381,17 @@ define(function (require, exports, module) {
       it('called metrics.setActivityEventMetadata correctly', function () {
         assert.equal(metrics.setActivityEventMetadata.callCount, 1);
         var args = metrics.setActivityEventMetadata.args[0];
-        assert.lengthOf(args, 2);
-        assert.equal(args[0], 'flowBeginTime');
-        assert.equal(args[1], 3);
+        assert.lengthOf(args, 1);
+        assert.lengthOf(Object.keys(args[0]), 2);
+        assert.equal(args[0].flowId, FLOW_ID);
+        assert.equal(args[0].flowBeginTime, 3);
       });
 
       it('called metrics.logFlowBegin correctly', function () {
         assert.equal(metrics.logFlowBegin.callCount, 1);
         var args = metrics.logFlowBegin.args[0];
         assert.lengthOf(args, 2);
-        assert.equal(args[0], 'wibble');
+        assert.equal(args[0], FLOW_ID);
         assert.equal(args[1], 3);
       });
     });

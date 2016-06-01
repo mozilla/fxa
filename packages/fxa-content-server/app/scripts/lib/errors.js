@@ -185,6 +185,34 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Create an INVALID_DATA_ATTRIBUTE error.
+     * The returned error will have `property` set to
+     * the property name.
+     *
+     * @property {String} propertyName
+     * @returns {Error}
+     */
+    toInvalidDataAttributeError: function (propertyName) {
+      var err = this.toError('INVALID_DATA_ATTRIBUTE');
+      err.property = propertyName;
+      return err;
+    },
+
+    /**
+     * Create a MISSING_DATA_ATTRIBUTE error.
+     * The returned error will have `property` set to
+     * the property name.
+     *
+     * @property {String} propertyName
+     * @returns {Error}
+     */
+    toMissingDataAttributeError: function (propertyName) {
+      var err = this.toError('MISSING_DATA_ATTRIBUTE');
+      err.property = propertyName;
+      return err;
+    },
+
+    /**
      * Check if an error is of the given type
      */
     is: function (error, type) {
