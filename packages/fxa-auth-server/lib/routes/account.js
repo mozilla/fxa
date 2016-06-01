@@ -13,7 +13,6 @@ var openid = require('openid')
 var userAgent = require('../userAgent')
 var url = require('url')
 var requestHelper = require('../routes/utils/request_helper')
-var metricsContext = require('../metrics/context')
 
 module.exports = function (
   log,
@@ -29,7 +28,8 @@ module.exports = function (
   customs,
   isPreVerified,
   checkPassword,
-  push
+  push,
+  metricsContext
   ) {
 
   var OPENID_EXTENSIONS = [
@@ -88,6 +88,8 @@ module.exports = function (
         var userAgentString = request.headers['user-agent']
         var service = form.service || query.service
         var preVerified, password, verifyHash, account, sessionToken
+
+        metricsContext.validate(request)
 
         customs.check(request.app.clientAddress, email, 'accountCreate')
           .then(db.emailRecord.bind(db, email))
@@ -293,6 +295,8 @@ module.exports = function (
         var authPW = Buffer(form.authPW, 'hex')
         var service = request.payload.service || request.query.service
         var emailRecord, sessionToken
+
+        metricsContext.validate(request)
 
         customs.check(request.app.clientAddress, email, 'accountLogin')
           .then(readEmailRecord)

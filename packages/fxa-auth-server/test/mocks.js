@@ -8,6 +8,7 @@
 
 var sinon = require('sinon')
 var extend = require('util')._extend
+var P = require('../lib/promise')
 
 // A logging mock that doesn't capture anything.
 // You can pass in an object of custom logging methods
@@ -15,6 +16,8 @@ var extend = require('util')._extend
 
 var LOG_METHOD_NAMES = ['trace', 'increment', 'info', 'error', 'begin', 'warn',
                         'activityEvent', 'event']
+
+var METRICS_CONTEXT_METHOD_NAMES = ['add', 'validate']
 
 var mockLog = function(methods) {
   var log = extend({}, methods)
@@ -46,8 +49,20 @@ var spyLog = function(methods) {
   return mockLog(methods)
 }
 
+function mockObject (methodNames) {
+  return function (methods) {
+    return methodNames.reduce(function (object, name) {
+      object[name] = methods && methods[name] || sinon.spy(function () {
+        return P.resolve()
+      })
+
+      return object
+    }, {})
+  }
+}
 
 module.exports = {
   mockLog: mockLog,
-  spyLog: spyLog
+  spyLog: spyLog,
+  mockMetricsContext: mockObject(METRICS_CONTEXT_METHOD_NAMES)
 }

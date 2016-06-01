@@ -6,9 +6,9 @@ var EventEmitter = require('events').EventEmitter
 var util = require('util')
 var mozlog = require('mozlog')
 
-var logConfig = require('../config').get('log')
+var config = require('../config')
+var logConfig = config.get('log')
 var StatsDCollector = require('./metrics/statsd')
-var metricsContext = require('./metrics/context')
 
 function unbuffer(object) {
   var keys = Object.keys(object)
@@ -36,6 +36,7 @@ function Lug(options) {
 
   this.statsd = new StatsDCollector(this.logger)
   this.statsd.init()
+  this.metricsContext = require('./metrics/context')(this, config.getProperties())
 }
 util.inherits(Lug, EventEmitter)
 
@@ -77,7 +78,7 @@ Lug.prototype.event = function (name, request, data) {
     event: name,
     data: unbuffer(data)
   }
-  e.data.metricsContext = metricsContext.add({},
+  e.data.metricsContext = this.metricsContext.add({},
     request.payload.metricsContext, request.headers.dnt === '1')
   this.stdout.write(JSON.stringify(e) + '\n')
 }
@@ -87,7 +88,7 @@ Lug.prototype.activityEvent = function (event, request, data) {
     return this.error({ op: 'log.activityEvent', data: data })
   }
 
-  var info = metricsContext.add({
+  var info = this.metricsContext.add({
     event: event,
     userAgent: request.headers['user-agent']
   }, request.payload.metricsContext, request.headers.dnt === '1')
