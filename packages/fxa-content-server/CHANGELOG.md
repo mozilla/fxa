@@ -1,3 +1,44 @@
+<a name="0.63.0"></a>
+# 0.63.0 (2016-06-01)
+
+
+### Bug Fixes
+
+* **checkbox:** make only text clickable (#3759) ([855bf39](https://github.com/mozilla/fxa-content-server/commit/855bf39))
+* **checkbox:** update checkbox styles (#3793) ([bc040aa](https://github.com/mozilla/fxa-content-server/commit/bc040aa)), closes [#3691](https://github.com/mozilla/fxa-content-server/issues/3691)
+* **client:** Interpolate error messages before sending to Sentry. (#3764) ([26266f6](https://github.com/mozilla/fxa-content-server/commit/26266f6))
+* **client:** Password length warning (#3739) ([c049106](https://github.com/mozilla/fxa-content-server/commit/c049106))
+* **force_auth:** make force_auth work in web context (#3725) ([13798e0](https://github.com/mozilla/fxa-content-server/commit/13798e0))
+* **rtl:** adjust rtl css for email and password r=vladikoff,shane-tomlinson ([5aeac38](https://github.com/mozilla/fxa-content-server/commit/5aeac38))
+* **styles:** Fix the click area of side by side links. (#3785) ([20b9a51](https://github.com/mozilla/fxa-content-server/commit/20b9a51)), closes [(#3785](https://github.com/(/issues/3785) [#3776](https://github.com/mozilla/fxa-content-server/issues/3776)
+* **styles:** Fix the grunt sasslint errors (#3796) r=vladikoff ([7827dbc](https://github.com/mozilla/fxa-content-server/commit/7827dbc)), closes [(#3796](https://github.com/(/issues/3796)
+* **tests:** fix firstrun webchannel tests ([f2ddcd7](https://github.com/mozilla/fxa-content-server/commit/f2ddcd7)), closes [#3790](https://github.com/mozilla/fxa-content-server/issues/3790)
+* **tests:** fix sync_v3 tests for remote environments (#3780) ([6600006](https://github.com/mozilla/fxa-content-server/commit/6600006)), closes [(#3780](https://github.com/(/issues/3780) [#3772](https://github.com/mozilla/fxa-content-server/issues/3772)
+* **tests:** Fix the functional tests that listen for WebChannel messages. (#3752) ([a946f2f](https://github.com/mozilla/fxa-content-server/commit/a946f2f)), closes [(#3752](https://github.com/(/issues/3752) [#3750](https://github.com/mozilla/fxa-content-server/issues/3750)
+* **tests:** improve stability of firstrun tests (#3794) ([9d267ab](https://github.com/mozilla/fxa-content-server/commit/9d267ab))
+
+### chore
+
+* **deps:** Update fxa-js-client to 0.1.39 (#3787) r=vladikoff ([5ceea48](https://github.com/mozilla/fxa-content-server/commit/5ceea48))
+* **markdown:** port marked to remarkable (#3746) r=pdehaan,vladikoff ([ba542f7](https://github.com/mozilla/fxa-content-server/commit/ba542f7)), closes [#3728](https://github.com/mozilla/fxa-content-server/issues/3728)
+* **npm:** update shrinkwrap (#3771) ([f7dccbb](https://github.com/mozilla/fxa-content-server/commit/f7dccbb))
+* **nsp:** Exclude moment CVE from nsp checks (#3756) ([02adab5](https://github.com/mozilla/fxa-content-server/commit/02adab5))
+
+### Features
+
+* **client:** Handle the upcoming /complete_signin route. ([bde60b4](https://github.com/mozilla/fxa-content-server/commit/bde60b4))
+* **client:** Stop passing 400 page error messages via query parameters. (#3715) r=vladikoff ([2cad043](https://github.com/mozilla/fxa-content-server/commit/2cad043))
+* **metrics:** Generate flowId on the server (#3736) ([48919e1](https://github.com/mozilla/fxa-content-server/commit/48919e1))
+* **robots:** adjust robots config to use "noindex" everywhere. (#3604) ([f6ed899](https://github.com/mozilla/fxa-content-server/commit/f6ed899))
+* **tests:** Add a functional test for re-verifying an account. (#3781) ([b2ef9c1](https://github.com/mozilla/fxa-content-server/commit/b2ef9c1))
+
+### Refactor
+
+* **client:** Prepare for pw change/reset endpoints to return session data. (#3747) ([8d4b359](https://github.com/mozilla/fxa-content-server/commit/8d4b359))
+* **tests:** Refactor many functional tests to use helper methods. (#3751) ([09585b4](https://github.com/mozilla/fxa-content-server/commit/09585b4))
+
+
+
 <a name="0.62.0"></a>
 # 0.62.0 (2016-05-18)
 
