@@ -53,7 +53,8 @@ describe('the handleEvent() function', function () {
         service: SERVICE,
         fxa_id: UID,
         first_device: true,
-        user_agent: USER_AGENT
+        user_agent: USER_AGENT,
+        metrics_context: {}
       });
       return true;
     }).reply(200, {
@@ -81,7 +82,8 @@ describe('the handleEvent() function', function () {
         service: SERVICE,
         fxa_id: UID,
         first_device: false,
-        user_agent: USER_AGENT
+        user_agent: USER_AGENT,
+        metrics_context: {}
       });
       return true;
     }).reply(200, {
@@ -94,6 +96,42 @@ describe('the handleEvent() function', function () {
       email: EMAIL,
       deviceCount: 2,
       userAgent: USER_AGENT,
+      del: function () {
+        done();
+      }
+    });
+  });
+
+  it('calls /fxa-activity with metrics context data', function (done) {
+    mocks.mockBasketResponse({
+      reqheaders: { 'content-type': 'application/json' }
+    }).post('/fxa-activity/', function (body) {
+      assert.deepEqual(body, {
+        activity: 'account.login',
+        service: SERVICE,
+        fxa_id: UID,
+        first_device: false,
+        user_agent: USER_AGENT,
+        metrics_context: {
+          utm_campaign: 'test-campaign',
+          utm_source: 'firstrun'
+        }
+      });
+      return true;
+    }).reply(200, {
+      status: 'ok'
+    });
+    events.handleEvent({
+      event: 'login',
+      service: SERVICE,
+      uid: UID,
+      email: EMAIL,
+      deviceCount: 2,
+      userAgent: USER_AGENT,
+      metricsContext: {
+        utm_campaign: 'test-campaign',
+        utm_source: 'firstrun'
+      },
       del: function () {
         done();
       }
@@ -180,7 +218,10 @@ describe('the handleEvent() function', function () {
       del: function () {
         assert.fail('should not delete the message from the queue');
       }
-    }, done);
+    }).catch(function (err) {
+      assert.equal(err.message, 'ruh-roh!');
+      done();
+    });
   });
 
   it('does delete events if a HTTP-level error occurs', function (done) {
@@ -203,6 +244,147 @@ describe('the handleEvent() function', function () {
       uid: UID,
       email: EMAIL,
       locale: LOCALE,
+      del: function () {
+        done();
+      }
+    });
+  });
+
+  it('subscribes to newsletters when given specific utm params', function (done) {
+    var EMAIL = 'test@example.com';
+    var NEWSLETTER = 'campaign1';
+    var SOURCE_URL = 'https://accounts.firefox.com/?utm_campaign=test-newsletter-campaign&utm_source=firstrun&utm_content=campaign1';
+    mocks.mockBasketResponse().post('/subscribe/', function (body) {
+      assert.deepEqual(body, {
+        email: EMAIL,
+        newsletters: NEWSLETTER,
+        source_url: SOURCE_URL
+      });
+      return true;
+    }).reply(200, {
+      status: 'ok',
+    });
+    mocks.mockBasketResponse({
+      reqheaders: { 'content-type': 'application/json' }
+    }).post('/fxa-activity/', function (body) {
+      assert.deepEqual(body, {
+        activity: 'account.login',
+        service: SERVICE,
+        fxa_id: UID,
+        first_device: false,
+        user_agent: USER_AGENT,
+        metrics_context: {
+          utm_campaign: 'test-newsletter-campaign',
+          utm_source: 'firstrun',
+          utm_content: NEWSLETTER
+        }
+      });
+      return true;
+    }).reply(200, {
+      status: 'ok'
+    });
+    events.handleEvent({
+      event: 'login',
+      service: SERVICE,
+      uid: UID,
+      email: EMAIL,
+      deviceCount: 2,
+      userAgent: USER_AGENT,
+      metricsContext: {
+        utm_campaign: 'test-newsletter-campaign',
+        utm_source: 'firstrun',
+        utm_content: NEWSLETTER
+      },
+      del: function () {
+        done();
+      }
+    });
+  });
+
+  it('does not delete events on network-level error in campaign subscription', function (done) {
+    var EMAIL = 'test@example.com';
+    var NEWSLETTER = 'campaign1';
+    var SOURCE_URL = 'https://accounts.firefox.com/?utm_campaign=test-newsletter-campaign&utm_source=firstrun&utm_content=campaign1';
+    mocks.mockBasketResponse({
+      reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
+    }).post('/subscribe/', function (body) {
+      assert.deepEqual(body, {
+        email: EMAIL,
+        newsletters: NEWSLETTER,
+        source_url: SOURCE_URL
+      });
+      return true;
+    }).replyWithError('ruh-roh!');
+    events.handleEvent({
+      event: 'login',
+      service: SERVICE,
+      uid: UID,
+      email: EMAIL,
+      deviceCount: 2,
+      userAgent: USER_AGENT,
+      metricsContext: {
+        utm_campaign: 'test-newsletter-campaign',
+        utm_source: 'firstrun',
+        utm_content: NEWSLETTER
+      },
+      del: function () {
+        assert.fail('should not delete the message from the queue');
+      }
+    }).catch(function (err) {
+      assert.equal(err.message, 'ruh-roh!');
+      done();
+    });
+  });
+
+  it('does delete events on HTTP-level error in campaign subscription', function (done) {
+    var EMAIL = 'test@example.com';
+    var NEWSLETTER = 'campaign1';
+    var SOURCE_URL = 'https://accounts.firefox.com/?utm_campaign=test-newsletter-campaign&utm_source=firstrun&utm_content=campaign1';
+    mocks.mockBasketResponse({
+      reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
+    }).post('/subscribe/', function (body) {
+      assert.deepEqual(body, {
+        email: EMAIL,
+        newsletters: NEWSLETTER,
+        source_url: SOURCE_URL
+      });
+      return true;
+    }).reply(500, {
+      status: 'error',
+      code: 99,
+      desc: 'Error: ruh-roh!'
+    });
+    mocks.mockBasketResponse({
+      reqheaders: { 'content-type': 'application/json' }
+    }).post('/fxa-activity/', function (body) {
+      assert.deepEqual(body, {
+        activity: 'account.login',
+        service: SERVICE,
+        fxa_id: UID,
+        first_device: false,
+        user_agent: USER_AGENT,
+        metrics_context: {
+          utm_campaign: 'test-newsletter-campaign',
+          utm_source: 'firstrun',
+          utm_content: NEWSLETTER
+        }
+      });
+      return true;
+    }).reply(200, {
+      status: 'ok'
+    });
+    events.handleEvent({
+      event: 'login',
+      service: SERVICE,
+      uid: UID,
+      email: EMAIL,
+      deviceCount: 2,
+      userAgent: USER_AGENT,
+      metricsContext: {
+        utm_campaign: 'test-newsletter-campaign',
+        utm_source: 'firstrun',
+        utm_content: NEWSLETTER
+      },
       del: function () {
         done();
       }
