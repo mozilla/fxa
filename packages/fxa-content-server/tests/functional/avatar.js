@@ -6,67 +6,50 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
   'intern/node_modules/dojo/node!path',
-  'intern/node_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, path, nodeXMLHttpRequest, FxaClient, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, path, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
-  var SIGNIN_URL = config.fxaContentRoot + 'signin';
-  var SETTINGS_URL = config.fxaContentRoot + 'settings';
+
   var AVATAR_CHANGE_URL = config.fxaContentRoot + 'settings/avatar/change';
   var AVATAR_CHANGE_URL_AUTOMATED = config.fxaContentRoot + 'settings/avatar/change?automatedBrowser=true';
+  var CHANGE_AVATAR_BUTTON_SELECTOR = '#change-avatar .settings-unit-toggle';
+  var PASSWORD = 'password';
+  var SETTINGS_URL = config.fxaContentRoot + 'settings';
+  var SIGNIN_URL = config.fxaContentRoot + 'signin';
   var UPLOAD_IMAGE_PATH = path.join(this.process.cwd(), 'app', 'apple-touch-icon-152x152.png');
 
-  var PASSWORD = 'password';
   var email;
-  var client;
-  var CHANGE_AVATAR_BUTTON_SELECTOR = '#change-avatar .settings-unit-toggle';
 
-  function testIsBrowserNotifiedOfAvatarChange(context) {
-    return function () {
-      return context.remote
-        .findByCssSelector('#message-profile-change')
+  var thenify = FunctionalHelpers.thenify;
+
+  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var click = FunctionalHelpers.click;
+  var createUser = FunctionalHelpers.createUser;
+  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var openPage = thenify(FunctionalHelpers.openPage);
+  var testElementExists = FunctionalHelpers.testElementExists;
+
+  var testIsBrowserNotifiedOfAvatarChange = thenify(function () {
+    return this.parent
+      .findByCssSelector('#message-profile-change')
         .getProperty('innerText')
         .then(function (innerText) {
           var data = JSON.parse(innerText);
           assert.ok(data.uid);
         })
-        .end();
-    };
-  }
+      .end();
+  });
 
   function signUp(context, email) {
-    return client.signUp(email, PASSWORD, { preVerified: true })
-      .then(function () {
-        return FunctionalHelpers.clearBrowserState(context);
-      })
-      .then(function () {
-        return context.remote
-          .get(require.toUrl(SIGNIN_URL))
-          // This will configure the timeout for the duration of this test suite
-          .setFindTimeout(intern.config.pageLoadTimeout)
-          .findByCssSelector('form input.email')
-            .click()
-            .type(email)
-          .end()
+    return context.remote
+      .then(createUser(email, PASSWORD, { preVerified: true }))
+      .then(clearBrowserState(context))
 
-          .findByCssSelector('form input.password')
-            .click()
-            .type(PASSWORD)
-          .end()
-
-          .findByCssSelector('button[type="submit"]')
-            .click()
-          .end()
-
-          // make sure we actually sign in
-          .findById('fxa-settings-header')
-          .end();
-      });
+      .then(openPage(context, SIGNIN_URL, '#fxa-signin-header'))
+      .then(fillOutSignIn(context, email, PASSWORD))
+      .then(testElementExists('#fxa-settings-header'));
   }
 
   registerSuite({
@@ -74,10 +57,6 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
 
       return signUp(this, email);
     },
@@ -88,130 +67,85 @@ define([
 
     'go to settings then avatar change': function () {
       return this.remote
-        .get(require.toUrl(SETTINGS_URL))
+        .then(openPage(this, SETTINGS_URL, '#fxa-settings-header'))
 
         // go to change avatar
-        .findByCssSelector(CHANGE_AVATAR_BUTTON_SELECTOR)
-          .click()
-        .end()
+        .then(click(CHANGE_AVATAR_BUTTON_SELECTOR))
 
         // success is going to the change avatar page
-        .findById('avatar-options')
-        .end();
+        .then(testElementExists('#avatar-options'));
     },
 
     'go to settings with an email selected to see change link then click on avatar to change': function () {
-      var self = this;
-      return self.remote
-        .get(require.toUrl(SETTINGS_URL))
+      return this.remote
+        .then(openPage(this, SETTINGS_URL, '#fxa-settings-header'))
 
         // go to change avatar
-        .findByCssSelector('a.change-avatar')
-          .click()
-        .end()
+        .then(click('a.change-avatar'))
 
         // success is going to the change avatar page
-        .findById('avatar-options')
-        .end();
+        .then(testElementExists('#avatar-options'));
     },
 
     'go to settings with an email selected to see change link then click on text link to change': function () {
-      var self = this;
-      return self.remote
-        .get(require.toUrl(SETTINGS_URL))
+      return this.remote
+        .then(openPage(this, SETTINGS_URL, '#fxa-settings-header'))
 
         // go to change avatar
-        .findByCssSelector(CHANGE_AVATAR_BUTTON_SELECTOR)
-          .click()
-        .end()
+        .then(click(CHANGE_AVATAR_BUTTON_SELECTOR))
 
         // success is going to the change avatar page
-        .findById('avatar-options')
-        .end();
+        .then(testElementExists('#avatar-options'));
     },
 
     'visit gravatar with gravatar set': function () {
-      var self = this;
-      return self.remote
-        .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
+      return this.remote
+        .then(openPage(this, AVATAR_CHANGE_URL_AUTOMATED, '#gravatar'))
 
         // go to gravatar change
-        .findById('gravatar')
-          .click()
-        .end()
+        .then(click('#gravatar'))
 
         // there is a strange race condition with the permission screen,
         // if the .sleep does not help then we should revisit this
-        .findByCssSelector('.email')
-        .end()
-
-        .findByCssSelector('#back')
-        .end()
+        .then(testElementExists('.email'))
+        .then(testElementExists('#back'))
 
         .sleep(2000)
 
         // accept permission
-        .findById('accept')
-          .click()
-        .end()
+        .then(click('#accept'))
 
-        .findByCssSelector('img[src*="https://secure.gravatar.com"]')
-        .end()
+        .then(testElementExists('img[src*="https://secure.gravatar.com"]'))
+        .then(click('.avatar-panel #submit-btn'))
 
-        .execute(FunctionalHelpers.listenForWebChannelMessage)
-
-        .findByCssSelector('.avatar-panel #submit-btn')
-          .click()
-        .end()
-
-        .then(FunctionalHelpers.testSuccessWasShown(self))
-        .then(testIsBrowserNotifiedOfAvatarChange(self))
+        .then(FunctionalHelpers.testSuccessWasShown(this))
+        .then(testIsBrowserNotifiedOfAvatarChange())
         //success is returning to the settings page
-        .findById('fxa-settings-header')
-        .end()
-
+        .then(testElementExists('#fxa-settings-header'))
         // check for an image with the gravatar url
-        .findByCssSelector('img[src*="https://secure.gravatar.com"]')
-        .end()
+        .then(testElementExists('img[src*="https://secure.gravatar.com"]'))
 
         // Go back to the gravatar view to make sure permission prompt is skipped the second time
-        .findByCssSelector(CHANGE_AVATAR_BUTTON_SELECTOR)
-          .click()
-        .end()
+        .then(click(CHANGE_AVATAR_BUTTON_SELECTOR))
+        .then(click('#gravatar'))
 
-        .findById('gravatar')
-          .click()
-        .end()
-
-        .findById('avatar-gravatar')
-        .end();
+        .then(testElementExists('#avatar-gravatar'));
     },
 
     'visit gravatar with gravatar set then cancel': function () {
-      var self = this;
-      return self.remote
-        .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
-
+      return this.remote
+        .then(openPage(this, AVATAR_CHANGE_URL_AUTOMATED, '#gravatar'))
         // go to change avatar
-        .findById('gravatar')
-          .click()
-        .end()
+        .then(click('#gravatar'))
 
         // accept permission
-        .findById('accept')
-          .click()
-        .end()
+        .then(click('#accept'))
 
-        .findByCssSelector('img[src*="https://secure.gravatar.com"]')
-        .end()
-
-        .findByCssSelector('.avatar-panel #back')
-          .click()
-        .end()
+        .then(testElementExists('img[src*="https://secure.gravatar.com"]'))
+        .then(click('.avatar-panel #back'))
 
         // redirected back to main avatar page after save
-        .findById('avatar-options')
-        .end()
+        .then(testElementExists('#avatar-options'))
 
         // give time for error to show up, there should be no error though
         .sleep(500)
@@ -229,23 +163,17 @@ define([
     },
 
     'visit gravatar with no gravatar set': function () {
-      var self = this;
-      return self.remote
-        .get(require.toUrl(AVATAR_CHANGE_URL))
+      return this.remote
+        .then(openPage(this, AVATAR_CHANGE_URL, '#gravatar'))
 
         // go to change avatar
-        .findById('gravatar')
-          .click()
-        .end()
+        .then(click('#gravatar'))
 
         // accept permission
-        .findById('accept')
-          .click()
-        .end()
+        .then(click('#accept'))
 
         // success is going to the change avatar page
-        .findById('avatar-options')
-        .end()
+        .then(testElementExists('#avatar-options'))
 
         // success is seeing the error text
         .then(FunctionalHelpers.visibleByQSA('.avatar-panel .error'))
@@ -259,81 +187,49 @@ define([
 
     'attempt to use webcam for avatar': function () {
       return this.remote
-        .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
+        .then(openPage(this, AVATAR_CHANGE_URL_AUTOMATED, '#camera'))
+        .then(click('#camera'))
 
-        .findByCssSelector('#camera')
-          .click()
-        .end()
+        .then(click('.avatar-panel #submit-btn'))
 
-        .execute(FunctionalHelpers.listenForWebChannelMessage)
-
-        .findByCssSelector('.avatar-panel #submit-btn')
-          .click()
-        .end()
-
-        .then(testIsBrowserNotifiedOfAvatarChange(this))
-
-        .findById('fxa-settings-header')
-        .end()
+        .then(testIsBrowserNotifiedOfAvatarChange())
+        .then(testElementExists('#fxa-settings-header'))
         //success is seeing the image loaded
         .then(FunctionalHelpers.imageLoadedByQSA('.change-avatar > img'));
     },
 
     'attempt to use webcam for avatar, then cancel': function () {
       return this.remote
-        .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
+        .then(openPage(this, AVATAR_CHANGE_URL_AUTOMATED, '#camera'))
 
         // go to change avatar
-        .findById('camera')
-          .click()
-        .end()
+        .then(click('#camera'))
 
-        .findById('avatar-camera')
-        .end()
-
-        .findByCssSelector('.avatar-panel #back')
-          .click()
-        .end()
+        .then(testElementExists('#avatar-camera'))
+        .then(click('.avatar-panel #back'))
 
         // success is returning to the avatar change page
-        .findById('avatar-options')
-        .end();
+        .then(testElementExists('#avatar-options'));
     },
 
     'upload a profile image': function () {
       return this.remote
-        .get(require.toUrl(AVATAR_CHANGE_URL))
+        .then(openPage(this, AVATAR_CHANGE_URL, '#imageLoader'))
 
         // Selenium's way of interacting with a file picker
-        .findById('imageLoader')
+        .findByCssSelector('#imageLoader')
           .type(UPLOAD_IMAGE_PATH)
         .end()
 
-        .findByCssSelector('.cropper')
-        .end()
+        .then(testElementExists('.cropper'))
 
-        .findByCssSelector('.zoom-out')
-          .click()
-        .end()
+        .then(click('.zoom-out'))
+        .then(click('.zoom-in'))
+        .then(click('.rotate'))
+        .then(click('.avatar-panel #submit-btn'))
 
-        .findByCssSelector('.zoom-in')
-          .click()
-        .end()
-
-        .findByCssSelector('.rotate')
-          .click()
-        .end()
-
-        .execute(FunctionalHelpers.listenForWebChannelMessage)
-
-        .findByCssSelector('.avatar-panel #submit-btn')
-          .click()
-        .end()
-
-        .then(testIsBrowserNotifiedOfAvatarChange(this))
-
-        .findById('fxa-settings-header')
-        .end()
+        .then(testIsBrowserNotifiedOfAvatarChange())
+        .then(testElementExists('#fxa-settings-header'))
         //success is seeing the image loaded
         .then(FunctionalHelpers.imageLoadedByQSA('.change-avatar > img'));
 
@@ -341,23 +237,19 @@ define([
 
     'cancel uploading a profile image': function () {
       return this.remote
-        .get(require.toUrl(AVATAR_CHANGE_URL))
+        .then(openPage(this, AVATAR_CHANGE_URL, '#imageLoader'))
 
         // Selenium's way of interacting with a file picker
-        .findById('imageLoader')
+        .findByCssSelector('#imageLoader')
           .type(UPLOAD_IMAGE_PATH)
         .end()
 
-        .findByCssSelector('.cropper')
-        .end()
+        .then(testElementExists('.cropper'))
 
-        .findByCssSelector('.avatar-panel #back')
-          .click()
-        .end()
+        .then(click('.avatar-panel #back'))
 
         //success is returning to the avatar change page
-        .findById('avatar-options')
-        .end();
+        .then(testElementExists('#avatar-options'));
     }
 
   });
