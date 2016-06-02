@@ -74,8 +74,6 @@ define([
           return client.signUp(email, PASSWORD, { preVerified: true });
         })
 
-        .execute(FunctionalHelpers.listenForWebChannelMessage)
-
         .then(function () {
           return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
         })
@@ -94,8 +92,6 @@ define([
       var messageReceived = false;
 
       return openFxaFromRp(self, 'signup')
-        .execute(FunctionalHelpers.listenForWebChannelMessage)
-
         .then(function () {
           return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
@@ -108,8 +104,6 @@ define([
                       self, email, 0);
         })
         .switchToWindow('newwindow')
-        .execute(FunctionalHelpers.listenForWebChannelMessage)
-
         // wait for the verified window in the new tab
         .findById('fxa-sign-up-complete-header')
         .end()
@@ -159,8 +153,6 @@ define([
         })
 
         .switchToWindow('newwindow')
-        .execute(FunctionalHelpers.listenForWebChannelMessage)
-
         .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
 
         .findById('fxa-sign-up-complete-header')
@@ -188,8 +180,7 @@ define([
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (verificationLink) {
-          return self.remote.get(require.toUrl(verificationLink))
-            .execute(FunctionalHelpers.listenForWebChannelMessage);
+          return self.remote.get(require.toUrl(verificationLink));
         })
 
         .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
@@ -203,8 +194,6 @@ define([
       self.timeout = TIMEOUT;
 
       return openFxaFromRp(self, 'signup')
-        .execute(FunctionalHelpers.listenForWebChannelMessage)
-
         .then(function () {
           return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
@@ -227,8 +216,6 @@ define([
       self.timeout = TIMEOUT;
 
       return openFxaFromRp(self, 'signup')
-        .execute(FunctionalHelpers.listenForWebChannelMessage)
-
         .then(function () {
           return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
         })
@@ -261,8 +248,6 @@ define([
       var messageReceived = false;
 
       return openFxaFromRp(self, 'signin')
-        .execute(FunctionalHelpers.listenForWebChannelMessage)
-
         .then(function () {
           return client.signUp(email, PASSWORD, { preVerified: true });
         })
@@ -285,8 +270,6 @@ define([
 
         // Complete the reset password in the new tab
         .switchToWindow('newwindow')
-        .execute(FunctionalHelpers.listenForWebChannelMessage)
-
         .then(function () {
           return FunctionalHelpers.fillOutCompleteResetPassword(
             self, PASSWORD, PASSWORD);
@@ -356,7 +339,6 @@ define([
         })
 
         .switchToWindow('newwindow')
-        .execute(FunctionalHelpers.listenForWebChannelMessage)
 
         .then(function () {
           return FunctionalHelpers.fillOutCompleteResetPassword(
@@ -399,8 +381,7 @@ define([
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (verificationLink) {
-          return self.remote.get(require.toUrl(verificationLink))
-            .execute(FunctionalHelpers.listenForWebChannelMessage);
+          return self.remote.get(require.toUrl(verificationLink));
         })
 
         .then(function () {
@@ -420,8 +401,6 @@ define([
       self.timeout = TIMEOUT;
 
       return openFxaFromRp(self, 'signin')
-        .execute(FunctionalHelpers.listenForWebChannelMessage)
-
         .then(function () {
           return client.signUp(email, PASSWORD, { preVerified: true });
         })

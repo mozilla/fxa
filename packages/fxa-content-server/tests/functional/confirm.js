@@ -14,7 +14,6 @@ define([
   var CONFIRM_URL = config.fxaContentRoot + 'confirm';
   var SIGNUP_URL = config.fxaContentRoot + 'signup';
 
-  var listenForFxaCommands = FunctionalHelpers.listenForWebChannelMessage;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
 
   registerSuite({
@@ -76,7 +75,6 @@ define([
       var SIGNUP_URL = intern.config.fxaContentRoot + 'signup?context=fx_desktop_v2&service=sync';
 
       return FunctionalHelpers.openPage(this, SIGNUP_URL, '#fxa-signup-header')
-        .execute(listenForFxaCommands)
         .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: true } ))
 
         .then(function () {

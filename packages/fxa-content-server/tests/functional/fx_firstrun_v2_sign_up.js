@@ -18,11 +18,10 @@ define([
   var email;
   var PASSWORD = '12345678';
 
-  var listenForFxaCommands = FunctionalHelpers.listenForWebChannelMessage;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
 
   registerSuite({
-    name: 'Firefox Firstrun Sync v2 sign_up',
+    name: 'Firstrun Sync v2 sign_up',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
@@ -50,8 +49,6 @@ define([
       var self = this;
 
       return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
-        .execute(listenForFxaCommands)
-
         .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: true } ))
 
         .then(function () {

@@ -42,7 +42,7 @@ define([
   });
 
   registerSuite({
-    name: 'Firstrun v1 sign_in',
+    name: 'Firstrun Sync v1 sign_in',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();

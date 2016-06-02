@@ -18,7 +18,6 @@ define([
   var email;
   var PASSWORD = '12345678';
 
-  var listenForFxaCommands = FunctionalHelpers.listenForWebChannelMessage;
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testAttributeExists = FunctionalHelpers.testAttributeExists;
@@ -52,8 +51,6 @@ define([
       var self = this;
 
       return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
-        .execute(listenForFxaCommands)
-
         .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: true } ))
 
         .then(function () {

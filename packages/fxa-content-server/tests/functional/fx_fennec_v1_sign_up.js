@@ -17,7 +17,6 @@ define([
   var email;
   var PASSWORD = '12345678';
 
-  var listenForFxaCommands = FunctionalHelpers.listenForWebChannelMessage;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
 
   registerSuite({
@@ -45,8 +44,6 @@ define([
       var self = this;
 
       return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
-        .execute(listenForFxaCommands)
-
         .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: true } ))
 
         .then(FunctionalHelpers.noSuchElement(self, '#customize-sync'))

@@ -36,7 +36,6 @@ define([
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
   var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
   var getVerificationLink = thenify(FunctionalHelpers.getVerificationLink);
-  var listenForWebChannelMessage = FunctionalHelpers.listenForWebChannelMessage;
   var listenForSyncCommands = FxDesktopHelpers.listenForFxaCommands;
   var openExternalSite = FunctionalHelpers.openExternalSite;
   var openPage = FunctionalHelpers.openPage;
@@ -95,7 +94,6 @@ define([
         .then(openVerificationLinkInNewTab(this, email, 0))
 
         .switchToWindow('newwindow')
-        .execute(listenForWebChannelMessage)
         .then(testElementExists('#fxa-sign-up-complete-header'))
 
         .then(waitForBrowserLoginNotification(this))
@@ -131,7 +129,6 @@ define([
         .then(openVerificationLinkInNewTab(this, email, 0))
 
         .switchToWindow('newwindow')
-        .execute(listenForWebChannelMessage)
         .then(testIsBrowserNotifiedOfLogin(this, { shouldCloseTab: false }))
 
         .then(testElementExists('#fxa-sign-up-complete-header'))
@@ -192,8 +189,6 @@ define([
 
         // Complete the reset password in the new tab
         .switchToWindow('newwindow')
-        .execute(FunctionalHelpers.listenForWebChannelMessage)
-
         .then(fillOutCompleteResetPassword(this, PASSWORD, PASSWORD))
 
         // this tab should get the reset password complete header.
@@ -243,7 +238,6 @@ define([
         .then(openVerificationLinkInNewTab(this, email, 0))
 
         .switchToWindow('newwindow')
-        .execute(FunctionalHelpers.listenForWebChannelMessage)
         .then(fillOutCompleteResetPassword(this, PASSWORD, PASSWORD))
 
         // the tab should automatically sign in
