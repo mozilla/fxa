@@ -69,7 +69,8 @@ var KEY_FETCH_TOKEN = {
   authKey : hex32(),
   uid : ACCOUNT.uid,
   keyBundle : hex96(),
-  createdAt : now + 2
+  createdAt : now + 2,
+  tokenVerificationId : hex16()
 }
 
 var PASSWORD_FORGOT_TOKEN_ID = hex32()
@@ -400,7 +401,7 @@ module.exports = function(config, DB) {
                 t.equal(token.tokenVerificationId, null, 'tokenVerificationId is null')
 
                 // Attempt to verify session token with invalid tokenVerificationId
-                return db.verifyToken(hex16(), { uid: ACCOUNT.uid })
+                return db.verifyTokens(hex16(), { uid: ACCOUNT.uid })
               })
               .then(function () {
                 t.fail('Verifying session token with invalid tokenVerificationId should have failed')
@@ -416,7 +417,7 @@ module.exports = function(config, DB) {
                 t.deepEqual(token.tokenVerificationId, SESSION_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
 
                 // Attempt to verify session token with invalid uid
-                return db.verifyToken(SESSION_TOKEN.tokenVerificationId, { uid: hex16() })
+                return db.verifyTokens(SESSION_TOKEN.tokenVerificationId, { uid: hex16() })
               })
               .then(function () {
                 t.fail('Verifying session token with invalid uid should have failed')
@@ -432,7 +433,7 @@ module.exports = function(config, DB) {
                 t.deepEqual(token.tokenVerificationId, SESSION_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
 
                 // Verify the session token
-                return db.verifyToken(SESSION_TOKEN.tokenVerificationId, { uid: ACCOUNT.uid })
+                return db.verifyTokens(SESSION_TOKEN.tokenVerificationId, { uid: ACCOUNT.uid })
               })
               .then(function() {
                 // Fetch the newly verified session token
@@ -465,7 +466,7 @@ module.exports = function(config, DB) {
                 })
 
                 // Attempt to verify deleted unverified session token
-                return db.verifyToken(UNVERIFIED_SESSION_TOKEN.tokenVerificationId, { uid: ACCOUNT.uid })
+                return db.verifyTokens(UNVERIFIED_SESSION_TOKEN.tokenVerificationId, { uid: ACCOUNT.uid })
               })
               .then(function () {
                 t.fail('Verifying deleted unverified session token should have failed')
@@ -494,7 +495,9 @@ module.exports = function(config, DB) {
         test(
           'key fetch token handling',
           function (t) {
-            t.plan(8)
+            t.plan(23)
+
+            var VERIFIED_KEY_FETCH_TOKEN_ID = hex32()
 
             // Create a key fetch token
             return db.createKeyFetchToken(KEY_FETCH_TOKEN_ID, KEY_FETCH_TOKEN)
@@ -513,14 +516,96 @@ module.exports = function(config, DB) {
                 // email is not returned
                 // emailCode is not returned
                 t.equal(token.verifierSetAt, ACCOUNT.verifierSetAt, 'verifierSetAt is correct')
+                t.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
 
-                // Delete the key fetch token
-                return db.deleteKeyFetchToken(KEY_FETCH_TOKEN_ID)
+                // Fetch the key fetch token with its verification state
+                return db.keyFetchTokenWithVerificationStatus(KEY_FETCH_TOKEN_ID)
+              })
+              .then(function(token) {
+                t.deepEqual(token.authKey, KEY_FETCH_TOKEN.authKey, 'authKey matches')
+                t.deepEqual(token.uid, ACCOUNT.uid, 'token belongs to this account')
+                t.equal(token.createdAt, KEY_FETCH_TOKEN.createdAt, 'createdAt is ok')
+                t.equal(!!token.emailVerified, ACCOUNT.emailVerified, 'emailVerified is correct')
+                t.equal(token.verifierSetAt, ACCOUNT.verifierSetAt, 'verifierSetAt is correct')
+                t.deepEqual(token.tokenVerificationId, KEY_FETCH_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
+
+                // Attempt to verify key fetch token with invalid tokenVerificationId
+                return db.verifyTokens(hex16(), { uid: KEY_FETCH_TOKEN.uid })
+              })
+              .then(function () {
+                t.fail('Verifying key fetch token with invalid tokenVerificationId should have failed')
+              }, function () {
+                t.pass('Verifying key fetch token with invalid tokenVerificationId failed as expected')
+              })
+              .then(function() {
+                // Fetch the key fetch token with its verification state
+                return db.keyFetchTokenWithVerificationStatus(KEY_FETCH_TOKEN_ID)
+              })
+              .then(function (token) {
+                t.deepEqual(token.tokenVerificationId, KEY_FETCH_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
+
+                // Attempt to verify key fetch token with invalid uid
+                return db.verifyTokens(KEY_FETCH_TOKEN.tokenVerificationId, { uid: hex16() })
+              })
+              .then(function () {
+                t.fail('Verifying key fetch token with invalid uid should have failed')
+              }, function () {
+                t.pass('Verifying key fetch token with invalid uid failed as expected')
+              })
+              .then(function() {
+                // Fetch the key fetch token with its verification state
+                return db.keyFetchTokenWithVerificationStatus(KEY_FETCH_TOKEN_ID)
+              })
+              .then(function (token) {
+                t.deepEqual(token.tokenVerificationId, KEY_FETCH_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
+
+                // Verify the key fetch token
+                return db.verifyTokens(KEY_FETCH_TOKEN.tokenVerificationId, { uid: SESSION_TOKEN.uid })
+              })
+              .then(function() {
+                // Fetch the key fetch token
+                return db.keyFetchToken(KEY_FETCH_TOKEN_ID)
+              })
+              .then(function(token) {
+                t.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
+
+                // Fetch the key fetch token with its verification state
+                return db.keyFetchTokenWithVerificationStatus(KEY_FETCH_TOKEN_ID)
+              })
+              .then(function(token) {
+                t.equal(token.tokenVerificationId, null, 'tokenVerificationId is null')
+
+                // Create a verified key fetch token
+                return db.createKeyFetchToken(VERIFIED_KEY_FETCH_TOKEN_ID, {
+                  authKey: hex32(),
+                  uid: ACCOUNT.uid,
+                  keyBundle: hex96(),
+                  createdAt: Date.now()
+                })
+              })
+              .then(function() {
+                // Fetch the verified key fetch token
+                return db.keyFetchToken(VERIFIED_KEY_FETCH_TOKEN_ID)
+              })
+              .then(function(token) {
+                t.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
+
+                // Fetch the verified key fetch token with its verification state
+                return db.keyFetchTokenWithVerificationStatus(VERIFIED_KEY_FETCH_TOKEN_ID)
+              })
+              .then(function(token) {
+                t.equal(token.tokenVerificationId, null, 'tokenVerificationId is null')
+
+                // Delete both key fetch tokens
+                return P.all([
+                  db.deleteKeyFetchToken(KEY_FETCH_TOKEN_ID),
+                  db.deleteKeyFetchToken(VERIFIED_KEY_FETCH_TOKEN_ID)
+                ])
               })
               .then(function(result) {
-                t.deepEqual(result, {}, 'Returned an empty object on forgot key fetch token deletion')
+                t.deepEqual(result, [{}, {}], 'Returned empty objects on forgot key fetch token deletion')
 
-                // Attempt to fetch the deleted key fetch token
+                // Attempt to fetch a deleted key fetch token
                 return db.keyFetchToken(KEY_FETCH_TOKEN_ID)
               })
               .then(function(token) {
@@ -1092,7 +1177,7 @@ module.exports = function(config, DB) {
               })
               .then(function () {
                 // Verify the session token
-                return db.verifyToken(SESSION_TOKEN.tokenVerificationId, { uid: SESSION_TOKEN.uid })
+                return db.verifyTokens(SESSION_TOKEN.tokenVerificationId, { uid: SESSION_TOKEN.uid })
               })
               .then(function () {
                 // Fetch the session token with its verification state and device info
@@ -1272,7 +1357,7 @@ module.exports = function(config, DB) {
               })
               .then(function () {
                 // Attempt to verify the session token that was associated with the deleted device
-                return db.verifyToken(newTokenVerificationId, { uid: ACCOUNT.uid })
+                return db.verifyTokens(newTokenVerificationId, { uid: ACCOUNT.uid })
               })
               .then(function () {
                 t.fail('deleting the device should have deleted the unverified token')
@@ -1337,7 +1422,7 @@ module.exports = function(config, DB) {
                 t.equal(devices.length, 0, 'The devices length should be zero')
 
                 // Attempt to verify the session token
-                return db.verifyToken(SESSION_TOKEN.tokenVerificationId, { uid: uid })
+                return db.verifyTokens(SESSION_TOKEN.tokenVerificationId, { uid: uid })
               })
               .then(function () {
                 t.fail('Verifying deleted token should have failed')
@@ -1418,7 +1503,7 @@ module.exports = function(config, DB) {
               })
               .then(function () {
                 // Attempt to verify session token
-                return db.verifyToken(SESSION_TOKEN.tokenVerificationId, { uid: uid })
+                return db.verifyTokens(SESSION_TOKEN.tokenVerificationId, { uid: uid })
               })
               .then(function () {
                 t.fail('Verifying deleted token should have failed')

@@ -206,8 +206,9 @@ module.exports = function (log, error) {
   }
 
   // Insert : keyFetchTokens
-  // Values : tokenId = $1, authKey = $2, uid = $3, keyBundle = $4, createdAt = $5
-  var CREATE_KEY_FETCH_TOKEN = 'CALL createKeyFetchToken_1(?, ?, ?, ?, ?)'
+  // Values : tokenId = $1, authKey = $2, uid = $3, keyBundle = $4, createdAt = $5,
+  //          tokenVerificationId = $6
+  var CREATE_KEY_FETCH_TOKEN = 'CALL createKeyFetchToken_2(?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createKeyFetchToken = function (tokenId, keyFetchToken) {
     return this.write(
@@ -217,7 +218,8 @@ module.exports = function (log, error) {
         keyFetchToken.authKey,
         keyFetchToken.uid,
         keyFetchToken.keyBundle,
-        keyFetchToken.createdAt
+        keyFetchToken.createdAt,
+        keyFetchToken.tokenVerificationId
       ]
     )
   }
@@ -400,7 +402,7 @@ module.exports = function (log, error) {
   //          t.uaOS, t.uaOSVersion, t.uaDeviceType, t.lastAccessTime,
   //          a.emailVerified, a.email, a.emailCode, a.verifierSetAt, a.locale,
   //          a.createdAt AS accountCreatedAt, ut.tokenVerificationId
-  // Where  : t.tokenId = $1 AND t.uid = a.uid AND t.tokenId = u.tokenId
+  // Where  : t.tokenId = $1 AND t.uid = a.uid AND t.tokenId = ut.tokenId
   var SESSION_TOKEN_VERIFIED = 'CALL sessionTokenWithVerificationStatus_1(?)'
 
   MySql.prototype.sessionTokenWithVerificationStatus = function (tokenId) {
@@ -414,6 +416,16 @@ module.exports = function (log, error) {
 
   MySql.prototype.keyFetchToken = function (id) {
     return this.readFirstResult(KEY_FETCH_TOKEN, [id])
+  }
+
+  // Select : keyFetchTokens t, accounts a, unverifiedTokens ut
+  // Fields : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified, a.verifierSetAt,
+  //          ut.tokenVerificationId
+  // Where  : t.tokenId = $1 AND t.uid = a.uid AND t.tokenId = ut.tokenId
+  var KEY_FETCH_TOKEN_VERIFIED = 'CALL keyFetchTokenWithVerificationStatus_1(?)'
+
+  MySql.prototype.keyFetchTokenWithVerificationStatus = function (tokenId) {
+    return this.readFirstResult(KEY_FETCH_TOKEN_VERIFIED, [tokenId])
   }
 
   // Select : accountResetTokens t, accounts a
@@ -518,9 +530,9 @@ module.exports = function (log, error) {
     return this.write(DELETE_SESSION_TOKEN, [tokenId])
   }
 
-  // Delete : keyFetchTokens
+  // Delete : keyFetchTokens, unverifiedTokens
   // Where  : tokenId = $1
-  var DELETE_KEY_FETCH_TOKEN = 'CALL deleteKeyFetchToken_1(?)'
+  var DELETE_KEY_FETCH_TOKEN = 'CALL deleteKeyFetchToken_2(?)'
 
   MySql.prototype.deleteKeyFetchToken = function (tokenId) {
     return this.write(DELETE_KEY_FETCH_TOKEN, [tokenId])
@@ -528,10 +540,10 @@ module.exports = function (log, error) {
 
   // Delete : unverifiedTokens
   // Where  : tokenVerificationId = $1, uid = $2
-  var VERIFY_TOKEN = 'CALL verifyToken_1(?, ?)'
+  var VERIFY_TOKENS = 'CALL verifyToken_1(?, ?)'
 
-  MySql.prototype.verifyToken = function (tokenVerificationId, accountData) {
-    return this.read(VERIFY_TOKEN, [tokenVerificationId, accountData.uid])
+  MySql.prototype.verifyTokens = function (tokenVerificationId, accountData) {
+    return this.read(VERIFY_TOKENS, [tokenVerificationId, accountData.uid])
       .then(function (result) {
         if (result.affectedRows === 0) {
           throw error.notFound()

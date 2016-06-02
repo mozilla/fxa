@@ -130,6 +130,13 @@ module.exports = function (log, error) {
       createdAt: keyFetchToken.createdAt,
     }
 
+    if (keyFetchToken.tokenVerificationId) {
+      unverifiedTokens[tokenId] = {
+        tokenVerificationId: keyFetchToken.tokenVerificationId,
+        uid: keyFetchToken.uid
+      }
+    }
+
     return P.resolve({})
   }
 
@@ -297,11 +304,15 @@ module.exports = function (log, error) {
   }
 
   Memory.prototype.deleteKeyFetchToken = function (tokenId) {
-    delete keyFetchTokens[tokenId.toString('hex')]
+    tokenId = tokenId.toString('hex')
+
+    delete unverifiedTokens[tokenId]
+    delete keyFetchTokens[tokenId]
+
     return P.resolve({})
   }
 
-  Memory.prototype.verifyToken = function (tokenVerificationId, accountData) {
+  Memory.prototype.verifyTokens = function (tokenVerificationId, accountData) {
     tokenVerificationId = tokenVerificationId.toString('hex')
     var uid = accountData.uid.toString('hex')
 
@@ -562,6 +573,17 @@ module.exports = function (log, error) {
     item.verifierSetAt = account.verifierSetAt
 
     return P.resolve(item)
+  }
+
+  Memory.prototype.keyFetchTokenWithVerificationStatus = function (tokenId) {
+    tokenId = tokenId.toString('hex')
+
+    return this.keyFetchToken(tokenId)
+      .then(function (keyFetchToken) {
+        keyFetchToken.tokenVerificationId = unverifiedTokens[tokenId] ?
+          unverifiedTokens[tokenId].tokenVerificationId : null
+        return keyFetchToken
+      })
   }
 
   Memory.prototype.passwordForgotToken = function (id) {
