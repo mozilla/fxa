@@ -1,3 +1,23 @@
+<a name="0.63.0"></a>
+# [0.63.0](https://github.com/mozilla/fxa-basket-proxy/compare/v0.62.0...v0.63.0) (2016-06-02)
+
+
+### Bug Fixes
+
+* **logging:** run tests at INFO log level, fixes #25 ([1de2c93](https://github.com/mozilla/fxa-basket-proxy/commit/1de2c93)), closes [#25](https://github.com/mozilla/fxa-basket-proxy/issues/25)
+
+### chore
+
+* **events:** Promisify the event-handling machinery. ([654f62b](https://github.com/mozilla/fxa-basket-proxy/commit/654f62b))
+
+### Features
+
+* **events:** Flip subscription flags in response to certain utm_* params. ([7aa4ac7](https://github.com/mozilla/fxa-basket-proxy/commit/7aa4ac7))
+* **events:** Forward metrics context from events to /fxa-activity ([836725a](https://github.com/mozilla/fxa-basket-proxy/commit/836725a))
+* **metrics:** Send a `source_url` with utm params where possible. ([abf8031](https://github.com/mozilla/fxa-basket-proxy/commit/abf8031))
+
+
+
 <a name="0.62.0"></a>
 # [0.62.0](https://github.com/mozilla/fxa-basket-proxy/compare/v0.59.0...v0.62.0) (2016-05-23)
 
