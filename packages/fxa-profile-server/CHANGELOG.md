@@ -1,3 +1,27 @@
+<a name="0.63.0"></a>
+## 0.63.0 (2016-06-02)
+
+
+#### Bug Fixes
+
+* **docker:**
+  * Back to the original login config ([a9a0ab4c](https://github.com/mozilla/fxa-profile-server/commit/a9a0ab4c82eb88152ecf5b07c2c1d7f94e51c9c0))
+  * Docker login still requires email ([65b8dd12](https://github.com/mozilla/fxa-profile-server/commit/65b8dd1263f0ecf61bda6a60f57612e9af5418a1))
+  * Login to Docker Hub ([90df64a0](https://github.com/mozilla/fxa-profile-server/commit/90df64a0d26c7e9ce5a7d2b4ba715766d04d9039))
+  * Quote environment variables ([5632c3d0](https://github.com/mozilla/fxa-profile-server/commit/5632c3d02c011645ff189fd6bc29cdbae34de861))
+  * Replace "commit" with "hash" ([058edccf](https://github.com/mozilla/fxa-profile-server/commit/058edccff4adf981e7412c2520b51a8494f75e03))
+  * Display version.json in CircleCI output ([b39e7658](https://github.com/mozilla/fxa-profile-server/commit/b39e76584e31b1a404e139ed59ea60750e998b3a))
+  * Re-order directory creation ([660d61b2](https://github.com/mozilla/fxa-profile-server/commit/660d61b2fa1f8d5bad81c990ac389ae4ddedbcbd))
+  * Copy pre-install script before running install ([b7139363](https://github.com/mozilla/fxa-profile-server/commit/b7139363649b6d0f3ccc177e1beb346cf8dd0837))
+
+
+#### Features
+
+* **docker:**
+  * Add CloudOps Dockerfile & CircleCI build instructions ([b18c78f7](https://github.com/mozilla/fxa-profile-server/commit/b18c78f71688719608bacac3d6198915755516c0))
+  * Add /__lbheartbeat__ endpoint for Dockerflow compatibility ([d4f3863d](https://github.com/mozilla/fxa-profile-server/commit/d4f3863d2eb98cea26463d7e53c681f305e74f04))
+
+
 <a name="0.61.0"></a>
 ## 0.61.0 (2016-05-04)
 
