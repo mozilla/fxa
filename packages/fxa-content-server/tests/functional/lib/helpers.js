@@ -31,6 +31,10 @@ define([
   var SIGNUP_URL = config.fxaContentRoot + 'signup';
   var UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
 
+  function getRemote(context) {
+    return context.remote || context.parent || context;
+  }
+
   function clearBrowserState(context, options) {
     options = options || {};
 
@@ -46,7 +50,7 @@ define([
       options['321done'] = false;
     }
 
-    return context.remote
+    return getRemote(context)
       .then(function () {
         if (options.contentServer) {
           return clearContentServerState(context, options);
@@ -67,7 +71,8 @@ define([
   function clearContentServerState(context, options) {
     options = options || {};
     // clear localStorage to avoid polluting other tests.
-    return context.remote
+    var remote = getRemote(context);
+    return remote
       // always go to the content server so the browser state is cleared,
       // switch to the top level frame, if we aren't already. This fixes the
       // iframe flow.
@@ -78,7 +83,7 @@ define([
         // only load up the content server if we aren't
         // already at the content server.
         if (url.indexOf(CONTENT_SERVER) === -1 || options.force) {
-          return context.remote.get(require.toUrl(CONTENT_SERVER + 'clear'))
+          return remote.get(require.toUrl(CONTENT_SERVER + 'clear'))
                     .setFindTimeout(config.pageLoadTimeout)
                     .findById('fxa-clear-storage-header');
         }
@@ -112,7 +117,7 @@ define([
      * completes by adding an element to the DOM. Selenium will look for
      * the added element.
      */
-    return context.remote
+    return getRemote(context)
       // switch to the top level frame, if we aren't already. This fixes the
       // iframe flow.
       .switchToFrame(null)
@@ -135,7 +140,7 @@ define([
 
   function clearSessionStorage(context) {
     // clear localStorage to avoid polluting other tests.
-    return context.remote
+    return getRemote(context)
       .execute(function () {
         try {
           sessionStorage.clear();
@@ -214,7 +219,7 @@ define([
 
   function noSuchElement(context, selector) {
     return function () {
-      return context.remote
+      return getRemote(context)
         .setFindTimeout(0)
 
         .findByCssSelector(selector)
@@ -277,7 +282,7 @@ define([
 
   function openExternalSite(context) {
     return function () {
-      return context.remote
+      return getRemote(context)
         .get(require.toUrl(EXTERNAL_SITE_URL))
           .findByPartialLinkText(EXTERNAL_SITE_LINK_TEXT)
         .end();
@@ -290,7 +295,7 @@ define([
 
     return getVerificationLink(user, index)
       .then(function (verificationLink) {
-        return context.remote.execute(openWindow, [ verificationLink, windowName ]);
+        return getRemote(context).execute(openWindow, [ verificationLink, windowName ]);
       });
   }
 
@@ -404,15 +409,15 @@ define([
     if (panel) {
       url += '/' + panel;
     }
-    return context.remote.execute(openWindow, [ url, windowName ]);
+    return getRemote(context).execute(openWindow, [ url, windowName ]);
   }
 
   function openSignInInNewTab(context, windowName) {
-    return context.remote.execute(openWindow, [ SIGNIN_URL, windowName ]);
+    return getRemote(context).execute(openWindow, [ SIGNIN_URL, windowName ]);
   }
 
   function openSignUpInNewTab(context, windowName) {
-    return context.remote.execute(openWindow, [ SIGNUP_URL, windowName ]);
+    return getRemote(context).execute(openWindow, [ SIGNUP_URL, windowName ]);
   }
 
   function openUnlockLinkDifferentBrowser(client, email) {
@@ -440,12 +445,12 @@ define([
       options = options || {};
 
       var urlToOpen = FORCE_AUTH_URL + '?' + Querystring.stringify(options.query || {});
-      return openPage(this.parent, urlToOpen, options.header || '#fxa-force-auth-header');
+      return openPage(this, urlToOpen, options.header || '#fxa-force-auth-header');
     };
   }
 
   function reOpenWithAdditionalQueryParams(context, additionalQueryParams, waitForSelector) {
-    var remote = context.getCurrentUrl ? context : context.remote;
+    var remote = getRemote(context);
     return remote
       .getCurrentUrl()
       .then(function (url) {
@@ -523,14 +528,15 @@ define([
   }
 
   function fillOutSignIn(context, email, password, alwaysLoad) {
-    return context.remote
+    var remote = getRemote(context);
+    return remote
       .getCurrentUrl()
       .then(function (currentUrl) {
         // only load the signin page if not already at a signin page.
         // the leading [\/#] allows for either the standard redirect or iframe
         // flow. The iframe flow must use the window hash for routing.
         if (! /[\/#]signin(?:$|\?)/.test(currentUrl) || alwaysLoad) {
-          return context.remote
+          return remote
             .get(require.toUrl(SIGNIN_URL))
             .setFindTimeout(intern.config.pageLoadTimeout);
         }
@@ -550,14 +556,15 @@ define([
     var age = options.age || 24;
     var submit = options.submit !== false;
 
-    return context.remote
+    var remote = getRemote(context);
+    return remote
       .getCurrentUrl()
       .then(function (currentUrl) {
         // only load the signup page if not already at a signup page.
         // the leading [\/#] allows for either the standard redirect or iframe
         // flow. The iframe flow must use the window hash for routing.
         if (! /[\/#]signup(?:$|\?)/.test(currentUrl)) {
-          return context.remote
+          return remote
             .get(require.toUrl(SIGNUP_URL))
             .setFindTimeout(intern.config.pageLoadTimeout);
         }
@@ -593,7 +600,8 @@ define([
   function fillOutResetPassword(context, email, options) {
     options = options || {};
 
-    return context.remote
+    var remote = getRemote(context);
+    return remote
       .getCurrentUrl()
       .then(function (currentUrl) {
         // only load the reset_password page if not already at
@@ -601,7 +609,7 @@ define([
         // the leading [\/#] allows for either the standard redirect or iframe
         // flow. The iframe flow must use the window hash for routing.
         if (! /[\/#]reset_password(?:$|\?)/.test(currentUrl) && ! options.skipPageRedirect) {
-          return context.remote
+          return remote
             .get(require.toUrl(RESET_PASSWORD_URL))
             .setFindTimeout(intern.config.pageLoadTimeout);
         }
@@ -638,7 +646,7 @@ define([
 
 
   function fillOutCompleteResetPassword(context, password, vpassword) {
-    return context.remote
+    return getRemote(context)
       .setFindTimeout(intern.config.pageLoadTimeout)
 
       .findByCssSelector('#fxa-complete-reset-password-header')
@@ -658,7 +666,7 @@ define([
   }
 
   function fillOutChangePassword(context, oldPassword, newPassword) {
-    return context.remote
+    return getRemote(context)
       .setFindTimeout(intern.config.pageLoadTimeout)
 
       .findByCssSelector('#old_password')
@@ -677,7 +685,7 @@ define([
   }
 
   function fillOutDeleteAccount(context, password) {
-    return context.remote
+    return getRemote(context)
       .setFindTimeout(intern.config.pageLoadTimeout)
 
       .findByCssSelector('#delete-account form input.password')
@@ -717,7 +725,7 @@ define([
 
   function respondToWebChannelMessage(context, expectedCommand, response) {
     return function () {
-      return context.remote
+      return getRemote(context)
         .execute(function (expectedCommand, response) {
           function startListening() {
             try {
@@ -755,7 +763,7 @@ define([
 
   function testIsBrowserNotified(context, command, cb) {
     return function () {
-      return context.remote
+      return getRemote(context)
         // Allow 5 seconds for the event to come through.
         .setExecuteAsyncTimeout(5000)
         .executeAsync(function (command, done) {
@@ -825,7 +833,7 @@ define([
   }
 
   function openPage(context, url, readySelector) {
-    var remote = context.get ? context : context.remote;
+    var remote = getRemote(context);
     return remote
       .get(require.toUrl(url))
       .setFindTimeout(config.pageLoadTimeout)
@@ -868,7 +876,7 @@ define([
   }
 
   function fetchAllMetrics(context) {
-    return context.remote
+    return getRemote(context)
       .execute(function () {
         var key = '__fxa_storage.metrics_all';
         var item;
@@ -894,7 +902,7 @@ define([
           return evts.concat(evtsNames);
         }, []);
 
-        return context.remote
+        return getRemote(context)
           .execute(function (eventsNames, events) {
             var toFindAll = eventsNames.slice().reverse();
             var toFind = toFindAll.pop();
@@ -1026,7 +1034,7 @@ define([
 
   function testElementWasShown(context, selector) {
     return function () {
-      return context.remote
+      return getRemote(context)
         .findByCssSelector(selector)
         .end()
 

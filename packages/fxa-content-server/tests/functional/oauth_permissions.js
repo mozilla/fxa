@@ -108,7 +108,7 @@ define([
         .then(getVerificationLink(user, 1))
         .then(function (verifyUrl) {
           // user verifies in the same tab, so they are logged in to the RP.
-          return openPage(this.parent, verifyUrl, '#loggedin');
+          return openPage(this, verifyUrl, '#loggedin');
         });
     },
 

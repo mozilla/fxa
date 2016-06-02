@@ -152,7 +152,7 @@ define([
 
         .then(getVerificationLink(email, 0))
         .then(function (verificationLink) {
-          return openPage(this.parent, verificationLink, '#fxa-sign-up-complete-header');
+          return openPage(this, verificationLink, '#fxa-sign-up-complete-header');
         })
 
         .then(testIsBrowserNotifiedOfLogin(this, { shouldCloseTab: false }));
@@ -268,7 +268,7 @@ define([
 
         .then(getVerificationLink(email, 0))
         .then(function (verificationLink) {
-          return openPage(this.parent, verificationLink, '#fxa-complete-reset-password-header');
+          return openPage(this, verificationLink, '#fxa-complete-reset-password-header');
         })
 
         .then(fillOutCompleteResetPassword(this, PASSWORD, PASSWORD))
@@ -312,7 +312,7 @@ define([
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(function () {
-          return openPage(this.parent, SYNC_URL, '#fxa-signin-header');
+          return openPage(this, SYNC_URL, '#fxa-signin-header');
         })
         .execute(listenForSyncCommands)
 

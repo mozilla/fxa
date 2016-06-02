@@ -7,6 +7,10 @@ define([
   'intern/chai!assert'
 ], function (assert) {
 
+  function getRemote(context) {
+    return context.remote || context.parent || context;
+  }
+
   /**
    * Listens for FirefoxAccountsCommand events coming from FxA and
    * automatically responds so that no error messages are displayed
@@ -61,7 +65,7 @@ define([
   }
 
   function testIsBrowserNotifiedOfLogin(context, email, options) {
-    return context.remote
+    return getRemote(context)
       .findByCssSelector('#message-login')
         .getProperty('innerText')
         .then(function (innerText) {
@@ -80,7 +84,7 @@ define([
   }
 
   function testIsBrowserNotifiedOfMessage(context, message) {
-    return context.remote
+    return getRemote(context)
       .findByCssSelector('#message-' + message)
       .end();
   }
