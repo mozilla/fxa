@@ -16,7 +16,6 @@ module.exports = function (grunt) {
   ];
 
   var fontNamesNeeded = [
-    'firasans-regular',
     'firasans-light'
   ];
 

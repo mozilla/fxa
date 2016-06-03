@@ -82,7 +82,7 @@ header {
   }
 
   h1 {
-    font-weight: 200;
+    font-weight: inherit;
 
     @include respond-to('big') {
       font-size: $large-font;
@@ -114,7 +114,7 @@ header {
 
       @include respond-to('small') {
         font-size: $base-font;
-        font-weight: 400;
+        font-weight: inherit;
         margin-top: 4px;
 
       }
@@ -141,7 +141,7 @@ header {
 button,
 input {
   @include font();
-  font-weight: 400;
+  font-weight: inherit;
 }
 
 section p {
