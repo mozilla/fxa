@@ -248,16 +248,27 @@ define([
    * @method verifyCode
    * @param {String} uid Account ID
    * @param {String} code Verification code
+   * @param {Object} [options={}] Options
+   *   @param {String} [options.service]
+   *   Service being signed into
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
-  FxAccountClient.prototype.verifyCode = function(uid, code) {
+  FxAccountClient.prototype.verifyCode = function(uid, code, options) {
     required(uid, 'uid');
     required(code, 'verify code');
 
-    return this.request.send('/recovery_email/verify_code', 'POST', null, {
+    var data = {
       uid: uid,
       code: code
-    });
+    };
+
+    if (options) {
+      if (options.service) {
+        data.service = options.service;
+      }
+    }
+
+    return this.request.send('/recovery_email/verify_code', 'POST', null, data);
   };
 
   /**
