@@ -57,19 +57,13 @@ define(function (require, exports, module) {
       }
     },
 
-    onPasswordKeyUp: function (event) {
+    onPasswordKeyUp: function () {
       var values = [];
-      values.push(this.getElementValue('.password').length);
 
-      // Check to see if change password fields are visible.
-      // If any field does not have 8 chars, display warning.
-      if (this.getElementValue('#new_password') || this.getElementValue('#new_password') === '') {
-        values.push(this.getElementValue('#new_password').length);
-      }
-
-      if (this.getElementValue('#old_password') || this.getElementValue('#old_password') === '') {
-        values.push(this.getElementValue('#old_password').length);
-      }
+      // Values contains all password classes length
+      this.$('.password').each(function (index, el) {
+        values.push($(el).val().length);
+      });
 
       var val = Math.min.apply(Math, values);
 

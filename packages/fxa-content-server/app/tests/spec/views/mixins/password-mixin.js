@@ -120,18 +120,26 @@ define(function (require, exports, module) {
     });
 
     describe('show passwordHelper', function () {
-      it('set warning opacity to 1 if password length is less than 8', function () {
-        view.$('.password').val('1234');
-        view.showPasswordHelper();
+      it('set warning opacity to 1 if any password length is less than 8', function () {
+        view.$('#password').val('1234');
+        view.$('#vpassword').val('12345678');
+        view.$('#old_password').val('12345678');
+        view.$('#new_password').val('12345678');
+        view.onPasswordKeyUp();
         assert.equal(view.$('.input-help').css('opacity'), '1');
+        assert.equal(view.$('.input-help-forgot-pw').css('opacity'), '1');
       });
     });
 
     describe('hide passwordHelper', function () {
-      it('set warning opacity to 0 if password length is greater than or equal 8', function () {
-        view.$('.password').val('12344456');
-        view.hidePasswordHelper();
+      it('set warning opacity to 0 if password length is greater than or equal to 8', function () {
+        view.$('#password').val('12345678');
+        view.$('#vpassword').val('12345678');
+        view.$('#old_password').val('12345678');
+        view.$('#new_password').val('123456789');
+        view.onPasswordKeyUp();
         assert.equal(view.$('.input-help').css('opacity'), '0');
+        assert.equal(view.$('.input-help-forgot-pw').css('opacity'), '1');
       });
     });
   });
