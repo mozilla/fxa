@@ -198,6 +198,20 @@ function (Translator, Session) {
 
     var runner = mocha.run();
 
+    /**
+     * Monkey patch runner.fail to clean the stack trace. Using
+     * `runner.on('fail', ..` does not work because the callback
+     * is run after mocha's own callback which prints the stack
+     * trace.
+     */
+    var _fail = runner.fail;
+    runner.fail = function (test, err) {
+      if (err && err.stack) {
+        err.stack = cleanErrorStack(err);
+      }
+      return _fail.apply(this, arguments);
+    };
+
     runner.on('end', function () {
       // This is our hook to the Selenium tests that run
       // the mocha tests as part of the CI build.
@@ -225,5 +239,27 @@ function (Translator, Session) {
 
   loadTests();
 
+  var filterFilesFromStack = [
+    'bower_components/blanket/dist/qunit/blanket.js',
+    'bower_components/p/p.js',
+    'bower_components/requirejs/require.js',
+    'tests/test_start.js'
+  ];
+
+  function shouldFilterLine(line) {
+    for (var i = 0; i < filterFilesFromStack.length; ++i) {
+      if (line.indexOf(filterFilesFromStack[i]) !== -1) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  function cleanErrorStack(err) {
+    return err.stack.split('\n').filter(function (line) {
+      return ! shouldFilterLine(line);
+    }).join('\n');
+  }
 });
 
