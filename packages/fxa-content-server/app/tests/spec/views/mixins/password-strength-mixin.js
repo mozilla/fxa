@@ -26,7 +26,7 @@ define(function (require, exports, module) {
       PasswordStrengthMixin
     );
 
-    describe('isPasswordStengthCheckEnabled', function () {
+    describe('isPasswordStrengthCheckEnabled', function () {
       it('calls able to make the choice', function () {
         var ableMock = {
           choose: sinon.spy(function () {
