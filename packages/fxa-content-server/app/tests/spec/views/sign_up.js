@@ -183,8 +183,7 @@ define(function (require, exports, module) {
           });
       });
 
-      it('shows syncCheckbox experiment treatment', function () {
-        relier.set('service', 'sync');
+      it('hides showPassword experiment treatment', function () {
         Session.clear();
         sinon.stub(view, 'isInExperiment', function () {
           return true;
@@ -196,8 +195,8 @@ define(function (require, exports, module) {
 
         return view.render()
           .then(function () {
-            assert.equal(view.$('#customize-sync.customize-sync-top').length, 1);
-            assert.isFalse(view.$('#customize-sync.customize-sync-top').is(':checked'));
+            view.afterVisible();
+            assert.isTrue(view.$('.show-password-label').is(':hidden'));
           });
       });
 

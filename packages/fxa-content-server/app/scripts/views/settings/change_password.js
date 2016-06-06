@@ -12,6 +12,7 @@ define(function (require, exports, module) {
   var Cocktail = require('cocktail');
   var FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
   var FormView = require('views/form');
+  var ExperimentMixin = require('views/mixins/experiment-mixin');
   var PasswordMixin = require('views/mixins/password-mixin');
   var ServiceMixin = require('views/mixins/service-mixin');
   var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
@@ -59,6 +60,7 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     View,
+    ExperimentMixin,
     PasswordMixin,
     FloatingPlaceholderMixin,
     SettingsPanelMixin,

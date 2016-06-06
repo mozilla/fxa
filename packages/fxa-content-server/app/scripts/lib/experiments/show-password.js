@@ -9,16 +9,17 @@ define(function (require, exports, module) {
 
   var createSaveStateDelegate = BaseExperiment.createSaveStateDelegate;
 
-  var SyncCheckboxExperiment = BaseExperiment.extend({
+  module.exports = BaseExperiment.extend({
     notifications: {
-      'syncCheckbox.clicked': createSaveStateDelegate('clicked'),
-      'syncCheckbox.triggered': createSaveStateDelegate('triggered'),
+      'showPassword.clicked': createSaveStateDelegate('clicked'),
+      'showPassword.triggered': createSaveStateDelegate('triggered'),
       'verification.success': '_onVerificationSuccess'
     },
 
     _onVerificationSuccess: function () {
       this.saveState('verified');
 
+      // user verified after using show password
       if (this.hasState('clicked')) {
         this.saveState('clicked.verified');
       }
@@ -29,5 +30,4 @@ define(function (require, exports, module) {
     }
   });
 
-  module.exports = SyncCheckboxExperiment;
 });

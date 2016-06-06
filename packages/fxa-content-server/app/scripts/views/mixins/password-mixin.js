@@ -15,9 +15,23 @@ define(function (require, exports, module) {
       'keyup input.password': 'onPasswordKeyUp'
     },
 
+    afterVisible: function () {
+      if (this.isInExperiment && this.isInExperiment('showPassword')) {
+        this.notifier.trigger('showPassword.triggered');
+
+        if (this.isInExperimentGroup('showPassword', 'treatment')) {
+          this.$el.find('.show-password-label').hide();
+        }
+      }
+    },
+
     onPasswordVisibilityChange: function (event) {
       var target = this.$(event.target);
       this.setPasswordVisibilityFromButton(target);
+
+      if (this.isInExperiment && this.isInExperiment('showPassword')) {
+        this.notifier.trigger('showPassword.clicked');
+      }
 
       // for docs on aria-controls, see
       // http://www.w3.org/TR/wai-aria/states_and_properties#aria-controls

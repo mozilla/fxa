@@ -9,9 +9,12 @@ define(function (require, exports, module) {
   var BaseView = require('views/base');
   var chai = require('chai');
   var Cocktail = require('cocktail');
+  var ExperimentMixin = require('views/mixins/experiment-mixin');
   var Metrics = require('lib/metrics');
+  var Notifier = require('lib/channels/notifier');
   var PasswordMixin = require('views/mixins/password-mixin');
   var Relier = require('models/reliers/relier');
+  var sinon = require('sinon');
   var TestHelpers = require('../../../lib/helpers');
   var TestTemplate = require('stache!templates/test_template');
 
@@ -22,7 +25,8 @@ define(function (require, exports, module) {
   });
   Cocktail.mixin(
     PasswordView,
-    PasswordMixin
+    PasswordMixin,
+    ExperimentMixin
   );
 
   describe('views/mixins/password-mixin', function () {
@@ -36,6 +40,7 @@ define(function (require, exports, module) {
 
       view = new PasswordView({
         metrics: metrics,
+        notifier: new Notifier(),
         relier: relier,
         viewName: 'password-view'
       });
@@ -48,6 +53,65 @@ define(function (require, exports, module) {
 
     afterEach(function () {
       $('#container').empty();
+    });
+
+    describe('afterVisible', function () {
+      it('notifier not called by default', function () {
+        sinon.spy(view.notifier, 'trigger');
+        view.afterVisible();
+        assert.isFalse(view.notifier.trigger.called);
+      });
+
+      it('notifier called if part of an experiment', function () {
+        sinon.spy(view.notifier, 'trigger');
+        sinon.stub(view, 'isInExperiment', function () {
+          return true;
+        });
+        view.afterVisible();
+        assert.isTrue(view.notifier.trigger.called);
+      });
+
+      it('hides show password button if part of an experiment', function () {
+        sinon.stub(view, 'isInExperiment', function () {
+          return true;
+        });
+
+        sinon.stub(view, 'isInExperimentGroup', function () {
+          return true;
+        });
+        view.afterVisible();
+        assert.isTrue(view.$('.show-password-label').is(':hidden'));
+      });
+
+      it('shows show password button if part of an experiment control', function () {
+        sinon.stub(view, 'isInExperiment', function () {
+          return true;
+        });
+
+        sinon.stub(view, 'isInExperimentGroup', function () {
+          return false;
+        });
+        view.afterVisible();
+        assert.isFalse(view.$('.show-password-label').is(':hidden'));
+      });
+
+    });
+
+    describe('onPasswordVisibilityChange', function () {
+      it('tracks the experiment click ', function () {
+        sinon.stub(view, 'isInExperiment', function () {
+          return true;
+        });
+
+        sinon.stub(view, 'isInExperimentGroup', function () {
+          return true;
+        });
+        sinon.spy(view.notifier, 'trigger');
+
+        view.afterVisible();
+        view.$('.show-password').trigger('change');
+        assert.isTrue(view.notifier.trigger.calledWith('showPassword.clicked'));
+      });
     });
 
     describe('setPasswordVisibilityFromButton', function () {

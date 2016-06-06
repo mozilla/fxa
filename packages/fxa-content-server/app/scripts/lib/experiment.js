@@ -7,7 +7,7 @@ define(function (require, exports, module) {
 
   var _ = require('underscore');
   var MailcheckExperiment = require('lib/experiments/mailcheck');
-  var SyncCheckboxExperiment = require('lib/experiments/sync-checkbox');
+  var ShowPasswordExperiment = require('lib/experiments/show-password');
   var Url = require('lib/url');
 
   var CHOOSE_ABLE_EXPERIMENT = 'chooseAbExperiment';
@@ -18,7 +18,7 @@ define(function (require, exports, module) {
   // A/B testing purposes.
   var DEFAULT_EXPERIMENTS = {
     'mailcheck': MailcheckExperiment,
-    'syncCheckbox': SyncCheckboxExperiment
+    'showPassword': ShowPasswordExperiment
   };
 
   function ExperimentInterface (options) {

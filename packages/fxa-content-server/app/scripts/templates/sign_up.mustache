@@ -60,14 +60,6 @@
       </div>
       {{/isEmailOptInVisible}}
 
-      {{#isSyncTop}}
-      {{#chooseWhatToSyncCheckbox}}
-        <div class="input-row customize-sync-row">
-          <label class="fxa-checkbox"><input id="customize-sync" type="checkbox" class="customize-sync customize-sync-top" {{#isCustomizeSyncChecked}}checked="checked"{{/isCustomizeSyncChecked}}> <span class="fxa-checkbox__label">{{#t}}Choose what to sync{{/t}}</span></label>
-        </div>
-      {{/chooseWhatToSyncCheckbox}}
-      {{/isSyncTop}}
-
       <div class="button-row">
         <button id="submit-btn" type="submit" class="disabled">{{#t}}Create account{{/t}}</button>
       </div>

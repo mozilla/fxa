@@ -9,11 +9,13 @@ define([
   'require',
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, assert, require, FunctionalHelpers) {
-  var SIGN_UP_URL = intern.config.fxaContentRoot + 'signup';
   var EXP_MAILCHECK_URL = intern.config.fxaContentRoot + 'signup?forceExperiment=mailcheck&automatedBrowser=true';
-  var EXP_SYNCCHECKBOX_URL = intern.config.fxaContentRoot + 'signup?forceExperiment=syncCheckbox&context=fx_desktop_v1&service=sync';
+  var EXP_SHOWPASSWORD_URL = intern.config.fxaContentRoot + 'signup?forceExperiment=showPassword';
   var EXP_CONTROL = '&forceExperimentGroup=control';
   var EXP_TREATMENT = '&forceExperimentGroup=treatment';
+
+  var click = FunctionalHelpers.click;
+  var testElementExists = FunctionalHelpers.testElementExists;
 
   registerSuite({
     name: 'verification_experiments - mailcheck',
@@ -39,13 +41,8 @@ define([
           .click()
         .end()
 
-        .findByCssSelector('.password')
-          .click()
-        .end()
-
-        .findByCssSelector('.tooltip-suggest > span:nth-child(1)')
-          .click()
-        .end()
+        .then(click('.password'))
+        .then(click('.tooltip-suggest > span:nth-child(1)'))
 
         .findByCssSelector('input[type=email]')
         .getProperty('value')
@@ -69,17 +66,14 @@ define([
           .click()
         .end()
 
-        .findByCssSelector('.password')
-          .click()
-        .end()
-
+        .then(click('.password'))
         .then(FunctionalHelpers.noSuchElement(self, '.tooltip-suggest'))
         .end();
     }
   });
 
   registerSuite({
-    name: 'verification_experiments - syncCheckbox',
+    name: 'verification_experiments - showPassword',
 
     beforeEach: function () {
       return FunctionalHelpers.clearBrowserState(this);
@@ -92,23 +86,35 @@ define([
     'treatment works': function () {
       return this.remote
         .setFindTimeout(intern.config.pageLoadTimeout)
-        .get(require.toUrl(EXP_SYNCCHECKBOX_URL + EXP_TREATMENT))
+        .get(require.toUrl(EXP_SHOWPASSWORD_URL + EXP_TREATMENT))
+        .then(FunctionalHelpers.pollUntil(function () {
+          /* global $ */
+          return $('.show-password-label').is(':hidden') === true ? true : null;
+        }, [], 10000))
 
-        .findByCssSelector('#customize-sync.customize-sync-top')
-        .end()
+        .then(click('.sign-in'))
+        .then(testElementExists('#fxa-signin-header'))
 
-        .get(require.toUrl(SIGN_UP_URL));
+        .then(FunctionalHelpers.pollUntil(function () {
+          return $('.show-password-label').is(':hidden') === true ? true : null;
+        }, [], 10000));
+
     },
 
     'control works': function () {
       return this.remote
         .setFindTimeout(intern.config.pageLoadTimeout)
-        .get(require.toUrl(EXP_SYNCCHECKBOX_URL + EXP_CONTROL))
+        .get(require.toUrl(EXP_SHOWPASSWORD_URL + EXP_CONTROL))
+        .then(FunctionalHelpers.pollUntil(function () {
+          return $('.show-password-label').is(':hidden') === false ? true : null;
+        }, [], 10000))
 
-        .findByCssSelector('#customize-sync.customize-sync-bottom')
-        .end()
+        .then(click('.sign-in'))
+        .then(testElementExists('#fxa-signin-header'))
 
-        .get(require.toUrl(SIGN_UP_URL));
+        .then(FunctionalHelpers.pollUntil(function () {
+          return $('.show-password-label').is(':hidden') === false ? true : null;
+        }, [], 10000));
     }
   });
 });

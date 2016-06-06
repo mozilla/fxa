@@ -12,6 +12,7 @@ define(function (require, exports, module) {
   var AvatarMixin = require('views/mixins/avatar-mixin');
   var BaseView = require('views/base');
   var Cocktail = require('cocktail');
+  var ExperimentMixin = require('views/mixins/experiment-mixin');
   var FlowBeginMixin = require('views/mixins/flow-begin-mixin');
   var FormView = require('views/form');
   var MigrationMixin = require('views/mixins/migration-mixin');
@@ -269,6 +270,7 @@ define(function (require, exports, module) {
     AccountLockedMixin,
     AccountResetMixin,
     AvatarMixin,
+    ExperimentMixin,
     FlowBeginMixin,
     MigrationMixin,
     PasswordMixin,

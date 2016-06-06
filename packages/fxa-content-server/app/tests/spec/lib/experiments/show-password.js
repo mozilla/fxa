@@ -7,7 +7,7 @@ define(function (require, exports, module) {
 
   var Able = require('lib/able');
   var chai = require('chai');
-  var Experiment = require('lib/experiments/sync-checkbox');
+  var Experiment = require('lib/experiments/show-password');
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
   var sinon = require('sinon');
@@ -26,7 +26,7 @@ define(function (require, exports, module) {
   var UUID = 'a mock uuid';
   var windowMock;
 
-  describe('lib/experiments/sync-checkbox', function () {
+  describe('lib/experiments/show-password', function () {
     beforeEach(function () {
       able = new Able();
       sinon.stub(able, 'choose', function () {
@@ -42,7 +42,7 @@ define(function (require, exports, module) {
       windowMock = new WindowMock();
 
       experiment = new Experiment();
-      experiment.initialize('syncCheckbox', {
+      experiment.initialize('showPassword', {
         able: able,
         metrics: metrics,
         notifier: notifier,
@@ -64,20 +64,20 @@ define(function (require, exports, module) {
         sinon.spy(experiment, 'saveState');
         sinon.spy(experiment.metrics, 'logEvent');
 
-        assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.syncCheckbox.enrolled'), 'enrolled');
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.showPassword.enrolled'), 'enrolled');
         assert.equal(metrics.getFilteredData().events.length, 1, 'should log the events that happened');
-        assert.isFalse(TestHelpers.isEventLogged(metrics, 'experiment.treatment.syncCheckbox.clicked'), 'not clicked');
-        assert.isFalse(TestHelpers.isEventLogged(metrics, 'experiment.treatment.syncCheckbox.triggered'), 'not triggered');
-        notifier.trigger('syncCheckbox.triggered');
-        assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.syncCheckbox.triggered'), 'triggered');
+        assert.isFalse(TestHelpers.isEventLogged(metrics, 'experiment.treatment.showPassword.clicked'), 'not clicked');
+        assert.isFalse(TestHelpers.isEventLogged(metrics, 'experiment.treatment.showPassword.triggered'), 'not triggered');
+        notifier.trigger('showPassword.triggered');
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.showPassword.triggered'), 'triggered');
 
-        notifier.trigger('syncCheckbox.clicked');
-        assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.syncCheckbox.clicked'), 'clicked');
+        notifier.trigger('showPassword.clicked');
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.showPassword.clicked'), 'clicked');
 
         notifier.trigger('verification.success');
-        assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.syncCheckbox.verified'), 'verified');
-        assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.syncCheckbox.triggered.verified'), 'triggered.verified');
-        assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.syncCheckbox.clicked.verified'), 'clicked.verified');
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.showPassword.verified'), 'verified');
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.showPassword.triggered.verified'), 'triggered.verified');
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.showPassword.clicked.verified'), 'clicked.verified');
 
         assert.equal(metrics.getFilteredData().events.length, 6, 'should log the events that happened');
         notifier.trigger('verification.success');

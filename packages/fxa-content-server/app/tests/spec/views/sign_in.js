@@ -185,6 +185,23 @@ define(function (require, exports, module) {
           assert.lengthOf(view.$('input[type=password]'), 1);
         });
       });
+
+      it('hides showPassword experiment treatment', function () {
+        Session.clear();
+        sinon.stub(view, 'isInExperiment', function () {
+          return true;
+        });
+
+        sinon.stub(view, 'isInExperimentGroup', function () {
+          return true;
+        });
+
+        return view.render()
+          .then(function () {
+            view.afterVisible();
+            assert.isTrue(view.$('.show-password-label').is(':hidden'));
+          });
+      });
     });
 
     describe('migration', function () {

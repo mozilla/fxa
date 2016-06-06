@@ -183,14 +183,6 @@ define(function (require, exports, module) {
         signinUri: this.broker.transformLink('/signin')
       };
 
-      if (isSync && this.isInExperiment('syncCheckbox')) {
-        this.notifier.trigger('syncCheckbox.triggered');
-        if (this.isInExperimentGroup('syncCheckbox', 'treatment')) {
-          context.isSyncTop = isSync;
-          context.isSync = null;
-        }
-      }
-
       return context;
     },
 
@@ -385,10 +377,6 @@ define(function (require, exports, module) {
       if (self.relier.isSync()) {
         var customizeSync = account.get('customizeSync');
         self.logViewEvent('customizeSync.' + String(customizeSync));
-
-        if (customizeSync && self.isInExperiment('syncCheckbox')) {
-          self.notifier.trigger('syncCheckbox.clicked');
-        }
       }
 
       return account;
