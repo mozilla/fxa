@@ -14,6 +14,7 @@ define(function (require, exports, module) {
 
   var CUTOFF_AGE = 13;
   var AGE_ELEMENT = '#age';
+  var AGE_SIZE_LIMIT = 3;
 
   var View = FormView.extend({
 
@@ -28,7 +29,7 @@ define(function (require, exports, module) {
 
     events: {
       'input': 'onInput',
-      'keydown': 'submitOnEnter',
+      'keydown': 'onKeyDown',
       'keyup': 'onInput'
     },
 
@@ -53,7 +54,30 @@ define(function (require, exports, module) {
     onInput: function () {
       // limit age to only 3 characters
       var age = this.$(AGE_ELEMENT);
-      age.val(age.val().substr(0, 3));
+      if (age.val().length > AGE_SIZE_LIMIT) {
+        age.val(age.val().substr(0, AGE_SIZE_LIMIT));
+      }
+    },
+
+    onKeyDown: function (event) {
+      // helper function to check for digit
+      function isKeyADigitOrSpecialCharacter (keyCode) {
+        return (
+          (keyCode === KeyCodes.BACKSPACE) ||
+          (keyCode === KeyCodes.TAB) ||
+          (keyCode === KeyCodes.LEFT_ARROW) ||
+          (keyCode === KeyCodes.RIGHT_ARROW) ||
+          (keyCode >= KeyCodes.NUM_0 && keyCode <= KeyCodes.NUM_9) ||
+          (keyCode >= KeyCodes.NUMPAD_0 && keyCode <= KeyCodes.NUMPAD_9)
+        );
+      }
+
+      // submit on enter, force digit input
+      if (event.which === KeyCodes.ENTER) {
+        this.trigger('submit');
+      } else if (! isKeyADigitOrSpecialCharacter(event.which)) {
+        event.preventDefault();
+      }
     },
 
     afterRender: function () {
@@ -82,12 +106,6 @@ define(function (require, exports, module) {
 
     _validateAge: function () {
       return ! isNaN(this._getAge());
-    },
-
-    submitOnEnter: function (event) {
-      if (event.which === KeyCodes.ENTER) {
-        this.trigger('submit');
-      }
     },
 
     _getAge: function () {

@@ -13,6 +13,7 @@ define(function (require, exports, module) {
   var sinon = require('sinon');
   var TestHelpers = require('../../../lib/helpers');
   var View = require('views/coppa/coppa-age-input');
+  var KeyCodes = require('lib/key-codes');
 
   var assert = chai.assert;
 
@@ -67,6 +68,36 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('onKeyDown', function () {
+      it('accept digits', function () {
+        var event = jQuery.Event('keydown', { which: KeyCodes.NUM_1 });
+        sinon.spy(event, 'preventDefault');
+        view.onKeyDown(event);
+        assert.isFalse(event.preventDefault.called);
+      });
+
+      it('does not allow non-digits', function () {
+        var event = jQuery.Event('keydown', {which: KeyCodes.NUM_PERIOD});
+        sinon.spy(event, 'preventDefault');
+        view.onKeyDown(event);
+        assert.isTrue(event.preventDefault.called);
+      });
+
+      function testEnterKeyTriggersSubmit(element, done) {
+        view.on('submit', function () {
+          done();
+        });
+
+        // submit using the enter key
+        var e = jQuery.Event('keydown', { which: 13 });
+        $(element).trigger(e);
+      }
+
+      it('submits on enter', function (done) {
+        testEnterKeyTriggersSubmit('#age', done);
+      });
+    });
+
     describe('isValid', function () {
       it('returns true if age is valid', function () {
         view.$('#age').val('14');
@@ -97,22 +128,6 @@ define(function (require, exports, module) {
 
         view.showValidationErrorsEnd();
         assert.isFalse(view.showValidationError.called);
-      });
-    });
-
-    describe('submitOnEnter', function () {
-      function testEnterKeyTriggersSubmit(element, done) {
-        view.on('submit', function () {
-          done();
-        });
-
-        // submit using the enter key
-        var e = jQuery.Event('keydown', { which: 13 });
-        $(element).trigger(e);
-      }
-
-      it('submits form if user presses enter on the age', function (done) {
-        testEnterKeyTriggersSubmit('#age', done);
       });
     });
 
