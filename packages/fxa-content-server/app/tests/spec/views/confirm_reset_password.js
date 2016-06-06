@@ -590,7 +590,7 @@ define(function (require, exports, module) {
         assert.equal(count, 1);
       });
 
-      it('debounces resend calls - submit on first and forth attempt', function () {
+      it('debounces resend calls - submit on first four attempts', function () {
         sinon.stub(view, 'retryResetPassword', function () {
           return p(true);
         });
@@ -600,13 +600,13 @@ define(function (require, exports, module) {
                 assert.equal(view.retryResetPassword.callCount, 1);
                 return view.validateAndSubmit();
               }).then(function () {
-                assert.equal(view.retryResetPassword.callCount, 1);
-                return view.validateAndSubmit();
-              }).then(function () {
-                assert.equal(view.retryResetPassword.callCount, 1);
-                return view.validateAndSubmit();
-              }).then(function () {
                 assert.equal(view.retryResetPassword.callCount, 2);
+                return view.validateAndSubmit();
+              }).then(function () {
+                assert.equal(view.retryResetPassword.callCount, 3);
+                return view.validateAndSubmit();
+              }).then(function () {
+                assert.equal(view.retryResetPassword.callCount, 4);
                 assert.equal(view.$('#resend:visible').length, 0);
 
                 assert.isTrue(TestHelpers.isEventLogged(metrics,

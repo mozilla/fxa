@@ -334,7 +334,7 @@ define(function (require, exports, module) {
         assert.equal(count, 1);
       });
 
-      it('debounces resend calls - submit on first and forth attempt', function () {
+      it('debounces resend calls - submit on first four attempts', function () {
         var count = 0;
 
         sinon.stub(account, 'retrySignUp', function () {
@@ -345,15 +345,18 @@ define(function (require, exports, module) {
         return view.validateAndSubmit()
               .then(function () {
                 assert.equal(count, 1);
-                return view.validateAndSubmit();
-              }).then(function () {
-                assert.equal(count, 1);
-                return view.validateAndSubmit();
-              }).then(function () {
-                assert.equal(count, 1);
+                assert.equal(view.$('#resend:visible').length, 1);
                 return view.validateAndSubmit();
               }).then(function () {
                 assert.equal(count, 2);
+                assert.equal(view.$('#resend:visible').length, 1);
+                return view.validateAndSubmit();
+              }).then(function () {
+                assert.equal(count, 3);
+                assert.equal(view.$('#resend:visible').length, 1);
+                return view.validateAndSubmit();
+              }).then(function () {
+                assert.equal(count, 4);
                 assert.equal(view.$('#resend:visible').length, 0);
 
                 assert.isTrue(TestHelpers.isEventLogged(metrics,

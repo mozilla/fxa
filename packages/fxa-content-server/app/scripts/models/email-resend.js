@@ -11,7 +11,7 @@ define(function (require, exports, module) {
   var Constants = require('lib/constants');
 
   function shouldResend (tries, maxTries) {
-    return tries === 1 || tries === maxTries;
+    return tries <= maxTries;
   }
 
   var EmailResend = Backbone.Model.extend({

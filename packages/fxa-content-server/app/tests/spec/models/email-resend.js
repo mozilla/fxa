@@ -78,15 +78,15 @@ define(function (require, exports, module) {
     });
 
     describe('shouldResend', function () {
-      it('it returns true to the 1st and 4th try only', function () {
+      it('it returns true to the first 4 tries only', function () {
         emailResend = new EmailResend();
-        assert.isFalse(emailResend.shouldResend());
+        assert.isTrue(emailResend.shouldResend());
         emailResend.incrementRequestCount();
         assert.isTrue(emailResend.shouldResend());
         emailResend.incrementRequestCount();
-        assert.isFalse(emailResend.shouldResend());
+        assert.isTrue(emailResend.shouldResend());
         emailResend.incrementRequestCount();
-        assert.isFalse(emailResend.shouldResend());
+        assert.isTrue(emailResend.shouldResend());
         emailResend.incrementRequestCount();
         assert.isTrue(emailResend.shouldResend());
         for (var i = 0; i < 10; i++) {
