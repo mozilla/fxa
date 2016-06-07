@@ -14,9 +14,11 @@ define([
     name: 'flow-metrics'
   };
 
-  var mockConfig, mockRequest, mockDateNow, mockRandomBytes;
+  var mockDateNow, mockRandomBytes, mockFlowIdKey, mockUserAgent;
 
   suite.beforeEach = function () {
+    mockFlowIdKey = 'test hmac key';
+    mockUserAgent = 'test user agent';
     sinon.stub(Date, 'now', function () {
       return mockDateNow;
     });
@@ -29,24 +31,11 @@ define([
         return b;
       }
     });
-    mockConfig = {
-      flow_id_key: 'test hmac key', //eslint-disable-line camelcase
-      get: sinon.spy(function (name) {
-        return this[name];
-      })
-    };
-    mockRequest = {
-      headers: {
-        'user-agent': 'test user agent'
-      }
-    };
     mockDateNow = 0;
     mockRandomBytes = null;
   };
 
   suite.afterEach = function () {
-    mockConfig = null;
-    mockRequest = null;
     mockDateNow = 0;
     mockRandomBytes = null;
     crypto.randomBytes.restore();
@@ -55,14 +44,14 @@ define([
 
   suite['returns current timestamp for flowBeginTime'] = function () {
     mockDateNow = 42;
-    var flowEventData = flowMetrics(mockConfig, mockRequest);
+    var flowEventData = flowMetrics(mockFlowIdKey, mockUserAgent);
     assert.equal(flowEventData.flowBeginTime, 42);
   };
 
   suite['correctly generates a known test vector'] = function () {
     mockDateNow = 1451566800000;
-    mockRequest.headers['user-agent'] = 'Firefox';
-    mockConfig.flow_id_key = 'S3CR37'; //eslint-disable-line camelcase
+    mockFlowIdKey = 'S3CR37';
+    mockUserAgent = 'Firefox';
     mockRandomBytes = 'MozillaFirefox!!';
     // Want to cross-check the test vector here?
     // The following python code was used to generate it:
@@ -78,29 +67,23 @@ define([
     var expectedSalt = '4d6f7a696c6c6146697265666f782121';
     var expectedHmac = 'c89d56556d22039fbbf54d34e0baf206';
 
-    var flowEventData = flowMetrics(mockConfig, mockRequest);
+    var flowEventData = flowMetrics(mockFlowIdKey, mockUserAgent);
 
     assert.equal(flowEventData.flowBeginTime, 1451566800000);
     assert.equal(flowEventData.flowId, expectedSalt + expectedHmac);
   };
 
   suite['generates different flowIds for different keys'] = function () {
-    mockConfig.flow_id_key = 'key1'; //eslint-disable-line camelcase
-    var flowEventData1 = flowMetrics(mockConfig, mockRequest);
-
-    mockConfig.flow_id_key = 'key2'; //eslint-disable-line camelcase
-    var flowEventData2 = flowMetrics(mockConfig, mockRequest);
+    var flowEventData1 = flowMetrics('key1', mockUserAgent);
+    var flowEventData2 = flowMetrics('key2', mockUserAgent);
 
     assert.notEqual(flowEventData1.flowId, flowEventData2.flowId);
     assert.equal(flowEventData1.flowBeginTime, flowEventData2.flowBeginTime);
   };
 
   suite['generates different flowIds for different user agents'] = function () {
-    mockRequest.headers['user-agent'] = 'Firefox';
-    var flowEventData1 = flowMetrics(mockConfig, mockRequest);
-
-    mockRequest.headers['user-agent'] = 'Chrome';
-    var flowEventData2 = flowMetrics(mockConfig, mockRequest);
+    var flowEventData1 = flowMetrics(mockFlowIdKey, 'Firefox');
+    var flowEventData2 = flowMetrics(mockFlowIdKey, 'Chrome');
 
     assert.notEqual(flowEventData1.flowId, flowEventData2.flowId);
     assert.equal(flowEventData1.flowBeginTime, flowEventData2.flowBeginTime);
@@ -108,10 +91,10 @@ define([
 
   suite['generates different flowIds for different random salts'] = function () {
     mockRandomBytes = 'MozillaFirefox!!';
-    var flowEventData1 = flowMetrics(mockConfig, mockRequest);
+    var flowEventData1 = flowMetrics(mockFlowIdKey, mockUserAgent);
 
     mockRandomBytes = 'AllHailSeaMonkey';
-    var flowEventData2 = flowMetrics(mockConfig, mockRequest);
+    var flowEventData2 = flowMetrics(mockFlowIdKey, mockUserAgent);
 
     assert.notEqual(flowEventData1.flowId, flowEventData2.flowId);
     assert.equal(flowEventData1.flowBeginTime, flowEventData2.flowBeginTime);
@@ -119,10 +102,10 @@ define([
 
   suite['generates different flowIds for different timestamps'] = function () {
     mockDateNow = +(new Date(2016, 0, 1));
-    var flowEventData1 = flowMetrics(mockConfig, mockRequest);
+    var flowEventData1 = flowMetrics(mockFlowIdKey, mockUserAgent);
 
     mockDateNow = +(new Date(2016, 1, 29));
-    var flowEventData2 = flowMetrics(mockConfig, mockRequest);
+    var flowEventData2 = flowMetrics(mockFlowIdKey, mockUserAgent);
 
     assert.notEqual(flowEventData1.flowId, flowEventData2.flowId);
     assert.notEqual(flowEventData1.flowBeginTime, flowEventData2.flowBeginTime);
