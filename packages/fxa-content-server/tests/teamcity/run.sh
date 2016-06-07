@@ -18,6 +18,8 @@ FXA_TEST_NAME=$1
 source $DIRNAME/defaults.sh
 source $DIRNAME/$FXA_TEST_NAME
 
+killall -v firefox-bin
+
 # optionally, GIT_COMMIT can be set in the environment to override
 if [ -z "$GIT_COMMIT" ]; then
   GIT_COMMIT=$(curl -s "$FXA_CONTENT_VERSION" | jsawk  "return this.commit" | perl -pe 's/^OUT: //')
