@@ -40,10 +40,13 @@ define([
       },
 
       'config.get was called correctly': function () {
-        assert.equal(config.get.callCount, 1);
+        assert.equal(config.get.callCount, 2);
         var args = config.get.args[0];
         assert.lengthOf(args, 1);
         assert.equal(args[0], 'static_resource_url');
+        var argsFlow = config.get.args[1];
+        assert.lengthOf(argsFlow, 1);
+        assert.equal(argsFlow[0], 'flow_id_key');
       },
 
       'route.process': {

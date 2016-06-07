@@ -4,20 +4,23 @@
 
 var crypto = require('crypto');
 
-module.exports = function flowEventData(config, request) {
-
+/**
+ *
+ * @param key String flow_id_key
+ * @param userAgent String request user agent string
+ * @returns {{flowBeginTime: number, flowId: string}}
+ */
+module.exports = function flowEventData(key, userAgent) {
   var flowId = crypto.randomBytes(16).toString('hex');
   var flowBeginTime = Date.now();
 
   // Incorporate a hash of request metadata into the flow id,
   // so that receiving servers can cross-check the metrics bundle.
-
-  var key = config.get('flow_id_key');
   var flowSignature = crypto.createHmac('sha256', key)
     .update([
       flowId,
       flowBeginTime.toString(16),
-      request.headers['user-agent']
+      userAgent
     ].join('\n'))
     .digest('hex')
     .substr(0, 32);

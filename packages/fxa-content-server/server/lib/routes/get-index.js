@@ -6,14 +6,14 @@ var flowMetrics = require('../flow-metrics');
 
 module.exports = function (config) {
   var STATIC_RESOURCE_URL = config.get('static_resource_url');
+  var FLOW_ID_KEY = config.get('flow_id_key');
 
   var route = {};
   route.method = 'get';
   route.path = '/';
 
   route.process = function (req, res) {
-
-    var flowEventData = flowMetrics(config, req);
+    var flowEventData = flowMetrics(FLOW_ID_KEY, req.headers['user-agent']);
 
     res.render('index', {
       flowBeginTime: flowEventData.flowBeginTime,
