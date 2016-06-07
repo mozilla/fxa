@@ -18,7 +18,7 @@ FXA_TEST_NAME=$1
 source $DIRNAME/defaults.sh
 source $DIRNAME/$FXA_TEST_NAME
 
-killall -v firefox-bin
+killall -v firefox-bin || echo 'Ok, no firefox-bin.'
 
 # optionally, GIT_COMMIT can be set in the environment to override
 if [ -z "$GIT_COMMIT" ]; then
