@@ -593,6 +593,71 @@ module.exports = function (log, error) {
     )
   }
 
+  // VERIFICATION REMINDERS
+
+  // INSERT : id, uid, email, emailCode, type, acceptLanguage, createdAt
+  var CREATE_REMINDER = 'CALL createVerificationReminder_1(?, ?, ?, ?)'
+
+  MySql.prototype.createVerificationReminder = function (body) {
+    if (! body || ! body.uid || ! body.type) {
+      throw error.wrap(new Error('"uid", "type" are required'))
+    }
+
+    var reminderData = {
+      id: crypto.createHash('sha256').update(body.uid + body.type).digest(),
+      uid: new Buffer(body.uid),
+      type: body.type,
+      createdAt: Date.now()
+    }
+
+    return this.write(CREATE_REMINDER, [
+      reminderData.id,
+      reminderData.uid,
+      reminderData.type,
+      reminderData.createdAt
+    ])
+  }
+
+  // SELECT:
+  var FETCH_REMINDERS = 'CALL fetchVerificationReminders_1(?, ?, ?, ?)'
+
+  MySql.prototype.fetchReminders = function (body, query) {
+    if (! query || ! query.reminderTime || ! query.reminderTimeOutdated || ! query.type || ! query.limit) {
+      throw error.wrap(new Error('fetchReminders - reminderTime, reminderTimeOutdated, limit or type missing'))
+    }
+
+    return this.read(FETCH_REMINDERS, [
+      query.type,
+      query.reminderTime,
+      query.reminderTimeOutdated,
+      query.limit
+    ]).then(function (readResult) {
+      return readResult[0]
+    })
+  }
+
+  // DELETE REMINDER:
+  var DELETE_REMINDER = 'CALL deleteVerificationReminder_1(?, ?)'
+
+  MySql.prototype.deleteReminder = function (body) {
+    if (! body || ! body.uid || ! body.type) {
+      throw error.wrap(new Error('"uid", "type" are required'))
+    }
+
+    var reminderData = {
+      uid: body.uid,
+      type: body.type
+    }
+
+    return this.write(
+      DELETE_REMINDER,
+      [
+        reminderData.uid,
+        reminderData.type
+      ]
+    )
+  }
+
   // BATCH
 
   // Step   : 1

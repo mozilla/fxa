@@ -16,6 +16,7 @@ var accountResetTokens = {}
 var passwordChangeTokens = {}
 var passwordForgotTokens = {}
 var accountUnlockCodes = {}
+var reminders = {}
 
 var DEVICE_FIELDS = [
   'sessionTokenId',
@@ -791,6 +792,58 @@ module.exports = function (log, error) {
     token.uaOSVersion = data.uaOSVersion
     token.uaDeviceType = data.uaDeviceType
     token.lastAccessTime = data.lastAccessTime
+    return P.resolve({})
+  }
+
+  // VERIFICATION REMINDERS
+
+  Memory.prototype.createVerificationReminder = function (body) {
+    if (! body || ! body.uid || ! body.type) {
+      throw error.wrap(new Error('"uid", "type" are required'))
+    }
+
+    var reminderData = {
+      uid: body.uid,
+      type: body.type,
+      createdAt: Date.now()
+    }
+    reminders[reminderData.uid.toString('hex') + reminderData.type] = reminderData
+
+    return P.resolve({})
+  }
+
+  Memory.prototype.fetchReminders = function (body, query) {
+    if (! query || ! query.reminderTime || ! query.type || ! query.limit) {
+      throw error.wrap(new Error('fetchReminders - reminderTime, limit or type missing'))
+    }
+
+    var self = this
+    var result = Object.keys(reminders)
+      .map(function (key) {
+        return reminders[key]
+      })
+      .filter(function (item) {
+        return item.type === query.type && (Date.now() - item.createdAt) > query.reminderTime
+      })
+      .slice(0, query.limit)
+
+    result.forEach(function (reminder) {
+      self.deleteReminder({
+        uid: reminder.uid,
+        type: reminder.type
+      })
+    })
+
+    return P.resolve(result)
+  }
+
+  Memory.prototype.deleteReminder = function (body) {
+    if (! body || ! body.uid || ! body.type) {
+      throw error.wrap(new Error('"uid", "type" are required'))
+    }
+
+    delete reminders[body.uid.toString('hex') + body.type]
+
     return P.resolve({})
   }
 

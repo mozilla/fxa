@@ -22,6 +22,17 @@ function createServer(db) {
     }
   }
 
+  function replyNoParams(fn) {
+    return function (req, res, next) {
+      fn.call(db, req.body, req.query)
+        .then(
+          handleSuccess.bind(null, req, res),
+          handleError.bind(null, req, res)
+        )
+        .done(next, next)
+    }
+  }
+
   function handleSuccess(req, res, result) {
     api.emit(
       'success',
@@ -70,6 +81,7 @@ function createServer(db) {
 
   var api = restify.createServer()
   api.use(restify.bodyParser())
+  api.use(restify.queryParser())
   api.use(bufferize.bufferizeRequest.bind(null, [
     'uaBrowser',
     'uaBrowserVersion',
@@ -118,6 +130,10 @@ function createServer(db) {
   api.put('/passwordForgotToken/:id', reply(db.createPasswordForgotToken))
   api.post('/passwordForgotToken/:id/update', reply(db.updatePasswordForgotToken))
   api.post('/passwordForgotToken/:id/verified', reply(db.forgotPasswordVerified))
+
+  api.get('/verificationReminders', replyNoParams(db.fetchReminders))
+  api.post('/verificationReminders', replyNoParams(db.createVerificationReminder))
+  api.del('/verificationReminders', replyNoParams(db.deleteReminder))
 
   api.get('/emailRecord/:id', reply(db.emailRecord))
   api.head('/emailRecord/:id', reply(db.accountExists))

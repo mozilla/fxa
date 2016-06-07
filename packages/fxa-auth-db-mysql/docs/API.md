@@ -42,6 +42,10 @@ There are a number of methods that a DB storage backend should implement:
     * .createAccountResetToken(tokenId, accountResetToken)
     * .accountResetToken(id)
     * .deleteAccountResetToken(tokenId)
+* Verification Reminders
+    * .createVerificationReminder(body)
+    * .fetchReminders(body, query)
+    * .deleteReminder(body)
 * General
     * .ping()
     * .close()
@@ -450,5 +454,38 @@ The deviceCallbackPublicKey and deviceCallbackAuthKey fields are urlsafe-base64 
                  d.createdAt AS deviceCreatedAt, d.callbackURL AS deviceCallbackURL,
                  d.callbackPublicKey AS deviceCallbackPublicKey,
                  d.callbackAuthKey AS deviceCallbackAuthKey, ut.tokenVerificationId
+
+## .createVerificationReminder(body) ##
+
+Creates a new verification reminder for some `uid` and some reminder `type`.
+
+Parameters:
+
+* body: (object)
+  * uid : user id
+  * type : type of reminder
+
+## .fetchReminders(body, query) ##
+
+Fetch verification reminders based on `reminderTime` and `type`.
+
+Parameters:
+
+* body: (object)
+* query: (object)
+  * reminderTime : Milliseconds since account creation after which the first reminder is sent
+  * reminderTimeOutdated : Milliseconds since account creation after which the reminder should not be sent
+  * type : Type of the reminder
+  * limit : Number of reminders to fetch
+
+## .deleteReminder(body) ##
+
+Delete the verification reminder based on `uid` and `type`.
+
+Parameters:
+
+* body: (object)
+  * uid : user id
+  * type : type of reminder
 
 (Ends)

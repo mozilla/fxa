@@ -1555,6 +1555,117 @@ module.exports = function(config, DB) {
         )
 
         test(
+          'reminders - create and delete',
+          function (t) {
+            t.plan(3)
+            var fetchQuery = {
+              type: 'second',
+              reminderTime: 1,
+              reminderTimeOutdated: 100,
+              limit: 20
+            }
+            var account = createAccount()
+            return db.createAccount(account.uid, account)
+              .then(
+                function () {
+                  return db.createVerificationReminder({
+                    uid: account.uid,
+                    type: 'second'
+                  })
+                }
+              )
+              .then(
+                function () {
+                  return P.delay(20).then(function () {
+                    return db.fetchReminders({}, fetchQuery)
+                  })
+                }
+              )
+              .then(
+                function (result) {
+                  t.equal(result[0].type, 'second', 'correct type')
+                  t.equal(result[0].uid.toString('hex'), account.uid.toString('hex'), 'correct uid')
+                }
+              )
+              .then(
+                function () {
+                  return db.fetchReminders({}, fetchQuery)
+                }
+              )
+              .then(
+                function (result) {
+                  t.equal(result.length, 0, 'no more reminders')
+                  t.end()
+                }
+              )
+          }
+        )
+
+        test(
+          'reminders - multiple accounts',
+          function (t) {
+            t.plan(4)
+            var fetchQuery = {
+              type: 'first',
+              reminderTime: 1,
+              reminderTimeOutdated: 100,
+              limit: 20
+            }
+            var account = createAccount()
+            var account2 = createAccount()
+            return db.createAccount(account.uid, account)
+              .then(
+                function () {
+                  return db.createAccount(account2.uid, account2)
+                }
+              )
+              .then(
+                function () {
+                  // create 'first' reminder for account one.
+                  return db.createVerificationReminder({
+                    uid: account.uid,
+                    type: 'first'
+                  })
+                }
+              )
+              .then(
+                function () {
+                  // create 'first' reminder for account two.
+                  return db.createVerificationReminder({
+                    uid: account2.uid,
+                    type: 'first'
+                  })
+                }
+              )
+              .then(
+                function () {
+                  return P.delay(20).then(function () {
+                    return db.fetchReminders({}, fetchQuery)
+                  })
+                }
+              )
+              .then(
+                function (result) {
+                  t.equal(result.length, 2, 'correct size of result')
+                  t.equal(result[0].type, 'first', 'correct type')
+                  t.equal(result[1].type, 'first', 'correct type')
+                }
+              )
+              .then(
+                function () {
+                  return db.fetchReminders({}, fetchQuery)
+                }
+              )
+              .then(
+                function (result) {
+                  t.equal(result.length, 0, 'no more first reminders')
+                  t.end()
+                }
+              )
+          }
+        )
+
+        test(
           'teardown',
           function (t) {
             return db.close()
