@@ -83,7 +83,6 @@ Pool.prototype.get = function (path) {
   return this.request('GET', path)
 }
 
-
 Pool.prototype.close = function () {
   /*/
    This is a hack to coax the server to close its existing connections

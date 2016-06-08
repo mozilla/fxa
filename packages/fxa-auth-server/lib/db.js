@@ -6,6 +6,7 @@ var butil = require('./crypto/butil')
 var log = require('../log')('db')
 var P = require('./promise')
 var Pool = require('./pool')
+var qs = require('querystring')
 
 var bufferize = butil.bufferize
 
@@ -46,6 +47,49 @@ module.exports = function () {
           throw err
         }
       )
+  }
+
+  DB.prototype.account = function (uid) {
+    log.trace({ op: 'DB.account', uid: uid })
+    return this.pool.get('/account/' + uid.toString('hex'))
+      .then(
+        function (body) {
+          var data = bufferize(body)
+          data.emailVerified = !!data.emailVerified
+          return data
+        },
+        function (err) {
+          throw err
+        }
+      )
+  }
+
+  /**
+   * Create a new reminder
+   * @param reminderData
+   * @param {string} reminderData.uid - The uid to remind.
+   * @param {string} reminderData.type - The type of a reminder.
+   */
+  DB.prototype.createVerificationReminder = function (reminderData) {
+    log.debug('createVerificationReminder', reminderData)
+
+    return this.pool.post('/verificationReminders', reminderData)
+  }
+
+  /**
+   * Fetch reminders given reminder age
+   *
+   * @param options
+   * @param {string} options.type - Type of reminder. Can be 'first' or 'second'.
+   * @param {string} options.reminderTime - Reminder age in MS.
+   * @param {string} options.reminderTimeOutdated - Reminder outdated age in MS.
+   * @param {string} options.limit - Number of records to fetch.
+   */
+  DB.prototype.fetchReminders = function (options) {
+    log.debug('fetchReminders', options)
+
+    var query = '?' + qs.stringify(options)
+    return this.pool.get('/verificationReminders' + query, options)
   }
 
   return DB
