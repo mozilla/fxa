@@ -69,7 +69,7 @@ ClientApi.prototype.doRequest = function (method, url, token, payload, headers) 
       // Requiring config outside this condition causes the local tests to fail
       // because tokenLifetimes.passwordChangeToken is -1
       var config = require('../../config')
-      if (allowedOrigin !== config.get('corsOrigin')) {
+      if (config.get('corsOrigin').indexOf(allowedOrigin) < 0) {
         return d.reject(new Error('Unexpected allowed origin: ' + allowedOrigin))
       }
     }
