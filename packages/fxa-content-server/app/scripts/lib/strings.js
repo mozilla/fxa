@@ -46,6 +46,10 @@ define(function (require, exports, module) {
   t('Sign-in confirmed');
   t('You are now ready to use %(serviceName)s');
 
+  // We're temporarily changing the string for marketing optin, see #3792.
+  // This keeps the old string around for if/when we need to change it back.
+  t('Get the latest news about Mozilla and Firefox.');
+
   /**
    * Replace instances of %s and %(name)s with their corresponding values in
    * the context
