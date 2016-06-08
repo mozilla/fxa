@@ -12,11 +12,7 @@ var config = require('../config');
 // Certain special values of the utm_campaign metrics parameters
 // are used to indicate a newsletter campaign, and cause us to
 // auto-subscribe the user to a particular newsletter.
-var NEWSLETTER_CAMPAIGN_IDS = config.get('basket.newsletter_campaign_ids')
-  .reduce(function (setOfIds, id) {
-    setOfIds[id] = true;
-    return setOfIds;
-  }, {});
+var NEWSLETTER_CAMPAIGNS = config.get('basket.newsletter_campaigns');
 
 var SOURCE_URL_BASE = config.get('basket.source_url');
 
@@ -60,9 +56,9 @@ function onLogin (message, cb) {
   var metrics = message.metricsContext || {};
   return Promise.resolve().then(function () {
     // If utm_campaign indicates it's a newsletter campaign, flag it by
-    // subscribing to the newsletter identified in utm_content.
-    if (metrics.utm_campaign in NEWSLETTER_CAMPAIGN_IDS) {
-      var newsletter = metrics.utm_content;
+    // subscribing to the corresponding newsletter.
+    var newsletter = NEWSLETTER_CAMPAIGNS[metrics.utm_campaign];
+    if (metrics.utm_campaign && newsletter) {
       var source_url = url.parse(SOURCE_URL_BASE, true);
       for (var key in metrics) {
         if (key.indexOf('utm_') === 0) {

@@ -17,6 +17,13 @@ var LOCALE = 'en-AU';
 var USER_AGENT = 'a fake testing browser (like Gecko)';
 var SERVICE = 'sync';
 
+var CAMPAIGN_NEWSLETTER_SLUG = 'mozilla-welcome';
+var CAMPAIGN_NEWSLETTER_CONTEXT = {
+  utm_campaign: 'fxa-embedded-form-moz',
+  utm_source: 'firstrun'
+};
+var CAMPAIGN_NEWSLETTER_SOURCE_URL = 'https://accounts.firefox.com/?utm_campaign=fxa-embedded-form-moz&utm_source=firstrun';
+
 
 describe('the handleEvent() function', function () {
 
@@ -251,14 +258,11 @@ describe('the handleEvent() function', function () {
   });
 
   it('subscribes to newsletters when given specific utm params', function (done) {
-    var EMAIL = 'test@example.com';
-    var NEWSLETTER = 'campaign1';
-    var SOURCE_URL = 'https://accounts.firefox.com/?utm_campaign=test-newsletter-campaign&utm_source=firstrun&utm_content=campaign1';
     mocks.mockBasketResponse().post('/subscribe/', function (body) {
       assert.deepEqual(body, {
         email: EMAIL,
-        newsletters: NEWSLETTER,
-        source_url: SOURCE_URL
+        newsletters: CAMPAIGN_NEWSLETTER_SLUG,
+        source_url: CAMPAIGN_NEWSLETTER_SOURCE_URL
       });
       return true;
     }).reply(200, {
@@ -273,11 +277,7 @@ describe('the handleEvent() function', function () {
         fxa_id: UID,
         first_device: false,
         user_agent: USER_AGENT,
-        metrics_context: {
-          utm_campaign: 'test-newsletter-campaign',
-          utm_source: 'firstrun',
-          utm_content: NEWSLETTER
-        }
+        metrics_context: CAMPAIGN_NEWSLETTER_CONTEXT
       });
       return true;
     }).reply(200, {
@@ -290,11 +290,7 @@ describe('the handleEvent() function', function () {
       email: EMAIL,
       deviceCount: 2,
       userAgent: USER_AGENT,
-      metricsContext: {
-        utm_campaign: 'test-newsletter-campaign',
-        utm_source: 'firstrun',
-        utm_content: NEWSLETTER
-      },
+      metricsContext: CAMPAIGN_NEWSLETTER_CONTEXT,
       del: function () {
         done();
       }
@@ -302,16 +298,13 @@ describe('the handleEvent() function', function () {
   });
 
   it('does not delete events on network-level error in campaign subscription', function (done) {
-    var EMAIL = 'test@example.com';
-    var NEWSLETTER = 'campaign1';
-    var SOURCE_URL = 'https://accounts.firefox.com/?utm_campaign=test-newsletter-campaign&utm_source=firstrun&utm_content=campaign1';
     mocks.mockBasketResponse({
       reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
     }).post('/subscribe/', function (body) {
       assert.deepEqual(body, {
         email: EMAIL,
-        newsletters: NEWSLETTER,
-        source_url: SOURCE_URL
+        newsletters: CAMPAIGN_NEWSLETTER_SLUG,
+        source_url: CAMPAIGN_NEWSLETTER_SOURCE_URL
       });
       return true;
     }).replyWithError('ruh-roh!');
@@ -322,11 +315,7 @@ describe('the handleEvent() function', function () {
       email: EMAIL,
       deviceCount: 2,
       userAgent: USER_AGENT,
-      metricsContext: {
-        utm_campaign: 'test-newsletter-campaign',
-        utm_source: 'firstrun',
-        utm_content: NEWSLETTER
-      },
+      metricsContext: CAMPAIGN_NEWSLETTER_CONTEXT,
       del: function () {
         assert.fail('should not delete the message from the queue');
       }
@@ -337,16 +326,13 @@ describe('the handleEvent() function', function () {
   });
 
   it('does delete events on HTTP-level error in campaign subscription', function (done) {
-    var EMAIL = 'test@example.com';
-    var NEWSLETTER = 'campaign1';
-    var SOURCE_URL = 'https://accounts.firefox.com/?utm_campaign=test-newsletter-campaign&utm_source=firstrun&utm_content=campaign1';
     mocks.mockBasketResponse({
       reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
     }).post('/subscribe/', function (body) {
       assert.deepEqual(body, {
         email: EMAIL,
-        newsletters: NEWSLETTER,
-        source_url: SOURCE_URL
+        newsletters: CAMPAIGN_NEWSLETTER_SLUG,
+        source_url: CAMPAIGN_NEWSLETTER_SOURCE_URL
       });
       return true;
     }).reply(500, {
@@ -363,11 +349,7 @@ describe('the handleEvent() function', function () {
         fxa_id: UID,
         first_device: false,
         user_agent: USER_AGENT,
-        metrics_context: {
-          utm_campaign: 'test-newsletter-campaign',
-          utm_source: 'firstrun',
-          utm_content: NEWSLETTER
-        }
+        metrics_context: CAMPAIGN_NEWSLETTER_CONTEXT
       });
       return true;
     }).reply(200, {
@@ -380,11 +362,7 @@ describe('the handleEvent() function', function () {
       email: EMAIL,
       deviceCount: 2,
       userAgent: USER_AGENT,
-      metricsContext: {
-        utm_campaign: 'test-newsletter-campaign',
-        utm_source: 'firstrun',
-        utm_content: NEWSLETTER
-      },
+      metricsContext: CAMPAIGN_NEWSLETTER_CONTEXT,
       del: function () {
         done();
       }
