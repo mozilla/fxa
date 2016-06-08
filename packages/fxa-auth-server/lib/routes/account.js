@@ -268,6 +268,8 @@ module.exports = function (
           payload: {
             email: validators.email().required(),
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
+            // Obsolete contentToken param, here for backwards compat.
+            contentToken: isA.string().optional(),
             service: isA.string().max(16).alphanum().optional(),
             redirectTo: isA.string().uri().optional(),
             resume: isA.string().optional(),
@@ -297,6 +299,14 @@ module.exports = function (
         var emailRecord, sessionToken
 
         metricsContext.validate(request)
+
+        // Monitor for any clients still sending obsolete 'contentToken' param.
+        if (request.payload.contentToken) {
+          log.info({
+            op: 'Account.login.contentToken',
+            agent: request.headers['user-agent']
+          })
+        }
 
         customs.check(request.app.clientAddress, email, 'accountLogin')
           .then(readEmailRecord)
