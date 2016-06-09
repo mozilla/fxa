@@ -65,7 +65,7 @@
     "lodash": "4.11.1",
     "mkdirp": "0.5.1",
     "morgan": "1.7.0",
-    "mozlog": "2.0.3",
+    "mozlog": "2.0.4",
     "node-statsd": "0.1.1",
     "node-uap": "git://github.com/vladikoff/node-uap.git#9cdd16247",
     "openid": "1.0.0",
