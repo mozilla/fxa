@@ -271,6 +271,26 @@ define(function (require, exports, module) {
         $('html').removeClass('no-touch');
       });
 
+      it('adds `centered` class to `.links` if any child has width >= half of `.links` width', function () {
+        var link1 = '<a href="/reset_password" class="left reset-password">Forgot password?</a>';
+        var link2 = '<a href="/signup" class="right sign-up">Create an account with really really looooooooooooooong text</a>';
+        $('.links').html(link1 + link2);
+        // force the width to be 50%
+        $('.links > .right').css({'display':'inline-block', 'width':'50%'});
+        view.afterVisible();
+        assert.isTrue($('.links').hasClass('centered'));
+      });
+
+      it('does not add `centered` class to `.links` if all children have width < half of `.links` width', function () {
+        var link1 = '<a href="/reset_password" class="left reset-password">Forgot password?</a>';
+        var link2 = '<a href="/signup" class="right sign-up">Create an account</a>';
+        $('.links').html(link1 + link2);
+        // force the widths of all children to be less than 50%
+        $('.links').children().css({'display':'inline-block', 'width':'49%'});
+        view.afterVisible();
+        assert.isFalse($('.links').hasClass('centered'));
+      });
+
       it('focuses descendent element containing `autofocus` if html has `no-touch` class', function (done) {
         requiresFocus(function () {
           $('html').addClass('no-touch');

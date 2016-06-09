@@ -389,6 +389,27 @@ define(function (require, exports, module) {
 
     // called after the view is visible.
     afterVisible: function () {
+      // restyle side-by-side links to stack if they are too long
+      // to fit on one line
+      var linkContainer = this.$el.find('.links');
+      if (linkContainer.length > 0) {
+        // takes care of odd number widths
+        var halfContainerWidth = Math.floor(linkContainer.width() / 2);
+        var shouldResetLinkSize = false;
+
+        linkContainer.children('a').each(function (i, item) {
+          var linkWidth = linkContainer.find(item).width();
+          // if any link is equal to or more than half its parent's width,
+          // make *all* links in the same parent to be stacked
+          if (linkWidth >= halfContainerWidth) {
+            shouldResetLinkSize = true;
+          }
+        });
+
+        if (shouldResetLinkSize === true) {
+          linkContainer.addClass('centered');
+        }
+      }
       // make a huge assumption and say if the device does not have touch,
       // it's a desktop device and autofocus can be applied without
       // hiding part of the view. The no-touch class is added by

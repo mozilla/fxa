@@ -16,15 +16,22 @@
   .left {
     float: left;
     max-width: 50%;
-    padding: 0 4% 0 0;
     text-align: left;
   }
 
   .right {
     float: right;
     max-width: 50%;
-    padding: 0 0 0 4%;
     text-align: right;
+  }
+
+  &.centered a:not(:only-child) {
+    display: block;
+    float: none;
+    margin: 5px auto;
+    max-width: 100%;
+    text-align: center;
+    width: fit-content;
   }
 
   a {
@@ -130,10 +137,10 @@ ul.links {
   .links .right {
     display: block;
     float: none;
-    margin: 5px 0;
+    margin: 5px auto;
     max-width: 100%;
-    padding: 0;
     text-align: center;
+    width: fit-content;
   }
 }
 
