@@ -35,6 +35,7 @@ define(function (require, exports, module) {
 
     var validCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH);
     var validUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
+    var validService = 'someValidService';
 
     function testShowsExpiredScreen(search) {
       windowMock.location.search = search || '?code=' + validCode + '&uid=' + validUid;
@@ -179,6 +180,25 @@ define(function (require, exports, module) {
 
         it('does not attempt to verify the account', function () {
           assert.isFalse(account.verifySignUp.called);
+        });
+      });
+
+      describe('if service is available in the URL', function () {
+        beforeEach(function () {
+          windowMock.location.search = '?code=' + validCode + '&uid=' + validUid + '&service=' + validService;
+          relier = new Relier({
+            window: windowMock
+          });
+          relier.fetch();
+          initView(account);
+          return view.render();
+        });
+
+        it('attempt to verify the account with service', function () {
+          var args = account.verifySignUp.getCall(0).args;
+          assert.isTrue(account.verifySignUp.called);
+          assert.ok(args[0]);
+          assert.deepEqual(args[1], {service: validService});
         });
       });
 

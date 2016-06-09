@@ -19,6 +19,7 @@ define([
   var PASSWORD = '12345678';
 
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
+  var testEmailExpected = FunctionalHelpers.testEmailExpected;
 
   registerSuite({
     name: 'Firstrun Sync v1 sign_up',
@@ -90,7 +91,10 @@ define([
         .end()
 
         .findByCssSelector('#fxa-sign-up-complete-header')
-        .end();
+        .end()
+
+        // A post-verification email should be sent, this is Sync.
+        .then(testEmailExpected(email, 1));
     },
 
     'sign up, cancel merge warning': function () {

@@ -18,6 +18,7 @@ define([
   var PASSWORD = '12345678';
 
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
+  var testEmailExpected = FunctionalHelpers.testEmailExpected;
 
   registerSuite({
     name: 'Fx Fennec Sync v1 sign_up',
@@ -137,7 +138,10 @@ define([
         .end()
 
         // browser is notified of desire to open Sync preferences
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:sync_preferences'));
+        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:sync_preferences'))
+
+        // A post-verification email should be sent, this is Sync.
+        .then(testEmailExpected(email, 1));
 
     }
   });

@@ -27,6 +27,7 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
   var getVerificationLink = thenify(FunctionalHelpers.getVerificationLink);
+  var noEmailExpected = FunctionalHelpers.noEmailExpected;
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
   var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
   var openPage = FunctionalHelpers.openPage;
@@ -104,7 +105,10 @@ define([
         .switchToWindow('')
 
         .findByCssSelector('#loggedin')
-        .end();
+        .end()
+
+        // Do not expect a post-verification email, those are for Sync.
+        .then(noEmailExpected(email, 1));
     },
 
     'signup, verify same browser with original tab closed': function () {

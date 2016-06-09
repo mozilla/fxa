@@ -37,6 +37,7 @@ define([
   var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
   var getVerificationLink = thenify(FunctionalHelpers.getVerificationLink);
   var listenForSyncCommands = FxDesktopHelpers.listenForFxaCommands;
+  var noEmailExpected = FunctionalHelpers.noEmailExpected;
   var openExternalSite = FunctionalHelpers.openExternalSite;
   var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
@@ -113,7 +114,10 @@ define([
           assert.isTrue(messageReceived, 'expected to receive a WebChannel event in either tab');
         })
 
-        .then(testElementExists('#fxa-sign-up-complete-header'));
+        .then(testElementExists('#fxa-sign-up-complete-header'))
+
+        // Do not expect a post-verification email, those are for Sync.
+        .then(noEmailExpected(email, 1));
     },
 
     'signup, verify same browser, original tab closed navigated to another page': function () {

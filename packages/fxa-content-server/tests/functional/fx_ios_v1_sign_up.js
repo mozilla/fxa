@@ -19,7 +19,9 @@ define([
   var email;
   var PASSWORD = '12345678';
 
+
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
+  var testEmailExpected = FunctionalHelpers.testEmailExpected;
   var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
 
   registerSuite({
@@ -83,7 +85,10 @@ define([
         .end()
 
         .findByCssSelector('#fxa-confirm-header')
-        .end();
+        .end()
+
+        // A post-verification email should be sent, this is Sync.
+        .then(testEmailExpected(email, 1));
     },
 
     'user is redirected to /signin and shown an error message when exclude_signup=1': function () {

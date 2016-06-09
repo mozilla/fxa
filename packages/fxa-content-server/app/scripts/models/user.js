@@ -415,9 +415,11 @@ define(function (require, exports, module) {
      *
      * @param {object} account - account to verify
      * @param {string} code - verification code
+     * @param {object} [options]
+     * @param {object} [options.service] - the service issuing signup request
      * @returns {promise} - resolves with the account when complete
      */
-    completeAccountSignUp: function (account, code) {
+    completeAccountSignUp: function (account, code, options) {
       var self = this;
 
       // The original tab may no longer be open to notify other
@@ -429,7 +431,7 @@ define(function (require, exports, module) {
         }
       }
 
-      return account.verifySignUp(code)
+      return account.verifySignUp(code, options)
         .fail(function (err) {
           if (MarketingEmailErrors.created(err)) {
             // A MarketingEmailError doesn't prevent a user from

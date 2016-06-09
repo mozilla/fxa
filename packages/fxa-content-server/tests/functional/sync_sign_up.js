@@ -28,6 +28,7 @@ define([
 
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var noPageTransition = FunctionalHelpers.noPageTransition;
+  var testEmailExpected = FunctionalHelpers.testEmailExpected;
   var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
 
   registerSuite({
@@ -114,7 +115,10 @@ define([
         // We do not expect the verification poll to occur. The poll
         // will take a few seconds to complete if it erroneously occurs.
         // Add an affordance just in case the poll happens unexpectedly.
-        .then(noPageTransition('#fxa-confirm-header', 5000));
+        .then(noPageTransition('#fxa-confirm-header', 5000))
+
+        // A post-verification email should be sent, this is Sync.
+        .then(testEmailExpected(email, 1));
     },
 
     'signup, verify same browser with original tab closed': function () {

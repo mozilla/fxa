@@ -29,6 +29,7 @@ define([
    * finish OAuth flows
    */
 
+  var noEmailExpected = FunctionalHelpers.noEmailExpected;
   var testIsBrowserNotifiedOfLogin = WebChannelHelpers.testIsBrowserNotifiedOfLogin;
   var openFxaFromRp = WebChannelHelpers.openFxaFromRp;
 
@@ -130,7 +131,10 @@ define([
         })
 
         .findById('fxa-sign-up-complete-header')
-        .end();
+        .end()
+
+        // Do not expect a post-verification email, those are for Sync.
+        .then(noEmailExpected(email, 1));
     },
 
     'signup, verify same browser with original tab closed': function () {

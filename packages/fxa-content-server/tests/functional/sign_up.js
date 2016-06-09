@@ -31,6 +31,7 @@ define([
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
+  var testEmailExpected = FunctionalHelpers.testEmailExpected;
   var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
   var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
@@ -88,7 +89,11 @@ define([
         // back to the original window
         .switchToWindow('')
         .then(testElementExists('#fxa-settings-header'))
-        .then(testSuccessWasShown(this));
+        .then(testSuccessWasShown(this))
+
+        // A post-verification email should be sent because no service is sent
+        // in the verificaiton link.
+        .then(testEmailExpected(email, 1));
     },
 
     'signup, verify same browser with original tab closed, sign out': function () {

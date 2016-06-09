@@ -402,13 +402,16 @@ define(function (require, exports, module) {
      * Verify the account using the verification code
      *
      * @param {string} code - the verification code
+     * @param {object} [options]
+     * @param {object} [options.service] - the service issuing signup request
      * @returns {promise} - resolves when complete
      */
-    verifySignUp: function (code) {
+    verifySignUp: function (code, options) {
       var self = this;
       return self._fxaClient.verifyCode(
         self.get('uid'),
-        code
+        code,
+        options
       )
       .then(function () {
         self.set('verified', true);

@@ -293,10 +293,10 @@ define(function (require, exports, module) {
               });
     },
 
-    verifyCode: function (uid, code) {
+    verifyCode: function (uid, code, options) {
       return this._getClient()
               .then(function (client) {
-                return client.verifyCode(uid, code);
+                return client.verifyCode(uid, code, options);
               });
     },
 

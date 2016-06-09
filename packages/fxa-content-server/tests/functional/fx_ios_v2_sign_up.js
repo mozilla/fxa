@@ -19,6 +19,7 @@ define([
   var PASSWORD = '12345678';
 
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
+  var testEmailExpected = FunctionalHelpers.testEmailExpected;
 
   registerSuite({
     name: 'FxiOS v2 sign_up',
@@ -102,7 +103,10 @@ define([
         .end()
 
         .findByCssSelector('#fxa-confirm-header')
-        .end();
+        .end()
+
+        // A post-verification email should be sent, this is Sync.
+        .then(testEmailExpected(email, 1));
     }
   });
 });

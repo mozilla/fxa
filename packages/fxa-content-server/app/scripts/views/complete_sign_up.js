@@ -65,7 +65,10 @@ define(function (require, exports, module) {
       }
 
       var code = verificationInfo.get('code');
-      return self.user.completeAccountSignUp(self.getAccount(), code)
+      var options = {
+        service: self.relier.get('service')
+      };
+      return self.user.completeAccountSignUp(self.getAccount(), code, options)
           .fail(function (err) {
             if (MarketingEmailErrors.created(err)) {
               // A basket error should not prevent the

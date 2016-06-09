@@ -20,6 +20,7 @@ define([
 
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
+  var testEmailExpected = FunctionalHelpers.testEmailExpected;
 
   registerSuite({
     name: 'Firefox Desktop Sync v3 sign_up',
@@ -123,7 +124,10 @@ define([
         // We do not expect the verification poll to occur. The poll
         // will take a few seconds to complete if it erroneously occurs.
         // Add an affordance just in case the poll happens unexpectedly.
-        .then(noPageTransition('#fxa-confirm-header', 5000));
+        .then(noPageTransition('#fxa-confirm-header', 5000))
+
+        // A post-verification email should be sent, this is Sync.
+        .then(testEmailExpected(email, 1));
     }
   });
 });

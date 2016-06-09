@@ -262,22 +262,81 @@ define([
       user = TestHelpers.emailToUser(user);
     }
 
-    return getVerificationHeaders(user, index)
+    return getEmailHeaders(user, index)
       .then(function (headers) {
         return require.toUrl(headers['x-link']);
       });
   }
 
-  function getVerificationHeaders(user, index) {
+  /**
+   * Get the email headers
+   *
+   * @param {string} user - username or email address
+   * @param {number} index - email index.
+   * @param {object} [options]
+   *   @param {number} [options.maxAttempts] - number of email fetch attempts
+   *   to make. Defaults to 10.
+   * @returns {promise} resolves with the email headers if email is found.
+   */
+  function getEmailHeaders(user, index, options) {
     if (/@/.test(user)) {
       user = TestHelpers.emailToUser(user);
     }
 
     // restmail takes an index that is 1 based instead of 0 based.
-    return restmail(EMAIL_SERVER_ROOT + '/mail/' + user, index + 1)()
+    return restmail(EMAIL_SERVER_ROOT + '/mail/' + user, index + 1, options)()
       .then(function (emails) {
         return emails[index].headers;
       });
+  }
+
+  /**
+   * Test to ensure an expected email arrives
+   *
+   * @param {string} user - username or email address
+   * @param {number} index - email index.
+   * @param {object} [options]
+   *   @param {number} [options.maxAttempts] - number of email fetch attempts to make.
+   *   Defaults to 10.
+   * Defaults to 10.
+   */
+  function testEmailExpected(user, index, options) {
+    return function () {
+      return getEmailHeaders(user, index, options)
+        .then(function () {
+          return true;
+        }, function (err) {
+          if (/EmailTimeout/.test(String(err))) {
+            throw new Error('EmailExpected');
+          }
+
+          throw err;
+        });
+    };
+  }
+
+  /**
+   * Test to ensure an unexpected email does not arrive
+   *
+   * @param {string} user - username or email address
+   * @param {number} index - email index.
+   * @param {object} [options]
+   *   @param {number} [options.maxAttempts] - number of email fetch attempts
+   *   to make. Defaults to 10.
+   */
+  function noEmailExpected(user, index, options) {
+    return function () {
+      return getEmailHeaders(user, index, options)
+        .then(function () {
+          throw new Error('NoEmailExpected');
+        }, function (err) {
+          if (/EmailTimeout/.test(String(err))) {
+            return true;
+          }
+
+          throw err;
+        });
+    };
   }
 
   function openExternalSite(context) {
@@ -367,7 +426,7 @@ define([
 
     var user = TestHelpers.emailToUser(email);
 
-    return getVerificationHeaders(user, emailNumber || 0)
+    return getEmailHeaders(user, emailNumber || 0)
       .then(function (headers) {
         var uid = headers['x-uid'];
         var code = headers['x-verify-code'];
@@ -387,7 +446,7 @@ define([
 
     var user = TestHelpers.emailToUser(email);
 
-    return getVerificationHeaders(user, 0)
+    return getEmailHeaders(user, 0)
       .then(function (headers) {
         var code = headers['x-recovery-code'];
         // there is no x-recovery-token header, so we have to parse it
@@ -423,7 +482,7 @@ define([
   function openUnlockLinkDifferentBrowser(client, email) {
     var user = TestHelpers.emailToUser(email);
 
-    return getVerificationHeaders(user, 0)
+    return getEmailHeaders(user, 0)
       .then(function (headers) {
         var uid = headers['x-uid'];
         var code = headers['x-unlock-code'];
@@ -1258,7 +1317,7 @@ define([
   }
 
   function verifyUser(user, index, client, accountData) {
-    return getVerificationHeaders(user, index)
+    return getEmailHeaders(user, index)
       .then(function (headers) {
         var code = headers['x-verify-code'];
         return client.verifyCode(accountData.uid, code);
@@ -1278,11 +1337,12 @@ define([
     fillOutResetPassword: fillOutResetPassword,
     fillOutSignIn: fillOutSignIn,
     fillOutSignUp: fillOutSignUp,
+    getEmailHeaders: getEmailHeaders,
     getQueryParamValue: getQueryParamValue,
-    getVerificationHeaders: getVerificationHeaders,
     getVerificationLink: getVerificationLink,
     imageLoadedByQSA: imageLoadedByQSA,
     listenForWebChannelMessage: listenForWebChannelMessage,
+    noEmailExpected: noEmailExpected,
     noPageTransition: noPageTransition,
     noSuchBrowserNotification: noSuchBrowserNotification,
     noSuchElement: noSuchElement,
@@ -1312,6 +1372,7 @@ define([
     testElementTextEquals: testElementTextEquals,
     testElementTextInclude: testElementTextInclude,
     testElementValueEquals: testElementValueEquals,
+    testEmailExpected: testEmailExpected,
     testErrorTextInclude: testErrorTextInclude,
     testErrorWasShown: testErrorWasShown,
     testIsBrowserNotified: testIsBrowserNotified,

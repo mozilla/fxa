@@ -7,15 +7,33 @@ define([
   'intern/node_modules/dojo/Promise'
 ], function (request, Promise) {
 
-  function waitForEmail(uri, number) {
+  /**
+   * Wait for an email.
+   *
+   * @param {string} uri - email uri
+   * @param {number} number
+   * @param {object} [options]
+   *   @param {number} [options.minAttemptsBeforeLog] - Minimum number of
+   *   attempts before attempts are logged. Defaults to 2.
+   *   @param {number} [options.maxAttempts] - number of email fetch attempts
+   *   to make. Defaults to 10.
+   */
+  function waitForEmail(uri, number, options) {
+    options = options || {};
     var requestAttempts = 0;
     if (! number) {
       number = 1;
     }
 
+    var maxAttempts = options.maxAttempts || 10;
+    var minAttemptsBeforeLog = options.minAttemptsBeforeLog ||
+                               options.maxAttempts ||
+                               2;
+
     return function checkIt () {
-      if (requestAttempts > 2) {
-        // only log if too many attempts, probably means the service is not properly responding
+      if (requestAttempts > minAttemptsBeforeLog) {
+        // only log if too many attempts, probably means the service is
+        // not properly responding
         console.log('Waiting for email at:', uri);
       }
 
@@ -25,6 +43,8 @@ define([
 
           if (result.length >= number) {
             return result;
+          } else if (requestAttempts >= maxAttempts) {
+            return Promise.reject(new Error('EmailTimeout'));
           } else {
             var dfd = new Promise.Deferred();
             setTimeout(function () {

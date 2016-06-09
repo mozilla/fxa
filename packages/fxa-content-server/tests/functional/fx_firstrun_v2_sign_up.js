@@ -19,6 +19,7 @@ define([
   var PASSWORD = '12345678';
 
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
+  var testEmailExpected = FunctionalHelpers.testEmailExpected;
 
   registerSuite({
     name: 'Firstrun Sync v2 sign_up',
@@ -135,7 +136,10 @@ define([
 
         .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:sync_preferences', function (data) {
           assert.equal(data.entryPoint, 'fxa:signup-complete');
-        }));
+        }))
+
+        // A post-verification email should be sent, this is Sync.
+        .then(testEmailExpected(email, 1));
     }
   });
 });
