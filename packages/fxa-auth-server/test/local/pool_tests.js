@@ -273,14 +273,15 @@ test(
 
     var pool = new Pool('http://example.com/')
     sinon.stub(pool, 'request', function () {})
-    pool.del('foo')
+    pool.del('foo', 'bar')
 
     t.equal(pool.request.callCount, 1, 'pool.request was called once')
 
     var args = pool.request.getCall(0).args
-    t.equal(args.length, 2, 'pool.request was passed three arguments')
+    t.equal(args.length, 3, 'pool.request was passed three arguments')
     t.equal(args[0], 'DELETE', 'first argument to pool.request was POST')
     t.equal(args[1], 'foo', 'second argument to pool.request was correct')
+    t.equal(args[2], 'bar', 'second argument can be data')
 
     t.end()
   }

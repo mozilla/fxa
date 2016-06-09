@@ -281,6 +281,13 @@ var conf = convict({
       default: ''
     }
   },
+  verificationReminders: {
+    rate: {
+      doc: 'Rate of users getting the verification reminder. If "0" then the feature is disabled. If "1" all users get it.',
+      default: 0,
+      env: 'VERIFICATION_REMINDER_RATE'
+    }
+  },
   useHttps: {
     doc: 'set to true to serve directly over https',
     env: 'USE_TLS',
