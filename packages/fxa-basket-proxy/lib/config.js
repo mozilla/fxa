@@ -50,11 +50,14 @@ var conf = module.exports = convict({
       format: 'duration',
       default: '5 seconds'
     },
-    newsletter_campaign_ids: {
+    newsletter_campaigns: {
       doc: 'Values of utm_campaign that identify a newsletter campaign',
-      format: Array,
-      default: ['test-newsletter-campaign'],
-      env: 'BASKET_NEWSLETTER_CAMPAIGN_IDS'
+      format: Object,
+      default: {
+        'fxa-embedded-form-moz': 'mozilla-welcome',
+        'fxa-embedded-form-fx': 'firefox-welcome'
+      },
+      env: 'BASKET_NEWSLETTER_CAMPAIGNS'
     },
     source_url: {
       doc: 'The source_url value to report to basket in subscription requests',
