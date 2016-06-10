@@ -52,7 +52,7 @@ function onVerified (message) {
 }
 
 // For each new login, inform basket so it can build up a user model.
-function onLogin (message, cb) {
+function onLogin (message) {
   var metrics = message.metricsContext || {};
   return Promise.resolve().then(function () {
     // If utm_campaign indicates it's a newsletter campaign, flag it by
