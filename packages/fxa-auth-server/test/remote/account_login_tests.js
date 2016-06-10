@@ -6,7 +6,6 @@ var Client = require('../client')
 var crypto = require('crypto')
 var test = require('../ptaptest')
 var TestServer = require('../test_server')
-var url = require('url')
 
 var config = require('../../config').getProperties()
 
@@ -20,7 +19,7 @@ TestServer.start(config)
       var password = 'abcdef'
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
-          function (c) {
+          function () {
             return Client.login(config.publicUrl, email, password + 'x')
           }
         )
@@ -43,7 +42,7 @@ TestServer.start(config)
       var password = 'abcdef'
       return Client.createAndVerify(config.publicUrl, signupEmail, password, server.mailbox)
         .then(
-          function (c) {
+          function () {
             return Client.login(config.publicUrl, loginEmail, password)
           }
         )
@@ -202,35 +201,6 @@ TestServer.start(config)
         }, function (err) {
           t.ok(err, 'account login failed')
         })
-    }
-  )
-
-  test(
-    'signin sends an email if keys are requested',
-    function (t) {
-      var email = server.uniqueEmail()
-      var password = 'abcdef'
-      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
-        .then(
-          function () {
-            return Client.login(config.publicUrl, email, password, { keys: 'true' })
-          }
-        )
-        .then(
-          function () {
-            return server.mailbox.waitForEmail(email)
-          }
-        )
-        .then(
-          function (emailData) {
-            var changeUrl = url.parse(emailData.headers['x-link'], true)
-            t.strictEqual(
-              changeUrl.href.indexOf(config.smtp.initiatePasswordChangeUrl), 0,
-              'links to change password'
-            )
-            t.equal(changeUrl.query.email, email, 'with email querystring')
-          }
-        )
     }
   )
 

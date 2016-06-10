@@ -7,7 +7,6 @@ var url = require('url')
 var Client = require('../client')
 var TestServer = require('../test_server')
 
-
 var config = require('../../config').getProperties()
 
 TestServer.start(config)
@@ -32,7 +31,7 @@ TestServer.start(config)
         )
         .then(
           function (status) {
-            t.equal(status.verified, false)
+            t.equal(status.verified, false, 'new account is not verified')
           }
         )
         .then(
@@ -62,7 +61,7 @@ TestServer.start(config)
   )
 
   test(
-    'verifcation email link',
+    'verification email link',
     function (t) {
       var email = server.uniqueEmail()
       var password = 'something'

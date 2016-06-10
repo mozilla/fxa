@@ -113,6 +113,31 @@ Client.createAndVerify = function (origin, email, password, mailbox, options) {
     )
 }
 
+Client.loginAndVerify = function (origin, email, password, mailbox, options) {
+  if (! options ) {
+    options = {}
+  }
+
+  options.keys = options.keys || true
+
+  return Client.login(origin, email, password, options)
+    .then(
+      function (client) {
+        return mailbox.waitForCode(email)
+          .then(
+            function (code) {
+              return client.verifyEmail(code, options)
+            }
+          )
+          .then(
+            function () {
+              return client
+            }
+          )
+      }
+    )
+}
+
 Client.prototype.create = function () {
   return this.api.accountCreate(
     this.email,
@@ -156,6 +181,9 @@ Client.prototype.auth = function (opts) {
         this.emailVerified = data.verified
         this.authAt = data.authAt
         this.device = data.device
+        this.verificationReason = data.verificationReason
+        this.verificationMethod = data.verificationMethod
+        this.verified = data.verified
         return this
       }.bind(this)
     )

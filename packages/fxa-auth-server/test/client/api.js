@@ -100,6 +100,14 @@ ClientApi.prototype.doRequest = function (method, url, token, payload, headers) 
  */
 ClientApi.prototype.accountCreate = function (email, authPW, options) {
   options = options || {}
+
+  // Default to desktop client context
+  if (!options.metricsContext) {
+    options.metricsContext = {
+      context: 'fx_desktop_v3'
+    }
+  }
+
   var url = this.baseURL + '/account/create' + getQueryString(options)
   return this.doRequest(
     'POST',
@@ -126,6 +134,14 @@ ClientApi.prototype.accountLogin = function (email, authPW, opts) {
   if (!opts) {
     opts = { keys: true }
   }
+
+  // Default to desktop client context
+  if (!opts.metricsContext) {
+    opts.metricsContext = {
+      context: 'fx_desktop_v3'
+    }
+  }
+
   return this.doRequest(
     'POST',
     this.baseURL + '/account/login' + getQueryString(opts),
@@ -134,6 +150,7 @@ ClientApi.prototype.accountLogin = function (email, authPW, opts) {
       email: email,
       authPW: authPW.toString('hex'),
       service: opts.service || undefined,
+      resume: opts.resume || undefined,
       reason: opts.reason || undefined,
       device: opts.device || undefined,
       metricsContext: opts.metricsContext || undefined
@@ -251,6 +268,12 @@ ClientApi.prototype.accountReset = function (accountResetTokenHex, authPW, heade
     options.sessionToken = true
   }
 
+  // Default to desktop client context
+  if (!options.metricsContext) {
+    options.metricsContext = {
+      context: 'fx_desktop_v3'
+    }
+  }
 
   return tokens.AccountResetToken.fromHex(accountResetTokenHex)
     .then(
@@ -297,6 +320,7 @@ ClientApi.prototype.recoveryEmailStatus = function (sessionTokenHex) {
 
 ClientApi.prototype.recoveryEmailResendCode = function (sessionTokenHex, options) {
   options = options || {}
+
   return tokens.SessionToken.fromHex(sessionTokenHex)
     .then(
       function (token) {

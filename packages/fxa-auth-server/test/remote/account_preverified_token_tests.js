@@ -38,7 +38,7 @@ TestServer.start(config)
           sub: email
         }
       )
-      return Client.create(config.publicUrl, email, password, { preVerifyToken: token })
+      return Client.create(config.publicUrl, email, password, { preVerifyToken: token, keys: true })
         .then(
           function (c) {
             return c.keys()

@@ -22,6 +22,10 @@ module.exports = function (log, inherits, Token) {
     this.verifierSetAt = details.verifierSetAt
     this.locale = details.locale || null
     this.accountCreatedAt = details.createdAt
+
+    // Tokens are considered verified if no tokenVerificationId exists
+    this.tokenVerificationId = details.tokenVerificationId || null
+    this.tokenVerified = this.tokenVerificationId ? false : true
   }
   inherits(SessionToken, Token)
 

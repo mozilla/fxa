@@ -12,12 +12,11 @@ TestServer.start(config)
 .then(function main(server) {
 
   test(
-    'create account',
+    'unverified account fail when getting keys',
     function (t) {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var client = null
-      var keyFetchToken = null
       return Client.create(config.publicUrl, email, password)
         .then(
           function (x) {
@@ -35,9 +34,24 @@ TestServer.start(config)
             t.fail('got keys before verifying email')
           },
           function (err) {
-            keyFetchToken = client.keyFetchToken
-            t.ok(client.keyFetchToken, 'retained keyFetchToken')
-            t.equal(err.message, 'Unverified account', 'account is unverified')
+            t.equal(err.errno, 104, 'Unverified account error code')
+            t.equal(err.message, 'Unverified account', 'Unverified account error message')
+          }
+        )
+    }
+  )
+
+  test(
+    'create and verify account',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'allyourbasearebelongtous'
+      var client = null
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (x) {
+            client = x
+            t.ok(client.authAt, 'authAt was set')
           }
         )
         .then(
@@ -60,7 +74,6 @@ TestServer.start(config)
             return client.verifyEmail(verifyCode)
           }
         )
-
         .then(
           function () {
             return server.mailbox.waitForEmail(email)
@@ -82,12 +95,6 @@ TestServer.start(config)
         .then(
           function (status) {
             t.equal(status.verified, true)
-          }
-        )
-        .then(
-          function () {
-            t.equal(keyFetchToken, client.keyFetchToken, 'reusing keyFetchToken')
-            return client.keys()
           }
         )
     }

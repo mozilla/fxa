@@ -89,8 +89,7 @@ module.exports = function (log, isA, error, signer, db, domain, metricsContext) 
           }
         }
         var uid = sessionToken.uid.toString('hex')
-        var deviceId = sessionToken.deviceId ?
-          sessionToken.deviceId.toString('hex') : null
+        var deviceId = sessionToken.deviceId ? sessionToken.deviceId.toString('hex') : null
 
         return signer.sign(
           {
@@ -101,7 +100,8 @@ module.exports = function (log, isA, error, signer, db, domain, metricsContext) 
             generation: sessionToken.verifierSetAt,
             lastAuthAt: sessionToken.lastAuthAt(),
             verifiedEmail: sessionToken.email,
-            deviceId: deviceId
+            deviceId: deviceId,
+            tokenVerified: sessionToken.tokenVerified
           }
         )
         .then(

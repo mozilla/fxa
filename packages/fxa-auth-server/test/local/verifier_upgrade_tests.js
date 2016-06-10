@@ -37,7 +37,7 @@ createDBServer().then(
       return TestServer.start(config)
       .then(
         function main(server) {
-          return Client.create(config.publicUrl, email, password, { preVerified: true })
+          return Client.create(config.publicUrl, email, password, { preVerified: true, keys: true })
             .then(
               function (c) {
                 uid = Buffer(c.uid, 'hex')
@@ -75,7 +75,7 @@ createDBServer().then(
       .then(
         function (server) {
           var client
-          return Client.login(config.publicUrl, email, password, server.mailbox, {keys:true})
+          return Client.login(config.publicUrl, email, password, server.mailbox)
             .then(
               function (x) {
                 client = x

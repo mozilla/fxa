@@ -7,6 +7,7 @@ var HEX_STRING = validators.HEX_STRING
 
 var crypto = require('crypto')
 var butil = require('../crypto/butil')
+var P = require('../promise')
 var requestHelper = require('../routes/utils/request_helper')
 
 module.exports = function (
@@ -22,6 +23,8 @@ module.exports = function (
   checkPassword,
   push
   ) {
+
+  var Tokens = require('../tokens/index')(log)
 
   function failVerifyAttempt(passwordForgotToken) {
     return (passwordForgotToken.failAttempt()) ?
@@ -147,14 +150,46 @@ module.exports = function (
         var sessionTokenId = request.payload.sessionToken
         var password = new Password(authPW, authSalt, verifierVersion)
         var wantsKeys = requestHelper.wantsKeys(request)
-        var account, verifyHash, sessionToken, keyFetchToken
+        var account, verifyHash, sessionToken, keyFetchToken, verifiedStatus
 
-        return changePassword()
+        getSessionVerificationStatus()
+          .then(changePassword)
           .then(notifyAccount)
           .then(createSessionToken)
           .then(createKeyFetchToken)
           .then(createResponse)
           .done(reply, reply)
+
+        function getSessionVerificationStatus() {
+          if (sessionTokenId) {
+            return Tokens.SessionToken.fromHex(sessionTokenId)
+              .then(
+                function (tokenData) {
+                  return tokenData.tokenId
+                }
+              )
+              .then(
+                function (tokenId) {
+                  return db.sessionTokenWithVerificationStatus(tokenId)
+                }
+              )
+              .then(
+                function (tokenData) {
+                  verifiedStatus = tokenData.tokenVerified
+                }
+              )
+              .catch(
+                function () {
+                  verifiedStatus = false
+                }
+              )
+          } else {
+            // To keep backwards compatibility, default to creating a verified
+            // session if no sessionToken is passed
+            verifiedStatus = true
+            return P.resolve()
+          }
+        }
 
         function changePassword() {
           return db.deletePasswordChangeToken(passwordChangeToken)
@@ -204,22 +239,22 @@ module.exports = function (
         }
 
         function createSessionToken() {
-          if (sessionTokenId) {
-            var sessionTokenOptions = {
-              uid: account.uid,
-              email: account.email,
-              emailCode: account.emailCode,
-              emailVerified: account.emailVerified,
-              verifierSetAt: account.verifierSetAt
-            }
-
-            return db.createSessionToken(sessionTokenOptions, request.headers['user-agent'])
-              .then(
-                function (result) {
-                  sessionToken = result
-                }
-              )
+          // Create a sessionToken with the verification status of the current session
+          var sessionTokenOptions = {
+            uid: account.uid,
+            email: account.email,
+            emailCode: account.emailCode,
+            emailVerified: account.emailVerified,
+            verifierSetAt: account.verifierSetAt,
+            tokenVerificationId: verifiedStatus ? null : crypto.randomBytes(16)
           }
+
+          return db.createSessionToken(sessionTokenOptions, request.headers['user-agent'])
+            .then(
+              function (result) {
+                sessionToken = result
+              }
+            )
         }
 
         function createKeyFetchToken() {
@@ -248,7 +283,7 @@ module.exports = function (
           var response = {
             uid: sessionToken.uid.toString('hex'),
             sessionToken: sessionToken.data.toString('hex'),
-            verified: sessionToken.emailVerified,
+            verified: sessionToken.emailVerified && sessionToken.tokenVerified,
             authAt: sessionToken.lastAuthAt()
           }
 

@@ -8,11 +8,14 @@ var test = require('../ptaptest')
 var TestServer = require('../test_server')
 var url = require('url')
 
+process.env.SIGNIN_CONFIRMATION_ENABLED = true
+process.env.SIGNIN_CONFIRMATION_RATE = 1.0
+
 TestServer.start(config)
 .then(function main(server) {
 
   test(
-    'password change',
+    'password change, with unverified session',
     function (t) {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
@@ -32,6 +35,140 @@ TestServer.start(config)
           function (keys) {
             kB = keys.kB
             kA = keys.kA
+          }
+        )
+        .then(
+          function () {
+            return client.emailStatus()
+          }
+        )
+        .then(
+          function (status) {
+            t.equal(status.verified, true, 'account is verified')
+          }
+        )
+        .then(
+          function () {
+            // Login from different location to created unverified session
+            return Client.login(config.publicUrl, email, password, {keys:true})
+          }
+        )
+        .then(
+          function (c) {
+            client = c
+          }
+        )
+        .then(
+          function () {
+            // Ignore confirm login email
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function () {
+            return client.emailStatus()
+          }
+        )
+        .then(
+          function (status) {
+            // Verify correct status
+            t.equal(status.verified, false, 'account is unverified')
+            t.equal(status.emailVerified, true, 'account email is verified')
+            t.equal(status.sessionVerified, false, 'account session is unverified')
+            return client.keys()
+          }
+        )
+        .then(
+          function () {
+            return client.changePassword(newPassword, undefined, client.sessionToken)
+          }
+        )
+        .then(
+          function (response) {
+            // Verify correct change password response
+            t.notEqual(response.sessionToken, originalSessionTokenId, 'session token has changed')
+            t.ok(response.keyFetchToken, 'key fetch token returned')
+            t.notEqual(client.authPW.toString('hex'), firstAuthPW, 'password has changed')
+          }
+        )
+        .then(
+          function () {
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            var subject = emailData.headers['subject']
+            t.equal(subject, 'Your Firefox Account password has been changed', 'password email subject set correctly')
+            var link = emailData.headers['x-link']
+            var query = url.parse(link, true).query
+            t.ok(query.email, 'email is in the link')
+          }
+        )
+        .then(
+          function () {
+            return client.emailStatus()
+          }
+        )
+        .then(
+          function (status) {
+            // Verify correct status
+            t.equal(status.verified, false, 'account is unverified')
+            t.equal(status.emailVerified, true, 'account email is verified')
+            t.equal(status.sessionVerified, false, 'account session is unverified')
+          }
+        )
+        .then(
+          function () {
+            return Client.login(config.publicUrl, email, newPassword, {keys:true})
+          }
+        )
+        .then(
+          function (x) {
+            client = x
+            return client.keys()
+          }
+        )
+        .then(
+          function (keys) {
+            t.deepEqual(keys.kB, kB, 'kB is preserved')
+            t.deepEqual(keys.kA, kA, 'kA is preserved')
+          }
+        )
+    }
+  )
+
+  test(
+    'password change, with verified session',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'allyourbasearebelongtous'
+      var newPassword = 'foobar'
+      var kB, kA, client, firstAuthPW, originalSessionTokenId
+
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
+        .then(
+          function (x) {
+            client = x
+            originalSessionTokenId = client.sessionToken
+            firstAuthPW = x.authPW.toString('hex')
+            return client.keys()
+          }
+        )
+        .then(
+          function (keys) {
+            kB = keys.kB
+            kA = keys.kA
+          }
+        )
+        .then(
+          function () {
+            return client.emailStatus()
+          }
+        )
+        .then(
+          function (status) {
+            t.equal(status.verified, true, 'account is verified')
           }
         )
         .then(
@@ -58,6 +195,16 @@ TestServer.start(config)
             var link = emailData.headers['x-link']
             var query = url.parse(link, true).query
             t.ok(query.email, 'email is in the link')
+          }
+        )
+        .then(
+          function () {
+            return client.emailStatus()
+          }
+        )
+        .then(
+          function (status) {
+            t.equal(status.verified, true, 'account is verified')
           }
         )
         .then(

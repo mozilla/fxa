@@ -100,8 +100,10 @@ test(
     var mockRequest = {
       auth: {
         credentials: {
+          uid: uuid.v4('binary').toString('hex'),
           email: TEST_EMAIL_INVALID,
-          emailVerified: true
+          emailVerified: true,
+          tokenVerified: true
         }
       }
     }
@@ -120,7 +122,9 @@ test(
       t.equal(mockDB.deleteAccount.callCount, 0)
       t.deepEqual(response, {
         email: TEST_EMAIL_INVALID,
-        verified: true
+        verified: true,
+        emailVerified: true,
+        sessionVerified: true
       })
     })
   }
@@ -159,6 +163,150 @@ test(
       })
   }
 )
+
+test(
+  '/recovery_email/status with sign-in confirmation enabled, emailVerified=true, sessionVerified=true',
+  function (t) {
+
+    var configOptions = {
+      signinConfirmation: {
+        enabled: true,
+        sample_rate: 1.0
+      }
+    }
+
+    var mockDB = {
+      deleteAccount: sinon.spy()
+    }
+
+    var mockRequest = {
+      auth: {
+        credentials: {
+          uid: uuid.v4('binary').toString('hex'),
+          email: TEST_EMAIL,
+          emailVerified: true,
+          tokenVerified: true
+        }
+      }
+    }
+
+    var accountRoutes = makeRoutes({
+      config: configOptions,
+      db: mockDB
+    })
+
+    var route = getRoute(accountRoutes, '/recovery_email/status')
+    return new P(function(resolve) {
+      route.handler(mockRequest, function(response) {
+        resolve(response)
+      })
+    })
+    .then(function(response) {
+      t.deepEqual(response, {
+        email: TEST_EMAIL,
+        verified: true,
+        sessionVerified: true,
+        emailVerified: true
+      })
+    })
+  }
+)
+
+test(
+  '/recovery_email/status with sign-in confirmation enabled, emailVerified=true, sessionVerified=false',
+  function (t) {
+
+    var configOptions = {
+      signinConfirmation: {
+        enabled: true,
+        sample_rate: 1.0
+      }
+    }
+
+    var mockDB = {
+      deleteAccount: sinon.spy()
+    }
+
+    var mockRequest = {
+      auth: {
+        credentials: {
+          uid: uuid.v4('binary').toString('hex'),
+          email: TEST_EMAIL,
+          emailVerified: true,
+          tokenVerified: false
+        }
+      }
+    }
+
+    var accountRoutes = makeRoutes({
+      config: configOptions,
+      db: mockDB
+    })
+
+    var route = getRoute(accountRoutes, '/recovery_email/status')
+    return new P(function(resolve) {
+      route.handler(mockRequest, function(response) {
+        resolve(response)
+      })
+    })
+      .then(function(response) {
+        t.deepEqual(response, {
+          email: TEST_EMAIL,
+          verified: false,
+          sessionVerified: false,
+          emailVerified: true
+        })
+      })
+  }
+)
+
+test(
+  '/recovery_email/status with sign-in confirmation disabled',
+  function (t) {
+
+    var configOptions = {
+      signinConfirmation: {
+        enabled: false
+      }
+    }
+
+    var mockDB = {
+      deleteAccount: sinon.spy()
+    }
+
+    var mockRequest = {
+      auth: {
+        credentials: {
+          uid: uuid.v4('binary').toString('hex'),
+          email: TEST_EMAIL,
+          emailVerified: true,
+          tokenVerified: true
+        }
+      }
+    }
+
+    var accountRoutes = makeRoutes({
+      config: configOptions,
+      db: mockDB
+    })
+
+    var route = getRoute(accountRoutes, '/recovery_email/status')
+    return new P(function(resolve) {
+      route.handler(mockRequest, function(response) {
+        resolve(response)
+      })
+    })
+      .then(function(response) {
+        t.deepEqual(response, {
+          email: TEST_EMAIL,
+          verified: true,
+          emailVerified: true,
+          sessionVerified: true
+        })
+      })
+  }
+)
+
 
 test(
   'device should be notified when the account is reset',
@@ -615,6 +763,254 @@ test(
     }).finally(function () {
       mockLog.close()
     })
+  }
+)
+
+test(
+  'login with disabled sign-in confirmation, sends new device email',
+  function (t) {
+    var configOptions = {
+      signinConfirmation: {
+        enabled: false,
+        supportedClients: ['fx_desktop_v3'],
+        forceEmails:['@mozilla.com']
+      },
+      newLoginNotificationEnabled: true
+    }
+
+    var uid = uuid.v4('binary')
+    var mockRequest = mocks.mockRequest(TEST_EMAIL, 'true')
+    var mockDB = mocks.mockDB(uid, TEST_EMAIL, true)
+    var mockMailer = mocks.mockMailer()
+
+    var accountRoutes = makeRoutes({
+      config: configOptions,
+      db: mockDB,
+      mailer: mockMailer,
+      checkPassword: function () {
+        return P.resolve(true)
+      }
+    })
+
+    return new P(function (resolve) {
+      getRoute(accountRoutes, '/account/login')
+        .handler(mockRequest, function (response) {
+          resolve(response)
+        })
+    })
+      .then(function (response) {
+        t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 1, 'mailer.sendNewDeviceLoginNotification was called')
+        t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
+        t.notOk(response.verificationMethod, 'verificationMethod doesn\'t exist')
+        t.notOk(response.verificationReason, 'verificationReason doesn\'t exist')
+      })
+  }
+)
+
+test(
+  'login with enabled sign-in confirmation',
+  function (t) {
+    var configOptions = {
+      signinConfirmation: {
+        enabled: true,
+        sample_rate: 1.0,
+        supportedClients: ['fx_desktop_v3'],
+        forceEmails:['@mozilla.com']
+      }
+    }
+
+    var uid = uuid.v4('binary')
+    var mockRequest = mocks.mockRequest(TEST_EMAIL, 'true')
+    var mockDB = mocks.mockDB(uid, TEST_EMAIL, true)
+    var mockMailer = mocks.mockMailer()
+
+    var accountRoutes = makeRoutes({
+      config: configOptions,
+      db: mockDB,
+      mailer: mockMailer,
+      checkPassword: function () {
+        return P.resolve(true)
+      }
+    })
+
+    return new P(function (resolve) {
+      getRoute(accountRoutes, '/account/login')
+        .handler(mockRequest, function (response) {
+          resolve(response)
+        })
+    })
+      .then(function (response) {
+        t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+        t.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
+        t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
+        t.equal(response.verificationReason, 'login', 'verificationReason is login')
+      })
+  }
+)
+
+test(
+  'login with sign-in confirmation enabled for specific uid',
+  function (t) {
+    var configOptions = {
+      signinConfirmation: {
+        enabled: true,
+        sample_rate: 0.20,
+        supportedClients: ['fx_desktop_v3'],
+        forceEmails:['@mozilla.com']
+      }
+    }
+
+    var uid = '20162205efab47ecb6418c797acd743f'
+    var mockRequest = mocks.mockRequest(TEST_EMAIL, 'true')
+    var mockDB = mocks.mockDB(uid, TEST_EMAIL, true)
+    var mockMailer = mocks.mockMailer()
+
+    var accountRoutes = makeRoutes({
+      config: configOptions,
+      db: mockDB,
+      mailer: mockMailer,
+      checkPassword: function () {
+        return P.resolve(true)
+      }
+    })
+
+    return new P(function (resolve) {
+      getRoute(accountRoutes, '/account/login')
+        .handler(mockRequest, function (response) {
+          resolve(response)
+        })
+    })
+      .then(function (response) {
+        t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+        t.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
+        t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
+        t.equal(response.verificationReason, 'login', 'verificationReason is login')
+      })
+  }
+)
+
+test(
+  'login with sign-in confirmation enabled for specific email',
+  function (t) {
+    var configOptions = {
+      signinConfirmation: {
+        enabled: true,
+        sample_rate: 0.00,
+        supportedClients: ['fx_desktop_v3'],
+        forceEmails:['@mozilla.com']
+      }
+    }
+
+    var uid = '20162205efab47ecb6418c797acd743f'
+    var mockRequest = mocks.mockRequest('test@mozilla.com', 'true')
+    var mockDB = mocks.mockDB(uid, 'test@mozilla.com', true)
+    var mockMailer = mocks.mockMailer()
+
+    var accountRoutes = makeRoutes({
+      config: configOptions,
+      db: mockDB,
+      mailer: mockMailer,
+      checkPassword: function () {
+        return P.resolve(true)
+      }
+    })
+
+    return new P(function (resolve) {
+      getRoute(accountRoutes, '/account/login')
+        .handler(mockRequest, function (response) {
+          resolve(response)
+        })
+    })
+      .then(function (response) {
+        t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+        t.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
+        t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
+        t.equal(response.verificationReason, 'login', 'verificationReason is login')
+      })
+  }
+)
+
+test(
+  'login with sign-in confirmation, invalid client, does not perform confirmation',
+  function (t) {
+    var configOptions = {
+      signinConfirmation: {
+        enabled: true,
+        sample_rate: 1.00,
+        supportedClients: ['fx_desktop_v999'],
+        forceEmails:['@mozilla.com']
+      },
+      newLoginNotificationEnabled: true
+    }
+
+    var uid = '20162205efab47ecb6418c797acd743f'
+    var mockRequest = mocks.mockRequest(TEST_EMAIL, 'true')
+    var mockDB = mocks.mockDB(uid, TEST_EMAIL, true)
+    var mockMailer = mocks.mockMailer()
+
+    var accountRoutes = makeRoutes({
+      config: configOptions,
+      db: mockDB,
+      mailer: mockMailer,
+      checkPassword: function () {
+        return P.resolve(true)
+      }
+    })
+
+    return new P(function (resolve) {
+      getRoute(accountRoutes, '/account/login')
+        .handler(mockRequest, function (response) {
+          resolve(response)
+        })
+    })
+      .then(function (response) {
+        t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 1, 'mailer.sendNewDeviceLoginNotification was called')
+        t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
+        t.notOk(response.verificationMethod, 'verificationMethod doesn\'t exist')
+        t.notOk(response.verificationReason, 'verificationReason doesn\'t exist')
+      })
+  }
+)
+
+test(
+  'login with sign-in confirmation enabled but not in sample range, sends new device email',
+  function (t) {
+    var configOptions = {
+      signinConfirmation: {
+        enabled: true,
+        sample_rate: 0.10,
+        supportedClients: ['fx_desktop_v3'],
+        forceEmails:['@mozilla.com']
+      },
+      newLoginNotificationEnabled: true
+    }
+
+    var uid = '20162205efab47ecb6418c797acd743f'
+    var mockRequest = mocks.mockRequest(TEST_EMAIL, 'true')
+    var mockDB = mocks.mockDB(uid, TEST_EMAIL, true)
+    var mockMailer = mocks.mockMailer()
+
+    var accountRoutes = makeRoutes({
+      config: configOptions,
+      db: mockDB,
+      mailer: mockMailer,
+      checkPassword: function () {
+        return P.resolve(true)
+      }
+    })
+
+    return new P(function (resolve) {
+      getRoute(accountRoutes, '/account/login')
+        .handler(mockRequest, function (response) {
+          resolve(response)
+        })
+    })
+      .then(function (response) {
+        t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 1, 'mailer.sendNewDeviceLoginNotification was called')
+        t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
+        t.notOk(response.verificationMethod, 'verificationMethod doesn\'t exist')
+        t.notOk(response.verificationReason, 'verificationReason doesn\'t exist')
+      })
   }
 )
 

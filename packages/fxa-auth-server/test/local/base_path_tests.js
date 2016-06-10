@@ -41,7 +41,7 @@ TestServer.start(config)
       var email = Math.random() + '@example.com'
       var password = 'ok'
       // if this doesn't crash, we're all good
-      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+      return Client.create(config.publicUrl, email, password, server.mailbox)
     }
   )
 

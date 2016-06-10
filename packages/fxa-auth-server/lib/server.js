@@ -124,6 +124,16 @@ function create(log, error, config, routes, db) {
       }
     )
     server.auth.strategy(
+      // This strategy fetches the sessionToken with its
+      // verification state. It doesn't check that state.
+      'sessionTokenWithVerificationStatus',
+      'hawk',
+      {
+        getCredentialsFunc: makeCredentialFn(db.sessionTokenWithVerificationStatus.bind(db)),
+        hawk: hawkOptions
+      }
+    )
+    server.auth.strategy(
       'keyFetchToken',
       'hawk',
       {

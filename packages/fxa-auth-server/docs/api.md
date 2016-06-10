@@ -337,19 +337,23 @@ https://api-accounts.dev.lcip.org/v1/account/login?keys=true \
 
 ### Response
 
-Successful requests will produce a "200 OK" and a json body. `keyFetchToken` will only be present if `keys=true` was specified.
+Successful requests will produce a "200 OK" and a json body. `keyFetchToken` and `verificationReason` will only be present if `keys=true` was specified.
 
 ```json
 {
   "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
   "sessionToken": "27cd4f4a4aa03d7d186a2ec81cbf19d5c8a604713362df9ee15c4f4a4aa03d7d",
   "keyFetchToken": "7d1893d950b8cd69856a2ec81cbfd7d1893d950b3362df9e56a2ec81cbf19d5c",
-  "verified": true,
-  "authAt": 1392144866
+  "verified": false,
+  "authAt": 1392144866,
+  "verificationReason": "login",
+  "verificationMethod": "email"
 }
 ```
 
 * authAt - authentication time for the session (seconds since epoch)
+* verificationReason - authentication method that was requested that required additional verification (Currently, only `login`)
+* verificationMethod - the medium for how the user can verify (Currently, only `email`)
 
 Failing requests may be due to the following errors:
 
@@ -372,7 +376,7 @@ Get the base16 bundle of encrypted `kA|wrapKb`. The return value must be decrypt
 
 Since keyFetchToken is single-use, this can only be done once per session. Note that the keyFetchToken is consumed regardless of whether the request succeeds or fails.
 
-This request will fail unless the account's email address has been verified.
+This request will fail unless the account's email address and current session has been verified.
 
 ### Request
 
@@ -788,7 +792,7 @@ Returns the "verified" status for the account's recovery email address.
 
 Currently, each account is associated with exactly one email address. This address must be "verified" before the account can be used (specifically, `/v1/certificate/sign` and `/v1/account/keys` will return errors until the address is verified). In the future, this may be expanded to include multiple addresses, and/or alternate types of recovery methods (e.g., SMS). A new API will be provided for this extra functionality.
 
-This call is used to determine the current state (verified or unverified) of the recovery email address. During account creation, until the address is verified, the agent can poll this method to discover when it should proceed with `/v1/certificate/sign` and `/v1/account/keys`.
+This call is used to determine the current state (verified or unverified) of the account. During account creation, until the address is verified, the agent can poll this method to discover when it should proceed with `/v1/certificate/sign` and `/v1/account/keys`.
 
 
 ### Request
@@ -809,10 +813,15 @@ https://api-accounts.dev.lcip.org/v1/recovery_email/status \
 
 ### Response
 
-Successful requests will produce a "200 OK" response with the account email and verification status in the JSON body object:
+Successful requests will produce a "200 OK" response with the account email and details on the verification status in the JSON body object:
 
 ```json
-{ "email": "me@example.com", "verified": true }
+{
+  "email": "me@example.com",
+  "verified": true,
+  "sessionVerified": true,
+  "emailVerified": true
+}
 ```
 
 Failing requests may be due to the following errors:
@@ -876,7 +885,7 @@ Failing requests may be due to the following errors:
 
 Not HAWK-authenticated.
 
-Used to submit a verification code that was previously sent to a user's recovery email. If correct, the account's recovery email address will be marked as "verified".
+This is an endpoint that is used to verify tokens and recovery emails for an account. If a valid token code is detected, the account email and tokens will be set to verified. If a valid email code is detected, the email will be marked as verified.
 
 The verification code will be a random token, delivered in the fragment portion of a URL sent to the user's email address. The URL will lead to a page that extracts the code from the URL fragment, and performs a POST to `/recovery_email/verify_code`. The link can be clicked from any browser, not just the one being attached to the Firefox account.
 
@@ -885,7 +894,7 @@ The verification code will be a random token, delivered in the fragment portion 
 ___Parameters___
 
 * uid - account identifier
-* code - the verification code
+* code - the verification code (recovery email or token verification id)
 
 ```sh
 curl -v \

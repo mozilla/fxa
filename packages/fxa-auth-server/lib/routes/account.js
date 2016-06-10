@@ -81,6 +81,7 @@ module.exports = function (
       handler: function accountCreate(request, reply) {
         log.begin('Account.create', request)
 
+        var emailCode = crypto.randomBytes(16)
         var form = request.payload
         var query = request.query
         var email = form.email
@@ -89,7 +90,8 @@ module.exports = function (
         var locale = request.app.acceptLanguage
         var userAgentString = request.headers['user-agent']
         var service = form.service || query.service
-        var preVerified, password, verifyHash, account, sessionToken
+        var tokenVerificationId = emailCode
+        var preVerified, password, verifyHash, account, sessionToken, keyFetchToken, doSigninConfirmation
 
         metricsContext.validate(request)
 
@@ -101,6 +103,7 @@ module.exports = function (
           .then(createAccount)
           .then(createSessionToken)
           .then(sendVerifyCode)
+          .then(createKeyFetchToken)
           .then(createResponse)
           .done(reply, reply)
 
@@ -154,7 +157,7 @@ module.exports = function (
             uid: uuid.v4('binary'),
             createdAt: Date.now(),
             email: email,
-            emailCode: crypto.randomBytes(16),
+            emailCode: emailCode,
             emailVerified: form.preVerified || preVerified,
             kA: crypto.randomBytes(32),
             wrapWrapKb: crypto.randomBytes(32),
@@ -196,14 +199,23 @@ module.exports = function (
         }
 
         function createSessionToken () {
+          doSigninConfirmation = requestHelper.shouldEnableSigninConfirmation(account, config, request)
+
+          // Verified sessions should only be created for preverified tokens
+          // and when sign-in confirmation is disabled
+          if (preVerified || ! doSigninConfirmation) {
+            tokenVerificationId = undefined
+          }
+
           return db.createSessionToken({
-            uid: account.uid,
-            email: account.email,
-            emailCode: account.emailCode,
-            emailVerified: account.emailVerified,
-            verifierSetAt: account.verifierSetAt,
-            createdAt: optionallyOverrideCreatedAt()
-          }, userAgentString)
+              uid: account.uid,
+              email: account.email,
+              emailCode: account.emailCode,
+              emailVerified: account.emailVerified,
+              verifierSetAt: account.verifierSetAt,
+              createdAt: optionallyOverrideCreatedAt(),
+              tokenVerificationId: tokenVerificationId
+            }, userAgentString)
             .then(
               function (result) {
                 sessionToken = result
@@ -240,6 +252,27 @@ module.exports = function (
           }
         }
 
+        function createKeyFetchToken () {
+          if (requestHelper.wantsKeys(request)) {
+            return password.unwrap(account.wrapWrapKb)
+              .then(
+                function (wrapKb) {
+                  return db.createKeyFetchToken({
+                    uid: account.uid,
+                    kA: account.kA,
+                    wrapKb: wrapKb,
+                    emailVerified: account.emailVerified
+                  })
+                }
+              )
+              .then(
+                function (keyFetchTokenData) {
+                  keyFetchToken = keyFetchTokenData.data.toString('hex')
+                }
+              )
+          }
+        }
+
         function createResponse () {
           var response = {
             uid: account.uid.toString('hex'),
@@ -247,27 +280,11 @@ module.exports = function (
             authAt: sessionToken.lastAuthAt()
           }
 
-          if (query.keys !== 'true') {
-            return P.resolve(response)
+          if (keyFetchToken) {
+            response.keyFetchToken = keyFetchToken
           }
 
-          return password.unwrap(account.wrapWrapKb)
-            .then(
-              function (wrapKb) {
-                return db.createKeyFetchToken({
-                  uid: account.uid,
-                  kA: account.kA,
-                  wrapKb: wrapKb,
-                  emailVerified: account.emailVerified
-                })
-              }
-            )
-            .then(
-              function (keyFetchToken) {
-                response.keyFetchToken = keyFetchToken.data.toString('hex')
-                return response
-              }
-            )
+          return P.resolve(response)
         }
       }
     },
@@ -307,7 +324,10 @@ module.exports = function (
         var email = form.email
         var authPW = Buffer(form.authPW, 'hex')
         var service = request.payload.service || request.query.service
-        var emailRecord, sessionToken
+        var redirectTo = request.payload.redirectTo
+        var resume = request.payload.resume
+        var tokenVerificationId = crypto.randomBytes(16)
+        var emailRecord, sessionToken, keyFetchToken, doSigninConfirmation
 
         metricsContext.validate(request)
 
@@ -322,16 +342,20 @@ module.exports = function (
         customs.check(request.app.clientAddress, email, 'accountLogin')
           .then(readEmailRecord)
           .then(createSessionToken)
+          .then(createKeyFetchToken)
           .then(emitSyncLoginEvent)
           .then(sendNewDeviceLoginNotification)
+          .then(sendVerifyLoginEmail)
           .then(createResponse)
           .done(reply, reply)
 
-        function readEmailRecord (result) {
+        function readEmailRecord () {
           return db.emailRecord(email)
             .then(
               function (result) {
                 emailRecord = result
+
+                doSigninConfirmation = requestHelper.shouldEnableSigninConfirmation(emailRecord, config, request)
 
                 if(email !== emailRecord.email) {
                   customs.flag(request.app.clientAddress, {
@@ -371,18 +395,48 @@ module.exports = function (
             uid: emailRecord.uid.toString('hex')
           })
 
-          return db.createSessionToken({
+          var sessionTokenOptions = {
             uid: emailRecord.uid,
             email: emailRecord.email,
             emailCode: emailRecord.emailCode,
             emailVerified: emailRecord.emailVerified,
-            verifierSetAt: emailRecord.verifierSetAt
-          }, request.headers['user-agent'])
+            verifierSetAt: emailRecord.verifierSetAt,
+            tokenVerificationId: doSigninConfirmation ? tokenVerificationId : undefined
+          }
+
+          return db.createSessionToken(sessionTokenOptions, request.headers['user-agent'])
             .then(
               function (result) {
                 sessionToken = result
               }
             )
+        }
+
+        function createKeyFetchToken() {
+          if (requestHelper.wantsKeys(request)) {
+            var password = new Password(
+              authPW,
+              emailRecord.authSalt,
+              emailRecord.verifierVersion
+            )
+
+            return password.unwrap(emailRecord.wrapWrapKb)
+              .then(
+                function (wrapKb) {
+                  return db.createKeyFetchToken({
+                    uid: emailRecord.uid,
+                    kA: emailRecord.kA,
+                    wrapKb: wrapKb,
+                    emailVerified: emailRecord.emailVerified
+                  })
+                  .then(
+                    function (result) {
+                      keyFetchToken = result
+                    }
+                  )
+                }
+              )
+          }
         }
 
         function emitSyncLoginEvent () {
@@ -403,7 +457,7 @@ module.exports = function (
         }
 
         function sendNewDeviceLoginNotification () {
-          if (config.newLoginNotificationEnabled && requestHelper.wantsKeys(request)) {
+          if (!doSigninConfirmation && config.newLoginNotificationEnabled && requestHelper.wantsKeys(request)) {
             // The response doesn't have to wait for this,
             // so we don't return the promise.
             mailer.sendNewDeviceLoginNotification(
@@ -411,6 +465,27 @@ module.exports = function (
               userAgent.call({
                 acceptLanguage: request.app.acceptLanguage,
                 timestamp: Date.now()
+              }, request.headers['user-agent'])
+            )
+          }
+        }
+
+        function sendVerifyLoginEmail() {
+          // Verify login emails are only sent if the login is requesting keys and the feature is enabled.
+          // In the scenario where keys are requested, but feature is disabled, the tokens are
+          // created verified.
+          var shouldSendVerifyLoginEmail = requestHelper.wantsKeys(request) && doSigninConfirmation
+
+          if (shouldSendVerifyLoginEmail) {
+            mailer.sendVerifyLoginEmail(
+              emailRecord,
+              tokenVerificationId,
+              userAgent.call({
+                acceptLanguage: request.app.acceptLanguage,
+                timestamp: Date.now(),
+                service: service,
+                redirectTo: redirectTo,
+                resume: resume
               }, request.headers['user-agent'])
             )
           }
@@ -428,28 +503,20 @@ module.exports = function (
             return P.resolve(response)
           }
 
-          var password = new Password(
-            authPW,
-            emailRecord.authSalt,
-            emailRecord.verifierVersion
-          )
-          return password.unwrap(emailRecord.wrapWrapKb)
-            .then(
-              function (wrapKb) {
-                return db.createKeyFetchToken({
-                  uid: emailRecord.uid,
-                  kA: emailRecord.kA,
-                  wrapKb: wrapKb,
-                  emailVerified: emailRecord.emailVerified
-                })
-              }
-            )
-            .then(
-              function (keyFetchToken) {
-                response.keyFetchToken = keyFetchToken.data.toString('hex')
-                return response
-              }
-            )
+          response.keyFetchToken = keyFetchToken.data.toString('hex')
+
+          if (doSigninConfirmation) {
+            response.verificationMethod = 'email'
+            response.verified = false
+
+            if(! emailRecord.emailVerified) {
+              response.verificationReason = 'signup'
+            } else {
+              response.verificationReason = 'login'
+            }
+          }
+
+          return P.resolve(response)
         }
       }
     },
@@ -473,6 +540,7 @@ module.exports = function (
             }
             var id = assertion.claimedIdentifier
             var locale = request.app.acceptLanguage
+            var tokenVerificationId = crypto.randomBytes(16)
 
             db.openIdRecord(id)
               .then(
@@ -516,7 +584,8 @@ module.exports = function (
                       email: account.email,
                       emailCode: account.emailCode,
                       emailVerified: true,
-                      verifierSetAt: account.verifierSetAt
+                      verifierSetAt: account.verifierSetAt,
+                      tokenVerificationId: tokenVerificationId
                     }
                   )
                   .then(
@@ -943,7 +1012,7 @@ module.exports = function (
       path: '/recovery_email/status',
       config: {
         auth: {
-          strategy: 'sessionToken'
+          strategy: 'sessionTokenWithVerificationStatus'
         },
         validate: {
           query: {
@@ -999,10 +1068,17 @@ module.exports = function (
         }
 
         function createResponse() {
+
+          var sessionVerified = sessionToken.tokenVerified
+          var emailVerified = !!sessionToken.emailVerified
+          var isVerified = emailVerified && sessionVerified
+
           return {
-             email: sessionToken.email,
-             verified: sessionToken.emailVerified
-           }
+            email: sessionToken.email,
+            verified: isVerified,
+            sessionVerified: sessionVerified,
+            emailVerified: emailVerified
+          }
         }
       }
     },
@@ -1011,7 +1087,7 @@ module.exports = function (
       path: '/recovery_email/resend_code',
       config: {
         auth: {
-          strategy: 'sessionToken'
+          strategy: 'sessionTokenWithVerificationStatus'
         },
         validate: {
           payload: {
@@ -1025,26 +1101,41 @@ module.exports = function (
         log.begin('Account.RecoveryEmailResend', request)
         var sessionToken = request.auth.credentials
         var service = request.payload.service || request.query.service
-        if (sessionToken.emailVerified) {
+
+        // Choose which type of email and code to resend
+        var code, func
+        if (sessionToken.emailVerified && sessionToken.tokenVerified) {
           return reply({})
         }
-        customs.check(
+
+        if (sessionToken.tokenVerificationId) {
+          code = sessionToken.tokenVerificationId
+        } else {
+          code = sessionToken.emailCode
+        }
+
+        if (!sessionToken.emailVerified) {
+          func = mailer.sendVerifyCode
+        } else {
+          func = mailer.sendVerifyLoginEmail
+        }
+
+        return customs.check(
           request.app.clientAddress,
           sessionToken.email,
           'recoveryEmailResendCode')
-          .then(
-            mailer.sendVerifyCode.bind(
-              mailer,
-              sessionToken,
-              sessionToken.emailCode,
-              {
-                service: service,
-                redirectTo: request.payload.redirectTo,
-                resume: request.payload.resume,
-                acceptLanguage: request.app.acceptLanguage
-              }
-            )
-          )
+          .then(func.bind(
+            mailer,
+            sessionToken,
+            code,
+            userAgent.call({
+              service: service,
+              timestamp: Date.now(),
+              redirectTo: request.payload.redirectTo,
+              resume: request.payload.resume,
+              acceptLanguage: request.app.acceptLanguage
+            }, request.headers['user-agent'])
+          ))
           .done(
             function () {
               reply({})
@@ -1066,56 +1157,80 @@ module.exports = function (
         }
       },
       handler: function (request, reply) {
-        log.begin('Account.RecoveryEmailVerify', request)
         var uid = request.payload.uid
         var code = Buffer(request.payload.code, 'hex')
         var service = request.payload.service || request.query.service
+
+        log.begin('Account.RecoveryEmailVerify', request)
         db.account(Buffer(uid, 'hex'))
           .then(
             function (account) {
-              // If the account is already verified, they may be e.g.
-              // clicking a stale link.  Silently succeed.
-              if (account.emailVerified) {
-                log.increment('account.already_verified')
-                return true
-              }
-              if (!butil.buffersAreEqual(code, account.emailCode)) {
-                throw error.invalidVerificationCode()
-              }
-              log.timing('account.verified', Date.now() - account.createdAt)
-              log.event('verified', request, {
-                email: account.email,
-                uid: account.uid,
-                locale: account.locale
-              })
-              log.increment('account.verified')
 
-              // send a push notification to all devices that the account changed
-              push.notifyUpdate(uid, 'accountVerify')
-              // remove verification reminders
-              verificationReminder.delete({
-                uid: account.uid.toString('hex')
-              }).catch(function (err) {
-                log.error({ op: 'Account.RecoveryEmailVerify', err: err })
-              })
-
-              return db.verifyEmail(account)
-                .then(
-                  function() {
-                    // Our post-verification email is very specific to sync,
-                    // so don't send it if we're sure this is not for sync.
-                    // Older clients will not send a 'service' param here
-                    // so we can't always be sure.
-                    if (! service || service === 'sync') {
-                      return mailer.sendPostVerifyEmail(
-                        account.email,
-                        {
-                          acceptLanguage: request.app.acceptLanguage
-                        }
-                      )
-                    }
+              /**
+               * Logic for account and token verification
+               *
+               * 1) Attempt to use code as tokenVerificationId to verify session.
+               *
+               * 2) An error is thrown if tokenVerificationId does not exist (check to see if email
+               *    verification code) or the tokenVerificationId does not correlate to the
+               *    account uid (damaged linked/spoofed account)
+               *
+               * 3) Verify account email if not already verified.
+               */
+              return db.verifyTokens(code, account)
+                .catch(function (err) {
+                  if (err.errno === error.ERRNO.INVALID_VERIFICATION_CODE && butil.buffersAreEqual(code, account.emailCode)) {
+                    // The code is just for the account, not for any sessions
+                    return true
                   }
-                )
+                  throw err
+                })
+                .then(function () {
+
+                  // If the account is already verified, they may be e.g.
+                  // clicking a stale link.  Silently succeed.
+                  if (account.emailVerified) {
+                    if (butil.buffersAreEqual(code, account.emailCode)) {
+                      log.increment('account.already_verified')
+                    }
+                    return true
+                  }
+
+                  // Any matching code verifies the account
+                  return db.verifyEmail(account)
+                    .then(function () {
+                      log.timing('account.verified', Date.now() - account.createdAt)
+                      log.event('verified', request, {
+                        email: account.email,
+                        uid: account.uid,
+                        locale: account.locale
+                      })
+                      log.increment('account.verified')
+
+                      // send a push notification to all devices that the account changed
+                      push.notifyUpdate(uid, 'accountVerify')
+                      // remove verification reminders
+                      verificationReminder.delete({
+                        uid: account.uid.toString('hex')
+                      }).catch(function (err) {
+                        log.error({ op: 'Account.RecoveryEmailVerify', err: err })
+                      })
+                    })
+                    .then(function () {
+                      // Our post-verification email is very specific to sync,
+                      // so don't send it if we're sure this is not for sync.
+                      // Older clients will not send a 'service' param here
+                      // so we can't always be sure.
+                      if (! service || service === 'sync') {
+                        return mailer.sendPostVerifyEmail(
+                          account.email,
+                          {
+                            acceptLanguage: request.app.acceptLanguage
+                          }
+                        )
+                      }
+                    })
+                })
             }
           )
           .done(
@@ -1314,8 +1429,8 @@ module.exports = function (
 
         function createSessionToken () {
           if (hasSessionToken) {
-            // Create a sessionToken so that the client does
-            // not have to re-login
+            // Since the only way to reach this point is clicking a
+            // link from the user's email, we create a verified sessionToken
             var sessionTokenOptions = {
               uid: account.uid,
               email: account.email,
@@ -1498,4 +1613,3 @@ module.exports = function (
 
   return routes
 }
-

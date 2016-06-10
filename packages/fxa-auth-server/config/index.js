@@ -394,6 +394,39 @@ var conf = convict({
     format: Number,
     env: 'CLIENT_ADDRESS_DEPTH',
     default: 3
+  },
+  signinConfirmation: {
+    enabled: {
+      doc: 'enable signin confirmation',
+      default: false,
+      env: 'SIGNIN_CONFIRMATION_ENABLED'
+    },
+    sample_rate: {
+      doc: 'signin confirmation sample rate',
+      default: 1.0,
+      env: 'SIGNIN_CONFIRMATION_RATE'
+    },
+    supportedClients: {
+      doc: 'support sign-in confirmation for only these clients',
+      format: Array,
+      default: [
+        'iframe',
+        'fx_firstrun_v1',
+        'fx_firstrun_v2',
+        'fx_desktop_v1',
+        'fx_desktop_v2',
+        'fx_desktop_v3'
+      ],
+      env: 'SIGNIN_CONFIRMATION_SUPPORTED_CLIENTS'
+    },
+    forceEmails: {
+      doc: 'If feature enabled, force sign-in confirmation for these email domains',
+      format: Array,
+      default: [
+        '@mozilla.com'
+      ],
+      env: 'SIGNIN_CONFIRMATION_FORCE_EMAILS'
+    }
   }
 })
 
