@@ -198,7 +198,7 @@ define(function (require, exports, module) {
               assert.equal(windowMock.navigator.sendBeacon.getCall(0).args[0], '/metrics');
 
               var data = JSON.parse(windowMock.navigator.sendBeacon.getCall(0).args[1]);
-              assert.lengthOf(Object.keys(data), 25);
+              assert.lengthOf(Object.keys(data), 26);
               assert.equal(data.broker, 'none');
               assert.equal(data.campaign, 'none');
               assert.equal(data.context, 'web');
@@ -214,6 +214,7 @@ define(function (require, exports, module) {
               assert.equal(data.isSampledUser, false);
               assert.equal(data.lang, 'unknown');
               assert.isArray(data.marketing);
+              assert.isArray(data.experiments);
               assert.equal(data.migration, 'none');
               assert.isObject(data.navigationTiming);
               assert.equal(data.referrer, 'https://marketplace.firefox.com');
@@ -321,7 +322,7 @@ define(function (require, exports, module) {
               assert.equal(settings.contentType, 'application/json');
 
               var data = JSON.parse(settings.data);
-              assert.lengthOf(Object.keys(data), 25);
+              assert.lengthOf(Object.keys(data), 26);
               assert.isArray(data.events);
               assert.lengthOf(data.events, 4);
               assert.equal(data.events[0].type, 'foo');
@@ -394,7 +395,7 @@ define(function (require, exports, module) {
             assert.isTrue(metrics._send.getCall(0).args[1]);
 
             var data = metrics._send.getCall(0).args[0];
-            assert.lengthOf(Object.keys(data), 25);
+            assert.lengthOf(Object.keys(data), 26);
             assert.lengthOf(data.events, 4);
             assert.equal(data.events[0].type, 'foo');
             assert.equal(data.events[1].type, 'flow.begin');
@@ -418,7 +419,7 @@ define(function (require, exports, module) {
             assert.isTrue(metrics._send.getCall(0).args[1]);
 
             var data = metrics._send.getCall(0).args[0];
-            assert.lengthOf(Object.keys(data), 25);
+            assert.lengthOf(Object.keys(data), 26);
             assert.lengthOf(data.events, 4);
             assert.equal(data.events[0].type, 'foo');
             assert.equal(data.events[1].type, 'flow.begin');
@@ -559,6 +560,21 @@ define(function (require, exports, module) {
         assert.isFalse(metrics.getMarketingImpression(campaign, url).clicked);
         metrics.logMarketingClick(campaign, url);
         assert.isTrue(metrics.getMarketingImpression(campaign, url).clicked);
+      });
+    });
+
+    describe('logExperiment', function () {
+      it('logs the experiment name and group', function () {
+        var experiment = 'mailcheck';
+        var group = 'group';
+
+        metrics.logExperiment();
+        assert.equal(Object.keys(metrics._activeExperiments).length, 0);
+        metrics.logExperiment(experiment);
+        assert.equal(Object.keys(metrics._activeExperiments).length, 0);
+        metrics.logExperiment(experiment, group);
+        assert.equal(Object.keys(metrics._activeExperiments).length, 1);
+        assert.isDefined(metrics._activeExperiments['mailcheck']);
       });
     });
   });

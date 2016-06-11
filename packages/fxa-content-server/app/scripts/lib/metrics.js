@@ -40,6 +40,7 @@ define(function (require, exports, module) {
     'duration',
     'entrypoint',
     'events',
+    'experiments',
     'flowBeginTime',
     'flowId',
     'flushTime',
@@ -65,12 +66,11 @@ define(function (require, exports, module) {
   var NOT_REPORTED_VALUE = 'none';
   var UNKNOWN_CAMPAIGN_ID = 'unknown';
 
-
-  // convert a hash of marketing impressions into an array of objects.
-  function flattenMarketingImpressions (impressions) {
-    return _.reduce(impressions, function (memo, impressionsById) {
-      return memo.concat(_.map(impressionsById, function (impression) {
-        return impression;
+  // convert a hash of metrics impressions into an array of objects.
+  function flattenHashIntoArrayOfObjects (hashTable) {
+    return _.reduce(hashTable, function (memo, key) {
+      return memo.concat(_.map(key, function (value) {
+        return value;
       }));
     }, []);
   }
@@ -122,6 +122,7 @@ define(function (require, exports, module) {
     this._inactivityFlushMs = options.inactivityFlushMs || DEFAULT_INACTIVITY_TIMEOUT_MS;
 
     this._marketingImpressions = {};
+    this._activeExperiments = {};
 
     this._able = options.able;
     this._env = options.environment || new Environment(this._window);
@@ -213,12 +214,13 @@ define(function (require, exports, module) {
         campaign: this._campaign,
         context: this._context,
         entrypoint: this._entrypoint,
+        experiments: flattenHashIntoArrayOfObjects(this._activeExperiments),
         flowBeginTime: this._flowBeginTime,
         flowId: this._flowId,
         flushTime: Date.now(),
         isSampledUser: this._isSampledUser,
         lang: this._lang,
-        marketing: flattenMarketingImpressions(this._marketingImpressions),
+        marketing: flattenHashIntoArrayOfObjects(this._marketingImpressions),
         migration: this._migration,
         referrer: this._referrer,
         screen: {
@@ -363,6 +365,28 @@ define(function (require, exports, module) {
       // `screen.` is a legacy artifact from when each View was a screen.
       // The idenifier is kept to avoid updating all metrics queries.
       return 'screen.' + viewName;
+    },
+    /**
+     * Log when an experiment is shown to the user
+     *
+     * @param {String} choice - type of experiment
+     * @param {String} group - the experiment group (treatment or control)
+     */
+    logExperiment: function (choice, group) {
+      if (! choice || ! group) {
+        return;
+      }
+
+      var experiments = this._activeExperiments;
+
+      if (! experiments[choice]) {
+        experiments[choice] = {};
+      }
+
+      experiments[choice][group] = {
+        choice: choice,
+        group: group
+      };
     },
 
     /**

@@ -56,6 +56,16 @@ function getGenericTags(body) {
     }
   }
 
+  if (body.experiments) {
+    // if user is part of an experiment then add experiment tags
+    body.experiments.forEach(function (experiment) {
+      tags = tags.concat([
+        'experiment:' + experiment.choice,
+        'exp_group:' + experiment.group
+      ]);
+    });
+  }
+
   return tags;
 }
 

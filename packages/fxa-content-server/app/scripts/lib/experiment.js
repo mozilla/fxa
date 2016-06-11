@@ -125,6 +125,7 @@ define(function (require, exports, module) {
            */
           if (initResult) {
             this._activeExperiments[choice] = experiment;
+            this.metrics.logExperiment(choice, experiment._groupType);
           }
         }
       }
