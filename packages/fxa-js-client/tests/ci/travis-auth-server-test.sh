@@ -3,7 +3,7 @@
 # Install and start the auth server
 git clone https://github.com/mozilla/fxa-auth-server.git
 cd fxa-auth-server && npm i
-npm start &
+SIGNIN_CONFIRMATION_ENABLED=true npm start &
 cd ..
 sleep 5
 
