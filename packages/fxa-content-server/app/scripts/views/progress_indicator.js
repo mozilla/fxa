@@ -20,8 +20,8 @@ define(function (require, exports, module) {
   'use strict';
 
   var $ = require('jquery');
-  var _ = require('underscore');
   var Backbone = require('backbone');
+  var Cocktail = require('cocktail');
   var TimerMixin = require('views/mixins/timer-mixin');
 
   // The show and hide delays are to minimize flash.
@@ -145,7 +145,10 @@ define(function (require, exports, module) {
     }
   });
 
-  _.extend(View.prototype, TimerMixin);
+  Cocktail.mixin(
+    View,
+    TimerMixin
+  );
 
   module.exports = View;
 });

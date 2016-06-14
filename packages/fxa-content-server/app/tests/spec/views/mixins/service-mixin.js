@@ -5,9 +5,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
   var BaseView = require('views/base');
   var Chai = require('chai');
+  var Cocktail = require('cocktail');
   var NullBroker = require('models/auth_brokers/base');
   var OAuthRelier = require('models/reliers/oauth');
   var ServiceMixin = require('views/mixins/service-mixin');
@@ -22,7 +22,10 @@ define(function (require, exports, module) {
     className: 'oauth',
     template: TestTemplate
   });
-  _.extend(OAuthView.prototype, ServiceMixin);
+  Cocktail.mixin(
+    OAuthView,
+    ServiceMixin
+  );
 
   describe('views/mixins/service-mixin', function () {
     var view;

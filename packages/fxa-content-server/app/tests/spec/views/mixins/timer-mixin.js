@@ -5,9 +5,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
   var BaseView = require('views/base');
   var Chai = require('chai');
+  var Cocktail = require('cocktail');
   var TestHelpers = require('../../../lib/helpers');
   var TimerMixin = require('views/mixins/timer-mixin');
 
@@ -15,7 +15,10 @@ define(function (require, exports, module) {
 
   var TimerView = BaseView.extend({});
 
-  _.extend(TimerView.prototype, TimerMixin);
+  Cocktail.mixin(
+    TimerView,
+    TimerMixin
+  );
 
   describe('views/mixins/timer-mixin', function () {
     var view;
