@@ -9,6 +9,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var _ = require('underscore');
   var $ = require('jquery');
   var AuthErrors = require('lib/auth-errors');
   var Constants = require('lib/constants');
@@ -559,6 +560,11 @@ define(function (require, exports, module) {
       return self._getClient()
         .then(function (client) {
           return client.recoveryEmailStatus(sessionToken);
+        })
+        .then(function (response) {
+          // /recovery_email/status returns `emailVerified` and
+          // `sessionVerified`, we don't want those.
+          return _.pick(response, 'email', 'verified');
         })
         .fail(function (err) {
           // The user's email may have bounced because it's invalid. Check

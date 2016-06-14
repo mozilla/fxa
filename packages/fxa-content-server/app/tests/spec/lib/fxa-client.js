@@ -319,7 +319,7 @@ define(function (require, exports, module) {
         describe('valid session', function () {
           beforeEach(function () {
             sinon.stub(clientMock, 'recoveryEmailStatus', function () {
-              return p({ verified: true });
+              return p({ email: 'testuser@testuser.com', emailVerified: true, sessionVerified: true, verified: true });
             });
 
             return client.recoveryEmailStatus('session token')
@@ -330,7 +330,10 @@ define(function (require, exports, module) {
 
           it('resolves with the status information', function () {
             assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
+            assert.equal(accountInfo.email, 'testuser@testuser.com');
             assert.isTrue(accountInfo.verified);
+            assert.notProperty(accountInfo, 'emailVerified');
+            assert.notProperty(accountInfo, 'sessionVerified');
           });
         });
 
@@ -362,7 +365,7 @@ define(function (require, exports, module) {
         describe('valid session', function () {
           beforeEach(function () {
             sinon.stub(clientMock, 'recoveryEmailStatus', function () {
-              return p({ verified: true });
+              return p({ email: 'testuser@testuser.com', emailVerified: true, sessionVerified: true, verified: true });
             });
 
             return client.recoveryEmailStatus('session token', 'uid')
@@ -372,7 +375,11 @@ define(function (require, exports, module) {
           });
 
           it('resolves with the status information', function () {
+            assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
+            assert.equal(accountInfo.email, 'testuser@testuser.com');
             assert.isTrue(accountInfo.verified);
+            assert.notProperty(accountInfo, 'emailVerified');
+            assert.notProperty(accountInfo, 'sessionVerified');
           });
         });
 
