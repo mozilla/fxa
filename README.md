@@ -11,11 +11,11 @@
    git clone https://github.com/mozilla/fxa-local-dev.git
    ```
 
-3. Run `npm install`.
+3. Run:
 
    ```sh
    cd fxa-local-dev
-   npm i
+   npm install
    ```
 
 4. Visit [127.0.0.1:3030](http://127.0.0.1:3030/).
