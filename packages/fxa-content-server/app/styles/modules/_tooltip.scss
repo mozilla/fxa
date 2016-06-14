@@ -41,11 +41,11 @@
   }
 
   &.tooltip-suggest {
-    background: $info-background-color;
+    background: $button-background-color;
 
     &:before,
     &::before {
-      background-color: $info-background-color;
+      background-color: $button-background-color;
     }
 
     > span {

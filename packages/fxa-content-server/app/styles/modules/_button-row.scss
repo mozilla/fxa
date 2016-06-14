@@ -17,7 +17,7 @@
   button {
     @include font();
     background: $button-background-color;
-    border: 0;
+    border: 1px solid $button-border-default-color;
     color: $message-text-color;
     cursor: pointer;
     transition-duration: $short-transition;
@@ -27,34 +27,46 @@
     @include respond-to('big') {
       border-radius: $big-border-radius;
       font-size: $large-font;
-      height: 63px;
+      height: 65px;
       padding: 15px 0;
     }
 
     @include respond-to('small') {
       border-radius: $small-border-radius;
       font-size: $medium-font + $media-adjustment;
-      height: 44px;
+      height: 46px;
       padding: 8px 0;
     }
 
     @include respond-to('trustedUI') {
       font-size: $medium-font;
-      height: 41px;
+      height: 43px;
       padding: 8px 0;
     }
 
-    &:active,
-    &:hover,
-    &:focus {
+    &:hover {
       background: $button-background-hover-color;
+      border-color: $button-border-hover-color;
+    }
+
+    &:active {
+      background: $button-background-active-color;
+      border-color: $button-border-active-color;
+    }
+
+    &:focus {
+      border-color: $html-background-color;
+      box-shadow: 0 0 0 2px $button-box-shadow-color;
     }
   }
 
   button:disabled,
   button.disabled {
-    background: $button-background-disabled-color;
+    background: $button-background-default-color;
+    border-color: $button-border-disabled-color;
+    color: $button-disabled-color;
     cursor: auto;
+    opacity: 0.5;
   }
 }
 

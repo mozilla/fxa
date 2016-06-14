@@ -23,7 +23,8 @@
   }
 
   input {
-    transition: border-color $short-transition;
+    transition: border-color $short-transition,
+                box-shadow $short-transition;
 
     // disable arrows on HTML5 number inputs
     &[type=number]::-webkit-inner-spin-button,
@@ -50,10 +51,12 @@
 
       &:focus {
         border-color: $input-row-focus-border-color;
+        box-shadow: 0 0 0 2px $input-row-focus-box-shadow-color;
       }
 
       &.invalid {
         border-color: $error-background-color;
+        box-shadow: 0 0 0 2px rgba(lighten($error-background-color, 15), .75);
       }
     }
 

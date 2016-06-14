@@ -206,30 +206,29 @@ body.settings #main-content.card {
 
   &.primary {
     background: $button-background-color;
-    border: 0;
     color: $message-text-color;
-
-    &:active,
-    &:hover,
-    &:focus {
-      background: $button-background-hover-color;
-    }
-
-    &:disabled,
-    &.disabled {
-      background: $button-background-disabled-color;
-    }
   }
 
   &.secondary {
-    background: $html-background-color;
+    background: $secondary-button-background-color;
     border: 1px solid $secondary-button-border-color;
     color: $text-color;
 
-    &:active,
-    &:hover,
+    &:hover {
+      background: darken($secondary-button-background-color, 10);
+      border-color: $button-border-disabled-color;
+    }
+
+    &:active {
+      background: $button-border-disabled-color;
+      border-color: $color-grey-dark;
+      color: #000;
+    }
+
     &:focus {
-      background: darken($html-background-color, 10);
+      background: $secondary-button-background-color;
+      border-color: $html-background-color;
+      box-shadow: 0 0 0 2px $button-box-shadow-color;
     }
   }
 
@@ -238,15 +237,23 @@ body.settings #main-content.card {
     border: 0;
     color: $message-text-color;
 
-    &:active,
-    &:hover,
-    &:focus {
+    &:hover {
       background: darken($error-background-color, 5);
+    }
+
+    &:active {
+      background: darken($error-background-color, 10);
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 2px rgba(lighten($error-background-color, 15), .75);
     }
 
     &:disabled,
     &.disabled {
-      background: $button-background-disabled-color;
+      background: $button-background-default-color;
+      border: solid 1px $button-border-disabled-color;
+      color: $button-disabled-color;
     }
   }
 

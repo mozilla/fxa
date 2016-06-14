@@ -2,24 +2,64 @@
 $default-font: 'Fira Sans', Helvetica, Arial, sans-serif;
 $header-font: 'Fira Sans', Helvetica, Arial, sans-serif;
 
+// default color variables
+$color-grey-lightest: #fbfbfb;
+$color-grey-lighter: #ebebeb;
+$color-grey-light: #d4d4d4;
+$color-grey: #b1b1b1;
+$color-grey-dark: #858585;
+$color-grey-disabled: #999;
+
+$color-blue: #0996f8;
+$color-blue-dark: #0670cc;
+$color-blue-darker: #005bab;
+$color-blue-darkest: #004480;
+
+$color-blue-focus-ring: hsla(208, 100%, 69%, .75);
+
+$color-green-lightest: #e2fddc;
+$color-green: #57bd35;
+$color-green-dark: #40a624;
+$color-green-darker: #399320;
+$color-green-darkest: #2e761a;
+
+$border-radius-osx: 4px;
+$border-radius-outer: 4px;
+$border-radius-inner: 3px;
+
+
 //Color Variables
-$button-background-color: #0095dd;
-$button-background-disabled-color: #8a9ba8;
-$button-background-hover-color: #08c;
+$button-background-color: $color-blue;
+$button-background-active-color: $color-blue-darker;
+$button-background-default-color: $color-grey-lightest;
+$button-background-disabled-color: $color-grey-disabled;
+$button-background-hover-color: $color-blue-dark;
+$button-disabled-color: $color-grey-disabled;
+
+$button-border-active-color: $color-blue-darkest;
+$button-border-default-color: $color-blue-dark;
+$button-border-disabled-color: $color-grey;
+$button-border-hover-color: $color-blue-darker;
+
+$button-box-shadow-color: $color-blue-focus-ring;
+
 $error-background-color: #d63920;
-$info-background-color: #0095dd;
+$info-background-color: $color-blue;
 $error-text-color: #d63920;
 $html-background-color: #f2f2f2;
 $chromeless-html-background-color: #fff;
+
 $input-border-color: #424f59;
 $input-text-color: #424f59;
 $input-placeholder-color: #8a9ba8;
 $input-row-border-color: #8a9ba8;
-$input-row-focus-border-color: #0095dd;
+$input-row-focus-border-color: $color-blue;
+$input-row-focus-box-shadow-color: $color-blue-focus-ring;
 $input-row-hover-border-color: #424f59;
 $input-row-box-shadow-color: #f2f2f2;
 $input-left-right-padding: 20px;
-$link-color: #0095dd;
+
+$link-color: $button-background-color;
 $marketing-border-color: #c3cfd8;
 $message-text-color: #fff;
 $mobile-html-background-color: #fff;
@@ -35,6 +75,7 @@ $horizontal-rule-color: #e4e4e4;
 $input-background-disabled-color: #f2f2f2;
 $input-border-disabled-color: #ddd;
 $input-disabled-color: #64778c;
+$secondary-button-background-color: $color-grey-lightest;
 $secondary-button-border-color: #c1c1c1;
 $modal-border-color: #000;
 
