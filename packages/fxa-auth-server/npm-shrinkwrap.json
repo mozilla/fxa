@@ -6550,9 +6550,9 @@
       }
     },
     "mozlog": {
-      "version": "2.0.3",
-      "from": "mozlog@2.0.3",
-      "resolved": "https://registry.npmjs.org/mozlog/-/mozlog-2.0.3.tgz",
+      "version": "2.0.5",
+      "from": "mozlog@2.0.5",
+      "resolved": "https://registry.npmjs.org/mozlog/-/mozlog-2.0.5.tgz",
       "dependencies": {
         "intel": {
           "version": "1.1.0",
@@ -6621,9 +6621,9 @@
               "resolved": "https://registry.npmjs.org/strftime/-/strftime-0.9.2.tgz"
             },
             "symbol": {
-              "version": "0.2.1",
+              "version": "0.2.3",
               "from": "symbol@>=0.2.0 <0.3.0",
-              "resolved": "https://registry.npmjs.org/symbol/-/symbol-0.2.1.tgz"
+              "resolved": "https://registry.npmjs.org/symbol/-/symbol-0.2.3.tgz"
             },
             "utcstring": {
               "version": "0.1.0",

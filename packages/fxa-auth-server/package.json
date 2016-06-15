@@ -43,7 +43,7 @@
     "hapi-fxa-oauth": "2.2.0",
     "hkdf": "0.0.2",
     "joi": "6.9.1",
-    "mozlog": "2.0.3",
+    "mozlog": "2.0.5",
     "node-statsd": "0.1.1",
     "node-uap": "git+https://github.com/vladikoff/node-uap.git#9cdd16247",
     "openid": "1.0.0",
