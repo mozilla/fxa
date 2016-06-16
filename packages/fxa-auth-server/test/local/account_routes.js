@@ -17,7 +17,7 @@ var isA = require('joi')
 var error = require('../../lib/error')
 var log = require('../../lib/log')
 
-var TEST_EMAIL = 'foo@gmail.com'
+var TEST_EMAIL = 'foo@bloop.com'
 var TEST_EMAIL_INVALID = 'example@dotless-domain'
 
 var makeRoutes = function (options) {
@@ -773,7 +773,7 @@ test(
       signinConfirmation: {
         enabled: false,
         supportedClients: ['fx_desktop_v3'],
-        forceEmails:['@mozilla.com']
+        forceEmailRegex:['mozilla.com$']
       },
       newLoginNotificationEnabled: true
     }
@@ -815,7 +815,7 @@ test(
         enabled: true,
         sample_rate: 1.0,
         supportedClients: ['fx_desktop_v3'],
-        forceEmails:['@mozilla.com']
+        forceEmailRegex:['mozilla.com$']
       }
     }
 
@@ -856,7 +856,7 @@ test(
         enabled: true,
         sample_rate: 0.20,
         supportedClients: ['fx_desktop_v3'],
-        forceEmails:['@mozilla.com']
+        forceEmailRegex:['mozilla.com$']
       }
     }
 
@@ -890,14 +890,14 @@ test(
 )
 
 test(
-  'login with sign-in confirmation enabled for specific email',
+  'login with sign-in confirmation enable for email regex',
   function (t) {
     var configOptions = {
       signinConfirmation: {
         enabled: true,
         sample_rate: 0.00,
         supportedClients: ['fx_desktop_v3'],
-        forceEmails:['@mozilla.com']
+        forceEmailRegex: ['@mozilla.com$', 'fennec@fire.fox']
       }
     }
 
@@ -931,6 +931,132 @@ test(
 )
 
 test(
+  'login with sign-in confirmation enable for email domain',
+  function (t) {
+    var configOptions = {
+      signinConfirmation: {
+        enabled: true,
+        sample_rate: 0.00,
+        supportedClients: ['fx_desktop_v3'],
+        forceEmailRegex: ['@mozilla.com$', 'fennec@fire.fox']
+      },
+      newLoginNotificationEnabled: true
+    }
+
+    var uid = '20162205efab47ecb6418c797acd743f'
+    var mockRequest = mocks.mockRequest('asdf@mozilla.com', 'true')
+    var mockDB = mocks.mockDB(uid, 'asdf@mozilla.com', true)
+    var mockMailer = mocks.mockMailer()
+
+    var accountRoutes = makeRoutes({
+      config: configOptions,
+      db: mockDB,
+      mailer: mockMailer,
+      checkPassword: function () {
+        return P.resolve(true)
+      }
+    })
+
+    return new P(function (resolve) {
+      getRoute(accountRoutes, '/account/login')
+        .handler(mockRequest, function (response) {
+          resolve(response)
+        })
+    })
+      .then(function (response) {
+        t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+        t.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
+        t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
+        t.equal(response.verificationReason, 'login', 'verificationReason is login')
+      })
+  }
+)
+
+test(
+  'login with sign-in confirmation enable for specific email',
+  function (t) {
+    var configOptions = {
+      signinConfirmation: {
+        enabled: true,
+        sample_rate: 0.00,
+        supportedClients: ['fx_desktop_v3'],
+        forceEmailRegex: ['@mozilla.com$', 'fennec@fire.fox']
+      },
+      newLoginNotificationEnabled: true
+    }
+
+    var uid = '20162205efab47ecb6418c797acd743f'
+    var mockRequest = mocks.mockRequest('fennec@fire.fox', 'true')
+    var mockDB = mocks.mockDB(uid, 'fennec@fire.fox', true)
+    var mockMailer = mocks.mockMailer()
+
+    var accountRoutes = makeRoutes({
+      config: configOptions,
+      db: mockDB,
+      mailer: mockMailer,
+      checkPassword: function () {
+        return P.resolve(true)
+      }
+    })
+
+    return new P(function (resolve) {
+      getRoute(accountRoutes, '/account/login')
+        .handler(mockRequest, function (response) {
+          resolve(response)
+        })
+    })
+      .then(function (response) {
+        t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+        t.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
+        t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
+        t.equal(response.verificationReason, 'login', 'verificationReason is login')
+      })
+  }
+)
+
+test(
+  'login with sign-in confirmation disabled for regex',
+  function (t) {
+    var configOptions = {
+      signinConfirmation: {
+        enabled: true,
+        sample_rate: 0.00,
+        supportedClients: ['fx_desktop_v3'],
+        forceEmailRegex: ['@mozilla.com$', 'fennec@fire.fox']
+      },
+      newLoginNotificationEnabled: true
+    }
+
+    var uid = '20162205efab47ecb6418c797acd743f'
+    var mockRequest = mocks.mockRequest('moz@fire.fox', 'true')
+    var mockDB = mocks.mockDB(uid, 'moz@fire.fox', true)
+    var mockMailer = mocks.mockMailer()
+
+    var accountRoutes = makeRoutes({
+      config: configOptions,
+      db: mockDB,
+      mailer: mockMailer,
+      checkPassword: function () {
+        return P.resolve(true)
+      }
+    })
+
+    return new P(function (resolve) {
+      getRoute(accountRoutes, '/account/login')
+        .handler(mockRequest, function (response) {
+          resolve(response)
+        })
+    })
+      .then(function (response) {
+        t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 1, 'mailer.sendNewDeviceLoginNotification was called')
+        t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
+        t.notOk(response.verificationMethod, 'verificationMethod doesn\'t exist')
+        t.notOk(response.verificationReason, 'verificationReason doesn\'t exist')
+      })
+  }
+)
+
+test(
   'login with sign-in confirmation, invalid client, does not perform confirmation',
   function (t) {
     var configOptions = {
@@ -938,7 +1064,7 @@ test(
         enabled: true,
         sample_rate: 1.00,
         supportedClients: ['fx_desktop_v999'],
-        forceEmails:['@mozilla.com']
+        forceEmailRegex:['mozilla.com$']
       },
       newLoginNotificationEnabled: true
     }
@@ -980,7 +1106,7 @@ test(
         enabled: true,
         sample_rate: 0.10,
         supportedClients: ['fx_desktop_v3'],
-        forceEmails:['@mozilla.com']
+        forceEmailRegex:['mozilla.com$']
       },
       newLoginNotificationEnabled: true
     }

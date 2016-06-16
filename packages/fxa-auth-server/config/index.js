@@ -419,13 +419,13 @@ var conf = convict({
       ],
       env: 'SIGNIN_CONFIRMATION_SUPPORTED_CLIENTS'
     },
-    forceEmails: {
-      doc: 'If feature enabled, force sign-in confirmation for these email domains',
+    forceEmailRegex: {
+      doc: 'If feature enabled, force sign-in confirmation for email addresses matching this regex.',
       format: Array,
       default: [
-        '@mozilla.com'
+        '@mozilla.com$'
       ],
-      env: 'SIGNIN_CONFIRMATION_FORCE_EMAILS'
+      env: 'SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX'
     }
   }
 })

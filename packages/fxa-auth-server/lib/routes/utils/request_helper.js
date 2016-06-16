@@ -34,10 +34,13 @@ function shouldEnableSigninConfirmation(account, config, request) {
     return false
   }
 
-  // If feature enabled, always enable for these emails
+  // If feature enabled, always enable for email addresses matching this regex
   var email = account.email
-  var emailDomain = account.email.substring(email.indexOf('@'), email.length).toLocaleLowerCase()
-  var isValidEmail = config.signinConfirmation.forceEmails.indexOf(emailDomain) > -1
+  var isValidEmail = config.signinConfirmation.forceEmailRegex.some(function (reg) {
+    var emailReg = new RegExp(reg)
+    return emailReg.test(email)
+  })
+
   if (isValidEmail) {
     return true
   }
