@@ -7,6 +7,7 @@ define(function (require, exports, module) {
 
   var Able = require('lib/able');
   var chai = require('chai');
+  var VerificationReasons = require('lib/verification-reasons');
   var FxaClient = require('lib/fxa-client');
   var OAuthBroker = require('models/auth_brokers/oauth');
   var p = require('lib/promise');
@@ -69,16 +70,16 @@ define(function (require, exports, module) {
       });
 
       var expectedHeaders = {
-        'account_unlock': '#fxa-account-unlock-complete-header',
-        'force_auth': '#fxa-force-auth-complete-header',
-        'reset_password': '#fxa-reset-password-complete-header',
-        'sign_in': '#fxa-sign-in-complete-header',
-        'sign_up': '#fxa-sign-up-complete-header'
+        ACCOUNT_UNLOCK: '#fxa-account-unlock-complete-header',
+        FORCE_AUTH: '#fxa-force-auth-complete-header',
+        PASSWORD_RESET: '#fxa-reset-password-complete-header',
+        SIGN_IN: '#fxa-sign-in-complete-header',
+        SIGN_UP: '#fxa-sign-up-complete-header'
       };
 
       for (var type in expectedHeaders) {
         it('renders the correct header for `' + type + '`', function (type) {
-          createView(type);
+          createView(VerificationReasons[type]);
           return view.render()
             .then(function () {
               assert.ok(view.$(expectedHeaders[type]).length);
@@ -87,7 +88,7 @@ define(function (require, exports, module) {
       }
 
       it('shows service name if available', function () {
-        createView('sign_up');
+        createView(VerificationReasons.SIGN_UP);
         relier.set('serviceName', 'Firefox Sync');
 
         return view.render()
@@ -99,7 +100,7 @@ define(function (require, exports, module) {
 
       // regression test for #1216
       it('does not show service name if service is defined but serviceName is not', function () {
-        createView('sign_up');
+        createView(VerificationReasons.SIGN_UP);
         view.context = function () {
           return {
             service: 'sync'
@@ -121,7 +122,8 @@ define(function (require, exports, module) {
           }
         });
 
-        createView('sign_up');
+        createView(VerificationReasons.SIGN_UP);
+
         return view.render()
           .then(function () {
             assert.equal(view.$('.marketing').length, 1);
@@ -139,7 +141,7 @@ define(function (require, exports, module) {
         });
 
         relier.set('service', 'sync');
-        createView('sign_up');
+        createView(VerificationReasons.SIGN_UP);
 
         return view.render()
           .then(function () {
@@ -155,7 +157,7 @@ define(function (require, exports, module) {
           }
         });
 
-        createView('sign_up');
+        createView(VerificationReasons.SIGN_UP);
 
         return view.render()
           .then(function () {
@@ -165,7 +167,7 @@ define(function (require, exports, module) {
       });
 
       it('formats the service name correctly depending on the always redirect param', function () {
-        createView('sign_up');
+        createView(VerificationReasons.SIGN_UP);
         var serviceName = 'Find My Device';
         var redirectUri = 'https://find.firefox.com';
         relier.set('redirectUri', redirectUri);
@@ -191,7 +193,7 @@ define(function (require, exports, module) {
           return false;
         });
 
-        createView('sign_up');
+        createView(VerificationReasons.SIGN_UP);
 
         return view.render()
           .then(function () {
@@ -210,7 +212,7 @@ define(function (require, exports, module) {
           }
         });
 
-        createView('sign_up');
+        createView(VerificationReasons.SIGN_UP);
         return view.render()
           .then(function () {
             assert.ok(view.$('#sync-preferences').length);
@@ -238,7 +240,7 @@ define(function (require, exports, module) {
           return false;
         });
 
-        createView('sign_up');
+        createView(VerificationReasons.SIGN_UP);
 
         return view.submit().then(function () {
           assert.isTrue(metrics.flush.calledOnce);
@@ -262,7 +264,7 @@ define(function (require, exports, module) {
           return p();
         });
 
-        createView('sign_up');
+        createView(VerificationReasons.SIGN_UP);
 
         return view.submit().then(function () {
           assert.isTrue(metrics.flush.calledOnce);

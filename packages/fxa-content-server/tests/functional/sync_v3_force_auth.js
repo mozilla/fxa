@@ -19,6 +19,7 @@ define([
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openForceAuth = FunctionalHelpers.openForceAuth;
+  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementDisabled = FunctionalHelpers.testElementDisabled;
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -31,10 +32,10 @@ define([
     name: 'Firefox Desktop Sync v3 force_auth',
 
     beforeEach: function () {
-      email = TestHelpers.createEmail();
+      email = TestHelpers.createEmail('sync{id}');
     },
 
-    'with a registered email, no uid': function () {
+    'with a registered email, no uid, verify same browser': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(function (accountInfo) {
@@ -50,13 +51,22 @@ define([
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutForceAuth(PASSWORD))
 
-        // about:accounts will take over, no transition
-        .then(noPageTransition('#fxa-force-auth-header'))
         .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'));
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+
+        .then(testElementExists('#fxa-confirm-signin-header'))
+
+        .then(openVerificationLinkInNewTab(this, email, 0))
+        .switchToWindow('newwindow')
+          .then(testElementExists('#fxa-sign-in-complete-header'))
+          .closeCurrentWindow()
+        .switchToWindow('')
+
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-confirm-signin-header'));
     },
 
-    'with a registered email, registered uid': function () {
+    'with a registered email, registered uid, verify same browser': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(function (accountInfo) {
@@ -73,13 +83,22 @@ define([
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutForceAuth(PASSWORD))
 
-        // about:accounts will take over, no transition
-        .then(noPageTransition('#fxa-force-auth-header'))
         .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'));
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+
+        .then(testElementExists('#fxa-confirm-signin-header'))
+
+        .then(openVerificationLinkInNewTab(this, email, 0))
+        .switchToWindow('newwindow')
+          .then(testElementExists('#fxa-sign-in-complete-header'))
+          .closeCurrentWindow()
+        .switchToWindow('')
+
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-confirm-signin-header'));
     },
 
-    'with a registered email, unregistered uid': function () {
+    'with a registered email, unregistered uid, verify same browser': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openForceAuth({
@@ -94,11 +113,20 @@ define([
         .then(noSuchBrowserNotification(this, 'fxaccounts:logout'))
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutForceAuth(PASSWORD))
-        // about:accounts will take over, no transition
-        .then(noPageTransition('#fxa-force-auth-header'))
         // user is able to sign in, browser notified of new uid
         .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'));
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+
+        .then(testElementExists('#fxa-confirm-signin-header'))
+
+        .then(openVerificationLinkInNewTab(this, email, 0))
+        .switchToWindow('newwindow')
+          .then(testElementExists('#fxa-sign-in-complete-header'))
+          .closeCurrentWindow()
+        .switchToWindow('')
+
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-confirm-signin-header'));
     },
 
     'with an unregistered email, no uid': function () {

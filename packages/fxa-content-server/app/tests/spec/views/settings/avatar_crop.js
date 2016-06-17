@@ -69,9 +69,9 @@ define(function (require, exports, module) {
 
     describe('with session', function () {
       beforeEach(function () {
-        view.isUserAuthorized = function () {
+        sinon.stub(view, 'checkAuthorization',  function () {
           return p(true);
-        };
+        });
         account = user.initAccount({
           accessToken: 'abc123',
           email: 'a@a.com',

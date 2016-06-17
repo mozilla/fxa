@@ -9,6 +9,8 @@ define(function (require, exports, module) {
 
   var AuthErrors = require('lib/auth-errors');
   var p = require('lib/promise');
+  var VerificationMethods = require('lib/verification-methods');
+  var VerificationReasons = require('lib/verification-reasons');
 
   module.exports = {
     /**
@@ -32,7 +34,9 @@ define(function (require, exports, module) {
       return self.invokeBrokerMethod('beforeSignIn', account.get('email'))
         .then(function () {
           return self.user.signInAccount(account, password, self.relier, {
-            // a resume token is passed in to handle unverified users.
+            // a resume token is passed in to allow
+            // unverified account or session users to complete
+            // email verification.
             resume: self.getStringifiedResumeToken()
           });
         })
@@ -56,9 +60,19 @@ define(function (require, exports, module) {
 
     onSignInSuccess: function (account) {
       if (! account.get('verified')) {
-        return this.navigate('confirm', {
-          account: account
-        });
+        var verificationMethod = account.get('verificationMethod');
+        var verificationReason = account.get('verificationReason');
+
+        if (verificationReason === VerificationReasons.SIGN_IN &&
+            verificationMethod === VerificationMethods.EMAIL) {
+          return this.navigate('confirm_signin', {
+            account: account
+          });
+        } else {
+          return this.navigate('confirm', {
+            account: account
+          });
+        }
       }
 
       // If the account's uid changed, update the relier model or else

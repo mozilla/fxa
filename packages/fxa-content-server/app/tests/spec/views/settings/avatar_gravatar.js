@@ -76,9 +76,9 @@ define(function (require, exports, module) {
         sinon.stub(view, 'getSignedInAccount', function () {
           return account;
         });
-        view.isUserAuthorized = function () {
+        sinon.stub(view, 'checkAuthorization',  function () {
           return p(true);
-        };
+        });
       });
 
       it('hashed email', function () {

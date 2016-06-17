@@ -40,7 +40,7 @@ define([
     name: 'Fx Fennec Sync v1 force_auth',
 
     beforeEach: function () {
-      email = TestHelpers.createEmail();
+      email = TestHelpers.createEmail('sync{id}');
     },
 
     'verified': function () {

@@ -34,8 +34,8 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
   var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
-  var noPageTransition = FunctionalHelpers.noPageTransition;
   var openPage = thenify(FunctionalHelpers.openPage);
+  var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementTextEquals = FunctionalHelpers.testElementTextEquals;
@@ -48,7 +48,7 @@ define([
     name: 'sign_in cached',
 
     beforeEach: function () {
-      email = TestHelpers.createEmail();
+      email = TestHelpers.createEmail('sync{id}');
       email2 = TestHelpers.createEmail();
       return this.remote
         .then(clearBrowserState(this, { force: true }))
@@ -78,8 +78,9 @@ define([
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(this, email, PASSWORD))
 
-        .then(noPageTransition('#fxa-signin-header'))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(testElementExists('#fxa-confirm-signin-header'))
+        .then(openVerificationLinkDifferentBrowser(email))
 
         .then(openPage(this, PAGE_SIGNIN, '#fxa-signin-header'))
 
@@ -185,8 +186,8 @@ define([
         .then(openPage(this, PAGE_SIGNIN_DESKTOP, '#fxa-signin-header'))
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(this, email, PASSWORD))
-        .then(noPageTransition('#fxa-signin-header'))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(testElementExists('#fxa-confirm-signin-header'))
 
         .then(openPage(this, PAGE_SIGNIN + '?email=' + email2, '#fxa-signin-header'))
         /*.then(testElementValueEquals('input.email.prefilled', email2))*/
@@ -211,8 +212,8 @@ define([
         .then(openPage(this, PAGE_SIGNIN_DESKTOP, '#fxa-signin-header'))
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(this, email, PASSWORD))
-        .then(noPageTransition('#fxa-signin-header'))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(testElementExists('#fxa-confirm-signin-header'))
 
         // ensure signin page is visible otherwise credentials might
         // not be cleared by clicking .use-different

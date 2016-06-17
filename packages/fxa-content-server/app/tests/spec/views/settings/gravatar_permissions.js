@@ -64,7 +64,7 @@ define(function (require, exports, module) {
         return account;
       });
 
-      sinon.stub(view, 'isUserAuthorized', function () {
+      sinon.stub(view, 'checkAuthorization',  function () {
         return p(true);
       });
 

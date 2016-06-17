@@ -169,7 +169,7 @@ define(function (require, exports, module) {
 
           it('delegates to the user to change the password', function () {
             assert.isTrue(user.changeAccountPassword.calledWith(
-                account, oldPassword, newPassword));
+                account, oldPassword, newPassword, relier));
           });
 
           it('informs the broker', function () {
@@ -185,7 +185,6 @@ define(function (require, exports, module) {
             assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.change-password.success'));
           });
         });
-
 
         describe('error', function () {
           var err;

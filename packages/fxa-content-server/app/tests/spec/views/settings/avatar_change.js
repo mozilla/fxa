@@ -71,9 +71,9 @@ define(function (require, exports, module) {
           window: windowMock
         });
 
-        view.isUserAuthorized = function () {
+        sinon.stub(view, 'checkAuthorization',  function () {
           return p(true);
-        };
+        });
         account = user.initAccount({
           accessToken: accessToken,
           email: 'a@a.com',

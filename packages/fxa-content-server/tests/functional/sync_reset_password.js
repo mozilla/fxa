@@ -46,7 +46,7 @@ define([
       // timeout after 90 seconds
       this.timeout = 90000;
 
-      email = TestHelpers.createEmail();
+      email = TestHelpers.createEmail('sync{id}');
       user = TestHelpers.emailToUser(email);
 
       return this.remote
@@ -136,12 +136,12 @@ define([
         .then(type('#password', PASSWORD))
         .then(click('button[type=submit]'))
 
-        .then(testIsBrowserNotifiedOfLogin(this, email, { checkVerified: true }))
+        .then(testIsBrowserNotifiedOfLogin(this, email, { checkVerified: false }))
 
         // user verified the reset password in another browser, they must
         // re-verify they want to sign in on this device to avoid
         // opening up an attack vector.
-        .then(testElementExists('#fxa-signin-header'));
+        .then(testElementExists('#fxa-confirm-signin-header'));
     },
 
     'reset password, verify different browser - from new browser\'s P.O.V.': function () {

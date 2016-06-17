@@ -17,6 +17,7 @@ define(function (require, exports, module) {
   var p = require('lib/promise');
   var ProfileErrors = require('lib/profile-errors');
   var ProfileImage = require('models/profile-image');
+  var SignInReasons = require('lib/sign-in-reasons');
 
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
 
@@ -54,7 +55,9 @@ define(function (require, exports, module) {
     declinedSyncEngines: undefined,
     keyFetchToken: undefined,
     // password field intentionally omitted to avoid unintentional leaks
-    unwrapBKey: undefined
+    unwrapBKey: undefined,
+    verificationMethod: undefined,
+    verificationReason: undefined
   }, PERSISTENT);
 
   var ALLOWED_KEYS = Object.keys(DEFAULTS);
@@ -220,6 +223,31 @@ define(function (require, exports, module) {
         });
     },
 
+    /**
+     * Check the status of the account's current session. Status information
+     * includes whether the session is verified, and if not, the reason
+     * it must be verified and by which method.
+     *
+     * @returns {promise} resolves with the account's current session
+     * information if session is valid. Rejects with an INVALID_TOKEN error
+     * if session is invalid.
+     *
+     * Session information:
+     * {
+     *   verified: <boolean>
+     *   verificationMethod: <see lib/verification-methods.js>
+     *   verificationReason: <see lib/verification-reasons.js>
+     * }
+     */
+    sessionStatus: function () {
+      var sessionToken = this.get('sessionToken');
+      if (! sessionToken) {
+        return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+      }
+
+      return this._fxaClient.recoveryEmailStatus(sessionToken);
+    },
+
     isVerified: function () {
       return this._fxaClient.recoveryEmailStatus(this.get('sessionToken'))
         .then(function (results) {
@@ -334,7 +362,8 @@ define(function (require, exports, module) {
         if (password) {
           return self._fxaClient.signIn(email, password, relier, {
             metricsContext: self._metrics.getActivityEventMetadata(),
-            reason: options.reason
+            reason: options.reason || SignInReasons.SIGN_IN,
+            resume: options.resume
           });
         } else if (sessionToken) {
           // We have a cached Sync session so just check that it hasn't expired.

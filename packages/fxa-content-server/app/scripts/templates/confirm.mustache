@@ -1,6 +1,11 @@
 <div id="main-content" class="card">
   <header>
+    {{#isSignUp}}
     <h1 id="fxa-confirm-header">{{#t}}Confirm your account{{/t}}</h1>
+    {{/isSignUp}}
+    {{#isSignIn}}
+    <h1 id="fxa-confirm-signin-header">{{#t}}Confirm this sign-in{{/t}}</h1>
+    {{/isSignIn}}
   </header>
 
   <section>
@@ -11,7 +16,13 @@
 
     <div class="graphic graphic-mail">{{#t}}Email Sent{{/t}}</div>
 
+    {{#isSignUp}}
     <p class="verification-email-message">{{#t}}A verification link has been sent&nbsp;to %(email)s{{/t}}</p>
+    {{/isSignUp}}
+    {{#isSignIn}}
+    <p class="verification-email-message">{{#t}}To better protect your Firefox data, we've emailed a confirmation link to %(email)s{{/t}}</p>
+    {{/isSignIn}}
+
 
     {{#isOpenGmailButtonVisible}}
       <div class="button-row">
@@ -20,8 +31,13 @@
     {{/isOpenGmailButtonVisible}}
 
     <div class="links">
-      <a id="resend" href="#">{{#t}}Resend email{{/t}}</a>
+      {{^canGoBack}}
+        <a id="resend" href="#">{{#t}}Resend email{{/t}}</a>
+      {{/canGoBack}}
+      {{#canGoBack}}
+        <a id="back" class="left" href="#">{{#t}}Back{{/t}}</a>
+        <a id="resend" class="right" href="#">{{#t}}Resend email{{/t}}</a>
+      {{/canGoBack}}
     </div>
-
   </section>
 </div>

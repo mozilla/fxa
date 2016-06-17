@@ -515,7 +515,7 @@ define([
 
 
   registerSuite({
-    name: 'confirm_reset_password page transition',
+    name: 'password change while at confirm_reset_password screen',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
@@ -534,7 +534,12 @@ define([
         .then(testElementExists('#fxa-confirm-reset-password-header'))
 
         .then(function () {
-          return client.passwordChange(email, PASSWORD, 'newpassword');
+          return client.signIn(email, PASSWORD);
+        })
+        .then(function (accountInfo) {
+          return client.passwordChange(email, PASSWORD, 'newpassword', {
+            sessionToken: accountInfo.sessionToken
+          });
         })
 
         .then(testElementExists('#fxa-signin-header'));

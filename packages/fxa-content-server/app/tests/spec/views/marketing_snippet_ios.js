@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   var sinon = require('sinon');
   var View = require('views/marketing_snippet_ios');
   var WindowMock = require('../../mocks/window');
+  var VerificationReasons = require('lib/verification-reasons');
 
   var assert = chai.assert;
 
@@ -21,7 +22,7 @@ define(function (require, exports, module) {
       options = options || {};
 
       options.service = 'sync';
-      options.type = 'sign_up';
+      options.type = VerificationReasons.SIGN_UP;
       options.language = options.language || 'en';
 
       options.window = windowMock;

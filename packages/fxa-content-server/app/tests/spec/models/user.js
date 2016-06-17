@@ -19,6 +19,7 @@ define(function (require, exports, module) {
   var SentryMetrics = require('lib/sentry');
   var sinon = require('sinon');
   var User = require('models/user');
+  var VerificationReasons = require('lib/verification-reasons');
 
   var assert = chai.assert;
 
@@ -683,6 +684,8 @@ define(function (require, exports, module) {
           sinon.stub(account, 'get', function (property) {
             if (property === 'verified') {
               return false;
+            } else if (property === 'verificationReason') {
+              return VerificationReasons.SIGN_UP;
             }
 
             return property;

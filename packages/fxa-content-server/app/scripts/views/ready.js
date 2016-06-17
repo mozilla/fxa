@@ -18,6 +18,7 @@ define(function (require, exports, module) {
   var ServiceMixin = require('views/mixins/service-mixin');
   var Template = require('stache!templates/ready');
   var Url = require('lib/url');
+  var VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   function t(msg) {
     return msg;
@@ -33,28 +34,28 @@ define(function (require, exports, module) {
    * the template marginally cleaner and easier to read.
    */
   var TEMPLATE_INFO = {
-    account_unlock: {
+    ACCOUNT_UNLOCK: {
       headerId: 'fxa-account-unlock-complete-header',
       headerTitle: t('Account unlocked'),
       readyToSyncText: FX_SYNC_WILL_BEGIN_MOMENTARILY
     },
-    force_auth: {
+    FORCE_AUTH: {
       headerId: 'fxa-force-auth-complete-header',
       headerTitle: t('Welcome back'),
       readyToSyncText: t('Firefox Sync will resume momentarily'),
     },
-    reset_password: {
+    PASSWORD_RESET: {
       headerId: 'fxa-reset-password-complete-header',
       headerTitle: t('Password reset'),
       readyToSyncText: FX_SYNC_WILL_BEGIN_MOMENTARILY
     },
-    // sign_in_complete is only shown to sync for now.
-    sign_in: {
+    // signin_complete is only shown to Sync for now.
+    SIGN_IN: {
       headerId: 'fxa-sign-in-complete-header',
-      headerTitle: t('Welcome to Sync'),
-      readyToSyncText: FX_SYNC_WILL_BEGIN_MOMENTARILY
+      headerTitle: t('Sign-in confirmed'),
+      readyToSyncText: t('You are now ready to use %(serviceName)s')
     },
-    sign_up: {
+    SIGN_UP: {
       headerId: 'fxa-sign-up-complete-header',
       headerTitle: t('Account verified'),
       readyToSyncText: t('You are now ready to use %(serviceName)s')
@@ -71,15 +72,9 @@ define(function (require, exports, module) {
       options = options || {};
 
       this._able = options.able;
+      this._language = options.language;
 
-      this.type = options.type;
-      this.language = options.language;
-
-      if (this._shouldShowProceedButton()) {
-        this.submit = this._submitForProceed.bind(this);
-      } else if (this._shouldShowSyncPreferencesButton()) {
-        this.submit = this._submitForSyncPreferences.bind(this);
-      }
+      this._templateInfo = TEMPLATE_INFO[this.keyOfVerificationReason(options.type)];
     },
 
     context: function () {
@@ -97,16 +92,16 @@ define(function (require, exports, module) {
     },
 
     _getHeaderId: function () {
-      return TEMPLATE_INFO[this.type].headerId;
+      return this._templateInfo.headerId;
     },
 
     _getHeaderTitle: function () {
-      var title = TEMPLATE_INFO[this.type].headerTitle;
+      var title = this._templateInfo.headerTitle;
       return this.translateInTemplate(title);
     },
 
     _getReadyToSyncText: function () {
-      var readyToSyncText = TEMPLATE_INFO[this.type].readyToSyncText;
+      var readyToSyncText = this._templateInfo.readyToSyncText;
       return this.translateInTemplate(readyToSyncText);
     },
 
@@ -115,6 +110,14 @@ define(function (require, exports, module) {
       return this.metrics.flush().then(function () {
         self.window.location.href = self.relier.get('redirectUri');
       });
+    },
+
+    submit: function () {
+      if (this._shouldShowProceedButton()) {
+        return this._submitForProceed();
+      } else if (this._shouldShowSyncPreferencesButton()) {
+        return this._submitForSyncPreferences();
+      }
     },
 
     _submitForSyncPreferences: function () {
@@ -137,7 +140,7 @@ define(function (require, exports, module) {
       var redirectUri = this.relier.get('redirectUri');
       var verificationRedirect = this.relier.get('verificationRedirect');
 
-      return !! (this.is('sign_up') &&
+      return !! (this.isSignUp() &&
                  redirectUri &&
                  Url.isNavigable(redirectUri) &&
                  verificationRedirect === Constants.VERIFICATION_REDIRECT_ALWAYS);
@@ -168,10 +171,10 @@ define(function (require, exports, module) {
 
       var marketingSnippetOpts = {
         el: this.$('.marketing-area'),
-        language: this.language,
+        language: this._language,
         metrics: this.metrics,
         service: this.relier.get('service'),
-        type: this.type
+        type: this.model.get('type')
       };
 
       var marketingSnippet;
@@ -184,16 +187,13 @@ define(function (require, exports, module) {
       this.trackChildView(marketingSnippet);
 
       return marketingSnippet.render();
-    },
-
-    is: function (type) {
-      return this.type === type;
     }
   });
 
   Cocktail.mixin(
     View,
-    ServiceMixin
+    ServiceMixin,
+    VerificationReasonMixin
   );
 
   module.exports = View;

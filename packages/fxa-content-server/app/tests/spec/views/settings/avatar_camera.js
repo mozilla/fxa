@@ -80,9 +80,9 @@ define(function (require, exports, module) {
 
     describe('with session', function () {
       beforeEach(function () {
-        view.isUserAuthorized = function () {
+        sinon.stub(view, 'checkAuthorization',  function () {
           return p(true);
-        };
+        });
         sinon.stub(view, 'getSignedInAccount', function () {
           return account;
         });

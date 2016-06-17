@@ -95,7 +95,6 @@ define(function (require, exports, module) {
         profileClient: profileClient
       });
 
-
       account = user.initAccount({
         email: 'a@a.com',
         sessionToken: 'abc123',
@@ -124,16 +123,6 @@ define(function (require, exports, module) {
       view = null;
     });
 
-    describe('with no session', function () {
-      it('redirects to signin', function () {
-        user.getSignedInAccount.restore();
-        return view.render()
-          .then(function () {
-            assert.isTrue(view.navigate.calledWith('signin'));
-          });
-      });
-    });
-
     describe('with uid', function () {
       beforeEach(function () {
         relier.set('uid', UID);
@@ -149,7 +138,7 @@ define(function (require, exports, module) {
         account.set('accessToken', ACCESS_TOKEN);
 
         createSettingsView();
-        sinon.stub(view, 'isUserAuthorized', function () {
+        sinon.stub(view, 'checkAuthorization', function () {
           return p(true);
         });
         return view.render()
@@ -163,17 +152,25 @@ define(function (require, exports, module) {
           });
       });
 
-      it('redirects to signin if uid is not found', function () {
-        sinon.stub(user, 'getAccountByUid', function () {
-          return user.initAccount();
+      it('clears session information if uid is not found', function () {
+        var account = user.initAccount({});
+
+        sinon.stub(account, 'sessionStatus', function () {
+          return p.reject(AuthErrors.toError('INVALID_TOKEN'));
         });
 
-        sinon.stub(user, 'clearSignedInAccount', function () {
+        sinon.stub(user, 'getAccountByUid', function () {
+          return account;
         });
+
+        sinon.spy(user, 'clearSignedInAccount');
+
+        relier.set('uid', UID);
 
         createSettingsView();
-        sinon.stub(view, 'isUserAuthorized', function () {
-          return p(false);
+
+        sinon.stub(view, 'getSignedInAccount', function () {
+          return account;
         });
 
         return view.render()
@@ -183,14 +180,14 @@ define(function (require, exports, module) {
           .then(function () {
             assert.isTrue(user.getAccountByUid.calledWith(UID));
             assert.isTrue(user.clearSignedInAccount.called);
-            assert.equal(view.navigate.args[0][0], 'signin');
+            assert.isTrue(view.navigate.calledWith('signin'));
           });
       });
     });
 
     describe('with session', function () {
       beforeEach(function () {
-        sinon.stub(view, 'isUserAuthorized', function () {
+        sinon.stub(view, 'checkAuthorization', function () {
           return p(true);
         });
         account.set('accessToken', ACCESS_TOKEN);
@@ -591,7 +588,7 @@ define(function (require, exports, module) {
 
     describe('_swapDisplayName', function () {
       beforeEach(function () {
-        sinon.stub(view, 'isUserAuthorized', function () {
+        sinon.stub(view, 'checkAuthorization', function () {
           return p(true);
         });
         account.set('accessToken', ACCESS_TOKEN);

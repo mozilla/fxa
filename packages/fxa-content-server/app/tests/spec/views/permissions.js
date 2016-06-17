@@ -17,6 +17,7 @@ define(function (require, exports, module) {
   var sinon = require('sinon');
   var TestHelpers = require('../../lib/helpers');
   var User = require('models/user');
+  var VerificationReasons = require('lib/verification-reasons');
   var View = require('views/permissions');
   var WindowMock = require('../../mocks/window');
 
@@ -112,7 +113,7 @@ define(function (require, exports, module) {
     describe('renders', function () {
       describe('with a sessionToken', function () {
         beforeEach(function () {
-          return initView('sign_up');
+          return initView(VerificationReasons.SIGN_UP);
         });
 
         it('renders relier info', function () {
@@ -132,7 +133,7 @@ define(function (require, exports, module) {
 
         describe('coming from signin', function () {
           beforeEach(function () {
-            return initView('sign_in');
+            return initView(VerificationReasons.SIGN_IN);
           });
 
           it('redirects to /signin', function () {
@@ -142,7 +143,7 @@ define(function (require, exports, module) {
 
         describe('coming from signup', function () {
           beforeEach(function () {
-            return initView('sign_up');
+            return initView(VerificationReasons.SIGN_UP);
           });
 
           it('redirects to /signup', function () {
@@ -156,7 +157,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         sinon.spy(account, 'setClientPermissions');
 
-        return initView('sign_in')
+        return initView(VerificationReasons.SIGN_IN)
           .then(function () {
 
             return view.submit();
@@ -185,7 +186,7 @@ define(function (require, exports, module) {
 
       describe('with a valid permission', function () {
         beforeEach(function () {
-          return initView('sign_up')
+          return initView(VerificationReasons.SIGN_UP)
             .then(function () {
               permission = view._getPermissionConfig('profile:email');
             });
@@ -198,7 +199,7 @@ define(function (require, exports, module) {
 
       describe('with an invalid permission', function () {
         beforeEach(function () {
-          return initView('sign_up')
+          return initView(VerificationReasons.SIGN_UP)
             .then(function () {
               permission = view._getPermissionConfig('invalid');
             });
@@ -212,7 +213,7 @@ define(function (require, exports, module) {
 
     describe('_validatePermissions', function () {
       beforeEach(function () {
-        return initView('sign_up')
+        return initView(VerificationReasons.SIGN_UP)
           .then(function () {
             sinon.spy(view, 'logError');
             view._validatePermissions(['profile:invalid', 'profile:email']);
@@ -240,7 +241,7 @@ define(function (require, exports, module) {
           uid: 'users id'
         });
 
-        return initView('sign_up')
+        return initView(VerificationReasons.SIGN_UP)
           .then(function () {
             sinon.spy(view, 'logError');
           });
@@ -286,7 +287,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         var requestedPermissions = ['profile:display_name', 'profile:email'];
 
-        return initView('sign_up')
+        return initView(VerificationReasons.SIGN_UP)
           .then(function () {
             sortedPermissions = view._sortPermissions(requestedPermissions);
           });
@@ -312,7 +313,7 @@ define(function (require, exports, module) {
         // permissions are passed in unsorted
         var permissionNames = ['profile:display_name', 'profile:email', 'profile:uid'];
 
-        return initView('sign_up')
+        return initView(VerificationReasons.SIGN_UP)
           .then(function () {
             var html = view._getPermissionsHTML(account, permissionNames);
             $('#container').html(html);
@@ -373,7 +374,7 @@ define(function (require, exports, module) {
         relier.set('permissions',
           ['profile:email', 'profile:display_name', 'profile:avatar', 'profile:uid']);
 
-        return initView('sign_up')
+        return initView(VerificationReasons.SIGN_UP)
           .then(function () {
             // profile:email is the only visible item left after this.
             $('#container').find('.permission[name="profile:display_name"]')

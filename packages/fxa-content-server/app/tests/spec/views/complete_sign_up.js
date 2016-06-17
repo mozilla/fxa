@@ -9,6 +9,7 @@ define(function (require, exports, module) {
   var Broker = require('models/auth_brokers/base');
   var chai = require('chai');
   var Constants = require('lib/constants');
+  var VerificationReasons = require('lib/verification-reasons');
   var MarketingEmailErrors = require('lib/marketing-email-errors');
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
@@ -321,25 +322,41 @@ define(function (require, exports, module) {
               });
 
               sinon.spy(view, 'navigate');
-
-              return view.render();
             });
 
-            it('verifies the code', function () {
-              assert.isTrue(account.verifySignUp.calledWith(validCode));
+            describe('for signup', function () {
+              beforeEach(function () {
+                view.model.set('type', VerificationReasons.SIGN_UP);
+                return view.render();
+              });
+
+              it('verifies the code', function () {
+                assert.isTrue(account.verifySignUp.calledWith(validCode));
+              });
+
+              it('notifies the broker', function () {
+                assert.isTrue(view.invokeBrokerMethod.calledWith('afterCompleteSignUp'));
+              });
+
+              it('redirects to /signup_complete', function () {
+                assert.isTrue(view.navigate.calledWith('signup_complete'));
+              });
+
+              it('logs success', function () {
+                assert.isTrue(TestHelpers.isEventLogged(
+                        metrics, 'complete_sign_up.verification.success'));
+              });
             });
 
-            it('notifies the broker', function () {
-              assert.isTrue(view.invokeBrokerMethod.calledWith('afterCompleteSignUp'));
-            });
+            describe('for signin', function () {
+              beforeEach(function () {
+                view.model.set('type', VerificationReasons.SIGN_IN);
+                return view.render();
+              });
 
-            it('redirects to /signup_complete', function () {
-              assert.isTrue(view.navigate.calledWith('signup_complete'));
-            });
-
-            it('logs success', function () {
-              assert.isTrue(TestHelpers.isEventLogged(
-                      metrics, 'complete_sign_up.verification.success'));
+              it('redirects to /signin_complete', function () {
+                assert.isTrue(view.navigate.calledWith('signin_complete'));
+              });
             });
           });
         });

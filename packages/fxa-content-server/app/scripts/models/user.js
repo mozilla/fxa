@@ -21,6 +21,7 @@ define(function (require, exports, module) {
   var SearchParamMixin = require('models/mixins/search-param');
   var Storage = require('lib/storage');
   var vat = require('lib/vat');
+  var VerificationReasons = require('lib/verification-reasons');
 
   var User = Backbone.Model.extend({
     initialize: function (options) {
@@ -356,7 +357,10 @@ define(function (require, exports, module) {
       var self = this;
       return account.signIn(password, relier, options)
         .then(function () {
-          if (! account.get('verified')) {
+          var isSignUp =
+            account.get('verificationReason') === VerificationReasons.SIGN_UP;
+
+          if (! account.get('verified') && isSignUp) {
             return account.retrySignUp(relier, options);
           }
         })

@@ -10,7 +10,6 @@ define([
 ], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'signin?context=iframe&service=sync';
-  var NO_REDIRECT_URL = PAGE_URL + '&haltAfterSignIn=true';
 
   var email;
   var PASSWORD = '12345678';
@@ -22,8 +21,9 @@ define([
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
-  var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = thenify(FunctionalHelpers.openPage);
+  var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
+  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
@@ -45,7 +45,7 @@ define([
     name: 'Firstrun Sync v1 sign_in',
 
     beforeEach: function () {
-      email = TestHelpers.createEmail();
+      email = TestHelpers.createEmail('sync{id}');
 
       return this.remote
         .then(clearBrowserState(this, {
@@ -53,30 +53,40 @@ define([
         }));
     },
 
-    'verified': function () {
+    'verified, verify same browser': function () {
       return this.remote
         .then(setupTest(this, true))
 
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
-        .then(testElementExists('#fxa-settings-header'))
-        // the user should be unable to sign out.
-        .then(noSuchElement(this, '#signout'));
+        .then(testElementExists('#fxa-confirm-signin-header'))
+
+        .then(openVerificationLinkInNewTab(this, email, 0))
+        .switchToWindow('newwindow')
+          .then(testElementExists('#fxa-sign-in-complete-header'))
+          .closeCurrentWindow()
+        .switchToWindow('')
+
+        .then(testElementExists('#fxa-sign-in-complete-header'));
+    },
+
+    'verified, verify different browser - from original tab\'s P.O.V.': function () {
+      return this.remote
+        .then(setupTest(this, true))
+
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(testElementExists('#fxa-confirm-signin-header'))
+
+        .then(openVerificationLinkDifferentBrowser(email))
+
+        .then(testElementExists('#fxa-sign-in-complete-header'));
     },
 
     'unverified': function () {
       return this.remote
         .then(setupTest(this, false))
-
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+
         .then(testElementExists('#fxa-confirm-header'));
-    },
-
-    'with an existing account with the `haltAfterSignIn=true` query parameter': function () {
-      return this.remote
-        .then(setupTest(this, true, { pageUrl: NO_REDIRECT_URL }))
-
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
-        .then(noPageTransition('#fxa-signin-header'));
     },
 
     'signin, cancel merge warning': function () {

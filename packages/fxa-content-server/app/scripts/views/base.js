@@ -18,6 +18,7 @@ define(function (require, exports, module) {
   var p = require('lib/promise');
   var Raven = require('raven');
   var TimerMixin = require('views/mixins/timer-mixin');
+  var VerificationReasons = require('lib/verification-reasons');
 
   var DEFAULT_TITLE = window.document.title;
   var STATUS_MESSAGE_ANIMATION_MS = 150;
@@ -174,7 +175,7 @@ define(function (require, exports, module) {
 
       return p()
         .then(function () {
-          return self._checkUserAuthorization();
+          return self.checkAuthorization();
         })
         .then(function (isUserAuthorized) {
           return isUserAuthorized && self.beforeRender();
@@ -213,38 +214,51 @@ define(function (require, exports, module) {
       return domWriter.write(this.window, content);
     },
 
-    // Checks that the user's current account exists and is
-    // verified. Returns either true or false.
-    _checkUserAuthorization: function () {
+    /**
+     * Checks whether the user is authorized to view the current view.
+     * If user is not authorized they will be sent to another screen
+     * to sign in or confirm their account.
+     *
+     * @returns {promise} resolves to true or false.
+     */
+    checkAuthorization: function () {
       var self = this;
 
-      return self.isUserAuthorized()
-        .then(function (isUserAuthorized) {
-          if (! isUserAuthorized) {
-            // user is not authorized, make them sign in.
-            self.logError(AuthErrors.toError('SESSION_EXPIRED'));
-            self.navigate(self._reAuthPage(), {
-              redirectTo: self.currentPage
-            });
-            return false;
-          }
+      if (self.mustAuth || self.mustVerify) {
+        var account = self.getSignedInAccount();
+        return account.sessionStatus()
+          .then(function (resp) {
+            if (self.mustVerify && ! resp.verified) {
+              var targetScreen;
 
-          if (self.mustVerify) {
-            return self.isUserVerified()
-              .then(function (isUserVerified) {
-                if (! isUserVerified) {
-                  // user is not verified, prompt them to verify.
-                  self.navigate('confirm', {
-                    account: self.getSignedInAccount()
-                  });
-                }
+              if (resp.verificationReason === VerificationReasons.SIGN_UP) {
+                targetScreen = 'confirm';
+              } else if (resp.verificationReason === VerificationReasons.SIGN_IN) {
+                targetScreen = 'confirm_signin';
+              }
 
-                return isUserVerified;
+              self.navigate(targetScreen, {
+                account: account
               });
-          }
 
-          return true;
-        });
+              return false;
+            }
+
+            return true;
+          }, function (err) {
+            if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+              self.logError(AuthErrors.toError('SESSION_EXPIRED'));
+              self.navigate(self._reAuthPage(), {
+                redirectTo: self.currentPage
+              });
+              return false;
+            }
+
+            throw err;
+          });
+      }
+
+      return p(true);
     },
 
     // If the user navigates to a page that requires auth and their session
@@ -276,43 +290,6 @@ define(function (require, exports, module) {
         this.displayError(error);
         this.model.unset('error');
       }
-    },
-
-    /**
-     * Checks if the user is authorized to view the page. Currently
-     * the only check is if the user is signed in and the page requires
-     * authentication, but this could be extended to other types of
-     * authorization as well.
-     */
-    isUserAuthorized: function () {
-      var self = this;
-
-      return p()
-        .then(function () {
-          if (self.mustAuth || self.mustVerify) {
-            return self.getSignedInAccount().isSignedIn();
-          }
-          return true;
-        });
-    },
-
-    isUserVerified: function () {
-      var self = this;
-      var account = self.getSignedInAccount();
-      // If the cached account data shows it hasn't been verified,
-      // check again and update the data if it has.
-      if (! account.get('verified')) {
-        return account.isVerified()
-          .then(function (hasVerified) {
-            if (hasVerified) {
-              account.set('verified', hasVerified);
-              self.user.setAccount(account);
-            }
-            return hasVerified;
-          });
-      }
-
-      return p(true);
     },
 
     titleFromView: function (baseTitle) {

@@ -10,7 +10,7 @@
     "easteregg": "https://github.com/mozilla/fxa-easter-egg.git#ab20cd517cf8ae9feee115e48745189d28e13bc3",
     "fxa-checkbox": "mozilla/fxa-checkbox#9d64a48888e67fe511ee13177b0f3f72fe4a564f",
     "fxa-content-server-l10n": "https://github.com/mozilla/fxa-content-server-l10n.git",
-    "fxa-js-client": "https://github.com/mozilla/fxa-js-client.git#0.1.40",
+    "fxa-js-client": "https://github.com/mozilla/fxa-js-client.git#0.1.41",
     "fxa-password-strength-checker": "https://github.com/mozilla/fxa-password-strength-checker.git#d73b3ade374607e2749ee375301b0a168008b16f",
     "html5shiv": "3.7.2",
     "JavaScript-MD5": "1.1.0",

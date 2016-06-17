@@ -17,6 +17,8 @@ define(function (require, exports, module) {
   var p = require('lib/promise');
   var Session = require('lib/session');
   var SignInReasons = require('lib/sign-in-reasons');
+  var VerificationReasons = require('lib/verification-reasons');
+  var VerificationMethods = require('lib/verification-methods');
 
   function trim(str) {
     return $.trim(str);
@@ -138,6 +140,8 @@ define(function (require, exports, module) {
         sessionToken: accountData.sessionToken,
         sessionTokenContext: sessionTokenContext,
         uid: accountData.uid,
+        verificationMethod: accountData.verificationMethod,
+        verificationReason: accountData.verificationReason,
         verified: accountData.verified || false
       };
 
@@ -160,13 +164,15 @@ define(function (require, exports, module) {
      * @param {String} password
      * @param {Relier} relier
      * @param {Object} [options]
-     *   @param {String} [options.reason] - Reason for the sign in. See definitons
-     *                   in sign-in-reasons.js. Defaults to SIGN_IN_REASONS.SIGN_IN.
      *   @param {Boolean} [options.customizeSync] - If the relier is Sync,
      *                   whether the user wants to customize which items will
      *                   be synced. Defaults to `false`
      *   @param {String} [options.metricsContext] - context metadata for use in
      *                   activity events
+     *   @param {String} [options.reason] - Reason for the sign in. See definitons
+     *                   in sign-in-reasons.js. Defaults to SIGN_IN_REASONS.SIGN_IN.
+     *   @param {String} [options.resume] - Resume token, passed in the
+     *                   verification link if the user must verify their email.
      *   @param {String} [options.sessionTokenContext] - The context for which
      *                   the session token is being created. Defaults to the
      *                   relier's context.
@@ -189,11 +195,29 @@ define(function (require, exports, module) {
             signInOptions.service = relier.get('service');
           }
 
+          if (relier.has('redirectTo')) {
+            signInOptions.redirectTo = relier.get('redirectTo');
+          }
+
+          if (options.resume) {
+            signInOptions.resume = options.resume;
+          }
+
           setMetricsContext(signInOptions, options);
 
           return client.signIn(email, password, signInOptions);
         })
         .then(function (accountData) {
+          if (! accountData.verified &&
+              ! accountData.hasOwnProperty('verificationReason')) {
+            // Set a default verificationReason to `SIGN_UP` to allow
+            // staged rollouts of servers. To handle calls to the
+            // legacy /account/login that lacks a verificationReason,
+            // assume SIGN_UP if the account is not verified.
+            accountData.verificationReason = VerificationReasons.SIGN_UP;
+            accountData.verificationMethod = VerificationMethods.EMAIL;
+          }
+
           return self._getUpdatedSessionData(email, relier, accountData, options);
         });
     },
@@ -206,16 +230,17 @@ define(function (require, exports, module) {
      * @param {String} password
      * @param {Relier} relier
      * @param {Object} [options]
-     *   @param {Boolean}[options.preVerified] - is the user preVerified
-     *   @param {String} [options.resume] - Resume token, passed in the
-     *                   verification link if the user must verify their email.
      *   @param {Boolean} [options.customizeSync] - If the relier is Sync,
-     *                   whether the user wants to customize which items will
-     *                   be synced. Defaults to `false`
+     *                    whether the user wants to customize which items
+     *                    will be synced. Defaults to `false`
      *   @param {String} [options.metricsContext] - Metrics context metadata
-     *   @param {String} [options.sessionTokenContext] - The context for which
-     *                   the session token is being created. Defaults to the
-     *                   relier's context.
+     *   @param {Boolean} [options.preVerified] - is the user preVerified
+     *   @param {String} [options.resume] - Resume token, passed in the
+     *                   verification link if the user must verify
+     *                   their email.
+     *   @param {String} [options.sessionTokenContext] - The context for
+     *                   which the session token is being created.
+     *                   Defaults to the relier's context.
      */
     signUp: function (originalEmail, password, relier, options) {
       var email = trim(originalEmail);
@@ -555,6 +580,24 @@ define(function (require, exports, module) {
         });
     },
 
+    /**
+     * Check the status of the sessionToken. Status information
+     * includes whether the session is verified, and if not, the reason
+     * it must be verified and by which method.
+     *
+     * @param {string} sessionToken
+     * @param {string} [uid]
+     * @returns {promise} resolves with the account's current session
+     * information if session is valid. Rejects with an INVALID_TOKEN error
+     * if session is invalid.
+     *
+     * Session information:
+     * {
+     *   verified: <boolean>
+     *   verificationMethod: <see lib/verification-methods.js>
+     *   verificationReason: <see lib/verification-reasons.js>
+     * }
+     */
     recoveryEmailStatus: function (sessionToken, uid) {
       var self = this;
       return self._getClient()
@@ -562,6 +605,26 @@ define(function (require, exports, module) {
           return client.recoveryEmailStatus(sessionToken);
         })
         .then(function (response) {
+          if (! response.verified) {
+            // This is a little bit unnatural. /recovery_email/status
+            // returns two fields, `emailVerified` and
+            // `sessionVerified`. The client side depends on a reason
+            // to show the correct UI. Convert `emailVerified` to
+            // a `verificationReason`. This is backwards compatible
+            // with old auth servers that do not send an emailVerified
+            // field. On old auth servers, if `verified: false`, then
+            // it's always for signup.
+            var verificationReason = response.emailVerified ?
+                                     VerificationReasons.SIGN_IN :
+                                     VerificationReasons.SIGN_UP;
+            return {
+              email: response.email,
+              verificationMethod: VerificationMethods.EMAIL,
+              verificationReason: verificationReason,
+              verified: false
+            };
+          }
+
           // /recovery_email/status returns `emailVerified` and
           // `sessionVerified`, we don't want those.
           return _.pick(response, 'email', 'verified');

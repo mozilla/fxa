@@ -17,6 +17,8 @@ define(function (require, exports, module) {
   var sinon = require('sinon');
   var SignInReasons = require('lib/sign-in-reasons');
   var testHelpers = require('../../lib/helpers');
+  var VerificationMethods = require('lib/verification-methods');
+  var VerificationReasons = require('lib/verification-reasons');
 
   var AUTH_SERVER_URL = 'http://127.0.0.1:9000';
   var NON_SYNC_SERVICE = 'chronicle';
@@ -317,23 +319,120 @@ define(function (require, exports, module) {
 
       describe('with a sessionToken only', function () {
         describe('valid session', function () {
-          beforeEach(function () {
-            sinon.stub(clientMock, 'recoveryEmailStatus', function () {
-              return p({ email: 'testuser@testuser.com', emailVerified: true, sessionVerified: true, verified: true });
+          describe('verified', function () {
+            describe('with auth server that returns `emailVerified` and `sessionVerified`', function () {
+              beforeEach(function () {
+                sinon.stub(clientMock, 'recoveryEmailStatus', function () {
+                  return p({
+                    email: 'testuser@testuser.com',
+                    emailVerified: true,
+                    sessionVerified: true,
+                    verified: true
+                  });
+                });
+
+                return client.recoveryEmailStatus('session token')
+                  .then(function (_accountInfo) {
+                    accountInfo = _accountInfo;
+                  });
+              });
+
+              it('filters unexpected fields', function () {
+                assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
+                assert.equal(accountInfo.email, 'testuser@testuser.com');
+                assert.isTrue(accountInfo.verified);
+                assert.notProperty(accountInfo, 'emailVerified');
+                assert.notProperty(accountInfo, 'sessionVerified');
+              });
             });
 
-            return client.recoveryEmailStatus('session token')
-              .then(function (_accountInfo) {
-                accountInfo = _accountInfo;
+            describe('with a legacy auth server that only returns `verified`', function () {
+              beforeEach(function () {
+                sinon.stub(clientMock, 'recoveryEmailStatus', function () {
+                  return p({ verified: true });
+                });
+
+                return client.recoveryEmailStatus('session token')
+                  .then(function (_accountInfo) {
+                    accountInfo = _accountInfo;
+                  });
               });
+
+              it('resolves with the status information', function () {
+                assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
+                assert.isTrue(accountInfo.verified);
+              });
+            });
           });
 
-          it('resolves with the status information', function () {
-            assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
-            assert.equal(accountInfo.email, 'testuser@testuser.com');
-            assert.isTrue(accountInfo.verified);
-            assert.notProperty(accountInfo, 'emailVerified');
-            assert.notProperty(accountInfo, 'sessionVerified');
+          describe('unverified', function () {
+            describe('with unverified email, unverified session', function () {
+              beforeEach(function () {
+                sinon.stub(clientMock, 'recoveryEmailStatus', function () {
+                  return p({
+                    emailVerified: false,
+                    sessionVerified: false,
+                    verified: false
+                  });
+                });
+
+                return client.recoveryEmailStatus('session token')
+                  .then(function (_accountInfo) {
+                    accountInfo = _accountInfo;
+                  });
+              });
+
+              it('sets correct `verifiedReason` and `verifiedMethod`', function () {
+                assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
+                assert.isFalse(accountInfo.verified);
+                assert.equal(accountInfo.verificationMethod, VerificationMethods.EMAIL);
+                assert.equal(accountInfo.verificationReason, VerificationReasons.SIGN_UP);
+              });
+            });
+
+            describe('with verified email, unverified session', function () {
+              beforeEach(function () {
+                sinon.stub(clientMock, 'recoveryEmailStatus', function () {
+                  return p({
+                    emailVerified: true,
+                    sessionVerified: false,
+                    verified: false
+                  });
+                });
+
+                return client.recoveryEmailStatus('session token')
+                  .then(function (_accountInfo) {
+                    accountInfo = _accountInfo;
+                  });
+              });
+
+              it('sets correct `verifiedReason` and `verifiedMethod`', function () {
+                assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
+                assert.isFalse(accountInfo.verified);
+                assert.equal(accountInfo.verificationMethod, VerificationMethods.EMAIL);
+                assert.equal(accountInfo.verificationReason, VerificationReasons.SIGN_IN);
+              });
+            });
+
+            describe('with legacy auth server that only returns `verified`', function () {
+              beforeEach(function () {
+                sinon.stub(clientMock, 'recoveryEmailStatus', function () {
+                  return p({ verified: false });
+                });
+
+                return client.recoveryEmailStatus('session token')
+                  .then(function (_accountInfo) {
+                    accountInfo = _accountInfo;
+                  });
+              });
+
+              it('sets `verifiedReason` and `verifiedMethod`', function () {
+                assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
+                assert.isFalse(accountInfo.verified);
+                assert.equal(accountInfo.verificationMethod, VerificationMethods.EMAIL);
+                assert.equal(accountInfo.verificationReason, VerificationReasons.SIGN_UP);
+              });
+            });
           });
         });
 
@@ -496,12 +595,37 @@ define(function (require, exports, module) {
           });
       });
 
+      describe('legacy unverified account responses', function () {
+        var sessionData;
+
+        beforeEach(function () {
+          sinon.stub(realClient, 'signIn', function () {
+            return p({
+              verified: false
+            });
+          });
+
+          return client.signIn(email, password, relier)
+            .then(function (_sessionData) {
+              sessionData = _sessionData;
+            });
+        });
+
+        it('are converted to contain a `verificationMethod` and `verificationResaon`', function () {
+          assert.isFalse(sessionData.verified);
+          assert.equal(sessionData.verificationMethod, VerificationMethods.EMAIL);
+          assert.equal(sessionData.verificationReason, VerificationReasons.SIGN_UP);
+        });
+      });
+
       it('Sync signIn signs in a user with email/password and returns keys', function () {
         sinon.stub(realClient, 'signIn', function () {
           return p({
             keyFetchToken: 'keyFetchToken',
             unwrapBKey: 'unwrapBKey',
-            verified: true
+            verificationMethod: VerificationMethods.EMAIL,
+            verificationReason: VerificationReasons.SIGN_IN,
+            verified: false
           });
         });
 
@@ -513,11 +637,13 @@ define(function (require, exports, module) {
           return true;
         });
 
-        return client.signIn(email, password, relier, { customizeSync: true })
+        return client.signIn(email, password, relier, { customizeSync: true, resume: resumeToken })
           .then(function (sessionData) {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
               keys: true,
               reason: SignInReasons.SIGN_IN,
+              redirectTo: REDIRECT_TO,
+              resume: resumeToken,
               service: SYNC_SERVICE
             }));
 
@@ -525,7 +651,9 @@ define(function (require, exports, module) {
             assert.isTrue(sessionData.customizeSync);
             assert.equal(sessionData.keyFetchToken, 'keyFetchToken');
             assert.equal(sessionData.unwrapBKey, 'unwrapBKey');
-            assert.isTrue(sessionData.verified);
+            assert.isFalse(sessionData.verified);
+            assert.equal(sessionData.verificationMethod, VerificationMethods.EMAIL);
+            assert.equal(sessionData.verificationReason, VerificationReasons.SIGN_IN);
           });
       });
 
@@ -542,6 +670,7 @@ define(function (require, exports, module) {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
               keys: false,
               reason: SignInReasons.SIGN_IN,
+              redirectTo: REDIRECT_TO,
               service: NON_SYNC_SERVICE
             }));
 
@@ -569,6 +698,7 @@ define(function (require, exports, module) {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
               keys: true,
               reason: SignInReasons.SIGN_IN,
+              redirectTo: REDIRECT_TO,
               service: NON_SYNC_SERVICE
             }));
 
@@ -597,6 +727,7 @@ define(function (require, exports, module) {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
               keys: true,
               reason: SignInReasons.SIGN_IN,
+              redirectTo: REDIRECT_TO,
               service: SYNC_SERVICE
             }));
 
@@ -618,6 +749,25 @@ define(function (require, exports, module) {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
               keys: true,
               reason: SignInReasons.PASSWORD_CHANGE,
+              redirectTo: REDIRECT_TO,
+              service: SYNC_SERVICE
+            }));
+          });
+      });
+
+      it('passes along an optional `resume`', function () {
+        sinon.stub(realClient, 'signIn', function () {
+          return p({});
+        });
+
+
+        return client.signIn(email, password, relier, { resume: 'resume token' })
+          .then(function () {
+            assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
+              keys: false,
+              reason: SignInReasons.SIGN_IN,
+              redirectTo: REDIRECT_TO,
+              resume: 'resume token',
               service: SYNC_SERVICE
             }));
           });
@@ -707,6 +857,9 @@ define(function (require, exports, module) {
         var code = 'code';
 
         var relier = {
+          has: function () {
+            return false;
+          },
           isSync: function () {
             return true;
           },
@@ -800,6 +953,7 @@ define(function (require, exports, module) {
             assert.equal(sessionData.email, trim(email));
             assert.equal(sessionData.keyFetchToken, 'new keyFetchToken');
             assert.equal(sessionData.sessionToken, 'new sessionToken');
+            assert.equal(sessionData.sessionTokenContext, 'fx_desktop_v1');
             assert.equal(sessionData.uid, 'uid');
             assert.isTrue(sessionData.verified);
           });
@@ -910,6 +1064,9 @@ define(function (require, exports, module) {
         var trimmedEmail = trim(email);
 
         var relier = {
+          has: function () {
+            return false;
+          },
           isSync: function () {
             return true;
           },
@@ -928,6 +1085,8 @@ define(function (require, exports, module) {
           });
         });
 
+        sinon.spy(realClient, 'signIn');
+
         return client.changePassword(email, password, 'new_password', 'sessionToken', 'fx_desktop_v1', relier)
           .then(function (sessionData) {
             assert.isTrue(realClient.passwordChange.calledWith(
@@ -939,6 +1098,8 @@ define(function (require, exports, module) {
                 sessionToken: 'sessionToken'
               }
             ));
+
+            assert.isFalse(realClient.signIn.called);
 
             assert.equal(sessionData.email, trimmedEmail);
             assert.equal(sessionData.keyFetchToken, 'new keyFetchToken');

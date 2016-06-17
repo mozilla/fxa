@@ -287,6 +287,7 @@ define(function (require, exports, module) {
           view.$('[type=password]').val(PASSWORD);
 
           sinon.stub(user, 'completeAccountPasswordReset', function (account) {
+            account.set('verified', true);
             return p(account);
           });
 
@@ -345,6 +346,7 @@ define(function (require, exports, module) {
 
           sinon.stub(user, 'completeAccountPasswordReset', function (_account) {
             account = _account;
+            account.set('verified', true);
             return p(account);
           });
 

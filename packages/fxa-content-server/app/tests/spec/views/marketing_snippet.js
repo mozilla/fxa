@@ -6,6 +6,8 @@ define(function (require, exports, module) {
   'use strict';
 
   var chai = require('chai');
+  var Constants = require('lib/constants');
+  var VerificationReasons = require('lib/verification-reasons');
   var Metrics = require('lib/metrics');
   var View = require('views/marketing_snippet');
   var WindowMock = require('../../mocks/window');
@@ -35,13 +37,28 @@ define(function (require, exports, module) {
     });
 
     describe('render', function () {
-      it('normally shows sign up marketing material to desktop sync users', function () {
+      it('shows marketing material users signing up to Sync on desktop', function () {
         windowMock.navigator.userAgent = 'Mozilla/5.0 (Windows NT x.y; rv:31.0) Gecko/20100101 Firefox/31.0';
 
         createView({
           language: 'en',
-          service: 'sync',
-          type: 'sign_up'
+          service: Constants.SYNC_SERVICE,
+          type: VerificationReasons.SIGN_UP
+        });
+
+        return view.render()
+          .then(function () {
+            assert.equal(view.$('.marketing.default').length, 1);
+          });
+      });
+
+      it('shows marketing material users signing in to Sync on desktop', function () {
+        windowMock.navigator.userAgent = 'Mozilla/5.0 (Windows NT x.y; rv:31.0) Gecko/20100101 Firefox/31.0';
+
+        createView({
+          language: 'en',
+          service: Constants.SYNC_SERVICE,
+          type: VerificationReasons.SIGN_IN
         });
 
         return view.render()
@@ -55,7 +72,7 @@ define(function (require, exports, module) {
 
         createView({
           language: 'en',
-          type: 'sign_up'
+          type: VerificationReasons.SIGN_UP
         });
 
         return view.render()
@@ -69,8 +86,8 @@ define(function (require, exports, module) {
 
         createView({
           language: 'en',
-          service: 'sync',
-          type: 'sign_up'
+          service: Constants.SYNC_SERVICE,
+          type: VerificationReasons.SIGN_UP
         });
 
         return view.render()
@@ -83,8 +100,8 @@ define(function (require, exports, module) {
         windowMock.navigator.userAgent = 'Mozilla/5.0 (Mobile; rv:26.0) Gecko/26.0 Firefox/26.0';
         createView({
           language: 'en',
-          service: 'sync',
-          type: 'sign_up'
+          service: Constants.SYNC_SERVICE,
+          type: VerificationReasons.SIGN_UP
         });
 
         return view.render()
@@ -97,7 +114,7 @@ define(function (require, exports, module) {
         createView({
           language: 'ru',
           surveyPercentage: 0,
-          type: 'sign_up'
+          type: VerificationReasons.SIGN_UP
         });
 
         return view.render()
@@ -109,8 +126,8 @@ define(function (require, exports, module) {
       it('logs the marketing type and link', function () {
         createView({
           language: 'de',
-          service: 'sync',
-          type: 'sign_up'
+          service: Constants.SYNC_SERVICE,
+          type: VerificationReasons.SIGN_UP
         });
 
         return view.render()
@@ -129,8 +146,8 @@ define(function (require, exports, module) {
       it('is logged', function () {
         createView({
           language: 'de',
-          service: 'sync',
-          type: 'sign_up'
+          service: Constants.SYNC_SERVICE,
+          type: VerificationReasons.SIGN_UP
         });
 
         return view.render()

@@ -153,6 +153,7 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/signup-disabled-mixin',
     '../tests/spec/views/mixins/signup-mixin',
     '../tests/spec/views/mixins/timer-mixin',
+    '../tests/spec/views/mixins/verification-reason-mixin',
     '../tests/spec/views/oauth_sign_in',
     '../tests/spec/views/oauth_sign_up',
     '../tests/spec/views/openid/login',

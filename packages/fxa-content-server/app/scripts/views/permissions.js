@@ -17,6 +17,7 @@ define(function (require, exports, module) {
   var ServiceMixin = require('views/mixins/service-mixin');
   var Strings = require('lib/strings');
   var Template = require('stache!templates/permissions');
+  var VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   var t = BaseView.t;
 
@@ -274,12 +275,8 @@ define(function (require, exports, module) {
     },
 
     _previousView: function () {
-      var page = this.is('sign_up') ? '/signup' : '/signin';
+      var page = this.isSignUp() ? '/signup' : '/signin';
       return this.broker.transformLink(page);
-    },
-
-    is: function (type) {
-      return this.type === type;
     }
   }, {
     PERMISSIONS: PERMISSIONS
@@ -289,7 +286,8 @@ define(function (require, exports, module) {
     View,
     BackMixin,
     CheckboxMixin,
-    ServiceMixin
+    ServiceMixin,
+    VerificationReasonMixin
   );
 
   module.exports = View;

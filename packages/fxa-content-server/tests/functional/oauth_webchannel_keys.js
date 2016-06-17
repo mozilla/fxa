@@ -73,7 +73,7 @@ define([
     name: 'oauth webchannel keys',
 
     beforeEach: function () {
-      email = TestHelpers.createEmail();
+      email = TestHelpers.createEmail('sync{id}');
 
       return this.remote
         .then(clearBrowserState(this, {
@@ -315,7 +315,11 @@ define([
         .execute(listenForSyncCommands)
 
         .then(fillOutSignIn(this, email, PASSWORD))
-        .then(testIsBrowserNotifiedOfSyncLogin(this, email, { checkVerified: true }))
+        .then(testIsBrowserNotifiedOfSyncLogin(this, email, { checkVerified: false }))
+
+        // User must verify the Sync signin
+        .then(testElementExists('#fxa-confirm-signin-header'))
+        .then(openVerificationLinkDifferentBrowser(email, 0))
 
         .then(openFxaFromRp('signin'))
         .then(testElementExists('#fxa-signin-header'))
@@ -324,6 +328,7 @@ define([
         // to derive the keys, this flow must prompt for it.
         .then(type('input[type=password]', PASSWORD))
         .then(click('button[type="submit"]'))
+
         .then(testIsBrowserNotifiedOfLogin(this, { shouldCloseTab: true }));
     }
   });
