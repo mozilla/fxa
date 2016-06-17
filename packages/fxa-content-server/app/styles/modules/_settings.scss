@@ -24,7 +24,7 @@ body.settings #main-content.card {
 
 // settings header controls
 #fxa-settings-header-wrapper {
-  background: #fff;
+  background: $color-white;
   border-bottom: 1px solid $input-border-disabled-color;
 
   @include respond-to('big') {
@@ -222,7 +222,7 @@ body.settings #main-content.card {
     &:active {
       background: $button-border-disabled-color;
       border-color: $color-grey-dark;
-      color: #000;
+      color: $color-black;
     }
 
     &:focus {
@@ -475,7 +475,7 @@ body.settings #main-content.card {
   }
 
   .last-connected {
-    color: #909ca8;
+    color: $color-grey;
     font-size: 12px;
   }
 }

@@ -24,7 +24,7 @@
 
     &:before,
     &:after {
-      background-color: rgba(#000, 0.5);
+      background-color: rgba($cropper-background-color, 0.5);
       content: '';
       display: block;
       height: $avatar-size;

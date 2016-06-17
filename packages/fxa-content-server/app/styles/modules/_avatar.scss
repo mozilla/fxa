@@ -44,11 +44,11 @@
     position: relative;
 
     &:hover {
-      box-shadow: 0 0 0 1px #0095dd;
+      box-shadow: 0 0 0 1px $color-blue;
     }
 
     &:active {
-      box-shadow: 0 0 0 1px #ff9500;
+      box-shadow: 0 0 0 1px $color-orange;
     }
 
     @include respond-to('big') {

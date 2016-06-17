@@ -2,91 +2,100 @@
 $default-font: 'Fira Sans', Helvetica, Arial, sans-serif;
 $header-font: 'Fira Sans', Helvetica, Arial, sans-serif;
 
-// default color variables
-$color-grey-lightest: #fbfbfb;
-$color-grey-lighter: #ebebeb;
-$color-grey-light: #d4d4d4;
-$color-grey: #b1b1b1;
-$color-grey-dark: #858585;
-$color-grey-disabled: #999;
-
-$color-blue: #0996f8;
+//Default color variables
+$color-black: #000;
 $color-blue-dark: #0670cc;
 $color-blue-darker: #005bab;
 $color-blue-darkest: #004480;
+$color-blue: #0996f8;
 
 $color-blue-focus-ring: hsla(208, 100%, 69%, .75);
 
-$color-green-lightest: #e2fddc;
-$color-green: #57bd35;
 $color-green-dark: #40a624;
 $color-green-darker: #399320;
 $color-green-darkest: #2e761a;
+$color-green-lightest: #e2fddc;
+$color-green: #57bd35;
 
-$border-radius-osx: 4px;
-$border-radius-outer: 4px;
-$border-radius-inner: 3px;
+$color-grey-dark: #858585;
+$color-grey-light: #d4d4d4;
+$color-grey-lighter: #ebebeb;
+$color-grey-lightest: #fbfbfb;
+$color-grey: #b1b1b1;
 
+$color-grey-disabled: #999;
+$color-grey-faint-text: #8a9ba8;
+$color-grey-spinner: #c3cfd8;
+$color-grey-text: #424f59;
 
-//Color Variables
-$button-background-color: $color-blue;
+$color-orange: #ff9500;
+
+$color-red: #d63920;
+
+$color-white-dark: #f2f2f2;
+$color-white: #fff;
+
+//Button specific colors
 $button-background-active-color: $color-blue-darker;
+$button-background-color: $color-blue;
 $button-background-default-color: $color-grey-lightest;
 $button-background-disabled-color: $color-grey-disabled;
 $button-background-hover-color: $color-blue-dark;
-$button-disabled-color: $color-grey-disabled;
-
 $button-border-active-color: $color-blue-darkest;
 $button-border-default-color: $color-blue-dark;
 $button-border-disabled-color: $color-grey;
 $button-border-hover-color: $color-blue-darker;
 
 $button-box-shadow-color: $color-blue-focus-ring;
+$button-disabled-color: $color-grey-disabled;
 
-$error-background-color: #d63920;
+$chromeless-html-background-color: $color-white;
+$content-background-color: $color-white;
+$cropper-background-color: $color-black;
+$error-background-color: $color-red;
+$error-text-color: $color-red;
+$faint-text-color: $color-grey-faint-text;
+$horizontal-rule-color: darken($color-grey-light, 5);
+$html-background-color: $color-white-dark;
 $info-background-color: $color-blue;
-$error-text-color: #d63920;
-$html-background-color: #f2f2f2;
-$chromeless-html-background-color: #fff;
 
-$input-border-color: #424f59;
-$input-text-color: #424f59;
-$input-placeholder-color: #8a9ba8;
-$input-row-border-color: #8a9ba8;
+//Input specific colors
+$input-background-disabled-color: $color-white-dark;
+$input-border-color: $color-grey-text;
+$input-border-disabled-color: $color-grey-light;
+$input-disabled-color: #64778c;
+$input-left-right-padding: 20px;
+$input-placeholder-color: $color-grey-faint-text;
+$input-row-border-color: $color-grey-faint-text;
+$input-row-box-shadow-color: $color-white-dark;
 $input-row-focus-border-color: $color-blue;
 $input-row-focus-box-shadow-color: $color-blue-focus-ring;
-$input-row-hover-border-color: #424f59;
-$input-row-box-shadow-color: #f2f2f2;
-$input-left-right-padding: 20px;
+$input-row-hover-border-color: $color-grey-text;
+$input-text-color: $color-grey-text;
 
 $link-color: $button-background-color;
-$marketing-border-color: #c3cfd8;
-$message-text-color: #fff;
-$mobile-html-background-color: #fff;
-$show-password-background-color: #9aabb8;
-$show-password-label-color: #8a9ba8;
-$show-password-focus-label-color: #fff;
-$content-background-color: #fff;
-$success-background-color: #5fad47;
-$text-color: #424f59;
-$faint-text-color: #8a9ba8;
-$cropper-background-color: #000;
-$horizontal-rule-color: #e4e4e4;
-$input-background-disabled-color: #f2f2f2;
-$input-border-disabled-color: #ddd;
-$input-disabled-color: #64778c;
+$marketing-border-color: $color-grey-spinner;
+$message-text-color: $color-white;
+$mobile-html-background-color: $color-white;
+$modal-border-color: $color-black;
 $secondary-button-background-color: $color-grey-lightest;
-$secondary-button-border-color: #c1c1c1;
-$modal-border-color: #000;
+$secondary-button-border-color: lighten($color-grey, 5);
+
+$show-password-background-color: #9aabb8;
+$show-password-focus-label-color: $color-white;
+$show-password-label-color: $color-grey-faint-text;
+
+$success-background-color: #5fad47;
+$text-color: $color-grey-text;
 
 //Settings Specific Colors
 $settings-header-border-bottom: #b4bdc3;
-$settings-success-background-color: rgb(205, 248, 208);
-$settings-success-border-color: rgb(0, 170, 0);
+$settings-success-background-color: #cdf8d0;
+$settings-success-border-color: $color-green-dark;
 
 //Reset Password Colors
 $reset-pw-text-background-color: #f25820;
-$reset-pw-text-color: #fff;
+$reset-pw-text-color: $color-white;
 
 //Font-Size Variables
 $large-font: 24px;
@@ -97,7 +106,11 @@ $media-adjustment: 2px;
 
 //Border-Radius Variables
 $small-border-radius: 2px;
+//order matters here, cannot be sorted
 $big-border-radius: $small-border-radius * 2;
+$border-radius-inner: 3px;
+$border-radius-osx: 4px;
+$border-radius-outer: 4px;
 
 //Animation Variables
 $short-transition: 150ms;
@@ -109,14 +122,14 @@ $settings-ui-height: 630px;
 
 //Avatar Variables
 $avatar-size: 240px;
-$avatar-spinner-color: #c3cfd8;
+$avatar-spinner-color: $color-grey-spinner;
 $profile-image-fade-in-duration: 150ms;
 
 // The Firefox logo
 $fox-logo-zindex: 999;
 
 //IFrame close button
-$close-button-color: #c5cdd4;
+$close-button-color: $color-grey-spinner;
 $close-button-zindex: $fox-logo-zindex + 1;
 
 $image-url-path: '/images/' !default;
