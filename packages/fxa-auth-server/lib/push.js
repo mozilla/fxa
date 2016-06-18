@@ -70,9 +70,10 @@ module.exports = function (log, db) {
    * @param deviceId
    * The device id
    */
-  function reportPushError(err, deviceId) {
+  function reportPushError(err, uid, deviceId) {
     log.error({
       op: LOG_OP_PUSH_TO_DEVICES,
+      uid: uid,
       deviceId: deviceId,
       err: err
     })
@@ -235,6 +236,7 @@ module.exports = function (log, db) {
 
           log.trace({
             op: LOG_OP_PUSH_TO_DEVICES,
+            uid: uid,
             deviceId: deviceId,
             pushCallback: device.pushCallback
           })
@@ -245,7 +247,7 @@ module.exports = function (log, db) {
             var pushParams = { 'TTL': options.TTL || '0' }
             if (options.data) {
               if (!device.pushPublicKey || !device.pushAuthKey) {
-                reportPushError(new Error(ERR_DATA_BUT_NO_KEYS), deviceId)
+                reportPushError(new Error(ERR_DATA_BUT_NO_KEYS), uid, deviceId)
                 incrementPushAction(events.noKeys)
                 return
               }
@@ -269,19 +271,19 @@ module.exports = function (log, db) {
                   device.pushPublicKey = ''
                   device.pushAuthKey = ''
                   return db.updateDevice(uid, device.id, device).catch(function (err) {
-                    reportPushError(err, deviceId)
+                    reportPushError(err, uid, deviceId)
                   }).then(function() {
                     incrementPushAction(events.resetSettings)
                   })
                 } else {
-                  reportPushError(err, deviceId)
+                  reportPushError(err, uid, deviceId)
                   incrementPushAction(events.failed)
                 }
               }
             )
           } else {
             // keep track if there are any devices with no push urls.
-            reportPushError(new Error(ERR_NO_PUSH_CALLBACK), deviceId)
+            reportPushError(new Error(ERR_NO_PUSH_CALLBACK), uid, deviceId)
             incrementPushAction(events.noCallback)
           }
         }))
