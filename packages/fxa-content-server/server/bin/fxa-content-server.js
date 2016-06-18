@@ -116,7 +116,7 @@ function makeApp() {
       origin: config.get('public_url')
     };
 
-    app.route(/\.(js|css|woff|ttf)$/)
+    app.route(/\.(js|css|woff|woff2|ttf)$/)
       .get(cors(corsOptions));
   }
 

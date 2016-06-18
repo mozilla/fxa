@@ -15,7 +15,7 @@ module.exports = function (grunt) {
           '<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
           '!<%= yeoman.dist %>/images/apple_app_store_button/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
           '!<%= yeoman.dist %>/images/google_play_store_button/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
-          '<%= yeoman.dist %>/fonts/{,*/}*.{woff,svg,ofl,eot,ttf}'
+          '<%= yeoman.dist %>/fonts/{,*/}*.{woff,woff2,svg,ofl,eot,ttf}'
         ]
       }
     }

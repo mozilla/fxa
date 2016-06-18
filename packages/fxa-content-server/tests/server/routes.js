@@ -279,6 +279,6 @@ define([
   }
 
   function doesExtensionRequireCORS(url) {
-    return /\.(js|css|woff|eot)/.test(url);
+    return /\.(js|css|woff|woff2|eot)/.test(url);
   }
 });

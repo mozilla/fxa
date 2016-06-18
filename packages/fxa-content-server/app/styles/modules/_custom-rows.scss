@@ -90,6 +90,10 @@ ul.links {
   @include respond-to('big') {
     margin: 20px 0 10px 0;
   }
+
+  .fxa-checkbox__box-outline {
+    top: 1px;
+  }
 }
 
 .choose-what-to-sync-row,
