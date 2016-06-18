@@ -10,6 +10,9 @@
     // hapi
     "https://nodesecurity.io/advisories/45",
     "https://nodesecurity.io/advisories/63",
-    "https://nodesecurity.io/advisories/65"
+    "https://nodesecurity.io/advisories/65",
+
+    // negotiator
+    "https://nodesecurity.io/advisories/106"
   ]
 }
