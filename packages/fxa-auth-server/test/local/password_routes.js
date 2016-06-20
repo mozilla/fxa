@@ -4,8 +4,6 @@
 
 require('ass')
 
-var sinon = require('sinon')
-
 var test = require('../ptaptest')
 var mocks = require('../mocks')
 var getRoute = require('../routes_helpers').getRoute
@@ -65,29 +63,12 @@ test(
       },
       app: {}
     }
-    var mockDB = {
-      deletePasswordChangeToken: sinon.spy(function () {
-        return P.resolve()
-      }),
-      resetAccount: sinon.spy(function () {
-        return P.resolve()
-      }),
-      account: sinon.spy(function () {
-        return P.resolve({
-          uid: uid,
-          verifierSetAt: 0,
-          email: TEST_EMAIL
-        })
-      })
-    }
-    var mockPush = {
-      notifyUpdate: sinon.spy(function () {})
-    }
-    var mockMailer = {
-      sendPasswordChangedNotification: sinon.spy(function () {
-        return P.resolve()
-      })
-    }
+    var mockDB = mocks.mockDB({
+      email: TEST_EMAIL,
+      uid: uid
+    })
+    var mockPush = mocks.mockPush()
+    var mockMailer = mocks.mockMailer()
     var passwordRoutes = makeRoutes({
       db: mockDB,
       push: mockPush,

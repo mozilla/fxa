@@ -423,7 +423,7 @@ var conf = convict({
       doc: 'If feature enabled, force sign-in confirmation for email addresses matching this regex.',
       format: Array,
       default: [
-        '@mozilla.com$'
+        '.+@mozilla\.com$'
       ],
       env: 'SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX'
     }
