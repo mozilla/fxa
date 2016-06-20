@@ -466,8 +466,20 @@ body.settings #main-content.card {
   padding-left: 40px;
   position: relative;
 
+  .device-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /*allows 5% gutter between device-name and .device-disconnected button*/
+    /*reduce by 95px to accomodate the width of the .device-disconnected button*/
+    white-space: nowrap;
+    width: calc(95% - 95px);
+  }
+
   .settings-button {
     height: 35px;
+    /*minimum width required for the button to look good without occupying too much space*/
+    /*is also the default computed width on desktop screen*/
+    min-width: 95px;
     position: absolute;
     right: 0;
     top: 0;
