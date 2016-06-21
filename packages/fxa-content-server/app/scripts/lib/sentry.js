@@ -41,6 +41,7 @@ define(function (require, exports, module) {
       if (data.request.url) {
         data.request.url = cleanUpQueryParam(data.request.url);
       }
+
       if (data.request.headers && data.request.headers.Referer) {
         data.request.headers.Referer = cleanUpQueryParam(data.request.headers.Referer);
       }
@@ -50,9 +51,14 @@ define(function (require, exports, module) {
       // this helps errors stay consistent across deploys
       var removeRegex = /\/[0-9a-f]{8}\./gi;
       var addPart = '/';
-      if (data.stacktrace && data.stacktrace.frames) {
-        _.each(data.stacktrace.frames, function (frame) {
-          frame.filename = frame.filename.replace(removeRegex, addPart);
+
+      if (data.exception && data.exception.values) {
+        _.each(data.exception.values, function (value) {
+          if (value.stacktrace && value.stacktrace.frames) {
+            _.each(value.stacktrace.frames, function (frame) {
+              frame.filename = frame.filename.replace(removeRegex, addPart);
+            });
+          }
         });
       }
 

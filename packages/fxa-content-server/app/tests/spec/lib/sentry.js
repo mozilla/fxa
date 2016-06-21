@@ -164,18 +164,24 @@ define(function (require, exports, module) {
         var goodCulprit = 'https://accounts.firefox.com/scripts/main.js';
         var data = {
           culprit: badCulprit,
-          request: {
-            url: url
-          },
-          stacktrace: {
-            frames: [
+          exception: {
+            values: [
               {
-                filename: badFile
-              },
-              {
-                filename: otherFile
+                stacktrace: {
+                  frames: [
+                    {
+                      filename: badFile
+                    },
+                    {
+                      filename: otherFile
+                    }
+                  ]
+                }
               }
             ]
+          },
+          request: {
+            url: url
           }
         };
 
@@ -190,8 +196,8 @@ define(function (require, exports, module) {
 
         assert.equal(resultData.url, goodData.url);
         assert.equal(resultData.culprit, goodCulprit);
-        assert.equal(resultData.stacktrace.frames[0].filename, goodFile, 'removes cache part');
-        assert.equal(resultData.stacktrace.frames[1].filename, otherFile, 'does not remove cache part');
+        assert.equal(resultData.exception.values[0].stacktrace.frames[0].filename, goodFile, 'removes cache part');
+        assert.equal(resultData.exception.values[0].stacktrace.frames[1].filename, otherFile, 'does not remove cache part');
       });
 
     });
@@ -227,7 +233,9 @@ define(function (require, exports, module) {
     describe('captureException', function () {
       it('reports the error to Raven, passing along tags', function () {
         var sandbox = sinon.sandbox.create();
-        sandbox.spy(Raven, 'captureException');
+        // do not call the real captureException,
+        // no need to make network requests.
+        sandbox.stub(Raven, 'captureException', function () {});
 
         var sentry = new SentryMetrics(host);
 
