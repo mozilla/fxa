@@ -11,13 +11,13 @@
     "fxa-auth-db-mysql": "bin/db_patcher.js"
   },
   "scripts": {
-    "test": "npm run test-mysql && npm run test-mem && npm run test-server",
-    "test-mysql": "grunt && node ./bin/db_patcher.js >/dev/null && ./scripts/tap-coverage.js test/backend test/local",
-    "test-mem": "./scripts/tap-coverage.js test/mem",
-    "test-server": "./scripts/tap-coverage.js fxa-auth-db-server/test/local",
+    "outdated": "npm outdated --depth 0",
     "start": "node ./bin/db_patcher.js >/dev/null && node ./bin/server.js",
     "start-mem": "node ./bin/mem",
-    "outdated": "npm outdated --depth 0"
+    "test": "npm run test-mysql && npm run test-mem && npm run test-server",
+    "test-mem": "./scripts/tap-coverage.js test/mem",
+    "test-mysql": "grunt && node ./bin/db_patcher.js >/dev/null && ./scripts/tap-coverage.js test/backend test/local",
+    "test-server": "./scripts/tap-coverage.js fxa-auth-db-server/test/local"
   },
   "author": "Mozilla (https://mozilla.org/)",
   "homepage": "https://github.com/mozilla/fxa-auth-db-mysql",
