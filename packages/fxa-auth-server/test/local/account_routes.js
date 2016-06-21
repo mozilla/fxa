@@ -675,3 +675,60 @@ test('/account/login', function (t) {
   }, t)
 })
 
+
+test('/recovery_email/verify_code', function (t) {
+  var uid = uuid.v4('binary').toString('hex')
+  var mockRequest = mocks.mockRequest({
+    query: {},
+    payload: {
+      uid: uid,
+      code: 'e3c5b0e3f5391e134596c27519979b93',
+      service: 'sync'
+    }
+  })
+
+  var mockDB = mocks.mockDB({
+    email: TEST_EMAIL,
+    emailVerified: false,
+    uid: uid
+  })
+  var mockLog = mocks.spyLog()
+  var mockMailer = mocks.mockMailer()
+  var accountRoutes = makeRoutes({
+    checkPassword: function () {
+      return P.resolve(true)
+    },
+    config: {},
+    customs: {
+      check: function () {
+        return P.resolve()
+      }
+    },
+    db: mockDB,
+    log: mockLog,
+    mailer: mockMailer
+  })
+  var route = getRoute(accountRoutes, '/recovery_email/verify_code')
+
+  test('verifies account', function (t) {
+    return runTest(route, mockRequest, function (response) {
+      t.equal(mockDB.verifyTokens.callCount, 1, 'calls verifyTokens')
+      t.equal(mockDB.verifyEmail.callCount, 1, 'calls verifyEmail')
+      t.equal(mockLog.event.callCount, 1, 'logs verified')
+      t.equal(JSON.stringify(response), '{}')
+    })
+  }, t)
+
+  test('verifies account with a reminder payload', function (t) {
+    mockRequest.payload.reminder = 'second'
+
+    return runTest(route, mockRequest, function (response) {
+      t.equal(mockLog.activityEvent.callCount, 1, 'calls activityEvent')
+      var activityCall = mockLog.activityEvent.getCall(0).args
+      t.equal(activityCall[0], 'account.reminder')
+      t.equal(activityCall[2].uid, uid)
+      t.equal(JSON.stringify(response), '{}')
+    })
+  }, t)
+})
+
