@@ -2,6 +2,9 @@
   "exceptions": [
     "https://nodesecurity.io/advisories/45",
     "https://nodesecurity.io/advisories/63",
-    "https://nodesecurity.io/advisories/65"
+    "https://nodesecurity.io/advisories/65",
+
+    // for hapi/joi/moment dependency
+    "https://nodesecurity.io/advisories/55"
   ]
 }
