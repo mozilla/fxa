@@ -11,13 +11,14 @@
     "fxa-auth-db-mysql": "bin/db_patcher.js"
   },
   "scripts": {
-    "test": "npm run test-mysql && npm run test-mem && npm run test-server",
-    "test-mysql": "grunt && node ./bin/db_patcher.js >/dev/null && ./scripts/tap-coverage.js test/backend test/local",
-    "test-mem": "./scripts/tap-coverage.js test/mem",
-    "test-server": "./scripts/tap-coverage.js fxa-auth-db-server/test/local",
+    "outdated": "npm outdated --depth 0",
+    "shrinkwrap": "/bin/rm -rf ./node_modules ./npm-shrinkwrap.json && npm install && npm prune && npm shrinkwrap --dev",
     "start": "node ./bin/db_patcher.js >/dev/null && node ./bin/server.js",
     "start-mem": "node ./bin/mem",
-    "outdated": "npm outdated --depth 0"
+    "test": "npm run test-mysql && npm run test-mem && npm run test-server",
+    "test-mem": "./scripts/tap-coverage.js test/mem",
+    "test-mysql": "grunt && node ./bin/db_patcher.js >/dev/null && ./scripts/tap-coverage.js test/backend test/local",
+    "test-server": "./scripts/tap-coverage.js fxa-auth-db-server/test/local"
   },
   "author": "Mozilla (https://mozilla.org/)",
   "homepage": "https://github.com/mozilla/fxa-auth-db-mysql",
@@ -31,7 +32,7 @@
     "clone": "0.2.0",
     "convict": "1.0.1",
     "fxa-jwtool": "0.7.1",
-    "mozlog": "2.0.3",
+    "mozlog": "2.0.5",
     "mysql": "2.10.0",
     "request": "2.53.0",
     "restify": "4.0.3"
