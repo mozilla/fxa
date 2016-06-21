@@ -1152,7 +1152,8 @@ module.exports = function (
           payload: {
             uid: isA.string().max(32).regex(HEX_STRING).required(),
             code: isA.string().min(32).max(32).regex(HEX_STRING).required(),
-            service: isA.string().max(16).alphanum().optional()
+            service: isA.string().max(16).alphanum().optional(),
+            reminder: isA.string().max(32).alphanum().optional()
           }
         }
       },
@@ -1160,6 +1161,7 @@ module.exports = function (
         var uid = request.payload.uid
         var code = Buffer(request.payload.code, 'hex')
         var service = request.payload.service || request.query.service
+        var reminder = request.payload.reminder || request.query.reminder
 
         log.begin('Account.RecoveryEmailVerify', request)
         db.account(Buffer(uid, 'hex'))
@@ -1206,6 +1208,21 @@ module.exports = function (
                         locale: account.locale
                       })
                       log.increment('account.verified')
+
+                      if (reminder === 'first' || reminder === 'second') {
+                        // if verified using a known reminder
+                        var reminderOp = 'account.verified_reminder.' + reminder
+
+                        log.increment(reminderOp)
+                        log.activityEvent('account.reminder', request, {
+                          uid: account.uid.toString('hex')
+                        })
+                        // log to the mailer namespace that account was verified via a reminder
+                        log.info({
+                          op: 'mailer.send',
+                          name: reminderOp
+                        })
+                      }
 
                       // send a push notification to all devices that the account changed
                       push.notifyUpdate(uid, 'accountVerify')
