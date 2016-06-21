@@ -91,9 +91,6 @@ ul.links {
     margin: 20px 0 10px 0;
   }
 
-  .fxa-checkbox__box-outline {
-    top: 1px;
-  }
 }
 
 .choose-what-to-sync-row,
@@ -208,6 +205,7 @@ ul.links {
 #permissions {
   fieldset {
     border: 0;
+    height: fit-content;
   }
 
   .avatar-wrapper {
@@ -223,6 +221,8 @@ ul.links {
       color: $color-grey;
       font-size: 14px;
       margin-top: auto;
+      /*from fxa-checkbox-repo, the padding needs to be 24px*/
+      padding-left: 24px;
     }
 
     .fxa-checkbox__value {

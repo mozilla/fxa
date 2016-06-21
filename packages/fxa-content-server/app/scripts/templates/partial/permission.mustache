@@ -3,12 +3,12 @@
     <input class="permission" name="{{ name }}" type="checkbox" checked="checked" value="{{ name }}" {{#required}}disabled{{/required}}/>
 
     {{#valueVisible}}
-      <div class="fxa-checkbox__value">{{ value }}</div>
+      <span class="fxa-checkbox__value">{{ value }}</span>
       <div class="fxa-checkbox__label">{{ label }}</div>
     {{/valueVisible}}
 
     {{^valueVisible}}
-      <div class="fxa-checkbox__value">{{ label }}</div>
+      <span class="fxa-checkbox__value">{{ label }}</span>
     {{/valueVisible}}
   </label>
 </fieldset>
