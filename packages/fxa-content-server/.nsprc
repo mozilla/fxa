@@ -13,6 +13,9 @@
     "https://nodesecurity.io/advisories/65",
 
     // negotiator
-    "https://nodesecurity.io/advisories/106"
+    "https://nodesecurity.io/advisories/106",
+
+    // minimatch
+    "https://nodesecurity.io/advisories/118"
   ]
 }
