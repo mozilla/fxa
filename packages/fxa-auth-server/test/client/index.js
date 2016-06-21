@@ -100,8 +100,10 @@ Client.createAndVerify = function (origin, email, password, mailbox, options) {
           )
           .then(
             function () {
-              // clear the post verified email
-              return mailbox.waitForEmail(email)
+              // clear the post verified email, if one was sent
+              if (options && options.service === 'sync') {
+                return mailbox.waitForEmail(email)
+              }
             }
           )
           .then(
