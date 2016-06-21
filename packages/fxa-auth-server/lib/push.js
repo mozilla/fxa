@@ -7,6 +7,7 @@ var P = require('./promise')
 
 var ERR_NO_PUSH_CALLBACK = 'No Push Callback'
 var ERR_DATA_BUT_NO_KEYS = 'Data payload present but missing key(s)'
+var ERR_TOO_MANY_DEVICES = 'Too many devices connected to account'
 
 var LOG_OP_PUSH_TO_DEVICES = 'push.pushToDevices'
 
@@ -17,6 +18,10 @@ var PUSH_COMMANDS = {
 }
 
 var TTL_DEVICE_DISCONNECTED = 5 * 3600 // 5 hours
+
+// An arbitrary, but very generous, limit on the number of active devices.
+// Currently only for metrics purposes, not enforced.
+var MAX_ACTIVE_DEVICES = 200
 
 var reasonToEvents = {
   accountVerify: {
@@ -230,6 +235,11 @@ module.exports = function (log, db) {
     sendPush: function sendPush(uid, devices, reason, options) {
       options = options || {}
       var events = reasonToEvents[reason]
+      // There's no spec-compliant way to error out as a result of having
+      // too many devices to notify.  For now, just log metrics about it.
+      if (devices.length > MAX_ACTIVE_DEVICES) {
+        reportPushError(new Error(ERR_TOO_MANY_DEVICES), uid, null)
+      }
       return P.all(
         devices.map(function (device) {
           var deviceId = device.id.toString('hex')
