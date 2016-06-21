@@ -8,6 +8,10 @@ var BASE64_JWT = validators.BASE64_JWT
 var DISPLAY_SAFE_UNICODE = validators.DISPLAY_SAFE_UNICODE
 var URLSAFEBASE64 = validators.URLSAFEBASE64
 
+// An arbitrary, but very generous, limit on the number of active sessions.
+// Currently only for metrics purposes, not enforced.
+var MAX_ACTIVE_SESSIONS = 200
+
 var butil = require('../crypto/butil')
 var openid = require('openid')
 var userAgent = require('../userAgent')
@@ -327,7 +331,7 @@ module.exports = function (
         var redirectTo = request.payload.redirectTo
         var resume = request.payload.resume
         var tokenVerificationId = crypto.randomBytes(16)
-        var emailRecord, sessionToken, keyFetchToken, doSigninConfirmation
+        var emailRecord, sessions, sessionToken, keyFetchToken, doSigninConfirmation
 
         metricsContext.validate(request)
 
@@ -341,6 +345,7 @@ module.exports = function (
 
         customs.check(request.app.clientAddress, email, 'accountLogin')
           .then(readEmailRecord)
+          .then(checkNumberOfActiveSessions)
           .then(createSessionToken)
           .then(createKeyFetchToken)
           .then(emitSyncLoginEvent)
@@ -386,6 +391,26 @@ module.exports = function (
                   })
                 }
                 throw err
+              }
+            )
+        }
+
+        function checkNumberOfActiveSessions () {
+          return db.sessions(emailRecord.uid)
+            .then(
+              function (s) {
+                sessions = s
+                if (sessions.length > MAX_ACTIVE_SESSIONS) {
+                  // There's no spec-compliant way to error out
+                  // as a result of having too many active sessions.
+                  // For now, just log metrics about it.
+                  log.error({
+                    op: 'Account.login',
+                    uid: emailRecord.uid,
+                    userAgent: request.headers['user-agent'],
+                    numSessions: sessions.length
+                  })
+                }
               }
             )
         }
@@ -441,18 +466,13 @@ module.exports = function (
 
         function emitSyncLoginEvent () {
           if (service === 'sync' && request.payload.reason === 'signin') {
-            return db.sessions(emailRecord.uid)
-              .then(
-                function (sessions) {
-                  log.event('login', request, {
-                    service: 'sync',
-                    uid: emailRecord.uid,
-                    email: emailRecord.email,
-                    deviceCount: sessions.length,
-                    userAgent: request.headers['user-agent']
-                  })
-                }
-              )
+            log.event('login', request, {
+              service: 'sync',
+              uid: emailRecord.uid,
+              email: emailRecord.email,
+              deviceCount: sessions.length,
+              userAgent: request.headers['user-agent']
+            })
           }
         }
 
