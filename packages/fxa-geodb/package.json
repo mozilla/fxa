@@ -35,6 +35,7 @@
     "grunt": "0.4.5",
     "grunt-eslint": "18.1.0",
     "grunt-requirejs": "0.4.2",
-    "load-grunt-tasks": "3.5.0"
+    "load-grunt-tasks": "3.5.0",
+    "requirejs": "2.2.0"
   }
 }
