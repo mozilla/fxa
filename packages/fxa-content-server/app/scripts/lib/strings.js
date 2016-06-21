@@ -25,27 +25,6 @@ define(function (require, exports, module) {
   // for why this could be necessary.
   t('<a href="https://support.mozilla.org/kb/im-having-problems-with-my-firefox-account">Help</a>');
 
-  // Strings for "reconfirm your email", fxa-83
-  t('Confirm new sign-in to Firefox');
-  t('You signed in to Firefox from %(device)s, %(location)s.');
-  t('You signed in to Firefox from %(device)s.');
-  t('For added security, please confirm this sign-in to begin syncing with %(device)s.');
-  t('Alternatively:');
-  t('This is an automated email; if you received it in error, no action is required.');
-  t('For more information, please visit <a %(supportLinkAttributes)s>Mozilla Support</a>');
-  t('Verify Email');
-  t('Verify your email to finish your Firefox Account sign-in');
-  t('Confirm sign-in');
-  t('Confirm this sign-in');
-  t('Email resent');
-  t('Email Sent');
-  t('To better protect your Firefox data, we\'ve emailed a confirmation link to %(email)s');
-  t('Open Gmail');
-  t('Resend email');
-  t('Back');
-  t('Sign-in confirmed');
-  t('You are now ready to use %(serviceName)s');
-
   // We're temporarily changing the string for marketing optin, see #3792.
   // This keeps the old string around for if/when we need to change it back.
   t('Get the latest news about Mozilla and Firefox.');
