@@ -15,6 +15,5 @@ module.exports = function (grunt) {
 
   grunt.loadTasks('grunttasks')
 
-  grunt.registerTask('lint', 'Alias for eslint tasks', ['eslint'])
   grunt.registerTask('default', [ 'templates', 'copy:strings', 'l10n-extract' ])
 }
