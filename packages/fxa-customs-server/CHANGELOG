@@ -1,4 +1,7 @@
 
+v0.64.0
+  * chore(travis): drop node 0.12
+
 v0.61.0
   * feat(email): Add config option to avoid blocking certain email domains
   * feat(scripts): added admin scripts: block-ip and customs-info
