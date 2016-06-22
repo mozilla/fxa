@@ -2,15 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (grunt) {
-  'use strict'
+// meta grunt task to run other linters.
 
-  grunt.config('eslint', {
-    options: {
-      eslintrc: '.eslintrc'
-    },
-    app: [
-      '*.js', 'bin/*.js', 'tasks/*.js', 'templates/*.js', 'test/**/*.js', 'scripts/**/*.js'
-    ]
-  })
+module.exports = function (grunt) {
+
+  var SUBTASKS = [
+    'eslint'
+  ]
+
+  grunt.registerTask('lint', 'lint all the things', SUBTASKS)
 }
