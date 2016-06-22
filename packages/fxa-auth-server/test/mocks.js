@@ -12,15 +12,16 @@ var P = require('../lib/promise')
 var crypto = require('crypto')
 
 var DB_METHOD_NAMES = ['account', 'createAccount', 'createDevice', 'createKeyFetchToken',
-                       'createSessionToken', 'deleteAccount', 'deleteDevice',
-                       'deletePasswordChangeToken', 'emailRecord', 'resetAccount', 'sessions',
-                       'updateDevice']
+                       'createSessionToken', 'devices', 'deleteAccount', 'deleteDevice',
+                       'deletePasswordChangeToken', 'deleteVerificationReminder', 'emailRecord', 'resetAccount', 'sessions',
+                       'updateDevice', 'verifyTokens', 'verifyEmail']
 
 var LOG_METHOD_NAMES = ['trace', 'increment', 'info', 'error', 'begin', 'warn',
-                        'activityEvent', 'event']
+                        'activityEvent', 'event', 'timing']
 
 var MAILER_METHOD_NAMES = ['sendVerifyCode', 'sendVerifyLoginEmail',
-                           'sendNewDeviceLoginNotification', 'sendPasswordChangedNotification']
+                           'sendNewDeviceLoginNotification', 'sendPasswordChangedNotification',
+                           'sendPostVerifyEmail']
 
 var METRICS_CONTEXT_METHOD_NAMES = ['add', 'validate']
 
@@ -82,6 +83,12 @@ function mockDB (data, errors) {
         uid: data.uid
       })
     }),
+    devices: sinon.spy(function () {
+      return P.resolve([])
+    }),
+    deleteVerificationReminder: sinon.spy(function () {
+      return P.resolve()
+    }),
     emailRecord: sinon.spy(function () {
       if (errors.emailRecord) {
         return P.reject(errors.emailRecord)
@@ -104,6 +111,12 @@ function mockDB (data, errors) {
     }),
     updateDevice: sinon.spy(function (uid, sessionTokenId, device) {
       return P.resolve(device)
+    }),
+    verifyEmail: sinon.spy(function () {
+      return P.resolve()
+    }),
+    verifyTokens: sinon.spy(function () {
+      return P.resolve()
     })
   })
 }
