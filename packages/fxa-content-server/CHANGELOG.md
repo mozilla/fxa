@@ -1,3 +1,61 @@
+<a name="0.64.0"></a>
+# 0.64.0 (2016-06-22)
+
+
+### Bug Fixes
+
+* **client:** Filter unwanted fields in call to /recovery_email/status (#3839) ([317c9cf](https://github.com/mozilla/fxa-content-server/commit/317c9cf))
+* **client:** force numeric input for age field on signup page (#3803) r=shane-tomlinson,vbudh ([0e96539](https://github.com/mozilla/fxa-content-server/commit/0e96539))
+* **client:** Show a sensible error message if basket is unavailable. (#3867) r=vladikoff,jbuc ([9ca06dd](https://github.com/mozilla/fxa-content-server/commit/9ca06dd)), closes [#3866](https://github.com/mozilla/fxa-content-server/issues/3866)
+* **confirm:** change resend email limit to first 4 attempts (#3816) r=vbudhram ([f02bf19](https://github.com/mozilla/fxa-content-server/commit/f02bf19)), closes [#3777](https://github.com/mozilla/fxa-content-server/issues/3777)
+* **eslint:** update eslint-config-fxa version (#3853) r=vladikoff ([eab5cc6](https://github.com/mozilla/fxa-content-server/commit/eab5cc6)), closes [#3852](https://github.com/mozilla/fxa-content-server/issues/3852)
+* **links:** adjust mobile app links (#3815) r=vbudhram ([58a837c](https://github.com/mozilla/fxa-content-server/commit/58a837c)), closes [#3692](https://github.com/mozilla/fxa-content-server/issues/3692)
+* **metrics:** Remove the caching sha from urls in the sentry stacktrace (#3861) r=vladikoff ([242f24e](https://github.com/mozilla/fxa-content-server/commit/242f24e)), closes [#3829](https://github.com/mozilla/fxa-content-server/issues/3829)
+* **mozlog:** update to 2.0.4 (#3826) r=vladikoff ([5b7d707](https://github.com/mozilla/fxa-content-server/commit/5b7d707))
+* **nsp:** add advisory 117 to list of known issues ([3f1de6e](https://github.com/mozilla/fxa-content-server/commit/3f1de6e))
+* **nsp:** add to ignore list ([49f42c6](https://github.com/mozilla/fxa-content-server/commit/49f42c6)), closes [#3857](https://github.com/mozilla/fxa-content-server/issues/3857)
+* **nsp:** update packages to fix nsp warnings (#3849) r=vladikoff ([b4051af](https://github.com/mozilla/fxa-content-server/commit/b4051af)), closes [(#3849](https://github.com/(/issues/3849) [#3848](https://github.com/mozilla/fxa-content-server/issues/3848)
+* **password:** Add missing unit tests (#3812) r=vladikoff,TDA ([23eebb7](https://github.com/mozilla/fxa-content-server/commit/23eebb7))
+* **permissions:** remove line break on permissions page (#3834) r=vladikoff ([f78187a](https://github.com/mozilla/fxa-content-server/commit/f78187a)), closes [#3833](https://github.com/mozilla/fxa-content-server/issues/3833)
+* **rtl:** rtl weird behavior with special characters (#3824) r=vladikoff ([21d2dfd](https://github.com/mozilla/fxa-content-server/commit/21d2dfd)), closes [#3811](https://github.com/mozilla/fxa-content-server/issues/3811)
+* **spelling:** change stength to strength (#3819) r=vladikoff ([0abbdfd](https://github.com/mozilla/fxa-content-server/commit/0abbdfd)), closes [#3818](https://github.com/mozilla/fxa-content-server/issues/3818)
+* **tests:** ensure no leftover firefox-bin are running (#3820) ([0f52dcb](https://github.com/mozilla/fxa-content-server/commit/0f52dcb))
+* **tests:** ignore error from killall firefox-bin ([d14d7be](https://github.com/mozilla/fxa-content-server/commit/d14d7be))
+* **tests:** show selenium version from /wd/hub/status at test start (#3804) ([cd02afd](https://github.com/mozilla/fxa-content-server/commit/cd02afd))
+
+### chore
+
+* **l10n:** Remove the placeholder strings for fxa-83 (#3856) r=vbudhram ([abe1496](https://github.com/mozilla/fxa-content-server/commit/abe1496))
+* **marketing:** Use more specific text for the marketing opt-in. ([bb7a71f](https://github.com/mozilla/fxa-content-server/commit/bb7a71f))
+* **tests:** Remove listenForWebChannelMessages calls from tests. (#3768) r=vladikoff ([c68e130](https://github.com/mozilla/fxa-content-server/commit/c68e130))
+* **tests:** Update avatar.js to use functional helpers, remove listenForWebChannelMessages.  ([1385213](https://github.com/mozilla/fxa-content-server/commit/1385213))
+* **tests:** useTeamCityReporter=true for intern_server tests (#3823) ([81f355e](https://github.com/mozilla/fxa-content-server/commit/81f355e))
+
+### Features
+
+* **client:** Signin confirmation (#3671) ([7c5aee4](https://github.com/mozilla/fxa-content-server/commit/7c5aee4))
+* **experiment:** add show-password experiment (#3801) r=vbudhram ([03debc1](https://github.com/mozilla/fxa-content-server/commit/03debc1))
+* **metrics:** add statsD/DataDog tag if user is part of experiment (#3836) ([bd7dec8](https://github.com/mozilla/fxa-content-server/commit/bd7dec8))
+* **styles:** Add support for .woff2 (#3844) ([b204544](https://github.com/mozilla/fxa-content-server/commit/b204544))
+* **tests:** Filter unwanted lines from the mocha stack trace. (#3813) r=vladikoff ([34fa5d7](https://github.com/mozilla/fxa-content-server/commit/34fa5d7))
+* **verify:** Pass `service` param when verifying email address. (#3757) r=vbudhram ([2ea10df](https://github.com/mozilla/fxa-content-server/commit/2ea10df))
+
+### Refactor
+
+* **cocktail:** change _.extend to cocktail.mixin (#3830) ([25a1ad8](https://github.com/mozilla/fxa-content-server/commit/25a1ad8))
+* **flowId:** optimize get-index route by adjusting flow-metrics ([263d859](https://github.com/mozilla/fxa-content-server/commit/263d859))
+* **styles:** refactor sass variables (#3783) ([4c929a4](https://github.com/mozilla/fxa-content-server/commit/4c929a4))
+* **tests:** Use a helper to get the `remote` reference. (#3808) ([f32761e](https://github.com/mozilla/fxa-content-server/commit/f32761e))
+
+### style
+
+* **colors:** restyle buttons, links and labels to conform to mozilla style guide (#3755) ([3925684](https://github.com/mozilla/fxa-content-server/commit/3925684))
+* **devices:** make devices and buttons responsive (#3825) ([050cb73](https://github.com/mozilla/fxa-content-server/commit/050cb73))
+* **gravatar:** left align label (#3842) ([8dfd207](https://github.com/mozilla/fxa-content-server/commit/8dfd207))
+* **links:** stack side-by-side links (#3817) r=vladikoff ([8476364](https://github.com/mozilla/fxa-content-server/commit/8476364)), closes [#3798](https://github.com/mozilla/fxa-content-server/issues/3798)
+
+
+
 <a name="0.63.0"></a>
 # 0.63.0 (2016-06-01)
 
