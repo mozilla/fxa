@@ -667,11 +667,32 @@ test('/account/login', function (t) {
         t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
         t.notOk(response.verificationMethod, 'verificationMethod doesn\'t exist')
         t.notOk(response.verificationReason, 'verificationReason doesn\'t exist')
-      })
-      .finally(function () {
-        mockLog.close()
+      }).then(function () {
+        mockMailer.sendNewDeviceLoginNotification.reset()
       })
     }, t)
+  }, t)
+
+  test('creating too many sessions causes an error to be logged', function (t) {
+    mockDB.sessions = function () {
+      return P.resolve(new Array(200))
+    }
+    mockLog.error = sinon.spy()
+    return runTest(route, mockRequest, function (response) {
+      t.equal(mockLog.error.callCount, 0, 'log.error was not called')
+    }).then(function() {
+      mockDB.sessions = function () {
+        return P.resolve(new Array(201))
+      }
+      mockLog.error.reset()
+      return runTest(route, mockRequest, function (response) {
+        t.equal(mockLog.error.callCount, 1, 'log.error was called')
+        t.equal(mockLog.error.firstCall.args[0].op, 'Account.login')
+        t.equal(mockLog.error.firstCall.args[0].numSessions, 201)
+      })
+    }).finally(function () {
+      mockLog.close()
+    })
   }, t)
 })
 

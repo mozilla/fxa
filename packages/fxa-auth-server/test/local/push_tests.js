@@ -328,6 +328,42 @@ test(
 )
 
 test(
+  'push logs an error when asked to send to more than 200 devices',
+  function (t) {
+    var thisMockLog = mockLog({
+      error: sinon.spy()
+    })
+
+    var devices = []
+    for (var i = 0; i < 200; i++) {
+      devices.push(mockDevices[0])
+    }
+
+    var mocks = {
+      'web-push': {
+        sendNotification: function (endpoint, params) {
+          t.equal(params.TTL, '0', 'sends the proper ttl header')
+          return P.resolve()
+        }
+      }
+    }
+    var push = proxyquire('../../lib/push', mocks)(thisMockLog, mockDbResult)
+
+    push.sendPush(mockUid, devices, 'accountVerify').then(function () {
+      t.equal(thisMockLog.error.callCount, 0, 'log.error was not called')
+      devices.push(mockDevices[0])
+      return push.sendPush(mockUid, devices, 'accountVerify')
+    }).then(function () {
+      t.equal(thisMockLog.error.callCount, 1, 'log.error was called')
+      var arg = thisMockLog.error.getCall(0).args[0]
+      t.equal(arg.op, 'push.pushToDevices')
+      t.equal(arg.err.message, 'Too many devices connected to account')
+      t.end()
+    })
+  }
+)
+
+test(
   'push resets device push data when push server responds with a 400 level error',
   function (t) {
     var mockDb = {

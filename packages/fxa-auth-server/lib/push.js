@@ -7,6 +7,7 @@ var P = require('./promise')
 
 var ERR_NO_PUSH_CALLBACK = 'No Push Callback'
 var ERR_DATA_BUT_NO_KEYS = 'Data payload present but missing key(s)'
+var ERR_TOO_MANY_DEVICES = 'Too many devices connected to account'
 
 var LOG_OP_PUSH_TO_DEVICES = 'push.pushToDevices'
 
@@ -17,6 +18,10 @@ var PUSH_COMMANDS = {
 }
 
 var TTL_DEVICE_DISCONNECTED = 5 * 3600 // 5 hours
+
+// An arbitrary, but very generous, limit on the number of active devices.
+// Currently only for metrics purposes, not enforced.
+var MAX_ACTIVE_DEVICES = 200
 
 var reasonToEvents = {
   accountVerify: {
@@ -230,63 +235,67 @@ module.exports = function (log, db) {
     sendPush: function sendPush(uid, devices, reason, options) {
       options = options || {}
       var events = reasonToEvents[reason]
-      return P.all(
-        devices.map(function (device) {
-          var deviceId = device.id.toString('hex')
+      // There's no spec-compliant way to error out as a result of having
+      // too many devices to notify.  For now, just log metrics about it.
+      if (devices.length > MAX_ACTIVE_DEVICES) {
+        reportPushError(new Error(ERR_TOO_MANY_DEVICES), uid, null)
+      }
+      return P.each(devices, function(device) {
+        var deviceId = device.id.toString('hex')
 
-          log.trace({
-            op: LOG_OP_PUSH_TO_DEVICES,
-            uid: uid,
-            deviceId: deviceId,
-            pushCallback: device.pushCallback
-          })
+        log.trace({
+          op: LOG_OP_PUSH_TO_DEVICES,
+          uid: uid,
+          deviceId: deviceId,
+          pushCallback: device.pushCallback
+        })
 
-          if (device.pushCallback) {
-            // send the push notification
-            incrementPushAction(events.send)
-            var pushParams = { 'TTL': options.TTL || '0' }
-            if (options.data) {
-              if (!device.pushPublicKey || !device.pushAuthKey) {
-                reportPushError(new Error(ERR_DATA_BUT_NO_KEYS), uid, deviceId)
-                incrementPushAction(events.noKeys)
-                return
-              }
-              pushParams.userPublicKey = device.pushPublicKey
-              pushParams.userAuth = device.pushAuthKey
-              pushParams.payload = options.data
+        if (device.pushCallback) {
+          // send the push notification
+          incrementPushAction(events.send)
+          var pushParams = { 'TTL': options.TTL || '0' }
+          if (options.data) {
+            if (!device.pushPublicKey || !device.pushAuthKey) {
+              reportPushError(new Error(ERR_DATA_BUT_NO_KEYS), uid, deviceId)
+              incrementPushAction(events.noKeys)
+              return
             }
-            return webpush.sendNotification(device.pushCallback, pushParams)
-            .then(
-              function () {
-                incrementPushAction(events.success)
-              },
-              function (err) {
-                // 404 or 410 error from the push servers means
-                // the push settings need to be reset.
-                // the clients will check this and re-register push endpoints
-                if (err.statusCode === 404 || err.statusCode === 410) {
-                  // reset device push configuration
-                  // Warning: this method is called without any session tokens or auth validation.
-                  device.pushCallback = ''
-                  device.pushPublicKey = ''
-                  device.pushAuthKey = ''
-                  return db.updateDevice(uid, device.id, device).catch(function (err) {
-                    reportPushError(err, uid, deviceId)
-                  }).then(function() {
-                    incrementPushAction(events.resetSettings)
-                  })
-                } else {
-                  reportPushError(err, uid, deviceId)
-                  incrementPushAction(events.failed)
-                }
-              }
-            )
-          } else {
-            // keep track if there are any devices with no push urls.
-            reportPushError(new Error(ERR_NO_PUSH_CALLBACK), uid, deviceId)
-            incrementPushAction(events.noCallback)
+            pushParams.userPublicKey = device.pushPublicKey
+            pushParams.userAuth = device.pushAuthKey
+            pushParams.payload = options.data
           }
-        }))
+          return webpush.sendNotification(device.pushCallback, pushParams)
+          .then(
+            function () {
+              incrementPushAction(events.success)
+            },
+            function (err) {
+              // 404 or 410 error from the push servers means
+              // the push settings need to be reset.
+              // the clients will check this and re-register push endpoints
+              if (err.statusCode === 404 || err.statusCode === 410) {
+                // reset device push configuration
+                // Warning: this method is called without any session tokens or auth validation.
+                device.pushCallback = ''
+                device.pushPublicKey = ''
+                device.pushAuthKey = ''
+                return db.updateDevice(uid, device.id, device).catch(function (err) {
+                  reportPushError(err, uid, deviceId)
+                }).then(function() {
+                  incrementPushAction(events.resetSettings)
+                })
+              } else {
+                reportPushError(err, uid, deviceId)
+                incrementPushAction(events.failed)
+              }
+            }
+          )
+        } else {
+          // keep track if there are any devices with no push urls.
+          reportPushError(new Error(ERR_NO_PUSH_CALLBACK), uid, deviceId)
+          incrementPushAction(events.noCallback)
+        }
+      })
     }
   }
 }
