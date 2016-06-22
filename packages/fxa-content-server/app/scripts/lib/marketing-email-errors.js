@@ -22,7 +22,7 @@ define(function (require, exports, module) {
   var ERRORS = {
     NETWORK_FAILURE: {
       errno: 1,
-      message: UNEXPECTED_ERROR
+      message: t('System unavailable, try again soon')
     },
     INVALID_EMAIL: {
       errno: 2,
