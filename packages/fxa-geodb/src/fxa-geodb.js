@@ -40,9 +40,15 @@ function GeoDB(ip) {
   }
 
   // ip is valid, and in the right format,
-  // look it up
-  var cityLookup = maxmind.open(db);
-  var cityData = cityLookup.get(ip);
+  // try looking it up
+  try {
+    var cityLookup = maxmind.open(db);
+    var cityData = cityLookup.get(ip);
+  } catch (err) {
+    return Promise.reject({
+      message: ERRORS.UNABLE_TO_FETCH_DATA
+    });
+  }
 
   // return an object with city, country, continent,
   // latitude, and longitude,
@@ -57,6 +63,7 @@ function GeoDB(ip) {
     },
     time_zone: cityData.location.time_zone,
     local_time: new Date().toLocaleString('en', {timeZone: cityData.location.time_zone}),
+    // can remove this if not required
     cityData: cityData
   });
 }
