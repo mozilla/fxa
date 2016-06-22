@@ -5,7 +5,7 @@
 const db = '../db/GeoLite2-City.mmdb';
 const maxmind = require('maxmind');
 const ERRORS = require('./errors');
-var Promise = require('bluebird');
+const Promise = require('bluebird');
 
 function GeoDB(ip) {
   'use strict';
@@ -44,11 +44,20 @@ function GeoDB(ip) {
   var cityLookup = maxmind.open(db);
   var cityData = cityLookup.get(ip);
 
-  // return an object with city, country, continent
+  // return an object with city, country, continent,
+  // latitude, and longitude,
   // and timezone (locale specific time also)
   return Promise.resolve({
     country: cityData.country.names.en,
-    city: cityData.city.names.en
+    city: cityData.city.names.en,
+    continent: cityData.continent.names.en,
+    ll: {
+      latitude: cityData.location.latitude,
+      longitude: cityData.location.longitude
+    },
+    time_zone: cityData.location.time_zone,
+    local_time: new Date().toLocaleString('en', {timeZone: cityData.location.time_zone}),
+    cityData: cityData
   });
 }
 

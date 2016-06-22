@@ -10,7 +10,7 @@
   "scripts": {
     "setup": "npm install && bower install",
     "build": "grunt build",
-    "test": "grunt lint",
+    "test": "cd tests && mocha *.js",
     "lint": "grunt lint"
   },
   "repository": {
@@ -38,6 +38,6 @@
     "grunt-eslint": "18.1.0",
     "grunt-requirejs": "0.4.2",
     "load-grunt-tasks": "3.5.0",
-    "requirejs": "2.2.0"
+    "mocha": "2.5.3"
   }
 }
