@@ -28,9 +28,11 @@
   },
   "homepage": "https://github.com/mozilla/fxa-geodb",
   "dependencies": {
+    "bluebird": "3.4.1",
     "maxmind": "1.1.0"
   },
   "devDependencies": {
+    "chai": "3.5.0",
     "eslint-config-fxa": "2.1.0",
     "grunt": "0.4.5",
     "grunt-eslint": "18.1.0",

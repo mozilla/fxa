@@ -4,23 +4,52 @@
 
 const db = '../db/GeoLite2-City.mmdb';
 const maxmind = require('maxmind');
+const ERRORS = require('./errors');
+var Promise = require('bluebird');
 
 function GeoDB(ip) {
   'use strict';
-  // if no ip is passed, return an error
-  if (typeof ip !== 'string') {
-    return
+
+  // if no ip is passed, return an error object
+  if (typeof ip === 'undefined') {
+    return Promise.reject({
+      message: ERRORS.IS_UNDEFINED
+    });
   }
-  return {
-    ipToCountry: function () {
-      // this is the regular way of loading it
-      var cityLookup = maxmind.open(db);
-      var cityData = cityLookup.get(ip);
-      return cityData.country;
-      // we would be returning a promise here
-      // should i use the `q` library? or native promises?
-    }
-  };
+
+  // ip not a string, return an error object
+  if (typeof ip !== 'string') {
+    return Promise.reject({
+      message: ERRORS.NOT_A_STRING
+    });
+  }
+
+  // ip is empty, return an error object
+  if (ip.length === 0) {
+    return Promise.reject({
+      message: ERRORS.IS_EMPTY
+    });
+  }
+
+  // at this point, we know ip is a string and is
+  // non-empty, we can validate it
+  if (! maxmind.validate(ip)) {
+    return Promise.reject({
+      message: ERRORS.IS_INVALID
+    });
+  }
+
+  // ip is valid, and in the right format,
+  // look it up
+  var cityLookup = maxmind.open(db);
+  var cityData = cityLookup.get(ip);
+
+  // return an object with city, country, continent
+  // and timezone (locale specific time also)
+  return Promise.resolve({
+    country: cityData.country.names.en,
+    city: cityData.city.names.en
+  });
 }
 
 module.exports = GeoDB;
