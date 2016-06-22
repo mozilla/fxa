@@ -1,3 +1,17 @@
+<a name="0.64.0"></a>
+# [0.64.0](https://github.com/mozilla/fxa-basket-proxy/compare/v0.63.0...v0.64.0) (2016-06-22)
+
+
+### Bug Fixes
+
+* **index:** remove unused callback ([ce858ef](https://github.com/mozilla/fxa-basket-proxy/commit/ce858ef))
+
+### Features
+
+* **events:** Simplify logic for utm_campaign auto-subscription. ([350bfd4](https://github.com/mozilla/fxa-basket-proxy/commit/350bfd4))
+
+
+
 <a name="0.63.0"></a>
 # [0.63.0](https://github.com/mozilla/fxa-basket-proxy/compare/v0.62.0...v0.63.0) (2016-06-02)
 
