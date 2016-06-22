@@ -6,9 +6,21 @@ const db = '../db/GeoLite2-City.mmdb';
 const maxmind = require('maxmind');
 const ERRORS = require('./errors');
 const Promise = require('bluebird');
+const Joi = require('joi');
 
 function GeoDB(ip) {
   'use strict';
+
+
+  // allows us to check whether the ip is defined, is a string, and is not empty
+  var schema = Joi.object().keys({
+    IP: Joi.string().required()
+  });
+  var err = Joi.validate({IP: ip}, schema);
+  if (err) {
+    // this is the part im concerned about, it is highly cryptic
+    console.log('Err:', err.error.details[0].message);
+  }
 
   // if no ip is passed, return an error object
   if (typeof ip === 'undefined') {
