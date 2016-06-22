@@ -4,7 +4,7 @@
 (function() {
   'use strict';
   const geodb = require('./fxa-geodb');
-  geodb({})
+  geodb('128.192.8.8')
     .then(function(city) {
       console.log(city); //eslint-disable-line
     }, function (err) {

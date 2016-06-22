@@ -12,6 +12,10 @@ describe('fxa-geodb', function () {
   'use strict';
   var ip;
 
+  it('returns a promise when called', function () {
+    assert.isTrue(typeof GeoDB('12.23.34.45').then === 'function', 'Promise not returned');
+  });
+
   it('returns an error object with `IS_UNDEFINED` when supplied with an undefined ip variable', function () {
     return GeoDB(ip)
       .then(function (location) {

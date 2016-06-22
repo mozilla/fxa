@@ -11,7 +11,6 @@ const Joi = require('joi');
 function GeoDB(ip) {
   'use strict';
 
-
   // allows us to check whether the ip is defined, is a string, and is not empty
   var schema = Joi.object().keys({
     IP: Joi.string().required()
