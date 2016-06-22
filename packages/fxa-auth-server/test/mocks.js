@@ -13,8 +13,8 @@ var crypto = require('crypto')
 
 var DB_METHOD_NAMES = ['account', 'createAccount', 'createDevice', 'createKeyFetchToken',
                        'createSessionToken', 'devices', 'deleteAccount', 'deleteDevice',
-                       'deletePasswordChangeToken', 'deleteVerificationReminder', 'emailRecord', 'resetAccount', 'sessions',
-                       'updateDevice', 'verifyTokens', 'verifyEmail']
+                       'deletePasswordChangeToken', 'deleteVerificationReminder', 'emailRecord', 'resetAccount',
+                       'sessionTokenWithVerificationStatus', 'sessions', 'updateDevice', 'verifyTokens', 'verifyEmail']
 
 var LOG_METHOD_NAMES = ['trace', 'increment', 'info', 'error', 'begin', 'warn',
                         'activityEvent', 'event', 'timing']

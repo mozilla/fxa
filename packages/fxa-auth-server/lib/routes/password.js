@@ -162,15 +162,22 @@ module.exports = function (
 
         function getSessionVerificationStatus() {
           if (sessionTokenId) {
-            return Tokens.SessionToken.fromHex(sessionTokenId)
-              .then(
-                function (tokenData) {
-                  return tokenData.tokenId
-                }
-              )
-              .then(
-                function (tokenId) {
-                  return db.sessionTokenWithVerificationStatus(tokenId)
+            var tokenId = Buffer(sessionTokenId, 'hex')
+            return db.sessionTokenWithVerificationStatus(tokenId)
+              .catch(
+                function (err) {
+                  // Older versions of content-server passed the raw token data
+                  // rather than the id; handle both for b/w compatibility.
+                  if (err.errno !== error.ERRNO.INVALID_TOKEN) {
+                    throw err
+                  }
+                  return Tokens.SessionToken.fromHex(sessionTokenId)
+                    .then(
+                      function (tokenData) {
+                        tokenId = tokenData.tokenId
+                        return db.sessionTokenWithVerificationStatus(tokenId)
+                      }
+                    )
                 }
               )
               .then(
