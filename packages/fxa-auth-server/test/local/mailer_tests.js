@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var extend = require('util')._extend
+
 var P = require('bluebird')
 var test = require('tap').test
 
@@ -247,6 +249,22 @@ P.all(
                 t.end()
               }
               mailer[type](message)
+            }
+          )
+        } else if (type === 'verificationReminderEmail') {
+          var reminderMessage = extend(message, {
+            type: 'customType'
+          })
+
+          test(
+            'custom reminder types are supported in output for ' + type,
+            function (t) {
+              mailer.mailer.sendMail = function (emailConfig) {
+                t.ok(includes(emailConfig.html, 'reminder=customType'))
+                t.ok(includes(emailConfig.text, 'reminder=customType'))
+                t.end()
+              }
+              mailer[type](reminderMessage)
             }
           )
         }

@@ -466,7 +466,8 @@ module.exports = function (log) {
 
     var query = {
       uid: message.uid,
-      code: message.code
+      code: message.code,
+      reminder: message.type
     }
 
     var link = this.verificationUrl + '?' + qs.stringify(query)
