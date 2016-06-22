@@ -4,7 +4,7 @@
 
 const db = '../db/GeoLite2-City.mmdb';
 const maxmind = require('maxmind');
-const ERRORS = require('./errors');
+const ERRORS = require('../lib/errors');
 const Promise = require('bluebird');
 const Joi = require('joi');
 
@@ -17,29 +17,9 @@ function GeoDB(ip) {
     IP: Joi.string().required()
   });
   var err = Joi.validate({IP: ip}, schema);
-  if (err) {
-    // this is the part im concerned about, it is highly cryptic
-    console.log('Err:', err.error.details[0].message);
-  }
-
-  // if no ip is passed, return an error object
-  if (typeof ip === 'undefined') {
+  if (err.error) {
     return Promise.reject({
-      message: ERRORS.IS_UNDEFINED
-    });
-  }
-
-  // ip not a string, return an error object
-  if (typeof ip !== 'string') {
-    return Promise.reject({
-      message: ERRORS.NOT_A_STRING
-    });
-  }
-
-  // ip is empty, return an error object
-  if (ip.length === 0) {
-    return Promise.reject({
-      message: ERRORS.IS_EMPTY
+      message: err.error.details[0].message
     });
   }
 

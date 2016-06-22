@@ -4,7 +4,7 @@
 
 const chai = require('chai');
 const GeoDB = require('../src/fxa-geodb');
-const ERRORS = require('../src/errors');
+const ERRORS = require('../lib/errors');
 
 const assert = chai.assert;
 
