@@ -21,6 +21,17 @@ GeoDB(ip).then(function (location) {
       });
 ```
 
+If you want to pass a custom timestamp to the function, do like so:
+```JavaScript
+GeoDB(ip, timestamp).then(function (location) {
+		// success, resolved
+		// location data is available here
+      }, function (err) {
+      	// Uh-oh error
+      });
+```
+where `timestamp` can be any JavaScript compatible representation of time.
+
 On successful resolution of the promise, the `location` object has the following data:
 
 ```JavaScript

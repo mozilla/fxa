@@ -5,6 +5,7 @@
 (function() {
   'use strict';
   const geodb = require('./fxa-geodb');
+  // New York timezone IP
   geodb('128.192.8.8')
     .then(function(city) {
       console.log(city); //eslint-disable-line

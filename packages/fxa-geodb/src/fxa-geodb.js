@@ -10,6 +10,7 @@ const Joi = require('joi');
 
 function GeoDB(ip, time_stamp) {
   'use strict';
+  time_stamp = time_stamp || new Date();
 
   // allows us to check whether the ip is defined, is a string, and is not empty
   var schema = Joi.object().keys({
