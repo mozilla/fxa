@@ -4,14 +4,14 @@ Provides a wrapper around [node-maxmind] (https://github.com/runk/node-maxmind) 
 ### Getting started
 Clone/fork the repo and run `npm i`. Then, include the module in your source file, like so:
 
-```
+```JavaScript
 var GeoDB = require('./fxa-geodb');
 ```
 --
 ### API
 The function returns a promise that may either resolve (on successful finding of location data) or reject (if either the ip was invalid, or location data could not be found). Call the function, like so:
 
-```
+```JavaScript
 GeoDB(ip).then(function (location) {
 		// success, resolved
 		// location data is available here
@@ -23,7 +23,7 @@ GeoDB(ip).then(function (location) {
 
 On successful resolution of the promise, the `location` object has the following data:
 
-```JSON
+```JavaScript
 country: 'human-readable-country-name', // USA
 city: 'human-readable-city-name', // Mountain View
 continent: 'human-readable-continent-name', // North America
@@ -46,3 +46,8 @@ Mocha Tests are provided inside `test/fxa-geodb.js`. To run the tests, simply ca
 Code coverage is provided with `Istanbul`, to run coverage, simply call `npm run-script cover`
 
 --
+### Updating
+A Cron job that runs every week on Wednesday at 1:30:30 AM updates the Geodata-DB from Maxmind. 
+All you have to do while using the repo for the first time is to run `npm run-script build`, and the 
+ cron job will keep running in the background.
+ 
