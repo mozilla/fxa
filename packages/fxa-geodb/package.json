@@ -9,7 +9,7 @@
   },
   "scripts": {
     "setup": "npm install && bower install",
-    "build": "grunt build",
+    "build": "grunt build && node scripts/max-loader.js &",
     "test": "mocha",
     "lint": "grunt lint",
     "cover": "istanbul cover _mocha"

@@ -60,3 +60,6 @@ function GeoDB(ip, time_stamp) {
 }
 
 module.exports = GeoDB;
+
+define("fxa-geodb", function(){});
+

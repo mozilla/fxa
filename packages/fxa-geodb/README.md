@@ -23,7 +23,7 @@ GeoDB(ip).then(function (location) {
 
 On successful resolution of the promise, the `location` object has the following data:
 
-```
+```JSON
 country: 'human-readable-country-name', // USA
 city: 'human-readable-city-name', // Mountain View
 continent: 'human-readable-continent-name', // North America

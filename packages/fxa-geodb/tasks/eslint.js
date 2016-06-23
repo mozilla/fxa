@@ -12,7 +12,7 @@ module.exports = function (grunt) {
     test: {
       eslintrc: '.eslintrc',
       src: [
-        'tests/*.js'
+        'test/*.js'
       ]
     }
   });
