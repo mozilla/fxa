@@ -28,7 +28,7 @@ TestServer.start(config)
         'e': '65537'
       }
       var duration = 1000 * 60 * 60 * 24 // 24 hours
-      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
           function (x) {
             client = x
@@ -70,13 +70,12 @@ TestServer.start(config)
         'e': '65537'
       }
       var duration = 1000 * 60 * 60 * 24 // 24 hours
-      return Client.login(config.publicUrl, email, password)
+      return Client.login(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
           function (x) {
             client = x
             t.ok(client.authAt, 'authAt was set')
             t.ok(client.uid, 'got a uid')
-            t.equal(client.emailVerified, true, 'email is verified')
             return client.keys()
           }
         )

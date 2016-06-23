@@ -62,7 +62,8 @@ function create(log, error, config, routes, db) {
       routes: {
         cors: {
           additionalExposedHeaders: ['Timestamp', 'Accept-Language'],
-          origin: [config.corsOrigin]
+          isOriginExposed: false,
+          origin: config.corsOrigin
         },
         security: {
           hsts: {
@@ -119,6 +120,16 @@ function create(log, error, config, routes, db) {
       'hawk',
       {
         getCredentialsFunc: makeCredentialFn(db.sessionToken.bind(db)),
+        hawk: hawkOptions
+      }
+    )
+    server.auth.strategy(
+      // This strategy fetches the sessionToken with its
+      // verification state. It doesn't check that state.
+      'sessionTokenWithVerificationStatus',
+      'hawk',
+      {
+        getCredentialsFunc: makeCredentialFn(db.sessionTokenWithVerificationStatus.bind(db)),
         hawk: hawkOptions
       }
     )

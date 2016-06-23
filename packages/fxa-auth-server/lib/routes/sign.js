@@ -2,9 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var metricsContext = require('../metrics/context')
-
-module.exports = function (log, isA, error, signer, db, domain) {
+module.exports = function (log, isA, error, signer, db, domain, metricsContext) {
 
   const HOUR = 1000 * 60 * 60
 
@@ -91,8 +89,7 @@ module.exports = function (log, isA, error, signer, db, domain) {
           }
         }
         var uid = sessionToken.uid.toString('hex')
-        var deviceId = sessionToken.deviceId ?
-          sessionToken.deviceId.toString('hex') : null
+        var deviceId = sessionToken.deviceId ? sessionToken.deviceId.toString('hex') : null
 
         return signer.sign(
           {
@@ -103,7 +100,8 @@ module.exports = function (log, isA, error, signer, db, domain) {
             generation: sessionToken.verifierSetAt,
             lastAuthAt: sessionToken.lastAuthAt(),
             verifiedEmail: sessionToken.email,
-            deviceId: deviceId
+            deviceId: deviceId,
+            tokenVerified: sessionToken.tokenVerified
           }
         )
         .then(

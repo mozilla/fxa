@@ -33,9 +33,10 @@ require('ass')
 
 var tap = require('tap')
 
-module.exports = function(name, testfunc) {
+module.exports = function(name, testfunc, parentTest) {
+  var t = parentTest || tap
   if (!testfunc) {
-    return tap.test(name)
+    return t.test(name)
   }
   var wrappedtestfunc = function(t) {
     var res = testfunc(t)
@@ -54,5 +55,5 @@ module.exports = function(name, testfunc) {
       }
     }
   }
-  return tap.test(name, wrappedtestfunc)
+  return t.test(name, wrappedtestfunc)
 }

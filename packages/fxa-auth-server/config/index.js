@@ -98,39 +98,6 @@ var conf = convict({
       env: 'CONTENT_SERVER_URL'
     }
   },
-  contentToken: {
-    key: {
-      default: 'YOU MUST CHANGE ME',
-      doc: 'Content Token HMAC Key',
-      format: String
-    },
-    required: {
-      doc: 'Is content token validation required',
-      format: Boolean,
-      env: 'CONTENT_TOKEN_REQUIRED',
-      default: false
-    },
-    expiry: {
-      doc: 'Time after the content token is considered expired (milliseconds)',
-      format: 'duration',
-      default: '30 minutes'
-    },
-    allowedUARegex: {
-      doc: 'An array of STRING regexes. Passing any one will get through.',
-      default: [
-        // Generic FirefoxOS devices
-        '\\((?:Mobile|Tablet|TV);.+Firefox',
-        // Some specific partner devices with custom UAs
-        '\\(FreeBSD; Viera;.+Firefox',
-        'Mozilla.+SamsungBrowser.+Mobile',
-        'Firefox.+SBrowser'
-      ]
-    },
-    allowedEmailRegex: {
-      doc: 'An array of STRING regexes. Passing any one will get through.',
-      default: ['.+@restmail.net$', '.+@mockmyid.com$']
-    }
-  },
   smtp: {
     api: {
       host: {
@@ -239,12 +206,6 @@ var conf = convict({
       format: String,
       default: 'firefox.com',
       env: 'REDIRECT_DOMAIN'
-    },
-    resendBlackoutPeriod: {
-      doc: 'Blackout period for resending verification emails (milliseconds)',
-      format: 'duration',
-      env: 'RESEND_BLACKOUT_PERIOD',
-      default: '10 minutes'
     }
   },
   maxEventLoopDelay: {
@@ -318,6 +279,13 @@ var conf = convict({
       format: String,
       env: 'COMPLAINT_QUEUE_URL',
       default: ''
+    }
+  },
+  verificationReminders: {
+    rate: {
+      doc: 'Rate of users getting the verification reminder. If "0" then the feature is disabled. If "1" all users get it.',
+      default: 0,
+      env: 'VERIFICATION_REMINDER_RATE'
     }
   },
   useHttps: {
@@ -403,17 +371,62 @@ var conf = convict({
       env: 'STATSD_SAMPLE_RATE'
     }
   },
+  metrics: {
+    flow_id_key: {
+      default: 'YOU MUST CHANGE ME',
+      doc: 'FlowId validation key, as used by content-server',
+      format: String
+    },
+    flow_id_expiry: {
+      doc: 'Time after which flowIds are considered stale.',
+      format: 'duration',
+      default: '30 minutes'
+    }
+  },
   corsOrigin: {
     doc: 'Value for the Access-Control-Allow-Origin response header',
-    format: String,
+    format: Array,
     env: 'CORS_ORIGIN',
-    default: '*'
+    default: ['*']
   },
   clientAddressDepth: {
     doc: 'location of the client ip address in the remote address chain',
     format: Number,
     env: 'CLIENT_ADDRESS_DEPTH',
     default: 3
+  },
+  signinConfirmation: {
+    enabled: {
+      doc: 'enable signin confirmation',
+      default: false,
+      env: 'SIGNIN_CONFIRMATION_ENABLED'
+    },
+    sample_rate: {
+      doc: 'signin confirmation sample rate',
+      default: 1.0,
+      env: 'SIGNIN_CONFIRMATION_RATE'
+    },
+    supportedClients: {
+      doc: 'support sign-in confirmation for only these clients',
+      format: Array,
+      default: [
+        'iframe',
+        'fx_firstrun_v1',
+        'fx_firstrun_v2',
+        'fx_desktop_v1',
+        'fx_desktop_v2',
+        'fx_desktop_v3'
+      ],
+      env: 'SIGNIN_CONFIRMATION_SUPPORTED_CLIENTS'
+    },
+    forceEmailRegex: {
+      doc: 'If feature enabled, force sign-in confirmation for email addresses matching this regex.',
+      format: Array,
+      default: [
+        '.+@mozilla\.com$'
+      ],
+      env: 'SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX'
+    }
   }
 })
 

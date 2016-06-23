@@ -1,7 +1,31 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.62.5",
+  "version": "1.64.0",
   "dependencies": {
+    "ajv": {
+      "version": "4.0.5",
+      "from": "ajv@4.0.5",
+      "resolved": "https://registry.npmjs.org/ajv/-/ajv-4.0.5.tgz",
+      "dependencies": {
+        "co": {
+          "version": "4.6.0",
+          "from": "co@>=4.6.0 <5.0.0",
+          "resolved": "https://registry.npmjs.org/co/-/co-4.6.0.tgz"
+        },
+        "json-stable-stringify": {
+          "version": "1.0.1",
+          "from": "json-stable-stringify@>=1.0.1 <2.0.0",
+          "resolved": "https://registry.npmjs.org/json-stable-stringify/-/json-stable-stringify-1.0.1.tgz",
+          "dependencies": {
+            "jsonify": {
+              "version": "0.0.0",
+              "from": "jsonify@>=0.0.0 <0.1.0",
+              "resolved": "https://registry.npmjs.org/jsonify/-/jsonify-0.0.0.tgz"
+            }
+          }
+        }
+      }
+    },
     "ass": {
       "version": "1.0.0",
       "from": "git://github.com/jrgm/ass.git#5be99ee7abc9fcf63f9ebcc37b151b9c822146d1",
@@ -326,6 +350,11 @@
       "from": "bluebird@2.10.2",
       "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-2.10.2.tgz"
     },
+    "buffer-equal-constant-time": {
+      "version": "1.0.1",
+      "from": "https://registry.npmjs.org/buffer-equal-constant-time/-/buffer-equal-constant-time-1.0.1.tgz",
+      "resolved": "https://registry.npmjs.org/buffer-equal-constant-time/-/buffer-equal-constant-time-1.0.1.tgz"
+    },
     "commander": {
       "version": "2.8.1",
       "from": "commander@2.8.1",
@@ -433,7 +462,7 @@
     "fxa-auth-db-mysql": {
       "version": "0.62.0",
       "from": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#master",
-      "resolved": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#978e74fa56bc465cc56d21bf529e7b6187ab4d79",
+      "resolved": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#06b8db63eabf287aee761338eb54655758f37e4e",
       "dependencies": {
         "bluebird": {
           "version": "2.1.3",
@@ -1038,7 +1067,7 @@
     "fxa-auth-mailer": {
       "version": "1.0.8",
       "from": "git+https://github.com/mozilla/fxa-auth-mailer.git#master",
-      "resolved": "git+https://github.com/mozilla/fxa-auth-mailer.git#062508e2ff3c900bb40b2212f375609c05628497",
+      "resolved": "git+https://github.com/mozilla/fxa-auth-mailer.git#1997b3f0270b6bb97c744b30f4424a0db9a3c151",
       "dependencies": {
         "bluebird": {
           "version": "2.9.34",
@@ -1125,7 +1154,7 @@
         "fxa-content-server-l10n": {
           "version": "0.0.0",
           "from": "git://github.com/mozilla/fxa-content-server-l10n.git",
-          "resolved": "git://github.com/mozilla/fxa-content-server-l10n.git#02a1c4c05aec60ac3ffc5b841448c275e18ac14c"
+          "resolved": "git://github.com/mozilla/fxa-content-server-l10n.git#dc7d3c5136bcec6658bf6d3633d1fd6d7bf25965"
         },
         "grunt-nunjucks-2-html": {
           "version": "0.3.4",
@@ -6260,6 +6289,18 @@
       "from": "hkdf@0.0.2",
       "resolved": "https://registry.npmjs.org/hkdf/-/hkdf-0.0.2.tgz"
     },
+    "husky": {
+      "version": "0.11.4",
+      "from": "husky@0.11.4",
+      "resolved": "https://registry.npmjs.org/husky/-/husky-0.11.4.tgz",
+      "dependencies": {
+        "normalize-path": {
+          "version": "1.0.0",
+          "from": "normalize-path@>=1.0.0 <2.0.0",
+          "resolved": "https://registry.npmjs.org/normalize-path/-/normalize-path-1.0.0.tgz"
+        }
+      }
+    },
     "joi": {
       "version": "6.9.1",
       "from": "joi@6.9.1",
@@ -6509,9 +6550,9 @@
       }
     },
     "mozlog": {
-      "version": "2.0.3",
-      "from": "mozlog@2.0.3",
-      "resolved": "https://registry.npmjs.org/mozlog/-/mozlog-2.0.3.tgz",
+      "version": "2.0.5",
+      "from": "mozlog@2.0.5",
+      "resolved": "https://registry.npmjs.org/mozlog/-/mozlog-2.0.5.tgz",
       "dependencies": {
         "intel": {
           "version": "1.1.0",
@@ -6580,9 +6621,9 @@
               "resolved": "https://registry.npmjs.org/strftime/-/strftime-0.9.2.tgz"
             },
             "symbol": {
-              "version": "0.2.1",
+              "version": "0.2.3",
               "from": "symbol@>=0.2.0 <0.3.0",
-              "resolved": "https://registry.npmjs.org/symbol/-/symbol-0.2.1.tgz"
+              "resolved": "https://registry.npmjs.org/symbol/-/symbol-0.2.3.tgz"
             },
             "utcstring": {
               "version": "0.1.0",

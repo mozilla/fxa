@@ -1,119 +1,64 @@
-<a name="1.62.5"></a>
-## [1.62.5](https://github.com/mozilla/fxa-auth-server/compare/v1.62.4...v1.62.5) (2016-05-27)
+<a name="1.64.0"></a>
+# [1.64.0](https://github.com/mozilla/fxa-auth-server/compare/v1.63.0...v1.64.0) (2016-06-23)
 
 
 ### Bug Fixes
 
-* **l10n:** update to fix broken lt locale ([512576d](https://github.com/mozilla/fxa-auth-server/commit/512576d))
-
-
-
-<a name="1.62.4"></a>
-## [1.62.4](https://github.com/mozilla/fxa-auth-server/compare/v1.62.3...v1.62.4) (2016-05-24)
-
-
-
-
-<a name="1.62.3"></a>
-## [1.62.3](https://github.com/mozilla/fxa-auth-server/compare/v1.62.2...v1.62.3) (2016-05-24)
-
-
-### chore
-
-* **shrinkwrap:** update auth-mailer/content-server-l10n on v1.62.2 ([3e1027a](https://github.com/mozilla/fxa-auth-server/commit/3e1027a))
-
-
-
-<a name="1.62.2"></a>
-## [1.62.2](https://github.com/mozilla/fxa-auth-server/compare/v1.62.1...v1.62.2) (2016-05-20)
-
-
-### Bug Fixes
-
-* **token:** Use new REQUEST_BLOCKED error for bad content tokens. ([c0696be](https://github.com/mozilla/fxa-auth-server/commit/c0696be))
-
-
-
-<a name="1.60.4"></a>
-## [1.60.4](https://github.com/mozilla/fxa-auth-server/compare/v1.60.3...v1.60.4) (2016-04-29)
-
-
-### Bug Fixes
-
-* **devices:** Avoid spurious writes to device record if nothing has changed ([5017913](https://github.com/mozilla/fxa-auth-server/commit/5017913))
-* **token:** Tweak regex for samsung user-agents in content-token allow list ([13e13b2](https://github.com/mozilla/fxa-auth-server/commit/13e13b2))
-
-
-
-<a name="1.60.3"></a>
-## [1.60.3](https://github.com/mozilla/fxa-auth-server/compare/v1.60.2...v1.60.3) (2016-04-20)
-
-
-### Bug Fixes
-
-* **token:** Add end-of-string anchor in contenttoken email regex. ([c1aae28](https://github.com/mozilla/fxa-auth-server/commit/c1aae28))
-
-
-
-<a name="1.60.2"></a>
-## [1.60.2](https://github.com/mozilla/fxa-auth-server/compare/v1.60.1...v1.60.2) (2016-04-19)
-
-
-### Bug Fixes
-
-* **token:** Add samsung user-agents to content-token allow list ([96f2190](https://github.com/mozilla/fxa-auth-server/commit/96f2190))
-
-
-
-<a name="1.60.1"></a>
-## [1.60.1](https://github.com/mozilla/fxa-auth-server/compare/v1.60.0...v1.60.1) (2016-04-19)
-
-
-### Bug Fixes
-
-* **account:** flag unknown attempts for the emailRecord ([b4fa3f6](https://github.com/mozilla/fxa-auth-server/commit/b4fa3f6))
-* **bulk-mailer:** Remove the locale prefix on filenames w/ --write ([3c9d584](https://github.com/mozilla/fxa-auth-server/commit/3c9d584))
-* **bulk-mailer:** Set error rate to 0, we are done testing. ([06b4c91](https://github.com/mozilla/fxa-auth-server/commit/06b4c91))
-* **clientAddress:** allow location of the client ip address in forward headers to be specified in co ([3440484](https://github.com/mozilla/fxa-auth-server/commit/3440484))
-* **contentToken:** don't let hapi give validation errors about contentToken ([5725061](https://github.com/mozilla/fxa-auth-server/commit/5725061))
-* **contentToken:** fix docs ([dd68374](https://github.com/mozilla/fxa-auth-server/commit/dd68374))
-* **contentToken:** update metrics, remove ip ([89dd85b](https://github.com/mozilla/fxa-auth-server/commit/89dd85b))
-* **customs:** Check more password-related actions with customs-server. ([cf76513](https://github.com/mozilla/fxa-auth-server/commit/cf76513))
-* **customs:** fix type for form.email ([398c98e](https://github.com/mozilla/fxa-auth-server/commit/398c98e))
-* **customs:** provide email properly to customs ([b28fb17](https://github.com/mozilla/fxa-auth-server/commit/b28fb17))
-* **email:** Add feature-flag for new-login notification email. ([1868914](https://github.com/mozilla/fxa-auth-server/commit/1868914))
-* **email:** Point to private fork of auth-mailer for prod deploy. ([26f7b3a](https://github.com/mozilla/fxa-auth-server/commit/26f7b3a))
-* **email:** reinstate new sync device emails ([9f7ff9f](https://github.com/mozilla/fxa-auth-server/commit/9f7ff9f))
-* **email:** send additional template data for new-login email. ([e35eba8](https://github.com/mozilla/fxa-auth-server/commit/e35eba8))
-* **errors:** move bad content error up ([e67990c](https://github.com/mozilla/fxa-auth-server/commit/e67990c))
-* **must-reset:** exit code 1 on reset account error ([3774ea8](https://github.com/mozilla/fxa-auth-server/commit/3774ea8))
-* **tests:** Build and test fixes for latest fxa-auth-mailer update. ([e3eb504](https://github.com/mozilla/fxa-auth-server/commit/e3eb504))
-* **token:** Allow certain emails to bypass the content-token restriction (#27) ([2a162e6](https://github.com/mozilla/fxa-auth-server/commit/2a162e6))
-* **token:** Allow the UA for a specific partner device. ([6401431](https://github.com/mozilla/fxa-auth-server/commit/6401431))
-* **token:** Fix test bustage from missing contentToken config ([6924d5c](https://github.com/mozilla/fxa-auth-server/commit/6924d5c))
-* **token:** More diagnostic logging for content-token errors. (#25) ([33f6307](https://github.com/mozilla/fxa-auth-server/commit/33f6307))
-* **token:** Validate and log metrics on content-tokens even when they're optional ([002219b](https://github.com/mozilla/fxa-auth-server/commit/002219b))
-
-### chore
-
-* **bulk-mailer:** Settle on the "password_reset_required" template ([90de303](https://github.com/mozilla/fxa-auth-server/commit/90de303))
-* **bulk-mailer:** Stop all processing on error. ([ae83d72](https://github.com/mozilla/fxa-auth-server/commit/ae83d72))
-* **customs:** use named error constant for UNEXPECTED_ERROR ([ead6134](https://github.com/mozilla/fxa-auth-server/commit/ead6134))
-* **doc:** add usage info to scripts/must-reset.js ([8d02f8b](https://github.com/mozilla/fxa-auth-server/commit/8d02f8b))
-* **docs:** Add more docs to the reset-send-batch script. ([975132e](https://github.com/mozilla/fxa-auth-server/commit/975132e))
-* **shrinkwrap:** pick up new versions auth-mailer and content-l10n ([3fb3186](https://github.com/mozilla/fxa-auth-server/commit/3fb3186))
+* **account:** fix payload typo in device update ([673dd5d](https://github.com/mozilla/fxa-auth-server/commit/673dd5d))
+* **config:** improve sign-in confirmation email regex ([33301c5](https://github.com/mozilla/fxa-auth-server/commit/33301c5))
+* **logs:** Log the uid when reporting push errors. ([db9e5f4](https://github.com/mozilla/fxa-auth-server/commit/db9e5f4))
+* **mail:** Remove the "resend blackout period". ([27082be](https://github.com/mozilla/fxa-auth-server/commit/27082be))
+* **metrics:** Monitor for clients sending obsolete contentToken parameter. ([1d58b3e](https://github.com/mozilla/fxa-auth-server/commit/1d58b3e))
+* **push:** Avoid blocking event loop when pushing to lots of devices. ([1be85c3](https://github.com/mozilla/fxa-auth-server/commit/1be85c3))
+* **tests:** add verify_code tests ([e4eb4d8](https://github.com/mozilla/fxa-auth-server/commit/e4eb4d8))
 
 ### Features
 
-* **bulk-mailer:** `--errors` and `--unsent` now have defaults. ([61c092d](https://github.com/mozilla/fxa-auth-server/commit/61c092d))
-* **bulk-mailer:** Add some utilities to work with batches ([21a9033](https://github.com/mozilla/fxa-auth-server/commit/21a9033))
-* **contentToken:** add customs flag on bad token ([e811ced](https://github.com/mozilla/fxa-auth-server/commit/e811ced))
-* **contentToken:** add tests, add new error code ([8372a62](https://github.com/mozilla/fxa-auth-server/commit/8372a62))
-* **contentToken:** adjust user agents ([70bc661](https://github.com/mozilla/fxa-auth-server/commit/70bc661))
-* **customs:** include errno in customs flags ([d50f959](https://github.com/mozilla/fxa-auth-server/commit/d50f959))
-* **login:** add content token support ([a2ac3ad](https://github.com/mozilla/fxa-auth-server/commit/a2ac3ad))
-* **reset:** Added "must reset account" error state ([e86d16f](https://github.com/mozilla/fxa-auth-server/commit/e86d16f))
-* **scripts:** Add a bulk mailer ([09c2671](https://github.com/mozilla/fxa-auth-server/commit/09c2671))
+* **config:** accept CORS requests from multiple origins ([f792d35](https://github.com/mozilla/fxa-auth-server/commit/f792d35))
+* **email:** add verification reminders ([5007b4d](https://github.com/mozilla/fxa-auth-server/commit/5007b4d)), closes [#1081](https://github.com/mozilla/fxa-auth-server/issues/1081)
+* **login:** Log an error on login if account has too many active sessions. ([ca9524b](https://github.com/mozilla/fxa-auth-server/commit/ca9524b))
+* **metrics:** add metrics for reminder queries ([aca4185](https://github.com/mozilla/fxa-auth-server/commit/aca4185))
+* **push:** Log an error if pushing notifications to too many active devices. ([5b81e10](https://github.com/mozilla/fxa-auth-server/commit/5b81e10))
+* **signin:** Add regex for enabling signin confirmation (#1290) r=pbooth ([fa02ee8](https://github.com/mozilla/fxa-auth-server/commit/fa02ee8))
+
+### Refactor
+
+* **tests:** eliminate duplicate setup in local route tests ([e8cd5df](https://github.com/mozilla/fxa-auth-server/commit/e8cd5df))
+
+### chore
+
+* **changelog:** Generate changelog for v1.63.0 release ([0ca8367](https://github.com/mozilla/fxa-auth-server/commit/0ca8367))
+* **deps:** Update to latest version of mozlog ([aa3b4e7](https://github.com/mozilla/fxa-auth-server/commit/aa3b4e7)), closes [#1279](https://github.com/mozilla/fxa-auth-server/issues/1279)
+* **nsp:** update .nsprc and travis.yml ([9d047b5](https://github.com/mozilla/fxa-auth-server/commit/9d047b5)), closes [#1295](https://github.com/mozilla/fxa-auth-server/issues/1295)
+* **shrinkwrap:** update fxa-auth-mailer ([1ced8c9](https://github.com/mozilla/fxa-auth-server/commit/1ced8c9))
+
+
+
+<a name="1.63.0"></a>
+## [1.63.0](https://github.com/mozilla/fxa-auth-server/compare/v1.62.1...v1.63.0) (2016-06-06)
+
+
+### Bug Fixes
+
+* **api:** remove device registration from signup/login endpoints ([21ad7f3](https://github.com/mozilla/fxa-auth-server/commit/21ad7f3))
+* **e2e-email:** fix e2e-email for all locales ([0250e50](https://github.com/mozilla/fxa-auth-server/commit/0250e50))
+* **mail:** Remove the "resend blackout period". ([27082be](https://github.com/mozilla/fxa-auth-server/commit/27082be))
+* **push:** add verification push event to push log ([e5d609a](https://github.com/mozilla/fxa-auth-server/commit/e5d609a))
+* **verify:** Only send post-verify email when service=sync ([e0cacf8](https://github.com/mozilla/fxa-auth-server/commit/e0cacf8))
+
+### chore
+
+* **deps:** Update to latest version of fxa-auth-mailer ([bc1ae49](https://github.com/mozilla/fxa-auth-server/commit/bc1ae49))
+* **git:** Run a quick linting task on pre-push ([0c8767a](https://github.com/mozilla/fxa-auth-server/commit/0c8767a))
+
+### Features
+
+* **device:** emit create and delete events to SNS ([c90e44e](https://github.com/mozilla/fxa-auth-server/commit/c90e44e)), closes [#1186](https://github.com/mozilla/fxa-auth-server/issues/1186)
+* **devices:** notify a device when it has been disconnected ([fcb9e80](https://github.com/mozilla/fxa-auth-server/commit/fcb9e80)), closes [#1139](https://github.com/mozilla/fxa-auth-server/issues/1139)
+* **devices:** notify other devices of a new device ([6ed2697](https://github.com/mozilla/fxa-auth-server/commit/6ed2697)), closes [#1250](https://github.com/mozilla/fxa-auth-server/issues/1250)
+* **events:** Include metrics context in SQS events ([d5dc75b](https://github.com/mozilla/fxa-auth-server/commit/d5dc75b))
+* **metrics:** Log metrics about whether metrics are transmitted correctly. ([c4119f1](https://github.com/mozilla/fxa-auth-server/commit/c4119f1))
+* **signin:** Updated password/change/finish and account/reset ([333451e](https://github.com/mozilla/fxa-auth-server/commit/333451e))
 
 
 
@@ -153,6 +98,7 @@
 <a name="1.61.0"></a>
 # [1.61.0](https://github.com/mozilla/fxa-auth-server/compare/v1.60.0...v1.61.0) (2016-05-04)
 
+
 ### Bug Fixes
 
 * **device:** Restrict device name to display-safe unicode characters ([79acb18](https://github.com/mozilla/fxa-auth-server/commit/79acb18))
@@ -172,58 +118,6 @@
 
 * **nsp:** Update convict, add .nsprc file to silence some NSP warnings ([038f46e](https://github.com/mozilla/fxa-auth-server/commit/038f46e))
 
-
-
-<a name="1.60.4"></a>
-## [1.60.4](https://github.com/mozilla/fxa-auth-server/compare/v1.60.3...v1.60.4) (2016-04-29)
-
-
-### Bug Fixes
-
-* **devices:** Avoid spurious writes to device record if nothing has changed ([5017913](https://github.com/mozilla/fxa-auth-server/commit/5017913))
-* **token:** Tweak regex for samsung user-agents in content-token allow list ([13e13b2](https://github.com/mozilla/fxa-auth-server/commit/13e13b2))
-
-
-
-<a name="1.60.3"></a>
-## [1.60.3](https://github.com/mozilla/fxa-auth-server/compare/v1.60.2...v1.60.3) (2016-04-20)
-
-
-### Bug Fixes
-
-* **token:** Add end-of-string anchor in contenttoken email regex. ([c1aae28](https://github.com/mozilla/fxa-auth-server/commit/c1aae28))
-
-
-
-<a name="1.60.2"></a>
-## [1.60.2](https://github.com/mozilla/fxa-auth-server/compare/v1.60.1...v1.60.2) (2016-04-19)
-
-
-### Bug Fixes
-
-* **token:** Add samsung user-agents to content-token allow list ([96f2190](https://github.com/mozilla/fxa-auth-server/commit/96f2190))
-
-
-
-<a name="1.60.1"></a>
-## [1.60.1](https://github.com/mozilla/fxa-auth-server/compare/v1.60.0...v1.60.1) (2016-04-19)
-
-
-### Bug Fixes
-
-* **contentToken:** don't let hapi give validation errors about contentToken ([5725061](https://github.com/mozilla/fxa-auth-server/commit/5725061))
-* **contentToken:** fix docs ([dd68374](https://github.com/mozilla/fxa-auth-server/commit/dd68374))
-* **contentToken:** update metrics, remove ip ([89dd85b](https://github.com/mozilla/fxa-auth-server/commit/89dd85b))
-* **errors:** move bad content error up ([e67990c](https://github.com/mozilla/fxa-auth-server/commit/e67990c))
-* **token:** Allow certain emails to bypass the content-token restriction (#27) ([2a162e6](https://github.com/mozilla/fxa-auth-server/commit/2a162e6))
-* **token:** Allow the UA for a specific partner device. ([6401431](https://github.com/mozilla/fxa-auth-server/commit/6401431))
-* **token:** Fix test bustage from missing contentToken config ([6924d5c](https://github.com/mozilla/fxa-auth-server/commit/6924d5c))
-* **token:** More diagnostic logging for content-token errors. (#25) ([33f6307](https://github.com/mozilla/fxa-auth-server/commit/33f6307))
-* **token:** Validate and log metrics on content-tokens even when they're optional ([002219b](https://github.com/mozilla/fxa-auth-server/commit/002219b))
-
-### Features
-
-* **login:** add content token support ([a2ac3ad](https://github.com/mozilla/fxa-auth-server/commit/a2ac3ad))
 
 
 <a name="1.60.0"></a>

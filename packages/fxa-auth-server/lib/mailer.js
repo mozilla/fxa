@@ -40,10 +40,10 @@ module.exports = function (config, log) {
             redirectTo: opts.redirectTo,
             resume: opts.resume,
             service: opts.service,
-            uaBrowser: account.uaBrowser,
-            uaBrowserVersion: account.uaBrowserVersion,
-            uaOS: account.uaOS,
-            uaOSVersion: account.uaOSVersion,
+            uaBrowser: opts.uaBrowser,
+            uaBrowserVersion: opts.uaBrowserVersion,
+            uaOS: opts.uaOS,
+            uaOSVersion: opts.uaOSVersion,
             uid: account.uid.toString('hex')
           }
         ))

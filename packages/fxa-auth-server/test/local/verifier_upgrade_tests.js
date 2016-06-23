@@ -30,13 +30,14 @@ createDBServer().then(
     var email = Math.random() + '@example.com'
     var password = 'ok'
     var uid = null
+
     test(
       'upgrading verifierVersion upgrades the account on password change',
     function (t) {
       return TestServer.start(config)
       .then(
         function main(server) {
-          return Client.create(config.publicUrl, email, password, { preVerified: true })
+          return Client.create(config.publicUrl, email, password, { preVerified: true, keys: true })
             .then(
               function (c) {
                 uid = Buffer(c.uid, 'hex')
@@ -73,14 +74,21 @@ createDBServer().then(
       )
       .then(
         function (server) {
-          return Client.changePassword(config.publicUrl, email, password, password)
+          var client
+          return Client.login(config.publicUrl, email, password, server.mailbox)
             .then(
-              function () {
-                return Client.login(config.publicUrl, email, password)
+              function (x) {
+                client = x
+                return client.keys()
               }
             )
             .then(
-              function (c) {
+              function () {
+                return client.changePassword(password)
+              }
+            )
+            .then(
+              function () {
                 return server.stop()
               }
             )

@@ -48,7 +48,10 @@ test(
       })
 
       var push = proxyquire('../../lib/push', {})(thisMockLog, mockDbResult)
-      push.pushToDevices(mockUid, 'accountVerify', new Buffer('foodata'))
+      var options = {
+        data: new Buffer('foodata')
+      }
+      push.pushToDevices(mockUid, 'accountVerify', options)
 
     })
   }

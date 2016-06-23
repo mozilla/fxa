@@ -116,11 +116,18 @@ function signinAsSecondDevice(client) {
   var password = program.password
   var opts = {
     service: 'sync',
+    keys: true,
     reason: 'signin',
     lang: client.options.lang
   }
 
   return Client.login(program.authServer, email, password, opts)
+    .then(function(client) {
+      return client.keys()
+        .then(function () {
+          return fetchNotificationEmail(client)
+        })
+    })
 }
 
 function changePassword(client) {
@@ -132,39 +139,32 @@ function changePassword(client) {
     'accept-language': lang
   }
 
-  return Client.changePassword(program.authServer, email, password, password, headers)
-    .then(function (client) {
-      return fetchNotificationEmail(email, client)
+  return client.changePassword(password, headers, client.sessionToken)
+    .then(function () {
+      return fetchNotificationEmail(client)
     })
 }
 
 function passwordReset(client) {
   var email = client.email
-  var password = program.password
   var lang = langFromEmail(email)
 
   var headers = {
     'accept-language': lang
   }
 
-  return Client.login(program.authServer, email, password)
-    .then(function (client) {
-      return client.forgotPassword(lang)
-        .then(function () {
-          return program.mailserver.waitForCode(email)
-        })
-        .then(function (code) {
-          return client.verifyPasswordResetCode(code, headers)
-        })
-        .then(function() {
-          return client.resetPassword(program.password, headers)
-        })
+  return client.forgotPassword(lang)
+    .then(function () {
+      return program.mailserver.waitForCode(email)
+    })
+    .then(function (code) {
+      return client.verifyPasswordResetCode(code, headers)
+    })
+    .then(function() {
+      return client.resetPassword(program.password, headers)
     })
     .then(function () {
-      return Client.login(program.authServer, email, program.password)
-        .then(function (client) {
-          return fetchNotificationEmail(email, client)
-        })
+      return fetchNotificationEmail(client)
     })
 }
 
@@ -174,25 +174,21 @@ function lockAndUnlockAccount(client) {
   var email = client.email
   var password = program.password
   var lang = langFromEmail(email)
-  var authServer = program.authServer
 
-  return Client.login(authServer, email, password)
-    .then(function (client) {
-      return client.lockAccount(email, password)
-        .then(function () {
-          return client.resendAccountUnlockCode(lang)
-        })
-        .then(function () {
-          return fetchNotificationEmail(email, client)
-        })
+  return client.lockAccount(email, password)
+    .then(function () {
+      return client.resendAccountUnlockCode(lang)
+    })
+    .then(function () {
+      return fetchNotificationEmail(client)
     })
 }
 
-function fetchNotificationEmail(email, client) {
+function fetchNotificationEmail(client) {
   // Gather the notification email that was just sent for (new-device-added,
   // password-change, password-reset, account-unlock).
-  return program.mailserver.waitForEmail(email)
-    .then(function (/* message */) {
+  return program.mailserver.waitForEmail(client.email)
+    .then(function () {
       return client
     })
 }

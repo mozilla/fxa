@@ -18,11 +18,12 @@ var statsd = {
   init: sinon.spy(),
   write: sinon.spy()
 }
-var metricsContext = {
-  add: sinon.spy(function (data, context) {
-    return context
-  })
+var metricsContext = function () {
+  return metricsContext
 }
+metricsContext.add = sinon.spy(function (data, context) {
+  return context
+})
 var mocks = {
   mozlog: sinon.spy(function () {
     return logger

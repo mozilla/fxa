@@ -37,7 +37,8 @@ var ACCOUNT = {
   verifyHash: zeroBuffer32,
   authSalt: zeroBuffer32,
   kA: zeroBuffer32,
-  wrapWrapKb: zeroBuffer32
+  wrapWrapKb: zeroBuffer32,
+  tokenVerificationId: zeroBuffer16
 }
 
 var dbServer
@@ -110,6 +111,7 @@ test(
       })
       .then(function(emailRecord) {
         emailRecord.createdAt = Date.now()
+        emailRecord.tokenVerificationId = ACCOUNT.tokenVerificationId
         return db.createSessionToken(emailRecord, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0')
       })
       .then(function(sessionToken) {
@@ -224,6 +226,7 @@ test(
     return dbConn.then(function (db) {
       return db.emailRecord(ACCOUNT.email)
         .then(function (emailRecord) {
+          emailRecord.tokenVerificationId = ACCOUNT.tokenVerificationId
           return db.createSessionToken(emailRecord, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:44.0) Gecko/20100101 Firefox/44.0')
         })
         .then(function (sessionToken) {
@@ -336,7 +339,11 @@ test(
       var tokenId
       return db.emailRecord(ACCOUNT.email)
       .then(function(emailRecord) {
-        return db.createKeyFetchToken({uid: emailRecord.uid, kA: emailRecord.kA, wrapKb: ACCOUNT.wrapWrapKb})
+        return db.createKeyFetchToken({
+          uid: emailRecord.uid,
+          kA: emailRecord.kA,
+          wrapKb: ACCOUNT.wrapWrapKb
+        })
       })
       .then(function(keyFetchToken) {
         t.deepEqual(keyFetchToken.uid, ACCOUNT.uid)
@@ -509,6 +516,7 @@ test(
     return dbConn.then(function(db) {
       return db.emailRecord(ACCOUNT.email)
       .then(function(emailRecord) {
+        emailRecord.tokenVerificationId = ACCOUNT.tokenVerificationId
         return db.createSessionToken(emailRecord, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0')
       })
       .then(function(sessionToken) {

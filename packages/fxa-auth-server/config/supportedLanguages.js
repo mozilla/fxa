@@ -6,6 +6,7 @@
 // https://raw.githubusercontent.com/mozilla/fxa-content-server/master/server/config/production-locales.json
 
 module.exports = [
+  'ar',
   'az',
   'bg',
   'cs',

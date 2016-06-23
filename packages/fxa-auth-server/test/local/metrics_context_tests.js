@@ -4,16 +4,18 @@
 
 'use strict'
 
+var sinon = require('sinon')
 var test = require('../ptaptest')
+var mocks = require('../mocks')
 
-var metricsContext = require('../../lib/metrics/context')
+var metricsContext = require('../../lib/metrics/context')(mocks.mockLog(), {})
 
 test(
   'metricsContext interface is correct',
   function (t) {
     t.equal(typeof metricsContext, 'object', 'metricsContext is object')
     t.notEqual(metricsContext, null, 'metricsContext is not null')
-    t.equal(Object.keys(metricsContext).length, 2, 'metricsContext has 2 properties')
+    t.equal(Object.keys(metricsContext).length, 3, 'metricsContext has 3 properties')
 
     t.equal(typeof metricsContext.schema, 'object', 'metricsContext.schema is object')
     t.notEqual(metricsContext.schema, null, 'metricsContext.schema is not null')
@@ -65,7 +67,7 @@ test(
     t.ok(result.flow_time > 0, 'result.flow_time is greater than zero')
     t.ok(result.flow_time < time, 'result.flow_time is less than the current time')
     t.equal(result.context, 'mock context', 'result.context is correct')
-    t.equal(result.entrypoint, 'mock entry point', 'result.entry point is correct')
+    t.equal(result.entrypoint, 'mock entry point', 'result.entrypoint is correct')
     t.equal(result.migration, 'mock migration', 'result.migration is correct')
     t.equal(result.service, 'mock service', 'result.service is correct')
     t.equal(result.utm_campaign, 'mock utm_campaign', 'result.utm_campaign is correct')
@@ -123,3 +125,379 @@ test(
   }
 )
 
+test(
+  'metricsContext.validate with known good data',
+  function (t) {
+    var expectedTime = 1451566800000
+    var expectedSalt = '4d6f7a696c6c6146697265666f782121'
+    var expectedHmac = 'c89d56556d22039fbbf54d34e0baf206'
+    var mockLog = mocks.spyLog()
+    var mockConfig = {
+      metrics: {
+        flow_id_expiry: 60000,
+        flow_id_key: 'S3CR37'
+      }
+    }
+    var mockRequest = {
+      headers: {
+        'user-agent': 'Firefox'
+      },
+      payload: {
+        metricsContext: {
+          flowId: expectedSalt + expectedHmac,
+          flowBeginTime: expectedTime
+        }
+      }
+    }
+    sinon.stub(Date, 'now', function() {
+      return expectedTime + 20000
+    })
+
+    try {
+      var metricsContext = require('../../lib/metrics/context')(mockLog, mockConfig)
+      var valid = metricsContext.validate(mockRequest)
+    } finally {
+      Date.now.restore()
+    }
+
+    t.ok(valid, 'the known good data is treated as valid')
+    t.equal(mockLog.warn.callCount, 0, 'log.warn was not called')
+    t.equal(mockLog.info.callCount, 1, 'log.info was called once')
+    t.ok(mockLog.info.calledWithExactly({
+      op: 'metrics.context.validate',
+      valid: true,
+      agent: 'Firefox'
+    }), 'log.info was called with the expected log data')
+    t.end()
+  }
+)
+
+test(
+  'metricsContext.validate with missing data bundle',
+  function (t) {
+    var mockLog = mocks.spyLog()
+    var mockConfig = {
+      metrics: {
+        flow_id_expiry: 60000,
+        flow_id_key: 'test'
+      }
+    }
+    var mockRequest = {
+      headers: {
+        'user-agent': 'test-agent'
+      },
+      payload: {
+        email: 'test@example.com'
+        // note that 'metricsContext' key is absent
+      }
+    }
+
+    var metricsContext = require('../../lib/metrics/context')(mockLog, mockConfig)
+    var valid = metricsContext.validate(mockRequest)
+
+    t.notOk(valid, 'the data is treated as invalid')
+    t.equal(mockLog.info.callCount, 0, 'log.info was not called')
+    t.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
+    t.ok(mockLog.warn.calledWithExactly({
+      op: 'metrics.context.validate',
+      valid: false,
+      reason: 'missing context',
+      agent: 'test-agent'
+    }), 'log.warn was called with the expected log data')
+    t.end()
+  }
+)
+
+test(
+  'metricsContext.validate with missing flowId',
+  function (t) {
+    var mockLog = mocks.spyLog()
+    var mockConfig = {
+      metrics: {
+        flow_id_expiry: 60000,
+        flow_id_key: 'test'
+      }
+    }
+    var mockRequest = {
+      headers: {
+        'user-agent': 'test-agent'
+      },
+      payload: {
+        metricsContext: {
+          flowBeginTime: Date.now()
+        }
+      }
+    }
+
+    var metricsContext = require('../../lib/metrics/context')(mockLog, mockConfig)
+    var valid = metricsContext.validate(mockRequest)
+
+    t.notOk(valid, 'the data is treated as invalid')
+    t.equal(mockLog.info.callCount, 0, 'log.info was not called')
+    t.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
+    t.ok(mockLog.warn.calledWithExactly({
+      op: 'metrics.context.validate',
+      valid: false,
+      reason: 'missing flowId',
+      agent: 'test-agent'
+    }), 'log.warn was called with the expected log data')
+    t.end()
+  }
+)
+
+test(
+  'metricsContext.validate with missing flowBeginTime',
+  function (t) {
+    var mockLog = mocks.spyLog()
+    var mockConfig = {
+      metrics: {
+        flow_id_expiry: 60000,
+        flow_id_key: 'test'
+      }
+    }
+    var mockRequest = {
+      headers: {
+        'user-agent': 'test-agent'
+      },
+      payload: {
+        metricsContext: {
+          flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103'
+        }
+      }
+    }
+
+    var metricsContext = require('../../lib/metrics/context')(mockLog, mockConfig)
+    var valid = metricsContext.validate(mockRequest)
+
+    t.notOk(valid, 'the data is treated as invalid')
+    t.equal(mockLog.info.callCount, 0, 'log.info was not called')
+    t.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
+    t.ok(mockLog.warn.calledWithExactly({
+      op: 'metrics.context.validate',
+      valid: false,
+      reason: 'missing flowBeginTime',
+      agent: 'test-agent'
+    }), 'log.warn was called with the expected log data')
+    t.end()
+  }
+)
+
+test(
+  'metricsContext.validate with flowBeginTime that is too old',
+  function (t) {
+    var mockLog = mocks.spyLog()
+    var mockConfig = {
+      metrics: {
+        flow_id_expiry: 60000,
+        flow_id_key: 'test'
+      }
+    }
+    var mockRequest = {
+      headers: {
+        'user-agent': 'test-agent'
+      },
+      payload: {
+        metricsContext: {
+          flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+          flowBeginTime: Date.now() - mockConfig.metrics.flow_id_expiry - 1
+        }
+      }
+    }
+
+    var metricsContext = require('../../lib/metrics/context')(mockLog, mockConfig)
+    var valid = metricsContext.validate(mockRequest)
+
+    t.notOk(valid, 'the data is treated as invalid')
+    t.equal(mockLog.info.callCount, 0, 'log.info was not called')
+    t.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
+    t.ok(mockLog.warn.calledWithExactly({
+      op: 'metrics.context.validate',
+      valid: false,
+      reason: 'expired flowBeginTime',
+      agent: 'test-agent'
+    }), 'log.warn was called with the expected log data')
+    t.end()
+  }
+)
+
+test(
+  'metricsContext.validate with an invalid flow signature',
+  function (t) {
+    var mockLog = mocks.spyLog()
+    var mockConfig = {
+      metrics: {
+        flow_id_expiry: 60000,
+        flow_id_key: 'test'
+      }
+    }
+    var mockRequest = {
+      headers: {
+        'user-agent': 'test-agent'
+      },
+      payload: {
+        metricsContext: {
+          flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+          flowBeginTime: Date.now()
+        }
+      }
+    }
+
+    var metricsContext = require('../../lib/metrics/context')(mockLog, mockConfig)
+    var valid = metricsContext.validate(mockRequest)
+
+    t.notOk(valid, 'the data is treated as invalid')
+    t.equal(mockLog.info.callCount, 0, 'log.info was not called')
+    t.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
+    t.ok(mockLog.warn.calledWithExactly({
+      op: 'metrics.context.validate',
+      valid: false,
+      reason: 'invalid signature',
+      agent: 'test-agent'
+    }), 'log.warn was called with the expected log data')
+    t.end()
+  }
+)
+
+test(
+  'metricsContext.validate with flow signature from different key',
+  function (t) {
+    var expectedTime = 1451566800000
+    var expectedSalt = '4d6f7a696c6c6146697265666f782121'
+    var expectedHmac = 'c89d56556d22039fbbf54d34e0baf206'
+    var mockLog = mocks.spyLog()
+    var mockConfig = {
+      metrics: {
+        flow_id_expiry: 60000,
+        flow_id_key: 'ThisIsTheWrongKey'
+      }
+    }
+    var mockRequest = {
+      headers: {
+        'user-agent': 'Firefox'
+      },
+      payload: {
+        metricsContext: {
+          flowId: expectedSalt + expectedHmac,
+          flowBeginTime: expectedTime
+        }
+      }
+    }
+    sinon.stub(Date, 'now', function() {
+      return expectedTime + 20000
+    })
+
+    try {
+      var metricsContext = require('../../lib/metrics/context')(mockLog, mockConfig)
+      var valid = metricsContext.validate(mockRequest)
+    } finally {
+      Date.now.restore()
+    }
+
+    t.notOk(valid, 'the data is treated as invalid')
+    t.equal(mockLog.info.callCount, 0, 'log.info was not called')
+    t.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
+    t.ok(mockLog.warn.calledWithExactly({
+      op: 'metrics.context.validate',
+      valid: false,
+      reason: 'invalid signature',
+      agent: 'Firefox'
+    }), 'log.warn was called with the expected log data')
+    t.end()
+  }
+)
+
+test(
+  'metricsContext.validate with flow signature from different timestamp',
+  function (t) {
+    var expectedTime = 1451566800000
+    var expectedSalt = '4d6f7a696c6c6146697265666f782121'
+    var expectedHmac = 'c89d56556d22039fbbf54d34e0baf206'
+    var mockLog = mocks.spyLog()
+    var mockConfig = {
+      metrics: {
+        flow_id_expiry: 60000,
+        flow_id_key: 'S3CR37'
+      }
+    }
+    var mockRequest = {
+      headers: {
+        'user-agent': 'Firefox'
+      },
+      payload: {
+        metricsContext: {
+          flowId: expectedSalt + expectedHmac,
+          flowBeginTime: expectedTime - 1
+        }
+      }
+    }
+    sinon.stub(Date, 'now', function() {
+      return expectedTime + 20000
+    })
+
+    try {
+      var metricsContext = require('../../lib/metrics/context')(mockLog, mockConfig)
+      var valid = metricsContext.validate(mockRequest)
+    } finally {
+      Date.now.restore()
+    }
+
+    t.notOk(valid, 'the data is treated as invalid')
+    t.equal(mockLog.info.callCount, 0, 'log.info was not called')
+    t.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
+    t.ok(mockLog.warn.calledWithExactly({
+      op: 'metrics.context.validate',
+      valid: false,
+      reason: 'invalid signature',
+      agent: 'Firefox'
+    }), 'log.warn was called with the expected log data')
+    t.end()
+  }
+)
+
+test(
+  'metricsContext.validate with flow signature from different user agent',
+  function (t) {
+    var expectedTime = 1451566800000
+    var expectedSalt = '4d6f7a696c6c6146697265666f782121'
+    var expectedHmac = 'c89d56556d22039fbbf54d34e0baf206'
+    var mockLog = mocks.spyLog()
+    var mockConfig = {
+      metrics: {
+        flow_id_expiry: 60000,
+        flow_id_key: 'S3CR37'
+      }
+    }
+    var mockRequest = {
+      headers: {
+        'user-agent': 'ThisIsNotFirefox'
+      },
+      payload: {
+        metricsContext: {
+          flowId: expectedSalt + expectedHmac,
+          flowBeginTime: expectedTime
+        }
+      }
+    }
+    sinon.stub(Date, 'now', function() {
+      return expectedTime + 20000
+    })
+
+    try {
+      var metricsContext = require('../../lib/metrics/context')(mockLog, mockConfig)
+      var valid = metricsContext.validate(mockRequest)
+    } finally {
+      Date.now.restore()
+    }
+
+    t.notOk(valid, 'the data is treated as invalid')
+    t.equal(mockLog.info.callCount, 0, 'log.info was not called')
+    t.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
+    t.ok(mockLog.warn.calledWithExactly({
+      op: 'metrics.context.validate',
+      valid: false,
+      reason: 'invalid signature',
+      agent: 'ThisIsNotFirefox'
+    }), 'log.warn was called with the expected log data')
+    t.end()
+  }
+)

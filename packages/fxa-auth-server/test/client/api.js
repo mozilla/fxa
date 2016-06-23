@@ -17,7 +17,6 @@ function ClientApi(origin) {
   this.origin = origin
   this.baseURL = origin + '/v1'
   this.timeOffset = 0
-  this.defaultHeaders = {}
 }
 
 ClientApi.prototype.Token = tokens
@@ -41,20 +40,18 @@ ClientApi.prototype.doRequest = function (method, url, token, payload, headers) 
   if (typeof headers === 'undefined') {
     headers = {}
   }
-  var reqHeaders = JSON.parse(JSON.stringify(this.defaultHeaders))
-  Object.keys(headers).forEach(function(name) {
-    reqHeaders[name] = headers[name]
-  })
-  if (token && !reqHeaders.Authorization) {
-    reqHeaders.Authorization = hawkHeader(token, method, url, payload, this.timeOffset)
+  // We do a shallow clone to avoid tainting the caller's copy of `headers`.
+  headers = JSON.parse(JSON.stringify(headers))
+  if (token && !headers.Authorization) {
+    headers.Authorization = hawkHeader(token, method, url, payload, this.timeOffset)
   }
   var options = {
     url: url,
     method: method,
-    headers: reqHeaders,
+    headers: headers,
     json: payload || true
   }
-  if (reqHeaders['accept-language'] === undefined) { delete reqHeaders['accept-language']}
+  if (headers['accept-language'] === undefined) { delete headers['accept-language']}
   this.emit('startRequest', options)
   request(options, function (err, res, body) {
     if (res && res.headers.timestamp) {
@@ -72,7 +69,7 @@ ClientApi.prototype.doRequest = function (method, url, token, payload, headers) 
       // Requiring config outside this condition causes the local tests to fail
       // because tokenLifetimes.passwordChangeToken is -1
       var config = require('../../config')
-      if (allowedOrigin !== config.get('corsOrigin')) {
+      if (config.get('corsOrigin').indexOf(allowedOrigin) < 0) {
         return d.reject(new Error('Unexpected allowed origin: ' + allowedOrigin))
       }
     }
@@ -103,6 +100,14 @@ ClientApi.prototype.doRequest = function (method, url, token, payload, headers) 
  */
 ClientApi.prototype.accountCreate = function (email, authPW, options) {
   options = options || {}
+
+  // Default to desktop client context
+  if (!options.metricsContext) {
+    options.metricsContext = {
+      context: 'fx_desktop_v3'
+    }
+  }
+
   var url = this.baseURL + '/account/create' + getQueryString(options)
   return this.doRequest(
     'POST',
@@ -129,6 +134,14 @@ ClientApi.prototype.accountLogin = function (email, authPW, opts) {
   if (!opts) {
     opts = { keys: true }
   }
+
+  // Default to desktop client context
+  if (!opts.metricsContext) {
+    opts.metricsContext = {
+      context: 'fx_desktop_v3'
+    }
+  }
+
   return this.doRequest(
     'POST',
     this.baseURL + '/account/login' + getQueryString(opts),
@@ -137,6 +150,7 @@ ClientApi.prototype.accountLogin = function (email, authPW, opts) {
       email: email,
       authPW: authPW.toString('hex'),
       service: opts.service || undefined,
+      resume: opts.resume || undefined,
       reason: opts.reason || undefined,
       device: opts.device || undefined,
       metricsContext: opts.metricsContext || undefined
@@ -247,16 +261,31 @@ ClientApi.prototype.accountStatus = function (uid, sessionTokenHex) {
 
 ClientApi.prototype.accountReset = function (accountResetTokenHex, authPW, headers, options) {
   options = options || {}
+  var qs = getQueryString(options)
+
+  // Default behavior is to request sessionToken
+  if (options.sessionToken === undefined) {
+    options.sessionToken = true
+  }
+
+  // Default to desktop client context
+  if (!options.metricsContext) {
+    options.metricsContext = {
+      context: 'fx_desktop_v3'
+    }
+  }
+
   return tokens.AccountResetToken.fromHex(accountResetTokenHex)
     .then(
       function (token) {
         return this.doRequest(
           'POST',
-          this.baseURL + '/account/reset',
+          this.baseURL + '/account/reset' + qs,
           token,
           {
             authPW: authPW.toString('hex'),
-            metricsContext: options.metricsContext || undefined
+            metricsContext: options.metricsContext || undefined,
+            sessionToken: options.sessionToken
           },
           headers
         )
@@ -291,6 +320,7 @@ ClientApi.prototype.recoveryEmailStatus = function (sessionTokenHex) {
 
 ClientApi.prototype.recoveryEmailResendCode = function (sessionTokenHex, options) {
   options = options || {}
+
   return tokens.SessionToken.fromHex(sessionTokenHex)
     .then(
       function (token) {
@@ -316,7 +346,8 @@ ClientApi.prototype.recoveryEmailVerifyCode = function (uid, code, options) {
     null,
     {
       uid: uid,
-      code: code
+      code: code,
+      service: options.service || undefined
     },
     {
       'accept-language': options.lang
@@ -366,18 +397,27 @@ ClientApi.prototype.passwordChangeStart = function (email, oldAuthPW, headers) {
   )
 }
 
-ClientApi.prototype.passwordChangeFinish = function (passwordChangeTokenHex, authPW, wrapKb, headers) {
+ClientApi.prototype.passwordChangeFinish = function (passwordChangeTokenHex, authPW, wrapKb, headers, sessionToken) {
+  var options = {}
   return tokens.PasswordChangeToken.fromHex(passwordChangeTokenHex)
     .then(
       function (token) {
+        var requestData = {
+          authPW: authPW.toString('hex'),
+          wrapKb: wrapKb.toString('hex')
+        }
+
+        if (sessionToken) {
+          // Support legacy clients and new clients
+          requestData.sessionToken = sessionToken
+          options.keys = true
+        }
+
         return this.doRequest(
           'POST',
-          this.baseURL + '/password/change/finish',
+          this.baseURL + '/password/change/finish' + getQueryString(options),
           token,
-          {
-            authPW: authPW.toString('hex'),
-            wrapKb: wrapKb.toString('hex')
-          },
+          requestData,
           headers
         )
       }.bind(this)

@@ -98,7 +98,8 @@ module.exports = function (
                 uaBrowserVersion: sessionToken.uaBrowserVersion,
                 uaOS: sessionToken.uaOS,
                 uaOSVersion: sessionToken.uaOSVersion,
-                uaDeviceType: sessionToken.uaDeviceType
+                uaDeviceType: sessionToken.uaDeviceType,
+                tokenVerificationId: sessionToken.tokenVerificationId
               },
               'inplace'
             )
@@ -280,6 +281,31 @@ module.exports = function (
   DB.prototype.sessionToken = function (id) {
     log.trace({ op: 'DB.sessionToken', id: id })
     return this.pool.get('/sessionToken/' + id.toString('hex'))
+      .then(
+        function (body) {
+          var data = bufferize(body, {
+            ignore: [
+              'uaBrowser',
+              'uaBrowserVersion',
+              'uaOS',
+              'uaOSVersion',
+              'uaDeviceType'
+            ]
+          })
+          return SessionToken.fromHex(data.tokenData, data)
+        },
+        function (err) {
+          if (isNotFoundError(err)) {
+            err = error.invalidToken()
+          }
+          throw err
+        }
+      )
+  }
+
+  DB.prototype.sessionTokenWithVerificationStatus = function (id) {
+    log.trace({ op: 'DB.sessionTokenWithVerificationStatus', id: id })
+    return this.pool.get('/sessionToken/' + id.toString('hex') + '/verified')
       .then(
         function (body) {
           var data = bufferize(body, {
@@ -724,6 +750,29 @@ module.exports = function (
     return this.pool.post('/account/' + account.uid.toString('hex') + '/verifyEmail')
   }
 
+  DB.prototype.verifyTokens = function (tokenVerificationId, accountData) {
+    log.trace({ op: 'DB.verifyTokens', tokenVerificationId: tokenVerificationId })
+    return this.pool.post('/tokens/' + tokenVerificationId.toString('hex') + '/verify',
+        unbuffer(
+          {
+            uid: accountData.uid
+          },
+          'inplace'
+        )
+    )
+    .then(
+      function (body) {
+        return body
+      },
+      function (err) {
+        if (isNotFoundError(err)) {
+          err = error.invalidVerificationCode()
+        }
+        throw err
+      }
+    )
+  }
+
   DB.prototype.forgotPasswordVerified = function (passwordForgotToken) {
     log.trace({ op: 'DB.forgotPasswordVerified', uid: passwordForgotToken && passwordForgotToken.uid })
     return AccountResetToken.create(passwordForgotToken)
@@ -756,6 +805,26 @@ module.exports = function (
       '/account/' + uid.toString('hex') + '/locale',
       { locale: locale }
     )
+  }
+
+  // VERIFICATION REMINDERS
+
+  DB.prototype.createVerificationReminder = function (reminderData) {
+    log.trace({
+      op: 'DB.createVerificationReminder',
+      reminderData: reminderData
+    })
+
+    return this.pool.post('/verificationReminders', reminderData)
+  }
+
+  DB.prototype.deleteVerificationReminder = function (reminderData) {
+    log.trace({
+      op: 'DB.deleteVerificationReminder',
+      reminderData: reminderData
+    })
+
+    return this.pool.del('/verificationReminders', reminderData)
   }
 
   return DB

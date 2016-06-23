@@ -19,6 +19,7 @@ Services ecosystem.
 
 * node 0.10.x or higher
 * npm
+* Grunt
 
 ## Install
 

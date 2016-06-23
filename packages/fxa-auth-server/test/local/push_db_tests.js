@@ -39,7 +39,8 @@ var ACCOUNT = {
   verifyHash: zeroBuffer32,
   authSalt: zeroBuffer32,
   kA: zeroBuffer32,
-  wrapWrapKb: zeroBuffer32
+  wrapWrapKb: zeroBuffer32,
+  tokenVerificationId: zeroBuffer16
 }
 var mockLog = {
   error: function () {

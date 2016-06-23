@@ -83,8 +83,8 @@ Pool.prototype.get = function (path) {
   return this.request('GET', path)
 }
 
-Pool.prototype.del = function (path) {
-  return this.request('DELETE', path)
+Pool.prototype.del = function (path, data) {
+  return this.request('DELETE', path, data)
 }
 
 Pool.prototype.head = function (path) {

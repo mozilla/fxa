@@ -5,6 +5,7 @@
 var sinon = require('sinon')
 var test = require('../ptaptest')
 var log = { trace: function() {}, info: function () {} }
+var crypto = require('crypto')
 
 var tokens = require('../../lib/tokens')(log)
 var SessionToken = tokens.SessionToken
@@ -15,7 +16,8 @@ var ACCOUNT = {
   uid: 'xxx',
   email: Buffer('test@example.com').toString('hex'),
   emailCode: '123456',
-  emailVerified: true
+  emailVerified: true,
+  tokenVerificationId: crypto.randomBytes(16)
 }
 
 test(
@@ -58,6 +60,8 @@ test(
           t.equal(token.emailCode, token2.emailCode)
           t.equal(token.emailVerified, token2.emailVerified)
           t.equal(token.accountCreatedAt, token2.accountCreatedAt)
+          t.equal(token.tokenVerified, token2.tokenVerified)
+          t.equal(token.tokenVerificationId, token2.tokenVerificationId)
         }
       )
   }

@@ -24,13 +24,14 @@
     {
       "type":"object",
       "anyOf":[
-        { "$ref":"#/definitions/newDevice" },
-        { "$ref":"#/definitions/collectionChanged" }
+        { "$ref":"#/definitions/deviceConnected" },
+        { "$ref":"#/definitions/deviceDisconnected" },
+        { "$ref":"#/definitions/collectionsChanged" }
       ]
     }
   ],
   "definitions":{
-    "newDevice":{
+    "deviceConnected":{
       "type":"object",
       "required":[
         "data"
@@ -38,7 +39,7 @@
       "properties":{
         "command":{
           "enum":[
-            "fxaccounts:new_device"
+            "fxaccounts:device_connected"
           ]
         },
         "data":{
@@ -50,6 +51,31 @@
             "deviceName":{
               "type":"string",
               "description":"The name of the device who joined this account"
+            }
+          }
+        }
+      }
+    },
+    "deviceDisconnected":{
+      "type":"object",
+      "required":[
+        "data"
+      ],
+      "properties":{
+        "command":{
+          "enum":[
+            "fxaccounts:device_disconnected"
+          ]
+        },
+        "data":{
+          "type":"object",
+          "required":[
+            "id"
+          ],
+          "properties":{
+            "id":{
+              "type":"string",
+              "description":"The id of the device who was disconnected remotely"
             }
           }
         }

@@ -6,9 +6,9 @@ var EventEmitter = require('events').EventEmitter
 var util = require('util')
 var mozlog = require('mozlog')
 
-var logConfig = require('../config').get('log')
+var config = require('../config')
+var logConfig = config.get('log')
 var StatsDCollector = require('./metrics/statsd')
-var metricsContext = require('./metrics/context')
 
 function unbuffer(object) {
   var keys = Object.keys(object)
@@ -27,13 +27,16 @@ function Lug(options) {
   mozlog.config({
     app: this.name,
     level: options.level,
-    stream: process.stderr,
+    stream: options.stderr || process.stderr,
     fmt: options.fmt
   })
   this.logger = mozlog()
 
+  this.stdout = options.stdout || process.stdout
+
   this.statsd = new StatsDCollector(this.logger)
   this.statsd.init()
+  this.metricsContext = require('./metrics/context')(this, config.getProperties())
 }
 util.inherits(Lug, EventEmitter)
 
@@ -70,12 +73,14 @@ Lug.prototype.begin = function (op, request) {
   this.logger.debug(op)
 }
 
-Lug.prototype.event = function (name, data) {
+Lug.prototype.event = function (name, request, data) {
   var e = {
     event: name,
     data: unbuffer(data)
   }
-  process.stdout.write(JSON.stringify(e) + '\n')
+  e.data.metricsContext = this.metricsContext.add({},
+    request.payload.metricsContext, request.headers.dnt === '1')
+  this.stdout.write(JSON.stringify(e) + '\n')
 }
 
 Lug.prototype.activityEvent = function (event, request, data) {
@@ -83,7 +88,7 @@ Lug.prototype.activityEvent = function (event, request, data) {
     return this.error({ op: 'log.activityEvent', data: data })
   }
 
-  var info = metricsContext.add({
+  var info = this.metricsContext.add({
     event: event,
     userAgent: request.headers['user-agent']
   }, request.payload.metricsContext, request.headers.dnt === '1')
@@ -163,16 +168,18 @@ Lug.prototype.histogram = function(name, value, tags) {
   this.statsd.histogram(name, value, tags)
 }
 
-module.exports = function (level, name) {
-  var log = new Lug(
-    {
-      name: name,
-      level: level,
-      fmt: logConfig.fmt
-    }
-  )
+Lug.prototype.close = function() {
+  return this.statsd.close()
+}
 
-  process.stdout.on(
+module.exports = function (level, name, options) {
+  options = options || {}
+  options.name = name
+  options.level = level
+  options.fmt = logConfig.fmt
+  var log = new Lug(options)
+
+  log.stdout.on(
     'error',
     function (err) {
       if (err.code === 'EPIPE') {

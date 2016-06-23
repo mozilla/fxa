@@ -20,8 +20,6 @@ TestServer.start(config)
       request(config.publicUrl + route, function (err, res, body) {
         t.ok(!err, 'No error fetching ' + route)
 
-        t.equal(res.headers['access-control-allow-origin'], config.corsOrigin, 'Access-Control-Allow-Origin header was set correctly')
-
         var json = JSON.parse(body)
         t.deepEqual(Object.keys(json), ['version', 'commit', 'source'])
         t.equal(json.version, require('../../package.json').version, 'package version')
@@ -29,6 +27,26 @@ TestServer.start(config)
 
         // check that the git hash just looks like a hash
         t.ok(json.commit.match(/^[0-9a-f]{40}$/), 'The git hash actually looks like one')
+        t.end()
+      })
+    }
+  }
+
+  function testCORSHeader(withAllowedOrigin) {
+    var randomAllowedOrigin = config.corsOrigin[Math.floor(Math.random() * config.corsOrigin.length)]
+    var expectedOrigin = withAllowedOrigin ? randomAllowedOrigin : undefined
+
+    return function(t) {
+      var options = {
+        url: config.publicUrl + '/'
+      }
+      if (withAllowedOrigin !== undefined) {
+        options.headers = {
+          'Origin': (withAllowedOrigin ? randomAllowedOrigin : 'http://notallowed')
+        }
+      }
+      request(options, function(err, res, body) {
+        t.equal(res.headers['access-control-allow-origin'], expectedOrigin, 'Access-Control-Allow-Origin header was set correctly')
         t.end()
       })
     }
@@ -52,6 +70,21 @@ TestServer.start(config)
   test(
     '/__version__ returns version, git hash and source repo',
     testVersionRoute('/__version__')
+  )
+
+  test(
+    'returns no Access-Control-Allow-Origin with no Origin set',
+    testCORSHeader(undefined)
+  )
+
+  test(
+    'returns correct Access-Control-Allow-Origin with whitelisted Origin',
+    testCORSHeader(true)
+  )
+
+  test(
+    'returns no Access-Control-Allow-Origin with not whitelisted Origin',
+    testCORSHeader(false)
   )
 
   test(
