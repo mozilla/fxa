@@ -1,3 +1,39 @@
+<a name="1.64.0"></a>
+# [1.64.0](https://github.com/mozilla/fxa-auth-server/compare/v1.63.0...v1.64.0) (2016-06-23)
+
+
+### Bug Fixes
+
+* **account:** fix payload typo in device update ([673dd5d](https://github.com/mozilla/fxa-auth-server/commit/673dd5d))
+* **config:** improve sign-in confirmation email regex ([33301c5](https://github.com/mozilla/fxa-auth-server/commit/33301c5))
+* **logs:** Log the uid when reporting push errors. ([db9e5f4](https://github.com/mozilla/fxa-auth-server/commit/db9e5f4))
+* **mail:** Remove the "resend blackout period". ([27082be](https://github.com/mozilla/fxa-auth-server/commit/27082be))
+* **metrics:** Monitor for clients sending obsolete contentToken parameter. ([1d58b3e](https://github.com/mozilla/fxa-auth-server/commit/1d58b3e))
+* **push:** Avoid blocking event loop when pushing to lots of devices. ([1be85c3](https://github.com/mozilla/fxa-auth-server/commit/1be85c3))
+* **tests:** add verify_code tests ([e4eb4d8](https://github.com/mozilla/fxa-auth-server/commit/e4eb4d8))
+
+### Features
+
+* **config:** accept CORS requests from multiple origins ([f792d35](https://github.com/mozilla/fxa-auth-server/commit/f792d35))
+* **email:** add verification reminders ([5007b4d](https://github.com/mozilla/fxa-auth-server/commit/5007b4d)), closes [#1081](https://github.com/mozilla/fxa-auth-server/issues/1081)
+* **login:** Log an error on login if account has too many active sessions. ([ca9524b](https://github.com/mozilla/fxa-auth-server/commit/ca9524b))
+* **metrics:** add metrics for reminder queries ([aca4185](https://github.com/mozilla/fxa-auth-server/commit/aca4185))
+* **push:** Log an error if pushing notifications to too many active devices. ([5b81e10](https://github.com/mozilla/fxa-auth-server/commit/5b81e10))
+* **signin:** Add regex for enabling signin confirmation (#1290) r=pbooth ([fa02ee8](https://github.com/mozilla/fxa-auth-server/commit/fa02ee8))
+
+### Refactor
+
+* **tests:** eliminate duplicate setup in local route tests ([e8cd5df](https://github.com/mozilla/fxa-auth-server/commit/e8cd5df))
+
+### chore
+
+* **changelog:** Generate changelog for v1.63.0 release ([0ca8367](https://github.com/mozilla/fxa-auth-server/commit/0ca8367))
+* **deps:** Update to latest version of mozlog ([aa3b4e7](https://github.com/mozilla/fxa-auth-server/commit/aa3b4e7)), closes [#1279](https://github.com/mozilla/fxa-auth-server/issues/1279)
+* **nsp:** update .nsprc and travis.yml ([9d047b5](https://github.com/mozilla/fxa-auth-server/commit/9d047b5)), closes [#1295](https://github.com/mozilla/fxa-auth-server/issues/1295)
+* **shrinkwrap:** update fxa-auth-mailer ([1ced8c9](https://github.com/mozilla/fxa-auth-server/commit/1ced8c9))
+
+
+
 <a name="1.63.0"></a>
 ## [1.63.0](https://github.com/mozilla/fxa-auth-server/compare/v1.62.1...v1.63.0) (2016-06-06)
 
