@@ -923,7 +923,7 @@ module.exports = function (
         // Clients have been known to send spurious device updates,
         // which generates lots of unnecessary database load.
         // Check if anything has actually changed, and log lots metrics on what.
-        function isSpuriousUpdate(paylad, token) {
+        function isSpuriousUpdate(payload, token) {
           var spurious = true
           if(! token.deviceId || payload.id !== token.deviceId.toString('hex')) {
             spurious = false
