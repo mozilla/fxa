@@ -35,17 +35,17 @@ where `timestamp` can be any JavaScript compatible representation of time.
 On successful resolution of the promise, the `location` object has the following data:
 
 ```JavaScript
-country: 'human-readable-country-name', // USA
+accuracy: 'accuracy-radius-in-km', // 5
 city: 'human-readable-city-name', // Mountain View
 continent: 'human-readable-continent-name', // North America
+country: 'human-readable-country-name', // USA
+local_time: '(mm or dd)/(mm or dd)/yyyy hh:mm:ss' based on locale and timezone,
 ll: {
 	latitude: 'latitude-in-decimal', // 37.386
 	longitude: 'longitude-in-decimal' // -122.0838
 },
-time_zone: 'IANA-compatible-timezone', // America/Los_Angeles
-local_time: '(mm or dd)/(mm or dd)/yyyy hh:mm:ss' based on locale and timezone, 
+time_zone: 'IANA-compatible-timezone', // America/Los_Angeles 
 // 6/22/2016, 5:36:40 PM for USA, tz-LA
-
 ```
 --
 

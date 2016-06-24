@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const db = '../db/cities-db.mmdb';
-const maxmind = require('maxmind');
 const ERRORS = require('../lib/errors');
-const Promise = require('bluebird');
 const Joi = require('joi');
+const maxmind = require('maxmind');
+const Promise = require('bluebird');
 
 function GeoDB(ip, time_stamp) {
   'use strict';
@@ -46,15 +46,16 @@ function GeoDB(ip, time_stamp) {
   // latitude, and longitude,
   // and timezone (locale specific time also)
   return Promise.resolve({
-    country: cityData.country.names.en,
+    accuracy: cityData.location.accuracy_radius,
     city: cityData.city.names.en,
     continent: cityData.continent.names.en,
+    country: cityData.country.names.en,
+    local_time: new Date(time_stamp).toLocaleString('en', {timeZone: cityData.location.time_zone}),
     ll: {
       latitude: cityData.location.latitude,
       longitude: cityData.location.longitude
     },
     time_zone: cityData.location.time_zone,
-    local_time: new Date(time_stamp).toLocaleString('en', {timeZone: cityData.location.time_zone}),
     // can remove this if not required
     cityData: cityData
   });

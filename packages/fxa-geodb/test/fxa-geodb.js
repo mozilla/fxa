@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const chai = require('chai');
-const GeoDB = require('../src/fxa-geodb');
 const ERRORS = require('../lib/errors');
+const GeoDB = require('../src/fxa-geodb');
 
 const assert = chai.assert;
 
