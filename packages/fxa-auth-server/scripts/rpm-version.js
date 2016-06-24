@@ -22,14 +22,14 @@ var util = require('util')
 
 var args = '{"hash":"%H","subject":"%s","committer date":"%ct"}'
 var cmd = util.format('git --no-pager log --format=format:\'%s\' -1', args)
-cp.exec(cmd, function (err, stdout) {
+cp.exec(cmd, function (err, stdout) { // eslint-disable-line handle-callback-err
   var info = {
     version: JSON.parse(stdout || '{}')
   }
 
   var cmd = 'git config --get remote.origin.url'
-  cp.exec(cmd, function (err, stdout) {
+  cp.exec(cmd, function (err, stdout) { // eslint-disable-line handle-callback-err
     info.version.source = (stdout && stdout.trim()) || ''
-    console.log(JSON.stringify(info, null, 2))
+    console.log(JSON.stringify(info, null, 2)) // eslint-disable-line no-console
   })
 })
