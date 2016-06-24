@@ -63,7 +63,7 @@ createMailer(log, config.getProperties(), mailSender)
     return sendMails(mailer, getMessageTypesToWrite(mailer, messageToSend))
   })
   .then(() => {
-    console.info('done') //eslint-disable-line no-console
+    console.info('done')
   })
 
 function getEmailOutputPath(subject, extension) {
@@ -106,7 +106,7 @@ function checkMessageType(mailer, messageToSend) {
   messageTypes.push('all')
 
   if (messageTypes.indexOf(messageToSend) === -1) {
-    console.error('invalid message name: `' + messageToSend + '`\n' + //eslint-disable-line no-console
+    console.error('invalid message name: `' + messageToSend + '`\n' +
               'choose from: ' + messageTypes.join(', '))
     process.exit(1)
   }
