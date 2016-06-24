@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const db = '../db/cities-db.mmdb';
+const db_backup = '../db/cities-db.mmdb-backup';
 const ERRORS = require('../lib/errors');
 const Joi = require('joi');
 const maxmind = require('maxmind');
@@ -31,15 +32,29 @@ function GeoDB(ip, time_stamp) {
     });
   }
 
+  var cityLookup, cityData;
   // ip is valid, and in the right format,
   // try looking it up
+  // the nested try..catch is to ensure that
+  // we always have at least one valid database check
+  // this can help when we have `db` as paid and
+  // `db_backup` as free version or when `db` fails
+  // to load for some reason
   try {
-    var cityLookup = maxmind.open(db);
-    var cityData = cityLookup.get(ip);
+    cityLookup = maxmind.open(db);
+    cityData = cityLookup.get(ip);
   } catch (err) {
-    return Promise.reject({
-      message: ERRORS.UNABLE_TO_FETCH_DATA
-    });
+    // if it failed with primary database,
+    // try with backup database
+    try {
+      cityLookup = maxmind.open(db_backup);
+      cityData = cityLookup.get(ip);
+    } catch (err) {
+      // if that fails, then return a reject
+      return Promise.reject({
+        message: ERRORS.UNABLE_TO_FETCH_DATA
+      });
+    }
   }
 
   // return an object with city, country, continent,

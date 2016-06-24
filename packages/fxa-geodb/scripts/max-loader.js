@@ -35,7 +35,14 @@ function download(url, target) {
   return function downloadFunctor(callback) {
     var stream = requestProgress(request(url));
     stream.pipe(fs.createWriteStream(target)).on('finish', function () {
-      cp.execFile('gunzip', [target]);
+      // lets copy the existing file, renaming it to
+      // target-backup (without .gz extension)
+      var existing_file = target.slice(0, -3);
+      var existing_file_backup = existing_file + '-backup';
+      cp.execFile('cp', [existing_file, existing_file_backup]);
+      // force overwrite, even if file exists already
+      // since we took a backup, this wont cause an issue (hopefully)
+      cp.execFile('gunzip', [target, '-f']);
       callback();
     });
   };
@@ -45,8 +52,7 @@ function log() {
   console.log.apply(console, arguments);
 }
 
-new CronJob('30 30 1 * * 3', function() {
-  // Cron job that runs every week on Wednesday at 1:30:30 AM.
+function startDownload(work) {
   log('Last Update: ', new Date());
   async.parallel(work, function (err) {
     if (err) {
@@ -55,4 +61,13 @@ new CronJob('30 30 1 * * 3', function() {
       log('Download complete');
     }
   });
+}
+
+// start download when script is invoked
+startDownload(work);
+
+// after that run periodically
+new CronJob('30 30 1 * * 3', function() {
+  // Cron job that runs every week on Wednesday at 1:30:30 AM.
+  startDownload(work);
 }, null, true, 'America/Los_Angeles');
