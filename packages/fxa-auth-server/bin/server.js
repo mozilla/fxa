@@ -83,8 +83,9 @@ P.all(
 
     api.listen(
       config.get('port'),
+      config.get('host'),
       function () {
-        log.info('listening', { port: config.get('port') })
+        log.info('listening', { port: config.get('port'), host: config.get('host') })
       }
     )
   }

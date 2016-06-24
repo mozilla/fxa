@@ -19,6 +19,11 @@ var conf = convict({
     format: 'port',
     default: 10136
   },
+  host: {
+    env: 'MAILER_HOST',
+    format: 'ipaddress',
+    default: '127.0.0.1'
+  },
   db: {
     backend: {
       default: 'httpdb',
