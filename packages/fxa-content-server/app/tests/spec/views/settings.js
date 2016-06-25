@@ -147,6 +147,7 @@ define(function (require, exports, module) {
           })
           .then(function () {
             assert.ok(view.$('#fxa-settings-header').length);
+            assert.isTrue(view.mustVerify);
             assert.isTrue(user.getAccountByUid.calledWith(UID));
             assert.isTrue(user.setSignedInAccountByUid.calledWith(UID));
           });
@@ -585,6 +586,59 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('with no relier specified uid', function () {
+      it('does nothing', function () {
+        relier.unset('uid');
+
+        var sandbox = new sinon.sandbox.create();
+        sandbox.spy(user, 'setSignedInAccountByUid');
+        sandbox.spy(user, 'clearSignedInAccount');
+
+        assert.isFalse(user.setSignedInAccountByUid.called);
+        assert.isFalse(user.clearSignedInAccount.called);
+        sandbox.restore();
+
+      });
+    });
+
+    describe('cached/uncached', function () {
+      beforeEach(function () {
+        sinon.spy(user, 'setSignedInAccountByUid');
+        sinon.spy(user, 'clearSignedInAccount');
+
+        relier.set('uid', 'uid');
+      });
+
+      describe('with uncached relier specified uid', function () {
+        it('clears the signed in account', function () {
+          createSettingsView();
+
+          assert.isFalse(user.setSignedInAccountByUid.called);
+          assert.isTrue(user.clearSignedInAccount.called);
+        });
+      });
+
+      describe('with cached relier specified uid', function () {
+        it('sets the signed in account', function () {
+          return user.setAccount({ uid: 'uid' })
+            .then(function () {
+              createSettingsView();
+
+              assert.isTrue(user.setSignedInAccountByUid.calledWith('uid'));
+              assert.isFalse(user.clearSignedInAccount.called);
+            });
+        });
+      });
+
+      describe('with uncached relier specified uid', function () {
+        it('clears the signed in account', function () {
+          createSettingsView();
+
+          assert.isFalse(user.setSignedInAccountByUid.called);
+          assert.isTrue(user.clearSignedInAccount.called);
+        });
+      });
+    });
 
     describe('_swapDisplayName', function () {
       beforeEach(function () {

@@ -145,7 +145,6 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/password-strength-mixin',
     '../tests/spec/views/mixins/resume-token-mixin',
     '../tests/spec/views/mixins/service-mixin',
-    '../tests/spec/views/mixins/settings-mixin',
     '../tests/spec/views/mixins/settings-panel-mixin',
     '../tests/spec/views/mixins/signed-in-notification-mixin',
     '../tests/spec/views/mixins/signed-out-notification-mixin',

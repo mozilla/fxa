@@ -24,7 +24,7 @@ define(function (require, exports, module) {
   var GravatarView = require('views/settings/avatar_gravatar');
   var LoadingMixin = require('views/mixins/loading-mixin');
   var modal = require('modal'); //eslint-disable-line no-unused-vars
-  var SettingsMixin = require('views/mixins/settings-mixin');
+  var Session = require('lib/session');
   var SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
   var SubPanels = require('views/sub_panels');
   var Template = require('stache!templates/settings');
@@ -49,12 +49,34 @@ define(function (require, exports, module) {
     layoutClassName: 'settings',
     viewName: 'settings',
 
+    mustVerify: true,
+
     initialize: function (options) {
       options = options || {};
 
       this._able = options.able;
       this._subPanels = options.subPanels || this._initializeSubPanels(options);
       this._formPrefill = options.formPrefill;
+
+      var uid = this.relier.get('uid');
+
+      // A uid param is set by RPs linking directly to the settings
+      // page for a particular account.
+      //
+      // We set the current account to the one with `uid` if
+      // it exists in our list of cached accounts. If the account is
+      // not in the list of cached accounts, clear the current account.
+      //
+      // The `mustVerify` flag will ensure that the account is valid.
+      if (! this.user.getAccountByUid(uid).isDefault()) {
+        // The account with uid exists; set it to our current account.
+        this.user.setSignedInAccountByUid(uid);
+      } else if (uid) {
+        // session is expired or user does not exist. Force the user
+        // to sign in.
+        Session.clear();
+        this.user.clearSignedInAccount();
+      }
     },
 
     notifications: {
@@ -76,7 +98,7 @@ define(function (require, exports, module) {
       }
 
       this.logViewEvent('communication-prefs-link.visible.' +
-          String(areCommunicationPrefsVisible));
+        String(areCommunicationPrefsVisible));
 
       return new SubPanels({
         createView: options.createView,
@@ -230,7 +252,6 @@ define(function (require, exports, module) {
     View,
     AvatarMixin,
     LoadingMixin,
-    SettingsMixin,
     SignedOutNotificationMixin
   );
 
