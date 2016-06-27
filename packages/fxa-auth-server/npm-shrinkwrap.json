@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-mailer",
-  "version": "1.63.0",
+  "version": "1.64.0",
   "dependencies": {
     "bluebird": {
       "version": "2.9.34",
