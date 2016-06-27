@@ -7,17 +7,16 @@
   top: -32px;
   z-index: 5;
 
-  html[dir=ltr] & {
+  html[dir='ltr'] & {
     left: 3px;
   }
 
-  html[dir=rtl] & {
+  html[dir='rtl'] & {
     right: 3px;
   }
 
 
   /* tooltip caret */
-  &:before,
   &::before {
     background: $error-background-color;
     bottom: -8px;
@@ -31,11 +30,11 @@
     // The z-index must be -1 or else the caret is displayed on top of the tooltip text
     z-index: -1;
 
-    html[dir=ltr] & {
+    html[dir='ltr'] & {
       left: 12px;
     }
 
-    html[dir=rtl] & {
+    html[dir='rtl'] & {
       right: 12px;
     }
   }
@@ -43,7 +42,6 @@
   &.tooltip-suggest {
     background: $button-background-color;
 
-    &:before,
     &::before {
       background-color: $button-background-color;
     }
@@ -76,9 +74,7 @@
  * these are caret's attached to tooltips that hang below the
  * input element. The tooltip's top is set via JS.
  */
-html[dir='rtl'] .tooltip-below:before,
 html[dir='rtl'] .tooltip-below::before,
-.tooltip-below:before,
 .tooltip-below::before {
   top: -7px;
 }

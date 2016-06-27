@@ -1,7 +1,7 @@
 // Border box all the things by default
 *,
-*:before,
-*:after {
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -194,7 +194,7 @@ section p {
 //
 // hrefs are only visible from the app, when the TOS/PP agreements
 // are opened directly, the links display/act normally.
-a[href^=http].visible-url {
+a[href^='http'].visible-url {
   // using text-decoration: underline underlines the ::after
   // section as well, with no way to remove it.
   // So, add a border to the entire element, then hide
@@ -206,8 +206,7 @@ a[href^=http].visible-url {
   text-decoration: none;
 }
 
-a[data-visible-url^=http]:after,
-a[data-visible-url^=http]::after {
+a[data-visible-url^='http']::after {
   border-bottom: 1px solid $content-background-color;
   content: ' (' attr(href) ') ';
   word-break: break-all;

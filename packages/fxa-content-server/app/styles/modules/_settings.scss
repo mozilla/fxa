@@ -40,11 +40,11 @@ body.settings #main-content.card {
     background-repeat: no-repeat;
     margin: 0;
 
-    html[dir=ltr] & {
+    html[dir='ltr'] & {
       float: left;
     }
 
-    html[dir=rtl] & {
+    html[dir='rtl'] & {
       float: right;
     }
 
@@ -53,12 +53,12 @@ body.settings #main-content.card {
       height: 64px;
       line-height: 63px;
 
-      html[dir=ltr] & {
+      html[dir='ltr'] & {
         background-position: left 11px;
         padding-left: 48px;
       }
 
-      html[dir=rtl] & {
+      html[dir='rtl'] & {
         background-position: right 11px;
         padding-right: 48px;
       }
@@ -69,12 +69,12 @@ body.settings #main-content.card {
       height: 48px;
       line-height: 50px;
 
-      html[dir=ltr] & {
+      html[dir='ltr'] & {
         background-position: left 8px;
         padding-left: 36px;
       }
 
-      html[dir=rtl] & {
+      html[dir='rtl'] & {
         background-position: right 8px;
         padding-right: 36px;
       }
@@ -86,11 +86,11 @@ body.settings #main-content.card {
     display: block;
     height: 30px;
 
-    html[dir=ltr] & {
+    html[dir='ltr'] & {
       float: right;
     }
 
-    html[dir=rtl] & {
+    html[dir='rtl'] & {
       float: left;
     }
 
@@ -177,11 +177,11 @@ body.settings #main-content.card {
 
     &:last-child {
 
-      html[dir=ltr] & {
+      html[dir='ltr'] & {
         float: right;
       }
 
-      html[dir=rtl] & {
+      html[dir='rtl'] & {
         float: left;
       }
 
@@ -344,22 +344,22 @@ body.settings #main-content.card {
     margin-top: 2px;
     overflow: hidden;
 
-    html[dir=ltr] & {
+    html[dir='ltr'] & {
       float: left;
     }
 
-    html[dir=rtl] & {
+    html[dir='rtl'] & {
       float: right;
     }
 
     @include respond-to('big') {
       width: 350px;
 
-      html[dir=ltr] & {
+      html[dir='ltr'] & {
         margin-right: 10px;
       }
 
-      html[dir=rtl] & {
+      html[dir='rtl'] & {
         margin-left: 10px;
       }
     }
@@ -367,11 +367,11 @@ body.settings #main-content.card {
     @include respond-to('small') {
       width: 70%;
 
-      html[dir=ltr] & {
+      html[dir='ltr'] & {
         margin-right: 1%;
       }
 
-      html[dir=rtl] & {
+      html[dir='rtl'] & {
         margin-left: 1%;
       }
     }

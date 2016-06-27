@@ -174,7 +174,7 @@ ul.links {
   color: $input-row-focus-border-color;
 }
 
-.password[type=text]:focus ~ .show-password-label {
+.password[type='text']:focus ~ .show-password-label {
   background-color: $input-row-focus-border-color;
   color: $show-password-focus-label-color;
 }

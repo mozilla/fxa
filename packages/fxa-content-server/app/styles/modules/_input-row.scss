@@ -27,15 +27,15 @@
                 box-shadow $short-transition;
 
     // disable arrows on HTML5 number inputs
-    &[type=number]::-webkit-inner-spin-button,
-    &[type=number]::-webkit-outer-spin-button {
+    &[type='number']::-webkit-inner-spin-button,
+    &[type='number']::-webkit-outer-spin-button {
       -webkit-appearance: none;
       -moz-appearance: none;
       appearance: none;
       margin: 0;
     }
 
-    &[type=number] {
+    &[type='number'] {
       -moz-appearance: textfield;
     }
 

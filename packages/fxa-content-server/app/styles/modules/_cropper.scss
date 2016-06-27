@@ -22,8 +22,8 @@
     width: $avatar-size;
     z-index: 1;
 
-    &:before,
-    &:after {
+    &::before,
+    &::after {
       background-color: rgba($cropper-background-color, 0.5);
       content: '';
       display: block;
@@ -34,11 +34,11 @@
       z-index: 1;
     }
 
-    &:before {
+    &::before {
       left: -(420 - $avatar-size) / 2;
     }
 
-    &:after {
+    &::after {
       right: -(420 - $avatar-size) / 2;
     }
   }
