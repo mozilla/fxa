@@ -71,7 +71,7 @@ TestServer.start(config)
         )
         .then(
           function (verifyCode) {
-            return client.verifyEmail(verifyCode)
+            return client.verifyEmail(verifyCode, { service: 'sync' })
           }
         )
         .then(
@@ -537,6 +537,60 @@ TestServer.start(config)
         .then(
           function (verifyCode) {
             return client.verifyEmail(verifyCode, { service: 'testpilot' })
+          }
+        )
+        .then(
+          function () {
+            return client.emailStatus()
+          }
+        )
+        .then(
+          function (status) {
+            t.equal(status.verified, true)
+          }
+        )
+        .then(
+          function () {
+            // It's hard to test for "an email didn't arrive.
+            // Instead trigger sending of another email and test
+            // that there wasn't anything in the queue before it.
+            return client.forgotPassword()
+          }
+        )
+        .then(
+          function () {
+            return server.mailbox.waitForCode(email)
+          }
+        )
+        .then(
+          function (code) {
+            t.ok(code, 'the next email was reset-password, not post-verify')
+          }
+        )
+    }
+  )
+
+  test(
+    'create account for unspecified service does not get post-verify email',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'allyourbasearebelongtous'
+      var client = null
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (x) {
+            client = x
+            t.ok('account was created')
+          }
+        )
+        .then(
+          function () {
+            return server.mailbox.waitForCode(email)
+          }
+        )
+        .then(
+          function (verifyCode) {
+            return client.verifyEmail(verifyCode, { }) // no 'service' param
           }
         )
         .then(

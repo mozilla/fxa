@@ -1255,10 +1255,8 @@ module.exports = function (
                     })
                     .then(function () {
                       // Our post-verification email is very specific to sync,
-                      // so don't send it if we're sure this is not for sync.
-                      // Older clients will not send a 'service' param here
-                      // so we can't always be sure.
-                      if (! service || service === 'sync') {
+                      // so only send it if we're sure this is for sync.
+                      if (service === 'sync') {
                         return mailer.sendPostVerifyEmail(
                           account.email,
                           {
