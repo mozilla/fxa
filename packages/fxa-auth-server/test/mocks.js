@@ -12,18 +12,19 @@ var P = require('../lib/promise')
 var crypto = require('crypto')
 
 var DB_METHOD_NAMES = ['account', 'createAccount', 'createDevice', 'createKeyFetchToken',
-                       'createSessionToken', 'devices', 'deleteAccount', 'deleteDevice',
-                       'deletePasswordChangeToken', 'deleteVerificationReminder', 'emailRecord', 'resetAccount',
-                       'sessionTokenWithVerificationStatus', 'sessions', 'updateDevice', 'verifyTokens', 'verifyEmail']
+                       'createSessionToken', 'deleteAccount', 'deleteDevice', 'deleteKeyFetchToken',
+                       'deletePasswordChangeToken', 'deleteVerificationReminder', 'devices',
+                       'emailRecord', 'resetAccount', 'sessions', 'sessionTokenWithVerificationStatus',
+                       'updateDevice', 'verifyEmail', 'verifyTokens']
 
-var LOG_METHOD_NAMES = ['trace', 'increment', 'info', 'error', 'begin', 'warn',
-                        'activityEvent', 'event', 'timing']
+var LOG_METHOD_NAMES = ['trace', 'increment', 'info', 'error', 'begin', 'warn', 'timing',
+                        'activityEvent', 'event']
 
 var MAILER_METHOD_NAMES = ['sendVerifyCode', 'sendVerifyLoginEmail',
                            'sendNewDeviceLoginNotification', 'sendPasswordChangedNotification',
                            'sendPostVerifyEmail']
 
-var METRICS_CONTEXT_METHOD_NAMES = ['add', 'validate']
+var METRICS_CONTEXT_METHOD_NAMES = ['stash', 'gather', 'validate']
 
 var PUSH_METHOD_NAMES = ['notifyDeviceConnected', 'notifyDeviceDisconnected', 'notifyUpdate']
 
@@ -53,7 +54,9 @@ function mockDB (data, errors) {
       return P.resolve({
         uid: data.uid,
         email: data.email,
-        emailVerified: data.emailVerified
+        emailCode: data.emailCode,
+        emailVerified: data.emailVerified,
+        wrapWrapKb: data.wrapWrapKb
       })
     }),
     createDevice: sinon.spy(function () {
@@ -67,7 +70,9 @@ function mockDB (data, errors) {
     }),
     createKeyFetchToken: sinon.spy(function () {
       return P.resolve({
-        data: crypto.randomBytes(32)
+        data: crypto.randomBytes(32),
+        tokenId: data.keyFetchTokenId,
+        uid: data.uid
       })
     }),
     createSessionToken: sinon.spy(function () {
@@ -78,6 +83,7 @@ function mockDB (data, errors) {
         lastAuthAt: function () {
           return Date.now()
         },
+        tokenId: data.sessionTokenId,
         tokenVerificationId: data.tokenVerificationId,
         tokenVerified: ! data.tokenVerificationId,
         uid: data.uid

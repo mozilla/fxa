@@ -90,6 +90,7 @@ module.exports = function (log, isA, error, signer, db, domain, metricsContext) 
         }
         var uid = sessionToken.uid.toString('hex')
         var deviceId = sessionToken.deviceId ? sessionToken.deviceId.toString('hex') : null
+        var certResult
 
         return signer.sign(
           {
@@ -105,8 +106,9 @@ module.exports = function (log, isA, error, signer, db, domain, metricsContext) 
           }
         )
         .then(
-          function(certResult) {
-            log.activityEvent(
+          function(result) {
+            certResult = result
+            return log.activityEvent(
               'account.signed',
               request,
               {
@@ -115,6 +117,10 @@ module.exports = function (log, isA, error, signer, db, domain, metricsContext) 
                 device_id: deviceId
               }
             )
+          }
+        )
+        .then(
+          function () {
             reply(certResult)
           },
           reply

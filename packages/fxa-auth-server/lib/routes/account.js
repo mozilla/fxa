@@ -177,20 +177,26 @@ module.exports = function (
             function (result) {
               account = result
 
-              log.activityEvent('account.created', request, {
+              return log.activityEvent('account.created', request, {
                 uid: account.uid.toString('hex')
               })
-
+            }
+          )
+          .then(
+            function () {
               if (account.emailVerified) {
-                log.event('verified', request, {
+                return log.event('verified', request, {
                   email: account.email,
                   uid: account.uid,
                   locale: account.locale
                 })
               }
-
+            }
+          )
+          .then(
+            function () {
               if (service === 'sync') {
-                log.event('login', request, {
+                return log.event('login', request, {
                   service: 'sync',
                   uid: account.uid,
                   email: account.email,
@@ -223,6 +229,20 @@ module.exports = function (
             .then(
               function (result) {
                 sessionToken = result
+                return metricsContext.stash(sessionToken, [
+                  'device.created',
+                  'account.signed'
+                ], form.metricsContext)
+              }
+            )
+            .then(
+              function () {
+                // There is no session token when we emit account.verified
+                // so stash the data against a synthesized "token" instead.
+                return metricsContext.stash({
+                  uid: account.uid,
+                  id: account.emailCode.toString('hex')
+                }, 'account.verified', form.metricsContext)
               }
             )
         }
@@ -270,8 +290,9 @@ module.exports = function (
                 }
               )
               .then(
-                function (keyFetchTokenData) {
-                  keyFetchToken = keyFetchTokenData.data.toString('hex')
+                function (result) {
+                  keyFetchToken = result
+                  return metricsContext.stash(keyFetchToken, 'account.keyfetch', form.metricsContext)
                 }
               )
           }
@@ -285,7 +306,7 @@ module.exports = function (
           }
 
           if (keyFetchToken) {
-            response.keyFetchToken = keyFetchToken
+            response.keyFetchToken = keyFetchToken.data.toString('hex')
           }
 
           return P.resolve(response)
@@ -380,6 +401,10 @@ module.exports = function (
                       if (! match) {
                         throw error.incorrectPassword(emailRecord.email, email)
                       }
+
+                      return log.activityEvent('account.login', request, {
+                        uid: emailRecord.uid.toString('hex')
+                      })
                     }
                   )
               },
@@ -416,10 +441,6 @@ module.exports = function (
         }
 
         function createSessionToken () {
-          log.activityEvent('account.login', request, {
-            uid: emailRecord.uid.toString('hex')
-          })
-
           var sessionTokenOptions = {
             uid: emailRecord.uid,
             email: emailRecord.email,
@@ -433,6 +454,10 @@ module.exports = function (
             .then(
               function (result) {
                 sessionToken = result
+                return metricsContext.stash(sessionToken, [
+                  'device.created',
+                  'account.signed'
+                ], form.metricsContext)
               }
             )
         }
@@ -457,6 +482,7 @@ module.exports = function (
                   .then(
                     function (result) {
                       keyFetchToken = result
+                      return metricsContext.stash(keyFetchToken, 'account.keyfetch', form.metricsContext)
                     }
                   )
                 }
@@ -466,7 +492,7 @@ module.exports = function (
 
         function emitSyncLoginEvent () {
           if (service === 'sync' && request.payload.reason === 'signin') {
-            log.event('login', request, {
+            return log.event('login', request, {
               service: 'sync',
               uid: emailRecord.uid,
               email: emailRecord.email,
@@ -835,6 +861,13 @@ module.exports = function (
         db.deleteKeyFetchToken(keyFetchToken)
           .then(
             function () {
+              return log.activityEvent('account.keyfetch', request, {
+                uid: keyFetchToken.uid.toString('hex')
+              })
+            }
+          )
+          .then(
+            function () {
               return {
                 bundle: keyFetchToken.keyBundle.toString('hex')
               }
@@ -887,6 +920,7 @@ module.exports = function (
         log.begin('Account.device', request)
         var payload = request.payload
         var sessionToken = request.auth.credentials
+
         if (payload.id) {
           // Don't write out the update if nothing has actually changed.
           if (isSpuriousUpdate(payload, sessionToken)) {
@@ -899,21 +933,14 @@ module.exports = function (
             throw error.featureNotEnabled()
           }
         }
+
         if (payload.pushCallback && (!payload.pushPublicKey || !payload.pushAuthKey)) {
           payload.pushPublicKey = ''
           payload.pushAuthKey = ''
         }
-        var operation = payload.id ? 'updateDevice' : 'createDevice'
-        db[operation](sessionToken.uid, sessionToken.tokenId, payload).then(
+
+        upsertDevice().then(
           function (device) {
-            if (operation === 'createDevice') {
-              log.event('device:create', request, {
-                uid: sessionToken.uid,
-                id: device.id,
-                type: device.type,
-                timestamp: device.createdAt
-              })
-            }
             reply(butil.unbuffer(device))
             push.notifyDeviceConnected(sessionToken.uid, device.name, device.id.toString('hex'))
           },
@@ -948,6 +975,44 @@ module.exports = function (
           return spurious
         }
 
+        function upsertDevice () {
+          var operation, event, result
+          if (payload.id) {
+            operation = 'updateDevice'
+            event = 'device.updated'
+          } else {
+            operation = 'createDevice'
+            event = 'device.created'
+          }
+
+          return db[operation](sessionToken.uid, sessionToken.tokenId, payload)
+            .then(
+              function (res) {
+                result = res
+                return log.activityEvent(event, request, {
+                  uid: sessionToken.uid.toString('hex'),
+                  device_id: result.id.toString('hex')
+                })
+              }
+            )
+            .then(
+              function () {
+                if (operation === 'createDevice') {
+                  return log.event('device:create', request, {
+                    uid: sessionToken.uid,
+                    id: result.id,
+                    type: result.type,
+                    timestamp: result.createdAt
+                  })
+                }
+              }
+            )
+            .then(
+              function () {
+                return result
+              }
+            )
+        }
       }
     },
     {
@@ -998,7 +1063,8 @@ module.exports = function (
         },
         validate: {
           payload: {
-            id: isA.string().length(32).regex(HEX_STRING).required()
+            id: isA.string().length(32).regex(HEX_STRING).required(),
+            metricsContext: metricsContext.schema
           }
         },
         response: {
@@ -1010,21 +1076,37 @@ module.exports = function (
         var sessionToken = request.auth.credentials
         var uid = sessionToken.uid
         var id = request.payload.id
-        push.notifyDeviceDisconnected(uid, id).then(deleteDbDevice, deleteDbDevice)
+        var result
 
-        function deleteDbDevice() {
-          db.deleteDevice(uid, id).then(
-            function (result) {
-              log.event('device:delete', request, {
+        return push.notifyDeviceDisconnected(uid, id)
+          .catch(function () {})
+          .then(
+            function () {
+              return db.deleteDevice(uid, id)
+            }
+          )
+          .then(
+            function (res) {
+              result = res
+              return log.activityEvent('device.deleted', request, {
+                uid: uid.toString('hex'),
+                device_id: id
+              })
+            }
+          )
+          .then(
+            function () {
+              return log.event('device:delete', request, {
                 uid: uid,
                 id: id,
                 timestamp: Date.now()
               })
-              reply(result)
-            },
-            reply
+            }
           )
-        }
+          .then(function () {
+            return result
+          })
+          .then(reply, reply)
       }
     },
     {
@@ -1173,7 +1255,8 @@ module.exports = function (
             uid: isA.string().max(32).regex(HEX_STRING).required(),
             code: isA.string().min(32).max(32).regex(HEX_STRING).required(),
             service: isA.string().max(16).alphanum().optional(),
-            reminder: isA.string().max(32).alphanum().optional()
+            reminder: isA.string().max(32).alphanum().optional(),
+            metricsContext: metricsContext.schema
           }
         }
       },
@@ -1222,28 +1305,50 @@ module.exports = function (
                   return db.verifyEmail(account)
                     .then(function () {
                       log.timing('account.verified', Date.now() - account.createdAt)
-                      log.event('verified', request, {
+                      log.increment('account.verified')
+                      return log.event('verified', request, {
                         email: account.email,
                         uid: account.uid,
                         locale: account.locale
                       })
-                      log.increment('account.verified')
-
+                    })
+                    .then(function () {
+                      // Because we have no session token on this endpoint,
+                      // the metrics context metadata was stashed against a
+                      // synthesized token for the benefit of this event.
+                      // Hence we're passing in a synthesized request object
+                      // rather than the real thing.
+                      return log.activityEvent('account.verified', {
+                        auth: {
+                          credentials: {
+                            uid: uid,
+                            id: request.payload.code
+                          }
+                        },
+                        headers: request.headers,
+                        payload: request.payload,
+                        query: request.query
+                      }, {
+                        uid: account.uid.toString('hex')
+                      })
+                    })
+                    .then(function () {
                       if (reminder === 'first' || reminder === 'second') {
                         // if verified using a known reminder
                         var reminderOp = 'account.verified_reminder.' + reminder
 
                         log.increment(reminderOp)
-                        log.activityEvent('account.reminder', request, {
-                          uid: account.uid.toString('hex')
-                        })
                         // log to the mailer namespace that account was verified via a reminder
                         log.info({
                           op: 'mailer.send',
                           name: reminderOp
                         })
+                        return log.activityEvent('account.reminder', request, {
+                          uid: account.uid.toString('hex')
+                        })
                       }
-
+                    })
+                    .then(function () {
                       // send a push notification to all devices that the account changed
                       push.notifyUpdate(uid, 'accountVerify')
                       // remove verification reminders
@@ -1440,13 +1545,21 @@ module.exports = function (
             .then(
               function (accountData) {
                 account = accountData
-                log.activityEvent('account.reset', request, {
+                return log.activityEvent('account.reset', request, {
                   uid: account.uid.toString('hex')
                 })
-                log.event('reset', request, {
+              }
+            )
+            .then(
+              function () {
+                return log.event('reset', request, {
                   uid: account.uid.toString('hex') + '@' + config.domain,
                   generation: account.verifierSetAt
                 })
+              }
+            )
+            .then(
+              function () {
                 return customs.reset(account.email)
               }
             )
@@ -1478,6 +1591,10 @@ module.exports = function (
               .then(
                 function (result) {
                   sessionToken = result
+                  return metricsContext.stash(sessionToken, [
+                    'device.created',
+                    'account.signed'
+                  ], request.payload.metricsContext)
                 }
               )
           }
@@ -1499,6 +1616,7 @@ module.exports = function (
               .then(
                 function (result) {
                   keyFetchToken = result
+                  return metricsContext.stash(keyFetchToken, 'account.keyfetch', request.payload.metricsContext)
                 }
               )
           }
@@ -1563,9 +1681,13 @@ module.exports = function (
                 )
                 .then(
                   function () {
-                    log.event('delete', request, {
+                    return log.event('delete', request, {
                       uid: emailRecord.uid.toString('hex') + '@' + config.domain
                     })
+                  }
+                )
+                .then(
+                  function () {
                     return {}
                   }
                 )

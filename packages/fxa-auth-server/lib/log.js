@@ -5,9 +5,9 @@
 var EventEmitter = require('events').EventEmitter
 var util = require('util')
 var mozlog = require('mozlog')
-
 var config = require('../config')
 var logConfig = config.get('log')
+var P = require('./promise')
 var StatsDCollector = require('./metrics/statsd')
 
 function unbuffer(object) {
@@ -36,9 +36,12 @@ function Lug(options) {
 
   this.statsd = new StatsDCollector(this.logger)
   this.statsd.init()
-  this.metricsContext = require('./metrics/context')(this, config.getProperties())
 }
 util.inherits(Lug, EventEmitter)
+
+Lug.prototype.setMetricsContext = function (metricsContext) {
+  this.metricsContext = metricsContext
+}
 
 Lug.prototype.trace = function (data) {
   this.logger.debug(data.op, data)
@@ -74,32 +77,43 @@ Lug.prototype.begin = function (op, request) {
 }
 
 Lug.prototype.event = function (name, request, data) {
-  var e = {
-    event: name,
-    data: unbuffer(data)
-  }
-  e.data.metricsContext = this.metricsContext.add({},
-    request.payload.metricsContext, request.headers.dnt === '1')
-  this.stdout.write(JSON.stringify(e) + '\n')
+  var self = this
+  return this.metricsContext.gather({}, request, name)
+    .then(
+      function (metricsContextData) {
+        var e = {
+          event: name,
+          data: unbuffer(data)
+        }
+        e.data.metricsContext = metricsContextData
+        self.stdout.write(JSON.stringify(e) + '\n')
+      }
+    )
 }
 
 Lug.prototype.activityEvent = function (event, request, data) {
   if (! data || ! data.uid) {
-    return this.error({ op: 'log.activityEvent', data: data })
+    this.error({ op: 'log.activityEvent', data: data })
+    return P.resolve()
   }
 
-  var info = this.metricsContext.add({
+  var self = this
+
+  return this.metricsContext.gather({
     event: event,
     userAgent: request.headers['user-agent']
-  }, request.payload.metricsContext, request.headers.dnt === '1')
-  optionallySetService(info, request)
+  }, request, event).then(
+    function (info) {
+      optionallySetService(info, request)
 
-  Object.keys(data).forEach(function (key) {
-    info[key] = data[key]
-  })
+      Object.keys(data).forEach(function (key) {
+        info[key] = data[key]
+      })
 
-  this.logger.info('activityEvent', info)
-  this.statsd.write(info)
+      self.logger.info('activityEvent', info)
+      self.statsd.write(info)
+    }
+  )
 }
 
 function optionallySetService (data, request) {

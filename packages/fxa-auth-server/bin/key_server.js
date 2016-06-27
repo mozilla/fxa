@@ -7,6 +7,8 @@ var jwtool = require('fxa-jwtool')
 
 function main() {
   var log = require('../lib/log')(config.log.level)
+  var metricsContext = require('../lib/metrics/context')(log, config)
+  log.setMetricsContext(metricsContext)
 
   process.stdout.write(JSON.stringify({
     event: 'config',
@@ -87,7 +89,8 @@ function main() {
                 mailer,
                 Password,
                 config,
-                customs
+                customs,
+                metricsContext
               )
               server = Server.create(log, error, config, routes, db)
 

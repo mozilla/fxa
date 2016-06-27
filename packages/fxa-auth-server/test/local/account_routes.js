@@ -26,10 +26,15 @@ var makeRoutes = function (options) {
   var config = options.config || {}
   config.verifierVersion = config.verifierVersion || 0
   config.smtp = config.smtp ||  {}
+  config.memcached = config.memcached || {
+    address: '127.0.0.1:1121',
+    idle: 500,
+    lifetime: 30
+  }
 
   var log = options.log || mocks.mockLog()
-  var Password = require('../../lib/crypto/password')(log, config)
-  var db = options.db || {}
+  var Password = options.Password || require('../../lib/crypto/password')(log, config)
+  var db = options.db || mocks.mockDB()
   var isPreVerified = require('../../lib/preverifier')(error, config)
   var customs = options.customs || {
     check: function () { return P.resolve(true) }
@@ -211,10 +216,12 @@ test('/account/reset', function (t) {
       return P.resolve()
     })
   }
+  var mockLog = mocks.spyLog()
   var mockPush = mocks.mockPush()
   var accountRoutes = makeRoutes({
-    db: mockDB,
     customs: mockCustoms,
+    db: mockDB,
+    log: mockLog,
     push: mockPush
   })
   var route = getRoute(accountRoutes, '/account/reset')
@@ -228,6 +235,13 @@ test('/account/reset', function (t) {
 
     t.equal(mockDB.account.callCount, 1)
     t.equal(mockCustoms.reset.callCount, 1)
+
+    t.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
+    var args = mockLog.activityEvent.args[0]
+    t.equal(args.length, 3, 'log.activityEvent was passed three arguments')
+    t.equal(args[0], 'account.reset', 'first argument was event name')
+    t.equal(args[1], mockRequest, 'second argument was request object')
+    t.deepEqual(args[2], { uid: uid.toString('hex') }, 'third argument contained uid')
   })
 })
 
@@ -271,15 +285,28 @@ test('/account/device', function (t) {
       t.equal(mockPush.notifyDeviceConnected.firstCall.args[1], device.name)
       t.equal(mockPush.notifyDeviceConnected.firstCall.args[2], deviceId)
 
+      t.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
+      var args = mockLog.activityEvent.args[0]
+      t.equal(args.length, 3, 'log.activityEvent was passed three arguments')
+      t.equal(args[0], 'device.created', 'first argument was event name')
+      t.equal(args[1], mockRequest, 'second argument was request object')
+      t.deepEqual(args[2], { uid: uid.toString('hex'), device_id: deviceId }, 'third argument contained uid')
+
       t.equal(mockLog.event.callCount, 1)
-      t.equal(mockLog.event.args[0].length, 3)
-      t.equal(mockLog.event.args[0][0], 'device:create')
-      t.deepEqual(mockLog.event.args[0][2], {
+      args = mockLog.event.args[0]
+      t.equal(args.length, 3)
+      t.equal(args[0], 'device:create')
+      t.equal(args[1], mockRequest)
+      t.deepEqual(args[2], {
         uid: uid.toString('hex'),
         id: deviceId,
         type: 'mobile',
         timestamp: deviceCreatedAt
       })
+    })
+    .then(function () {
+      mockLog.activityEvent.reset()
+      mockLog.event.reset()
     })
   }, t)
 
@@ -322,6 +349,15 @@ test('/account/device', function (t) {
       return runTest(route, mockRequest, function (response) {
         t.equal(mockDB.updateDevice.callCount, 1, 'updateDevice was called')
 
+        t.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
+        var args = mockLog.activityEvent.args[0]
+        t.equal(args.length, 3, 'log.activityEvent was passed three arguments')
+        t.equal(args[0], 'device.updated', 'first argument was event name')
+        t.equal(args[1], mockRequest, 'second argument was request object')
+        t.deepEqual(args[2], { uid: uid.toString('hex'), device_id: deviceId.toString('hex') }, 'third argument contained uid')
+
+        t.equal(mockLog.event.callCount, 0, 'log.event was not called')
+
         t.equal(mockLog.increment.callCount, 5, 'the counters were incremented')
         t.equal(mockLog.increment.getCall(0).args[0], 'device.update.sessionToken')
         t.equal(mockLog.increment.getCall(1).args[0], 'device.update.name')
@@ -348,9 +384,7 @@ test('/account/device', function (t) {
 test('/account/device/destroy', function (t) {
   var uid = uuid.v4('binary')
   var deviceId = crypto.randomBytes(16).toString('hex')
-  var mockLog = mocks.mockLog({
-    event: sinon.spy()
-  })
+  var mockLog = mocks.spyLog()
   var mockDB = mocks.mockDB()
   var mockRequest = mocks.mockRequest({
     credentials: {
@@ -375,10 +409,19 @@ test('/account/device/destroy', function (t) {
     t.equal(mockPush.notifyDeviceDisconnected.firstCall.args[0], mockRequest.auth.credentials.uid)
     t.equal(mockPush.notifyDeviceDisconnected.firstCall.args[1], deviceId)
 
+    t.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
+    var args = mockLog.activityEvent.args[0]
+    t.equal(args.length, 3, 'log.activityEvent was passed three arguments')
+    t.equal(args[0], 'device.deleted', 'first argument was event name')
+    t.equal(args[1], mockRequest, 'second argument was request object')
+    t.deepEqual(args[2], { uid: uid.toString('hex'), device_id: deviceId }, 'third argument contained uid and deviceId')
+
     t.equal(mockLog.event.callCount, 1)
-    t.equal(mockLog.event.args[0].length, 3)
-    t.equal(mockLog.event.args[0][0], 'device:delete')
-    var details = mockLog.event.args[0][2]
+    args = mockLog.event.args[0]
+    t.equal(args.length, 3)
+    t.equal(args[0], 'device:delete')
+    t.equal(args[1], mockRequest)
+    var details = args[2]
     t.equal(details.uid, uid.toString('hex'))
     t.equal(details.id, deviceId)
     t.ok(Date.now() - details.timestamp < 100)
@@ -397,12 +440,23 @@ test('/account/create', function (t) {
         entrypoint: 'preferences',
         utmContent: 'some-content-string'
       }
+    },
+    query: {
+      keys: 'true'
     }
   })
+  var emailCode = crypto.randomBytes(16)
+  var keyFetchTokenId = crypto.randomBytes(16)
+  var sessionTokenId = crypto.randomBytes(16)
+  var uid = uuid.v4('binary')
   var mockDB = mocks.mockDB({
     email: TEST_EMAIL,
+    emailCode: emailCode,
     emailVerified: false,
-    uid: uuid.v4('binary')
+    keyFetchTokenId: keyFetchTokenId,
+    sessionTokenId: sessionTokenId,
+    uid: uid,
+    wrapWrapKb: 'wibble'
   }, {
     emailRecord: new error.unknownAccount()
   })
@@ -417,10 +471,31 @@ test('/account/create', function (t) {
       write: sinon.spy()
     }
   })
-  mockLog.metricsContext.validate = sinon.spy()
+  var mockMetricsContext = mocks.mockMetricsContext({
+    gather: sinon.spy(function (data, request) {
+      return P.resolve(request.payload.metricsContext)
+    })
+  })
+  mockLog.setMetricsContext(mockMetricsContext)
+  mockLog.activityEvent = sinon.spy(function () {
+    return P.resolve()
+  })
+  var mockMailer = mocks.mockMailer()
   var accountRoutes = makeRoutes({
     db: mockDB,
-    log: mockLog
+    log: mockLog,
+    mailer: mockMailer,
+    metricsContext: mockMetricsContext,
+    Password: function () {
+      return {
+        unwrap: function () {
+          return P.resolve('wibble')
+        },
+        verifyHash: function () {
+          return P.resolve('wibble')
+        }
+      }
+    }
   })
   var route = getRoute(accountRoutes, '/account/create')
 
@@ -432,13 +507,42 @@ test('/account/create', function (t) {
     t.equal(eventData.event, 'login', 'it was a login event')
     t.equal(eventData.data.service, 'sync', 'it was for sync')
     t.equal(eventData.data.email, TEST_EMAIL, 'it was for the correct email')
-    t.equal(eventData.data.metricsContext.entrypoint, 'preferences', 'it contained the entrypoint metrics field')
-    t.equal(eventData.data.metricsContext.utm_content, 'some-content-string', 'it contained the utm_content metrics field')
+    t.deepEqual(eventData.data.metricsContext, mockRequest.payload.metricsContext, 'it contained the correct metrics context metadata')
 
-    t.equal(mockLog.metricsContext.validate.callCount, 1, 'metricsContext.validate was called')
-    var call = mockLog.metricsContext.validate.getCall(0)
-    t.equal(call.args.length, 1, 'validate was called with a single argument')
-    t.deepEqual(call.args[0], mockRequest, 'validate was called with the request')
+    t.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
+    var args = mockLog.activityEvent.args[0]
+    t.equal(args.length, 3, 'log.activityEvent was passed three arguments')
+    t.equal(args[0], 'account.created', 'first argument was event name')
+    t.equal(args[1], mockRequest, 'second argument was request object')
+    t.deepEqual(args[2], { uid: uid.toString('hex') }, 'third argument contained uid')
+
+    t.equal(mockMetricsContext.validate.callCount, 1, 'metricsContext.validate was called')
+    args = mockMetricsContext.validate.args[0]
+    t.equal(args.length, 1, 'validate was called with a single argument')
+    t.deepEqual(args[0], mockRequest, 'validate was called with the request')
+
+    t.equal(mockMetricsContext.stash.callCount, 3, 'metricsContext.stash was called three times')
+
+    args = mockMetricsContext.stash.args[0]
+    t.equal(args.length, 3, 'metricsContext.stash was passed three arguments first time')
+    t.deepEqual(args[0].tokenId, sessionTokenId, 'first argument was session token')
+    t.deepEqual(args[0].uid, uid, 'sessionToken.uid was correct')
+    t.deepEqual(args[1], [ 'device.created', 'account.signed' ], 'second argument was event array')
+    t.equal(args[2], mockRequest.payload.metricsContext, 'third argument was metrics context')
+
+    args = mockMetricsContext.stash.args[1]
+    t.equal(args.length, 3, 'metricsContext.stash was passed three arguments second time')
+    t.equal(args[0].id, emailCode.toString('hex'), 'first argument was synthesized token')
+    t.deepEqual(args[0].uid, uid, 'token.uid was correct')
+    t.deepEqual(args[1], 'account.verified', 'second argument was event name')
+    t.equal(args[2], mockRequest.payload.metricsContext, 'third argument was metrics context')
+
+    args = mockMetricsContext.stash.args[2]
+    t.equal(args.length, 3, 'metricsContext.stash was passed three arguments third time')
+    t.deepEqual(args[0].tokenId, keyFetchTokenId, 'first argument was key fetch token')
+    t.deepEqual(args[0].uid, uid, 'keyFetchToken.uid was correct')
+    t.deepEqual(args[1], 'account.keyfetch', 'second argument was event name')
+    t.equal(args[2], mockRequest.payload.metricsContext, 'third argument was metrics context')
   }).finally(function () {
     mockLog.close()
   })
@@ -466,10 +570,14 @@ test('/account/login', function (t) {
       }
     }
   })
+  var keyFetchTokenId = crypto.randomBytes(16)
+  var sessionTokenId = crypto.randomBytes(16)
   var uid = uuid.v4('binary')
   var mockDB = mocks.mockDB({
     email: TEST_EMAIL,
     emailVerified: true,
+    keyFetchTokenId: keyFetchTokenId,
+    sessionTokenId: sessionTokenId,
     uid: uid
   })
   // We want to test what's actually written to stdout by the logger.
@@ -483,7 +591,15 @@ test('/account/login', function (t) {
       write: sinon.spy()
     }
   })
-  mockLog.metricsContext.validate = sinon.spy()
+  var mockMetricsContext = mocks.mockMetricsContext({
+    gather: sinon.spy(function (data, request) {
+      return P.resolve(request.payload.metricsContext)
+    })
+  })
+  mockLog.setMetricsContext(mockMetricsContext)
+  mockLog.activityEvent = sinon.spy(function () {
+    return P.resolve()
+  })
   var mockMailer = mocks.mockMailer()
   var accountRoutes = makeRoutes({
     checkPassword: function () {
@@ -497,7 +613,8 @@ test('/account/login', function (t) {
     },
     db: mockDB,
     log: mockLog,
-    mailer: mockMailer
+    mailer: mockMailer,
+    metricsContext: mockMetricsContext
   })
   var route = getRoute(accountRoutes, '/account/login')
 
@@ -512,13 +629,35 @@ test('/account/login', function (t) {
       t.equal(eventData.event, 'login', 'it was a login event')
       t.equal(eventData.data.service, 'sync', 'it was for sync')
       t.equal(eventData.data.email, TEST_EMAIL, 'it was for the correct email')
-      t.equal(eventData.data.metricsContext.entrypoint, 'preferences', 'it contained the entrypoint metrics field')
-      t.equal(eventData.data.metricsContext.utm_content, 'some-content-string', 'it contained the utm_content metrics field')
+      t.deepEqual(eventData.data.metricsContext, mockRequest.payload.metricsContext, 'it contained the metrics context')
 
-      t.equal(mockLog.metricsContext.validate.callCount, 1, 'metricsContext.validate was called')
-      var call = mockLog.metricsContext.validate.getCall(0)
-      t.equal(call.args.length, 1, 'validate was called with a single argument')
-      t.deepEqual(call.args[0], mockRequest, 'validate was called with the request')
+      t.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
+      var args = mockLog.activityEvent.args[0]
+      t.equal(args.length, 3, 'log.activityEvent was passed three arguments')
+      t.equal(args[0], 'account.login', 'first argument was event name')
+      t.equal(args[1], mockRequest, 'second argument was request object')
+      t.deepEqual(args[2], { uid: uid.toString('hex') }, 'third argument contained uid')
+
+      t.equal(mockMetricsContext.validate.callCount, 1, 'metricsContext.validate was called')
+      args = mockMetricsContext.validate.args[0]
+      t.equal(args.length, 1, 'validate was called with a single argument')
+      t.deepEqual(args[0], mockRequest, 'validate was called with the request')
+
+      t.equal(mockMetricsContext.stash.callCount, 2, 'metricsContext.stash was called twice')
+
+      args = mockMetricsContext.stash.args[0]
+      t.equal(args.length, 3, 'metricsContext.stash was passed three arguments first time')
+      t.deepEqual(args[0].tokenId, sessionTokenId, 'first argument was session token')
+      t.deepEqual(args[0].uid, uid, 'sessionToken.uid was correct')
+      t.deepEqual(args[1], [ 'device.created', 'account.signed' ], 'second argument was event array')
+      t.equal(args[2], mockRequest.payload.metricsContext, 'third argument was metrics context')
+
+      args = mockMetricsContext.stash.args[1]
+      t.equal(args.length, 3, 'metricsContext.stash was passed three arguments second time')
+      t.deepEqual(args[0].tokenId, keyFetchTokenId, 'first argument was key fetch token')
+      t.deepEqual(args[0].uid, uid, 'keyFetchToken.uid was correct')
+      t.deepEqual(args[1], 'account.keyfetch', 'second argument was event name')
+      t.equal(args[2], mockRequest.payload.metricsContext, 'third argument was metrics context')
 
       t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 1, 'mailer.sendNewDeviceLoginNotification was called')
       t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
@@ -696,7 +835,6 @@ test('/account/login', function (t) {
   }, t)
 })
 
-
 test('/recovery_email/verify_code', function (t) {
   var uid = uuid.v4('binary').toString('hex')
   var mockRequest = mocks.mockRequest({
@@ -736,7 +874,31 @@ test('/recovery_email/verify_code', function (t) {
       t.equal(mockDB.verifyTokens.callCount, 1, 'calls verifyTokens')
       t.equal(mockDB.verifyEmail.callCount, 1, 'calls verifyEmail')
       t.equal(mockLog.event.callCount, 1, 'logs verified')
+
+      t.equal(mockLog.activityEvent.callCount, 1, 'activityEvent was called once')
+
+      var args = mockLog.activityEvent.args[0]
+      t.equal(args.length, 3, 'activityEvent was passed three arguments')
+      t.equal(args[0], 'account.verified', 'first argument was event name')
+      t.deepEqual(args[1], {
+        auth: {
+          credentials: {
+            uid: uid,
+            id: mockRequest.payload.code,
+          }
+        },
+        headers: mockRequest.headers,
+        payload: mockRequest.payload,
+        query: mockRequest.query
+      }, 'second argument was synthesized request object')
+      t.deepEqual(args[2], {
+        uid: uid.toString('hex')
+      }, 'third argument contained uid')
+
       t.equal(JSON.stringify(response), '{}')
+    })
+    .then(function () {
+      mockLog.activityEvent.reset()
     })
   }, t)
 
@@ -744,12 +906,59 @@ test('/recovery_email/verify_code', function (t) {
     mockRequest.payload.reminder = 'second'
 
     return runTest(route, mockRequest, function (response) {
-      t.equal(mockLog.activityEvent.callCount, 1, 'calls activityEvent')
-      var activityCall = mockLog.activityEvent.getCall(0).args
-      t.equal(activityCall[0], 'account.reminder')
-      t.equal(activityCall[2].uid, uid)
+      t.equal(mockLog.activityEvent.callCount, 2, 'activityEvent was called twice')
+      t.equal(mockLog.activityEvent.args[0][0], 'account.verified', 'first call was account.verified')
+
+      var args = mockLog.activityEvent.args[1]
+      t.equal(args.length, 3, 'activityEvent was passed three arguments second time')
+      t.equal(args[0], 'account.reminder', 'first argument was event name')
+      t.equal(args[1], mockRequest, 'second argument was request object')
+      t.deepEqual(args[2], {
+        uid: uid.toString('hex')
+      }, 'third argument contained uid')
+
       t.equal(JSON.stringify(response), '{}')
     })
+    .then(function () {
+      mockLog.activityEvent.reset()
+    })
   }, t)
+})
+
+test('/account/keys', function (t) {
+  var keyFetchTokenId = crypto.randomBytes(16)
+  var uid = uuid.v4('binary')
+  var mockRequest = mocks.mockRequest({
+    credentials: {
+      emailVerified: true,
+      id: keyFetchTokenId.toString('hex'),
+      keyBundle: crypto.randomBytes(16),
+      tokenId: keyFetchTokenId,
+      uid: uid
+    }
+  })
+  var mockDB = mocks.mockDB()
+  var mockLog = mocks.spyLog()
+  var accountRoutes = makeRoutes({
+    db: mockDB,
+    log: mockLog
+  })
+  var route = getRoute(accountRoutes, '/account/keys')
+
+  return runTest(route, mockRequest, function (response) {
+    t.deepEqual(response, { bundle: mockRequest.auth.credentials.keyBundle.toString('hex') }, 'response was correct')
+
+    t.equal(mockDB.deleteKeyFetchToken.callCount, 1, 'db.deleteKeyFetchToken was called once')
+    var args = mockDB.deleteKeyFetchToken.args[0]
+    t.equal(args.length, 1, 'db.deleteKeyFetchToken was passed one argument')
+    t.equal(args[0], mockRequest.auth.credentials, 'db.deleteKeyFetchToken was passed key fetch token')
+
+    t.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
+    args = mockLog.activityEvent.args[0]
+    t.equal(args.length, 3, 'log.activityEvent was passed three arguments')
+    t.equal(args[0], 'account.keyfetch', 'first argument was event name')
+    t.equal(args[1], mockRequest, 'second argument was request object')
+    t.deepEqual(args[2], { uid: uid.toString('hex') }, 'third argument contained uid')
+  })
 })
 
