@@ -38,7 +38,6 @@
     "eslint-config-fxa": "2.1.0",
     "grunt": "0.4.5",
     "grunt-eslint": "18.1.0",
-    "grunt-requirejs": "0.4.2",
     "istanbul": "0.4.4",
     "load-grunt-tasks": "3.5.0",
     "mocha": "2.5.3"
