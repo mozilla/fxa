@@ -108,14 +108,6 @@ ul.links {
   }
 }
 
-.cannot-create-account-content {
-  margin-top: 105px;
-
-  @include respond-to('small') {
-    margin-top: 30px;
-  }
-}
-
 .change-password .password-row,
 .complete-reset-password .password-row {
   margin-bottom: 15px;
