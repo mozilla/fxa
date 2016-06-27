@@ -16,7 +16,15 @@ var error = require('../../error')
 module.exports = function (log, config, Password, customs, db) {
   return function (emailRecord, authPW, clientAddress) {
     if (butil.buffersAreEqual(emailRecord.authSalt, butil.ONES)) {
-      throw error.mustResetAccount(emailRecord.email)
+      return customs.flag(clientAddress, {
+        email: emailRecord.email,
+        errno: error.ERRNO.ACCOUNT_RESET
+      })
+      .then(
+        function () {
+          throw error.mustResetAccount(emailRecord.email)
+        }
+      )
     }
     var password = new Password(
       authPW,
@@ -35,26 +43,29 @@ module.exports = function (log, config, Password, customs, db) {
             return match
           }
 
-          return customs.flag(clientAddress, emailRecord)
-            .then(
-              function (result) {
-                if (result.lockout) {
-                  log.info({
-                    op: 'account.lock',
-                    email: emailRecord.email,
-                    uid: emailRecord.uid.toString('hex')
-                  })
-                  if (config.lockoutEnabled) {
-                    return db.lockAccount(emailRecord)
-                  }
+          return customs.flag(clientAddress, {
+            email: emailRecord.email,
+            errno: error.ERRNO.INCORRECT_PASSWORD
+          })
+          .then(
+            function (result) {
+              if (result.lockout) {
+                log.info({
+                  op: 'account.lock',
+                  email: emailRecord.email,
+                  uid: emailRecord.uid.toString('hex')
+                })
+                if (config.lockoutEnabled) {
+                  return db.lockAccount(emailRecord)
                 }
               }
-            )
-            .then(
-              function () {
-                return match
-              }
-            )
+            }
+          )
+          .then(
+            function () {
+              return match
+            }
+          )
         }
       )
   }
