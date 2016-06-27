@@ -25,6 +25,11 @@
     text-align: right;
   }
 
+  .delayed-fadein {
+    opacity: 0;
+    animation: fadein 5s linear 3s forwards;
+  }
+
   &.centered a:not(:only-child) {
     display: block;
     float: none;
