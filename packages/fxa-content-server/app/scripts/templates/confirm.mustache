@@ -32,11 +32,11 @@
 
     <div class="links">
       {{^canGoBack}}
-        <a id="resend" href="#">{{#t}}Resend email{{/t}}</a>
+        <a id="resend" class="delayed-fadein" href="#">{{#t}}Didn't arrive? Resend{{/t}}</a>
       {{/canGoBack}}
       {{#canGoBack}}
         <a id="back" class="left" href="#">{{#t}}Back{{/t}}</a>
-        <a id="resend" class="right" href="#">{{#t}}Resend email{{/t}}</a>
+        <a id="resend" class="right delayed-fadein" href="#">{{#t}}Didn't arrive? Resend{{/t}}</a>
       {{/canGoBack}}
     </div>
   </section>
