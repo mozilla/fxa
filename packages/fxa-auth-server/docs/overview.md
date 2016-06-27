@@ -39,13 +39,39 @@ The activity events respect the `dnt` "Do not track" header and do not send `utm
 
 #### Available events
 
-* account.created - Account is created
-* account.signed - [Certificate Signed](api.md#post-v1certificatesign)
+* account.created - [Account is created](api.md#post-v1accountcreate)
+* account.verified - [Account is verified](api.md#post-v1recovery_emailverify_code)
 * account.login - [Account login event](api.md#post-v1accountlogin)
+* account.keyfetch - [Sync encryption keys have been fetched](api.md#get-v1accountkeys)
+* account.signed - [Certificate signed](api.md#post-v1certificatesign)
 * account.reset - [Account reset event](api.md#post-v1accountreset)
 * account.reminder - Account is verified using a reminder
+* device.created - Device record is created
+* device.updated - Device record is updated
+* device.deleted - Device record is deleted
 
 #### Activity event structure
+
+Activity events are JSON data.
+Some fields are common to all events,
+others are event-specific.
+Some fields are optional depending on context,
+others are mandatory.
+
+|Event|Mandatory fields|Optional fields|
+|-----|----------------|---------------|
+|`account.created`|`event`, `userAgent`, `time`, `flow_id`, `flow_time`, `uid`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`account.verified`|`event`, `userAgent`, `time`, `flow_id`, `flow_time`, `uid`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`account.login`|`event`, `userAgent`, `time`, `flow_id`, `flow_time`, `uid`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`account.keyfetch`|`event`, `userAgent`, `time`, `flow_id`, `flow_time`, `uid`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`account.signed`|`event`, `userAgent`, `time`, `flow_id`, `flow_time`, `uid`, `account_created_at`, `device_id`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`account.reset`|`event`, `userAgent`, `time`, `flow_id`, `flow_time`, `uid`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`account.reminder`|`event`, `userAgent`, `time`, `flow_id`, `flow_time`, `uid`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`device.created`|`event`, `userAgent`, `time`, `flow_id`, `flow_time`, `uid`, `device_id`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`device.updated`|`event`, `userAgent`, `time`, `flow_id`, `flow_time`, `uid`, `device_id`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`device.deleted`|`event`, `userAgent`, `time`, `flow_id`, `flow_time`, `uid`, `device_id`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+
+##### Example event
 
 ```
 {
