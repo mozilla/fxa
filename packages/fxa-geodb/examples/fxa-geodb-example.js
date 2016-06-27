@@ -4,7 +4,7 @@
 
 (function() {
   'use strict';
-  const geodb = require('./fxa-geodb');
+  const geodb = require('../src/fxa-geodb');
   // New York timezone IP
   geodb('128.192.8.8')
     .then(function(city) {
