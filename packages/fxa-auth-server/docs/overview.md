@@ -32,6 +32,28 @@ We log several events for analytical and metrics purposes:
 
 ### Activity Events
 
+We emit activity events for metrics purposes.
+These events contain the `uid` of the account to be able to better understand new user activity.
+In addition these events have a `metricsContext` that contains the user agent, `utm_*` parameters and the specific metrics `flowId`.
+The activity events respect the `dnt` "Do not track" header and do not send `utm_*` parameters if the header is set.
+
+#### Available events
+
 * account.created - Account is created
 * account.signed - [Certificate Signed](api.md#post-v1certificatesign)
 * account.login - [Account login event](api.md#post-v1accountlogin)
+* account.reset - [Account reset event](api.md#post-v1accountreset)
+* account.reminder - Account is verified using a reminder
+
+#### Activity event structure
+
+```
+{
+  "event": "account.created",
+  "userAgent": "Mozilla\/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/50.0.2661.102 Safari\/537.36",
+  "time": 1466614312474,
+  "flow_id": "1ba211797e3a87d1f6604bec8a33a5827a4751239b4ef118072380b101967dc7",
+  "flow_time": 4353,
+  "uid": "d03249d2af7d4447be3debc674110978"
+}
+```
