@@ -59,7 +59,7 @@ module.exports = function (log, inherits, Token) {
 
     var freshData = userAgent.call({
       lastAccessTime: Date.now()
-    }, userAgentString)
+    }, userAgentString, log)
 
     if (this.isFresh(freshData)) {
       return false

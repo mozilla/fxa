@@ -25,7 +25,9 @@ var MOBILE_OS_FAMILIES = {
   'Windows Phone': null
 }
 
-module.exports = function (userAgentString) {
+var ELLIPSIS = '\u2026'
+
+module.exports = function (userAgentString, log) {
   var userAgentData = ua.parse(userAgentString)
 
   this.uaBrowser = getFamily(userAgentData.ua) || null
@@ -33,6 +35,11 @@ module.exports = function (userAgentString) {
   this.uaOS = getFamily(userAgentData.os) || null
   this.uaOSVersion = getVersion(userAgentData.os) || null
   this.uaDeviceType = getDeviceType(userAgentData) || null
+
+  if (! this.uaBrowser && ! this.uaOS) {
+    // In the worst case, fall back to a truncated user agent string
+    this.uaBrowser = truncate(userAgentString || '', log)
+  }
 
   return this
 }
@@ -63,5 +70,34 @@ function getDeviceType (data) {
 
 function isMobileOS (os) {
   return os.family in MOBILE_OS_FAMILIES
+}
+
+function truncate (userAgentString, log) {
+  log.info({
+    op: 'userAgent:truncate',
+    userAgent: userAgentString
+  })
+
+  // Completely arbitrary truncation length. This should be a very rare
+  // condition, so we just want something that is long enough to convey
+  // some meaningful information without being too messy.
+  var length = 60
+
+  if (userAgentString.length < length) {
+    return userAgentString
+  }
+
+  if (/.+\(.+\)/.test(userAgentString)) {
+    var openingIndex = userAgentString.indexOf('(')
+    var closingIndex = userAgentString.indexOf(')')
+
+    if (openingIndex < closingIndex && closingIndex < 100) {
+      // If there is a closing parenthesis within a reasonable length,
+      // allow the string to be a bit longer than our arbitrary maximum.
+      length = closingIndex + 1
+    }
+  }
+
+  return userAgentString.substr(0, length) + ELLIPSIS
 }
 
