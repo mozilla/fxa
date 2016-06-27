@@ -8,9 +8,8 @@ const ERRORS = require('../lib/errors');
 const maxmind = require('maxmind');
 const Promise = require('bluebird');
 
-function GeoDB(ip, time_stamp) {
+function GeoDB(ip) {
   'use strict';
-  time_stamp = time_stamp || new Date();
 
   // check if ip is valid
   if (! maxmind.validate(ip)) {
@@ -20,8 +19,7 @@ function GeoDB(ip, time_stamp) {
   }
 
   var city_lookup, city_data;
-  // ip is valid, and in the right format,
-  // try looking it up
+  // ip is valid, try looking it up
   // the nested try..catch is to ensure that
   // we always have at least one valid database check
   // this can help when we have `db` as paid and
@@ -45,8 +43,7 @@ function GeoDB(ip, time_stamp) {
   }
 
   // return an object with city, country, continent,
-  // latitude, and longitude,
-  // and timezone (locale specific time also)
+  // latitude, and longitude, and timezone
   return Promise.resolve({
     accuracy: city_data.location.accuracy_radius,
     city: city_data.city.names.en,

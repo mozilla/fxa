@@ -13,24 +13,13 @@ The function returns a promise that may either resolve (on successful finding of
 
 ```JavaScript
 GeoDB(ip).then(function (location) {
-		// success, resolved
-		// location data is available here
+        // success, resolved
+        // location data is available here
       }, function (err) {
-      	// rejected :(
-      	// Uh-oh error
+        // rejected :(
+        // Uh-oh error
       });
 ```
-
-If you want to pass a custom timestamp to the function, do like so:
-```JavaScript
-GeoDB(ip, timestamp).then(function (location) {
-		// success, resolved
-		// location data is available here
-      }, function (err) {
-      	// Uh-oh error
-      });
-```
-where `timestamp` can be any JavaScript compatible representation of time.
 
 On successful resolution of the promise, the `location` object has the following data:
 
@@ -39,13 +28,11 @@ accuracy: 'accuracy-radius-in-km', // 5
 city: 'human-readable-city-name', // Mountain View
 continent: 'human-readable-continent-name', // North America
 country: 'human-readable-country-name', // USA
-local_time: '(mm or dd)/(mm or dd)/yyyy hh:mm:ss' based on locale and timezone,
 ll: {
-	latitude: 'latitude-in-decimal', // 37.386
-	longitude: 'longitude-in-decimal' // -122.0838
+    latitude: 'latitude-in-decimal', // 37.386
+    longitude: 'longitude-in-decimal' // -122.0838
 },
 time_zone: 'IANA-compatible-timezone', // America/Los_Angeles 
-// 6/22/2016, 5:36:40 PM for USA, tz-LA
 ```
 --
 
@@ -59,6 +46,5 @@ Code coverage is provided with `Istanbul`, to run coverage, simply call `npm run
 --
 ### Updating
 A Cron job that runs every week on Wednesday at 1:30:30 AM updates the Geodata-DB from Maxmind. 
-All you have to do while using the repo for the first time is to run `npm run-script build`, and the 
- cron job will keep running in the background.
+All you have to do while using the repo for the first time is to run `npm run-script build`, and the cron job will keep running in the background.
  
