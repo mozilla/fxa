@@ -55,6 +55,10 @@ Run tests with:
 
     npm test
 
+To select a specific glob of tests to run:
+
+    npm test -- test/local/account_routes.js test/local/password_*
+
 * Note: stop the auth-server before running tests. Otherwise, they will fail with obscure errors.
 
 ## Reference Client
