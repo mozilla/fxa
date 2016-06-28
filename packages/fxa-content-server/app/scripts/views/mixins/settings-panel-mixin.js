@@ -35,9 +35,36 @@ define(function (require, exports, module) {
       return this.$('.settings-unit').hasClass('open');
     },
 
-    _closePanelReturnToSettings: function () {
+    _closePanelReturnToSettings: function (event) {
       this.navigate('settings');
+      this.clearInput(event.currentTarget);
       this.closePanel();
+    },
+
+    clearInput: function (el) {
+      // need siblings here, not prev(), there might be 2 password rows
+      var inputFields = this.$(el).parent().siblings('.input-row').find('input');
+      $(inputFields).each(function (i, anInputField) {
+        // if we have a .label-helper, make that a placeholder
+        // cannot search only inside the .input-row, `input`s
+        // can be from different `.input-row`s
+        var labelHelper = $(anInputField).prev('.label-helper');
+        if (labelHelper.length > 0) {
+          var placeholderText = labelHelper.text();
+          if (placeholderText.length > 0) {
+            $(anInputField).attr('placeholder', placeholderText);
+            // hide the .label-helper again
+            $(labelHelper).text('').css({'top': '0px'});
+          }
+        }
+        // if the input field is text or password, reset it
+        if (anInputField.type === 'text' || anInputField.type === 'password') {
+          // only reset if the field has a value
+          if (anInputField.value.length > 0) {
+            anInputField.value = '';
+          }
+        }
+      });
     },
 
     closePanel: function () {

@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var $ = require('jquery');
   var BaseView = require('views/base');
   var chai = require('chai');
   var Cocktail = require('cocktail');
@@ -52,16 +53,18 @@ define(function (require, exports, module) {
 
     describe('events', function () {
       it('toggles button', function () {
-        sinon.stub(view, 'navigate', function () { });
+        sinon.stub(view, 'navigate', function () {});
         $('.settings-unit-toggle').click();
         assert.isTrue(view.navigate.calledWith('settings/display_name'));
       });
 
       it('toggles open and closed', function () {
         sinon.stub(view, 'closePanel', function () {});
-        sinon.stub(view, 'navigate', function () { });
+        sinon.stub(view, 'clearInput', function () {});
+        sinon.stub(view, 'navigate', function () {});
         $('button.cancel').click();
         assert.isTrue(view.closePanel.called);
+        assert.isTrue(view.clearInput.called);
         assert.isTrue(view.navigate.calledWith('settings'));
       });
     });
@@ -81,6 +84,16 @@ define(function (require, exports, module) {
         view.displaySuccess('hi');
         assert.isTrue(view.parentView.displaySuccess.calledWith('hi'));
         assert.isTrue(view.closePanel.called);
+      });
+
+      it('clears panels', function () {
+        view.$('.display-name').val('spc');
+        view.$('.display-name').prev('.label-helper').text('placeholder text');
+        view.clearInput('.settings-button.cancel');
+        assert.isTrue(view.$('.display-name').val() === '');
+        assert.isTrue(view.$('.display-name').attr('placeholder') === 'placeholder text');
+        assert.isTrue(view.$('.display-name').prev('.label-helper').text() === '');
+        assert.isTrue(view.$('.display-name').prev('.label-helper').css('top') === '0px');
       });
     });
 
