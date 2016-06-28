@@ -123,6 +123,34 @@ define([
             assert.notOk
           );
       });
+
+      test('#verifyEmail with reminder param', function () {
+        var user = 'test6' + new Date().getTime();
+        var email = user + '@restmail.net';
+        var password = 'iliketurtles';
+        var uid;
+
+        return respond(client.signUp(email, password), RequestMocks.signUp)
+          .then(function (result) {
+            uid = result.uid;
+            assert.ok(uid, 'uid is returned');
+
+            return respond(mail.wait(user), RequestMocks.mail);
+          })
+          .then(function (emails) {
+            var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
+            assert.ok(code, 'code is returned');
+
+            return respond(client.verifyCode(uid, code, { reminder: 'first' }),
+              RequestMocks.verifyCode);
+          })
+          .then(
+            function (result) {
+              assert.ok(result);
+            },
+            assert.notOk
+          );
+      });
     });
   }
 });

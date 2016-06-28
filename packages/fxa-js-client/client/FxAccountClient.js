@@ -265,6 +265,8 @@ define([
    * @param {Object} [options={}] Options
    *   @param {String} [options.service]
    *   Service being signed into
+   *   @param {String} [options.reminder]
+   *   Reminder that was used to verify the account
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.verifyCode = function(uid, code, options) {
@@ -279,6 +281,10 @@ define([
     if (options) {
       if (options.service) {
         data.service = options.service;
+      }
+
+      if (options.reminder) {
+        data.reminder = options.reminder;
       }
     }
 

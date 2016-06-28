@@ -180,10 +180,10 @@ define([
           })
           .then(function (result) {
             passwordForgotToken = result.passwordForgotToken;
-            return respond(mail.wait(account.input.user, 4), RequestMocks.resetMail);
+            return respond(mail.wait(account.input.user, 3), RequestMocks.resetMail);
           })
           .then(function (emails) {
-            var code = emails[3].html.match(/code=([A-Za-z0-9]+)/)[1];
+            var code = emails[2].html.match(/code=([A-Za-z0-9]+)/)[1];
             return respond(
               client.passwordForgotVerifyCode(code, passwordForgotToken),
               RequestMocks.passwordForgotVerifyCode
@@ -234,16 +234,16 @@ define([
           .then(function (result) {
             assert.ok(result.passwordForgotToken);
 
-            return respond(mail.wait(account.input.user, 4), RequestMocks.resetMailWithServiceAndRedirect);
+            return respond(mail.wait(account.input.user, 3), RequestMocks.resetMailWithServiceAndRedirect);
           })
           .then(function (emails) {
-            var code = emails[3].html.match(/code=([A-Za-z0-9]+)/);
+            var code = emails[2].html.match(/code=([A-Za-z0-9]+)/);
             assert.ok(code, 'code found');
-            var service = emails[3].html.match(/service=([A-Za-z0-9]+)/);
+            var service = emails[2].html.match(/service=([A-Za-z0-9]+)/);
             assert.ok(service, 'service found');
-            var redirectTo = emails[3].html.match(/redirectTo=([A-Za-z0-9]+)/);
+            var redirectTo = emails[2].html.match(/redirectTo=([A-Za-z0-9]+)/);
             assert.ok(redirectTo, 'redirectTo found');
-            var resume = emails[3].html.match(/resume=([A-Za-z0-9]+)/);
+            var resume = emails[2].html.match(/resume=([A-Za-z0-9]+)/);
             assert.ok(resume, 'resume found');
 
             assert.ok(code[1], 'code is returned');
@@ -443,10 +443,10 @@ define([
             return respond(client.accountUnlockResendCode(account.input.email, opts), RequestMocks.accountUnlockResendCode);
           })
           .then(function () {
-            return respond(mail.wait(account.input.user, 4), RequestMocks.resetMailUnlock);
+            return respond(mail.wait(account.input.user, 3), RequestMocks.resetMailUnlock);
           })
           .then(function (emails) {
-            var code = emails[3].html.match(/code=([A-Za-z0-9]+)/)[1];
+            var code = emails[2].html.match(/code=([A-Za-z0-9]+)/)[1];
             return respond(client.accountUnlockVerifyCode(account.signUp.uid, code), RequestMocks.accountUnlockVerifyCode);
           })
           .then(
