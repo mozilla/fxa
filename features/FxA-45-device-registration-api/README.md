@@ -20,8 +20,8 @@ https://mozilla.aha.io/features/FXA-45
   * [POST /v1/account/device/destroy](#post-v1accountdevicedestroy)
 * [Details](#details)
   * [How are unrecognised devices handled?](#how-are-unrecognised-devices-handled)
-  * [What is a disconnected device?](#what-is-a-disconnected-device)
   * [Coordinating with legacy devices](#coordinating-with-legacy-devices)
+* [Outcomes](#outcomes)
 
 ## Overview
 
@@ -362,13 +362,6 @@ If a POST to `/v1/account/login`, `/v1/account/device` or `/v1/account/device/de
 specifies an unknown device id,
 a 400 error will returned.
 
-### What is a disconnected device?
-
-A disconnected device is one that does not have a session token.
-This situation can arise when a user's password is reset,
-as the session tokens are deleted from the database
-but the devices are not.
-
 ### Coordinating with legacy devices
 
 It's important for the user experience
@@ -398,3 +391,26 @@ and identify them by ID in both systems.
 The set of registered devices in FxA
 will be a consistent *subset*
 of the client information recorded in sync.
+
+## Outcomes
+
+The feature was shipped in Firefox 46
+and users are successfully registering devices:
+
+[![Graph showing device registrations](device-registration.png)](https://kibana.fxa.us-west-2.prod.mozaws.net/index.html#/dashboard/elasticsearch/Device%20registration)
+
+Two things stand out about this graph:
+
+* There are vastly more requests to `/account/device`
+  than there are to `/account/create` and `/account/login` combined.
+
+* The number of requests to `/account/device`
+  is steadily declining.
+
+These can probably be attributed to existing sessions
+registering a device for the first time
+and the decline is expected to continue
+until the request count for `/account/device` steadies
+at a point just greater than
+the combined request counts for `/account/create` and `/account/login`.
+
