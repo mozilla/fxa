@@ -13,6 +13,8 @@ git clone https://github.com/mozilla/fxa-auth-db-mysql.git &
 
 git clone https://github.com/mozilla/fxa-auth-mailer.git &
 
+git clone https://github.com/mozilla/fxa-customs-server.git &
+
 git clone https://github.com/vladikoff/browserid-verifier.git -b http &
 
 git clone https://github.com/mozilla/fxa-oauth-server.git &
