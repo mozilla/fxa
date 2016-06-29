@@ -129,12 +129,11 @@ define([
         .end()
 
         // browser device should be sorted first
-        .findByCssSelector('.device:nth-child(1) .device-name')
-          .getVisibleText()
-          .then(function (val) {
-            assert.equal(val, BROWSER_DEVICE_NAME + ' (current)', 'device name is correct');
-          })
-        .end()
+        .then(FunctionalHelpers.testElementTextEquals(
+          '.device:nth-child(1) .device-name',
+          BROWSER_DEVICE_NAME
+          )
+        )
 
         // update external device from the test runner
         .then(function () {
@@ -144,6 +143,13 @@ define([
             TEST_DEVICE_NAME_UPDATED
           );
         })
+
+        // current device has the text `current device`
+        .then(FunctionalHelpers.testElementTextEquals(
+          '.device:nth-child(1) .device-name + .device-current',
+          'current device'
+          )
+        )
 
         // external update should show in the device list
         .findByCssSelector('.devices-refresh')

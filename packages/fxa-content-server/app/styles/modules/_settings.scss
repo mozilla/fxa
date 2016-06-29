@@ -486,6 +486,12 @@ body.settings #main-content.card {
     width: 20%;
   }
 
+  .device-current {
+    color: $color-green;
+    font-size: 12px;
+    font-weight: bold;
+  }
+
   .last-connected {
     color: $color-grey;
     font-size: 12px;

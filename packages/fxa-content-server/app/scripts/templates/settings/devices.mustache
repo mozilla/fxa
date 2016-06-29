@@ -19,12 +19,13 @@
       <ul class="device-list button-row">
         {{#devices}}
           <li class="device {{type}}" id="{{id}}">
-            <div class="device-name">
-              {{name}} {{#isCurrentDevice}}<span class="device-current">{{#t}}(current){{/t}}</span>{{/isCurrentDevice}}
-            </div>
-            <div class="last-connected">
-              {{lastAccessTime}}
-            </div>
+            <div class="device-name">{{name}}</div>
+            {{#isCurrentDevice}}
+            <div class="device-current">{{#t}}current device{{/t}}</div>
+            {{/isCurrentDevice}}
+            {{^isCurrentDevice}}
+            <div class="last-connected">{{lastAccessTime}}</div>
+            {{/isCurrentDevice}}
             <button class="settings-button warning device-disconnect" data-id="{{id}}">{{#t}}Disconnect{{/t}}</button>
           </li>
         {{/devices}}
