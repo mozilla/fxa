@@ -37,6 +37,7 @@ define(function (require, exports, module) {
     var validCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH);
     var validUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
     var validService = 'someValidService';
+    var validReminder = 'validReminder';
 
     function testShowsExpiredScreen(search) {
       windowMock.location.search = search || '?code=' + validCode + '&uid=' + validUid;
@@ -199,7 +200,46 @@ define(function (require, exports, module) {
           var args = account.verifySignUp.getCall(0).args;
           assert.isTrue(account.verifySignUp.called);
           assert.ok(args[0]);
-          assert.deepEqual(args[1], {service: validService});
+          assert.deepEqual(args[1], {reminder: null, service: validService});
+        });
+      });
+
+      describe('if reminder is available in the URL', function () {
+        beforeEach(function () {
+          windowMock.location.search = '?code=' + validCode + '&uid=' + validUid + '&reminder=' + validReminder;
+          relier = new Relier({
+            window: windowMock
+          });
+          relier.fetch();
+          initView(account);
+          return view.render();
+        });
+
+        it('attempt to verify the account with reminder', function () {
+          var args = account.verifySignUp.getCall(0).args;
+          assert.isTrue(account.verifySignUp.called);
+          assert.ok(args[0]);
+          assert.deepEqual(args[1], {reminder: validReminder, service: null});
+        });
+      });
+
+      describe('if reminder and service is available in the URL', function () {
+        beforeEach(function () {
+          windowMock.location.search = '?code=' + validCode + '&uid=' + validUid
+            + '&service=' + validService + '&reminder=' + validReminder;
+          relier = new Relier({
+            window: windowMock
+          });
+          relier.fetch();
+          initView(account);
+          return view.render();
+        });
+
+        it('attempt to verify the account with service and reminder', function () {
+          var args = account.verifySignUp.getCall(0).args;
+          assert.isTrue(account.verifySignUp.called);
+          assert.ok(args[0]);
+          assert.deepEqual(args[1], {reminder: validReminder, service: validService});
         });
       });
 

@@ -15,6 +15,7 @@ define(function (require, exports, module) {
   module.exports = VerificationInfo.extend({
     defaults: {
       code: null,
+      reminder: null,
       uid: null
     },
 

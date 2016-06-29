@@ -87,6 +87,7 @@ define(function (require, exports, module) {
 
       var code = verificationInfo.get('code');
       var options = {
+        reminder: self._verificationInfo.get('reminder'),
         service: self.relier.get('service')
       };
       return self.user.completeAccountSignUp(self.getAccount(), code, options)
