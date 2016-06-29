@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * A relier is a model that holds information about the RP.
+ * A relier is a model that holds information about the relying party.
  *
  * A subclass should override `resumeTokenFields` to add/modify which
  * fields are saved to and populated from a resume token in the resume

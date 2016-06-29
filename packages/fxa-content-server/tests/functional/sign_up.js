@@ -76,6 +76,7 @@ define([
     'signup, verify same browser': function () {
       var self = this;
       return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
+        .then(visibleByQSA('#suggest-sync'))
         .then(fillOutSignUp(this, email, PASSWORD))
         .then(testAtConfirmScreen(email))
         .then(openVerificationLinkInNewTab(self, email, 0))

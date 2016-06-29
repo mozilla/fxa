@@ -52,6 +52,7 @@ define([
 
       return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
         .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(FunctionalHelpers.noSuchElement(this, '#suggest-sync'))
 
         .then(function () {
           return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);

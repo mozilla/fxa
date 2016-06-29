@@ -246,7 +246,8 @@ define(function (require, exports, module) {
       it('does not display migration message if no migration', function () {
         return view.render()
           .then(function () {
-            assert.lengthOf(view.$('.info.nudge'), 0);
+            assert.lengthOf(view.$('#sync-migration'), 0);
+            assert.lengthOf(view.$('#suggest-sync'), 1);
           });
       });
 
@@ -257,7 +258,7 @@ define(function (require, exports, module) {
 
         return view.render()
           .then(function () {
-            assert.equal(view.$('.info.nudge').html(), 'Migrate your sync data by creating a new Firefox&nbsp;Account.');
+            assert.equal(view.$('#sync-migration').html(), 'Migrate your sync data by creating a new Firefox&nbsp;Account.');
             view.isSyncMigration.restore();
           });
       });
@@ -269,7 +270,7 @@ define(function (require, exports, module) {
 
         return view.render()
           .then(function () {
-            assert.lengthOf(view.$('.info.nudge'), 0);
+            assert.lengthOf(view.$('#sync-migration'), 0);
             view.isSyncMigration.restore();
           });
       });
@@ -281,7 +282,7 @@ define(function (require, exports, module) {
 
         return view.render()
           .then(function () {
-            assert.equal(view.$('.info.nudge').html(), 'Have an account with a different email? <a href="/signin">Sign in</a>');
+            assert.equal(view.$('#amo-migration').html(), 'Have an account with a different email? <a href="/signin">Sign in</a>');
             view.isAmoMigration.restore();
           });
       });
@@ -293,7 +294,7 @@ define(function (require, exports, module) {
 
         return view.render()
           .then(function () {
-            assert.lengthOf(view.$('.info.nudge'), 0);
+            assert.lengthOf(view.$('#amo-migration'), 0);
             view.isAmoMigration.restore();
           });
       });
