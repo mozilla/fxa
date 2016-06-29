@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const db = '../db/cities-db.mmdb';
-const db_backup = '../db/cities-db.mmdb-backup';
+const db = __dirname + '/../db/cities-db.mmdb';
+const db_backup = __dirname + '/../db/cities-db.mmdb-backup';
 const ERRORS = require('../lib/errors');
 const maxmind = require('maxmind');
 const Promise = require('bluebird');
@@ -42,19 +42,38 @@ function GeoDB(ip) {
     }
   }
 
+  if (city_data == null) {
+    return Promise.reject({
+      message: ERRORS.UNABLE_TO_FETCH_DATA
+    });
+  }
+
   // return an object with city, country, continent,
   // latitude, and longitude, and timezone
-  return Promise.resolve({
-    accuracy: city_data.location.accuracy_radius,
-    city: city_data.city.names.en,
-    continent: city_data.continent.names.en,
-    country: city_data.country.names.en,
-    ll: {
-      latitude: city_data.location.latitude,
-      longitude: city_data.location.longitude
-    },
-    time_zone: city_data.location.time_zone
-  });
+  var location = new function () {
+    if (city_data.location) {
+      this.accuracy = city_data.location.accuracy_radius;
+      this.ll = {
+        latitude: city_data.location.latitude,
+        longitude: city_data.location.longitude
+      };
+      this.time_zone = city_data.location.time_zone;
+    }
+
+    if (city_data.city) {
+      this.city = city_data.city.names.en;
+    }
+
+    if (city_data.continent) {
+      this.continent = city_data.continent.names.en;
+    }
+
+    if (city_data.country) {
+      this.country = city_data.country.names.en;
+    }
+    this.city_data = city_data;
+  };
+  return Promise.resolve(location);
 }
 
 module.exports = GeoDB;
