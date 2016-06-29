@@ -26,8 +26,8 @@
   }
 
   .delayed-fadein {
-    opacity: 0;
     animation: fadein 5s linear 3s forwards;
+    opacity: 0;
   }
 
   &.centered a:not(:only-child) {
