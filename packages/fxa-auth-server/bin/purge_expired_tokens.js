@@ -1,0 +1,76 @@
+#!/usr/bin/env node
+
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This is a command line tool that can be used to purge expired tokens
+ * from the OAuth database. It requires you specify a pocket client id
+ * before running. Currently, access tokens created from pocket should
+ * not be deleted even if expired.
+ *
+ * Example usage:
+ *
+ * node purge_expired_tokens.js --config dev --pocket-id dcdb5ae7add825d2 --token-count 10000 --delay-seconds 1
+ *
+ * */
+
+const program = require('commander');
+const package = require('./../package.json');
+
+program
+  .version(package.version)
+  .option('-c, --config [config]', 'Configuration to use. Ex. dev')
+  .option('-p, --pocket-id <pocketId>', 'Pocket Client Id. These tokens will not be purged.')
+  .option('-t, --token-count <tokenCount>', 'Number of tokens to delete.')
+  .option('-d, --delay-seconds <delaySeconds>', 'Delay (seconds) between each deletion round. (Default: 1 second)')
+  .parse(process.argv);
+
+program.parse(process.argv);
+
+if (!program.config) {
+  program.config = 'dev';
+}
+
+process.env.NODE_ENV = program.config;
+
+const db = require('../lib/db');
+const logger = require('../lib/logging')('bin.purge_expired_tokens');
+
+if (!program.pocketId) {
+  logger.debug('Required pocket client id!');
+  process.exit(1);
+}
+
+const numberOfTokens = parseInt(program.tokenCount) || 200;
+const delaySeconds = parseInt(program.delaySeconds) || 1; // Default 1 seconds
+const ignorePocketClientId = program.pocketId;
+
+db.ping().done(function() {
+
+  // Only mysql impl supports token deletion at the moment
+  if (db.purgeExpiredTokens) {
+
+    // To reduce the risk of deleting pocket tokens, ensure that the pocket-id passed in
+    // belongs to a client.
+    logger.debug('Deleting token amount %s, delay %s, pocketId %s', numberOfTokens, delaySeconds, ignorePocketClientId);
+    return db.purgeExpiredTokens(numberOfTokens, delaySeconds, ignorePocketClientId)
+      .then(function () {
+        logger.info('Purge completed!');
+        process.exit(0);
+      })
+      .catch(function (err) {
+        logger.error(err);
+        process.exit(1);
+      });
+  } else {
+    logger.debug('Unable to purge expired tokens, only avalible when using config with mysql database.');
+  }
+}, function(err) {
+  logger.critical('db.ping', err);
+  process.exit(1);
+});
+
+process.on('uncaughtException', function () {
+  process.exit(2);
+});

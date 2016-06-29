@@ -176,6 +176,7 @@ const QUERY_REFRESH_TOKEN_DELETE_USER =
 const QUERY_CODE_DELETE_USER = 'DELETE FROM codes WHERE userId=?';
 const QUERY_DEVELOPER = 'SELECT * FROM developers WHERE email=?';
 const QUERY_DEVELOPER_DELETE = 'DELETE FROM developers WHERE email=?';
+const QUERY_PURGE_EXPIRED_TOKENS = 'DELETE FROM tokens WHERE clientId != UNHEX(?) AND expiresAt < NOW() LIMIT ?;';
 
 function firstRow(rows) {
   return rows[0];
@@ -377,7 +378,7 @@ MysqlStore.prototype = {
       scope: Scope(vals.scope),
       token: unique.token(),
       type: 'bearer',
-      expiresAt: new Date(Date.now() + (vals.ttl  * 1000 || MAX_TTL))
+      expiresAt: vals.expiresAt || new Date(Date.now() + (vals.ttl  * 1000 || MAX_TTL))
     };
     return this._write(QUERY_ACCESS_TOKEN_INSERT, [
       t.clientId,
@@ -458,6 +459,54 @@ MysqlStore.prototype = {
         return info;
       });
     });
+  },
+
+  purgeExpiredTokens: function purgeExpiredTokens(numberOfTokens, delaySeconds, ignoreClientId){
+    var self = this;
+
+    return self.getClientDevelopers(ignoreClientId)
+      .then(function (ignoreClient) {
+        // This ensures that purgeExpiredTokens can not be called with an invalid ignoreClientId
+      })
+      .catch(function(err){
+        err = new Error('Invalid ignoreClientId, please ensure client exists.');
+        logger.error(err);
+        throw err;
+      })
+      .then(function () {
+        var deleteBatchSize = 200;
+        if (numberOfTokens <= deleteBatchSize) {
+          deleteBatchSize = numberOfTokens;
+        }
+
+        var deletedItems = 0;
+        var promiseWhile = P.method(function () {
+          if (deletedItems >= numberOfTokens) {
+            return;
+          }
+
+          return self._write(QUERY_PURGE_EXPIRED_TOKENS, [ignoreClientId, deleteBatchSize])
+            .then(function (res) {
+              // Break loop if no items were effected by delete.
+              // All expired tokens have been deleted.
+              if (res.affectedRows === 0) {
+                return;
+              }
+
+              deletedItems = deletedItems + res.affectedRows;
+
+              return P.delay(delaySeconds)
+                .then(function () {
+                  return promiseWhile();
+                });
+            });
+        });
+
+        return promiseWhile();
+      })
+      .then(function() {
+        logger.debug('purgeExpiredTokens completed');
+      });
   },
 
   removeUser: function removeUser(userId) {

@@ -10,7 +10,8 @@ module.exports = function (grunt) {
       options: {
         ui: 'bdd',
         reporter: 'spec',
-        require: 'coverage/blanket'
+        require: 'coverage/blanket',
+        timeout: 10000
       },
       src: [
         'test/**/*.js',
