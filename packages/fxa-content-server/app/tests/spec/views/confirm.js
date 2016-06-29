@@ -216,7 +216,7 @@ define(function (require, exports, module) {
             return true;
           });
 
-          testEmailVerificationPoll('afterSignIn');
+          testEmailVerificationPoll('afterSignInConfirmationPoll');
         });
       });
 

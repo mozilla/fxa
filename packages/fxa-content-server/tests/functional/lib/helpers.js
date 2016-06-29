@@ -820,6 +820,15 @@ define([
     };
   }
 
+  function clearBrowserNotifications() {
+    return function () {
+      return this.parent
+        .execute(function (command, done) {
+          sessionStorage.removeItem('webChannelEvents');
+        });
+    };
+  }
+
   function testIsBrowserNotified(context, command, cb) {
     return function () {
       return getRemote(context)
@@ -1325,6 +1334,7 @@ define([
   }
 
   return {
+    clearBrowserNotifications: clearBrowserNotifications,
     clearBrowserState: clearBrowserState,
     clearSessionStorage: clearSessionStorage,
     click: click,

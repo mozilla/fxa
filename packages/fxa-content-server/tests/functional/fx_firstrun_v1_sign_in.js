@@ -16,6 +16,7 @@ define([
 
   var thenify = FunctionalHelpers.thenify;
 
+  var clearBrowserNotifications = FunctionalHelpers.clearBrowserNotifications;
   var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
@@ -58,6 +59,7 @@ define([
         .then(setupTest(this, true))
 
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(clearBrowserNotifications())
         .then(testElementExists('#fxa-confirm-signin-header'))
 
         .then(openVerificationLinkInNewTab(this, email, 0))
@@ -66,7 +68,8 @@ define([
           .closeCurrentWindow()
         .switchToWindow('')
 
-        .then(testElementExists('#fxa-sign-in-complete-header'));
+        .then(testElementExists('#fxa-sign-in-complete-header'))
+        .then(noSuchBrowserNotification(this, 'fxaccounts:login'));
     },
 
     'verified, verify different browser - from original tab\'s P.O.V.': function () {
@@ -74,11 +77,13 @@ define([
         .then(setupTest(this, true))
 
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(clearBrowserNotifications())
         .then(testElementExists('#fxa-confirm-signin-header'))
 
         .then(openVerificationLinkDifferentBrowser(email))
 
-        .then(testElementExists('#fxa-sign-in-complete-header'));
+        .then(testElementExists('#fxa-sign-in-complete-header'))
+        .then(noSuchBrowserNotification(this, 'fxaccounts:login'));
     },
 
     'unverified': function () {

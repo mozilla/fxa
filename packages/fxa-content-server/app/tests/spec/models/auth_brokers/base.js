@@ -143,6 +143,13 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('afterSignInConfirmationPoll', function () {
+      it('returns a promise', function () {
+        return broker.afterSignInConfirmationPoll(account)
+          .then(testDoesNotHalt);
+      });
+    });
+
     describe('afterForceAuth', function () {
       it('returns a promise', function () {
         return broker.afterForceAuth(account)

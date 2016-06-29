@@ -54,6 +54,7 @@ define(function (require, exports, module) {
       afterForceAuth: new NullBehavior(),
       afterResetPasswordConfirmationPoll: new NullBehavior(),
       afterSignIn: new NullBehavior(),
+      afterSignInConfirmationPoll: new NullBehavior(),
       afterSignUp: new NullBehavior(),
       afterSignUpConfirmationPoll: new NullBehavior(),
       beforeSignIn: new NullBehavior(),
@@ -139,6 +140,15 @@ define(function (require, exports, module) {
      */
     afterSignIn: function (/* account */) {
       return p(this.getBehavior('afterSignIn'));
+    },
+
+    /**
+     * Called after sign in confirmation poll. Can be used to notify the RP
+     * that the user has signed in and confirmed their email address to verify
+     * they want to allow the signin.
+     */
+    afterSignInConfirmationPoll: function (/* account */) {
+      return p(this.getBehavior('afterSignInConfirmationPoll'));
     },
 
     /**

@@ -66,6 +66,12 @@ define(function (require, exports, module) {
       return proto.afterSignIn.apply(this, arguments);
     },
 
+    afterSignInConfirmationPoll: function () {
+      this._iframeChannel.send(this._iframeCommands.VERIFICATION_COMPLETE);
+
+      return proto.afterSignInConfirmationPoll.apply(this, arguments);
+    },
+
     afterResetPasswordConfirmationPoll: function () {
       this._iframeChannel.send(this._iframeCommands.VERIFICATION_COMPLETE);
 

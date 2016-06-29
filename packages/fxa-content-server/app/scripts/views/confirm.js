@@ -128,7 +128,7 @@ define(function (require, exports, module) {
           var brokerMethod =
             self.isSignUp() ?
             'afterSignUpConfirmationPoll' :
-            'afterSignIn';
+            'afterSignInConfirmationPoll';
 
           return self.invokeBrokerMethod(brokerMethod, self.getAccount());
         })

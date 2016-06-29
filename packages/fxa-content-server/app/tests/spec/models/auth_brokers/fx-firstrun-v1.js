@@ -150,6 +150,17 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('afterSignInConfirmationPoll', function () {
+      it('notifies the iframe channel', function () {
+        sinon.spy(iframeChannel, 'send');
+
+        return broker.afterSignInConfirmationPoll(account)
+          .then(function () {
+            assert.isTrue(iframeChannel.send.calledWith(broker._iframeCommands.VERIFICATION_COMPLETE));
+          });
+      });
+    });
+
     describe('afterSignUpConfirmationPoll', function () {
       it('notifies the iframe channel', function () {
         sinon.spy(iframeChannel, 'send');
