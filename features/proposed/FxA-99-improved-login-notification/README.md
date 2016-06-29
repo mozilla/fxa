@@ -18,7 +18,7 @@ and presenting it in a more user-friendly format.
 * IP-based geoprofiling
   can give us sufficiently reliable information
   about the physical location of the device
-  that was used to log in to FxA.
+  that was used to log in to FxA. The primary source of the location data will be [Maxmind](https://www.maxmind.com/en/geoip2-city), which claims 99.8% accurate on a country level, 90% accurate on a state level, 81% accurate on a city level for the US within a 50 kilometer radius. Outside of the US it can be considerably lower.
 
 ****
 
@@ -26,7 +26,7 @@ and presenting it in a more user-friendly format.
 
 We believe that
 including more detailed and user-friendly information
-in our logn notification emails,
+in our login notification emails,
 will improve user understanding of the email
 and help then know whether to act on it.
 
@@ -71,17 +71,51 @@ are needlessly alarmed by legitimate logins,
 or will increase because more users
 are able to identify suspicious behaviour.
 
+To help monitor the accuracy of the location data, we will monitor the following:
+
+* Unknown location (`fxa.location.accuracy.unknown`)
+  * Accuracy radius > 200 km
+* Uncertain location (`fxa.location.accuracy.uncertain`)
+  * 200 km >= Accuracy radius > 25 km
+* Confident location (`fxa.location.accuracy.confident`)
+  * 25 km >= Accuracy radius
+
 TODO: sample metric artifact
 
 ****
 
 ## Detailed design
 
+The location services needed to support the enhanced email notifications, will be developed as a standalone module. 
+This would allow it to also be integrated into other services if needed.
+This module will act as a wrapper for `node-maxmind`, which is a wrapper for Maxmind geoip database.
+
+This module will expose one high level api function that requires an ip address and timestamp.
+The response will contain location data and the corresponding location based timestamp.
+
+Example Response:
+```javascript
+{
+    accuracy: 'accuracy-radius-in-km', // 5
+    city: 'human-readable-city-name', // Mountain View
+    continent: 'human-readable-continent-name', // North America
+    country: 'human-readable-country-name', // USA
+    local_time: '(mm or dd)/(mm or dd)/yyyy hh:mm:ss'
+    based on locale and timezone,
+    ll: {
+        latitude: 'latitude-in-decimal', // 37.386
+        longitude: 'longitude-in-decimal' // -122.0838
+    },
+    time_zone: 'IANA-compatible-timezone', // America/Los_Angeles
+    // 6/22/2016, 5:36:40 PM for USA, tz-LA
+}
+```
+
 ## UX Mocks
 
 The current login notification email
 comes in two variants,
-one for post-login notiication
+one for post-login notification
 and the other for pre-login confirmation.
 They look like this:
 
