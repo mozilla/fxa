@@ -12,7 +12,6 @@ define([
   TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'signin?context=fx_ios_v1&service=sync';
-  var EXCLUDE_SIGNUP_PAGE_URL = PAGE_URL + '&exclude_signup=1';
 
   var email;
   var PASSWORD = '12345678';
@@ -24,7 +23,6 @@ define([
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var noPageTransition = FunctionalHelpers.noPageTransition;
-  var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = thenify(FunctionalHelpers.openPage);
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfMessage);
@@ -66,12 +64,6 @@ define([
 
         .then(testElementExists('#fxa-confirm-header'))
         .then(testIsBrowserNotifiedOfLogin(this, email, { checkVerified: false }));
-    },
-
-    'signup link is disabled': function () {
-      return this.remote
-        .then(openPage(this, EXCLUDE_SIGNUP_PAGE_URL, '#fxa-signin-header'))
-        .then(noSuchElement(this, 'a[href="/signup"]'));
     },
 
     'signup link is enabled': function () {

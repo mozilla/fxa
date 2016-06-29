@@ -241,10 +241,13 @@ define(function (require, exports, module) {
       errno: 1029,
       message: t('Signup is coming soon to Firefox for iOS')
     },
+    /*
+    Removed in issue #2950
     SIGNUP_DISABLED_BY_RELIER: {
       errno: 1030,
       message: t('Signup has been disabled')
     },
+    */
     AGE_REQUIRED: {
       errno: 1031,
       message: t('You must enter your age to sign up')

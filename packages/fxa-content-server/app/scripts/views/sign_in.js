@@ -25,7 +25,6 @@ define(function (require, exports, module) {
   var SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
   var SignInMixin = require('views/mixins/signin-mixin');
   var SignInTemplate = require('stache!templates/sign_in');
-  var SignUpDisabledMixin = require('views/mixins/signup-disabled-mixin');
 
   var t = BaseView.t;
 
@@ -83,7 +82,6 @@ define(function (require, exports, module) {
         chooserAskForPassword: this._suggestedAccountAskPassword(suggestedAccount),
         email: email,
         error: this.error,
-        isSignupDisabled: this.isSignupDisabled(),
         isSyncMigration: this.isSyncMigration(),
         password: this._formPrefill.get('password'),
         serviceName: this.relier.get('serviceName'),
@@ -139,7 +137,7 @@ define(function (require, exports, module) {
     onSignInError: function (account, password, err) {
       var self = this;
 
-      if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT') && ! this.isSignupDisabled()) {
+      if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
         return self._suggestSignUp(err);
       } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
         self.logViewEvent('canceled');
@@ -278,7 +276,6 @@ define(function (require, exports, module) {
     ResumeTokenMixin,
     ServiceMixin,
     SignInMixin,
-    SignUpDisabledMixin,
     SignedInNotificationMixin
   );
 

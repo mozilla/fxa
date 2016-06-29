@@ -12,8 +12,6 @@ define([
 ], function (intern, assert, registerSuite, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_ios_v1&service=sync';
-  var EXCLUDE_SIGNUP_PAGE_URL = PAGE_URL + '&exclude_signup=1';
-
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
 
   var email;
@@ -89,17 +87,6 @@ define([
 
         // A post-verification email should be sent, this is Sync.
         .then(testEmailExpected(email, 1));
-    },
-
-    'user is redirected to /signin and shown an error message when exclude_signup=1': function () {
-      var self = this;
-      return FunctionalHelpers.openPage(self, EXCLUDE_SIGNUP_PAGE_URL, '#fxa-signin-header')
-        .execute(listenForFxaCommands)
-
-        // an error is visible
-        .then(FunctionalHelpers.visibleByQSA('.error'))
-
-        .then(FunctionalHelpers.noSuchElement(self, 'a[href="/signup"]'));
     }
   });
 });

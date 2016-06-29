@@ -23,7 +23,6 @@ define(function (require, exports, module) {
   var ServiceMixin = require('views/mixins/service-mixin');
   var SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
   var SignInMixin = require('views/mixins/signin-mixin');
-  var SignUpDisabledMixin = require('views/mixins/signup-disabled-mixin');
   var SignUpMixin = require('views/mixins/signup-mixin');
   var Template = require('stache!templates/sign_up');
 
@@ -55,11 +54,6 @@ define(function (require, exports, module) {
     beforeRender: function () {
       if (document.cookie.indexOf('tooyoung') > -1) {
         this.navigate('cannot_create_account');
-        return p(false);
-      } else if (this.isSignupDisabled()) {
-        this.navigate('signin', {
-          error: this.getSignupDisabledReason()
-        });
         return p(false);
       }
 
@@ -407,7 +401,6 @@ define(function (require, exports, module) {
     ResumeTokenMixin,
     ServiceMixin,
     SignInMixin,
-    SignUpDisabledMixin,
     SignUpMixin,
     SignedInNotificationMixin
   );

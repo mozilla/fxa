@@ -84,14 +84,8 @@
       </form>
 
       <div class="links">
-        {{#isSignupDisabled}}
-          <a href="/reset_password" class="reset-password">{{#t}}Forgot password?{{/t}}</a>
-        {{/isSignupDisabled}}
-        {{^isSignupDisabled}}
           <a href="/reset_password" class="left reset-password">{{#t}}Forgot password?{{/t}}</a>
-
           <a href="/signup" class="right sign-up">{{#t}}Create an account{{/t}}</a>
-        {{/isSignupDisabled}}
       </div>
 
       <div class="extra-links">

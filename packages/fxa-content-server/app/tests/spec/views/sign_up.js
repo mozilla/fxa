@@ -113,21 +113,6 @@ define(function (require, exports, module) {
     });
 
     describe('render', function () {
-      describe('if signup is disabled', function () {
-        beforeEach(function () {
-          sinon.stub(view, 'isSignupDisabled', function () {
-            return true;
-          });
-          sinon.spy(view, 'navigate');
-
-          return view.render();
-        });
-
-        it('navigates to the signin screen', function () {
-          assert.isTrue(view.navigate.calledWith('signin'));
-        });
-      });
-
       it('prefills email, password if stored in formPrefill (user comes from signup with existing account)', function () {
         formPrefill.set('email', 'testuser@testuser.com');
         formPrefill.set('password', 'prefilled password');

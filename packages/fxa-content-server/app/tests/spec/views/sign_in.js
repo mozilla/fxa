@@ -349,50 +349,22 @@ define(function (require, exports, module) {
       });
 
       describe('with an unknown account', function () {
-        describe('and signup is enabled', function () {
-          beforeEach(function () {
-            broker.setCapability('signup', true);
+        beforeEach(function () {
+          broker.setCapability('signup', true);
 
-            sinon.stub(view, 'signIn', function () {
-              return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
-            });
-
-            sinon.spy(view, 'displayErrorUnsafe');
-
-            return view.submit();
+          sinon.stub(view, 'signIn', function () {
+            return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
           });
 
-          it('shows a link to the signup page', function () {
-            var err = view.displayErrorUnsafe.args[0][0];
-            assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
-            assert.include(err.forceMessage, '/signup');
-          });
+          sinon.spy(view, 'displayErrorUnsafe');
+
+          return view.submit();
         });
 
-        describe('and signup is disabled', function () {
-          var err;
-
-          beforeEach(function () {
-            broker.setCapability('signup', false);
-
-            sinon.stub(view, 'signIn', function () {
-              return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
-            });
-
-            sinon.spy(view, 'displayError');
-
-            return view.validateAndSubmit()
-              .then(assert.fail, function (_err) {
-                err = _err;
-              });
-          });
-
-          it('does not show the signup link', function () {
-            var displayedError = view.displayError.args[0][0];
-            assert.strictEqual(err, displayedError);
-            assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
-            assert.notInclude(AuthErrors.toMessage(err), '/signup');
-          });
+        it('shows a link to the signup page', function () {
+          var err = view.displayErrorUnsafe.args[0][0];
+          assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
+          assert.include(err.forceMessage, '/signup');
         });
       });
 
