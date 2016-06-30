@@ -9,8 +9,8 @@ var Client = require('../client')
 test(
   'signin confirmation can be disabled',
   function (t) {
-    process.env.SIGNIN_CONFIRMATION_ENABLED = false
     var config = require('../../config').getProperties()
+    process.env.SIGNIN_CONFIRMATION_ENABLED = false
     var server, email, client
     var password = 'allyourbasearebelongtous'
 

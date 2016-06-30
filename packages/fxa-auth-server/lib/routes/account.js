@@ -502,8 +502,11 @@ module.exports = function (
           }
         }
 
-        function sendNewDeviceLoginNotification () {
-          if (!doSigninConfirmation && config.newLoginNotificationEnabled && requestHelper.wantsKeys(request)) {
+        function sendNewDeviceLoginNotification() {
+          // New device notification emails should only be sent for requesting keys and
+          // not performing a sign-in confirmation.
+          var shouldSendNewDeviceLoginEmail = config.newLoginNotificationEnabled && requestHelper.wantsKeys(request) && !doSigninConfirmation
+          if (shouldSendNewDeviceLoginEmail) {
             // The response doesn't have to wait for this,
             // so we don't return the promise.
             mailer.sendNewDeviceLoginNotification(
@@ -517,11 +520,10 @@ module.exports = function (
         }
 
         function sendVerifyLoginEmail() {
-          // Verify login emails are only sent if the login is requesting keys and the feature is enabled.
-          // In the scenario where keys are requested, but feature is disabled, the tokens are
-          // created verified.
-          var shouldSendVerifyLoginEmail = requestHelper.wantsKeys(request) && doSigninConfirmation
-
+          // Verify sign-in emails are only sent for verified accounts and requesting keys and if they fall within
+          // the sample rate of roll-out. In the scenario where keys are requested, but feature is disabled
+          // the tokens are created verified.
+          var shouldSendVerifyLoginEmail = requestHelper.wantsKeys(request) && emailRecord.emailVerified && doSigninConfirmation
           if (shouldSendVerifyLoginEmail) {
             mailer.sendVerifyLoginEmail(
               emailRecord,

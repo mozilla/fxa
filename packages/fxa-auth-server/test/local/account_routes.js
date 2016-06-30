@@ -810,6 +810,33 @@ test('/account/login', function (t) {
         mockMailer.sendNewDeviceLoginNotification.reset()
       })
     }, t)
+
+    test('unverified account does not get any confirmation emails', function (t) {
+      config.signinConfirmation.supportedClients = [ 'fx_desktop_v3' ]
+      mockRequest.payload.email = 'test@mozilla.com'
+      mockDB.emailRecord = function () {
+        return P.resolve({
+          authSalt: crypto.randomBytes(32),
+          data: crypto.randomBytes(32),
+          email: mockRequest.payload.email,
+          emailVerified: false,
+          kA: crypto.randomBytes(32),
+          lastAuthAt: function () {
+            return Date.now()
+          },
+          uid: uid,
+          wrapWrapKb: crypto.randomBytes(32)
+        })
+      }
+
+      return runTest(route, mockRequest, function (response) {
+        t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+        t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
+        t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
+        t.equal(response.verificationReason, 'signup', 'verificationReason is signup')
+      })
+    }, t)
+
   }, t)
 
   test('creating too many sessions causes an error to be logged', function (t) {
@@ -817,14 +844,14 @@ test('/account/login', function (t) {
       return P.resolve(new Array(200))
     }
     mockLog.error = sinon.spy()
-    return runTest(route, mockRequest, function (response) {
+    return runTest(route, mockRequest, function () {
       t.equal(mockLog.error.callCount, 0, 'log.error was not called')
     }).then(function() {
       mockDB.sessions = function () {
         return P.resolve(new Array(201))
       }
       mockLog.error.reset()
-      return runTest(route, mockRequest, function (response) {
+      return runTest(route, mockRequest, function () {
         t.equal(mockLog.error.callCount, 1, 'log.error was called')
         t.equal(mockLog.error.firstCall.args[0].op, 'Account.login')
         t.equal(mockLog.error.firstCall.args[0].numSessions, 201)
