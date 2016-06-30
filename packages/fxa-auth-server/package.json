@@ -9,7 +9,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "NODE_ENV=dev CORS_ORIGIN=http://foo,http://bar scripts/test-local.sh && grunt",
+    "test": "NODE_ENV=dev CORS_ORIGIN=http://foo,http://bar scripts/test-local.sh",
     "start": "NODE_ENV=dev scripts/start-local.sh 2>&1",
     "start-mysql": "NODE_ENV=dev scripts/start-local-mysql.sh 2>&1",
     "test-quick": "npm run tq",
