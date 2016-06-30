@@ -421,7 +421,7 @@ var conf = convict({
       env: 'SIGNIN_CONFIRMATION_ENABLED'
     },
     sample_rate: {
-      doc: 'signin confirmation sample rate',
+      doc: 'signin confirmation sample rate, between 0.0 and 1.0',
       default: 1.0,
       env: 'SIGNIN_CONFIRMATION_RATE'
     },
