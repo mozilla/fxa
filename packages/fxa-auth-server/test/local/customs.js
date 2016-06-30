@@ -33,11 +33,12 @@ test(
 
     t.ok(customsNoUrl, 'got a customs object with a none url')
 
+    var request = newRequest()
+    var ip = request.app.clientAddress
     var email = newEmail()
-    var ip = newIp()
     var action = newAction()
 
-    return customsNoUrl.check(email, ip, action)
+    return customsNoUrl.check(request, email, action)
       .then(function(result) {
         t.equal(result, undefined, 'Nothing is returned when /check succeeds')
         t.pass('Passed /check (no url)')
@@ -68,24 +69,33 @@ test(
 test(
   'can create a customs object with a url',
   function (t) {
-    t.plan(16)
+    t.plan(29)
 
     customsWithUrl = new Customs(CUSTOMS_URL_REAL)
 
     t.ok(customsWithUrl, 'got a customs object with a valid url')
 
+    var request = newRequest()
+    var ip = request.app.clientAddress
     var email = newEmail()
-    var ip = newIp()
     var action = newAction()
 
-    customsServer
-      .post('/check').reply(200, '{"block":false,"retryAfter":0}')
-      .post('/failedLoginAttempt').reply(200, '{"lockout":false}')
-      .post('/passwordReset').reply(200, '{}')
-      .post('/check').reply(200, '{"block":true,"retryAfter":10001}')
-      .post('/failedLoginAttempt').reply(200, '{"lockout":true}')
-
-    return customsWithUrl.check(email, ip, action)
+    // Mock a check that does not get blocked.
+    customsServer.post('/check', function (body) {
+      t.deepEqual(body, {
+        ip: ip,
+        email: email,
+        action: action,
+        headers: request.headers,
+        query: request.query,
+        payload: request.payload,
+      }, 'first call to /check had expected request params')
+      return true
+    }).reply(200, {
+      block: false,
+      retryAfter: 0
+    })
+    return customsWithUrl.check(request, email, action)
       .then(function(result) {
         t.equal(result, undefined, 'Nothing is returned when /check succeeds')
         t.pass('Passed /check (with url)')
@@ -93,6 +103,17 @@ test(
         t.fail('We should not have failed here for /check : err=' + error)
       })
       .then(function() {
+        // Mock a report of a failed login attempt that doesn't trigger lockout.
+        customsServer.post('/failedLoginAttempt', function (body) {
+          t.deepEqual(body, {
+             ip: ip,
+             email: email,
+             errno: error.ERRNO.UNEXPECTED_ERROR
+          }, 'first call to /failedLoginAttempt had expected request params')
+          return true
+        }).reply(200, {
+          lockout: false
+        })
         return customsWithUrl.flag(ip, { email: email, uid: '12345' })
       })
       .then(function(result) {
@@ -102,6 +123,13 @@ test(
         t.fail('We should not have failed here for /failedLoginAttempt : err=' + error)
       })
       .then(function() {
+        // Mock a report of a password reset.
+        customsServer.post('/passwordReset', function (body) {
+          t.deepEqual(body, {
+             email: email,
+          }, 'first call to /passwordReset had expected request params')
+          return true
+        }).reply(200, {})
         return customsWithUrl.reset(email)
       })
       .then(function(result) {
@@ -111,29 +139,86 @@ test(
         t.fail('We should not have failed here for /passwordReset : err=' + error)
       })
       .then(function() {
-        // request is blocked
-        return customsWithUrl.check(email, ip, action)
+        // Mock a check that does get blocked, with a retryAfter.
+        customsServer.post('/check', function (body) {
+          t.deepEqual(body, {
+             ip: ip,
+             email: email,
+             action: action,
+             headers: request.headers,
+             query: request.query,
+             payload: request.payload,
+          }, 'second call to /check had expected request params')
+          return true
+        }).reply(200, {
+          block: true,
+          retryAfter: 10001
+        })
+        return customsWithUrl.check(request, email, action)
       })
       .then(function(result) {
         t.fail('This should have failed the check since it should be blocked')
-      }, function(error) {
+      }, function(err) {
         t.pass('Since we faked a block, we should have arrived here')
-        t.equal(error.errno, 114, 'Error number is correct')
-        t.equal(error.message, 'Client has sent too many requests', 'Error message is correct')
-        t.ok(error.isBoom, 'The error causes a boom')
-        t.equal(error.output.statusCode, 429, 'Status Code is correct')
-        t.equal(error.output.payload.retryAfter, 10001, 'retryAfter is correct')
-        t.equal(error.output.headers['retry-after'], 10001, 'retryAfter header is correct')
+        t.equal(err.errno, error.ERRNO.THROTTLED, 'Error number is correct')
+        t.equal(err.message, 'Client has sent too many requests', 'Error message is correct')
+        t.ok(err.isBoom, 'The error causes a boom')
+        t.equal(err.output.statusCode, 429, 'Status Code is correct')
+        t.equal(err.output.payload.retryAfter, 10001, 'retryAfter is correct')
+        t.equal(err.output.headers['retry-after'], 10001, 'retryAfter header is correct')
       })
       .then(function() {
-        // account is locked
-        return customsWithUrl.flag(ip, { email: email, uid: '12345' })
+        // Mock a report of a failed login attempt that does trigger lockout.
+        customsServer.post('/failedLoginAttempt', function (body) {
+          t.deepEqual(body, {
+             ip: ip,
+             email: email,
+             errno: error.ERRNO.INCORRECT_PASSWORD
+          }, 'second call to /failedLoginAttempt had expected request params')
+          return true
+        }).reply(200, {
+          lockout: true
+        })
+        return customsWithUrl.flag(ip, {
+          email: email,
+          errno: error.ERRNO.INCORRECT_PASSWORD
+        })
       })
       .then(function(result) {
         t.equal(result.lockout, true, 'lockout is true when /failedLoginAttempt returns `lockout: true`')
         t.pass('Passed /failedLoginAttempt with lockout')
       }, function(error) {
         t.fail('We should not have failed here for /failedLoginAttempt : err=' + error)
+      })
+      .then(function() {
+        // Mock a check that does get blocked, with no retryAfter.
+        request.headers['user-agent'] = 'test passing through headers'
+        request.payload['foo'] = 'bar'
+        customsServer.post('/check', function (body) {
+          t.deepEqual(body, {
+             ip: ip,
+             email: email,
+             action: action,
+             headers: request.headers,
+             query: request.query,
+             payload: request.payload,
+          }, 'third call to /check had expected request params')
+          return true
+        }).reply(200, {
+          block: true
+        })
+        return customsWithUrl.check(request, email, action)
+      })
+      .then(function(result) {
+        t.fail('This should have failed the check since it should be blocked')
+      }, function(err) {
+        t.pass('Since we faked a block, we should have arrived here')
+        t.equal(err.errno, error.ERRNO.REQUEST_BLOCKED, 'Error number is correct')
+        t.equal(err.message, 'The request was blocked for security reasons', 'Error message is correct')
+        t.ok(err.isBoom, 'The error causes a boom')
+        t.equal(err.output.statusCode, 400, 'Status Code is correct')
+        t.notOk(err.output.payload.retryAfter, 'retryAfter field is not present')
+        t.notOk(err.output.headers['retry-after'], 'retryAfter header is not present')
       })
 
   }
@@ -148,11 +233,12 @@ test(
 
     t.ok(customsInvalidUrl, 'got a customs object with a non-existant service url')
 
+    var request = newRequest()
+    var ip = request.app.clientAddress
     var email = newEmail()
-    var ip = newIp()
     var action = newAction()
 
-    return customsInvalidUrl.check(email, ip, action)
+    return customsInvalidUrl.check(request, email, action)
       .then(function(result) {
         t.equal(result, undefined, 'Nothing is returned when /check succeeds even when service is non-existant')
         t.pass('Passed /check (no url)')
@@ -183,52 +269,65 @@ test(
 test(
   'can rate limit checkAccountStatus /check',
   function (t) {
-    t.plan(12)
+    t.plan(18)
 
     customsWithUrl = new Customs(CUSTOMS_URL_REAL)
 
     t.ok(customsWithUrl, 'can rate limit checkAccountStatus /check')
 
+    var request = newRequest()
+    var ip = request.app.clientAddress
     var email = newEmail()
-    var ip = newIp()
     var action = 'accountStatusCheck'
 
-    customsServer
-      .post('/check', {email: email, ip: ip, action: action}).reply(200, '{"block":false,"retryAfter":0}')
-      .post('/check', {email: email, ip: ip, action: action}).reply(200, '{"block":false,"retryAfter":0}')
-      .post('/check', {email: email, ip: ip, action: action}).reply(200, '{"block":false,"retryAfter":0}')
-      .post('/check', {email: email, ip: ip, action: action}).reply(200, '{"block":false,"retryAfter":0}')
-      .post('/check', {email: email, ip: ip, action: action}).reply(200, '{"block":false,"retryAfter":0}')
-      .post('/check', {email: email, ip: ip, action: action}).reply(200, '{"block":true,"retryAfter":10001}')
+    function checkRequestBody (body) {
+      t.deepEqual(body, {
+         ip: ip,
+         email: email,
+         action: action,
+         headers: request.headers,
+         query: request.query,
+         payload: request.payload,
+      }, 'call to /check had expected request params')
+      return true
+    }
 
-    return customsWithUrl.check(ip, email, action)
+    customsServer
+      .post('/check', checkRequestBody).reply(200, '{"block":false,"retryAfter":0}')
+      .post('/check', checkRequestBody).reply(200, '{"block":false,"retryAfter":0}')
+      .post('/check', checkRequestBody).reply(200, '{"block":false,"retryAfter":0}')
+      .post('/check', checkRequestBody).reply(200, '{"block":false,"retryAfter":0}')
+      .post('/check', checkRequestBody).reply(200, '{"block":false,"retryAfter":0}')
+      .post('/check', checkRequestBody).reply(200, '{"block":true,"retryAfter":10001}')
+
+    return customsWithUrl.check(request, email, action)
       .then(function(result) {
         t.equal(result, undefined, 'Nothing is returned when /check succeeds')
-        return customsWithUrl.check(ip, email, action)
+        return customsWithUrl.check(request, email, action)
       }, function(error) {
         t.fail('We should not have failed here for /check : err=' + error)
       })
       .then(function(result) {
         t.equal(result, undefined, 'Nothing is returned when /check succeeds')
-        return customsWithUrl.check(ip, email, action)
+        return customsWithUrl.check(request, email, action)
       }, function(error) {
         t.fail('We should not have failed here for /check : err=' + error)
       })
       .then(function(result) {
         t.equal(result, undefined, 'Nothing is returned when /check succeeds')
-        return customsWithUrl.check(ip, email, action)
+        return customsWithUrl.check(request, email, action)
       }, function(error) {
         t.fail('We should not have failed here for /check : err=' + error)
       })
       .then(function(result) {
         t.equal(result, undefined, 'Nothing is returned when /check succeeds')
-        return customsWithUrl.check(ip, email, action)
+        return customsWithUrl.check(request, email, action)
       }, function(error) {
         t.fail('We should not have failed here for /check : err=' + error)
       })
       .then(function() {
         // request is blocked
-        return customsWithUrl.check(ip, email, action)
+        return customsWithUrl.check(request, email, action)
       })
       .then(function() {
         t.fail('This should have failed the check since it should be blocked')
@@ -255,6 +354,17 @@ function newIp() {
     '' + Math.floor(Math.random() * 256),
     '' + Math.floor(Math.random() * 256),
   ].join('.')
+}
+
+function newRequest() {
+  return {
+    app: {
+      clientAddress: newIp()
+    },
+    headers: {},
+    query: {},
+    payload: {}
+  }
 }
 
 var EMAIL_ACTIONS = [
