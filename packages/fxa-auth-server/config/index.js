@@ -394,12 +394,14 @@ var conf = convict({
     flow_id_key: {
       default: 'YOU MUST CHANGE ME',
       doc: 'FlowId validation key, as used by content-server',
-      format: String
+      format: String,
+      env: 'FLOW_ID_KEY'
     },
     flow_id_expiry: {
       doc: 'Time after which flowIds are considered stale.',
       format: 'duration',
-      default: '30 minutes'
+      default: '30 minutes',
+      env: 'FLOW_ID_EXPIRY'
     }
   },
   corsOrigin: {
