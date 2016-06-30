@@ -14,7 +14,7 @@
   }
 
   .button-row & {
-    @include hidpi-background-image('spinnerwhite', 33px 33px);
+    @include hidpi-background-image('spinnergrey', 33px 33px);
     height: 33px;
     margin: 0 auto;
     position: relative;
