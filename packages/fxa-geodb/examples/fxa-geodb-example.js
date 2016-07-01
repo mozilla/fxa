@@ -12,8 +12,8 @@
   // Beijing: 123.121.221.194
   // Undefined tz : 64.11.221.194
   geoDb('64.11.221.194')
-    .then(function(city) {
-      console.log(city); //eslint-disable-line
+    .then(function(location) {
+      console.log(location); //eslint-disable-line
     }, function (err) {
       console.log('Err:', err.message); //eslint-disable-line
     });
