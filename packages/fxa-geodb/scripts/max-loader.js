@@ -12,12 +12,18 @@ var mkdirp = require('mkdirp');
 var cp = require('child_process');
 var CronJob = require('cron').CronJob;
 
-var target = path.join(process.cwd(), '../db');
+// set up mozlog, default is `heka`
+var mozlog = require('mozlog');
+mozlog.config({
+  app: 'fxa-geodb'
+});
+var log = mozlog();
 
+var target = path.join(process.cwd(), '../db');
 // create db folder
 mkdirp.sync(target);
 
-log('Downloading to %s', target);
+log.info('Downloading to %s', target);
 
 // import the list of files to download
 var sources = require('../sources.json');
@@ -26,7 +32,7 @@ var work = [];
 // push each file-load-function onto the work queue
 for (var source in sources) {
   var url = sources[source];
-  log('adding %s', url);
+  log.info('adding ' + url);
   work.push(download(url, path.join(target, source)));
 }
 
@@ -48,17 +54,13 @@ function download(url, target) {
   };
 }
 
-function log() {
-  console.log.apply(console, arguments);
-}
-
 function startDownload(work) {
-  log('Last Update: ', new Date());
+  log.info('Last Update: ', new Date());
   async.parallel(work, function (err) {
     if (err) {
-      return log(err);
+      return log.error(err);
     } else {
-      log('Download complete');
+      log.info('Download complete');
     }
   });
 }
