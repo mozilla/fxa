@@ -19,20 +19,26 @@ module.exports = function (log, error) {
     }
   }
 
-  Customs.prototype.check = function (ip, email, action) {
+  Customs.prototype.check = function (request, email, action) {
     log.trace({ op: 'customs.check', email: email, action: action })
     return this.pool.post(
       '/check',
       {
-        ip: ip,
+        ip: request.app.clientAddress,
         email: email,
-        action: action
+        action: action,
+        headers: request.headers,
+        query: request.query,
+        payload: request.payload
       }
     )
     .then(
       function (result) {
         if (result.block) {
-          throw error.tooManyRequests(result.retryAfter)
+          if (result.retryAfter) {
+            throw error.tooManyRequests(result.retryAfter)
+          }
+          throw error.requestBlocked()
         }
       },
       function (err) {

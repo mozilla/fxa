@@ -99,7 +99,7 @@ module.exports = function (
 
         metricsContext.validate(request)
 
-        customs.check(request.app.clientAddress, email, 'accountCreate')
+        customs.check(request, email, 'accountCreate')
           .then(db.emailRecord.bind(db, email))
           .then(deleteAccount, ignoreUnknownAccountError)
           .then(checkPreVerified)
@@ -364,7 +364,7 @@ module.exports = function (
           })
         }
 
-        customs.check(request.app.clientAddress, email, 'accountLogin')
+        customs.check(request, email, 'accountLogin')
           .then(readEmailRecord)
           .then(checkNumberOfActiveSessions)
           .then(createSessionToken)
@@ -762,7 +762,7 @@ module.exports = function (
         var email = request.payload.email
 
         customs.check(
-          request.app.clientAddress,
+          request,
           email,
           'accountStatusCheck')
           .then(
@@ -1223,7 +1223,7 @@ module.exports = function (
         }
 
         return customs.check(
-          request.app.clientAddress,
+          request,
           sessionToken.email,
           'recoveryEmailResendCode')
           .then(func.bind(
@@ -1401,7 +1401,7 @@ module.exports = function (
         var service = request.payload.service || request.query.service
 
         customs.check(
-          request.app.clientAddress,
+          request,
           email,
           'accountUnlockResendCode')
           .then(
@@ -1660,7 +1660,7 @@ module.exports = function (
         var form = request.payload
         var authPW = Buffer(form.authPW, 'hex')
         customs.check(
-          request.app.clientAddress,
+          request,
           form.email,
           'accountDestroy')
           .then(db.emailRecord.bind(db, form.email))
@@ -1729,7 +1729,7 @@ module.exports = function (
         var authPW = Buffer(form.authPW, 'hex')
 
         customs.check(
-          request.app.clientAddress,
+          request,
           email,
           'accountLock')
           .then(db.emailRecord.bind(db, email))

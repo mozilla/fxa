@@ -50,7 +50,7 @@ module.exports = function (
         var oldAuthPW = Buffer(form.oldAuthPW, 'hex')
 
         customs.check(
-          request.app.clientAddress,
+          request,
           form.email,
           'passwordChange')
           .then(db.emailRecord.bind(db, form.email))
@@ -328,7 +328,7 @@ module.exports = function (
         var email = request.payload.email
         var service = request.payload.service || request.query.service
         customs.check(
-          request.app.clientAddress,
+          request,
           email,
           'passwordForgotSendCode')
           .then(db.emailRecord.bind(db, email))
@@ -400,7 +400,7 @@ module.exports = function (
         var passwordForgotToken = request.auth.credentials
         var service = request.payload.service || request.query.service
         customs.check(
-          request.app.clientAddress,
+          request,
           passwordForgotToken.email,
           'passwordForgotResendCode')
           .then(
