@@ -52,7 +52,7 @@ describe('fxa-geodb', function () {
       });
   });
 
-  it('returns an object with location details when supplied with a valid ip address', function () {
+  it('returns an object with location data when supplied with a valid ip address', function () {
     // 8.8.8.8 is Google's nameservers, will probably always stay constant
     ip = '8.8.8.8';
     const ll = {
@@ -66,6 +66,31 @@ describe('fxa-geodb', function () {
         assert.equal(location.continent, 'North America', 'Continent not returned correctly');
         assert.deepEqual(location.ll, ll, 'LatLong not returned correctly');
         assert.equal(location.time_zone, 'America/Los_Angeles', 'Timezone not returned correctly');
+      }, function (err) {
+        assert.equal(err.message, ERRORS.UNABLE_TO_FETCH_DATA, 'Incorrect error message');
+      });
+  });
+
+  it('returns an Error Object when no data is available', function () {
+    // 127.0.0.1 is localhost, will always return no data
+    ip = '127.0.0.1';
+    return geoDb(ip)
+      .then(function (location) {
+      }, function (err) {
+        assert.equal(err.message, ERRORS.UNABLE_TO_FETCH_DATA, 'Incorrect error message');
+      });
+  });
+
+  it('returns an object with partial location data when complete data is not available', function () {
+    // 64.11.221.194 is an unassigned IP in North America, will probably return incomplete data
+    // time_zone and city should be undefined, while country would be USA
+    ip = '64.11.221.194';
+    return geoDb(ip)
+      .then(function (location) {
+        assert.equal(location.country, 'United States', 'Country not returned correctly');
+        assert.equal(typeof location.city, 'undefined', 'City not undefined');
+        assert.equal(location.continent, 'North America', 'Continent not returned correctly');
+        assert.equal(typeof location.time_zone, 'undefined', 'Timezone not undefined');
       }, function (err) {
         assert.equal(err.message, ERRORS.UNABLE_TO_FETCH_DATA, 'Incorrect error message');
       });

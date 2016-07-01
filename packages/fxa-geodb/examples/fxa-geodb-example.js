@@ -11,7 +11,7 @@
   // New York timezone IP: 128.192.8.8
   // Beijing: 123.121.221.194
   // Undefined tz : 64.11.221.194
-  geoDb('123.121.221.194')
+  geoDb('64.11.221.194')
     .then(function(city) {
       console.log(city); //eslint-disable-line
     }, function (err) {
