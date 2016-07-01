@@ -217,6 +217,10 @@ module.exports = function (log, config) {
   }
 
   function logInvalidContext(request, reason) {
+    if (request.payload.metricsContext) {
+      delete request.payload.metricsContext.flowId
+      delete request.payload.metricsContext.flowBeginTime
+    }
     log.warn({
       op: 'metrics.context.validate',
       valid: false,
