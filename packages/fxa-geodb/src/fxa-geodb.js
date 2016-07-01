@@ -2,78 +2,84 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const db = '../db/cities-db.mmdb';
-const db_backup = '../db/cities-db.mmdb-backup';
-const ERRORS = require('../lib/errors');
-const Joi = require('joi');
-const maxmind = require('maxmind');
-const Promise = require('bluebird');
+// these are defaults, can be overloaded by configuring options
+var db = __dirname + '/../db/cities-db.mmdb';
+var db_backup = __dirname + '/../db/cities-db.mmdb-backup';
+var ERRORS = require('../lib/errors');
+var maxmind = require('maxmind');
+var Promise = require('bluebird');
 
-function GeoDB(ip, time_stamp) {
+module.exports = function (options) {
   'use strict';
-  time_stamp = time_stamp || new Date();
+  options = options || {};
+  db = options.db || db;
+  db_backup = options.db_backup || db_backup;
 
-  // allows us to check whether the ip is defined, is a string, and is not empty
-  var schema = Joi.object().keys({
-    IP: Joi.string().required()
-  });
-  var err = Joi.validate({IP: ip}, schema);
-  if (err.error) {
-    return Promise.reject({
-      message: err.error.details[0].message
+  return function (ip) {
+    return new Promise(function (resolve, reject) {
+      // check if ip is valid
+      if (!maxmind.validate(ip)) {
+        reject({
+          message: ERRORS.IS_INVALID
+        });
+      }
+
+      var city_lookup, city_data;
+      // ip is valid, try looking it up
+      // the nested try..catch is to ensure that
+      // we always have at least one valid database check
+      // this can help when we have `db` as paid and
+      // `db_backup` as free version or when `db` fails
+      // to load for some reason
+      try {
+        city_lookup = maxmind.open(db);
+        city_data = city_lookup.get(ip);
+      } catch (err) {
+        // if it failed with primary database,
+        // try with backup database
+        try {
+          city_lookup = maxmind.open(db_backup);
+          city_data = city_lookup.get(ip);
+        } catch (err) {
+          // if that fails, then return a reject
+          reject({
+            message: ERRORS.UNABLE_TO_FETCH_DATA
+          });
+        }
+      }
+
+      if (city_data == null) {
+        reject({
+          message: ERRORS.UNABLE_TO_FETCH_DATA
+        });
+      }
+
+      // return an object with city, country, continent,
+      // latitude, and longitude, and timezone
+      var location = new function () {
+        if (city_data.location) {
+          this.accuracy = city_data.location.accuracy_radius;
+          this.ll = {
+            latitude: city_data.location.latitude,
+            longitude: city_data.location.longitude
+          };
+          this.time_zone = city_data.location.time_zone;
+        }
+
+        if (city_data.city) {
+          this.city = city_data.city.names.en;
+        }
+
+        if (city_data.continent) {
+          this.continent = city_data.continent.names.en;
+        }
+
+        if (city_data.country) {
+          this.country = city_data.country.names.en;
+        }
+        this.city_data = city_data;
+      };
+      resolve(location);
     });
-  }
-
-  // at this point, we know ip is a string and is
-  // non-empty, we can validate it
-  if (! maxmind.validate(ip)) {
-    return Promise.reject({
-      message: ERRORS.IS_INVALID
-    });
-  }
-
-  var cityLookup, cityData;
-  // ip is valid, and in the right format,
-  // try looking it up
-  // the nested try..catch is to ensure that
-  // we always have at least one valid database check
-  // this can help when we have `db` as paid and
-  // `db_backup` as free version or when `db` fails
-  // to load for some reason
-  try {
-    cityLookup = maxmind.open(db);
-    cityData = cityLookup.get(ip);
-  } catch (err) {
-    // if it failed with primary database,
-    // try with backup database
-    try {
-      cityLookup = maxmind.open(db_backup);
-      cityData = cityLookup.get(ip);
-    } catch (err) {
-      // if that fails, then return a reject
-      return Promise.reject({
-        message: ERRORS.UNABLE_TO_FETCH_DATA
-      });
-    }
-  }
-
-  // return an object with city, country, continent,
-  // latitude, and longitude,
-  // and timezone (locale specific time also)
-  return Promise.resolve({
-    accuracy: cityData.location.accuracy_radius,
-    city: cityData.city.names.en,
-    continent: cityData.continent.names.en,
-    country: cityData.country.names.en,
-    local_time: new Date(time_stamp).toLocaleString('en', {timeZone: cityData.location.time_zone}),
-    ll: {
-      latitude: cityData.location.latitude,
-      longitude: cityData.location.longitude
-    },
-    time_zone: cityData.location.time_zone,
-    // can remove this if not required
-    cityData: cityData
-  });
-}
-
-module.exports = GeoDB;
+  };
+};

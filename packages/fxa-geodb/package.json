@@ -30,7 +30,6 @@
   "homepage": "https://github.com/mozilla/fxa-geodb",
   "dependencies": {
     "bluebird": "3.4.1",
-    "joi": "8.4.2",
     "maxmind": "1.1.0"
   },
   "devDependencies": {

@@ -4,9 +4,14 @@
 
 (function() {
   'use strict';
-  const geodb = require('../src/fxa-geodb');
-  // New York timezone IP
-  geodb('128.192.8.8')
+  var geoDb = require('../src/fxa-geodb')({
+    db: __dirname + '/../db/cities-db.mmdb',
+    db_backup: __dirname + '/../db/cities-db.mmdb-backup'
+  });
+  // New York timezone IP: 128.192.8.8
+  // Beijing: 123.121.221.194
+  // Undefined tz : 64.11.221.194
+  geoDb('64.11.221.194')
     .then(function(city) {
       console.log(city); //eslint-disable-line
     }, function (err) {
