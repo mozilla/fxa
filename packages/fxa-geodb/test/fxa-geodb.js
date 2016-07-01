@@ -4,7 +4,7 @@
 
 const chai = require('chai');
 const ERRORS = require('../lib/errors');
-const GeoDB = require('../src/fxa-geodb');
+const geoDb = require('../src/fxa-geodb')();
 
 const assert = chai.assert;
 
@@ -13,39 +13,39 @@ describe('fxa-geodb', function () {
   var ip;
 
   it('returns a promise when called', function () {
-    assert.isTrue(typeof GeoDB('12.23.34.45').then === 'function', 'Promise not returned');
+    assert.isTrue(typeof geoDb('12.23.34.45').then === 'function', 'Promise not returned');
   });
 
-  it('returns an error object with `IS_UNDEFINED` when supplied with an undefined ip variable', function () {
-    return GeoDB(ip)
+  it('returns an error object with `IS_INVALID` when supplied with an undefined ip variable', function () {
+    return geoDb(ip)
       .then(function (location) {
       }, function (err) {
-        assert.equal(err.message, ERRORS.IS_UNDEFINED, 'Incorrect error message');
+        assert.equal(err.message, ERRORS.IS_INVALID, 'Incorrect error message');
       });
   });
 
-  it('returns an error object with `NOT_A_STRING` when supplied with an object', function () {
+  it('returns an error object with `IS_INVALID` when supplied with an object', function () {
     ip = {};
-    return GeoDB(ip)
+    return geoDb(ip)
       .then(function (location) {
       }, function (err) {
-        assert.equal(err.message, ERRORS.NOT_A_STRING, 'Incorrect error message');
+        assert.equal(err.message, ERRORS.IS_INVALID, 'Incorrect error message');
       });
   });
 
-  it('returns an error object with `IS_EMPTY` when supplied with an empty ip', function () {
+  it('returns an error object with `IS_INVALID` when supplied with an empty ip', function () {
     ip = '';
-    return GeoDB(ip)
+    return geoDb(ip)
       .then(function (location) {
       }, function (err) {
-        assert.equal(err.message, ERRORS.IS_EMPTY, 'Incorrect error message');
+        assert.equal(err.message, ERRORS.IS_INVALID, 'Incorrect error message');
       });
   });
 
 
   it('returns an error object with `IS_INVALID` when supplied with an invalid ip', function () {
     ip = '5.6.7';
-    return GeoDB(ip)
+    return geoDb(ip)
       .then(function (location) {
       }, function (err) {
         assert.equal(err.message, ERRORS.IS_INVALID, 'Incorrect error message');
@@ -59,14 +59,13 @@ describe('fxa-geodb', function () {
       latitude: 37.386,
       longitude: -122.0838
     };
-    return GeoDB(ip)
+    return geoDb(ip)
       .then(function (location) {
         assert.equal(location.country, 'United States', 'Country not returned correctly');
         assert.equal(location.city, 'Mountain View', 'City not returned correctly');
         assert.equal(location.continent, 'North America', 'Continent not returned correctly');
         assert.deepEqual(location.ll, ll, 'LatLong not returned correctly');
         assert.equal(location.time_zone, 'America/Los_Angeles', 'Timezone not returned correctly');
-        assert.isOk(Date.parse(location.local_time), 'Time not in correct format');
       }, function (err) {
         assert.equal(err.message, ERRORS.UNABLE_TO_FETCH_DATA, 'Incorrect error message');
       });

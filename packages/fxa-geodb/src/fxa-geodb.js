@@ -11,6 +11,7 @@ var Promise = require('bluebird');
 
 module.exports = function (options) {
   'use strict';
+  options = options || {};
   db = options.db || db;
   db_backup = options.db_backup || db_backup;
 
