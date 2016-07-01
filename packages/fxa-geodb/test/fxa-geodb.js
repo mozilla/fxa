@@ -18,8 +18,7 @@ describe('fxa-geodb', function () {
 
   it('returns an error object with `IS_INVALID` when supplied with an undefined ip variable', function () {
     return geoDb(ip)
-      .then(function (location) {
-      }, function (err) {
+      .catch(function (err) {
         assert.equal(err.message, ERRORS.IS_INVALID, 'Incorrect error message');
       });
   });
@@ -27,8 +26,7 @@ describe('fxa-geodb', function () {
   it('returns an error object with `IS_INVALID` when supplied with an object', function () {
     ip = {};
     return geoDb(ip)
-      .then(function (location) {
-      }, function (err) {
+      .catch(function (err) {
         assert.equal(err.message, ERRORS.IS_INVALID, 'Incorrect error message');
       });
   });
@@ -36,8 +34,7 @@ describe('fxa-geodb', function () {
   it('returns an error object with `IS_INVALID` when supplied with an empty ip', function () {
     ip = '';
     return geoDb(ip)
-      .then(function (location) {
-      }, function (err) {
+      .catch(function (err) {
         assert.equal(err.message, ERRORS.IS_INVALID, 'Incorrect error message');
       });
   });
@@ -46,8 +43,7 @@ describe('fxa-geodb', function () {
   it('returns an error object with `IS_INVALID` when supplied with an invalid ip', function () {
     ip = '5.6.7';
     return geoDb(ip)
-      .then(function (location) {
-      }, function (err) {
+      .catch(function (err) {
         assert.equal(err.message, ERRORS.IS_INVALID, 'Incorrect error message');
       });
   });
@@ -75,8 +71,7 @@ describe('fxa-geodb', function () {
     // 127.0.0.1 is localhost, will always return no data
     ip = '127.0.0.1';
     return geoDb(ip)
-      .then(function (location) {
-      }, function (err) {
+      .catch(function (err) {
         assert.equal(err.message, ERRORS.UNABLE_TO_FETCH_DATA, 'Incorrect error message');
       });
   });
