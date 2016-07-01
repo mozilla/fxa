@@ -3,14 +3,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const async = require('async');
-const fs = require('fs');
-const path = require('path');
-const request = require('request');
-const requestProgress = require('request-progress');
-const mkdirp = require('mkdirp');
-const cp = require('child_process');
-const CronJob = require('cron').CronJob;
+var async = require('async');
+var fs = require('fs');
+var path = require('path');
+var request = require('request');
+var requestProgress = require('request-progress');
+var mkdirp = require('mkdirp');
+var cp = require('child_process');
+var CronJob = require('cron').CronJob;
 
 var target = path.join(process.cwd(), '../db');
 

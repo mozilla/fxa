@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const db = __dirname + '/../db/cities-db.mmdb';
-const db_backup = __dirname + '/../db/cities-db.mmdb-backup';
-const ERRORS = require('../lib/errors');
-const maxmind = require('maxmind');
-const Promise = require('bluebird');
+var db = __dirname + '/../db/cities-db.mmdb';
+var db_backup = __dirname + '/../db/cities-db.mmdb-backup';
+var ERRORS = require('../lib/errors');
+var maxmind = require('maxmind');
+var Promise = require('bluebird');
 
 function GeoDB(ip) {
   'use strict';

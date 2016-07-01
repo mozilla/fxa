@@ -5,14 +5,14 @@ Provides a wrapper around [node-maxmind] (https://github.com/runk/node-maxmind) 
 Clone/fork the repo and run `npm i`. Then, include the module in your source file, like so:
 
 ```JavaScript
-var GeoDB = require('./fxa-geodb');
+var geoDb = require('./fxa-geodb');
 ```
 --
 ### API
 The function returns a promise that may either resolve (on successful finding of location data) or reject (if either the ip was invalid, or location data could not be found). Call the function, like so:
 
 ```JavaScript
-GeoDB(ip).then(function (location) {
+geoDb(ip).then(function (location) {
         // success, resolved
         // location data is available here
       }, function (err) {

@@ -4,9 +4,11 @@
 
 (function() {
   'use strict';
-  const geodb = require('../src/fxa-geodb');
+  var geoDb = require('../src/fxa-geodb');
   // New York timezone IP
-  geodb('63.245.219.53')
+  // Beijing: 123.121.221.194
+  // Undefined tz : 64.11.221.194
+  geoDb('123.121.221.194')
     .then(function(city) {
       console.log(city); //eslint-disable-line
     }, function (err) {
