@@ -1,3 +1,13 @@
+<a name"0.64.0"></a>
+## 0.64.0 (2016-07-02)
+
+
+#### Bug Fixes
+
+* **scopes:** Dont treat `foo:write` as a sub-scope of `foo`. ([fe2f1fef](https://github.com/mozilla/fxa-oauth-server/commit/fe2f1fef))
+* **tokens:** Added scripts that purge expired access tokens. ([10bbb240](https://github.com/mozilla/fxa-oauth-server/commit/10bbb240))
+
+
 <a name"0.61.0"></a>
 ## 0.61.0 (2016-05-04)
 
