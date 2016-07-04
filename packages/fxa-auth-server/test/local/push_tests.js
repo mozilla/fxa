@@ -367,15 +367,19 @@ test(
   'push resets device push data when push server responds with a 400 level error',
   function (t) {
     var mockDb = {
-      updateDevice: function () {
+      updateDevice: sinon.spy(function () {
         return P.resolve()
-      }
+      })
     }
 
     var thisMockLog = mockLog({
       info: function (log) {
         if (log.name === 'push.account_verify.reset_settings') {
           // web-push failed
+          t.equal(mockDb.updateDevice.callCount, 1, 'db.updateDevice was called once')
+          var args = mockDb.updateDevice.args[0]
+          t.equal(args.length, 3, 'db.updateDevice was passed three arguments')
+          t.equal(args[1], null, 'sessionTokenId argument was null')
           t.end()
         }
       }

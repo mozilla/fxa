@@ -279,7 +279,7 @@ module.exports = function (log, db) {
                 device.pushCallback = ''
                 device.pushPublicKey = ''
                 device.pushAuthKey = ''
-                return db.updateDevice(uid, device.id, device).catch(function (err) {
+                return db.updateDevice(uid, null, device).catch(function (err) {
                   reportPushError(err, uid, deviceId)
                 }).then(function() {
                   incrementPushAction(events.resetSettings)
