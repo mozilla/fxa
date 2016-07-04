@@ -962,3 +962,58 @@ test('/account/keys', function (t) {
   })
 })
 
+test('/account/destroy', function (t) {
+  var email = 'foo@example.com'
+  var uid = uuid.v4('binary')
+  var mockDB = mocks.mockDB({
+    email: email,
+    uid: uid
+  })
+  var mockLog = mocks.spyLog()
+  var mockRequest = mocks.mockRequest({
+    payload: {
+      email: email,
+      authPW: new Array(65).join('f')
+    }
+  })
+  var accountRoutes = makeRoutes({
+    checkPassword: function () {
+      return P.resolve(true)
+    },
+    config: {
+      domain: 'wibble'
+    },
+    db: mockDB,
+    log: mockLog
+  })
+  var route = getRoute(accountRoutes, '/account/destroy')
+
+  return runTest(route, mockRequest, function () {
+    t.equal(mockDB.emailRecord.callCount, 1, 'db.emailRecord was called once')
+    var args = mockDB.emailRecord.args[0]
+    t.equal(args.length, 2, 'db.emailRecord was passed two arguments')
+    t.equal(args[0], email, 'first argument was email address')
+    t.equal(args[1], true, 'second argument was customs.check result')
+
+    t.equal(mockDB.deleteAccount.callCount, 1, 'db.deleteAccount was called once')
+    args = mockDB.deleteAccount.args[0]
+    t.equal(args.length, 1, 'db.deleteAccount was passed one argument')
+    t.equal(args[0].email, email, 'db.deleteAccount was passed email record')
+    t.deepEqual(args[0].uid, uid, 'email record had correct uid')
+
+    t.equal(mockLog.event.callCount, 1, 'log.event was called once')
+    args = mockLog.event.args[0]
+    t.equal(args.length, 3, 'log.event was passed three arguments')
+    t.equal(args[0], 'delete', 'first argument was event name')
+    t.equal(args[1], mockRequest, 'second argument was request object')
+    t.equal(args[2].uid, uid.toString('hex') + '@wibble', 'third argument was event data')
+
+    t.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
+    args = mockLog.activityEvent.args[0]
+    t.equal(args.length, 3, 'log.activityEvent was passed three arguments')
+    t.equal(args[0], 'account.deleted', 'first argument was event name')
+    t.equal(args[1], mockRequest, 'second argument was request object')
+    t.equal(args[2].uid, uid.toString('hex'), 'third argument was event data')
+  })
+})
+

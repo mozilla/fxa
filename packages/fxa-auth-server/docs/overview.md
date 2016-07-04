@@ -46,6 +46,7 @@ The activity events respect the `dnt` "Do not track" header and do not send `utm
 * account.signed - [Certificate signed](api.md#post-v1certificatesign)
 * account.reset - [Account reset event](api.md#post-v1accountreset)
 * account.reminder - Account is verified using a reminder
+* account.deleted - [Account is deleted](api.md#post-v1accountdestroy)
 * device.created - Device record is created
 * device.updated - Device record is updated
 * device.deleted - Device record is deleted
@@ -67,6 +68,7 @@ others are mandatory.
 |`account.signed`|`event`, `userAgent`, `time`, `uid`, `account_created_at`, `device_id`|`flow_id`, `flow_time`, `context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
 |`account.reset`|`event`, `userAgent`, `time`, `uid`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
 |`account.reminder`|`event`, `userAgent`, `time`, `uid`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`account.deleted`|`event`, `userAgent`, `time`, `uid`|`context`, `entrypoint` `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
 |`device.created`|`event`, `userAgent`, `time`, `uid`, `device_id`|`flow_id`, `flow_time`, `context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
 |`device.updated`|`event`, `userAgent`, `time`, `uid`, `device_id`|`flow_id`, `flow_time`, `context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
 |`device.deleted`|`event`, `userAgent`, `time`, `uid`, `device_id`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|

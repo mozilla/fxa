@@ -1651,7 +1651,8 @@ module.exports = function (
         validate: {
           payload: {
             email: validators.email().required(),
-            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required()
+            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
+            metricsContext: metricsContext.schema
           }
         }
       },
@@ -1659,6 +1660,7 @@ module.exports = function (
         log.begin('Account.destroy', request)
         var form = request.payload
         var authPW = Buffer(form.authPW, 'hex')
+        var uid
         customs.check(
           request,
           form.email,
@@ -1669,6 +1671,7 @@ module.exports = function (
               if (emailRecord.lockedAt) {
                 throw error.lockedAccount()
               }
+              uid = emailRecord.uid.toString('hex')
 
               return checkPassword(emailRecord, authPW, request.app.clientAddress)
                 .then(
@@ -1682,7 +1685,14 @@ module.exports = function (
                 .then(
                   function () {
                     return log.event('delete', request, {
-                      uid: emailRecord.uid.toString('hex') + '@' + config.domain
+                      uid: uid + '@' + config.domain
+                    })
+                  }
+                )
+                .then(
+                  function () {
+                    return log.activityEvent('account.deleted', request, {
+                      uid: uid
                     })
                   }
                 )
