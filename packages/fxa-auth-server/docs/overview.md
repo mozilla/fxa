@@ -63,13 +63,13 @@ others are mandatory.
 |`account.created`|`event`, `userAgent`, `time`, `flow_id`, `flow_time`, `uid`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
 |`account.verified`|`event`, `userAgent`, `time`, `flow_id`, `flow_time`, `uid`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
 |`account.login`|`event`, `userAgent`, `time`, `flow_id`, `flow_time`, `uid`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
-|`account.keyfetch`|`event`, `userAgent`, `time`, `flow_id`, `flow_time`, `uid`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
-|`account.signed`|`event`, `userAgent`, `time`, `flow_id`, `flow_time`, `uid`, `account_created_at`, `device_id`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
-|`account.reset`|`event`, `userAgent`, `time`, `flow_id`, `flow_time`, `uid`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
-|`account.reminder`|`event`, `userAgent`, `time`, `flow_id`, `flow_time`, `uid`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
-|`device.created`|`event`, `userAgent`, `time`, `flow_id`, `flow_time`, `uid`, `device_id`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
-|`device.updated`|`event`, `userAgent`, `time`, `flow_id`, `flow_time`, `uid`, `device_id`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
-|`device.deleted`|`event`, `userAgent`, `time`, `flow_id`, `flow_time`, `uid`, `device_id`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`account.keyfetch`|`event`, `userAgent`, `time`, `uid`|`flow_id`, `flow_time`, `context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`account.signed`|`event`, `userAgent`, `time`, `uid`, `account_created_at`, `device_id`|`flow_id`, `flow_time`, `context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`account.reset`|`event`, `userAgent`, `time`, `uid`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`account.reminder`|`event`, `userAgent`, `time`, `uid`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`device.created`|`event`, `userAgent`, `time`, `uid`, `device_id`|`flow_id`, `flow_time`, `context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`device.updated`|`event`, `userAgent`, `time`, `uid`, `device_id`|`flow_id`, `flow_time`, `context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`device.deleted`|`event`, `userAgent`, `time`, `uid`, `device_id`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
 
 ##### Example event
 
