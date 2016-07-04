@@ -30,10 +30,25 @@ As a concrete metric
 we can measure the number of calls to `/recovery_email/status`
 and check that it decreases as this feature rolls out.
 
-We will also add additional metrics to signal when Desktop verifies 
+We will also add additional metrics to signal when Desktop verifies
 via Push. We will compare the number of notifications sent and number
 of verifications used by Desktop. In the future iterations we will try to compare that number
 against users who verify accounts quickly.
+
+## Outcomes
+
+We have decreased the polling rate in Firefox Desktop and now rely on Push to provide quick
+feedback to the user about their account state. The initial verification timeout was increased
+from 5 seconds to 15 seconds. Subsequent timeout was extended from 15 seconds to 30 seconds.
+This will now allow Firefox Desktop to use less server resources and still provide good user experience.
+
+From our metrics (10% sample rate) we gathered that ~5% of users use a push notification from
+the auth server to verify their account in desktop.
+
+![](push-verify.jpg)
+
+We also gathered that ~100% of attempted push notifications on the auth-server get successfully sent.
+
 
 ## Details
 
@@ -94,7 +109,7 @@ to update its view of the account status:
   enter the "needs to reauthenticate" state.
 
 We are currently ignoring push notification TTLs.
-TTLs could become important when we move to messages with payload, 
+TTLs could become important when we move to messages with payload,
 where we might want more reliable delivery. See [discussion](https://github.com/mozilla/fxa-auth-server/issues/1164).
 
 ## Open Questions
