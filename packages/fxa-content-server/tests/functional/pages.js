@@ -22,6 +22,7 @@ define([
     'confirm',
     'confirm_account_unlock',
     'confirm_reset_password',
+    'confirm_signin',
     'cookies_disabled',
     // valid locale legal pages
     'en/legal/terms',
