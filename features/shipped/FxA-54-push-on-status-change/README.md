@@ -42,10 +42,15 @@ feedback to the user about their account state. The initial verification timeout
 from 5 seconds to 15 seconds. Subsequent timeout was extended from 15 seconds to 30 seconds.
 This will now allow Firefox Desktop to use less server resources and still provide good user experience.
 
-From our metrics (10% sample rate) we gathered that ~5% of users use a push notification from
-the auth server to verify their account in desktop.
+From our metrics (10% sample rate) we gathered that
+around 5% of push notifications sent by the auth-server
+were used by Desktop to confirm verification of the account:
 
 ![](push-verify.jpg)
+
+The remaining 95% of verifications may have been detected
+by the existing polling behaviour of the Desktop client,
+or have been completed too slowly for push to make a difference.
 
 We also gathered that ~100% of attempted push notifications on the auth-server get successfully sent.
 
