@@ -22,10 +22,31 @@ define(function (require, exports, module) {
 
     comparator: function (a, b) {
       // 1. the current device is first.
-      // 2. the rest sorted in alphabetical order.
+      // 2. those with lastAccessTime are sorted in descending order
+      // 3. the rest sorted in alphabetical order.
       if (a.get('isCurrentDevice')) {
         return -1;
       }
+
+
+      // check lastAccessTime. If one has an access time and the other does
+      // not, the one with the access time is automatically higher in the
+      // list. If both have access times, sort in descending order, unless
+      // access times are the same, then sort alphabetically.
+      var aLastAccessTime = a.get('lastAccessTime');
+      var bLastAccessTime = b.get('lastAccessTime');
+
+      if (aLastAccessTime && bLastAccessTime &&
+          aLastAccessTime !== bLastAccessTime) {
+        return bLastAccessTime - aLastAccessTime;
+      } else if (aLastAccessTime && ! bLastAccessTime) {
+        return -1;
+      } else if (! aLastAccessTime && bLastAccessTime) {
+        return 1;
+      }
+
+      // neither has an access time, or access time is the same,
+      // sort alphabetically
 
       var aName = (a.get('name') || '').trim().toLowerCase();
       var bName = (b.get('name') || '').trim().toLowerCase();

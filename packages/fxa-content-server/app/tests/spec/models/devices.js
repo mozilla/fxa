@@ -22,45 +22,69 @@ define(function (require, exports, module) {
     });
 
     describe('device list ordering', function () {
+      var now = Date.now();
+
       beforeEach(function () {
         devices.set([
           {
             isCurrentDevice: false,
-            name: 'zeta'
-          },
-          {
-            isCurrentDevice: true,
-            name: 'upsilon'
-          },
-          {
-            isCurrentDevice: false,
+            lastAccessTime: null,
             name: 'xi'
           },
           {
             isCurrentDevice: false,
+            lastAccessTime: null,
+            name: 'xi'
+          },
+          {
+            isCurrentDevice: true,
+            lastAccessTime: now - 20,
+            name: 'zeta'
+          },
+          {
+            isCurrentDevice: false,
+            lastAccessTime: now - 10,
+            name: 'mu'
+          },
+          {
+            isCurrentDevice: false,
+            lastAccessTime: now,
             name: 'tau'
           },
           {
             isCurrentDevice: false,
-            name: 'tau'
+            lastAccessTime: now,
+            name: 'sigma'
           },
           {
             isCurrentDevice: false,
+            lastAccessTime: now - 20,
             name: 'theta'
+          },
+          {
+            isCurrentDevice: false,
+            lastAccessTime: null,
+            name: 'upsilon'
           }
         ]);
       });
 
       it('places the `current` device first', function () {
-        assert.equal(devices.at(0).get('name'), 'upsilon');
+        assert.equal(devices.at(0).get('name'), 'zeta');
+      });
+
+      it('sorts those with lastAccessTime next, by access time (descending)', function () {
+        assert.equal(devices.at(1).get('name'), 'sigma');
+        assert.equal(devices.at(2).get('name'), 'tau');
+        assert.equal(devices.at(3).get('name'), 'mu');
+        assert.equal(devices.at(4).get('name'), 'theta');
+
       });
 
       it('sorts the rest alphabetically', function () {
-        assert.equal(devices.at(1).get('name'), 'tau');
-        assert.equal(devices.at(2).get('name'), 'tau');
-        assert.equal(devices.at(3).get('name'), 'theta');
-        assert.equal(devices.at(4).get('name'), 'xi');
-        assert.equal(devices.at(5).get('name'), 'zeta');
+        assert.equal(devices.at(5).get('name'), 'upsilon');
+        assert.equal(devices.at(6).get('name'), 'xi');
+        assert.equal(devices.at(7).get('name'), 'xi');
       });
     });
 
