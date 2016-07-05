@@ -9,7 +9,7 @@
   },
   "scripts": {
     "setup": "npm install && bower install",
-    "build": "grunt build && node scripts/max-loader.js &",
+    "update": "node scripts/max-loader.js &",
     "test": "mocha",
     "lint": "grunt lint",
     "cover": "istanbul cover _mocha"
@@ -22,7 +22,7 @@
     "geodb",
     "location"
   ],
-  "author": "Sai Pc",
+  "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL-2.0",
   "bugs": {
     "url": "https://github.com/mozilla/fxa-geodb/issues"

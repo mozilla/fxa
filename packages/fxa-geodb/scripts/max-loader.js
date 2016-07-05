@@ -37,6 +37,8 @@ for (var source in sources) {
 }
 
 function download(url, target) {
+  'use strict';
+
   // closure to separate multiple file-download
   return function downloadFunctor(callback) {
     var stream = requestProgress(request(url));
@@ -49,6 +51,8 @@ function download(url, target) {
 }
 
 function startDownload(remainingDownloads) {
+  'use strict';
+
   log.info('Last Update: ', new Date());
   async.parallel(remainingDownloads, function (err) {
     if (err) {
@@ -63,7 +67,9 @@ function startDownload(remainingDownloads) {
 startDownload(remainingDownloads);
 
 // after that run periodically
-new CronJob('30 30 1 * * 3', function() {
+new CronJob('30 30 1 * * 3', function() { // eslint-disable-line no-new
+  'use strict';
+
   // Cron job that runs every week on Wednesday at 1:30:30 AM.
   startDownload(remainingDownloads);
 }, null, true, 'America/Los_Angeles');
