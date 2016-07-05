@@ -46,29 +46,32 @@ module.exports = function (options) {
 
       // return an object with city, country, continent,
       // latitude, and longitude, and timezone
-      var location = new function () {
-        if (locationData.location) {
-          this.accuracy = locationData.location.accuracy_radius;
-          this.latLong = {
-            latitude: locationData.location.latitude,
-            longitude: locationData.location.longitude
-          };
-          this.timeZone = locationData.location.time_zone;
-        }
+      var location = new Location(locationData);
 
-        if (locationData.city) {
-          this.city = locationData.city.names.en;
-        }
-
-        if (locationData.continent) {
-          this.continent = locationData.continent.names.en;
-        }
-
-        if (locationData.country) {
-          this.country = locationData.country.names.en;
-        }
-      };
       resolve(location);
     });
   };
 };
+
+function Location(locationData) {
+  if (locationData.location) {
+    this.accuracy = locationData.location.accuracy_radius;
+    this.latLong = {
+      latitude: locationData.location.latitude,
+      longitude: locationData.location.longitude
+    };
+    this.timeZone = locationData.location.time_zone;
+  }
+
+  if (locationData.city) {
+    this.city = locationData.city.names.en;
+  }
+
+  if (locationData.continent) {
+    this.continent = locationData.continent.names.en;
+  }
+
+  if (locationData.country) {
+    this.country = locationData.country.names.en;
+  }
+}
