@@ -12,6 +12,7 @@ var Promise = require('bluebird');
 
 module.exports = function (options) {
   'use strict';
+
   options = options || {};
   var dbPath = options.dbPath || DEFAULT_DB_PATH;
 
@@ -25,7 +26,7 @@ module.exports = function (options) {
     throw ERRORS.UNABLE_TO_FETCH_DATA;
   }
 
-  return function (ip) {
+  return function (ip, userLocale) {
     return new Promise(function (resolve, reject) {
       // check if ip is valid
       if (! maxmind.validate(ip)) {
@@ -46,14 +47,16 @@ module.exports = function (options) {
 
       // return an object with city, country, continent,
       // latitude, and longitude, and timezone
-      var location = new Location(locationData);
+      var location = new Location(locationData, userLocale);
 
       resolve(location);
     });
   };
 };
 
-function Location(locationData) {
+function Location(locationData, userLocale) {
+  'use strict';
+
   if (locationData.location) {
     this.accuracy = locationData.location.accuracy_radius;
     this.latLong = {
@@ -63,15 +66,21 @@ function Location(locationData) {
     this.timeZone = locationData.location.time_zone;
   }
 
+  this.getLocaleSpecificLocationString = function (locationObject, userLocale) {
+    // if we have the user's locale specific name, return that,
+    // else return 'en' - english.
+    return locationObject.names[userLocale] || locationObject.names['en'];
+  };
+
   if (locationData.city) {
-    this.city = locationData.city.names.en;
+    this.city = this.getLocaleSpecificLocationString(locationData.city, userLocale);
   }
 
   if (locationData.continent) {
-    this.continent = locationData.continent.names.en;
+    this.continent = this.getLocaleSpecificLocationString(locationData.continent, userLocale);
   }
 
   if (locationData.country) {
-    this.country = locationData.country.names.en;
+    this.country = this.getLocaleSpecificLocationString(locationData.country, userLocale);
   }
 }
