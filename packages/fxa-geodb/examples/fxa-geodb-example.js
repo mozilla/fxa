@@ -7,8 +7,7 @@ var path = require('path');
   'use strict';
   // will change to `fxa-geodb` after this becomes an npm module
   var geoDb = require(path.join('..', 'src', 'fxa-geodb'))({
-    dbPath: path.join(__dirname, '..', 'db', 'cities-db.mmdb'),
-    backupDbPath: path.join(__dirname, '..', 'db', 'cities-db.mmdb-backup')
+    dbPath: path.join(__dirname, '..', 'db', 'cities-db.mmdb')
   });
   // New York timezone IP: 128.192.8.8
   // Beijing: 123.121.221.194

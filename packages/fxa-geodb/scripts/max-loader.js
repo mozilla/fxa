@@ -41,13 +41,7 @@ function download(url, target) {
   return function downloadFunctor(callback) {
     var stream = requestProgress(request(url));
     stream.pipe(fs.createWriteStream(target)).on('finish', function () {
-      // lets copy the existing file, renaming it to
-      // target-backup (without .gz extension)
-      var existing_file = target.slice(0, -3);
-      var existing_file_backup = existing_file + '-backup';
-      cp.execFile('cp', [existing_file, existing_file_backup]);
       // force overwrite, even if file exists already
-      // since we took a backup, this wont cause an issue (hopefully)
       cp.execFile('gunzip', [target, '-f']);
       callback();
     });
