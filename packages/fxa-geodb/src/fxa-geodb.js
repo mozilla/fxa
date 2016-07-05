@@ -17,6 +17,26 @@ module.exports = function (options) {
   var dbPath = options.dbPath || DEFAULT_DB_PATH;
   var backupDbPath = options.backupDbPath || DEFAULT_BACKUP_DB_PATH;
 
+  var dbLookup, locationData;
+  // ip is valid, try looking it up
+  // the nested try..catch is to ensure that
+  // we always have at least one valid database check
+  // this can help when we have `db` as paid and
+  // `db_backup` as free version or when `db` fails
+  // to load for some reason
+  try {
+    dbLookup = maxmind.open(dbPath);
+  } catch (err) {
+    // if it failed with primary database,
+    // try with backup database
+    try {
+      dbLookup = maxmind.open(backupDbPath);
+    } catch (err) {
+      // if that fails, then quit with error
+      throw ERRORS.UNABLE_TO_FETCH_DATA;
+    }
+  }
+
   return function (ip) {
     return new Promise(function (resolve, reject) {
       // check if ip is valid
@@ -27,30 +47,7 @@ module.exports = function (options) {
         return;
       }
 
-      var dbLookup, locationData;
-      // ip is valid, try looking it up
-      // the nested try..catch is to ensure that
-      // we always have at least one valid database check
-      // this can help when we have `db` as paid and
-      // `db_backup` as free version or when `db` fails
-      // to load for some reason
-      try {
-        dbLookup = maxmind.open(dbPath);
-        locationData = dbLookup.get(ip);
-      } catch (err) {
-        // if it failed with primary database,
-        // try with backup database
-        try {
-          dbLookup = maxmind.open(backupDbPath);
-          locationData = dbLookup.get(ip);
-        } catch (err) {
-          // if that fails, then return a reject
-          reject({
-            message: ERRORS.UNABLE_TO_FETCH_DATA
-          });
-          return;
-        }
-      }
+      locationData = dbLookup.get(ip);
 
       if (locationData == null) {
         reject({
