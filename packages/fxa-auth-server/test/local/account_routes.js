@@ -903,6 +903,7 @@ test('/recovery_email/verify_code', function (t) {
       t.equal(mockLog.event.callCount, 1, 'logs verified')
 
       t.equal(mockLog.activityEvent.callCount, 1, 'activityEvent was called once')
+      t.equal(mockMailer.sendPostVerifyEmail.callCount, 1, 'sendPostVerifyEmail was called once')
 
       var args = mockLog.activityEvent.args[0]
       t.equal(args.length, 3, 'activityEvent was passed three arguments')
@@ -926,6 +927,7 @@ test('/recovery_email/verify_code', function (t) {
     })
     .then(function () {
       mockLog.activityEvent.reset()
+      mockMailer.sendPostVerifyEmail.reset()
     })
   }, t)
 
@@ -935,6 +937,7 @@ test('/recovery_email/verify_code', function (t) {
     return runTest(route, mockRequest, function (response) {
       t.equal(mockLog.activityEvent.callCount, 2, 'activityEvent was called twice')
       t.equal(mockLog.activityEvent.args[0][0], 'account.verified', 'first call was account.verified')
+      t.equal(mockMailer.sendPostVerifyEmail.callCount, 1, 'sendPostVerifyEmail was called once')
 
       var args = mockLog.activityEvent.args[1]
       t.equal(args.length, 3, 'activityEvent was passed three arguments second time')
@@ -948,6 +951,7 @@ test('/recovery_email/verify_code', function (t) {
     })
     .then(function () {
       mockLog.activityEvent.reset()
+      mockMailer.sendPostVerifyEmail.reset()
     })
   }, t)
 })
