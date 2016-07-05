@@ -51,7 +51,7 @@ describe('fxa-geodb', function () {
   it('returns an object with location data when supplied with a valid ip address', function () {
     // 8.8.8.8 is Google's nameservers, will probably always stay constant
     ip = '8.8.8.8';
-    const ll = {
+    var latLong = {
       latitude: 37.386,
       longitude: -122.0838
     };
@@ -60,8 +60,8 @@ describe('fxa-geodb', function () {
         assert.equal(location.country, 'United States', 'Country not returned correctly');
         assert.equal(location.city, 'Mountain View', 'City not returned correctly');
         assert.equal(location.continent, 'North America', 'Continent not returned correctly');
-        assert.deepEqual(location.ll, ll, 'LatLong not returned correctly');
-        assert.equal(location.time_zone, 'America/Los_Angeles', 'Timezone not returned correctly');
+        assert.deepEqual(location.latLong, latLong, 'LatLong not returned correctly');
+        assert.equal(location.timeZone, 'America/Los_Angeles', 'Timezone not returned correctly');
       }, function (err) {
         assert.equal(err.message, ERRORS.UNABLE_TO_FETCH_DATA, 'Incorrect error message');
       });
@@ -85,7 +85,7 @@ describe('fxa-geodb', function () {
         assert.equal(location.country, 'United States', 'Country not returned correctly');
         assert.equal(typeof location.city, 'undefined', 'City not undefined');
         assert.equal(location.continent, 'North America', 'Continent not returned correctly');
-        assert.equal(typeof location.time_zone, 'undefined', 'Timezone not undefined');
+        assert.equal(typeof location.timeZone, 'undefined', 'Timezone not undefined');
       }, function (err) {
         assert.equal(err.message, ERRORS.UNABLE_TO_FETCH_DATA, 'Incorrect error message');
       });

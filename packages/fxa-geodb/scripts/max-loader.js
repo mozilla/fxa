@@ -19,14 +19,14 @@ mozlog.config({
 });
 var log = mozlog();
 
-var target = path.join(process.cwd(), '../db');
+var target = path.join(process.cwd(), '..', 'db');
 // create db folder
 mkdirp.sync(target);
 
 log.info('Downloading to %s', target);
 
 // import the list of files to download
-var sources = require('../sources.json');
+var sources = require(path.join(__dirname, '..', 'sources.json'));
 var remainingDownloads = [];
 
 // push each file-load-function onto the remainingDownloads queue

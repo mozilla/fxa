@@ -3,8 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // these are defaults, can be overloaded by configuring options
-var db = __dirname + '/../db/cities-db.mmdb';
-var db_backup = __dirname + '/../db/cities-db.mmdb-backup';
+var path = require('path');
+
+var DEFAULT_DB_PATH = path.join(__dirname, '..', 'db', 'cities-db.mmdb');
+var DEFAULT_BACKUP_DB_PATH = path.join(__dirname, '..', 'db', 'cities-db.mmdb-backup');
 var ERRORS = require('../lib/errors');
 var maxmind = require('maxmind');
 var Promise = require('bluebird');
@@ -12,8 +14,8 @@ var Promise = require('bluebird');
 module.exports = function (options) {
   'use strict';
   options = options || {};
-  db = options.db || db;
-  db_backup = options.db_backup || db_backup;
+  var dbPath = options.dbPath || DEFAULT_DB_PATH;
+  var backupDbPath = options.backupDbPath || DEFAULT_BACKUP_DB_PATH;
 
   return function (ip) {
     return new Promise(function (resolve, reject) {
@@ -22,9 +24,10 @@ module.exports = function (options) {
         reject({
           message: ERRORS.IS_INVALID
         });
+        return;
       }
 
-      var city_lookup, city_data;
+      var dbLookup, locationData;
       // ip is valid, try looking it up
       // the nested try..catch is to ensure that
       // we always have at least one valid database check
@@ -32,52 +35,53 @@ module.exports = function (options) {
       // `db_backup` as free version or when `db` fails
       // to load for some reason
       try {
-        city_lookup = maxmind.open(db);
-        city_data = city_lookup.get(ip);
+        dbLookup = maxmind.open(dbPath);
+        locationData = dbLookup.get(ip);
       } catch (err) {
         // if it failed with primary database,
         // try with backup database
         try {
-          city_lookup = maxmind.open(db_backup);
-          city_data = city_lookup.get(ip);
+          dbLookup = maxmind.open(backupDbPath);
+          locationData = dbLookup.get(ip);
         } catch (err) {
           // if that fails, then return a reject
           reject({
             message: ERRORS.UNABLE_TO_FETCH_DATA
           });
+          return;
         }
       }
 
-      if (city_data == null) {
+      if (locationData == null) {
         reject({
           message: ERRORS.UNABLE_TO_FETCH_DATA
         });
+        return;
       }
 
       // return an object with city, country, continent,
       // latitude, and longitude, and timezone
       var location = new function () {
-        if (city_data.location) {
-          this.accuracy = city_data.location.accuracy_radius;
-          this.ll = {
-            latitude: city_data.location.latitude,
-            longitude: city_data.location.longitude
+        if (locationData.location) {
+          this.accuracy = locationData.location.accuracy_radius;
+          this.latLong = {
+            latitude: locationData.location.latitude,
+            longitude: locationData.location.longitude
           };
-          this.time_zone = city_data.location.time_zone;
+          this.timeZone = locationData.location.time_zone;
         }
 
-        if (city_data.city) {
-          this.city = city_data.city.names.en;
+        if (locationData.city) {
+          this.city = locationData.city.names.en;
         }
 
-        if (city_data.continent) {
-          this.continent = city_data.continent.names.en;
+        if (locationData.continent) {
+          this.continent = locationData.continent.names.en;
         }
 
-        if (city_data.country) {
-          this.country = city_data.country.names.en;
+        if (locationData.country) {
+          this.country = locationData.country.names.en;
         }
-        this.city_data = city_data;
       };
       resolve(location);
     });
