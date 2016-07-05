@@ -4,6 +4,7 @@ language: node_js
 env:
   global:
     - TMPDIR=/tmp
+    - COVERALLS_REPO_TOKEN=zSbPkOBuZrK6NktxXW1ZzVEPOUDr9ePpN
 
 node_js:
  - '0.10'
@@ -29,4 +30,6 @@ before_install:
 script:
   - grunt nsp --force
   - npm run outdated
-  - npm test
+  - node_modules/.bin/grunt lint copyright || exit 1
+  # use TAP to send coverage to coveralls
+  - node_modules/.bin/tap test/local test/remote --coverage --cov
