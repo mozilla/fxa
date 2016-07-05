@@ -507,14 +507,14 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('openGmail feature', function () {
+    describe('openWebmail feature', function () {
       it('it is not visible in basic contexts', function () {
-        assert.notOk($('#open-gmail').length);
+        assert.notOk($('#open-webmail').length);
       });
 
 
       it('is visible with the the openGmailButtonVisible capability and email is @gmail.com', function () {
-        broker.setCapability('openGmailButtonVisible', true);
+        broker.setCapability('openWebmailButtonVisible', true);
 
         account = user.initAccount({
           customizeSync: true,
@@ -543,7 +543,7 @@ define(function (require, exports, module) {
         return view.render()
           .then(function () {
             $('#container').html(view.el);
-            assert.lengthOf(view.$('#open-gmail'), 1);
+            assert.lengthOf(view.$('#open-webmail'), 1);
           });
       });
     });

@@ -139,7 +139,7 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/migration-mixin',
     '../tests/spec/views/mixins/modal-settings-panel-mixin',
     '../tests/spec/views/mixins/notifier-mixin',
-    '../tests/spec/views/mixins/open-gmail-mixin',
+    '../tests/spec/views/mixins/open-webmail-mixin',
     '../tests/spec/views/mixins/password-mixin',
     '../tests/spec/views/mixins/password-reset-mixin',
     '../tests/spec/views/mixins/password-strength-mixin',

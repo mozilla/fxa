@@ -23,12 +23,11 @@
     <p class="verification-email-message">{{#t}}To better protect your Firefox data, we've emailed a confirmation link to %(email)s{{/t}}</p>
     {{/isSignIn}}
 
-
-    {{#isOpenGmailButtonVisible}}
+    {{#openWebmailButtonVisible}}
       <div class="button-row">
-        <a href="{{{ gmailLink }}}" class="button" target="_blank" id="open-gmail" type="button">{{#t}}Open Gmail{{/t}}</a>
+        <a href="{{{ webmailLink }}}" data-webmail-type="{{{webmailType}}}" class="button" target="_blank" id="open-webmail" type="button">{{webmailButtonText}}</a>
       </div>
-    {{/isOpenGmailButtonVisible}}
+    {{/openWebmailButtonVisible}}
 
     <div class="links">
       {{^canGoBack}}

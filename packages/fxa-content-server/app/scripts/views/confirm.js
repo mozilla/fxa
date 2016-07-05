@@ -12,7 +12,7 @@ define(function (require, exports, module) {
   var Constants = require('lib/constants');
   var ExperimentMixin = require('views/mixins/experiment-mixin');
   var FormView = require('views/form');
-  var OpenGmailMixin = require('views/mixins/open-gmail-mixin');
+  var OpenConfirmationEmailMixin = require('views/mixins/open-webmail-mixin');
   var p = require('lib/promise');
   var ResendMixin = require('views/mixins/resend-mixin');
   var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
@@ -54,10 +54,9 @@ define(function (require, exports, module) {
         // a discussion for another time.
         canGoBack: isSignIn && this.canGoBack(),
         email: email,
-        gmailLink: this.getGmailUrl(email),
-        isOpenGmailButtonVisible: this.isOpenGmailButtonVisible(email),
         isSignIn: isSignIn,
-        isSignUp: isSignUp
+        isSignUp: isSignUp,
+        openWebmailButtonVisible: this.isOpenWebmailButtonVisible(email)
       };
     },
 
@@ -226,7 +225,7 @@ define(function (require, exports, module) {
     View,
     BackMixin,
     ExperimentMixin,
-    OpenGmailMixin,
+    OpenConfirmationEmailMixin,
     ResendMixin,
     ResumeTokenMixin,
     ServiceMixin,

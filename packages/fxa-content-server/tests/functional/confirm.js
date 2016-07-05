@@ -55,7 +55,7 @@ define([
           })
         .end()
 
-        .then(FunctionalHelpers.noSuchElement(self, '#open-gmail'))
+        .then(FunctionalHelpers.noSuchElement(self, '#open-webmail'))
         .end()
 
         .findByCssSelector('#resend')
@@ -88,7 +88,7 @@ define([
           .click()
         .end()
 
-        .findByCssSelector('#open-gmail')
+        .findByCssSelector("[data-webmail-type='gmail']")
           .click()
         .end()
 
