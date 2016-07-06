@@ -480,6 +480,13 @@ define([
   }
 
   function openUnlockLinkDifferentBrowser(client, email) {
+    if (typeof client === 'string') {
+      email = client;
+      client = new FxaClient(AUTH_SERVER_ROOT, {
+        xhr: nodeXMLHttpRequest.XMLHttpRequest
+      });
+    }
+
     var user = TestHelpers.emailToUser(email);
 
     return getEmailHeaders(user, 0)
@@ -1019,6 +1026,62 @@ define([
   }
 
   /**
+   * Check to ensure an element is displayed.
+   *
+   * @param {string} selector
+   * @returns {promise} rejects if test fails
+   */
+  function testElementDisplayed(selector) {
+    return function () {
+      return this.parent
+        .then(visibleByQSA(selector))
+        .findByCssSelector(selector)
+          .isDisplayed()
+          .then(function (isDisplayed) {
+            assert.isTrue(isDisplayed);
+          })
+        .end();
+    };
+  }
+
+  /**
+   * Ensure the element is not displayed
+   *
+   * @param {string} selector
+   * @returns {promise} rejects if element is displayed
+   */
+  function noSuchElementDisplayed(selector) {
+    return function () {
+      return this.parent
+        .findByCssSelector(selector)
+          .isDisplayed()
+          .then(function (isDisplayed) {
+            assert.isFalse(isDisplayed);
+          })
+        .end();
+    };
+  }
+
+  /**
+   * Lock an account.
+   *
+   * @param {string} email
+   * @param {string} password
+   * @returns {promise} resolves when complete.
+   */
+  function lockAccount(email, password) {
+    return function () {
+      return this.parent.then(function () {
+        var client = new FxaClient(AUTH_SERVER_ROOT, {
+          xhr: nodeXMLHttpRequest.XMLHttpRequest
+        });
+
+        return client.accountLock(email, password);
+      });
+    };
+  }
+
+  /**
    * Check to ensure an element exists
    *
    * @param {string} selector
@@ -1352,10 +1415,12 @@ define([
     getVerificationLink: getVerificationLink,
     imageLoadedByQSA: imageLoadedByQSA,
     listenForWebChannelMessage: listenForWebChannelMessage,
+    lockAccount: lockAccount,
     noEmailExpected: noEmailExpected,
     noPageTransition: noPageTransition,
     noSuchBrowserNotification: noSuchBrowserNotification,
     noSuchElement: noSuchElement,
+    noSuchElementDisplayed: noSuchElementDisplayed,
     openExternalSite: openExternalSite,
     openForceAuth: openForceAuth,
     openFxaFromRp: openFxaFromRp,
@@ -1378,6 +1443,7 @@ define([
     testAttributeExists: testAttributeExists,
     testAttributeMatches: testAttributeMatches,
     testElementDisabled: testElementDisabled,
+    testElementDisplayed: testElementDisplayed,
     testElementExists: testElementExists,
     testElementTextEquals: testElementTextEquals,
     testElementTextInclude: testElementTextInclude,

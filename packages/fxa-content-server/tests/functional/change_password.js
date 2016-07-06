@@ -5,75 +5,63 @@
 define([
   'intern',
   'intern!object',
-  'intern/chai!assert',
-  'require',
-  'intern/node_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest,
-      FxaClient, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
   var PAGE_URL = config.fxaContentRoot + 'settings/change_password';
 
   var FIRST_PASSWORD = 'password';
   var SECOND_PASSWORD = 'new_password';
   var email;
-  var client;
 
   var ANIMATION_DELAY_MS = 500;
 
+  var thenify = FunctionalHelpers.thenify;
+
+  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var click = FunctionalHelpers.click;
+  var createUser = FunctionalHelpers.createUser;
+  var fillOutChangePassword = thenify(FunctionalHelpers.fillOutChangePassword);
+  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var lockAccount = FunctionalHelpers.lockAccount;
+  var noSuchElementDisplayed = FunctionalHelpers.noSuchElementDisplayed;
+  var openExternalSite = thenify(FunctionalHelpers.openExternalSite);
+  var openPage = thenify(FunctionalHelpers.openPage);
+  var openUnlockLinkDifferentBrowser = thenify(FunctionalHelpers.openUnlockLinkDifferentBrowser);
+  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
+  var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
+  var testElementDisplayed = FunctionalHelpers.testElementDisplayed;
+  var testElementExists = FunctionalHelpers.testElementExists;
+  var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
+  var type = FunctionalHelpers.type;
+  var visibleByQSA = FunctionalHelpers.visibleByQSA;
+
+
   function initiateLockedAccountChangePassword(context) {
     return context.remote
-      .get(require.toUrl(PAGE_URL))
+      .then(openPage(context, PAGE_URL, '#change-password'))
+      .then(lockAccount(email, FIRST_PASSWORD))
 
-      .then(FunctionalHelpers.visibleByQSA('#change-password'))
-      .end()
+      .then(fillOutChangePassword(context, FIRST_PASSWORD, SECOND_PASSWORD))
+      .then(visibleByQSA('#change-password .error'))
+      .then(click('a[href="/confirm_account_unlock"]'))
 
-      .then(function () {
-        return client.accountLock(email, FIRST_PASSWORD);
-      })
-
-      .then(function () {
-        return FunctionalHelpers.fillOutChangePassword(context, FIRST_PASSWORD, SECOND_PASSWORD);
-      })
-
-      .then(FunctionalHelpers.visibleByQSA('#change-password .error'))
-
-      .findByCssSelector('a[href="/confirm_account_unlock"]')
-        .click()
-      .end()
-
-      .findByCssSelector('#fxa-confirm-account-unlock-header')
-      .end();
+      .then(testElementExists('#fxa-confirm-account-unlock-header'));
   }
 
   registerSuite({
-    name: 'settings->change password with verified email',
+    name: 'change password',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
 
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
-
-      var self = this;
-      return client.signUp(email, FIRST_PASSWORD, { preVerified: true })
-        .then(function () {
-          return self.remote
-            .setFindTimeout(intern.config.pageLoadTimeout);
-        })
-        .then(function () {
-          return FunctionalHelpers.clearBrowserState(self);
-        })
-        .then(function () {
-          return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD)
-            .findByCssSelector('#fxa-settings-header')
-            .end();
-        });
+      return this.remote
+        .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
+        .then(clearBrowserState(this))
+        .then(fillOutSignIn(this, email, FIRST_PASSWORD))
+        .then(testElementExists('#fxa-settings-header'));
     },
 
     afterEach: function () {
@@ -81,147 +69,83 @@ define([
     },
 
     'sign in, try to change password with an incorrect old password': function () {
-      var self = this;
       return this.remote
 
         // Go to change password screen
-        .findByCssSelector('#change-password .settings-unit-toggle')
-          .click()
-        .end()
-
-        .then(function () {
-          return FunctionalHelpers.fillOutChangePassword(self, 'INCORRECT', SECOND_PASSWORD);
-        })
-
-        .then(FunctionalHelpers.visibleByQSA('#change-password .error'))
-
-        .findByCssSelector('#change-password .error').isDisplayed()
-          .then(function (isDisplayed) {
-            assert.isTrue(isDisplayed);
-          })
-        .end()
+        .then(click('#change-password .settings-unit-toggle'))
+        .then(fillOutChangePassword(this, 'INCORRECT', SECOND_PASSWORD))
+        .then(testElementDisplayed('#change-password .error'))
 
         // click the show button, the error should not be hidden.
-        .findByCssSelector('[for=show-old-password]')
-          .click()
-        .end()
-
-        .findByCssSelector('#change-password .error').isDisplayed()
-          .then(function (isDisplayed) {
-            assert.isTrue(isDisplayed);
-          })
-        .end()
+        .then(click('[for=show-old-password]'))
+        .then(testElementDisplayed('#change-password .error'))
 
         // Change form so that it is valid, error should be hidden.
-        .findByCssSelector('#old_password')
-          .click()
-          .type(FIRST_PASSWORD)
-        .end()
+        .then(type('#old_password', FIRST_PASSWORD))
 
         // Since the test is to see if the error is hidden,
         // .findByClass cannot be used. We want the opposite of
         // .findByClass.
         .sleep(ANIMATION_DELAY_MS)
 
-        .findByCssSelector('#change-password .error').isDisplayed()
-          .then(function (isDisplayed) {
-            assert.isFalse(isDisplayed);
-          })
-        .end();
+        .then(noSuchElementDisplayed('#change-password .error'));
     },
 
     'sign in, change password, sign in with new password': function () {
-      var self = this;
       return this.remote
 
         // Go to change password screen
-        .findByCssSelector('#change-password .settings-unit-toggle')
-          .click()
-        .end()
+        .then(click('#change-password .settings-unit-toggle'))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutChangePassword(self, FIRST_PASSWORD, SECOND_PASSWORD);
-        })
+        .then(fillOutChangePassword(this, FIRST_PASSWORD, SECOND_PASSWORD))
+        .then(testElementExists('#fxa-settings-header'))
+        .then(testSuccessWasShown(this))
 
-        .findByCssSelector('#fxa-settings-header')
-        .end()
+        .then(openPage(this, SIGNIN_URL, '#fxa-signin-header'))
+        .then(click('.use-different'))
+        .then(fillOutSignIn(this, email, SECOND_PASSWORD))
 
-        .then(FunctionalHelpers.testSuccessWasShown(self))
-
-        .get(require.toUrl(SIGNIN_URL))
-
-        .findByCssSelector('.use-different')
-          .click()
-        .end()
-
-        .then(function () {
-          return FunctionalHelpers.fillOutSignIn(self, email, SECOND_PASSWORD);
-        })
-
-        .findByCssSelector('#fxa-settings-header')
-        .end();
+        .then(testElementExists('#fxa-settings-header'));
     },
 
     'locked account, verify same browser': function () {
-      var self = this;
       return initiateLockedAccountChangePassword(this)
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkInNewTab(
-                      self, email, 0);
-        })
+        .then(openVerificationLinkInNewTab(this, email, 0))
 
         .switchToWindow('newwindow')
         // wait for the verified window in the new tab
-        .findByCssSelector('#fxa-account-unlock-complete-header')
-        .end()
+        .then(testElementExists('#fxa-account-unlock-complete-header'))
 
         // switch to the original window
         .closeCurrentWindow()
         .switchToWindow('')
 
-        .then(FunctionalHelpers.testSuccessWasShown(self))
+        .then(testSuccessWasShown(this))
 
         // account is unlocked, re-try the password change
-        .then(function () {
-          return FunctionalHelpers.fillOutChangePassword(self, FIRST_PASSWORD, SECOND_PASSWORD);
-        })
-
-        .findByCssSelector('#fxa-settings-header')
-        .end();
+        .then(fillOutChangePassword(this, FIRST_PASSWORD, SECOND_PASSWORD))
+        .then(testElementExists('#fxa-settings-header'));
     },
 
     'sign in, reset password via settings works': function () {
       return this.remote
         // Go to change password screen
-        .findByCssSelector('#change-password .settings-unit-toggle')
-        .click()
-        .end()
+        .then(click('#change-password .settings-unit-toggle'))
+        .then(click('.reset-password'))
 
-        .findByCssSelector('.reset-password')
-        .click()
-        .end()
-
-        .findByCssSelector('#fxa-reset-password-header')
-        .end();
+        .then(testElementExists('#fxa-reset-password-header'));
     },
 
     'locked account, verify same browser with original tab closed': function () {
-      var self = this;
       return initiateLockedAccountChangePassword(this)
         // user browses to another site.
         .switchToFrame(null)
-
-        .then(FunctionalHelpers.openExternalSite(self))
-
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkInNewTab(
-                      self, email, 0);
-        })
+        .then(openExternalSite(this))
+        .then(openVerificationLinkInNewTab(this, email, 0))
 
         .switchToWindow('newwindow')
         // wait for the verified window in the new tab
-        .findByCssSelector('#fxa-account-unlock-complete-header')
-        .end()
+        .then(testElementExists('#fxa-account-unlock-complete-header'))
 
         // switch to the original window
         .closeCurrentWindow()
@@ -229,54 +153,31 @@ define([
     },
 
     'locked account, verify same browser by replacing original tab': function () {
-      var self = this;
       return initiateLockedAccountChangePassword(this)
-        .then(function () {
-          return FunctionalHelpers.getVerificationLink(email, 0);
-        })
-        .then(function (verificationLink) {
-          return self.remote.get(require.toUrl(verificationLink));
-        })
 
-        .findByCssSelector('#fxa-account-unlock-complete-header')
-        .end();
+        .then(openVerificationLinkInSameTab(email, 0))
+        .then(testElementExists('#fxa-account-unlock-complete-header'));
     },
 
     'locked account, verify different browser - from original tab\'s P.O.V.': function () {
-      var self = this;
       return initiateLockedAccountChangePassword(this)
-        .then(function () {
-          return FunctionalHelpers.openUnlockLinkDifferentBrowser(client, email, 'x-unlock-code');
-        })
+        .then(openUnlockLinkDifferentBrowser(email))
 
-        .then(FunctionalHelpers.testSuccessWasShown(self))
+        .then(testSuccessWasShown(this))
 
         // account is unlocked, re-try the password change
-        .then(function () {
-          return FunctionalHelpers.fillOutChangePassword(self, FIRST_PASSWORD, SECOND_PASSWORD);
-        })
+        .then(fillOutChangePassword(this, FIRST_PASSWORD, SECOND_PASSWORD))
 
-        .findByCssSelector('#fxa-settings-header')
-        .end();
+        .then(testElementExists('#fxa-settings-header'));
     },
 
     'locked account, verify different browser - from new browser\'s P.O.V.': function () {
-      var self = this;
       return initiateLockedAccountChangePassword(this)
-        .then(function () {
-          return FunctionalHelpers.clearBrowserState(self);
-        })
-
-        .then(function () {
-          return FunctionalHelpers.getVerificationLink(email, 0);
-        })
-        .then(function (verificationLink) {
-          return self.remote.get(require.toUrl(verificationLink));
-        })
+        .then(clearBrowserState(this))
+        .then(openVerificationLinkInSameTab(email, 0))
 
         // new browser dead ends at the 'account verified' screen.
-        .findByCssSelector('#fxa-account-unlock-complete-header')
-        .end();
+        .then(testElementExists('#fxa-account-unlock-complete-header'));
     }
   });
 });
