@@ -18,15 +18,14 @@ define([
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = thenify(FunctionalHelpers.openPage);
-  var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   var config = intern.config;
-  var SIGNIN_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v3&service=sync&forceAboutAccounts=true';
-  var SETTINGS_URL = config.fxaContentRoot + 'settings?context=fx_desktop_v3&service=sync&forceAboutAccounts=true';
+  var SIGNIN_URL = config.fxaContentRoot + 'signin?context=fx_fennec_v1&service=sync&forceAboutAccounts=true';
+  var SETTINGS_URL = config.fxaContentRoot + 'settings?context=fx_fennec_v1&service=sync&forceAboutAccounts=true';
 
   var FIRST_PASSWORD = 'password';
   var SECOND_PASSWORD = 'new_password';
@@ -34,7 +33,7 @@ define([
 
 
   registerSuite({
-    name: 'Firefox Desktop Sync v3 settings',
+    name: 'Firefox Fennec Sync v1 settings',
 
     beforeEach: function () {
       email = TestHelpers.createEmail('sync{id}');
@@ -47,7 +46,6 @@ define([
         .then(fillOutSignIn(this, email, FIRST_PASSWORD))
         .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
-        .then(openVerificationLinkDifferentBrowser(email))
 
         // wait until account data is in localstorage before redirecting
         .then(FunctionalHelpers.pollUntil(function () {
@@ -74,7 +72,9 @@ define([
         .then(visibleByQSA('#delete-account .settings-unit-details'))
 
         .then(fillOutDeleteAccount(this, FIRST_PASSWORD))
-        .then(testIsBrowserNotified(this, 'fxaccounts:delete'))
+        // Fx desktop requires fxaccounts:delete, Fennec requires
+        // fxaccounts:delete_account
+        .then(testIsBrowserNotified(this, 'fxaccounts:delete_account'))
 
         .then(testElementExists('#fxa-signup-header'));
     },
