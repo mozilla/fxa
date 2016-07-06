@@ -19,6 +19,7 @@
     "https://nodesecurity.io/advisories/118",
     
     // Issues pending fix:
-    "https://nodesecurity.io/advisories/117"
+    "https://nodesecurity.io/advisories/117",
+    "https://nodesecurity.io/advisories/121"
   ]
 }
