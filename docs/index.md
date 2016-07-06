@@ -70,23 +70,80 @@ Most repositories are [available via GitHub](https://github.com/mozilla?utf8=%E2
 
 You can read more about the [details of our development process](/dev-process/)
 
-### Core Servers
+### Core Servers and Libraries
 
-- [fxa-content-server](https://github.com/mozilla/fxa-content-server)
-- [fxa-auth-server](https://github.com/mozilla/fxa-auth-server)
-- [fxa-oauth-server](https://github.com/mozilla/fxa-oauth-server)
-- [fxa-profile-server](https://github.com/mozilla/fxa-profile-server)
-- [fxa-auth-db-server](https://github.com/mozilla/fxa-auth-db-server)
-- [fxa-auth-db-mem](https://github.com/mozilla/fxa-auth-db-mem)
-- [fxa-auth-db-mysql](https://github.com/mozilla/fxa-auth-db-mysql)
-- [fxa-customs-server](https://github.com/mozilla/fxa-customs-server)
+#### [fxa-content-server](https://github.com/mozilla/fxa-content-server)
+
+The Content Server hosts static assets (HTML, Javascript, CSS, etc.) that support user interactions with the Firefox Accounts. The responsibilities of the Content Server include:
+
+  - hosting a Javascript library that supports interactions with the Auth Server
+  - hosting login and create account pages
+  - hosting password reset pages
+  - hosting landing pages for email verification links
+  - hosting UI pages for the OAuth login flow
+
+Links:
+
+  - latest: [https://latest.dev.lcip.org/](https://latest.dev.lcip.org/)
+  - stable: [https://stable.dev.lcip.org/](https://stable.dev.lcip.org/)
+  - prod: [https://accounts.firefox.com/](https://accounts.firefox.com/)
+
+Interaction with the Firefox Accounts authentication and OAuth APIs are is done via a Javascript client library. In addition to communicating with the backend servers, it also performs local key stretching (PBKDF2 and scrypt) on the user's password before it's used in the API. It is hosted by the Content Server. This library is called `fxa-js-client` and at one time called "Gherkin".
+
+#### [fxa-js-client](https://github.com/mozilla/fxa-js-client)
+
+Links:
+
+- [Key stretching details](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Client-Side_Key_Stretching)
+- [Key stretching performance tests](https://wiki.mozilla.org/Identity/AttachedServices/Key_Stretching_Performance_Tests)
+
+#### [fxa-auth-server](https://github.com/mozilla/fxa-auth-server)
+
+- The Auth Server provides an HTTP API that:
+    - authenticates the user
+    - enables the user to authenticate to other services via BrowserID assertions
+    - enables change and reset password operations
+- Links:
+    - [API documentation](https://github.com/mozilla/fxa-auth-server/blob/master/docs/api.md)
+    - [Dev deployment](https://github.com/mozilla/fxa-auth-server#dev-deployment)
+    - [Python API client (primarily a reference client)](https://github.com/warner/picl-spec-crypto)
+
+#### [fxa-oauth-server](https://github.com/mozilla/fxa-oauth-server)
+- The OAuth Server provides an HTTP API that:
+    - accepts BrowserID assertions from the auth-server as authentication
+    - implements a standard OAuth2 token-granting flow
+- Links:
+    - [API documentation](https://github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md)
+#### [fxa-profile-server](https://github.com/mozilla/fxa-profile-server)
+
+A server to provide common profile-related data for a Firefox Account. Such as name, avatar, location, age, gender, etc.
+
+#### [fxa-auth-db-mysql](https://github.com/mozilla/fxa-auth-db-mysql)
+
+Database service that includes the database API. As well as MySql and Memory backends.
+
+#### [fxa-customs-server](https://github.com/mozilla/fxa-customs-server)
+
+- FxA uses the Customs Server to detect and mitigate fraud & abuse.
+- Deployment: currently pulled in by the auth server as an npm dependency
 
 ### Other
 
-- [fxa-js-client](https://github.com/mozilla/fxa-js-client)
-- [fxa-relier-client](https://github.com/mozilla/fxa-relier-client)
+- [fxa-relier-client](https://github.com/mozilla/fxa-relier-client) [DEPRECATED]
+- [fxa-auth-db-mem](https://github.com/mozilla/fxa-auth-db-mem) [DEPRECATED]
+- [fxa-auth-db-server](https://github.com/mozilla/fxa-auth-db-server) [DEPRECATED]
 - [fxa-easter-egg](https://github.com/mozilla/fxa-easter-egg)
+- [browserid-verifier](https://github.com/mozilla/browserid-verifier) - FxA enables clients to generate BrowserID assertions on behalf of the user. FxA provides a hosted verifier for verifying these assertions.
+    - [Verifier library](https://github.com/mozilla/browserid-local-verify)
+    - [Production deployment](https://verifier.accounts.firefox.com/v2)
 
+
+## Deployments
+
+For detailed server and deployment information [see this MDN page](https://developer.mozilla.org/en-US/docs/Mozilla/Tech/Firefox_Accounts/Introduction#Firefox_Accounts_deployments).
+
+## Resources
+ - [Meeting Notes Archive](https://wiki.mozilla.org/Identity/Firefox_Accounts/Meeting_Notes)
 
 ## Bugs
 
@@ -106,4 +163,3 @@ There is also a "Core/FxAccounts" bugzilla component that covers the accounts co
 
 * [Get started with local development](https://github.com/mozilla/fxa-local-dev)
 * [Run your own FxA server stack](https://docs.services.mozilla.com/howtos/run-fxa.html)
-
