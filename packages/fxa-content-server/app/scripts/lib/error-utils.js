@@ -50,7 +50,13 @@ define(function (require, exports, module) {
 
       // Ensure the message is interpolated before sending to
       // sentry and metrics.
-      error.message = this.getErrorMessage(error);
+      try {
+        // some errors do not allow reassigning a read-only message property
+        error.message = this.getErrorMessage(error);
+      } catch(e) {
+        // unable to change error message.
+      }
+
       sentryMetrics.captureException(error);
 
       if (metrics) {

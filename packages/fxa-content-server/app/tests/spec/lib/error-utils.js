@@ -98,6 +98,26 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('captureError gets error from getErrorMessage', function () {
+      var origMessage;
+
+      beforeEach(function () {
+        sandbox.stub(ErrorUtils, 'getErrorMessage', function () {
+          throw new Error('Not able to interpolate');
+        });
+
+        err = AuthErrors.toMissingParameterError('email');
+        origMessage = err.message;
+      });
+
+      it('doesn\'t change error message', function () {
+        ErrorUtils.captureError(err, sentry, metrics, windowMock);
+
+        assert.equal(origMessage, err.message);
+        assert.isTrue(sentry.captureException.calledWith(err));
+      });
+    });
+
     describe('getErrorMessage', function () {
 
       describe('from a module that can interpolate', function () {
