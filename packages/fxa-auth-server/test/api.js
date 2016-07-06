@@ -1088,6 +1088,29 @@ describe('/v1', function() {
           });
         });
 
+        it('should not expand read scope to write scope', function() {
+          return newToken({
+            access_type: 'offline',
+            scope: 'foo'
+          }).then(function(res) {
+            assert.equal(res.statusCode, 200);
+            assert.equal(res.result.scope, 'foo');
+            return Server.api.post({
+              url: '/token',
+              payload: {
+                client_id: clientId,
+                client_secret: secret,
+                grant_type: 'refresh_token',
+                refresh_token: res.result.refresh_token,
+                scope: 'foo:write'
+              }
+            });
+          }).then(function(res) {
+            assert.equal(res.statusCode, 400);
+            assert.equal(res.result.errno, 114);
+          });
+        });
+
       });
 
       describe('?ttl', function() {

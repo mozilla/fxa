@@ -1,3 +1,13 @@
+
+<a name"0.64.0"></a>
+## 0.64.0 (2016-07-02)
+
+
+#### Bug Fixes
+
+* **scopes:** Dont treat `foo:write` as a sub-scope of `foo`. ([fe2f1fef](https://github.com/mozilla/fxa-oauth-server/commit/fe2f1fef))
+
+
 <a name"0.61.0"></a>
 ## 0.61.0 (2016-05-04)
 

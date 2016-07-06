@@ -53,6 +53,9 @@ describe('Scope', function() {
       assert(s1.has('foo:mah:pa bar:baz:quux'));
       assert(!s1.has('bar'));
 
+      assert(!s1.has('foo:write'));
+      assert(!s1.has('foo:dee:write'));
+
       var s2 = Scope('foo bar baz:quux:write');
       assert(s2.has('foo bar baz:quux'));
 

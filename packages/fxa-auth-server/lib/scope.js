@@ -4,13 +4,13 @@
 
 
 function Scope(arr) {
-  if (!(this instanceof Scope)) {
+  if (arr instanceof Scope) {
+    return arr;
+  } else if (!(this instanceof Scope)) {
     return new Scope(arr);
   }
   if (!arr) {
     arr = [];
-  } else if (arr instanceof Scope) {
-    return arr;
   } else if (typeof arr === 'string') {
     arr = arr.split(/\s+/);
   }
@@ -32,7 +32,19 @@ Scope.prototype = {
       } else if (word in this._values || word + ':write' in this._values) {
         return true;
       } else {
-        var prefix = word.split(':').slice(0, -1).join(':');
+        var parts = word.split(':');
+        var suffix = parts.pop();
+        if (suffix === 'write') {
+          // pop the next one off
+          // but still require this to be a 'write' scope
+          if (parts.pop()) {
+            parts.push('write');
+          } else {
+            // this was a weird scope. don't try to fix it, just say NO!
+            return false;
+          }
+        }
+        var prefix = parts.join(':');
         return prefix && this.has(prefix);
       }
     }, this);
