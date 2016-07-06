@@ -12,5 +12,5 @@ to get started.
 ### Updating npm shrinkwrap
 
 * Install the [npmshrink](https://www.npmjs.com/package/npmshrink) tool.
-* If you are updating the fxa-content-server run `npm run shrink:prod` in the root directory.
-All other repos use ` npm run shrink`.
+* If you are updating the fxa-content-server run `npmshrink:prod` in the root directory.
+All other repos use `npmshrink`.
