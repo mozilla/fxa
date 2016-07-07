@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const chai = require('chai');
-const ERRORS = require('../lib/errors');
-const geoDb = require('../src/fxa-geodb')();
+var chai = require('chai');
+var ERRORS = require('../lib/errors');
+var geoDb = require('../src/fxa-geodb')();
 
-const assert = chai.assert;
+var assert = chai.assert;
 
 describe('fxa-geodb', function () {
   'use strict';

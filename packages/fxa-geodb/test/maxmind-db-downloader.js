@@ -2,19 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const chai = require('chai');
+var chai = require('chai');
 var fs = require('fs');
-const maxmindDbDownloader = require('../scripts/maxmind-db-downloader');
+var MaxmindDbDownloader = require('../scripts/maxmind-db-downloader');
 
-const assert = chai.assert;
+var assert = chai.assert;
 
 describe('maxmind-db-downloader', function () {
   'use strict';
+  var maxmindDbDownloader;
+
+  beforeEach(function () {
+    maxmindDbDownloader = new MaxmindDbDownloader();
+  });
 
   describe('createTargetDir', function () {
     it('creates the specified directory', function () {
-      console.log(maxmindDbDownloader);
-      maxmindDbDownloader.createTargetDir('test-db');
+      var targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
+      assert.isTrue(fs.statSync(targetDirPath).isDirectory(), 'Directory was created');
+      // cleanup, remove the created directory
+      fs.rmdir(targetDirPath);
     });
   });
 
