@@ -50,12 +50,6 @@ describe('maxmind-db-downloader', function () {
     });
   });
 
-  describe('setupAutoUpdate', function () {
-    it('', function () {
-
-    });
-  });
-
   describe('startDownload', function () {
     it('calls async with the proper data', function () {
       sinon.stub(async, 'parallel', function () {});
@@ -64,6 +58,27 @@ describe('maxmind-db-downloader', function () {
       maxmindDbDownloader.startDownload(remainingDownloads);
       assert.isTrue(async.parallel.called, 'Async was called');
       assert.isTrue(async.parallel.calledWith(remainingDownloads), 'Async was called with the array');
+    });
+  });
+
+  describe('setupAutoUpdate', function () {
+    it('auto update calls startDownload correctly', function (done) {
+      // test takes slightly over 60 seconds, set
+      // timeout to 61 seconds to ensure that we don't
+      // timeout prematurely.
+      this.timeout(61000);
+      sinon.stub(maxmindDbDownloader, 'startDownload', function () {});
+      targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
+      remainingDownloads = maxmindDbDownloader.setupDownloadList('sources.json', targetDirPath);
+      // set up auto update for every first second of every minute
+      // (i.e) 10:00:01, 10:01:01, 10:02:01
+      maxmindDbDownloader.setupAutoUpdate('1 * * * * *', remainingDownloads);
+      // now after 60 seconds, startDownload must have been called at least once
+      setTimeout(function () {
+        assert.isTrue(maxmindDbDownloader.startDownload.called, 'startDownload was called');
+        assert.isTrue(maxmindDbDownloader.startDownload.calledWith(remainingDownloads), 'startDownload was called with the array');
+        done();
+      }, 60000);
     });
   });
 
