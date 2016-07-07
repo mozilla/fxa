@@ -4,10 +4,12 @@
 //suppress stdout when running unit tests
 process.env.NODE_ENV = 'test';
 
+var async = require('async');
 var chai = require('chai');
 var fs = require('fs');
 var MaxmindDbDownloader = require('../scripts/maxmind-db-downloader');
 var path = require('path');
+var sinon = require('sinon');
 
 var assert = chai.assert;
 
@@ -22,8 +24,12 @@ describe('maxmind-db-downloader', function () {
   });
 
   afterEach(function () {
-    targetDirPath = '';
     remainingDownloads = null;
+    // cleanup, remove the created directory
+    if (targetDirPath !== '' && fs.statSync(targetDirPath).isDirectory()) {
+      fs.rmdir(targetDirPath);
+    }
+    targetDirPath = '';
   });
 
   describe('createTargetDir', function () {
@@ -31,8 +37,6 @@ describe('maxmind-db-downloader', function () {
       targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
       assert.equal(targetDirPath, path.join(__dirname, '..', 'test-db'), 'Directory path is correct');
       assert.isTrue(fs.statSync(targetDirPath).isDirectory(), 'Directory was created');
-      // cleanup, remove the created directory
-      fs.rmdir(targetDirPath);
     });
   });
 
@@ -42,24 +46,24 @@ describe('maxmind-db-downloader', function () {
       remainingDownloads = maxmindDbDownloader.setupDownloadList('sources.json', targetDirPath);
       assert.isArray(remainingDownloads, 'Array returned');
       assert.lengthOf(remainingDownloads, 1, 'Array has one entry');
+      assert.isFunction(remainingDownloads[0], 'Download function was queued');
     });
   });
 
-  describe('setUpAutoUpdate', function () {
-    it('', function () {
-
-    });
-  });
-
-  describe('createTargetDir', function () {
+  describe('setupAutoUpdate', function () {
     it('', function () {
 
     });
   });
 
   describe('startDownload', function () {
-    it('', function () {
-
+    it('calls async with the proper data', function () {
+      sinon.stub(async, 'parallel', function () {});
+      targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
+      remainingDownloads = maxmindDbDownloader.setupDownloadList('sources.json', targetDirPath);
+      maxmindDbDownloader.startDownload(remainingDownloads);
+      assert.isTrue(async.parallel.called, 'Async was called');
+      assert.isTrue(async.parallel.calledWith(remainingDownloads), 'Async was called with the array');
     });
   });
 

@@ -44,6 +44,7 @@
     "grunt-eslint": "18.1.0",
     "istanbul": "0.4.4",
     "load-grunt-tasks": "3.5.0",
-    "mocha": "2.5.3"
+    "mocha": "2.5.3",
+    "sinon": "1.17.4"
   }
 }
