@@ -32,11 +32,15 @@ var MaxmindDbDownloader = function () {
     var targetDirPath = path.join(__dirname, '..', targetDirName);
     // create db folder
     mkdirp.sync(targetDirPath);
-    log.info('Download folder is ' + targetDirPath);
+    // log.info only if not testing
+    // log.error always
+    if (process.env.NODE_ENV !== 'test') {
+      log.info('Download folder is ' + targetDirPath);
+    }
     return targetDirPath;
   };
 
-  this.setUpDownloadList = function (sourceFileName, targetDirPath) {
+  this.setupDownloadList = function (sourceFileName, targetDirPath) {
     sourceFileName = sourceFileName || DEFAULT_SOURCE_FILE_NAME;
     targetDirPath = targetDirPath || path.join(__dirname, '..', DEFAULT_TARGET_DIR_NAME);
     // import the list of files to download
@@ -46,12 +50,16 @@ var MaxmindDbDownloader = function () {
     // push each file-load-function onto the remainingDownloads queue
     for (var source in sources) {
       var url = sources[source];
-      log.info('Adding ' + url);
+      if (process.env.NODE_ENV !== 'test') {
+        log.info('Adding ' + url);
+      }
       // get the file name without the extension
       var targetFileName = path.parse(source).name;
       var targetFilePath = path.join(targetDirPath, targetFileName);
       remainingDownloads.push(this.download(url, targetFilePath));
-      log.info('Setting ' + targetFilePath + ' as target file');
+      if (process.env.NODE_ENV !== 'test') {
+        log.info('Setting ' + targetFilePath + ' as target file');
+      }
     }
     return remainingDownloads;
   };
@@ -66,7 +74,9 @@ var MaxmindDbDownloader = function () {
           log.error(err);
         } else {
           // extraction is complete
-          log.info('unzip complete');
+          if (process.env.NODE_ENV !== 'test') {
+            log.info('unzip complete');
+          }
           callback();
         }
       });
@@ -76,15 +86,19 @@ var MaxmindDbDownloader = function () {
   this.startDownload = function (remainingDownloads) {
     async.parallel(remainingDownloads, function (err) {
       if (err) {
-        return log.error(err);
+        log.error(err);
       } else {
-        return log.info('Downloads complete');
+        if (process.env.NODE_ENV !== 'test') {
+          log.info('Downloads complete');
+        }
       }
     });
-    log.info('Last Update: ', new Date());
+    if (process.env.NODE_ENV !== 'test') {
+      log.info('Last Update: ', new Date());
+    }
   };
 
-  this.setUpAutoUpdate = function (cronTiming, remainingDownloads, timeZone) {
+  this.setupAutoUpdate = function (cronTiming, remainingDownloads, timeZone) {
     cronTiming = cronTiming || DEFAULT_CRON_TIMING;
     timeZone = timeZone || DEFAULT_TIMEZONE;
     var self = this;
@@ -92,7 +106,9 @@ var MaxmindDbDownloader = function () {
     new CronJob(cronTiming, function() { // eslint-disable-line no-new
       self.startDownload(remainingDownloads);
     }, null, true, timeZone);
-    log.info('Set up auto update with cronTiming: ' + cronTiming);
+    if (process.env.NODE_ENV !== 'test') {
+      log.info('Set up auto update with cronTiming: ' + cronTiming);
+    }
   };
 };
 
@@ -101,9 +117,9 @@ if (require.main === module) {
   // executed, not loaded through require.
   var maxmindDbDownloader = new MaxmindDbDownloader();
   var targetDirPath = maxmindDbDownloader.createTargetDir('db');
-  var remainingDownloads = maxmindDbDownloader.setUpDownloadList('sources.json', targetDirPath);
+  var remainingDownloads = maxmindDbDownloader.setupDownloadList('sources.json', targetDirPath);
   maxmindDbDownloader.startDownload(remainingDownloads);
-  maxmindDbDownloader.setUpAutoUpdate('30 30 1 * * 3', remainingDownloads);
+  maxmindDbDownloader.setupAutoUpdate('30 30 1 * * 3', remainingDownloads);
 }
 
 module.exports = MaxmindDbDownloader;
