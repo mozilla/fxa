@@ -18,88 +18,86 @@ mozlog.config({
 });
 var log = mozlog();
 
-function createTargetDir(targetDir) {
+var MaxmindDbDownloader = function () {
   'use strict';
 
-  targetDir = targetDir || 'db';
-  var targetDirPath = path.join(__dirname, '..', targetDir);
-  // create db folder
-  mkdirp.sync(targetDirPath);
-  log.info('Download folder is ' + targetDirPath);
-  return targetDirPath;
-}
+  this.createTargetDir = function (targetDir) {
+    targetDir = targetDir || 'db';
+    var targetDirPath = path.join(__dirname, '..', targetDir);
+    // create db folder
+    mkdirp.sync(targetDirPath);
+    log.info('Download folder is ' + targetDirPath);
+    return targetDirPath;
+  };
 
-function setUpDownloadList(sourceFilePath, targetDirPath) {
-  'use strict';
+  this.setUpDownloadList = function (sourceFilePath, targetDirPath) {
+    sourceFilePath = sourceFilePath || 'sources.json';
+    targetDirPath = targetDirPath || path.join(__dirname, '..', 'db');
+    // import the list of files to download
+    var sources = require(path.join(__dirname, '..', sourceFilePath));
+    var remainingDownloads = [];
 
-  sourceFilePath = sourceFilePath || 'sources.json';
-  targetDirPath = targetDirPath || path.join(__dirname, '..', 'db');
-  // import the list of files to download
-  var sources = require(path.join(__dirname, '..', sourceFilePath));
-  var remainingDownloads = [];
+    // push each file-load-function onto the remainingDownloads queue
+    for (var source in sources) {
+      var url = sources[source];
+      log.info('Adding ' + url);
+      // get the file name without the extension
+      var targetFileName = path.parse(source).name;
+      var targetFilePath = path.join(targetDirPath, targetFileName);
+      remainingDownloads.push(this.download(url, targetFilePath));
+      log.info('Setting ' + targetFilePath + ' as target file');
+    }
+    return remainingDownloads;
+  };
 
-  // push each file-load-function onto the remainingDownloads queue
-  for (var source in sources) {
-    var url = sources[source];
-    log.info('Adding ' + url);
-    // get the file name without the extension
-    var targetFileName = path.parse(source).name;
-    var targetFilePath = path.join(targetDirPath, targetFileName);
-    remainingDownloads.push(download(url, targetFilePath));
-    log.info('Setting ' + targetFilePath + ' as target file');
-  }
-  return remainingDownloads;
-}
+  this.download = function (url, targetFilePath) {
+    // closure to separate multiple file-download
+    return function downloadFunctor(callback) {
+      var stream = request(url);
+      stream.pipe(zlib.createGunzip()).pipe(fs.createWriteStream(targetFilePath)).on('finish', function (err) {
+        // forces overwrite, even if file exists already
+        if (err) {
+          log.error(err);
+        } else {
+          // extraction is complete
+          log.info('unzip complete');
+          callback();
+        }
+      });
+    };
+  };
 
-function download(url, targetFilePath) {
-  'use strict';
-
-  // closure to separate multiple file-download
-  return function downloadFunctor(callback) {
-    var stream = request(url);
-    stream.pipe(zlib.createGunzip()).pipe(fs.createWriteStream(targetFilePath)).on('finish', function (err) {
-      // forces overwrite, even if file exists already
+  this.startDownload = function (remainingDownloads) {
+    async.parallel(remainingDownloads, function (err) {
       if (err) {
-        log.error(err);
+        return log.error(err);
       } else {
-        // extraction is complete
-        log.info('unzip complete');
-        callback();
+        return log.info('Downloads complete');
       }
     });
+    log.info('Last Update: ', new Date());
   };
-}
 
-function startDownload(remainingDownloads) {
-  'use strict';
-
-  log.info('Last Update: ', new Date());
-  async.parallel(remainingDownloads, function (err) {
-    if (err) {
-      return log.error(err);
-    } else {
-      return log.info('Downloads complete');
-    }
-  });
-}
-
-function setUpAutoUpdate(cronTiming, remainingDownloads, timeZone) {
-  'use strict';
-
-  cronTiming = cronTiming || '30 30 1 * * 3';
-  timeZone = timeZone || 'America/Los_Angeles';
-  // by default run periodically on Wednesday at 01:30:30.
-  new CronJob(cronTiming, function() { // eslint-disable-line no-new
-    startDownload(remainingDownloads);
-  }, null, true, timeZone);
-  log.info('Set up auto update with cronTiming: ' + cronTiming);
-}
+  this.setUpAutoUpdate = function (cronTiming, remainingDownloads, timeZone) {
+    cronTiming = cronTiming || '30 30 1 * * 3';
+    timeZone = timeZone || 'America/Los_Angeles';
+    var self = this;
+    // by default run periodically on Wednesday at 01:30:30.
+    new CronJob(cronTiming, function() { // eslint-disable-line no-new
+      self.startDownload(remainingDownloads);
+    }, null, true, timeZone);
+    log.info('Set up auto update with cronTiming: ' + cronTiming);
+  };
+};
 
 if (require.main === module) {
   // start download only when script is
   // executed, not loaded through require.
-  var targetDirPath = createTargetDir('db');
-  var remainingDownloads = setUpDownloadList('sources.json', targetDirPath);
-  startDownload(remainingDownloads);
-  setUpAutoUpdate('30 30 1 * * 3', remainingDownloads);
+  var maxmindDbDownloader = new MaxmindDbDownloader();
+  var targetDirPath = maxmindDbDownloader.createTargetDir('db');
+  var remainingDownloads = maxmindDbDownloader.setUpDownloadList('sources.json', targetDirPath);
+  maxmindDbDownloader.startDownload(remainingDownloads);
+  maxmindDbDownloader.setUpAutoUpdate('30 30 1 * * 3', remainingDownloads);
 }
+
+module.exports = MaxmindDbDownloader;
