@@ -68,7 +68,8 @@ function Location(locationData, userLocale) {
 
   this.getLocaleSpecificLocationString = function (locationObject, userLocale) {
     // if we have the user's locale specific name, return that,
-    // else return 'en' - english.
+    // else return 'en' - english. The user's locale refers to
+    // the locale he signed up from, not the locale of the ip
     return locationObject.names[userLocale] || locationObject.names['en'];
   };
 

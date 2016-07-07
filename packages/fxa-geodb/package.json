@@ -29,9 +29,13 @@
   },
   "homepage": "https://github.com/mozilla/fxa-geodb",
   "dependencies": {
+    "async": "2.0.0-rc.6",
     "bluebird": "3.4.1",
+    "cron": "1.1.0",
     "maxmind": "1.1.0",
-    "mozlog": "2.0.5"
+    "mkdirp": "0.5.1",
+    "mozlog": "2.0.5",
+    "request": "2.72.0"
   },
   "devDependencies": {
     "chai": "3.5.0",
