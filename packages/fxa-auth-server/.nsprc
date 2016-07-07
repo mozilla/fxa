@@ -5,6 +5,9 @@
     "https://nodesecurity.io/advisories/65",
 
     // for hapi/joi/moment dependency
-    "https://nodesecurity.io/advisories/55"
+    "https://nodesecurity.io/advisories/55",
+
+    // for hapi/call dependency
+    "https://nodesecurity.io/advisories/121"
   ]
 }
