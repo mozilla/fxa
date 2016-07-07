@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -ev
+set -evuo pipefail
 
 node ./scripts/gen_keys.js
 
