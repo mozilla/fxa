@@ -13,13 +13,13 @@ describe('fxa-geodb', function () {
   var ip;
 
   it('returns a promise when called', function () {
-    assert.isTrue(typeof geoDb('12.23.34.45').then === 'function', 'Promise not returned');
+    assert.isFunction(geoDb('12.23.34.45').then, 'Promise returned');
   });
 
   it('returns an error object with `IS_INVALID` when supplied with an undefined ip variable', function () {
     return geoDb(ip)
       .catch(function (err) {
-        assert.equal(err.message, ERRORS.IS_INVALID, 'Incorrect error message');
+        assert.equal(err.message, ERRORS.IS_INVALID, 'Invalid error message');
       });
   });
 
@@ -27,7 +27,7 @@ describe('fxa-geodb', function () {
     ip = {};
     return geoDb(ip)
       .catch(function (err) {
-        assert.equal(err.message, ERRORS.IS_INVALID, 'Incorrect error message');
+        assert.equal(err.message, ERRORS.IS_INVALID, 'Invalid error message');
       });
   });
 
@@ -35,7 +35,7 @@ describe('fxa-geodb', function () {
     ip = '';
     return geoDb(ip)
       .catch(function (err) {
-        assert.equal(err.message, ERRORS.IS_INVALID, 'Incorrect error message');
+        assert.equal(err.message, ERRORS.IS_INVALID, 'Invalid error message');
       });
   });
 
@@ -44,7 +44,7 @@ describe('fxa-geodb', function () {
     ip = '5.6.7';
     return geoDb(ip)
       .catch(function (err) {
-        assert.equal(err.message, ERRORS.IS_INVALID, 'Incorrect error message');
+        assert.equal(err.message, ERRORS.IS_INVALID, 'Invalid error message');
       });
   });
 
@@ -57,13 +57,13 @@ describe('fxa-geodb', function () {
     };
     return geoDb(ip)
       .then(function (location) {
-        assert.equal(location.country, 'United States', 'Country not returned correctly');
-        assert.equal(location.city, 'Mountain View', 'City not returned correctly');
-        assert.equal(location.continent, 'North America', 'Continent not returned correctly');
-        assert.deepEqual(location.latLong, latLong, 'LatLong not returned correctly');
-        assert.equal(location.timeZone, 'America/Los_Angeles', 'Timezone not returned correctly');
+        assert.equal(location.country, 'United States', 'Country returned correctly');
+        assert.equal(location.city, 'Mountain View', 'City returned correctly');
+        assert.equal(location.continent, 'North America', 'Continent returned correctly');
+        assert.deepEqual(location.latLong, latLong, 'LatLong returned correctly');
+        assert.equal(location.timeZone, 'America/Los_Angeles', 'Timezone returned correctly');
       }, function (err) {
-        assert.equal(err.message, ERRORS.UNABLE_TO_FETCH_DATA, 'Incorrect error message');
+        assert.equal(err.message, ERRORS.UNABLE_TO_FETCH_DATA, 'Invalid error message');
       });
   });
 
@@ -72,7 +72,7 @@ describe('fxa-geodb', function () {
     ip = '127.0.0.1';
     return geoDb(ip)
       .catch(function (err) {
-        assert.equal(err.message, ERRORS.UNABLE_TO_FETCH_DATA, 'Incorrect error message');
+        assert.equal(err.message, ERRORS.UNABLE_TO_FETCH_DATA, 'Invalid error message');
       });
   });
 
@@ -82,12 +82,12 @@ describe('fxa-geodb', function () {
     ip = '64.11.221.194';
     return geoDb(ip)
       .then(function (location) {
-        assert.equal(location.country, 'United States', 'Country not returned correctly');
-        assert.equal(typeof location.city, 'undefined', 'City not undefined');
-        assert.equal(location.continent, 'North America', 'Continent not returned correctly');
-        assert.equal(typeof location.timeZone, 'undefined', 'Timezone not undefined');
+        assert.equal(location.country, 'United States', 'Country returned correctly');
+        assert.equal(typeof location.city, 'undefined', 'City undefined');
+        assert.equal(location.continent, 'North America', 'Continent returned correctly');
+        assert.equal(typeof location.timeZone, 'undefined', 'Timezone undefined');
       }, function (err) {
-        assert.equal(err.message, ERRORS.UNABLE_TO_FETCH_DATA, 'Incorrect error message');
+        assert.equal(err.message, ERRORS.UNABLE_TO_FETCH_DATA, 'Invalid error message');
       });
   });
 
