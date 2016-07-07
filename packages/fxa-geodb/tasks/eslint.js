@@ -4,6 +4,7 @@
 
 module.exports = function (grunt) {
   'use strict';
+
   grunt.config('eslint', {
     app: {
       eslintrc: '.eslintrc',
