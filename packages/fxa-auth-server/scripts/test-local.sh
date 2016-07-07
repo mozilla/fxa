@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 glob=$*
 if [ "$glob" == "" ]; then
   glob="test/local test/remote"
