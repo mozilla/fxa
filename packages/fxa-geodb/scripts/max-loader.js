@@ -4,13 +4,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var async = require('async');
-var cp = require('child_process');
 var CronJob = require('cron').CronJob;
 var fs = require('fs');
 var mkdirp = require('mkdirp');
 var path = require('path');
 var request = require('request');
-var requestProgress = require('request-progress');
+var zlib = require('zlib');
 
 // set up mozlog, default is `heka`
 var mozlog = require('mozlog');
@@ -19,11 +18,11 @@ mozlog.config({
 });
 var log = mozlog();
 
-var target = path.join(process.cwd(), '..', 'db');
+var targetPath = path.join(process.cwd(), '..', 'db');
 // create db folder
-mkdirp.sync(target);
+mkdirp.sync(targetPath);
 
-log.info('Downloading to %s', target);
+log.info('Downloading to ' + targetPath);
 
 // import the list of files to download
 var sources = require(path.join(__dirname, '..', 'sources.json'));
@@ -33,19 +32,25 @@ var remainingDownloads = [];
 for (var source in sources) {
   var url = sources[source];
   log.info('adding ' + url);
-  remainingDownloads.push(download(url, path.join(target, source)));
+  var targetFileName = source.slice(0, -3);
+  remainingDownloads.push(download(url, path.join(targetPath, targetFileName)));
 }
 
-function download(url, target) {
+function download(url, targetFile) {
   'use strict';
 
   // closure to separate multiple file-download
   return function downloadFunctor(callback) {
-    var stream = requestProgress(request(url));
-    stream.pipe(fs.createWriteStream(target)).on('finish', function () {
-      // force overwrite, even if file exists already
-      cp.execFile('gunzip', [target, '-f']);
-      callback();
+    var stream = request(url);
+    stream.pipe(zlib.createGunzip()).pipe(fs.createWriteStream(targetFile)).on('finish', function (err) {
+      // forces overwrite, even if file exists already
+      if (err) {
+        log.error(err);
+      } else {
+        // extraction is complete
+        log.info('unzip complete');
+        callback();
+      }
     });
   };
 }
@@ -58,7 +63,7 @@ function startDownload(remainingDownloads) {
     if (err) {
       return log.error(err);
     } else {
-      log.info('Download complete');
+      return log.info('Downloads complete');
     }
   });
 }
