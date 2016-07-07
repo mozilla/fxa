@@ -18,23 +18,29 @@ mozlog.config({
 });
 var log = mozlog();
 
+
+var DEFAULT_CRON_TIMING = '30 30 1 * * 3';
+var DEFAULT_SOURCE_FILE_NAME = 'sources.json';
+var DEFAULT_TARGET_DIR_NAME = 'db';
+var DEFAULT_TIMEZONE = 'America/Los_Angeles';
+
 var MaxmindDbDownloader = function () {
   'use strict';
 
-  this.createTargetDir = function (targetDir) {
-    targetDir = targetDir || 'db';
-    var targetDirPath = path.join(__dirname, '..', targetDir);
+  this.createTargetDir = function (targetDirName) {
+    targetDirName = targetDirName || DEFAULT_TARGET_DIR_NAME;
+    var targetDirPath = path.join(__dirname, '..', targetDirName);
     // create db folder
     mkdirp.sync(targetDirPath);
     log.info('Download folder is ' + targetDirPath);
     return targetDirPath;
   };
 
-  this.setUpDownloadList = function (sourceFilePath, targetDirPath) {
-    sourceFilePath = sourceFilePath || 'sources.json';
-    targetDirPath = targetDirPath || path.join(__dirname, '..', 'db');
+  this.setUpDownloadList = function (sourceFileName, targetDirPath) {
+    sourceFileName = sourceFileName || DEFAULT_SOURCE_FILE_NAME;
+    targetDirPath = targetDirPath || path.join(__dirname, '..', DEFAULT_TARGET_DIR_NAME);
     // import the list of files to download
-    var sources = require(path.join(__dirname, '..', sourceFilePath));
+    var sources = require(path.join(__dirname, '..', sourceFileName));
     var remainingDownloads = [];
 
     // push each file-load-function onto the remainingDownloads queue
@@ -79,8 +85,8 @@ var MaxmindDbDownloader = function () {
   };
 
   this.setUpAutoUpdate = function (cronTiming, remainingDownloads, timeZone) {
-    cronTiming = cronTiming || '30 30 1 * * 3';
-    timeZone = timeZone || 'America/Los_Angeles';
+    cronTiming = cronTiming || DEFAULT_CRON_TIMING;
+    timeZone = timeZone || DEFAULT_TIMEZONE;
     var self = this;
     // by default run periodically on Wednesday at 01:30:30.
     new CronJob(cronTiming, function() { // eslint-disable-line no-new
