@@ -18,7 +18,6 @@ mozlog.config({
 });
 var log = mozlog();
 
-
 var DEFAULT_CRON_TIMING = '30 30 1 * * 3';
 var DEFAULT_SOURCE_FILE_NAME = 'sources.json';
 var DEFAULT_TARGET_DIR_NAME = 'db';
@@ -119,7 +118,10 @@ if (require.main === module) {
   var targetDirPath = maxmindDbDownloader.createTargetDir('db');
   var remainingDownloads = maxmindDbDownloader.setupDownloadList('sources.json', targetDirPath);
   maxmindDbDownloader.startDownload(remainingDownloads);
-  maxmindDbDownloader.setupAutoUpdate('30 30 1 * * 3', remainingDownloads);
+  // By default, we do not setup autoUpdate, needs to be
+  // done through options when library is imported, or manually
+  // by running npm run-scripts update
+  // maxmindDbDownloader.setupAutoUpdate('30 30 1 * * 3', remainingDownloads);
 }
 
 module.exports = MaxmindDbDownloader;
