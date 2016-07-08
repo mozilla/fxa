@@ -35,11 +35,11 @@ var MaxmindDbDownloader = function () {
     return targetDirPath;
   };
 
-  this.setupDownloadList = function (sourceFileName, targetDirPath) {
-    sourceFileName = sourceFileName || DEFAULTS.DEFAULT_SOURCE_FILE_NAME;
+  this.setupDownloadList = function (sourceFilePath, targetDirPath) {
+    sourceFilePath = sourceFilePath || DEFAULTS.DEFAULT_SOURCE_FILE_NAME;
     targetDirPath = targetDirPath || DEFAULTS.DEFAULT_TARGET_DIR_PATH;
     // import the list of files to download
-    var sources = require(path.join(__dirname, '..', sourceFileName));
+    var sources = require(sourceFilePath);
     var remainingDownloads = [];
 
     // push each file-load-function onto the remainingDownloads queue
@@ -112,7 +112,10 @@ if (require.main === module) {
   // executed, not loaded through require.
   var maxmindDbDownloader = new MaxmindDbDownloader();
   var targetDirPath = maxmindDbDownloader.createTargetDir('db');
-  var remainingDownloads = maxmindDbDownloader.setupDownloadList('sources.json', targetDirPath);
+  var remainingDownloads = maxmindDbDownloader.setupDownloadList(
+    path.join(__dirname, '..','sources.json'),
+    targetDirPath
+  );
   maxmindDbDownloader.startDownload(remainingDownloads);
   // By default, we do not setup autoUpdate, needs to be
   // done through options when library is imported, or manually
