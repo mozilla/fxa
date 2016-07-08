@@ -8,11 +8,11 @@
     "test": "test"
   },
   "scripts": {
-    "setup": "npm install && bower install",
-    "update": "node scripts/max-loader.js &",
-    "test": "mocha",
+    "cover": "istanbul cover _mocha",
     "lint": "grunt lint",
-    "cover": "istanbul cover _mocha"
+    "postinstall": "node scripts/max-loader.js",
+    "setup": "npm install && bower install",
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
