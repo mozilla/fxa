@@ -28,6 +28,18 @@ var conf = convict({
     backend: {
       default: 'httpdb',
       env: 'DB_BACKEND'
+    },
+    connectionRetry: {
+      default: '10 seconds',
+      env: 'DB_CONNECTION_RETRY',
+      doc: 'Time in milliseconds to retry a database connection attempt',
+      format: 'duration'
+    },
+    connectionTimeout: {
+      default: '5 minutes',
+      env: 'DB_CONNECTION_TIMEOUT',
+      doc: 'Timeout in milliseconds after which the mailer will stop trying to connect to the database',
+      format: 'duration'
     }
   },
   httpdb: {

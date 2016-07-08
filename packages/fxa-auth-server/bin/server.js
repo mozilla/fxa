@@ -10,13 +10,14 @@ var mailConfig = config.get('mail')
 
 var packageJson = require('../package.json')
 var P = require('bluebird')
-var DB = require('../lib/db')()
 
 // NOTE: Mailer is also used by fxa-auth-server directly with an old logging interface
 // the legacy log module provides an interface to convert old logs to new mozlog logging.
 var mailerLog = require('../log')('mailer')
 var legacyMailerLog = require('../legacy_log')(mailerLog)
 var Mailer = require('../mailer')(legacyMailerLog)
+
+var dbConnect = require('../lib/db_connect')()
 
 P.all(
   [
@@ -30,18 +31,15 @@ P.all(
     log.info('config', mailConfig)
     log.info('templates', Object.keys(templates))
 
-    // fetch and process verification reminders
-
-    DB.connect(config.get(config.get('db').backend))
-      .then(
-        function (db) {
-          var verificationReminders = require('../lib/verification-reminders')(mailer, db)
-          verificationReminders.poll()
-        },
-        function (err) {
-          log.error('db', { err: err })
-        }
-      )
+    dbConnect()
+      .then(function (db) {
+        // fetch and process verification reminders
+        var verificationReminders = require('../lib/verification-reminders')(mailer, db)
+        verificationReminders.poll()
+      })
+      .catch(function (err) {
+        log.error('server', {err: err})
+      })
 
     var api = restify.createServer()
     api.use(restify.bodyParser())
