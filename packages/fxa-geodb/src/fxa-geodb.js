@@ -5,8 +5,8 @@
 // these are defaults, can be overloaded by configuring options
 var path = require('path');
 
-var DEFAULT_DB_PATH = path.join(__dirname, '..', 'db', 'cities-db.mmdb');
-var ERRORS = require('../lib/errors');
+var DEFAULTS = require(path.join('..', 'lib', 'defaults'));
+var ERRORS = require(path.join('..', 'lib', 'errors'));
 var maxmind = require('maxmind');
 var Promise = require('bluebird');
 
@@ -14,7 +14,7 @@ module.exports = function (options) {
   'use strict';
 
   options = options || {};
-  var dbPath = options.dbPath || DEFAULT_DB_PATH;
+  var dbPath = options.dbPath || DEFAULTS.DEFAULT_DB_PATH;
 
   var dbLookup, locationData;
   // we quit if the db did not load for some reason
