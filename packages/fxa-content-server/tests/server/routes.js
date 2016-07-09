@@ -28,7 +28,6 @@ define([
   };
 
   var routes = {
-    '/.well-known/openid-configuration': { statusCode: 200 },
     '/account_unlock_complete': { statusCode: 200 },
     '/cannot_create_account': { statusCode: 200 },
     '/choose_what_to_sync': { statusCode: 200 },
@@ -54,8 +53,6 @@ define([
     '/oauth/force_auth': { statusCode: 200 },
     '/oauth/signin': { statusCode: 200 },
     '/oauth/signup': { statusCode: 200 },
-    '/openid/login': { statusCode: 200 },
-    '/openid/start': { statusCode: 200 },
     '/reset_password': { statusCode: 200 },
     '/reset_password_complete': { statusCode: 200 },
     '/settings': { statusCode: 200 },

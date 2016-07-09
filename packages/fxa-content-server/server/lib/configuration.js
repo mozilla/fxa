@@ -381,20 +381,6 @@ var conf = module.exports = convict({
     env: 'FXA_OAUTH_URL',
     format: 'url'
   },
-  openid_configuration: {
-    claims_supported: [
-      'aud',
-      'exp',
-      'iat',
-      'iss',
-      'sub'
-    ],
-    id_token_signing_alg_values_supported: ['RS256'],
-    response_types_supported: ['code', 'token'],
-    scopes_supported: ['openid'],
-    subject_types_supported: ['public'],
-    token_endpoint_auth_methods_supported: ['client_secret_post'],
-  },
   page_template_root: {
     default: path.resolve(__dirname, '..', 'templates', 'pages'),
     doc: 'The root path of server-rendered page templates'
@@ -564,7 +550,7 @@ if (process.env.HTTP_PROXY) {
   conf.set('http_proxy.port', p[1]);
 }
 
-// But under the covers... OpenID and OAuth libraries need
+// But under the covers... OAuth libraries need
 // HTTP_PROXY_HOST, HTTP_PROXY_PORT, HTTPS_PROXY_HOST and HTTPS_PROXY_PORT
 if (conf.has('http_proxy.host')) {
   process.env.HTTP_PROXY_HOST = conf.get('http_proxy.host');
