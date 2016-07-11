@@ -68,7 +68,7 @@ test(
     t.equal(typeof log.warn, 'function', 'log.warn method was exported')
     t.equal(typeof log.info, 'function', 'log.info method was exported')
     t.equal(typeof log.begin, 'function', 'log.begin method was exported')
-    t.equal(typeof log.event, 'function', 'log.event method was exported')
+    t.equal(typeof log.notifyAttachedServices, 'function', 'log.notifyAttachedServices method was exported')
     t.equal(typeof log.activityEvent, 'function', 'log.activityEvent method was exported')
     t.equal(typeof log.increment, 'function', 'log.increment method was exported')
     t.equal(typeof log.stat, 'function', 'log.stat method was exported')

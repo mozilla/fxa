@@ -185,7 +185,7 @@ module.exports = function (
           .then(
             function () {
               if (account.emailVerified) {
-                return log.event('verified', request, {
+                return log.notifyAttachedServices('verified', request, {
                   email: account.email,
                   uid: account.uid,
                   locale: account.locale
@@ -196,7 +196,7 @@ module.exports = function (
           .then(
             function () {
               if (service === 'sync') {
-                return log.event('login', request, {
+                return log.notifyAttachedServices('login', request, {
                   service: 'sync',
                   uid: account.uid,
                   email: account.email,
@@ -492,7 +492,7 @@ module.exports = function (
 
         function emitSyncLoginEvent () {
           if (service === 'sync' && request.payload.reason === 'signin') {
-            return log.event('login', request, {
+            return log.notifyAttachedServices('login', request, {
               service: 'sync',
               uid: emailRecord.uid,
               email: emailRecord.email,
@@ -1000,7 +1000,7 @@ module.exports = function (
             .then(
               function () {
                 if (operation === 'createDevice') {
-                  return log.event('device:create', request, {
+                  return log.notifyAttachedServices('device:create', request, {
                     uid: sessionToken.uid,
                     id: result.id,
                     type: result.type,
@@ -1098,7 +1098,7 @@ module.exports = function (
           )
           .then(
             function () {
-              return log.event('device:delete', request, {
+              return log.notifyAttachedServices('device:delete', request, {
                 uid: uid,
                 id: id,
                 timestamp: Date.now()
@@ -1308,7 +1308,7 @@ module.exports = function (
                     .then(function () {
                       log.timing('account.verified', Date.now() - account.createdAt)
                       log.increment('account.verified')
-                      return log.event('verified', request, {
+                      return log.notifyAttachedServices('verified', request, {
                         email: account.email,
                         uid: account.uid,
                         locale: account.locale
@@ -1554,7 +1554,7 @@ module.exports = function (
             )
             .then(
               function () {
-                return log.event('reset', request, {
+                return log.notifyAttachedServices('reset', request, {
                   uid: account.uid.toString('hex') + '@' + config.domain,
                   generation: account.verifierSetAt
                 })
@@ -1686,7 +1686,7 @@ module.exports = function (
                 )
                 .then(
                   function () {
-                    return log.event('delete', request, {
+                    return log.notifyAttachedServices('delete', request, {
                       uid: uid + '@' + config.domain
                     })
                   }

@@ -292,8 +292,8 @@ test('/account/device', function (t) {
       t.equal(args[1], mockRequest, 'second argument was request object')
       t.deepEqual(args[2], { uid: uid.toString('hex'), device_id: deviceId }, 'third argument contained uid')
 
-      t.equal(mockLog.event.callCount, 1)
-      args = mockLog.event.args[0]
+      t.equal(mockLog.notifyAttachedServices.callCount, 1)
+      args = mockLog.notifyAttachedServices.args[0]
       t.equal(args.length, 3)
       t.equal(args[0], 'device:create')
       t.equal(args[1], mockRequest)
@@ -306,7 +306,7 @@ test('/account/device', function (t) {
     })
     .then(function () {
       mockLog.activityEvent.reset()
-      mockLog.event.reset()
+      mockLog.notifyAttachedServices.reset()
     })
   }, t)
 
@@ -356,7 +356,7 @@ test('/account/device', function (t) {
         t.equal(args[1], mockRequest, 'second argument was request object')
         t.deepEqual(args[2], { uid: uid.toString('hex'), device_id: deviceId.toString('hex') }, 'third argument contained uid')
 
-        t.equal(mockLog.event.callCount, 0, 'log.event was not called')
+        t.equal(mockLog.notifyAttachedServices.callCount, 0, 'log.notifyAttachedServices was not called')
 
         t.equal(mockLog.increment.callCount, 5, 'the counters were incremented')
         t.equal(mockLog.increment.getCall(0).args[0], 'device.update.sessionToken')
@@ -416,8 +416,8 @@ test('/account/device/destroy', function (t) {
     t.equal(args[1], mockRequest, 'second argument was request object')
     t.deepEqual(args[2], { uid: uid.toString('hex'), device_id: deviceId }, 'third argument contained uid and deviceId')
 
-    t.equal(mockLog.event.callCount, 1)
-    args = mockLog.event.args[0]
+    t.equal(mockLog.notifyAttachedServices.callCount, 1)
+    args = mockLog.notifyAttachedServices.args[0]
     t.equal(args.length, 3)
     t.equal(args[0], 'device:delete')
     t.equal(args[1], mockRequest)
@@ -900,7 +900,7 @@ test('/recovery_email/verify_code', function (t) {
     return runTest(route, mockRequest, function (response) {
       t.equal(mockDB.verifyTokens.callCount, 1, 'calls verifyTokens')
       t.equal(mockDB.verifyEmail.callCount, 1, 'calls verifyEmail')
-      t.equal(mockLog.event.callCount, 1, 'logs verified')
+      t.equal(mockLog.notifyAttachedServices.callCount, 1, 'logs verified')
 
       t.equal(mockLog.activityEvent.callCount, 1, 'activityEvent was called once')
       t.equal(mockMailer.sendPostVerifyEmail.callCount, 1, 'sendPostVerifyEmail was called once')
@@ -1032,9 +1032,9 @@ test('/account/destroy', function (t) {
     t.equal(args[0].email, email, 'db.deleteAccount was passed email record')
     t.deepEqual(args[0].uid, uid, 'email record had correct uid')
 
-    t.equal(mockLog.event.callCount, 1, 'log.event was called once')
-    args = mockLog.event.args[0]
-    t.equal(args.length, 3, 'log.event was passed three arguments')
+    t.equal(mockLog.notifyAttachedServices.callCount, 1, 'log.notifyAttachedServices was called once')
+    args = mockLog.notifyAttachedServices.args[0]
+    t.equal(args.length, 3, 'log.notifyAttachedServices was passed three arguments')
     t.equal(args[0], 'delete', 'first argument was event name')
     t.equal(args[1], mockRequest, 'second argument was request object')
     t.equal(args[2].uid, uid.toString('hex') + '@wibble', 'third argument was event data')

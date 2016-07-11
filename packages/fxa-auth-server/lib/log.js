@@ -39,9 +39,20 @@ function Lug(options) {
 }
 util.inherits(Lug, EventEmitter)
 
+Lug.prototype.close = function() {
+  return this.statsd.close()
+}
+
+// Certain events can include contextual metrics data
+// such as utm_* tracking parameters.  This helper method
+// is here to work around a circular dependency between
+// this module and the `metricsContext` module.
 Lug.prototype.setMetricsContext = function (metricsContext) {
   this.metricsContext = metricsContext
 }
+
+
+// Expose the standard error/warn/info/debug/etc log methods.
 
 Lug.prototype.trace = function (data) {
   this.logger.debug(data.op, data)
@@ -76,7 +87,73 @@ Lug.prototype.begin = function (op, request) {
   this.logger.debug(op)
 }
 
-Lug.prototype.event = function (name, request, data) {
+// Expose some statsd helpers directly on the logger object.
+
+Lug.prototype.increment = function(event) {
+  this.statsd.write({
+    event: event
+  })
+}
+
+Lug.prototype.stat = function (stats) {
+  this.logger.info('stat', stats)
+}
+
+Lug.prototype.timing = function(name, timing, tags) {
+  this.statsd.timing(name, timing, tags)
+}
+
+Lug.prototype.histogram = function(name, value, tags) {
+  this.statsd.histogram(name, value, tags)
+}
+
+
+// Log a request summary line.
+// This gets called once for each compelted request.
+// See https://mana.mozilla.org/wiki/display/CLOUDSERVICES/Logging+Standard
+// for a discussion of this format and why it's used.
+
+Lug.prototype.summary = function (request, response) {
+  if (request.method === 'options') { return }
+  var payload = request.payload || {}
+  var query = request.query || {}
+  var line = {
+    op: 'request.summary',
+    code: (response.isBoom) ? response.output.statusCode : response.statusCode,
+    errno: response.errno || 0,
+    rid: request.id,
+    path: request.path,
+    lang: request.app.acceptLanguage,
+    agent: request.headers['user-agent'],
+    remoteAddressChain: request.app.remoteAddressChain,
+    accountRecreated: request.app.accountRecreated,
+    t: Date.now() - request.info.received
+  }
+  line.uid = (request.auth && request.auth.credentials) ?
+    request.auth.credentials.uid :
+    payload.uid || query.uid || response.uid || '00'
+  line.service = payload.service || query.service
+  line.reason = payload.reason || query.reason
+  line.redirectTo = payload.redirectTo || query.redirectTo
+  line.keys = query.keys
+  line.email = payload.email || query.email
+
+  if (line.code >= 500) {
+    line.trace = request.app.traced
+    line.stack = response.stack
+    this.error(unbuffer(line), response.message)
+  }
+  else {
+    this.info(unbuffer(line))
+  }
+}
+
+
+// Broadcast an event to attached services, such as sync.
+// In production, these events are read from stdout
+// and broadcast to relying services over SNS/SQS.
+
+Lug.prototype.notifyAttachedServices = function (name, request, data) {
   var self = this
   return this.metricsContext.gather({}, request, name)
     .then(
@@ -90,6 +167,10 @@ Lug.prototype.event = function (name, request, data) {
       }
     )
 }
+
+// Log an activity metrics event.
+// These events indicate key points at which a particular
+// user has interacted with the service.
 
 Lug.prototype.activityEvent = function (event, request, data) {
   if (! data || ! data.uid) {
@@ -127,63 +208,6 @@ function optionallySetService (data, request) {
   } catch (err) {
     // request.payload and request.query are not always set in the unit tests
   }
-}
-
-Lug.prototype.increment = function(event) {
-  this.statsd.write({
-    event: event
-  })
-}
-
-Lug.prototype.stat = function (stats) {
-  this.logger.info('stat', stats)
-}
-
-Lug.prototype.summary = function (request, response) {
-  if (request.method === 'options') { return }
-  var payload = request.payload || {}
-  var query = request.query || {}
-  var line = {
-    op: 'request.summary',
-    code: (response.isBoom) ? response.output.statusCode : response.statusCode,
-    errno: response.errno || 0,
-    rid: request.id,
-    path: request.path,
-    lang: request.app.acceptLanguage,
-    agent: request.headers['user-agent'],
-    remoteAddressChain: request.app.remoteAddressChain,
-    accountRecreated: request.app.accountRecreated,
-    t: Date.now() - request.info.received
-  }
-  line.uid = (request.auth && request.auth.credentials) ?
-    request.auth.credentials.uid :
-    payload.uid || query.uid || response.uid || '00'
-  line.service = payload.service || query.service
-  line.reason = payload.reason || query.reason
-  line.redirectTo = payload.redirectTo || query.redirectTo
-  line.keys = query.keys
-  line.email = payload.email || query.email
-
-  if (line.code >= 500) {
-    line.trace = request.app.traced
-    line.stack = response.stack
-    this.error(unbuffer(line), response.message)
-  }
-  else {
-    this.info(unbuffer(line))
-  }
-}
-
-Lug.prototype.timing = function(name, timing, tags) {
-  this.statsd.timing(name, timing, tags)
-}
-
-Lug.prototype.histogram = function(name, value, tags) {
-  this.statsd.histogram(name, value, tags)
-}
-
-Lug.prototype.close = function() {
-  return this.statsd.close()
 }
 
 module.exports = function (level, name, options) {
