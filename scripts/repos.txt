@@ -12,6 +12,7 @@ fxa-content-server
 fxa-content-server-l10n
 fxa-customs-server
 fxa-dev
+fxa-geodb
 fxa-js-client
 fxa-js-client-old
 fxa-jwtool
