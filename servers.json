@@ -134,7 +134,7 @@
     },
     {
       "name": "fxa-oauth-console PORT 10137",
-      "script": "bin/server.js",
+      "script": "scripts/run_dev.js",
       "cwd": "fxa-oauth-console",
       "env": {
         "NODE_ENV": "dev",
