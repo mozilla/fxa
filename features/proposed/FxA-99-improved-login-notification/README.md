@@ -54,7 +54,8 @@ Acceptance criteria:
       and a timestamp.
 * [ ] The location information is determined by geo-lookup of IP address.
 * [ ] The location information displays both city and country name
-      if these can be determined with reasonable confidence.
+      if these can be determined with reasonable confidence. Language to indicate
+      approximation is `estimated`.
 * [ ] The location information displays just the country name
       if no city information can be determined with reasonable confidence.
 * [ ] The location information is not displayed
@@ -64,9 +65,8 @@ Acceptance criteria:
       if it was determined to at least country-level accuracy.
 * [ ] The timestamp is presented in UTC
       if no country information can be determined with reasonable confidence.
-* [ ] The email is localized according to the user's stored language
-      preferences, or their accept-language header.  It is *not* localized
-      based on the location of the login attempt.
+* [ ] The email is localized according to the user's accept-language header.
+      It is *not* localized based on the location of the login attempt.
 
 ## Metrics
 
