@@ -58,7 +58,7 @@ When the user enters any characters, the instructions change to become:
 * 8 characters minimum, but longer if you plan to sync passwords. <u>More info</u>.
 
 #### Submitted password is on our blocklist
-When the user enters a password that is on our blocklist, the UI will behave as if the password field were empty, and show the following error:
+When the user enters a password that is on our blocklist, the UI will behave as if the following error will be shown. The user is still able to submit the form if unchanged. If the user modifies the password, it starts the process over again, and is only submitted if the password is strong enough.
 * This is a common password; please consider another one.  <u>More info</u>.
 
 ### Unresolved questions and risks
