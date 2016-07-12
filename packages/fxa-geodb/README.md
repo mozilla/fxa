@@ -16,7 +16,6 @@ var geoDb = require('fxa-geodb')({
 });
 ```
 
-
 --
 ### API
 The function returns a promise that may either resolve (on successful finding of location data) or reject (if either the ip was invalid, or location data could not be found). Call the function, like so:

@@ -2,11 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// these are defaults, can be overloaded by configuring options
-var path = require('path');
-
-var DEFAULTS = require(path.join('..', 'lib', 'defaults'));
-var ERRORS = require(path.join('..', 'lib', 'errors'));
+var DEFAULTS = require('../lib/defaults');
+var ERRORS = require('../lib/errors');
 var maxmind = require('maxmind');
 var Promise = require('bluebird');
 
