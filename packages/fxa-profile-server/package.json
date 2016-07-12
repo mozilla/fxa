@@ -30,7 +30,7 @@
   "devDependencies": {
     "blanket": "1.1.6",
     "commander": "2.9.0",
-    "eslint-config-fxa": "2.0.0",
+    "eslint-config-fxa": "2.1.0",
     "grunt": "0.4.5",
     "grunt-cli": "0.1.13",
     "grunt-conventional-changelog": "1.1.0",

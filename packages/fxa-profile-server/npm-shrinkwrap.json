@@ -210,9 +210,9 @@
       }
     },
     "eslint-config-fxa": {
-      "version": "2.0.0",
-      "from": "eslint-config-fxa@2.0.0",
-      "resolved": "https://registry.npmjs.org/eslint-config-fxa/-/eslint-config-fxa-2.0.0.tgz"
+      "version": "2.1.0",
+      "from": "eslint-config-fxa@2.1.0",
+      "resolved": "https://registry.npmjs.org/eslint-config-fxa/-/eslint-config-fxa-2.1.0.tgz"
     },
     "fxa-notifier-aws": {
       "version": "1.0.0",
