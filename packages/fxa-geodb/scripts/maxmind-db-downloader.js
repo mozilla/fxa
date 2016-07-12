@@ -6,7 +6,7 @@ var path = require('path');
 
 var async = require('async');
 var CronJob = require('cron').CronJob;
-var DEFAULTS = require(path.join('..', 'lib', 'defaults'));
+var DEFAULTS = require('../lib/defaults');
 var fs = require('fs');
 var mkdirp = require('mkdirp');
 var mozlog = require('mozlog');
@@ -24,7 +24,7 @@ var MaxmindDbDownloader = function () {
   'use strict';
 
   this.createTargetDir = function (targetDirName) {
-    targetDirName = targetDirName || DEFAULTS.DEFAULT_TARGET_DIR_NAME;
+    targetDirName = targetDirName || DEFAULTS.TARGET_DIR_NAME;
     var targetDirPath = path.join(__dirname, '..', targetDirName);
     // create db folder
     mkdirp.sync(targetDirPath);
@@ -37,7 +37,7 @@ var MaxmindDbDownloader = function () {
   };
 
   this.setupDownloadList = function (sourceFilePath, targetDirPath) {
-    sourceFilePath = sourceFilePath || DEFAULTS.DEFAULT_SOURCE_FILE_NAME;
+    sourceFilePath = sourceFilePath || DEFAULTS.SOURCE_FILE_NAME;
     targetDirPath = targetDirPath || DEFAULTS.DEFAULT_TARGET_DIR_PATH;
     // import the list of files to download
     var sources = require(sourceFilePath);
@@ -68,6 +68,7 @@ var MaxmindDbDownloader = function () {
         // forces overwrite, even if file exists already
         if (err) {
           log.error(err);
+          callback(err);
         } else {
           // extraction is complete
           if (! isTestEnv) {
@@ -95,8 +96,8 @@ var MaxmindDbDownloader = function () {
   };
 
   this.setupAutoUpdate = function (cronTiming, remainingDownloads, timeZone) {
-    cronTiming = cronTiming || DEFAULTS.DEFAULT_CRON_TIMING;
-    timeZone = timeZone || DEFAULTS.DEFAULT_TIMEZONE;
+    cronTiming = cronTiming || DEFAULTS.CRON_TIMING;
+    timeZone = timeZone || DEFAULTS.TIMEZONE;
     var self = this;
     // by default run periodically on Wednesday at 01:30:30.
     new CronJob(cronTiming, function() { // eslint-disable-line no-new
