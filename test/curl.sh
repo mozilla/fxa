@@ -1,27 +1,49 @@
 #!/bin/bash -ex
 
+function check() {
+  # Real startup of the servers takes longer than `pm start`.
+  # In order to check their urls, we have to wait for them (2 minutes) and periodically
+  # check if their endpoints are available.
+  # Function takes following parameters:
+  # * $1 - an url of an endpoint to check
+  # * $2 [optional] - expected status code of a response from this endpoint. Defaults to 200.
+  RETRY=12
+  for i in $(eval echo "{1..$RETRY}"); do
+    if [ $(curl -s -o /dev/null --silent -w "%{http_code}"  http://$1) == "${2:-200}" ]; then
+      return
+    else
+      if [ $i -lt $RETRY ]; then
+        sleep 10
+      fi
+    fi
+  done
+
+  exit 1
+}
+
 # content
-curl 127.0.0.1:3030
-curl 127.0.0.1:1114
-curl 127.0.0.1:10140
+check 127.0.0.1:3030
+check 127.0.0.1:1114
+check 127.0.0.1:10140 400
 
 # auth
-curl 127.0.0.1:9000
-curl 127.0.0.1:9001
+check 127.0.0.1:9000
+check 127.0.0.1:9001 404
 
 # oauth
-curl 127.0.0.1:9010
-curl 127.0.0.1:9011
-curl 127.0.0.1:10137
+check 127.0.0.1:9010
+check 127.0.0.1:9011 404
+check 127.0.0.1:10137 200
 
 # 123done and 321done untrusted apps
-curl 127.0.0.1:8080
-curl 127.0.0.1:10139
+check 127.0.0.1:8080
+check 127.0.0.1:10139
 
 # profile server
-curl 127.0.0.1:1111
-curl 127.0.0.1:1112
-curl 127.0.0.1:5050
+check 127.0.0.1:1111
+check 127.0.0.1:1112 404
+check 127.0.0.1:5050 405
 
 # sync server
-curl 127.0.0.1:5000
+# address of the endpoint have to be the same as a public_url in settings
+check localhost:5000
