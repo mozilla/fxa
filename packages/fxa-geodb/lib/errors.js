@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var ERRORS = {
-  'IS_INVALID': '"IP" is invalid',
+  'IS_INVALID': 'IP is invalid',
   'UNABLE_TO_FETCH_DATA': 'Unable to fetch data'
 };
 

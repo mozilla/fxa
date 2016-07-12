@@ -18,6 +18,7 @@ mozlog.config({
   app: 'fxa-geodb'
 });
 var log = mozlog();
+var isTestEnv = (process.env.NODE_ENV === 'test') || process.env.CI;
 
 var MaxmindDbDownloader = function () {
   'use strict';
@@ -45,14 +46,14 @@ var MaxmindDbDownloader = function () {
     // push each file-load-function onto the remainingDownloads queue
     for (var source in sources) {
       var url = sources[source];
-      if (process.env.NODE_ENV !== 'test') {
+      if (! isTestEnv) {
         log.info('Adding ' + url);
       }
       // get the file name without the extension
       var targetFileName = path.parse(source).name;
       var targetFilePath = path.join(targetDirPath, targetFileName);
       remainingDownloads.push(this.download(url, targetFilePath));
-      if (process.env.NODE_ENV !== 'test') {
+      if (! isTestEnv) {
         log.info('Setting ' + targetFilePath + ' as target file');
       }
     }
@@ -69,7 +70,7 @@ var MaxmindDbDownloader = function () {
           log.error(err);
         } else {
           // extraction is complete
-          if (process.env.NODE_ENV !== 'test') {
+          if (! isTestEnv) {
             log.info('unzip complete');
           }
           callback();
@@ -83,12 +84,12 @@ var MaxmindDbDownloader = function () {
       if (err) {
         log.error(err);
       } else {
-        if (process.env.NODE_ENV !== 'test') {
+        if (! isTestEnv) {
           log.info('Downloads complete');
         }
       }
     });
-    if (process.env.NODE_ENV !== 'test') {
+    if (! isTestEnv) {
       log.info('Last Update: ', new Date());
     }
   };
@@ -101,7 +102,7 @@ var MaxmindDbDownloader = function () {
     new CronJob(cronTiming, function() { // eslint-disable-line no-new
       self.startDownload(remainingDownloads);
     }, null, true, timeZone);
-    if (process.env.NODE_ENV !== 'test') {
+    if (! isTestEnv) {
       log.info('Set up auto update with cronTiming: ' + cronTiming);
     }
   };
