@@ -1,3 +1,49 @@
+<a name="0.65.0"></a>
+# 0.65.0 (2016-07-12)
+
+
+### Bug Fixes
+
+* **client:**  remove sync suggestion from signin view (#3922) r=vladikoff ([311935c](https://github.com/mozilla/fxa-content-server/commit/311935c)), closes [#3903](https://github.com/mozilla/fxa-content-server/issues/3903)
+* **client:** adjust fade in animation for the confirm view (#3909) r=vladikoff ([48a5d41](https://github.com/mozilla/fxa-content-server/commit/48a5d41)), closes [#3887](https://github.com/mozilla/fxa-content-server/issues/3887)
+* **client:** Fix sign in from the firstrun flow. (#3889) ([82138ed](https://github.com/mozilla/fxa-content-server/commit/82138ed)), closes [(#3889](https://github.com/(/issues/3889)
+* **client:** Fix the device view sort order. (#3906) r=vladikoff ([d993adb](https://github.com/mozilla/fxa-content-server/commit/d993adb)), closes [(#3906](https://github.com/(/issues/3906) [#3899](https://github.com/mozilla/fxa-content-server/issues/3899)
+* **server:** Add `confirm_signin` to the list of front end routes. ([922e1d5](https://github.com/mozilla/fxa-content-server/commit/922e1d5))
+* **settings:** cancel button resets values (#3837) r=vladikoff ([0ff2e35](https://github.com/mozilla/fxa-content-server/commit/0ff2e35)), closes [#3544](https://github.com/mozilla/fxa-content-server/issues/3544)
+* **styles:** fix coppa page margins (#3847) r=ryanfeeley ([e0148b6](https://github.com/mozilla/fxa-content-server/commit/e0148b6)), closes [(#3847](https://github.com/(/issues/3847) [#3199](https://github.com/mozilla/fxa-content-server/issues/3199)
+* **styles:** new spinner for disabled inputs (#3900) r=ryanfeeley ([6862641](https://github.com/mozilla/fxa-content-server/commit/6862641)), closes [#3882](https://github.com/mozilla/fxa-content-server/issues/3882)
+* **tests:** Fix the Sync v3 settings WebChannel message checks. (#3912) ([b6a973c](https://github.com/mozilla/fxa-content-server/commit/b6a973c)), closes [(#3912](https://github.com/(/issues/3912)
+* **tests:** fix WebDriver add-on compat check ([71dba91](https://github.com/mozilla/fxa-content-server/commit/71dba91))
+* **tests:** no more post-verify email if service is blank ([f505295](https://github.com/mozilla/fxa-content-server/commit/f505295)), closes [#3879](https://github.com/mozilla/fxa-content-server/issues/3879)
+
+### chore
+
+* **deps:** Update fxa-js-client to 0.1.43 (#3885) r=vbudhram ([3a39024](https://github.com/mozilla/fxa-content-server/commit/3a39024))
+* **nsp:** add issue 121 to pending fix ([32d57b4](https://github.com/mozilla/fxa-content-server/commit/32d57b4))
+* **readme:** update readme with grunt sass watch (#3877) r=vladikoff ([3f52b0e](https://github.com/mozilla/fxa-content-server/commit/3f52b0e)), closes [#3876](https://github.com/mozilla/fxa-content-server/issues/3876)
+* **sasslint:** fix sasslint warnings (#3874) r=vladikoff ([7d81e53](https://github.com/mozilla/fxa-content-server/commit/7d81e53)), closes [(#3874](https://github.com/(/issues/3874) [#3854](https://github.com/mozilla/fxa-content-server/issues/3854)
+
+### Features
+
+* **client:** Add a button to Open in Yahoo/HotMail/Outlook (#3872) r=vladikoff ([46cdc3b](https://github.com/mozilla/fxa-content-server/commit/46cdc3b)), closes [#3640](https://github.com/mozilla/fxa-content-server/issues/3640)
+* **client:** Add fade in to 'Back' link on confirm view (#3894) r=vladikoff ([b6ddc02](https://github.com/mozilla/fxa-content-server/commit/b6ddc02))
+* **client:** Reword and slowly fade in the resend account verification email link ([17b2cfe](https://github.com/mozilla/fxa-content-server/commit/17b2cfe)), closes [#2654](https://github.com/mozilla/fxa-content-server/issues/2654)
+* **client:** users from login and registration to about:accounts (#3870) r=vladikoff ([6a59d8c](https://github.com/mozilla/fxa-content-server/commit/6a59d8c)), closes [#3421](https://github.com/mozilla/fxa-content-server/issues/3421)
+* **metrics:** send reminder param to account verification (#3871) r=vbudhram ([c3c04f8](https://github.com/mozilla/fxa-content-server/commit/c3c04f8)), closes [#3864](https://github.com/mozilla/fxa-content-server/issues/3864)
+
+### Refactor
+
+* **errors:**  catch interpolation error (#3917) r=vladikoff ([5703853](https://github.com/mozilla/fxa-content-server/commit/5703853)), closes [#3846](https://github.com/mozilla/fxa-content-server/issues/3846)
+* **settings:** Code migration from settings-mixin to settings.js (#3873) r=vladikoff ([cba214b](https://github.com/mozilla/fxa-content-server/commit/cba214b)), closes [#3091](https://github.com/mozilla/fxa-content-server/issues/3091)
+* **signup:** remove exclude_signup support (#3883) ([a2ff648](https://github.com/mozilla/fxa-content-server/commit/a2ff648))
+* **tests:** Refactor the change password tests to use helpers. (#3910) ([aa14f05](https://github.com/mozilla/fxa-content-server/commit/aa14f05))
+
+### style
+
+* **devices:** improve current device design (#3828) r=vladikoff,shane-tomlinson ([a88c1c8](https://github.com/mozilla/fxa-content-server/commit/a88c1c8))
+
+
+
 <a name="0.64.0"></a>
 # 0.64.0 (2016-06-22)
 
