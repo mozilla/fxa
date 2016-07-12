@@ -2,11 +2,21 @@
 Provides a wrapper around [node-maxmind] (https://github.com/runk/node-maxmind) for getting the location data in an easy-to-read format.
 
 ### Getting started
-Clone/fork the repo and run `npm i`. Then, include the module in your source file, like so:
+Install the module by running `npm install fxa-geodb --save`. Then, include the module in your source file, like so:
 
 ```JavaScript
-var geoDb = require('fxa-geodb');
+var geoDb = require('fxa-geodb')();
 ```
+
+You can also pass other `options` like the path to the database to the `require` statement, like so:
+
+```JavaScript
+var geoDb = require('fxa-geodb')({
+	dbPath: 'cities-db.mmdb' // Defaults to fxa-geodb/db/cities-db.mmdb
+});
+```
+
+
 --
 ### API
 The function returns a promise that may either resolve (on successful finding of location data) or reject (if either the ip was invalid, or location data could not be found). Call the function, like so:
