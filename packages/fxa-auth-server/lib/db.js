@@ -126,7 +126,8 @@ module.exports = function (
                 authKey: keyFetchToken.authKey,
                 uid: keyFetchToken.uid,
                 keyBundle: keyFetchToken.keyBundle,
-                createdAt: keyFetchToken.createdAt
+                createdAt: keyFetchToken.createdAt,
+                tokenVerificationId: keyFetchToken.tokenVerificationId
               },
               'inplace'
             )
@@ -331,6 +332,23 @@ module.exports = function (
   DB.prototype.keyFetchToken = function (id) {
     log.trace({ op: 'DB.keyFetchToken', id: id })
     return this.pool.get('/keyFetchToken/' + id.toString('hex'))
+      .then(
+        function (body) {
+          var data = bufferize(body)
+          return KeyFetchToken.fromId(id, data)
+        },
+        function (err) {
+          if (isNotFoundError(err)) {
+            err = error.invalidToken()
+          }
+          throw err
+        }
+      )
+  }
+
+  DB.prototype.keyFetchTokenWithVerificationStatus = function (id) {
+    log.trace({ op: 'DB.keyFetchTokenWithVerificationStatus', id: id })
+    return this.pool.get('/keyFetchToken/' + id.toString('hex') + '/verified')
       .then(
         function (body) {
           var data = bufferize(body)

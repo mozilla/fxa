@@ -142,6 +142,16 @@ function create(log, error, config, routes, db) {
       }
     )
     server.auth.strategy(
+      // This strategy fetches the keyFetchToken with its
+      // verification state. It doesn't check that state.
+      'keyFetchTokenWithVerificationStatus',
+      'hawk',
+      {
+        getCredentialsFunc: makeCredentialFn(db.keyFetchTokenWithVerificationStatus.bind(db)),
+        hawk: hawkOptions
+      }
+    )
+    server.auth.strategy(
       'accountResetToken',
       'hawk',
       {

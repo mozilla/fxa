@@ -85,7 +85,6 @@ TestServer.start(config)
             t.equal(status.verified, false, 'account is unverified')
             t.equal(status.emailVerified, true, 'account email is verified')
             t.equal(status.sessionVerified, false, 'account session is unverified')
-            return client.keys()
           }
         )
         .then(
@@ -135,7 +134,7 @@ TestServer.start(config)
         )
         .then(
           function () {
-            return Client.login(config.publicUrl, email, newPassword, {keys:true})
+            return Client.loginAndVerify(config.publicUrl, email, newPassword, server.mailbox, {keys:true})
           }
         )
         .then(
@@ -229,7 +228,7 @@ TestServer.start(config)
         )
         .then(
           function () {
-            return Client.login(config.publicUrl, email, newPassword, {keys:true})
+            return Client.loginAndVerify(config.publicUrl, email, newPassword, server.mailbox, {keys:true})
           }
         )
         .then(
@@ -353,7 +352,7 @@ TestServer.start(config)
         )
         .then(
           function () {
-            return Client.login(config.publicUrl, email, newPassword, {keys:true})
+            return Client.loginAndVerify(config.publicUrl, email, newPassword, server.mailbox, {keys:true})
           }
         )
         .then(

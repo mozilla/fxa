@@ -965,6 +965,8 @@ test('/account/keys', function (t) {
       id: keyFetchTokenId.toString('hex'),
       keyBundle: crypto.randomBytes(16),
       tokenId: keyFetchTokenId,
+      tokenVerificationId: undefined,
+      tokenVerified: true,
       uid: uid
     }
   })
@@ -976,21 +978,39 @@ test('/account/keys', function (t) {
   })
   var route = getRoute(accountRoutes, '/account/keys')
 
-  return runTest(route, mockRequest, function (response) {
-    t.deepEqual(response, { bundle: mockRequest.auth.credentials.keyBundle.toString('hex') }, 'response was correct')
+  test('verified token', function (t) {
+    return runTest(route, mockRequest, function (response) {
+      t.deepEqual(response, {bundle: mockRequest.auth.credentials.keyBundle.toString('hex')}, 'response was correct')
 
-    t.equal(mockDB.deleteKeyFetchToken.callCount, 1, 'db.deleteKeyFetchToken was called once')
-    var args = mockDB.deleteKeyFetchToken.args[0]
-    t.equal(args.length, 1, 'db.deleteKeyFetchToken was passed one argument')
-    t.equal(args[0], mockRequest.auth.credentials, 'db.deleteKeyFetchToken was passed key fetch token')
+      t.equal(mockDB.deleteKeyFetchToken.callCount, 1, 'db.deleteKeyFetchToken was called once')
+      var args = mockDB.deleteKeyFetchToken.args[0]
+      t.equal(args.length, 1, 'db.deleteKeyFetchToken was passed one argument')
+      t.equal(args[0], mockRequest.auth.credentials, 'db.deleteKeyFetchToken was passed key fetch token')
 
-    t.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
-    args = mockLog.activityEvent.args[0]
-    t.equal(args.length, 3, 'log.activityEvent was passed three arguments')
-    t.equal(args[0], 'account.keyfetch', 'first argument was event name')
-    t.equal(args[1], mockRequest, 'second argument was request object')
-    t.deepEqual(args[2], { uid: uid.toString('hex') }, 'third argument contained uid')
-  })
+      t.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
+      args = mockLog.activityEvent.args[0]
+      t.equal(args.length, 3, 'log.activityEvent was passed three arguments')
+      t.equal(args[0], 'account.keyfetch', 'first argument was event name')
+      t.equal(args[1], mockRequest, 'second argument was request object')
+      t.deepEqual(args[2], {uid: uid.toString('hex')}, 'third argument contained uid')
+    })
+      .then(function () {
+        mockLog.activityEvent.reset()
+        mockDB.deleteKeyFetchToken.reset()
+      })
+  }, t)
+
+  test('unverified token', function (t) {
+    mockRequest.auth.credentials.tokenVerificationId = crypto.randomBytes(16)
+    mockRequest.auth.credentials.tokenVerified = false
+    return runTest(route, mockRequest, function (response) {
+      t.equal(response.errno, 104, 'correct errno for unverified account')
+      t.equal(response.message, 'Unverified account', 'correct error message')
+    })
+      .then(function () {
+        mockLog.activityEvent.reset()
+      })
+  }, t)
 })
 
 test('/account/destroy', function (t) {

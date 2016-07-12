@@ -251,6 +251,7 @@ Client.prototype.changePassword = function (newPassword, headers, sessionToken) 
       function (json) {
         this.keyFetchToken = json.keyFetchToken
         this.passwordChangeToken = json.passwordChangeToken
+        return this.keys()
       }.bind(this)
     )
     .then(

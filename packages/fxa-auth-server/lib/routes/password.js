@@ -266,6 +266,8 @@ module.exports = function (
 
         function createKeyFetchToken() {
           if (wantsKeys) {
+            // Create a verified keyFetchToken. This is deliberately verified because we don't
+            // want to perform an email confirmation loop.
             return db.createKeyFetchToken({
                 uid: account.uid,
                 kA: account.kA,

@@ -436,7 +436,10 @@ var conf = convict({
         'fx_firstrun_v2',
         'fx_desktop_v1',
         'fx_desktop_v2',
-        'fx_desktop_v3'
+        'fx_desktop_v3',
+        'fx_ios_v1',
+        'fx_ios_v2',
+        'fx_fennec_v1'
       ],
       env: 'SIGNIN_CONFIRMATION_SUPPORTED_CLIENTS'
     },

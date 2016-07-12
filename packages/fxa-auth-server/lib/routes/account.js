@@ -285,7 +285,8 @@ module.exports = function (
                     uid: account.uid,
                     kA: account.kA,
                     wrapKb: wrapKb,
-                    emailVerified: account.emailVerified
+                    emailVerified: account.emailVerified,
+                    tokenVerificationId: tokenVerificationId
                   })
                 }
               )
@@ -477,7 +478,8 @@ module.exports = function (
                     uid: emailRecord.uid,
                     kA: emailRecord.kA,
                     wrapKb: wrapKb,
-                    emailVerified: emailRecord.emailVerified
+                    emailVerified: emailRecord.emailVerified,
+                    tokenVerificationId: doSigninConfirmation ? tokenVerificationId : undefined
                   })
                   .then(
                     function (result) {
@@ -845,7 +847,7 @@ module.exports = function (
       path: '/account/keys',
       config: {
         auth: {
-          strategy: 'keyFetchToken'
+          strategy: 'keyFetchTokenWithVerificationStatus'
         },
         response: {
           schema: {
@@ -856,7 +858,9 @@ module.exports = function (
       handler: function accountKeys(request, reply) {
         log.begin('Account.keys', request)
         var keyFetchToken = request.auth.credentials
-        if (!keyFetchToken.emailVerified) {
+
+        var verified = keyFetchToken.tokenVerified && keyFetchToken.emailVerified
+        if (!verified) {
           // don't delete the token on use until the account is verified
           return reply(error.unverifiedAccount())
         }
