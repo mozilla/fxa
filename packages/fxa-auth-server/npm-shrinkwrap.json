@@ -6933,11 +6933,6 @@
         }
       }
     },
-    "openid": {
-      "version": "1.0.0",
-      "from": "openid@1.0.0",
-      "resolved": "https://registry.npmjs.org/openid/-/openid-1.0.0.tgz"
-    },
     "poolee": {
       "version": "1.0.0",
       "from": "poolee@1.0.0",

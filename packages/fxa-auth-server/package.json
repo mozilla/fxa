@@ -47,7 +47,6 @@
     "mozlog": "2.0.5",
     "node-statsd": "0.1.1",
     "node-uap": "git+https://github.com/vladikoff/node-uap.git#9cdd16247",
-    "openid": "1.0.0",
     "poolee": "1.0.0",
     "request": "2.65.0",
     "scrypt-hash": "1.1.13",

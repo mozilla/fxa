@@ -362,12 +362,6 @@ var conf = convict({
       }
     }
   },
-  openIdProviders: {
-    doc: 'root urls of allowed OpenID providers',
-    format: Array,
-    default: [],
-    env: 'OPENID_PROVIDERS'
-  },
   statsd: {
     enabled: {
       doc: 'enable UDP based statsd reporting',
@@ -475,8 +469,5 @@ conf.set('smtp.initiatePasswordChangeUrl', conf.get('contentServer.url') + '/set
 conf.set('smtp.verifyLoginUrl', conf.get('contentServer.url') + '/complete_signin')
 
 conf.set('isProduction', conf.get('env') === 'prod')
-
-conf.set('openIdVerifyUrl', conf.get('publicUrl') + '/v1/account/openid/login')
-
 
 module.exports = conf
