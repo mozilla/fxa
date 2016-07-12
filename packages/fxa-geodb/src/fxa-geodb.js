@@ -16,7 +16,7 @@ module.exports = function (options) {
   options = options || {};
   var dbPath = options.dbPath || DEFAULTS.DEFAULT_DB_PATH;
 
-  var dbLookup, locationData;
+  var dbLookup;
   // we quit if the db did not load for some reason
   try {
     dbLookup = maxmind.open(dbPath);
@@ -26,23 +26,22 @@ module.exports = function (options) {
     throw ERRORS.UNABLE_TO_FETCH_DATA;
   }
 
-  return function (ip, userLocale) {
+  return function (ip, options) {
+    var userLocale = options.userLocale || 'en';
     return new Promise(function (resolve, reject) {
       // check if ip is valid
       if (! maxmind.validate(ip)) {
-        reject({
+        return reject({
           message: ERRORS.IS_INVALID
         });
-        return;
       }
 
-      locationData = dbLookup.get(ip);
+      var locationData = dbLookup.get(ip);
 
       if (locationData == null) {
-        reject({
+        return reject({
           message: ERRORS.UNABLE_TO_FETCH_DATA
         });
-        return;
       }
 
       // return an object with city, country, continent,
@@ -68,8 +67,7 @@ function Location(locationData, userLocale) {
 
   this.getLocaleSpecificLocationString = function (locationObject, userLocale) {
     // if we have the user's locale specific name, return that,
-    // else return 'en' - english. The user's locale refers to
-    // the locale he signed up from, not the locale of the ip
+    // else return 'en' - english.
     return locationObject.names[userLocale] || locationObject.names['en'];
   };
 
