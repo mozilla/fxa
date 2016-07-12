@@ -13,9 +13,7 @@ var URLSAFEBASE64 = validators.URLSAFEBASE64
 var MAX_ACTIVE_SESSIONS = 200
 
 var butil = require('../crypto/butil')
-var openid = require('openid')
 var userAgent = require('../userAgent')
-var url = require('url')
 var requestHelper = require('../routes/utils/request_helper')
 
 module.exports = function (
@@ -36,25 +34,7 @@ module.exports = function (
   metricsContext
   ) {
 
-  var OPENID_EXTENSIONS = [
-    new openid.AttributeExchange(
-      {
-        'http://axschema.org/contact/email': 'optional'
-      }
-    )
-  ]
-
   var verificationReminder = require('../verification-reminders')(log, db)
-
-  function isOpenIdProviderAllowed(id) {
-    if (typeof(id) !== 'string') { return false }
-    var hostname = url.parse(id).hostname
-    return config.openIdProviders.some(
-      function (allowed) {
-        return hostname === url.parse(allowed).hostname
-      }
-    )
-  }
 
   var routes = [
     {
@@ -568,144 +548,6 @@ module.exports = function (
 
           return P.resolve(response)
         }
-      }
-    },
-    {
-      method: 'GET',
-      path: '/account/openid/login',
-      handler: function (request, reply) {
-
-        var unverifiedId = request.url.query && request.url.query['openid.claimed_id']
-        if (!isOpenIdProviderAllowed(unverifiedId)) {
-          log.warn({op: 'Account.openid', id: unverifiedId })
-          return reply({ err: 'This OpenID Provider is not allowed' }).code(400)
-        }
-
-        openid.verifyAssertion(
-          url.format(request.url),
-          function (err, assertion) {
-            if (err || !assertion || !assertion.authenticated) {
-              log.warn({ op: 'Account.openid', err: err, assertion: assertion })
-              return reply({ err: err.message || 'Unknown Account' }).code(400)
-            }
-            var id = assertion.claimedIdentifier
-            var locale = request.app.acceptLanguage
-            var tokenVerificationId = crypto.randomBytes(16)
-
-            db.openIdRecord(id)
-              .then(
-                function (record) {
-                  return record
-                },
-                function (err) {
-                  if (err.errno !== error.ERRNO.ACCOUNT_UNKNOWN) {
-                    throw err
-                  }
-                  var uid = uuid.v4('binary')
-                  var email = assertion.email || uid.toString('hex') + '@uid.' + config.domain
-                  var authSalt = crypto.randomBytes(32)
-                  var kA = crypto.randomBytes(32)
-                  return db.createAccount(
-                    {
-                      uid: uid,
-                      createdAt: Date.now(),
-                      email: email,
-                      emailCode: crypto.randomBytes(16),
-                      emailVerified: true,
-                      kA: kA,
-                      wrapWrapKb: crypto.randomBytes(32),
-                      accountResetToken: null,
-                      passwordForgotToken: null,
-                      authSalt: authSalt,
-                      verifierVersion: 0,
-                      verifyHash: crypto.randomBytes(32),
-                      openId: id,
-                      verifierSetAt: Date.now(),
-                      locale: locale
-                    }
-                  )
-                }
-              )
-              .then(
-                function (account) {
-                  return db.createSessionToken(
-                    {
-                      uid: account.uid,
-                      email: account.email,
-                      emailCode: account.emailCode,
-                      emailVerified: true,
-                      verifierSetAt: account.verifierSetAt,
-                      tokenVerificationId: tokenVerificationId
-                    }
-                  )
-                  .then(
-                    function (sessionToken) {
-                      if (! requestHelper.wantsKeys(request)) {
-                        return P.resolve({
-                          sessionToken: sessionToken
-                        })
-                      }
-                      return db.createKeyFetchToken(
-                        {
-                          uid: account.uid,
-                          kA: account.kA,
-                          // wrapKb is undefined without a password.
-                          // wrapWrapKb has the properties we need for this
-                          // value; Its stable, random, and will change on
-                          // account reset.
-                          wrapKb: account.wrapWrapKb,
-                          emailVerified: true
-                        }
-                      )
-                      .then(
-                        function (keyFetchToken) {
-                          return {
-                            sessionToken: sessionToken,
-                            keyFetchToken: keyFetchToken,
-                            unwrapBKey: butil.xorBuffers(
-                              account.kA,
-                              account.wrapWrapKb
-                            )
-                            // The browser using these values for unwrapBKey
-                            // and wrapKb (from above) will yield kA
-                            // as the Sync key instead of kB
-                          }
-                        }
-                      )
-                    }
-                  )
-                  .then(
-                    function (tokens) {
-                      reply(
-                        {
-                          uid: tokens.sessionToken.uid.toString('hex'),
-                          email: account.email,
-                          session: tokens.sessionToken.data.toString('hex'),
-                          key: tokens.keyFetchToken ?
-                            tokens.keyFetchToken.data.toString('hex')
-                            : undefined,
-                          unwrap: tokens.unwrapBKey ?
-                            tokens.unwrapBKey.toString('hex')
-                            : undefined
-                        }
-                      )
-                    }
-                  )
-                }
-              )
-              .catch(
-                function (err) {
-                  log.error({ op: 'Account.openid', err: err })
-                  reply({
-                    err: err.message
-                  }).code(500)
-                }
-              )
-          },
-          true, // stateless
-          OPENID_EXTENSIONS,
-          false // strict
-        )
       }
     },
     {
