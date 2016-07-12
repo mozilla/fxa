@@ -174,6 +174,7 @@ define(function (require, exports, module) {
         serviceName: relier.get('serviceName'),
         shouldFocusEmail: autofocusEl === 'email',
         shouldFocusPassword: autofocusEl === 'password',
+        showSyncSuggestion: this.isSyncSuggestionEnabled(),
         signinUri: this.broker.transformLink('/signin')
       };
 

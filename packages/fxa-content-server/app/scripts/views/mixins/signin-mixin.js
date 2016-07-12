@@ -8,26 +8,11 @@ define(function (require, exports, module) {
   'use strict';
 
   var AuthErrors = require('lib/auth-errors');
-  var BaseView = require('views/base');
   var p = require('lib/promise');
   var VerificationMethods = require('lib/verification-methods');
   var VerificationReasons = require('lib/verification-reasons');
 
   module.exports = {
-    /**
-     * Monkey patch BaseView.prototype.getContext to return a context
-     * @method getContext
-     * @returns {Object}
-     */
-    getContext: function () {
-      var context = BaseView.prototype.getContext.call(this);
-
-      if (! this.relier.get('service')) {
-        context.showSyncSuggestion = true;
-        this.logViewEvent('sync-suggest.visible');
-      }
-      return context;
-    },
     /**
      * Sign in a user
      *
@@ -111,27 +96,6 @@ define(function (require, exports, module) {
 
       return this.invokeBrokerMethod(brokerMethod, account)
         .then(this.navigate.bind(this, this.model.get('redirectTo') || 'settings', {}, navigateData));
-    },
-
-    /*anchor tag present in both signin and signup views*/
-    events: {
-      'click #suggest-sync a': 'onSuggestSyncClick'
-    },
-
-    /**
-     * interceptor function. Flushes metrics before redirecting
-     * @param {object} event: click event
-     */
-    onSuggestSyncClick: function (event) {
-      var self = this;
-      event.preventDefault();
-
-      this.logViewEvent('sync-suggest.clicked');
-
-      this.metrics.flush()
-        .then(function () {
-          self.window.location = event.target.href;
-        });
     }
   };
 });

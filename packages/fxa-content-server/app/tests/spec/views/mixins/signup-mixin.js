@@ -16,7 +16,7 @@ define(function (require, exports, module) {
   describe('views/mixins/signup-mixin', function () {
     it('exports correct interface', function () {
       assert.isObject(SignUpMixin);
-      assert.lengthOf(Object.keys(SignUpMixin), 2);
+      assert.lengthOf(Object.keys(SignUpMixin), 5);
       assert.isFunction(SignUpMixin.signUp);
       assert.isFunction(SignUpMixin.onSignUpSuccess);
     });

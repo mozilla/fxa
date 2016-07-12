@@ -204,32 +204,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('sync suggestion - signin-mixin', function () {
-
-      it('setShowSyncSuggestion displays sync suggestion message if no migration', function () {
-        initView();
-        relier.set('service', null);
-
-        sinon.spy(view.metrics, 'logEvent');
-
-        return view.render()
-          .then(function () {
-            assert.lengthOf(view.$('#suggest-sync'), 1);
-            assert.equal(view.$('#suggest-sync').html(), 'Looking for Firefox Sync? <a href="https://mozilla.org/firefox/sync">Get started here.</a>');
-            assert.isTrue(TestHelpers.isEventLogged(metrics, 'signin.sync-suggest.visible'), 'enrolled');
-          });
-      });
-
-      it('setShowSyncSuggestion does not display sync suggestion message if there is a relier service', function () {
-        relier.set('service', 'sync');
-
-        return view.render()
-          .then(function () {
-            assert.lengthOf(view.$('#suggest-sync'), 0);
-          });
-      });
-    });
-
     describe('migration', function () {
       it('does not display migration message if no migration', function () {
         initView();

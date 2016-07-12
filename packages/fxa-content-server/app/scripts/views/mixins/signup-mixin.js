@@ -8,6 +8,20 @@ define(function (require, exports, module) {
   'use strict';
 
   module.exports = {
+
+    /*anchor tag present in both signin and signup views*/
+    events: {
+      'click #suggest-sync a': 'onSuggestSyncClick'
+    },
+
+    isSyncSuggestionEnabled: function () {
+      if (! this.relier.get('service')) {
+        this.logViewEvent('sync-suggest.visible');
+        return true;
+      }
+      return false;
+    },
+
     /**
      * Sign up a user
      *
@@ -70,6 +84,22 @@ define(function (require, exports, module) {
           self.navigate('confirm', {
             account: account
           });
+        });
+    },
+
+    /**
+     * interceptor function. Flushes metrics before redirecting
+     * @param {object} event: click event
+     */
+    onSuggestSyncClick: function (event) {
+      var self = this;
+      event.preventDefault();
+
+      this.logViewEvent('sync-suggest.clicked');
+
+      this.metrics.flush()
+        .then(function () {
+          self.window.location = event.target.href;
         });
     }
   };

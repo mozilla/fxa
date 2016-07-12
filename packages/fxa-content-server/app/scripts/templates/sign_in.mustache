@@ -19,11 +19,6 @@
     {{^error}}
       <div class="error"></div>
       <div class="success"></div>
-      
-      {{#showSyncSuggestion}}
-        <div class="info nudge pad" id="suggest-sync">{{#t}}Looking for Firefox Sync? <a href="https://mozilla.org/firefox/sync">Get started here.</a>{{/t}}</div>
-      {{/showSyncSuggestion}}
-
       {{#isSyncMigration}}
           <div class="info nudge" id="sync-migration">{{#t}}Migrate your sync data by signing in to your Firefox&nbsp;Account.{{/t}}</div>
       {{/isSyncMigration}}
