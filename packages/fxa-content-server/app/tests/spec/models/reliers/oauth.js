@@ -473,7 +473,6 @@ define(function (require, exports, module) {
           campaign: CAMPAIGN,
           entrypoint: ENTRYPOINT,
           resetPasswordConfirm: false,
-          state: STATE,
           utmCampaign: CAMPAIGN,
           utmContent: ITEM,
           utmMedium: ITEM,

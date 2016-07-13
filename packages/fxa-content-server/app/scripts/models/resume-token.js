@@ -20,7 +20,6 @@ define(function (require, exports, module) {
       flowBegin: undefined,
       flowId: undefined,
       resetPasswordConfirm: undefined,
-      state: undefined,
       uniqueUserId: undefined,
       utmCampaign: null,
       utmContent: null,

@@ -18,7 +18,7 @@ define(function (require, exports, module) {
   var Validate = require('lib/validate');
   var Vat = require('lib/vat');
 
-  var RELIER_FIELDS_IN_RESUME_TOKEN = ['state', 'verificationRedirect'];
+  var RELIER_FIELDS_IN_RESUME_TOKEN = ['verificationRedirect'];
 
   /*eslint-disable camelcase*/
   var CLIENT_INFO_SCHEMA = {

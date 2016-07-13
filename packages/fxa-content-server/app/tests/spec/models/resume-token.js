@@ -10,7 +10,6 @@ define(function (require, exports, module) {
 
   var assert = chai.assert;
 
-  var STATE = 'state';
   var CAMPAIGN = 'campaign';
   var ENTRYPOINT = 'entrypoint';
   var VERIFICATION_REDIRECT = 'https://hello.firefox.com';
@@ -20,7 +19,6 @@ define(function (require, exports, module) {
     campaign: CAMPAIGN,
     entrypoint: ENTRYPOINT,
     resetPasswordConfirm: false,
-    state: STATE,
     uniqueUserId: UNIQUE_USER_ID,
     verificationRedirect: VERIFICATION_REDIRECT
   };
@@ -54,8 +52,7 @@ define(function (require, exports, module) {
 
       it('should ignore fields that are not explicitly allowed', function () {
         var parsedToken = {
-          ignored: true,
-          state: STATE
+          ignored: true
         };
         var resumeToken = new ResumeToken(parsedToken);
         assert.isFalse(resumeToken.has('ignored'));
