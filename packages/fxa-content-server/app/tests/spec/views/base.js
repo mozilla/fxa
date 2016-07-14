@@ -48,7 +48,6 @@ define(function (require, exports, module) {
       template: Template
     });
 
-
     beforeEach(function () {
       translator = new Translator('en-US', ['en-US']);
       translator.set({
@@ -870,6 +869,25 @@ define(function (require, exports, module) {
         it('returns `viewName` passed in on creation', function () {
           assert.equal(view.getViewName(), 'set on creation');
         });
+      });
+    });
+
+    describe('session check', function () {
+      beforeEach(function () {
+        var SessionView = View.extend({
+          checkAuthorization: sinon.spy()
+        });
+
+        view = new SessionView({
+          window: windowMock
+        });
+
+        assert.equal(view.checkAuthorization.callCount, 0);
+        $(windowMock).trigger('focus');
+      });
+
+      it('checkAuthorization is called on window focus', function () {
+        assert.equal(view.checkAuthorization.callCount, 1);
       });
     });
   });

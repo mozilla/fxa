@@ -240,6 +240,17 @@ define([
   }
 
   /**
+   * Get an fxa-js-client instance
+   *
+   * @returns {Object}
+   */
+  function getFxaClient () {
+    return new FxaClient(AUTH_SERVER_ROOT, {
+      xhr: nodeXMLHttpRequest.XMLHttpRequest
+    });
+  }
+
+  /**
    * Get the value of a query parameter
    *
    * @param {paramName}
@@ -266,6 +277,29 @@ define([
       .then(function (headers) {
         return require.toUrl(headers['x-link']);
       });
+  }
+
+  /**
+   * Force a focus event to fire on an element.
+   *
+   * @param {string} [selector] - selector of element - defaults to the window.
+   * @returns promise - resolves when complete
+   */
+  function focus (selector) {
+    return function () {
+      return this.parent
+        .execute(function (selector) {
+          // The only way to reliably cause a Focus Event is to manually create
+          // one. Just clicking or focusing the window does not work if the
+          // Selenium window is not in focus. This does however. BAM! See the
+          // conversation in
+          // https://github.com/seleniumhq/selenium-google-code-issue-archive/issues/1671
+          // The hint is: "... a hack to work around synthesized events not behaving properly"
+          var target = selector ? document.querySelector(selector) : window;
+          var event = new FocusEvent('focus');
+          target.dispatchEvent(event);
+        }, [ selector ]);
+    };
   }
 
   /**
@@ -419,9 +453,7 @@ define([
     if (typeof client === 'string') {
       emailNumber = email;
       email = client;
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
+      client = getFxaClient();
     }
 
     var user = TestHelpers.emailToUser(email);
@@ -439,9 +471,7 @@ define([
     if (typeof client === 'string') {
       password = email;
       email = client;
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
+      client = getFxaClient();
     }
 
     var user = TestHelpers.emailToUser(email);
@@ -482,9 +512,7 @@ define([
   function openUnlockLinkDifferentBrowser(client, email) {
     if (typeof client === 'string') {
       email = client;
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
+      client = getFxaClient();
     }
 
     var user = TestHelpers.emailToUser(email);
@@ -709,7 +737,6 @@ define([
         .then(click('button[type=submit]'));
     };
   }
-
 
   function fillOutCompleteResetPassword(context, password, vpassword) {
     return getRemote(context)
@@ -1072,9 +1099,7 @@ define([
   function lockAccount(email, password) {
     return function () {
       return this.parent.then(function () {
-        var client = new FxaClient(AUTH_SERVER_ROOT, {
-          xhr: nodeXMLHttpRequest.XMLHttpRequest
-        });
+        var client = getFxaClient();
 
         return client.accountLock(email, password);
       });
@@ -1227,9 +1252,7 @@ define([
     options = options || {};
     return function () {
       return this.parent.then(function () {
-        var client = new FxaClient(AUTH_SERVER_ROOT, {
-          xhr: nodeXMLHttpRequest.XMLHttpRequest
-        });
+        var client = getFxaClient();
 
         return client.signUp(
             email, password, { preVerified: options.preVerified });
@@ -1410,7 +1433,9 @@ define([
     fillOutResetPassword: fillOutResetPassword,
     fillOutSignIn: fillOutSignIn,
     fillOutSignUp: fillOutSignUp,
+    focus: focus,
     getEmailHeaders: getEmailHeaders,
+    getFxaClient: getFxaClient,
     getQueryParamValue: getQueryParamValue,
     getVerificationLink: getVerificationLink,
     imageLoadedByQSA: imageLoadedByQSA,
