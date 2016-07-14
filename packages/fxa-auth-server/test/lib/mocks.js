@@ -10,7 +10,7 @@ module.exports = {
 
 // `mocks.require`
 //
-// Require dependencies using the same path that is specifed in the module
+// Require dependencies using the same path that is specified in the module
 // under test.
 //
 // Returns an object containing dependencies keyed by their path.
