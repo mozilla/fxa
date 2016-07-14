@@ -1,3 +1,46 @@
+<a name="1.65.0"></a>
+# [1.65.0](https://github.com/mozilla/fxa-auth-server/compare/v1.64.0...v1.65.0) (2016-07-14)
+
+
+### Bug Fixes
+
+* **config:** adjust local dev config to support signin confirmation (#1313) r=vbudhram,shane- ([282271b](https://github.com/mozilla/fxa-auth-server/commit/282271b))
+* **customs:** Report errno to customs when password check fails. ([bdd5d0c](https://github.com/mozilla/fxa-auth-server/commit/bdd5d0c))
+* **deps:** update npm-shrinkwrap.json w/ newest auth-mailer & fxa-content-server-l10n (#129 ([56b6ad1](https://github.com/mozilla/fxa-auth-server/commit/56b6ad1))
+* **docs:** correct the acitvity event data documentation (#1322) r=vladikoff ([9b8747b](https://github.com/mozilla/fxa-auth-server/commit/9b8747b))
+* **log:** Add comments and clarify naming for logging methods. ([35c7f68](https://github.com/mozilla/fxa-auth-server/commit/35c7f68))
+* **server:** fix bad sessionTokenId arg in call to updateDevice (#1324) r=vladikoff ([4777a8a](https://github.com/mozilla/fxa-auth-server/commit/4777a8a)), closes [(#1324](https://github.com/(/issues/1324)
+* **server:** remove default user agent fallback pending legal ok ([8b8f00d](https://github.com/mozilla/fxa-auth-server/commit/8b8f00d))
+* **signin:** Let /password/change/finish accept session tokens by id. ([b589b79](https://github.com/mozilla/fxa-auth-server/commit/b589b79))
+* **verify:** Don't sent post-verify email when `service` is blank. ([06bf05a](https://github.com/mozilla/fxa-auth-server/commit/06bf05a))
+
+### chore
+
+* **docs:** add more docs to activity events. (#1304) r=philbooth ([31177ad](https://github.com/mozilla/fxa-auth-server/commit/31177ad)), closes [#1202](https://github.com/mozilla/fxa-auth-server/issues/1202)
+* **nsp:** Add NSP exception for https://nodesecurity.io/advisories/121 ([9465a99](https://github.com/mozilla/fxa-auth-server/commit/9465a99))
+* **scripts:** Add stricter error handling to bash scripts ([7d595c2](https://github.com/mozilla/fxa-auth-server/commit/7d595c2))
+* **tests:** allow passing a glob to npm test ([37f0fe4](https://github.com/mozilla/fxa-auth-server/commit/37f0fe4))
+
+### docs
+
+* **config:** clarify sample rate for sign in confirmation (#1315) r=vladikoff ([bc9d79d](https://github.com/mozilla/fxa-auth-server/commit/bc9d79d))
+
+### Features
+
+* **customs:** Send more request metadata to customs-server for checking. ([70944d3](https://github.com/mozilla/fxa-auth-server/commit/70944d3))
+* **docs:** document the new activity events ([62b1255](https://github.com/mozilla/fxa-auth-server/commit/62b1255))
+* **logging:** emit account.deleted activity event ([01828ab](https://github.com/mozilla/fxa-auth-server/commit/01828ab))
+* **metrics:** Drop invalid flowids so they dont confuse our metrics. ([8827b91](https://github.com/mozilla/fxa-auth-server/commit/8827b91))
+* **server:** emit new activity events for kpi dashboards ([ace64e7](https://github.com/mozilla/fxa-auth-server/commit/ace64e7))
+* **server:** synthesize device records for sync sessions ([b536fd7](https://github.com/mozilla/fxa-auth-server/commit/b536fd7))
+* **signin:** Add support for keyFetchToken verification (#1320), r=@rfk ([10ee322](https://github.com/mozilla/fxa-auth-server/commit/10ee322))
+
+### Refactor
+
+* **openid:** remove openid login support ([8cb651e](https://github.com/mozilla/fxa-auth-server/commit/8cb651e)), closes [#1336](https://github.com/mozilla/fxa-auth-server/issues/1336)
+
+
+
 <a name="1.64.0"></a>
 # [1.64.0](https://github.com/mozilla/fxa-auth-server/compare/v1.63.0...v1.64.0) (2016-06-23)
 
