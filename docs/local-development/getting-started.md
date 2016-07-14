@@ -1,4 +1,7 @@
-# Getting Started
+# Contributing
+
+Please read through the [CONTRIBUTING.md](https://github.com/mozilla/fxa/blob/master/CONTRIBUTING.md) file
+to get a better understanding of how to write a patch for Firefox Accounts.
 
 ## fxa-local-dev
 
