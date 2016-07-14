@@ -5,6 +5,8 @@
   "description": "Firefox Accounts Profile service.",
   "scripts": {
     "start": "scripts/run_dev.js",
+    "start:web": "node bin/server.js",
+    "start:worker": "node bin/worker.js",
     "test": "grunt test --node-env=test",
     "preinstall": "./scripts/check_gm.sh",
     "outdated": "npm outdated --depth 0"
