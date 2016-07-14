@@ -103,7 +103,9 @@ welcome to deal with issues in the **triage** column at any time.
 ## Checkin Meetings
 
 The team meets regularly to stay in sync about development status and ensure nothing
-is falling through the cracks.  We hold the following meetings over the course of each
+is falling through the cracks. During meetings we take notes in the **[public Engineering Coordination etherpad](https://public.etherpad-mozilla.org/p/fxa-engineering-coordination)**.
+
+We hold the following meetings over the course of each
 two-week cycle, with meeting times pinned to Mozilla Standard Time (aka Pacific Time).
 
 ### Mondays at 09:00
