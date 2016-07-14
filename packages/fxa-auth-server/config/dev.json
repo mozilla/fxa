@@ -4,8 +4,8 @@
     "fmt": "pretty"
   },
   "verificationReminders": {
-    "reminderTimeFirst": 1000,
-    "reminderTimeSecond": 5000,
+    "reminderTimeFirst": 10000,
+    "reminderTimeSecond": 15000,
     "pollTime": 5000
   }
 }
