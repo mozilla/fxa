@@ -497,7 +497,7 @@ module.exports = function (
               userAgent.call({
                 acceptLanguage: request.app.acceptLanguage,
                 timestamp: Date.now()
-              }, request.headers['user-agent'], log)
+              }, request.headers['user-agent'])
             )
           }
         }
@@ -517,7 +517,7 @@ module.exports = function (
                 service: service,
                 redirectTo: redirectTo,
                 resume: resume
-              }, request.headers['user-agent'], log)
+              }, request.headers['user-agent'])
             )
           }
         }
@@ -1058,7 +1058,7 @@ module.exports = function (
               redirectTo: request.payload.redirectTo,
               resume: request.payload.resume,
               acceptLanguage: request.app.acceptLanguage
-            }, request.headers['user-agent'], log)
+            }, request.headers['user-agent'])
           ))
           .done(
             function () {

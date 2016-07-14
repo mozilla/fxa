@@ -83,7 +83,7 @@ module.exports = function (
 
   DB.prototype.createSessionToken = function (authToken, userAgentString) {
     log.trace({ op: 'DB.createSessionToken', uid: authToken && authToken.uid })
-    return SessionToken.create(userAgent.call(authToken, userAgentString, log))
+    return SessionToken.create(userAgent.call(authToken, userAgentString))
       .then(
         function (sessionToken) {
           return this.pool.put(

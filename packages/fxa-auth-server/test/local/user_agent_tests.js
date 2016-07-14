@@ -5,11 +5,9 @@
 'use strict'
 
 var test = require('../ptaptest')
-var mocks = require('../mocks')
 var proxyquire = require('proxyquire')
 var sinon = require('sinon')
 
-var ELLIPSIS = '\u2026'
 var parserResult
 
 var uaParser = {
@@ -22,13 +20,11 @@ var userAgent = proxyquire('../../lib/userAgent', {
   'node-uap': uaParser
 })
 
-var log = mocks.spyLog()
-
 test(
   'exports function',
   function (t) {
     t.equal(typeof userAgent, 'function')
-    t.equal(userAgent.length, 2)
+    t.equal(userAgent.length, 1)
     t.end()
   }
 )
@@ -52,7 +48,7 @@ test(
       }
     }
     var context = {}
-    var result = userAgent.call(context, 'qux', log)
+    var result = userAgent.call(context, 'qux')
 
     t.equal(uaParser.parse.callCount, 1)
     t.ok(uaParser.parse.calledWithExactly('qux'))
@@ -64,8 +60,6 @@ test(
     t.equal(result.uaOS, 'bar')
     t.equal(result.uaOSVersion, '2')
     t.equal(result.uaDeviceType, 'mobile')
-
-    t.equal(log.info.callCount, 0)
 
     t.end()
     uaParser.parse.reset()
@@ -91,28 +85,19 @@ test(
       }
     }
     var context = {}
-    var result = userAgent.call(context, 'wibble', log)
+    var result = userAgent.call(context, 'wibble')
 
     t.equal(uaParser.parse.callCount, 1)
     t.ok(uaParser.parse.calledWithExactly('wibble'))
 
     t.equal(result, context)
     t.equal(Object.keys(result).length, 5)
-    t.equal(result.uaBrowser, 'wibble')
+    t.equal(result.uaBrowser, null)
     t.equal(result.uaOS, null)
     t.equal(result.uaDeviceType, null)
 
-    t.equal(log.info.callCount, 1)
-    var args = log.info.args[0]
-    t.equal(args.length, 1)
-    t.deepEqual(args[0], {
-      op: 'userAgent:truncate',
-      userAgent: 'wibble'
-    })
-
     t.end()
     uaParser.parse.reset()
-    log.info.reset()
   }
 )
 
@@ -135,12 +120,10 @@ test(
       }
     }
     var context = {}
-    var result = userAgent.call(context, log)
+    var result = userAgent.call(context)
 
     t.equal(result.uaBrowserVersion, '1.1')
     t.equal(result.uaOSVersion, '2.34567')
-
-    t.equal(log.info.callCount, 0)
 
     t.end()
     uaParser.parse.reset()
@@ -166,11 +149,9 @@ test(
       }
     }
     var context = {}
-    var result = userAgent.call(context, log)
+    var result = userAgent.call(context)
 
     t.equal(result.uaDeviceType, 'mobile')
-
-    t.equal(log.info.callCount, 0)
 
     t.end()
     uaParser.parse.reset()
@@ -196,11 +177,9 @@ test(
       }
     }
     var context = {}
-    var result = userAgent.call(context, log)
+    var result = userAgent.call(context)
 
     t.equal(result.uaDeviceType, 'mobile')
-
-    t.equal(log.info.callCount, 0)
 
     t.end()
     uaParser.parse.reset()
@@ -226,11 +205,9 @@ test(
       }
     }
     var context = {}
-    var result = userAgent.call(context, log)
+    var result = userAgent.call(context)
 
     t.equal(result.uaDeviceType, 'mobile')
-
-    t.equal(log.info.callCount, 0)
 
     t.end()
     uaParser.parse.reset()
@@ -256,11 +233,9 @@ test(
       }
     }
     var context = {}
-    var result = userAgent.call(context, log)
+    var result = userAgent.call(context)
 
     t.equal(result.uaDeviceType, 'mobile')
-
-    t.equal(log.info.callCount, 0)
 
     t.end()
     uaParser.parse.reset()
@@ -286,11 +261,9 @@ test(
       }
     }
     var context = {}
-    var result = userAgent.call(context, log)
+    var result = userAgent.call(context)
 
     t.equal(result.uaDeviceType, 'mobile')
-
-    t.equal(log.info.callCount, 0)
 
     t.end()
     uaParser.parse.reset()
@@ -316,11 +289,9 @@ test(
       }
     }
     var context = {}
-    var result = userAgent.call(context, log)
+    var result = userAgent.call(context)
 
     t.equal(result.uaDeviceType, null)
-
-    t.equal(log.info.callCount, 0)
 
     t.end()
     uaParser.parse.reset()
@@ -346,11 +317,9 @@ test(
       }
     }
     var context = {}
-    var result = userAgent.call(context, log)
+    var result = userAgent.call(context)
 
     t.equal(result.uaDeviceType, null)
-
-    t.equal(log.info.callCount, 0)
 
     t.end()
     uaParser.parse.reset()
@@ -376,83 +345,12 @@ test(
       }
     }
     var context = {}
-    var result = userAgent.call(context, log)
+    var result = userAgent.call(context)
 
     t.equal(result.uaDeviceType, null)
 
-    t.equal(log.info.callCount, 0)
-
     t.end()
     uaParser.parse.reset()
-  }
-)
-
-test(
-  'uaBrowser falls back to truncated user agent string',
-  function (t) {
-    parserResult = {
-      ua: {
-        family: 'Other'
-      },
-      os: {
-        family: 'Other'
-      },
-      device: {
-        family: 'Other'
-      }
-    }
-    var context = {}
-    var userAgentString = new Array(201).join('x')
-    var result = userAgent.call(context, userAgentString, log)
-
-    t.equal(result.uaBrowser, new Array(61).join('x') + ELLIPSIS)
-
-    t.equal(log.info.callCount, 1)
-    var args = log.info.args[0]
-    t.equal(args.length, 1)
-    t.deepEqual(args[0], {
-      op: 'userAgent:truncate',
-      userAgent: userAgentString
-    })
-
-    t.end()
-    uaParser.parse.reset()
-    log.info.reset()
-  }
-)
-
-test(
-  'truncated fallback is relaxed for parentheses',
-  function (t) {
-    parserResult = {
-      ua: {
-        family: 'Other'
-      },
-      os: {
-        family: 'Other'
-      },
-      device: {
-        family: 'Other'
-      }
-    }
-    var context = {}
-    var expected = new Array(11).join('x') + ' (' + new Array(61).join('y') + ')'
-    var userAgentString = expected + new Array(101).join('z')
-    var result = userAgent.call(context, userAgentString, log)
-
-    t.equal(result.uaBrowser, expected + ELLIPSIS)
-
-    t.equal(log.info.callCount, 1)
-    var args = log.info.args[0]
-    t.equal(args.length, 1)
-    t.deepEqual(args[0], {
-      op: 'userAgent:truncate',
-      userAgent: userAgentString
-    })
-
-    t.end()
-    uaParser.parse.reset()
-    log.info.reset()
   }
 )
 
