@@ -24,6 +24,7 @@ module.exports = function (options) {
   }
 
   return function (ip, options) {
+    options = options || {};
     var userLocale = options.userLocale || 'en';
     return new Promise(function (resolve, reject) {
       // check if ip is valid
@@ -79,4 +80,8 @@ function Location(locationData, userLocale) {
   if (locationData.country) {
     this.country = this.getLocaleSpecificLocationString(locationData.country, userLocale);
   }
+
+  //if (locationData.subdivisions) {
+  //  this.state =
+  //}
 }

@@ -7,6 +7,6 @@ module.exports = function (grunt) {
 
   grunt.registerTask('lint',
     'Alias for eslint',
-    ['eslint']);
-
+    ['eslint']
+  );
 };
