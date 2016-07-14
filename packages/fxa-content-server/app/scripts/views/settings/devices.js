@@ -20,7 +20,10 @@ define(function (require, exports, module) {
 
   var DEVICE_REMOVED_ANIMATION_MS = 150;
   var DEVICES_SUPPORT_URL = 'https://support.mozilla.org/kb/fxa-managing-devices';
-  var FIREFOX_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/new/?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
+  var UTM_PARAMS = '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
+  var FIREFOX_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/new/' + UTM_PARAMS;
+  var FIREFOX_ANDROID_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/android/' + UTM_PARAMS;
+  var FIREFOX_IOS_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/ios/' +  UTM_PARAMS;
   var FORCE_DEVICE_LIST_VIEW = 'forceDeviceList';
   var TIMEAGO_DAYS = t('days ago');
   var TIMEAGO_HOURS = t('hours ago');
@@ -83,8 +86,8 @@ define(function (require, exports, module) {
         devicesSupportUrl: DEVICES_SUPPORT_URL,
         isPanelEnabled: this._isPanelEnabled(),
         isPanelOpen: this.isPanelOpen(),
-        linkAndroid: FIREFOX_DOWNLOAD_LINK,
-        linkIOS: FIREFOX_DOWNLOAD_LINK,
+        linkAndroid: FIREFOX_ANDROID_DOWNLOAD_LINK,
+        linkIOS: FIREFOX_IOS_DOWNLOAD_LINK,
         linkLinux: FIREFOX_DOWNLOAD_LINK,
         linkOSX: FIREFOX_DOWNLOAD_LINK,
         linkWindows: FIREFOX_DOWNLOAD_LINK
