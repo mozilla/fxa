@@ -269,7 +269,7 @@ test(
 test(
   'can rate limit checkAccountStatus /check',
   function (t) {
-    t.plan(33)
+    t.plan(18)
 
     customsWithUrl = new Customs(CUSTOMS_URL_REAL)
 
