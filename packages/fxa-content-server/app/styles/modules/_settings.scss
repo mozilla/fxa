@@ -277,13 +277,17 @@ body.settings #main-content.card {
     margin-bottom: 10px;
   }
 
-  .card-header {
-    line-height: 30px;
-    margin-bottom: 0;
+  .card-header,
+  .card-subheader {
     overflow: hidden;
     text-overflow: ellipsis;
     text-wrap: nowrap;
     white-space: nowrap;
+  }
+
+  .card-header {
+    line-height: 30px;
+    margin-bottom: 0;
   }
 
   .card-subheader {
