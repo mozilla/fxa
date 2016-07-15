@@ -20,6 +20,12 @@ mozlog.config({
 });
 var log = mozlog();
 var isTestEnv = (process.env.NODE_ENV === 'test') || process.env.CI;
+var logHelper = function (type, message) {
+  // log only if not in a test environment
+  if (! isTestEnv) {
+    log[type](message);
+  }
+};
 
 var MaxmindDbDownloader = function () {
   'use strict';
@@ -29,11 +35,7 @@ var MaxmindDbDownloader = function () {
     var targetDirPath = path.join(__dirname, '..', targetDirName);
     // create db folder
     mkdirp.sync(targetDirPath);
-    // log.info only if not testing
-    // log.error always
-    if (process.env.NODE_ENV !== 'test') {
-      log.info('Download folder is ' + targetDirPath);
-    }
+    logHelper('info', 'Download folder is ' + targetDirPath);
     return targetDirPath;
   };
 
@@ -47,16 +49,12 @@ var MaxmindDbDownloader = function () {
     // push each file-load-function onto the remainingDownloads queue
     for (var source in sources) {
       var url = sources[source];
-      if (! isTestEnv) {
-        log.info('Adding ' + url);
-      }
+      logHelper('info', 'Adding ' + url);
       // get the file name without the extension
       var targetFileName = path.parse(source).name;
       var targetFilePath = path.join(targetDirPath, targetFileName);
       remainingDownloads.push(this.download(url, targetFilePath));
-      if (! isTestEnv) {
-        log.info('Setting ' + targetFilePath + ' as target file');
-      }
+      logHelper('info', 'Setting ' + targetFilePath + ' as target file');
     }
     return remainingDownloads;
   };
@@ -68,13 +66,11 @@ var MaxmindDbDownloader = function () {
       // forces overwrite, even if file exists already
       stream.pipe(zlib.createGunzip()).pipe(fs.createWriteStream(targetFilePath)).on('finish', function (err) {
         if (err) {
-          log.error(err);
-          return reject(err);
+          logHelper('error', err);
+          reject(err);
         } else {
           // extraction is complete
-          if (! isTestEnv) {
-            log.info('unzip complete');
-          }
+          logHelper('info', 'unzip complete');
           resolve();
         }
       });
@@ -84,12 +80,10 @@ var MaxmindDbDownloader = function () {
   this.downloadAll = function (remainingDownloads) {
     return Promise.all(remainingDownloads)
       .then(function (success) {
-        if (! isTestEnv) {
-          log.info('Downloads complete');
-          log.info('Last Update: ', new Date());
-        }
+        logHelper('info', 'Downloads complete');
+        logHelper('info', 'Last Update: ' + new Date());
       }, function (err) {
-        log.error(err);
+        logHelper('error', err);
       });
   };
 
@@ -101,9 +95,7 @@ var MaxmindDbDownloader = function () {
     new CronJob(cronTiming, function() { // eslint-disable-line no-new
       self.downloadAll(remainingDownloads);
     }, null, true, timeZone);
-    if (! isTestEnv) {
-      log.info('Set up auto update with cronTiming: ' + cronTiming);
-    }
+    logHelper('info', 'Set up auto update with cronTiming: ' + cronTiming);
   };
 };
 
