@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var DEFAULTS = require('../lib/defaults');
-var ERRORS = require('../lib/errors');
+var DEFAULTS = require('defaults');
+var ERRORS = require('errors');
 var maxmind = require('maxmind');
 var Promise = require('bluebird');
 
@@ -20,7 +20,7 @@ module.exports = function (options) {
   } catch (err) {
     // if it failed with primary database
     // then quit with error
-    throw ERRORS.UNABLE_TO_FETCH_DATA;
+    throw ERRORS.UNABLE_TO_OPEN_FILE;
   }
 
   return function (ip, options) {

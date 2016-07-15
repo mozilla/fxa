@@ -4,7 +4,7 @@
 
 var chai = require('chai');
 var ERRORS = require('../lib/errors');
-var geoDb = require('../src/fxa-geodb')();
+var geoDb = require('../lib/fxa-geodb')();
 
 var assert = chai.assert;
 
