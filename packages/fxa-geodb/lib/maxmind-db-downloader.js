@@ -45,56 +45,66 @@ var MaxmindDbDownloader = function () {
     targetDirPath = targetDirPath || DEFAULTS.DEFAULT_TARGET_DIR_PATH;
     // import the list of files to download
     var sources = require(sourceFilePath);
-    var remainingDownloads = [];
+    var downloadPromiseFunctions = [];
 
-    // push each file-load-function onto the remainingDownloads queue
+    // push each file-load-function onto the downloadPromiseFunctions queue
     for (var source in sources) {
       var url = sources[source];
       logHelper('info', 'Adding ' + url);
       // get the file name without the extension
       var targetFileName = path.parse(source).name;
       var targetFilePath = path.join(targetDirPath, targetFileName);
-      remainingDownloads.push(this.createDownloadPromise(url, targetFilePath));
+      downloadPromiseFunctions.push(this.createDownloadPromise(url, targetFilePath));
       logHelper('info', 'Setting ' + targetFilePath + ' as target file');
     }
-    return remainingDownloads;
+    return downloadPromiseFunctions;
   };
 
   this.createDownloadPromise = function (url, targetFilePath) {
     // closure to separate multiple file-download
-    return new Promise(function (resolve, reject) {
-      var stream = request(url);
-      // forces overwrite, even if file exists already
-      stream.pipe(zlib.createGunzip()).pipe(fs.createWriteStream(targetFilePath)).on('finish', function (err) {
-        if (err) {
-          logHelper('error', err);
-          reject(err);
-        } else {
-          // extraction is complete
-          logHelper('info', 'unzip complete');
-          resolve();
-        }
+    return function () {
+      return new Promise(function (resolve, reject) {
+        var stream = request(url);
+        // forces overwrite, even if file exists already
+        stream.pipe(zlib.createGunzip()).pipe(fs.createWriteStream(targetFilePath)).on('finish', function (err) {
+          if (err) {
+            logHelper('error', err);
+            reject(err);
+          } else {
+            // extraction is complete
+            logHelper('info', 'unzip complete');
+            resolve();
+          }
+        });
       });
+    };
+  };
+
+  this.downloadAll = function (downloadPromiseFunctions) {
+    var promises = [];
+    // is there a more idiomatic way to do this??
+    // the array looks like this:
+    // downloadPromiseFunctions = [fn1 returning a promise, fn2 returning a promise, etc.]
+    downloadPromiseFunctions.forEach(function (promiseFunction) {
+      // each element is a function returning a promise
+      promises.push(promiseFunction());
+      return Promise.all(downloadPromiseFunctions)
+        .then(function (success) {
+          logHelper('info', 'Downloads complete');
+          logHelper('info', 'Last Update: ' + new Date());
+        }, function (err) {
+          logHelper('error', err);
+        });
     });
   };
 
-  this.downloadAll = function (remainingDownloads) {
-    return Promise.all(remainingDownloads)
-      .then(function (success) {
-        logHelper('info', 'Downloads complete');
-        logHelper('info', 'Last Update: ' + new Date());
-      }, function (err) {
-        logHelper('error', err);
-      });
-  };
-
-  this.setupAutoUpdate = function (cronTiming, remainingDownloads, timeZone) {
+  this.setupAutoUpdate = function (cronTiming, downloadPromiseFunctions, timeZone) {
     cronTiming = cronTiming || DEFAULTS.CRON_TIMING;
     timeZone = timeZone || DEFAULTS.TIMEZONE;
     var self = this;
     // by default run periodically on Wednesday at 01:30:30.
     new CronJob(cronTiming, function() { // eslint-disable-line no-new
-      self.downloadAll(remainingDownloads);
+      self.downloadAll(downloadPromiseFunctions);
     }, null, true, timeZone);
     logHelper('info', 'Set up auto update with cronTiming: ' + cronTiming);
   };

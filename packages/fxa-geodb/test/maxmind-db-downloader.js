@@ -17,14 +17,14 @@ describe('maxmind-db-downloader', function () {
   'use strict';
   var maxmindDbDownloader;
   var targetDirPath;
-  var remainingDownloads;
+  var downloadPromiseFunctions;
 
   beforeEach(function () {
     maxmindDbDownloader = new MaxmindDbDownloader();
   });
 
   afterEach(function () {
-    remainingDownloads = null;
+    downloadPromiseFunctions = null;
     // cleanup, remove the created directory
     if (targetDirPath !== '' && fs.statSync(targetDirPath).isDirectory()) {
       fs.rmdir(targetDirPath);
@@ -43,10 +43,10 @@ describe('maxmind-db-downloader', function () {
   describe('setupDownloadList', function () {
     it('sets up the download list from sources.json', function () {
       targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
-      remainingDownloads = maxmindDbDownloader.setupDownloadList(path.join('..', 'sources.json'), targetDirPath);
-      assert.isArray(remainingDownloads, 'Array returned');
-      assert.lengthOf(remainingDownloads, 1, 'Array has one entry');
-      assert.isFunction(remainingDownloads[0], 'Download function was queued');
+      downloadPromiseFunctions = maxmindDbDownloader.setupDownloadList(path.join('..', 'sources.json'), targetDirPath);
+      assert.isArray(downloadPromiseFunctions, 'Array returned');
+      assert.lengthOf(downloadPromiseFunctions, 1, 'Array has one entry');
+      assert.isFunction(downloadPromiseFunctions[0], 'downloadPromiseFunctions was queued with a function');
     });
   });
 
@@ -54,10 +54,10 @@ describe('maxmind-db-downloader', function () {
     it('calls async with the proper data', function () {
       sinon.stub(async, 'parallel', function () {});
       targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
-      remainingDownloads = maxmindDbDownloader.setupDownloadList(path.join('..', 'sources.json'), targetDirPath);
-      maxmindDbDownloader.downloadAll(remainingDownloads);
+      downloadPromiseFunctions = maxmindDbDownloader.setupDownloadList(path.join('..', 'sources.json'), targetDirPath);
+      maxmindDbDownloader.downloadAll(downloadPromiseFunctions);
       assert.isTrue(async.parallel.called, 'Async was called');
-      assert.isTrue(async.parallel.calledWith(remainingDownloads), 'Async was called with the array');
+      assert.isTrue(async.parallel.calledWith(downloadPromiseFunctions), 'Async was called with the array');
     });
   });
 
@@ -69,15 +69,15 @@ describe('maxmind-db-downloader', function () {
       this.timeout(6000);
       sinon.stub(maxmindDbDownloader, 'startDownload', function () {});
       targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
-      remainingDownloads = maxmindDbDownloader.setupDownloadList(path.join('..', 'sources.json'), targetDirPath);
+      downloadPromiseFunctions = maxmindDbDownloader.setupDownloadList(path.join('..', 'sources.json'), targetDirPath);
       // set up auto update for every second of every minute
       // (i.e) 10:00:01, 10:00:02, 10:00:03
-      maxmindDbDownloader.setupAutoUpdate('* * * * * *', remainingDownloads);
+      maxmindDbDownloader.setupAutoUpdate('* * * * * *', downloadPromiseFunctions);
       // now after 5 seconds, startDownload must have been called
       // at least 4 times (accounting for lag - setTimeout)
       setTimeout(function () {
         assert.isTrue(maxmindDbDownloader.downloadAll.called, 'startDownload was called');
-        assert.isTrue(maxmindDbDownloader.downloadAll.calledWith(remainingDownloads), 'startDownload was called with the array');
+        assert.isTrue(maxmindDbDownloader.downloadAll.calledWith(downloadPromiseFunctions), 'startDownload was called with the array');
         assert.isTrue(maxmindDbDownloader.downloadAll.callCount >= 4, 'startDownload was called at least 4 times');
         done();
       }, 5000);

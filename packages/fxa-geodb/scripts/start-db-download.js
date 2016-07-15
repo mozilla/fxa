@@ -11,11 +11,11 @@ if (require.main === module) {
   // executed, not loaded through require.
   var maxmindDbDownloader = new MaxmindDbDownloader();
   var targetDirPath = maxmindDbDownloader.createTargetDir('db');
-  var remainingDownloads = maxmindDbDownloader.setupDownloadList(
+  var downloadPromiseFunctions = maxmindDbDownloader.setupDownloadList(
     path.join(__dirname, '..','sources.json'),
     targetDirPath
   );
-  maxmindDbDownloader.downloadAll(remainingDownloads);
+  maxmindDbDownloader.downloadAll(downloadPromiseFunctions);
   // By default, we do not setup autoUpdate, needs to be
   // done through options when library is imported, or manually
   // by running npm run-scripts update
