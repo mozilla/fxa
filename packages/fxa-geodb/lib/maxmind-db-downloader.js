@@ -10,6 +10,7 @@ var DEFAULTS = require('./defaults');
 var fs = require('fs');
 var mkdirp = require('mkdirp');
 var mozlog = require('mozlog');
+var Promise = require('bluebird');
 var request = require('request');
 var zlib = require('zlib');
 
@@ -62,37 +63,34 @@ var MaxmindDbDownloader = function () {
 
   this.download = function (url, targetFilePath) {
     // closure to separate multiple file-download
-    return function downloadFunctor(callback) {
+    return new Promise(function (resolve, reject) {
       var stream = request(url);
+      // forces overwrite, even if file exists already
       stream.pipe(zlib.createGunzip()).pipe(fs.createWriteStream(targetFilePath)).on('finish', function (err) {
-        // forces overwrite, even if file exists already
         if (err) {
           log.error(err);
-          callback(err);
+          return reject(err);
         } else {
           // extraction is complete
           if (! isTestEnv) {
             log.info('unzip complete');
           }
-          callback();
+          resolve();
         }
       });
-    };
+    });
   };
 
-  this.startDownload = function (remainingDownloads) {
-    async.parallel(remainingDownloads, function (err) {
-      if (err) {
-        log.error(err);
-      } else {
+  this.downloadAll = function (remainingDownloads) {
+    return Promise.all(remainingDownloads)
+      .then(function (success) {
         if (! isTestEnv) {
           log.info('Downloads complete');
+          log.info('Last Update: ', new Date());
         }
-      }
-    });
-    if (! isTestEnv) {
-      log.info('Last Update: ', new Date());
-    }
+      }, function (err) {
+        log.error(err);
+      });
   };
 
   this.setupAutoUpdate = function (cronTiming, remainingDownloads, timeZone) {
@@ -101,7 +99,7 @@ var MaxmindDbDownloader = function () {
     var self = this;
     // by default run periodically on Wednesday at 01:30:30.
     new CronJob(cronTiming, function() { // eslint-disable-line no-new
-      self.startDownload(remainingDownloads);
+      self.downloadAll(remainingDownloads);
     }, null, true, timeZone);
     if (! isTestEnv) {
       log.info('Set up auto update with cronTiming: ' + cronTiming);

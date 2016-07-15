@@ -55,7 +55,7 @@ describe('maxmind-db-downloader', function () {
       sinon.stub(async, 'parallel', function () {});
       targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
       remainingDownloads = maxmindDbDownloader.setupDownloadList(path.join('..', 'sources.json'), targetDirPath);
-      maxmindDbDownloader.startDownload(remainingDownloads);
+      maxmindDbDownloader.downloadAll(remainingDownloads);
       assert.isTrue(async.parallel.called, 'Async was called');
       assert.isTrue(async.parallel.calledWith(remainingDownloads), 'Async was called with the array');
     });
@@ -76,9 +76,9 @@ describe('maxmind-db-downloader', function () {
       // now after 5 seconds, startDownload must have been called
       // at least 4 times (accounting for lag - setTimeout)
       setTimeout(function () {
-        assert.isTrue(maxmindDbDownloader.startDownload.called, 'startDownload was called');
-        assert.isTrue(maxmindDbDownloader.startDownload.calledWith(remainingDownloads), 'startDownload was called with the array');
-        assert.isTrue(maxmindDbDownloader.startDownload.callCount >= 4, 'startDownload was called at least 4 times');
+        assert.isTrue(maxmindDbDownloader.downloadAll.called, 'startDownload was called');
+        assert.isTrue(maxmindDbDownloader.downloadAll.calledWith(remainingDownloads), 'startDownload was called with the array');
+        assert.isTrue(maxmindDbDownloader.downloadAll.callCount >= 4, 'startDownload was called at least 4 times');
         done();
       }, 5000);
     });

@@ -15,7 +15,7 @@ if (require.main === module) {
     path.join(__dirname, '..','sources.json'),
     targetDirPath
   );
-  maxmindDbDownloader.startDownload(remainingDownloads);
+  maxmindDbDownloader.downloadAll(remainingDownloads);
   // By default, we do not setup autoUpdate, needs to be
   // done through options when library is imported, or manually
   // by running npm run-scripts update
