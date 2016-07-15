@@ -2,13 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('../ptaptest')
+var test = require('tap').test
 var TestServer = require('../test_server')
 var Client = require('../client')
 var JWTool = require('fxa-jwtool')
 
-process.env.TRUSTED_JKUS = 'http://127.0.0.1:9000/.well-known/public-keys'
 var config = require('../../config').getProperties()
+process.env.TRUSTED_JKUS = 'http://127.0.0.1:9000/.well-known/public-keys'
+process.env.SIGNIN_CONFIRMATION_ENABLED = false
+
 var secretKey = JWTool.JWK.fromFile(
   config.secretKeyFile,
   {

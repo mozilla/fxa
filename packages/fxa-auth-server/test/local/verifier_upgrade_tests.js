@@ -2,14 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('../ptaptest')
+var test = require('tap').test
 var TestServer = require('../test_server')
 var Client = require('../client')
 var createDBServer = require('fxa-auth-db-mysql')
 var log = { trace: console.log }
 
-process.env.VERIFIER_VERSION = '0'
 var config = require('../../config').getProperties()
+
+process.env.VERIFIER_VERSION = '0'
+process.env.SIGNIN_CONFIRMATION_ENABLED = false
+
 var Token = require('../../lib/tokens')(log)
 var DB = require('../../lib/db')(
   config.db.backend,

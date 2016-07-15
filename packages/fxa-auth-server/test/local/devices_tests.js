@@ -12,10 +12,12 @@ var mocks = require('../mocks')
 var modulePath = '../../lib/devices'
 
 test('require', function (t) {
+  t.plan(3)
   t.equal(typeof require(modulePath), 'function', 'require returns function')
   t.equal(require(modulePath).length, 3, 'returned function expects three arguments')
 
-  test('instantiate', function (t) {
+  t.test('instantiate', function (t) {
+    t.plan(8)
     var log = mocks.spyLog()
     var deviceCreatedAt = Date.now()
     var deviceId = crypto.randomBytes(16)
@@ -40,14 +42,15 @@ test('require', function (t) {
     t.equal(typeof devices.synthesizeName, 'function', 'devices has synthesizeName method')
     t.equal(devices.synthesizeName.length, 1, 'devices.synthesizeName expects 1 argument')
 
-    test('devices.upsert', function (t) {
+    t.test('devices.upsert', function (t) {
+      t.plan(3)
       var request = {}
       var sessionToken = {
         tokenId: crypto.randomBytes(16),
         uid: uuid.v4('binary')
       }
 
-      test('create', function (t) {
+      t.test('create', function (t) {
         return devices.upsert(request, sessionToken, device)
           .then(function (result) {
             t.deepEqual(result, {
@@ -105,9 +108,9 @@ test('require', function (t) {
             log.activityEvent.reset()
             log.notifyAttachedServices.reset()
           })
-      }, t)
+      })
 
-      test('create placeholder', function (t) {
+      t.test('create placeholder', function (t) {
         return devices.upsert(request, sessionToken, {})
           .then(function (result) {
             t.equal(db.updateDevice.callCount, 0, 'db.updateDevice was not called')
@@ -136,9 +139,9 @@ test('require', function (t) {
             log.info.reset()
             log.notifyAttachedServices.reset()
           })
-      }, t)
+      })
 
-      test('update', function (t) {
+      t.test('update', function (t) {
         var deviceInfo = {
           id: deviceId,
           name: device.name,
@@ -183,10 +186,10 @@ test('require', function (t) {
             log.activityEvent.reset()
             log.notifyAttachedServices.reset()
           })
-      }, t)
-    }, t)
+      })
+    })
 
-    test('devices.synthesizeName', function (t) {
+    t.test('devices.synthesizeName', function (t) {
       t.equal(devices.synthesizeName({
         uaBrowser: 'foo',
         uaBrowserVersion: 'bar',
@@ -232,7 +235,7 @@ test('require', function (t) {
       }), '', 'result defaults to the empty string')
 
       t.end()
-    }, t)
-  }, t)
+    })
+  })
 })
 

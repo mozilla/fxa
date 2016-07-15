@@ -269,7 +269,7 @@ test(
 test(
   'can rate limit checkAccountStatus /check',
   function (t) {
-    t.plan(18)
+    t.plan(33)
 
     customsWithUrl = new Customs(CUSTOMS_URL_REAL)
 
@@ -302,25 +302,25 @@ test(
 
     return customsWithUrl.check(request, email, action)
       .then(function(result) {
-        t.equal(result, undefined, 'Nothing is returned when /check succeeds')
+        t.equal(result, undefined, 'Nothing is returned when /check succeeds - 1')
         return customsWithUrl.check(request, email, action)
       }, function(error) {
         t.fail('We should not have failed here for /check : err=' + error)
       })
       .then(function(result) {
-        t.equal(result, undefined, 'Nothing is returned when /check succeeds')
+        t.equal(result, undefined, 'Nothing is returned when /check succeeds - 2')
         return customsWithUrl.check(request, email, action)
       }, function(error) {
         t.fail('We should not have failed here for /check : err=' + error)
       })
       .then(function(result) {
-        t.equal(result, undefined, 'Nothing is returned when /check succeeds')
+        t.equal(result, undefined, 'Nothing is returned when /check succeeds - 3')
         return customsWithUrl.check(request, email, action)
       }, function(error) {
         t.fail('We should not have failed here for /check : err=' + error)
       })
       .then(function(result) {
-        t.equal(result, undefined, 'Nothing is returned when /check succeeds')
+        t.equal(result, undefined, 'Nothing is returned when /check succeeds - 4')
         return customsWithUrl.check(request, email, action)
       }, function(error) {
         t.fail('We should not have failed here for /check : err=' + error)
@@ -367,13 +367,14 @@ function newRequest() {
   }
 }
 
-var EMAIL_ACTIONS = [
-  'accountCreate',
-  'recoveryEmailResendCode',
-  'passwordForgotSendCode',
-  'passwordForgotResendCode'
-]
 
 function newAction() {
+  var EMAIL_ACTIONS = [
+    'accountCreate',
+    'recoveryEmailResendCode',
+    'passwordForgotSendCode',
+    'passwordForgotResendCode'
+  ]
+
   return EMAIL_ACTIONS[Math.floor(Math.random() * EMAIL_ACTIONS.length)]
 }

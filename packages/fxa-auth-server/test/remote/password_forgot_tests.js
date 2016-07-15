@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('../ptaptest')
+var test = require('tap').test
 var url = require('url')
 var Client = require('../client')
 var TestServer = require('../test_server')
@@ -10,6 +10,7 @@ var crypto = require('crypto')
 var base64url = require('base64url')
 
 var config = require('../../config').getProperties()
+process.env.SIGNIN_CONFIRMATION_ENABLED = false
 
 TestServer.start(config)
 .then(function main(server) {

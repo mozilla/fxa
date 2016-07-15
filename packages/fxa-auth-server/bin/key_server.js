@@ -132,7 +132,12 @@ function main() {
     server.stop(
       function () {
         customs.close()
-        mailer.stop()
+        try {
+          mailer.stop()
+        } catch (e) {
+          // XXX: simplesmtp module may quit early and set socket to `false`, stopping it may fail
+          log.warn({ op: 'shutdown', message: 'Mailer client already disconnected' })
+        }
         database.close()
         process.exit() //XXX: because of openid dep ಠ_ಠ
       }

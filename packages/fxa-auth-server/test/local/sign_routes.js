@@ -16,6 +16,7 @@ var test = require('../ptaptest')
 test(
   '/certificate/sign',
   function (t) {
+    t.plan(4)
     var deviceId = crypto.randomBytes(16)
     var mockDevices = mocks.mockDevices({
       deviceId: deviceId
@@ -43,7 +44,7 @@ test(
       query: {}
     })
 
-    test('without service', function (t) {
+    t.test('without service', function (t) {
       return runTest({
         devices: mockDevices,
         log: mockLog
@@ -70,9 +71,9 @@ test(
         mockLog.activityEvent.reset()
         mockDevices.upsert.reset()
       })
-    }, t)
+    })
 
-    test('with service=sync', function (t) {
+    t.test('with service=sync', function (t) {
       mockRequest.query.service = 'sync'
 
       return runTest({
@@ -86,9 +87,9 @@ test(
         mockLog.activityEvent.reset()
         mockDevices.upsert.reset()
       })
-    }, t)
+    })
 
-    test('with service=foo', function (t) {
+    t.test('with service=foo', function (t) {
       mockRequest.query.service = 'foo'
 
       return runTest({
@@ -103,9 +104,9 @@ test(
         mockLog.activityEvent.reset()
         mockDevices.upsert.reset()
       })
-    }, t)
+    })
 
-    test('with deviceId', function (t) {
+    t.test('with deviceId', function (t) {
       mockRequest.query.service = 'sync'
       mockRequest.auth.credentials.deviceId = crypto.randomBytes(16)
 
@@ -121,7 +122,7 @@ test(
         mockLog.activityEvent.reset()
         mockDevices.upsert.reset()
       })
-    }, t)
+    })
   }
 )
 

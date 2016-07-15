@@ -6,7 +6,7 @@ require('ass')
 
 var sinon = require('sinon')
 
-var test = require('../ptaptest')
+var test = require('tap').test
 var mocks = require('../mocks')
 var getRoute = require('../routes_helpers').getRoute
 
@@ -72,6 +72,7 @@ function runTest (route, request, assertions) {
 }
 
 test('/recovery_email/status', function (t) {
+  t.plan(2)
   var config = {
     signinConfirmation: {}
   }
@@ -91,17 +92,19 @@ test('/recovery_email/status', function (t) {
   })
   var route = getRoute(accountRoutes, '/recovery_email/status')
 
-  test('sign-in confirmation disabled', function (t) {
+  t.test('sign-in confirmation disabled', function (t) {
+    t.plan(2)
     config.signinConfirmation.enabled = false
 
-    test('invalid email', function (t) {
+    t.test('invalid email', function (t) {
+      t.plan(2)
       var mockRequest = mocks.mockRequest({
         credentials: {
           email: TEST_EMAIL_INVALID
         }
       })
 
-      test('unverified account', function (t) {
+      t.test('unverified account', function (t) {
         mockRequest.auth.credentials.emailVerified = false
 
         return runTest(route, mockRequest, function (response) {
@@ -114,7 +117,7 @@ test('/recovery_email/status', function (t) {
         })
       }, t)
 
-      test('verified account', function (t) {
+      t.test('verified account', function (t) {
         mockRequest.auth.credentials.uid = uuid.v4('binary').toString('hex')
         mockRequest.auth.credentials.emailVerified = true
         mockRequest.auth.credentials.tokenVerified = true
@@ -128,10 +131,10 @@ test('/recovery_email/status', function (t) {
             sessionVerified: true
           })
         })
-      }, t)
-    }, t)
+      })
+    })
 
-    test('valid email, verified account', function (t) {
+    t.test('valid email, verified account', function (t) {
       pushCalled = false
       var mockRequest = mocks.mockRequest({
         credentials: {
@@ -155,10 +158,11 @@ test('/recovery_email/status', function (t) {
           sessionVerified: true
         })
       })
-    }, t)
-  }, t)
+    })
+  })
 
-  test('sign-in confirmation enabled', function (t) {
+  t.test('sign-in confirmation enabled', function (t) {
+    t.plan(2)
     config.signinConfirmation.enabled = true
     config.signinConfirmation.enabled = 1
     var mockRequest = mocks.mockRequest({
@@ -168,7 +172,7 @@ test('/recovery_email/status', function (t) {
       }
     })
 
-    test('verified account, verified session', function (t) {
+    t.test('verified account, verified session', function (t) {
       mockRequest.auth.credentials.emailVerified = true
       mockRequest.auth.credentials.tokenVerified = true
 
@@ -180,9 +184,9 @@ test('/recovery_email/status', function (t) {
           emailVerified: true
         })
       })
-    }, t)
+    })
 
-    test('verified account, unverified session', function (t) {
+    t.test('verified account, unverified session', function (t) {
       mockRequest.auth.credentials.emailVerified = true
       mockRequest.auth.credentials.tokenVerified = false
 
@@ -194,8 +198,8 @@ test('/recovery_email/status', function (t) {
           emailVerified: true
         })
       })
-    }, t)
-  }, t)
+    })
+  })
 })
 
 test('/account/reset', function (t) {
@@ -247,6 +251,7 @@ test('/account/reset', function (t) {
 })
 
 test('/account/device', function (t) {
+  t.plan(4)
   var config = {}
   var uid = uuid.v4('binary')
   var deviceId = crypto.randomBytes(16)
@@ -274,7 +279,7 @@ test('/account/device', function (t) {
   })
   var route = getRoute(accountRoutes, '/account/device')
 
-  test('identical data', function (t) {
+  t.test('identical data', function (t) {
     return runTest(route, mockRequest, function (response) {
       t.equal(mockLog.increment.callCount, 1, 'a counter was incremented')
       t.equal(mockLog.increment.firstCall.args[0], 'device.update.spurious')
@@ -284,9 +289,9 @@ test('/account/device', function (t) {
     .then(function () {
       mockLog.increment.reset()
     })
-  }, t)
+  })
 
-  test('different data', function (t) {
+  t.test('different data', function (t) {
     mockRequest.auth.credentials.deviceId = crypto.randomBytes(16)
     var payload = mockRequest.payload
     payload.name = 'my even awesomer device'
@@ -314,9 +319,9 @@ test('/account/device', function (t) {
       mockLog.increment.reset()
       mockDevices.upsert.reset()
     })
-  }, t)
+  })
 
-  test('with no id in payload', function (t) {
+  t.test('with no id in payload', function (t) {
     mockRequest.payload.id = undefined
 
     return runTest(route, mockRequest, function (response) {
@@ -332,7 +337,7 @@ test('/account/device', function (t) {
     })
   }, t)
 
-  test('device updates disabled', function (t) {
+  t.test('device updates disabled', function (t) {
     config.deviceUpdatesEnabled = false
 
     return runTest(route, mockRequest, function () {
@@ -342,7 +347,7 @@ test('/account/device', function (t) {
       t.equal(err.output.statusCode, 503, 'correct status code is returned')
       t.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED, 'correct errno is returned')
     })
-  }, t)
+  })
 })
 
 test('/account/device/destroy', function (t) {
@@ -515,6 +520,7 @@ test('/account/create', function (t) {
 })
 
 test('/account/login', function (t) {
+  t.plan(3)
   var config = {
     newLoginNotificationEnabled: true
   }
@@ -586,7 +592,7 @@ test('/account/login', function (t) {
   })
   var route = getRoute(accountRoutes, '/account/login')
 
-  test('sign-in confirmation disabled', function (t) {
+  t.test('sign-in confirmation disabled', function (t) {
     return runTest(route, mockRequest, function (response) {
       t.equal(mockDB.emailRecord.callCount, 1, 'db.emailRecord was called')
       t.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called')
@@ -634,16 +640,17 @@ test('/account/login', function (t) {
     }).then(function () {
       mockMailer.sendNewDeviceLoginNotification.reset()
     })
-  }, t)
+  })
 
-  test('sign-in confirmation enabled', function (t) {
+  t.test('sign-in confirmation enabled', function (t) {
+    t.plan(8)
     config.signinConfirmation = {
       enabled: true,
       supportedClients: [ 'fx_desktop_v3' ],
       forceEmailRegex: [ '.+@mozilla\.com$', 'fennec@fire.fox' ]
     }
 
-    test('always on', function (t) {
+    t.test('always on', function (t) {
       config.signinConfirmation.sample_rate = 1
 
       return runTest(route, mockRequest, function (response) {
@@ -654,9 +661,9 @@ test('/account/login', function (t) {
       }).then(function () {
         mockMailer.sendVerifyLoginEmail.reset()
       })
-    }, t)
+    })
 
-    test('on for sample', function (t) {
+    t.test('on for sample', function (t) {
       // Force uid to '01...'
       uid.fill(0, 0, 1)
       uid.fill(1, 1, 2)
@@ -670,9 +677,9 @@ test('/account/login', function (t) {
       }).then(function () {
         mockMailer.sendVerifyLoginEmail.reset()
       })
-    }, t)
+    })
 
-    test('off for sample', function (t) {
+    t.test('off for sample', function (t) {
       config.signinConfirmation.sample_rate = 0.01
 
       return runTest(route, mockRequest, function (response) {
@@ -683,9 +690,9 @@ test('/account/login', function (t) {
       }).then(function () {
         mockMailer.sendNewDeviceLoginNotification.reset()
       })
-    }, t)
+    })
 
-    test('on for email regex match', function (t) {
+    t.test('on for email regex match', function (t) {
       mockRequest.payload.email = 'test@mozilla.com'
       mockDB.emailRecord = function () {
         return P.resolve({
@@ -710,9 +717,9 @@ test('/account/login', function (t) {
       }).then(function () {
         mockMailer.sendVerifyLoginEmail.reset()
       })
-    }, t)
+    })
 
-    test('on for specific email', function (t) {
+    t.test('on for specific email', function (t) {
       mockRequest.payload.email = 'fennec@fire.fox'
       mockDB.emailRecord = function () {
         return P.resolve({
@@ -737,9 +744,9 @@ test('/account/login', function (t) {
       }).then(function () {
         mockMailer.sendVerifyLoginEmail.reset()
       })
-    }, t)
+    })
 
-    test('off for email regex mismatch', function (t) {
+    t.test('off for email regex mismatch', function (t) {
       mockRequest.payload.email = 'moz@fire.fox'
       mockDB.emailRecord = function () {
         return P.resolve({
@@ -764,9 +771,9 @@ test('/account/login', function (t) {
       }).then(function () {
         mockMailer.sendNewDeviceLoginNotification.reset()
       })
-    }, t)
+    })
 
-    test('off for unsupported client', function (t) {
+    t.test('off for unsupported client', function (t) {
       config.signinConfirmation.supportedClients = [ 'fx_desktop_v999' ]
 
       return runTest(route, mockRequest, function (response) {
@@ -779,7 +786,7 @@ test('/account/login', function (t) {
       })
     }, t)
 
-    test('unverified account does not get any confirmation emails', function (t) {
+    t.test('unverified account does not get any confirmation emails', function (t) {
       config.signinConfirmation.supportedClients = [ 'fx_desktop_v3' ]
       mockRequest.payload.email = 'test@mozilla.com'
       mockDB.emailRecord = function () {
@@ -803,11 +810,11 @@ test('/account/login', function (t) {
         t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
         t.equal(response.verificationReason, 'signup', 'verificationReason is signup')
       })
-    }, t)
+    })
 
-  }, t)
+  })
 
-  test('creating too many sessions causes an error to be logged', function (t) {
+  t.test('creating too many sessions causes an error to be logged', function (t) {
     mockDB.sessions = function () {
       return P.resolve(new Array(200))
     }
@@ -827,10 +834,11 @@ test('/account/login', function (t) {
     }).finally(function () {
       mockLog.close()
     })
-  }, t)
+  })
 })
 
 test('/recovery_email/verify_code', function (t) {
+  t.plan(2)
   var uid = uuid.v4('binary').toString('hex')
   var mockRequest = mocks.mockRequest({
     query: {},
@@ -864,7 +872,7 @@ test('/recovery_email/verify_code', function (t) {
   })
   var route = getRoute(accountRoutes, '/recovery_email/verify_code')
 
-  test('verifies account', function (t) {
+  t.test('verifies account', function (t) {
     return runTest(route, mockRequest, function (response) {
       t.equal(mockDB.verifyTokens.callCount, 1, 'calls verifyTokens')
       t.equal(mockDB.verifyEmail.callCount, 1, 'calls verifyEmail')
@@ -897,9 +905,9 @@ test('/recovery_email/verify_code', function (t) {
       mockLog.activityEvent.reset()
       mockMailer.sendPostVerifyEmail.reset()
     })
-  }, t)
+  })
 
-  test('verifies account with a reminder payload', function (t) {
+  t.test('verifies account with a reminder payload', function (t) {
     mockRequest.payload.reminder = 'second'
 
     return runTest(route, mockRequest, function (response) {
@@ -921,10 +929,11 @@ test('/recovery_email/verify_code', function (t) {
       mockLog.activityEvent.reset()
       mockMailer.sendPostVerifyEmail.reset()
     })
-  }, t)
+  })
 })
 
 test('/account/keys', function (t) {
+  t.plan(2)
   var keyFetchTokenId = crypto.randomBytes(16)
   var uid = uuid.v4('binary')
   var mockRequest = mocks.mockRequest({
@@ -946,7 +955,7 @@ test('/account/keys', function (t) {
   })
   var route = getRoute(accountRoutes, '/account/keys')
 
-  test('verified token', function (t) {
+  t.test('verified token', function (t) {
     return runTest(route, mockRequest, function (response) {
       t.deepEqual(response, {bundle: mockRequest.auth.credentials.keyBundle.toString('hex')}, 'response was correct')
 
@@ -966,9 +975,9 @@ test('/account/keys', function (t) {
         mockLog.activityEvent.reset()
         mockDB.deleteKeyFetchToken.reset()
       })
-  }, t)
+  })
 
-  test('unverified token', function (t) {
+  t.test('unverified token', function (t) {
     mockRequest.auth.credentials.tokenVerificationId = crypto.randomBytes(16)
     mockRequest.auth.credentials.tokenVerified = false
     return runTest(route, mockRequest, function (response) {
@@ -978,7 +987,7 @@ test('/account/keys', function (t) {
       .then(function () {
         mockLog.activityEvent.reset()
       })
-  }, t)
+  })
 })
 
 test('/account/destroy', function (t) {

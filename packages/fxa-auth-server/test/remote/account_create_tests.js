@@ -7,6 +7,8 @@ var TestServer = require('../test_server')
 var crypto = require('crypto')
 var Client = require('../client')
 var config = require('../../config').getProperties()
+// XXX: update this later to avoid issues.
+process.env.NODE_ENV = 'dev'
 
 TestServer.start(config)
 .then(function main(server) {

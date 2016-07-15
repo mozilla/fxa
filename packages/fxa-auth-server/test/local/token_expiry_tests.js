@@ -6,7 +6,7 @@ var test = require('../ptaptest')
 var TestServer = require('../test_server')
 var Client = require('../client')
 
-process.env.PASSWORD_CHANGE_TOKEN_TTL = '-1'
+process.env.PASSWORD_CHANGE_TOKEN_TTL = '1'
 var config = require('../../config').getProperties()
 
 function fail() { throw new Error() }
@@ -17,7 +17,7 @@ TestServer.start(config)
   test(
     'token expiry',
     function (t) {
-      // FYI config.tokenLifetimes.passwordChangeToken = -1
+      // FYI config.tokenLifetimes.passwordChangeToken = 1
       var email = Math.random() + '@example.com'
       var password = 'ok'
       return Client.create(config.publicUrl, email, password, { preVerified: true })
