@@ -4,7 +4,6 @@
 
 var path = require('path');
 
-var async = require('async');
 var CronJob = require('cron').CronJob;
 var DEFAULTS = require('./defaults');
 var fs = require('fs');
@@ -21,6 +20,8 @@ mozlog.config({
 var log = mozlog();
 var isTestEnv = (process.env.NODE_ENV === 'test') || process.env.CI;
 var logHelper = function (type, message) {
+  'use strict';
+
   // log only if not in a test environment
   if (! isTestEnv) {
     log[type](message);
@@ -53,13 +54,13 @@ var MaxmindDbDownloader = function () {
       // get the file name without the extension
       var targetFileName = path.parse(source).name;
       var targetFilePath = path.join(targetDirPath, targetFileName);
-      remainingDownloads.push(this.download(url, targetFilePath));
+      remainingDownloads.push(this.createDownloadPromise(url, targetFilePath));
       logHelper('info', 'Setting ' + targetFilePath + ' as target file');
     }
     return remainingDownloads;
   };
 
-  this.download = function (url, targetFilePath) {
+  this.createDownloadPromise = function (url, targetFilePath) {
     // closure to separate multiple file-download
     return new Promise(function (resolve, reject) {
       var stream = request(url);

@@ -8,7 +8,7 @@ module.exports = function (grunt) {
   grunt.config('eslint', {
     app: {
       eslintrc: '.eslintrc',
-      src: ['Gruntfile.js', 'tasks/*.js', 'src/*.js', 'scripts/*.js', 'lib/*.js']
+      src: ['Gruntfile.js', 'tasks/*.js', 'scripts/*.js', 'lib/*.js']
     },
     test: {
       eslintrc: '.eslintrc',
