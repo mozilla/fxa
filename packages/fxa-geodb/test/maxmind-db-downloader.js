@@ -61,28 +61,28 @@ describe('maxmind-db-downloader', function () {
       assert.isArray(Promise.all.args[0][0], 'Array returned');
     });
   });
-  //
-  //describe('setupAutoUpdate', function () {
-  //  it('auto update calls startDownload correctly', function (done) {
-  //    // test takes slightly over 5 seconds, set
-  //    // timeout to 6 seconds to ensure that we don't
-  //    // timeout prematurely.
-  //    this.timeout(6000);
-  //    sinon.stub(maxmindDbDownloader, 'startDownload', function () {});
-  //    targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
-  //    downloadPromiseFunctions = maxmindDbDownloader.setupDownloadList(path.join('..', 'sources.json'), targetDirPath);
-  //    // set up auto update for every second of every minute
-  //    // (i.e) 10:00:01, 10:00:02, 10:00:03
-  //    maxmindDbDownloader.setupAutoUpdate('* * * * * *', downloadPromiseFunctions);
-  //    // now after 5 seconds, startDownload must have been called
-  //    // at least 4 times (accounting for lag - setTimeout)
-  //    setTimeout(function () {
-  //      assert.isTrue(maxmindDbDownloader.downloadAll.called, 'startDownload was called');
-  //      assert.isTrue(maxmindDbDownloader.downloadAll.calledWith(downloadPromiseFunctions), 'startDownload was called with the array');
-  //      assert.isTrue(maxmindDbDownloader.downloadAll.callCount >= 4, 'startDownload was called at least 4 times');
-  //      done();
-  //    }, 5000);
-  //  });
-  //});
+
+  describe('setupAutoUpdate', function () {
+    it('auto update calls downloadAll correctly', function (done) {
+      // test takes slightly over 5 seconds, set
+      // timeout to 6 seconds to ensure that we don't
+      // timeout prematurely.
+      this.timeout(6000);
+      sinon.stub(maxmindDbDownloader, 'downloadAll', function () {});
+      targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
+      downloadPromiseFunctions = maxmindDbDownloader.setupDownloadList(path.join('..', 'sources.json'), targetDirPath);
+      // set up auto update for every second of every minute
+      // (i.e) 10:00:01, 10:00:02, 10:00:03
+      maxmindDbDownloader.setupAutoUpdate('* * * * * *', downloadPromiseFunctions);
+      // now after 5 seconds, downloadAll must have been called
+      // at least 4 times (accounting for lag - setTimeout)
+      setTimeout(function () {
+        assert.isTrue(maxmindDbDownloader.downloadAll.called, 'downloadAll was called');
+        assert.isTrue(maxmindDbDownloader.downloadAll.calledWith(downloadPromiseFunctions), 'downloadAll was called with the array');
+        assert.isTrue(maxmindDbDownloader.downloadAll.callCount >= 4, 'downloadAll was called at least 4 times');
+        done();
+      }, 5000);
+    });
+  });
 
 });
