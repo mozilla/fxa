@@ -12,22 +12,22 @@
     "outdated": "npm outdated --depth 0"
   },
   "dependencies": {
-    "aws-sdk": "2.2.35",
+    "aws-sdk": "2.4.7",
+    "bluebird": "3.4.1",
     "boom": "2.6.1",
-    "bluebird": "3.3.1",
     "buf": "0.1.0",
     "checksum": "0.1.1",
     "compute-cluster": "0.0.9",
-    "convict": "1.1.2",
+    "convict": "1.4.0",
     "fxa-notifier-aws": "1.0.0",
-    "gm": "1.21.1",
+    "gm": "1.22.0",
     "hapi": "8.8.1",
     "joi": "6.9.1",
-    "mozlog": "2.0.3",
-    "mysql": "2.10.2",
+    "mozlog": "2.0.5",
+    "mysql": "2.11.1",
     "mysql-patcher": "0.7.0",
-    "request": "2.69.0",
-    "stream-to-array": "2.2.1"
+    "request": "2.73.0",
+    "stream-to-array": "2.3.0"
   },
   "devDependencies": {
     "blanket": "1.1.6",
