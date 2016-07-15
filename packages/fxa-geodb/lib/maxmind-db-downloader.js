@@ -85,17 +85,17 @@ var MaxmindDbDownloader = function () {
     // is there a more idiomatic way to do this??
     // the array looks like this:
     // downloadPromiseFunctions = [fn1 returning a promise, fn2 returning a promise, etc.]
-    downloadPromiseFunctions.forEach(function (promiseFunction) {
-      // each element is a function returning a promise
-      promises.push(promiseFunction());
-      return Promise.all(downloadPromiseFunctions)
-        .then(function (success) {
-          logHelper('info', 'Downloads complete');
-          logHelper('info', 'Last Update: ' + new Date());
-        }, function (err) {
-          logHelper('error', err);
-        });
+    // each element is a function returning a promise
+    promises = downloadPromiseFunctions.map(function (promiseFunction) {
+      return promiseFunction();
     });
+    return Promise.all(promises)
+      .then(function (success) {
+        logHelper('info', 'Downloads complete');
+        logHelper('info', 'Last Update: ' + new Date());
+      }, function (err) {
+        logHelper('error', err);
+      });
   };
 
   this.setupAutoUpdate = function (cronTiming, downloadPromiseFunctions, timeZone) {
