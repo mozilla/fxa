@@ -35,9 +35,9 @@ var MaxmindDbDownloader = function () {
     targetDirName = targetDirName || DEFAULTS.TARGET_DIR_NAME;
     var targetDirPath = path.join(__dirname, '..', targetDirName);
     // create db folder
-    mkdirp.sync(targetDirPath);
-    logHelper('info', 'Download folder is ' + targetDirPath);
-    return targetDirPath;
+    var createdTargetDirPath = mkdirp.sync(targetDirPath);
+    logHelper('info', 'Download folder is ' + createdTargetDirPath);
+    return createdTargetDirPath;
   };
 
   this.setupDownloadList = function (sourceFilePath, targetDirPath) {
