@@ -7,7 +7,7 @@ process.env.NODE_ENV = 'test';
 var async = require('async');
 var chai = require('chai');
 var fs = require('fs');
-var MaxmindDbDownloader = require('../scripts/maxmind-db-downloader');
+var MaxmindDbDownloader = require('../lib/maxmind-db-downloader');
 var path = require('path');
 var sinon = require('sinon');
 
