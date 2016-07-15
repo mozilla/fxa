@@ -8,5 +8,5 @@ const db = require('../lib/db');
 
 db.getEncodingInfo()
   .then(function(info) {
-    console.log(JSON.stringify(info, null, 2));
+    console.log(JSON.stringify(info, null, 2)); // eslint-disable-line no-console
   }).then(process.exit);

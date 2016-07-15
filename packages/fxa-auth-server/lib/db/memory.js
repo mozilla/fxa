@@ -265,7 +265,7 @@ MemoryStore.prototype = {
     return P.resolve();
   },
   getEncodingInfo: function getEncodingInfo() {
-    console.warn('getEncodingInfo has no meaning with memory implementation');
+    console.warn('getEncodingInfo has no meaning with memory implementation'); // eslint-disable-line no-console
     return P.resolve({});
   },
   removeUser: function removeUser(userId) {

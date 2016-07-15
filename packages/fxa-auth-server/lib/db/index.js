@@ -55,7 +55,7 @@ function preClients() {
     logger.debug('predefined.loading', { clients: clients });
     return P.all(clients.map(function(c) {
       if (c.secret) {
-        console.error('Do not keep client secrets in the config file.'
+        console.error('Do not keep client secrets in the config file.' // eslint-disable-line no-console
           + ' Use the `hashedSecret` field instead.\n\n'
           + '\tclient=%s has `secret` field\n'
           + '\tuse hashedSecret="%s" instead',
