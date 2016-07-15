@@ -18,7 +18,7 @@ describe('server', function() {
 
         // and must return an STS header
         var stsHeader = res.headers['strict-transport-security'];
-        assert.equal(stsHeader, 'max-age=15552000; includeSubdomains');
+        assert.equal(stsHeader, 'max-age=15552000; includeSubDomains');
 
         // but the other security builtin headers from hapi are not set
         var other = {
