@@ -131,23 +131,23 @@ describe('db', function() {
         userId = buf(randomString(16));
 
         return db.registerClient({
-            id: clientIdA,
-            name: 'ClientA',
+          id: clientIdA,
+          name: 'ClientA',
+          hashedSecret: randomString(32),
+          imageUri: 'https://example.domain/logo',
+          redirectUri: 'https://example.domain/return?foo=bar',
+          trusted: true
+        })
+        .then( function () {
+          return db.registerClient({
+            id: clientIdB,
+            name: 'ClientB',
             hashedSecret: randomString(32),
             imageUri: 'https://example.domain/logo',
             redirectUri: 'https://example.domain/return?foo=bar',
             trusted: true
-          })
-          .then( function () {
-            return db.registerClient({
-              id: clientIdB,
-              name: 'ClientB',
-              hashedSecret: randomString(32),
-              imageUri: 'https://example.domain/logo',
-              redirectUri: 'https://example.domain/return?foo=bar',
-              trusted: true
-            });
           });
+        });
       });
 
       beforeEach('seed with tokens', function () {
