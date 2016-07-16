@@ -11,7 +11,7 @@ module.exports = function (options) {
   'use strict';
 
   options = options || {};
-  var dbPath = options.dbPath || DEFAULTS.DEFAULT_DB_PATH;
+  var dbPath = options.dbPath || DEFAULTS.DB_PATH;
 
   var dbLookup;
   // we quit if the db did not load for some reason
