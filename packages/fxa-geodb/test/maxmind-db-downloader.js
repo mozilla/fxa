@@ -4,30 +4,31 @@
 //suppress stdout when running unit tests
 process.env.NODE_ENV = 'test';
 
-var async = require('async');
 var chai = require('chai');
 var fs = require('fs');
-var MaxmindDbDownloader = require('../scripts/maxmind-db-downloader');
+var MaxmindDbDownloader = require('../lib/maxmind-db-downloader');
 var path = require('path');
+var Promise = require('bluebird');
+var rimraf = require('rimraf');
 var sinon = require('sinon');
-
 var assert = chai.assert;
 
 describe('maxmind-db-downloader', function () {
   'use strict';
   var maxmindDbDownloader;
   var targetDirPath;
-  var remainingDownloads;
+  var downloadPromiseFunctions;
+  var expectedTargetDirPath = path.join(__dirname, '..', 'test-db');
 
   beforeEach(function () {
     maxmindDbDownloader = new MaxmindDbDownloader();
   });
 
   afterEach(function () {
-    remainingDownloads = null;
+    downloadPromiseFunctions = null;
     // cleanup, remove the created directory
-    if (targetDirPath !== '' && fs.statSync(targetDirPath).isDirectory()) {
-      fs.rmdir(targetDirPath);
+    if (fs.statSync(expectedTargetDirPath).isDirectory()) {
+      rimraf.sync(expectedTargetDirPath);
     }
     targetDirPath = '';
   });
@@ -35,50 +36,59 @@ describe('maxmind-db-downloader', function () {
   describe('createTargetDir', function () {
     it('creates the specified directory', function () {
       targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
-      assert.equal(targetDirPath, path.join(__dirname, '..', 'test-db'), 'Directory path is correct');
+      assert.equal(targetDirPath, expectedTargetDirPath, 'Directory path is correct');
       assert.isTrue(fs.statSync(targetDirPath).isDirectory(), 'Directory was created');
+    });
+
+    it('does nothing when directory already exists', function () {
+      // when mkdirp is called on existing directory, it
+      // does nothing, and returns null
+      maxmindDbDownloader.createTargetDir('test-db');
+      var duplicateTargetDirPath = maxmindDbDownloader.createTargetDir('test-db');
+      assert.isNull(duplicateTargetDirPath, 'Nothing was created');
+      assert.isTrue(fs.statSync(expectedTargetDirPath).isDirectory(), 'Directory still exists');
     });
   });
 
   describe('setupDownloadList', function () {
     it('sets up the download list from sources.json', function () {
       targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
-      remainingDownloads = maxmindDbDownloader.setupDownloadList(path.join('..', 'sources.json'), targetDirPath);
-      assert.isArray(remainingDownloads, 'Array returned');
-      assert.lengthOf(remainingDownloads, 1, 'Array has one entry');
-      assert.isFunction(remainingDownloads[0], 'Download function was queued');
+      downloadPromiseFunctions = maxmindDbDownloader.setupDownloadList(path.join('..', 'sources.json'), targetDirPath);
+      assert.isArray(downloadPromiseFunctions, 'Array returned');
+      assert.lengthOf(downloadPromiseFunctions, 1, 'Array has one entry');
+      assert.isFunction(downloadPromiseFunctions[0], 'downloadPromiseFunctions was queued with a function');
     });
   });
 
-  describe('startDownload', function () {
-    it('calls async with the proper data', function () {
-      sinon.stub(async, 'parallel', function () {});
+  describe('downloadAll', function () {
+    it('calls Promise.all with a promise array', function () {
+      sinon.spy(Promise, 'all');
       targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
-      remainingDownloads = maxmindDbDownloader.setupDownloadList(path.join('..', 'sources.json'), targetDirPath);
-      maxmindDbDownloader.startDownload(remainingDownloads);
-      assert.isTrue(async.parallel.called, 'Async was called');
-      assert.isTrue(async.parallel.calledWith(remainingDownloads), 'Async was called with the array');
+      downloadPromiseFunctions = maxmindDbDownloader.setupDownloadList(path.join('..', 'sources.json'), targetDirPath);
+      maxmindDbDownloader.downloadAll(downloadPromiseFunctions);
+      assert.isTrue(Promise.all.called, 'Promise.all was called');
+      assert.isArray(Promise.all.args[0][0], 'Array returned');
     });
   });
 
   describe('setupAutoUpdate', function () {
-    it('auto update calls startDownload correctly', function (done) {
+    it('auto update calls downloadAll correctly', function (done) {
       // test takes slightly over 5 seconds, set
       // timeout to 6 seconds to ensure that we don't
       // timeout prematurely.
       this.timeout(6000);
-      sinon.stub(maxmindDbDownloader, 'startDownload', function () {});
+      sinon.stub(maxmindDbDownloader, 'downloadAll', function () {});
       targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
-      remainingDownloads = maxmindDbDownloader.setupDownloadList(path.join('..', 'sources.json'), targetDirPath);
+      downloadPromiseFunctions = maxmindDbDownloader.setupDownloadList(path.join('..', 'sources.json'), targetDirPath);
       // set up auto update for every second of every minute
       // (i.e) 10:00:01, 10:00:02, 10:00:03
-      maxmindDbDownloader.setupAutoUpdate('* * * * * *', remainingDownloads);
-      // now after 5 seconds, startDownload must have been called
+      maxmindDbDownloader.setupAutoUpdate('* * * * * *', downloadPromiseFunctions);
+      // now after 5 seconds, downloadAll must have been called
       // at least 4 times (accounting for lag - setTimeout)
       setTimeout(function () {
-        assert.isTrue(maxmindDbDownloader.startDownload.called, 'startDownload was called');
-        assert.isTrue(maxmindDbDownloader.startDownload.calledWith(remainingDownloads), 'startDownload was called with the array');
-        assert.isTrue(maxmindDbDownloader.startDownload.callCount >= 4, 'startDownload was called at least 4 times');
+        assert.isTrue(maxmindDbDownloader.downloadAll.called, 'downloadAll was called');
+        assert.isTrue(maxmindDbDownloader.downloadAll.calledWith(downloadPromiseFunctions), 'downloadAll was called with the array');
+        assert.isTrue(maxmindDbDownloader.downloadAll.callCount >= 4, 'downloadAll was called at least 4 times');
         done();
       }, 5000);
     });

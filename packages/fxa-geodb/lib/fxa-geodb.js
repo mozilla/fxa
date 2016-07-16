@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var DEFAULTS = require('../lib/defaults');
-var ERRORS = require('../lib/errors');
+var DEFAULTS = require('./defaults');
+var ERRORS = require('./errors');
 var maxmind = require('maxmind');
 var Promise = require('bluebird');
 
@@ -20,10 +20,11 @@ module.exports = function (options) {
   } catch (err) {
     // if it failed with primary database
     // then quit with error
-    throw ERRORS.UNABLE_TO_FETCH_DATA;
+    throw ERRORS.UNABLE_TO_OPEN_FILE;
   }
 
   return function (ip, options) {
+    options = options || {};
     var userLocale = options.userLocale || 'en';
     return new Promise(function (resolve, reject) {
       // check if ip is valid
@@ -78,5 +79,10 @@ function Location(locationData, userLocale) {
 
   if (locationData.country) {
     this.country = this.getLocaleSpecificLocationString(locationData.country, userLocale);
+  }
+
+  if (locationData.subdivisions) {
+    this.state = this.getLocaleSpecificLocationString(locationData.subdivisions[0], userLocale);
+    this.state_code = locationData.subdivisions[0] && locationData.subdivisions[0].iso_code;
   }
 }
