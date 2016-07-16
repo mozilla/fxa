@@ -18,6 +18,7 @@ describe('maxmind-db-downloader', function () {
   var maxmindDbDownloader;
   var targetDirPath;
   var downloadPromiseFunctions;
+  var expectedTargetDirPath = path.join(__dirname, '..', 'test-db');
 
   beforeEach(function () {
     maxmindDbDownloader = new MaxmindDbDownloader();
@@ -26,9 +27,8 @@ describe('maxmind-db-downloader', function () {
   afterEach(function () {
     downloadPromiseFunctions = null;
     // cleanup, remove the created directory
-    var expectedTargetDirPath = path.join(__dirname, '..', 'test-db');
-    if (targetDirPath === expectedTargetDirPath && fs.statSync(targetDirPath).isDirectory()) {
-      rimraf.sync(targetDirPath);
+    if (fs.statSync(expectedTargetDirPath).isDirectory()) {
+      rimraf.sync(expectedTargetDirPath);
     }
     targetDirPath = '';
   });
@@ -36,8 +36,17 @@ describe('maxmind-db-downloader', function () {
   describe('createTargetDir', function () {
     it('creates the specified directory', function () {
       targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
-      assert.equal(targetDirPath, path.join(__dirname, '..', 'test-db'), 'Directory path is correct');
+      assert.equal(targetDirPath, expectedTargetDirPath, 'Directory path is correct');
       assert.isTrue(fs.statSync(targetDirPath).isDirectory(), 'Directory was created');
+    });
+
+    it('does nothing when directory already exists', function () {
+      // when mkdirp is called on existing directory, it
+      // does nothing, and returns null
+      maxmindDbDownloader.createTargetDir('test-db');
+      var duplicateTargetDirPath = maxmindDbDownloader.createTargetDir('test-db');
+      assert.isNull(duplicateTargetDirPath, 'Nothing was created');
+      assert.isTrue(fs.statSync(expectedTargetDirPath).isDirectory(), 'Directory still exists');
     });
   });
 
