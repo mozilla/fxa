@@ -42,7 +42,7 @@ var MaxmindDbDownloader = function () {
 
   this.setupDownloadList = function (sourceFilePath, targetDirPath) {
     sourceFilePath = sourceFilePath || DEFAULTS.SOURCE_FILE_NAME;
-    targetDirPath = targetDirPath || DEFAULTS.DEFAULT_TARGET_DIR_PATH;
+    targetDirPath = targetDirPath || DEFAULTS.TARGET_DIR_PATH;
     // import the list of files to download
     var sources = require(sourceFilePath);
     var downloadPromiseFunctions = [];
