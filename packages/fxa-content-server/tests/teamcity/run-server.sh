@@ -6,6 +6,18 @@
 
 set -o errexit # exit on first command with non-zero status
 
+# Dump out the `/__version__` data, and if not valid JSON, then
+# exit and abort this test run, to make it clear early on that
+# one or more test servers are not in a testable state.
+function check_version {
+  echo "Checking server $1"
+  local version_info=$(curl -s $1)
+  if ! echo $version_info | python -mjson.tool; then
+    echo "Invalid Server Response. Exiting: ${version_info}"
+    exit 1
+  fi
+}
+
 BASENAME=$(basename $0)
 DIRNAME=$(dirname $0)
 
@@ -20,20 +32,12 @@ source $DIRNAME/$FXA_TEST_NAME
 
 killall -v firefox-bin || echo 'Ok, no firefox-bin.'
 
-# optionally, GIT_COMMIT can be set in the environment to override
-if [ -z "$GIT_COMMIT" ]; then
-  GIT_COMMIT=$(curl -s "$FXA_CONTENT_VERSION" | jsawk  "return this.commit" | perl -pe 's/^OUT: //')
-else
-  echo "Using GIT_COMMIT from the environment $GIT_COMMIT"
-fi
-
 echo "FXA_TEST_NAME       $FXA_TEST_NAME"
 echo "FXA_CONTENT_ROOT    $FXA_CONTENT_ROOT"
 echo "FXA_AUTH_ROOT       $FXA_AUTH_ROOT"
 echo "FXA_OAUTH_APP_ROOT  $FXA_OAUTH_APP_ROOT"
 echo "FXA_DEV_BOX         $FXA_DEV_BOX"
 echo "FXA_FIREFOX_BINARY  $FXA_FIREFOX_BINARY"
-echo "GIT_COMMIT          $GIT_COMMIT"
 
 echo "FXA_CONTENT_VERSION $FXA_CONTENT_VERSION"
 echo "FXA_OAUTH_VERSION   $FXA_OAUTH_VERSION"
@@ -42,11 +46,19 @@ echo "FXA_AUTH_VERSION    $FXA_AUTH_VERSION"
 
 echo ""
 echo "Server versions:"
-curl -s $FXA_CONTENT_VERSION
-curl -s $FXA_OAUTH_VERSION
-curl -s $FXA_PROFILE_VERSION
-curl -s $FXA_AUTH_VERSION
+check_version $FXA_CONTENT_VERSION
+check_version $FXA_OAUTH_VERSION
+check_version $FXA_PROFILE_VERSION
+check_version $FXA_AUTH_VERSION
 echo ""
+
+# optionally, GIT_COMMIT can be set in the environment to override
+if [ -z "$GIT_COMMIT" ]; then
+  GIT_COMMIT=$(curl -s "$FXA_CONTENT_VERSION" | jsawk  "return this.commit" | perl -pe 's/^OUT: //')
+else
+  echo "Using GIT_COMMIT from the environment."
+fi
+echo "GIT_COMMIT          $GIT_COMMIT"
 
 echo ""
 echo "Selenium version:"
