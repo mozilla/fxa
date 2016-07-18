@@ -7,19 +7,19 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
+  const _ = require('underscore');
 
   function searchParams (str, allowedFields) {
-    var search = (typeof str === 'string' ? str : window.location.search).replace(/^\?/, '');
+    const search = (typeof str === 'string' ? str : window.location.search).replace(/^\?/, '');
     if (! search) {
       return {};
     }
 
-    var pairs = search.split('&');
-    var terms = {};
+    const pairs = search.split('&');
+    const terms = {};
 
     _.each(pairs, function (pair) {
-      var keyValue = pair.split('=');
+      const keyValue = pair.split('=');
       terms[keyValue[0]] = decodeURIComponent(keyValue[1]).trim();
     });
 
@@ -33,15 +33,15 @@ define(function (require, exports, module) {
   module.exports = {
     searchParams: searchParams,
     searchParam: function (name, str) {
-      var terms = searchParams(str);
+      const terms = searchParams(str);
 
       return terms[name];
     },
 
     objToSearchString: function (obj) {
-      var params = [];
-      for (var paramName in obj) {
-        var paramValue = obj[paramName];
+      const params = [];
+      for (let paramName in obj) {
+        const paramValue = obj[paramName];
         if (typeof paramValue !== 'undefined') {
           params.push(paramName + '=' + encodeURIComponent(paramValue));
         }
@@ -59,7 +59,7 @@ define(function (require, exports, module) {
       }
 
       // The URL API is only supported by new browsers, a workaround is used.
-      var anchor = document.createElement('a');
+      const anchor = document.createElement('a');
 
       // Fx 18 (& FxOS 1.*) do not support anchor.origin. Build the origin
       // out of the protocol and host.
@@ -75,8 +75,8 @@ define(function (require, exports, module) {
       // IE10 always returns port, Firefox and Chrome hide the port if it is the default port e.g 443, 80
       // We normalize IE10 output, use the hostname if it is a default port to match Firefox and Chrome.
       // Also IE10 returns anchor.port as String, Firefox and Chrome use Number.
-      var host = Number(anchor.port) === 443 || Number(anchor.port) === 80 ? anchor.hostname : anchor.host;
-      var origin = anchor.protocol + '//' + host;
+      const host = Number(anchor.port) === 443 || Number(anchor.port) === 80 ? anchor.hostname : anchor.host;
+      const origin = anchor.protocol + '//' + host;
 
       // if only the domain is specified without a protocol, the anchor
       // will use the page's origin as the URL's origin. Check that
@@ -102,14 +102,14 @@ define(function (require, exports, module) {
     },
 
     removeParamFromSearchString: function (name, str) {
-      var params = this.searchParams(str);
+      const params = this.searchParams(str);
       delete params[name];
       return this.objToSearchString(params);
     },
 
     updateSearchString: function (uri, newParams) {
-      var params = {};
-      var startOfParams = uri.indexOf('?');
+      let params = {};
+      const startOfParams = uri.indexOf('?');
       if (startOfParams >= 0) {
         params = this.searchParams(uri.substring(startOfParams + 1));
         uri = uri.substring(0, startOfParams);

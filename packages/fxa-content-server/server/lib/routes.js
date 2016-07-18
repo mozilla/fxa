@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var babel = require('babel-middleware');
 var logger = require('mozlog')('server.routes');
+var path = require('path');
 
 var VERSION_PREFIX = '/v1';
 var VERSION_PREFIX_REGEXP = new RegExp('^' + VERSION_PREFIX);
@@ -77,8 +79,24 @@ module.exports = function (config, i18n) {
       res.redirect(removeVersionPrefix(req.originalUrl));
     });
 
-    // front end mocha tests
     if (config.get('env') === 'development') {
+      // Compile ES2015 scripts to ES5 before serving to the client.
+      // This is done for two reasons:
+      // 1. The blanket code coverage tool does not understand ES6, only ES5.
+      // 2. It'll give us a better approximation of the code that'll eventually
+      //    be run on prod.
+      app.get('/scripts/*\.(js|map)', babel({
+        babelOptions: {
+          presets: ['babel-preset-es2015-nostrict'],
+          sourceMaps: true
+        },
+        cachePath: path.join(__dirname, '..', '..', '.es5cache'),
+        consoleErrors: true,
+        exclude: ['scripts/{head|vendor}/**'],
+        srcPath: path.join(__dirname, '..', '..', 'app')
+      }));
+
+      // front end mocha tests
       app.get('/tests/index.html', function (req, res) {
         var checkCoverage = 'coverage' in req.query &&
                                 req.query.coverage !== 'false';

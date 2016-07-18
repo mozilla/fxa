@@ -21,7 +21,7 @@
     // Browser globals
     root.FxaHead.Environment = factory();
   }
-}(this, function () {
+}(window, function () {
   'use strict';
 
   function Environment(win) {

@@ -21,6 +21,12 @@ module.exports = function (grunt) {
     // in the scrutinized file into a single line, targeting an optimized version of the files.
     'useminPrepare',
 
+    // Compile ES2015 to ES5
+    'babel',
+
+    // Copy ES5 files to prepare for requirejs
+    'copy:requirejs',
+
     // Runs r.js optimizer on the application files
     'requirejs',
 

@@ -9,7 +9,7 @@ function () {
   'use strict';
 
   // Ensure config is loaded before trying to load any other scripts.
-  require(['./lib/app-start'], function (AppStart) {
+  require(['./lib/app-start'], (AppStart) => {
     var appStart = new AppStart();
     appStart.startApp();
   });

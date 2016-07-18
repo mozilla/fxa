@@ -11,6 +11,7 @@ module.exports = function (grunt) {
     /*eslint-disable camelcase */
     app: 'app',
     dist: 'dist',
+    es5: '.es5',
     page_template_dist: TEMPLATE_ROOT + '/pages/dist',
     page_template_src: TEMPLATE_ROOT + '/pages/src',
     pp_html_dest: TEMPLATE_ROOT + '/pages/dist/privacy',

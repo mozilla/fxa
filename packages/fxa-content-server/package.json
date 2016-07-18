@@ -24,6 +24,8 @@
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL-2.0",
   "dependencies": {
+    "babel-middleware": "git://github.com/shane-tomlinson/babel-middleware.git#4c70de91",
+    "babel-preset-es2015-nostrict": "6.6.2",
     "bluebird": "3.3.5",
     "body-parser": "1.15.0",
     "bower": "1.7.9",
@@ -38,6 +40,7 @@
     "extend": "3.0.0",
     "grunt": "1.0.1",
     "grunt-autoprefixer": "3.0.4",
+    "grunt-babel": "6.0.0",
     "grunt-cdn": "0.6.5",
     "grunt-concurrent": "2.3.0",
     "grunt-connect-fonts": "0.0.6",

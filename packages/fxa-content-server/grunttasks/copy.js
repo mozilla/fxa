@@ -82,6 +82,23 @@ module.exports = function (grunt) {
       dest: '<%= yeoman.tmp %>/bower_components/normalize-css/normalize.css',
       src: 'app/bower_components/normalize-css/normalize.css'
     },
+    // Files necessary for requirejs to build
+    requirejs: {
+      files: [
+        {
+          cwd: '<%= yeoman.app %>/bower_components',
+          dest: '<%= yeoman.es5 %>/bower_components',
+          expand: true,
+          src: ['**/*.js']
+        },
+        {
+          cwd: '<%= yeoman.app %>/scripts',
+          dest: '<%= yeoman.es5 %>/scripts',
+          expand: true,
+          src: ['templates/**/*.mustache', 'head/**/*.js', 'vendor/**/*.js']
+        }
+      ]
+    },
     strings: {
       files: [
         {
