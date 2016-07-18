@@ -124,6 +124,13 @@ var conf = module.exports = convict({
     doc: 'HMAC key used to verify flow event data',
     format: String
   },
+  fxa_client_configuration: {
+    max_age: {
+      default: '1 day',
+      doc: 'Cache max age for /.well-known/fxa-client-configuration, in ms',
+      format: 'duration'
+    }
+  },
   fxaccount_url: {
     default: 'http://127.0.0.1:9000',
     doc: 'The url of the Firefox Account auth server',
@@ -493,6 +500,12 @@ var conf = module.exports = convict({
       format: 'port'
     },
     sample_rate: 1
+  },
+  sync_tokenserver_url: {
+    default: 'http://127.0.0.1:5000/token',
+    doc: 'The url of the Firefox Sync tokenserver',
+    env: 'SYNC_TOKENSERVER_URL',
+    format: 'url'
   },
   template_path: {
     default: path.resolve(__dirname, '..', 'templates'),

@@ -28,6 +28,7 @@ define([
   };
 
   var routes = {
+    '/.well-known/fxa-client-configuration': { statusCode: 200 },
     '/.well-known/openid-configuration': { statusCode: 200 },
     '/account_unlock_complete': { statusCode: 200 },
     '/cannot_create_account': { statusCode: 200 },
