@@ -56,7 +56,6 @@
   },
   "devDependencies": {
     "ajv": "4.1.7",
-    "ass": "git://github.com/jrgm/ass.git#5be99ee7abc9fcf63f9ebcc37b151b9c822146d1",
     "commander": "2.9.0",
     "eslint-config-fxa": "1.6.0",
     "fxa-auth-db-mysql": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#master",

@@ -52,6 +52,6 @@ install:
 
 script:
   - if [ $DB == "mysql" ]; then ./scripts/start-travis-auth-db-mysql.sh; fi
-  - npm test
+  - COVERALLS_REPO_TOKEN=vKN3jjhAOwxkv9HG0VBX4EYIlWLPwiJ9d npm test
   - npm run test-e2e
   - grunt nsp

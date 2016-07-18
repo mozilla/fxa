@@ -13,3 +13,4 @@ secret*
 *~
 *.pyc
 /.vagrant
+.nyc_output

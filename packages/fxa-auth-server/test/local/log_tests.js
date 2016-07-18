@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('../ptaptest')
-var path = require('path')
 var sinon = require('sinon')
 var proxyquire = require('proxyquire')
 var P = require('../../lib/promise')
@@ -30,7 +29,7 @@ var mocks = {
   })
 }
 mocks.mozlog.config = sinon.spy()
-mocks[path.resolve(__dirname, '../../lib') + '/./metrics/statsd'] = function () {
+mocks['./metrics/statsd'] = function () {
   return statsd
 }
 var log = proxyquire('../../lib/log', mocks)('foo', 'bar')
