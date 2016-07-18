@@ -56,8 +56,8 @@ module.exports = function (
     checkPassword,
     push
   )
-  var session = require('./session')(log, isA, error, db, metricsContext)
-  var sign = require('./sign')(log, isA, error, signer, db, config.domain, metricsContext)
+  var session = require('./session')(log, isA, error, db)
+  var sign = require('./sign')(log, isA, error, signer, db, config.domain)
   var util = require('./util')(
     log,
     crypto,

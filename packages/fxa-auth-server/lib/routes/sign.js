@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, isA, error, signer, db, domain, metricsContext) {
+module.exports = function (log, isA, error, signer, db, domain) {
 
   const HOUR = 1000 * 60 * 60
 
@@ -27,8 +27,7 @@ module.exports = function (log, isA, error, signer, db, domain, metricsContext) 
               g: isA.string(),
               version: isA.string()
             }).required(),
-            duration: isA.number().integer().min(0).max(24 * HOUR).required(),
-            metricsContext: metricsContext.schema
+            duration: isA.number().integer().min(0).max(24 * HOUR).required()
           }
         }
       },

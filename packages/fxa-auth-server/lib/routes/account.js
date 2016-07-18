@@ -911,8 +911,7 @@ module.exports = function (
         },
         validate: {
           payload: {
-            id: isA.string().length(32).regex(HEX_STRING).required(),
-            metricsContext: metricsContext.schema
+            id: isA.string().length(32).regex(HEX_STRING).required()
           }
         },
         response: {
@@ -1103,8 +1102,7 @@ module.exports = function (
             uid: isA.string().max(32).regex(HEX_STRING).required(),
             code: isA.string().min(32).max(32).regex(HEX_STRING).required(),
             service: isA.string().max(16).alphanum().optional(),
-            reminder: isA.string().max(32).alphanum().optional(),
-            metricsContext: metricsContext.schema
+            reminder: isA.string().max(32).alphanum().optional()
           }
         }
       },
@@ -1345,7 +1343,6 @@ module.exports = function (
         validate: {
           payload: {
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
-            metricsContext: metricsContext.schema,
             sessionToken: isA.boolean().optional()
           }
         }
@@ -1439,10 +1436,6 @@ module.exports = function (
               .then(
                 function (result) {
                   sessionToken = result
-                  return metricsContext.stash(sessionToken, [
-                    'device.created',
-                    'account.signed'
-                  ], request.payload.metricsContext)
                 }
               )
           }
@@ -1464,7 +1457,6 @@ module.exports = function (
               .then(
                 function (result) {
                   keyFetchToken = result
-                  return metricsContext.stash(keyFetchToken, 'account.keyfetch', request.payload.metricsContext)
                 }
               )
           }
@@ -1499,8 +1491,7 @@ module.exports = function (
         validate: {
           payload: {
             email: validators.email().required(),
-            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
-            metricsContext: metricsContext.schema
+            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required()
           }
         }
       },
