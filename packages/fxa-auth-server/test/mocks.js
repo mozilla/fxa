@@ -30,7 +30,6 @@ var PUSH_METHOD_NAMES = ['notifyDeviceConnected', 'notifyDeviceDisconnected', 'n
 
 module.exports = {
   mockDB: mockDB,
-  mockDevices: mockDevices,
   mockLog: mockLog,
   spyLog: spyLog,
   mockMailer: mockObject(MAILER_METHOD_NAMES),
@@ -128,23 +127,6 @@ function mockObject (methodNames) {
 
       return object
     }, {})
-  }
-}
-
-function mockDevices (data) {
-  data = data || {}
-
-  return {
-    upsert: sinon.spy(function () {
-      return P.resolve({
-        id: data.deviceId || crypto.randomBytes(16),
-        name: data.deviceName || 'mock device name',
-        type: data.deviceType || 'desktop'
-      })
-    }),
-    synthesizeName: sinon.spy(function () {
-      return data.deviceName || null
-    })
   }
 }
 

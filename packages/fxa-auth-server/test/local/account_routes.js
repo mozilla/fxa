@@ -57,8 +57,7 @@ var makeRoutes = function (options) {
     isPreVerified,
     checkPassword,
     push,
-    metricsContext,
-    options.devices || require('../../lib/devices')(log, db, push)
+    metricsContext
   )
 }
 
@@ -251,101 +250,146 @@ test('/account/reset', function (t) {
 })
 
 test('/account/device', function (t) {
-  t.plan(4)
+  t.plan(2)
   var config = {}
   var uid = uuid.v4('binary')
-  var deviceId = crypto.randomBytes(16)
+  var device = {}
   var mockRequest = mocks.mockRequest({
     credentials: {
-      deviceCallbackPublicKey: '',
-      deviceCallbackURL: '',
-      deviceId: deviceId,
-      deviceName: 'my awesome device',
-      deviceType: 'desktop',
-      tokenId: crypto.randomBytes(16),
-      uid: uid
+      uid: uid.toString('hex')
     },
-    payload: {
-      id: deviceId.toString('hex'),
-      name: 'my awesome device'
-    }
+    payload: device
   })
-  var mockDevices = mocks.mockDevices()
+  var deviceCreatedAt = Date.now()
+  var deviceId = crypto.randomBytes(16).toString('hex')
+  var mockDB = mocks.mockDB({
+    device: device,
+    deviceCreatedAt: deviceCreatedAt,
+    deviceId: deviceId
+  })
   var mockLog = mocks.spyLog()
+  var mockPush = mocks.mockPush()
   var accountRoutes = makeRoutes({
     config: config,
-    devices: mockDevices,
-    log: mockLog
+    db: mockDB,
+    log: mockLog,
+    push: mockPush
   })
   var route = getRoute(accountRoutes, '/account/device')
 
-  t.test('identical data', function (t) {
-    return runTest(route, mockRequest, function (response) {
-      t.equal(mockLog.increment.callCount, 1, 'a counter was incremented')
-      t.equal(mockLog.increment.firstCall.args[0], 'device.update.spurious')
+  t.test('create', function (t) {
+    device.name = 'My Phone'
+    device.type = 'mobile'
+    device.pushCallback = 'https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef'
 
-      t.deepEqual(response, mockRequest.payload)
+    return runTest(route, mockRequest, function (response) {
+      t.equal(mockDB.createDevice.callCount, 1)
+
+      t.equal(mockPush.notifyDeviceConnected.callCount, 1)
+      t.equal(mockPush.notifyDeviceConnected.firstCall.args[0], mockRequest.auth.credentials.uid)
+      t.equal(mockPush.notifyDeviceConnected.firstCall.args[1], device.name)
+      t.equal(mockPush.notifyDeviceConnected.firstCall.args[2], deviceId)
+
+      t.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
+      var args = mockLog.activityEvent.args[0]
+      t.equal(args.length, 3, 'log.activityEvent was passed three arguments')
+      t.equal(args[0], 'device.created', 'first argument was event name')
+      t.equal(args[1], mockRequest, 'second argument was request object')
+      t.deepEqual(args[2], { uid: uid.toString('hex'), device_id: deviceId }, 'third argument contained uid')
+
+      t.equal(mockLog.notifyAttachedServices.callCount, 1)
+      args = mockLog.notifyAttachedServices.args[0]
+      t.equal(args.length, 3)
+      t.equal(args[0], 'device:create')
+      t.equal(args[1], mockRequest)
+      t.deepEqual(args[2], {
+        uid: uid.toString('hex'),
+        id: deviceId,
+        type: 'mobile',
+        timestamp: deviceCreatedAt
+      })
     })
     .then(function () {
-      mockLog.increment.reset()
+      mockDB.createDevice.reset()
+      mockLog.activityEvent.reset()
+      mockLog.notifyAttachedServices.reset()
+      mockPush.notifyDeviceConnected.reset()
     })
   })
 
-  t.test('different data', function (t) {
-    mockRequest.auth.credentials.deviceId = crypto.randomBytes(16)
-    var payload = mockRequest.payload
-    payload.name = 'my even awesomer device'
-    payload.type = 'phone'
-    payload.pushCallback = 'https://push.services.mozilla.com/123456'
-    payload.pushPublicKey = 'SomeEncodedBinaryStuffThatDoesntGetValidedByThisTest'
+  t.test('update', function (t) {
+    t.plan(3)
+    var deviceId = crypto.randomBytes(16)
+    var credentials = mockRequest.auth.credentials
+    credentials.tokenId = 'lookmumasessiontoken'
+    credentials.deviceName = 'my awesome device'
+    credentials.deviceType = 'desktop'
+    credentials.deviceCallbackURL = ''
+    credentials.deviceCallbackPublicKey = ''
+    device.name = device.type = device.pushCallback = undefined
+    device.id = deviceId.toString('hex')
 
-    return runTest(route, mockRequest, function (response) {
-      t.equal(mockLog.increment.callCount, 5, 'the counters were incremented')
-      t.equal(mockLog.increment.getCall(0).args[0], 'device.update.sessionToken')
-      t.equal(mockLog.increment.getCall(1).args[0], 'device.update.name')
-      t.equal(mockLog.increment.getCall(2).args[0], 'device.update.type')
-      t.equal(mockLog.increment.getCall(3).args[0], 'device.update.pushCallback')
-      t.equal(mockLog.increment.getCall(4).args[0], 'device.update.pushPublicKey')
+    t.test('identical data', function (t) {
+      mockRequest.auth.credentials.deviceId = deviceId
+      mockRequest.payload.name = 'my awesome device'
 
-      t.equal(mockDevices.upsert.callCount, 1, 'devices.upsert was called once')
-      var args = mockDevices.upsert.args[0]
-      t.equal(args.length, 3, 'devices.upsert was passed three arguments')
-      t.equal(args[0], mockRequest, 'first argument was request object')
-      t.deepEqual(args[1].tokenId, mockRequest.auth.credentials.tokenId, 'second argument was session token')
-      t.deepEqual(args[1].uid, uid, 'sessionToken.uid was correct')
-      t.deepEqual(args[2], mockRequest.payload, 'third argument was payload')
+      return runTest(route, mockRequest, function (response) {
+        t.equal(mockDB.updateDevice.callCount, 0, 'updateDevice was not called')
+
+        t.equal(mockLog.increment.callCount, 1, 'a counter was incremented')
+        t.equal(mockLog.increment.firstCall.args[0], 'device.update.spurious')
+
+        t.deepEqual(response, mockRequest.payload)
+      })
+      .then(function () {
+        mockLog.increment.reset()
+      })
     })
-    .then(function () {
-      mockLog.increment.reset()
-      mockDevices.upsert.reset()
+
+    t.test('different data', function (t) {
+      mockRequest.auth.credentials.deviceId = crypto.randomBytes(16)
+      var payload = mockRequest.payload
+      payload.name = 'my even awesomer device'
+      payload.type = 'phone'
+      payload.pushCallback = 'https://push.services.mozilla.com/123456'
+      payload.pushPublicKey = 'SomeEncodedBinaryStuffThatDoesntGetValidedByThisTest'
+
+      return runTest(route, mockRequest, function (response) {
+        t.equal(mockDB.updateDevice.callCount, 1, 'updateDevice was called')
+
+        t.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
+        var args = mockLog.activityEvent.args[0]
+        t.equal(args.length, 3, 'log.activityEvent was passed three arguments')
+        t.equal(args[0], 'device.updated', 'first argument was event name')
+        t.equal(args[1], mockRequest, 'second argument was request object')
+        t.deepEqual(args[2], { uid: uid.toString('hex'), device_id: deviceId.toString('hex') }, 'third argument contained uid')
+
+        t.equal(mockLog.notifyAttachedServices.callCount, 0, 'log.notifyAttachedServices was not called')
+
+        t.equal(mockLog.increment.callCount, 5, 'the counters were incremented')
+        t.equal(mockLog.increment.getCall(0).args[0], 'device.update.sessionToken')
+        t.equal(mockLog.increment.getCall(1).args[0], 'device.update.name')
+        t.equal(mockLog.increment.getCall(2).args[0], 'device.update.type')
+        t.equal(mockLog.increment.getCall(3).args[0], 'device.update.pushCallback')
+        t.equal(mockLog.increment.getCall(4).args[0], 'device.update.pushPublicKey')
+      })
+      .then(function () {
+        mockDB.updateDevice.reset()
+        mockLog.activityEvent.reset()
+        mockLog.increment.reset()
+      })
     })
-  })
 
-  t.test('with no id in payload', function (t) {
-    mockRequest.payload.id = undefined
+    t.test('device updates disabled', function (t) {
+      config.deviceUpdatesEnabled = false
 
-    return runTest(route, mockRequest, function (response) {
-      t.equal(mockLog.increment.callCount, 0, 'log.increment was not called')
-
-      t.equal(mockDevices.upsert.callCount, 1, 'devices.upsert was called once')
-      var args = mockDevices.upsert.args[0]
-      t.equal(args[2].id, mockRequest.auth.credentials.deviceId.toString('hex'), 'payload.id defaulted to credentials.deviceId')
-    })
-    .then(function () {
-      mockLog.increment.reset()
-      mockDevices.upsert.reset()
-    })
-  }, t)
-
-  t.test('device updates disabled', function (t) {
-    config.deviceUpdatesEnabled = false
-
-    return runTest(route, mockRequest, function () {
-      t.fail('should have thrown')
-    })
-    .catch(function (err) {
-      t.equal(err.output.statusCode, 503, 'correct status code is returned')
-      t.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED, 'correct errno is returned')
+      return runTest(route, mockRequest, function () {
+        t.fail('should have thrown')
+      })
+      .catch(function (err) {
+        t.equal(err.output.statusCode, 503, 'correct status code is returned')
+        t.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED, 'correct errno is returned')
+      })
     })
   })
 })
@@ -450,7 +494,6 @@ test('/account/create', function (t) {
     return P.resolve()
   })
   var mockMailer = mocks.mockMailer()
-  var mockPush = mocks.mockPush()
   var accountRoutes = makeRoutes({
     db: mockDB,
     log: mockLog,
@@ -465,8 +508,7 @@ test('/account/create', function (t) {
           return P.resolve('wibble')
         }
       }
-    },
-    push: mockPush
+    }
   })
   var route = getRoute(accountRoutes, '/account/create')
 
@@ -573,7 +615,6 @@ test('/account/login', function (t) {
     return P.resolve()
   })
   var mockMailer = mocks.mockMailer()
-  var mockPush = mocks.mockPush()
   var accountRoutes = makeRoutes({
     checkPassword: function () {
       return P.resolve(true)
@@ -587,8 +628,7 @@ test('/account/login', function (t) {
     db: mockDB,
     log: mockLog,
     mailer: mockMailer,
-    metricsContext: mockMetricsContext,
-    push: mockPush
+    metricsContext: mockMetricsContext
   })
   var route = getRoute(accountRoutes, '/account/login')
 
@@ -1042,60 +1082,6 @@ test('/account/destroy', function (t) {
     t.equal(args[0], 'account.deleted', 'first argument was event name')
     t.equal(args[1], mockRequest, 'second argument was request object')
     t.equal(args[2].uid, uid.toString('hex'), 'third argument was event data')
-  })
-})
-
-test('/account/devices', function (t) {
-  var mockRequest = mocks.mockRequest({
-    credentials: {
-      uid: crypto.randomBytes(16),
-      tokenId: crypto.randomBytes(16)
-    },
-    payload: {}
-  })
-  var unnamedDevice = { sessionToken: crypto.randomBytes(16) }
-  var mockDB = mocks.mockDB({
-    devices: [
-      { name: 'current session', type: 'mobile', sessionToken: mockRequest.auth.credentials.tokenId },
-      { name: 'has no type', sessionToken: crypto.randomBytes(16) },
-      { name: 'has device type', sessionToken: crypto.randomBytes(16), uaDeviceType: 'wibble' },
-      unnamedDevice
-    ]
-  })
-  var mockDevices = mocks.mockDevices()
-  var accountRoutes = makeRoutes({
-    db: mockDB,
-    devices: mockDevices
-  })
-  var route = getRoute(accountRoutes, '/account/devices')
-
-  return runTest(route, mockRequest, function (response) {
-    t.ok(Array.isArray(response), 'response is array')
-    t.equal(response.length, 4, 'response contains 4 items')
-
-    t.equal(response[0].name, 'current session')
-    t.equal(response[0].type, 'mobile')
-    t.equal(response[0].sessionToken, undefined)
-    t.equal(response[0].isCurrentDevice, true)
-
-    t.equal(response[1].name, 'has no type')
-    t.equal(response[1].type, 'desktop')
-    t.equal(response[1].sessionToken, undefined)
-    t.equal(response[1].isCurrentDevice, false)
-
-    t.equal(response[2].name, 'has device type')
-    t.equal(response[2].type, 'wibble')
-    t.equal(response[2].isCurrentDevice, false)
-
-    t.equal(response[3].name, null)
-
-    t.equal(mockDB.devices.callCount, 1, 'db.devices was called once')
-    t.equal(mockDB.devices.args[0].length, 1, 'db.devices was passed one argument')
-    t.deepEqual(mockDB.devices.args[0][0], mockRequest.auth.credentials.uid, 'db.devices was passed uid')
-
-    t.equal(mockDevices.synthesizeName.callCount, 1, 'mockDevices.synthesizeName was called once')
-    t.equal(mockDevices.synthesizeName.args[0].length, 1, 'mockDevices.synthesizeName was passed one argument')
-    t.equal(mockDevices.synthesizeName.args[0][0], unnamedDevice, 'mockDevices.synthesizeName was passed unnamed device')
   })
 })
 
