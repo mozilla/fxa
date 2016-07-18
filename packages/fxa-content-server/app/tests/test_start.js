@@ -154,8 +154,6 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/verification-reason-mixin',
     '../tests/spec/views/oauth_sign_in',
     '../tests/spec/views/oauth_sign_up',
-    '../tests/spec/views/openid/login',
-    '../tests/spec/views/openid/start',
     '../tests/spec/views/permissions',
     '../tests/spec/views/pp',
     '../tests/spec/views/progress_indicator',

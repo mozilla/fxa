@@ -54,8 +54,6 @@ define([
     '/oauth/force_auth': { statusCode: 200 },
     '/oauth/signin': { statusCode: 200 },
     '/oauth/signup': { statusCode: 200 },
-    '/openid/login': { statusCode: 200 },
-    '/openid/start': { statusCode: 200 },
     '/reset_password': { statusCode: 200 },
     '/reset_password_complete': { statusCode: 200 },
     '/settings': { statusCode: 200 },

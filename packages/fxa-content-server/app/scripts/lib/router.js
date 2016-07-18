@@ -30,8 +30,6 @@ define(function (require, exports, module) {
   var ForceAuthView = require('../views/force_auth');
   var GravatarPermissionsView = require('../views/settings/gravatar_permissions');
   var LegalView = require('../views/legal');
-  var OpenIdLoginView = require('../views/openid/login');
-  var OpenIdStartView = require('../views/openid/start');
   var p = require('./promise');
   var PermissionsView = require('../views/permissions');
   var PpView = require('../views/pp');
@@ -83,8 +81,6 @@ define(function (require, exports, module) {
       'oauth/force_auth(/)': createViewHandler(ForceAuthView),
       'oauth/signin(/)': createViewHandler(SignInView),
       'oauth/signup(/)': createViewHandler(SignUpView),
-      'openid/login(/)': createViewHandler(OpenIdLoginView),
-      'openid/start(/)': createViewHandler(OpenIdStartView),
       'reset_password(/)': createViewHandler(ResetPasswordView),
       'reset_password_complete(/)': createViewHandler(ReadyView, { type: VerificationReasons.PASSWORD_RESET }),
       'settings(/)': createViewHandler(SettingsView),

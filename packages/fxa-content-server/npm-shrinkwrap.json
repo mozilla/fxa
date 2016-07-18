@@ -8537,11 +8537,6 @@
         }
       }
     },
-    "openid": {
-      "version": "1.0.0",
-      "from": "openid@1.0.0",
-      "resolved": "https://registry.npmjs.org/openid/-/openid-1.0.0.tgz"
-    },
     "request": {
       "version": "2.71.0",
       "from": "request@2.71.0",
