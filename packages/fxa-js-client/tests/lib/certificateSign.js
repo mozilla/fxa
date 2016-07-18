@@ -44,6 +44,31 @@ define([
           );
       });
 
+      test('#with service option', function () {
+        return accountHelper.newVerifiedAccount()
+          .then(function (account) {
+            var publicKey = {
+              algorithm: 'RS',
+              n: '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
+              e: '65537'
+            };
+            var duration = 86400000;
+
+            return respond(
+              client.certificateSign(account.signIn.sessionToken, publicKey, duration, {
+                service: 'wibble'
+              }),
+              RequestMocks.certificateSign
+            );
+          })
+          .then(
+            function(res) {
+              assert.ok(res);
+            },
+            assert.notOk
+          );
+      });
+
       test('#with metricsContext metadata', function () {
         return accountHelper.newVerifiedAccount()
           .then(function (account) {

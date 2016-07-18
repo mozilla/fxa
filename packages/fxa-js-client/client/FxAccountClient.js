@@ -743,6 +743,7 @@ define([
    * @param {Object} publicKey The key to sign
    * @param {int} duration Time interval from now when the certificate will expire in milliseconds
    * @param {Object} [options={}] Options
+   *   @param {String} [service=''] The requesting service, sent via the query string
    *   @param {Object} [options.metricsContext={}] Metrics context metadata
    *     @param {String} options.metricsContext.flowId identifier for the current event flow
    *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
@@ -770,13 +771,18 @@ define([
 
     options = options || {};
 
+    var queryString = '';
+    if (options.service) {
+      queryString = '?service=' + encodeURIComponent(options.service);
+    }
+
     if (options.metricsContext) {
       data.metricsContext = metricsContext.marshall(options.metricsContext);
     }
 
     return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
       .then(function(creds) {
-        return self.request.send('/certificate/sign', 'POST', creds, data);
+        return self.request.send('/certificate/sign' + queryString, 'POST', creds, data);
       });
   };
 
