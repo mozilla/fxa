@@ -322,6 +322,8 @@ define(function (require, exports, module) {
 
         it('captures the exception to Sentry', function () {
           assert.isTrue(view.sentryMetrics.captureException.called);
+          assert.equal(view.sentryMetrics.captureException.firstCall.args[0].errno,
+             AuthErrors.toError('POLLING_FAILED').errno);
         });
 
         it('does not display an error to the user when unexpected error occurs', function () {
@@ -511,7 +513,6 @@ define(function (require, exports, module) {
       it('it is not visible in basic contexts', function () {
         assert.notOk($('#open-webmail').length);
       });
-
 
       it('is visible with the the openGmailButtonVisible capability and email is @gmail.com', function () {
         broker.setCapability('openWebmailButtonVisible', true);

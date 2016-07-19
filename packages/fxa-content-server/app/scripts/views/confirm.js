@@ -150,9 +150,9 @@ define(function (require, exports, module) {
             // Hide the error from the user if it is an unexpected error.
             // an error may happen here if the status api is overloaded or
             // if the user is switching networks.
-            // Report errors to Sentry, but not the user.
+            // Report a known error to Sentry, but not the user.
             // Details: github.com/mozilla/fxa-content-server/issues/2638.
-            self.logError(err);
+            self.logError(AuthErrors.toError('POLLING_FAILED'));
             var deferred = p.defer();
 
             self.setTimeout(function () {

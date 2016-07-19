@@ -279,6 +279,11 @@ define(function (require, exports, module) {
     MISSING_DATA_ATTRIBUTE: {
       errno: 1038,
       message: t('Missing data attribute: %(property)s')
+    },
+    POLLING_FAILED: {
+      // this error is not visible to the user
+      errno: 1039,
+      message: t('Server busy, try again soon')
     }
   };
   /*eslint-enable sorting/sort-object-props*/
