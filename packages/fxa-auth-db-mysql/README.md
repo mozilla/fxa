@@ -196,7 +196,7 @@ and the changes will be picked up automatically.
 [MPL 2.0][license]
 
 [ci-status-icon]: https://travis-ci.org/mozilla/fxa-auth-db-mysql.svg?branch=master
-[ci-status]: https://travis-ci.org/mozilla/fxa-auth-db-server
+[ci-status]: https://travis-ci.org/mozilla/fxa-auth-db-mysql
 [apidocs]: fxa-auth-db-server/docs/API.md
 [dbdocs]: docs/API.md
 [server-readme]: fxa-auth-db-server/README.md
