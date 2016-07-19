@@ -12,5 +12,10 @@ if (process.env.NO_COVERAGE) {
   COVERAGE_ARGS = []
 }
 
-spawn(path.join(path.dirname(__dirname), 'node_modules', '.bin', 'tap'),
+var p = spawn(path.join(path.dirname(__dirname), 'node_modules', '.bin', 'tap'),
   process.argv.slice(2).concat(COVERAGE_ARGS), { stdio: 'inherit', env: process.env })
+
+// exit this process with the same exit code as the test process
+p.on('close', function (code) {
+  process.exit(code)
+})
