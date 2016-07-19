@@ -9,8 +9,10 @@ define(function (require, exports, module) {
   var p = require('lib/promise');
   var requireOnDemand = require('lib/require-on-demand');
   var Url = require('lib/url');
+  var PasswordPromptMixin = require('views/mixins/password-prompt-mixin');
 
   var PasswordStrengthMixin = {
+
     initialize: function (options) {
       this._able = options.able;
     },
@@ -76,12 +78,17 @@ define(function (require, exports, module) {
         .then(function (passwordStrengthChecker) {
           var deferred = p.defer();
           passwordStrengthChecker(password, function (passwordCheckStatus) {
-            // in the future, do some fancy tooltip here.
             passwordCheckStatus = passwordCheckStatus || 'UNKNOWN';
 
             if (passwordCheckStatus === 'BLOOMFILTER_HIT' ||
                 passwordCheckStatus === 'BLOOMFILTER_MISS') {
               self._logStrengthExperimentEvent('bloomfilter_used');
+            }
+            if (passwordCheckStatus === 'BLOOMFILTER_HIT' ||
+                passwordCheckStatus === 'ALL_LETTERS_OR_NUMBERS') {
+              // display the warning prompt only if the password is ALL_LETTERS_OR_NUMBERS
+              // or password is found in list of common passwords
+              self.displayPasswordWarningPrompt();
             }
             self._logStrengthExperimentEvent(passwordCheckStatus);
 
@@ -96,5 +103,5 @@ define(function (require, exports, module) {
       this.logViewEvent(eventName);
     }
   };
-  module.exports = PasswordStrengthMixin;
+  module.exports = _.extend(PasswordStrengthMixin, PasswordPromptMixin);
 });

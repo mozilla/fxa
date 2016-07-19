@@ -14,6 +14,7 @@ define(function (require, exports, module) {
   var FormView = require('views/form');
   var ExperimentMixin = require('views/mixins/experiment-mixin');
   var PasswordMixin = require('views/mixins/password-mixin');
+  var PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
   var ServiceMixin = require('views/mixins/service-mixin');
   var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
   var Template = require('stache!templates/settings/change_password');
@@ -56,12 +57,14 @@ define(function (require, exports, module) {
           throw err;
         });
     }
+
   });
 
   Cocktail.mixin(
     View,
     ExperimentMixin,
     PasswordMixin,
+    PasswordStrengthMixin,
     FloatingPlaceholderMixin,
     SettingsPanelMixin,
     ServiceMixin,

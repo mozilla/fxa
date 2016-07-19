@@ -142,6 +142,7 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/open-webmail-mixin',
     '../tests/spec/views/mixins/password-mixin',
     '../tests/spec/views/mixins/password-reset-mixin',
+    '../tests/spec/views/mixins/password-prompt-mixin',
     '../tests/spec/views/mixins/password-strength-mixin',
     '../tests/spec/views/mixins/resume-token-mixin',
     '../tests/spec/views/mixins/service-mixin',
