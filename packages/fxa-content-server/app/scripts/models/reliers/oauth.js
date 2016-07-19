@@ -25,9 +25,7 @@ define(function (require, exports, module) {
     id: Vat.hex().required().renameTo('clientId'),
     image_uri: Vat.url().allow('').renameTo('imageUri'),
     name: Vat.string().required().min(1).renameTo('serviceName'),
-    privacy_uri: Vat.url().allow('').renameTo('privacyUri'),
     redirect_uri: Vat.uri().required().renameTo('redirectUri'),
-    terms_uri: Vat.url().allow('').renameTo('termsUri'),
     trusted: Vat.boolean().required()
   };
 

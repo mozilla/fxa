@@ -42,13 +42,11 @@ define(function (require, exports, module) {
     var SCOPE_PROFILE = Constants.OAUTH_TRUSTED_PROFILE_SCOPE;
     var SCOPE_PROFILE_EXPANDED = Constants.OAUTH_TRUSTED_PROFILE_SCOPE_EXPANSION.join(' ');
     var PERMISSIONS = ['profile:email', 'profile:uid'];
-    var PRIVACY_URI = 'http://privacy.com';
     var SCOPE_WITH_EXTRAS = 'profile:email profile:uid profile:non_whitelisted';
     var SERVER_REDIRECT_URI = 'http://127.0.0.1:8080/api/oauth';
     var SERVICE = 'service';
     var SERVICE_NAME = '123Done';
     var STATE = 'fakestatetoken';
-    var TERMS_URI = 'http://terms.com';
 
     var RESUME_INFO = {
       access_type: ACCESS_TYPE,
@@ -370,16 +368,6 @@ define(function (require, exports, module) {
           testInvalidClientInfoValues('name', invalidValues);
         });
 
-        describe('privacy_uri', function () {
-          var validValues = ['', ' ', PRIVACY_URI, PRIVACY_URI + ' '];
-          var expectedValues = ['', '', PRIVACY_URI, PRIVACY_URI];
-          testValidClientInfoValues(
-            'privacy_uri', validValues, 'privacyUri', expectedValues);
-
-          var invalidValues = ['not-a-url'];
-          testInvalidClientInfoValues('privacy_uri', invalidValues);
-        });
-
         describe('redirect_uri', function () {
           describe('is missing on the server', function () {
             testMissingClientInfoValue('redirect_uri');
@@ -387,15 +375,6 @@ define(function (require, exports, module) {
 
           var invalidClientInfoValues = ['', ' '];
           testInvalidClientInfoValues('redirect_uri', invalidClientInfoValues);
-        });
-
-        describe('terms_uri', function () {
-          var invalidValues = ['not-a-url'];
-          testInvalidClientInfoValues('terms_uri', invalidValues);
-
-          var validValues = ['', ' ', TERMS_URI, ' ' + TERMS_URI];
-          var expectedValues = ['', '', TERMS_URI, TERMS_URI];
-          testValidClientInfoValues('terms_uri', validValues, 'termsUri', expectedValues);
         });
 
         describe('trusted', function () {
@@ -634,9 +613,7 @@ define(function (require, exports, module) {
         var clientInfo = {
           id: CLIENT_ID,
           name: SERVICE_NAME,
-          privacy_uri: PRIVACY_URI,
           redirect_uri: SERVER_REDIRECT_URI,
-          terms_uri: TERMS_URI,
           trusted: isTrusted
         };
 

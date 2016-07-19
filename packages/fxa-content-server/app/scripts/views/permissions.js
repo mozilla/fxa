@@ -76,13 +76,10 @@ define(function (require, exports, module) {
       var requestedPermissions = this.relier.get('permissions');
       var applicablePermissions =
         this._getApplicablePermissions(account, requestedPermissions);
-      var permissionsHTML = this._getPermissionsHTML(account, applicablePermissions);
 
       return {
-        privacyUri: this.relier.get('privacyUri'),
         serviceName: this.relier.get('serviceName'),
-        termsUri: this.relier.get('termsUri'),
-        unsafePermissionsHTML: permissionsHTML,
+        unsafePermissionsHTML: this._getPermissionsHTML(account, applicablePermissions)
       };
     },
 
