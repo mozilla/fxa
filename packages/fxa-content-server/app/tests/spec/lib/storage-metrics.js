@@ -25,7 +25,6 @@ define(function (require, exports, module) {
 
       storageMetrics = new StorageMetrics({
         brokerType: 'fx-desktop',
-        campaign: 'fennec',
         clientHeight: 966,
         clientWidth: 1033,
         context: 'fx_desktop_v1',

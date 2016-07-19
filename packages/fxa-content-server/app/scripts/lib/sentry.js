@@ -12,7 +12,6 @@ define(function (require, exports, module) {
 
   var ALLOWED_QUERY_PARAMETERS = [
     'automatedBrowser',
-    'campaign',
     'client_id',
     'context',
     'customizeSync',

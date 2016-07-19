@@ -447,19 +447,18 @@ define(function (require, exports, module) {
 
     describe('pickResumeTokenInfo', function () {
       it('returns an object with info to be passed along with email verification links', function () {
-        var CAMPAIGN = 'campaign id';
+        var UTM_CAMPAIGN = 'campaign id';
         var ITEM = 'item';
         var ENTRYPOINT = 'entry point';
         var STATE = 'some long opaque state token';
         var VERIFICATION_REDIRECT = 'https://redirect.here.org';
 
         relier.set({
-          campaign: CAMPAIGN,
           entrypoint: ENTRYPOINT,
           notPassed: 'this should not be picked',
           resetPasswordConfirm: false,
           state: STATE,
-          utmCampaign: CAMPAIGN,
+          utmCampaign: UTM_CAMPAIGN,
           utmContent: ITEM,
           utmMedium: ITEM,
           utmSource: ITEM,
@@ -470,10 +469,9 @@ define(function (require, exports, module) {
         assert.deepEqual(relier.pickResumeTokenInfo(), {
           // ensure campaign and entrypoint from
           // the Relier are still passed.
-          campaign: CAMPAIGN,
           entrypoint: ENTRYPOINT,
           resetPasswordConfirm: false,
-          utmCampaign: CAMPAIGN,
+          utmCampaign: UTM_CAMPAIGN,
           utmContent: ITEM,
           utmMedium: ITEM,
           utmSource: ITEM,

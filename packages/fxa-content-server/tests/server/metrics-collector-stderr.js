@@ -77,7 +77,6 @@ define([
         assert.equal(loggedMetrics['screen.height'], 1050);
         assert.equal(loggedMetrics.entrypoint, 'menupanel');
         assert.equal(loggedMetrics.migration, 'sync1.5');
-        assert.equal(loggedMetrics.campaign, 'fennec');
       } else if (loggedMetrics.op === 'client.marketing') {
         assert.equal(loggedMetrics.campaignId, 'survey');
         assert.isFalse(loggedMetrics.clicked, true);
@@ -97,7 +96,6 @@ define([
 
     metricsCollector.write({
       broker: 'fx-desktop-v1',
-      campaign: 'fennec',
       context: 'fx_desktop_v1',
       duration: 1234,
       entrypoint: 'menupanel',

@@ -35,7 +35,6 @@ define(function (require, exports, module) {
 
   var ALLOWED_FIELDS = [
     'broker',
-    'campaign',
     'context',
     'duration',
     'entrypoint',
@@ -97,7 +96,6 @@ define(function (require, exports, module) {
     this._entrypoint = options.entrypoint || NOT_REPORTED_VALUE;
     this._migration = options.migration || NOT_REPORTED_VALUE;
     this._service = options.service || NOT_REPORTED_VALUE;
-    this._campaign = options.campaign || NOT_REPORTED_VALUE;
     this._brokerType = options.brokerType || NOT_REPORTED_VALUE;
 
     this._clientHeight = options.clientHeight || NOT_REPORTED_VALUE;
@@ -211,7 +209,6 @@ define(function (require, exports, module) {
 
       var allData = _.extend({}, loadData, unloadData, {
         broker: this._brokerType,
-        campaign: this._campaign,
         context: this._context,
         entrypoint: this._entrypoint,
         experiments: flattenHashIntoArrayOfObjects(this._activeExperiments),

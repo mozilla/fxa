@@ -10,13 +10,11 @@ define(function (require, exports, module) {
 
   var assert = chai.assert;
 
-  var CAMPAIGN = 'campaign';
   var ENTRYPOINT = 'entrypoint';
   var VERIFICATION_REDIRECT = 'https://hello.firefox.com';
   var UNIQUE_USER_ID = 'uuid';
 
   var TOKEN_OBJ = {
-    campaign: CAMPAIGN,
     entrypoint: ENTRYPOINT,
     resetPasswordConfirm: false,
     uniqueUserId: UNIQUE_USER_ID,

@@ -20,7 +20,6 @@ define(function (require, exports, module) {
     var relier;
     var windowMock;
 
-    var CAMPAIGN = 'fennec';
     var EMAIL = 'email@moz.org';
     var ENTRYPOINT = 'preferences';
     var PREVERIFY_TOKEN = 'a=.big==.token==';
@@ -43,19 +42,18 @@ define(function (require, exports, module) {
 
     it('fetch with missing `resume` token is not a problem', function () {
       windowMock.location.search = TestHelpers.toSearchString({
-        campaign: CAMPAIGN
+        utm_campaign: UTM_CAMPAIGN //eslint-disable-line camelcase
       });
 
       return relier.fetch()
         .then(function () {
-          assert.equal(relier.get('campaign'), CAMPAIGN);
+          assert.equal(relier.get('utmCampaign'), UTM_CAMPAIGN);
         });
     });
 
     it('fetch populates expected fields from the search parameters, unexpected search parameters are ignored', function () {
       windowMock.location.search = TestHelpers.toSearchString({
         allowCachedCredentials: false,
-        campaign: CAMPAIGN,
         email: EMAIL,
         entrypoint: ENTRYPOINT,
         ignored: 'ignored',
@@ -82,7 +80,6 @@ define(function (require, exports, module) {
           assert.equal(relier.get('setting'), SETTING);
           assert.equal(relier.get('uid'), UID);
           assert.equal(relier.get('entrypoint'), ENTRYPOINT);
-          assert.equal(relier.get('campaign'), CAMPAIGN);
 
           assert.equal(relier.get('utmCampaign'), UTM_CAMPAIGN);
           assert.equal(relier.get('utmContent'), UTM_CONTENT);
@@ -255,16 +252,15 @@ define(function (require, exports, module) {
     });
 
     it('pickResumeTokenInfo returns an object with info to be passed along with email verification links', function () {
-      var CAMPAIGN = 'campaign id';
+      var UTM_CAMPAIGN = 'campaign id';
       var ITEM = 'item';
       var ENTRYPOINT = 'entry point';
 
       relier.set({
-        campaign: CAMPAIGN,
         entrypoint: ENTRYPOINT,
         notPassed: 'this should not be picked',
         resetPasswordConfirm: true,
-        utmCampaign: CAMPAIGN,
+        utmCampaign: UTM_CAMPAIGN,
         utmContent: ITEM,
         utmMedium: ITEM,
         utmSource: ITEM,
@@ -272,10 +268,9 @@ define(function (require, exports, module) {
       });
 
       assert.deepEqual(relier.pickResumeTokenInfo(), {
-        campaign: CAMPAIGN,
         entrypoint: ENTRYPOINT,
         resetPasswordConfirm: true,
-        utmCampaign: CAMPAIGN,
+        utmCampaign: UTM_CAMPAIGN,
         utmContent: ITEM,
         utmMedium: ITEM,
         utmSource: ITEM,
@@ -284,13 +279,13 @@ define(function (require, exports, module) {
     });
 
     it('re-population from resume token parses the resume param into an object', function () {
-      var CAMPAIGN = 'campaign id';
+      var UTM_CAMPAIGN = 'campaign id';
       var ENTRYPOINT = 'entry point';
       var resumeData = {
-        campaign: CAMPAIGN,
         entrypoint: ENTRYPOINT,
         notImported: 'this should not be picked',
-        resetPasswordConfirm: false
+        resetPasswordConfirm: false,
+        utmCampaign: UTM_CAMPAIGN
       };
       var resumeToken = ResumeToken.stringify(resumeData);
 
@@ -300,7 +295,7 @@ define(function (require, exports, module) {
 
       return relier.fetch()
         .then(function () {
-          assert.equal(relier.get('campaign'), CAMPAIGN);
+          assert.equal(relier.get('utmCampaign'), UTM_CAMPAIGN);
           assert.equal(relier.get('entrypoint'), ENTRYPOINT);
           assert.isUndefined(relier.get('notImported'), 'only allow specific resume token values');
           assert.isFalse(relier.get('resetPasswordConfirm'));

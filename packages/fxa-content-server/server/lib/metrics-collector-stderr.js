@@ -103,8 +103,7 @@ function toLoggableEvent(event) {
     'broker',
     'entrypoint',
     'service',
-    'migration',
-    'campaign'
+    'migration'
   ], loggableEvent, event);
 
   addNavigationTiming(loggableEvent, event);

@@ -17,16 +17,16 @@ define(function (require, exports, module) {
 
   describe('models/mixins/resume-token', function () {
     var model, sentryMetrics;
-    var CAMPAIGN = 'deadbeef';
+    var UTM_CAMPAIGN = 'deadbeef';
     var RESUME_SCHEMA = {
-      campaign: vat.hex().len(8).required()
+      utmCampaign: vat.hex().len(8).required()
     };
     var VALID_RESUME_DATA = {
-      campaign: CAMPAIGN,
-      notResumeable: 'this should not be picked'
+      notResumeable: 'this should not be picked',
+      utmCampaign: UTM_CAMPAIGN
     };
     var INVALID_RESUME_DATA = {
-      campaign: 'foo'
+      utmCampaign: 'foo'
     };
     var MISSING_RESUME_DATA = {};
 
@@ -36,7 +36,7 @@ define(function (require, exports, module) {
         this.window = options.window;
       },
 
-      resumeTokenFields: ['campaign'],
+      resumeTokenFields: ['utmCampaign'],
 
       resumeTokenSchema: RESUME_SCHEMA
     });
@@ -58,7 +58,7 @@ define(function (require, exports, module) {
         model.set(VALID_RESUME_DATA);
 
         assert.deepEqual(model.pickResumeTokenInfo(), {
-          campaign: CAMPAIGN
+          utmCampaign: UTM_CAMPAIGN
         });
       });
     });
@@ -70,7 +70,7 @@ define(function (require, exports, module) {
       });
 
       it('populates the model with data from the ResumeToken', function () {
-        assert.equal(model.get('campaign'), CAMPAIGN);
+        assert.equal(model.get('utmCampaign'), UTM_CAMPAIGN);
         assert.isFalse(model.has('notResumeable'), 'only allow specific resume token values');
       });
 
@@ -86,7 +86,7 @@ define(function (require, exports, module) {
       });
 
       it('does not populate the model', function () {
-        assert.isFalse(model.has('campaign'));
+        assert.isFalse(model.has('utmCampaign'));
       });
 
       it('called sentryMetrics.captureException correctly', function () {
@@ -94,7 +94,7 @@ define(function (require, exports, module) {
         var args = sentryMetrics.captureException.args[0];
         assert.lengthOf(args, 1);
         assert.instanceOf(args[0], Error);
-        assert.strictEqual(args[0].message, 'Invalid property in resume token: campaign');
+        assert.strictEqual(args[0].message, 'Invalid property in resume token: utmCampaign');
       });
     });
 
@@ -105,7 +105,7 @@ define(function (require, exports, module) {
       });
 
       it('does not populate the model', function () {
-        assert.isFalse(model.has('campaign'));
+        assert.isFalse(model.has('utmCampaign'));
       });
 
       it('called sentryMetrics.captureException correctly', function () {
@@ -113,7 +113,7 @@ define(function (require, exports, module) {
         var args = sentryMetrics.captureException.args[0];
         assert.lengthOf(args, 1);
         assert.instanceOf(args[0], Error);
-        assert.strictEqual(args[0].message, 'Missing property in resume token: campaign');
+        assert.strictEqual(args[0].message, 'Missing property in resume token: utmCampaign');
       });
     });
 
@@ -124,7 +124,7 @@ define(function (require, exports, module) {
       });
 
       it('parses the resume param into an object', function () {
-        assert.equal(model.get('campaign'), CAMPAIGN);
+        assert.equal(model.get('utmCampaign'), UTM_CAMPAIGN);
         assert.isFalse(model.has('notResumeable'), 'only allow specific resume token values');
       });
 
@@ -140,7 +140,7 @@ define(function (require, exports, module) {
       });
 
       it('does not populate the model', function () {
-        assert.isFalse(model.has('campaign'));
+        assert.isFalse(model.has('utmCampaign'));
       });
 
       it('called sentryMetrics.captureException correctly', function () {
@@ -148,7 +148,7 @@ define(function (require, exports, module) {
         var args = sentryMetrics.captureException.args[0];
         assert.lengthOf(args, 1);
         assert.instanceOf(args[0], Error);
-        assert.strictEqual(args[0].message, 'Invalid property in resume token: campaign');
+        assert.strictEqual(args[0].message, 'Invalid property in resume token: utmCampaign');
       });
     });
 
@@ -159,7 +159,7 @@ define(function (require, exports, module) {
       });
 
       it('does not populate the model', function () {
-        assert.isFalse(model.has('campaign'));
+        assert.isFalse(model.has('utmCampaign'));
       });
 
       it('called sentryMetrics.captureException correctly', function () {
@@ -167,7 +167,7 @@ define(function (require, exports, module) {
         var args = sentryMetrics.captureException.args[0];
         assert.lengthOf(args, 1);
         assert.instanceOf(args[0], Error);
-        assert.strictEqual(args[0].message, 'Missing property in resume token: campaign');
+        assert.strictEqual(args[0].message, 'Missing property in resume token: utmCampaign');
       });
     });
   });

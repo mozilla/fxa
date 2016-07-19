@@ -29,7 +29,6 @@ define(function (require, exports, module) {
 
       metrics = new Metrics(_.defaults(options, {
         brokerType: 'fx-desktop-v1',
-        campaign: 'fennec',
         clientHeight: 966,
         clientWidth: 1033,
         context: 'fx_desktop_v1',
@@ -89,7 +88,6 @@ define(function (require, exports, module) {
         assert.equal(filteredData.lang, 'db_LB');
         assert.equal(filteredData.entrypoint, 'menupanel');
         assert.equal(filteredData.migration, 'sync1.5');
-        assert.equal(filteredData.campaign, 'fennec');
         assert.equal(filteredData.uniqueUserId, '0ae7fe2b-244f-4a78-9857-dff3ae263927');
         assert.equal(filteredData.startTime, 1439233336187);
 
@@ -198,9 +196,8 @@ define(function (require, exports, module) {
               assert.equal(windowMock.navigator.sendBeacon.getCall(0).args[0], '/metrics');
 
               var data = JSON.parse(windowMock.navigator.sendBeacon.getCall(0).args[1]);
-              assert.lengthOf(Object.keys(data), 26);
+              assert.lengthOf(Object.keys(data), 25);
               assert.equal(data.broker, 'none');
-              assert.equal(data.campaign, 'none');
               assert.equal(data.context, 'web');
               assert.isNumber(data.duration);
               assert.equal(data.entrypoint, 'none');
@@ -322,7 +319,7 @@ define(function (require, exports, module) {
               assert.equal(settings.contentType, 'application/json');
 
               var data = JSON.parse(settings.data);
-              assert.lengthOf(Object.keys(data), 26);
+              assert.lengthOf(Object.keys(data), 25);
               assert.isArray(data.events);
               assert.lengthOf(data.events, 4);
               assert.equal(data.events[0].type, 'foo');
@@ -395,7 +392,7 @@ define(function (require, exports, module) {
             assert.isTrue(metrics._send.getCall(0).args[1]);
 
             var data = metrics._send.getCall(0).args[0];
-            assert.lengthOf(Object.keys(data), 26);
+            assert.lengthOf(Object.keys(data), 25);
             assert.lengthOf(data.events, 4);
             assert.equal(data.events[0].type, 'foo');
             assert.equal(data.events[1].type, 'flow.begin');
@@ -419,7 +416,7 @@ define(function (require, exports, module) {
             assert.isTrue(metrics._send.getCall(0).args[1]);
 
             var data = metrics._send.getCall(0).args[0];
-            assert.lengthOf(Object.keys(data), 26);
+            assert.lengthOf(Object.keys(data), 25);
             assert.lengthOf(data.events, 4);
             assert.equal(data.events[0].type, 'foo');
             assert.equal(data.events[1].type, 'flow.begin');

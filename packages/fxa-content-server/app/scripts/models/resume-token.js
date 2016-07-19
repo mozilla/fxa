@@ -15,7 +15,6 @@ define(function (require, exports, module) {
 
   var ResumeToken = Backbone.Model.extend({
     defaults: {
-      campaign: undefined,
       entrypoint: undefined,
       flowBegin: undefined,
       flowId: undefined,

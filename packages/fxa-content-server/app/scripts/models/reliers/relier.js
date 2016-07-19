@@ -24,7 +24,6 @@ define(function (require, exports, module) {
   var Vat = require('lib/vat');
 
   var RELIER_FIELDS_IN_RESUME_TOKEN = [
-    'campaign',
     'entrypoint',
     'resetPasswordConfirm',
     'utmCampaign',
@@ -36,7 +35,6 @@ define(function (require, exports, module) {
 
   /*eslint-disable camelcase*/
   var QUERY_PARAMETER_SCHEMA = {
-    campaign: Vat.string(),
     email: Vat.email().allow(Constants.DISALLOW_CACHED_CREDENTIALS),
     // FxDesktop declares both `entryPoint` (capital P) and
     // `entrypoint` (lowcase p). Normalize to `entrypoint`.
@@ -70,7 +68,6 @@ define(function (require, exports, module) {
   var Relier = BaseRelier.extend({
     defaults: {
       allowCachedCredentials: true,
-      campaign: null,
       email: null,
       entrypoint: null,
       migration: null,

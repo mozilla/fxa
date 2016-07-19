@@ -23,9 +23,6 @@ If the user is migrating from an "old sync", this is the version the user is mig
 ### lang
 The locale shown to the user.
 
-### campaign
-If the user is shown a Firefox Accounts promotion in Firefox browser chrome, the link to FxA will contain a `campaign` field. Set to `none` if not reported.
-
 ### marketing
 A log of marketing links shown to the user on `signup_complete`. An array of entries, each entry contains the following fields:
 * campaignId - The marketing campaign identifier.

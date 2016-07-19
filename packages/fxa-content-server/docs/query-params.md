@@ -111,10 +111,6 @@ When the relier supports being linked to its `redirect_uri` without extra OAuth 
 
 ## Firefox/Sync parameters
 
-### `campaign`
-If the user arrived at Firefox Accounts via a Mozilla marketing campaign,
-specify the campaign identifier.
-
 #### When to specify
 
 * /signin
