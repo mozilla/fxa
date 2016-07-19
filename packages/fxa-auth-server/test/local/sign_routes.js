@@ -5,33 +5,35 @@
 require('ass')
 
 var crypto = require('crypto')
-var uuid = require('uuid')
 var error = require('../../lib/error')
 var getRoute = require('../routes_helpers').getRoute
 var isA = require('joi')
 var mocks = require('../mocks')
 var P = require('../../lib/promise')
+var sinon = require('sinon')
 var test = require('../ptaptest')
 
 test(
-  '/certificate/sign',
+  '/certificate/sign emits account.signed activity event',
   function (t) {
-    var deviceId = crypto.randomBytes(16)
-    var mockDevices = mocks.mockDevices({
-      deviceId: deviceId
+    var mockLog = mocks.mockLog({
+      activityEvent: sinon.spy()
     })
-    var mockLog = mocks.spyLog()
-    var mockRequest = mocks.mockRequest({
-      credentials: {
-        accountCreatedAt: Date.now(),
-        emailVerified: true,
-        lastAuthAt: function () {
-          return Date.now()
-        },
-        locale: 'en',
-        tokenId: crypto.randomBytes(16),
-        uid: uuid.v4('binary')
+    var mockRequest = {
+      auth: {
+        credentials: {
+          accountCreatedAt: Date.now(),
+          deviceId: crypto.randomBytes(16),
+          emailVerified: true,
+          lastAuthAt: function () {
+            return Date.now()
+          },
+          locale: 'en',
+          tokenId: crypto.randomBytes(16),
+          uid: crypto.randomBytes(16)
+        }
       },
+      headers: {},
       payload: {
         duration: 0,
         publicKey: {
@@ -41,97 +43,39 @@ test(
         }
       },
       query: {}
+    }
+    var signRoutes = makeRoutes({
+      config: {
+        memcache: {
+          address: '127.0.0.1:11211',
+          idle: 100
+        }
+      },
+      log: mockLog
     })
 
-    test('without service', function (t) {
-      return runTest({
-        devices: mockDevices,
-        log: mockLog
-      }, mockRequest, function () {
-        t.equal(mockDevices.upsert.callCount, 1, 'devices.upsert was called once')
-        var args = mockDevices.upsert.args[0]
-        t.equal(args.length, 3, 'devices.upsert was passed one argument')
-        t.equal(args[0], mockRequest, 'first argument was request object')
-        t.equal(args[1], mockRequest.auth.credentials, 'second argument was sessionToken')
-        t.deepEqual(args[2], {}, 'third argument was empty object')
-
-        t.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
-        args = mockLog.activityEvent.args[0]
-        t.equal(args.length, 3, 'log.activityEvent was passed three arguments')
-        t.equal(args[0], 'account.signed', 'first argument was event name')
-        t.equal(args[1], mockRequest, 'second argument was request object')
-        t.deepEqual(args[2], {
+    return new P(function (resolve) {
+      getRoute(signRoutes, '/certificate/sign')
+        .handler(mockRequest, resolve)
+    })
+    .then(
+      function () {
+        t.equal(mockLog.activityEvent.callCount, 1)
+        t.equal(mockLog.activityEvent.args[0].length, 3)
+        t.equal(mockLog.activityEvent.args[0][0], 'account.signed')
+        t.equal(mockLog.activityEvent.args[0][1], mockRequest)
+        t.deepEqual(mockLog.activityEvent.args[0][2], {
           uid: mockRequest.auth.credentials.uid.toString('hex'),
           account_created_at: mockRequest.auth.credentials.accountCreatedAt,
-          device_id: deviceId.toString('hex')
-        }, 'third argument was event data')
-      })
-      .then(function () {
-        mockLog.activityEvent.reset()
-        mockDevices.upsert.reset()
-      })
-    }, t)
-
-    test('with service=sync', function (t) {
-      mockRequest.query.service = 'sync'
-
-      return runTest({
-        devices: mockDevices,
-        log: mockLog
-      }, mockRequest, function () {
-        t.equal(mockDevices.upsert.callCount, 1, 'devices.upsert was called once')
-        t.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
-      })
-      .then(function () {
-        mockLog.activityEvent.reset()
-        mockDevices.upsert.reset()
-      })
-    }, t)
-
-    test('with service=foo', function (t) {
-      mockRequest.query.service = 'foo'
-
-      return runTest({
-        devices: mockDevices,
-        log: mockLog
-      }, mockRequest, function () {
-        t.equal(mockDevices.upsert.callCount, 0, 'devices.upsert was not called')
-        t.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
-        t.equal(mockLog.activityEvent.args[0][2].device_id, undefined, 'device_id was undefined')
-      })
-      .then(function () {
-        mockLog.activityEvent.reset()
-        mockDevices.upsert.reset()
-      })
-    }, t)
-
-    test('with deviceId', function (t) {
-      mockRequest.query.service = 'sync'
-      mockRequest.auth.credentials.deviceId = crypto.randomBytes(16)
-
-      return runTest({
-        devices: mockDevices,
-        log: mockLog
-      }, mockRequest, function () {
-        t.equal(mockDevices.upsert.callCount, 0, 'devices.upsert was not called')
-        t.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
-        t.equal(mockLog.activityEvent.args[0][2].device_id, mockRequest.auth.credentials.deviceId.toString('hex'), 'device_id was correct')
-      })
-      .then(function () {
-        mockLog.activityEvent.reset()
-        mockDevices.upsert.reset()
-      })
-    }, t)
+          device_id: mockRequest.auth.credentials.deviceId.toString('hex')
+        })
+      },
+      function () {
+        t.fail('request should have succeeded')
+      }
+    )
   }
 )
-
-function runTest (options, request, assertions) {
-  return new P(function (resolve) {
-    getRoute(makeRoutes(options), '/certificate/sign')
-      .handler(request, resolve)
-  })
-  .then(assertions)
-}
 
 function makeRoutes (options) {
   options = options || {}
@@ -153,8 +97,7 @@ function makeRoutes (options) {
       updateLocale: function () {}
     },
     options.domain || 'wibble',
-    options.metricsContext || require('../../lib/metrics/context')(log, config),
-    options.devices
+    options.metricsContext || require('../../lib/metrics/context')(log, config)
   )
 }
 
