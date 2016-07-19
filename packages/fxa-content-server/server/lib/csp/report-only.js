@@ -22,10 +22,12 @@ module.exports = function (config) {
   }
 
   return {
-    reportOnly: true,
-    reportUri: config.get('csp.reportOnlyUri'),
-    scriptSrc: addCdnRuleIfRequired([
-      SELF
-    ])
+    directives: {
+      reportUri: config.get('csp.reportOnlyUri'),
+      scriptSrc: addCdnRuleIfRequired([
+        SELF
+      ])
+    },
+    reportOnly: true
   };
 };

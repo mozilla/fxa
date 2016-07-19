@@ -68,14 +68,14 @@ function makeApp() {
   // render the correct template for the locale.
   app.use(localizedRender({ i18n: i18n }));
 
-  app.use(helmet.xframe('deny'));
+  app.use(helmet.frameguard({ action: 'deny' }));
   app.use(helmet.xssFilter());
   app.use(helmet.hsts({
     force: true,
     includeSubdomains: true,
     maxAge: config.get('hsts_max_age')
   }));
-  app.use(helmet.nosniff());
+  app.use(helmet.noSniff());
 
   if (config.get('csp.enabled')) {
     app.use(csp({ rules: cspRulesBlocking }));

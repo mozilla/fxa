@@ -61,7 +61,7 @@
     "grunt-usemin": "3.1.1",
     "grunt-z-schema": "0.1.0",
     "handlebars": "4.0.5",
-    "helmet": "0.12.0",
+    "helmet": "2.1.1",
     "i18n-abide": "0.0.25",
     "jsxgettext-recursive": "0.0.5",
     "load-grunt-tasks": "3.5.0",

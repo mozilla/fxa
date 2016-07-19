@@ -8,7 +8,6 @@
 // tests.
 
 var helmet = require('helmet');
-
 var utils = require('./utils');
 
 function isCspRequired(req) {
@@ -27,7 +26,7 @@ function isCspRequired(req) {
 }
 
 module.exports = function (config) {
-  var cspMiddleware = helmet.csp(config.rules);
+  var cspMiddleware = helmet.contentSecurityPolicy(config.rules);
 
   return function (req, res, next) {
     if (! isCspRequired(req)) {

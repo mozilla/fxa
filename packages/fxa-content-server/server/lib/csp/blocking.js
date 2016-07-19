@@ -36,36 +36,38 @@ module.exports = function (config) {
   }
 
   return {
-    connectSrc: [
-      SELF,
-      getOrigin(config.get('fxaccount_url')),
-      config.get('oauth_url'),
-      config.get('profile_url'),
-      config.get('marketing_email.api_url')
-    ],
-    defaultSrc: [SELF],
-    fontSrc: addCdnRuleIfRequired([
-      SELF
-    ]),
-    imgSrc: addCdnRuleIfRequired([
-      SELF,
-      DATA,
-      GRAVATAR,
-      config.get('profile_images_url')
-    ]),
-    mediaSrc: [BLOB],
-    reportOnly: false,
-    reportUri: config.get('csp.reportUri'),
-    scriptSrc: addCdnRuleIfRequired([
-      // allow unsafe-eval for functional tests. A report-only middleware
-      // is also added that does not allow 'unsafe-eval' so that we can see
-      // if other scripts are being added.
-      SELF, "'unsafe-eval'"
-    ]),
-    styleSrc: addCdnRuleIfRequired([
-      SELF,
-      // The sha of the embedded <style> tag in default-profile.svg.
-      "'sha256-9n6ek6ecEYlqel7uDyKLy6fdGNo3vw/uScXSq9ooQlk='"
-    ])
+    directives: {
+      connectSrc: [
+        SELF,
+        getOrigin(config.get('fxaccount_url')),
+        config.get('oauth_url'),
+        config.get('profile_url'),
+        config.get('marketing_email.api_url')
+      ],
+      defaultSrc: [SELF],
+      fontSrc: addCdnRuleIfRequired([
+        SELF
+      ]),
+      imgSrc: addCdnRuleIfRequired([
+        SELF,
+        DATA,
+        GRAVATAR,
+        config.get('profile_images_url')
+      ]),
+      mediaSrc: [BLOB],
+      reportUri: config.get('csp.reportUri'),
+      scriptSrc: addCdnRuleIfRequired([
+        // allow unsafe-eval for functional tests. A report-only middleware
+        // is also added that does not allow 'unsafe-eval' so that we can see
+        // if other scripts are being added.
+        SELF, "'unsafe-eval'"
+      ]),
+      styleSrc: addCdnRuleIfRequired([
+        SELF,
+        // The sha of the embedded <style> tag in default-profile.svg.
+        "'sha256-9n6ek6ecEYlqel7uDyKLy6fdGNo3vw/uScXSq9ooQlk='"
+      ])
+    },
+    reportOnly: false
   };
 };
