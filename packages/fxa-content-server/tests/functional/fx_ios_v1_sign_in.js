@@ -24,20 +24,23 @@ define([
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var openPage = thenify(FunctionalHelpers.openPage);
+  var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
+  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfMessage);
   var testIsBrowserNotifiedOfLogin = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfLogin);
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
-  var setupTest = thenify(function (context, preVerified, options) {
-    options = options || {};
+  var setupTest = thenify(function (context, preVerified) {
 
     return this.parent
       .then(createUser(email, PASSWORD, { preVerified: preVerified }))
-      .then(openPage(context, options.pageUrl || PAGE_URL, '#fxa-signin-header'))
+      .then(openPage(context, PAGE_URL, '#fxa-signin-header'))
       .execute(listenForFxaCommands)
       .then(fillOutSignIn(context, email, PASSWORD))
-      .then(testIsBrowserNotified(context, 'can_link_account'));
+      .then(testIsBrowserNotified(context, 'can_link_account'))
+      .then(testIsBrowserNotifiedOfLogin(context, email, { checkVerified: false }))
+      .then(testElementExists(preVerified ? '#fxa-confirm-signin-header' : '#fxa-confirm-header'));
   });
 
   registerSuite({
@@ -50,20 +53,33 @@ define([
         .then(clearBrowserState(this));
     },
 
-    'verified': function () {
+    'verified, verify same browser': function () {
       return this.remote
         .then(setupTest(this, true))
 
-        .then(noPageTransition('#fxa-signin-header'))
-        .then(testIsBrowserNotifiedOfLogin(this, email, { checkVerified: true }));
+        .then(openVerificationLinkInNewTab(this, email, 0))
+        .switchToWindow('newwindow')
+          .then(testElementExists('#fxa-sign-in-complete-header'))
+          .closeCurrentWindow()
+        .switchToWindow('')
+
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-confirm-signin-header'));
+    },
+
+    'verified, verify different browser - from original tab\'s P.O.V.': function () {
+      return this.remote
+        .then(setupTest(this, true))
+
+        .then(openVerificationLinkDifferentBrowser(email))
+
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-confirm-signin-header'));
     },
 
     'unverified': function () {
       return this.remote
-        .then(setupTest(this, false))
-
-        .then(testElementExists('#fxa-confirm-header'))
-        .then(testIsBrowserNotifiedOfLogin(this, email, { checkVerified: false }));
+        .then(setupTest(this, false));
     },
 
     'signup link is enabled': function () {

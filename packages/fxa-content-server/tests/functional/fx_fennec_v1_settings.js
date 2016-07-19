@@ -18,6 +18,7 @@ define([
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = thenify(FunctionalHelpers.openPage);
+  var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
@@ -46,6 +47,10 @@ define([
         .then(fillOutSignIn(this, email, FIRST_PASSWORD))
         .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+
+        // User must confirm their Sync signin
+        .then(openVerificationLinkDifferentBrowser(email))
+        .then(testElementExists('#fxa-sign-in-complete-header'))
 
         // wait until account data is in localstorage before redirecting
         .then(FunctionalHelpers.pollUntil(function () {

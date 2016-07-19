@@ -15,6 +15,8 @@ define([
   var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openForceAuth = FunctionalHelpers.openForceAuth;
+  var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
+  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
@@ -31,9 +33,12 @@ define([
         email: email,
         service: 'sync'
       }}))
-      .then(noSuchBrowserNotification(context, 'fxaccounts:logout'))
       .then(respondToWebChannelMessage(context, 'fxaccounts:can_link_account', { ok: true } ))
-      .then(fillOutForceAuth(PASSWORD));
+      .then(fillOutForceAuth(PASSWORD))
+
+      .then(testElementExists(preVerified ? '#fxa-confirm-signin-header' : '#fxa-confirm-header'))
+      .then(testIsBrowserNotified(context, 'fxaccounts:can_link_account'))
+      .then(testIsBrowserNotified(context, 'fxaccounts:login'));
   });
 
   registerSuite({
@@ -43,13 +48,23 @@ define([
       email = TestHelpers.createEmail('sync{id}');
     },
 
-    'verified': function () {
+    'verified, verify same browser': function () {
       return this.remote
         .then(setupTest(this, true))
 
-        .then(testElementExists('#fxa-force-auth-complete-header'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(openVerificationLinkInNewTab(this, email, 0))
+        .switchToWindow('newwindow')
+          .then(testElementExists('#fxa-sign-in-complete-header'))
+          .then(noSuchBrowserNotification(this, 'fxaccounts:sync_preferences'))
+          // user wants to open sync preferences.
+          .then(click('#sync-preferences'))
+
+          // browser is notified of desire to open Sync preferences
+          .then(testIsBrowserNotified(this, 'fxaccounts:sync_preferences'))
+          .closeCurrentWindow()
+        .switchToWindow('')
+
+        .then(testElementExists('#fxa-sign-in-complete-header'))
 
         .then(noSuchBrowserNotification(this, 'fxaccounts:sync_preferences'))
         // user wants to open sync preferences.
@@ -59,14 +74,18 @@ define([
         .then(testIsBrowserNotified(this, 'fxaccounts:sync_preferences'));
     },
 
+    'verified, verify different browser - from original tab\'s P.O.V.': function () {
+      return this.remote
+        .then(setupTest(this, true))
+
+        .then(openVerificationLinkDifferentBrowser(email))
+
+        .then(testElementExists('#fxa-sign-in-complete-header'));
+    },
+
     'unverified': function () {
       return this.remote
-        .then(setupTest(this, false))
-
-        .then(testElementExists('#fxa-confirm-header'))
-
-        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'));
+        .then(setupTest(this, false));
     }
   });
 });

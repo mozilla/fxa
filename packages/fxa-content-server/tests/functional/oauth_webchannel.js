@@ -119,6 +119,10 @@ define([
         .closeCurrentWindow()
         // switch to the original window
         .switchToWindow('')
+
+        .findById('fxa-sign-up-complete-header')
+        .end()
+
         .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
         .then(function () {
           messageReceived = true;
@@ -129,9 +133,6 @@ define([
         .then(function () {
           assert.isTrue(messageReceived, 'expected to receive a WebChannel event in either tab');
         })
-
-        .findById('fxa-sign-up-complete-header')
-        .end()
 
         // Do not expect a post-verification email, those are for Sync.
         .then(noEmailExpected(email, 1));
@@ -157,10 +158,11 @@ define([
         })
 
         .switchToWindow('newwindow')
-        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
 
         .findById('fxa-sign-up-complete-header')
         .end()
+
+        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
 
         .closeCurrentWindow()
         // switch to the original window
@@ -187,10 +189,10 @@ define([
           return self.remote.get(require.toUrl(verificationLink));
         })
 
-        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
-
         .findById('fxa-sign-up-complete-header')
-        .end();
+        .end()
+
+        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }));
     },
 
     'signup, verify different browser - from original tab\'s P.O.V.': function () {
@@ -209,10 +211,10 @@ define([
           return FunctionalHelpers.openVerificationLinkDifferentBrowser(client, email);
         })
 
-        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
-
         .findById('fxa-sign-up-complete-header')
-        .end();
+        .end()
+
+        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }));
     },
 
     'signup, verify different browser - from new browser\'s P.O.V.': function () {
@@ -301,6 +303,11 @@ define([
         .closeCurrentWindow()
         // switch to the original window
         .switchToWindow('')
+
+        // the original tab should automatically sign in
+        .findByCssSelector('#fxa-reset-password-complete-header')
+        .end()
+
         .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
         .then(function () {
           messageReceived = true;
@@ -310,10 +317,7 @@ define([
 
         .then(function () {
           assert.isTrue(messageReceived, 'expected to receive a WebChannel event in either tab');
-        })
-        // the original tab should automatically sign in
-        .findByCssSelector('#fxa-reset-password-complete-header')
-        .end();
+        });
     },
 
     'reset password, verify same browser with original tab closed': function () {
@@ -349,11 +353,11 @@ define([
               self, PASSWORD, PASSWORD);
         })
 
-        // the tab should automatically sign in
-        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
-
         .findByCssSelector('#fxa-reset-password-complete-header')
         .end()
+
+        // the tab should automatically sign in
+        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
 
         .closeCurrentWindow()
         // switch to the original window
@@ -393,11 +397,11 @@ define([
               self, PASSWORD, PASSWORD);
         })
 
-        // the tab should automatically sign in
-        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
-
         .findByCssSelector('#fxa-reset-password-complete-header')
-        .end();
+        .end()
+
+        // the tab should automatically sign in
+        .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }));
     },
 
     'reset password, verify in different browser, from the original tab\'s P.O.V.': function () {

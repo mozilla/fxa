@@ -170,9 +170,8 @@ define([
 
         .then(openVerificationLinkDifferentBrowser(email))
 
-        .then(testIsBrowserNotifiedOfLogin(this, { shouldCloseTab: false }))
-
-        .then(testElementExists('#fxa-sign-up-complete-header'));
+        .then(testElementExists('#fxa-sign-up-complete-header'))
+        .then(testIsBrowserNotifiedOfLogin(this, { shouldCloseTab: false }));
     },
 
     'reset password, verify same browser': function () {
@@ -332,5 +331,4 @@ define([
         .then(testIsBrowserNotifiedOfLogin(this, { shouldCloseTab: true }));
     }
   });
-
 });
