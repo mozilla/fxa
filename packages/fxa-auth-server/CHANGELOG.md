@@ -1,3 +1,13 @@
+<a name="1.65.2"></a>
+## [1.65.2](https://github.com/mozilla/fxa-auth-server/compare/v1.65.0...v1.65.2) (2016-07-19)
+
+
+### Bug Fixes
+
+* **server:** remove placeholder device records for sync sessions ([1af5624](https://github.com/mozilla/fxa-auth-server/commit/1af5624))
+
+
+
 <a name="1.65.0"></a>
 # [1.65.0](https://github.com/mozilla/fxa-auth-server/compare/v1.64.0...v1.65.0) (2016-07-14)
 
