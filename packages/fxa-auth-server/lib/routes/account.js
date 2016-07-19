@@ -237,7 +237,7 @@ module.exports = function (
         function sendVerifyCode () {
           if (! account.emailVerified) {
             mailer.sendVerifyCode(account, account.emailCode, {
-              service: service,
+              service: form.service || query.service,
               redirectTo: form.redirectTo,
               resume: form.resume,
               acceptLanguage: request.app.acceptLanguage
@@ -754,7 +754,7 @@ module.exports = function (
           schema: isA.object({
             id: isA.string().length(32).regex(HEX_STRING).required(),
             createdAt: isA.number().positive().optional(),
-            // We previously allowed devices to register with arbitrary unicode names,
+            // We previously allowed devices to register with arbitrry unicode names,
             // so we can't assert DISPLAY_SAFE_UNICODE in the response schema.
             name: isA.string().max(255).optional(),
             type: isA.string().max(16).optional(),
@@ -775,7 +775,6 @@ module.exports = function (
             log.increment('device.update.spurious')
             return reply(payload)
           }
-
           // We also reserve the right to disable updates until
           // we're confident clients are behaving correctly.
           if (config.deviceUpdatesEnabled === false) {
@@ -876,7 +875,7 @@ module.exports = function (
             id: isA.string().length(32).regex(HEX_STRING).required(),
             isCurrentDevice: isA.boolean().required(),
             lastAccessTime: isA.number().min(0).required().allow(null),
-            // We previously allowed devices to register with arbitrary unicode names,
+            // We previously allowed devices to register with arbitrry unicode names,
             // so we can't assert DISPLAY_SAFE_UNICODE in the response schema.
             name: isA.string().max(255).required(),
             type: isA.string().max(16).required(),
@@ -896,7 +895,6 @@ module.exports = function (
               device.isCurrentDevice =
                 device.sessionToken.toString('hex') === sessionToken.tokenId.toString('hex')
               delete device.sessionToken
-
               return butil.unbuffer(device)
             }))
           },

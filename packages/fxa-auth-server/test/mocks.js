@@ -15,7 +15,7 @@ var DB_METHOD_NAMES = ['account', 'createAccount', 'createDevice', 'createKeyFet
                        'createSessionToken', 'deleteAccount', 'deleteDevice', 'deleteKeyFetchToken',
                        'deletePasswordChangeToken', 'deleteVerificationReminder', 'devices',
                        'emailRecord', 'resetAccount', 'sessions', 'sessionTokenWithVerificationStatus',
-                       'updateDevice', 'updateLocale', 'updateSessionToken', 'verifyEmail', 'verifyTokens']
+                       'updateDevice', 'verifyEmail', 'verifyTokens']
 
 var LOG_METHOD_NAMES = ['trace', 'increment', 'info', 'error', 'begin', 'warn', 'timing',
                         'activityEvent', 'notifyAttachedServices']
@@ -90,7 +90,10 @@ function mockDB (data, errors) {
       })
     }),
     devices: sinon.spy(function () {
-      return P.resolve(data.devices || [])
+      return P.resolve([])
+    }),
+    deleteVerificationReminder: sinon.spy(function () {
+      return P.resolve()
     }),
     emailRecord: sinon.spy(function () {
       if (errors.emailRecord) {
@@ -110,10 +113,16 @@ function mockDB (data, errors) {
       })
     }),
     sessions: sinon.spy(function () {
-      return P.resolve(data.sessions || [])
+      return P.resolve([])
     }),
     updateDevice: sinon.spy(function (uid, sessionTokenId, device) {
       return P.resolve(device)
+    }),
+    verifyEmail: sinon.spy(function () {
+      return P.resolve()
+    }),
+    verifyTokens: sinon.spy(function () {
+      return P.resolve()
     })
   })
 }
@@ -165,7 +174,7 @@ function spyLog (methods) {
 function mockRequest (data) {
   return {
     app: {
-      acceptLanguage: 'en-US'
+      acceptLangage: 'en-US'
     },
     auth: {
       credentials: data.credentials

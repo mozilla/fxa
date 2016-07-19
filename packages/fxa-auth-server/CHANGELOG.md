@@ -1,15 +1,10 @@
-<a name="1.65.1"></a>
-## [1.65.1](https://github.com/mozilla/fxa-auth-server/compare/v1.65.0...v1.65.1) (2016-07-18)
+<a name="1.65.2"></a>
+## [1.65.2](https://github.com/mozilla/fxa-auth-server/compare/v1.65.0...v1.65.2) (2016-07-19)
 
 
 ### Bug Fixes
 
-* **deps:** update most dev dependencies ([dc4c5ff](https://github.com/mozilla/fxa-auth-server/commit/dc4c5ff))
-* **server:** remove placeholder device records for sync sessions ([c4c6733](https://github.com/mozilla/fxa-auth-server/commit/c4c6733))
-
-### chore
-
-* **deps:** update tap testing to latest version (#1339) r=vladikoff ([6648da0](https://github.com/mozilla/fxa-auth-server/commit/6648da0))
+* **server:** remove placeholder device records for sync sessions ([1af5624](https://github.com/mozilla/fxa-auth-server/commit/1af5624))
 
 
 
