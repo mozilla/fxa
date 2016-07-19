@@ -30,7 +30,7 @@ cp.exec(cmd, function (err, stdout) {
   var cmd = 'git config --get remote.origin.url'
   cp.exec(cmd, function (err, stdout) {
     info.version.source = (stdout && stdout.trim()) || ''
-    console.log(JSON.stringify(info, null, 2))
+    console.log(JSON.stringify(info, null, 2)) //eslint-disable-line no-console
   })
 })
 

@@ -8,7 +8,7 @@
 // so that each new account is linked to either one, two or
 // three sessions.
 
-var log = { trace: console.log, error: console.log, stat: console.log, info: console.log }
+var log = { trace: console.log, error: console.log, stat: console.log, info: console.log } //eslint-disable-line no-console
 var DB = require('../lib/db/mysql')(log, require('../fxa-auth-db-server').errors)
 var config = require('../config')
 var crypto = require('crypto')

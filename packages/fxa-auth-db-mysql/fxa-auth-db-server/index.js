@@ -33,52 +33,6 @@ function createServer(db) {
     }
   }
 
-  function handleSuccess(req, res, result) {
-    api.emit(
-      'success',
-      {
-        code: 200,
-        route: req.route.name,
-        method: req.method,
-        path: req.url,
-        t: Date.now() - req.time()
-      }
-    )
-    if (Array.isArray(result)) {
-      res.send(result.map(bufferize.unbuffer))
-    }
-    else {
-      res.send(bufferize.unbuffer(result || {}))
-    }
-  }
-
-  function handleError (req, res, err) {
-    if (typeof err !== 'object') {
-      err = { message: err || 'none' }
-    }
-
-    var statusCode = err.code || 500
-
-    api.emit(
-      'failure',
-      {
-        code: statusCode,
-        route: req.route ? req.route.name : 'unknown',
-        method: req.method,
-        path: req.url,
-        err: err,
-        t: Date.now() - req.time(),
-      }
-    )
-
-    res.send(statusCode, {
-      message: err.message,
-      errno: err.errno,
-      error: err.error,
-      code: err.code
-    })
-  }
-
   var api = restify.createServer()
   api.use(restify.bodyParser())
   api.use(restify.queryParser())
@@ -191,6 +145,52 @@ function createServer(db) {
       next()
     }
   )
+
+  function handleSuccess(req, res, result) {
+    api.emit(
+      'success',
+      {
+        code: 200,
+        route: req.route.name,
+        method: req.method,
+        path: req.url,
+        t: Date.now() - req.time()
+      }
+    )
+    if (Array.isArray(result)) {
+      res.send(result.map(bufferize.unbuffer))
+    }
+    else {
+      res.send(bufferize.unbuffer(result || {}))
+    }
+  }
+
+  function handleError (req, res, err) {
+    if (typeof err !== 'object') {
+      err = { message: err || 'none' }
+    }
+
+    var statusCode = err.code || 500
+
+    api.emit(
+      'failure',
+      {
+        code: statusCode,
+        route: req.route ? req.route.name : 'unknown',
+        method: req.method,
+        path: req.url,
+        err: err,
+        t: Date.now() - req.time(),
+      }
+    )
+
+    res.send(statusCode, {
+      message: err.message,
+      errno: err.errno,
+      error: err.error,
+      code: err.code
+    })
+  }
 
   var memInterval = setInterval(function() {
     api.emit('mem', process.memoryUsage())

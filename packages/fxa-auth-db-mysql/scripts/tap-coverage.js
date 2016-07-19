@@ -21,7 +21,7 @@ var p = spawn(path.join(path.dirname(__dirname), 'node_modules', '.bin', 'tap'),
 p.on('close', function(code) {
   if (!process.env.NO_COVERAGE) {
     ass.report('json', function(err, r) {
-      console.log('code coverage:', r.percent + '%')
+      console.log('code coverage:', r.percent + '%') //eslint-disable-line no-console
       process.stdout.write('generating coverage.html: ')
       var start = new Date()
       ass.report('html', function(err, html) {
