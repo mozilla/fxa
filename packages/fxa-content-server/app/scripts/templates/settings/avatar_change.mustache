@@ -12,7 +12,9 @@
       <a href="#" id="file">{{#t}}Upload{{/t}}</a>
       <a href="/settings/avatar/camera" id="camera">{{#t}}Camera{{/t}}</a>
       <a href="/settings/avatar/gravatar_permissions" id="gravatar">{{#t}}Gravatar{{/t}}</a>
-      <a href="#" class="remove hidden">{{#t}}Clear{{/t}}</a>
+      {{#hasProfileImage}}
+      <a href="#" class="remove">{{#t}}Clear{{/t}}</a>
+      {{/hasProfileImage}}
     </nav>
 
     <div class="button-row">

@@ -45,15 +45,17 @@ define(function (require, exports, module) {
       }
     },
 
+    context: function () {
+      var account = this.getSignedInAccount();
+      return {
+        'hasProfileImage': account.has('profileImageUrl')
+      };
+    },
+
     afterVisible: function () {
       var self = this;
       FormView.prototype.afterVisible.call(self);
-      return self.displayAccountProfileImage(self.getAccount())
-        .then(function () {
-          if (self.getAccount().has('profileImageUrl')) {
-            self.$('.remove').removeClass('hidden');
-          }
-        });
+      return self.displayAccountProfileImage(self.getAccount());
     },
 
     afterRender: function () {
