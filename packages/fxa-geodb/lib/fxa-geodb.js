@@ -87,6 +87,6 @@ function Location(locationData, userLocale) {
 
   if (locationData.subdivisions) {
     this.state = this.getLocaleSpecificLocationString(locationData.subdivisions[0], userLocale);
-    this.state_code = locationData.subdivisions[0] && locationData.subdivisions[0].iso_code;
+    this.stateCode = locationData.subdivisions[0] && locationData.subdivisions[0].iso_code;
   }
 }

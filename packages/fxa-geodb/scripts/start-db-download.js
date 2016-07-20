@@ -19,5 +19,5 @@ if (require.main === module) {
   // By default, we do not setup autoUpdate, needs to be
   // done through options when library is imported, or manually
   // by running npm run-scripts update
-  // maxmindDbDownloader.setupAutoUpdate('30 30 1 * * 3', remainingDownloads);
+  // maxmindDbDownloader.setupAutoUpdate('30 30 1 * * 3', downloadPromiseFunctions);
 }
