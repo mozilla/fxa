@@ -43,23 +43,29 @@ $(document).ready(function() {
     }
 
     var logout = function() {
-      loggedInEmail = null;
-      updateUI(loggedInEmail);
-      updateListArea(loggedInEmail);
-
-      $("#splash").show();
-      $("#lists").hide();
-
-      // clear items from the dom at logout
-      $("#todolist > li").remove();
-      State.save();
-
-      // don't display the warning icon at logout time, but wait until the user
-      // makes a change to her tasks
-      $("#dataState > div").css('display', 'none');
-
       // upon logout, make an api request to tear the user's session down
-      $.post('/api/logout');
+      // then change the UI
+      $.post('/api/logout')
+        .always(function() {
+          loggedInEmail = null;
+          updateUI(loggedInEmail);
+          updateListArea(loggedInEmail);
+
+          $("#splash").show();
+          $("#lists").hide();
+
+          // clear items from the dom at logout
+          $("#todolist > li").remove();
+          State.save();
+
+          // don't display the warning icon at logout time, but wait until the user
+          // makes a change to her tasks
+          $("#dataState > div").css('display', 'none');
+        })
+        .fail(function() {
+          // this should never happen
+          alert('Failed to logout');
+        });
     };
 
     function authenticate (endpoint, flow) {
