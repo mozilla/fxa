@@ -13,20 +13,24 @@ module.exports = function (options) {
   options = options || {};
   var dbPath = options.dbPath || DEFAULTS.DB_PATH;
 
-  var dbLookup;
+  var dbLookup = null;
   // we quit if the db did not load for some reason
   try {
     dbLookup = maxmind.open(dbPath);
   } catch (err) {
     // if it failed with primary database
-    // then quit with error
-    throw ERRORS.UNABLE_TO_OPEN_FILE;
+    // then do nothing
   }
 
   return function (ip, options) {
     options = options || {};
     var userLocale = options.userLocale || 'en';
     return new Promise(function (resolve, reject) {
+      if (! dbLookup) {
+        return reject({
+          message: ERRORS.UNABLE_TO_OPEN_FILE
+        });
+      }
       // check if ip is valid
       if (! maxmind.validate(ip)) {
         return reject({
