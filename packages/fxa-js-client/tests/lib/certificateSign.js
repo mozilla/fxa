@@ -44,7 +44,7 @@ define([
           );
       });
 
-      test('#with metricsContext metadata', function () {
+      test('#with service option', function () {
         return accountHelper.newVerifiedAccount()
           .then(function (account) {
             var publicKey = {
@@ -56,11 +56,7 @@ define([
 
             return respond(
               client.certificateSign(account.signIn.sessionToken, publicKey, duration, {
-                metricsContext: {
-                  flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
-                  flowBeginTime: Date.now(),
-                  forbiddenProperty: 666
-                }
+                service: 'wibble'
               }),
               RequestMocks.certificateSign
             );
