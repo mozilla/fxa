@@ -37,12 +37,17 @@ accuracy: 'accuracy-radius-in-km', // 5 (number)
 city: 'human-readable-city-name', // Mountain View
 continent: 'human-readable-continent-name', // North America
 country: 'human-readable-country-name', // USA
-ll: {
+latLong: {
     latitude: 'latitude-in-decimal', // 37.386 (number)
     longitude: 'longitude-in-decimal' // -122.0838 (number)
 },
-time_zone: 'IANA-compatible-timezone', // America/Los_Angeles 
+state: 'human-readable-state-name', // Victoria
+stateCode: 'human-readable-state-code', // VIC
+timeZone: 'IANA-compatible-timezone', // America/Los_Angeles 
 ```
+
+A working example is provided in the `examples` directory.
+
 --
 
 ### Testing
@@ -51,12 +56,23 @@ Mocha Tests are located in the `test` subdirectory. To run the tests, call `npm 
 
 --
 ### Code Coverage
-Code coverage is provided with `Istanbul`, to run coverage, simply call `npm run-script cover`
+Code coverage is provided with `Istanbul`, to run coverage, call `npm run-script cover`
 
 --
 ### Updating
-A Cron job that runs every week on Wednesday at 01:30:30 (UTC -7) updates the Geodata-DB from Maxmind. 
-All you have to do while using the repo for the first time is to run `npm run-script build`, and the cron job will keep running in the background.
+A Cron job is provided in `lib/maxmind-db-downloader`, that can be configured and run like so:
+
+```JavaScript
+  var maxmindDbDownloader = new MaxmindDbDownloader();
+  var targetDirPath = maxmindDbDownloader.createTargetDir('db-name');
+  var downloadPromiseFunctions = maxmindDbDownloader.setupDownloadList(
+    path.join(__dirname, '..','path-to-sources-file'),
+    targetDirPath
+  );
+  maxmindDbDownloader.setupAutoUpdate('30 30 1 * * 3', downloadPromiseFunctions);
+```
+
+By default, the cron job runs every week on Wednesday at 01:30:30 (UTC -7) and updates the Geodata-DB from Maxmind. 
  
 ### Getting involved
 
