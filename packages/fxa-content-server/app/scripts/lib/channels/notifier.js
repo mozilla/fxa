@@ -17,6 +17,17 @@ define(function (require, exports, module) {
   // handled by the content server. Other commands may be handled
   // both externally and internally to the content server.
   var COMMANDS = {
+    CHANGE_PASSWORD: {
+      name: 'fxaccounts:change_password',
+      schema: {
+        email: 'String',
+        keyFetchToken: 'String',
+        sessionToken: 'String',
+        uid: 'String',
+        unwrapBKey: 'String',
+        verified: 'Boolean'
+      }
+    },
     COMPLETE_RESET_PASSWORD_TAB_OPEN: {
       name: 'fxaccounts:complete_reset_password_tab_open',
       schema: null
@@ -54,6 +65,7 @@ define(function (require, exports, module) {
 
   var Notifer = Backbone.Model.extend({
     COMMANDS: COMMAND_NAMES,
+    SCHEMATA: SCHEMATA,
 
     initialize: function (options) {
       options = options || {};
@@ -80,11 +92,27 @@ define(function (require, exports, module) {
       }
     },
 
+    /**
+     * Send a notification to all interested parties, local and remote.
+     * This includes listeners internal to the app, other FxA tabs, as
+     * well as the browser.
+     *
+     * @param {string} command
+     * @param {object} data
+     * @param {context} context
+     */
     triggerAll: function (command, data, context) {
       this.triggerRemote(command, data);
       this.trigger(command, data, context);
     },
 
+    /**
+     * Send a notification to all interested remote parties,
+     * including other FxA tabs.
+     *
+     * @param {string} command
+     * @param {object} data
+     */
     triggerRemote: function (command, data) {
       // Validation distinguishes between undefined values and values that are
       // set to undefined. And some channels don't serialise their payloads, so

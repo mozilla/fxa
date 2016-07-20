@@ -11,17 +11,17 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var AuthErrors = require('lib/auth-errors');
-  var BaseAuthenticationBroker = require('models/auth_brokers/base');
-  var ChannelMixin = require('models/auth_brokers/mixins/channel');
-  var Cocktail = require('cocktail');
-  var p = require('lib/promise');
-  var Logger = require('lib/logger');
+  const _ = require('underscore');
+  const AuthErrors = require('lib/auth-errors');
+  const BaseAuthenticationBroker = require('models/auth_brokers/base');
+  const ChannelMixin = require('models/auth_brokers/mixins/channel');
+  const Cocktail = require('cocktail');
+  const p = require('lib/promise');
+  const Logger = require('lib/logger');
 
-  var proto = BaseAuthenticationBroker.prototype;
+  const proto = BaseAuthenticationBroker.prototype;
 
-  var FxSyncAuthenticationBroker = BaseAuthenticationBroker.extend({
+  const FxSyncAuthenticationBroker = BaseAuthenticationBroker.extend({
     type: 'fx-sync',
 
     /**
@@ -38,6 +38,10 @@ define(function (require, exports, module) {
      * @property commands
      */
     commands: null,
+
+    defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
+      sendChangePasswordNotice: true
+    }),
 
     getCommand: function (commandName) {
       if (! this.commands) {
@@ -143,14 +147,19 @@ define(function (require, exports, module) {
     },
 
     afterChangePassword: function (account) {
-      var self = this;
-      return self.send(
-        self.getCommand('CHANGE_PASSWORD'),
-        self._getLoginData(account)
-      )
-      .then(function () {
-        return proto.afterChangePassword.call(self, account);
-      });
+      // If the message is sent over the WebChannel by the global WebChannel,
+      // no need to send it from within the auth broker too.
+      if (this.hasCapability('sendChangePasswordNotice')) {
+        return this.send(
+          this.getCommand('CHANGE_PASSWORD'),
+          this._getLoginData(account)
+        )
+        .then(() => {
+          return proto.afterChangePassword.call(this, account);
+        });
+      } else {
+        return proto.afterChangePassword.call(this, account);
+      }
     },
 
     afterDeleteAccount: function (account) {

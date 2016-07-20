@@ -24,6 +24,30 @@ define(function (require, exports, module) {
     return $.trim(str);
   }
 
+  const CONTEXTS_REQUIRE_KEYS = [
+    'iframe',
+    // allow fx_desktop_v1, many users signed up using
+    // the old context and are now using a newer version
+    // of Firefox that accepts WebChannel messages.
+    'fx_desktop_v1',
+    'fx_desktop_v2',
+    'fx_desktop_v3',
+    'fx_fennec_v1',
+    'fx_firstrun_v2',
+    // ios uses the old CustomEvents and cannot accept WebChannel messages
+  ];
+
+  /**
+   * Check if keys should be requested
+   * @param {object} relier - relier being signed in to.
+   * @param {string} sessionTokenContext - context of the current session
+   * token.
+   */
+  function wantsKeys(relier, sessionTokenContext) {
+    return relier.wantsKeys() ||
+           _.contains(CONTEXTS_REQUIRE_KEYS, sessionTokenContext);
+  }
+
   // errors from the FxaJSClient must be normalized so that they
   // are translated and reported to metrics correctly.
   function wrapClientToNormalizeErrors(client) {
@@ -128,8 +152,7 @@ define(function (require, exports, module) {
         });
     },
 
-    _getUpdatedSessionData: function (email, relier, accountData, options) {
-      options = options || {};
+    _getUpdatedSessionData: function (email, relier, accountData, options = {}) {
       var sessionTokenContext = options.sessionTokenContext;
       if (! sessionTokenContext && relier.isSync()) {
         sessionTokenContext = Constants.SESSION_TOKEN_USED_FOR_SYNC;
@@ -145,10 +168,11 @@ define(function (require, exports, module) {
         verified: accountData.verified || false
       };
 
-      if (relier.wantsKeys()) {
+      if (wantsKeys(relier, sessionTokenContext)) {
         updatedSessionData.unwrapBKey = accountData.unwrapBKey;
         updatedSessionData.keyFetchToken = accountData.keyFetchToken;
       }
+
       if (relier.isSync()) {
         updatedSessionData.customizeSync = options.customizeSync || false;
       }
@@ -185,7 +209,7 @@ define(function (require, exports, module) {
       return self._getClient()
         .then(function (client) {
           var signInOptions = {
-            keys: relier.wantsKeys(),
+            keys: wantsKeys(relier),
             reason: options.reason || SignInReasons.SIGN_IN
           };
 
@@ -250,7 +274,7 @@ define(function (require, exports, module) {
       return self._getClient()
         .then(function (client) {
           var signUpOptions = {
-            keys: relier.wantsKeys()
+            keys: wantsKeys(relier)
           };
 
           if (relier.has('service')) {
@@ -402,7 +426,7 @@ define(function (require, exports, module) {
                   newPassword,
                   result.accountResetToken,
                   {
-                    keys: relier.wantsKeys(),
+                    keys: wantsKeys(relier),
                     sessionToken: true
                   }
                 );
@@ -492,20 +516,19 @@ define(function (require, exports, module) {
      */
     changePassword: function (originalEmail, oldPassword, newPassword, sessionToken, sessionTokenContext, relier) {
       var email = trim(originalEmail);
-      var self = this;
-      return self._getClient()
-        .then(function (client) {
+      return this._getClient()
+        .then((client) => {
           return client.passwordChange(
             email,
             oldPassword,
             newPassword,
             {
-              keys: relier.wantsKeys(),
+              keys: wantsKeys(relier, sessionTokenContext),
               sessionToken: sessionToken
             }
           );
         })
-        .then(function (accountData) {
+        .then((accountData = {}) => {
           // BEGIN TRANSITION CODE
           // only return updated account data if account data is
           // returned. This is to ensure the content server and auth
@@ -513,14 +536,14 @@ define(function (require, exports, module) {
           // confirmation feature is released. Hopefully after a couple
           // of trains the check can be removed and all calls return
           // new account data.
-          if (accountData && accountData.sessionToken) {
+          if (accountData.sessionToken) {
             // END TRANSITION CODE
-            return self._getUpdatedSessionData(email, relier, accountData, {
+            return this._getUpdatedSessionData(email, relier, accountData, {
               sessionTokenContext: sessionTokenContext
             });
             // BEGIN TRANSITION CODE
           } else {
-            return self.signIn(
+            return this.signIn(
               email,
               newPassword,
               relier,

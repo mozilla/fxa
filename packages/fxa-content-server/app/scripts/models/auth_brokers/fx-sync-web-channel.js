@@ -10,16 +10,23 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Constants = require('lib/constants');
-  var FxSyncAuthenticationBroker = require('./fx-sync');
-  var WebChannel = require('lib/channels/web');
+  const _ = require('underscore');
+  const Constants = require('lib/constants');
+  const FxSyncAuthenticationBroker = require('./fx-sync');
+  const WebChannel = require('lib/channels/web');
 
-  var FxSyncWebChannelAuthenticationBroker = FxSyncAuthenticationBroker.extend({
+  const proto = FxSyncAuthenticationBroker.prototype;
+
+  const FxSyncWebChannelAuthenticationBroker = FxSyncAuthenticationBroker.extend({
     type: 'fx-sync-web-channel',
+
+    defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
+      sendChangePasswordNotice: false
+    }),
 
     commands: {
       CAN_LINK_ACCOUNT: 'fxaccounts:can_link_account',
-      CHANGE_PASSWORD: 'fxaccounts:change_password',
+      CHANGE_PASSWORD: null,
       DELETE_ACCOUNT: 'fxaccounts:delete_account',
       LOADED: 'fxaccounts:loaded',
       LOGIN: 'fxaccounts:login',

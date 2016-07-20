@@ -1164,6 +1164,49 @@ define(function (require, exports, module) {
             assert.isTrue(sessionData.verified);
           });
       });
+
+      it('requests keys for any relier if sessionTokenContext indicates keys were needed previously', function () {
+        var trimmedEmail = trim(email);
+
+        var relier = {
+          isSync () {
+            return false;
+          },
+          wantsKeys () {
+            return false;
+          }
+        };
+
+        sinon.stub(realClient, 'passwordChange', function () {
+          return p({
+            email: trimmedEmail,
+            keyFetchToken: 'new keyFetchToken',
+            sessionToken: 'new sessionToken',
+            uid: 'uid',
+            verified: true
+          });
+        });
+
+        return client.changePassword(email, password, 'new_password', 'sessionToken', 'fx_desktop_v1', relier)
+          .then((sessionData) => {
+            assert.isTrue(realClient.passwordChange.calledWith(
+              trimmedEmail,
+              password,
+              'new_password',
+              {
+                keys: true,
+                sessionToken: 'sessionToken'
+              }
+            ));
+
+            assert.equal(sessionData.email, trimmedEmail);
+            assert.equal(sessionData.keyFetchToken, 'new keyFetchToken');
+            assert.equal(sessionData.sessionToken, 'new sessionToken');
+            assert.equal(sessionData.sessionTokenContext, 'fx_desktop_v1');
+            assert.equal(sessionData.uid, 'uid');
+            assert.isTrue(sessionData.verified);
+          });
+      });
     });
 
     describe('isPasswordResetComplete', function () {

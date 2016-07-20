@@ -857,22 +857,37 @@ define(function (require, exports, module) {
       });
     });
 
-    it('changeAccountPassword changes the account password', function () {
-      var relierMock = {};
-      var account = user.initAccount({ email: 'email', uid: 'uid' });
+    it('changeAccountPassword changes the account password, notifies the browser', function () {
+      const account = user.initAccount({
+        email: 'email',
+        keyFetchToken: 'old-key-fetch-token',
+        sessionToken: 'old-session-token',
+        sessionTokenContext: 'fx_desktop_v2',
+        uid: 'uid',
+        unwrapBKey: 'old-unwrap-b-key',
+      });
+      const newPassword = 'new_password';
+      const oldPassword = 'password';
+      const relierMock = {};
 
-      sinon.stub(account, 'changePassword', function () {
+      sinon.stub(account, 'changePassword', () => {
+        account.set({
+          keyFetchToken: 'new-key-fetch-token',
+          sessionToken: 'new-session-token',
+          unwrapBKey: 'new-unwrap-b-key',
+          verified: true,
+        });
+
         return p();
       });
-      sinon.stub(user, 'setSignedInAccount', function () {
-        return p();
+      sinon.stub(user, 'setSignedInAccount', (account) => {
+        return p(account);
       });
+      sinon.spy(notifier, 'triggerRemote');
 
-      var oldPassword = 'password';
-      var newPassword = 'new_password';
-
-      return user.changeAccountPassword(account, oldPassword, newPassword, relierMock)
-        .then(function () {
+      return user.changeAccountPassword(
+        account, oldPassword, newPassword, relierMock)
+        .then(() => {
           assert.isTrue(account.changePassword.calledWith(
             oldPassword,
             newPassword,
@@ -880,6 +895,21 @@ define(function (require, exports, module) {
           ));
 
           assert.isTrue(user.setSignedInAccount.calledWith(account));
+
+          assert.equal(notifier.triggerRemote.callCount, 1);
+          const changePasswordCommand = notifier.COMMANDS.CHANGE_PASSWORD;
+
+          const args = notifier.triggerRemote.args[0];
+          assert.equal(args[0], changePasswordCommand);
+
+          assert.deepEqual(args[1], {
+            email: 'email',
+            keyFetchToken: 'new-key-fetch-token',
+            sessionToken: 'new-session-token',
+            uid: 'uid',
+            unwrapBKey: 'new-unwrap-b-key',
+            verified: true
+          });
         });
     });
 

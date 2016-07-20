@@ -14,10 +14,7 @@ define([
   var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
   var createUser = FunctionalHelpers.createUser;
   var fillOutChangePassword = thenify(FunctionalHelpers.fillOutChangePassword);
-  var fillOutDeleteAccount = thenify(FunctionalHelpers.fillOutDeleteAccount);
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
-  var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
-  var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = thenify(FunctionalHelpers.openPage);
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
@@ -26,8 +23,8 @@ define([
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   var config = intern.config;
-  var SIGNIN_URL = config.fxaContentRoot + 'signin?context=fx_fennec_v1&service=sync&forceAboutAccounts=true';
-  var SETTINGS_URL = config.fxaContentRoot + 'settings?context=fx_fennec_v1&service=sync&forceAboutAccounts=true';
+  var SIGNIN_URL = config.fxaContentRoot + 'signin?context=fx_firstrun_v2&service=sync';
+  var SETTINGS_URL = config.fxaContentRoot + 'settings?context=fx_firstrun_v2&service=sync';
   var SETTINGS_NOCONTEXT_URL = config.fxaContentRoot + 'settings';
 
   var FIRST_PASSWORD = 'password';
@@ -36,7 +33,7 @@ define([
 
 
   registerSuite({
-    name: 'Firefox Fennec Sync v1 settings',
+    name: 'Firstrun Sync v2 settings',
 
     beforeEach: function () {
       email = TestHelpers.createEmail('sync{id}');
@@ -50,10 +47,8 @@ define([
         .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
 
-        // User must confirm their Sync signin
         .then(testElementExists('#fxa-confirm-signin-header'))
         .then(openVerificationLinkDifferentBrowser(email))
-        .then(testElementExists('#fxa-sign-in-complete-header'))
 
         // wait until account data is in localstorage before redirecting
         .then(FunctionalHelpers.pollUntil(function () {
@@ -63,7 +58,6 @@ define([
 
         .then(openPage(this, SETTINGS_URL, '#fxa-settings-header'));
     },
-
 
     'sign in, change the password': function () {
       return this.remote
@@ -79,29 +73,9 @@ define([
         .then(openPage(this, SETTINGS_NOCONTEXT_URL, '#fxa-settings-header'))
         .then(click('#change-password .settings-unit-toggle'))
         .then(visibleByQSA('#change-password .settings-unit-details'))
-        .then(noSuchBrowserNotification(this, 'fxaccounts:change_password'))
 
         .then(fillOutChangePassword(this, FIRST_PASSWORD, SECOND_PASSWORD))
         .then(testIsBrowserNotified(this, 'fxaccounts:change_password'));
-    },
-
-    'sign in, delete the account': function () {
-      return this.remote
-        .then(click('#delete-account .settings-unit-toggle'))
-        .then(visibleByQSA('#delete-account .settings-unit-details'))
-
-        .then(fillOutDeleteAccount(this, FIRST_PASSWORD))
-        // Fx desktop requires fxaccounts:delete, Fennec requires
-        // fxaccounts:delete_account
-        .then(testIsBrowserNotified(this, 'fxaccounts:delete_account'))
-
-        .then(testElementExists('#fxa-signup-header'));
-    },
-
-    'sign in, no way to sign out': function () {
-      return this.remote
-        // make sure the sign out element doesn't exist
-        .then(noSuchElement(this, '#signout'));
     }
   });
 });

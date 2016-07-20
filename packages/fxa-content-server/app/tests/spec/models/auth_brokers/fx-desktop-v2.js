@@ -140,10 +140,12 @@ define(function (require, exports, module) {
     });
 
     describe('afterChangePassword', function () {
-      it('notifies the channel with `fxaccounts:change_password`', function () {
+      it('does not notify channel with `fxaccounts:change_password`', function () {
+        // The message is sent over the WebChannel by the global WebChannel, no
+        // need ot send it from within the auth broker too.
         return broker.afterChangePassword(account)
-          .then(function () {
-            assert.isTrue(channelMock.send.calledWith('fxaccounts:change_password'));
+          .then(() => {
+            assert.isFalse(channelMock.send.calledWith('fxaccounts:change_password'));
           });
       });
     });

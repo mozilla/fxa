@@ -16,6 +16,7 @@ define([
   var fillOutChangePassword = thenify(FunctionalHelpers.fillOutChangePassword);
   var fillOutDeleteAccount = thenify(FunctionalHelpers.fillOutDeleteAccount);
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = thenify(FunctionalHelpers.openPage);
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
@@ -27,6 +28,7 @@ define([
   var config = intern.config;
   var SIGNIN_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v3&service=sync&forceAboutAccounts=true';
   var SETTINGS_URL = config.fxaContentRoot + 'settings?context=fx_desktop_v3&service=sync&forceAboutAccounts=true';
+  var SETTINGS_NOCONTEXT_URL = config.fxaContentRoot + 'settings';
 
   var FIRST_PASSWORD = 'password';
   var SECOND_PASSWORD = 'new_password';
@@ -47,6 +49,8 @@ define([
         .then(fillOutSignIn(this, email, FIRST_PASSWORD))
         .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+
+        .then(testElementExists('#fxa-confirm-signin-header'))
         .then(openVerificationLinkDifferentBrowser(email))
 
         // wait until account data is in localstorage before redirecting
@@ -58,11 +62,21 @@ define([
         .then(openPage(this, SETTINGS_URL, '#fxa-settings-header'));
     },
 
-
     'sign in, change the password': function () {
       return this.remote
         .then(click('#change-password .settings-unit-toggle'))
         .then(visibleByQSA('#change-password .settings-unit-details'))
+
+        .then(fillOutChangePassword(this, FIRST_PASSWORD, SECOND_PASSWORD))
+        .then(testIsBrowserNotified(this, 'fxaccounts:change_password'));
+    },
+
+    'sign in, change the password by browsing directly to settings': function () {
+      return this.remote
+        .then(openPage(this, SETTINGS_NOCONTEXT_URL, '#fxa-settings-header'))
+        .then(click('#change-password .settings-unit-toggle'))
+        .then(visibleByQSA('#change-password .settings-unit-details'))
+        .then(noSuchBrowserNotification(this, 'fxaccounts:change_password'))
 
         .then(fillOutChangePassword(this, FIRST_PASSWORD, SECOND_PASSWORD))
         .then(testIsBrowserNotified(this, 'fxaccounts:change_password'));

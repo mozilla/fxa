@@ -453,11 +453,36 @@ define(function (require, exports, module) {
         });
     },
 
+    /**
+     * Change the account password
+     *
+     * @param {object} account - account to change the password for.
+     * @param {string} oldPassword - the old password
+     * @param {string} newPassword - the new password
+     * @param {object} relier - the relier used to open settings
+     * @return {object} promise - resolves with the updated account
+     * when complete.
+     */
     changeAccountPassword: function (account, oldPassword, newPassword, relier) {
-      var self = this;
       return account.changePassword(oldPassword, newPassword, relier)
-        .then(function () {
-          return self.setSignedInAccount(account);
+        .then(() => {
+          return this.setSignedInAccount(account);
+        })
+        .then(() => {
+          // Notify the browser whenever the password has changed
+          const notifier = this._notifier;
+          const changePasswordCommand = notifier.COMMANDS.CHANGE_PASSWORD;
+
+          const loginData = account.pick(
+              Object.keys(notifier.SCHEMATA[changePasswordCommand]));
+          loginData.verified = !! loginData.verified;
+
+          notifier.triggerRemote(
+            changePasswordCommand,
+            loginData
+          );
+
+          return account;
         });
     },
 
