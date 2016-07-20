@@ -53,12 +53,12 @@ var mockDbResult = {
 }
 
 test(
-  'pushToDevice throws on device not found',
+  'pushToDevices throws on device not found',
   function (t) {
     var push = require('../../lib/push')(mockLog(), mockDbEmpty)
     sinon.spy(push, 'sendPush')
 
-    push.pushToDevice(mockUid, 'bogusid').then(function () {
+    push.pushToDevices([mockUid], 'bogusid').then(function () {
       t.fail('must throw')
     }, function(err) {
       t.notOk(push.sendPush.called)
@@ -68,7 +68,7 @@ test(
 )
 
 test(
-  'pushToDevices does not throw on empty device result',
+  'pushToAllDevices does not throw on empty device result',
   function (t) {
     var thisMockLog = mockLog({
       info: function (log) {
@@ -80,7 +80,7 @@ test(
 
     try {
       var push = require('../../lib/push')(thisMockLog, mockDbEmpty)
-      push.pushToDevices(mockUid).catch(function (err) {
+      push.pushToAllDevices(mockUid).catch(function (err) {
         t.fail('must not throw')
         throw err
       })
@@ -92,7 +92,7 @@ test(
 )
 
 test(
-  'pushToDevices does not send notification to an excluded device',
+  'pushToAllDevices does not send notification to an excluded device',
   function (t) {
     var mocks = {
       'web-push': {
@@ -105,12 +105,12 @@ test(
 
     var push = proxyquire('../../lib/push', mocks)(mockLog(), mockDbResult)
     var options = { excludedDeviceIds: [mockDevices[0].id] }
-    push.pushToDevices(mockUid, 'accountVerify', options)
+    push.pushToAllDevices(mockUid, 'accountVerify', options)
   }
 )
 
 test(
-  'pushToDevices calls sendPush',
+  'pushToAllDevices calls sendPush',
   function (t) {
     try {
       var push = require('../../lib/push')(mockLog(), mockDbResult)
@@ -118,7 +118,7 @@ test(
       var excluded = [mockDevices[0].id]
       var data = new Buffer('foobar')
       var options = { data: data, excludedDeviceIds: excluded, TTL: TTL }
-      push.pushToDevices(mockUid, 'deviceConnected', options).catch(function (err) {
+      push.pushToAllDevices(mockUid, 'deviceConnected', options).catch(function (err) {
         t.fail('must not throw')
         throw err
       })
@@ -138,14 +138,14 @@ test(
 )
 
 test(
-  'pushToDevice calls sendPush',
+  'pushToDevices calls sendPush',
   function (t) {
     try {
       var push = require('../../lib/push')(mockLog(), mockDbResult)
       sinon.stub(push, 'sendPush')
       var data = new Buffer('foobar')
       var options = { data: data, TTL: TTL }
-      push.pushToDevice(mockUid, mockDevices[0].id, 'deviceConnected', options).catch(function (err) {
+      push.pushToDevices(mockUid, [mockDevices[0].id], 'deviceConnected', options).catch(function (err) {
         t.fail('must not throw')
         throw err
       })
@@ -158,6 +158,29 @@ test(
         push.sendPush.restore()
         t.end()
       })
+    } catch (e) {
+      t.fail('must not throw')
+    }
+  }
+)
+
+test(
+  'pushToDevice calls pushToDevices',
+  function (t) {
+    try {
+      var push = require('../../lib/push')(mockLog(), mockDbResult)
+      sinon.stub(push, 'pushToDevices')
+      var data = new Buffer('foobar')
+      var options = { data: data, TTL: TTL }
+      push.pushToDevice(mockUid, mockDevices[0].id, 'deviceConnected', options)
+
+      t.ok(push.pushToDevices.calledOnce, 'pushToDevices was called')
+      t.equal(push.pushToDevices.getCall(0).args[0], mockUid)
+      t.deepEqual(push.pushToDevices.getCall(0).args[1], [mockDevices[0].id])
+      t.equal(push.pushToDevices.getCall(0).args[2], 'deviceConnected')
+      t.deepEqual(push.pushToDevices.getCall(0).args[3], { data: data, TTL: TTL })
+      push.pushToDevices.restore()
+      t.end()
     } catch (e) {
       t.fail('must not throw')
     }
@@ -401,20 +424,20 @@ test(
 )
 
 test(
-  'notifyUpdate calls pushToDevices',
+  'notifyUpdate calls pushToAllDevices',
   function (t) {
     try {
       var push = require('../../lib/push')(mockLog(), mockDbEmpty)
-      sinon.spy(push, 'pushToDevices')
+      sinon.spy(push, 'pushToAllDevices')
       push.notifyUpdate(mockUid, 'passwordReset').catch(function (err) {
         t.fail('must not throw')
         throw err
       })
       .then(function() {
-        t.ok(push.pushToDevices.calledOnce, 'pushToDevices was called')
-        t.equal(push.pushToDevices.getCall(0).args[0], mockUid)
-        t.equal(push.pushToDevices.getCall(0).args[1], 'passwordReset')
-        push.pushToDevices.restore()
+        t.ok(push.pushToAllDevices.calledOnce, 'pushToAllDevices was called')
+        t.equal(push.pushToAllDevices.getCall(0).args[0], mockUid)
+        t.equal(push.pushToAllDevices.getCall(0).args[1], 'passwordReset')
+        push.pushToAllDevices.restore()
         t.end()
       })
     } catch (e) {
@@ -424,20 +447,20 @@ test(
 )
 
 test(
-  'notifyUpdate without a 2nd arg calls pushToDevices with a accountVerify reason',
+  'notifyUpdate without a 2nd arg calls pushToAllDevices with a accountVerify reason',
   function (t) {
     try {
       var push = require('../../lib/push')(mockLog(), mockDbEmpty)
-      sinon.spy(push, 'pushToDevices')
+      sinon.spy(push, 'pushToAllDevices')
       push.notifyUpdate(mockUid).catch(function (err) {
         t.fail('must not throw')
         throw err
       })
       .then(function() {
-        t.ok(push.pushToDevices.calledOnce, 'pushToDevices was called')
-        t.equal(push.pushToDevices.getCall(0).args[0], mockUid)
-        t.equal(push.pushToDevices.getCall(0).args[1], 'accountVerify')
-        push.pushToDevices.restore()
+        t.ok(push.pushToAllDevices.calledOnce, 'pushToAllDevices was called')
+        t.equal(push.pushToAllDevices.getCall(0).args[0], mockUid)
+        t.equal(push.pushToAllDevices.getCall(0).args[1], 'accountVerify')
+        push.pushToAllDevices.restore()
         t.end()
       })
     } catch (e) {
@@ -447,11 +470,11 @@ test(
 )
 
 test(
-  'notifyDeviceConnected calls pushToDevices',
+  'notifyDeviceConnected calls pushToAllDevices',
   function (t) {
     try {
       var push = require('../../lib/push')(mockLog(), mockDbEmpty)
-      sinon.spy(push, 'pushToDevices')
+      sinon.spy(push, 'pushToAllDevices')
       var deviceId = 'gjfkd5434jk5h5fd'
       var deviceName = 'My phone'
       var expectedData = {
@@ -466,17 +489,17 @@ test(
         throw err
       })
       .then(function() {
-        t.ok(push.pushToDevices.calledOnce, 'pushToDevices was called')
-        t.equal(push.pushToDevices.getCall(0).args[0], mockUid)
-        t.equal(push.pushToDevices.getCall(0).args[1], 'deviceConnected')
-        var options = push.pushToDevices.getCall(0).args[2]
+        t.ok(push.pushToAllDevices.calledOnce, 'pushToAllDevices was called')
+        t.equal(push.pushToAllDevices.getCall(0).args[0], mockUid)
+        t.equal(push.pushToAllDevices.getCall(0).args[1], 'deviceConnected')
+        var options = push.pushToAllDevices.getCall(0).args[2]
         var payload = JSON.parse(options.data.toString('utf8'))
         t.deepEqual(payload, expectedData)
         var schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH)
         var schema = JSON.parse(fs.readFileSync(schemaPath))
         t.ok(ajv.validate(schema, payload))
         t.deepEqual(options.excludedDeviceIds, [deviceId])
-        push.pushToDevices.restore()
+        push.pushToAllDevices.restore()
         t.end()
       })
     } catch (e) {
