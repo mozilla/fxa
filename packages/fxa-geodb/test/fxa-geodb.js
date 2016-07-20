@@ -4,16 +4,30 @@
 
 var chai = require('chai');
 var ERRORS = require('../lib/errors');
-var geoDb = require('../lib/fxa-geodb')();
+var geoDb;
 
 var assert = chai.assert;
 
 describe('fxa-geodb', function () {
   'use strict';
   var ip;
+  beforeEach(function () {
+    geoDb = require('../lib/fxa-geodb')();
+  });
 
   it('returns a promise when called', function () {
     assert.isFunction(geoDb('12.23.34.45').then, 'Promise returned');
+  });
+
+  it('returns an error object with `UNABLE_TO_OPEN_FILE` when supplied with an non-existent file', function () {
+    ip = '8.8.8.8';
+    geoDb = require('../lib/fxa-geodb')({
+      dbPath: 'completely-not-there.mmdb'
+    });
+    return geoDb(ip)
+      .catch(function (err) {
+        assert.equal(err.message, ERRORS.UNABLE_TO_OPEN_FILE, 'Invalid error message');
+      });
   });
 
   it('returns an error object with `IS_INVALID` when supplied with an undefined ip variable', function () {
@@ -38,7 +52,6 @@ describe('fxa-geodb', function () {
         assert.equal(err.message, ERRORS.IS_INVALID, 'Invalid error message');
       });
   });
-
 
   it('returns an error object with `IS_INVALID` when supplied with an invalid ip', function () {
     ip = '5.6.7';
