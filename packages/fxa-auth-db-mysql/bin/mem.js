@@ -12,11 +12,6 @@ function shutdown() {
   process.nextTick(process.exit)
 }
 
-// defer to allow ass code coverage results to complete processing
-if (process.env.ASS_CODE_COVERAGE) {
-  process.on('SIGINT', shutdown)
-}
-
 DB.connect(config)
   .done(function (db) {
     var server = dbServer.createServer(db)

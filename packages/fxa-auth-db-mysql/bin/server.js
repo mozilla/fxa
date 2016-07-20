@@ -13,11 +13,6 @@ function shutdown() {
   process.nextTick(process.exit)
 }
 
-// defer to allow ass code coverage results to complete processing
-if (process.env.ASS_CODE_COVERAGE) {
-  process.on('SIGINT', shutdown)
-}
-
 function logCharsetInfo(db, poolName) {
   // Record some information about mysql connection configuration and
   // charset at startup.

@@ -1,14 +1,12 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-require('ass')
 var log = require('../lib/log')
 var DB = require('../../lib/db/mysql')(log, require('../../fxa-auth-db-server').errors)
 var config = require('../../config')
 var test = require('tap').test
 var P = require('../../lib/promise')
 var crypto = require('crypto')
-var path = require('path')
 var proxyquire = require('proxyquire')
 var sinon = require('sinon')
 
@@ -207,13 +205,7 @@ DB.connect(config)
             }
           }
         }
-        Object.keys(mocks).forEach(function (key) {
-          var instrumentedPath = getInstrumentedRequirePath(key)
-          if (instrumentedPath !== key) {
-            mocks[instrumentedPath] = mocks[key]
-            delete mocks[key]
-          }
-        })
+
         var metrics = proxyquire('../../bin/metrics', mocks)
         return metrics.run({
           General: {
@@ -351,14 +343,6 @@ DB.connect(config)
 
     function hex (length) {
       return Buffer(crypto.randomBytes(length).toString('hex'), 'hex')
-    }
-
-    function getInstrumentedRequirePath (dependencyPath) {
-      if (dependencyPath[0] !== '.') {
-        return dependencyPath
-      }
-
-      return path.resolve(__dirname, '../../bin') + '/' + dependencyPath
     }
   })
 

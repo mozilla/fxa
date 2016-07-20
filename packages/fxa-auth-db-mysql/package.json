@@ -18,7 +18,8 @@
     "test": "npm run test-mysql && npm run test-mem && npm run test-server",
     "test-mem": "./scripts/tap-coverage.js test/mem",
     "test-mysql": "grunt && node ./bin/db_patcher.js >/dev/null && ./scripts/tap-coverage.js test/backend test/local",
-    "test-server": "./scripts/tap-coverage.js fxa-auth-db-server/test/local"
+    "test-server": "./scripts/tap-coverage.js fxa-auth-db-server/test/local",
+    "test-travis": "grunt && node ./bin/db_patcher.js >/dev/null && ./scripts/tap-coverage.js test/backend test/local fxa-auth-db-server/test/local"
   },
   "author": "Mozilla (https://mozilla.org/)",
   "homepage": "https://github.com/mozilla/fxa-auth-db-mysql",
@@ -38,7 +39,6 @@
     "restify": "4.1.1"
   },
   "devDependencies": {
-    "ass": "git://github.com/jrgm/ass.git#5be99ee",
     "eslint-config-fxa": "2.1.0",
     "grunt": "1.0.1",
     "grunt-bump": "0.8.0",
