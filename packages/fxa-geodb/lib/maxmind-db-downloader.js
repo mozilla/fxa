@@ -65,15 +65,32 @@ var MaxmindDbDownloader = function () {
     return function () {
       return new Promise(function (resolve, reject) {
         var stream = request(url);
+        var targetFilePathTemp = targetFilePath + '-temp';
         // forces overwrite, even if file exists already
-        stream.pipe(zlib.createGunzip()).pipe(fs.createWriteStream(targetFilePath)).on('finish', function (err) {
+        stream.pipe(zlib.createGunzip()).pipe(fs.createWriteStream(targetFilePathTemp)).on('finish', function (err) {
           if (err) {
             logHelper('error', err);
             reject(err);
           } else {
             // extraction is complete
             logHelper('info', 'unzip complete');
-            resolve();
+            // load up geodb with the downloaded file
+            var geoDb = require('./fxa-geodb')({
+              dbPath: targetFilePathTemp
+            });
+            // check if lookup works with the downloaded file
+            geoDb('8.8.8.8')
+              .then(function (location) {
+                // download worked, rename file
+                if (location) {
+                  fs.renameSync(targetFilePathTemp, targetFilePath);
+                }
+                resolve();
+              }, function (err) {
+                // download resulted in an error, do not rename
+                reject(err);
+              });
+
           }
         });
       });
@@ -82,7 +99,6 @@ var MaxmindDbDownloader = function () {
 
   this.downloadAll = function (downloadPromiseFunctions) {
     var promises = [];
-    // is there a more idiomatic way to do this??
     // the array looks like this:
     // downloadPromiseFunctions = [fn1 returning a promise, fn2 returning a promise, etc.]
     // each element is a function returning a promise
