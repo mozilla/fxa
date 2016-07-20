@@ -7,6 +7,7 @@ var sinon = require('sinon')
 var test = require('tap').test
 var mocks = require('../mocks')
 var getRoute = require('../routes_helpers').getRoute
+var proxyquire = require('proxyquire')
 
 var P = require('../../lib/promise')
 var uuid = require('uuid')
@@ -18,7 +19,7 @@ var log = require('../../lib/log')
 var TEST_EMAIL = 'foo@gmail.com'
 var TEST_EMAIL_INVALID = 'example@dotless-domain'
 
-var makeRoutes = function (options) {
+var makeRoutes = function (options, requireMocks) {
   options = options || {}
 
   var config = options.config || {}
@@ -40,7 +41,7 @@ var makeRoutes = function (options) {
   var checkPassword = options.checkPassword || require('../../lib/routes/utils/password_check')(log, config, Password, customs, db)
   var push = options.push || require('../../lib/push')(log, db)
   var metricsContext = options.metricsContext || log.metricsContext || require('../../lib/metrics/context')(log, config)
-  return require('../../lib/routes/account')(
+  return proxyquire('../../lib/routes/account', requireMocks || {})(
     log,
     crypto,
     P,
@@ -388,6 +389,117 @@ test('/account/device', function (t) {
         t.equal(err.output.statusCode, 503, 'correct status code is returned')
         t.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED, 'correct errno is returned')
       })
+    })
+  })
+})
+
+test('/account/devices/notify', function (t) {
+  t.plan(4)
+  var config = {}
+  var uid = uuid.v4('binary')
+  var mockRequest = mocks.mockRequest({
+    credentials: {
+      uid: uid.toString('hex')
+    }
+  })
+  var pushPayload = {
+    isValid: true,
+    version: 1,
+    command: 'sync:collection_changed',
+    data: {
+      collections: ['clients']
+    }
+  }
+  var mockPush = mocks.mockPush()
+  var validate = sinon.spy(function (payload) { return payload.isValid })
+  var mockAjv = function () {
+    return {
+      compile: function () {
+        return validate
+      }
+    }
+  }
+  var accountRoutes = makeRoutes({
+    config: config,
+    push: mockPush
+  }, {
+    ajv: mockAjv
+  })
+  var route = getRoute(accountRoutes, '/account/devices/notify')
+
+  t.test('bad payload', function (t) {
+    mockRequest.payload = {
+      to: ['bogusid1'],
+      payload: {
+        isValid: false
+      }
+    }
+    return runTest(route, mockRequest, function () {
+      t.fail('should have thrown')
+    })
+    .catch(function (err) {
+      t.equal(validate.callCount, 1, 'ajv validator function was called')
+      t.equal(mockPush.pushToDevices.callCount, 0, 'mockPush.pushToDevices was not called')
+      t.equal(err.errno, 107, 'Correct errno for invalid push payload')
+    })
+  })
+
+  t.test('all devices', function (t) {
+    mockRequest.payload = {
+      to: 'all',
+      excluded: ['bogusid'],
+      TTL: 60,
+      payload: pushPayload
+    }
+    return runTest(route, mockRequest, function (response) {
+      t.equal(mockPush.pushToAllDevices.callCount, 1, 'mockPush.pushToAllDevices was called once')
+      var args = mockPush.pushToAllDevices.args[0]
+      t.equal(args.length, 3, 'mockPush.pushToAllDevices was passed three arguments')
+      t.equal(args[0], uid.toString('hex'), 'first argument was the device uid')
+      t.equal(args[1], 'devicesNotify', 'second argument was the devicesNotify reason')
+      t.deepEqual(args[2], {
+        data: pushPayload,
+        excludedDeviceIds: ['bogusid'],
+        TTL: 60
+      }, 'third argument was the push options')
+    })
+  })
+
+  t.test('specific devices', function (t) {
+    mockRequest.payload = {
+      to: ['bogusid1', 'bogusid2'],
+      TTL: 60,
+      payload: pushPayload
+    }
+    return runTest(route, mockRequest, function (response) {
+      t.equal(mockPush.pushToDevices.callCount, 1, 'mockPush.pushToDevices was called once')
+      var args = mockPush.pushToDevices.args[0]
+      t.equal(args.length, 4, 'mockPush.pushToDevices was passed four arguments')
+      t.equal(args[0], uid.toString('hex'), 'first argument was the device uid')
+      t.deepEqual(args[1], ['bogusid1', 'bogusid2'], 'second argument was the list of device ids')
+      t.equal(args[2], 'devicesNotify', 'third argument was the devicesNotify reason')
+      t.deepEqual(args[3], {
+        data: pushPayload,
+        TTL: 60
+      }, 'fourth argument was the push options')
+    })
+  })
+
+  t.test('device driven notifications disabled', function (t) {
+    config.deviceNotificationsEnabled = false
+    mockRequest.payload = {
+      to: 'all',
+      excluded: ['bogusid'],
+      TTL: 60,
+      payload: pushPayload
+    }
+
+    return runTest(route, mockRequest, function () {
+      t.fail('should have thrown')
+    })
+    .catch(function (err) {
+      t.equal(err.output.statusCode, 503, 'correct status code is returned')
+      t.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED, 'correct errno is returned')
     })
   })
 })
@@ -1110,4 +1222,3 @@ test('/account/destroy', function (t) {
     t.equal(args[2].uid, uid.toString('hex'), 'third argument was event data')
   })
 })
-

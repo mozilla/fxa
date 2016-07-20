@@ -7,11 +7,15 @@ var HEX_STRING = validators.HEX_STRING
 var BASE64_JWT = validators.BASE64_JWT
 var DISPLAY_SAFE_UNICODE = validators.DISPLAY_SAFE_UNICODE
 var URLSAFEBASE64 = validators.URLSAFEBASE64
+var PUSH_PAYLOADS_SCHEMA_PATH = '../../docs/pushpayloads.schema.json'
 
 // An arbitrary, but very generous, limit on the number of active sessions.
 // Currently only for metrics purposes, not enforced.
 var MAX_ACTIVE_SESSIONS = 200
 
+var path = require('path')
+var ajv = require('ajv')()
+var fs = require('fs')
 var butil = require('../crypto/butil')
 var userAgent = require('../userAgent')
 var requestHelper = require('../routes/utils/request_helper')
@@ -34,6 +38,11 @@ module.exports = function (
   metricsContext
   ) {
 
+  // Loads and compiles a json validator for the payloads received
+  // in /account/devices/notify
+  var schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH)
+  var schema = fs.readFileSync(schemaPath)
+  var validatePushPayload = ajv.compile(schema)
   var verificationReminder = require('../verification-reminders')(log, db)
 
   var routes = [
@@ -857,6 +866,67 @@ module.exports = function (
               }
             )
         }
+      }
+    },
+    {
+      method: 'POST',
+      path: '/account/devices/notify',
+      config: {
+        auth: {
+          strategy: 'sessionTokenWithDevice'
+        },
+        validate: {
+          payload: isA.alternatives().try(
+            isA.object({
+              to: isA.string().valid('all').required(),
+              excluded: isA.array().items(isA.string().length(32).regex(HEX_STRING)).optional(),
+              payload: isA.object().required(),
+              TTL: isA.number().integer().min(0).optional()
+            }),
+            isA.object({
+              to: isA.array().items(isA.string().length(32).regex(HEX_STRING)).required(),
+              payload: isA.object().required(),
+              TTL: isA.number().integer().min(0).optional()
+            })
+          )
+        },
+        response: {
+          schema: {}
+        }
+      },
+      handler: function (request, reply) {
+        log.begin('Account.devicesNotify', request)
+
+        // We reserve the right to disable notifications until
+        // we're confident clients are behaving correctly.
+        if (config.deviceNotificationsEnabled === false) {
+          throw error.featureNotEnabled()
+        }
+
+        var body = request.payload
+        var sessionToken = request.auth.credentials
+        var uid = sessionToken.uid
+        var payload = body.payload
+
+        if (!validatePushPayload(payload)) {
+          throw error.invalidRequestParameter('invalid payload')
+        }
+        var pushOptions = {
+          data: payload
+        }
+        if (body.excluded) {
+          pushOptions.excludedDeviceIds = body.excluded
+        }
+        if (body.TTL) {
+          pushOptions.TTL = body.TTL
+        }
+        if (body.to === 'all') {
+          push.pushToAllDevices(uid, 'devicesNotify', pushOptions)
+        } else {
+          push.pushToDevices(uid, body.to, 'devicesNotify', pushOptions)
+        }
+
+        reply({})
       }
     },
     {

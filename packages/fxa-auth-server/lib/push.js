@@ -63,6 +63,14 @@ var reasonToEvents = {
     failed: 'push.device_disconnected.failed',
     noCallback: 'push.device_disconnected.no_push_callback',
     noKeys: 'push.device_disconnected.data_but_no_keys'
+  },
+  devicesNotify: {
+    send: 'push.devices_notify.send',
+    success: 'push.devices_notify.success',
+    resetSettings: 'push.devices_notify.reset_settings',
+    failed: 'push.devices_notify.failed',
+    noCallback: 'push.devices_notify.no_push_callback',
+    noKeys: 'push.devices_notify.data_but_no_keys'
   }
 }
 
