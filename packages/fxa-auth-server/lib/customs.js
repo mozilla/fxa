@@ -7,6 +7,18 @@ var Pool = require('./pool')
 
 module.exports = function (log, error) {
 
+  // Perform a deep clone of payload and remove user password.
+  function sanitizePayload(payload) {
+    // Once we move to Node4, use https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
+    var clonePayload = JSON.parse(JSON.stringify(payload))
+
+    if (clonePayload.authPW) {
+      delete clonePayload.authPW
+    }
+
+    return clonePayload
+  }
+
   function Customs(url) {
     if (url === 'none') {
       this.pool = {
@@ -29,7 +41,7 @@ module.exports = function (log, error) {
         action: action,
         headers: request.headers,
         query: request.query,
-        payload: request.payload
+        payload: sanitizePayload(request.payload)
       }
     )
     .then(

@@ -343,6 +343,45 @@ test(
   }
 )
 
+test(
+  'can scrub customs request object',
+  function (t) {
+    t.plan(3)
+
+    customsWithUrl = new Customs(CUSTOMS_URL_REAL)
+
+    t.ok(customsWithUrl, 'got a customs object with a valid url')
+
+    var request = newRequest()
+    request.payload.authPW = 'asdfasdfadsf'
+    var ip = request.app.clientAddress
+    var email = newEmail()
+    var action = newAction()
+
+    customsServer.post('/check', function (body) {
+      t.deepEqual(body, {
+        ip: ip,
+        email: email,
+        action: action,
+        headers: request.headers,
+        query: request.query,
+        payload: {}
+      }, 'should not have authPW in payload')
+      return true
+    }).reply(200, {
+      block: false,
+      retryAfter: 0
+    })
+
+    return customsWithUrl.check(request, email, action)
+      .then(function (result) {
+        t.equal(result, undefined, 'nothing is returned when /check succeeds - 1')
+      }, function (error) {
+        t.fail('should not have failed here for /check : err=' + error)
+      })
+  }
+)
+
 function newEmail() {
   return Math.random().toString().substr(2) + '@example.com'
 }
