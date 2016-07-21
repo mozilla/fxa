@@ -11,7 +11,7 @@
  * Information is persisted into localStorage. Either an `email` or `uid`
  * is required for the verification info to be fetched.
  *
- * `uid` is used in signup and account unlock verifications
+ * `uid` is used in signup verifications
  * `email` is used in password reset verifications.
  */
 
@@ -40,7 +40,7 @@ define(function (require, exports, module) {
     _STORAGE_KEY: STORAGE_KEY,
 
     /**
-     * Get the user's storage ID. `uid` is used for signup/account unlock,
+     * Get the user's storage ID. `uid` is used for signup,
      * `email` for password reset.
      *
      * @returns {string}

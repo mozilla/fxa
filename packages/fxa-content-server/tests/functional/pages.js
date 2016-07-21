@@ -11,16 +11,13 @@ define([
 
   var pages = [
     '',
-    'account_unlock_complete',
     'boom',
     'cannot_create_account',
     'choose_what_to_sync',
     'clear',
     'complete_reset_password',
     'complete_signin',
-    'complete_unlock_account',
     'confirm',
-    'confirm_account_unlock',
     'confirm_reset_password',
     'confirm_signin',
     'cookies_disabled',
@@ -65,7 +62,6 @@ define([
     'signup_permissions',
     'verify_email',
     'v1/complete_reset_password',
-    'v1/complete_unlock_account',
     'v1/reset_password',
     'v1/verify_email',
   ];

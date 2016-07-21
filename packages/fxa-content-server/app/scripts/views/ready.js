@@ -34,11 +34,6 @@ define(function (require, exports, module) {
    * the template marginally cleaner and easier to read.
    */
   var TEMPLATE_INFO = {
-    ACCOUNT_UNLOCK: {
-      headerId: 'fxa-account-unlock-complete-header',
-      headerTitle: t('Account unlocked'),
-      readyToSyncText: FX_SYNC_WILL_BEGIN_MOMENTARILY
-    },
     FORCE_AUTH: {
       headerId: 'fxa-force-auth-complete-header',
       headerTitle: t('Welcome back'),

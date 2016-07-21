@@ -17,10 +17,8 @@ define(function (require, exports, module) {
   var ChooseWhatToSyncView = require('../views/choose_what_to_sync');
   var ClearStorageView = require('../views/clear_storage');
   var CommunicationPreferencesView = require('../views/settings/communication_preferences');
-  var CompleteAccountUnlockView = require('../views/complete_account_unlock');
   var CompleteResetPasswordView = require('../views/complete_reset_password');
   var CompleteSignUpView = require('../views/complete_sign_up');
-  var ConfirmAccountUnlockView = require('../views/confirm_account_unlock');
   var ConfirmResetPasswordView = require('../views/confirm_reset_password');
   var ConfirmView = require('../views/confirm');
   var CookiesDisabledView = require('../views/cookies_disabled');
@@ -60,15 +58,12 @@ define(function (require, exports, module) {
   var Router = Backbone.Router.extend({
     routes: {
       '(/)': 'redirectToSignupOrSettings',
-      'account_unlock_complete(/)': createViewHandler(ReadyView, { type: VerificationReasons.ACCOUNT_UNLOCK }),
       'cannot_create_account(/)': createViewHandler(CannotCreateAccountView),
       'choose_what_to_sync(/)': createViewHandler(ChooseWhatToSyncView),
       'clear(/)': createViewHandler(ClearStorageView),
       'complete_reset_password(/)': createViewHandler(CompleteResetPasswordView),
       'complete_signin(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SIGN_IN }),
-      'complete_unlock_account(/)': createViewHandler(CompleteAccountUnlockView),
       'confirm(/)': createViewHandler(ConfirmView, { type: VerificationReasons.SIGN_UP }),
-      'confirm_account_unlock(/)': createViewHandler(ConfirmAccountUnlockView),
       'confirm_reset_password(/)': createViewHandler(ConfirmResetPasswordView),
       'confirm_signin(/)': createViewHandler(ConfirmView, { type: VerificationReasons.SIGN_IN }),
       'cookies_disabled(/)': createViewHandler(CookiesDisabledView),

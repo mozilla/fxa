@@ -47,7 +47,6 @@ define(function (require, exports, module) {
      */
     defaultBehaviors: {
       afterChangePassword: new NullBehavior(),
-      afterCompleteAccountUnlock: new NullBehavior(),
       afterCompleteResetPassword: new NullBehavior(),
       afterCompleteSignUp: new NullBehavior(),
       afterDeleteAccount: new NullBehavior(),
@@ -293,20 +292,6 @@ define(function (require, exports, module) {
      */
     afterDeleteAccount: function (/* account */) {
       return p(this.getBehavior('afterDeleteAccount'));
-    },
-
-    /**
-     * Called after an account is unlocked, in the verification tab.
-     *
-     * @param {object} account
-     * @return {promise}
-     */
-    afterCompleteAccountUnlock: function (account) {
-      var self = this;
-      return self.unpersistVerificationData(account)
-        .then(function () {
-          return self.getBehavior('afterCompleteAccountUnlock');
-        });
     },
 
     /**

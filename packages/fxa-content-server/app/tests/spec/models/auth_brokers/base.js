@@ -178,17 +178,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('afterCompleteAccountUnlock', function () {
-      beforeEach(function () {
-        sinon.spy(broker, 'unpersistVerificationData');
-        return broker.afterCompleteAccountUnlock(account);
-      });
-
-      it('unpersistVerificationDatas data', function () {
-        assert.isTrue(broker.unpersistVerificationData.calledWith(account));
-      });
-    });
-
     describe('transformLink', function () {
       it('does nothing to the link', function () {
         assert.equal(broker.transformLink('signin'), 'signin');

@@ -10,8 +10,7 @@ define(function (require, exports, module) {
 
   describe('lib/sign-in-reasons', function () {
     it('exports correct strings', function () {
-      assert.lengthOf(Object.keys(SIGN_IN_REASONS), 5);
-      assert.equal(SIGN_IN_REASONS.ACCOUNT_UNLOCK, 'account_unlock');
+      assert.lengthOf(Object.keys(SIGN_IN_REASONS), 4);
       assert.equal(SIGN_IN_REASONS.PASSWORD_CHANGE, 'password_change');
       assert.equal(SIGN_IN_REASONS.PASSWORD_CHECK, 'password_check');
       assert.equal(SIGN_IN_REASONS.PASSWORD_RESET, 'password_reset');

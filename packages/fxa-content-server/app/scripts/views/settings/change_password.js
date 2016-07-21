@@ -5,8 +5,6 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AccountLockedMixin = require('views/mixins/account-locked-mixin');
-  var AuthErrors = require('lib/auth-errors');
   var BackMixin = require('views/mixins/back-mixin');
   var BaseView = require('views/base');
   var Cocktail = require('cocktail');
@@ -49,12 +47,6 @@ define(function (require, exports, module) {
           self.navigate('settings');
 
           return self.render();
-        }, function (err) {
-          if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
-            return self.notifyOfLockedAccount(account, oldPassword);
-          }
-
-          throw err;
         });
     }
 
@@ -68,8 +60,7 @@ define(function (require, exports, module) {
     FloatingPlaceholderMixin,
     SettingsPanelMixin,
     ServiceMixin,
-    BackMixin,
-    AccountLockedMixin
+    BackMixin
   );
 
   module.exports = View;

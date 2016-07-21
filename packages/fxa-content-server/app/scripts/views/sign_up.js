@@ -4,7 +4,6 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AccountLockedMixin = require('views/mixins/account-locked-mixin');
   var AccountResetMixin = require('views/mixins/account-reset-mixin');
   var AuthErrors = require('lib/auth-errors');
   var BaseView = require('views/base');
@@ -296,8 +295,6 @@ define(function (require, exports, module) {
         } else {
           throw AuthErrors.toError('AGE_REQUIRED');
         }
-      } else if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
-        return this.notifyOfLockedAccount(account, password);
       } else if (AuthErrors.is(err, 'ACCOUNT_RESET')) {
         return this.notifyOfResetAccount(account);
       }
@@ -385,7 +382,6 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     View,
-    AccountLockedMixin,
     AccountResetMixin,
     CheckboxMixin,
     ExperimentMixin,

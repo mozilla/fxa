@@ -10,7 +10,6 @@ define([
 ], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
-  var PAGE_URL = config.fxaContentRoot + 'settings/change_password';
 
   var FIRST_PASSWORD = 'password';
   var SECOND_PASSWORD = 'new_password';
@@ -25,31 +24,13 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutChangePassword = thenify(FunctionalHelpers.fillOutChangePassword);
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
-  var lockAccount = FunctionalHelpers.lockAccount;
   var noSuchElementDisplayed = FunctionalHelpers.noSuchElementDisplayed;
-  var openExternalSite = thenify(FunctionalHelpers.openExternalSite);
   var openPage = thenify(FunctionalHelpers.openPage);
-  var openUnlockLinkDifferentBrowser = thenify(FunctionalHelpers.openUnlockLinkDifferentBrowser);
-  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
-  var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   var testElementDisplayed = FunctionalHelpers.testElementDisplayed;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
   var type = FunctionalHelpers.type;
-  var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
-
-  function initiateLockedAccountChangePassword(context) {
-    return context.remote
-      .then(openPage(context, PAGE_URL, '#change-password'))
-      .then(lockAccount(email, FIRST_PASSWORD))
-
-      .then(fillOutChangePassword(context, FIRST_PASSWORD, SECOND_PASSWORD))
-      .then(visibleByQSA('#change-password .error'))
-      .then(click('a[href="/confirm_account_unlock"]'))
-
-      .then(testElementExists('#fxa-confirm-account-unlock-header'));
-  }
 
   registerSuite({
     name: 'change password',
@@ -108,25 +89,6 @@ define([
         .then(testElementExists('#fxa-settings-header'));
     },
 
-    'locked account, verify same browser': function () {
-      return initiateLockedAccountChangePassword(this)
-        .then(openVerificationLinkInNewTab(this, email, 0))
-
-        .switchToWindow('newwindow')
-        // wait for the verified window in the new tab
-        .then(testElementExists('#fxa-account-unlock-complete-header'))
-
-        // switch to the original window
-        .closeCurrentWindow()
-        .switchToWindow('')
-
-        .then(testSuccessWasShown(this))
-
-        // account is unlocked, re-try the password change
-        .then(fillOutChangePassword(this, FIRST_PASSWORD, SECOND_PASSWORD))
-        .then(testElementExists('#fxa-settings-header'));
-    },
-
     'sign in, reset password via settings works': function () {
       return this.remote
         // Go to change password screen
@@ -134,50 +96,6 @@ define([
         .then(click('.reset-password'))
 
         .then(testElementExists('#fxa-reset-password-header'));
-    },
-
-    'locked account, verify same browser with original tab closed': function () {
-      return initiateLockedAccountChangePassword(this)
-        // user browses to another site.
-        .switchToFrame(null)
-        .then(openExternalSite(this))
-        .then(openVerificationLinkInNewTab(this, email, 0))
-
-        .switchToWindow('newwindow')
-        // wait for the verified window in the new tab
-        .then(testElementExists('#fxa-account-unlock-complete-header'))
-
-        // switch to the original window
-        .closeCurrentWindow()
-        .switchToWindow('');
-    },
-
-    'locked account, verify same browser by replacing original tab': function () {
-      return initiateLockedAccountChangePassword(this)
-
-        .then(openVerificationLinkInSameTab(email, 0))
-        .then(testElementExists('#fxa-account-unlock-complete-header'));
-    },
-
-    'locked account, verify different browser - from original tab\'s P.O.V.': function () {
-      return initiateLockedAccountChangePassword(this)
-        .then(openUnlockLinkDifferentBrowser(email))
-
-        .then(testSuccessWasShown(this))
-
-        // account is unlocked, re-try the password change
-        .then(fillOutChangePassword(this, FIRST_PASSWORD, SECOND_PASSWORD))
-
-        .then(testElementExists('#fxa-settings-header'));
-    },
-
-    'locked account, verify different browser - from new browser\'s P.O.V.': function () {
-      return initiateLockedAccountChangePassword(this)
-        .then(clearBrowserState(this))
-        .then(openVerificationLinkInSameTab(email, 0))
-
-        // new browser dead ends at the 'account verified' screen.
-        .then(testElementExists('#fxa-account-unlock-complete-header'));
     }
   });
 });

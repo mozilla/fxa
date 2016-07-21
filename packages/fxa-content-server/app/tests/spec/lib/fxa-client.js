@@ -1371,45 +1371,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('completeAccountUnlock', function () {
-      it('resends an account unlock email', function () {
-        sinon.stub(realClient, 'accountUnlockVerifyCode', function () {
-          return p();
-        });
-
-        return client.completeAccountUnlock()
-          .then(function () {
-            assert.isTrue(realClient.accountUnlockVerifyCode.called);
-          });
-      });
-    });
-
-    describe('sendAccountUnlockEmail', function () {
-      it('sends an account unlock email', function () {
-        sinon.stub(realClient, 'accountUnlockResendCode', function () {
-          return p();
-        });
-
-        return client.sendAccountUnlockEmail(
-          'testuser@testuser.com',
-          relier,
-          {
-            resume: 'resume token'
-          }
-        )
-        .then(function () {
-          assert.isTrue(realClient.accountUnlockResendCode.calledWith(
-            'testuser@testuser.com',
-            {
-              redirectTo: relier.get('redirectTo'),
-              resume: 'resume token',
-              service: relier.get('service')
-            }
-          ));
-        });
-      });
-    });
-
     describe('deviceList', function () {
       beforeEach(function () {
         sinon.stub(realClient, 'deviceList', function () {

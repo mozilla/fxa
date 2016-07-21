@@ -473,36 +473,6 @@ define(function (require, exports, module) {
         });
     },
 
-    completeAccountUnlock: function (uid, code) {
-      return this._getClient()
-        .then(function (client) {
-          return client.accountUnlockVerifyCode(uid, code);
-        });
-    },
-
-    sendAccountUnlockEmail: function (originalEmail, relier, options) {
-      var self = this;
-      var email = trim(originalEmail);
-      options = options || {};
-
-      return self._getClient()
-        .then(function (client) {
-          var clientOptions = {};
-          if (relier) {
-            clientOptions = {
-              redirectTo: relier.get('redirectTo'),
-              service: relier.get('service')
-            };
-          }
-
-          if (options.resume) {
-            clientOptions.resume = options.resume;
-          }
-
-          return client.accountUnlockResendCode(email, clientOptions);
-        });
-    },
-
     /**
      * Change the user's password
      *

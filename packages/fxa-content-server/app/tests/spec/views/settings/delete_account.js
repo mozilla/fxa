@@ -171,23 +171,6 @@ define(function (require, exports, module) {
           });
         });
 
-        describe('locked out user', function () {
-          beforeEach(function () {
-            sinon.stub(user, 'deleteAccount', function () {
-              return p.reject(AuthErrors.toError('ACCOUNT_LOCKED'));
-            });
-
-            sinon.spy(view, 'notifyOfLockedAccount');
-
-            return view.submit();
-          });
-
-          it('notifies the user of the locked account', function () {
-            assert.isTrue(
-              view.notifyOfLockedAccount.calledWith(account, password));
-          });
-        });
-
         describe('other errors', function () {
           beforeEach(function () {
             sinon.stub(user, 'deleteAccount', function () {

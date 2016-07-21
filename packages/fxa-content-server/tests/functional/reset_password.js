@@ -398,49 +398,6 @@ define([
         .then(function () {
           return testAtSettingsWithVerifiedMessage(self);
         });
-    },
-
-    'verifying a reset password unlocks an account': function () {
-      var self = this;
-      self.timeout = 90 * 1000;
-      return client.accountLock(email, PASSWORD)
-        .then(function () {
-          return FunctionalHelpers.fillOutResetPassword(self, email)
-            .then(testElementExists('#fxa-confirm-reset-password-header'))
-
-            .then(function () {
-              return FunctionalHelpers.openVerificationLinkInNewTab(
-                          self, email, 0);
-            })
-
-            // Complete the reset password in the new tab
-            .switchToWindow('newwindow')
-
-            .then(testElementExists('#fxa-complete-reset-password-header'))
-
-            .then(fillOutCompleteResetPassword(self, PASSWORD, PASSWORD))
-
-            // this tab's success is seeing the reset password complete header.
-            .then(function () {
-              return testAtSettingsWithVerifiedMessage(self);
-            })
-
-            .closeCurrentWindow()
-            // switch to the original window
-            .switchToWindow('')
-
-            .then(testElementExists('#fxa-settings-header'))
-
-            .then(FunctionalHelpers.testSuccessWasShown(self))
-
-            .then(click('#signout'))
-
-            .then(function () {
-              return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
-            })
-
-            .then(testElementExists('#fxa-settings-header'));
-        });
     }
   });
 

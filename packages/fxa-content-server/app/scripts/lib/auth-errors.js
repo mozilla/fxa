@@ -88,6 +88,7 @@ define(function (require, exports, module) {
       errno: 114,
       message: t('Attempt limit exceeded')
     },
+    /*
     ACCOUNT_LOCKED: {
       errno: 121,
       message: t('Your account has been locked for security reasons')
@@ -96,6 +97,7 @@ define(function (require, exports, module) {
       errno: 122,
       message: UNEXPECTED_ERROR_MESSAGE
     },
+    */
     REQUEST_BLOCKED: {
       errno: 125,
       message: t('The request was blocked for security reasons')

@@ -509,23 +509,6 @@ define([
     return getRemote(context).execute(openWindow, [ SIGNUP_URL, windowName ]);
   }
 
-  function openUnlockLinkDifferentBrowser(client, email) {
-    if (typeof client === 'string') {
-      email = client;
-      client = getFxaClient();
-    }
-
-    var user = TestHelpers.emailToUser(email);
-
-    return getEmailHeaders(user, 0)
-      .then(function (headers) {
-        var uid = headers['x-uid'];
-        var code = headers['x-unlock-code'];
-
-        return client.accountUnlockVerifyCode(uid, code);
-      });
-  }
-
   /**
    * Open the force auth page
    *
@@ -1090,23 +1073,6 @@ define([
   }
 
   /**
-   * Lock an account.
-   *
-   * @param {string} email
-   * @param {string} password
-   * @returns {promise} resolves when complete.
-   */
-  function lockAccount(email, password) {
-    return function () {
-      return this.parent.then(function () {
-        var client = getFxaClient();
-
-        return client.accountLock(email, password);
-      });
-    };
-  }
-
-  /**
    * Check to ensure an element exists
    *
    * @param {string} selector
@@ -1440,7 +1406,6 @@ define([
     getVerificationLink: getVerificationLink,
     imageLoadedByQSA: imageLoadedByQSA,
     listenForWebChannelMessage: listenForWebChannelMessage,
-    lockAccount: lockAccount,
     noEmailExpected: noEmailExpected,
     noPageTransition: noPageTransition,
     noSuchBrowserNotification: noSuchBrowserNotification,
@@ -1455,7 +1420,6 @@ define([
     openSettingsInNewTab: openSettingsInNewTab,
     openSignInInNewTab: openSignInInNewTab,
     openSignUpInNewTab: openSignUpInNewTab,
-    openUnlockLinkDifferentBrowser: openUnlockLinkDifferentBrowser,
     openVerificationLinkDifferentBrowser: openVerificationLinkDifferentBrowser,
     openVerificationLinkInNewTab: openVerificationLinkInNewTab,
     openVerificationLinkInSameTab: openVerificationLinkInSameTab,

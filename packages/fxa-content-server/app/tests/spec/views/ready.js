@@ -70,7 +70,6 @@ define(function (require, exports, module) {
       });
 
       var expectedHeaders = {
-        ACCOUNT_UNLOCK: '#fxa-account-unlock-complete-header',
         FORCE_AUTH: '#fxa-force-auth-complete-header',
         PASSWORD_RESET: '#fxa-reset-password-complete-header',
         SIGN_IN: '#fxa-sign-in-complete-header',

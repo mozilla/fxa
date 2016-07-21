@@ -5,8 +5,6 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AccountLockedMixin = require('views/mixins/account-locked-mixin');
-  var AuthErrors = require('lib/auth-errors');
   var BaseView = require('views/base');
   var Cocktail = require('cocktail');
   var FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
@@ -49,13 +47,6 @@ define(function (require, exports, module) {
           }, {
             clearQueryParams: true,
           });
-        }, function (err) {
-          if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
-            return self.notifyOfLockedAccount(account, password);
-          }
-
-          // re-throw error, it will be handled at a lower level.
-          throw err;
         });
     }
   });
@@ -65,7 +56,6 @@ define(function (require, exports, module) {
     PasswordMixin,
     SettingsPanelMixin,
     ServiceMixin,
-    AccountLockedMixin,
     FloatingPlaceholderMixin
   );
 

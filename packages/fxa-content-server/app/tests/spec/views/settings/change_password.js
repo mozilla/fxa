@@ -207,26 +207,6 @@ define(function (require, exports, module) {
             assert.isTrue(AuthErrors.is(err, 'INCORRECT_PASSWORD'));
           });
         });
-
-        describe('with an account that is locked', function () {
-          beforeEach(function () {
-            sinon.stub(user, 'changeAccountPassword', function () {
-              return p.reject(AuthErrors.toError('ACCOUNT_LOCKED'));
-            });
-
-            $('#old_password').val('password');
-            $('#new_password').val('new_password');
-
-            sinon.spy(view, 'notifyOfLockedAccount');
-
-            return view.submit();
-          });
-
-          it('notifies the user of the locked account', function () {
-            assert.isTrue(
-              view.notifyOfLockedAccount.calledWith(account, 'password'));
-          });
-        });
       });
     });
   });

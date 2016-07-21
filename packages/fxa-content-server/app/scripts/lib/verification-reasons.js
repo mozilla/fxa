@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   'use strict';
 
   return {
-    ACCOUNT_UNLOCK: 'account_unlock',
     FORCE_AUTH: 'force_auth',
     PASSWORD_RESET: 'reset_password',
     SIGN_IN: 'login',

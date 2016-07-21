@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   'use strict';
 
   return {
-    ACCOUNT_UNLOCK: 'account_unlock',
     PASSWORD_CHANGE: 'password_change',
     PASSWORD_CHECK: 'password_check',
     PASSWORD_RESET: 'password_reset',

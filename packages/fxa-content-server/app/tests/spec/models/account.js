@@ -306,43 +306,6 @@ define(function (require, exports, module) {
           });
         });
 
-        describe('unverified, reason === ACCOUNT_UNLOCK', function () {
-          beforeEach(function () {
-            sinon.stub(fxaClient, 'signIn', function () {
-              return p({
-                sessionToken: SESSION_TOKEN,
-                verificationMethod: VerificationMethods.EMAIL,
-                verificationReason: VerificationReasons.SIGN_UP,
-                verified: false
-              });
-            });
-
-            sinon.stub(fxaClient, 'signUpResend', function () {
-              return p();
-            });
-
-            return account.signIn(PASSWORD, relier, {
-              reason: SignInReasons.ACCOUNT_UNLOCK,
-              resume: 'resume token'
-            });
-          });
-
-          it('delegates to the fxaClient', function () {
-            assert.isTrue(fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier));
-          });
-
-          it('does not resend a signUp email', function () {
-            assert.isFalse(fxaClient.signUpResend.called);
-          });
-
-          it('updates the account with the returned data', function () {
-            assert.equal(account.get('sessionToken'), SESSION_TOKEN);
-            assert.isFalse(account.get('verified'));
-            assert.equal(account.get('verificationMethod'), VerificationMethods.EMAIL);
-            assert.equal(account.get('verificationReason'), VerificationReasons.SIGN_UP);
-          });
-        });
-
         describe('verified account, unverified session', function () {
           beforeEach(function () {
             sinon.stub(fxaClient, 'signIn', function () {

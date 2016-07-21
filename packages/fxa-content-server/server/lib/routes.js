@@ -64,11 +64,6 @@ module.exports = function (config, i18n) {
       res.redirect(removeVersionPrefix(req.originalUrl));
     });
 
-    // handle account unlock links
-    app.get(addVersionPrefix('/complete_unlock_account'), function (req, res) {
-      res.redirect(removeVersionPrefix(req.originalUrl));
-    });
-
     // handle email verification links
     app.get(addVersionPrefix('/verify_email'), function (req, res) {
       res.redirect(removeVersionPrefix(req.originalUrl));
@@ -113,15 +108,12 @@ module.exports = function (config, i18n) {
     // became too long. One route is created for each item.
     var FRONTEND_ROUTES = [
       '/',
-      '/account_unlock_complete',
       '/cannot_create_account',
       '/choose_what_to_sync',
       '/clear',
       '/complete_reset_password',
       '/complete_signin',
-      '/complete_unlock_account',
       '/confirm',
-      '/confirm_account_unlock',
       '/confirm_reset_password',
       '/confirm_signin',
       '/cookies_disabled',

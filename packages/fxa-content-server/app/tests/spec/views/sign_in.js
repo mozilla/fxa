@@ -284,29 +284,8 @@ define(function (require, exports, module) {
           var args = view.signIn.args[0];
           var account = args[0];
           assert.instanceOf(account, Account);
-          var lockedAccountPassword = args[1];
-          assert.equal(lockedAccountPassword, 'password');
-        });
-      });
-
-      describe('with a locked out account', function () {
-        beforeEach(function () {
-          sinon.stub(view, 'signIn', function () {
-            return p.reject(AuthErrors.toError('ACCOUNT_LOCKED'));
-          });
-
-          sinon.spy(view, 'notifyOfLockedAccount');
-
-          return view.submit();
-        });
-
-        it('notifies the user of the locked account', function () {
-          assert.isTrue(view.notifyOfLockedAccount.called);
-          var args = view.notifyOfLockedAccount.args[0];
-          var account = args[0];
-          assert.instanceOf(account, Account);
-          var lockedAccountPassword = args[1];
-          assert.equal(lockedAccountPassword, 'password');
+          var password = args[1];
+          assert.equal(password, 'password');
         });
       });
 

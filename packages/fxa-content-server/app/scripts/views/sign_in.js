@@ -5,7 +5,6 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AccountLockedMixin = require('views/mixins/account-locked-mixin');
   var AccountResetMixin = require('views/mixins/account-reset-mixin');
   var allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
   var AuthErrors = require('lib/auth-errors');
@@ -143,8 +142,6 @@ define(function (require, exports, module) {
         self.logViewEvent('canceled');
         // if user canceled login, just stop
         return;
-      } else if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
-        return self.notifyOfLockedAccount(account, password);
       } else if (AuthErrors.is(err, 'ACCOUNT_RESET')) {
         return self.notifyOfResetAccount(account);
       }
@@ -265,7 +262,6 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     View,
-    AccountLockedMixin,
     AccountResetMixin,
     AvatarMixin,
     ExperimentMixin,
