@@ -1,0 +1,49 @@
+{
+  "name": "fxa-geodb",
+  "version": "0.0.3",
+  "private": false,
+  "description": "Firefox Accounts GeoDB Repo for Geolocation based services",
+  "main": "lib/fxa-geodb.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "cover": "istanbul cover _mocha",
+    "lint": "grunt lint",
+    "postinstall": "node scripts/start-db-download.js",
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozilla/fxa-geodb"
+  },
+  "keywords": [
+    "geodb",
+    "location"
+  ],
+  "author": "Mozilla (https://mozilla.org/)",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/mozilla/fxa-geodb/issues"
+  },
+  "homepage": "https://github.com/mozilla/fxa-geodb",
+  "dependencies": {
+    "bluebird": "3.4.1",
+    "cron": "1.1.0",
+    "maxmind": "1.1.0",
+    "mkdirp": "0.5.1",
+    "mozlog": "2.0.5",
+    "request": "2.72.0"
+  },
+  "devDependencies": {
+    "chai": "3.5.0",
+    "eslint-config-fxa": "2.1.0",
+    "grunt": "1.0.1",
+    "grunt-eslint": "18.1.0",
+    "istanbul": "0.4.4",
+    "load-grunt-tasks": "3.5.0",
+    "mocha": "2.5.3",
+    "rimraf": "2.5.3",
+    "sinon": "1.17.4"
+  }
+}
