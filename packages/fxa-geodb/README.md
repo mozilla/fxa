@@ -12,7 +12,7 @@ You can also pass other `options` like the path to the database to the `require`
 
 ```JavaScript
 var geoDb = require('fxa-geodb')({
-	dbPath: 'cities-db.mmdb' // Defaults to fxa-geodb/db/cities-db.mmdb
+  dbPath: 'cities-db.mmdb' // Defaults to fxa-geodb/db/cities-db.mmdb
 });
 ```
 
@@ -21,13 +21,14 @@ var geoDb = require('fxa-geodb')({
 The function returns a promise that may either resolve (on successful finding of location data) or reject (if either the ip was invalid, or location data could not be found). Call the function, like so:
 
 ```JavaScript
-geoDb(ip).then(function (location) {
-        // success, resolved
-        // location data is available here
-      }, function (err) {
-        // rejected :(
-        // Uh-oh error
-      });
+geoDb(ip)
+  .then(function (location) {
+    // success, resolved
+    // location data is available here
+  }, function (err) {
+    // rejected :(
+    // Uh-oh error
+  });
 ```
 
 On successful resolution of the promise, the `location` object has the following data:
@@ -43,7 +44,7 @@ latLong: {
 },
 state: 'human-readable-state-name', // Victoria
 stateCode: 'human-readable-state-code', // VIC
-timeZone: 'IANA-compatible-timezone', // America/Los_Angeles
+timeZone: 'IANA-compatible-timezone', // America/Los_Angeles 
 ```
 
 A working example is provided in the `examples` directory.

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var chai = require('chai');
+var DEFAULTS = require('../lib/defaults');
 var ERRORS = require('../lib/errors');
 var geoDb;
 
@@ -63,7 +64,7 @@ describe('fxa-geodb', function () {
 
   it('returns an object with location data when supplied with a valid ip address', function () {
     // 8.8.8.8 is Google's nameservers, will probably always stay constant
-    ip = '8.8.8.8';
+    ip = DEFAULTS.GOOGLE_NAMESERVERS;
     var latLong = {
       latitude: 37.386,
       longitude: -122.0838

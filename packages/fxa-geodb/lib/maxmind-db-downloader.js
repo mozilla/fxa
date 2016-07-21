@@ -34,9 +34,9 @@ var MaxmindDbDownloader = function () {
   this.createTargetDir = function (targetDirName) {
     targetDirName = targetDirName || DEFAULTS.TARGET_DIR_NAME;
     var targetDirPath = path.join(__dirname, '..', targetDirName);
-    // create db folder
+    // create db directory
     var createdTargetDirPath = mkdirp.sync(targetDirPath);
-    logHelper('info', 'Download folder is ' + createdTargetDirPath);
+    logHelper('info', 'Download directory is ' + createdTargetDirPath);
     return createdTargetDirPath;
   };
 
@@ -78,16 +78,21 @@ var MaxmindDbDownloader = function () {
             var geoDb = require('./fxa-geodb')({
               dbPath: targetFilePathTemp
             });
+            logHelper('info', 'checking if lookup works with downloaded file');
             // check if lookup works with the downloaded file
-            geoDb('8.8.8.8')
+            geoDb(DEFAULTS.GOOGLE_NAMESERVERS)
               .then(function (location) {
                 // download worked, rename file
                 if (location) {
                   fs.renameSync(targetFilePathTemp, targetFilePath);
+                  logHelper('info', 'lookup works, renaming downloaded file');
                 }
                 resolve();
               }, function (err) {
                 // download resulted in an error, do not rename
+                // remove temp file
+                fs.unlinkSync(targetFilePathTemp);
+                logHelper('error', 'downloaded file not working');
                 reject(err);
               });
 
