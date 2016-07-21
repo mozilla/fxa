@@ -5,6 +5,7 @@
 var DEFAULTS = require('./defaults');
 var ERRORS = require('./errors');
 var maxmind = require('maxmind');
+var Location = require('./location');
 var Promise = require('bluebird');
 
 module.exports = function (options) {
@@ -54,39 +55,3 @@ module.exports = function (options) {
     });
   };
 };
-
-function Location(locationData, userLocale) {
-  'use strict';
-
-  if (locationData.location) {
-    this.accuracy = locationData.location.accuracy_radius;
-    this.latLong = {
-      latitude: locationData.location.latitude,
-      longitude: locationData.location.longitude
-    };
-    this.timeZone = locationData.location.time_zone;
-  }
-
-  this.getLocaleSpecificLocationString = function (locationObject, userLocale) {
-    // if we have the user's locale specific name, return that,
-    // else return 'en' - english.
-    return locationObject.names[userLocale] || locationObject.names['en'];
-  };
-
-  if (locationData.city) {
-    this.city = this.getLocaleSpecificLocationString(locationData.city, userLocale);
-  }
-
-  if (locationData.continent) {
-    this.continent = this.getLocaleSpecificLocationString(locationData.continent, userLocale);
-  }
-
-  if (locationData.country) {
-    this.country = this.getLocaleSpecificLocationString(locationData.country, userLocale);
-  }
-
-  if (locationData.subdivisions) {
-    this.state = this.getLocaleSpecificLocationString(locationData.subdivisions[0], userLocale);
-    this.stateCode = locationData.subdivisions[0] && locationData.subdivisions[0].iso_code;
-  }
-}
