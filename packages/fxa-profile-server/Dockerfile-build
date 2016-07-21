@@ -21,5 +21,5 @@ RUN npm install && \
 
 COPY . /app
 
-ENTRYPOINT ["npm"]
-CMD ["start"]
+ENTRYPOINT ["/app/scripts/docker-exec.sh"]
+CMD ["test"]
