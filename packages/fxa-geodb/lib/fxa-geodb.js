@@ -25,7 +25,7 @@ module.exports = function (options) {
 
   return function (ip, options) {
     options = options || {};
-    var userLocale = options.userLocale || 'en';
+    var userLocale = options.userLocale || DEFAULTS.USER_LOCALE;
     return new Promise(function (resolve, reject) {
       if (! dbLookup) {
         return reject({
@@ -51,7 +51,7 @@ module.exports = function (options) {
       // latitude, and longitude, and timezone
       var location = new Location(locationData, userLocale);
 
-      resolve(location);
+      return resolve(location);
     });
   };
 };

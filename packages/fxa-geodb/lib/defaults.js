@@ -5,10 +5,12 @@ var path = require('path');
 
 var DEFAULTS = {
   CRON_TIMING : '30 30 1 * * 3',
+  GOOGLE_NAMESERVERS: '8.8.8.8',
   SOURCE_FILE_NAME : 'sources.json',
   TARGET_DIR_NAME : 'db',
   TARGET_FILE_NAME : 'cities-db.mmdb',
-  TIMEZONE : 'America/Los_Angeles'
+  TIMEZONE : 'America/Los_Angeles',
+  USER_LOCALE: 'en'
 };
 
 DEFAULTS.TARGET_DIR_PATH = path.join(__dirname, '..', DEFAULTS.TARGET_DIR_NAME);

@@ -79,7 +79,7 @@ var MaxmindDbDownloader = function () {
               dbPath: targetFilePathTemp
             });
             // check if lookup works with the downloaded file
-            geoDb('8.8.8.8')
+            geoDb(DEFAULTS.GOOGLE_NAMESERVERS)
               .then(function (location) {
                 // download worked, rename file
                 if (location) {
