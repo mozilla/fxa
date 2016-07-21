@@ -1,5 +1,5 @@
-## Firefox Accounts GeoDB Repo for Geolocation based services
-Provides a wrapper around [node-maxmind] (https://github.com/runk/node-maxmind) for getting the location data in an easy-to-read format.
+## Firefox Accounts GeoDB Repo for Geolocation based services [![Build Status: Travis](https://travis-ci.org/mozilla/fxa-geodb.svg?branch=master)](https://travis-ci.org/mozilla/fxa-geodb)
+Provides a wrapper around [node-maxmind](https://github.com/runk/node-maxmind) for getting the location data in an easy-to-read format.
 
 ### Getting started
 Install the module by running `npm install fxa-geodb --save`. Then, include the module in your source file, like so:
