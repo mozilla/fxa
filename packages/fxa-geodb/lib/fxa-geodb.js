@@ -19,7 +19,7 @@ module.exports = function (options) {
     dbLookup = maxmind.open(dbPath);
   } catch (err) {
     // if it failed with primary database
-    // then do nothing
+    // then reject the promise below
   }
 
   return function (ip, options) {
