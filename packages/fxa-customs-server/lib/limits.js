@@ -64,6 +64,8 @@ module.exports = function (config, mc, log) {
     clearInterval(pollInterval)
   }
 
+  var limits = new Limits(config.limits)
+
   function validate(settings) {
     if (typeof(settings) !== 'object') {
       log.error({ op: 'limits.validate.invalid', data: settings })
@@ -85,6 +87,5 @@ module.exports = function (config, mc, log) {
     return settings
   }
 
-  var limits = new Limits(config.limits)
   return limits
 }

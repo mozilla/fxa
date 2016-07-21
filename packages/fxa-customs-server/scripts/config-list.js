@@ -18,6 +18,7 @@
 
  /*/
 
+/* eslint-disable no-console */
 var Memcached = require('memcached')
 var P = require('bluebird')
 

@@ -16,6 +16,7 @@ $ ./customs-info.js localhost:11211 127.0.0.1test@example.com
 
 /*/
 
+/* eslint-disable no-console */
 var Memcached = require('memcached')
 
 if (process.argv.length < 4) {

@@ -14,6 +14,7 @@ $ ./block-ip.js localhost:11211 127.0.0.1 600
 
 /*/
 
+/* eslint-disable no-console */
 var net = require('net')
 var Memcached = require('memcached')
 
