@@ -46,7 +46,7 @@ define([
           '../ga-collector': function () {
             return mocks.gaCollector;
           },
-          '../metrics-collector-stderr':  function () {
+          '../metrics-collector-stderr': function () {
             return mocks.metricsCollector;
           },
           '../statsd-collector': function () {

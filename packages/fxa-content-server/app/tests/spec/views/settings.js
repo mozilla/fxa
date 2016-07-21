@@ -590,7 +590,7 @@ define(function (require, exports, module) {
       it('does nothing', function () {
         relier.unset('uid');
 
-        var sandbox = new sinon.sandbox.create();
+        var sandbox = new sinon.sandbox.create(); // eslint-disable-line new-cap
         sandbox.spy(user, 'setSignedInAccountByUid');
         sandbox.spy(user, 'clearSignedInAccount');
 

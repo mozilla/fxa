@@ -21,7 +21,7 @@ define(function (require, exports, module) {
         localStorage.clear();
         sessionStorage.clear();
         document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
-      } catch(e) {
+      } catch (e) {
         // if cookies are disabled, this will blow up some browsers.
       }
     }

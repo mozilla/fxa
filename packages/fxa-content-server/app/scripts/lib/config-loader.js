@@ -47,7 +47,7 @@ define(function (require, exports, module) {
 
       try {
         document.cookie = '__cookie_check=1; path=/config;';
-      } catch(e) {
+      } catch (e) {
         // some browsers explode when trying to set cookies if they are
         // disabled. Ignore the error, the server will report back that it
         // did not receive the cookie.

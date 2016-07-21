@@ -112,7 +112,9 @@ module.exports = function (config) {
       fakeReq.headers['accept-language'] = acceptLang;
     }
     var callWasSynchronous = false;
-    abideObj(fakeReq, fakeResp, function () { callWasSynchronous = true; });
+    abideObj(fakeReq, fakeResp, function () {
+      callWasSynchronous = true;
+    });
     if (! callWasSynchronous) {
       throw new Error('uh-oh, the call to i18n-abide was not synchronous!');
     }

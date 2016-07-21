@@ -82,7 +82,7 @@ reference GitHub issues that this commit **Closes**.
 
 | Task | Description |
 |------|-------------|
-| `grunt lint` | run linters (ESLint, JSCS, JSONLint and amdcheck) on client side and testing JavaScript. |
+| `grunt lint` | run ESLint, Sass-lint, amdcheck and JSONLint on client side and testing JavaScript. |
 | `grunt build` | build production resources. |
 | `grunt clean` | remove any built production resources. |
 | `grunt test` | run local Intern tests. |

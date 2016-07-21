@@ -19,7 +19,9 @@ define(function (require, exports, module) {
   var showProgressIndicator = require('views/decorators/progress_indicator');
   var Template = require('stache!templates/settings/avatar_gravatar');
 
-  function t (s) { return s; }
+  function t (s) {
+    return s;
+  }
 
   var EXPORT_LENGTH = Constants.PROFILE_IMAGE_EXPORT_SIZE;
   var DISPLAY_LENGTH = Constants.PROFILE_IMAGE_DISPLAY_SIZE;

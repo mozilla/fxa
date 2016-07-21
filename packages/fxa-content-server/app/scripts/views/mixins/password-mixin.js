@@ -65,7 +65,7 @@ define(function (require, exports, module) {
               .removeAttr('autocorrect').removeAttr('autocapitalize');
           this.logViewEvent('password.hidden');
         }
-      } catch(e) {
+      } catch (e) {
         // IE8 blows up when changing the type of the input field. Other
         // browsers might too. Ignore the error.
       }

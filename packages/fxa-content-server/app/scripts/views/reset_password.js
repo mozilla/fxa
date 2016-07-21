@@ -39,7 +39,9 @@ define(function (require, exports, module) {
       if (canSkip && email) {
         var self = this;
         return this._resetPassword(email)
-          .then(function () { return false; })
+          .then(function () {
+            return false;
+          })
           .fail(function (err) {
             self.model.set('error', err);
           });

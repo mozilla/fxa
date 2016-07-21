@@ -53,7 +53,7 @@ define(function (require, exports, module) {
       try {
         // some errors do not allow reassigning a read-only message property
         error.message = this.getErrorMessage(error);
-      } catch(e) {
+      } catch (e) {
         // unable to change error message.
       }
 

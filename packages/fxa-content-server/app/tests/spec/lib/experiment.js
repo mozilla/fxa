@@ -112,7 +112,9 @@ define(function (require, exports, module) {
 
       it('choose experiments', function () {
         expInt._allExperiments = {
-          'mock': function () { return mockExperiment; }
+          'mock': function () {
+            return mockExperiment;
+          }
         };
         sinon.stub(expInt.able, 'choose', function () {
           return 'mock';

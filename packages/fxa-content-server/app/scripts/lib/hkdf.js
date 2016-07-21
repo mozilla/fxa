@@ -21,7 +21,7 @@ define(function (require, exports, module) {
    */
   function hkdf(ikm, info, salt, length) {
 
-    var mac = new sjcl.misc.hmac(salt, sjcl.hash.sha256);
+    var mac = new sjcl.misc.hmac(salt, sjcl.hash.sha256); //eslint-disable-line new-cap
     mac.update(ikm);
 
     // compute the PRK
@@ -34,7 +34,7 @@ define(function (require, exports, module) {
     var output = '';
 
     for (var i = 0; i < numBlocks; i++) {
-      var hmac = new sjcl.misc.hmac(prk, sjcl.hash.sha256);
+      var hmac = new sjcl.misc.hmac(prk, sjcl.hash.sha256); //eslint-disable-line new-cap
 
       var input = sjcl.bitArray.concat(
         sjcl.bitArray.concat(prev, info),

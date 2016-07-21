@@ -120,7 +120,7 @@ define(function (require, exports, module) {
               self._invalidateSession();
             }
             // Ignore other errors; we'll just fetch again when needed
-          }); /* HACK: See eslint/eslint#1801 */ // eslint-disable-line indent
+          });
       }
 
       return promise;

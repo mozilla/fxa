@@ -94,7 +94,7 @@ define([
         try {
           localStorage.clear();
           sessionStorage.clear();
-        } catch(e) {
+        } catch (e) {
           console.log('Failed to clearBrowserState');
           // if cookies are disabled, this will blow up some browsers.
         }
@@ -144,7 +144,7 @@ define([
       .execute(function () {
         try {
           sessionStorage.clear();
-        } catch(e) {
+        } catch (e) {
           console.log('Failed to clearSessionStorage');
         }
         return true;
@@ -807,7 +807,7 @@ define([
           element.innerText = JSON.stringify(data);
           document.body.appendChild(element);
         });
-      } catch(e) {
+      } catch (e) {
         // problem adding the listener, window may not be ready, try again.
         setTimeout(startListening, 0);
       }

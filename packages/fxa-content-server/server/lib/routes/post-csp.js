@@ -65,7 +65,7 @@ function stripPIIFromUrl(urlToScrub) {
 
   try {
     parsedUrl = url.parse(urlToScrub, true);
-  } catch(e) {
+  } catch (e) {
     // failed to parse the given url
     return '';
   }

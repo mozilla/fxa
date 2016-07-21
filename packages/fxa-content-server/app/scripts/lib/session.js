@@ -115,7 +115,7 @@ define(function (require, exports, module) {
         localStorage.setItem(NAMESPACE, JSON.stringify(toSaveToLocalStorage));
         sessionStorage.setItem(NAMESPACE, JSON.stringify(toSaveToSessionStorage));
 
-      } catch(e) {
+      } catch (e) {
         // some browsers disable access to browser storage
         // if cookies are disabled.
       }

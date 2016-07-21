@@ -16,8 +16,7 @@ module.exports = function (grunt) {
     config: {
       src: [
         '.bowerrc',
-        '.eslintrc',
-        '.jscsrc'
+        '.eslintrc'
       ]
     },
     i18n: { src: ['<%= yeoman.app %>/i18n/**/*.json'] }

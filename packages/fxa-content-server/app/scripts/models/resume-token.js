@@ -46,7 +46,7 @@ define(function (require, exports, module) {
   function parse(resumeToken) {
     try {
       return JSON.parse(atob(resumeToken));
-    } catch(e) {
+    } catch (e) {
       // do nothing, its an invalid token.
     }
   }

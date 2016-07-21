@@ -9,7 +9,6 @@ module.exports = function (grunt) {
   var SUBTASKS = [
     'eslint',
     'jsonlint:app',
-    'jscs',
     'amdcheck',
     'sasslint'
   ];

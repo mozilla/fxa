@@ -4,9 +4,18 @@
     "sorting"
   ],
   "rules": {
+    "brace-style": 2,
     "handle-callback-err": 0,
+    "key-spacing": [2, {"beforeColon": false, "afterColon": true}],
+    "keyword-spacing": 2,
+    "linebreak-style": [2, "unix"],
+    "max-len": [2, 160],
+    "new-cap": [2, {"newIsCap": true, "capIsNew": false}],
     "no-console": 0,
-    "sorting/sort-object-props": [ 2, { ignoreCase: true, ignoreMethods: true, ignoreObjectsWithMethods: true, ignorePrivate: true } ],
+    "no-multi-str": 2,
+    "sorting/sort-object-props": [ 2, { "ignoreCase": true, "ignoreMethods": true, "ignoreObjectsWithMethods": true, "ignorePrivate": true } ],
+    "space-infix-ops": 2,
+    "space-unary-ops": [2, {"nonwords": false, "overrides": {"~": true, "!": true}}],
     "strict": [2, "never"]
   }
 }

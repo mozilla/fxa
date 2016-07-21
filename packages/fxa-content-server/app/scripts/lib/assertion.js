@@ -26,7 +26,7 @@ define(function (require, exports, module) {
       if (window.crypto && window.crypto.getRandomValues) {
         return P(true);
       }
-    } catch(e) {
+    } catch (e) {
       // some browsers blow up when trying to query window.crypto.
     }
 

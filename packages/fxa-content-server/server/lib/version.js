@@ -38,7 +38,7 @@ function getCommitHash () {
     var versionInfo = require(versionJsonPath);
     var ver = versionInfo.version;
     return ver.hash;
-  } catch(e) {
+  } catch (e) {
     /* ignore, shell out to `git` for hash */
   }
 
@@ -63,7 +63,7 @@ function getSourceRepo () {
     var versionInfo = require(versionJsonPath);
     var ver = versionInfo.version;
     return ver.source;
-  } catch(e) {
+  } catch (e) {
     /* ignore, shell out to `git` for repo */
   }
 
@@ -87,7 +87,7 @@ function getL10nVersion () {
     var bowerPath = '../../app/bower_components/fxa-content-server-l10n/.bower.json';
     var bowerInfo = require(bowerPath);
     return bowerInfo && bowerInfo._release;
-  } catch(e) {
+  } catch (e) {
     /* ignore */
   }
 }
@@ -97,7 +97,7 @@ function getTosPpVersion () {
     var bowerPath = '../../app/bower_components/tos-pp/.bower.json';
     var bowerInfo = require(bowerPath);
     return bowerInfo && bowerInfo._release;
-  } catch(e) {
+  } catch (e) {
     /* ignore */
   }
 }
