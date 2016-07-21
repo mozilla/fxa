@@ -90,15 +90,27 @@ define([
       return this.remote
         .then(setupTest(this, false))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(clearBrowserNotifications())
 
-        .then(testElementExists('#fxa-confirm-header'));
+        .then(testElementExists('#fxa-confirm-header'))
+
+        // email 0 - initial sign up email
+        // email 1 - sign in w/ unverified address email
+        // email 2 - "You have verified your Firefox Account"
+        .then(openVerificationLinkInNewTab(this, email, 1))
+        .switchToWindow('newwindow')
+          .then(testElementExists('#fxa-sign-up-complete-header'))
+          .closeCurrentWindow()
+        .switchToWindow('')
+
+        .then(testElementExists('#fxa-sign-up-complete-header'))
+        .then(noSuchBrowserNotification(this, 'fxaccounts:login'));
     },
 
     'signin, cancel merge warning': function () {
       return this.remote
         .then(setupTest(this, true, { canLinkAccountResponse: false }))
 
-        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
         .then(noSuchBrowserNotification(this, 'fxaccounts:login'))
 
         // user should not transition to the next screen

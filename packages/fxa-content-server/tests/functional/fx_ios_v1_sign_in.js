@@ -79,7 +79,19 @@ define([
 
     'unverified': function () {
       return this.remote
-        .then(setupTest(this, false));
+        .then(setupTest(this, false))
+
+        // email 0 - initial sign up email
+        // email 1 - sign in w/ unverified address email
+        // email 2 - "You have verified your Firefox Account"
+        .then(openVerificationLinkInNewTab(this, email, 1))
+        .switchToWindow('newwindow')
+          .then(testElementExists('#fxa-sign-up-complete-header'))
+          .closeCurrentWindow()
+        .switchToWindow('')
+
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-confirm-header'));
     },
 
     'signup link is enabled': function () {

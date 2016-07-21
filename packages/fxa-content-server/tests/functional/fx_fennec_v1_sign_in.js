@@ -87,7 +87,20 @@ define([
       return this.remote
         .then(setupTest(this, false))
 
-        .then(testElementExists('#fxa-confirm-header'));
+        .then(testElementExists('#fxa-confirm-header'))
+        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+
+        // email 0 - initial sign up email
+        // email 1 - sign in w/ unverified address email
+        // email 2 - "You have verified your Firefox Account"
+        .then(openVerificationLinkInNewTab(this, email, 1))
+        .switchToWindow('newwindow')
+          .then(testElementExists('#fxa-sign-up-complete-header'))
+          .closeCurrentWindow()
+        .switchToWindow('')
+
+        .then(testElementExists('#fxa-sign-up-complete-header'));
     }
   });
 });

@@ -20,6 +20,7 @@ define([
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var noEmailExpected = FunctionalHelpers.noEmailExpected;
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openPage = thenify(FunctionalHelpers.openPage);
@@ -27,6 +28,7 @@ define([
   var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
+  var testEmailExpected = FunctionalHelpers.testEmailExpected;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
@@ -103,8 +105,40 @@ define([
     },
 
     'unverified': function () {
+      // this test does a lot of waiting around, give it a little extra time
+      this.timeout = 60 * 1000;
+
       return this.remote
-        .then(setupTest(this, false));
+        .then(setupTest(this, false))
+
+        // email 0 - initial sign up email
+        // email 1 - sign in w/ unverified address email
+        // email 2 - "You have verified your Firefox Account"
+
+        // there was a problem with 2 emails being sent on signin,
+        // ensure only one is sent. See #3890. Check for extra email
+        // must be done before opening the verification link,
+        // otherwise the "Account verified!" email is sent.
+
+        // maxAttempts is set to avoid intererence from
+        // the verification reminder emails. 5 attempts occur in 5 seconds,
+        // the first verification reminder is set after 10 seconds.
+        .then(noEmailExpected(email, 2, { maxAttempts: 5 }))
+        .then(openVerificationLinkInNewTab(this, email, 1))
+        .then(testEmailExpected(email, 2))
+
+        .switchToWindow('newwindow')
+          .then(testElementExists('#fxa-sign-up-complete-header'))
+          .then(noSuchBrowserNotification(this, 'fxaccounts:sync_preferences'))
+          // user should be able to click on a sync preferences button.
+          .then(click('#sync-preferences'))
+          // browser is notified of desire to open Sync preferences
+          .then(testIsBrowserNotified(this, 'fxaccounts:sync_preferences'))
+          .closeCurrentWindow()
+        .switchToWindow('')
+
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-confirm-header'));
     }
   });
 });
