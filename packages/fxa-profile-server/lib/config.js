@@ -48,13 +48,6 @@ const conf = convict({
       default: ''
     }
   },
-  git: {
-    commit: {
-      doc: 'Commit SHA when in stage/production',
-      format: String,
-      default: ''
-    }
-  },
   img: {
     driver: {
       env: 'IMG',
