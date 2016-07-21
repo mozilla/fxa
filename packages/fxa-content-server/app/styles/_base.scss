@@ -39,6 +39,10 @@ body {
 
 noscript {
   top: 10%;
+
+  .js & {
+    display: none;
+  }
 }
 
 .browsehappy {

@@ -28,6 +28,13 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('addJSStyle', function () {
+      it('adds `js`', function () {
+        startupStyles.addJSStyle();
+        assert.isTrue(/js/.test(startupStyles.getClassName()));
+      });
+    });
+
     describe('addTouchEventStyles', function () {
       it('adds `touch` if the UA supports touch events', function () {
         sinon.stub(environment, 'hasTouchEvents', function () {

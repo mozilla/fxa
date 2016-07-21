@@ -613,11 +613,26 @@ define(function (require, exports, module) {
       // immediately redirected
       const startPage = this._selectStartPage();
       const isSilent = !! startPage;
+
       // pushState must be specified or else no screen transitions occur.
-      this._history.start({ pushState: true, silent: isSilent });
+      this._history.start({ pushState: this._canUseHistoryAPI(), silent: isSilent });
       if (startPage) {
         this._router.navigate(startPage);
       }
+    },
+
+    _canUseHistoryAPI () {
+      // Check whether the history API can be used by calling replaceState
+      // with the current window information. This fixes problems in some
+      // environments like the Firefox OS 1.x trusted UI where the history
+      // API is available, but can't be used.
+      const win = this._window;
+      try {
+        win.history.replaceState({}, win.document.title, win.location.href);
+      } catch (e) {
+        return false;
+      }
+      return true;
     },
 
     _getStorageInstance () {

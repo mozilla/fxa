@@ -46,8 +46,8 @@ define(function (require, exports, module) {
 
   describe('lib/app-start', function () {
     var appStart;
+    var backboneHistoryMock;
     var brokerMock;
-    var historyMock;
     var notifier;
     var routerMock;
     var userMock;
@@ -55,7 +55,7 @@ define(function (require, exports, module) {
 
     beforeEach(function () {
       brokerMock = new BaseBroker();
-      historyMock = new HistoryMock();
+      backboneHistoryMock = new HistoryMock();
       notifier = new Notifier();
       routerMock = { navigate: sinon.spy() };
       userMock = new User();
@@ -78,7 +78,7 @@ define(function (require, exports, module) {
 
         appStart = new AppStart({
           broker: brokerMock,
-          history: historyMock,
+          history: backboneHistoryMock,
           router: routerMock,
           storage: Storage,
           user: userMock,
@@ -109,7 +109,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         appStart = new AppStart({
           broker: brokerMock,
-          history: historyMock,
+          history: backboneHistoryMock,
           router: routerMock,
           storage: Storage,
           user: userMock,
@@ -209,7 +209,7 @@ define(function (require, exports, module) {
 
       beforeEach(function () {
         appStart = new AppStart({
-          history: historyMock,
+          history: backboneHistoryMock,
           router: routerMock,
           user: userMock,
           window: windowMock
@@ -403,7 +403,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         appStart = new AppStart({
           broker: brokerMock,
-          history: historyMock,
+          history: backboneHistoryMock,
           router: routerMock,
           user: userMock,
           window: windowMock
@@ -438,7 +438,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         appStart = new AppStart({
           broker: brokerMock,
-          history: historyMock,
+          history: backboneHistoryMock,
           router: routerMock,
           user: userMock,
           window: windowMock
@@ -464,7 +464,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         appStart = new AppStart({
           broker: brokerMock,
-          history: historyMock,
+          history: backboneHistoryMock,
           router: routerMock,
           window: windowMock
         });
@@ -486,7 +486,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         appStart = new AppStart({
           broker: brokerMock,
-          history: historyMock,
+          history: backboneHistoryMock,
           router: routerMock,
           window: windowMock
         });
@@ -515,7 +515,7 @@ define(function (require, exports, module) {
       it('creates error metrics', function () {
         var appStart = new AppStart({
           broker: brokerMock,
-          history: historyMock,
+          history: backboneHistoryMock,
           router: routerMock,
           window: windowMock
         });
@@ -537,7 +537,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         appStart = new AppStart({
           broker: brokerMock,
-          history: historyMock,
+          history: backboneHistoryMock,
           router: routerMock,
           window: windowMock
         });
@@ -553,7 +553,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         appStart = new AppStart({
           broker: brokerMock,
-          history: historyMock,
+          history: backboneHistoryMock,
           notifier: notifier,
           window: windowMock
         });
@@ -570,7 +570,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         appStart = new AppStart({
           broker: brokerMock,
-          history: historyMock,
+          history: backboneHistoryMock,
           window: windowMock
         });
       });
@@ -635,7 +635,7 @@ define(function (require, exports, module) {
 
         appStart = new AppStart({
           broker: brokerMock,
-          history: historyMock,
+          history: backboneHistoryMock,
           relier: relierMock,
           window: windowMock
         });
@@ -681,7 +681,7 @@ define(function (require, exports, module) {
 
         appStart = new AppStart({
           broker: brokerMock,
-          history: historyMock,
+          history: backboneHistoryMock,
           relier: relierMock,
           window: windowMock
         });
@@ -712,7 +712,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         appStart = new AppStart({
           broker: brokerMock,
-          history: historyMock,
+          history: backboneHistoryMock,
           router: routerMock,
           user: userMock,
           window: windowMock
@@ -783,7 +783,7 @@ define(function (require, exports, module) {
       var sentryMock;
 
       beforeEach(function () {
-        sinon.spy(historyMock, 'start');
+        sinon.spy(backboneHistoryMock, 'start');
 
         err = new Error('NS_ERROR_FILE_ACCESS_DENIED');
 
@@ -824,22 +824,34 @@ define(function (require, exports, module) {
 
     describe('allResourcesReady', function () {
       beforeEach(function () {
-        sinon.spy(historyMock, 'start');
+        sinon.spy(backboneHistoryMock, 'start');
 
         appStart = new AppStart({
           broker: brokerMock,
-          history: historyMock,
+          history: backboneHistoryMock,
           router: routerMock,
           user: userMock,
           window: windowMock
         });
 
-        appStart.allResourcesReady();
       });
 
-      it('should start history', function () {
-        assert.isTrue(historyMock.start.calledWith({
+      it('should start history with `pushState: true` if supported', () => {
+        appStart.allResourcesReady();
+        assert.isTrue(backboneHistoryMock.start.calledWith({
           pushState: true,
+          silent: false
+        }));
+      });
+
+      it('should start history with `pushState: false` if supported', () => {
+        sinon.stub(windowMock.history, 'replaceState', () => {
+          throw new Error('You fool! This is the FxOS Trusted UI, history is available, but cannot be used.');
+        });
+
+        appStart.allResourcesReady();
+        assert.isTrue(backboneHistoryMock.start.calledWith({
+          pushState: false,
           silent: false
         }));
       });

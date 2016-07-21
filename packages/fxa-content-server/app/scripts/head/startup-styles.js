@@ -76,12 +76,17 @@
     },
 
     initialize: function () {
+      this.addJSStyle();
       this.addTouchEventStyles();
       this.addPasswordRevealerStyles();
       this.addIframeStyles();
       this.addSearchParamStyles();
       this.addFxiOSSyncStyles();
       this.addGetUserMediaStyles();
+    },
+
+    addJSStyle: function () {
+      this._addClass('js');
     },
 
     addTouchEventStyles: function () {

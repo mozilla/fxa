@@ -49,7 +49,8 @@ define(function (require, exports, module) {
     this.history = {
       back: function () {
         self.history.back.called = true;
-      }
+      },
+      replaceState: function () {}
     };
 
     this.navigator = {
