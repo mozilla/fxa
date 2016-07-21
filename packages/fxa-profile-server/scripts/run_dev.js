@@ -12,17 +12,25 @@ const rimraf = require('rimraf');
 
 process.env.NODE_ENV = 'dev';
 
-var child = cp.fork(path.join(__dirname, '..', 'bin', 'server.js'));
-child.on('exit', process.exit);
+var childServer = cp.fork(path.join(__dirname, '..', 'bin', 'server.js'));
+childServer.on('exit', process.exit);
 
-child = cp.fork(path.join(__dirname, '..', 'bin', 'worker.js'));
-child.on('exit', process.exit);
+var childWorker = cp.fork(path.join(__dirname, '..', 'bin', 'worker.js'));
+childWorker.on('exit', process.exit);
 
 
 mkdirp.sync(path.join(__dirname, '..', 'var', 'public'));
-child = cp.fork(path.join(__dirname, '..', 'bin', '_static.js'));
-child.on('exit', process.exit);
+var childStatic = cp.fork(path.join(__dirname, '..', 'bin', '_static.js'));
+childStatic.on('exit', process.exit);
 
 process.on('exit', function() {
+  try {
+    // if one of the child processes crashes or exits then we stop everything else.
+    childServer.kill();
+    childWorker.kill();
+    childStatic.kill();
+  } catch (e) {
+    console.log(e); // eslint-disable-line no-console
+  }
   rimraf.sync(path.join(__dirname, '..', 'var', 'public'));
 });
