@@ -372,10 +372,6 @@ module.exports = function (
                   throw error.incorrectPassword(emailRecord.email, email)
                 }
 
-                if (emailRecord.lockedAt) {
-                  throw error.lockedAccount()
-                }
-
                 return checkPassword(emailRecord, authPW, request.app.clientAddress)
                   .then(
                     function (match) {
@@ -1229,111 +1225,6 @@ module.exports = function (
     },
     {
       method: 'POST',
-      path: '/account/unlock/resend_code',
-      config: {
-        validate: {
-          payload: {
-            email: validators.email().required(),
-            service: isA.string().max(16).alphanum().optional(),
-            redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
-            resume: isA.string().max(2048).optional()
-          }
-        }
-      },
-      handler: function (request, reply) {
-        log.begin('Account.UnlockCodeResend', request)
-        var email = request.payload.email
-        var emailRecord
-        var service = request.payload.service || request.query.service
-
-        customs.check(
-          request,
-          email,
-          'accountUnlockResendCode')
-          .then(
-            db.emailRecord.bind(db, email)
-          )
-          .then(
-            function (_emailRecord) {
-              if (! _emailRecord.lockedAt) {
-                throw error.accountNotLocked(email)
-              }
-
-              emailRecord = _emailRecord
-              return db.unlockCode(emailRecord)
-            }
-          )
-          .then(
-            function (unlockCode) {
-              return mailer.sendUnlockCode(
-                emailRecord,
-                unlockCode,
-                {
-                  service: service,
-                  redirectTo: request.payload.redirectTo,
-                  resume: request.payload.resume,
-                  acceptLanguage: request.app.acceptLanguage
-                }
-              )
-            }
-          )
-          .done(
-            function () {
-              reply({})
-            },
-            reply
-          )
-      }
-    },
-    {
-      method: 'POST',
-      path: '/account/unlock/verify_code',
-      config: {
-        validate: {
-          payload: {
-            uid: isA.string().max(32).regex(HEX_STRING).required(),
-            code: isA.string().min(32).max(32).regex(HEX_STRING).required()
-          }
-        }
-      },
-      handler: function (request, reply) {
-        log.begin('Account.UnlockCodeVerify', request)
-        var uid = request.payload.uid
-        var code = Buffer(request.payload.code, 'hex')
-        db.account(Buffer(uid, 'hex'))
-          .then(
-            function (account) {
-              // If the account isn't actually locked, they may be
-              // e.g. clicking a stale link.  Silently succeed.
-              if (! account.lockedAt) {
-                return
-              }
-              return db.unlockCode(account)
-                .then(
-                  function (expectedCode) {
-                    if (!butil.buffersAreEqual(code, expectedCode)) {
-                      throw error.invalidVerificationCode()
-                    }
-                    log.info({
-                      op: 'account.unlock',
-                      email: account.email,
-                      uid: account.uid
-                    })
-                    return db.unlockAccount(account)
-                  }
-                )
-            }
-          )
-          .done(
-            function () {
-              reply({})
-            },
-            reply
-          )
-      }
-    },
-    {
-      method: 'POST',
       path: '/account/reset',
       config: {
         auth: {
@@ -1507,9 +1398,6 @@ module.exports = function (
           .then(db.emailRecord.bind(db, form.email))
           .then(
             function (emailRecord) {
-              if (emailRecord.lockedAt) {
-                throw error.lockedAccount()
-              }
               uid = emailRecord.uid.toString('hex')
 
               return checkPassword(emailRecord, authPW, request.app.clientAddress)
@@ -1558,63 +1446,6 @@ module.exports = function (
 
   if (config.isProduction) {
     delete routes[0].config.validate.payload.preVerified
-  } else {
-    // programmatic account lockout is only available in non-production mode.
-    routes.push({
-      method: 'POST',
-      path: '/account/lock',
-      config: {
-        validate: {
-          payload: {
-            email: validators.email().required(),
-            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required()
-          }
-        }
-      },
-      handler: function (request, reply) {
-        log.begin('Account.lock', request)
-        var form = request.payload
-        var email = form.email
-        var authPW = Buffer(form.authPW, 'hex')
-
-        customs.check(
-          request,
-          email,
-          'accountLock')
-          .then(db.emailRecord.bind(db, email))
-          .then(
-            function (emailRecord) {
-              // The account is already locked, silently succeed.
-              if (emailRecord.lockedAt) {
-                return true
-              }
-              return checkPassword(emailRecord, authPW, request.app.clientAddress)
-              .then(
-                function (match) {
-                  // a bit of a strange one, only lock the account if the
-                  // password matches, otherwise let customs handle any account
-                  // lock.
-                  if (! match) {
-                    throw error.incorrectPassword(emailRecord.email, email)
-                  }
-                  log.info({
-                    op: 'account.lock',
-                    email: emailRecord.email,
-                    uid: emailRecord.uid.toString('hex')
-                  })
-                  return db.lockAccount(emailRecord)
-                }
-              )
-            }
-          )
-          .done(
-            function () {
-              reply({})
-            },
-            reply
-          )
-      }
-    })
   }
 
   return routes

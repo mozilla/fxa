@@ -7,8 +7,6 @@ var messages = require('joi/lib/language').errors
 
 var ERRNO = {
   ACCOUNT_EXISTS: 101,
-  ACCOUNT_LOCKED: 121,
-  ACCOUNT_NOT_LOCKED: 122,
   ACCOUNT_RESET: 126,
   ACCOUNT_UNKNOWN: 102,
   ACCOUNT_UNVERIFIED: 104,
@@ -403,29 +401,6 @@ AppError.gone = function () {
     errno: ERRNO.ENDPOINT_NOT_SUPPORTED,
     message: 'This endpoint is no longer supported'
   })
-}
-
-AppError.lockedAccount = function () {
-  return new AppError({
-    code: 400,
-    error: 'Bad Request',
-    errno: ERRNO.ACCOUNT_LOCKED,
-    message: 'Account is locked'
-  })
-}
-
-AppError.accountNotLocked = function (email) {
-  return new AppError(
-    {
-      code: 400,
-      error: 'Bad Request',
-      errno: ERRNO.ACCOUNT_NOT_LOCKED,
-      message: 'Account is not locked'
-    },
-    {
-      email: email
-    }
-  )
 }
 
 AppError.mustResetAccount = function (email) {

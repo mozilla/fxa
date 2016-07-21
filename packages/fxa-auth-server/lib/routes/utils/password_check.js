@@ -5,8 +5,7 @@
 /**
  * Check if the password a user entered matches the one on
  * file for the account. If it does not, flag the account with
- * customs. If customs says the account should be locked,
- * lock the acocunt. Higher levels will take care of
+ * customs. Higher levels will take care of
  * returning an error to the user.
  */
 
@@ -47,20 +46,6 @@ module.exports = function (log, config, Password, customs, db) {
             email: emailRecord.email,
             errno: error.ERRNO.INCORRECT_PASSWORD
           })
-          .then(
-            function (result) {
-              if (result.lockout) {
-                log.info({
-                  op: 'account.lock',
-                  email: emailRecord.email,
-                  uid: emailRecord.uid.toString('hex')
-                })
-                if (config.lockoutEnabled) {
-                  return db.lockAccount(emailRecord)
-                }
-              }
-            }
-          )
           .then(
             function () {
               return match

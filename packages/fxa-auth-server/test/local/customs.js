@@ -49,7 +49,7 @@ test(
         return customsNoUrl.flag(ip, { email: email, uid: '12345' })
       })
       .then(function(result) {
-        t.equal(result.lockout, false, 'lockout is false when /failedLoginAttempt returns `lockout: false`')
+        t.equal(result, undefined, 'Nothing is returned when /failedLoginAttempt succeeds')
         t.pass('Passed /failedLoginAttempt')
       }, function(error) {
         t.fail('We should have failed open for /failedLoginAttempt')
@@ -103,7 +103,7 @@ test(
         t.fail('We should not have failed here for /check : err=' + error)
       })
       .then(function() {
-        // Mock a report of a failed login attempt that doesn't trigger lockout.
+        // Mock a report of a failed login attempt
         customsServer.post('/failedLoginAttempt', function (body) {
           t.deepEqual(body, {
              ip: ip,
@@ -111,13 +111,11 @@ test(
              errno: error.ERRNO.UNEXPECTED_ERROR
           }, 'first call to /failedLoginAttempt had expected request params')
           return true
-        }).reply(200, {
-          lockout: false
-        })
+        }).reply(200, {})
         return customsWithUrl.flag(ip, { email: email, uid: '12345' })
       })
       .then(function(result) {
-        t.equal(result.lockout, false, 'lockout is false when /failedLoginAttempt returns false')
+        t.equal(result, undefined, 'Nothing is returned when /failedLoginAttempt succeeds')
         t.pass('Passed /failedLoginAttempt')
       }, function(error) {
         t.fail('We should not have failed here for /failedLoginAttempt : err=' + error)
@@ -176,17 +174,15 @@ test(
              errno: error.ERRNO.INCORRECT_PASSWORD
           }, 'second call to /failedLoginAttempt had expected request params')
           return true
-        }).reply(200, {
-          lockout: true
-        })
+        }).reply(200, { })
         return customsWithUrl.flag(ip, {
           email: email,
           errno: error.ERRNO.INCORRECT_PASSWORD
         })
       })
       .then(function(result) {
-        t.equal(result.lockout, true, 'lockout is true when /failedLoginAttempt returns `lockout: true`')
-        t.pass('Passed /failedLoginAttempt with lockout')
+        t.equal(result, undefined, 'Nothing is returned when /failedLoginAttempt succeeds')
+        t.pass('Passed /failedLoginAttempt')
       }, function(error) {
         t.fail('We should not have failed here for /failedLoginAttempt : err=' + error)
       })
@@ -249,7 +245,7 @@ test(
         return customsInvalidUrl.flag(ip, { email: email, uid: '12345' })
       })
       .then(function(result) {
-        t.equal(result.lockout, false, 'lockout is false when /failedLoginAttempt hits an invalid endpoint')
+        t.equal(result, undefined, 'Nothing is returned when /failedLoginAttempt succeeds')
         t.pass('Passed /failedLoginAttempt')
       }, function(error) {
         t.fail('We should have failed open (no url provided) for /failedLoginAttempt')

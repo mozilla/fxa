@@ -7,28 +7,20 @@ var sinon = require('sinon')
 var P = require('../../lib/promise')
 var test = require('../ptaptest')
 var mockLog = require('../mocks').mockLog()
-var config = { lockoutEnabled: true }
+var config = {}
 var Password = require('../../lib/crypto/password')(mockLog, config)
 var error = require('../../lib/error')
 var butil = require('../../lib/crypto/butil')
 
-var triggersLockout = false
 var MockCustoms = {
   flag: sinon.spy(function (clientAddress, emailRecord) {
-    return P.resolve({ lockout: triggersLockout })
+    return P.resolve({})
   })
 }
 
 var MockDB = {
-  locked: {},
   checkPassword: function (uid) {
     return uid === 'correct_password'
-  },
-  isLocked: function (uid) {
-    return !! this.locked[uid]
-  },
-  lockAccount: function(account) {
-    MockDB.locked[account.uid] = true
   }
 }
 
@@ -69,11 +61,11 @@ test(
 )
 
 test(
-  'password check with incorrect password that does not trigger lockout',
+  'password check with incorrect password',
   function (t) {
     var authPW = new Buffer('aaaaaaaaaaaaaaaa')
     var emailRecord = {
-      uid: 'not_locked',
+      uid: 'uid',
       email: 'test@example.com',
       verifyHash: null,
       verifierVersion: 0,
@@ -91,7 +83,6 @@ test(
 
           var incorrectAuthPW = new Buffer('cccccccccccccccc')
 
-          triggersLockout = false
           return checkPassword(emailRecord, incorrectAuthPW, CLIENT_ADDRESS)
         }
       )
@@ -104,49 +95,6 @@ test(
             email: emailRecord.email,
             errno: error.ERRNO.INCORRECT_PASSWORD
           }, 'customs.flag was called with correct event details')
-          t.equal(MockDB.isLocked('not_locked'), false, 'account was not marked as locked')
-        }
-      )
-  }
-)
-
-test(
-  'password check with incorrect password that triggers lockout',
-  function (t) {
-    var authPW = new Buffer('aaaaaaaaaaaaaaaa')
-    var emailRecord = {
-      uid: 'locked',
-      email: 'test@example.com',
-      verifyHash: null,
-      verifierVersion: 0,
-      authSalt: new Buffer('bbbbbbbbbbbbbbbb')
-    }
-    MockCustoms.flag.reset()
-
-    var password = new Password(
-            authPW, emailRecord.authSalt, emailRecord.verifierVersion)
-
-    return password.verifyHash()
-      .then(
-        function (hash) {
-          emailRecord.verifyHash = hash
-
-          var incorrectAuthPW = new Buffer('cccccccccccccccc')
-
-          triggersLockout = true
-          return checkPassword(emailRecord, incorrectAuthPW, CLIENT_ADDRESS)
-        }
-      )
-      .then(
-        function (match) {
-          t.equal(!!match, false, 'password does not match, checkPassword returns false')
-          t.equal(MockCustoms.flag.callCount, 1, 'customs.flag was called')
-          t.equal(MockCustoms.flag.getCall(0).args[0], CLIENT_ADDRESS, 'customs.flag was called with client ip')
-          t.deepEqual(MockCustoms.flag.getCall(0).args[1], {
-            email: emailRecord.email,
-            errno: error.ERRNO.INCORRECT_PASSWORD
-          }, 'customs.flag was called with correct event details')
-          t.equal(MockDB.isLocked('locked'), true, 'account was not marked as locked')
         }
       )
   }
@@ -163,7 +111,6 @@ test(
       authSalt: butil.ONES
     }
     MockCustoms.flag.reset()
-    triggersLockout = false
 
     var incorrectAuthPW = new Buffer('cccccccccccccccc')
 

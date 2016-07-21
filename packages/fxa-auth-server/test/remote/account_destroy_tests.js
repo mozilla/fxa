@@ -67,36 +67,6 @@ TestServer.start(config)
   )
 
   test(
-    'destroy locked account',
-    function (t) {
-      var email = server.uniqueEmail()
-      var password = 'wibble'
-      var client
-      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
-        .then(
-          function (c) {
-            client = c
-            return client.lockAccount()
-          }
-        )
-        .then(
-          function () {
-            return client.destroyAccount()
-          }
-        )
-        .then(
-          t.fail,
-          function (err) {
-            t.equal(err.code, 400)
-            t.equal(err.error, 'Bad Request')
-            t.equal(err.errno, 121)
-            t.equal(err.message, 'Account is locked')
-          }
-        )
-    }
-  )
-
-  test(
     'teardown',
     function (t) {
       server.stop()
