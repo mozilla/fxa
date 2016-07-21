@@ -62,7 +62,7 @@ Once you are back working on FxA just use the `./pm2 start servers.json` command
 
 #### Verifying email and viewing logs
 
-Use the `./pm2 logs` command to get the logs of all servers. You may also use `./pm2 logs [id]` to just see the logs for that particular server. 
+Use the `./pm2 logs` command to get the logs of all servers. You may also use `./pm2 logs [id]` to just see the logs for that particular server.
 
 When you signup for an account using the form on `127.0.0.1:3030/signup` the (mailer) logs will print out the verification link that you need to copy paste into your browser to verify your account locally:
 
@@ -228,3 +228,28 @@ nvm exec 0.10 ./pm2 start servers_extra.json
 
 #### Run
 Once services have started, run `npm start` to open Firefox with a local profile. Access the Hello service as you normally would.
+
+*******
+
+### Running with MailDev
+
+If you want to inspect emails, you can run fxa-local-dev with [MailDev](https://www.npmjs.com/package/maildev).
+
+#### Install
+```bash
+npm install maildev -g
+```
+
+#### Run
+```bash
+./pm2 start servers.json
+./pm2 stop 0
+```
+
+Once services have started, you can start MailDev on port 9999. You might have to start MailDev with sudo permissions.
+
+```bash
+sudo maildev -s 9999
+```
+
+All emails sent can be viewed from `http://localhost:1080`.
