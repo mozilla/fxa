@@ -13,7 +13,7 @@ var extract = require('jsxgettext-recursive');
 var messagesOutputPath = path.join(__dirname, '..', 'locale', 'templates', 'LC_MESSAGES');
 
 module.exports = function (grunt) {
-  grunt.registerTask('l10n-extract', 'Extract strings from templates for localization.', function () {
+  grunt.registerTask('jsxextract', 'Do not call directly, see l10n-extract.', function () {
     var done = this.async();
 
     if (! fs.existsSync(messagesOutputPath)) {
@@ -21,7 +21,7 @@ module.exports = function (grunt) {
     }
 
     var clientWalker = extract({
-      'input-dir': path.join(__dirname, '..', 'app', 'scripts'),
+      'input-dir': path.join(__dirname, '..', '.es5', 'scripts'),
       'join-existing': false,
       'keyword': 't',
       'output': 'client.pot',
@@ -52,5 +52,12 @@ module.exports = function (grunt) {
       });
     });
   });
+
+  grunt.registerTask('l10n-extract', 'Extract strings from templates for localization.', [
+    // jsxgettext does not support ES2015, only ES5. Run babel to convert
+    // then run the extractor on the ES5 files.
+    'babel',
+    'jsxextract'
+  ]);
 };
 
