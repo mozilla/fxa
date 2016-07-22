@@ -76,16 +76,13 @@ module.exports = function (log, error) {
       }
     )
     .then(
-      function (result) {
-        return
-      },
+      function () {},
       function (err) {
         log.error({ op: 'customs.flag.1', email: email, err: err })
         // If this happens, either:
         // - (1) the url in config doesn't point to a real customs server
         // - (2) the customs server returned an internal server error
         // Either way, allow the request through so we fail open.
-        return
       }
     )
   }
