@@ -7,6 +7,8 @@ var messages = require('joi/lib/language').errors
 
 var ERRNO = {
   ACCOUNT_EXISTS: 101,
+  // ACCOUNT_LOCKED: 121,
+  // ACCOUNT_NOT_LOCKED: 122,
   ACCOUNT_RESET: 126,
   ACCOUNT_UNKNOWN: 102,
   ACCOUNT_UNVERIFIED: 104,

@@ -80,6 +80,8 @@ The currently-defined error responses are:
 * status code 400, errno 118:  incorrect key retrieval method for this account
 * status code 400, errno 119:  incorrect API version for this account
 * status code 400, errno 120:  incorrect email case
+* status code 400, errno 121:  account is locked (no longer used)
+* status code 400, errno 122:  account is not locked (no longer used)
 * status code 400, errno 123:  unknown device
 * status code 400, errno 124:  session already registered by another device
 * status code 400, errno 125:  request blocked for security reasons

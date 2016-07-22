@@ -1225,6 +1225,22 @@ module.exports = function (
     },
     {
       method: 'POST',
+      path: '/account/unlock/resend_code',
+      handler: function (request, reply) {
+        log.error({ op: 'Account.UnlockCodeResend', request: request })
+        reply(error.gone())
+      }
+    },
+    {
+      method: 'POST',
+      path: '/account/unlock/verify_code',
+      handler: function (request, reply) {
+        log.error({ op: 'Account.UnlockCodeVerify', request: request })
+        reply(error.gone())
+      }
+    },
+    {
+      method: 'POST',
       path: '/account/reset',
       config: {
         auth: {
@@ -1446,6 +1462,15 @@ module.exports = function (
 
   if (config.isProduction) {
     delete routes[0].config.validate.payload.preVerified
+  } else {
+    routes.push({
+      method: 'POST',
+      path: '/account/lock',
+      handler: function (request, reply) {
+        log.error({ op: 'Account.lock', request: request })
+        reply(error.gone())
+      }
+    })
   }
 
   return routes
