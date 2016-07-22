@@ -541,7 +541,8 @@ define(function (require, exports, module) {
                 return client.certificateSign(
                   sessionToken,
                   pubkey,
-                  duration);
+                  duration,
+                  { service: Constants.CONTENT_SERVER_SERVICE });
               });
     },
 

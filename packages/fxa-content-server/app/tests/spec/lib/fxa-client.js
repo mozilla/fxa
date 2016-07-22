@@ -1293,6 +1293,13 @@ define(function (require, exports, module) {
         return client.certificateSign(publicKey, duration)
           .then(function (cert) {
             assert.ok(cert);
+
+            assert.equal(realClient.certificateSign.callCount, 1);
+            var args = realClient.certificateSign.args[0];
+            assert.lengthOf(args, 4);
+            assert.equal(args[1], publicKey);
+            assert.equal(args[2], duration);
+            assert.deepEqual(args[3], { service: 'content-server' });
           });
       });
     });

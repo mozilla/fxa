@@ -39,6 +39,7 @@ define(function (require, exports, module) {
     FX_IOS_V2_CONTEXT: 'fx_ios_v2',
     IFRAME_CONTEXT: 'iframe',
 
+    CONTENT_SERVER_SERVICE: 'content-server',
     SYNC_SERVICE: 'sync',
 
     SYNC11_MIGRATION: 'sync11',
