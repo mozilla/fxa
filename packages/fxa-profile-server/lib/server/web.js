@@ -21,7 +21,7 @@ function set(arr) {
 // This is the webserver. It's what the outside always talks to. It
 // handles the whole Profile API.
 exports.create = function createServer() {
-  var isProd = config.env === 'prod';
+  var isProd = config.env === 'prod' || config.env === 'production";
   var server = new Hapi.Server({
     debug: false,
     connections: {
