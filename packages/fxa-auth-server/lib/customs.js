@@ -52,6 +52,9 @@ module.exports = function (log, error) {
           }
           throw error.requestBlocked()
         }
+        if (result.suspect) {
+          request.app.isSuspiciousRequest = true
+        }
       },
       function (err) {
         log.error({ op: 'customs.check.1', email: email, action: action, err: err })

@@ -681,7 +681,7 @@ test('/account/login', function (t) {
   })
 
   t.test('sign-in confirmation enabled', function (t) {
-    t.plan(8)
+    t.plan(9)
     config.signinConfirmation = {
       enabled: true,
       supportedClients: [ 'fx_desktop_v3' ],
@@ -823,6 +823,34 @@ test('/account/login', function (t) {
         mockMailer.sendNewDeviceLoginNotification.reset()
       })
     }, t)
+
+    t.test('on for suspicious requests', function (t) {
+      mockRequest.payload.email = 'dodgy@mcdodgeface.com'
+      mockRequest.app = { isSuspiciousRequest: true }
+      mockDB.emailRecord = function () {
+        return P.resolve({
+          authSalt: crypto.randomBytes(32),
+          data: crypto.randomBytes(32),
+          email: 'dodgy@mcdodgeface.com',
+          emailVerified: true,
+          kA: crypto.randomBytes(32),
+          lastAuthAt: function () {
+            return Date.now()
+          },
+          uid: uid,
+          wrapWrapKb: crypto.randomBytes(32)
+        })
+      }
+
+      return runTest(route, mockRequest, function (response) {
+        t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+        t.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
+        t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
+        t.equal(response.verificationReason, 'login', 'verificationReason is login')
+      }).then(function () {
+        mockMailer.sendVerifyLoginEmail.reset()
+      })
+    })
 
     t.test('unverified account does not get any confirmation emails', function (t) {
       config.signinConfirmation.supportedClients = [ 'fx_desktop_v3' ]
