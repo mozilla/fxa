@@ -25,15 +25,15 @@ define(function (require, exports, module) {
   }
 
   const CONTEXTS_REQUIRE_KEYS = [
-    'iframe',
+    Constants.IFRAME_CONTEXT,
     // allow fx_desktop_v1, many users signed up using
     // the old context and are now using a newer version
     // of Firefox that accepts WebChannel messages.
-    'fx_desktop_v1',
-    'fx_desktop_v2',
-    'fx_desktop_v3',
-    'fx_fennec_v1',
-    'fx_firstrun_v2',
+    Constants.FX_DESKTOP_V1_CONTEXT,
+    Constants.FX_DESKTOP_V2_CONTEXT,
+    Constants.FX_DESKTOP_V3_CONTEXT,
+    Constants.FX_FENNEC_V1_CONTEXT,
+    Constants.FX_FIRSTRUN_V2_CONTEXT,
     // ios uses the old CustomEvents and cannot accept WebChannel messages
   ];
 
