@@ -29,6 +29,12 @@ define(function (require, exports, module) {
   // This keeps the old string around for if/when we need to change it back.
   t('Get the latest news about Mozilla and Firefox.');
 
+  // We are adding this in the auth-mailer for displaying location data
+  t('%(city)s, %(country)s (estimated)');
+  t('%(country)s (estimated)');
+  t('IP address: %(ip)s');
+  t('For added security, please confirm this sign-in to begin syncing with this device:');
+
   /**
    * Replace instances of %s and %(name)s with their corresponding values in
    * the context
