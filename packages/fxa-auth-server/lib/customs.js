@@ -76,6 +76,7 @@ module.exports = function (log, error) {
       }
     )
     .then(
+      // There's no useful information in the HTTP response, discard it.
       function () {},
       function (err) {
         log.error({ op: 'customs.flag.1', email: email, err: err })
@@ -96,6 +97,7 @@ module.exports = function (log, error) {
       }
     )
     .then(
+      // There's no useful information in the HTTP response, discard it.
       function () {},
       function (err) {
         log.error({ op: 'customs.reset.1', email: email, err: err })

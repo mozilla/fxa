@@ -1463,6 +1463,8 @@ module.exports = function (
   if (config.isProduction) {
     delete routes[0].config.validate.payload.preVerified
   } else {
+    // programmatic account lockout was only available in
+    // non-production mode.
     routes.push({
       method: 'POST',
       path: '/account/lock',
