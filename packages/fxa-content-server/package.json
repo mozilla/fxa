@@ -71,10 +71,10 @@
     "mozlog": "2.0.4",
     "node-statsd": "0.1.1",
     "node-uap": "git://github.com/vladikoff/node-uap.git#9cdd16247",
-    "request": "2.71.0",
+    "request": "2.74.0",
     "serve-static": "1.10.2",
     "time-grunt": "1.3.0",
-    "universal-analytics": "0.3.11"
+    "universal-analytics": "0.4.2"
   },
   "devDependencies": {
     "coveralls": "2.11.9",
