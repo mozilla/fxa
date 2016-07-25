@@ -56,9 +56,6 @@ module.exports = function (
           .then(db.emailRecord.bind(db, form.email))
           .then(
             function (emailRecord) {
-              if (emailRecord.lockedAt) {
-                throw error.lockedAccount()
-              }
               return checkPassword(emailRecord, oldAuthPW, request.app.clientAddress)
               .then(
                 function (match) {

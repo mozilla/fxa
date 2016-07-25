@@ -95,36 +95,6 @@ TestServer.start(config)
   )
 
   test(
-    'log in to locked account',
-    function (t) {
-      var email = server.uniqueEmail()
-      var password = 'wibble'
-      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
-        .then(
-          function (client) {
-            return client.lockAccount()
-          }
-        )
-        .then(
-          function () {
-            return Client.login(config.publicUrl, email, password)
-          }
-        )
-        .then(
-          function () {
-            t.fail('account should fail to log in')
-          },
-          function (err) {
-            t.equal(err.code, 400)
-            t.equal(err.error, 'Bad Request')
-            t.equal(err.errno, 121)
-            t.equal(err.message, 'Account is locked')
-          }
-        )
-    }
-  )
-
-  test(
     'login works with unicode email address',
     function (t) {
       var email = server.uniqueUnicodeEmail()

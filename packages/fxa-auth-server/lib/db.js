@@ -707,44 +707,6 @@ module.exports = function (
     )
   }
 
-  DB.prototype.lockAccount = function (account) {
-    var unlockCode = crypto.randomBytes(16).toString('hex')
-    log.trace({ op: 'DB.lockAccount', uid: account && account.uid, unlockCode: unlockCode })
-
-    return this.pool.post(
-      '/account/' + account.uid.toString('hex') + '/lock',
-      {
-        lockedAt: Date.now(),
-        unlockCode: unlockCode
-      }
-    )
-  }
-
-  DB.prototype.unlockAccount = function (account) {
-    log.trace({ op: 'DB.unlockAccount', uid: account && account.uid })
-    return this.pool.post(
-      '/account/' + account.uid.toString('hex') + '/unlock'
-    )
-  }
-
-  DB.prototype.unlockCode = function (account) {
-    log.trace({ op: 'DB.unlockCode', uid: account && account.uid })
-    return this.pool.get(
-      '/account/' + account.uid.toString('hex') + '/unlockCode'
-      )
-      .then(
-        function (body) {
-          return bufferize(body).unlockCode
-        },
-        function (err) {
-          if (isNotFoundError(err)) {
-            err = error.accountNotLocked()
-          }
-          throw err
-        }
-      )
-  }
-
   DB.prototype.verifyEmail = function (account) {
     log.trace({ op: 'DB.verifyEmail', uid: account && account.uid })
     return this.pool.post('/account/' + account.uid.toString('hex') + '/verifyEmail')

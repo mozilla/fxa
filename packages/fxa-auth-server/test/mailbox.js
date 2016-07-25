@@ -18,8 +18,7 @@ module.exports = function (host, port) {
       .then(
         function (emailData) {
           return emailData.headers['x-verify-code'] ||
-                 emailData.headers['x-recovery-code'] ||
-                 emailData.headers['x-unlock-code']
+                 emailData.headers['x-recovery-code']
         }
       )
   }
