@@ -172,6 +172,8 @@ define(function (require, exports, module) {
         event.stopImmediatePropagation();
       }
 
+      this.trigger('submitStart');
+
       return p()
         .then(function () {
           if (self.isHalted()) {

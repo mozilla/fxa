@@ -5,24 +5,23 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var BaseView = require('views/base');
-  var chai = require('chai');
-  var Cocktail = require('cocktail');
-  var ExperimentMixin = require('views/mixins/experiment-mixin');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var PasswordMixin = require('views/mixins/password-mixin');
-  var Relier = require('models/reliers/relier');
-  var sinon = require('sinon');
-  var TestHelpers = require('../../../lib/helpers');
-  var TestTemplate = require('stache!templates/test_template');
+  const $ = require('jquery');
+  const assert = require('chai').assert;
+  const BaseView = require('views/base');
+  const Cocktail = require('cocktail');
+  const ExperimentMixin = require('views/mixins/experiment-mixin');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const PasswordMixin = require('views/mixins/password-mixin');
+  const Relier = require('models/reliers/relier');
+  const sinon = require('sinon');
+  const TestHelpers = require('../../../lib/helpers');
+  const TestTemplate = require('stache!templates/test_template');
 
-  var assert = chai.assert;
-
-  var PasswordView = BaseView.extend({
+  const PasswordView = BaseView.extend({
     template: TestTemplate
   });
+
   Cocktail.mixin(
     PasswordView,
     PasswordMixin,
@@ -30,9 +29,9 @@ define(function (require, exports, module) {
   );
 
   describe('views/mixins/password-mixin', function () {
-    var view;
-    var relier;
-    var metrics;
+    let metrics;
+    let relier;
+    let view;
 
     beforeEach(function () {
       relier = new Relier();
@@ -94,7 +93,6 @@ define(function (require, exports, module) {
         view.afterVisible();
         assert.isFalse(view.$('.show-password-label').is(':hidden'));
       });
-
     });
 
     describe('onPasswordVisibilityChange', function () {
@@ -114,27 +112,69 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('setPasswordVisibility', () => {
+      it('to visible', () => {
+        const $passwordEl = view.$('#password');
+        $passwordEl.val('password').focus();
+
+        const selectionStart = 1;
+        const selectionEnd = 2;
+
+        const passwordEl = $passwordEl.get(0);
+        passwordEl.selectionStart = selectionStart;
+        passwordEl.selectionEnd = selectionEnd;
+
+        view.setPasswordVisibility('#password', true);
+
+        assert.equal($passwordEl.attr('type'), 'text');
+        assert.equal($passwordEl.attr('autocapitalize'), 'off');
+        assert.equal($passwordEl.attr('autocorrect'), 'off');
+
+        // Ensure the cursor is replaced to its original position.
+        // Only make the check if the document has focus, otherwise
+        // the test fails. Document may not have focus if the dev
+        // clicks out of the test window or when run in PhantomJS.
+        TestHelpers.ifDocumentFocused(() => {
+          assert.equal(passwordEl.selectionStart, selectionStart);
+          assert.equal(passwordEl.selectionEnd, selectionEnd);
+        });
+
+        // Ensure the show password state stays in sync
+        const $showPasswordEl = $passwordEl.siblings('.show-password');
+        assert.isTrue($showPasswordEl.is(':checked'));
+      });
+
+      it('to hidden', () => {
+        view.setPasswordVisibility('#password', false);
+
+        const $passwordEl = view.$('#password');
+        assert.equal($passwordEl.attr('autocomplete'), null);
+        assert.equal($passwordEl.attr('autocapitalize'), null);
+        assert.equal($passwordEl.attr('autocorrect'), null);
+
+        // Ensure the show password state stays in sync
+        const $showPasswordEl = $passwordEl.siblings('.show-password');
+        assert.isFalse($showPasswordEl.is(':checked'));
+      });
+    });
+
     describe('setPasswordVisibilityFromButton', function () {
       it('sets the password field to type=text if button is checked', function () {
         view.$('#show-password').attr('checked', 'checked');
         view.setPasswordVisibilityFromButton('#show-password');
         assert.equal(view.$('#password').attr('type'), 'text');
-        assert.equal(view.$('#password').attr('autocapitalize'), 'off');
-        assert.equal(view.$('#password').attr('autocorrect'), 'off');
       });
 
       it('sets the password field to type=password if button is unchecked', function () {
         view.$('#show-password').removeAttr('checked');
         view.setPasswordVisibilityFromButton('#show-password');
         assert.equal(view.$('#password').attr('type'), 'password');
-        assert.isUndefined(view.$('#password').attr('autocapitalize'));
-        assert.isUndefined(view.$('#password').attr('autocorrect'));
       });
     });
 
     describe('clicking on unsynched/synched show buttons', function () {
-      it('gets pwd inputs to be shown', function () {
-        var targets = view.getAffectedPasswordInputs('#show-password');
+      it('gets password inputs to be shown', function () {
+        let targets = view.getAffectedPasswordInputs('#show-password');
         assert.equal(targets.length, 1);
 
         view.$('#show-password').data('synchronize-show', 'true');
@@ -147,26 +187,14 @@ define(function (require, exports, module) {
       it('pw field set to text when clicked', function () {
         view.$('.show-password').click();
         assert.equal(view.$('#password').attr('type'), 'text');
-        assert.equal(view.$('#password').attr('autocomplete'), 'off');
-        assert.equal(view.$('#password').attr('autocapitalize'), 'off');
-        assert.equal(view.$('#password').attr('autocorrect'), 'off');
         assert.equal(view.$('#vpassword').attr('type'), 'text');
-        assert.equal(view.$('#vpassword').attr('autocomplete'), 'off');
-        assert.equal(view.$('#vpassword').attr('autocomplete'), 'off');
-        assert.equal(view.$('#vpassword').attr('autocapitalize'), 'off');
       });
 
       it('pw field set to password when clicked again', function () {
         view.$('.show-password').click();
         view.$('.show-password').click();
         assert.equal(view.$('#password').attr('type'), 'password');
-        assert.equal(view.$('#password').attr('autocomplete'), null);
-        assert.equal(view.$('#password').attr('autocapitalize'), null);
-        assert.equal(view.$('#password').attr('autocorrect'), null);
-        assert.equal($('#vpassword').attr('type'), 'password');
-        assert.equal($('#vpassword').attr('autocomplete'), null);
-        assert.equal($('#vpassword').attr('autocapitalize'), null);
-        assert.equal($('#vpassword').attr('autocorrect'), null);
+        assert.equal(view.$('#vpassword').attr('type'), 'password');
       });
 
       it('logs whether the password is shown or hidden', function () {
@@ -204,6 +232,37 @@ define(function (require, exports, module) {
         view.onPasswordKeyUp();
         assert.equal(view.$('.input-help').css('opacity'), '0');
         assert.equal(view.$('.input-help-forgot-pw').css('opacity'), '1');
+      });
+    });
+
+    describe('hideVisiblePasswords', () => {
+      it('sets all password fields to type `password`', () => {
+        const $passwordEls = view.$('.password');
+
+        assert.equal($passwordEls.length, 2);
+
+        $passwordEls.each((index, el) => {
+          view.setPasswordVisibility(el, true);
+          assert.equal(el.type, 'text');
+        });
+
+        view.hideVisiblePasswords();
+
+        $passwordEls.each((i, el) => {
+          assert.equal(el.type, 'password');
+        });
+      });
+    });
+
+    describe('submitStart event', () => {
+      beforeEach(() => {
+        sinon.spy(view, 'hideVisiblePasswords');
+      });
+
+      it('hides all visible passwords', () => {
+        assert.equal(view.hideVisiblePasswords.callCount, 0);
+        view.trigger('submitStart');
+        assert.equal(view.hideVisiblePasswords.callCount, 1);
       });
     });
   });

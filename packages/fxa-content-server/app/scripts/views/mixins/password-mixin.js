@@ -7,7 +7,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Constants = require('lib/constants');
+  const $ = require('jquery');
+  const Constants = require('lib/constants');
 
   module.exports = {
     events: {
@@ -15,7 +16,15 @@ define(function (require, exports, module) {
       'keyup input.password': 'onPasswordKeyUp'
     },
 
-    afterVisible: function () {
+    initialize () {
+      // An internal submitStart event is listened for instead of
+      // the `submit` DOM event because form.js already binds a submit
+      // event. Because of the way Cocktail wraps colliding functions,
+      // the form is always submit if a second event handler is added.
+      this.on('submitStart', () => this.hideVisiblePasswords());
+    },
+
+    afterVisible () {
       if (this.isInExperiment && this.isInExperiment('showPassword')) {
         this.notifier.trigger('showPassword.triggered');
 
@@ -25,7 +34,7 @@ define(function (require, exports, module) {
       }
     },
 
-    onPasswordVisibilityChange: function (event) {
+    onPasswordVisibilityChange (event) {
       var target = this.$(event.target);
       this.setPasswordVisibilityFromButton(target);
 
@@ -39,39 +48,80 @@ define(function (require, exports, module) {
       this.focus(controlsSelector);
     },
 
-    setPasswordVisibilityFromButton: function (button) {
+    setPasswordVisibilityFromButton (button) {
       var isVisible = this.$(button).is(':checked');
       var targets = this.getAffectedPasswordInputs(button);
-      this.setPasswordVisibility(isVisible, targets);
+      this.setPasswordVisibility(targets, isVisible);
     },
 
-    getAffectedPasswordInputs: function (button) {
-      var passwordField = this.$(button).siblings('.password');
+    getAffectedPasswordInputs (button) {
+      var $passwordEl = this.$(button).siblings('.password');
       if (this.$(button).data('synchronizeShow')) {
-        passwordField = this.$('.password');
+        $passwordEl = this.$('.password');
       }
-      return passwordField;
+      return $passwordEl;
     },
 
-    setPasswordVisibility: function (isVisible, passwordField) {
+    /**
+     * Set the password visibility for an element. Ensure the "show" button's
+     * state is synchronized.
+     *
+     * @param {selector | element} which
+     * @param {boolean} isVisible
+     */
+    setPasswordVisibility (which, isVisible) {
+      const $passwordEl = $(which);
+      const $showPasswordEl = $passwordEl.siblings('.show-password');
+
+      // Store the cursor position before updating the element type
+      // or else the cursor is set to before the first character.
+
+      // `which` can match more than one element. If this is the case
+      // find the element that is focused.
+      let $focusedEl = $passwordEl.filter(':focus');
+      let selectionStart;
+      let selectionEnd;
+
+      if ($focusedEl.length) {
+        const focusedEl = $focusedEl.get(0);
+        selectionStart = focusedEl.selectionStart;
+        selectionEnd = focusedEl.selectionEnd;
+      }
+
       try {
         if (isVisible) {
-          passwordField.attr('type', 'text').attr('autocomplete', 'off')
+          $passwordEl.attr('type', 'text').attr('autocomplete', 'off')
             .attr('autocorrect', 'off').attr('autocapitalize', 'off');
+          $showPasswordEl.attr('checked', true);
           this.logViewEvent('password.visible');
         } else {
-          passwordField.attr('type', 'password');
-          passwordField.removeAttr('autocomplete')
-              .removeAttr('autocorrect').removeAttr('autocapitalize');
+          $passwordEl.attr('type', 'password').removeAttr('autocomplete')
+            .removeAttr('autocorrect').removeAttr('autocapitalize');
+          $showPasswordEl.removeAttr('checked');
           this.logViewEvent('password.hidden');
         }
       } catch (e) {
         // IE8 blows up when changing the type of the input field. Other
         // browsers might too. Ignore the error.
       }
+
+      // Restore the cursor position if the element is in focus.
+      if ($focusedEl.length) {
+        this.placeCursorAt($focusedEl, selectionStart, selectionEnd);
+      }
     },
 
-    onPasswordKeyUp: function () {
+    /**
+     * Hide all visible passwords to prevent passwords from being saved
+     * by the browser as text form data.
+     */
+    hideVisiblePasswords () {
+      this.$el.find('.password[type=text]').each((index, el) => {
+        this.setPasswordVisibility(el, false);
+      });
+    },
+
+    onPasswordKeyUp () {
       var values = [];
 
       // Values contains all password classes length
@@ -88,11 +138,11 @@ define(function (require, exports, module) {
       }
     },
 
-    showPasswordHelper: function () {
+    showPasswordHelper () {
       this.$('.input-help').css('opacity', '1');
     },
 
-    hidePasswordHelper: function () {
+    hidePasswordHelper () {
       // Hide all input-help classes except input-help-forgot-pw
       this.$('.input-help:not(.input-help-forgot-pw)').css('opacity', '0');
     }

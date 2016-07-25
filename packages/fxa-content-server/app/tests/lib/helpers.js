@@ -11,6 +11,23 @@ define(function (require, exports, module) {
   var ProfileMock = require('../mocks/profile.js');
   var sinon = require('sinon');
 
+  function noOp () {}
+
+  function ifDocumentFocused(callback, done = noOp) {
+    if (document.hasFocus && document.hasFocus()) {
+      callback();
+    } else {
+      const message =
+          'Cannot check for focus - document does not have focus.\n' +
+          'If this is in Travis-CI, Sauce Labs, or Opera, this is expected.\n' +
+          'Otherwise, try focusing the test document instead of \n' +
+          'another window or dev tools.';
+
+      console.warn(message);
+      done();
+    }
+  }
+
   function requiresFocus(callback, done) {
     // Give the document focus
     window.focus();
@@ -20,20 +37,7 @@ define(function (require, exports, module) {
       document.activeElement.blur();
     }
 
-    if (document.hasFocus && document.hasFocus()) {
-      callback();
-    } else {
-      var message =
-          'Cannot check for focus - document does not have focus.\n' +
-          'If this is in Travis-CI, Sauce Labs, or Opera, this is expected.\n' +
-          'Otherwise, try focusing the test document instead of \n' +
-          'another window or dev tools.';
-
-      console.warn(message);
-      if (done) {
-        done();
-      }
-    }
+    ifDocumentFocused(callback, done);
   }
 
   function addFxaClientSpy(fxaClient) {
@@ -164,6 +168,7 @@ define(function (require, exports, module) {
     createUid: createUid,
     emailToUser: emailToUser,
     getValueLabel: getValueLabel,
+    ifDocumentFocused: ifDocumentFocused,
     indexOfEvent: indexOfEvent,
     isErrorLogged: isErrorLogged,
     isEventLogged: isEventLogged,

@@ -164,6 +164,12 @@ define(function (require, exports, module) {
     });
 
     describe('validateAndSubmit', function () {
+      it('triggers a `submitStart` event', (done) => {
+        view.on('submitStart', () => done());
+
+        view.validateAndSubmit();
+      });
+
       it('submits form if isValid returns true', function () {
         view.formIsValid = true;
         view.enableSubmitIfValid();

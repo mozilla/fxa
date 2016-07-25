@@ -670,22 +670,37 @@ define(function (require, exports, module) {
     /**
      * Safely focus an element
      */
-    focus: function (which) {
+    focus (which) {
       try {
-        var focusEl = this.$(which);
+        const focusEl = this.$(which);
         // place the cursor at the end of the input when the
         // element is focused.
+        var self = this;
         focusEl.one('focus', function () {
-          try {
-            this.selectionStart = this.selectionEnd = this.value.length;
-          } catch (e) {
-            // This can blow up on password fields in Chrome. Drop the error on
-            // the ground, for whatever reason, it still behaves as we expect.
-          }
+          self.placeCursorAt(this, this.value.length);
         });
         focusEl.get(0).focus();
       } catch (e) {
         // IE can blow up if the element is not visible.
+      }
+    },
+
+    /**
+     * Place the cursor at the given position within the input element
+     *
+     * @param {selector | element} which
+     * @param {number} selectionStart - defaults to 0.
+     * @param {number} selectionEnd - defaults to selectionStart.
+     */
+    placeCursorAt (which, selectionStart = 0, selectionEnd = selectionStart) {
+      const el = $(which).get(0);
+
+      try {
+        el.selectionStart = selectionStart;
+        el.selectionEnd = selectionEnd;
+      } catch (e) {
+        // This can blow up on password fields in Chrome. Drop the error on
+        // the ground, for whatever reason, it still behaves as we expect.
       }
     },
 

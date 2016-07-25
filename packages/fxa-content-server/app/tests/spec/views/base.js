@@ -361,7 +361,7 @@ define(function (require, exports, module) {
       it('focuses descendent element containing `autofocus` if html has `no-touch` class', function (done) {
         requiresFocus(function () {
           $('html').addClass('no-touch');
-          // wekbit fails unless focusing another element first.
+          // webkit fails unless focusing another element first.
           $('#otherElement').focus();
 
           var handlerCalled = false;
@@ -589,17 +589,51 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('focus', function () {
-      it('focuses an element', function (done) {
-        requiresFocus(function () {
-          // wekbit fails unless focusing another element first.
+    describe('focus', () => {
+      it('focuses an element, sets the cursor position', (done) => {
+        requiresFocus(() => {
+          // webkit fails unless focusing another element first.
           $('#otherElement').focus();
 
-          view.$('#focusMe').one('focus', function () {
+          const elText = 'some text';
+          const $focusEl = view.$('#focusMe').val(elText);
+
+          // Use setTimeout because the selection is set in a `focus` handler
+          // and this `focus` handler is run first.
+          view.$('#focusMe').one('focus', () => setTimeout(() => {
+            const focusEl = $focusEl.get(0);
+            assert.equal(focusEl.selectionStart, elText.length);
+            assert.equal(focusEl.selectionEnd, elText.length);
             done();
-          });
+          }, 0));
+
           view.focus('#focusMe');
         }, done);
+      });
+    });
+
+    describe('placeCursorAt', () => {
+      const elText = 'some text';
+      let $focusEl;
+      let focusEl;
+
+      beforeEach(() => {
+        $focusEl = view.$('#focusMe').val(elText);
+        focusEl = $focusEl.get(0);
+      });
+
+      it('places the cursor at the specified position if only start given', () => {
+        view.placeCursorAt('#focusMe', elText.length);
+
+        assert.equal(focusEl.selectionStart, elText.length);
+        assert.equal(focusEl.selectionEnd, elText.length);
+      });
+
+      it('places the cursor at the specified selection if both given', () => {
+        view.placeCursorAt('#focusMe', elText.length - 2, elText.length);
+
+        assert.equal(focusEl.selectionStart, elText.length - 2);
+        assert.equal(focusEl.selectionEnd, elText.length);
       });
     });
 
