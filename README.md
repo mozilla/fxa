@@ -253,3 +253,9 @@ sudo maildev -s 9999
 ```
 
 All emails sent can be viewed from `http://localhost:1080`.
+
+*******
+
+### Other tasks
+
+* [Updating dependencies and `npm-shrinkwrap.json` files](http://fxa.readthedocs.io/en/latest/local-development/getting-started/#updating-npm-shrinkwrap).
