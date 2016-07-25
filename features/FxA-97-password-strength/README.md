@@ -41,6 +41,18 @@ We believe that these changes will result in us collecting only the data that be
 * Datadog Dashboard › FxA Content Server - Registration › Signup funnel
  * Slightly reduced signup rate
 
+As of 25th July 2016,
+prior to shipping the new UX,;
+the [Datadog password-strength dashboard](https://app.datadoghq.com/dash/67511/fxa-content-server---password-strength)
+gives the following percentages for these events:
+
+* Passwords that are too short: 10.6%
+* Passwords that are just letters and numbers: 21.1%
+* Passwords that are too common (aka BLOOMFILTER_HIT): 1.67%
+* Bloom filter misses: 70.44%
+* Successful signups as a % of submissions: 70.9%
+
+
 ## Detailed design
 
 [comment]: # (This is the bulk of the RFC. Explain the design in enough detail for somebody familiar with the language to understand. This should get into specifics and corner-cases, and include examples of how the feature is used.)
