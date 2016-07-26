@@ -5,6 +5,7 @@
   "scripts": {
     "start": "node scripts/check-local-config && grunt server",
     "start-production": "grunt build && CONFIG_FILES=server/config/local.json,server/config/production.json grunt serverproc:dist",
+    "start-remote": "node scripts/check-local-config && CONFIG_FILES=server/config/local.json,server/config/content.json grunt server",
     "postinstall": "bower update --config.interactive=false -s",
     "test": "intern-runner config=tests/intern",
     "test-functional": "intern-runner config=tests/intern_functional",

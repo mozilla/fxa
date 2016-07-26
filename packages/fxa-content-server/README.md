@@ -5,34 +5,26 @@
 
 Static server that hosts [Firefox Account sign up](https://accounts.firefox.com), sign in, email verification, etc. flows.
 
+## Quick Start
 
-Follow the instructions on:
-	[fxa-local-dev](https://github.com/mozilla/fxa-local-dev) to get a local version running.
-	
-The above link helps to install the following pre-requisites, and set up a development environment.
+Clone the repository, make sure you have [required prerequisites](https://github.com/mozilla/fxa-local-dev#dependencies) installed.
+Run `npm install` and `npm run start-remote`.
+This will start a local fxa-content-server on [http://127.0.0.1:3030](http://127.0.0.1:3030) that works with remote Firefox Accounts servers.
 
-## Prerequisites
-* node 0.10.x or 4.2.3+
-* npm
-* Grunt
-* libgmp
-* [fxa-local-dev](https://github.com/mozilla/fxa-local-dev) - Please note that this is the preferred way of contributing to Firefox Accounts.
+If you want to install all Firefox Accounts servers locally follow the instructions on:
+[fxa-local-dev](https://github.com/mozilla/fxa-local-dev) to get a full development setup running.
+Please note that fxa-local-dev is the preferred way of contributing to Firefox Accounts.
 
-## Development Setup
-
-Make sure that fxa-local-dev servers are running. The fxa-content-server will listen on <http://127.0.0.1:3030> by default.
-
-Note: If you have issues with `npm install` please update to npm 2.4+ using `npm install -g npm@2` 
-([Issue #1594](https://github.com/mozilla/fxa-content-server/issues/1594))
+## Development Notes
 
 ### Changes to stylesheets
 
-To have the css resources automatically rebuilt after changes, run `grunt sass watch`. Now whenever a change is made to the `.scss` files, the corresponding css resources will be rebuilt.
+To have the css resources automatically rebuilt after changes, run `grunt sass watch`.
+Now whenever a change is made to the `.scss` files, the corresponding css resources will be rebuilt.
 
 ### Changes to scripts and templates
 
 Any changes made to the scripts or the template files will automatically be reflected on page refresh.
-
 
 ## Testing
 
@@ -85,6 +77,7 @@ To change the default auth server edit `server/config/*.json` on your deployed i
 ## Servers
 
 * latest development - https://latest.dev.lcip.org/
+* content - https://content.dev.lcip.org/
 * stable - https://stable.dev.lcip.org/
 * stage - https://accounts.stage.mozaws.net/
 * production - https://accounts.firefox.com/
