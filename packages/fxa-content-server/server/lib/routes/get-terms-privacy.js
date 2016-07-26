@@ -28,6 +28,7 @@ var templates = require('../legal-templates');
 module.exports = function verRoute (i18n) {
   var DEFAULT_LANG = config.get('i18n.defaultLang');
   var DEFAULT_LEGAL_LANG = config.get('i18n.defaultLegalLang');
+  var STATIC_RESOURCE_URL = config.get('static_resource_url');
 
   var getTemplate = templates(i18n, PAGE_TEMPLATE_DIRECTORY);
 
@@ -63,7 +64,11 @@ module.exports = function verRoute (i18n) {
 
         res.format({
           'text/html': function () {
-            var context = {};
+            var context = {
+              // Note that staticResourceUrl is added to templates as a
+              // build step
+              staticResourceUrl: STATIC_RESOURCE_URL
+            };
             context[page] = template;
 
             // the HTML page removes the header to allow embedding.

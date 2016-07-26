@@ -242,11 +242,16 @@ define([
           assert.equal(res.statusCode, 200);
 
           var headers = res.headers;
-          var hasCORSHeaders = headers.hasOwnProperty('Access-Control-Allow-Origin');
+          var hasCORSHeaders =
+            // Node responds with Access-Control-Allow-Origin,
+            // nginx responds with access-control-allow-origin
+            headers.hasOwnProperty('Access-Control-Allow-Origin') ||
+            headers.hasOwnProperty('access-control-allow-origin');
+
           if (doesURLRequireCORS(url)) {
-            assert.ok(hasCORSHeaders, url);
+            assert.ok(hasCORSHeaders, url + ' should have CORS headers');
           } else {
-            assert.notOk(hasCORSHeaders, url);
+            assert.notOk(hasCORSHeaders, url + ' should not have CORS headers');
           }
         });
 
