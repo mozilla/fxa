@@ -60,11 +60,6 @@ else
 fi
 echo "GIT_COMMIT          $GIT_COMMIT"
 
-echo ""
-echo "Selenium version:"
-curl -s http://127.0.0.1:4444/wd/hub/status | python -mjson.tool
-echo ""
-
 WORKDIR=fxa-content-server-"$FXA_TEST_NAME"-server
 rm -rf "$WORKDIR"
 git clone https://github.com/mozilla/fxa-content-server.git -b master "$WORKDIR"
