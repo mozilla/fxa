@@ -52,6 +52,8 @@ define(function (require, exports, module) {
      * @param {object} [nextViewData] - data to send to the next(last) view.
      */
     back: function (nextViewData) {
+      this.logViewEvent('back');
+
       this.notifier.trigger('navigate-back', {
         nextViewData: nextViewData
       });

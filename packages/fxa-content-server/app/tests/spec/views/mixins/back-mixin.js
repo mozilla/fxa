@@ -29,7 +29,8 @@ define(function (require, exports, module) {
       notifier = new Notifier();
 
       view = new View({
-        notifier: notifier
+        notifier: notifier,
+        screenName: 'back-screen'
       });
 
       return view.render();
@@ -47,6 +48,17 @@ define(function (require, exports, module) {
               nextViewField: 'value'
             }
           }));
+      });
+
+      it('logs a `back` event on the view', () => {
+        sinon.spy(view, 'logViewEvent');
+
+        assert.isFalse(view.logViewEvent.called);
+
+        view.back();
+
+        assert.isTrue(view.logViewEvent.calledOnce);
+        assert.isTrue(view.logViewEvent.calledWith('back'));
       });
     });
 
