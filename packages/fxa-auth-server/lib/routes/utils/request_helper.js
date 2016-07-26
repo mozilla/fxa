@@ -27,14 +27,12 @@ function shouldEnableSigninConfirmation(account, config, request) {
     return false
   }
 
-  // Check for valid context
-  var context = request.payload && request.payload.metricsContext && request.payload.metricsContext.context
-  var isValidContext = context && (config.signinConfirmation.supportedClients.indexOf(context) > -1)
-  if (!isValidContext) {
-    return false
+  // Always enable if customs-server has said the request is suspicious.
+  if (request.app.isSuspiciousRequest) {
+    return true
   }
 
-  // If feature enabled, always enable for email addresses matching this regex
+  // Or if the email address matching one of these regexes.
   var email = account.email
   var isValidEmail = config.signinConfirmation.forceEmailRegex.some(function (reg) {
     var emailReg = new RegExp(reg)
@@ -45,8 +43,16 @@ function shouldEnableSigninConfirmation(account, config, request) {
     return true
   }
 
-  // Check to see if user in roll-out cohort. Cohort is determined by
-  // user's uid
+  // Otherwise, the feature is currently only enabled
+  // for a specific subset of device types.
+  var context = request.payload && request.payload.metricsContext && request.payload.metricsContext.context
+  var isValidContext = context && (config.signinConfirmation.supportedClients.indexOf(context) > -1)
+  if (!isValidContext) {
+    return false
+  }
+
+  // Check to see if user in roll-out cohort.
+  // Cohort is determined by user's uid.
   var uid = account.uid.toString('hex')
   var uidNum = parseInt(uid.substr(0, 4), 16) % 100
   return uidNum < (config.signinConfirmation.sample_rate * 100)
