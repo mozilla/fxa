@@ -1,3 +1,53 @@
+<a name="0.66.0"></a>
+# 0.66.0 (2016-07-26)
+
+
+### Bug Fixes
+
+* **avatar:** prevent buttons from flashing (#3850) ([6e7f360](https://github.com/mozilla/fxa-content-server/commit/6e7f360))
+* **client:** always send a service param to /certificate/sign ([01a0ae5](https://github.com/mozilla/fxa-content-server/commit/01a0ae5))
+* **client:** Check for expired sessions whenever the user focuses the settings page. (#3924) ([25cf276](https://github.com/mozilla/fxa-content-server/commit/25cf276))
+* **client:** Help the password manager save the username on pw reset/change. (#3977) r=vladik ([362b2fb](https://github.com/mozilla/fxa-content-server/commit/362b2fb))
+* **client:** Hide all visible passwords on form submit. (#3969) ([a6c848c](https://github.com/mozilla/fxa-content-server/commit/a6c848c))
+* **client:** use context constants instead of literals (#3961) ([88ae365](https://github.com/mozilla/fxa-content-server/commit/88ae365))
+* **confirm:** add known error code when polling fails (#3943) r=vbudhram ([c509963](https://github.com/mozilla/fxa-content-server/commit/c509963)), closes [#3925](https://github.com/mozilla/fxa-content-server/issues/3925)
+* **devices:** adjust download links for browsers (#3926) r=vladikoff ([d178aee](https://github.com/mozilla/fxa-content-server/commit/d178aee)), closes [#3540](https://github.com/mozilla/fxa-content-server/issues/3540)
+* **l10n:** Fix l10n extraction on ES2015. (#3963) r=vladikoff ([01334e7](https://github.com/mozilla/fxa-content-server/commit/01334e7)), closes [(#3963](https://github.com/(/issues/3963) [#3962](https://github.com/mozilla/fxa-content-server/issues/3962)
+* **server:** Allow FxOS 1.x and Fennec < 25 to sign in/up (#3940) ([5b87852](https://github.com/mozilla/fxa-content-server/commit/5b87852))
+* **server:** Ensure CSS for the TOS/PP agreements is served from the CDN. (#3981) r=vladikoff ([b4867ed](https://github.com/mozilla/fxa-content-server/commit/b4867ed)), closes [#3976](https://github.com/mozilla/fxa-content-server/issues/3976)
+* **server:** Re-add the /.well-known/openid-configuration route ([7781973](https://github.com/mozilla/fxa-content-server/commit/7781973))
+* **styles:** fix settings email header when display name set (#3930) ([65aef25](https://github.com/mozilla/fxa-content-server/commit/65aef25)), closes [(#3930](https://github.com/(/issues/3930)
+* **teamcity:** fail fast if all servers are not up (#3936) r=vladikoff ([a2c9656](https://github.com/mozilla/fxa-content-server/commit/a2c9656))
+* **teamcity:** server tests don't need selenium running (#3975) r=vladikoff ([86deba7](https://github.com/mozilla/fxa-content-server/commit/86deba7))
+
+### chore
+
+* **deps:** Bump request and universal-analytics dependencies (#3967) ([b271bce](https://github.com/mozilla/fxa-content-server/commit/b271bce))
+* **dev:** add remote development script and docs (#3971) r=pdehaan,vbudhram ([d82f0a1](https://github.com/mozilla/fxa-content-server/commit/d82f0a1)), closes [#3951](https://github.com/mozilla/fxa-content-server/issues/3951)
+* **openid:** Remove support for OpenID. ([8532c17](https://github.com/mozilla/fxa-content-server/commit/8532c17))
+* **strings:** add location strings to strings.js (#3972) ([1e27f74](https://github.com/mozilla/fxa-content-server/commit/1e27f74))
+
+### Features
+
+* **build:** ES6 with babel (#3841) ([72f9051](https://github.com/mozilla/fxa-content-server/commit/72f9051))
+* **client:** Always notify browser on password change. (#3913) ([56417ac](https://github.com/mozilla/fxa-content-server/commit/56417ac))
+* **client:** Remove Account Lockout. (#3956) r=vladikoff ([4b8b867](https://github.com/mozilla/fxa-content-server/commit/4b8b867)), closes [#3949](https://github.com/mozilla/fxa-content-server/issues/3949)
+* **client-config:** Add a /.well-known/fxa-client-configuration endpoint (#3919) ([cbd341a](https://github.com/mozilla/fxa-content-server/commit/cbd341a))
+* **metrics:** Add a `<view_name>.back` event when the user clicks a back link ([9bd0c6c](https://github.com/mozilla/fxa-content-server/commit/9bd0c6c))
+* **password:** make hints progressively useful (#3791) r=vladikoff ([e327d39](https://github.com/mozilla/fxa-content-server/commit/e327d39)), closes [#3731](https://github.com/mozilla/fxa-content-server/issues/3731)
+* **server:** Update helmet to the newest version. (#3941) r=vladikoff ([3e3fdc8](https://github.com/mozilla/fxa-content-server/commit/3e3fdc8))
+* **tests:** Add more functional tests for sign in unverified flow. (#3947) r=vladikoff,vbudh ([e7b7f24](https://github.com/mozilla/fxa-content-server/commit/e7b7f24))
+* **tests:** Add signin confirmation tests for iOS, Fennec, WebChannel (#3937) ([0f8293f](https://github.com/mozilla/fxa-content-server/commit/0f8293f))
+
+### Refactor
+
+* **client:** remove campaign param support, switch to utm_campaign (#3915) ([e6d20a9](https://github.com/mozilla/fxa-content-server/commit/e6d20a9))
+* **client:** remove state from the resume token (#3923) r=shane-tomlinson ([615c7aa](https://github.com/mozilla/fxa-content-server/commit/615c7aa))
+* **jscs:** port jscs to eslint (#3946) r=vladikoff ([7606356](https://github.com/mozilla/fxa-content-server/commit/7606356)), closes [#3669](https://github.com/mozilla/fxa-content-server/issues/3669)
+* **oauth:** remove support for privacy and terms uris (#3942) ([430716d](https://github.com/mozilla/fxa-content-server/commit/430716d))
+
+
+
 <a name="0.65.0"></a>
 # 0.65.0 (2016-07-12)
 
