@@ -48,7 +48,6 @@ module.exports = function (log) {
     this.initiatePasswordResetUrl = config.initiatePasswordResetUrl
     this.initiatePasswordChangeUrl = config.initiatePasswordChangeUrl
     this.passwordResetUrl = config.passwordResetUrl
-    this.accountUnlockUrl = config.accountUnlockUrl
     this.syncUrl = config.syncUrl
     this.androidUrl = config.androidUrl
     this.iosUrl = config.iosUrl
@@ -256,38 +255,6 @@ module.exports = function (log) {
         email: message.email,
         link: link,
         signInUrl: this.createSignInLink(message.email),
-        supportUrl: this.supportUrl,
-        supportLinkAttributes: this._supportLinkAttributes()
-      },
-      uid: message.uid
-    })
-  }
-
-  Mailer.prototype.unlockEmail = function (message) {
-    var query = {
-      uid: message.uid,
-      code: message.code
-    }
-    if (message.service) { query.service = message.service }
-    if (message.redirectTo) { query.redirectTo = message.redirectTo }
-    if (message.resume) { query.resume = message.resume }
-
-    var link = this.accountUnlockUrl + '?' + qs.stringify(query)
-
-    return this.send({
-      acceptLanguage: message.acceptLanguage,
-      email: message.email,
-      headers: {
-        'X-Link': link,
-        'X-Service-ID': message.service,
-        'X-Uid': message.uid,
-        'X-Unlock-Code': message.code
-      },
-      subject: gettext('Re-verify your Firefox Account'),
-      template: 'unlockEmail',
-      templateValues: {
-        email: message.email,
-        link: link,
         supportUrl: this.supportUrl,
         supportLinkAttributes: this._supportLinkAttributes()
       },

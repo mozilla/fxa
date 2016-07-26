@@ -154,11 +154,6 @@ var conf = convict({
       format: String,
       default: undefined
     },
-    accountUnlockUrl: {
-      doc: 'Deprecated. uses contentServer.url',
-      format: String,
-      default: undefined
-    },
     initiatePasswordResetUrl: {
       doc: 'Deprecated. uses contentServer.url',
       format: String,
@@ -214,7 +209,6 @@ var contentServerUrl = conf.get('contentServer.url')
 conf.set('mail.signInUrl', contentServerUrl + '/signin')
 conf.set('mail.verificationUrl', contentServerUrl + '/v1/verify_email')
 conf.set('mail.passwordResetUrl', contentServerUrl + '/v1/complete_reset_password')
-conf.set('mail.accountUnlockUrl', contentServerUrl + '/v1/complete_unlock_account')
 conf.set('mail.initiatePasswordResetUrl', contentServerUrl + '/reset_password')
 conf.set('mail.initiatePasswordChangeUrl', contentServerUrl + '/settings/change_password')
 conf.set('mail.verifyLoginUrl', contentServerUrl + '/complete_signin')

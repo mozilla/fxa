@@ -23,7 +23,6 @@ var messageTypes = [
   'postVerifyEmail',
   'recoveryEmail',
   'suspiciousLocationEmail',
-  'unlockEmail',
   'verificationReminderEmail',
   'verifyEmail',
   'verifyLoginEmail'
@@ -35,7 +34,6 @@ var typesContainSupportLinks = [
   'passwordResetEmail',
   'postVerifyEmail',
   'recoveryEmail',
-  'unlockEmail',
   'verificationReminderEmail',
   'verifyEmail'
 ]
