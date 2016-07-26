@@ -73,6 +73,7 @@ define(function (require, exports, module) {
 
       // damaged and expired links have special messages.
       return {
+        email: verificationInfo.get('email'),
         isLinkDamaged: ! doesLinkValidate,
         isLinkExpired: isLinkExpired,
         isLinkValid: doesLinkValidate && ! isLinkExpired,

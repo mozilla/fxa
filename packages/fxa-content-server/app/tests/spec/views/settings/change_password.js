@@ -21,6 +21,8 @@ define(function (require, exports, module) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
+  const EMAIL = 'a@a.com';
+
   describe('views/settings/change_password', function () {
     var account;
     var broker;
@@ -59,7 +61,7 @@ define(function (require, exports, module) {
     describe('with session', function () {
       beforeEach(function () {
         account = user.initAccount({
-          email: 'a@a.com',
+          email: EMAIL,
           sessionToken: 'abc123',
           verified: true
         });
@@ -84,6 +86,7 @@ define(function (require, exports, module) {
           assert.ok($('#new_password').length);
           assert.isTrue($('.input-help').length === 2);
           assert.isTrue($('.input-help-forgot-pw').length === 1);
+          assert.equal(view.$('input[type=email]').val(), EMAIL);
         });
       });
 

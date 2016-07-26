@@ -101,6 +101,7 @@ define(function (require, exports, module) {
           .then(function () {
             testEventNotLogged('complete_reset_password.link_expired');
             assert.ok(view.$('#fxa-complete-reset-password-header').length);
+            assert.equal(view.$('input[type=email]').val(), EMAIL);
           });
       });
 
