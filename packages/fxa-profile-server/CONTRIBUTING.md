@@ -43,24 +43,24 @@ This is an example workflow to make it easier to submit Pull Requests. Imagine y
 
 2. The clone the upstream (as origin) and add your own repo as a remote:
 
-    ```sh
-    $ git clone https://github.com/mozilla/fxa-profile-server.git
-    $ cd fxa-auth-server
-    $ git remote add user1 git@github.com:user1/fxa-profile-server.git
+```sh
+$ git clone https://github.com/mozilla/fxa-profile-server.git
+$ cd fxa-auth-server
+$ git remote add user1 git@github.com:user1/fxa-profile-server.git
 ```
 
 3. Create a branch for your fix/feature and make sure it's your currently checked-out branch:
 
-    ```sh
-    $ git checkout -b add-new-feature
+```sh
+$ git checkout -b add-new-feature
 ```
 
 4. Add/fix code, add tests then commit and push this branch to your repo:
 
-    ```sh
-    $ git add <files...>
-    $ git commit
-    $ git push user1 add-new-feature
+```sh
+$ git add <files...>
+$ git commit
+$ git push user1 add-new-feature
 ```
 
 5. From the GitHub interface for your repo, click the `Review Changes and Pull Request` which appears next to your new branch.
@@ -78,3 +78,20 @@ $ git pull
 ```
 
 Now you're ready to branch again for your new feature (from step 3 above).
+
+## Releasing new version
+
+New Minor version:
+
+```sh
+$ grunt version
+```
+
+New Patch version:
+
+```sh
+$ grunt version:patch
+```
+
+This will create a commit and a tag locally.
+Check to make sure everything is correct and push the new commit and the tag to this repository.
