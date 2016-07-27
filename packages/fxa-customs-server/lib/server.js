@@ -186,9 +186,7 @@ module.exports = function createServer(config, log) {
             return setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord)
               .then(
                 function () {
-                  return {
-                    lockout: emailRecord.isWayOverBadLogins()
-                  }
+                  return {}
                 }
               )
           }

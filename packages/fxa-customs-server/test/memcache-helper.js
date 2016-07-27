@@ -88,15 +88,13 @@ function badLoginCheck(cb) {
     function () {
       P.all([
         mc.getAsync(TEST_IP + TEST_EMAIL),
-        mc.getAsync(TEST_EMAIL),
         mc.getAsync(TEST_IP)
       ])
-      .spread(function (d1, d2, d3) {
+      .spread(function (d1, d2) {
         var ier = IpEmailRecord.parse(d1)
-        var er = EmailRecord.parse(d2)
-        var ir = IpRecord.parse(d3)
+        var ir = IpRecord.parse(d2)
         mc.end()
-        cb(ier.isOverBadLogins(), er.isWayOverBadLogins(), ir.isOverBadLogins())
+        cb(ier.isOverBadLogins(), false, ir.isOverBadLogins())
       })
     }
   )

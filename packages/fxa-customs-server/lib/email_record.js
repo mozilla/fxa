@@ -38,11 +38,6 @@ module.exports = function (limits, now) {
     return this.xs.length > limits.maxEmails
   }
 
-  EmailRecord.prototype.isWayOverBadLogins = function () {
-    this.trimBadLogins(now())
-    return this.lf.length > limits.badLoginLockout
-  }
-
   EmailRecord.prototype.trimHits = function (now) {
     if (this.xs.length === 0) { return }
     // xs is naturally ordered from oldest to newest

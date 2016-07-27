@@ -60,13 +60,11 @@ test(
     return client.postAsync('/failedLoginAttempt', { ip: TEST_IP, email: 'test-fail1@example.com', action: ACCOUNT_LOGIN })
       .spread(function(req, res, obj){
         t.equal(res.statusCode, 200, 'failed login 1')
-        t.equal(obj.lockout, false, 'not locked out')
 
         return client.postAsync('/failedLoginAttempt', { ip: TEST_IP, email: 'test-fail2@example.com', action: ACCOUNT_LOGIN })
       })
       .spread(function(req, res, obj){
         t.equal(res.statusCode, 200, 'failed login 2')
-        t.equal(obj.lockout, false, 'not locked out')
 
         return client.postAsync('/check', { ip: TEST_IP, email: 'test1@example.com', action: ACCOUNT_LOGIN })
       })
@@ -78,7 +76,6 @@ test(
       })
       .spread(function(req, res, obj){
         t.equal(res.statusCode, 200, 'failed login 3')
-        t.equal(obj.lockout, false, 'not locked out')
 
         return client.postAsync('/check', { ip: TEST_IP, email: 'test2@example.com', action: ACCOUNT_LOGIN })
       })

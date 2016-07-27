@@ -122,24 +122,6 @@ test(
 )
 
 test(
-  'isWayOverBadLogins works',
-  function (t) {
-    var er = simpleEmailRecord()
-
-    t.equal(er.isWayOverBadLogins(), false, 'record has never seen a bad login')
-    er.addBadLogin()
-    er.addBadLogin()
-    er.addBadLogin()
-    er.addBadLogin()
-    t.equal(er.isWayOverBadLogins(), false, 'record has not reached the bad login limit')
-    er.addBadLogin()
-    er.addBadLogin()
-    t.equal(er.isWayOverBadLogins(), true, 'record has reached the bad login limit')
-    t.end()
-  }
-)
-
-test(
   'retryAfter works',
   function (t) {
     var limits = {
