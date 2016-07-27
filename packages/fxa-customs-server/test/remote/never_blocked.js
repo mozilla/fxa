@@ -91,9 +91,8 @@ test(
             t.ok(obj, 'got an obj, make jshint happy')
 
             mcHelper.badLoginCheck(
-              function (isOverBadLogins, isWayOverBadLogins) {
+              function (isOverBadLogins) {
                 t.equal(isOverBadLogins, false, 'is still not over bad logins')
-                t.equal(isWayOverBadLogins, false, 'is still not locked out')
 
                 client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'accountLogin' },
                   function (err, req, res, obj) {

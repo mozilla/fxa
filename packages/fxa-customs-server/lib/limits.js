@@ -26,9 +26,6 @@ module.exports = function (config, mc, log) {
     this.ipRateLimitBanDurationSeconds = settings.ipRateLimitBanDurationSeconds
     this.ipRateLimitBanDurationMs = settings.ipRateLimitBanDurationSeconds * 1000
     this.maxAccountStatusCheck = settings.maxAccountStatusCheck
-    this.badLoginLockout = settings.badLoginLockout
-    this.badLoginLockoutIntervalSeconds = settings.badLoginLockoutIntervalSeconds
-    this.badLoginLockoutIntervalMs = settings.badLoginLockoutIntervalSeconds * 1000
     this.badLoginErrnoWeights = settings.badLoginErrnoWeights || {}
     return this
   }
