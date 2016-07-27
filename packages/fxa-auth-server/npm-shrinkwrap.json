@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.65.2",
+  "version": "1.65.3",
   "dependencies": {
     "ajv": {
       "version": "4.1.7",
@@ -1330,8 +1330,8 @@
         },
         "fxa-content-server-l10n": {
           "version": "0.0.0",
-          "from": "git://github.com/mozilla/fxa-content-server-l10n.git#e71ca277304cd96f7e761184f40b9b3d7ea7eb0c",
-          "resolved": "git://github.com/mozilla/fxa-content-server-l10n.git#e71ca277304cd96f7e761184f40b9b3d7ea7eb0c"
+          "from": "git://github.com/mozilla/fxa-content-server-l10n.git#db77d1fa38d137389e7c0051a969a21409b7c870",
+          "resolved": "git://github.com/mozilla/fxa-content-server-l10n.git#db77d1fa38d137389e7c0051a969a21409b7c870"
         },
         "grunt-nunjucks-2-html": {
           "version": "0.3.4",

@@ -1,3 +1,13 @@
+<a name="1.65.3"></a>
+## [1.65.3](https://github.com/mozilla/fxa-auth-server/compare/v1.65.2...v1.65.3) (2016-07-21)
+
+
+### Bug Fixes
+
+* **l10n:** bump content-server-l10n to current HEAD ([e097090](https://github.com/mozilla/fxa-auth-server/commit/e097090))
+
+
+
 <a name="1.65.2"></a>
 ## [1.65.2](https://github.com/mozilla/fxa-auth-server/compare/v1.65.0...v1.65.2) (2016-07-19)
 
