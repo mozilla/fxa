@@ -342,6 +342,14 @@ var conf = convict({
     env: 'DEVICE_UPDATES_ENABLED',
     default: true
   },
+  // A safety switch to disable device-driven notifications,
+  // in case problems with the client logic cause server overload.
+  deviceNotificationsEnabled: {
+    doc: 'Are device-driven notifications enabled?',
+    format: Boolean,
+    env: 'DEVICE_NOTIFICATIONS_ENABLED',
+    default: true
+  },
   oauth: {
     url: {
       format: 'url',

@@ -18,7 +18,7 @@ var pushManager = new PushManager({
 })
 
 test(
-  'pushToDevices sends notifications using a real push server',
+  'pushToAllDevices sends notifications using a real push server',
   function (t) {
     t.assert(true, 'Test Skipped. See issue #1368.')
     return t.end()
@@ -53,7 +53,7 @@ test(
       var options = {
         data: new Buffer('foodata')
       }
-      push.pushToDevices(mockUid, 'accountVerify', options)
+      push.pushToAllDevices(mockUid, 'accountVerify', options)
 
     })
   }

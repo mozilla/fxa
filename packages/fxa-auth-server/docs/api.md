@@ -144,6 +144,7 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
 * Device registration
     * [POST /v1/account/device (:lock: sessionToken)](#post-v1accountdevice)
     * [GET /v1/account/devices (:lock: sessionToken)](#get-v1accountdevices)
+    * [POST /v1/account/devices/notify (:lock: sessionToken)](#post-v1accountdevicesnotify)
     * [POST /v1/account/device/destroy (:lock: sessionToken)](#post-v1accountdevicedestroy)
 
 * Miscellaneous
@@ -1298,6 +1299,86 @@ with an array of device details in the JSON body:
 Failing requests may return the following error:
 
 * status code 400, errno 102: unknown account
+
+## POST /v1/account/devices/notify
+
+:lock: HAWK-authenticated with the sessionToken.
+
+Notifies a set of devices in the caller's account of an event
+by sending a Push notification. A typical use case would be to
+send a notification to another device after sending a tab with Sync,
+so it can sync as well and display the tab in a timely manner.
+
+### Request
+
+___Parameters___
+
+* to - the devices to send the notification to. It can be the string "all" (all devices except the caller) or an array of devices id.
+* excluded - (optional) only with "to": "all". Devices IDs to exclude from the notification.
+* payload - payload to send. It will be validated against [pushpayloads.schema.json](pushpayloads.schema.json).
+* TTL - (optional) TTL in seconds of the push notification (defaults to 0)
+
+___Headers___
+
+The request must include a Hawk header that authenticates the request
+using a `sessionToken` received from `/v1/account/create` or `/v1/account/login`.
+
+#### Notify all other devices except excluded devices identified by their id
+
+```sh
+curl -v \
+-X POST \
+-H "Host: api-accounts.dev.lcip.org" \
+-H "Content-Type: application/json" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+https://api-accounts.dev.lcip.org/v1/account/devices/notify \
+-d '{
+  "to": "all",
+  "excluded": ["0f7aa00356e5416e82b3bef7bc409eef"],
+  "payload": {
+    version: 1,
+    command: "sync:collection_changed",
+    data: {
+      collections: ["clients"]
+    }
+  },
+  "TTL": 10
+}'
+```
+
+#### Notify specific devices identified by their id
+
+```sh
+curl -v \
+-X POST \
+-H "Host: api-accounts.dev.lcip.org" \
+-H "Content-Type: application/json" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+https://api-accounts.dev.lcip.org/v1/account/devices/notify \
+-d '{
+  "to": ["0f7aa00356e5416e82b3bef7bc409eef", "fee904cb7feb3b28e6145e65300aa7f0"],
+  "payload": {
+    version: 1,
+    command: "sync:collection_changed",
+    data: {
+      collections: ["clients"]
+    }
+  }
+}'
+```
+
+### Response
+
+Successful requests will return a `200 OK` response
+with an empty object in the JSON body:
+
+```json
+{}
+```
+
+Failing requests may return the following error:
+
+* status code 400, errno 107: may be sent if the payload parameter is not valid
 
 ## POST /v1/account/device/destroy
 

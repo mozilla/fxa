@@ -63,6 +63,14 @@ var reasonToEvents = {
     failed: 'push.device_disconnected.failed',
     noCallback: 'push.device_disconnected.no_push_callback',
     noKeys: 'push.device_disconnected.data_but_no_keys'
+  },
+  devicesNotify: {
+    send: 'push.devices_notify.send',
+    success: 'push.devices_notify.success',
+    resetSettings: 'push.devices_notify.reset_settings',
+    failed: 'push.devices_notify.failed',
+    noCallback: 'push.devices_notify.no_push_callback',
+    noKeys: 'push.devices_notify.data_but_no_keys'
   }
 }
 
@@ -126,7 +134,7 @@ module.exports = function (log, db) {
      */
     notifyUpdate: function notifyUpdate(uid, reason) {
       reason = reason || 'accountVerify'
-      return this.pushToDevices(uid, reason)
+      return this.pushToAllDevices(uid, reason)
     },
 
     /**
@@ -146,7 +154,7 @@ module.exports = function (log, db) {
         }
       }))
       var options = { data: data, excludedDeviceIds: [currentDeviceId] }
-      return this.pushToDevices(uid, 'deviceConnected', options)
+      return this.pushToAllDevices(uid, 'deviceConnected', options)
     },
 
     /**
@@ -179,7 +187,7 @@ module.exports = function (log, db) {
      * @param {String} options.TTL (in seconds)
      * @promise
      */
-    pushToDevices: function pushToDevices(uid, reason, options) {
+    pushToAllDevices: function pushToAllDevices(uid, reason, options) {
       options = options || {}
       var self = this
       return db.devices(uid).then(
@@ -190,6 +198,32 @@ module.exports = function (log, db) {
             })
           }
           var pushOptions = filterOptions(options)
+          return self.sendPush(uid, devices, reason, pushOptions)
+        })
+    },
+
+    /**
+     * Send a push notification with or without data to a set of devices in the account
+     *
+     * @param uid
+     * @param {Array} ids
+     * @param reason
+     * @param {Object} options
+     * @param {String} options.data
+     * @param {String} options.TTL (in seconds)
+     * @promise
+     */
+    pushToDevices: function pushToDevices(uid, ids, reason, options) {
+      var self = this
+      return db.devices(uid).then(
+        function (devices) {
+          devices = devices.filter(function(device) {
+            return ids.indexOf(device.id.toString('hex')) !== -1
+          })
+          if (devices.length === 0) {
+            return P.reject('Devices ids not found in devices')
+          }
+          var pushOptions = filterOptions(options || {})
           return self.sendPush(uid, devices, reason, pushOptions)
         })
     },
@@ -206,20 +240,8 @@ module.exports = function (log, db) {
      * @promise
      */
     pushToDevice: function pushToDevice(uid, id, reason, options) {
-      options = options || {}
-      var self = this
-      return db.devices(uid).then(
-        function (devices) {
-          for (var i = 0; i < devices.length; i++) {
-            if (devices[i].id.toString('hex') === id) {
-              var pushOptions = filterOptions(options)
-              return self.sendPush(uid, [devices[i]], reason, pushOptions)
-            }
-          }
-          return P.reject('Device id not found in devices')
-        })
+      return this.pushToDevices(uid, [id], reason, options)
     },
-
 
     /**
      * Send a push notification with or without data to a list of devices
