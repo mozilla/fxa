@@ -58,7 +58,7 @@ const conf = convict({
       doc: 'Patterns to match a URL to ensure we only accept certain URLs.',
       default: {
         'gravatar':
-            '^http(://www|s://secure)\\.gravatar\\.com' +
+            '^https://secure\\.gravatar\\.com' +
             '/avatar/[0-9a-f]{32}(\\?s=\\d+)?$',
         'fxa': '^http://127.0.0.1:1112/a/[0-9a-f]{32}$'
       }
