@@ -885,11 +885,17 @@ define([
     required(keys, 'keys');
     required(keys.kB, 'keys.kB');
 
-    var p1 = credentials.setup(email, newPassword);
-    var p2 = hawkCredentials(oldCreds.passwordChangeToken, 'passwordChangeToken',  HKDF_SIZE);
+    var defers = [];
+    defers.push(credentials.setup(email, newPassword));
+    defers.push(hawkCredentials(oldCreds.passwordChangeToken, 'passwordChangeToken',  HKDF_SIZE));
 
-    return P.all([p1, p2])
-      .spread(function(newCreds, hawkCreds) {
+    if (options.sessionToken) {
+      // Unbundle session data to get session id
+      defers.push(hawkCredentials(options.sessionToken, 'sessionToken',  HKDF_SIZE));
+    }
+
+    return P.all(defers)
+      .spread(function (newCreds, hawkCreds, sessionData) {
         var newWrapKb = sjcl.codec.hex.fromBits(
           credentials.xor(
             sjcl.codec.hex.toBits(keys.kB),
@@ -902,10 +908,15 @@ define([
           queryParams = '?keys=true';
         }
 
+        var sessionTokenId;
+        if (sessionData && sessionData.id) {
+          sessionTokenId = sessionData.id;
+        }
+
         return self.request.send('/password/change/finish' + queryParams, 'POST', hawkCreds, {
           wrapKb: newWrapKb,
           authPW: sjcl.codec.hex.fromBits(newCreds.authPW),
-          sessionToken: options.sessionToken
+          sessionToken: sessionTokenId
         })
         .then(function (accountData) {
           if (options.keys && accountData.keyFetchToken) {
