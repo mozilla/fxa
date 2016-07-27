@@ -1,3 +1,39 @@
+<a name="1.66.0"></a>
+# [1.66.0](https://github.com/mozilla/fxa-auth-server/compare/v1.65.3...v1.66.0) (2016-07-27)
+
+
+### Bug Fixes
+
+* **deps:** update fxa-content-server-l10n dependency ([ab3b232](https://github.com/mozilla/fxa-auth-server/commit/ab3b232))
+* **deps:** update most dev dependencies ([dc4c5ff](https://github.com/mozilla/fxa-auth-server/commit/dc4c5ff))
+* **deps:** update request to latest version (#1370) r=vbudhram ([0e3c463](https://github.com/mozilla/fxa-auth-server/commit/0e3c463))
+* **deps:** update tap and db mysql dependencies (#1356) r=vladikoff ([93723eb](https://github.com/mozilla/fxa-auth-server/commit/93723eb)), closes [#1353](https://github.com/mozilla/fxa-auth-server/issues/1353)
+* **server:** Fixes based on @vladikoff and @rfk feedback. ([29d7fde](https://github.com/mozilla/fxa-auth-server/commit/29d7fde))
+* **server:** remove metricsContext from payloads where it is never sent ([0649a30](https://github.com/mozilla/fxa-auth-server/commit/0649a30))
+* **server:** remove placeholder device records for sync sessions ([c4c6733](https://github.com/mozilla/fxa-auth-server/commit/c4c6733))
+* **server:** Return undefined from Customs.prototype.flag if everyting is OK ([e265694](https://github.com/mozilla/fxa-auth-server/commit/e265694))
+* **tests:** disable e2e tests until push server fixed (#1369) r=vbudhram ([bf72778](https://github.com/mozilla/fxa-auth-server/commit/bf72778)), closes [(#1369](https://github.com/(/issues/1369)
+* **tests:** fix test runner to exit with proper exit code ([b978b6e](https://github.com/mozilla/fxa-auth-server/commit/b978b6e))
+* **tests:** switch coverage tool, adjust log_tests (#1348) r=vbudhram ([8451a56](https://github.com/mozilla/fxa-auth-server/commit/8451a56)), closes [#1340](https://github.com/mozilla/fxa-auth-server/issues/1340)
+
+### chore
+
+* **deps:** update tap testing to latest version (#1339) r=vladikoff ([6648da0](https://github.com/mozilla/fxa-auth-server/commit/6648da0))
+* **server:** Add some comments about why a some strange patterns are used. ([2fba045](https://github.com/mozilla/fxa-auth-server/commit/2fba045))
+
+### Features
+
+* **account:** devices push notify endpoint ([699caa1](https://github.com/mozilla/fxa-auth-server/commit/699caa1)), closes [#1357](https://github.com/mozilla/fxa-auth-server/issues/1357)
+* **server:** Remove the account lockout feature. ([df3b0de](https://github.com/mozilla/fxa-auth-server/commit/df3b0de)), closes [#1359](https://github.com/mozilla/fxa-auth-server/issues/1359)
+* **signin:** Always do sign-in confirmation on suspicious requests. ([cb8f33b](https://github.com/mozilla/fxa-auth-server/commit/cb8f33b))
+
+### Refactor
+
+* **customs:** Add function to scrub payload before performing customs check ([f44872d](https://github.com/mozilla/fxa-auth-server/commit/f44872d))
+* **push:** provide pushToDevice, pushToDevices and pushToAllDevices methods ([89083cd](https://github.com/mozilla/fxa-auth-server/commit/89083cd))
+
+
+
 <a name="1.65.3"></a>
 ## [1.65.3](https://github.com/mozilla/fxa-auth-server/compare/v1.65.2...v1.65.3) (2016-07-21)
 
