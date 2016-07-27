@@ -1,3 +1,13 @@
+<a name"0.66.0"></a>
+## 0.66.0 (2016-07-27)
+
+
+#### Bug Fixes
+
+* **deps:** update some dependencies ([09aa7b0e](https://github.com/mozilla/fxa-oauth-server/commit/09aa7b0e))
+* **spelling:** minor spelling fix in tests (#403) r=vladikoff ([d4ff105b](https://github.com/mozilla/fxa-oauth-server/commit/d4ff105b))
+
+
 <a name"0.65.0"></a>
 ## 0.65.0 (2016-07-13)
 
