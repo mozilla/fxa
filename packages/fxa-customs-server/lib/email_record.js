@@ -11,7 +11,6 @@ module.exports = function (limits, now) {
 
   function EmailRecord() {
     this.xs = []
-    this.lf = []
   }
 
   EmailRecord.parse = function (object) {
@@ -20,7 +19,6 @@ module.exports = function (limits, now) {
     rec.bk = object.bk       // timestamp when the account was banned
     rec.rl = object.rl       // timestamp when the account was rate-limited
     rec.xs = object.xs || [] // timestamps when emails were sent
-    rec.lf = object.lf || [] // timestamps when a login failure occurred
     rec.pr = object.pr       // timestamp of the last password reset
     return rec
   }
@@ -28,8 +26,7 @@ module.exports = function (limits, now) {
   EmailRecord.prototype.getMinLifetimeMS = function () {
     return Math.max(
       limits.rateLimitIntervalMs,
-      limits.blockIntervalMs,
-      limits.badLoginLockoutIntervalMs
+      limits.blockIntervalMs
     )
   }
 
@@ -53,28 +50,8 @@ module.exports = function (limits, now) {
     this.xs = this.xs.slice(i + 1)
   }
 
-  EmailRecord.prototype.trimBadLogins = function (now) {
-    if (this.lf.length === 0) { return }
-    // lf is naturally ordered from oldest to newest
-    // and we only need to keep up to limits.badLoginLockout + 1
-
-    var i = this.lf.length - 1
-    var n = 0
-    var login = this.lf[i]
-    while (login > (now - limits.badLoginLockoutIntervalMs) && n <= limits.badLoginLockout) {
-      login = this.lf[--i]
-      n++
-    }
-    this.lf = this.lf.slice(i + 1)
-  }
-
   EmailRecord.prototype.addHit = function () {
     this.xs.push(now())
-  }
-
-  EmailRecord.prototype.addBadLogin = function () {
-    this.trimBadLogins(now())
-    this.lf.push(now())
   }
 
   EmailRecord.prototype.shouldBlock = function () {

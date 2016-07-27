@@ -13,9 +13,7 @@ function simpleEmailRecord() {
   var limits = {
     rateLimitIntervalMs: 500,
     blockIntervalMs: 800,
-    badLoginLockoutIntervalMs: 1600,
-    maxEmails: 2,
-    badLoginLockout: 5
+    maxEmails: 2
   }
   return new (emailRecord(limits, now))()
 }
@@ -127,9 +125,7 @@ test(
     var limits = {
       rateLimitIntervalMs: 5000,
       blockIntervalMs: 8000,
-      badLoginLockoutIntervalMs: 16000,
-      maxEmails: 2,
-      badLoginLockout: 5
+      maxEmails: 2
     }
     var er = new (emailRecord(limits, function () {
       return 10000
@@ -176,9 +172,7 @@ test(
     var limits = {
       rateLimitIntervalMs: 50,
       blockIntervalMs: 50,
-      badLoginLockoutIntervalMs: 100,
-      maxEmails: 2,
-      badLoginLockout: 5
+      maxEmails: 2
     }
     var erCopy1 = (emailRecord(limits, now)).parse(er)
     t.equal(erCopy1.shouldBlock(), false, 'copied object is not blocked')
@@ -233,29 +227,16 @@ test(
   'getMinLifetimeMS works',
   function (t) {
     var limits = {
-      rateLimitIntervalMs: 10,
-      blockIntervalMs: 15,
-      badLoginLockoutIntervalMs: 20,
-      maxEmails: 2,
-      badLoginLockout: 5
-    }
-    var er = new (emailRecord(limits, now))()
-    t.equal(er.getMinLifetimeMS(), 20, 'lifetime >= lockout interval')
-    limits = {
       rateLimitIntervalMs: 11,
       blockIntervalMs: 21,
-      badLoginLockoutIntervalMs: 15,
-      maxEmails: 2,
-      badLoginLockout: 5
+      maxEmails: 2
     }
-    er = new (emailRecord(limits, now))()
+    var er = new (emailRecord(limits, now))()
     t.equal(er.getMinLifetimeMS(), 21, 'lifetime >= block interval')
     limits = {
       rateLimitIntervalMs: 22,
       blockIntervalMs: 15,
-      badLoginLockoutIntervalMs: 12,
-      maxEmails: 2,
-      badLoginLockout: 5
+      maxEmails: 2
     }
     er = new (emailRecord(limits, now))()
     t.equal(er.getMinLifetimeMS(), 22, 'lifetime >= rate limit internal')

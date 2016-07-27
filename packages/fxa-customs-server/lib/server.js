@@ -180,7 +180,6 @@ module.exports = function createServer(config, log) {
       fetchRecords(email, ip)
         .spread(
           function (emailRecord, ipRecord, ipEmailRecord) {
-            emailRecord.addBadLogin()
             ipRecord.addBadLogin({ email: email, errno: errno })
             ipEmailRecord.addBadLogin()
             return setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord)
