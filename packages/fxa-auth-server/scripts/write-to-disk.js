@@ -17,7 +17,6 @@
  *   postVerifyEmail
  *   recoveryEmail
  *   suspiciousLocationEmail
- *   unlockEmail
  *   verificationReminderEmail:first
  *   verificationReminderEmail:second
  *   verifyEmail
@@ -82,14 +81,20 @@ function sendMail(mailer, messageToSend) {
   var messageSubType = parts[1]
 
   var message = {
-    acceptLanguage: 'en',
+    acceptLanguage: 'en;q=0.8,en-US;q=0.5,en;q=0.3"',
     code: 'ae35999f861ffc81d594034eb4560af8',
     email: 'testuser@testuser.com',
+    ip: '10.246.67.38',
+    location: {
+      city: 'Madrid',
+      country: 'Spain'
+    },
     locations: [],
     redirectTo: 'https://redirect.com/',
     resume: 'eyJjYW1wYWlnbiI6bnVsbCwiZW50cnlwb2ludCI6bnVsbCwiZmxvd0lkIjoiM2Q1ODZiNzY4Mzc2NGJhOWFiNzhkMzMxMTdjZDU4Y2RmYjk3Mzk5MWU5NTk0NjgxODBlMDUyMmY2MThhNmEyMSIsInJlc2V0UGFzc3dvcmRDb25maXJtIjp0cnVlLCJ1bmlxdWVVc2VySWQiOiI1ODNkOGFlYS00NzU3LTRiZTQtYWJlNC0wZWQ2NWZhY2Y2YWQiLCJ1dG1DYW1wYWlnbiI6bnVsbCwidXRtQ29udGVudCI6bnVsbCwidXRtTWVkaXVtIjpudWxsLCJ1dG1Tb3VyY2UiOm51bGwsInV0bVRlcm0iOm51bGx9',
     service: 'sync',
     token: '47b22cd271963448cf36da95cccfcfb342b5693d66f58aa635f9a95579431002',
+    timeZone: 'Europe/Madrid',
     type: messageSubType,
     uaBrowser: 'Firefox',
     uaBrowserVersion: '47',

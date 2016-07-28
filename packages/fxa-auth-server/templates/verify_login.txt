@@ -1,5 +1,9 @@
 {{t "New sign-in to Firefox"}}
-{{t "For added security, please confirm this sign-in to begin syncing with %(device)s." }}
+{{t "For added security, please confirm this sign-in to begin syncing with this device:" }}
+{{ device }}
+{{#if ip}}{{t "IP address: %(ip)s" }}{{/if}}
+{{#if location}}{{ location }}{{/if}}
+{{#if timestamp}}{{ timestamp }}{{/if}}
 {{t "Confirm sign-in"}} {{{link}}}
 
 {{t "If you suspect that someone is trying to gain access to your account, please change your password." }} {{{ passwordChangeLink }}}

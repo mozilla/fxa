@@ -1,7 +1,9 @@
 {{t "New sign-in to Firefox" }}
 
 {{ device }}
-{{ timestamp }}
+{{#if ip}}{{t "IP address: %(ip)s" }}{{/if}}
+{{#if location}}{{ location }}{{/if}}
+{{#if timestamp}}{{ timestamp }}{{/if}}
 
 {{t "This is an automated email; if you didn't add a new device to your Firefox Account, you should change your password immediately at %(resetLink)s."}}
 {{t "For more information, please visit %(supportUrl)s"}}

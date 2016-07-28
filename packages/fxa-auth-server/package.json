@@ -25,6 +25,7 @@
     "handlebars": "1.3.0",
     "i18n-abide": "0.0.23",
     "jed": "0.5.4",
+    "moment-timezone": "0.5.4",
     "mozlog": "2.0.5",
     "nodemailer": "0.7.1",
     "po2json": "0.4.1",

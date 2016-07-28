@@ -5,6 +5,10 @@
 var qs = require('querystring')
 var P = require('bluebird')
 var nodemailer = require('nodemailer')
+var moment = require('moment-timezone')
+
+var DEFAULT_LOCALE = 'en'
+var DEFAULT_TIMEZONE = 'Etc/UTC'
 
 module.exports = function (log) {
   function extend(target, source) {
@@ -26,6 +30,19 @@ module.exports = function (log) {
     return 'href="' + url + '" style="color: #0095dd; text-decoration: none; font-family: sans-serif;"'
   }
 
+  function constructLocalTimeString (timeZone, locale) {
+    // if no timeZone is passed, use DEFAULT_TIMEZONE
+    moment.tz.setDefault(DEFAULT_TIMEZONE)
+    // if no locale is passed, use DEFAULT_LOCALE
+    locale = locale || DEFAULT_LOCALE
+    moment.locale(locale)
+    var time = moment()
+    if (timeZone) {
+      time = time.tz(timeZone)
+    }
+    // return a locale-specific time
+    return time.format('LTS (z) dddd, ll')
+  }
 
   function Mailer(translator, templates, config, sender) {
     var options = {
@@ -93,6 +110,25 @@ module.exports = function (log) {
       parts.push(os)
     }
     return parts.join(', ')
+  }
+
+  Mailer.prototype._constructLocationString = function (message) {
+    var translator = this.translator(message.acceptLanguage)
+    var location = message.location
+    // construct the location string from the location object
+    if (location) {
+      if (location.city) {
+        return translator.format(translator.gettext('%(city)s, %(country)s (estimated)'), location)
+      } else {
+        return translator.format(translator.gettext('%(country)s (estimated)'), location)
+      }
+    }
+    return ''
+  }
+
+  Mailer.prototype._constructLocalTimeString = function (timeZone, acceptLanguage) {
+    var translator = this.translator(acceptLanguage)
+    return constructLocalTimeString(timeZone, translator.language)
   }
 
   Mailer.prototype.localize = function (message) {
@@ -218,12 +254,15 @@ module.exports = function (log) {
       templateValues: {
         device: this._formatUserAgentInfo(message),
         email: message.email,
+        ip: message.ip,
         link: link,
+        location: this._constructLocationString(message),
         oneClickLink: oneClickLink,
         passwordChangeLink: this.createPasswordChangeLink(message.email),
         passwordChangeLinkAttributes: this._passwordChangeLinkAttributes(message.email),
         supportLinkAttributes: linkAttributes(this.supportUrl),
-        supportUrl: this.supportUrl
+        supportUrl: this.supportUrl,
+        timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
       },
       uid: message.uid
     })
@@ -326,12 +365,6 @@ module.exports = function (log) {
     log.trace({ op: 'mailer.newDeviceLoginEmail', email: message.email, uid: message.uid })
     var link = this.createPasswordChangeLink(message.email)
 
-    // Make a human-readable timestamp string.
-    // For now it's always in UTC.
-    // Future iterations can localize this better.
-    var timestamp = new Date(message.timestamp || Date.now())
-    var timestampStr = timestamp.toISOString().substr(0, 16).replace('T', ' ') + ' UTC'
-
     return this.send({
       acceptLanguage: message.acceptLanguage,
       email: message.email,
@@ -342,11 +375,13 @@ module.exports = function (log) {
       template: 'newDeviceLoginEmail',
       templateValues: {
         device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        location: this._constructLocationString(message),
         passwordChangeLinkAttributes: this._passwordChangeLinkAttributes(message.email),
         resetLink: link,
         supportLinkAttributes: this._supportLinkAttributes(),
         supportUrl: this.supportUrl,
-        timestamp: timestampStr
+        timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
       },
       uid: message.uid
     })
