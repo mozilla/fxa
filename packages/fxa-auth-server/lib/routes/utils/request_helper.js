@@ -32,6 +32,11 @@ function shouldEnableSigninConfirmation(account, config, request) {
     return true
   }
 
+  var keysRequested = wantsKeys(request)
+  if (!keysRequested) {
+    return false
+  }
+
   // Or if the email address matching one of these regexes.
   var email = account.email
   var isValidEmail = config.signinConfirmation.forceEmailRegex.some(function (reg) {
