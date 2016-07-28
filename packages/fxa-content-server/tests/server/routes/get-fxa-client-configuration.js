@@ -132,12 +132,18 @@ define([
       assert.equal(res.headers['cache-control'], 'public, max-age=' + maxAge);
 
       var result = JSON.parse(res.body);
-
       assert.equal(Object.keys(result).length, 4);
-      assert.equal(result.auth_server_base_url, config.get('fxaccount_url'));
-      assert.equal(result.oauth_server_base_url, config.get('oauth_url'));
-      assert.equal(result.profile_server_base_url, config.get('profile_url'));
-      assert.equal(result.sync_tokenserver_base_url, config.get('sync_tokenserver_url'));
+
+      var conf = intern.config;
+      var expectAuthRoot = conf.fxaAuthRoot;
+      if (conf.fxaDevBox || ! conf.fxaProduction) {
+        expectAuthRoot = expectAuthRoot.replace(/\/v1$/, '');
+      }
+
+      assert.equal(result.auth_server_base_url, expectAuthRoot);
+      assert.equal(result.oauth_server_base_url, conf.fxaOAuthRoot);
+      assert.equal(result.profile_server_base_url, conf.fxaProfileRoot);
+      assert.equal(result.sync_tokenserver_base_url, conf.fxaTokenRoot);
     }, dfd.reject.bind(dfd)));
   };
 

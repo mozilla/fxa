@@ -70,6 +70,9 @@ git show --summary
 npm config set cache ~/.fxacache
 export npm_config_cache=~/.fxacache
 export npm_config_tmp=~/fxatemp
+
+set -o xtrace # echo the following commands
+
 npm install                  \
   bluebird@2.10.1            \
   bower@1.7.1                \
@@ -90,11 +93,13 @@ npm install                  \
   universal-analytics@0.3.9  \
   zaach/node-XMLHttpRequest.git#onerror
 
-set -o xtrace # echo the following commands
-
 ./node_modules/.bin/intern-client \
   config=tests/intern_server \
+  fxaAuthRoot="$FXA_AUTH_ROOT" \
   fxaContentRoot="$FXA_CONTENT_ROOT" \
+  fxaOAuthRoot="$FXA_OAUTH_ROOT" \
+  fxaProfileRoot="$FXA_PROFILE_ROOT" \
+  fxaTokenRoot="$FXA_TOKEN_ROOT" \
   fxaProduction="true" \
   fxaDevBox="$FXA_DEV_BOX" \
   asyncTimeout=10000 \
