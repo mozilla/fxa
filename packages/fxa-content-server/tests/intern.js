@@ -14,6 +14,9 @@ function (intern, topic, firefoxProfile) {
   var args = intern.args;
   var fxaAuthRoot = args.fxaAuthRoot || 'http://127.0.0.1:9000/v1';
   var fxaContentRoot = args.fxaContentRoot || 'http://127.0.0.1:3030/';
+  var fxaOAuthRoot = args.fxaOAuthRoot || 'http://127.0.0.1:9010';
+  var fxaProfileRoot = args.fxaProfileRoot || 'http://127.0.0.1:1111';
+  var fxaTokenRoot = args.fxaTokenRoot || 'http://127.0.0.1:5000/token';
   var fxaEmailRoot = args.fxaEmailRoot || 'http://127.0.0.1:9001';
   var fxaOauthApp = args.fxaOauthApp || 'http://127.0.0.1:8080/';
   var fxaUntrustedOauthApp = args.fxaUntrustedOauthApp || 'http://127.0.0.1:10139/';
@@ -49,9 +52,12 @@ function (intern, topic, firefoxProfile) {
     fxaContentRoot: fxaContentRoot,
     fxaDevBox: fxaDevBox,
     fxaEmailRoot: fxaEmailRoot,
+    fxaOAuthRoot: fxaOAuthRoot,
     fxaOauthApp: fxaOauthApp,
     fxaProduction: fxaProduction,
+    fxaProfileRoot: fxaProfileRoot,
     fxaToken: fxaToken,
+    fxaTokenRoot: fxaTokenRoot,
     fxaUntrustedOauthApp: fxaUntrustedOauthApp,
     maxConcurrency: 3,
     pageLoadTimeout: 28000,
