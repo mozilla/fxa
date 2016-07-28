@@ -1,4 +1,9 @@
 
+v0.66.0
+  * feat(server): Remove account lockout
+  * feat(server): Remove `badLoginLockout` config and EmailRecord.lf (loginFailure) related code.
+  * fix(tests): add coveralls and enforce coverage
+
 v0.64.0
   * chore(travis): drop node 0.12
 
