@@ -99,6 +99,12 @@ define(function (require, exports, module) {
                 this, account, additionalResultData);
     },
 
+    afterSignInConfirmationPoll (account, additionalResultData = {}) {
+      additionalResultData.closeWindow = true;
+      return proto.afterSignInConfirmationPoll.call(
+                this, account, additionalResultData);
+    },
+
     afterForceAuth: function (account, additionalResultData) {
       if (! additionalResultData) {
         additionalResultData = {};

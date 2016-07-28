@@ -169,6 +169,13 @@ define(function (require, exports, module) {
         });
     },
 
+    afterSignInConfirmationPoll (account, additionalResultData) {
+      return this.finishOAuthSignInFlow(account, additionalResultData)
+        .then(() => {
+          return proto.afterSignInConfirmationPoll.call(this, account);
+        });
+    },
+
     afterSignUpConfirmationPoll: function (account) {
       // The original tab always finishes the OAuth flow if it is still open.
       return this.finishOAuthSignUpFlow(account);

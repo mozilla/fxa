@@ -106,6 +106,38 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('afterSignInConfirmationPoll', () => {
+      it('calls sendOAuthResultToRelier with the correct options', () => {
+        sinon.stub(broker, 'sendOAuthResultToRelier', () => {
+          return p();
+        });
+
+        return broker.afterSignInConfirmationPoll(account)
+          .then(() => {
+            assert.isTrue(broker.finishOAuthFlow.calledWith(account, {
+              action: Constants.OAUTH_ACTION_SIGNIN
+            }));
+            assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
+              action: Constants.OAUTH_ACTION_SIGNIN,
+              code: VALID_OAUTH_CODE,
+              redirect: VALID_OAUTH_CODE_REDIRECT_URL,
+              state: 'state'
+            }));
+          });
+      });
+
+      it('returns any errors returned by getOAuthResult', () => {
+        sinon.stub(broker, 'getOAuthResult', () => {
+          return p.reject(new Error('uh oh'));
+        });
+
+        return broker.afterSignInConfirmationPoll(account)
+          .then(assert.fail, (err) => {
+            assert.equal(err.message, 'uh oh');
+          });
+      });
+    });
+
     describe('afterSignIn', function () {
       it('calls sendOAuthResultToRelier with the correct options', function () {
         sinon.stub(broker, 'sendOAuthResultToRelier', function () {

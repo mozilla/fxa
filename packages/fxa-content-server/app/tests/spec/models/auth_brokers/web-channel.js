@@ -184,6 +184,21 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('afterSignInConfirmationPoll', () => {
+      it('calls sendOAuthResultToRelier, tells window to close', () => {
+        setupCompletesOAuthTest();
+
+        return broker.afterSignInConfirmationPoll(account)
+          .then(() => {
+            assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
+              action: Constants.OAUTH_ACTION_SIGNIN,
+              closeWindow: true
+            }));
+            assert.isFalse(view.displayError.called);
+          });
+      });
+    });
+
     describe('afterForceAuth', function () {
       it('calls sendOAuthResultToRelier, tells window to close', function () {
         setupCompletesOAuthTest();

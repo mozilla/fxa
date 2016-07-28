@@ -38,6 +38,7 @@ define([
   var getVerificationLink = thenify(FunctionalHelpers.getVerificationLink);
   var listenForSyncCommands = FxDesktopHelpers.listenForFxaCommands;
   var noEmailExpected = FunctionalHelpers.noEmailExpected;
+  var noPageTransition = FunctionalHelpers.noPageTransition;
   var openExternalSite = FunctionalHelpers.openExternalSite;
   var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
@@ -296,11 +297,12 @@ define([
         .then(type('#password', PASSWORD))
         .then(click('button[type=submit]'))
 
-        // user is signed in
-        .then(testIsBrowserNotifiedOfLogin(this, { shouldCloseTab: true }))
-
+        .then(testElementExists('#fxa-confirm-signin-header'))
+        // email 1 is the "your password has been reset" email.
+        .then(openVerificationLinkDifferentBrowser(email, 2))
         // no screen transition, Loop will close this screen.
-        .then(testElementExists('#fxa-signin-header'));
+        .then(noPageTransition('#fxa-confirm-signin-header'))
+        .then(testIsBrowserNotifiedOfLogin(this, { shouldCloseTab: true }));
     },
 
     'signin a verified account and requesting keys after signing in to sync': function () {
@@ -328,6 +330,9 @@ define([
         .then(type('input[type=password]', PASSWORD))
         .then(click('button[type="submit"]'))
 
+        .then(testElementExists('#fxa-confirm-signin-header'))
+        .then(openVerificationLinkDifferentBrowser(email, 1))
+        .then(noPageTransition('#fxa-confirm-signin-header'))
         .then(testIsBrowserNotifiedOfLogin(this, { shouldCloseTab: true }));
     }
   });
