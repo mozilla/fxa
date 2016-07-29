@@ -32,6 +32,11 @@ function shouldEnableSigninConfirmation(account, config, request) {
     return true
   }
 
+  // While we're testing this feature, there are some funky
+  // edge-cases around flows that do not request keys.
+  // Temporarily avoid them by creating a pre-verified session
+  // when keys are not requested.  This check will go away
+  // in the final version of the feature.
   var keysRequested = wantsKeys(request)
   if (!keysRequested) {
     return false
@@ -48,8 +53,11 @@ function shouldEnableSigninConfirmation(account, config, request) {
     return true
   }
 
-  // Otherwise, the feature is currently only enabled
-  // for a specific subset of device types.
+  // While we're testing this feature, there may be some funky
+  // edge-cases in device login flows that haven't been fully tested.
+  // Temporarily avoid them for regular users by checking the `context` flag,
+  // and create pre-verified sessions for unsupported clients.
+  // This check will go away in the final version of this feature.
   var context = request.payload && request.payload.metricsContext && request.payload.metricsContext.context
   var isValidContext = context && (config.signinConfirmation.supportedClients.indexOf(context) > -1)
   if (!isValidContext) {
