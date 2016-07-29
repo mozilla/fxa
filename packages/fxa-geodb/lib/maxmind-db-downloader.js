@@ -9,6 +9,7 @@ var DEFAULTS = require('./defaults');
 var fs = require('fs');
 var mkdirp = require('mkdirp');
 var mozlog = require('mozlog');
+var pathParse = require('path-parse');
 var Promise = require('bluebird');
 var request = require('request');
 var zlib = require('zlib');
@@ -52,7 +53,7 @@ var MaxmindDbDownloader = function () {
       var url = sources[source];
       logHelper('info', 'Adding ' + url);
       // get the file name without the extension
-      var targetFileName = path.parse(source).name;
+      var targetFileName = pathParse(source).name;
       var targetFilePath = path.join(targetDirPath, targetFileName);
       downloadPromiseFunctions.push(this.createDownloadPromise(url, targetFilePath));
       logHelper('info', 'Setting ' + targetFilePath + ' as target file');
