@@ -74,23 +74,23 @@ export npm_config_tmp=~/fxatemp
 set -o xtrace # echo the following commands
 
 npm install                  \
-  bluebird@2.10.1            \
-  bower@1.7.1                \
-  convict@1.0.2              \
+  bluebird@3.3.5             \
+  bower@1.7.9                \
+  convict@1.3.0              \
   extend@3.0.0               \
-  firefox-profile@0.3.11     \
-  helmet@0.12.0              \
+  firefox-profile@0.3.12     \
+  helmet@2.1.1               \
   htmlparser2@3.9.0          \
   intern@3.1.1               \
-  lodash@4.6.1               \
-  mozlog@2.0.2               \
+  lodash@4.11.1              \
+  mozlog@2.0.4               \
   node-statsd@0.1.1          \
-  proxyquire@1.6.0           \
-  request@2.67.0             \
+  proxyquire@1.7.4           \
+  request@2.74.0             \
   shane-tomlinson/node-uap.git#13fa830e8 \
-  sinon@1.15.4               \
-  sync-exec@0.6.1            \
-  universal-analytics@0.3.9  \
+  sinon@1.17.3               \
+  sync-exec@0.6.2            \
+  universal-analytics@0.4.2  \
   zaach/node-XMLHttpRequest.git#onerror
 
 ./node_modules/.bin/intern-client \

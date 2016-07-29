@@ -75,12 +75,12 @@ export npm_config_cache=~/.fxacache
 export npm_config_tmp=~/fxatemp
 
 npm install              \
-  bower@1.7.1            \
-  convict@1.0.2          \
-  firefox-profile@0.3.11 \
+  bower@1.7.9            \
+  convict@1.3.0          \
+  firefox-profile@0.3.12 \
   intern@3.1.1           \
-  request@2.67.0         \
-  sync-exec@0.6.1        \
+  request@2.74.0         \
+  sync-exec@0.6.2        \
   zaach/node-XMLHttpRequest.git#onerror
 
 node_modules/.bin/bower install --config.interactive=false
