@@ -15,9 +15,11 @@ define([
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
   'tests/functional/lib/fx-desktop',
-  'tests/functional/lib/webchannel-helpers'
+  'tests/functional/lib/webchannel-helpers',
+  'app/scripts/lib/constants'
 ], function (intern, registerSuite, assert,
-        TestHelpers, FunctionalHelpers, FxDesktopHelpers, WebChannelHelpers) {
+  TestHelpers, FunctionalHelpers, FxDesktopHelpers, WebChannelHelpers,
+  Constants) {
   var config = intern.config;
   var SYNC_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
 
@@ -25,6 +27,7 @@ define([
   var email;
   var ANIMATION_DELAY_MS = 1000;
   var TIMEOUT = 90 * 1000;
+  var VERIFICATION_POLL_IN_MS = Constants.VERIFICATION_POLL_IN_MS;
 
   var thenify = FunctionalHelpers.thenify;
 
@@ -300,9 +303,13 @@ define([
         .then(testElementExists('#fxa-confirm-signin-header'))
         // email 1 is the "your password has been reset" email.
         .then(openVerificationLinkDifferentBrowser(email, 2))
+        // sleep for the verification poll time to give the browser time
+        // to find out the session has been verified. This is to avoid
+        // a timeout in testIsBrowserNotifiedOfLogin
+        .sleep(VERIFICATION_POLL_IN_MS)
+        .then(testIsBrowserNotifiedOfLogin(this, { shouldCloseTab: true }))
         // no screen transition, Loop will close this screen.
-        .then(noPageTransition('#fxa-confirm-signin-header'))
-        .then(testIsBrowserNotifiedOfLogin(this, { shouldCloseTab: true }));
+        .then(noPageTransition('#fxa-confirm-signin-header'));
     },
 
     'signin a verified account and requesting keys after signing in to sync': function () {
@@ -332,8 +339,13 @@ define([
 
         .then(testElementExists('#fxa-confirm-signin-header'))
         .then(openVerificationLinkDifferentBrowser(email, 1))
-        .then(noPageTransition('#fxa-confirm-signin-header'))
-        .then(testIsBrowserNotifiedOfLogin(this, { shouldCloseTab: true }));
+        // sleep for the verification poll time to give the browser time
+        // to find out the session has been verified. This is to avoid
+        // a timeout in testIsBrowserNotifiedOfLogin
+        .sleep(VERIFICATION_POLL_IN_MS)
+        .then(testIsBrowserNotifiedOfLogin(this, { shouldCloseTab: true }))
+        // no screen transition, Loop will close this screen
+        .then(noPageTransition('#fxa-confirm-signin-header'));
     }
   });
 });

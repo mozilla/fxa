@@ -113,7 +113,7 @@ define(function (require, exports, module) {
         });
 
         return broker.afterSignInConfirmationPoll(account)
-          .then(() => {
+          .then((behavior) => {
             assert.isTrue(broker.finishOAuthFlow.calledWith(account, {
               action: Constants.OAUTH_ACTION_SIGNIN
             }));
@@ -123,6 +123,8 @@ define(function (require, exports, module) {
               redirect: VALID_OAUTH_CODE_REDIRECT_URL,
               state: 'state'
             }));
+            // The Hello window will close the screen, no need to transition
+            assert.isTrue(behavior.halt);
           });
       });
 

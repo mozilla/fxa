@@ -55,7 +55,8 @@ define(function (require, exports, module) {
     defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
       // the relier will take over after sign in, no need to transition.
       afterForceAuth: new HaltBehavior(),
-      afterSignIn: new HaltBehavior()
+      afterSignIn: new HaltBehavior(),
+      afterSignInConfirmationPoll: new HaltBehavior()
     }),
 
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
