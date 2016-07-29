@@ -44,6 +44,7 @@ module.exports = function (
   var schema = fs.readFileSync(schemaPath)
   var validatePushPayload = ajv.compile(schema)
   var verificationReminder = require('../verification-reminders')(log, db)
+  var getGeoData = require('../geodb')(log)
 
   var routes = [
     {
@@ -343,6 +344,7 @@ module.exports = function (
         var resume = request.payload.resume
         var tokenVerificationId = crypto.randomBytes(16)
         var emailRecord, sessions, sessionToken, keyFetchToken, doSigninConfirmation
+        var ip = request.app.clientAddress
 
         metricsContext.validate(request)
 
@@ -494,15 +496,20 @@ module.exports = function (
           // not performing a sign-in confirmation.
           var shouldSendNewDeviceLoginEmail = config.newLoginNotificationEnabled && requestHelper.wantsKeys(request) && !doSigninConfirmation
           if (shouldSendNewDeviceLoginEmail) {
-            // The response doesn't have to wait for this,
-            // so we don't return the promise.
-            mailer.sendNewDeviceLoginNotification(
-              emailRecord.email,
-              userAgent.call({
-                acceptLanguage: request.app.acceptLanguage,
-                timestamp: Date.now()
-              }, request.headers['user-agent'])
-            )
+            return getGeoData(ip)
+              .then(
+                function (geoData) {
+                  mailer.sendNewDeviceLoginNotification(
+                    emailRecord.email,
+                    userAgent.call({
+                      acceptLanguage: request.app.acceptLanguage,
+                      ip: ip,
+                      location: geoData.location,
+                      timeZone: geoData.timeZone
+                    }, request.headers['user-agent'])
+                  )
+                }
+              )
           }
         }
 
@@ -512,17 +519,24 @@ module.exports = function (
           // the tokens are created verified.
           var shouldSendVerifyLoginEmail = requestHelper.wantsKeys(request) && emailRecord.emailVerified && doSigninConfirmation
           if (shouldSendVerifyLoginEmail) {
-            mailer.sendVerifyLoginEmail(
-              emailRecord,
-              tokenVerificationId,
-              userAgent.call({
-                acceptLanguage: request.app.acceptLanguage,
-                timestamp: Date.now(),
-                service: service,
-                redirectTo: redirectTo,
-                resume: resume
-              }, request.headers['user-agent'])
-            )
+            return getGeoData(ip)
+              .then(
+                function (geoData) {
+                  mailer.sendVerifyLoginEmail(
+                    emailRecord,
+                    tokenVerificationId,
+                    userAgent.call({
+                      acceptLanguage: request.app.acceptLanguage,
+                      ip: ip,
+                      location: geoData.location,
+                      redirectTo: redirectTo,
+                      resume: resume,
+                      service: service,
+                      timeZone: geoData.timeZone
+                    }, request.headers['user-agent'])
+                  )
+                }
+              )
           }
         }
 

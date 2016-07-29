@@ -17,6 +17,20 @@ var conf = convict({
     format: [ 'dev', 'test', 'stage', 'prod' ],
     env: 'NODE_ENV'
   },
+  geodb: {
+    dbPath: {
+      doc: 'Path to the maxmind database file',
+      default: path.resolve(__dirname, '../node_modules/fxa-geodb/db/cities-db.mmdb'),
+      env: 'GEODB_DBPATH',
+      format: String
+    },
+    enabled: {
+      doc: 'kill-switch for geodb',
+      default: true,
+      env: 'GEODB_ENABLED',
+      format: Boolean
+    }
+  },
   log: {
     level: {
       default: 'info',

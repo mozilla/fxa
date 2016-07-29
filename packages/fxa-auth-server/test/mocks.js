@@ -175,7 +175,8 @@ function spyLog (methods) {
 function mockRequest (data) {
   return {
     app: {
-      acceptLangage: 'en-US'
+      acceptLangage: 'en-US',
+      clientAddress: '8.8.8.8'
     },
     auth: {
       credentials: data.credentials

@@ -798,6 +798,9 @@ test('/account/login', function (t) {
       t.equal(args[2], mockRequest.payload.metricsContext, 'third argument was metrics context')
 
       t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 1, 'mailer.sendNewDeviceLoginNotification was called')
+      t.equal(mockMailer.sendNewDeviceLoginNotification.getCall(0).args[1].location.city, 'Mountain View')
+      t.equal(mockMailer.sendNewDeviceLoginNotification.getCall(0).args[1].location.country, 'United States')
+      t.equal(mockMailer.sendNewDeviceLoginNotification.getCall(0).args[1].timeZone, 'America/Los_Angeles')
       t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
       t.notOk(response.verificationMethod, 'verificationMethod doesn\'t exist')
       t.notOk(response.verificationReason, 'verificationReason doesn\'t exist')
@@ -807,7 +810,7 @@ test('/account/login', function (t) {
   })
 
   t.test('sign-in confirmation enabled', function (t) {
-    t.plan(10)
+    t.plan(11)
     config.signinConfirmation = {
       enabled: true,
       supportedClients: [ 'fx_desktop_v3' ],
@@ -822,6 +825,17 @@ test('/account/login', function (t) {
         t.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
         t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
         t.equal(response.verificationReason, 'login', 'verificationReason is login')
+      }).then(function () {
+        mockMailer.sendVerifyLoginEmail.reset()
+      })
+    })
+
+    t.test('location data is present in sign-in confirmation email', function (t) {
+      return runTest(route, mockRequest, function (response) {
+        t.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
+        t.equal(mockMailer.sendVerifyLoginEmail.getCall(0).args[2].location.city, 'Mountain View')
+        t.equal(mockMailer.sendVerifyLoginEmail.getCall(0).args[2].location.country, 'United States')
+        t.equal(mockMailer.sendVerifyLoginEmail.getCall(0).args[2].timeZone, 'America/Los_Angeles')
       }).then(function () {
         mockMailer.sendVerifyLoginEmail.reset()
       })

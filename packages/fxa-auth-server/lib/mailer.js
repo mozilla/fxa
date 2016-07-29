@@ -37,9 +37,12 @@ module.exports = function (config, log) {
             acceptLanguage: opts.acceptLanguage || defaultLanguage,
             code: code.toString('hex'),
             email: account.email,
+            ip: opts.ip,
+            location: opts.location,
             redirectTo: opts.redirectTo,
             resume: opts.resume,
             service: opts.service,
+            timeZone: opts.timeZone,
             uaBrowser: opts.uaBrowser,
             uaBrowserVersion: opts.uaBrowserVersion,
             uaOS: opts.uaOS,
@@ -80,13 +83,15 @@ module.exports = function (config, log) {
       mailer.sendNewDeviceLoginNotification = function (email, opts) {
         return P.resolve(mailer.newDeviceLoginEmail(
           {
-            email: email,
             acceptLanguage: opts.acceptLanguage || defaultLanguage,
+            email: email,
+            ip: opts.ip,
+            location: opts.location,
+            timeZone: opts.timeZone,
             uaBrowser: opts.uaBrowser,
             uaBrowserVersion: opts.uaBrowserVersion,
             uaOS: opts.uaOS,
-            uaOSVersion: opts.uaOSVersion,
-            timestamp: opts.timestamp
+            uaOSVersion: opts.uaOSVersion
           }
         ))
       }

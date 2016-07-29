@@ -8,6 +8,9 @@
     "https://nodesecurity.io/advisories/55",
 
     // for hapi/call dependency
-    "https://nodesecurity.io/advisories/121"
+    "https://nodesecurity.io/advisories/121",
+
+    // for devDep in maxmind
+    "https://nodesecurity.io/advisories/95"
   ]
 }
