@@ -1,3 +1,17 @@
+<a name="1.66.1"></a>
+## [1.66.1](https://github.com/mozilla/fxa-auth-server/compare/v1.66.0...v1.66.1) (2016-07-29)
+
+
+### Bug Fixes
+
+* **signin:** No signin confirmation for email regexp match if keys not requested ([61d1de4](https://github.com/mozilla/fxa-auth-server/commit/61d1de4)), closes [#1374](https://github.com/mozilla/fxa-auth-server/issues/1374)
+
+### chore
+
+* **signin:** Add commentary about temporary workarounds in sign-in confirmation config. ([e62b1c0](https://github.com/mozilla/fxa-auth-server/commit/e62b1c0))
+
+
+
 <a name="1.66.0"></a>
 # [1.66.0](https://github.com/mozilla/fxa-auth-server/compare/v1.65.3...v1.66.0) (2016-07-27)
 
