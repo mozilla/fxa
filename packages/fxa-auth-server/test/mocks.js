@@ -12,10 +12,11 @@ var P = require('../lib/promise')
 var crypto = require('crypto')
 
 var DB_METHOD_NAMES = ['account', 'createAccount', 'createDevice', 'createKeyFetchToken',
-                       'createSessionToken', 'deleteAccount', 'deleteDevice', 'deleteKeyFetchToken',
-                       'deletePasswordChangeToken', 'deleteVerificationReminder', 'devices',
-                       'emailRecord', 'resetAccount', 'sessions', 'sessionTokenWithVerificationStatus',
-                       'updateDevice', 'verifyEmail', 'verifyTokens']
+                       'createPasswordForgotToken', 'createSessionToken', 'deleteAccount',
+                       'deleteDevice', 'deleteKeyFetchToken', 'deletePasswordChangeToken',
+                       'deleteVerificationReminder', 'devices', 'emailRecord', 'resetAccount',
+                       'sessions', 'sessionTokenWithVerificationStatus', 'updateDevice',
+                       'verifyEmail', 'verifyTokens']
 
 var LOG_METHOD_NAMES = ['trace', 'increment', 'info', 'error', 'begin', 'warn', 'timing',
                         'activityEvent', 'notifyAttachedServices']
@@ -76,6 +77,14 @@ function mockDB (data, errors) {
         uid: data.uid
       })
     }),
+    createPasswordForgotToken: sinon.spy(function () {
+      return P.resolve({
+        data: crypto.randomBytes(32),
+        passCode: data.passCode,
+        tokenId: data.passwordForgotTokenId,
+        uid: data.uid
+      })
+    }),
     createSessionToken: sinon.spy(function () {
       return P.resolve({
         data: crypto.randomBytes(32),
@@ -93,15 +102,13 @@ function mockDB (data, errors) {
     devices: sinon.spy(function () {
       return P.resolve([])
     }),
-    deleteVerificationReminder: sinon.spy(function () {
-      return P.resolve()
-    }),
     emailRecord: sinon.spy(function () {
       if (errors.emailRecord) {
         return P.reject(errors.emailRecord)
       }
       return P.resolve({
         authSalt: crypto.randomBytes(32),
+        createdAt: data.createdAt || Date.now(),
         data: crypto.randomBytes(32),
         email: data.email,
         emailVerified: data.emailVerified,
@@ -118,12 +125,6 @@ function mockDB (data, errors) {
     }),
     updateDevice: sinon.spy(function (uid, sessionTokenId, device) {
       return P.resolve(device)
-    }),
-    verifyEmail: sinon.spy(function () {
-      return P.resolve()
-    }),
-    verifyTokens: sinon.spy(function () {
-      return P.resolve()
     })
   })
 }

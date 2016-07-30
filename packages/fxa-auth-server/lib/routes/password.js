@@ -333,6 +333,9 @@ module.exports = function (
           .then(db.emailRecord.bind(db, email))
           .then(
             function (emailRecord) {
+              // The token constructor sets createdAt from its argument.
+              // Clobber the timestamp to prevent prematurely expired tokens.
+              emailRecord.createdAt = undefined
               return db.createPasswordForgotToken(emailRecord)
             }
           )

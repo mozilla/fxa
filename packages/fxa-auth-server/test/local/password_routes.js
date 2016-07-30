@@ -42,14 +42,54 @@ var makeRoutes = function (options) {
 }
 
 test(
-  'device should be notified when the password is changed',
+  '/password/forgot/send_code',
+  function (t) {
+    var mockCustoms = {
+      check: function () {
+        return P.resolve()
+      }
+    }
+    var uid = uuid.v4('binary')
+    var mockDB = mocks.mockDB({
+      email: TEST_EMAIL,
+      passCode: 'foo',
+      passwordForgotTokenId: crypto.randomBytes(16),
+      uid: uid
+    })
+    var passwordRoutes = makeRoutes({
+      customs: mockCustoms,
+      db: mockDB
+    })
+
+    var mockRequest = mocks.mockRequest({
+      payload: {
+        email: TEST_EMAIL
+      },
+      query: {}
+    })
+    return new P(function(resolve) {
+      getRoute(passwordRoutes, '/password/forgot/send_code')
+        .handler(mockRequest, resolve)
+    })
+    .then(function(response) {
+      t.equal(mockDB.emailRecord.callCount, 1, 'db.emailRecord was called once')
+
+      t.equal(mockDB.createPasswordForgotToken.callCount, 1, 'db.createPasswordForgotToken was called once')
+      var args = mockDB.createPasswordForgotToken.args[0]
+      t.equal(args.length, 1, 'db.createPasswordForgotToken was passed one argument')
+      t.deepEqual(args[0].uid, uid, 'db.createPasswordForgotToken was passed the correct uid')
+      t.equal(args[0].createdAt, undefined, 'db.createPasswordForgotToken was not passed a createdAt timestamp')
+    })
+  }
+)
+
+test(
+  '/password/change/finish',
   function (t) {
     var uid = uuid.v4('binary')
-    var mockRequest = {
-      auth: {
-        credentials: {
-          uid: uid.toString('hex')
-        }
+    var mockRequest = mocks.mockRequest({
+      credentials: {
+        uid: uid.toString('hex')
       },
       payload: {
         authPW: crypto.randomBytes(32).toString('hex'),
@@ -58,9 +98,8 @@ test(
       },
       query: {
         keys: 'true'
-      },
-      app: {}
-    }
+      }
+    })
     var mockDB = mocks.mockDB({
       email: TEST_EMAIL,
       uid: uid
