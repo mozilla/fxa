@@ -162,7 +162,6 @@ test('/recovery_email/status', function (t) {
   t.test('sign-in confirmation enabled', function (t) {
     t.plan(2)
     config.signinConfirmation.enabled = true
-    config.signinConfirmation.enabled = 1
     var mockRequest = mocks.mockRequest({
       credentials: {
         uid: uuid.v4('binary').toString('hex'),
