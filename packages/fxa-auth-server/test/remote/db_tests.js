@@ -381,7 +381,7 @@ test(
       var tokenId
       return db.emailRecord(ACCOUNT.email)
       .then(function(emailRecord) {
-        return db.createAccountResetToken(emailRecord)
+        return db.forgotPasswordVerified(emailRecord)
       })
       .then(function(accountResetToken) {
         t.deepEqual(accountResetToken.uid, ACCOUNT.uid, 'account reset token uid should be the same as the account.uid')
@@ -519,7 +519,7 @@ test(
         return db.createSessionToken(emailRecord, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0')
       })
       .then(function(sessionToken) {
-        return db.createAccountResetToken(sessionToken)
+        return db.forgotPasswordVerified(sessionToken)
       })
       .then(function(accountResetToken) {
         return db.resetAccount(accountResetToken, ACCOUNT)
