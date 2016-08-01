@@ -141,32 +141,6 @@ module.exports = function (
       )
   }
 
-  DB.prototype.createAccountResetToken = function (token /* authToken|passwordForgotToken */) {
-    log.trace({ op: 'DB.createAccountResetToken', uid: token && token.uid })
-    return AccountResetToken.create(token)
-      .then(
-        function (accountResetToken) {
-          return this.pool.put(
-            '/accountResetToken/' + accountResetToken.id,
-            unbuffer(
-              {
-                tokenId: accountResetToken.tokenId,
-                data: accountResetToken.data,
-                uid: accountResetToken.uid,
-                createdAt: accountResetToken.createdAt
-              },
-              'inplace'
-            )
-          )
-          .then(
-            function () {
-              return accountResetToken
-            }
-          )
-        }.bind(this)
-      )
-  }
-
   DB.prototype.createPasswordForgotToken = function (emailRecord) {
     log.trace({ op: 'DB.createPasswordForgotToken', uid: emailRecord && emailRecord.uid })
     return PasswordForgotToken.create(emailRecord)
