@@ -24,6 +24,7 @@ define(function (require, exports, module) {
     describe('signUp', function () {
       var account;
       var broker;
+      var flow;
       var relier;
       var view;
 
@@ -33,6 +34,7 @@ define(function (require, exports, module) {
         });
 
         broker = new Broker();
+        flow = {};
         relier = new Relier();
 
         view = {
@@ -40,6 +42,7 @@ define(function (require, exports, module) {
             clear: sinon.spy()
           },
           broker: broker,
+          flow: flow,
           getStringifiedResumeToken: sinon.spy(),
           invokeBrokerMethod: sinon.spy(function () {
             return p();
@@ -182,8 +185,9 @@ define(function (require, exports, module) {
           assert.lengthOf(args, 2);
           assert.equal(args[0], 'confirm');
           assert.isObject(args[1]);
-          assert.lengthOf(Object.keys(args[1]), 1);
+          assert.lengthOf(Object.keys(args[1]), 2);
           assert.equal(args[1].account, account);
+          assert.equal(args[1].flow, flow);
         });
       });
 

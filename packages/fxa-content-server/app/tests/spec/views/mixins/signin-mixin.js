@@ -29,6 +29,7 @@ define(function (require, exports, module) {
     describe('signIn', function () {
       var account;
       var broker;
+      var flow;
       var model;
       var relier;
       var view;
@@ -39,6 +40,7 @@ define(function (require, exports, module) {
           verified: true
         });
         broker = new AuthBroker();
+        flow = {};
         model = new Backbone.Model();
 
         relier = new Relier();
@@ -47,6 +49,7 @@ define(function (require, exports, module) {
             clear: sinon.spy()
           },
           broker: broker,
+          flow: flow,
           getStringifiedResumeToken: sinon.spy(function () {
             return RESUME_TOKEN;
           }),
@@ -189,6 +192,7 @@ define(function (require, exports, module) {
           assert.lengthOf(args, 2);
           assert.equal(args[0], 'confirm');
           assert.strictEqual(args[1].account, account);
+          assert.strictEqual(args[1].flow, flow);
         });
       });
 
@@ -215,6 +219,7 @@ define(function (require, exports, module) {
           assert.lengthOf(args, 2);
           assert.equal(args[0], 'confirm_signin');
           assert.strictEqual(args[1].account, account);
+          assert.strictEqual(args[1].flow, flow);
         });
       });
 

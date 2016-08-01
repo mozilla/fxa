@@ -66,11 +66,13 @@ define(function (require, exports, module) {
         if (verificationReason === VerificationReasons.SIGN_IN &&
             verificationMethod === VerificationMethods.EMAIL) {
           return this.navigate('confirm_signin', {
-            account: account
+            account: account,
+            flow: this.flow
           });
         } else {
           return this.navigate('confirm', {
-            account: account
+            account: account,
+            flow: this.flow
           });
         }
       }

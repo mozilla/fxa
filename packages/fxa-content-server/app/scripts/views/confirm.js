@@ -35,6 +35,7 @@ define(function (require, exports, module) {
       // ephemeral properties like unwrapBKey and keyFetchToken
       // that need to be sent to the browser.
       this._account = this.user.initAccount(this.model.get('account'));
+      this.flow = this.model.get('flow');
     },
 
     getAccount: function () {

@@ -65,8 +65,6 @@ define(function (require, exports, module) {
     },
 
     onSignUpSuccess: function (account) {
-      var self = this;
-
       this.logViewEvent('success');
       this.logViewEvent('signup.success');
 
@@ -74,15 +72,16 @@ define(function (require, exports, module) {
         // user was pre-verified.
         this.logViewEvent('preverified.success');
         return this.invokeBrokerMethod('afterSignIn', account)
-          .then(function () {
-            self.navigate('signup_complete');
+          .then(() => {
+            this.navigate('signup_complete');
           });
       }
 
       return this.invokeBrokerMethod('afterSignUp', account)
-        .then(function () {
-          self.navigate('confirm', {
-            account: account
+        .then(() => {
+          this.navigate('confirm', {
+            account: account,
+            flow: this.flow
           });
         });
     },
