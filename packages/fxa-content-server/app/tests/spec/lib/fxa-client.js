@@ -345,24 +345,6 @@ define(function (require, exports, module) {
                 assert.notProperty(accountInfo, 'sessionVerified');
               });
             });
-
-            describe('with a legacy auth server that only returns `verified`', function () {
-              beforeEach(function () {
-                sinon.stub(clientMock, 'recoveryEmailStatus', function () {
-                  return p({ verified: true });
-                });
-
-                return client.recoveryEmailStatus('session token')
-                  .then(function (_accountInfo) {
-                    accountInfo = _accountInfo;
-                  });
-              });
-
-              it('resolves with the status information', function () {
-                assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
-                assert.isTrue(accountInfo.verified);
-              });
-            });
           });
 
           describe('unverified', function () {
@@ -411,26 +393,6 @@ define(function (require, exports, module) {
                 assert.isFalse(accountInfo.verified);
                 assert.equal(accountInfo.verificationMethod, VerificationMethods.EMAIL);
                 assert.equal(accountInfo.verificationReason, VerificationReasons.SIGN_IN);
-              });
-            });
-
-            describe('with legacy auth server that only returns `verified`', function () {
-              beforeEach(function () {
-                sinon.stub(clientMock, 'recoveryEmailStatus', function () {
-                  return p({ verified: false });
-                });
-
-                return client.recoveryEmailStatus('session token')
-                  .then(function (_accountInfo) {
-                    accountInfo = _accountInfo;
-                  });
-              });
-
-              it('sets `verifiedReason` and `verifiedMethod`', function () {
-                assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
-                assert.isFalse(accountInfo.verified);
-                assert.equal(accountInfo.verificationMethod, VerificationMethods.EMAIL);
-                assert.equal(accountInfo.verificationReason, VerificationReasons.SIGN_UP);
               });
             });
           });
@@ -901,63 +863,6 @@ define(function (require, exports, module) {
             assert.isTrue(sessionData.verified);
           });
       });
-
-      it('with a legacy auth server that does not return account data', function () {
-        var token = 'token';
-        var code = 'code';
-
-        var relier = {
-          has: function () {
-            return false;
-          },
-          isSync: function () {
-            return true;
-          },
-          wantsKeys: function () {
-            return true;
-          }
-        };
-
-        sinon.stub(realClient, 'passwordForgotVerifyCode', function () {
-          return p({
-            accountResetToken: 'reset_token'
-          });
-        });
-
-        sinon.stub(realClient, 'accountReset', function () {
-          return p({});
-        });
-
-        sinon.stub(realClient, 'signIn', function () {
-          return p({
-            email: trim(email),
-            keyFetchToken: 'new keyFetchToken',
-            sessionToken: 'new sessionToken',
-            uid: 'uid',
-            verified: true
-          });
-        });
-
-        return client.completePasswordReset(email, password, token, code, relier)
-          .then(function (sessionData) {
-            assert.isTrue(realClient.passwordForgotVerifyCode.calledWith(
-                code, token));
-            assert.isTrue(realClient.accountReset.calledWith(
-                trim(email), password, 'reset_token', { keys: true, sessionToken: true }));
-            assert.isTrue(realClient.signIn.calledWith(
-                trim(email), password, {
-                  keys: true,
-                  reason: SignInReasons.PASSWORD_RESET
-                }));
-
-            assert.equal(sessionData.email, trim(email));
-            assert.equal(sessionData.keyFetchToken, 'new keyFetchToken');
-            assert.equal(sessionData.sessionToken, 'new sessionToken');
-            assert.equal(sessionData.sessionTokenContext, 'fx_desktop_v1');
-            assert.equal(sessionData.uid, 'uid');
-            assert.isTrue(sessionData.verified);
-          });
-      });
     });
 
     describe('signOut', function () {
@@ -1105,61 +1010,6 @@ define(function (require, exports, module) {
             assert.equal(sessionData.keyFetchToken, 'new keyFetchToken');
             assert.equal(sessionData.sessionToken, 'new sessionToken');
             assert.equal(sessionData.sessionTokenContext, 'fx_desktop_v1');
-            assert.equal(sessionData.uid, 'uid');
-            assert.isTrue(sessionData.verified);
-          });
-      });
-
-      it('with a legacy auth server that does not return account data', function () {
-        var trimmedEmail = trim(email);
-
-        var relier = {
-          has: function () {
-            return false;
-          },
-          isSync: function () {
-            return true;
-          },
-          wantsKeys: function () {
-            return true;
-          }
-        };
-
-        sinon.stub(realClient, 'passwordChange', function () {
-          return p({});
-        });
-
-        sinon.stub(realClient, 'signIn', function () {
-          return p({
-            email: trim(email),
-            keyFetchToken: 'new keyFetchToken',
-            sessionToken: 'new sessionToken',
-            uid: 'uid',
-            verified: true
-          });
-        });
-
-        return client.changePassword(email, password, 'new_password', 'sessionToken', 'fx_desktop_v1', relier)
-          .then(function (sessionData) {
-            assert.isTrue(realClient.passwordChange.calledWith(
-              trimmedEmail,
-              password,
-              'new_password',
-              {
-                keys: true,
-                sessionToken: 'sessionToken'
-              }
-            ));
-
-            assert.isTrue(realClient.signIn.calledWith(
-                trim(email), 'new_password', {
-                  keys: true,
-                  reason: SignInReasons.PASSWORD_CHANGE
-                }));
-
-            assert.equal(sessionData.email, trim(email));
-            assert.equal(sessionData.keyFetchToken, 'new keyFetchToken');
-            assert.equal(sessionData.sessionToken, 'new sessionToken');
             assert.equal(sessionData.uid, 'uid');
             assert.isTrue(sessionData.verified);
           });

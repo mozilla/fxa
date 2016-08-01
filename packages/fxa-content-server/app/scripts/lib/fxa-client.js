@@ -412,49 +412,25 @@ define(function (require, exports, module) {
     },
 
     completePasswordReset: function (originalEmail, newPassword, token, code, relier) {
-      var self = this;
-      var email = trim(originalEmail);
-      var client;
+      const email = trim(originalEmail);
 
-      return self._getClient()
-              .then(function (_client) {
-                client = _client;
-                return client.passwordForgotVerifyCode(code, token);
-              })
-              .then(function (result) {
-                return client.accountReset(email,
-                  newPassword,
-                  result.accountResetToken,
-                  {
-                    keys: wantsKeys(relier),
-                    sessionToken: true
-                  }
-                );
-              })
-              .then(function (accountData) {
-                // BEGIN TRANSITION CODE
-                // only return updated account data if account data is
-                // returned. This is to ensure the content server and auth
-                // server can be updated independently whenever the signin
-                // confirmation feature is released. Hopefully after a couple
-                // of trains the check can be removed and all calls return
-                // new account data.
-                if (accountData && accountData.sessionToken) {
-                  // END TRANSITION CODE
-                  return self._getUpdatedSessionData(email, relier, accountData);
-                  // BEGIN TRANSITION CODE
-                } else {
-                  return self.signIn(
-                    email,
-                    newPassword,
-                    relier,
-                    {
-                      reason: SignInReasons.PASSWORD_RESET
-                    }
-                  );
+      return this._getClient()
+        .then(client => {
+          return client.passwordForgotVerifyCode(code, token)
+            .then(result => {
+              return client.accountReset(email,
+                newPassword,
+                result.accountResetToken,
+                {
+                  keys: wantsKeys(relier),
+                  sessionToken: true
                 }
-                // END TRANSITION CODE
-              });
+              );
+            });
+        })
+        .then(accountData => {
+          return this._getUpdatedSessionData(email, relier, accountData);
+        });
     },
 
     isPasswordResetComplete: function (token) {
@@ -487,7 +463,7 @@ define(function (require, exports, module) {
     changePassword: function (originalEmail, oldPassword, newPassword, sessionToken, sessionTokenContext, relier) {
       var email = trim(originalEmail);
       return this._getClient()
-        .then((client) => {
+        .then(client => {
           return client.passwordChange(
             email,
             oldPassword,
@@ -499,31 +475,9 @@ define(function (require, exports, module) {
           );
         })
         .then((accountData = {}) => {
-          // BEGIN TRANSITION CODE
-          // only return updated account data if account data is
-          // returned. This is to ensure the content server and auth
-          // server can be updated independently whenever the signin
-          // confirmation feature is released. Hopefully after a couple
-          // of trains the check can be removed and all calls return
-          // new account data.
-          if (accountData.sessionToken) {
-            // END TRANSITION CODE
-            return this._getUpdatedSessionData(email, relier, accountData, {
-              sessionTokenContext: sessionTokenContext
-            });
-            // BEGIN TRANSITION CODE
-          } else {
-            return this.signIn(
-              email,
-              newPassword,
-              relier,
-              {
-                reason: SignInReasons.PASSWORD_CHANGE,
-                sessionTokenContext: sessionTokenContext
-              }
-            );
-          }
-          // END TRANSITION CODE
+          return this._getUpdatedSessionData(email, relier, accountData, {
+            sessionTokenContext: sessionTokenContext
+          });
         });
     },
 
@@ -604,10 +558,7 @@ define(function (require, exports, module) {
             // returns two fields, `emailVerified` and
             // `sessionVerified`. The client side depends on a reason
             // to show the correct UI. Convert `emailVerified` to
-            // a `verificationReason`. This is backwards compatible
-            // with old auth servers that do not send an emailVerified
-            // field. On old auth servers, if `verified: false`, then
-            // it's always for signup.
+            // a `verificationReason`.
             var verificationReason = response.emailVerified ?
                                      VerificationReasons.SIGN_IN :
                                      VerificationReasons.SIGN_UP;
