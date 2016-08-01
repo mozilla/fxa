@@ -115,6 +115,17 @@ module.exports = function createServer(config, log) {
       fetchRecords(email, ip)
         .spread(
           function (emailRecord, ipRecord, ipEmailRecord) {
+            if (ipRecord.isBlocked()) {
+              // a blocked ip should just be ignored completely
+              // it's malicious, it shouldn't penalize emails or allow
+              // any escape hatches. just abort!
+              return {
+                block: true,
+                retryAfter: ipRecord.retryAfter()
+              }
+            }
+
+
             var blockEmail = emailRecord.update(action)
             var blockIpEmail = ipEmailRecord.update(action)
             var blockIp = ipRecord.update(action, email)

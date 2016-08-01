@@ -108,7 +108,7 @@ test(
       })
       .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'check worked')
-        t.equal(obj.block, false, 'request was still not blocked')
+        t.equal(obj.block, true, 'request was blocked')
         t.end()
       })
       .catch(function(err){
