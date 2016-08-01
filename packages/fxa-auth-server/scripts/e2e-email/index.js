@@ -3,10 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// NOTE: this script will fail if run against official production
-// auth-server, since `/v1/account/lock` is, of course, not available
-// there.
-
 const crypto = require('crypto')
 const commander = require('commander')
 
@@ -84,7 +80,6 @@ function langFromEmail(email) {
   - signin as if second device
   - change the password
   - trigger a password reset
-  - force  an account lock, and then do account unlock
 
   With the collected emails:
   - CHECK that I get a signup email
@@ -92,7 +87,6 @@ function langFromEmail(email) {
   - CHECK that I get a notification email of a password change
   - CHECK that I get a password reset email
   - CHECK that I get a notification email of a password reset
-  - CHECK that I get an unlock email (but it's moot if I unlock a test account)
 
 */
 
@@ -168,25 +162,9 @@ function passwordReset(client) {
     })
 }
 
-// Note: /account/lock is not available in production
-//XXX should I bother to complete the unlock?
-function lockAndUnlockAccount(client) {
-  var email = client.email
-  var password = program.password
-  var lang = langFromEmail(email)
-
-  return client.lockAccount(email, password)
-    .then(function () {
-      return client.resendAccountUnlockCode(lang)
-    })
-    .then(function () {
-      return fetchNotificationEmail(client)
-    })
-}
-
 function fetchNotificationEmail(client) {
   // Gather the notification email that was just sent for (new-device-added,
-  // password-change, password-reset, account-unlock).
+  // password-change, password-reset).
   return program.mailserver.waitForEmail(client.email)
     .then(function () {
       return client
@@ -204,7 +182,6 @@ function checkLocale(lang, index) {
         .then(signinAsSecondDevice)
         .then(changePassword)
         .then(passwordReset)
-        .then(lockAndUnlockAccount)
     })
 }
 
