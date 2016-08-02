@@ -259,9 +259,28 @@ module.exports = function (
               }).catch(function (err) {
                 log.error({ op: 'Account.verificationReminder.create', err: err })
               })
+
+              if (tokenVerificationId) {
+                // Log server-side metrics for confirming verification rates
+                log.info({
+                  op: 'account.create.confirm.start',
+                  uid: account.uid.toString('hex'),
+                  tokenVerificationId: tokenVerificationId
+                })
+              }
             })
             .catch(function (err) {
               log.error({ op: 'mailer.sendVerifyCode.1', err: err })
+
+              if (tokenVerificationId) {
+                // Log possible email bounce, used for confirming verification rates
+                log.error({
+                  op: 'account.create.confirm.error',
+                  uid: account.uid.toString('hex'),
+                  err: err,
+                  tokenVerificationId: tokenVerificationId
+                })
+              }
             })
           }
         }
@@ -519,6 +538,12 @@ module.exports = function (
           // the tokens are created verified.
           var shouldSendVerifyLoginEmail = requestHelper.wantsKeys(request) && emailRecord.emailVerified && doSigninConfirmation
           if (shouldSendVerifyLoginEmail) {
+            log.info({
+              op: 'account.signin.confirm.start',
+              uid: emailRecord.uid.toString('hex'),
+              tokenVerificationId: tokenVerificationId
+            })
+
             return getGeoData(ip)
               .then(
                 function (geoData) {
@@ -1209,11 +1234,24 @@ module.exports = function (
                * 3) Verify account email if not already verified.
                */
               return db.verifyTokens(code, account)
+                .then(function () {
+                  log.info({
+                    op: 'account.signin.confirm.success',
+                    uid: account.uid.toString('hex'),
+                    code: request.payload.code
+                  })
+                })
                 .catch(function (err) {
                   if (err.errno === error.ERRNO.INVALID_VERIFICATION_CODE && butil.buffersAreEqual(code, account.emailCode)) {
                     // The code is just for the account, not for any sessions
                     return true
                   }
+                  log.error({
+                    op: 'account.signin.confirm.invalid',
+                    uid: account.uid.toString('hex'),
+                    code: request.payload.code,
+                    error: err
+                  })
                   throw err
                 })
                 .then(function () {
