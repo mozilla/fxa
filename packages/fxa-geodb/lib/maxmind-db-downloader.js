@@ -81,7 +81,7 @@ var MaxmindDbDownloader = function () {
             });
             logHelper('info', 'checking if lookup works with downloaded file');
             // check if lookup works with the downloaded file
-            geoDb(DEFAULTS.GOOGLE_NAMESERVERS)
+            geoDb(DEFAULTS.GEODB_TEST_IP)
               .then(function (location) {
                 // download worked, rename file
                 if (location) {
