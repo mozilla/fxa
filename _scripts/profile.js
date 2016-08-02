@@ -41,7 +41,7 @@ var CONFIGS = {
 };
 
 var env = process.env.FXA_ENV || 'local';
-var FXA_DESKTOP_CONTEXT = process.env.FXA_DESKTOP_CONTEXT || 'fx_desktop_v2';
+var FXA_DESKTOP_CONTEXT = process.env.FXA_DESKTOP_CONTEXT || 'fx_desktop_v3';
 var e10s = process.env.FXA_E10S === 'true';
 var fxaEnv = CONFIGS[env];
 
