@@ -457,7 +457,7 @@ test('/account/devices/notify', function (t) {
       t.equal(args[0], uid.toString('hex'), 'first argument was the device uid')
       t.equal(args[1], 'devicesNotify', 'second argument was the devicesNotify reason')
       t.deepEqual(args[2], {
-        data: pushPayload,
+        data: new Buffer(JSON.stringify(pushPayload)),
         excludedDeviceIds: ['bogusid'],
         TTL: 60
       }, 'third argument was the push options')
@@ -478,7 +478,7 @@ test('/account/devices/notify', function (t) {
       t.deepEqual(args[1], ['bogusid1', 'bogusid2'], 'second argument was the list of device ids')
       t.equal(args[2], 'devicesNotify', 'third argument was the devicesNotify reason')
       t.deepEqual(args[3], {
-        data: pushPayload,
+        data: new Buffer(JSON.stringify(pushPayload)),
         TTL: 60
       }, 'fourth argument was the push options')
     })
