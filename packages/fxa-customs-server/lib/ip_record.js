@@ -145,13 +145,6 @@ module.exports = function (limits, now) {
       return this.retryAfter()
     }
 
-    // ip might be rate-limited
-
-    // Don't block email-sending on IP address alone.
-    if (actions.isEmailSendingAction(action)) {
-      return 0
-    }
-
     // Increment account-status-check count and throttle if needed
     if (actions.isAccountStatusAction(action)) {
       this.addAccountStatusCheck({ email: email })
