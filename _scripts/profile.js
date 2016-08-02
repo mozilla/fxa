@@ -81,6 +81,8 @@ var fxaProfile = {
   'app.update.enabled': false,
   'app.update.silent': false,
   'app.update.staging.enabled': false,
+  // allow webchannel url, strips slash from content-server origin.
+  'webchannel.allowObject.urlWhitelist': fxaEnv.content.slice(0, -1)
 };
 
 
