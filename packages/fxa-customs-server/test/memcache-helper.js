@@ -19,9 +19,7 @@ var config = {
     maxBadLogins: 2,
     maxBadLoginsPerIp: Number(process.env.MAX_BAD_LOGINS_PER_IP) || 3,
     ipRateLimitIntervalSeconds: Number(process.env.IP_RATE_LIMIT_INTERVAL_SECONDS) || 60 * 15,
-    ipRateLimitBanDurationSeconds: Number(process.env.IP_RATE_LIMIT_BAN_DURATION_SECONDS) || 60 * 15,
-    badLoginLockout: 3,
-    badLoginLockoutIntervalSeconds: 20
+    ipRateLimitBanDurationSeconds: Number(process.env.IP_RATE_LIMIT_BAN_DURATION_SECONDS) || 60 * 15
   }
 }
 

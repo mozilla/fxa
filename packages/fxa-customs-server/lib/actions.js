@@ -18,8 +18,6 @@ var ACCOUNT_STATUS_ACTION = {
   accountCreate: true,
   accountLogin: true,
   accountDestroy: true,
-  accountLock: true,
-  accountUnlockResendCode: true,
   passwordChange: true,
   passwordForgotSendCode: true,
   accountStatusCheck: true
@@ -29,7 +27,6 @@ var ACCOUNT_STATUS_ACTION = {
 // us look like spammers if abused.
 var EMAIL_SENDING_ACTION = {
   accountCreate: true,
-  accountUnlockResendCode: true,
   recoveryEmailResendCode: true,
   passwordForgotSendCode: true,
   passwordForgotResendCode: true

@@ -10,7 +10,6 @@ var log = {
 var limits = {
   rateLimitIntervalMs: 1000,
   blockIntervalMs: 1000,
-  badLoginLockoutIntervalMs: 1000,
   ipRateLimitIntervalMs: 1000,
   ipRateLimitBanDurationMs: 1000
 }
@@ -21,8 +20,7 @@ var banHandler = require('../../lib/bans/handler')
 
 var config = {
   limits: {
-    blockIntervalSeconds: 1,
-    badLoginLockoutIntervalSeconds: 2
+    blockIntervalSeconds: 1
   }
 }
 
