@@ -6,5 +6,5 @@ const config = require('./config');
 
 exports.isProdLike = function isProdLike() {
   var env = config.get('env');
-  return env === 'prod' || env === 'production' || env === 'stage';
+  return env === 'prod' || env === 'stage';
 };
