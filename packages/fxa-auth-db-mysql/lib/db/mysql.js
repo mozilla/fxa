@@ -728,38 +728,6 @@ module.exports = function (log, error) {
     return this.write(UPDATE_LOCALE, [data.locale, uid])
   }
 
-
-  // Update : accounts
-  // Set    : lockedAt = $2
-  // Where  : uid = $1
-  // Update : accountUnlockCodes
-  // Set    : unlockCode = $3
-  // Where  : uid = $1
-  var LOCK_ACCOUNT = 'CALL lockAccount_2(?, ?, ?)'
-
-  MySql.prototype.lockAccount = function (uid, data) {
-    return this.write(LOCK_ACCOUNT, [uid, data.unlockCode, data.lockedAt])
-  }
-
-  // Update : accounts
-  // Set    : lockedAt = null
-  // Where  : uid = $1
-  // Delete : accountUnlockCodes
-  // Where  : uid = $1
-  var UNLOCK_ACCOUNT = 'CALL unlockAccount_2(?)'
-
-  MySql.prototype.unlockAccount = function (uid) {
-    return this.write(UNLOCK_ACCOUNT, [uid])
-  }
-
-  // Select : accountUnlockCodes
-  // Where  : uid = $1
-  var GET_UNLOCK_CODE = 'call unlockCode_1(?)'
-
-  MySql.prototype.unlockCode = function (uid) {
-    return this.readFirstResult(GET_UNLOCK_CODE, [uid])
-  }
-
   // Internal
 
   MySql.prototype.singleQuery = function (poolName, sql, params) {

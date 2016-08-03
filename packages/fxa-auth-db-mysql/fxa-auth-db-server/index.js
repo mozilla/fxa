@@ -52,9 +52,6 @@ function createServer(db) {
   api.post('/account/:id/reset', reply(db.resetAccount))
   api.post('/account/:id/verifyEmail', reply(db.verifyEmail))
   api.post('/account/:id/locale', reply(db.updateLocale))
-  api.post('/account/:id/lock', reply(db.lockAccount))
-  api.post('/account/:id/unlock', reply(db.unlockAccount))
-  api.get('/account/:id/unlockCode', reply(db.unlockCode))
   api.get('/account/:id/sessions', reply(db.sessions))
 
   api.get('/sessionToken/:id', reply(db.sessionToken))

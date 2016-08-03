@@ -242,8 +242,7 @@ Content-Length: 564
     "verifierSetAt":1424993616858,
     "locale":"en_US",
     "createdAt":1424993616858,
-    "devices":{},
-    "lockedAt":null
+    "devices":{}
 }
 ```
 
@@ -340,8 +339,7 @@ Content-Length: 564
     "verifierSetAt":1424993616858,
     "locale":"en_US",
     "createdAt":1424993616858,
-    "devices":{},
-    "lockedAt":null
+    "devices":{}
 }
 ```
 
@@ -1665,7 +1663,6 @@ This method should:
 * delete the passwordForgotToken designated by <tokenId>
 * create a new accountResetToken as given in JSON
 * verify the email address for this account
-* unlock the account (if already locked)
 
 ### Example
 
@@ -1764,149 +1761,3 @@ Content-Length: 2
     * Body : {"code":"InternalError","message":"...<message related to the error>..."}
 ```
 
-## lockAccount : `POST /account/<uid>/lock` ##
-
-This method should:
-
-* set `lockedAt` for the account specified
-* store the `unlockCode` for this account
-
-### Example
-
-```
-curl \
-    -v \
-    -X POST \
-    -H "Content-Type: application/json" \
-    -d '{
-        "unlockCode" : "4aa3ca42fbc2e4d64e634ab92c5a607b",
-        "lockedAt" : 1425004396952
-    }' \
-    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/lock
-```
-
-### Request
-
-* Method : POST
-* Path : `/account/<uid>/lock`
-    * uid : hex128
-* Params:
-    * unlockCode : hex128
-    * lockedAt : epoch
-
-### Response
-
-```
-HTTP/1.1 200 OK
-Content-Type: application/json
-Content-Length: 2
-
-{}
-```
-
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : {}
-* Status Code : 404 Not Found
-    * Conditions: if this account `uid` doesn't exist
-    * Content-Type : 'application/json'
-    * Body : `{"message":"Not Found"}`
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : {"code":"InternalError","message":"...<message related to the error>..."}
-```
-
-## unlockCode : `GET /account/<uid>/unlockCode` ##
-
-### Example
-
-```
-curl \
-    -v \
-    -X GET \
-    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/unlockCode
-```
-
-### Request
-
-* Method : GET
-* Path : `/account/uid>`
-    * uid : hex128
-* Params: none
-
-### Response
-
-```
-HTTP/1.1 200 OK
-Content-Type: application/json
-Content-Length: 90
-
-{
-    "uid":"6044486dd15b42e08b1fb9167415b9ac",
-    "unlockCode":"4aa3ca42fbc2e4d64e634ab92c5a607b"
-}
-```
-
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : `[ ... <see example> ...]`
-* Status Code : 404 Not Found
-    * Conditions: if this session `tokenId` doesn't exist
-    * Content-Type : 'application/json'
-    * Body : `{"message":"Not Found"}`
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
-
-
-## unlockAccount : `POST /account/<uid>/unlock` ##
-
-This operation should:
-
-* unset `lockedAt` (e.g. null in a database)
-* delete the `unlockCode` for this account
-
-This operation is idempotent. If you delete an unlockCode twice or an unlockCode that doesn't exist then the operation
-will still succeed.
-
-### Example
-
-```
-curl \
-    -v \
-    -X POST \
-    -H "Content-Type: application/json" \
-    -d '{}' \
-    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/unlock
-```
-
-### Request
-
-* Method : POST
-* Path : `/account/<uid>/unlock`
-    * uid : hex128
-* Params:
-    * none
-
-### Response
-
-```
-HTTP/1.1 200 OK
-Content-Type: application/json
-Content-Length: 2
-
-{}
-```
-
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : {}
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : {"code":"InternalError","message":"...<message related to the error>..."}
-```
-
-(Ends)

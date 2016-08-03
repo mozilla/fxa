@@ -991,41 +991,6 @@ module.exports = function(cfg, server) {
   )
 
   test(
-    'add account, lock it, unlock it',
-    function (t) {
-      var user = fake.newUserDataHex()
-      var unlockCode = user.unlockCode
-      return client.putThen('/account/' + user.accountId, user.account)
-        .then(
-          function (r) {
-            respOk(t, r)
-            return client.postThen('/account/' + user.accountId + '/lock', { lockedAt: Date.now(), unlockCode: unlockCode })
-          }
-        )
-        .then(
-          function (r) {
-            respOk(t, r)
-            return client.getThen('/account/' + user.accountId + '/unlockCode')
-          }
-        )
-        .then(
-          function (r) {
-            respOk(t, r)
-
-            t.equal(r.obj.unlockCode, unlockCode, 'unlockCode was set properly')
-
-            return client.postThen('/account/' + user.accountId + '/unlock')
-          }
-        )
-        .then(
-          function (r) {
-            respOk(t, r)
-          }
-        )
-    }
-  )
-
-  test(
     'GET an unknown path',
     function (t) {
       t.plan(3)
