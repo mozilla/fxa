@@ -1411,7 +1411,7 @@ module.exports = function (
             .then(
               function () {
                 // Notify all devices that the account has changed.
-                push.notifyUpdate(accountResetToken.uid, 'passwordReset')
+                push.notifyPasswordReset(accountResetToken.uid)
 
                 return db.account(accountResetToken.uid)
               }

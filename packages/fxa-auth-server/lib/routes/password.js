@@ -226,7 +226,7 @@ module.exports = function (
 
         function notifyAccount() {
           // Notify all devices that the account has changed.
-          push.notifyUpdate(passwordChangeToken.uid, 'passwordChange')
+          push.notifyPasswordChanged(passwordChangeToken.uid)
 
           return db.account(passwordChangeToken.uid)
             .then(

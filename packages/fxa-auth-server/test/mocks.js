@@ -28,7 +28,8 @@ var MAILER_METHOD_NAMES = ['sendVerifyCode', 'sendVerifyLoginEmail',
 var METRICS_CONTEXT_METHOD_NAMES = ['stash', 'gather', 'validate']
 
 var PUSH_METHOD_NAMES = ['notifyDeviceConnected', 'notifyDeviceDisconnected', 'notifyUpdate',
-                         'pushToAllDevices', 'pushToDevices']
+                         'pushToAllDevices', 'pushToDevices', 'notifyPasswordChanged',
+                         'notifyPasswordReset']
 
 module.exports = {
   mockDB: mockDB,

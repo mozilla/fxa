@@ -14,10 +14,14 @@ var LOG_OP_PUSH_TO_DEVICES = 'push.pushToDevices'
 var PUSH_PAYLOAD_SCHEMA_VERSION = 1
 var PUSH_COMMANDS = {
   DEVICE_CONNECTED: 'fxaccounts:device_connected',
-  DEVICE_DISCONNECTED: 'fxaccounts:device_disconnected'
+  DEVICE_DISCONNECTED: 'fxaccounts:device_disconnected',
+  PASSWORD_CHANGED: 'fxaccounts:password_changed',
+  PASSWORD_RESET: 'fxaccounts:password_reset'
 }
 
 var TTL_DEVICE_DISCONNECTED = 5 * 3600 // 5 hours
+var TTL_PASSWORD_CHANGED = 6 * 3600 // 6 hours
+var TTL_PASSWORD_RESET = TTL_PASSWORD_CHANGED
 
 // An arbitrary, but very generous, limit on the number of active devices.
 // Currently only for metrics purposes, not enforced.
@@ -174,6 +178,36 @@ module.exports = function (log, db) {
       }))
       var options = { data: data, TTL: TTL_DEVICE_DISCONNECTED }
       return this.pushToDevice(uid, idToDisconnect, 'deviceDisconnected', options)
+    },
+
+    /**
+     * Notifies every device in the account that the password was changed
+     *
+     * @param uid
+     * @promise
+     */
+    notifyPasswordChanged: function notifyPasswordChanged(uid) {
+      var data = new Buffer(JSON.stringify({
+        version: PUSH_PAYLOAD_SCHEMA_VERSION,
+        command: PUSH_COMMANDS.PASSWORD_CHANGED
+      }))
+      var options = { data: data, TTL: TTL_PASSWORD_CHANGED }
+      return this.pushToAllDevices(uid, 'passwordChange', options)
+    },
+
+    /**
+     * Notifies every device in the account that the password was reset
+     *
+     * @param uid
+     * @promise
+     */
+    notifyPasswordReset: function notifyPasswordReset(uid) {
+      var data = new Buffer(JSON.stringify({
+        version: PUSH_PAYLOAD_SCHEMA_VERSION,
+        command: PUSH_COMMANDS.PASSWORD_RESET
+      }))
+      var options = { data: data, TTL: TTL_PASSWORD_RESET }
+      return this.pushToAllDevices(uid, 'passwordReset', options)
     },
 
     /**

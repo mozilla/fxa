@@ -546,3 +546,76 @@ test(
     }
   }
 )
+
+test(
+  'notifyPasswordChanged calls pushToAllDevices',
+  function (t) {
+    try {
+      var mocks = {
+        'web-push': {
+          sendNotification: function (endpoint, params) {
+            return P.resolve()
+          }
+        }
+      }
+      var push = proxyquire('../../lib/push', mocks)(mockLog(), mockDbResult)
+      sinon.spy(push, 'pushToAllDevices')
+      var expectedData = {
+        version: 1,
+        command: 'fxaccounts:password_changed'
+      }
+      push.notifyPasswordChanged(mockUid).catch(function (err) {
+        t.fail('must not throw')
+        throw err
+      })
+      .then(function() {
+        t.ok(push.pushToAllDevices.calledOnce, 'pushToAllDevices was called')
+        t.equal(push.pushToAllDevices.getCall(0).args[0], mockUid)
+        t.equal(push.pushToAllDevices.getCall(0).args[1], 'passwordChange')
+        var options = push.pushToAllDevices.getCall(0).args[2]
+        var payload = JSON.parse(options.data.toString('utf8'))
+        t.deepEqual(payload, expectedData)
+        var schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH)
+        var schema = JSON.parse(fs.readFileSync(schemaPath))
+        t.ok(ajv.validate(schema, payload))
+        push.pushToAllDevices.restore()
+        t.end()
+      })
+    } catch (e) {
+      t.fail('must not throw')
+    }
+  }
+)
+
+test(
+  'notifyPasswordReset calls pushToAllDevices',
+  function (t) {
+    try {
+      var push = require('../../lib/push')(mockLog(), mockDbEmpty)
+      sinon.spy(push, 'pushToAllDevices')
+      var expectedData = {
+        version: 1,
+        command: 'fxaccounts:password_reset'
+      }
+      push.notifyPasswordReset(mockUid).catch(function (err) {
+        t.fail('must not throw')
+        throw err
+      })
+      .then(function() {
+        t.ok(push.pushToAllDevices.calledOnce, 'pushToAllDevices was called')
+        t.equal(push.pushToAllDevices.getCall(0).args[0], mockUid)
+        t.equal(push.pushToAllDevices.getCall(0).args[1], 'passwordReset')
+        var options = push.pushToAllDevices.getCall(0).args[2]
+        var payload = JSON.parse(options.data.toString('utf8'))
+        t.deepEqual(payload, expectedData)
+        var schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH)
+        var schema = JSON.parse(fs.readFileSync(schemaPath))
+        t.ok(ajv.validate(schema, payload))
+        push.pushToAllDevices.restore()
+        t.end()
+      })
+    } catch (e) {
+      t.fail('must not throw')
+    }
+  }
+)

@@ -231,9 +231,8 @@ test('/account/reset', function (t) {
   return runTest(route, mockRequest, function () {
     t.equal(mockDB.resetAccount.callCount, 1)
 
-    t.equal(mockPush.notifyUpdate.callCount, 1)
-    t.equal(mockPush.notifyUpdate.firstCall.args[0], uid.toString('hex'))
-    t.equal(mockPush.notifyUpdate.firstCall.args[1], 'passwordReset')
+    t.equal(mockPush.notifyPasswordReset.callCount, 1)
+    t.equal(mockPush.notifyPasswordReset.firstCall.args[0], uid.toString('hex'))
 
     t.equal(mockDB.account.callCount, 1)
     t.equal(mockCustoms.reset.callCount, 1)
