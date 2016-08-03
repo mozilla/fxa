@@ -63,8 +63,7 @@ describe('fxa-geodb', function () {
   });
 
   it('returns an object with location data when supplied with a valid ip address', function () {
-    // 8.8.8.8 is Google's nameservers, will probably always stay constant
-    ip = DEFAULTS.GOOGLE_NAMESERVERS;
+    ip = DEFAULTS.GEODB_TEST_IP;
     var latLong = {
       latitude: 37.386,
       longitude: -122.0838
