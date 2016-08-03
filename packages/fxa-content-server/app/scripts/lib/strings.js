@@ -39,6 +39,9 @@ define(function (require, exports, module) {
    * Replace instances of %s and %(name)s with their corresponding values in
    * the context
    * @method interpolate
+   * @param {String} string
+   * @param {String} context
+   * @returns {String}
    */
   function interpolate(string, context) {
     if (! context) {

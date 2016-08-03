@@ -42,6 +42,7 @@ define(function (require, exports, module) {
    * @param {object} relier - relier being signed in to.
    * @param {string} sessionTokenContext - context of the current session
    * token.
+   * @returns {Boolean}
    */
   function wantsKeys(relier, sessionTokenContext) {
     return relier.wantsKeys() ||
@@ -98,6 +99,8 @@ define(function (require, exports, module) {
 
     /**
      * Fetch some entropy from the server
+     *
+     * @returns {Promise}
      */
     getRandomBytes: function () {
       return this._getClient()
@@ -108,6 +111,10 @@ define(function (require, exports, module) {
 
     /**
      * Check the user's current password without affecting session state.
+     *
+     * @param {String} email
+     * @param {String} password
+     * @returns {Promise}
      */
     checkPassword: function (email, password) {
       return this._getClient()
@@ -128,6 +135,9 @@ define(function (require, exports, module) {
 
     /**
      * Check whether an account exists for the given uid.
+     *
+     * @param {String} uid
+     * @returns {Promise}
      */
     checkAccountExists: function (uid) {
       return this._getClient()
@@ -141,6 +151,10 @@ define(function (require, exports, module) {
 
     /**
      * Check whether an account exists for the given email.
+     *
+     * @param {String} email
+     *
+     * @returns {Promise}
      */
     checkAccountExistsByEmail: function (email) {
       return this._getClient()
@@ -200,6 +214,7 @@ define(function (require, exports, module) {
      *   @param {String} [options.sessionTokenContext] - The context for which
      *                   the session token is being created. Defaults to the
      *                   relier's context.
+     * @returns {Promise}
      */
     signIn: function (originalEmail, password, relier, options) {
       var email = trim(originalEmail);
@@ -265,6 +280,7 @@ define(function (require, exports, module) {
      *   @param {String} [options.sessionTokenContext] - The context for
      *                   which the session token is being created.
      *                   Defaults to the relier's context.
+     * @returns {Promise}
      */
     signUp: function (originalEmail, password, relier, options) {
       var email = trim(originalEmail);
@@ -362,6 +378,7 @@ define(function (require, exports, module) {
      *   @param {Boolean} [options.customizeSync] - If the relier is Sync,
      *                   whether the user wants to customize which items will
      *                   be synced. Defaults to `false`
+     * @returns {Promise}
      */
     passwordReset: function (originalEmail, relier, options) {
       var email = trim(originalEmail);

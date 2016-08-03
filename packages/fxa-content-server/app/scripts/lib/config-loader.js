@@ -21,6 +21,9 @@ define(function (require, exports, module) {
   ConfigLoader.prototype = {
     /**
      * Pass in a configuration to use. Useful for unit testing.
+     *
+     * @param {Object} config
+     * @returns {undefined}
      */
     useConfig: function (config) {
       this._configPromise = p(config);

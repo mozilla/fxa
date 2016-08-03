@@ -17,7 +17,7 @@ define(function (require, exports, module) {
    * @param {bitArray} info Key derivation data
    * @param {bitArray} salt Salt
    * @param {integer} length Length of the derived key in bytes
-   * @return promise object- It will resolve with `output` data
+   * @return {Promise} promise object- It will resolve with `output` data
    */
   function hkdf(ikm, info, salt, length) {
 

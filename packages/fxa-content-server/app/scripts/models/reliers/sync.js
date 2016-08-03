@@ -57,6 +57,8 @@ define(function (require, exports, module) {
 
     /**
      * Desktop clients will always want keys so they can sync.
+     *
+     * @returns {Boolean}
      */
     wantsKeys: function () {
       return true;
@@ -73,6 +75,8 @@ define(function (require, exports, module) {
 
     /**
      * Check if the relier wants to force the customize sync checkbox on
+     *
+     * @returns {Boolean}
      */
     isCustomizeSyncChecked: function () {
       return !! this.get('customizeSync');

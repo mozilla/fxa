@@ -55,7 +55,7 @@ define(function (require, exports, module) {
      *
      * @method getOrigin
      * @param {Window} targetWindow
-     * @param {Array of Strings} allowedOrigins - a list of allowed origins.
+     * @param {strings[]} allowedOrigins - a list of allowed origins.
      * @returns {Promise}
      *          Resolves to the parent's origin, if the parent's origin is in
      *          the list of allowed origins.

@@ -36,6 +36,9 @@ define(function (require, exports, module) {
    * Decorator that checks whether the form has changed, and if so, call
    * the specified handler.
    * Called if `keypress` or `change` is fired on the form.
+   *
+   * @param {Function} handler
+   * @returns {Function}
    */
   function ifFormValuesChanged(handler) {
     return function () {
@@ -87,6 +90,7 @@ define(function (require, exports, module) {
      * the `data-novalue` attribute.
      *
      * @method getFormValues
+     * @returns {Object}
      */
     getFormValues: function () {
       var values = {};
@@ -225,6 +229,8 @@ define(function (require, exports, module) {
      *
      * Descendent views can override isValidStart or isValidEnd to perform
      * view specific checks.
+     *
+     * @returns {Boolean}
      */
     isValid: function () {
       if (! this.isValidStart()) {
@@ -248,7 +254,7 @@ define(function (require, exports, module) {
      * override to do any form specific checks that cannot be
      * handled by the generic handlers.
      *
-     * @return true if form is valid, false otw.
+     * @return {Boolean} true if form is valid, false otw.
      */
     isValidStart: function () {
       return true;
@@ -260,7 +266,7 @@ define(function (require, exports, module) {
      * override to do any form specific checks that cannot be
      * handled by the generic handlers.
      *
-     * @return true if form is valid, false otw.
+     * @return {Boolean} true if form is valid, false otw.
      */
     isValidEnd: function () {
       return true;
@@ -268,6 +274,9 @@ define(function (require, exports, module) {
 
     /**
      * Check to see if an element passes HTML5 form validation.
+     *
+     * @param {String} el
+     * @returns {Boolean}
      */
     isElementValid: function (el) {
       el = this.$(el);
@@ -288,6 +297,8 @@ define(function (require, exports, module) {
      *
      * Descendent views can override showValidationErrorsStart
      * or showValidationErrorsEnd to display view specific messages.
+     *
+     * @returns {undefined}
      */
     showValidationErrors: function () {
       this.hideError();
@@ -320,6 +331,9 @@ define(function (require, exports, module) {
 
     /**
      * Get an element value, trimming the value of whitespace if necessary
+     *
+     * @param {String} el
+     * @returns {String}
      */
     getElementValue: function (el) {
       var value = this.$(el).val();
@@ -330,7 +344,6 @@ define(function (require, exports, module) {
 
       return value;
     },
-
 
     getElementType: function (el) {
       var fieldType = $(el).attr('type');
@@ -346,23 +359,23 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Display form validition errors.  isValidStart is run before
+     * Display form validation errors. isValidStart is run before
      * input element validation errors are displayed. Descendent
      * views only need to override to show any form specific
      * validation errors that are not handled by the generic handlers.
      *
-     * @return true if a validation error is displayed.
+     * @return {undefined} true if a validation error is displayed.
      */
     showValidationErrorsStart: function () {
     },
 
     /**
-     * Display form validition errors.  isValidEnd is run after
+     * Display form validation errors. isValidEnd is run after
      * input element validation errors are displayed. Descendent
      * views only need to override to show any form specific
      * validation errors that are not handled by the generic handlers.
      *
-     * @return true if a validation error is displayed.
+     * @return {undefined} true if a validation error is displayed.
      */
     showValidationErrorsEnd: function () {
     },
@@ -370,7 +383,8 @@ define(function (require, exports, module) {
     /**
      * Validate an email field
      *
-     * @return true if email is valid, false otw.
+     * @param {String} el
+     * @return {Boolean} true if email is valid, false otw.
      */
     validateEmail: function (el) {
       var email = this.getElementValue(el);
@@ -392,7 +406,8 @@ define(function (require, exports, module) {
     /**
      * Validate a password field
      *
-     * @return true if password is valid, false otw.
+     * @param {String} el
+     * @return {Boolean} true if password is valid, false otw.
      */
     validatePassword: function (el) {
       var password = this.getElementValue(el);
@@ -404,6 +419,9 @@ define(function (require, exports, module) {
      * attribute validation. If the browser supports HTML5 form validation,
      * browser validation will kick in. If validating an email or password
      * field, call validateEmail or validatePassword instead.
+     *
+     * @param {String} el
+     * @return {Boolean}
      */
     validateInput: function (el) {
       el = this.$(el);
@@ -435,6 +453,10 @@ define(function (require, exports, module) {
 
     /**
      * Show a form validation error to the user in the form of a tooltip.
+     *
+     * @param {String} el
+     * @param {Error} err
+     * @returns {String}
      */
     showValidationError: function (el, err) {
       this.logError(err);
@@ -474,11 +496,11 @@ define(function (require, exports, module) {
      * submissions or to disable form submissions. Return false or a
      * promise that resolves to false to prevent form submission.
      *
-     * @return {promise || boolean || none} Reture a promise if
+     * @returns {Promise|Boolean|none} Return a promise if
      *   beforeSubmit is an asynchronous operation.
      */
     beforeSubmit: function () {
-      this.disableForm();
+      return this.disableForm();
     },
 
     /**
@@ -487,8 +509,6 @@ define(function (require, exports, module) {
      * Submit form data to the server. Only called if isValid returns true
      * and beforeSubmit does not return false.
      *
-     * @return {promise || none} Return a promise if submit is
-     *   an asynchronous operation.
      */
     submit: function () {
     },
@@ -499,7 +519,8 @@ define(function (require, exports, module) {
      * Descendent views may want to override this to allow
      * multiple form submissions.
      *
-     * @return {promise || none} Return a promise if afterSubmit is
+     * @param {Object} result
+     * @returns {Promise|none} Return a promise if afterSubmit is
      *   an asynchronous operation.
      */
     afterSubmit: function (result) {
@@ -524,7 +545,7 @@ define(function (require, exports, module) {
     /**
      * Check if the form is currently being submitted
      *
-     * @return {boolean} true if form is being submitted, false otw.
+     * @returns {Boolean} true if form is being submitted, false otw.
      */
     isSubmitting: function () {
       return this._isSubmitting;
@@ -543,7 +564,7 @@ define(function (require, exports, module) {
     /**
      * Check if the view is halted
      *
-     * @return {boolean} true if the view is halted, false otw.
+     * @returns {Boolean} true if the view is halted, false otw.
      */
     isHalted: function () {
       return this._isHalted;
@@ -552,7 +573,7 @@ define(function (require, exports, module) {
     /**
      * Detect if form values have changed
      *
-     * @return {object || null} the form values or null if they haven't changed.
+     * @returns {Object|null} the form values or null if they haven't changed.
      */
     detectFormValueChanges: function () {
       // oldValues will be `undefined` the first time through.
@@ -570,7 +591,7 @@ define(function (require, exports, module) {
      * Detect if form values have changed and use the new
      * values as the baseline to detect future changes.
      *
-     * @return {object || null} the form values or null if they haven't changed.
+     * @returns {Object|null} the form values or null if they haven't changed.
      */
     updateFormValueChanges: function () {
       var newValues = this.detectFormValueChanges();

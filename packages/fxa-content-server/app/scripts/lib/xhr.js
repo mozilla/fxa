@@ -25,6 +25,7 @@ define(function (require, exports, module) {
     /**
      * Low level ajax functionality, does not set a default data type.
      *
+     * @param {Object} options
      * @return {promise}
      */
     ajax: function (options) {
@@ -94,6 +95,10 @@ define(function (require, exports, module) {
      * GET request
      *
      * Sets a default dataType of 'json'
+     * @param {String} url
+     * @param {Object} data
+     * @param {Function} success
+     * @param {String} dataType
      * @return {promise}
      */
     get: function (url, data, success, dataType) {
@@ -114,6 +119,10 @@ define(function (require, exports, module) {
      * POST request
      *
      * Sets a default dataType of 'json'
+     * @param {String} url
+     * @param {Object} data
+     * @param {Function} success
+     * @param {String} dataType
      * @return {promise}
      */
     post: function (url, data, success, dataType) {
@@ -132,7 +141,9 @@ define(function (require, exports, module) {
 
     /**
      * GET JSON request
-     *
+     * @param {String} url
+     * @param {Object} data
+     * @param {Function} success
      * @return {promise}
      */
     getJSON: function (url, data, success) {

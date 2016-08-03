@@ -88,7 +88,7 @@ define(function (require, exports, module) {
 
     /**
      * interceptor function. Flushes metrics before redirecting
-     * @param {object} event: click event
+     * @param {Event} event - click event
      */
     onSuggestSyncClick: function (event) {
       var self = this;

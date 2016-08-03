@@ -108,6 +108,7 @@ define(function (require, exports, module) {
      * }
      *
      * @method fetch
+     * @returns {Promise}
      */
     fetch: function () {
       var self = this;
@@ -137,6 +138,8 @@ define(function (require, exports, module) {
     /**
      * Check if the relier allows cached credentials. A relier
      * can set email=blank to indicate they do not.
+     *
+     * @returns {Boolean}
      */
     allowCachedCredentials: function () {
       return this.get('allowCachedCredentials');

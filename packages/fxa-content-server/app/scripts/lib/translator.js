@@ -48,6 +48,9 @@ define(function (require, exports, module) {
      * Gets a translated value by key but returns the key if nothing is found.
      * Does string interpolation on %s and %(named)s.
      * @method get
+     * @param {String} key
+     * @param {String} context
+     * @returns {String}
      */
     get: function (key, context) {
       var translation = this.translations[key];

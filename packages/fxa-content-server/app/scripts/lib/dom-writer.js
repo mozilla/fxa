@@ -9,8 +9,8 @@ define(function (require, exports, module) {
     /**
      * Write content to the DOM
      *
-     * @param {object} window
-     * @param {string || element} content
+     * @param {object} win
+     * @param {string | element} content
      */
     write: function (win, content) {
       $('#loading-spinner').hide();

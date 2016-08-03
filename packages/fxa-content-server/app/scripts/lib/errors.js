@@ -12,6 +12,9 @@ define(function (require, exports, module) {
     /**
      * Find an error in this.ERRORS. Searches by string, number,
      * or if searchFor contains errno, the errno.
+     *
+     * @param {Error|Number|String} searchFor
+     * @returns {Object}
      */
     find: function (searchFor) {
       var found;
@@ -30,6 +33,9 @@ define(function (require, exports, module) {
 
     /**
      * Convert an error, a numeric code or string type to a message
+     *
+     * @param {Error} err
+     * @returns {String|Error}
      */
     toMessage: function (err) {
       if (! err) {
@@ -61,6 +67,10 @@ define(function (require, exports, module) {
      * Convert an error, a numeric code or string type to
      * a translated message. If a translator is passed in,
      * the message will be translated.
+     *
+     * @param {Error} err
+     * @param {Object} translator
+     * @returns {String}
      */
     toInterpolatedMessage: function (err, translator) {
       var msg = this.toMessage(err);
@@ -74,6 +84,8 @@ define(function (require, exports, module) {
 
     /**
      * Fetch the string interpolation context out of the server error.
+     *
+     * @returns {Object}
      */
     toInterpolationContext: function (/*err*/) {
       return {};
@@ -81,6 +93,9 @@ define(function (require, exports, module) {
 
     /**
      * Convert an error or a text type to a numeric code
+     *
+     * @param {Error} err
+     * @returns {Number|Error}
      */
     toErrno: function (err) {
       var errnoSource = this.find(err);
@@ -96,8 +111,9 @@ define(function (require, exports, module) {
     /**
      * Synthesize an error of the given type
      *
-     * @param {String || Number || Object} type
+     * @param {String|Number|Object} type
      * @param {String} [context]
+     * @returns {Error}
      */
     toError: function (type, context) {
       var errno = this.toErrno(type);
@@ -161,7 +177,7 @@ define(function (require, exports, module) {
      * The returned error will have `property` set to
      * the property name.
      *
-     * @property {String} propertyName
+     * @param {String} propertyName
      * @returns {Error}
      */
     toInvalidResumeTokenPropertyError: function (propertyName) {
@@ -175,7 +191,7 @@ define(function (require, exports, module) {
      * The returned error will have `property` set to
      * the property name.
      *
-     * @property {String} propertyName
+     * @param {String} propertyName
      * @returns {Error}
      */
     toMissingResumeTokenPropertyError: function (propertyName) {
@@ -189,7 +205,7 @@ define(function (require, exports, module) {
      * The returned error will have `property` set to
      * the property name.
      *
-     * @property {String} propertyName
+     * @param {String} propertyName
      * @returns {Error}
      */
     toInvalidDataAttributeError: function (propertyName) {
@@ -203,7 +219,7 @@ define(function (require, exports, module) {
      * The returned error will have `property` set to
      * the property name.
      *
-     * @property {String} propertyName
+     * @param {String} propertyName
      * @returns {Error}
      */
     toMissingDataAttributeError: function (propertyName) {
@@ -214,6 +230,10 @@ define(function (require, exports, module) {
 
     /**
      * Check if an error is of the given type
+     *
+     * @param {Error} error
+     * @param {String} type
+     * @returns {Boolean}
      */
     is: function (error, type) {
       var code = this.toErrno(type);

@@ -43,6 +43,8 @@ define(function (require, exports, module) {
     /**
      * Initialize the experiment
      *
+     * @param {String} name
+     * @param {Object} options
      * @returns {boolean}
      *  Returns 'true' when the experiment successfully initialized. Otherwise 'false'.
      */
@@ -115,7 +117,7 @@ define(function (require, exports, module) {
      * Checks the experiment group
      *
      * @method isInGroup
-     * @param groupType
+     * @param {String} groupType
      * @returns {boolean}
      */
     isInGroup: function (groupType) {
@@ -126,7 +128,7 @@ define(function (require, exports, module) {
      * Log an experiment event
      *
      * @method logEvent
-     * @param event
+     * @param {String} event
      */
     logEvent: function (event) {
       if (this._initialized && event) {
@@ -139,7 +141,8 @@ define(function (require, exports, module) {
      *
      * State is used to keep track of what happened during the experiment.
      *
-     * @param state
+     * @param {String} state
+     * @returns {Boolean|undefined}
      */
     saveState: function (state) {
       if (! state) {
@@ -163,7 +166,7 @@ define(function (require, exports, module) {
     /**
      * Check if the experiment had some state occur
      *
-     * @param state
+     * @param {String} state
      * @returns {boolean}
      */
     hasState: function (state) {
@@ -196,6 +199,7 @@ define(function (require, exports, module) {
    *
    * @method createSaveStateDelegate
    * @param {String} stateName
+   * @returns {Function}
    * @static
    */
   BaseExperiment.createSaveStateDelegate = function (stateName) {

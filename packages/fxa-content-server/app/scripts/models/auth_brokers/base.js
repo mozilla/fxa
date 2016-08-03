@@ -99,6 +99,8 @@ define(function (require, exports, module) {
 
     /*
      * Check if the environment supports the cancelling of the flow.
+     *
+     * @returns {Boolean}
      */
     canCancel: function () {
       return false;
@@ -106,6 +108,8 @@ define(function (require, exports, module) {
 
     /**
      * The user wants to cancel
+     *
+     * @returns {Promise}
      */
     cancel: function () {
       return p();
@@ -114,6 +118,8 @@ define(function (require, exports, module) {
     /**
      * Called after the first view is rendered. Can be used
      * to notify the RP the system is loaded.
+     *
+     * @returns {Promise}
      */
     afterLoaded: function () {
       return p();
@@ -123,8 +129,8 @@ define(function (require, exports, module) {
     /**
      * Called before sign in. Can be used to prevent sign in.
      *
-     * @param {object} account
-     * @return {promise}
+     * @param {Object} account
+     * @return {Promise}
      */
     beforeSignIn: function (/* account */) {
       return p(this.getBehavior('beforeSignIn'));
@@ -134,8 +140,8 @@ define(function (require, exports, module) {
      * Called after sign in. Can be used to notify the RP that the user
      * has signed in or signed up with a valid preVerifyToken.
      *
-     * @param {object} account
-     * @return {promise}
+     * @param {Object} account
+     * @return {Promise}
      */
     afterSignIn: function (/* account */) {
       return p(this.getBehavior('afterSignIn'));
@@ -145,6 +151,9 @@ define(function (require, exports, module) {
      * Called after sign in confirmation poll. Can be used to notify the RP
      * that the user has signed in and confirmed their email address to verify
      * they want to allow the signin.
+     *
+     * @param {Object} account
+     * @return {Promise}
      */
     afterSignInConfirmationPoll: function (/* account */) {
       return p(this.getBehavior('afterSignInConfirmationPoll'));
@@ -153,8 +162,8 @@ define(function (require, exports, module) {
     /**
      * Called after a force auth.
      *
-     * @param {object} account
-     * @return {promise}
+     * @param {Object} account
+     * @return {Promise}
      */
     afterForceAuth: function (/* account */) {
       return p(this.getBehavior('afterForceAuth'));
@@ -165,8 +174,8 @@ define(function (require, exports, module) {
      * for email verification. Useful for storing data that may be needed
      * by the verification tab.
      *
-     * @param {object} account
-     * @return {promise}
+     * @param {Object} account
+     * @return {Promise}
      */
     persistVerificationData: function (account) {
       var self = this;
@@ -296,6 +305,9 @@ define(function (require, exports, module) {
 
     /**
      * Transform the signin/signup links if necessary
+     *
+     * @param {String} link
+     * @returns {String}
      */
     transformLink: function (link) {
       return link;
@@ -304,6 +316,8 @@ define(function (require, exports, module) {
     /**
      * Check if the relier wants to force the user to auth with
      * a particular email.
+     *
+     * @returns {Boolean}
      */
     isForceAuth: function () {
       return !! this._isForceAuth;
@@ -316,6 +330,8 @@ define(function (require, exports, module) {
 
     /**
      * Is the browser being automated? Set to true for selenium tests.
+     *
+     * @returns {Boolean}
      */
     isAutomatedBrowser: function () {
       return !! this.get('automatedBrowser');

@@ -88,6 +88,9 @@ define(function (require, exports, module) {
   /**
    * Return the error module that produced the error, based on the error's
    * namespace.
+   *
+   * @param {Error} err
+   * @returns {Object}
    */
   function getErrorModule(err) {
     if (err && err.errorModule) {
@@ -96,7 +99,6 @@ define(function (require, exports, module) {
       return AuthErrors;
     }
   }
-
 
   var BaseView = Backbone.View.extend({
     /**
@@ -168,6 +170,8 @@ define(function (require, exports, module) {
      *   that resolves to false to prevent rendering.
      * * afterRender - called after the rendering occurs. Can be used
      *   to print an error message after the view is already rendered.
+     *
+     * @returns {Promise}
      */
     render: function () {
       var self = this;
@@ -211,7 +215,8 @@ define(function (require, exports, module) {
     /**
      * Write content to the DOM
      *
-     * @param {string || element} content
+     * @param {String|Element} content
+     * @returns {undefined}
      */
     writeToDOM: function (content) {
       return domWriter.write(this.window, content);
@@ -494,6 +499,8 @@ define(function (require, exports, module) {
 
     /**
      * Return true if the success message is visible
+     *
+     * @returns {Boolean}
      */
     isSuccessVisible: function () {
       return !! this._isSuccessVisible;
@@ -551,6 +558,8 @@ define(function (require, exports, module) {
 
     /**
      * Log an error to the event stream
+     *
+     * @param {Error} err
      */
     logError: function (err) {
       err = this._normalizeError(err);
@@ -573,7 +582,7 @@ define(function (require, exports, module) {
      * Handle a fatal error. Logs and reports the error, then redirects
      * to the appropriate error page.
      *
-     * @param {Error} error
+     * @param {Error} err
      * @returns {promise}
      */
     fatalError: function (err) {
@@ -584,7 +593,7 @@ define(function (require, exports, module) {
     /**
      * Get the view's name.
      *
-     * @returns {string}
+     * @returns {String}
      */
     getViewName: function () {
       return this.viewName;
@@ -620,6 +629,8 @@ define(function (require, exports, module) {
 
     /**
      * Log an event to the event stream
+     *
+     * @param {String} eventName
      */
     logEvent: function (eventName) {
       this.metrics.logEvent(eventName);
@@ -628,7 +639,7 @@ define(function (require, exports, module) {
     /**
      * Log an event with the view name as a prefix
      *
-     * @param {string} eventName
+     * @param {String} eventName
      */
     logViewEvent: function (eventName) {
       this.metrics.logViewEvent(this.getViewName(), eventName);
@@ -669,6 +680,8 @@ define(function (require, exports, module) {
 
     /**
      * Safely focus an element
+     *
+     * @param {String} which
      */
     focus (which) {
       try {
@@ -710,7 +723,8 @@ define(function (require, exports, module) {
      * the handler on `this`.
      *
      * @method invokeHandler
-     * @param {string || function} handler.
+     * @param {string|Function} handler
+     * @returns {undefined}
      */
     invokeHandler: function (handler/*, args...*/) {
       // convert a name to a function.
@@ -737,6 +751,8 @@ define(function (require, exports, module) {
 
     /**
      * Returns the currently logged in account
+     *
+     * @returns {Account}
      */
     getSignedInAccount: function () {
       return this.user.getSignedInAccount();
@@ -753,9 +769,9 @@ define(function (require, exports, module) {
     /**
      * Shows the ChildView, creating and rendering it if needed.
      *
-     * @param {function} ChildView - child view's constructor
-     * @param {object} [options] - options to send.
-     * @return {promise} resolves when complete
+     * @param {Function} ChildView - child view's constructor
+     * @param {Object} [options] - options to send.
+     * @returns {Promise} resolves when complete
      */
     showChildView: function (/* ChildView, options */) {
       // Implement in subclasses
@@ -766,9 +782,8 @@ define(function (require, exports, module) {
      * Invoke a method on the broker, handling any returned behaviors
      *
      * @method invokeBrokerMethod
-     * @param {string} methodName
-     * @param ...
-     * @return {promise}
+     * @param {String} methodName
+     * @returns {Promise}
      */
     invokeBrokerMethod: function (methodName/*, ...*/) {
       var args = [].slice.call(arguments, 1);
@@ -784,8 +799,8 @@ define(function (require, exports, module) {
      * Invoke a behavior returned by an auth broker.
      *
      * @method invokeBehavior
-     * @param {function} behavior
-     * @return {variant} behavior's return value if behavior is a function,
+     * @param {Function} behavior
+     * @returns {variant} behavior's return value if behavior is a function,
      *         otherwise return the behavior.
      */
     invokeBehavior: function (behavior) {
@@ -800,10 +815,11 @@ define(function (require, exports, module) {
   /**
    * Return a backbone compatible event handler that
    * prevents the default action, then calls the specified handler.
-   * @method Baseview.preventDefaultThen
-   * handler can be either a string or a function. If a string, this[handler]
-   * will be called. Handler called with context of "this" view and is passed
+   * @method preventDefaultThen
+   * @param {Function} handler - Handler can be either a string or a function.
+   * If a string, this[handler] will be called. Handler called with context of "this" view and is passed
    * the event
+   * @returns {Function}
    */
   BaseView.preventDefaultThen = function (handler) {
     return function (event) {
@@ -821,6 +837,8 @@ define(function (require, exports, module) {
    * Completely cancel an event (preventDefault, stopPropagation), then call
    * the handler
    * @method BaseView.cancelEventThen
+   * @param {Function} handler
+   * @returns {Function}
    */
   BaseView.cancelEventThen = function (handler) {
     return function (event) {
@@ -840,6 +858,9 @@ define(function (require, exports, module) {
    * script looks for t(...), and the translator will eventually
    * translate it. t is put onto BaseView instead of
    * Translator to reduce the number of dependencies in the views.
+   *
+   * @param {String} str
+   * @returns {String}
    */
   function t(str) {
     return str;

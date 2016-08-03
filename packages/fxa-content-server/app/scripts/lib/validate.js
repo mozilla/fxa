@@ -42,8 +42,8 @@ define(function (require, exports, module) {
   var self = {
     /**
      * Check if an email address is valid
-     *
-     * @return true if email is valid, false otw.
+     * @param {String} email
+     * @return {Boolean} true if email is valid, false otw.
      */
     isEmailValid: function (email) {
       if (typeof email !== 'string' || email.length > 256) {
@@ -64,6 +64,9 @@ define(function (require, exports, module) {
 
     /**
      * Check if an email verification code is valid
+     *
+     * @param {String} code
+     * @returns {Boolean}
      */
     isCodeValid: function (code) {
       if (typeof code !== 'string') {
@@ -77,6 +80,9 @@ define(function (require, exports, module) {
 
     /**
      * Check if an OAuth code is valid
+     *
+     * @param {String} code
+     * @returns {Boolean}
      */
     isOAuthCodeValid: function (code) {
       if (typeof code !== 'string') {
@@ -90,6 +96,8 @@ define(function (require, exports, module) {
 
     /**
      * Check if a verification token is valid
+     * @param {String} token
+     * @returns {Boolean}
      */
     isTokenValid: function (token) {
       if (typeof token !== 'string') {
@@ -102,6 +110,8 @@ define(function (require, exports, module) {
 
     /**
      * Check if a verification uid is valid
+     * @param {String} uid
+     * @returns {Boolean}
      */
     isUidValid: function (uid) {
       if (typeof uid !== 'string') {
@@ -115,6 +125,8 @@ define(function (require, exports, module) {
 
     /**
      * Check if a password is valid
+     * @param {String} password
+     * @returns {Boolean}
      */
     isPasswordValid: function (password) {
       if (typeof password !== 'string') {
@@ -139,6 +151,10 @@ define(function (require, exports, module) {
      *     { foo: 'bar', baz: { qux: [] } },
      *     { foo: 'String', baz: { qux: 'Array', required: 'String' } }
      *   ); // returns false
+     *
+     * @param {Object} data
+     * @param {Object} schema
+     * @returns {Boolean}
      */
     isDataValid: function isDataValid(data, schema) {
       if (! schema) {
@@ -169,8 +185,8 @@ define(function (require, exports, module) {
     /**
      * Check whether the `prompt` OAuth value is valid
      *
-     * @param {string} prompt
-     * @returns {boolean}
+     * @param {String} prompt
+     * @returns {Boolean}
      */
     isPromptValid: function (prompt) {
       var valid = [
@@ -186,8 +202,8 @@ define(function (require, exports, module) {
      *
      * http://blog.mattheworiordan.com/post/13174566389/url-regular-expression-for-links-with-or-without
      *
-     * @param url  - url to check
-     * @returns {boolean}
+     * @param {String} url - url to check
+     * @returns {Boolean}
      */
     isUrlValid: function isUrlValid(url) {
       return urlRegEx.test(url);
@@ -196,8 +212,8 @@ define(function (require, exports, module) {
     /**
      * Check if string is valid urn per RFC 2141.
      *
-     * @param urn - urn to check
-     * @returns {boolean}
+     * @param {String} urn - urn to check
+     * @returns {Boolean}
      */
     isUrnValid: function isUrnValid(urn) {
       return urnRegEx.test(urn);
@@ -206,8 +222,8 @@ define(function (require, exports, module) {
     /**
      * Check if string is valid uri.
      *
-     * @param uri - uri to check
-     * @returns {boolean}
+     * @param {String} uri - uri to check
+     * @returns {Boolean}
      */
     isUriValid: function isUriValid(uri) {
       return self.isUrlValid(uri) || self.isUrnValid(uri);
@@ -216,8 +232,8 @@ define(function (require, exports, module) {
     /**
      * Check if string is valid UUID.
      *
-     * @param uuid - uuid to check
-     * @returns {boolean}
+     * @param {String} uuid - uuid to check
+     * @returns {Boolean}
      */
     isUuidValid: function (uuid) {
       return uuidRegEx.test(uuid);
@@ -226,8 +242,8 @@ define(function (require, exports, module) {
     /**
      * Check if string is valid access type, either "online" or "offline".
      *
-     * @param accessType
-     * @returns {boolean}
+     * @param {String} accessType
+     * @returns {Boolean}
      */
     isAccessTypeValid: function isAccessTypeValid(accessType) {
       var valid = [
@@ -240,7 +256,7 @@ define(function (require, exports, module) {
     /**
      * Checks if value is composed of only hex characters.
      *
-     * @param value
+     * @param {String} value
      * @returns {boolean}
      */
     isHexValid: function isHexValid(value) {
@@ -250,7 +266,7 @@ define(function (require, exports, module) {
     /**
      * Check if the verification redirect value is valid.
      *
-     * @param value
+     * @param {String} value
      * @returns {boolean}
      */
     isVerificationRedirectValid: function isVerificationRedirectValid(value) {
@@ -265,8 +281,8 @@ define(function (require, exports, module) {
     /**
      * Check if a JSON Web Token (JWT) is valid.
      *
-     * @param value
-     * @returns {boolean}
+     * @param {String} value
+     * @returns {Boolean}
      */
     isBase64JwtValid: function isJwtValid(value) {
       return BASE64_JWT.test(value);

@@ -561,6 +561,8 @@ define(function (require, exports, module) {
      *
      * If there is a problem accessing localStorage, the user
      * will be redirected to `/cookies_disabled` from _selectStartPage
+     *
+     * @returns {Promise}
      */
     testLocalStorage () {
       const self = this;

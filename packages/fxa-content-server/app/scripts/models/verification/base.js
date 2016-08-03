@@ -71,6 +71,7 @@ define(function (require, exports, module) {
      * `isValid`.
      *
      * @method validate
+     * @param {Object} attributes
      */
     validate: function (attributes) {
       _.each(this.validation, function (validator, key) {

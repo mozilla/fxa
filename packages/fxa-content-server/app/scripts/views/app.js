@@ -65,6 +65,8 @@ define(function (require, exports, module) {
      *
      * @param {function} View - the View's constructor
      * @param {object} options - options to pass to the constructor
+     *
+     * @returns {Promise}
      */
     showView: function (View, options) {
       var self = this;
@@ -133,6 +135,8 @@ define(function (require, exports, module) {
      * @param {function} ParentView - constructor of the childView's parent.
      * @param {object} options used to create the ParentView as well as
      *        display the child view.
+     *
+     * @returns {Promise}
      */
     showChildView: function (ChildView, ParentView, options) {
       var self = this;

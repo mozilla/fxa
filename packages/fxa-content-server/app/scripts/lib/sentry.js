@@ -164,6 +164,8 @@ define(function (require, exports, module) {
     /**
      * Capture an exception. Error fields listed in _exceptionTags
      * will be added as tags to the raven data.
+     *
+     * @param {Error} err
      */
     captureException: function (err) {
       var tags = {};

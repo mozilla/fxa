@@ -48,7 +48,7 @@ define(function (require, exports, module) {
     /**
      * Get the key in VerificationReasons for the given verification reason
      *
-     * @param {String} type
+     * @param {String} verificationReason
      * @returns {String}
      */
     keyOfVerificationReason: function (verificationReason) {

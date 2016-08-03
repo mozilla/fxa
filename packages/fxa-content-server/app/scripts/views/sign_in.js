@@ -126,6 +126,7 @@ define(function (require, exports, module) {
      *     Session token from the account
      * @param {string} [password] - the user's password. Can be null if
      *  user is signing in with a sessionToken.
+     * @returns {Promise}
      * @private
      */
     _signIn: function (account, password) {
@@ -216,6 +217,8 @@ define(function (require, exports, module) {
 
     /**
      * Determines if the suggested user must be asked for a password.
+     * @param {Account} account
+     * @returns {Boolean}
      * @private
      */
     _suggestedAccountAskPassword: function (account) {

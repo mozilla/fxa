@@ -55,6 +55,8 @@ define(function (require, exports, module) {
     /**
      * The ridiculous name is to avoid collisions with
      * functions on consumers.
+     *
+     * @param {Event} event
      */
     floatingPlaceholderMixinOnInput: function (event) {
       var $inputEl = $(event.currentTarget);

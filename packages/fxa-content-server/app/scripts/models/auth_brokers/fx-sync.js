@@ -62,6 +62,7 @@ define(function (require, exports, module) {
      * @param {Object} options
      * @param {String} [options.channel]
      *        Channel used to send commands to remote listeners.
+     * @returns {undefined}
      */
     initialize: function (options) {
       options = options || {};
@@ -193,7 +194,7 @@ define(function (require, exports, module) {
      * be overridden by subclasses.
      *
      * @method createChannel
-     * @returns {object} channel
+     * @throws {Error}
      */
     createChannel: function () {
       throw new Error('createChannel must be overridden');

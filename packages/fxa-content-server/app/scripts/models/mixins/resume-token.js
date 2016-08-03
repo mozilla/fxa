@@ -60,6 +60,7 @@ define(function (require, exports, module) {
      *
      * @method populateFromResumeToken
      * @param {ResumeToken} resumeToken
+     * @returns {undefined}
      */
     populateFromResumeToken: function (resumeToken) {
       if (this.resumeTokenFields) {

@@ -154,6 +154,9 @@ define(function (require, exports, module) {
 
     /**
      * Send the collected data to the backend.
+     *
+     * @param {String} isPageUnloading
+     * @returns {Promise}
      */
     flush: function (isPageUnloading) {
       // Inactivity timer is restarted when the next event/timer comes in.
@@ -202,6 +205,8 @@ define(function (require, exports, module) {
 
     /**
      * Get all the data, whether it's allowed to be sent or not.
+     *
+     * @returns {Object}
      */
     getAllData: function () {
       var loadData = this._speedTrap.getLoad();
@@ -244,6 +249,8 @@ define(function (require, exports, module) {
      * Get the filtered data.
      * Filtered data is data that is allowed to be sent,
      * that is defined and not an empty string.
+     *
+     * @returns {Object}
      */
     getFilteredData: function () {
       var allowedData = _.pick(this.getAllData(), ALLOWED_FIELDS);
@@ -287,6 +294,8 @@ define(function (require, exports, module) {
 
     /**
      * Log an event
+     *
+     * @param {String} eventName
      */
     logEvent: function (eventName) {
       this._resetInactivityFlushTimeout();
@@ -295,6 +304,8 @@ define(function (require, exports, module) {
 
     /**
      * Start a timer
+     *
+     * @param {String} timerName
      */
     startTimer: function (timerName) {
       this._resetInactivityFlushTimeout();
@@ -303,6 +314,8 @@ define(function (require, exports, module) {
 
     /**
      * Stop a timer
+     *
+     * @param {String} timerName
      */
     stopTimer: function (timerName) {
       this._resetInactivityFlushTimeout();
@@ -311,6 +324,8 @@ define(function (require, exports, module) {
 
     /**
      * Log an error.
+     *
+     * @param {Error} error
      */
     logError: function (error) {
       this.logEvent(this.errorToId(error));
@@ -318,6 +333,9 @@ define(function (require, exports, module) {
 
     /**
      * Convert an error to an identifier that can be used for logging.
+     *
+     * @param {Error} error
+     * @returns {String}
      */
     errorToId: function (error) {
       var id = Strings.interpolate('error.%s.%s.%s', [

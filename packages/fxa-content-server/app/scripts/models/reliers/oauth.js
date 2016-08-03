@@ -150,6 +150,8 @@ define(function (require, exports, module) {
 
     /**
      * OAuth reliers can opt in to fetch relier-specific keys.
+     *
+     * @returns {Boolean}
      */
     wantsKeys: function () {
       if (this.get('keys')) {

@@ -23,6 +23,7 @@ define(function (require, exports, module) {
     /**
      * Load info from sessionStorage
      * @method load
+     * @returns {Object}
      */
     load: function () {
       var values = {};
@@ -74,9 +75,12 @@ define(function (require, exports, module) {
 
     /**
      * Set data.
-     * @method set
-     * can take either a key/value pair or a dictionary of key/value pairs.
      * Note: items with keys in Session.prototype cannot be overwritten.
+     *
+     * @method set
+     * @param {Object|String} key - can take either a key/value pair or a dictionary of key/value pairs.
+     * @param {String} [value]
+     * @returns {undefined}
      */
     set: function (key, value) {
       if (typeof value === 'undefined' && typeof key === 'object') {
@@ -124,6 +128,8 @@ define(function (require, exports, module) {
     /**
      * Get an item
      * @method get
+     * @param {String} key
+     * @returns {Object}
      */
     get: function (key) {
       return this[key];
@@ -131,9 +137,12 @@ define(function (require, exports, module) {
 
     /**
      * Remove an item or all items
-     * @method clear
+     *
      * If no key specified, all items are cleared.
      * Note: items in Session.prototype cannot be cleared
+     *
+     * @method clear
+     * @param {String} [key]
      */
     clear: function (key) {
       // no key specified, clear everything.
@@ -155,6 +164,7 @@ define(function (require, exports, module) {
     /**
      * Remove an item from memory but not sessionStorage. Used to test .load
      * @method testRemove
+     * @param {String} key
      * @private
      */
     testRemove: function (key) {

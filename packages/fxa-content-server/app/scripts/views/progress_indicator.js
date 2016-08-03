@@ -40,6 +40,7 @@ define(function (require, exports, module) {
      * Mark the start of an action that may need a progress indicator.
      *
      * @method start
+     * @param {String} progressEl
      */
     start: function (progressEl) {
       var self = this;
@@ -117,6 +118,8 @@ define(function (require, exports, module) {
 
     /**
      * Show the progress indicator now
+     *
+     * @param {String} progressEl
      */
     showIndicator: function (progressEl) {
       progressEl = $(progressEl);
@@ -129,6 +132,9 @@ define(function (require, exports, module) {
 
     /**
      * Remove the progress indicator now
+     *
+     * @param {String} progressEl
+     * @returns {undefined}
      */
     removeIndicator: function (progressEl) {
       progressEl = this._progressEl;
@@ -139,6 +145,8 @@ define(function (require, exports, module) {
 
     /**
      * Is the progress indicator either visible or waiting to become visible?
+     *
+     * @returns {Boolean}
      */
     isVisible: function () {
       return !! this._count;

@@ -191,6 +191,8 @@ define(function (require, exports, module) {
 
     /**
      * Displays the account's avatar
+     *
+     * @returns {Promise}
      */
     afterVisible: function () {
       var email = this.relier.get('email');

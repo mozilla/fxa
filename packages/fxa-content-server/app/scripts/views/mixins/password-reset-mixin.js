@@ -20,8 +20,8 @@ define(function (require, exports, module) {
      * Initiate a password reset. If successful, redirects to
      * `confirm_reset_password`.
      *
-     * @param {email}
-     * @return {promise} - resolves with auth server response if successful.
+     * @param {String} email
+     * @return {Promise} - resolves with auth server response if successful.
      */
     resetPassword: function (email) {
       var self = this;

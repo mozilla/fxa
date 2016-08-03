@@ -14,7 +14,7 @@ define(function (require, exports, module) {
   /**
    * Constructor of log module.
    *
-   * @param logWindow Window object that contains console used for logging.
+   * @param {Object} logWindow Window object that contains console used for logging.
    *
    * @constructor
    */
@@ -61,7 +61,7 @@ define(function (require, exports, module) {
      * Wrapper for `console.error` function that checks for availability and interpolates
      * error messages if a translation exists.
      *
-     * @param {error} Error object with optional errorModule.
+     * @param {Error} error Error object with optional errorModule.
      */
     error: function (error) {
       if (this._window.console && this._window.console.error) {

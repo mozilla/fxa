@@ -22,17 +22,15 @@ define(function (require, exports, module) {
    * Given the account master keys, the user id and the relier id, generate
    * the matching relier-specific derived class-A and class-B keys.
    *
-   * Input arguments:
-   *    keys:       object with properties 'kA' and 'kB' giving the account
-   *                keys as hex strings.
-   *    uid:        string identifying the user who owns the keys.
-   *    clientId:   string identifying the relier for whom keys should
-   *                be derived.
+   * @param {Object} keys Object with properties 'kA' and 'kB' giving the account
+   * keys as hex strings.
+   * @param {String} uid String identifying the user who owns the keys.
+   * @param {String} clientId String identifying the relier for whom keys should
+   * be derived.
    *
-   * Output:
-   *    A promise that will resolve with an object having 'kAr' and 'kBr'
-   *    properties, giving relier-specific keys derived from 'kA' and 'kB'
-   *    respectively.  Each key is represented as a JWK object.
+   * @returns {Promise} A promise that will resolve with an object having 'kAr' and 'kBr'
+   * properties, giving relier-specific keys derived from 'kA' and 'kB'
+   * respectively.  Each key is represented as a JWK object.
    */
   function deriveRelierKeys(keys, uid, clientId) {
     var relierKeys = {};
@@ -79,19 +77,17 @@ define(function (require, exports, module) {
    * HKDF context info.  The first 32 bytes are used as an opaque key id
    * and the second 32 bytes are the actual key material.
    *
-   * Input options:
-   *    inputKey:     hex string giving the master key material.
-   *    keyClassTag:  string identifying the type of key to derive; this
-   *                  forms part of the HKDF context info and is included
-   *                  in the key id.
-   *    uid:          string identifying the user who owns the keys.
-   *    clientId:     string identifying the relier for whom the key is
-   *                  being derived; this forms part of the HKDF context
-   *                  info to ensure unique keys for each relier.
+   * @param {Object} options
+   * @param {String} options.inputKey - hex string giving the master key material.
+   * @param {String} options.keyClassTag - string identifying the type of key to derive; this
+   * forms part of the HKDF context info and is included in the key id.
+   * @param {String} options.uid - string identifying the user who owns the keys.
+   * @param {String} options.clientId - string identifying the relier for whom the key is
+   * being derived; this forms part of the HKDF context
+   * info to ensure unique keys for each relier.
    *
-   * Output:
-   *    A promise that will resolve with a JWK object representing the
-   *    derived key.
+   * @returns {Promise} A promise that will resolve with a JWK object representing the
+   * derived key.
    */
   function generateDerivedKey(options) {
     var key = sjcl.codec.hex.toBits(options.inputKey);

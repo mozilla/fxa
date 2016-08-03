@@ -155,6 +155,8 @@ define(function (require, exports, module) {
      * Redirect the user to the best suitable OAuth flow.
      * If email parameter is available, it will check to see if an
      * an account associated with it and navigate to signin/signup page.
+     *
+     * @returns {Promise}
      */
     redirectToBestOAuthChoice: function () {
       var self = this;

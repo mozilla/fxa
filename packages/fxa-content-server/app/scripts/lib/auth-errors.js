@@ -296,6 +296,9 @@ define(function (require, exports, module) {
 
     /**
      * Fetch the interpolation context out of the server error.
+     *
+     * @param {Error} err
+     * @returns {Object}
      */
     toInterpolationContext: function (err) {
       // For data returned by backend, see

@@ -99,6 +99,8 @@ define(function (require, exports, module) {
      * Called by the parent view to determine if the COPPA form is valid
      *
      * @method isValid
+     *
+     * @returns {Boolean}
      */
     isValid: function () {
       return this._validateAge();

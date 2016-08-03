@@ -168,6 +168,7 @@ define(function (require, exports, module) {
      * @method send
      * @param {string} name
      * @param {object} [data]
+     * @returns {undefined}
      */
     send: function (name, data) {
       return this._adapter.send(name, data);
@@ -191,7 +192,8 @@ define(function (require, exports, module) {
      *
      * @method off
      * @param {string} name
-     * @param {string} key
+     * @param {function} callback
+     * @returns {undefined}
      */
     off: function (name, callback) {
       return this._adapter.off(name, callback);
@@ -201,6 +203,7 @@ define(function (require, exports, module) {
      * Clear all data.
      *
      * @method clear
+     * @returns {undefined}
      */
     clear: function () {
       return this._adapter.clear();

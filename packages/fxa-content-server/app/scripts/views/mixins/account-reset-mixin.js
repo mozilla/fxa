@@ -31,7 +31,8 @@ define(function (require, exports, module) {
     /**
      * Notify the user their account has been reset
      *
-     * @param {object} account - account that has been reset
+     * @param {Object} account - account that has been reset
+     * @returns {String}
      */
     notifyOfResetAccount: function (account) {
       this._resetAccount = account;

@@ -42,7 +42,7 @@ define(function (require, exports, module) {
      * @param {Error} error
      * @param {Object} sentryMetrics
      * @param {Object} metrics
-     * @param {Object} window
+     * @param {Object} win
      */
     captureError: function (error, sentryMetrics, metrics, win) {
       var logger = new Logger(win);
@@ -70,7 +70,7 @@ define(function (require, exports, module) {
      * @param {Error} error
      * @param {Object} sentryMetrics
      * @param {Object} metrics
-     * @param {Object} window
+     * @param {Object} win
      * @returns {promise};
      */
     captureAndFlushError: function (error, sentryMetrics, metrics, win) {
@@ -86,7 +86,7 @@ define(function (require, exports, module) {
      * Render an error to the DOM
      *
      * @param {Error} error
-     * @param {Object} window
+     * @param {Object} win
      * @param {Object} translator
      */
     renderError: function (error, win, translator) {
@@ -107,7 +107,7 @@ define(function (require, exports, module) {
      * @param {Error} error
      * @param {Object} sentryMetrics
      * @param {Object} metrics
-     * @param {Object} window
+     * @param {Object} win
      * @param {Object} translator
      * @returns {promise}
      */
@@ -122,7 +122,7 @@ define(function (require, exports, module) {
      * Get the error message, performing any interpolation. If a translator
      * is passed, return value will be translated to the user's locale.
      *
-     * @param {string} err - an error object
+     * @param {string} error - an error object
      * @param {Object} [translator] - translator to translate error
      * @return {string} interpolated error text.
      */

@@ -35,6 +35,7 @@ define(function (require, exports, module) {
      *                 which the profile image will be inserted.
      *   @param {boolean} [options.spinner] - When true, show a spinner while
      *                    the profile image is loading.
+     * @returns {Promise}
      */
     displayAccountProfileImage: function (account, options) {
       options = options || {};

@@ -66,6 +66,8 @@ define(function (require, exports, module) {
      *     });
      *
      * @method checkPasswordStrength
+     * @param {String} password
+     *
      * @returns {Promise}
      */
     checkPasswordStrength: function (password) {
