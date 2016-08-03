@@ -112,7 +112,7 @@ var MaxmindDbDownloader = function () {
       return promiseFunction();
     });
     return Promise.all(promises)
-      .then(function (success) {
+      .then(function () {
         logHelper('info', 'Downloads complete');
         logHelper('info', 'Last Update: ' + new Date());
       }, function (err) {
