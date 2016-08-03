@@ -30,7 +30,7 @@
   "dependencies": {
     "bluebird": "3.4.1",
     "cron": "1.1.0",
-    "maxmind": "1.1.0",
+    "maxmind": "1.3.0",
     "mkdirp": "0.5.1",
     "mozlog": "2.0.5",
     "path-parse": "1.0.5",
