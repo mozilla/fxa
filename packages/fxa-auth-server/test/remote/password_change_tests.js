@@ -247,19 +247,17 @@ TestServer.start(config)
   )
 
   test(
-    'password change, with raw session data rather than session token id',
+    'password change, with raw session data rather than session token id, return invalid token error',
     function (t) {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var newPassword = 'foobar'
-      var client, firstAuthPW, originalSessionToken
+      var client
 
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
           function (x) {
             client = x
-            originalSessionToken = client.sessionToken
-            firstAuthPW = x.authPW.toString('hex')
             return client.keys()
           }
         )
@@ -279,24 +277,14 @@ TestServer.start(config)
           }
         )
         .then(
-          function (response) {
-            t.notEqual(response.sessionToken, originalSessionToken, 'session token has changed')
-            t.ok(response.keyFetchToken, 'key fetch token returned')
-            t.notEqual(client.authPW.toString('hex'), firstAuthPW, 'password has changed')
-          }
-        )
-        .then(
           function () {
-            return server.mailbox.waitForEmail(email)
+            t.fail()
           }
         )
-        .then(
-          function (emailData) {
-            var subject = emailData.headers['subject']
-            t.equal(subject, 'Your Firefox Account password has been changed', 'password email subject set correctly')
-            var link = emailData.headers['x-link']
-            var query = url.parse(link, true).query
-            t.ok(query.email, 'email is in the link')
+        .catch(
+          function (err) {
+            t.equal(err.errno, 110, 'Invalid token error')
+            t.equal(err.message, 'Invalid authentication token in request signature')
           }
         )
     }

@@ -129,6 +129,11 @@ function mockDB (data, errors) {
     updateDevice: sinon.spy(function (uid, sessionTokenId, device) {
       return P.resolve(device)
     }),
+    sessionTokenWithVerificationStatus: sinon.spy(function () {
+      return P.resolve({
+        tokenVerified: true
+      })
+    }),
     verifyTokens: sinon.spy(function () {
       if (errors.verifyTokens) {
         return P.reject(errors.verifyTokens)

@@ -24,8 +24,6 @@ module.exports = function (
   push
   ) {
 
-  var Tokens = require('../tokens/index')(log)
-
   function failVerifyAttempt(passwordForgotToken) {
     return (passwordForgotToken.failAttempt()) ?
       db.deletePasswordForgotToken(passwordForgotToken) :
@@ -163,30 +161,9 @@ module.exports = function (
           if (sessionTokenId) {
             var tokenId = Buffer(sessionTokenId, 'hex')
             return db.sessionTokenWithVerificationStatus(tokenId)
-              .catch(
-                function (err) {
-                  // Older versions of content-server passed the raw token data
-                  // rather than the id; handle both for b/w compatibility.
-                  if (err.errno !== error.ERRNO.INVALID_TOKEN) {
-                    throw err
-                  }
-                  return Tokens.SessionToken.fromHex(sessionTokenId)
-                    .then(
-                      function (tokenData) {
-                        tokenId = tokenData.tokenId
-                        return db.sessionTokenWithVerificationStatus(tokenId)
-                      }
-                    )
-                }
-              )
               .then(
                 function (tokenData) {
                   verifiedStatus = tokenData.tokenVerified
-                }
-              )
-              .catch(
-                function () {
-                  verifiedStatus = false
                 }
               )
           } else {
