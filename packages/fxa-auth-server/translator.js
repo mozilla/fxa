@@ -42,6 +42,13 @@ module.exports = function (locales, defaultLanguage) {
       return function translator(acceptLanguage) {
         var languages = i18n.parseAcceptLanguage(acceptLanguage)
         var best = i18n.normalizeLanguage(i18n.bestLanguage(languages, supportedLanguages, defaultLanguage))
+
+        if (! best) {
+          // in some cases `i18n.normalizeLanguage` cannot determine the best language.
+          // Fallback to `en` in that case.
+          best = 'en'
+        }
+
         return languageTranslations[best]
       }
     }
