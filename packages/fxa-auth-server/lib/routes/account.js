@@ -1382,14 +1382,26 @@ module.exports = function (
         var authPW = Buffer(request.payload.authPW, 'hex')
         var authSalt = crypto.randomBytes(32)
         var password = new Password(authPW, authSalt, config.verifierVersion)
-        var account, sessionToken, keyFetchToken, verifyHash, wrapKb
+        var account, sessionToken, keyFetchToken, verifyHash, wrapKb, devicesToNotify
         var hasSessionToken = request.payload.sessionToken
 
-        return resetAccountData()
+        return fetchDevicesToNotify()
+          .then(resetAccountData)
           .then(createSessionToken)
           .then(createKeyFetchToken)
           .then(createResponse)
           .done(reply, reply)
+
+        function fetchDevicesToNotify() {
+          // We fetch the devices to notify before resetAccountData() because
+          // db.resetAccount() deletes all the devices saved in the account.
+          return db.devices(accountResetToken.uid)
+            .then(
+              function(devices) {
+                devicesToNotify = devices
+              }
+            )
+        }
 
         function resetAccountData () {
           return password.verifyHash()
@@ -1410,8 +1422,8 @@ module.exports = function (
             )
             .then(
               function () {
-                // Notify all devices that the account has changed.
-                push.notifyPasswordReset(accountResetToken.uid)
+                // Notify the devices that the account has changed.
+                push.notifyPasswordReset(accountResetToken.uid, devicesToNotify)
 
                 return db.account(accountResetToken.uid)
               }

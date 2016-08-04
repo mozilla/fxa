@@ -147,9 +147,11 @@ module.exports = function (
         var sessionTokenId = request.payload.sessionToken
         var password = new Password(authPW, authSalt, verifierVersion)
         var wantsKeys = requestHelper.wantsKeys(request)
-        var account, verifyHash, sessionToken, keyFetchToken, verifiedStatus
+        var account, verifyHash, sessionToken, keyFetchToken, verifiedStatus,
+            devicesToNotify
 
         getSessionVerificationStatus()
+          .then(fetchDevicesToNotify)
           .then(changePassword)
           .then(notifyAccount)
           .then(createSessionToken)
@@ -195,6 +197,17 @@ module.exports = function (
           }
         }
 
+        function fetchDevicesToNotify() {
+          // We fetch the devices to notify before changePassword() because
+          // db.resetAccount() deletes all the devices saved in the account.
+          return db.devices(passwordChangeToken.uid)
+            .then(
+              function(devices) {
+                devicesToNotify = devices
+              }
+            )
+        }
+
         function changePassword() {
           return db.deletePasswordChangeToken(passwordChangeToken)
             .then(
@@ -225,8 +238,10 @@ module.exports = function (
         }
 
         function notifyAccount() {
-          // Notify all devices that the account has changed.
-          push.notifyPasswordChanged(passwordChangeToken.uid)
+          if (devicesToNotify) {
+            // Notify the devices that the account has changed.
+            push.notifyPasswordChanged(passwordChangeToken.uid, devicesToNotify)
+          }
 
           return db.account(passwordChangeToken.uid)
             .then(

@@ -181,33 +181,35 @@ module.exports = function (log, db) {
     },
 
     /**
-     * Notifies every device in the account that the password was changed
+     * Notifies a set of devices that the password was changed
      *
      * @param uid
+     * @param {Object[]} devices (complete devices objects)
      * @promise
      */
-    notifyPasswordChanged: function notifyPasswordChanged(uid) {
+    notifyPasswordChanged: function notifyPasswordChanged(uid, devices) {
       var data = new Buffer(JSON.stringify({
         version: PUSH_PAYLOAD_SCHEMA_VERSION,
         command: PUSH_COMMANDS.PASSWORD_CHANGED
       }))
       var options = { data: data, TTL: TTL_PASSWORD_CHANGED }
-      return this.pushToAllDevices(uid, 'passwordChange', options)
+      return this.sendPush(uid, devices, 'passwordChange', options)
     },
 
     /**
-     * Notifies every device in the account that the password was reset
+     * Notifies a set of devices that the password was reset
      *
      * @param uid
+     * @param {Object[]} devices (complete devices objects)
      * @promise
      */
-    notifyPasswordReset: function notifyPasswordReset(uid) {
+    notifyPasswordReset: function notifyPasswordReset(uid, devices) {
       var data = new Buffer(JSON.stringify({
         version: PUSH_PAYLOAD_SCHEMA_VERSION,
         command: PUSH_COMMANDS.PASSWORD_RESET
       }))
       var options = { data: data, TTL: TTL_PASSWORD_RESET }
-      return this.pushToAllDevices(uid, 'passwordReset', options)
+      return this.sendPush(uid, devices, 'passwordReset', options)
     },
 
     /**
