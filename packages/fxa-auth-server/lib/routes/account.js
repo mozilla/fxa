@@ -467,6 +467,18 @@ module.exports = function (
                 ], form.metricsContext)
               }
             )
+            .then(
+              function () {
+                if (doSigninConfirmation) {
+                  // There is no session token when we emit account.confirmed
+                  // so stash the data against a synthesized "token" instead.
+                  return metricsContext.stash({
+                    uid: emailRecord.uid,
+                    id: tokenVerificationId.toString('hex')
+                  }, 'account.confirmed', form.metricsContext)
+                }
+              }
+            )
         }
 
         function createKeyFetchToken() {
@@ -1212,13 +1224,30 @@ module.exports = function (
         }
       },
       handler: function (request, reply) {
-        var uid = request.payload.uid
+        var uidHex = request.payload.uid
+        var uid = Buffer(uidHex, 'hex')
         var code = Buffer(request.payload.code, 'hex')
         var service = request.payload.service || request.query.service
         var reminder = request.payload.reminder || request.query.reminder
 
+        // Because we have no session token on this endpoint, metrics context
+        // metadata was stashed against a synthesized token for the benefit of
+        // the activity events. This fake request object allows the correct
+        // metadata to be gathered when we emit the events.
+        var fakeRequestObject = {
+          auth: {
+            credentials: {
+              uid: uid,
+              id: request.payload.code
+            }
+          },
+          headers: request.headers,
+          payload: request.payload,
+          query: request.query
+        }
+
         log.begin('Account.RecoveryEmailVerify', request)
-        db.account(Buffer(uid, 'hex'))
+        db.account(uid)
           .then(
             function (account) {
 
@@ -1237,8 +1266,11 @@ module.exports = function (
                 .then(function () {
                   log.info({
                     op: 'account.signin.confirm.success',
-                    uid: account.uid.toString('hex'),
+                    uid: uidHex,
                     code: request.payload.code
+                  })
+                  return log.activityEvent('account.confirmed', fakeRequestObject, {
+                    uid: uidHex
                   })
                 })
                 .catch(function (err) {
@@ -1248,7 +1280,7 @@ module.exports = function (
                   }
                   log.error({
                     op: 'account.signin.confirm.invalid',
-                    uid: account.uid.toString('hex'),
+                    uid: uidHex,
                     code: request.payload.code,
                     error: err
                   })
@@ -1256,8 +1288,9 @@ module.exports = function (
                 })
                 .then(function () {
 
-                  // If the account is already verified, they may be e.g.
-                  // clicking a stale link.  Silently succeed.
+                  // If the account is already verified, the link may have been
+                  // for sign-in confirmation or they may have been clicking a
+                  // stale link. Silently succeed.
                   if (account.emailVerified) {
                     if (butil.buffersAreEqual(code, account.emailCode)) {
                       log.increment('account.already_verified')
@@ -1277,23 +1310,8 @@ module.exports = function (
                       })
                     })
                     .then(function () {
-                      // Because we have no session token on this endpoint,
-                      // the metrics context metadata was stashed against a
-                      // synthesized token for the benefit of this event.
-                      // Hence we're passing in a synthesized request object
-                      // rather than the real thing.
-                      return log.activityEvent('account.verified', {
-                        auth: {
-                          credentials: {
-                            uid: uid,
-                            id: request.payload.code
-                          }
-                        },
-                        headers: request.headers,
-                        payload: request.payload,
-                        query: request.query
-                      }, {
-                        uid: account.uid.toString('hex')
+                      return log.activityEvent('account.verified', fakeRequestObject, {
+                        uid: uidHex
                       })
                     })
                     .then(function () {
@@ -1308,7 +1326,7 @@ module.exports = function (
                           name: reminderOp
                         })
                         return log.activityEvent('account.reminder', request, {
-                          uid: account.uid.toString('hex')
+                          uid: uidHex
                         })
                       }
                     })
@@ -1317,7 +1335,7 @@ module.exports = function (
                       push.notifyUpdate(uid, 'accountVerify')
                       // remove verification reminders
                       verificationReminder.delete({
-                        uid: account.uid.toString('hex')
+                        uid: uidHex
                       }).catch(function (err) {
                         log.error({ op: 'Account.RecoveryEmailVerify', err: err })
                       })

@@ -49,6 +49,8 @@ function mockDB (data, errors) {
     account: sinon.spy(function () {
       return P.resolve({
         email: data.email,
+        emailCode: data.emailCode,
+        emailVerified: data.emailVerified,
         uid: data.uid,
         verifierSetAt: Date.now()
       })
@@ -126,6 +128,12 @@ function mockDB (data, errors) {
     }),
     updateDevice: sinon.spy(function (uid, sessionTokenId, device) {
       return P.resolve(device)
+    }),
+    verifyTokens: sinon.spy(function () {
+      if (errors.verifyTokens) {
+        return P.reject(errors.verifyTokens)
+      }
+      return P.resolve()
     })
   })
 }
