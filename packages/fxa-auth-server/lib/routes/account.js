@@ -213,7 +213,7 @@ module.exports = function (
               emailCode: account.emailCode,
               emailVerified: account.emailVerified,
               verifierSetAt: account.verifierSetAt,
-              createdAt: optionallyOverrideCreatedAt(),
+              createdAt: parseInt(query._createdAt),
               tokenVerificationId: tokenVerificationId
             }, userAgentString)
             .then(
@@ -235,13 +235,6 @@ module.exports = function (
                 }, 'account.verified', form.metricsContext)
               }
             )
-        }
-
-        function optionallyOverrideCreatedAt () {
-          var createdAt = parseInt(query._createdAt)
-          if (createdAt < Date.now() && ! config.isProduction) {
-            return createdAt
-          }
         }
 
         function sendVerifyCode () {

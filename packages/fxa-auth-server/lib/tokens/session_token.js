@@ -21,7 +21,12 @@ module.exports = function (log, inherits, Token) {
     this.emailVerified = !!details.emailVerified
     this.verifierSetAt = details.verifierSetAt
     this.locale = details.locale || null
-    this.accountCreatedAt = details.createdAt
+
+    if (details.createdAt > 0) {
+      this.accountCreatedAt = details.createdAt
+    } else {
+      this.accountCreatedAt = null
+    }
 
     // Tokens are considered verified if no tokenVerificationId exists
     this.tokenVerificationId = details.tokenVerificationId || null
