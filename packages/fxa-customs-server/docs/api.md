@@ -26,6 +26,7 @@ content-type of "application/json".
 * [POST /blockEmail](#post-blockemail)
 * [POST /blockIp](#post-blockip)
 * [POST /check](#post-check)
+* [POST /checkAuthenticated](#post-checkauthenticated)
 * [POST /failedLoginAttempt](#post-failedloginattempt)
 * [POST /passwordReset](#post-passwordreset)
 
@@ -141,6 +142,52 @@ before attempting this action again.
 Failing requests may be due to the following errors:
 
 * status code 400, code MissingParameters: email, ip and action are all required
+
+
+## POST /checkAuthenticated
+
+Called by the auth server before performing an authenticated action to
+check whether or not the action should be blocked.
+
+___Parameters___
+
+* action - the name of the action under consideration
+* ip - the IP address where the request originates
+* uid - account identifier
+
+### Request
+
+```sh
+curl -v \
+-H "Content-Type: application/json" \
+"http://127.0.0.1:7000/checkAuthenticated" \
+-d '{
+  "action": "devicesNotify"
+  "ip": "192.0.2.1",
+  "uid": "0b65dd742b5a415487f2108cca597044",
+}'
+```
+
+### Response
+
+Successful requests will produce a "200 OK" response with the blocking
+advice in the JSON body:
+
+```json
+{
+  "block": true,
+  "retryAfter": 86396
+}
+```
+
+`block` indicates whether or not the action should be blocked and
+`retryAfter` tells the client how long it should wait (in seconds)
+before attempting this action again.
+
+Failing requests may be due to the following errors:
+
+* status code 400, code MissingParameters: action, ip and uid are all required
+
 
 ## POST /failedLoginAttempt
 

@@ -56,7 +56,7 @@ test(
       })
       .then(function (bis) {
         x = bis
-        return mcHelper.setLimits({ blockIntervalSeconds: bis + 1 })
+        return mcHelper.setLimits({ blockIntervalSeconds: bis + 1, uidRateLimit:{} })
       })
       .then(function (settings) {
         t.equal(x + 1, settings.blockIntervalSeconds, 'helper sees the change')

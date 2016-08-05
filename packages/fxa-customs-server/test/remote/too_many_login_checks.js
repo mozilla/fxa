@@ -91,7 +91,7 @@ test(
         t.equal(res.statusCode, 200, 'returns a 200')
         t.equal(obj.block, true, 'ip is still rate limited')
 
-        // Delay ~3s for rate limit to go away
+        // Delay ~5s for rate limit to go away
         return Promise.delay(5010)
       })
       // IP should be now unblocked
@@ -157,7 +157,6 @@ test(
       })
   }
 )
-
 
 test(
   'teardown',

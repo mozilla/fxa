@@ -19,7 +19,12 @@ var config = {
     maxBadLogins: 2,
     maxBadLoginsPerIp: Number(process.env.MAX_BAD_LOGINS_PER_IP) || 3,
     ipRateLimitIntervalSeconds: Number(process.env.IP_RATE_LIMIT_INTERVAL_SECONDS) || 60 * 15,
-    ipRateLimitBanDurationSeconds: Number(process.env.IP_RATE_LIMIT_BAN_DURATION_SECONDS) || 60 * 15
+    ipRateLimitBanDurationSeconds: Number(process.env.IP_RATE_LIMIT_BAN_DURATION_SECONDS) || 60 * 15,
+    uidRateLimit: {
+      limitIntervalSeconds: Number(process.env.UID_RATE_LIMIT_INTERVAL_SECONDS) || 60 * 15,
+      banDurationSeconds: Number(process.env.UID_RATE_LIMIT_BAN_DURATION_SECONDS) || 60 * 15,
+      maxChecks: Number(process.env.UID_RATE_LIMIT) || 3
+    }
   }
 }
 

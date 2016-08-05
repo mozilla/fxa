@@ -44,6 +44,7 @@ module.exports = function createServer(config, log) {
   var IpEmailRecord = require('./ip_email_record')(limits)
   var EmailRecord = require('./email_record')(limits)
   var IpRecord = require('./ip_record')(limits)
+  var UidRecord = require('./uid_record')(limits)
 
   var handleBan = P.promisify(require('./bans/handler')(config.memcache.recordLifetimeSeconds, mc, EmailRecord, IpRecord, log))
 
@@ -156,6 +157,55 @@ module.exports = function createServer(config, log) {
             res.send({
               block: true,
               retryAfter: limits.rateLimitIntervalSeconds
+            })
+          }
+        )
+        .done(next, next)
+    }
+  )
+
+  api.post(
+    '/checkAuthenticated',
+    function (req, res, next) {
+      var action = req.body.action
+      var ip = req.body.ip
+      var uid = req.body.uid
+
+      if(!action || !ip || !uid){
+        var err = {code: 'MissingParameters', message: 'action, ip and uid are all required'}
+        log.error({op:'request.checkAuthenticated', action: action, ip: ip, uid: uid, err: err})
+        res.send(400, err)
+        return next()
+      }
+
+      mc.getAsync(uid)
+        .then(UidRecord.parse, UidRecord.parse)
+        .then(
+          function (uidRecord) {
+            var retryAfter = uidRecord.addCount(action, uid)
+
+            return setRecord(uid, uidRecord)
+              .then(
+                function () {
+                  return {
+                    block: retryAfter > 0,
+                    retryAfter: retryAfter
+                  }
+                }
+              )
+          }
+        )
+        .then(
+          function (result) {
+            log.info({ op: 'request.checkAuthenticated', block: result.block })
+            res.send(result)
+          },
+          function (err) {
+            log.error({ op: 'request.checkAuthenticated', err: err })
+            // Default is to block request on any server based error
+            res.send({
+              block: true,
+              retryAfter: limits.blockIntervalMs
             })
           }
         )

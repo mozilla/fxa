@@ -94,6 +94,26 @@ module.exports = function (fs, path, url, convict) {
         format: 'nat',
         env: 'IP_RATE_LIMIT_BAN_DURATION_SECONDS'
       },
+      uidRateLimit: {
+        limitIntervalSeconds: {
+          doc: 'Duration of automatic throttling for uids',
+          default: 60 * 15,
+          format: 'nat',
+          env: 'UID_RATE_LIMIT_INTERVAL_SECONDS'
+        },
+        banDurationSeconds: {
+          doc: 'Duration of automatic ban',
+          default: 60 * 15,
+          format: 'nat',
+          env: 'UID_RATE_LIMIT_BAN_DURATION_SECONDS'
+        },
+        maxChecks: {
+          doc: 'Number of checks within uidRateLimitBanDurationSeconds before blocking',
+          default: 100,
+          format: 'nat',
+          env: 'UID_RATE_LIMIT'
+        }
+      },
       maxAccountStatusCheck: {
         doc: 'Number of account status checks within rateLimitIntervalSeconds before throttling',
         default: 5,
