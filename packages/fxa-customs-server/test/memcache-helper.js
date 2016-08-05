@@ -86,21 +86,17 @@ function blockedIpCheck(cb) {
 
 module.exports.blockedIpCheck = blockedIpCheck
 
-function badLoginCheck(cb) {
-  setTimeout( // give memcache time to flush the writes
-    function () {
-      P.all([
-        mc.getAsync(TEST_IP + TEST_EMAIL),
-        mc.getAsync(TEST_IP)
-      ])
-      .spread(function (d1, d2) {
-        var ier = IpEmailRecord.parse(d1)
-        var ir = IpRecord.parse(d2)
-        mc.end()
-        cb(ier.isOverBadLogins(), false, ir.isOverBadLogins())
-      })
-    }
-  )
+function badLoginCheck() {
+  return P.all([
+    mc.getAsync(TEST_IP + TEST_EMAIL),
+    mc.getAsync(TEST_IP)
+  ])
+  .spread(function (d1, d2) {
+    var ipEmailRecord = IpEmailRecord.parse(d1)
+    var ipRecord = IpRecord.parse(d2)
+    mc.end()
+    return {ipEmailRecord: ipEmailRecord, ipRecord: ipRecord}
+  })
 }
 
 module.exports.badLoginCheck = badLoginCheck

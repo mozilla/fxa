@@ -4,6 +4,7 @@
 var test = require('tap').test
 var restify = require('restify')
 var TestServer = require('../test_server')
+var Promise = require('bluebird')
 var mcHelper = require('../memcache-helper')
 
 var TEST_EMAIL = 'test@example.com'
@@ -15,7 +16,14 @@ var config = {
     port: 7000
   }
 }
+
 var testServer = new TestServer(config)
+
+var client = restify.createJsonClient({
+  url: 'http://127.0.0.1:' + config.listen.port
+})
+
+Promise.promisifyAll(client, { multiArgs: true })
 
 test(
   'startup',
@@ -40,77 +48,73 @@ test(
   }
 )
 
-var client = restify.createJsonClient({
-  url: 'http://127.0.0.1:' + config.listen.port
-})
-
 test(
   'missing email',
   function (t) {
-    client.post('/blockEmail', {},
-      function (err, req, res, obj) {
-        t.equal(res.statusCode, 400, 'bad request returns a 400')
-        t.type(obj.code, 'string', 'bad request returns an error code')
-        t.type(obj.message, 'string', 'bad request returns an error message')
+    return client.postAsync('/blockEmail', {})
+      .then(function (req, res, obj) {
+        //missing parameters
+      }, function(err){
+        t.equal(err.statusCode, 400, 'bad request returns a 400')
+        t.type(err.restCode, 'string', 'bad request returns an error code')
+        t.type(err.message, 'string', 'bad request returns an error message')
         t.end()
-      }
-    )
+      })
   }
 )
-
 test(
   'well-formed request',
   function (t) {
-    client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'accountCreate' },
-      function (err, req, res, obj) {
+    return client.postAsync('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'accountCreate' })
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'check worked')
         t.equal(obj.block, false, 'request was not blocked')
 
-        client.post('/blockEmail', { email: TEST_EMAIL },
-          function (err, req, res, obj) {
-            t.notOk(err, 'block request is successful')
-            t.equal(res.statusCode, 200, 'block request returns a 200')
-            t.ok(obj, 'got an obj, make jshint happy')
+        return client.postAsync('/blockEmail', { email: TEST_EMAIL })
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'block request returns a 200')
+        t.ok(obj, 'got an obj, make jshint happy')
 
-            client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'accountCreate' },
-              function (err, req, res, obj) {
-                t.equal(res.statusCode, 200, 'check worked')
-                t.equal(obj.block, true, 'request was blocked')
-                t.end()
-              }
-            )
-          }
-        )
-      }
-    )
+        return client.postAsync('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'accountCreate' })
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'check worked')
+        t.equal(obj.block, true, 'request was blocked')
+        t.end()
+      })
+      .catch(function(err){
+        t.fail(err)
+        t.end()
+      })
   }
 )
 
 test(
   'allowed email is not blocked',
   function (t) {
-    client.post('/check', { email: ALLOWED_EMAIL, ip: TEST_IP, action: 'accountLogin' },
-      function (err, req, res, obj) {
+    return client.postAsync('/check', { email: ALLOWED_EMAIL, ip: TEST_IP, action: 'accountLogin' })
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'check worked')
         t.equal(obj.block, false, 'request was not blocked')
 
-        client.post('/blockEmail', { email: ALLOWED_EMAIL },
-          function (err, req, res, obj) {
-            t.notOk(err, 'block request is successful')
-            t.equal(res.statusCode, 200, 'block request returns a 200')
-            t.ok(obj, 'got an obj, make jshint happy')
+        return client.postAsync('/blockEmail', { email: ALLOWED_EMAIL })
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'block request returns a 200')
+        t.ok(obj, 'got an obj, make jshint happy')
 
-            client.post('/check', { email: ALLOWED_EMAIL, ip: TEST_IP, action: 'accountLogin' },
-              function (err, req, res, obj) {
-                t.equal(res.statusCode, 200, 'check worked')
-                t.equal(obj.block, false, 'request was still not blocked')
-                t.end()
-              }
-            )
-          }
-        )
-      }
-    )
+        return client.postAsync('/check', { email: ALLOWED_EMAIL, ip: TEST_IP, action: 'accountLogin' })
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'check worked')
+        t.equal(obj.block, false, 'request was still not blocked')
+        t.end()
+      })
+      .catch(function(err){
+        t.fail(err)
+        t.end()
+      })
   }
 )
 

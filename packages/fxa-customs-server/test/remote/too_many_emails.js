@@ -4,6 +4,7 @@
 var test = require('tap').test
 var restify = require('restify')
 var TestServer = require('../test_server')
+var Promise = require('bluebird')
 var mcHelper = require('../memcache-helper')
 
 var TEST_EMAIL = 'test@example.com'
@@ -19,6 +20,12 @@ var config = {
 }
 
 var testServer = new TestServer(config)
+
+var client = restify.createJsonClient({
+  url: 'http://127.0.0.1:' + config.listen.port
+})
+
+Promise.promisifyAll(client, { multiArgs: true })
 
 test(
   'startup',
@@ -43,47 +50,45 @@ test(
   }
 )
 
-var client = restify.createJsonClient({
-  url: 'http://127.0.0.1:' + config.listen.port
-})
-
 test(
   'too many sent emails',
   function (t) {
-    client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'recoveryEmailResendCode' },
-      function (err, req, res, obj) {
+    return client.postAsync('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'recoveryEmailResendCode' })
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'first email attempt')
         t.equal(obj.block, false, 'resending the code')
 
-        client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'recoveryEmailResendCode' },
-          function (err, req, res, obj) {
-            t.equal(res.statusCode, 200, 'second email attempt')
-            t.equal(obj.block, false, 'resending the code')
+        return client.postAsync('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'recoveryEmailResendCode' })
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'second email attempt')
+        t.equal(obj.block, false, 'resending the code')
 
-            client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'recoveryEmailResendCode' },
-              function (err, req, res, obj) {
-                t.equal(res.statusCode, 200, 'third email attempt')
-                t.equal(obj.block, false, 'resending the code')
+        return client.postAsync('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'recoveryEmailResendCode' })
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'third email attempt')
+        t.equal(obj.block, false, 'resending the code')
 
-                client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'recoveryEmailResendCode' },
-                  function (err, req, res, obj) {
-                    t.equal(res.statusCode, 200, 'fourth email attempt')
-                    t.equal(obj.block, true, 'operation blocked')
+        return client.postAsync('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'recoveryEmailResendCode' })
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'fourth email attempt')
+        t.equal(obj.block, true, 'operation blocked')
 
-                    mcHelper.blockedEmailCheck(
-                      function (isBlocked) {
-                        t.equal(isBlocked, true, 'account is blocked')
-                        t.end()
-                      }
-                    )
-                  }
-                )
-              }
-            )
-          }
-        )
-      }
-    )
+        return new Promise(function (resolve, reject) {
+          mcHelper.blockedEmailCheck(
+            function (isBlocked) {
+              t.equal(isBlocked, true, 'account is blocked')
+              resolve()
+            }
+          )
+        })
+      })
+      .catch(function(err){
+        t.fail(err)
+        t.end()
+      })
   }
 )
 

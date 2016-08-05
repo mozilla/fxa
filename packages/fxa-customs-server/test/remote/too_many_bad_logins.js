@@ -4,6 +4,7 @@
 var test = require('tap').test
 var restify = require('restify')
 var TestServer = require('../test_server')
+var Promise = require('bluebird')
 var mcHelper = require('../memcache-helper')
 
 var TEST_EMAIL = 'test@example.com'
@@ -19,6 +20,12 @@ var config = {
 }
 
 var testServer = new TestServer(config)
+
+var client = restify.createJsonClient({
+  url: 'http://127.0.0.1:' + config.listen.port
+})
+
+Promise.promisifyAll(client, { multiArgs: true })
 
 test(
   'startup',
@@ -43,60 +50,50 @@ test(
   }
 )
 
-var client = restify.createJsonClient({
-  url: 'http://127.0.0.1:' + config.listen.port
-})
-
 test(
   'too many failed logins from the same IP',
   function (t) {
-    client.post('/failedLoginAttempt', { email: TEST_EMAIL, ip: TEST_IP },
-      function (err, req, res, obj) {
+    return client.postAsync('/failedLoginAttempt', { email: TEST_EMAIL, ip: TEST_IP })
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'first login attempt noted')
+        return client.postAsync('/failedLoginAttempt', { email: TEST_EMAIL, ip: TEST_IP })
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'second login attempt noted')
 
-        client.post('/failedLoginAttempt', { email: TEST_EMAIL, ip: TEST_IP },
-          function (err, req, res, obj) {
-            t.equal(res.statusCode, 200, 'second login attempt noted')
+        return mcHelper.badLoginCheck()
+      })
+      .then(function(records){
+        t.equal(records.ipEmailRecord.isOverBadLogins(), false, 'is not yet over bad logins')
 
-            mcHelper.badLoginCheck(
-              function (isOverBadLogins) {
-                t.equal(isOverBadLogins, false, 'is not yet over bad logins')
+        return client.postAsync('/failedLoginAttempt', { email: TEST_EMAIL, ip: TEST_IP })
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'third login attempt noted')
 
-                client.post('/failedLoginAttempt', { email: TEST_EMAIL, ip: TEST_IP },
-                  function (err, req, res, obj) {
-                    t.equal(res.statusCode, 200, 'third login attempt noted')
-
-                    mcHelper.badLoginCheck(
-                      function (isOverBadLogins) {
-                        t.equal(isOverBadLogins, true, 'is now over bad logins')
-                        t.end()
-                      }
-                    )
-                  }
-                )
-              }
-            )
-          }
-        )
-      }
-    )
+        return mcHelper.badLoginCheck()
+      })
+      .then(function (records) {
+        t.equal(records.ipEmailRecord.isOverBadLogins(), true, 'is now over bad logins')
+      })
+      .catch(function(err){
+        t.fail(err)
+        t.end()
+      })
   }
 )
 
 test(
   'failed logins expire',
   function (t) {
-    setTimeout(
-      function () {
-        mcHelper.badLoginCheck(
-          function (isOverBadLogins) {
-            t.equal(isOverBadLogins, false, 'is no longer over bad logins')
-            t.end()
-          }
-        )
-      },
-      config.limits.rateLimitIntervalSeconds * 1000
-    )
+    return Promise.delay(config.limits.rateLimitIntervalSeconds * 1000)
+      .then(function () {
+        return mcHelper.badLoginCheck()
+      })
+      .then(function (records) {
+        t.equal(records.ipEmailRecord.isOverBadLogins(), false, 'is no longer over bad logins')
+        t.end()
+      })
   }
 )
 

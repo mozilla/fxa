@@ -4,6 +4,7 @@
 var test = require('tap').test
 var restify = require('restify')
 var TestServer = require('../test_server')
+var Promise = require('bluebird')
 var mcHelper = require('../memcache-helper')
 
 var TEST_EMAIL = 'test@example.com'
@@ -16,6 +17,12 @@ var config = {
 }
 
 var testServer = new TestServer(config)
+
+var client = restify.createJsonClient({
+  url: 'http://127.0.0.1:' + config.listen.port
+})
+
+Promise.promisifyAll(client, { multiArgs: true })
 
 test(
   'startup',
@@ -40,73 +47,72 @@ test(
   }
 )
 
-var client = restify.createJsonClient({
-  url: 'http://127.0.0.1:' + config.listen.port
-})
-
 test(
   'maximum number of emails',
   function (t) {
-    client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'accountCreate' },
-      function (err, req, res, obj) {
+    return client.postAsync('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'accountCreate' })
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'first email attempt')
         t.equal(obj.block, false, 'creating the account')
 
-        client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'recoveryEmailResendCode' },
-          function (err, req, res, obj) {
-            t.equal(res.statusCode, 200, 'second email attempt')
-            t.equal(obj.block, false, 'resending the code')
+        return client.postAsync('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'recoveryEmailResendCode' })
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'second email attempt')
+        t.equal(obj.block, false, 'resending the code')
 
-            client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'recoveryEmailResendCode' },
-              function (err, req, res, obj) {
-                t.equal(res.statusCode, 200, 'third email attempt')
-                t.equal(obj.block, false, 'resending the code')
+        return client.postAsync('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'recoveryEmailResendCode' })
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'third email attempt')
+        t.equal(obj.block, false, 'resending the code')
 
-                mcHelper.blockedEmailCheck(
-                  function (isBlocked) {
-                    t.equal(isBlocked, false, 'account is still not blocked')
-                    t.end()
-                  }
-                )
-              }
-            )
-          }
-        )
-      }
-    )
+        return new Promise(function (resolve, reject) {
+          mcHelper.blockedEmailCheck(
+            function (isBlocked) {
+              t.equal(isBlocked, false, 'account is still not blocked')
+              resolve()
+            }
+          )
+        })
+      })
+      .catch(function(err){
+        t.fail(err)
+        t.end()
+      })
   }
 )
 
 test(
   'maximum failed logins',
   function (t) {
-    client.post('/failedLoginAttempt', { email: TEST_EMAIL, ip: TEST_IP },
-      function (err, req, res, obj) {
+
+    return client.postAsync('/failedLoginAttempt', { email: TEST_EMAIL, ip: TEST_IP })
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'first login attempt noted')
         t.ok(obj, 'got an obj, make jshint happy')
 
-        client.post('/failedLoginAttempt', { email: TEST_EMAIL, ip: TEST_IP },
-          function (err, req, res, obj) {
-            t.equal(res.statusCode, 200, 'second login attempt noted')
-            t.ok(obj, 'got an obj, make jshint happy')
+        return client.postAsync('/failedLoginAttempt', { email: TEST_EMAIL, ip: TEST_IP })
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'second login attempt noted')
+        t.ok(obj, 'got an obj, make jshint happy')
 
-            mcHelper.badLoginCheck(
-              function (isOverBadLogins) {
-                t.equal(isOverBadLogins, false, 'is still not over bad logins')
+        return mcHelper.badLoginCheck()
+      })
+      .then(function (records) {
+        t.equal(records.ipEmailRecord.isOverBadLogins(), false, 'is still not over bad logins')
 
-                client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'accountLogin' },
-                  function (err, req, res, obj) {
-                    t.equal(res.statusCode, 200, 'attempting to login')
-                    t.equal(obj.block, false, 'login is not blocked')
-                    t.end()
-                  }
-                )
-              }
-            )
-          }
-        )
-      }
-    )
+        return client.postAsync('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'accountLogin' })
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'attempting to login')
+        t.equal(obj.block, false, 'login is not blocked')
+      })
+      .catch(function(err){
+        t.fail(err)
+        t.end()
+      })
   }
 )
 
