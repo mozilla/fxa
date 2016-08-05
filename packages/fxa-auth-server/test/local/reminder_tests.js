@@ -7,6 +7,7 @@ var extend = require('util')._extend
 var tap = require('tap')
 var test = tap.test
 var P = require('../../lib/promise')
+var config = require('../../config')
 
 var TEST_EMAIL = 'test@restmail.net'
 var TEST_ACCOUNT_RECORD = {
@@ -46,7 +47,7 @@ test('_processReminder sends first reminder for unverified emails', function (t)
 
   var legacyMailerLog = require('../../legacy_log')(mockLog())
   var Mailer = require('../../mailer')(legacyMailerLog)
-  var mailer = new Mailer({}, {}, {})
+  var mailer = new Mailer({}, {}, config.get('mail'))
   sandbox.stub(mailer, 'send', function (vals) {
     t.equal(vals.acceptLanguage, TEST_ACCOUNT_RECORD.locale, 'correct locale')
     t.equal(vals.uid, TEST_ACCOUNT_RECORD.uid.toString('hex'), 'correct uid')
@@ -66,7 +67,7 @@ test('_processReminder sends second reminder for unverified emails', function (t
   setup()
   var legacyMailerLog = require('../../legacy_log')(mockLog())
   var Mailer = require('../../mailer')(legacyMailerLog)
-  var mailer = new Mailer({}, {}, {})
+  var mailer = new Mailer({}, {}, config.get('mail'))
   sandbox.stub(mailer, 'send', function (vals) {
     t.equal(vals.template, 'verificationReminderSecondEmail', 'correct template')
     t.equal(vals.headers['X-Verify-Code'], TEST_ACCOUNT_RECORD.emailCode.toString('hex'), 'correct code')

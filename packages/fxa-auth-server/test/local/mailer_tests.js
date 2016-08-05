@@ -62,9 +62,22 @@ var typesContainIOSStoreLinks = [
   'postVerifyEmail'
 ]
 
+var typesContainAlternativeLinks = [
+  'postVerifyEmail',
+  'recoveryEmail',
+  'verificationReminderEmail',
+  'verifyEmail',
+  'verifyLoginEmail'
+]
+
 var typesContainLocationData = [
   'newDeviceLoginEmail',
   'verifyLoginEmail'
+]
+
+var typesContainPasswordManagerInfoLinks = [
+  'passwordResetRequiredEmail',
+  'suspiciousLocationEmail'
 ]
 
 function includes(haystack, needle) {
@@ -89,19 +102,49 @@ P.all(
           email: 'a@b.com',
           locations: [],
           service: 'service',
-          uid: 'uid',
+          uid: 'uid'
         }
 
-        var supportHtmlLink = new RegExp('<a href="' + config.get('mail').supportUrl + '" style="color: #0095dd; text-decoration: none; font-family: sans-serif;">Mozilla Support</a>')
-        var supportTextLink = config.get('mail').supportUrl
+        test(
+          'test privacy link is in email template output for ' + type,
+          function (t) {
+            var privacyLink = mailer.createPrivacyLink(type)
+
+            mailer.mailer.sendMail = function (emailConfig) {
+              t.ok(includes(emailConfig.html, privacyLink))
+              t.ok(includes(emailConfig.text, privacyLink))
+              t.end()
+            }
+            mailer[type](message)
+          }
+        )
+
+        if (includes(typesContainAlternativeLinks, type)){
+          test(
+            'test alternative link is in email template output for ' + type,
+            function (t) {
+              // Because the alternative link could be from anything, just test that
+              // it contains part of the `alternative` utm param
+              var alternativeBit = '-alternative'
+
+              mailer.mailer.sendMail = function (emailConfig) {
+                t.ok(includes(emailConfig.html, alternativeBit))
+                t.end()
+              }
+              mailer[type](message)
+            }
+          )
+        }
 
         if (includes(typesContainSupportLinks, type)) {
           test(
             'test support link is in email template output for ' + type,
             function (t) {
+              var supportTextLink = mailer.createSupportLink(type)
+
               mailer.mailer.sendMail = function (emailConfig) {
-                t.equal(!! emailConfig.html.match(supportHtmlLink), true)
-                t.equal(!! emailConfig.text.match(supportTextLink), true)
+                t.ok(includes(emailConfig.html, supportTextLink))
+                t.ok(includes(emailConfig.text, supportTextLink))
                 t.end()
               }
               mailer[type](message)
@@ -110,7 +153,7 @@ P.all(
         }
 
         if (includes(typesContainPasswordResetLinks, type)) {
-          var resetPasswordLink = mailer.createPasswordResetLink(message.email)
+          var resetPasswordLink = mailer.createPasswordResetLink(message.email, type)
 
           test(
             'reset password link is in email template output for ' + type,
@@ -126,7 +169,7 @@ P.all(
         }
 
         if (includes(typesContainPasswordChangeLinks, type)) {
-          var passwordChangeLink = mailer.createPasswordChangeLink(message.email)
+          var passwordChangeLink = mailer.createPasswordChangeLink(message.email, type)
           test(
             'password change link is in email template output for ' + type,
             function (t) {
@@ -173,13 +216,29 @@ P.all(
         }
 
         if (includes(typesContainSignInLinks, type)) {
-          var signInLink = mailer.createSignInLink(message.email)
+          var signInLink = mailer.createSignInLink(message.email, type)
           test(
             'sign in link is in email template output for ' + type,
             function (t) {
               mailer.mailer.sendMail = function (emailConfig) {
                 t.ok(includes(emailConfig.html, signInLink))
                 t.ok(includes(emailConfig.text, signInLink))
+                t.end()
+              }
+              mailer[type](message)
+            }
+          )
+        }
+
+        if (includes(typesContainPasswordManagerInfoLinks, type)) {
+          var passwordManagerInfoUrl = mailer._generateLinks(config.get('mail').passwordManagerInfoUrl, message.email, {}, type).passwordManagerInfoUrl
+
+          test(
+            'password manager info link is in email template output for ' + type,
+            function (t) {
+              mailer.mailer.sendMail = function (emailConfig) {
+                t.ok(includes(emailConfig.html, passwordManagerInfoUrl))
+                t.ok(includes(emailConfig.text, passwordManagerInfoUrl))
                 t.end()
               }
               mailer[type](message)
@@ -235,12 +294,14 @@ P.all(
           test(
             'test utm params for ' + type,
             function (t) {
-              var utmParam = '?utm_source=email&utm_medium=email&utm_campaign=fx-account-verified'
+              var syncLink = mailer._generateUTMLink(config.get('mail').syncUrl, {}, type, 'connect-device')
+              var androidLink = mailer._generateUTMLink(config.get('mail').androidUrl, {}, type, 'connect-android')
+              var iosLink = mailer._generateUTMLink(config.get('mail').iosUrl, {}, type, 'connect-ios')
 
               mailer.mailer.sendMail = function (emailConfig) {
-                t.ok(emailConfig.html.indexOf(config.get('mail').androidUrl + utmParam) > 0)
-                t.ok(emailConfig.html.indexOf(config.get('mail').iosUrl + utmParam) > 0)
-                t.ok(emailConfig.html.indexOf(config.get('mail').syncUrl + utmParam) > 0)
+                t.ok(includes(emailConfig.html, syncLink))
+                t.ok(includes(emailConfig.html, androidLink))
+                t.ok(includes(emailConfig.html, iosLink))
                 t.end()
               }
               mailer[type](message)

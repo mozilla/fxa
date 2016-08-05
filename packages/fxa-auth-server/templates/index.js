@@ -53,7 +53,7 @@ module.exports = function () {
       'password_reset',
       'password_reset_required',
       'post_verify',
-      'reset',
+      'recovery',
       'suspicious_location',
       'verification_reminder_first',
       'verification_reminder_second',
