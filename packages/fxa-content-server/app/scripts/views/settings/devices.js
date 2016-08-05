@@ -25,14 +25,14 @@ define(function (require, exports, module) {
   var FIREFOX_ANDROID_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/android/' + UTM_PARAMS;
   var FIREFOX_IOS_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/ios/' +  UTM_PARAMS;
   var FORCE_DEVICE_LIST_VIEW = 'forceDeviceList';
-  var TIMEAGO_DAYS = t('days ago');
-  var TIMEAGO_HOURS = t('hours ago');
-  var TIMEAGO_MINUTES = t('minutes ago');
-  var TIMEAGO_MONTHS = t('months ago');
-  var TIMEAGO_SECONDS = t('seconds ago');
+  var TIMEAGO_DAYS = t('Last active: days ago');
+  var TIMEAGO_HOURS = t('Last active: hours ago');
+  var TIMEAGO_MINUTES = t('Last active: minutes ago');
+  var TIMEAGO_MONTHS = t('Last active: months ago');
+  var TIMEAGO_SECONDS = t('Last active: seconds ago');
   var TIMEAGO_SUFFIX = '';
-  var TIMEAGO_WEEKS = t('weeks ago');
-  var TIMEAGO_YEARS = t('years ago');
+  var TIMEAGO_WEEKS = t('Last active: weeks ago');
+  var TIMEAGO_YEARS = t('Last active: years ago');
 
   _.extend($.timeago.settings.strings, {
     day: TIMEAGO_DAYS,
