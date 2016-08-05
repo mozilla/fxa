@@ -12,8 +12,9 @@ define(function (require, exports, module) {
 
   module.exports = {
     events: {
-      'change .show-password': 'onPasswordVisibilityChange',
-      'keyup input.password': 'onPasswordKeyUp'
+      'keyup input.password': 'onPasswordKeyUp',
+      'mousedown .show-password-label': 'onShowPasswordMouseDown',
+      'touchstart .show-password-label': 'onShowPasswordMouseDown'
     },
 
     initialize () {
@@ -34,24 +35,28 @@ define(function (require, exports, module) {
       }
     },
 
-    onPasswordVisibilityChange (event) {
-      var target = this.$(event.target);
-      this.setPasswordVisibilityFromButton(target);
+    onShowPasswordMouseDown (event) {
+      const $buttonEl = this.$(event.target).siblings('.show-password');
+      const $passwordEl = this.getAffectedPasswordInputs($buttonEl);
+
+      this.setPasswordVisibility($passwordEl, true);
+
+      // hide the password field as soon as the user
+      // lets up on the mouse or their finger.
+      const hideVisiblePasswords = () => {
+        $(this.window).off('mouseup', hideVisiblePasswords);
+        $(this.window).off('touchend', hideVisiblePasswords);
+
+        this.hideVisiblePasswords();
+      };
+
+      $(this.window).one('mouseup', hideVisiblePasswords);
+      $(this.window).one('touchend', hideVisiblePasswords);
+
 
       if (this.isInExperiment && this.isInExperiment('showPassword')) {
         this.notifier.trigger('showPassword.clicked');
       }
-
-      // for docs on aria-controls, see
-      // http://www.w3.org/TR/wai-aria/states_and_properties#aria-controls
-      var controlsSelector = '#' + target.attr('aria-controls');
-      this.focus(controlsSelector);
-    },
-
-    setPasswordVisibilityFromButton (button) {
-      var isVisible = this.$(button).is(':checked');
-      var targets = this.getAffectedPasswordInputs(button);
-      this.setPasswordVisibility(targets, isVisible);
     },
 
     getAffectedPasswordInputs (button) {
@@ -73,21 +78,6 @@ define(function (require, exports, module) {
       const $passwordEl = $(which);
       const $showPasswordEl = $passwordEl.siblings('.show-password');
 
-      // Store the cursor position before updating the element type
-      // or else the cursor is set to before the first character.
-
-      // `which` can match more than one element. If this is the case
-      // find the element that is focused.
-      let $focusedEl = $passwordEl.filter(':focus');
-      let selectionStart;
-      let selectionEnd;
-
-      if ($focusedEl.length) {
-        const focusedEl = $focusedEl.get(0);
-        selectionStart = focusedEl.selectionStart;
-        selectionEnd = focusedEl.selectionEnd;
-      }
-
       try {
         if (isVisible) {
           $passwordEl.attr('type', 'text').attr('autocomplete', 'off')
@@ -99,15 +89,11 @@ define(function (require, exports, module) {
             .removeAttr('autocorrect').removeAttr('autocapitalize');
           $showPasswordEl.removeAttr('checked');
           this.logViewEvent('password.hidden');
+          this.focus(which);
         }
       } catch (e) {
         // IE8 blows up when changing the type of the input field. Other
         // browsers might too. Ignore the error.
-      }
-
-      // Restore the cursor position if the element is in focus.
-      if ($focusedEl.length) {
-        this.placeCursorAt($focusedEl, selectionStart, selectionEnd);
       }
     },
 

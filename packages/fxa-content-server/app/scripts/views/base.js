@@ -395,34 +395,8 @@ define(function (require, exports, module) {
           linkContainer.addClass('centered');
         }
       }
-      // make a huge assumption and say if the device does not have touch,
-      // it's a desktop device and autofocus can be applied without
-      // hiding part of the view. The no-touch class is added by
-      // startup-styles
-      if ($('html').hasClass('no-touch')) {
-        var autofocusEl = this.$('[autofocus]');
-        if (! autofocusEl.length) {
-          return;
-        }
 
-        var self = this;
-        var attemptFocus = function () {
-          if (autofocusEl.is(':focus')) {
-            return;
-          }
-          self.focus(autofocusEl);
-
-          // only elements that are visible can be focused. When embedded in
-          // about:accounts, the content is hidden when the first "focus" is
-          // done. Keep trying to focus until the element is actually focused,
-          // and then stop trying.
-          if (! autofocusEl.is(':visible')) {
-            self.setTimeout(attemptFocus, 50);
-          }
-        };
-
-        attemptFocus();
-      }
+      this.focusAutofocusElement();
     },
 
     destroy: function (remove) {
@@ -679,22 +653,58 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Safely focus an element
+     * Focus the element with the [autofocus] attribute, if not a touch device.
+     * Focusing an element on a touch device causes the virtual keyboard to
+     * be displayed, which hides part of the screen.
+     */
+    focusAutofocusElement () {
+      // make a huge assumption and say if the device does not have touch,
+      // it's a desktop device and autofocus can be applied without
+      // hiding part of the view. The no-touch class is added by
+      // startup-styles
+      const $autofocusEl = this.$('[autofocus]');
+      if (! $('html').hasClass('no-touch') || ! $autofocusEl.length) {
+        return;
+      }
+
+      const attemptFocus = () => {
+        if ($autofocusEl.is(':focus')) {
+          return;
+        }
+
+        // only elements that are visible can be focused. When embedded in
+        // about:accounts, the content is hidden when the first "focus" is
+        // done. Keep trying to focus until the element is actually focused,
+        // and then stop trying.
+        if (! $autofocusEl.is(':visible')) {
+          this.setTimeout(attemptFocus, 50);
+          return;
+        }
+
+        this.focus($autofocusEl);
+      };
+
+      attemptFocus();
+    },
+
+    /**
+     * Safely focus an element. Only sets focus on non-touch devices.
+     * Focusing an element on a touch device causes the virtual keyboard to
+     * be displayed, which hides part of the screen.
      *
      * @param {String} which
      */
     focus (which) {
-      try {
-        const focusEl = this.$(which);
-        // place the cursor at the end of the input when the
-        // element is focused.
-        var self = this;
-        focusEl.one('focus', function () {
-          self.placeCursorAt(this, this.value.length);
-        });
-        focusEl.get(0).focus();
-      } catch (e) {
-        // IE can blow up if the element is not visible.
+      if ($('html').hasClass('no-touch')) {
+        try {
+          const focusEl = this.$(which);
+          // place the cursor at the end of the input when the
+          // element is focused.
+          focusEl.one('focus', () => this.placeCursorAt(focusEl));
+          focusEl.get(0).focus();
+        } catch (e) {
+          // IE can blow up if the element is not visible.
+        }
       }
     },
 
@@ -702,10 +712,10 @@ define(function (require, exports, module) {
      * Place the cursor at the given position within the input element
      *
      * @param {selector | element} which
-     * @param {number} selectionStart - defaults to 0.
+     * @param {number} selectionStart - defaults to after the last character.
      * @param {number} selectionEnd - defaults to selectionStart.
      */
-    placeCursorAt (which, selectionStart = 0, selectionEnd = selectionStart) {
+    placeCursorAt (which, selectionStart = $(which).val().length, selectionEnd = selectionStart) {
       const el = $(which).get(0);
 
       try {

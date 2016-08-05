@@ -5,7 +5,6 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
   var Account = require('models/account');
   var AuthErrors = require('lib/auth-errors');
   var Backbone = require('backbone');
@@ -521,27 +520,6 @@ define(function (require, exports, module) {
         assert.isTrue(view.navigate.calledWith('reset_password', {
           forceEmail: email
         }));
-      });
-    });
-
-    describe('password visibility', function () {
-      beforeEach(function () {
-        isEmailRegistered = true;
-
-        return view.render()
-          .then(function () {
-            $('#container').html(view.el);
-          });
-      });
-
-      describe('clicking the show button', function () {
-        it('toggles the password visibility state', function () {
-          view.$('.show-password').click();
-          assert.equal(view.$('#password').attr('type'), 'text');
-
-          view.$('#show-password').click();
-          assert.equal(view.$('#password').attr('type'), 'password');
-        });
       });
     });
 

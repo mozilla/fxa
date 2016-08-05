@@ -17,6 +17,7 @@ define(function (require, exports, module) {
   const sinon = require('sinon');
   const TestHelpers = require('../../../lib/helpers');
   const TestTemplate = require('stache!templates/test_template');
+  const WindowMock = require('../../../mocks/window');
 
   const PasswordView = BaseView.extend({
     template: TestTemplate
@@ -32,16 +33,19 @@ define(function (require, exports, module) {
     let metrics;
     let relier;
     let view;
+    let windowMock;
 
     beforeEach(function () {
       relier = new Relier();
       metrics = new Metrics();
+      windowMock = new WindowMock();
 
       view = new PasswordView({
         metrics: metrics,
         notifier: new Notifier(),
         relier: relier,
-        viewName: 'password-view'
+        viewName: 'password-view',
+        window: windowMock
       });
 
       return view.render()
@@ -95,7 +99,7 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('onPasswordVisibilityChange', function () {
+    describe('onPasswordMouseDown', function () {
       it('tracks the experiment click ', function () {
         sinon.stub(view, 'isInExperiment', function () {
           return true;
@@ -107,7 +111,7 @@ define(function (require, exports, module) {
         sinon.spy(view.notifier, 'trigger');
 
         view.afterVisible();
-        view.$('.show-password').trigger('change');
+        view.$('.show-password-label').trigger('mousedown');
         assert.isTrue(view.notifier.trigger.calledWith('showPassword.clicked'));
       });
     });
@@ -117,27 +121,11 @@ define(function (require, exports, module) {
         const $passwordEl = view.$('#password');
         $passwordEl.val('password').focus();
 
-        const selectionStart = 1;
-        const selectionEnd = 2;
-
-        const passwordEl = $passwordEl.get(0);
-        passwordEl.selectionStart = selectionStart;
-        passwordEl.selectionEnd = selectionEnd;
-
         view.setPasswordVisibility('#password', true);
 
         assert.equal($passwordEl.attr('type'), 'text');
         assert.equal($passwordEl.attr('autocapitalize'), 'off');
         assert.equal($passwordEl.attr('autocorrect'), 'off');
-
-        // Ensure the cursor is replaced to its original position.
-        // Only make the check if the document has focus, otherwise
-        // the test fails. Document may not have focus if the dev
-        // clicks out of the test window or when run in PhantomJS.
-        TestHelpers.ifDocumentFocused(() => {
-          assert.equal(passwordEl.selectionStart, selectionStart);
-          assert.equal(passwordEl.selectionEnd, selectionEnd);
-        });
 
         // Ensure the show password state stays in sync
         const $showPasswordEl = $passwordEl.siblings('.show-password');
@@ -158,20 +146,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('setPasswordVisibilityFromButton', function () {
-      it('sets the password field to type=text if button is checked', function () {
-        view.$('#show-password').attr('checked', 'checked');
-        view.setPasswordVisibilityFromButton('#show-password');
-        assert.equal(view.$('#password').attr('type'), 'text');
-      });
-
-      it('sets the password field to type=password if button is unchecked', function () {
-        view.$('#show-password').removeAttr('checked');
-        view.setPasswordVisibilityFromButton('#show-password');
-        assert.equal(view.$('#password').attr('type'), 'password');
-      });
-    });
-
     describe('clicking on unsynched/synched show buttons', function () {
       it('gets password inputs to be shown', function () {
         let targets = view.getAffectedPasswordInputs('#show-password');
@@ -183,29 +157,48 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('clicking on the show button', function () {
-      it('pw field set to text when clicked', function () {
-        view.$('.show-password').click();
-        assert.equal(view.$('#password').attr('type'), 'text');
-        assert.equal(view.$('#vpassword').attr('type'), 'text');
+    describe('show button', () => {
+      describe('with mouse events', () => {
+        it('pw field set to text on mousedown', () => {
+          view.$('.show-password-label').trigger('mousedown');
+          assert.equal(view.$('#password').attr('type'), 'text');
+          assert.equal(view.$('#vpassword').attr('type'), 'text');
+        });
+
+        it('pw field set to password on mouseup', () => {
+          view.$('.show-password-label').trigger('mousedown');
+          $(windowMock).trigger('mouseup');
+
+          assert.equal(view.$('#password').attr('type'), 'password');
+          assert.equal(view.$('#vpassword').attr('type'), 'password');
+        });
       });
 
-      it('pw field set to password when clicked again', function () {
-        view.$('.show-password').click();
-        view.$('.show-password').click();
-        assert.equal(view.$('#password').attr('type'), 'password');
-        assert.equal(view.$('#vpassword').attr('type'), 'password');
+      describe('with touch events', () => {
+        it('pw field set to text on touchstart', () => {
+          view.$('.show-password-label').trigger('touchstart');
+          assert.equal(view.$('#password').attr('type'), 'text');
+          assert.equal(view.$('#vpassword').attr('type'), 'text');
+        });
+
+        it('pw field set to password on touchend', () => {
+          view.$('.show-password-label').trigger('touchstart');
+          $(windowMock).trigger('touchend');
+
+          assert.equal(view.$('#password').attr('type'), 'password');
+          assert.equal(view.$('#vpassword').attr('type'), 'password');
+        });
       });
 
       it('logs whether the password is shown or hidden', function () {
-        view.$('.show-password').click();
+        view.$('.show-password-label').trigger('mousedown');
         assert.isTrue(TestHelpers.isEventLogged(metrics,
                           'password-view.password.visible'));
         // the password has not been hidden yet.
         assert.isFalse(TestHelpers.isEventLogged(metrics,
                           'password-view.password.hidden'));
 
-        view.$('.show-password').click();
+        $(windowMock).trigger('mouseup');
         assert.isTrue(TestHelpers.isEventLogged(metrics,
                           'password-view.password.hidden'));
       });

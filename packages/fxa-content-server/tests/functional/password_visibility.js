@@ -5,13 +5,18 @@
 define([
   'intern',
   'intern!object',
-  'intern/chai!assert',
-  'require',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, FunctionalHelpers) {
+], function (intern, registerSuite, FunctionalHelpers) {
   var config = intern.config;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
-  var SYNC_SIGNIN_URL = config.fxaContentRoot + 'signin?service=sync&context=fx_desktop_v1';
+
+  var thenify = FunctionalHelpers.thenify;
+
+  var mousedown = FunctionalHelpers.mousedown;
+  var mouseup = FunctionalHelpers.mouseup;
+  var openPage = thenify(FunctionalHelpers.openPage);
+  var testAttributeEquals = FunctionalHelpers.testAttributeEquals;
+  var type = FunctionalHelpers.type;
 
   registerSuite({
     name: 'password visibility',
@@ -20,98 +25,22 @@ define([
       return FunctionalHelpers.clearBrowserState(this);
     },
 
-    afterEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
-    },
-
-    'toggle show password for normal RP': function () {
-      this.remote.get(require.toUrl(SIGNIN_URL))
-        .findByCssSelector('#fxa-signin-header')
-        .end()
-
-        .findByCssSelector('#password')
-          .click()
-          .type('password')
-        .end()
+    'show password ended with mouseup': function () {
+      return this.remote
+        .then(openPage(this, SIGNIN_URL, '#fxa-signin-header'))
+        .then(type('#password', 'password'))
 
         // turn it into a text field
-        .findByCssSelector('.show-password-label')
-          .click()
-        .end()
+        .then(mousedown('.show-password-label'))
 
-        .findByCssSelector('#password')
-          .getAttribute('type')
-          .then(function (typeValue) {
-            assert.equal(typeValue, 'text');
-          })
-
-          .getAttribute('autocomplete')
-          .then(function (autocompleteValue) {
-            assert.equal(autocompleteValue, 'off');
-          })
-        .end()
+        .then(testAttributeEquals('#password', 'type', 'text'))
+        .then(testAttributeEquals('#password', 'autocomplete', 'off'))
 
         // turn it back into a password field
-        .findByCssSelector('.show-password-label')
-          .click()
-        .end()
+        .then(mouseup('.show-password-label'))
 
-        .findByCssSelector('#password')
-          .getAttribute('type')
-          .then(function (typeValue) {
-            assert.equal(typeValue, 'password');
-          })
-
-          .getAttribute('autocomplete')
-          .then(function (autocompleteValue) {
-            assert.isNull(autocompleteValue);
-          })
-        .end();
-    },
-
-    'toggle show password for Sync': function () {
-      this.remote.get(require.toUrl(SYNC_SIGNIN_URL))
-        .findByCssSelector('#fxa-signin-header')
-        .end()
-
-        .findByCssSelector('#password')
-          .click()
-          .type('password')
-        .end()
-
-        // turn it into a text field
-        .findByCssSelector('.show-password-label')
-          .click()
-        .end()
-
-        .findByCssSelector('#password')
-          .getAttribute('type')
-          .then(function (typeValue) {
-            assert.equal(typeValue, 'text');
-          })
-
-          .getAttribute('autocomplete')
-          .then(function (autocompleteValue) {
-            assert.equal(autocompleteValue, 'off');
-          })
-        .end()
-
-        // turn it back into a password field
-        .findByCssSelector('.show-password-label')
-          .click()
-        .end()
-
-        .findByCssSelector('#password')
-          .getAttribute('type')
-          .then(function (typeValue) {
-            assert.equal(typeValue, 'password');
-          })
-
-          .getAttribute('autocomplete')
-          .then(function (autocompleteValue) {
-            assert.equal(autocompleteValue, 'off');
-          })
-        .end();
+        .then(testAttributeEquals('#password', 'type', 'password'))
+        .then(testAttributeEquals('#password', 'autocomplete', null));
     }
   });
 });

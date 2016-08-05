@@ -799,6 +799,27 @@ define([
     startListening();
   }
 
+  function mouseevent(eventType) {
+    return function (selector) {
+      return function () {
+        return this.parent
+          .execute(function (selector, eventType) {
+            var target = selector ? document.querySelector(selector) : window;
+            var event = new MouseEvent(eventType, {
+              bubbles: true,
+              cancelable: true,
+              view: window
+            });
+            target.dispatchEvent(event);
+          }, [ selector, eventType ]);
+      };
+    };
+  }
+
+  var mousedown = mouseevent('mousedown');
+  var mouseout = mouseevent('mouseout');
+  var mouseup = mouseevent('mouseup');
+
   function respondToWebChannelMessage(context, expectedCommand, response) {
     return function () {
       return getRemote(context)
@@ -1326,7 +1347,7 @@ define([
     return function () {
       return this.parent
         .findByCssSelector(selector)
-          .getAtribute(attributeName)
+          .getAttribute(attributeName)
           .then(function (attributeValue) {
             assert[assertion](attributeValue, value);
           })
@@ -1406,6 +1427,10 @@ define([
     getVerificationLink: getVerificationLink,
     imageLoadedByQSA: imageLoadedByQSA,
     listenForWebChannelMessage: listenForWebChannelMessage,
+    mousedown: mousedown,
+    mouseevent: mouseevent,
+    mouseout: mouseout,
+    mouseup: mouseup,
     noEmailExpected: noEmailExpected,
     noPageTransition: noPageTransition,
     noSuchBrowserNotification: noSuchBrowserNotification,
