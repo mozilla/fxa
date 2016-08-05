@@ -340,6 +340,80 @@ test(
 )
 
 test(
+  'can rate limit devicesNotify /checkAuthenticated',
+  function (t) {
+    t.plan(18)
+
+    customsWithUrl = new Customs(CUSTOMS_URL_REAL)
+
+    t.ok(customsWithUrl, 'can rate limit /checkAuthenticated')
+
+    var request = newRequest()
+    var action = 'devicesNotify'
+    var ip = request.app.clientAddress
+    var uid = 'foo'
+
+    function checkRequestBody (body) {
+      t.deepEqual(body, {
+         action: action,
+         ip: ip,
+         uid: uid,
+      }, 'call to /checkAuthenticated had expected request params')
+      return true
+    }
+
+    customsServer
+      .post('/checkAuthenticated', checkRequestBody).reply(200, '{"block":false,"retryAfter":0}')
+      .post('/checkAuthenticated', checkRequestBody).reply(200, '{"block":false,"retryAfter":0}')
+      .post('/checkAuthenticated', checkRequestBody).reply(200, '{"block":false,"retryAfter":0}')
+      .post('/checkAuthenticated', checkRequestBody).reply(200, '{"block":false,"retryAfter":0}')
+      .post('/checkAuthenticated', checkRequestBody).reply(200, '{"block":false,"retryAfter":0}')
+      .post('/checkAuthenticated', checkRequestBody).reply(200, '{"block":true,"retryAfter":10001}')
+
+    return customsWithUrl.checkAuthenticated(action, ip, uid)
+      .then(function(result) {
+        t.equal(result, undefined, 'Nothing is returned when /checkAuthenticated succeeds - 1')
+        return customsWithUrl.checkAuthenticated(action, ip, uid)
+      }, function(error) {
+        t.fail('We should not have failed here for /checkAuthenticated : err=' + error)
+      })
+      .then(function(result) {
+        t.equal(result, undefined, 'Nothing is returned when /checkAuthenticated succeeds - 2')
+        return customsWithUrl.checkAuthenticated(action, ip, uid)
+      }, function(error) {
+        t.fail('We should not have failed here for /checkAuthenticated : err=' + error)
+      })
+      .then(function(result) {
+        t.equal(result, undefined, 'Nothing is returned when /checkAuthenticated succeeds - 3')
+        return customsWithUrl.checkAuthenticated(action, ip, uid)
+      }, function(error) {
+        t.fail('We should not have failed here for /checkAuthenticated : err=' + error)
+      })
+      .then(function(result) {
+        t.equal(result, undefined, 'Nothing is returned when /checkAuthenticated succeeds - 4')
+        return customsWithUrl.checkAuthenticated(action, ip, uid)
+      }, function(error) {
+        t.fail('We should not have failed here for /checkAuthenticated : err=' + error)
+      })
+      .then(function() {
+        // request is blocked
+        return customsWithUrl.checkAuthenticated(action, ip, uid)
+      })
+      .then(function() {
+        t.fail('This should have failed the check since it should be blocked')
+      }, function(error) {
+        t.pass('Since we faked a block, we should have arrived here')
+        t.equal(error.errno, 114, 'Error number is correct')
+        t.equal(error.message, 'Client has sent too many requests', 'Error message is correct')
+        t.ok(error.isBoom, 'The error causes a boom')
+        t.equal(error.output.statusCode, 429, 'Status Code is correct')
+        t.equal(error.output.payload.retryAfter, 10001, 'retryAfter is correct')
+        t.equal(error.output.headers['retry-after'], 10001, 'retryAfter header is correct')
+      })
+  }
+)
+
+test(
   'can scrub customs request object',
   function (t) {
     t.plan(3)

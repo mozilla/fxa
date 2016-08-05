@@ -957,6 +957,7 @@ module.exports = function (
         var body = request.payload
         var sessionToken = request.auth.credentials
         var uid = sessionToken.uid
+        var ip = request.app.clientAddress
         var payload = body.payload
 
         if (!validatePushPayload(payload)) {
@@ -971,13 +972,23 @@ module.exports = function (
         if (body.TTL) {
           pushOptions.TTL = body.TTL
         }
-        if (body.to === 'all') {
-          push.pushToAllDevices(uid, 'devicesNotify', pushOptions)
-        } else {
-          push.pushToDevices(uid, body.to, 'devicesNotify', pushOptions)
-        }
 
-        reply({})
+        var endpointAction = 'devicesNotify'
+        var stringUid = uid.toString('hex')
+        return customs.checkAuthenticated(endpointAction, ip, stringUid)
+          .then(function () {
+            if (body.to === 'all') {
+              return push.pushToAllDevices(uid, endpointAction, pushOptions)
+            } else {
+              return push.pushToDevices(uid, body.to, endpointAction, pushOptions)
+            }
+          })
+          .done(
+            function () {
+              reply({})
+            },
+            reply
+          )
       }
     },
     {

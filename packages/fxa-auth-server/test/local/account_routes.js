@@ -392,7 +392,7 @@ test('/account/device', function (t) {
 })
 
 test('/account/devices/notify', function (t) {
-  t.plan(4)
+  t.plan(5)
   var config = {}
   var uid = uuid.v4('binary')
   var mockRequest = mocks.mockRequest({
@@ -417,8 +417,15 @@ test('/account/devices/notify', function (t) {
       }
     }
   }
+  var sandbox = sinon.sandbox.create()
+  var mockCustoms = {
+    checkAuthenticated: sandbox.spy(function () {
+      return P.resolve()
+    })
+  }
   var accountRoutes = makeRoutes({
     config: config,
+    customs: mockCustoms,
     push: mockPush
   }, {
     ajv: mockAjv
@@ -450,6 +457,7 @@ test('/account/devices/notify', function (t) {
       payload: pushPayload
     }
     return runTest(route, mockRequest, function (response) {
+      t.equal(mockCustoms.checkAuthenticated.callCount, 1, 'mockCustoms.checkAuthenticated was called once')
       t.equal(mockPush.pushToAllDevices.callCount, 1, 'mockPush.pushToAllDevices was called once')
       var args = mockPush.pushToAllDevices.args[0]
       t.equal(args.length, 3, 'mockPush.pushToAllDevices was passed three arguments')
@@ -464,12 +472,14 @@ test('/account/devices/notify', function (t) {
   })
 
   t.test('specific devices', function (t) {
+    mockCustoms.checkAuthenticated.reset()
     mockRequest.payload = {
       to: ['bogusid1', 'bogusid2'],
       TTL: 60,
       payload: pushPayload
     }
     return runTest(route, mockRequest, function (response) {
+      t.equal(mockCustoms.checkAuthenticated.callCount, 1, 'mockCustoms.checkAuthenticated was called once')
       t.equal(mockPush.pushToDevices.callCount, 1, 'mockPush.pushToDevices was called once')
       var args = mockPush.pushToDevices.args[0]
       t.equal(args.length, 4, 'mockPush.pushToDevices was passed four arguments')
@@ -498,6 +508,25 @@ test('/account/devices/notify', function (t) {
     .catch(function (err) {
       t.equal(err.output.statusCode, 503, 'correct status code is returned')
       t.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED, 'correct errno is returned')
+    })
+  })
+
+  t.test('throws error if customs blocked the request', function (t) {
+    config.deviceNotificationsEnabled = true
+
+    mockCustoms = {
+      checkAuthenticated: sandbox.spy(function () {
+        throw error.tooManyRequests(1)
+      })
+    }
+    route = getRoute(makeRoutes({customs: mockCustoms}), '/account/devices/notify')
+
+    return runTest(route, mockRequest, function (response) {
+      t.fail('should have thrown')
+    })
+    .catch(function (err) {
+      t.equal(mockCustoms.checkAuthenticated.callCount, 1, 'mockCustoms.checkAuthenticated was called once')
+      t.equal(err.message, 'Client has sent too many requests')
     })
   })
 })

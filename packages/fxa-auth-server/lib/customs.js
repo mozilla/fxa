@@ -66,6 +66,36 @@ module.exports = function (log, error) {
     )
   }
 
+  Customs.prototype.checkAuthenticated = function (action, ip, uid) {
+    log.trace({ op: 'customs.checkAuthenticated', action: action,  uid: uid })
+
+    return this.pool.post(
+      '/checkAuthenticated',
+      {
+        action: action,
+        ip: ip,
+        uid: uid
+      }
+    )
+    .then(
+      function (result) {
+        if (result.block) {
+          if (result.retryAfter) {
+            throw error.tooManyRequests(result.retryAfter)
+          }
+          throw error.requestBlocked()
+        }
+      },
+      function (err) {
+        log.error({ op: 'customs.checkAuthenticated', uid: uid, action: action, err: err })
+        // If this happens, either:
+        // - (1) the url in config doesn't point to a real customs server
+        // - (2) the customs server returned an internal server error
+        // Either way, allow the request through so we fail open.
+      }
+    )
+  }
+
   Customs.prototype.flag = function (ip, info) {
     var email = info.email
     var errno = info.errno || error.ERRNO.UNEXPECTED_ERROR
