@@ -127,6 +127,7 @@ define(function (require, exports, module) {
       it('adds new device to list', function () {
         assert.lengthOf(view.$('li.device'), 3);
         assert.include(view.$('#device-3 .device-name').text().trim(), 'delta');
+        assert.include(view.$('#device-3 .device-name').attr('title'), 'delta', 'the title attr is correct');
         assert.isTrue(view.$('#device-3 .last-connected').text().trim().indexOf('Last active:') === 0, 'formats last active string');
         assert.isTrue(view.$('#device-3 .last-connected').text().trim().indexOf('years ago') >= 0, 'formats connected date');
       });
