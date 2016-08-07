@@ -12,20 +12,24 @@ var P = require('../lib/promise')
 var crypto = require('crypto')
 
 var DB_METHOD_NAMES = ['account', 'createAccount', 'createDevice', 'createKeyFetchToken',
-                       'createSessionToken', 'devices', 'deleteAccount', 'deleteDevice',
-                       'deletePasswordChangeToken', 'deleteVerificationReminder', 'emailRecord', 'resetAccount', 'sessions',
-                       'updateDevice', 'verifyTokens', 'verifyEmail']
+                       'createPasswordForgotToken', 'createSessionToken', 'deleteAccount',
+                       'deleteDevice', 'deleteKeyFetchToken', 'deletePasswordChangeToken',
+                       'deleteVerificationReminder', 'devices', 'emailRecord', 'resetAccount',
+                       'sessions', 'sessionTokenWithVerificationStatus', 'updateDevice',
+                       'verifyEmail', 'verifyTokens']
 
-var LOG_METHOD_NAMES = ['trace', 'increment', 'info', 'error', 'begin', 'warn',
-                        'activityEvent', 'event', 'timing']
+var LOG_METHOD_NAMES = ['trace', 'increment', 'info', 'error', 'begin', 'warn', 'timing',
+                        'activityEvent', 'notifyAttachedServices']
 
 var MAILER_METHOD_NAMES = ['sendVerifyCode', 'sendVerifyLoginEmail',
                            'sendNewDeviceLoginNotification', 'sendPasswordChangedNotification',
                            'sendPostVerifyEmail']
 
-var METRICS_CONTEXT_METHOD_NAMES = ['add', 'validate']
+var METRICS_CONTEXT_METHOD_NAMES = ['stash', 'gather', 'validate']
 
-var PUSH_METHOD_NAMES = ['notifyDeviceConnected', 'notifyDeviceDisconnected', 'notifyUpdate']
+var PUSH_METHOD_NAMES = ['notifyDeviceConnected', 'notifyDeviceDisconnected', 'notifyUpdate',
+                         'pushToAllDevices', 'pushToDevices', 'notifyPasswordChanged',
+                         'notifyPasswordReset']
 
 module.exports = {
   mockDB: mockDB,
@@ -45,6 +49,8 @@ function mockDB (data, errors) {
     account: sinon.spy(function () {
       return P.resolve({
         email: data.email,
+        emailCode: data.emailCode,
+        emailVerified: data.emailVerified,
         uid: data.uid,
         verifierSetAt: Date.now()
       })
@@ -53,7 +59,9 @@ function mockDB (data, errors) {
       return P.resolve({
         uid: data.uid,
         email: data.email,
-        emailVerified: data.emailVerified
+        emailCode: data.emailCode,
+        emailVerified: data.emailVerified,
+        wrapWrapKb: data.wrapWrapKb
       })
     }),
     createDevice: sinon.spy(function () {
@@ -67,7 +75,17 @@ function mockDB (data, errors) {
     }),
     createKeyFetchToken: sinon.spy(function () {
       return P.resolve({
-        data: crypto.randomBytes(32)
+        data: crypto.randomBytes(32),
+        tokenId: data.keyFetchTokenId,
+        uid: data.uid
+      })
+    }),
+    createPasswordForgotToken: sinon.spy(function () {
+      return P.resolve({
+        data: crypto.randomBytes(32),
+        passCode: data.passCode,
+        tokenId: data.passwordForgotTokenId,
+        uid: data.uid
       })
     }),
     createSessionToken: sinon.spy(function () {
@@ -78,6 +96,7 @@ function mockDB (data, errors) {
         lastAuthAt: function () {
           return Date.now()
         },
+        tokenId: data.sessionTokenId,
         tokenVerificationId: data.tokenVerificationId,
         tokenVerified: ! data.tokenVerificationId,
         uid: data.uid
@@ -86,15 +105,13 @@ function mockDB (data, errors) {
     devices: sinon.spy(function () {
       return P.resolve([])
     }),
-    deleteVerificationReminder: sinon.spy(function () {
-      return P.resolve()
-    }),
     emailRecord: sinon.spy(function () {
       if (errors.emailRecord) {
         return P.reject(errors.emailRecord)
       }
       return P.resolve({
         authSalt: crypto.randomBytes(32),
+        createdAt: data.createdAt || Date.now(),
         data: crypto.randomBytes(32),
         email: data.email,
         emailVerified: data.emailVerified,
@@ -112,10 +129,10 @@ function mockDB (data, errors) {
     updateDevice: sinon.spy(function (uid, sessionTokenId, device) {
       return P.resolve(device)
     }),
-    verifyEmail: sinon.spy(function () {
-      return P.resolve()
-    }),
     verifyTokens: sinon.spy(function () {
+      if (errors.verifyTokens) {
+        return P.reject(errors.verifyTokens)
+      }
       return P.resolve()
     })
   })
@@ -168,7 +185,8 @@ function spyLog (methods) {
 function mockRequest (data) {
   return {
     app: {
-      acceptLangage: 'en-US'
+      acceptLangage: 'en-US',
+      clientAddress: '8.8.8.8'
     },
     auth: {
       credentials: data.credentials

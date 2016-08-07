@@ -50,15 +50,12 @@ module.exports = function (
         var oldAuthPW = Buffer(form.oldAuthPW, 'hex')
 
         customs.check(
-          request.app.clientAddress,
+          request,
           form.email,
           'passwordChange')
           .then(db.emailRecord.bind(db, form.email))
           .then(
             function (emailRecord) {
-              if (emailRecord.lockedAt) {
-                throw error.lockedAccount()
-              }
               return checkPassword(emailRecord, oldAuthPW, request.app.clientAddress)
               .then(
                 function (match) {
@@ -150,9 +147,11 @@ module.exports = function (
         var sessionTokenId = request.payload.sessionToken
         var password = new Password(authPW, authSalt, verifierVersion)
         var wantsKeys = requestHelper.wantsKeys(request)
-        var account, verifyHash, sessionToken, keyFetchToken, verifiedStatus
+        var account, verifyHash, sessionToken, keyFetchToken, verifiedStatus,
+            devicesToNotify
 
         getSessionVerificationStatus()
+          .then(fetchDevicesToNotify)
           .then(changePassword)
           .then(notifyAccount)
           .then(createSessionToken)
@@ -162,15 +161,22 @@ module.exports = function (
 
         function getSessionVerificationStatus() {
           if (sessionTokenId) {
-            return Tokens.SessionToken.fromHex(sessionTokenId)
-              .then(
-                function (tokenData) {
-                  return tokenData.tokenId
-                }
-              )
-              .then(
-                function (tokenId) {
-                  return db.sessionTokenWithVerificationStatus(tokenId)
+            var tokenId = Buffer(sessionTokenId, 'hex')
+            return db.sessionTokenWithVerificationStatus(tokenId)
+              .catch(
+                function (err) {
+                  // Older versions of content-server passed the raw token data
+                  // rather than the id; handle both for b/w compatibility.
+                  if (err.errno !== error.ERRNO.INVALID_TOKEN) {
+                    throw err
+                  }
+                  return Tokens.SessionToken.fromHex(sessionTokenId)
+                    .then(
+                      function (tokenData) {
+                        tokenId = tokenData.tokenId
+                        return db.sessionTokenWithVerificationStatus(tokenId)
+                      }
+                    )
                 }
               )
               .then(
@@ -189,6 +195,17 @@ module.exports = function (
             verifiedStatus = true
             return P.resolve()
           }
+        }
+
+        function fetchDevicesToNotify() {
+          // We fetch the devices to notify before changePassword() because
+          // db.resetAccount() deletes all the devices saved in the account.
+          return db.devices(passwordChangeToken.uid)
+            .then(
+              function(devices) {
+                devicesToNotify = devices
+              }
+            )
         }
 
         function changePassword() {
@@ -221,8 +238,10 @@ module.exports = function (
         }
 
         function notifyAccount() {
-          // Notify all devices that the account has changed.
-          push.notifyUpdate(passwordChangeToken.uid, 'passwordChange')
+          if (devicesToNotify) {
+            // Notify the devices that the account has changed.
+            push.notifyPasswordChanged(passwordChangeToken.uid, devicesToNotify)
+          }
 
           return db.account(passwordChangeToken.uid)
             .then(
@@ -259,6 +278,8 @@ module.exports = function (
 
         function createKeyFetchToken() {
           if (wantsKeys) {
+            // Create a verified keyFetchToken. This is deliberately verified because we don't
+            // want to perform an email confirmation loop.
             return db.createKeyFetchToken({
                 uid: account.uid,
                 kA: account.kA,
@@ -321,12 +342,15 @@ module.exports = function (
         var email = request.payload.email
         var service = request.payload.service || request.query.service
         customs.check(
-          request.app.clientAddress,
+          request,
           email,
           'passwordForgotSendCode')
           .then(db.emailRecord.bind(db, email))
           .then(
             function (emailRecord) {
+              // The token constructor sets createdAt from its argument.
+              // Clobber the timestamp to prevent prematurely expired tokens.
+              emailRecord.createdAt = undefined
               return db.createPasswordForgotToken(emailRecord)
             }
           )
@@ -393,7 +417,7 @@ module.exports = function (
         var passwordForgotToken = request.auth.credentials
         var service = request.payload.service || request.query.service
         customs.check(
-          request.app.clientAddress,
+          request,
           passwordForgotToken.email,
           'passwordForgotResendCode')
           .then(

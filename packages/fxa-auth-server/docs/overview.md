@@ -32,6 +32,56 @@ We log several events for analytical and metrics purposes:
 
 ### Activity Events
 
-* account.created - Account is created
-* account.signed - [Certificate Signed](api.md#post-v1certificatesign)
+We emit activity events for metrics purposes.
+These events contain the `uid` of the account to be able to better understand new user activity.
+In addition these events have a `metricsContext` that contains the user agent, `utm_*` parameters and the specific metrics `flowId`.
+The activity events respect the `dnt` "Do not track" header and do not send `utm_*` parameters if the header is set.
+
+#### Available events
+
+* account.created - [Account is created](api.md#post-v1accountcreate)
+* account.verified - [Account is verified](api.md#post-v1recovery_emailverify_code)
 * account.login - [Account login event](api.md#post-v1accountlogin)
+* account.keyfetch - [Sync encryption keys have been fetched](api.md#get-v1accountkeys)
+* account.signed - [Certificate signed](api.md#post-v1certificatesign)
+* account.reset - [Account reset event](api.md#post-v1accountreset)
+* account.reminder - Account is verified using a reminder
+* account.deleted - [Account is deleted](api.md#post-v1accountdestroy)
+* device.created - Device record is created
+* device.updated - Device record is updated
+* device.deleted - Device record is deleted
+
+#### Activity event structure
+
+Activity events are JSON data.
+Some fields are common to all events,
+others are event-specific.
+Some fields are optional depending on context,
+others are mandatory.
+
+|Event|Mandatory fields|Optional fields|
+|-----|----------------|---------------|
+|`account.created`|`event`, `userAgent`, `time`, `flow_id`, `flow_time`, `uid`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`account.verified`|`event`, `userAgent`, `time`, `flow_id`, `flow_time`, `uid`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`account.login`|`event`, `userAgent`, `time`, `flow_id`, `flow_time`, `uid`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`account.keyfetch`|`event`, `userAgent`, `time`, `uid`|`flow_id`, `flow_time`, `context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`account.signed`|`event`, `userAgent`, `time`, `uid`, `account_created_at`, `device_id`|`flow_id`, `flow_time`, `context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`account.reset`|`event`, `userAgent`, `time`, `uid`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`account.reminder`|`event`, `userAgent`, `time`, `uid`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`account.deleted`|`event`, `userAgent`, `time`, `uid`|`context`, `entrypoint` `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`device.created`|`event`, `userAgent`, `time`, `uid`, `device_id`|`flow_id`, `flow_time`, `context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`device.updated`|`event`, `userAgent`, `time`, `uid`, `device_id`|`flow_id`, `flow_time`, `context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+|`device.deleted`|`event`, `userAgent`, `time`, `uid`, `device_id`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+
+##### Example event
+
+```
+{
+  "event": "account.created",
+  "userAgent": "Mozilla\/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/50.0.2661.102 Safari\/537.36",
+  "time": 1466614312474,
+  "flow_id": "1ba211797e3a87d1f6604bec8a33a5827a4751239b4ef118072380b101967dc7",
+  "flow_time": 4353,
+  "uid": "d03249d2af7d4447be3debc674110978"
+}
+```

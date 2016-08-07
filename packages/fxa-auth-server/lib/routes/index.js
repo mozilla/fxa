@@ -18,17 +18,14 @@ module.exports = function (
   mailer,
   Password,
   config,
-  customs
+  customs,
+  metricsContext
   ) {
   var isPreVerified = require('../preverifier')(error, config)
   var defaults = require('./defaults')(log, P, db, error)
   var idp = require('./idp')(log, serverPublicKeys)
   var checkPassword = require('./utils/password_check')(log, config, Password, customs, db)
   var push = require('../push')(log, db)
-  var metricsContext = log.metricsContext
-  if (!metricsContext) {
-    metricsContext = require('../metrics/context')(log, config.getProperties())
-  }
   var account = require('./account')(
     log,
     crypto,
@@ -60,7 +57,7 @@ module.exports = function (
     push
   )
   var session = require('./session')(log, isA, error, db)
-  var sign = require('./sign')(log, isA, error, signer, db, config.domain, metricsContext)
+  var sign = require('./sign')(log, isA, error, signer, db, config.domain)
   var util = require('./util')(
     log,
     crypto,

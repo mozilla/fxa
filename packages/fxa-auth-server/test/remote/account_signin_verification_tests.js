@@ -178,96 +178,14 @@ TestServer.start(config)
     )
 
     test(
-      'Unverified account becomes verified from sign-in verification',
-      function (t) {
-        var email = server.uniqueEmail()
-        var password = 'allyourbasearebelongtous'
-        var client = null
-        var uid
-        var code
-        return Client.create(config.publicUrl, email, password)
-          .then(
-            function (x) {
-              client = x
-              t.ok(client.authAt, 'authAt was set')
-            }
-          )
-          .then(
-            function () {
-              return client.emailStatus()
-            }
-          )
-          .then(
-            function (status) {
-              t.equal(status.verified, false, 'new account is unverified')
-              t.equal(client.emailVerified, false, 'new account email unverified')
-            }
-          )
-          .then(
-            function () {
-              return server.mailbox.waitForEmail(email)
-            }
-          )
-          .then(
-            function (emailData) {
-              t.equal(emailData.subject, 'Verify your Firefox Account')
-            }
-          )
-          .then(
-            function () {
-              return client.login({keys:true})
-            }
-          )
-          .then(
-            function () {
-              return server.mailbox.waitForEmail(email)
-            }
-          )
-          .then(
-            function (emailData) {
-              uid = emailData.headers['x-uid']
-              code = emailData.headers['x-verify-code']
-              t.equal(emailData.subject, 'Confirm new sign-in to Firefox')
-              t.ok(uid, 'sent uid')
-              t.ok(code, 'sent verify code')
-            }
-          )
-          .then(
-            function () {
-              return client.emailStatus()
-            }
-          )
-          .then(
-            function (status) {
-              t.equal(status.verified, false, 'account is not verified, unverified sign-in')
-            }
-          )
-          .then(
-            function () {
-              return client.verifyEmail(code)
-            }
-          )
-          .then(
-            function () {
-              return client.emailStatus()
-            }
-          )
-          .then(
-            function (status) {
-              t.equal(status.verified, true, 'account is verified by confirming email')
-            }
-          )
-      }
-    )
-
-    test(
       'Account verification links still work after session verification',
       function (t) {
         var email = server.uniqueEmail()
         var password = 'allyourbasearebelongtous'
         var client = null
-        var emailCode
-        var tokenCode
+        var emailCode, tokenCode, uid
+
+        // Create unverified account
         return Client.create(config.publicUrl, email, password)
           .then(
             function (x) {
@@ -281,13 +199,16 @@ TestServer.start(config)
           )
           .then(
             function (emailData) {
+              // Ensure correct email sent
               t.equal(emailData.subject, 'Verify your Firefox Account')
               emailCode = emailData.headers['x-verify-code']
               t.ok(emailCode, 'sent verify code')
+              return client.verifyEmail(emailCode)
             }
           )
           .then(
             function () {
+              // Trigger sign-in confirm email
               return client.login({keys:true})
             }
           )
@@ -298,46 +219,30 @@ TestServer.start(config)
           )
           .then(
             function (emailData) {
-              t.equal(emailData.subject, 'Confirm new sign-in to Firefox')
+              // Verify sign-confirm email
+              uid = emailData.headers['x-uid']
               tokenCode = emailData.headers['x-verify-code']
+              t.equal(emailData.subject, 'Confirm new sign-in to Firefox')
+              t.ok(uid, 'sent uid')
               t.ok(tokenCode, 'sent verify code')
-            }
-          )
-          .then(
-            function () {
-              return client.verifyEmail(tokenCode)
-            }
-          )
-          .then(
-            function () {
+              t.notEqual(tokenCode, emailCode, 'email and token codes are different')
+
               return client.emailStatus()
             }
           )
           .then(
             function (status) {
-              t.equal(status.verified, true, 'account is verified by confirming email')
-            }
-          )
-          .then(
-            function () {
-              return client.verifyEmail(emailCode)
-            }
-          )
-          .then(
-            function () {
-              t.pass('The code from the account verification email still worked')
-              return client.emailStatus()
-            }
-          )
-          .then(
-            function () {
+              // Verify account is unverified because of sign-in attempt
+              t.equal(status.verified, false, 'account is not verified,')
+              t.equal(status.sessionVerified, false, 'account is not verified, unverified sign-in session')
+
+              // Attempt to verify account reusing original email code
               return client.verifyEmail(emailCode)
             }
           )
           .then(
             function () {
               t.pass('The code from the account verification email worked again')
-              return client.emailStatus()
             }
           )
       }
@@ -422,7 +327,7 @@ TestServer.start(config)
               t.ok(query.code, 'code is in link')
               t.equal(query.service, options.service, 'service is in link')
               t.equal(query.resume, options.resume, 'resume is in link')
-              t.equal(emailData.subject, 'Confirm new sign-in to Firefox')
+              t.equal(emailData.subject, 'Confirm new sign-in to Firefox', 'email subject is correct')
             }
           )
           .then(
@@ -578,6 +483,174 @@ TestServer.start(config)
               t.ok(new Date() - new Date(payload['fxa-lastAuthAt'] * 1000) < 1000 * 60 * 60, 'lastAuthAt is plausible')
               t.equal(payload['fxa-verifiedEmail'], email, 'verifiedEmail is correct')
               t.equal(payload['fxa-tokenVerified'], true, 'tokenVerified is verified')
+            }
+          )
+      }
+    )
+
+    test(
+      'account keys, return keys on verified account',
+      function (t) {
+        var email = server.uniqueEmail()
+        var password = 'allyourbasearebelongtous'
+        var client = null
+        var tokenCode
+
+        return Client.create(config.publicUrl, email, password, {keys:true})
+          .then(
+            function (c) {
+              client = c
+              return client.emailStatus()
+            }
+          )
+          .then(
+            function (status) {
+              t.equal(status.verified, false, 'account is not verified')
+              t.equal(status.emailVerified, false, 'account email is not verified')
+              t.equal(status.sessionVerified, false, 'account session is not verified')
+            }
+          )
+          .then(
+            function () {
+              return server.mailbox.waitForEmail(email)
+            }
+          )
+          .then(
+            function (emailData) {
+              t.equal(emailData.subject, 'Verify your Firefox Account')
+              tokenCode = emailData.headers['x-verify-code']
+              t.ok(tokenCode, 'sent verify code')
+            }
+          )
+          .then(
+            function () {
+              // Unverified accounts can not retrieve keys
+              return client.keys()
+            }
+          )
+          .catch(function(err){
+            t.equal(err.errno, 104, 'Correct error number')
+            t.equal(err.code, 400, 'Correct error code')
+            t.equal(err.message, 'Unverified account', 'Correct error message')
+          })
+
+          .then(
+            function () {
+              // Verify the account will set emails and tokens verified, which
+              // will user to retrieve keys.
+              return client.verifyEmail(tokenCode)
+            }
+          )
+          .then(
+            function () {
+              return client.emailStatus()
+            }
+          )
+          .then(
+            function (status) {
+              t.equal(status.verified, true, 'account is verified')
+              t.equal(status.emailVerified, true, 'account email is verified')
+              t.equal(status.sessionVerified, true, 'account session is  verified')
+            }
+          )
+          .then(
+            function () {
+              // Once verified, keys can be returned
+              return client.keys()
+            }
+          )
+          .then(
+            function (keys) {
+              t.ok(keys.kA, 'has kA keys')
+              t.ok(keys.kB, 'has kB keys')
+              t.ok(keys.wrapKb, 'has wrapKb keys')
+            }
+          )
+      }
+    )
+
+    test(
+      'account keys, return keys on verified login',
+      function (t) {
+        var email = server.uniqueEmail()
+        var password = 'allyourbasearebelongtous'
+        var client = null
+        var tokenCode
+
+        return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
+          .then(
+            function (c) {
+              // Trigger confirm sign-in
+              client = c
+              return client.login({keys: true})
+            }
+          )
+          .then(
+            function (c) {
+              client = c
+              return server.mailbox.waitForEmail(email)
+            }
+          )
+          .then(
+            function (emailData) {
+              t.equal(emailData.subject, 'Confirm new sign-in to Firefox')
+              tokenCode = emailData.headers['x-verify-code']
+              t.ok(tokenCode, 'sent verify code')
+            }
+          )
+          .then(
+            function () {
+              return client.keys()
+            }
+          )
+          .catch(function(err){
+            // Because of unverified sign-in, requests for keys will fail
+            t.equal(err.errno, 104, 'Correct error number')
+            t.equal(err.code, 400, 'Correct error code')
+            t.equal(err.message, 'Unverified account', 'Correct error message')
+          })
+          .then(
+            function () {
+              return client.emailStatus()
+            }
+          )
+          .then(
+            function (status) {
+              // Verify status of account, only email should be verified
+              t.equal(status.verified, false, 'account is not verified')
+              t.equal(status.emailVerified, true, 'account email is verified')
+              t.equal(status.sessionVerified, false, 'account session is not verified')
+            }
+          )
+          .then(
+            function () {
+              // Verify the account will set tokens verified.
+              return client.verifyEmail(tokenCode)
+            }
+          )
+          .then(
+            function () {
+              return client.emailStatus()
+            }
+          )
+          .then(
+            function (status) {
+              t.equal(status.verified, true, 'account is verified')
+              t.equal(status.emailVerified, true, 'account email is verified')
+              t.equal(status.sessionVerified, true, 'account session is  verified')
+            }
+          )
+          .then(
+            function () {
+              // Can retrieve keys now that account tokens verified
+              return client.keys()
+            }
+          )
+          .then(
+            function (keys) {
+              t.ok(keys.kA, 'has kA keys')
+              t.ok(keys.kB, 'has kB keys')
+              t.ok(keys.wrapKb, 'has wrapKb keys')
             }
           )
       }

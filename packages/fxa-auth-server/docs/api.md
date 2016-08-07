@@ -80,8 +80,8 @@ The currently-defined error responses are:
 * status code 400, errno 118:  incorrect key retrieval method for this account
 * status code 400, errno 119:  incorrect API version for this account
 * status code 400, errno 120:  incorrect email case
-* status code 400, errno 121:  account is locked
-* status code 400, errno 122:  account is not locked
+* status code 400, errno 121:  account is locked (no longer used)
+* status code 400, errno 122:  account is not locked (no longer used)
 * status code 400, errno 123:  unknown device
 * status code 400, errno 124:  session already registered by another device
 * status code 400, errno 125:  request blocked for security reasons
@@ -117,12 +117,9 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
     * [GET  /v1/account/profile (:lock: oauthBearerToken)](#get-v1accountprofile)
     * [POST /v1/account/reset (:lock: accountResetToken)](#post-v1accountreset)
     * [POST /v1/account/destroy](#post-v1accountdestroy)
-    * [POST /v1/account/lock](#post-v1accountlock)
 
 * Authentication
     * [POST /v1/account/login](#post-v1accountlogin)
-    * [POST /v1/account/unlock/resend_code](#post-v1accountunlockresend_code)
-    * [POST /v1/account/unlock/verify_code](#post-v1accountunlockverify_code)
 
 * Session
     * [GET /v1/session/status (:lock: sessionToken)](#get-v1sessionstatus)
@@ -147,6 +144,7 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
 * Device registration
     * [POST /v1/account/device (:lock: sessionToken)](#post-v1accountdevice)
     * [GET /v1/account/devices (:lock: sessionToken)](#get-v1accountdevices)
+    * [POST /v1/account/devices/notify (:lock: sessionToken)](#post-v1accountdevicesnotify)
     * [POST /v1/account/device/destroy (:lock: sessionToken)](#post-v1accountdevicedestroy)
 
 * Miscellaneous
@@ -265,8 +263,7 @@ Successful requests will produce a "200 OK" response with the account status pro
 
 ```json
 {
-  "exists": true,
-  "locked": false
+  "exists": true
 }
 ```
 
@@ -365,7 +362,6 @@ Failing requests may be due to the following errors:
 * status code 411, errno 112:  content-length header was not provided
 * status code 413, errno 113:  request body too large
 * status code 400, errno 120:  incorrect email case
-* status code 400, errno 121:  account is locked
 * status code 400, errno 126:  account must be reset
 
 ## GET /v1/account/keys
@@ -568,142 +564,7 @@ Failing requests may be due to the following errors:
 * status code 413, errno 113:  request body too large
 * status code 401, errno 115:  invalid authentication nonce
 * status code 400, errno 120:  incorrect email case
-* status code 400, errno 121:  account is locked
 * status code 400, errno 126:  account must be reset
-
-## POST /v1/account/lock
-
-HAWK-authenticated.
-
-This locks an account and prevents the user from performing any action that requires a password until their email address is re-verified. This endpoint is for testing only and is disabled for production.
-
-__Parameters__
-
-* email - the email address for the account
-* authPW - the PBKDF2/HKDF stretched password as a hex string
-
-### Request
-
-```sh
-curl -v \
--X POST \
--H "Content-Type: application/json" \
-https://api-accounts.dev.lcip.org/v1/account/lock \
--d '{
-  "email": "me@example.com",
-  "authPW": "996bc6b1aa63cd69856a2ec81cbf19d5c8a604713362df9ee15c2bf07128efab"
-}'
-```
-
-### Response
-
-Successful requests will produce a "200 OK" and a json body.
-
-```json
-{}
-```
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 103:  incorrect password
-* status code 400, errno 106:  request body was not valid json
-* status code 400, errno 107:  request body contains invalid parameters
-* status code 400, errno 108:  request body missing required parameters
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-* status code 400, errno 126:  account must be reset
-
-## POST /v1/account/unlock/resend_code
-
-Not HAWK-authenticated.
-
-Re-sends an account unlock code to the account's recovery email address. The code is first sent when the account is locked due to suspicious activity, but if the user thinks the message was lost or accidentally deleted, they can request a new message to be sent with this endpoint. The new message will contain the same code as the original message. When this code is provided to `/v1/account/unlock/verify_code` (below), the account will be unlocked.
-
-### Request
-
-___Parameters___
-
-* email - the recovery email for this account
-* service - (optional) indicates the relying service that the user was interacting with that triggered the account lockout message
-* redirectTo - (optional) a URL that the client should be redirected to after handling the request
-* resume - (optional) opaque url-encoded string that will be included in the verification link as a querystring parameter, useful for continuing an OAuth flow for example.
-
-```sh
-curl -v \
--X POST \
--H "Content-Type: application/json" \
-https://api-accounts.dev.lcip.org/v1/account/unlock/resend_code \
--d '{
-  "email": "me@example.com",
-  "service": "sync",
-  "redirectTo": "https://sync.firefox.com/after_unlock"
-}'
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with an empty JSON body:
-
-```json
-{}
-```
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 106:  request body was not valid json
-* status code 400, errno 107:  request body contains invalid parameters
-* status code 400, errno 108:  request body missing required parameters
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-* status code 400, errno 122:  account is not locked
-
-
-## POST /v1/account/unlock/verify_code
-
-Not HAWK-authenticated.
-
-Used to submit an account unlock code that was previously sent to a user's recovery email. If correct, the account will be unlocked.
-
-The unlock code will be a random token, delivered in the fragment portion of a URL sent to the user's email address. The URL will lead to a page that extracts the code from the URL fragment, and performs a POST to `/account/unlock/verify_code`. The link can be clicked from any browser, not just the one being attached to the account.
-
-### Request
-
-___Parameters___
-
-* uid - account identifier
-* code - the verification code
-
-```sh
-curl -v \
--X POST \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
-https://api-accounts.dev.lcip.org/v1/account/unlock/verify_code \
--d '{
-  "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
-  "code": "e3c5b0e3f5391e134596c27519979b93"
-}'
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with an empty JSON body:
-
-```json
-{}
-```
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 105:  invalid verification code
-* status code 400, errno 106:  request body was not valid json
-* status code 400, errno 107:  request body contains invalid parameters
-* status code 400, errno 108:  request body missing required parameters
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-
 
 ## GET /v1/session/status
 
@@ -1042,7 +903,6 @@ Failing requests may be due to the following errors:
 * status code 411, errno 112:  content-length header was not provided
 * status code 413, errno 113:  request body too large
 * status code 400, errno 120:  incorrect email case
-* status code 400, errno 121:  account is locked
 * status code 400, errno 126:  account must be reset
 
 
@@ -1439,6 +1299,86 @@ with an array of device details in the JSON body:
 Failing requests may return the following error:
 
 * status code 400, errno 102: unknown account
+
+## POST /v1/account/devices/notify
+
+:lock: HAWK-authenticated with the sessionToken.
+
+Notifies a set of devices in the caller's account of an event
+by sending a Push notification. A typical use case would be to
+send a notification to another device after sending a tab with Sync,
+so it can sync as well and display the tab in a timely manner.
+
+### Request
+
+___Parameters___
+
+* to - the devices to send the notification to. It can be the string "all" (all devices except the caller) or an array of devices id.
+* excluded - (optional) only with "to": "all". Devices IDs to exclude from the notification.
+* payload - payload to send. It will be validated against [pushpayloads.schema.json](pushpayloads.schema.json).
+* TTL - (optional) TTL in seconds of the push notification (defaults to 0)
+
+___Headers___
+
+The request must include a Hawk header that authenticates the request
+using a `sessionToken` received from `/v1/account/create` or `/v1/account/login`.
+
+#### Notify all other devices except excluded devices identified by their id
+
+```sh
+curl -v \
+-X POST \
+-H "Host: api-accounts.dev.lcip.org" \
+-H "Content-Type: application/json" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+https://api-accounts.dev.lcip.org/v1/account/devices/notify \
+-d '{
+  "to": "all",
+  "excluded": ["0f7aa00356e5416e82b3bef7bc409eef"],
+  "payload": {
+    version: 1,
+    command: "sync:collection_changed",
+    data: {
+      collections: ["clients"]
+    }
+  },
+  "TTL": 10
+}'
+```
+
+#### Notify specific devices identified by their id
+
+```sh
+curl -v \
+-X POST \
+-H "Host: api-accounts.dev.lcip.org" \
+-H "Content-Type: application/json" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+https://api-accounts.dev.lcip.org/v1/account/devices/notify \
+-d '{
+  "to": ["0f7aa00356e5416e82b3bef7bc409eef", "fee904cb7feb3b28e6145e65300aa7f0"],
+  "payload": {
+    version: 1,
+    command: "sync:collection_changed",
+    data: {
+      collections: ["clients"]
+    }
+  }
+}'
+```
+
+### Response
+
+Successful requests will return a `200 OK` response
+with an empty object in the JSON body:
+
+```json
+{}
+```
+
+Failing requests may return the following error:
+
+* status code 400, errno 107: may be sent if the payload parameter is not valid
 
 ## POST /v1/account/device/destroy
 

@@ -49,8 +49,10 @@ test(
     }
     var context = {}
     var result = userAgent.call(context, 'qux')
+
     t.equal(uaParser.parse.callCount, 1)
     t.ok(uaParser.parse.calledWithExactly('qux'))
+
     t.equal(result, context)
     t.equal(Object.keys(result).length, 5)
     t.equal(result.uaBrowser, 'foo')
@@ -58,8 +60,9 @@ test(
     t.equal(result.uaOS, 'bar')
     t.equal(result.uaOSVersion, '2')
     t.equal(result.uaDeviceType, 'mobile')
-    uaParser.parse.reset()
+
     t.end()
+    uaParser.parse.reset()
   }
 )
 
@@ -83,15 +86,18 @@ test(
     }
     var context = {}
     var result = userAgent.call(context, 'wibble')
+
     t.equal(uaParser.parse.callCount, 1)
     t.ok(uaParser.parse.calledWithExactly('wibble'))
+
     t.equal(result, context)
     t.equal(Object.keys(result).length, 5)
     t.equal(result.uaBrowser, null)
     t.equal(result.uaOS, null)
     t.equal(result.uaDeviceType, null)
-    uaParser.parse.reset()
+
     t.end()
+    uaParser.parse.reset()
   }
 )
 
@@ -115,10 +121,12 @@ test(
     }
     var context = {}
     var result = userAgent.call(context)
+
     t.equal(result.uaBrowserVersion, '1.1')
     t.equal(result.uaOSVersion, '2.34567')
-    uaParser.parse.reset()
+
     t.end()
+    uaParser.parse.reset()
   }
 )
 
@@ -142,9 +150,11 @@ test(
     }
     var context = {}
     var result = userAgent.call(context)
+
     t.equal(result.uaDeviceType, 'mobile')
-    uaParser.parse.reset()
+
     t.end()
+    uaParser.parse.reset()
   }
 )
 
@@ -168,9 +178,11 @@ test(
     }
     var context = {}
     var result = userAgent.call(context)
+
     t.equal(result.uaDeviceType, 'mobile')
-    uaParser.parse.reset()
+
     t.end()
+    uaParser.parse.reset()
   }
 )
 
@@ -194,9 +206,11 @@ test(
     }
     var context = {}
     var result = userAgent.call(context)
+
     t.equal(result.uaDeviceType, 'mobile')
-    uaParser.parse.reset()
+
     t.end()
+    uaParser.parse.reset()
   }
 )
 
@@ -220,9 +234,11 @@ test(
     }
     var context = {}
     var result = userAgent.call(context)
+
     t.equal(result.uaDeviceType, 'mobile')
-    uaParser.parse.reset()
+
     t.end()
+    uaParser.parse.reset()
   }
 )
 
@@ -246,9 +262,11 @@ test(
     }
     var context = {}
     var result = userAgent.call(context)
+
     t.equal(result.uaDeviceType, 'mobile')
-    uaParser.parse.reset()
+
     t.end()
+    uaParser.parse.reset()
   }
 )
 
@@ -272,9 +290,11 @@ test(
     }
     var context = {}
     var result = userAgent.call(context)
+
     t.equal(result.uaDeviceType, null)
-    uaParser.parse.reset()
+
     t.end()
+    uaParser.parse.reset()
   }
 )
 
@@ -298,9 +318,11 @@ test(
     }
     var context = {}
     var result = userAgent.call(context)
+
     t.equal(result.uaDeviceType, null)
-    uaParser.parse.reset()
+
     t.end()
+    uaParser.parse.reset()
   }
 )
 
@@ -324,9 +346,11 @@ test(
     }
     var context = {}
     var result = userAgent.call(context)
+
     t.equal(result.uaDeviceType, null)
-    uaParser.parse.reset()
+
     t.end()
+    uaParser.parse.reset()
   }
 )
 

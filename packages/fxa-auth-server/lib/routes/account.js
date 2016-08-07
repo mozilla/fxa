@@ -7,15 +7,17 @@ var HEX_STRING = validators.HEX_STRING
 var BASE64_JWT = validators.BASE64_JWT
 var DISPLAY_SAFE_UNICODE = validators.DISPLAY_SAFE_UNICODE
 var URLSAFEBASE64 = validators.URLSAFEBASE64
+var PUSH_PAYLOADS_SCHEMA_PATH = '../../docs/pushpayloads.schema.json'
 
 // An arbitrary, but very generous, limit on the number of active sessions.
 // Currently only for metrics purposes, not enforced.
 var MAX_ACTIVE_SESSIONS = 200
 
+var path = require('path')
+var ajv = require('ajv')()
+var fs = require('fs')
 var butil = require('../crypto/butil')
-var openid = require('openid')
 var userAgent = require('../userAgent')
-var url = require('url')
 var requestHelper = require('../routes/utils/request_helper')
 
 module.exports = function (
@@ -36,25 +38,13 @@ module.exports = function (
   metricsContext
   ) {
 
-  var OPENID_EXTENSIONS = [
-    new openid.AttributeExchange(
-      {
-        'http://axschema.org/contact/email': 'optional'
-      }
-    )
-  ]
-
+  // Loads and compiles a json validator for the payloads received
+  // in /account/devices/notify
+  var schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH)
+  var schema = fs.readFileSync(schemaPath)
+  var validatePushPayload = ajv.compile(schema)
   var verificationReminder = require('../verification-reminders')(log, db)
-
-  function isOpenIdProviderAllowed(id) {
-    if (typeof(id) !== 'string') { return false }
-    var hostname = url.parse(id).hostname
-    return config.openIdProviders.some(
-      function (allowed) {
-        return hostname === url.parse(allowed).hostname
-      }
-    )
-  }
+  var getGeoData = require('../geodb')(log)
 
   var routes = [
     {
@@ -99,7 +89,7 @@ module.exports = function (
 
         metricsContext.validate(request)
 
-        customs.check(request.app.clientAddress, email, 'accountCreate')
+        customs.check(request, email, 'accountCreate')
           .then(db.emailRecord.bind(db, email))
           .then(deleteAccount, ignoreUnknownAccountError)
           .then(checkPreVerified)
@@ -177,20 +167,26 @@ module.exports = function (
             function (result) {
               account = result
 
-              log.activityEvent('account.created', request, {
+              return log.activityEvent('account.created', request, {
                 uid: account.uid.toString('hex')
               })
-
+            }
+          )
+          .then(
+            function () {
               if (account.emailVerified) {
-                log.event('verified', request, {
+                return log.notifyAttachedServices('verified', request, {
                   email: account.email,
                   uid: account.uid,
                   locale: account.locale
                 })
               }
-
+            }
+          )
+          .then(
+            function () {
               if (service === 'sync') {
-                log.event('login', request, {
+                return log.notifyAttachedServices('login', request, {
                   service: 'sync',
                   uid: account.uid,
                   email: account.email,
@@ -217,21 +213,28 @@ module.exports = function (
               emailCode: account.emailCode,
               emailVerified: account.emailVerified,
               verifierSetAt: account.verifierSetAt,
-              createdAt: optionallyOverrideCreatedAt(),
+              createdAt: parseInt(query._createdAt),
               tokenVerificationId: tokenVerificationId
             }, userAgentString)
             .then(
               function (result) {
                 sessionToken = result
+                return metricsContext.stash(sessionToken, [
+                  'device.created',
+                  'account.signed'
+                ], form.metricsContext)
               }
             )
-        }
-
-        function optionallyOverrideCreatedAt () {
-          var createdAt = parseInt(query._createdAt)
-          if (createdAt < Date.now() && ! config.isProduction) {
-            return createdAt
-          }
+            .then(
+              function () {
+                // There is no session token when we emit account.verified
+                // so stash the data against a synthesized "token" instead.
+                return metricsContext.stash({
+                  uid: account.uid,
+                  id: account.emailCode.toString('hex')
+                }, 'account.verified', form.metricsContext)
+              }
+            )
         }
 
         function sendVerifyCode () {
@@ -249,9 +252,28 @@ module.exports = function (
               }).catch(function (err) {
                 log.error({ op: 'Account.verificationReminder.create', err: err })
               })
+
+              if (tokenVerificationId) {
+                // Log server-side metrics for confirming verification rates
+                log.info({
+                  op: 'account.create.confirm.start',
+                  uid: account.uid.toString('hex'),
+                  tokenVerificationId: tokenVerificationId
+                })
+              }
             })
             .catch(function (err) {
               log.error({ op: 'mailer.sendVerifyCode.1', err: err })
+
+              if (tokenVerificationId) {
+                // Log possible email bounce, used for confirming verification rates
+                log.error({
+                  op: 'account.create.confirm.error',
+                  uid: account.uid.toString('hex'),
+                  err: err,
+                  tokenVerificationId: tokenVerificationId
+                })
+              }
             })
           }
         }
@@ -265,13 +287,15 @@ module.exports = function (
                     uid: account.uid,
                     kA: account.kA,
                     wrapKb: wrapKb,
-                    emailVerified: account.emailVerified
+                    emailVerified: account.emailVerified,
+                    tokenVerificationId: tokenVerificationId
                   })
                 }
               )
               .then(
-                function (keyFetchTokenData) {
-                  keyFetchToken = keyFetchTokenData.data.toString('hex')
+                function (result) {
+                  keyFetchToken = result
+                  return metricsContext.stash(keyFetchToken, 'account.keyfetch', form.metricsContext)
                 }
               )
           }
@@ -285,7 +309,7 @@ module.exports = function (
           }
 
           if (keyFetchToken) {
-            response.keyFetchToken = keyFetchToken
+            response.keyFetchToken = keyFetchToken.data.toString('hex')
           }
 
           return P.resolve(response)
@@ -332,6 +356,7 @@ module.exports = function (
         var resume = request.payload.resume
         var tokenVerificationId = crypto.randomBytes(16)
         var emailRecord, sessions, sessionToken, keyFetchToken, doSigninConfirmation
+        var ip = request.app.clientAddress
 
         metricsContext.validate(request)
 
@@ -343,7 +368,7 @@ module.exports = function (
           })
         }
 
-        customs.check(request.app.clientAddress, email, 'accountLogin')
+        customs.check(request, email, 'accountLogin')
           .then(readEmailRecord)
           .then(checkNumberOfActiveSessions)
           .then(createSessionToken)
@@ -370,16 +395,16 @@ module.exports = function (
                   throw error.incorrectPassword(emailRecord.email, email)
                 }
 
-                if (emailRecord.lockedAt) {
-                  throw error.lockedAccount()
-                }
-
                 return checkPassword(emailRecord, authPW, request.app.clientAddress)
                   .then(
                     function (match) {
                       if (! match) {
                         throw error.incorrectPassword(emailRecord.email, email)
                       }
+
+                      return log.activityEvent('account.login', request, {
+                        uid: emailRecord.uid.toString('hex')
+                      })
                     }
                   )
               },
@@ -416,10 +441,6 @@ module.exports = function (
         }
 
         function createSessionToken () {
-          log.activityEvent('account.login', request, {
-            uid: emailRecord.uid.toString('hex')
-          })
-
           var sessionTokenOptions = {
             uid: emailRecord.uid,
             email: emailRecord.email,
@@ -433,6 +454,22 @@ module.exports = function (
             .then(
               function (result) {
                 sessionToken = result
+                return metricsContext.stash(sessionToken, [
+                  'device.created',
+                  'account.signed'
+                ], form.metricsContext)
+              }
+            )
+            .then(
+              function () {
+                if (doSigninConfirmation) {
+                  // There is no session token when we emit account.confirmed
+                  // so stash the data against a synthesized "token" instead.
+                  return metricsContext.stash({
+                    uid: emailRecord.uid,
+                    id: tokenVerificationId.toString('hex')
+                  }, 'account.confirmed', form.metricsContext)
+                }
               }
             )
         }
@@ -452,11 +489,13 @@ module.exports = function (
                     uid: emailRecord.uid,
                     kA: emailRecord.kA,
                     wrapKb: wrapKb,
-                    emailVerified: emailRecord.emailVerified
+                    emailVerified: emailRecord.emailVerified,
+                    tokenVerificationId: doSigninConfirmation ? tokenVerificationId : undefined
                   })
                   .then(
                     function (result) {
                       keyFetchToken = result
+                      return metricsContext.stash(keyFetchToken, 'account.keyfetch', form.metricsContext)
                     }
                   )
                 }
@@ -466,7 +505,7 @@ module.exports = function (
 
         function emitSyncLoginEvent () {
           if (service === 'sync' && request.payload.reason === 'signin') {
-            log.event('login', request, {
+            return log.notifyAttachedServices('login', request, {
               service: 'sync',
               uid: emailRecord.uid,
               email: emailRecord.email,
@@ -476,38 +515,58 @@ module.exports = function (
           }
         }
 
-        function sendNewDeviceLoginNotification () {
-          if (!doSigninConfirmation && config.newLoginNotificationEnabled && requestHelper.wantsKeys(request)) {
-            // The response doesn't have to wait for this,
-            // so we don't return the promise.
-            mailer.sendNewDeviceLoginNotification(
-              emailRecord.email,
-              userAgent.call({
-                acceptLanguage: request.app.acceptLanguage,
-                timestamp: Date.now()
-              }, request.headers['user-agent'])
-            )
+        function sendNewDeviceLoginNotification() {
+          // New device notification emails should only be sent for requesting keys and
+          // not performing a sign-in confirmation.
+          var shouldSendNewDeviceLoginEmail = config.newLoginNotificationEnabled && requestHelper.wantsKeys(request) && !doSigninConfirmation
+          if (shouldSendNewDeviceLoginEmail) {
+            return getGeoData(ip)
+              .then(
+                function (geoData) {
+                  mailer.sendNewDeviceLoginNotification(
+                    emailRecord.email,
+                    userAgent.call({
+                      acceptLanguage: request.app.acceptLanguage,
+                      ip: ip,
+                      location: geoData.location,
+                      timeZone: geoData.timeZone
+                    }, request.headers['user-agent'])
+                  )
+                }
+              )
           }
         }
 
         function sendVerifyLoginEmail() {
-          // Verify login emails are only sent if the login is requesting keys and the feature is enabled.
-          // In the scenario where keys are requested, but feature is disabled, the tokens are
-          // created verified.
-          var shouldSendVerifyLoginEmail = requestHelper.wantsKeys(request) && doSigninConfirmation
-
+          // Verify sign-in emails are only sent for verified accounts and requesting keys and if they fall within
+          // the sample rate of roll-out. In the scenario where keys are requested, but feature is disabled
+          // the tokens are created verified.
+          var shouldSendVerifyLoginEmail = requestHelper.wantsKeys(request) && emailRecord.emailVerified && doSigninConfirmation
           if (shouldSendVerifyLoginEmail) {
-            mailer.sendVerifyLoginEmail(
-              emailRecord,
-              tokenVerificationId,
-              userAgent.call({
-                acceptLanguage: request.app.acceptLanguage,
-                timestamp: Date.now(),
-                service: service,
-                redirectTo: redirectTo,
-                resume: resume
-              }, request.headers['user-agent'])
-            )
+            log.info({
+              op: 'account.signin.confirm.start',
+              uid: emailRecord.uid.toString('hex'),
+              tokenVerificationId: tokenVerificationId
+            })
+
+            return getGeoData(ip)
+              .then(
+                function (geoData) {
+                  mailer.sendVerifyLoginEmail(
+                    emailRecord,
+                    tokenVerificationId,
+                    userAgent.call({
+                      acceptLanguage: request.app.acceptLanguage,
+                      ip: ip,
+                      location: geoData.location,
+                      redirectTo: redirectTo,
+                      resume: resume,
+                      service: service,
+                      timeZone: geoData.timeZone
+                    }, request.headers['user-agent'])
+                  )
+                }
+              )
           }
         }
 
@@ -538,144 +597,6 @@ module.exports = function (
 
           return P.resolve(response)
         }
-      }
-    },
-    {
-      method: 'GET',
-      path: '/account/openid/login',
-      handler: function (request, reply) {
-
-        var unverifiedId = request.url.query && request.url.query['openid.claimed_id']
-        if (!isOpenIdProviderAllowed(unverifiedId)) {
-          log.warn({op: 'Account.openid', id: unverifiedId })
-          return reply({ err: 'This OpenID Provider is not allowed' }).code(400)
-        }
-
-        openid.verifyAssertion(
-          url.format(request.url),
-          function (err, assertion) {
-            if (err || !assertion || !assertion.authenticated) {
-              log.warn({ op: 'Account.openid', err: err, assertion: assertion })
-              return reply({ err: err.message || 'Unknown Account' }).code(400)
-            }
-            var id = assertion.claimedIdentifier
-            var locale = request.app.acceptLanguage
-            var tokenVerificationId = crypto.randomBytes(16)
-
-            db.openIdRecord(id)
-              .then(
-                function (record) {
-                  return record
-                },
-                function (err) {
-                  if (err.errno !== error.ERRNO.ACCOUNT_UNKNOWN) {
-                    throw err
-                  }
-                  var uid = uuid.v4('binary')
-                  var email = assertion.email || uid.toString('hex') + '@uid.' + config.domain
-                  var authSalt = crypto.randomBytes(32)
-                  var kA = crypto.randomBytes(32)
-                  return db.createAccount(
-                    {
-                      uid: uid,
-                      createdAt: Date.now(),
-                      email: email,
-                      emailCode: crypto.randomBytes(16),
-                      emailVerified: true,
-                      kA: kA,
-                      wrapWrapKb: crypto.randomBytes(32),
-                      accountResetToken: null,
-                      passwordForgotToken: null,
-                      authSalt: authSalt,
-                      verifierVersion: 0,
-                      verifyHash: crypto.randomBytes(32),
-                      openId: id,
-                      verifierSetAt: Date.now(),
-                      locale: locale
-                    }
-                  )
-                }
-              )
-              .then(
-                function (account) {
-                  return db.createSessionToken(
-                    {
-                      uid: account.uid,
-                      email: account.email,
-                      emailCode: account.emailCode,
-                      emailVerified: true,
-                      verifierSetAt: account.verifierSetAt,
-                      tokenVerificationId: tokenVerificationId
-                    }
-                  )
-                  .then(
-                    function (sessionToken) {
-                      if (! requestHelper.wantsKeys(request)) {
-                        return P.resolve({
-                          sessionToken: sessionToken
-                        })
-                      }
-                      return db.createKeyFetchToken(
-                        {
-                          uid: account.uid,
-                          kA: account.kA,
-                          // wrapKb is undefined without a password.
-                          // wrapWrapKb has the properties we need for this
-                          // value; Its stable, random, and will change on
-                          // account reset.
-                          wrapKb: account.wrapWrapKb,
-                          emailVerified: true
-                        }
-                      )
-                      .then(
-                        function (keyFetchToken) {
-                          return {
-                            sessionToken: sessionToken,
-                            keyFetchToken: keyFetchToken,
-                            unwrapBKey: butil.xorBuffers(
-                              account.kA,
-                              account.wrapWrapKb
-                            )
-                            // The browser using these values for unwrapBKey
-                            // and wrapKb (from above) will yield kA
-                            // as the Sync key instead of kB
-                          }
-                        }
-                      )
-                    }
-                  )
-                  .then(
-                    function (tokens) {
-                      reply(
-                        {
-                          uid: tokens.sessionToken.uid.toString('hex'),
-                          email: account.email,
-                          session: tokens.sessionToken.data.toString('hex'),
-                          key: tokens.keyFetchToken ?
-                            tokens.keyFetchToken.data.toString('hex')
-                            : undefined,
-                          unwrap: tokens.unwrapBKey ?
-                            tokens.unwrapBKey.toString('hex')
-                            : undefined
-                        }
-                      )
-                    }
-                  )
-                }
-              )
-              .catch(
-                function (err) {
-                  log.error({ op: 'Account.openid', err: err })
-                  reply({
-                    err: err.message
-                  }).code(500)
-                }
-              )
-          },
-          true, // stateless
-          OPENID_EXTENSIONS,
-          false // strict
-        )
       }
     },
     {
@@ -736,7 +657,7 @@ module.exports = function (
         var email = request.payload.email
 
         customs.check(
-          request.app.clientAddress,
+          request,
           email,
           'accountStatusCheck')
           .then(
@@ -817,7 +738,7 @@ module.exports = function (
       path: '/account/keys',
       config: {
         auth: {
-          strategy: 'keyFetchToken'
+          strategy: 'keyFetchTokenWithVerificationStatus'
         },
         response: {
           schema: {
@@ -828,11 +749,20 @@ module.exports = function (
       handler: function accountKeys(request, reply) {
         log.begin('Account.keys', request)
         var keyFetchToken = request.auth.credentials
-        if (!keyFetchToken.emailVerified) {
+
+        var verified = keyFetchToken.tokenVerified && keyFetchToken.emailVerified
+        if (!verified) {
           // don't delete the token on use until the account is verified
           return reply(error.unverifiedAccount())
         }
         db.deleteKeyFetchToken(keyFetchToken)
+          .then(
+            function () {
+              return log.activityEvent('account.keyfetch', request, {
+                uid: keyFetchToken.uid.toString('hex')
+              })
+            }
+          )
           .then(
             function () {
               return {
@@ -887,6 +817,7 @@ module.exports = function (
         log.begin('Account.device', request)
         var payload = request.payload
         var sessionToken = request.auth.credentials
+
         if (payload.id) {
           // Don't write out the update if nothing has actually changed.
           if (isSpuriousUpdate(payload, sessionToken)) {
@@ -899,21 +830,14 @@ module.exports = function (
             throw error.featureNotEnabled()
           }
         }
+
         if (payload.pushCallback && (!payload.pushPublicKey || !payload.pushAuthKey)) {
           payload.pushPublicKey = ''
           payload.pushAuthKey = ''
         }
-        var operation = payload.id ? 'updateDevice' : 'createDevice'
-        db[operation](sessionToken.uid, sessionToken.tokenId, payload).then(
+
+        upsertDevice().then(
           function (device) {
-            if (operation === 'createDevice') {
-              log.event('device:create', request, {
-                uid: sessionToken.uid,
-                id: device.id,
-                type: device.type,
-                timestamp: device.createdAt
-              })
-            }
             reply(butil.unbuffer(device))
             push.notifyDeviceConnected(sessionToken.uid, device.name, device.id.toString('hex'))
           },
@@ -948,6 +872,116 @@ module.exports = function (
           return spurious
         }
 
+        function upsertDevice () {
+          var operation, event, result
+          if (payload.id) {
+            operation = 'updateDevice'
+            event = 'device.updated'
+          } else {
+            operation = 'createDevice'
+            event = 'device.created'
+          }
+
+          return db[operation](sessionToken.uid, sessionToken.tokenId, payload)
+            .then(
+              function (res) {
+                result = res
+                return log.activityEvent(event, request, {
+                  uid: sessionToken.uid.toString('hex'),
+                  device_id: result.id.toString('hex')
+                })
+              }
+            )
+            .then(
+              function () {
+                if (operation === 'createDevice') {
+                  return log.notifyAttachedServices('device:create', request, {
+                    uid: sessionToken.uid,
+                    id: result.id,
+                    type: result.type,
+                    timestamp: result.createdAt
+                  })
+                }
+              }
+            )
+            .then(
+              function () {
+                return result
+              }
+            )
+        }
+      }
+    },
+    {
+      method: 'POST',
+      path: '/account/devices/notify',
+      config: {
+        auth: {
+          strategy: 'sessionTokenWithDevice'
+        },
+        validate: {
+          payload: isA.alternatives().try(
+            isA.object({
+              to: isA.string().valid('all').required(),
+              excluded: isA.array().items(isA.string().length(32).regex(HEX_STRING)).optional(),
+              payload: isA.object().required(),
+              TTL: isA.number().integer().min(0).optional()
+            }),
+            isA.object({
+              to: isA.array().items(isA.string().length(32).regex(HEX_STRING)).required(),
+              payload: isA.object().required(),
+              TTL: isA.number().integer().min(0).optional()
+            })
+          )
+        },
+        response: {
+          schema: {}
+        }
+      },
+      handler: function (request, reply) {
+        log.begin('Account.devicesNotify', request)
+
+        // We reserve the right to disable notifications until
+        // we're confident clients are behaving correctly.
+        if (config.deviceNotificationsEnabled === false) {
+          throw error.featureNotEnabled()
+        }
+
+        var body = request.payload
+        var sessionToken = request.auth.credentials
+        var uid = sessionToken.uid
+        var ip = request.app.clientAddress
+        var payload = body.payload
+
+        if (!validatePushPayload(payload)) {
+          throw error.invalidRequestParameter('invalid payload')
+        }
+        var pushOptions = {
+          data: new Buffer(JSON.stringify(payload))
+        }
+        if (body.excluded) {
+          pushOptions.excludedDeviceIds = body.excluded
+        }
+        if (body.TTL) {
+          pushOptions.TTL = body.TTL
+        }
+
+        var endpointAction = 'devicesNotify'
+        var stringUid = uid.toString('hex')
+        return customs.checkAuthenticated(endpointAction, ip, stringUid)
+          .then(function () {
+            if (body.to === 'all') {
+              return push.pushToAllDevices(uid, endpointAction, pushOptions)
+            } else {
+              return push.pushToDevices(uid, body.to, endpointAction, pushOptions)
+            }
+          })
+          .done(
+            function () {
+              reply({})
+            },
+            reply
+          )
       }
     },
     {
@@ -1010,21 +1044,37 @@ module.exports = function (
         var sessionToken = request.auth.credentials
         var uid = sessionToken.uid
         var id = request.payload.id
-        push.notifyDeviceDisconnected(uid, id).then(deleteDbDevice, deleteDbDevice)
+        var result
 
-        function deleteDbDevice() {
-          db.deleteDevice(uid, id).then(
-            function (result) {
-              log.event('device:delete', request, {
+        return push.notifyDeviceDisconnected(uid, id)
+          .catch(function () {})
+          .then(
+            function () {
+              return db.deleteDevice(uid, id)
+            }
+          )
+          .then(
+            function (res) {
+              result = res
+              return log.activityEvent('device.deleted', request, {
+                uid: uid.toString('hex'),
+                device_id: id
+              })
+            }
+          )
+          .then(
+            function () {
+              return log.notifyAttachedServices('device:delete', request, {
                 uid: uid,
                 id: id,
                 timestamp: Date.now()
               })
-              reply(result)
-            },
-            reply
+            }
           )
-        }
+          .then(function () {
+            return result
+          })
+          .then(reply, reply)
       }
     },
     {
@@ -1141,7 +1191,7 @@ module.exports = function (
         }
 
         return customs.check(
-          request.app.clientAddress,
+          request,
           sessionToken.email,
           'recoveryEmailResendCode')
           .then(func.bind(
@@ -1178,13 +1228,30 @@ module.exports = function (
         }
       },
       handler: function (request, reply) {
-        var uid = request.payload.uid
+        var uidHex = request.payload.uid
+        var uid = Buffer(uidHex, 'hex')
         var code = Buffer(request.payload.code, 'hex')
         var service = request.payload.service || request.query.service
         var reminder = request.payload.reminder || request.query.reminder
 
+        // Because we have no session token on this endpoint, metrics context
+        // metadata was stashed against a synthesized token for the benefit of
+        // the activity events. This fake request object allows the correct
+        // metadata to be gathered when we emit the events.
+        var fakeRequestObject = {
+          auth: {
+            credentials: {
+              uid: uid,
+              id: request.payload.code
+            }
+          },
+          headers: request.headers,
+          payload: request.payload,
+          query: request.query
+        }
+
         log.begin('Account.RecoveryEmailVerify', request)
-        db.account(Buffer(uid, 'hex'))
+        db.account(uid)
           .then(
             function (account) {
 
@@ -1200,17 +1267,34 @@ module.exports = function (
                * 3) Verify account email if not already verified.
                */
               return db.verifyTokens(code, account)
+                .then(function () {
+                  log.info({
+                    op: 'account.signin.confirm.success',
+                    uid: uidHex,
+                    code: request.payload.code
+                  })
+                  return log.activityEvent('account.confirmed', fakeRequestObject, {
+                    uid: uidHex
+                  })
+                })
                 .catch(function (err) {
                   if (err.errno === error.ERRNO.INVALID_VERIFICATION_CODE && butil.buffersAreEqual(code, account.emailCode)) {
                     // The code is just for the account, not for any sessions
                     return true
                   }
+                  log.error({
+                    op: 'account.signin.confirm.invalid',
+                    uid: uidHex,
+                    code: request.payload.code,
+                    error: err
+                  })
                   throw err
                 })
                 .then(function () {
 
-                  // If the account is already verified, they may be e.g.
-                  // clicking a stale link.  Silently succeed.
+                  // If the account is already verified, the link may have been
+                  // for sign-in confirmation or they may have been clicking a
+                  // stale link. Silently succeed.
                   if (account.emailVerified) {
                     if (butil.buffersAreEqual(code, account.emailCode)) {
                       log.increment('account.already_verified')
@@ -1222,43 +1306,48 @@ module.exports = function (
                   return db.verifyEmail(account)
                     .then(function () {
                       log.timing('account.verified', Date.now() - account.createdAt)
-                      log.event('verified', request, {
+                      log.increment('account.verified')
+                      return log.notifyAttachedServices('verified', request, {
                         email: account.email,
                         uid: account.uid,
                         locale: account.locale
                       })
-                      log.increment('account.verified')
-
+                    })
+                    .then(function () {
+                      return log.activityEvent('account.verified', fakeRequestObject, {
+                        uid: uidHex
+                      })
+                    })
+                    .then(function () {
                       if (reminder === 'first' || reminder === 'second') {
                         // if verified using a known reminder
                         var reminderOp = 'account.verified_reminder.' + reminder
 
                         log.increment(reminderOp)
-                        log.activityEvent('account.reminder', request, {
-                          uid: account.uid.toString('hex')
-                        })
                         // log to the mailer namespace that account was verified via a reminder
                         log.info({
                           op: 'mailer.send',
                           name: reminderOp
                         })
+                        return log.activityEvent('account.reminder', request, {
+                          uid: uidHex
+                        })
                       }
-
+                    })
+                    .then(function () {
                       // send a push notification to all devices that the account changed
                       push.notifyUpdate(uid, 'accountVerify')
                       // remove verification reminders
                       verificationReminder.delete({
-                        uid: account.uid.toString('hex')
+                        uid: uidHex
                       }).catch(function (err) {
                         log.error({ op: 'Account.RecoveryEmailVerify', err: err })
                       })
                     })
                     .then(function () {
                       // Our post-verification email is very specific to sync,
-                      // so don't send it if we're sure this is not for sync.
-                      // Older clients will not send a 'service' param here
-                      // so we can't always be sure.
-                      if (! service || service === 'sync') {
+                      // so only send it if we're sure this is for sync.
+                      if (service === 'sync') {
                         return mailer.sendPostVerifyEmail(
                           account.email,
                           {
@@ -1281,106 +1370,17 @@ module.exports = function (
     {
       method: 'POST',
       path: '/account/unlock/resend_code',
-      config: {
-        validate: {
-          payload: {
-            email: validators.email().required(),
-            service: isA.string().max(16).alphanum().optional(),
-            redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
-            resume: isA.string().max(2048).optional()
-          }
-        }
-      },
       handler: function (request, reply) {
-        log.begin('Account.UnlockCodeResend', request)
-        var email = request.payload.email
-        var emailRecord
-        var service = request.payload.service || request.query.service
-
-        customs.check(
-          request.app.clientAddress,
-          email,
-          'accountUnlockResendCode')
-          .then(
-            db.emailRecord.bind(db, email)
-          )
-          .then(
-            function (_emailRecord) {
-              if (! _emailRecord.lockedAt) {
-                throw error.accountNotLocked(email)
-              }
-
-              emailRecord = _emailRecord
-              return db.unlockCode(emailRecord)
-            }
-          )
-          .then(
-            function (unlockCode) {
-              return mailer.sendUnlockCode(
-                emailRecord,
-                unlockCode,
-                {
-                  service: service,
-                  redirectTo: request.payload.redirectTo,
-                  resume: request.payload.resume,
-                  acceptLanguage: request.app.acceptLanguage
-                }
-              )
-            }
-          )
-          .done(
-            function () {
-              reply({})
-            },
-            reply
-          )
+        log.error({ op: 'Account.UnlockCodeResend', request: request })
+        reply(error.gone())
       }
     },
     {
       method: 'POST',
       path: '/account/unlock/verify_code',
-      config: {
-        validate: {
-          payload: {
-            uid: isA.string().max(32).regex(HEX_STRING).required(),
-            code: isA.string().min(32).max(32).regex(HEX_STRING).required()
-          }
-        }
-      },
       handler: function (request, reply) {
-        log.begin('Account.UnlockCodeVerify', request)
-        var uid = request.payload.uid
-        var code = Buffer(request.payload.code, 'hex')
-        db.account(Buffer(uid, 'hex'))
-          .then(
-            function (account) {
-              // If the account isn't actually locked, they may be
-              // e.g. clicking a stale link.  Silently succeed.
-              if (! account.lockedAt) {
-                return
-              }
-              return db.unlockCode(account)
-                .then(
-                  function (expectedCode) {
-                    if (!butil.buffersAreEqual(code, expectedCode)) {
-                      throw error.invalidVerificationCode()
-                    }
-                    log.info({
-                      op: 'account.unlock',
-                      email: account.email,
-                      uid: account.uid
-                    })
-                    return db.unlockAccount(account)
-                  }
-                )
-            }
-          )
-          .done(
-            function () {
-              reply({})
-            },
-            reply
-          )
+        log.error({ op: 'Account.UnlockCodeVerify', request: request })
+        reply(error.gone())
       }
     },
     {
@@ -1394,7 +1394,6 @@ module.exports = function (
         validate: {
           payload: {
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
-            metricsContext: metricsContext.schema,
             sessionToken: isA.boolean().optional()
           }
         }
@@ -1405,14 +1404,26 @@ module.exports = function (
         var authPW = Buffer(request.payload.authPW, 'hex')
         var authSalt = crypto.randomBytes(32)
         var password = new Password(authPW, authSalt, config.verifierVersion)
-        var account, sessionToken, keyFetchToken, verifyHash, wrapKb
+        var account, sessionToken, keyFetchToken, verifyHash, wrapKb, devicesToNotify
         var hasSessionToken = request.payload.sessionToken
 
-        return resetAccountData()
+        return fetchDevicesToNotify()
+          .then(resetAccountData)
           .then(createSessionToken)
           .then(createKeyFetchToken)
           .then(createResponse)
           .done(reply, reply)
+
+        function fetchDevicesToNotify() {
+          // We fetch the devices to notify before resetAccountData() because
+          // db.resetAccount() deletes all the devices saved in the account.
+          return db.devices(accountResetToken.uid)
+            .then(
+              function(devices) {
+                devicesToNotify = devices
+              }
+            )
+        }
 
         function resetAccountData () {
           return password.verifyHash()
@@ -1433,8 +1444,8 @@ module.exports = function (
             )
             .then(
               function () {
-                // Notify all devices that the account has changed.
-                push.notifyUpdate(accountResetToken.uid, 'passwordReset')
+                // Notify the devices that the account has changed.
+                push.notifyPasswordReset(accountResetToken.uid, devicesToNotify)
 
                 return db.account(accountResetToken.uid)
               }
@@ -1442,13 +1453,21 @@ module.exports = function (
             .then(
               function (accountData) {
                 account = accountData
-                log.activityEvent('account.reset', request, {
+                return log.activityEvent('account.reset', request, {
                   uid: account.uid.toString('hex')
                 })
-                log.event('reset', request, {
+              }
+            )
+            .then(
+              function () {
+                return log.notifyAttachedServices('reset', request, {
                   uid: account.uid.toString('hex') + '@' + config.domain,
                   generation: account.verifierSetAt
                 })
+              }
+            )
+            .then(
+              function () {
                 return customs.reset(account.email)
               }
             )
@@ -1543,16 +1562,15 @@ module.exports = function (
         log.begin('Account.destroy', request)
         var form = request.payload
         var authPW = Buffer(form.authPW, 'hex')
+        var uid
         customs.check(
-          request.app.clientAddress,
+          request,
           form.email,
           'accountDestroy')
           .then(db.emailRecord.bind(db, form.email))
           .then(
             function (emailRecord) {
-              if (emailRecord.lockedAt) {
-                throw error.lockedAccount()
-              }
+              uid = emailRecord.uid.toString('hex')
 
               return checkPassword(emailRecord, authPW, request.app.clientAddress)
                 .then(
@@ -1565,9 +1583,20 @@ module.exports = function (
                 )
                 .then(
                   function () {
-                    log.event('delete', request, {
-                      uid: emailRecord.uid.toString('hex') + '@' + config.domain
+                    return log.notifyAttachedServices('delete', request, {
+                      uid: uid + '@' + config.domain
                     })
+                  }
+                )
+                .then(
+                  function () {
+                    return log.activityEvent('account.deleted', request, {
+                      uid: uid
+                    })
+                  }
+                )
+                .then(
+                  function () {
                     return {}
                   }
                 )
@@ -1590,60 +1619,14 @@ module.exports = function (
   if (config.isProduction) {
     delete routes[0].config.validate.payload.preVerified
   } else {
-    // programmatic account lockout is only available in non-production mode.
+    // programmatic account lockout was only available in
+    // non-production mode.
     routes.push({
       method: 'POST',
       path: '/account/lock',
-      config: {
-        validate: {
-          payload: {
-            email: validators.email().required(),
-            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required()
-          }
-        }
-      },
       handler: function (request, reply) {
-        log.begin('Account.lock', request)
-        var form = request.payload
-        var email = form.email
-        var authPW = Buffer(form.authPW, 'hex')
-
-        customs.check(
-          request.app.clientAddress,
-          email,
-          'accountLock')
-          .then(db.emailRecord.bind(db, email))
-          .then(
-            function (emailRecord) {
-              // The account is already locked, silently succeed.
-              if (emailRecord.lockedAt) {
-                return true
-              }
-              return checkPassword(emailRecord, authPW, request.app.clientAddress)
-              .then(
-                function (match) {
-                  // a bit of a strange one, only lock the account if the
-                  // password matches, otherwise let customs handle any account
-                  // lock.
-                  if (! match) {
-                    throw error.incorrectPassword(emailRecord.email, email)
-                  }
-                  log.info({
-                    op: 'account.lock',
-                    email: emailRecord.email,
-                    uid: emailRecord.uid.toString('hex')
-                  })
-                  return db.lockAccount(emailRecord)
-                }
-              )
-            }
-          )
-          .done(
-            function () {
-              reply({})
-            },
-            reply
-          )
+        log.error({ op: 'Account.lock', request: request })
+        reply(error.gone())
       }
     })
   }

@@ -126,7 +126,8 @@ module.exports = function (
                 authKey: keyFetchToken.authKey,
                 uid: keyFetchToken.uid,
                 keyBundle: keyFetchToken.keyBundle,
-                createdAt: keyFetchToken.createdAt
+                createdAt: keyFetchToken.createdAt,
+                tokenVerificationId: keyFetchToken.tokenVerificationId
               },
               'inplace'
             )
@@ -134,32 +135,6 @@ module.exports = function (
           .then(
             function () {
               return keyFetchToken
-            }
-          )
-        }.bind(this)
-      )
-  }
-
-  DB.prototype.createAccountResetToken = function (token /* authToken|passwordForgotToken */) {
-    log.trace({ op: 'DB.createAccountResetToken', uid: token && token.uid })
-    return AccountResetToken.create(token)
-      .then(
-        function (accountResetToken) {
-          return this.pool.put(
-            '/accountResetToken/' + accountResetToken.id,
-            unbuffer(
-              {
-                tokenId: accountResetToken.tokenId,
-                data: accountResetToken.data,
-                uid: accountResetToken.uid,
-                createdAt: accountResetToken.createdAt
-              },
-              'inplace'
-            )
-          )
-          .then(
-            function () {
-              return accountResetToken
             }
           )
         }.bind(this)
@@ -345,6 +320,23 @@ module.exports = function (
       )
   }
 
+  DB.prototype.keyFetchTokenWithVerificationStatus = function (id) {
+    log.trace({ op: 'DB.keyFetchTokenWithVerificationStatus', id: id })
+    return this.pool.get('/keyFetchToken/' + id.toString('hex') + '/verified')
+      .then(
+        function (body) {
+          var data = bufferize(body)
+          return KeyFetchToken.fromId(id, data)
+        },
+        function (err) {
+          if (isNotFoundError(err)) {
+            err = error.invalidToken()
+          }
+          throw err
+        }
+      )
+  }
+
   DB.prototype.accountResetToken = function (id) {
     log.trace({ op: 'DB.accountResetToken', id: id })
     return this.pool.get('/accountResetToken/' + id.toString('hex'))
@@ -408,24 +400,6 @@ module.exports = function (
         function (err) {
           if (isNotFoundError(err)) {
             err = error.unknownAccount(email)
-          }
-          throw err
-        }
-      )
-  }
-
-  DB.prototype.openIdRecord = function (id) {
-    log.trace({ op: 'DB.openIdRecord', id: id })
-    return this.pool.get('/openIdRecord/' + Buffer(id, 'utf8').toString('hex'))
-      .then(
-        function (body) {
-          var data = bufferize(body)
-          data.emailVerified = !!data.emailVerified
-          return data
-        },
-        function (err) {
-          if (err.statusCode === 404) {
-            err = error.unknownAccount()
           }
           throw err
         }
@@ -705,44 +679,6 @@ module.exports = function (
       '/account/' + accountResetToken.uid.toString('hex') + '/reset',
       unbuffer(data)
     )
-  }
-
-  DB.prototype.lockAccount = function (account) {
-    var unlockCode = crypto.randomBytes(16).toString('hex')
-    log.trace({ op: 'DB.lockAccount', uid: account && account.uid, unlockCode: unlockCode })
-
-    return this.pool.post(
-      '/account/' + account.uid.toString('hex') + '/lock',
-      {
-        lockedAt: Date.now(),
-        unlockCode: unlockCode
-      }
-    )
-  }
-
-  DB.prototype.unlockAccount = function (account) {
-    log.trace({ op: 'DB.unlockAccount', uid: account && account.uid })
-    return this.pool.post(
-      '/account/' + account.uid.toString('hex') + '/unlock'
-    )
-  }
-
-  DB.prototype.unlockCode = function (account) {
-    log.trace({ op: 'DB.unlockCode', uid: account && account.uid })
-    return this.pool.get(
-      '/account/' + account.uid.toString('hex') + '/unlockCode'
-      )
-      .then(
-        function (body) {
-          return bufferize(body).unlockCode
-        },
-        function (err) {
-          if (isNotFoundError(err)) {
-            err = error.accountNotLocked()
-          }
-          throw err
-        }
-      )
   }
 
   DB.prototype.verifyEmail = function (account) {

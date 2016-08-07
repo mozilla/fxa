@@ -5,9 +5,9 @@
 var EventEmitter = require('events').EventEmitter
 var util = require('util')
 var mozlog = require('mozlog')
-
 var config = require('../config')
 var logConfig = config.get('log')
+var P = require('./promise')
 var StatsDCollector = require('./metrics/statsd')
 
 function unbuffer(object) {
@@ -36,9 +36,23 @@ function Lug(options) {
 
   this.statsd = new StatsDCollector(this.logger)
   this.statsd.init()
-  this.metricsContext = require('./metrics/context')(this, config.getProperties())
 }
 util.inherits(Lug, EventEmitter)
+
+Lug.prototype.close = function() {
+  return this.statsd.close()
+}
+
+// Certain events can include contextual metrics data
+// such as utm_* tracking parameters.  This helper method
+// is here to work around a circular dependency between
+// this module and the `metricsContext` module.
+Lug.prototype.setMetricsContext = function (metricsContext) {
+  this.metricsContext = metricsContext
+}
+
+
+// Expose the standard error/warn/info/debug/etc log methods.
 
 Lug.prototype.trace = function (data) {
   this.logger.debug(data.op, data)
@@ -73,47 +87,7 @@ Lug.prototype.begin = function (op, request) {
   this.logger.debug(op)
 }
 
-Lug.prototype.event = function (name, request, data) {
-  var e = {
-    event: name,
-    data: unbuffer(data)
-  }
-  e.data.metricsContext = this.metricsContext.add({},
-    request.payload.metricsContext, request.headers.dnt === '1')
-  this.stdout.write(JSON.stringify(e) + '\n')
-}
-
-Lug.prototype.activityEvent = function (event, request, data) {
-  if (! data || ! data.uid) {
-    return this.error({ op: 'log.activityEvent', data: data })
-  }
-
-  var info = this.metricsContext.add({
-    event: event,
-    userAgent: request.headers['user-agent']
-  }, request.payload.metricsContext, request.headers.dnt === '1')
-  optionallySetService(info, request)
-
-  Object.keys(data).forEach(function (key) {
-    info[key] = data[key]
-  })
-
-  this.logger.info('activityEvent', info)
-  this.statsd.write(info)
-}
-
-function optionallySetService (data, request) {
-  // don't overwrite service if it is specified in metricsContext
-  if (data.service) {
-    return
-  }
-
-  try {
-    data.service = request.payload.service || request.query.service
-  } catch (err) {
-    // request.payload and request.query are not always set in the unit tests
-  }
-}
+// Expose some statsd helpers directly on the logger object.
 
 Lug.prototype.increment = function(event) {
   this.statsd.write({
@@ -124,6 +98,20 @@ Lug.prototype.increment = function(event) {
 Lug.prototype.stat = function (stats) {
   this.logger.info('stat', stats)
 }
+
+Lug.prototype.timing = function(name, timing, tags) {
+  this.statsd.timing(name, timing, tags)
+}
+
+Lug.prototype.histogram = function(name, value, tags) {
+  this.statsd.histogram(name, value, tags)
+}
+
+
+// Log a request summary line.
+// This gets called once for each compelted request.
+// See https://mana.mozilla.org/wiki/display/CLOUDSERVICES/Logging+Standard
+// for a discussion of this format and why it's used.
 
 Lug.prototype.summary = function (request, response) {
   if (request.method === 'options') { return }
@@ -160,16 +148,66 @@ Lug.prototype.summary = function (request, response) {
   }
 }
 
-Lug.prototype.timing = function(name, timing, tags) {
-  this.statsd.timing(name, timing, tags)
+
+// Broadcast an event to attached services, such as sync.
+// In production, these events are read from stdout
+// and broadcast to relying services over SNS/SQS.
+
+Lug.prototype.notifyAttachedServices = function (name, request, data) {
+  var self = this
+  return this.metricsContext.gather({}, request, name)
+    .then(
+      function (metricsContextData) {
+        var e = {
+          event: name,
+          data: unbuffer(data)
+        }
+        e.data.metricsContext = metricsContextData
+        self.stdout.write(JSON.stringify(e) + '\n')
+      }
+    )
 }
 
-Lug.prototype.histogram = function(name, value, tags) {
-  this.statsd.histogram(name, value, tags)
+// Log an activity metrics event.
+// These events indicate key points at which a particular
+// user has interacted with the service.
+
+Lug.prototype.activityEvent = function (event, request, data) {
+  if (! data || ! data.uid) {
+    this.error({ op: 'log.activityEvent', data: data })
+    return P.resolve()
+  }
+
+  var self = this
+
+  return this.metricsContext.gather({
+    event: event,
+    userAgent: request.headers['user-agent']
+  }, request, event).then(
+    function (info) {
+      optionallySetService(info, request)
+
+      Object.keys(data).forEach(function (key) {
+        info[key] = data[key]
+      })
+
+      self.logger.info('activityEvent', info)
+      self.statsd.write(info)
+    }
+  )
 }
 
-Lug.prototype.close = function() {
-  return this.statsd.close()
+function optionallySetService (data, request) {
+  // don't overwrite service if it is specified in metricsContext
+  if (data.service) {
+    return
+  }
+
+  try {
+    data.service = request.payload.service || request.query.service
+  } catch (err) {
+    // request.payload and request.query are not always set in the unit tests
+  }
 }
 
 module.exports = function (level, name, options) {

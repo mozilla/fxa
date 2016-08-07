@@ -13,6 +13,7 @@ var SessionToken = tokens.SessionToken
 var TOKEN_FRESHNESS_THRESHOLD = require('../../lib/tokens/session_token').TOKEN_FRESHNESS_THREADHOLD
 
 var ACCOUNT = {
+  createdAt: Date.now(),
   uid: 'xxx',
   email: Buffer('test@example.com').toString('hex'),
   emailCode: '123456',
@@ -64,6 +65,23 @@ test(
           t.equal(token.tokenVerificationId, token2.tokenVerificationId)
         }
       )
+  }
+)
+
+test(
+  'create with NaN createdAt',
+  function (t) {
+    return SessionToken.create({
+      createdAt: NaN,
+      email: 'foo',
+      uid: 'bar'
+    }).then(
+      function (token) {
+        var now = Date.now()
+        t.ok(token.createdAt > now - 1000 && token.createdAt <= now)
+        t.equal(token.accountCreatedAt, null)
+      }
+    )
   }
 )
 

@@ -8,6 +8,16 @@ var test = require('../ptaptest')
 var TestServer = require('../test_server')
 var url = require('url')
 
+var tokens = require('../../lib/tokens')({ trace: function() {}})
+function getSessionTokenId(sessionTokenHex) {
+  return tokens.SessionToken.fromHex(sessionTokenHex)
+    .then(
+      function (token) {
+        return token.id
+      }
+    )
+}
+
 process.env.SIGNIN_CONFIRMATION_ENABLED = true
 process.env.SIGNIN_CONFIRMATION_RATE = 1.0
 
@@ -20,13 +30,13 @@ TestServer.start(config)
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var newPassword = 'foobar'
-      var kB, kA, client, firstAuthPW, originalSessionTokenId
+      var kB, kA, client, firstAuthPW, originalSessionToken
 
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
           function (x) {
             client = x
-            originalSessionTokenId = client.sessionToken
+            originalSessionToken = client.sessionToken
             firstAuthPW = x.authPW.toString('hex')
             return client.keys()
           }
@@ -75,18 +85,22 @@ TestServer.start(config)
             t.equal(status.verified, false, 'account is unverified')
             t.equal(status.emailVerified, true, 'account email is verified')
             t.equal(status.sessionVerified, false, 'account session is unverified')
-            return client.keys()
           }
         )
         .then(
           function () {
-            return client.changePassword(newPassword, undefined, client.sessionToken)
+            return getSessionTokenId(client.sessionToken)
+          }
+        )
+        .then(
+          function (sessionTokenId) {
+            return client.changePassword(newPassword, undefined, sessionTokenId)
           }
         )
         .then(
           function (response) {
             // Verify correct change password response
-            t.notEqual(response.sessionToken, originalSessionTokenId, 'session token has changed')
+            t.notEqual(response.sessionToken, originalSessionToken, 'session token has changed')
             t.ok(response.keyFetchToken, 'key fetch token returned')
             t.notEqual(client.authPW.toString('hex'), firstAuthPW, 'password has changed')
           }
@@ -120,7 +134,7 @@ TestServer.start(config)
         )
         .then(
           function () {
-            return Client.login(config.publicUrl, email, newPassword, {keys:true})
+            return Client.loginAndVerify(config.publicUrl, email, newPassword, server.mailbox, {keys:true})
           }
         )
         .then(
@@ -144,13 +158,13 @@ TestServer.start(config)
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var newPassword = 'foobar'
-      var kB, kA, client, firstAuthPW, originalSessionTokenId
+      var kB, kA, client, firstAuthPW, originalSessionToken
 
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
           function (x) {
             client = x
-            originalSessionTokenId = client.sessionToken
+            originalSessionToken = client.sessionToken
             firstAuthPW = x.authPW.toString('hex')
             return client.keys()
           }
@@ -173,12 +187,17 @@ TestServer.start(config)
         )
         .then(
           function () {
-            return client.changePassword(newPassword, undefined, client.sessionToken)
+            return getSessionTokenId(client.sessionToken)
+          }
+        )
+        .then(
+          function (sessionTokenId) {
+            return client.changePassword(newPassword, undefined, sessionTokenId)
           }
         )
         .then(
           function (response) {
-            t.notEqual(response.sessionToken, originalSessionTokenId, 'session token has changed')
+            t.notEqual(response.sessionToken, originalSessionToken, 'session token has changed')
             t.ok(response.keyFetchToken, 'key fetch token returned')
             t.notEqual(client.authPW.toString('hex'), firstAuthPW, 'password has changed')
           }
@@ -209,7 +228,7 @@ TestServer.start(config)
         )
         .then(
           function () {
-            return Client.login(config.publicUrl, email, newPassword, {keys:true})
+            return Client.loginAndVerify(config.publicUrl, email, newPassword, server.mailbox, {keys:true})
           }
         )
         .then(
@@ -222,6 +241,62 @@ TestServer.start(config)
           function (keys) {
             t.deepEqual(keys.kB, kB, 'kB is preserved')
             t.deepEqual(keys.kA, kA, 'kA is preserved')
+          }
+        )
+    }
+  )
+
+  test(
+    'password change, with raw session data rather than session token id',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'allyourbasearebelongtous'
+      var newPassword = 'foobar'
+      var client, firstAuthPW, originalSessionToken
+
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
+        .then(
+          function (x) {
+            client = x
+            originalSessionToken = client.sessionToken
+            firstAuthPW = x.authPW.toString('hex')
+            return client.keys()
+          }
+        )
+        .then(
+          function () {
+            return client.emailStatus()
+          }
+        )
+        .then(
+          function (status) {
+            t.equal(status.verified, true, 'account is verified')
+          }
+        )
+        .then(
+          function () {
+            return client.changePassword(newPassword, undefined, client.sessionToken)
+          }
+        )
+        .then(
+          function (response) {
+            t.notEqual(response.sessionToken, originalSessionToken, 'session token has changed')
+            t.ok(response.keyFetchToken, 'key fetch token returned')
+            t.notEqual(client.authPW.toString('hex'), firstAuthPW, 'password has changed')
+          }
+        )
+        .then(
+          function () {
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            var subject = emailData.headers['subject']
+            t.equal(subject, 'Your Firefox Account password has been changed', 'password email subject set correctly')
+            var link = emailData.headers['x-link']
+            var query = url.parse(link, true).query
+            t.ok(query.email, 'email is in the link')
           }
         )
     }
@@ -277,7 +352,7 @@ TestServer.start(config)
         )
         .then(
           function () {
-            return Client.login(config.publicUrl, email, newPassword, {keys:true})
+            return Client.loginAndVerify(config.publicUrl, email, newPassword, server.mailbox, {keys:true})
           }
         )
         .then(
@@ -318,36 +393,6 @@ TestServer.start(config)
           t.fail,
           function (err) {
             t.equal(err.errno, 103, 'invalid password')
-          }
-        )
-    }
-  )
-
-  test(
-    'change password on locked account',
-    function (t) {
-      var email = server.uniqueEmail()
-      var password = 'wibble'
-      var client
-      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
-        .then(
-          function (c) {
-            client = c
-            return client.lockAccount()
-          }
-        )
-        .then(
-          function () {
-            return client.changePassword('foobar')
-          }
-        )
-        .then(
-          t.fail,
-          function (error) {
-            t.equal(error.code, 400)
-            t.equal(error.error, 'Bad Request')
-            t.equal(error.errno, 121)
-            t.equal(error.message, 'Account is locked')
           }
         )
     }

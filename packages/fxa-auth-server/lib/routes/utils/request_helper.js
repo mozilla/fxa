@@ -27,14 +27,22 @@ function shouldEnableSigninConfirmation(account, config, request) {
     return false
   }
 
-  // Check for valid context
-  var context = request.payload && request.payload.metricsContext && request.payload.metricsContext.context
-  var isValidContext = context && (config.signinConfirmation.supportedClients.indexOf(context) > -1)
-  if (!isValidContext) {
+  // Always enable if customs-server has said the request is suspicious.
+  if (request.app.isSuspiciousRequest) {
+    return true
+  }
+
+  // While we're testing this feature, there are some funky
+  // edge-cases around flows that do not request keys.
+  // Temporarily avoid them by creating a pre-verified session
+  // when keys are not requested.  This check will go away
+  // in the final version of the feature.
+  var keysRequested = wantsKeys(request)
+  if (!keysRequested) {
     return false
   }
 
-  // If feature enabled, always enable for email addresses matching this regex
+  // Or if the email address matching one of these regexes.
   var email = account.email
   var isValidEmail = config.signinConfirmation.forceEmailRegex.some(function (reg) {
     var emailReg = new RegExp(reg)
@@ -45,8 +53,19 @@ function shouldEnableSigninConfirmation(account, config, request) {
     return true
   }
 
-  // Check to see if user in roll-out cohort. Cohort is determined by
-  // user's uid
+  // While we're testing this feature, there may be some funky
+  // edge-cases in device login flows that haven't been fully tested.
+  // Temporarily avoid them for regular users by checking the `context` flag,
+  // and create pre-verified sessions for unsupported clients.
+  // This check will go away in the final version of this feature.
+  var context = request.payload && request.payload.metricsContext && request.payload.metricsContext.context
+  var isValidContext = context && (config.signinConfirmation.supportedClients.indexOf(context) > -1)
+  if (!isValidContext) {
+    return false
+  }
+
+  // Check to see if user in roll-out cohort.
+  // Cohort is determined by user's uid.
   var uid = account.uid.toString('hex')
   var uidNum = parseInt(uid.substr(0, 4), 16) % 100
   return uidNum < (config.signinConfirmation.sample_rate * 100)

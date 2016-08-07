@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+set -euo pipefail
+
 node ./scripts/gen_keys.js
 node ./test/mail_helper.js &
 MH=$!

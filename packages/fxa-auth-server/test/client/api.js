@@ -268,13 +268,6 @@ ClientApi.prototype.accountReset = function (accountResetTokenHex, authPW, heade
     options.sessionToken = true
   }
 
-  // Default to desktop client context
-  if (!options.metricsContext) {
-    options.metricsContext = {
-      context: 'fx_desktop_v3'
-    }
-  }
-
   return tokens.AccountResetToken.fromHex(accountResetTokenHex)
     .then(
       function (token) {
@@ -284,7 +277,6 @@ ClientApi.prototype.accountReset = function (accountResetTokenHex, authPW, heade
           token,
           {
             authPW: authPW.toString('hex'),
-            metricsContext: options.metricsContext || undefined,
             sessionToken: options.sessionToken
           },
           headers
@@ -366,8 +358,7 @@ ClientApi.prototype.certificateSign = function (sessionTokenHex, publicKey, dura
           token,
           {
             publicKey: publicKey,
-            duration: duration,
-            metricsContext: options.metricsContext || undefined
+            duration: duration
           },
           {
             'accept-language': locale

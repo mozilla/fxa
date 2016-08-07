@@ -7,6 +7,18 @@ var Pool = require('./pool')
 
 module.exports = function (log, error) {
 
+  // Perform a deep clone of payload and remove user password.
+  function sanitizePayload(payload) {
+    // Once we move to Node4, use https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
+    var clonePayload = JSON.parse(JSON.stringify(payload))
+
+    if (clonePayload.authPW) {
+      delete clonePayload.authPW
+    }
+
+    return clonePayload
+  }
+
   function Customs(url) {
     if (url === 'none') {
       this.pool = {
@@ -19,24 +31,63 @@ module.exports = function (log, error) {
     }
   }
 
-  Customs.prototype.check = function (ip, email, action) {
+  Customs.prototype.check = function (request, email, action) {
     log.trace({ op: 'customs.check', email: email, action: action })
     return this.pool.post(
       '/check',
       {
-        ip: ip,
+        ip: request.app.clientAddress,
         email: email,
-        action: action
+        action: action,
+        headers: request.headers,
+        query: request.query,
+        payload: sanitizePayload(request.payload)
       }
     )
     .then(
       function (result) {
         if (result.block) {
-          throw error.tooManyRequests(result.retryAfter)
+          if (result.retryAfter) {
+            throw error.tooManyRequests(result.retryAfter)
+          }
+          throw error.requestBlocked()
+        }
+        if (result.suspect) {
+          request.app.isSuspiciousRequest = true
         }
       },
       function (err) {
         log.error({ op: 'customs.check.1', email: email, action: action, err: err })
+        // If this happens, either:
+        // - (1) the url in config doesn't point to a real customs server
+        // - (2) the customs server returned an internal server error
+        // Either way, allow the request through so we fail open.
+      }
+    )
+  }
+
+  Customs.prototype.checkAuthenticated = function (action, ip, uid) {
+    log.trace({ op: 'customs.checkAuthenticated', action: action,  uid: uid })
+
+    return this.pool.post(
+      '/checkAuthenticated',
+      {
+        action: action,
+        ip: ip,
+        uid: uid
+      }
+    )
+    .then(
+      function (result) {
+        if (result.block) {
+          if (result.retryAfter) {
+            throw error.tooManyRequests(result.retryAfter)
+          }
+          throw error.requestBlocked()
+        }
+      },
+      function (err) {
+        log.error({ op: 'customs.checkAuthenticated', uid: uid, action: action, err: err })
         // If this happens, either:
         // - (1) the url in config doesn't point to a real customs server
         // - (2) the customs server returned an internal server error
@@ -58,16 +109,14 @@ module.exports = function (log, error) {
       }
     )
     .then(
-      function (result) {
-        return { lockout: !!result.lockout }
-      },
+      // There's no useful information in the HTTP response, discard it.
+      function () {},
       function (err) {
         log.error({ op: 'customs.flag.1', email: email, err: err })
         // If this happens, either:
         // - (1) the url in config doesn't point to a real customs server
         // - (2) the customs server returned an internal server error
         // Either way, allow the request through so we fail open.
-        return { lockout: false }
       }
     )
   }
@@ -81,6 +130,7 @@ module.exports = function (log, error) {
       }
     )
     .then(
+      // There's no useful information in the HTTP response, discard it.
       function () {},
       function (err) {
         log.error({ op: 'customs.reset.1', email: email, err: err })

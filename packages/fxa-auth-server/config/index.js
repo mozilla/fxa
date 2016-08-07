@@ -17,6 +17,20 @@ var conf = convict({
     format: [ 'dev', 'test', 'stage', 'prod' ],
     env: 'NODE_ENV'
   },
+  geodb: {
+    dbPath: {
+      doc: 'Path to the maxmind database file',
+      default: path.resolve(__dirname, '../node_modules/fxa-geodb/db/cities-db.mmdb'),
+      env: 'GEODB_DBPATH',
+      format: String
+    },
+    enabled: {
+      doc: 'kill-switch for geodb',
+      default: true,
+      env: 'GEODB_ENABLED',
+      format: Boolean
+    }
+  },
   log: {
     level: {
       default: 'info',
@@ -26,6 +40,25 @@ var conf = convict({
       format: ['heka', 'pretty'],
       default: 'heka',
       env: 'LOG_FORMAT'
+    }
+  },
+  memcached: {
+    address: {
+      doc: 'Address:port of the memcached server (or `none` to disable memcached)',
+      default: '127.0.0.1:11211',
+      env: 'MEMCACHE_METRICS_CONTEXT_ADDRESS'
+    },
+    idle: {
+      doc: 'Idle timeout for memcached connections (milliseconds)',
+      format: Number,
+      default: 30000,
+      env: 'MEMCACHE_METRICS_CONTEXT_IDLE'
+    },
+    lifetime: {
+      doc: 'Lifetime for memcached values (seconds)',
+      format: 'nat',
+      default: 1800,
+      env: 'MEMCACHE_METRICS_CONTEXT_LIFETIME'
     }
   },
   publicUrl: {
@@ -206,6 +239,16 @@ var conf = convict({
       format: String,
       default: 'firefox.com',
       env: 'REDIRECT_DOMAIN'
+    },
+    privacyUrl: {
+      doc: 'url to Mozilla privacy page',
+      format: String,
+      default: 'https://www.mozilla.org/privacy'
+    },
+    passwordManagerInfoUrl: {
+      doc: 'url to Firefox password manager information',
+      format: String,
+      default: 'https://support.mozilla.org/kb/password-manager-remember-delete-change-and-import#w_viewing-and-deleting-passwords'
     }
   },
   maxEventLoopDelay: {
@@ -323,6 +366,14 @@ var conf = convict({
     env: 'DEVICE_UPDATES_ENABLED',
     default: true
   },
+  // A safety switch to disable device-driven notifications,
+  // in case problems with the client logic cause server overload.
+  deviceNotificationsEnabled: {
+    doc: 'Are device-driven notifications enabled?',
+    format: Boolean,
+    env: 'DEVICE_NOTIFICATIONS_ENABLED',
+    default: true
+  },
   oauth: {
     url: {
       format: 'url',
@@ -342,12 +393,6 @@ var conf = convict({
         default: false
       }
     }
-  },
-  openIdProviders: {
-    doc: 'root urls of allowed OpenID providers',
-    format: Array,
-    default: [],
-    env: 'OPENID_PROVIDERS'
   },
   statsd: {
     enabled: {
@@ -375,12 +420,14 @@ var conf = convict({
     flow_id_key: {
       default: 'YOU MUST CHANGE ME',
       doc: 'FlowId validation key, as used by content-server',
-      format: String
+      format: String,
+      env: 'FLOW_ID_KEY'
     },
     flow_id_expiry: {
       doc: 'Time after which flowIds are considered stale.',
       format: 'duration',
-      default: '30 minutes'
+      default: '30 minutes',
+      env: 'FLOW_ID_EXPIRY'
     }
   },
   corsOrigin: {
@@ -402,7 +449,7 @@ var conf = convict({
       env: 'SIGNIN_CONFIRMATION_ENABLED'
     },
     sample_rate: {
-      doc: 'signin confirmation sample rate',
+      doc: 'signin confirmation sample rate, between 0.0 and 1.0',
       default: 1.0,
       env: 'SIGNIN_CONFIRMATION_RATE'
     },
@@ -415,7 +462,10 @@ var conf = convict({
         'fx_firstrun_v2',
         'fx_desktop_v1',
         'fx_desktop_v2',
-        'fx_desktop_v3'
+        'fx_desktop_v3',
+        'fx_ios_v1',
+        'fx_ios_v2',
+        'fx_fennec_v1'
       ],
       env: 'SIGNIN_CONFIRMATION_SUPPORTED_CLIENTS'
     },
@@ -451,8 +501,5 @@ conf.set('smtp.initiatePasswordChangeUrl', conf.get('contentServer.url') + '/set
 conf.set('smtp.verifyLoginUrl', conf.get('contentServer.url') + '/complete_signin')
 
 conf.set('isProduction', conf.get('env') === 'prod')
-
-conf.set('openIdVerifyUrl', conf.get('publicUrl') + '/v1/account/openid/login')
-
 
 module.exports = conf

@@ -8,6 +8,10 @@ module.exports = function (log, inherits, Token, P, error) {
     Token.call(this, keys, details)
     this.keyBundle = details.keyBundle
     this.emailVerified = !!details.emailVerified
+
+    // Tokens are considered verified if no tokenVerificationId exists
+    this.tokenVerificationId = details.tokenVerificationId || null
+    this.tokenVerified = this.tokenVerificationId ? false : true
   }
   inherits(KeyFetchToken, Token)
 

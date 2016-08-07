@@ -23,6 +23,8 @@
  *
  */
 
+var config = require('../../config').getProperties()
+
 module.exports = function (log, crypto, P, hkdf, Bundle, error) {
 
   // Token constructor.
@@ -38,7 +40,19 @@ module.exports = function (log, crypto, P, hkdf, Bundle, error) {
     this.algorithm = 'sha256'
     this.uid = details.uid || null
     this.lifetime = details.lifetime || Infinity
-    this.createdAt = details.createdAt >= 0 ? details.createdAt : Date.now()
+    this.createdAt = optionallyOverrideCreatedAt(details.createdAt)
+  }
+
+  function optionallyOverrideCreatedAt (timestamp) {
+    var now = Date.now()
+
+    if (! config.isProduction && timestamp >= 0 && timestamp < now) {
+      // In the wild, all tokens should have a fresh createdAt timestamp.
+      // For testing purposes only, allow createdAt to be overridden.
+      return timestamp
+    }
+
+    return now
   }
 
   // Create a new token of the given type.

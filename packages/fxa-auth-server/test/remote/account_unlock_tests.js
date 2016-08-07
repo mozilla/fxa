@@ -3,10 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('../ptaptest')
-var url = require('url')
-var Client = require('../client')
 var TestServer = require('../test_server')
-
+var Client = require('../client')
 
 var config = require('../../config').getProperties()
 
@@ -14,278 +12,60 @@ TestServer.start(config)
 .then(function main(server) {
 
   test(
-    'unlock account',
+    '/account/lock is no longer supported',
     function (t) {
-      var email = server.uniqueEmail()
-      var password = 'allyourbasearebelongtous'
-      var client = null
-      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
-        .then(
-          function () {
-            return Client.login(config.publicUrl, email, password)
-          }
-        )
+      return Client.create(config.publicUrl, server.uniqueEmail(), 'password')
         .then(
           function (c) {
-            client = c
-            // clear the new-login notification email
-            return server.mailbox.waitForEmail(email)
+            return c.lockAccount()
           }
         )
         .then(
           function () {
-            return client.lockAccount(email, password)
-          }
-        )
-        .then(
-          function () {
-            return client.resendAccountUnlockCode()
-          }
-        )
-        .then(
-          function () {
-            return server.mailbox.waitForCode(email)
-          }
-        )
-        .then(
-          function (code) {
-            return client.verifyAccountUnlockCode(client.uid, code)
-          }
-        )
-    }
-  )
-
-  test(
-    'unlock email tunnels oauth state parameters',
-    function (t) {
-      var email = server.uniqueEmail()
-      var password = 'something'
-      var client = null
-      var options = {
-        redirectTo: 'https://sync.' + config.smtp.redirectDomain,
-        service: 'sync'
-      }
-      return Client.create(config.publicUrl, email, password, options)
-        .then(
-          function (c) {
-            client = c
-          }
-        )
-        .then(
-          function () {
-            return server.mailbox.waitForEmail(email)
-          }
-        )
-        .then(
-          function () {
-            return client.lockAccount(email, password)
-          }
-        )
-        .then(
-          function () {
-            return client.resendAccountUnlockCode()
-          }
-        )
-        .then(
-          function () {
-            return server.mailbox.waitForEmail(email)
-          }
-        )
-        .then(
-          function (emailData) {
-            var link = emailData.headers['x-link']
-            var query = url.parse(link, true).query
-            t.ok(query.uid, 'uid is in link')
-            t.ok(query.code, 'code is in link')
-            t.equal(query.redirectTo, options.redirectTo, 'redirectTo is in link')
-            t.equal(query.service, options.service, 'service is in link')
-          }
-        )
-    }
-  )
-
-  test(
-    'resend account unlock code for account that is not locked',
-    function (t) {
-      var email = server.uniqueEmail()
-      var password = 'allyourbasearebelongtous'
-      var client = null
-      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
-        .then(
-          function () {
-            return Client.login(config.publicUrl, email, password)
-          }
-        )
-        .then(
-          function (c) {
-            client = c
-            return client.resendAccountUnlockCode()
-          }
-        )
-        .then(
-          function () {
-            t.fail('resendAccountUnlockCode is expected to fail')
+            t.fail('should get an error')
           },
-          function (err) {
-            t.equal(err.code, 400, '400 status code')
-            t.equal(err.errno, 122, 'account is not locked errno')
+          function (e) {
+            t.equal(e.code, 410, 'correct error status code')
           }
         )
     }
   )
 
   test(
-    're-verify an account unlock when an account is not locked',
+    '/account/unlock/resend_code is no longer supported',
     function (t) {
-      var email = server.uniqueEmail()
-      var password = 'allyourbasearebelongtous'
-      var client = null
-      var code = null
-      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
-        .then(
-          function () {
-            return Client.login(config.publicUrl, email, password)
-          }
-        )
+      return Client.create(config.publicUrl, server.uniqueEmail(), 'password')
         .then(
           function (c) {
-            client = c
-            // clear the new-login notification email
-            return server.mailbox.waitForEmail(email)
+            return c.resendAccountUnlockCode('en')
           }
         )
         .then(
           function () {
-            return client.lockAccount(email, password)
-          }
-        )
-        .then(
-          function () {
-            return client.resendAccountUnlockCode()
-          }
-        )
-        .then(
-          function () {
-            return server.mailbox.waitForCode(email)
-          }
-        )
-        .then(
-          function (_code) {
-            code = _code
-            return client.verifyAccountUnlockCode(client.uid, code)
-          }
-        )
-        .then(
-          function () {
-            // the user may be re-verifying a stale link,
-            // silently succeed.
-            return client.verifyAccountUnlockCode(client.uid, code)
-          }
-        )
-    }
-  )
-
-  test(
-    'unlock account with incorrect verify code',
-    function (t) {
-      var email = server.uniqueEmail()
-      var password = 'allyourbasearebelongtous'
-      var client
-      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
-        .then(
-          function () {
-            return Client.login(config.publicUrl, email, password)
-          }
-        )
-        .then(
-          function (c) {
-            client = c
-            // clear the new-login notification email
-            return server.mailbox.waitForEmail(email)
-          }
-        )
-        .then(
-          function () {
-            return client.lockAccount(email, password)
-          }
-        )
-        .then(
-          function () {
-            return client.resendAccountUnlockCode()
-          }
-        )
-        .then(
-          function () {
-            return server.mailbox.waitForCode(email)
-          }
-        )
-        .then(
-          function (code) {
-            return client.verifyAccountUnlockCode(client.uid, 'deadbeefbaadf00ddeadbeefbaadf00d')
-          }
-        )
-        .then(
-          function () {
-            t.fail('verifyAccountUnlockCode was expected to fail')
+            t.fail('should get an error')
           },
-          function (error) {
-            t.equal(error.code, 400)
-            t.equal(error.error, 'Bad Request')
-            t.equal(error.errno, 105)
-            t.equal(error.message, 'Invalid verification code')
+          function (e) {
+            t.equal(e.code, 410, 'correct error status code')
           }
         )
     }
   )
 
   test(
-    'unlock account with bad verify code',
+    '/account/unlock/verify_code is no longer supported',
     function (t) {
-      var email = server.uniqueEmail()
-      var password = 'allyourbasearebelongtous'
-      var client
-      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
-        .then(
-          function () {
-            return Client.login(config.publicUrl, email, password)
-          }
-        )
+      return Client.create(config.publicUrl, server.uniqueEmail(), 'password')
         .then(
           function (c) {
-            client = c
-            // clear the new-login notification email
-            return server.mailbox.waitForEmail(email)
+            return c.verifyAccountUnlockCode('bigscaryuid', 'bigscarycode')
           }
         )
         .then(
           function () {
-            return client.lockAccount(email, password)
-          }
-        )
-        .then(
-          function () {
-            return client.resendAccountUnlockCode()
-          }
-        )
-        .then(
-          function () {
-            return server.mailbox.waitForCode(email)
-          }
-        )
-        .then(
-          function (code) {
-            return client.verifyAccountUnlockCode(client.uid, 'wibble')
-          }
-        )
-        .then(
-          function () {
-            t.fail('verifyAccountUnlockCode was expected to fail')
+            t.fail('should get an error')
           },
-          function (error) {
-            t.equal(error.code, 400)
-            t.equal(error.error, 'Bad Request')
-            t.equal(error.errno, 107)
-            t.equal(error.message, 'Invalid parameter in request body')
+          function (e) {
+            t.equal(e.code, 410, 'correct error status code')
           }
         )
     }

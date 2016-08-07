@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('../ptaptest')
+var test = require('tap').test
 var TestServer = require('../test_server')
 var Client = require('../client')
 var P = require('../../lib/promise')
 
+var config = require('../../config').getProperties()
 
 process.env.VERIFIER_VERSION = '1'
-var config = require('../../config').getProperties()
 
 TestServer.start(config)
 .then(function main(server) {

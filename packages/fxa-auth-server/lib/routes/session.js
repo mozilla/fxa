@@ -17,7 +17,7 @@ module.exports = function (log, isA, error, db) {
         log.begin('Session.destroy', request)
         var sessionToken = request.auth.credentials
         db.deleteSessionToken(sessionToken)
-          .done(
+          .then(
             function () {
               reply({})
             },

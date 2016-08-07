@@ -219,54 +219,6 @@ TestServer.start(config)
   )
 
   test(
-    'certificate sign works with minimal metricsContext metadata',
-    function (t) {
-      var duration = 1000 * 60 * 60 * 24 // 24 hours
-      return Client.createAndVerify(config.publicUrl, server.uniqueEmail(), 'foo', server.mailbox)
-        .then(
-          function (client) {
-            return client.sign(publicKey, duration, null, {
-              metricsContext: {
-                flowId: 'deadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00d',
-                flowBeginTime: 1
-              }
-            })
-          }
-        )
-        .then(
-          function (cert) {
-            t.ok(cert, 'signed certificate')
-          }
-        )
-    }
-  )
-
-  test(
-    'certificate sign fails with invalid metricsContext flowId',
-    function (t) {
-      var duration = 1000 * 60 * 60 * 24 // 24 hours
-      return Client.createAndVerify(config.publicUrl, server.uniqueEmail(), 'foo', server.mailbox)
-        .then(
-          function (client) {
-            return client.sign(publicKey, duration, null, {
-              metricsContext: {
-                flowId: 'deadbeefbaadf00ddeadbeefbaadf00d',
-                flowBeginTime: 1
-              }
-            })
-          }
-        )
-        .then(
-          function () {
-            t.fail('certificate sign should have failed')
-          }, function (err) {
-            t.ok(err, 'certificate sign failed')
-          }
-        )
-    }
-  )
-
-  test(
     'teardown',
     function (t) {
       server.stop()

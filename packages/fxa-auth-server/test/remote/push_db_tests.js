@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-require('ass')
 var tap = require('tap')
 var test = tap.test
 var P = require('../../lib/promise')
@@ -121,7 +120,7 @@ test(
 
         .then(function () {
           var pushWithUnknown400 = proxyquire('../../lib/push', mocksUnknown400)(mockLog, db)
-          return pushWithUnknown400.pushToDevices(ACCOUNT.uid, 'accountVerify')
+          return pushWithUnknown400.pushToAllDevices(ACCOUNT.uid, 'accountVerify')
         })
         .then(function () {
           return db.devices(ACCOUNT.uid)
@@ -136,7 +135,7 @@ test(
 
         .then(function () {
           var pushWithKnown400 = proxyquire('../../lib/push', mocksKnown400)(mockLog, db)
-          return pushWithKnown400.pushToDevices(ACCOUNT.uid, 'accountVerify')
+          return pushWithKnown400.pushToAllDevices(ACCOUNT.uid, 'accountVerify')
         })
         .then(function () {
           return db.devices(ACCOUNT.uid)
