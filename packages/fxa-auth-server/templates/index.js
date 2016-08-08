@@ -55,6 +55,7 @@ module.exports = function () {
       'post_verify',
       'recovery',
       'suspicious_location',
+      'unblock_code',
       'verification_reminder_first',
       'verification_reminder_second',
       'verify',

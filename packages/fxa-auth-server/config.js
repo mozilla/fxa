@@ -218,5 +218,6 @@ conf.set('mail.passwordResetUrl', contentServerUrl + '/v1/complete_reset_passwor
 conf.set('mail.initiatePasswordResetUrl', contentServerUrl + '/reset_password')
 conf.set('mail.initiatePasswordChangeUrl', contentServerUrl + '/settings/change_password')
 conf.set('mail.verifyLoginUrl', contentServerUrl + '/complete_signin')
+conf.set('mail.reportSignInUrl', contentServerUrl + '/reject_unblock_code')
 
 module.exports = conf

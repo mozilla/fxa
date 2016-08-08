@@ -23,6 +23,7 @@ module.exports = function (log) {
     'postVerifyEmail': 'account-verified',
     'recoveryEmail': 'forgot-password',
     'suspiciousLocationEmail': 'suspicious-location',
+    'unblockCode': 'new-unblock',
     'verifyEmail': 'welcome',
     'verifyLoginEmail': 'new-signin',
     'verificationReminderFirstEmail': 'hello-again-first',
@@ -40,6 +41,7 @@ module.exports = function (log) {
     'postVerifyEmail': 'connect-device',
     'recoveryEmail': 'reset-password',
     'suspiciousLocationEmail': 'password-reset',
+    'unblockCode': 'unblock-code',
     'verificationReminderFirstEmail': 'activate',
     'verificationReminderSecondEmail': 'activate',
     'verificationReminderEmail': 'activate',
@@ -102,6 +104,7 @@ module.exports = function (log) {
     this.passwordManagerInfoUrl = config.passwordManagerInfoUrl
     this.passwordResetUrl = config.passwordResetUrl
     this.privacyUrl = config.privacyUrl
+    this.reportSignInUrl = config.reportSignInUrl
     this.sender = config.sender
     this.supportUrl = config.supportUrl
     this.syncUrl = config.syncUrl
@@ -268,6 +271,43 @@ module.exports = function (log) {
         privacyUrl: links.privacyUrl,
         supportUrl: links.supportUrl,
         supportLinkAttributes: links.supportLinkAttributes
+      },
+      uid: message.uid
+    })
+  }
+
+  Mailer.prototype.unblockCodeEmail = function (message) {
+    log.trace({ op: 'mailer.unblockCodeEmail', email: message.email, uid: message.uid })
+
+    var templateName = 'unblockCodeEmail'
+    var query = {
+      unblockCode: message.unblockCode,
+      email: message.email,
+      uid: message.uid
+    }
+
+    var links = this._generateLinks(null, message.email, query, templateName)
+
+    return this.send({
+      acceptLanguage: message.acceptLanguage,
+      email: message.email,
+      headers: {
+        'X-Uid': message.uid,
+        'X-Unblock-Code': message.unblockCode,
+        'X-Report-SignIn-Link': links.reportSignInLink
+      },
+      subject: gettext('Firefox Account Authorization Code'),
+      template: templateName,
+      templateValues: {
+        device: this._formatUserAgentInfo(message),
+        email: message.email,
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        privacyUrl: links.privacyUrl,
+        reportSignInLink: links.reportSignInLink,
+        reportSignInLinkAttributes: links.reportSignInLinkAttributes,
+        timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage),
+        unblockCode: message.unblockCode
       },
       uid: message.uid
     })
@@ -591,8 +631,10 @@ module.exports = function (log) {
 
     var utmContent = templateNameToContentMap[templateName]
 
-    links['alternativeLink'] = this._generateUTMLink(primaryLink, query, templateName, utmContent + '-alternative')
-    links['link'] = this._generateUTMLink(primaryLink, query, templateName, utmContent)
+    if (primaryLink && utmContent) {
+      links['alternativeLink'] = this._generateUTMLink(primaryLink, query, templateName, utmContent + '-alternative')
+      links['link'] = this._generateUTMLink(primaryLink, query, templateName, utmContent)
+    }
     links['privacyUrl'] = this.createPrivacyLink(templateName)
 
     links['supportLinkAttributes'] = this._supportLinkAttributes(templateName)
@@ -609,8 +651,13 @@ module.exports = function (log) {
 
     links['passwordManagerInfoUrl'] = this._generateUTMLink(this.passwordManagerInfoUrl, query, templateName, 'password-info')
 
+    links['reportSignInLink'] = this.createReportSignInLink(templateName, query)
+    links['reportSignInLinkAttributes'] = this._reportSignInLinkAttributes(email, templateName, query)
+
     var queryOneClick = extend(query, {one_click: true})
-    links['oneClickLink'] = this._generateUTMLink(primaryLink, queryOneClick, templateName, utmContent + '-oneclick')
+    if (primaryLink && utmContent) {
+      links['oneClickLink'] = this._generateUTMLink(primaryLink, queryOneClick, templateName, utmContent + '-oneclick')
+    }
 
     return links
   }
@@ -627,6 +674,18 @@ module.exports = function (log) {
     var query = { email: email }
 
     return this._generateUTMLink(this.initiatePasswordChangeUrl, query, templateName, 'change-password')
+  }
+
+  Mailer.prototype.createReportSignInLink = function (templateName, data) {
+    var query = {
+      uid: data.uid,
+      unblockCode: data.unblockCode
+    }
+    return this._generateUTMLink(this.reportSignInUrl, query, templateName, 'report')
+  }
+
+  Mailer.prototype._reportSignInLinkAttributes = function (email, templateName, query) {
+    return linkAttributes(this.createReportSignInLink(templateName, query))
   }
 
   Mailer.prototype.createSupportLink = function (templateName) {
