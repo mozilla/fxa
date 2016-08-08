@@ -145,6 +145,20 @@ define([], function () {
       status: 404,
       headers: {},
       body: '<html><body>Something is wrong.</body></html>'
+    },
+    signInBlocked: {
+      status: 429,
+      headers: {},
+      body: JSON.stringify({
+        code: 429,
+        errno: 125,
+        verificationMethod: 'email-captcha',
+        verificationReason: 'login'
+      })
+    },
+    signInInvalidUnblockCode: {
+      status: 400,
+      body: '{"code":400, "errno": 127}'
     }
   };
 });
