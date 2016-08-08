@@ -753,7 +753,7 @@ module.exports = function(cfg, server) {
   test(
     'account reset token handling',
     function (t) {
-      t.plan(11)
+      t.plan(15)
       var user = fake.newUserDataHex()
       return client.putThen('/account/' + user.accountId, user.account)
         .then(function() {
@@ -763,7 +763,17 @@ module.exports = function(cfg, server) {
           t.fail('A non-existant session token should not have returned anything')
         }, function(err) {
           t.pass('No session token exists yet')
-          return client.putThen('/accountResetToken/' + user.accountResetTokenId, user.accountResetToken)
+          return client.putThen('/passwordForgotToken/' + user.passwordForgotTokenId, user.passwordForgotToken)
+        })
+        .then(function(r) {
+          respOk(t, r)
+          // now, verify the password (which inserts the accountResetToken)
+          return client.postThen('/passwordForgotToken/' + user.passwordForgotTokenId + '/verified', user.accountResetToken)
+        })
+        .then(function(r) {
+          respOk(t, r)
+          // check the accountResetToken exists
+          return client.getThen('/accountResetToken/' + user.accountResetTokenId)
         })
         .then(function(r) {
           respOk(t, r)
@@ -920,7 +930,6 @@ module.exports = function(cfg, server) {
         .then(function(r) {
           respOk(t, r)
           // now, verify the password (which inserts the accountResetToken)
-          user.accountResetToken.tokenId = user.accountResetTokenId
           return client.postThen('/passwordForgotToken/' + user.passwordForgotTokenId + '/verified', user.accountResetToken)
         })
         .then(function(r) {

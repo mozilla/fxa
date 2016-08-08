@@ -91,6 +91,7 @@ var PASSWORD_CHANGE_TOKEN = {
 
 var ACCOUNT_RESET_TOKEN_ID = hex32()
 var ACCOUNT_RESET_TOKEN = {
+  tokenId : ACCOUNT_RESET_TOKEN_ID,
   data : hex32(),
   uid : ACCOUNT.uid,
   createdAt: now + 5
@@ -717,6 +718,9 @@ module.exports = function(config, DB) {
               }, function(err) {
                 t.fail('We should have been able to retrieve the new password forgot token')
               })
+              .then(function() {
+                return db.deletePasswordForgotToken(PASSWORD_FORGOT_TOKEN_ID)
+              })
           }
         )
 
@@ -835,19 +839,13 @@ module.exports = function(config, DB) {
         test(
           'account reset token handling',
           function (t) {
-            t.plan(14)
+            t.plan(6)
 
-            // create a second accountResetToken
-            var accountResetTokenId = hex32()
-            var accountResetToken = {
-              data : hex32(),
-              uid : ACCOUNT.uid,
-              createdAt: Date.now()
-            }
-
-            return db.createAccountResetToken(ACCOUNT_RESET_TOKEN_ID, ACCOUNT_RESET_TOKEN)
+            return db.createPasswordForgotToken(PASSWORD_FORGOT_TOKEN_ID, PASSWORD_FORGOT_TOKEN)
+              .then(function(passwordForgotToken) {
+                return db.forgotPasswordVerified(PASSWORD_FORGOT_TOKEN_ID, ACCOUNT_RESET_TOKEN)
+              })
               .then(function(result) {
-                t.deepEqual(result, {}, 'Returned an empty object on account reset token creation')
                 return db.accountResetToken(ACCOUNT_RESET_TOKEN_ID)
               })
               .then(function(token) {
@@ -869,46 +867,13 @@ module.exports = function(config, DB) {
               }, function(err) {
                 t.pass('Account Reset Token deleted successfully')
               })
-              .then(function() {
-                // Now add back in the original token
-                return db.createAccountResetToken(ACCOUNT_RESET_TOKEN_ID, ACCOUNT_RESET_TOKEN)
-              })
-              .then(function(result) {
-                t.deepEqual(result, {}, 'Returned an empty object on account reset token creation (for the 2nd time)')
-                // get this back out
-                return db.accountResetToken(ACCOUNT_RESET_TOKEN_ID)
-              })
-              .then(function(token) {
-                // tokenId is not returned
-                t.deepEqual(token.uid, ACCOUNT.uid, 'token belongs to this account')
-                t.deepEqual(token.tokenData, ACCOUNT_RESET_TOKEN.data, 'token data matches')
-                // replace this token with a new one
-                return db.createAccountResetToken(accountResetTokenId, accountResetToken)
-              })
-              .then(function(result) {
-                t.deepEqual(result, {}, 'Returned an empty object on second account reset token creation')
-                // now retrieve this one
-                return db.accountResetToken(accountResetTokenId)
-              })
-              .then(function(token) {
-                // check a couple of fields
-                t.deepEqual(token.uid, ACCOUNT.uid, 'token belongs to this account')
-                t.deepEqual(token.tokenData, accountResetToken.data, 'token data matches')
-                // now check that the original token no longer exists
-                return db.accountResetToken(ACCOUNT_RESET_TOKEN_ID)
-              })
-              .then(function(token) {
-                t.fail('Original Account Reset Token should no longer exist')
-              }, function(err) {
-                t.pass('Original Account Reset Token is no longer there')
-              })
           }
         )
 
         test(
           'db.forgotPasswordVerified',
           function (t) {
-            t.plan(16)
+            t.plan(17)
             // for this test, we are creating a new account with a different email address
             // so that we can check that emailVerified turns from false to true (since
             // we already set it to true earlier)
@@ -921,29 +886,39 @@ module.exports = function(config, DB) {
               tries : 1,
               createdAt: now + 1
             }
+            var THROWAWAY_PASSWORD_FORGOT_TOKEN_ID = hex32()
+            var THROWAWAY_PASSWORD_FORGOT_TOKEN = {
+              data : hex32(),
+              uid : account.uid,
+              passCode : hex16(),
+              tries : 1,
+              createdAt: now + 2
+            }
             var ACCOUNT_RESET_TOKEN_ID = hex32()
             var ACCOUNT_RESET_TOKEN = {
               tokenId : ACCOUNT_RESET_TOKEN_ID,
               data : hex32(),
               uid : account.uid,
-              createdAt: now + 2
+              createdAt: now + 3
             }
             var THROWAWAY_ACCOUNT_RESET_TOKEN_ID = hex32()
             var THROWAWAY_ACCOUNT_RESET_TOKEN = {
-              tokenId : ACCOUNT_RESET_TOKEN_ID,
+              tokenId : THROWAWAY_ACCOUNT_RESET_TOKEN_ID,
               data : hex32(),
               uid : account.uid,
-              createdAt: now + 3
+              createdAt: now + 4
             }
 
             return db.createAccount(account.uid, account)
               .then(function() {
+                return db.createPasswordForgotToken(THROWAWAY_PASSWORD_FORGOT_TOKEN_ID, THROWAWAY_PASSWORD_FORGOT_TOKEN)
+              })
+              .then(function(passwordForgotToken) {
                 // let's add a throwaway accountResetToken, which should be overwritten when
                 // we call passwordForgotToken() later.
-                return db.createAccountResetToken(THROWAWAY_ACCOUNT_RESET_TOKEN_ID, THROWAWAY_ACCOUNT_RESET_TOKEN)
+                return db.forgotPasswordVerified(THROWAWAY_PASSWORD_FORGOT_TOKEN_ID, THROWAWAY_ACCOUNT_RESET_TOKEN)
               })
               .then(function(result) {
-                t.deepEqual(result, {}, 'Returned an empty object on account reset token creation (the throwaway one)')
                 // let's get it back out to make sure it is there
                 return db.accountResetToken(THROWAWAY_ACCOUNT_RESET_TOKEN_ID)
               })
@@ -951,6 +926,8 @@ module.exports = function(config, DB) {
                 // check a couple of fields
                 t.deepEqual(token.uid, account.uid, 'token belongs to this account')
                 t.deepEqual(token.tokenData, THROWAWAY_ACCOUNT_RESET_TOKEN.data, 'token data matches')
+                t.equal(token.createdAt, THROWAWAY_ACCOUNT_RESET_TOKEN.createdAt, 'createdAt is correct')
+                t.ok(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
                 // get this account out using emailRecord
                 var emailBuffer = Buffer(account.email)
                 return db.emailRecord(emailBuffer)
@@ -1315,9 +1292,24 @@ module.exports = function(config, DB) {
         test(
           'db.resetAccount',
           function (t) {
-            t.plan(11)
+            t.plan(10)
             var uid = ACCOUNT.uid
             var createdAt = Date.now()
+            var THROWAWAY_PASSWORD_FORGOT_TOKEN_ID = hex32()
+            var THROWAWAY_PASSWORD_FORGOT_TOKEN = {
+              data : hex32(),
+              uid : uid,
+              passCode : hex16(),
+              tries : 1,
+              createdAt: now
+            }
+            var THROWAWAY_ACCOUNT_RESET_TOKEN_ID = hex32()
+            var THROWAWAY_ACCOUNT_RESET_TOKEN = {
+              tokenId : THROWAWAY_ACCOUNT_RESET_TOKEN_ID,
+              data : hex32(),
+              uid : uid,
+              createdAt: now + 4
+            }
 
             return db.createSessionToken(SESSION_TOKEN_ID, SESSION_TOKEN)
               .then(function(sessionToken) {
@@ -1329,10 +1321,12 @@ module.exports = function(config, DB) {
               })
               .then(function() {
                 t.pass('.createDevice() did not error')
-                return db.createAccountResetToken(ACCOUNT_RESET_TOKEN_ID, ACCOUNT_RESET_TOKEN)
+                return db.createPasswordForgotToken(THROWAWAY_PASSWORD_FORGOT_TOKEN_ID, THROWAWAY_PASSWORD_FORGOT_TOKEN)
+              })
+              .then(function(passwordForgotToken) {
+                return db.forgotPasswordVerified(THROWAWAY_PASSWORD_FORGOT_TOKEN_ID, THROWAWAY_ACCOUNT_RESET_TOKEN)
               })
               .then(function() {
-                t.pass('.createAccountResetToken() did not error')
                 return db.resetAccount(uid, ACCOUNT)
               })
               .then(function(sessionToken) {
@@ -1351,8 +1345,6 @@ module.exports = function(config, DB) {
               }, function (err) {
                 t.equal(err.errno, 116, 'err.errno is correct')
                 t.equal(err.code, 404, 'err.code is correct')
-              })
-              .then(function() {
               })
               .then(function() {
                 // Attempt to fetch the session token

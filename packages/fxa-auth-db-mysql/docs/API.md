@@ -39,7 +39,6 @@ There are a number of methods that a DB storage backend should implement:
     * .passwordChangeToken(id)
     * .deletePasswordChangeToken(tokenId)
 * Account Reset Tokens
-    * .createAccountResetToken(tokenId, accountResetToken)
     * .accountResetToken(id)
     * .deleteAccountResetToken(tokenId)
 * Verification Reminders
@@ -268,7 +267,6 @@ functions which all work similarly. For example, the `sessionTokens` have:
 ### .createKeyFetchToken(tokenId, token) ###
 ### .createPasswordChangeToken(tokenId, token) ###
 ### .createPasswordForgotToken(tokenId, token) ###
-### .createAccountResetToken(tokenId, token) ###
 
 Parameters.
 
@@ -282,7 +280,6 @@ Each token takes the following fields for it's create method respectively:
 * keyFetchToken : authKey, uid, keyBundle, createdAt, tokenVerificationId
 * passwordChangeToken : data, uid, createdAt
 * passwordForgotToken : data, uid, passCode, createdAt, triesxb
-* accountResetToken : data, uid, createdAt
 
 Returns:
 
@@ -418,7 +415,7 @@ Parameters:
     * tokenId
     * data
     * uid
-    * createdA
+    * createdAt
 
 ## .sessionWithDevice(tokenId) ##
 

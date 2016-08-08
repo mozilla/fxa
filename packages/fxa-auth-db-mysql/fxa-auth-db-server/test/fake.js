@@ -86,6 +86,7 @@ module.exports.newUserDataHex = function() {
   // accountResetToken
   data.accountResetTokenId = hex32()
   data.accountResetToken = {
+    tokenId : data.accountResetTokenId,
     data : hex32(),
     uid : data.accountId,
     createdAt: Date.now()
@@ -151,6 +152,7 @@ module.exports.newUserDataBuffer = function() {
   // accountResetToken
   data.accountResetTokenId = buf32()
   data.accountResetToken = {
+    tokenId : data.accountResetTokenId,
     data : buf32(),
     uid : data.accountId,
     createdAt: Date.now()

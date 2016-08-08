@@ -70,7 +70,6 @@ function createServer(db) {
 
   api.get('/accountResetToken/:id', reply(db.accountResetToken))
   api.del('/accountResetToken/:id', reply(db.deleteAccountResetToken))
-  api.put('/accountResetToken/:id', reply(db.createAccountResetToken))
 
   api.get('/passwordChangeToken/:id', reply(db.passwordChangeToken))
   api.del('/passwordChangeToken/:id', reply(db.deletePasswordChangeToken))

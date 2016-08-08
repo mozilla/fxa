@@ -72,7 +72,6 @@ The following datatypes are used throughout this document:
 * Account Reset Tokens:
     * accountResetToken         : `GET /accountResetToken/:id`
     * deleteAccountResetToken   : `DEL /accountResetToken/:id`
-    * createAccountResetToken   : `PUT /accountResetToken/:id`
 * Key Fetch Tokens:
     * keyFetchToken             : `GET /keyFetchToken/:id`
     * keyFetchTokenWithVerificationStatus : `GET /keyFetchToken/:id/verified`
@@ -997,60 +996,6 @@ Content-Length: 2
     * Conditions: if something goes wrong on the server
     * Content-Type : 'application/json'
     * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
-
-
-## createAccountResetToken : `PUT /accountResetToken/<tokenId>`
-
-Since only one `accountResetToken` is allowed for each account at any time, any subsequent new token will delete the
-old one.
-
-### Example
-
-```
-curl \
-    -v \
-    -X PUT \
-    -H "Content-Type: application/json" \
-    -d '{
-        "uid" :  "6044486dd15b42e08b1fb9167415b9ac",
-        "data" : "b034061cc2886a3c3c08bd4e9bbc8afc4bc3fc9bca12d5b5d0aa7e0a7f78b9ce",
-        "createdAt" : 1425004396952
-    }' \
-    http://localhost:8000/accountResetToken/da7e3b59fc6021836ed205d2176c11819932c9554bec5a40a1f4178b7f08194d
-```
-
-### Request
-
-* Method : PUT
-* Path : `/accountResetToken/<tokenId>`
-    * tokenId : hex256
-* Params:
-    * uid : hex128
-    * data : hex256
-    * createdAt : epoch
-
-### Response
-
-```
-HTTP/1.1 200 OK
-Content-Type: application/json
-Content-Length: 2
-
-{}
-```
-
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : {}
-* Status Code : 409 Conflict
-    * Conditions: if this `tokenId` already exists
-    * Content-Type : 'application/json'
-    * Body : {"message":"Record already exists"}
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : {"code":"InternalError","message":"...<message related to the error>..."}
-```
 
 
 ## accountResetToken : `GET /accountResetToken/<tokenId>`

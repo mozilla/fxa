@@ -34,7 +34,10 @@ DB.connect(config)
           var user = fake.newUserDataBuffer()
           return db.createAccount(user.accountId, user.account)
             .then(function() {
-              return db.createAccountResetToken(user.accountResetTokenId, user.accountResetToken)
+              return db.createPasswordForgotToken(user.passwordForgotTokenId, user.passwordForgotToken)
+            })
+            .then(function() {
+              return db.forgotPasswordVerified(user.accountResetTokenId, user.accountResetToken)
             })
             .then(function() {
               // now set it to be a day ago

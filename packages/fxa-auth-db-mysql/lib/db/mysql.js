@@ -224,22 +224,6 @@ module.exports = function (log, error) {
     )
   }
 
-  // Insert : accountResetTokens
-  // Values : tokenId = $1, tokenData = $2, uid = $3, createdAt = $4
-  var CREATE_ACCOUNT_RESET_TOKEN = 'CALL createAccountResetToken_2(?, ?, ?, ?)'
-
-  MySql.prototype.createAccountResetToken = function (tokenId, accountResetToken) {
-    return this.write(
-      CREATE_ACCOUNT_RESET_TOKEN,
-      [
-        tokenId,
-        accountResetToken.data,
-        accountResetToken.uid,
-        accountResetToken.createdAt
-      ]
-    )
-  }
-
   // Insert : passwordForgotTokens
   // Values : tokenId = $1, tokenData = $2, uid = $3, passCode = $4, createdAt = $5, tries = $6
   var CREATE_PASSWORD_FORGOT_TOKEN = 'CALL createPasswordForgotToken_2(?, ?, ?, ?, ?, ?)'

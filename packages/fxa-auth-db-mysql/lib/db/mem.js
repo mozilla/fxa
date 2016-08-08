@@ -180,22 +180,6 @@ module.exports = function (log, error) {
     return P.resolve({})
   }
 
-  Memory.prototype.createAccountResetToken = function (tokenId, accountResetToken) {
-    tokenId = tokenId.toString('hex')
-
-    // Delete any accountResetTokens for this uid (since we're only
-    // allowed one at a time).
-    deleteByUid(accountResetToken.uid.toString('hex'), accountResetTokens)
-
-    accountResetTokens[tokenId] = {
-      tokenData: accountResetToken.data,
-      uid: accountResetToken.uid,
-      createdAt: accountResetToken.createdAt,
-    }
-
-    return P.resolve({})
-  }
-
   Memory.prototype.createDevice = function (uid, deviceId, deviceInfo) {
     return getAccountByUid(uid)
       .then(
@@ -668,9 +652,25 @@ module.exports = function (log, error) {
   Memory.prototype.forgotPasswordVerified = function (tokenId, accountResetToken) {
     return P.all([
       this.deletePasswordForgotToken(tokenId),
-      this.createAccountResetToken(accountResetToken.tokenId, accountResetToken),
+      createAccountResetToken(),
       this.verifyEmail(accountResetToken.uid)
     ])
+
+    function createAccountResetToken() {
+      var tokenId = accountResetToken.tokenId.toString('hex')
+
+      // Delete any accountResetTokens for this uid (since we're only
+      // allowed one at a time).
+      deleteByUid(accountResetToken.uid.toString('hex'), accountResetTokens)
+
+      accountResetTokens[tokenId] = {
+        tokenData: accountResetToken.data,
+        uid: accountResetToken.uid,
+        createdAt: accountResetToken.createdAt
+      }
+
+      return P.resolve({})
+    }
   }
 
   Memory.prototype.resetAccount = function (uid, data) {
