@@ -9,6 +9,7 @@ var base64url = require('base64url')
 var log = { trace: console.log, info: console.log }
 
 var config = require('../../config').getProperties()
+var P = require('../../lib/promise')
 var TestServer = require('../test_server')
 var Token = require('../../lib/tokens')(log)
 var DB = require('../../lib/db')(
@@ -213,7 +214,7 @@ test(
 test(
   'device registration',
   function (t) {
-    var sessionTokenId
+    var sessionToken
     var deviceInfo = {
       id: crypto.randomBytes(16),
       name: '',
@@ -226,11 +227,11 @@ test(
       return db.emailRecord(ACCOUNT.email)
         .then(function (emailRecord) {
           emailRecord.tokenVerificationId = ACCOUNT.tokenVerificationId
-          return db.createSessionToken(emailRecord, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:44.0) Gecko/20100101 Firefox/44.0')
+          return db.createSessionToken(emailRecord, 'Mozilla/5.0 (Android; Linux armv7l; rv:9.0) Gecko/20111216 Firefox/9.0 Fennec/9.0')
         })
-        .then(function (sessionToken) {
-          sessionTokenId = sessionToken.tokenId
-          return db.updateDevice(ACCOUNT.uid, sessionTokenId, deviceInfo)
+        .then(function (result) {
+          sessionToken = result
+          return db.updateDevice(ACCOUNT.uid, sessionToken.tokenId, deviceInfo)
             .then(function () {
               t.fail('updating a non-existent device should have failed')
             }, function (err) {
@@ -256,7 +257,7 @@ test(
         .then(function (devices) {
           t.ok(Array.isArray(devices), 'devices is array')
           t.equal(devices.length, 0, 'devices array is empty')
-          return db.createDevice(ACCOUNT.uid, sessionTokenId, deviceInfo)
+          return db.createDevice(ACCOUNT.uid, sessionToken.tokenId, deviceInfo)
             .catch(function (err) {
               t.fail('adding a new device should not have failed')
             })
@@ -269,7 +270,7 @@ test(
           t.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
           t.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
           t.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
-          return db.createDevice(ACCOUNT.uid, sessionTokenId, deviceInfo)
+          return db.createDevice(ACCOUNT.uid, sessionToken.tokenId, deviceInfo)
             .then(function () {
               t.fail('adding a device with a duplicate session token should have failed')
             }, function (err) {
@@ -292,15 +293,23 @@ test(
           t.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
           t.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
           t.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
+          t.equal(device.uaBrowser, 'Firefox Mobile', 'device.uaBrowser is correct')
+          t.equal(device.uaBrowserVersion, '9', 'device.uaBrowserVersion is correct')
+          t.equal(device.uaOS, 'Android', 'device.uaOS is correct')
+          t.equal(device.uaOSVersion, null, 'device.uaOSVersion is correct')
+          t.equal(device.uaDeviceType, 'mobile', 'device.uaDeviceType is correct')
           deviceInfo.id = device.id
           deviceInfo.name = 'wibble'
           deviceInfo.type = 'desktop'
           deviceInfo.pushCallback = ''
           deviceInfo.pushPublicKey = ''
           deviceInfo.pushAuthKey = ''
-          return db.updateDevice(ACCOUNT.uid, sessionTokenId, deviceInfo)
+          return P.all([
+            db.updateDevice(ACCOUNT.uid, sessionToken.tokenId, deviceInfo),
+            db.updateSessionToken(sessionToken, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:44.0) Gecko/20100101 Firefox/44.0')
+          ])
             .catch(function (err) {
-              t.fail('updating a new device should not have failed')
+              t.fail('updating a new device or existing session token should not have failed')
             })
         })
         .then(function (device) {
@@ -316,6 +325,11 @@ test(
           t.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
           t.equal(device.pushPublicKey, '', 'device.pushPublicKey is correct')
           t.equal(device.pushAuthKey, '', 'device.pushAuthKey is correct')
+          t.equal(device.uaBrowser, 'Firefox', 'device.uaBrowser is correct')
+          t.equal(device.uaBrowserVersion, '44', 'device.uaBrowserVersion is correct')
+          t.equal(device.uaOS, 'Mac OS X', 'device.uaOS is correct')
+          t.equal(device.uaOSVersion, '10.10', 'device.uaOSVersion is correct')
+          t.equal(device.uaDeviceType, null, 'device.uaDeviceType is correct')
           return db.deleteDevice(ACCOUNT.uid, deviceInfo.id)
             .catch(function () {
               t.fail('deleting a device should not have failed')

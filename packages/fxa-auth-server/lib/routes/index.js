@@ -26,6 +26,7 @@ module.exports = function (
   var idp = require('./idp')(log, serverPublicKeys)
   var checkPassword = require('./utils/password_check')(log, config, Password, customs, db)
   var push = require('../push')(log, db)
+  var devices = require('../devices')(log, db, push)
   var account = require('./account')(
     log,
     crypto,
@@ -41,7 +42,8 @@ module.exports = function (
     isPreVerified,
     checkPassword,
     push,
-    metricsContext
+    metricsContext,
+    devices
   )
   var password = require('./password')(
     log,
@@ -57,7 +59,7 @@ module.exports = function (
     push
   )
   var session = require('./session')(log, isA, error, db)
-  var sign = require('./sign')(log, isA, error, signer, db, config.domain)
+  var sign = require('./sign')(log, P, isA, error, signer, db, config.domain, devices)
   var util = require('./util')(
     log,
     crypto,

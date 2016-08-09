@@ -439,9 +439,17 @@ module.exports = function (
               type: item.type,
               pushCallback: item.callbackURL,
               pushPublicKey: item.callbackPublicKey,
-              pushAuthKey: item.callbackAuthKey
+              pushAuthKey: item.callbackAuthKey,
+              uaBrowser: item.uaBrowser,
+              uaBrowserVersion: item.uaBrowserVersion,
+              uaOS: item.uaOS,
+              uaOSVersion: item.uaOSVersion,
+              uaDeviceType: item.uaDeviceType
             }, {
-              ignore: [ 'name', 'type', 'pushCallback', 'pushPublicKey', 'pushAuthKey' ]
+              ignore: [
+                'name', 'type', 'pushCallback', 'pushPublicKey', 'pushAuthKey',
+                'uaBrowser', 'uaBrowserVersion', 'uaOS', 'uaOSVersion', 'uaDeviceType'
+              ]
             })
           })
         },

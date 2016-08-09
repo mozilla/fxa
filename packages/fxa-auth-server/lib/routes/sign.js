@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, isA, error, signer, db, domain) {
+module.exports = function (log, P, isA, error, signer, db, domain, devices) {
 
   const HOUR = 1000 * 60 * 60
 
@@ -36,6 +36,8 @@ module.exports = function (log, isA, error, signer, db, domain) {
         var sessionToken = request.auth.credentials
         var publicKey = request.payload.publicKey
         var duration = request.payload.duration
+        var service = request.query.service
+        var deviceId, uid, certResult
 
         // No need to wait for a response, update in the background.
         db.updateSessionToken(sessionToken, request.headers['user-agent'])
@@ -44,86 +46,104 @@ module.exports = function (log, isA, error, signer, db, domain) {
           return reply(error.unverifiedAccount())
         }
 
-        if (publicKey.algorithm === 'RS') {
-          if (!publicKey.n) {
-            return reply(error.missingRequestParameter('n'))
-          }
-          if (!publicKey.e) {
-            return reply(error.missingRequestParameter('e'))
-          }
-        }
-        else { // DS
-          if (!publicKey.y) {
-            return reply(error.missingRequestParameter('y'))
-          }
-          if (!publicKey.p) {
-            return reply(error.missingRequestParameter('p'))
-          }
-          if (!publicKey.q) {
-            return reply(error.missingRequestParameter('q'))
-          }
-          if (!publicKey.g) {
-            return reply(error.missingRequestParameter('g'))
-          }
-        }
-
-        if (!sessionToken.locale) {
-          if (request.app.acceptLanguage) {
-            // Log details to sanity-check locale backfilling.
-            log.info({
-              op: 'signer.updateLocale',
-              locale: request.app.acceptLanguage
-            })
-            db.updateLocale(sessionToken.uid, request.app.acceptLanguage)
-            // meh on the result
-          } else {
-            // We're seeing a surprising number of accounts that don't get
-            // a proper locale.  Log details to help debug this.
-            log.info({
-              op: 'signer.emptyLocale',
-              email: sessionToken.email,
-              locale: request.app.acceptLanguage,
-              agent: request.headers['user-agent']
-            })
-          }
-        }
-        var uid = sessionToken.uid.toString('hex')
-        var deviceId = sessionToken.deviceId ? sessionToken.deviceId.toString('hex') : null
-        var certResult
-
-        return signer.sign(
-          {
-            email: uid + '@' + domain,
-            publicKey: publicKey,
-            domain: domain,
-            duration: duration,
-            generation: sessionToken.verifierSetAt,
-            lastAuthAt: sessionToken.lastAuthAt(),
-            verifiedEmail: sessionToken.email,
-            deviceId: deviceId,
-            tokenVerified: sessionToken.tokenVerified
-          }
-        )
-        .then(
-          function(result) {
-            certResult = result
-            return log.activityEvent(
-              'account.signed',
-              request,
-              {
-                uid: uid,
-                account_created_at: sessionToken.accountCreatedAt,
-                device_id: deviceId
+        return P.resolve()
+          .then(
+            function () {
+              if (sessionToken.deviceId) {
+                deviceId = sessionToken.deviceId.toString('hex')
+              } else if (! service || service === 'sync') {
+                // Synthesize a device record for Sync sessions that don't already have one
+                return devices.upsert(request, sessionToken, {})
+                  .then(
+                    function (result) {
+                      deviceId = result.id.toString('hex')
+                    }
+                  )
               }
-            )
-          }
-        )
-        .then(
-          function () {
-            reply(certResult)
-          },
-          reply
-        )
+            }
+          )
+          .then(
+            function () {
+              if (publicKey.algorithm === 'RS') {
+                if (!publicKey.n) {
+                  return reply(error.missingRequestParameter('n'))
+                }
+                if (!publicKey.e) {
+                  return reply(error.missingRequestParameter('e'))
+                }
+              }
+              else { // DS
+                if (!publicKey.y) {
+                  return reply(error.missingRequestParameter('y'))
+                }
+                if (!publicKey.p) {
+                  return reply(error.missingRequestParameter('p'))
+                }
+                if (!publicKey.q) {
+                  return reply(error.missingRequestParameter('q'))
+                }
+                if (!publicKey.g) {
+                  return reply(error.missingRequestParameter('g'))
+                }
+              }
+
+              if (!sessionToken.locale) {
+                if (request.app.acceptLanguage) {
+                  // Log details to sanity-check locale backfilling.
+                  log.info({
+                    op: 'signer.updateLocale',
+                    locale: request.app.acceptLanguage
+                  })
+                  db.updateLocale(sessionToken.uid, request.app.acceptLanguage)
+                  // meh on the result
+                } else {
+                  // We're seeing a surprising number of accounts that don't get
+                  // a proper locale.  Log details to help debug this.
+                  log.info({
+                    op: 'signer.emptyLocale',
+                    email: sessionToken.email,
+                    locale: request.app.acceptLanguage,
+                    agent: request.headers['user-agent']
+                  })
+                }
+              }
+              uid = sessionToken.uid.toString('hex')
+
+              return signer.sign(
+                {
+                  email: uid + '@' + domain,
+                  publicKey: publicKey,
+                  domain: domain,
+                  duration: duration,
+                  generation: sessionToken.verifierSetAt,
+                  lastAuthAt: sessionToken.lastAuthAt(),
+                  verifiedEmail: sessionToken.email,
+                  deviceId: deviceId,
+                  tokenVerified: sessionToken.tokenVerified
+                }
+              )
+            }
+          )
+          .then(
+            function(result) {
+              certResult = result
+              return log.activityEvent(
+                'account.signed',
+                request,
+                {
+                  uid: uid,
+                  account_created_at: sessionToken.accountCreatedAt,
+                  device_id: deviceId
+                }
+              )
+            }
+          )
+          .then(
+            function () {
+              reply(certResult)
+            },
+            reply
+          )
       }
     }
   ]

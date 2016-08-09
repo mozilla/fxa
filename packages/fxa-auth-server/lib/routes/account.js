@@ -35,7 +35,8 @@ module.exports = function (
   isPreVerified,
   checkPassword,
   push,
-  metricsContext
+  metricsContext,
+  devices
   ) {
 
   // Loads and compiles a json validator for the payloads received
@@ -803,7 +804,7 @@ module.exports = function (
           schema: isA.object({
             id: isA.string().length(32).regex(HEX_STRING).required(),
             createdAt: isA.number().positive().optional(),
-            // We previously allowed devices to register with arbitrry unicode names,
+            // We previously allowed devices to register with arbitrary unicode names,
             // so we can't assert DISPLAY_SAFE_UNICODE in the response schema.
             name: isA.string().max(255).optional(),
             type: isA.string().max(16).optional(),
@@ -829,6 +830,9 @@ module.exports = function (
           if (config.deviceUpdatesEnabled === false) {
             throw error.featureNotEnabled()
           }
+        } else if (sessionToken.deviceId) {
+          // Keep the old id, which is probably from a synthesized device record
+          payload.id = sessionToken.deviceId.toString('hex')
         }
 
         if (payload.pushCallback && (!payload.pushPublicKey || !payload.pushAuthKey)) {
@@ -836,10 +840,9 @@ module.exports = function (
           payload.pushAuthKey = ''
         }
 
-        upsertDevice().then(
+        devices.upsert(request, sessionToken, payload).then(
           function (device) {
             reply(butil.unbuffer(device))
-            push.notifyDeviceConnected(sessionToken.uid, device.name, device.id.toString('hex'))
           },
           reply
         )
@@ -870,45 +873,6 @@ module.exports = function (
             log.increment('device.update.pushPublicKey')
           }
           return spurious
-        }
-
-        function upsertDevice () {
-          var operation, event, result
-          if (payload.id) {
-            operation = 'updateDevice'
-            event = 'device.updated'
-          } else {
-            operation = 'createDevice'
-            event = 'device.created'
-          }
-
-          return db[operation](sessionToken.uid, sessionToken.tokenId, payload)
-            .then(
-              function (res) {
-                result = res
-                return log.activityEvent(event, request, {
-                  uid: sessionToken.uid.toString('hex'),
-                  device_id: result.id.toString('hex')
-                })
-              }
-            )
-            .then(
-              function () {
-                if (operation === 'createDevice') {
-                  return log.notifyAttachedServices('device:create', request, {
-                    uid: sessionToken.uid,
-                    id: result.id,
-                    type: result.type,
-                    timestamp: result.createdAt
-                  })
-                }
-              }
-            )
-            .then(
-              function () {
-                return result
-              }
-            )
         }
       }
     },
@@ -996,9 +960,9 @@ module.exports = function (
             id: isA.string().length(32).regex(HEX_STRING).required(),
             isCurrentDevice: isA.boolean().required(),
             lastAccessTime: isA.number().min(0).required().allow(null),
-            // We previously allowed devices to register with arbitrry unicode names,
+            // We previously allowed devices to register with arbitrary unicode names,
             // so we can't assert DISPLAY_SAFE_UNICODE in the response schema.
-            name: isA.string().max(255).required(),
+            name: isA.string().max(255).required().allow(''),
             type: isA.string().max(16).required(),
             pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow('').allow(null),
             pushPublicKey: isA.string().max(88).regex(URLSAFEBASE64).optional().allow('').allow(null),
@@ -1011,11 +975,26 @@ module.exports = function (
         var sessionToken = request.auth.credentials
         var uid = sessionToken.uid
         db.devices(uid).then(
-          function (devices) {
-            reply(devices.map(function (device) {
+          function (deviceArray) {
+            reply(deviceArray.map(function (device) {
+              if (! device.name) {
+                device.name = devices.synthesizeName(device)
+              }
+
+              if (! device.type) {
+                device.type = device.uaDeviceType || 'desktop'
+              }
+
               device.isCurrentDevice =
                 device.sessionToken.toString('hex') === sessionToken.tokenId.toString('hex')
+
               delete device.sessionToken
+              delete device.uaBrowser
+              delete device.uaBrowserVersion
+              delete device.uaOS
+              delete device.uaOSVersion
+              delete device.uaDeviceType
+
               return butil.unbuffer(device)
             }))
           },
