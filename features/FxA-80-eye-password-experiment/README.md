@@ -12,6 +12,24 @@ Firefox Account users are struggling immensely when changing their passwords.
 
 We would like to learn how we can help them struggle less by experimenting with different password unmasking treatments. We may use these results to inform a choice about unmasking passwords in platform.
 
+## Outcomes
+
+After deploying Match 1 into production we have determined the following:
+
+* the "Show password" improves successful form submission by ~2%-5% depending on the view (we compared several views such as force_auth, sign in and sign up views)
+* The use of the "Show password" button does not affect the number of user facing errors by much.
+  * In some application views when the button is present there is a small decrease of errors by 0.5%.
+* In the control group, 5.4% of users clicked on "Show Password" at least once:
+<img src="results-usage-all.jpg" width="350" />
+* The results from the "Valid password required" (Error 1010) were nearly identical for both groups on signup and signin forms:
+<img src="results-error1010.png" width="650" />
+* "Show password" was used 22% of time on Android vs the average Windows usage of ~5%:
+<img src="results-usage-android.png" width="350" />
+
+From the stats above we learned that:
+
+The availability of a 'Show Password' button produces a small but measurable increase in the success rate of password-related form submissions. It is most frequently used on mobile, but also occasionally by desktop users. Therefore, we're going to keep the 'show password' button and will plan additional experiments to try to increase awareness of this feature.
+
 # Control
 Currently we use a simple “show” toggle. Both password field toggles are synchronized which we should remove this for the experiment (and permanently as filed in [#3600](https://github.com/mozilla/fxa-content-server/issues/3600)).
 
