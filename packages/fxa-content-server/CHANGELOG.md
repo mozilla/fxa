@@ -1,3 +1,38 @@
+<a name="0.67.0"></a>
+# 0.67.0 (2016-08-09)
+
+
+### Bug Fixes
+
+* **build:** Fix l10n extraction of template strings. (#4028) r=vladikoff ([38557d5](https://github.com/mozilla/fxa-content-server/commit/38557d5)), closes [(#4028](https://github.com/(/issues/4028) [#4027](https://github.com/mozilla/fxa-content-server/issues/4027)
+* **client:** No screen transition post confirm signin for OAuth Webchannel keys (#3997) r=vla ([6d15ece](https://github.com/mozilla/fxa-content-server/commit/6d15ece)), closes [#3966](https://github.com/mozilla/fxa-content-server/issues/3966)
+* **client:** OAuth flows that request keys must do signin confirmation. (#3991) ([a77c3c9](https://github.com/mozilla/fxa-content-server/commit/a77c3c9))
+* **client:** Only show passwords while depressing the "show" button. (#3978) ([251f0e3](https://github.com/mozilla/fxa-content-server/commit/251f0e3))
+* **client:** propagate flow data to confirm view (#3990) ([cbbd8a5](https://github.com/mozilla/fxa-content-server/commit/cbbd8a5))
+* **client:** update to latest able version (#4018) ([4466d93](https://github.com/mozilla/fxa-content-server/commit/4466d93))
+* **devices:** add 'last active' to formatted string (#4015) r=shane-tomlinson ([96eaafa](https://github.com/mozilla/fxa-content-server/commit/96eaafa)), closes [#3960](https://github.com/mozilla/fxa-content-server/issues/3960)
+* **devices:** add title attribute to device names (#4016) r=vbudhram,ryanfeeley ([83f0da2](https://github.com/mozilla/fxa-content-server/commit/83f0da2)), closes [#3959](https://github.com/mozilla/fxa-content-server/issues/3959)
+* **experiments:** update experiments to train 67 (#4025) ([3762ea2](https://github.com/mozilla/fxa-content-server/commit/3762ea2))
+* **jsdoc:** add eslint jsdoc validation (#4010) ([fcf1ebf](https://github.com/mozilla/fxa-content-server/commit/fcf1ebf))
+* **logging:** use legacy log format for activityEvents ([b87805e](https://github.com/mozilla/fxa-content-server/commit/b87805e))
+* **signup:** add utm params to suggest-sync (#4029) r=vbudhram ([aabd4f6](https://github.com/mozilla/fxa-content-server/commit/aabd4f6)), closes [#4021](https://github.com/mozilla/fxa-content-server/issues/4021)
+* **styles:** remove bold from current device (#4020) ([138c98c](https://github.com/mozilla/fxa-content-server/commit/138c98c)), closes [#4019](https://github.com/mozilla/fxa-content-server/issues/4019)
+* **tests:** fix remote tests/server/routes/get-fxa-client-configuration ([69bfeee](https://github.com/mozilla/fxa-content-server/commit/69bfeee))
+
+### chore
+
+* **client:** Remove signin confirmation transition code from fxa-client.js ([d26aa75](https://github.com/mozilla/fxa-content-server/commit/d26aa75))
+* **deps:** Bump fxa-js-client to 0.1.46 (#3987) r=vbudhram,vladikoff ([c1b42bc](https://github.com/mozilla/fxa-content-server/commit/c1b42bc))
+* **deps:** Bump the fxa-js-client version to 0.1.45 (#3983) r=vladikoff ([401bd31](https://github.com/mozilla/fxa-content-server/commit/401bd31))
+* **scripts:** update npm versions used to run in teamcity (#3999) r=vladikoff ([4d600e7](https://github.com/mozilla/fxa-content-server/commit/4d600e7))
+* **teamcity:** a tool to help updating bash-embedded dependencies (#4001) r=vladikoff ([8bce55b](https://github.com/mozilla/fxa-content-server/commit/8bce55b))
+
+### Features
+
+* **metrics:** Add utms to statsd (#4026) r=vladikoff ([859591a](https://github.com/mozilla/fxa-content-server/commit/859591a))
+
+
+
 <a name="0.66.0"></a>
 # 0.66.0 (2016-07-26)
 
