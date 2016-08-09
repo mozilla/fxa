@@ -33,6 +33,22 @@ function getGenericTags(body) {
     'service:' + body.service
   ];
 
+  // Append any utm params
+  var utmParams = [];
+  if (body.utm_content) {
+    utmParams.push('utm_content:' + body.utm_content);
+  }
+  if (body.utm_campaign) {
+    utmParams.push('utm_campaign:' + body.utm_campaign);
+  }
+  if (body.utm_content) {
+    utmParams.push('utm_source:' + body.utm_source);
+  }
+  if (body.utm_content) {
+    utmParams.push('utm_medium:' + body.utm_medium);
+  }
+  tags = tags.concat(utmParams);
+
   if (body.agent) {
     var agent = uaParser.parse(body.agent);
     if (agent) {

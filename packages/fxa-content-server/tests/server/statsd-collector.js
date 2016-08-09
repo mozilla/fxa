@@ -99,6 +99,10 @@ define([
     return testStatsDEvents('statsd_body_filter_out_of_range.json', 'statsd_filter_out_of_range.txt');
   };
 
+  suite['properly collects utm params'] = function () {
+    return testStatsDEvents('statsd_body_2.json', 'statsd_utm_data_2.txt');
+  };
+
   registerSuite(suite);
 
   /**
