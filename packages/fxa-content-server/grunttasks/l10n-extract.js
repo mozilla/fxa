@@ -54,9 +54,13 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('l10n-extract', 'Extract strings from templates for localization.', [
+    'clean',
     // jsxgettext does not support ES2015, only ES5. Run babel to convert
     // then run the extractor on the ES5 files.
     'babel',
+    // babel only converts a subset of files, copy all other files
+    // where there may be strings to extract.
+    'copy:requirejs',
     'jsxextract'
   ]);
 };
