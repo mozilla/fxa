@@ -253,7 +253,10 @@ define(function (require, exports, module) {
         return view.render()
           .then(function () {
             assert.lengthOf(view.$('#suggest-sync'), 1);
-            assert.equal(view.$('#suggest-sync').html(), 'Looking for Firefox Sync? <a href="https://mozilla.org/firefox/sync">Get started here.</a>');
+            assert.equal(view.$('#suggest-sync').html(),
+              'Looking for Firefox Sync? <a href="https://mozilla.org/firefox/sync?' +
+              'utm_source=fx-website&amp;utm_medium=fx-accounts&amp;utm_campaign=fx-signup&amp;' +
+              'utm_content=fx-sync-get-started">Get started here.</a>');
             assert.isTrue(TestHelpers.isEventLogged(metrics, 'signup.sync-suggest.visible'), 'enrolled');
           });
       });
