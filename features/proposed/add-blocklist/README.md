@@ -24,12 +24,12 @@ The effectiveness of a blocklist largely depends on how frequently it is updated
 
 ## Outcomes
 
-The primary outcome for this feature would be an increase in blocked requests from known exploited sources.
+The primary outcome for this feature would be an increase in blocked requests from known exploited sources, while maintaining a lower than 10% false positive rate.
 
 ## Hypothesis
 
-We believe that adding the Spamhaus BCL will provide more security for our system and users by blocking known exploited sources.
-We will know this to be true by monitoring the number of requests that are blocked by the blocklist.
+We believe that adding a BCL will provide more security for our system and users by blocking known exploited sources.
+We will know this to be true by monitoring the number of requests that are blocked by the blocklist and the number of false positives.
 
 ## Metrics
 
