@@ -129,9 +129,10 @@ test(
     return mockedBounces(mockLog, mockDB).handleBounce(mockMessage({
       bounce: {
         bounceType: 'Permanent',
+        // docs: http://docs.aws.amazon.com/ses/latest/DeveloperGuide/notification-contents.html#bounced-recipients
         bouncedRecipients: [
-          { emailAddress: 'test@example.com' },
-          { emailAddress: 'verified@example.com'}
+          { emailAddress: 'test@example.com', action: 'failed', status: '5.0.0', diagnosticCode: 'smtp; 550 user unknown' },
+          { emailAddress: 'verified@example.com', status: '4.0.0' }
         ]
       }
     })).then(function () {
@@ -143,11 +144,16 @@ test(
       t.equal(mockLog.messages.length, 6)
       t.equal(mockLog.messages[0].args[0].op, 'handleBounce')
       t.equal(mockLog.messages[0].args[0].email, 'test@example.com')
+      t.equal(mockLog.messages[0].args[0].status, '5.0.0')
+      t.equal(mockLog.messages[0].args[0].action, 'failed')
+      t.equal(mockLog.messages[0].args[0].diagnosticCode, 'smtp; 550 user unknown')
       t.equal(mockLog.messages[1].args[0], 'account.email_bounced')
       t.equal(mockLog.messages[2].args[0].op, 'accountDeleted')
       t.equal(mockLog.messages[2].args[0].email, 'test@example.com')
       t.equal(mockLog.messages[3].args[0].op, 'handleBounce')
       t.equal(mockLog.messages[3].args[0].email, 'verified@example.com')
+      t.equal(mockLog.messages[3].args[0].status, '4.0.0')
+      t.notOk(mockLog.messages[3].args[0].diagnosticCode)
       t.equal(mockLog.messages[4].args[0], 'account.email_bounced')
       t.equal(mockLog.messages[5].level, 'increment')
       t.equal(mockLog.messages[5].args[0], 'account.email_bounced.already_verified')

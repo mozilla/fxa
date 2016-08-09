@@ -59,7 +59,14 @@ module.exports = function (log, error) {
       }
       return P.each(recipients, function (recipient) {
         var email = recipient.emailAddress
-        log.info({ op: 'handleBounce', email: email, bounce: !!message.bounce })
+        log.info({
+          op: 'handleBounce',
+          action: recipient.action,
+          email: email,
+          bounce: !!message.bounce,
+          diagnosticCode: recipient.diagnosticCode,
+          status: recipient.status
+        })
         log.increment('account.email_bounced')
         return findEmailRecord(email)
           .then(
