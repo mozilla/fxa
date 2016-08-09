@@ -1411,36 +1411,6 @@ module.exports = function(config, DB) {
         )
 
         test(
-          'openid create and get',
-          function (t) {
-            t.plan(11)
-            var account = createAccount()
-            account.openId = 'https://openid.example.com/foo' + hex16()
-            return db.createAccount(account.uid, account)
-              .then(
-                function () {
-                  return db.openIdRecord(account.openId)
-                }
-              )
-              .then(
-                function (record) {
-                  t.deepEqual(record.uid, account.uid, 'uid')
-                  t.equal(record.email, account.email, 'email')
-                  t.deepEqual(record.emailCode, account.emailCode, 'emailCode')
-                  t.equal(!!record.emailVerified, account.emailVerified, 'emailVerified')
-                  t.deepEqual(record.kA, account.kA, 'kA')
-                  t.deepEqual(record.wrapWrapKb, account.wrapWrapKb, 'wrapWrapKb')
-                  t.notOk(record.verifyHash, 'verifyHash field should be absent')
-                  t.deepEqual(record.authSalt, account.authSalt, 'authSalt')
-                  t.equal(record.verifierVersion, account.verifierVersion, 'verifierVersion')
-                  t.equal(record.verifierSetAt, account.verifierSetAt, 'verifierSetAt')
-                  t.equal(record.openId, account.openId)
-                }
-              )
-          }
-        )
-
-        test(
           'reminders - create and delete',
           function (t) {
             t.plan(3)
