@@ -5,7 +5,7 @@
 {{#if location}}{{ location }}{{/if}}
 {{#if timestamp}}{{ timestamp }}{{/if}}
 
-{{{t "This is an automated email; if you didn't add a new device to your Firefox Account, you should change your password immediately at %(passwordChangeLink)s"}}}
+{{{t "This is an automated email; if you didn’t add a new device to your Firefox Account, you should change your password immediately at %(passwordChangeLink)s"}}}
 
 {{{t "For more information, please visit %(supportUrl)s"}}}
 
