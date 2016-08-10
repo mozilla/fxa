@@ -28,6 +28,7 @@
   "author": "Mozilla (https://mozilla.org/)",
   "readmeFilename": "README.md",
   "dependencies": {
+    "ajv": "4.1.7",
     "aws-sdk": "2.2.10",
     "base64url": "1.0.6",
     "binary-split": "0.1.2",
@@ -56,7 +57,6 @@
     "web-push": "2.1.1"
   },
   "devDependencies": {
-    "ajv": "4.1.7",
     "commander": "2.9.0",
     "eslint-config-fxa": "1.6.0",
     "fxa-auth-db-mysql": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#master",
