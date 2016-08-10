@@ -1,3 +1,31 @@
+<a name="0.67.0"></a>
+## 0.67.0 (2016-08-10)
+
+
+### Bug Fixes
+
+* **config:** Add production as allowed environment ([ceec964](https://github.com/mozilla/fxa-profile-server/commit/ceec964))
+* **config:** Add production as allowed environment in code ([c8c1c22](https://github.com/mozilla/fxa-profile-server/commit/c8c1c22))
+* **config:** only allow https gravatars (#204) ([08b44fa](https://github.com/mozilla/fxa-profile-server/commit/08b44fa))
+* **config:** Quoting syntax ([2eb7235](https://github.com/mozilla/fxa-profile-server/commit/2eb7235))
+* **deps:** update dev dependencies ([37e73bc](https://github.com/mozilla/fxa-profile-server/commit/37e73bc))
+* **deps:** updating prod dependencies ([0138ffa](https://github.com/mozilla/fxa-profile-server/commit/0138ffa))
+* **dev:** stop all child servers if one crashes ([0922c16](https://github.com/mozilla/fxa-profile-server/commit/0922c16))
+* **docker:** Output version.json in RPMflow and Dockerflow compatible locations ([2648593](https://github.com/mozilla/fxa-profile-server/commit/2648593))
+
+### chore
+
+* **config:** Remove unused git key from config ([548937a](https://github.com/mozilla/fxa-profile-server/commit/548937a))
+* **deps:** Update Dockerfile to node@0.10.46 ([1ce332c](https://github.com/mozilla/fxa-profile-server/commit/1ce332c))
+* **release:** bump version with 'grunt version' (#200) r=jrgm,vbudhram ([1fe5765](https://github.com/mozilla/fxa-profile-server/commit/1fe5765)), closes [#73](https://github.com/mozilla/fxa-profile-server/issues/73)
+
+### Features
+
+* **docker:** Add npm scripts for starting web server & worker ([98e3374](https://github.com/mozilla/fxa-profile-server/commit/98e3374))
+* **docker:** Switch to exec so signals get passed through correctly ([34ba601](https://github.com/mozilla/fxa-profile-server/commit/34ba601))
+
+
+
 <a name="0.63.0"></a>
 ## 0.63.0 (2016-06-02)
 
