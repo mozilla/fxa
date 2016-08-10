@@ -140,9 +140,9 @@ module.exports = function (limits, now) {
   }
 
   IpRecord.prototype.update = function (action, email) {
-    // Don't block email-sending on IP address alone.
-    if (actions.isEmailSendingAction(action)) {
-      return 0
+    // ip block is explicit, no escape hatches
+    if (this.isBlocked()) {
+      return this.retryAfter()
     }
 
     // Increment account-status-check count and throttle if needed
