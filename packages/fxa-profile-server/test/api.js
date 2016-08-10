@@ -477,7 +477,8 @@ describe('/avatar', function() {
           return true;
         }
       });
-      return Server.api.get({
+
+      Server.api.get({
         url: '/avatar',
         headers: {
           authorization: 'Bearer ' + tok
@@ -522,7 +523,7 @@ describe('/avatar', function() {
         }
       });
 
-      return Server.api.post({
+      Server.api.post({
         url: '/avatar',
         payload: {
           url: GRAVATAR
