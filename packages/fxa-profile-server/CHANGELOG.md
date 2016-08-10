@@ -1,3 +1,17 @@
+<a name="0.67.1"></a>
+## [0.67.1](https://github.com/mozilla/fxa-profile-server/compare/v0.67.0...v0.67.1) (2016-08-10)
+
+
+### Bug Fixes
+
+* **tests:** fix docker racing tests ([d50aa7f](https://github.com/mozilla/fxa-profile-server/commit/d50aa7f))
+
+### chore
+
+* **docs:** add circleci badge ([ba1ecb4](https://github.com/mozilla/fxa-profile-server/commit/ba1ecb4))
+
+
+
 <a name="0.67.0"></a>
 ## 0.67.0 (2016-08-10)
 
