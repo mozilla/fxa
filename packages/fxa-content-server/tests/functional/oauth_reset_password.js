@@ -22,6 +22,8 @@ define([
   var email;
   var client;
 
+  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
+
   registerSuite({
     name: 'oauth reset password',
 
@@ -106,9 +108,7 @@ define([
         })
         .end()
 
-        .closeCurrentWindow()
-        // switch to the original window
-        .switchToWindow('')
+        .then(closeCurrentWindow())
 
         // the original tab should automatically sign in
         .findByCssSelector('#loggedin')
@@ -150,8 +150,7 @@ define([
         .end()
 
         // switch to the original window
-        .closeCurrentWindow()
-        .switchToWindow('');
+        .then(closeCurrentWindow());
     },
 
     'reset password, verify same browser by replacing the original tab': function () {

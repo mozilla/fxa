@@ -32,6 +32,7 @@ define([
 
   var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
   var click = FunctionalHelpers.click;
+  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutCompleteResetPassword = thenify(FunctionalHelpers.fillOutCompleteResetPassword);
   var fillOutResetPassword = FunctionalHelpers.fillOutResetPassword;
@@ -286,9 +287,7 @@ define([
           return testAtSettingsWithVerifiedMessage(self);
         })
 
-        .closeCurrentWindow()
-        // switch to the original window
-        .switchToWindow('')
+        .then(closeCurrentWindow())
 
         .then(function () {
           return testAtSettingsWithVerifiedMessage(self);
@@ -320,8 +319,7 @@ define([
         })
 
         // switch to the original window
-        .closeCurrentWindow()
-        .switchToWindow('');
+        .then(closeCurrentWindow());
     },
 
     'reset password, verify same browser by replacing the original tab': function () {

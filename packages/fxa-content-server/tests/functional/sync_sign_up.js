@@ -26,6 +26,7 @@ define([
   var email;
   var PASSWORD = '12345678';
 
+  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
@@ -106,11 +107,7 @@ define([
         })
 
         .end()
-        .closeCurrentWindow()
-
-        // switch to the original window, it should not transition.
-        .switchToWindow('')
-        .end()
+        .then(closeCurrentWindow())
 
         // We do not expect the verification poll to occur. The poll
         // will take a few seconds to complete if it erroneously occurs.
@@ -157,9 +154,7 @@ define([
           assert.ok(text.indexOf('Firefox Sync') > -1);
         })
 
-        .closeCurrentWindow()
-        .switchToWindow('')
-        .end();
+        .then(closeCurrentWindow());
     },
 
     'signup, verify same browser by replacing the original tab': function () {

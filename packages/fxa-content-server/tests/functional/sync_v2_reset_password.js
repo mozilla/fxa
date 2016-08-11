@@ -22,6 +22,7 @@ define([
   var client;
   var email;
 
+  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openPage = FunctionalHelpers.openPage;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
@@ -92,10 +93,7 @@ define([
         // because localStorage is not shared.
         .then(testIsBrowserNotified(self, 'fxaccounts:login'))
 
-        .closeCurrentWindow()
-        // switch to the original window
-        .switchToWindow('')
-        .end()
+        .then(closeCurrentWindow())
 
         .then(FunctionalHelpers.testSuccessWasShown(self))
         .then(noSuchBrowserNotification(self, 'fxaccounts:login'));

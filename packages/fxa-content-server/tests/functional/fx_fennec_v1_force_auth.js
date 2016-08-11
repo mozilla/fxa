@@ -11,6 +11,7 @@ define([
 
   var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
   var click = FunctionalHelpers.click;
+  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
@@ -61,8 +62,7 @@ define([
 
           // browser is notified of desire to open Sync preferences
           .then(testIsBrowserNotified(this, 'fxaccounts:sync_preferences'))
-          .closeCurrentWindow()
-        .switchToWindow('')
+          .then(closeCurrentWindow())
 
         .then(testElementExists('#fxa-sign-in-complete-header'))
 

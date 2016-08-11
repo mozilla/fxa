@@ -18,6 +18,7 @@ define([
   var email;
   var PASSWORD = '12345678';
 
+  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
 
@@ -119,11 +120,8 @@ define([
           assert.equal(data.entryPoint, 'fxa:signup-complete');
         }))
 
-        .closeCurrentWindow()
-
         // switch back to the original window, it should transition.
-        .switchToWindow('')
-        .end()
+        .then(closeCurrentWindow())
 
         .findByCssSelector('#fxa-sign-up-complete-header')
         .end()

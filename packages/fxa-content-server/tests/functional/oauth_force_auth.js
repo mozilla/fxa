@@ -14,6 +14,7 @@ define([
   var thenify = FunctionalHelpers.thenify;
 
   var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
   var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
@@ -76,8 +77,7 @@ define([
         .then(testElementTextInclude('.account-ready-service', '123done'))
 
         // switch to the original window
-        .closeCurrentWindow()
-        .switchToWindow('')
+        .then(closeCurrentWindow())
 
         .then(testElementExists('#loggedin'))
         // redirected back to the App

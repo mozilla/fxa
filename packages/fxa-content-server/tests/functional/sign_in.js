@@ -21,6 +21,7 @@ define([
   var accountData;
   var client;
 
+  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var testAttributeMatches = FunctionalHelpers.testAttributeMatches;
   var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
 
@@ -252,8 +253,7 @@ define([
             .findById('fxa-settings-header')
             .end()
 
-            .closeCurrentWindow()
-            .switchToWindow('')
+            .then(closeCurrentWindow())
 
             .findById('fxa-settings-header')
             .end();
@@ -286,8 +286,7 @@ define([
             .findById('fxa-settings-header')
             .end()
 
-            .closeCurrentWindow()
-            .switchToWindow('')
+            .then(closeCurrentWindow())
 
             .findById('fxa-settings-header')
             .end();

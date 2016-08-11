@@ -29,9 +29,10 @@ define([
    * finish OAuth flows
    */
 
+  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var noEmailExpected = FunctionalHelpers.noEmailExpected;
-  var testIsBrowserNotifiedOfLogin = WebChannelHelpers.testIsBrowserNotifiedOfLogin;
   var openFxaFromRp = WebChannelHelpers.openFxaFromRp;
+  var testIsBrowserNotifiedOfLogin = WebChannelHelpers.testIsBrowserNotifiedOfLogin;
 
   registerSuite({
     name: 'oauth webchannel',
@@ -116,9 +117,7 @@ define([
           // element was not found
         })
 
-        .closeCurrentWindow()
-        // switch to the original window
-        .switchToWindow('')
+        .then(closeCurrentWindow())
 
         .findById('fxa-sign-up-complete-header')
         .end()
@@ -164,9 +163,7 @@ define([
 
         .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
 
-        .closeCurrentWindow()
-        // switch to the original window
-        .switchToWindow('');
+        .then(closeCurrentWindow());
     },
 
     'signup, verify same browser, replace original tab': function () {
@@ -300,9 +297,7 @@ define([
         })
         .end()
 
-        .closeCurrentWindow()
-        // switch to the original window
-        .switchToWindow('')
+        .then(closeCurrentWindow())
 
         // the original tab should automatically sign in
         .findByCssSelector('#fxa-reset-password-complete-header')
@@ -359,9 +354,7 @@ define([
         // the tab should automatically sign in
         .then(testIsBrowserNotifiedOfLogin(self, { shouldCloseTab: false }))
 
-        .closeCurrentWindow()
-        // switch to the original window
-        .switchToWindow('');
+        .then(closeCurrentWindow());
     },
 
     'reset password, verify same browser, replace original tab': function () {

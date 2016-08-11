@@ -23,6 +23,7 @@ define([
 
   var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
   var click = FunctionalHelpers.click;
+  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutCompleteResetPassword = thenify(FunctionalHelpers.fillOutCompleteResetPassword);
   var fillOutResetPassword = thenify(FunctionalHelpers.fillOutResetPassword);
@@ -71,10 +72,7 @@ define([
 
         .then(testElementExists('#fxa-reset-password-complete-header'))
         .then(testElementTextInclude('.account-ready-service', 'Firefox Sync'))
-        .closeCurrentWindow()
-        // switch to the original window
-        .switchToWindow('')
-        .end()
+        .then(closeCurrentWindow())
 
         .then(testSuccessWasShown(this))
         .then(testIsBrowserNotifiedOfLogin(this, email, { checkVerified: true }));
@@ -96,10 +94,7 @@ define([
         .then(fillOutCompleteResetPassword(this, PASSWORD, PASSWORD))
         .then(testElementExists('#fxa-reset-password-complete-header'))
 
-        .closeCurrentWindow()
-        // switch to the original window
-        .switchToWindow('')
-        .end();
+        .then(closeCurrentWindow());
     },
 
     'reset password, verify same browser by replacing the original tab': function () {

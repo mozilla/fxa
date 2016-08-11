@@ -24,6 +24,7 @@ define([
 
   var click = FunctionalHelpers.click;
   var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
   var getVerificationLink = thenify(FunctionalHelpers.getVerificationLink);
@@ -101,8 +102,7 @@ define([
         .end()
 
         // switch to the original window
-        .closeCurrentWindow()
-        .switchToWindow('')
+        .then(closeCurrentWindow())
 
         .findByCssSelector('#loggedin')
         .end()
@@ -134,8 +134,7 @@ define([
         .end()
 
         // switch to the original window
-        .closeCurrentWindow()
-        .switchToWindow('');
+        .then(closeCurrentWindow());
     },
 
     'signup, verify same browser by replacing the original tab': function () {
@@ -316,8 +315,7 @@ define([
         .end()
 
         // switch to the original window
-        .closeCurrentWindow()
-        .switchToWindow('')
+        .then(closeCurrentWindow())
 
         .findByCssSelector('#loggedin')
         .end();

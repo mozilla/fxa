@@ -33,6 +33,7 @@ define([
 
   var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
   var click = FunctionalHelpers.click;
+  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutCompleteResetPassword = thenify(FunctionalHelpers.fillOutCompleteResetPassword);
   var fillOutResetPassword = thenify(FunctionalHelpers.fillOutResetPassword);
@@ -105,10 +106,8 @@ define([
         .then(function (result) {
           messageReceived = result;
         })
-        .closeCurrentWindow()
+        .then(closeCurrentWindow())
 
-        // switch to the original window
-        .switchToWindow('')
         .then(waitForBrowserLoginNotification(this))
         .then(function (result) {
           messageReceived = messageReceived || result;
@@ -141,9 +140,7 @@ define([
 
         .then(testElementExists('#fxa-sign-up-complete-header'))
 
-        .closeCurrentWindow()
-        // switch to the original window
-        .switchToWindow('');
+        .then(closeCurrentWindow());
     },
 
     'signup, verify same browser, replace original tab': function () {
@@ -214,9 +211,7 @@ define([
         })
         .end()
 
-        .closeCurrentWindow()
-        // switch to the original window
-        .switchToWindow('')
+        .then(closeCurrentWindow())
         .then(waitForBrowserLoginNotification(this))
         .then(function (result) {
           messageReceived = messageReceived || result;
@@ -251,9 +246,7 @@ define([
         .then(testIsBrowserNotifiedOfLogin(this, { shouldCloseTab: false }))
         .then(testElementExists('#fxa-reset-password-complete-header'))
 
-        .closeCurrentWindow()
-        // switch to the original window
-        .switchToWindow('');
+        .then(closeCurrentWindow());
     },
 
     'reset password, verify same browser, replace original tab': function () {

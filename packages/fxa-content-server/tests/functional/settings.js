@@ -16,6 +16,7 @@ define([
   var thenify = FunctionalHelpers.thenify;
 
   var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
   var focus = FunctionalHelpers.focus;
@@ -169,8 +170,7 @@ define([
         .findById('fxa-signin-header')
         .end()
 
-        .closeCurrentWindow()
-        .switchToWindow('')
+        .then(closeCurrentWindow())
 
         .findById('fxa-signin-header')
         .end();

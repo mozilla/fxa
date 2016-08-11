@@ -19,6 +19,7 @@ define([
 
   var click = FunctionalHelpers.click;
   var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
   var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
@@ -84,10 +85,8 @@ define([
         .switchToWindow('newwindow')
         .then(testElementExists('#fxa-settings-header'))
         .then(testSuccessWasShown(this))
-        .closeCurrentWindow()
+        .then(closeCurrentWindow())
 
-        // back to the original window
-        .switchToWindow('')
         .then(testElementExists('#fxa-settings-header'))
         .then(testSuccessWasShown(this));
     },
@@ -117,11 +116,7 @@ define([
         .then(visibleByQSA('#fxa-signin-header'))
         .end()
 
-        .closeCurrentWindow()
-
-        // back to the original window
-        .switchToWindow('')
-        .end();
+        .then(closeCurrentWindow());
     },
 
     'signup, verify and sign out of two accounts, all in the same tab, then sign in to the first account': function () {
@@ -375,13 +370,11 @@ define([
 
         .switchToWindow('newwindow')
         .then(testElementExists('#fxa-settings-header'))
-        .closeCurrentWindow()
+        .then(closeCurrentWindow(windowName))
 
-        .switchToWindow(windowName)
         .then(testElementExists('#fxa-settings-header'))
 
-        .closeCurrentWindow()
-        .switchToWindow('')
+        .then(closeCurrentWindow(''))
 
         .then(testElementExists('#fxa-settings-header'));
     },
@@ -408,9 +401,8 @@ define([
         })
         .switchToWindow(windowName)
         .then(testElementExists('#fxa-settings-header'))
-        .closeCurrentWindow()
+        .then(closeCurrentWindow())
 
-        .switchToWindow('')
         .then(testElementExists('#fxa-settings-header'));
     },
 
@@ -423,10 +415,7 @@ define([
         .switchToWindow('newwindow')
         .then(testElementExists('#fxa-settings-header'))
         .then(testSuccessWasShown(this))
-        .closeCurrentWindow()
-
-        // back to the original window
-        .switchToWindow('')
+        .then(closeCurrentWindow())
 
         // open verification link again, no error should occur.
         .then(openVerificationLinkInNewTab(this, email, 0))
@@ -434,8 +423,7 @@ define([
         .switchToWindow('newwindow')
         .then(testElementExists('#fxa-settings-header'))
         .then(testSuccessWasShown(this))
-        .closeCurrentWindow()
-        .switchToWindow('')
+        .then(closeCurrentWindow())
 
         .then(testElementExists('#fxa-settings-header'))
         .then(testSuccessWasShown(this));

@@ -18,6 +18,7 @@ define([
   var email;
   var PASSWORD = '12345678';
 
+  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
 
@@ -98,9 +99,7 @@ define([
           })
         .end()
 
-        .closeCurrentWindow()
-        .switchToWindow('')
-        .end()
+        .then(closeCurrentWindow())
 
         .findByCssSelector('#fxa-confirm-header')
         .end()

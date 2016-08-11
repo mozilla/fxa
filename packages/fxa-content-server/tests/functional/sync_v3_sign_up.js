@@ -18,6 +18,7 @@ define([
   var email;
   var PASSWORD = '12345678';
 
+  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
@@ -116,11 +117,7 @@ define([
           assert.equal(data.entryPoint, 'fxa:signup-complete');
         }))
 
-        .closeCurrentWindow()
-
-        // switch to the original window, it should not transition.
-        .switchToWindow('')
-        .end()
+        .then(closeCurrentWindow())
 
         // We do not expect the verification poll to occur. The poll
         // will take a few seconds to complete if it erroneously occurs.

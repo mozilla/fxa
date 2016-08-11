@@ -1335,6 +1335,29 @@ define([
   }
 
   /**
+   * Close the current window and switch to the named tab. If
+   * The window will only be closed if it's not the last open window.
+   *
+   * @param {string} [tabName] - defaults to ''
+   * @returns {promise}
+   */
+  function closeCurrentWindow(tabName) {
+    return function () {
+      return this.parent
+        .getAllWindowHandles()
+        .then(function (handles) {
+          if (handles.length <= 1) {
+            throw new Error('LastWindowError');
+          } else {
+            return this.parent
+              .closeCurrentWindow()
+              .switchToWindow(tabName || '');
+          }
+        });
+    };
+  }
+
+  /**
    * Assert the value of an attribute
    *
    * @param {string} selector CSS selector for the element
@@ -1411,6 +1434,7 @@ define([
     clearBrowserState: clearBrowserState,
     clearSessionStorage: clearSessionStorage,
     click: click,
+    closeCurrentWindow: closeCurrentWindow,
     createUser: createUser,
     fetchAllMetrics: fetchAllMetrics,
     fillOutChangePassword: fillOutChangePassword,

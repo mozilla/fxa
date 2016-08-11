@@ -18,6 +18,7 @@ define([
 
   var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
   var click = FunctionalHelpers.click;
+  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
   var noEmailExpected = FunctionalHelpers.noEmailExpected;
@@ -69,8 +70,7 @@ define([
           .then(click('#sync-preferences'))
           // browser is notified of desire to open Sync preferences
           .then(testIsBrowserNotified(this, 'fxaccounts:sync_preferences'))
-          .closeCurrentWindow()
-        .switchToWindow('')
+          .then(closeCurrentWindow())
 
         // about:accounts will take over post-verification, no transition
         .then(noPageTransition('#fxa-confirm-signin-header'));
@@ -87,8 +87,7 @@ define([
         .then(openVerificationLinkInNewTab(this, email, 1))
         .switchToWindow('newwindow')
           .then(testElementExists('#fxa-sign-in-complete-header'))
-          .closeCurrentWindow()
-        .switchToWindow('')
+          .then(closeCurrentWindow())
 
         // about:accounts will take over post-verification, no transition
         .then(noPageTransition('#fxa-confirm-signin-header'));
@@ -134,8 +133,7 @@ define([
           .then(click('#sync-preferences'))
           // browser is notified of desire to open Sync preferences
           .then(testIsBrowserNotified(this, 'fxaccounts:sync_preferences'))
-          .closeCurrentWindow()
-        .switchToWindow('')
+          .then(closeCurrentWindow())
 
         // about:accounts will take over post-verification, no transition
         .then(noPageTransition('#fxa-confirm-header'));

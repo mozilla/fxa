@@ -24,6 +24,7 @@ define([
   var PASSWORD = '12345678';
   var accountData;
 
+  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
 
@@ -113,8 +114,7 @@ define([
             .end()
 
             // switch to the original window
-            .closeCurrentWindow()
-            .switchToWindow('')
+            .then(closeCurrentWindow())
 
             .findByCssSelector('#loggedin')
             .end()

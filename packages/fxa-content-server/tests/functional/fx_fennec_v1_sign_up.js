@@ -17,6 +17,7 @@ define([
   var email;
   var PASSWORD = '12345678';
 
+  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
 
@@ -122,9 +123,7 @@ define([
         .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:sync_preferences'))
 
 
-        .closeCurrentWindow()
-        .switchToWindow('')
-        .end()
+        .then(closeCurrentWindow())
 
         .findByCssSelector('#fxa-sign-up-complete-header')
         .end()

@@ -12,6 +12,8 @@ define([
   var PASSWORD = 'password';
   var email;
 
+  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
+
   registerSuite({
     name: 'oauth sign up verification_redirect',
 
@@ -83,8 +85,7 @@ define([
         .findByCssSelector('#loggedin')
         .end()
 
-        .closeCurrentWindow()
-        .switchToWindow('');
+        .then(closeCurrentWindow());
     },
 
     'signup, same browser different window, verification_redirect=always': function () {
@@ -119,8 +120,7 @@ define([
         .findByCssSelector('#loggedin')
         .end()
 
-        .closeCurrentWindow()
-        .switchToWindow('');
+        .then(closeCurrentWindow());
     },
 
     'signup, verify different browser, verification_redirect=always': function () {

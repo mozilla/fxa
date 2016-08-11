@@ -14,6 +14,7 @@ define([
   var CONFIRM_URL = config.fxaContentRoot + 'confirm';
   var SIGNUP_URL = config.fxaContentRoot + 'signup';
 
+  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
 
   registerSuite({
@@ -100,8 +101,7 @@ define([
         .findByCssSelector('.google-header-bar')
         .end()
 
-        .closeCurrentWindow()
-        .switchToWindow('')
+        .then(closeCurrentWindow())
 
         .findByCssSelector('#fxa-confirm-header')
         .end();

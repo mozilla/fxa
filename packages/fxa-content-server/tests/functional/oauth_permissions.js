@@ -21,6 +21,7 @@ define([
   var thenify = FunctionalHelpers.thenify;
 
   var click = FunctionalHelpers.click;
+  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
@@ -142,8 +143,7 @@ define([
         .then(testElementTextInclude('.account-ready-service', '321done Untrusted'))
 
         // switch to the original window
-        .closeCurrentWindow()
-        .switchToWindow('')
+        .then(closeCurrentWindow())
 
         .then(testElementExists('#loggedin'));
     },
@@ -194,8 +194,7 @@ define([
         .then(testElementTextInclude('.account-ready-service', '321done Untrusted'))
 
         // switch to the original window
-        .closeCurrentWindow()
-        .switchToWindow('')
+        .then(closeCurrentWindow())
 
         .then(testElementExists('#loggedin'))
         .then(click('#logout'))
@@ -251,8 +250,7 @@ define([
         .then(click('#display-name button[type=submit]'))
         .then(visibleByQSA('.settings-success'))
 
-        .closeCurrentWindow()
-        .switchToWindow('')
+        .then(closeCurrentWindow())
 
         .then(click('.signin'))
 
