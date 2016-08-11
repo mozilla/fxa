@@ -1,3 +1,22 @@
+<a name="1.67.0"></a>
+# [1.67.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.64.0...v1.67.0) (2016-08-11)
+
+
+### Bug Fixes
+
+* **deps:** update dev dependencies ([77ff484](https://github.com/mozilla/fxa-auth-mailer/commit/77ff484))
+* **mailer:** fix undefined translation choice (#195) r=vbudhram ([b57c733](https://github.com/mozilla/fxa-auth-mailer/commit/b57c733)), closes [(#195](https://github.com/(/issues/195) [#192](https://github.com/mozilla/fxa-auth-mailer/issues/192)
+* **mailer:** Slow down the verification reminder emails in dev. (#181) ([e9cc256](https://github.com/mozilla/fxa-auth-mailer/commit/e9cc256)), closes [mozilla/fxa-content-server#3929](https://github.com/mozilla/fxa-content-server/issues/3929)
+* **style:** Change to supported apostrophe (#199) r=vladikoff ([eee72ae](https://github.com/mozilla/fxa-auth-mailer/commit/eee72ae))
+
+### Features
+
+* **location:** add location data to emails (#180) r=vladikoff,shane-tomlinson ([5c9f671](https://github.com/mozilla/fxa-auth-mailer/commit/5c9f671))
+* **mailer:** Remove the account lockout feature. (#187) r=vladikoff ([f91a327](https://github.com/mozilla/fxa-auth-mailer/commit/f91a327)), closes [#186](https://github.com/mozilla/fxa-auth-mailer/issues/186)
+* **metrics:** Add utm_* metrics (#190) ([de9bf89](https://github.com/mozilla/fxa-auth-mailer/commit/de9bf89))
+
+
+
 <a name="1.64.0"></a>
 # [1.64.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.63.0...v1.64.0) (2016-06-27)
 
