@@ -11,10 +11,9 @@ define(function (require, exports, module) {
   var ConfigLoader = require('lib/config-loader');
   var Duration = require('duration');
   var FxaClientWrapper = require('lib/fxa-client');
-  var jwcrypto = require('vendor/jwcrypto');
+  var jwcrypto = require('jwcrypto.rs');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
-  var rs = require('vendor/jwcrypto/lib/algs/rs'); //eslint-disable-line no-unused-vars
   var TestHelpers = require('../../lib/helpers');
 
   var assert = chai.assert;

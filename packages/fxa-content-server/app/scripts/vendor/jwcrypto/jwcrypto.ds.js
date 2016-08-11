@@ -1,3 +1,1223 @@
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.jwcrypto = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+var jwcrypto = require('./lib/jwcrypto');
+require('./lib/algs/ds');
+module.exports = jwcrypto;
+
+},{"./lib/algs/ds":2,"./lib/jwcrypto":6}],2:[function(require,module,exports){
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+var algs = require("./index");
+var libs = require("../../libs/minimal");
+var version = require("../version");
+var BigInteger = libs.BigInteger;
+
+var HASH_ALGS = {
+  "sha1": libs.hex_sha1,
+  "sha256": function(message) {return libs.sjcl.codec.hex.fromBits(libs.sjcl.hash.sha256.hash(message));}
+};
+
+function doHash(hashAlg, message /*, modulus */) {
+  // updated for FIPS186-3, section 4.6, and integer/string conversion as per appendix c.2
+  var raw_hash = HASH_ALGS[hashAlg](message);
+
+  // not really taking the minlength of bitlength and hash output, because assuming
+  // that the parameters we use match hash-output bitlength.
+
+  // we don't actually need to do modulus here, because of the previous assumption
+  return new BigInteger(raw_hash, "16");
+}
+
+// pad with leading 0s a hex string
+function hex_lpad(str, length) {
+  while (str.length < length) {
+    str = "0" + str;
+  }
+  return str;
+}
+
+// supported keysizes
+// the Diffie-Hellman group is specified for each keysize
+// this means we don't need to specify a parameter generation step.
+var KEYSIZES = {
+  // 160 is the keysize for standard DSA
+  // the following are based on the first FIPS186-3 test vectors for 1024/160 SHA-256
+  // under the category A.2.3 Verifiable Canonical Generation of the Generator g
+  // HOWEVER***** for backwards compatibility we are labeling this 128 for now
+  // XXXX this should be changed to 160
+  128: {
+    p: "ff600483db6abfc5b45eab78594b3533d550d9f1bf2a992a7a8daa6dc34f8045ad4e6e0c429d334eeeaaefd7e23d4810be00e4cc1492cba325ba81ff2d5a5b305a8d17eb3bf4a06a349d392e00d329744a5179380344e82a18c47933438f891e22aeef812d69c8f75e326cb70ea000c3f776dfdbd604638c2ef717fc26d02e17",
+    q: "e21e04f911d1ed7991008ecaab3bf775984309c3",
+    g: "c52a4a0ff3b7e61fdf1867ce84138369a6154f4afa92966e3c827e25cfa6cf508b90e5de419e1337e07a2e9e2a3cd5dea704d175f8ebf6af397d69e110b96afb17c7a03259329e4829b0d03bbc7896b15b4ade53e130858cc34d96269aa89041f409136c7242a38895c9d5bccad4f389af1d7a4bd1398bd072dffa896233397a",
+    hashAlg: "sha1"
+  },
+  // the following are based on the first FIPS186-3 test vectors for 2048/256 SHA-256
+  // under the category A.2.3 Verifiable Canonical Generation of the Generator g
+  256: {
+    p: "d6c4e5045697756c7a312d02c2289c25d40f9954261f7b5876214b6df109c738b76226b199bb7e33f8fc7ac1dcc316e1e7c78973951bfc6ff2e00cc987cd76fcfb0b8c0096b0b460fffac960ca4136c28f4bfb580de47cf7e7934c3985e3b3d943b77f06ef2af3ac3494fc3c6fc49810a63853862a02bb1c824a01b7fc688e4028527a58ad58c9d512922660db5d505bc263af293bc93bcd6d885a157579d7f52952236dd9d06a4fc3bc2247d21f1a70f5848eb0176513537c983f5a36737f01f82b44546e8e7f0fabc457e3de1d9c5dba96965b10a2a0580b0ad0f88179e10066107fb74314a07e6745863bc797b7002ebec0b000a98eb697414709ac17b401",
+    q: "b1e370f6472c8754ccd75e99666ec8ef1fd748b748bbbc08503d82ce8055ab3b",
+    g: "9a8269ab2e3b733a5242179d8f8ddb17ff93297d9eab00376db211a22b19c854dfa80166df2132cbc51fb224b0904abb22da2c7b7850f782124cb575b116f41ea7c4fc75b1d77525204cd7c23a15999004c23cdeb72359ee74e886a1dde7855ae05fe847447d0a68059002c3819a75dc7dcbb30e39efac36e07e2c404b7ca98b263b25fa314ba93c0625718bd489cea6d04ba4b0b7f156eeb4c56c44b50e4fb5bce9d7ae0d55b379225feb0214a04bed72f33e0664d290e7c840df3e2abb5e48189fa4e90646f1867db289c6560476799f7be8420a6dc01d078de437f280fff2d7ddf1248d56e1a54b933a41629d6c252983c58795105802d30d7bcd819cf6ef",
+    hashAlg: "sha256"
+  }
+};
+
+function getParams(keysize) {
+  return KEYSIZES[parseInt(keysize, 10)];
+}
+
+// turn the keysize params to bigints
+for (var keysize in KEYSIZES) {
+  var the_params = getParams(keysize);
+  the_params.p = new BigInteger(the_params.p, "16");
+  the_params.q = new BigInteger(the_params.q, "16");
+  the_params.g = new BigInteger(the_params.g, "16");
+
+  // sizes
+  the_params.q_bitlength = the_params.q.bitLength();
+}
+
+
+function _getKeySizeFromBitlength(size) {
+  for (var keysize in KEYSIZES) {
+    var keysize_nbits = KEYSIZES[keysize].p.bitLength();
+    var diff = keysize_nbits - size;
+
+    // extremely unlikely to be more than 30 bits smaller than p
+    // 2^-30. FIXME: should we be more tolerant here.
+    if (diff >= 0 && diff < 30) {
+      return keysize;
+    }
+  }
+
+  return null;
+}
+
+function randomNumberMod(q, rng) {
+  // do a few more bits than q so we can wrap around with not too much bias
+  // wow, turns out this was actually not far off from FIPS186-3, who knew?
+  // FIPS186-3 says to generate 64 more bits than needed into "c", then to do:
+  // result = (c mod (q-1)) + 1
+  return new BigInteger(q.bitLength() + 64, rng).mod(q.subtract(BigInteger.ONE)).add(BigInteger.ONE);
+}
+
+function generate(keysize, rng, doneCB) {
+  var params = getParams(keysize);
+  if (!params)
+    throw "keysize not supported: " + keysize.toString();
+
+  var keypair = new algs.KeyPair();
+  keypair.keysize= keysize;
+
+  // DSA key gen: random x modulo q
+  var x = randomNumberMod(params.q, rng);
+
+  // the secret key will compute y
+  keypair.secretKey = new SecretKey(x, keypair.keysize, params);
+  keypair.publicKey = new PublicKey(keypair.secretKey.y, keypair.keysize, params);
+
+  keypair.publicKey.algorithm = keypair.secretKey.algorithm = keypair.algorithm = 'DS';
+
+  // XXX - timeout or nexttick?
+  doneCB(null, keypair);
+}
+
+var PublicKey = function(y, keysize, params) {
+  this.y = y;
+
+  if (keysize && params) {
+    this.keysize = keysize;
+
+    // copy params
+    this.q = params.q;
+    this.g = params.g;
+    this.p = params.p;
+  }
+};
+
+PublicKey.prototype = new algs.PublicKey();
+
+PublicKey.prototype._20120815_serializeToObject = function(obj) {
+  obj.version = '2012.08.15';
+  obj.y = this.y.toBase64();
+  obj.p = this.p.toBase64();
+  obj.q = this.q.toBase64();
+  obj.g = this.g.toBase64();
+};
+
+PublicKey.prototype._LEGACY_serializeToObject = function(obj) {
+  obj.y = this.y.toString(16);
+  obj.p = this.p.toString(16);
+  obj.q = this.q.toString(16);
+  obj.g = this.g.toString(16);
+};
+
+PublicKey.prototype.serializeToObject = version.versionDispatcher('serializeToObject');
+
+PublicKey.prototype.equals = function(other) {
+  // if other is falsey, then there is no match.
+  if (!other) {
+    return false;
+  }
+
+  return (other.algorithm === this.algorithm &&
+          this.p.equals(other.p) &&
+          this.y.equals(other.y) &&
+          this.g.equals(other.g) &&
+          this.q.equals(other.q));
+};
+
+PublicKey.prototype._LEGACY_deserializeFromObject = function(obj) {
+  this.p = new BigInteger(obj.p, 16);
+  this.q = new BigInteger(obj.q, 16);
+  this.g = new BigInteger(obj.g, 16);
+  this.y = new BigInteger(obj.y, 16);
+};
+
+PublicKey.prototype._20120815_deserializeFromObject = function(obj) {
+  this.p = BigInteger.fromBase64(obj.p);
+  this.q = BigInteger.fromBase64(obj.q);
+  this.g = BigInteger.fromBase64(obj.g);
+  this.y = BigInteger.fromBase64(obj.y);
+};
+
+PublicKey.prototype.deserializeFromObject = function(obj) {
+  version.dispatchOnDataFormatVersion(this, 'deserializeFromObject', obj.version, obj);
+
+  this.keysize = _getKeySizeFromBitlength(this.y.bitLength());
+  return this;
+};
+
+// note: this deserialization code does not check that the public key is
+// well-formed (P and Q are primes, G is actually a generator, etc), and it
+// allows the use of any group (instead of being restricted to e.g. the
+// ones published by NIST). For sign/verify that is ok: when someone else
+// gives a public key, they're instructing us how to distinguish between good
+// signatures and forgeries, and giving us a corrupt pubkey is their
+// perogative (plus we have no secrets to lose).
+//
+// Do not use this approach for DH key agreement. In that world, we *do* have
+// a private key that could be lost, and a maliciously crafted pubkey could
+// be used to learn it. Additional checks would be necessary to do that
+// safely.
+
+function SecretKey(x, keysize, params) {
+  this.x = x;
+
+  // compute y if need be
+  if (params && keysize) {
+    this.y = params.g.modPow(this.x, params.p);
+    this.keysize = keysize;
+
+    // copy params
+    this.q = params.q;
+    this.g = params.g;
+    this.p = params.p;
+  }
+}
+
+SecretKey.prototype = new algs.SecretKey();
+
+SecretKey.prototype._LEGACY_serializeToObject = function(obj) {
+  obj.x = this.x.toString(16);
+  obj.p = this.p.toString(16);
+  obj.q = this.q.toString(16);
+  obj.g = this.g.toString(16);
+};
+
+SecretKey.prototype._20120815_serializeToObject = function(obj) {
+  obj.version = '2012.08.15';
+  obj.x = this.x.toBase64();
+  obj.p = this.p.toBase64();
+  obj.q = this.q.toBase64();
+  obj.g = this.g.toBase64();
+};
+
+SecretKey.prototype.serializeToObject = version.versionDispatcher('serializeToObject');
+
+SecretKey.prototype._LEGACY_deserializeFromObject = function(obj) {
+  this.x = new BigInteger(obj.x, 16);
+
+  this.p = new BigInteger(obj.p, 16);
+  this.q = new BigInteger(obj.q, 16);
+  this.g = new BigInteger(obj.g, 16);
+};
+
+SecretKey.prototype._20120815_deserializeFromObject = function(obj) {
+  this.x = BigInteger.fromBase64(obj.x);
+
+  this.p = BigInteger.fromBase64(obj.p);
+  this.q = BigInteger.fromBase64(obj.q);
+  this.g = BigInteger.fromBase64(obj.g);
+};
+
+SecretKey.prototype.deserializeFromObject = function(obj) {
+  version.dispatchOnDataFormatVersion(this, 'deserializeFromObject', obj.version,
+                                   obj);
+
+  this.keysize = _getKeySizeFromBitlength(this.p.bitLength());
+
+  return this;
+};
+
+
+SecretKey.prototype.sign = function(message, rng, progressCB, doneCB) {
+  var params = getParams(this.keysize);
+
+  // see https://secure.wikimedia.org/wikipedia/en/wiki/Digital_Signature_Algorithm
+
+  // only using single-letter vars here because that's how this is defined in the algorithm
+  var k, r, s;
+
+  // do this until r != 0 (very unlikely, but hey)
+  while(true) {
+    k = randomNumberMod(this.q, rng);
+    r = this.g.modPow(k, this.p).mod(this.q);
+
+    if (r.equals(BigInteger.ZERO)) {
+      console.log("oops r is zero");
+      continue;
+    }
+
+    // the hash
+    var bigint_hash = doHash(params.hashAlg, message, this.q);
+
+    // compute H(m) + (x*r)
+    var message_dep = bigint_hash.add(this.x.multiply(r).mod(this.q)).mod(this.q);
+
+    // compute s
+    s = k.modInverse(this.q).multiply(message_dep).mod(this.q);
+
+    if (s.equals(BigInteger.ZERO)) {
+      console.log("oops s is zero");
+      continue;
+    }
+
+    // r and s are non-zero, we can continue
+    break;
+  }
+
+  // format the signature, it's r and s
+  var hexlength = params.q_bitlength / 4;
+  var signature = hex_lpad(r.toString(16), hexlength) + hex_lpad(s.toString(16), hexlength);
+
+  if (!progressCB)
+    return signature;
+  else
+    doneCB(signature);
+};
+
+PublicKey.prototype.verify = function(message, signature, cb) {
+  var params = getParams(this.keysize);
+
+  // extract r and s
+  var hexlength = params.q_bitlength / 4;
+
+  // we pre-pad with 0s because encoding may have gotten rid of some
+  signature = hex_lpad(signature, hexlength * 2);
+
+  // now this should only happen if the signature was longer
+  if (signature.length !== (hexlength * 2)) {
+    //return cb("problem with r/s combo: " + signature.length + "/" + hexlength + " - " + signature);
+    return cb("malformed signature");
+  }
+
+  var r = new BigInteger(signature.substring(0, hexlength), 16),
+      s = new BigInteger(signature.substring(hexlength, hexlength*2), 16);
+
+  // check rangeconstraints
+  if ((r.compareTo(BigInteger.ZERO) < 0) || (r.compareTo(this.q) > 0)) {
+    //return cb("problem with r: " + r.toString(16));
+    return cb("invalid signature");
+  }
+  if ((s.compareTo(BigInteger.ZERO) < 0) || (s.compareTo(this.q) > 0)) {
+    //return cb("problem with s");
+    return cb("invalid signature");
+  }
+
+  var w = s.modInverse(this.q);
+  var u1 = doHash(params.hashAlg, message, this.q).multiply(w).mod(this.q);
+  var u2 = r.multiply(w).mod(this.q);
+  var v = this.g
+    .modPow(u1,this.p)
+    .multiply(this.y.modPow(u2,this.p)).mod(this.p)
+    .mod(this.q);
+
+  cb(null, v.equals(r));
+};
+
+// register this stuff
+algs.register("DS", {
+  generate: generate,
+  PublicKey: PublicKey,
+  SecretKey: SecretKey
+});
+
+
+},{"../../libs/minimal":10,"../version":9,"./index":3}],3:[function(require,module,exports){
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/*
+ * baseline objects for all algorithms
+ */
+
+var ALGS = {
+};
+
+function KeySizeNotSupportedException(message) {
+  this.message = message;
+  this.toString = function() { return "Key size not supported: "+this.message; };
+}
+
+function NotImplementedException(message) {
+  this.message = message;
+  this.toString = function() { return "Not implemented: "+this.message; };
+}
+
+function KeyPair() {
+  this.publicKey = null;
+  this.secretKey = null;
+  this.algorithm = null;
+  this.keysize = null;
+}
+
+var _getAlgorithm = function _getAlgorithm() {
+  return this.algorithm + this.keysize.toString();
+};
+
+KeyPair.prototype = {
+  getAlgorithm: _getAlgorithm
+};
+
+exports.register = function(alg, cls) {
+  ALGS[alg] = cls;
+};
+
+
+function PublicKey() {
+}
+
+PublicKey.prototype = {
+  // produce a ready-to-be-JSON'ed object
+  toSimpleObject: function() {
+    var obj = {algorithm: this.algorithm};
+    this.serializeToObject(obj);
+    return obj;
+  },
+
+  // ok, JSON'ify it
+  serialize: function() {
+    return JSON.stringify(this.toSimpleObject());
+  },
+
+  getAlgorithm : _getAlgorithm
+};
+
+PublicKey.fromSimpleObject = function(obj) {
+  if (!ALGS[obj.algorithm])
+    throw new NotImplementedException("no such algorithm: " + obj.algorithm);
+
+  var pk = new ALGS[obj.algorithm].PublicKey();
+  pk.algorithm = obj.algorithm;
+  pk.deserializeFromObject(obj);
+  return pk;
+};
+
+PublicKey.deserialize = function(str) {
+  var obj = JSON.parse(str);
+  return PublicKey.fromSimpleObject(obj);
+};
+
+
+function SecretKey() {
+}
+
+SecretKey.prototype = {
+  toSimpleObject: function() {
+    var obj = {algorithm: this.algorithm};
+    this.serializeToObject(obj);
+    return obj;
+  },
+
+  serialize: function() {
+    return JSON.stringify(this.toSimpleObject());
+  },
+
+  getAlgorithm: _getAlgorithm
+
+};
+
+SecretKey.fromSimpleObject = function(obj) {
+  if (!ALGS[obj.algorithm])
+    throw new NotImplementedException("no such algorithm: " + obj.algorithm);
+
+  var sk = new ALGS[obj.algorithm].SecretKey();
+  sk.algorithm = obj.algorithm;
+  sk.deserializeFromObject(obj);
+  return sk;
+};
+
+SecretKey.deserialize = function(str) {
+  var obj = JSON.parse(str);
+  return SecretKey.fromSimpleObject(obj);
+};
+
+
+exports.ALGS = ALGS;
+exports.PublicKey = PublicKey;
+exports.SecretKey = SecretKey;
+exports.KeyPair = KeyPair;
+exports.KeySizeNotSupportedException = KeySizeNotSupportedException;
+exports.NotImplementedException = NotImplementedException;
+
+},{}],4:[function(require,module,exports){
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+var utils = require("./utils"),
+    version = require("./version");
+
+var SERIALIZER = {};
+
+SERIALIZER._LEGACY_serializeAssertionParamsInto = function(assertionParams, params) {
+  // copy over only the parameters we care about into params
+  params.iat = assertionParams.issuedAt ? assertionParams.issuedAt.valueOf() : undefined;
+  params.exp = assertionParams.expiresAt ? assertionParams.expiresAt.valueOf() : undefined;
+  params.iss = assertionParams.issuer;
+  params.aud = assertionParams.audience;
+};
+
+SERIALIZER._20120815_serializeAssertionParamsInto = function(assertionParams, params) {
+  this._LEGACY_serializeAssertionParamsInto(assertionParams, params);
+
+  if (params.version) {
+    if (params.version !== "2012.08.15") {
+      throw new Error("cannot serialize an assertion in a different format than is prescribed by overlaying data structure, e.g. cert");
+    }
+  } else {
+    params.version = "2012.08.15";
+  }
+};
+
+var serializeAssertionParamsInto = function(assertionParams, params) {
+  version.dispatchOnDataFormatVersion(SERIALIZER, 'serializeAssertionParamsInto', version.getDataFormatVersion(), assertionParams, params);
+};
+
+SERIALIZER._LEGACY_extractAssertionParamsFrom = function(params) {
+  var assertionParams = {};
+  assertionParams.issuedAt = utils.getDate(params.iat);
+  assertionParams.expiresAt = utils.getDate(params.exp);
+  assertionParams.issuer = params.iss;
+  assertionParams.audience = params.aud;
+
+  delete params.iat;
+  delete params.exp;
+  delete params.iss;
+  delete params.aud;
+
+  return assertionParams;
+};
+
+SERIALIZER._20120815_extractAssertionParamsFrom = function(params) {
+  delete params.version;
+
+  var returnValue = this._LEGACY_extractAssertionParamsFrom(params);
+  return returnValue;
+};
+
+
+function extractAssertionParamsFrom(params) {
+  return version.dispatchOnDataFormatVersion(SERIALIZER, 'extractAssertionParamsFrom', version.getDataFormatVersion(), params);
+}
+
+
+exports.sign = function(jwcrypto, payload, assertionParams, secretKey, cb) {
+  var allParams = {};
+  utils.copyInto(payload, allParams);
+  serializeAssertionParamsInto(assertionParams, allParams);
+
+  jwcrypto.sign(allParams, secretKey, cb);
+};
+
+exports.verify = function(jwcrypto, signedObject, publicKey, now, cb) {
+  jwcrypto.verify(signedObject, publicKey, function(err, payload) {
+    if (err) return cb(err);
+
+    var assertionParams = extractAssertionParamsFrom(payload);
+
+    // check iat
+    if (assertionParams.issuedAt) {
+      if (assertionParams.issuedAt.valueOf() > now.valueOf())
+        return cb("issued later than verification date");
+    }
+
+    // check exp expiration
+    if (assertionParams.expiresAt) {
+      if (assertionParams.expiresAt.valueOf() < now.valueOf()) {
+        return cb("expired");
+      }
+    }
+
+    cb(null, payload, assertionParams);
+  });
+};
+
+},{"./utils":8,"./version":9}],5:[function(require,module,exports){
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+var jwcrypto = require("./jwcrypto"),
+    assertion = require("./assertion"),
+    utils = require("./utils"),
+    delay = utils.delay,
+    version = require("./version");
+
+var SERIALIZER = {};
+
+SERIALIZER._LEGACY_serializeCertParamsInto = function(certParams, params) {
+  params['public-key'] = certParams.publicKey.toSimpleObject();
+  params.principal = certParams.principal;
+};
+
+SERIALIZER._20120815_serializeCertParamsInto = function(certParams, params) {
+  params.publicKey = certParams.publicKey.toSimpleObject();
+  params.principal = certParams.principal;
+
+  params.version = "2012.08.15";
+};
+
+var serializeCertParamsInto = function(certParams, params) {
+  version.dispatchOnDataFormatVersion(SERIALIZER, 'serializeCertParamsInto', version.getDataFormatVersion(), certParams, params);
+};
+
+SERIALIZER._LEGACY_extractCertParamsFrom = function(params) {
+  var certParams = {};
+
+
+  certParams.publicKey = jwcrypto.loadPublicKey(JSON.stringify(params['public-key']));
+  delete params['public-key'];
+  certParams.principal = params.principal;
+  delete params.principal;
+
+  return certParams;
+};
+
+SERIALIZER._20120815_extractCertParamsFrom = function(params) {
+  delete params.version;
+
+  var certParams = {};
+
+  certParams.publicKey = jwcrypto.loadPublicKey(JSON.stringify(params.publicKey));
+  delete params.publicKey;
+  certParams.principal = params.principal;
+  delete params.principal;
+
+  return certParams;
+};
+
+
+function extractCertParamsFrom(params, originalComponents) {
+  return version.dispatchOnDataFormatVersion(SERIALIZER, 'extractCertParamsFrom', originalComponents.payload.version, params);
+}
+
+exports.sign = function(certParams, assertionParams, additionalPayload,
+                        secretKey, cb) {
+  var payload = {};
+  utils.copyInto(additionalPayload || {}, payload);
+
+  serializeCertParamsInto(certParams, payload);
+
+  assertion.sign(payload, assertionParams, secretKey, cb);
+};
+
+var verify = function(signedObject, publicKey, now, cb) {
+  assertion.verify(signedObject, publicKey, now, function(err, payload, assertionParams) {
+    if (err)
+      return cb(err);
+
+    // compatible with old format
+    var originalComponents = jwcrypto.extractComponents(signedObject);
+    var certParams = extractCertParamsFrom(payload, originalComponents);
+
+    // make the key appear under both public-key and publicKey
+    cb(err, payload, assertionParams, certParams);
+  });
+};
+
+exports.verify = verify;
+
+exports.bundle = function(certs, signedAssertion) {
+  if (!certs || certs.length === 0) {
+    throw "certificates must be a non-empty array";
+  }
+  return [].concat(certs, signedAssertion).join('~');
+};
+
+exports.unbundle = function(b) {
+  var arr = b.split('~');
+  var obj = {};
+  obj.signedAssertion = arr.pop();
+  obj.certs = arr;
+  return obj;
+};
+
+// verify just a chain of certs
+var verifyChain = function(certs, now, getRoot, cb) {
+  if (!certs.length)
+    return delay(cb)("certs must be an array of at least one cert");
+
+  var rootIssuer;
+  try {
+    // the root
+    rootIssuer = jwcrypto.extractComponents(certs[0]).payload.iss;
+  } catch (x) {
+    // can't extract components
+    return delay(cb)("malformed signature");
+  }
+
+  // iterate through the certs
+  function verifyCert(i, pk, certParamsArray, cb) {
+    // do a normal verify on that cert
+    verify(certs[i], pk, now, function(err, payload, assertionParams, certParams) {
+      if (err) return cb(err);
+
+      i += 1;
+      certParamsArray.push({payload: payload,
+                            assertionParams: assertionParams,
+                            certParams: certParams});
+
+      if (i >= certs.length)
+        cb(null, certParamsArray, certParams.publicKey);
+      else
+        delay(verifyCert)(i, certParams.publicKey, certParamsArray, cb);
+    });
+  }
+
+  // get the root public key
+  getRoot(rootIssuer, function(err, rootPK) {
+    if (err) return delay(cb)(err);
+
+    verifyCert(0, rootPK, [], function(err, certParamsArray /* , lastPK */) {
+      if (err) return cb(err);
+
+      // we're done
+      cb(null, certParamsArray);
+    });
+  });
+};
+
+exports.verifyChain = verifyChain;
+
+// msg is an error message returned by .verify, entity is either 'assertion' or
+// 'certificate'
+function improveVerifyErrorMessage(err, entity) {
+  // allow through the malformed signature
+  if (err === "issued later than verification date" ||
+      err === "expired") {
+    err = entity + " " + err;
+  } else if (err !== 'malformed signature') {
+    err = "bad signature in chain";
+  }
+  return err;
+}
+
+exports.verifyBundle = function(bundle, now, getRoot, cb) {
+  // unbundle
+  if (typeof(bundle) !== 'string' && !(bundle instanceof String)) {
+    return delay(cb)("malformed backed assertion");
+  }
+
+  var parsedBundle = exports.unbundle(bundle);
+  var signedAssertion = parsedBundle.signedAssertion;
+  var certs = parsedBundle.certs;
+
+  // no certs? not okay
+  if (certs.length === 0) {
+    return delay(cb)("no certificates provided");
+  }
+
+  // verify the chain
+  verifyChain(certs, now, getRoot, function(err, certParamsArray) {
+    // ergonomic error messages
+    if (err) return cb(improveVerifyErrorMessage(err, 'certificate'));
+
+    // what was the last PK in the successful chain?
+    var lastPK = certParamsArray[certParamsArray.length - 1].certParams.publicKey;
+
+    // now verify the assertion
+    assertion.verify(signedAssertion, lastPK, now, function(err, payload, assertionParams) {
+      // ergonomic error messages
+      if (err) return cb(improveVerifyErrorMessage(err, 'assertion'));
+
+      // we're good!
+      cb(null, certParamsArray, payload, assertionParams);
+    });
+  });
+};
+
+},{"./assertion":4,"./jwcrypto":6,"./utils":8,"./version":9}],6:[function(require,module,exports){
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/*
+ * the new jwcrypto API
+ */
+
+var algs = require("./algs/index"),
+    utils = require("./utils"),
+    delay = utils.delay,
+    rng = require("./rng"),
+    version = require("./version");
+
+var RNG = new rng.RNG();
+
+var IS_SEEDED = false;
+var POST_SEED_CALLBACKS = [];
+
+// start autoseeding
+// queue up the things waiting for seeds
+RNG.autoseed(function() {
+  // mark this true so that, in case some of the callbacks in
+  // POST_SEED_CALLBACKS do asynchronous things, the POST_SEED_CALLBACKS
+  // array will no longer be modified.
+  IS_SEEDED = true;
+
+  // go through callbacks
+  for (var i = 0; i < POST_SEED_CALLBACKS.length; i++) {
+    POST_SEED_CALLBACKS[i]();
+  }
+
+  // clean up as null so that weird egregious errors will
+  // show up (e.g. double seeding.)
+  POST_SEED_CALLBACKS = null;
+});
+
+function waitForSeed(doStuff) {
+  if (IS_SEEDED) {
+    return doStuff();
+  } else {
+    POST_SEED_CALLBACKS.push(doStuff);
+  }
+}
+
+function MalformedException(message) {
+  this.message = message;
+  this.toString = function() { return "malformed input: "+this.message; };
+}
+
+exports.generateKeypair = function(opts, cb) {
+  cb = delay(cb);
+  var algObject = algs.ALGS[opts.algorithm];
+  if (!algObject)
+    throw new algs.NotImplementedException("algorithm " + opts.algorithm + " not implemented");
+
+  waitForSeed(function() {
+    // generate on the specific algorithm
+    // no progress callback
+    algObject.generate(opts.keysize, RNG, cb);
+  });
+};
+
+exports.loadPublicKey = function(str) {
+  return algs.PublicKey.deserialize(str);
+};
+
+exports.loadPublicKeyFromObject = function(obj) {
+  return algs.PublicKey.fromSimpleObject(obj);
+};
+
+exports.loadSecretKey = function(str) {
+  return algs.SecretKey.deserialize(str);
+};
+
+exports.loadSecretKeyFromObject = function(obj) {
+  return algs.SecretKey.fromSimpleObject(obj);
+};
+
+
+exports.sign = function(payload, secretKey, cb) {
+  var header = {"alg": secretKey.getAlgorithm()};
+  var algBytes = utils.base64urlencode(JSON.stringify(header));
+  var jsonBytes = utils.base64urlencode(JSON.stringify(payload));
+
+  waitForSeed(function() {
+    secretKey.sign(algBytes + "." + jsonBytes, RNG, function() {}, function(rawSignature) {
+      var signatureValue = utils.hex2b64urlencode(rawSignature);
+
+      delay(cb)(null, algBytes + "." + jsonBytes + "." + signatureValue);
+    });
+  });
+};
+
+// extract components
+var extractComponents = function(signedObject) {
+  if (typeof(signedObject) !== 'string') {
+    throw new MalformedException("malformed signature");
+  }
+
+  var parts = signedObject.split(".");
+  if (parts.length !== 3) {
+    throw new MalformedException("signed object must have three parts, this one has " + parts.length);
+  }
+
+  var headerSegment = parts[0];
+  var payloadSegment = parts[1];
+  var cryptoSegment = parts[2];
+
+  // we verify based on the actual string
+  // FIXME: we should validate that the header contains only proper fields
+  var header = JSON.parse(utils.base64urldecode(headerSegment));
+  var payload = JSON.parse(utils.base64urldecode(payloadSegment));
+  var signature = utils.b64urltohex(cryptoSegment);
+
+  return {header: header,
+          payload: payload,
+          signature: signature,
+          headerSegment: headerSegment,
+          payloadSegment: payloadSegment,
+          cryptoSegment: cryptoSegment};
+};
+
+exports.extractComponents = extractComponents;
+
+exports.verify = function(signedObject, publicKey, cb) {
+  var components;
+
+  cb = delay(cb);
+  try {
+    components = extractComponents(signedObject);
+
+    // check that algorithm matches
+    if (publicKey.getAlgorithm() !== components.header.alg) {
+      cb("invalid signature");
+      return;
+    }
+  } catch (x) {
+    cb("malformed signature");
+    return;
+  }
+
+  // decode the signature, and verify it
+  publicKey.verify(components.headerSegment + "." + components.payloadSegment, components.signature, function(err, result) {
+    if (err)
+      return cb("malformed signature");
+
+    if (!result)
+      return cb("invalid signature");
+
+    return cb(null, components.payload);
+  });
+};
+
+// entropy here is a string that is expected to be relatively high entropy
+exports.addEntropy = function(entropy) {
+  RNG.addEntropy(entropy);
+};
+
+exports.assertion = require("./assertion");
+exports.cert = require("./cert");
+
+// versioning
+exports.getDataFormatVersion = version.getDataFormatVersion;
+exports.setDataFormatVersion = version.setDataFormatVersion;
+
+},{"./algs/index":3,"./assertion":4,"./cert":5,"./rng":7,"./utils":8,"./version":9}],7:[function(require,module,exports){
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/*global window:true*/
+
+/*
+ * abstract out RNG depending on client or server.
+ *
+ * auto-seeding has to be requested.
+ * (the seed is automatic, not the decision to auto-seed.)
+ *
+ * nextBytes takes a byteArray as input and populates it,
+ * because that's how the cool kids do it and so we will not bikeshed.
+ */
+
+var utils = require("./utils"),
+    delay = utils.delay,
+    libs = require("../libs/minimal"),
+    sjcl = libs.sjcl;
+
+// detect if we have native crypto support
+var crypto = null;
+
+// proper boolean for whether we have native support
+var IS_NATIVE = !!crypto;
+
+function NativeRNG() {
+}
+
+NativeRNG.prototype = {
+  addEntropy: function(/* seed_in */) {
+    // Do nothing.  When we have a native RNG (node's),
+    // external entropy isn't neccesary.
+  },
+  autoseed: function(cb) {
+    // yay, don't need to do anything
+    if (cb) {
+      delay(cb)();
+    }
+  },
+  nextBytes: function(byteArray) {
+    var randomBytes = crypto.randomBytes(byteArray.length);
+    for (var i=0; i<byteArray.length; i++)
+      byteArray[i] = randomBytes[i];
+  }
+};
+
+function BrowserRNG() {
+  var has_getrandomvalues = false;
+  try {
+    has_getrandomvalues = !! window.crypto.getRandomValues;
+  } catch (x) {
+    // apparently just trying to touch window.crypto will
+    // throw an exception on some platforms, so we have to be
+    // ultra stoopid about how we do this
+  }
+
+  this.isSeeded = has_getrandomvalues;
+}
+
+BrowserRNG.prototype = {
+  // WARNING: assumes that there's enough entropy in here to say it's 256
+  addEntropy: function(seed_in) {
+    sjcl.random.addEntropy(seed_in, 256);
+    this.isSeeded = true;
+  },
+  autoseed: function(cb) {
+    // this line is required because we have potentially more than
+    // one RNG object, but only one sjcl.random underlying object
+    // so we need to check that maybe a previous object properly seeded
+    // the RNG or we will never get the seed event.
+    this.isSeeded = this.isSeeded || sjcl.random.isReady();
+
+    if (this.isSeeded) {
+      if (cb) delay(cb)();
+      return;
+    } else {
+      sjcl.random.addEventListener('seeded', function() {
+        this.isSeeded = true;
+        // no passing of arguments to the callback
+        cb && cb();
+      });
+
+      // tell sjcl to start collecting some entropy
+      sjcl.random.startCollectors();
+    }
+  },
+  nextBytes: function(byteArray) {
+    var randomBytes = sjcl.random.randomWords(byteArray.length);
+    for (var i=0; i<byteArray.length; i++)
+      byteArray[i] = randomBytes[i];
+  }
+};
+
+exports.RNG = IS_NATIVE ? NativeRNG : BrowserRNG;
+
+},{"../libs/minimal":10,"./utils":8}],8:[function(require,module,exports){
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+var libs = require("../libs/minimal");
+
+function InputException(message) {
+  this.message = message;
+  this.toString = function() { return "Malformed input: "+this.message; };
+}
+
+var int2char = libs.int2char;
+
+// convert a base64url string to hex
+var b64urlmap="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+function b64urltohex(s) {
+  var ret = "";
+  var i;
+  var k = 0; // b64 state, 0-3
+  var slop;
+  for(i = 0; i < s.length; ++i) {
+    var v = b64urlmap.indexOf(s.charAt(i));
+    if(v < 0) continue;
+    if(k === 0) {
+      ret += int2char(v >> 2);
+      slop = v & 3;
+      k = 1;
+    }
+    else if(k === 1) {
+      ret += int2char((slop << 2) | (v >> 4));
+      slop = v & 0xf;
+      k = 2;
+    }
+    else if(k === 2) {
+      ret += int2char(slop);
+      ret += int2char(v >> 2);
+      slop = v & 3;
+      k = 3;
+    }
+    else {
+      ret += int2char((slop << 2) | (v >> 4));
+      ret += int2char(v & 0xf);
+      k = 0;
+    }
+  }
+  if(k === 1) {
+    ret += int2char(slop << 2);
+  }
+
+  // initial 0? only one for now
+  if (ret[0] === '0') {
+    return ret.substring(1);
+  } else {
+    return ret;
+  }
+}
+
+function hex2b64urlencode(arg) {
+  // consider the case where the hex is not a
+  // proper number of octets.
+  if ((arg.length % 2) !== 0) {
+    arg = "0" + arg;
+  }
+
+  return libs.hex2b64(arg).split('=')[0]
+    .replace(/\+/g, '-')  // 62nd char of encoding
+    .replace(/\//g, '_'); // 63rd char of encoding
+}
+
+function base64urlencode(arg) {
+  var s = window.btoa(arg);
+  s = s.split('=')[0]; // Remove any trailing '='s
+  s = s.replace(/\+/g, '-'); // 62nd char of encoding
+  s = s.replace(/\//g, '_'); // 63rd char of encoding
+  // TODO optimize this; we can do much better
+  return s;
+}
+
+function base64urldecode(arg) {
+  var s = arg;
+  s = s.replace(/-/g, '+'); // 62nd char of encoding
+  s = s.replace(/_/g, '/'); // 63rd char of encoding
+  switch (s.length % 4) { // Pad with trailing '='s
+  case 0:
+    break; // No pad chars in this case
+  case 2:
+    s += "==";
+    break; // Two pad chars
+  case 3:
+    s += "=";
+    break; // One pad char
+  default:
+    throw new InputException("Illegal base64url string!");
+  }
+  return window.atob(s); // Standard base64 decoder
+}
+
+function copyInto(oldObj, newObj) {
+  for (var k in oldObj) {
+    if (oldObj.hasOwnProperty(k)) newObj[k] = oldObj[k];
+  }
+}
+
+function getDate(d) {
+  if (!d)
+    return null;
+
+  var r = new Date();
+  r.setTime(d);
+  return r;
+}
+
+// delay a function
+function delay(cb) {
+  var delayedFunction = function() {
+    var funcArguments = arguments;
+    setTimeout(function() {
+      cb.apply(cb, funcArguments);
+    }, 0);
+  };
+
+  return delayedFunction;
+}
+
+exports.b64urltohex = b64urltohex;
+exports.hex2b64urlencode = hex2b64urlencode;
+exports.base64urldecode = base64urldecode;
+exports.base64urlencode = base64urlencode;
+exports.copyInto = copyInto;
+exports.getDate = getDate;
+exports.delay = delay;
+
+},{"../libs/minimal":10}],9:[function(require,module,exports){
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+// tracking the version number in a separate location so we
+// don't have circular dependencies.
+
+var SUPPORTED_DATA_FORMATS = ['2012.08.15', ''];
+
+// XXX - upgrade this to 2012.08.15 when we're ready
+var DEFAULT_DATA_FORMAT_VERSION = '';
+var DATA_FORMAT_VERSION = DEFAULT_DATA_FORMAT_VERSION;
+
+exports.setDataFormatVersion = function(version) {
+  if (version === undefined) {
+    version = DEFAULT_DATA_FORMAT_VERSION;
+  }
+
+  if (SUPPORTED_DATA_FORMATS.indexOf(version) === -1) {
+    throw new Error("no such version " + version + ", only supported versions are " + SUPPORTED_DATA_FORMATS.join(","));
+  }
+
+  DATA_FORMAT_VERSION = version;
+};
+
+exports.getDataFormatVersion = function() {
+  return DATA_FORMAT_VERSION;
+};
+
+// this immediately dispatches to the versioned function based on
+// the indicated version
+function dispatchOnDataFormatVersion(obj, coreFunctionName, version) {
+  var currentVersionString = version || 'LEGACY';
+  currentVersionString = currentVersionString.replace(/\./g, '');
+  var methodName = "_" + currentVersionString + "_" + coreFunctionName;
+
+  if (!obj[methodName]) {
+    console.log(obj);
+    throw new Error("object has no method called " + methodName);
+  }
+
+  // invoke
+  return obj[methodName].apply(obj, Array.prototype.slice.call(arguments).slice(3));
+}
+
+// this creates a function that dispatches to the versioned function,
+// based on the version number that the library is set to
+function versionDispatcher(coreFunctionName) {
+  return function() {
+    dispatchOnDataFormatVersion.apply(null, Array.prototype.concat([this, coreFunctionName, exports.getDataFormatVersion()], Array.prototype.slice.call(arguments)));
+  };
+}
+
+exports.dispatchOnDataFormatVersion = dispatchOnDataFormatVersion;
+exports.versionDispatcher = versionDispatcher;
+
+},{}],10:[function(require,module,exports){
 var sha1 = {
   hex: function(){
       throw new Error("Not Implemented");
@@ -1762,3 +2982,6 @@ exports.b64_sha1 = b64_sha1;
 // objects and not write the code for base64 twice
 exports.window = window;
 exports.navigator = navigator;
+
+},{}]},{},[1])(1)
+});

@@ -6,7 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var Duration = require('duration');
-  var jwcrypto = require('vendor/jwcrypto');
+  var jwcrypto = require('jwcrypto');
   var P = require('lib/promise');
 
   var CERT_DURATION_MS =  new Duration('6h').milliseconds();

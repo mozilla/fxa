@@ -1,4 +1,3 @@
-define(function(require,module,exports){
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -130,5 +129,3 @@ exports.base64urlencode = base64urlencode;
 exports.copyInto = copyInto;
 exports.getDate = getDate;
 exports.delay = delay;
-return exports;
-});

@@ -1,5 +1,3 @@
-define(function(require,module,exports){
-
 var sha1 = {
   hex: function(){
       throw new Error("Not Implemented");
@@ -457,7 +455,7 @@ function hex2b64(h) {
   // fix by bwarner
   if (h.length % 2 == 1)
     h = "0"+h;
-  
+
   for(i = 0; i+3 <= h.length; i+=3) {
     c = parseInt(h.substring(i,i+3),16);
     ret += b64map.charAt(c >> 6) + b64map.charAt(c & 63);
@@ -1994,7 +1992,7 @@ RSAKey.prototype.decrypt = RSADecrypt;
 // This software is licensed under the terms of the MIT License.
 // http://www.opensource.org/licenses/mit-license.php
 //
-// The above copyright and license notice shall be 
+// The above copyright and license notice shall be
 // included in all copies or substantial portions of the Software.
 
 //
@@ -2053,7 +2051,7 @@ function _rsasign_signString(s, hashAlg) {
 }
 
 function _rsasign_signStringWithSHA1(s) {
-  var hPM = _rsasign_getHexPaddedDigestInfoForString(s, this.n.bitLength(), 'sha1');  
+  var hPM = _rsasign_getHexPaddedDigestInfoForString(s, this.n.bitLength(), 'sha1');
   var biPaddedMessage = parseBigInt(hPM, 16);
   var biSign = this.doPrivate(biPaddedMessage);
   var hexSign = biSign.toString(16);
@@ -2122,7 +2120,7 @@ function _rsasign_verifyString(sMsg, hSig) {
   var biDecryptedSig = this.doPublic(biSig);
   var hDigestInfo = biDecryptedSig.toString(16).replace(/^1f+00/, '');
   var digestInfoAry = _rsasign_getAlgNameAndHashFromHexDisgestInfo(hDigestInfo);
-  
+
   if (digestInfoAry.length == 0) return false;
   var algName = digestInfoAry[0];
   var diHashValue = digestInfoAry[1];
@@ -2217,7 +2215,7 @@ if(rng_pool == null) {
     var z = window.crypto.random(32);
     for(t = 0; t < z.length; ++t)
       rng_pool[rng_pptr++] = z.charCodeAt(t) & 255;
-  }  
+  }
   while(rng_pptr < rng_psize) {  // extract some randomness from Math.random()
     t = Math.floor(65536 * Math.random());
     rng_pool[rng_pptr++] = t >>> 8;
@@ -2276,5 +2274,3 @@ exports.b64_sha1 = b64_sha1;
 // objects and not write the code for base64 twice
 exports.window = window;
 exports.navigator = navigator;
-return exports;
-});
