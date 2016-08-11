@@ -15,8 +15,6 @@ function serialize(client) {
     name: client.name,
     image_uri: client.imageUri,
     redirect_uri: client.redirectUri,
-    terms_uri: client.termsUri,
-    privacy_uri: client.privacyUri,
     can_grant: client.canGrant,
     trusted: client.trusted
   };
@@ -35,8 +33,6 @@ module.exports = {
           name: Joi.string().required(),
           image_uri: Joi.string().allow(''),
           redirect_uri: Joi.string().allow('').required(),
-          terms_uri: Joi.string().allow('').required(),
-          privacy_uri: Joi.string().allow('').required(),
           can_grant: Joi.boolean().required(),
           trusted: Joi.boolean().required()
         })

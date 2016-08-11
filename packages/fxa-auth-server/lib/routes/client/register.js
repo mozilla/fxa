@@ -22,8 +22,6 @@ module.exports = {
       name: Joi.string().max(256).required(),
       image_uri: Joi.string().max(256).allow(''),
       redirect_uri: Joi.string().max(256).required(),
-      terms_uri: Joi.string().max(256).allow(''),
-      privacy_uri: Joi.string().max(256).allow(''),
       can_grant: Joi.boolean(),
       trusted: Joi.boolean()
     }
@@ -35,8 +33,6 @@ module.exports = {
       name: Joi.string().required(),
       image_uri: Joi.string().allow(''),
       redirect_uri: Joi.string().required(),
-      terms_uri: Joi.string().required().allow(''),
-      privacy_uri: Joi.string().required().allow(''),
       can_grant: Joi.boolean().required(),
       trusted: Joi.boolean().required()
     }
@@ -50,8 +46,6 @@ module.exports = {
       name: payload.name,
       redirectUri: payload.redirect_uri,
       imageUri: payload.image_uri || '',
-      termsUri: payload.terms_uri || '',
-      privacyUri: payload.privacy_uri || '',
       canGrant: !!payload.can_grant,
       trusted: !!payload.trusted
     };
@@ -80,8 +74,6 @@ module.exports = {
           name: client.name,
           redirect_uri: client.redirectUri,
           image_uri: client.imageUri,
-          terms_uri: client.termsUri,
-          privacy_uri: client.privacyUri,
           can_grant: client.canGrant,
           trusted: client.trusted
         }).code(201);

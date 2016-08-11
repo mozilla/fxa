@@ -39,9 +39,6 @@ function convertClientToConfigFormat(client) {
       out[key] = unbuf(client[key]);
     } else if (key === 'trusted' || key === 'canGrant') {
       out[key] = !!client[key]; // db stores booleans as 0 or 1.
-    } else if (key === 'termsUri' || key === 'privacyUri') {
-      // these are optional in the config
-      if (client[key]) { out[key] = client[key]; }
     } else if (typeof client[key] !== 'function') {
       out[key] = unbuf(client[key]);
     }
