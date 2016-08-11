@@ -182,8 +182,8 @@ module.exports = function (log, error) {
   // Insert : sessionTokens
   // Values : tokenId = $1, tokenData = $2, uid = $3, createdAt = $4,
   //          uaBrowser = $5, uaBrowserVersion = $6, uaOS = $7, uaOSVersion = $8,
-  //          uaDeviceType = $9, tokenVerificationId = $10
-  var CREATE_SESSION_TOKEN = 'CALL createSessionToken_3(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  //          uaDeviceType = $9, tokenVerificationId = $10, mustVerify = $11
+  var CREATE_SESSION_TOKEN = 'CALL createSessionToken_4(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createSessionToken = function (tokenId, sessionToken) {
     return this.write(
@@ -198,7 +198,8 @@ module.exports = function (log, error) {
         sessionToken.uaOS,
         sessionToken.uaOSVersion,
         sessionToken.uaDeviceType,
-        sessionToken.tokenVerificationId
+        sessionToken.tokenVerificationId,
+        !!sessionToken.mustVerify
       ]
     )
   }
@@ -348,10 +349,10 @@ module.exports = function (log, error) {
   //          d.id AS deviceId, d.name AS deviceName, d.type AS deviceType, d.createdAt
   //          AS deviceCreatedAt, d.callbackURL AS deviceCallbackURL, d.callbackPublicKey
   //          AS deviceCallbackPublicKey, d.callbackAuthKey AS deviceCallbackAuthKey,
-  //          ut.tokenVerificationId
+  //          ut.tokenVerificationId, ut.mustVerify
   // Where  : t.tokenId = $1 AND t.uid = a.uid AND t.tokenId = d.sessionTokenId AND
   //          t.uid = d.uid AND t.tokenId = u.tokenId
-  var SESSION_DEVICE = 'CALL sessionWithDevice_3(?)'
+  var SESSION_DEVICE = 'CALL sessionWithDevice_4(?)'
 
   MySql.prototype.sessionWithDevice = function (id) {
     return this.readFirstResult(SESSION_DEVICE, [id])
@@ -383,9 +384,9 @@ module.exports = function (log, error) {
   // Fields : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
   //          t.uaOS, t.uaOSVersion, t.uaDeviceType, t.lastAccessTime,
   //          a.emailVerified, a.email, a.emailCode, a.verifierSetAt, a.locale,
-  //          a.createdAt AS accountCreatedAt, ut.tokenVerificationId
+  //          a.createdAt AS accountCreatedAt, ut.tokenVerificationId, ut.mustVerify
   // Where  : t.tokenId = $1 AND t.uid = a.uid AND t.tokenId = ut.tokenId
-  var SESSION_TOKEN_VERIFIED = 'CALL sessionTokenWithVerificationStatus_1(?)'
+  var SESSION_TOKEN_VERIFIED = 'CALL sessionTokenWithVerificationStatus_2(?)'
 
   MySql.prototype.sessionTokenWithVerificationStatus = function (tokenId) {
     return this.readFirstResult(SESSION_TOKEN_VERIFIED, [tokenId])

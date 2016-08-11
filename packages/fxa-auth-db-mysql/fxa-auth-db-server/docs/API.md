@@ -508,6 +508,7 @@ curl \
         "uaOS" : Mac OS X,
         "uaOSVersion" : 10.10,
         "uaDeviceType" : null,
+        "mustVerify":true,
         "tokenVerificationId" : "5680a81ba029af7b829afb4aa6dbc23f"
     }' \
     http://localhost:8000/sessionToken/522c251a1623e1f1db1f4fe68b9594d26772d6e77e04cb68e110c58600f97a77
@@ -527,6 +528,7 @@ curl \
     * uaOS : string
     * uaOSVersion : string
     * uaDeviceType : string
+    * mustVerify : boolean,
     * tokenVerificationId : hex128
 
 ### Response
@@ -875,6 +877,7 @@ Content-Length: 285
     "verifierSetAt":1460548810011,
     "locale":"en_US",
     "accountCreatedAt":1460548810011,
+    "mustVerify":true,
     "tokenVerificationId":"12c41fac80fd6149f3f695e188b5f846"
 }
 ```
@@ -938,6 +941,7 @@ Content-Length: 285
     "deviceCreatedAt":1460548810011,
     "deviceCallbackURL":null,
     "deviceCallbackPublicKey":null,
+    "mustVerify":true,
     "tokenVerificationId":"12c41fac80fd6149f3f695e188b5f846"
 }
 ```

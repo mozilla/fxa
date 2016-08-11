@@ -195,7 +195,7 @@ module.exports = function(cfg, server) {
   test(
     'session token handling',
     function (t) {
-      t.plan(127)
+      t.plan(133)
       var user = fake.newUserDataHex()
       var verifiedUser = fake.newUserDataHex()
       delete verifiedUser.sessionToken.tokenVerificationId
@@ -280,6 +280,7 @@ module.exports = function(cfg, server) {
           t.deepEqual(token.emailCode, user.account.emailCode, 'token emailCode same as account emailCode')
           t.ok(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
           t.ok(token.accountCreatedAt > 0, 'accountCreatedAt is positive number')
+          t.equal(token.mustVerify, undefined, 'mustVerify is undefined')
           t.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
 
           // Fetch the session token with its verification state
@@ -302,6 +303,7 @@ module.exports = function(cfg, server) {
           t.deepEqual(token.emailCode, user.account.emailCode, 'token emailCode same as account emailCode')
           t.ok(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
           t.ok(token.accountCreatedAt > 0, 'accountCreatedAt is positive number')
+          t.equal(!!token.mustVerify, !!user.sessionToken.mustVerify, 'mustVerify is correct')
           t.equal(token.tokenVerificationId, user.sessionToken.tokenVerificationId, 'tokenVerificationId is correct')
 
           // Create a verified session token
@@ -330,6 +332,7 @@ module.exports = function(cfg, server) {
           t.deepEqual(token.emailCode, verifiedUser.account.emailCode, 'token emailCode same as account emailCode')
           t.ok(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
           t.ok(token.accountCreatedAt > 0, 'accountCreatedAt is positive number')
+          t.equal(token.mustVerify, undefined, 'mustVerify is undefined')
           t.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
 
           // Fetch the verified session token with its verification state
@@ -352,6 +355,7 @@ module.exports = function(cfg, server) {
           t.deepEqual(token.emailCode, verifiedUser.account.emailCode, 'token emailCode same as account emailCode')
           t.ok(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
           t.ok(token.accountCreatedAt > 0, 'accountCreatedAt is positive number')
+          t.equal(token.mustVerify, null, 'mustVerify is null')
           t.equal(token.tokenVerificationId, null, 'tokenVerificationId is null')
 
           // Attempt to verify a non-existent session token
@@ -384,12 +388,14 @@ module.exports = function(cfg, server) {
           return client.getThen('/sessionToken/' + user.sessionTokenId)
         })
         .then(function(r) {
+          t.equal(r.obj.mustVerify, undefined, 'mustVerify is undefined')
           t.equal(r.obj.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
 
           // Fetch the newly verified session token with its verification state
           return client.getThen('/sessionToken/' + user.sessionTokenId + '/verified')
         })
         .then(function(r) {
+          t.equal(r.obj.mustVerify, null, 'mustVerify is null')
           t.equal(r.obj.tokenVerificationId, null, 'tokenVerificationId is null')
 
           // Attempt to verify the session token again

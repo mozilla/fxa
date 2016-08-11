@@ -61,6 +61,7 @@ var SESSION_TOKEN = {
   uaOS : 'mock OS',
   uaOSVersion : 'mock OS version',
   uaDeviceType : 'mock device type',
+  mustVerify: true,
   tokenVerificationId : hex16()
 }
 
@@ -218,7 +219,7 @@ module.exports = function(config, DB) {
         test(
           'session token handling',
           function (t) {
-            t.plan(103)
+            t.plan(111)
 
             var VERIFIED_SESSION_TOKEN_ID = hex32()
             var UNVERIFIED_SESSION_TOKEN_ID = hex32()
@@ -231,6 +232,7 @@ module.exports = function(config, DB) {
               uaOS: 'baz',
               uaOSVersion: 'qux',
               uaDeviceType: 'wibble',
+              mustVerify: false,
               tokenVerificationId: hex16()
             }
 
@@ -327,6 +329,7 @@ module.exports = function(config, DB) {
                 t.deepEqual(token.emailCode, ACCOUNT.emailCode, 'token emailCode same as account emailCode')
                 t.equal(token.verifierSetAt, ACCOUNT.verifierSetAt, 'verifierSetAt is correct')
                 t.equal(token.accountCreatedAt, ACCOUNT.createdAt, 'accountCreatedAt is correct')
+                t.equal(token.mustVerify, undefined, 'mustVerify is undefined')
                 t.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
 
                 // Fetch the session token with its verification state
@@ -347,6 +350,7 @@ module.exports = function(config, DB) {
                 t.deepEqual(token.emailCode, ACCOUNT.emailCode, 'token emailCode same as account emailCode')
                 t.equal(token.verifierSetAt, ACCOUNT.verifierSetAt, 'verifierSetAt is correct')
                 t.equal(token.accountCreatedAt, ACCOUNT.createdAt, 'accountCreatedAt is correct')
+                t.equal(!!token.mustVerify, !!SESSION_TOKEN.mustVerify, 'mustVerify is correct')
                 t.deepEqual(token.tokenVerificationId, SESSION_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
 
                 // Create a verified session token
@@ -392,12 +396,14 @@ module.exports = function(config, DB) {
                 t.equal(token.uaOSVersion, 'd', 'uaOSVersion is correct')
                 t.equal(token.uaDeviceType, 'e', 'uaDeviceType is correct')
                 t.equal(!!token.emailVerified, ACCOUNT.emailVerified, 'token emailVerified is same as account emailVerified')
+                t.equal(token.mustVerify, undefined, 'mustVerify is undefined')
                 t.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
 
                 // Fetch the verified session token with its verification state
                 return db.sessionTokenWithVerificationStatus(VERIFIED_SESSION_TOKEN_ID)
               })
               .then(function (token) {
+                t.equal(token.mustVerify, null, 'mustVerify is null')
                 t.equal(token.tokenVerificationId, null, 'tokenVerificationId is null')
 
                 // Attempt to verify session token with invalid tokenVerificationId
@@ -414,6 +420,7 @@ module.exports = function(config, DB) {
                 return db.sessionTokenWithVerificationStatus(SESSION_TOKEN_ID)
               })
               .then(function (token) {
+                t.equal(!!token.mustVerify, !!SESSION_TOKEN.mustVerify, 'mustVerify is correct')
                 t.deepEqual(token.tokenVerificationId, SESSION_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
 
                 // Attempt to verify session token with invalid uid
@@ -430,6 +437,7 @@ module.exports = function(config, DB) {
                 return db.sessionTokenWithVerificationStatus(SESSION_TOKEN_ID)
               })
               .then(function (token) {
+                t.equal(!!token.mustVerify, !!SESSION_TOKEN.mustVerify, 'mustVerify is correct')
                 t.deepEqual(token.tokenVerificationId, SESSION_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
 
                 // Verify the session token
@@ -440,12 +448,14 @@ module.exports = function(config, DB) {
                 return db.sessionToken(SESSION_TOKEN_ID)
               })
               .then(function(token) {
+                t.equal(token.mustVerify, undefined, 'mustVerify is undefined')
                 t.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
 
                 // Fetch the newly verified session token with its verification state
                 return db.sessionTokenWithVerificationStatus(SESSION_TOKEN_ID)
               })
               .then(function (token) {
+                t.equal(token.mustVerify, null, 'mustVerify is null')
                 t.equal(token.tokenVerificationId, null, 'tokenVerificationId is null')
 
                 // Create an unverified session token
@@ -992,7 +1002,7 @@ module.exports = function(config, DB) {
         test(
           'db.accountDevices',
           function (t) {
-            t.plan(71)
+            t.plan(73)
             var deviceId = newUuid()
             var sessionTokenId = hex32()
             var createdAt = Date.now()
@@ -1077,6 +1087,7 @@ module.exports = function(config, DB) {
                       t.equal(s.deviceCallbackURL, device.callbackURL, 'callbackURL')
                       t.equal(s.deviceCallbackPublicKey, device.callbackPublicKey, 'callbackPublicKey')
                       t.equal(s.deviceCallbackAuthKey, device.callbackAuthKey, 'callbackAuthKey')
+                      t.equal(!!s.mustVerify, !!SESSION_TOKEN.mustVerify, 'mustVerify is correct')
                       t.deepEqual(s.tokenVerificationId, SESSION_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
                     },
                     function (e) {
@@ -1093,6 +1104,7 @@ module.exports = function(config, DB) {
                 return db.sessionWithDevice(sessionTokenId)
               })
               .then(function (s) {
+                t.equal(s.mustVerify, null, 'mustVerify is null')
                 t.equal(s.tokenVerificationId, null, 'tokenVerificationId is null')
 
                 // Update the device

@@ -276,7 +276,7 @@ Parameters.
 Each token takes the following fields for it's create method respectively:
 
 * sessionToken : data, uid, createdAt, uaBrowser, uaBrowserVersion, uaOS, uaOSVersion, uaDeviceType,
-                 tokenVerificationId
+                 mustVerify, tokenVerificationId
 * keyFetchToken : authKey, uid, keyBundle, createdAt, tokenVerificationId
 * passwordChangeToken : data, uid, createdAt
 * passwordForgotToken : data, uid, passCode, createdAt, triesxb
@@ -326,10 +326,10 @@ These fields are represented as
 * sessionTokenWithVerificationStatus : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
                                        t.uaOS, t.uaOSVersion, t.uaDeviceType, t.lastAccessTime,
                                        a.emailVerified, a.email, a.emailCode, a.verifierSetAt,
-                                       a.createdAt AS accountCreatedAt, ut.tokenVerificationId
+                                       a.createdAt AS accountCreatedAt, ut.mustVerify, ut.tokenVerificationId
 * keyFetchToken : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified, a.verifierSetAt
 * keyFetchTokenWithVerificationStatus : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified,
-                                        a.verifierSetAt, ut.tokenVerificationId
+                                        a.verifierSetAt, ut.mustVerify, ut.tokenVerificationId
 * passwordChangeToken : t.tokenData, t.uid, t.createdAt, a.verifierSetAt
 * passwordForgotToken : t.tokenData, t.uid, t.createdAt, t.passCode, t.tries, a.email, a.verifierSetAt
 * accountResetToken : t.uid, t.tokenData, t.createdAt, a.verifierSetAt
@@ -450,7 +450,7 @@ The deviceCallbackPublicKey and deviceCallbackAuthKey fields are urlsafe-base64 
                  d.name AS deviceName, d.type AS deviceType,
                  d.createdAt AS deviceCreatedAt, d.callbackURL AS deviceCallbackURL,
                  d.callbackPublicKey AS deviceCallbackPublicKey,
-                 d.callbackAuthKey AS deviceCallbackAuthKey, ut.tokenVerificationId
+                 d.callbackAuthKey AS deviceCallbackAuthKey, ut.mustVerify, ut.tokenVerificationId
 
 ## .createVerificationReminder(body) ##
 

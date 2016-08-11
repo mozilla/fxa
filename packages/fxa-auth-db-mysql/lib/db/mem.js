@@ -99,6 +99,7 @@ module.exports = function (log, error) {
     if (sessionToken.tokenVerificationId) {
       unverifiedTokens[tokenId] = {
         tokenVerificationId: sessionToken.tokenVerificationId,
+        mustVerify: !!sessionToken.mustVerify,
         uid: sessionToken.uid
       }
     }
@@ -513,8 +514,13 @@ module.exports = function (log, error) {
 
     return this.sessionToken(tokenId)
       .then(function (sessionToken) {
-        sessionToken.tokenVerificationId = unverifiedTokens[tokenId] ?
-          unverifiedTokens[tokenId].tokenVerificationId : null
+        if (unverifiedTokens[tokenId]) {
+          sessionToken.mustVerify = unverifiedTokens[tokenId].mustVerify
+          sessionToken.tokenVerificationId = unverifiedTokens[tokenId].tokenVerificationId
+        } else {
+          sessionToken.mustVerify = null
+          sessionToken.tokenVerificationId = null
+        }
         return sessionToken
       })
   }
