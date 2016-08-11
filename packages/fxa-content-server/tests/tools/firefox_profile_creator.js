@@ -28,6 +28,9 @@ if (profile) {
   myProfile.setPreference('identity.fxaccounts.remote.signup.uri', profile.fxaContentRoot + 'signup?service=sync&context=fx_desktop_v1');
   myProfile.setPreference('identity.fxaccounts.settings.uri', profile.fxaContentRoot + 'settings');
   myProfile.setPreference('services.sync.tokenServerURI', profile.fxaToken);
+  myProfile.setPreference('app.update.enabled', false);
+  myProfile.setPreference('app.update.auto', false);
+  myProfile.setPreference('app.update.silent', false);
 
   // Disable getUserMedia permission check for avatar uploads.
   myProfile.setPreference('media.navigator.permission.disabled', true);
