@@ -10,6 +10,7 @@ define(function (require, exports, module) {
 
   var $ = require('jquery');
   var BaseView = require('views/base');
+  var KeyCodes = require('lib/key-codes');
 
   module.exports = {
     initialize: function (options) {
@@ -17,7 +18,31 @@ define(function (require, exports, module) {
     },
     events: {
       'click .cancel': BaseView.preventDefaultThen('_closePanelReturnToSettings'),
-      'click .settings-unit-toggle': BaseView.preventDefaultThen('_triggerPanel')
+      'click .settings-unit-toggle': BaseView.preventDefaultThen('_triggerPanel'),
+      'keyup .settings-unit': 'onKeyUp'
+    },
+
+    onKeyUp: function (event) {
+      this._hidePanelOnEscape(event);
+    },
+
+    _hidePanelOnEscape: function (event) {
+      if (event.which === KeyCodes.ESCAPE) {
+        this.hidePanel(event.currentTarget);
+      }
+    },
+
+    hidePanel: function (el) {
+      // escape key has same behavior as cancel button
+      // so find the cancel button inside the open panel
+      // and simulate a click on that
+      var cancelButton = this.$(el).find('.cancel');
+
+      // synthesize a new event
+      var $event = $.Event('click');
+      $event.currentTarget = $(cancelButton);
+
+      this._closePanelReturnToSettings($event);
     },
 
     _triggerPanel: function (event) {
@@ -29,6 +54,19 @@ define(function (require, exports, module) {
 
     openPanel: function () {
       this.$('.settings-unit').addClass('open');
+      var $input = this.$('.open [autofocus]');
+      if ($input.length > 0) {
+        // if there's an autofocus element, focus that
+        this.focusElement($input[0]);
+      }
+    },
+
+    focusElement: function (autoFocusEl) {
+      // focus element only if not a mobile device
+      // assumption carried over from base.js
+      if ($('html').hasClass('no-touch')) {
+        this.focus(autoFocusEl);
+      }
     },
 
     isPanelOpen: function () {
@@ -44,6 +82,8 @@ define(function (require, exports, module) {
     clearInput: function (el) {
       // need siblings here, not prev(), there might be 2 password rows
       var inputFields = this.$(el).parent().siblings('.input-row').find('input');
+      var form = this.$(el).closest('form');
+      var shouldDisableSubmitButtons = false;
       $(inputFields).each(function (i, anInputField) {
         // if we have a .label-helper, make that a placeholder
         // cannot search only inside the .input-row, `input`s
@@ -59,12 +99,21 @@ define(function (require, exports, module) {
         }
         // if the input field is text or password, reset it
         if (anInputField.type === 'text' || anInputField.type === 'password') {
-          // only reset if the field has a value
-          if (anInputField.value.length > 0) {
-            anInputField.value = '';
-          }
+          // reset the form, do not clear the inputs
+          form[0].reset();
+          // also for input fields that are text or password,
+          // disable the submit buttons if user pressed cancel/esc
+          shouldDisableSubmitButtons = true;
         }
       });
+      if (shouldDisableSubmitButtons) {
+        this.disableButtons(el);
+      }
+    },
+
+    disableButtons: function (el) {
+      var submitButton = this.$(el).closest('form').find('[type=submit]');
+      submitButton.addClass('disabled');
     },
 
     closePanel: function () {

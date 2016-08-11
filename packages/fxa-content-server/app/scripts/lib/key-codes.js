@@ -9,6 +9,7 @@ define(function (require, exports, module) {
     BACKSPACE: 8,
     DOWN_ARROW: 40,
     ENTER: 13,
+    ESCAPE: 27,
     LEFT_ARROW: 37,
     NUMPAD_0: 96,
     NUMPAD_9: 105,

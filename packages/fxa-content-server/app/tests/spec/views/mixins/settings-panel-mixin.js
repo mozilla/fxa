@@ -9,6 +9,7 @@ define(function (require, exports, module) {
   var BaseView = require('views/base');
   var chai = require('chai');
   var Cocktail = require('cocktail');
+  var KeyCodes = require('lib/key-codes');
   var Metrics = require('lib/metrics');
   var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
   var sinon = require('sinon');
@@ -67,6 +68,14 @@ define(function (require, exports, module) {
         assert.isTrue(view.clearInput.called);
         assert.isTrue(view.navigate.calledWith('settings'));
       });
+
+      it('calls _hidePanelOnEscape when esc key is pressed', function () {
+        sinon.stub(view, '_hidePanelOnEscape', function () {});
+        var event = $.Event('keyup');
+        event.which = KeyCodes.ESCAPE;
+        view.onKeyUp(event);
+        assert.isTrue(view._hidePanelOnEscape.called, '_hidePanelonEscape called');
+      });
     });
 
     describe('methods', function () {
@@ -79,6 +88,61 @@ define(function (require, exports, module) {
         assert.isFalse(view.isPanelOpen());
       });
 
+      it('openPanel focuses the first autofocus element if present', function () {
+        // create and append an input field
+        var $dummyInput = $('<input type="text" name="dummyholder" autofocus>');
+        view.$('.settings-unit').append($dummyInput);
+        // make sure that it is a non-touch device
+        $('html').addClass('no-touch');
+        view.openPanel();
+
+        // input field should be present, we just appended it
+        var $autofocusEl = view.$('.open [autofocus]');
+        assert.isTrue($autofocusEl.length === 1, 'autofocus field present');
+        // autofocusEl should have been focused
+        assert.equal($autofocusEl[0], document.activeElement, 'autofocus element has focus');
+      });
+
+      it('openPanel does not focus the first autofocus element if touch device', function () {
+        // create and append an input field
+        var $dummyInput = $('<input type="text" name="dummyholder" autofocus>');
+        view.$('.settings-unit').append($dummyInput);
+        // make sure that it is not a non-touch device
+        $('html').removeClass('no-touch');
+        view.openPanel();
+
+        // input field should be present, we just appended it
+        var $autofocusEl = view.$('.open [autofocus]');
+        assert.isTrue($autofocusEl.length === 1, 'autofocus field present');
+        // autofocusEl should not have been focused
+        assert.notEqual($autofocusEl[0], document.activeElement, 'autofocus element has focus');
+      });
+
+      it('_hidePanelOnEscape calls hidePanel when escape key is pressed', function () {
+        sinon.stub(view, 'hidePanel', function () {});
+        var event = $.Event('keyup');
+        event.which = KeyCodes.ESCAPE;
+        view._hidePanelOnEscape(event);
+        assert.isTrue(view.hidePanel.called, 'hidePanel called');
+      });
+
+      it('_hidePanelOnEscape does not call hidePanel when other keys are pressed', function () {
+        sinon.stub(view, 'hidePanel', function () {});
+        var event = $.Event('keyup');
+        event.which = KeyCodes.ENTER;
+        view._hidePanelOnEscape(event);
+        assert.isFalse(view.hidePanel.called, 'hidePanel not called');
+      });
+
+      it('hidePanel hides the open panel', function () {
+        sinon.stub(view, 'closePanel', function () {});
+        sinon.stub(view, 'navigate', function () { });
+        view.openPanel();
+        view.hidePanel();
+        assert.isTrue(view.closePanel.called);
+        assert.isTrue(view.navigate.calledWith('settings'));
+      });
+
       it('displaySuccess', function () {
         sinon.stub(view, 'closePanel', function () {});
         view.displaySuccess('hi');
@@ -87,13 +151,23 @@ define(function (require, exports, module) {
       });
 
       it('clears panels', function () {
-        view.$('.display-name').val('spc');
-        view.$('.display-name').prev('.label-helper').text('placeholder text');
+        var displayNamePanel = '.display-name';
+        var labelHelper = view.$(displayNamePanel).prev('.label-helper');
+
+        view.$(displayNamePanel).val('spc');
+        labelHelper.text('placeholder text');
+
         view.clearInput('.settings-button.cancel');
-        assert.isTrue(view.$('.display-name').val() === '');
-        assert.isTrue(view.$('.display-name').attr('placeholder') === 'placeholder text');
-        assert.isTrue(view.$('.display-name').prev('.label-helper').text() === '');
-        assert.isTrue(view.$('.display-name').prev('.label-helper').css('top') === '0px');
+        assert.isTrue(view.$(displayNamePanel).val() === '');
+        assert.isTrue(view.$(displayNamePanel).attr('placeholder') === 'placeholder text');
+        assert.isTrue(labelHelper.text() === '');
+        assert.isTrue(labelHelper.css('top') === '0px');
+      });
+
+      it('disables buttons', function () {
+        var cancelButton = '.settings-button.cancel';
+        view.disableButtons(cancelButton);
+        assert.isTrue(view.$(cancelButton).closest('form').find('[type=submit]').hasClass('disabled'));
       });
     });
 

@@ -5,9 +5,10 @@
 define([
   'intern',
   'intern!object',
+  'intern/chai!assert',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers) {
 
   var config = intern.config;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
@@ -148,6 +149,24 @@ define([
           return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD);
         })
         .findById('avatar-options')
+        .end();
+    },
+
+    'sign in, go to settings and opening display_name panel autofocuses the first input element': function () {
+      var self = this;
+      return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD, true)
+        .findByCssSelector('[data-href="settings/display_name"]')
+          .click()
+        .end()
+        .findByCssSelector('input.display-name')
+        .end()
+        .getActiveElement()
+        .then(function (element) {
+          element.getAttribute('class')
+            .then(function (className) {
+              assert.isTrue(className.includes('display-name'));
+            });
+        })
         .end();
     },
 
