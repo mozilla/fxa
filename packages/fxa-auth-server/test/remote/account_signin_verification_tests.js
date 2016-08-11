@@ -447,6 +447,69 @@ TestServer.start(config)
     )
 
     test(
+      'certificate sign with keys=false session',
+      function (t) {
+        var email = server.uniqueEmail()
+        var password = 'allyourbasearebelongtous'
+        var client = null
+
+        // Initial account creation uses keys=true
+        return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
+          .then(
+            function (c) {
+              client = c
+              return client.emailStatus()
+            }
+          )
+          .then(
+            function (status) {
+              t.equal(status.verified, true, 'account is verified')
+              t.equal(status.emailVerified, true, 'account email is verified')
+              t.equal(status.sessionVerified, true, 'account session is  verified')
+            }
+          )
+          .then(
+            function () {
+              // Attempt a second login, but don't request keys
+              return client.login({keys:false})
+            }
+          )
+          .then(
+            function (c) {
+              client = c
+              return client.emailStatus()
+            }
+          )
+          .then(
+            function (status) {
+              // Ensure unverified session
+              t.equal(status.verified, true, 'account is verified')
+              t.equal(status.emailVerified, true, 'account email is verified')
+              t.equal(status.sessionVerified, false, 'account session is not verified')
+            }
+          )
+          .then(
+            function () {
+              // Attempt to get signed cert
+              return client.sign(publicKey, duration)
+            }
+          )
+          .then(
+            function (cert) {
+              t.equal(typeof(cert), 'string', 'cert exists')
+              var payload = jwtool.verify(cert, pubSigKey.pem)
+              t.equal(payload.iss, config.domain, 'issuer is correct')
+              t.equal(payload.principal.email.split('@')[0], client.uid, 'cert has correct uid')
+              t.ok(payload['fxa-generation'] > 0, 'cert has non-zero generation number')
+              t.ok(new Date() - new Date(payload['fxa-lastAuthAt'] * 1000) < 1000 * 60 * 60, 'lastAuthAt is plausible')
+              t.equal(payload['fxa-verifiedEmail'], email, 'verifiedEmail is correct')
+              t.equal(payload['fxa-tokenVerified'], false, 'tokenVerified is not verified')
+            }
+          )
+      }
+    )
+
+    test(
       'certificate sign with verified session',
       function (t) {
         var email = server.uniqueEmail()

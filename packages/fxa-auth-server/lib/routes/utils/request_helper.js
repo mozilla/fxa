@@ -13,33 +13,24 @@ function wantsKeys (request) {
 }
 
 /**
- * Returns whether or not to perform a sign-in verification email.
+ * Returns whether or not to use token-verification feature on a request.
  *
  * @param account
  * @param config
  * @param request
  * @returns {boolean}
  */
-function shouldEnableSigninConfirmation(account, config, request) {
+function shouldEnableTokenVerification(account, config, request) {
 
   var confirmLogin = config.signinConfirmation && config.signinConfirmation.enabled
   if (!confirmLogin) {
     return false
   }
 
-  // Always enable if customs-server has said the request is suspicious.
+  // Always create unverified tokens if customs-server
+  // has said the request is suspicious.
   if (request.app.isSuspiciousRequest) {
     return true
-  }
-
-  // While we're testing this feature, there are some funky
-  // edge-cases around flows that do not request keys.
-  // Temporarily avoid them by creating a pre-verified session
-  // when keys are not requested.  This check will go away
-  // in the final version of the feature.
-  var keysRequested = wantsKeys(request)
-  if (!keysRequested) {
-    return false
   }
 
   // Or if the email address matching one of these regexes.
@@ -73,5 +64,5 @@ function shouldEnableSigninConfirmation(account, config, request) {
 
 module.exports = {
   wantsKeys: wantsKeys,
-  shouldEnableSigninConfirmation: shouldEnableSigninConfirmation
+  shouldEnableTokenVerification: shouldEnableTokenVerification
 }

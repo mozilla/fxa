@@ -265,6 +265,7 @@ module.exports = function (
             emailCode: account.emailCode,
             emailVerified: account.emailVerified,
             verifierSetAt: account.verifierSetAt,
+            mustVerify: wantsKeys,
             tokenVerificationId: verifiedStatus ? null : crypto.randomBytes(16)
           }
 

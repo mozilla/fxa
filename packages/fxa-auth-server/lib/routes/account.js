@@ -86,7 +86,7 @@ module.exports = function (
         var userAgentString = request.headers['user-agent']
         var service = form.service || query.service
         var tokenVerificationId = emailCode
-        var preVerified, password, verifyHash, account, sessionToken, keyFetchToken, doSigninConfirmation
+        var preVerified, password, verifyHash, account, sessionToken, keyFetchToken
 
         metricsContext.validate(request)
 
@@ -200,11 +200,11 @@ module.exports = function (
         }
 
         function createSessionToken () {
-          doSigninConfirmation = requestHelper.shouldEnableSigninConfirmation(account, config, request)
+          var enableTokenVerification = requestHelper.shouldEnableTokenVerification(account, config, request)
 
           // Verified sessions should only be created for preverified tokens
           // and when sign-in confirmation is disabled
-          if (preVerified || ! doSigninConfirmation) {
+          if (preVerified || ! enableTokenVerification) {
             tokenVerificationId = undefined
           }
 
@@ -215,6 +215,7 @@ module.exports = function (
               emailVerified: account.emailVerified,
               verifierSetAt: account.verifierSetAt,
               createdAt: parseInt(query._createdAt),
+              mustVerify: enableTokenVerification && requestHelper.wantsKeys(request),
               tokenVerificationId: tokenVerificationId
             }, userAgentString)
             .then(
@@ -356,7 +357,7 @@ module.exports = function (
         var redirectTo = request.payload.redirectTo
         var resume = request.payload.resume
         var tokenVerificationId = crypto.randomBytes(16)
-        var emailRecord, sessions, sessionToken, keyFetchToken, doSigninConfirmation
+        var emailRecord, sessions, sessionToken, keyFetchToken, mustVerifySession, doSigninConfirmation
         var ip = request.app.clientAddress
 
         metricsContext.validate(request)
@@ -386,7 +387,23 @@ module.exports = function (
               function (result) {
                 emailRecord = result
 
-                doSigninConfirmation = requestHelper.shouldEnableSigninConfirmation(emailRecord, config, request)
+                // Session token verification is only enabled for certain users during phased rollout.
+                // Even when it is enabled, we only do the email challenge if:
+                //  * the request wants keys, since unverified sessions are fine to use for e.g. oauth login.
+                //  * the email is verified, since content-server triggers a resend of the verification
+                //    email on unverified accounts, which doubles as sign-in confirmation.
+                if (! requestHelper.shouldEnableTokenVerification(emailRecord, config, request)) {
+                  tokenVerificationId = undefined
+                  mustVerifySession = false
+                  doSigninConfirmation = false
+                } else {
+                  // The user doesn't *have* to verify their session if they're not requesting keys,
+                  // but we still create it with a non-null tokenVerificationId, so it will still
+                  // be considered unverified.  This prevents the session from being used for sync
+                  // unless the user explicitly requests us to resend the confirmation email, and completes it.
+                  mustVerifySession = requestHelper.wantsKeys(request)
+                  doSigninConfirmation = mustVerifySession && emailRecord.emailVerified
+                }
 
                 if(email !== emailRecord.email) {
                   customs.flag(request.app.clientAddress, {
@@ -448,7 +465,8 @@ module.exports = function (
             emailCode: emailRecord.emailCode,
             emailVerified: emailRecord.emailVerified,
             verifierSetAt: emailRecord.verifierSetAt,
-            tokenVerificationId: doSigninConfirmation ? tokenVerificationId : undefined
+            mustVerify: mustVerifySession,
+            tokenVerificationId: tokenVerificationId
           }
 
           return db.createSessionToken(sessionTokenOptions, request.headers['user-agent'])
@@ -491,7 +509,7 @@ module.exports = function (
                     kA: emailRecord.kA,
                     wrapKb: wrapKb,
                     emailVerified: emailRecord.emailVerified,
-                    tokenVerificationId: doSigninConfirmation ? tokenVerificationId : undefined
+                    tokenVerificationId: tokenVerificationId
                   })
                   .then(
                     function (result) {
@@ -517,9 +535,15 @@ module.exports = function (
         }
 
         function sendNewDeviceLoginNotification() {
-          // New device notification emails should only be sent for requesting keys and
-          // not performing a sign-in confirmation.
-          var shouldSendNewDeviceLoginEmail = config.newLoginNotificationEnabled && requestHelper.wantsKeys(request) && !doSigninConfirmation
+          // New device notification emails should only be sent when requesting keys.
+          // They're not sent if performing a sign-in confirmation
+          // (in which case you get the sign-in confirmation email)
+          // or if the account is unverified (in which case
+          // content-server triggers a resend of the account verification email)
+          var shouldSendNewDeviceLoginEmail = config.newLoginNotificationEnabled
+            && requestHelper.wantsKeys(request)
+            && ! doSigninConfirmation
+            && emailRecord.emailVerified
           if (shouldSendNewDeviceLoginEmail) {
             return getGeoData(ip)
               .then(
@@ -539,11 +563,7 @@ module.exports = function (
         }
 
         function sendVerifyLoginEmail() {
-          // Verify sign-in emails are only sent for verified accounts and requesting keys and if they fall within
-          // the sample rate of roll-out. In the scenario where keys are requested, but feature is disabled
-          // the tokens are created verified.
-          var shouldSendVerifyLoginEmail = requestHelper.wantsKeys(request) && emailRecord.emailVerified && doSigninConfirmation
-          if (shouldSendVerifyLoginEmail) {
+          if (doSigninConfirmation) {
             log.info({
               op: 'account.signin.confirm.start',
               uid: emailRecord.uid.toString('hex'),
@@ -585,15 +605,14 @@ module.exports = function (
 
           response.keyFetchToken = keyFetchToken.data.toString('hex')
 
-          if (doSigninConfirmation) {
-            response.verificationMethod = 'email'
+          if(! emailRecord.emailVerified) {
             response.verified = false
-
-            if(! emailRecord.emailVerified) {
-              response.verificationReason = 'signup'
-            } else {
-              response.verificationReason = 'login'
-            }
+            response.verificationMethod = 'email'
+            response.verificationReason = 'signup'
+          } else if (doSigninConfirmation) {
+            response.verified = false
+            response.verificationMethod = 'email'
+            response.verificationReason = 'login'
           }
 
           return P.resolve(response)
@@ -1120,7 +1139,18 @@ module.exports = function (
 
           var sessionVerified = sessionToken.tokenVerified
           var emailVerified = !!sessionToken.emailVerified
-          var isVerified = emailVerified && sessionVerified
+
+          // For backwards-compatibility reasons, the reported verification status
+          // depends on whether the sessionToken was created with keys=true and
+          // whether it has subsequently been verified.  If it was created with
+          // keys=true then we musn't say verified=true until the session itself
+          // has been verified.  Otherwise, desktop clients will attempt to use
+          // an unverified session to connect to sync, and produce a very confusing
+          // user experience.
+          var isVerified = emailVerified
+          if (sessionToken.mustVerify) {
+            isVerified = isVerified && sessionVerified
+          }
 
           return {
             email: sessionToken.email,

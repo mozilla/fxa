@@ -99,6 +99,7 @@ module.exports = function (
                 uaOS: sessionToken.uaOS,
                 uaOSVersion: sessionToken.uaOSVersion,
                 uaDeviceType: sessionToken.uaDeviceType,
+                mustVerify: sessionToken.mustVerify,
                 tokenVerificationId: sessionToken.tokenVerificationId
               },
               'inplace'
