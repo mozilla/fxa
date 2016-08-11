@@ -118,9 +118,9 @@ MysqlStore.connect = function mysqlConnect(options) {
 
 const QUERY_CLIENT_REGISTER =
   'INSERT INTO clients ' +
-  '(id, name, imageUri, hashedSecret, hashedSecretPrevious, redirectUri, termsUri,' +
-  'privacyUri, trusted, canGrant) ' +
-  'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);';
+  '(id, name, imageUri, hashedSecret, hashedSecretPrevious, redirectUri,' +
+  'trusted, canGrant) ' +
+  'VALUES (?, ?, ?, ?, ?, ?, ?, ?);';
 const QUERY_CLIENT_DEVELOPER_INSERT =
   'INSERT INTO clientDevelopers ' +
   '(rowId, developerId, clientId) ' +
@@ -141,7 +141,7 @@ const QUERY_DEVELOPER_INSERT =
   'VALUES (?, ?);';
 const QUERY_CLIENT_GET = 'SELECT * FROM clients WHERE id=?';
 const QUERY_CLIENT_LIST = 'SELECT id, name, redirectUri, imageUri, ' +
-  'termsUri, privacyUri, canGrant, trusted ' +
+  'canGrant, trusted ' +
   'FROM clients, clientDevelopers, developers ' +
   'WHERE clients.id = clientDevelopers.clientId AND ' +
   'developers.developerId = clientDevelopers.developerId AND ' +
@@ -151,7 +151,6 @@ const QUERY_CLIENT_UPDATE = 'UPDATE clients SET ' +
   'hashedSecret=COALESCE(?, hashedSecret), ' +
   'hashedSecretPrevious=COALESCE(?, hashedSecretPrevious), ' +
   'redirectUri=COALESCE(?, redirectUri), ' +
-  'termsUri=COALESCE(?, termsUri), privacyUri=COALESCE(?, privacyUri), ' +
   'trusted=COALESCE(?, trusted), canGrant=COALESCE(?, canGrant) ' +
   'WHERE id=?';
 const QUERY_CLIENT_DELETE = 'DELETE FROM clients WHERE id=?';
@@ -222,8 +221,6 @@ MysqlStore.prototype = {
       buf(client.hashedSecret),
       client.hashedSecretPrevious ? buf(client.hashedSecretPrevious) : null,
       client.redirectUri,
-      client.termsUri || '',
-      client.privacyUri || '',
       !!client.trusted,
       !!client.canGrant
     ]).then(function() {
@@ -323,8 +320,6 @@ MysqlStore.prototype = {
       secret,
       secretPrevious,
       client.redirectUri,
-      client.termsUri,
-      client.privacyUri,
       client.trusted,
       client.canGrant,
 
