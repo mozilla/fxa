@@ -22,7 +22,7 @@ module.exports = function (log, db) {
   function shouldRemind() {
     // random between 0 and 100, inclusive
     var rand = Math.floor(Math.random() * (100 + 1))
-    return rand < (reminderConfig.rate * 100)
+    return rand <= (reminderConfig.rate * 100)
   }
 
   return {
