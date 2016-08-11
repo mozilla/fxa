@@ -1,3 +1,36 @@
+<a name="1.67.0"></a>
+# [1.67.0](https://github.com/mozilla/fxa-auth-server/compare/v1.66.1...v1.67.0) (2016-08-11)
+
+
+### Bug Fixes
+
+* **config:** Added new url configs for mailer (#1397) r=vladikoff ([d44cb56](https://github.com/mozilla/fxa-auth-server/commit/d44cb56))
+* **deps:** update shrinkwrap, add missing deps (#1407) r=vbudhram ([5062a66](https://github.com/mozilla/fxa-auth-server/commit/5062a66))
+* **device:** remember devices to push-notify before resetting account on password change/rese ([69c1eef](https://github.com/mozilla/fxa-auth-server/commit/69c1eef)), closes [#1391](https://github.com/mozilla/fxa-auth-server/issues/1391)
+* **devices:** serialize push payload in /devices/notify route ([b91a982](https://github.com/mozilla/fxa-auth-server/commit/b91a982)), closes [#1386](https://github.com/mozilla/fxa-auth-server/issues/1386)
+* **e2e-email:** fix e2e-email test ([4e1d200](https://github.com/mozilla/fxa-auth-server/commit/4e1d200))
+* **login:** fix handling of sign-in confirmation for keyless logins ([3f03557](https://github.com/mozilla/fxa-auth-server/commit/3f03557))
+* **password:** Remove raw token support ([bb5f28b](https://github.com/mozilla/fxa-auth-server/commit/bb5f28b)), closes [#1351](https://github.com/mozilla/fxa-auth-server/issues/1351)
+* **server:** assign fresh createdAt timestamp to passwordForgotTokens ([21c5df7](https://github.com/mozilla/fxa-auth-server/commit/21c5df7))
+* **server:** ensure tokens get a fresh createdAt timestamp (#1389) r=vladikoff ([6acb9e0](https://github.com/mozilla/fxa-auth-server/commit/6acb9e0))
+* **server:** reinstate placeholder devices for sync sessions ([e12cd08](https://github.com/mozilla/fxa-auth-server/commit/e12cd08))
+* **server:** remove unused createAccountResetToken method ([2c95903](https://github.com/mozilla/fxa-auth-server/commit/2c95903))
+* **ses:** add status and diagnosticCode for bounce (#1401) r=seanmonstar,vbudhram ([61941e8](https://github.com/mozilla/fxa-auth-server/commit/61941e8)), closes [#834](https://github.com/mozilla/fxa-auth-server/issues/834)
+* **tests:** remove duplicate assignment ([7659b58](https://github.com/mozilla/fxa-auth-server/commit/7659b58))
+
+### chore
+
+* **deps:** update shrinkwrap ([10f857a](https://github.com/mozilla/fxa-auth-server/commit/10f857a))
+
+### Features
+
+* **geolocation:** add geolocation data to emails (#1334) ([8132d55](https://github.com/mozilla/fxa-auth-server/commit/8132d55))
+* **logging:** emit an account.confirmed activity event ([4107e58](https://github.com/mozilla/fxa-auth-server/commit/4107e58))
+* **push:** Send proper push messages for password change/reset (#1381) r=vladikoff,rfk ([8cd9403](https://github.com/mozilla/fxa-auth-server/commit/8cd9403)), closes [#1380](https://github.com/mozilla/fxa-auth-server/issues/1380)
+* **server:** Rate limit account/devices/notify with the new UIDRecord (#1394) r=vladikoff ([09aee43](https://github.com/mozilla/fxa-auth-server/commit/09aee43)), closes [#1372](https://github.com/mozilla/fxa-auth-server/issues/1372)
+
+
+
 <a name="1.66.1"></a>
 ## [1.66.1](https://github.com/mozilla/fxa-auth-server/compare/v1.66.0...v1.66.1) (2016-07-29)
 
