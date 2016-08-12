@@ -16,10 +16,20 @@ define(function (require, exports, module) {
     initialize: function (options) {
       this.parentView = options.parentView;
     },
+
     events: {
       'click .cancel': BaseView.preventDefaultThen('_closePanelReturnToSettings'),
       'click .settings-unit-toggle': BaseView.preventDefaultThen('_triggerPanel'),
       'keyup .settings-unit': 'onKeyUp'
+    },
+
+    afterRender () {
+      // Disable autofocus as specified by the templates because the panels
+      // are hidden until opened and focus cannot be set. Instead, set
+      // the focus when the panel is opened.
+      this.$('[autofocus]')
+        .attr('data-autofocus-on-panel-open', true)
+        .removeAttr('autofocus');
     },
 
     onKeyUp: function (event) {
@@ -54,19 +64,7 @@ define(function (require, exports, module) {
 
     openPanel: function () {
       this.$('.settings-unit').addClass('open');
-      var $input = this.$('.open [autofocus]');
-      if ($input.length > 0) {
-        // if there's an autofocus element, focus that
-        this.focusElement($input[0]);
-      }
-    },
-
-    focusElement: function (autoFocusEl) {
-      // focus element only if not a mobile device
-      // assumption carried over from base.js
-      if ($('html').hasClass('no-touch')) {
-        this.focus(autoFocusEl);
-      }
+      this.focus(this.$('[data-autofocus-on-panel-open]'));
     },
 
     isPanelOpen: function () {

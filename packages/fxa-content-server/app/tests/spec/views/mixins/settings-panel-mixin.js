@@ -52,6 +52,13 @@ define(function (require, exports, module) {
       view = metrics = null;
     });
 
+    describe('autofocus elements', () => {
+      it('are converted to [data-autofocus-on-panel-open] to prevent attempts at autofocusing hidden elements', () => {
+        assert.lengthOf(view.$('[autofocus]'), 0);
+        assert.lengthOf(view.$('[data-autofocus-on-panel-open]'), 1);
+      });
+    });
+
     describe('events', function () {
       it('toggles button', function () {
         sinon.stub(view, 'navigate', function () {});
@@ -90,32 +97,17 @@ define(function (require, exports, module) {
 
       it('openPanel focuses the first autofocus element if present', function () {
         // create and append an input field
-        var $dummyInput = $('<input type="text" name="dummyholder" autofocus>');
+        var $dummyInput = $('<input type="text" name="dummyholder" data-autofocus-on-panel-open>');
         view.$('.settings-unit').append($dummyInput);
         // make sure that it is a non-touch device
         $('html').addClass('no-touch');
         view.openPanel();
 
         // input field should be present, we just appended it
-        var $autofocusEl = view.$('.open [autofocus]');
-        assert.isTrue($autofocusEl.length === 1, 'autofocus field present');
+        var $autofocusEl = view.$('.open [data-autofocus-on-panel-open]');
+        assert.lengthOf($autofocusEl, 1);
         // autofocusEl should have been focused
         assert.equal($autofocusEl[0], document.activeElement, 'autofocus element has focus');
-      });
-
-      it('openPanel does not focus the first autofocus element if touch device', function () {
-        // create and append an input field
-        var $dummyInput = $('<input type="text" name="dummyholder" autofocus>');
-        view.$('.settings-unit').append($dummyInput);
-        // make sure that it is not a non-touch device
-        $('html').removeClass('no-touch');
-        view.openPanel();
-
-        // input field should be present, we just appended it
-        var $autofocusEl = view.$('.open [autofocus]');
-        assert.isTrue($autofocusEl.length === 1, 'autofocus field present');
-        // autofocusEl should not have been focused
-        assert.notEqual($autofocusEl[0], document.activeElement, 'autofocus element has focus');
       });
 
       it('_hidePanelOnEscape calls hidePanel when escape key is pressed', function () {
