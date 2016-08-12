@@ -44,6 +44,7 @@ var localizedRender = require('../lib/localized-render');
 var csp = require('../lib/csp');
 var cspRulesBlocking = require('../lib/csp/blocking')(config);
 var cspRulesReportOnly = require('../lib/csp/report-only')(config);
+var frameGuard = require('../lib/frame-guard')(config);
 
 
 var STATIC_DIRECTORY =
@@ -68,7 +69,7 @@ function makeApp() {
   // render the correct template for the locale.
   app.use(localizedRender({ i18n: i18n }));
 
-  app.use(helmet.frameguard({ action: 'deny' }));
+  app.use(frameGuard);
   app.use(helmet.xssFilter());
   app.use(helmet.hsts({
     force: true,

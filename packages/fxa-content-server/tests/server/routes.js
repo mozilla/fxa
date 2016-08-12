@@ -96,22 +96,6 @@ define([
     routes['/en/legal/non_existent'] = { statusCode: 404 };
   }
 
-  var iframeAllowedRoutes = [
-    '/legal/terms',
-    '/legal/privacy',
-    '/oauth/',
-    '/oauth/signin',
-    '/oauth/signup',
-    '/oauth/force_auth',
-    '/reset_password',
-    '/v1/reset_password',
-    '/signin',
-    '/signup',
-    '/500.html',
-    '/502.html',
-    '/503.html'
-  ];
-
   function routeTest(route, expectedStatusCode, requestOptions) {
     suite['#https get ' + httpsUrl + route] = function () {
       var dfd = this.async(intern.config.asyncTimeout);
@@ -168,10 +152,9 @@ define([
   function checkHeaders(route, res) {
     var headers = res.headers;
 
-    if (iframeAllowedRoutes.indexOf(route) >= 0) {
-      assert.notOk(headers.hasOwnProperty('x-frame-options'));
-    } else {
-      assert.ok(headers.hasOwnProperty('x-frame-options'));
+    // all HTML pages by default have x-frame-options: DENY
+    if (headers['content-type'].indexOf('text/html') > -1) {
+      assert.equal(headers['x-frame-options'], 'DENY');
     }
 
     // fxa-dev boxes currently do not set CSP headers (but should - GH-2155)

@@ -8,9 +8,14 @@ var fs = require('fs');
 var path = require('path');
 
 var conf = module.exports = convict({
+  allowed_iframe_contexts: {
+    default: ['fx_firstrun_v2', 'iframe'],
+    doc: 'context query parameters allowed to embed FxA within an IFRAME',
+    format: Array
+  },
   allowed_parent_origins: {
     default: [],
-    doc: 'Origins that are allowed to embed the FxA within an IFRAME',
+    doc: 'Origins that are allowed to embed FxA within an IFRAME',
     format: Array
   },
   are_dist_resources: {

@@ -22,7 +22,6 @@ define(function (require, exports, module) {
   const Able = require('lib/able');
   const AppView = require('views/app');
   const Assertion = require('lib/assertion');
-  const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
   const BaseAuthenticationBroker = require('models/auth_brokers/base');
   const CloseButtonView = require('views/close_button');
@@ -49,7 +48,6 @@ define(function (require, exports, module) {
   const NullChannel = require('lib/channels/null');
   const OAuthClient = require('lib/oauth-client');
   const OAuthRelier = require('models/reliers/oauth');
-  const OriginCheck = require('lib/origin-check');
   const p = require('lib/promise');
   const ProfileClient = require('lib/profile-client');
   const RedirectAuthenticationBroker = require('models/auth_brokers/redirect');
@@ -212,55 +210,25 @@ define(function (require, exports, module) {
       this._metrics.init();
     },
 
-    _getAllowedParentOrigins () {
-      if (! this._isInAnIframe()) {
-        return [];
-      } else if (this._isServiceSync()) {
-        // If in an iframe for sync, the origin is checked against
-        // a pre-defined set of origins sent from the server.
-        return this._config.allowedParentOrigins;
-      }
-
-      return [];
-    },
-
-    _checkParentOrigin (originCheck) {
-      const self = this;
-      originCheck = originCheck || new OriginCheck({
-        window: self._window
-      });
-      const allowedOrigins = self._getAllowedParentOrigins();
-
-      return originCheck.getOrigin(self._window.parent, allowedOrigins);
-    },
-
     initializeIframeChannel () {
-      const self = this;
-      if (! self._isInAnIframe()) {
+      if (this._isInAnIframe()) {
+        const parentOrigin = this._searchParam('origin');
+        const iframeChannel = new IframeChannel();
+
+        iframeChannel.initialize({
+          metrics: this._metrics,
+          origin: parentOrigin,
+          window: this._window
+        });
+
+        this._iframeChannel = iframeChannel;
+      } else {
         // Create a NullChannel in case any dependencies require it, such
         // as when the FxFirstrunV1AuthenticationBroker is used in functional
         // tests. The firstrun tests don't actually use an iframe, so the
         // real IframeChannel is not created.
-        self._iframeChannel = new NullChannel();
-        return p();
+        this._iframeChannel = new NullChannel();
       }
-
-      return self._checkParentOrigin()
-        .then((parentOrigin) => {
-          if (! parentOrigin) {
-            // No allowed origins were found. Illegal iframe.
-            throw AuthErrors.toError('ILLEGAL_IFRAME_PARENT');
-          }
-
-          const iframeChannel = new IframeChannel();
-          iframeChannel.initialize({
-            metrics: self._metrics,
-            origin: parentOrigin,
-            window: self._window
-          });
-
-          self._iframeChannel = iframeChannel;
-        });
     },
 
     initializeFormPrefill () {

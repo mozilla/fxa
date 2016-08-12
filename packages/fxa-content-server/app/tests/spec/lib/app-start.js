@@ -6,9 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var AppStart = require('lib/app-start');
-  var AuthErrors = require('lib/auth-errors');
   var BaseBroker = require('models/auth_brokers/base');
-  var BaseRelier = require('models/reliers/base');
   var chai = require('chai');
   var Constants = require('lib/constants');
   var ErrorUtils = require('lib/error-utils');
@@ -42,7 +40,6 @@ define(function (require, exports, module) {
   var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
-  var FIRSTRUN_ORIGIN = 'https://firstrun.firefox.com';
 
   describe('lib/app-start', function () {
     var appStart;
@@ -568,6 +565,7 @@ define(function (require, exports, module) {
 
     describe('initializeIframeChannel', function () {
       beforeEach(function () {
+        windowMock.location.search = '?context=fx_ios_v1&service=sync&origin=' + encodeURIComponent('http://127.0.0.1:8111');
         appStart = new AppStart({
           broker: brokerMock,
           history: backboneHistoryMock,
@@ -575,136 +573,17 @@ define(function (require, exports, module) {
         });
       });
 
-      it('creates an iframe channel and checks the origin if in an iframe', function () {
-        sinon.stub(appStart, '_checkParentOrigin', function () {
-          return p(FIRSTRUN_ORIGIN);
-        });
-
+      it('creates an iframe channel if in an iframe', function () {
         windowMock.top = new WindowMock();
 
-        return appStart.initializeIframeChannel()
-          .then(function () {
-            assert.isDefined(appStart._iframeChannel);
-            assert.isTrue(appStart._checkParentOrigin.called);
-          });
+        appStart.initializeIframeChannel();
+        assert.isDefined(appStart._iframeChannel);
+        assert.equal(appStart._iframeChannel.origin, 'http://127.0.0.1:8111');
       });
 
       it('creates a null iframe channel if not in an iframe', function () {
-        sinon.spy(appStart, '_checkParentOrigin');
-
-        return appStart.initializeIframeChannel()
-          .then(function () {
-            assert.instanceOf(appStart._iframeChannel, NullChannel);
-            assert.isFalse(appStart._checkParentOrigin.called);
-          });
-      });
-
-      it('throws an error if not allowed to iframe', function () {
-        sinon.stub(appStart, '_checkParentOrigin', function () {
-          return p(null);
-        });
-
-        windowMock.top = new WindowMock();
-
-        return appStart.initializeIframeChannel()
-          .then(assert.fail, function (err) {
-            assert.isTrue(AuthErrors.is(err, 'ILLEGAL_IFRAME_PARENT'));
-            assert.isUndefined(appStart._iframeChannel);
-          });
-      });
-
-      it('passes on any other errors', function () {
-        sinon.stub(appStart, '_checkParentOrigin', function () {
-          return p.reject(new Error('uh oh'));
-        });
-
-        windowMock.top = new WindowMock();
-
-        return appStart.initializeIframeChannel()
-          .then(assert.fail, function (err) {
-            assert.equal(err.message, 'uh oh');
-            assert.isUndefined(appStart._iframeChannel);
-          });
-      });
-    });
-
-    describe('_getAllowedParentOrigins', function () {
-      var relierMock;
-      beforeEach(function () {
-        relierMock = new BaseRelier();
-
-        appStart = new AppStart({
-          broker: brokerMock,
-          history: backboneHistoryMock,
-          relier: relierMock,
-          window: windowMock
-        });
-      });
-
-      it('returns an empty array if not in an iframe', function () {
-        sinon.stub(appStart, '_isInAnIframe', function () {
-          return false;
-        });
-
-        assert.equal(appStart._getAllowedParentOrigins().length, 0);
-      });
-
-      it('returns the firstrun origin for Fx Desktop Sync', function () {
-        sinon.stub(appStart, '_isInAnIframe', function () {
-          return true;
-        });
-
-        sinon.stub(appStart, '_isServiceSync', function () {
-          return true;
-        });
-
-        appStart.useConfig({
-          allowedParentOrigins: [FIRSTRUN_ORIGIN]
-        });
-        var allowedOrigins = appStart._getAllowedParentOrigins();
-        assert.equal(allowedOrigins.length, 1);
-        assert.equal(allowedOrigins[0], FIRSTRUN_ORIGIN);
-      });
-
-      it('returns an empty array otherwise', function () {
-        sinon.stub(appStart, '_isInAnIframe', function () {
-          return true;
-        });
-
-        assert.equal(appStart._getAllowedParentOrigins().length, 0);
-      });
-    });
-
-    describe('_checkParentOrigin', function () {
-      beforeEach(function () {
-        var relierMock = new BaseRelier();
-
-        appStart = new AppStart({
-          broker: brokerMock,
-          history: backboneHistoryMock,
-          relier: relierMock,
-          window: windowMock
-        });
-      });
-
-      it('should return the value returned by originCheck.getOrigin', function () {
-        sinon.stub(appStart, '_getAllowedParentOrigins', function () {
-          return [FIRSTRUN_ORIGIN];
-        });
-
-        var originCheck = {
-          getOrigin: function () {
-            return p(FIRSTRUN_ORIGIN);
-          }
-        };
-
-        sinon.spy(originCheck, 'getOrigin');
-
-        return appStart._checkParentOrigin(originCheck)
-          .then(function (origin) {
-            assert.equal(origin, FIRSTRUN_ORIGIN);
-            assert.isTrue(originCheck.getOrigin.calledWith(windowMock.parent, [FIRSTRUN_ORIGIN]));
-          });
+        appStart.initializeIframeChannel();
+        assert.instanceOf(appStart._iframeChannel, NullChannel);
       });
     });
 

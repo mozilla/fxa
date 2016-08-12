@@ -22,10 +22,9 @@ define(function (require, exports, module) {
   }
 
   _.extend(IFrameChannel.prototype, new DuplexChannel(), {
-    initialize: function (options) {
-      options = options || {};
-
-      var win = options.window || window;
+    initialize (options = {}) {
+      this.origin = options.origin;
+      const win = options.window || window;
 
       var sender = this._sender = new PostMessageSender();
       sender.initialize({

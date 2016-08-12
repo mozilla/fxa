@@ -146,23 +146,8 @@ module.exports = function (config, i18n) {
       '/verify_email'
     ];
 
-    var ALLOWED_TO_FRAME = {
-      '/': true,
-      '/oauth/': true,
-      '/oauth/force_auth': true,
-      '/oauth/signin': true,
-      '/oauth/signup': true,
-      '/reset_password': true,
-      '/signin': true,
-      '/signup': true
-    };
-
     FRONTEND_ROUTES.forEach(function (route) {
       app.get(route, function (req, res, next) {
-        if (ALLOWED_TO_FRAME[req.path]) {
-          res.removeHeader('x-frame-options');
-        }
-
         // setting the url to / will use the correct
         // index.html for either dev or prod mode.
         req.url = '/';
@@ -179,12 +164,10 @@ module.exports = function (config, i18n) {
 
     if (config.get('env') === 'development') {
       app.get('/503.html', function (req, res) {
-        res.removeHeader('x-frame-options');
         return res.render('503', { staticResourceUrl: STATIC_RESOURCE_URL });
       });
 
       app.get('/502.html', function (req, res) {
-        res.removeHeader('x-frame-options');
         return res.render('502', { staticResourceUrl: STATIC_RESOURCE_URL });
       });
 
@@ -195,7 +178,6 @@ module.exports = function (config, i18n) {
     }
 
     app.get('/500.html', function (req, res) {
-      res.removeHeader('x-frame-options');
       return res.render('500', { staticResourceUrl: STATIC_RESOURCE_URL });
     });
   };

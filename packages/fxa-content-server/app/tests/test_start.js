@@ -48,7 +48,6 @@ function (Translator, Session) {
     '../tests/spec/lib/null-storage',
     '../tests/spec/lib/oauth-client',
     '../tests/spec/lib/oauth-errors',
-    '../tests/spec/lib/origin-check',
     '../tests/spec/lib/profile-client',
     '../tests/spec/lib/relier-keys',
     '../tests/spec/lib/require-on-demand',

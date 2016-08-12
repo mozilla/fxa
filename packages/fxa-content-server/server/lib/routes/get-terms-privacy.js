@@ -71,8 +71,6 @@ module.exports = function verRoute (i18n) {
             };
             context[page] = template;
 
-            // the HTML page removes the header to allow embedding.
-            res.removeHeader('X-FRAME-OPTIONS');
             res.render(page, context);
           },
           'text/partial': function () {

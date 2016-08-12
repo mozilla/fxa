@@ -15,6 +15,7 @@ define([
     'tests/server/cookies_disabled',
     'tests/server/csp',
     'tests/server/flow-metrics',
+    'tests/server/frame-guard',
     'tests/server/l10n',
     'tests/server/lang',
     'tests/server/metrics',
