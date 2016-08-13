@@ -2,6 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/*eslint-disable strict*/
+
+var STATIC_RESOURCE_HOST = '';
+
+if (typeof window !== 'undefined') {
+  var bodyEl = document.querySelector('body');
+  STATIC_RESOURCE_HOST = bodyEl.getAttribute('data-static-resource-host') || '';
+} else if (typeof global !== 'undefined') {
+  // being run in node for the build step. Mock in require, and
+  // export the config
+  require = {
+    config: function (cfg) {
+      module.exports = cfg;
+    }
+  };
+}
+
 require.config({
   baseUrl: '/scripts',
   config: {
@@ -21,6 +38,31 @@ require.config({
       name: 'touch-punch'
     }
   ],
+  requireOnDemand: [
+    'passwordcheck'
+  ],
+  // the sriify task will replace sriConfig for production
+  // DO NOT EDIT BELOW HERE
+  sriConfig: {},
+  // DO NOT EDIT ABOVE HERE
+  onNodeCreated: function (node, config, module, path) {
+    // Add the resource prefix to the node's source. This will
+    // force any JS to be loaded from the CDN in production mode.
+    // This hacktastic approach is taken instead of writing the full
+    // URL directly into the JS so that the exact same resources can
+    // be used on both stage and prod. They both use different CDN
+    // hostnames, so a method is needed to fetch the CDN hostname
+    // at runtime.
+    node.src = STATIC_RESOURCE_HOST + path;
+
+    // If the module has an SRI hash specified,
+    // force it to be used when loading.
+    var integrityForModule = config.sriConfig[module];
+    if (integrityForModule) {
+      node.setAttribute('integrity', integrityForModule);
+      node.setAttribute('crossorigin', 'anonymous');
+    }
+  },
   paths: {
     backbone: '../bower_components/backbone/backbone',
     canvasToBlob: '../bower_components/blueimp-canvas-to-blob/js/canvas-to-blob',
@@ -43,7 +85,6 @@ require.config({
     modal: '../bower_components/jquery-modal/jquery.modal',
     moment: '../bower_components/moment/moment',
     mustache: '../bower_components/mustache/mustache',
-    nocache: 'lib/requirejs-plugin-nocache',
     passwordcheck: '../bower_components/fxa-password-strength-checker/build/fxa-password-strength-checker',
     'p-promise': '../bower_components/p/p',
     raven: '../bower_components/raven-js/dist/raven',
@@ -90,3 +131,5 @@ require.config({
     extension: '.mustache'
   }
 });
+/*eslint-enable strict*/
+

@@ -9,8 +9,7 @@ module.exports = function (grunt) {
         src: [
           '<%= yeoman.dist %>/bower_components/**/*.js',
           '!<%= yeoman.dist %>/bower_components/jquery-ui/**/*.js',
-          '!<%= yeoman.dist %>/bower_components/fxa-password-strength-checker/**/*.js',
-          '<%= yeoman.dist %>/scripts/{,*/}*.js',
+          '<%= yeoman.dist %>/scripts/**/*.js',
           '<%= yeoman.dist %>/styles/{,*/}*.css',
           '<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
           '!<%= yeoman.dist %>/images/apple_app_store_button/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',

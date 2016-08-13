@@ -8,9 +8,6 @@ module.exports = function (grunt) {
       // Options: https://github.com/jrburke/r.js/blob/master/build/example.build.js
       options: {
         baseUrl: '<%= yeoman.es5 %>/scripts',
-        // since nocache is a requirejs plugin and not stubbed, it must
-        // be added manually to the bundle.
-        deps: ['nocache'],
         findNestedDependencies: true,
         keepBuildDir: true,
         mainConfigFile: '<%= yeoman.es5 %>/scripts/require_config.js',

@@ -2,7 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var requireConfig = require('../app/scripts/require_config');
+
 module.exports = function (grunt) {
+
+  // Creates a list of files that should be automatically copied
+  // for requireOnDemand.
+  function createRequireOnDemandFiles() {
+    return requireConfig.requireOnDemand.map(function (moduleName) {
+      return {
+        cwd: '<%= yeoman.app %>/scripts',
+        dest: '<%= yeoman.dist %>/scripts',
+        expand: true,
+        src: requireConfig.paths[moduleName] + '.js',
+      };
+    });
+  }
+
   grunt.config('copy', {
     build: {
       files: [{
@@ -35,13 +51,6 @@ module.exports = function (grunt) {
           // jquery ui
           expand: true,
           src: ['**/*.js']
-        },
-        {
-          cwd: '<%= yeoman.app %>/bower_components/fxa-password-strength-checker/build/',
-          dest: '<%= yeoman.dist %>/bower_components/fxa-password-strength-checker/build/',
-          // password strength checker
-          expand: true,
-          src: ['*.js']
         },
         {
           cwd: '<%= yeoman.app %>/bower_components/fxa-checkbox/',
@@ -83,6 +92,9 @@ module.exports = function (grunt) {
       src: 'app/bower_components/normalize-css/normalize.css'
     },
     // Files necessary for requirejs to build
+    require_on_demand: { //eslint-disable-line camelcase
+      files: createRequireOnDemandFiles()
+    },
     requirejs: {
       files: [
         {

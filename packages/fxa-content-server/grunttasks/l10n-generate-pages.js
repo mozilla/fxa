@@ -22,10 +22,13 @@ module.exports = function (grunt) {
   var templateSrc;
   var templateDest;
 
-  var PROPAGATED_TEMPLATE_FIELDS = [
+  var PROPAGATED_ESCAPED_TEMPLATE_FIELDS = [
     'flowId',
     'flowBeginTime',
     'message'
+  ];
+  var PROPAGATED_UNSAFE_TEMPLATE_FIELDS = [
+    'staticResourceUrl'
   ];
 
   // Legal templates for each locale, key'ed by languages, e.g.
@@ -127,8 +130,11 @@ module.exports = function (grunt) {
         };
         // Propagate any tags that are required for data
         // to be rendered dynamically by the server.
-        PROPAGATED_TEMPLATE_FIELDS.forEach(function (field) {
+        PROPAGATED_ESCAPED_TEMPLATE_FIELDS.forEach(function (field) {
           data[field] = '{{' + field + '}}';
+        });
+        PROPAGATED_UNSAFE_TEMPLATE_FIELDS.forEach(function (field) {
+          data[field] = '{{{' + field + '}}}';
         });
         return template(data);
       }

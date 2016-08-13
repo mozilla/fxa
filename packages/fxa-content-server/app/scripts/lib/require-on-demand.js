@@ -62,7 +62,7 @@ define(function (require, exports, module) {
       // be loaded on demand, and the module returned when the promise
       // resolves.
       var getNow = window.require;
-      getNow(['nocache!' + resourceToGet], deferred.resolve.bind(deferred),
+      getNow([resourceToGet], deferred.resolve.bind(deferred),
         function (requireErr) {
           // RequireJS errors described in
           // http://requirejs.org/docs/api.html#errors

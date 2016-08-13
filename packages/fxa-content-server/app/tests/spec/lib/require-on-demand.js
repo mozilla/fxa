@@ -25,9 +25,9 @@ define(function (require, exports, module) {
           // requirejs is asynchronous, add a setTimeout to mimic that behavior.
           setTimeout(function () {
             var requestedModule = moduleList[0];
-            if (requestedModule === 'nocache!module1') {
+            if (requestedModule === 'module1') {
               callback(MockModule1);
-            } else if (requestedModule === 'nocache!module2') {
+            } else if (requestedModule === 'module2') {
               callback(MockModule2);
             }
           }, 0);

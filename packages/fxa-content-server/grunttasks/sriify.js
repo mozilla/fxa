@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var findCacheBustingPath = require('./lib/find-cache-busting-path');
+var requireConfig = require('../app/scripts/require_config');
 var url = require('url');
 
 module.exports = function (grunt) {
@@ -16,7 +18,7 @@ module.exports = function (grunt) {
     return normalized;
   }
 
-  function updateHtmlWithSriAttributes(directives, html) {
+  function addSriAttributesToResourceElements(directives, html) {
     return html.replace(/(?:src|href)="([^"]*)"/gi, function (match, resourceUrl) {
       var parsedUrl = url.parse(resourceUrl);
       var directive = directives[parsedUrl.pathname];
@@ -28,10 +30,10 @@ module.exports = function (grunt) {
     });
   }
 
-  function updateSrcWithSriAttributes(directives, src) {
+  function updateHtmlWithSriAttributes(directives, src) {
     var html = grunt.file.read(src);
 
-    var htmlWithIntegrity = updateHtmlWithSriAttributes(directives, html);
+    var htmlWithIntegrity = addSriAttributesToResourceElements(directives, html);
 
     if (html !== htmlWithIntegrity) {
       grunt.log.writeln('Adding SRI directives to', src);
@@ -39,7 +41,53 @@ module.exports = function (grunt) {
     }
   }
 
-  grunt.registerMultiTask('sri-update-src', 'Update built resources with SRI tags', function () {
+  function cacheBustingPathToDirectiveKey(cacheBustingPath) {
+    // directive keys are relative to the `dist` subdirectory directory.
+    // cacheBustingPaths are relative to `dist/scripts`. Normalize to
+    // the directive's key.
+    if (cacheBustingPath.indexOf('../bower_components') === 0) {
+      return cacheBustingPath.replace(/^\.\./, '');
+    }
+
+    // everything else is in the scripts subdirectory
+    return '/scripts/' + cacheBustingPath;
+  }
+
+  function addSriHashToRequireConfig(directives, js) {
+    // Create a replacement `sriConfig` section for require_config.
+    //
+    // For each module listed in require_config.requireOnDemand,
+    // find the SRI hash for the module. Replace the existing
+    // `sriConfig` value with the generated list.
+    var cacheBustingPathToSriValue = {};
+    requireConfig.requireOnDemand.forEach(function (moduleName) {
+      var modulePath = requireConfig.paths[moduleName] + '.js';
+      var cacheBustingPath = findCacheBustingPath(grunt, modulePath);
+      var directiveKey = cacheBustingPathToDirectiveKey(cacheBustingPath);
+
+      var directive = directives[directiveKey];
+      if (directive) {
+        cacheBustingPathToSriValue[moduleName] = directive.integrity;
+      } else {
+        throw new Error('Could not get SRI hash for' + moduleName);
+      }
+    });
+
+    return js
+      .replace(/sriConfig:\s?{}/, 'sriConfig:' + JSON.stringify(cacheBustingPathToSriValue));
+  }
+
+  function updateJsWithSriAttributes(directives, src) {
+    var js = grunt.file.read(src);
+    var jsWithIntegrity = addSriHashToRequireConfig(directives, js);
+
+    if (js !== jsWithIntegrity) {
+      grunt.log.writeln('Adding requireOnDemand SRI hashes to', src);
+      grunt.file.write(src, jsWithIntegrity);
+    }
+  }
+
+  grunt.registerMultiTask('sri-update-html', 'Update HTML with SRI attributes', function () {
     // open each HTML file
     // look for src, href
     // look up url in sri table
@@ -50,16 +98,37 @@ module.exports = function (grunt) {
     var sriDirectives = normalizeSriDirectives(grunt.file.readJSON(options.src));
 
     this.filesSrc.forEach(
-      updateSrcWithSriAttributes.bind(null, sriDirectives));
+      updateHtmlWithSriAttributes.bind(null, sriDirectives));
   });
 
-  grunt.config('sri-update-src', {
+  grunt.config('sri-update-html', {
     options: {
       src: '<%= yeoman.tmp %>/sri-directives.json'
     },
     dist: { //eslint-disable-line sorting/sort-object-props
       src: [
         '<%= yeoman.page_template_dist %>/**/*.html'
+      ]
+    }
+  });
+
+  grunt.registerMultiTask('sri-update-js', 'Update require_config with SRI hashes', function () {
+    // replace `sriConfig: {}` in require_config.js with a list
+    // of SRI hashes for the list of resources specified in `requireOnDemand`.
+    var options = this.options({});
+    var sriDirectives = normalizeSriDirectives(grunt.file.readJSON(options.src));
+
+    this.filesSrc.forEach(
+      updateJsWithSriAttributes.bind(null, sriDirectives));
+  });
+
+  grunt.config('sri-update-js', {
+    options: {
+      src: '<%= yeoman.tmp %>/sri-directives.json'
+    },
+    dist: { //eslint-disable-line sorting/sort-object-props
+      src: [
+        '<%= yeoman.dist %>/scripts/*.main.js'
       ]
     }
   });
@@ -79,6 +148,10 @@ module.exports = function (grunt) {
 
   grunt.registerTask('sriify', 'Add SRI integrity attributes to static resources', function () {
 
-    grunt.task.run('sri', 'sri-update-src');
+    // sri is run twice. The first time to find the sri hashes for
+    // the resources embedded in main.js. This will modify main.js
+    // so sri must be called again to find the final sri value for
+    // main.js in the html.
+    grunt.task.run('sri', 'sri-update-js', 'sri', 'sri-update-html');
   });
 };

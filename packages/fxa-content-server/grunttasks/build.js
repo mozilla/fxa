@@ -51,6 +51,7 @@ module.exports = function (grunt) {
 
     // copy all static resources from 'app' to 'dist'
     'copy:dist',
+    'copy:require_on_demand',
 
     'uglify',
 
@@ -66,6 +67,8 @@ module.exports = function (grunt) {
     'copy:head',
     // update the sourcemap path to match the hosted files
     'sourcemap-source',
+
+    'replace:require_on_demand',
 
     // Add subresource integrity attributes to static resources.
     'sriify',
