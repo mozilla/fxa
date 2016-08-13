@@ -47,6 +47,9 @@ module.exports = function (log, error) {
     .then(
       function (result) {
         if (result.block) {
+          // log a flow event that user got blocked.
+          log.flowEvent('customs.blocked', request)
+
           if (result.retryAfter) {
             throw error.tooManyRequests(result.retryAfter)
           }

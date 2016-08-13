@@ -5,6 +5,7 @@
 var test = require('../ptaptest')
 var log = {
   trace: function () {},
+  flowEvent: function () {},
   error: console.error,
 }
 var error = require('../../lib/error.js')

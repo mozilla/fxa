@@ -178,27 +178,59 @@ Lug.prototype.activityEvent = function (event, request, data) {
     return P.resolve()
   }
 
+  var info = {
+    event: event
+  }
+
+  if (request.headers['user-agent']) {
+    info.userAgent = request.headers['user-agent']
+  }
+
+  optionallySetService(info, request)
+
+  Object.keys(data).forEach(function (key) {
+    info[key] = data[key]
+  })
+
+  this.logger.info('activityEvent', info)
+  this.statsd.write(info)
+
+  // log a flowEvent for all activityEvents
+  return this.flowEvent(event, request)
+}
+
+// Log a flow metrics event.
+// These events help understand the user's sign-in or sign-up journey.
+
+Lug.prototype.flowEvent = function (event, request) {
   var self = this
+
+  if (! event) {
+    this.error({ op: 'log.flowEvent', missingEvent: true })
+    return P.resolve()
+  }
+
+  if (! request || ! request.headers) {
+    this.error({ op: 'log.flowEvent', event: event, badRequest: true })
+    return P.resolve()
+  }
 
   return this.metricsContext.gather({
     event: event,
     userAgent: request.headers['user-agent']
   }, request, event).then(
     function (info) {
+      info.event = event
       optionallySetService(info, request)
 
-      Object.keys(data).forEach(function (key) {
-        info[key] = data[key]
-      })
-
-      self.logger.info('activityEvent', info)
-      self.statsd.write(info)
+      self.logger.info('flowEvent', info)
     }
   )
 }
 
+
 function optionallySetService (data, request) {
-  // don't overwrite service if it is specified in metricsContext
+  // don't overwrite service if it is already set
   if (data.service) {
     return
   }

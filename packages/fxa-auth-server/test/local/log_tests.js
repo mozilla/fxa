@@ -102,14 +102,18 @@ test(
       t.equal(args[1], request, 'second argument was request object')
       t.equal(args[2], 'bar', 'third argument was event name')
 
-      t.equal(logger.info.callCount, 1, 'logger.info was called once')
+      t.equal(logger.info.callCount, 2, 'logger.info was called twice')
       args = logger.info.args[0]
       t.equal(args.length, 2, 'logger.info was passed two arguments')
       t.equal(args[0], 'activityEvent', 'first argument was correct')
       t.equal(typeof args[1], 'object', 'second argument was object')
       t.notEqual(args[1], null, 'second argument was not null')
-      t.equal(Object.keys(args[1]).length, 1, 'second argument had three properties')
+      t.equal(Object.keys(args[1]).length, 3, 'second argument had three properties')
       t.equal(args[1].uid, 'baz', 'uid property was correct')
+
+      // flow event data
+      t.equal(logger.info.args[1][0], 'flowEvent', 'correct op name')
+      t.equal(logger.info.args[1][1].event, 'bar', 'correct event name')
 
       t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
       args = statsd.write.args[0]
@@ -147,10 +151,12 @@ test(
       t.equal(typeof args[1], 'object', 'second argument was object')
       t.notEqual(args[1], null, 'second argument was not null')
 
-      t.equal(logger.info.callCount, 1, 'logger.info was called once')
+      t.equal(logger.info.callCount, 2, 'logger.info was called once')
       args = logger.info.args[0]
-      t.equal(Object.keys(args[1]).length, 2, 'second argument had four properties')
+      t.equal(Object.keys(args[1]).length, 3, 'second argument had three properties')
       t.equal(args[1].service, 'blee', 'service property was correct')
+      t.equal(args[1].uid, 'ugg', 'service property was correct')
+      t.equal(args[1].event, 'wibble', 'service property was correct')
 
       t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
       t.equal(statsd.write.args[0][0], args[1], 'statsd.write argument was correct')
@@ -184,8 +190,14 @@ test(
       t.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
       t.equal(metricsContext.gather.args[0][0].event, 'foo', 'event property was correct')
 
-      t.equal(logger.info.callCount, 1, 'logger.info was called once')
+      t.equal(logger.info.callCount, 2, 'logger.info was called twice')
       t.equal(logger.info.args[0][1].service, 'bar', 'service property was correct')
+
+      // flow event data
+      t.equal(logger.info.args[1][0], 'flowEvent', 'correct op name')
+      t.equal(logger.info.args[1][1].event, 'foo', 'correct event name')
+      t.equal(logger.info.args[1][1].service, 'bar', 'correct service name for the flow event')
+
 
       t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
       t.equal(statsd.write.args[0][0], logger.info.args[0][1], 'statsd.write argument was correct')
@@ -218,8 +230,14 @@ test(
     }).then(function () {
       t.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
 
-      t.equal(logger.info.callCount, 1, 'logger.info was called once')
-      t.equal(logger.info.args[0][1].service, 'bar', 'service property was correct')
+      // activity event data
+      t.equal(logger.info.callCount, 2, 'logger.info was called twice')
+      t.equal(logger.info.args[0][1].service, 'baz', 'service property was correct for the activity event')
+
+      // flow event data
+      t.equal(logger.info.args[1][0], 'flowEvent', 'correct op name')
+      t.equal(logger.info.args[1][1].event, 'foo', 'correct event name')
+      t.equal(logger.info.args[1][1].service, 'bar', 'correct service name for the flow event')
 
       t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
       t.equal(statsd.write.args[0][0], logger.info.args[0][1], 'statsd.write argument was correct')
@@ -254,9 +272,9 @@ test(
       t.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
       t.equal(Object.keys(metricsContext.gather.args[0][0]).length, 2, 'first argument had two properties')
 
-      t.equal(logger.info.callCount, 1, 'logger.info was called once')
+      t.equal(logger.info.callCount, 2, 'logger.info was called twice')
       var args = logger.info.args[0]
-      t.equal(Object.keys(args[1]).length, 3, 'second argument had three properties')
+      t.equal(Object.keys(args[1]).length, 5, 'second argument had 5 properties')
       t.equal(args[1].baz, 'qux', 'first extra data property was correct')
       t.equal(args[1].wibble, 'blee', 'second extra data property was correct')
 
@@ -330,6 +348,76 @@ test(
     })
   }
 )
+
+
+test(
+  'log.flowEvent with bad event name',
+  function (t) {
+    return log.flowEvent(undefined).then(function () {
+      t.equal(logger.error.callCount, 1, 'logger.error was called once')
+      var args = logger.error.args[0]
+      t.equal(args[0], 'log.flowEvent', 'correct op')
+      t.equal(args[1].missingEvent, true, 'correct flag')
+
+      t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
+      t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
+      t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
+      t.equal(logger.info.callCount, 0, 'logger.info was not called')
+
+      logger.error.reset()
+    })
+  }
+)
+
+test(
+  'log.flowEvent with a bad request',
+  function (t) {
+    return log.flowEvent('some.event').then(function () {
+      t.equal(logger.error.callCount, 1, 'logger.error was called once')
+      var args = logger.error.args[0]
+      t.equal(args[0], 'log.flowEvent', 'correct op')
+      t.equal(args[1].badRequest, true, 'correct flag')
+
+      t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
+      t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
+      t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
+      t.equal(logger.info.callCount, 0, 'logger.info was not called')
+
+      logger.error.reset()
+    })
+  }
+)
+
+test(
+  'log.flowEvent properly logs with no errors',
+  function (t) {
+    return log.flowEvent('some.event', {
+      headers: {
+        'user-agent': 'bar'
+      },
+      payload: {
+        metricsContext: {
+          service: 'bar'
+        },
+        service: 'baz'
+      }
+    }).then(function () {
+      t.equal(logger.info.callCount, 1, 'logger.info was called')
+      var args = logger.info.args[0]
+      t.equal(args[0], 'flowEvent', 'correct event name')
+      t.equal(args[1].service, 'bar', 'correct metrics data')
+      t.equal(args[1].event, 'some.event', 'correct event name')
+
+      t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
+      t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
+      t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
+      t.equal(logger.error.callCount, 0, 'logger.error was not called')
+
+      logger.error.reset()
+    })
+  }
+)
+
 
 test(
   'log.error removes PII from error objects',

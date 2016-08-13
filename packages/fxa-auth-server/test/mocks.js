@@ -19,7 +19,7 @@ var DB_METHOD_NAMES = ['account', 'createAccount', 'createDevice', 'createKeyFet
                        'updateLocale', 'updateSessionToken', 'verifyEmail', 'verifyTokens']
 
 var LOG_METHOD_NAMES = ['trace', 'increment', 'info', 'error', 'begin', 'warn', 'timing',
-                        'activityEvent', 'notifyAttachedServices']
+                        'activityEvent', 'flowEvent', 'notifyAttachedServices']
 
 var MAILER_METHOD_NAMES = ['sendVerifyCode', 'sendVerifyLoginEmail',
                            'sendNewDeviceLoginNotification', 'sendPasswordChangedNotification',
