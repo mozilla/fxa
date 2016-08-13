@@ -1,0 +1,25 @@
+{
+  "name": "fxa-shared",
+  "version": "1.0.0",
+  "description": "Shared module for FxA repositories",
+  "main": "index.js",
+  "scripts": {
+    "test": "tap test/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mozilla/fxa-shared.git"
+  },
+  "keywords": [
+    "fxa"
+  ],
+  "author": "Mozilla (https://mozilla.org/)",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/mozilla/fxa-shared/issues"
+  },
+  "homepage": "https://github.com/mozilla/fxa-shared#readme",
+  "devDependencies": {
+    "tap": "6.3.2"
+  }
+}
