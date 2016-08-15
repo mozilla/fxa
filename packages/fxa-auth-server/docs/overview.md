@@ -92,27 +92,23 @@ if that header is set to `1`.
 
 #### Flow event structure
 
-Flow events are JSON data.
-Some fields are common to all events,
-others are event-specific.
-Some fields are optional depending on context,
-others are mandatory.
+Flow events are JSON data
+containg the following fields:
 
-|Event|Mandatory fields|Optional fields|
-|-----|----------------|---------------|
-|`account.created`|`event`, `flow_id`, `flow_time`, `time`, `userAgent`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
-|`account.verified`|`event`, `flow_id`, `flow_time`, `time`, `userAgent`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
-|`account.login`|`event`, `flow_id`, `flow_time`, `time`, `userAgent`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
-|`account.confirmed`|`event`, `flow_id`, `flow_time`, `time`, `userAgent`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
-|`account.keyfetch`|`event`, `time`, `userAgent`|`context`, `entrypoint`, `flow_id`, `flow_time`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
-|`account.signed`|`event`, `time`, `userAgent`|`context`, `entrypoint`, `flow_id`, `flow_time`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
-|`account.reset`|`event`, `time`, `userAgent`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
-|`account.reminder`|`event`, `time`, `userAgent`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
-|`account.deleted`|`event`, `time`, `userAgent`|`context`, `entrypoint` `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
-|`device.created`|`event`, `time`, `userAgent`|`context`, `entrypoint`, `flow_id`, `flow_time`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
-|`device.updated`|`event`, `time`, `userAgent`|`context`, `entrypoint`, `flow_id`, `flow_time`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
-|`device.deleted`|`event`, `time`, `userAgent`|`context`, `entrypoint`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
-|`customs.blocked`|`event`, `time`, `userAgent`|`context`, `entrypoint`, `flow_id`, `flow_time`, `migration`, `service`, `utm_campaign`, `utm_content`, `utm_medium`, `utm_source`, `utm_term`|
+* `event`
+* `flow_id`
+* `flow_time`
+* `time`
+* `userAgent`
+* `context` (optional)
+* `entrypoint` (optional)
+* `migration` (optional)
+* `service` (optional)
+* `utm_campaign` (optional)
+* `utm_content` (optional)
+* `utm_medium` (optional)
+* `utm_source` (optional)
+* `utm_term` (optional)
 
 ##### Example event
 

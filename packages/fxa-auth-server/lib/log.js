@@ -10,6 +10,25 @@ var logConfig = config.get('log')
 var P = require('./promise')
 var StatsDCollector = require('./metrics/statsd')
 
+var ALWAYS_ACTIVITY_FLOW_EVENTS = {
+  // These activity events are always flow events
+  'account.confirmed': true,
+  'account.created': true,
+  'account.login': true,
+  'account.verified': true
+}
+
+var ACTIVITY_FLOW_EVENTS = Object.keys(ALWAYS_ACTIVITY_FLOW_EVENTS)
+  .reduce(function (events, event) {
+    events[event] = true
+    return events
+  }, {
+    // These activity events are flow events when there is a flowId
+    'account.keyfetch': true,
+    'account.signed': true,
+    'device.created': true
+  })
+
 function unbuffer(object) {
   var keys = Object.keys(object)
   for (var i = 0; i < keys.length; i++) {
@@ -195,6 +214,10 @@ Lug.prototype.activityEvent = function (event, request, data) {
   this.logger.info('activityEvent', info)
   this.statsd.write(info)
 
+  if (! ACTIVITY_FLOW_EVENTS[event]) {
+    return P.resolve()
+  }
+
   // log a flowEvent for all activityEvents
   return this.flowEvent(event, request)
 }
@@ -220,10 +243,14 @@ Lug.prototype.flowEvent = function (event, request) {
     userAgent: request.headers['user-agent']
   }, request, event).then(
     function (info) {
-      info.event = event
-      optionallySetService(info, request)
+      if (info.flow_id) {
+        info.event = event
+        optionallySetService(info, request)
 
-      self.logger.info('flowEvent', info)
+        self.logger.info('flowEvent', info)
+      } else if (ALWAYS_ACTIVITY_FLOW_EVENTS[event]) {
+        self.error({ op: 'log.flowEvent', event: event, missingFlowId: true })
+      }
     }
   )
 }
