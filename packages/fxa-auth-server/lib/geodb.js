@@ -14,6 +14,9 @@ var ACCURACY_MIN_KM = 25
 * `location` data. On failure, returns an empty object
 **/
 module.exports = function (log) {
+
+  log.info({ op: 'geodb.start', enabled: config.enabled, dbPath: config.dbPath })
+
   return function (ip) {
     // this is a kill-switch and can be used to not return location data
     if (config.enabled === false) {

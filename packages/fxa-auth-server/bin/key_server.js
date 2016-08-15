@@ -5,10 +5,20 @@
 var config = require('../config').getProperties()
 var jwtool = require('fxa-jwtool')
 
+var log = require('../lib/log')(config.log.level)
+var getGeoData = require('../lib/geodb')(log)
+
 function main() {
-  var log = require('../lib/log')(config.log.level)
   var metricsContext = require('../lib/metrics/context')(log, config)
   log.setMetricsContext(metricsContext)
+
+  // Force the geo to load and run at startup, not waiting for it to run on
+  // some route later.
+  var knownIp = '63.245.221.32' // Mozilla MTV
+  getGeoData(knownIp)
+    .then(function(result) {
+      log.info({ op: 'geodb.check', result: result })
+    })
 
   process.stdout.write(JSON.stringify({
     event: 'config',
