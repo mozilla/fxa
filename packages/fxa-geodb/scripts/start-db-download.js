@@ -7,6 +7,10 @@ var MaxmindDbDownloader = require('../lib/maxmind-db-downloader');
 var path = require('path');
 
 if (require.main === module) {
+  if (process.env.FXA_GEOIP_SKIP_MAXMIND_DOWNLOAD) {
+    return;
+  }
+
   // start download only when script is
   // executed, not loaded through require.
   var maxmindDbDownloader = new MaxmindDbDownloader();
