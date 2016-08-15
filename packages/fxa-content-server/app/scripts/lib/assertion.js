@@ -5,12 +5,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Duration = require('duration');
-  var jwcrypto = require('jwcrypto');
-  var P = require('lib/promise');
+  const Duration = require('duration');
+  const P = require('lib/promise');
+  const requireOnDemand = require('lib/require-on-demand');
 
-  var CERT_DURATION_MS =  new Duration('6h').milliseconds();
-  var ASSERTION_DURATION_MS = new Duration('52w').milliseconds() * 25; //25 years
+  const CERT_DURATION_MS =  new Duration('6h').milliseconds();
+  const ASSERTION_DURATION_MS = new Duration('52w').milliseconds() * 25; //25 years
 
   function ensureCryptoIsSeeded() {
     // The jwcrypto RNG needs to be seeded with entropy. If the browser
@@ -32,15 +32,15 @@ define(function (require, exports, module) {
 
     // wah wah, we need to get entropy from the server.
     return this._fxaClient.getRandomBytes()
-        .then(function (bytes) {
-          jwcrypto.addEntropy(bytes);
-        });
+      .then((bytes) => {
+        this._jwcrypto.addEntropy(bytes);
+      });
   }
 
   function generateKeyPair() {
     return ensureCryptoIsSeeded.call(this)
-      .then(function () {
-        var genKeypair = P.denodeify(jwcrypto.generateKeypair);
+      .then(() => {
+        const genKeypair = P.denodeify(this._jwcrypto.generateKeypair);
         // for DSA-128 reasons, see http://goo.gl/uAjE41
         return genKeypair({
           algorithm: 'DS',
@@ -52,19 +52,20 @@ define(function (require, exports, module) {
 
   function certificate(audience, sessionToken) {
     //TODO: check for a valid cert in localStorage first?
-    var self = this;
-    return generateKeyPair.call(self).then(function (kp) {
-      // while certSign is going over the wire, we can also sign the
-      // assertion here on the machine
-      return P.all([
-        self._fxaClient.certificateSign(kp.publicKey.toSimpleObject(), CERT_DURATION_MS, sessionToken),
-        assertion(kp.secretKey, audience)
-      ]);
-    });
+    return generateKeyPair.call(this)
+      .then((kp) => {
+        // while certSign is going over the wire, we can also sign the
+        // assertion here on the machine
+        return P.all([
+          this._fxaClient.certificateSign(
+            kp.publicKey.toSimpleObject(), CERT_DURATION_MS, sessionToken),
+          assertion(this._jwcrypto, kp.secretKey, audience)
+        ]);
+      });
   }
 
-  function assertion(secretKey, audience) {
-    var createAssertion = P.denodeify(jwcrypto.assertion.sign);
+  function assertion(jwcrypto, secretKey, audience) {
+    const createAssertion = P.denodeify(jwcrypto.assertion.sign);
 
     return createAssertion(jwcrypto, {}, {
       audience: audience,
@@ -73,9 +74,14 @@ define(function (require, exports, module) {
   }
 
   function bundle(sessionToken, audience) {
-    return certificate.call(this, audience || this._audience, sessionToken).spread(function (cert, ass) {
-      return jwcrypto.cert.bundle([cert.cert], ass);
-    });
+    return requireOnDemand('jwcrypto')
+      .then((jwcrypto) => {
+        this._jwcrypto = jwcrypto;
+        return certificate.call(this, audience || this._audience, sessionToken);
+      })
+      .spread((cert, ass) => {
+        return this._jwcrypto.cert.bundle([cert.cert], ass);
+      });
   }
 
   function Assertion(options) {
