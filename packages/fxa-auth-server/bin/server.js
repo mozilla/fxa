@@ -21,7 +21,7 @@ var dbConnect = require('../lib/db_connect')()
 
 P.all(
   [
-    require('../translator')(config.get('locales')),
+    require('../translator')(config.get('locales'), config.get('defaultLanguage')),
     require('../templates')()
   ]
 )
