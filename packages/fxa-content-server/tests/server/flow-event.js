@@ -5,25 +5,25 @@
 define([
   'intern!object',
   'intern/chai!assert',
-  'intern/dojo/node!../../server/lib/activity-event',
+  'intern/dojo/node!../../server/lib/flow-event',
   'intern/dojo/node!os',
   'intern/dojo/node!sinon',
-], function (registerSuite, assert, activityEvent, os, sinon) {
+], function (registerSuite, assert, flowEvent, os, sinon) {
   var time, write;
 
   registerSuite({
-    name: 'activity-event',
+    name: 'flow-event',
 
     'interface is correct': function () {
-      assert.isFunction(activityEvent);
-      assert.lengthOf(activityEvent, 3);
+      assert.isFunction(flowEvent);
+      assert.lengthOf(flowEvent, 3);
     },
 
-    'call activityEvent with service and entrypoint': {
+    'call flowEvent with service and entrypoint': {
       setup: function () {
         write = process.stderr.write;
         process.stderr.write = sinon.spy();
-        return activityEvent('mock event', { a: 'b', c: 'd', time: 'wibble' }, {
+        return flowEvent('mock event', { a: 'b', c: 'd', time: 'wibble' }, {
           headers: { 'user-agent': 'foo' },
           originalUrl: 'bar',
           query: {
@@ -57,7 +57,7 @@ define([
         var eventData = JSON.parse(args[0]);
         assert.isObject(eventData);
         assert.lengthOf(Object.keys(eventData), 18);
-        assert.equal(eventData.op, 'activityEvent');
+        assert.equal(eventData.op, 'flowEvent');
         assert.equal(eventData.hostname, os.hostname());
         assert.equal(eventData.pid, process.pid);
         assert.equal(eventData.v, 1);
@@ -80,11 +80,11 @@ define([
       }
     },
 
-    'call activityEvent with client_id': {
+    'call flowEvent with client_id': {
       setup: function () {
         write = process.stderr.write;
         process.stderr.write = sinon.spy();
-        return activityEvent('wibble', {}, {
+        return flowEvent('wibble', {}, {
           headers: { 'user-agent': 'blee' },
           originalUrl: '/',
           query: {
@@ -103,7 +103,7 @@ define([
 
         var eventData = JSON.parse(process.stderr.write.args[0][0]);
         assert.lengthOf(Object.keys(eventData), 7);
-        assert.equal(eventData.op, 'activityEvent');
+        assert.equal(eventData.op, 'flowEvent');
         assert.equal(eventData.hostname, os.hostname());
         assert.equal(eventData.pid, process.pid);
         assert.equal(eventData.v, 1);
@@ -113,11 +113,11 @@ define([
       }
     },
 
-    'call activityEvent with service and client_id': {
+    'call flowEvent with service and client_id': {
       setup: function () {
         write = process.stderr.write;
         process.stderr.write = sinon.spy();
-        return activityEvent('wibble', {}, {
+        return flowEvent('wibble', {}, {
           headers: { 'user-agent': 'blee' },
           originalUrl: '/',
           query: {
@@ -141,11 +141,11 @@ define([
       }
     },
 
-    'call activityEvent with entryPoint': {
+    'call flowEvent with entryPoint': {
       setup: function () {
         write = process.stderr.write;
         process.stderr.write = sinon.spy();
-        return activityEvent('wibble', {}, {
+        return flowEvent('wibble', {}, {
           headers: { 'user-agent': 'blee' },
           originalUrl: '/',
           query: {
@@ -168,11 +168,11 @@ define([
       }
     },
 
-    'call activityEvent with entrypoint and entryPoint': {
+    'call flowEvent with entrypoint and entryPoint': {
       setup: function () {
         write = process.stderr.write;
         process.stderr.write = sinon.spy();
-        return activityEvent('wibble', {}, {
+        return flowEvent('wibble', {}, {
           headers: { 'user-agent': 'blee' },
           originalUrl: '/',
           query: {
@@ -196,11 +196,11 @@ define([
       }
     },
 
-    'call activityEvent with 101-character query parameter': {
+    'call flowEvent with 101-character query parameter': {
       setup: function () {
         write = process.stderr.write;
         process.stderr.write = sinon.spy();
-        return activityEvent('wibble', {}, {
+        return flowEvent('wibble', {}, {
           headers: { 'user-agent': 'blee' },
           originalUrl: '/',
           query: {
@@ -221,11 +221,11 @@ define([
       }
     },
 
-    'call activityEvent with 100-character query parameter': {
+    'call flowEvent with 100-character query parameter': {
       setup: function () {
         write = process.stderr.write;
         process.stderr.write = sinon.spy();
-        return activityEvent('wibble', {}, {
+        return flowEvent('wibble', {}, {
           headers: { 'user-agent': 'blee' },
           originalUrl: '/',
           query: {
@@ -246,11 +246,11 @@ define([
       }
     },
 
-    'call activityEvent with 101-character client_id': {
+    'call flowEvent with 101-character client_id': {
       setup: function () {
         write = process.stderr.write;
         process.stderr.write = sinon.spy();
-        return activityEvent('wibble', {}, {
+        return flowEvent('wibble', {}, {
           headers: { 'user-agent': 'blee' },
           originalUrl: '/',
           query: {
@@ -271,11 +271,11 @@ define([
       }
     },
 
-    'call activityEvent with 101-character entryPoint': {
+    'call flowEvent with 101-character entryPoint': {
       setup: function () {
         write = process.stderr.write;
         process.stderr.write = sinon.spy();
-        return activityEvent('wibble', {}, {
+        return flowEvent('wibble', {}, {
           headers: { 'user-agent': 'blee' },
           originalUrl: '/',
           query: {
@@ -296,11 +296,11 @@ define([
       }
     },
 
-    'call activityEvent with DNT header': {
+    'call flowEvent with DNT header': {
       setup: function () {
         write = process.stderr.write;
         process.stderr.write = sinon.spy();
-        return activityEvent('mock event', {}, {
+        return flowEvent('mock event', {}, {
           headers: { 'dnt': '1', 'user-agent': 'foo' },
           originalUrl: 'bar',
           query: {
@@ -331,7 +331,7 @@ define([
 
         var eventData = JSON.parse(process.stderr.write.args[0][0]);
         assert.lengthOf(Object.keys(eventData), 10);
-        assert.equal(eventData.op, 'activityEvent');
+        assert.equal(eventData.op, 'flowEvent');
         assert.equal(eventData.event, 'mock event');
         assert.equal(eventData.userAgent, 'foo');
         assert.equal(eventData.context, 'mock context');
@@ -341,12 +341,12 @@ define([
       }
     },
 
-    'call activityEvent with numeric time': {
+    'call flowEvent with numeric time': {
       setup: function () {
         time = Date.now();
         write = process.stderr.write;
         process.stderr.write = sinon.spy();
-        return activityEvent('wibble', { time: time }, {
+        return flowEvent('wibble', { time: time }, {
           headers: { 'user-agent': 'blee' },
           originalUrl: '/',
           query: {}

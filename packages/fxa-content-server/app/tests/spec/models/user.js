@@ -51,7 +51,7 @@ define(function (require, exports, module) {
     beforeEach(function () {
       fxaClientMock = new FxaClient();
       metrics = {
-        setActivityEventMetadata: sinon.spy()
+        setFlowEventMetadata: sinon.spy()
       };
       notifier = new Notifier();
       sentryMetrics = new SentryMetrics();

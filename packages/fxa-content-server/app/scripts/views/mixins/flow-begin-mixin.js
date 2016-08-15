@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// Tells the server to emit the `flow.begin` activity event.
+// Tells the server to emit the `flow.begin` flow event.
 
 define(function (require, exports, module) {
   'use strict';
@@ -21,7 +21,7 @@ define(function (require, exports, module) {
       var flowId = self.flow.get('flowId');
       var flowBegin = self.flow.get('flowBegin');
 
-      self.metrics.setActivityEventMetadata({
+      self.metrics.setFlowEventMetadata({
         flowBeginTime: flowBegin,
         flowId: flowId
       });

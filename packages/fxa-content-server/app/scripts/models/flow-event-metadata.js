@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Model for activity event metadata.
+ * Model for flow event metadata.
  *
  * Attributes:
  *

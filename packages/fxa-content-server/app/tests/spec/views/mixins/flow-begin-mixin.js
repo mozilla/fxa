@@ -25,7 +25,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         flowBeginMixin.metrics = {
           logFlowBegin: sinon.spy(),
-          setActivityEventMetadata: sinon.spy()
+          setFlowEventMetadata: sinon.spy()
         };
         flowBeginMixin.logError = sinon.spy();
         $('body').data('flowId', FLOW_ID);
@@ -39,9 +39,9 @@ define(function (require, exports, module) {
         assert.strictEqual(flowBeginMixin.flow.get('flowBegin'), 42);
       });
 
-      it('called metrics.setActivityEventMetadata correctly', function () {
-        assert.strictEqual(flowBeginMixin.metrics.setActivityEventMetadata.callCount, 1);
-        var args = flowBeginMixin.metrics.setActivityEventMetadata.args[0];
+      it('called metrics.setFlowEventMetadata correctly', function () {
+        assert.strictEqual(flowBeginMixin.metrics.setFlowEventMetadata.callCount, 1);
+        var args = flowBeginMixin.metrics.setFlowEventMetadata.args[0];
         assert.lengthOf(args, 1);
         assert.lengthOf(Object.keys(args[0]), 2);
         assert.strictEqual(args[0].flowId, FLOW_ID);

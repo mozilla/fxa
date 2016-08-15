@@ -30,7 +30,7 @@ module.exports = function (event, data, request) {
   var eventData = _.assign({
     event: event,
     hostname: HOSTNAME,
-    op: 'activityEvent',
+    op: 'flowEvent',
     pid: process.pid,
     userAgent: request.headers['user-agent'],
     v: VERSION

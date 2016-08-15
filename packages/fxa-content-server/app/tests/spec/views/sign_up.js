@@ -387,14 +387,14 @@ define(function (require, exports, module) {
       beforeEach(function () {
         $('body').data('flowId', FLOW_ID);
         $('body').data('flowBegin', 3);
-        sinon.spy(metrics, 'setActivityEventMetadata');
+        sinon.spy(metrics, 'setFlowEventMetadata');
         sinon.spy(metrics, 'logFlowBegin');
         return view.afterRender();
       });
 
-      it('called metrics.setActivityEventMetadata correctly', function () {
-        assert.equal(metrics.setActivityEventMetadata.callCount, 1);
-        var args = metrics.setActivityEventMetadata.args[0];
+      it('called metrics.setFlowEventMetadata correctly', function () {
+        assert.equal(metrics.setFlowEventMetadata.callCount, 1);
+        var args = metrics.setFlowEventMetadata.args[0];
         assert.lengthOf(args, 1);
         assert.lengthOf(Object.keys(args[0]), 2);
         assert.equal(args[0].flowId, FLOW_ID);

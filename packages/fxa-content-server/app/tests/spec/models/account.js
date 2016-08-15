@@ -57,7 +57,7 @@ define(function (require, exports, module) {
       fxaClient = new FxaClientWrapper();
       marketingEmailClient = new MarketingEmailClient();
       metrics = {
-        getActivityEventMetadata: function () {
+        getFlowEventMetadata: function () {
           return {
             baz: 'qux',
             foo: 'bar'

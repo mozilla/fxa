@@ -19,12 +19,12 @@ define([
 
     setup: function () {
       mocks = {
-        activityEvent: sinon.spy(),
         config: {
           get: sinon.spy(function () {
             return false;
           })
         },
+        flowEvent: sinon.spy(),
         gaCollector: {
           write: sinon.spy()
         },
@@ -41,7 +41,7 @@ define([
       };
       route = proxyquire(
         path.join(process.cwd(), 'server/lib/routes/post-metrics'), {
-          '../activity-event': mocks.activityEvent,
+          '../flow-event': mocks.flowEvent,
           '../configuration': mocks.config,
           '../ga-collector': function () {
             return mocks.gaCollector;
@@ -169,9 +169,9 @@ define([
             assert.equal(args[0], mocks.request.body);
           },
 
-          'activityEvent was called correctly': function () {
-            assert.strictEqual(mocks.activityEvent.callCount, 1);
-            var args = mocks.activityEvent.args[0];
+          'flowEvent was called correctly': function () {
+            assert.strictEqual(mocks.flowEvent.callCount, 1);
+            var args = mocks.flowEvent.args[0];
             assert.lengthOf(args, 3);
             assert.equal(args[0], 'flow.begin');
             assert.isObject(args[1]);
@@ -232,8 +232,8 @@ define([
             assert.strictEqual(mocks.gaCollector.write.callCount, 2);
           },
 
-          'activityEvent was not called': function () {
-            assert.strictEqual(mocks.activityEvent.callCount, 1);
+          'flowEvent was not called': function () {
+            assert.strictEqual(mocks.flowEvent.callCount, 1);
           }
         }
       },
@@ -286,8 +286,8 @@ define([
             assert.strictEqual(mocks.gaCollector.write.callCount, 3);
           },
 
-          'activityEvent was called': function () {
-            assert.strictEqual(mocks.activityEvent.callCount, 2);
+          'flowEvent was called': function () {
+            assert.strictEqual(mocks.flowEvent.callCount, 2);
           }
         }
       },
@@ -359,9 +359,9 @@ define([
             assert.isObject(args[0]);
           },
 
-          'activityEvent was called correctly': function () {
-            assert.strictEqual(mocks.activityEvent.callCount, 3);
-            var args = mocks.activityEvent.args[2];
+          'flowEvent was called correctly': function () {
+            assert.strictEqual(mocks.flowEvent.callCount, 3);
+            var args = mocks.flowEvent.args[2];
             assert.lengthOf(args, 3);
             assert.equal(args[0], 'flow.begin');
             assert.isObject(args[1]);
@@ -425,8 +425,8 @@ define([
             assert.strictEqual(mocks.gaCollector.write.callCount, 4);
           },
 
-          'activityEvent was not called': function () {
-            assert.strictEqual(mocks.activityEvent.callCount, 3);
+          'flowEvent was not called': function () {
+            assert.strictEqual(mocks.flowEvent.callCount, 3);
           }
         }
       },
@@ -488,9 +488,9 @@ define([
             assert.strictEqual(mocks.gaCollector.write.callCount, 5);
           },
 
-          'activityEvent was called correctly': function () {
-            assert.strictEqual(mocks.activityEvent.callCount, 4);
-            var args = mocks.activityEvent.args[3];
+          'flowEvent was called correctly': function () {
+            assert.strictEqual(mocks.flowEvent.callCount, 4);
+            var args = mocks.flowEvent.args[3];
             assert.lengthOf(args, 3);
             assert.equal(args[0], 'flow.begin');
             assert.lengthOf(Object.keys(args[1]), 3);

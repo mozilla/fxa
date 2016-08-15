@@ -361,7 +361,7 @@ define(function (require, exports, module) {
 
         if (password) {
           return self._fxaClient.signIn(email, password, relier, {
-            metricsContext: self._metrics.getActivityEventMetadata(),
+            metricsContext: self._metrics.getFlowEventMetadata(),
             reason: options.reason || SignInReasons.SIGN_IN,
             resume: options.resume
           });
@@ -399,7 +399,7 @@ define(function (require, exports, module) {
         relier,
         {
           customizeSync: self.get('customizeSync'),
-          metricsContext: self._metrics.getActivityEventMetadata(),
+          metricsContext: self._metrics.getFlowEventMetadata(),
           resume: options.resume
         })
         .then(function (updatedSessionData) {

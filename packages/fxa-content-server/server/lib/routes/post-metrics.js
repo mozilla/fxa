@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-var activityEvent = require('../activity-event');
 var config = require('../configuration');
+var flowEvent = require('../flow-event');
 var MetricsCollector = require('../metrics-collector-stderr');
 var StatsDCollector = require('../statsd-collector');
 var GACollector = require('../ga-collector');
@@ -85,7 +85,7 @@ function optionallyLogFlowBeginEvent (req, metrics, requestReceivedTime) {
   });
 
   if (hasFlowBeginEvent) {
-    activityEvent('flow.begin', {
+    flowEvent('flow.begin', {
       flow_id: metrics.flowId, //eslint-disable-line camelcase
       flow_time: 0, //eslint-disable-line camelcase
       time: metrics.flowBeginTime

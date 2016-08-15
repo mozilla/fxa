@@ -19,7 +19,7 @@ define(function (require, exports, module) {
 
   var $ = require('jquery');
   var _ = require('underscore');
-  var ActivityEventMetadata = require('models/activity-event-metadata');
+  var FlowEventMetadata = require('models/flow-event-metadata');
   var Backbone = require('backbone');
   var Duration = require('duration');
   var Environment = require('lib/environment');
@@ -115,7 +115,7 @@ define(function (require, exports, module) {
     this._utmMedium = options.utmMedium || NOT_REPORTED_VALUE;
     this._utmSource = options.utmSource || NOT_REPORTED_VALUE;
     this._utmTerm = options.utmTerm || NOT_REPORTED_VALUE;
-    this._activityEventMetadata = new ActivityEventMetadata(options);
+    this._flowEventMetadata = new FlowEventMetadata(options);
 
     this._inactivityFlushMs = options.inactivityFlushMs || DEFAULT_INACTIVITY_TIMEOUT_MS;
 
@@ -463,12 +463,12 @@ define(function (require, exports, module) {
       }
     },
 
-    getActivityEventMetadata: function () {
-      return this._activityEventMetadata.attributes;
+    getFlowEventMetadata: function () {
+      return this._flowEventMetadata.attributes;
     },
 
-    setActivityEventMetadata: function () {
-      this._activityEventMetadata.set.apply(this._activityEventMetadata, arguments);
+    setFlowEventMetadata: function () {
+      this._flowEventMetadata.set.apply(this._flowEventMetadata, arguments);
     }
   });
 
