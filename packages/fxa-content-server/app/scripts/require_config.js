@@ -39,6 +39,7 @@ require.config({
     }
   ],
   requireOnDemand: [
+    'fxaClient',
     'passwordcheck'
   ],
   // the sriify task will replace sriConfig for production

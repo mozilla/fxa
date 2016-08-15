@@ -13,8 +13,8 @@ define(function (require, exports, module) {
   var $ = require('jquery');
   var AuthErrors = require('lib/auth-errors');
   var Constants = require('lib/constants');
-  var FxaClient = require('fxaClient');
   var p = require('lib/promise');
+  var requireOnDemand = require('lib/require-on-demand');
   var Session = require('lib/session');
   var SignInReasons = require('lib/sign-in-reasons');
   var VerificationReasons = require('lib/verification-reasons');
@@ -76,25 +76,26 @@ define(function (require, exports, module) {
     return wrappedClient;
   }
 
-  function FxaClientWrapper(options) {
-    options = options || {};
-
-    var client;
-
+  function FxaClientWrapper(options = {}) {
     if (options.client) {
-      client = options.client;
+      this._client = wrapClientToNormalizeErrors(options.client);
     } else if (options.authServerUrl) {
-      client = new FxaClient(options.authServerUrl);
-    }
-
-    if (client) {
-      this._client = wrapClientToNormalizeErrors(client);
+      this._authServerUrl = options.authServerUrl;
     }
   }
 
   FxaClientWrapper.prototype = {
     _getClient: function () {
-      return p(this._client);
+      if (this._client) {
+        return p(this._client);
+      }
+
+      return requireOnDemand('fxaClient')
+        .then((FxaClient) => {
+          const client = new FxaClient(this._authServerUrl);
+          this._client = wrapClientToNormalizeErrors(client);
+          return this._client;
+        });
     },
 
     /**

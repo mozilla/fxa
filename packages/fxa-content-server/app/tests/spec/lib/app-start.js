@@ -702,17 +702,26 @@ define(function (require, exports, module) {
     });
 
     describe('allResourcesReady', function () {
+      let requireOnDemandMock;
+
       beforeEach(function () {
         sinon.spy(backboneHistoryMock, 'start');
+        requireOnDemandMock = sinon.spy();
 
         appStart = new AppStart({
           broker: brokerMock,
           history: backboneHistoryMock,
+          requireOnDemand: requireOnDemandMock,
           router: routerMock,
           user: userMock,
           window: windowMock
         });
 
+      });
+
+      it('should load fxaClient', () => {
+        appStart.allResourcesReady();
+        assert.isTrue(requireOnDemandMock.calledWith('fxaClient'));
       });
 
       it('should start history with `pushState: true` if supported', () => {
