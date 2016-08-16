@@ -7,9 +7,10 @@ var Pool = require('./pool');
 const AppError = require('./error');
 const logger = require('./logging')('customs');
 const config = require('./config').getProperties();
-var url = config.customsUrl;
 
-function Customs() {
+function Customs(options) {
+  options = options || {};
+  var url = options.url || config.customsUrl;
 
   if (url === 'none') {
     this.pool = {
@@ -59,6 +60,6 @@ Customs.prototype.close = function () {
   return this.pool.close();
 };
 
-module.exports = function () {
-  return new Customs();
+module.exports = function (options) {
+  return new Customs(options);
 };

@@ -172,7 +172,7 @@ const conf = convict({
   },
   customsUrl: {
     doc: 'fraud / abuse server url',
-    default: 'http://127.0.0.1:7000',
+    default: 'none',
     env: 'CUSTOMS_SERVER_URL'
   },
   publicUrl: {
