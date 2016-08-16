@@ -40,6 +40,7 @@
     "fxa-auth-mailer": "git+https://github.com/mozilla/fxa-auth-mailer.git#master",
     "fxa-geodb": "0.0.7",
     "fxa-jwtool": "0.7.1",
+    "fxa-shared": "1.0.1",
     "hapi": "8.8.1",
     "hapi-auth-hawk": "3.0.1",
     "hapi-fxa-oauth": "2.2.0",
