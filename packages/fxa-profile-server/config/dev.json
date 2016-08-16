@@ -6,5 +6,6 @@
   },
   "img": {
     "driver": "local"
-  }
+  },
+  "customsUrl": "none"
 }

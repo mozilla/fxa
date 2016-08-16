@@ -45,6 +45,8 @@ The currently-defined error responses are:
 - 403, 100: Unauthorized
 - 400, 101: Invalid request parameter
 - 400, 102: Unsupported image provider
+- 400, 125: The request was blocked for security reasons
+- 429, 114: Client has sent too many requests
 - 500, 103: Image processing error
 - 503, 104: OAuth service unavailable
 - 503, 105: Auth service unavailable

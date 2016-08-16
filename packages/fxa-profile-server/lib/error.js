@@ -116,6 +116,35 @@ AppError.unsupportedProvider = function unsupportedProvider(url) {
   });
 };
 
+AppError.requestBlocked = function () {
+  return new AppError({
+    code: 400,
+    error: 'Request blocked',
+    errno: 125,
+    message: 'The request was blocked for security reasons'
+  });
+};
+
+AppError.tooManyRequests = function (retryAfter) {
+  if (!retryAfter) {
+    retryAfter = 30;
+  }
+  return new AppError(
+    {
+      code: 429,
+      error: 'Too Many Requests',
+      errno: 114,
+      message: 'Client has sent too many requests'
+    },
+    {
+      retryAfter: retryAfter
+    },
+    {
+      'retry-after': retryAfter
+    }
+  );
+};
+
 AppError.processingError = function processingError(res) {
   return new AppError({
     code: 500,

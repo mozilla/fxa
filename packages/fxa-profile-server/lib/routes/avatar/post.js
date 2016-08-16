@@ -10,7 +10,7 @@ const hex = require('buf').to.hex;
 const img = require('../../img');
 const validate = require('../../validate');
 const logger = require('../../logging')('routes.avatar.post');
-
+const customs = require('../../customs')();
 
 const PROVIDERS = (function(providers) {
   var ret = Object.create(null);
@@ -40,9 +40,13 @@ module.exports = {
     }
   },
   handler: function avatarPost(req, reply) {
-    var uid = req.auth.credentials.user;
+
+    var action = 'avatarUpload';
+    var ip = req.app.clientAddress;
     var payload = req.payload;
     var provider;
+    var uid = req.auth.credentials.user;
+
     for (var key in PROVIDERS) {
       var re = PROVIDERS[key];
       if (re.test(payload.url)) {
@@ -54,15 +58,18 @@ module.exports = {
       return reply(AppError.unsupportedProvider(payload.url));
     }
     var id = img.id();
-    db.addAvatar(id, uid, payload.url, provider, payload.selected)
-    .done(function() {
-      var info = {
-        event: 'avatar.post',
-        uid: uid
-      };
-      logger.info('activityEvent', info);
-      reply({ id: hex(id) }).code(201);
-    }, reply);
+
+    customs.checkAuthenticated(action, ip, uid)
+      .then(function (){
+        return db.addAvatar(id, uid, payload.url, provider, payload.selected);
+      })
+      .done(function() {
+        var info = {
+          event: 'avatar.post',
+          uid: uid
+        };
+        logger.info('activityEvent', info);
+        reply({ id: hex(id) }).code(201);
+      }, reply);
   }
 };
-

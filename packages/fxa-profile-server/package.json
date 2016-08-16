@@ -24,6 +24,7 @@
     "mozlog": "2.0.5",
     "mysql": "2.11.1",
     "mysql-patcher": "0.7.0",
+    "poolee": "1.0.0",
     "request": "2.73.0",
     "stream-to-array": "2.3.0"
   },
