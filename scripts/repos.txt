@@ -24,6 +24,7 @@ fxa-oauth-server
 fxa-profile-server
 fxa-python-client
 fxa-relier-client
+fxa-shared
 hapi-fxa-oauth
 PyFxA
 fxa-easter-egg
