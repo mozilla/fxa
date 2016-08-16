@@ -39,6 +39,7 @@
     "express": "4.14.0",
     "express-able": "dannycoates/express-able#7c143a0a4ba08fce9fcdb65aa192f90534bdeccc",
     "extend": "3.0.0",
+    "fxa-shared": "1.0.1",
     "grunt": "1.0.1",
     "grunt-autoprefixer": "3.0.4",
     "grunt-babel": "6.0.0",

@@ -13,10 +13,9 @@ define([
   'intern/dojo/node!request',
   'intern/dojo/node!url',
   'intern/dojo/node!util',
-  'intern/dojo/node!../../server/config/production-locales',
-], function (intern, registerSuite, assert, config, request, url, util, productionLocales) {
-
-  var languages = productionLocales.i18n.supportedLanguages;
+  'intern/dojo/node!fxa-shared',
+], function (intern, registerSuite, assert, config, request, url, util, fxaShared) {
+  var languages = fxaShared.l10n.supportedLanguages;
   var httpsUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
 
   var suite = {
