@@ -6,9 +6,10 @@ define(function (require, exports, module) {
   'use strict';
 
   var $ = require('jquery');
-  var BaseView = require('views/base');
   var chai = require('chai');
   var Cocktail = require('cocktail');
+  var FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
+  var FormView = require('views/form');
   var KeyCodes = require('lib/key-codes');
   var Metrics = require('lib/metrics');
   var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
@@ -17,11 +18,15 @@ define(function (require, exports, module) {
 
   var assert = chai.assert;
 
-  var SettingsPanelView = BaseView.extend({
+  var SettingsPanelView = FormView.extend({
     template: TestTemplate
   });
 
-  Cocktail.mixin(SettingsPanelView, SettingsPanelMixin);
+  Cocktail.mixin(
+    SettingsPanelView,
+    FloatingPlaceholderMixin,
+    SettingsPanelMixin
+  );
 
   describe('views/mixins/settings-panel-mixin', function () {
     var view;
@@ -76,12 +81,16 @@ define(function (require, exports, module) {
         assert.isTrue(view.navigate.calledWith('settings'));
       });
 
-      it('calls _hidePanelOnEscape when esc key is pressed', function () {
-        sinon.stub(view, '_hidePanelOnEscape', function () {});
-        var event = $.Event('keyup');
-        event.which = KeyCodes.ESCAPE;
-        view.onKeyUp(event);
-        assert.isTrue(view._hidePanelOnEscape.called, '_hidePanelonEscape called');
+      it('calls hidePanel when esc key is pressed', function () {
+        sinon.stub(view, 'hidePanel', function () {});
+        view.onKeyUp({ which: KeyCodes.ESCAPE });
+        assert.isTrue(view.hidePanel.called);
+      });
+
+      it('does not call hidePanel when other keys are pressed', function () {
+        sinon.spy(view, 'hidePanel');
+        view.onKeyUp({ which: KeyCodes.ENTER });
+        assert.isFalse(view.hidePanel.called);
       });
     });
 
@@ -110,22 +119,6 @@ define(function (require, exports, module) {
         assert.equal($autofocusEl[0], document.activeElement, 'autofocus element has focus');
       });
 
-      it('_hidePanelOnEscape calls hidePanel when escape key is pressed', function () {
-        sinon.stub(view, 'hidePanel', function () {});
-        var event = $.Event('keyup');
-        event.which = KeyCodes.ESCAPE;
-        view._hidePanelOnEscape(event);
-        assert.isTrue(view.hidePanel.called, 'hidePanel called');
-      });
-
-      it('_hidePanelOnEscape does not call hidePanel when other keys are pressed', function () {
-        sinon.stub(view, 'hidePanel', function () {});
-        var event = $.Event('keyup');
-        event.which = KeyCodes.ENTER;
-        view._hidePanelOnEscape(event);
-        assert.isFalse(view.hidePanel.called, 'hidePanel not called');
-      });
-
       it('hidePanel hides the open panel', function () {
         sinon.stub(view, 'closePanel', function () {});
         sinon.stub(view, 'navigate', function () { });
@@ -142,24 +135,14 @@ define(function (require, exports, module) {
         assert.isTrue(view.closePanel.called);
       });
 
-      it('clears panels', function () {
-        var displayNamePanel = '.display-name';
-        var labelHelper = view.$(displayNamePanel).prev('.label-helper');
+      it('clearInput', function () {
+        sinon.spy(view, 'enableSubmitIfValid');
+        sinon.spy(view, 'hideFloatingPlaceholder');
 
-        view.$(displayNamePanel).val('spc');
-        labelHelper.text('placeholder text');
+        view.clearInput();
 
-        view.clearInput('.settings-button.cancel');
-        assert.isTrue(view.$(displayNamePanel).val() === '');
-        assert.isTrue(view.$(displayNamePanel).attr('placeholder') === 'placeholder text');
-        assert.isTrue(labelHelper.text() === '');
-        assert.isTrue(labelHelper.css('top') === '0px');
-      });
-
-      it('disables buttons', function () {
-        var cancelButton = '.settings-button.cancel';
-        view.disableButtons(cancelButton);
-        assert.isTrue(view.$(cancelButton).closest('form').find('[type=submit]').hasClass('disabled'));
+        assert.isTrue(view.enableSubmitIfValid.called);
+        assert.isTrue(view.hideFloatingPlaceholder.called);
       });
     });
 

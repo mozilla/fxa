@@ -56,11 +56,28 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('showFloatingPlaceholder', function () {
-      it('forces the display of a floating placeholder', function () {
+    describe('showFloatingPlaceholder', () => {
+      it('forces the display of a floating placeholder', () => {
+        const $floatMeEl = view.$('#float_me');
+        const $labelHelperEl = view.$('.label-helper');
+
         view.showFloatingPlaceholder('#float_me');
-        assert.equal(typeof view.$('#float_me').attr('placeholder'), 'undefined');
-        assert.equal(view.$('.label-helper').text(), 'placeholder text');
+
+        assert.isUndefined($floatMeEl.attr('placeholder'));
+        assert.equal($labelHelperEl.text(), 'placeholder text');
+      });
+    });
+
+    describe('hideFloatingPlaceholder', () => {
+      it('hides the floating placeholder', () => {
+        const $floatMeEl = view.$('#float_me');
+        const $labelHelperEl = view.$('.label-helper');
+
+        view.showFloatingPlaceholder('#float_me');
+        view.hideFloatingPlaceholder('#float_me');
+
+        assert.equal($floatMeEl.attr('placeholder'), 'placeholder text');
+        assert.equal($labelHelperEl.text(), '');
       });
     });
 

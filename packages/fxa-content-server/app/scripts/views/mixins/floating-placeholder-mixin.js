@@ -31,16 +31,35 @@ define(function (require, exports, module) {
      * @param {object} inputEl - input element whose placeholder
      *        should be shown.
      */
-    showFloatingPlaceholder: function (inputEl) {
-      var placeholder = this.$el.find(inputEl).attr('placeholder');
+    showFloatingPlaceholder (inputEl) {
+      const $inputEl = this.$el.find(inputEl);
+      const $labelHelperEl = $inputEl.prev('.label-helper');
+      const placeholderText = $inputEl.attr('placeholder') || '';
 
       // If the placeholder for the element was already converted, no
       // further conversion will occur.
       // The check for existence is because of the strict equality check,
       // if placeholder is undefined, then it should not go into the block
-      if (placeholder && placeholder !== '') {
-        this.$el.find(inputEl).removeAttr('placeholder');
-        this.$el.find(inputEl).prev('.label-helper').text(placeholder).css({'top': '-17px'});
+      if (placeholderText.length && $labelHelperEl.length) {
+        $inputEl.removeAttr('placeholder');
+        $labelHelperEl.text(placeholderText).css({'top': '-17px'});
+      }
+    },
+
+    /**
+     * Hide the floating placeholder for an element
+     *
+     * @param {object} inputEl - input element whose placeholder
+     *        should be hidden.
+     */
+    hideFloatingPlaceholder (inputEl) {
+      const $inputEl = this.$el.find(inputEl);
+      const $labelHelperEl = $inputEl.prev('.label-helper');
+      const placeholderText = $labelHelperEl.text() || '';
+
+      if (placeholderText) {
+        $inputEl.attr('placeholder', placeholderText);
+        $labelHelperEl.removeClass('focused').text('').css({'top': '0px'});
       }
     },
 

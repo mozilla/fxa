@@ -33,26 +33,9 @@ define(function (require, exports, module) {
     },
 
     onKeyUp: function (event) {
-      this._hidePanelOnEscape(event);
-    },
-
-    _hidePanelOnEscape: function (event) {
       if (event.which === KeyCodes.ESCAPE) {
-        this.hidePanel(event.currentTarget);
+        this.hidePanel();
       }
-    },
-
-    hidePanel: function (el) {
-      // escape key has same behavior as cancel button
-      // so find the cancel button inside the open panel
-      // and simulate a click on that
-      var cancelButton = this.$(el).find('.cancel');
-
-      // synthesize a new event
-      var $event = $.Event('click');
-      $event.currentTarget = $(cancelButton);
-
-      this._closePanelReturnToSettings($event);
     },
 
     _triggerPanel: function (event) {
@@ -67,51 +50,41 @@ define(function (require, exports, module) {
       this.focus(this.$('[data-autofocus-on-panel-open]'));
     },
 
+    hidePanel: function () {
+      this._closePanelReturnToSettings();
+    },
+
     isPanelOpen: function () {
       return this.$('.settings-unit').hasClass('open');
     },
 
-    _closePanelReturnToSettings: function (event) {
+    _closePanelReturnToSettings: function () {
       this.navigate('settings');
-      this.clearInput(event.currentTarget);
+      this.clearInput();
       this.closePanel();
     },
 
-    clearInput: function (el) {
-      // need siblings here, not prev(), there might be 2 password rows
-      var inputFields = this.$(el).parent().siblings('.input-row').find('input');
-      var form = this.$(el).closest('form');
-      var shouldDisableSubmitButtons = false;
-      $(inputFields).each(function (i, anInputField) {
-        // if we have a .label-helper, make that a placeholder
-        // cannot search only inside the .input-row, `input`s
-        // can be from different `.input-row`s
-        var labelHelper = $(anInputField).prev('.label-helper');
-        if (labelHelper.length > 0) {
-          var placeholderText = labelHelper.text();
-          if (placeholderText.length > 0) {
-            $(anInputField).attr('placeholder', placeholderText);
-            // hide the .label-helper again
-            $(labelHelper).text('').css({'top': '0px'});
-          }
-        }
-        // if the input field is text or password, reset it
-        if (anInputField.type === 'text' || anInputField.type === 'password') {
-          // reset the form, do not clear the inputs
-          form[0].reset();
-          // also for input fields that are text or password,
-          // disable the submit buttons if user pressed cancel/esc
-          shouldDisableSubmitButtons = true;
+    clearInput: function () {
+      const $inputEls = this.$('input');
+
+      $inputEls.each((i, inputEl) => {
+        // Make no assumptions that this view has the
+        // floating-placeholder-mixin available. Check first.
+        if (this.hideFloatingPlaceholder) {
+          this.hideFloatingPlaceholder(inputEl);
         }
       });
-      if (shouldDisableSubmitButtons) {
-        this.disableButtons(el);
-      }
-    },
 
-    disableButtons: function (el) {
-      var submitButton = this.$(el).closest('form').find('[type=submit]');
-      submitButton.addClass('disabled');
+      const formEl = this.$('form')[0];
+      if (formEl) {
+        formEl.reset();
+      }
+
+      // Make no assumptions this view is actually based on FormView,
+      // only enable the form if a form view, and if valid.
+      if (this.enableSubmitIfValid) {
+        this.enableSubmitIfValid();
+      }
     },
 
     closePanel: function () {
