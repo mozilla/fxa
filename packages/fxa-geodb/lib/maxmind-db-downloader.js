@@ -95,7 +95,9 @@ var MaxmindDbDownloader = function () {
               }, function (err) {
                 // download resulted in an error, do not rename
                 // remove temp file
-                fs.unlinkSync(targetFilePathTemp);
+                if (fs.existsSync(targetFilePathTemp)) {
+                  fs.unlinkSync(targetFilePathTemp);
+                }
                 logHelper('error', 'downloaded file not working');
                 reject(err);
               });
