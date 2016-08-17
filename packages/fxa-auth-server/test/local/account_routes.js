@@ -1258,36 +1258,54 @@ test('/recovery_email/verify_code', function (t) {
   })
 
   t.test('verifyTokens resolves', function (t) {
+    t.plan(2)
+
     dbData.emailVerified = true
     dbErrors.verifyTokens = undefined
 
-    return runTest(route, mockRequest, function (response) {
-      t.equal(mockDB.verifyTokens.callCount, 1, 'call db.verifyTokens')
-      t.equal(mockDB.verifyEmail.callCount, 0, 'does not call db.verifyEmail')
-      t.equal(mockLog.notifyAttachedServices.callCount, 0, 'does not call log.notifyAttachedServices')
-
-      t.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
-      var args = mockLog.activityEvent.args[0]
-      t.equal(args.length, 3, 'log.activityEvent was passed three arguments')
-      t.equal(args[0], 'account.confirmed', 'first argument was event name')
-      t.deepEqual(args[1], {
-        auth: {
-          credentials: {
-            uid: Buffer(uid, 'hex'),
-            id: mockRequest.payload.code,
-          }
-        },
-        headers: mockRequest.headers,
-        payload: mockRequest.payload,
-        query: mockRequest.query
-      }, 'second argument was synthesized request object')
-      t.deepEqual(args[2], {
-        uid: uid.toString('hex')
-      }, 'third argument contained uid')
+    t.test('email verification', function (t) {
+      return runTest(route, mockRequest, function (response) {
+        t.equal(mockDB.verifyTokens.callCount, 1, 'call db.verifyTokens')
+        t.equal(mockDB.verifyEmail.callCount, 0, 'does not call db.verifyEmail')
+        t.equal(mockLog.notifyAttachedServices.callCount, 0, 'does not call log.notifyAttachedServices')
+        t.equal(mockLog.activityEvent.callCount, 0, 'log.activityEvent was not called')
+      })
+      .then(function () {
+        mockDB.verifyTokens.reset()
+      })
     })
-    .then(function () {
-      mockDB.verifyTokens.reset()
-      mockLog.activityEvent.reset()
+
+    t.test('sign-in confirmation', function (t) {
+      dbData.emailCode = crypto.randomBytes(16)
+
+      return runTest(route, mockRequest, function (response) {
+        t.equal(mockDB.verifyTokens.callCount, 1, 'call db.verifyTokens')
+        t.equal(mockDB.verifyEmail.callCount, 0, 'does not call db.verifyEmail')
+        t.equal(mockLog.notifyAttachedServices.callCount, 0, 'does not call log.notifyAttachedServices')
+
+        t.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
+        var args = mockLog.activityEvent.args[0]
+        t.equal(args.length, 3, 'log.activityEvent was passed three arguments')
+        t.equal(args[0], 'account.confirmed', 'first argument was event name')
+        t.deepEqual(args[1], {
+          auth: {
+            credentials: {
+              uid: Buffer(uid, 'hex'),
+              id: mockRequest.payload.code,
+            }
+          },
+          headers: mockRequest.headers,
+          payload: mockRequest.payload,
+          query: mockRequest.query
+        }, 'second argument was synthesized request object')
+        t.deepEqual(args[2], {
+          uid: uid.toString('hex')
+        }, 'third argument contained uid')
+      })
+      .then(function () {
+        mockDB.verifyTokens.reset()
+        mockLog.activityEvent.reset()
+      })
     })
   })
 })

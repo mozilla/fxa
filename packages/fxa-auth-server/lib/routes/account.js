@@ -1263,6 +1263,7 @@ module.exports = function (
         db.account(uid)
           .then(
             function (account) {
+              var isAccountVerification = butil.buffersAreEqual(code, account.emailCode)
 
               /**
                * Logic for account and token verification
@@ -1277,17 +1278,20 @@ module.exports = function (
                */
               return db.verifyTokens(code, account)
                 .then(function () {
-                  log.info({
-                    op: 'account.signin.confirm.success',
-                    uid: uidHex,
-                    code: request.payload.code
-                  })
-                  return log.activityEvent('account.confirmed', fakeRequestObject, {
-                    uid: uidHex
-                  })
+                  if (! isAccountVerification) {
+                    // Don't log sign-in confirmation success for the account verification case
+                    log.info({
+                      op: 'account.signin.confirm.success',
+                      uid: uidHex,
+                      code: request.payload.code
+                    })
+                    return log.activityEvent('account.confirmed', fakeRequestObject, {
+                      uid: uidHex
+                    })
+                  }
                 })
                 .catch(function (err) {
-                  if (err.errno === error.ERRNO.INVALID_VERIFICATION_CODE && butil.buffersAreEqual(code, account.emailCode)) {
+                  if (err.errno === error.ERRNO.INVALID_VERIFICATION_CODE && isAccountVerification) {
                     // The code is just for the account, not for any sessions
                     return true
                   }
