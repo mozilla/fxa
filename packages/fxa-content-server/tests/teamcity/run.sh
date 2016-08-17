@@ -74,18 +74,19 @@ npm config set cache ~/.fxacache
 export npm_config_cache=~/.fxacache
 export npm_config_tmp=~/fxatemp
 
+set -o xtrace # echo the following commands
+
 npm install              \
   bower@1.7.9            \
   convict@1.3.0          \
   firefox-profile@0.3.12 \
+  fxa-shared@1.0.1       \
   intern@3.1.1           \
   request@2.74.0         \
   sync-exec@0.6.2        \
   zaach/node-XMLHttpRequest.git#onerror
 
 node_modules/.bin/bower install --config.interactive=false
-
-set -o xtrace # echo the following commands
 
 $FXA_FIREFOX_BINARY --version 2>/dev/null # squelch annoying 'GLib-CRITICAL **' message
 
