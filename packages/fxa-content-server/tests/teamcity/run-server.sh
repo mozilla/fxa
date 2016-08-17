@@ -79,6 +79,7 @@ npm install                  \
   convict@1.3.0              \
   extend@3.0.0               \
   firefox-profile@0.3.12     \
+  fxa-shared@1.0.1           \
   helmet@2.1.1               \
   htmlparser2@3.9.0          \
   intern@3.1.1               \
