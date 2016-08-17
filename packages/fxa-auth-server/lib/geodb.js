@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var config = require('../config').get('geodb')
-var geodb = require('fxa-geodb')(config.dbPath)
+var geodb = require('fxa-geodb')(config)
 var P = require('./promise')
 var ACCURACY_MAX_KM = 200
 var ACCURACY_MIN_KM = 25
