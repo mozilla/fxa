@@ -135,7 +135,7 @@ define(function (require, exports, module) {
           .fail(function (err) {
             if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
               verificationInfo.markExpired();
-              err = AuthErrors.toError('EXPIRED_VERIFICATION_LINK');
+              err = AuthErrors.toError('UNKNOWN_ACCOUNT_VERIFICATION');
             } else if (
                 AuthErrors.is(err, 'INVALID_VERIFICATION_CODE') ||
                 AuthErrors.is(err, 'INVALID_PARAMETER')) {

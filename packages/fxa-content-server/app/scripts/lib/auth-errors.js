@@ -17,6 +17,7 @@ define(function (require, exports, module) {
   };
 
   var UNEXPECTED_ERROR_MESSAGE = t('Unexpected error');
+  var EXPIRED_VERIFICATION_ERROR_MESSAGE = t('The link you clicked to verify your email is expired.');
 
   /*eslint-disable sorting/sort-object-props*/
   var ERRORS = {
@@ -225,7 +226,7 @@ define(function (require, exports, module) {
     */
     EXPIRED_VERIFICATION_LINK: {
       errno: 1025,
-      message: t('The link you clicked to verify your email is expired.')
+      message: EXPIRED_VERIFICATION_ERROR_MESSAGE
     },
     DAMAGED_VERIFICATION_LINK: {
       errno: 1026,
@@ -286,6 +287,10 @@ define(function (require, exports, module) {
       // this error is not visible to the user
       errno: 1039,
       message: t('Server busy, try again soon')
+    },
+    UNKNOWN_ACCOUNT_VERIFICATION: {
+      errno: 1040,
+      message: EXPIRED_VERIFICATION_ERROR_MESSAGE
     }
   };
   /*eslint-enable sorting/sort-object-props*/

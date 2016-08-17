@@ -123,6 +123,7 @@ The event stream is a log of events and the time they occurred while the user is
 * complete_sign_up.resend - A verification email was resent after an expired link was opened.
 * error.complete_sign_up.auth.1025 - User clicked on an expired verification link.
 * error.complete_sign_up.auth.1026 - User clicked on a damaged verification link.
+* error.complete_sign_up.auth.1040 - User tried to verify an account that does not exist.
 
 #### confirm
 

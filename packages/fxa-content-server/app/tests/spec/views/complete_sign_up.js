@@ -275,7 +275,7 @@ define(function (require, exports, module) {
           });
 
           it('displays the verification link expired screen', function () {
-            testErrorLogged(AuthErrors.toError('EXPIRED_VERIFICATION_LINK'));
+            testErrorLogged(AuthErrors.toError('UNKNOWN_ACCOUNT_VERIFICATION'));
           });
 
           it('displays a resend link', function () {
@@ -297,7 +297,7 @@ define(function (require, exports, module) {
           });
 
           it('displays the link expired screen', function () {
-            testErrorLogged(AuthErrors.toError('EXPIRED_VERIFICATION_LINK'));
+            testErrorLogged(AuthErrors.toError('UNKNOWN_ACCOUNT_VERIFICATION'));
           });
 
           it('does not display a resend link', function () {
