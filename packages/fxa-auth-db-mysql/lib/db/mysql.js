@@ -498,9 +498,9 @@ module.exports = function (log, error) {
     return this.write(DELETE_ACCOUNT, [uid])
   }
 
-  // Delete : sessionTokens, unverifiedTokens
+  // Delete : sessionTokens, unverifiedTokens, devices
   // Where  : tokenId = $1
-  var DELETE_SESSION_TOKEN = 'CALL deleteSessionToken_2(?)'
+  var DELETE_SESSION_TOKEN = 'CALL deleteSessionToken_3(?)'
 
   MySql.prototype.deleteSessionToken = function (tokenId) {
     return this.write(DELETE_SESSION_TOKEN, [tokenId])

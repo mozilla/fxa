@@ -219,7 +219,7 @@ module.exports = function(config, DB) {
         test(
           'session token handling',
           function (t) {
-            t.plan(111)
+            t.plan(113)
 
             var VERIFIED_SESSION_TOKEN_ID = hex32()
             var UNVERIFIED_SESSION_TOKEN_ID = hex32()
@@ -235,6 +235,7 @@ module.exports = function(config, DB) {
               mustVerify: false,
               tokenVerificationId: hex16()
             }
+            var DEVICE_ID = newUuid()
 
             // Fetch all of the sessions tokens for the account
             return db.sessions(ACCOUNT.uid)
@@ -462,6 +463,18 @@ module.exports = function(config, DB) {
                 return db.createSessionToken(UNVERIFIED_SESSION_TOKEN_ID, UNVERIFIED_SESSION_TOKEN)
               })
               .then(function(results) {
+                // Create a device
+                return db.createDevice(ACCOUNT.uid, DEVICE_ID, {
+                  sessionTokenId: SESSION_TOKEN_ID
+                })
+              })
+              .then(function() {
+                // Fetch devices for the account
+                return db.accountDevices(ACCOUNT.uid)
+              })
+              .then(function(results) {
+                t.equal(results.length, 1, 'Account has one device')
+
                 // Delete all three session tokens
                 return P.all([
                   db.deleteSessionToken(SESSION_TOKEN_ID),
@@ -474,6 +487,12 @@ module.exports = function(config, DB) {
                 results.forEach(function (result) {
                   t.deepEqual(result, {}, 'Returned an empty object on forgot session token deletion')
                 })
+
+                // Fetch devices for the account
+                return db.accountDevices(ACCOUNT.uid)
+              })
+              .then(function(results) {
+                t.equal(results.length, 0, 'Account has no devices')
 
                 // Attempt to verify deleted unverified session token
                 return db.verifyTokens(UNVERIFIED_SESSION_TOKEN.tokenVerificationId, { uid: ACCOUNT.uid })

@@ -183,7 +183,8 @@ EXCEPTION TO NOTES: currently the backend sets `verifierSetAt` to be `Date.now()
 
 ## .deleteAccount(uid) ##
 
-Deletes the account specified by `uid` and deletes all tokens related to this account.
+Deletes the account specified by `uid`
+and all tokens and devices related to this account.
 
 Parameters:
 
@@ -341,6 +342,13 @@ These fields are represented as
 ### .deleteAccountResetToken(tokenId) ###
 
 Will delete the token of the correct type designated by the given `tokenId`.
+For `sessionTokens`,
+associated records in `devices` and `unverifiedTokens`
+will also be deleted.
+For `keyFetchTokens`,
+associated records in `unverifiedTokens`
+will also be deleted.
+
 
 ## .updateSessionToken(tokenId, token) ##
 

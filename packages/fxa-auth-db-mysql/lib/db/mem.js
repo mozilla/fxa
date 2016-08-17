@@ -271,11 +271,31 @@ module.exports = function (log, error) {
 
   Memory.prototype.deleteSessionToken = function (tokenId) {
     tokenId = tokenId.toString('hex')
+    var sessionToken = sessionTokens[tokenId]
 
-    delete unverifiedTokens[tokenId]
-    delete sessionTokens[tokenId]
+    return P.resolve()
+      .then(function () {
+        if (sessionToken) {
+          return getAccountByUid(sessionToken.uid)
+            .then(function (account) {
+              var devices = account.devices
 
-    return P.resolve({})
+              Object.keys(devices).forEach(function (key) {
+                var sessionTokenId = devices[key].sessionTokenId
+
+                if (sessionTokenId && sessionTokenId.toString('hex') === tokenId) {
+                  delete devices[key]
+                }
+              })
+            })
+        }
+      })
+      .then(function () {
+        delete unverifiedTokens[tokenId]
+        delete sessionTokens[tokenId]
+
+        return {}
+      })
   }
 
   Memory.prototype.deleteKeyFetchToken = function (tokenId) {
