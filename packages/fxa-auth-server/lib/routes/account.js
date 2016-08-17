@@ -555,7 +555,7 @@ module.exports = function (
                       ip: ip,
                       location: geoData.location,
                       timeZone: geoData.timeZone
-                    }, request.headers['user-agent'])
+                    }, request.headers['user-agent'], log)
                   )
                 }
               )
@@ -584,7 +584,7 @@ module.exports = function (
                       resume: resume,
                       service: service,
                       timeZone: geoData.timeZone
-                    }, request.headers['user-agent'])
+                    }, request.headers['user-agent'], log)
                   )
                 }
               )
@@ -1213,7 +1213,7 @@ module.exports = function (
               redirectTo: request.payload.redirectTo,
               resume: request.payload.resume,
               acceptLanguage: request.app.acceptLanguage
-            }, request.headers['user-agent'])
+            }, request.headers['user-agent'], log)
           ))
           .done(
             function () {
