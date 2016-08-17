@@ -76,7 +76,6 @@ require.config({
     fxaClient: '../bower_components/fxa-js-client/fxa-client',
     jquery: '../bower_components/jquery/dist/jquery',
     'jquery-simulate': '../bower_components/jquery-simulate/jquery.simulate',
-    'jquery-timeago': '../bower_components/jquery-timeago/jquery.timeago',
     // jwcrypto is used by the main app and only contains DSA
     // jwcrypto.rs is used by the unit tests to unbundle and verify
     // assertions, which require RSA.

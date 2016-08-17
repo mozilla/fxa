@@ -119,6 +119,8 @@ define(function (require, exports, module) {
         return setupReRenderTest(function () {
           devices.add({
             id: 'device-3',
+            lastAccessTime: Date.now(),
+            lastAccessTimeFormatted: 'a few seconds ago',
             name: 'delta'
           });
         });
@@ -129,7 +131,7 @@ define(function (require, exports, module) {
         assert.include(view.$('#device-3 .device-name').text().trim(), 'delta');
         assert.include(view.$('#device-3 .device-name').attr('title'), 'delta', 'the title attr is correct');
         assert.isTrue(view.$('#device-3 .last-connected').text().trim().indexOf('Last active:') === 0, 'formats last active string');
-        assert.isTrue(view.$('#device-3 .last-connected').text().trim().indexOf('years ago') >= 0, 'formats connected date');
+        assert.isTrue(view.$('#device-3 .last-connected').text().trim().indexOf('a few seconds ago') >= 0, 'formats connected date');
       });
     });
 

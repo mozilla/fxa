@@ -7,13 +7,13 @@ define(function (require, exports, module) {
 
   var _ = require('underscore');
   var $ = require('jquery');
-  require('jquery-timeago');
   var Cocktail = require('cocktail');
   var Devices = require('models/devices');
   var FormView = require('views/form');
   var preventDefaultThen = require('views/base').preventDefaultThen;
   var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
   var SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
+  var Strings = require('lib/strings');
   var t = require('views/base').t;
   var Template = require('stache!templates/settings/devices');
   var Url = require('lib/url');
@@ -25,31 +25,6 @@ define(function (require, exports, module) {
   var FIREFOX_ANDROID_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/android/' + UTM_PARAMS;
   var FIREFOX_IOS_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/ios/' +  UTM_PARAMS;
   var FORCE_DEVICE_LIST_VIEW = 'forceDeviceList';
-  var TIMEAGO_DAYS = t('Last active: days ago');
-  var TIMEAGO_HOURS = t('Last active: hours ago');
-  var TIMEAGO_MINUTES = t('Last active: minutes ago');
-  var TIMEAGO_MONTHS = t('Last active: months ago');
-  var TIMEAGO_SECONDS = t('Last active: seconds ago');
-  var TIMEAGO_SUFFIX = '';
-  var TIMEAGO_WEEKS = t('Last active: weeks ago');
-  var TIMEAGO_YEARS = t('Last active: years ago');
-
-  _.extend($.timeago.settings.strings, {
-    day: TIMEAGO_DAYS,
-    days: TIMEAGO_DAYS,
-    hour: TIMEAGO_HOURS,
-    hours: TIMEAGO_HOURS,
-    minute: TIMEAGO_MINUTES,
-    minutes: TIMEAGO_MINUTES,
-    month: TIMEAGO_MONTHS,
-    months: TIMEAGO_MONTHS,
-    seconds: TIMEAGO_SECONDS,
-    suffixAgo: TIMEAGO_SUFFIX,
-    week: TIMEAGO_WEEKS,
-    weeks: TIMEAGO_WEEKS,
-    year: TIMEAGO_YEARS,
-    years: TIMEAGO_YEARS
-  });
 
   var View = FormView.extend({
     template: Template,
@@ -75,7 +50,13 @@ define(function (require, exports, module) {
 
     _formatDevicesList: function (devices) {
       return _.map(devices, function (device) {
-        device.lastAccessTime = $.timeago(Number(device.lastAccessTime));
+        if (device.lastAccessTimeFormatted) {
+          device.lastAccessTime = Strings.interpolate(
+            t('Last active: %(translatedTimeAgo)s'), { translatedTimeAgo: device.lastAccessTimeFormatted });
+        } else {
+          // unknown lastAccessTime or not possible to format.
+          device.lastAccessTime = '';
+        }
         return device;
       });
     },

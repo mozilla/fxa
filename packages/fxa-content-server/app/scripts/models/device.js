@@ -16,6 +16,7 @@ define(function (require, exports, module) {
       id: null,
       isCurrentDevice: null,
       lastAccessTime: null,
+      lastAccessTimeFormatted: null,
       name: null,
       type: null
     },
