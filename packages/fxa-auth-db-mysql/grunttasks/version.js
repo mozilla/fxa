@@ -5,13 +5,9 @@
 //
 // A task to stamp a new version.
 //
-// Before running this task you should update CHANGELOG with the
-// changes for this release. Protip: you only need to make changes
-// to CHANGELOG; this task will add and commit for you.
-//
 // * version is updated in package.json
 // * git tag with version name is created.
-// * git commit with updated package.json created.
+// * git commit with updated package.json and CHANGELOG.md created.
 //
 // NOTE: This task will not push this commit for you.
 //
@@ -21,11 +17,13 @@ module.exports = function (grunt) {
 
   grunt.registerTask('version', [
     'bump-only:minor',
+    'conventionalChangelog:release',
     'bump-commit'
   ])
 
   grunt.registerTask('version:patch', [
     'bump-only:patch',
+    'conventionalChangelog:release',
     'bump-commit'
   ])
 }
