@@ -46,6 +46,10 @@ module.exports = function (
   var validatePushPayload = ajv.compile(schema)
   var verificationReminder = require('../verification-reminders')(log, db)
   var getGeoData = require('../geodb')(log)
+  var localizeTimestamp = require('fxa-shared').l10n.localizeTimestamp({
+    supportedLanguages: config.i18n.supportedLanguages,
+    defaultLanguage: config.i18n.defaultLanguage
+  })
 
   var routes = [
     {
@@ -979,6 +983,7 @@ module.exports = function (
             id: isA.string().length(32).regex(HEX_STRING).required(),
             isCurrentDevice: isA.boolean().required(),
             lastAccessTime: isA.number().min(0).required().allow(null),
+            lastAccessTimeFormatted: isA.string().optional().allow(''),
             // We previously allowed devices to register with arbitrary unicode names,
             // so we can't assert DISPLAY_SAFE_UNICODE in the response schema.
             name: isA.string().max(255).required().allow(''),
@@ -1006,6 +1011,9 @@ module.exports = function (
 
               device.isCurrentDevice =
                 device.sessionToken.toString('hex') === sessionToken.tokenId.toString('hex')
+
+              device.lastAccessTimeFormatted = localizeTimestamp.format(device.lastAccessTime,
+                request.headers['accept-language'])
 
               delete device.sessionToken
               delete device.uaBrowser

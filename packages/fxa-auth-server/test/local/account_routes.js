@@ -30,6 +30,10 @@ var makeRoutes = function (options, requireMocks) {
     idle: 500,
     lifetime: 30
   }
+  config.i18n = {
+    supportedLanguages: ['en'],
+    defaultLanguage: 'en'
+  }
 
   var log = options.log || mocks.mockLog()
   var Password = options.Password || require('../../lib/crypto/password')(log, config)

@@ -344,6 +344,8 @@ TestServer.start(config)
               function (devices) {
                 t.equal(devices.length, 1, 'devices returned one item')
                 t.strictEqual(devices[0].lastAccessTime, 0, 'devices returned correct lastAccessTime')
+                t.strictEqual(devices[0].lastAccessTimeFormatted, '',
+                  'devices returned empty lastAccessTimeFormatted because lastAccesstime is 0')
                 t.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
                 t.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
                 return client.destroyDevice(devices[0].id)
@@ -378,6 +380,8 @@ TestServer.start(config)
               function (devices) {
                 t.equal(devices.length, 1, 'devices returned one item')
                 t.ok(devices[0].lastAccessTime > 0, 'devices returned correct lastAccessTime')
+                t.strictEqual(devices[0].lastAccessTimeFormatted, 'a few seconds ago',
+                  'devices returned correct lastAccessTimeFormatted')
                 t.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
                 t.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
                 return client.destroyDevice(devices[0].id)
@@ -414,6 +418,8 @@ TestServer.start(config)
                 t.equal(devices.length, 1, 'devices returned one item')
                 t.ok(devices[0].lastAccessTime > 0, 'devices returned correct lastAccessTime')
                 t.ok(devices[0].lastAccessTime < theFuture, 'devices returned correct lastAccessTime')
+                t.strictEqual(devices[0].lastAccessTimeFormatted, 'a few seconds ago',
+                  'devices returned correct lastAccessTimeFormatted')
                 t.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
                 t.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
                 return client.destroyDevice(devices[0].id)
