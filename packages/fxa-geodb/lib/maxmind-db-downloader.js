@@ -20,11 +20,14 @@ mozlog.config({
 });
 var log = mozlog();
 var isTestEnv = (process.env.NODE_ENV === 'test') || process.env.CI;
+var isLogQuiet = (process.env.LOG === 'quiet');
+
 var logHelper = function (type, message) {
   'use strict';
 
   // log only if not in a test environment
-  if (! isTestEnv) {
+  // and if logs are not quiet
+  if (! isTestEnv && ! isLogQuiet) {
     log[type](message);
   }
 };
