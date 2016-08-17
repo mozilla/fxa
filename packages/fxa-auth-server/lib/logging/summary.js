@@ -4,7 +4,20 @@
 
 const logger = require('./')('summary');
 
+function parsePayload(payload) {
+  var payloadKeys = ['INVALID_PAYLOAD_OBJECT'];
+  try {
+    // given payload object might not be a valid object
+    // See issue #410
+    payloadKeys = Object.keys(payload);
+  } catch (e) {
+    // failed to parse payload keys.
+  }
+  return payloadKeys;
+}
+
 module.exports = function summary(request, response) {
+  /*eslint complexity: [2, 11] */
   if (request.method === 'options') {
     return;
   }
@@ -17,6 +30,7 @@ module.exports = function summary(request, response) {
     scope: request.auth.credentials.scope
   };
 
+
   var line = {
     code: response.isBoom ? response.output.statusCode : response.statusCode,
     errno: response.errno || 0,
@@ -26,7 +40,7 @@ module.exports = function summary(request, response) {
     t: Date.now() - request.info.received,
     client_id: payload.client_id || query.client_id || params.client_id,
     auth: auth,
-    payload: Object.keys(payload)
+    payload: parsePayload(payload)
   };
 
   if (line.code >= 500) {
