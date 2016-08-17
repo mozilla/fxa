@@ -34,7 +34,7 @@ define([
     'tests/functional/robots_txt',
     'tests/functional/settings',
     'tests/functional/settings_common',
-    'tests/functional/settings_devices',
+    'tests/functional/settings_clients',
     'tests/functional/sync_settings',
     'tests/functional/change_password',
     'tests/functional/force_auth',

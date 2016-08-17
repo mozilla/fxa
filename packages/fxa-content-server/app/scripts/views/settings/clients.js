@@ -15,7 +15,7 @@ define(function (require, exports, module) {
   var SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
   var Strings = require('lib/strings');
   var t = require('views/base').t;
-  var Template = require('stache!templates/settings/devices');
+  var Template = require('stache!templates/settings/clients');
   var Url = require('lib/url');
 
   var DEVICE_REMOVED_ANIMATION_MS = 150;
@@ -25,6 +25,7 @@ define(function (require, exports, module) {
   var FIREFOX_ANDROID_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/android/' + UTM_PARAMS;
   var FIREFOX_IOS_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/ios/' +  UTM_PARAMS;
   var FORCE_DEVICE_LIST_VIEW = 'forceDeviceList';
+  var FORCE_APPS_LIST_VIEW = 'forceAppsList';
 
   var View = FormView.extend({
     template: Template,
@@ -63,6 +64,8 @@ define(function (require, exports, module) {
 
     context: function () {
       return {
+        clientsPanelManageString: this._getManageString(),
+        clientsPanelTitle: this._getPanelTitle(),
         devices: this._formatDevicesList(this._devices.toJSON()),
         devicesSupportUrl: DEVICES_SUPPORT_URL,
         isPanelEnabled: this._isPanelEnabled(),
@@ -76,13 +79,39 @@ define(function (require, exports, module) {
     },
 
     events: {
-      'click .device-disconnect': preventDefaultThen('_onDisconnectDevice'),
-      'click .devices-refresh': preventDefaultThen('_onRefreshDeviceList')
+      'click .clients-refresh': preventDefaultThen('_onRefreshDeviceList'),
+      'click .device-disconnect': preventDefaultThen('_onDisconnectDevice')
     },
 
     _isPanelEnabled: function () {
       return this._able.choose('deviceListVisible', {
         forceDeviceList: Url.searchParam(FORCE_DEVICE_LIST_VIEW, this.window.location.search)
+      });
+    },
+
+    _getPanelTitle: function () {
+      var title = t('Devices');
+
+      if (this._isAppsListVisible()) {
+        title = t('Devices & apps');
+      }
+
+      return title;
+    },
+
+    _getManageString: function () {
+      var title = t('You can manage your devices below.');
+
+      if (this._isAppsListVisible()) {
+        title = t('You can manage your devices and apps below.');
+      }
+
+      return title;
+    },
+
+    _isAppsListVisible: function () {
+      return this._able.choose('appsListVisible', {
+        forceAppsList: Url.searchParam(FORCE_APPS_LIST_VIEW, this.window.location.search)
       });
     },
 

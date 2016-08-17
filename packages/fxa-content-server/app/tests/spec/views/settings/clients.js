@@ -15,9 +15,9 @@ define(function (require, exports, module) {
   var p = require('lib/promise');
   var sinon = require('sinon');
   var User = require('models/user');
-  var View = require('views/settings/devices');
+  var View = require('views/settings/clients');
 
-  describe('views/settings/devices', function () {
+  describe('views/settings/clients', function () {
     var devices;
     var notifier;
     var parentView;
@@ -112,6 +112,14 @@ define(function (require, exports, module) {
       it('renders devices already in the collection', function () {
         assert.ok(view.$('li.device').length, 2);
       });
+
+      it('renders devices and apps if apps view enabled', function () {
+        sinon.stub(view, '_isAppsListVisible', function () {
+          return true;
+        });
+        assert.equal(view.$('#devices .settings-unit-title').text().trim(), 'Devices & apps');
+        assert.ok(view.$('#devices').text().trim().indexOf('manage your devices and apps below'));
+      });
     });
 
     describe('device added to collection', function () {
@@ -204,7 +212,7 @@ define(function (require, exports, module) {
           return p();
         });
 
-        $('.devices-refresh').click();
+        $('.clients-refresh').click();
         setTimeout(function () {
           // render delayed by device request promises
           assert.isTrue(view.render.called);
@@ -222,7 +230,7 @@ define(function (require, exports, module) {
           return p();
         });
 
-        $('.devices-refresh').click();
+        $('.clients-refresh').click();
         assert.isTrue(view._fetchDevices.called);
       });
 

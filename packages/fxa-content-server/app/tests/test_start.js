@@ -165,7 +165,7 @@ function (Translator, Session) {
     '../tests/spec/views/settings/change_password',
     '../tests/spec/views/settings/communication_preferences',
     '../tests/spec/views/settings/delete_account',
-    '../tests/spec/views/settings/devices',
+    '../tests/spec/views/settings/clients',
     '../tests/spec/views/settings/display_name',
     '../tests/spec/views/settings/gravatar_permissions',
     '../tests/spec/views/sign_in',

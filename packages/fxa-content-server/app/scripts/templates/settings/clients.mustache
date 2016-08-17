@@ -2,10 +2,10 @@
 <div id="devices" class="settings-unit {{#isPanelOpen}}open{{/isPanelOpen}}">
   <div class="settings-unit-stub">
     <header class="settings-unit-summary">
-      <h2 class="settings-unit-title">{{#t}}Devices{{/t}}</h2>
+      <h2 class="settings-unit-title">{{clientsPanelTitle}}</h2>
     </header>
     <button class="settings-button secondary settings-unit-toggle hidden"
-      data-href="settings/devices">
+      data-href="settings/clients">
       {{#t}}Show{{/t}}
     </button>
   </div>
@@ -15,7 +15,7 @@
 
     <form novalidate>
       {{#t}}Firefox is available for <a href="%(linkWindows)s">Windows</a>, <a href="%(linkOSX)s">OS X</a>, <a href="%(linkAndroid)s">Android</a>, <a href="%(linkIOS)s">iOS</a> and <a href="%(linkLinux)s">Linux</a>.{{/t}}
-      {{#t}}You can manage your devices below.{{/t}}
+      {{clientsPanelManageString}}
       <ul class="device-list button-row">
         {{#devices}}
           <li class="device {{type}}" id="{{id}}">
@@ -33,7 +33,7 @@
       </ul>
 
       <div class="button-row">
-        <button type="submit" class="settings-button primary devices-refresh">{{#t}}Refresh{{/t}}</button>
+        <button type="submit" class="settings-button primary clients-refresh">{{#t}}Refresh{{/t}}</button>
         <button class="settings-button secondary cancel">{{#t}}Done{{/t}}</button>
       </div>
     </form>

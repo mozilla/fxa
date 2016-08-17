@@ -29,7 +29,7 @@ define([
   var accountData;
 
   registerSuite({
-    name: 'settings devices',
+    name: 'settings clients',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
@@ -78,7 +78,7 @@ define([
           .click()
         .end()
 
-        .findByCssSelector('.devices-refresh')
+        .findByCssSelector('.clients-refresh')
           .click()
         .end()
 
@@ -95,7 +95,7 @@ define([
           testDeviceId = device.id;
         })
 
-        .findByCssSelector('.devices-refresh')
+        .findByCssSelector('.clients-refresh')
           .click()
         .end()
 
@@ -120,7 +120,7 @@ define([
           );
         })
 
-        .findByCssSelector('.devices-refresh')
+        .findByCssSelector('.clients-refresh')
           .click()
         .end()
 
@@ -152,7 +152,7 @@ define([
         )
 
         // external update should show in the device list
-        .findByCssSelector('.devices-refresh')
+        .findByCssSelector('.clients-refresh')
           .click()
         .end()
 
@@ -189,7 +189,7 @@ define([
           return numberOfDevices === 1 ? true : null;
         }, [ TEST_DEVICE_NAME_UPDATED ], 10000))
 
-        .findByCssSelector('.devices-refresh')
+        .findByCssSelector('.clients-refresh')
           .click()
         .end()
 
