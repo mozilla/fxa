@@ -122,6 +122,7 @@ if (count > 0) {
     }
   }).catch(function (err) {
     log.error(err.stack || err.message || err)
+    process.exit()
   })
 } else {
   throw new Error('Invalid argument')
