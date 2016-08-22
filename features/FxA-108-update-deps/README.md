@@ -4,12 +4,15 @@
 
 ## Problem Summary
 
+It's hard for us to respond to security issues in our dependencies in a timely manner.
+
 This feature milestone deals with the following problems:
 
 * Problem 1: Outdated node modules in FxA code repositories.
 * Problem 2: Outdated version of node.js.
 * Problem 3: Late response to security issues reported by NSP (Node Security Project).
 * Problem 4: Some repositories are not covered by the NSP scanner.
+
 
 ****
 
@@ -19,16 +22,16 @@ Success criteria to fix the problems listed in the problem summary:
 
 * Update to latest major versions of core server dependencies.
 * Production stack running with node 4. Migrated from node 0.10.
-* Being able to receive notifications latest security alerts within a day of a reported issue for all FxA node.js-based repositories.
+* Being able to receive notifications of latest security alerts within a day of a reported issue for all FxA node.js-based repositories.
 
 ## Hypothesis
 
 For problems [3] and [4]:
 
 We believe that building a nightly reporter based on a CI service
-for FxA developers will help react to NSP alerts and dependency changes in a more efficient manner.
+for all FxA node.js repositories will help us stay informed about security alerts.
 
-We will know this is true when we see a more effective response to security alerts.
+We will know this is true when we see better notifications from this NSP CI service.
 
 ****
 
