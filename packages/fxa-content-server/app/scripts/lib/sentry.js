@@ -26,6 +26,13 @@ define(function (require, exports, module) {
     'verification_redirect'
   ];
 
+  // last error that Sentry sent
+  // stored in the global state due to
+  // callback options and multiple Sentry interfaces
+  var SAME_ERROR_LIMIT = 10;
+  var SAME_ERROR_ATTEMPTS = 0;
+  var PREVIOUS_ERROR = null;
+
   /**
    * function that gets called before data gets sent to error metrics
    *
@@ -68,6 +75,31 @@ define(function (require, exports, module) {
     }
 
     return data;
+  }
+
+  /**
+   * Determines if the error message should be sent
+   * Source: github.com/getsentry/raven-js/blob/0184ca3bc7624be0fb0b093d9a96becc424bc9b5/src/raven.js
+   *
+   * @param {Object} data Error message data
+   * @returns {Boolean} true if message should be sent.
+   */
+  function shouldSendCallback(data) {
+    if (data && data.message) {
+      var sameError = data.message === PREVIOUS_ERROR;
+      if (sameError) {
+        SAME_ERROR_ATTEMPTS++;
+      } else {
+        SAME_ERROR_ATTEMPTS = 0;
+      }
+      if (SAME_ERROR_LIMIT === SAME_ERROR_ATTEMPTS) {
+        return false;
+      }
+      PREVIOUS_ERROR = data.message;
+      return true;
+    }
+
+    return true;
   }
 
   /**
@@ -147,7 +179,8 @@ define(function (require, exports, module) {
      * See https://raven-js.readthedocs.org/en/latest/config/index.html#optional-settings
      */
     _ravenOpts: {
-      dataCallback: beforeSend
+      dataCallback: beforeSend,
+      shouldSendCallback: shouldSendCallback
     },
 
     /**
@@ -193,7 +226,8 @@ define(function (require, exports, module) {
     },
     // Private functions, exposed for testing
     __beforeSend: beforeSend,
-    __cleanUpQueryParam: cleanUpQueryParam
+    __cleanUpQueryParam: cleanUpQueryParam,
+    __shouldSendCallback: shouldSendCallback
   };
 
   module.exports = SentryMetrics;

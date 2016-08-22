@@ -262,6 +262,19 @@ define(function (require, exports, module) {
         sandbox.restore();
       });
     });
+
+    describe('shouldSendCallback', function () {
+      it('sends error when there is no previous error', function () {
+        var sentry = new SentryMetrics(host);
+        assert.isTrue(sentry.__shouldSendCallback(), 'empty object');
+        assert.isTrue(sentry.__shouldSendCallback({}), 'empty message');
+        for (var x = 0; x < 10; x++) {
+          assert.isTrue(sentry.__shouldSendCallback({ message: '1'}), 'same error ' + x);
+        }
+        assert.isFalse(sentry.__shouldSendCallback({ message: '1'}), 'same error limited');
+        assert.isTrue(sentry.__shouldSendCallback({ message: '2'}), 'different error');
+      });
+    });
   });
 
 });
