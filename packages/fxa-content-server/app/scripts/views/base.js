@@ -348,7 +348,7 @@ define(function (require, exports, module) {
     /**
      * Create a function that can be used by Mustache
      * to translate a string. Useful for translate a string
-     * for use in the template, which iteself depends on
+     * for use in the template, which itself depends on
      * this.getContext(). This function avoids
      * infinite recursion.
      *

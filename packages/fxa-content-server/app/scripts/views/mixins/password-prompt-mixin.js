@@ -41,12 +41,12 @@ define(function (require, exports, module) {
     },
 
     displayPasswordInitialPrompt: function (inputEl) {
-      this.$el.find(inputEl).siblings(INPUT_HELP_FOCUSED).html(TOOLTIP_MESSAGES.INITIAL_PROMPT_MESSAGE);
+      this.$el.find(inputEl).siblings(INPUT_HELP_FOCUSED).html(this.translate(TOOLTIP_MESSAGES.INITIAL_PROMPT_MESSAGE));
       this._logPromptExperimentEvent('INITIAL_PROMPT_MESSAGE');
     },
 
     displayPasswordFocusPrompt: function (inputEl) {
-      this.$el.find(inputEl).siblings(INPUT_HELP_FOCUSED).html(TOOLTIP_MESSAGES.FOCUS_PROMPT_MESSAGE);
+      this.$el.find(inputEl).siblings(INPUT_HELP_FOCUSED).html(this.translate(TOOLTIP_MESSAGES.FOCUS_PROMPT_MESSAGE));
       this._logPromptExperimentEvent('FOCUS_PROMPT_MESSAGE');
     },
 
@@ -55,6 +55,8 @@ define(function (require, exports, module) {
       if (this._isEnglishLocale()) {
         promptContent = TOOLTIP_MESSAGES.WARNING_PROMPT_MESSAGE_WITH_LINK;
       }
+
+      promptContent = this.translate(promptContent);
 
       const tooltip = new Tooltip({
         dismissible: false,
