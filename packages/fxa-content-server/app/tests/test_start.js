@@ -163,14 +163,15 @@ function (Translator, Session) {
     '../tests/spec/views/settings/avatar_crop',
     '../tests/spec/views/settings/avatar_gravatar',
     '../tests/spec/views/settings/change_password',
+    '../tests/spec/views/settings/clients',
     '../tests/spec/views/settings/communication_preferences',
     '../tests/spec/views/settings/delete_account',
-    '../tests/spec/views/settings/clients',
     '../tests/spec/views/settings/display_name',
     '../tests/spec/views/settings/gravatar_permissions',
     '../tests/spec/views/sign_in',
     '../tests/spec/views/sign_up',
     '../tests/spec/views/sub_panels',
+    '../tests/spec/views/support/create_secure_password',
     '../tests/spec/views/tooltip',
     '../tests/spec/views/tos'
   ];

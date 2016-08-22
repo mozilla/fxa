@@ -143,6 +143,7 @@ module.exports = function (config, i18n) {
       '/signup',
       '/signup_complete',
       '/signup_permissions',
+      '/support/create_secure_password',
       '/verify_email'
     ];
 

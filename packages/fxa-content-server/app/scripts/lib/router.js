@@ -12,6 +12,7 @@ define(function (require, exports, module) {
   var AvatarGravatarView = require('../views/settings/avatar_gravatar');
   var Backbone = require('backbone');
   var CannotCreateAccountView = require('../views/cannot_create_account');
+  var SupportCreateSecurePasswordView = require('../views/support/create_secure_password');
   var VerificationReasons = require('lib/verification-reasons');
   var ChangePasswordView = require('../views/settings/change_password');
   var ChooseWhatToSyncView = require('../views/choose_what_to_sync');
@@ -95,6 +96,7 @@ define(function (require, exports, module) {
       'signup(/)': createViewHandler(SignUpView),
       'signup_complete(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_UP }),
       'signup_permissions(/)': createViewHandler(PermissionsView, { type: VerificationReasons.SIGN_UP }),
+      'support/create_secure_password(/)': createViewHandler(SupportCreateSecurePasswordView),
       'verify_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SIGN_UP })
     },
 

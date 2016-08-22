@@ -103,10 +103,12 @@ define(function (require, exports, module) {
         sinon.stub(view, 'checkPasswordStrength', function (password) {
           view.displayPasswordWarningPrompt();
         });
+        view.language = 'en-rr';
         view.onPasswordBlur();
         // wait for tooltip
         setTimeout(function () {
           assert.equal(view.$(TOOLTIP_SELECTOR).length, 1);
+          assert.equal(view.$(TOOLTIP_SELECTOR + '> a').length, 1, 'has a link');
           done();
         }, 50);
       });
@@ -124,6 +126,24 @@ define(function (require, exports, module) {
           done();
         }, 50);
       });
+
+      it('tooltip has no link for non-english locales', function (done) {
+        var password = 'charlie2';
+        view.$(PasswordPromptMixin.CHECK_PASSWORD_FIELD_SELECTOR).val(password);
+        sinon.stub(view, 'checkPasswordStrength', function (password) {
+          view.displayPasswordWarningPrompt();
+        });
+        sinon.stub(view, '_isEnglishLocale', function () {
+          return false;
+        });
+        view.onPasswordBlur();
+        // wait for tooltip
+        setTimeout(function () {
+          assert.equal(view.$(TOOLTIP_SELECTOR + '> a').length, 0, 'does not have a link');
+          done();
+        }, 50);
+      });
+
     });
 
   });

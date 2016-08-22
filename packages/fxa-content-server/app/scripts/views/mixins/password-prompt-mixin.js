@@ -10,20 +10,25 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseView = require('views/base');
-  var t = BaseView.t;
+  const BaseView = require('views/base');
+  const t = BaseView.t;
+  const Strings = require('lib/strings');
 
-  var Tooltip = require('views/tooltip');
+  const Tooltip = require('views/tooltip');
 
-  var CHECK_PASSWORD_FIELD_SELECTOR = '.check-password';
-  var INPUT_HELP_FOCUSED = '.input-help-focused';
-  var TOOLTIP_MESSAGES = {
+  // this link is not suitable for L10N and should be available in only `en` locales.
+  const MORE_INFO_LINK = '<a href="/support/create_secure_password">Need inspiration?</a>';
+  const CHECK_PASSWORD_FIELD_SELECTOR = '.check-password';
+  const INPUT_HELP_FOCUSED = '.input-help-focused';
+  const TOOLTIP_MESSAGES = {
     FOCUS_PROMPT_MESSAGE: t('8 characters minimum, but longer if you plan to sync passwords.'),
     INITIAL_PROMPT_MESSAGE: t('A strong, unique password will keep your Firefox data safe from intruders.'),
-    WARNING_PROMPT_MESSAGE: t('This is a common password; please consider another one.')
+    WARNING_PROMPT_MESSAGE: t('This is a common password; please consider another one.'),
+    WARNING_PROMPT_MESSAGE_WITH_LINK: Strings.interpolate(
+      t('This is a common password; please consider another one. %(moreInfoLink)s'), { moreInfoLink: MORE_INFO_LINK })
   };
 
-  var PasswordPromptMixin = {
+  const PasswordPromptMixin = {
     // only the .check-password fields will be checked
     events: {
       'blur .check-password': 'onPasswordBlur',
@@ -46,18 +51,23 @@ define(function (require, exports, module) {
     },
 
     displayPasswordWarningPrompt: function () {
-      var tooltip = new Tooltip({
+      let promptContent = TOOLTIP_MESSAGES.WARNING_PROMPT_MESSAGE;
+      if (this._isEnglishLocale()) {
+        promptContent = TOOLTIP_MESSAGES.WARNING_PROMPT_MESSAGE_WITH_LINK;
+      }
+
+      const tooltip = new Tooltip({
         dismissible: false,
         extraClassNames: 'tooltip-suggest tooltip-warning',
         invalidEl: this.$el.find(CHECK_PASSWORD_FIELD_SELECTOR),
-        message: TOOLTIP_MESSAGES.WARNING_PROMPT_MESSAGE
+        message: promptContent
       });
       tooltip.render();
       this._logPromptExperimentEvent('WARNING_PROMPT_MESSAGE');
     },
 
     showPasswordPrompt: function (inputEl) {
-      var length = this.$el.find(inputEl).val().length;
+      const length = this.$el.find(inputEl).val().length;
       if (length === 0) {
         this.displayPasswordInitialPrompt(inputEl);
       } else {
@@ -74,13 +84,22 @@ define(function (require, exports, module) {
     },
 
     onPasswordBlur: function () {
-      var password = this.getElementValue(CHECK_PASSWORD_FIELD_SELECTOR);
+      const password = this.getElementValue(CHECK_PASSWORD_FIELD_SELECTOR);
       this.checkPasswordStrength(password);
     },
 
     _logPromptExperimentEvent: function (eventNameSuffix) {
-      var eventName = 'experiment.pw_prompt.' + eventNameSuffix.toLowerCase();
+      const eventName = 'experiment.pw_prompt.' + eventNameSuffix.toLowerCase();
       this.logViewEvent(eventName);
+    },
+
+    /**
+     * Determines if user is using an English locale.
+     * @returns {Boolean}
+     * @private
+     */
+    _isEnglishLocale: function () {
+      return !! (this.language && this.language.indexOf('en') === 0);
     },
 
     // Constants, exposed for testing

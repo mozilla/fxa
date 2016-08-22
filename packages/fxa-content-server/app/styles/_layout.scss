@@ -14,6 +14,10 @@
   &.panel {
     max-width: 750px;
     width: 96%;
+
+    .panel-text-content {
+      text-align: left;
+    }
   }
 
   @include respond-to('big') {

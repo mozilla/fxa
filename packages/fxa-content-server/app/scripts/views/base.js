@@ -128,6 +128,7 @@ define(function (require, exports, module) {
       this.sentryMetrics = options.sentryMetrics || Raven;
       this.childViews = [];
       this.user = options.user;
+      this.language = options.language;
       this.window = options.window || window;
       this.logger = new Logger(this.window);
 
