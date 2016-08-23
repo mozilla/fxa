@@ -195,7 +195,7 @@ module.exports = function(cfg, server) {
   test(
     'session token handling',
     function (t) {
-      t.plan(133)
+      t.plan(141)
       var user = fake.newUserDataHex()
       var verifiedUser = fake.newUserDataHex()
       delete verifiedUser.sessionToken.tokenVerificationId
@@ -455,6 +455,19 @@ module.exports = function(cfg, server) {
           t.equal(token.uaDeviceType, 'different device type', 'uaDeviceType was updated')
           t.equal(token.lastAccessTime, 42, 'lastAccessTime was updated')
 
+          // Create a device
+          return client.putThen('/account/' + user.accountId + '/device/' + user.deviceId, user.device)
+        })
+        .then(function(r) {
+          respOk(t, r)
+
+          // Fetch devices for the account
+          return client.getThen('/account/' + user.accountId + '/devices')
+        })
+        .then(function(r) {
+          respOk(t, r)
+          t.equal(r.obj.length, 1, 'account has one device')
+
           // Delete both session tokens
           return P.all([
             client.delThen('/sessionToken/' + user.sessionTokenId),
@@ -466,6 +479,13 @@ module.exports = function(cfg, server) {
           results.forEach(function (result) {
             respOk(t, result)
           })
+
+          // Fetch devices for the account
+          return client.getThen('/account/' + user.accountId + '/devices')
+        })
+        .then(function(r) {
+          respOk(t, r)
+          t.equal(r.obj.length, 0, 'account has no devices')
 
           // Fetch all of the session tokens for the account
           return client.getThen('/account/' + user.accountId + '/sessions')

@@ -962,6 +962,7 @@ Content-Length: 285
 
 This operation is idempotent. If you delete a `tokenId` twice, the same result occurs. In fact, if you delete a
 `tokenId` that doesn't exist, it also returns the same `200 OK` result (since it is already not there).
+Also deletes any device records associated with the session.
 
 ### Example
 
