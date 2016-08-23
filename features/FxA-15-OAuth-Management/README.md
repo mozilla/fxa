@@ -1,7 +1,7 @@
 Disconnect OAuth services from FxA
 ======================
 
-https://mozilla.aha.io/features/FXA-15
+https://github.com/mozilla/fxa-features/issues/20
 
 ## Problem Summary
 
@@ -20,9 +20,9 @@ See "Detailed Design" below for more details.
 
 ## Hypothesis
 
-We believe that by adding OAuth services and functionality to disconnect the services
-for Firefox Accounts users will improve the quality and security of FxA
-for everybody.
+Being able to disconnect the services from user settings
+will improve the quality and security of our service.
+This functionality is a core feature for services that provide OAuth relier login.
 We will know this is true when we see activity in the "Connected apps and devices"
 
 ## Metrics
@@ -39,25 +39,31 @@ the popularity of this feature.
 
 ## Detailed design
 
-<img src='pr_moz_mock.png' width='450' />
+<img src='pr_moz_mock.png' width='440' />
+
+The mock up above adds "apps" functionality to the
+[Devices View (FXA-89)](https://github.com/mozilla/fxa/pull/181/files).
 
 The initial OAuth apps list would
 revoke the non-expired tokens using the web UI.
 It will be displayed to logged in users of FxA
-in the "Connected apps and devices" settings view.
+in the "Devices & apps" settings view.
 This new functionality changes the current devices view and adds to it.
 
 The list will also include the sessions that were created
-for the Firefox Accounts website and the Firefox Desktop browser.
-This gives users full control over all of their sessions.
+for the Firefox Accounts website. Firefox Browser and Sync logins
+are treated as 'device clients' and are managed as 'Devices', not apps.
 
 * The dashboard will order the services by last login to a given service.
+* The OAuth servers calls the listed items "clients". To make it easier to understand
+we call them "apps" in the settings view.
 * The button to remove all active sessions will say "Disconnect". To match "devices".
 * The dashboard will provide a "last active" date in the same format as the devices view.
-* The dashboard's title in settings will be "Connected apps and devices".
+* The dashboard's title in settings will be "Connected devices & apps".
 * All services will have the same default service icon to improve the visual UX of the feature.
 * Revoking Access:
-  * OAuth service: will revoke all tokens belonging to a given OAuth service.
+  * OAuth service: will revoke all non-expired tokens belonging to a given OAuth service.
+  * Expired tokens are deleted by a different purpose. This feature does not deal with expired tokens.
   * FxA Settings (content-server): will invalidate all content-server tokens and local session token, log the user out.
     * The content-server will be called "Firefox Accounts Settings" in the dashboard.
   * Firefox Desktop and other browsers clients: will not be listed and their devices records would revoke their tokens.
