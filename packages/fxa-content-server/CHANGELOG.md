@@ -1,3 +1,49 @@
+<a name="0.68.0"></a>
+# 0.68.0 (2016-08-23)
+
+
+### Bug Fixes
+
+* **client:** Fix autofocus being called repeatedly on hidden settings panels. (#4043) r=vladi ([a541eca](https://github.com/mozilla/fxa-content-server/commit/a541eca)), closes [(#4043](https://github.com/(/issues/4043)
+* **css:** Remove right margin on settings (#4054) r=vladikoff ([5c4083c](https://github.com/mozilla/fxa-content-server/commit/5c4083c))
+* **deps:** update prod dependencies (#4034) ([6682ae2](https://github.com/mozilla/fxa-content-server/commit/6682ae2))
+* **l10n:** fix input type direction to match Gmail (#4070) r=vbudhram ([025ed91](https://github.com/mozilla/fxa-content-server/commit/025ed91)), closes [(#4070](https://github.com/(/issues/4070)
+* **l10n:** fix translations for the password warning (#4068) r=vbudhram ([ce88b84](https://github.com/mozilla/fxa-content-server/commit/ce88b84)), closes [(#4068](https://github.com/(/issues/4068)
+* **logging:** flow.begin is a flowEvent, not an activityEvent (#4051) r=vladikoff ([32fa116](https://github.com/mozilla/fxa-content-server/commit/32fa116))
+* **sentry:** do not send the same error more than once (#4066) r=vladikoff ([82b4e30](https://github.com/mozilla/fxa-content-server/commit/82b4e30)), closes [#4023](https://github.com/mozilla/fxa-content-server/issues/4023)
+* **sentry:** separate errors by errno, switch known errors to info level (#4074) ([d0b3828](https://github.com/mozilla/fxa-content-server/commit/d0b3828))
+* **signup:** add an error code for unknown account verifications (#4061) r=vbudhram ([46595e1](https://github.com/mozilla/fxa-content-server/commit/46595e1)), closes [#3989](https://github.com/mozilla/fxa-content-server/issues/3989)
+* **strings:** adjust support link for devices and apps (#4072) r=rfk ([4227c2d](https://github.com/mozilla/fxa-content-server/commit/4227c2d)), closes [#4067](https://github.com/mozilla/fxa-content-server/issues/4067)
+* **styles:** adjust property sort order to remove lint warnings ([b1e0bc0](https://github.com/mozilla/fxa-content-server/commit/b1e0bc0))
+* **styles:** bring back CWTS email field (#4063) ([a472bea](https://github.com/mozilla/fxa-content-server/commit/a472bea)), closes [#4062](https://github.com/mozilla/fxa-content-server/issues/4062)
+* **teamcity:** tests now require fxa-shared installed ([381fb20](https://github.com/mozilla/fxa-content-server/commit/381fb20))
+* **tests:** Add a helper function to close a window. (#4038) r=vladikoff ([7a7785e](https://github.com/mozilla/fxa-content-server/commit/7a7785e)), closes [(#4038](https://github.com/(/issues/4038)
+
+### chore
+
+* **tests:** disable auto update for test profiles ([27e2728](https://github.com/mozilla/fxa-content-server/commit/27e2728))
+* **travis:** retry nsp check on travis due to flaky api ([0ca0c5d](https://github.com/mozilla/fxa-content-server/commit/0ca0c5d))
+
+### Features
+
+* **experiments:** update latest experiments for train-68 (#4071) ([dfa8f84](https://github.com/mozilla/fxa-content-server/commit/dfa8f84))
+* **passwords:** add support article about password strength (#4014) r=vbudhram ([b6a3319](https://github.com/mozilla/fxa-content-server/commit/b6a3319)), closes [#3945](https://github.com/mozilla/fxa-content-server/issues/3945)
+* **settings:** escape key hides the current panel (#3845) r=vladikoff ([82c7fba](https://github.com/mozilla/fxa-content-server/commit/82c7fba))
+
+### Refactor
+
+* **client:** browserify jwcrypto to prepare for requireOnDemand. (#4035) r=vladikoff ([3600b0a](https://github.com/mozilla/fxa-content-server/commit/3600b0a))
+* **client:** jwcrypto is now loaded using requireOnDemand. (#4041) r=vladikoff ([84706d8](https://github.com/mozilla/fxa-content-server/commit/84706d8))
+* **client:** Load fxa-js-client using requireOnDemand. (#4042) r=vladikoff ([ff706a4](https://github.com/mozilla/fxa-content-server/commit/ff706a4))
+* **client:** Refactor the hide-on-escape key code. (#4046) r=vladikoff ([615e138](https://github.com/mozilla/fxa-content-server/commit/615e138))
+* **client:** Use cache busting URLs with require on demand. (#4002) r=vladikoff ([053153e](https://github.com/mozilla/fxa-content-server/commit/053153e))
+* **client/server:** Ditch the postMessage origin check for iframes (#4008) ([c1f5260](https://github.com/mozilla/fxa-content-server/commit/c1f5260))
+* **devices:** remove timeago, use device last active from the fxa-auth-server (#4033) ([36bb232](https://github.com/mozilla/fxa-content-server/commit/36bb232))
+* **devices:** rename devices view to clients (#4055) r=vbudhram,rfk ([d425e8f](https://github.com/mozilla/fxa-content-server/commit/d425e8f))
+* **l10n:** use shared source for l10n list (#4050), r=@vbudhram ([a3a5294](https://github.com/mozilla/fxa-content-server/commit/a3a5294))
+
+
+
 <a name="0.67.0"></a>
 # 0.67.0 (2016-08-09)
 
