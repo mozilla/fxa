@@ -48,6 +48,16 @@ define(function (require, exports, module) {
         data.request.url = cleanUpQueryParam(data.request.url);
       }
 
+      if (data.tags) {
+        // if this is a known errno, then use grouping with fingerprints
+        // Docs: https://docs.sentry.io/hosted/learn/rollups/#fallback-grouping
+        if (data.tags.errno) {
+          data.fingerprint = ['errno' + data.tags.errno];
+          // if it is a known error change the error level to info.
+          data.level = 'info';
+        }
+      }
+
       if (data.request.headers && data.request.headers.Referer) {
         data.request.headers.Referer = cleanUpQueryParam(data.request.headers.Referer);
       }

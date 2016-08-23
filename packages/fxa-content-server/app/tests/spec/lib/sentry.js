@@ -107,6 +107,23 @@ define(function (require, exports, module) {
         assert.equal(data, resultData);
       });
 
+      it('fingerprints errno', function () {
+        var data = {
+          key: 'value',
+          request: {
+            url: 'foo'
+          },
+          tags: {
+            errno: 100
+          }
+        };
+        var sentry = new SentryMetrics(host);
+        var resultData = sentry.__beforeSend(data);
+
+        assert.equal(resultData.fingerprint[0], 'errno100', 'correct fingerprint');
+        assert.equal(resultData.level, 'info', 'correct known error level');
+      });
+
       it('properly erases sensitive information from url', function () {
         var url = 'https://accounts.firefox.com/complete_reset_password';
         var badQuery = '?token=foo&code=bar&email=some%40restmail.net&service=sync';
