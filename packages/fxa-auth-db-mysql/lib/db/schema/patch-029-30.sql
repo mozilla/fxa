@@ -11,9 +11,13 @@ BEGIN
 
   START TRANSACTION;
 
+  -- The 'devices' table has an index on (uid, sessionTokenId),
+  -- so we have to look up the uid in order to do this efficiently.
+  DELETE FROM devices
+    WHERE sessionTokenId = tokenIdArg
+    AND uid = (SELECT uid FROM sessionTokens WHERE tokenId = tokenIdArg);
   DELETE FROM sessionTokens WHERE tokenId = tokenIdArg;
   DELETE FROM unverifiedTokens WHERE tokenId = tokenIdArg;
-  DELETE FROM devices WHERE sessionTokenId = tokenIdArg;
 
   COMMIT;
 END;
