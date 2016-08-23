@@ -8,6 +8,7 @@ const assert = require('insist');
 const buf = require('buf').hex;
 const hex = require('buf').to.hex;
 
+const encrypt = require('../../lib/encrypt');
 const db = require('../../lib/db');
 const config = require('../../lib/config');
 const auth = require('../../lib/auth');
@@ -304,6 +305,14 @@ describe('db', function() {
         assert.equal(hex(t.userId), hex(userId), 'token userId');
       });
     });
+
+    it('should get the right refreshToken', function (){
+      var hash = encrypt.hash(refreshToken);
+      return db.getRefreshToken(hash).then(function(t) {
+        assert.equal(hex(t.token), hex(hash), 'got the right refresh_token');
+      });
+    });
+
     it('should delete tokens and codes for the given userId', function () {
       return db.removeUser(userId).then(function () {
         return db.getCode(code);
@@ -312,7 +321,7 @@ describe('db', function() {
         return db.getAccessToken(token);
       }).then(function (t) {
         assert.equal(t, undefined, 'token deleted');
-        return db.getRefreshToken(refreshToken);
+        return db.getRefreshToken(encrypt.hash(refreshToken));
       }).then(function (t) {
         assert.equal(t, undefined, 'refresh_token deleted');
       });
