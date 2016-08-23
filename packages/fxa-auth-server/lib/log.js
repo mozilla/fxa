@@ -150,7 +150,8 @@ Lug.prototype.summary = function (request, response) {
   }
   line.uid = (request.auth && request.auth.credentials) ?
     request.auth.credentials.uid :
-    payload.uid || query.uid || response.uid || '00'
+    payload.uid || query.uid || response.uid ||
+    (response.source && response.source.uid) || '00'
   line.service = payload.service || query.service
   line.reason = payload.reason || query.reason
   line.redirectTo = payload.redirectTo || query.redirectTo
