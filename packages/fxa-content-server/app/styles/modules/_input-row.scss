@@ -65,9 +65,9 @@
     }
 
     html[dir='rtl'] & {
-      direction: rtl;
+      text-align: right;
+      direction: ltr;
       padding: 0  $input-left-right-padding 0 0;
-      unicode-bidi: bidi-override;
     }
 
     &[type='checkbox']:hover,
