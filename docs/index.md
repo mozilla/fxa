@@ -26,6 +26,9 @@ Note that all services integrating with Firefox Accounts require approval (and a
 from Mozilla.  We are not yet offering Firefox Accounts authentication to third-party reliers
 on the web.
 
+Links:
+
+* [UX and content guidelines for FxA](https://developer.mozilla.org/en-US/docs/Mozilla/Tech/Firefox_Accounts/UX_guidelines)
 
 ## People and Places
 
