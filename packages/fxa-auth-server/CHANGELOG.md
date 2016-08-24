@@ -1,3 +1,13 @@
+<a name"0.68.0"></a>
+## 0.68.0 (2016-08-24)
+
+
+#### Bug Fixes
+
+* **log:** avoid crashing on bad payload (#411) r=rfk,jrgm ([19ebed51](https://github.com/mozilla/fxa-oauth-server/commit/19ebed51), closes [#410](https://github.com/mozilla/fxa-oauth-server/issues/410))
+* **test:** encrypt refresh_token on db query (#414) r=seanmonstar,vladikoff ([7f52d46d](https://github.com/mozilla/fxa-oauth-server/commit/7f52d46d))
+
+
 <a name"0.66.0"></a>
 ## 0.66.0 (2016-07-27)
 
