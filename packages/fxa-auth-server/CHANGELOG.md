@@ -1,3 +1,13 @@
+<a name="1.68.0"></a>
+# [1.68.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.67.0...v1.68.0) (2016-08-24)
+
+
+### Bug Fixes
+
+* **l10n:** adjust default language (#200) r=vbudhram ([2c15420](https://github.com/mozilla/fxa-auth-mailer/commit/2c15420)), closes [#192](https://github.com/mozilla/fxa-auth-mailer/issues/192)
+
+
+
 <a name="1.67.0"></a>
 # [1.67.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.64.0...v1.67.0) (2016-08-11)
 
