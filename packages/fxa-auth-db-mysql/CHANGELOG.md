@@ -1,3 +1,20 @@
+<a name="0.68.0"></a>
+# [0.68.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v0.67.0...v0.68.0) (2016-08-24)
+
+
+### Bug Fixes
+
+* **db:** ensure that devices get deleted with session tokens ([840dda6](https://github.com/mozilla/fxa-auth-db-mysql/commit/840dda6))
+* **db:** use an index when deleting device records by sessionToken id. ([f5bbb60](https://github.com/mozilla/fxa-auth-db-mysql/commit/f5bbb60))
+* **scripts:** add process.exit to populate script ([7820fdc](https://github.com/mozilla/fxa-auth-db-mysql/commit/7820fdc))
+* **scripts:** ensure changelog is updated sanely ([24376cc](https://github.com/mozilla/fxa-auth-db-mysql/commit/24376cc))
+
+### Features
+
+* **scripts:** add device records to the populate script ([c235696](https://github.com/mozilla/fxa-auth-db-mysql/commit/c235696))
+
+
+
 # 0.67.0
 
   * fix(deps): update dev dependencies #143
