@@ -1,3 +1,14 @@
+<a name="0.68.0"></a>
+# [0.68.0](https://github.com/mozilla/fxa-profile-server/compare/v0.67.1...v0.68.0) (2016-08-24)
+
+
+### Features
+
+* **customs:** turn off customs until server support, update tests (#206) ([629fb31](https://github.com/mozilla/fxa-profile-server/commit/629fb31))
+* **server:** rate limit avatar uploads (#201) r=vladikoff ([954c1a1](https://github.com/mozilla/fxa-profile-server/commit/954c1a1)), closes [#132](https://github.com/mozilla/fxa-profile-server/issues/132)
+
+
+
 <a name="0.67.1"></a>
 ## [0.67.1](https://github.com/mozilla/fxa-profile-server/compare/v0.67.0...v0.67.1) (2016-08-10)
 
