@@ -171,8 +171,6 @@ ul.links {
 .show-password-label {
   background-color: $show-password-background-color;
   color: $show-password-label-color;
-  transition: background-color 450ms,
-              color 450ms;
 }
 
 .password:focus ~ .show-password-label {
