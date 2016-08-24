@@ -93,7 +93,6 @@ define(function (require, exports, module) {
         return client.getCode(params)
           .then(function (result) {
             assert.isTrue(client._request.calledWith('post', '/v1/authorization'));
-
             assert.equal(result.redirect, redirect);
           });
       });
@@ -140,6 +139,8 @@ define(function (require, exports, module) {
         return client.getToken(params)
           .then(function (result) {
             assert.isTrue(client._request.calledWith('post', '/v1/authorization'));
+            assert.equal(client._request.args[0][2].client_id, 'deadbeef', 'correctly sets client_id');
+            assert.equal(client._request.args[0][2].ttl, '300', 'correctly sets TTL');
             assert.ok(result);
 
             assert.equal(result.access_token, token);

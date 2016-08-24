@@ -27,9 +27,16 @@ define(function (require, exports, module) {
           throw err;
         });
     },
-
-    // params = { assertion, client_id, redirect_uri, scope, state,
-    // access_type }
+    /**
+     *
+     * @param {Object} params
+     * @param {String} params.assertion
+     * @param {String} params.client_id
+     * @param {String} params.redirect_uri
+     * @param {String} params.scope
+     * @param {String} params.state
+     * @returns {Promise}
+     */
     getCode: function getCode(params) {
       return this._request('post', GET_CODE, params);
     },
@@ -39,7 +46,20 @@ define(function (require, exports, module) {
     },
 
     // params = { assertion, client_id, scope }
-    getToken: function (params) {
+    /**
+     *
+     * @param {Object} params
+     * @param {String} params.assertion
+     * @param {String} params.client_id
+     * @param {String} params.scope
+     * @param {String} [params.ttl]
+     * @returns {Promise}
+     */
+    getToken: function (params = {}) {
+      // set authorization TTL to 5 minutes.
+      // Docs: github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md#post-v1authorization
+      // Issue: #3982
+      params.ttl = params.ttl || '300';
       // Use the special 'token' response type
       params.response_type = 'token'; //eslint-disable-line camelcase
       return this.getCode(params);
