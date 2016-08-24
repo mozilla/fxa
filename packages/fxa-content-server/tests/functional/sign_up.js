@@ -123,6 +123,8 @@ define([
       // https://github.com/mozilla/fxa-content-server/issues/2209
       var secondEmail = TestHelpers.createEmail();
       var self = this;
+      this.timeout = 90000;
+
       return this.remote
         .then(fillOutSignUp(this, email, PASSWORD))
         .then(testAtConfirmScreen(email))

@@ -1351,7 +1351,7 @@ define([
           } else {
             return this.parent
               .closeCurrentWindow()
-              .switchToWindow(tabName || '');
+              .switchToWindow(tabName || handles[0]);
           }
         });
     };

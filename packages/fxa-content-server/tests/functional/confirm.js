@@ -74,6 +74,7 @@ define([
       var email = 'signin' + Math.random() + '@gmail.com';
       var PASSWORD = '12345678';
       var SIGNUP_URL = intern.config.fxaContentRoot + 'signup?context=fx_desktop_v2&service=sync';
+      this.timeout = 90000;
 
       return FunctionalHelpers.openPage(this, SIGNUP_URL, '#fxa-signup-header')
         .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: true } ))
