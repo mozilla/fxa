@@ -291,6 +291,10 @@ define(function (require, exports, module) {
     UNKNOWN_ACCOUNT_VERIFICATION: {
       errno: 1040,
       message: EXPIRED_VERIFICATION_ERROR_MESSAGE
+    },
+    REUSED_SIGNIN_VERIFICATION_CODE: {
+      errno: 1041,
+      message: EXPIRED_VERIFICATION_ERROR_MESSAGE
     }
   };
   /*eslint-enable sorting/sort-object-props*/

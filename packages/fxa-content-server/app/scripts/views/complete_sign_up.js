@@ -139,10 +139,20 @@ define(function (require, exports, module) {
             } else if (
                 AuthErrors.is(err, 'INVALID_VERIFICATION_CODE') ||
                 AuthErrors.is(err, 'INVALID_PARAMETER')) {
-              // These server says the verification code or any parameter is
-              // invalid. The entire link is damaged.
-              verificationInfo.markDamaged();
-              err = AuthErrors.toError('DAMAGED_VERIFICATION_LINK');
+
+              // When coming from sign-in confirmation verification, show a
+              // verification link expired error instead of damaged verification link.
+              // This error is generated because the link has already been used.
+              if (self.isSignIn()) {
+                // Disable resending verification, can only be triggered from new sign-in
+                verificationInfo.markExpired();
+                err = AuthErrors.toError('REUSED_SIGNIN_VERIFICATION_CODE');
+              } else {
+                // These server says the verification code or any parameter is
+                // invalid. The entire link is damaged.
+                verificationInfo.markDamaged();
+                err = AuthErrors.toError('DAMAGED_VERIFICATION_LINK');
+              }
             } else {
               // all other errors show the standard error box.
               self._error = self.translateError(err);
@@ -156,8 +166,6 @@ define(function (require, exports, module) {
     context: function () {
       var verificationInfo = this._verificationInfo;
       return {
-        // This is only the case if you've signed up in the
-        // same browser you opened the verification link in.
         canResend: this._canResend(),
         error: this._error,
         // If the link is invalid, print a special error message.
@@ -167,7 +175,9 @@ define(function (require, exports, module) {
     },
 
     _canResend: function () {
-      return !! this._getResendSessionToken();
+      // _getResendSessionToken is only returned if the user signed up in the
+      // same browser in which they opened the verification link.
+      return !! this._getResendSessionToken() && this.isSignUp();
     },
 
     // This returns the latest sessionToken associated with the user's email

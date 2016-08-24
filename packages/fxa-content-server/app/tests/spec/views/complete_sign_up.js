@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
   var Broker = require('models/auth_brokers/base');
   var chai = require('chai');
   var Constants = require('lib/constants');
@@ -318,6 +319,36 @@ define(function (require, exports, module) {
 
         it('displays the verification link damaged screen', function () {
           testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
+        });
+      });
+
+      describe('REUSED_SIGNIN_VERIFICATION_CODE error', function () {
+        beforeEach(function () {
+          verificationError = AuthErrors.toError('INVALID_VERIFICATION_CODE', 'this isn\'t a lottery');
+
+          windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
+          var model = new Backbone.Model();
+          model.set('type', VerificationReasons.SIGN_IN);
+
+          view = new View({
+            account: account,
+            broker: broker,
+            metrics: metrics,
+            model: model,
+            notifier: notifier,
+            relier: relier,
+            user: user,
+            window: windowMock
+          });
+
+          return view.render()
+            .then(function () {
+              assert.ok(view.$('#fxa-verification-link-expired-header').length);
+            });
+        });
+
+        it('displays the verification link expired screen', function () {
+          testErrorLogged(AuthErrors.toError('REUSED_SIGNIN_VERIFICATION_CODE'));
         });
       });
 

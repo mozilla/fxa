@@ -8,6 +8,7 @@ define([
   './functional/sync_sign_in',
   './functional/sync_force_auth',
   './functional/sign_up',
+  './functional/complete_sign_in',
   './functional/complete_sign_up',
   './functional/sync_sign_up',
   './functional/sync_v2_sign_up',
