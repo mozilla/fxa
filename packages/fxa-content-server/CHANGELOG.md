@@ -1,3 +1,20 @@
+<a name="0.68.1"></a>
+## 0.68.1 (2016-08-24)
+
+
+### Bug Fixes
+
+* **styles:** change color of label on permissions page (#4079) r=vladikoff ([f2cf887](https://github.com/mozilla/fxa-content-server/commit/f2cf887)), closes [#4052](https://github.com/mozilla/fxa-content-server/issues/4052)
+* **styles:** remove transition on show password button (#4078) r=vladikoff ([10f6d44](https://github.com/mozilla/fxa-content-server/commit/10f6d44)), closes [#4076](https://github.com/mozilla/fxa-content-server/issues/4076)
+* **tests:** adjust timeouts and window handles for TeamCity tests (#4081) ([be51e51](https://github.com/mozilla/fxa-content-server/commit/be51e51))
+* **tokens:** Display expired token on sign-in verification error (#4047) ([296250f](https://github.com/mozilla/fxa-content-server/commit/296250f))
+
+### Refactor
+
+* **client:** Remove support for fx_ios_v2 (#4080) r=vladikoff ([f6ea1ef](https://github.com/mozilla/fxa-content-server/commit/f6ea1ef)), closes [#4073](https://github.com/mozilla/fxa-content-server/issues/4073)
+
+
+
 <a name="0.68.0"></a>
 # 0.68.0 (2016-08-23)
 

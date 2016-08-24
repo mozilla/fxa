@@ -1,6 +1,6 @@
 {
   "name": "fxa-content-server",
-  "version": "0.68.0",
+  "version": "0.68.1",
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "start": "node scripts/check-local-config && grunt server",
