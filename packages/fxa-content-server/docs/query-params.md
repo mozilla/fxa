@@ -202,9 +202,6 @@ Specify an alternate context in which Firefox Accounts is being run, if not as a
    `syncPreferencesNotification` capability
 * `fx_ios_v1` - Firefox Accounts is being used to sign in to Sync on Firefox
    for iOS using CustomEvents.
-* `fx_ios_v2` - Firefox Accounts is being used to sign in to Sync on Firefox
-   for iOS using CustomEvents. Adds `chooseWhatToSyncWebV1` and
-   `syncPreferencesNotification` capabilities.
 * `iframe` - Firefox Accounts is being used to sign in to Sync on Firefox
     Desktop firstrun page. Misnamed and should be called `fx_firstrun_v1`.
 

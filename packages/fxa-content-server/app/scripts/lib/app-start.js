@@ -38,7 +38,6 @@ define(function (require, exports, module) {
   const FxFirstrunV1AuthenticationBroker = require('models/auth_brokers/fx-firstrun-v1');
   const FxFirstrunV2AuthenticationBroker = require('models/auth_brokers/fx-firstrun-v2');
   const FxiOSV1AuthenticationBroker = require('models/auth_brokers/fx-ios-v1');
-  const FxiOSV2AuthenticationBroker = require('models/auth_brokers/fx-ios-v2');
   const HeightObserver = require('lib/height-observer');
   const IframeChannel = require('lib/channels/iframe');
   const InterTabChannel = require('lib/channels/inter-tab');
@@ -333,11 +332,6 @@ define(function (require, exports, module) {
           });
         } else if (this._isFxiOSV1()) {
           this._authenticationBroker = new FxiOSV1AuthenticationBroker({
-            relier: this._relier,
-            window: this._window
-          });
-        } else if (this._isFxiOSV2()) {
-          this._authenticationBroker = new FxiOSV2AuthenticationBroker({
             relier: this._relier,
             window: this._window
           });
@@ -656,10 +650,6 @@ define(function (require, exports, module) {
 
     _isFxiOSV1 () {
       return this._isContext(Constants.FX_IOS_V1_CONTEXT);
-    },
-
-    _isFxiOSV2 () {
-      return this._isContext(Constants.FX_IOS_V2_CONTEXT);
     },
 
     _isContext (contextName) {

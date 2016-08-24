@@ -16,7 +16,6 @@ define(function (require, exports, module) {
   var FxFirstrunV1Broker = require('models/auth_brokers/fx-firstrun-v1');
   var FxFirstrunV2Broker = require('models/auth_brokers/fx-firstrun-v2');
   var FxiOSV1Broker = require('models/auth_brokers/fx-ios-v1');
-  var FxiOSV2Broker = require('models/auth_brokers/fx-ios-v2');
   var HistoryMock = require('../../mocks/history');
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
@@ -273,16 +272,6 @@ define(function (require, exports, module) {
           });
 
           return testExpectedBrokerCreated(FxiOSV1Broker);
-        });
-      });
-
-      describe('fx-ios-v2', function () {
-        it('returns an FxiOSV2 broker if `context=fx_ios_v2`', function () {
-          windowMock.location.search = Url.objToSearchString({
-            context: Constants.FX_IOS_V2_CONTEXT
-          });
-
-          return testExpectedBrokerCreated(FxiOSV2Broker);
         });
       });
 
@@ -820,7 +809,7 @@ define(function (require, exports, module) {
           sinon.stub(appStart, '_getSameBrowserVerificationModel', function () {
             return {
               get: function () {
-                return 'fx_ios_v2';
+                return 'fx_ios_v1';
               }
             };
           });
@@ -833,7 +822,7 @@ define(function (require, exports, module) {
         });
 
         it('returns the stored context', function () {
-          assert.equal(appStart._getVerificationContext(), 'fx_ios_v2');
+          assert.equal(appStart._getVerificationContext(), 'fx_ios_v1');
         });
       });
 

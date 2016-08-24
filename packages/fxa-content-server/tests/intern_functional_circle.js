@@ -23,7 +23,6 @@ define([
     'tests/functional/fx_firstrun_v2_sign_up',
     'tests/functional/fx_ios_v1_sign_in',
     'tests/functional/fx_ios_v1_sign_up',
-    'tests/functional/fx_ios_v2_sign_up',
     'tests/functional/fx_fennec_v1_sign_in',
     'tests/functional/fx_fennec_v1_force_auth',
     'tests/functional/fx_fennec_v1_sign_up',

@@ -36,7 +36,6 @@ define(function (require, exports, module) {
     // of service=sync&context=iframe
     FX_FIRSTRUN_V2_CONTEXT: 'fx_firstrun_v2',
     FX_IOS_V1_CONTEXT: 'fx_ios_v1',
-    FX_IOS_V2_CONTEXT: 'fx_ios_v2',
     IFRAME_CONTEXT: 'iframe',
 
     CONTENT_SERVER_SERVICE: 'content-server',
