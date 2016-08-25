@@ -89,7 +89,7 @@ define(function (require, exports, module) {
           return p({ ok: true });
         });
 
-        return broker.beforeSignIn('testuser@testuser.com')
+        return broker.beforeSignIn(account)
           .then(function () {
             assert.isTrue(channelMock.request.calledWith('can_link_account'));
           });
@@ -100,7 +100,7 @@ define(function (require, exports, module) {
           return p({ data: {}});
         });
 
-        return broker.beforeSignIn('testuser@testuser.com')
+        return broker.beforeSignIn(account)
           .then(assert.fail, function (err) {
             assert.isTrue(AuthErrors.is(err, 'USER_CANCELED_LOGIN'));
             assert.isTrue(channelMock.request.calledWith('can_link_account'));
@@ -114,7 +114,7 @@ define(function (require, exports, module) {
 
         sinon.spy(console, 'error');
 
-        return broker.beforeSignIn('testuser@testuser.com')
+        return broker.beforeSignIn(account)
           .then(function () {
             assert.isTrue(console.error.called);
             console.error.restore();
@@ -159,7 +159,7 @@ define(function (require, exports, module) {
           }
         });
 
-        return broker.beforeSignIn('testuser@testuser.com')
+        return broker.beforeSignIn(account)
           .then(function () {
             return broker._notifyRelierOfLogin(account);
           })
@@ -185,7 +185,7 @@ define(function (require, exports, module) {
           }
         });
 
-        return broker.beforeSignIn('testuser@testuser.com')
+        return broker.beforeSignIn(account)
           .then(function () {
             return broker._notifyRelierOfLogin(account);
           })

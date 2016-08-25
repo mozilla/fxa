@@ -88,8 +88,9 @@ define(function (require, exports, module) {
         });
     },
 
-    beforeSignIn: function (email) {
+    beforeSignIn: function (account) {
       var self = this;
+      var email = account.get('email');
       // This will send a message over the channel to determine whether
       // we should cancel the login to sync or not based on Desktop
       // specific checks and dialogs. It throws an error with
@@ -101,7 +102,7 @@ define(function (require, exports, module) {
           }
 
           self._verifiedCanLinkAccount = true;
-          return proto.beforeSignIn.call(self, email);
+          return proto.beforeSignIn.call(self, account);
         }, function (err) {
           self._logger.error('beforeSignIn failed with', err);
           // If the browser doesn't implement this command, then it will

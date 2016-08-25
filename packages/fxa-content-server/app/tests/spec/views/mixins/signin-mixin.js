@@ -81,7 +81,7 @@ define(function (require, exports, module) {
 
         it('invokes the correct broker method', function () {
           assert.isTrue(
-            view.invokeBrokerMethod.calledWith('beforeSignIn', 'testuser@testuser.com'));
+            view.invokeBrokerMethod.calledWith('beforeSignIn', account));
         });
 
         it('signs in the user', function () {
@@ -129,7 +129,7 @@ define(function (require, exports, module) {
             var args = view.invokeBrokerMethod.args[0];
             assert.lengthOf(args, 2);
             assert.equal(args[0], 'beforeSignIn');
-            assert.equal(args[1], 'testuser@testuser.com');
+            assert.equal(args[1], account);
 
             args = view.invokeBrokerMethod.args[1];
             assert.lengthOf(args, 2);

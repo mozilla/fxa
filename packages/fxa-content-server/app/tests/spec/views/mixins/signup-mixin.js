@@ -131,7 +131,7 @@ define(function (require, exports, module) {
           var args = view.invokeBrokerMethod.args[0];
           assert.lengthOf(args, 2);
           assert.equal(args[0], 'beforeSignIn');
-          assert.equal(args[1], 'testuser@testuser.com');
+          assert.equal(args[1], account);
 
           args = view.invokeBrokerMethod.args[1];
           assert.lengthOf(args, 2);
@@ -171,7 +171,7 @@ define(function (require, exports, module) {
           var args = view.invokeBrokerMethod.args[0];
           assert.lengthOf(args, 2);
           assert.equal(args[0], 'beforeSignIn');
-          assert.equal(args[1], 'testuser@testuser.com');
+          assert.equal(args[1], account);
 
           args = view.invokeBrokerMethod.args[1];
           assert.lengthOf(args, 2);

@@ -31,7 +31,7 @@ define(function (require, exports, module) {
       }
 
       var self = this;
-      return self.invokeBrokerMethod('beforeSignIn', account.get('email'))
+      return self.invokeBrokerMethod('beforeSignIn', account)
         .then(function () {
           return self.user.signInAccount(account, password, self.relier, {
             // a resume token is passed in to allow
