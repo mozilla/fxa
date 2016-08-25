@@ -56,8 +56,8 @@ define(function (require, exports, module) {
 
     for (var key in client) {
       if (typeof client[key] === 'function') {
-        wrappedClient[key] = function (key) {
-          var retval = client[key].apply(this, [].slice.call(arguments, 1));
+        wrappedClient[key] = function (key, ...args) {
+          var retval = this[key].apply(this, args);
 
           // make no assumptions about the client returning a promise.
           // If the return value is not a promise, just return the value.
@@ -75,6 +75,45 @@ define(function (require, exports, module) {
 
     return wrappedClient;
   }
+
+
+  // Class method decorator to get an fxa-js-client instance and pass
+  // it as the first argument to the method.
+  function withClient(callback) {
+    return function (...args) {
+      return this._getClient()
+        .then((client) => callback.apply(this, [client, ...args]));
+    };
+  }
+
+  function getUpdatedSessionData(email, relier, accountData, options = {}) {
+    var sessionTokenContext = options.sessionTokenContext;
+    if (! sessionTokenContext && relier.isSync()) {
+      sessionTokenContext = Constants.SESSION_TOKEN_USED_FOR_SYNC;
+    }
+
+    var updatedSessionData = {
+      email: email,
+      sessionToken: accountData.sessionToken,
+      sessionTokenContext: sessionTokenContext,
+      uid: accountData.uid,
+      verificationMethod: accountData.verificationMethod,
+      verificationReason: accountData.verificationReason,
+      verified: accountData.verified || false
+    };
+
+    if (wantsKeys(relier, sessionTokenContext)) {
+      updatedSessionData.unwrapBKey = accountData.unwrapBKey;
+      updatedSessionData.keyFetchToken = accountData.keyFetchToken;
+    }
+
+    if (relier.isSync()) {
+      updatedSessionData.customizeSync = options.customizeSync || false;
+    }
+
+    return updatedSessionData;
+  }
+
 
   function FxaClientWrapper(options = {}) {
     if (options.client) {
@@ -103,12 +142,9 @@ define(function (require, exports, module) {
      *
      * @returns {Promise}
      */
-    getRandomBytes: function () {
-      return this._getClient()
-        .then(function (client) {
-          return client.getRandomBytes();
-        });
-    },
+    getRandomBytes: withClient((client) => {
+      return client.getRandomBytes();
+    }),
 
     /**
      * Check the user's current password without affecting session state.
@@ -117,22 +153,19 @@ define(function (require, exports, module) {
      * @param {String} password
      * @returns {Promise}
      */
-    checkPassword: function (email, password) {
-      return this._getClient()
-        .then(function (client) {
-          return client.signIn(email, password, {
-            reason: SignInReasons.PASSWORD_CHECK
-          })
-          .then(function (sessionInfo) {
-            // a session was created on the backend to check the user's
-            // password. Delete the newly created session immediately
-            // so that the session token is not left in the database.
-            if (sessionInfo && sessionInfo.sessionToken) {
-              return client.sessionDestroy(sessionInfo.sessionToken);
-            }
-          });
-        });
-    },
+    checkPassword: withClient((client, email, password) => {
+      return client.signIn(email, password, {
+        reason: SignInReasons.PASSWORD_CHECK
+      })
+      .then(function (sessionInfo) {
+        // a session was created on the backend to check the user's
+        // password. Delete the newly created session immediately
+        // so that the session token is not left in the database.
+        if (sessionInfo && sessionInfo.sessionToken) {
+          return client.sessionDestroy(sessionInfo.sessionToken);
+        }
+      });
+    }),
 
     /**
      * Check whether an account exists for the given uid.
@@ -140,15 +173,12 @@ define(function (require, exports, module) {
      * @param {String} uid
      * @returns {Promise}
      */
-    checkAccountExists: function (uid) {
-      return this._getClient()
-          .then(function (client) {
-            return client.accountStatus(uid)
-              .then(function (status) {
-                return status.exists;
-              });
-          });
-    },
+    checkAccountExists: withClient((client, uid) => {
+      return client.accountStatus(uid)
+        .then(function (status) {
+          return status.exists;
+        });
+    }),
 
     /**
      * Check whether an account exists for the given email.
@@ -157,43 +187,12 @@ define(function (require, exports, module) {
      *
      * @returns {Promise}
      */
-    checkAccountExistsByEmail: function (email) {
-      return this._getClient()
-        .then(function (client) {
-          return client.accountStatusByEmail(email)
-            .then(function (status) {
-              return status.exists;
-            });
+    checkAccountExistsByEmail: withClient((client, email) => {
+      return client.accountStatusByEmail(email)
+        .then(function (status) {
+          return status.exists;
         });
-    },
-
-    _getUpdatedSessionData: function (email, relier, accountData, options = {}) {
-      var sessionTokenContext = options.sessionTokenContext;
-      if (! sessionTokenContext && relier.isSync()) {
-        sessionTokenContext = Constants.SESSION_TOKEN_USED_FOR_SYNC;
-      }
-
-      var updatedSessionData = {
-        email: email,
-        sessionToken: accountData.sessionToken,
-        sessionTokenContext: sessionTokenContext,
-        uid: accountData.uid,
-        verificationMethod: accountData.verificationMethod,
-        verificationReason: accountData.verificationReason,
-        verified: accountData.verified || false
-      };
-
-      if (wantsKeys(relier, sessionTokenContext)) {
-        updatedSessionData.unwrapBKey = accountData.unwrapBKey;
-        updatedSessionData.keyFetchToken = accountData.keyFetchToken;
-      }
-
-      if (relier.isSync()) {
-        updatedSessionData.customizeSync = options.customizeSync || false;
-      }
-
-      return updatedSessionData;
-    },
+    }),
 
     /**
      * Authenticate a user.
@@ -217,36 +216,31 @@ define(function (require, exports, module) {
      *                   relier's context.
      * @returns {Promise}
      */
-    signIn: function (originalEmail, password, relier, options) {
+    signIn: withClient((client, originalEmail, password, relier, options = {}) => {
       var email = trim(originalEmail);
-      var self = this;
-      options = options || {};
 
-      return self._getClient()
-        .then(function (client) {
-          var signInOptions = {
-            keys: wantsKeys(relier),
-            reason: options.reason || SignInReasons.SIGN_IN
-          };
+      var signInOptions = {
+        keys: wantsKeys(relier),
+        reason: options.reason || SignInReasons.SIGN_IN
+      };
 
-          // `service` is sent on signIn to notify users when a new service
-          // has been attached to their account.
-          if (relier.has('service')) {
-            signInOptions.service = relier.get('service');
-          }
+      // `service` is sent on signIn to notify users when a new service
+      // has been attached to their account.
+      if (relier.has('service')) {
+        signInOptions.service = relier.get('service');
+      }
 
-          if (relier.has('redirectTo')) {
-            signInOptions.redirectTo = relier.get('redirectTo');
-          }
+      if (relier.has('redirectTo')) {
+        signInOptions.redirectTo = relier.get('redirectTo');
+      }
 
-          if (options.resume) {
-            signInOptions.resume = options.resume;
-          }
+      if (options.resume) {
+        signInOptions.resume = options.resume;
+      }
 
-          setMetricsContext(signInOptions, options);
+      setMetricsContext(signInOptions, options);
 
-          return client.signIn(email, password, signInOptions);
-        })
+      return client.signIn(email, password, signInOptions)
         .then(function (accountData) {
           if (! accountData.verified &&
               ! accountData.hasOwnProperty('verificationReason')) {
@@ -258,9 +252,9 @@ define(function (require, exports, module) {
             accountData.verificationMethod = VerificationMethods.EMAIL;
           }
 
-          return self._getUpdatedSessionData(email, relier, accountData, options);
+          return getUpdatedSessionData(email, relier, accountData, options);
         });
-    },
+    }),
 
     /**
      * Sign up a user
@@ -283,89 +277,74 @@ define(function (require, exports, module) {
      *                   Defaults to the relier's context.
      * @returns {Promise}
      */
-    signUp: function (originalEmail, password, relier, options) {
+    signUp: withClient(function (client, originalEmail, password, relier, options = {}) {
       var email = trim(originalEmail);
       var self = this;
-      options = options || {};
 
-      return self._getClient()
-        .then(function (client) {
-          var signUpOptions = {
-            keys: wantsKeys(relier)
-          };
+      var signUpOptions = {
+        keys: wantsKeys(relier)
+      };
 
-          if (relier.has('service')) {
-            signUpOptions.service = relier.get('service');
+      if (relier.has('service')) {
+        signUpOptions.service = relier.get('service');
+      }
+
+      if (relier.has('redirectTo')) {
+        signUpOptions.redirectTo = relier.get('redirectTo');
+      }
+
+      if (relier.has('preVerifyToken')) {
+        signUpOptions.preVerifyToken = relier.get('preVerifyToken');
+      }
+
+      if (options.preVerified) {
+        signUpOptions.preVerified = true;
+      }
+
+      if (options.resume) {
+        signUpOptions.resume = options.resume;
+      }
+
+      setMetricsContext(signUpOptions, options);
+
+      return client.signUp(email, password, signUpOptions)
+        .then(function (accountData) {
+          return getUpdatedSessionData(email, relier, accountData, options);
+        }, function (err) {
+          if (relier.has('preVerifyToken') &&
+              AuthErrors.is(err, 'INVALID_VERIFICATION_CODE')) {
+            // The token was invalid and the auth server could
+            // not pre-verify the user. Now, just create a new
+            // user and force them to verify their email.
+            relier.unset('preVerifyToken');
+
+            return self.signUp(email, password, relier, options);
           }
 
-          if (relier.has('redirectTo')) {
-            signUpOptions.redirectTo = relier.get('redirectTo');
-          }
-
-          if (relier.has('preVerifyToken')) {
-            signUpOptions.preVerifyToken = relier.get('preVerifyToken');
-          }
-
-          if (options.preVerified) {
-            signUpOptions.preVerified = true;
-          }
-
-          if (options.resume) {
-            signUpOptions.resume = options.resume;
-          }
-
-          setMetricsContext(signUpOptions, options);
-
-          return client.signUp(email, password, signUpOptions)
-            .then(function (accountData) {
-              return self._getUpdatedSessionData(email, relier, accountData, options);
-            }, function (err) {
-              if (relier.has('preVerifyToken') &&
-                  AuthErrors.is(err, 'INVALID_VERIFICATION_CODE')) {
-                // The token was invalid and the auth server could
-                // not pre-verify the user. Now, just create a new
-                // user and force them to verify their email.
-                relier.unset('preVerifyToken');
-
-                return self.signUp(email, password, relier, options);
-              }
-
-              throw err;
-            });
+          throw err;
         });
-    },
+    }),
 
-    signUpResend: function (relier, sessionToken, options) {
-      options = options || {};
+    signUpResend: withClient((client, relier, sessionToken, options = {}) => {
+      var clientOptions = {
+        redirectTo: relier.get('redirectTo'),
+        service: relier.get('service')
+      };
 
-      return this._getClient()
-        .then(function (client) {
-          var clientOptions = {
-            redirectTo: relier.get('redirectTo'),
-            service: relier.get('service')
-          };
+      if (options.resume) {
+        clientOptions.resume = options.resume;
+      }
 
-          if (options.resume) {
-            clientOptions.resume = options.resume;
-          }
+      return client.recoveryEmailResendCode(sessionToken, clientOptions);
+    }),
 
-          return client.recoveryEmailResendCode(sessionToken, clientOptions);
-        });
-    },
+    signOut: withClient((client, sessionToken) => {
+      return client.sessionDestroy(sessionToken);
+    }),
 
-    signOut: function (sessionToken) {
-      return this._getClient()
-              .then(function (client) {
-                return client.sessionDestroy(sessionToken);
-              });
-    },
-
-    verifyCode: function (uid, code, options) {
-      return this._getClient()
-              .then(function (client) {
-                return client.verifyCode(uid, code, options);
-              });
-    },
+    verifyCode: withClient((client, uid, code, options) => {
+      return client.verifyCode(uid, code, options);
+    }),
 
     /**
      * Initiate a password reset
@@ -381,81 +360,67 @@ define(function (require, exports, module) {
      *                   be synced. Defaults to `false`
      * @returns {Promise}
      */
-    passwordReset: function (originalEmail, relier, options) {
+    passwordReset: withClient((client, originalEmail, relier, options = {}) => {
       var email = trim(originalEmail);
-      options = options || {};
 
-      return this._getClient()
-        .then(function (client) {
-          var clientOptions = {
-            redirectTo: relier.get('redirectTo'),
-            service: relier.get('service')
-          };
+      var clientOptions = {
+        redirectTo: relier.get('redirectTo'),
+        service: relier.get('service')
+      };
 
-          if (options.resume) {
-            clientOptions.resume = options.resume;
-          }
+      if (options.resume) {
+        clientOptions.resume = options.resume;
+      }
 
-          return client.passwordForgotSendCode(email, clientOptions);
-        })
+      return client.passwordForgotSendCode(email, clientOptions)
         .then(function (result) {
           Session.clear();
           return result;
         });
-    },
+    }),
 
-    passwordResetResend: function (originalEmail, passwordForgotToken, relier, options) {
+    passwordResetResend: withClient((client, originalEmail, passwordForgotToken, relier, options = {}) => {
       var email = trim(originalEmail);
-      options = options || {};
 
-      return this._getClient()
-        .then(function (client) {
-          // the linters complain if this is defined in the call to
-          // passwordForgotResendCode
-          var clientOptions = {
-            redirectTo: relier.get('redirectTo'),
-            service: relier.get('service')
-          };
+      // the linters complain if this is defined in the call to
+      // passwordForgotResendCode
+      var clientOptions = {
+        redirectTo: relier.get('redirectTo'),
+        service: relier.get('service')
+      };
 
-          if (options.resume) {
-            clientOptions.resume = options.resume;
-          }
+      if (options.resume) {
+        clientOptions.resume = options.resume;
+      }
 
-          return client.passwordForgotResendCode(
-            email,
-            passwordForgotToken,
-            clientOptions
-          );
-        });
-    },
+      return client.passwordForgotResendCode(
+        email,
+        passwordForgotToken,
+        clientOptions
+      );
+    }),
 
-    completePasswordReset: function (originalEmail, newPassword, token, code, relier) {
+    completePasswordReset: withClient((client, originalEmail, newPassword, token, code, relier) => {
       const email = trim(originalEmail);
 
-      return this._getClient()
-        .then(client => {
-          return client.passwordForgotVerifyCode(code, token)
-            .then(result => {
-              return client.accountReset(email,
-                newPassword,
-                result.accountResetToken,
-                {
-                  keys: wantsKeys(relier),
-                  sessionToken: true
-                }
-              );
-            });
+      return client.passwordForgotVerifyCode(code, token)
+        .then(result => {
+          return client.accountReset(email,
+            newPassword,
+            result.accountResetToken,
+            {
+              keys: wantsKeys(relier),
+              sessionToken: true
+            }
+          );
         })
         .then(accountData => {
-          return this._getUpdatedSessionData(email, relier, accountData);
+          return getUpdatedSessionData(email, relier, accountData);
         });
-    },
+    }),
 
-    isPasswordResetComplete: function (token) {
-      return this._getClient()
-        .then(function (client) {
-          return client.passwordForgotStatus(token);
-        })
+    isPasswordResetComplete: withClient((client, token) => {
+      return client.passwordForgotStatus(token)
         .then(function () {
           // if the request succeeds, the password reset hasn't completed
           return false;
@@ -465,7 +430,7 @@ define(function (require, exports, module) {
           }
           throw err;
         });
-    },
+    }),
 
     /**
      * Change the user's password
@@ -478,52 +443,43 @@ define(function (require, exports, module) {
      * @param {Relier} relier
      * @returns {Promise} resolves with new session information on success.
      */
-    changePassword: function (originalEmail, oldPassword, newPassword, sessionToken, sessionTokenContext, relier) {
+    changePassword: withClient((client, originalEmail, oldPassword, newPassword, sessionToken, sessionTokenContext, relier) => {
       var email = trim(originalEmail);
-      return this._getClient()
-        .then(client => {
-          return client.passwordChange(
-            email,
-            oldPassword,
-            newPassword,
-            {
-              keys: wantsKeys(relier, sessionTokenContext),
-              sessionToken: sessionToken
-            }
-          );
-        })
-        .then((accountData = {}) => {
-          return this._getUpdatedSessionData(email, relier, accountData, {
-            sessionTokenContext: sessionTokenContext
-          });
+      return client.passwordChange(
+        email,
+        oldPassword,
+        newPassword,
+        {
+          keys: wantsKeys(relier, sessionTokenContext),
+          sessionToken: sessionToken
+        }
+      )
+      .then((accountData = {}) => {
+        return getUpdatedSessionData(email, relier, accountData, {
+          sessionTokenContext: sessionTokenContext
         });
-    },
+      });
+    }),
 
-    deleteAccount: function (originalEmail, password) {
+    deleteAccount: withClient((client, originalEmail, password) => {
       var email = trim(originalEmail);
-      return this._getClient()
-        .then(function (client) {
-          return client.accountDestroy(email, password);
-        });
-    },
+      return client.accountDestroy(email, password);
+    }),
 
-    certificateSign: function (pubkey, duration, sessionToken) {
-      return this._getClient()
-              .then(function (client) {
-                return client.certificateSign(
-                  sessionToken,
-                  pubkey,
-                  duration,
-                  { service: Constants.CONTENT_SERVER_SERVICE });
-              });
-    },
+    certificateSign: withClient((client, pubkey, duration, sessionToken) => {
+      return client.certificateSign(
+        sessionToken,
+        pubkey,
+        duration,
+        {
+          service: Constants.CONTENT_SERVER_SERVICE
+        }
+      );
+    }),
 
-    sessionStatus: function (sessionToken) {
-      return this._getClient()
-              .then(function (client) {
-                return client.sessionStatus(sessionToken);
-              });
-    },
+    sessionStatus: withClient((client, sessionToken) => {
+      return client.sessionStatus(sessionToken);
+    }),
 
     isSignedIn: function (sessionToken) {
       // Check if the user is signed in.
@@ -564,12 +520,9 @@ define(function (require, exports, module) {
      *   verificationReason: <see lib/verification-reasons.js>
      * }
      */
-    recoveryEmailStatus: function (sessionToken, uid) {
+    recoveryEmailStatus: withClient(function (client, sessionToken, uid) {
       var self = this;
-      return self._getClient()
-        .then(function (client) {
-          return client.recoveryEmailStatus(sessionToken);
-        })
+      return client.recoveryEmailStatus(sessionToken)
         .then(function (response) {
           if (! response.verified) {
             // This is a little bit unnatural. /recovery_email/status
@@ -609,28 +562,19 @@ define(function (require, exports, module) {
 
           throw err;
         });
-    },
+    }),
 
-    accountKeys: function (keyFetchToken, unwrapBKey) {
-      return this._getClient()
-        .then(function (client) {
-          return client.accountKeys(keyFetchToken, unwrapBKey);
-        });
-    },
+    accountKeys: withClient((client, keyFetchToken, unwrapBKey) => {
+      return client.accountKeys(keyFetchToken, unwrapBKey);
+    }),
 
-    deviceList: function (sessionToken) {
-      return this._getClient()
-        .then(function (client) {
-          return client.deviceList(sessionToken);
-        });
-    },
+    deviceList: withClient((client, sessionToken) => {
+      return client.deviceList(sessionToken);
+    }),
 
-    deviceDestroy: function (sessionToken, deviceId) {
-      return this._getClient()
-        .then(function (client) {
-          return client.deviceDestroy(sessionToken, deviceId);
-        });
-    }
+    deviceDestroy: withClient((client, sessionToken, deviceId) => {
+      return client.deviceDestroy(sessionToken, deviceId);
+    })
   };
 
   module.exports = FxaClientWrapper;
