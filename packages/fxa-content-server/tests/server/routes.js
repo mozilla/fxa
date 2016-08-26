@@ -180,8 +180,10 @@ define([
    * and fonts, that the correct CORS headers are set.
    */
   function extractAndCheckUrls(res) {
+    var href = url.parse(res.request.href);
+    var origin = [ href.protocol, '//', href.host ].join('');
     return extractUrls(res.body)
-      .then(checkUrls);
+      .then(checkUrls.bind(null, origin));
   }
 
   function extractUrls(body) {
@@ -214,13 +216,22 @@ define([
   // speed up the tests.
   var checkedUrlPromises = {};
 
-  function checkUrls(urls) {
+  function checkUrls(origin, urls) {
     var requests = urls.map(function (url) {
       if (checkedUrlPromises[url]) {
         return checkedUrlPromises[url];
       }
 
-      var promise = makeRequest(url, {})
+      var requestOptions = {};
+      if (doesURLRequireCORS(url)) {
+        requestOptions = {
+          headers: {
+            'Origin': origin
+          }
+        };
+      }
+
+      var promise = makeRequest(url, requestOptions)
         .then(function (res) {
           assert.equal(res.statusCode, 200);
 
