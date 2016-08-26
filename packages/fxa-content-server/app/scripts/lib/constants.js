@@ -103,6 +103,9 @@ define(function (require, exports, module) {
       'desktop-addons',
       'desktop-preferences'
     ],
+
+    // Login delay for iOS broker
+    IOS_V1_LOGIN_MESSAGE_DELAY_MS: 10000
   };
   /*eslint-enable sorting/sort-object-props*/
 });

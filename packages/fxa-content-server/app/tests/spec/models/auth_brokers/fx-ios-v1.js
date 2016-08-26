@@ -15,12 +15,14 @@ define(function (require, exports, module) {
 
   describe('models/auth_brokers/fx-ios-v1', function () {
     var channel;
+    var loginMessageDelayMS = 250;
     var relier;
     var windowMock;
 
     function createBroker () {
       return new FxiOSAuthenticationBroker({
         channel: channel,
+        loginMessageDelayMS: loginMessageDelayMS,
         relier: relier,
         window: windowMock
       });
@@ -53,6 +55,10 @@ define(function (require, exports, module) {
 
       it('does not have the `syncPreferencesNotification` capability by default', function () {
         assert.isFalse(broker.hasCapability('syncPreferencesNotification'));
+      });
+
+      it('broker loginMessageDelayMS delayed is set', function () {
+        assert.equal(broker.attributes.loginMessageDelayMS, loginMessageDelayMS);
       });
 
       describe('`broker.fetch` is called', function () {

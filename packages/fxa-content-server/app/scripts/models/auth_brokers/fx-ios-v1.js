@@ -10,16 +10,32 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var FxDesktopV1AuthenticationBroker = require('models/auth_brokers/fx-desktop-v1');
+  const _ = require('underscore');
+  const Constants = require('lib/constants');
+  const p = require('lib/promise');
 
-  var proto = FxDesktopV1AuthenticationBroker.prototype;
+  const FxDesktopV1AuthenticationBroker = require('models/auth_brokers/fx-desktop-v1');
 
-  var FxiOSV1AuthenticationBroker = FxDesktopV1AuthenticationBroker.extend({
+  const proto = FxDesktopV1AuthenticationBroker.prototype;
+
+  const FxiOSV1AuthenticationBroker = FxDesktopV1AuthenticationBroker.extend({
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
       chooseWhatToSyncCheckbox: false,
       convertExternalLinksToText: true
-    })
+    }),
+
+    _notifyRelierOfLogin: function (account) {
+      /**
+       * As a workaround for sign-in/sign-up confirmation view disappearing
+       * on iOS, delay the login message sent via the channel by LOGIN_MESSAGE_DELAY_MS.
+       * This will give the user an indication that they need to verify
+       * their email address.
+       */
+      const loginMessageDelayMS = this.get('loginMessageDelayMS') || Constants.IOS_V1_LOGIN_MESSAGE_DELAY_MS;
+      return p().delay(loginMessageDelayMS).then(() => {
+        return proto._notifyRelierOfLogin.call(this, account);
+      });
+    },
   });
 
   module.exports = FxiOSV1AuthenticationBroker;
