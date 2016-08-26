@@ -59,13 +59,13 @@ are treated as 'device clients' and are managed as 'Devices', not apps.
 we call them "apps" in the settings view.
 * The button to remove all active sessions will say "Disconnect". To match "devices".
 * The dashboard will provide a "last active" date in the same format as the devices view.
-* The dashboard's title in settings will be "Connected devices & apps".
+* The dashboard's title in settings will be "Devices & apps".
 * All services will have the same default service icon to improve the visual UX of the feature.
 * Revoking Access:
   * OAuth service: will revoke all non-expired tokens belonging to a given OAuth service.
-  * Expired tokens are deleted by a different purpose. This feature does not deal with expired tokens.
-  * FxA Settings (content-server): will invalidate all content-server tokens and local session token, log the user out.
-    * The content-server will be called "Firefox Accounts Settings" in the dashboard.
+  * Only the OAuth services that do not need permission to get implicit grants will be listed (`canGrant=0`).
+  * Expired tokens are deleted by a different process. This feature does not deal with expired tokens.
+  * FxA Settings (content-server): will not be visible in this view.
   * Firefox Desktop and other browsers clients: will not be listed and their devices records would revoke their tokens.
 * Initial version will show the default "Desktop" icon for the connected app.
 * The list will be hidden behind the flag in the initial version.
