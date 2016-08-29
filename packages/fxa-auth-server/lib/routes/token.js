@@ -42,6 +42,8 @@ const ID_TOKEN_KEY = JwTool.JWK.fromObject(config.get('openid.key'), {
   iss: ID_TOKEN_ISSUER
 });
 
+const REFRESH_LAST_USED_AT_UPDATE_AFTER_MS = config.get('refreshToken.updateAfter');
+
 const PAYLOAD_SCHEMA = Joi.object({
 
   client_id: validators.clientId
@@ -249,6 +251,17 @@ function confirmRefreshToken(params) {
       throw AppError.invalidScopes();
     }
     tokObj.scope = params.scope;
+
+    var now = new Date();
+    var lastUsedAt = tokObj.lastUsedAt;
+
+    if ((now - lastUsedAt) > REFRESH_LAST_USED_AT_UPDATE_AFTER_MS){
+      db.usedRefreshToken(encrypt.hash(params.refresh_token)).then(function() {
+        logger.debug('usedRefreshToken.updated', now);
+      });
+    } else {
+      logger.debug('usedRefreshToken.not_updated');
+    }
     return tokObj;
   });
 }

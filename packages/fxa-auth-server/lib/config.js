@@ -99,6 +99,13 @@ const conf = convict({
       default: '15 minutes'
     }
   },
+  refreshToken: {
+    updateAfter: {
+      doc: 'lastUsedAt only gets updated after this delay',
+      format: 'duration',
+      default: '24 hours'
+    }
+  },
   git: {
     commit: {
       doc: 'Commit SHA when in stage/production',

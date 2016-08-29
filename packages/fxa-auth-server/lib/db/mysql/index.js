@@ -165,6 +165,7 @@ const QUERY_REFRESH_TOKEN_INSERT =
   '(?, ?, ?, ?, ?)';
 const QUERY_ACCESS_TOKEN_FIND = 'SELECT * FROM tokens WHERE token=?';
 const QUERY_REFRESH_TOKEN_FIND = 'SELECT * FROM refreshTokens where token=?';
+const QUERY_REFRESH_TOKEN_LAST_USED_UPDATE = 'UPDATE refreshTokens SET lastUsedAt=? WHERE token=?';
 const QUERY_CODE_FIND = 'SELECT * FROM codes WHERE code=?';
 const QUERY_CODE_DELETE = 'DELETE FROM codes WHERE code=?';
 const QUERY_ACCESS_TOKEN_DELETE = 'DELETE FROM tokens WHERE token=?';
@@ -430,6 +431,15 @@ MysqlStore.prototype = {
       }
       return t;
     });
+  },
+
+  usedRefreshToken: function usedRefreshToken(token) {
+    var now = new Date();
+    return this._write(QUERY_REFRESH_TOKEN_LAST_USED_UPDATE, [
+      now,
+      // WHERE
+      token
+    ]);
   },
 
   removeRefreshToken: function removeRefreshToken(id) {

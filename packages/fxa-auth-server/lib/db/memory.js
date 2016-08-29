@@ -70,7 +70,8 @@ const MAX_TTL = config.get('expiration.accessToken');
  *       clientId: <client_id>,
  *       userId: <user_id>,
  *       scope: <string>,
- *       createdAt: <timestamp>
+ *       createdAt: <timestamp>,
+ *       lastUsedAt: <timestamp>
  *     }
  *   }
  * }
@@ -244,6 +245,7 @@ MemoryStore.prototype = {
       email: vals.email,
       scope: vals.scope,
       createdAt: new Date(),
+      lastUsedAt: new Date(),
       token: encrypt.hash(token)
     };
     var ret = clone(t);
@@ -254,6 +256,20 @@ MemoryStore.prototype = {
   getRefreshToken: function getRefreshToken(token) {
     return P.resolve(clone(this.refreshTokens[unbuf(token)]));
   },
+  usedRefreshToken: function usedRefreshToken(token) {
+    if (!token) {
+      return P.reject(new Error('Update needs a token'));
+    }
+    var hex = unbuf(token);
+    if (!this.refreshTokens[hex]) {
+      return P.reject(new Error('Token does not exist'));
+    }
+    var old = this.refreshTokens[hex];
+    old.lastUsedAt = new Date();
+
+    return P.resolve(old);
+  },
+
   removeRefreshToken: function removeRefreshToken(id) {
     delete this.refreshTokens[unbuf(id)];
     return P.resolve();

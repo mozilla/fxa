@@ -328,6 +328,80 @@ describe('db', function() {
     });
   });
 
+  describe('refresh token lastUsedAt', function () {
+    var clientId = buf(randomString(8));
+    var userId = buf(randomString(16));
+    var email = 'a@b.c';
+    var scope = ['no-scope'];
+    var code = null;
+    var refreshToken = null;
+
+    beforeEach(function() {
+      return db.registerClient({
+        id: clientId,
+        name: 'lastUsedAtTest',
+        hashedSecret: randomString(32),
+        imageUri: 'https://example.domain/logo',
+        redirectUri: 'https://example.domain/return?foo=bar',
+        trusted: true
+      }).then(function () {
+        return db.generateCode({
+          clientId: clientId,
+          userId: userId,
+          email: email,
+          scope: scope,
+          authAt: 0
+        });
+      }).then(function (c) {
+        code = c;
+        return db.getCode(code);
+      }).then(function(code) {
+        assert.equal(hex(code.userId), hex(userId));
+        return db.generateAccessToken({
+          clientId: clientId,
+          userId: userId,
+          email: email,
+          scope: scope
+        });
+      }).then(function (t) {
+        assert.equal(hex(t.userId), hex(userId), 'token userId');
+        return db.generateRefreshToken({
+          clientId: clientId,
+          userId: userId,
+          email: email,
+          scope: scope
+        });
+      }).then(function (t) {
+        refreshToken = t;
+      });
+    });
+
+    it('should refresh token lastUsedAt', function () {
+      var tokenFirstUsage = {};
+      var hash = encrypt.hash(refreshToken.token);
+
+      return db.getRefreshToken(hash).then(function (t) {
+        assert.equal(hex(t.token), hex(hash), 'same token');
+
+        tokenFirstUsage.createdAt = new Date(t.createdAt);
+        tokenFirstUsage.lastUsedAt = t.lastUsedAt;
+
+        return Promise.delay(1000); //ensures that creation and subsequent usage are at least 1s apart
+      }).then(function() {
+        return db.usedRefreshToken(encrypt.hash(refreshToken.token));
+      }).then(function() {
+        return db.getRefreshToken(hash);
+      })
+      .then(function(t) {
+        assert.equal(hex(t.token), hex(hash), 'same token');
+        var updatedLastUsedAt = new Date(t.lastUsedAt);
+
+        assert.equal(updatedLastUsedAt > tokenFirstUsage.lastUsedAt, true, 'createdAt was updated');
+        assert.equal(t.createdAt.toString(), tokenFirstUsage.createdAt.toString(), 'creation date not changed');
+      });
+    });
+  });
+
   describe('developers', function () {
 
     describe('removeDeveloper', function() {
