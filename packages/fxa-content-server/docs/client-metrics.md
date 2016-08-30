@@ -86,20 +86,24 @@ The event stream is a log of events and the time they occurred while the user is
 * error.&lt;resource&gt;.require-on-demand.1002 - resource dependency had a script error.
 * error.&lt;unexpected_origin&gt;.auth.1027 - a postMessage message was received from an unexpected origin.
 * error.&lt;image_url&gt;.profile.997 - a profile image could not load.
+* error.&lt;screen_name&gt;.&lt;service&gt;.998 - System unavailable.
 * loaded - logged after the first screen is rendered.
 * &lt;screen_name&gt;.submit - A submit event has occurred and all of the form's input elements are valid.
 * &lt;screen_name&gt;.refresh - The aforementioned screen was refreshed.
 
+#### Authentication namespace
+* error.&lt;screen_name&gt;.auth.114 - account has been throttled ("Attempt limit exceeded")
+* error.&lt;screen_name&gt;.auth.1005 - request taking longer than expected ("Working...")
+* error.&lt;screen_name&gt;.auth.999 - Unknown error.
+
 ### Events per screen
-
-
-#### account_unlock_complete
-
-#### cannot_create_account
 
 #### change_password
 * error.change_password.auth.103 - incorrect password
 * error.change_password.auth.121 - account locked
+* error.change_password.auth.1008 - new password must be different
+* error.change_password.auth.1009 - password must be at least 8 characters
+* error.change_password.auth.1010 - valid password required
 * change_password.unlock-email.send - user attempted to send unlock email
 * change_password.unlock-email.send.success - unlock email successfully sent
 * change_password.success - password changed successfully
@@ -107,49 +111,56 @@ The event stream is a log of events and the time they occurred while the user is
 #### choose_what_to_sync
 * choose-what-to-sync.engine-unchecked.`<engine_name>` - a Sync engine was unselected.
 
-#### complete_account_unlock
-* error.complete_account_unlock.auth.1025 - User clicked on an expired verification link.
-* error.complete_account_unlock.auth.1026 - User clicked on a damaged verification link.
-* complete_account_unlock.verification.success - successful verification
-
 #### complete_reset_password
 * complete_reset_password.verification.success - email successfully verified.
 * complete_reset_password.resend - A verification email was resent after an expired link was opened.
+* error.complete_reset_password.auth.1004 - password does not match
+* error.complete_reset_password.auth.1009 - password must be at least 8 characters
+* error.complete_reset_password.auth.1010 - valid password required
+* error.complete_reset_password.auth.1011 - valid email required
 * error.complete_reset_password.auth.1025 - User clicked on an expired verification link.
-* error.complete_reset_password.auth.1026 - User clicked on a damaged verification link.
 
-#### complete_sign_up
-* complete_sign_up.verification.success - email successfully verified.
-* complete_sign_up.resend - A verification email was resent after an expired link was opened.
-* error.complete_sign_up.auth.1025 - User clicked on an expired verification link.
-* error.complete_sign_up.auth.1026 - User clicked on a damaged verification link.
-* error.complete_sign_up.auth.1040 - User tried to verify an account that does not exist.
-* error.complete_sign_up.auth.1041 - User tried to verify a sign-in that has already been verified.
+#### verify_email
+* verify_email.verification.success - email successfully verified.
+* verify_email.resend - A verification email was resent after an expired link was opened.
+* error.verify_email.auth.1025 - User clicked on an expired verification link.
+* error.verify_email.auth.1026 - User clicked on a damaged verification link.
+* error.verify_email.auth.1040 - User tried to verify an account that does not exist.
+
+#### complete_signin
+* complete_signin.verification.success - email successfully verified.
+* error.complete_signin.auth.1025 - User clicked on an expired verification link.
+* error.complete_signin.auth.1026 - User clicked on a damaged verification link.
 
 #### confirm
-
 * confirm.resend - attempt to resend verification email
+* error.confirm.auth.1039 - Polling failed.
+* error.confirm.auth.1041 - User tried to verify a sign-in that has already been verified.
 
-#### confirm_account_unlock
-* confirm-account-unlock.verification.success - account unlock verification occurred in another tab
-* confirm-account-unlock.resend - attempt to resend unlock email
-* confirm-account-unlock.resend.success - resend email successfully sent
-* error.confirm-account-unlock.auth.122 - account not locked
+#### confirm_signin
+* confirm_signin.verification.success - email successfully verified.
+* confirm_signin.back - User clicked back.
+* confirm_signin.resend - User resent verification email.
+* error.confirm_signin.auth.110 - Invalid authentication token used.
+* error.confirm_signin.auth.1039 - Polling failed.
+* error.confirm_signin.auth.1041 - User tried to verify a sign-in that has already been verified.
 
 #### confirm_reset_password
+* confirm_reset_password.verification.success - Password successfully reset.
+
 #### cookies_disabled
+* error.cookies_disabled.auth.1003 - Cookies are still disabled.
+
 #### delete_account
-* error.delete-account.auth.121 - account locked
-* delete-account.unlock-email.send - user attempted to send unlock email
-* delete-account.unlock-email.send.success - unlock email successfully sent
+* error.delete_account.auth.1009 - password must be at least 8 characters
 * delete-account.deleted - user successfully deleted an account
 
 #### force_auth
-#### illegal_iframe
 #### legal
 #### pp
 #### ready
 #### reset_password
+* error.reset_password.auth.102 - unknown account
 * error.reset_password.auth.1011 - user did not enter an email address
 * error.reset_password.auth.1023 - user entered an email address that was invalid
 
