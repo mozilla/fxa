@@ -179,15 +179,20 @@ body.settings #main-content.card {
 
       html[dir='ltr'] & {
         float: right;
+
+        &.unpaired {
+          float: none;
+        }
       }
 
       html[dir='rtl'] & {
         float: left;
+
+        &.unpaired {
+          float: none;
+        }
       }
 
-      &.unpaired {
-        float: none;
-      }
     }
   }
 
