@@ -6,7 +6,7 @@
 
 module.exports = function (grunt) {
   var banner =
-    '/*! <%= pkg.name %>@<%= pkg.version %> -- <%= grunt.template.today() %>\n' +
+    '/*! <%= pkg.name %>@<%= pkg.version %>\n' +
     ' *\n' +
     ' * Git sha: <%= githash.main.hash %>\n' +
     ' *\n' +
