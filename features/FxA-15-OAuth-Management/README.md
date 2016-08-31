@@ -50,8 +50,7 @@ It will be displayed to logged in users of FxA
 in the "Devices & apps" settings view.
 This new functionality changes the current devices view and adds to it.
 
-The list will also include the sessions that were created
-for the Firefox Accounts website. Firefox Browser and Sync logins
+Firefox Sync logins
 are treated as 'device clients' and are managed as 'Devices', not apps.
 
 * The dashboard will order the services by last login to a given service.
@@ -68,7 +67,8 @@ we call them "apps" in the settings view.
   * FxA Settings (content-server): will not be visible in this view.
   * Firefox Desktop and other browsers clients: will not be listed and their devices records would revoke their tokens.
 * Initial version will show the default "Desktop" icon for the connected app.
-* The list will be hidden behind the flag in the initial version.
+* The list will be hidden behind a URL feature flag. The feature can be accessed by adding
+`/settings?forceDeviceList=1&forceAppsList=1` url.
 
 ## Prior art
 
@@ -77,13 +77,25 @@ we call them "apps" in the settings view.
 <img src="pr_github.jpg" width="220px" alt="GitHub" />
 ****
 
+## Implementation Plan
+
+### Phase 1
+
+* [ ] Ability to list the logged in OAuth apps.
+* [ ] Ability to revoke tokens ('Disconnect') for logged in OAuth apps.
+* [ ] Feature is behind a feature flag.
+
+### Phase 2
+
+* [ ] Remove the feature flag.
+
 ## Possible future improvements
 
 These are the items that can be beneficial to add if this feature is popular and useful:
 
+* Remove OAuth tokens when a device associated with it is deleted.
 * Support for custom icons for each service.
 * Add a visual confirmation as part of revoking the session.
 * Detailed information about OAuth scope used.
-* [Track last-used-at time for refresh tokens](https://github.com/mozilla/fxa-oauth-server/issues/275).
 * Mozilla Support (SUMO) article explaining this feature.
-* Only show services that use Refresh Tokens.
+* Only show services that use Refresh Tokens once most services use those.
