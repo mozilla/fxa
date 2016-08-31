@@ -336,7 +336,7 @@ module.exports = function (log, error) {
   //          d.callbackPublicKey, d.callbackAuthKey, s.uaBrowser, s.uaBrowserVersion,
   //          s.uaOS, s.uaOSVersion, s.uaDeviceType, s.lastAccessTime
   // Where  : d.uid = $1
-  var ACCOUNT_DEVICES = 'CALL accountDevices_4(?)'
+  var ACCOUNT_DEVICES = 'CALL accountDevices_5(?)'
 
   MySql.prototype.accountDevices = function (uid) {
     return this.readOneFromFirstResult(ACCOUNT_DEVICES, [uid])

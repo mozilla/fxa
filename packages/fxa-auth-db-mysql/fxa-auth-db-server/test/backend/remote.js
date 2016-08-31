@@ -508,8 +508,9 @@ module.exports = function(cfg, server) {
   test(
     'device handling',
     function (t) {
-      t.plan(51)
+      t.plan(61)
       var user = fake.newUserDataHex()
+      var zombieUser = fake.newUserDataHex()
       return client.getThen('/account/' + user.accountId + '/devices')
         .then(function(r) {
           respOk(t, r)
@@ -582,6 +583,33 @@ module.exports = function(cfg, server) {
           t.equal(devices[0].uaOSVersion, user.sessionToken.uaOSVersion, 'uaOSVersion is correct')
           t.equal(devices[0].uaDeviceType, user.sessionToken.uaDeviceType, 'uaDeviceType is correct')
           t.equal(devices[0].lastAccessTime, user.sessionToken.createdAt, 'lastAccessTime is correct')
+
+          return client.postThen('/account/' + user.accountId + '/device/' + user.deviceId + '/update', {
+            sessionTokenId: zombieUser.sessionTokenId
+          })
+        })
+        .then(function(r) {
+          respOk(t, r)
+          return client.getThen('/account/' + user.accountId + '/devices')
+        })
+        .then(function(r) {
+          respOk(t, r)
+          var devices = r.obj
+          t.equal(devices.length, 0, 'devices is empty')
+
+          return client.postThen('/account/' + user.accountId + '/device/' + user.deviceId + '/update', {
+            sessionTokenId: user.sessionTokenId
+          })
+        })
+        .then(function(r) {
+          respOk(t, r)
+          return client.getThen('/account/' + user.accountId + '/devices')
+        })
+        .then(function(r) {
+          respOk(t, r)
+          var devices = r.obj
+          t.equal(devices.length, 1, 'devices contains one item again')
+
           return client.delThen('/account/' + user.accountId + '/device/' + user.deviceId)
         })
         .then(function(r) {

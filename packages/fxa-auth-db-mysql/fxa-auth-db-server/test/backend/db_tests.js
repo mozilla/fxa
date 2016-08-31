@@ -1021,9 +1021,10 @@ module.exports = function(config, DB) {
         test(
           'db.accountDevices',
           function (t) {
-            t.plan(73)
+            t.plan(75)
             var deviceId = newUuid()
             var sessionTokenId = hex32()
+            var zombieSessionTokenId = hex32()
             var createdAt = Date.now()
             var deviceInfo = {
               name: 'test device',
@@ -1157,7 +1158,7 @@ module.exports = function(config, DB) {
                 return db.createSessionToken(newSessionTokenId, SESSION_TOKEN)
               })
               .then(function () {
-                // Update the device
+                // Update the device name and session token
                 return db.updateDevice(ACCOUNT.uid, deviceId, {
                   sessionTokenId: newSessionTokenId,
                   name: 'updated name',
@@ -1182,6 +1183,8 @@ module.exports = function(config, DB) {
                 t.equal(device.callbackURL, deviceInfo.callbackURL, 'callbackURL unchanged')
                 t.equal(device.callbackPublicKey, deviceInfo.callbackPublicKey, 'callbackPublicKey unchanged')
                 t.equal(device.callbackAuthKey, deviceInfo.callbackAuthKey, 'callbackAuthKey unchanged')
+
+                // Update the device type and callback params
                 return db.updateDevice(ACCOUNT.uid, deviceId, {
                   type: 'desktop',
                   callbackURL: '',
@@ -1207,6 +1210,36 @@ module.exports = function(config, DB) {
                 t.equal(device.callbackURL, '', 'callbackURL updated')
                 t.equal(device.callbackPublicKey, '', 'callbackPublicKey updated')
                 t.equal(device.callbackAuthKey, '', 'callbackAuthKey updated')
+
+                // Make the device a zombie, by giving it a non-existent session token
+                return db.updateDevice(ACCOUNT.uid, deviceId, {
+                  sessionTokenId: zombieSessionTokenId
+                })
+                .catch(function () {
+                  t.fail('updating an existing device should not have failed')
+                })
+              })
+              .then(function () {
+                // Fetch all of the devices for the account
+                return db.accountDevices(ACCOUNT.uid)
+              })
+              .then(function (devices) {
+                t.equal(devices.length, 0, 'devices is empty')
+
+                // Reinstate the previous session token for the device
+                return db.updateDevice(ACCOUNT.uid, deviceId, {
+                  sessionTokenId: newSessionTokenId
+                })
+                .catch(function () {
+                  t.fail('updating an existing device should not have failed')
+                })
+              })
+              .then(function () {
+                // Fetch all of the devices for the account
+                return db.accountDevices(ACCOUNT.uid)
+              })
+              .then(function (devices) {
+                t.equal(devices.length, 1, 'devices contains one item again')
 
                 // Attempt to create a second device with the same session token
                 return db.createDevice(ACCOUNT.uid, newUuid(), {

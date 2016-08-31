@@ -392,19 +392,25 @@ module.exports = function (log, error) {
     return getAccountByUid(uid)
       .then(
         function(account) {
-          return Object.keys(account.devices).map(
-            function (id) {
-              var device = account.devices[id]
-              var sessionKey = (device.sessionTokenId || '').toString('hex')
-              var session = sessionTokens[sessionKey]
-              if (session) {
-                SESSION_FIELDS.forEach(function (key) {
-                  device[key] = session[key]
-                })
+          return Object.keys(account.devices)
+            .map(
+              function (id) {
+                var device = account.devices[id]
+                var sessionKey = (device.sessionTokenId || '').toString('hex')
+                var session = sessionTokens[sessionKey]
+                if (session) {
+                  SESSION_FIELDS.forEach(function (key) {
+                    device[key] = session[key]
+                  })
+                  return device
+                }
               }
-              return device
-            }
-          )
+            )
+            .filter(
+              function (device) {
+                return !! device
+              }
+            )
         },
         function (err) {
           return []
