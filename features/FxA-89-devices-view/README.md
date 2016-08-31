@@ -27,12 +27,12 @@ Engineering bugs: https://waffle.io/mozilla/fxa?milestone=FxA-89:%20devices%20vi
 ## Hypothesis
 
 1. If we add a device view in settings
-   for Firefox Account users with multiple devices,
-   then **we will decrease the number of malicious connections**
+   for Firefox Account users, then
+   **we will decrease the number of active malicious connections**
    because we will observe users managing and disconnecting
    suspicious devices which they cannot presently do.
 2. If we add a device view in settings
-   for Firefox Account users with multiple devices,
+   for Firefox Account users,
    then **we will decrease the number of old/lost devices
    still connected to an account**
    because we will observe users managing their devices.
@@ -48,7 +48,8 @@ Engineering bugs: https://waffle.io/mozilla/fxa?milestone=FxA-89:%20devices%20vi
 
 We will know our hypotheses to be true when we measure that users are disconnecting old, lost and unknown devices.
 
-We will measure this through the confirmation dialogue after users click to disconnect a device.
+We will measure the reason why devices are being disconnected
+via the confirmation dialogue after users click to disconnect a device.
 
 ### Secondary Metrics
 
@@ -136,14 +137,14 @@ on that device.
 
 ### Disconnecting View
 
-When the user selects to disconnect a device,
+When the user chooses to disconnect a device,
 we overlay a modal confirmation dialog.
 This will minimize accidental clicks on "Disconnect..."
 and help us measure signals as to why a device is removed.
 
-In this view, we should not see
-any message to download Firefox on other devices.
-We want to minimize noise and distractions.
+In this view, we will not show
+any message to download Firefox on other devices,
+as we want to minimize noise and distractions.
 
 When the user clicks and releases the "Disconnect..." button
 the following occurs:
@@ -208,7 +209,7 @@ the row is overtaken by the area beneath it:
 One the server side,
 we send the user an email notification about the removed device.
 It includes:
-* Removed device name
+* The name of the removed device
 * IP and geo information of person that triggered the removal
 * Link that says: “I did not request to remove this device from my FxA”,
   linking to a SUMO page that says:
@@ -349,13 +350,13 @@ Acceptance criteria:
 
 * [ ] When I click the "Disconnect..." button
       and my login session is more than 30 minutes old,
-      I required to re-enter my password
+      I am required to re-enter my password
       before I can disconnect the device.
-* [ ] When I disconnect my current device
+* [ ] When I disconnect my current Desktop device
       through the devices view,
       and then go to about:preferences#sync,
       I immediately see that the device is disconnected.
-* [ ] When I disconnect a different device
+* [ ] When I disconnect a different Desktop device
       through the devices view,
       and then go to about:preferences#sync on that device,
       I immediately see that the device is disconnected.
