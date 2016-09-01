@@ -142,33 +142,33 @@ define(function (require, exports, module) {
 
       it('fetches both types of clients', function () {
         return attachedClients.fetchClients({devices: true, oAuthApps: true}, user)
-          .then((result) => {
-            assert.equal(result.length, 2);
-            assert.equal(result[0][0].clientType, 'device');
-            assert.equal(result[1][0].clientType, 'oAuthApp');
+          .then(() => {
+            assert.equal(attachedClients.length, 2);
+            assert.equal(attachedClients.at(0).get('clientType'), 'device');
+            assert.equal(attachedClients.at(1).get('clientType'), 'oAuthApp');
           });
       });
 
       it('fetches just devices', function () {
         return attachedClients.fetchClients({devices: true}, user)
-          .then((result) => {
-            assert.equal(result.length, 1);
-            assert.equal(result[0][0].clientType, 'device');
+          .then(() => {
+            assert.equal(attachedClients.length, 1);
+            assert.equal(attachedClients.at(0).get('clientType'), 'device');
           });
       });
 
       it('fetches just oAuthApps', function () {
         return attachedClients.fetchClients({oAuthApps: true}, user)
-          .then((result) => {
-            assert.equal(result.length, 1);
-            assert.equal(result[0][0].clientType, 'oAuthApp');
+          .then(() => {
+            assert.equal(attachedClients.length, 1);
+            assert.equal(attachedClients.at(0).get('clientType'), 'oAuthApp');
           });
       });
 
-      it('fetches nothing ', function () {
+      it('fetches nothing', function () {
         return attachedClients.fetchClients({}, user)
-          .then((result) => {
-            assert.equal(result.length, 0);
+          .then(() => {
+            assert.equal(attachedClients.length, 0);
           });
       });
     });

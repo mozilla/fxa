@@ -30,14 +30,26 @@ define(function (require, exports, module) {
       var fetchItems = [];
 
       if (clientTypes.devices) {
-        fetchItems.push(user.fetchAccountDevices(account, this));
+        fetchItems.push(user.fetchAccountDevices(account));
       }
 
       if (clientTypes.oAuthApps) {
-        fetchItems.push(user.fetchAccountOAuthApps(account, this));
+        fetchItems.push(user.fetchAccountOAuthApps(account));
       }
 
-      return P.all(fetchItems);
+      return P.all(fetchItems)
+        .then((results) => {
+          // need to reset and sync add the models,
+          // Backbone cannot merge two simultaneous responses.
+          this.reset();
+          if (results) {
+            results.forEach((items) => {
+              this.add(items, {
+                merge: true
+              });
+            });
+          }
+        });
     },
 
     comparator: function (a, b) {

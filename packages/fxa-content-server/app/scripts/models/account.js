@@ -713,38 +713,32 @@ define(function (require, exports, module) {
     /**
      * Fetch the account's device list and populate into the collection
      *
-     * @param {Object} clients - Clients collection used to store the list
      * @returns {Promise} - resolves when complete
      */
-    fetchDevices: function (clients) {
+    fetchDevices: function () {
       return this._fxaClient.deviceList(this.get('sessionToken'))
         .then((devices) => {
           devices.map((item) => {
             item.clientType = Constants.CLIENT_TYPE_DEVICE;
           });
 
-          return clients.set(devices, {
-            add: true
-          });
+          return devices;
         });
     },
 
     /**
      * Fetch the account's OAuth Apps and populate into the collection
      *
-     * @param {Object} clients - Clients collection used to store the list
      * @returns {Promise} resolves when the action completes
      */
-    fetchOAuthApps: function (clients) {
+    fetchOAuthApps: function () {
       return this._oAuthClient.fetchOAuthApps(this.get('accessToken'))
         .then((oAuthApps) => {
           oAuthApps.map((item) => {
             item.clientType = Constants.CLIENT_TYPE_OAUTH_APP;
           });
 
-          clients.set(oAuthApps, {
-            add: true
-          });
+          return oAuthApps;
         });
     },
 

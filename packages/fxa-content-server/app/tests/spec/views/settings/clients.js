@@ -257,7 +257,7 @@ define(function (require, exports, module) {
 
       it('delegates to the user to fetch the device list', function () {
         var account = view.getSignedInAccount();
-        assert.isTrue(user.fetchAccountDevices.calledWith(account, attachedClients));
+        assert.isTrue(user.fetchAccountDevices.calledWith(account));
       });
     });
   });

@@ -8,7 +8,6 @@ define(function (require, exports, module) {
   var Account = require('models/account');
   var Assertion = require('lib/assertion');
   var AuthErrors = require('lib/auth-errors');
-  var AttachedClients = require('models/attached-clients');
   var chai = require('chai');
   var Constants = require('lib/constants');
   var Device = require('models/device');
@@ -1433,16 +1432,8 @@ define(function (require, exports, module) {
     });
 
     describe('fetchDevices', function () {
-      var devices;
-
       beforeEach(function () {
         account.set('sessionToken', SESSION_TOKEN);
-
-        devices = new AttachedClients([], {
-          notifier: {
-            on: sinon.spy()
-          }
-        });
 
         sinon.stub(fxaClient, 'deviceList', function () {
           return p([
@@ -1459,30 +1450,21 @@ define(function (require, exports, module) {
           ]);
         });
 
-        return account.fetchDevices(devices);
       });
 
       it('fetches the device list from the back end', function () {
-        assert.isTrue(fxaClient.deviceList.calledWith(SESSION_TOKEN));
-      });
-
-      it('populates the `devices` collection', function () {
-        assert.equal(devices.length, 2);
-        assert.equal(devices.get('device-1').get('clientType'), 'device');
+        return account.fetchDevices().then((result) => {
+          assert.isTrue(fxaClient.deviceList.calledWith(SESSION_TOKEN));
+          assert.equal(result.length, 2);
+          assert.equal(result[0].clientType, 'device');
+          assert.equal(result[0].name, 'alpha');
+        });
       });
     });
 
     describe('fetchOAuthApps', function () {
-      var oAuthApps;
-
       beforeEach(function () {
         account.set('accessToken', ACCESS_TOKEN);
-
-        oAuthApps = new AttachedClients([], {
-          notifier: {
-            on: sinon.spy()
-          }
-        });
 
         sinon.stub(account._oAuthClient, 'fetchOAuthApps', function () {
           return p([
@@ -1492,23 +1474,21 @@ define(function (require, exports, module) {
             },
             {
               id: 'oauth-2',
-              isCurrentDevice: true,
               name: 'beta'
             }
           ]);
         });
-
-        return account.fetchOAuthApps(oAuthApps);
       });
 
-      it('fetches the device list from the back end', function () {
-        assert.isTrue(account._oAuthClient.fetchOAuthApps.calledWith(ACCESS_TOKEN));
+      it('fetches the OAuth apps list from the back end', function () {
+        return account.fetchOAuthApps().then((result) => {
+          assert.isTrue(account._oAuthClient.fetchOAuthApps.calledWith(ACCESS_TOKEN));
+          assert.equal(result.length, 2);
+          assert.equal(result[0].clientType, 'oAuthApp');
+          assert.equal(result[0].name, 'alpha');
+        });
       });
 
-      it('populates the `devices` collection', function () {
-        assert.equal(oAuthApps.length, 2);
-        assert.equal(oAuthApps.get('oauth-1').get('clientType'), 'oAuthApp');
-      });
     });
 
     describe('destroyDevice', function () {
