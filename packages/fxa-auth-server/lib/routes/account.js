@@ -332,6 +332,10 @@ module.exports = function (
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
             // Obsolete contentToken param, here for backwards compat.
             contentToken: isA.string().optional(),
+            // Delegate sending emails for unverified users to auth-server.
+            // Will be removed once all clients have been updated not to send verify emails.
+            // https://github.com/mozilla/fxa-auth-server/issues/1325
+            sendEmailIfUnverified: isA.boolean().optional(),
             service: isA.string().max(16).alphanum().optional(),
             redirectTo: isA.string().uri().optional(),
             resume: isA.string().optional(),
@@ -380,6 +384,7 @@ module.exports = function (
           .then(createSessionToken)
           .then(createKeyFetchToken)
           .then(emitSyncLoginEvent)
+          .then(sendVerifyAccountEmail)
           .then(sendNewDeviceLoginNotification)
           .then(sendVerifyLoginEmail)
           .then(createResponse)
@@ -534,6 +539,29 @@ module.exports = function (
               email: emailRecord.email,
               deviceCount: sessions.length,
               userAgent: request.headers['user-agent']
+            })
+          }
+        }
+
+        function sendVerifyAccountEmail() {
+          // For legacy clients, behavior is to not send an email to verify their account
+          // and have the requestor send it.
+          var sendEmailIfUnverified = false
+
+          // If a value was passed, use that instead
+          if (request.payload.sendEmailIfUnverified !== undefined) {
+            sendEmailIfUnverified = request.payload.sendEmailIfUnverified
+          }
+
+          var shouldSendVerifyAccountEmail = sendEmailIfUnverified && !emailRecord.emailVerified
+          if (shouldSendVerifyAccountEmail) {
+            // Resend the account verification email using the tokenVerificationId so that the session
+            // that initiated the login will also get verified.
+            return mailer.sendVerifyCode(emailRecord, tokenVerificationId, {
+              service: service,
+              redirectTo: redirectTo,
+              resume: resume,
+              acceptLanguage: request.app.acceptLanguage
             })
           }
         }

@@ -118,7 +118,7 @@ test('/recovery_email/status', function (t) {
         .then(function () {
           mockDB.deleteAccount.reset()
         })
-      }, t)
+      })
 
       t.test('verified account', function (t) {
         mockRequest.auth.credentials.uid = uuid.v4('binary').toString('hex')
@@ -678,7 +678,7 @@ test('/account/create', function (t) {
 })
 
 test('/account/login', function (t) {
-  t.plan(3)
+  t.plan(4)
   var config = {
     newLoginNotificationEnabled: true
   }
@@ -1150,6 +1150,49 @@ test('/account/login', function (t) {
       })
     }).finally(function () {
       mockLog.close()
+    })
+  })
+
+  t.test('sign-in unverified account', function (t) {
+    t.plan(2)
+    mockDB.emailRecord = function () {
+      return P.resolve({
+        authSalt: crypto.randomBytes(32),
+        data: crypto.randomBytes(32),
+        email: 'test@mozilla.com',
+        emailVerified: false,
+        kA: crypto.randomBytes(32),
+        lastAuthAt: function () {
+          return Date.now()
+        },
+        uid: uid,
+        wrapWrapKb: crypto.randomBytes(32)
+      })
+    }
+
+    t.test('without `sendEmailIfUnverified` param', function (t) {
+      return runTest(route, mockRequest, function (response) {
+        t.equal(mockMailer.sendVerifyCode.callCount, 0, 'mailer.sendVerifyCode was not called')
+        t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
+        t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+        t.equal(response.verified, false, 'response indicates account is unverified')
+        t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
+        t.equal(response.verificationReason, 'signup', 'verificationReason is signup')
+      })
+    })
+
+    t.test('with `sendEmailIfUnverified` param', function (t) {
+      mockRequest.payload.sendEmailIfUnverified = true
+      return runTest(route, mockRequest, function (response) {
+        t.equal(mockMailer.sendVerifyCode.callCount, 1, 'mailer.sendVerifyCode was called')
+        t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
+        t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+        t.equal(response.verified, false, 'response indicates account is unverified')
+        t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
+        t.equal(response.verificationReason, 'signup', 'verificationReason is signup')
+      }).then(function () {
+        mockRequest.payload.sendEmailIfUnverified = undefined
+      })
     })
   })
 })
