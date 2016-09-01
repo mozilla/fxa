@@ -460,11 +460,11 @@ body.settings #main-content.card {
   }
 }
 
-.device-list {
+.client-list {
   padding: 0;
 }
 
-.device {
+.client {
   background-position: 0 4px;
   background-repeat: no-repeat;
   background-size: 30px 30px;
@@ -475,7 +475,7 @@ body.settings #main-content.card {
   padding-left: 40px;
   position: relative;
 
-  .device-name {
+  .client-name {
     overflow: hidden;
     text-overflow: ellipsis;
     /*allows 5% gutter between device-name and .device-disconnected button*/
@@ -506,10 +506,10 @@ body.settings #main-content.card {
   }
 }
 
-.device.desktop {
+.client.desktop {
   background-image: url('/images/device-icon-pc.png');
 }
 
-.device.mobile {
+.client.mobile {
   background-image: url('/images/device-icon-mobile.png');
 }

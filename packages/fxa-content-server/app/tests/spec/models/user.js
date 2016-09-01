@@ -10,11 +10,12 @@ define(function (require, exports, module) {
   var chai = require('chai');
   var Constants = require('lib/constants');
   var Device = require('models/device');
-  var Devices = require('models/devices');
+  var AttachedClients = require('models/attached-clients');
   var FxaClient = require('lib/fxa-client');
   var MarketingEmailErrors = require('lib/marketing-email-errors');
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
+  var OAuthApp = require('models/oauth-app');
   var Session = require('lib/session');
   var SentryMetrics = require('lib/sentry');
   var sinon = require('sinon');
@@ -969,7 +970,7 @@ define(function (require, exports, module) {
           return p();
         });
 
-        devices = new Devices([], {
+        devices = new AttachedClients([], {
           notifier: {
             on: sinon.spy()
           }
@@ -980,6 +981,30 @@ define(function (require, exports, module) {
 
       it('delegates to the account to fetch devices', function () {
         assert.isTrue(account.fetchDevices.calledWith(devices));
+      });
+    });
+
+    describe('fetchAccountOAuthApps', function () {
+      var account;
+      var oAuthApps;
+
+      beforeEach(function () {
+        account = user.initAccount({});
+        sinon.stub(account, 'fetchOAuthApps', function () {
+          return p();
+        });
+
+        oAuthApps = new AttachedClients([], {
+          notifier: {
+            on: sinon.spy()
+          }
+        });
+
+        return user.fetchAccountOAuthApps(account, oAuthApps);
+      });
+
+      it('delegates to the account to fetch devices', function () {
+        assert.isTrue(account.fetchOAuthApps.calledWith(oAuthApps));
       });
     });
 
@@ -1038,6 +1063,29 @@ define(function (require, exports, module) {
         it('signs out the current account', function () {
           assert.isTrue(user.clearSignedInAccount.called);
         });
+      });
+    });
+
+    describe('destroyAccountApp', function () {
+      var oAuthApp;
+      var account;
+
+      beforeEach(function () {
+        account = user.initAccount({});
+        sinon.stub(account, 'destroyOAuthApp', function () {
+          return p();
+        });
+
+        oAuthApp = new OAuthApp({
+          id: 'oauth-1',
+          name: 'oauthy',
+        });
+
+        return user.destroyAccountApp(account, oAuthApp);
+      });
+
+      it('delegates to the account to destroy the device', function () {
+        assert.isTrue(account.destroyOAuthApp.calledWith(oAuthApp));
       });
     });
 

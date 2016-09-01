@@ -94,6 +94,9 @@ define(function (require, exports, module) {
     ACCESS_TYPE_ONLINE: 'online',
     ACCESS_TYPE_OFFLINE: 'offline',
 
+    CLIENT_TYPE_DEVICE: 'device',
+    CLIENT_TYPE_OAUTH_APP: 'oAuthApp',
+
     DEFAULT_XHR_TIMEOUT_MS: 2500,
     DEFAULT_DECLINED_ENGINES: [
       'bookmarks',

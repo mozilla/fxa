@@ -7,8 +7,9 @@ define(function (require, exports, module) {
 
   var _ = require('underscore');
   var $ = require('jquery');
+  var AttachedClients = require('models/attached-clients');
   var Cocktail = require('cocktail');
-  var Devices = require('models/devices');
+  var Constants = require('lib/constants');
   var FormView = require('views/form');
   var preventDefaultThen = require('views/base').preventDefaultThen;
   var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
@@ -34,39 +35,36 @@ define(function (require, exports, module) {
 
     initialize: function (options) {
       this._able = options.able;
-      this._devices = options.devices;
+      this._attachedClients = options.attachedClients;
 
-      // An empty Devices instance is created to render the initial view.
-      // Data is only fetched once the panel has been opened.
-      if (! this._devices) {
-        this._devices = new Devices([], {
+      if (! this._attachedClients) {
+        this._attachedClients = new AttachedClients([], {
           notifier: options.notifier
         });
       }
 
-      var devices = this._devices;
-      devices.on('add', this._onDeviceAdded.bind(this));
-      devices.on('remove', this._onDeviceRemoved.bind(this));
+      this.listenTo(this._attachedClients, 'add', this._onItemAdded);
+      this.listenTo(this._attachedClients, 'remove', this._onItemRemoved);
     },
 
-    _formatDevicesList: function (devices) {
-      return _.map(devices, function (device) {
-        if (device.lastAccessTimeFormatted) {
-          device.lastAccessTime = Strings.interpolate(
-            t('Last active: %(translatedTimeAgo)s'), { translatedTimeAgo: device.lastAccessTimeFormatted });
+    _formatAccessTime: function (items) {
+      return _.map(items, function (item) {
+        if (item.lastAccessTimeFormatted) {
+          item.lastAccessTimeFormatted = Strings.interpolate(
+            t('Last active: %(translatedTimeAgo)s'), { translatedTimeAgo: item.lastAccessTimeFormatted });
         } else {
-          // unknown lastAccessTime or not possible to format.
-          device.lastAccessTime = '';
+          // unknown lastAccessTimeFormatted or not possible to format.
+          item.lastAccessTimeFormatted = '';
         }
-        return device;
+        return item;
       });
     },
 
     context: function () {
       return {
+        clients: this._formatAccessTime(this._attachedClients.toJSON()),
         clientsPanelManageString: this._getManageString(),
         clientsPanelTitle: this._getPanelTitle(),
-        devices: this._formatDevicesList(this._devices.toJSON()),
         devicesSupportUrl: DEVICES_SUPPORT_URL,
         isPanelEnabled: this._isPanelEnabled(),
         isPanelOpen: this.isPanelOpen(),
@@ -79,8 +77,8 @@ define(function (require, exports, module) {
     },
 
     events: {
-      'click .clients-refresh': preventDefaultThen('_onRefreshDeviceList'),
-      'click .device-disconnect': preventDefaultThen('_onDisconnectDevice')
+      'click .client-disconnect': preventDefaultThen('_onDisconnectClient'),
+      'click .clients-refresh': preventDefaultThen('_onRefreshClientsList')
     },
 
     _isPanelEnabled: function () {
@@ -110,17 +108,18 @@ define(function (require, exports, module) {
     },
 
     _isAppsListVisible: function () {
+      // OAuth Apps list is visible if `appsListVisible` chooses `true`.
       return this._able.choose('appsListVisible', {
         forceAppsList: Url.searchParam(FORCE_APPS_LIST_VIEW, this.window.location.search)
       });
     },
 
-    _onDeviceAdded: function () {
+    _onItemAdded: function () {
       this.render();
     },
 
-    _onDeviceRemoved: function (device) {
-      var id = device.get('id');
+    _onItemRemoved: function (item) {
+      var id = item.get('id');
       var self = this;
       $('#' + id).slideUp(DEVICE_REMOVED_ANIMATION_MS, function () {
         // re-render in case the last device is removed and the
@@ -129,48 +128,43 @@ define(function (require, exports, module) {
       });
     },
 
-    _onDisconnectDevice: function (event) {
-      this.logViewEvent('disconnect');
-      var deviceId = $(event.currentTarget).attr('data-id');
-      this._destroyDevice(deviceId);
+    _onDisconnectClient: function (event) {
+      var item = this._attachedClients.get($(event.currentTarget).data('id'));
+
+      return this.user.destroyAccountClient(this.user.getSignedInAccount(), item)
+        .then(() => {
+          var clientType = item.get('clientType');
+
+          this.logViewEvent(clientType + '.disconnect');
+          if (clientType === Constants.CLIENT_TYPE_DEVICE && item.get('isCurrentDevice')) {
+            this.navigateToSignIn();
+          }
+        });
     },
 
-    _onRefreshDeviceList: function () {
-      var self = this;
+    _onRefreshClientsList: function () {
       if (this.isPanelOpen()) {
         this.logViewEvent('refresh');
         // only refresh devices if panel is visible
         // if panel is hidden there is no point of fetching devices
-        this._fetchDevices().then(function () {
-          self.render();
+        this._fetchAttachedClients().then(() => {
+          this.render();
         });
       }
     },
 
     openPanel: function () {
       this.logViewEvent('open');
-      this._fetchDevices();
+      this._fetchAttachedClients();
     },
 
-    _fetchDevices: function () {
-      var account = this.getSignedInAccount();
-
-      return this.user.fetchAccountDevices(account, this._devices);
-    },
-
-    _destroyDevice: function (deviceId) {
-      var self = this;
-      var account = this.getSignedInAccount();
-      var device = this._devices.get(deviceId);
-      if (device) {
-        this.user.destroyAccountDevice(account, device)
-          .then(function () {
-            if (device.get('isCurrentDevice')) {
-              self.navigateToSignIn();
-            }
-          });
-      }
+    _fetchAttachedClients: function () {
+      return this._attachedClients.fetchClients({
+        devices: true,
+        oAuthApps: this._isAppsListVisible()
+      }, this.user);
     }
+
   });
 
   Cocktail.mixin(

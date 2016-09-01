@@ -3,21 +3,41 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * A collection of devices
+ * Attached clients are OAuth apps and devices
+ *
+ * It sorts items in order that is defined in FxA-89 feature description.
  */
-
-
 define(function (require, exports, module) {
   'use strict';
 
   var Backbone = require('backbone');
+  var Constants = require('lib/constants');
   var Device = require('models/device');
+  var OAuthApp = require('models/oauth-app');
+  var P = require('lib/promise');
 
-  var Devices = Backbone.Collection.extend({
-    model: Device,
+  var AttachedClients = Backbone.Collection.extend({
+    model: function(attrs, options) {
+      if (attrs.clientType === Constants.CLIENT_TYPE_DEVICE) {
+        return new Device(attrs, options);
+      } else if (attrs.clientType === Constants.CLIENT_TYPE_OAUTH_APP) {
+        return new OAuthApp(attrs, options);
+      }
+    },
 
-    initialize: function (models, options) {
-      options = options || {};
+    fetchClients: function (clientTypes = {}, user) {
+      var account = user.getSignedInAccount();
+      var fetchItems = [];
+
+      if (clientTypes.devices) {
+        fetchItems.push(user.fetchAccountDevices(account, this));
+      }
+
+      if (clientTypes.oAuthApps) {
+        fetchItems.push(user.fetchAccountOAuthApps(account, this));
+      }
+
+      return P.all(fetchItems);
     },
 
     comparator: function (a, b) {
@@ -27,8 +47,6 @@ define(function (require, exports, module) {
       if (a.get('isCurrentDevice')) {
         return -1;
       }
-
-
       // check lastAccessTime. If one has an access time and the other does
       // not, the one with the access time is automatically higher in the
       // list. If both have access times, sort in descending order, unless
@@ -59,9 +77,8 @@ define(function (require, exports, module) {
 
       return 1;
     }
+
   });
 
-  module.exports = Devices;
+  module.exports = AttachedClients;
 });
-
-

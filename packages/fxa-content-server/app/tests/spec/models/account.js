@@ -8,20 +8,21 @@ define(function (require, exports, module) {
   var Account = require('models/account');
   var Assertion = require('lib/assertion');
   var AuthErrors = require('lib/auth-errors');
+  var AttachedClients = require('models/attached-clients');
   var chai = require('chai');
   var Constants = require('lib/constants');
   var Device = require('models/device');
-  var Devices = require('models/devices');
   var FxaClientWrapper = require('lib/fxa-client');
   var MarketingEmailClient = require('lib/marketing-email-client');
+  var OAuthApp = require('models/oauth-app');
   var OAuthClient = require('lib/oauth-client');
   var OAuthToken = require('models/oauth-token');
   var p = require('lib/promise');
   var ProfileClient = require('lib/profile-client');
   var ProfileErrors = require('lib/profile-errors');
   var Relier = require('models/reliers/relier');
-  var sinon = require('sinon');
   var SignInReasons = require('lib/sign-in-reasons');
+  var sinon = require('sinon');
   var VerificationMethods = require('lib/verification-methods');
   var VerificationReasons = require('lib/verification-reasons');
 
@@ -49,6 +50,7 @@ define(function (require, exports, module) {
       'uploadAvatar'
     ];
     var SESSION_TOKEN = 'abc123';
+    var ACCESS_TOKEN = 'access123';
     var UID = '6d940dd41e636cc156074109b8092f96';
     var URL = 'http://127.0.0.1:1112/avatar/example.jpg';
 
@@ -1436,7 +1438,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         account.set('sessionToken', SESSION_TOKEN);
 
-        devices = new Devices([], {
+        devices = new AttachedClients([], {
           notifier: {
             on: sinon.spy()
           }
@@ -1466,6 +1468,46 @@ define(function (require, exports, module) {
 
       it('populates the `devices` collection', function () {
         assert.equal(devices.length, 2);
+        assert.equal(devices.get('device-1').get('clientType'), 'device');
+      });
+    });
+
+    describe('fetchOAuthApps', function () {
+      var oAuthApps;
+
+      beforeEach(function () {
+        account.set('accessToken', ACCESS_TOKEN);
+
+        oAuthApps = new AttachedClients([], {
+          notifier: {
+            on: sinon.spy()
+          }
+        });
+
+        sinon.stub(account._oAuthClient, 'fetchOAuthApps', function () {
+          return p([
+            {
+              id: 'oauth-1',
+              name: 'alpha'
+            },
+            {
+              id: 'oauth-2',
+              isCurrentDevice: true,
+              name: 'beta'
+            }
+          ]);
+        });
+
+        return account.fetchOAuthApps(oAuthApps);
+      });
+
+      it('fetches the device list from the back end', function () {
+        assert.isTrue(account._oAuthClient.fetchOAuthApps.calledWith(ACCESS_TOKEN));
+      });
+
+      it('populates the `devices` collection', function () {
+        assert.equal(oAuthApps.length, 2);
+        assert.equal(oAuthApps.get('oauth-1').get('clientType'), 'oAuthApp');
       });
     });
 
@@ -1491,6 +1533,30 @@ define(function (require, exports, module) {
       it('tells the backend to destroy the device', function () {
         assert.isTrue(
           fxaClient.deviceDestroy.calledWith(SESSION_TOKEN, 'device-1'));
+      });
+    });
+
+    describe('destroyOAuthApp', function () {
+      var device;
+
+      beforeEach(function () {
+        account.set('accessToken', ACCESS_TOKEN);
+
+        device = new OAuthApp({
+          id: 'oauth-1',
+          name: 'alpha'
+        });
+
+        sinon.stub(account._oAuthClient, 'destroyOAuthApp', function () {
+          return p();
+        });
+
+        return account.destroyOAuthApp(device);
+      });
+
+      it('tells the backend to destroy the device', function () {
+        assert.isTrue(
+          account._oAuthClient.destroyOAuthApp.calledWith(ACCESS_TOKEN, 'oauth-1'));
       });
     });
 

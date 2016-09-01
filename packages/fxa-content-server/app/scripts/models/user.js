@@ -15,6 +15,7 @@ define(function (require, exports, module) {
   var Account = require('models/account');
   var Backbone = require('backbone');
   var Cocktail = require('cocktail');
+  var Constants = require('lib/constants');
   var MarketingEmailErrors = require('lib/marketing-email-errors');
   var p = require('lib/promise');
   var ResumeTokenMixin = require('models/mixins/resume-token');
@@ -520,6 +521,20 @@ define(function (require, exports, module) {
     },
 
     /**
+     *
+     * @param {Object} account - account object
+     * @param {Object} client - an attached client
+     * @returns {Promise}
+     */
+    destroyAccountClient: function (account, client) {
+      if (client.get('clientType') === Constants.CLIENT_TYPE_DEVICE) {
+        return this.destroyAccountDevice(account, client);
+      } else if (client.get('clientType') === Constants.CLIENT_TYPE_OAUTH_APP) {
+        return this.destroyAccountApp(account, client);
+      }
+    },
+
+    /**
      * Fetch the devices for the given account, populated the passed in
      * Devices collection.
      *
@@ -532,12 +547,24 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Fetch the OAuthApps for the given account, populated into the passed
+     * collection.
+     *
+     * @param {object} account - account for which device list is requested
+     * @param {object} oAuthApps - oAuthApps collection used to store list.
+     * @returns {promise} resolves when the action completes
+     */
+    fetchAccountOAuthApps: function (account, oAuthApps) {
+      return account.fetchOAuthApps(oAuthApps);
+    },
+
+    /**
      * Destroy a device on the given account. If the current device
      * is destroyed, sign out the user.
      *
-     * @param {object} account - account with the device
-     * @param {object} device - device to destroy
-     * @returns {promise} resolves when the action completes
+     * @param {Object} account - account with the device
+     * @param {Object} device - device to destroy
+     * @returns {Promise} resolves when the action completes
      */
     destroyAccountDevice: function (account, device) {
       var self = this;
@@ -547,6 +574,17 @@ define(function (require, exports, module) {
             self.clearSignedInAccount();
           }
         });
+    },
+
+    /**
+     * Destroy the OAuth app on the given account.
+     *
+     * @param {Object} account - account with the connected app
+     * @param {Object} oAuthApp - OAuth App to disconnect
+     * @returns {Promise} resolves when the action completes
+     */
+    destroyAccountApp: function (account, oAuthApp) {
+      return account.destroyOAuthApp(oAuthApp);
     },
 
     /**

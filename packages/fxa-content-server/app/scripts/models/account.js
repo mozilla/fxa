@@ -63,7 +63,7 @@ define(function (require, exports, module) {
   var ALLOWED_KEYS = Object.keys(DEFAULTS);
   var ALLOWED_PERSISTENT_KEYS = Object.keys(PERSISTENT);
 
-  var PROFILE_SCOPE = 'profile profile:write';
+  var CONTENT_SERVER_OAUTH_SCOPE = 'profile profile:write clients:write';
 
   var PERMISSIONS_TO_KEYS = {
     'profile:avatar': 'profileImageUrl',
@@ -143,7 +143,7 @@ define(function (require, exports, module) {
 
     _fetchProfileOAuthToken: function () {
       var self = this;
-      return self.createOAuthToken(PROFILE_SCOPE)
+      return self.createOAuthToken(CONTENT_SERVER_OAUTH_SCOPE)
         .then(function (accessToken) {
           self.set('accessToken', accessToken.get('token'));
         });
@@ -711,25 +711,47 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Fetch the account's device list and populate the `devices` collection.
+     * Fetch the account's device list and populate into the collection
      *
-     * @param {object} devices - Devices collection
-     * @returns {promise} - resolves when complete
+     * @param {Object} clients - Clients collection used to store the list
+     * @returns {Promise} - resolves when complete
      */
-    fetchDevices: function (devices) {
-      var sessionToken = this.get('sessionToken');
+    fetchDevices: function (clients) {
+      return this._fxaClient.deviceList(this.get('sessionToken'))
+        .then((devices) => {
+          devices.map((item) => {
+            item.clientType = Constants.CLIENT_TYPE_DEVICE;
+          });
 
-      return this._fxaClient.deviceList(sessionToken)
-        .then(devices.set.bind(devices));
+          return clients.set(devices, {
+            add: true
+          });
+        });
+    },
+
+    /**
+     * Fetch the account's OAuth Apps and populate into the collection
+     *
+     * @param {Object} clients - Clients collection used to store the list
+     * @returns {Promise} resolves when the action completes
+     */
+    fetchOAuthApps: function (clients) {
+      return this._oAuthClient.fetchOAuthApps(this.get('accessToken'))
+        .then((oAuthApps) => {
+          oAuthApps.map((item) => {
+            item.clientType = Constants.CLIENT_TYPE_OAUTH_APP;
+          });
+
+          clients.set(oAuthApps, {
+            add: true
+          });
+        });
     },
 
     /**
      * Delete the device from the account
      *
      * @param {object} device - Device model to remove
-     * @returns {promise} - resolves when complete
-     *
-     * @param {object} devices - Devices collection
      * @returns {promise} - resolves when complete
      */
     destroyDevice: function (device) {
@@ -739,6 +761,23 @@ define(function (require, exports, module) {
       return this._fxaClient.deviceDestroy(sessionToken, deviceId)
         .then(function () {
           device.destroy();
+        });
+    },
+
+
+    /**
+     * Delete the device from the account
+     *
+     * @param {object} oAuthApp - OAuthApp model to remove
+     * @returns {promise} - resolves when complete
+     */
+    destroyOAuthApp: function (oAuthApp) {
+      var oAuthAppId = oAuthApp.get('id');
+      var accessToken = this.get('accessToken');
+
+      return this._oAuthClient.destroyOAuthApp(accessToken, oAuthAppId)
+        .then(() => {
+          oAuthApp.destroy();
         });
     },
 

@@ -3,33 +3,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Device information
+ * OAuthApp information
  */
-
 define(function (require, exports, module) {
   'use strict';
 
   var Backbone = require('backbone');
   var Constants = require('lib/constants');
 
-  var Device = Backbone.Model.extend({
+  module.exports = Backbone.Model.extend({
     defaults: {
-      clientType: Constants.CLIENT_TYPE_DEVICE,
+      clientType: Constants.CLIENT_TYPE_OAUTH_APP,
       id: null,
-      isCurrentDevice: null,
       lastAccessTime: null,
       lastAccessTimeFormatted: null,
-      name: null,
-      type: null
+      name: null
     },
 
     destroy: function () {
-      // Both a sessionToken and deviceId are needed to destroy a device.
-      // An account `has a` device, therefore account destroys the device.
       this.trigger('destroy', this);
     }
   });
-
-  module.exports = Device;
 });
-
