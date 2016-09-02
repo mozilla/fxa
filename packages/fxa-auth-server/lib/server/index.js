@@ -5,6 +5,7 @@
 const Hapi = require('hapi');
 
 const AppError = require('../error');
+const authBearer = require('../auth_bearer');
 const config = require('../config').getProperties();
 const env = require('../env');
 const logger = require('../logging')('server');
@@ -25,6 +26,9 @@ exports.create = function createServer() {
     config.server.port,
     require('./config')
   );
+
+  server.auth.scheme(authBearer.AUTH_SCHEME, authBearer.strategy);
+  server.auth.strategy(authBearer.AUTH_STRATEGY, authBearer.AUTH_SCHEME);
 
   var routes = require('../routing').routes;
   if (isProd) {

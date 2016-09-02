@@ -26,7 +26,7 @@
     {
       "id": "98e6508e88680e1a",
       "hashedSecret": "ba5cfb370fd782f7eae1807443ab816288c101a54c0d80a09063273c86d3c435",
-      "name": "Admin",
+      "name": "Firefox Accounts Settings",
       "imageUri": "https://example2.domain/logo",
       "redirectUri": "https://example2.domain/return?foo=bar",
       "trusted": true,

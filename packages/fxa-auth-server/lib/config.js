@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 
 const convict = require('convict');
+var DEFAULT_SUPPORTED_LANGUAGES = require('fxa-shared').l10n.supportedLanguages;
 
 const conf = convict({
   admin: {
@@ -221,6 +222,18 @@ const conf = convict({
   serviceClients: {
     doc: 'Clients that can make oauth requests for any user',
     default: []
+  },
+  i18n: {
+    defaultLanguage: {
+      format: String,
+      default: 'en',
+      env: 'DEFAULT_LANG'
+    },
+    supportedLanguages: {
+      format: Array,
+      default: DEFAULT_SUPPORTED_LANGUAGES,
+      env: 'SUPPORTED_LANGS'
+    }
   },
   unique: {
     clientSecret: {

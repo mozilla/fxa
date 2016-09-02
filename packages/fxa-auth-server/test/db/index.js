@@ -402,6 +402,42 @@ describe('db', function() {
     });
   });
 
+  describe('client-tokens', function () {
+
+    describe('getActiveClientTokensByUid', function() {
+      var userId = buf(randomString(16));
+
+      it('should return the active clients', function() {
+        return db.getActiveClientTokensByUid(userId)
+          .then(
+            function(result) {
+              assert.equal(result.length, 0);
+            },
+            function(err) {
+              assert.fail(err);
+            }
+          );
+      });
+    });
+
+    describe('deleteActiveClientTokens', function() {
+      var clientId = buf(randomString(8));
+      var userId = buf(randomString(16));
+
+      it('should delete client tokens', function() {
+        return db.deleteActiveClientTokens(clientId, userId)
+          .then(
+            function(result) {
+              assert.ok(result);
+            },
+            function(err) {
+              assert.fail(err);
+            }
+          );
+      });
+    });
+  });
+
   describe('developers', function () {
 
     describe('removeDeveloper', function() {

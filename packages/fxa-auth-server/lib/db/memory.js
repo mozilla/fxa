@@ -103,6 +103,16 @@ function clone(obj) {
   return clone;
 }
 
+function findByBufProp(arrayOfObjects, prop, value) {
+  for (var i = 0; i < arrayOfObjects.length; i++) {
+    var id = arrayOfObjects[i];
+    if (id[prop].toString('hex') === value) {
+      return id;
+    }
+  }
+  return null;
+}
+
 function deleteByUserId(object, userId) {
   var ids = Object.keys(object);
   for (var i = 0; i < ids.length; i++) {
@@ -236,6 +246,86 @@ MemoryStore.prototype = {
   removeAccessToken: function removeAccessToken(id) {
     delete this.tokens[unbuf(id)];
     return P.resolve();
+  },
+
+  /**
+   * Get all services that have have non-expired tokens
+   * @param {String} uid User ID as hex
+   * @returns {Promise}
+   */
+  getActiveClientTokensByUid: function getActiveServicesByUid(uid) {
+    var self = this;
+    if (! uid) {
+      return P.reject(new Error('Uid is required'));
+    }
+
+    var activeClientIds = [];
+    var activeClients = [];
+    var ids = Object.keys(this.tokens);
+    for (var i = 0; i < ids.length; i++) {
+      var id = ids[i];
+      if (this.tokens[id].userId.toString('hex') === uid) {
+        activeClientIds.push(this.tokens[id].clientId);
+      }
+    }
+
+    // unique clients
+    activeClientIds.forEach(function (clientIdBuf) {
+      var clientIdHex = unbuf(clientIdBuf);
+      if (! findByBufProp(activeClients, 'id', clientIdHex)) {
+        var c = self.clients[clientIdHex];
+        if (c.canGrant === false) {
+          activeClients.push(c);
+        }
+      }
+    });
+
+    var customSort = activeClients.slice(0);
+    customSort.sort(function(a, b) {
+      if (b.createdAt > a.createdAt) {
+        return 1;
+      }
+
+      if (b.createdAt < a.createdAt) {
+        return -1;
+      }
+
+      if (a.name > b.name) {
+        return 1;
+      }
+
+      if (a.name < b.name) {
+        return -1;
+      }
+
+      return 0;
+    });
+
+    return P.resolve(customSort);
+  },
+
+  /**
+   * Delete all non-expired tokens for some clientId and uid.
+   *
+   * @param {String} clientId Client ID
+   * @param {String} uid User Id as Hex
+   * @returns {Promise}
+   */
+  deleteActiveClientTokens: function deleteActiveClientTokens(clientId, uid) {
+    if (! clientId || ! uid) {
+      return P.reject(new Error('clientId and uid are required'));
+    }
+
+    var ids = Object.keys(this.tokens);
+    for (var i = 0; i < ids.length; i++) {
+      var id = ids[i];
+      if (this.tokens[id].userId.toString('hex') === uid &&
+        this.tokens[id].clientId.toString('hex') === clientId) {
+        delete this.tokens[id];
+      }
+    }
+
+    return P.resolve({});
   },
   generateRefreshToken: function generateRefreshToken(vals) {
     var token = unique.token();

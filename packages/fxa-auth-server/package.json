@@ -29,6 +29,7 @@
     "convict": "1.4",
     "fxa-jwtool": "^0.7.1",
     "fxa-notifier-aws": "1.0.0",
+    "fxa-shared": "1.0.2",
     "hapi": "7.5.3",
     "joi": "^4.7.0",
     "mozlog": "^2.0.3",

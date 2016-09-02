@@ -177,6 +177,17 @@ const QUERY_CODE_DELETE_USER = 'DELETE FROM codes WHERE userId=?';
 const QUERY_DEVELOPER = 'SELECT * FROM developers WHERE email=?';
 const QUERY_DEVELOPER_DELETE = 'DELETE FROM developers WHERE email=?';
 const QUERY_PURGE_EXPIRED_TOKENS = 'DELETE FROM tokens WHERE clientId != UNHEX(?) AND expiresAt < NOW() LIMIT ?;';
+// Token management by uid.
+// Returns the most recent token used with a client name and client id.
+// Does not include clients that canGrant.
+const QUERY_ACTIVE_CLIENT_TOKENS_BY_UID =
+  'SELECT DISTINCT clients.name, clients.id, MAX(tokens.createdAt) as createdAt FROM clients, tokens ' +
+  'WHERE tokens.expiresAt > NOW() AND clients.canGrant = 0 AND clients.id = tokens.clientId AND tokens.userId=? ' +
+  'GROUP BY id ' +
+  'ORDER BY createdAt DESC, clients.name ' +
+  'LIMIT 10000;';
+const DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID =
+  'DELETE FROM tokens WHERE clientId=? AND userId=?';
 
 function firstRow(rows) {
   return rows[0];
@@ -389,8 +400,13 @@ MysqlStore.prototype = {
     });
   },
 
-  getAccessToken: function getAccessToken(tok) {
-    return this._readOne(QUERY_ACCESS_TOKEN_FIND, [buf(tok)]).then(function(t) {
+  /**
+   * Get an access token by token id
+   * @param id Token Id
+   * @returns {*}
+   */
+  getAccessToken: function getAccessToken(id) {
+    return this._readOne(QUERY_ACCESS_TOKEN_FIND, [buf(id)]).then(function(t) {
       if (t) {
         t.scope = t.scope.split(' ');
       }
@@ -398,8 +414,38 @@ MysqlStore.prototype = {
     });
   },
 
+  /**
+   * Remove token by token id
+   * @param id
+   * @returns {*}
+   */
   removeAccessToken: function removeAccessToken(id) {
     return this._write(QUERY_ACCESS_TOKEN_DELETE, [buf(id)]);
+  },
+
+  /**
+   * Get all services that have have non-expired tokens
+   * @param {String} uid User ID as hex
+   * @returns {Promise}
+   */
+  getActiveClientTokensByUid: function getActiveClientTokensByUid(uid) {
+    return this._read(QUERY_ACTIVE_CLIENT_TOKENS_BY_UID, [
+      buf(uid)
+    ]);
+  },
+
+  /**
+   * Delete all tokens for some clientId and uid.
+   *
+   * @param {String} clientId Client ID
+   * @param {String} uid User Id as Hex
+   * @returns {Promise}
+   */
+  deleteActiveClientTokens: function deleteActiveClientTokens(clientId, uid) {
+    return this._write(DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID, [
+      buf(clientId),
+      buf(uid)
+    ]);
   },
 
   generateRefreshToken: function generateRefreshToken(vals) {

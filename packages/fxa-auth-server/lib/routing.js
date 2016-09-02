@@ -66,6 +66,16 @@ exports.routes = [
     method: 'GET',
     path: v('/jwks'),
     config: require('./routes/jwks')
+  },
+  {
+    method: 'GET',
+    path: v('/client-tokens'),
+    config: require('./routes/client-tokens/list')
+  },
+  {
+    method: 'DELETE',
+    path: v('/client-tokens/{client_id}'),
+    config: require('./routes/client-tokens/delete')
   }
 ];
 

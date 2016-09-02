@@ -132,20 +132,25 @@ function assertInvalidRequestParam(result, param) {
 /**
  *
  * @param {String} cId - hex client id
+ * @param {Object} [options] - custom options
+ * @param {Object} [options.uid] - custom uid
+ * @param {Object} [options.email] - custom email
+ * @param {Object} [options.scopes] - custom scopes
  */
-function getUniqueUserAndToken(cId) {
+function getUniqueUserAndToken(cId, options) {
+  options = options || {};
   if (! cId) {
     throw new Error('No client id set');
   }
 
-  var uid = unique(16).toString('hex');
-  var email = unique(4).toString('hex') + '@mozilla.com';
+  var uid = options.uid || unique(16).toString('hex');
+  var email = options.email || unique(4).toString('hex') + '@mozilla.com';
 
   return db.generateAccessToken({
     clientId: buf(cId),
     userId: buf(uid),
     email: email,
-    scope: [auth.SCOPE_CLIENT_MANAGEMENT]
+    scope: options.scopes || [auth.SCOPE_CLIENT_MANAGEMENT]
   }).then(function (token) {
     return {
       uid: uid,
@@ -2030,5 +2035,399 @@ describe('/v1', function() {
         assert.notEqual(keys[0].kid, keys[1].kid);
       });
     });
+  });
+
+  describe('/client-tokens', function() {
+    var BAD_TOKEN = '0000000000000000000000000000000000000000000000000000000000000000';
+    var tokenWithClientWrite;
+    var tokenWithoutClientWrite;
+    var user1;
+    var user2;
+    var client1Id;
+    var client2Id;
+    var client1;
+    var client2;
+
+    beforeEach(function () {
+      user1 = {
+        uid: unique(16).toString('hex'),
+        email: unique(10).toString('hex') + '@token.city'
+      };
+
+      user2 = {
+        uid: unique(16).toString('hex'),
+        email: unique(10).toString('hex') + '@token.city'
+      };
+
+      client1Id = unique.id();
+      client1 = {
+        name: 'test/api/client-tokens/list-b',
+        id: client1Id,
+        hashedSecret: encrypt.hash(unique.secret()),
+        redirectUri: 'https://example.domain',
+        imageUri: 'https://example.com/logo.png',
+        trusted: true
+      };
+
+      client2Id = unique.id();
+      client2 = {
+        name: 'test/api/client-tokens/list-a',
+        id: client2Id,
+        hashedSecret: encrypt.hash(unique.secret()),
+        redirectUri: 'https://example.domain',
+        imageUri: 'https://example.com/logo.png',
+        trusted: false
+      };
+
+      // create a new client
+      return db.registerClient(client1)
+        .then(function () {
+          // user1 gets a client write token
+          return getUniqueUserAndToken(client1Id.toString('hex'), {
+            uid: user1.uid,
+            email: user1.email,
+            scopes: ['profile', 'clients:write']
+          });
+        })
+        .then(function (result) {
+          tokenWithClientWrite = result.token;
+        });
+    });
+
+    describe('GET /client-tokens', function() {
+
+      it('should list connected services in set order', function() {
+        return db.registerClient(client2)
+          .then(function () {
+            return getUniqueUserAndToken(client2Id.toString('hex'), {
+              uid: user1.uid,
+              email: user1.email,
+              scopes: ['profile']
+            });
+          })
+          .then(function (result) {
+            tokenWithoutClientWrite = result.token;
+
+            return Server.api.get({
+              url: '/client-tokens',
+              headers: {
+                authorization: 'Bearer ' + tokenWithoutClientWrite
+              }
+            });
+          })
+          .then(function (res) {
+            var result = res.result;
+            assert.equal(result.code, 403, 'list does not fetch without a proper token');
+            assert.equal(result.error, 'Forbidden');
+
+            return Server.api.get({
+              url: '/client-tokens',
+              headers: {
+                authorization: 'Bearer ' + tokenWithClientWrite
+              }
+            });
+          })
+          .then(function (res) {
+            // The API sorts the results by createdAt and then by name
+            // The precision is one second, this test guarantees that if
+            // the tokens were created in the same second, they will still be sorted by name.
+            var result = res.result;
+            assert.equal(result.length, 2);
+            assert.equal(result[0].id, client2Id.toString('hex'));
+            assert.ok(result[0].lastAccessTime);
+            assert.equal(result[0].lastAccessTimeFormatted, 'a few seconds ago');
+            assert.equal(result[0].name, 'test/api/client-tokens/list-a');
+
+            assert.equal(result[1].id, client1Id.toString('hex'));
+            assert.ok(result[1].lastAccessTime);
+            assert.equal(result[1].lastAccessTimeFormatted, 'a few seconds ago');
+            assert.equal(result[1].name, 'test/api/client-tokens/list-b');
+          });
+      });
+
+      it('should not list tokens of different users', function() {
+        return db.registerClient(client2)
+          .then(function () {
+            return getUniqueUserAndToken(client2Id.toString('hex'), {
+              uid: user2.uid,
+              email: user2.email,
+              scopes: ['profile']
+            });
+          })
+          .then(function (res) {
+            return Server.api.get({
+              url: '/client-tokens',
+              headers: {
+                authorization: 'Bearer ' + tokenWithClientWrite
+              }
+            });
+          })
+          .then(function (res) {
+            var result = res.result;
+            assert.equal(result.length, 1);
+            assert.equal(result[0].id, client1Id.toString('hex'));
+            assert.equal(result[0].lastAccessTimeFormatted, 'a few seconds ago');
+            assert.equal(result[0].name, 'test/api/client-tokens/list-b');
+          });
+      });
+
+      it('should not list canGrant=1 clients', function() {
+        return db.registerClient({
+          name: 'test/api/client-tokens/list-can-grant',
+          id: client2Id,
+          hashedSecret: encrypt.hash(unique.secret()),
+          redirectUri: 'https://example.domain',
+          imageUri: 'https://example.com/logo.png',
+          trusted: true,
+          canGrant: true
+        })
+          .then(function () {
+            return getUniqueUserAndToken(client2Id.toString('hex'), {
+              uid: user1.uid,
+              email: user1.email,
+              scopes: ['profile']
+            });
+          })
+          .then(function (res) {
+            return Server.api.get({
+              url: '/client-tokens',
+              headers: {
+                authorization: 'Bearer ' + tokenWithClientWrite
+              }
+            });
+          })
+          .then(function (res) {
+            var result = res.result;
+            assert.equal(result.length, 1);
+            assert.equal(result[0].id, client1Id.toString('hex'));
+          });
+      });
+
+      it('should only list one client for multiple tokens', function() {
+        return getUniqueUserAndToken(client1Id.toString('hex'), {
+          uid: user1.uid,
+          email: user1.email,
+          scopes: ['profile']
+        })
+          .then(function () {
+            return getUniqueUserAndToken(client1Id.toString('hex'), {
+              uid: user1.uid,
+              email: user1.email,
+              scopes: ['profile']
+            });
+          })
+          .then(function () {
+            return getUniqueUserAndToken(client1Id.toString('hex'), {
+              uid: user1.uid,
+              email: user1.email,
+              scopes: ['profile']
+            });
+          })
+          .then(function () {
+            return Server.api.get({
+              url: '/client-tokens',
+              headers: {
+                authorization: 'Bearer ' + tokenWithClientWrite
+              }
+            });
+          })
+          .then(function (res) {
+            var result = res.result;
+            assert.equal(result.length, 1);
+            assert.equal(result[0].id, client1Id.toString('hex'));
+          });
+      });
+
+      it('errors for invalid tokens', function() {
+        return Server.api.get({
+          url: '/client-tokens',
+          headers: {
+            authorization: 'Bearer ' + BAD_TOKEN
+          }
+        }).then(function (res) {
+          var result = res.result;
+          assert.equal(result.code, 401);
+          assert.equal(result.detail, 'Bearer token invalid');
+        });
+      });
+
+      it('errors for bad scopes', function() {
+        function reqWithScopes(scopes) {
+          return getUniqueUserAndToken(client1Id.toString('hex'), {
+            uid: user1.uid,
+            email: user1.email,
+            scopes: scopes
+          }).then(function (result) {
+            return Server.api.get({
+              url: '/client-tokens',
+              headers: {
+                authorization: 'Bearer ' + result.token
+              }
+            });
+          });
+        }
+
+        return P.all([
+          reqWithScopes(['clients']),
+          reqWithScopes(['bar:foo:clients:write']),
+          reqWithScopes(['clients:write:foo']),
+          reqWithScopes(['clients:writ'])
+        ]).then(function (result) {
+          assert.equal(result[0].statusCode, 403);
+          assert.equal(result[1].statusCode, 403);
+          assert.equal(result[2].statusCode, 403);
+          assert.equal(result[3].statusCode, 403);
+        });
+      });
+
+      it('requires auth', function() {
+        return Server.api.get({
+          url: '/client-tokens',
+          headers: {
+          }
+        }).then(function (res) {
+          var result = res.result;
+          assert.equal(result.code, 401);
+          assert.equal(result.detail, 'Bearer token not provided');
+        });
+      });
+    });
+
+    describe('DELETE /client-tokens/{client_id}', function() {
+
+      it('deletes all tokens for some client id', function() {
+        var user2ClientWriteToken;
+        return db.registerClient(client2)
+          .then(function () {
+            return getUniqueUserAndToken(client2Id.toString('hex'), {
+              uid: user1.uid,
+              email: user1.email,
+              scopes: ['profile']
+            });
+          })
+          .then(function () {
+            return getUniqueUserAndToken(client2Id.toString('hex'), {
+              uid: user2.uid,
+              email: user2.email,
+              scopes: ['profile', 'clients:write']
+            });
+          })
+          .then(function (res) {
+            user2ClientWriteToken = res.token;
+
+            return Server.api.get({
+              url: '/client-tokens',
+              headers: {
+                authorization: 'Bearer ' + tokenWithClientWrite
+              }
+            });
+          })
+          .then(function (res ) {
+            assert.equal(res.result.length, 2);
+            return Server.api.delete({
+              url: '/client-tokens/' + client2Id.toString('hex'),
+              headers: {
+                authorization: 'Bearer ' + tokenWithClientWrite
+              }
+            });
+          })
+          .then(function () {
+            return Server.api.get({
+              url: '/client-tokens',
+              headers: {
+                authorization: 'Bearer ' + tokenWithClientWrite
+              }
+            });
+          })
+          .then(function (res) {
+            assert.equal(res.result.length, 1);
+
+            return Server.api.delete({
+              url: '/client-tokens/' + client1Id.toString('hex'),
+              headers: {
+                authorization: 'Bearer ' + tokenWithClientWrite
+              }
+            });
+          })
+          .then(function () {
+            return Server.api.get({
+              url: '/client-tokens',
+              headers: {
+                authorization: 'Bearer ' + tokenWithClientWrite
+              }
+            });
+          })
+          .then(function (res) {
+            assert.equal(res.result.code, 401, 'client:write token was deleted');
+            assert.equal(res.result.detail, 'Bearer token invalid');
+          })
+          .then(function () {
+            return Server.api.get({
+              url: '/client-tokens',
+              headers: {
+                authorization: 'Bearer ' + user2ClientWriteToken
+              }
+            });
+          })
+          .then(function (res) {
+            assert.equal(res.statusCode, 200, 'user2 tokens not deleted');
+            assert.equal(res.result.length, 1);
+          });
+      });
+
+      it('errors for invalid tokens', function() {
+        return Server.api.delete({
+          url: '/client-tokens/' + clientId,
+          headers: {
+            authorization: 'Bearer ' + BAD_TOKEN
+          }
+        }).then(function (res) {
+          var result = res.result;
+          assert.equal(result.code, 401);
+          assert.equal(result.detail, 'Bearer token invalid');
+        });
+      });
+
+      it('requires auth', function() {
+        return Server.api.delete({
+          url: '/client-tokens/' + clientId,
+          headers: {
+          }
+        }).then(function (res) {
+          var result = res.result;
+          assert.equal(result.code, 401);
+          assert.equal(result.detail, 'Bearer token not provided');
+        });
+      });
+
+      it('errors for bad scopes', function() {
+        function reqWithScopes(scopes) {
+          return getUniqueUserAndToken(clientId, {
+            scopes: scopes
+          }).then(function (result) {
+            return Server.api.delete({
+              url: '/client-tokens/' + clientId,
+              headers: {
+                authorization: 'Bearer ' + result.token
+              }
+            });
+          });
+        }
+
+        return P.all([
+          reqWithScopes(['clients']),
+          reqWithScopes(['bar:foo:clients:write']),
+          reqWithScopes(['clients:write:foo']),
+          reqWithScopes(['clients:writ'])
+        ]).then(function (result) {
+          assert.equal(result[0].statusCode, 403);
+          assert.equal(result[1].statusCode, 403);
+          assert.equal(result[2].statusCode, 403);
+          assert.equal(result[3].statusCode, 403);
+        });
+      });
+
+    });
+
   });
 });
