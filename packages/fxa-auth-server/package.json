@@ -48,6 +48,7 @@
     "joi": "6.9.1",
     "memcached": "2.2.2",
     "mozlog": "2.0.5",
+    "newrelic": "1.30.1",
     "node-statsd": "0.1.1",
     "node-uap": "git+https://github.com/vladikoff/node-uap.git#9cdd16247",
     "poolee": "1.0.1",
