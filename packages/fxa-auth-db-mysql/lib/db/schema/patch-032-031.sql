@@ -4,6 +4,7 @@
 --   unlockCode BINARY(16) NOT NULL
 -- ) ENGINE=InnoDB;
 --
+-- DROP PROCEDURE `resetAccunt_7`;
 -- DROP PROCEDURE `forgotPasswordVerified_5`;
 -- DROP PROCEDURE `deleteAccount_9`;
 --

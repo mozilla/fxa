@@ -34,7 +34,9 @@ BEGIN
   COMMIT;
 END;
 
--- Updated to not set lockedAt since it's no longer used.
+-- Updated to:
+-- * not set lockedAt since it's no longer used.
+-- * not delete from accountUnlockCodes since table is no longer available
 CREATE PROCEDURE `forgotPasswordVerified_5` (
     IN `inPasswordForgotTokenId` BINARY(32),
     IN `inAccountResetTokenId` BINARY(32),
@@ -69,13 +71,53 @@ BEGIN
 
     DELETE FROM passwordForgotTokens WHERE tokenId = inPasswordForgotTokenId;
 
-    DELETE FROM accountUnlockCodes WHERE uid = inUid;
-
     UPDATE accounts SET emailVerified = true WHERE uid = inUid;
 
     COMMIT;
 END;
 
+
+-- Updated to:
+-- * not delete from accountUnlockCodes since table is no longer available
+CREATE PROCEDURE `resetAccount_7` (
+  IN `uidArg` BINARY(16),
+  IN `verifyHashArg` BINARY(32),
+  IN `authSaltArg` BINARY(32),
+  IN `wrapWrapKbArg` BINARY(32),
+  IN `verifierSetAtArg` BIGINT UNSIGNED,
+  IN `VerifierVersionArg` TINYINT UNSIGNED
+)
+BEGIN
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    ROLLBACK;
+    RESIGNAL;
+  END;
+
+  START TRANSACTION;
+
+  DELETE FROM sessionTokens WHERE uid = uidArg;
+  DELETE FROM keyFetchTokens WHERE uid = uidArg;
+  DELETE FROM accountResetTokens WHERE uid = uidArg;
+  DELETE FROM passwordChangeTokens WHERE uid = uidArg;
+  DELETE FROM passwordForgotTokens WHERE uid = uidArg;
+  DELETE FROM devices WHERE uid = uidArg;
+  DELETE FROM unverifiedTokens WHERE uid = uidArg;
+
+  UPDATE accounts
+  SET
+    verifyHash = verifyHashArg,
+    authSalt = authSaltArg,
+    wrapWrapKb = wrapWrapKbArg,
+    verifierSetAt = verifierSetAtArg,
+    verifierVersion = verifierVersionArg
+  WHERE uid = uidArg;
+
+  INSERT INTO eventLog(uid, typ, iat)
+  VALUES(uidArg, "reset", UNIX_TIMESTAMP());
+
+  COMMIT;
+END;
 
 DROP TABLE accountUnlockCodes;
 
