@@ -20,17 +20,19 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var _ = require('underscore');
-  var allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
-  var AuthErrors = require('lib/auth-errors');
-  var BaseView = require('views/base');
-  var Duration = require('duration');
-  var notifyDelayedRequest = require('views/decorators/notify_delayed_request');
-  var p = require('lib/promise');
-  var showButtonProgressIndicator = require('views/decorators/progress_indicator');
-  var Tooltip = require('views/tooltip');
-  var Validate = require('lib/validate');
+  require('views/elements/jquery-plugin');
+
+  const $ = require('jquery');
+  const _ = require('underscore');
+  const allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
+  const AuthErrors = require('lib/auth-errors');
+  const BaseView = require('views/base');
+  const Duration = require('duration');
+  const notifyDelayedRequest = require('views/decorators/notify_delayed_request');
+  const p = require('lib/promise');
+  const showButtonProgressIndicator = require('views/decorators/progress_indicator');
+  const Tooltip = require('views/tooltip');
+
 
   /**
    * Decorator that checks whether the form has changed, and if so, call
@@ -47,6 +49,8 @@ define(function (require, exports, module) {
       }
     };
   }
+
+  const proto = BaseView.prototype;
 
   var FormView = BaseView.extend({
 
@@ -82,7 +86,7 @@ define(function (require, exports, module) {
         this.enableSubmitIfValid();
       }
 
-      BaseView.prototype.afterRender.call(this);
+      proto.afterRender.call(this);
     },
 
     /**
@@ -237,10 +241,12 @@ define(function (require, exports, module) {
         return false;
       }
 
-      var inputEls = this.$('input').not('#coppa input');
+      const inputEls = this.$('input');
       for (var i = 0, length = inputEls.length; i < length; ++i) {
-        var el = inputEls[i];
-        if (! this.isElementValid(el)) {
+        var $el = this.$(inputEls[i]);
+        try {
+          $el.validate();
+        } catch (e) {
           return false;
         }
       }
@@ -273,26 +279,6 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Check to see if an element passes HTML5 form validation.
-     *
-     * @param {String} el
-     * @returns {Boolean}
-     */
-    isElementValid: function (el) {
-      el = this.$(el);
-      var type = this.getElementType(el);
-
-      // email and password follow our own rules.
-      if (type === 'email') {
-        return this.validateEmail(el);
-      } else if (type === 'password') {
-        return this.validatePassword(el);
-      }
-
-      return this.validateInput(el);
-    },
-
-    /**
      * Display form validation errors.
      *
      * Descendent views can override showValidationErrorsStart
@@ -308,19 +294,15 @@ define(function (require, exports, module) {
         return;
       }
 
-      // exclude coppa inputs from validation, coppa has its own validation
-      var inputEls = this.$('input').not('#coppa input');
+      const inputEls = this.$('input');
       for (var i = 0, length = inputEls.length; i < length; ++i) {
-        var el = inputEls[i];
-        if (! this.isElementValid(el)) {
-          var fieldType = this.getElementType(el);
+        const el = inputEls[i];
+        const $el = this.$(el);
 
-          if (fieldType === 'email') {
-            return this.showEmailValidationError(el);
-          } else if (fieldType === 'password') {
-            return this.showPasswordValidationError(el);
-          }
-
+        try {
+          $el.validate();
+        } catch (validationError) {
+          this.showValidationError(el, validationError);
           // only one message at a time.
           return;
         }
@@ -336,26 +318,7 @@ define(function (require, exports, module) {
      * @returns {String}
      */
     getElementValue: function (el) {
-      var value = this.$(el).val();
-
-      if (value && this.getElementType(el) === 'email') {
-        value = $.trim(value);
-      }
-
-      return value;
-    },
-
-    getElementType: function (el) {
-      var fieldType = $(el).attr('type');
-
-      // text fields with the password class are treated as passwords.
-      // These are password fields that have been converted to text
-      // fields when the user clicked on 'show'
-      if (fieldType === 'text' && $(el).hasClass('password')) {
-        fieldType = 'password';
-      }
-
-      return fieldType;
+      return this.$(el).val();
     },
 
     /**
@@ -378,77 +341,6 @@ define(function (require, exports, module) {
      * @return {undefined} true if a validation error is displayed.
      */
     showValidationErrorsEnd: function () {
-    },
-
-    /**
-     * Validate an email field
-     *
-     * @param {String} el
-     * @return {Boolean} true if email is valid, false otw.
-     */
-    validateEmail: function (el) {
-      var email = this.getElementValue(el);
-      return Validate.isEmailValid(email);
-    },
-
-    showEmailValidationError: function (el) {
-      var value = this.getElementValue(el);
-      var err = value && value.length ?
-                  // if the email element has any length, but is marked
-                  // as invalid, it's invalid.
-                  AuthErrors.toError('INVALID_EMAIL') :
-                  // email has no length, it's missing.
-                  AuthErrors.toError('EMAIL_REQUIRED');
-
-      return this.showValidationError(el, err);
-    },
-
-    /**
-     * Validate a password field
-     *
-     * @param {String} el
-     * @return {Boolean} true if password is valid, false otw.
-     */
-    validatePassword: function (el) {
-      var password = this.getElementValue(el);
-      return Validate.isPasswordValid(password);
-    },
-
-    /**
-     * Basic text input validation. By default, only performs `required`
-     * attribute validation. If the browser supports HTML5 form validation,
-     * browser validation will kick in. If validating an email or password
-     * field, call validateEmail or validatePassword instead.
-     *
-     * @param {String} el
-     * @return {Boolean}
-     */
-    validateInput: function (el) {
-      el = this.$(el);
-      var isRequired = typeof el.attr('required') !== 'undefined';
-
-      var value = this.getElementValue(el);
-
-      if (isRequired && value.length === 0) {
-        return false;
-      }
-
-      // If the browser supports HTML5 form validation, hooray,
-      // use its validation too.
-      var hasHtml5Validation = !! el[0].validity;
-      if (hasHtml5Validation) {
-        return el[0].validity.valid;
-      }
-
-      return true;
-    },
-
-    showPasswordValidationError: function (el) {
-      var passwordVal = this.getElementValue(el);
-
-      var errType = passwordVal ? 'PASSWORD_TOO_SHORT' : 'PASSWORD_REQUIRED';
-
-      return this.showValidationError(el, AuthErrors.toError(errType));
     },
 
     /**

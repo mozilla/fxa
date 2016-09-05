@@ -295,6 +295,10 @@ define(function (require, exports, module) {
     REUSED_SIGNIN_VERIFICATION_CODE: {
       errno: 1041,
       message: EXPIRED_VERIFICATION_ERROR_MESSAGE
+    },
+    INPUT_REQUIRED: {
+      errno: 1042,
+      message: t('This is a required field')
     }
   };
   /*eslint-enable sorting/sort-object-props*/

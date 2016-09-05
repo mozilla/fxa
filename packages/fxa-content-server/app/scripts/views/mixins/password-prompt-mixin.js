@@ -10,10 +10,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const BaseView = require('views/base');
-  const t = BaseView.t;
   const Strings = require('lib/strings');
-
+  const t = require('views/base').t;
   const Tooltip = require('views/tooltip');
 
   // this link is not suitable for L10N and should be available in only `en` locales.
@@ -41,12 +39,12 @@ define(function (require, exports, module) {
     },
 
     displayPasswordInitialPrompt: function (inputEl) {
-      this.$el.find(inputEl).siblings(INPUT_HELP_FOCUSED).html(this.translate(TOOLTIP_MESSAGES.INITIAL_PROMPT_MESSAGE));
+      this.$(inputEl).siblings(INPUT_HELP_FOCUSED).html(this.translate(TOOLTIP_MESSAGES.INITIAL_PROMPT_MESSAGE));
       this._logPromptExperimentEvent('INITIAL_PROMPT_MESSAGE');
     },
 
     displayPasswordFocusPrompt: function (inputEl) {
-      this.$el.find(inputEl).siblings(INPUT_HELP_FOCUSED).html(this.translate(TOOLTIP_MESSAGES.FOCUS_PROMPT_MESSAGE));
+      this.$(inputEl).siblings(INPUT_HELP_FOCUSED).html(this.translate(TOOLTIP_MESSAGES.FOCUS_PROMPT_MESSAGE));
       this._logPromptExperimentEvent('FOCUS_PROMPT_MESSAGE');
     },
 
@@ -61,7 +59,7 @@ define(function (require, exports, module) {
       const tooltip = new Tooltip({
         dismissible: false,
         extraClassNames: 'tooltip-suggest tooltip-warning',
-        invalidEl: this.$el.find(CHECK_PASSWORD_FIELD_SELECTOR),
+        invalidEl: this.$(CHECK_PASSWORD_FIELD_SELECTOR),
         message: promptContent
       });
       tooltip.render();
@@ -69,7 +67,7 @@ define(function (require, exports, module) {
     },
 
     showPasswordPrompt: function (inputEl) {
-      const length = this.$el.find(inputEl).val().length;
+      const length = this.$(inputEl).val().length;
       if (length === 0) {
         this.displayPasswordInitialPrompt(inputEl);
       } else {
@@ -78,11 +76,11 @@ define(function (require, exports, module) {
     },
 
     onInputFocus: function (event) {
-      this.showPasswordPrompt(this.$el.find(event.currentTarget));
+      this.showPasswordPrompt(event.currentTarget);
     },
 
     onInputKeyUp: function (event) {
-      this.showPasswordPrompt(this.$el.find(event.currentTarget));
+      this.showPasswordPrompt(event.currentTarget);
     },
 
     onPasswordBlur: function () {

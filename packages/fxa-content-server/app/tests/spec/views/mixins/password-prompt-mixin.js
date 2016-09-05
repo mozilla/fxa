@@ -70,14 +70,16 @@ define(function (require, exports, module) {
         var event = new $.Event('focus');
         event.currentTarget = PasswordPromptMixin.CHECK_PASSWORD_FIELD_SELECTOR;
         view.onInputFocus(event);
-        assert.isTrue(view.showPasswordPrompt.calledWith(view.$(PasswordPromptMixin.CHECK_PASSWORD_FIELD_SELECTOR)));
+        assert.isTrue(view.showPasswordPrompt.calledWith(
+          PasswordPromptMixin.CHECK_PASSWORD_FIELD_SELECTOR));
       });
 
       it('onInputKeyUp calls showPasswordPrompt with the right password field', function () {
         var event = new $.Event('keyup');
         event.currentTarget = PasswordPromptMixin.CHECK_PASSWORD_FIELD_SELECTOR;
         view.onInputKeyUp(event);
-        assert.isTrue(view.showPasswordPrompt.calledWith(view.$(PasswordPromptMixin.CHECK_PASSWORD_FIELD_SELECTOR)));
+        assert.isTrue(view.showPasswordPrompt.calledWith(
+          PasswordPromptMixin.CHECK_PASSWORD_FIELD_SELECTOR));
       });
     });
 
