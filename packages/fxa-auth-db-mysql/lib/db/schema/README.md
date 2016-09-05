@@ -32,7 +32,6 @@ To document this, we're trying to keep to the following order though obviously d
 * accountResetTokens
 * passwordChangeTokens
 * passwordForgotTokens
-* accountUnlockCodes
 * accounts
 * eventLog
 
