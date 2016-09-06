@@ -205,7 +205,6 @@ define(function (require, exports, module) {
           })
           .then(_.bind(self.afterRender, self))
           .then(function () {
-            self.displayStatusMessages();
             self.trigger('rendered');
 
             return true;
@@ -375,6 +374,10 @@ define(function (require, exports, module) {
 
     // called after the view is visible.
     afterVisible: function () {
+      // jQuery 3.x requires the view to be visible
+      // before animating the status messages.
+      this.displayStatusMessages();
+
       // restyle side-by-side links to stack if they are too long
       // to fit on one line
       var linkContainer = this.$el.find('.links');

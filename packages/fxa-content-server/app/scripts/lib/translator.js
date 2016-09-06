@@ -12,8 +12,8 @@ define(function (require, exports, module) {
 
   var $ = require('jquery');
   var _ = require('underscore');
-  var p = require('lib/promise');
   var Strings = require('lib/strings');
+  var xhr = require('lib/xhr');
 
   var Translator = function () {
     this.translations = {};
@@ -28,7 +28,7 @@ define(function (require, exports, module) {
     fetch: function () {
       var self = this;
 
-      return p.jQueryXHR($.getJSON('/i18n/client.json'))
+      return xhr.getJSON('/i18n/client.json')
           .then(function (data) {
             // Only update the translations if some came back
             // from the server. If the server sent no translations,

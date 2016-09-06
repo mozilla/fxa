@@ -37,7 +37,6 @@ define(function (require, exports, module) {
 
     describe('profile-client', function () {
       describe('getProfile', function () {
-
         it('normally responds with profile', function () {
           server.respondWith('GET', PROFILE_URL + '/v1/profile',
             [200, { 'Content-Type': 'application/json' },

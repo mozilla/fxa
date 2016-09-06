@@ -149,43 +149,6 @@ define(function (require, exports, module) {
             });
       });
 
-      it('shows success messages', function () {
-        model.set('success', 'success message');
-        return view.render()
-            .then(function () {
-              assert.equal(view.$('.success').text(), 'success message');
-
-              return view.render();
-            });
-      });
-
-      it('logError is called for error', function () {
-        var error = AuthErrors.toError('UNEXPECTED_ERROR');
-        sinon.spy(view, 'logError');
-        model.set('error', error);
-        view.displayStatusMessages();
-        assert.isTrue(view.logError.called);
-        assert.isTrue(error.logged);
-      });
-
-      it('displayError does not log an already logged error', function () {
-        var error = AuthErrors.toError('UNEXPECTED_ERROR');
-        error.logged = true;
-        sinon.stub(metrics, 'logError', function () { });
-        view.displayError(error);
-        assert.isFalse(metrics.logError.called);
-      });
-
-      it('shows error messages', function () {
-        model.set('error', 'error message');
-        return view.render()
-            .then(function () {
-              assert.equal(view.$('.error').text(), 'error message');
-
-              return view.render();
-            });
-      });
-
       it('redirects to `/signin` if the user is not authenticated', function () {
         var account = user.initAccount({
           email: 'a@a.com',
@@ -338,6 +301,18 @@ define(function (require, exports, module) {
         $('html').removeClass('no-touch');
       });
 
+      it('shows success messages', function () {
+        model.set('success', 'success message');
+        view.afterVisible();
+        assert.equal(view.$('.success').text(), 'success message');
+      });
+
+      it('shows error messages', function () {
+        model.set('error', 'error message');
+        view.afterVisible();
+        assert.equal(view.$('.error').text(), 'error message');
+      });
+
       it('adds `centered` class to `.links` if any child has width >= half of `.links` width', function () {
         var link1 = '<a href="/reset_password" class="left reset-password">Forgot password?</a>';
         var link2 = '<a href="/signup" class="right sign-up">Create an account with really really looooooooooooooong text</a>';
@@ -479,6 +454,22 @@ define(function (require, exports, module) {
         assert.isTrue(view.isErrorVisible());
         view.hideError();
         assert.isFalse(view.isErrorVisible());
+      });
+
+      it('logError is called for error', function () {
+        var error = AuthErrors.toError('UNEXPECTED_ERROR');
+        sinon.spy(view, 'logError');
+        view.displayError(error);
+        assert.isTrue(view.logError.called);
+        assert.isTrue(error.logged);
+      });
+
+      it('does not log an already logged error', function () {
+        var error = AuthErrors.toError('UNEXPECTED_ERROR');
+        error.logged = true;
+        sinon.stub(metrics, 'logError', function () { });
+        view.displayError(error);
+        assert.isFalse(metrics.logError.called);
       });
 
       it('hides any previously displayed success messages', function () {

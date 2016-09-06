@@ -82,7 +82,7 @@ define(function (require, exports, module) {
         sinon.stub(view, 'getSignedInAccount', function () {
           return account;
         });
-        sinon.spy(notifier, 'trigger', function () { });
+        sinon.stub(notifier, 'trigger', function () { });
 
         return view.render()
           .then(function () {

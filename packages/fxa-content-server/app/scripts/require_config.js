@@ -89,7 +89,7 @@ require.config({
     passwordcheck: '../bower_components/fxa-password-strength-checker/build/fxa-password-strength-checker',
     'p-promise': '../bower_components/p/p',
     raven: '../bower_components/raven-js/dist/raven',
-    sinon: '../bower_components/sinon/index',
+    sinon: '../bower_components/sinon/lib/sinon',
     sjcl: '../bower_components/sjcl/sjcl',
     speedTrap: '../bower_components/speed-trap/dist/speed-trap',
     stache: '../bower_components/requirejs-mustache/stache',

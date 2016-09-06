@@ -84,7 +84,7 @@ define(function (require, exports, module) {
 
     describe('childViews', function () {
       it('renders non-modal childViews on render', function () {
-        sinon.spy(view, '_createChildViewIfNeeded', function (View) {
+        sinon.stub(view, '_createChildViewIfNeeded', function (View) {
           var childView = new View();
           return childView;
         });

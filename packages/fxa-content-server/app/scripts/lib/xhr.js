@@ -17,7 +17,6 @@ define(function (require, exports, module) {
 
   var $ = require('jquery');
   var _ = require('underscore');
-  var p = require('lib/promise');
 
   var DEFAULT_DATA_TYPE = 'json';
 
@@ -44,7 +43,7 @@ define(function (require, exports, module) {
         options.accepts.json = 'application/json';
       }
 
-      return p.jQueryXHR($.ajax(options));
+      return $.ajax(options);
     },
 
     /**
@@ -146,8 +145,8 @@ define(function (require, exports, module) {
      * @param {Function} success
      * @return {promise}
      */
-    getJSON: function (url, data, success) {
-      return p.jQueryXHR($.getJSON(url, data, success));
+    getJSON (url, data, success) {
+      return $.getJSON(url, data, success);
     }
   };
 });
