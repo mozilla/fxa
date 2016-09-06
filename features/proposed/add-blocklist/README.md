@@ -1,10 +1,10 @@
-# Integrate Botnet Controller List (BCL)
+# Consuming Botnet Controller List (BCL)
 
 ## Problem Summary
 
 Currently, Firefox Accounts uses [customs server](https://github.com/mozilla/fxa-customs-server) to detect fraud and abuse.
 This server is capable of blocking and rate limiting requests from a variety of sources.
-The primary problem is that the custom server does not take advantage of known blocklists when evaluating whether or not a request should be processed.
+The primary problem is that the custom server does not take advantage of known blocklists when evaluating whether or not a request should be processed by customs server.
 
 There are multiple BCLs, each with varying rates of success and false positives. This feature does not specify a specific blocklist that will be used but rather the format needed by the list and how to handle updating and processing several lists at a time. Some of the major blocklist sites include [Spamhaus BCL](https://www.spamhaus.org/bcl/) and [FireHOL](http://iplists.firehol.org/).
 
