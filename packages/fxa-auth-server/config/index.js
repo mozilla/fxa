@@ -465,6 +465,13 @@ var conf = convict({
       ],
       env: 'SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX'
     }
+  },
+  securityHistory: {
+    enabled: {
+      doc: 'enable security history',
+      default: true,
+      env: 'SECURITY_HISTORY_ENABLED'
+    }
   }
 })
 
