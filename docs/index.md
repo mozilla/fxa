@@ -37,18 +37,16 @@ development, and will be happy to help answer any questions you might have:
 
 * [Ryan Kelly](https://github.com/rfk) - Engineering (Melbourne, approx UTC+10)
 * [Shane Tomlinson](https://github.com/shane-tomlinson/) - Engineering (London, approx UTC)
-* [Danny Coates](https://github.com/dannycoates/) - Engineering (Portland, approx UTC-8)
 * [Sean McArthur](https://github.com/seanmonstar) - Engineering (Irvine, approx UTC-8)
 * [Vlad Filippov](https://github.com/vladikoff) - Engineering (Toronto, approx UTC-5)
 * [Vijay Budhram](https://github.com/vbudhram) - Engineering (Orlando, approx UTC-5)
 * [Phil Booth](https://github.com/philbooth) - Engineering (London, approx UTC)
 * [John Morrison](https://github.com/jrgm) - Operations (Mountain View, approx UTC-8)
-* [Chris Kolosiwsky](https://github.com/ckolos) - Operations (Indiana, approx UTC-6)
-* [Peter deHaan](https://github.com/pdehaan) - QA (Mountain View, approx UTC-8)
+* [Jon Buckley](https://github.com/jbuck) - Operations (Toronto, approx UTC-5)
 * [Ryan Feeley](https://github.com/rfeeley) - UX (Toronto, approx UTC-5)
-* [John Gruen](https://github.com/johngruen) - UX (NYC, approx UTC-5)
 * [Chris Karlof](https://github.com/ckarlof) - Identity Services Manager (San Francisco, approx UTC-8)
 * [Edwin Wong](https://github.com/edwong) - Program Manager (San Francisco, approx UTC-8)
+* [Alex Davis](https://github.com/davismtl) - Product Manager (Mountain View, approx UTC-8)
 
 We meet regularly to triage bugs and make grand plans for the future.  Anyone is welcome to
 join us in the following forums:
