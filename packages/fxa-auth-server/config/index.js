@@ -197,13 +197,6 @@ var conf = convict({
       env: 'RESET_URL',
       arg: 'reset-url'
     },
-    accountUnlockUrl: {
-      doc: 'Deprecated. uses contentServer.url',
-      format: String,
-      default: undefined,
-      env: 'UNLOCK_URL',
-      arg: 'unlock-url'
-    },
     initiatePasswordResetUrl: {
       doc: 'Deprecated. uses contentServer.url',
       format: String,
@@ -223,11 +216,6 @@ var conf = convict({
       doc: 'url to IOS product page',
       format: String,
       default: 'https://www.mozilla.org/firefox/ios/'
-    },
-    signInUrl: {
-      doc: 'Deprecated. uses contentServer.url',
-      format: String,
-      default: 'undefined'
     },
     supportUrl: {
       doc: 'url to Mozilla Support product page',
@@ -492,10 +480,8 @@ conf.validate({ strict: true })
 conf.set('domain', url.parse(conf.get('publicUrl')).host)
 
 // derive fxa-auth-mailer configuration from our content-server url
-conf.set('smtp.signInUrl', conf.get('contentServer.url') + '/signin')
 conf.set('smtp.verificationUrl', conf.get('contentServer.url') + '/v1/verify_email')
 conf.set('smtp.passwordResetUrl', conf.get('contentServer.url') + '/v1/complete_reset_password')
-conf.set('smtp.accountUnlockUrl', conf.get('contentServer.url') + '/v1/complete_unlock_account')
 conf.set('smtp.initiatePasswordResetUrl', conf.get('contentServer.url') + '/reset_password')
 conf.set('smtp.initiatePasswordChangeUrl', conf.get('contentServer.url') + '/settings/change_password')
 conf.set('smtp.verifyLoginUrl', conf.get('contentServer.url') + '/complete_signin')
