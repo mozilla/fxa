@@ -5,11 +5,10 @@ cut a release "train" that goes through deployment to stage and into production.
 
 ## Product Planning
 
-Product-level feature planning takes place in Aha:
+Product-level feature planning is managed via github issues
+in a special "features waffleboard":
 
-* [High-level Product Goals](https://mozilla.aha.io/products/FXA/strategic_imperatives)
-* [Ongoing Initiatives](https://mozilla.aha.io/products/FXA/initiatives)
-* [Individual Feature Cards](https://mozilla.aha.io/products/FXA/feature_cards)
+* [The fxa-features waffleboard](https://waffle.io/mozilla/fxa-features)
 
 ## Issue management
 
@@ -28,7 +27,7 @@ Issue status is reflected by the following:
 
 ### Milestones
 
-When we start working on feature card from Aha, we create a corresponding
+When we start working on a card from the features board, we create a corresponding
 [milestone in github](https://github.com/mozilla/fxa/milestones) and break
 down the task into bugs associated with that milestone.  There's also an ongoing
 ["quality" milestone](https://waffle.io/mozilla/fxa?milestone=FxA-0:%20quality)
@@ -51,9 +50,8 @@ Issues that are not being actively worked on are managed in the following column
 
 Issues that are under active development are managed in the following columns:
 
-* **now**:  issues that we've committed to for the current development cycle.
-* **progress**:  issues that someone is actively working on.
-* **review**: issues that have a PR ready for review; the assignee is the.
+* **active**:  issues that someone is actively working on.
+* **in review**: issues that have a PR ready for review; the assignee is the.
 * **blocked**:  issues on which progress has stalled due to external factors.
 
 All issues in these four columns should have an assignee, who is the person
@@ -84,7 +82,7 @@ Issues in the **triage** column should move into one of the other columns
 via these guidelines:
 
 * If it's so important that we need to get to it in the next few days,
-  put it in **now** and consider adding a **❤❤❤** label to
+  put it in **active** and consider adding a **❤❤❤** label to
   increase visibility.
 
 * If we should get to it in the next few weeks, put it in **next**.
