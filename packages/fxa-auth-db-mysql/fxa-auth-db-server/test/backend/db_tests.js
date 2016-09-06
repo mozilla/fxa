@@ -1434,6 +1434,194 @@ module.exports = function(config, DB) {
         )
 
         test(
+          'securityEvents',
+          function (t) {
+
+            function securityEvents(suite) {
+              return suite.setUp().then(function () {
+                delete suite.setUp
+
+                var names = Object.keys(suite)
+
+                function run () {
+                  var unit = names.shift()
+
+                  if (unit) {
+                    return suite[unit]().then(run)
+                  }
+                }
+
+                return run()
+              }).done(function () {
+                t.end()
+              })
+            }
+
+            function createSession (id, session) {
+              return db.createSessionToken(id, session).catch(function (e) {
+                t.fail('createSession ' + id.toString('hex') + ' failed: ' + e)
+              })
+            }
+
+            function verifySession (id, uid) {
+              return db.verifyTokens(id, { uid: uid }).catch(function (e) {
+                t.fail('verifySession ' + id.toString('hex') + ' failed: ' + e)
+              })
+            }
+
+            function deleteSession (id) {
+              return db.deleteSessionToken(id).catch(function (e) {
+                t.fail('deleteSession ' + id.toString('hex') + ' failed: ' + e)
+              })
+            }
+
+            function insert (uid, addr, name, session) {
+              return db.createSecurityEvent({
+                uid: uid,
+                ipAddr: addr,
+                name: name,
+                tokenId: session
+              })
+            }
+
+            function query (uid, addr, cb) {
+              return function () {
+                return db.securityEvents({
+                  uid: uid,
+                  ipAddr: addr
+                })
+                .then(cb)
+              }
+            }
+
+            var uid1 = ACCOUNT.uid
+            var uid2 = newUuid()
+            var addr1 = '127.0.0.1'
+            var addr2 = '::127.0.0.2'
+
+            var evA = 'account.login'
+            var evB = 'account.create'
+
+            var sessionId1 = hex32()
+            var sessionId2 = hex32()
+            var sessionId3 = hex32()
+
+            var session1 = {
+              data: hex32(),
+              uid: uid1,
+              createdAt: Date.now(),
+              uaBrowser: 'foo',
+              uaBrowserVersion: 'bar',
+              uaOS: 'baz',
+              uaOSVersion: 'qux',
+              uaDeviceType: 'wibble',
+              mustVerify: false,
+              tokenVerificationId: hex16()
+            }
+
+            var session2 = {
+              data: hex32(),
+              uid: uid1,
+              createdAt: Date.now(),
+              uaBrowser: 'foo',
+              uaBrowserVersion: 'bar',
+              uaOS: 'baz',
+              uaOSVersion: 'qux',
+              uaDeviceType: 'wibble'
+              // no tokenVerificationId means verified
+            }
+
+            var session3 = {
+              data: hex32(),
+              uid: uid1,
+              createdAt: Date.now(),
+              uaBrowser: 'foo',
+              uaBrowserVersion: 'bar',
+              uaOS: 'baz',
+              uaOSVersion: 'qux',
+              uaDeviceType: 'wibble',
+              mustVerify: false,
+              tokenVerificationId: hex16()
+            }
+
+            return securityEvents({
+              setUp: function () {
+                return P.all([
+                  createSession(sessionId1, session1),
+                  createSession(sessionId2, session2),
+                  createSession(sessionId3, session3)
+                ])
+                .then(function () {
+                  return P.all([
+                    insert(uid1, addr1, evB, sessionId1),
+                    insert(uid1, addr1, evA, sessionId2),
+                    insert(uid1, addr2, evA, sessionId3),
+                    insert(uid2, addr1, evA, hex32())
+                  ])
+                })
+              },
+
+              testGetEvent: query(
+                uid1, addr1,
+                function (results) {
+                  t.equal(results.length, 2, 'two events for uid and addr')
+                  // order may differ depending on which query finishes first
+                  var a = results[1].name === evA ? 1 : 0
+                  var b = Number(!a)
+                  t.equal(results[b].name, evB, 'correct event name')
+                  t.equal(!!results[b].verified, false, 'first session is not verified yet')
+                  t.ok(results[b].createdAt < Date.now(), 'createdAt is set')
+                  t.equal(results[a].name, evA, 'correct event name')
+                  t.equal(!!results[a].verified, true, 'second session is verified')
+                  t.ok(results[a].createdAt < Date.now(), 'createdAt is set')
+                }
+              ),
+
+              testGetEventAfterSessionVerified: function () {
+                return verifySession(session1.tokenVerificationId, uid1)
+                  .then(query(uid1, addr1, function (results) {
+                    t.equal(results.length, 2, 'two events for uid and addr')
+                    t.equal(!!results[0].verified, true, 'first session verified')
+                    t.equal(!!results[1].verified, true, 'second session verified')
+                  }))
+              },
+
+              testGetSecondAddr: query(
+                uid1, addr2,
+                function (results) {
+                  t.equal(results.length, 1, 'one event for addr2')
+                  t.equal(results[0].name, evA)
+                  t.equal(!!results[0].verified, false, 'session3 not verified yet')
+                }
+              ),
+
+              testGetSecondAddrAfterDeletingUnverifiedSession: function () {
+                return deleteSession(sessionId3)
+                  .then(query(uid1, addr2, function (results) {
+                    t.equal(results.length, 1, 'one event for addr2')
+                    t.equal(results[0].name, evA)
+                    t.equal(!!results[0].verified, false, 'session3 not verified yet')
+                  }))
+              },
+
+              testGetWithIPv6: query(
+                uid1, '::' + addr1,
+                function (results) {
+                  t.equal(results.length, 2, 'two events for ipv6 addr')
+                }
+              ),
+
+              testUnknownUid: query(
+                newUuid(), addr1,
+                function (results) {
+                  t.equal(results.length, 0, 'no events for unknown uid')
+                }
+              )
+            })
+          }
+        )
+
+        test(
           'account deletion',
           function (t) {
             t.plan(5)
@@ -1584,6 +1772,7 @@ module.exports = function(config, DB) {
               )
           }
         )
+
 
         test(
           'teardown',
