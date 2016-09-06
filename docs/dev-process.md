@@ -5,11 +5,10 @@ cut a release "train" that goes through deployment to stage and into production.
 
 ## Product Planning
 
-Product-level feature planning takes place in Aha:
+Product-level feature planning is managed via github issues
+in a special "features waffleboard":
 
-* [High-level Product Goals](https://mozilla.aha.io/products/FXA/strategic_imperatives)
-* [Ongoing Initiatives](https://mozilla.aha.io/products/FXA/initiatives)
-* [Individual Feature Cards](https://mozilla.aha.io/products/FXA/feature_cards)
+* [The fxa-features waffleboard](https://waffle.io/mozilla/fxa-features)
 
 ## Issue management
 
@@ -28,7 +27,7 @@ Issue status is reflected by the following:
 
 ### Milestones
 
-When we start working on feature card from Aha, we create a corresponding
+When we start working on a card from the features board, we create a corresponding
 [milestone in github](https://github.com/mozilla/fxa/milestones) and break
 down the task into bugs associated with that milestone.  There's also an ongoing
 ["quality" milestone](https://waffle.io/mozilla/fxa?milestone=FxA-0:%20quality)
@@ -51,9 +50,8 @@ Issues that are not being actively worked on are managed in the following column
 
 Issues that are under active development are managed in the following columns:
 
-* **now**:  issues that we've committed to for the current development cycle.
-* **progress**:  issues that someone is actively working on.
-* **review**: issues that have a PR ready for review; the assignee is the.
+* **active**:  issues that someone is actively working on.
+* **in review**: issues that have a PR ready for review; the assignee is the.
 * **blocked**:  issues on which progress has stalled due to external factors.
 
 All issues in these four columns should have an assignee, who is the person
@@ -84,7 +82,7 @@ Issues in the **triage** column should move into one of the other columns
 via these guidelines:
 
 * If it's so important that we need to get to it in the next few days,
-  put it in **now** and consider adding a **❤❤❤** label to
+  put it in **active** and consider adding a **❤❤❤** label to
   increase visibility.
 
 * If we should get to it in the next few weeks, put it in **next**.
@@ -103,14 +101,15 @@ welcome to deal with issues in the **triage** column at any time.
 ## Checkin Meetings
 
 The team meets regularly to stay in sync about development status and ensure nothing
-is falling through the cracks. During meetings we take notes in the **[public Engineering Coordination etherpad](https://public.etherpad-mozilla.org/p/fxa-engineering-coordination)**.
+is falling through the cracks. During meetings we take notes in the
+**[public Engineering Coordination etherpad](https://public.etherpad-mozilla.org/p/fxa-engineering-coordination)**.
 
 We hold the following meetings over the course of each
 two-week cycle, with meeting times pinned to Mozilla Standard Time (aka Pacific Time).
 
-### Mondays at 09:00
+### Mondays at 08:30
 
-This is a 15 minute meeting slot, followed by a bug triage session.  It's in a
+This is a 30 minute meeting slot followed by a bug triage session.  It's in a
 timeslot that's convenient for Europe and US-East.
 
 ##### First week: Outbound Train Review
@@ -127,34 +126,28 @@ at this point are moved back into **next**.
 
 ### Mondays at 13:30
 
-##### First week: Outbound Train Demos and Retrospective
+##### Weekly: Show and Tell and Share
 
-We get together to demonstrate any new features that will be included on the outbound train,
-or any other interesting work that was compelted in the previous cycle.  We also talk about
-the development process itself, doing a "start/stop/keep" analysis of the previous two weeks.
-
-##### Second week: No Meeting
-
-There's no point in meeting just because...
+We get together to demonstrate any new features that will be included on the next train,
+or any other interesting work that was completed in the previous cycle.
 
 ### Mondays at 14:00
 
 This is the one time each week where all team members everywhere in the world get together
 in the same (virtual) room at the same time.
 
-##### First week: Sprint Planning Meeting
+##### First week: Dev Planning Meeting
 
-We review any items remaining in **now**, **progress** or **review** to determine whether they
+We review any items remaining in **blocked**, **review** or **active** to determine whether they
 should carry over to the upcoming train, or be de-priotitized.  We then work through the issues
 in **next** to decide what to commit to for the upcoming train.
 
-##### Second week: Status Updates and Retrospective
+##### Second week: Retrospective
 
-Since this is our only whole-team timeslot, we take the opportunity to do a round of status
-updates and give everyone a chance to raise any comments or concerns.  We can also use the
-remaining time to continue the "start/stop/keep" restrospective from the previous week.
+We take time every two weeks to explicitly reflect on our development process.
+What worked, what didn't, what new things we'd like to try.
 
-### Tuesdays at 15:30
+### Tuesdays at 14:00
 
 This is a 15 minute meeting slot, followed by a bug triage session.  It's in a timeslot
 that's convenient for US-West and Oceania.
@@ -177,7 +170,7 @@ This is a quick 15-minute checkin in a timeslot convenient for Europe and US-Eas
 We take 15mins to checkin with each other about anything that's blocked or otherwise needs help.
 Items in the **blocked** column should receive special attention.
 
-##### First week: Items in Danger
+##### Second week: Items in Danger
 
 We take 15mins to identify any items that are in danger of not being completed this train, and
 ensure we either have a plan for completing them, or take them off the train.

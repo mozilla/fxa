@@ -2,7 +2,6 @@
 
 ## Problem Summary
 
-
 ### Assumptions (optional)
 
 ****
@@ -17,7 +16,19 @@
 
 ## Detailed design
 
+### Original Version (Present Day)
 
-### Unresolved questions and risks (optional)
+### Variation A
+
+### Variation B
+
+## Unresolved questions and risks (optional)
 
 ****
+
+
+## Results
+
+## Conclusion
+
+## Next Steps
