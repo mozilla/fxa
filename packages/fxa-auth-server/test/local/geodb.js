@@ -24,7 +24,7 @@ test(
     var thisMockLog = mockLog({})
 
     var getGeoData = proxyquire('../../lib/geodb', moduleMocks)(thisMockLog)
-    getGeoData('8.8.8.8')
+    getGeoData('63.245.221.32') // MTV
     .then(function (geoData) {
       t.equal(geoData.location.city, 'Mountain View')
       t.equal(geoData.location.country, 'United States')
