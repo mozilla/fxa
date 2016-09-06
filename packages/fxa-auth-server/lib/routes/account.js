@@ -332,10 +332,6 @@ module.exports = function (
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
             // Obsolete contentToken param, here for backwards compat.
             contentToken: isA.string().optional(),
-            // Delegate sending emails for unverified users to auth-server.
-            // Will be removed once all clients have been updated not to send verify emails.
-            // https://github.com/mozilla/fxa-auth-server/issues/1325
-            sendEmailIfUnverified: isA.boolean().optional(),
             service: isA.string().max(16).alphanum().optional(),
             redirectTo: isA.string().uri().optional(),
             resume: isA.string().optional(),
@@ -351,7 +347,8 @@ module.exports = function (
             verificationMethod: isA.string().optional(),
             verificationReason: isA.string().optional(),
             verified: isA.boolean().required(),
-            authAt: isA.number().integer()
+            authAt: isA.number().integer(),
+            emailSent: isA.boolean().optional()
           }
         }
       },
@@ -365,7 +362,7 @@ module.exports = function (
         var redirectTo = request.payload.redirectTo
         var resume = request.payload.resume
         var tokenVerificationId = crypto.randomBytes(16)
-        var emailRecord, sessions, sessionToken, keyFetchToken, mustVerifySession, doSigninConfirmation
+        var emailRecord, sessions, sessionToken, keyFetchToken, mustVerifySession, doSigninConfirmation, sendEmailIfUnverified, emailSent
         var ip = request.app.clientAddress
 
         metricsContext.validate(request)
@@ -544,19 +541,26 @@ module.exports = function (
         }
 
         function sendVerifyAccountEmail() {
-          // For legacy clients, behavior is to not send an email to verify their account
-          // and have the requestor send it.
-          var sendEmailIfUnverified = false
+          // Delegate sending emails for unverified users to auth-server.
+          // Will be removed once all clients have been updated not to send verify emails.
+          // https://github.com/mozilla/fxa-auth-server/issues/1325
+          sendEmailIfUnverified = request.query.sendEmailIfUnverified
+          emailSent = false
 
-          // If a value was passed, use that instead
-          if (request.payload.sendEmailIfUnverified !== undefined) {
-            sendEmailIfUnverified = request.payload.sendEmailIfUnverified
+          // For all non content-server requests, default to sending verify email on login
+          var context = request.payload && request.payload.metricsContext && request.payload.metricsContext.context
+          if (!context) {
+            sendEmailIfUnverified = true
+          } else if (sendEmailIfUnverified === undefined) {
+            // For content-server, if query param not sent, default to not sending email
+            sendEmailIfUnverified = false
           }
 
           var shouldSendVerifyAccountEmail = sendEmailIfUnverified && !emailRecord.emailVerified
           if (shouldSendVerifyAccountEmail) {
             // Resend the account verification email using the tokenVerificationId so that the session
             // that initiated the login will also get verified.
+            emailSent = true
             return mailer.sendVerifyCode(emailRecord, tokenVerificationId, {
               service: service,
               redirectTo: redirectTo,
@@ -636,6 +640,10 @@ module.exports = function (
           }
 
           response.keyFetchToken = keyFetchToken.data.toString('hex')
+
+          if (request.query.sendEmailIfUnverified !== undefined) {
+            response.emailSent = emailSent
+          }
 
           if(! emailRecord.emailVerified) {
             response.verified = false

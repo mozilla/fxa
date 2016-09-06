@@ -40,7 +40,8 @@ var makeRoutes = function (options, requireMocks) {
   var db = options.db || mocks.mockDB()
   var isPreVerified = require('../../lib/preverifier')(error, config)
   var customs = options.customs || {
-    check: function () { return P.resolve(true) }
+    check: function () { return P.resolve(true) },
+    flag: function () { return P.resolve(true) }
   }
   var checkPassword = options.checkPassword || require('../../lib/routes/utils/password_check')(log, config, Password, customs, db)
   var push = options.push || require('../../lib/push')(log, db)
@@ -754,6 +755,9 @@ test('/account/login', function (t) {
     customs: {
       check: function () {
         return P.resolve()
+      },
+      flag: function () {
+        return P.resolve()
       }
     },
     db: mockDB,
@@ -1154,7 +1158,7 @@ test('/account/login', function (t) {
   })
 
   t.test('sign-in unverified account', function (t) {
-    t.plan(2)
+    t.plan(4)
     mockDB.emailRecord = function () {
       return P.resolve({
         authSalt: crypto.randomBytes(32),
@@ -1178,11 +1182,12 @@ test('/account/login', function (t) {
         t.equal(response.verified, false, 'response indicates account is unverified')
         t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
         t.equal(response.verificationReason, 'signup', 'verificationReason is signup')
+        t.notOk(response.emailSent, 'email sent, not set')
       })
     })
 
-    t.test('with `sendEmailIfUnverified` param', function (t) {
-      mockRequest.payload.sendEmailIfUnverified = true
+    t.test('with `sendEmailIfUnverified` param, true', function (t) {
+      mockRequest.query.sendEmailIfUnverified = true
       return runTest(route, mockRequest, function (response) {
         t.equal(mockMailer.sendVerifyCode.callCount, 1, 'mailer.sendVerifyCode was called')
         t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
@@ -1190,8 +1195,41 @@ test('/account/login', function (t) {
         t.equal(response.verified, false, 'response indicates account is unverified')
         t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
         t.equal(response.verificationReason, 'signup', 'verificationReason is signup')
+        t.equal(response.emailSent, true, 'email sent')
       }).then(function () {
-        mockRequest.payload.sendEmailIfUnverified = undefined
+        mockRequest.query.sendEmailIfUnverified = undefined
+        mockMailer.sendVerifyCode.reset()
+      })
+    })
+
+    t.test('with `sendEmailIfUnverified` param, false', function (t) {
+      mockRequest.query.sendEmailIfUnverified = false
+      return runTest(route, mockRequest, function (response) {
+        t.equal(mockMailer.sendVerifyCode.callCount, 0, 'mailer.sendVerifyCode was not called')
+        t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
+        t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+        t.equal(response.verified, false, 'response indicates account is unverified')
+        t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
+        t.equal(response.verificationReason, 'signup', 'verificationReason is signup')
+        t.equal(response.emailSent, false, 'email sent')
+      }).then(function () {
+        mockRequest.query.sendEmailIfUnverified = undefined
+      })
+    })
+
+    t.test('not from content server', function (t) {
+      mockRequest.query.sendEmailIfUnverified = undefined
+      mockRequest.payload.metricsContext = undefined
+      return runTest(route, mockRequest, function (response) {
+        t.equal(mockMailer.sendVerifyCode.callCount, 1, 'mailer.sendVerifyCode was called')
+        t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
+        t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+        t.equal(response.verified, false, 'response indicates account is unverified')
+        t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
+        t.equal(response.verificationReason, 'signup', 'verificationReason is signup')
+        t.notOk(response.emailSent, 'email sent, not set')
+      }).then(function () {
+        mockMailer.sendVerifyCode.reset()
       })
     })
   })
