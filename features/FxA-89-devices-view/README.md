@@ -327,7 +327,7 @@ Acceptance criteria:
       submit or cancel the disconnect dialog,
       click the "refresh" button,
       and click the "missing or duplicate devices" link.
-* [ ] Back-end metrics events are emitted
+* [ ] Metrics events are emitted
       when a device is disconnected,
       and include the reason for its disconnection.
 * [ ] Graphs are available to view
