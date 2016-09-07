@@ -35,6 +35,7 @@
     "fxa-jwtool": "0.7.2",
     "mozlog": "2.0.5",
     "mysql": "2.11.1",
+    "newrelic": "1.30.1",
     "request": "2.74.0",
     "restify": "4.1.1"
   },
