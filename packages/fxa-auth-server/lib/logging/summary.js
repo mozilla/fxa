@@ -40,7 +40,8 @@ module.exports = function summary(request, response) {
     t: Date.now() - request.info.received,
     client_id: payload.client_id || query.client_id || params.client_id,
     auth: auth,
-    payload: parsePayload(payload)
+    payload: parsePayload(payload),
+    remoteAddressChain: request.app.remoteAddressChain
   };
 
   if (line.code >= 500) {

@@ -43,6 +43,12 @@ const conf = convict({
     doc: 'Some pre-defined clients that will be inserted into the DB',
     default: []
   },
+  clientAddressDepth: {
+    doc: 'location of the client ip address in the remote address chain',
+    format: Number,
+    env: 'CLIENT_ADDRESS_DEPTH',
+    default: 3
+  },
   contentUrl: {
     doc: 'URL to UI page in fxa-content-server that starts OAuth flow',
     format: 'url',

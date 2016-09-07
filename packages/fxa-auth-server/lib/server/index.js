@@ -83,5 +83,24 @@ exports.create = function createServer() {
     next(response);
   });
 
+  server.ext('onPreAuth', function (request, next) {
+    // Construct source-ip-address chain for logging.
+    var xff = (request.headers['x-forwarded-for'] || '').split(/\s*,\s*/);
+    xff.push(request.info.remoteAddress);
+    // Remove empty items from the list, in case of badly-formed header.
+    xff = xff.filter(function(x){
+      return x;
+    });
+    // Skip over entries for our own infra, loadbalancers, etc.
+    var clientAddressIndex = xff.length - (config.clientAddressDepth || 1);
+    if (clientAddressIndex < 0) {
+      clientAddressIndex = 0;
+    }
+
+    request.app.remoteAddressChain = xff;
+    request.app.clientAddress = xff[clientAddressIndex];
+    next();
+  });
+
   return server;
 };
