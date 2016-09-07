@@ -103,7 +103,6 @@ module.exports = function (log) {
     this.passwordResetUrl = config.passwordResetUrl
     this.privacyUrl = config.privacyUrl
     this.sender = config.sender
-    this.signInUrl = config.signInUrl
     this.supportUrl = config.supportUrl
     this.syncUrl = config.syncUrl
     this.templates = templates
@@ -336,7 +335,6 @@ module.exports = function (log) {
         email: message.email,
         link: links.link,
         privacyUrl: links.privacyUrl,
-        signInUrl: links.signInUrl,
         supportUrl: links.supportUrl,
         supportLinkAttributes: links.supportLinkAttributes
       },
@@ -592,8 +590,6 @@ module.exports = function (log) {
     links['passwordChangeLink'] = this.createPasswordChangeLink(email, templateName)
     links['passwordChangeLinkAttributes'] = this._passwordChangeLinkAttributes(email, templateName)
 
-    links['signInUrl'] = this.createSignInLink(email, templateName, 'remember-password')
-
     links['resetLink'] = this.createPasswordResetLink(email, templateName)
     links['resetLinkAttributes'] = this._passwordResetLinkAttributes(email, templateName)
 
@@ -620,12 +616,6 @@ module.exports = function (log) {
     var query = { email: email }
 
     return this._generateUTMLink(this.initiatePasswordChangeUrl, query, templateName, 'change-password')
-  }
-
-  Mailer.prototype.createSignInLink = function (email, templateName) {
-    var query = { email: email }
-
-    return this._generateUTMLink(this.signInUrl, query, templateName, 'remember-password')
   }
 
   Mailer.prototype.createSupportLink = function (templateName) {

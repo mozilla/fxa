@@ -181,11 +181,6 @@ var conf = convict({
       format: String,
       default: 'https://app.adjust.com/2uo1qc?campaign=fxa-conf-email&adgroup=ios&creative=button&fallback=https%3A%2F%2Fitunes.apple.com%2Fapp%2Fapple-store%2Fid989804926%3Fpt%3D373246%26ct%3Dadjust_tracker%26mt%3D8'
     },
-    signInUrl: {
-      doc: 'Deprecated. uses contentServer.url',
-      format: String,
-      default: undefined
-    },
     supportUrl: {
       doc: 'url to Mozilla Support product page',
       format: String,
@@ -218,7 +213,6 @@ var options = {
 conf.validate(options)
 
 var contentServerUrl = conf.get('contentServer.url')
-conf.set('mail.signInUrl', contentServerUrl + '/signin')
 conf.set('mail.verificationUrl', contentServerUrl + '/v1/verify_email')
 conf.set('mail.passwordResetUrl', contentServerUrl + '/v1/complete_reset_password')
 conf.set('mail.initiatePasswordResetUrl', contentServerUrl + '/reset_password')
