@@ -149,34 +149,30 @@ as we want to minimize noise and distractions.
 When the user clicks and releases the "Disconnect..." button
 the following occurs:
 
-1. We verify that the user session is recent.
-   If it is too old then we bounce the user
-   through the existing "force auth" screen
-   in order to refresh their login session.
-2. We display a modal dialog
+1. We display a modal dialog
    asking them to confirm
    and supply a reason why they are disconnecting:
 
    <img src="modal-disconnect-dialog.png" />
 
-3. We display an error "Valid response required"
+2. We display an error "Valid response required"
    if they submit the dialog
    without selecting a reason:
 
    <img src="modal-disconnect-dialog-validation-error.png" />
 
-4. When the user selects any option,
+3. When the user selects any option,
    the placeholder floats up to be a field label
    and the Disconnect button becomes enabled:
 
    <img src="modal-disconnect-dialog-filled.png" />
 
-5. When the form is submitted
+4. When the form is submitted
    we disconnect the device
    by calling the `/account/device/destroy` endpoint
-   on the server..
+   on the server.
 
-6. Depending on the user's selected reason for disconnecting
+5. Depending on the user's selected reason for disconnecting
    we may show an additional message styled as follows:
 
    <img src="modal-disconnect-dialog-success.png" />
@@ -317,6 +313,14 @@ Acceptance criteria:
 * [ ] Successfully submitting the dialog
       destroys the device record and session
       token for that device.
+* [ ] When I disconnect my current Desktop device
+      through the devices view,
+      and then go to about:preferences#sync,
+      I immediately see that the device is disconnected.
+* [ ] When I disconnect a different Desktop device
+      through the devices view,
+      and then go to about:preferences#sync on that device,
+      I immediately see that the device is disconnected.
 * [ ] Front-end metrics events are emitted
       when users view the devices list,
       click the "Disconnect..." button,
@@ -333,48 +337,20 @@ Acceptance criteria:
       and the click rate on various buttons and links.
 
 With these parts of the feature built,
-we should consider enabling it by default
-for some percentage of the userbase,
+we will begin rolling out the feature
+to some percentage of the userbase,
 in order to get preliminary metrics
 on whether and how it will be used.
 
 ### Phase 2
 
-Next we add some of the trickier parts
-of the feature,
-that enhance the experience
-but are not expected to make a big difference
-to the core success metrics.
+Before beginning this work,
+we will review metrics
+from the deployment of Phase 1,
+and may decide not to proceed with Phase 2
+if usage of the Device List is very low.
 
-Acceptance criteria:
-
-* [ ] When I click the "Disconnect..." button
-      and my login session is more than 30 minutes old,
-      I am required to re-enter my password
-      before I can disconnect the device.
-* [ ] When I disconnect my current Desktop device
-      through the devices view,
-      and then go to about:preferences#sync,
-      I immediately see that the device is disconnected.
-* [ ] When I disconnect a different Desktop device
-      through the devices view,
-      and then go to about:preferences#sync on that device,
-      I immediately see that the device is disconnected.
-* [ ] When I disconnect a device
-      through the devices view,
-      I receive an email notifying me
-      that the device has been disconnected.
-
-Once these are in place,
-and we have preliminary metrics
-on whether initial users are using the feature,
-we can consider enabling it
-for the entire user population.
-
-
-### Phase 3
-
-Finally, we re-introduce the affordances
+In this phase we re-introduce the affordances
 for connecting new devices,
 according to the latest designs.
 
@@ -409,3 +385,29 @@ Open questions:
   but the web content doesn't know that
   because it's using a different sessionToken?
 
+
+### Phase 3
+
+Before beginning this work,
+we will review metrics
+from the deployment of the feature so far,
+and may decide not to proceed with Phase 3
+if users very rarely disconnect devices through this view.
+
+In this phase we improve the notifications
+and timliness around disconnecting a device.
+
+Acceptance criteria:
+
+* [ ] When I disconnect a device
+      through the devices view,
+      I receive an email notifying me
+      that the device has been disconnected.
+* [ ] When I disconnect my current Android or iOS device
+      through the devices view,
+      and then go to the sync preferences on that device,
+      I immediately see that the device is disconnected.
+* [ ] When I disconnect an Android or iOS device
+      by accessing the devices view on a desktop browser,
+      and then go to the sync preferences on the mobile device,
+      I immediately see that the device is disconnected.
