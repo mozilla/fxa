@@ -15,10 +15,27 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var _ = require('underscore');
+  const $ = require('jquery');
+  const _ = require('underscore');
+  const p = require('lib/promise');
 
-  var DEFAULT_DATA_TYPE = 'json';
+  const DEFAULT_DATA_TYPE = 'json';
+
+  // Converts a jQuery promise to our internal promise type.
+  // This ensures methods like `.fail` work as expected.
+  //
+  // for more background, read
+  // https://github.com/kriskowal/q/wiki/Coming-from-jQuery
+  function convertJQueryPromise(jqPromise) {
+    const defer = p.defer();
+
+    jqPromise.then(
+      data => defer.resolve(data),
+      jqXHR => defer.reject(jqXHR)
+    );
+
+    return defer.promise;
+  }
 
   module.exports = {
     /**
@@ -27,7 +44,7 @@ define(function (require, exports, module) {
      * @param {Object} options
      * @return {promise}
      */
-    ajax: function (options) {
+    ajax (options) {
       if (options.dataType === 'json') {
         options.contentType = 'application/json';
 
@@ -43,7 +60,7 @@ define(function (require, exports, module) {
         options.accepts.json = 'application/json';
       }
 
-      return $.ajax(options);
+      return convertJQueryPromise($.ajax(options));
     },
 
     /**
@@ -61,7 +78,7 @@ define(function (require, exports, module) {
      *   @param {Object} [options.data] - data to send
      * @return {promise}
      */
-    oauthAjax: function (options) {
+    oauthAjax (options) {
       var request = {
         // make sure to set the dataType for Firefox <21. See issue #1930
         dataType: 'json',
@@ -100,7 +117,7 @@ define(function (require, exports, module) {
      * @param {String} dataType
      * @return {promise}
      */
-    get: function (url, data, success, dataType) {
+    get (url, data, success, dataType) {
       if (! dataType) {
         dataType = DEFAULT_DATA_TYPE;
       }
@@ -124,7 +141,7 @@ define(function (require, exports, module) {
      * @param {String} dataType
      * @return {promise}
      */
-    post: function (url, data, success, dataType) {
+    post (url, data, success, dataType) {
       if (! dataType) {
         dataType = DEFAULT_DATA_TYPE;
       }
@@ -146,7 +163,7 @@ define(function (require, exports, module) {
      * @return {promise}
      */
     getJSON (url, data, success) {
-      return $.getJSON(url, data, success);
+      return convertJQueryPromise($.getJSON(url, data, success));
     }
   };
 });

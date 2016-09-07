@@ -79,6 +79,40 @@ define(function (require, exports, module) {
           }));
         });
       });
+
+      it('correctly handles errors', () => {
+        const data = { foo: 'bar' };
+        const errResponse = {
+          responseJSON: {
+            ok: false
+          },
+          status: 400
+        };
+
+        const deferred = $.Deferred();
+        sinon.stub($, 'ajax', function () {
+          return deferred.promise();
+        });
+        deferred.reject(errResponse);
+
+        return xhr.ajax({
+          data: data,
+          dataType: 'json',
+          method: 'POST',
+          processData: false,
+          url: '/error_endpoint'
+        })
+        // a .fail that throws followed by a .then(null, errback)
+        // does not correctly propagate the error unless the
+        // jQuery promise is converted to an internal promise
+        .fail((jqXHR) => {
+          assert.strictEqual(jqXHR, errResponse);
+          throw jqXHR;
+        })
+        .then(null, (jqXHR) => {
+          assert.strictEqual(jqXHR, errResponse);
+        });
+      });
     });
 
     describe('oauthAjax', function () {
@@ -238,6 +272,33 @@ define(function (require, exports, module) {
           .then(function (resp) {
             assert.deepEqual(resp, { key: 'value' });
             assert.isTrue($.getJSON.calledWith('/fake_endpoint'));
+          });
+      });
+
+      it('correctly handles errors', () => {
+        const errResponse = {
+          responseJSON: {
+            ok: false
+          },
+          status: 400
+        };
+
+        const deferred = $.Deferred();
+        sinon.stub($, 'getJSON', function () {
+          return deferred.promise();
+        });
+        deferred.reject(errResponse);
+
+        return xhr.getJSON('/error_endpoint')
+          // a .fail that throws followed by a .then(null, errback)
+          // does not correctly propagate the error unless the
+          // jQuery promise is converted to an internal promise
+          .fail((jqXHR) => {
+            assert.strictEqual(jqXHR, errResponse);
+            throw jqXHR;
+          })
+          .then(null, (jqXHR) => {
+            assert.strictEqual(jqXHR, errResponse);
           });
       });
     });
