@@ -755,9 +755,6 @@ test('/account/login', function (t) {
     customs: {
       check: function () {
         return P.resolve()
-      },
-      flag: function () {
-        return P.resolve()
       }
     },
     db: mockDB,
@@ -1154,6 +1151,7 @@ test('/account/login', function (t) {
       })
     }).finally(function () {
       mockLog.close()
+      mockMailer.sendVerifyCode.reset()
     })
   })
 
@@ -1182,7 +1180,7 @@ test('/account/login', function (t) {
         t.equal(response.verified, false, 'response indicates account is unverified')
         t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
         t.equal(response.verificationReason, 'signup', 'verificationReason is signup')
-        t.notOk(response.emailSent, 'email sent, not set')
+        t.equal(response.emailSent, false, 'email not sent')
       })
     })
 
@@ -1227,7 +1225,7 @@ test('/account/login', function (t) {
         t.equal(response.verified, false, 'response indicates account is unverified')
         t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
         t.equal(response.verificationReason, 'signup', 'verificationReason is signup')
-        t.notOk(response.emailSent, 'email sent, not set')
+        t.equal(response.emailSent, true, 'email not sent')
       }).then(function () {
         mockMailer.sendVerifyCode.reset()
       })

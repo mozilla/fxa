@@ -362,7 +362,7 @@ module.exports = function (
         var redirectTo = request.payload.redirectTo
         var resume = request.payload.resume
         var tokenVerificationId = crypto.randomBytes(16)
-        var emailRecord, sessions, sessionToken, keyFetchToken, mustVerifySession, doSigninConfirmation, sendEmailIfUnverified, emailSent
+        var emailRecord, sessions, sessionToken, keyFetchToken, mustVerifySession, doSigninConfirmation, emailSent
         var ip = request.app.clientAddress
 
         metricsContext.validate(request)
@@ -544,19 +544,9 @@ module.exports = function (
           // Delegate sending emails for unverified users to auth-server.
           // Will be removed once all clients have been updated not to send verify emails.
           // https://github.com/mozilla/fxa-auth-server/issues/1325
-          sendEmailIfUnverified = request.query.sendEmailIfUnverified
+          var shouldSendVerifyAccountEmail = requestHelper.shouldSendVerifyAccountEmail(request)
           emailSent = false
 
-          // For all non content-server requests, default to sending verify email on login
-          var context = request.payload && request.payload.metricsContext && request.payload.metricsContext.context
-          if (!context) {
-            sendEmailIfUnverified = true
-          } else if (sendEmailIfUnverified === undefined) {
-            // For content-server, if query param not sent, default to not sending email
-            sendEmailIfUnverified = false
-          }
-
-          var shouldSendVerifyAccountEmail = sendEmailIfUnverified && !emailRecord.emailVerified
           if (shouldSendVerifyAccountEmail) {
             // Resend the account verification email using the tokenVerificationId so that the session
             // that initiated the login will also get verified.
@@ -641,9 +631,7 @@ module.exports = function (
 
           response.keyFetchToken = keyFetchToken.data.toString('hex')
 
-          if (request.query.sendEmailIfUnverified !== undefined) {
-            response.emailSent = emailSent
-          }
+          response.emailSent = emailSent
 
           if(! emailRecord.emailVerified) {
             response.verified = false
