@@ -1,3 +1,33 @@
+<a name="0.69.0"></a>
+# 0.69.0 (2016-09-07)
+
+
+### Bug Fixes
+
+* **build:** remove date from js bundle (#4102), r=@vbudhram ([31ca1c1](https://github.com/mozilla/fxa-content-server/commit/31ca1c1)), closes [#4101](https://github.com/mozilla/fxa-content-server/issues/4101)
+* **client:** Improved calls to action on the confirm reset password screen. (#4100) ([2063d6c](https://github.com/mozilla/fxa-content-server/commit/2063d6c))
+* **clients:** fix fetch for two simultaneous responses (#4111) r=vbudhram ([dd2727c](https://github.com/mozilla/fxa-content-server/commit/dd2727c)), closes [(#4111](https://github.com/(/issues/4111)
+* **oauth:** set TTL for the authorization request (#4075) r=shane-tomlinson ([3af4e9a](https://github.com/mozilla/fxa-content-server/commit/3af4e9a)), closes [#3982](https://github.com/mozilla/fxa-content-server/issues/3982)
+* **sentry:** bring back cache busting file names in sentry (#4103) r=vbudhram ([0627b17](https://github.com/mozilla/fxa-content-server/commit/0627b17))
+* **signin:** Add delay for login message on iOS broker (#4089), r=@shane-tomlinson ([c04980d](https://github.com/mozilla/fxa-content-server/commit/c04980d))
+* **styles:** fix horizontal align for comm pref (#4098) r=vladikoff ([0f13938](https://github.com/mozilla/fxa-content-server/commit/0f13938)), closes [(#4098](https://github.com/(/issues/4098) [#3886](https://github.com/mozilla/fxa-content-server/issues/3886)
+* **tests:** send Origin headers with resource requests when appropriate (#4059) ([030874f](https://github.com/mozilla/fxa-content-server/commit/030874f))
+
+### chore
+
+* **docs:** Add missing client metrics docs (#4083) ([03b8d1b](https://github.com/mozilla/fxa-content-server/commit/03b8d1b))
+
+### Features
+
+* **oauth:** add OAuth app management ui (#3935) r=shane-tomlinson,vbudhram ([e6b4333](https://github.com/mozilla/fxa-content-server/commit/e6b4333)), closes [#3921](https://github.com/mozilla/fxa-content-server/issues/3921)
+
+### Refactor
+
+* **client:** Reduce fxa-js-client fetch boilerplate (#4090) ([51a70fb](https://github.com/mozilla/fxa-content-server/commit/51a70fb))
+* **signin:** make all beforeSignIn methods use the account object (#4082) ([58af33b](https://github.com/mozilla/fxa-content-server/commit/58af33b))
+
+
+
 <a name="0.68.1"></a>
 ## 0.68.1 (2016-08-24)
 
