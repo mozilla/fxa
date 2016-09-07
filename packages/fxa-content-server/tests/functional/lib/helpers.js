@@ -821,9 +821,10 @@ define([
   var mouseup = mouseevent('mouseup');
 
   function respondToWebChannelMessage(context, expectedCommand, response) {
+    var attachedId = Math.floor(Math.random() * 10000);
     return function () {
       return getRemote(context)
-        .execute(function (expectedCommand, response) {
+        .execute(function (expectedCommand, response, attachedId) {
           function startListening() {
             try {
               addEventListener('WebChannelMessageToChrome', function listener(e) {
@@ -846,6 +847,7 @@ define([
                   dispatchEvent(event);
                 }
               });
+              $('body').append('<div>').addClass('attached' + attachedId);
             } catch (e) {
               // problem adding the listener, window may not be
               // ready, try again.
@@ -854,7 +856,9 @@ define([
           }
 
           startListening();
-        }, [ expectedCommand, response ]);
+        }, [ expectedCommand, response, attachedId ])
+        // once the event is attached it adds a div with an attachedId.
+        .then(testElementExists('.attached' + attachedId));
     };
   }
 
