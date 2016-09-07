@@ -108,7 +108,7 @@ test('_processReminder - catches errors', function (t) {
   })
 
   var log = mockLog({
-    debug: function (op, data) {
+    error: function (op, data) {
       if (data.err && data.err.message === errorMsg) {
         done(t)
       }

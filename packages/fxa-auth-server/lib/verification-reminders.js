@@ -39,7 +39,7 @@ module.exports = function (mailer, db, options) {
               log.debug('_processReminder', { msg: 'Already Verified' })
             }
           }, function (err) {
-            log.debug('_processReminder', { err: err })
+            log.error('_processReminder', { err: err })
           })
     },
     _continuousPoll: function () {

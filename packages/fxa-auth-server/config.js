@@ -6,6 +6,7 @@ var fs = require('fs')
 var path = require('path')
 
 var convict = require('convict')
+var DEFAULT_SUPPORTED_LANGUAGES = require('fxa-shared').l10n.supportedLanguages
 
 var conf = convict({
   env: {
@@ -74,9 +75,10 @@ var conf = convict({
     }
   },
   locales: {
-    default: ['en', 'de'],
+    default: DEFAULT_SUPPORTED_LANGUAGES,
     doc: 'Available locales',
-    format: Array
+    format: Array,
+    env: 'SUPPORTED_LANGUAGES'
   },
   defaultLanguage: {
     doc: 'Default locale language',

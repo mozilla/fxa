@@ -28,7 +28,8 @@ P.all(
 .spread(
   function (translator, templates) {
     var mailer = new Mailer(translator, templates, mailConfig)
-    log.info('config', mailConfig)
+    log.info('config', config.getProperties())
+    log.info('mailConfig', mailConfig)
     log.info('templates', Object.keys(templates))
 
     dbConnect()

@@ -21,6 +21,7 @@
     "bluebird": "2.9.34",
     "convict": "1.0.2",
     "fxa-content-server-l10n": "git://github.com/mozilla/fxa-content-server-l10n.git",
+    "fxa-shared": "1.0.2",
     "grunt-nunjucks-2-html": "vitkarpov/grunt-nunjucks-2-html#1900f91a756b2eaf900b20",
     "handlebars": "1.3.0",
     "i18n-abide": "0.0.23",
