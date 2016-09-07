@@ -4,6 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// Only `require()` the newrelic module if explicity enabled.
+// If required, modules will be instrumented.
+require('../lib/newrelic')()
+
 var server = require('../lib/server')
 var config = require('../lib/config').getProperties()
 var log = require('../lib/log')(config.log.level, 'customs-server')
