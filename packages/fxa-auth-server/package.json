@@ -29,7 +29,7 @@
     "mozlog": "2.0.5",
     "nodemailer": "0.7.1",
     "po2json": "0.4.1",
-    "poolee": "1.0.0",
+    "poolee": "1.0.1",
     "request": "2.69.0",
     "restify": "4.0.3",
     "uuid": "1.4.1"
