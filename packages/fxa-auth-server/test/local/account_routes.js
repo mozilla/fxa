@@ -40,8 +40,7 @@ var makeRoutes = function (options, requireMocks) {
   var db = options.db || mocks.mockDB()
   var isPreVerified = require('../../lib/preverifier')(error, config)
   var customs = options.customs || {
-    check: function () { return P.resolve(true) },
-    flag: function () { return P.resolve(true) }
+    check: function () { return P.resolve(true) }
   }
   var checkPassword = options.checkPassword || require('../../lib/routes/utils/password_check')(log, config, Password, customs, db)
   var push = options.push || require('../../lib/push')(log, db)
