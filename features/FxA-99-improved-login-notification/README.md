@@ -178,7 +178,7 @@ for inclusion when constructing the localized email.
 
 * [x] Confirm or add ability to measure click-through
       rate from these emails.
-* [ ] ~~Select and integrate an IP geo lookup service.~~
+* [x] Select and integrate an IP geo lookup service.
 * [x] Integrate geo lookup in fxa-auth-server and pass
       the resulting information to fxa-auth-mailer
 * [x] Update email templates for the new information
@@ -197,7 +197,7 @@ for inclusion when constructing the localized email.
 
 ### Results
 
-Improved login notifications went live on 2016-08-11. 
+Improved login notifications went live on 2016-08-11.
 Two dashboards were created to show the overall success of this feature.
 
 From [first dashboard](https://kibana.fxa.us-west-2.prod.mozaws.net/index.html#/dashboard/elasticsearch/FxA%20Sign-in%20Confirmation), sign-in confirmation with improved login notification has roughly an 92% confirmation success rate, `account.signin.confirm.success/account.signin.confirm.start`.
@@ -206,10 +206,19 @@ From [first dashboard](https://kibana.fxa.us-west-2.prod.mozaws.net/index.html#/
 
 While there appears to be a high level of `account.signin.confirm.invalid`, this could be due to our system reporting an error if a confirmation link was clicked multiple times.
 
-The [second dashboard](https://kibana.fxa.us-west-2.prod.mozaws.net/index.html#/dashboard/elasticsearch/FxA%20GeoDB%20Stats) shows that the geo-location accuracy from our traffic is typically resolved to within 200km, 85% of the time.
+This graph shows that roughly 99% of users click the confirm sign-in button verses the change password button in confirm sign-in email. Something to note, is that these % are for normal system traffic (aka not during a security incident).
+
+<img src="email-change-password.png" height="150">
+
+The [second dashboard](https://kibana.fxa.us-west-2.prod.mozaws.net/index.html#/dashboard/elasticsearch/FxA%20GeoDB%20Stats) shows that the geo-location accuracy from our traffic is typically resolved to within 200km, 85% of the time. This is within the stated accuracy performance of the Maxmind database.
 
 * fxa.location.accuracy.confident = 57%
 * fxa.location.accuracy.uncertain = 28%
 * fxa.location.accuracy.unknown = 15%
 
 <img src="geo-accuracy.png" height="150">
+
+Unfortunately, we were not able to verify if featured changed the way users interacted with the email.
+We shipped the new notifications before we had the click-through metrics, so we were not able to detect this change.
+
+However, based on the charts and graphs we do have, it is reasonable to think that improved login notifications has a neutral to positive overall impact on user behavior.
