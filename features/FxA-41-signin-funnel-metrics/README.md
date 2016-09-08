@@ -264,9 +264,9 @@ with their `flow_id` and `flow_time`.
   |`duration`|Set to `flow_time` property from the last event (or error) of the flow|
   |`completed`|Boolean indicating whether the flow was successfully completed|
   |`newAccount`|Boolean indicating whether the flow was a sign-up|
-  |`browser`|Browser name|
-  |`browserVersion`|Browser version|
-  |`os`|Operating system name|
+  |`uaBrowser`|Browser name|
+  |`uaVersion`|Browser version|
+  |`uaOS`|Operating system name|
   |`context`|Context parameter|
   |`entrypoint`|Context parameter|
   |`migration`|Migration parameter|
