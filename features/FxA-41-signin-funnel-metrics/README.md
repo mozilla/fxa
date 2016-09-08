@@ -80,20 +80,20 @@ in a successful flow:
 
 |Name|Origin|Description|
 |----|------|-----------|
-|flow.begin|content|User has landed on a page that allows them to log in or sign up.|
-|login.engage|content|User has interacted with the login form at `/signin` or `/force_auth`.|
-|signup.engage|content|User has interacted with the signup form at `/signup`.|
-|login.submit|content|User has submitted the login form at `/signin` or `/force_auth`.|
-|signup.submit|content|User has submitted the signup form at `/signup`. It is a valid flow for this event to be followed by `account.login`, because the content server allows users to log in from `/signup`.|
-|account.login|auth|User’s credentials are correct.|
-|account.created|auth|Account has been created.|
-|device.created|auth|Device record has been created.|
-|email.sent|auth|Confirmation email has been sent to the user.|
-|email.clicked|auth|Request to the URL in the confirmation email has been received.|
-|account.confirmed|auth|Login has been confirmed via email.|
-|account.verified|auth|Email address for new account has been verified.|
-|account.keyfetch|auth|Key-fetch token has been created.|
-|account.signed|auth|Client has successfully signed cert (i.e. “device connected”).|
+|`flow.begin`|content|User has landed on a page that allows them to log in or sign up.|
+|`login.engage`|content|User has interacted with the login form at `/signin` or `/force_auth`.|
+|`signup.engage`|content|User has interacted with the signup form at `/signup`.|
+|`login.submit`|content|User has submitted the login form at `/signin` or `/force_auth`.|
+|`signup.submit`|content|User has submitted the signup form at `/signup`. It is a valid flow for this event to be followed by `account.login`, because the content server allows users to log in from `/signup`.|
+|`account.login`|auth|User’s credentials are correct.|
+|`account.created`|auth|Account has been created.|
+|`device.created`|auth|Device record has been created.|
+|`email.sent`|auth|Confirmation email has been sent to the user.|
+|`email.clicked`|auth|Request to the URL in the confirmation email has been received.|
+|`account.confirmed`|auth|Login has been confirmed via email.|
+|`account.verified`|auth|Email address for new account has been verified.|
+|`account.keyfetch`|auth|Key-fetch token has been created.|
+|`account.signed`|auth|Client has successfully signed cert (i.e. “device connected”).|
 
 For a typical successful login flow,
 the sequence of events would be:
@@ -132,7 +132,7 @@ as we define these events:
 
 |Name|Origin|Description|
 |----|------|-----------|
-|customs.blocked|auth|Request was blocked by customs server.|
+|`customs.blocked`|auth|Request was blocked by the customs server.|
 
 Data from all of the above events
 will be plotted as charts in redash.
