@@ -55,11 +55,21 @@ define([
       });
   }
 
+  function ensureFxaJSClient() {
+    if (! client) {
+      client = new FxaClient(AUTH_SERVER_ROOT, {
+        xhr: nodeXMLHttpRequest.XMLHttpRequest
+      });
+    }
+  }
+
   /**
    * Programatically initiate a reset password using the
    * FxA Client. Saves the token and code.
    */
   function initiateResetPassword(context, emailAddress, emailNumber) {
+    ensureFxaJSClient();
+
     return client.passwordForgotSendCode(emailAddress)
       .then(function () {
         return setTokenAndCodeFromEmail(emailAddress, emailNumber);
@@ -112,9 +122,6 @@ define([
       this.timeout = TIMEOUT;
 
       email = TestHelpers.createEmail();
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(clearBrowserState(this));
@@ -355,7 +362,7 @@ define([
 
         .then(function () {
           return FunctionalHelpers.openPasswordResetLinkDifferentBrowser(
-                      client, email, PASSWORD);
+                      email, PASSWORD);
         })
 
         // user verified in a new browser, they have to enter
@@ -475,9 +482,7 @@ define([
     beforeEach: function () {
       email = TestHelpers.createEmail();
 
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
+      ensureFxaJSClient();
 
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
