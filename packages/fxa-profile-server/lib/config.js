@@ -22,6 +22,12 @@ const conf = convict({
       default: 'http://127.0.0.1:9000/v1'
     }
   },
+  clientAddressDepth: {
+    doc: 'location of the client ip address in the remote address chain',
+    format: Number,
+    env: 'CLIENT_ADDRESS_DEPTH',
+    default: 3
+  },
   db: {
     driver: {
       env: 'DB',

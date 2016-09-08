@@ -15,7 +15,8 @@ module.exports = function summary(request, response) {
     errno: response.errno || 0,
     path: request.path,
     agent: request.headers['user-agent'],
-    t: Date.now() - request.info.received
+    t: Date.now() - request.info.received,
+    remoteAddressChain: request.app.remoteAddressChain
   };
 
   if (line.code >= 500) {
