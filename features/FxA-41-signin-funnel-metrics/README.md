@@ -253,14 +253,14 @@ two tables in Redshift,
 `flow_metadata` and `flow_events`.
 `flow_metadata` contains data about the flow as a whole,
 whereas `flow_events` stores the individual event names
-with their `flow_id` and `flow_time`.
+with their `flow_id`, `flow_time` and `timestamp`.
 
 * `flow_metadata`:
 
   |Column name|Description|
   |-----------|-----------|
   |`flowId`|Set to `flow_id` property from the event data (`UNIQUE`, `SORTKEY`)|
-  |`beginTime`|The timestamp of the flow's `flow.begin` event|
+  |`beginTime`|Set to `timestamp` from the flow's `flow.begin` event|
   |`duration`|Set to `flow_time` property from the last event (or error) of the flow|
   |`completed`|Boolean indicating whether the flow was successfully completed|
   |`newAccount`|Boolean indicating whether the flow was a sign-up|
@@ -281,7 +281,8 @@ with their `flow_id` and `flow_time`.
 
   |Column name|Description|
   |-----------|-----------|
-  |`flowTime`|Set to `flow_time` property from the event data (`SORTKEY`)|
+  |`timestamp`|Set to `timestamp` property from the event data (`SORTKEY`)|
+  |`flowTime`|Set to `flow_time` property from the event data|
   |`flowId`|Set to `flow_id` property from the event data (`DISTKEY`)|
   |`type`|Set to `event` property from the event data|
 
