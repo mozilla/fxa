@@ -1,3 +1,19 @@
+<a name"0.69.0"></a>
+## 0.69.0 (2016-09-08)
+
+
+#### Bug Fixes
+
+* **log:** add remoteAddressChain to summary (#417) ([568cfa64](https://github.com/mozilla/fxa-oauth-server/commit/568cfa64), closes [#415](https://github.com/mozilla/fxa-oauth-server/issues/415))
+
+
+#### Features
+
+* **oauth:**
+  * add methods to support oauth client management (#405) r=seanmonstar ([27485107](https://github.com/mozilla/fxa-oauth-server/commit/27485107))
+  * Track last time refreshToken was used (#412) r=vladikoff,seanmonstar ([25c455a6](https://github.com/mozilla/fxa-oauth-server/commit/25c455a6), closes [#275](https://github.com/mozilla/fxa-oauth-server/issues/275))
+
+
 <a name"0.68.0"></a>
 ## 0.68.0 (2016-08-24)
 
