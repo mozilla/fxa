@@ -18,14 +18,6 @@ define(function (require, exports, module) {
   var Transform = require('lib/transform');
   var Vat = require('lib/vat');
 
-  function getFatalErrorMessage(self, fatalError) {
-    if (fatalError) {
-      return self.translateError(fatalError);
-    }
-
-    return '';
-  }
-
   var RELIER_DATA_SCHEMA = {
     email: Vat.email().required(),
     uid: Vat.uid().allow(null)
@@ -41,8 +33,6 @@ define(function (require, exports, module) {
     // call with which data when signin is successful.
     afterSignInBrokerMethod: 'afterForceAuth',
     afterSignInNavigateData: { clearQueryParams: true },
-
-    _fatalError: null,
 
     _getAndValidateAccountData: function () {
       var fieldsToPick = ['email', 'uid'];
@@ -123,7 +113,7 @@ define(function (require, exports, module) {
       if (this.broker.hasCapability('allowUidChange')) {
         return this._navigateToForceSignUp(account);
       } else {
-        this._fatalError = AuthErrors.toError('DELETED_ACCOUNT');
+        this.model.set('error', AuthErrors.toError('DELETED_ACCOUNT'));
       }
     },
 
@@ -131,7 +121,7 @@ define(function (require, exports, module) {
       // if the broker supports a UID change, use force_auth to sign in,
       // otherwise print a big error message.
       if (! this.broker.hasCapability('allowUidChange')) {
-        this._fatalError = AuthErrors.toError('DELETED_ACCOUNT');
+        this.model.set('error', AuthErrors.toError('DELETED_ACCOUNT'));
       }
     },
 
@@ -160,7 +150,7 @@ define(function (require, exports, module) {
     context: function () {
       return {
         email: this.relier.get('email'),
-        fatalError: getFatalErrorMessage(this, this._fatalError),
+        fatalError: this.model.get('error'),
         password: this._formPrefill.get('password')
       };
     },

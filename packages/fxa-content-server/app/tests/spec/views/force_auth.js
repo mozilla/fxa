@@ -192,15 +192,16 @@ define(function (require, exports, module) {
         describe('broker does not support UID change', function () {
           beforeEach(function () {
             broker.unsetCapability('allowUidChange');
-            return view.render();
+            sinon.spy(view, 'displayError');
+            return view.render().then(() => view.afterVisible());
           });
 
           it('does not navigate', function () {
             assert.isFalse(view.navigate.called);
           });
 
-          it('errors', function () {
-            assert.lengthOf(view.$('.error.visible'), 1);
+          it('displays the error', function () {
+            assert.isTrue(view.displayError.called);
           });
         });
       });
@@ -241,15 +242,16 @@ define(function (require, exports, module) {
         describe('broker does not support UID change', function () {
           beforeEach(function () {
             broker.unsetCapability('allowUidChange');
-            return view.render();
+            sinon.spy(view, 'displayError');
+            return view.render().then(() => view.afterVisible());
           });
 
           it('does not navigate', function () {
             assert.isFalse(view.navigate.called);
           });
 
-          it('errors', function () {
-            assert.lengthOf(view.$('.error.visible'), 1);
+          it('displays the error', function () {
+            assert.isTrue(view.displayError.called);
           });
         });
       });
@@ -277,15 +279,16 @@ define(function (require, exports, module) {
         describe('broker does not support UID change', function () {
           beforeEach(function () {
             broker.unsetCapability('allowUidChange');
-            return view.render();
+            sinon.spy(view, 'displayError');
+            return view.render().then(() => view.afterVisible());
           });
 
           it('does not navigate', function () {
             assert.isFalse(view.navigate.called);
           });
 
-          it('errors', function () {
-            assert.lengthOf(view.$('.error.visible'), 1);
+          it('displays the error', function () {
+            assert.isTrue(view.displayError.called);
           });
         });
       });

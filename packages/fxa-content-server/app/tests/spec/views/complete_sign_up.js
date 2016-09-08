@@ -355,7 +355,7 @@ define(function (require, exports, module) {
       describe('all other server errors', function () {
         beforeEach(function () {
           verificationError = AuthErrors.toError('UNEXPECTED_ERROR');
-          return view.render();
+          return view.render().then(() => view.afterVisible());
         });
 
         it('attempts to verify the account', function () {

@@ -155,7 +155,7 @@ define(function (require, exports, module) {
               }
             } else {
               // all other errors show the standard error box.
-              self._error = self.translateError(err);
+              self.model.set('error', err);
             }
 
             self.logError(err);
@@ -167,7 +167,7 @@ define(function (require, exports, module) {
       var verificationInfo = this._verificationInfo;
       return {
         canResend: this._canResend(),
-        error: this._error,
+        error: this.model.get('error'),
         // If the link is invalid, print a special error message.
         isLinkDamaged: ! verificationInfo.isValid(),
         isLinkExpired: verificationInfo.isExpired()
