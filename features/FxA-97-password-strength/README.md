@@ -73,7 +73,48 @@ When the user enters any characters, the instructions change to become:
 When the user enters a password that is on our blocklist, the UI will behave as if the following error will be shown. The user is still able to submit the form if unchanged. If the user modifies the password, it starts the process over again, and is only submitted if the password is strong enough.
 * This is a common password; please consider another one.  <u>More info</u>.
 
-### Unresolved questions and risks
+## Results
 
-[comment]: # ( What parts of the design are still TBD?)
-More info page copy.
+We have deployed this feature to 10% of FxA users.
+Before showing the "weak" password tooltip
+we gathered some metrics about the bloomfilter.
+That data can be found in the "Metrics" section
+of the document.
+
+Since July 2016 and introducing new password prompts the following changed:
+
+* Passwords that are just letters and numbers increased by 2%.
+* Passwords that are too common (aka BLOOMFILTER_HIT) remained unchanged (1.7%).
+* Bloom filter misses increased by 10%.
+* Successful signups as a % of submissions decreased by 10%.
+
+The decrease in signups may be attributed to having more users
+login rather than signup.
+
+About 2.1% of `en` locale users that see a focus tooltip also get the
+"password is weak" warning tooltip
+
+<img src="focusvswarning.jpg" width="700" />
+
+About 1.4% of `en` locale users that submit the signup form
+also view the 'Create secure passwords' page:
+
+<img src="inspiration.jpg" width="700" />
+
+About 60% of users use the large "Back" button to
+navigate back from the support page. Other 40% either leave or use the 'Back' functionality in the browser.
+Around ~3 users per hour view the "Need inspiration" page.
+
+All these results and more can be found in the [Password Strength Dashboard](https://app.datadoghq.com/dash/67511/fxa-content-server---password-strength).
+
+## Conclusion
+
+The password strength tooltips help the small
+percentage of our users. It helps those users better
+understand FxA / Sync. It also helps them generate
+better passwords if their password is really bad.
+
+## Next Steps
+
+The plan is to enable the strength checker and
+a better password tooltip for all users in FxA train-70.
