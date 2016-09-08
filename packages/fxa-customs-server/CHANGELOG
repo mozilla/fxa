@@ -1,4 +1,7 @@
 
+v0.68.0
+  * feature(newrelic): add optional newrelic integration
+
 v0.66.0
   * feat(server): Remove account lockout
   * feat(server): Remove `badLoginLockout` config and EmailRecord.lf (loginFailure) related code.
