@@ -259,8 +259,8 @@ with their `flow_id`, `flow_time` and `timestamp`.
 
   |Column name|Description|
   |-----------|-----------|
-  |`flowId`|Set to `flow_id` property from the event data (`UNIQUE`, `SORTKEY`)|
-  |`beginTime`|Set to `timestamp` from the flow's `flow.begin` event|
+  |`flowId`|Set to `flow_id` property from the event data (`UNIQUE`)|
+  |`beginTime`|Set to `timestamp` from the flow's `flow.begin` event (`SORTKEY`)|
   |`duration`|Set to `flow_time` property from the last event (or error) of the flow|
   |`completed`|Boolean indicating whether the flow was successfully completed|
   |`newAccount`|Boolean indicating whether the flow was a sign-up|
