@@ -465,6 +465,8 @@ body.settings #main-content.card {
 }
 
 .client {
+  // default client icon is desktop
+  background-image: url('/images/device-icon-pc.png');
   background-position: 0 4px;
   background-repeat: no-repeat;
   background-size: 30px 30px;
@@ -506,10 +508,10 @@ body.settings #main-content.card {
   }
 }
 
-.client.desktop {
-  background-image: url('/images/device-icon-pc.png');
-}
-
 .client.mobile {
   background-image: url('/images/device-icon-mobile.png');
+}
+
+.client.tablet {
+  background-image: url('/images/device-icon-tablet.png');
 }

@@ -18,7 +18,7 @@
       {{clientsPanelManageString}}
       <ul class="client-list button-row">
         {{#clients}}
-          <li class="client desktop" id="{{id}}">
+          <li class="client {{type}}" id="{{id}}">
             <div class="client-name" title="{{name}}">{{name}}</div>
             {{#isCurrentDevice}}
             <div class="device-current">{{#t}}current device{{/t}}</div>

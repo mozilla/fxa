@@ -66,13 +66,15 @@ define(function (require, exports, module) {
           clientType: 'device',
           id: 'device-1',
           isCurrentDevice: false,
-          name: 'alpha'
+          name: 'alpha',
+          type: 'tablet'
         },
         {
           clientType: 'device',
           id: 'device-2',
           isCurrentDevice: true,
-          name: 'beta'
+          name: 'beta',
+          type: 'mobile'
         }
       ], {
         notifier: notifier
@@ -122,6 +124,13 @@ define(function (require, exports, module) {
         assert.equal(view.$('#clients .settings-unit-title').text().trim(), 'Devices & apps');
         assert.ok(view.$('#clients').text().trim().indexOf('manage your attachedClients and apps below'));
       });
+
+      it('properly sets the type of the device', function () {
+        assert.ok(view.$('#device-1').hasClass('tablet'));
+        assert.notOk(view.$('#device-1').hasClass('desktop'));
+        assert.ok(view.$('#device-2').hasClass('mobile'));
+        assert.notOk(view.$('#device-2').hasClass('desktop'));
+      });
     });
 
     describe('device added to collection', function () {
@@ -132,7 +141,8 @@ define(function (require, exports, module) {
             id: 'device-3',
             lastAccessTime: Date.now(),
             lastAccessTimeFormatted: 'a few seconds ago',
-            name: 'delta'
+            name: 'delta',
+            type: 'desktop'
           });
         });
       });
@@ -143,6 +153,7 @@ define(function (require, exports, module) {
         assert.include(view.$('#device-3 .client-name').attr('title'), 'delta', 'the title attr is correct');
         assert.isTrue(view.$('#device-3 .last-connected').text().trim().indexOf('Last active:') === 0, 'formats last active string');
         assert.isTrue(view.$('#device-3 .last-connected').text().trim().indexOf('a few seconds ago') >= 0, 'formats connected date');
+        assert.ok(view.$('#device-3').hasClass('desktop'));
       });
     });
 
