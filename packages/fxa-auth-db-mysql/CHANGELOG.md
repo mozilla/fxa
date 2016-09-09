@@ -1,3 +1,24 @@
+<a name="0.69.0"></a>
+# [0.69.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v0.68.0...v0.69.0) (2016-09-09)
+
+
+### Bug Fixes
+
+* **db:** don't return zombie devices from accountDevices ([6e5c2db](https://github.com/mozilla/fxa-auth-db-mysql/commit/6e5c2db))
+* **db:** Fix the typo ([7bfdf91](https://github.com/mozilla/fxa-auth-db-mysql/commit/7bfdf91))
+* **db:** Update resetAccount to not delete from accountUnlockCodes ([616602a](https://github.com/mozilla/fxa-auth-db-mysql/commit/616602a))
+* **shrinkwrap:** refresh shrinkwrap ([83d94d4](https://github.com/mozilla/fxa-auth-db-mysql/commit/83d94d4))
+
+### feature
+
+* **newrelic:** add optional newrelic integration ([fca7e2e](https://github.com/mozilla/fxa-auth-db-mysql/commit/fca7e2e))
+
+### Refactor
+
+* **db:** Remove account unlock related code. ([340e299](https://github.com/mozilla/fxa-auth-db-mysql/commit/340e299))
+
+
+
 <a name="0.68.0"></a>
 # [0.68.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v0.67.0...v0.68.0) (2016-08-24)
 
