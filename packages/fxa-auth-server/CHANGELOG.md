@@ -1,3 +1,15 @@
+<a name="1.69.0"></a>
+# [1.69.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.68.0...v1.69.0) (2016-09-09)
+
+
+### Bug Fixes
+
+* **deps:** update to poolee 1.0.1 (#205), r=@vbudhram ([96ed6e1](https://github.com/mozilla/fxa-auth-mailer/commit/96ed6e1)), closes [#202](https://github.com/mozilla/fxa-auth-mailer/issues/202)
+* **links:** Remove non-functional "sign in" link. ([b455d74](https://github.com/mozilla/fxa-auth-mailer/commit/b455d74))
+* **send:** improve error logging (#208) r=jrgm ([e8b23a2](https://github.com/mozilla/fxa-auth-mailer/commit/e8b23a2))
+
+
+
 <a name="1.68.0"></a>
 # [1.68.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.67.0...v1.68.0) (2016-08-24)
 
