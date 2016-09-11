@@ -38,7 +38,7 @@ const db = require('../lib/db');
 const logger = require('../lib/logging')('bin.purge_expired_tokens');
 
 if (!program.pocketId) {
-  logger.debug('Required pocket client id!');
+  logger.error('invalid', { message: 'Required pocket client id!' });
   process.exit(1);
 }
 
@@ -47,30 +47,36 @@ const delaySeconds = parseInt(program.delaySeconds) || 1; // Default 1 seconds
 const ignorePocketClientId = program.pocketId;
 
 db.ping().done(function() {
-
   // Only mysql impl supports token deletion at the moment
   if (db.purgeExpiredTokens) {
+    logger.info('deleting', {
+      numberOfTokens: numberOfTokens,
+      delaySeconds: delaySeconds,
+      ignorePocketClientId: ignorePocketClientId
+    });
 
-    // To reduce the risk of deleting pocket tokens, ensure that the pocket-id passed in
-    // belongs to a client.
-    logger.debug('Deleting token amount %s, delay %s, pocketId %s', numberOfTokens, delaySeconds, ignorePocketClientId);
+    // To reduce the risk of deleting pocket tokens, ensure that the pocket-id
+    // passed in belongs to a client.
     return db.purgeExpiredTokens(numberOfTokens, delaySeconds, ignorePocketClientId)
       .then(function () {
-        logger.info('Purge completed!');
+        logger.info('completed');
         process.exit(0);
       })
       .catch(function (err) {
-        logger.error(err);
+        logger.error('error', err);
         process.exit(1);
       });
   } else {
-    logger.debug('Unable to purge expired tokens, only avalible when using config with mysql database.');
+    var message = 'Unable to purge expired tokens, only available ' +
+      'when using config with mysql database.';
+    logger.info('skipping', { message: message });
   }
 }, function(err) {
   logger.critical('db.ping', err);
   process.exit(1);
 });
 
-process.on('uncaughtException', function () {
+process.on('uncaughtException', function (err) {
+  logger.error('error', err);
   process.exit(2);
 });
