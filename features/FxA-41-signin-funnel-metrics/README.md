@@ -259,31 +259,31 @@ with their `flow_id`, `flow_time` and `timestamp`.
 
   |Column name|Description|
   |-----------|-----------|
-  |`flowId`|Set to `flow_id` property from the event data (`UNIQUE`)|
-  |`beginTime`|Set to `timestamp` from the flow's `flow.begin` event (`SORTKEY`)|
+  |`flow_id`|Set to `flow_id` property from the event data (`UNIQUE`)|
+  |`begin_time`|Set to `timestamp` from the flow's `flow.begin` event (`SORTKEY`)|
   |`duration`|Set to `flow_time` property from the last event (or error) of the flow|
   |`completed`|Boolean indicating whether the flow was successfully completed|
-  |`newAccount`|Boolean indicating whether the flow was a sign-up|
-  |`uaBrowser`|Browser name|
-  |`uaVersion`|Browser version|
-  |`uaOS`|Operating system name|
+  |`new_account`|Boolean indicating whether the flow was a sign-up|
+  |`ua_browser`|Browser name|
+  |`ua_version`|Browser version|
+  |`ua_os`|Operating system name|
   |`context`|Context parameter|
   |`entrypoint`|Context parameter|
   |`migration`|Migration parameter|
   |`service`|Service identifier (for Sync it may be empty or `sync`)|
-  |`utmCampaign`|Marketing campaign identifier|
-  |`utmContent`|Marketing campaign content identifier|
-  |`utmMedium`|Marketing campaign medium|
-  |`utmSource`|Marketing campaign source|
-  |`utmTerm`|Marketing campaign search term|
+  |`utm_campaign`|Marketing campaign identifier|
+  |`utm_content`|Marketing campaign content identifier|
+  |`utm_medium`|Marketing campaign medium|
+  |`utm_source`|Marketing campaign source|
+  |`utm_term`|Marketing campaign search term|
 
 * `flow_events`:
 
   |Column name|Description|
   |-----------|-----------|
   |`timestamp`|Set to `timestamp` property from the event data (`SORTKEY`)|
-  |`flowTime`|Set to `flow_time` property from the event data|
-  |`flowId`|Set to `flow_id` property from the event data (`DISTKEY`)|
+  |`flow_time`|Set to `flow_time` property from the event data|
+  |`flow_id`|Set to `flow_id` property from the event data (`DISTKEY`)|
   |`type`|Set to `event` property from the event data|
 
 ## Subsequent iterations
