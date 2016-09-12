@@ -122,6 +122,7 @@ This is unexpected and difficult to explain. In theory, `loaded` should be the t
 3. Determine whether JavaScript is even needed for the initial render. If page
    can be rendered instantly without JavaScript, the user perceived load
    time will be extremely fast.
+4. Determine if enabling HTTP/2 support on the CDN speeds up resource loading
 
 ## External Resources
 
