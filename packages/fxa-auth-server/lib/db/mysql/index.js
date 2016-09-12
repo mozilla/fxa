@@ -514,15 +514,17 @@ MysqlStore.prototype = {
 
   purgeExpiredTokens: function purgeExpiredTokens(numberOfTokens, delaySeconds, ignoreClientId){
     var self = this;
+    if (! ignoreClientId) {
+      throw new Error('empty ignoreClientId');
+    }
 
-    return self.getClientDevelopers(ignoreClientId)
+    return self.getClient(ignoreClientId)
       .then(function (ignoreClient) {
-        // This ensures that purgeExpiredTokens can not be called with an invalid ignoreClientId
-      })
-      .catch(function(err){
-        err = new Error('Invalid ignoreClientId, please ensure client exists.');
-        logger.error(err);
-        throw err;
+        // This ensures that purgeExpiredTokens can not be called with an
+        // unknown ignoreClientId.
+        if (! ignoreClient) {
+          throw new Error('unknown ignoreClientId ' + ignoreClientId);
+        }
       })
       .then(function () {
         var deleteBatchSize = 200;
