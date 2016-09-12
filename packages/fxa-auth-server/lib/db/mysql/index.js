@@ -560,7 +560,7 @@ MysqlStore.prototype = {
 
               deletedItems = deletedItems + res.affectedRows;
 
-              return P.delay(delaySeconds)
+              return P.delay(delaySeconds * 1000)
                 .then(function () {
                   return promiseWhile();
                 });

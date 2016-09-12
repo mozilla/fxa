@@ -47,7 +47,7 @@ if (!program.pocketId) {
 }
 
 const numberOfTokens = parseInt(program.tokenCount) || 200;
-const delaySeconds = parseInt(program.delaySeconds) || 1; // Default 1 seconds
+const delaySeconds = Number(program.delaySeconds) || 1; // Default 1 seconds
 const ignorePocketClientId = program.pocketId;
 
 db.ping().done(function() {
