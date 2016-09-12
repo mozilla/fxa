@@ -532,17 +532,29 @@ MysqlStore.prototype = {
           deleteBatchSize = numberOfTokens;
         }
 
+        var message = '';
         var deletedItems = 0;
         var promiseWhile = P.method(function () {
           if (deletedItems >= numberOfTokens) {
+            message = 'deletedItems >= numberOfTokens';
+            logger.info('purgeExpiredTokens', {
+              message: message,
+              deletedItems: deletedItems,
+              numberOfTokens: numberOfTokens,
+              deleteBatchSize: deleteBatchSize
+            });
             return;
           }
 
           return self._write(QUERY_PURGE_EXPIRED_TOKENS, [ignoreClientId, deleteBatchSize])
             .then(function (res) {
+              logger.info('purgeExpiredTokens', { affectedRows: res.affectedRows });
+
               // Break loop if no items were effected by delete.
               // All expired tokens have been deleted.
               if (res.affectedRows === 0) {
+                message = '0 affectedRows. Bailing out.';
+                logger.info('purgeExpiredTokens', { message: message });
                 return;
               }
 
@@ -558,7 +570,7 @@ MysqlStore.prototype = {
         return promiseWhile();
       })
       .then(function() {
-        logger.debug('purgeExpiredTokens completed');
+        logger.info('purgeExpiredTokens', { message: 'completed' });
       });
   },
 
