@@ -170,10 +170,21 @@ describe('db', function() {
       it('should fail purgeExpiredTokens without ignoreClientId', function() {
         return db.purgeExpiredTokens(1000, 5)
           .then( function () {
-            assert.fail('Purge token should fail with no ignoreClientId');
+            assert.fail('purgeExpiredTokens() should fail with an empty ignoreClientId');
           })
           .catch( function (error) {
-            assert.equal(error.message, 'Invalid ignoreClientId, please ensure client exists.');
+            assert.equal(error.message, 'empty ignoreClientId');
+          });
+      });
+
+      it('should fail purgeExpiredTokens with an unknown ignoreClientId', function() {
+        var unknownClientId = 'deadbeefdeadbeef';
+        return db.purgeExpiredTokens(1000, 5, unknownClientId)
+          .then( function () {
+            assert.fail('purgeExpiredTokens() should fail with an unknown ignoreClientId');
+          })
+          .catch( function (error) {
+            assert.equal(error.message, 'unknown ignoreClientId ' + unknownClientId);
           });
       });
 

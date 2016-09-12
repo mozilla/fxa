@@ -514,15 +514,17 @@ MysqlStore.prototype = {
 
   purgeExpiredTokens: function purgeExpiredTokens(numberOfTokens, delaySeconds, ignoreClientId){
     var self = this;
+    if (! ignoreClientId) {
+      throw new Error('empty ignoreClientId');
+    }
 
-    return self.getClientDevelopers(ignoreClientId)
+    return self.getClient(ignoreClientId)
       .then(function (ignoreClient) {
-        // This ensures that purgeExpiredTokens can not be called with an invalid ignoreClientId
-      })
-      .catch(function(err){
-        err = new Error('Invalid ignoreClientId, please ensure client exists.');
-        logger.error(err);
-        throw err;
+        // This ensures that purgeExpiredTokens can not be called with an
+        // unknown ignoreClientId.
+        if (! ignoreClient) {
+          throw new Error('unknown ignoreClientId ' + ignoreClientId);
+        }
       })
       .then(function () {
         var deleteBatchSize = 200;
@@ -530,23 +532,35 @@ MysqlStore.prototype = {
           deleteBatchSize = numberOfTokens;
         }
 
+        var message = '';
         var deletedItems = 0;
         var promiseWhile = P.method(function () {
           if (deletedItems >= numberOfTokens) {
+            message = 'deletedItems >= numberOfTokens';
+            logger.info('purgeExpiredTokens', {
+              message: message,
+              deletedItems: deletedItems,
+              numberOfTokens: numberOfTokens,
+              deleteBatchSize: deleteBatchSize
+            });
             return;
           }
 
           return self._write(QUERY_PURGE_EXPIRED_TOKENS, [ignoreClientId, deleteBatchSize])
             .then(function (res) {
+              logger.info('purgeExpiredTokens', { affectedRows: res.affectedRows });
+
               // Break loop if no items were effected by delete.
               // All expired tokens have been deleted.
               if (res.affectedRows === 0) {
+                message = '0 affectedRows. Bailing out.';
+                logger.info('purgeExpiredTokens', { message: message });
                 return;
               }
 
               deletedItems = deletedItems + res.affectedRows;
 
-              return P.delay(delaySeconds)
+              return P.delay(delaySeconds * 1000)
                 .then(function () {
                   return promiseWhile();
                 });
@@ -556,7 +570,7 @@ MysqlStore.prototype = {
         return promiseWhile();
       })
       .then(function() {
-        logger.debug('purgeExpiredTokens completed');
+        logger.info('purgeExpiredTokens', { message: 'completed' });
       });
   },
 
