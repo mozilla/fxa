@@ -548,10 +548,12 @@ module.exports = function (
           emailSent = false
 
           if (shouldSendVerifyAccountEmail) {
-            // Resend the account verification email using the tokenVerificationId so that the session
-            // that initiated the login will also get verified.
+            // Only use tokenVerificationId if it is set, otherwise use the corresponding email code
+            // This covers the cases where sign-in confirmation is disabled.
+            var emailCode = tokenVerificationId ? tokenVerificationId : emailRecord.emailCode
             emailSent = true
-            return mailer.sendVerifyCode(emailRecord, tokenVerificationId, {
+
+            return mailer.sendVerifyCode(emailRecord, emailCode, {
               service: service,
               redirectTo: redirectTo,
               resume: resume,
@@ -625,13 +627,13 @@ module.exports = function (
             authAt: sessionToken.lastAuthAt()
           }
 
+          response.emailSent = emailSent
+
           if (! requestHelper.wantsKeys(request)) {
             return P.resolve(response)
           }
 
           response.keyFetchToken = keyFetchToken.data.toString('hex')
-
-          response.emailSent = emailSent
 
           if(! emailRecord.emailVerified) {
             response.verified = false
