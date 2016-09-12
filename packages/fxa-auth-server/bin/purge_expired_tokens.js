@@ -15,8 +15,12 @@
  *
  * */
 
+const config = require('../lib/config');
+const package = require('../package.json');
 const program = require('commander');
-const package = require('./../package.json');
+
+// Don't bother updating the clients table.
+config.set('db.autoUpdateClients', false);
 
 program
   .version(package.version)
