@@ -14,6 +14,7 @@ define(function (require, exports, module) {
   var PasswordMixin = require('views/mixins/password-mixin');
   var PasswordResetMixin = require('views/mixins/password-reset-mixin');
   var PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
+  var ResendMixin = require('views/mixins/resend-mixin');
   var ServiceMixin = require('views/mixins/service-mixin');
   var Template = require('stache!templates/complete_reset_password');
   var Url = require('lib/url');
@@ -29,10 +30,6 @@ define(function (require, exports, module) {
 
       var searchParams = Url.searchParams(this.window.location.search);
       this._verificationInfo = new VerificationInfo(searchParams);
-    },
-
-    events: {
-      'click #resend': BaseView.preventDefaultThen('resendResetEmail')
     },
 
     // beforeRender is asynchronous and returns a promise. Only render
@@ -158,12 +155,8 @@ define(function (require, exports, module) {
       return this.$('#vpassword').val();
     },
 
-    resendResetEmail: function () {
-      var self = this;
-      self.logViewEvent('resend');
-      var email = self._verificationInfo.get('email');
-      return self.resetPassword(email)
-        .fail(self.displayError.bind(self));
+    resend () {
+      return this.resetPassword(this._verificationInfo.get('email'));
     }
   });
 
@@ -173,6 +166,7 @@ define(function (require, exports, module) {
     PasswordMixin,
     PasswordResetMixin,
     PasswordStrengthMixin,
+    ResendMixin,
     ServiceMixin
   );
 

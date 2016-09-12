@@ -11,7 +11,6 @@ define(function (require, exports, module) {
   var Cocktail = require('cocktail');
   var Constants = require('lib/constants');
   var ExperimentMixin = require('views/mixins/experiment-mixin');
-  var FormView = require('views/form');
   var OpenConfirmationEmailMixin = require('views/mixins/open-webmail-mixin');
   var p = require('lib/promise');
   var ResendMixin = require('views/mixins/resend-mixin');
@@ -22,7 +21,7 @@ define(function (require, exports, module) {
 
   var t = BaseView.t;
 
-  var View = FormView.extend({
+  var View = BaseView.extend({
     template: Template,
     className: 'confirm',
 
@@ -59,11 +58,6 @@ define(function (require, exports, module) {
         isSignUp: isSignUp,
         openWebmailButtonVisible: this.isOpenWebmailButtonVisible(email)
       };
-    },
-
-    events: {
-      // validateAndSubmit is used to prevent multiple concurrent submissions.
-      'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
     },
 
     _bouncedEmailSignup: function () {
@@ -191,23 +185,16 @@ define(function (require, exports, module) {
         });
     },
 
-    submit: function () {
-      var self = this;
-
-      self.logViewEvent('resend');
-
-      return self.getAccount().retrySignUp(
-        self.relier,
+    resend () {
+      return this.getAccount().retrySignUp(
+        this.relier,
         {
-          resume: self.getStringifiedResumeToken()
+          resume: this.getStringifiedResumeToken()
         }
       )
-      .then(function () {
-        self.displaySuccess();
-      })
-      .fail(function (err) {
+      .fail((err) => {
         if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-          return self.navigate('signup', {
+          return this.navigate('signup', {
             error: err
           });
         }
@@ -215,11 +202,7 @@ define(function (require, exports, module) {
         // unexpected error, rethrow for display.
         throw err;
       });
-    },
-
-    // The ResendMixin overrides beforeSubmit. Unless set to undefined,
-    // Cocktail runs both the original version and the overridden version.
-    beforeSubmit: undefined
+    }
   });
 
   Cocktail.mixin(

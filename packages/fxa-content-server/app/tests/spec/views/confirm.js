@@ -345,8 +345,8 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('submit', function () {
-      it('resends the confirmation email, shows success message, logs the event', function () {
+    describe('resend', function () {
+      it('resends the confirmation email', function () {
         sinon.stub(account, 'retrySignUp', function () {
           return p();
         });
@@ -354,12 +354,8 @@ define(function (require, exports, module) {
           return 'resume token';
         });
 
-        return view.submit()
+        return view.resend()
           .then(function () {
-            assert.isTrue(view.$('.success').is(':visible'));
-            assert.isTrue(TestHelpers.isEventLogged(metrics,
-                              'confirm.resend'));
-
             assert.isTrue(account.retrySignUp.calledWith(
               relier,
               {
@@ -377,16 +373,11 @@ define(function (require, exports, module) {
 
           sinon.spy(view, 'navigate');
 
-          return view.submit();
+          return view.resend();
         });
 
         it('redirects to /signup', function () {
           assert.isTrue(view.navigate.calledWith('signup'));
-        });
-
-        it('logs an event', function () {
-          assert.isTrue(TestHelpers.isEventLogged(metrics,
-                            'confirm.resend'));
         });
       });
 
@@ -398,66 +389,15 @@ define(function (require, exports, module) {
             return p.reject(new Error('synthesized error from auth server'));
           });
 
-          return view.submit()
+          return view.resend()
             .then(assert.fail, function (err) {
               error = err;
             });
         });
 
-        it('displays the error', function () {
+        it('re-throws the error', function () {
           assert.equal(error.message, 'synthesized error from auth server');
         });
-      });
-    });
-
-    describe('validateAndSubmit', function () {
-      it('only called after click on #resend', function () {
-        var count = 0;
-        view.validateAndSubmit = function () {
-          count++;
-        };
-
-        sinon.stub(account, 'retrySignUp', function () {
-          return p();
-        });
-
-        view.$('section').click();
-        assert.equal(count, 0);
-
-        view.$('#resend').click();
-        assert.equal(count, 1);
-      });
-
-      it('debounces resend calls - submit on first four attempts', function () {
-        var count = 0;
-
-        sinon.stub(account, 'retrySignUp', function () {
-          count++;
-          return p(true);
-        });
-
-        return view.validateAndSubmit()
-              .then(function () {
-                assert.equal(count, 1);
-                assert.equal(view.$('#resend:visible').length, 1);
-                return view.validateAndSubmit();
-              }).then(function () {
-                assert.equal(count, 2);
-                assert.equal(view.$('#resend:visible').length, 1);
-                return view.validateAndSubmit();
-              }).then(function () {
-                assert.equal(count, 3);
-                assert.equal(view.$('#resend:visible').length, 1);
-                return view.validateAndSubmit();
-              }).then(function () {
-                assert.equal(count, 4);
-                assert.equal(view.$('#resend:visible').length, 0);
-
-                assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                  'confirm.resend'));
-                assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                  'confirm.too_many_attempts'));
-              });
       });
     });
 

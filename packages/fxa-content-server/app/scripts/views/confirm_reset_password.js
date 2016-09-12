@@ -29,10 +29,6 @@ define(function (require, exports, module) {
               this.VERIFICATION_POLL_IN_MS;
     },
 
-    events: {
-      'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
-    },
-
     context: function () {
       var email = this.model.get('email');
       var isSignInEnabled = this.relier.get('resetPasswordConfirm');
@@ -261,20 +257,14 @@ define(function (require, exports, module) {
       this._stopListeningForInterTabMessages();
     },
 
-    submit: function () {
-      var self = this;
-      self.logViewEvent('resend');
-
-      return self.retryResetPassword(
-        self.model.get('email'),
-        self.model.get('passwordForgotToken')
+    resend () {
+      return this.retryResetPassword(
+        this.model.get('email'),
+        this.model.get('passwordForgotToken')
       )
-      .then(function () {
-        self.displaySuccess();
-      })
-      .fail(function (err) {
+      .fail((err) => {
         if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-          return self.navigate('reset_password', {
+          return this.navigate('reset_password', {
             error: err
           });
         }
@@ -282,11 +272,7 @@ define(function (require, exports, module) {
         // unexpected error, rethrow for display.
         throw err;
       });
-    },
-
-    // The ResendMixin overrides beforeSubmit. Unless set to undefined,
-    // Cocktail runs both the original version and the overridden version.
-    beforeSubmit: undefined
+    }
   });
 
   Cocktail.mixin(

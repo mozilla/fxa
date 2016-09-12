@@ -58,10 +58,6 @@ define(function (require, exports, module) {
         });
     }
 
-    function testEventLogged(eventName) {
-      assert.isTrue(TestHelpers.isEventLogged(metrics, eventName));
-    }
-
     function testErrorLogged(error) {
       var normalizedError = view._normalizeError(error);
       assert.isTrue(TestHelpers.isErrorLogged(metrics, normalizedError));
@@ -226,8 +222,8 @@ define(function (require, exports, module) {
 
       describe('if reminder and service is available in the URL', function () {
         beforeEach(function () {
-          windowMock.location.search = '?code=' + validCode + '&uid=' + validUid
-            + '&service=' + validService + '&reminder=' + validReminder;
+          windowMock.location.search = '?code=' + validCode + '&uid=' + validUid +
+            '&service=' + validService + '&reminder=' + validReminder;
           relier = new Relier({
             window: windowMock
           });
@@ -523,7 +519,7 @@ define(function (require, exports, module) {
 
     });
 
-    describe('submit - attempt to resend the verification email', function () {
+    describe('resend', function () {
       var retrySignUpAccount;
 
       beforeEach(function () {
@@ -567,12 +563,8 @@ define(function (require, exports, module) {
 
           return view.render()
             .then(function () {
-              return view.submit();
+              return view.resend();
             });
-        });
-
-        it('logs the event', function () {
-          testEventLogged('complete_sign_up.resend');
         });
 
         it('tells the account to retry signUp', function () {
@@ -582,10 +574,6 @@ define(function (require, exports, module) {
               resume: 'resume token'
             }
           ));
-        });
-
-        it('shows the success message', function () {
-          assert.isTrue(view.isSuccessVisible());
         });
       });
 
@@ -601,7 +589,7 @@ define(function (require, exports, module) {
 
           sinon.spy(view, 'navigate');
 
-          return view.submit();
+          return view.resend();
         });
 
         it('sends the user to the /signup page', function () {
@@ -620,8 +608,8 @@ define(function (require, exports, module) {
           });
         });
 
-        it('are re-thrown for display', function () {
-          return view.submit()
+        it('re-throws other errors', function () {
+          return view.resend()
             .then(assert.fail, function (err) {
               assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
             });

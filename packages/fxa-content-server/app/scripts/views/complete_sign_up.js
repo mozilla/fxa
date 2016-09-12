@@ -22,7 +22,6 @@ define(function (require, exports, module) {
   var Cocktail = require('cocktail');
   var CompleteSignUpTemplate = require('stache!templates/complete_sign_up');
   var ExperimentMixin = require('views/mixins/experiment-mixin');
-  var FormView = require('views/form');
   var MarketingEmailErrors = require('lib/marketing-email-errors');
   var ResendMixin = require('views/mixins/resend-mixin');
   var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
@@ -32,14 +31,9 @@ define(function (require, exports, module) {
 
   var t = BaseView.t;
 
-  var CompleteSignUpView = FormView.extend({
+  var CompleteSignUpView = BaseView.extend({
     template: CompleteSignUpTemplate,
     className: 'complete_sign_up',
-
-    events: {
-      // validateAndSubmit is used to prevent multiple concurrent submissions.
-      'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
-    },
 
     initialize: function (options) {
       options = options || {};
@@ -190,24 +184,17 @@ define(function (require, exports, module) {
 
     // This is called when a user follows an expired verification link
     // and clicks the "Resend" link.
-    submit: function () {
-      var self = this;
-
-      self.logViewEvent('resend');
-
+    resend () {
       var account = this.user.getAccountByEmail(this._email);
       return account.retrySignUp(
-        self.relier,
+        this.relier,
         {
-          resume: self.getStringifiedResumeToken()
+          resume: this.getStringifiedResumeToken()
         }
       )
-      .then(function () {
-        self.displaySuccess();
-      })
-      .fail(function (err) {
+      .fail((err) => {
         if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-          return self.navigate('signup', {
+          return this.navigate('signup', {
             error: err
           });
         }
@@ -215,11 +202,7 @@ define(function (require, exports, module) {
         // unexpected error, rethrow for display.
         throw err;
       });
-    },
-
-    // The ResendMixin overrides beforeSubmit. Unless set to undefined,
-    // Cocktail runs both the original version and the overridden version.
-    beforeSubmit: undefined
+    }
   });
 
   Cocktail.mixin(

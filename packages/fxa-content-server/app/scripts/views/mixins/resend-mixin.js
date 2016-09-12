@@ -2,56 +2,69 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// helper functions for views with passwords. Meant to be mixed into views.
-// Note, this mixin overrides beforeSubmit and is incompatible with Cocktail.
+// Helper functions to allow a view to resend an email.
+//
+// Binds a click event to the #resend DOM element which causes
+// an email to be resent.
+//
+// Consumers must expose a `resend` function which returns a promise
+// and actually sends the email.
+//
+// When #resend is clicked, a <viewname>.resend event is logged.
 
 define(function (require, exports, module) {
   'use strict';
 
-  var Duration = require('duration');
-  var EmailResend = require('models/email-resend');
+  const Duration = require('duration');
+  const EmailResend = require('models/email-resend');
+  const p = require('lib/promise');
+  const { preventDefaultThen, t } = require('views/base');
 
-  var SHOW_RESEND_IN_MS = new Duration('5m').milliseconds();
+  const SHOW_RESEND_IN_MS = new Duration('5m').milliseconds();
 
   module.exports = {
-
-    initialize: function () {
+    initialize () {
       this._emailResend = new EmailResend();
-      this._emailResend.on('maxTriesReached', this._onMaxTriesReached.bind(this));
+      this.listenTo(this._emailResend, 'maxTriesReached', this._onMaxTriesReached);
     },
 
-    beforeSubmit: function () {
-      // See https://github.com/mozilla/fxa-content-server/issues/885.
-      // The first click of the resend button sends an email.
-      // The forth click of the resend button sends an email.
-      // All other clicks are ignored.
-      // The button is hidden after the forth click for 5 minutes, then
-      // start the process again.
-
-      this._emailResend.incrementRequestCount();
-      this._updateSuccessMessage();
-
-      return this._emailResend.shouldResend();
+    events: {
+      'click #resend': preventDefaultThen('_resend')
     },
 
-    _updateSuccessMessage: function () {
+    _resend () {
+      return p().then(() => {
+        this.logViewEvent('resend');
+        this._updateSuccessMessage();
+
+        // The button is hidden after the fourth click for 5 minutes, then
+        // start the process again.
+        this._emailResend.incrementRequestCount();
+        if (this._emailResend.shouldResend()) {
+          return this.resend()
+            .then(() => this.displaySuccess(t('Email resent')))
+            .fail((err) => this.displayError(err));
+        }
+      });
+    },
+
+    _updateSuccessMessage () {
       // if a success message is already being displayed, shake it.
       var successEl = this.$('.success:visible');
       if (successEl) {
-        successEl.one('animationend', function () {
+        successEl.one('animationend', () => {
           successEl.removeClass('shake');
         }).addClass('shake');
       }
     },
 
-    _onMaxTriesReached: function () {
-      var self = this;
+    _onMaxTriesReached () {
       // Hide the button after too many attempts. Redisplay button after a delay.
-      self.logViewEvent('too_many_attempts');
-      self.$('#resend').hide();
-      self.setTimeout(function () {
-        self._emailResend.reset();
-        self.$('#resend').show();
+      this.logViewEvent('too_many_attempts');
+      this.$('#resend').hide();
+      this.setTimeout(() => {
+        this._emailResend.reset();
+        this.$('#resend').show();
       }, SHOW_RESEND_IN_MS);
     }
   };

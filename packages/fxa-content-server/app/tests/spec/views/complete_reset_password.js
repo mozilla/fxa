@@ -429,27 +429,27 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('resendResetEmail', function () {
+    describe('resend', function () {
       it('delegates to the `resetPassword` method', function () {
         sinon.stub(view, 'resetPassword', function () {
           return p();
         });
 
-        return view.resendResetEmail()
+        return view.resend()
           .then(function () {
             assert.isTrue(view.resetPassword.calledOnce);
             assert.isTrue(view.resetPassword.calledWith(EMAIL));
           });
       });
 
-      it('shows server response as an error otherwise', function () {
+      it('re-throws all errors', function () {
         sinon.stub(view, 'resetPassword', function () {
           return p.reject(new Error('server error'));
         });
 
-        return view.resendResetEmail()
-          .then(function () {
-            assert.equal(view.$('.error').text(), 'server error');
+        return view.resend()
+          .then(assert.fail, (err) => {
+            assert.equal(err.message, 'server error');
           });
       });
     });
