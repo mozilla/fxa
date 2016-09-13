@@ -13,6 +13,10 @@
  *
  * node purge_expired_tokens.js --config dev --pocket-id dcdb5ae7add825d2 --token-count 10000 --delay-seconds 1
  *
+ * or, for multiple pocket ids:
+ *
+ * node purge_expired_tokens.js --config dev --pocket-id dcdb5ae7add825d2,678f75ae1c0f8002 --token-count 10000 --delay-seconds 1
+ *
  * */
 
 const config = require('../lib/config');
@@ -25,7 +29,7 @@ config.set('db.autoUpdateClients', false);
 program
   .version(package.version)
   .option('-c, --config [config]', 'Configuration to use. Ex. dev')
-  .option('-p, --pocket-id <pocketId>', 'Pocket Client Id. These tokens will not be purged.')
+  .option('-p, --pocket-id <pocketId>', 'Pocket Client Ids. These tokens will not be purged. (CSV)')
   .option('-t, --token-count <tokenCount>', 'Number of tokens to delete.')
   .option('-d, --delay-seconds <delaySeconds>', 'Delay (seconds) between each deletion round. (Default: 1 second)')
   .parse(process.argv);
@@ -48,7 +52,8 @@ if (!program.pocketId) {
 
 const numberOfTokens = parseInt(program.tokenCount) || 200;
 const delaySeconds = Number(program.delaySeconds) || 1; // Default 1 seconds
-const ignorePocketClientId = program.pocketId;
+// There may be more than one pocketId, so treat this as a comma-separated list.
+const ignorePocketClientId = program.pocketId.split(/\s*,\s*/g);
 
 db.ping().done(function() {
   // Only mysql impl supports token deletion at the moment

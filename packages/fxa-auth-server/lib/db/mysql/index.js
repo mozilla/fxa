@@ -176,7 +176,7 @@ const QUERY_REFRESH_TOKEN_DELETE_USER =
 const QUERY_CODE_DELETE_USER = 'DELETE FROM codes WHERE userId=?';
 const QUERY_DEVELOPER = 'SELECT * FROM developers WHERE email=?';
 const QUERY_DEVELOPER_DELETE = 'DELETE FROM developers WHERE email=?';
-const QUERY_PURGE_EXPIRED_TOKENS = 'DELETE FROM tokens WHERE clientId != UNHEX(?) AND expiresAt < NOW() LIMIT ?;';
+const QUERY_PURGE_EXPIRED_TOKENS = 'DELETE FROM tokens WHERE clientId NOT IN (?) AND expiresAt < NOW() LIMIT ?;';
 // Token management by uid.
 // Returns the most recent token used with a client name and client id.
 // Does not include clients that canGrant.
@@ -518,13 +518,23 @@ MysqlStore.prototype = {
       throw new Error('empty ignoreClientId');
     }
 
-    return self.getClient(ignoreClientId)
-      .then(function (ignoreClient) {
+    if (! Array.isArray(ignoreClientId)) {
+      ignoreClientId = [ ignoreClientId ];
+    }
+
+    var clientIds = ignoreClientId.map(function (id) {
+      return self.getClient(id);
+    });
+
+    return P.all(clientIds)
+      .then(function (results) {
         // This ensures that purgeExpiredTokens can not be called with an
-        // unknown ignoreClientId.
-        if (! ignoreClient) {
-          throw new Error('unknown ignoreClientId ' + ignoreClientId);
-        }
+        // unknown ignoreClientId(s).
+        results.forEach(function (ignoreClient) {
+          if (! ignoreClient) {
+            throw new Error('unknown ignoreClientId ' + ignoreClientId);
+          }
+        });
       })
       .then(function () {
         var deleteBatchSize = 200;
@@ -546,7 +556,11 @@ MysqlStore.prototype = {
             return;
           }
 
-          return self._write(QUERY_PURGE_EXPIRED_TOKENS, [ignoreClientId, deleteBatchSize])
+          var clientIn = ignoreClientId.map(function(id) {
+            return buf(id);
+          });
+
+          return self._write(QUERY_PURGE_EXPIRED_TOKENS, [clientIn, deleteBatchSize])
             .then(function (res) {
               logger.info('purgeExpiredTokens', { affectedRows: res.affectedRows });
 
