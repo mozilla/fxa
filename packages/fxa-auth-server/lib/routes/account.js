@@ -549,7 +549,7 @@ module.exports = function (
 
           if (shouldSendVerifyAccountEmail) {
             // Only use tokenVerificationId if it is set, otherwise use the corresponding email code
-            // This covers the cases where sign-in confirmation is disabled.
+            // This covers the cases where sign-in confirmation is disabled or not needed.
             var emailCode = tokenVerificationId ? tokenVerificationId : emailRecord.emailCode
             emailSent = true
 
