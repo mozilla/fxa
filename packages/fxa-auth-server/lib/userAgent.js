@@ -64,12 +64,30 @@ function getVersion (data) {
 
 function getDeviceType (data) {
   if (getFamily(data.device) || isMobileOS(data.os)) {
-    return 'mobile'
+    if (isTablet(data)) {
+      return 'tablet'
+    } else {
+      return 'mobile'
+    }
   }
 }
 
 function isMobileOS (os) {
   return os.family in MOBILE_OS_FAMILIES
+}
+
+function isTablet(data) {
+  // 'tablets' are iPads and Android devices with no word 'Mobile' in them.
+  // Ref: https://webmasters.googleblog.com/2011/03/mo-better-to-also-detect-mobile-user.html
+  if (getFamily(data.device)) {
+    if (data.device.family === 'iPad' ||
+       (data.os && data.os.family === 'Android' && data.userAgent.indexOf('Mobile') === -1)
+    ) {
+      return true
+    }
+  }
+
+  return false
 }
 
 function truncate (userAgentString, log) {

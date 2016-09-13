@@ -170,7 +170,7 @@ test(
         return sessionToken
       })
       .then(function(sessionToken) {
-        return db.updateSessionToken(sessionToken, 'Mozilla/5.0 (Android; Linux armv7l; rv:9.0) Gecko/20111216 Firefox/9.0 Fennec/9.0')
+        return db.updateSessionToken(sessionToken, 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0')
       })
       .then(function() {
         return db.sessions(ACCOUNT.uid)
@@ -178,17 +178,17 @@ test(
       .then(function(sessions) {
         t.equal(sessions.length, 1, 'sessions still contains one item')
         t.equal(sessions[0].uaBrowser, 'Firefox Mobile', 'uaBrowser property is correct')
-        t.equal(sessions[0].uaBrowserVersion, '9', 'uaBrowserVersion property is correct')
+        t.equal(sessions[0].uaBrowserVersion, '41', 'uaBrowserVersion property is correct')
         t.equal(sessions[0].uaOS, 'Android', 'uaOS property is correct')
-        t.equal(sessions[0].uaOSVersion, null, 'uaOSVersion property is correct')
+        t.equal(sessions[0].uaOSVersion, '4.4', 'uaOSVersion property is correct')
         t.equal(sessions[0].uaDeviceType, 'mobile', 'uaDeviceType property is correct')
         return db.sessionToken(tokenId)
       })
       .then(function(sessionToken) {
         t.equal(sessionToken.uaBrowser, 'Firefox Mobile')
-        t.equal(sessionToken.uaBrowserVersion, '9')
+        t.equal(sessionToken.uaBrowserVersion, '41')
         t.equal(sessionToken.uaOS, 'Android')
-        t.equal(sessionToken.uaOSVersion, null)
+        t.equal(sessionToken.uaOSVersion, '4.4')
         t.equal(sessionToken.uaDeviceType, 'mobile')
         t.ok(sessionToken.lastAccessTime >= sessionToken.createdAt)
         t.ok(sessionToken.lastAccessTime <= Date.now())
@@ -227,7 +227,7 @@ test(
       return db.emailRecord(ACCOUNT.email)
         .then(function (emailRecord) {
           emailRecord.tokenVerificationId = ACCOUNT.tokenVerificationId
-          return db.createSessionToken(emailRecord, 'Mozilla/5.0 (Android; Linux armv7l; rv:9.0) Gecko/20111216 Firefox/9.0 Fennec/9.0')
+          return db.createSessionToken(emailRecord, 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0')
         })
         .then(function (result) {
           sessionToken = result
@@ -294,9 +294,9 @@ test(
           t.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
           t.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
           t.equal(device.uaBrowser, 'Firefox Mobile', 'device.uaBrowser is correct')
-          t.equal(device.uaBrowserVersion, '9', 'device.uaBrowserVersion is correct')
+          t.equal(device.uaBrowserVersion, '41', 'device.uaBrowserVersion is correct')
           t.equal(device.uaOS, 'Android', 'device.uaOS is correct')
-          t.equal(device.uaOSVersion, null, 'device.uaOSVersion is correct')
+          t.equal(device.uaOSVersion, '4.4', 'device.uaOSVersion is correct')
           t.equal(device.uaDeviceType, 'mobile', 'device.uaDeviceType is correct')
           deviceInfo.id = device.id
           deviceInfo.name = 'wibble'

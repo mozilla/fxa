@@ -148,7 +148,7 @@ test(
 )
 
 test(
-  'recognises Android as a mobile OS',
+  'recognises Android phones as a mobile OS',
   function (t) {
     parserResult = {
       ua: {
@@ -381,6 +381,65 @@ test(
     t.equal(result.uaDeviceType, null)
 
     t.equal(log.info.callCount, 0)
+
+    t.end()
+    uaParser.parse.reset()
+  }
+)
+
+test(
+  'recognises iPads as tablets',
+  function (t) {
+    parserResult = {
+      userAgent: 'Mozilla/5.0 (iPad; CPU OS 7_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Mobile/11A465',
+      ua: {
+        family: 'Mobile Safari UI/WKWebView',
+        major: '7',
+        minor: '0'
+      },
+      os: {
+        family: 'iOS',
+        major: '7',
+        minor: '0'
+      },
+      device: {
+        family: 'iPad'
+      }
+    }
+    var context = {}
+    var result = userAgent.call(context, log)
+
+    t.equal(result.uaDeviceType, 'tablet')
+
+    t.end()
+    uaParser.parse.reset()
+  }
+)
+
+
+test(
+  'recognises Android tablets as tablets',
+  function (t) {
+    parserResult = {
+      userAgent: 'Mozilla/5.0 (Linux; Android 4.4.2; Nexus 7 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.59 Safari/537.36',
+      ua: {
+        family: 'Chrome Mobile',
+        major: '31',
+        minor: '0'
+      },
+      os: {
+        family: 'Android',
+        major: '4',
+        minor: '4'
+      },
+      device: {
+        family: 'Nexus 7'
+      }
+    }
+    var context = {}
+    var result = userAgent.call(context, log)
+
+    t.equal(result.uaDeviceType, 'tablet')
 
     t.end()
     uaParser.parse.reset()
