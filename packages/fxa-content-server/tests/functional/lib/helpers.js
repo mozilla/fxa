@@ -775,30 +775,6 @@ define([
       .end();
   }
 
-  function listenForWebChannelMessage() {
-    // We start listening for web channel messages as soon as
-    // openPage is called, before the page is ready. Wait for
-    // the prerequisites, then attach.
-    function startListening() {
-      try {
-        addEventListener('WebChannelMessageToChrome', function (e) {
-          var command = e.detail.message.command;
-          var data = e.detail.message.data;
-
-          var element = document.createElement('div');
-          element.setAttribute('id', 'message-' + command.replace(/:/g, '-'));
-          element.innerText = JSON.stringify(data);
-          document.body.appendChild(element);
-        });
-      } catch (e) {
-        // problem adding the listener, window may not be ready, try again.
-        setTimeout(startListening, 0);
-      }
-    }
-
-    startListening();
-  }
-
   function mouseevent(eventType) {
     return function (selector) {
       return function () {
@@ -947,10 +923,6 @@ define([
     return remote
       .get(require.toUrl(url))
       .setFindTimeout(config.pageLoadTimeout)
-
-      // WebChannel Messages can sometimes be sent before the page
-      // is rendered. Try to attach a listener as early as possible.
-      .execute(listenForWebChannelMessage)
 
       // Wait until the `readySelector` element is found to return.
       .findByCssSelector(readySelector)
@@ -1454,7 +1426,6 @@ define([
     getQueryParamValue: getQueryParamValue,
     getVerificationLink: getVerificationLink,
     imageLoadedByQSA: imageLoadedByQSA,
-    listenForWebChannelMessage: listenForWebChannelMessage,
     mousedown: mousedown,
     mouseevent: mouseevent,
     mouseout: mouseout,
