@@ -263,6 +263,35 @@ describe('db', function() {
             assert.equal(result[0].count, 1900);
           });
       });
+
+      it('should call purgeExpiredTokens and ignore both clients as requested', function() {
+        return db.purgeExpiredTokens(1000, 0, [ clientIdA, clientIdB ])
+          .then( function () {
+            // Check clientA tokens not deleted
+            return db._read('SELECT COUNT(*) AS count FROM fxa_oauth.tokens WHERE clientId=UNHEX(?)', [
+              clientIdA
+            ]);
+          })
+          .then( function (result) {
+            assert.equal(result[0].count, 1000);
+          })
+          .then( function () {
+            // Check clientB expired tokens are not deleted
+            return db._read('SELECT COUNT(*) AS count FROM fxa_oauth.tokens WHERE clientId=UNHEX(?)', [
+              clientIdB
+            ]);
+          })
+          .then( function (result) {
+            assert.equal(result[0].count, 1000);
+          })
+          .then( function () {
+            // Check the total tokens
+            return db._read('SELECT COUNT(*) AS count FROM fxa_oauth.tokens');
+          })
+          .then( function (result) {
+            assert.equal(result[0].count, 2000);
+          });
+      });
     });
   }
 
