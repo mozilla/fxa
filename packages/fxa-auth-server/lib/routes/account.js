@@ -207,7 +207,7 @@ module.exports = function (
           var enableTokenVerification = requestHelper.shouldEnableTokenVerification(account, config, request)
 
           // Verified sessions should only be created for preverified tokens
-          // and when sign-in confirmation is disabled
+          // and when sign-in confirmation is disabled or not needed.
           if (preVerified || ! enableTokenVerification) {
             tokenVerificationId = undefined
           }
@@ -544,7 +544,7 @@ module.exports = function (
           // Delegate sending emails for unverified users to auth-server.
           // Will be removed once all clients have been updated not to send verify emails.
           // https://github.com/mozilla/fxa-auth-server/issues/1325
-          var shouldSendVerifyAccountEmail = requestHelper.shouldSendVerifyAccountEmail(request)
+          var shouldSendVerifyAccountEmail = requestHelper.shouldSendVerifyAccountEmail(emailRecord, request)
           emailSent = false
 
           if (shouldSendVerifyAccountEmail) {
