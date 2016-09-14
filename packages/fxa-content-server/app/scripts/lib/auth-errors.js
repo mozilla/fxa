@@ -18,6 +18,11 @@ define(function (require, exports, module) {
 
   var UNEXPECTED_ERROR_MESSAGE = t('Unexpected error');
   var EXPIRED_VERIFICATION_ERROR_MESSAGE = t('The link you clicked to verify your email is expired.');
+  var THROTTLED_ERROR_MESSAGE = t('You\'ve tried too many times. Try again later.');
+  // L10N Note: '%(retryAfterLocalized)s' becomes:
+  // 'in 10 minutes' / 'in a minute' or
+  // 'через 15 минут' / 'через 3 минуты' / 'через минуту'
+  var THROTTLED_LOCALIZED_ERROR_MESSAGE = t('You\'ve tried too many times. Try again %(retryAfterLocalized)s.');
 
   /*eslint-disable sorting/sort-object-props*/
   var ERRORS = {
@@ -87,7 +92,7 @@ define(function (require, exports, module) {
     },
     THROTTLED: {
       errno: 114,
-      message: t('Attempt limit exceeded')
+      message: THROTTLED_ERROR_MESSAGE
     },
     /*
     ACCOUNT_LOCKED: {
@@ -340,6 +345,15 @@ define(function (require, exports, module) {
         } else if (this.is(err, 'MISSING_DATA_ATTRIBUTE')) {
           return {
             property: err.property
+          };
+        } else if (this.is(err, 'THROTTLED')) {
+          if (err.retryAfterLocalized) {
+            // enhance the throttled message if localized retryAfter data is available
+            err.message = THROTTLED_LOCALIZED_ERROR_MESSAGE;
+          }
+
+          return {
+            retryAfterLocalized: err.retryAfterLocalized
           };
         }
       } catch (e) {

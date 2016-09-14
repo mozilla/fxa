@@ -132,6 +132,19 @@ define(function (require, exports, module) {
         assert.equal(AuthErrors.toMessage(AuthErrors.toError('SERVER_BUSY')), 'Server busy, try again soon');
       });
 
+      it('converts THROTTLED error correctly', function () {
+        assert.equal(AuthErrors.toMessage(AuthErrors.toError('THROTTLED')), 'You\'ve tried too many times. Try again later.');
+      });
+
+      it('converts THROTTLED error correctly', function () {
+        var err = AuthErrors.toError('THROTTLED');
+        err.retryAfter = 900;
+        err.retryAfterLocalized = 'in 15 minutes';
+        AuthErrors.toInterpolatedMessage(err);
+
+        assert.equal(AuthErrors.toInterpolatedMessage(err), 'You\'ve tried too many times. Try again in 15 minutes.');
+      });
+
       it('converts an unknown object to `UNEXPECTED_ERROR`', function () {
         assert.equal(AuthErrors.toMessage({}), 'Unexpected error');
       });
@@ -164,6 +177,19 @@ define(function (require, exports, module) {
               keys: 'uid'
             }
           }), {});
+      });
+
+      it('enhances the throttled error if provided with localized context', function () {
+        assert.deepEqual(
+          AuthErrors.toInterpolationContext({
+            errno: 114,
+            retryAfterLocalized: 'in 15 minutes'
+          }), { retryAfterLocalized: 'in 15 minutes' });
+
+        assert.deepEqual(
+          AuthErrors.toInterpolationContext({
+            errno: 114
+          }), { retryAfterLocalized: undefined });
       });
     });
 
