@@ -30,16 +30,11 @@ define([
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
   var openPage = thenify(FunctionalHelpers.openPage);
   var testElementExists = FunctionalHelpers.testElementExists;
+  var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
   var testIsBrowserNotifiedOfAvatarChange = thenify(function () {
     return this.parent
-      .findByCssSelector('#message-profile-change')
-        .getProperty('innerText')
-        .then(function (innerText) {
-          var data = JSON.parse(innerText);
-          assert.ok(data.uid);
-        })
-      .end();
+      .then(testIsBrowserNotified(this.parent, 'profile:change'));
   });
 
   function signUp(context, email) {
