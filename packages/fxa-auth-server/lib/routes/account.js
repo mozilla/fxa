@@ -213,15 +213,15 @@ module.exports = function (
           }
 
           return db.createSessionToken({
-              uid: account.uid,
-              email: account.email,
-              emailCode: account.emailCode,
-              emailVerified: account.emailVerified,
-              verifierSetAt: account.verifierSetAt,
-              createdAt: parseInt(query._createdAt),
-              mustVerify: enableTokenVerification && requestHelper.wantsKeys(request),
-              tokenVerificationId: tokenVerificationId
-            }, userAgentString)
+            uid: account.uid,
+            email: account.email,
+            emailCode: account.emailCode,
+            emailVerified: account.emailVerified,
+            verifierSetAt: account.verifierSetAt,
+            createdAt: parseInt(query._createdAt),
+            mustVerify: enableTokenVerification && requestHelper.wantsKeys(request),
+            tokenVerificationId: tokenVerificationId
+          }, userAgentString)
             .then(
               function (result) {
                 sessionToken = result
@@ -1561,16 +1561,16 @@ module.exports = function (
               throw error.missingRequestParameter('sessionToken')
             }
             return db.createKeyFetchToken({
-                uid: account.uid,
-                kA: account.kA,
-                wrapKb: wrapKb,
-                emailVerified: account.emailVerified
-              })
-              .then(
-                function (result) {
-                  keyFetchToken = result
-                }
-              )
+              uid: account.uid,
+              kA: account.kA,
+              wrapKb: wrapKb,
+              emailVerified: account.emailVerified
+            })
+            .then(
+              function (result) {
+                keyFetchToken = result
+              }
+            )
           }
         }
 

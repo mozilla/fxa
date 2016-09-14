@@ -28,6 +28,7 @@
  *
  */
 
+/* eslint-disable no-console */
 var tap = require('tap')
 
 module.exports = function(name, testfunc, parentTest) {

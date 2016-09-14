@@ -77,12 +77,12 @@ test(
           t.equal(value, 1)
           t.ok(sampleRate)
           t.deepEquals(tags, [
-              'agent_ua_family:Firefox',
-              'agent_ua_version:43.0',
-              'agent_ua_version_major:43',
-              'agent_os_version:10.11',
-              'agent_os_family:Mac OS X',
-              'agent_os_major:10'
+            'agent_ua_family:Firefox',
+            'agent_ua_version:43.0',
+            'agent_ua_version_major:43',
+            'agent_os_version:10.11',
+            'agent_os_family:Mac OS X',
+            'agent_os_major:10'
           ])
           t.end()
         }

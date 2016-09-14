@@ -9,6 +9,7 @@ var request = require('request')
 var mailbox = require('./mailbox')
 var createDBServer = require('fxa-auth-db-mysql')
 
+/* eslint-disable no-console */
 function TestServer(config, printLogs) {
   this.printLogs = printLogs === false ? false : true
   this.config = config

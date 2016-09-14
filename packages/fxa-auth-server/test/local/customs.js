@@ -6,7 +6,7 @@ var test = require('../ptaptest')
 var log = {
   trace: function () {},
   flowEvent: function () {},
-  error: console.error,
+  error: console.error, // eslint-disable-line no-console
 }
 var error = require('../../lib/error.js')
 var nock = require('nock')
@@ -107,9 +107,9 @@ test(
         // Mock a report of a failed login attempt
         customsServer.post('/failedLoginAttempt', function (body) {
           t.deepEqual(body, {
-             ip: ip,
-             email: email,
-             errno: error.ERRNO.UNEXPECTED_ERROR
+            ip: ip,
+            email: email,
+            errno: error.ERRNO.UNEXPECTED_ERROR
           }, 'first call to /failedLoginAttempt had expected request params')
           return true
         }).reply(200, {})
@@ -125,7 +125,7 @@ test(
         // Mock a report of a password reset.
         customsServer.post('/passwordReset', function (body) {
           t.deepEqual(body, {
-             email: email,
+            email: email,
           }, 'first call to /passwordReset had expected request params')
           return true
         }).reply(200, {})
@@ -141,12 +141,12 @@ test(
         // Mock a check that does get blocked, with a retryAfter.
         customsServer.post('/check', function (body) {
           t.deepEqual(body, {
-             ip: ip,
-             email: email,
-             action: action,
-             headers: request.headers,
-             query: request.query,
-             payload: request.payload,
+            ip: ip,
+            email: email,
+            action: action,
+            headers: request.headers,
+            query: request.query,
+            payload: request.payload,
           }, 'second call to /check had expected request params')
           return true
         }).reply(200, {
@@ -170,9 +170,9 @@ test(
         // Mock a report of a failed login attempt that does trigger lockout.
         customsServer.post('/failedLoginAttempt', function (body) {
           t.deepEqual(body, {
-             ip: ip,
-             email: email,
-             errno: error.ERRNO.INCORRECT_PASSWORD
+            ip: ip,
+            email: email,
+            errno: error.ERRNO.INCORRECT_PASSWORD
           }, 'second call to /failedLoginAttempt had expected request params')
           return true
         }).reply(200, { })
@@ -193,12 +193,12 @@ test(
         request.payload['foo'] = 'bar'
         customsServer.post('/check', function (body) {
           t.deepEqual(body, {
-             ip: ip,
-             email: email,
-             action: action,
-             headers: request.headers,
-             query: request.query,
-             payload: request.payload,
+            ip: ip,
+            email: email,
+            action: action,
+            headers: request.headers,
+            query: request.query,
+            payload: request.payload,
           }, 'third call to /check had expected request params')
           return true
         }).reply(200, {
@@ -279,12 +279,12 @@ test(
 
     function checkRequestBody (body) {
       t.deepEqual(body, {
-         ip: ip,
-         email: email,
-         action: action,
-         headers: request.headers,
-         query: request.query,
-         payload: request.payload,
+        ip: ip,
+        email: email,
+        action: action,
+        headers: request.headers,
+        query: request.query,
+        payload: request.payload,
       }, 'call to /check had expected request params')
       return true
     }
@@ -356,9 +356,9 @@ test(
 
     function checkRequestBody (body) {
       t.deepEqual(body, {
-         action: action,
-         ip: ip,
-         uid: uid,
+        action: action,
+        ip: ip,
+        uid: uid,
       }, 'call to /checkAuthenticated had expected request params')
       return true
     }

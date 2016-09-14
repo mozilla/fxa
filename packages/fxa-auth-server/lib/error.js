@@ -406,15 +406,17 @@ AppError.gone = function () {
 }
 
 AppError.mustResetAccount = function (email) {
-  return new AppError({
-    code: 400,
-    error: 'Bad Request',
-    errno: ERRNO.ACCOUNT_RESET,
-    message: 'Account must be reset'
-  },
-  {
-    email: email
-  })
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.ACCOUNT_RESET,
+      message: 'Account must be reset'
+    },
+    {
+      email: email
+    }
+  )
 }
 
 AppError.unknownDevice = function () {

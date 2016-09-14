@@ -81,9 +81,8 @@ module.exports = function (
                   .then(
                     function (keyFetchToken) {
                       return db.createPasswordChangeToken({
-                          uid: emailRecord.uid
-                        }
-                      )
+                        uid: emailRecord.uid
+                      })
                       .then(
                         function (passwordChangeToken) {
                           return {
@@ -146,7 +145,7 @@ module.exports = function (
         var password = new Password(authPW, authSalt, verifierVersion)
         var wantsKeys = requestHelper.wantsKeys(request)
         var account, verifyHash, sessionToken, keyFetchToken, verifiedStatus,
-            devicesToNotify
+          devicesToNotify
 
         getSessionVerificationStatus()
           .then(fetchDevicesToNotify)
@@ -259,16 +258,16 @@ module.exports = function (
             // Create a verified keyFetchToken. This is deliberately verified because we don't
             // want to perform an email confirmation loop.
             return db.createKeyFetchToken({
-                uid: account.uid,
-                kA: account.kA,
-                wrapKb: wrapKb,
-                emailVerified: account.emailVerified
-              })
-              .then(
-                function (result) {
-                  keyFetchToken = result
-                }
-              )
+              uid: account.uid,
+              kA: account.kA,
+              wrapKb: wrapKb,
+              emailVerified: account.emailVerified
+            })
+            .then(
+              function (result) {
+                keyFetchToken = result
+              }
+            )
           }
         }
 
