@@ -207,7 +207,7 @@ module.exports = function (
           var enableTokenVerification = requestHelper.shouldEnableTokenVerification(account, config, request)
 
           // Verified sessions should only be created for preverified tokens
-          // and when sign-in confirmation is disabled
+          // and when sign-in confirmation is disabled or not needed.
           if (preVerified || ! enableTokenVerification) {
             tokenVerificationId = undefined
           }
@@ -332,10 +332,6 @@ module.exports = function (
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
             // Obsolete contentToken param, here for backwards compat.
             contentToken: isA.string().optional(),
-            // Delegate sending emails for unverified users to auth-server.
-            // Will be removed once all clients have been updated not to send verify emails.
-            // https://github.com/mozilla/fxa-auth-server/issues/1325
-            sendEmailIfUnverified: isA.boolean().optional(),
             service: isA.string().max(16).alphanum().optional(),
             redirectTo: isA.string().uri().optional(),
             resume: isA.string().optional(),
@@ -351,7 +347,8 @@ module.exports = function (
             verificationMethod: isA.string().optional(),
             verificationReason: isA.string().optional(),
             verified: isA.boolean().required(),
-            authAt: isA.number().integer()
+            authAt: isA.number().integer(),
+            emailSent: isA.boolean().optional()
           }
         }
       },
@@ -365,7 +362,7 @@ module.exports = function (
         var redirectTo = request.payload.redirectTo
         var resume = request.payload.resume
         var tokenVerificationId = crypto.randomBytes(16)
-        var emailRecord, sessions, sessionToken, keyFetchToken, mustVerifySession, doSigninConfirmation
+        var emailRecord, sessions, sessionToken, keyFetchToken, mustVerifySession, doSigninConfirmation, emailSent
         var ip = request.app.clientAddress
 
         metricsContext.validate(request)
@@ -544,20 +541,19 @@ module.exports = function (
         }
 
         function sendVerifyAccountEmail() {
-          // For legacy clients, behavior is to not send an email to verify their account
-          // and have the requestor send it.
-          var sendEmailIfUnverified = false
+          // Delegate sending emails for unverified users to auth-server.
+          // Will be removed once all clients have been updated not to send verify emails.
+          // https://github.com/mozilla/fxa-auth-server/issues/1325
+          var shouldSendVerifyAccountEmail = requestHelper.shouldSendVerifyAccountEmail(emailRecord, request)
+          emailSent = false
 
-          // If a value was passed, use that instead
-          if (request.payload.sendEmailIfUnverified !== undefined) {
-            sendEmailIfUnverified = request.payload.sendEmailIfUnverified
-          }
-
-          var shouldSendVerifyAccountEmail = sendEmailIfUnverified && !emailRecord.emailVerified
           if (shouldSendVerifyAccountEmail) {
-            // Resend the account verification email using the tokenVerificationId so that the session
-            // that initiated the login will also get verified.
-            return mailer.sendVerifyCode(emailRecord, tokenVerificationId, {
+            // Only use tokenVerificationId if it is set, otherwise use the corresponding email code
+            // This covers the cases where sign-in confirmation is disabled or not needed.
+            var emailCode = tokenVerificationId ? tokenVerificationId : emailRecord.emailCode
+            emailSent = true
+
+            return mailer.sendVerifyCode(emailRecord, emailCode, {
               service: service,
               redirectTo: redirectTo,
               resume: resume,
@@ -630,6 +626,8 @@ module.exports = function (
             verified: sessionToken.emailVerified,
             authAt: sessionToken.lastAuthAt()
           }
+
+          response.emailSent = emailSent
 
           if (! requestHelper.wantsKeys(request)) {
             return P.resolve(response)

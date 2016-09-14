@@ -678,7 +678,7 @@ test('/account/create', function (t) {
 })
 
 test('/account/login', function (t) {
-  t.plan(4)
+  t.plan(3)
   var config = {
     newLoginNotificationEnabled: true
   }
@@ -765,70 +765,145 @@ test('/account/login', function (t) {
   var route = getRoute(accountRoutes, '/account/login')
 
   t.test('sign-in confirmation disabled', function (t) {
-    return runTest(route, mockRequest, function (response) {
-      t.equal(mockDB.emailRecord.callCount, 1, 'db.emailRecord was called')
-      t.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called')
-      var tokenData = mockDB.createSessionToken.getCall(0).args[0]
-      t.notOk(tokenData.mustVerify, 'sessionToken was created verified')
-      t.notOk(tokenData.tokenVerificationId, 'sessionToken was created verified')
-      t.equal(mockDB.sessions.callCount, 1, 'db.sessions was called')
+    t.plan(2)
+    t.test('sign-in does not require verification', function (t) {
+      return runTest(route, mockRequest, function (response) {
+        t.equal(mockDB.emailRecord.callCount, 1, 'db.emailRecord was called')
+        t.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called')
+        var tokenData = mockDB.createSessionToken.getCall(0).args[0]
+        t.notOk(tokenData.mustVerify, 'sessionToken was created verified')
+        t.notOk(tokenData.tokenVerificationId, 'sessionToken was created verified')
+        t.equal(mockDB.sessions.callCount, 1, 'db.sessions was called')
 
-      t.equal(mockLog.stdout.write.callCount, 1, 'an sqs event was logged')
-      var eventData = JSON.parse(mockLog.stdout.write.getCall(0).args[0])
-      t.equal(eventData.event, 'login', 'it was a login event')
-      t.equal(eventData.data.service, 'sync', 'it was for sync')
-      t.equal(eventData.data.email, TEST_EMAIL, 'it was for the correct email')
-      t.deepEqual(eventData.data.metricsContext, mockRequest.payload.metricsContext, 'it contained the metrics context')
+        t.equal(mockLog.stdout.write.callCount, 1, 'an sqs event was logged')
+        var eventData = JSON.parse(mockLog.stdout.write.getCall(0).args[0])
+        t.equal(eventData.event, 'login', 'it was a login event')
+        t.equal(eventData.data.service, 'sync', 'it was for sync')
+        t.equal(eventData.data.email, TEST_EMAIL, 'it was for the correct email')
+        t.deepEqual(eventData.data.metricsContext, mockRequest.payload.metricsContext, 'it contained the metrics context')
 
-      t.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
-      var args = mockLog.activityEvent.args[0]
-      t.equal(args.length, 3, 'log.activityEvent was passed three arguments')
-      t.equal(args[0], 'account.login', 'first argument was event name')
-      t.equal(args[1], mockRequest, 'second argument was request object')
-      t.deepEqual(args[2], { uid: uid.toString('hex') }, 'third argument contained uid')
+        t.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
+        var args = mockLog.activityEvent.args[0]
+        t.equal(args.length, 3, 'log.activityEvent was passed three arguments')
+        t.equal(args[0], 'account.login', 'first argument was event name')
+        t.equal(args[1], mockRequest, 'second argument was request object')
+        t.deepEqual(args[2], {uid: uid.toString('hex')}, 'third argument contained uid')
 
-      t.equal(mockMetricsContext.validate.callCount, 1, 'metricsContext.validate was called')
-      args = mockMetricsContext.validate.args[0]
-      t.equal(args.length, 1, 'validate was called with a single argument')
-      t.deepEqual(args[0], mockRequest, 'validate was called with the request')
+        t.equal(mockMetricsContext.validate.callCount, 1, 'metricsContext.validate was called')
+        args = mockMetricsContext.validate.args[0]
+        t.equal(args.length, 1, 'validate was called with a single argument')
+        t.deepEqual(args[0], mockRequest, 'validate was called with the request')
 
-      t.equal(mockMetricsContext.stash.callCount, 2, 'metricsContext.stash was called twice')
+        t.equal(mockMetricsContext.stash.callCount, 2, 'metricsContext.stash was called twice')
 
-      args = mockMetricsContext.stash.args[0]
-      t.equal(args.length, 3, 'metricsContext.stash was passed three arguments first time')
-      t.deepEqual(args[0].tokenId, sessionTokenId, 'first argument was session token')
-      t.deepEqual(args[0].uid, uid, 'sessionToken.uid was correct')
-      t.deepEqual(args[1], [ 'device.created', 'account.signed' ], 'second argument was event array')
-      t.equal(args[2], mockRequest.payload.metricsContext, 'third argument was metrics context')
+        args = mockMetricsContext.stash.args[0]
+        t.equal(args.length, 3, 'metricsContext.stash was passed three arguments first time')
+        t.deepEqual(args[0].tokenId, sessionTokenId, 'first argument was session token')
+        t.deepEqual(args[0].uid, uid, 'sessionToken.uid was correct')
+        t.deepEqual(args[1], ['device.created', 'account.signed'], 'second argument was event array')
+        t.equal(args[2], mockRequest.payload.metricsContext, 'third argument was metrics context')
 
-      args = mockMetricsContext.stash.args[1]
-      t.equal(args.length, 3, 'metricsContext.stash was passed three arguments second time')
-      t.deepEqual(args[0].tokenId, keyFetchTokenId, 'first argument was key fetch token')
-      t.deepEqual(args[0].uid, uid, 'keyFetchToken.uid was correct')
-      t.deepEqual(args[1], 'account.keyfetch', 'second argument was event name')
-      t.equal(args[2], mockRequest.payload.metricsContext, 'third argument was metrics context')
+        args = mockMetricsContext.stash.args[1]
+        t.equal(args.length, 3, 'metricsContext.stash was passed three arguments second time')
+        t.deepEqual(args[0].tokenId, keyFetchTokenId, 'first argument was key fetch token')
+        t.deepEqual(args[0].uid, uid, 'keyFetchToken.uid was correct')
+        t.deepEqual(args[1], 'account.keyfetch', 'second argument was event name')
+        t.equal(args[2], mockRequest.payload.metricsContext, 'third argument was metrics context')
 
-      t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 1, 'mailer.sendNewDeviceLoginNotification was called')
-      t.equal(mockMailer.sendNewDeviceLoginNotification.getCall(0).args[1].location.city, 'Mountain View')
-      t.equal(mockMailer.sendNewDeviceLoginNotification.getCall(0).args[1].location.country, 'United States')
-      t.equal(mockMailer.sendNewDeviceLoginNotification.getCall(0).args[1].timeZone, 'America/Los_Angeles')
-      t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
-      t.ok(response.verified, 'response indicates account is verified')
-      t.notOk(response.verificationMethod, 'verificationMethod doesn\'t exist')
-      t.notOk(response.verificationReason, 'verificationReason doesn\'t exist')
-    }).then(function () {
-      mockMailer.sendNewDeviceLoginNotification.reset()
-      mockDB.createSessionToken.reset()
-      mockMetricsContext.stash.reset()
+        t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 1, 'mailer.sendNewDeviceLoginNotification was called')
+        t.equal(mockMailer.sendNewDeviceLoginNotification.getCall(0).args[1].location.city, 'Mountain View')
+        t.equal(mockMailer.sendNewDeviceLoginNotification.getCall(0).args[1].location.country, 'United States')
+        t.equal(mockMailer.sendNewDeviceLoginNotification.getCall(0).args[1].timeZone, 'America/Los_Angeles')
+        t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
+        t.ok(response.verified, 'response indicates account is verified')
+        t.notOk(response.verificationMethod, 'verificationMethod doesn\'t exist')
+        t.notOk(response.verificationReason, 'verificationReason doesn\'t exist')
+      }).then(function () {
+        mockMailer.sendNewDeviceLoginNotification.reset()
+        mockDB.createSessionToken.reset()
+        mockMetricsContext.stash.reset()
+      })
+    })
+
+    t.test('sign-in unverified account', function (t) {
+      t.plan(2)
+      var emailCode = crypto.randomBytes(16)
+      mockDB.emailRecord = function () {
+        return P.resolve({
+          authSalt: crypto.randomBytes(32),
+          data: crypto.randomBytes(32),
+          email: TEST_EMAIL,
+          emailVerified: false,
+          emailCode: emailCode,
+          kA: crypto.randomBytes(32),
+          lastAuthAt: function () {
+            return Date.now()
+          },
+          uid: uid,
+          wrapWrapKb: crypto.randomBytes(32)
+        })
+      }
+
+      t.test('`sendEmailIfUnverified=false`, don\'t send any code', function (t) {
+        mockRequest.query.sendEmailIfUnverified = false
+        return runTest(route, mockRequest, function (response) {
+          t.equal(mockMailer.sendVerifyCode.callCount, 0, 'mailer.sendVerifyCode was not called')
+          t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
+          t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+          t.equal(response.verified, false, 'response indicates account is unverified')
+          t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
+          t.equal(response.verificationReason, 'signup', 'verificationReason is signup')
+          t.equal(response.emailSent, false, 'email sent')
+        }).then(function () {
+          mockRequest.query.sendEmailIfUnverified = undefined
+        })
+      })
+
+      t.test('`sendEmailIfUnverified=true`, send\'s email code', function (t) {
+        mockRequest.query.sendEmailIfUnverified = true
+        return runTest(route, mockRequest, function (response) {
+          t.equal(mockMailer.sendVerifyCode.callCount, 1, 'mailer.sendVerifyCode was called')
+
+          // Verify that the email code was sent
+          var verifyCallArgs = mockMailer.sendVerifyCode.getCall(0).args
+          t.equal(verifyCallArgs[1], emailCode, 'mailer.sendVerifyCode was called with emailCode')
+
+          t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
+          t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+          t.equal(response.verified, false, 'response indicates account is unverified')
+          t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
+          t.equal(response.verificationReason, 'signup', 'verificationReason is signup')
+          t.equal(response.emailSent, true, 'email sent')
+        }).then(function () {
+          mockRequest.query.sendEmailIfUnverified = undefined
+          mockMailer.sendVerifyCode.reset()
+          mockDB.createSessionToken.reset()
+          mockMetricsContext.stash.reset()
+        })
+      })
     })
   })
 
   t.test('sign-in confirmation enabled', function (t) {
-    t.plan(11)
+    t.plan(13)
     config.signinConfirmation = {
       enabled: true,
       supportedClients: [ 'fx_desktop_v3' ],
       forceEmailRegex: [ '.+@mozilla\.com$', 'fennec@fire.fox' ]
+    }
+    mockDB.emailRecord = function () {
+      return P.resolve({
+        authSalt: crypto.randomBytes(32),
+        data: crypto.randomBytes(32),
+        email: TEST_EMAIL,
+        emailVerified: true,
+        kA: crypto.randomBytes(32),
+        lastAuthAt: function () {
+          return Date.now()
+        },
+        uid: uid,
+        wrapWrapKb: crypto.randomBytes(32)
+      })
     }
 
     t.test('always on', function (t) {
@@ -839,6 +914,7 @@ test('/account/login', function (t) {
         var tokenData = mockDB.createSessionToken.getCall(0).args[0]
         t.ok(tokenData.mustVerify, 'sessionToken must be verified before use')
         t.ok(tokenData.tokenVerificationId, 'sessionToken was created unverified')
+        t.equal(mockMailer.sendVerifyCode.callCount, 0, 'mailer.sendVerifyCode was not called')
         t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
         t.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
         t.notOk(response.verified, 'response indicates account is not verified')
@@ -856,6 +932,7 @@ test('/account/login', function (t) {
         t.deepEqual(mockMetricsContext.stash.args[2][1], 'account.keyfetch', 'third call was for account.keyfetch')
       }).then(function () {
         mockMailer.sendVerifyLoginEmail.reset()
+        mockDB.createSessionToken.reset()
         mockMetricsContext.stash.reset()
       })
     })
@@ -900,8 +977,9 @@ test('/account/login', function (t) {
       return runTest(route, mockRequest, function (response) {
         t.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called')
         var tokenData = mockDB.createSessionToken.getCall(0).args[0]
-        t.notOk(tokenData.mustVerify, 'sessionToken was created verified')
+        t.notOk(tokenData.mustVerify, 'mustVerify was not set')
         t.notOk(tokenData.tokenVerificationId, 'sessionToken was created verified')
+        t.equal(mockMailer.sendVerifyCode.callCount, 0, 'mailer.sendVerifyCode was not called')
         t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 1, 'mailer.sendNewDeviceLoginNotification was called')
         t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
         t.ok(response.verified, 'response indicates account is verified')
@@ -1121,6 +1199,7 @@ test('/account/login', function (t) {
         var tokenData = mockDB.createSessionToken.getCall(0).args[0]
         t.ok(tokenData.mustVerify, 'sessionToken must be verified before use')
         t.ok(tokenData.tokenVerificationId, 'sessionToken was created unverified')
+        t.equal(mockMailer.sendVerifyCode.callCount, 0, 'mailer.sendVerifyCode was not called')
         t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
         t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
         t.notOk(response.verified, 'response indicates account is not verified')
@@ -1129,13 +1208,163 @@ test('/account/login', function (t) {
       })
     })
 
+    t.test('sign-in with verified account', function (t) {
+      t.plan(4)
+      mockDB.emailRecord = function () {
+        return P.resolve({
+          authSalt: crypto.randomBytes(32),
+          data: crypto.randomBytes(32),
+          email: 'test@mozilla.com',
+          emailVerified: true,
+          kA: crypto.randomBytes(32),
+          lastAuthAt: function () {
+            return Date.now()
+          },
+          uid: uid,
+          wrapWrapKb: crypto.randomBytes(32)
+        })
+      }
+
+      // When signing in with a verified account, only send `VerifyLoginEmail` emails
+      var items = [undefined, true, false]
+      items.forEach(function (item) {
+        mockRequest.query.sendEmailIfUnverified = item
+        t.test('with `sendEmailIfUnverified` param, ' + item, function (t) {
+          return runTest(route, mockRequest, function (response) {
+            t.equal(mockMailer.sendVerifyCode.callCount, 0, 'mailer.sendVerifyCode was not called')
+            t.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
+            t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+            t.notOk(response.verified, 'response indicates account is not verified')
+            t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
+            t.equal(response.verificationReason, 'login', 'verificationReason is login')
+            t.equal(response.emailSent, false, 'email not sent')
+          }).then(function () {
+            mockMailer.sendVerifyLoginEmail.reset()
+          })
+        })
+      })
+      t.test('not from content server', function (t) {
+        mockRequest.query.sendEmailIfUnverified = undefined
+        mockRequest.payload.metricsContext = undefined
+        return runTest(route, mockRequest, function (response) {
+          t.equal(mockMailer.sendVerifyCode.callCount, 0, 'mailer.sendVerifyCode was not called')
+          t.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
+          t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+          t.notOk(response.verified, 'response indicates account is not verified')
+          t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
+          t.equal(response.verificationReason, 'login', 'verificationReason is login')
+          t.equal(response.emailSent, false, 'email not sent')
+        }).then(function () {
+          mockMailer.sendVerifyLoginEmail.reset()
+          mockRequest.payload.metricsContext = {
+            flowBeginTime: Date.now(),
+            flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+            entrypoint: 'preferences',
+            utmContent: 'some-content-string'
+          }
+        })
+      })
+    })
+
+    t.test('sign-in with unverified account', function (t) {
+      t.plan(4)
+      mockDB.emailRecord = function () {
+        return P.resolve({
+          authSalt: crypto.randomBytes(32),
+          data: crypto.randomBytes(32),
+          email: 'test@mozilla.com',
+          emailVerified: false,
+          kA: crypto.randomBytes(32),
+          lastAuthAt: function () {
+            return Date.now()
+          },
+          uid: uid,
+          wrapWrapKb: crypto.randomBytes(32)
+        })
+      }
+
+      t.test('without `sendEmailIfUnverified` param', function (t) {
+        mockRequest.query.sendEmailIfUnverified = undefined
+        return runTest(route, mockRequest, function (response) {
+          t.equal(mockMailer.sendVerifyCode.callCount, 0, 'mailer.sendVerifyCode was not called')
+          t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
+          t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+          t.equal(response.verified, false, 'response indicates account is unverified')
+          t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
+          t.equal(response.verificationReason, 'signup', 'verificationReason is signup')
+          t.equal(response.emailSent, false, 'email not sent')
+        })
+      })
+
+      t.test('with `sendEmailIfUnverified` param, true', function (t) {
+        mockRequest.query.sendEmailIfUnverified = true
+        return runTest(route, mockRequest, function (response) {
+          t.equal(mockMailer.sendVerifyCode.callCount, 1, 'mailer.sendVerifyCode was called')
+          t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
+          t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+          t.equal(response.verified, false, 'response indicates account is unverified')
+          t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
+          t.equal(response.verificationReason, 'signup', 'verificationReason is signup')
+          t.equal(response.emailSent, true, 'email sent')
+        }).then(function () {
+          mockRequest.query.sendEmailIfUnverified = undefined
+          mockMailer.sendVerifyCode.reset()
+        })
+      })
+
+      t.test('with `sendEmailIfUnverified` param, false', function (t) {
+        mockRequest.query.sendEmailIfUnverified = false
+        return runTest(route, mockRequest, function (response) {
+          t.equal(mockMailer.sendVerifyCode.callCount, 0, 'mailer.sendVerifyCode was not called')
+          t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
+          t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+          t.equal(response.verified, false, 'response indicates account is unverified')
+          t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
+          t.equal(response.verificationReason, 'signup', 'verificationReason is signup')
+          t.equal(response.emailSent, false, 'email sent')
+        }).then(function () {
+          mockRequest.query.sendEmailIfUnverified = undefined
+        })
+      })
+
+      t.test('not from content server', function (t) {
+        mockRequest.query.sendEmailIfUnverified = undefined
+        mockRequest.payload.metricsContext = undefined
+        return runTest(route, mockRequest, function (response) {
+          t.equal(mockMailer.sendVerifyCode.callCount, 1, 'mailer.sendVerifyCode was called')
+          t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
+          t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+          t.equal(response.verified, false, 'response indicates account is unverified')
+          t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
+          t.equal(response.verificationReason, 'signup', 'verificationReason is signup')
+          t.equal(response.emailSent, true, 'email not sent')
+        }).then(function () {
+          mockMailer.sendVerifyCode.reset()
+        })
+      })
+    })
   })
 
   t.test('creating too many sessions causes an error to be logged', function (t) {
+    mockDB.emailRecord = function () {
+      return P.resolve({
+        authSalt: crypto.randomBytes(32),
+        data: crypto.randomBytes(32),
+        email: 'test@mozilla.com',
+        emailVerified: true,
+        kA: crypto.randomBytes(32),
+        lastAuthAt: function () {
+          return Date.now()
+        },
+        uid: uid,
+        wrapWrapKb: crypto.randomBytes(32)
+      })
+    }
     mockDB.sessions = function () {
       return P.resolve(new Array(200))
     }
     mockLog.error = sinon.spy()
+    mockRequest.app.clientAddress = '63.245.221.32'
     return runTest(route, mockRequest, function () {
       t.equal(mockLog.error.callCount, 0, 'log.error was not called')
     }).then(function() {
@@ -1150,51 +1379,10 @@ test('/account/login', function (t) {
       })
     }).finally(function () {
       mockLog.close()
+      mockMailer.sendVerifyCode.reset()
     })
   })
 
-  t.test('sign-in unverified account', function (t) {
-    t.plan(2)
-    mockDB.emailRecord = function () {
-      return P.resolve({
-        authSalt: crypto.randomBytes(32),
-        data: crypto.randomBytes(32),
-        email: 'test@mozilla.com',
-        emailVerified: false,
-        kA: crypto.randomBytes(32),
-        lastAuthAt: function () {
-          return Date.now()
-        },
-        uid: uid,
-        wrapWrapKb: crypto.randomBytes(32)
-      })
-    }
-
-    t.test('without `sendEmailIfUnverified` param', function (t) {
-      return runTest(route, mockRequest, function (response) {
-        t.equal(mockMailer.sendVerifyCode.callCount, 0, 'mailer.sendVerifyCode was not called')
-        t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
-        t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
-        t.equal(response.verified, false, 'response indicates account is unverified')
-        t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
-        t.equal(response.verificationReason, 'signup', 'verificationReason is signup')
-      })
-    })
-
-    t.test('with `sendEmailIfUnverified` param', function (t) {
-      mockRequest.payload.sendEmailIfUnverified = true
-      return runTest(route, mockRequest, function (response) {
-        t.equal(mockMailer.sendVerifyCode.callCount, 1, 'mailer.sendVerifyCode was called')
-        t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
-        t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
-        t.equal(response.verified, false, 'response indicates account is unverified')
-        t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
-        t.equal(response.verificationReason, 'signup', 'verificationReason is signup')
-      }).then(function () {
-        mockRequest.payload.sendEmailIfUnverified = undefined
-      })
-    })
-  })
 })
 
 test('/recovery_email/verify_code', function (t) {

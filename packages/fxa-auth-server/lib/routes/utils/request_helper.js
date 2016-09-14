@@ -62,7 +62,26 @@ function shouldEnableTokenVerification(account, config, request) {
   return uidNum < (config.signinConfirmation.sample_rate * 100)
 }
 
+/**
+ * Returns whether or not to send the verify account email on a login
+ * attempt. This never sends a verification email to an already verified email.
+ *
+ * @param request
+ * @returns {boolean}
+ */
+function shouldSendVerifyAccountEmail(account, request) {
+
+  var sendEmailIfUnverified = request.query.sendEmailIfUnverified
+
+  // Only the content-server sends metrics context. For all non content-server
+  // requests, send the verification email.
+  var context = !!(request.payload && request.payload.metricsContext)
+
+  return (!context || !!sendEmailIfUnverified) && !account.emailVerified
+}
+
 module.exports = {
   wantsKeys: wantsKeys,
-  shouldEnableTokenVerification: shouldEnableTokenVerification
+  shouldEnableTokenVerification: shouldEnableTokenVerification,
+  shouldSendVerifyAccountEmail: shouldSendVerifyAccountEmail
 }
