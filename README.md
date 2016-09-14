@@ -77,13 +77,13 @@ If you get an `error` status for any of the servers please verify that you insta
 ### Dependencies
 > Required dependencies:
 [Git](http://git-scm.com/book/en/v2/Getting-Started-Installing-Git),
-[node.js **0.10 or 4.2.3+**, with npm 2.4+](http://nodejs.org/),
+[node.js **4.5.0+**, with npm 2.4+](http://nodejs.org/),
 [Python 2.6+](https://www.python.org/),
 [Redis](http://redis.io/),
 [libgmp](https://gmplib.org/),
 [graphicsmagick](http://www.graphicsmagick.org/).
 
-**Note:** Node.js 5 is not currently supported. Please use Node.js 0.10 or 4.2.3+.
+**Note:** Node.js 5 or 6 is not currently supported. Please use Node.js 4.5.0+.
 
 ##### OS X (with [Brew](http://brew.sh/)):
 
@@ -104,7 +104,7 @@ sudo apt-get install build-essential git-core libgmp3-dev graphicsmagick redis-s
 
 #### Installing Node.js
 
-> NOTE: If you are experienced with Node.js: Use [nvm](https://github.com/creationix/nvm) to force node 4.2.3+
+> NOTE: If you are experienced with Node.js: Use [nvm](https://github.com/creationix/nvm) to force node 4.5.0+
 just for `fxa-local-dev` using `nvm use 4`. (Install it first with `nvm install 4`)
 
 ##### OS X
@@ -123,14 +123,6 @@ apt-get install -y nodejs
 ```
 
 > NOTE: Node 4 and greater require C++11, that [does not come by default on Ubuntu 12](https://github.com/nodesource/distributions/blob/master/OLDER_DISTROS.md).
-
-#### Updating NPM
-> Check your npm version using `npm --version`. If it is lower than 2.4 then please upgrade.
-
-All OS:
-```
-sudo npm install -g npm@2.4
-```
 
 #### Installing Java
 
