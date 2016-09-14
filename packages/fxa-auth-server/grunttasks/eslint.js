@@ -6,12 +6,12 @@ module.exports = function (grunt) {
   'use strict'
 
   grunt.config('eslint', {
-      options: {
-        eslintrc: '.eslintrc'
-      },
-      files: [
-        '{,bin/,config/,grunttasks/,lib/**/,scripts/**/,test/**/}*.js'
-      ]
+    options: {
+      eslintrc: '.eslintrc'
+    },
+    files: [
+      '{,bin/,config/,grunttasks/,lib/**/,scripts/**/,test/**/}*.js'
+    ]
   })
   grunt.registerTask('quicklint', 'lint the modified files', 'newer:eslint')
 }

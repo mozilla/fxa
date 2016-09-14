@@ -9,7 +9,7 @@ var uuid = require('uuid')
 var crypto = require('crypto')
 var base64url = require('base64url')
 var proxyquire = require('proxyquire')
-var log = { trace: console.log, info: console.log }
+var log = { trace: console.log, info: console.log } // eslint-disable-line no-console
 
 var config = require('../../config').getProperties()
 var TestServer = require('../test_server')

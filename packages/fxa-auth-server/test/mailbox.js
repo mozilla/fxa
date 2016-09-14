@@ -6,6 +6,7 @@ var P = require('../lib/promise')
 var request = require('request')
 const EventEmitter = require('events').EventEmitter
 
+/* eslint-disable no-console */
 module.exports = function (host, port) {
 
   host = host || '127.0.0.1'

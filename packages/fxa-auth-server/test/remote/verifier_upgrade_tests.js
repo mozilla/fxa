@@ -6,7 +6,7 @@ var test = require('tap').test
 var TestServer = require('../test_server')
 var Client = require('../client')
 var createDBServer = require('fxa-auth-db-mysql')
-var log = { trace: console.log }
+var log = { trace: console.log } // eslint-disable-line no-console
 
 var config = require('../../config').getProperties()
 
