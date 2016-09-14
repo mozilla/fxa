@@ -1502,7 +1502,8 @@ Content-Type: application/json
  "error": "Service Unavailable",
  "message": "The server is experiencing heavy load, please try again shortly",
  "info": "https://github.com/mozilla/fxa-auth-server/blob/master/docs/api.md#response-format",
- "retryAfter": 30
+ "retryAfter": 30,
+ "retryAfterLocalized": "in a few seconds"
 }
 ```
 
@@ -1521,7 +1522,8 @@ Content-Type: application/json
  "error": "Too Many Requests",
  "message": "This client has sent too many requests",
  "info": "https://github.com/mozilla/fxa-auth-server/blob/master/docs/api.md#response-format",
- "retryAfter": 30
+ "retryAfter": 30,
+ "retryAfterLocalized": "in a few seconds"
 }
 ```
 

@@ -4,6 +4,11 @@
 
 var P = require('./promise')
 var Pool = require('./pool')
+var config = require('../config')
+var localizeTimestamp = require('fxa-shared').l10n.localizeTimestamp({
+  supportedLanguages: config.get('i18n').supportedLanguages,
+  defaultLanguage: config.get('i18n').defaultLanguage
+})
 
 module.exports = function (log, error) {
 
@@ -51,7 +56,11 @@ module.exports = function (log, error) {
           log.flowEvent('customs.blocked', request)
 
           if (result.retryAfter) {
-            throw error.tooManyRequests(result.retryAfter)
+            // create a localized retryAfterLocalized value from retryAfter, for example '713' becomes '12 minutes'.
+            var retryAfterLocalized = localizeTimestamp.format(Date.now() + (result.retryAfter * 1000),
+                request.headers['accept-language'])
+
+            throw error.tooManyRequests(result.retryAfter, retryAfterLocalized)
           }
           throw error.requestBlocked()
         }

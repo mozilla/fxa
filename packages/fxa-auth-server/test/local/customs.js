@@ -266,7 +266,7 @@ test(
 test(
   'can rate limit checkAccountStatus /check',
   function (t) {
-    t.plan(18)
+    t.plan(19)
 
     customsWithUrl = new Customs(CUSTOMS_URL_REAL)
 
@@ -335,6 +335,7 @@ test(
         t.ok(error.isBoom, 'The error causes a boom')
         t.equal(error.output.statusCode, 429, 'Status Code is correct')
         t.equal(error.output.payload.retryAfter, 10001, 'retryAfter is correct')
+        t.equal(error.output.payload.retryAfterLocalized, 'in 3 hours', 'retryAfterLocalized is correct')
         t.equal(error.output.headers['retry-after'], 10001, 'retryAfter header is correct')
       })
   }

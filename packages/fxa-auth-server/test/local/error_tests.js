@@ -77,3 +77,22 @@ test(
   }
 )
 
+test(
+  'tooManyRequests',
+  function (t) {
+    var result = AppError.tooManyRequests(900, 'in 15 minutes')
+    t.ok(result instanceof AppError, 'instanceof AppError')
+    t.equal(result.errno, 114)
+    t.equal(result.message, 'Client has sent too many requests')
+    t.equal(result.output.statusCode, 429)
+    t.equal(result.output.payload.error, 'Too Many Requests')
+    t.equal(result.output.payload.retryAfter, 900)
+    t.equal(result.output.payload.retryAfterLocalized, 'in 15 minutes')
+
+    result = AppError.tooManyRequests(900)
+    t.equal(result.output.payload.retryAfter, 900)
+    t.notOk(result.output.payload.retryAfterLocalized)
+
+    t.end()
+  }
+)

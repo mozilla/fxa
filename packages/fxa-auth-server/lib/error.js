@@ -327,10 +327,19 @@ AppError.requestBodyTooLarge = function () {
   })
 }
 
-AppError.tooManyRequests = function (retryAfter) {
+AppError.tooManyRequests = function (retryAfter, retryAfterLocalized) {
   if (!retryAfter) {
     retryAfter = 30
   }
+
+  var extraData = {
+    retryAfter: retryAfter
+  }
+
+  if (retryAfterLocalized) {
+    extraData.retryAfterLocalized = retryAfterLocalized
+  }
+
   return new AppError(
     {
       code: 429,
@@ -338,9 +347,7 @@ AppError.tooManyRequests = function (retryAfter) {
       errno: ERRNO.THROTTLED,
       message: 'Client has sent too many requests'
     },
-    {
-      retryAfter: retryAfter
-    },
+    extraData,
     {
       'retry-after': retryAfter
     }
