@@ -1,16 +1,4 @@
 {
   "exceptions": [
-    "https://nodesecurity.io/advisories/45",
-    "https://nodesecurity.io/advisories/63",
-    "https://nodesecurity.io/advisories/65",
-
-    // for hapi/joi/moment dependency
-    "https://nodesecurity.io/advisories/55",
-
-    // for hapi/call dependency
-    "https://nodesecurity.io/advisories/121",
-
-    // for devDep in maxmind
-    "https://nodesecurity.io/advisories/95"
   ]
 }
