@@ -4,7 +4,7 @@
 
 var Client = require('../client')
 var crypto = require('crypto')
-var test = require('../ptaptest')
+var test = require('tap').test
 var TestServer = require('../test_server')
 
 var config = require('../../config').getProperties()

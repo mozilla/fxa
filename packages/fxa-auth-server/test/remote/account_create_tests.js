@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('../ptaptest')
+var test = require('tap').test
 var TestServer = require('../test_server')
 var crypto = require('crypto')
 var Client = require('../client')
@@ -349,6 +349,7 @@ TestServer.start(config)
       var options = {
         redirectTo: 'https://www.fake.com/.firefox.com'
       }
+
       return api.accountCreate(email, authPW, options)
       .then(
         t.fail,

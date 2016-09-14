@@ -36,6 +36,10 @@ module.exports.DISPLAY_SAFE_UNICODE = DISPLAY_SAFE_UNICODE
 // This is different to Joi's builtin email validator, and
 // requires a custom validation function.
 
+// The custom validators below need to either return the value
+// or create an error object using `createError`.
+// see examples here: https://github.com/hapijs/joi/blob/master/lib/string.js
+
 module.exports.email = function() {
   var email = isA.string().max(255).regex(DISPLAY_SAFE_UNICODE)
   // Imma add a custom test to this Joi object using internal
@@ -43,15 +47,14 @@ module.exports.email = function() {
   email._tests.push({ func: function(value, state, options) {
     if (value !== undefined && value !== null) {
       if (module.exports.isValidEmailAddress(value)) {
-        return null
+        return value
       }
     }
-    return {
-      type: 'validators.email',
-      context: { key: '<root>' },
-      path: state.path
-    }
+
+    return email.createError('string.base', { value }, state, options)
+
   }})
+
   return email
 }
 
@@ -124,14 +127,11 @@ module.exports.redirectTo = function (base) {
       func: function(value, state, options) {
         if (value !== undefined && value !== null) {
           if (module.exports.isValidUrl(value, regex)) {
-            return null
+            return value
           }
         }
-        return {
-          type: 'validators.redirectTo',
-          context: { key: '<root>' },
-          path: state.path
-        }
+
+        return redirectTo.createError('string.base', { value }, state, options)
       }
     }
   )

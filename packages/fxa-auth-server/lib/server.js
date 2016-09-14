@@ -62,7 +62,6 @@ function create(log, error, config, routes, db) {
       routes: {
         cors: {
           additionalExposedHeaders: ['Timestamp', 'Accept-Language'],
-          isOriginExposed: false,
           origin: config.corsOrigin
         },
         security: {
@@ -107,6 +106,10 @@ function create(log, error, config, routes, db) {
   server.connection(connectionOptions)
 
   server.register(require('hapi-auth-hawk'), function (err) {
+    if (err) {
+      throw err
+    }
+
     server.auth.strategy(
       'sessionTokenWithDevice',
       'hawk',
@@ -175,15 +178,25 @@ function create(log, error, config, routes, db) {
         hawk: hawkOptions
       }
     )
+
+    server.register(require('hapi-fxa-oauth'), function (err) {
+      if (err) {
+        throw err
+      }
+
+      server.auth.strategy('oauthToken', 'fxa-oauth', config.oauth)
+
+      // routes should be registered after all auth strategies have initialized:
+      // ref: http://hapijs.com/tutorials/auth
+      server.route(routes)
+    })
   })
 
-  server.register(require('hapi-fxa-oauth'), function (err) {
-    server.auth.strategy('oauthToken', 'fxa-oauth', config.oauth)
+  // register 'inert' to support service static files
+  server.register(require('inert'), function () {
+    // callback required
   })
 
-  server.route(routes)
-
-  server.app.log = log
 
   server.ext(
     'onRequest',

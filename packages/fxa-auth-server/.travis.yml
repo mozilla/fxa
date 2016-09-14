@@ -6,8 +6,7 @@ env:
     - TMPDIR=/tmp
 
 node_js:
- - "0.10"
- - "4"
+ - "4.5"
 
 dist: trusty
 sudo: required
@@ -43,7 +42,6 @@ notifications:
     skip_join: false
 
 before_install:
-  - if [ "$TRAVIS_NODE_VERSION" == "0.10" ]; then npm install -g npm@2; fi
   - npm config set spin false
 
 install:

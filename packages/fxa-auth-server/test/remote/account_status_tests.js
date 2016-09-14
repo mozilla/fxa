@@ -134,7 +134,7 @@ TestServer.start(config)
   )
 
   test(
-    'account status by email with invald email',
+    'account status by email with an invalid email',
     function (t) {
       var email = server.uniqueEmail()
       return Client.create(config.publicUrl, email, 'password')

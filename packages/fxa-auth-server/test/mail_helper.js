@@ -89,4 +89,6 @@ api.route(
   ]
 )
 
-api.start()
+api.start(function () {
+  console.log('mail_helper started...')
+})

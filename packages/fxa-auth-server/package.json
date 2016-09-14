@@ -22,6 +22,9 @@
     "type": "git",
     "url": "git://github.com/mozilla/fxa-auth-server.git"
   },
+  "engines": {
+    "node": ">=4.5.0"
+  },
   "bugs": "https://github.com/mozilla/fxa-auth-server/issues/",
   "homepage": "https://github.com/mozilla/fxa-auth-server/",
   "license": "MPL-2.0",
@@ -41,11 +44,12 @@
     "fxa-geodb": "0.0.7",
     "fxa-jwtool": "0.7.1",
     "fxa-shared": "1.0.2",
-    "hapi": "8.8.1",
+    "hapi": "15.0.3",
     "hapi-auth-hawk": "3.0.1",
     "hapi-fxa-oauth": "2.2.0",
     "hkdf": "0.0.2",
-    "joi": "6.9.1",
+    "inert": "4.0.2",
+    "joi": "9.0.4",
     "memcached": "2.2.2",
     "mozlog": "2.0.5",
     "newrelic": "1.30.1",
