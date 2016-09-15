@@ -2,6 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// NOTE - With #4147, config will be sent as a meta tag
+// in the HTML and this route will no longer be needed
+// and will return a 410 (Gone).
+//
+// We are keeping the full route in place for one train
+// so that we can gracefully handle cutover. The scenario
+// we want to avoid:
+//
+// 1) Old JS that requests /config is downloaded, request to /config has not
+//   yet occurred.
+// 2) content-server swap happens.
+// 3) /config is requested. Oh oh, 410.
 
 var config = require('../configuration');
 var clientId = config.get('oauth_client_id');

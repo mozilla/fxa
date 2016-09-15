@@ -32,10 +32,10 @@ define(function (require, exports, module) {
   describe('lib/assertion', function () {
     before(function () {
       var configLoader = new ConfigLoader();
-      return configLoader.fetch()
-        .then(function (loadedConfig) {
-          config = loadedConfig;
-        });
+      config = {
+        authServerUrl: 'http://127.0.0.1:9000'
+      };
+      configLoader.useConfig(config);
     });
 
     beforeEach(function () {
@@ -54,9 +54,9 @@ define(function (require, exports, module) {
       return client.signUp(email, password, relier, {
         preVerified: true
       })
-        .then(function (result) {
-          sessionToken = result.sessionToken;
-        });
+      .then(function (result) {
+        sessionToken = result.sessionToken;
+      });
     });
 
     describe('validate', function () {

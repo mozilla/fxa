@@ -5,32 +5,32 @@
 define([
   'intern!object',
   'intern/chai!assert',
-  'intern/dojo/node!bluebird',
-  'intern/dojo/node!path',
   'intern/dojo/node!sinon',
-  'intern/dojo/node!../../../server/lib/routes/get-index',
+  'intern/dojo/node!../../../server/lib/routes/get-config',
   'intern/dojo/node!../../../server/lib/configuration',
-], function (registerSuite, assert, Promise, path, sinon, route, config) {
-  var instance, request, response;
+], function (registerSuite, assert, sinon, route, config) {
+  var instance;
+  var request;
+  var response;
 
   registerSuite({
-    name: 'routes/get-index',
+    name: 'routes/get-config',
 
     'route interface is correct': function () {
       assert.isFunction(route);
-      assert.lengthOf(route, 1);
+      assert.lengthOf(route, 0);
     },
 
     'initialise route': {
       setup: function () {
-        instance = route(config);
+        instance = route();
       },
 
       'instance interface is correct': function () {
         assert.isObject(instance);
         assert.lengthOf(Object.keys(instance), 3);
         assert.equal(instance.method, 'get');
-        assert.equal(instance.path, '/');
+        assert.equal(instance.path, '/config');
         assert.isFunction(instance.process);
         assert.lengthOf(instance.process, 2);
       },
@@ -38,34 +38,39 @@ define([
       'route.process': {
         setup: function () {
           request = {
-            headers: {}
+            cookies: {
+              '__cookie_check': true
+            },
+            lang: 'db_LB'
           };
-          response = { render: sinon.spy() };
+          response = {
+            header: sinon.spy(),
+            json: sinon.spy(),
+            set: sinon.spy()
+          };
           instance.process(request, response);
         },
 
-        'response.render was called correctly': function () {
-          assert.equal(response.render.callCount, 1);
+        'response.header was called correctly': function () {
+          assert.equal(response.header.callCount, 1);
+          assert.isTrue(response.header.calledWith('Cache-Control', 'no-cache, max-age=0'));
+        },
 
-          var args = response.render.args[0];
-          assert.lengthOf(args, 2);
+        'response.set was called correctly': function () {
+          assert.equal(response.set.callCount, 1);
+          assert.isTrue(response.set.calledWith('Vary', 'accept-language'));
+        },
 
-          assert.equal(args[0], 'index');
-
-          var renderParams = args[1];
-          assert.isObject(renderParams);
-          assert.lengthOf(Object.keys(renderParams), 4);
-          assert.ok(/[0-9a-f]{64}/.exec(renderParams.flowId));
-          assert.isAbove(renderParams.flowBeginTime, 0);
-          assert.equal(renderParams.staticResourceUrl, config.get('static_resource_url'));
-
-          assert.isString(renderParams.config);
-          var sentConfig = JSON.parse(decodeURIComponent(renderParams.config));
+        'response.json was called correctly': function () {
+          assert.equal(response.json.callCount, 1);
+          var sentConfig = response.json.args[0][0];
 
           assert.deepEqual(sentConfig.allowedParentOrigins,
                            config.get('allowed_parent_origins'));
           assert.equal(sentConfig.authServerUrl, config.get('fxaccount_url'));
+          assert.isTrue(sentConfig.cookiesEnabled);
           assert.equal(sentConfig.env, config.get('env'));
+          assert.equal(sentConfig.language, 'db_LB');
           assert.equal(sentConfig.marketingEmailPreferencesUrl,
                        config.get('marketing_email.preferences_url'));
           assert.equal(sentConfig.marketingEmailServerUrl,

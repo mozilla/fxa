@@ -23,6 +23,7 @@ module.exports = function (grunt) {
   var templateDest;
 
   var PROPAGATED_ESCAPED_TEMPLATE_FIELDS = [
+    'config',
     'flowId',
     'flowBeginTime',
     'message'

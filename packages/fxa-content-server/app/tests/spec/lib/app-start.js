@@ -5,49 +5,49 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AppStart = require('lib/app-start');
-  var BaseBroker = require('models/auth_brokers/base');
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var ErrorUtils = require('lib/error-utils');
-  var FxDesktopV1Broker = require('models/auth_brokers/fx-desktop-v1');
-  var FxDesktopV2Broker = require('models/auth_brokers/fx-desktop-v2');
-  var FxFennecV1Broker = require('models/auth_brokers/fx-fennec-v1');
-  var FxFirstrunV1Broker = require('models/auth_brokers/fx-firstrun-v1');
-  var FxFirstrunV2Broker = require('models/auth_brokers/fx-firstrun-v2');
-  var FxiOSV1Broker = require('models/auth_brokers/fx-ios-v1');
-  var HistoryMock = require('../../mocks/history');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var NullChannel = require('lib/channels/null');
-  var OAuthRelier = require('models/reliers/oauth');
-  var p = require('lib/promise');
-  var Raven = require('raven');
-  var RedirectBroker = require('models/auth_brokers/redirect');
-  var RefreshObserver = require('models/refresh-observer');
-  var Relier = require('models/reliers/relier');
-  var SameBrowserVerificationModel = require('models/verification/same-browser');
-  var Session = require('lib/session');
-  var sinon = require('sinon');
-  var Storage = require('lib/storage');
-  var StorageMetrics = require('lib/storage-metrics');
-  var SyncRelier = require('models/reliers/sync');
-  var TestHelpers = require('../../lib/helpers');
-  var Url = require('lib/url');
-  var User = require('models/user');
-  var WebChannelBroker = require('models/auth_brokers/web-channel');
-  var WindowMock = require('../../mocks/window');
-
-  var assert = chai.assert;
+  const $ = require('jquery');
+  const AppStart = require('lib/app-start');
+  const { assert } = require('chai');
+  const BaseBroker = require('models/auth_brokers/base');
+  const ConfigLoaderErrors = require('lib/config-loader').Errors;
+  const Constants = require('lib/constants');
+  const ErrorUtils = require('lib/error-utils');
+  const FxDesktopV1Broker = require('models/auth_brokers/fx-desktop-v1');
+  const FxDesktopV2Broker = require('models/auth_brokers/fx-desktop-v2');
+  const FxFennecV1Broker = require('models/auth_brokers/fx-fennec-v1');
+  const FxFirstrunV1Broker = require('models/auth_brokers/fx-firstrun-v1');
+  const FxFirstrunV2Broker = require('models/auth_brokers/fx-firstrun-v2');
+  const FxiOSV1Broker = require('models/auth_brokers/fx-ios-v1');
+  const HistoryMock = require('../../mocks/history');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const NullChannel = require('lib/channels/null');
+  const OAuthRelier = require('models/reliers/oauth');
+  const p = require('lib/promise');
+  const Raven = require('raven');
+  const RedirectBroker = require('models/auth_brokers/redirect');
+  const RefreshObserver = require('models/refresh-observer');
+  const Relier = require('models/reliers/relier');
+  const SameBrowserVerificationModel = require('models/verification/same-browser');
+  const Session = require('lib/session');
+  const sinon = require('sinon');
+  const Storage = require('lib/storage');
+  const StorageMetrics = require('lib/storage-metrics');
+  const SyncRelier = require('models/reliers/sync');
+  const TestHelpers = require('../../lib/helpers');
+  const Url = require('lib/url');
+  const User = require('models/user');
+  const WebChannelBroker = require('models/auth_brokers/web-channel');
+  const WindowMock = require('../../mocks/window');
 
   describe('lib/app-start', function () {
-    var appStart;
-    var backboneHistoryMock;
-    var brokerMock;
-    var notifier;
-    var routerMock;
-    var userMock;
-    var windowMock;
+    let appStart;
+    let backboneHistoryMock;
+    let brokerMock;
+    let notifier;
+    let routerMock;
+    let userMock;
+    let windowMock;
 
     beforeEach(function () {
       brokerMock = new BaseBroker();
@@ -111,6 +111,8 @@ define(function (require, exports, module) {
           user: userMock,
           window: windowMock
         });
+
+        appStart.useConfig({});
       });
 
       it('starts the app', function () {
@@ -125,6 +127,35 @@ define(function (require, exports, module) {
         return appStart.startApp()
           .then(function () {
             assert.isFalse(routerMock.navigate.called);
+          });
+      });
+
+      it('logs an error `fatalError` if config is missing', () => {
+        appStart.useConfig(null);
+
+        sinon.stub(appStart, 'fatalError', function () {});
+
+        return appStart.startApp()
+          .then(() => {
+            assert.isTrue(appStart.fatalError.calledOnce);
+            const err = appStart.fatalError.args[0][0];
+            assert.isTrue(ConfigLoaderErrors.is(err, 'MISSING_CONFIG'));
+          });
+      });
+
+      it('logs an error `fatalError` if config is invalid', () => {
+        appStart.useConfig(null);
+
+        sinon.stub(appStart, 'fatalError', function () {});
+
+        $('head').append('<meta name="fxa-content-server/config" content="asdf" />');
+        return appStart.startApp()
+          .then(() => {
+            assert.isTrue(appStart.fatalError.calledOnce);
+            const err = appStart.fatalError.args[0][0];
+            assert.isTrue(ConfigLoaderErrors.is(err, 'INVALID_CONFIG'));
+
+            $('meta[name="fxa-content-server/config"]').remove();
           });
       });
 

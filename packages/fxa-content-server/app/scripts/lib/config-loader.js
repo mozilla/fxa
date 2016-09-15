@@ -7,15 +7,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Errors = require('lib/errors');
-  var p = require('lib/promise');
-  var xhr = require('lib/xhr');
+  const $ = require('jquery');
+  const _ = require('underscore');
+  const Errors = require('lib/errors');
+  const p = require('lib/promise');
 
-  function ConfigLoader(options) {
-    options = options || {};
-
-    this._xhr = options.xhr || xhr;
+  function ConfigLoader() {
   }
 
   ConfigLoader.prototype = {
@@ -25,52 +22,57 @@ define(function (require, exports, module) {
      * @param {Object} config
      * @returns {undefined}
      */
-    useConfig: function (config) {
-      this._configPromise = p(config);
+    useConfig (config) {
+      this._config = config;
     },
 
-    _configPromise: null,
-    fetch: function (force) {
-      var self = this;
-      if (force !== true && self._configPromise) {
-        // self will resolve to the eventual config value,
-        // but prevent multiple concurrent requests to /config
-        return self._configPromise;
+    fetch () {
+      if (this._config) {
+        return p(this._config);
       }
 
-      // The content server sets no cookies of its own, and cannot check for
-      // the existence of a session cookie. So, we send them a cookie
-      // from the client to see if the backend receives it.
-      // If cookies are disabled, config.cookiesEnabled will be `false`.
-      //
-      // A cookie is sent to the backend instead of written then immediately
-      // read in JS because the Android 3.2 and 4.0 default browsers happily
-      // read JS written cookies, even if cookies are disabled.
-      // See https://github.com/mozilla/persona/commit/013b48c9e0bcd9e04243ea578e117537cf8aeea8
-
-      try {
-        document.cookie = '__cookie_check=1; path=/config;';
-      } catch (e) {
-        // some browsers explode when trying to set cookies if they are
-        // disabled. Ignore the error, the server will report back that it
-        // did not receive the cookie.
-      }
-
-      self._configPromise = self._xhr.getJSON('/config')
-        .fail(function (jqXHR) {
-          throw ConfigLoader.Errors.normalizeXHRError(jqXHR);
+      return this._readConfigFromHTML()
+        .then(this._parseHTMLConfig)
+        .then((config) => {
+          config.lang = $('html').attr('lang');
+          return config;
         });
-
-      return self._configPromise;
     },
+
+    _readConfigFromHTML () {
+      const configFromHTML =
+        $('meta[name="fxa-content-server/config"]').attr('content');
+
+      if (! configFromHTML) {
+        return p.reject(ConfigLoader.Errors.toError('MISSING_CONFIG'));
+      }
+
+      return p(configFromHTML);
+    },
+
+    _parseHTMLConfig (configFromHTML) {
+      let config;
+      try {
+        const serializedJSONConfig = decodeURIComponent(configFromHTML);
+        config = JSON.parse(serializedJSONConfig);
+      } catch (e) {
+        return p.reject(ConfigLoader.Errors.toError('INVALID_CONFIG'));
+      }
+
+      return p(config);
+    }
   };
 
-  var t = function (msg) {
-    return msg;
-  };
+  const t = msg => msg;
 
   ConfigLoader.Errors = _.extend({}, Errors, {
+    /*eslint-disable sorting/sort-object-props*/
     ERRORS: {
+      /*
+       Removed in #4147 because config values are no longer
+       loaded using an XHR request, rather they are loaded
+       from the DOM.
+
       SERVICE_UNAVAILABLE: {
         errno: 998,
         message: t('System unavailable, try again soon')
@@ -78,8 +80,18 @@ define(function (require, exports, module) {
       UNEXPECTED_ERROR: {
         errno: 999,
         message: t('Unexpected error')
+      },
+      */
+      MISSING_CONFIG: {
+        errno: 1000,
+        message: t('Missing configuration')
+      },
+      INVALID_CONFIG: {
+        errno: 1001,
+        message: t('Invalid configuration')
       }
     },
+    /*eslint-enable sorting/sort-object-props*/
     NAMESPACE: 'config'
   });
 

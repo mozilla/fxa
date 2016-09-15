@@ -5,124 +5,120 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var ConfigLoader = require('lib/config-loader');
-  var p = require('lib/promise');
-  var sinon = require('sinon');
-  var Xhr = require('lib/xhr');
+  const {assert} = require('chai');
+  const ConfigLoader = require('lib/config-loader');
+  const ConfigLoaderErrors = ConfigLoader.Errors;
+  const sinon = require('sinon');
 
-  var assert = chai.assert;
+  const INVALID_JSON_HTML_CONFIG = encodeURIComponent('{a');
+  const INVALID_URI_COMPONENT_HTML_CONFIG =
+    'Coast%20Guard%20Academy%20to%20hold%20annual%20Women%92s%20%91Leadhership%92%20event';
+  const VALID_HTML_CONFIG =
+    encodeURIComponent(JSON.stringify({ env: 'dev' }));
 
-  describe('lib/config-loader', function () {
-    describe('fetch', function () {
-      var configLoader;
-      var successfulConfigResponse = {
-        cookiesEnabled: true,
-        language: 'en-GB'
-      };
 
-      var sandbox;
-      var xhr;
+  describe('lib/config-loader', () => {
+    let configLoader;
 
-      beforeEach(function () {
-        sandbox = sinon.sandbox.create();
+    before(() => {
+      configLoader = new ConfigLoader();
+    });
 
-        xhr = Object.create(Xhr);
-        configLoader = new ConfigLoader({
-          xhr: xhr
+    describe('_readConfigFromHTML', () => {
+      describe('config missing', () => {
+        it('returns a `MISSING_CONFIG` error', () => {
+          return configLoader._readConfigFromHTML()
+            .then(assert.fail, (err) => {
+              assert.isTrue(ConfigLoaderErrors.is(err, 'MISSING_CONFIG'));
+            });
         });
       });
 
-      afterEach(function () {
-        sandbox.restore();
-      });
-
-      it('fetches config from `/config`', function () {
-        sandbox.stub(xhr, 'getJSON', function () {
-          return p(successfulConfigResponse);
+      describe('config available', () => {
+        beforeEach(() => {
+          $('head').append(`<meta name="fxa-content-server/config" content="${VALID_HTML_CONFIG}" />`);
         });
 
-        return configLoader.fetch()
-          .then(function (config) {
-            assert.strictEqual(config, successfulConfigResponse);
-            assert.isTrue(xhr.getJSON.calledOnce);
-          });
-      });
-
-      it('caches responses', function () {
-        sandbox.stub(xhr, 'getJSON', function () {
-          return p(successfulConfigResponse);
+        afterEach(() => {
+          $('meta[name="fxa-content-server/config"]').remove();
         });
 
-        return configLoader.fetch()
-          .then(function () {
-            return configLoader.fetch();
-          })
-          .then(function (config) {
-            assert.strictEqual(config, successfulConfigResponse);
-            assert.isTrue(xhr.getJSON.calledOnce);
-          });
-      });
-
-      it('only makes one XHR request for multiple concurrent requests', function () {
-        sandbox.stub(xhr, 'getJSON', function () {
-          return p(successfulConfigResponse);
+        it('returns the expected config', () => {
+          return configLoader._readConfigFromHTML()
+            .then((serializedHTMLConfig) => {
+              assert.equal(serializedHTMLConfig, VALID_HTML_CONFIG);
+            });
         });
-
-        return p.all([
-          configLoader.fetch(),
-          configLoader.fetch()
-        ])
-        .spread(function (config1, config2) {
-          assert.strictEqual(config1, successfulConfigResponse);
-          assert.strictEqual(config2, successfulConfigResponse);
-          assert.isTrue(xhr.getJSON.calledOnce);
-        });
-      });
-
-      it('fails with `SERVICE_UNAVAILABLE` if the server cannot be reached', function () {
-        sandbox.stub(xhr, 'getJSON', function () {
-          return p.reject();
-        });
-
-        return configLoader.fetch()
-          .then(assert.fail, function (err) {
-            assert.isTrue(ConfigLoader.Errors.is(err, 'SERVICE_UNAVAILABLE'));
-            assert.equal(err.namespace, 'config');
-            assert.equal(err.status, 0);
-          });
-      });
-
-      it('fails with `SERVICE_UNAVAILABLE` if the HTTP status code is 0', function () {
-        sandbox.stub(xhr, 'getJSON', function () {
-          return p.reject({
-            status: 0
-          });
-        });
-
-        return configLoader.fetch()
-          .then(assert.fail, function (err) {
-            assert.isTrue(ConfigLoader.Errors.is(err, 'SERVICE_UNAVAILABLE'));
-            assert.equal(err.namespace, 'config');
-            assert.equal(err.status, 0);
-          });
-      });
-
-      it('fails with `UNEXPECTED_ERROR` if the HTTP status code is > 0', function () {
-        sandbox.stub(xhr, 'getJSON', function () {
-          return p.reject({
-            status: 400
-          });
-        });
-
-        return configLoader.fetch()
-          .then(assert.fail, function (err) {
-            assert.isTrue(ConfigLoader.Errors.is(err, 'UNEXPECTED_ERROR'));
-            assert.equal(err.namespace, 'config');
-            assert.equal(err.status, 400);
-          });
       });
     });
+
+    describe('_parseHTMLConfig', () => {
+      describe('with an invalid URI Component', () => {
+        it('throws an `INVALID_CONFIG` error', () => {
+          return configLoader._parseHTMLConfig(INVALID_URI_COMPONENT_HTML_CONFIG)
+            .then(assert.fail, (err) => {
+              assert.isTrue(ConfigLoaderErrors.is(err, 'INVALID_CONFIG'));
+            });
+        });
+      });
+
+      describe('with invalid JSON', () => {
+        it('throws an `INVALID_CONFIG` error', () => {
+          return configLoader._parseHTMLConfig(INVALID_JSON_HTML_CONFIG)
+            .then(assert.fail, (err) => {
+              assert.isTrue(ConfigLoaderErrors.is(err, 'INVALID_CONFIG'));
+            });
+        });
+      });
+
+      describe('with valid config', () => {
+        it('parses the config', () => {
+          return configLoader._parseHTMLConfig(VALID_HTML_CONFIG)
+            .then((config) => {
+              assert.equal(config.env, 'dev');
+            });
+        });
+      });
+    });
+
+    describe('fetch', () => {
+      describe('with valid config', () => {
+        let $html;
+        let origLang;
+        let sandbox;
+
+        beforeEach(() => {
+          $('head').append(`<meta name="fxa-content-server/config" content="${VALID_HTML_CONFIG}" />`);
+
+          $html = $('html');
+          origLang = $html.attr('lang');
+          $html.attr('lang', 'db_LB');
+
+          sandbox = sinon.sandbox;
+          sandbox.spy(configLoader, '_readConfigFromHTML');
+          sandbox.spy(configLoader, '_parseHTMLConfig');
+        });
+
+        afterEach(() => {
+          $('meta[name="fxa-content-server/config"]').remove();
+          $html.attr('lang', origLang);
+
+          sandbox.restore();
+        });
+
+        it('returns the config', () => {
+          return configLoader.fetch()
+            .then((config) => {
+              assert.equal(config.env, 'dev');
+              assert.equal(config.lang, 'db_LB');
+
+              assert.isTrue(configLoader._readConfigFromHTML.called);
+              assert.isTrue(configLoader._parseHTMLConfig.called);
+            });
+        });
+      });
+    });
+
   });
 });
 
