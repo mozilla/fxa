@@ -111,6 +111,8 @@ The event stream is a log of events and the time they occurred while the user is
 #### choose_what_to_sync
 * choose-what-to-sync.engine-unchecked.`<engine_name>` - a Sync engine was unselected.
 
+<img src="images/choose_what_to_sync.png" height="150">
+
 #### complete_reset_password
 * complete_reset_password.verification.success - email successfully verified.
 * complete_reset_password.resend - A verification email was resent after an expired link was opened.
@@ -127,15 +129,23 @@ The event stream is a log of events and the time they occurred while the user is
 * error.verify_email.auth.1026 - User clicked on a damaged verification link.
 * error.verify_email.auth.1040 - User tried to verify an account that does not exist.
 
+<img src="images/verify_email.png" height="150">
+
 #### complete_signin
 * complete_signin.verification.success - email successfully verified.
 * error.complete_signin.auth.1025 - User clicked on an expired verification link.
 * error.complete_signin.auth.1026 - User clicked on a damaged verification link.
+* error.complete_signin.auth.1041 - User tried to verify a sign-in that has already been verified.
+
+<img src="images/complete_signin.png" height="150">
+<img src="images/complete_signin_link_expired.png" height="150">
 
 #### confirm
 * confirm.resend - attempt to resend verification email
 * error.confirm.auth.1039 - Polling failed.
 * error.confirm.auth.1041 - User tried to verify a sign-in that has already been verified.
+
+<img src="images/confirm.png" height="150">
 
 #### confirm_signin
 * confirm_signin.verification.success - email successfully verified.
@@ -144,6 +154,8 @@ The event stream is a log of events and the time they occurred while the user is
 * error.confirm_signin.auth.110 - Invalid authentication token used.
 * error.confirm_signin.auth.1039 - Polling failed.
 * error.confirm_signin.auth.1041 - User tried to verify a sign-in that has already been verified.
+
+<img src="images/confirm_signin.png" height="150">
 
 #### confirm_reset_password
 * confirm_reset_password.verification.success - Password successfully reset.
@@ -231,6 +243,7 @@ The event stream is a log of events and the time they occurred while the user is
 * signin.unlock-email.send - user attempted to send unlock email
 * signin.unlock-email.send.success - unlock email successfully sent
 
+<img src="images/signin.png" height="150">
 
 #### signin_permissions
 * signin-permissions.accept - user accepts and grants the requested permissions
