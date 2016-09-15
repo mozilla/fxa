@@ -88,16 +88,41 @@ No additional work is needed on deployment to seed the CDN.
 
 ## Work Breakdown
 
-* [ ] Establish baseline metrics for `responseEnd` and `loaded`.
-* [ ] Generate subresource integrity SHAs for each static JS and CSS resource.
-  * [ ] Add the `integrity` attribute to all `script` and `link` tags.
-* [ ] Prepend CDN domain name to all static resource URLs embedded in HTML when run in production mode. FQDNs do not need to be added to resources referenced in CSS because resources are relative to the CSS file's origin.
-  * [ ] Domin name should be pulled from configuration.
-* [ ] Update CSP rules to allow resources from CDN.
-* [ ] Send CORS headers on WOFF/TTF web fonts to allow origin host.
-* [ ] Decide the domain name to use for the CDN.
-  * [ ] Purchase any necessary SSL certs.
-* [ ] Set up a CloudFront CDN account and initial setup.
+* [*] Establish baseline metrics for `responseEnd` and `loaded`.
+* [*] Generate subresource integrity SHAs for each static JS and CSS resource.
+  * [*] Add the `integrity` attribute to all `script` and `link` tags.
+* [*] Prepend CDN domain name to all static resource URLs embedded in HTML when run in production mode. FQDNs do not need to be added to resources referenced in CSS because resources are relative to the CSS file's origin.
+  * [*] Domin name should be pulled from configuration.
+* [*] Update CSP rules to allow resources from CDN.
+* [*] Send CORS headers on WOFF/TTF web fonts to allow origin host.
+* [*] Decide the domain name to use for the CDN.
+  * [*] Purchase any necessary SSL certs.
+* [*] Set up a CloudFront CDN account and initial setup.
+
+## Results
+
+Of the two metrics being tracked (median `DOMContentLoaded` and median `loaded`), only
+`DOMContentLoaded` shows a significant improvement with the CDN.
+
+![DOMContentLoaded performance pre and post CDN](dom-content-loaded-drop-with-cdn.png)
+
+The yellow line clearly shows a ~ 1 second improvement when the CDN was deployed. This is clearly a good result, though not as great a difference as expected.
+
+The `loaded` event did not show a corresponding 1 second improvement, it perhaps shows ~ 0.5 second improvement but the results do not look significant.
+
+![loaded performance pre and post CDN](loaded-with-cdn.png)
+
+This is unexpected and difficult to explain. In theory, `loaded` should be the total of 1) resource downloading, 2) resource parsing, and 3) resource running. The first improved, the second and third should have remained constant. It seems to follow the total should have dropped, but this does not appear to be the case.
+
+## Next steps
+
+1. Figure out why the `loaded` event has not dropped as much as expected.
+2. Determine where the majority of the start time is spent. Try to minimize the
+   areas with the biggest potential gains.
+3. Determine whether JavaScript is even needed for the initial render. If page
+   can be rendered instantly without JavaScript, the user perceived load
+   time will be extremely fast.
+4. Determine if enabling HTTP/2 support on the CDN speeds up resource loading
 
 ## External Resources
 
