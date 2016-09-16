@@ -17,6 +17,7 @@ var passwordChangeTokens = {}
 var passwordForgotTokens = {}
 var reminders = {}
 var securityEvents = {}
+var unblockCodes = {}
 
 var DEVICE_FIELDS = [
   'sessionTokenId',
@@ -869,6 +870,25 @@ module.exports = function (log, error) {
         verified: ev.verified
       }
     }))
+  }
+
+  Memory.prototype.createUnblockCode = function (uid, code) {
+    uid = uid.toString('hex')
+    var row = unblockCodes[uid] || (unblockCodes[uid] = {})
+    row[code] = Date.now()
+
+    return P.resolve({})
+  }
+
+  Memory.prototype.consumeUnblockCode = function (uid, code) {
+    var row = unblockCodes[uid.toString('hex')]
+    if (!row || !row[code]) {
+      return P.reject(error.notFound())
+    }
+    var timestamp = row[code]
+    delete row[code]
+
+    return P.resolve({ createdAt: timestamp })
   }
 
   // UTILITY FUNCTIONS
