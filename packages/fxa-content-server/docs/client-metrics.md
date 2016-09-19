@@ -14,6 +14,20 @@ How long the user was at Firefox Account
 ### entrypoint
 If the user is signing in from the Firefox browser, the entrypoint is where the user came from. Set to `none` if not signing into a Firefox browser service.
 
+The known values of `entrypoint` are:
+
+* menupanel: the "sign in to sync" option at the bottom of the hamburger menu.
+* menubar: the "sign in to sync" itme in the top-level "tools" menu
+* abouthome: the sync button on about:home
+* dev-edition-setup: the dev-edition configuration process, which invites users to sync with their main profile
+* syncbutton: the "sync now" button in the hamburger menu
+* preferences: direct navigation to about:preferences#sync
+* synced-tabs: the synced-tabs item in the hamburger menu
+* tabs-sidebar: the synced-tabs sidebar
+* accounts-page: the iframe at https://www.mozilla.org/firefox/accounts/
+* firstrun: the iframe on the Firefox first-run page
+* fxa:signin-complete: TODO: we need to track down what's sending this value
+
 ### events
 The event stream, see [Event Stream](#event_stream)
 
