@@ -24,15 +24,17 @@ Being able to disconnect the services from user settings
 will improve the quality and security of our service.
 This functionality is a core feature for services that provide OAuth relier login.
 We will know this is true when we see activity in the "Connected apps and devices"
+view, and particularly when we see users disconnecting services
+from this view.
 
 ## Metrics
 
-We would collect usage metrics with StatsD:
-* number of views of the apps and devices view,
+We will collect usage metrics with StatsD:
+* number of views of the apps and devices view.
 * number of revoke actions for any service.
 * number of revoke actions for each service by client id.
 
-Derive a percentage of settings views vs apps view to understand
+We will derive a percentage of settings views vs apps view to understand
 the popularity of this feature.
 
 ****
