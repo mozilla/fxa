@@ -5,31 +5,31 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseView = require('views/base');
-  var Broker = require('models/auth_brokers/base');
-  var Chai = require('chai');
-  var Cocktail = require('cocktail');
-  var OpenConfirmationEmailMixin = require('views/mixins/open-webmail-mixin');
-  var sinon = require('sinon');
-  var Template = require('stache!templates/test_template');
+  const Account = require('models/account');
+  const { assert } = require('chai');
+  const BaseView = require('views/base');
+  const Broker = require('models/auth_brokers/base');
+  const Cocktail = require('cocktail');
+  const OpenWebmailMixin = require('views/mixins/open-webmail-mixin');
+  const sinon = require('sinon');
+  const Template = require('stache!templates/test_template');
 
-  var assert = Chai.assert;
-
-  var ConfirmView = BaseView.extend({
+  const ConfirmView = BaseView.extend({
     template: Template
   });
 
   Cocktail.mixin(
     ConfirmView,
-    OpenConfirmationEmailMixin
+    OpenWebmailMixin
   );
 
   describe('views/mixins/open-webmail-mixin', function () {
-    var broker;
-    var view;
+    let broker;
+    let view;
 
     beforeEach(function () {
       broker = new Broker();
+      broker.setCapability('openWebmailButtonVisible', true);
 
       view = new ConfirmView({
         broker: broker
@@ -84,13 +84,40 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('click on `open-webmail` button', function () {
-      beforeEach(function () {
+    describe('button l10n', () => {
+      const EMAIL = 'testuser@gmail.com';
+      const TRANSLATED_BUTTON_TEXT = 'Ouvrir Gmail';
 
-        view = new ConfirmView({
-          broker: broker
+      beforeEach(() => {
+        view.translator = {
+          get: (untranslatedText) => {
+            if (untranslatedText === 'Open Gmail') {
+              return TRANSLATED_BUTTON_TEXT;
+            }
+
+            return untranslatedText;
+          }
+        };
+
+        sinon.stub(view, 'getAccount', () => {
+          return new Account({ email: EMAIL });
         });
 
+        sinon.stub(view, 'context', () => {
+          return { email: EMAIL };
+        });
+
+        return view.render();
+      });
+
+      it('translates the button', () => {
+        assert.equal(
+          view.$('#open-webmail').text(), TRANSLATED_BUTTON_TEXT);
+      });
+    });
+
+    describe('click on `open-webmail` button', function () {
+      beforeEach(function () {
         sinon.spy(view, 'logViewEvent');
 
         return view.render()

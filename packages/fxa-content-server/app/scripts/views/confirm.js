@@ -55,8 +55,7 @@ define(function (require, exports, module) {
         canGoBack: isSignIn && this.canGoBack(),
         email: email,
         isSignIn: isSignIn,
-        isSignUp: isSignUp,
-        openWebmailButtonVisible: this.isOpenWebmailButtonVisible(email)
+        isSignUp: isSignUp
       };
     },
 

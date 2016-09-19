@@ -10,11 +10,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseView = require('views/base');
-  var t = BaseView.t;
-  var _ = require ('underscore');
+  const _ = require ('underscore');
+  const BaseView = require('views/base');
+  const t = BaseView.t;
 
-  var WEBMAIL_SERVICES = [
+  const WEBMAIL_SERVICES = [
     {
       buttonName: t('Open Gmail'),
       link: 'https://mail.google.com/mail/u/?authuser=',
@@ -67,13 +67,26 @@ define(function (require, exports, module) {
      * @returns {Object}
      */
     getContext: function () {
-      var context = BaseView.prototype.getContext.call(this);
-      var email = context.email;
-      if (email && context.openWebmailButtonVisible) {
-        context.webmailButtonText = this.getWebmailButtonText(email);
-        context.webmailLink = this.getWebmailLink(email);
-        context.webmailType = this.getWebmailType(email);
+      const context = BaseView.prototype.getContext.call(this);
+      const email = context.email;
+      const isOpenWebmailButtonVisible = this.isOpenWebmailButtonVisible(email);
+
+      context.isOpenWebmailButtonVisible = isOpenWebmailButtonVisible;
+
+      if (email && isOpenWebmailButtonVisible) {
+        _.extend(context, {
+          // function.bind is used to avoid infinite recursion.
+          // getWebmailButtonText calls this.translate which calls
+          // this.context, which will call this.getContext since context is
+          // not yet set. Mustache will call the helper function to get the
+          // button text, context will be set, and getContext will not be called
+          // again. We should fix our l10n.
+          webmailButtonText: this.getWebmailButtonText.bind(this, email),
+          webmailLink: this.getWebmailLink(email),
+          webmailType: this.getWebmailType(email)
+        });
       }
+
       return context;
     },
 
@@ -96,7 +109,7 @@ define(function (require, exports, module) {
     },
 
     getWebmailButtonText: function (email) {
-      return this._getService(email).buttonName;
+      return this.translate(this._getService(email).buttonName);
     },
 
     getWebmailType: function (email) {
