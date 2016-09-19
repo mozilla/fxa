@@ -175,6 +175,25 @@ define([
     }, [ selector ], timeout);
   }
 
+
+  /**
+   * Use document.querySelectorAll and poll until to find loaded images.
+   *
+   * Usage:  ".then(FunctionalHelpers.pollUntilGoneByQSA('.disabled'))"
+   *
+   * @param {String} selector
+   *        QSA compatible selector string
+   * @param {Number} [timeout]
+   *        Timeout to wait until element is gone
+   */
+  function pollUntilGoneByQSA(selector, timeout) {
+    timeout = timeout || 10000;
+
+    return pollUntil(function (selector) {
+      return document.querySelectorAll(selector).length === 0 ? true : null;
+    }, [ selector ], timeout);
+  }
+
   /**
    * Use document.querySelectorAll to find visible elements
    * used for error and success notification animations.
@@ -1448,6 +1467,7 @@ define([
     openVerificationLinkInNewTab: openVerificationLinkInNewTab,
     openVerificationLinkInSameTab: openVerificationLinkInSameTab,
     pollUntil: pollUntil,
+    pollUntilGoneByQSA: pollUntilGoneByQSA,
     respondToWebChannelMessage: respondToWebChannelMessage,
     takeScreenshot: takeScreenshot,
     testAreEventsLogged: testAreEventsLogged,

@@ -194,16 +194,19 @@ define(function (require, exports, module) {
             // click events require the view to be in the DOM
             $('#container').html(view.el);
 
-            sinon.stub(user, 'destroyAccountClient', function () {
-              return p();
-            });
+            sinon.spy(view, 'navigate');
 
             $('#device-2 .client-disconnect').click();
           });
       });
 
-      it('calls `destroyAccountClient` with the deviceId', function () {
-        assert.isTrue(user.destroyAccountClient.calledOnce);
+      it('navigates to confirmation dialog', function () {
+        assert.isTrue(view.navigate.calledOnce);
+        var args = view.navigate.args[0];
+        assert.equal(args.length, 2);
+        assert.equal(args[0], 'settings/clients/disconnect');
+        assert.equal(args[1].clientId, 'device-2');
+        assert.equal(args[1].clients, view._attachedClients);
       });
     });
 

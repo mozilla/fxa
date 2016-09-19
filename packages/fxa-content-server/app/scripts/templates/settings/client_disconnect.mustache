@@ -1,0 +1,40 @@
+<div id="client-disconnect">
+  <section class="modal-panel">
+    {{^hasDisconnected}}
+      <h2>{{#t}}Disconnect from Sync?{{/t}}</h2>
+      <div class="error"></div>
+
+      <p class="intro">
+      {{#t}}Your browsing data will remain on %(deviceName)s, but it will no longer sync with your account.{{/t}}
+      </p>
+
+      <form novalidate>
+
+        <div class="select-row-wrapper">
+        <label class="label-helper"></label>
+        <div class="select-row">
+          <select class="disconnect-reasons">
+            <option value="reason">{{#t}}Reason for disconnecting&hellip;{{/t}}</option>
+            <option value="suspicious">{{#t}}Suspicious device{{/t}}</option>
+            <option value="lost">{{#t}}Lost or stolen device{{/t}}</option>
+            <option value="old">{{#t}}Old or replaced device{{/t}}</option>
+            <option value="no">{{#t}}Rather not say{{/t}}</option>
+          </select>
+        </div>
+        </div>
+
+        <div class="button-row">
+          <button type="submit" id="submit-btn" class="settings-button primary disabled">{{#t}}Disconnect{{/t}}</button>
+          <button class="settings-button secondary cancel-disconnect">{{#t}}Cancel{{/t}}</button>
+        </div>
+      </form>
+
+    {{/hasDisconnected}}
+    {{#hasDisconnected}}
+      <h2>{{#t}}Disconnection Successful{{/t}}</h2>
+      <p class='reason-help'>
+      {{reasonHelp}}
+      </p>
+    {{/hasDisconnected}}
+  </section>
+</div>

@@ -460,6 +460,26 @@ body.settings #main-content.card {
   }
 }
 
+section.modal-panel {
+  text-align: center;
+
+  .button-row {
+    margin-bottom: 0;
+
+    html[dir='ltr'] & {
+      text-align: left;
+    }
+
+    html[dir='rtl'] & {
+      text-align: right;
+    }
+  }
+
+  .input-row {
+    text-align: left;
+  }
+}
+
 .client-list {
   padding: 0;
 }
@@ -467,7 +487,7 @@ body.settings #main-content.card {
 .client {
   // default client icon is desktop
   background-image: url('/images/device-icon-pc.png');
-  background-position: 0 4px;
+  background-position: 0 2px;
   background-repeat: no-repeat;
   background-size: 30px 30px;
 
@@ -514,4 +534,22 @@ body.settings #main-content.card {
 
 .client.tablet {
   background-image: url('/images/device-icon-tablet.png');
+}
+
+.client-device {
+  // device clients currently have their 'last active' time hidden
+  // See issue https://github.com/mozilla/fxa/issues/190
+  .client-name {
+    padding-top: 8px;
+  }
+
+  .last-connected {
+    display: none;
+  }
+}
+
+#client-disconnect {
+  .intro {
+    margin-bottom: 30px;
+  }
 }

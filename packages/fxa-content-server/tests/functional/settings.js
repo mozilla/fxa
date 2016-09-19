@@ -103,7 +103,7 @@ define([
           return FunctionalHelpers.openPage(self, SETTINGS_URL + '?setting=avatar', '#avatar-options');
         })
 
-        .findByCssSelector('.avatar-panel button.cancel')
+        .findByCssSelector('.modal-panel button.cancel')
           .click()
         .end()
 
@@ -123,7 +123,7 @@ define([
           return FunctionalHelpers.openPage(self, SETTINGS_URL + '?setting=avatar&uid=' + accountData.uid, '#avatar-options');
         })
 
-        .findByCssSelector('.avatar-panel button.cancel')
+        .findByCssSelector('.modal-panel button.cancel')
           .click()
         .end()
 

@@ -81,16 +81,16 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('focusFloatingPlaceholder', function () {
+    describe('focusLabelHelper', function () {
       it('focuses the floating placeholder by adding the "focused" class', function () {
-        view.focusFloatingPlaceholder('#float_me');
+        view.focusLabelHelper('#float_me');
         assert.isTrue(view.$('#float_me').prev('.label-helper').hasClass('focused'));
       });
     });
 
-    describe('unfocusFloatingPlaceholder', function () {
+    describe('unfocusLabelHelper', function () {
       it('unfocuses the floating placeholder by removing the "focused" class', function () {
-        view.unfocusFloatingPlaceholder('#float_me');
+        view.unfocusLabelHelper('#float_me');
         assert.isFalse(view.$('#float_me').prev('.label-helper').hasClass('focused'));
       });
     });

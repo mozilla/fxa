@@ -18,6 +18,7 @@ define(function (require, exports, module) {
   var CommunicationPreferencesView = require('views/settings/communication_preferences');
   var DeleteAccountView = require('views/settings/delete_account');
   var ClientsView = require('views/settings/clients');
+  var ClientDisconnectView = require('views/settings/client_disconnect');
   var DisplayNameView = require('views/settings/display_name');
   var Duration = require('duration');
   var GravatarPermissionsView = require('views/settings/gravatar_permissions');
@@ -32,6 +33,7 @@ define(function (require, exports, module) {
   var PANEL_VIEWS = [
     AvatarView,
     ClientsView,
+    ClientDisconnectView,
     DisplayNameView,
     CommunicationPreferencesView,
     ChangePasswordView,

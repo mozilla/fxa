@@ -62,6 +62,7 @@ define([
     '/settings/avatar/gravatar_permissions': { statusCode: 200 },
     '/settings/change_password': { statusCode: 200 },
     '/settings/clients': { statusCode: 200 },
+    '/settings/clients/disconnect': { statusCode: 200 },
     '/settings/delete_account': { statusCode: 200 },
     '/settings/display_name': { statusCode: 200 },
     '/signin': { statusCode: 200 },

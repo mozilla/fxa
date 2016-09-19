@@ -61,7 +61,7 @@ define(function (require, exports, module) {
 
       it('back', function () {
         sinon.stub(view, 'navigate', function () { });
-        $('.avatar-panel #back').click();
+        $('.modal-panel #back').click();
         assert.isTrue(view.navigate.calledWith('settings/avatar/change'));
       });
     });

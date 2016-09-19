@@ -111,7 +111,7 @@ define([
         .then(click('#accept'))
 
         .then(testElementExists('img[src*="https://secure.gravatar.com"]'))
-        .then(click('.avatar-panel #submit-btn'))
+        .then(click('.modal-panel #submit-btn'))
 
         .then(FunctionalHelpers.testSuccessWasShown(this))
         .then(testIsBrowserNotifiedOfAvatarChange())
@@ -137,7 +137,7 @@ define([
         .then(click('#accept'))
 
         .then(testElementExists('img[src*="https://secure.gravatar.com"]'))
-        .then(click('.avatar-panel #back'))
+        .then(click('.modal-panel #back'))
 
         // redirected back to main avatar page after save
         .then(testElementExists('#avatar-options'))
@@ -145,7 +145,7 @@ define([
         // give time for error to show up, there should be no error though
         .sleep(500)
 
-        .findByCssSelector('.avatar-panel .error')
+        .findByCssSelector('.modal-panel .error')
           .getVisibleText()
           .then(function (val) {
             assert.ok(! val, 'has no error text');
@@ -171,8 +171,8 @@ define([
         .then(testElementExists('#avatar-options'))
 
         // success is seeing the error text
-        .then(FunctionalHelpers.visibleByQSA('.avatar-panel .error'))
-        .findByCssSelector('.avatar-panel .error')
+        .then(FunctionalHelpers.visibleByQSA('.modal-panel .error'))
+        .findByCssSelector('.modal-panel .error')
           .getVisibleText()
           .then(function (val) {
             assert.ok(val, 'has error text');
@@ -185,7 +185,7 @@ define([
         .then(openPage(this, AVATAR_CHANGE_URL_AUTOMATED, '#camera'))
         .then(click('#camera'))
 
-        .then(click('.avatar-panel #submit-btn'))
+        .then(click('.modal-panel #submit-btn'))
 
         .then(testIsBrowserNotifiedOfAvatarChange())
         .then(testElementExists('#fxa-settings-header'))
@@ -201,7 +201,7 @@ define([
         .then(click('#camera'))
 
         .then(testElementExists('#avatar-camera'))
-        .then(click('.avatar-panel #back'))
+        .then(click('.modal-panel #back'))
 
         // success is returning to the avatar change page
         .then(testElementExists('#avatar-options'));
@@ -221,7 +221,7 @@ define([
         .then(click('.zoom-out'))
         .then(click('.zoom-in'))
         .then(click('.rotate'))
-        .then(click('.avatar-panel #submit-btn'))
+        .then(click('.modal-panel #submit-btn'))
 
         .then(testIsBrowserNotifiedOfAvatarChange())
         .then(testElementExists('#fxa-settings-header'))
@@ -241,7 +241,7 @@ define([
 
         .then(testElementExists('.cropper'))
 
-        .then(click('.avatar-panel #back'))
+        .then(click('.modal-panel #back'))
 
         //success is returning to the avatar change page
         .then(testElementExists('#avatar-options'));

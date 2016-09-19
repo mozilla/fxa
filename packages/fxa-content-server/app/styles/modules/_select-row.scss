@@ -11,6 +11,10 @@
   @include respond-to('small') {
     height: 40px;
   }
+
+  .label-helper {
+    left: 10px;
+  }
 }
 
 .select-row {
@@ -27,7 +31,7 @@
   transition-duration: $short-transition;
   transition-property: border-color;
   width: 100%;
-
+  z-index: 2;
 
   @include respond-to('small') {
     border-radius: $small-border-radius;
@@ -47,7 +51,7 @@
     }
 
     select {
-      padding: 9px 10% 9px $input-left-right-padding * 0.5;
+      padding: 10px 10% 9px $input-left-right-padding * 0.5;
       width: 94%;
     }
   }

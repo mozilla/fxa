@@ -20,8 +20,8 @@ define(function (require, exports, module) {
   var Url = require('lib/url');
 
   var DEVICE_REMOVED_ANIMATION_MS = 150;
-  var DEVICES_SUPPORT_URL = 'https://support.mozilla.org/kb/fxa-managing-devices';
   var UTM_PARAMS = '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
+  var DEVICES_SUPPORT_URL = 'https://support.mozilla.org/kb/fxa-managing-devices' + UTM_PARAMS;
   var FIREFOX_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/new/' + UTM_PARAMS;
   var FIREFOX_ANDROID_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/android/' + UTM_PARAMS;
   var FIREFOX_IOS_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/ios/' +  UTM_PARAMS;
@@ -30,8 +30,8 @@ define(function (require, exports, module) {
 
   var View = FormView.extend({
     template: Template,
-    className: 'devices',
-    viewName: 'settings.devices',
+    className: 'clients',
+    viewName: 'settings.clients',
 
     initialize: function (options) {
       this._able = options.able;
@@ -129,17 +129,18 @@ define(function (require, exports, module) {
     },
 
     _onDisconnectClient: function (event) {
-      var item = this._attachedClients.get($(event.currentTarget).data('id'));
-
-      return this.user.destroyAccountClient(this.user.getSignedInAccount(), item)
-        .then(() => {
-          var clientType = item.get('clientType');
-
-          this.logViewEvent(clientType + '.disconnect');
-          if (clientType === Constants.CLIENT_TYPE_DEVICE && item.get('isCurrentDevice')) {
-            this.navigateToSignIn();
-          }
+      var client = this._attachedClients.get($(event.currentTarget).data('id'));
+      var clientType = client.get('clientType');
+      this.logViewEvent(clientType + '.disconnect');
+      // if a device then ask for confirmation
+      if (clientType === Constants.CLIENT_TYPE_DEVICE) {
+        this.navigate('settings/clients/disconnect', {
+          clientId: client.get('id'),
+          clients: this._attachedClients
         });
+      } else {
+        this.user.destroyAccountClient(this.user.getSignedInAccount(), client);
+      }
     },
 
     _onRefreshClientsList: function () {

@@ -28,6 +28,10 @@ define([
   var client;
   var accountData;
 
+  var testElementExists = FunctionalHelpers.testElementExists;
+  var click = FunctionalHelpers.click;
+  var pollUntilGoneByQSA = FunctionalHelpers.pollUntilGoneByQSA;
+
   registerSuite({
     name: 'settings clients',
 
@@ -170,17 +174,27 @@ define([
           })
         .end()
 
-        .findByCssSelector('.client:nth-child(2) .last-connected')
-          .getVisibleText()
-          .then(function (val) {
-            assert.isTrue(val.indexOf('ago') >= 0, 'last connected is formatted');
-          })
-        .end()
-
         // clicking disconnect on the second device should update the list
-        .findByCssSelector('.client:nth-child(2) .client-disconnect')
-          .click()
-        .end()
+        .then(click('.client:nth-child(2) .client-disconnect'))
+
+        // get the modal dialog
+        .then(testElementExists('.intro'))
+        .then(testElementExists('.disabled'))
+
+        // test cancel
+        .then(click('.cancel-disconnect'))
+
+        .then(pollUntilGoneByQSA('#client-disconnect'))
+
+        .then(click('.client:nth-child(2) .client-disconnect'))
+        .then(click('select.disconnect-reasons > option[value="lost"]'))
+
+        // wait until button is enabled (disabled class has gone away)
+        .then(pollUntilGoneByQSA('#client-disconnect .disabled'))
+
+        .then(click('#client-disconnect .primary'))
+
+        .then(click('#client-disconnect .reason-help'))
 
         // disconnect waits until successful AJAX device delete
         .then(FunctionalHelpers.pollUntil(function (newName) {
@@ -204,6 +218,12 @@ define([
         .findByCssSelector('.client:nth-child(1) .client-disconnect')
           .click()
         .end()
+
+        .then(click('select.disconnect-reasons > option[value="lost"]'))
+        // wait until button is enabled
+        .then(pollUntilGoneByQSA('#client-disconnect .disabled'))
+
+        .then(click('#client-disconnect .primary'))
 
         .findByCssSelector('#fxa-signin-header')
         .end();

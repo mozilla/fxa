@@ -230,6 +230,19 @@ The event stream is a log of events and the time they occurred while the user is
 * settings.avatar.gravatar-permissions.alreadly-accepted - user accepted permission prompt
 * settings.avatar.gravatar-permissions.submit - user accepted permission prompt
 
+
+#### settings/clients
+
+* settings.clients.[clientType].disconnect - user is attempting to disconnect a client type (types: `device` or `app`)
+* settings.clients.refresh - user refreshed the device and apps panel
+* settings.clients.open - user opened the client panel
+
+
+#### settings/clients/disconnect
+
+* settings.clients.disconnect.submit.[reason] - user submit the disconnect form with [reason] (types: `old`, `suspicious`, `lost`, `no`)
+
+
 #### settings/communication_preferences
 
 * settings.communication-preferences.newsletter.optin.true - user is opted in to newsletter when opening screen.

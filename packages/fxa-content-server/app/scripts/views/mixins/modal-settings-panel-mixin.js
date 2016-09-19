@@ -11,6 +11,7 @@ define(function (require, exports, module) {
 
   var $ = require('jquery');
   var BaseView = require('views/base');
+  var preventDefaultThen = BaseView.preventDefaultThen;
 
   module.exports = {
     isModal: true,
@@ -20,8 +21,8 @@ define(function (require, exports, module) {
     },
 
     events: {
-      'click .avatar-panel #back': BaseView.preventDefaultThen('_returnToAvatarChange'),
-      'click .cancel': BaseView.preventDefaultThen('_closePanelReturnToSettings')
+      'click .cancel': preventDefaultThen('_closePanelReturnToSettings'),
+      'click .modal-panel #back': preventDefaultThen('_returnToAvatarChange')
     },
 
     openPanel: function (event) {
@@ -47,6 +48,11 @@ define(function (require, exports, module) {
 
     closePanel: function () {
       this.destroy(true);
+    },
+
+    closeModalPanel: function () {
+      this.closePanel();
+      $.modal.close();
     },
 
     displaySuccess: function (msg) {

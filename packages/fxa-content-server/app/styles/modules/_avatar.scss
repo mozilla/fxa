@@ -217,23 +217,3 @@
 .no-getusermedia #camera {
   display: none;
 }
-
-section.avatar-panel {
-  text-align: center;
-
-  .button-row {
-    margin-bottom: 0;
-
-    html[dir='ltr'] & {
-      text-align: left;
-    }
-
-    html[dir='rtl'] & {
-      text-align: right;
-    }
-  }
-
-  .input-row {
-    text-align: left;
-  }
-}
