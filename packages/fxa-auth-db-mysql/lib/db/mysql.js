@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var crypto = require('crypto')
+var ip = require('ip')
 var util = require('util')
 var mysql = require('mysql')
 var P = require('../promise')
@@ -29,6 +30,7 @@ module.exports = function (log, error) {
   // make a pool of connections that we can draw from
   function MySql(options) {
     this.options = options
+    this.ipHmacKey = options.ipHmacKey
 
     this.patchLevel = 0
     // poolCluster will remove the pool after `removeNodeErrorCount` errors.
@@ -516,7 +518,7 @@ module.exports = function (log, error) {
 
   // Delete : unverifiedTokens
   // Where  : tokenVerificationId = $1, uid = $2
-  var VERIFY_TOKENS = 'CALL verifyToken_1(?, ?)'
+  var VERIFY_TOKENS = 'CALL verifyToken_2(?, ?)'
 
   MySql.prototype.verifyTokens = function (tokenVerificationId, accountData) {
     return this.read(VERIFY_TOKENS, [tokenVerificationId, accountData.uid])
@@ -1078,6 +1080,47 @@ module.exports = function (log, error) {
                 throw err
               }
             )
+        }
+      )
+  }
+
+  function ipHmac(key, uid, addr) {
+    if (ip.isV4Format(addr)) {
+      addr = '::' + addr
+    }
+    addr = ip.toBuffer(addr)
+
+    var hmac = crypto.createHmac('sha256', key)
+    hmac.update(uid)
+    hmac.update(addr)
+
+    return hmac.digest()
+  }
+
+  var SECURITY_EVENT_NAMES = {
+    'account.create': 1,
+    'account.login': 2,
+    'account.reset': 3
+  }
+
+  var CREATE_SECURITY_EVENT = 'CALL createSecurityEvent_1(?, ?, ?, ?, ?)'
+  MySql.prototype.createSecurityEvent = function (data) {
+    var uid = data.uid
+    var tokenId = data.tokenId
+    var nameId = SECURITY_EVENT_NAMES[data.name]
+    var ipAddr = ipHmac(this.ipHmacKey, uid, data.ipAddr)
+    return this.write(CREATE_SECURITY_EVENT, [uid, tokenId, nameId, ipAddr, Date.now()])
+  }
+
+  var FETCH_SECURITY_EVENTS = 'CALL fetchSecurityEvents_1(?, ?)'
+  MySql.prototype.securityEvents = function (where) {
+    var uid = where.uid
+
+    var ipAddr = ipHmac(this.ipHmacKey, uid, where.ipAddr)
+    return this.read(FETCH_SECURITY_EVENTS, [uid, ipAddr])
+      .then(
+        function (result) {
+          return result[0]
         }
       )
   }

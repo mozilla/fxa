@@ -178,6 +178,10 @@ module.exports = function (fs, path, url, convict) {
           env: 'NOTIFICATIONS_JWT_JKU'
         }
       }
+    },
+    ipHmacKey: {
+      doc: 'A secret to hash IP addresses for security history events',
+      default: 'changeme'
     }
   })
 

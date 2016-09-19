@@ -85,6 +85,9 @@ function createServer(db) {
   api.post('/verificationReminders', replyNoParams(db.createVerificationReminder))
   api.del('/verificationReminders', replyNoParams(db.deleteReminder))
 
+  api.get('/securityEvents', reply(db.securityEvents))
+  api.post('/securityEvents', reply(db.createSecurityEvent))
+
   api.get('/emailRecord/:id', reply(db.emailRecord))
   api.head('/emailRecord/:id', reply(db.accountExists))
 

@@ -4,6 +4,7 @@
 
 var P = require('bluebird')
 var extend = require('util')._extend
+var ip = require('ip')
 
 // our data stores
 var accounts = {}
@@ -15,6 +16,7 @@ var accountResetTokens = {}
 var passwordChangeTokens = {}
 var passwordForgotTokens = {}
 var reminders = {}
+var securityEvents = {}
 
 var DEVICE_FIELDS = [
   'sessionTokenId',
@@ -319,6 +321,14 @@ module.exports = function (log, error) {
       ) {
         return count
       }
+
+      // update securityEvents table
+      (securityEvents[uid] || []).forEach(function (ev) {
+        if (ev.tokenId.toString('hex') === tokenId) {
+          ev.verified = true
+        }
+      })
+
 
       delete unverifiedTokens[tokenId]
       return count + 1
@@ -815,6 +825,49 @@ module.exports = function (log, error) {
     delete reminders[body.uid.toString('hex') + body.type]
 
     return P.resolve({})
+  }
+
+  Memory.prototype.createSecurityEvent = function (data) {
+    var addr = data.ipAddr
+    if (ip.isV4Format(addr)) {
+      addr = '::' + addr
+    }
+
+    var verified = (data.tokenId && !unverifiedTokens[data.tokenId.toString('hex')])
+
+    var event = {
+      createdAt: Date.now(),
+      ipAddr: addr,
+      name: data.name,
+      uid: data.uid,
+      tokenId: data.tokenId,
+      verified: verified
+    }
+    var key = event.uid.toString('hex')
+
+    var events = securityEvents[key] || (securityEvents[key] = [])
+    events.push(event)
+
+    return P.resolve({})
+  }
+
+  Memory.prototype.securityEvents = function (where) {
+    var key = where.uid.toString('hex')
+    var events = securityEvents[key] || []
+    var addr = where.ipAddr
+    if (ip.isV4Format(addr)) {
+      addr = '::' + addr
+    }
+
+    return P.resolve(events.filter(function (ev) {
+      return ev.uid.toString('hex') === key && ip.isEqual(ev.ipAddr, addr)
+    }).map(function (ev) {
+      return {
+        name: ev.name,
+        createdAt: ev.createdAt,
+        verified: ev.verified
+      }
+    }))
   }
 
   // UTILITY FUNCTIONS
