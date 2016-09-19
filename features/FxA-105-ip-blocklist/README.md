@@ -43,7 +43,7 @@ and several lists from
 ## Outcomes
 
 The initial outcome for this feature will be
-to understand blocklist performance 
+to understand blocklist performance
 and the potential benefits and costs of using them.
 
 If initial metrics prove promising,
@@ -79,8 +79,12 @@ We will emit the following events:
   * Emitted whenever an IP is checked against a blocklist
 * `fxa.customs.blocklist.hit`
   * Emitted whenever there is a hit on the blocklist.
+* `fxa.customs.blocklist.error`
+  * Emitted whenever there is an error on blocklist lookup.
 * `fxa.customs.blocklist.false_positive`
   * Emitted when a blocked request is unblocked via email loop.
+* `fxa.customs.blocklist.contains`
+  * Emitted when there is a hit on the blocklist manager loaded lists.
 
 For each candidate blocklist,
 we will monitor the following over time:
@@ -161,7 +165,7 @@ The customs-server module is composed of these primary functions.
 * refresh()
  * Checks if the timestamp of loaded blocklist file has changed. Reload the list if so.
 
-The blocklist file format is simply a text file 
+The blocklist file format is simply a text file
 hat contains one column of ip addresses.
 These addresses can be in the form of
 an absolute address `127.0.0.1`
