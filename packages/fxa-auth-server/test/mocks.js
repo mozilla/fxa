@@ -15,8 +15,9 @@ var DB_METHOD_NAMES = ['account', 'createAccount', 'createDevice', 'createKeyFet
                        'createPasswordForgotToken', 'createSessionToken', 'deleteAccount',
                        'deleteDevice', 'deleteKeyFetchToken', 'deletePasswordChangeToken',
                        'deleteVerificationReminder', 'devices', 'emailRecord', 'resetAccount',
-                       'sessions', 'sessionTokenWithVerificationStatus', 'updateDevice',
-                       'updateLocale', 'updateSessionToken', 'verifyEmail', 'verifyTokens']
+                       'securityEvent', 'securityEvents', 'sessions',
+                       'sessionTokenWithVerificationStatus', 'updateDevice', 'updateLocale',
+                       'updateSessionToken', 'verifyEmail', 'verifyTokens']
 
 var LOG_METHOD_NAMES = ['trace', 'increment', 'info', 'error', 'begin', 'warn', 'timing',
                         'activityEvent', 'flowEvent', 'notifyAttachedServices']
@@ -53,7 +54,8 @@ function mockDB (data, errors) {
         emailCode: data.emailCode,
         emailVerified: data.emailVerified,
         uid: data.uid,
-        verifierSetAt: Date.now()
+        verifierSetAt: Date.now(),
+        wrapWrapKb: data.wrapWrapKb
       })
     }),
     createAccount: sinon.spy(function () {
@@ -123,6 +125,9 @@ function mockDB (data, errors) {
         uid: data.uid,
         wrapWrapKb: crypto.randomBytes(32)
       })
+    }),
+    securityEvents: sinon.spy(function () {
+      return P.resolve([])
     }),
     sessions: sinon.spy(function () {
       return P.resolve(data.sessions || [])

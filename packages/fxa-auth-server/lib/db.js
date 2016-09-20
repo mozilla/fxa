@@ -772,6 +772,24 @@ module.exports = function (
     return this.pool.del('/verificationReminders', reminderData)
   }
 
+  DB.prototype.securityEvent = function (event) {
+    log.trace({
+      op: 'DB.securityEvent',
+      securityEvent: event
+    })
+
+    return this.pool.post('/securityEvents', event)
+  }
+
+  DB.prototype.securityEvents = function (params) {
+    log.trace({
+      op: 'DB.securityEvents',
+      params: params
+    })
+
+    return this.pool.get('/securityEvents', params)
+  }
+
   return DB
 }
 

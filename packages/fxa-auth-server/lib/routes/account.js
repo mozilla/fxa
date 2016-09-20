@@ -13,6 +13,10 @@ var PUSH_PAYLOADS_SCHEMA_PATH = '../../docs/pushpayloads.schema.json'
 // Currently only for metrics purposes, not enforced.
 var MAX_ACTIVE_SESSIONS = 200
 
+var MS_ONE_DAY = 1000 * 60 * 60 * 24
+var MS_ONE_WEEK = MS_ONE_DAY * 7
+var MS_ONE_MONTH = MS_ONE_DAY * 30
+
 var path = require('path')
 var ajv = require('ajv')()
 var fs = require('fs')
@@ -50,6 +54,8 @@ module.exports = function (
     supportedLanguages: config.i18n.supportedLanguages,
     defaultLanguage: config.i18n.defaultLanguage
   })
+
+  var securityHistoryEnabled = config.securityHistory && config.securityHistory.enabled
 
   var routes = [
     {
@@ -103,6 +109,7 @@ module.exports = function (
           .then(createSessionToken)
           .then(sendVerifyCode)
           .then(createKeyFetchToken)
+          .then(recordSecurityEvent)
           .then(createResponse)
           .done(reply, reply)
 
@@ -307,6 +314,18 @@ module.exports = function (
           }
         }
 
+        function recordSecurityEvent() {
+          if (securityHistoryEnabled) {
+            // don't block response recording db event
+            db.securityEvent({
+              name: 'account.create',
+              uid: account.uid,
+              ipAddr: request.app.clientAddress,
+              sessionTokenId: sessionToken.tokenId
+            })
+          }
+        }
+
         function createResponse () {
           var response = {
             uid: account.uid.toString('hex'),
@@ -377,6 +396,7 @@ module.exports = function (
 
         customs.check(request, email, 'accountLogin')
           .then(readEmailRecord)
+          .then(checkSecurityHistory)
           .then(checkNumberOfActiveSessions)
           .then(createSessionToken)
           .then(createKeyFetchToken)
@@ -384,6 +404,7 @@ module.exports = function (
           .then(sendVerifyAccountEmail)
           .then(sendNewDeviceLoginNotification)
           .then(sendVerifyLoginEmail)
+          .then(recordSecurityEvent)
           .then(createResponse)
           .done(reply, reply)
 
@@ -440,6 +461,72 @@ module.exports = function (
                   })
                 }
                 throw err
+              }
+            )
+        }
+
+        function checkSecurityHistory () {
+          if (!securityHistoryEnabled) {
+            return
+          }
+          return db.securityEvents({
+            uid: emailRecord.uid,
+            ipAddr: request.app.clientAddress
+          })
+            .then(
+              function (events) {
+                // if we've seen this address for this user before, we
+                // can skip signin confirmation
+                //
+                // for now, just log that we *could* have done so
+                if (events.length > 0) {
+                  var latest = 0
+                  var verified = false
+
+                  events.forEach(function(ev) {
+                    if (ev.verified) {
+                      verified = true
+                      if (ev.createdAt > latest) {
+                        latest = ev.createdAt
+                      }
+                    }
+                  })
+                  if (verified) {
+                    var since = Date.now() - latest
+                    var recency
+                    if (since < MS_ONE_DAY) {
+                      recency = 'day'
+                    } else if (since < MS_ONE_WEEK) {
+                      recency = 'week'
+                    } else if (since < MS_ONE_MONTH) {
+                      recency = 'month'
+                    } else {
+                      recency = 'old'
+                    }
+
+                    log.info({
+                      op: 'Account.history.verified',
+                      uid: emailRecord.uid.toString('hex'),
+                      events: events.length,
+                      recency: recency
+                    })
+                  } else {
+                    log.info({
+                      op: 'Account.history.unverified',
+                      uid: emailRecord.uid.toString('hex'),
+                      events: events.length
+                    })
+                  }
+                }
+              },
+              function (err) {
+                // for now, security events are purely for metrics
+                // so errors shouldn't stop the login attempt
+                log.error({
+                  op: 'Account.history.error',
+                  err: err,
+                  uid: emailRecord.uid.toString('hex')
+                })
               }
             )
         }
@@ -619,6 +706,18 @@ module.exports = function (
           }
         }
 
+        function recordSecurityEvent() {
+          if (securityHistoryEnabled) {
+            // don't block response recording db event
+            db.securityEvent({
+              name: 'account.login',
+              uid: emailRecord.uid,
+              ipAddr: request.app.clientAddress,
+              sessionTokenId: sessionToken && sessionToken.tokenId
+            })
+          }
+        }
+
         function createResponse () {
           var response = {
             uid: sessionToken.uid.toString('hex'),
@@ -644,7 +743,6 @@ module.exports = function (
             response.verificationMethod = 'email'
             response.verificationReason = 'login'
           }
-
           return P.resolve(response)
         }
       }
@@ -1458,6 +1556,7 @@ module.exports = function (
           .then(resetAccountData)
           .then(createSessionToken)
           .then(createKeyFetchToken)
+          .then(recordSecurityEvent)
           .then(createResponse)
           .done(reply, reply)
 
@@ -1572,12 +1671,25 @@ module.exports = function (
           }
         }
 
+        function recordSecurityEvent() {
+          if (securityHistoryEnabled) {
+             // don't block response recording db event
+            db.securityEvent({
+              name: 'account.reset',
+              uid: account.uid,
+              ipAddr: request.app.clientAddress,
+              sessionTokenId: sessionToken && sessionToken.tokenId
+            })
+          }
+        }
+
         function createResponse () {
           // If no sessionToken, this could be a legacy client
           // attempting to reset an account password, return legacy response.
           if (!hasSessionToken) {
             return {}
           }
+
 
           var response = {
             uid: sessionToken.uid.toString('hex'),
