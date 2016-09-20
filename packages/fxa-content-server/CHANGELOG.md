@@ -1,3 +1,57 @@
+<a name="0.70.0"></a>
+# 0.70.0 (2016-09-20)
+
+
+### Bug Fixes
+
+* **build:** remove date from js bundle (#4102), r=@vbudhram ([31ca1c1](https://github.com/mozilla/fxa-content-server/commit/31ca1c1)), closes [#4101](https://github.com/mozilla/fxa-content-server/issues/4101)
+* **client:** Ensure the "Open Webmail" button is translated. (#4164) r=vladikoff ([9d12144](https://github.com/mozilla/fxa-content-server/commit/9d12144)), closes [#4158](https://github.com/mozilla/fxa-content-server/issues/4158)
+* **client:** Fix /force_auth and /complete_sign_up error handling. (#4129) r=vladikoff ([58ddfe9](https://github.com/mozilla/fxa-content-server/commit/58ddfe9)), closes [(#4129](https://github.com/(/issues/4129)
+* **client:** Fix broken XHR error response handling. (#4121) r=vladikoff ([1230cc6](https://github.com/mozilla/fxa-content-server/commit/1230cc6)), closes [(#4121](https://github.com/(/issues/4121) [#4120](https://github.com/mozilla/fxa-content-server/issues/4120)
+* **client:** Improved calls to action on the confirm reset password screen. (#4100) ([2063d6c](https://github.com/mozilla/fxa-content-server/commit/2063d6c))
+* **clients:** fix fetch for two simultaneous responses (#4111) r=vbudhram ([dd2727c](https://github.com/mozilla/fxa-content-server/commit/dd2727c)), closes [(#4111](https://github.com/(/issues/4111)
+* **email:** Add ability for content server to delegate sending emails (#4155) r=shane-tomlin ([b7a0963](https://github.com/mozilla/fxa-content-server/commit/b7a0963))
+* **oauth:** set TTL for the authorization request (#4075) r=shane-tomlinson ([3af4e9a](https://github.com/mozilla/fxa-content-server/commit/3af4e9a)), closes [#3982](https://github.com/mozilla/fxa-content-server/issues/3982)
+* **sentry:** bring back cache busting file names in sentry (#4103) r=vbudhram ([0627b17](https://github.com/mozilla/fxa-content-server/commit/0627b17))
+* **signin:** Add delay for login message on iOS broker (#4089), r=@shane-tomlinson ([c04980d](https://github.com/mozilla/fxa-content-server/commit/c04980d))
+* **styles:** fix horizontal align for comm pref (#4098) r=vladikoff ([0f13938](https://github.com/mozilla/fxa-content-server/commit/0f13938)), closes [(#4098](https://github.com/(/issues/4098) [#3886](https://github.com/mozilla/fxa-content-server/issues/3886)
+* **tests:** Fix 'try to re-use a link' funcitonal test. (#4126) ([ce072e6](https://github.com/mozilla/fxa-content-server/commit/ce072e6)), closes [(#4126](https://github.com/(/issues/4126)
+* **tests:** Fix the settings/avatar functional tests. (#4146) r=vladikoff ([55d896b](https://github.com/mozilla/fxa-content-server/commit/55d896b)), closes [(#4146](https://github.com/(/issues/4146) [#4144](https://github.com/mozilla/fxa-content-server/issues/4144)
+* **tests:** improve add event handler for tests (#4122) ([8ecdd35](https://github.com/mozilla/fxa-content-server/commit/8ecdd35))
+* **tests:** send Origin headers with resource requests when appropriate (#4059) ([030874f](https://github.com/mozilla/fxa-content-server/commit/030874f))
+
+### chore
+
+* **client:** Changed "Tabs" to "Open tabs" (#4156) ([7b31dc2](https://github.com/mozilla/fxa-content-server/commit/7b31dc2))
+* **client:** Update Google Play Store badges (#4140) r=vladikoff ([f8fcaf7](https://github.com/mozilla/fxa-content-server/commit/f8fcaf7))
+* **docs:** Add missing client metrics docs (#4083) ([03b8d1b](https://github.com/mozilla/fxa-content-server/commit/03b8d1b))
+* **docs:** add release v0.69.0 notes ([440e528](https://github.com/mozilla/fxa-content-server/commit/440e528))
+* **docs:** Add screen images to client metrics docs (#4139) ([c3cc9d4](https://github.com/mozilla/fxa-content-server/commit/c3cc9d4))
+* **docs:** Document known values for `entrypoint` metrics param. ([ddcf9c8](https://github.com/mozilla/fxa-content-server/commit/ddcf9c8))
+* **server:** Remove custom FxOS CSP code. (#4118) r=vladikoff ([a1fef3d](https://github.com/mozilla/fxa-content-server/commit/a1fef3d)), closes [#3958](https://github.com/mozilla/fxa-content-server/issues/3958)
+* **tests:** Remove listenForWebChannelMessage - it's no longer needed. (#4142) r=vladikoff ([6bd603f](https://github.com/mozilla/fxa-content-server/commit/6bd603f))
+* **travis:** drop node 0.10 support in travis (#4149) ([ba77285](https://github.com/mozilla/fxa-content-server/commit/ba77285))
+
+### Features
+
+* **client:** Embed config values in the HTML. (#4147) r=vladikoff ([1e8f1d7](https://github.com/mozilla/fxa-content-server/commit/1e8f1d7))
+* **deps:** Use jQuery 3.1.0 and sinon 1.17.5 (#4117) r=vladikoff ([4fe8dc0](https://github.com/mozilla/fxa-content-server/commit/4fe8dc0))
+* **devices:** add devices modal and additional metrics (#4131) r=vbudhram,shane-tomlinson ([aed667e](https://github.com/mozilla/fxa-content-server/commit/aed667e))
+* **devices:** add tablet icon (#4132) r=vbudhram ([d9c007e](https://github.com/mozilla/fxa-content-server/commit/d9c007e)), closes [#4030](https://github.com/mozilla/fxa-content-server/issues/4030)
+* **errors:** support localized throttled message (#4145) ([374858e](https://github.com/mozilla/fxa-content-server/commit/374858e))
+* **experiments:** update to latest experiment tag (#4171) ([8ffa42f](https://github.com/mozilla/fxa-content-server/commit/8ffa42f))
+* **metrics:** add flow.attempt_signin, flow.engage, flow.attempt_signup (#4150) r=rfk,philboot ([e618104](https://github.com/mozilla/fxa-content-server/commit/e618104))
+* **oauth:** add OAuth app management ui (#3935) r=shane-tomlinson,vbudhram ([e6b4333](https://github.com/mozilla/fxa-content-server/commit/e6b4333)), closes [#3921](https://github.com/mozilla/fxa-content-server/issues/3921)
+
+### Refactor
+
+* **client:** Extract all element type specific code from form.js (#4108) ([e33ecc4](https://github.com/mozilla/fxa-content-server/commit/e33ecc4))
+* **client:** Reduce fxa-js-client fetch boilerplate (#4090) ([51a70fb](https://github.com/mozilla/fxa-content-server/commit/51a70fb))
+* **client:** Unify all the resend email code into resend-mixin. (#4123) ([4231045](https://github.com/mozilla/fxa-content-server/commit/4231045))
+* **signin:** make all beforeSignIn methods use the account object (#4082) ([58af33b](https://github.com/mozilla/fxa-content-server/commit/58af33b))
+
+
+
 <a name="0.69.0"></a>
 # 0.69.0 (2016-09-07)
 
