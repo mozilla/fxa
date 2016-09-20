@@ -333,12 +333,12 @@ module.exports = function (log, error) {
     })
   }
 
-  // Select : devices d, sessionTokens s
+  // Select : devices d, sessionTokens s, accounts a
   // Fields : d.uid, d.id, d.sessionTokenId, d.name, d.type, d.createdAt, d.callbackURL,
   //          d.callbackPublicKey, d.callbackAuthKey, s.uaBrowser, s.uaBrowserVersion,
-  //          s.uaOS, s.uaOSVersion, s.uaDeviceType, s.lastAccessTime
+  //          s.uaOS, s.uaOSVersion, s.uaDeviceType, s.lastAccessTime, a.email
   // Where  : d.uid = $1
-  var ACCOUNT_DEVICES = 'CALL accountDevices_5(?)'
+  var ACCOUNT_DEVICES = 'CALL accountDevices_6(?)'
 
   MySql.prototype.accountDevices = function (uid) {
     return this.readOneFromFirstResult(ACCOUNT_DEVICES, [uid])

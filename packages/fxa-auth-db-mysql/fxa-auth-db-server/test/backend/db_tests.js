@@ -1021,7 +1021,7 @@ module.exports = function(config, DB) {
         test(
           'db.accountDevices',
           function (t) {
-            t.plan(75)
+            t.plan(77)
             var deviceId = newUuid()
             var sessionTokenId = hex32()
             var zombieSessionTokenId = hex32()
@@ -1094,6 +1094,7 @@ module.exports = function(config, DB) {
                 t.equal(device.callbackPublicKey, null, 'callbackPublicKey')
                 t.equal(device.callbackAuthKey, null, 'callbackAuthKey')
                 t.ok(device.lastAccessTime > 0, 'has a lastAccessTime')
+                t.equal(device.email, ACCOUNT.email, 'email should be account email')
 
                 // Fetch the session token with its verification state and device info
                 return db.sessionWithDevice(sessionTokenId)
@@ -1153,6 +1154,7 @@ module.exports = function(config, DB) {
                 t.equal(device.callbackPublicKey, deviceInfo.callbackPublicKey, 'callbackPublicKey')
                 t.equal(device.callbackAuthKey, deviceInfo.callbackAuthKey, 'callbackAuthKey')
                 t.ok(device.lastAccessTime > 0, 'has a lastAccessTime')
+                t.equal(device.email, ACCOUNT.email, 'email should be account email')
 
                 // Create a second session token
                 return db.createSessionToken(newSessionTokenId, SESSION_TOKEN)

@@ -412,6 +412,7 @@ module.exports = function (log, error) {
                   SESSION_FIELDS.forEach(function (key) {
                     device[key] = session[key]
                   })
+                  device.email = account.email
                   return device
                 }
               }

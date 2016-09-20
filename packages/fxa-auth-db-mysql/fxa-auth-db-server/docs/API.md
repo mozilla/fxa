@@ -652,7 +652,8 @@ Content-Type: application/json
         "uaOS": "Android",
         "uaOSVersion": "5.1",
         "uaDeviceType": "mobile",
-        "lastAccessTime": 1437992394186
+        "lastAccessTime": 1437992394186,
+        "email": "foo@example.org"
     }
 ]
 ```

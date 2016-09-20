@@ -508,7 +508,7 @@ module.exports = function(cfg, server) {
   test(
     'device handling',
     function (t) {
-      t.plan(61)
+      t.plan(63)
       var user = fake.newUserDataHex()
       var zombieUser = fake.newUserDataHex()
       return client.getThen('/account/' + user.accountId + '/devices')
@@ -536,7 +536,7 @@ module.exports = function(cfg, server) {
           respOk(t, r)
           var devices = r.obj
           t.equal(devices.length, 1, 'devices contains one item')
-          t.equal(Object.keys(devices[0]).length, 15, 'device has fourteen properties')
+          t.equal(Object.keys(devices[0]).length, 16, 'device has sixteen properties')
           t.equal(devices[0].uid, user.accountId, 'uid is correct')
           t.equal(devices[0].id, user.deviceId, 'id is correct')
           t.equal(devices[0].sessionTokenId, user.sessionTokenId, 'sessionTokenId is correct')
@@ -552,6 +552,7 @@ module.exports = function(cfg, server) {
           t.equal(devices[0].uaOSVersion, user.sessionToken.uaOSVersion, 'uaOSVersion is correct')
           t.equal(devices[0].uaDeviceType, user.sessionToken.uaDeviceType, 'uaDeviceType is correct')
           t.equal(devices[0].lastAccessTime, user.sessionToken.createdAt, 'lastAccessTime is correct')
+          t.equal(devices[0].email, user.account.email, 'email is correct')
           return client.postThen('/account/' + user.accountId + '/device/' + user.deviceId + '/update', {
             name: 'wibble',
             type: 'mobile',
@@ -583,6 +584,7 @@ module.exports = function(cfg, server) {
           t.equal(devices[0].uaOSVersion, user.sessionToken.uaOSVersion, 'uaOSVersion is correct')
           t.equal(devices[0].uaDeviceType, user.sessionToken.uaDeviceType, 'uaDeviceType is correct')
           t.equal(devices[0].lastAccessTime, user.sessionToken.createdAt, 'lastAccessTime is correct')
+          t.equal(devices[0].email, user.account.email, 'email is correct')
 
           return client.postThen('/account/' + user.accountId + '/device/' + user.deviceId + '/update', {
             sessionTokenId: zombieUser.sessionTokenId
