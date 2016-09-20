@@ -6,6 +6,7 @@ env:
     # please get your own free key if you want to test yourself
     - SAUCE_USERNAME: fxa-client
     - SAUCE_ACCESS_KEY: 863203af-38fd-4f1d-9332-adc8f60f157b
+    - CXX: g++-4.8
   matrix:
     - SERVER=mock
     - SERVER=local
@@ -22,7 +23,14 @@ notifications:
     on_failure: change
 
 node_js:
-  - "0.10"
+  - "4.5"
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-4.8
 
 # blacklist
 branches:

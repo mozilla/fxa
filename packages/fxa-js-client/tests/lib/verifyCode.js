@@ -74,7 +74,7 @@ define([
           .then(function (result) {
             assert.equal(result.verified, false, 'Email should not be verified.');
 
-            return respond(mail.wait(user), RequestMocks.mail);
+            return respond(mail.wait(user, 2), RequestMocks.mailUnverifiedSignin);
           })
           .then(function (emails) {
             var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
