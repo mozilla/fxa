@@ -27,7 +27,7 @@
     "chalk": "1.1.1",
     "foxfire": "1.0.1",
     "minimist": "1.1.1",
-    "pm2": "0.15.10",
+    "pm2": "1.1.3",
     "replace-in-file": "0.2.1",
     "selenium-standalone": "4.4.0"
   }
