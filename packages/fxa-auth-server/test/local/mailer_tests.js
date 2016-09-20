@@ -102,6 +102,24 @@ P.all(
         }
 
         test(
+          'Contains template header for ' + type,
+          function (t) {
+            mailer.mailer.sendMail = function (emailConfig) {
+              var templateName = emailConfig.headers['X-Template-Name']
+
+              if (type === 'verificationReminderEmail') {
+                // Handle special case for verification reminders
+                t.equal(templateName, 'verificationReminderFirstEmail' || 'verificationReminderSecondEmail')
+              } else {
+                t.equal(templateName, type)
+              }
+              t.end()
+            }
+            mailer[type](message)
+          }
+        )
+
+        test(
           'test privacy link is in email template output for ' + type,
           function (t) {
             var privacyLink = mailer.createPrivacyLink(type)
