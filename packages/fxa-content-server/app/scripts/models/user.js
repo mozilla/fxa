@@ -358,10 +358,15 @@ define(function (require, exports, module) {
       var self = this;
       return account.signIn(password, relier, options)
         .then(function () {
-          var isSignUp =
+          const isSignUp =
             account.get('verificationReason') === VerificationReasons.SIGN_UP;
+          const emailSent = !! account.get('emailSent');
 
-          if (! account.get('verified') && isSignUp) {
+          // Only send a verification email if one was not sent by
+          // auth-server (emailSent = false). Once we are reasonably sure that
+          // all our clients delegate to auth-server for sending emails, this
+          // can be removed.
+          if (! account.get('verified') && isSignUp && ! emailSent) {
             return account.retrySignUp(relier, options);
           }
         })
