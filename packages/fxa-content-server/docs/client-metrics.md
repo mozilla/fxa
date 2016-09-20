@@ -182,6 +182,10 @@ The event stream is a log of events and the time they occurred while the user is
 * delete-account.deleted - user successfully deleted an account
 
 #### force_auth
+* flow.force_auth.engage - user engaged the form
+* flow.force_auth.submit - user submit the form with front-end validation passing
+
+#### force_auth
 #### legal
 #### pp
 #### ready
@@ -260,6 +264,8 @@ The event stream is a log of events and the time they occurred while the user is
 * error.signin.auth.121 - account locked
 * error.signin.auth.1011 - user did not enter an email address
 * error.signin.auth.1023 - user entered an email address that was invalid
+* flow.signin.engage - user engaged the form
+* flow.signin.submit - user submit the form with front-end validation passing
 * signin.ask-password.skipped - skipped asking for password thanks to existing session token
 * signin.ask-password.shown.account-unknown - asked for password due to missing account data
 * signin.ask-password.shown.email-mismatch - asked for password due to using a different email
@@ -289,6 +295,8 @@ The event stream is a log of events and the time they occurred while the user is
 * error.signup.auth.1023 - user entered an email address that was invalid
 * error.signup.auth.1029 - signup is disabled on Fx for iOS v1
 * error.signup.auth.1030 - signup has been force disabled by a Sync based relier.
+* flow.signup.engage - user engaged the form
+* flow.signup.submit - user submit the form with front-end validation passing
 * signup.checkbox.change.customize-sync.checked - user checked the "Choose what to sync" checkbox.
 * signup.checkbox.change.customize-sync.unchecked - user unchecked the "Choose what to sync" checkbox.
 * signup.checkbox.change.marketing-email-optin.checked - user checked the email opt-in

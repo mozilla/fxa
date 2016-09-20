@@ -723,6 +723,13 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('logEventOnce', function () {
+      it('logs an event once to the event stream', function () {
+        view.logEventOnce('event1');
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'event1'));
+      });
+    });
+
     describe('logViewEvent', function () {
       beforeEach(function () {
         view.logViewEvent('event1');

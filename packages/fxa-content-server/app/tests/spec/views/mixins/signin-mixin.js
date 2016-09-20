@@ -21,9 +21,10 @@ define(function (require, exports, module) {
   describe('views/mixins/signin-mixin', function () {
     it('exports correct interface', function () {
       assert.isObject(SignInMixin);
-      assert.lengthOf(Object.keys(SignInMixin), 2);
+      assert.lengthOf(Object.keys(SignInMixin), 5);
       assert.isFunction(SignInMixin.signIn);
       assert.isFunction(SignInMixin.onSignInSuccess);
+      assert.equal(SignInMixin.signInSubmitContext, 'signin', 'has a submit context');
     });
 
     describe('signIn', function () {
@@ -56,12 +57,15 @@ define(function (require, exports, module) {
           invokeBrokerMethod: sinon.spy(function () {
             return p();
           }),
+          logEvent: sinon.spy(),
+          logEventOnce: sinon.spy(),
           logViewEvent: sinon.spy(),
           model: model,
           navigate: sinon.spy(),
           onSignInSuccess: SignInMixin.onSignInSuccess,
           relier: relier,
           signIn: SignInMixin.signIn,
+          signInSubmitContext: SignInMixin.signInSubmitContext,
           user: {
             signInAccount: sinon.spy(function (account) {
               return p(account);
@@ -184,6 +188,7 @@ define(function (require, exports, module) {
           assert.isTrue(
             view.user.signInAccount.calledWith(account, 'password', relier));
           assert.equal(view.user.signInAccount.args[0][3].resume, RESUME_TOKEN);
+          assert.equal(view.logEvent.args[0], 'flow.signin.submit', 'correct submit event');
         });
 
         it('calls view.navigate correctly', function () {

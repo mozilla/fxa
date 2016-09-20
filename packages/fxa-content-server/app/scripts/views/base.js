@@ -615,6 +615,15 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Log an event once per page load
+     *
+     * @param {String} eventName
+     */
+    logEventOnce: function (eventName) {
+      this.metrics.logEventOnce(eventName);
+    },
+
+    /**
      * Log an event with the view name as a prefix
      *
      * @param {String} eventName

@@ -784,5 +784,17 @@ define(function (require, exports, module) {
         assert.equal(args[1], -1);
       });
     });
+
+    describe('_engageForm', function () {
+      it('logs the engage event', function () {
+        return view.render()
+          .then(function () {
+            view.afterVisible();
+            assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signin.engage'));
+            view.$('form').click();
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signin.engage'));
+          });
+      });
+    });
   });
 });

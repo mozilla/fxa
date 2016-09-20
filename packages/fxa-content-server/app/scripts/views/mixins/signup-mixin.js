@@ -31,6 +31,8 @@ define(function (require, exports, module) {
      */
     signUp: function (account, password) {
       var self = this;
+      self.logEvent('flow.signup.submit');
+
       return self.invokeBrokerMethod('beforeSignIn', account)
         .then(function () {
           return self.user.signUpAccount(account, password, self.relier, {

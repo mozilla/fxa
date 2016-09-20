@@ -13,6 +13,13 @@ define(function (require, exports, module) {
   var VerificationReasons = require('lib/verification-reasons');
 
   module.exports = {
+    // force auth extends a view with this mixin
+    // for metrics purposes we need to know the view submit context
+    signInSubmitContext: 'signin',
+    events: {
+      'click': '_engageSignInForm',
+      'input input': '_engageSignInForm'
+    },
     /**
      * Sign in a user
      *
@@ -24,13 +31,15 @@ define(function (require, exports, module) {
      * @return {object} promise
      */
     signIn: function (account, password) {
+      var self = this;
+      self.logEvent(`flow.${this.signInSubmitContext}.submit`);
+
       if (! account ||
             account.isDefault() ||
             (! account.has('sessionToken') && ! password)) {
         return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
       }
 
-      var self = this;
       return self.invokeBrokerMethod('beforeSignIn', account)
         .then(function () {
           return self.user.signInAccount(account, password, self.relier, {
@@ -98,6 +107,12 @@ define(function (require, exports, module) {
 
       return this.invokeBrokerMethod(brokerMethod, account)
         .then(this.navigate.bind(this, this.model.get('redirectTo') || 'settings', {}, navigateData));
+    },
+
+    _engageSignInForm () {
+      // user has engaged with the sign in, sign up or force auth form
+      // the flow event will be different depending on the view name
+      this.logEventOnce(`flow.${this.viewName}.engage`);
     }
   };
 });

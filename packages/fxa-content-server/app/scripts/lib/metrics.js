@@ -121,6 +121,7 @@ define(function (require, exports, module) {
 
     this._marketingImpressions = {};
     this._activeExperiments = {};
+    this._eventMemory = {};
 
     this._able = options.able;
     this._env = options.environment || new Environment(this._window);
@@ -300,6 +301,18 @@ define(function (require, exports, module) {
     logEvent: function (eventName) {
       this._resetInactivityFlushTimeout();
       this.events.capture(eventName);
+    },
+
+    /**
+     * Log an event only if it never happened before during this page load.
+     *
+     * @param {String} eventName
+     */
+    logEventOnce: function (eventName) {
+      if (! this._eventMemory[eventName]) {
+        this.logEvent(eventName);
+        this._eventMemory[eventName] = true;
+      }
     },
 
     /**

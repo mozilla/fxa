@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+var _ = require('lodash');
 var config = require('../configuration');
 var flowEvent = require('../flow-event');
 var MetricsCollector = require('../metrics-collector-stderr');
@@ -51,19 +52,23 @@ module.exports = function () {
         }
         ga.write(metrics);
 
-        optionallyLogFlowBeginEvent(req, metrics, requestReceivedTime);
+        optionallyLogFlowEvents(req, metrics, requestReceivedTime);
       });
     }
   };
 };
 
-function optionallyLogFlowBeginEvent (req, metrics, requestReceivedTime) {
+function optionallyLogFlowEvents (req, metrics, requestReceivedTime) {
   if (DISABLE_CLIENT_METRICS_STDERR) {
     return;
   }
 
   var events = metrics.events || [];
-  var hasFlowBeginEvent = events.some(function (event) {
+  var flowEvents = _.filter(events, function(event) {
+    return event.type.indexOf('flow.') === 0;
+  });
+
+  flowEvents.forEach(function (event) {
     if (event.type === 'flow.begin') {
       if (! metrics.flowBeginTime) {
         // This will only kick in if something clobbered the data-flow-begin
@@ -77,20 +82,14 @@ function optionallyLogFlowBeginEvent (req, metrics, requestReceivedTime) {
           /*eslint-enable sorting/sort-object-props*/
         });
       }
-
-      return true;
     }
 
-    return false;
-  });
-
-  if (hasFlowBeginEvent) {
-    flowEvent('flow.begin', {
+    flowEvent(event.type, {
       flow_id: metrics.flowId, //eslint-disable-line camelcase
       flow_time: 0, //eslint-disable-line camelcase
       time: metrics.flowBeginTime
     }, req);
-  }
+  });
 }
 
 function estimateFlowBeginTime (times) {

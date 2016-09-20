@@ -90,7 +90,7 @@ define(function (require, exports, module) {
 
     _logPromptExperimentEvent: function (eventNameSuffix) {
       const eventName = 'experiment.pw_prompt.' + eventNameSuffix.toLowerCase();
-      this.logViewEvent(eventName);
+      this.logEventOnce(eventName);
     },
 
     /**

@@ -47,6 +47,8 @@ define(function (require, exports, module) {
           invokeBrokerMethod: sinon.spy(function () {
             return p();
           }),
+          logEvent: sinon.spy(),
+          logEventOnce: sinon.spy(),
           logViewEvent: sinon.spy(),
           navigate: sinon.spy(),
           onSignUpSuccess: SignUpMixin.onSignUpSuccess,

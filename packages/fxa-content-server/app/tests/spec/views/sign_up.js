@@ -1369,6 +1369,18 @@ define(function (require, exports, module) {
         assert.equal(formPrefill.get('email'), '');
       });
     });
+
+    describe('_engageForm', function () {
+      it('logs the engage event', function () {
+        return view.render()
+          .then(function () {
+            view.afterVisible();
+            assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signup.engage'));
+            view.$('form').click();
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signup.engage'));
+          });
+      });
+    });
   });
 });
 

@@ -122,6 +122,19 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('logEventOnce', function () {
+      it('adds events to output data', function () {
+        metrics.logEventOnce('event1');
+        metrics.logEventOnce('event1');
+        metrics.logEventOnce('event3');
+
+        var filteredData = metrics.getFilteredData();
+        assert.equal(filteredData.events.length, 2);
+        assert.equal(filteredData.events[0].type, 'event1');
+        assert.equal(filteredData.events[1].type, 'event3');
+      });
+    });
+
     describe('startTimer/stopTimer', function () {
       it('adds a timer to output data', function () {
         metrics.startTimer('timer1');
