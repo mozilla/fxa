@@ -83,7 +83,8 @@ define(function (require, exports, module) {
 
     _isPanelEnabled: function () {
       return this._able.choose('deviceListVisible', {
-        forceDeviceList: Url.searchParam(FORCE_DEVICE_LIST_VIEW, this.window.location.search)
+        forceDeviceList: Url.searchParam(FORCE_DEVICE_LIST_VIEW, this.window.location.search),
+        isMetricsEnabledValue: this.metrics.isCollectionEnabled()
       });
     },
 
@@ -110,7 +111,8 @@ define(function (require, exports, module) {
     _isAppsListVisible: function () {
       // OAuth Apps list is visible if `appsListVisible` chooses `true`.
       return this._able.choose('appsListVisible', {
-        forceAppsList: Url.searchParam(FORCE_APPS_LIST_VIEW, this.window.location.search)
+        forceAppsList: Url.searchParam(FORCE_APPS_LIST_VIEW, this.window.location.search),
+        isMetricsEnabledValue: this.metrics.isCollectionEnabled()
       });
     },
 
