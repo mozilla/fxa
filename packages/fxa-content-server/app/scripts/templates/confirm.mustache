@@ -23,7 +23,7 @@
 
     {{#isOpenWebmailButtonVisible}}
       <div class="button-row">
-        <a href="{{{ webmailLink }}}" data-webmail-type="{{webmailType}}" class="button" target="_blank" id="open-webmail" type="button">{{webmailButtonText}}</a>
+        <a href="{{{ unsafeWebmailLink }}}" data-webmail-type="{{webmailType}}" class="button" target="_blank" id="open-webmail" type="button">{{webmailButtonText}}</a>
       </div>
     {{/isOpenWebmailButtonVisible}}
 
