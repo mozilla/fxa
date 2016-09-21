@@ -239,6 +239,12 @@ Lug.prototype.flowEvent = function (event, request) {
     return P.resolve()
   }
 
+  if (event === 'account.signed' && request.query && request.query.service === 'content-server') {
+    // HACK: Prevent the content server from distorting our flow completion rates.
+    //       Longer term we need to replace this with something better, obviously.
+    return P.resolve()
+  }
+
   return this.metricsContext.gather({
     event: event,
     userAgent: request.headers['user-agent']

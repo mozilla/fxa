@@ -20,7 +20,10 @@ var statsd = {
 }
 var metricsContext = {
   gather: sinon.spy(function (data, request) {
-    return P.resolve(request.payload && request.payload.metricsContext)
+    return P.resolve(request.payload && {
+      flow_id: request.payload.metricsContext.flowId,
+      service: request.payload.metricsContext.service
+    })
   })
 }
 var mocks = {
@@ -128,7 +131,7 @@ test(
       },
       payload: {
         metricsContext: {
-          flow_id: 'bar'
+          flowId: 'bar'
         }
       }
     }
@@ -166,7 +169,7 @@ test(
 )
 
 test(
-  'log.activityEvent with flow event and missing flow_id',
+  'log.activityEvent with flow event and missing flowId',
   function (t) {
     var request = {
       headers: {
@@ -209,7 +212,7 @@ test(
 )
 
 test(
-  'log.activityEvent with optional flow event and missing flow_id',
+  'log.activityEvent with optional flow event and missing flowId',
   function (t) {
     var request = {
       headers: {
@@ -400,10 +403,10 @@ test(
 
 test(
   'log.flowEvent with bad event name',
-  function (t) {
-    return log.flowEvent(undefined).then(function () {
+  t => {
+    return log.flowEvent(undefined).then(() => {
       t.equal(logger.error.callCount, 1, 'logger.error was called once')
-      var args = logger.error.args[0]
+      const args = logger.error.args[0]
       t.equal(args[0], 'log.flowEvent', 'correct op')
       t.equal(args[1].missingEvent, true, 'correct flag')
 
@@ -411,6 +414,7 @@ test(
       t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
       t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
       t.equal(logger.info.callCount, 0, 'logger.info was not called')
+      t.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
 
       logger.error.reset()
     })
@@ -419,18 +423,19 @@ test(
 
 test(
   'log.flowEvent with a bad request',
-  function (t) {
-    return log.flowEvent('account.login').then(function () {
+  t => {
+    return log.flowEvent('account.signed').then(() => {
       t.equal(logger.error.callCount, 1, 'logger.error was called once')
-      var args = logger.error.args[0]
+      const args = logger.error.args[0]
       t.equal(args[0], 'log.flowEvent', 'correct op')
-      t.equal(args[1].event, 'account.login', 'correct event name')
+      t.equal(args[1].event, 'account.signed', 'correct event name')
       t.equal(args[1].badRequest, true, 'correct flag')
 
       t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
       t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
       t.equal(logger.info.callCount, 0, 'logger.info was not called')
+      t.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
 
       logger.error.reset()
     })
@@ -438,26 +443,54 @@ test(
 )
 
 test(
-  'log.flowEvent properly logs with no errors',
-  function (t) {
-    return log.flowEvent('account.login', {
+  'log.flowEvent with content server account.signed event',
+  t => {
+    return log.flowEvent('account.signed', {
       headers: {
         'user-agent': 'foo'
       },
       payload: {
         metricsContext: {
-          flow_id: 'bar',
+          flowId: 'bar',
+          service: 'baz'
+        },
+        service: 'qux'
+      },
+      query: {
+        service: 'content-server'
+      }
+    }).then(() => {
+      t.equal(logger.error.callCount, 0, 'logger.error was not called')
+      t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
+      t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
+      t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
+      t.equal(logger.info.callCount, 0, 'logger.info was not called')
+      t.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
+    })
+  }
+)
+
+test(
+  'log.flowEvent properly logs with no errors',
+  t => {
+    return log.flowEvent('account.signed', {
+      headers: {
+        'user-agent': 'foo'
+      },
+      payload: {
+        metricsContext: {
+          flowId: 'bar',
           service: 'baz'
         },
         service: 'qux'
       }
-    }).then(function () {
+    }).then(() => {
       t.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
 
       t.equal(logger.info.callCount, 1, 'logger.info was called once')
-      var args = logger.info.args[0]
+      const args = logger.info.args[0]
       t.equal(args[0], 'flowEvent', 'correct event name')
-      t.equal(args[1].event, 'account.login', 'correct event name')
+      t.equal(args[1].event, 'account.signed', 'correct event name')
       t.equal(args[1].flow_id, 'bar', 'correct flow id')
       t.equal(args[1].service, 'baz', 'correct metrics data')
 
@@ -473,8 +506,8 @@ test(
 )
 
 test(
-  'log.flowEvent with flow event and missing flow_id',
-  function (t) {
+  'log.flowEvent with flow event and missing flowId',
+  t => {
     return log.flowEvent('account.login', {
       headers: {
         'user-agent': 'foo'
@@ -482,13 +515,13 @@ test(
       payload: {
         metricsContext: {}
       }
-    }).then(function () {
+    }).then(() => {
       t.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
 
       t.equal(logger.info.callCount, 0, 'logger.info was not called')
 
       t.equal(logger.error.callCount, 1, 'logger.error was called once')
-      var args = logger.error.args[0]
+      const args = logger.error.args[0]
       t.equal(args.length, 2, 'logger.error was passed two arguments')
       t.equal(args[0], 'log.flowEvent')
       t.deepEqual(args[1], {
@@ -504,8 +537,8 @@ test(
 )
 
 test(
-  'log.flowEvent with optional flow event and missing flow_id',
-  function (t) {
+  'log.flowEvent with optional flow event and missing flowId',
+  t => {
     return log.flowEvent('device.created', {
       headers: {
         'user-agent': 'foo'
@@ -513,7 +546,7 @@ test(
       payload: {
         metricsContext: {}
       }
-    }).then(function () {
+    }).then(() => {
       t.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
       t.equal(logger.info.callCount, 0, 'logger.info was not called')
       t.equal(logger.error.callCount, 0, 'logger.error was not called')
