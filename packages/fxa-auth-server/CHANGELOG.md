@@ -1,3 +1,18 @@
+<a name"0.70.0"></a>
+## 0.70.0 (2016-09-21)
+
+
+#### Bug Fixes
+
+* **purge-expired:**
+  * accept a list of pocket-id's ([1c843a93](https://github.com/mozilla/fxa-oauth-server/commit/1c843a93))
+  * Promise.delay takes milliseconds; allow subsecond delay ([10c61034](https://github.com/mozilla/fxa-oauth-server/commit/10c61034))
+  * moar logging ([80c360e7](https://github.com/mozilla/fxa-oauth-server/commit/80c360e7))
+  * set db.autoUpdateClients config to false ([bc66fc37](https://github.com/mozilla/fxa-oauth-server/commit/bc66fc37))
+  * use db.getClient() to check for unknown clientId ([c33f1d9c](https://github.com/mozilla/fxa-oauth-server/commit/c33f1d9c))
+  * log uncaughtException; minimum log level of info ([264271ef](https://github.com/mozilla/fxa-oauth-server/commit/264271ef))
+
+
 <a name"0.69.0"></a>
 ## 0.69.0 (2016-09-08)
 
