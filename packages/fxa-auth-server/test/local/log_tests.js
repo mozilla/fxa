@@ -20,7 +20,10 @@ var statsd = {
 }
 var metricsContext = {
   gather: sinon.spy(function (data, request) {
-    return P.resolve(request.payload && request.payload.metricsContext)
+    return P.resolve(request.payload && {
+      flow_id: request.payload.metricsContext.flowId,
+      service: request.payload.metricsContext.service
+    })
   })
 }
 var mocks = {
@@ -128,7 +131,7 @@ test(
       },
       payload: {
         metricsContext: {
-          flow_id: 'bar'
+          flowId: 'bar'
         }
       }
     }
@@ -166,7 +169,7 @@ test(
 )
 
 test(
-  'log.activityEvent with flow event and missing flow_id',
+  'log.activityEvent with flow event and missing flowId',
   function (t) {
     var request = {
       headers: {
@@ -209,7 +212,7 @@ test(
 )
 
 test(
-  'log.activityEvent with optional flow event and missing flow_id',
+  'log.activityEvent with optional flow event and missing flowId',
   function (t) {
     var request = {
       headers: {
@@ -448,7 +451,7 @@ test(
       },
       payload: {
         metricsContext: {
-          flow_id: 'bar',
+          flowId: 'bar',
           service: 'baz'
         },
         service: 'qux'
@@ -476,7 +479,7 @@ test(
       },
       payload: {
         metricsContext: {
-          flow_id: 'bar',
+          flowId: 'bar',
           service: 'baz'
         },
         service: 'qux'
@@ -503,7 +506,7 @@ test(
 )
 
 test(
-  'log.flowEvent with flow event and missing flow_id',
+  'log.flowEvent with flow event and missing flowId',
   t => {
     return log.flowEvent('account.login', {
       headers: {
@@ -534,7 +537,7 @@ test(
 )
 
 test(
-  'log.flowEvent with optional flow event and missing flow_id',
+  'log.flowEvent with optional flow event and missing flowId',
   t => {
     return log.flowEvent('device.created', {
       headers: {
