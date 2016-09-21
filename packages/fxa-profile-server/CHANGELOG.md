@@ -1,3 +1,13 @@
+<a name="0.70.0"></a>
+# [0.70.0](https://github.com/mozilla/fxa-profile-server/compare/v0.69.0...v0.70.0) (2016-09-21)
+
+
+### Bug Fixes
+
+* **log:** add remoteAddressChain to summary (#208) r=jrgm ([05ae545](https://github.com/mozilla/fxa-profile-server/commit/05ae545))
+
+
+
 <a name="0.68.0"></a>
 # [0.68.0](https://github.com/mozilla/fxa-profile-server/compare/v0.67.1...v0.68.0) (2016-08-24)
 
