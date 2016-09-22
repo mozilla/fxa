@@ -1114,7 +1114,7 @@ module.exports = function (log, error) {
 
   var FETCH_SECURITY_EVENTS = 'CALL fetchSecurityEvents_1(?, ?)'
   MySql.prototype.securityEvents = function (where) {
-    var uid = where.uid
+    var uid = where.id
 
     var ipAddr = ipHmac(this.ipHmacKey, uid, where.ipAddr)
     return this.read(FETCH_SECURITY_EVENTS, [uid, ipAddr])

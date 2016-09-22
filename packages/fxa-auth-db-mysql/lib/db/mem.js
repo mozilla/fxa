@@ -853,7 +853,7 @@ module.exports = function (log, error) {
   }
 
   Memory.prototype.securityEvents = function (where) {
-    var key = where.uid.toString('hex')
+    var key = where.id.toString('hex')
     var events = securityEvents[key] || []
     var addr = where.ipAddr
     if (ip.isV4Format(addr)) {
