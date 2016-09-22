@@ -6,9 +6,8 @@ define([
   'intern!object',
   'intern/chai!assert',
   'intern/dojo/node!sinon',
-  'intern/dojo/node!../../../server/lib/routes/get-config',
-  'intern/dojo/node!../../../server/lib/configuration',
-], function (registerSuite, assert, sinon, route, config) {
+  'intern/dojo/node!../../../server/lib/routes/get-config'
+], function (registerSuite, assert, sinon, route) {
   var instance;
   var request;
   var response;
@@ -37,47 +36,26 @@ define([
 
       'route.process': {
         setup: function () {
-          request = {
-            cookies: {
-              '__cookie_check': true
-            },
-            lang: 'db_LB'
-          };
+          request = {};
           response = {
-            header: sinon.spy(),
-            json: sinon.spy(),
-            set: sinon.spy()
+            json: sinon.spy(function () {
+              return this;
+            }),
+            status: sinon.spy(function () {
+              return this;
+            })
           };
           instance.process(request, response);
         },
 
-        'response.header was called correctly': function () {
-          assert.equal(response.header.callCount, 1);
-          assert.isTrue(response.header.calledWith('Cache-Control', 'no-cache, max-age=0'));
-        },
-
-        'response.set was called correctly': function () {
-          assert.equal(response.set.callCount, 1);
-          assert.isTrue(response.set.calledWith('Vary', 'accept-language'));
+        'response.status was called correctly': function () {
+          assert.equal(response.status.callCount, 1);
+          assert.equal(response.status.args[0][0], 410);
         },
 
         'response.json was called correctly': function () {
           assert.equal(response.json.callCount, 1);
-          var sentConfig = response.json.args[0][0];
-
-          assert.deepEqual(sentConfig.allowedParentOrigins,
-                           config.get('allowed_parent_origins'));
-          assert.equal(sentConfig.authServerUrl, config.get('fxaccount_url'));
-          assert.isTrue(sentConfig.cookiesEnabled);
-          assert.equal(sentConfig.env, config.get('env'));
-          assert.equal(sentConfig.language, 'db_LB');
-          assert.equal(sentConfig.marketingEmailPreferencesUrl,
-                       config.get('marketing_email.preferences_url'));
-          assert.equal(sentConfig.marketingEmailServerUrl,
-                       config.get('marketing_email.api_url'));
-          assert.equal(sentConfig.oAuthClientId, config.get('oauth_client_id'));
-          assert.equal(sentConfig.oAuthUrl, config.get('oauth_url'));
-          assert.equal(sentConfig.profileUrl, config.get('profile_url'));
+          assert.deepEqual(response.json.args[0][0], {});
         }
       }
     }

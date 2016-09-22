@@ -79,43 +79,6 @@ define([
     }, dfd.reject.bind(dfd)));
   }
 
-  suite['#get /config'] = function () {
-    var dfd = this.async(intern.config.asyncTimeout);
-
-    request(serverUrl + '/config', {
-      headers: {
-        'Accept-Language': 'es,en;q=0.8,de;q=0.6,en-gb;q=0.4,chrome://global/locale/intl.properties;q=0.2'
-      }
-    }, dfd.callback(function (err, res) {
-      assert.equal(res.statusCode, 200);
-      assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
-      // Response differs depending on the Accept-Language, let all
-      // intermediaries know this.
-      assert.ok(res.headers.vary, 'the vary header exists');
-      // the field names in Vary are case-insensitive
-      var varyHeader = res.headers.vary.toLowerCase();
-      assert.equal(varyHeader, 'accept-language');
-
-      var body = JSON.parse(res.body);
-      assert.equal(body.language, 'es');
-    }, dfd.reject.bind(dfd)));
-  };
-
-  suite['#get /config should return language not locale'] = function () {
-    var dfd = this.async(intern.config.asyncTimeout);
-
-    request(serverUrl + '/config', {
-      headers: {
-        'Accept-Language': 'zh-cn'
-      }
-    }, dfd.callback(function (err, res) {
-      assert.equal(res.statusCode, 200);
-
-      var body = JSON.parse(res.body);
-      assert.equal(body.language, 'zh-cn');
-    }, dfd.reject.bind(dfd)));
-  };
-
   // Test each server template based page
   ['/', '/non-existent', '/boom', '/legal/terms', '/legal/privacy'].forEach(function (page) {
     suite['#get page ' + page + ' has correct localized resources'] = function () {

@@ -36,7 +36,7 @@ define([
     '/complete_signin': { statusCode: 200 },
     '/config': {
       headerAccept: 'application/json',
-      statusCode: 200
+      statusCode: 410
     },
     '/confirm': { statusCode: 200 },
     '/confirm_reset_password': { statusCode: 200 },
