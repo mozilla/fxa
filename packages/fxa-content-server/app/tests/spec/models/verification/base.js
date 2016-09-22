@@ -87,6 +87,19 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('markUsed/isUsed', function () {
+      it('marks the link as used', function () {
+        var model = new Model({
+          code: 'a-code',
+          uid: 'a-uid'
+        });
+
+        assert.isFalse(model.isUsed());
+        model.markUsed();
+        assert.isTrue(model.isUsed());
+      });
+    });
+
     describe('markDamaged/isDamaged', function () {
       it('marks the link as damaged', function () {
         var model = new Model({

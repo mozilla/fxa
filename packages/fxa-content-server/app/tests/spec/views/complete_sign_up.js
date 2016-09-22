@@ -339,7 +339,7 @@ define(function (require, exports, module) {
 
           return view.render()
             .then(function () {
-              assert.ok(view.$('#fxa-verification-link-expired-header').length);
+              assert.ok(view.$('#fxa-verification-link-reused-header').length);
             });
         });
 

@@ -99,6 +99,14 @@ define(function (require, exports, module) {
       return !! this._isExpired;
     },
 
+    markUsed: function () {
+      this._isUsed = true;
+    },
+
+    isUsed: function () {
+      return !! this._isUsed;
+    },
+
     /**
      * Mark the verification info as damaged. This will cause `isValid` to
      * return `false`.

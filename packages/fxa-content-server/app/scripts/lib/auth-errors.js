@@ -299,7 +299,7 @@ define(function (require, exports, module) {
     },
     REUSED_SIGNIN_VERIFICATION_CODE: {
       errno: 1041,
-      message: EXPIRED_VERIFICATION_ERROR_MESSAGE
+      message: t('That confirmation link was already used, and can only be used once.')
     },
     INPUT_REQUIRED: {
       errno: 1042,

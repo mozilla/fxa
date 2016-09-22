@@ -139,7 +139,7 @@ define(function (require, exports, module) {
               // This error is generated because the link has already been used.
               if (self.isSignIn()) {
                 // Disable resending verification, can only be triggered from new sign-in
-                verificationInfo.markExpired();
+                verificationInfo.markUsed();
                 err = AuthErrors.toError('REUSED_SIGNIN_VERIFICATION_CODE');
               } else {
                 // These server says the verification code or any parameter is
@@ -164,7 +164,8 @@ define(function (require, exports, module) {
         error: this.model.get('error'),
         // If the link is invalid, print a special error message.
         isLinkDamaged: ! verificationInfo.isValid(),
-        isLinkExpired: verificationInfo.isExpired()
+        isLinkExpired: verificationInfo.isExpired(),
+        isLinkUsed: verificationInfo.isUsed()
       };
     },
 
