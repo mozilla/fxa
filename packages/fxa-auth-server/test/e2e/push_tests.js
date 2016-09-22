@@ -7,7 +7,7 @@ var proxyquire = require('proxyquire')
 
 var test = tap.test
 var P = require('../../lib/promise')
-var mockLog = require('../mocks').mockLog
+var spyLog = require('../mocks').spyLog
 var mockUid = new Buffer('foo')
 
 var PushManager = require('../push_helper').PushManager
@@ -20,9 +20,6 @@ var pushManager = new PushManager({
 test(
   'pushToAllDevices sends notifications using a real push server',
   function (t) {
-    t.assert(true, 'Test Skipped. See issue #1368.')
-    return t.end()
-
     pushManager.getSubscription().then(function (subscription) { // eslint-disable-line no-unreachable
       var mockDbResult = {
         devices: function (/* uid */) {
@@ -38,10 +35,13 @@ test(
               'pushAuthKey': 'GSsIiaD2Mr83iPqwFNK4rw'
             }
           ])
+        },
+        updateDevice: function () {
+          return P.resolve()
         }
       }
 
-      var thisMockLog = mockLog({
+      var thisSpyLog = spyLog({
         info: function (log) {
           if (log.name === 'push.account_verify.success') {
             t.end()
@@ -49,11 +49,15 @@ test(
         }
       })
 
-      var push = proxyquire('../../lib/push', {})(thisMockLog, mockDbResult)
+      var push = proxyquire('../../lib/push', {})(thisSpyLog, mockDbResult)
       var options = {
         data: new Buffer('foodata')
       }
-      push.pushToAllDevices(mockUid, 'accountVerify', options)
+      push.pushToAllDevices(mockUid, 'accountVerify', options).then(function() {
+        if (thisSpyLog.error.callCount !== 0) {
+          throw new Error('No errors should have been logged')
+        }
+      })
 
     })
   }
