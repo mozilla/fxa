@@ -99,10 +99,20 @@ define(function (require, exports, module) {
       return !! this._isExpired;
     },
 
+    /**
+     * Mark the verification info as used.
+     * @method markUsed
+     */
     markUsed: function () {
       this._isUsed = true;
     },
 
+     /**
+     * Check if the verification info is used
+     *
+     * @method isUsed
+     * @returns {boolean} `true` if used, `false` otherwise.
+     */
     isUsed: function () {
       return !! this._isUsed;
     },
