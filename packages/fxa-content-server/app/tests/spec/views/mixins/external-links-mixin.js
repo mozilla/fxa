@@ -70,6 +70,18 @@ define(function (require, exports, module) {
       it('does not convert internal links', function () {
         assert.isFalse(view.$('#internal-link').hasClass('visible-url'));
       });
+
+      it('adds rel in external links', function () {
+        var $externalLink = view.$('#external-link');
+        assert.equal(
+         $externalLink.attr('rel'),'noopener noreferrer');
+      });
+
+      it('does not add rel in internal links', function () {
+        var $internalLink = view.$('#internal-link');
+        assert.notEqual(
+         $internalLink.attr('rel'),'noopener noreferrer');
+      });
     });
   });
 });
