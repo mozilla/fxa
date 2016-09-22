@@ -7,7 +7,7 @@ const crypto = require('crypto')
 const commander = require('commander')
 
 const P = require('../../lib/promise')
-const Client = require('../../test/client')
+const Client = require('../../test/client')()
 const mailbox = require('../../test/mailbox')
 const validateEmail = require('./validate-email')
 

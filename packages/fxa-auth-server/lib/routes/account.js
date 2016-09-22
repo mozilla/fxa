@@ -54,6 +54,7 @@ module.exports = function (
     supportedLanguages: config.i18n.supportedLanguages,
     defaultLanguage: config.i18n.defaultLanguage
   })
+  const features = require('../features')(config)
 
   var securityHistoryEnabled = config.securityHistory && config.securityHistory.enabled
 
@@ -211,7 +212,8 @@ module.exports = function (
         }
 
         function createSessionToken () {
-          var enableTokenVerification = requestHelper.shouldEnableTokenVerification(account, config, request)
+          const enableTokenVerification =
+            features.isSigninConfirmationEnabledForUser(account.uid, account.email, request)
 
           // Verified sessions should only be created for preverified tokens
           // and when sign-in confirmation is disabled or not needed.
@@ -419,7 +421,7 @@ module.exports = function (
                 //  * the request wants keys, since unverified sessions are fine to use for e.g. oauth login.
                 //  * the email is verified, since content-server triggers a resend of the verification
                 //    email on unverified accounts, which doubles as sign-in confirmation.
-                if (! requestHelper.shouldEnableTokenVerification(emailRecord, config, request)) {
+                if (! features.isSigninConfirmationEnabledForUser(emailRecord.uid, emailRecord.email, request)) {
                   tokenVerificationId = undefined
                   mustVerifySession = false
                   doSigninConfirmation = false

@@ -6,7 +6,7 @@ process.env.PUBLIC_URL = 'http://127.0.0.1:9000/auth'
 
 var test = require('../ptaptest')
 var TestServer = require('../test_server')
-var Client = require('../client')
+const Client = require('../client')()
 var P = require('../../lib/promise')
 var request = require('request')
 

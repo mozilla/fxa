@@ -11,9 +11,16 @@ var log = { trace: console.log, info: console.log } // eslint-disable-line no-co
 var config = require('../../config').getProperties()
 var P = require('../../lib/promise')
 var TestServer = require('../test_server')
-var Token = require('../../lib/tokens')(log)
-var DB = require('../../lib/db')(
-  config.db.backend,
+const lastAccessTimeUpdates = {
+  enabled: true,
+  enabledEmailAddresses: '.*',
+  sampleRate: 1
+}
+const Token = require('../../lib/tokens')(log, {
+  lastAccessTimeUpdates: lastAccessTimeUpdates
+})
+const DB = require('../../lib/db')(
+  { lastAccessTimeUpdates: lastAccessTimeUpdates },
   log,
   Token.error,
   Token.SessionToken,
@@ -227,10 +234,12 @@ test(
       return db.emailRecord(ACCOUNT.email)
         .then(function (emailRecord) {
           emailRecord.tokenVerificationId = ACCOUNT.tokenVerificationId
+          // Create a session token
           return db.createSessionToken(emailRecord, 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0')
         })
         .then(function (result) {
           sessionToken = result
+          // Attempt to update a non-existent device
           return db.updateDevice(ACCOUNT.uid, sessionToken.tokenId, deviceInfo)
             .then(function () {
               t.fail('updating a non-existent device should have failed')
@@ -240,6 +249,7 @@ test(
             })
         })
         .then(function () {
+          // Attempt to delete a non-existent device
           return db.deleteDevice(ACCOUNT.uid, deviceInfo.id)
             .then(function () {
               t.fail('deleting a non-existent device should have failed')
@@ -249,6 +259,7 @@ test(
             })
         })
         .then(function () {
+          // Fetch all of the devices for the account
           return db.devices(ACCOUNT.uid)
             .catch(function () {
               t.fail('getting devices should not have failed')
@@ -257,6 +268,7 @@ test(
         .then(function (devices) {
           t.ok(Array.isArray(devices), 'devices is array')
           t.equal(devices.length, 0, 'devices array is empty')
+          // Create a device
           return db.createDevice(ACCOUNT.uid, sessionToken.tokenId, deviceInfo)
             .catch(function (err) {
               t.fail('adding a new device should not have failed')
@@ -270,6 +282,7 @@ test(
           t.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
           t.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
           t.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
+          // Attempt to create a device with a duplicate session token
           return db.createDevice(ACCOUNT.uid, sessionToken.tokenId, deviceInfo)
             .then(function () {
               t.fail('adding a device with a duplicate session token should have failed')
@@ -279,6 +292,7 @@ test(
             })
         })
         .then(function () {
+          // Fetch all of the devices for the account
           return db.devices(ACCOUNT.uid)
         })
         .then(function (devices) {
@@ -304,6 +318,7 @@ test(
           deviceInfo.pushCallback = ''
           deviceInfo.pushPublicKey = ''
           deviceInfo.pushAuthKey = ''
+          // Update the device and the session token
           return P.all([
             db.updateDevice(ACCOUNT.uid, sessionToken.tokenId, deviceInfo),
             db.updateSessionToken(sessionToken, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:44.0) Gecko/20100101 Firefox/44.0')
@@ -313,6 +328,7 @@ test(
             })
         })
         .then(function (device) {
+          // Fetch all of the devices for the account
           return db.devices(ACCOUNT.uid)
         })
         .then(function (devices) {
@@ -320,6 +336,7 @@ test(
           return devices[0]
         })
         .then(function (device) {
+          t.ok(device.lastAccessTime > 0, 'device.lastAccessTime is set')
           t.equal(device.name, deviceInfo.name, 'device.name is correct')
           t.equal(device.type, deviceInfo.type, 'device.type is correct')
           t.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
@@ -330,12 +347,24 @@ test(
           t.equal(device.uaOS, 'Mac OS X', 'device.uaOS is correct')
           t.equal(device.uaOSVersion, '10.10', 'device.uaOSVersion is correct')
           t.equal(device.uaDeviceType, null, 'device.uaDeviceType is correct')
+          // Disable the lastAccessTime property
+          lastAccessTimeUpdates.enabled = false
+          // Fetch all of the devices for the account
+          return db.devices(ACCOUNT.uid)
+        })
+        .then(function(devices) {
+          t.equal(devices.length, 1, 'devices array still contains one item')
+          t.equal(devices[0].lastAccessTime, null, 'device.lastAccessTime should be null')
+          // Reinstate the lastAccessTime property
+          lastAccessTimeUpdates.enabled = true
+          // Delete the device
           return db.deleteDevice(ACCOUNT.uid, deviceInfo.id)
             .catch(function () {
               t.fail('deleting a device should not have failed')
             })
         })
         .then(function () {
+          // Fetch all of the devices for the account
           return db.devices(ACCOUNT.uid)
         })
         .then(function (devices) {

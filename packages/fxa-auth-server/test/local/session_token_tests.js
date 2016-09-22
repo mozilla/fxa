@@ -7,7 +7,10 @@ var test = require('../ptaptest')
 var log = { trace: function() {}, info: function () {} }
 var crypto = require('crypto')
 
-var tokens = require('../../lib/tokens')(log)
+const config = {
+  lastAccessTimeUpdates: {}
+}
+const tokens = require('../../lib/tokens')(log, config)
 var SessionToken = tokens.SessionToken
 
 var TOKEN_FRESHNESS_THRESHOLD = require('../../lib/tokens/session_token').TOKEN_FRESHNESS_THREADHOLD
@@ -153,8 +156,11 @@ test(
 )
 
 test(
-  'SessionToken.isFresh',
-  function (t) {
+  'SessionToken.isFresh with lastAccessTime updates enabled',
+  t => {
+    config.lastAccessTimeUpdates.enabled = true
+    config.lastAccessTimeUpdates.sampleRate = 1
+    config.lastAccessTimeUpdates.enabledEmailAddresses = '.+'
     return SessionToken.create({
       uaBrowser: 'foo',
       uaBrowserVersion: 'bar',
@@ -162,7 +168,7 @@ test(
       uaOSVersion: 'qux',
       uaDeviceType: 'wibble',
       lastAccessTime: 0
-    }).then(function (token) {
+    }).then(token => {
       t.equal(token.isFresh({
         uaBrowser: 'foo',
         uaBrowserVersion: 'bar',
@@ -227,6 +233,30 @@ test(
         uaDeviceType: 'wibble',
         lastAccessTime: 3599999
       }), true, 'returns true when lastAccessTime is 3,599,999 milliseconds newer')
+    })
+  }
+)
+
+test(
+  'SessionToken.isFresh with lastAccessTime updates disabled',
+  t => {
+    config.lastAccessTimeUpdates.enabled = false
+    return SessionToken.create({
+      uaBrowser: 'foo',
+      uaBrowserVersion: 'bar',
+      uaOS: 'baz',
+      uaOSVersion: 'qux',
+      uaDeviceType: 'wibble',
+      lastAccessTime: 0
+    }).then(token => {
+      t.equal(token.isFresh({
+        uaBrowser: 'foo',
+        uaBrowserVersion: 'bar',
+        uaOS: 'baz',
+        uaOSVersion: 'qux',
+        uaDeviceType: 'wibble',
+        lastAccessTime: TOKEN_FRESHNESS_THRESHOLD
+      }), true, 'returns true when lastAccessTime is TOKEN_FRESHNESS_THRESHOLD milliseconds newer')
     })
   }
 )

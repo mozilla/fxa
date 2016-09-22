@@ -433,11 +433,13 @@ var conf = convict({
   signinConfirmation: {
     enabled: {
       doc: 'enable signin confirmation',
+      format: Boolean,
       default: false,
       env: 'SIGNIN_CONFIRMATION_ENABLED'
     },
     sample_rate: {
       doc: 'signin confirmation sample rate, between 0.0 and 1.0',
+      format: Number,
       default: 1.0,
       env: 'SIGNIN_CONFIRMATION_RATE'
     },
@@ -461,7 +463,7 @@ var conf = convict({
       doc: 'If feature enabled, force sign-in confirmation for email addresses matching this regex.',
       format: Array,
       default: [
-        '.+@mozilla\.com$'
+        '.+@mozilla\\.com$'
       ],
       env: 'SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX'
     }
@@ -471,6 +473,25 @@ var conf = convict({
       doc: 'enable security history',
       default: true,
       env: 'SECURITY_HISTORY_ENABLED'
+    }
+  },
+  lastAccessTimeUpdates: {
+    enabled: {
+      doc: 'enable updates to the lastAccessTime session token property',
+      format: Boolean,
+      default: false,
+      env: 'LASTACCESSTIME_UPDATES_ENABLED'
+    },
+    sampleRate: {
+      doc: 'sample rate for updates to the lastAccessTime session token property, in the range 0..1',
+      format: Number,
+      default: 1,
+      env: 'LASTACCESSTIME_UPDATES_SAMPLE_RATE'
+    },
+    enabledEmailAddresses: {
+      doc: 'regex matching enabled email addresses for updates to the lastAccessTime session token property',
+      default: '.+@mozilla\\.com$',
+      env: 'LASTACCESSTIME_UPDATES_EMAIL_ADDRESSES'
     }
   }
 })

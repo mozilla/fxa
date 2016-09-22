@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('tap').test
-var Client = require('../client')
+const Client = require('../client')()
 var TestServer = require('../test_server')
 var jwtool = require('fxa-jwtool')
 

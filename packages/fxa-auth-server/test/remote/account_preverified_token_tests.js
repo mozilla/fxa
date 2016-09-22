@@ -4,7 +4,7 @@
 
 var test = require('tap').test
 var TestServer = require('../test_server')
-var Client = require('../client')
+const Client = require('../client')()
 var JWTool = require('fxa-jwtool')
 
 var config = require('../../config').getProperties()

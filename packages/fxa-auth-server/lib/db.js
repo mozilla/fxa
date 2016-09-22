@@ -12,7 +12,7 @@ var unbuffer = butil.unbuffer
 var bufferize = butil.bufferize
 
 module.exports = function (
-  backend,
+  config,
   log,
   error,
   SessionToken,
@@ -20,6 +20,8 @@ module.exports = function (
   AccountResetToken,
   PasswordForgotToken,
   PasswordChangeToken) {
+
+  const features = require('./features')(config)
 
   function DB(options) {
     this.pool = new Pool(options.url)
@@ -435,7 +437,7 @@ module.exports = function (
             return bufferize({
               id: item.id,
               sessionToken: item.sessionTokenId,
-              lastAccessTime: item.lastAccessTime,
+              lastAccessTime: marshallLastAccessTime(item.lastAccessTime, uid, item.email),
               name: item.name,
               type: item.type,
               pushCallback: item.callbackURL,
@@ -461,6 +463,17 @@ module.exports = function (
           throw err
         }
       )
+  }
+
+  function marshallLastAccessTime (lastAccessTime, uid, email) {
+    // Updating lastAccessTime on session tokens may not be enabled.
+    // If it isn't, return null instead of the timestamp so that the
+    // content server knows not to display it to users.
+    if (features.isLastAccessTimeEnabledForUser(uid, email)) {
+      return lastAccessTime
+    }
+
+    return null
   }
 
   DB.prototype.sessionWithDevice = function (id) {

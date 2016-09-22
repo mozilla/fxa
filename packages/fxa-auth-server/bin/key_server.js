@@ -34,7 +34,7 @@ function main() {
   }
 
   var error = require('../lib/error')
-  var Token = require('../lib/tokens')(log, config.tokenLifetimes)
+  var Token = require('../lib/tokens')(log, config)
   var Password = require('../lib/crypto/password')(log, config)
 
   var signer = require('../lib/signer')(config.secretKeyFile, config.domain)
@@ -79,7 +79,7 @@ function main() {
         mailer = m
 
         var DB = require('../lib/db')(
-          config.db.backend,
+          config,
           log,
           error,
           Token.SessionToken,

@@ -4,11 +4,16 @@
 
 var test = require('../ptaptest')
 var TestServer = require('../test_server')
-var Client = require('../client')
+const Client = require('../client')()
 var config = require('../../config').getProperties()
 var crypto = require('crypto')
 var base64url = require('base64url')
 var P = require('../../lib/promise')
+
+// HACK: Force-enable devices.lastAccessTime in the spawned server process
+process.env.LASTACCESSTIME_UPDATES_ENABLED = 'true'
+process.env.LASTACCESSTIME_UPDATES_EMAIL_ADDRESSES = '.*'
+process.env.LASTACCESSTIME_UPDATES_SAMPLE_RATE = '1'
 
 TestServer.start(config)
 .then(function main(server) {

@@ -11,7 +11,7 @@ var config = require('../../config').getProperties()
 var TestServer = require('../test_server')
 var Token = require('../../lib/tokens')(log)
 var DB = require('../../lib/db')(
-  config.db.backend,
+  config,
   log,
   Token.error,
   Token.SessionToken,

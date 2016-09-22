@@ -4,7 +4,7 @@
 
 var test = require('tap').test
 var TestServer = require('../test_server')
-var Client = require('../client')
+const Client = require('../client')()
 var P = require('../../lib/promise')
 
 var config = require('../../config').getProperties()
