@@ -1489,7 +1489,7 @@ module.exports = function(config, DB) {
             function query (uid, addr, cb) {
               return function () {
                 return db.securityEvents({
-                  uid: uid,
+                  id: uid,
                   ipAddr: addr
                 })
                 .then(cb)

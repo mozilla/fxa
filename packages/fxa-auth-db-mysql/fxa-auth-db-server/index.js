@@ -13,7 +13,7 @@ function createServer(db) {
 
   function reply(fn) {
     return function (req, res, next) {
-      fn.call(db, req.params.id, req.body)
+      fn(req.params, req.body, req.query)
         .then(
           handleSuccess.bind(null, req, res),
           handleError.bind(null, req, res)
@@ -22,15 +22,22 @@ function createServer(db) {
     }
   }
 
-  function replyNoParams(fn) {
-    return function (req, res, next) {
-      fn.call(db, req.body, req.query)
-        .then(
-          handleSuccess.bind(null, req, res),
-          handleError.bind(null, req, res)
-        )
-        .done(next, next)
-    }
+  function withIdAndBody(fn) {
+    return reply(function (params, body, query) {
+      return fn.call(db, params.id, body)
+    })
+  }
+
+  function withBodyAndQuery(fn) {
+    return reply(function (params, body, query) {
+      return fn.call(db, body, query)
+    })
+  }
+
+  function withParams(fn) {
+    return reply(function (params, body, query) {
+      return fn.call(db, params)
+    })
   }
 
   var api = restify.createServer()
@@ -44,54 +51,54 @@ function createServer(db) {
     'uaDeviceType'
   ]))
 
-  api.get('/account/:id', reply(db.account))
-  api.del('/account/:id', reply(db.deleteAccount))
-  api.put('/account/:id', reply(db.createAccount))
-  api.get('/account/:id/devices', reply(db.accountDevices))
-  api.post('/account/:id/checkPassword', reply(db.checkPassword))
-  api.post('/account/:id/reset', reply(db.resetAccount))
-  api.post('/account/:id/verifyEmail', reply(db.verifyEmail))
-  api.post('/account/:id/locale', reply(db.updateLocale))
-  api.get('/account/:id/sessions', reply(db.sessions))
+  api.get('/account/:id', withIdAndBody(db.account))
+  api.del('/account/:id', withIdAndBody(db.deleteAccount))
+  api.put('/account/:id', withIdAndBody(db.createAccount))
+  api.get('/account/:id/devices', withIdAndBody(db.accountDevices))
+  api.post('/account/:id/checkPassword', withIdAndBody(db.checkPassword))
+  api.post('/account/:id/reset', withIdAndBody(db.resetAccount))
+  api.post('/account/:id/verifyEmail', withIdAndBody(db.verifyEmail))
+  api.post('/account/:id/locale', withIdAndBody(db.updateLocale))
+  api.get('/account/:id/sessions', withIdAndBody(db.sessions))
 
-  api.get('/sessionToken/:id', reply(db.sessionToken))
-  api.del('/sessionToken/:id', reply(db.deleteSessionToken))
-  api.put('/sessionToken/:id', reply(db.createSessionToken))
-  api.post('/sessionToken/:id/update', reply(db.updateSessionToken))
-  api.get('/sessionToken/:id/device', reply(db.sessionWithDevice))
+  api.get('/sessionToken/:id', withIdAndBody(db.sessionToken))
+  api.del('/sessionToken/:id', withIdAndBody(db.deleteSessionToken))
+  api.put('/sessionToken/:id', withIdAndBody(db.createSessionToken))
+  api.post('/sessionToken/:id/update', withIdAndBody(db.updateSessionToken))
+  api.get('/sessionToken/:id/device', withIdAndBody(db.sessionWithDevice))
 
-  api.get('/keyFetchToken/:id', reply(db.keyFetchToken))
-  api.del('/keyFetchToken/:id', reply(db.deleteKeyFetchToken))
-  api.put('/keyFetchToken/:id', reply(db.createKeyFetchToken))
+  api.get('/keyFetchToken/:id', withIdAndBody(db.keyFetchToken))
+  api.del('/keyFetchToken/:id', withIdAndBody(db.deleteKeyFetchToken))
+  api.put('/keyFetchToken/:id', withIdAndBody(db.createKeyFetchToken))
 
-  api.get('/sessionToken/:id/verified', reply(db.sessionTokenWithVerificationStatus))
-  api.get('/keyFetchToken/:id/verified', reply(db.keyFetchTokenWithVerificationStatus))
-  api.post('/tokens/:id/verify', reply(db.verifyTokens))
+  api.get('/sessionToken/:id/verified', withIdAndBody(db.sessionTokenWithVerificationStatus))
+  api.get('/keyFetchToken/:id/verified', withIdAndBody(db.keyFetchTokenWithVerificationStatus))
+  api.post('/tokens/:id/verify', withIdAndBody(db.verifyTokens))
 
-  api.get('/accountResetToken/:id', reply(db.accountResetToken))
-  api.del('/accountResetToken/:id', reply(db.deleteAccountResetToken))
+  api.get('/accountResetToken/:id', withIdAndBody(db.accountResetToken))
+  api.del('/accountResetToken/:id', withIdAndBody(db.deleteAccountResetToken))
 
-  api.get('/passwordChangeToken/:id', reply(db.passwordChangeToken))
-  api.del('/passwordChangeToken/:id', reply(db.deletePasswordChangeToken))
-  api.put('/passwordChangeToken/:id', reply(db.createPasswordChangeToken))
+  api.get('/passwordChangeToken/:id', withIdAndBody(db.passwordChangeToken))
+  api.del('/passwordChangeToken/:id', withIdAndBody(db.deletePasswordChangeToken))
+  api.put('/passwordChangeToken/:id', withIdAndBody(db.createPasswordChangeToken))
 
-  api.get('/passwordForgotToken/:id', reply(db.passwordForgotToken))
-  api.del('/passwordForgotToken/:id', reply(db.deletePasswordForgotToken))
-  api.put('/passwordForgotToken/:id', reply(db.createPasswordForgotToken))
-  api.post('/passwordForgotToken/:id/update', reply(db.updatePasswordForgotToken))
-  api.post('/passwordForgotToken/:id/verified', reply(db.forgotPasswordVerified))
+  api.get('/passwordForgotToken/:id', withIdAndBody(db.passwordForgotToken))
+  api.del('/passwordForgotToken/:id', withIdAndBody(db.deletePasswordForgotToken))
+  api.put('/passwordForgotToken/:id', withIdAndBody(db.createPasswordForgotToken))
+  api.post('/passwordForgotToken/:id/update', withIdAndBody(db.updatePasswordForgotToken))
+  api.post('/passwordForgotToken/:id/verified', withIdAndBody(db.forgotPasswordVerified))
 
-  api.get('/verificationReminders', replyNoParams(db.fetchReminders))
-  api.post('/verificationReminders', replyNoParams(db.createVerificationReminder))
-  api.del('/verificationReminders', replyNoParams(db.deleteReminder))
+  api.get('/verificationReminders', withBodyAndQuery(db.fetchReminders))
+  api.post('/verificationReminders', withBodyAndQuery(db.createVerificationReminder))
+  api.del('/verificationReminders', withBodyAndQuery(db.deleteReminder))
 
-  api.get('/securityEvents', reply(db.securityEvents))
-  api.post('/securityEvents', reply(db.createSecurityEvent))
+  api.get('/securityEvents/:id/ip/:ipAddr', withParams(db.securityEvents))
+  api.post('/securityEvents', withBodyAndQuery(db.createSecurityEvent))
 
-  api.get('/emailRecord/:id', reply(db.emailRecord))
-  api.head('/emailRecord/:id', reply(db.accountExists))
+  api.get('/emailRecord/:id', withIdAndBody(db.emailRecord))
+  api.head('/emailRecord/:id', withIdAndBody(db.accountExists))
 
-  api.get('/__heartbeat__', reply(db.ping))
+  api.get('/__heartbeat__', withIdAndBody(db.ping))
 
   api.put(
     '/account/:uid/device/:deviceId',
