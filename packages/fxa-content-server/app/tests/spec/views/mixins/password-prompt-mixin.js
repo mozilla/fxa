@@ -110,7 +110,6 @@ define(function (require, exports, module) {
         // wait for tooltip
         setTimeout(function () {
           assert.equal(view.$(TOOLTIP_SELECTOR).length, 1);
-          assert.equal(view.$(TOOLTIP_SELECTOR + '> a').length, 1, 'has a link');
           done();
         }, 50);
       });

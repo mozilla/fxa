@@ -10,20 +10,17 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const Strings = require('lib/strings');
   const t = require('views/base').t;
   const Tooltip = require('views/tooltip');
 
   // this link is not suitable for L10N and should be available in only `en` locales.
-  const MORE_INFO_LINK = '<a href="/support/create_secure_password">Need inspiration?</a>';
   const CHECK_PASSWORD_FIELD_SELECTOR = '.check-password';
   const INPUT_HELP_FOCUSED = '.input-help-focused';
   const TOOLTIP_MESSAGES = {
     FOCUS_PROMPT_MESSAGE: t('8 characters minimum, but longer if you plan to sync passwords.'),
     INITIAL_PROMPT_MESSAGE: t('A strong, unique password will keep your Firefox data safe from intruders.'),
     WARNING_PROMPT_MESSAGE: t('This is a common password; please consider another one.'),
-    WARNING_PROMPT_MESSAGE_WITH_LINK: Strings.interpolate(
-      t('This is a common password; please consider another one. %(moreInfoLink)s'), { moreInfoLink: MORE_INFO_LINK })
+    WARNING_PROMPT_MESSAGE_WITH_LINK: t('This is a common password; please consider another one.')
   };
 
   const PasswordPromptMixin = {

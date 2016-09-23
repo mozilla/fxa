@@ -173,7 +173,6 @@ function (Translator, Session) {
     '../tests/spec/views/sign_in',
     '../tests/spec/views/sign_up',
     '../tests/spec/views/sub_panels',
-    '../tests/spec/views/support/create_secure_password',
     '../tests/spec/views/tooltip',
     '../tests/spec/views/tos'
   ];
