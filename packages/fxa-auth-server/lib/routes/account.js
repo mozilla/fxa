@@ -321,7 +321,7 @@ module.exports = function (
               name: 'account.create',
               uid: account.uid,
               ipAddr: request.app.clientAddress,
-              sessionTokenId: sessionToken.tokenId
+              tokenId: sessionToken.tokenId
             })
           }
         }
@@ -713,7 +713,7 @@ module.exports = function (
               name: 'account.login',
               uid: emailRecord.uid,
               ipAddr: request.app.clientAddress,
-              sessionTokenId: sessionToken && sessionToken.tokenId
+              tokenId: sessionToken && sessionToken.tokenId
             })
           }
         }
@@ -1678,7 +1678,7 @@ module.exports = function (
               name: 'account.reset',
               uid: account.uid,
               ipAddr: request.app.clientAddress,
-              sessionTokenId: sessionToken && sessionToken.tokenId
+              tokenId: sessionToken && sessionToken.tokenId
             })
           }
         }

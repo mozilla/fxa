@@ -778,7 +778,7 @@ module.exports = function (
       securityEvent: event
     })
 
-    return this.pool.post('/securityEvents', event)
+    return this.pool.post('/securityEvents', unbuffer(event))
   }
 
   DB.prototype.securityEvents = function (params) {
@@ -787,7 +787,7 @@ module.exports = function (
       params: params
     })
 
-    return this.pool.get('/securityEvents', params)
+    return this.pool.get('/securityEvents/' + params.uid.toString('hex') + '/ip/' + params.ipAddr)
   }
 
   return DB

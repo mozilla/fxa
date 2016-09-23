@@ -550,6 +550,48 @@ test(
 )
 
 test(
+  'db.securityEvent',
+  function (t) {
+    return dbConn.then(function(db) {
+      return db.securityEvent({
+        ipAddr: '127.0.0.1',
+        name: 'account.create',
+        uid: ACCOUNT.uid
+      })
+      .then(function(resp) {
+        t.equal(typeof resp, 'object')
+        t.equal(Object.keys(resp).length, 0)
+
+        return db.securityEvent({
+          ipAddr: '127.0.0.1',
+          name: 'account.login',
+          uid: ACCOUNT.uid
+        })
+      })
+      .then(function(resp) {
+        t.equal(typeof resp, 'object')
+        t.equal(Object.keys(resp).length, 0)
+      })
+    })
+  }
+)
+
+test(
+  'db.securityEvents',
+  function (t) {
+    return dbConn.then(function(db) {
+      return db.securityEvents({
+        ipAddr: '127.0.0.1',
+        uid: ACCOUNT.uid
+      })
+      .then(function (events) {
+        t.equal(events.length, 2)
+      })
+    })
+  }
+)
+
+test(
   'account deletion',
   function (t) {
     return dbConn.then(function(db) {
