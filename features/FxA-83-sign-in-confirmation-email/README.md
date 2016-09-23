@@ -222,28 +222,57 @@ against unverified tokens.
 
 ## Results
 
-Sign-in confirmation was deployed over several train cycles.
-The feature was turned on at 6-24-2016 for 2% of our users and
-gradually increased to 100%. During the deployment we monitored
-the sign-in success and error rates to ensure that users were
-not negatively impacted.
+Sign-in confirmation was deployed over several
+train cycles. The feature was turned on at 6-24-2016
+for 2% of our users and gradually increased to 100%.
+During the deployment we monitored the sign-in success
+and error rates to ensure that users were not negatively
+impacted.
 
 To help gauge the success of the feature, several dashboards
 were created.
 
 ### Sync sign-in success rate
 
-Pre sign-in confirmation metrics show that we had between a 42% to 52%
-sync sign-in success rate. From [first dashboard](https://app.datadoghq.com/dash/163668/fxa-content---signin-confirmation), with sign-in confirmation, we have maintained this sign-in rate.
+Pre sign-in confirmation metrics show that we had
+between a 42% to 52% sync sign-in success rate.
+From [first dashboard](https://app.datadoghq.com/dash/163668/fxa-content---signin-confirmation), with sign-in confirmation, we have maintained this sign-in rate.
 
 <img src="sync-sign-in-success-rate.png" height="300">
 
-This meets our original goal of not effecting this metric.
+This meets our original goal of not affecting this metric.
 
 ### Sign-in success rate
 
-Pre sign-in confirmation, if a user entered their password correctly, they
-were able to login and therefore had a 100% sign-in rate. After deployment
-this rate dropped to 84%.
+Pre sign-in confirmation, if a user entered their
+password correctly, they were able to login and therefore
+had a 100% sign-in rate. After deployment this rate
+dropped to 84%.
 
 <img src="sign-in-success-rate.png" height="300">
+
+To help further confirm this feature, we created a [second dashboard](https://kibana.fxa.us-west-2.prod.mozaws.net/#/dashboard/elasticsearch/FxA%20Sign-in%20Confirmation)
+based on server-side metrics. Looking
+at the raw counts, this is roughly
+a sign-in success rate of 91.7%. Orange line (sign-in start) / Red (sign-in complete)
+
+<img src="sign-in-success-server.png" height="300">
+
+The difference between these two metrics was significant
+enough to warrant further investigation. Using some of
+the new flow metrics, we were able to create a chart
+showing the average time a user takes to perform a
+sign-in confirmation.
+
+<img src="sign-in-success-time.png" height="300">
+
+This chart shows that most users complete sign-in
+confirmation within an hour. Unfortunately, this
+chart alone can not explain the difference between the other
+metrics.
+
+The another thing that could account for the difference
+in these metrics is that one method might not be emitting
+or emitting twice, for different scenarios. The true
+sign-in confirmation success rate could possibly be a
+mix of these metrics.
