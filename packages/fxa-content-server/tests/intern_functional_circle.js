@@ -12,6 +12,7 @@ define([
     'tests/functional/sync_sign_in',
     'tests/functional/sign_up',
     'tests/functional/complete_sign_up',
+    'tests/functional/complete_sign_in',
     'tests/functional/sync_sign_up',
     'tests/functional/sync_v2_sign_up',
     'tests/functional/sync_v2_sign_in',

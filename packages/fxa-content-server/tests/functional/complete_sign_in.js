@@ -81,11 +81,11 @@ define([
       var url = PAGE_COMPLETE_SIGNIN_URL + '?uid=' + uid + '&code=' + code;
 
       return this.remote
-        .then(openPage(this, url, '#fxa-verification-link-expired-header'))
+        .then(openPage(this, url, '#fxa-verification-link-reused-header'))
 
         // Ensure that a link expired error message is displayed
         // rather than a damaged link error
-        .then(testElementExists('#fxa-verification-link-expired-header'))
+        .then(testElementExists('#fxa-verification-link-reused-header'))
         .then(noSuchElement(this, '#resend'));
     },
 
