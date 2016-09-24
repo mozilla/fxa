@@ -1,3 +1,18 @@
+<a name="0.70.0"></a>
+# [0.70.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v0.69.0...v0.70.0) (2016-09-24)
+
+
+### Bug Fixes
+
+* **security:** Fix the endpoints for /securityEvents. ([5dfd5f8](https://github.com/mozilla/fxa-auth-db-mysql/commit/5dfd5f8)), closes [#171](https://github.com/mozilla/fxa-auth-db-mysql/issues/171)
+
+### Features
+
+* **db:** return account.email from accountDevices ([b090367](https://github.com/mozilla/fxa-auth-db-mysql/commit/b090367))
+* **security:** add security events ([cc31172](https://github.com/mozilla/fxa-auth-db-mysql/commit/cc31172))
+
+
+
 <a name="0.69.0"></a>
 # [0.69.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v0.68.0...v0.69.0) (2016-09-09)
 
