@@ -1,3 +1,13 @@
+<a name="1.70.0"></a>
+# [1.70.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.69.0...v1.70.0) (2016-09-24)
+
+
+### Features
+
+* **headers:** Add email template name to headers sent (#213) r=vladikoff ([17ca63a](https://github.com/mozilla/fxa-auth-mailer/commit/17ca63a))
+
+
+
 <a name="1.69.0"></a>
 # [1.69.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.68.0...v1.69.0) (2016-09-09)
 
