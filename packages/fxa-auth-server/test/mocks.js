@@ -14,17 +14,17 @@ var crypto = require('crypto')
 var DB_METHOD_NAMES = ['account', 'createAccount', 'createDevice', 'createKeyFetchToken',
                        'createPasswordForgotToken', 'createSessionToken', 'deleteAccount',
                        'deleteDevice', 'deleteKeyFetchToken', 'deletePasswordChangeToken',
-                       'deleteVerificationReminder', 'devices', 'emailRecord', 'resetAccount',
-                       'securityEvent', 'securityEvents', 'sessions',
+                       'deleteVerificationReminder', 'devices', 'emailRecord', 'forgotPasswordVerified',
+                       'resetAccount', 'securityEvent', 'securityEvents', 'sessions',
                        'sessionTokenWithVerificationStatus', 'updateDevice', 'updateLocale',
-                       'updateSessionToken', 'verifyEmail', 'verifyTokens']
+                       'updateSessionToken', 'verifyEmail', 'verifyTokens',]
 
 var LOG_METHOD_NAMES = ['trace', 'increment', 'info', 'error', 'begin', 'warn', 'timing',
                         'activityEvent', 'flowEvent', 'notifyAttachedServices']
 
 var MAILER_METHOD_NAMES = ['sendVerifyCode', 'sendVerifyLoginEmail',
                            'sendNewDeviceLoginNotification', 'sendPasswordChangedNotification',
-                           'sendPostVerifyEmail']
+                           'sendPasswordResetNotification', 'sendPostVerifyEmail']
 
 var METRICS_CONTEXT_METHOD_NAMES = ['stash', 'gather', 'validate']
 
@@ -125,6 +125,9 @@ function mockDB (data, errors) {
         uid: data.uid,
         wrapWrapKb: crypto.randomBytes(32)
       })
+    }),
+    forgotPasswordVerified: sinon.spy(function () {
+      return P.resolve(data.accountResetToken)
     }),
     securityEvents: sinon.spy(function () {
       return P.resolve([])

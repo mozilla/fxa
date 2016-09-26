@@ -1451,16 +1451,17 @@ test('/recovery_email/verify_code', function (t) {
   var mockLog = mocks.spyLog()
   var mockMailer = mocks.mockMailer()
   const mockPush = mocks.mockPush()
+  var mockCustoms = {
+    check: sinon.spy(function () {
+      return P.resolve()
+    })
+  }
   var accountRoutes = makeRoutes({
     checkPassword: function () {
       return P.resolve(true)
     },
     config: {},
-    customs: {
-      check: function () {
-        return P.resolve()
-      }
-    },
+    customs: mockCustoms,
     db: mockDB,
     log: mockLog,
     mailer: mockMailer,
@@ -1474,6 +1475,7 @@ test('/recovery_email/verify_code', function (t) {
       return runTest(route, mockRequest, function (response) {
         t.equal(mockDB.verifyTokens.callCount, 1, 'calls verifyTokens')
         t.equal(mockDB.verifyEmail.callCount, 1, 'calls verifyEmail')
+        t.equal(mockCustoms.check.callCount, 1, 'calls customs.check')
         t.equal(mockLog.notifyAttachedServices.callCount, 1, 'logs verified')
 
         t.equal(mockMailer.sendPostVerifyEmail.callCount, 1, 'sendPostVerifyEmail was called once')
