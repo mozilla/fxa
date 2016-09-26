@@ -81,10 +81,12 @@ in a successful flow:
 |Name|Origin|Description|
 |----|------|-----------|
 |`flow.begin`|content|User has landed on a page that allows them to log in or sign up.|
-|`login.engage`|content|User has interacted with the login form at `/signin` or `/force_auth`.|
-|`signup.engage`|content|User has interacted with the signup form at `/signup`.|
-|`login.submit`|content|User has submitted the login form at `/signin` or `/force_auth`.|
-|`signup.submit`|content|User has submitted the signup form at `/signup`. It is a valid flow for this event to be followed by `account.login`, because the content server allows users to log in from `/signup`.|
+|`flow.signup.engage`|content|User has interacted with the signup form at `/signup`.|
+|`flow.signin.engage`|content|User has interacted with the login form at `/signin`.|
+|`flow.force_auth.engage`|content|User has interacted with the login form at `/force_auth`.|
+|`flow.signup.submit`|content|User has submitted the signup form at `/signup`. It is a valid flow for this event to be followed by `account.login`, because the content server allows users to log in from `/signup`.|
+|`flow.signin.submit`|content|User has submitted the login form at `/signin`.|
+|`flow.force_auth.submit`|content|User has submitted the login form at `/force_auth`.|
 |`account.login`|auth|User’s credentials are correct.|
 |`account.created`|auth|Account has been created.|
 |`device.created`|auth|Device record has been created.|
@@ -94,13 +96,14 @@ in a successful flow:
 |`account.verified`|auth|Email address for new account has been verified.|
 |`account.keyfetch`|auth|Key-fetch token has been created.|
 |`account.signed`|auth|Client has successfully signed cert (i.e. “device connected”).|
+|`flow.completed`|User has successfully completed a login or sign-up flow.|
 
-For a typical successful login flow,
+For a typical successful Sync login flow,
 the sequence of events would be:
 
 * `flow.begin`
-* `flow.engage`
-* `flow.submit`
+* `flow.signin.engage`
+* `flow.signin.submit`
 * `account.login`
 * `email.sent`
 * `device.created`
@@ -108,13 +111,14 @@ the sequence of events would be:
 * `account.confirmed`
 * `account.keyfetch`
 * `account.signed`
+* `flow.completed`
 
-For a typical successful signup flow,
+For a typical successful Sync signup flow,
 the sequence of events would be:
 
 * `flow.begin`
-* `flow.engage`
-* `flow.submit`
+* `flow.signup.engage`
+* `flow.signup.submit`
 * `account.created`
 * `email.sent`
 * `device.created`
@@ -122,6 +126,7 @@ the sequence of events would be:
 * `account.verified`
 * `account.keyfetch`
 * `account.signed`
+* `flow.completed`
 
 We will also emit flow events
 for error conditions,
