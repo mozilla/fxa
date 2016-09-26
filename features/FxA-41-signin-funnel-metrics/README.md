@@ -81,10 +81,12 @@ in a successful flow:
 |Name|Origin|Description|
 |----|------|-----------|
 |`flow.begin`|content|User has landed on a page that allows them to log in or sign up.|
-|`login.engage`|content|User has interacted with the login form at `/signin` or `/force_auth`.|
-|`signup.engage`|content|User has interacted with the signup form at `/signup`.|
-|`login.submit`|content|User has submitted the login form at `/signin` or `/force_auth`.|
-|`signup.submit`|content|User has submitted the signup form at `/signup`. It is a valid flow for this event to be followed by `account.login`, because the content server allows users to log in from `/signup`.|
+|`flow.signup.engage`|content|User has interacted with the signup form at `/signup`.|
+|`flow.signin.engage`|content|User has interacted with the login form at `/signin`.|
+|`flow.force_auth.engage`|content|User has interacted with the login form at `/force_auth`.|
+|`flow.signup.submit`|content|User has submitted the signup form at `/signup`. It is a valid flow for this event to be followed by `account.login`, because the content server allows users to log in from `/signup`.|
+|`flow.signin.submit`|content|User has submitted the login form at `/signin`.|
+|`flow.force_auth.submit`|content|User has submitted the login form at `/force_auth`.|
 |`account.login`|auth|User’s credentials are correct.|
 |`account.created`|auth|Account has been created.|
 |`device.created`|auth|Device record has been created.|
@@ -99,8 +101,8 @@ For a typical successful login flow,
 the sequence of events would be:
 
 * `flow.begin`
-* `flow.engage`
-* `flow.submit`
+* `flow.signin.engage`
+* `flow.signin.submit`
 * `account.login`
 * `email.sent`
 * `device.created`
@@ -113,8 +115,8 @@ For a typical successful signup flow,
 the sequence of events would be:
 
 * `flow.begin`
-* `flow.engage`
-* `flow.submit`
+* `flow.signup.engage`
+* `flow.signup.submit`
 * `account.created`
 * `email.sent`
 * `device.created`
