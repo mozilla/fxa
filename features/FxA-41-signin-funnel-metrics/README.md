@@ -97,7 +97,7 @@ in a successful flow:
 |`account.keyfetch`|auth|Key-fetch token has been created.|
 |`account.signed`|auth|Client has successfully signed cert (i.e. “device connected”).|
 
-For a typical successful login flow,
+For a typical successful Sync login flow,
 the sequence of events would be:
 
 * `flow.begin`
@@ -111,7 +111,7 @@ the sequence of events would be:
 * `account.keyfetch`
 * `account.signed`
 
-For a typical successful signup flow,
+For a typical successful Sync signup flow,
 the sequence of events would be:
 
 * `flow.begin`
