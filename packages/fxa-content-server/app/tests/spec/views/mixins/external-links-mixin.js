@@ -82,6 +82,13 @@ define(function (require, exports, module) {
         assert.notEqual(
          $internalLink.attr('rel'),'noopener noreferrer');
       });
+
+      it('does not convert if text and the href are the same', () => {
+        assert.equal(
+          typeof view.$('#data-visible-url-not-added').attr('data-visible-url'),
+          'undefined'
+        );
+      });
     });
   });
 });

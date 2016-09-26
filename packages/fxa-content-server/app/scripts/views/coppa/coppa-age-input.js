@@ -5,25 +5,23 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var Cocktail = require('cocktail');
-  var FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
-  var FormView = require('views/form');
-  var KeyCodes = require('lib/key-codes');
-  var Template = require('stache!templates/partial/coppa-age-input');
+  const AuthErrors = require('lib/auth-errors');
+  const Cocktail = require('cocktail');
+  const FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
+  const FormView = require('views/form');
+  const KeyCodes = require('lib/key-codes');
+  const Template = require('stache!templates/partial/coppa-age-input');
 
-  var CUTOFF_AGE = 13;
-  var AGE_ELEMENT = '#age';
-  var AGE_SIZE_LIMIT = 3;
+  const AGE_ELEMENT = '#age';
+  const AGE_SIZE_LIMIT = 3;
+  const CUTOFF_AGE = 13;
 
-  var View = FormView.extend({
-
+  const proto = FormView.prototype;
+  const View = FormView.extend({
     template: Template,
     className: 'coppa-age-input',
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize (options = {}) {
       this._formPrefill = options.formPrefill;
     },
 
@@ -38,7 +36,7 @@ define(function (require, exports, module) {
      * @method isUserOldEnough
      * @return {Boolean} true if user is old enough, false otw.
      */
-    isUserOldEnough: function () {
+    isUserOldEnough () {
       return this._getAge() >= CUTOFF_AGE;
     },
 
@@ -47,11 +45,11 @@ define(function (require, exports, module) {
      * @method hasValue
      * @return {Boolean} true if the element has text, false otherwise.
      * */
-    hasValue: function () {
+    hasValue () {
       return !! this.getElementValue(AGE_ELEMENT);
     },
 
-    onInput: function () {
+    onInput () {
       // limit age to only 3 characters
       var age = this.$(AGE_ELEMENT);
       if (age.val().length > AGE_SIZE_LIMIT) {
@@ -59,7 +57,7 @@ define(function (require, exports, module) {
       }
     },
 
-    onKeyDown: function (event) {
+    onKeyDown (event) {
       // helper function to check for digit
       function isKeyADigitOrSpecialCharacter (keyCode) {
         return (
@@ -80,8 +78,9 @@ define(function (require, exports, module) {
       }
     },
 
-    afterRender: function () {
+    afterRender () {
       this._selectPrefillAge('age');
+      return proto.afterRender.call(this);
     },
 
     /**
@@ -89,7 +88,7 @@ define(function (require, exports, module) {
      *
      * @method showValidationErrorsEnd
      */
-    showValidationErrorsEnd: function () {
+    showValidationErrorsEnd () {
       if (! this._validateAge()) {
         this.showValidationError(AGE_ELEMENT, AuthErrors.toError('AGE_REQUIRED'));
       }
@@ -102,19 +101,19 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    isValid: function () {
+    isValid () {
       return this._validateAge();
     },
 
-    _validateAge: function () {
+    _validateAge () {
       return ! isNaN(this._getAge());
     },
 
-    _getAge: function () {
+    _getAge () {
       return parseInt(this.$(AGE_ELEMENT).val(), 10);
     },
 
-    _selectPrefillAge: function (context) {
+    _selectPrefillAge (context) {
       var prefillYear = this._formPrefill.get(context);
       if (prefillYear) {
         var ageEl = this.$(AGE_ELEMENT);
@@ -123,7 +122,7 @@ define(function (require, exports, module) {
       }
     },
 
-    beforeDestroy: function () {
+    beforeDestroy () {
       this._formPrefill.set('age', this.$(AGE_ELEMENT).val());
     }
   });

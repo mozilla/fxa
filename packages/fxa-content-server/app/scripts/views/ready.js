@@ -10,30 +10,29 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Cocktail = require('cocktail');
-  var Constants = require('lib/constants');
-  var FormView = require('views/form');
-  var MarketingSnippet = require('views/marketing_snippet');
-  var MarketingSnippetiOS = require('views/marketing_snippet_ios');
-  var ServiceMixin = require('views/mixins/service-mixin');
-  var Template = require('stache!templates/ready');
-  var Url = require('lib/url');
-  var VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
+  const Cocktail = require('cocktail');
+  const Constants = require('lib/constants');
+  const FormView = require('views/form');
+  const MarketingSnippet = require('views/marketing_snippet');
+  const MarketingSnippetiOS = require('views/marketing_snippet_ios');
+  const p = require('lib/promise');
+  const ServiceMixin = require('views/mixins/service-mixin');
+  const Template = require('stache!templates/ready');
+  const Url = require('lib/url');
+  const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
-  function t(msg) {
-    return msg;
-  }
+  const t = msg => msg;
 
   /*eslint-disable camelcase*/
 
-  var FX_SYNC_WILL_BEGIN_MOMENTARILY =
+  const FX_SYNC_WILL_BEGIN_MOMENTARILY =
           t('Firefox Sync will begin momentarily');
 
   /**
    * Some template strings are fetched from JS to keep
    * the template marginally cleaner and easier to read.
    */
-  var TEMPLATE_INFO = {
+  const TEMPLATE_INFO = {
     FORCE_AUTH: {
       headerId: 'fxa-force-auth-complete-header',
       headerTitle: t('Welcome back'),
@@ -59,7 +58,8 @@ define(function (require, exports, module) {
 
   /*eslint-enable camelcase*/
 
-  var View = FormView.extend({
+  const proto = FormView.prototype;
+  const View = FormView.extend({
     template: Template,
     className: 'ready',
 
@@ -152,16 +152,17 @@ define(function (require, exports, module) {
                  this.broker.hasCapability('syncPreferencesNotification'));
     },
 
-    afterRender: function () {
+    afterRender () {
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
 
-      return this._createMarketingSnippet();
+      return this._createMarketingSnippet()
+        .then(proto.afterRender.bind(this));
     },
 
-    _createMarketingSnippet: function () {
+    _createMarketingSnippet () {
       if (! this.broker.hasCapability('emailVerificationMarketingSnippet')) {
-        return;
+        return p();
       }
 
       var marketingSnippetOpts = {

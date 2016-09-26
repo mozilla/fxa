@@ -6,7 +6,6 @@ define(function (require, exports, module) {
   'use strict';
 
   var AuthErrors = require('lib/auth-errors');
-  var BaseView = require('views/base');
   var Cocktail = require('cocktail');
   var FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
   var FormView = require('views/form');
@@ -17,11 +16,12 @@ define(function (require, exports, module) {
   var ResendMixin = require('views/mixins/resend-mixin');
   var ServiceMixin = require('views/mixins/service-mixin');
   var Template = require('stache!templates/complete_reset_password');
+  var { t } = require('views/base');
   var Url = require('lib/url');
   var VerificationInfo = require('models/verification/reset-password');
 
-  var t = BaseView.t;
-  var View = FormView.extend({
+  const proto = FormView.prototype;
+  const View = FormView.extend({
     template: Template,
     className: 'complete-reset-password',
 
@@ -56,10 +56,11 @@ define(function (require, exports, module) {
         });
     },
 
-    afterRender: function () {
+    afterVisible () {
       // The originating tab will start listening for `login` events once
       // it knows the complete reset password tab is open in the same browser.
       this.notifier.triggerRemote(Notifier.COMPLETE_RESET_PASSWORD_TAB_OPEN);
+      return proto.afterVisible.call(this);
     },
 
     context: function () {

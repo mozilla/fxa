@@ -34,6 +34,9 @@ define(function (require, exports, module) {
       windowMock.location.pathname = '/legal/terms';
 
       view = new View({
+        broker: {
+          hasCapability: () => true
+        },
         window: windowMock,
         xhr: xhrMock
       });

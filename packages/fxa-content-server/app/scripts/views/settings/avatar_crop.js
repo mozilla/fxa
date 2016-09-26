@@ -20,7 +20,8 @@ define(function (require, exports, module) {
   var HORIZONTAL_GUTTER = 90;
   var VERTICAL_GUTTER = 0;
 
-  var View = FormView.extend({
+  const proto = FormView.prototype;
+  const View = FormView.extend({
     template: Template,
     className: 'avatar-crop',
     viewName: 'settings.avatar.crop',
@@ -45,8 +46,8 @@ define(function (require, exports, module) {
     },
 
     afterRender: function () {
-      FormView.prototype.afterRender.call(this);
       this.canvas = this.$('canvas')[0];
+      return proto.afterRender.call(this);
     },
 
     afterVisible: function () {
@@ -82,6 +83,8 @@ define(function (require, exports, module) {
           error: AuthErrors.toMessage('UNUSABLE_IMAGE')
         });
       }
+
+      return proto.afterVisible.call(this);
     },
 
     toBlob: function () {

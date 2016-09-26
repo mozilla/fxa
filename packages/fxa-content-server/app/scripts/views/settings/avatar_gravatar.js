@@ -27,7 +27,8 @@ define(function (require, exports, module) {
   var DISPLAY_LENGTH = Constants.PROFILE_IMAGE_DISPLAY_SIZE;
   var GRAVATAR_URL = 'https://secure.gravatar.com/avatar/';
 
-  var View = FormView.extend({
+  const proto = FormView.prototype;
+  const View = FormView.extend({
     template: Template,
     className: 'avatar-gravatar',
     viewName: 'settings.avatar.gravatar',
@@ -38,10 +39,12 @@ define(function (require, exports, module) {
       };
     },
 
-    afterRender: function () {
+    afterRender () {
       if (! this.gravatar) {
         this._showGravatar();
       }
+
+      return proto.afterRender.call(this);
     },
 
     _showGravatar: showProgressIndicator(function () {

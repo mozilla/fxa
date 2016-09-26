@@ -83,7 +83,8 @@ define(function (require, exports, module) {
         return p(isPasswordResetComplete);
       });
 
-      return view.render();
+      return view.render()
+        .then(() => $('#container').html(view.$el));
     });
 
     afterEach(function () {
@@ -286,6 +287,7 @@ define(function (require, exports, module) {
       describe('non-direct-access', function () {
         beforeEach(function () {
           view.$('[type=password]').val(PASSWORD);
+          view.enableForm();
 
           sinon.stub(user, 'completeAccountPasswordReset', function (account) {
             account.set('verified', true);
@@ -344,6 +346,7 @@ define(function (require, exports, module) {
 
         beforeEach(function () {
           view.$('[type=password]').val(PASSWORD);
+          view.enableForm();
 
           sinon.stub(user, 'completeAccountPasswordReset', function (_account) {
             account = _account;
@@ -375,6 +378,7 @@ define(function (require, exports, module) {
           relier.set('resetPasswordConfirm', false);
 
           view.$('[type=password]').val(PASSWORD);
+          view.enableForm();
 
           sinon.stub(user, 'completeAccountPasswordReset', function (account) {
             return p(account);
@@ -398,6 +402,7 @@ define(function (require, exports, module) {
 
       it('reload view to allow user to resend an email on INVALID_TOKEN error', function () {
         view.$('[type=password]').val('password');
+        view.enableForm();
 
         sinon.stub(view.fxaClient, 'completePasswordReset', function () {
           return p.reject(AuthErrors.toError('INVALID_TOKEN'));
@@ -417,6 +422,7 @@ define(function (require, exports, module) {
 
       it('shows error message if server returns an error', function () {
         view.$('[type=password]').val('password');
+        view.enableForm();
 
         sinon.stub(view.fxaClient, 'completePasswordReset', function () {
           return p.reject(new Error('uh oh'));

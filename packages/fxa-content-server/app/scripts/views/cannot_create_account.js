@@ -5,12 +5,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseView = require('views/base');
-  var CannotCreateAccountTemplate = require('stache!templates/cannot_create_account');
-  var Cocktail = require('cocktail');
-  var ExternalLinksMixin = require('views/mixins/external-links-mixin');
+  const BaseView = require('views/base');
+  const CannotCreateAccountTemplate = require('stache!templates/cannot_create_account');
 
-  var CannotCreateAccountView = BaseView.extend({
+  const CannotCreateAccountView = BaseView.extend({
     template: CannotCreateAccountTemplate,
     className: 'cannot-create-account',
 
@@ -21,11 +19,6 @@ define(function (require, exports, module) {
     }
 
   });
-
-  Cocktail.mixin(
-    CannotCreateAccountView,
-    ExternalLinksMixin
-  );
 
   module.exports = CannotCreateAccountView;
 });

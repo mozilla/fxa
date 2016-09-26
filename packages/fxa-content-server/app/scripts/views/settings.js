@@ -45,7 +45,8 @@ define(function (require, exports, module) {
     GravatarPermissionsView
   ];
 
-  var View = BaseView.extend({
+  const proto = BaseView.prototype;
+  const View = BaseView.extend({
     template: Template,
     className: 'settings',
     layoutClassName: 'settings',
@@ -155,23 +156,22 @@ define(function (require, exports, module) {
         });
     },
 
-    afterRender: function () {
+    afterRender () {
       this._subPanels.setElement(this.$('#sub-panels')[0]);
-      return this._subPanels.render();
+      return this._subPanels.render()
+        .then(proto.afterRender.bind(this));
     },
 
-    afterVisible: function () {
-      var self = this;
-      BaseView.prototype.afterVisible.call(self);
-
+    afterVisible () {
       // Clients may link to the settings page with a `setting` query param
       // so that that field can be displayed/focused.
-      if (self.relier.get('setting') === 'avatar') {
-        self.relier.set('setting', null);
-        self.navigate('settings/avatar/change');
+      if (this.relier.get('setting') === 'avatar') {
+        this.relier.set('setting', null);
+        this.navigate('settings/avatar/change');
       }
 
-      return self._showAvatar();
+      return proto.afterVisible.call(this)
+        .then(this._showAvatar.bind(this));
     },
 
     // When the user adds, removes or changes a display name

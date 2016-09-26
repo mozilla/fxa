@@ -21,7 +21,8 @@ define(function (require, exports, module) {
 
   var t = BaseView.t;
 
-  var View = BaseView.extend({
+  const proto = BaseView.prototype;
+  const View = BaseView.extend({
     template: Template,
     className: 'confirm',
 
@@ -86,28 +87,25 @@ define(function (require, exports, module) {
       }
     },
 
-    afterRender: function () {
+    afterRender () {
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
 
       this.transformLinks();
+      return proto.afterRender.call(this);
     },
 
-    afterVisible: function () {
-      var self = this;
-
+    afterVisible () {
       // the view is always rendered, but the confirmation poll may be
       // prevented by the broker. An example is Firefox Desktop where the
       // browser is already performing a poll, so a second poll is not needed.
-
-      return self.broker.persistVerificationData(self.getAccount())
-        .then(function () {
-          return self.invokeBrokerMethod(
-                    'beforeSignUpConfirmationPoll', self.getAccount());
-        })
-        .then(function () {
-          return self._startPolling();
-        });
+      const account = this.getAccount();
+      return proto.afterVisible.call(this)
+        .then(() => this.broker.persistVerificationData(account))
+        .then(() =>
+          this.invokeBrokerMethod('beforeSignUpConfirmationPoll', account)
+        )
+        .then(() => this._startPolling());
     },
 
     _startPolling: function () {

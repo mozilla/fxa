@@ -71,7 +71,7 @@ define(function (require, exports, module) {
       'submit form': BaseView.preventDefaultThen('validateAndSubmit')
     },
 
-    afterRender: function () {
+    afterRender () {
       // Firefox has a strange issue where if the previous
       // screen was submit using the keyboard, the `enter` key's
       // `keyup` event fires here on the element that receives
@@ -86,7 +86,7 @@ define(function (require, exports, module) {
         this.enableSubmitIfValid();
       }
 
-      proto.afterRender.call(this);
+      return proto.afterRender.call(this);
     },
 
     /**

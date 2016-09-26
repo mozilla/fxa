@@ -10,21 +10,35 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
+  const $ = require('jquery');
 
-  return {
-    afterRender: function () {
+  function shouldConvertExternalLinksToText(broker) {
+    // not all views have a broker, e.g., the CoppaAgeInput
+    // has no need for a broker.
+    return broker && broker.hasCapability('convertExternalLinksToText');
+  }
+
+  function convertToVisibleLink (el) {
+    const $el = $(el);
+    const href = $el.attr('href');
+    const text = $el.text();
+
+    if (href && href !== text) {
+      $el
+        .addClass('visible-url')
+        .attr('data-visible-url', $el.attr('href'));
+    }
+  }
+
+  module.exports = {
+    afterRender () {
       this.$('a[href^=http]').each(function (index, el) {
         var $el = $(el);
         $el.attr('rel','noopener noreferrer');
       });
-      if (this.broker.hasCapability('convertExternalLinksToText')) {
-        this.$('a[href^=http]').each(function (index, el) {
-          var $el = $(el);
-          $el
-            .addClass('visible-url')
-            .attr('data-visible-url', $el.attr('href'));
-        });
+
+      if (shouldConvertExternalLinksToText(this.broker)) {
+        this.$('a[href^=http]').each((index, el) => convertToVisibleLink(el));
       }
     }
   };

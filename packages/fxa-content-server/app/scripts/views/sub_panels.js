@@ -12,7 +12,8 @@ define(function (require, exports, module) {
   var p = require('lib/promise');
   var Template = require('stache!templates/sub_panels');
 
-  var View = BaseView.extend({
+  const proto = BaseView.prototype;
+  const View = BaseView.extend({
     template: Template,
     className: 'sub-panels',
 
@@ -118,17 +119,16 @@ define(function (require, exports, module) {
         });
     },
 
-    afterRender: function () {
-      var self = this;
-
+    afterRender () {
       // Initial childViews to render; excludes modal views
-      var initialChildViews = self._panelViews.filter(function (ChildView) {
-        return ! self._isModalView(ChildView);
+      var initialChildViews = this._panelViews.filter((ChildView) => {
+        return ! this._isModalView(ChildView);
       });
 
-      return p.all(initialChildViews.map(function (ChildView) {
-        return self._createChildViewIfNeeded(ChildView);
-      }));
+      return p.all(initialChildViews.map((ChildView) => {
+        return this._createChildViewIfNeeded(ChildView);
+      }))
+      .then(proto.afterRender.bind(this));
     }
   });
 

@@ -8,7 +8,6 @@ define(function (require, exports, module) {
   var AuthErrors = require('lib/auth-errors');
   var BaseView = require('views/base');
   var Cocktail = require('cocktail');
-  var ExternalLinksMixin = require('views/mixins/external-links-mixin');
   var FormView = require('views/form');
   var PasswordResetMixin = require('views/mixins/password-reset-mixin');
   var ServiceMixin = require('views/mixins/service-mixin');
@@ -88,7 +87,6 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     View,
-    ExternalLinksMixin,
     PasswordResetMixin,
     ServiceMixin
   );

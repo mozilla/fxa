@@ -29,7 +29,8 @@ define(function (require, exports, module) {
   var JPEG_QUALITY = Constants.PROFILE_IMAGE_JPEG_QUALITY;
   var MIME_TYPE = Constants.DEFAULT_PROFILE_IMAGE_MIME_TYPE;
 
-  var View = FormView.extend({
+  const proto = FormView.prototype;
+  const View = FormView.extend({
     template: Template,
     className: 'avatar-camera',
     viewName: 'settings.avatar.camera',
@@ -120,7 +121,7 @@ define(function (require, exports, module) {
       }
     },
 
-    afterRender: function () {
+    afterRender () {
       this.startStream();
 
       this._avatarProgressIndicator = new ProgressIndicator();
@@ -132,6 +133,8 @@ define(function (require, exports, module) {
       this.canvas = this.$('#canvas')[0];
 
       this.video.addEventListener('loadedmetadata', _.bind(this.onLoadedMetaData, this), false);
+
+      return proto.afterRender.call(this);
     },
 
     onLoadedMetaData: function () {

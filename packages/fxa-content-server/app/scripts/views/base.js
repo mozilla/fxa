@@ -12,6 +12,7 @@ define(function (require, exports, module) {
   var Cocktail = require('cocktail');
   var domWriter = require('lib/dom-writer');
   var ErrorUtils = require('lib/error-utils');
+  var ExternalLinksMixin = require('views/mixins/external-links-mixin');
   var NotifierMixin = require('views/mixins/notifier-mixin');
   var NullMetrics = require('lib/null-metrics');
   var Logger = require('lib/logger');
@@ -362,18 +363,32 @@ define(function (require, exports, module) {
       }
     },
 
-    beforeRender: function () {
-      // Implement in subclasses. If returns false, or if returns a promise
-      // that resolves to false, then the view is not rendered.
-      // Useful if the view must immediately redirect to another view.
+    /**
+     * Called before rendering begins. If returns false, or if returns
+     * a promise that resolves to false, then the view is not
+     * rendered. Useful to immediately redirect to another view before
+     * rendering begins.
+     */
+    beforeRender () {
     },
 
-    afterRender: function () {
-      // Implement in subclasses
+    /**
+     * Called after the rendering occurs. Can be used to print an
+     * error message after the view is already rendered.
+     *
+     * @returns {Promise}
+     */
+    afterRender () {
+      // Override in subclasses
+      return p();
     },
 
-    // called after the view is visible.
-    afterVisible: function () {
+    /**
+     * Called after the view is visible.
+     *
+     * @returns {Promise}
+     */
+    afterVisible () {
       // jQuery 3.x requires the view to be visible
       // before animating the status messages.
       this.displayStatusMessages();
@@ -401,6 +416,7 @@ define(function (require, exports, module) {
       }
 
       this.focusAutofocusElement();
+      return p();
     },
 
     destroy: function (remove) {
@@ -893,6 +909,10 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     BaseView,
+    // Attach the external links mixin in case the
+    // view has any external links that need to have
+    // their behaviors modified.
+    ExternalLinksMixin,
     TimerMixin
   );
 

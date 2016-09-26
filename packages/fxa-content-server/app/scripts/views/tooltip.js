@@ -16,7 +16,8 @@ define(function (require, exports, module) {
   var PADDING_BELOW_TOOLTIP_PX = 2;
   var PADDING_ABOVE_TOOLTIP_PX = 4;
 
-  var Tooltip = BaseView.extend({
+  const proto = BaseView.prototype;
+  const Tooltip = BaseView.extend({
     tagName: 'aside',
     className: 'tooltip',
     // tracks the type of a tooltip, used for metrics purposes
@@ -39,7 +40,7 @@ define(function (require, exports, module) {
       return this.translator.get(this.message);
     },
 
-    afterRender: function () {
+    afterRender () {
       // only one tooltip at a time!
       if (displayedTooltip) {
         displayedTooltip.destroy(true);
@@ -58,6 +59,8 @@ define(function (require, exports, module) {
       }
 
       this.bindDOMEvents();
+
+      return proto.afterRender.call(this);
     },
 
     beforeDestroy: function () {

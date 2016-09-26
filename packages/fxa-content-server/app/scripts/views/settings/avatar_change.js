@@ -16,7 +16,8 @@ define(function (require, exports, module) {
   var p = require('lib/promise');
   var Template = require('stache!templates/settings/avatar_change');
 
-  var View = FormView.extend({
+  const proto = FormView.prototype;
+  const View = FormView.extend({
     template: Template,
     className: 'avatar-change',
     viewName: 'settings.avatar.change',
@@ -52,13 +53,12 @@ define(function (require, exports, module) {
       };
     },
 
-    afterVisible: function () {
-      var self = this;
-      FormView.prototype.afterVisible.call(self);
-      return self.displayAccountProfileImage(self.getAccount());
+    afterVisible () {
+      return proto.afterVisible.call(this)
+        .then(() => this.displayAccountProfileImage(this.getAccount()));
     },
 
-    afterRender: function () {
+    afterRender () {
       // Wrapper hides the browser's file picker widget so we can use
       // our own. Set the height/width to 1px by 1px so that Selenium
       // can interact with the element. The element is not visible
@@ -70,6 +70,7 @@ define(function (require, exports, module) {
         width: 1
       });
       this.$(':file').wrap(wrapper);
+      return proto.afterRender.call(this);
     },
 
     removeAvatar: function () {
