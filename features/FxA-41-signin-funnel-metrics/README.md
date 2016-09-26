@@ -96,6 +96,7 @@ in a successful flow:
 |`account.verified`|auth|Email address for new account has been verified.|
 |`account.keyfetch`|auth|Key-fetch token has been created.|
 |`account.signed`|auth|Client has successfully signed cert (i.e. “device connected”).|
+|`flow.completed`|User has successfully completed a login or sign-up flow.|
 
 For a typical successful Sync login flow,
 the sequence of events would be:
@@ -110,6 +111,7 @@ the sequence of events would be:
 * `account.confirmed`
 * `account.keyfetch`
 * `account.signed`
+* `flow.completed`
 
 For a typical successful Sync signup flow,
 the sequence of events would be:
@@ -124,6 +126,7 @@ the sequence of events would be:
 * `account.verified`
 * `account.keyfetch`
 * `account.signed`
+* `flow.completed`
 
 We will also emit flow events
 for error conditions,
