@@ -1,12 +1,12 @@
 {
   "name": "fxa-local-dev",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "An easy way to contribute to Firefox Accounts",
   "scripts": {
     "postinstall": "_scripts/postinstall.sh",
     "install-extras": "_scripts/install_extras.sh",
     "update": "./pm2 kill && _scripts/update_all.sh",
-    "start": "node _scripts/start.js",
+    "start": "fxa-dev-launcher",
     "test": "node test/functional.js --suite=full",
     "test-core": "node test/functional.js --suite=core",
     "test-oauth": "node test/functional.js --suite=oauth",
@@ -26,6 +26,7 @@
     "bluebird": "2.10.2",
     "chalk": "1.1.1",
     "foxfire": "1.0.1",
+    "fxa-dev-launcher": "vladikoff/fxa-dev-launcher",
     "minimist": "1.1.1",
     "pm2": "1.1.3",
     "replace-in-file": "0.2.1",
