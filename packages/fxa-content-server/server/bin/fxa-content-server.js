@@ -89,16 +89,20 @@ function makeApp() {
 
   app.use(routeLogging());
   app.use(cookieParser());
-  app.use(bodyParser.json());
   app.use(bodyParser.text({
     type: 'text/plain'
   }));
 
-  // chrome sends 'application/csp-report' and firefox sends 'application/json'
-  // correct is 'application/csp-report': https://w3c.github.io/webappsec/specs/content-security-policy/
+  // chrome sends 'application/csp-report' and firefox < 48 sends
+  // 'application/json'. 'application/csp-report' is correct:
+  // https://w3c.github.io/webappsec/specs/content-security-policy/
   // https://bugzilla.mozilla.org/show_bug.cgi?id=1192840
   app.use(bodyParser.json({
-    type: ['json', 'application/csp-report']
+    // the 3 entries:
+    // json file types,
+    // all json content-types
+    // csp reports
+    type: ['json', '*/json', 'application/csp-report']
   }));
 
   var ableOptions = {
