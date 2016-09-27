@@ -61,19 +61,23 @@ const conf = convict({
       default: 'aws'
     },
     providers: {
-      doc: 'Patterns to match a URL to ensure we only accept certain URLs.',
-      default: {
-        'gravatar':
-            '^https://secure\\.gravatar\\.com' +
-            '/avatar/[0-9a-f]{32}(\\?s=\\d+)?$',
-        'fxa': '^http://127.0.0.1:1112/a/[0-9a-f]{32}$'
+      gravatar: {
+        doc: 'Patterns to match a URL to ensure we only accept Gravatar URLs.',
+        default: '^https://secure\\.gravatar\\.com' +
+          '/avatar/[0-9a-f]{32}(\\?s=\\d+)?$'
+      },
+      fxa: {
+        doc: 'Patterns to match a URL to ensure we only accept certain URLs.',
+        default: '^http://127.0.0.1:1112/a/[0-9a-f]{32}$',
+        env: 'IMG_PROVIDERS_FXA'
       }
     },
     uploads: {
       dest: {
         public: {
           doc: 'Path or bucket name for images to be served publicly.',
-          default: 'BUCKET_NAME'
+          default: 'BUCKET_NAME',
+          env: 'IMG_UPLOADS_DEST_PUBLIC'
         }
       },
       maxSize: {
@@ -122,7 +126,8 @@ const conf = convict({
     },
     url: {
       doc: 'Pattern to generate FxA avatar URLs. {id} will be replaced.',
-      default: 'http://127.0.0.1:1112/a/{id}'
+      default: 'http://127.0.0.1:1112/a/{id}',
+      env: 'IMG_URL'
     }
   },
   logging: {
@@ -208,7 +213,8 @@ const conf = convict({
       default: 1113
     },
     url: {
-      default: 'http://127.0.0.1:1113'
+      default: 'http://127.0.0.1:1113',
+      env: 'WORKER_URL'
     }
   }
 });
