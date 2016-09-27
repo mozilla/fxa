@@ -165,6 +165,22 @@ Available options:
 
 *******
 
+### Firefox for Android
+
+> Skip this if you are not working on Firefox for Android and FxA.
+
+You can test sync locally in Firefox for Android using an emulator or a device on the same network. These docs were tested with the [Genymotion](https://www.genymotion.com/download) simulator.
+
+*  Install Firefox on the device or emulator.
+*  Run `npm run start-android` this will: stop all local FxA servers, create a local PM2 configuration and rerun the servers.
+
+The script will tell you which IP to use to work with FxA. 
+
+Follow the instructions of the script to update values in `about:config`.
+
+
+*******
+
 ### Firefox for iOS
 
 > Skip this if you are not working on Firefox for iOS and FxA.
@@ -195,31 +211,6 @@ and
 ```
 NODE_ENV=dev DB=mysql node bin/internal.js
 ```
-
-*******
-
-### Hello/Loop Setup
-
-> Skip this if you are not working on testing Firefox Hello.
-
-To get the Hello service setup and configured to run with a local version of Firefox Accounts, you need to run a couple commands after running `npm run postinstall` and `./pm2 start servers.json`.
-
-#### Install Hello Service
-```bash
-npm run install-extras
-```
-
-#### Start Hello service
-
-Note: The Hello Service currently only supports node version 0.10.
-
-```bash
-nvm install 0.10
-nvm exec 0.10 ./pm2 start servers_extra.json
-```
-
-#### Run
-Once services have started, run `npm start` to open Firefox with a local profile. Access the Hello service as you normally would.
 
 *******
 

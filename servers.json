@@ -21,7 +21,7 @@
       "min_uptime": "2m"
     },
     {
-      "name": "auth-server key server",
+      "name": "auth-server key server PORT 9000",
       "script": "bin/key_server.js",
       "cwd": "fxa-auth-server",
       "env": {

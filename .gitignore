@@ -5,6 +5,8 @@ loop-server
 syncserver
 selenium-*
 
+servers_android.json
+
 node_modules
 pm2
 dump.rdb
