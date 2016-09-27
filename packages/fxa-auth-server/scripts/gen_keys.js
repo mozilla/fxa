@@ -38,6 +38,13 @@ function main(cb) {
   var privKey = JwTool.JWK.fromPEM(generateRSAKeypair().private, {
     kid: '2015.12.16-1'
   });
+
+  try {
+    fs.mkdirSync('./config');
+  } catch (accessEx) {
+
+  }
+
   fs.writeFileSync(keyPath, JSON.stringify(privKey.toJSON(), undefined, 2));
   console.log('Key saved:', keyPath); //eslint-disable-line no-console
 
