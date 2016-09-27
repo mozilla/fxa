@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var Client = require('../client')
+const Client = require('../client')()
 var config = require('../../config').getProperties()
 var test = require('../ptaptest')
 var TestServer = require('../test_server')

@@ -4,7 +4,7 @@
 
 var test = require('tap').test
 var url = require('url')
-var Client = require('../client')
+const Client = require('../client')()
 var TestServer = require('../test_server')
 var crypto = require('crypto')
 var base64url = require('base64url')

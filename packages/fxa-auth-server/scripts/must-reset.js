@@ -23,7 +23,7 @@ var error = require('../lib/error')
 var log = require('../lib/log')(config.log.level)
 var P = require('../lib/promise')
 var path = require('path')
-var Token = require('../lib/tokens')(log, config.tokenLifetimes)
+var Token = require('../lib/tokens')(log, config)
 
 commandLineOptions
   .option('-i, --input <filename>', 'JSON input file')
@@ -37,7 +37,7 @@ requiredOptions.forEach(checkRequiredOption)
 
 
 var DB = require('../lib/db')(
-  config.db.backend,
+  config,
   log,
   error,
   Token.SessionToken,

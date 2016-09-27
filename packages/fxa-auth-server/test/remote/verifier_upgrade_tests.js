@@ -4,7 +4,7 @@
 
 var test = require('tap').test
 var TestServer = require('../test_server')
-var Client = require('../client')
+const Client = require('../client')()
 var createDBServer = require('fxa-auth-db-mysql')
 var log = { trace: console.log } // eslint-disable-line no-console
 
@@ -15,7 +15,7 @@ process.env.SIGNIN_CONFIRMATION_ENABLED = false
 
 var Token = require('../../lib/tokens')(log)
 var DB = require('../../lib/db')(
-  config.db.backend,
+  config,
   log,
   Token.error,
   Token.SessionToken,

@@ -5,7 +5,7 @@
 var path = require('path')
 var test = require('../ptaptest')
 var TestServer = require('../test_server')
-var Client = require('../client')
+const Client = require('../client')()
 
 process.env.CONFIG_FILES = path.join(__dirname, '../config/mock_oauth.json')
 var config = require('../../config').getProperties()

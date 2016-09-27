@@ -4,7 +4,7 @@
 
 var test = require('../ptaptest')
 var TestServer = require('../test_server')
-var Client = require('../client')
+const Client = require('../client')()
 
 test(
   'signin confirmation can be disabled',

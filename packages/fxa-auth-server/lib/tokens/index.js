@@ -2,34 +2,35 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var crypto = require('crypto')
-var inherits = require('util').inherits
+const crypto = require('crypto')
+const inherits = require('util').inherits
 
-var P = require('../promise')
-var hkdf = require('../crypto/hkdf')
-var butil = require('../crypto/butil')
+const P = require('../promise')
+const hkdf = require('../crypto/hkdf')
+const butil = require('../crypto/butil')
 
-var error = require('../error')
+const error = require('../error')
 
-module.exports = function (log, lifetimes) {
-  lifetimes = lifetimes || {
+module.exports = (log, config) => {
+  config = config || {}
+  const lifetimes = config.tokenLifetimes || {
     accountResetToken: 1000 * 60 * 15,
     passwordChangeToken: 1000 * 60 * 15,
     passwordForgotToken: 1000 * 60 * 15
   }
-  var Bundle = require('./bundle')(crypto, P, hkdf, butil, error)
-  var Token = require('./token')(log, crypto, P, hkdf, Bundle, error)
+  const Bundle = require('./bundle')(crypto, P, hkdf, butil, error)
+  const Token = require('./token')(log, crypto, P, hkdf, Bundle, error)
 
-  var KeyFetchToken = require('./key_fetch_token')(log, inherits, Token, P, error)
-  var AccountResetToken = require('./account_reset_token')(
+  const KeyFetchToken = require('./key_fetch_token')(log, inherits, Token, P, error)
+  const AccountResetToken = require('./account_reset_token')(
     log,
     inherits,
     Token,
     crypto,
     lifetimes.accountResetToken
   )
-  var SessionToken = require('./session_token')(log, inherits, Token)
-  var PasswordForgotToken = require('./password_forgot_token')(
+  const SessionToken = require('./session_token')(log, inherits, Token, config)
+  const PasswordForgotToken = require('./password_forgot_token')(
     log,
     inherits,
     Token,
@@ -37,7 +38,7 @@ module.exports = function (log, lifetimes) {
     lifetimes.passwordForgotToken
   )
 
-  var PasswordChangeToken = require('./password_change_token')(
+  const PasswordChangeToken = require('./password_change_token')(
     log,
     inherits,
     Token,

@@ -14,8 +14,8 @@ var log = { trace: console.log, info: console.log } // eslint-disable-line no-co
 var config = require('../../config').getProperties()
 var TestServer = require('../test_server')
 var Token = require('../../lib/tokens')(log)
-var DB = require('../../lib/db')(
-  config.db.backend,
+const DB = require('../../lib/db')(
+  config,
   log,
   Token.error,
   Token.SessionToken,
