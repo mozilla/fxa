@@ -45,7 +45,7 @@ app.use(function (req, res, next) {
     res.setHeader('Cache-Control', 'no-cache, max-age=0');
 
     return sessions({
-      cookieName: '123done',
+      cookieName: config.cookieName || '123done',
       secret: process.env['COOKIE_SECRET'] || 'define a real secret, please',
       requestKey: 'session',
       cookie: {
