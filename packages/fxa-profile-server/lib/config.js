@@ -46,12 +46,14 @@ const conf = convict({
     region: {
       doc: 'AWS Region of fxa account events',
       format: String,
-      default: ''
+      default: '',
+      env: 'EVENTS_REGION'
     },
     queueUrl: {
       doc: 'SQS queue url for fxa account events',
       format: String,
-      default: ''
+      default: '',
+      env: 'EVENTS_QUEUE_URL'
     }
   },
   img: {
@@ -82,7 +84,8 @@ const conf = convict({
       },
       maxSize: {
         doc: 'Maximum bytes allow for uploads',
-        default: 1024 * 1024 * 1 // 1MB
+        default: 1024 * 1024 * 1, // 1MB
+        env: 'IMG_UPLOADS_DEST_MAX_SIZE'
       },
       types: {
         doc: 'A mapping of allowed mime types and their file signatures',
@@ -110,7 +113,8 @@ const conf = convict({
       },
       maxProcesses: {
         doc: 'max child processes for compute-cluster',
-        default: Math.ceil(require('os').cpus().length * 1.25)
+        default: Math.ceil(require('os').cpus().length * 1.25),
+        env: 'IMG_COMPUTE_MAX_PROCESSES'
       }
     },
     gm: {
