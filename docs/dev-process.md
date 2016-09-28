@@ -109,8 +109,9 @@ two-week cycle, with meeting times pinned to Mozilla Standard Time (aka Pacific 
 
 ### Mondays at 08:30
 
-This is a 30 minute meeting slot followed by a bug triage session.  It's in a
-timeslot that's convenient for Europe and US-East.
+This is a 60 minute meeting slot followed by a bug triage session.  It's in a
+timeslot that's convenient for Europe and US-East. The first 30 minutes are
+dedicated to UX/PM discussion, the second 30 for Ops/dev general discussion.
 
 ##### First week: Outbound Train Review
 
@@ -163,16 +164,17 @@ We dedicate some time to discuss backend operational issues.
 
 ### Thursdays at 09:00
 
-This is a quick 15-minute checkin in a timeslot convenient for Europe and US-East.
+This is a 60-minute checkin in a timeslot convenient for Europe and US-East.
+The first 30 minutes are for general discussion, the second 30 for bug triage.
 
 ##### First week: Blockers and Calls for Help
 
-We take 15mins to checkin with each other about anything that's blocked or otherwise needs help.
+We checkin with each other about anything that's blocked or otherwise needs help.
 Items in the **blocked** column should receive special attention.
 
 ##### Second week: Items in Danger
 
-We take 15mins to identify any items that are in danger of not being completed this train, and
+We identify any items that are in danger of not being completed this train, and
 ensure we either have a plan for completing them, or take them off the train.
 
 
