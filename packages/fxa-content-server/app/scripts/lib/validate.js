@@ -34,7 +34,9 @@ define(function (require, exports, module) {
   //     in the domain (https://github.com/mozilla/fxa-content-server/issues/2199)
   // IETF spec:
   //   * http://tools.ietf.org/html/rfc5321#section-4.5.3.1.1
-  var emailRegex = /^[\w.!#$%&’*+/=?^`{|}~-]{1,64}@[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?(?:\.[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?)+$/i;
+  // '/' in the character class is (reduntantly) backslash-escaped to produce
+  // the same minimized form in node 4.x and node 0.10.
+  var emailRegex = /^[\w.!#$%&’*+\/=?^`{|}~-]{1,64}@[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?(?:\.[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?)+$/i;
 
   // A Base64 encoded JWT
   var BASE64_JWT = /^(?:[a-zA-Z0-9-_]+[=]{0,2}\.){2}[a-zA-Z0-9-_]+[=]{0,2}$/;
